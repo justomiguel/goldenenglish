@@ -59,7 +59,7 @@ export function RegisterForm({ locale, dict }: RegisterFormProps) {
       <form
         ref={formRef}
         onSubmit={onSubmit}
-        className="mx-auto max-w-lg space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-8 shadow-[var(--shadow-soft)]"
+        className="w-full max-w-lg space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-card)] ring-1 ring-[var(--color-primary)]/[0.06]"
       >
         <div>
           <Label htmlFor="rg-fn">{dict.firstName}</Label>

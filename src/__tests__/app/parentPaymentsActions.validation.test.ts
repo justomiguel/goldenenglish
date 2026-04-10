@@ -20,6 +20,29 @@ describe("submitParentPaymentReceipt validation", () => {
     });
   });
 
+  it("rejects when studentId is missing from form data", async () => {
+    const form = new FormData();
+    form.set("month", "3");
+    form.set("year", "2026");
+    form.set("amount", "10");
+    form.set(
+      "receipt",
+      new File([new Uint8Array([1])], "r.pdf", { type: "application/pdf" }),
+    );
+    expect(await submitParentPaymentReceipt(form)).toEqual({
+      ok: false,
+      message: "Invalid form",
+    });
+  });
+
+  it("rejects non-numeric month", async () => {
+    const form = fd({ month: "xx" });
+    expect(await submitParentPaymentReceipt(form)).toEqual({
+      ok: false,
+      message: "Invalid form",
+    });
+  });
+
   it("rejects non-positive amount", async () => {
     const form = fd({ amount: "0" });
     expect(await submitParentPaymentReceipt(form)).toEqual({

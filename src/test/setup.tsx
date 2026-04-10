@@ -1,8 +1,20 @@
 import "@testing-library/jest-dom/vitest";
 import React, { type ImgHTMLAttributes, type ReactNode } from "react";
-import { vi } from "vitest";
+import { beforeEach, vi } from "vitest";
+import {
+  mockPathname,
+  mockPush,
+  mockRefresh,
+  mockReplace,
+} from "@/test/navigationMock";
 
 if (typeof window !== "undefined") {
+  if (typeof File !== "undefined" && !File.prototype.text) {
+    File.prototype.text = function text(this: File) {
+      return new Response(this as Blob).text();
+    };
+  }
+
   if (!window.matchMedia) {
     window.matchMedia = (query: string) =>
       ({
@@ -56,10 +68,21 @@ vi.mock("next/link", () => ({
   },
 }));
 
-const mockPush = vi.fn();
-const mockReplace = vi.fn();
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/es",
-  useRouter: () => ({ push: mockPush, replace: mockReplace, prefetch: vi.fn() }),
+  usePathname: () => mockPathname(),
+  useRouter: () => ({
+    push: mockPush,
+    replace: mockReplace,
+    prefetch: vi.fn(),
+    refresh: mockRefresh,
+  }),
   useSearchParams: () => new URLSearchParams(),
 }));
+
+beforeEach(() => {
+  mockPathname.mockReset();
+  mockPathname.mockReturnValue("/es");
+  mockPush.mockClear();
+  mockReplace.mockClear();
+  mockRefresh.mockClear();
+});

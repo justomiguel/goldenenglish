@@ -131,6 +131,7 @@ describe("component smoke — molecules & PWA", () => {
         introLead={dictEn.landing.levels.introLead}
         introEmphasis={dictEn.landing.levels.introEmphasis}
         introTrail={dictEn.landing.levels.introTrail}
+        scaleAria={dictEn.landing.levels.scaleAria}
       />,
     );
   });

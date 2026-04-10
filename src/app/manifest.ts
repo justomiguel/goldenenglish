@@ -14,10 +14,12 @@ export default function manifest(): MetadataRoute.Manifest {
   const favDir = faviconPublicDir(brand.faviconPath);
 
   return {
+    id: "/",
     name: brand.name,
     short_name: brand.name,
     description: brand.tagline,
     start_url: "/",
+    scope: "/",
     display: "standalone",
     orientation: "portrait-primary",
     background_color: background,

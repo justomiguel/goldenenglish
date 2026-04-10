@@ -25,7 +25,7 @@ export function LandingFooterPwa({
   sessionEmail,
 }: LandingFooterPwaProps) {
   return (
-    <footer className="relative border-t border-[var(--color-primary-dark)] bg-[var(--color-primary-dark)] px-3 py-10 text-[var(--color-primary-foreground)]">
+    <footer className="relative border-t border-[var(--color-primary-dark)] bg-[var(--color-primary-dark)] px-3 pb-[max(2.25rem,env(safe-area-inset-bottom,0px))] pt-10 text-[var(--color-primary-foreground)]">
       <div
         className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--color-secondary)] via-[var(--color-accent)] to-[var(--color-primary)]"
         aria-hidden="true"

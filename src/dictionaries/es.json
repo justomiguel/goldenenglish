@@ -45,7 +45,9 @@
     "sectionsAria": "Secciones de la página",
     "accountAria": "Idioma y cuenta",
     "sectionsKicker": "Explorar",
-    "modalities": "Modalidades"
+    "sectionsScrollHint": "Deslizá para ver todas las secciones",
+    "modalities": "Modalidades",
+    "certifications": "Certificaciones"
   },
   "landing": {
     "hero": {
@@ -114,6 +116,7 @@
       "introLead": "Los niveles siguen el ",
       "introEmphasis": "Marco Común Europeo de Referencia (MCER / CEFR)",
       "introTrail": ": recorrido de A1 a C2. En C2 se describe el máximo del marco: el desempeño previsto en todas las competencias al 100% del referente.",
+      "scaleAria": "Progresión visual de niveles A1 a C2 sobre una franja de color; C2 marca el máximo del marco",
       "beginner": "Principiante",
       "intermediate": "Intermedio",
       "advanced": "Avanzado",
@@ -126,9 +129,15 @@
     },
     "certs": {
       "title": "Certificaciones y alianzas",
-      "edu": "Aval del Ministerio de Educación de Formosa (Res. 1297/05).",
-      "utn": "Convenio con la UTN — Instituto Nacional Superior del Profesorado Técnico.",
-      "cambridge": "Preparación para exámenes de Cambridge (p. ej. B2 First Certificate)."
+      "cardInstitutional": "Certificación de la institución",
+      "cardNational": "Certificación Nacional",
+      "cardInternational": "Certificación Internacional",
+      "edu": "Inscripto con el N°69 en el registro de enseñanza parasistemática del departamento de Educación Privada. Resolución ministerial N° 1297/05 Formosa.",
+      "utn": "También podés optar por una certificación nacional gracias al convenio que tenemos con la UTN Argentina.",
+      "cambridge": "Preparamos alumnos para rendir B2 First Certificate con certificación de Cambridge.",
+      "altGoldenMark": "Golden English",
+      "altUtnIngles": "Programa Inglés en la UTN — INSPT",
+      "altCambridgeUniversity": "Universidad de Cambridge"
     },
     "footerCta": "¿Arrancamos el 2026 juntos? Reservá tu lugar."
   },

@@ -32,14 +32,14 @@ export function LandingSurfaceGate({
       desktop={desktop}
       narrow={(surface) => (
         <PwaPageShell surface={surface}>
-          <div className="min-h-dvh bg-[var(--color-background)]">
+          <div className="flex min-h-dvh flex-col bg-[var(--color-background)]">
             <LandingHeaderPwa
               brand={brand}
               dict={dict}
               locale={locale}
               sessionEmail={sessionEmail}
             />
-            {main}
+            <div className="flex-1">{main}</div>
             <LandingFooterPwa
               dict={dict}
               brand={brand}

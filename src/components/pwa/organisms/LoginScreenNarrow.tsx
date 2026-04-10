@@ -28,20 +28,17 @@ export function LoginScreenNarrow({
   const homeHref = `/${locale}`;
   const standalone = surface === "pwa-mobile";
   const tagline = taglineForLocale(brand, locale);
+  const bottomPad = standalone
+    ? "pb-[max(1rem,env(safe-area-inset-bottom,0px))]"
+    : "pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]";
 
   return (
     <main
-      className="flex min-h-dvh flex-col bg-[var(--color-background)]"
-      style={{
-        paddingTop: standalone
-          ? "max(0.75rem, env(safe-area-inset-top, 0px))"
-          : "max(0.5rem, env(safe-area-inset-top, 0px))",
-        paddingBottom: standalone
-          ? "max(1rem, env(safe-area-inset-bottom, 0px))"
-          : "max(0.75rem, env(safe-area-inset-bottom, 0px))",
-      }}
+      className={`flex min-h-dvh flex-col bg-[var(--color-background)] ${bottomPad}`}
     >
-      <header className="flex items-center justify-between gap-3 px-4 pt-1">
+      <header
+        className={`flex items-center justify-between gap-3 px-4 ${standalone ? "pt-[max(0.35rem,env(safe-area-inset-top,0px))]" : "pt-[max(0.25rem,env(safe-area-inset-top,0px))]"}`}
+      >
         <Link
           href={homeHref}
           className="inline-flex min-h-11 min-w-11 items-center justify-start gap-2 rounded-[var(--layout-border-radius)] px-2 py-2 text-sm font-semibold text-[var(--color-foreground)] outline-none ring-[var(--color-primary)] transition active:bg-[var(--color-muted)] focus-visible:ring-2 focus-visible:ring-offset-2"
@@ -68,7 +65,7 @@ export function LoginScreenNarrow({
           href={homeHref}
           className="relative flex items-center gap-4 rounded-[var(--layout-border-radius)] outline-none ring-offset-2 ring-offset-[var(--color-primary-dark)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
         >
-          <div className="shrink-0 rounded-[var(--layout-border-radius)] bg-[var(--color-surface)] p-1.5 ring-1 ring-[var(--color-border)]">
+          <div className="shrink-0 rounded-[var(--layout-border-radius)] bg-white p-1.5 ring-1 ring-[var(--color-border)]">
             <Image
               src={brand.logoPath}
               alt={brand.logoAlt || brand.name}

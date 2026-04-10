@@ -34,7 +34,7 @@ export function LandingMainSections({
       <LandingStory dict={dict} brand={brand} />
       <LandingModalities dict={dict} />
       <LandingLevels dict={dict} />
-      <LandingCertifications dict={dict} brand={brand} />
+      <LandingCertifications dict={dict} />
     </main>
   );
 }

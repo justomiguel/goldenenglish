@@ -45,7 +45,9 @@
     "sectionsAria": "Page sections",
     "accountAria": "Language and account",
     "sectionsKicker": "Explore",
-    "modalities": "Modalities"
+    "sectionsScrollHint": "Scroll sideways for all sections",
+    "modalities": "Modalities",
+    "certifications": "Credentials"
   },
   "landing": {
     "hero": {
@@ -114,6 +116,7 @@
       "introLead": "Progression follows the ",
       "introEmphasis": "Common European Framework of Reference (CEFR)",
       "introTrail": ": a path from A1 to C2. At C2, the framework describes its ceiling—performance across skills at 100% of the reference.",
+      "scaleAria": "Visual progression from A1 to C2 along a color band; C2 marks the top of the framework",
       "beginner": "Beginner",
       "intermediate": "Intermediate",
       "advanced": "Advanced",
@@ -126,9 +129,15 @@
     },
     "certs": {
       "title": "Credentials & pathways",
-      "edu": "Registered with the Ministry of Education of Formosa (Res. 1297/05).",
-      "utn": "Agreement with UTN — National Higher Institute of Technical Teacher Training.",
-      "cambridge": "Preparation for Cambridge exams (e.g. B2 First Certificate)."
+      "cardInstitutional": "Institutional certification",
+      "cardNational": "National certification",
+      "cardInternational": "International certification",
+      "edu": "Registered as No. 69 in the non-systemic education registry of the Private Education department. Ministerial Resolution No. 1297/05 Formosa.",
+      "utn": "You can also pursue national certification through our agreement with UTN Argentina.",
+      "cambridge": "We prepare students to sit the B2 First Certificate with Cambridge accreditation.",
+      "altGoldenMark": "Golden English",
+      "altUtnIngles": "English at UTN — National Higher Institute of Technical Teacher Training",
+      "altCambridgeUniversity": "University of Cambridge"
     },
     "footerCta": "Ready for 2026? Secure your spot."
   },

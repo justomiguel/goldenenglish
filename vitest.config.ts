@@ -37,11 +37,16 @@ export default defineConfig({
        * en casi cada organismo; los números reflejan el estado actual del repo (~abr 2026).
        * `src/lib`, `src/hooks` y `src/proxy` siguen al 100% en el reporte.
        */
+      /**
+       * Líneas y statements al 100% en el ámbito incluido. `functions`/`branches`
+       * quedan ~95/96 por conteos V8 de funciones inline (handlers en JSX) y ramas
+       * parciales; subirlos más exige hacks o exclusiones poco útiles.
+       */
       thresholds: {
-        lines: 89,
-        statements: 89,
-        functions: 74,
-        branches: 88,
+        lines: 100,
+        statements: 100,
+        functions: 94,
+        branches: 96,
       },
     },
   },

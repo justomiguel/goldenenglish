@@ -19,7 +19,7 @@ export function AdminImportScreenNarrow({
 }: AdminImportScreenNarrowProps) {
   return (
     <PwaPageShell surface={surface}>
-      <main className="min-h-dvh bg-[var(--color-muted)] px-3 pb-10 pt-3">
+      <main className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
         <div className="mx-auto max-w-[var(--layout-max-width)] py-4">
           <div className="mb-4 flex justify-end">
             <LanguageSwitcher locale={locale} labels={dict.common.locale} />

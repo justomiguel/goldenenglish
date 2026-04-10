@@ -43,6 +43,11 @@ export const metadata: Metadata = {
     template: `%s | ${brand.name}`,
   },
   description: brand.tagline,
+  appleWebApp: {
+    capable: true,
+    title: brand.name,
+    statusBarStyle: "black-translucent",
+  },
   icons: {
     icon: [
       {
@@ -72,7 +77,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${dmSans.variable} ${fraunces.variable}`}
     >
-      <body className="min-h-screen antialiased">
+      <body className="min-h-dvh min-h-screen touch-manipulation antialiased">
         {children}
         <PwaServiceWorkerRegister />
       </body>

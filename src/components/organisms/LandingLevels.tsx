@@ -8,18 +8,39 @@ interface LandingLevelsProps {
 }
 
 const bandClass =
-  "group relative overflow-hidden rounded-2xl p-6 shadow-[0_12px_40px_-16px_rgb(16_58_92_/14%)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_-14px_rgb(16_58_92_/20%)] md:p-7";
+  "group relative overflow-hidden rounded-3xl p-6 shadow-[0_16px_48px_-20px_rgb(16_58_92_/16%)] transition duration-300 hover:-translate-y-[3px] hover:shadow-[0_22px_50px_-18px_rgb(16_58_92_/22%)] md:p-8";
 
 const bandSurface: Record<
   "beginner" | "intermediate" | "advanced",
   string
 > = {
   beginner:
-    "bg-gradient-to-b from-[var(--color-primary)]/[0.09] via-[var(--color-surface)] to-[var(--color-surface)] ring-1 ring-[var(--color-primary)]/12",
+    "bg-gradient-to-br from-[var(--color-primary)]/[0.07] from-0% via-[var(--color-surface)] via-45% to-[var(--color-surface)] ring-1 ring-[var(--color-primary)]/10",
   intermediate:
-    "bg-gradient-to-b from-[var(--color-secondary)]/[0.08] via-[var(--color-surface)] to-[var(--color-surface)] ring-1 ring-[var(--color-secondary)]/14",
+    "bg-gradient-to-br from-[var(--color-secondary)]/[0.06] from-0% via-[var(--color-surface)] via-45% to-[var(--color-surface)] ring-1 ring-[var(--color-secondary)]/12",
   advanced:
-    "bg-gradient-to-b from-[var(--color-accent)]/[0.14] via-[var(--color-surface)] to-[var(--color-surface)] ring-1 ring-[var(--color-accent)]/35",
+    "bg-gradient-to-br from-[var(--color-accent)]/[0.12] from-0% via-[var(--color-surface)] via-40% to-[var(--color-surface)] ring-1 ring-[var(--color-accent)]/28",
+};
+
+const bandListBorder: Record<
+  "beginner" | "intermediate" | "advanced",
+  string
+> = {
+  beginner: "border-[var(--color-primary)]/22",
+  intermediate: "border-[var(--color-secondary)]/22",
+  advanced: "border-[var(--color-accent)]/40",
+};
+
+const bandIconWrap: Record<
+  "beginner" | "intermediate" | "advanced",
+  string
+> = {
+  beginner:
+    "bg-[color-mix(in_srgb,var(--color-primary)_10%,var(--color-surface))] text-[var(--color-primary)] ring-[var(--color-primary)]/12",
+  intermediate:
+    "bg-[color-mix(in_srgb,var(--color-secondary)_10%,var(--color-surface))] text-[var(--color-secondary)] ring-[var(--color-secondary)]/15",
+  advanced:
+    "bg-[color-mix(in_srgb,var(--color-accent)_22%,var(--color-surface))] text-[var(--color-primary)] ring-[var(--color-accent)]/30",
 };
 
 export function LandingLevels({ dict }: LandingLevelsProps) {
@@ -56,7 +77,7 @@ export function LandingLevels({ dict }: LandingLevelsProps) {
     >
       <div className="relative">
         <div
-          className="pointer-events-none absolute left-1/2 top-[4.5rem] -z-10 h-[calc(100%-2rem)] w-screen max-w-[100vw] -translate-x-1/2 bg-[var(--color-secondary)]/[0.07]"
+          className="pointer-events-none absolute left-1/2 top-[3rem] -z-10 h-[calc(100%-3rem)] w-[min(100vw,100%)] max-w-[100vw] -translate-x-1/2 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,color-mix(in_srgb,var(--color-secondary)_14%,transparent)_0%,transparent_65%)] opacity-90 md:top-[4.5rem]"
           aria-hidden
         />
         <LandingCefrIntroBanner
@@ -65,42 +86,39 @@ export function LandingLevels({ dict }: LandingLevelsProps) {
           introTrail={dict.landing.levels.introTrail}
           scaleAria={dict.landing.levels.scaleAria}
         />
-        <div className="relative grid gap-6 md:grid-cols-3 md:gap-8">
-          <div
-            className="pointer-events-none absolute left-0 right-0 top-16 hidden h-px bg-gradient-to-r from-transparent via-[var(--color-border)] to-transparent md:block"
-            aria-hidden="true"
-          />
+
+        <div className="relative mt-2 grid gap-7 md:grid-cols-3 md:gap-8">
           {bands.map((band) => {
             const BandIcon = band.Icon;
+            const listBorder = bandListBorder[band.key];
+            const iconWrap = bandIconWrap[band.key];
             return (
               <div
                 key={band.title}
                 className={`${bandClass} ${bandSurface[band.key]}`}
               >
                 <div
-                  className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r ${band.tint} to-transparent opacity-80`}
-                  aria-hidden="true"
+                  className={`pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${band.tint} to-transparent opacity-90`}
+                  aria-hidden
                 />
-                <h3 className="font-display relative mb-5 flex items-center justify-center gap-2 text-center text-lg font-semibold text-[var(--color-primary)]">
-                  <BandIcon
-                    className="h-4 w-4 shrink-0 text-[var(--color-primary)]/65"
-                    aria-hidden
-                    strokeWidth={stroke}
-                  />
+                <h3 className="font-display relative mb-6 flex items-center justify-center gap-2.5 text-center text-xl font-semibold tracking-tight text-[var(--color-primary)] md:text-[1.35rem]">
+                  <span
+                    className={`flex h-10 w-10 items-center justify-center rounded-2xl ring-1 ${iconWrap}`}
+                  >
+                    <BandIcon
+                      className="h-5 w-5"
+                      aria-hidden
+                      strokeWidth={stroke}
+                    />
+                  </span>
                   {band.title}
                 </h3>
-                <ul className="relative space-y-3">
+                <ul className={`relative space-y-3 border-l-2 ${listBorder} pl-4`}>
                   {band.items.map((item) => (
                     <li
                       key={item}
-                      className="flex items-center gap-2 rounded-md py-1.5 text-sm text-[var(--color-foreground)] transition group-hover:bg-[var(--color-muted)]/60"
+                      className="text-[0.9375rem] leading-snug text-[var(--color-foreground)]"
                     >
-                      <span
-                        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-muted)] text-xs font-bold text-[var(--color-primary)]"
-                        aria-hidden="true"
-                      >
-                        {item.charAt(0)}
-                      </span>
                       {item}
                     </li>
                   ))}

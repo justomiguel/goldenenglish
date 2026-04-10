@@ -26,14 +26,16 @@ export function LandingHeader({
           href={`/${locale}`}
           className="group flex items-center gap-3 rounded-[var(--layout-border-radius)] outline-none ring-[var(--color-primary)] transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-offset-2"
         >
-          <Image
-            src={brand.logoPath}
-            alt={brand.logoAlt || brand.name}
-            width={48}
-            height={48}
-            className="rounded-[var(--layout-border-radius)] shadow-sm ring-1 ring-[var(--color-border)] transition group-hover:ring-[var(--color-accent)]/50"
-            priority
-          />
+          <div className="shrink-0 rounded-[var(--layout-border-radius)] bg-white p-1.5 shadow-sm ring-1 ring-[var(--color-border)] transition group-hover:ring-[var(--color-accent)]/50">
+            <Image
+              src={brand.logoPath}
+              alt={brand.logoAlt || brand.name}
+              width={48}
+              height={48}
+              className="block h-9 w-9 rounded-[var(--layout-border-radius)] object-contain"
+              priority
+            />
+          </div>
           <span className="font-display text-lg font-semibold tracking-tight text-[var(--color-primary)]">
             {brand.name}
           </span>
@@ -41,7 +43,7 @@ export function LandingHeader({
         <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-4 md:text-sm">
           <nav
             aria-label={dict.nav.sectionsAria}
-            className="flex flex-wrap items-center gap-1 rounded-[var(--layout-border-radius)] bg-[var(--color-muted)]/35 px-2 py-1 sm:gap-0 sm:px-3"
+            className="flex max-w-[min(100vw-12rem,28rem)] flex-nowrap items-center gap-0.5 overflow-x-auto rounded-[var(--layout-border-radius)] bg-[var(--color-muted)]/35 px-2 py-1 sm:max-w-none sm:flex-wrap sm:gap-0 sm:px-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             <span className="hidden pr-2 text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--color-muted-foreground)] sm:inline">
               {dict.nav.sectionsKicker}
@@ -60,9 +62,15 @@ export function LandingHeader({
             </a>
             <a
               href={`/${locale}#niveles`}
-              className="hidden rounded-[var(--layout-border-radius)] px-2.5 py-1.5 text-[var(--color-foreground)] transition hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)] sm:inline"
+              className="shrink-0 rounded-[var(--layout-border-radius)] px-2.5 py-1.5 text-[var(--color-foreground)] transition hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)]"
             >
               {dict.nav.courses}
+            </a>
+            <a
+              href={`/${locale}#certificaciones`}
+              className="shrink-0 rounded-[var(--layout-border-radius)] px-2.5 py-1.5 text-[var(--color-foreground)] transition hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)]"
+            >
+              {dict.nav.certifications}
             </a>
           </nav>
           <span

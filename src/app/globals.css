@@ -95,6 +95,21 @@ body {
     radial-gradient(ellipse 60% 40% at 100% 0%, rgb(16 58 92 / 6%), transparent);
 }
 
+/* Installable app — subtle tap flash, less rubber-band than pure Safari chrome */
+@media (hover: none) and (pointer: coarse) {
+  body {
+    -webkit-tap-highlight-color: color-mix(
+      in srgb,
+      var(--color-primary) 14%,
+      transparent
+    );
+  }
+
+  html {
+    overscroll-behavior-y: contain;
+  }
+}
+
 .text-balance {
   text-wrap: balance;
 }

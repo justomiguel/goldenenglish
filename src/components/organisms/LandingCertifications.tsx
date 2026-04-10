@@ -1,70 +1,137 @@
-import { Award, Building2, GraduationCap } from "lucide-react";
+import Image from "next/image";
 import { LandingSection } from "@/components/molecules/LandingSection";
 import type { Dictionary } from "@/types/i18n";
-import type { BrandPublic } from "@/lib/brand/server";
-
-const bandArticle =
-  "group relative overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-7 text-left shadow-[var(--shadow-soft)] transition duration-300 hover:border-[var(--color-primary)]/25 hover:shadow-[var(--shadow-card)]";
+import {
+  CERT_IMG_CAMBRIDGE,
+  CERT_IMG_GOLDEN,
+  CERT_IMG_UTN_INGLES,
+} from "@/lib/landing/certificacionesImages";
 
 interface LandingCertificationsProps {
   dict: Dictionary;
-  brand: BrandPublic;
 }
 
-const stroke = 1.75;
+const cardClass =
+  "flex h-full flex-col items-center rounded-[var(--layout-border-radius)] bg-[var(--color-surface)] p-6 text-center shadow-[var(--shadow-soft)] md:p-7";
 
-export function LandingCertifications({
-  dict,
-  brand,
-}: LandingCertificationsProps) {
-  const items: {
-    title: string;
-    body: string;
-    extra?: string;
-    Icon: typeof Building2;
-  }[] = [
-    {
-      title: "Formosa",
-      body: dict.landing.certs.edu,
-      extra: brand.legalRegistry,
-      Icon: Building2,
-    },
-    { title: "UTN", body: dict.landing.certs.utn, Icon: GraduationCap },
-    { title: "Cambridge", body: dict.landing.certs.cambridge, Icon: Award },
-  ];
+function CertLogosInstitutional({ alt }: { alt: string }) {
+  return (
+    <div className="relative mb-5 h-36 w-full max-w-[15rem] shrink-0">
+      <Image
+        src={CERT_IMG_GOLDEN}
+        alt={alt}
+        fill
+        className="object-contain object-center"
+        sizes="(max-width: 768px) 75vw, 240px"
+      />
+    </div>
+  );
+}
+
+function CertLogosNational({
+  altGolden,
+  altUtn,
+}: {
+  altGolden: string;
+  altUtn: string;
+}) {
+  return (
+    <div className="mb-5 flex w-full max-w-xl flex-col items-center justify-center gap-5 sm:flex-row sm:items-center sm:gap-5">
+      <div className="relative h-16 w-28 shrink-0 sm:h-[4.5rem] sm:w-32">
+        <Image
+          src={CERT_IMG_GOLDEN}
+          alt={altGolden}
+          fill
+          className="object-contain object-center"
+          sizes="140px"
+        />
+      </div>
+      <div className="relative h-24 w-full min-w-0 max-w-sm sm:h-28">
+        <Image
+          src={CERT_IMG_UTN_INGLES}
+          alt={altUtn}
+          fill
+          className="object-contain object-center"
+          sizes="(max-width: 640px) 85vw, 320px"
+        />
+      </div>
+    </div>
+  );
+}
+
+function CertLogosInternational({
+  altGolden,
+  altCambridge,
+}: {
+  altGolden: string;
+  altCambridge: string;
+}) {
+  return (
+    <div className="mb-5 flex w-full flex-wrap items-center justify-center gap-6 sm:gap-8">
+      <div className="relative h-16 w-28 shrink-0 sm:h-[4.5rem] sm:w-32">
+        <Image
+          src={CERT_IMG_GOLDEN}
+          alt={altGolden}
+          fill
+          className="object-contain object-center"
+          sizes="140px"
+        />
+      </div>
+      <div className="relative h-20 w-32 shrink-0 sm:h-24 sm:w-36">
+        <Image
+          src={CERT_IMG_CAMBRIDGE}
+          alt={altCambridge}
+          fill
+          className="object-contain object-center"
+          sizes="160px"
+        />
+      </div>
+    </div>
+  );
+}
+
+export function LandingCertifications({ dict }: LandingCertificationsProps) {
+  const c = dict.landing.certs;
 
   return (
     <LandingSection
+      id="certificaciones"
       title={dict.landing.certs.title}
-      className="relative bg-[var(--color-muted)]"
+      className="relative bg-[var(--color-accent)] [&_header_span[aria-hidden]]:bg-[var(--color-primary)]"
     >
-      <div className="relative">
-        <div
-          className="landing-informal-wash pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[108%] w-screen max-w-[100vw] -translate-x-1/2 -translate-y-1/2 opacity-60"
-          aria-hidden
-        />
-        <div className="relative mx-auto grid max-w-4xl gap-6 md:grid-cols-3 md:gap-8">
-          {items.map(({ title, body, extra, Icon: CertIcon }) => (
-            <article key={title} className={bandArticle}>
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[var(--color-primary)]/8 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] ring-1 ring-[var(--color-primary)]/10">
-                <CertIcon
-                  className="h-3.5 w-3.5 shrink-0 opacity-85"
-                  aria-hidden
-                  strokeWidth={stroke}
-                />
-                {title}
-              </div>
-              <p className="text-sm leading-relaxed text-[var(--color-foreground)]">
-                {body}
-              </p>
-              {extra ? (
-                <p className="mt-3 border-t border-[var(--color-border)] pt-3 text-xs leading-snug text-[var(--color-muted-foreground)]">
-                  {extra}
-                </p>
-              ) : null}
-            </article>
-          ))}
-        </div>
+      <div className="relative mx-auto grid max-w-6xl gap-6 md:grid-cols-3 md:gap-8">
+        <article className={cardClass}>
+          <CertLogosInstitutional alt={c.altGoldenMark} />
+          <h3 className="mb-4 max-w-sm font-sans text-base font-bold italic text-[var(--color-foreground)]">
+            {c.cardInstitutional}
+          </h3>
+          <p className="font-display text-balance text-sm leading-relaxed text-[var(--color-foreground)] md:text-[0.9375rem]">
+            {c.edu}
+          </p>
+        </article>
+
+        <article className={cardClass}>
+          <CertLogosNational altGolden={c.altGoldenMark} altUtn={c.altUtnIngles} />
+          <h3 className="mb-4 max-w-sm font-sans text-base font-bold italic text-[var(--color-foreground)]">
+            {c.cardNational}
+          </h3>
+          <p className="font-display text-balance text-sm leading-relaxed text-[var(--color-foreground)] md:text-[0.9375rem]">
+            {c.utn}
+          </p>
+        </article>
+
+        <article className={cardClass}>
+          <CertLogosInternational
+            altGolden={c.altGoldenMark}
+            altCambridge={c.altCambridgeUniversity}
+          />
+          <h3 className="mb-4 max-w-sm font-sans text-base font-bold italic text-[var(--color-foreground)]">
+            {c.cardInternational}
+          </h3>
+          <p className="font-display text-balance text-sm leading-relaxed text-[var(--color-foreground)] md:text-[0.9375rem]">
+            {c.cambridge}
+          </p>
+        </article>
       </div>
     </LandingSection>
   );

@@ -106,9 +106,7 @@ describe("component smoke — landing & gates", () => {
   });
 
   it("LandingCertifications", () => {
-    render(
-      <LandingCertifications dict={dictEn} brand={mockBrandPublic} />,
-    );
+    render(<LandingCertifications dict={dictEn} />);
   });
 
   it("LandingHeader", () => {
