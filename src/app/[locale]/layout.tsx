@@ -51,18 +51,11 @@ export async function generateMetadata({
       siteName: brand.name,
       title: brand.name,
       description,
-      images: [
-        {
-          url: brand.logoPath,
-          alt: brand.logoAlt || brand.name,
-        },
-      ],
     },
     twitter: {
       card: "summary_large_image",
       title: brand.name,
       description,
-      images: [brand.logoPath],
     },
     robots: {
       index: true,

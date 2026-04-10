@@ -31,6 +31,7 @@ export default defineConfig({
         "src/**/*.d.ts",
         "src/app/**/page.tsx",
         "src/app/**/layout.tsx",
+        "src/app/**/opengraph-image.tsx",
       ],
       /**
        * Con `components` + `app` en el include, el 100% global exige E2E/interacción
