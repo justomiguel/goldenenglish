@@ -1,0 +1,29 @@
+---
+description: 
+alwaysApply: true
+---
+
+# Security Rules
+
+## Credentials & Secrets
+
+1. **Zero hardcoded secrets.** No API keys, tokens, passwords, or connection strings in source code — ever.
+2. **Environment variables only.** All external service configuration flows through `.env.local` (runtime) or `.env.example` (documentation).
+3. **Prefix convention.** Client-safe variables use `NEXT_PUBLIC_` prefix. Server-only secrets (DB connection, Resend API key) must NOT have this prefix.
+4. **`.env.local` is gitignored.** Verify `.gitignore` includes it before every commit.
+
+## Input Validation
+
+1. Validate all user input on both client (UX) and server (security).
+2. Use Zod or native validation for server actions — never trust client-side checks alone.
+
+## Authentication
+
+1. Supabase Auth is the single identity provider. No custom auth flows.
+2. Protect server routes and actions with session checks. Unauthenticated requests return 401.
+3. Never expose user tokens or session data in client-side logs.
+
+## Dependencies
+
+1. Audit new dependencies before adding (`npm audit`).
+2. Prefer well-maintained, widely-used packages. Avoid packages with <100 weekly downloads.

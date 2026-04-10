@@ -1,0 +1,108 @@
+{
+  "common": {
+    "locale": {
+      "label": "Idioma",
+      "es": "ES",
+      "en": "EN"
+    },
+    "loading": "Cargando...",
+    "error": "Algo salió mal",
+    "back": "Volver",
+    "submit": "Enviar",
+    "cancel": "Cancelar",
+    "save": "Guardar"
+  },
+  "login": {
+    "kicker": "Portal de alumnos",
+    "title": "Iniciar sesión",
+    "subtitle": "Ingresá con el correo y la clave de tu inscripción.",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tu@ejemplo.com",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "Tu contraseña",
+    "showPassword": "Ver contraseña",
+    "hidePassword": "Ocultar contraseña",
+    "submitButton": "Iniciar Sesión",
+    "redirecting": "Entrando…",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "noAccount": "¿No tienes cuenta?",
+    "signUp": "Regístrate",
+    "errors": {
+      "invalidCredentials": "Correo o contraseña inválidos",
+      "emailRequired": "El correo es obligatorio",
+      "passwordRequired": "La contraseña es obligatoria",
+      "generic": "Ocurrió un error. Intenta de nuevo."
+    }
+  },
+  "nav": {
+    "home": "Inicio",
+    "courses": "Cursos",
+    "about": "Nosotros",
+    "contact": "Contacto",
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión",
+    "sectionsAria": "Secciones de la página",
+    "accountAria": "Idioma y cuenta",
+    "sectionsKicker": "Explorar"
+  },
+  "landing": {
+    "hero": {
+      "kicker": "Bienvenidos al universo GOLDEN",
+      "cta": "Inscripciones Anticipadas 2026",
+      "ctaSignedIn": "Ver niveles"
+    },
+    "story": {
+      "title": "Nuestra historia",
+      "body1": "La institución nació en 2005 en Riacho He Hé (Formosa), con la convicción de acercar el inglés con calidad humana y excelencia pedagógica.",
+      "body2": "Trabajamos una enseñanza dinámica, lúdica y basada en situaciones reales para que puedas usar el idioma en la vida cotidiana y profesional."
+    },
+    "offer": {
+      "title": "Nuestra oferta (público y modalidad)",
+      "audiencesTitle": "Públicos",
+      "kids": "Niños (desde 5 años)",
+      "teens": "Adolescentes (desde 11 años)",
+      "adults": "Adultos",
+      "onlineTitle": "Modalidad online",
+      "onlineLead": "Clases 100% en vivo, 2 veces por semana (60 minutos).",
+      "onlineB1": "Ahorrá desplazamientos y mantené constancia con acompañamiento docente permanente.",
+      "onlineB2": "Grupos reducidos, práctica oral y materiales alineados a estándares internacionales."
+    },
+    "levels": {
+      "title": "Niveles de estudio",
+      "intro": "Los niveles siguen el Marco Común Europeo de Referencia (MCER / CEFR): objetivos claros desde tus primeras palabras hasta un dominio avanzado.",
+      "beginner": "Principiante",
+      "intermediate": "Intermedio",
+      "advanced": "Avanzado",
+      "a1": "A1 — Acceso",
+      "a2": "A2 — Plataforma",
+      "b1": "B1 — Umbral",
+      "b2": "B2 — Avanzado",
+      "c1": "C1 — Dominio operativo",
+      "c2": "C2 — Maestría"
+    },
+    "certs": {
+      "title": "Certificaciones y alianzas",
+      "edu": "Aval del Ministerio de Educación de Formosa (Res. 1297/05).",
+      "utn": "Convenio con la UTN — Instituto Nacional Superior del Profesorado Técnico.",
+      "cambridge": "Preparación para exámenes de Cambridge (p. ej. B2 First Certificate)."
+    },
+    "footerCta": "¿Arrancamos el 2026 juntos? Reservá tu lugar."
+  },
+  "admin": {
+    "import": {
+      "title": "Importar alumnos (CSV)",
+      "hint": "Encabezados admitidos (ES/EN): nombre/first_name, apellido/last_name, dni o documento, teléfono/phone, email, fecha_nacimiento/birth_date (AAAA-MM-DD), nivel/level (A1–C2), academic_year (por defecto 2026). La contraseña temporal será el DNI (rellenada a 6 caracteres si hace falta).",
+      "chooseFile": "Elegir archivo CSV",
+      "processing": "Procesando…",
+      "parseError": "No se pudo leer el CSV",
+      "validationError": "Los datos no pasaron la validación",
+      "genericError": "Falló la importación",
+      "done": "Importación terminada",
+      "rows": "filas",
+      "users": "usuarios nuevos en Auth",
+      "enrollments": "inscripciones",
+      "row": "Fila",
+      "noRows": "No hay filas válidas. Revisá encabezados y campos obligatorios."
+    }
+  }
+}

@@ -1,0 +1,41 @@
+---
+description: Design System + branding — Atomic Design, tokens from system.properties, no ad-hoc identity.
+globs: "*.tsx, *.ts, *.css, *.tailwind.js, system.properties"
+alwaysApply: true
+---
+
+# Design System Rules
+
+## Absolute Priority
+
+The Design System is the single source of truth for every visual decision. **Branding and institutional identity** are the same: everything that would change if the institute rebrands (name, legal name, tagline, logos, favicon, contact blocks, social links, palette, fonts) MUST be driven from `system.properties`, not duplicated in code.
+
+## Branding & `system.properties` (non-negotiable)
+
+1. **Single source of truth.** The file `system.properties` at the project root owns:
+   - Identity: `app.name`, `app.legal.name`, `app.tagline`, `app.logo.path`, `app.logo.alt`, `app.favicon.path`
+   - Visual tokens: colors, fonts, layout tokens (already listed there)
+   - Global public info: contact email/phone/address, social URLs
+2. **How it reaches the app.** Values are read via `src/lib/theme/themeParser.ts` (and related helpers), mirrored into CSS custom properties in `src/app/globals.css` (or generated theme), and/or exposed through a small server-only `getBrandConfig()` (or equivalent) consumed by layout and SEO metadata. Do not introduce a second “brand config” file unless it is generated from `system.properties`.
+3. **Forbidden.** Hardcoding in `.tsx`, `.ts`, dictionaries (JSON), tests, or `layout` metadata:
+   - Institute or product display names, legal names, or taglines as string literals (except tests that assert behavior on **mock** brand objects)
+   - Paths or URLs to logos, favicon, or branded assets not derived from `system.properties` keys
+   - Contact or social URLs that duplicate what belongs in `system.properties`
+4. **i18n copy.** User-facing sentences stay in `src/dictionaries/*.json`, but **brand proper nouns and global slogans** that must stay aligned with legal/marketing SHOULD come from the same branding layer (e.g. props from config parsed from `system.properties`), not a second hardcoded string in every locale file. If a temporary literal exists during migration, it must match `app.name` / `app.tagline` in `system.properties` and be removed when the plumbing exists.
+5. **New branding fields.** When product needs a new branded value (secondary logo, partner name, footer accreditation), add a key to `system.properties`, extend the parser/types if needed, then consume the token — never ship a one-off string in a component.
+
+## Constraints
+
+1. **No ad-hoc styles.** Every visual property (color, spacing, typography, shadow, border-radius) MUST reference a Design Token defined in the Tailwind theme or CSS custom properties sourced from `system.properties`.
+2. **No hardcoded hex/rgb values.** Use semantic token names (`bg-primary`, `text-secondary`, etc.). If a new color is needed, add it to `system.properties` and the theme first.
+3. **Atomic Design methodology.** Components live in three **shared** layers when behavior and layout are the same on every surface:
+   - `src/components/atoms/` — Indivisible UI primitives shared across surfaces (Button, Input, Label, Badge).
+   - `src/components/molecules/` — Shared compositions (FormField, shared field groups).
+   - `src/components/organisms/` — Shared complex sections only when the **same** structure is used on web and PWA (rare); prefer surface-specific organisms below.
+4. **Surface-specific design system (Desktop vs PWA).** The UI is **not** one responsive blob: desktop and installed PWA / mobile-native experiences MAY use different building blocks. Tokens and brand stay identical; **component trees differ** where UX requires it.
+   - **`src/components/desktop/{atoms,molecules,organisms}/`** — Elements used **only** on the web-desktop surface (wide nav, hover menus, dense tables, multi-column chrome, pointer-first controls). Name exports clearly (e.g. `DesktopSidebar.tsx`, `DataTableToolbar.tsx`).
+   - **`src/components/pwa/{atoms,molecules,organisms}/`** — Elements used **only** on mobile browser and/or **standalone PWA** (safe-area wrappers, bottom tab bars, full-width list rows, sheet-style actions, thumb-zone primary CTAs). Respect `env(safe-area-inset-*)` and min touch targets (see `05-pwa-mobile-native.mdc`).
+   - **Shared vs fork rule:** If a control is literally the same on all surfaces, it stays under `atoms/` or `molecules/`. If it diverges in structure or affordances (not just CSS width), implement **desktop** and **pwa** variants in the corresponding surface folder; do not overload one component with endless `isPwa` props.
+   - **Who renders which:** Screen entry components use `useAppSurface()` (or successor) from `src/hooks/` to render **either** a desktop composition (importing from `desktop/`) **or** a PWA composition (importing from `pwa/`), never both at once in the DOM.
+5. **Tailwind only.** Inline `style={}` is forbidden except for truly dynamic runtime values (e.g., user-uploaded image backgrounds). Prefer Tailwind classes via `className`. **Exception:** `padding`/`min-height` that incorporate `env(safe-area-inset-*)` may use inline `style` only in **PWA** layout shells when Tailwind arbitrary values are insufficient — keep those values limited to safe-area glue code.
+6. **Reusability over convenience.** Before creating a new component, verify no existing shared atom/molecule or surface-specific counterpart already covers the need.

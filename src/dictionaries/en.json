@@ -1,0 +1,108 @@
+{
+  "common": {
+    "locale": {
+      "label": "Language",
+      "es": "ES",
+      "en": "EN"
+    },
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "back": "Back",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "login": {
+    "kicker": "Student portal",
+    "title": "Sign in",
+    "subtitle": "Use the email and password from your enrollment.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Your password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "submitButton": "Sign In",
+    "redirecting": "Signing you in…",
+    "forgotPassword": "Forgot your password?",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up",
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "emailRequired": "Email is required",
+      "passwordRequired": "Password is required",
+      "generic": "An error occurred. Please try again."
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "courses": "Courses",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "sectionsAria": "Page sections",
+    "accountAria": "Language and account",
+    "sectionsKicker": "Explore"
+  },
+  "landing": {
+    "hero": {
+      "kicker": "Welcome to the GOLDEN universe",
+      "cta": "Early enrollment 2026",
+      "ctaSignedIn": "Browse levels"
+    },
+    "story": {
+      "title": "Our story",
+      "body1": "Born in 2005 in Riacho He Hé (Formosa), we built a warm, rigorous learning space for every age.",
+      "body2": "We focus on dynamic, playful classes grounded in real-life situations so you use the language with confidence."
+    },
+    "offer": {
+      "title": "Who we teach & how",
+      "audiencesTitle": "Programs",
+      "kids": "Children (from age 5)",
+      "teens": "Teenagers (from age 11)",
+      "adults": "Adults",
+      "onlineTitle": "Live online classes",
+      "onlineLead": "100% live sessions, twice a week (60 minutes).",
+      "onlineB1": "Save travel time and keep a steady rhythm with constant teacher support.",
+      "onlineB2": "Small groups, conversation practice, and materials aligned to international standards."
+    },
+    "levels": {
+      "title": "Study levels",
+      "intro": "Progression follows the Common European Framework of Reference (CEFR): clear goals from your first words to professional fluency.",
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "a1": "A1 — Basic",
+      "a2": "A2 — Elementary",
+      "b1": "B1 — Threshold",
+      "b2": "B2 — Upper intermediate",
+      "c1": "C1 — Advanced",
+      "c2": "C2 — Mastery"
+    },
+    "certs": {
+      "title": "Credentials & pathways",
+      "edu": "Registered with the Ministry of Education of Formosa (Res. 1297/05).",
+      "utn": "Agreement with UTN — National Higher Institute of Technical Teacher Training.",
+      "cambridge": "Preparation for Cambridge exams (e.g. B2 First Certificate)."
+    },
+    "footerCta": "Ready for 2026? Secure your spot."
+  },
+  "admin": {
+    "import": {
+      "title": "Import students (CSV)",
+      "hint": "Columns supported (Spanish or English headers): nombre/first_name, apellido/last_name, dni or documento, teléfono/phone, email, fecha_nacimiento/birth_date (YYYY-MM-DD), nivel/level (A1–C2), academic_year (default 2026). Temporary password defaults to the student’s DNI (padded to 6 characters if needed).",
+      "chooseFile": "Choose CSV file",
+      "processing": "Processing…",
+      "parseError": "Could not parse CSV",
+      "validationError": "Validation failed",
+      "genericError": "Import failed",
+      "done": "Import finished",
+      "rows": "rows",
+      "users": "new auth users",
+      "enrollments": "enrollments",
+      "row": "Row",
+      "noRows": "No valid rows found. Check headers and required fields."
+    }
+  }
+}

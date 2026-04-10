@@ -1,0 +1,35 @@
+---
+description: 
+alwaysApply: true
+---
+
+# Architecture Rules
+
+## File Size Limit
+
+**No file may exceed 250 lines of code.** If a file approaches this limit, extract logic into smaller modules immediately.
+
+## Separation of Concerns
+
+| Layer | Location | Responsibility |
+|----|----|---|
+| Presentational Components (shared) | `src/components/{atoms,molecules,organisms}/` | Render UI only. Same structure on all surfaces. No business logic, no API calls, no complex state. |
+| Presentational Components (desktop-only) | `src/components/desktop/{atoms,molecules,organisms}/` | Web-desktop-only UI. Composed behind `useAppSurface()` / screen entry. |
+| Presentational Components (PWA / mobile-native) | `src/components/pwa/{atoms,molecules,organisms}/` | Mobile / standalone PWA-only UI. Touch-first, safe-area aware. Composed behind `useAppSurface()` / screen entry. |
+| Custom Hooks | `src/hooks/` | Business logic, API calls, state management. Named `useFeature.ts`. |
+| Server Actions | `src/app/**/actions.ts` | Supabase mutations, email sending, server-side validation. |
+| Lib / Services | `src/lib/` | Client initialization, utilities, parsers. Pure functions preferred. |
+| Types | `src/types/` | Shared TypeScript interfaces and type definitions. |
+
+## Component Rules
+
+1. Components receive data via **props** and communicate via **callbacks**. No direct service calls inside components.
+2. Each component is a **named export** in its own file. One component per file.
+3. Props interfaces are defined in the same file, co-located above the component.
+4. Use `'use client'` directive only when the component genuinely needs browser APIs or interactivity. Default to Server Components.
+
+## Hook Rules
+
+1. Each hook manages one cohesive concern (e.g., `useLogin`, `useEnrollment`).
+2. Hooks return a typed object: `{ data, error, isLoading, handlers }`.
+3. External dependencies (Supabase client, router) are injected or imported from `src/lib/`.

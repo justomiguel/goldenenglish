@@ -1,0 +1,98 @@
+---
+description: Every screen ships Web + Mobile/PWA-native UIs; use useAppSurface() to choose tree; PWA manifest, SW, safe areas, touch targets.
+alwaysApply: true
+---
+
+# PWA & Native Mobile Experience
+
+## Non-negotiable product rule
+
+Every **screen** (each user-facing route or full-page flow: marketing, auth, dashboard, admin, etc.) MUST ship as **two deliberate implementations**:
+
+1. **Web layout** — optimized for desktop and large tablet; pointer-first patterns, density appropriate for wide viewports.
+2. **Mobile / PWA-native layout** — optimized for phones and for **installed** PWA behavior (standalone): touch-first, native-feeling patterns (large tap targets, sheets, list rows, bottom-aligned primary actions, safe areas), not merely “the same JSX with more `sm:` breakpoints.”
+
+Responsive Tailwind alone is **insufficient** when navigation structure, motion, or component choice differ. In those cases, **split the UI into two trees** and select at runtime (see below).
+
+Branding and tokens still follow `01-design-system.mdc` (`system.properties`, semantic colors, no duplicate institute identity).
+
+---
+
+## Single source of truth: which UI to render
+
+The application MUST expose one canonical way to decide the active **surface** (do not scatter ad-hoc `window.innerWidth` checks across pages).
+
+1. Implement a small module in `src/hooks/` (e.g. `useAppSurface.ts`) used by adapter components, returning a discriminated union such as:
+   - `web-desktop` — wide viewport and not running as an installed PWA.
+   - `web-mobile` — narrow viewport in the **browser** (tab UI visible).
+   - `pwa-mobile` — narrow viewport **and** app is in **standalone / installed** mode (see detection below).
+2. **Breakpoint** used for “mobile vs desktop” MUST be defined once (constant or design token), aligned with the project’s Tailwind `max-md` / `min-lg` convention; do not hardcode unrelated pixel values in random files.
+3. **PWA / standalone detection** MUST include:
+   - `window.matchMedia('(display-mode: standalone)').matches`
+   - iOS Safari: `('standalone' in window.navigator && (navigator as Navigator & { standalone?: boolean }).standalone === true)`
+4. Implementation MUST be **hydration-safe**: avoid SSR/client mismatch where possible (e.g. `useSyncExternalStore` with a server snapshot default, or render a shared shell until the client commits). If a one-frame flash is unavoidable, document it next to the hook.
+
+Pages remain thin: they compose **one** entry component (e.g. `LoginScreen`) that internally switches on `useAppSurface()`.
+
+---
+
+## How to pair implementations (file conventions)
+
+For each screen, keep **shared behavior** in hooks / server actions / libs; **do not** duplicate data fetching or auth logic in the two UIs.
+
+Choose **one** of these patterns per feature and stay consistent within the repo:
+
+**Pattern A — colocated pair**
+
+- `FeatureScreen.tsx` — default web layout.
+- `FeatureScreenMobile.tsx` — PWA / native-feeling mobile layout.
+- `FeatureScreenEntry.tsx` (or the default export from the folder) — calls `useAppSurface()` and renders exactly one of the two.
+
+**Pattern B — subfolder**
+
+- `feature-screen/Web.tsx`, `feature-screen/MobilePwa.tsx`, `feature-screen/index.tsx` (switch only).
+
+Place presentational screens under `src/components/organisms/` (shared) or under **`src/components/desktop/...`** and **`src/components/pwa/...`** per `01-design-system.mdc` (surface-specific atoms/molecules/organisms). Follow `03-architecture.mdc` (size limit, one main named export per file unless the Entry file is only a thin switch).
+
+---
+
+## PWA baseline (project must satisfy)
+
+To legitimately claim “PWA,” the project MUST eventually include (implement or extend as needed):
+
+- A **Web App Manifest** (scope, `name`, `short_name`, icons, `theme_color` / `background_color` derived from design tokens — not random hex in pages).
+- **Register a service worker** for offline/shell caching appropriate to the stack (document choice in code or ADR).
+- `viewport-fit=cover` and use of **`env(safe-area-inset-*)`** on the mobile/PWA tree’s root layout chrome (header/footer fixed bars).
+
+Until manifest + SW land, still implement the **two UI trees** and `useAppSurface()` so behavior is correct when PWA is enabled.
+
+---
+
+## Mobile-native UX requirements (mobile / `pwa-mobile` trees)
+
+When rendering the mobile or `pwa-mobile` tree:
+
+1. **Touch targets** — interactive controls at least **44×44 CSS px** (padding counts).
+2. **Safe area** — respect notches and home indicators; no critical actions tucked under system UI.
+3. **Components** — prefer patterns that feel native on phones: full-width rows, clear section headers, **bottom** primary CTA when it matches platform expectations, sheets instead of tiny desktop modals where appropriate.
+4. **No hover-only** critical actions — anything essential must work with tap and visible affordances.
+5. **Motion** — respect `prefers-reduced-motion`; avoid gratuitous animation on low-end devices.
+
+---
+
+## Guardrails
+
+- Do not create a second “brand” or duplicate `app.name` / logo paths on mobile; use the same brand layer as web.
+- Do not inflate files past **250 lines** (`03-architecture.mdc`); split Entry / Web / Mobile / shared pieces.
+- New routes added to the app MUST add or update the paired mobile/PWA screen in the **same** change, unless explicitly documented as web-only internal tooling (rare).
+
+---
+
+## Agent checklist (when editing UI)
+
+When adding or changing a page:
+
+1. Does this route have a **Web** and a **Mobile/PWA-native** implementation (or a justified exception)?
+2. Does selection go through the shared **`useAppSurface()`** (or successor)?
+3. Are manifest / safe-area / touch targets considered for the mobile tree?
+4. Is shared logic in hooks/actions, not copy-pasted?

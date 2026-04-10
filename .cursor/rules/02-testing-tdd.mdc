@@ -1,0 +1,36 @@
+---
+description: TDD Protocol — Tests first, 100% coverage gate, regression analysis required.
+globs: "*.ts, *.tsx"
+alwaysApply: false
+---
+
+# TDD & Testing Rules
+
+## Strict TDD Protocol
+
+1. **Red → Green → Refactor.** No feature code is written without a failing test first.
+2. **Test file location.** Tests live in `src/__tests__/` mirroring the source tree. Name convention: `ComponentName.test.tsx` or `hookName.test.ts`.
+3. **Coverage gate.** The `test:coverage` script must pass before any commit. Target: 100% line coverage on new code.
+4. **Pre-commit hook.** A Husky pre-commit hook runs `vitest run --coverage`. The commit is rejected if coverage drops below threshold.
+
+## Test Categories
+
+| Type | Tool | Scope |
+|------|------|-------|
+| Unit | Vitest + Testing Library | Components, hooks, utilities |
+| Integration | Vitest | Hook ↔ API interactions |
+| E2E | Playwright (when added) | Critical user flows (login, enrollment) |
+
+## Regression Analysis
+
+Before modifying any existing code, perform a mental regression analysis and document it as a comment in the test file:
+
+```
+// REGRESSION CHECK: Changing X may affect Y because Z.
+```
+
+## Rules
+
+- Mock external services (Supabase, Resend) at the boundary — never in the component.
+- Prefer `userEvent` over `fireEvent` for realistic interaction simulation.
+- Every custom hook must have its own dedicated test file.
