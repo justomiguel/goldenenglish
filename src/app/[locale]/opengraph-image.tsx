@@ -20,6 +20,8 @@ export default async function OgImage({
   const props = loadProperties();
   const primaryColor = getProperty(props, "color.primary", "#103A5C");
   const accentColor = getProperty(props, "color.accent", "#F0B932");
+  const surfaceWhite = getProperty(props, "color.background", "#FFFFFF");
+  const borderMuted = getProperty(props, "color.border", "#E5E7EB");
   const tagline = taglineForLocale(brand, locale);
 
   const logoPath = join(process.cwd(), "public", "images", "logo.png");
@@ -52,13 +54,26 @@ export default async function OgImage({
           }}
         />
 
-        <img
-          src={logoBase64}
-          alt=""
-          width={180}
-          height={180}
-          style={{ borderRadius: "20px", marginBottom: "32px" }}
-        />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: surfaceWhite,
+            padding: "24px 28px",
+            borderRadius: "24px",
+            marginBottom: "32px",
+            border: `2px solid ${borderMuted}`,
+          }}
+        >
+          <img
+            src={logoBase64}
+            alt=""
+            width={180}
+            height={180}
+            style={{ display: "flex" }}
+          />
+        </div>
 
         <div
           style={{
