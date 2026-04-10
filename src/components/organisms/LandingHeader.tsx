@@ -53,6 +53,12 @@ export function LandingHeader({
               {dict.nav.about}
             </a>
             <a
+              href={`/${locale}#modalidades`}
+              className="rounded-[var(--layout-border-radius)] px-2.5 py-1.5 text-[var(--color-foreground)] transition hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)]"
+            >
+              {dict.nav.modalities}
+            </a>
+            <a
               href={`/${locale}#niveles`}
               className="hidden rounded-[var(--layout-border-radius)] px-2.5 py-1.5 text-[var(--color-foreground)] transition hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)] sm:inline"
             >

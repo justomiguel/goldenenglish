@@ -1,5 +1,5 @@
 ---
-description: 
+description: Security — env secrets, Supabase auth, validation, dependency hygiene.
 alwaysApply: true
 ---
 

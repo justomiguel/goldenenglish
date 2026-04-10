@@ -23,6 +23,7 @@
     "showPassword": "Ver contraseña",
     "hidePassword": "Ocultar contraseña",
     "submitButton": "Iniciar Sesión",
+    "rememberMe": "Recordarme en este equipo",
     "redirecting": "Entrando…",
     "forgotPassword": "¿Olvidaste tu contraseña?",
     "noAccount": "¿No tienes cuenta?",
@@ -43,12 +44,14 @@
     "logout": "Cerrar Sesión",
     "sectionsAria": "Secciones de la página",
     "accountAria": "Idioma y cuenta",
-    "sectionsKicker": "Explorar"
+    "sectionsKicker": "Explorar",
+    "modalities": "Modalidades"
   },
   "landing": {
     "hero": {
       "kicker": "Bienvenidos al universo GOLDEN",
       "cta": "Inscripciones Anticipadas 2026",
+      "ctaRegister": "Inscribite ya",
       "ctaSignedIn": "Ver niveles"
     },
     "story": {
@@ -56,20 +59,61 @@
       "body1": "La institución nació en 2005 en Riacho He Hé (Formosa), con la convicción de acercar el inglés con calidad humana y excelencia pedagógica.",
       "body2": "Trabajamos una enseñanza dinámica, lúdica y basada en situaciones reales para que puedas usar el idioma en la vida cotidiana y profesional."
     },
-    "offer": {
-      "title": "Nuestra oferta (público y modalidad)",
-      "audiencesTitle": "Públicos",
+    "modalities": {
+      "title": "Modalidades de estudio",
+      "intro": "Podés elegir la modalidad que mejor encaje en tu rutina sin renunciar al mismo recorrido basado en el MCER, al aval del Ministerio de Educación de Formosa (Res. 1297/05) y a nuestras articulaciones con UTN y Cambridge.",
+      "audiencesTitle": "¿A quiénes acompañamos?",
       "kids": "Niños (desde 5 años)",
       "teens": "Adolescentes (desde 11 años)",
       "adults": "Adultos",
-      "onlineTitle": "Modalidad online",
-      "onlineLead": "Clases 100% en vivo, 2 veces por semana (60 minutos).",
-      "onlineB1": "Ahorrá desplazamientos y mantené constancia con acompañamiento docente permanente.",
-      "onlineB2": "Grupos reducidos, práctica oral y materiales alineados a estándares internacionales."
+      "presencial": {
+        "title": "Presencial",
+        "lead": "Clases en nuestra sede de Riacho He Hé: acompañamiento cercano, ritmo sostenido y el vínculo social del aula.",
+        "b1": "Grupos reducidos con práctica oral guiada y seguimiento docente.",
+        "b2": "Materiales impresos y digitales coherentes con cada nivel del marco.",
+        "b3": "Actividades y celebraciones con la comunidad educativa (muestras, proyectos, reconocimientos)."
+      },
+      "remota": {
+        "title": "Remota (en vivo)",
+        "lead": "Estudiá a distancia con encuentros 100% en vivo—no grabaciones—y los mismos objetivos y evaluación que en presencial.",
+        "b1": "En general, dos clases en vivo por semana (60 minutos) con contenedor docente estable.",
+        "b2": "Grupos chicos, conversación dirigida y materiales alineados a estándares internacionales.",
+        "b3": "Pensada para quienes buscan ahorrar traslados sin perder exigencia ni constancia."
+      }
+    },
+    "collage": {
+      "alts": [
+        "Alumnos en clase presencial de inglés, sentados frente a la docente al fondo del aula.",
+        "Estudiantes trabajando durante una clase en el instituto.",
+        "Grupo de niños sonriendo durante una actividad cultural presencial en el centro.",
+        "Alumnado y docente celebrando exámenes con diplomas frente a un banner institucional."
+      ]
+    },
+    "studentGallery": {
+      "title": "Nuestros alumnos",
+      "intro": "Tocá un álbum para ver el carrusel de fotos del aula y la comunidad.",
+      "viewPhotos": "Ver fotos",
+      "close": "Cerrar galería",
+      "previous": "Foto anterior",
+      "next": "Foto siguiente",
+      "items": [
+        {
+          "name": "Momentos en el aula",
+          "coverIndex": 0,
+          "photoIndexes": [0, 1]
+        },
+        {
+          "name": "Comunidad y logros",
+          "coverIndex": 2,
+          "photoIndexes": [2, 3]
+        }
+      ]
     },
     "levels": {
       "title": "Niveles de estudio",
-      "intro": "Los niveles siguen el Marco Común Europeo de Referencia (MCER / CEFR): objetivos claros desde tus primeras palabras hasta un dominio avanzado.",
+      "introLead": "Los niveles siguen el ",
+      "introEmphasis": "Marco Común Europeo de Referencia (MCER / CEFR)",
+      "introTrail": ": recorrido de A1 a C2. En C2 se describe el máximo del marco: el desempeño previsto en todas las competencias al 100% del referente.",
       "beginner": "Principiante",
       "intermediate": "Intermedio",
       "advanced": "Avanzado",
@@ -91,7 +135,7 @@
   "admin": {
     "import": {
       "title": "Importar alumnos (CSV)",
-      "hint": "Encabezados admitidos (ES/EN): nombre/first_name, apellido/last_name, dni o documento, teléfono/phone, email, fecha_nacimiento/birth_date (AAAA-MM-DD), nivel/level (A1–C2), academic_year (por defecto 2026). La contraseña temporal será el DNI (rellenada a 6 caracteres si hace falta).",
+      "hint": "Encabezados admitidos (ES/EN): nombre/first_name, apellido/last_name, dni o documento, teléfono/phone, email, fecha_nacimiento/birth_date (AAAA-MM-DD), nivel/level (A1–C2), academic_year (por defecto 2026), dni_tutor/tutor_dni, tutor_email, nombre_tutor/apellido_tutor, cuota/monthly_fee (opcional). Si hay DNI del tutor, crea perfil padre y vínculo. Genera 12 pagos pendientes 2026. Contraseña inicial = DNI (a 6 caracteres si hace falta).",
       "chooseFile": "Elegir archivo CSV",
       "processing": "Procesando…",
       "parseError": "No se pudo leer el CSV",
@@ -102,7 +146,124 @@
       "users": "usuarios nuevos en Auth",
       "enrollments": "inscripciones",
       "row": "Fila",
-      "noRows": "No hay filas válidas. Revisá encabezados y campos obligatorios."
+      "noRows": "No hay filas válidas. Revisá encabezados y campos obligatorios.",
+      "paymentSlots": "líneas de pago (2026)"
+    },
+    "home": {
+      "title": "Administración",
+      "lead": "Importaciones, usuarios, pagos e inscripciones públicas."
+    },
+    "settings": {
+      "title": "Configuración",
+      "inscriptions": "Inscripciones públicas",
+      "inscriptionsHint": "Si está desactivado, el botón de inscripción no aparece en la home.",
+      "saved": "Guardado",
+      "error": "No se pudo guardar"
+    },
+    "users": {
+      "title": "Gestión de usuarios",
+      "lead": "Creá cuentas del portal (avisá la clave por tu canal habitual).",
+      "email": "Correo",
+      "password": "Contraseña inicial",
+      "role": "Rol",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "dni": "DNI / Pasaporte",
+      "phone": "Teléfono",
+      "submit": "Crear usuario",
+      "success": "Usuario creado",
+      "error": "No se pudo crear el usuario"
+    },
+    "payments": {
+      "title": "Validación de pagos",
+      "lead": "Aprobá o rechazá comprobantes subidos por padres/tutores.",
+      "none": "No hay pagos pendientes",
+      "student": "Alumno",
+      "period": "Período",
+      "amount": "Monto",
+      "receipt": "Comprobante",
+      "approve": "OK — Pagado",
+      "reject": "Rechazado",
+      "notes": "Notas internas",
+      "submittedBy": "Cuenta tutor"
+    },
+    "registrations": {
+      "title": "Inscripciones web",
+      "lead": "Contactos desde el formulario público.",
+      "none": "Todavía no hay solicitudes",
+      "name": "Nombre",
+      "dni": "DNI",
+      "email": "Correo",
+      "phone": "Teléfono",
+      "level": "Nivel de interés",
+      "status": "Estado",
+      "received": "Recibido",
+      "new": "Nuevo"
+    }
+  },
+  "register": {
+    "title": "Solicitud de inscripción",
+    "lead": "Contanos sobre vos. Te contactamos a la brevedad.",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "dni": "DNI / Pasaporte",
+    "email": "Correo",
+    "phone": "Teléfono",
+    "level": "Nivel de interés (opcional)",
+    "submit": "Enviar solicitud",
+    "successTitle": "Solicitud enviada",
+    "success": "¡Listo! Recibimos tu solicitud.",
+    "backHome": "Volver al inicio",
+    "anotherRequest": "Enviar otra solicitud",
+    "closed": "Por ahora las inscripciones están cerradas.",
+    "error": "Algo salió mal. Intentá de nuevo."
+  },
+  "dashboard": {
+    "adminNav": {
+      "aria": "Menú administración",
+      "mobileSelect": "Sección",
+      "home": "Resumen",
+      "import": "Importar CSV",
+      "users": "Usuarios",
+      "payments": "Pagos",
+      "registrations": "Inscripciones",
+      "settings": "Configuración"
+    },
+    "student": {
+      "title": "Mi progreso",
+      "attendance": "Asistencias",
+      "streak": "Racha actual",
+      "streakHint": "Clases obligatorias seguidas presente (desde la más reciente).",
+      "mandatoryMet": "Cumplidas",
+      "mandatoryMiss": "Ausencias",
+      "navAria": "Área alumno",
+      "navHome": "Inicio",
+      "mobileNav": "Ir a"
+    },
+      "parent": {
+      "title": "Panel familiar",
+      "lead": "Alumnos vinculados a tu cuenta.",
+      "paymentsTitle": "Cuotas",
+      "paymentsLead": "Subí el comprobante de transferencia para un mes pendiente.",
+      "child": "Alumno",
+      "month": "Mes",
+      "year": "Año",
+      "amount": "Monto",
+      "receipt": "Comprobante (PDF o imagen)",
+      "submit": "Enviar comprobante",
+      "success": "Comprobante recibido",
+      "error": "No se pudo subir",
+      "navAria": "Área tutores",
+      "navHome": "Inicio",
+      "navPay": "Pagos",
+      "mobileNav": "Ir a"
+    },
+    "teacher": {
+      "title": "Docentes",
+      "lead": "Pronto: asistencias y materiales de clase.",
+      "navAria": "Área docente",
+      "navHome": "Inicio",
+      "mobileNav": "Ir a"
     }
   }
 }

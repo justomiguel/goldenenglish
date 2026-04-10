@@ -36,29 +36,35 @@ export function LandingCertifications({
   return (
     <LandingSection
       title={dict.landing.certs.title}
-      className="bg-[var(--color-muted)]"
+      className="relative bg-[var(--color-muted)]"
     >
-      <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-3 md:gap-8">
-        {items.map(({ title, body, extra, Icon: CertIcon }) => (
-          <article key={title} className={bandArticle}>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[var(--color-primary)]/8 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] ring-1 ring-[var(--color-primary)]/10">
-              <CertIcon
-                className="h-3.5 w-3.5 shrink-0 opacity-85"
-                aria-hidden
-                strokeWidth={stroke}
-              />
-              {title}
-            </div>
-            <p className="text-sm leading-relaxed text-[var(--color-foreground)]">
-              {body}
-            </p>
-            {extra ? (
-              <p className="mt-3 border-t border-[var(--color-border)] pt-3 text-xs leading-snug text-[var(--color-muted-foreground)]">
-                {extra}
+      <div className="relative">
+        <div
+          className="landing-informal-wash pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[108%] w-screen max-w-[100vw] -translate-x-1/2 -translate-y-1/2 opacity-60"
+          aria-hidden
+        />
+        <div className="relative mx-auto grid max-w-4xl gap-6 md:grid-cols-3 md:gap-8">
+          {items.map(({ title, body, extra, Icon: CertIcon }) => (
+            <article key={title} className={bandArticle}>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[var(--color-primary)]/8 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[var(--color-primary)] ring-1 ring-[var(--color-primary)]/10">
+                <CertIcon
+                  className="h-3.5 w-3.5 shrink-0 opacity-85"
+                  aria-hidden
+                  strokeWidth={stroke}
+                />
+                {title}
+              </div>
+              <p className="text-sm leading-relaxed text-[var(--color-foreground)]">
+                {body}
               </p>
-            ) : null}
-          </article>
-        ))}
+              {extra ? (
+                <p className="mt-3 border-t border-[var(--color-border)] pt-3 text-xs leading-snug text-[var(--color-muted-foreground)]">
+                  {extra}
+                </p>
+              ) : null}
+            </article>
+          ))}
+        </div>
       </div>
     </LandingSection>
   );

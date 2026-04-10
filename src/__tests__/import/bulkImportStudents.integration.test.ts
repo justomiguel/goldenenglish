@@ -1,0 +1,136 @@
+// REGRESSION CHECK: Mocks Supabase server/admin clients — changes to assertAdmin or
+// createAdminClient chains may require updating this file.
+
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
+const mockCreateClient = vi.fn();
+const mockCreateAdmin = vi.fn();
+
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: () => mockCreateClient(),
+}));
+
+vi.mock("@/lib/supabase/admin", () => ({
+  createAdminClient: () => mockCreateAdmin(),
+}));
+
+import { bulkImportStudentsFromRows } from "@/app/[locale]/dashboard/admin/import/actions";
+
+function adminChain() {
+  const chain = {
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    maybeSingle: vi.fn(),
+    single: vi.fn(),
+    insert: vi.fn().mockResolvedValue({ error: null }),
+    upsert: vi.fn().mockResolvedValue({ error: null }),
+  };
+  return chain;
+}
+
+function setupSessionAsAdmin() {
+  const profilesChain = adminChain();
+  profilesChain.single.mockResolvedValue({
+    data: { role: "admin" },
+    error: null,
+  });
+
+  mockCreateClient.mockResolvedValue({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: { id: "admin-id" } } }),
+    },
+    from: vi.fn(() => profilesChain),
+  });
+}
+
+describe("bulkImportStudentsFromRows", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("throws when not authenticated", async () => {
+    mockCreateClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: null } }),
+      },
+    });
+
+    await expect(bulkImportStudentsFromRows([])).rejects.toThrow("Unauthorized");
+  });
+
+  it("throws when role is not admin", async () => {
+    const chain = adminChain();
+    chain.single.mockResolvedValue({
+      data: { role: "student" },
+      error: null,
+    });
+    mockCreateClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } }),
+      },
+      from: vi.fn(() => chain),
+    });
+
+    await expect(bulkImportStudentsFromRows([])).rejects.toThrow("Forbidden");
+  });
+
+  it("throws on invalid zod payload", async () => {
+    setupSessionAsAdmin();
+    mockCreateAdmin.mockReturnValue({});
+
+    await expect(
+      bulkImportStudentsFromRows([{ first_name: "" }]),
+    ).rejects.toThrow("Invalid CSV payload");
+  });
+
+  it("returns zeros for empty valid payload", async () => {
+    setupSessionAsAdmin();
+    mockCreateAdmin.mockReturnValue({ from: vi.fn(), auth: { admin: {} } });
+
+    const result = await bulkImportStudentsFromRows([]);
+    expect(result).toEqual({
+      processed: 0,
+      createdUsers: 0,
+      enrolled: 0,
+      paymentsSeeded: 0,
+      results: [],
+    });
+  });
+
+  it("creates user when profile not found by dni", async () => {
+    setupSessionAsAdmin();
+
+    const chain = adminChain();
+    chain.maybeSingle
+      .mockResolvedValueOnce({ data: null })
+      .mockResolvedValueOnce({ data: null });
+    chain.select.mockReturnValue(chain);
+    chain.eq.mockReturnValue(chain);
+    chain.limit.mockReturnValue(chain);
+
+    const createUser = vi.fn().mockResolvedValue({
+      data: { user: { id: "new-id" } },
+      error: null,
+    });
+
+    mockCreateAdmin.mockReturnValue({
+      from: vi.fn(() => chain),
+      auth: { admin: { createUser } },
+    });
+
+    const result = await bulkImportStudentsFromRows([
+      {
+        first_name: "Ada",
+        last_name: "Lovelace",
+        dni_or_passport: "999999",
+      },
+    ]);
+
+    expect(createUser).toHaveBeenCalled();
+    expect(result.createdUsers).toBe(1);
+    expect(result.processed).toBe(1);
+    expect(result.paymentsSeeded).toBe(12);
+    expect(result.results[0]).toMatchObject({ ok: true, rowIndex: 1 });
+  });
+});

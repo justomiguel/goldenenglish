@@ -69,17 +69,23 @@ export function LandingHeaderPwa({
         </p>
         <nav
           aria-label={dict.nav.sectionsAria}
-          className="flex px-2 pb-1"
+          className="grid grid-cols-3 px-1 pb-1"
         >
           <a
             href={`/${locale}#historia`}
-            className="min-h-11 flex-1 rounded-[var(--layout-border-radius)] py-2.5 text-center text-sm font-semibold text-[var(--color-foreground)] active:bg-[var(--color-muted)]/80"
+            className="min-h-11 rounded-[var(--layout-border-radius)] py-2.5 text-center text-xs font-semibold text-[var(--color-foreground)] active:bg-[var(--color-muted)]/80 sm:text-sm"
           >
             {dict.nav.about}
           </a>
           <a
+            href={`/${locale}#modalidades`}
+            className="min-h-11 rounded-[var(--layout-border-radius)] py-2.5 text-center text-xs font-semibold text-[var(--color-foreground)] active:bg-[var(--color-muted)]/80 sm:text-sm"
+          >
+            {dict.nav.modalities}
+          </a>
+          <a
             href={`/${locale}#niveles`}
-            className="min-h-11 flex-1 rounded-[var(--layout-border-radius)] py-2.5 text-center text-sm font-semibold text-[var(--color-foreground)] active:bg-[var(--color-muted)]/80"
+            className="min-h-11 rounded-[var(--layout-border-radius)] py-2.5 text-center text-xs font-semibold text-[var(--color-foreground)] active:bg-[var(--color-muted)]/80 sm:text-sm"
           >
             {dict.nav.courses}
           </a>

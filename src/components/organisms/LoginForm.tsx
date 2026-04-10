@@ -24,6 +24,8 @@ export function LoginForm({ labels, locale, nextPath = null }: LoginFormProps) {
     isLoading,
     setEmail,
     setPassword,
+    rememberMe,
+    setRememberMe,
     handleSubmit,
   } = useLogin(labels.errors, { locale, nextPath });
 
@@ -102,6 +104,16 @@ export function LoginForm({ labels, locale, nextPath = null }: LoginFormProps) {
             </div>
           }
         />
+
+        <label className="flex cursor-pointer items-center gap-3 text-left text-sm text-[var(--color-foreground)]">
+          <input
+            type="checkbox"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            className="h-4 w-4 rounded border-[var(--color-border)] text-[var(--color-primary)]"
+          />
+          <span>{labels.rememberMe}</span>
+        </label>
       </div>
 
       <Button

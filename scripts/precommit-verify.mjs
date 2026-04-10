@@ -139,17 +139,26 @@ function checkDictionaryParity() {
 }
 
 function checkPwaSurfaceHook() {
-  const hookPath = join(ROOT, "src/hooks/useAppSurface.ts");
-  if (!existsSync(hookPath)) {
+  const entryPath = join(ROOT, "src/hooks/useAppSurface.ts");
+  const corePath = join(ROOT, "src/hooks/useAppSurfaceCore.ts");
+  if (!existsSync(entryPath)) {
     fail("PWA: src/hooks/useAppSurface.ts is missing");
     return;
   }
-  const src = readFileSync(hookPath, "utf8");
+  if (!existsSync(corePath)) {
+    fail("PWA: src/hooks/useAppSurfaceCore.ts is missing");
+    return;
+  }
+  const entry = readFileSync(entryPath, "utf8");
+  if (!entry.includes("useAppSurfaceCore")) {
+    fail("PWA: useAppSurface.ts must compose useAppSurfaceCore");
+  }
+  const src = readFileSync(corePath, "utf8");
   if (!src.includes("display-mode: standalone")) {
-    fail("PWA: useAppSurface must use (display-mode: standalone) matchMedia");
+    fail("PWA: useAppSurfaceCore must use (display-mode: standalone) matchMedia");
   }
   if (!src.includes("standalone") || !src.includes("navigator")) {
-    fail("PWA: useAppSurface must detect iOS navigator.standalone");
+    fail("PWA: useAppSurfaceCore must detect iOS navigator.standalone");
   }
 }
 

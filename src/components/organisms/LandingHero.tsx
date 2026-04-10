@@ -3,12 +3,18 @@ import { ArrowRight, MessageCircle, Sparkles } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { BrandPublic } from "@/lib/brand/server";
 import { taglineForLocale } from "@/lib/brand/taglineForLocale";
+import { LandingTiltedPhoto } from "@/components/molecules/LandingTiltedPhoto";
+import {
+  INICIO_IMAGES,
+  sectionImageSrc,
+} from "@/lib/landing/sectionLandingImages";
 
 interface LandingHeroProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
   sessionEmail: string | null;
+  inscriptionsOpen: boolean;
 }
 
 export function LandingHero({
@@ -16,8 +22,10 @@ export function LandingHero({
   brand,
   locale,
   sessionEmail,
+  inscriptionsOpen,
 }: LandingHeroProps) {
   const heroTagline = taglineForLocale(brand, locale);
+  const shots = dict.landing.collage.alts;
 
   return (
     <section className="relative isolate overflow-hidden bg-[var(--color-primary-dark)] text-[var(--color-primary-foreground)]">
@@ -38,56 +46,108 @@ export function LandingHero({
         aria-hidden="true"
       />
 
+      <div
+        className="landing-hero-bubble-texture pointer-events-none absolute inset-0 opacity-[0.22] mix-blend-soft-light"
+        aria-hidden
+      />
+
       <div className="relative mx-auto max-w-[var(--layout-max-width)] px-4 pb-20 pt-16 md:pb-28 md:pt-24">
-        <p className="animate-fade-up mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--color-accent)]/40 bg-[var(--color-accent)]/10 px-4 py-1.5 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)] md:text-sm">
-          <Sparkles
-            className="h-3.5 w-3.5 shrink-0 opacity-90 md:h-4 md:w-4"
-            aria-hidden
-            strokeWidth={1.75}
-          />
-          {dict.landing.hero.kicker}
-        </p>
-        <h1 className="animate-fade-up animate-delay-1 font-display mx-auto max-w-4xl text-balance text-center leading-[1.1] tracking-tight md:leading-[1.08]">
-          <span className="block text-4xl font-semibold md:text-6xl">
-            {brand.name}
-          </span>
-          <span className="mt-5 block text-2xl font-normal leading-snug text-white/92 md:mt-6 md:text-3xl md:leading-snug">
-            {heroTagline}
-          </span>
-        </h1>
-        <div className="animate-fade-up animate-delay-3 mt-12 flex flex-wrap items-center justify-center gap-4">
-          <Link
-            href={
-              sessionEmail ? `/${locale}#niveles` : `/${locale}/login`
-            }
-            className="group inline-flex items-center justify-center rounded-[var(--layout-border-radius)] bg-[var(--color-accent)] px-8 py-4 text-base font-semibold text-[var(--color-accent-foreground)] shadow-[0_8px_30px_-6px_rgb(240_185_50_/50%)] transition duration-300 hover:scale-[1.02] hover:brightness-105 active:scale-[0.98]"
-          >
-            <span>
-              {sessionEmail
-                ? dict.landing.hero.ctaSignedIn
-                : dict.landing.hero.cta}
-            </span>
-            <ArrowRight
-              className="h-4 w-4 shrink-0 transition group-hover:translate-x-0.5"
-              aria-hidden
-              strokeWidth={1.75}
-            />
-          </Link>
-          {brand.socialWhatsapp ? (
-            <a
-              href={brand.socialWhatsapp}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-[var(--layout-border-radius)] border-2 border-white/35 bg-white/5 px-6 py-3.5 text-sm font-medium text-white backdrop-blur-sm transition hover:border-[var(--color-accent)]/80 hover:bg-white/10"
-            >
-              <MessageCircle
-                className="h-4 w-4 shrink-0 opacity-90"
+        <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-14">
+          <div className="text-center lg:text-left">
+            <p className="animate-fade-up mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--color-accent)]/40 bg-[var(--color-accent)]/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)] md:text-sm lg:mx-0">
+              <Sparkles
+                className="h-3.5 w-3.5 shrink-0 opacity-90 md:h-4 md:w-4"
                 aria-hidden
                 strokeWidth={1.75}
               />
-              WhatsApp
-            </a>
-          ) : null}
+              {dict.landing.hero.kicker}
+            </p>
+            <h1 className="animate-fade-up animate-delay-1 font-display mx-auto max-w-4xl text-balance leading-[1.1] tracking-tight md:leading-[1.08] lg:mx-0">
+              <span className="block text-4xl font-semibold md:text-6xl">
+                {brand.name}
+              </span>
+              <span className="mt-5 block text-2xl font-normal leading-snug text-white/92 md:mt-6 md:text-3xl md:leading-snug">
+                {heroTagline}
+              </span>
+            </h1>
+            <div className="animate-fade-up animate-delay-3 mt-12 flex flex-wrap items-center justify-center gap-4 lg:justify-start">
+              {sessionEmail || inscriptionsOpen ? (
+                <Link
+                  href={
+                    sessionEmail ? `/${locale}#niveles` : `/${locale}/register`
+                  }
+                  className="group inline-flex items-center justify-center rounded-[var(--layout-border-radius)] bg-[var(--color-accent)] px-8 py-4 text-base font-semibold text-[var(--color-accent-foreground)] shadow-[0_8px_30px_-6px_rgb(240_185_50_/50%)] transition duration-300 hover:scale-[1.02] hover:brightness-105 active:scale-[0.98]"
+                >
+                  <span>
+                    {sessionEmail
+                      ? dict.landing.hero.ctaSignedIn
+                      : dict.landing.hero.ctaRegister}
+                  </span>
+                  <ArrowRight
+                    className="h-4 w-4 shrink-0 transition group-hover:translate-x-0.5"
+                    aria-hidden
+                    strokeWidth={1.75}
+                  />
+                </Link>
+              ) : null}
+              {brand.socialWhatsapp ? (
+                <a
+                  href={brand.socialWhatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-[var(--layout-border-radius)] border-2 border-white/35 bg-white/5 px-6 py-3.5 text-sm font-medium text-white backdrop-blur-sm transition hover:border-[var(--color-accent)]/80 hover:bg-white/10"
+                >
+                  <MessageCircle
+                    className="h-4 w-4 shrink-0 opacity-90"
+                    aria-hidden
+                    strokeWidth={1.75}
+                  />
+                  WhatsApp
+                </a>
+              ) : null}
+            </div>
+
+            <div className="mt-10 flex justify-center gap-4 md:hidden">
+              <LandingTiltedPhoto
+                src={sectionImageSrc("inicio", INICIO_IMAGES[0])}
+                alt={shots[0] ?? ""}
+                className="w-[44%] max-w-[11rem]"
+                rotateClass="-rotate-5"
+                sizes="44vw"
+              />
+              <LandingTiltedPhoto
+                src={sectionImageSrc("inicio", INICIO_IMAGES[1])}
+                alt={shots[1] ?? ""}
+                className="w-[44%] max-w-[11rem] translate-y-5"
+                rotateClass="rotate-6"
+                sizes="44vw"
+              />
+            </div>
+          </div>
+
+          <div className="relative mx-auto hidden min-h-[300px] w-full max-w-md md:block lg:mx-0 lg:max-w-none lg:min-h-[360px]">
+            <LandingTiltedPhoto
+              src={sectionImageSrc("inicio", INICIO_IMAGES[0])}
+              alt={shots[0] ?? ""}
+              className="absolute left-0 top-10 w-[58%] lg:w-[54%]"
+              rotateClass="-rotate-6"
+              sizes="320px"
+            />
+            <LandingTiltedPhoto
+              src={sectionImageSrc("inicio", INICIO_IMAGES[1])}
+              alt={shots[1] ?? ""}
+              className="absolute right-0 top-0 z-10 w-[56%] lg:w-[52%]"
+              rotateClass="rotate-[7deg]"
+              sizes="300px"
+            />
+            <LandingTiltedPhoto
+              src={sectionImageSrc("inicio", INICIO_IMAGES[2])}
+              alt={shots[2] ?? ""}
+              className="absolute bottom-0 left-[14%] z-20 w-[52%] lg:left-[18%] lg:w-[48%]"
+              rotateClass="rotate-[3deg]"
+              sizes="280px"
+            />
+          </div>
         </div>
       </div>
     </section>

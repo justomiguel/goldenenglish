@@ -3,6 +3,7 @@ import { DM_Sans, Fraunces } from "next/font/google";
 import { loadProperties, getProperty } from "@/lib/theme/themeParser";
 import { faviconPublicDir } from "@/lib/brand/faviconDir";
 import { getBrandPublic } from "@/lib/brand/server";
+import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { PwaServiceWorkerRegister } from "@/components/molecules/PwaServiceWorkerRegister";
 import "./globals.css";
 
@@ -10,6 +11,8 @@ const themeProps = loadProperties();
 const themeColor = getProperty(themeProps, "color.primary", "#103A5C");
 const brand = getBrandPublic();
 const faviconDir = faviconPublicDir(brand.faviconPath);
+const metadataBase =
+  getPublicSiteUrl() ?? new URL("http://localhost:3000");
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -23,16 +26,22 @@ const dmSans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
+  adjustFontFallback: true,
 });
 
 const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
-  title: brand.name,
+  metadataBase,
+  title: {
+    default: brand.name,
+    template: `%s | ${brand.name}`,
+  },
   description: brand.tagline,
   icons: {
     icon: [

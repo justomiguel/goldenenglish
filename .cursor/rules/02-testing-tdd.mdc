@@ -1,6 +1,8 @@
 ---
 description: TDD Protocol — Tests first, 100% coverage gate, regression analysis required.
-globs: "*.ts, *.tsx"
+globs:
+  - "**/*.ts"
+  - "**/*.tsx"
 alwaysApply: false
 ---
 
@@ -10,8 +12,11 @@ alwaysApply: false
 
 1. **Red → Green → Refactor.** No feature code is written without a failing test first.
 2. **Test file location.** Tests live in `src/__tests__/` mirroring the source tree. Name convention: `ComponentName.test.tsx` or `hookName.test.ts`.
-3. **Coverage gate.** The `test:coverage` script must pass before any commit. Target: 100% line coverage on new code.
-4. **Pre-commit hook.** A Husky pre-commit hook runs `vitest run --coverage`. The commit is rejected if coverage drops below threshold.
+3. **Coverage gate.** `npm run test:coverage` must pass before any commit. Thresholds are enforced in `vitest.config.ts`:
+   - **In scope (must stay at 100% lines / statements / functions):** `src/lib/**/*`, `src/hooks/**/*`, `src/proxy.ts`.
+   - **Branches:** global threshold **100%** on that same scope (see `vitest.config.ts` `coverage.thresholds`).
+   - **Out of scope for this gate:** `src/app/**` (exercise with E2E or integration tests later), `src/types/**`, test harness files. UI components under `src/components/**` are still tested but are **not** part of the coverage `include` list unless the config is deliberately expanded.
+4. **Pre-commit policy.** The repo expects `npm run precommit` before pushing: `eslint`, `node scripts/precommit-verify.mjs`, then `npm run test:coverage`. A Husky hook should call this script; commits are not merge-ready if any step fails.
 
 ## Test Categories
 

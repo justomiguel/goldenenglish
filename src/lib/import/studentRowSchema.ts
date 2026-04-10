@@ -11,6 +11,12 @@ export const csvStudentRowSchema = z.object({
   email: z.string().optional(),
   level: cef.optional(),
   academic_year: z.coerce.number().int().min(2000).max(2100).optional(),
+  tutor_dni: z.string().optional(),
+  tutor_email: z.string().optional(),
+  tutor_first_name: z.string().optional(),
+  tutor_last_name: z.string().optional(),
+  tutor_phone: z.string().optional(),
+  monthly_fee: z.coerce.number().nonnegative().optional(),
 });
 
 export type CsvStudentRow = z.infer<typeof csvStudentRowSchema>;

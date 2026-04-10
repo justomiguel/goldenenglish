@@ -7,12 +7,18 @@ import { useLogin } from "@/hooks/useLogin";
 
 const mockSignInWithPassword = vi.fn();
 
+const { mockSetRememberMePreference } = vi.hoisted(() => ({
+  mockSetRememberMePreference: vi.fn(),
+}));
+
 vi.mock("@/lib/supabase/client", () => ({
   createClient: () => ({
     auth: {
       signInWithPassword: mockSignInWithPassword,
     },
   }),
+  getRememberMePreference: vi.fn(() => true),
+  setRememberMePreference: mockSetRememberMePreference,
 }));
 
 const assignSpy = vi.fn();
@@ -172,8 +178,36 @@ describe("useLogin", () => {
       await result.current.handleSubmit();
     });
 
+    expect(mockSetRememberMePreference).toHaveBeenCalledWith(true);
     expect(assignSpy).toHaveBeenCalledWith("/en");
     expect(result.current.error).toBeNull();
+  });
+
+  it("passes remember-me false before sign-in when unchecked", async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      data: { user: { id: "1" }, session: {} },
+      error: null,
+    });
+
+    const { result } = renderHook(() =>
+      useLogin(mockDictionary.login.errors, loginOpts),
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    act(() => {
+      result.current.setRememberMe(false);
+      result.current.setEmail("user@example.com");
+      result.current.setPassword("correct123");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(mockSetRememberMePreference).toHaveBeenCalledWith(false);
   });
 
   it("uses next query path when safe", async () => {
@@ -281,5 +315,144 @@ describe("useLogin", () => {
       "An error occurred. Please try again.",
     );
     expect(result.current.isLoading).toBe(false);
+  });
+
+  it("uses invalidCredentials when auth error has no message", async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      data: { user: null, session: null },
+      error: { message: "   " },
+    });
+
+    const { result } = renderHook(() =>
+      useLogin(mockDictionary.login.errors, loginOpts),
+    );
+
+    act(() => {
+      result.current.setEmail("a@b.com");
+      result.current.setPassword("x");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(result.current.error).toBe("Invalid email or password");
+  });
+
+  it("uses trimmed message when auth error has message but no code", async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      data: { user: null, session: null },
+      error: { message: "  Too many attempts  " },
+    });
+
+    const { result } = renderHook(() =>
+      useLogin(mockDictionary.login.errors, loginOpts),
+    );
+
+    act(() => {
+      result.current.setEmail("a@b.com");
+      result.current.setPassword("x");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(result.current.error).toBe("Too many attempts");
+  });
+
+  it("shows generic error when session is missing after success response", async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      data: { user: { id: "1" }, session: null },
+      error: null,
+    });
+
+    const { result } = renderHook(() =>
+      useLogin(mockDictionary.login.errors, loginOpts),
+    );
+
+    act(() => {
+      result.current.setEmail("user@example.com");
+      result.current.setPassword("pass");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(result.current.error).toBe("An error occurred. Please try again.");
+    expect(assignSpy).not.toHaveBeenCalled();
+  });
+
+  it("sets redirecting true after successful login", async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      data: { user: { id: "1" }, session: {} },
+      error: null,
+    });
+
+    const { result } = renderHook(() =>
+      useLogin(mockDictionary.login.errors, loginOpts),
+    );
+
+    act(() => {
+      result.current.setEmail("user@example.com");
+      result.current.setPassword("correct123");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(result.current.redirecting).toBe(true);
+  });
+
+  it("falls back to locale path when next contains protocol-like segment", async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      data: { user: { id: "1" }, session: {} },
+      error: null,
+    });
+
+    const { result } = renderHook(() =>
+      useLogin(mockDictionary.login.errors, {
+        locale: "es",
+        nextPath: "/es/page/http://trap",
+      }),
+    );
+
+    act(() => {
+      result.current.setEmail("user@example.com");
+      result.current.setPassword("x");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(assignSpy).toHaveBeenCalledWith("/es");
+  });
+
+  it("falls back when next contains backslash", async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      data: { user: { id: "1" }, session: {} },
+      error: null,
+    });
+
+    const { result } = renderHook(() =>
+      useLogin(mockDictionary.login.errors, {
+        locale: "en",
+        nextPath: "/en\\windows",
+      }),
+    );
+
+    act(() => {
+      result.current.setEmail("u@e.com");
+      result.current.setPassword("x");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(assignSpy).toHaveBeenCalledWith("/en");
   });
 });

@@ -1,6 +1,10 @@
 ---
 description: Design System + branding — Atomic Design, tokens from system.properties, no ad-hoc identity.
-globs: "*.tsx, *.ts, *.css, *.tailwind.js, system.properties"
+globs:
+  - "**/*.tsx"
+  - "**/*.ts"
+  - "**/*.css"
+  - "system.properties"
 alwaysApply: true
 ---
 

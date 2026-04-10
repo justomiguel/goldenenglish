@@ -2,15 +2,17 @@ import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { LandingHero } from "@/components/organisms/LandingHero";
 import { LandingStory } from "@/components/organisms/LandingStory";
-import { LandingOffer } from "@/components/organisms/LandingOffer";
+import { LandingModalities } from "@/components/organisms/LandingModalities";
 import { LandingLevels } from "@/components/organisms/LandingLevels";
 import { LandingCertifications } from "@/components/organisms/LandingCertifications";
 
+/** Orden: hero → historia → modalidades (incluye públicos y cards) → niveles → certificaciones. */
 interface LandingMainSectionsProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
   sessionEmail: string | null;
+  inscriptionsOpen: boolean;
 }
 
 export function LandingMainSections({
@@ -18,6 +20,7 @@ export function LandingMainSections({
   brand,
   locale,
   sessionEmail,
+  inscriptionsOpen,
 }: LandingMainSectionsProps) {
   return (
     <main>
@@ -26,9 +29,10 @@ export function LandingMainSections({
         brand={brand}
         locale={locale}
         sessionEmail={sessionEmail}
+        inscriptionsOpen={inscriptionsOpen}
       />
       <LandingStory dict={dict} brand={brand} />
-      <LandingOffer dict={dict} />
+      <LandingModalities dict={dict} />
       <LandingLevels dict={dict} />
       <LandingCertifications dict={dict} brand={brand} />
     </main>

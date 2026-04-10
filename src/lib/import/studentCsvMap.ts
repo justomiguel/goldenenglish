@@ -26,6 +26,24 @@ const HEADER_ALIASES: Record<string, keyof CsvStudentRow | "skip"> = {
   anio: "academic_year",
   academic_year: "academic_year",
   año_lectivo: "academic_year",
+  dni_tutor: "tutor_dni",
+  tutor_dni: "tutor_dni",
+  dni_del_tutor: "tutor_dni",
+  tutor_documento: "tutor_dni",
+  email_tutor: "tutor_email",
+  tutor_email: "tutor_email",
+  nombre_tutor: "tutor_first_name",
+  tutor_nombre: "tutor_first_name",
+  apellido_tutor: "tutor_last_name",
+  tutor_apellido: "tutor_last_name",
+  telefono_tutor: "tutor_phone",
+  tutor_telefono: "tutor_phone",
+  cuota: "monthly_fee",
+  cuota_mensual: "monthly_fee",
+  monthly_fee: "monthly_fee",
+  /** Columnas ignoradas en plantillas (p. ej. notas libres). */
+  observaciones: "skip",
+  notas: "skip",
 };
 
 function normKey(k: string): string {
@@ -53,6 +71,11 @@ export function mapCsvRecord(raw: Record<string, unknown>): CsvStudentRow | null
     }
     if (target === "academic_year") {
       out.academic_year = Number.parseInt(s, 10);
+      continue;
+    }
+    if (target === "monthly_fee") {
+      const n = Number.parseFloat(s.replace(",", "."));
+      if (!Number.isNaN(n)) out.monthly_fee = n;
       continue;
     }
     (out as Record<string, unknown>)[target] = s;

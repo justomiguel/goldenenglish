@@ -55,7 +55,7 @@ export function ImportStudents({ labels }: ImportStudentsProps) {
         const result = await bulkImportStudentsFromRows(checked.data);
         const failed = result.results.filter((r) => !r.ok);
         setSummary(
-          `${labels.done}: ${result.processed} ${labels.rows}, +${result.createdUsers} ${labels.users}, +${result.enrolled} ${labels.enrollments}`,
+          `${labels.done}: ${result.processed} ${labels.rows}, +${result.createdUsers} ${labels.users}, +${result.enrolled} ${labels.enrollments}, +${result.paymentsSeeded} ${labels.paymentSlots}`,
         );
         if (failed.length > 0) {
           setDetail(

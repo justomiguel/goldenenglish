@@ -1,7 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useState, useEffect } from "react";
+import {
+  createClient,
+  getRememberMePreference,
+  setRememberMePreference,
+} from "@/lib/supabase/client";
 
 interface LoginErrors {
   invalidCredentials: string;
@@ -35,9 +39,14 @@ function safeInternalPath(next: string | null | undefined, locale: string): stri
 export function useLogin(errorMessages: LoginErrors, options: UseLoginOptions) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [redirecting, setRedirecting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setRememberMe(getRememberMePreference());
+  }, []);
 
   async function handleSubmit() {
     setError(null);
@@ -57,6 +66,7 @@ export function useLogin(errorMessages: LoginErrors, options: UseLoginOptions) {
     let succeeded = false;
 
     try {
+      setRememberMePreference(rememberMe);
       const supabase = createClient();
       const { data, error: authError } = await supabase.auth.signInWithPassword(
         {
@@ -110,6 +120,8 @@ export function useLogin(errorMessages: LoginErrors, options: UseLoginOptions) {
     isLoading,
     setEmail,
     setPassword,
+    rememberMe,
+    setRememberMe,
     handleSubmit,
   };
 }

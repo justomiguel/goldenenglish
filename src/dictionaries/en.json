@@ -23,6 +23,7 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "submitButton": "Sign In",
+    "rememberMe": "Remember me on this device",
     "redirecting": "Signing you in…",
     "forgotPassword": "Forgot your password?",
     "noAccount": "Don't have an account?",
@@ -43,12 +44,14 @@
     "logout": "Sign Out",
     "sectionsAria": "Page sections",
     "accountAria": "Language and account",
-    "sectionsKicker": "Explore"
+    "sectionsKicker": "Explore",
+    "modalities": "Modalities"
   },
   "landing": {
     "hero": {
       "kicker": "Welcome to the GOLDEN universe",
       "cta": "Early enrollment 2026",
+      "ctaRegister": "Enroll now",
       "ctaSignedIn": "Browse levels"
     },
     "story": {
@@ -56,20 +59,61 @@
       "body1": "Born in 2005 in Riacho He Hé (Formosa), we built a warm, rigorous learning space for every age.",
       "body2": "We focus on dynamic, playful classes grounded in real-life situations so you use the language with confidence."
     },
-    "offer": {
-      "title": "Who we teach & how",
-      "audiencesTitle": "Programs",
+    "modalities": {
+      "title": "On-site & live online",
+      "intro": "You can choose the format that fits your routine without giving up the same CEFR-based path, the Ministry of Education of Formosa recognition (Res. 1297/05), and our UTN and Cambridge preparation routes.",
+      "audiencesTitle": "Who we welcome",
       "kids": "Children (from age 5)",
       "teens": "Teenagers (from age 11)",
       "adults": "Adults",
-      "onlineTitle": "Live online classes",
-      "onlineLead": "100% live sessions, twice a week (60 minutes).",
-      "onlineB1": "Save travel time and keep a steady rhythm with constant teacher support.",
-      "onlineB2": "Small groups, conversation practice, and materials aligned to international standards."
+      "presencial": {
+        "title": "On-site classes",
+        "lead": "Learn at our campus in Riacho He Hé: guided lessons, steady pacing, and the social energy of a real classroom.",
+        "b1": "Small groups with close teacher support and clear speaking practice.",
+        "b2": "Printed and digital materials that match each level of the framework.",
+        "b3": "Community moments—presentations, screenings, and celebrations—with staff and classmates."
+      },
+      "remota": {
+        "title": "Live distance learning",
+        "lead": "Study from home with 100% live sessions—no passive recordings—with the same objectives and follow-up as on-site courses.",
+        "b1": "Typically two live meetings per week (60 minutes), with steady instructor guidance.",
+        "b2": "Reduced groups, guided conversation, and international-standard materials.",
+        "b3": "Ideal if you want to save travel time while keeping a rigorous rhythm."
+      }
+    },
+    "collage": {
+      "alts": [
+        "Students in an on-site English class, seated at desks with the teacher at the front of the room.",
+        "Learners working during a lesson in the institute’s classroom.",
+        "Group of children smiling together during an in-person cultural activity at the center.",
+        "Students and a teacher celebrating exams with certificates in front of an institute banner."
+      ]
+    },
+    "studentGallery": {
+      "title": "Our students",
+      "intro": "Tap an album to browse photos from class and celebrations.",
+      "viewPhotos": "Photos",
+      "close": "Close gallery",
+      "previous": "Previous photo",
+      "next": "Next photo",
+      "items": [
+        {
+          "name": "Classroom moments",
+          "coverIndex": 0,
+          "photoIndexes": [0, 1]
+        },
+        {
+          "name": "Community & milestones",
+          "coverIndex": 2,
+          "photoIndexes": [2, 3]
+        }
+      ]
     },
     "levels": {
       "title": "Study levels",
-      "intro": "Progression follows the Common European Framework of Reference (CEFR): clear goals from your first words to professional fluency.",
+      "introLead": "Progression follows the ",
+      "introEmphasis": "Common European Framework of Reference (CEFR)",
+      "introTrail": ": a path from A1 to C2. At C2, the framework describes its ceiling—performance across skills at 100% of the reference.",
       "beginner": "Beginner",
       "intermediate": "Intermediate",
       "advanced": "Advanced",
@@ -91,7 +135,7 @@
   "admin": {
     "import": {
       "title": "Import students (CSV)",
-      "hint": "Columns supported (Spanish or English headers): nombre/first_name, apellido/last_name, dni or documento, teléfono/phone, email, fecha_nacimiento/birth_date (YYYY-MM-DD), nivel/level (A1–C2), academic_year (default 2026). Temporary password defaults to the student’s DNI (padded to 6 characters if needed).",
+      "hint": "Columns supported (Spanish or English headers): nombre/first_name, apellido/last_name, dni or documento, teléfono/phone, email, fecha_nacimiento/birth_date (YYYY-MM-DD), nivel/level (A1–C2), academic_year (default 2026), dni_tutor/tutor_dni, tutor_email, nombre_tutor/apellido_tutor, cuota/monthly_fee (optional). Creates parent account + links when tutor DNI is present. Seeds 12 pending payments for 2026. Password defaults to the student’s DNI (padded to 6 characters if needed).",
       "chooseFile": "Choose CSV file",
       "processing": "Processing…",
       "parseError": "Could not parse CSV",
@@ -102,7 +146,124 @@
       "users": "new auth users",
       "enrollments": "enrollments",
       "row": "Row",
-      "noRows": "No valid rows found. Check headers and required fields."
+      "noRows": "No valid rows found. Check headers and required fields.",
+      "paymentSlots": "payment lines (2026)"
+    },
+    "home": {
+      "title": "Administration",
+      "lead": "Manage imports, users, payments, and public enrollment."
+    },
+    "settings": {
+      "title": "Settings",
+      "inscriptions": "Public registrations",
+      "inscriptionsHint": "When off, the enrollment button is hidden from the landing page.",
+      "saved": "Saved",
+      "error": "Could not save"
+    },
+    "users": {
+      "title": "User management",
+      "lead": "Create portal accounts (password is emailed to the user manually from your process).",
+      "email": "Email",
+      "password": "Initial password",
+      "role": "Role",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "dni": "ID / passport",
+      "phone": "Phone",
+      "submit": "Create user",
+      "success": "User created",
+      "error": "Could not create user"
+    },
+    "payments": {
+      "title": "Payment review",
+      "lead": "Approve or reject receipts uploaded by parents.",
+      "none": "No pending payments",
+      "student": "Student",
+      "period": "Period",
+      "amount": "Amount",
+      "receipt": "Receipt",
+      "approve": "OK — Paid",
+      "reject": "Rejected",
+      "notes": "Admin notes",
+      "submittedBy": "Parent account"
+    },
+    "registrations": {
+      "title": "Web registrations",
+      "lead": "Prospective students from the public form.",
+      "none": "No registrations yet",
+      "name": "Name",
+      "dni": "ID",
+      "email": "Email",
+      "phone": "Phone",
+      "level": "Level interest",
+      "status": "Status",
+      "received": "Received",
+      "new": "New"
+    }
+  },
+  "register": {
+    "title": "Enrollment request",
+    "lead": "Tell us about you. Our team will contact you.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "dni": "ID / passport",
+    "email": "Email",
+    "phone": "Phone",
+    "level": "Level of interest (optional)",
+    "submit": "Send request",
+    "successTitle": "Request sent",
+    "success": "Thank you! We received your request.",
+    "backHome": "Back to home",
+    "anotherRequest": "Send another request",
+    "closed": "Enrollment is closed at the moment.",
+    "error": "Something went wrong. Try again."
+  },
+  "dashboard": {
+    "adminNav": {
+      "aria": "Admin navigation",
+      "mobileSelect": "Section",
+      "home": "Overview",
+      "import": "Import CSV",
+      "users": "Users",
+      "payments": "Payments",
+      "registrations": "Registrations",
+      "settings": "Settings"
+    },
+    "student": {
+      "title": "My progress",
+      "attendance": "Attendance",
+      "streak": "Current streak",
+      "streakHint": "Mandatory classes present in a row (most recent first).",
+      "mandatoryMet": "Completed",
+      "mandatoryMiss": "Absences",
+      "navAria": "Student area",
+      "navHome": "Overview",
+      "mobileNav": "Go to"
+    },
+    "parent": {
+      "title": "Family dashboard",
+      "lead": "Children linked to your account.",
+      "paymentsTitle": "Monthly payments",
+      "paymentsLead": "Upload a transfer receipt to a pending month.",
+      "child": "Student",
+      "month": "Month",
+      "year": "Year",
+      "amount": "Amount",
+      "receipt": "Receipt (PDF or image)",
+      "submit": "Send receipt",
+      "success": "Receipt uploaded",
+      "error": "Could not upload",
+      "navAria": "Parent area",
+      "navHome": "Overview",
+      "navPay": "Payments",
+      "mobileNav": "Go to"
+    },
+    "teacher": {
+      "title": "Teacher area",
+      "lead": "Attendance and class tools will appear here.",
+      "navAria": "Teacher area",
+      "navHome": "Overview",
+      "mobileNav": "Go to"
     }
   }
 }

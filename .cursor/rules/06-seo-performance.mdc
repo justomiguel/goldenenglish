@@ -1,0 +1,48 @@
+---
+description: SEO técnico, Core Web Vitals / Lighthouse y headers — obligatorio en rutas y assets públicos.
+alwaysApply: true
+---
+
+# SEO, rendimiento (Lighthouse / Google) y buenas prácticas
+
+## Objetivo
+
+Cada cambio que afecte **rutas públicas**, **metadatos**, **imágenes** o **bundles** debe mantener buena puntuación en **Google Search Essentials**, **Lighthouse** (Performance, Accessibility, Best Practices, SEO) y **Core Web Vitals** (LCP, INP, CLS).
+
+***
+
+## SEO técnico (no negociable para páginas índice)
+
+1. **`NEXT_PUBLIC_APP_URL`** — Debe ser el **origen canónico** real en producción (HTTPS, sin barra final inconsistente). Se usa vía `getPublicSiteUrl()` en `src/lib/site/publicUrl.ts` para **metadataBase**, OG absolutos cuando aplica, **sitemap** y **JSON-LD**. En Vercel, si falta la env, existe **fallback** a `VERCEL_URL`; en local usar `http://localhost:3000`.
+2. **Metadatos** — Rutas con intención de ranking deben definir **`generateMetadata`** o **`metadata`** con **título** (idealmente con `template` en el root), **description** útil, y **canónica** / **hreflang** donde haya locales (`alternates.canonical`, `alternates.languages`, `x-default` alineado a `defaultLocale` en `src/lib/i18n/dictionaries.ts`).
+3. **`robots.ts` / `sitemap.ts`** — Mantener coherencia: **no** listar en el sitemap rutas que deban ser **noindex** (p. ej. herramientas autenticadas). Las páginas privadas o de back-office deben exportar **`robots: { index: false, follow: false }`**.
+4. **Datos estructurados** — Organización / negocio: preferir **JSON-LD** alineado a `schema.org`, con datos de **`getBrandPublic()`** / `system.properties`, no strings sueltos de marca.
+5. **Branding en copy** — Títulos y descripciones que incluyan nombre o lema siguen **01-design-system** (fuente única de marca).
+
+***
+
+## Rendimiento y Lighthouse
+
+1. **`next/image`** — Imágenes con **dimensiones** explícitas o `fill` + contenedor estable; **`priority`** solo en **LCP**; resto **lazy** por defecto.
+2. **Fuentes** — `next/font`: **`display: swap`**, **`adjustFontFallback: true`** donde el proveedor lo permita; evitar cadenas de fuentes innecesarias.
+3. **Bundles** — Preferir imports **acotados** (p. ej. iconos); mantener **`experimental.optimizePackageImports`** para librerías listadas en `next.config.ts` cuando el upgrade lo siga soportando.
+4. **`next.config`** — Respetar **`images.formats`** (AVIF/WebP), **`minimumCacheTTL`** razonable, **headers** de seguridad ligera ya definidos; no desactivar **compress** en producción.
+
+***
+
+## Checklist al añadir una ruta pública
+
+- [ ] ¿Hay **title/description** y **canonical** (y traducciones si aplica)?
+- [ ] ¿La URL debe ir en **sitemap**? Si no, ¿**noindex**?
+- [ ] ¿Hay **LCP** (imagen o texto) sin CLS brusco?
+- [ ] ¿**OG/Twitter** coherentes con la página (o heredados correctamente del layout)?
+- [ ] ¿Nada de **marca duplicada** fuera de `system.properties` / capa brand?
+
+***
+
+## Referencias en el repo
+
+- Origen público: `src/lib/site/publicUrl.ts`
+- Layout locale + hreflang + OG por defecto: `src/app/[locale]/layout.tsx`
+- JSON-LD: `src/components/molecules/JsonLdOrganization.tsx`
+- Sitemap / robots: `src/app/sitemap.ts`, `src/app/robots.ts`

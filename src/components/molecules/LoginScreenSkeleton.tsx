@@ -20,7 +20,11 @@ export function LoginScreenSkeleton() {
         </div>
         <div className="mx-4 mt-4 overflow-hidden rounded-2xl bg-[var(--color-primary-dark)] px-5 py-6">
           <div className="flex items-center gap-4">
-            <div className={`h-14 w-14 shrink-0 rounded-[var(--layout-border-radius)] ${pulseDark}`} />
+            <div
+              className={`shrink-0 rounded-[var(--layout-border-radius)] bg-[var(--color-surface)] p-1.5 ring-1 ring-[var(--color-border)]`}
+            >
+              <div className={`h-14 w-14 rounded-[var(--layout-border-radius)] ${pulse}`} />
+            </div>
             <div className="min-w-0 flex-1 space-y-2">
               <div className={`h-4 w-3/4 max-w-[12rem] ${pulseDark}`} />
               <div className={`h-3 w-full max-w-[14rem] ${pulseDark}`} />
@@ -54,7 +58,11 @@ export function LoginScreenSkeleton() {
       <div className="hidden min-h-screen md:grid md:grid-cols-2">
         <aside className="relative flex flex-col justify-center bg-[var(--color-primary-dark)] px-8 py-12 md:px-12 lg:px-16">
           <div className="mx-auto w-full max-w-lg space-y-6 md:mx-0">
-            <div className={`mx-auto h-24 w-24 rounded-[var(--layout-border-radius)] md:mx-0 ${pulseDark}`} />
+            <div className="mx-auto w-fit md:mx-0">
+              <div className="rounded-[var(--layout-border-radius)] bg-[var(--color-surface)] p-2 ring-1 ring-[var(--color-border)]">
+                <div className={`h-24 w-24 rounded-[var(--layout-border-radius)] ${pulse}`} />
+              </div>
+            </div>
             <div className={`mx-auto h-8 w-3/5 max-w-xs md:mx-0 ${pulseDark}`} />
             <div className="mx-auto space-y-2 md:mx-0">
               <div className={`h-4 w-full max-w-md ${pulseDark}`} />

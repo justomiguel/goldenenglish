@@ -98,3 +98,36 @@ body {
 .text-balance {
   text-wrap: balance;
 }
+
+/*
+ * Landing “collage” washes — only semantic palette tokens (see system.properties).
+ */
+.landing-informal-wash {
+  background-image:
+    radial-gradient(
+      circle at 18% 22%,
+      color-mix(in srgb, var(--color-accent) 24%, transparent) 0%,
+      transparent 48%
+    ),
+    radial-gradient(
+      circle at 82% 68%,
+      color-mix(in srgb, var(--color-secondary) 20%, transparent) 0%,
+      transparent 44%
+    ),
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-primary) 14%, transparent) 1.5px,
+      transparent 2px
+    );
+  background-size: auto, auto, 20px 26px;
+}
+
+/* Light “bubble” dots on dark hero — uses primary-foreground token */
+.landing-hero-bubble-texture {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-primary-foreground) 18%, transparent) 2px,
+    transparent 2.6px
+  );
+  background-size: 22px 28px;
+}

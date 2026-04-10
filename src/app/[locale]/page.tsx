@@ -1,6 +1,7 @@
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandPublic } from "@/lib/brand/server";
 import { createClient } from "@/lib/supabase/server";
+import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { LandingSurfaceGate } from "@/components/organisms/LandingSurfaceGate";
 import { LandingScreenDesktop } from "@/components/desktop/organisms/LandingScreenDesktop";
 import { LandingMainSections } from "@/components/organisms/LandingMainSections";
@@ -15,9 +16,10 @@ export default async function HomePage({ params }: HomePageProps) {
   const { data: { user } } = await supabase.auth.getUser();
   const sessionEmail = user?.email ?? null;
 
-  const [dict, brand] = await Promise.all([
+  const [dict, brand, inscriptionsOpen] = await Promise.all([
     getDictionary(locale),
     Promise.resolve(getBrandPublic()),
+    getInscriptionsEnabled(),
   ]);
 
   const main = (
@@ -26,6 +28,7 @@ export default async function HomePage({ params }: HomePageProps) {
       brand={brand}
       locale={locale}
       sessionEmail={sessionEmail}
+      inscriptionsOpen={inscriptionsOpen}
     />
   );
 

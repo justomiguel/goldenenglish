@@ -1,25 +1,37 @@
 // REGRESSION CHECK: Initial test for LoginForm organism.
 // Depends on useLogin hook — mocked at boundary per TDD rules.
 
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LoginForm } from "@/components/organisms/LoginForm";
 
 const mockHandleSubmit = vi.fn();
 const mockSetEmail = vi.fn();
 const mockSetPassword = vi.fn();
+const mockSetRememberMe = vi.fn();
 
 const defaultHookReturn = {
   email: "",
   password: "",
+  rememberMe: true,
   error: null as string | null,
   redirecting: false,
   isLoading: false,
   setEmail: mockSetEmail,
   setPassword: mockSetPassword,
+  setRememberMe: mockSetRememberMe,
   handleSubmit: mockHandleSubmit,
 };
+
+function resetLoginFormHookMock() {
+  defaultHookReturn.email = "";
+  defaultHookReturn.password = "";
+  defaultHookReturn.rememberMe = true;
+  defaultHookReturn.error = null;
+  defaultHookReturn.redirecting = false;
+  defaultHookReturn.isLoading = false;
+}
 
 vi.mock("@/hooks/useLogin", () => ({
   useLogin: () => defaultHookReturn,
@@ -34,6 +46,7 @@ const labels = {
   passwordLabel: "Password",
   passwordPlaceholder: "Your password",
   submitButton: "Sign In",
+  rememberMe: "Remember me",
   redirecting: "Signing you in…",
   forgotPassword: "Forgot your password?",
   noAccount: "Don't have an account?",
@@ -49,6 +62,11 @@ const labels = {
 };
 
 describe("LoginForm", () => {
+  beforeEach(() => {
+    resetLoginFormHookMock();
+    vi.clearAllMocks();
+  });
+
   it("renders email and password fields", () => {
     render(<LoginForm labels={labels} locale="en" />);
 
@@ -98,17 +116,27 @@ describe("LoginForm", () => {
     expect(
       screen.getByText("Invalid email or password"),
     ).toBeInTheDocument();
+  });
 
-    defaultHookReturn.error = null;
+  it("shows redirecting status when enabled by hook", () => {
+    defaultHookReturn.redirecting = true;
+    render(<LoginForm labels={labels} locale="en" />);
+    expect(screen.getByRole("status")).toHaveTextContent(labels.redirecting);
   });
 
   it("calls handleSubmit on form submission", async () => {
     const user = userEvent.setup();
-    render(<LoginForm labels={labels} locale="en" />);
+    const { container } = render(<LoginForm labels={labels} locale="en" />);
 
     const button = screen.getByRole("button", { name: /sign in/i });
     await user.click(button);
 
+    expect(mockHandleSubmit).toHaveBeenCalled();
+
+    mockHandleSubmit.mockClear();
+    const formEl = container.querySelector("form");
+    expect(formEl).toBeTruthy();
+    fireEvent.submit(formEl!);
     expect(mockHandleSubmit).toHaveBeenCalled();
   });
 
@@ -118,7 +146,5 @@ describe("LoginForm", () => {
     render(<LoginForm labels={labels} locale="en" />);
 
     expect(screen.getByRole("button", { name: /sign in/i })).toBeDisabled();
-
-    defaultHookReturn.isLoading = false;
   });
 });

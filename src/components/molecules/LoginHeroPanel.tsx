@@ -21,14 +21,18 @@ export function LoginHeroPanel({ brand, locale }: LoginHeroPanelProps) {
         href={homeHref}
         className="group block rounded-[var(--layout-border-radius)] outline-none ring-offset-2 ring-offset-[var(--color-primary-dark)] transition duration-300 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
       >
-        <Image
-          src={brand.logoPath}
-          alt={brand.logoAlt || brand.name}
-          width={96}
-          height={96}
-          className="mx-auto h-20 w-20 rounded-[var(--layout-border-radius)] shadow-[0_12px_40px_-8px_rgb(0_0_0_/45%)] ring-2 ring-white/15 transition duration-300 group-hover:ring-[var(--color-accent)]/50 md:mx-0 lg:h-24 lg:w-24"
-          priority
-        />
+        <div className="mx-auto w-fit md:mx-0">
+          <div className="rounded-[var(--layout-border-radius)] bg-[var(--color-surface)] p-2 shadow-[0_12px_40px_-8px_rgb(0_0_0_/45%)] ring-1 ring-[var(--color-border)] transition duration-300 group-hover:ring-[var(--color-accent)]/40">
+            <Image
+              src={brand.logoPath}
+              alt={brand.logoAlt || brand.name}
+              width={96}
+              height={96}
+              className="block h-20 w-20 rounded-[var(--layout-border-radius)] lg:h-24 lg:w-24"
+              priority
+            />
+          </div>
+        </div>
         <h2 className="font-display mt-7 text-center text-3xl font-semibold leading-[1.15] tracking-tight text-[var(--color-primary-foreground)] transition duration-300 group-hover:text-[var(--color-accent)] md:mt-8 md:text-left lg:text-4xl">
           {brand.name}
         </h2>

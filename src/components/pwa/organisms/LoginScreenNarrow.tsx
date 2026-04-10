@@ -68,14 +68,16 @@ export function LoginScreenNarrow({
           href={homeHref}
           className="relative flex items-center gap-4 rounded-[var(--layout-border-radius)] outline-none ring-offset-2 ring-offset-[var(--color-primary-dark)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
         >
-          <Image
-            src={brand.logoPath}
-            alt={brand.logoAlt || brand.name}
-            width={64}
-            height={64}
-            className="h-14 w-14 shrink-0 rounded-[var(--layout-border-radius)] ring-2 ring-white/15"
-            priority
-          />
+          <div className="shrink-0 rounded-[var(--layout-border-radius)] bg-[var(--color-surface)] p-1.5 ring-1 ring-[var(--color-border)]">
+            <Image
+              src={brand.logoPath}
+              alt={brand.logoAlt || brand.name}
+              width={64}
+              height={64}
+              className="block h-14 w-14 rounded-[var(--layout-border-radius)]"
+              priority
+            />
+          </div>
           <div className="min-w-0 text-left">
             <p className="font-display text-lg font-semibold leading-tight tracking-tight">
               {brand.name}
