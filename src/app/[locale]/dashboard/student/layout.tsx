@@ -42,6 +42,18 @@ export default async function StudentDashboardLayout({
             >
               {dict.dashboard.student.navHome}
             </Link>
+            <Link
+              href={`${base}/payments`}
+              className="rounded-[var(--layout-border-radius)] px-3 py-2 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
+            >
+              {dict.dashboard.student.navPayments}
+            </Link>
+            <Link
+              href={`${base}/messages`}
+              className="rounded-[var(--layout-border-radius)] px-3 py-2 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
+            >
+              {dict.dashboard.student.navMessages}
+            </Link>
           </nav>
           <LanguageSwitcher locale={locale} labels={dict.common.locale} />
         </div>

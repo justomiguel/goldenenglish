@@ -68,11 +68,7 @@ describe("surface gates — narrow tree", () => {
 
   it("AdminImportSurfaceGate mounts ImportStudents narrow", async () => {
     render(
-      <AdminImportSurfaceGate
-        desktop={<div>d</div>}
-        dict={dictEn}
-        locale="es"
-      />,
+      <AdminImportSurfaceGate desktop={<div>d</div>} dict={dictEn} />,
     );
     await act(async () => {
       await Promise.resolve();

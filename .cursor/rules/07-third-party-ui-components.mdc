@@ -1,0 +1,30 @@
+---
+description: Before custom tables, calendars, charts, etc., prefer popular maintained third-party libraries; custom UI only when no fit exists.
+alwaysApply: true
+---
+
+# UI complejo: librerías antes que componentes caseros
+
+## Regla
+
+Antes de **implementar desde cero** piezas pesadas de interfaz —**tablas** (ordenación, virtualización, paginación avanzada), **calendarios / date pickers**, **gráficos**, **selects** complejos, **arrastrar y soltar**, **editores de texto enriquecido**, **carruseles**, **mapas**, etc.— el agente y el equipo deben **buscar primero** una **librería de terceros** que:
+
+1. Sea **popular y mantenida** (descargas semanales razonables, commits recientes, issues atendidos).
+2. Sea **compatible** con el stack del repo (React / Next.js, App Router, `'use client'` donde haga falta).
+3. Tenga **licencia** aceptable para el producto.
+4. Sea razonable en **tamaño de bundle** y **accesibilidad** (no empeorar LCP/INP sin medir).
+
+**Solo** se construye un componente propio cuando **no** existe una librería adecuada que cubra el caso, o cuando restricciones de producto/seguridad lo impongan (y debe quedar **justificado** en el cambio).
+
+## Alineación con el proyecto
+
+- Revisar **`package.json`**: reutilizar lo ya instalado cuando encaje (p. ej. **Recharts** para gráficos, **Lucide** para iconos, **Papa Parse** / **xlsx** para hojas).
+- No duplicar categorías: si ya hay una solución en el repo para el mismo problema, **extenderla** antes de añadir otra librería competidora.
+- Nuevas dependencias: seguir **`04-security.mdc`** (auditoría, no exponer secretos, preferir paquetes con tracción).
+
+## Agent checklist
+
+1. ¿Esta UI es un problema **ya resuelto** por librerías estándar (tabla, calendario, chart, etc.)?
+2. ¿Se buscó al menos una opción **mantenida** y **amplia** en la comunidad React/Next?
+3. Si se propone **custom**: ¿por qué las opciones existentes **no** sirven (bundle, a11y, diseño, licencia)?
+4. Si se añade dependencia: ¿encaja con **tokens / design system** (`01-design-system.mdc`) y con **rendimiento** (`06-seo-performance.mdc`)?

@@ -29,6 +29,12 @@ describe("RegisterForm", () => {
     fireEvent.change(screen.getByLabelText(r.phone), {
       target: { value: "+100" },
     });
+    fireEvent.change(screen.getByLabelText(r.birthDate), {
+      target: { value: "2010-06-15" },
+    });
+    fireEvent.change(screen.getByLabelText(r.level), {
+      target: { value: "B1" },
+    });
     fireEvent.click(screen.getByRole("button", { name: r.submit }));
   }
 
@@ -39,6 +45,18 @@ describe("RegisterForm", () => {
     await waitFor(() => {
       expect(screen.getByText(dictEn.register.successTitle)).toBeInTheDocument();
     });
+    expect(submitPublicRegistration).toHaveBeenCalledWith(
+      "es",
+      expect.objectContaining({
+        first_name: "A",
+        last_name: "B",
+        dni: "12345678",
+        email: "a@b.co",
+        phone: "+100",
+        birth_date: "2010-06-15",
+        level_interest: "B1",
+      }),
+    );
   });
 
   it("shows closed copy when server returns closed", async () => {

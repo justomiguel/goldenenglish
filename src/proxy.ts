@@ -1,24 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 import { defaultLocale, locales } from "@/lib/i18n/dictionaries";
-import type { AppLocale } from "@/lib/i18n/dictionaries";
 
-function getLocale(request: NextRequest): AppLocale {
-  const header = request.headers.get("accept-language");
-  const acceptLang = header == null ? "" : header.trim();
-  const comma = acceptLang.indexOf(",");
-  const firstRaw = comma === -1 ? acceptLang : acceptLang.slice(0, comma);
-  const firstSegment = firstRaw.trim();
-  const dash = firstSegment.indexOf("-");
-  const preferred = (
-    dash === -1 ? firstSegment : firstSegment.slice(0, dash)
-  ).toLowerCase();
-  for (const l of locales) {
-    if (l === preferred) return l;
-  }
-  return defaultLocale;
-}
-
+/**
+ * Rutas sin prefijo de locale redirigen siempre a `defaultLocale` (español).
+ * El idioma del navegador no define la entrada al sitio; el usuario cambia
+ * locale con el selector cuando quiera inglés.
+ */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -27,8 +15,7 @@ export async function proxy(request: NextRequest) {
   );
 
   if (!hasLocale) {
-    const locale = getLocale(request);
-    request.nextUrl.pathname = `/${locale}${pathname}`;
+    request.nextUrl.pathname = `/${defaultLocale}${pathname}`;
     return NextResponse.redirect(request.nextUrl);
   }
 

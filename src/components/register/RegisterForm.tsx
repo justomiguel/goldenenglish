@@ -31,8 +31,9 @@ export function RegisterForm({ locale, dict }: RegisterFormProps) {
       last_name: String(fd.get("last_name") ?? ""),
       dni: String(fd.get("dni") ?? ""),
       email: String(fd.get("email") ?? ""),
-      phone: String(fd.get("phone") ?? "") || undefined,
-      level_interest: String(fd.get("level_interest") ?? "") || undefined,
+      phone: String(fd.get("phone") ?? ""),
+      birth_date: String(fd.get("birth_date") ?? ""),
+      level_interest: String(fd.get("level_interest") ?? ""),
     });
     setBusy(false);
     if (res.ok) {
@@ -90,11 +91,25 @@ export function RegisterForm({ locale, dict }: RegisterFormProps) {
         </div>
         <div>
           <Label htmlFor="rg-ph">{dict.phone}</Label>
-          <Input id="rg-ph" name="phone" className="mt-1 w-full" />
+          <Input id="rg-ph" name="phone" required className="mt-1 w-full" />
+        </div>
+        <div>
+          <Label htmlFor="rg-bd">{dict.birthDate}</Label>
+          <Input
+            id="rg-bd"
+            name="birth_date"
+            type="date"
+            required
+            className="mt-1 w-full"
+            autoComplete="bday"
+          />
+          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+            {dict.birthDateHint}
+          </p>
         </div>
         <div>
           <Label htmlFor="rg-lv">{dict.level}</Label>
-          <Input id="rg-lv" name="level_interest" className="mt-1 w-full" />
+          <Input id="rg-lv" name="level_interest" required className="mt-1 w-full" />
         </div>
         <Button type="submit" disabled={busy} isLoading={busy}>
           {dict.submit}

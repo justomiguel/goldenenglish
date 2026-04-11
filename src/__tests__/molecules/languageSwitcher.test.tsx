@@ -40,4 +40,13 @@ describe("LanguageSwitcher", () => {
       "/es/raw/path",
     );
   });
+
+  it("compact variant omits globe and still maps hrefs", () => {
+    mockPathname.mockReturnValue("/es");
+    const { container } = render(
+      <LanguageSwitcher locale="es" labels={labels} variant="compact" />,
+    );
+    expect(container.querySelector("svg")).toBeNull();
+    expect(screen.getByRole("link", { name: "EN" })).toHaveAttribute("href", "/en");
+  });
 });

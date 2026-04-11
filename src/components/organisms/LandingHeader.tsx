@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { LogIn } from "lucide-react";
+import { LayoutDashboard, LogIn } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
@@ -11,6 +11,7 @@ interface LandingHeaderProps {
   dict: Dictionary;
   locale: string;
   sessionEmail: string | null;
+  isAdmin?: boolean;
 }
 
 export function LandingHeader({
@@ -18,13 +19,14 @@ export function LandingHeader({
   dict,
   locale,
   sessionEmail,
+  isAdmin = false,
 }: LandingHeaderProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--color-border)]/80 bg-[var(--color-surface)]/90 shadow-[var(--shadow-soft)] backdrop-blur-md">
       <div className="mx-auto flex max-w-[var(--layout-max-width)] items-center justify-between gap-4 px-4 py-3.5">
         <Link
           href={`/${locale}`}
-          className="group flex items-center gap-3 rounded-[var(--layout-border-radius)] outline-none ring-[var(--color-primary)] transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-offset-2"
+          className="group flex shrink-0 items-center gap-3 rounded-[var(--layout-border-radius)] outline-none ring-[var(--color-primary)] transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-offset-2"
         >
           <div className="shrink-0 rounded-[var(--layout-border-radius)] bg-white p-1.5 shadow-sm ring-1 ring-[var(--color-border)] transition group-hover:ring-[var(--color-accent)]/50">
             <Image
@@ -40,10 +42,10 @@ export function LandingHeader({
             {brand.name}
           </span>
         </Link>
-        <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-4 md:text-sm">
+        <div className="flex min-w-0 flex-1 flex-nowrap items-center justify-end gap-2 sm:gap-3 md:text-sm">
           <nav
             aria-label={dict.nav.sectionsAria}
-            className="flex max-w-[min(100vw-12rem,28rem)] flex-nowrap items-center gap-0.5 overflow-x-auto rounded-[var(--layout-border-radius)] bg-[var(--color-muted)]/35 px-2 py-1 sm:max-w-none sm:flex-wrap sm:gap-0 sm:px-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex min-w-0 flex-1 flex-nowrap items-center gap-0.5 overflow-x-auto rounded-[var(--layout-border-radius)] bg-[var(--color-muted)]/35 px-2 py-1 sm:px-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             <span className="hidden pr-2 text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--color-muted-foreground)] sm:inline">
               {dict.nav.sectionsKicker}
@@ -72,16 +74,33 @@ export function LandingHeader({
             >
               {dict.nav.certifications}
             </a>
+            {isAdmin ? (
+              <Link
+                href={`/${locale}/dashboard/admin`}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-accent)]/55 bg-[color-mix(in_srgb,var(--color-accent)_26%,var(--color-surface))] px-2.5 py-1.5 text-sm font-semibold text-[var(--color-accent-foreground)] shadow-sm transition hover:bg-[color-mix(in_srgb,var(--color-accent)_42%,var(--color-surface))] hover:border-[var(--color-accent)]/80"
+              >
+                <LayoutDashboard
+                  className="h-3.5 w-3.5 shrink-0 opacity-95"
+                  aria-hidden
+                  strokeWidth={2}
+                />
+                {dict.nav.administration}
+              </Link>
+            ) : null}
           </nav>
           <span
             aria-hidden
-            className="hidden h-8 w-px shrink-0 bg-[var(--color-border)] sm:block"
+            className="hidden h-7 w-px shrink-0 bg-[var(--color-border)] lg:block"
           />
           <nav
             aria-label={dict.nav.accountAria}
-            className="flex flex-wrap items-center gap-2 sm:gap-3"
+            className="flex shrink-0 flex-nowrap items-center gap-2 sm:gap-2.5"
           >
-            <LanguageSwitcher locale={locale} labels={dict.common.locale} />
+            <LanguageSwitcher
+              locale={locale}
+              labels={dict.common.locale}
+              variant="compact"
+            />
             {sessionEmail ? (
               <div className="flex max-w-full items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)]/80 bg-[var(--color-surface)] px-2 py-1 shadow-sm sm:px-3">
                 <span

@@ -1,5 +1,5 @@
-import { describe, it, vi } from "vitest";
-import { render } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
@@ -64,7 +64,7 @@ import { AdminImportScreenNarrow } from "@/components/pwa/organisms/AdminImportS
 
 describe("component smoke — molecules & PWA", () => {
   it("AdminImportScreenDesktop", () => {
-    render(<AdminImportScreenDesktop dict={dictEn} locale="es" />);
+    render(<AdminImportScreenDesktop dict={dictEn} />);
   });
 
   it("AdminImportScreenSkeleton", () => {
@@ -163,6 +163,22 @@ describe("component smoke — molecules & PWA", () => {
     );
   });
 
+  it("LandingHeaderPwa shows administration link when isAdmin", () => {
+    render(
+      <LandingHeaderPwa
+        brand={mockBrandPublic}
+        dict={dictEn}
+        locale="es"
+        sessionEmail="admin@example.com"
+        isAdmin
+      />,
+    );
+    expect(screen.getByRole("link", { name: dictEn.nav.administration })).toHaveAttribute(
+      "href",
+      "/es/dashboard/admin",
+    );
+  });
+
   it("LandingFooterPwa", () => {
     render(
       <LandingFooterPwa
@@ -198,7 +214,7 @@ describe("component smoke — molecules & PWA", () => {
 
   it("AdminImportScreenNarrow", () => {
     render(
-      <AdminImportScreenNarrow dict={dictEn} locale="es" surface="web-mobile" />,
+      <AdminImportScreenNarrow dict={dictEn} surface="web-mobile" />,
     );
   });
 });

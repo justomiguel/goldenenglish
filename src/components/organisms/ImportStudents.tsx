@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import Papa from "papaparse";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 import { mapCsvRecords } from "@/lib/import/studentCsvMap";
+import { parseImportFile } from "@/lib/import/parseImportFile";
 import { bulkImportStudentsFromRows } from "@/app/[locale]/dashboard/admin/import/actions";
 import { csvStudentRowsSchema } from "@/lib/import/studentRowSchema";
 
@@ -26,12 +26,7 @@ export function ImportStudents({ labels }: ImportStudentsProps) {
 
       setBusy(true);
       try {
-        const text = await file.text();
-        const parsed = Papa.parse<Record<string, unknown>>(text, {
-          header: true,
-          skipEmptyLines: true,
-          transformHeader: (h) => h.trim(),
-        });
+        const parsed = await parseImportFile(file);
 
         if (parsed.errors.length > 0) {
           setSummary(labels.parseError);
@@ -83,7 +78,7 @@ export function ImportStudents({ labels }: ImportStudentsProps) {
       <input
         ref={fileRef}
         type="file"
-        accept=".csv,text/csv"
+        accept=".csv,.xlsx,.xls,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         disabled={busy}
         className="sr-only"
         onChange={(e) => onFile(e.target.files?.[0] ?? null)}

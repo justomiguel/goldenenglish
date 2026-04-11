@@ -35,7 +35,7 @@ export function AdminCreateUserForm({ labels }: AdminCreateUserFormProps) {
       first_name: firstName,
       last_name: lastName,
       dni_or_passport: dni,
-      phone: phone || undefined,
+      phone,
     });
     setBusy(false);
     setMsg(res.ok ? labels.success : `${labels.error}: ${res.message ?? ""}`);
@@ -46,10 +46,6 @@ export function AdminCreateUserForm({ labels }: AdminCreateUserFormProps) {
       onSubmit={onSubmit}
       className="max-w-xl space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6"
     >
-      <h2 className="text-lg font-semibold text-[var(--color-secondary)]">
-        {labels.title}
-      </h2>
-      <p className="text-sm text-[var(--color-muted-foreground)]">{labels.lead}</p>
       <div>
         <Label htmlFor="cu-email">{labels.email}</Label>
         <Input
@@ -70,10 +66,11 @@ export function AdminCreateUserForm({ labels }: AdminCreateUserFormProps) {
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={6}
           className="mt-1 w-full"
         />
+        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+          {labels.passwordHint}
+        </p>
       </div>
       <div>
         <Label htmlFor="cu-role">{labels.role}</Label>
@@ -89,6 +86,9 @@ export function AdminCreateUserForm({ labels }: AdminCreateUserFormProps) {
             </option>
           ))}
         </select>
+        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+          {labels.roleHint}
+        </p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
@@ -128,6 +128,7 @@ export function AdminCreateUserForm({ labels }: AdminCreateUserFormProps) {
           id="cu-ph"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
+          required
           className="mt-1 w-full"
         />
       </div>

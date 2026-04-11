@@ -35,12 +35,18 @@ export default async function TeacherDashboardLayout({
     <div className="min-h-screen bg-[var(--color-muted)]">
       <header className="border-b border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-3 md:px-6">
         <div className="mx-auto flex max-w-[var(--layout-max-width)] flex-wrap items-center justify-between gap-3">
-          <nav aria-label={dict.dashboard.teacher.navAria}>
+          <nav aria-label={dict.dashboard.teacher.navAria} className="flex flex-wrap gap-2">
             <Link
               href={base}
               className="rounded-[var(--layout-border-radius)] px-3 py-2 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
             >
               {dict.dashboard.teacher.navHome}
+            </Link>
+            <Link
+              href={`${base}/messages`}
+              className="rounded-[var(--layout-border-radius)] px-3 py-2 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
+            >
+              {dict.dashboard.teacher.navMessages}
             </Link>
           </nav>
           <LanguageSwitcher locale={locale} labels={dict.common.locale} />

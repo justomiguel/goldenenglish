@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   consecutivePresentStreak,
   mandatoryAttendanceStats,
+  mandatoryAttendanceStatsForMonth,
 } from "@/lib/attendance/stats";
 
 describe("attendance stats", () => {
@@ -27,6 +28,24 @@ describe("attendance stats", () => {
     expect(s.present).toBe(1);
     expect(s.absent).toBe(1);
     expect(s.total).toBe(2);
+  });
+
+  it("mandatoryAttendanceStatsForMonth filters by year and month", () => {
+    const rows = [
+      {
+        attendance_date: "2026-03-10",
+        status: "present" as const,
+        is_mandatory: true,
+      },
+      {
+        attendance_date: "2026-04-05",
+        status: "present" as const,
+        is_mandatory: true,
+      },
+    ];
+    const m = mandatoryAttendanceStatsForMonth(rows, 2026, 3);
+    expect(m.present).toBe(1);
+    expect(m.total).toBe(1);
   });
 
   it("streak stops at first non-present from most recent mandatory", () => {

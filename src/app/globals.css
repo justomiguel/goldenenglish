@@ -146,3 +146,27 @@ body {
   );
   background-size: 22px 28px;
 }
+
+/* react-calendar — student attendance tiles (see StudentAttendanceCalendar) */
+.student-attendance-calendar .react-calendar {
+  width: 100%;
+  max-width: 100%;
+  border: none;
+  font-family: inherit;
+  background: transparent;
+}
+
+.student-attendance-calendar .react-calendar__tile.attendance-present {
+  background: var(--color-success) !important;
+  color: var(--color-primary-foreground) !important;
+}
+
+.student-attendance-calendar .react-calendar__tile.attendance-absent {
+  background: var(--color-error) !important;
+  color: var(--color-primary-foreground) !important;
+}
+
+.student-attendance-calendar .react-calendar__tile.attendance-justified {
+  background: color-mix(in srgb, var(--color-warning) 42%, var(--color-surface)) !important;
+  color: var(--color-foreground) !important;
+}

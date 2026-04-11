@@ -20,8 +20,9 @@ const valid = {
   last_name: "Lovelace",
   dni: "123",
   email: "ada@test.com",
-  phone: "",
-  level_interest: "",
+  phone: "+100",
+  birth_date: "2010-05-01",
+  level_interest: "A1",
 };
 
 describe("submitPublicRegistration", () => {
@@ -40,6 +41,8 @@ describe("submitPublicRegistration", () => {
     const r = await submitPublicRegistration("es", {
       ...valid,
       email: "bad",
+      phone: "+1",
+      level_interest: "B1",
     });
     expect(r).toEqual({ ok: false, message: "validation" });
   });

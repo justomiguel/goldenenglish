@@ -16,6 +16,8 @@ interface LandingSurfaceGateProps {
   dict: Dictionary;
   locale: string;
   sessionEmail: string | null;
+  /** When true, show admin entry in the Explore section (narrow/PWA header). */
+  isAdmin?: boolean;
 }
 
 export function LandingSurfaceGate({
@@ -25,6 +27,7 @@ export function LandingSurfaceGate({
   dict,
   locale,
   sessionEmail,
+  isAdmin = false,
 }: LandingSurfaceGateProps) {
   return (
     <SurfaceMountGate
@@ -38,6 +41,7 @@ export function LandingSurfaceGate({
               dict={dict}
               locale={locale}
               sessionEmail={sessionEmail}
+              isAdmin={isAdmin}
             />
             <div className="flex-1">{main}</div>
             <LandingFooterPwa

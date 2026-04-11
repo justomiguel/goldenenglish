@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { AttendancePlayboard } from "@/components/student/AttendancePlayboard";
+import { StudentDashboardEntry } from "@/components/student/StudentDashboardEntry";
 import type { AttendanceRow } from "@/lib/attendance/stats";
 
 export const metadata: Metadata = {
@@ -35,11 +35,10 @@ export default async function StudentDashboardPage({ params }: PageProps) {
   }));
 
   return (
-    <div>
-      <h1 className="mb-8 font-display text-3xl font-bold text-[var(--color-secondary)]">
-        {dict.dashboard.student.title}
-      </h1>
-      <AttendancePlayboard rows={normalized} labels={dict.dashboard.student} />
-    </div>
+    <StudentDashboardEntry
+      title={dict.dashboard.student.title}
+      rows={normalized}
+      labels={dict.dashboard.student}
+    />
   );
 }

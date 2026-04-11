@@ -4,12 +4,10 @@ import { dictEn } from "@/test/dictEn";
 import { ImportStudents } from "@/components/organisms/ImportStudents";
 
 const bulkImport = vi.hoisted(() => vi.fn());
-const parseCsv = vi.hoisted(() => vi.fn());
+const parseImportFile = vi.hoisted(() => vi.fn());
 
-vi.mock("papaparse", () => ({
-  default: {
-    parse: (...args: unknown[]) => parseCsv(...args),
-  },
+vi.mock("@/lib/import/parseImportFile", () => ({
+  parseImportFile: (...args: unknown[]) => parseImportFile(...args),
 }));
 
 vi.mock("@/app/[locale]/dashboard/admin/import/actions", () => ({
@@ -20,7 +18,7 @@ describe("ImportStudents", () => {
   const labels = dictEn.admin.import;
 
   beforeEach(() => {
-    parseCsv.mockReset();
+    parseImportFile.mockReset();
     bulkImport.mockReset();
     bulkImport.mockResolvedValue({
       processed: 1,
@@ -31,12 +29,11 @@ describe("ImportStudents", () => {
     });
   });
 
-  it("shows parse errors from Papa", async () => {
-    parseCsv.mockReturnValue({
+  it("shows parse errors from file reader", async () => {
+    parseImportFile.mockResolvedValue({
       data: [],
       errors: [{ message: "bad csv" }],
-      meta: {} as never,
-    } as never);
+    });
     render(<ImportStudents labels={labels} />);
     const input = document.querySelector('input[type="file"]')!;
     const file = new File(["x"], "x.csv", { type: "text/csv" });
@@ -47,11 +44,10 @@ describe("ImportStudents", () => {
   });
 
   it("handles no rows after mapping", async () => {
-    parseCsv.mockReturnValue({
+    parseImportFile.mockResolvedValue({
       data: [{}],
       errors: [],
-      meta: {} as never,
-    } as never);
+    });
     render(<ImportStudents labels={labels} />);
     const input = document.querySelector('input[type="file"]')!;
     fireEvent.change(input, {
@@ -63,7 +59,7 @@ describe("ImportStudents", () => {
   });
 
   it("shows validation error from Zod", async () => {
-    parseCsv.mockReturnValue({
+    parseImportFile.mockResolvedValue({
       data: [
         {
           first_name: "A",
@@ -73,8 +69,7 @@ describe("ImportStudents", () => {
         },
       ],
       errors: [],
-      meta: {} as never,
-    } as never);
+    });
     render(<ImportStudents labels={labels} />);
     const input = document.querySelector('input[type="file"]')!;
     fireEvent.change(input, {
@@ -86,13 +81,10 @@ describe("ImportStudents", () => {
   });
 
   it("shows summary and row failures from import", async () => {
-    parseCsv.mockReturnValue({
-      data: [
-        mappedRow(),
-      ],
+    parseImportFile.mockResolvedValue({
+      data: [mappedRow()],
       errors: [],
-      meta: {} as never,
-    } as never);
+    });
     bulkImport.mockResolvedValue({
       processed: 1,
       createdUsers: 0,
@@ -107,16 +99,15 @@ describe("ImportStudents", () => {
     });
     await waitFor(() => {
       expect(screen.getByText(new RegExp(labels.done))).toBeInTheDocument();
-      expect(screen.getByText(/Row 3/)).toBeInTheDocument();
+      expect(screen.getByText(new RegExp(`${labels.row} 3`))).toBeInTheDocument();
     });
   });
 
   it("shows summary only when all rows succeed", async () => {
-    parseCsv.mockReturnValue({
+    parseImportFile.mockResolvedValue({
       data: [mappedRow()],
       errors: [],
-      meta: {} as never,
-    } as never);
+    });
     render(<ImportStudents labels={labels} />);
     const input = document.querySelector('input[type="file"]')!;
     fireEvent.change(input, {
@@ -129,9 +120,7 @@ describe("ImportStudents", () => {
   });
 
   it("surfaces generic errors", async () => {
-    parseCsv.mockImplementation(() => {
-      throw new Error("boom");
-    });
+    parseImportFile.mockRejectedValue(new Error("boom"));
     render(<ImportStudents labels={labels} />);
     const input = document.querySelector('input[type="file"]')!;
     fireEvent.change(input, {
@@ -150,9 +139,7 @@ describe("ImportStudents", () => {
   });
 
   it("shows generic detail when throw is not an Error", async () => {
-    parseCsv.mockImplementation(() => {
-      throw "plain";
-    });
+    parseImportFile.mockRejectedValue("plain");
     render(<ImportStudents labels={labels} />);
     const input = document.querySelector('input[type="file"]')!;
     fireEvent.change(input, {

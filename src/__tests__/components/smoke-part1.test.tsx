@@ -1,5 +1,5 @@
-import { describe, it, beforeEach, vi } from "vitest";
-import { render } from "@testing-library/react";
+import { describe, it, beforeEach, expect, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
@@ -34,6 +34,7 @@ import { LandingLevels } from "@/components/organisms/LandingLevels";
 import { LandingCertifications } from "@/components/organisms/LandingCertifications";
 import { LandingHeader } from "@/components/organisms/LandingHeader";
 import { LandingFooter } from "@/components/organisms/LandingFooter";
+import { AdminHubHome } from "@/components/dashboard/AdminHubHome";
 import { LoginScreenGate } from "@/components/organisms/LoginScreenGate";
 import { LoginScreenDesktop } from "@/components/desktop/organisms/LoginScreenDesktop";
 import { AdminImportSurfaceGate } from "@/components/organisms/AdminImportSurfaceGate";
@@ -120,6 +121,29 @@ describe("component smoke — landing & gates", () => {
     );
   });
 
+  it("LandingHeader shows administration link when isAdmin", () => {
+    render(
+      <LandingHeader
+        brand={mockBrandPublic}
+        dict={dictEn}
+        locale="es"
+        sessionEmail="admin@example.com"
+        isAdmin
+      />,
+    );
+    const adminLink = screen.getByRole("link", { name: dictEn.nav.administration });
+    expect(adminLink).toHaveAttribute("href", "/es/dashboard/admin");
+  });
+
+  it("AdminHubHome", () => {
+    render(<AdminHubHome locale="es" dict={dictEn} />);
+    expect(screen.getByText(dictEn.admin.home.title)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: new RegExp(dictEn.dashboard.adminNav.import) })).toHaveAttribute(
+      "href",
+      "/es/dashboard/admin/import",
+    );
+  });
+
   it("LandingFooter", () => {
     render(
       <LandingFooter
@@ -154,11 +178,7 @@ describe("component smoke — landing & gates", () => {
 
   it("AdminImportSurfaceGate", () => {
     render(
-      <AdminImportSurfaceGate
-        desktop={<div>d</div>}
-        dict={dictEn}
-        locale="es"
-      />,
+      <AdminImportSurfaceGate desktop={<div>d</div>} dict={dictEn} />,
     );
   });
 });

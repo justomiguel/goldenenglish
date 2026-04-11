@@ -1,5 +1,5 @@
 ---
-description: Architecture — 250-line limit, layer folders, hooks, RSC/client boundaries.
+description: Architecture — 250-line limit, layer folders, hooks, RSC/client boundaries, TDD/DDD layering.
 alwaysApply: true
 ---
 
@@ -14,12 +14,24 @@ alwaysApply: true
 | Layer | Location | Responsibility |
 |----|----|---|
 | Presentational Components (shared) | `src/components/{atoms,molecules,organisms}/` | Render UI only. Same structure on all surfaces. No business logic, no API calls, no complex state. |
-| Presentational Components (desktop-only) | `src/components/desktop/{atoms,molecules,organisms}/` | Web-desktop-only UI. Composed behind `useAppSurface()` / screen entry. |
-| Presentational Components (PWA / mobile-native) | `src/components/pwa/{atoms,molecules,organisms}/` | Mobile / standalone PWA-only UI. Touch-first, safe-area aware. Composed behind `useAppSurface()` / screen entry. |
+| Presentational Components (desktop-only) | `src/components/desktop/{atoms,molecules,organisms}/` | Web-desktop-only UI. **Tier A** (alumno/padre): composed behind `useAppSurface()` / screen entry with a narrow branch. **Tier B** (admin / interno): may ship desktop-only without a PWA tree; see `05-pwa-mobile-native.mdc`. |
+| Presentational Components (PWA / mobile-native) | `src/components/pwa/{atoms,molecules,organisms}/` | **Tier A** mobile / standalone PWA UI. Touch-first, safe-area aware. Composed behind `useAppSurface()` / screen entry. |
 | Custom Hooks | `src/hooks/` | Business logic, API calls, state management. Named `useFeature.ts`. |
 | Server Actions | `src/app/**/actions.ts` | Supabase mutations, email sending, server-side validation. |
-| Lib / Services | `src/lib/` | Client initialization, utilities, parsers. Pure functions preferred. |
+| Lib / Services | `src/lib/` | Shared code: **pure** utilities (parsers, validators, `import/`, `register/` schemas) **and** infrastructure adapters (`supabase/`, `resend/`, server-only helpers). Keep those concerns in separate modules; pure folders stay framework-free. |
 | Types | `src/types/` | Shared TypeScript interfaces and type definitions. |
+
+## Layered design (TDD / DDD alignment)
+
+**Goal:** Isolate implementation so a future change (database, email provider, UI shell, auth details) touches **one boundary** instead of spreading through the app.
+
+1. **Dependency direction (inside-out).** **`src/lib/`** is not “domain only”: it also holds **infrastructure** (e.g. `supabase/`, `resend/`, `*Server.ts` helpers). **Pure** business rules, parsers, and validators—typically under folders like **`src/lib/import/`**, **`src/lib/register/`**, or small standalone utilities—**must not** import Supabase clients, server-only Next APIs, or React. Those pure modules plus **`src/types/`** are the inner core; **hooks**, **server actions**, and route handlers orchestrate and call **outward** to infra; DB, Resend, and file I/O live in **adapter** modules or at call sites, not mixed into pure helpers.
+
+2. **Ubiquitous language.** Name modules, types, and functions after **business concepts** where it helps clarity. Framework jargon belongs in app/hooks; business vocabulary belongs next to rules and schemas.
+
+3. **Ports at boundaries.** Anything that could be swapped (persistence, external HTTP, mail) should be **invoked from** hooks/actions, not buried inside pure helpers. Pure helpers take data in and return data out—easy to test without mocks.
+
+4. **Skills reference.** For **red → green → refactor** and behavior-first tests, follow `.agents/skills/tdd/SKILL.md`. For structural decisions and DDD-style boundaries, use `.agents/skills/software-architecture/SKILL.md` and `.agents/skills/architecture/SKILL.md`. Testing expectations per layer: `.cursor/rules/02-testing-tdd.mdc`.
 
 ## Component Rules
 
@@ -27,6 +39,7 @@ alwaysApply: true
 2. Each component is a **named export** in its own file. One component per file.
 3. Props interfaces are defined in the same file, co-located above the component.
 4. Use `'use client'` directive only when the component genuinely needs browser APIs or interactivity. Default to Server Components.
+5. For **complex UI** (tables, calendars, charts, rich editors, etc.), prefer **vetted third-party libraries** before building from scratch; see `07-third-party-ui-components.mdc`.
 
 ## Hook Rules
 

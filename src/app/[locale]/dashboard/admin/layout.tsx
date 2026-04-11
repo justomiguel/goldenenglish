@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { getBrandPublic } from "@/lib/brand/server";
 import { AdminDashboardShell } from "@/components/dashboard/AdminDashboardShell";
 
 interface AdminLayoutProps {
@@ -38,10 +39,13 @@ export default async function AdminSectionLayout({
     .select("id", { head: true, count: "exact" })
     .eq("status", "new");
 
+  const brand = getBrandPublic();
+
   return (
     <AdminDashboardShell
       locale={locale}
       dict={dict}
+      brand={brand}
       newRegistrationsCount={count ?? 0}
     >
       {children}

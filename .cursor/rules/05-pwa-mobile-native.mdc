@@ -1,98 +1,110 @@
 ---
-description: Every screen ships Web + Mobile/PWA-native UIs; use useAppSurface() to choose tree; PWA manifest, SW, safe areas, touch targets.
+description: Student/parent-facing screens MUST ship Web + PWA-native trees; admin/back-office may be desktop-only. useAppSurface(), SurfaceMountGate, safe areas, touch targets.
 alwaysApply: true
 ---
 
 # PWA & Native Mobile Experience
 
-## Non-negotiable product rule
+## Surface tiers (what you must ship)
 
-Every **screen** (each user-facing route or full-page flow: marketing, auth, dashboard, admin, etc.) MUST ship as **two deliberate implementations**:
+### Tier A — Student, parent, and primary end-user flows (required: Web + mobile/PWA-native)
 
-1. **Web layout** — optimized for desktop and large tablet; pointer-first patterns, density appropriate for wide viewports.
-2. **Mobile / PWA-native layout** — optimized for phones and for **installed** PWA behavior (standalone): touch-first, native-feeling patterns (large tap targets, sheets, list rows, bottom-aligned primary actions, safe areas), not merely “the same JSX with more `sm:` breakpoints.”
+Routes whose audience is mainly **students**, **parents/guardians**, or the **public journey** into those products (enrollment, parent payments, student area, marketing that converts families, auth for those profiles) **MUST** ship as **two deliberate UI trees**:
 
-Responsive Tailwind alone is **insufficient** when navigation structure, motion, or component choice differ. In those cases, **split the UI into two trees** and select at runtime (see below).
+1. **Web (desktop / wide tablet)** — pointer-first, appropriate density.
+2. **Mobile / PWA-native** — touch-first, installed-app patterns (≥44px targets, safe areas, list rows, thumb-zone CTAs), **not** the same JSX with extra `sm:` breakpoints only.
 
-Branding and tokens still follow `01-design-system.mdc` (`system.properties`, semantic colors, no duplicate institute identity).
+Typical paths include: `src/app/**/dashboard/student/**`, `src/app/**/dashboard/parent/**`, public registration/enrollment flows for those users, and any new screen with the same intent.
+
+**Surface selection:** `useAppSurface()` + `SurfaceMountGate` (or the repo’s agreed entry pattern). No ad-hoc `innerWidth` checks.
+
+### Tier B — Admin and internal tools (desktop is enough)
+
+**Back-office** routes for staff (e.g. `src/app/**/dashboard/admin/**`), imports, internal payment review, settings only staff use **MAY** stay **desktop-only** (dense tables, pointer workflows). A **mobile/PWA branch is optional** when it clearly helps; it is **not** a merge requirement unlike Tier A.
+
+Desktop-only tools should still behave reasonably on narrow viewports (e.g. horizontal scroll for tables) or document limitations; that does **not** replace Tier A.
 
 ---
 
-## Single source of truth: which UI to render
+## What “two implementations” means (Tier A)
 
-The application MUST expose one canonical way to decide the active **surface** (do not scatter ad-hoc `window.innerWidth` checks across pages).
+When layout, navigation, or components differ between desktop and phone/installed PWA, **split into two trees** and choose at runtime. Responsive Tailwind alone is **not** enough in those cases.
 
-1. Implement a small module in `src/hooks/` (e.g. `useAppSurface.ts`) used by adapter components, returning a discriminated union such as:
-   - `web-desktop` — wide viewport and not running as an installed PWA.
-   - `web-mobile` — narrow viewport in the **browser** (tab UI visible).
-   - `pwa-mobile` — narrow viewport **and** app is in **standalone / installed** mode (see detection below).
-2. **Breakpoint** used for “mobile vs desktop” MUST be defined once (constant or design token), aligned with the project’s Tailwind `max-md` / `min-lg` convention; do not hardcode unrelated pixel values in random files.
-3. **PWA / standalone detection** MUST include:
+Branding follows `01-design-system.mdc` (`system.properties`, no duplicate institute identity).
+
+---
+
+## Single source of truth: which UI to show
+
+The app MUST expose **one** canonical way to pick the **surface** (no scattered `window.innerWidth`).
+
+1. A module under `src/hooks/` (e.g. `useAppSurface.ts`) used by screen adapters, with a discriminated union such as:
+   - `web-desktop` — wide viewport, not installed PWA.
+   - `web-mobile` — narrow viewport in the **browser** (system chrome visible).
+   - `pwa-mobile` — narrow viewport **and** app in **standalone / installed** mode (see detection below).
+2. The **mobile vs desktop breakpoint** is defined **once**, aligned with Tailwind `max-md` / `min-lg`.
+3. PWA / standalone detection **MUST** include:
    - `window.matchMedia('(display-mode: standalone)').matches`
    - iOS Safari: `('standalone' in window.navigator && (navigator as Navigator & { standalone?: boolean }).standalone === true)`
-4. Implementation MUST be **hydration-safe**: avoid SSR/client mismatch where possible (e.g. `useSyncExternalStore` with a server snapshot default, or render a shared shell until the client commits). If a one-frame flash is unavoidable, document it next to the hook.
+4. Implementation MUST be **hydration-safe** (e.g. `useSyncExternalStore` with a server snapshot). Document a one-frame flash next to the hook if unavoidable.
 
-Pages remain thin: they compose **one** entry component (e.g. `LoginScreen`) that internally switches on `useAppSurface()`.
+Pages stay thin: one entry component (e.g. `LoginScreen`) branches on `useAppSurface()` / `SurfaceMountGate`.
 
 ---
 
-## How to pair implementations (file conventions)
+## How to pair implementations (conventions)
 
-For each screen, keep **shared behavior** in hooks / server actions / libs; **do not** duplicate data fetching or auth logic in the two UIs.
-
-Choose **one** of these patterns per feature and stay consistent within the repo:
+Shared behavior lives in hooks / server actions / libs; **do not** duplicate data fetching or auth across trees.
 
 **Pattern A — colocated pair**
 
-- `FeatureScreen.tsx` — default web layout.
-- `FeatureScreenMobile.tsx` — PWA / native-feeling mobile layout.
-- `FeatureScreenEntry.tsx` (or the default export from the folder) — calls `useAppSurface()` and renders exactly one of the two.
+- `FeatureScreen.tsx` — web layout.
+- `FeatureScreenMobile.tsx` — mobile / PWA-native layout.
+- `FeatureScreenEntry.tsx` (or default export) — switch only.
 
 **Pattern B — subfolder**
 
 - `feature-screen/Web.tsx`, `feature-screen/MobilePwa.tsx`, `feature-screen/index.tsx` (switch only).
 
-Place presentational screens under `src/components/organisms/` (shared) or under **`src/components/desktop/...`** and **`src/components/pwa/...`** per `01-design-system.mdc` (surface-specific atoms/molecules/organisms). Follow `03-architecture.mdc` (size limit, one main named export per file unless the Entry file is only a thin switch).
+Place UI under `src/components/organisms/` (shared) or `src/components/desktop/...` and `src/components/pwa/...` per `01-design-system.mdc`. Obey `03-architecture.mdc` (line limit, one main named export per file unless the entry is a thin switch).
 
 ---
 
-## PWA baseline (project must satisfy)
+## PWA baseline (project)
 
-To legitimately claim “PWA,” the project MUST eventually include (implement or extend as needed):
+To credibly call the product a **PWA**, the project should eventually include:
 
-- A **Web App Manifest** (scope, `name`, `short_name`, icons, `theme_color` / `background_color` derived from design tokens — not random hex in pages).
-- **Register a service worker** for offline/shell caching appropriate to the stack (document choice in code or ADR).
-- `viewport-fit=cover` and use of **`env(safe-area-inset-*)`** on the mobile/PWA tree’s root layout chrome (header/footer fixed bars).
+- **Web App Manifest** (scope, names, icons, `theme_color` / `background_color` from tokens).
+- A **service worker** with an appropriate caching strategy (document in code or ADR).
+- `viewport-fit=cover` and **`env(safe-area-inset-*)`** on the mobile/PWA shell chrome.
 
-Until manifest + SW land, still implement the **two UI trees** and `useAppSurface()` so behavior is correct when PWA is enabled.
+Until manifest + SW exist, still implement **both trees** wherever Tier A requires it, plus `useAppSurface()`.
 
 ---
 
-## Mobile-native UX requirements (mobile / `pwa-mobile` trees)
-
-When rendering the mobile or `pwa-mobile` tree:
+## Mobile / `pwa-mobile` UX requirements
 
 1. **Touch targets** — interactive controls at least **44×44 CSS px** (padding counts).
-2. **Safe area** — respect notches and home indicators; no critical actions tucked under system UI.
-3. **Components** — prefer patterns that feel native on phones: full-width rows, clear section headers, **bottom** primary CTA when it matches platform expectations, sheets instead of tiny desktop modals where appropriate.
-4. **No hover-only** critical actions — anything essential must work with tap and visible affordances.
-5. **Motion** — respect `prefers-reduced-motion`; avoid gratuitous animation on low-end devices.
+2. **Safe area** — respect notches and home indicators.
+3. **Components** — full-width rows, clear sections, **bottom** primary CTA when appropriate, sheets instead of tiny desktop modals when needed.
+4. **No hover-only** critical actions — tap + visible affordances.
+5. **Motion** — respect `prefers-reduced-motion`.
 
 ---
 
 ## Guardrails
 
-- Do not create a second “brand” or duplicate `app.name` / logo paths on mobile; use the same brand layer as web.
-- Do not inflate files past **250 lines** (`03-architecture.mdc`); split Entry / Web / Mobile / shared pieces.
-- New routes added to the app MUST add or update the paired mobile/PWA screen in the **same** change, unless explicitly documented as web-only internal tooling (rare).
+- Do not create a second brand; same brand layer as web.
+- Do not exceed **250 lines** per file (`03-architecture.mdc`); split entry / Web / Mobile / shared pieces.
+- **Tier A:** new routes or substantial changes **must** add or update Web + mobile/PWA in the **same** change.
+- **Tier B:** mobile/PWA pair **not** required; keep security and access control consistent.
 
 ---
 
 ## Agent checklist (when editing UI)
 
-When adding or changing a page:
-
-1. Does this route have a **Web** and a **Mobile/PWA-native** implementation (or a justified exception)?
-2. Does selection go through the shared **`useAppSurface()`** (or successor)?
-3. Are manifest / safe-area / touch targets considered for the mobile tree?
-4. Is shared logic in hooks/actions, not copy-pasted?
+1. **Is this Tier A (student/parent/equivalent public) or Tier B (admin/internal)?**
+2. **Tier A:** is there **Web** and **mobile/PWA-native** (or a rare, documented exception)?
+3. **Tier B:** is desktop-only acceptable, or is mobile worth adding?
+4. For Tier A, does selection go through **`useAppSurface()`** / **`SurfaceMountGate`**?
+5. Is shared logic in hooks/actions, not duplicated?

@@ -40,6 +40,17 @@ The Design System is the single source of truth for every visual decision. **Bra
    - **`src/components/desktop/{atoms,molecules,organisms}/`** — Elements used **only** on the web-desktop surface (wide nav, hover menus, dense tables, multi-column chrome, pointer-first controls). Name exports clearly (e.g. `DesktopSidebar.tsx`, `DataTableToolbar.tsx`).
    - **`src/components/pwa/{atoms,molecules,organisms}/`** — Elements used **only** on mobile browser and/or **standalone PWA** (safe-area wrappers, bottom tab bars, full-width list rows, sheet-style actions, thumb-zone primary CTAs). Respect `env(safe-area-inset-*)` and min touch targets (see `05-pwa-mobile-native.mdc`).
    - **Shared vs fork rule:** If a control is literally the same on all surfaces, it stays under `atoms/` or `molecules/`. If it diverges in structure or affordances (not just CSS width), implement **desktop** and **pwa** variants in the corresponding surface folder; do not overload one component with endless `isPwa` props.
-   - **Who renders which:** Screen entry components use `useAppSurface()` (or successor) from `src/hooks/` to render **either** a desktop composition (importing from `desktop/`) **or** a PWA composition (importing from `pwa/`), never both at once in the DOM.
+   - **Who renders which:** **Tier A** (student/parent-facing) screen entries use `useAppSurface()` / `SurfaceMountGate` to render **either** desktop **or** PWA, never both at once. **Tier B** (admin) may ship desktop-only; see `05-pwa-mobile-native.mdc`.
 5. **Tailwind only.** Inline `style={}` is forbidden except for truly dynamic runtime values (e.g., user-uploaded image backgrounds). Prefer Tailwind classes via `className`. **Exception:** `padding`/`min-height` that incorporate `env(safe-area-inset-*)` may use inline `style` only in **PWA** layout shells when Tailwind arbitrary values are insufficient — keep those values limited to safe-area glue code.
 6. **Reusability over convenience.** Before creating a new component, verify no existing shared atom/molecule or surface-specific counterpart already covers the need.
+
+## Contrast (WCAG-minded)
+
+1. **Text and icons** on any background must keep **readable contrast** (aim for **WCAG AA**: ~**4.5:1** for normal text, ~**3:1** for large text / **non-text UI** such as icon strokes on interactive controls).
+2. **Destructive / error affordances** — Do **not** place `text-[var(--color-error)]` (or similar) on **same-hue saturated** surfaces (e.g. brand red `secondary` button): the icon and label fail contrast. Prefer **neutral surfaces** (`surface`, `muted`) with **`border-[var(--color-error)]`** and **`text-[var(--color-error)]`**, or **light-on-dark** using `secondary-foreground` on the brand red **only** when the whole control is that fill (single foreground color).
+
+## Icon-only controls
+
+1. If the visible UI is **only an icon** (no adjacent text), you **must** set **`aria-label`** with a clear action (same copy you would use for a visible label, or fuller wording from i18n).
+2. **Ideally** also set **`title`** (native tooltip) with the same or complementary copy so pointer users get a hint on hover; for longer explanations, prefer dictionary keys used consistently for `aria-label` / `title`.
+3. Decorative icons: **`aria-hidden`** and no duplicate `aria-label` on the SVG.

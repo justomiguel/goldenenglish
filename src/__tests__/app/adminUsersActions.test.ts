@@ -26,6 +26,7 @@ const validPayload = {
   first_name: "A",
   last_name: "B",
   dni_or_passport: "1",
+  phone: "+100000",
 };
 
 describe("createDashboardUser", () => {
@@ -76,5 +77,50 @@ describe("createDashboardUser", () => {
     });
     const r = await createDashboardUser(validPayload);
     expect(r).toEqual({ ok: true });
+  });
+
+  it("passes optional birth_date in user_metadata", async () => {
+    mockAssertAdmin.mockResolvedValue({});
+    mockCreateUser.mockResolvedValue({
+      data: { user: { id: "x" } },
+      error: null,
+    });
+    const r = await createDashboardUser({
+      ...validPayload,
+      birth_date: "2012-01-15",
+    });
+    expect(r).toEqual({ ok: true });
+    const call = mockCreateUser.mock.calls[0][0] as {
+      user_metadata: Record<string, string>;
+    };
+    expect(call.user_metadata.birth_date).toBe("2012-01-15");
+  });
+
+  it("generates password when empty and succeeds", async () => {
+    mockAssertAdmin.mockResolvedValue({});
+    mockCreateUser.mockResolvedValue({
+      data: { user: { id: "x" } },
+      error: null,
+    });
+    const r = await createDashboardUser({
+      email: "gen@test.com",
+      password: "",
+      first_name: "A",
+      last_name: "B",
+      dni_or_passport: "2",
+      phone: "+1999",
+    });
+    expect(r).toEqual({ ok: true });
+    const call = mockCreateUser.mock.calls[0][0] as { password: string };
+    expect(call.password.length).toBeGreaterThanOrEqual(6);
+  });
+
+  it("rejects short non-empty password", async () => {
+    mockAssertAdmin.mockResolvedValue({});
+    const r = await createDashboardUser({
+      ...validPayload,
+      password: "12345",
+    });
+    expect(r.ok).toBe(false);
   });
 });

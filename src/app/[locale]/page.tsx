@@ -16,6 +16,16 @@ export default async function HomePage({ params }: HomePageProps) {
   const { data: { user } } = await supabase.auth.getUser();
   const sessionEmail = user?.email ?? null;
 
+  let isAdmin = false;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    isAdmin = profile?.role === "admin";
+  }
+
   const [dict, brand, inscriptionsOpen] = await Promise.all([
     getDictionary(locale),
     Promise.resolve(getBrandPublic()),
@@ -40,6 +50,7 @@ export default async function HomePage({ params }: HomePageProps) {
           dict={dict}
           locale={locale}
           sessionEmail={sessionEmail}
+          isAdmin={isAdmin}
         >
           {main}
         </LandingScreenDesktop>
@@ -49,6 +60,7 @@ export default async function HomePage({ params }: HomePageProps) {
       dict={dict}
       locale={locale}
       sessionEmail={sessionEmail}
+      isAdmin={isAdmin}
     />
   );
 }

@@ -45,6 +45,7 @@ const labels = {
   emailPlaceholder: "you@example.com",
   passwordLabel: "Password",
   passwordPlaceholder: "Your password",
+  passwordHintStudent: "Use DNI as password.",
   submitButton: "Sign In",
   rememberMe: "Remember me",
   redirecting: "Signing you in…",

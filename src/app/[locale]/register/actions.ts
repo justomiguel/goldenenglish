@@ -29,8 +29,9 @@ export async function submitPublicRegistration(
     last_name: parsed.data.last_name,
     dni: parsed.data.dni,
     email: parsed.data.email,
-    phone: parsed.data.phone || null,
-    level_interest: parsed.data.level_interest || null,
+    phone: parsed.data.phone,
+    birth_date: parsed.data.birth_date,
+    level_interest: parsed.data.level_interest,
     status: "new",
   });
 

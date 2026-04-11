@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Pre-commit policy checks: branding literals, i18n parity, PWA conventions, file size.
+ * Pre-commit policy checks: branding literals, i18n parity, PWA conventions, file size,
+ * Tier A student/parent pages must reach SurfaceMountGate (see scripts/tier-a-surface-verify.mjs).
  * Keeps failures actionable (single line per issue).
  */
 
@@ -8,6 +9,10 @@ import { execSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  findTierAStudentParentPages,
+  reachesSurfaceMountGate,
+} from "./tier-a-surface-verify.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -215,12 +220,34 @@ function checkStagedFileSizes() {
   }
 }
 
+function gitLsFilesSrc() {
+  try {
+    return sh("git ls-files src").split("\n").filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+function checkTierAStudentParentSurface() {
+  const pages = findTierAStudentParentPages(gitLsFilesSrc());
+  for (const rel of pages) {
+    const abs = join(ROOT, rel);
+    if (!existsSync(abs)) continue;
+    if (!reachesSurfaceMountGate(ROOT, abs)) {
+      fail(
+        `Tier A (student/parent): ${rel} must import (directly or transitively) a module that uses SurfaceMountGate. Add a client *Entry with SurfaceMountGate + narrow branch. See .cursor/rules/05-pwa-mobile-native.mdc.`,
+      );
+    }
+  }
+}
+
 checkBrandLiterals();
 checkDictionaryParity();
 checkPwaSurfaceHook();
 checkNoAdHocViewportWidth();
 checkRootViewport();
 checkStagedFileSizes();
+checkTierAStudentParentSurface();
 
 if (errors.length) {
   for (const msg of errors) {

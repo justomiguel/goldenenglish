@@ -46,6 +46,11 @@ export function LoginForm({ labels, locale, nextPath = null }: LoginFormProps) {
         <p className="text-pretty text-sm leading-relaxed text-[var(--color-muted-foreground)]">
           {labels.subtitle}
         </p>
+        {nextPath?.includes("/dashboard/student") ? (
+          <p className="text-pretty text-xs leading-relaxed text-[var(--color-muted-foreground)]">
+            {labels.passwordHintStudent}
+          </p>
+        ) : null}
       </div>
 
       {error ? (

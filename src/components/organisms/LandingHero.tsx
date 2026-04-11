@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { ArrowRight, MessageCircle, Sparkles } from "lucide-react";
+import { MessageCircle, Sparkles } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { BrandPublic } from "@/lib/brand/server";
 import { taglineForLocale } from "@/lib/brand/taglineForLocale";
+import { LandingHeroInscriptionCta } from "@/components/molecules/LandingHeroInscriptionCta";
 import { LandingTiltedPhoto } from "@/components/molecules/LandingTiltedPhoto";
 import {
   INICIO_IMAGES,
@@ -70,39 +70,44 @@ export function LandingHero({
                 {heroTagline}
               </span>
             </h1>
-            <div className="animate-fade-up animate-delay-3 mt-12 flex flex-wrap items-center justify-center gap-4 lg:justify-start">
+            <div className="animate-fade-up animate-delay-3 mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-5 lg:justify-start">
               {sessionEmail || inscriptionsOpen ? (
-                <Link
+                <LandingHeroInscriptionCta
                   href={
                     sessionEmail ? `/${locale}#niveles` : `/${locale}/register`
                   }
-                  className="group inline-flex items-center justify-center rounded-[var(--layout-border-radius)] bg-[var(--color-accent)] px-8 py-4 text-base font-semibold text-[var(--color-accent-foreground)] shadow-[0_8px_30px_-6px_rgb(240_185_50_/50%)] transition duration-300 hover:scale-[1.02] hover:brightness-105 active:scale-[0.98]"
-                >
-                  <span>
-                    {sessionEmail
+                  label={
+                    sessionEmail
                       ? dict.landing.hero.ctaSignedIn
-                      : dict.landing.hero.ctaRegister}
-                  </span>
-                  <ArrowRight
-                    className="h-4 w-4 shrink-0 transition group-hover:translate-x-0.5"
-                    aria-hidden
-                    strokeWidth={1.75}
-                  />
-                </Link>
+                      : dict.landing.hero.ctaRegister
+                  }
+                  mode={sessionEmail ? "signedIn" : "register"}
+                />
               ) : null}
               {brand.socialWhatsapp ? (
                 <a
                   href={brand.socialWhatsapp}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-[var(--layout-border-radius)] border-2 border-white/35 bg-white/5 px-6 py-3.5 text-sm font-medium text-white backdrop-blur-sm transition hover:border-[var(--color-accent)]/80 hover:bg-white/10"
+                  className="group/wa relative inline-flex max-w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-primary-dark)]"
                 >
-                  <MessageCircle
-                    className="h-4 w-4 shrink-0 opacity-90"
+                  <span
                     aria-hidden
-                    strokeWidth={1.75}
+                    className="pointer-events-none absolute -inset-0.5 rounded-[calc(var(--layout-border-radius)+6px)] bg-white/15 blur-md opacity-60 transition group-hover/wa:opacity-100"
                   />
-                  WhatsApp
+                  <span className="relative flex min-h-[3.25rem] items-center gap-3 overflow-hidden rounded-[var(--layout-border-radius)] border border-white/40 bg-gradient-to-b from-white/18 to-white/[0.07] px-2 py-2 pl-3 text-sm font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.35),inset_0_-2px_0_rgba(0,0,0,0.12),0_6px_0_0_rgba(0,0,0,0.18),0_14px_36px_-14px_rgba(0,0,0,0.45)] backdrop-blur-md transition-[transform,box-shadow] duration-200 motion-safe:hover:-translate-y-0.5 motion-safe:hover:border-[var(--color-accent)]/50 motion-safe:hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.45),0_8px_0_0_rgba(0,0,0,0.2),0_18px_40px_-12px_rgba(0,0,0,0.4)] motion-safe:active:translate-y-0">
+                    <span
+                      aria-hidden
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[calc(var(--layout-border-radius)-2px)] bg-white/12 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]"
+                    >
+                      <MessageCircle
+                        className="h-5 w-5 text-white drop-shadow"
+                        strokeWidth={1.85}
+                        aria-hidden
+                      />
+                    </span>
+                    <span className="pr-4">WhatsApp</span>
+                  </span>
                 </a>
               ) : null}
             </div>

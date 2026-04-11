@@ -88,6 +88,29 @@ describe("mapCsvRecord", () => {
     });
     expect(row?.level).toBeUndefined();
   });
+
+  it("maps Google Form / Golden Excel style columns", () => {
+    const row = mapCsvRecord({
+      "Dirección de correo electrónico": "a@b.com",
+      Apellidos: "Aguilar",
+      Nombre: "Bastian",
+      DNI: "53567652",
+      "Fecha nacimi": "6/14/14",
+      "Nombre del tutor": "Aguilar Arturo",
+      "Cntacto tutor": "3704699535",
+      nivel: "1 año",
+    });
+    expect(row).toMatchObject({
+      first_name: "Bastian",
+      last_name: "Aguilar",
+      dni_or_passport: "53567652",
+      email: "a@b.com",
+      birth_date: "2014-06-14",
+      tutor_first_name: "Aguilar Arturo",
+      tutor_phone: "3704699535",
+    });
+    expect(row?.level).toBeUndefined();
+  });
 });
 
 describe("mapCsvRecords", () => {

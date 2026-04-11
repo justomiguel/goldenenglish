@@ -9,24 +9,18 @@ import { AdminImportScreenNarrow } from "@/components/pwa/organisms/AdminImportS
 interface AdminImportSurfaceGateProps {
   desktop: ReactNode;
   dict: Dictionary;
-  locale: string;
 }
 
 export function AdminImportSurfaceGate({
   desktop,
   dict,
-  locale,
 }: AdminImportSurfaceGateProps) {
   return (
     <SurfaceMountGate
       skeleton={<AdminImportScreenSkeleton />}
       desktop={desktop}
       narrow={(surface) => (
-        <AdminImportScreenNarrow
-          dict={dict}
-          locale={locale}
-          surface={surface}
-        />
+        <AdminImportScreenNarrow dict={dict} surface={surface} />
       )}
     />
   );

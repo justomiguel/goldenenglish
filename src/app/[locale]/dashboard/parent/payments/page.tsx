@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { ParentPaymentForm } from "@/components/parent/ParentPaymentForm";
+import { ParentPaymentsEntry } from "@/components/parent/ParentPaymentsEntry";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -40,14 +40,11 @@ export default async function ParentPaymentsPage({ params }: PageProps) {
   }));
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-bold text-[var(--color-secondary)]">
-        {dict.dashboard.parent.paymentsTitle}
-      </h1>
-      <p className="mt-2 text-[var(--color-muted-foreground)]">
-        {dict.dashboard.parent.paymentsLead}
-      </p>
-      <ParentPaymentForm options={options} labels={dict.dashboard.parent} />
-    </div>
+    <ParentPaymentsEntry
+      title={dict.dashboard.parent.paymentsTitle}
+      lead={dict.dashboard.parent.paymentsLead}
+      options={options}
+      labels={dict.dashboard.parent}
+    />
   );
 }

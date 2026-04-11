@@ -1,6 +1,7 @@
 import type { CsvStudentRow } from "@/lib/import/studentRowSchema";
+import { normalizeBirthDateString } from "@/lib/import/birthDateNormalize";
 
-/** Normaliza encabezados tipo ALUMNOS GOLDEN (ES/EN). */
+/** Normaliza encabezados tipo ALUMNOS GOLDEN (ES/EN) y respuestas de Google Forms. */
 const HEADER_ALIASES: Record<string, keyof CsvStudentRow | "skip"> = {
   nombre: "first_name",
   apellido: "last_name",
@@ -16,8 +17,11 @@ const HEADER_ALIASES: Record<string, keyof CsvStudentRow | "skip"> = {
   tel: "phone",
   email: "email",
   correo: "email",
+  /** Google Forms / plantillas Golden */
+  direccion_de_correo_electronico: "email",
   birth_date: "birth_date",
   fecha_nacimiento: "birth_date",
+  fecha_nacimi: "birth_date",
   nacimiento: "birth_date",
   nivel: "level",
   level: "level",
@@ -33,17 +37,36 @@ const HEADER_ALIASES: Record<string, keyof CsvStudentRow | "skip"> = {
   email_tutor: "tutor_email",
   tutor_email: "tutor_email",
   nombre_tutor: "tutor_first_name",
+  nombre_del_tutor: "tutor_first_name",
   tutor_nombre: "tutor_first_name",
   apellido_tutor: "tutor_last_name",
   tutor_apellido: "tutor_last_name",
   telefono_tutor: "tutor_phone",
   tutor_telefono: "tutor_phone",
+  cntacto_tutor: "tutor_phone",
+  contacto_tutor: "tutor_phone",
   cuota: "monthly_fee",
   cuota_mensual: "monthly_fee",
   monthly_fee: "monthly_fee",
   /** Columnas ignoradas en plantillas (p. ej. notas libres). */
   observaciones: "skip",
   notas: "skip",
+  marca_temporal: "skip",
+  edad: "skip",
+  localidad: "skip",
+  profesor: "skip",
+  insc: "skip",
+  exam: "skip",
+  mar: "skip",
+  abr: "skip",
+  may: "skip",
+  jun: "skip",
+  jul: "skip",
+  ago: "skip",
+  sept: "skip",
+  oct: "skip",
+  nov: "skip",
+  dic: "skip",
 };
 
 function normKey(k: string): string {
@@ -71,6 +94,11 @@ export function mapCsvRecord(raw: Record<string, unknown>): CsvStudentRow | null
     }
     if (target === "academic_year") {
       out.academic_year = Number.parseInt(s, 10);
+      continue;
+    }
+    if (target === "birth_date") {
+      const iso = normalizeBirthDateString(s);
+      if (iso) (out as Record<string, unknown>).birth_date = iso;
       continue;
     }
     if (target === "monthly_fee") {

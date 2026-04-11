@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -37,35 +37,12 @@ export default async function ParentDashboardPage({ params }: PageProps) {
   const payHref = `/${locale}/dashboard/parent/payments`;
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-bold text-[var(--color-secondary)]">
-        {dict.dashboard.parent.title}
-      </h1>
-      <p className="mt-2 text-[var(--color-muted-foreground)]">
-        {dict.dashboard.parent.lead}
-      </p>
-      <ul className="mt-8 space-y-3">
-        {(kids ?? []).map((k) => (
-          <li key={k.id}>
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3">
-              <span className="font-medium text-[var(--color-foreground)]">
-                {k.first_name} {k.last_name}
-              </span>
-              <Link
-                href={payHref}
-                className="text-sm font-semibold text-[var(--color-primary)] underline"
-              >
-                {dict.dashboard.parent.navPay}
-              </Link>
-            </div>
-          </li>
-        ))}
-      </ul>
-      {(!kids || kids.length === 0) && (
-        <p className="mt-6 text-sm text-[var(--color-muted-foreground)]">
-          {dict.dashboard.parent.lead}
-        </p>
-      )}
-    </div>
+    <ParentDashboardEntry
+      title={dict.dashboard.parent.title}
+      lead={dict.dashboard.parent.lead}
+      navPay={dict.dashboard.parent.navPay}
+      payHref={payHref}
+      kids={kids ?? []}
+    />
   );
 }

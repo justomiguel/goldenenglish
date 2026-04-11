@@ -15,11 +15,20 @@ describe("proxy", () => {
     updateSession.mockResolvedValue(new Response(null, { status: 200 }));
   });
 
-  it("redirects when pathname has no locale prefix", async () => {
+  it("redirects when pathname has no locale prefix to default locale (es)", async () => {
     const req = new NextRequest(new URL("http://localhost/foo"));
     const res = await proxy(req);
     expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toContain("/es/foo");
     expect(updateSession).not.toHaveBeenCalled();
+  });
+
+  it("uses default locale even when Accept-Language prefers English", async () => {
+    const req = new NextRequest(new URL("http://localhost/x"), {
+      headers: { "accept-language": "en-GB,en;q=0.9" },
+    });
+    const res = await proxy(req);
+    expect(res.headers.get("location")).toContain("/es/x");
   });
 
   it("uses default locale when Accept-Language header is absent", async () => {
@@ -30,30 +39,12 @@ describe("proxy", () => {
     expect(res.headers.get("location")).toContain("/es/");
   });
 
-  it("uses Accept-Language for default locale segment", async () => {
-    const req = new NextRequest(new URL("http://localhost/x"), {
-      headers: { "accept-language": "en-GB,en;q=0.9" },
-    });
-    const res = await proxy(req);
-    const loc = res.headers.get("location") ?? "";
-    expect(loc).toContain("/en/");
-  });
-
-  it("falls back to default locale when Accept-Language is unsupported", async () => {
+  it("uses default locale when Accept-Language is unsupported", async () => {
     const req = new NextRequest(new URL("http://localhost/y"), {
       headers: { "accept-language": "fr-FR,fr;q=0.9" },
     });
     const res = await proxy(req);
-    const loc = res.headers.get("location") ?? "";
-    expect(loc).toContain("/es/");
-  });
-
-  it("matches primary language subtag against configured locales", async () => {
-    const req = new NextRequest(new URL("http://localhost/z"), {
-      headers: { "accept-language": "es-419,es;q=0.9,en;q=0.8" },
-    });
-    const res = await proxy(req);
-    expect(res.headers.get("location")).toContain("/es/");
+    expect(res.headers.get("location")).toContain("/es/y");
   });
 
   it("delegates to updateSession when locale is present", async () => {

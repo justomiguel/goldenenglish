@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { describe, it, vi } from "vitest";
 import { render } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
+import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
 vi.mock("@/hooks/useLogin", () => ({
   useLogin: () => ({
@@ -64,6 +65,7 @@ vi.mock("recharts", () => {
 });
 
 import { AdminDashboardShell } from "@/components/dashboard/AdminDashboardShell";
+import { AdminChromeHeader } from "@/components/dashboard/AdminChromeHeader";
 import { AdminSidebar } from "@/components/dashboard/AdminSidebar";
 import { AdminCreateUserForm } from "@/components/dashboard/AdminCreateUserForm";
 import { InscriptionsSettingsForm } from "@/components/dashboard/InscriptionsSettingsForm";
@@ -80,10 +82,23 @@ describe("component smoke — dashboard & forms", () => {
       <AdminDashboardShell
         locale="es"
         dict={dictEn}
+        brand={mockBrandPublic}
         newRegistrationsCount={0}
       >
         <div>page</div>
       </AdminDashboardShell>,
+    );
+  });
+
+  it("AdminChromeHeader", () => {
+    render(
+      <AdminChromeHeader locale="es" brand={mockBrandPublic} dict={dictEn} />,
+    );
+  });
+
+  it("AdminChromeHeader uses English tagline when locale en", () => {
+    render(
+      <AdminChromeHeader locale="en" brand={mockBrandPublic} dict={dictEn} />,
     );
   });
 

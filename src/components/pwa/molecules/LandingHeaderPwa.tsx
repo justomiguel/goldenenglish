@@ -3,7 +3,7 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronsRight, LogIn } from "lucide-react";
+import { ChevronsRight, LayoutDashboard, LogIn } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
@@ -14,6 +14,7 @@ interface LandingHeaderPwaProps {
   dict: Dictionary;
   locale: string;
   sessionEmail: string | null;
+  isAdmin?: boolean;
 }
 
 const sectionPillClass =
@@ -30,6 +31,7 @@ export function LandingHeaderPwa({
   dict,
   locale,
   sessionEmail,
+  isAdmin = false,
 }: LandingHeaderPwaProps) {
   const sectionNavRef = useRef<HTMLElement>(null);
   const [sectionScroll, setSectionScroll] = useState<SectionScrollState>({
@@ -92,7 +94,11 @@ export function LandingHeaderPwa({
           aria-label={dict.nav.accountAria}
           className="flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--color-border)]/70 bg-[var(--color-muted)]/35 p-1"
         >
-          <LanguageSwitcher locale={locale} labels={dict.common.locale} />
+          <LanguageSwitcher
+            locale={locale}
+            labels={dict.common.locale}
+            variant="compact"
+          />
           {sessionEmail ? (
             <SignOutButton
               locale={locale}
@@ -155,6 +161,19 @@ export function LandingHeaderPwa({
             <a href={`/${locale}#certificaciones`} className={sectionPillClass}>
               {dict.nav.certifications}
             </a>
+            {isAdmin ? (
+              <Link
+                href={`/${locale}/dashboard/admin`}
+                className="inline-flex shrink-0 select-none snap-start items-center gap-1.5 rounded-full border border-[var(--color-accent)]/60 bg-[color-mix(in_srgb,var(--color-accent)_24%,var(--color-surface))] px-3.5 py-2 text-[0.8125rem] font-semibold text-[var(--color-accent-foreground)] shadow-sm ring-1 ring-[var(--color-accent)]/35 active:scale-[0.98] active:bg-[color-mix(in_srgb,var(--color-accent)_38%,var(--color-surface))]"
+              >
+                <LayoutDashboard
+                  className="h-3.5 w-3.5 shrink-0 opacity-95"
+                  aria-hidden
+                  strokeWidth={2}
+                />
+                {dict.nav.administration}
+              </Link>
+            ) : null}
           </nav>
         </div>
       </div>

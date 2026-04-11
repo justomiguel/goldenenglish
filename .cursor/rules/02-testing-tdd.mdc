@@ -1,5 +1,5 @@
 ---
-description: TDD Protocol — Tests first, 100% coverage gate, regression analysis required.
+description: TDD Protocol — Tests first, coverage gate, layered testing (TDD/DDD), regression notes.
 globs:
   - "**/*.ts"
   - "**/*.tsx"
@@ -7,6 +7,23 @@ alwaysApply: false
 ---
 
 # TDD & Testing Rules
+
+## Skills & layered architecture
+
+This repo pairs **TDD** with **layered, DDD-friendly boundaries** so tests stay stable when implementations change. Structural rules (dependency direction, where pure logic lives) are in **`.cursor/rules/03-architecture.mdc`** (section *Layered design*).
+
+| Concern | Use |
+|--------|-----|
+| Red → green → refactor, vertical slices, behavior vs implementation | `.agents/skills/tdd/SKILL.md` |
+| Clean architecture, domain boundaries, trade-offs | `.agents/skills/software-architecture/SKILL.md`, `.agents/skills/architecture/SKILL.md` |
+
+**How to test by layer**
+
+- **`src/lib/`** — **Pure** modules (e.g. `import/`, `register/` schemas, normalizers): unit tests on **inputs/outputs** only; no mocks of internal helpers. **Infra** under `lib/` (`supabase/`, server helpers): test behavior with boundaries mocked or integration-style as appropriate.
+- **Hooks / server actions**: exercise **orchestration**; mock **external I/O** (Supabase, Resend, etc.) at the boundary, not inside pure helpers.
+- **Components**: assert **user-visible behavior** (Testing Library); avoid coupling tests to private structure.
+
+New work: choose the **owning layer** first, define or extend the **public surface** of that layer, then apply TDD at that surface.
 
 ## Strict TDD Protocol
 

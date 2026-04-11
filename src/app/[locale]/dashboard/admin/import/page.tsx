@@ -18,8 +18,7 @@ export default async function AdminImportPage({ params }: AdminImportPageProps) 
   return (
     <AdminImportSurfaceGate
       dict={dict}
-      locale={locale}
-      desktop={<AdminImportScreenDesktop dict={dict} locale={locale} />}
+      desktop={<AdminImportScreenDesktop dict={dict} />}
     />
   );
 }
