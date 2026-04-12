@@ -27,6 +27,7 @@ const userRow: AdminUserRow = {
   lastName: "L",
   role: "student",
   phone: "+1",
+  avatarDisplayUrl: null,
 };
 
 describe("admin PWA smoke", () => {
@@ -104,6 +105,7 @@ describe("admin PWA smoke", () => {
   it("AdminUsersPwaList empty", () => {
     render(
       <AdminUsersPwaList
+        locale="es"
         toolbar={<span>t</span>}
         labels={dictEn.admin.users}
         tableLabels={dictEn.admin.table}
@@ -135,6 +137,7 @@ describe("admin PWA smoke", () => {
   it("AdminUsersPwaList with row", () => {
     render(
       <AdminUsersPwaList
+        locale="es"
         toolbar={<span>t</span>}
         labels={dictEn.admin.users}
         tableLabels={dictEn.admin.table}

@@ -30,6 +30,7 @@ export function AdminUsersTableDesktop({
   return (
     <div className="space-y-4">
       <AdminUsersDataTable
+        locale={locale}
         toolbar={
           <AdminUsersToolbar
             labels={labels}
@@ -41,9 +42,10 @@ export function AdminUsersTableDesktop({
             filteredCount={u.filtered.length}
             selectedCount={u.selectedDeletable.length}
             onDeleteSelected={u.onDeleteSelected}
-            onDeleteAllVisible={u.onDeleteAllVisible}
+            allVisibleSelected={u.allVisibleSelected}
+            onToggleSelectAllFiltered={u.toggleSelectAllVisible}
             deleteDisabled={u.deleteDisabled}
-            deleteAllVisibleDisabled={u.deleteAllVisibleDisabled}
+            selectAllFilteredDisabled={u.selectAllFilteredDisabled}
           />
         }
         labels={labels}

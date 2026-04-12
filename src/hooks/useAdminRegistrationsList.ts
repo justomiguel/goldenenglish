@@ -32,8 +32,10 @@ export function useAdminRegistrationsList({
   const [deleteRow, setDeleteRow] = useState<AdminRegistrationRow | null>(null);
   const [acceptRow, setAcceptRow] = useState<AdminRegistrationRow | null>(null);
   const [filterQuery, setFilterQuery] = useState("");
-  const [sortKey, setSortKey] = useState<RegistrationSortKey>("received");
-  const [sortDir, setSortDir] = useState<RegistrationSortDir>("desc");
+  const [sort, setSort] = useState<{
+    key: RegistrationSortKey;
+    dir: RegistrationSortDir;
+  }>({ key: "received", dir: "desc" });
   const [page, setPage] = useState(1);
 
   const setFilterQueryAndResetPage = useCallback((v: string) => {
@@ -47,8 +49,8 @@ export function useAdminRegistrationsList({
   );
 
   const sorted = useMemo(
-    () => sortRegistrationRows(filtered, sortKey, sortDir),
-    [filtered, sortKey, sortDir],
+    () => sortRegistrationRows(filtered, sort.key, sort.dir),
+    [filtered, sort.key, sort.dir],
   );
 
   const maxPage = Math.max(1, Math.ceil(sorted.length / DEFAULT_TABLE_PAGE_SIZE) || 1);
@@ -59,18 +61,21 @@ export function useAdminRegistrationsList({
     return sorted.slice(start, start + DEFAULT_TABLE_PAGE_SIZE);
   }, [sorted, effectivePage]);
 
-  const toggleSort = useCallback((id: string) => {
-    const key = id as RegistrationSortKey;
-    setSortKey((prev) => {
-      if (prev === key) {
-        setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-        return prev;
+  const toggleSort = useCallback(
+    (id: string) => {
+      const key = id as RegistrationSortKey;
+      if (sort.key !== key) {
+        setPage(1);
       }
-      setPage(1);
-      setSortDir("asc");
-      return key;
-    });
-  }, []);
+      setSort((prev) => {
+        if (prev.key === key) {
+          return { ...prev, dir: prev.dir === "asc" ? "desc" : "asc" };
+        }
+        return { key, dir: "asc" };
+      });
+    },
+    [sort.key],
+  );
 
   const statusLabel = useCallback(
     (status: string) => {
@@ -116,8 +121,8 @@ export function useAdminRegistrationsList({
     setAcceptRow,
     filterQuery,
     setFilterQueryAndResetPage,
-    sortKey,
-    sortDir,
+    sortKey: sort.key,
+    sortDir: sort.dir,
     toggleSort,
     page: effectivePage,
     setPage,

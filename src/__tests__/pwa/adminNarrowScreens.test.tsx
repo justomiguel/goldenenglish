@@ -42,6 +42,7 @@ const userRow: AdminUserRow = {
   lastName: "L",
   role: "student",
   phone: "+1",
+  avatarDisplayUrl: null,
 };
 
 describe("admin narrow screens", () => {

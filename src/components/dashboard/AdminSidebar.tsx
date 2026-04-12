@@ -4,9 +4,12 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Download,
+  Activity,
+  Gift,
   Home,
+  MessageCircle,
   Settings,
+  Ticket,
   Users,
   Wallet,
   ClipboardList,
@@ -31,7 +34,11 @@ export function AdminSidebar({
 
   const links: { href: string; label: string; icon: ReactNode; badge?: number }[] = [
     { href: base, label: dict.home, icon: <Home className={iconClass} /> },
-    { href: `${base}/import`, label: dict.import, icon: <Download className={iconClass} /> },
+    {
+      href: `${base}/analytics`,
+      label: dict.analytics,
+      icon: <Activity className={iconClass} />,
+    },
     { href: `${base}/users`, label: dict.users, icon: <Users className={iconClass} /> },
     { href: `${base}/payments`, label: dict.payments, icon: <Wallet className={iconClass} /> },
     {
@@ -39,6 +46,21 @@ export function AdminSidebar({
       label: dict.registrations,
       icon: <ClipboardList className={iconClass} />,
       badge: newRegistrationsCount,
+    },
+    {
+      href: `${base}/messages`,
+      label: dict.messages,
+      icon: <MessageCircle className={iconClass} />,
+    },
+    {
+      href: `${base}/coupons`,
+      label: dict.coupons,
+      icon: <Ticket className={iconClass} />,
+    },
+    {
+      href: `${base}/promotions`,
+      label: dict.promotions,
+      icon: <Gift className={iconClass} />,
     },
     { href: `${base}/settings`, label: dict.settings, icon: <Settings className={iconClass} /> },
   ];

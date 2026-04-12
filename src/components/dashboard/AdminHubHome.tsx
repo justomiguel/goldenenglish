@@ -10,11 +10,6 @@ export function AdminHubHome({ locale, dict }: AdminHubHomeProps) {
   const base = `/${locale}/dashboard/admin`;
   const cards: { href: string; title: string; description: string }[] = [
     {
-      href: `${base}/import`,
-      title: dict.dashboard.adminNav.import,
-      description: dict.admin.home.cards.import,
-    },
-    {
       href: `${base}/users`,
       title: dict.dashboard.adminNav.users,
       description: dict.admin.home.cards.users,

@@ -25,6 +25,8 @@ describe("ImportStudents", () => {
       createdUsers: 1,
       enrolled: 1,
       paymentsSeeded: 12,
+      profilesUpdated: 0,
+      skippedNoop: 0,
       results: [{ ok: true, rowIndex: 2, message: "" }],
     });
   });
@@ -90,6 +92,8 @@ describe("ImportStudents", () => {
       createdUsers: 0,
       enrolled: 0,
       paymentsSeeded: 0,
+      profilesUpdated: 0,
+      skippedNoop: 0,
       results: [{ ok: false, rowIndex: 3, message: "dup" }],
     });
     render(<ImportStudents labels={labels} />);

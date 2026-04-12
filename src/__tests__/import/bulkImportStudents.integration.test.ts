@@ -31,6 +31,10 @@ function adminChain() {
 
 function setupSessionAsAdmin() {
   const profilesChain = adminChain();
+  profilesChain.maybeSingle.mockResolvedValue({
+    data: { role: "admin" },
+    error: null,
+  });
   profilesChain.single.mockResolvedValue({
     data: { role: "admin" },
     error: null,
@@ -41,6 +45,7 @@ function setupSessionAsAdmin() {
       getUser: vi.fn().mockResolvedValue({ data: { user: { id: "admin-id" } } }),
     },
     from: vi.fn(() => profilesChain),
+    rpc: vi.fn().mockResolvedValue({ data: false, error: null }),
   });
 }
 
@@ -61,7 +66,7 @@ describe("bulkImportStudentsFromRows", () => {
 
   it("throws when role is not admin", async () => {
     const chain = adminChain();
-    chain.single.mockResolvedValue({
+    chain.maybeSingle.mockResolvedValue({
       data: { role: "student" },
       error: null,
     });
@@ -70,6 +75,7 @@ describe("bulkImportStudentsFromRows", () => {
         getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } }),
       },
       from: vi.fn(() => chain),
+      rpc: vi.fn().mockResolvedValue({ data: false, error: null }),
     });
 
     await expect(bulkImportStudentsFromRows([])).rejects.toThrow("Forbidden");
@@ -86,7 +92,14 @@ describe("bulkImportStudentsFromRows", () => {
 
   it("returns zeros for empty valid payload", async () => {
     setupSessionAsAdmin();
-    mockCreateAdmin.mockReturnValue({ from: vi.fn(), auth: { admin: {} } });
+    mockCreateAdmin.mockReturnValue({
+      from: vi.fn(),
+      auth: {
+        admin: {
+          listUsers: vi.fn().mockResolvedValue({ data: { users: [] }, error: null }),
+        },
+      },
+    });
 
     const result = await bulkImportStudentsFromRows([]);
     expect(result).toEqual({
@@ -94,6 +107,8 @@ describe("bulkImportStudentsFromRows", () => {
       createdUsers: 0,
       enrolled: 0,
       paymentsSeeded: 0,
+      profilesUpdated: 0,
+      skippedNoop: 0,
       results: [],
     });
   });
@@ -102,21 +117,32 @@ describe("bulkImportStudentsFromRows", () => {
     setupSessionAsAdmin();
 
     const chain = adminChain();
-    chain.maybeSingle
-      .mockResolvedValueOnce({ data: null })
-      .mockResolvedValueOnce({ data: null });
     chain.select.mockReturnValue(chain);
     chain.eq.mockReturnValue(chain);
     chain.limit.mockReturnValue(chain);
+    chain.maybeSingle
+      .mockResolvedValueOnce({ data: null, error: null })
+      .mockResolvedValueOnce({ data: null, error: null });
+    chain.single.mockResolvedValue({
+      data: {
+        id: "new-id",
+        role: "student",
+        phone: null,
+        birth_date: null,
+        dni_or_passport: "999999",
+      },
+      error: null,
+    });
 
     const createUser = vi.fn().mockResolvedValue({
       data: { user: { id: "new-id" } },
       error: null,
     });
+    const listUsers = vi.fn().mockResolvedValue({ data: { users: [] }, error: null });
 
     mockCreateAdmin.mockReturnValue({
       from: vi.fn(() => chain),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers } },
     });
 
     const result = await bulkImportStudentsFromRows([

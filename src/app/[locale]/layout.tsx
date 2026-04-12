@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import { getBrandPublic } from "@/lib/brand/server";
 import { taglineForLocale } from "@/lib/brand/taglineForLocale";
 import { JsonLdOrganization } from "@/components/molecules/JsonLdOrganization";
+import { AnalyticsRoot } from "@/components/analytics/AnalyticsRoot";
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -78,7 +79,7 @@ export default async function LocaleLayout({
   return (
     <div lang={locale} className="min-h-screen">
       <JsonLdOrganization locale={locale} />
-      {children}
+      <AnalyticsRoot>{children}</AnalyticsRoot>
     </div>
   );
 }

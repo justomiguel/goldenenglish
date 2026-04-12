@@ -9,18 +9,21 @@ import { AdminImportScreenNarrow } from "@/components/pwa/organisms/AdminImportS
 interface AdminImportSurfaceGateProps {
   desktop: ReactNode;
   dict: Dictionary;
+  /** Nested under Usuarios layout (skip duplicate title / full-page chrome on mobile). */
+  embedded?: boolean;
 }
 
 export function AdminImportSurfaceGate({
   desktop,
   dict,
+  embedded = false,
 }: AdminImportSurfaceGateProps) {
   return (
     <SurfaceMountGate
       skeleton={<AdminImportScreenSkeleton />}
       desktop={desktop}
       narrow={(surface) => (
-        <AdminImportScreenNarrow dict={dict} surface={surface} />
+        <AdminImportScreenNarrow dict={dict} surface={surface} embedded={embedded} />
       )}
     />
   );

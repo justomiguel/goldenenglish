@@ -13,31 +13,36 @@ export async function replyToStudentMessageUseCase(input: {
   emailProvider: EmailProvider;
 }): Promise<{ ok: true } | { ok: false; message: string }> {
   const { data: row, error: fetchErr } = await input.supabase
-    .from("student_messages")
-    .select("id, student_id, reply_html")
+    .from("portal_messages")
+    .select("id, sender_id, recipient_id")
     .eq("id", input.messageId)
-    .eq("teacher_id", input.teacherId)
+    .eq("recipient_id", input.teacherId)
     .maybeSingle();
 
   if (fetchErr || !row) return { ok: false, message: "Message not found" };
-  if (row.reply_html) return { ok: false, message: "Already replied" };
 
-  const { error } = await input.supabase
-    .from("student_messages")
-    .update({
-      reply_html: input.replyHtml,
-      replied_at: new Date().toISOString(),
-    })
-    .eq("id", input.messageId)
-    .eq("teacher_id", input.teacherId)
-    .is("reply_html", null);
+  const { data: senderProfile } = await input.supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", row.sender_id as string)
+    .maybeSingle();
+
+  if (senderProfile?.role !== "student") {
+    return { ok: false, message: "Can only reply to student messages" };
+  }
+
+  const { error } = await input.supabase.from("portal_messages").insert({
+    sender_id: input.teacherId,
+    recipient_id: row.sender_id as string,
+    body_html: input.replyHtml,
+  });
 
   if (error) return { ok: false, message: error.message };
 
   const preview = stripHtmlToText(input.replyHtml).slice(0, 500);
   try {
     await notifyStudentTeacherReplied({
-      studentId: row.student_id as string,
+      studentId: row.sender_id as string,
       teacherName: input.teacherDisplayName,
       replyPreview: preview || "(empty)",
       locale: input.locale,

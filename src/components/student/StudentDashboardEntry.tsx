@@ -3,6 +3,7 @@
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import { AttendancePlayboard } from "@/components/student/AttendancePlayboard";
+import { EngagementBar } from "@/components/student/EngagementBar";
 import { StudentAttendanceCalendar } from "@/components/student/StudentAttendanceCalendar";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
@@ -21,14 +22,20 @@ function StudentDashboardSkeleton() {
 
 export interface StudentDashboardEntryProps {
   title: string;
+  engagementPoints: number;
   rows: AttendanceRow[];
   labels: StudentLabels;
 }
 
-export function StudentDashboardEntry({ title, rows, labels }: StudentDashboardEntryProps) {
+export function StudentDashboardEntry({ title, engagementPoints, rows, labels }: StudentDashboardEntryProps) {
   const body = (
     <>
       <h1 className="mb-8 font-display text-3xl font-bold text-[var(--color-secondary)]">{title}</h1>
+      <EngagementBar
+        points={engagementPoints}
+        title={labels.engagementTitle}
+        hint={labels.engagementHint}
+      />
       <StudentAttendanceCalendar rows={rows} labels={labels} />
       <AttendancePlayboard rows={rows} labels={labels} />
     </>

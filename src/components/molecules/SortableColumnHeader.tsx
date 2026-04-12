@@ -38,10 +38,10 @@ export function SortableColumnHeader({
   return (
     <button
       type="button"
-      className="flex min-h-[44px] w-full items-center justify-start gap-1.5 font-semibold text-[var(--color-secondary)] hover:underline"
+      className="flex min-h-[44px] w-full min-w-0 items-center justify-start gap-1.5 text-left font-semibold text-[var(--color-secondary)] hover:underline"
       onClick={() => onToggleSort(columnId)}
     >
-      <span>{label}</span>
+      <span className="min-w-0 break-words">{label}</span>
       {active ? (
         sortDir === "asc" ? (
           <ArrowUp className="h-4 w-4 shrink-0 text-[var(--color-secondary)]" aria-hidden />

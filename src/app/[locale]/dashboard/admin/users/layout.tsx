@@ -19,6 +19,7 @@ export default async function AdminUsersLayout({ children, params }: UsersLayout
         items={[
           { href: base, label: dict.admin.usersNav.list },
           { href: `${base}/new`, label: dict.admin.usersNav.add },
+          { href: `${base}/import`, label: dict.admin.usersNav.importCsv },
         ]}
       />
       {children}

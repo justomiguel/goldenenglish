@@ -70,10 +70,10 @@ export async function deleteStudentMessage(
   if (profile?.role !== "student") return { ok: false, message: "Forbidden" };
 
   const { error } = await supabase
-    .from("student_messages")
+    .from("portal_messages")
     .delete()
     .eq("id", id.data)
-    .eq("student_id", user.id);
+    .eq("sender_id", user.id);
 
   if (error) return { ok: false, message: error.message };
   revalidatePath(`/${locale}/dashboard/student/messages`);

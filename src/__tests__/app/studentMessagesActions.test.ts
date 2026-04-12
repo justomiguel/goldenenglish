@@ -26,6 +26,9 @@ vi.mock("@/lib/messaging/useCases/replyToStudentMessage", () => ({
 vi.mock("@/lib/email/getEmailProvider", () => ({
   getEmailProvider: vi.fn(() => ({ sendEmail: vi.fn() })),
 }));
+vi.mock("@/lib/analytics/server/recordUserEvent", () => ({
+  recordUserEventServer: vi.fn(() => Promise.resolve({ ok: true })),
+}));
 
 describe("sendStudentMessage", () => {
   beforeEach(() => {

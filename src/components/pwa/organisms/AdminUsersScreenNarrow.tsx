@@ -36,6 +36,7 @@ export function AdminUsersScreenNarrow({
       <div className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
         <div className="mx-auto max-w-[var(--layout-max-width)] space-y-4 py-2">
           <AdminUsersPwaList
+            locale={locale}
             toolbar={
               <AdminUsersToolbar
                 labels={labels}
@@ -47,9 +48,10 @@ export function AdminUsersScreenNarrow({
                 filteredCount={u.filtered.length}
                 selectedCount={u.selectedDeletable.length}
                 onDeleteSelected={u.onDeleteSelected}
-                onDeleteAllVisible={u.onDeleteAllVisible}
+                allVisibleSelected={u.allVisibleSelected}
+                onToggleSelectAllFiltered={u.toggleSelectAllVisible}
                 deleteDisabled={u.deleteDisabled}
-                deleteAllVisibleDisabled={u.deleteAllVisibleDisabled}
+                selectAllFilteredDisabled={u.selectAllFilteredDisabled}
               />
             }
             labels={labels}

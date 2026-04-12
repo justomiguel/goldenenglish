@@ -12,9 +12,28 @@ function baseRow(over: Partial<CsvStudentRow> = {}): CsvStudentRow {
   };
 }
 
+function profileSingleOk(id: string, dni: string) {
+  return {
+    data: {
+      id,
+      role: "student" as const,
+      phone: null as string | null,
+      birth_date: null as string | null,
+      dni_or_passport: dni,
+    },
+    error: null,
+  };
+}
+
+const listUsersEmpty = vi.fn().mockResolvedValue({
+  data: { users: [] },
+  error: null,
+});
+
 describe("bulkImportStudentsFromRowsAdmin", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    listUsersEmpty.mockResolvedValue({ data: { users: [] }, error: null });
   });
 
   it("returns auth error when student createUser fails", async () => {
@@ -39,7 +58,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         throw new Error(`unexpected ${table}`);
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [baseRow()]);
@@ -58,7 +77,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         eq: vi.fn().mockReturnThis(),
         maybeSingle: vi.fn(async () => ({ data: null, error: null })),
       })),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [baseRow()]);
@@ -89,6 +108,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
               }
               return { data: null, error: null };
             }),
+            single: vi.fn(async () => profileSingleOk("existing-stu", "100")),
           };
         }
         if (table === "payments") {
@@ -115,7 +135,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn().mockResolvedValue({ error: null }) };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [
@@ -138,6 +158,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+            single: vi.fn(async () => profileSingleOk("new", "100")),
           };
         }
         if (table === "payments") {
@@ -151,7 +172,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [baseRow()]);
@@ -171,6 +192,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
         if (table === "courses") {
@@ -185,6 +207,9 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         if (table === "enrollments") {
           return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            maybeSingle: vi.fn(async () => ({ data: null, error: null })),
             insert: vi.fn(async () => ({
               error: { code: "ERR", message: "nope" },
             })),
@@ -199,7 +224,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
           upsert: vi.fn(),
         };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [
@@ -221,6 +246,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
         if (table === "courses") {
@@ -235,6 +261,9 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         if (table === "enrollments") {
           return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            maybeSingle: vi.fn(async () => ({ data: null, error: null })),
             insert: vi.fn(async () => ({
               error: { code: "23505", message: "dup" },
             })),
@@ -256,7 +285,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [
@@ -279,6 +308,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
         if (table === "payments") {
@@ -297,7 +327,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [
@@ -321,6 +351,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
         if (table === "payments") {
@@ -334,7 +365,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [baseRow()]);
@@ -367,6 +398,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
               }
               return { data: null, error: null };
             }),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
         if (table === "payments") {
@@ -385,7 +417,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [
@@ -416,6 +448,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
               }
               return { data: null, error: null };
             }),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
         if (table === "payments") {
@@ -432,12 +465,12 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
             insert: vi.fn().mockResolvedValue({ error: null }),
           };
         }
-        if (table === "parent_student") {
+        if (table === "tutor_student_rel") {
           return { upsert: vi.fn().mockResolvedValue({ error: null }) };
         }
         throw new Error(`unexpected ${table}`);
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [
@@ -470,6 +503,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
               if (dni === "400") return { data: null, error: null };
               return { data: null, error: null };
             }),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
         if (table === "payments") {
@@ -488,7 +522,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [
@@ -505,7 +539,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         eq: vi.fn().mockReturnThis(),
         maybeSingle: vi.fn(boom),
       })),
-      auth: { admin: { createUser: vi.fn() } },
+      auth: { admin: { createUser: vi.fn(), listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [baseRow()]);
@@ -542,9 +576,10 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
               }
               return { data: null, error: null };
             }),
+            single: vi.fn(async () => profileSingleOk("stu-new", "100")),
           };
         }
-        if (table === "parent_student") {
+        if (table === "tutor_student_rel") {
           return { upsert };
         }
         if (table === "payments") {
@@ -563,7 +598,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [
@@ -593,6 +628,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
         if (table === "courses") {
@@ -607,6 +643,9 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         if (table === "enrollments") {
           return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            maybeSingle: vi.fn(async () => ({ data: null, error: null })),
             insert: vi.fn(async () => ({
               error: { message: "duplicate key something" },
             })),
@@ -628,7 +667,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [
@@ -650,6 +689,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
         if (table === "courses") {
@@ -675,7 +715,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [
@@ -698,6 +738,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
         if (table === "courses") {
@@ -712,6 +753,9 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         if (table === "enrollments") {
           return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            maybeSingle: vi.fn(async () => ({ data: null, error: null })),
             insert: vi.fn(async () => ({ error: null })),
           };
         }
@@ -731,7 +775,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [
@@ -754,6 +798,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
         if (table === "courses") {
@@ -782,7 +827,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [
@@ -822,9 +867,10 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
               }
               return { data: null, error: null };
             }),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
-        if (table === "parent_student") {
+        if (table === "tutor_student_rel") {
           return { upsert };
         }
         if (table === "payments") {
@@ -843,7 +889,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [
@@ -862,7 +908,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
           throw new Error("profile lookup failed");
         }),
       })),
-      auth: { admin: { createUser: vi.fn() } },
+      auth: { admin: { createUser: vi.fn(), listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [baseRow()]);
@@ -886,6 +932,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
         if (table === "payments") {
@@ -909,7 +956,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [baseRow()]);
@@ -945,9 +992,10 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
               }
               return { data: null, error: null };
             }),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
-        if (table === "parent_student") {
+        if (table === "tutor_student_rel") {
           return { upsert: vi.fn().mockResolvedValue({ error: null }) };
         }
         if (table === "payments") {
@@ -966,7 +1014,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     await bulkImportStudentsFromRowsAdmin(admin, [
@@ -1004,6 +1052,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+            single: vi.fn(async () => profileSingleOk("stu", "100")),
           };
         }
         if (table === "courses") {
@@ -1018,6 +1067,9 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         if (table === "enrollments") {
           return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            maybeSingle: vi.fn(async () => ({ data: null, error: null })),
             insert: vi.fn(async () => ({
               error: { code: "42703" },
             })),
@@ -1039,7 +1091,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
         }
         return { upsert: vi.fn() };
       }),
-      auth: { admin: { createUser } },
+      auth: { admin: { createUser, listUsers: listUsersEmpty } },
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [

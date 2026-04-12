@@ -30,7 +30,7 @@ describe("RegisterForm", () => {
       target: { value: "+100" },
     });
     fireEvent.change(screen.getByLabelText(r.birthDate), {
-      target: { value: "2010-06-15" },
+      target: { value: "2000-06-15" },
     });
     fireEvent.change(screen.getByLabelText(r.level), {
       target: { value: "B1" },
@@ -40,7 +40,9 @@ describe("RegisterForm", () => {
 
   it("opens success dialog on ok", async () => {
     submitPublicRegistration.mockResolvedValue({ ok: true });
-    render(<RegisterForm locale="es" dict={dictEn.register} />);
+    render(
+      <RegisterForm locale="es" dict={dictEn.register} legalAgeMajority={18} />,
+    );
     fillAndSubmit();
     await waitFor(() => {
       expect(screen.getByText(dictEn.register.successTitle)).toBeInTheDocument();
@@ -53,7 +55,7 @@ describe("RegisterForm", () => {
         dni: "12345678",
         email: "a@b.co",
         phone: "+100",
-        birth_date: "2010-06-15",
+        birth_date: "2000-06-15",
         level_interest: "B1",
       }),
     );
@@ -64,7 +66,9 @@ describe("RegisterForm", () => {
       ok: false,
       message: "closed",
     });
-    render(<RegisterForm locale="es" dict={dictEn.register} />);
+    render(
+      <RegisterForm locale="es" dict={dictEn.register} legalAgeMajority={18} />,
+    );
     fillAndSubmit();
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(dictEn.register.closed);
@@ -73,16 +77,30 @@ describe("RegisterForm", () => {
 
   it("shows generic error for other failures", async () => {
     submitPublicRegistration.mockResolvedValue({ ok: false, message: "x" });
-    render(<RegisterForm locale="es" dict={dictEn.register} />);
+    render(
+      <RegisterForm locale="es" dict={dictEn.register} legalAgeMajority={18} />,
+    );
     fillAndSubmit();
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(dictEn.register.error);
     });
   });
 
+  it("shows tutor fields when birth date indicates minor", () => {
+    render(
+      <RegisterForm locale="es" dict={dictEn.register} legalAgeMajority={18} />,
+    );
+    fireEvent.change(screen.getByLabelText(dictEn.register.birthDate), {
+      target: { value: "2015-01-01" },
+    });
+    expect(screen.getByText(dictEn.register.tutorSectionTitle)).toBeInTheDocument();
+  });
+
   it("routes home from success dialog", async () => {
     submitPublicRegistration.mockResolvedValue({ ok: true });
-    render(<RegisterForm locale="es" dict={dictEn.register} />);
+    render(
+      <RegisterForm locale="es" dict={dictEn.register} legalAgeMajority={18} />,
+    );
     fillAndSubmit();
     await waitFor(() => {
       expect(screen.getByText(dictEn.register.successTitle)).toBeInTheDocument();

@@ -17,9 +17,9 @@ export async function sendStudentMessageUseCase(input: {
     return { ok: false, message: "No teacher available" };
   }
 
-  const { error } = await input.supabase.from("student_messages").insert({
-    student_id: input.studentId,
-    teacher_id: teacherId,
+  const { error } = await input.supabase.from("portal_messages").insert({
+    sender_id: input.studentId,
+    recipient_id: teacherId,
     body_html: input.bodyHtml,
   });
   if (error) return { ok: false, message: error.message };

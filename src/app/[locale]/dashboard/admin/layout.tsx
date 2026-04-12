@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandPublic } from "@/lib/brand/server";
+import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { AdminDashboardShell } from "@/components/dashboard/AdminDashboardShell";
 
 interface AdminLayoutProps {
@@ -24,13 +25,8 @@ export default async function AdminSectionLayout({
     redirect(`/${locale}/login?next=/${locale}/dashboard/admin`);
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
+  const isAdmin = await resolveIsAdminSession(supabase, user.id);
+  if (!isAdmin) {
     redirect(`/${locale}`);
   }
 

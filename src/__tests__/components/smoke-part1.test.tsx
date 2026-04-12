@@ -138,9 +138,9 @@ describe("component smoke — landing & gates", () => {
   it("AdminHubHome", () => {
     render(<AdminHubHome locale="es" dict={dictEn} />);
     expect(screen.getByText(dictEn.admin.home.title)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: new RegExp(dictEn.dashboard.adminNav.import) })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: new RegExp(dictEn.dashboard.adminNav.users) })).toHaveAttribute(
       "href",
-      "/es/dashboard/admin/import",
+      "/es/dashboard/admin/users",
     );
   });
 

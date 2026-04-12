@@ -63,7 +63,7 @@ export function supabaseFor(opts: PayMockOpts) {
           }),
         };
       }
-      if (table === "parent_student") {
+      if (table === "tutor_student_rel") {
         return {
           select: vi.fn().mockReturnThis(),
           eq: vi.fn().mockReturnThis(),

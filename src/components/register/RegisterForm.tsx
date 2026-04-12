@@ -6,19 +6,26 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { RegisterSuccessDialog } from "@/components/molecules/RegisterSuccessDialog";
+import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
+import type { PublicRegistrationInput } from "@/lib/register/publicRegistrationSchema";
 import type { Dictionary } from "@/types/i18n";
 
 interface RegisterFormProps {
   locale: string;
   dict: Dictionary["register"];
+  legalAgeMajority: number;
 }
 
-export function RegisterForm({ locale, dict }: RegisterFormProps) {
+export function RegisterForm({ locale, dict, legalAgeMajority }: RegisterFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [msgTone, setMsgTone] = useState<"error" | "muted">("error");
   const [busy, setBusy] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+  const [birthDate, setBirthDate] = useState("");
+
+  const showTutor =
+    birthDate.length === 10 && fullYearsFromIsoDate(birthDate) < legalAgeMajority;
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -26,7 +33,7 @@ export function RegisterForm({ locale, dict }: RegisterFormProps) {
     setMsg(null);
     setMsgTone("error");
     const fd = new FormData(e.currentTarget);
-    const res = await submitPublicRegistration(locale, {
+    const raw: PublicRegistrationInput = {
       first_name: String(fd.get("first_name") ?? ""),
       last_name: String(fd.get("last_name") ?? ""),
       dni: String(fd.get("dni") ?? ""),
@@ -34,10 +41,17 @@ export function RegisterForm({ locale, dict }: RegisterFormProps) {
       phone: String(fd.get("phone") ?? ""),
       birth_date: String(fd.get("birth_date") ?? ""),
       level_interest: String(fd.get("level_interest") ?? ""),
-    });
+      tutor_name: String(fd.get("tutor_name") ?? ""),
+      tutor_dni: String(fd.get("tutor_dni") ?? ""),
+      tutor_email: String(fd.get("tutor_email") ?? ""),
+      tutor_phone: String(fd.get("tutor_phone") ?? ""),
+      tutor_relationship: String(fd.get("tutor_relationship") ?? ""),
+    };
+    const res = await submitPublicRegistration(locale, raw);
     setBusy(false);
     if (res.ok) {
       formRef.current?.reset();
+      setBirthDate("");
       setSuccessOpen(true);
       return;
     }
@@ -102,11 +116,51 @@ export function RegisterForm({ locale, dict }: RegisterFormProps) {
             required
             className="mt-1 w-full"
             autoComplete="bday"
+            onChange={(ev) => setBirthDate(ev.target.value)}
           />
           <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
             {dict.birthDateHint}
           </p>
         </div>
+        {showTutor ? (
+          <fieldset className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/40 p-4">
+            <legend className="px-1 text-sm font-semibold text-[var(--color-foreground)]">
+              {dict.tutorSectionTitle}
+            </legend>
+            <p className="text-xs text-[var(--color-muted-foreground)]">{dict.tutorSectionLead}</p>
+            <div>
+              <Label htmlFor="rg-tn">{dict.tutorName}</Label>
+              <Input id="rg-tn" name="tutor_name" required={showTutor} className="mt-1 w-full" />
+            </div>
+            <div>
+              <Label htmlFor="rg-td">{dict.tutorDni}</Label>
+              <Input id="rg-td" name="tutor_dni" required={showTutor} className="mt-1 w-full" />
+            </div>
+            <div>
+              <Label htmlFor="rg-te">{dict.tutorEmail}</Label>
+              <Input
+                id="rg-te"
+                name="tutor_email"
+                type="email"
+                required={showTutor}
+                className="mt-1 w-full"
+              />
+            </div>
+            <div>
+              <Label htmlFor="rg-tp">{dict.tutorPhone}</Label>
+              <Input id="rg-tp" name="tutor_phone" required={showTutor} className="mt-1 w-full" />
+            </div>
+            <div>
+              <Label htmlFor="rg-tr">{dict.tutorRelationship}</Label>
+              <Input
+                id="rg-tr"
+                name="tutor_relationship"
+                required={showTutor}
+                className="mt-1 w-full"
+              />
+            </div>
+          </fieldset>
+        ) : null}
         <div>
           <Label htmlFor="rg-lv">{dict.level}</Label>
           <Input id="rg-lv" name="level_interest" required className="mt-1 w-full" />

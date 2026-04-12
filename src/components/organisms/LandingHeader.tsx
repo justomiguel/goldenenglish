@@ -50,6 +50,19 @@ export function LandingHeader({
             <span className="hidden pr-2 text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--color-muted-foreground)] sm:inline">
               {dict.nav.sectionsKicker}
             </span>
+            {isAdmin ? (
+              <Link
+                href={`/${locale}/dashboard/admin`}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-accent)]/55 bg-[color-mix(in_srgb,var(--color-accent)_26%,var(--color-surface))] px-2.5 py-1.5 text-sm font-semibold text-[var(--color-accent-foreground)] shadow-sm transition hover:bg-[color-mix(in_srgb,var(--color-accent)_42%,var(--color-surface))] hover:border-[var(--color-accent)]/80"
+              >
+                <LayoutDashboard
+                  className="h-3.5 w-3.5 shrink-0 opacity-95"
+                  aria-hidden
+                  strokeWidth={2}
+                />
+                {dict.nav.administration}
+              </Link>
+            ) : null}
             <a
               href={`/${locale}#historia`}
               className="rounded-[var(--layout-border-radius)] px-2.5 py-1.5 text-[var(--color-foreground)] transition hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)]"
@@ -74,19 +87,6 @@ export function LandingHeader({
             >
               {dict.nav.certifications}
             </a>
-            {isAdmin ? (
-              <Link
-                href={`/${locale}/dashboard/admin`}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-accent)]/55 bg-[color-mix(in_srgb,var(--color-accent)_26%,var(--color-surface))] px-2.5 py-1.5 text-sm font-semibold text-[var(--color-accent-foreground)] shadow-sm transition hover:bg-[color-mix(in_srgb,var(--color-accent)_42%,var(--color-surface))] hover:border-[var(--color-accent)]/80"
-              >
-                <LayoutDashboard
-                  className="h-3.5 w-3.5 shrink-0 opacity-95"
-                  aria-hidden
-                  strokeWidth={2}
-                />
-                {dict.nav.administration}
-              </Link>
-            ) : null}
           </nav>
           <span
             aria-hidden

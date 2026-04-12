@@ -26,6 +26,7 @@ const rows = [
     lastName: "Admin",
     role: "admin",
     phone: "+1",
+    avatarDisplayUrl: null,
   },
   {
     id: "22222222-2222-2222-2222-222222222222",
@@ -34,6 +35,7 @@ const rows = [
     lastName: "Ser",
     role: "student",
     phone: "+2",
+    avatarDisplayUrl: null,
   },
 ];
 
@@ -129,7 +131,12 @@ describe("AdminUsersTable", () => {
         labels={dictEn.admin.users}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.deleteAllVisible }));
+    fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.selectAllFiltered }));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: dictEn.admin.users.deleteSelectedWithCount.replace(/\{\{count\}\}/g, "1"),
+      }),
+    );
     const dlg = await screen.findByRole("dialog");
     fireEvent.click(within(dlg).getByRole("button", { name: dictEn.admin.users.confirmDelete }));
     await waitFor(() => expect(deleteAdminUsers).toHaveBeenCalled());
@@ -149,7 +156,12 @@ describe("AdminUsersTable", () => {
         labels={dictEn.admin.users}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.deleteAllVisible }));
+    fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.selectAllFiltered }));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: dictEn.admin.users.deleteSelectedWithCount.replace(/\{\{count\}\}/g, "1"),
+      }),
+    );
     const dlg = await screen.findByRole("dialog");
     fireEvent.click(within(dlg).getByRole("button", { name: dictEn.admin.users.confirmDelete }));
     await waitFor(() =>
@@ -170,7 +182,12 @@ describe("AdminUsersTable", () => {
         labels={dictEn.admin.users}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.deleteAllVisible }));
+    fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.selectAllFiltered }));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: dictEn.admin.users.deleteSelectedWithCount.replace(/\{\{count\}\}/g, "1"),
+      }),
+    );
     const dlg = await screen.findByRole("dialog");
     fireEvent.click(within(dlg).getByRole("button", { name: dictEn.admin.users.confirmDelete }));
     await waitFor(() => expect(deleteAdminUsers).toHaveBeenCalled());
@@ -226,7 +243,12 @@ describe("AdminUsersTable", () => {
         labels={dictEn.admin.users}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.deleteAllVisible }));
+    fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.selectAllFiltered }));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: dictEn.admin.users.deleteSelectedWithCount.replace(/\{\{count\}\}/g, "1"),
+      }),
+    );
     const dlg = await screen.findByRole("dialog");
     fireEvent.click(within(dlg).getByRole("button", { name: dictEn.admin.users.cancel }));
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());

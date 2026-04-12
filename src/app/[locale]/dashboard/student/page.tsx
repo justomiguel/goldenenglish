@@ -22,6 +22,17 @@ export default async function StudentDashboardPage({ params }: PageProps) {
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
+  const { data: prof } = await supabase
+    .from("profiles")
+    .select("engagement_points")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const engagementPoints =
+    prof && typeof prof === "object" && "engagement_points" in prof
+      ? Number((prof as { engagement_points?: number }).engagement_points ?? 0)
+      : 0;
+
   const { data: rows } = await supabase
     .from("attendance")
     .select("attendance_date, status, is_mandatory")
@@ -37,6 +48,7 @@ export default async function StudentDashboardPage({ params }: PageProps) {
   return (
     <StudentDashboardEntry
       title={dict.dashboard.student.title}
+      engagementPoints={engagementPoints}
       rows={normalized}
       labels={dict.dashboard.student}
     />

@@ -16,6 +16,8 @@ export type BulkImportResult = {
   createdUsers: number;
   enrolled: number;
   paymentsSeeded: number;
+  profilesUpdated: number;
+  skippedNoop: number;
   results: ImportRowResult[];
 };
 

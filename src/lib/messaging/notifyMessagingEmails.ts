@@ -34,6 +34,33 @@ export async function notifyTeacherNewMessage(params: {
   });
 }
 
+export async function notifyPortalRecipientForStaffMessage(params: {
+  recipientId: string;
+  senderName: string;
+  messagePreview: string;
+  locale: string;
+  emailProvider: EmailProvider;
+  recipientRole: "teacher" | "admin";
+}): Promise<void> {
+  const to = await authEmailForUserId(params.recipientId);
+  if (!to) return;
+  const brand = getBrandPublic();
+  const origin = getPublicSiteUrl()?.origin ?? "http://localhost:3000";
+  const dashboard =
+    params.recipientRole === "admin" ? "dashboard/admin/messages" : "dashboard/teacher/messages";
+  const href = `${origin}/${params.locale}/${dashboard}`;
+  const html = `
+    <p>New message from <strong>${escapeHtml(params.senderName)}</strong> at ${escapeHtml(brand.name)}.</p>
+    <blockquote style="border-left:3px solid #ccc;padding-left:12px;margin:12px 0;">${params.messagePreview.slice(0, 500)}</blockquote>
+    <p><a href="${href}">Open inbox</a></p>
+  `;
+  await params.emailProvider.sendEmail({
+    to,
+    subject: `${brand.name} — New message`,
+    html,
+  });
+}
+
 export async function notifyStudentTeacherReplied(params: {
   studentId: string;
   teacherName: string;

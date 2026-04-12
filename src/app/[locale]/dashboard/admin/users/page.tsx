@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { AdminUsersScreen } from "@/components/organisms/AdminUsersScreen";
 import type { AdminUserRow } from "@/lib/dashboard/adminUsersTableHelpers";
 import { listAllAuthUsers } from "@/lib/supabase/listAllAuthUsers";
+import { resolveAvatarUrlForAdmin } from "@/lib/dashboard/resolveAvatarUrl";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -36,15 +37,16 @@ export default async function AdminUsersListPage({ params }: PageProps) {
     ids.length > 0
       ? await admin
           .from("profiles")
-          .select("id, role, first_name, last_name, phone")
+          .select("id, role, first_name, last_name, phone, avatar_url")
           .in("id", ids)
       : { data: [] };
 
   const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
 
-  const rows: AdminUserRow[] = users
-    .map((u) => {
+  const rowsUnsorted = await Promise.all(
+    users.map(async (u) => {
       const p = profileById.get(u.id);
+      const avatarDisplayUrl = await resolveAvatarUrlForAdmin(admin, p?.avatar_url);
       return {
         id: u.id,
         email: u.email ?? "—",
@@ -52,9 +54,14 @@ export default async function AdminUsersListPage({ params }: PageProps) {
         lastName: p?.last_name ?? "—",
         role: p?.role ?? "—",
         phone: p?.phone?.trim() ? p.phone : "—",
+        avatarDisplayUrl,
       };
-    })
-    .sort((a, b) => a.email.localeCompare(b.email, locale, { sensitivity: "base" }));
+    }),
+  );
+
+  const rows: AdminUserRow[] = rowsUnsorted.sort((a, b) =>
+    a.email.localeCompare(b.email, locale, { sensitivity: "base" }),
+  );
 
   return (
     <div>

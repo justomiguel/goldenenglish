@@ -219,7 +219,7 @@ describe("useLogin", () => {
     const { result } = renderHook(() =>
       useLogin(mockDictionary.login.errors, {
         locale: "en",
-        nextPath: "/en/dashboard/admin/import",
+        nextPath: "/en/dashboard/admin/users/import",
       }),
     );
 
@@ -232,7 +232,7 @@ describe("useLogin", () => {
       await result.current.handleSubmit();
     });
 
-    expect(assignSpy).toHaveBeenCalledWith("/en/dashboard/admin/import");
+    expect(assignSpy).toHaveBeenCalledWith("/en/dashboard/admin/users/import");
   });
 
   it("ignores unsafe next path", async () => {

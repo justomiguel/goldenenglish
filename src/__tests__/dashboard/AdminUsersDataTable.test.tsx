@@ -9,6 +9,7 @@ describe("AdminUsersDataTable", () => {
     const selectAllRef = createRef<HTMLInputElement>();
     render(
       <AdminUsersDataTable
+        locale="en"
         toolbar={null}
         labels={dictEn.admin.users}
         tableLabels={dictEn.admin.table}

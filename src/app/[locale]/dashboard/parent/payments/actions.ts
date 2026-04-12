@@ -1,5 +1,7 @@
 "use server";
 
+import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
+import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { createClient } from "@/lib/supabase/server";
 
 const MAX_BYTES = 4 * 1024 * 1024;
@@ -54,9 +56,9 @@ export async function submitParentPaymentReceipt(
   if (profile?.role !== "parent") return { ok: false, message: "Forbidden" };
 
   const { data: link } = await supabase
-    .from("parent_student")
+    .from("tutor_student_rel")
     .select("student_id")
-    .eq("parent_id", user.id)
+    .eq("tutor_id", user.id)
     .eq("student_id", studentId)
     .maybeSingle();
   if (!link) return { ok: false, message: "Student not linked" };
@@ -70,6 +72,9 @@ export async function submitParentPaymentReceipt(
     .maybeSingle();
 
   if (payErr || !pay) return { ok: false, message: "Payment slot not found" };
+  if (pay.status === "exempt") {
+    return { ok: false, message: "This month is exempt from payment" };
+  }
   if (pay.status !== "pending") {
     return { ok: false, message: "Payment already processed" };
   }
@@ -95,5 +100,16 @@ export async function submitParentPaymentReceipt(
     .eq("status", "pending");
 
   if (upRow) return { ok: false, message: upRow.message };
+
+  void recordUserEventServer({
+    userId: user.id,
+    eventType: "action",
+    entity: AnalyticsEntity.paymentReceiptSubmittedParent,
+    metadata: {
+      month,
+      year,
+      receipt_kind: mime === "application/pdf" ? "pdf" : "image",
+    },
+  });
   return { ok: true };
 }

@@ -34,6 +34,8 @@ export function studentFd(
 export interface StudentPayMockOpts {
   user: { id: string } | null;
   profileRole: string | null;
+  /** Segundo SELECT en profiles (getProfilePermissions). */
+  isMinor?: boolean;
   pay: { id: string; status: string } | null;
   payErr?: unknown;
   uploadErr?: unknown;
@@ -42,20 +44,32 @@ export interface StudentPayMockOpts {
 
 export function studentSupabaseFor(opts: StudentPayMockOpts) {
   let paymentsFromCount = 0;
+  let profilesFromCount = 0;
   return {
     auth: {
       getUser: vi.fn().mockResolvedValue({ data: { user: opts.user } }),
     },
     from: vi.fn((table: string) => {
       if (table === "profiles") {
+        profilesFromCount++;
+        if (profilesFromCount === 1) {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            single: vi.fn().mockResolvedValue({
+              data:
+                opts.profileRole === null
+                  ? null
+                  : { role: opts.profileRole },
+              error: null,
+            }),
+          };
+        }
         return {
           select: vi.fn().mockReturnThis(),
           eq: vi.fn().mockReturnThis(),
-          single: vi.fn().mockResolvedValue({
-            data:
-              opts.profileRole === null
-                ? null
-                : { role: opts.profileRole },
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: { is_minor: opts.isMinor ?? false },
             error: null,
           }),
         };

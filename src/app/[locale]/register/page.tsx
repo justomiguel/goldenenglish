@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandPublic } from "@/lib/brand/server";
+import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { RegisterForm } from "@/components/register/RegisterForm";
 import { RegisterCollage } from "@/components/molecules/RegisterCollage";
@@ -24,6 +25,7 @@ export default async function RegisterPage({ params }: PageProps) {
 
   const dict = await getDictionary(locale);
   const brand = getBrandPublic();
+  const legalAgeMajority = getLegalAgeMajorityFromSystem();
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[var(--color-muted)] px-4 py-10 md:py-14">
@@ -46,7 +48,11 @@ export default async function RegisterPage({ params }: PageProps) {
         <RegisterCollage alts={dict.landing.collage.alts} />
 
         <div className="w-full max-w-lg justify-self-center lg:max-w-none lg:justify-self-stretch">
-          <RegisterForm locale={locale} dict={dict.register} />
+          <RegisterForm
+            locale={locale}
+            dict={dict.register}
+            legalAgeMajority={legalAgeMajority}
+          />
           <p className="mt-8 text-center text-sm lg:text-left">
             <Link
               href={`/${locale}/login`}

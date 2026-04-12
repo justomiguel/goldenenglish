@@ -1,0 +1,56 @@
+---
+description: "Analytics / observabilidad: user_events, API /api/analytics/events, recordSystemAudit; features sin flujos silenciosos."
+alwaysApply: true
+---
+
+> **Cursor:** frontmatter con `alwaysApply: true` → esta regla cuenta como **Always** (aplicación global en cada chat). No uses `globs` aquí: ya cubre todo el repo.
+
+# Analytics y registro de eventos (no negociable)
+
+## Objetivo
+
+Cada **feature nueva** o cambio sustancial en flujos autenticados debe **dejar constancia observable** en el sistema de métricas del proyecto: **emitir eventos**, **consumirlos** de forma coherente (agregados, engagement, admin) o **exportarlos** vía las tablas y RPC ya definidas. No se aceptan flujos “silenciosos” que no puedan auditarse ni analizarse con el mismo pipeline.
+
+---
+
+## Fuentes de verdad en el repo
+
+| Propósito | Dónde | Cuándo usarlo |
+|-----|-----|-----|
+| Eventos de producto (usuario autenticado) | Tabla `public.user_events` (migración `010_analytics_observability.sql`) | Navegación, clicks, acciones de negocio que deben verse en analítica y exports admin. |
+| Ingesta cliente | `trackEvent` / `trackPageView` en `src/lib/analytics/trackClient.ts` → `POST /api/analytics/events` | Interacción en el navegador (PWA/web) con sesión; respeta cola offline y `sanitizeAnalyticsMetadata`. |
+| Ingesta servidor (mismo usuario) | `recordUserEventServer` en `src/lib/analytics/server/recordUserEvent.ts` | Cuando el registro debe ocurrir en el servidor tras una acción (acción ya autenticada, mismo `userId`). |
+| Cambios / acciones de staff (auditoría) | `public.system_config_audit` + `recordSystemAudit` en `src/lib/analytics/server/recordSystemAudit.ts` | Mutaciones admin, cambios de configuración, operaciones que deben quedar **actor + recurso + payload** sin mezclarlas con `user_events` de alumno. |
+
+El layout ya monta telemetría de sesión y página vía `src/components/analytics/AnalyticsProvider.tsx`; las rutas nuevas del dashboard deben **completar** el modelo (entidades, acciones), no ignorarlo.
+
+---
+
+## Reglas de implementación
+
+1. **Tipos y entidades estables** — Los valores de `event_type` están acotados al union `UserEventTypeName` en `src/lib/analytics/eventConstants.ts` y al enum en BD / `zod` en `src/app/api/analytics/events/route.ts`. Añadir un tipo nuevo implica **migración SQL** + actualizar **tipo TS**, **schema del route** y **tests**; no introducir strings sueltos.
+2. **Claves `entity` predecibles** — Reutilizar o extender `AnalyticsEntity` y `pathnameToEntity()` en `eventConstants.ts` para rutas o secciones nuevas cuando aporten métricas de funnel o engagement; prefijo estable (`section:`, `route:`, `material:`, etc.) para agregados SQL.
+3. **Metadata segura** — Todo metadata pasa por `sanitizeAnalyticsMetadata` (cliente en `trackClient`, servidor en el route y en `recordUserEventServer`). No volcar PII, tokens ni payloads completos de formularios.
+4. **Acciones de negocio relevantes** — Tras éxito de una mutación visible para el usuario (pago enviado, mensaje enviado, importación completada, etc.), registrar al menos un `action` o `click` (o auditoría admin) con `entity` y metadata mínima útil para soporte y producto.
+5. **Solo staff / sistema** — Para cambios de configuración o herramientas internas, preferir `recordSystemAudit` con `action`, `resource_type`, `resource_id` y `payload` acotado; no duplicar en `user_events` salvo que el evento sea genuinamente “usuario en el producto”.
+6. **Consumo y exports** — Si la feature lee analítica (gráficos admin, listados), debe usar las mismas tablas/RPC existentes o proponer extensión documentada (nueva RPC, índice, vista) **sin** consultas ad hoc a tablas ignoradas en RLS.
+
+---
+
+## Checklist al añadir o cambiar una feature
+
+- [ ] ¿Hay **evento de producto** (`trackEvent` / `recordUserEventServer`) o **auditoría** (`recordSystemAudit`) donde corresponda?
+- [ ] ¿La **ruta o sección** nueva queda reflejada en `pathnameToEntity` / `AnalyticsEntity` si afecta métricas por pantalla?
+- [ ] ¿`event_type` y **metadata** siguen los límites y sanitización existentes?
+- [ ] ¿Los cambios en tipos o API de eventos incluyen **tests** (p. ej. bajo `src/__tests__/lib/analytics/`) y migración si aplica?
+
+---
+
+## Referencias rápidas
+
+- Constantes y mapeo de entidad: `src/lib/analytics/eventConstants.ts`
+- Cliente y cola: `src/lib/analytics/trackClient.ts`, `src/lib/analytics/offlineQueue.ts`
+- API: `src/app/api/analytics/events/route.ts`
+- Servidor: `src/lib/analytics/server/recordUserEvent.ts`, `src/lib/analytics/server/recordSystemAudit.ts`
+- Sanitización: `src/lib/analytics/sanitizeMetadata.ts`
+- Esquema: `supabase/migrations/010_analytics_observability.sql`

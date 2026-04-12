@@ -1,10 +1,12 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUserRow, SortDir, SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
 import { Button } from "@/components/atoms/Button";
+import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
 import { TablePagination } from "@/components/molecules/TablePagination";
 
 type UserLabels = Dictionary["admin"]["users"];
@@ -28,6 +30,7 @@ function colLabel(labels: UserLabels, key: SortKey): string {
 }
 
 export interface AdminUsersPwaListProps {
+  locale: string;
   toolbar: ReactNode;
   labels: UserLabels;
   tableLabels: TableLabels;
@@ -54,6 +57,7 @@ export interface AdminUsersPwaListProps {
 }
 
 export function AdminUsersPwaList({
+  locale,
   toolbar,
   labels,
   tableLabels,
@@ -153,9 +157,19 @@ export function AdminUsersPwaList({
                   <p className="break-all font-medium text-[var(--color-foreground)]">
                     {r.email}
                   </p>
-                  <p className="text-sm text-[var(--color-muted-foreground)]">
-                    {r.firstName} {r.lastName}
-                  </p>
+                  <Link
+                    href={`/${locale}/dashboard/admin/users/${r.id}`}
+                    className="flex items-start gap-2 text-sm text-[var(--color-muted-foreground)] active:opacity-80"
+                  >
+                    <ProfileAvatar
+                      url={r.avatarDisplayUrl}
+                      displayName={`${r.firstName} ${r.lastName}`}
+                      size="sm"
+                    />
+                    <span className="min-w-0 break-words font-medium text-[var(--color-foreground)]">
+                      {r.firstName} {r.lastName}
+                    </span>
+                  </Link>
                   <div className="flex flex-wrap gap-2 text-sm">
                     <span className="capitalize text-[var(--color-foreground)]">{r.role}</span>
                     <span className="text-[var(--color-muted-foreground)]">{r.phone}</span>

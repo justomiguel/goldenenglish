@@ -5,6 +5,8 @@ export type AdminUserRow = {
   lastName: string;
   role: string;
   phone: string;
+  /** Signed or absolute URL for list avatar; null if none. */
+  avatarDisplayUrl: string | null;
 };
 
 export type SortKey = "email" | "name" | "role" | "phone";

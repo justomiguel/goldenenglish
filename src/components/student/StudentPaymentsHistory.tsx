@@ -7,7 +7,9 @@ export type StudentPaymentRow = {
   month: number;
   year: number;
   amount: number | null;
-  status: "pending" | "approved" | "rejected";
+  /** Amount after scholarship discount when applicable */
+  displayAmount: number | null;
+  status: "pending" | "approved" | "rejected" | "exempt";
   updated_at: string;
   receiptSignedUrl: string | null;
 };
@@ -23,6 +25,7 @@ function statusLabel(
 ): string {
   if (s === "approved") return labels.statusApproved;
   if (s === "rejected") return labels.statusRejected;
+  if (s === "exempt") return labels.statusExempt;
   return labels.statusPending;
 }
 
@@ -53,31 +56,51 @@ export function StudentPaymentsHistory({ rows, labels }: StudentPaymentsHistoryP
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
-            <tr key={r.id} className="border-b border-[var(--color-border)] last:border-0">
-              <td className="px-4 py-3">{r.month}</td>
-              <td className="px-4 py-3">{r.year}</td>
-              <td className="px-4 py-3">{r.amount != null ? String(r.amount) : "—"}</td>
-              <td className="px-4 py-3">{statusLabel(r.status, labels)}</td>
-              <td className="px-4 py-3 text-[var(--color-muted-foreground)]">
-                {new Date(r.updated_at).toLocaleString()}
-              </td>
-              <td className="px-4 py-3">
-                {r.receiptSignedUrl ? (
-                  <a
-                    href={r.receiptSignedUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium text-[var(--color-primary)] underline-offset-2 hover:underline"
-                  >
-                    {labels.paymentViewReceipt}
-                  </a>
-                ) : (
-                  "—"
-                )}
-              </td>
-            </tr>
-          ))}
+          {rows.map((r) => {
+            const showScholarship =
+              r.status === "pending" &&
+              r.amount != null &&
+              r.displayAmount != null &&
+              Math.abs(r.displayAmount - r.amount) > 0.009;
+            return (
+              <tr key={r.id} className="border-b border-[var(--color-border)] last:border-0">
+                <td className="px-4 py-3">{r.month}</td>
+                <td className="px-4 py-3">{r.year}</td>
+                <td className="px-4 py-3">
+                  {r.displayAmount != null ? (
+                    <span>
+                      {String(r.displayAmount)}
+                      {showScholarship ? (
+                        <span className="ml-2 text-xs text-[var(--color-muted-foreground)]">
+                          ({labels.scholarshipAdjusted}: {String(r.amount)})
+                        </span>
+                      ) : null}
+                    </span>
+                  ) : (
+                    "—"
+                  )}
+                </td>
+                <td className="px-4 py-3">{statusLabel(r.status, labels)}</td>
+                <td className="px-4 py-3 text-[var(--color-muted-foreground)]">
+                  {new Date(r.updated_at).toLocaleString()}
+                </td>
+                <td className="px-4 py-3">
+                  {r.receiptSignedUrl ? (
+                    <a
+                      href={r.receiptSignedUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-[var(--color-primary)] underline-offset-2 hover:underline"
+                    >
+                      {labels.paymentViewReceipt}
+                    </a>
+                  ) : (
+                    "—"
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

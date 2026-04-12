@@ -29,10 +29,10 @@ New work: choose the **owning layer** first, define or extend the **public surfa
 
 1. **Red → Green → Refactor.** No feature code is written without a failing test first.
 2. **Test file location.** Tests live in `src/__tests__/` mirroring the source tree. Name convention: `ComponentName.test.tsx` or `hookName.test.ts`.
-3. **Coverage gate.** `npm run test:coverage` must pass before any commit. Thresholds are enforced in `vitest.config.ts`:
-   - **In scope (must stay at 100% lines / statements / functions):** `src/lib/**/*`, `src/hooks/**/*`, `src/proxy.ts`.
-   - **Branches:** global threshold **100%** on that same scope (see `vitest.config.ts` `coverage.thresholds`).
-   - **Out of scope for this gate:** `src/app/**` (exercise with E2E or integration tests later), `src/types/**`, test harness files. UI components under `src/components/**` are still tested but are **not** part of the coverage `include` list unless the config is deliberately expanded.
+3. **Coverage gate.** `npm run test:coverage` must pass before any commit. Thresholds are enforced in `vitest.config.ts` (see `coverage.include` / `coverage.thresholds` — typically **≥90%** globally on lines, statements, functions, and branches for included sources).
+   - **Never** add `coverage.exclude` entries for production source files **only** to make thresholds pass. If coverage drops, **add or extend tests** (unit, RTL smoke with mocked boundaries, or integration tests). Exclusions are only for **non-source** paths already listed (tests, types, `page.tsx` / `layout.tsx` entrypoints, etc.).
+   - **New or changed files** under `src/lib/`, `src/hooks/`, `src/components/`, `src/app/` actions, etc. must ship with tests that keep the gate green.
+   - **Out of scope for the coverage include list:** `src/types/**`, test harness files; `page.tsx` / `layout.tsx` remain excluded as RSC shells (behavior covered via child modules + E2E when added).
 4. **Pre-commit policy.** The repo expects `npm run precommit` before pushing: `eslint`, `node scripts/precommit-verify.mjs`, then `npm run test:coverage`. A Husky hook should call this script; commits are not merge-ready if any step fails.
 
 ## Test Categories

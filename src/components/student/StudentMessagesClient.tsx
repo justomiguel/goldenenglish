@@ -13,23 +13,27 @@ import type { Dictionary } from "@/types/i18n";
 const htmlBlockClass =
   "max-w-none text-sm leading-relaxed text-[var(--color-foreground)] [&_p]:my-1 [&_ul]:my-1 [&_ul]:list-disc [&_ul]:pl-5";
 
-export type StudentMessageDto = {
+export type StudentMessageLineDto = {
   id: string;
+  from_me: boolean;
   body_html: string;
-  reply_html: string | null;
   created_at: string;
-  replied_at: string | null;
+  can_delete: boolean;
+  peer_name: string;
+  incoming_label: string;
 };
 
 interface StudentMessagesClientProps {
   locale: string;
-  initialMessages: StudentMessageDto[];
+  initialLines?: StudentMessageLineDto[];
+  canCompose: boolean;
   labels: Dictionary["dashboard"]["student"];
 }
 
 export function StudentMessagesClient({
   locale,
-  initialMessages,
+  initialLines = [],
+  canCompose,
   labels,
 }: StudentMessagesClientProps) {
   const router = useRouter();
@@ -67,47 +71,50 @@ export function StudentMessagesClient({
 
   return (
     <div className="space-y-8">
-      <form onSubmit={onSend} className="space-y-3">
-        <h2 className="font-display text-lg font-semibold text-[var(--color-secondary)]">
-          {labels.messagesCompose}
-        </h2>
-        <RichTextEditor
-          key={composeKey}
-          value={body}
-          onChange={setBody}
-          disabled={busy}
-          aria-label={labels.messagesPlaceholder}
-        />
-        <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px]">
-          {labels.messagesSend}
-        </Button>
-      </form>
+      {!canCompose ? (
+        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.messagesNoTeacher}</p>
+      ) : (
+        <form onSubmit={onSend} className="space-y-3">
+          <h2 className="font-display text-lg font-semibold text-[var(--color-secondary)]">
+            {labels.messagesCompose}
+          </h2>
+          <RichTextEditor
+            key={composeKey}
+            value={body}
+            onChange={setBody}
+            disabled={busy}
+            aria-label={labels.messagesPlaceholder}
+          />
+          <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px]">
+            {labels.messagesSend}
+          </Button>
+        </form>
+      )}
       {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}
 
-      <ul className="space-y-6">
-        {initialMessages.length === 0 ? (
+      <ul className="space-y-4">
+        {initialLines.length === 0 ? (
           <li className="text-sm text-[var(--color-muted-foreground)]">{labels.messagesEmpty}</li>
         ) : (
-          initialMessages.map((m) => (
+          initialLines.map((m) => (
             <li
               key={m.id}
-              className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+              className={`rounded-[var(--layout-border-radius)] border border-[var(--color-border)] p-4 ${
+                m.from_me
+                  ? "ml-4 border-[var(--color-primary)]/30 bg-[var(--color-surface)]"
+                  : "mr-4 bg-[var(--color-muted)]/40"
+              }`}
             >
               <p className="text-xs uppercase text-[var(--color-muted-foreground)]">
                 {new Date(m.created_at).toLocaleString()}
               </p>
               <p className="mt-1 text-sm font-semibold text-[var(--color-primary)]">
-                {labels.messagesYouSent}
+                {m.from_me
+                  ? `${labels.messagesYouSentTo}: ${m.peer_name}`
+                  : `${m.incoming_label}: ${m.peer_name}`}
               </p>
               <div className={htmlBlockClass} dangerouslySetInnerHTML={{ __html: m.body_html }} />
-              {m.reply_html ? (
-                <>
-                  <p className="mt-4 text-sm font-semibold text-[var(--color-secondary)]">
-                    {labels.messagesReplyFromTeacher}
-                  </p>
-                  <div className={htmlBlockClass} dangerouslySetInnerHTML={{ __html: m.reply_html }} />
-                </>
-              ) : (
+              {m.from_me && m.can_delete ? (
                 <Button
                   type="button"
                   variant="ghost"
@@ -117,7 +124,7 @@ export function StudentMessagesClient({
                 >
                   {labels.messagesDelete}
                 </Button>
-              )}
+              ) : null}
             </li>
           ))
         )}

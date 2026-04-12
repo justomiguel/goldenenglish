@@ -1,6 +1,12 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
+import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { createClient } from "@/lib/supabase/server";
+import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
+import { sendPromotionAppliedEmail } from "@/lib/email/billingBenefitEmails";
+import type { Locale } from "@/types/i18n";
 
 const MAX_BYTES = 4 * 1024 * 1024;
 
@@ -49,6 +55,11 @@ export async function submitStudentPaymentReceipt(
     .single();
   if (profile?.role !== "student") return { ok: false, message: "Forbidden" };
 
+  const perms = await getProfilePermissions(supabase, user.id);
+  if (perms && !perms.canAccessPaymentsModule) {
+    return { ok: false, message: "Forbidden" };
+  }
+
   const { data: pay, error: payErr } = await supabase
     .from("payments")
     .select("id, status")
@@ -83,5 +94,89 @@ export async function submitStudentPaymentReceipt(
     .eq("status", "pending");
 
   if (upRow) return { ok: false, message: upRow.message };
+
+  void recordUserEventServer({
+    userId: user.id,
+    eventType: "action",
+    entity: AnalyticsEntity.paymentReceiptSubmittedStudent,
+    metadata: {
+      month,
+      year,
+      receipt_kind: mime === "application/pdf" ? "pdf" : "image",
+    },
+  });
+  return { ok: true };
+}
+
+type RpcResult = {
+  ok?: boolean;
+  message?: string;
+  promotion_name?: string;
+  code_snapshot?: string;
+};
+
+export async function applyPromotionCodeForStudent(
+  locale: Locale,
+  studentId: string,
+  code: string,
+): Promise<{ ok: boolean; message?: string }> {
+  const trimmed = code.trim();
+  if (!trimmed) return { ok: false, message: "Empty code" };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Unauthorized" };
+
+  if (user.id !== studentId) {
+    const { data: link } = await supabase
+      .from("tutor_student_rel")
+      .select("student_id")
+      .eq("tutor_id", user.id)
+      .eq("student_id", studentId)
+      .maybeSingle();
+    if (!link) return { ok: false, message: "Forbidden" };
+  } else {
+    const perms = await getProfilePermissions(supabase, user.id);
+    if (perms && !perms.canAccessPaymentsModule) {
+      return { ok: false, message: "Forbidden" };
+    }
+  }
+
+  const { data, error } = await supabase.rpc("apply_promotion_code", {
+    p_student_id: studentId,
+    p_code: trimmed,
+  });
+
+  if (error) return { ok: false, message: error.message };
+
+  const row = data as RpcResult | null;
+  if (!row || row.ok !== true) {
+    return { ok: false, message: typeof row?.message === "string" ? row.message : "Error" };
+  }
+
+  try {
+    await sendPromotionAppliedEmail({
+      studentId,
+      locale,
+      promotionName: row.promotion_name ?? "",
+      codeSnapshot: row.code_snapshot ?? trimmed,
+    });
+  } catch {
+    /* optional */
+  }
+
+  revalidatePath(`/${locale}/dashboard/student/payments`);
+  revalidatePath(`/${locale}/dashboard/parent/payments`);
+
+  void recordUserEventServer({
+    userId: user.id,
+    eventType: "action",
+    entity: AnalyticsEntity.promotionCodeAppliedStudent,
+    metadata: {
+      applied_by: user.id === studentId ? "student" : "parent",
+    },
+  });
   return { ok: true };
 }

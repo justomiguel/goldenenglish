@@ -15,6 +15,7 @@ const rows: AdminUserRow[] = [
     lastName: "Zed",
     role: "student",
     phone: "+1",
+    avatarDisplayUrl: null,
   },
   {
     id: "b",
@@ -23,6 +24,7 @@ const rows: AdminUserRow[] = [
     lastName: "A",
     role: "admin",
     phone: "+2",
+    avatarDisplayUrl: null,
   },
 ];
 

@@ -1,5 +1,7 @@
 /** @vitest-environment node */
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
+import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { submitParentPaymentReceipt } from "@/app/[locale]/dashboard/parent/payments/actions";
 import {
   fd,
@@ -9,6 +11,10 @@ import {
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: () => mockCreateClient(),
+}));
+
+vi.mock("@/lib/analytics/server/recordUserEvent", () => ({
+  recordUserEventServer: vi.fn(() => Promise.resolve({ ok: true })),
 }));
 
 describe("submitParentPaymentReceipt supabase", () => {
@@ -154,6 +160,12 @@ describe("submitParentPaymentReceipt supabase", () => {
       }),
     });
     expect(await submitParentPaymentReceipt(form)).toEqual({ ok: true });
+    expect(recordUserEventServer).toHaveBeenCalledWith({
+      userId: "p1",
+      eventType: "action",
+      entity: AnalyticsEntity.paymentReceiptSubmittedParent,
+      metadata: { month: 3, year: 2025, receipt_kind: "image" },
+    });
   });
 
   it("uses jpg extension for jpeg mime", async () => {

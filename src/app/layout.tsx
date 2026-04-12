@@ -38,6 +38,8 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   metadataBase,
+  /** Root `app/manifest.ts` — must be absolute so locale pages do not resolve `/es/manifest.webmanifest`. */
+  manifest: new URL("/manifest.webmanifest", metadataBase).href,
   title: {
     default: brand.name,
     template: `%s | ${brand.name}`,

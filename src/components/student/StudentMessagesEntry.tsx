@@ -4,7 +4,7 @@ import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import {
   StudentMessagesClient,
-  type StudentMessageDto,
+  type StudentMessageLineDto,
 } from "@/components/student/StudentMessagesClient";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
@@ -24,7 +24,8 @@ export interface StudentMessagesEntryProps {
   locale: string;
   title: string;
   lead: string;
-  messages: StudentMessageDto[];
+  lines: StudentMessageLineDto[];
+  canCompose: boolean;
   labels: StudentLabels;
 }
 
@@ -32,14 +33,20 @@ export function StudentMessagesEntry({
   locale,
   title,
   lead,
-  messages,
+  lines,
+  canCompose,
   labels,
 }: StudentMessagesEntryProps) {
   const body = (
     <>
       <h1 className="font-display text-3xl font-bold text-[var(--color-secondary)]">{title}</h1>
       <p className="mt-2 text-[var(--color-muted-foreground)]">{lead}</p>
-      <StudentMessagesClient locale={locale} initialMessages={messages} labels={labels} />
+      <StudentMessagesClient
+        locale={locale}
+        initialLines={lines}
+        canCompose={canCompose}
+        labels={labels}
+      />
     </>
   );
 

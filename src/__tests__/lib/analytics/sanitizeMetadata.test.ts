@@ -1,0 +1,34 @@
+import { describe, it, expect } from "vitest";
+import { anonymizeIp, sanitizeAnalyticsMetadata } from "@/lib/analytics/sanitizeMetadata";
+
+describe("sanitizeAnalyticsMetadata", () => {
+  it("drops email-like keys", () => {
+    expect(
+      sanitizeAnalyticsMetadata({
+        path: "/x",
+        email: "x@y.com",
+        user_email: "a@b.com",
+      }),
+    ).toEqual({ path: "/x" });
+  });
+
+  it("truncates long strings", () => {
+    const long = "a".repeat(600);
+    const out = sanitizeAnalyticsMetadata({ x: long });
+    expect(String(out.x).length).toBeLessThanOrEqual(502);
+  });
+});
+
+describe("anonymizeIp", () => {
+  it("masks IPv4 to /24", () => {
+    expect(anonymizeIp("192.168.1.99")).toBe("192.168.1.0");
+  });
+
+  it("strips ::ffff: and masks embedded IPv4", () => {
+    expect(anonymizeIp("::ffff:127.0.0.1")).toBe("127.0.0.0");
+  });
+
+  it("returns null for IPv6 loopback (invalid INET if truncated naively)", () => {
+    expect(anonymizeIp("::1")).toBeNull();
+  });
+});

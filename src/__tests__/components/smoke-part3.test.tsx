@@ -25,6 +25,8 @@ vi.mock("@/app/[locale]/dashboard/admin/import/actions", () => ({
     createdUsers: 0,
     enrolled: 0,
     paymentsSeeded: 0,
+    profilesUpdated: 0,
+    skippedNoop: 0,
     results: [],
   }),
 }));

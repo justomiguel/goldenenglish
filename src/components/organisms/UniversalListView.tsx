@@ -33,6 +33,12 @@ export interface UniversalListViewProps {
   emptyMessage: string;
   isEmpty: boolean;
   minTableWidth?: string;
+  /** Extra classes on `<table>` (e.g. `table-fixed min-w-0`). */
+  tableClassName?: string;
+  /** Optional `<colgroup>` for column widths in fixed layout. */
+  colgroup?: ReactNode;
+  /** `hidden` avoids horizontal scroll when the table fits the container (use with wrapping cells). */
+  tableOverflow?: "auto" | "hidden";
   children: ReactNode;
 }
 
@@ -49,6 +55,9 @@ export function UniversalListView({
   emptyMessage,
   isEmpty,
   minTableWidth = "min-w-full",
+  tableClassName = "",
+  colgroup,
+  tableOverflow = "auto",
   children,
 }: UniversalListViewProps) {
   const emptyBlock = (
@@ -70,8 +79,15 @@ export function UniversalListView({
   return (
     <div className="space-y-4">
       {toolbar}
-      <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
-        <table className={`w-full text-left text-sm ${minTableWidth}`}>
+      <div
+        className={`rounded-[var(--layout-border-radius)] border border-[var(--color-border)] ${
+          tableOverflow === "hidden" ? "overflow-x-hidden" : "overflow-x-auto"
+        }`}
+      >
+        <table
+          className={`w-full min-w-0 text-left text-sm ${minTableWidth} ${tableClassName}`.trim()}
+        >
+          {colgroup}
           <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]">
             <tr>
               {leadingHeader}

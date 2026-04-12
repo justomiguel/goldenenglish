@@ -18,6 +18,7 @@ describe("Tier A dashboard entries", () => {
     render(
       <StudentDashboardEntry
         title="Student title"
+        engagementPoints={0}
         rows={[]}
         labels={dictEn.dashboard.student}
       />,
@@ -28,19 +29,50 @@ describe("Tier A dashboard entries", () => {
   it("ParentDashboardEntry renders title", () => {
     render(
       <ParentDashboardEntry
+        locale="es"
         title="Parent title"
         lead="Lead"
         navPay="Pay"
         payHref="/es/pay"
         kids={[{ id: "1", first_name: "A", last_name: "B" }]}
+        parentLabels={dictEn.dashboard.parent}
       />,
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Parent title");
   });
 
+  it("ParentDashboardEntry renders family summary when summaries provided", () => {
+    render(
+      <ParentDashboardEntry
+        locale="es"
+        title="Familia"
+        lead="Lead"
+        navPay="Pagos"
+        payHref="/es/dashboard/parent/payments"
+        kids={[{ id: "s1", first_name: "Kid", last_name: "One" }]}
+        summaries={[
+          {
+            studentId: "s1",
+            firstName: "Kid",
+            lastName: "One",
+            attendancePercent: 90,
+            levelLabel: "B1",
+            nextExamAt: "2026-10-01",
+            nextEventAt: null,
+            nextEventLabel: null,
+          },
+        ]}
+        selectedStudentId="s1"
+        parentLabels={dictEn.dashboard.parent}
+      />,
+    );
+    expect(screen.getByText("90%")).toBeInTheDocument();
+  });
+
   it("ParentPaymentsEntry renders title", () => {
     render(
       <ParentPaymentsEntry
+        locale="en"
         title="Payments"
         lead="Lead"
         options={[{ id: "1", label: "Kid" }]}

@@ -21,7 +21,7 @@ const valid = {
   dni: "123",
   email: "ada@test.com",
   phone: "+100",
-  birth_date: "2010-05-01",
+  birth_date: "2000-05-01",
   level_interest: "A1",
 };
 

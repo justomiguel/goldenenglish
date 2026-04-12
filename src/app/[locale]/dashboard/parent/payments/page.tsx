@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { ParentPaymentsEntry } from "@/components/parent/ParentPaymentsEntry";
+import type { Locale } from "@/types/i18n";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -22,9 +23,9 @@ export default async function ParentPaymentsPage({ params }: PageProps) {
   if (!user) redirect(`/${locale}/login`);
 
   const { data: links } = await supabase
-    .from("parent_student")
+    .from("tutor_student_rel")
     .select("student_id")
-    .eq("parent_id", user.id);
+    .eq("tutor_id", user.id);
 
   const ids = (links ?? []).map((l) => l.student_id as string);
   const { data: kids } = ids.length
@@ -41,6 +42,7 @@ export default async function ParentPaymentsPage({ params }: PageProps) {
 
   return (
     <ParentPaymentsEntry
+      locale={locale as Locale}
       title={dict.dashboard.parent.paymentsTitle}
       lead={dict.dashboard.parent.paymentsLead}
       options={options}

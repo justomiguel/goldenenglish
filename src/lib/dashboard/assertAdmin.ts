@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 
 export async function assertAdmin() {
   const supabase = await createClient();
@@ -7,12 +8,7 @@ export async function assertAdmin() {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
-  const { data: profile, error } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (error || profile?.role !== "admin") throw new Error("Forbidden");
+  const isAdmin = await resolveIsAdminSession(supabase, user.id);
+  if (!isAdmin) throw new Error("Forbidden");
   return { supabase, user };
 }

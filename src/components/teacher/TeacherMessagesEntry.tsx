@@ -4,8 +4,9 @@ import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import {
   TeacherMessagesClient,
-  type TeacherMessageDto,
+  type TeacherFeedRow,
 } from "@/components/teacher/TeacherMessagesClient";
+import type { MessagingRecipient } from "@/components/teacher/TeacherPortalCompose";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
 
@@ -24,7 +25,8 @@ export interface TeacherMessagesEntryProps {
   locale: string;
   title: string;
   lead: string;
-  messages: TeacherMessageDto[];
+  feedRows: TeacherFeedRow[];
+  recipients: MessagingRecipient[];
   labels: TeacherLabels;
 }
 
@@ -32,14 +34,20 @@ export function TeacherMessagesEntry({
   locale,
   title,
   lead,
-  messages,
+  feedRows,
+  recipients,
   labels,
 }: TeacherMessagesEntryProps) {
   const body = (
     <>
       <h1 className="font-display text-3xl font-bold text-[var(--color-secondary)]">{title}</h1>
       <p className="mt-2 text-[var(--color-muted-foreground)]">{lead}</p>
-      <TeacherMessagesClient locale={locale} initialMessages={messages} labels={labels} />
+      <TeacherMessagesClient
+        locale={locale}
+        feedRows={feedRows}
+        recipients={recipients}
+        labels={labels}
+      />
     </>
   );
 

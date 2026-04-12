@@ -32,6 +32,7 @@ describe("Tier A entries — SurfaceMountGate branches", () => {
     render(
       <StudentDashboardEntry
         title="T"
+        engagementPoints={0}
         rows={[]}
         labels={dictEn.dashboard.student}
       />,
@@ -45,11 +46,13 @@ describe("Tier A entries — SurfaceMountGate branches", () => {
   it("ParentDashboardEntry exposes skeleton, desktop, and narrow", () => {
     render(
       <ParentDashboardEntry
+        locale="es"
         title="P"
         lead="L"
         navPay="Pay"
         payHref="/es/x"
         kids={[{ id: "1", first_name: "A", last_name: "B" }]}
+        parentLabels={dictEn.dashboard.parent}
       />,
     );
     expect(screen.getByTestId("sk")).toBeInTheDocument();
@@ -59,6 +62,7 @@ describe("Tier A entries — SurfaceMountGate branches", () => {
   it("ParentPaymentsEntry exposes skeleton, desktop, and narrow", () => {
     render(
       <ParentPaymentsEntry
+        locale="en"
         title="Pay"
         lead="L"
         options={[{ id: "1", label: "Kid" }]}

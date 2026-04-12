@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
+import { ParentDashboardFamilyView } from "@/components/parent/ParentDashboardFamilyView";
+import type { ParentChildSummary } from "@/lib/parent/loadParentChildrenSummaries";
 import type { AppSurface } from "@/hooks/useAppSurface";
+import type { Dictionary } from "@/types/i18n";
 
 function ParentDashboardSkeleton() {
   return (
@@ -15,41 +18,60 @@ function ParentDashboardSkeleton() {
 }
 
 export interface ParentDashboardEntryProps {
+  locale: string;
   title: string;
   lead: string;
   navPay: string;
   payHref: string;
   kids: { id: string; first_name: string; last_name: string }[];
+  summaries?: ParentChildSummary[];
+  selectedStudentId?: string;
+  parentLabels: Dictionary["dashboard"]["parent"];
 }
 
 export function ParentDashboardEntry({
+  locale,
   title,
   lead,
   navPay,
   payHref,
   kids,
+  summaries,
+  selectedStudentId,
+  parentLabels,
 }: ParentDashboardEntryProps) {
   const body = (
     <>
       <h1 className="font-display text-3xl font-bold text-[var(--color-secondary)]">{title}</h1>
       <p className="mt-2 text-[var(--color-muted-foreground)]">{lead}</p>
-      <ul className="mt-8 space-y-3">
-        {kids.map((k) => (
-          <li key={k.id}>
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3">
-              <span className="font-medium text-[var(--color-foreground)]">
-                {k.first_name} {k.last_name}
-              </span>
-              <Link
-                href={payHref}
-                className="text-sm font-semibold text-[var(--color-primary)] underline"
-              >
-                {navPay}
-              </Link>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {summaries && summaries.length > 0 ? (
+        <ParentDashboardFamilyView
+          locale={locale}
+          summaries={summaries}
+          selectedStudentId={selectedStudentId}
+          navPay={navPay}
+          payHrefBase={payHref}
+          labels={parentLabels}
+        />
+      ) : (
+        <ul className="mt-8 space-y-3">
+          {kids.map((k) => (
+            <li key={k.id}>
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3">
+                <span className="font-medium text-[var(--color-foreground)]">
+                  {k.first_name} {k.last_name}
+                </span>
+                <Link
+                  href={payHref}
+                  className="text-sm font-semibold text-[var(--color-primary)] underline"
+                >
+                  {navPay}
+                </Link>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
       {kids.length === 0 ? (
         <p className="mt-6 text-sm text-[var(--color-muted-foreground)]">{lead}</p>
       ) : null}

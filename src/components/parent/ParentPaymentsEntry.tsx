@@ -5,6 +5,7 @@ import { ParentPaymentForm } from "@/components/parent/ParentPaymentForm";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
+import type { Locale } from "@/types/i18n";
 
 type ParentLabels = Dictionary["dashboard"]["parent"];
 
@@ -18,18 +19,19 @@ function ParentPaymentsSkeleton() {
 }
 
 export interface ParentPaymentsEntryProps {
+  locale: Locale;
   title: string;
   lead: string;
   options: { id: string; label: string }[];
   labels: ParentLabels;
 }
 
-export function ParentPaymentsEntry({ title, lead, options, labels }: ParentPaymentsEntryProps) {
+export function ParentPaymentsEntry({ locale, title, lead, options, labels }: ParentPaymentsEntryProps) {
   const body = (
     <>
       <h1 className="font-display text-3xl font-bold text-[var(--color-secondary)]">{title}</h1>
       <p className="mt-2 text-[var(--color-muted-foreground)]">{lead}</p>
-      <ParentPaymentForm options={options} labels={labels} />
+      <ParentPaymentForm locale={locale} options={options} labels={labels} />
     </>
   );
 

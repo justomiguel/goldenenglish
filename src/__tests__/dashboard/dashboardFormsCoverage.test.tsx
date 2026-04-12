@@ -41,6 +41,11 @@ describe("dashboard coverage", () => {
     reviewPayment.mockResolvedValue({ ok: true });
     deleteRegistration.mockResolvedValue({ ok: true });
     acceptRegistration.mockResolvedValue({ ok: true });
+    // JSDOM omits reload; PaymentReviewRow calls it after review.
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: { ...window.location, reload: vi.fn() },
+    });
   });
 
   it("AdminSidebar marks active link and handles mobile select", () => {
@@ -57,8 +62,8 @@ describe("dashboard coverage", () => {
     const select = screen.getByRole("combobox", {
       name: dictEn.dashboard.adminNav.mobileSelect,
     });
-    fireEvent.change(select, { target: { value: "/es/dashboard/admin/import" } });
-    expect(loc.href).toBe("/es/dashboard/admin/import");
+    fireEvent.change(select, { target: { value: "/es/dashboard/admin/analytics" } });
+    expect(loc.href).toBe("/es/dashboard/admin/analytics");
     vi.unstubAllGlobals();
   });
 

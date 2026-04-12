@@ -15,6 +15,15 @@ function tpl(template: string, count: number): string {
   return template.replace(/\{\{count\}\}/g, String(count));
 }
 
+function deleteSelectedButtonLabel(labels: UserLabels, selectedCount: number): string {
+  if (selectedCount === 0) return labels.deleteSelected;
+  const template = labels.deleteSelectedWithCount;
+  if (typeof template === "string" && template.length > 0) {
+    return tpl(template, selectedCount);
+  }
+  return `${labels.deleteSelected} (${selectedCount})`;
+}
+
 export interface AdminUsersToolbarProps {
   labels: UserLabels;
   query: string;
@@ -25,9 +34,10 @@ export interface AdminUsersToolbarProps {
   filteredCount: number;
   selectedCount: number;
   onDeleteSelected: () => void;
-  onDeleteAllVisible: () => void;
+  allVisibleSelected: boolean;
+  onToggleSelectAllFiltered: () => void;
   deleteDisabled: boolean;
-  deleteAllVisibleDisabled: boolean;
+  selectAllFilteredDisabled: boolean;
 }
 
 export function AdminUsersToolbar({
@@ -40,9 +50,10 @@ export function AdminUsersToolbar({
   filteredCount,
   selectedCount,
   onDeleteSelected,
-  onDeleteAllVisible,
+  allVisibleSelected,
+  onToggleSelectAllFiltered,
   deleteDisabled,
-  deleteAllVisibleDisabled,
+  selectAllFilteredDisabled,
 }: AdminUsersToolbarProps) {
   function onSubmitFilter(e: FormEvent) {
     e.preventDefault();
@@ -91,20 +102,19 @@ export function AdminUsersToolbar({
           type="button"
           variant="secondary"
           size="sm"
-          disabled={deleteDisabled}
-          onClick={onDeleteSelected}
+          disabled={selectAllFilteredDisabled}
+          onClick={onToggleSelectAllFiltered}
         >
-          {labels.deleteSelected}
+          {allVisibleSelected ? labels.deselectAllFiltered : labels.selectAllFiltered}
         </Button>
         <Button
           type="button"
           variant="secondary"
           size="sm"
-          className="border-[var(--color-error)]/40 text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
-          disabled={deleteAllVisibleDisabled}
-          onClick={onDeleteAllVisible}
+          disabled={deleteDisabled}
+          onClick={onDeleteSelected}
         >
-          {labels.deleteAllVisible}
+          {deleteSelectedButtonLabel(labels, selectedCount)}
         </Button>
       </div>
     </>

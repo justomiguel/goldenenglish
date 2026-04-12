@@ -18,7 +18,7 @@ export function supabaseForStudentMessageDelete(opts: { userId: string }) {
           }),
         };
       }
-      if (table === "student_messages") {
+      if (table === "portal_messages") {
         const end = vi.fn().mockResolvedValue({ error: null });
         const mid = vi.fn().mockReturnValue({ eq: end });
         return {

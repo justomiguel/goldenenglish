@@ -1,10 +1,12 @@
 "use client";
 
 import type { ReactNode, RefObject } from "react";
+import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUserRow, SortKey, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
 import { Button } from "@/components/atoms/Button";
+import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
 import { UniversalListView } from "@/components/organisms/UniversalListView";
 
 type UserLabels = Dictionary["admin"]["users"];
@@ -12,6 +14,7 @@ type TableLabels = Dictionary["admin"]["table"];
 
 export interface AdminUsersDataTableProps {
   toolbar: ReactNode;
+  locale: string;
   labels: UserLabels;
   tableLabels: TableLabels;
   rows: AdminUserRow[];
@@ -40,6 +43,7 @@ export interface AdminUsersDataTableProps {
 
 export function AdminUsersDataTable({
   toolbar,
+  locale,
   labels,
   tableLabels,
   rows,
@@ -63,10 +67,26 @@ export function AdminUsersDataTable({
     <UniversalListView
       toolbar={toolbar}
       columns={[
-        { id: "email", label: labels.colEmail },
-        { id: "name", label: labels.colName },
-        { id: "role", label: labels.colRole },
-        { id: "phone", label: labels.colPhone },
+        {
+          id: "email",
+          label: labels.colEmail,
+          thClassName: "min-w-0 px-2 py-3 align-top",
+        },
+        {
+          id: "name",
+          label: labels.colName,
+          thClassName: "min-w-0 px-2 py-3 align-top",
+        },
+        {
+          id: "role",
+          label: labels.colRole,
+          thClassName: "min-w-0 px-2 py-3 align-top",
+        },
+        {
+          id: "phone",
+          label: labels.colPhone,
+          thClassName: "min-w-0 px-2 py-3 align-top",
+        },
       ]}
       sortKey={sortKey}
       sortDir={sortDir}
@@ -77,7 +97,7 @@ export function AdminUsersDataTable({
         sortNeutral: tableLabels.sortNeutral,
       }}
       leadingHeader={
-        <th scope="col" className="w-10 px-2 py-3">
+        <th scope="col" className="w-10 min-w-0 px-2 py-3">
           <input
             ref={selectAllRef}
             type="checkbox"
@@ -92,7 +112,7 @@ export function AdminUsersDataTable({
       trailingHeader={
         <th
           scope="col"
-          className="px-2 py-3 font-semibold text-[var(--color-secondary)]"
+          className="min-w-0 whitespace-nowrap px-2 py-3 font-semibold text-[var(--color-secondary)]"
         >
           {labels.colActions}
         </th>
@@ -107,7 +127,9 @@ export function AdminUsersDataTable({
       }}
       emptyMessage={emptyMessage}
       isEmpty={listEmpty}
-      minTableWidth="min-w-[44rem]"
+      minTableWidth="min-w-0"
+      tableClassName="table-fixed"
+      tableOverflow="hidden"
     >
       {rows.map((r) => {
         const isSelf = r.id === currentUserId;
@@ -127,19 +149,31 @@ export function AdminUsersDataTable({
                 aria-label={`${labels.selectRow} ${r.email}`}
               />
             </td>
-            <td className="px-2 py-2 align-top text-[var(--color-foreground)]">
+            <td className="min-w-0 max-w-0 break-words px-2 py-2 align-top text-[var(--color-foreground)]">
               {r.email}
             </td>
-            <td className="px-2 py-2 align-top text-[var(--color-foreground)]">
-              {r.firstName} {r.lastName}
+            <td className="min-w-0 px-2 py-2 align-top">
+              <Link
+                href={`/${locale}/dashboard/admin/users/${r.id}`}
+                className="flex items-start gap-2 text-[var(--color-foreground)] hover:underline"
+              >
+                <ProfileAvatar
+                  url={r.avatarDisplayUrl}
+                  displayName={`${r.firstName} ${r.lastName}`}
+                  size="sm"
+                />
+                <span className="min-w-0 break-words">
+                  {r.firstName} {r.lastName}
+                </span>
+              </Link>
             </td>
-            <td className="px-2 py-2 align-top capitalize text-[var(--color-foreground)]">
+            <td className="min-w-0 break-words px-2 py-2 align-top capitalize text-[var(--color-foreground)]">
               {r.role}
             </td>
-            <td className="px-2 py-2 align-top text-[var(--color-foreground)]">
+            <td className="min-w-0 break-words px-2 py-2 align-top text-[var(--color-foreground)]">
               {r.phone}
             </td>
-            <td className="px-2 py-2 align-top">
+            <td className="min-w-0 px-2 py-2 align-top whitespace-nowrap">
               <Button
                 type="button"
                 variant="ghost"

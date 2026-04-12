@@ -149,18 +149,6 @@ export function LandingHeaderPwa({
             aria-label={dict.nav.sectionsAria}
             className="flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-smooth px-4 py-2.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            <a href={`/${locale}#historia`} className={sectionPillClass}>
-              {dict.nav.about}
-            </a>
-            <a href={`/${locale}#modalidades`} className={sectionPillClass}>
-              {dict.nav.modalities}
-            </a>
-            <a href={`/${locale}#niveles`} className={sectionPillClass}>
-              {dict.nav.courses}
-            </a>
-            <a href={`/${locale}#certificaciones`} className={sectionPillClass}>
-              {dict.nav.certifications}
-            </a>
             {isAdmin ? (
               <Link
                 href={`/${locale}/dashboard/admin`}
@@ -174,6 +162,18 @@ export function LandingHeaderPwa({
                 {dict.nav.administration}
               </Link>
             ) : null}
+            <a href={`/${locale}#historia`} className={sectionPillClass}>
+              {dict.nav.about}
+            </a>
+            <a href={`/${locale}#modalidades`} className={sectionPillClass}>
+              {dict.nav.modalities}
+            </a>
+            <a href={`/${locale}#niveles`} className={sectionPillClass}>
+              {dict.nav.courses}
+            </a>
+            <a href={`/${locale}#certificaciones`} className={sectionPillClass}>
+              {dict.nav.certifications}
+            </a>
           </nav>
         </div>
       </div>
