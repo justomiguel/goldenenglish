@@ -64,7 +64,7 @@ describe("RegisterForm", () => {
   it("shows closed copy when server returns closed", async () => {
     submitPublicRegistration.mockResolvedValue({
       ok: false,
-      message: "closed",
+      message: dictEn.register.closed,
     });
     render(
       <RegisterForm locale="es" dict={dictEn.register} legalAgeMajority={18} />,
@@ -75,8 +75,22 @@ describe("RegisterForm", () => {
     });
   });
 
+  it("shows validation copy when server returns validation message", async () => {
+    submitPublicRegistration.mockResolvedValue({
+      ok: false,
+      message: dictEn.register.validationError,
+    });
+    render(
+      <RegisterForm locale="es" dict={dictEn.register} legalAgeMajority={18} />,
+    );
+    fillAndSubmit();
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(dictEn.register.validationError);
+    });
+  });
+
   it("shows generic error for other failures", async () => {
-    submitPublicRegistration.mockResolvedValue({ ok: false, message: "x" });
+    submitPublicRegistration.mockResolvedValue({ ok: false, message: undefined });
     render(
       <RegisterForm locale="es" dict={dictEn.register} legalAgeMajority={18} />,
     );

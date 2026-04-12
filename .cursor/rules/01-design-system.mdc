@@ -44,6 +44,18 @@ The Design System is the single source of truth for every visual decision. **Bra
 5. **Tailwind only.** Inline `style={}` is forbidden except for truly dynamic runtime values (e.g., user-uploaded image backgrounds). Prefer Tailwind classes via `className`. **Exception:** `padding`/`min-height` that incorporate `env(safe-area-inset-*)` may use inline `style` only in **PWA** layout shells when Tailwind arbitrary values are insufficient — keep those values limited to safe-area glue code.
 6. **Reusability over convenience.** Before creating a new component, verify no existing shared atom/molecule or surface-specific counterpart already covers the need.
 
+## Checklist de contribución (componente nuevo en el design system)
+
+Al añadir un componente compartido o de superficie (`atoms` / `molecules` / `organisms` / `desktop` / `pwa`):
+
+- [ ] **Tokens** — colores, radios, tipografía y espaciado solo vía tema / CSS vars de `system.properties` (`01`), sin hex sueltos.
+- [ ] **Export** — **named export**, un componente principal por archivo (`03-architecture.mdc`).
+- [ ] **Superficie** — carpeta correcta (compartido vs `desktop/` vs `pwa/`); Tier A detrás de `useAppSurface()` cuando aplique (`05-pwa-mobile-native.mdc`).
+- [ ] **i18n** — copy visible desde diccionarios (`09-i18n-copy.mdc`); `aria-label` / `title` accionables igual.
+- [ ] **Tests** — al menos **humo** o prueba de comportamiento con Testing Library en `src/__tests__/` para interacción o estados relevantes; regresiones visibles cubiertas.
+- [ ] **Accesibilidad** — contraste y controles solo icono con etiqueta; sin depender solo de hover para acciones críticas (`05`).
+- [ ] **Documentación** — en la PR: propósito, props principales y ejemplo de uso (si el repo añade Storybook u otra vitrina en el futuro, enlazar o duplicar ahí).
+
 ## Contrast (WCAG-minded)
 
 1. **Text and icons** on any background must keep **readable contrast** (aim for **WCAG AA**: ~**4.5:1** for normal text, ~**3:1** for large text / **non-text UI** such as icon strokes on interactive controls).

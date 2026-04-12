@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { submitPublicRegistration } from "@/app/[locale]/register/actions";
+import esDict from "@/dictionaries/es.json";
 
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
@@ -33,7 +34,7 @@ describe("submitPublicRegistration", () => {
   it("returns closed when inscriptions disabled", async () => {
     mockGetInscriptionsEnabled.mockResolvedValue(false);
     const r = await submitPublicRegistration("es", valid);
-    expect(r).toEqual({ ok: false, message: "closed" });
+    expect(r).toEqual({ ok: false, message: esDict.register.closed });
   });
 
   it("returns validation when body invalid", async () => {
@@ -44,7 +45,7 @@ describe("submitPublicRegistration", () => {
       phone: "+1",
       level_interest: "B1",
     });
-    expect(r).toEqual({ ok: false, message: "validation" });
+    expect(r).toEqual({ ok: false, message: esDict.register.validationError });
   });
 
   it("returns db message on insert error", async () => {
@@ -57,7 +58,10 @@ describe("submitPublicRegistration", () => {
       }),
     });
     const r = await submitPublicRegistration("es", valid);
-    expect(r).toEqual({ ok: false, message: "duplicate" });
+    expect(r).toEqual({
+      ok: false,
+      message: esDict.actionErrors.register.insertFailed,
+    });
   });
 
   it("returns ok on success", async () => {

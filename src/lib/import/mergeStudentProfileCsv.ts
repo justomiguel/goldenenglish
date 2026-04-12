@@ -19,8 +19,8 @@ function isEmptyBirth(b: unknown): boolean {
 }
 
 /**
- * Solo rellena campos opcionales vacíos en BD; no sobrescribe valores existentes.
- * Si el DNI del CSV no coincide con el del perfil, marca conflicto (mismo email, otra persona).
+ * Only fills optional DB fields that are empty; does not overwrite existing values.
+ * If the CSV national ID does not match the profile ID, flags a conflict (same email, different person).
  */
 export function mergeStudentProfileCsvPatch(
   profile: ProfileForMerge,

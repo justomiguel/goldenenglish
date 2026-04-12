@@ -29,11 +29,17 @@ New work: choose the **owning layer** first, define or extend the **public surfa
 
 1. **Red → Green → Refactor.** No feature code is written without a failing test first.
 2. **Test file location.** Tests live in `src/__tests__/` mirroring the source tree. Name convention: `ComponentName.test.tsx` or `hookName.test.ts`.
-3. **Coverage gate.** `npm run test:coverage` must pass before any commit. Thresholds are enforced in `vitest.config.ts` (see `coverage.include` / `coverage.thresholds` — typically **≥90%** globally on lines, statements, functions, and branches for included sources).
+3. **Coverage gate.** `npm run test:coverage` must pass before any commit: **≥90%** líneas/statements sobre `src/lib/**`, `src/hooks/**`, `src/proxy.ts` (ver `vitest.config.ts`). Para el árbol completo (`components` + `app`), usar `npm run test:coverage:full` y seguir `docs/quality/coverage-scope.md` hasta poder unificar el umbral.
    - **Never** add `coverage.exclude` entries for production source files **only** to make thresholds pass. If coverage drops, **add or extend tests** (unit, RTL smoke with mocked boundaries, or integration tests). Exclusions are only for **non-source** paths already listed (tests, types, `page.tsx` / `layout.tsx` entrypoints, etc.).
    - **New or changed files** under `src/lib/`, `src/hooks/`, `src/components/`, `src/app/` actions, etc. must ship with tests that keep the gate green.
    - **Out of scope for the coverage include list:** `src/types/**`, test harness files; `page.tsx` / `layout.tsx` remain excluded as RSC shells (behavior covered via child modules + E2E when added).
-4. **Pre-commit policy.** The repo expects `npm run precommit` before pushing: `eslint`, `node scripts/precommit-verify.mjs`, then `npm run test:coverage`. A Husky hook should call this script; commits are not merge-ready if any step fails.
+4. **Pre-commit policy.** The repo expects `npm run precommit` before pushing: `eslint`, `node scripts/precommit-verify.mjs`, **`next build`** (`npm run build`), then `npm run test:coverage`. A Husky hook should call this script; commits are not merge-ready if any step fails.
+
+## CI y calidad de tests (gates)
+
+- **Vitest + cobertura** — cualquier PR que toque **lógica de producto** (`src/lib/**`, `src/hooks/**`, server actions, utilidades compartidas) debe dejar **`npm run test:coverage`** verde en local/CI con los umbrales de `vitest.config.ts`.
+- **Prohibido “hacer pasar”** — no eliminar, comentar masivamente, relajar aserciones ni añadir `coverage.exclude` sobre **código de producción** solo para verde, **sin decisión explícita** documentada en la PR (motivo, responsable, plan de recuperación). Si el test refleja comportamiento vigente del negocio, el fallo es señal: corregir **código** o acordar **cambio de contrato** y actualizar tests en el mismo cambio.
+- **Si el test está mal acoplado** — refactorizar el test hacia comportamiento observable, manteniendo la intención; no borrar cobertura sin equivalente.
 
 ## Test Categories
 
@@ -43,13 +49,16 @@ New work: choose the **owning layer** first, define or extend the **public surfa
 | Integration | Vitest | Hook ↔ API interactions |
 | E2E | Playwright (when added) | Critical user flows (login, enrollment) |
 
-## Regression Analysis
+## Regression Analysis (`REGRESSION CHECK`)
 
-Before modifying any existing code, perform a mental regression analysis and document it as a comment in the test file:
+Antes de tocar código con tests existentes, análisis de regresión y **dejar constancia** en el archivo de prueba más cercano al cambio:
 
 ```
 // REGRESSION CHECK: Changing X may affect Y because Z.
 ```
+
+- **Archivos nuevos** bajo `src/lib/`, `src/hooks/`, `src/app/**/actions.ts` o lógica compartida: añadir al menos un bloque `REGRESSION CHECK` en el test que cubra la superficie principal (qué invariantes de negocio o contratos no deben romperse).
+- **Cambios en acciones con mensajes i18n**: preferir aserciones contra `dictEn` / claves estables (`actionErrors`, códigos `MESSAGING_UC_*`), no literales de un solo locale.
 
 ## Rules
 

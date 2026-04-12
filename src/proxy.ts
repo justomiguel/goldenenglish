@@ -3,9 +3,8 @@ import { updateSession } from "@/lib/supabase/middleware";
 import { defaultLocale, locales } from "@/lib/i18n/dictionaries";
 
 /**
- * Rutas sin prefijo de locale redirigen siempre a `defaultLocale` (español).
- * El idioma del navegador no define la entrada al sitio; el usuario cambia
- * locale con el selector cuando quiera inglés.
+ * Paths without a locale prefix always redirect to `defaultLocale` (Spanish).
+ * Browser language does not pick the site entry; users switch locale via the selector when they want English.
  */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -15,17 +14,13 @@ export async function proxy(request: NextRequest) {
     return updateSession(request);
   }
 
-  /**
-   * Root metadata routes (`app/manifest.ts`, `app/robots.ts`, `app/sitemap.ts`) are not under
-   * `[locale]`. Without this, `/manifest.webmanifest` would redirect to `/es/manifest.webmanifest`
-   * and return 404.
-   */
   if (
     pathname === "/manifest.webmanifest" ||
     pathname === "/robots.txt" ||
     pathname === "/sitemap.xml"
   ) {
-    return updateSession(request);
+    /** Next 16+: `NextResponse.next({ request })` expects native `Headers`; pass through without mutation. */
+    return NextResponse.next();
   }
 
   const hasLocale = locales.some(
@@ -44,6 +39,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(request.nextUrl);
   }
 
+  /** Always refresh the Supabase session (incl. `/login` / `/register`) so cookies stay in sync after sign-in. */
   return updateSession(request);
 }
 

@@ -46,13 +46,19 @@ export default async function ParentDashboardLayout({
               {dict.dashboard.parent.navHome}
             </Link>
             <Link
+              href={`${base}/messages`}
+              className="rounded-[var(--layout-border-radius)] px-3 py-2 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
+            >
+              {dict.dashboard.parent.navMessages}
+            </Link>
+            <Link
               href={`${base}/payments`}
               className="rounded-[var(--layout-border-radius)] px-3 py-2 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
             >
               {dict.dashboard.parent.navPay}
             </Link>
             <Link
-              href={`${base}/profile`}
+              href={`/${locale}/dashboard/profile`}
               className="rounded-[var(--layout-border-radius)] px-3 py-2 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
             >
               {dict.dashboard.parent.navProfile}

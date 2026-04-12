@@ -2,9 +2,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
 import { ImportStudents } from "@/components/organisms/ImportStudents";
+import { IMPORT_PARSE_CSV_FAILED } from "@/lib/import/parseImportErrorCodes";
+import { IMPORT_ROW_ENROLLMENT_FAILED } from "@/lib/import/importResultMessageCodes";
 
+// REGRESSION CHECK: The fallback import path (without KV) must keep the same popup-based
+// long-job UX as async jobs; otherwise users only see inline legend text and lose focus.
 const bulkImport = vi.hoisted(() => vi.fn());
 const parseImportFile = vi.hoisted(() => vi.fn());
+const fetchMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/import/parseImportFile", () => ({
   parseImportFile: (...args: unknown[]) => parseImportFile(...args),
@@ -20,6 +25,13 @@ describe("ImportStudents", () => {
   beforeEach(() => {
     parseImportFile.mockReset();
     bulkImport.mockReset();
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ ok: false, code: "kv_not_configured" }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
     bulkImport.mockResolvedValue({
       processed: 1,
       createdUsers: 1,
@@ -31,17 +43,22 @@ describe("ImportStudents", () => {
     });
   });
 
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("shows parse errors from file reader", async () => {
     parseImportFile.mockResolvedValue({
       data: [],
-      errors: [{ message: "bad csv" }],
+      errors: [{ message: IMPORT_PARSE_CSV_FAILED }],
     });
-    render(<ImportStudents labels={labels} />);
+    render(<ImportStudents locale="es" labels={labels} emptyLogPlaceholder="—" />);
     const input = document.querySelector('input[type="file"]')!;
     const file = new File(["x"], "x.csv", { type: "text/csv" });
     fireEvent.change(input, { target: { files: [file] } });
     await waitFor(() => {
       expect(screen.getByText(labels.parseError)).toBeInTheDocument();
+      expect(document.querySelector("pre")?.textContent).toBe(labels.parseCsvFailed);
     });
   });
 
@@ -50,7 +67,7 @@ describe("ImportStudents", () => {
       data: [{}],
       errors: [],
     });
-    render(<ImportStudents labels={labels} />);
+    render(<ImportStudents locale="es" labels={labels} emptyLogPlaceholder="—" />);
     const input = document.querySelector('input[type="file"]')!;
     fireEvent.change(input, {
       target: { files: [new File(["h\n"], "x.csv")] },
@@ -72,7 +89,7 @@ describe("ImportStudents", () => {
       ],
       errors: [],
     });
-    render(<ImportStudents labels={labels} />);
+    render(<ImportStudents locale="es" labels={labels} emptyLogPlaceholder="—" />);
     const input = document.querySelector('input[type="file"]')!;
     fireEvent.change(input, {
       target: { files: [new File(["x"], "x.csv")] },
@@ -94,9 +111,9 @@ describe("ImportStudents", () => {
       paymentsSeeded: 0,
       profilesUpdated: 0,
       skippedNoop: 0,
-      results: [{ ok: false, rowIndex: 3, message: "dup" }],
+      results: [{ ok: false, rowIndex: 3, message: IMPORT_ROW_ENROLLMENT_FAILED }],
     });
-    render(<ImportStudents labels={labels} />);
+    render(<ImportStudents locale="es" labels={labels} emptyLogPlaceholder="—" />);
     const input = document.querySelector('input[type="file"]')!;
     fireEvent.change(input, {
       target: { files: [new File(["x"], "x.csv")] },
@@ -104,6 +121,9 @@ describe("ImportStudents", () => {
     await waitFor(() => {
       expect(screen.getByText(new RegExp(labels.done))).toBeInTheDocument();
       expect(screen.getByText(new RegExp(`${labels.row} 3`))).toBeInTheDocument();
+      expect(document.querySelector("pre")?.textContent).toContain(
+        labels.rowResultEnrollmentFailed,
+      );
     });
   });
 
@@ -112,7 +132,7 @@ describe("ImportStudents", () => {
       data: [mappedRow()],
       errors: [],
     });
-    render(<ImportStudents labels={labels} />);
+    render(<ImportStudents locale="es" labels={labels} emptyLogPlaceholder="—" />);
     const input = document.querySelector('input[type="file"]')!;
     fireEvent.change(input, {
       target: { files: [new File(["x"], "x.csv")] },
@@ -123,9 +143,41 @@ describe("ImportStudents", () => {
     expect(document.querySelector("pre")).toBeNull();
   });
 
+  it("opens the activity popup while sync fallback import is running", async () => {
+    parseImportFile.mockResolvedValue({
+      data: [mappedRow()],
+      errors: [],
+    });
+    let resolveImport: ((value: unknown) => void) | null = null;
+    const importDone = new Promise((resolve) => {
+      resolveImport = resolve;
+    });
+    bulkImport.mockReturnValue(importDone);
+    render(<ImportStudents locale="es" labels={labels} emptyLogPlaceholder="—" />);
+    const input = document.querySelector('input[type="file"]')!;
+    fireEvent.change(input, {
+      target: { files: [new File(["x"], "x.csv")] },
+    });
+    await waitFor(() => {
+      expect(document.querySelector("dialog[open]")).not.toBeNull();
+    });
+    resolveImport?.({
+      processed: 1,
+      createdUsers: 1,
+      enrolled: 1,
+      paymentsSeeded: 12,
+      profilesUpdated: 0,
+      skippedNoop: 0,
+      results: [{ ok: true, rowIndex: 2, message: "" }],
+    });
+    await waitFor(() => {
+      expect(screen.getByText(labels.activityModalClose)).toBeInTheDocument();
+    });
+  });
+
   it("surfaces generic errors", async () => {
     parseImportFile.mockRejectedValue(new Error("boom"));
-    render(<ImportStudents labels={labels} />);
+    render(<ImportStudents locale="es" labels={labels} emptyLogPlaceholder="—" />);
     const input = document.querySelector('input[type="file"]')!;
     fireEvent.change(input, {
       target: { files: [new File(["x"], "x.csv")] },
@@ -136,7 +188,7 @@ describe("ImportStudents", () => {
   });
 
   it("does nothing when no file is chosen", () => {
-    render(<ImportStudents labels={labels} />);
+    render(<ImportStudents locale="es" labels={labels} emptyLogPlaceholder="—" />);
     const input = document.querySelector('input[type="file"]')!;
     fireEvent.change(input, { target: { files: [] } });
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
@@ -144,14 +196,14 @@ describe("ImportStudents", () => {
 
   it("shows generic detail when throw is not an Error", async () => {
     parseImportFile.mockRejectedValue("plain");
-    render(<ImportStudents labels={labels} />);
+    render(<ImportStudents locale="es" labels={labels} emptyLogPlaceholder="—" />);
     const input = document.querySelector('input[type="file"]')!;
     fireEvent.change(input, {
       target: { files: [new File(["x"], "x.csv", { type: "text/csv" })] },
     });
     await waitFor(() => {
       expect(screen.getByText(labels.genericError)).toBeInTheDocument();
-      expect(document.querySelector("pre")?.textContent).toBe("Error");
+      expect(document.querySelector("pre")?.textContent).toBe(labels.unknownError);
     });
   });
 });

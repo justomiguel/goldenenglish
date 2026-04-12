@@ -1,4 +1,9 @@
 import Papa from "papaparse";
+import {
+  IMPORT_PARSE_CSV_FAILED,
+  IMPORT_PARSE_EMPTY_WORKBOOK,
+  IMPORT_PARSE_EXCEL_FAILED,
+} from "@/lib/import/parseImportErrorCodes";
 
 export type ParseImportResult = {
   data: Record<string, unknown>[];
@@ -39,7 +44,7 @@ export async function parseImportFile(file: File): Promise<ParseImportResult> {
       const wb = XLSX.read(buf, { type: "array" });
       const sheetName = wb.SheetNames[0];
       if (!sheetName) {
-        return { data: [], errors: [{ message: "Empty workbook" }] };
+        return { data: [], errors: [{ message: IMPORT_PARSE_EMPTY_WORKBOOK }] };
       }
       const ws = wb.Sheets[sheetName];
       const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, {
@@ -50,10 +55,10 @@ export async function parseImportFile(file: File): Promise<ParseImportResult> {
         Object.values(row).some((v) => String(v ?? "").trim() !== ""),
       );
       return { data, errors: [] };
-    } catch (e) {
+    } catch {
       return {
         data: [],
-        errors: [{ message: e instanceof Error ? e.message : "Excel read error" }],
+        errors: [{ message: IMPORT_PARSE_EXCEL_FAILED }],
       };
     }
   }
@@ -67,6 +72,6 @@ export async function parseImportFile(file: File): Promise<ParseImportResult> {
   });
   return {
     data: parsed.data,
-    errors: parsed.errors.map((e) => ({ message: e.message })),
+    errors: parsed.errors.length > 0 ? [{ message: IMPORT_PARSE_CSV_FAILED }] : [],
   };
 }

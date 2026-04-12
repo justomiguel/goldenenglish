@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { sendAdminMessage } from "@/app/[locale]/dashboard/admin/messages/actions";
 import { Button } from "@/components/atoms/Button";
+import { RecipientAutocomplete } from "@/components/molecules/RecipientAutocomplete";
 import { RichTextEditor } from "@/components/molecules/RichTextEditor";
-import type { MessagingRecipient } from "@/components/teacher/TeacherPortalCompose";
+import type { MessagingRecipient } from "@/types/messaging";
 import type { Dictionary } from "@/types/i18n";
 
 interface AdminPortalComposeProps {
@@ -21,9 +22,12 @@ export function AdminPortalCompose({ locale, recipients, labels }: AdminPortalCo
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
-  const students = recipients.filter((r) => r.role === "student");
-  const teachers = recipients.filter((r) => r.role === "teacher");
-  const admins = recipients.filter((r) => r.role === "admin");
+  const roleLabels = {
+    student: labels.roleStudent,
+    parent: labels.roleParent,
+    teacher: labels.roleTeacher,
+    admin: labels.roleAdmin,
+  };
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,49 +49,24 @@ export function AdminPortalCompose({ locale, recipients, labels }: AdminPortalCo
   return (
     <form
       onSubmit={onSubmit}
-      className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      className="space-y-3 overflow-visible rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
     >
       <h2 className="text-lg font-semibold text-[var(--color-secondary)]">{labels.composeTitle}</h2>
       <label className="block text-sm font-medium text-[var(--color-foreground)]" htmlFor="admin-msg-to">
         {labels.composeTo}
       </label>
-      <select
+      <RecipientAutocomplete
         id="admin-msg-to"
-        className="w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
+        options={recipients}
         value={recipientId}
-        onChange={(e) => setRecipientId(e.target.value)}
+        onValueChange={setRecipientId}
         disabled={busy}
-        required
-      >
-        <option value="">{labels.recipientPlaceholder}</option>
-        {students.length > 0 ? (
-          <optgroup label={labels.roleStudent}>
-            {students.map((r) => (
-              <option key={r.id} value={r.id}>
-                {`${r.first_name} ${r.last_name}`.trim()}
-              </option>
-            ))}
-          </optgroup>
-        ) : null}
-        {teachers.length > 0 ? (
-          <optgroup label={labels.roleTeacher}>
-            {teachers.map((r) => (
-              <option key={r.id} value={r.id}>
-                {`${r.first_name} ${r.last_name}`.trim()}
-              </option>
-            ))}
-          </optgroup>
-        ) : null}
-        {admins.length > 0 ? (
-          <optgroup label={labels.roleAdmin}>
-            {admins.map((r) => (
-              <option key={r.id} value={r.id}>
-                {`${r.first_name} ${r.last_name}`.trim()}
-              </option>
-            ))}
-          </optgroup>
-        ) : null}
-      </select>
+        placeholder={labels.recipientSearchPlaceholder}
+        noMatchesText={labels.recipientNoMatches}
+        emptyOptionsText={labels.recipientListEmpty}
+        roleLabels={roleLabels}
+        ariaLabel={labels.composeTo}
+      />
       <RichTextEditor
         value={body}
         onChange={setBody}

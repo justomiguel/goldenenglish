@@ -1,59 +1,179 @@
-import Link from "next/link";
+import {
+  Activity,
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus,
+  Users,
+  Wallet,
+  ClipboardList,
+} from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import type { AdminHubSummary } from "@/lib/dashboard/loadAdminHubSummary";
+import { AdminHubMetricCard } from "@/components/dashboard/AdminHubMetricCard";
+import { AdminHubMessagesCard } from "@/components/dashboard/AdminHubMessagesCard";
 
 interface AdminHubHomeProps {
   locale: string;
   dict: Dictionary;
+  summary: AdminHubSummary;
 }
 
-export function AdminHubHome({ locale, dict }: AdminHubHomeProps) {
+export function AdminHubHome({ locale, dict, summary }: AdminHubHomeProps) {
   const base = `/${locale}/dashboard/admin`;
-  const cards: { href: string; title: string; description: string }[] = [
-    {
-      href: `${base}/users`,
-      title: dict.dashboard.adminNav.users,
-      description: dict.admin.home.cards.users,
-    },
-    {
-      href: `${base}/payments`,
-      title: dict.dashboard.adminNav.payments,
-      description: dict.admin.home.cards.payments,
-    },
-    {
-      href: `${base}/registrations`,
-      title: dict.dashboard.adminNav.registrations,
-      description: dict.admin.home.cards.registrations,
-    },
-    {
-      href: `${base}/settings`,
-      title: dict.dashboard.adminNav.settings,
-      description: dict.admin.home.cards.settings,
-    },
-  ];
+  const t = dict.admin.home.summary;
+
+  const weekDelta = summary.trafficWeekOverWeek.lastWeek > 0
+    ? Math.round(
+        ((summary.trafficWeekOverWeek.thisWeek - summary.trafficWeekOverWeek.lastWeek) /
+          summary.trafficWeekOverWeek.lastWeek) *
+          100,
+      )
+    : 0;
+
+  const trendLabel =
+    weekDelta > 0
+      ? `${weekDelta}% ${t.traffic.up}`
+      : weekDelta < 0
+        ? `${Math.abs(weekDelta)}% ${t.traffic.down}`
+        : t.traffic.flat;
+
+  const TrendIcon = weekDelta > 0 ? ArrowUpRight : weekDelta < 0 ? ArrowDownRight : Minus;
+  const trendColor =
+    weekDelta > 0
+      ? "text-emerald-600"
+      : weekDelta < 0
+        ? "text-rose-500"
+        : "text-[var(--color-muted-foreground)]";
 
   return (
     <div>
       <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
         {dict.admin.home.title}
       </h1>
-      <p className="mt-2 max-w-2xl text-[var(--color-muted-foreground)]">
+      <p className="mt-1 text-[var(--color-muted-foreground)]">
         {dict.admin.home.lead}
       </p>
-      <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map((c) => (
-          <li key={c.href}>
-            <Link
-              href={c.href}
-              className="block rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-4 shadow-sm transition hover:bg-[var(--color-muted)]"
-            >
-              <span className="block font-medium text-[var(--color-primary)]">{c.title}</span>
-              <span className="mt-1 block text-sm text-[var(--color-muted-foreground)]">
-                {c.description}
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <AdminHubMetricCard
+          href={`${base}/analytics`}
+          icon={<Activity className="h-5 w-5" />}
+          title={t.traffic.title}
+          accentClass="bg-indigo-50 text-indigo-600"
+        >
+          <p className="text-3xl font-bold text-[var(--color-foreground)]">
+            {summary.traffic.totalHits.toLocaleString()}
+          </p>
+          <p className="mt-0.5 text-xs text-[var(--color-muted-foreground)]">
+            {t.traffic.hits30d}
+          </p>
+          <div className="mt-2 flex items-center gap-3 text-xs">
+            <span className="text-[var(--color-muted-foreground)]">
+              {t.traffic.authenticated}: {summary.traffic.authenticatedHits.toLocaleString()}
+            </span>
+            <span className="text-[var(--color-muted-foreground)]">
+              {t.traffic.guests}: {summary.traffic.guestHits.toLocaleString()}
+            </span>
+          </div>
+          <div className={`mt-2 flex items-center gap-1 text-xs font-medium ${trendColor}`}>
+            <TrendIcon className="h-3.5 w-3.5" />
+            <span>{trendLabel}</span>
+            <span className="font-normal text-[var(--color-muted-foreground)]">
+              {t.traffic.weekTrend}
+            </span>
+          </div>
+        </AdminHubMetricCard>
+
+        <AdminHubMetricCard
+          href={`${base}/users`}
+          icon={<Users className="h-5 w-5" />}
+          title={t.users.title}
+          accentClass="bg-sky-50 text-sky-600"
+          linkLabel={t.users.viewAll}
+        >
+          <p className="text-3xl font-bold text-[var(--color-foreground)]">
+            {summary.users.total}
+          </p>
+          <p className="mt-0.5 text-xs text-[var(--color-muted-foreground)]">
+            {t.users.total}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--color-muted-foreground)]">
+            {summary.users.byRole.slice(0, 4).map((r) => (
+              <span key={r.role} className="capitalize">
+                {r.role}: {r.count}
               </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+            ))}
+          </div>
+        </AdminHubMetricCard>
+
+        <AdminHubMetricCard
+          href={`${base}/payments`}
+          icon={<Wallet className="h-5 w-5" />}
+          title={t.payments.title}
+          accentClass={
+            summary.payments.pendingCount > 0
+              ? "bg-amber-50 text-amber-600"
+              : "bg-emerald-50 text-emerald-600"
+          }
+          linkLabel={t.payments.viewAll}
+          urgent={summary.payments.pendingCount > 0}
+        >
+          {summary.payments.pendingCount > 0 ? (
+            <>
+              <p className="text-3xl font-bold text-amber-600">
+                {summary.payments.pendingCount}
+              </p>
+              <p className="mt-0.5 text-xs text-[var(--color-muted-foreground)]">
+                {t.payments.pending}
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-emerald-600">{t.payments.noPending}</p>
+          )}
+        </AdminHubMetricCard>
+
+        <AdminHubMetricCard
+          href={`${base}/registrations`}
+          icon={<ClipboardList className="h-5 w-5" />}
+          title={t.registrations.title}
+          accentClass={
+            summary.registrations.newCount > 0
+              ? "bg-orange-50 text-orange-600"
+              : "bg-emerald-50 text-emerald-600"
+          }
+          linkLabel={t.registrations.viewAll}
+          urgent={summary.registrations.newCount > 0}
+        >
+          {summary.registrations.newCount > 0 ? (
+            <>
+              <p className="text-3xl font-bold text-orange-600">
+                {summary.registrations.newCount}
+              </p>
+              <p className="mt-0.5 text-xs text-[var(--color-muted-foreground)]">
+                {t.registrations.newCount}
+              </p>
+              <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+                {t.registrations.total}: {summary.registrations.totalCount}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-emerald-600">{t.registrations.noNew}</p>
+              <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+                {t.registrations.total}: {summary.registrations.totalCount}
+              </p>
+            </>
+          )}
+        </AdminHubMetricCard>
+
+        <AdminHubMessagesCard
+          href={`${base}/messages`}
+          labels={t.messages}
+          recentCount={summary.messages.recentCount}
+          latestPreview={summary.messages.latestPreview}
+          locale={locale}
+        />
+      </div>
     </div>
   );
 }

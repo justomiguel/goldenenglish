@@ -41,7 +41,15 @@ const nextConfig: NextConfig = {
       : [],
   },
   experimental: {
-    optimizePackageImports: ["lucide-react"],
+    optimizePackageImports: [
+      "lucide-react",
+      "recharts",
+      "react-simple-maps",
+      "i18n-iso-countries",
+      "@tiptap/react",
+      "@tiptap/starter-kit",
+      "@tiptap/pm",
+    ],
   },
   async headers() {
     return [

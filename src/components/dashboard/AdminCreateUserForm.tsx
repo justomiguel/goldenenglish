@@ -10,10 +10,11 @@ import type { Dictionary } from "@/types/i18n";
 const ROLES = ["admin", "teacher", "parent", "student"] as const;
 
 interface AdminCreateUserFormProps {
+  locale: string;
   labels: Dictionary["admin"]["users"];
 }
 
-export function AdminCreateUserForm({ labels }: AdminCreateUserFormProps) {
+export function AdminCreateUserForm({ locale, labels }: AdminCreateUserFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<(typeof ROLES)[number]>("student");
@@ -36,9 +37,10 @@ export function AdminCreateUserForm({ labels }: AdminCreateUserFormProps) {
       last_name: lastName,
       dni_or_passport: dni,
       phone,
+      locale,
     });
     setBusy(false);
-    setMsg(res.ok ? labels.success : `${labels.error}: ${res.message ?? ""}`);
+    setMsg(res.ok ? labels.success : (res.message ?? labels.error));
   }
 
   return (

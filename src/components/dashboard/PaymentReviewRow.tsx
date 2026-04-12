@@ -5,28 +5,37 @@ import { reviewPayment } from "@/app/[locale]/dashboard/admin/payments/actions";
 import type { Dictionary } from "@/types/i18n";
 
 interface PaymentReviewRowProps {
+  locale: string;
   paymentId: string;
   studentLabel: string;
   periodLabel: string;
   amountLabel: string;
   previewUrl: string | null;
   labels: Dictionary["admin"]["payments"];
+  emptyValue: string;
 }
 
 export function PaymentReviewRow({
+  locale,
   paymentId,
   studentLabel,
   periodLabel,
   amountLabel,
   previewUrl,
   labels,
+  emptyValue,
 }: PaymentReviewRowProps) {
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function act(status: "approved" | "rejected") {
     setBusy(true);
-    await reviewPayment({ paymentId, status, adminNotes: notes || undefined });
+    await reviewPayment({
+      paymentId,
+      status,
+      adminNotes: notes || undefined,
+      locale,
+    });
     setBusy(false);
     window.location.reload();
   }
@@ -69,7 +78,7 @@ export function PaymentReviewRow({
             </a>
           ) : (
             <span className="text-xs text-[var(--color-muted-foreground)]">
-              {labels.receipt}: —
+              {labels.receipt}: {emptyValue}
             </span>
           )}
           <button

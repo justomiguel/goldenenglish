@@ -1,6 +1,10 @@
 /** @vitest-environment node */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { sendStudentMessageUseCase } from "@/lib/messaging/useCases/sendStudentMessage";
+import {
+  MESSAGING_UC_NO_TEACHER,
+  MESSAGING_UC_PERSIST_FAILED,
+} from "@/lib/messaging/messagingUseCaseCodes";
 import { resolveTeacherIdForStudent } from "@/lib/messaging/resolveTeacherId";
 import { notifyTeacherNewMessage } from "@/lib/messaging/notifyMessagingEmails";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -33,7 +37,7 @@ describe("sendStudentMessageUseCase", () => {
       locale: "es",
       emailProvider,
     });
-    expect(r).toEqual({ ok: false, message: "No teacher available" });
+    expect(r).toEqual({ ok: false, message: MESSAGING_UC_NO_TEACHER });
   });
 
   it("returns error on insert failure", async () => {
@@ -51,7 +55,7 @@ describe("sendStudentMessageUseCase", () => {
       locale: "es",
       emailProvider,
     });
-    expect(r).toEqual({ ok: false, message: "rls" });
+    expect(r).toEqual({ ok: false, message: MESSAGING_UC_PERSIST_FAILED });
   });
 
   it("returns ok and notifies on success", async () => {

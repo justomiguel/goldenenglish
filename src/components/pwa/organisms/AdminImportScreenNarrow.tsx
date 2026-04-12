@@ -6,19 +6,25 @@ import { ImportStudents } from "@/components/organisms/ImportStudents";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 
 interface AdminImportScreenNarrowProps {
+  locale: string;
   dict: Dictionary;
   surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">;
   embedded?: boolean;
 }
 
 export function AdminImportScreenNarrow({
+  locale,
   dict,
   surface,
   embedded = false,
 }: AdminImportScreenNarrowProps) {
   const form = (
     <div className="-mx-1 max-w-xl">
-      <ImportStudents labels={dict.admin.import} />
+      <ImportStudents
+        locale={locale}
+        labels={dict.admin.import}
+        emptyLogPlaceholder={dict.common.emptyValue}
+      />
     </div>
   );
   if (embedded) {

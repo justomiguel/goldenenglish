@@ -1,11 +1,14 @@
 /** @vitest-environment node */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { submitStudentPaymentReceipt } from "@/app/[locale]/dashboard/student/payments/actions";
+import { dictEn } from "@/test/dictEn";
 import { mockCreateClient, studentFd } from "./studentPaymentsActions.shared";
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: () => mockCreateClient(),
 }));
+
+const pe = dictEn.actionErrors.payment;
 
 describe("submitStudentPaymentReceipt validation", () => {
   beforeEach(() => {
@@ -16,7 +19,7 @@ describe("submitStudentPaymentReceipt validation", () => {
     const form = studentFd({ month: "xx", year: "2026" });
     expect(await submitStudentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "Invalid form",
+      message: pe.invalidForm,
     });
   });
 
@@ -24,7 +27,7 @@ describe("submitStudentPaymentReceipt validation", () => {
     const form = studentFd({ amount: "0" });
     expect(await submitStudentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "Invalid amount",
+      message: pe.invalidAmount,
     });
   });
 
@@ -32,7 +35,7 @@ describe("submitStudentPaymentReceipt validation", () => {
     const form = studentFd({ file: null });
     expect(await submitStudentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "Receipt file required",
+      message: pe.receiptRequired,
     });
   });
 
@@ -42,7 +45,7 @@ describe("submitStudentPaymentReceipt validation", () => {
     });
     expect(await submitStudentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "Receipt file required",
+      message: pe.receiptRequired,
     });
   });
 
@@ -53,7 +56,7 @@ describe("submitStudentPaymentReceipt validation", () => {
     });
     expect(await submitStudentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "File too large",
+      message: pe.fileTooLarge,
     });
   });
 
@@ -65,7 +68,7 @@ describe("submitStudentPaymentReceipt validation", () => {
     });
     expect(await submitStudentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "Use PDF or image",
+      message: pe.mimeInvalid,
     });
   });
 
@@ -75,7 +78,7 @@ describe("submitStudentPaymentReceipt validation", () => {
     });
     expect(await submitStudentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "Use PDF or image",
+      message: pe.mimeInvalid,
     });
   });
 });

@@ -5,13 +5,16 @@
   "scripts": {
     "local": "bash scripts/run-local.sh",
     "dev": "next dev",
+    "clean": "rm -rf .next",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "precommit": "npm run lint && node scripts/precommit-verify.mjs && npm run test:coverage",
+    "test:coverage:full": "sh -c 'export VITEST_COVERAGE_FULL=1 && vitest run --coverage'",
+    "lighthouse:smoke": "bash scripts/lighthouse-smoke.sh",
+    "precommit": "npm run lint && node scripts/precommit-verify.mjs && npm run build && npm run test:coverage",
     "prepare": "husky"
   },
   "dependencies": {
@@ -20,6 +23,7 @@
     "@tiptap/pm": "^3.22.3",
     "@tiptap/react": "^3.22.3",
     "@tiptap/starter-kit": "^3.22.3",
+    "@vercel/kv": "^3.0.0",
     "i18n-iso-countries": "^7.14.0",
     "isbot": "^5.1.37",
     "lucide-react": "^1.8.0",

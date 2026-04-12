@@ -1,4 +1,4 @@
-/** Años completos a partir de YYYY-MM-DD (medianoche local del día de nacimiento vs hoy). */
+/** Full years from YYYY-MM-DD (birth date local midnight vs today). */
 export function fullYearsFromIsoDate(isoYmd: string, ref = new Date()): number {
   const d = new Date(`${isoYmd}T12:00:00`);
   if (Number.isNaN(d.getTime())) return 0;

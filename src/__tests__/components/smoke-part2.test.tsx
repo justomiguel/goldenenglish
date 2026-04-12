@@ -66,15 +66,15 @@ import { AdminImportScreenNarrow } from "@/components/pwa/organisms/AdminImportS
 
 describe("component smoke — molecules & PWA", () => {
   it("AdminImportScreenDesktop", () => {
-    render(<AdminImportScreenDesktop dict={dictEn} />);
+    render(<AdminImportScreenDesktop locale="en" dict={dictEn} />);
   });
 
   it("AdminImportScreenSkeleton", () => {
-    render(<AdminImportScreenSkeleton />);
+    render(<AdminImportScreenSkeleton ariaLabel={dictEn.common.loadingAria} />);
   });
 
   it("LandingScreenSkeleton", () => {
-    render(<LandingScreenSkeleton />);
+    render(<LandingScreenSkeleton ariaLabel={dictEn.common.loadingAria} />);
   });
 
   it("LandingSection", () => {
@@ -108,7 +108,7 @@ describe("component smoke — molecules & PWA", () => {
   });
 
   it("LoginScreenSkeleton", () => {
-    render(<LoginScreenSkeleton />);
+    render(<LoginScreenSkeleton ariaLabel={dictEn.common.loadingAria} />);
   });
 
   it("PwaServiceWorkerRegister", () => {
@@ -216,7 +216,7 @@ describe("component smoke — molecules & PWA", () => {
 
   it("AdminImportScreenNarrow", () => {
     render(
-      <AdminImportScreenNarrow dict={dictEn} surface="web-mobile" />,
+      <AdminImportScreenNarrow locale="en" dict={dictEn} surface="web-mobile" />,
     );
   });
 });

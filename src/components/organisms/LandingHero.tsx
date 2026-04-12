@@ -106,7 +106,7 @@ export function LandingHero({
                         aria-hidden
                       />
                     </span>
-                    <span className="pr-4">WhatsApp</span>
+                    <span className="pr-4">{dict.landing.hero.whatsappCta}</span>
                   </span>
                 </a>
               ) : null}
@@ -119,6 +119,7 @@ export function LandingHero({
                 className="w-[44%] max-w-[11rem]"
                 rotateClass="-rotate-5"
                 sizes="44vw"
+                priority
               />
               <LandingTiltedPhoto
                 src={sectionImageSrc("inicio", INICIO_IMAGES[1])}
@@ -137,6 +138,7 @@ export function LandingHero({
               className="absolute left-0 top-10 w-[58%] lg:w-[54%]"
               rotateClass="-rotate-6"
               sizes="320px"
+              priority
             />
             <LandingTiltedPhoto
               src={sectionImageSrc("inicio", INICIO_IMAGES[1])}

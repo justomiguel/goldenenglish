@@ -9,6 +9,11 @@ vi.mock("@/app/[locale]/dashboard/admin/registrations/actions", () => ({
   acceptRegistration: (...a: unknown[]) => acceptRegistration(...a),
 }));
 
+const userLabels = {
+  password: dictEn.admin.users.password,
+  passwordHint: dictEn.admin.users.passwordHint,
+};
+
 const row = {
   id: "323e4567-e89b-12d3-a456-426614174004",
   first_name: "A",
@@ -19,6 +24,12 @@ const row = {
   level_interest: "B1",
   status: "new" as const,
   created_at: "2026-01-01T00:00:00.000Z",
+  birth_date: "2000-01-01",
+  tutor_name: null,
+  tutor_dni: null,
+  tutor_email: null,
+  tutor_phone: null,
+  tutor_relationship: null,
 };
 
 describe("AdminRegistrationAcceptForm", () => {
@@ -26,7 +37,7 @@ describe("AdminRegistrationAcceptForm", () => {
     acceptRegistration.mockReset();
   });
 
-  it("submits and calls onSuccess", async () => {
+  it("submits and calls onSuccess (password derived from DNI on server)", async () => {
     acceptRegistration.mockResolvedValue({ ok: true });
     const onClose = vi.fn();
     const onSuccess = vi.fn();
@@ -35,20 +46,15 @@ describe("AdminRegistrationAcceptForm", () => {
       <AdminRegistrationAcceptForm
         locale="es"
         row={row}
+        legalAgeMajority={18}
         busy={false}
         onBusy={onBusy}
         onClose={onClose}
         onSuccess={onSuccess}
         labels={dictEn.admin.registrations}
-        userLabels={{
-          password: dictEn.admin.users.password,
-          passwordHint: dictEn.admin.users.passwordHint,
-        }}
+        userLabels={userLabels}
       />,
     );
-    fireEvent.change(screen.getByLabelText(dictEn.admin.users.password), {
-      target: { value: "secret12" },
-    });
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
     await waitFor(() => expect(acceptRegistration).toHaveBeenCalled());
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
@@ -60,22 +66,20 @@ describe("AdminRegistrationAcceptForm", () => {
       <AdminRegistrationAcceptForm
         locale="es"
         row={row}
+        legalAgeMajority={18}
         busy={false}
         onBusy={vi.fn()}
         onClose={vi.fn()}
         onSuccess={vi.fn()}
         labels={dictEn.admin.registrations}
-        userLabels={{
-          password: dictEn.admin.users.password,
-          passwordHint: dictEn.admin.users.passwordHint,
-        }}
+        userLabels={userLabels}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
     await waitFor(() => {
-      const alert = screen.getByRole("alert");
-      expect(alert).toHaveTextContent(dictEn.admin.registrations.acceptError);
-      expect(alert.textContent?.endsWith(":") || alert.textContent?.endsWith(": ")).toBe(true);
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        dictEn.admin.registrations.acceptError,
+      );
     });
   });
 });

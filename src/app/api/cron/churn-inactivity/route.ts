@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   try {
     admin = createAdminClient();
   } catch {
-    return NextResponse.json({ ok: false, message: "No admin client" }, { status: 500 });
+    return NextResponse.json({ ok: false, message: "no_admin_client" }, { status: 500 });
   }
 
   const { data: candidates, error } = await admin
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
   let sent = 0;
   for (const row of candidates ?? []) {
     const id = row.id as string;
-    const name = `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim() || "Student";
+    const name = `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim();
     try {
       await sendStudentChurnAlert({
         studentId: id,

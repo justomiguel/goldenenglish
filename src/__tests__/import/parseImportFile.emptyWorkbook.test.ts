@@ -6,6 +6,7 @@ vi.mock("xlsx", () => ({
 }));
 
 import { parseImportFile } from "@/lib/import/parseImportFile";
+import { IMPORT_PARSE_EMPTY_WORKBOOK } from "@/lib/import/parseImportErrorCodes";
 
 describe("parseImportFile empty workbook branch", () => {
   it("returns Empty workbook when SheetNames is empty", async () => {
@@ -14,6 +15,6 @@ describe("parseImportFile empty workbook branch", () => {
     });
     const out = await parseImportFile(file);
     expect(out.data).toEqual([]);
-    expect(out.errors).toEqual([{ message: "Empty workbook" }]);
+    expect(out.errors).toEqual([{ message: IMPORT_PARSE_EMPTY_WORKBOOK }]);
   });
 });

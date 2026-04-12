@@ -27,7 +27,7 @@ function clientIpFromRequest(request: Request): string | null {
 function truncate(s: string | null, max: number): string | null {
   if (!s) return null;
   const t = s.trim();
-  return t.length <= max ? t : `${t.slice(0, max)}…`;
+  return t.length <= max ? t : `${t.slice(0, max)}...`;
 }
 
 export async function POST(request: Request) {
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
   try {
     admin = createAdminClient();
   } catch {
-    return NextResponse.json({ ok: false, message: "Server misconfigured" }, { status: 503 });
+    return NextResponse.json({ ok: false, message: "server_misconfigured" }, { status: 503 });
   }
 
   const country = request.headers.get("x-vercel-ip-country");

@@ -55,11 +55,12 @@ export function RegisterForm({ locale, dict, legalAgeMajority }: RegisterFormPro
       setSuccessOpen(true);
       return;
     }
-    if (res.message === "closed") {
+    if (res.message === dict.closed) {
       setMsgTone("muted");
       setMsg(dict.closed);
     } else {
-      setMsg(dict.error);
+      setMsgTone("error");
+      setMsg(res.message?.trim() || dict.error);
     }
   }
 

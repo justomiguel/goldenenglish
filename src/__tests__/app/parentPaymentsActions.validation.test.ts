@@ -1,11 +1,14 @@
 /** @vitest-environment node */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { submitParentPaymentReceipt } from "@/app/[locale]/dashboard/parent/payments/actions";
+import { dictEn } from "@/test/dictEn";
 import { fd, mockCreateClient } from "./parentPaymentsActions.shared";
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: () => mockCreateClient(),
 }));
+
+const pe = dictEn.actionErrors.payment;
 
 describe("submitParentPaymentReceipt validation", () => {
   beforeEach(() => {
@@ -16,12 +19,13 @@ describe("submitParentPaymentReceipt validation", () => {
     const form = fd({ studentId: "" });
     expect(await submitParentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "Invalid form",
+      message: pe.invalidForm,
     });
   });
 
   it("rejects when studentId is missing from form data", async () => {
     const form = new FormData();
+    form.set("locale", "en");
     form.set("month", "3");
     form.set("year", "2026");
     form.set("amount", "10");
@@ -31,7 +35,7 @@ describe("submitParentPaymentReceipt validation", () => {
     );
     expect(await submitParentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "Invalid form",
+      message: pe.invalidForm,
     });
   });
 
@@ -39,7 +43,7 @@ describe("submitParentPaymentReceipt validation", () => {
     const form = fd({ month: "xx" });
     expect(await submitParentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "Invalid form",
+      message: pe.invalidForm,
     });
   });
 
@@ -47,7 +51,7 @@ describe("submitParentPaymentReceipt validation", () => {
     const form = fd({ amount: "0" });
     expect(await submitParentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "Invalid amount",
+      message: pe.invalidAmount,
     });
   });
 
@@ -55,7 +59,7 @@ describe("submitParentPaymentReceipt validation", () => {
     const form = fd({ file: null });
     expect(await submitParentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "Receipt file required",
+      message: pe.receiptRequired,
     });
   });
 
@@ -65,7 +69,7 @@ describe("submitParentPaymentReceipt validation", () => {
     });
     expect(await submitParentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "Receipt file required",
+      message: pe.receiptRequired,
     });
   });
 
@@ -76,7 +80,7 @@ describe("submitParentPaymentReceipt validation", () => {
     });
     expect(await submitParentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "File too large",
+      message: pe.fileTooLarge,
     });
   });
 
@@ -88,7 +92,7 @@ describe("submitParentPaymentReceipt validation", () => {
     });
     expect(await submitParentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "Use PDF or image",
+      message: pe.mimeInvalid,
     });
   });
 
@@ -98,7 +102,7 @@ describe("submitParentPaymentReceipt validation", () => {
     });
     expect(await submitParentPaymentReceipt(form)).toEqual({
       ok: false,
-      message: "Use PDF or image",
+      message: pe.mimeInvalid,
     });
   });
 });

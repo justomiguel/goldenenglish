@@ -1,0 +1,50 @@
+---
+description: "Copy & UI strings — no hardcoded user-facing text; dictionaries + Intl; aligns with i18n-localization skill."
+globs:
+  - "**/*.tsx"
+  - "**/*.ts"
+  - "src/dictionaries/**/*.json"
+alwaysApply: true
+---
+
+# i18n & user-facing copy (non-negotiable)
+
+Follow **`.agents/skills/i18n-localization/SKILL.md`** for mindset (keys not literals, namespaces, pluralization, dates/numbers, RTL). This rule pins that skill to **this repo’s plumbing**.
+
+## Single source for translatable copy
+
+1. **User-visible strings** (labels, headings, body copy, buttons, placeholders, helper text, empty states, table headers, tooltips, **`aria-label` / `title` when they describe an action to humans**, toasts, confirm dialogs, **user-facing** validation or error messages) MUST come from **`src/dictionaries/en.json` and `src/dictionaries/es.json`** via the existing i18n layer — typically `getDictionary(locale)` in Server Components / layouts (`@/lib/i18n/dictionaries`) and the same dictionary object passed down or exposed through hooks that already carry `dict` / `t`-style access used in the codebase.
+2. **Do not** embed that copy as string literals in `.tsx` / `.ts` UI, server actions that return messages shown to users, or email templates that users read, except where this rule lists an **explicit exception**.
+3. **Keys & structure** — Prefer stable, namespaced paths (nested objects mirror features: e.g. `parent.dashboard.*`). Adding a key requires **both** `en.json` and `es.json` in the same change so locales stay aligned. `Dictionary` is derived from `en.json` (`src/types/i18n.ts`); keep JSON shape identical across locales.
+
+## Branding vs i18n (must agree with `01-design-system.mdc`)
+
+- **Institute / product identity** (legal name, tagline, logos, contact blocks) stays in **`system.properties`** and brand helpers — **not** duplicated as fresh literals in components or dictionaries.
+- **Sentences and UI chrome** belong in **dictionaries**. Do not reintroduce brand prose as hardcoded JSX strings.
+
+## Formatting & grammar in translated strings
+
+- **Dates, times, numbers, currency, lists** — use **`Intl.*`** (`Intl.DateTimeFormat`, `Intl.NumberFormat`, `Intl.ListFormat`, etc.) with the active locale, not hand-built locale-specific strings in code.
+- **Pluralization & gender** — avoid naive string concatenation of translated fragments; use ICU-style patterns or per-locale full sentences as agreed in the project (if the codebase adds ICU later, follow it; until then, separate keys per plural branch are acceptable).
+- **RTL** — layout uses logical properties / `dir`-aware patterns where relevant; do not assume left-to-right only for mirrored concepts.
+
+## Explicit exceptions (not “i18n copy”)
+
+- **Identifiers**: route segments, enum values, `event_type` names, analytics keys, DB columns, Zod field keys, feature flags — ASCII identifiers stay in code per **`08-analytics-observability.mdc`** and typing constraints.
+- **Developer-only** strings: server logs, debug comments, internal `Error` messages never shown to users.
+- **Tests**: literals and fixtures in `src/__tests__/**` are fine; prefer matching **keys or mocked dict** when asserting rendered output, not production copy drift.
+- **Third-party APIs** or external protocols that require fixed English tokens.
+- **Regulated literals** where the law requires an exact fixed string — still isolate in one module + comment; default remains dictionaries.
+
+## Agent checklist
+
+- [ ] New or changed UI strings: added to **`en.json` + `es.json`**, consumed through the project’s dictionary access pattern (no raw JSX English/Spanish for user-visible text).
+- [ ] User-facing errors from server actions: return a **stable code** or use dictionary-backed messaging on the client/server boundary — avoid ad-hoc English sentences only in TS.
+- [ ] Metadata / SEO: follow **`06-seo-performance.mdc`**; translatable descriptions use the same dictionary / `generateMetadata` pattern as the rest of the locale tree.
+- [ ] A11y strings users hear or screen readers announce as content: from dictionaries, not hardcoded.
+
+## Reference
+
+- Dictionaries loader: `src/lib/i18n/dictionaries.ts`
+- Types: `src/types/i18n.ts`
+- Skill: `.agents/skills/i18n-localization/SKILL.md`

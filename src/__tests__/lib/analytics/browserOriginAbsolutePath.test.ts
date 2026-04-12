@@ -20,4 +20,11 @@ describe("browserOriginAbsolutePath", () => {
       "https://example.com/api/analytics/events",
     );
   });
+
+  it("adds leading slash before joining origin when path omits it", () => {
+    vi.stubGlobal("window", {
+      location: { origin: "https://example.com" },
+    });
+    expect(browserOriginAbsolutePath("api/x")).toBe("https://example.com/api/x");
+  });
 });

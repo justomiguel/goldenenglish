@@ -32,11 +32,24 @@ import { InscriptionsSettingsForm } from "@/components/dashboard/InscriptionsSet
 import { PaymentReviewRow } from "@/components/dashboard/PaymentReviewRow";
 import { AdminRegistrationsList } from "@/components/dashboard/AdminRegistrationsList";
 
+const REG_TUTOR_EMPTY = {
+  tutor_name: null as string | null,
+  tutor_dni: null as string | null,
+  tutor_email: null as string | null,
+  tutor_phone: null as string | null,
+  tutor_relationship: null as string | null,
+};
+
+const registrationAcceptUserLabels = {
+  password: dictEn.admin.users.password,
+  passwordHint: dictEn.admin.users.passwordHint,
+};
+
 describe("dashboard coverage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockPathname.mockReturnValue("/es/dashboard/admin/users");
-    createDashboardUser.mockResolvedValue({ ok: true });
+    createDashboardUser.mockResolvedValue({ ok: true, userId: "test-user" });
     setInscriptionsEnabled.mockResolvedValue({ ok: true });
     reviewPayment.mockResolvedValue({ ok: true });
     deleteRegistration.mockResolvedValue({ ok: true });
@@ -69,19 +82,24 @@ describe("dashboard coverage", () => {
 
   it("AdminCreateUserForm shows success and error messages", async () => {
     createDashboardUser.mockResolvedValueOnce({ ok: true });
-    const { unmount } = render(<AdminCreateUserForm labels={dictEn.admin.users} />);
+    const { unmount } = render(
+      <AdminCreateUserForm locale="en" labels={dictEn.admin.users} />,
+    );
     fillCreateUserForm();
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.submit }));
     await waitFor(() => {
       expect(screen.getByText(dictEn.admin.users.success)).toBeInTheDocument();
     });
     unmount();
-    createDashboardUser.mockResolvedValueOnce({ ok: false, message: "nope" });
-    render(<AdminCreateUserForm labels={dictEn.admin.users} />);
+    createDashboardUser.mockResolvedValueOnce({
+      ok: false,
+      message: dictEn.admin.users.errCreateAuth,
+    });
+    render(<AdminCreateUserForm locale="en" labels={dictEn.admin.users} />);
     fillCreateUserForm();
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.submit }));
     await waitFor(() => {
-      expect(screen.getByText(/nope/)).toBeInTheDocument();
+      expect(screen.getByText(dictEn.admin.users.errCreateAuth)).toBeInTheDocument();
     });
   });
 
@@ -117,12 +135,14 @@ describe("dashboard coverage", () => {
     render(
       <ul>
         <PaymentReviewRow
+          locale="en"
           paymentId="p1"
           studentLabel="S"
           periodLabel="2026-03"
           amountLabel="$10"
           previewUrl="https://x.com/a.png"
           labels={dictEn.admin.payments}
+          emptyValue={dictEn.common.emptyValue}
         />
       </ul>,
     );
@@ -133,6 +153,7 @@ describe("dashboard coverage", () => {
         paymentId: "p1",
         status: "approved",
         adminNotes: "ok",
+        locale: "en",
       }),
     );
   });
@@ -141,12 +162,14 @@ describe("dashboard coverage", () => {
     render(
       <ul>
         <PaymentReviewRow
+          locale="en"
           paymentId="p9"
           studentLabel="S"
           periodLabel="2026-03"
           amountLabel="$10"
           previewUrl="https://x.com/a.png"
           labels={dictEn.admin.payments}
+          emptyValue={dictEn.common.emptyValue}
         />
       </ul>,
     );
@@ -156,11 +179,12 @@ describe("dashboard coverage", () => {
         paymentId: "p9",
         status: "rejected",
         adminNotes: undefined,
+        locale: "en",
       }),
     );
   });
 
-  it("AdminRegistrationsList shows raw status when not in known set", () => {
+  it("AdminRegistrationsList renders a row with non-canonical status (no status column)", () => {
     const R = dictEn.admin.registrations;
     const row = {
       id: "523e4567-e89b-12d3-a456-426614174005",
@@ -173,20 +197,20 @@ describe("dashboard coverage", () => {
       level_interest: "B1",
       status: "legacy_import",
       created_at: "2026-02-01T00:00:00.000Z",
+      ...REG_TUTOR_EMPTY,
     };
     render(
       <AdminRegistrationsList
         locale="es"
+        legalAgeMajority={18}
         rows={[row]}
         labels={R}
         tableLabels={dictEn.admin.table}
-        userLabels={{
-          password: dictEn.admin.users.password,
-          passwordHint: dictEn.admin.users.passwordHint,
-        }}
+        userLabels={registrationAcceptUserLabels}
       />,
     );
-    expect(screen.getByText("legacy_import")).toBeInTheDocument();
+    expect(screen.getByText("raw@x.co")).toBeInTheDocument();
+    expect(screen.getByText("B1")).toBeInTheDocument();
   });
 
   it("AdminRegistrationsList shows contacted status and delete error toast", async () => {
@@ -202,21 +226,20 @@ describe("dashboard coverage", () => {
       level_interest: "B1",
       status: "contacted",
       created_at: "2026-02-01T00:00:00.000Z",
+      ...REG_TUTOR_EMPTY,
     };
     deleteRegistration.mockResolvedValueOnce({ ok: false, message: "db" });
     render(
       <AdminRegistrationsList
         locale="es"
+        legalAgeMajority={18}
         rows={[row]}
         labels={R}
         tableLabels={dictEn.admin.table}
-        userLabels={{
-          password: dictEn.admin.users.password,
-          passwordHint: dictEn.admin.users.passwordHint,
-        }}
+        userLabels={registrationAcceptUserLabels}
       />,
     );
-    expect(screen.getByText(R.contacted)).toBeInTheDocument();
+    expect(screen.getByText("c@x.co")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: R.delete }));
     fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: R.confirmDelete }));
     await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent(/db/));
@@ -235,18 +258,17 @@ describe("dashboard coverage", () => {
       level_interest: "A1",
       status: "new",
       created_at: "2026-01-01T00:00:00.000Z",
+      ...REG_TUTOR_EMPTY,
     };
     const rowOld = { ...rowNew, id: "223e4567-e89b-12d3-a456-426614174001", status: "enrolled" };
     render(
       <AdminRegistrationsList
         locale="es"
+        legalAgeMajority={18}
         rows={[rowNew, rowOld]}
         labels={R}
         tableLabels={dictEn.admin.table}
-        userLabels={{
-          password: dictEn.admin.users.password,
-          passwordHint: dictEn.admin.users.passwordHint,
-        }}
+        userLabels={registrationAcceptUserLabels}
       />,
     );
     fireEvent.click(screen.getAllByRole("button", { name: R.delete })[0]);
@@ -277,26 +299,21 @@ describe("dashboard coverage", () => {
       level_interest: "A2",
       status: "new",
       created_at: "2026-01-01T00:00:00.000Z",
+      ...REG_TUTOR_EMPTY,
     };
-    acceptRegistration.mockResolvedValueOnce({ ok: false, message: "already_processed" });
+    acceptRegistration.mockResolvedValueOnce({ ok: false, message: R.alreadyProcessed });
     const { unmount } = render(
       <AdminRegistrationsList
         locale="es"
+        legalAgeMajority={18}
         rows={[rowNew]}
         labels={R}
         tableLabels={dictEn.admin.table}
-        userLabels={{
-          password: dictEn.admin.users.password,
-          passwordHint: dictEn.admin.users.passwordHint,
-        }}
+        userLabels={registrationAcceptUserLabels}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: R.accept }));
     const dlg = await screen.findByRole("dialog");
-    fireEvent.change(screen.getByLabelText(dictEn.admin.users.password), {
-      target: { value: "x" },
-    });
-    fireEvent.change(screen.getByLabelText(R.birthDate), { target: { value: "2011-06-15" } });
     fireEvent.click(within(dlg).getByRole("button", { name: R.accept }));
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(R.alreadyProcessed));
     unmount();
@@ -305,13 +322,11 @@ describe("dashboard coverage", () => {
     render(
       <AdminRegistrationsList
         locale="es"
+        legalAgeMajority={18}
         rows={[rowNew]}
         labels={R}
         tableLabels={dictEn.admin.table}
-        userLabels={{
-          password: dictEn.admin.users.password,
-          passwordHint: dictEn.admin.users.passwordHint,
-        }}
+        userLabels={registrationAcceptUserLabels}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: R.accept }));
@@ -324,20 +339,24 @@ describe("dashboard coverage", () => {
     render(
       <ul>
         <PaymentReviewRow
+          locale="en"
           paymentId="p2"
           studentLabel="S"
           periodLabel="2026-03"
           amountLabel="$10"
           previewUrl="https://x.com/r.pdf"
           labels={dictEn.admin.payments}
+          emptyValue={dictEn.common.emptyValue}
         />
         <PaymentReviewRow
+          locale="en"
           paymentId="p3"
           studentLabel="S"
           periodLabel="2026-03"
           amountLabel="$10"
           previewUrl={null}
           labels={dictEn.admin.payments}
+          emptyValue={dictEn.common.emptyValue}
         />
       </ul>,
     );

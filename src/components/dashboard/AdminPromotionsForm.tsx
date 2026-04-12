@@ -37,7 +37,7 @@ export function AdminPromotionsForm({ locale, labels }: AdminPromotionsFormProps
     setMsg(null);
     const v = Number(val);
     if (!Number.isFinite(v) || v <= 0) {
-      setMsg("Invalid value");
+      setMsg(labels.invalidDiscountValue);
       setBusy(false);
       return;
     }
@@ -48,7 +48,7 @@ export function AdminPromotionsForm({ locale, labels }: AdminPromotionsFormProps
           ? null
           : Number(monthlyMonths);
     if (applies !== "enrollment" && monthlyMonths.trim() !== "" && (!Number.isFinite(mm) || (mm as number) < 0)) {
-      setMsg("Invalid months");
+      setMsg(labels.invalidMonthlyMonths);
       setBusy(false);
       return;
     }
@@ -78,7 +78,7 @@ export function AdminPromotionsForm({ locale, labels }: AdminPromotionsFormProps
       setMsg(null);
       router.refresh();
     } else {
-      setMsg(res.message ?? "Error");
+      setMsg(res.message ?? labels.genericActionError);
     }
   }
 

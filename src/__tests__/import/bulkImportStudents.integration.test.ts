@@ -15,6 +15,11 @@ vi.mock("@/lib/supabase/admin", () => ({
 }));
 
 import { bulkImportStudentsFromRows } from "@/app/[locale]/dashboard/admin/import/actions";
+import {
+  ADMIN_SESSION_FORBIDDEN,
+  ADMIN_SESSION_UNAUTHORIZED,
+} from "@/lib/dashboard/adminSessionErrors";
+import { IMPORT_INVALID_CSV_PAYLOAD } from "@/lib/import/parseImportErrorCodes";
 
 function adminChain() {
   const chain = {
@@ -61,7 +66,9 @@ describe("bulkImportStudentsFromRows", () => {
       },
     });
 
-    await expect(bulkImportStudentsFromRows([])).rejects.toThrow("Unauthorized");
+    await expect(bulkImportStudentsFromRows("es", [])).rejects.toThrow(
+      ADMIN_SESSION_UNAUTHORIZED,
+    );
   });
 
   it("throws when role is not admin", async () => {
@@ -78,7 +85,7 @@ describe("bulkImportStudentsFromRows", () => {
       rpc: vi.fn().mockResolvedValue({ data: false, error: null }),
     });
 
-    await expect(bulkImportStudentsFromRows([])).rejects.toThrow("Forbidden");
+    await expect(bulkImportStudentsFromRows("es", [])).rejects.toThrow(ADMIN_SESSION_FORBIDDEN);
   });
 
   it("throws on invalid zod payload", async () => {
@@ -86,8 +93,8 @@ describe("bulkImportStudentsFromRows", () => {
     mockCreateAdmin.mockReturnValue({});
 
     await expect(
-      bulkImportStudentsFromRows([{ first_name: "" }]),
-    ).rejects.toThrow("Invalid CSV payload");
+      bulkImportStudentsFromRows("es", [{ first_name: "" }]),
+    ).rejects.toThrow(IMPORT_INVALID_CSV_PAYLOAD);
   });
 
   it("returns zeros for empty valid payload", async () => {
@@ -101,7 +108,7 @@ describe("bulkImportStudentsFromRows", () => {
       },
     });
 
-    const result = await bulkImportStudentsFromRows([]);
+    const result = await bulkImportStudentsFromRows("es", []);
     expect(result).toEqual({
       processed: 0,
       createdUsers: 0,
@@ -145,7 +152,7 @@ describe("bulkImportStudentsFromRows", () => {
       auth: { admin: { createUser, listUsers } },
     });
 
-    const result = await bulkImportStudentsFromRows([
+    const result = await bulkImportStudentsFromRows("es", [
       {
         first_name: "Ada",
         last_name: "Lovelace",

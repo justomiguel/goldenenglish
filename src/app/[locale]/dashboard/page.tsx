@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { loadOrProvisionDashboardProfileRow } from "@/lib/profile/loadOrProvisionDashboardProfileRow";
 
 interface DashboardIndexProps {
   params: Promise<{ locale: string }>;
@@ -24,13 +25,13 @@ export default async function DashboardIndexPage({
     redirect(`/${locale}/login?next=/${locale}/dashboard`);
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+  const profile = await loadOrProvisionDashboardProfileRow(user);
 
-  const role = profile?.role ?? "student";
-  const seg = SEGMENT[role] ?? "student";
+  if (!profile?.role) {
+    redirect(`/${locale}/dashboard/profile`);
+  }
+
+  const role = profile.role;
+  const seg = SEGMENT[role] ?? "profile";
   redirect(`/${locale}/dashboard/${seg}`);
 }

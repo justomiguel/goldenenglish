@@ -14,6 +14,7 @@ function formatDate(locale: string, iso: string | null | undefined): string | nu
 export async function loadAdminUserDetail(
   rawUserId: string,
   locale: string,
+  emptyDisplay = "—",
 ): Promise<AdminUserDetailVM | null> {
   const idParsed = z.string().uuid().safeParse(rawUserId);
   if (!idParsed.success) return null;
@@ -51,12 +52,12 @@ export async function loadAdminUserDetail(
 
   const avatarDisplayUrl = await resolveAvatarUrlForAdmin(admin, profile.avatar_url);
 
-  const phone = profile.phone?.trim() ? profile.phone.trim() : "—";
+  const phone = profile.phone?.trim() ? profile.phone.trim() : emptyDisplay;
   const birthDateDisplay = formatDate(locale, profile.birth_date);
-  const createdAtDisplay = formatDate(locale, profile.created_at) ?? "—";
+  const createdAtDisplay = formatDate(locale, profile.created_at) ?? emptyDisplay;
 
   return {
-    email: authData.user.email ?? "—",
+    email: authData.user.email ?? emptyDisplay,
     firstName: profile.first_name,
     lastName: profile.last_name,
     role: profile.role,

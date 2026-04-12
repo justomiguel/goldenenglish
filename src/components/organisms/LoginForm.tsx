@@ -10,7 +10,7 @@ import Link from "next/link";
 interface LoginFormProps {
   labels: Dictionary["login"];
   locale: string;
-  /** Origen: query `next` en la página de login (ruta interna). */
+  /** Source: login page `next` query param (internal path only). */
   nextPath?: string | null;
 }
 

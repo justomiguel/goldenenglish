@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, UserPlus } from "lucide-react";
+import { Pencil, Trash2, UserPlus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
@@ -14,6 +14,7 @@ export interface AdminRegistrationPwaCardProps {
   labels: RegLabels;
   statusLabel: (status: string) => string;
   onAccept: (row: AdminRegistrationRow) => void;
+  onEdit: (row: AdminRegistrationRow) => void;
   onDelete: (row: AdminRegistrationRow) => void;
 }
 
@@ -24,6 +25,7 @@ export function AdminRegistrationPwaCard({
   labels,
   statusLabel,
   onAccept,
+  onEdit,
   onDelete,
 }: AdminRegistrationPwaCardProps) {
   const canAccept = r.status === "new";
@@ -33,10 +35,10 @@ export function AdminRegistrationPwaCard({
         month: "short",
         day: "numeric",
       })
-    : "—";
+    : labels.emptyValue;
   const receivedDisplay = r.created_at
     ? new Date(r.created_at).toLocaleString(locale)
-    : "—";
+    : labels.emptyValue;
 
   const deleteBtnClass =
     "min-h-[44px] border-2 border-[var(--color-error)] bg-[var(--color-surface)] p-0 text-[var(--color-error)] shadow-sm hover:bg-[color-mix(in_srgb,var(--color-error)_10%,var(--color-surface))] hover:text-[var(--color-error)] focus-visible:ring-2 focus-visible:ring-[var(--color-error)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-background)]";
@@ -59,7 +61,7 @@ export function AdminRegistrationPwaCard({
             </span>
             <span>
               <span className="text-[var(--color-foreground)]">{labels.level}: </span>
-              {r.level_interest ?? "—"}
+              {r.level_interest ?? labels.emptyValue}
             </span>
           </div>
           <div className="flex flex-wrap gap-x-3">
@@ -88,27 +90,41 @@ export function AdminRegistrationPwaCard({
         <div
           className={
             canAccept
-              ? "grid w-full min-w-0 grid-cols-2 gap-2 pt-2"
+              ? "grid w-full min-w-0 grid-cols-3 gap-2 pt-2"
               : "flex justify-end pt-2"
           }
         >
           {canAccept ? (
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              aria-label={labels.accept}
-              title={labels.accept}
-              className="min-h-[44px] w-full border border-[color-mix(in_srgb,var(--color-secondary-foreground)_22%,transparent)] px-0"
-              disabled={busy}
-              onClick={() => onAccept(r)}
-            >
-              <UserPlus
-                className="h-5 w-5 text-[var(--color-secondary-foreground)]"
-                strokeWidth={2.25}
-                aria-hidden
-              />
-            </Button>
+            <>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                aria-label={labels.accept}
+                title={labels.accept}
+                className="min-h-[44px] w-full border border-[color-mix(in_srgb,var(--color-secondary-foreground)_22%,transparent)] px-0"
+                disabled={busy}
+                onClick={() => onAccept(r)}
+              >
+                <UserPlus
+                  className="h-5 w-5 text-[var(--color-secondary-foreground)]"
+                  strokeWidth={2.25}
+                  aria-hidden
+                />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                aria-label={labels.editTitle}
+                title={labels.editTitle}
+                className="min-h-[44px] w-full border border-[var(--color-border)] bg-[var(--color-surface)] px-0 hover:bg-[var(--color-muted)]"
+                disabled={busy}
+                onClick={() => onEdit(r)}
+              >
+                <Pencil className="h-5 w-5 text-[var(--color-foreground)]" strokeWidth={2.25} aria-hidden />
+              </Button>
+            </>
           ) : null}
           <Button
             type="button"

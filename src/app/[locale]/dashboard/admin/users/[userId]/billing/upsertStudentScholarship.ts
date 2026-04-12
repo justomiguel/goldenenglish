@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { revalidateStudentBillingPaths } from "./revalidateStudentBilling";
 
 export async function upsertStudentScholarship(raw: {
@@ -15,8 +16,11 @@ export async function upsertStudentScholarship(raw: {
   validUntilMonth: number | null;
   isActive: boolean;
 }): Promise<{ ok: boolean; message?: string }> {
+  const dict = await getDictionary(raw.locale);
+  const b = dict.actionErrors.billingStudent;
+
   const id = z.string().uuid().safeParse(raw.studentId);
-  if (!id.success) return { ok: false, message: "Invalid student" };
+  if (!id.success) return { ok: false, message: b.invalidStudent };
 
   const parsed = z
     .object({
@@ -30,7 +34,7 @@ export async function upsertStudentScholarship(raw: {
     })
     .safeParse(raw);
 
-  if (!parsed.success) return { ok: false, message: "Invalid data" };
+  if (!parsed.success) return { ok: false, message: b.invalidData };
 
   if (
     parsed.data.validUntilYear != null &&
@@ -40,7 +44,7 @@ export async function upsertStudentScholarship(raw: {
       parsed.data.validFromYear * 12 + parsed.data.validFromMonth;
     const end =
       parsed.data.validUntilYear * 12 + parsed.data.validUntilMonth;
-    if (end < start) return { ok: false, message: "Invalid date range" };
+    if (end < start) return { ok: false, message: b.invalidDateRange };
   }
 
   try {
@@ -50,7 +54,7 @@ export async function upsertStudentScholarship(raw: {
       .select("role")
       .eq("id", id.data)
       .single();
-    if (prof?.role !== "student") return { ok: false, message: "Not a student" };
+    if (prof?.role !== "student") return { ok: false, message: b.notAStudent };
 
     const { error } = await supabase.from("student_scholarships").upsert(
       {
@@ -65,10 +69,10 @@ export async function upsertStudentScholarship(raw: {
       },
       { onConflict: "student_id" },
     );
-    if (error) return { ok: false, message: error.message };
+    if (error) return { ok: false, message: b.saveFailed };
     revalidateStudentBillingPaths(raw.locale, id.data);
     return { ok: true };
   } catch {
-    return { ok: false, message: "Forbidden" };
+    return { ok: false, message: b.forbidden };
   }
 }

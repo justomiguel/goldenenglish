@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { revalidateStudentBillingPaths } from "./revalidateStudentBilling";
 
 const ym = z.object({
@@ -17,10 +18,13 @@ export async function setPeriodExemption(raw: {
   exempt: boolean;
   adminNote?: string;
 }): Promise<{ ok: boolean; message?: string }> {
+  const dict = await getDictionary(raw.locale);
+  const b = dict.actionErrors.billingStudent;
+
   const sid = z.string().uuid().safeParse(raw.studentId);
-  if (!sid.success) return { ok: false, message: "Invalid student" };
+  if (!sid.success) return { ok: false, message: b.invalidStudent };
   const p = ym.safeParse({ year: raw.year, month: raw.month });
-  if (!p.success) return { ok: false, message: "Invalid period" };
+  if (!p.success) return { ok: false, message: b.invalidPeriod };
 
   try {
     const { supabase } = await assertAdmin();
@@ -30,7 +34,7 @@ export async function setPeriodExemption(raw: {
       .select("role")
       .eq("id", sid.data)
       .single();
-    if (prof?.role !== "student") return { ok: false, message: "Not a student" };
+    if (prof?.role !== "student") return { ok: false, message: b.notAStudent };
 
     const { data: existing } = await supabase
       .from("payments")
@@ -43,7 +47,7 @@ export async function setPeriodExemption(raw: {
     if (raw.exempt) {
       if (existing?.id) {
         if (existing.status === "approved") {
-          return { ok: false, message: "Cannot exempt an approved payment" };
+          return { ok: false, message: b.cannotExemptApproved };
         }
         const { error } = await supabase
           .from("payments")
@@ -53,7 +57,7 @@ export async function setPeriodExemption(raw: {
             receipt_url: null,
           })
           .eq("id", existing.id as string);
-        if (error) return { ok: false, message: error.message };
+        if (error) return { ok: false, message: b.saveFailed };
       } else {
         const { error } = await supabase.from("payments").insert({
           student_id: sid.data,
@@ -63,16 +67,16 @@ export async function setPeriodExemption(raw: {
           status: "exempt",
           admin_notes: raw.adminNote?.trim() || null,
         });
-        if (error) return { ok: false, message: error.message };
+        if (error) return { ok: false, message: b.saveFailed };
       }
     } else if (existing?.id) {
       if (existing.status !== "exempt") {
-        return { ok: false, message: "Period is not exempt" };
+        return { ok: false, message: b.periodNotExempt };
       }
       const amt = existing.amount != null ? Number(existing.amount) : 0;
       if (amt === 0) {
         const { error } = await supabase.from("payments").delete().eq("id", existing.id as string);
-        if (error) return { ok: false, message: error.message };
+        if (error) return { ok: false, message: b.saveFailed };
       } else {
         const { error } = await supabase
           .from("payments")
@@ -81,14 +85,14 @@ export async function setPeriodExemption(raw: {
             admin_notes: raw.adminNote?.trim() ?? null,
           })
           .eq("id", existing.id as string);
-        if (error) return { ok: false, message: error.message };
+        if (error) return { ok: false, message: b.saveFailed };
       }
     }
 
     revalidateStudentBillingPaths(raw.locale, sid.data);
     return { ok: true };
   } catch {
-    return { ok: false, message: "Forbidden" };
+    return { ok: false, message: b.forbidden };
   }
 }
 
@@ -101,18 +105,21 @@ export async function applyExemptionRange(raw: {
   toMonth: number;
   adminNote?: string;
 }): Promise<{ ok: boolean; message?: string }> {
+  const dict = await getDictionary(raw.locale);
+  const b = dict.actionErrors.billingStudent;
+
   const sid = z.string().uuid().safeParse(raw.studentId);
-  if (!sid.success) return { ok: false, message: "Invalid student" };
+  if (!sid.success) return { ok: false, message: b.invalidStudent };
 
   const from = ym.safeParse({ year: raw.fromYear, month: raw.fromMonth });
   const to = ym.safeParse({ year: raw.toYear, month: raw.toMonth });
-  if (!from.success || !to.success) return { ok: false, message: "Invalid range" };
+  if (!from.success || !to.success) return { ok: false, message: b.invalidRange };
 
   let y = from.data.year;
   let m = from.data.month;
   const endIdx = to.data.year * 12 + to.data.month;
   let curIdx = y * 12 + m;
-  if (endIdx < curIdx) return { ok: false, message: "Invalid range order" };
+  if (endIdx < curIdx) return { ok: false, message: b.invalidRangeOrder };
 
   while (curIdx <= endIdx) {
     const r = await setPeriodExemption({

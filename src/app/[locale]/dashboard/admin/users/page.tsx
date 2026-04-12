@@ -49,11 +49,11 @@ export default async function AdminUsersListPage({ params }: PageProps) {
       const avatarDisplayUrl = await resolveAvatarUrlForAdmin(admin, p?.avatar_url);
       return {
         id: u.id,
-        email: u.email ?? "—",
-        firstName: p?.first_name ?? "—",
-        lastName: p?.last_name ?? "—",
-        role: p?.role ?? "—",
-        phone: p?.phone?.trim() ? p.phone : "—",
+        email: u.email ?? dict.common.emptyValue,
+        firstName: p?.first_name ?? dict.common.emptyValue,
+        lastName: p?.last_name ?? dict.common.emptyValue,
+        role: p?.role ?? dict.common.emptyValue,
+        phone: p?.phone?.trim() ? p.phone : dict.common.emptyValue,
         avatarDisplayUrl,
       };
     }),

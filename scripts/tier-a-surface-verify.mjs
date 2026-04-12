@@ -107,10 +107,17 @@ export function reachesSurfaceMountGate(root, startAbs) {
  * @param {string} root
  * @param {() => string[]} listRelPaths e.g. git ls-files
  */
+/** Role-specific profile URLs that only redirect to shared `/dashboard/profile` (no PWA shell on this file). */
+const TIER_A_PROFILE_REDIRECT_PAGES = new Set([
+  "src/app/[locale]/dashboard/parent/profile/page.tsx",
+  "src/app/[locale]/dashboard/student/profile/page.tsx",
+]);
+
 export function findTierAStudentParentPages(listRelPaths) {
   return listRelPaths.filter(
     (f) =>
       f.endsWith("/page.tsx") &&
-      /src\/app\/\[locale\]\/dashboard\/(student|parent)\//.test(f),
+      /src\/app\/\[locale\]\/dashboard\/(student|parent)\//.test(f) &&
+      !TIER_A_PROFILE_REDIRECT_PAGES.has(f),
   );
 }

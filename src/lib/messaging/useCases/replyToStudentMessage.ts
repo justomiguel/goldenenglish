@@ -1,7 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { EmailProvider } from "@/lib/email/emailProvider";
-import { notifyStudentTeacherReplied } from "@/lib/messaging/notifyMessagingEmails";
+import {
+  notifyParentTeacherReplied,
+  notifyStudentTeacherReplied,
+} from "@/lib/messaging/notifyMessagingEmails";
 import { stripHtmlToText } from "@/lib/messaging/stripHtml";
+import {
+  MESSAGING_UC_PERSIST_FAILED,
+  MESSAGING_UC_REPLY_INVALID_SENDER,
+  MESSAGING_UC_REPLY_NOT_FOUND,
+} from "@/lib/messaging/messagingUseCaseCodes";
 
 export async function replyToStudentMessageUseCase(input: {
   supabase: SupabaseClient;
@@ -19,7 +27,7 @@ export async function replyToStudentMessageUseCase(input: {
     .eq("recipient_id", input.teacherId)
     .maybeSingle();
 
-  if (fetchErr || !row) return { ok: false, message: "Message not found" };
+  if (fetchErr || !row) return { ok: false, message: MESSAGING_UC_REPLY_NOT_FOUND };
 
   const { data: senderProfile } = await input.supabase
     .from("profiles")
@@ -27,8 +35,8 @@ export async function replyToStudentMessageUseCase(input: {
     .eq("id", row.sender_id as string)
     .maybeSingle();
 
-  if (senderProfile?.role !== "student") {
-    return { ok: false, message: "Can only reply to student messages" };
+  if (senderProfile?.role !== "student" && senderProfile?.role !== "parent") {
+    return { ok: false, message: MESSAGING_UC_REPLY_INVALID_SENDER };
   }
 
   const { error } = await input.supabase.from("portal_messages").insert({
@@ -37,17 +45,27 @@ export async function replyToStudentMessageUseCase(input: {
     body_html: input.replyHtml,
   });
 
-  if (error) return { ok: false, message: error.message };
+  if (error) return { ok: false, message: MESSAGING_UC_PERSIST_FAILED };
 
   const preview = stripHtmlToText(input.replyHtml).slice(0, 500);
   try {
-    await notifyStudentTeacherReplied({
-      studentId: row.sender_id as string,
-      teacherName: input.teacherDisplayName,
-      replyPreview: preview || "(empty)",
-      locale: input.locale,
-      emailProvider: input.emailProvider,
-    });
+    if (senderProfile?.role === "parent") {
+      await notifyParentTeacherReplied({
+        parentId: row.sender_id as string,
+        teacherName: input.teacherDisplayName,
+        replyPreview: preview || "(empty)",
+        locale: input.locale,
+        emailProvider: input.emailProvider,
+      });
+    } else {
+      await notifyStudentTeacherReplied({
+        studentId: row.sender_id as string,
+        teacherName: input.teacherDisplayName,
+        replyPreview: preview || "(empty)",
+        locale: input.locale,
+        emailProvider: input.emailProvider,
+      });
+    }
   } catch {
     /* best-effort */
   }

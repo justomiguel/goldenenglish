@@ -8,6 +8,7 @@ import {
   type PublicRegistrationInput,
 } from "@/lib/register/publicRegistrationSchema";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 
 export type RegisterActionState = { ok: boolean; message?: string };
 
@@ -15,15 +16,18 @@ export async function submitPublicRegistration(
   locale: string,
   raw: PublicRegistrationInput,
 ): Promise<RegisterActionState> {
+  const dict = await getDictionary(locale);
+  const reg = dict.register;
+
   if (!(await getInscriptionsEnabled())) {
-    return { ok: false, message: "closed" };
+    return { ok: false, message: reg.closed };
   }
 
   const parsed = buildPublicRegistrationSchema(
     getLegalAgeMajorityFromSystem(),
   ).safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, message: "validation" };
+    return { ok: false, message: reg.validationError };
   }
 
   const d = parsed.data;
@@ -45,7 +49,7 @@ export async function submitPublicRegistration(
   });
 
   if (error) {
-    return { ok: false, message: error.message };
+    return { ok: false, message: dict.actionErrors.register.insertFailed };
   }
 
   revalidatePath(`/${locale}/dashboard/admin/registrations`, "page");

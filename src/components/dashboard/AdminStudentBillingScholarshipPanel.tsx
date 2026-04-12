@@ -110,13 +110,13 @@ export function AdminStudentBillingScholarshipPanel({
               type="number"
               value={vfM}
               onChange={(e) => setVfM(e.target.value)}
-              aria-label="Month from"
+              aria-label={labels.scholarshipAriaMonthFrom}
             />
             <Input
               type="number"
               value={vfY}
               onChange={(e) => setVfY(e.target.value)}
-              aria-label="Year from"
+              aria-label={labels.scholarshipAriaYearFrom}
             />
           </div>
         </div>
@@ -127,15 +127,15 @@ export function AdminStudentBillingScholarshipPanel({
               type="number"
               value={vuM}
               onChange={(e) => setVuM(e.target.value)}
-              placeholder="MM"
-              aria-label="Month until"
+              placeholder={labels.scholarshipPlaceholderMonth}
+              aria-label={labels.scholarshipAriaMonthUntil}
             />
             <Input
               type="number"
               value={vuY}
               onChange={(e) => setVuY(e.target.value)}
-              placeholder="YYYY"
-              aria-label="Year until"
+              placeholder={labels.scholarshipPlaceholderYear}
+              aria-label={labels.scholarshipAriaYearUntil}
             />
           </div>
         </div>

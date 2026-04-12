@@ -75,6 +75,7 @@ export function ParentPaymentForm({ locale, options, labels }: ParentPaymentForm
         onSubmit={onSubmit}
         className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6"
       >
+        <input type="hidden" name="locale" value={locale} readOnly />
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label htmlFor="pp-month">{labels.month}</Label>

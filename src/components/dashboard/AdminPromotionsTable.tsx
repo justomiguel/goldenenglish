@@ -46,16 +46,16 @@ export function AdminPromotionsTable({ locale, rows, labels }: AdminPromotionsTa
     const res = await togglePromotionActive(locale, id, next);
     setBusy(false);
     if (res.ok) router.refresh();
-    else setMsg(res.message ?? "Error");
+    else setMsg(res.message ?? labels.genericActionError);
   }
 
   async function retire(id: string) {
-    if (!window.confirm("OK?")) return;
+    if (!window.confirm(labels.confirmRetire)) return;
     setBusy(true);
     const res = await softDeletePromotion(locale, id);
     setBusy(false);
     if (res.ok) router.refresh();
-    else setMsg(res.message ?? "Error");
+    else setMsg(res.message ?? labels.genericActionError);
   }
 
   if (rows.length === 0) {
@@ -94,7 +94,7 @@ export function AdminPromotionsTable({ locale, rows, labels }: AdminPromotionsTa
               <td className="px-3 py-2 text-[var(--color-muted-foreground)]">
                 {r.expires_at ? new Date(r.expires_at).toLocaleString() : labels.eternal}
               </td>
-              <td className="px-3 py-2">{r.is_stackable ? "✓" : "—"}</td>
+              <td className="px-3 py-2">{r.is_stackable ? labels.symbolYes : labels.symbolNo}</td>
               <td className="px-3 py-2">
                 <button
                   type="button"

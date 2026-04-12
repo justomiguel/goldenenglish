@@ -10,6 +10,8 @@ interface LandingTiltedPhotoProps {
   rotateClass?: string;
   sizes?: string;
   aspect?: LandingTiltedPhotoAspect;
+  /** Above-the-fold / LCP: eager fetch (see Next.js Image `priority`) */
+  priority?: boolean;
 }
 
 const aspectClass: Record<LandingTiltedPhotoAspect, string> = {
@@ -24,6 +26,7 @@ export function LandingTiltedPhoto({
   rotateClass = "-rotate-2",
   sizes = "(max-width: 768px) 50vw, 260px",
   aspect = "4/3",
+  priority = false,
 }: LandingTiltedPhotoProps) {
   return (
     <div
@@ -37,6 +40,7 @@ export function LandingTiltedPhoto({
             fill
             className="object-cover"
             sizes={sizes}
+            priority={priority}
           />
         </div>
       </div>

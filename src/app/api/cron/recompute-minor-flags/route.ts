@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   try {
     admin = createAdminClient();
   } catch {
-    return NextResponse.json({ ok: false, message: "No admin client" }, { status: 500 });
+    return NextResponse.json({ ok: false, message: "no_admin_client" }, { status: 500 });
   }
 
   const { error } = await admin.rpc("profiles_recompute_minor_flags");

@@ -18,6 +18,11 @@ const regRow: AdminRegistrationRow = {
   level_interest: "A1",
   status: "new",
   created_at: "2026-01-01T00:00:00.000Z",
+  tutor_name: null,
+  tutor_dni: null,
+  tutor_email: null,
+  tutor_phone: null,
+  tutor_relationship: null,
 };
 
 const userRow: AdminUserRow = {
@@ -40,6 +45,7 @@ describe("admin PWA smoke", () => {
         labels={dictEn.admin.registrations}
         statusLabel={(s) => s}
         onAccept={() => {}}
+        onEdit={() => {}}
         onDelete={() => {}}
       />,
     );
@@ -61,6 +67,7 @@ describe("admin PWA smoke", () => {
         statusLabel={(s) => s}
         busyId={null}
         onAccept={() => {}}
+        onEdit={() => {}}
         onDelete={() => {}}
         emptyMessage="none"
         pagination={{
@@ -89,6 +96,7 @@ describe("admin PWA smoke", () => {
         statusLabel={(s) => s}
         busyId={null}
         onAccept={() => {}}
+        onEdit={() => {}}
         onDelete={() => {}}
         emptyMessage="none"
         pagination={{

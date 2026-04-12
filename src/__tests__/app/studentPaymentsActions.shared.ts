@@ -11,6 +11,7 @@ export function studentFd(
   }> = {},
 ) {
   const form = new FormData();
+  form.set("locale", "en");
   form.set("month", o.month ?? "3");
   form.set("year", o.year ?? "2026");
   form.set("amount", o.amount ?? "100");

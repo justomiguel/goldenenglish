@@ -33,6 +33,7 @@ describe("ParentPaymentForm", () => {
     });
     render(
       <ParentPaymentForm
+        locale="es"
         options={[{ id: "stu-1", label: "Kid" }]}
         labels={dictEn.dashboard.parent}
       />,
@@ -56,6 +57,7 @@ describe("ParentPaymentForm", () => {
     submitParentPaymentReceiptMock.mockResolvedValueOnce({ ok: true });
     render(
       <ParentPaymentForm
+        locale="es"
         options={[{ id: "stu-1", label: "Kid" }]}
         labels={dictEn.dashboard.parent}
       />,
@@ -75,7 +77,7 @@ describe("ParentPaymentForm", () => {
 
   it("returns null without options", () => {
     const { container } = render(
-      <ParentPaymentForm options={[]} labels={dictEn.dashboard.parent} />,
+      <ParentPaymentForm locale="es" options={[]} labels={dictEn.dashboard.parent} />,
     );
     expect(container.firstChild).toBeNull();
   });

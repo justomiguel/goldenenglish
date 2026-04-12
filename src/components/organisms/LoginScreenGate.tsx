@@ -24,7 +24,7 @@ export function LoginScreenGate({
 }: LoginScreenGateProps) {
   return (
     <SurfaceMountGate
-      skeleton={<LoginScreenSkeleton />}
+      skeleton={<LoginScreenSkeleton ariaLabel={dict.common.loadingAria} />}
       desktop={desktop}
       narrow={(surface) => (
         <LoginScreenNarrow

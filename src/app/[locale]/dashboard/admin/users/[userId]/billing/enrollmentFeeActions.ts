@@ -4,6 +4,7 @@ import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { sendEnrollmentExemptionEmail } from "@/lib/email/billingBenefitEmails";
 import type { Locale } from "@/types/i18n";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { revalidateStudentBillingPaths } from "./revalidateStudentBilling";
 
 export async function setEnrollmentFeeExemption(raw: {
@@ -12,8 +13,11 @@ export async function setEnrollmentFeeExemption(raw: {
   exempt: boolean;
   reason?: string;
 }): Promise<{ ok: boolean; message?: string }> {
+  const dict = await getDictionary(raw.locale);
+  const b = dict.actionErrors.billingStudent;
+
   const sid = z.string().uuid().safeParse(raw.studentId);
-  if (!sid.success) return { ok: false, message: "Invalid student" };
+  if (!sid.success) return { ok: false, message: b.invalidStudent };
 
   try {
     const { supabase, user } = await assertAdmin();
@@ -22,7 +26,7 @@ export async function setEnrollmentFeeExemption(raw: {
       .select("role, first_name, last_name")
       .eq("id", sid.data)
       .single();
-    if (prof?.role !== "student") return { ok: false, message: "Not a student" };
+    if (prof?.role !== "student") return { ok: false, message: b.notAStudent };
 
     const now = new Date().toISOString();
     const reason = raw.reason?.trim() || null;
@@ -36,7 +40,7 @@ export async function setEnrollmentFeeExemption(raw: {
         enrollment_exempt_reason: raw.exempt ? reason : null,
       })
       .eq("id", sid.data);
-    if (upErr) return { ok: false, message: upErr.message };
+    if (upErr) return { ok: false, message: b.saveFailed };
 
     const { error: logErr } = await supabase.from("audit_logs").insert({
       actor_id: user.id,
@@ -49,7 +53,7 @@ export async function setEnrollmentFeeExemption(raw: {
         student_name: `${prof.first_name ?? ""} ${prof.last_name ?? ""}`.trim(),
       },
     });
-    if (logErr) return { ok: false, message: logErr.message };
+    if (logErr) return { ok: false, message: b.saveFailed };
 
     revalidateStudentBillingPaths(raw.locale, sid.data);
 
@@ -67,7 +71,7 @@ export async function setEnrollmentFeeExemption(raw: {
 
     return { ok: true };
   } catch {
-    return { ok: false, message: "Forbidden" };
+    return { ok: false, message: b.forbidden };
   }
 }
 
@@ -75,8 +79,11 @@ export async function markEnrollmentFeePaidNow(raw: {
   locale: Locale;
   studentId: string;
 }): Promise<{ ok: boolean; message?: string }> {
+  const dict = await getDictionary(raw.locale);
+  const b = dict.actionErrors.billingStudent;
+
   const sid = z.string().uuid().safeParse(raw.studentId);
-  if (!sid.success) return { ok: false, message: "Invalid student" };
+  if (!sid.success) return { ok: false, message: b.invalidStudent };
 
   try {
     const { supabase } = await assertAdmin();
@@ -85,17 +92,17 @@ export async function markEnrollmentFeePaidNow(raw: {
       .select("role")
       .eq("id", sid.data)
       .single();
-    if (prof?.role !== "student") return { ok: false, message: "Not a student" };
+    if (prof?.role !== "student") return { ok: false, message: b.notAStudent };
 
     const { error } = await supabase
       .from("profiles")
       .update({ last_enrollment_paid_at: new Date().toISOString() })
       .eq("id", sid.data);
-    if (error) return { ok: false, message: error.message };
+    if (error) return { ok: false, message: b.saveFailed };
 
     revalidateStudentBillingPaths(raw.locale, sid.data);
     return { ok: true };
   } catch {
-    return { ok: false, message: "Forbidden" };
+    return { ok: false, message: b.forbidden };
   }
 }

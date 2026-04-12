@@ -12,11 +12,12 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, userId } = await params;
   const dict = await getDictionary(locale);
+  const empty = dict.common.emptyValue;
   const idOk = z.string().uuid().safeParse(userId).success;
   if (!idOk) {
     return { title: dict.admin.users.detailTitle, robots: { index: false, follow: false } };
   }
-  const detail = await loadAdminUserDetail(userId, locale);
+  const detail = await loadAdminUserDetail(userId, locale, empty);
   if (!detail) {
     return { title: dict.admin.users.detailTitle, robots: { index: false, follow: false } };
   }
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function AdminUserDetailPage({ params }: PageProps) {
   const { locale, userId } = await params;
   const dict = await getDictionary(locale);
-  const detail = await loadAdminUserDetail(userId, locale);
+  const detail = await loadAdminUserDetail(userId, locale, dict.common.emptyValue);
   if (!detail) notFound();
 
   const billingHref =

@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { submitParentPaymentReceipt } from "@/app/[locale]/dashboard/parent/payments/actions";
+import { dictEn } from "@/test/dictEn";
 import {
   fd,
   mockCreateClient,
@@ -16,6 +17,8 @@ vi.mock("@/lib/supabase/server", () => ({
 vi.mock("@/lib/analytics/server/recordUserEvent", () => ({
   recordUserEventServer: vi.fn(() => Promise.resolve({ ok: true })),
 }));
+
+const pe = dictEn.actionErrors.payment;
 
 describe("submitParentPaymentReceipt supabase", () => {
   beforeEach(() => {
@@ -33,7 +36,7 @@ describe("submitParentPaymentReceipt supabase", () => {
     );
     expect(await submitParentPaymentReceipt(fd())).toEqual({
       ok: false,
-      message: "Unauthorized",
+      message: pe.unauthorized,
     });
   });
 
@@ -48,7 +51,7 @@ describe("submitParentPaymentReceipt supabase", () => {
     );
     expect(await submitParentPaymentReceipt(fd())).toEqual({
       ok: false,
-      message: "Forbidden",
+      message: pe.forbidden,
     });
   });
 
@@ -63,7 +66,7 @@ describe("submitParentPaymentReceipt supabase", () => {
     );
     expect(await submitParentPaymentReceipt(fd())).toEqual({
       ok: false,
-      message: "Student not linked",
+      message: pe.studentNotLinked,
     });
   });
 
@@ -78,7 +81,7 @@ describe("submitParentPaymentReceipt supabase", () => {
     );
     expect(await submitParentPaymentReceipt(fd())).toEqual({
       ok: false,
-      message: "Payment slot not found",
+      message: pe.slotNotFound,
     });
   });
 
@@ -94,7 +97,7 @@ describe("submitParentPaymentReceipt supabase", () => {
     );
     expect(await submitParentPaymentReceipt(fd())).toEqual({
       ok: false,
-      message: "Payment slot not found",
+      message: pe.slotNotFound,
     });
   });
 
@@ -109,7 +112,7 @@ describe("submitParentPaymentReceipt supabase", () => {
     );
     expect(await submitParentPaymentReceipt(fd())).toEqual({
       ok: false,
-      message: "Payment already processed",
+      message: pe.alreadyProcessed,
     });
   });
 
@@ -125,7 +128,7 @@ describe("submitParentPaymentReceipt supabase", () => {
     );
     expect(await submitParentPaymentReceipt(fd())).toEqual({
       ok: false,
-      message: "quota",
+      message: pe.uploadFailed,
     });
   });
 
@@ -141,7 +144,7 @@ describe("submitParentPaymentReceipt supabase", () => {
     );
     expect(await submitParentPaymentReceipt(fd())).toEqual({
       ok: false,
-      message: "row conflict",
+      message: pe.uploadFailed,
     });
   });
 

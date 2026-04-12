@@ -20,4 +20,17 @@ describe("scheduleIdle", () => {
     expect(fn).toHaveBeenCalledTimes(1);
     w.requestIdleCallback = orig;
   });
+
+  it("runs via requestIdleCallback when available", () => {
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => number };
+    const orig = w.requestIdleCallback;
+    const fn = vi.fn();
+    w.requestIdleCallback = (cb) => {
+      cb();
+      return 0;
+    };
+    scheduleIdle(fn);
+    expect(fn).toHaveBeenCalledTimes(1);
+    w.requestIdleCallback = orig;
+  });
 });

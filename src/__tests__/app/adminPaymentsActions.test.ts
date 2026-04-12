@@ -3,6 +3,7 @@ import {
   reviewPayment,
   getReceiptSignedUrl,
 } from "@/app/[locale]/dashboard/admin/payments/actions";
+import esDict from "@/dictionaries/es.json";
 
 const mockAssertAdmin = vi.fn();
 vi.mock("@/lib/dashboard/assertAdmin", () => ({
@@ -25,7 +26,10 @@ describe("reviewPayment", () => {
       paymentId: "00000000-0000-4000-8000-000000000001",
       status: "approved",
     });
-    expect(r).toEqual({ ok: false, message: "Forbidden" });
+    expect(r).toEqual({
+      ok: false,
+      message: esDict.actionErrors.paymentsReview.forbidden,
+    });
   });
 
   it("returns Invalid data for bad payload", async () => {
@@ -34,7 +38,10 @@ describe("reviewPayment", () => {
       paymentId: "not-a-uuid",
       status: "approved",
     });
-    expect(r).toEqual({ ok: false, message: "Invalid data" });
+    expect(r).toEqual({
+      ok: false,
+      message: esDict.actionErrors.paymentsReview.invalidData,
+    });
   });
 
   it("surfaces update errors", async () => {
@@ -45,8 +52,12 @@ describe("reviewPayment", () => {
     const r = await reviewPayment({
       paymentId: "00000000-0000-4000-8000-000000000002",
       status: "rejected",
+      locale: "es",
     });
-    expect(r).toEqual({ ok: false, message: "db" });
+    expect(r).toEqual({
+      ok: false,
+      message: esDict.actionErrors.paymentsReview.saveFailed,
+    });
   });
 
   it("returns ok on success", async () => {
@@ -57,6 +68,7 @@ describe("reviewPayment", () => {
     const r = await reviewPayment({
       paymentId: "00000000-0000-4000-8000-000000000003",
       status: "approved",
+      locale: "es",
     });
     expect(r).toEqual({ ok: true });
   });

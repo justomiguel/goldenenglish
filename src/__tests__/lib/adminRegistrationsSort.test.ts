@@ -16,6 +16,11 @@ const base = (over: Partial<AdminRegistrationRow> = {}): AdminRegistrationRow =>
   level_interest: "B1",
   status: "new",
   created_at: "2026-01-02T00:00:00.000Z",
+  tutor_name: null,
+  tutor_dni: null,
+  tutor_email: null,
+  tutor_phone: null,
+  tutor_relationship: null,
   ...over,
 });
 
@@ -31,6 +36,14 @@ describe("filterRegistrationRows", () => {
       base({ id: "2", email: "other@y.co" }),
     ];
     expect(filterRegistrationRows(rows, "findme")).toHaveLength(1);
+  });
+
+  it("includes nullable fields in the search haystack", () => {
+    const rows = [
+      base({ id: "1", phone: null, level_interest: null, birth_date: null }),
+      base({ id: "2", phone: "+99" }),
+    ];
+    expect(filterRegistrationRows(rows, "+99")).toHaveLength(1);
   });
 });
 

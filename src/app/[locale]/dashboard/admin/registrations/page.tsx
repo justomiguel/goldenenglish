@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { AdminRegistrationsScreen } from "@/components/organisms/AdminRegistrationsScreen";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 
@@ -33,7 +34,15 @@ export default async function AdminRegistrationsPage({ params }: PageProps) {
     level_interest: r.level_interest != null ? String(r.level_interest) : null,
     status: String(r.status ?? ""),
     created_at: r.created_at != null ? String(r.created_at) : null,
+    tutor_name: r.tutor_name != null ? String(r.tutor_name) : null,
+    tutor_dni: r.tutor_dni != null ? String(r.tutor_dni) : null,
+    tutor_email: r.tutor_email != null ? String(r.tutor_email) : null,
+    tutor_phone: r.tutor_phone != null ? String(r.tutor_phone) : null,
+    tutor_relationship:
+      r.tutor_relationship != null ? String(r.tutor_relationship) : null,
   }));
+
+  const legalAgeMajority = getLegalAgeMajorityFromSystem();
 
   return (
     <div>
@@ -51,6 +60,7 @@ export default async function AdminRegistrationsPage({ params }: PageProps) {
         <AdminRegistrationsScreen
           locale={locale}
           rows={list}
+          legalAgeMajority={legalAgeMajority}
           labels={dict.admin.registrations}
           tableLabels={dict.admin.table}
           userLabels={{

@@ -35,6 +35,16 @@ import { LandingCertifications } from "@/components/organisms/LandingCertificati
 import { LandingHeader } from "@/components/organisms/LandingHeader";
 import { LandingFooter } from "@/components/organisms/LandingFooter";
 import { AdminHubHome } from "@/components/dashboard/AdminHubHome";
+import type { AdminHubSummary } from "@/lib/dashboard/loadAdminHubSummary";
+
+const adminHubSummaryStub: AdminHubSummary = {
+  traffic: { totalHits: 0, authenticatedHits: 0, guestHits: 0 },
+  trafficWeekOverWeek: { thisWeek: 0, lastWeek: 0 },
+  users: { total: 0, byRole: [] },
+  payments: { pendingCount: 0 },
+  registrations: { newCount: 0, totalCount: 0 },
+  messages: { recentCount: 0, latestPreview: null },
+};
 import { LoginScreenGate } from "@/components/organisms/LoginScreenGate";
 import { LoginScreenDesktop } from "@/components/desktop/organisms/LoginScreenDesktop";
 import { AdminImportSurfaceGate } from "@/components/organisms/AdminImportSurfaceGate";
@@ -136,7 +146,7 @@ describe("component smoke — landing & gates", () => {
   });
 
   it("AdminHubHome", () => {
-    render(<AdminHubHome locale="es" dict={dictEn} />);
+    render(<AdminHubHome locale="es" dict={dictEn} summary={adminHubSummaryStub} />);
     expect(screen.getByText(dictEn.admin.home.title)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: new RegExp(dictEn.dashboard.adminNav.users) })).toHaveAttribute(
       "href",
@@ -178,7 +188,7 @@ describe("component smoke — landing & gates", () => {
 
   it("AdminImportSurfaceGate", () => {
     render(
-      <AdminImportSurfaceGate desktop={<div>d</div>} dict={dictEn} />,
+      <AdminImportSurfaceGate locale="en" desktop={<div>d</div>} dict={dictEn} />,
     );
   });
 });

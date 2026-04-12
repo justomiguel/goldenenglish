@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { AdminMessageRow } from "@/components/dashboard/AdminMessagesInbox";
 import { AdminMessagesTabs } from "@/components/dashboard/AdminMessagesTabs";
 import { AdminPortalCompose } from "@/components/dashboard/AdminPortalCompose";
-import type { MessagingRecipient } from "@/components/teacher/TeacherPortalCompose";
+import type { MessagingRecipient } from "@/types/messaging";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -28,9 +30,10 @@ function roleLabel(
   role: string,
 ): string {
   if (role === "student") return dict.admin.messages.roleStudent;
+  if (role === "parent") return dict.admin.messages.roleParent;
   if (role === "teacher") return dict.admin.messages.roleTeacher;
   if (role === "admin") return dict.admin.messages.roleAdmin;
-  return role || "—";
+  return role || dict.common.emptyValue;
 }
 
 function buildRow(
@@ -48,8 +51,8 @@ function buildRow(
   const r = metaById.get(m.recipient_id as string);
   return {
     id: m.id as string,
-    fromName: s?.name ?? "—",
-    toName: r?.name ?? "—",
+    fromName: s?.name ?? dict.common.emptyValue,
+    toName: r?.name ?? dict.common.emptyValue,
     fromRole: roleLabel(dict, s?.role ?? ""),
     toRole: roleLabel(dict, r?.role ?? ""),
     createdAt: m.created_at as string,
@@ -67,11 +70,15 @@ export default async function AdminMessagesPage({ params }: PageProps) {
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const { data: people } = await supabase
+  const isAdmin = await resolveIsAdminSession(supabase, user.id);
+  if (!isAdmin) redirect(`/${locale}/dashboard`);
+
+  const admin = createAdminClient();
+  const { data: people } = await admin
     .from("profiles")
     .select("id, first_name, last_name, role")
     .neq("id", user.id)
-    .in("role", ["student", "teacher", "admin"])
+    .in("role", ["student", "parent", "teacher", "admin"])
     .order("role", { ascending: true })
     .order("last_name", { ascending: true });
 

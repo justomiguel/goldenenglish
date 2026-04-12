@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { AppLocale } from "@/lib/i18n/dictionaries";
 import { locales } from "@/lib/i18n/dictionaries";
+import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
+import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -56,16 +58,13 @@ export async function uploadProfileAvatar(
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, avatar_url")
+    .select("avatar_url")
     .eq("id", user.id)
     .single();
 
-  const role = profile?.role as string | undefined;
-  if (role !== "student" && role !== "parent") {
-    return { ok: false, errorKey: "avatarForbidden" };
-  }
+  if (!profile) return { ok: false, errorKey: "avatarForbidden" };
 
-  const oldPath = profile?.avatar_url?.trim();
+  const oldPath = profile.avatar_url?.trim();
   if (
     oldPath &&
     !oldPath.startsWith("http://") &&
@@ -95,8 +94,17 @@ export async function uploadProfileAvatar(
     return { ok: false, errorKey: "avatarError" };
   }
 
+  revalidatePath(`/${locale}/dashboard/profile`);
   revalidatePath(`/${locale}/dashboard/student/profile`);
   revalidatePath(`/${locale}/dashboard/parent/profile`);
+  revalidatePath(`/${locale}/dashboard`);
+
+  await recordUserEventServer({
+    userId: user.id,
+    eventType: "action",
+    entity: AnalyticsEntity.myProfile,
+    metadata: { part: "avatar" },
+  });
 
   return { ok: true };
 }

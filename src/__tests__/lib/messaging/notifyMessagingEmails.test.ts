@@ -27,7 +27,6 @@ describe("notifyMessagingEmails", () => {
   const sendEmail = vi.fn().mockResolvedValue({ ok: true });
 
   beforeEach(async () => {
-    vi.resetModules();
     getUserById.mockReset();
     sendEmail.mockClear();
     getUserById.mockResolvedValue({
@@ -40,7 +39,7 @@ describe("notifyMessagingEmails", () => {
     const { notifyTeacherNewMessage } = await import("@/lib/messaging/notifyMessagingEmails");
     await notifyTeacherNewMessage({
       teacherId: "t1",
-      studentName: "Ann <script>",
+      senderName: "Ann <script>",
       messagePreview: "Hello",
       locale: "es",
       emailProvider: { sendEmail },
@@ -61,7 +60,7 @@ describe("notifyMessagingEmails", () => {
     const { notifyTeacherNewMessage } = await import("@/lib/messaging/notifyMessagingEmails");
     await notifyTeacherNewMessage({
       teacherId: "t1",
-      studentName: "A",
+      senderName: "A",
       messagePreview: "Hi",
       locale: "en",
       emailProvider: { sendEmail },

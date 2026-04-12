@@ -15,7 +15,7 @@ export type TeacherFeedRow = {
   created_at: string;
   body_html: string;
   peerName: string;
-  peerRole: "student" | "teacher" | "admin";
+  peerRole: "student" | "parent" | "teacher" | "admin";
   isOutgoing: boolean;
   canReply: boolean;
 };
@@ -78,9 +78,11 @@ export function TeacherMessagesFeed({ locale, rows = [], labels }: TeacherMessag
                   (
                   {m.peerRole === "student"
                     ? labels.messagesRoleStudent
-                    : m.peerRole === "teacher"
-                      ? labels.messagesRoleTeacher
-                      : labels.messagesRoleAdmin}
+                    : m.peerRole === "parent"
+                      ? labels.messagesRoleParent
+                      : m.peerRole === "teacher"
+                        ? labels.messagesRoleTeacher
+                        : labels.messagesRoleAdmin}
                   )
                 </span>
               </p>

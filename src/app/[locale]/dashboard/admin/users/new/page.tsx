@@ -21,7 +21,7 @@ export default async function AdminUsersNewPage({ params }: PageProps) {
         {dict.admin.users.lead}
       </p>
       <div className="mt-6">
-        <AdminCreateUserForm labels={dict.admin.users} />
+        <AdminCreateUserForm locale={locale} labels={dict.admin.users} />
       </div>
     </div>
   );

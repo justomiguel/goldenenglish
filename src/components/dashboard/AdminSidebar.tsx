@@ -10,6 +10,7 @@ import {
   MessageCircle,
   Settings,
   Ticket,
+  User,
   Users,
   Wallet,
   ClipboardList,
@@ -33,6 +34,11 @@ export function AdminSidebar({
   const base = `/${locale}/dashboard/admin`;
 
   const links: { href: string; label: string; icon: ReactNode; badge?: number }[] = [
+    {
+      href: `/${locale}/dashboard/profile`,
+      label: dict.myProfile,
+      icon: <User className={iconClass} />,
+    },
     { href: base, label: dict.home, icon: <Home className={iconClass} /> },
     {
       href: `${base}/analytics`,

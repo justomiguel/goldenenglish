@@ -13,15 +13,17 @@ export const AnalyticsEntity = {
   studentHome: "section:student_home",
   teacherMessages: "section:teacher_messages",
   adminSettings: "section:admin_settings",
+  myProfile: "section:my_profile",
   materialPrefix: "material:",
   teacherMessageReply: "teacher_message_reply",
   teacherMessageSent: "teacher_message_sent",
+  parentMessageSent: "parent_message_sent",
   siteSettingsUpdate: "site_settings_update",
-  /** Funnel: comprobante cargado desde portal padre */
+  /** Funnel: receipt uploaded from parent portal */
   paymentReceiptSubmittedParent: "payment_receipt_submitted_parent",
-  /** Funnel: comprobante cargado desde portal alumno */
+  /** Funnel: receipt uploaded from student portal */
   paymentReceiptSubmittedStudent: "payment_receipt_submitted_student",
-  /** Funnel: código de promoción aplicado (actor = quien invoca la acción) */
+  /** Funnel: promotion code applied (actor = whoever invoked the action) */
   promotionCodeAppliedStudent: "promotion_code_applied_student",
 } as const;
 
@@ -31,8 +33,10 @@ export function pathnameToEntity(pathname: string): string {
   if (pathname.includes("/dashboard/student/payments")) return AnalyticsEntity.payments;
   if (pathname.includes("/dashboard/parent/payments")) return AnalyticsEntity.payments;
   if (pathname.includes("/dashboard/student/messages")) return AnalyticsEntity.messages;
+  if (pathname.includes("/dashboard/parent/messages")) return AnalyticsEntity.messages;
   if (pathname.includes("/dashboard/teacher/messages")) return AnalyticsEntity.teacherMessages;
   if (pathname.includes("/dashboard/admin/settings")) return AnalyticsEntity.adminSettings;
+  if (pathname.includes("/dashboard/profile")) return AnalyticsEntity.myProfile;
   if (pathname.match(/\/dashboard\/student\/?$/)) return AnalyticsEntity.studentHome;
   return `${AnalyticsEntity.pageViewPrefix}${pathname}`;
 }

@@ -1,7 +1,7 @@
 import type { CsvStudentRow } from "@/lib/import/studentRowSchema";
 import { normalizeBirthDateString } from "@/lib/import/birthDateNormalize";
 
-/** Normaliza encabezados tipo ALUMNOS GOLDEN (ES/EN) y respuestas de Google Forms. */
+/** Normalize headers like ALUMNOS GOLDEN (ES/EN) and Google Forms export columns. */
 const HEADER_ALIASES: Record<string, keyof CsvStudentRow | "skip"> = {
   nombre: "first_name",
   apellido: "last_name",
@@ -17,7 +17,7 @@ const HEADER_ALIASES: Record<string, keyof CsvStudentRow | "skip"> = {
   tel: "phone",
   email: "email",
   correo: "email",
-  /** Google Forms / plantillas Golden */
+  /** Google Forms / Golden templates */
   direccion_de_correo_electronico: "email",
   birth_date: "birth_date",
   fecha_nacimiento: "birth_date",
@@ -48,7 +48,7 @@ const HEADER_ALIASES: Record<string, keyof CsvStudentRow | "skip"> = {
   cuota: "monthly_fee",
   cuota_mensual: "monthly_fee",
   monthly_fee: "monthly_fee",
-  /** Columnas ignoradas en plantillas (p. ej. notas libres). */
+  /** Columns ignored in templates (e.g. free-form notes). */
   observaciones: "skip",
   notas: "skip",
   marca_temporal: "skip",

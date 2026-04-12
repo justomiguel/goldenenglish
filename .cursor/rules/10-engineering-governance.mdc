@@ -1,0 +1,40 @@
+---
+description: "Gobernanza de ingeniería: ADR / diseño técnico para cambios sensibles; enlaces con TDD, DDD y analítica."
+alwaysApply: true
+---
+
+# Gobernanza de diseño técnico (ADR / mini especificación)
+
+## Objetivo
+
+Decisiones que afectan **auth**, **datos**, **integraciones**, **contratos públicos** (API routes, server actions consumidos por varios clientes) o **riesgo operativo** no deben quedar solo en código implícito. Debe existir **contexto escrito** para revisión, onboarding y incidentes.
+
+## Cuándo escribir un ADR o mini diseño
+
+Obligatorio **al menos** un documento breve (ADR en Markdown bajo `docs/adr/` o sección “Decisiones” en la PR) cuando el cambio incluya:
+
+1. Nuevo proveedor, cola o canal externo; cambio de estrategia de cache o de modelo de datos visible fuera de un solo módulo.
+2. Cambios en **flujos de autenticación / sesión / roles** o políticas RLS que alteren quién puede hacer qué.
+3. Nuevo tipo de evento de analítica o auditoría que expanda el contrato con BD (cruzar con **`08-analytics-observability.mdc`**).
+4. Sustitución o competencia entre **librerías de la misma categoría** (tabla, charts, etc.); alinear con **`07-third-party-ui-components.mdc`**.
+
+## Formato mínimo (ADR o mini-TDD)
+
+- **Contexto** — problema y restricciones.
+- **Decisión** — qué se elige (una frase o lista corta).
+- **Opciones consideradas** — al menos una alternativa descartada y por qué.
+- **Consecuencias** — positivas, riesgos, follow-ups (tests, migraciones, métricas).
+
+Referencias externas: [Architecture decision records (Google Cloud)](https://cloud.google.com/architecture/architecture-decision-records) como guía de propósito y estructura.
+
+## Relación con otras reglas
+
+- **DDD y capas** — **`03-architecture.mdc`** (bounded contexts, puertos).
+- **TDD** — **`02-testing-tdd.mdc`**; el ADR no sustituye tests: el contrato de comportamiento sigue en Vitest.
+- **Terceros y design system** — **`07-third-party-ui-components.mdc`**, **`01-design-system.mdc`**.
+
+## Checklist del agente
+
+- [ ] ¿Este cambio toca auth, datos, integración o contrato público? Si sí → **ADR o mini diseño** antes de considerar la tarea cerrada.
+- [ ] ¿La PR enlaza el documento o resume las mismas secciones en la descripción?
+- [ ] ¿Las consecuencias incluyen **tests** y **observabilidad** si aplica (`08`)?

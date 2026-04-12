@@ -75,20 +75,20 @@ export function ParentDashboardFamilyView({
                   <dd>
                     {selected.attendancePercent != null
                       ? `${selected.attendancePercent}%`
-                      : "—"}
+                      : labels.emptyValue}
                   </dd>
                 </div>
                 <div>
                   <dt className="font-medium text-[var(--color-foreground)]">
                     {labels.summaryLevel}
                   </dt>
-                  <dd>{selected.levelLabel ?? "—"}</dd>
+                  <dd>{selected.levelLabel ?? labels.emptyValue}</dd>
                 </div>
                 <div>
                   <dt className="font-medium text-[var(--color-foreground)]">
                     {labels.summaryNextExam}
                   </dt>
-                  <dd>{selected.nextExamAt ?? "—"}</dd>
+                  <dd>{selected.nextExamAt ?? labels.emptyValue}</dd>
                 </div>
                 <div>
                   <dt className="font-medium text-[var(--color-foreground)]">
@@ -97,12 +97,18 @@ export function ParentDashboardFamilyView({
                   <dd>
                     {selected.nextEventLabel && selected.nextEventAt
                       ? `${selected.nextEventLabel} · ${new Date(selected.nextEventAt).toLocaleString()}`
-                      : "—"}
+                      : labels.emptyValue}
                   </dd>
                 </div>
               </dl>
             </div>
             <div className="flex flex-col gap-2 sm:items-end">
+              <Link
+                href={`/${locale}/dashboard/parent/children/${encodeURIComponent(selected.studentId)}`}
+                className="text-sm font-semibold text-[var(--color-primary)] underline"
+              >
+                {labels.navEditChild}
+              </Link>
               <Link
                 href={`${payHrefBase}?child=${encodeURIComponent(selected.studentId)}`}
                 className="text-sm font-semibold text-[var(--color-primary)] underline"

@@ -36,7 +36,7 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
     setMsg(null);
     const v = Number(val);
     if (!Number.isFinite(v) || v <= 0) {
-      setMsg("Invalid value");
+      setMsg(labels.invalidDiscountValue);
       setBusy(false);
       return;
     }
@@ -58,7 +58,7 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
       setMsg(null);
       router.refresh();
     } else {
-      setMsg(res.message ?? "Error");
+      setMsg(res.message ?? labels.genericActionError);
     }
   }
 
@@ -69,7 +69,7 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
     if (res.ok) {
       router.refresh();
     } else {
-      setMsg(res.message ?? "Error");
+      setMsg(res.message ?? labels.genericActionError);
     }
   }
 

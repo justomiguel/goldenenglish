@@ -31,6 +31,7 @@ export function useAdminRegistrationsList({
   const [toast, setToast] = useState<string | null>(null);
   const [deleteRow, setDeleteRow] = useState<AdminRegistrationRow | null>(null);
   const [acceptRow, setAcceptRow] = useState<AdminRegistrationRow | null>(null);
+  const [editRow, setEditRow] = useState<AdminRegistrationRow | null>(null);
   const [filterQuery, setFilterQuery] = useState("");
   const [sort, setSort] = useState<{
     key: RegistrationSortKey;
@@ -82,7 +83,7 @@ export function useAdminRegistrationsList({
       if (status === "new") return labels.new;
       if (status === "enrolled") return labels.enrolled;
       if (status === "contacted") return labels.contacted;
-      return status;
+      return labels.statusUnknown;
     },
     [labels],
   );
@@ -119,6 +120,8 @@ export function useAdminRegistrationsList({
     setDeleteRow,
     acceptRow,
     setAcceptRow,
+    editRow,
+    setEditRow,
     filterQuery,
     setFilterQueryAndResetPage,
     sortKey: sort.key,

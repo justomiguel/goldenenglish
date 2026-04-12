@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import es from "@/dictionaries/es.json";
 import { deleteAdminUsers } from "@/app/[locale]/dashboard/admin/users/deleteActions";
+
+const U = es.admin.users;
 
 const mockAssertAdmin = vi.fn();
 vi.mock("@/lib/dashboard/assertAdmin", () => ({
@@ -33,13 +36,13 @@ describe("deleteAdminUsers", () => {
       user: { id: "11111111-1111-1111-1111-111111111111" },
     });
     const r = await deleteAdminUsers("es", []);
-    expect(r).toEqual({ ok: false, message: "Invalid data" });
+    expect(r).toEqual({ ok: false, message: U.errDeleteInvalid });
   });
 
   it("returns Forbidden when not admin", async () => {
     mockAssertAdmin.mockRejectedValue(new Error("no"));
     const r = await deleteAdminUsers("es", ["550e8400-e29b-41d4-a716-446655440000"]);
-    expect(r).toEqual({ ok: false, message: "Forbidden" });
+    expect(r).toEqual({ ok: false, message: U.errDeleteForbidden });
   });
 
   it("strips current admin id from deletion list", async () => {
@@ -47,7 +50,7 @@ describe("deleteAdminUsers", () => {
     mockAssertAdmin.mockResolvedValue({ user: { id: selfId } });
     mockDeleteUser.mockResolvedValue({ error: null });
     const r = await deleteAdminUsers("es", [selfId]);
-    expect(r).toEqual({ ok: false, message: "none" });
+    expect(r).toEqual({ ok: false });
     expect(mockDeleteUser).not.toHaveBeenCalled();
   });
 
@@ -72,7 +75,7 @@ describe("deleteAdminUsers", () => {
       .mockResolvedValueOnce({ error: null })
       .mockResolvedValueOnce({ error: { message: "nope" } });
     const r = await deleteAdminUsers("es", [idOk, idFail]);
-    expect(r).toEqual({ ok: true, deleted: 1, message: "partial" });
+    expect(r).toEqual({ ok: true, deleted: 1, partial: true });
   });
 
   it("returns error when every delete fails", async () => {
@@ -83,6 +86,6 @@ describe("deleteAdminUsers", () => {
     const id = "550e8400-e29b-41d4-a716-446655440000";
     const r = await deleteAdminUsers("es", [id]);
     expect(r.ok).toBe(false);
-    expect(r.message).toBe("fail");
+    expect(r.message).toBe(U.errDeleteAllFailed);
   });
 });

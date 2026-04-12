@@ -30,13 +30,13 @@ describe("tier-a-surface-verify", () => {
     expect(reachesSurfaceMountGate(ROOT, p)).toBe(true);
   });
 
-  it("student profile page reaches SurfaceMountGate", () => {
-    const p = join(ROOT, "src/app/[locale]/dashboard/student/profile/page.tsx");
+  it("parent messages page reaches SurfaceMountGate", () => {
+    const p = join(ROOT, "src/app/[locale]/dashboard/parent/messages/page.tsx");
     expect(reachesSurfaceMountGate(ROOT, p)).toBe(true);
   });
 
-  it("parent profile page reaches SurfaceMountGate", () => {
-    const p = join(ROOT, "src/app/[locale]/dashboard/parent/profile/page.tsx");
+  it("unified dashboard profile page reaches SurfaceMountGate", () => {
+    const p = join(ROOT, "src/app/[locale]/dashboard/profile/page.tsx");
     expect(reachesSurfaceMountGate(ROOT, p)).toBe(true);
   });
 });

@@ -1,11 +1,20 @@
 /** @vitest-environment node */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { replyToStudentMessageUseCase } from "@/lib/messaging/useCases/replyToStudentMessage";
-import { notifyStudentTeacherReplied } from "@/lib/messaging/notifyMessagingEmails";
+import {
+  MESSAGING_UC_PERSIST_FAILED,
+  MESSAGING_UC_REPLY_INVALID_SENDER,
+  MESSAGING_UC_REPLY_NOT_FOUND,
+} from "@/lib/messaging/messagingUseCaseCodes";
+import {
+  notifyParentTeacherReplied,
+  notifyStudentTeacherReplied,
+} from "@/lib/messaging/notifyMessagingEmails";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 vi.mock("@/lib/messaging/notifyMessagingEmails", () => ({
   notifyStudentTeacherReplied: vi.fn(),
+  notifyParentTeacherReplied: vi.fn(),
 }));
 
 describe("replyToStudentMessageUseCase", () => {
@@ -14,6 +23,8 @@ describe("replyToStudentMessageUseCase", () => {
   beforeEach(() => {
     vi.mocked(notifyStudentTeacherReplied).mockReset();
     vi.mocked(notifyStudentTeacherReplied).mockResolvedValue(undefined);
+    vi.mocked(notifyParentTeacherReplied).mockReset();
+    vi.mocked(notifyParentTeacherReplied).mockResolvedValue(undefined);
   });
 
   function supabaseSuccess() {
@@ -65,7 +76,7 @@ describe("replyToStudentMessageUseCase", () => {
       locale: "es",
       emailProvider,
     });
-    expect(r).toEqual({ ok: false, message: "Message not found" });
+    expect(r).toEqual({ ok: false, message: MESSAGING_UC_REPLY_NOT_FOUND });
   });
 
   it("returns not found when row missing", async () => {
@@ -85,10 +96,10 @@ describe("replyToStudentMessageUseCase", () => {
       locale: "es",
       emailProvider,
     });
-    expect(r).toEqual({ ok: false, message: "Message not found" });
+    expect(r).toEqual({ ok: false, message: MESSAGING_UC_REPLY_NOT_FOUND });
   });
 
-  it("returns error when sender is not a student", async () => {
+  it("returns error when sender is not a student or parent", async () => {
     let fromCalls = 0;
     const supabase = {
       from: vi.fn(() => {
@@ -122,7 +133,55 @@ describe("replyToStudentMessageUseCase", () => {
       locale: "es",
       emailProvider,
     });
-    expect(r).toEqual({ ok: false, message: "Can only reply to student messages" });
+    expect(r).toEqual({ ok: false, message: MESSAGING_UC_REPLY_INVALID_SENDER });
+  });
+
+  function supabaseParentSuccess() {
+    let fromCalls = 0;
+    return {
+      from: vi.fn(() => {
+        fromCalls += 1;
+        if (fromCalls === 1) {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            maybeSingle: vi.fn().mockResolvedValue({
+              data: { id: "m1", sender_id: "p1", recipient_id: "t1" },
+              error: null,
+            }),
+          };
+        }
+        if (fromCalls === 2) {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            maybeSingle: vi.fn().mockResolvedValue({
+              data: { role: "parent" },
+              error: null,
+            }),
+          };
+        }
+        return {
+          insert: vi.fn().mockResolvedValue({ error: null }),
+        };
+      }),
+    } as unknown as SupabaseClient;
+  }
+
+  it("returns ok and notifies parent on success when sender is parent", async () => {
+    const supabase = supabaseParentSuccess();
+    const r = await replyToStudentMessageUseCase({
+      supabase,
+      messageId: "m1",
+      teacherId: "t1",
+      teacherDisplayName: "T",
+      replyHtml: "<p>r</p>",
+      locale: "es",
+      emailProvider,
+    });
+    expect(r).toEqual({ ok: true });
+    expect(notifyParentTeacherReplied).toHaveBeenCalled();
+    expect(notifyStudentTeacherReplied).not.toHaveBeenCalled();
   });
 
   it("returns ok and notifies on success", async () => {
@@ -194,6 +253,6 @@ describe("replyToStudentMessageUseCase", () => {
       locale: "es",
       emailProvider,
     });
-    expect(r).toEqual({ ok: false, message: "denied" });
+    expect(r).toEqual({ ok: false, message: MESSAGING_UC_PERSIST_FAILED });
   });
 });

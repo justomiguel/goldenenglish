@@ -31,7 +31,7 @@ export function LandingSurfaceGate({
 }: LandingSurfaceGateProps) {
   return (
     <SurfaceMountGate
-      skeleton={<LandingScreenSkeleton />}
+      skeleton={<LandingScreenSkeleton ariaLabel={dict.common.loadingAria} />}
       desktop={desktop}
       narrow={(surface) => (
         <PwaPageShell surface={surface}>

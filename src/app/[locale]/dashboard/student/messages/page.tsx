@@ -70,7 +70,7 @@ export default async function StudentMessagesPage({ params }: PageProps) {
     const peerId = fromMe ? (m.recipient_id as string) : (m.sender_id as string);
     const peer = peerById.get(peerId);
     const peerRole = peer?.role ?? "student";
-    const peerName = peer?.name ?? "—";
+    const peerName = peer?.name ?? dict.common.emptyValue;
 
     let canDelete = false;
     if (fromMe && peerRole === "teacher") {

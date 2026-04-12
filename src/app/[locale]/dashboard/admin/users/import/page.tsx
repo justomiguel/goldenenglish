@@ -25,9 +25,10 @@ export default async function AdminUsersImportPage({ params }: PageProps) {
       </p>
       <div className="mt-6">
         <AdminImportSurfaceGate
+          locale={locale}
           dict={dict}
           embedded
-          desktop={<AdminImportScreenDesktop dict={dict} embedded />}
+          desktop={<AdminImportScreenDesktop locale={locale} dict={dict} embedded />}
         />
       </div>
     </div>

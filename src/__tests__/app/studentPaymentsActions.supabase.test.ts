@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { submitStudentPaymentReceipt } from "@/app/[locale]/dashboard/student/payments/actions";
+import { dictEn } from "@/test/dictEn";
 import {
   mockCreateClient,
   studentFd,
@@ -16,6 +17,8 @@ vi.mock("@/lib/supabase/server", () => ({
 vi.mock("@/lib/analytics/server/recordUserEvent", () => ({
   recordUserEventServer: vi.fn(() => Promise.resolve({ ok: true })),
 }));
+
+const pe = dictEn.actionErrors.payment;
 
 describe("submitStudentPaymentReceipt supabase", () => {
   beforeEach(() => {
@@ -32,7 +35,7 @@ describe("submitStudentPaymentReceipt supabase", () => {
     );
     expect(await submitStudentPaymentReceipt(studentFd())).toEqual({
       ok: false,
-      message: "Unauthorized",
+      message: pe.unauthorized,
     });
   });
 
@@ -46,7 +49,7 @@ describe("submitStudentPaymentReceipt supabase", () => {
     );
     expect(await submitStudentPaymentReceipt(studentFd())).toEqual({
       ok: false,
-      message: "Forbidden",
+      message: pe.forbidden,
     });
   });
 
@@ -60,7 +63,7 @@ describe("submitStudentPaymentReceipt supabase", () => {
     );
     expect(await submitStudentPaymentReceipt(studentFd())).toEqual({
       ok: false,
-      message: "Payment slot not found",
+      message: pe.slotNotFound,
     });
   });
 
@@ -75,7 +78,7 @@ describe("submitStudentPaymentReceipt supabase", () => {
     );
     expect(await submitStudentPaymentReceipt(studentFd())).toEqual({
       ok: false,
-      message: "Payment slot not found",
+      message: pe.slotNotFound,
     });
   });
 
@@ -89,7 +92,7 @@ describe("submitStudentPaymentReceipt supabase", () => {
     );
     expect(await submitStudentPaymentReceipt(studentFd())).toEqual({
       ok: false,
-      message: "Payment already processed",
+      message: pe.alreadyProcessed,
     });
   });
 
@@ -104,7 +107,7 @@ describe("submitStudentPaymentReceipt supabase", () => {
     );
     expect(await submitStudentPaymentReceipt(studentFd())).toEqual({
       ok: false,
-      message: "quota",
+      message: pe.uploadFailed,
     });
   });
 
@@ -119,7 +122,7 @@ describe("submitStudentPaymentReceipt supabase", () => {
     );
     expect(await submitStudentPaymentReceipt(studentFd())).toEqual({
       ok: false,
-      message: "row conflict",
+      message: pe.uploadFailed,
     });
   });
 

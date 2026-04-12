@@ -3,26 +3,34 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { z } from "zod";
+import { defaultLocale, getDictionary } from "@/lib/i18n/dictionaries";
 
 const reviewSchema = z.object({
   paymentId: z.string().uuid(),
   status: z.enum(["approved", "rejected"]),
   adminNotes: z.string().max(2000).optional(),
+  locale: z.string().min(2).max(8),
 });
 
 export async function reviewPayment(
-  raw: z.infer<typeof reviewSchema>,
+  raw: unknown,
 ): Promise<{ ok: boolean; message?: string }> {
   let supabase;
   try {
     const ctx = await assertAdmin();
     supabase = ctx.supabase;
   } catch {
-    return { ok: false, message: "Forbidden" };
+    const dict = await getDictionary(defaultLocale);
+    return { ok: false, message: dict.actionErrors.paymentsReview.forbidden };
   }
 
   const parsed = reviewSchema.safeParse(raw);
-  if (!parsed.success) return { ok: false, message: "Invalid data" };
+  if (!parsed.success) {
+    const dict = await getDictionary(defaultLocale);
+    return { ok: false, message: dict.actionErrors.paymentsReview.invalidData };
+  }
+
+  const errDict = await getDictionary(parsed.data.locale);
 
   const { error } = await supabase
     .from("payments")
@@ -32,7 +40,7 @@ export async function reviewPayment(
     })
     .eq("id", parsed.data.paymentId);
 
-  if (error) return { ok: false, message: error.message };
+  if (error) return { ok: false, message: errDict.actionErrors.paymentsReview.saveFailed };
   return { ok: true };
 }
 

@@ -1,0 +1,28 @@
+---
+description: UI obligatoria para trabajos largos en servidor (import, batches) con feedback al usuario.
+alwaysApply: true
+---
+
+# Trabajos largos y feedback al UI
+
+## Regla (no negociable)
+
+Cualquier pantalla que **espere** un proceso **largo** en el servidor (import CSV, reprocesos masivos, jobs en segundo plano con estado en KV/Redis/DB, etc.) **debe** usar el patrón reutilizable:
+
+1. **`LongJobActivityModal`** (`src/components/molecules/LongJobActivityModal.tsx`) — **popup (`<dialog>`)** con bitácora en vivo: lista de pasos (`aria-live="polite"`), bloque central con **`introLine`**, **`primaryLine`**, **`secondaryLine`** (p. ej. fila activa `activeRow` + `current`/`total` del snapshot), **`explainBody`** y **`logTitle`** (tokens del design system), spinner mientras corre y botón **Cerrar** al terminar. **Mientras el job corre** el modal no se cierra con Escape (`Modal` + `disableClose`). Los textos del log deben venir del **backend** como códigos estables en el snapshot del job (p. ej. `activity[]` con `{ t, code, meta }`); el cliente traduce con claves en `src/dictionaries` (`admin.import.jobLog*`) vía `formatImportJobActivityLog` / `resolveImportJobActivityLine` (`src/lib/import/resolveImportJobActivityLine.ts`). **No** hardcodear oraciones de negocio solo en el cliente para pasos que el servidor conoce. Para import masivo, el copy de filas en vivo se arma con `buildImportActivityModalCopy` leyendo `activeRow` y `total` del job en KV.
+2. **`LongJobLoader`** (`src/components/molecules/LongJobLoader.tsx`) — **siempre** en la página para la zona resumida: `aria-busy`, spinner, y **`LongJobStatus`** (resultado final, errores, detalle de filas). Complementa al modal, no lo sustituye.
+3. **`useLongJobPoll`** (`src/hooks/useLongJobPoll.ts`) — expone `liveLine` y **`jobSnapshot`** (último JSON del job, incl. `activity`). Seguimiento hasta estado terminal: preferir **SSE** con `streamUrl` + fallback **`pollLongJob`** (`src/lib/client/pollLongJob.ts`, `streamLongJobViaSse.ts`).
+4. **Backend** — al actualizar el job en KV usar `mergeImportJob` con **`activityAppend`** (`src/types/importJob.ts`, `importJobKv.ts`) para añadir entradas a la bitácora sin reemplazar el historial. Mismo payload en **GET JSON** y **GET …/stream** (`data: {json}`).
+5. **No** `setInterval` + `fetch` ad hoc ni duplicar markup de log/popup fuera de estos componentes.
+
+`LongJobStatus` sigue siendo el bloque de **copy + detalle**; va **dentro** de `LongJobLoader`.
+
+## Excepciones
+
+- Operaciones **cortas** (&lt; ~2 s percibidos) sin fases visibles: puede bastar `Button` + `isLoading` **sin** modal ni `LongJobLoader`.
+- **Tier A** student/parent: si aplica un job largo, seguir también `05-pwa-mobile-native.mdc`.
+
+## Referencias en el repo
+
+- Ejemplo completo: `ImportStudents` + `POST /api/admin/import/jobs` + `runBulkImportJobWithKv` (actividad) + `GET …/[id]` + `GET …/[id]/stream`.
+- Tipos: `src/types/importJob.ts`, snapshot genérico `src/types/longJob.ts`.

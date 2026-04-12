@@ -2,6 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { bulkImportStudentsFromRowsAdmin } from "@/lib/import/bulkImportStudents";
 import type { CsvStudentRow } from "@/lib/import/studentRowSchema";
+import {
+  IMPORT_ROW_AUTH_ERROR,
+  IMPORT_ROW_ENROLLMENT_FAILED,
+  IMPORT_ROW_NO_USER_ID,
+  IMPORT_ROW_UNKNOWN,
+} from "@/lib/import/importResultMessageCodes";
 
 function baseRow(over: Partial<CsvStudentRow> = {}): CsvStudentRow {
   return {
@@ -62,7 +68,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [baseRow()]);
-    expect(r.results[0]).toMatchObject({ ok: false, message: "duplicate" });
+    expect(r.results[0]).toMatchObject({ ok: false, message: IMPORT_ROW_AUTH_ERROR });
     expect(r.createdUsers).toBe(0);
   });
 
@@ -81,7 +87,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [baseRow()]);
-    expect(r.results[0]).toMatchObject({ ok: false, message: "No user id" });
+    expect(r.results[0]).toMatchObject({ ok: false, message: IMPORT_ROW_NO_USER_ID });
   });
 
   it("reuses existing student profile and still seeds payments", async () => {
@@ -230,7 +236,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
     const r = await bulkImportStudentsFromRowsAdmin(admin, [
       baseRow({ level: "B1" }),
     ]);
-    expect(r.results[0]).toMatchObject({ ok: false, message: "nope" });
+    expect(r.results[0]).toMatchObject({ ok: false, message: IMPORT_ROW_ENROLLMENT_FAILED });
   });
 
   it("ignores duplicate enrollment constraint", async () => {
@@ -531,7 +537,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
     expect(r.results[0]?.ok).toBe(true);
   });
 
-  it("handles non-Error in catch as generic message", async () => {
+  it("handles non-Error in catch as unknown row code", async () => {
     const boom = vi.fn().mockRejectedValue("x");
     const admin = {
       from: vi.fn(() => ({
@@ -543,7 +549,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
     } as unknown as SupabaseClient;
 
     const r = await bulkImportStudentsFromRowsAdmin(admin, [baseRow()]);
-    expect(r.results[0]).toMatchObject({ ok: false, message: "Error" });
+    expect(r.results[0]).toMatchObject({ ok: false, message: IMPORT_ROW_UNKNOWN });
   });
 
   it("creates parent user and links when tutor document is new", async () => {
@@ -914,7 +920,7 @@ describe("bulkImportStudentsFromRowsAdmin", () => {
     const r = await bulkImportStudentsFromRowsAdmin(admin, [baseRow()]);
     expect(r.results[0]).toMatchObject({
       ok: false,
-      message: "profile lookup failed",
+      message: IMPORT_ROW_UNKNOWN,
     });
   });
 

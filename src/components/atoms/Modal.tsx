@@ -7,10 +7,12 @@ export interface ModalProps {
   onOpenChange: (open: boolean) => void;
   titleId: string;
   descriptionId?: string;
-  /** Si no hay título visible, usar solo esta etiqueta para lectores de pantalla */
+  /** When there is no visible title, use this as the accessible name. */
   ariaLabel?: string;
   title: string;
   children: ReactNode;
+  /** When true, Escape does not close the dialog (long-running work in progress). */
+  disableClose?: boolean;
 }
 
 export function Modal({
@@ -21,6 +23,7 @@ export function Modal({
   ariaLabel,
   title,
   children,
+  disableClose,
 }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null);
 
@@ -46,6 +49,9 @@ export function Modal({
       aria-describedby={descriptionId}
       aria-label={ariaLabel}
       onClose={onDialogClose}
+      onCancel={(e) => {
+        if (disableClose) e.preventDefault();
+      }}
     >
       <header className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/35 px-5 py-4">
         <h2

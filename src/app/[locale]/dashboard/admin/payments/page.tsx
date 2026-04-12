@@ -15,7 +15,6 @@ interface PageProps {
 export default async function AdminPaymentsPage({ params }: PageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
-  void locale;
 
   const supabase = await createClient();
   const { data: rows } = await supabase
@@ -75,14 +74,16 @@ export default async function AdminPaymentsPage({ params }: PageProps) {
         {enriched.map((r) => (
           <PaymentReviewRow
             key={r.id as string}
+            locale={locale}
             paymentId={r.id as string}
             studentLabel={
               nameById[r.student_id as string] ?? String(r.student_id)
             }
             periodLabel={`${r.month}/${r.year}`}
-            amountLabel={String(r.amount ?? "—")}
+            amountLabel={String(r.amount ?? dict.common.emptyValue)}
             previewUrl={r.signed}
             labels={dict.admin.payments}
+            emptyValue={dict.common.emptyValue}
           />
         ))}
       </ul>

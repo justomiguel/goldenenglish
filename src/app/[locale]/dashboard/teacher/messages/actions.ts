@@ -5,11 +5,14 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
 import { replyToStudentMessageUseCase } from "@/lib/messaging/useCases/replyToStudentMessage";
+import { isRecipientAllowedForTeacher } from "@/lib/messaging/messagingRecipientRules";
 import { sendStaffMessageUseCase } from "@/lib/messaging/useCases/sendStaffMessage";
 import { sanitizeMessageHtml } from "@/lib/messaging/sanitizeMessageHtml";
 import { stripHtmlToText } from "@/lib/messaging/stripHtml";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { mapMessagingUseCaseCode } from "@/lib/messaging/mapMessagingUseCaseCode";
 
 const replySchema = z.string().min(1).max(80000);
 
@@ -18,41 +21,47 @@ export async function replyToStudentMessage(
   messageId: string,
   replyHtml: string,
 ): Promise<{ ok: boolean; message?: string }> {
+  const dict = await getDictionary(locale);
+  const msg = dict.actionErrors.messaging;
+  const senderFb = dict.dashboard.teacher.messagesSenderFallback;
+
   const id = z.string().uuid().safeParse(messageId);
-  if (!id.success) return { ok: false, message: "Invalid id" };
+  if (!id.success) return { ok: false, message: msg.invalidId };
 
   const parsed = replySchema.safeParse(replyHtml);
-  if (!parsed.success) return { ok: false, message: "Invalid reply" };
+  if (!parsed.success) return { ok: false, message: msg.invalidReply };
   const safeHtml = sanitizeMessageHtml(parsed.data);
   if (stripHtmlToText(safeHtml).length === 0) {
-    return { ok: false, message: "Reply is empty" };
+    return { ok: false, message: msg.emptyReply };
   }
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { ok: false, message: "Unauthorized" };
+  if (!user) return { ok: false, message: msg.unauthorized };
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("role, first_name, last_name")
     .eq("id", user.id)
     .single();
-  if (profile?.role !== "teacher") return { ok: false, message: "Forbidden" };
+  if (profile?.role !== "teacher") return { ok: false, message: msg.forbidden };
 
   const name = `${profile.first_name} ${profile.last_name}`.trim();
   const result = await replyToStudentMessageUseCase({
     supabase,
     messageId: id.data,
     teacherId: user.id,
-    teacherDisplayName: name || "Teacher",
+    teacherDisplayName: name || senderFb,
     replyHtml: safeHtml,
     locale,
     emailProvider: getEmailProvider(),
   });
 
-  if (!result.ok) return { ok: false, message: result.message };
+  if (!result.ok) {
+    return { ok: false, message: mapMessagingUseCaseCode(result.message, msg) };
+  }
   void recordUserEventServer({
     userId: user.id,
     eventType: "action",
@@ -70,41 +79,56 @@ export async function sendTeacherMessage(
   recipientId: string,
   bodyHtml: string,
 ): Promise<{ ok: boolean; message?: string }> {
+  const dict = await getDictionary(locale);
+  const msg = dict.actionErrors.messaging;
+  const senderFb = dict.dashboard.teacher.messagesSenderFallback;
+
   const rid = z.string().uuid().safeParse(recipientId);
-  if (!rid.success) return { ok: false, message: "Invalid recipient" };
+  if (!rid.success) return { ok: false, message: msg.invalidRecipient };
 
   const parsed = bodySchema.safeParse(bodyHtml);
-  if (!parsed.success) return { ok: false, message: "Invalid message" };
+  if (!parsed.success) return { ok: false, message: msg.invalidMessage };
   const safeHtml = sanitizeMessageHtml(parsed.data);
   if (stripHtmlToText(safeHtml).length === 0) {
-    return { ok: false, message: "Message is empty" };
+    return { ok: false, message: msg.emptyMessage };
   }
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { ok: false, message: "Unauthorized" };
+  if (!user) return { ok: false, message: msg.unauthorized };
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("role, first_name, last_name")
     .eq("id", user.id)
     .single();
-  if (profile?.role !== "teacher") return { ok: false, message: "Forbidden" };
+  if (profile?.role !== "teacher") return { ok: false, message: msg.forbidden };
+
+  const { data: recipientProfile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", rid.data)
+    .maybeSingle();
+  if (!isRecipientAllowedForTeacher(recipientProfile?.role)) {
+    return { ok: false, message: msg.invalidRecipient };
+  }
 
   const name = `${profile.first_name} ${profile.last_name}`.trim();
   const result = await sendStaffMessageUseCase({
     supabase,
     senderId: user.id,
-    senderDisplayName: name || "Teacher",
+    senderDisplayName: name || senderFb,
     recipientId: rid.data,
     bodyHtml: safeHtml,
     locale,
     emailProvider: getEmailProvider(),
   });
 
-  if (!result.ok) return { ok: false, message: result.message };
+  if (!result.ok) {
+    return { ok: false, message: mapMessagingUseCaseCode(result.message, msg) };
+  }
   void recordUserEventServer({
     userId: user.id,
     eventType: "action",

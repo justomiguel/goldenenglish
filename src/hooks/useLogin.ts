@@ -16,11 +16,11 @@ interface LoginErrors {
 
 export interface UseLoginOptions {
   locale: string;
-  /** Query `next`: solo rutas internas, p. ej. /es/dashboard/... */
+  /** `next` query: internal paths only, e.g. `/es/dashboard/...`. */
   nextPath?: string | null;
 }
 
-/** Evita open-redirect: solo paths relativos sin protocolo. */
+/** Avoid open redirects: only relative paths without a protocol. */
 function safeInternalPath(next: string | null | undefined, locale: string): string {
   const fallback = `/${locale}`;
   if (next == null || next === "") return fallback;

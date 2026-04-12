@@ -38,7 +38,7 @@ export function AdminStudentBillingPaymentsTable({
                 <td className="px-3 py-2">
                   {r.month}/{r.year}
                 </td>
-                <td className="px-3 py-2">{r.amount != null ? String(r.amount) : "—"}</td>
+                <td className="px-3 py-2">{r.amount != null ? String(r.amount) : labels.emptyValue}</td>
                 <td className="px-3 py-2 capitalize">{r.status}</td>
                 <td className="px-3 py-2">
                   {r.receiptSignedUrl ? (
@@ -51,7 +51,7 @@ export function AdminStudentBillingPaymentsTable({
                       {labels.viewReceipt}
                     </a>
                   ) : (
-                    "—"
+                    labels.emptyValue
                   )}
                 </td>
                 <td className="px-3 py-2">
@@ -67,7 +67,7 @@ export function AdminStudentBillingPaymentsTable({
                       {r.status === "exempt" ? labels.unexemptPeriod : labels.exemptPeriod}
                     </button>
                   ) : (
-                    "—"
+                    labels.emptyValue
                   )}
                 </td>
               </tr>

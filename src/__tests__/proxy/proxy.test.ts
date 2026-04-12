@@ -48,7 +48,15 @@ describe("proxy", () => {
   });
 
   it("delegates to updateSession when locale is present", async () => {
-    const req = new NextRequest(new URL("http://localhost/es"));
+    const req = new NextRequest(
+      new URL("http://localhost/es/dashboard/student/payments"),
+    );
+    await proxy(req);
+    expect(updateSession).toHaveBeenCalledTimes(1);
+  });
+
+  it("delegates to updateSession for login (session refresh on public auth pages)", async () => {
+    const req = new NextRequest(new URL("http://localhost/es/login"));
     await proxy(req);
     expect(updateSession).toHaveBeenCalledTimes(1);
   });
@@ -62,7 +70,7 @@ describe("proxy", () => {
   it("does not prefix manifest.webmanifest with locale (root app route)", async () => {
     const req = new NextRequest(new URL("http://localhost/manifest.webmanifest"));
     const res = await proxy(req);
-    expect(updateSession).toHaveBeenCalledTimes(1);
+    expect(updateSession).not.toHaveBeenCalled();
     expect(res.status).not.toBe(307);
   });
 

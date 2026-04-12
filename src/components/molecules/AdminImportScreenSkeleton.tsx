@@ -1,4 +1,8 @@
-export function AdminImportScreenSkeleton() {
+export interface AdminImportScreenSkeletonProps {
+  ariaLabel: string;
+}
+
+export function AdminImportScreenSkeleton({ ariaLabel }: AdminImportScreenSkeletonProps) {
   const pulse =
     "animate-pulse rounded-[var(--layout-border-radius)] bg-[var(--color-border)]/80";
 
@@ -6,7 +10,7 @@ export function AdminImportScreenSkeleton() {
     <div
       className="min-h-screen bg-[var(--color-muted)] px-4 py-10"
       aria-busy="true"
-      aria-label="Loading"
+      aria-label={ariaLabel}
     >
       <div className="mx-auto max-w-[var(--layout-max-width)] py-6">
         <div className="mb-4 flex justify-end">

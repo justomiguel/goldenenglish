@@ -77,7 +77,7 @@ export function StudentPaymentsHistory({ rows, labels }: StudentPaymentsHistoryP
                       ) : null}
                     </span>
                   ) : (
-                    "—"
+                    labels.emptyValue
                   )}
                 </td>
                 <td className="px-4 py-3">{statusLabel(r.status, labels)}</td>
@@ -95,7 +95,7 @@ export function StudentPaymentsHistory({ rows, labels }: StudentPaymentsHistoryP
                       {labels.paymentViewReceipt}
                     </a>
                   ) : (
-                    "—"
+                    labels.emptyValue
                   )}
                 </td>
               </tr>

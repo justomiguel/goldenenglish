@@ -19,6 +19,7 @@ alwaysApply: true
 | Custom Hooks | `src/hooks/` | Business logic, API calls, state management. Named `useFeature.ts`. |
 | Server Actions | `src/app/**/actions.ts` | Supabase mutations, email sending, server-side validation. |
 | Lib / Services | `src/lib/` | Shared code: **pure** utilities (parsers, validators, `import/`, `register/` schemas) **and** infrastructure adapters (`supabase/`, `resend/`, server-only helpers). Keep those concerns in separate modules; pure folders stay framework-free. |
+| Client-only helpers (fetch, polling) | `src/lib/client/` | Código **sin** React ni servidor: p. ej. `pollLongJob` para jobs largos (ver **`11-long-running-jobs-ui.mdc`**). |
 | Types | `src/types/` | Shared TypeScript interfaces and type definitions. |
 
 ## Layered design (TDD / DDD alignment)
@@ -31,7 +32,10 @@ alwaysApply: true
 
 3. **Ports at boundaries.** Anything that could be swapped (persistence, external HTTP, mail) should be **invoked from** hooks/actions, not buried inside pure helpers. Pure helpers take data in and return data out—easy to test without mocks.
 
-4. **Skills reference.** For **red → green → refactor** and behavior-first tests, follow `.agents/skills/tdd/SKILL.md`. For structural decisions and DDD-style boundaries, use `.agents/skills/software-architecture/SKILL.md` and `.agents/skills/architecture/SKILL.md`. Testing expectations per layer: `.cursor/rules/02-testing-tdd.mdc`.
+4. **Bounded contexts (DDD).** No mezclar en un solo módulo reglas de **dominios distintos** (p. ej. importación masiva, mensajería, registro de usuario) salvo capa de **orquestación** delgada en hooks/actions. El **lenguaje ubicuo** y los tipos compartidos deben respetar el límite del contexto; extraer a `src/lib/<contexto>/` o `src/types/` con nombres de negocio claros.
+5. **Eventos de dominio vs analítica.** Efectos de negocio (persistencia, email, RLS) viven en acciones/adaptadores; **telemetría de producto y auditoría** siguen **`08-analytics-observability.mdc`** (`user_events`, `recordSystemAudit`) — no usar eventos de analítica como sustituto del modelo de dominio ni volcar lógica de negocio en `trackEvent` / metadata.
+
+6. **Skills reference.** For **red → green → refactor** and behavior-first tests, follow `.agents/skills/tdd/SKILL.md`. For structural decisions and DDD-style boundaries, use `.agents/skills/software-architecture/SKILL.md` and `.agents/skills/architecture/SKILL.md`. Testing expectations per layer: `.cursor/rules/02-testing-tdd.mdc`.
 
 ## Component Rules
 

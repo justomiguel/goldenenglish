@@ -16,15 +16,29 @@ Antes de **implementar desde cero** piezas pesadas de interfaz —**tablas** (or
 
 **Solo** se construye un componente propio cuando **no** existe una librería adecuada que cubra el caso, o cuando restricciones de producto/seguridad lo impongan (y debe quedar **justificado** en el cambio).
 
+## Cuándo está permitido un componente o UI propia (criterios explícitos)
+
+Además del caso “no hay librería razonable”, el custom está permitido cuando:
+
+1. **Primitivo de marca o layout** que no justifica dependencia (p. ej. wrapper de token, chip interno) y cumple **`01-design-system.mdc`**.
+2. **Composición delgada** sobre una librería ya elegida (no sustituir la categoría con otra librería nueva).
+3. **Restricción legal / seguridad / datos** documentada (sin SDK alternativo aceptable).
+
+En la **misma PR** que añada o mantenga UI pesada o una dependencia nueva, debe quedar explícito (descripción o comentario de revisión):
+
+- **Bundle** — impacto esperado (import acotado, lazy si aplica) y alternativa descartada.
+- **Accesibilidad** — patrones del componente (teclado, foco, roles) o enlace a docs de la librería.
+- **Licencia** — compatible con el producto; sin cláusulas que impidan uso comercial o deploy en Vercel.
+
 ## Alineación con el proyecto
 
 - Revisar **`package.json`**: reutilizar lo ya instalado cuando encaje (p. ej. **Recharts** para gráficos, **Lucide** para iconos, **Papa Parse** / **xlsx** para hojas).
-- No duplicar categorías: si ya hay una solución en el repo para el mismo problema, **extenderla** antes de añadir otra librería competidora.
+- **No duplicar categorías** en `package.json`: una sola dependencia “líder” por categoría de problema (p. ej. una familia de data-table, un stack de charts). Si ya existe solución en el repo, **extenderla** antes de añadir otra librería competidora.
 - Nuevas dependencias: seguir **`04-security.mdc`** (auditoría, no exponer secretos, preferir paquetes con tracción).
 
 ## Agent checklist
 
 1. ¿Esta UI es un problema **ya resuelto** por librerías estándar (tabla, calendario, chart, etc.)?
 2. ¿Se buscó al menos una opción **mantenida** y **amplia** en la comunidad React/Next?
-3. Si se propone **custom**: ¿por qué las opciones existentes **no** sirven (bundle, a11y, diseño, licencia)?
-4. Si se añade dependencia: ¿encaja con **tokens / design system** (`01-design-system.mdc`) y con **rendimiento** (`06-seo-performance.mdc`)?
+3. Si se propone **custom**: ¿encaja en los **criterios de exclusión** anteriores y por qué las opciones existentes **no** sirven (bundle, a11y, diseño, licencia)?
+4. Si se añade dependencia: ¿evita **duplicar categoría** en `package.json`, encaja con **tokens / design system** (`01-design-system.mdc`) y con **rendimiento** (`06-seo-performance.mdc`)?

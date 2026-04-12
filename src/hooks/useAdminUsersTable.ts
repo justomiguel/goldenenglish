@@ -133,12 +133,12 @@ export function useAdminUsersTable({
     if (res.ok) {
       setSelectedIds(new Set());
       router.refresh();
-      if (res.message === "partial") {
+      if (res.partial) {
         window.alert(labels.deletePartial);
       }
       return;
     }
-    if (res.message && res.message !== "none") {
+    if (res.message) {
       window.alert(`${labels.deleteError}: ${res.message}`);
     }
   }

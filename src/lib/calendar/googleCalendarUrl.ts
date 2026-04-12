@@ -1,4 +1,4 @@
-/** Enlace a Google Calendar (plantilla) para un evento puntual. */
+/** Google Calendar create-event URL (TEMPLATE action) for a one-off event. */
 export function googleCalendarEventUrl(params: {
   title: string;
   details?: string;

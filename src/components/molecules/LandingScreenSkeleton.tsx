@@ -1,4 +1,8 @@
-export function LandingScreenSkeleton() {
+export interface LandingScreenSkeletonProps {
+  ariaLabel: string;
+}
+
+export function LandingScreenSkeleton({ ariaLabel }: LandingScreenSkeletonProps) {
   const pulse =
     "animate-pulse rounded-[var(--layout-border-radius)] bg-[var(--color-border)]/80";
 
@@ -6,7 +10,7 @@ export function LandingScreenSkeleton() {
     <div
       className="min-h-screen bg-[var(--color-background)]"
       aria-busy="true"
-      aria-label="Loading"
+      aria-label={ariaLabel}
     >
       <div className="md:hidden">
         <div className="border-b border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2">

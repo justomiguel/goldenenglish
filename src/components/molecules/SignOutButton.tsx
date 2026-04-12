@@ -8,7 +8,7 @@ interface SignOutButtonProps {
   locale: string;
   label: string;
   className?: string;
-  /** Solo ícono + aria-label (header móvil). */
+  /** Icon only + aria-label (mobile header). */
   iconOnly?: boolean;
 }
 

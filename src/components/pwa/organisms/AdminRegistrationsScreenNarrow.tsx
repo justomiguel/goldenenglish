@@ -1,7 +1,9 @@
 "use client";
 
 import { AdminRegistrationAcceptModal } from "@/components/dashboard/AdminRegistrationAcceptModal";
+import type { RegistrationAcceptUserLabels } from "@/components/dashboard/AdminRegistrationAcceptForm";
 import { AdminRegistrationDeleteModal } from "@/components/dashboard/AdminRegistrationDeleteModal";
+import { AdminRegistrationEditModal } from "@/components/dashboard/AdminRegistrationEditModal";
 import { RegistrationListToolbar } from "@/components/molecules/RegistrationListToolbar";
 import { AdminRegistrationsPwaList } from "@/components/pwa/molecules/AdminRegistrationsPwaList";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
@@ -18,15 +20,17 @@ type TableLabels = Dictionary["admin"]["table"];
 interface AdminRegistrationsScreenNarrowProps {
   locale: string;
   rows: AdminRegistrationRow[];
+  legalAgeMajority: number;
   labels: RegLabels;
   tableLabels: TableLabels;
-  userLabels: Pick<Dictionary["admin"]["users"], "password" | "passwordHint">;
+  userLabels: RegistrationAcceptUserLabels;
   surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">;
 }
 
 export function AdminRegistrationsScreenNarrow({
   locale,
   rows,
+  legalAgeMajority,
   labels,
   tableLabels,
   userLabels,
@@ -68,6 +72,7 @@ export function AdminRegistrationsScreenNarrow({
             statusLabel={u.statusLabel}
             busyId={u.busyId}
             onAccept={u.setAcceptRow}
+            onEdit={u.setEditRow}
             onDelete={u.setDeleteRow}
             emptyMessage={u.emptyMessage}
             pagination={{
@@ -89,6 +94,7 @@ export function AdminRegistrationsScreenNarrow({
           <AdminRegistrationAcceptModal
             locale={locale}
             row={u.acceptRow}
+            legalAgeMajority={legalAgeMajority}
             busy={u.busyId !== null}
             onBusy={u.setBusyId}
             onClose={() => u.setAcceptRow(null)}
@@ -98,6 +104,19 @@ export function AdminRegistrationsScreenNarrow({
             }}
             labels={labels}
             userLabels={userLabels}
+          />
+
+          <AdminRegistrationEditModal
+            locale={locale}
+            row={u.editRow}
+            busy={u.busyId !== null}
+            onBusy={u.setBusyId}
+            onClose={() => u.setEditRow(null)}
+            onSuccess={() => {
+              u.setToast(labels.editSuccess);
+              u.refreshList();
+            }}
+            labels={labels}
           />
         </div>
       </div>

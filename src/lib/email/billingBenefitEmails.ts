@@ -2,6 +2,8 @@ import { getBrandPublic } from "@/lib/brand/server";
 import { getBillingTerms } from "@/lib/billing/getBillingTerms";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { fillTemplate } from "@/lib/i18n/fillTemplate";
 import type { Locale } from "@/types/i18n";
 
 async function collectRecipientEmailsForStudent(studentId: string): Promise<string[]> {
@@ -51,23 +53,24 @@ export async function sendEnrollmentExemptionEmail(opts: {
   const terms = getBillingTerms(opts.locale);
   const brand = getBrandPublic();
   const provider = getEmailProvider();
-  const subject =
-    opts.locale === "en"
-      ? `${brand.name}: ${terms.enrollment} exemption`
-      : `${brand.name}: exención de ${terms.enrollment}`;
+  const dict = await getDictionary(opts.locale);
+  const eb = dict.emailBilling;
+  const subject = `${brand.name}: ${fillTemplate(eb.enrollmentExemptionSubjectSuffix, {
+    enrollmentTerm: terms.enrollment,
+  })}`;
+
+  const bodyLines = [
+    fillTemplate(eb.enrollmentExemptionBody, {
+      enrollmentTermLower: terms.enrollment.toLowerCase(),
+    }),
+    opts.reason?.trim()
+      ? fillTemplate(eb.enrollmentExemptionNote, { reason: opts.reason.trim() })
+      : "",
+  ].filter(Boolean);
 
   const html = wrapHtml(
-    opts.locale === "en" ? "Enrollment fee exemption" : `Exención de ${terms.enrollment}`,
-    [
-      opts.locale === "en"
-        ? `We registered an exemption for the ${terms.enrollment.toLowerCase()}.`
-        : `Registramos una exención para la ${terms.enrollment.toLowerCase()}.`,
-      opts.reason?.trim()
-        ? opts.locale === "en"
-          ? `Note: ${opts.reason.trim()}`
-          : `Nota: ${opts.reason.trim()}`
-        : "",
-    ].filter(Boolean),
+    fillTemplate(eb.enrollmentExemptionTitle, { enrollmentTerm: terms.enrollment }),
+    bodyLines,
   );
 
   for (const to of toList) {
@@ -87,17 +90,20 @@ export async function sendPromotionAppliedEmail(opts: {
   const terms = getBillingTerms(opts.locale);
   const brand = getBrandPublic();
   const provider = getEmailProvider();
-  const subject =
-    opts.locale === "en"
-      ? `${brand.name}: ${terms.promotion} applied`
-      : `${brand.name}: ${terms.promotion} aplicada`;
+  const dict = await getDictionary(opts.locale);
+  const eb = dict.emailBilling;
+  const subject = `${brand.name}: ${fillTemplate(eb.promotionAppliedSubjectSuffix, {
+    promotionTerm: terms.promotion,
+  })}`;
 
   const html = wrapHtml(
-    opts.locale === "en" ? "Promotion applied" : `${terms.promotion} aplicada`,
+    fillTemplate(eb.promotionAppliedTitle, { promotionTerm: terms.promotion }),
     [
-      opts.locale === "en"
-        ? `A ${terms.promotion.toLowerCase()} was applied to your account (${opts.promotionName}, code ${opts.codeSnapshot}).`
-        : `Se aplicó una ${terms.promotion.toLowerCase()} a la cuenta (${opts.promotionName}, código ${opts.codeSnapshot}).`,
+      fillTemplate(eb.promotionAppliedBody, {
+        promotionTermLower: terms.promotion.toLowerCase(),
+        promotionName: opts.promotionName,
+        code: opts.codeSnapshot,
+      }),
     ],
   );
 

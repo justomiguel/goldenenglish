@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type ProfilePermissions = {
-  /** Pagos y comprobantes en el portal alumno (solo mayores o sin marca de menor). */
+  /** Payments and receipts in the student portal (adults only, or not flagged as minor). */
   canAccessPaymentsModule: boolean;
   isMinor: boolean;
 };

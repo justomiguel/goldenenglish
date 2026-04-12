@@ -9,4 +9,9 @@ export interface AdminRegistrationRow {
   level_interest: string | null;
   status: string;
   created_at: string | null;
+  tutor_name: string | null;
+  tutor_dni: string | null;
+  tutor_email: string | null;
+  tutor_phone: string | null;
+  tutor_relationship: string | null;
 }

@@ -4,6 +4,7 @@ import { ExternalLink } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
+import { SignOutButton } from "@/components/molecules/SignOutButton";
 
 interface AdminChromeHeaderProps {
   locale: string;
@@ -63,6 +64,11 @@ export function AdminChromeHeader({ locale, brand, dict }: AdminChromeHeaderProp
             />
             <span className="hidden sm:inline">{labels.backToSite}</span>
           </Link>
+          <SignOutButton
+            locale={locale}
+            label={dict.nav.logout}
+            className="min-h-10 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 py-2 text-xs font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] sm:px-3 sm:text-sm"
+          />
           <LanguageSwitcher locale={locale} labels={dict.common.locale} />
         </div>
       </div>

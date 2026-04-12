@@ -12,6 +12,7 @@ export function fd(
   }> = {},
 ) {
   const form = new FormData();
+  form.set("locale", "en");
   form.set("studentId", o.studentId ?? "stu-1");
   form.set("month", o.month ?? "3");
   form.set("year", o.year ?? "2025");

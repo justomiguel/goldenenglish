@@ -13,6 +13,26 @@ import {
   linkParentStudent,
   seedPayments2026,
 } from "@/lib/import/bulkImportHelpers";
+import type { TutorDisplayDefaults } from "@/lib/register/tutorDisplayNameParts";
+import { TUTOR_IMPORT_DISPLAY_FALLBACK } from "@/lib/import/tutorImportDisplayDefaults";
+import { inviteMeta, isDuplicateAuthError } from "@/lib/import/bulkImportStudentsAuthHelpers";
+import {
+  createImportProgressReporter,
+  type BulkImportProgressHooks,
+} from "@/lib/import/bulkImportStudentsProgress";
+import {
+  IMPORT_ROW_AUTH_ERROR,
+  IMPORT_ROW_EMAIL_DNI_CONFLICT,
+  IMPORT_ROW_EMAIL_DNI_MISMATCH,
+  IMPORT_ROW_ENROLLMENT_FAILED,
+  IMPORT_ROW_EXISTING_NON_STUDENT,
+  IMPORT_ROW_NOOP,
+  IMPORT_ROW_NO_USER_ID,
+  IMPORT_ROW_PROFILE_MISSING,
+  IMPORT_ROW_PROFILE_UPDATE_FAILED,
+  IMPORT_ROW_SUCCESS,
+  IMPORT_ROW_UNKNOWN,
+} from "@/lib/import/importResultMessageCodes";
 
 export type ImportRowResult = { rowIndex: number; ok: boolean; message: string };
 
@@ -26,27 +46,13 @@ export type BulkImportResult = {
   results: ImportRowResult[];
 };
 
-function inviteMeta(
-  base: Record<string, string>,
-  role: "student" | "parent",
-): Record<string, unknown> {
-  return { ...base, provisioning_source: "admin_invite", role };
-}
-
-function isDuplicateAuthError(err: { message?: string } | null | undefined): boolean {
-  const m = err?.message?.toLowerCase() ?? "";
-  return (
-    m.includes("already been registered") ||
-    m.includes("already registered") ||
-    m.includes("user already registered") ||
-    m.includes("duplicate key value") ||
-    m.includes("email address has already")
-  );
-}
+export type { BulkImportProgressHooks } from "@/lib/import/bulkImportStudentsProgress";
 
 export async function bulkImportStudentsFromRowsAdmin(
   admin: SupabaseClient,
   rows: CsvStudentRow[],
+  tutorDefaults: TutorDisplayDefaults = TUTOR_IMPORT_DISPLAY_FALLBACK,
+  hooks?: BulkImportProgressHooks,
 ): Promise<BulkImportResult> {
   const results: ImportRowResult[] = [];
   let createdUsers = 0;
@@ -57,9 +63,15 @@ export async function bulkImportStudentsFromRowsAdmin(
 
   let emailMap = await loadAuthEmailMap(admin);
 
+  const total = rows.length;
+  const { reportDoneRows, onRowStart } = createImportProgressReporter(total, hooks);
+
+  await reportDoneRows(0);
+
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     const rowIndex = i + 1;
+    await onRowStart?.(rowIndex, total);
     try {
       const { dni, password } = normalizeDni(row.dni_or_passport);
       const emailNorm = (row.email?.trim() || defaultEmail(dni)).toLowerCase();
@@ -85,7 +97,7 @@ export async function bulkImportStudentsFromRowsAdmin(
         results.push({
           rowIndex,
           ok: false,
-          message: "El email y el DNI corresponden a usuarios distintos",
+          message: IMPORT_ROW_EMAIL_DNI_MISMATCH,
         });
         continue;
       }
@@ -111,11 +123,11 @@ export async function bulkImportStudentsFromRowsAdmin(
             if (retryId) {
               studentId = retryId;
             } else {
-              results.push({ rowIndex, ok: false, message: createErr.message });
+              results.push({ rowIndex, ok: false, message: IMPORT_ROW_AUTH_ERROR });
               continue;
             }
           } else {
-            results.push({ rowIndex, ok: false, message: createErr.message });
+            results.push({ rowIndex, ok: false, message: IMPORT_ROW_AUTH_ERROR });
             continue;
           }
         } else if (created?.user) {
@@ -126,7 +138,7 @@ export async function bulkImportStudentsFromRowsAdmin(
       }
 
       if (!studentId) {
-        results.push({ rowIndex, ok: false, message: "No user id" });
+        results.push({ rowIndex, ok: false, message: IMPORT_ROW_NO_USER_ID });
         continue;
       }
 
@@ -137,7 +149,7 @@ export async function bulkImportStudentsFromRowsAdmin(
         .single();
 
       if (profErr || !profile) {
-        results.push({ rowIndex, ok: false, message: profErr?.message ?? "Sin perfil" });
+        results.push({ rowIndex, ok: false, message: IMPORT_ROW_PROFILE_MISSING });
         continue;
       }
 
@@ -145,7 +157,7 @@ export async function bulkImportStudentsFromRowsAdmin(
         results.push({
           rowIndex,
           ok: false,
-          message: "El usuario ya existe con otro rol (no alumno)",
+          message: IMPORT_ROW_EXISTING_NON_STUDENT,
         });
         continue;
       }
@@ -155,7 +167,7 @@ export async function bulkImportStudentsFromRowsAdmin(
         results.push({
           rowIndex,
           ok: false,
-          message: "El email ya está registrado con otro documento (DNI)",
+          message: IMPORT_ROW_EMAIL_DNI_CONFLICT,
         });
         continue;
       }
@@ -169,7 +181,7 @@ export async function bulkImportStudentsFromRowsAdmin(
 
       if (!merge.hasNew && !enrollmentToAdd && !paymentsToSeed) {
         skippedNoop += 1;
-        results.push({ rowIndex, ok: true, message: "Sin novedades" });
+        results.push({ rowIndex, ok: true, message: IMPORT_ROW_NOOP });
         continue;
       }
 
@@ -179,13 +191,13 @@ export async function bulkImportStudentsFromRowsAdmin(
           .update(merge.patch)
           .eq("id", studentId);
         if (upErr) {
-          results.push({ rowIndex, ok: false, message: upErr.message });
+          results.push({ rowIndex, ok: false, message: IMPORT_ROW_PROFILE_UPDATE_FAILED });
           continue;
         }
         profilesUpdated += 1;
       }
 
-      const parentId = await ensureParentUserId(admin, row);
+      const parentId = await ensureParentUserId(admin, row, tutorDefaults);
       if (parentId) await linkParentStudent(admin, parentId, studentId);
 
       if (courseId && enrollmentToAdd) {
@@ -199,7 +211,7 @@ export async function bulkImportStudentsFromRowsAdmin(
             enrErr.code === "23505" ||
             (enrErr.message?.toLowerCase().includes("duplicate") ?? false);
           if (!dup) {
-            results.push({ rowIndex, ok: false, message: enrErr.message });
+            results.push({ rowIndex, ok: false, message: IMPORT_ROW_ENROLLMENT_FAILED });
             continue;
           }
         }
@@ -213,14 +225,15 @@ export async function bulkImportStudentsFromRowsAdmin(
         paymentsSeeded += await seedPayments2026(admin, studentId, parentId, fee);
       }
 
-      results.push({ rowIndex, ok: true, message: "OK" });
-    } catch (e) {
+      results.push({ rowIndex, ok: true, message: IMPORT_ROW_SUCCESS });
+    } catch {
       results.push({
         rowIndex,
         ok: false,
-        message: e instanceof Error ? e.message : "Error",
+        message: IMPORT_ROW_UNKNOWN,
       });
     }
+    await reportDoneRows(i + 1);
   }
 
   return {

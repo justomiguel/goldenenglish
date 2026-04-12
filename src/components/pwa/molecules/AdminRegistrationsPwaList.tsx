@@ -58,6 +58,7 @@ export interface AdminRegistrationsPwaListProps {
   statusLabel: (status: string) => string;
   busyId: string | null;
   onAccept: (row: AdminRegistrationRow) => void;
+  onEdit: (row: AdminRegistrationRow) => void;
   onDelete: (row: AdminRegistrationRow) => void;
   emptyMessage: string;
   pagination: {
@@ -81,6 +82,7 @@ export function AdminRegistrationsPwaList({
   statusLabel,
   busyId,
   onAccept,
+  onEdit,
   onDelete,
   emptyMessage,
   pagination,
@@ -139,6 +141,7 @@ export function AdminRegistrationsPwaList({
             labels={labels}
             statusLabel={statusLabel}
             onAccept={onAccept}
+            onEdit={onEdit}
             onDelete={onDelete}
           />
         ))}

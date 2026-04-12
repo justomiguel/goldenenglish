@@ -7,6 +7,7 @@ import { AdminImportScreenSkeleton } from "@/components/molecules/AdminImportScr
 import { AdminImportScreenNarrow } from "@/components/pwa/organisms/AdminImportScreenNarrow";
 
 interface AdminImportSurfaceGateProps {
+  locale: string;
   desktop: ReactNode;
   dict: Dictionary;
   /** Nested under Usuarios layout (skip duplicate title / full-page chrome on mobile). */
@@ -14,16 +15,22 @@ interface AdminImportSurfaceGateProps {
 }
 
 export function AdminImportSurfaceGate({
+  locale,
   desktop,
   dict,
   embedded = false,
 }: AdminImportSurfaceGateProps) {
   return (
     <SurfaceMountGate
-      skeleton={<AdminImportScreenSkeleton />}
+      skeleton={<AdminImportScreenSkeleton ariaLabel={dict.common.loadingAria} />}
       desktop={desktop}
       narrow={(surface) => (
-        <AdminImportScreenNarrow dict={dict} surface={surface} embedded={embedded} />
+        <AdminImportScreenNarrow
+          locale={locale}
+          dict={dict}
+          surface={surface}
+          embedded={embedded}
+        />
       )}
     />
   );

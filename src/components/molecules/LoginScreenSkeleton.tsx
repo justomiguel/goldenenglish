@@ -2,7 +2,11 @@
  * Login loading shell — mirrors responsive layout (narrow vs two-column) using CSS only,
  * so first paint aligns with the real screen before `useAppSurface` hydrates.
  */
-export function LoginScreenSkeleton() {
+export interface LoginScreenSkeletonProps {
+  ariaLabel: string;
+}
+
+export function LoginScreenSkeleton({ ariaLabel }: LoginScreenSkeletonProps) {
   const pulse = "animate-pulse rounded-[var(--layout-border-radius)] bg-[var(--color-border)]/80";
   const pulseDark = "animate-pulse rounded-[var(--layout-border-radius)] bg-white/10";
 
@@ -10,7 +14,7 @@ export function LoginScreenSkeleton() {
     <div
       className="min-h-screen bg-[var(--color-background)]"
       aria-busy="true"
-      aria-label="Loading"
+      aria-label={ariaLabel}
     >
       {/* Mobile / narrow — matches LoginScreenNarrow structure */}
       <div className="flex min-h-dvh flex-col md:hidden">

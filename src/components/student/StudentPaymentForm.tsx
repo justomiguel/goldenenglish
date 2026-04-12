@@ -5,17 +5,18 @@ import { submitStudentPaymentReceipt } from "@/app/[locale]/dashboard/student/pa
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
-import type { Dictionary } from "@/types/i18n";
+import type { Dictionary, Locale } from "@/types/i18n";
 
 type StudentPayLabels = Dictionary["dashboard"]["student"];
 
 const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 interface StudentPaymentFormProps {
+  locale: Locale;
   labels: StudentPayLabels;
 }
 
-export function StudentPaymentForm({ labels }: StudentPaymentFormProps) {
+export function StudentPaymentForm({ locale, labels }: StudentPaymentFormProps) {
   const [month, setMonth] = useState(1);
   const [year, setYear] = useState(2026);
   const [amount, setAmount] = useState("");
@@ -37,6 +38,7 @@ export function StudentPaymentForm({ labels }: StudentPaymentFormProps) {
       onSubmit={onSubmit}
       className="mt-6 max-w-lg space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6"
     >
+      <input type="hidden" name="locale" value={locale} readOnly />
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label htmlFor="sp-month">{labels.payMonth}</Label>

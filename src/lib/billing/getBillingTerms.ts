@@ -14,13 +14,17 @@ export function getBillingTerms(locale: Locale): BillingTerms {
   return {
     enrollment: en
       ? getProperty(p, "billing.term.enrollment.en", "Enrollment fee")
-      : getProperty(p, "billing.term.enrollment", "Matrícula"),
+      : getProperty(
+          p,
+          "billing.term.enrollment",
+          getProperty(p, "billing.term.enrollment.en", "Enrollment fee"),
+        ),
     monthly: en
       ? getProperty(p, "billing.term.monthly.en", "Monthly fee")
-      : getProperty(p, "billing.term.monthly", "Mensualidad"),
+      : getProperty(p, "billing.term.monthly", getProperty(p, "billing.term.monthly.en", "Monthly fee")),
     promotion: en
       ? getProperty(p, "billing.term.promotion.en", "Promotion")
-      : getProperty(p, "billing.term.promotion", "Promoción"),
+      : getProperty(p, "billing.term.promotion", getProperty(p, "billing.term.promotion.en", "Promotion")),
     enrollmentFeeDefault: Number(getProperty(p, "billing.enrollment_fee.default", "0")) || 0,
   };
 }

@@ -28,6 +28,15 @@ Cada cambio que afecte **rutas públicas**, **metadatos**, **imágenes** o **bun
 3. **Bundles** — Preferir imports **acotados** (p. ej. iconos); mantener **`experimental.optimizePackageImports`** para librerías listadas en `next.config.ts` cuando el upgrade lo siga soportando.
 4. **`next.config`** — Respetar **`images.formats`** (AVIF/WebP), **`minimumCacheTTL`** razonable, **headers** de seguridad ligera ya definidos; no desactivar **compress** en producción.
 
+## Presupuesto de rendimiento y accesibilidad (UI crítica)
+
+Cambios que toquen **LCP** (hero, landing, primera vista del dashboard público), **listas densas**, **modales de flujo principal** o **bundles grandes** no deben **degradar LCP / INP / CLS** sin **medición antes/después** (Lighthouse local o informe de Vercel / Web Vitals en preview).
+
+1. **Antes del merge** — ejecutar Lighthouse (o equivalente) sobre la ruta afectada en **móvil**; anotar en la PR **LCP**, **INP** (o TBT como proxy si INP no está disponible) y **CLS** si el cambio introduce layout shift.
+2. **Regresión** — si los números empeoran de forma material, justificar con mitigación (lazy load, menos JS en cliente, `next/image`, división de `'use client'`) o revertir; no fusionar “a ciegas”.
+3. **Accesibilidad** — misma pasada Lighthouse **Accessibility** en pantallas tocadas; incumplimientos nuevos de contraste o nombres accesibles deben corregirse salvo excepción documentada (alineado con **`01-design-system.mdc`**).
+4. **Automatización local** — con el servidor en marcha: `BASE_URL=http://localhost:3000 npm run lighthouse:smoke` (script `scripts/lighthouse-smoke.sh`, categorías performance + accessibility). En CI opcional: job manual o nocturno que exporte el HTML como artefacto.
+
 ***
 
 ## Checklist al añadir una ruta pública

@@ -3,6 +3,7 @@
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { createClient } from "@/lib/supabase/server";
+import { paymentActionDict } from "@/lib/i18n/actionErrors";
 
 const MAX_BYTES = 4 * 1024 * 1024;
 
@@ -17,6 +18,7 @@ function extFromMime(mime: string): string {
 export async function submitParentPaymentReceipt(
   formData: FormData,
 ): Promise<{ ok: boolean; message?: string }> {
+  const pe = await paymentActionDict(formData);
   const studentId = String(formData.get("studentId") ?? "").trim();
   const month = Number(formData.get("month"));
   const year = Number(formData.get("year"));
@@ -24,36 +26,36 @@ export async function submitParentPaymentReceipt(
   const file = formData.get("receipt");
 
   if (!studentId || !Number.isFinite(month) || !Number.isFinite(year)) {
-    return { ok: false, message: "Invalid form" };
+    return { ok: false, message: pe.invalidForm };
   }
   if (!Number.isFinite(amount) || amount <= 0) {
-    return { ok: false, message: "Invalid amount" };
+    return { ok: false, message: pe.invalidAmount };
   }
   if (!(file instanceof File) || file.size === 0) {
-    return { ok: false, message: "Receipt file required" };
+    return { ok: false, message: pe.receiptRequired };
   }
-  if (file.size > MAX_BYTES) return { ok: false, message: "File too large" };
+  if (file.size > MAX_BYTES) return { ok: false, message: pe.fileTooLarge };
 
   const mime = file.type || "application/octet-stream";
   if (
     !mime.startsWith("image/") &&
     mime !== "application/pdf"
   ) {
-    return { ok: false, message: "Use PDF or image" };
+    return { ok: false, message: pe.mimeInvalid };
   }
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { ok: false, message: "Unauthorized" };
+  if (!user) return { ok: false, message: pe.unauthorized };
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .single();
-  if (profile?.role !== "parent") return { ok: false, message: "Forbidden" };
+  if (profile?.role !== "parent") return { ok: false, message: pe.forbidden };
 
   const { data: link } = await supabase
     .from("tutor_student_rel")
@@ -61,7 +63,7 @@ export async function submitParentPaymentReceipt(
     .eq("tutor_id", user.id)
     .eq("student_id", studentId)
     .maybeSingle();
-  if (!link) return { ok: false, message: "Student not linked" };
+  if (!link) return { ok: false, message: pe.studentNotLinked };
 
   const { data: pay, error: payErr } = await supabase
     .from("payments")
@@ -71,12 +73,12 @@ export async function submitParentPaymentReceipt(
     .eq("year", year)
     .maybeSingle();
 
-  if (payErr || !pay) return { ok: false, message: "Payment slot not found" };
+  if (payErr || !pay) return { ok: false, message: pe.slotNotFound };
   if (pay.status === "exempt") {
-    return { ok: false, message: "This month is exempt from payment" };
+    return { ok: false, message: pe.monthExempt };
   }
   if (pay.status !== "pending") {
-    return { ok: false, message: "Payment already processed" };
+    return { ok: false, message: pe.alreadyProcessed };
   }
 
   const buf = Buffer.from(await file.arrayBuffer());
@@ -87,7 +89,7 @@ export async function submitParentPaymentReceipt(
     .from("payment-receipts")
     .upload(path, buf, { contentType: mime, upsert: false });
 
-  if (upErr) return { ok: false, message: upErr.message };
+  if (upErr) return { ok: false, message: pe.uploadFailed };
 
   const { error: upRow } = await supabase
     .from("payments")
@@ -99,7 +101,7 @@ export async function submitParentPaymentReceipt(
     .eq("id", pay.id)
     .eq("status", "pending");
 
-  if (upRow) return { ok: false, message: upRow.message };
+  if (upRow) return { ok: false, message: pe.uploadFailed };
 
   void recordUserEventServer({
     userId: user.id,

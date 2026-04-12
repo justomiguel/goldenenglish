@@ -17,4 +17,5 @@ fi
 
 echo "→ Iniciando servidor de desarrollo en http://localhost:3000"
 echo "  (Ctrl+C para detener)"
+echo "  (usa 'npm run clean' para borrar cache si hay problemas)"
 exec npm run dev

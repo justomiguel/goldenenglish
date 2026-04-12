@@ -3,34 +3,43 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
 import { AdminRegistrationAcceptModal } from "@/components/dashboard/AdminRegistrationAcceptModal";
 
+const userLabels = {
+  password: dictEn.admin.users.password,
+  passwordHint: dictEn.admin.users.passwordHint,
+};
+
+const baseRow = {
+  id: "323e4567-e89b-12d3-a456-426614174004",
+  first_name: "A",
+  last_name: "B",
+  dni: "1",
+  email: "a@a.co",
+  phone: "+1",
+  birth_date: "2010-01-01",
+  level_interest: "A1",
+  status: "new" as const,
+  created_at: "2026-01-01T00:00:00.000Z",
+  tutor_name: null,
+  tutor_dni: null,
+  tutor_email: null,
+  tutor_phone: null,
+  tutor_relationship: null,
+};
+
 describe("AdminRegistrationAcceptModal", () => {
   it("calls onClose when cancel is pressed", () => {
     const onClose = vi.fn();
-    const row = {
-      id: "323e4567-e89b-12d3-a456-426614174004",
-      first_name: "A",
-      last_name: "B",
-      dni: "1",
-      email: "a@a.co",
-      phone: "+1",
-      birth_date: "2010-01-01",
-      level_interest: "A1",
-      status: "new" as const,
-      created_at: "2026-01-01T00:00:00.000Z",
-    };
     render(
       <AdminRegistrationAcceptModal
         locale="es"
-        row={row}
+        row={baseRow}
+        legalAgeMajority={18}
         busy={false}
         onBusy={vi.fn()}
         onClose={onClose}
         onSuccess={vi.fn()}
         labels={dictEn.admin.registrations}
-        userLabels={{
-          password: dictEn.admin.users.password,
-          passwordHint: dictEn.admin.users.passwordHint,
-        }}
+        userLabels={userLabels}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.cancel }));
@@ -39,31 +48,17 @@ describe("AdminRegistrationAcceptModal", () => {
 
   it("calls onClose when dialog fires close", () => {
     const onClose = vi.fn();
-    const row = {
-      id: "323e4567-e89b-12d3-a456-426614174004",
-      first_name: "A",
-      last_name: "B",
-      dni: "1",
-      email: "a@a.co",
-      phone: "+1",
-      birth_date: "2010-01-01",
-      level_interest: "A1",
-      status: "new" as const,
-      created_at: "2026-01-01T00:00:00.000Z",
-    };
     render(
       <AdminRegistrationAcceptModal
         locale="es"
-        row={row}
+        row={baseRow}
+        legalAgeMajority={18}
         busy={false}
         onBusy={vi.fn()}
         onClose={onClose}
         onSuccess={vi.fn()}
         labels={dictEn.admin.registrations}
-        userLabels={{
-          password: dictEn.admin.users.password,
-          passwordHint: dictEn.admin.users.passwordHint,
-        }}
+        userLabels={userLabels}
       />,
     );
     const dlg = document.querySelector("dialog");

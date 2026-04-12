@@ -1,0 +1,106 @@
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { resolveAvatarDisplayUrl } from "@/lib/dashboard/resolveAvatarUrl";
+import { loadOrProvisionDashboardProfileRow } from "@/lib/profile/loadOrProvisionDashboardProfileRow";
+import { MyProfileSurfaceEntry } from "@/components/organisms/MyProfileSurfaceEntry";
+import { SignOutButton } from "@/components/molecules/SignOutButton";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const dict = await getDictionary(locale);
+  return {
+    title: dict.dashboard.myProfile.metaTitle,
+    robots: { index: false, follow: false },
+  };
+}
+
+interface PageProps {
+  params: Promise<{ locale: string }>;
+}
+
+function segmentForRole(role: string | undefined): string {
+  if (role === "admin" || role === "teacher" || role === "student" || role === "parent") {
+    return role;
+  }
+  return "student";
+}
+
+export default async function DashboardProfilePage({ params }: PageProps) {
+  const { locale } = await params;
+  const dict = await getDictionary(locale);
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    redirect(`/${locale}/login?next=/${locale}/dashboard/profile`);
+  }
+
+  const resolvedProfile = await loadOrProvisionDashboardProfileRow(user);
+
+  if (!resolvedProfile) {
+    return (
+      <main className="mx-auto max-w-xl space-y-4 px-4 py-12">
+        <h1 className="font-display text-2xl font-semibold text-[var(--color-secondary)]">
+          {dict.dashboard.myProfile.profileMissingTitle}
+        </h1>
+        <p className="text-sm text-[var(--color-muted-foreground)]">
+          {dict.dashboard.myProfile.profileMissingBody}
+        </p>
+        <SignOutButton
+          locale={locale}
+          label={dict.nav.logout}
+          className="min-h-[44px] rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-2 text-sm font-medium text-[var(--color-foreground)]"
+        />
+      </main>
+    );
+  }
+
+  const profileSafe = resolvedProfile;
+  const isMinor = Boolean("is_minor" in profileSafe ? profileSafe.is_minor : false);
+  let minorPersonalLocked = false;
+  if (profileSafe.role === "student" && isMinor) {
+    const { count } = await supabase
+      .from("tutor_student_rel")
+      .select("student_id", { head: true, count: "exact" })
+      .eq("student_id", user.id);
+    minorPersonalLocked = (count ?? 0) > 0;
+  }
+
+  const avatarDisplayUrl = await resolveAvatarDisplayUrl(supabase, profileSafe.avatar_url);
+  const displayName =
+    `${profileSafe.first_name ?? ""} ${profileSafe.last_name ?? ""}`.trim() ||
+    user.email?.split("@")[0] ||
+    "?";
+
+  const birthRaw = profileSafe.birth_date ? String(profileSafe.birth_date) : "";
+  const birthDate = birthRaw.length >= 10 ? birthRaw.slice(0, 10) : "";
+
+  const backHref = `/${locale}/dashboard/${segmentForRole(profileSafe.role ?? undefined)}`;
+
+  return (
+    <MyProfileSurfaceEntry
+      backHref={backHref}
+      localeSwitcher={dict.common.locale}
+      locale={locale}
+      email={user.email ?? ""}
+      initial={{
+        firstName: profileSafe.first_name ?? "",
+        lastName: profileSafe.last_name ?? "",
+        phone: profileSafe.phone?.trim() ?? "",
+        dni: profileSafe.dni_or_passport ?? "",
+        birthDate,
+      }}
+      minorPersonalLocked={minorPersonalLocked}
+      avatarDisplayUrl={avatarDisplayUrl}
+      displayName={displayName}
+      labels={dict.dashboard.myProfile}
+    />
+  );
+}

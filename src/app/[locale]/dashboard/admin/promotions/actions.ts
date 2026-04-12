@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
+import { adminActionDict } from "@/lib/i18n/actionErrors";
+import { defaultLocale } from "@/lib/i18n/dictionaries";
 
 const createSchema = z.object({
   locale: z.string().min(2),
@@ -22,15 +24,18 @@ const createSchema = z.object({
 export async function createPromotion(
   raw: z.infer<typeof createSchema>,
 ): Promise<{ ok: boolean; message?: string }> {
+  const ae = await adminActionDict(
+    typeof raw?.locale === "string" && raw.locale.length >= 2 ? raw.locale : defaultLocale,
+  );
   const parsed = createSchema.safeParse(raw);
-  if (!parsed.success) return { ok: false, message: "Invalid data" };
+  if (!parsed.success) return { ok: false, message: ae.invalidData };
 
   if (parsed.data.discountType === "percent" && parsed.data.discountValue > 100) {
-    return { ok: false, message: "Percent cannot exceed 100" };
+    return { ok: false, message: ae.percentOver100 };
   }
 
   const code = parsed.data.code.trim();
-  if (!code) return { ok: false, message: "Invalid code" };
+  if (!code) return { ok: false, message: ae.invalidCode };
 
   const validFrom = parsed.data.validFrom
     ? new Date(parsed.data.validFrom).toISOString()
@@ -64,11 +69,11 @@ export async function createPromotion(
       is_active: true,
       deleted_at: null,
     });
-    if (error) return { ok: false, message: error.message };
+    if (error) return { ok: false, message: ae.saveFailed };
     revalidatePath(`/${parsed.data.locale}/dashboard/admin/promotions`);
     return { ok: true };
   } catch {
-    return { ok: false, message: "Forbidden" };
+    return { ok: false, message: ae.forbidden };
   }
 }
 
@@ -77,8 +82,9 @@ export async function togglePromotionActive(
   promotionId: string,
   isActive: boolean,
 ): Promise<{ ok: boolean; message?: string }> {
+  const ae = await adminActionDict(locale);
   const id = z.string().uuid().safeParse(promotionId);
-  if (!id.success) return { ok: false, message: "Invalid id" };
+  if (!id.success) return { ok: false, message: ae.invalidId };
   try {
     const { supabase } = await assertAdmin();
     const { error } = await supabase
@@ -86,11 +92,11 @@ export async function togglePromotionActive(
       .update({ is_active: isActive })
       .eq("id", id.data)
       .is("deleted_at", null);
-    if (error) return { ok: false, message: error.message };
+    if (error) return { ok: false, message: ae.saveFailed };
     revalidatePath(`/${locale}/dashboard/admin/promotions`);
     return { ok: true };
   } catch {
-    return { ok: false, message: "Forbidden" };
+    return { ok: false, message: ae.forbidden };
   }
 }
 
@@ -98,18 +104,19 @@ export async function softDeletePromotion(
   locale: string,
   promotionId: string,
 ): Promise<{ ok: boolean; message?: string }> {
+  const ae = await adminActionDict(locale);
   const id = z.string().uuid().safeParse(promotionId);
-  if (!id.success) return { ok: false, message: "Invalid id" };
+  if (!id.success) return { ok: false, message: ae.invalidId };
   try {
     const { supabase } = await assertAdmin();
     const { error } = await supabase
       .from("promotions")
       .update({ deleted_at: new Date().toISOString(), is_active: false })
       .eq("id", id.data);
-    if (error) return { ok: false, message: error.message };
+    if (error) return { ok: false, message: ae.saveFailed };
     revalidatePath(`/${locale}/dashboard/admin/promotions`);
     return { ok: true };
   } catch {
-    return { ok: false, message: "Forbidden" };
+    return { ok: false, message: ae.forbidden };
   }
 }

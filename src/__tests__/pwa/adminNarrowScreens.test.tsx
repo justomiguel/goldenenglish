@@ -33,6 +33,11 @@ const regRow: AdminRegistrationRow = {
   level_interest: "A1",
   status: "new",
   created_at: "2026-01-01T00:00:00.000Z",
+  tutor_name: null,
+  tutor_dni: null,
+  tutor_email: null,
+  tutor_phone: null,
+  tutor_relationship: null,
 };
 
 const userRow: AdminUserRow = {
@@ -56,6 +61,7 @@ describe("admin narrow screens", () => {
       <AdminRegistrationsScreenNarrow
         locale="es"
         rows={[regRow]}
+        legalAgeMajority={18}
         labels={dictEn.admin.registrations}
         tableLabels={dictEn.admin.table}
         userLabels={{
@@ -93,7 +99,7 @@ describe("admin narrow screens", () => {
   });
 
   it("AdminImportScreenNarrow renders title", () => {
-    render(<AdminImportScreenNarrow dict={dictEn} surface="web-mobile" />);
+    render(<AdminImportScreenNarrow locale="en" dict={dictEn} surface="web-mobile" />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(dictEn.admin.import.title);
   });
 });

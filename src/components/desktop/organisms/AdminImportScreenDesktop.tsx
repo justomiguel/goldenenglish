@@ -2,16 +2,24 @@ import type { Dictionary } from "@/types/i18n";
 import { ImportStudents } from "@/components/organisms/ImportStudents";
 
 interface AdminImportScreenDesktopProps {
+  locale: string;
   dict: Dictionary;
   /** When true, only the form (e.g. under Usuarios → Importar CSV tab). */
   embedded?: boolean;
 }
 
 export function AdminImportScreenDesktop({
+  locale,
   dict,
   embedded = false,
 }: AdminImportScreenDesktopProps) {
-  const form = <ImportStudents labels={dict.admin.import} />;
+  const form = (
+    <ImportStudents
+      locale={locale}
+      labels={dict.admin.import}
+      emptyLogPlaceholder={dict.common.emptyValue}
+    />
+  );
   if (embedded) {
     return form;
   }

@@ -37,12 +37,24 @@ El layout ya monta telemetría de sesión y página vía `src/components/analyti
 
 ---
 
+## Fiabilidad y prácticas tipo SRE (donde aplique)
+
+Las tablas y pipelines de eventos y auditoría descritos arriba son la capa de **observabilidad de producto**. Para flujos **autenticados críticos** (pagos, registro, mensajería, importaciones), además:
+
+1. **SLI / SLO ligeros** — definir **indicadores** medibles con los datos ya expuestos (p. ej. tasa de éxito de `action` relevantes, latencia de API propia, ratio de errores 5xx en rutas asociadas). Un **SLO** es un objetivo interno (p. ej. “≥ 99% de envíos de mensaje registrados como éxito en ventana de 7 días”) documentado en ADR o runbook cuando el flujo sea nuevo o de alto riesgo; ver **`10-engineering-governance.mdc`**.
+2. **Alertas accionables** — toda alerta debe indicar **qué mirar** (dashboard, query, tabla `user_events` / logs) y **qué hacer**; evitar alertas solo “subió el tráfico” sin umbral ni runbook. Alineado con buenas prácticas de servicios en producción ([SRE Book — prácticas de servicios](https://sre.google/sre-book/service-best-practices/)).
+3. **No sustituir monitoreo de infra** — esta regla **no** exige duplicar APM; exige que los flujos críticos **no queden silenciosos** (eventos + auditoría + documentación de umbrales cuando el equipo los adopte).
+4. **Plantilla** — para nuevos flujos críticos, copiar `docs/runbooks/slo-template.md` al repo de runbooks o enlazarlo desde la PR.
+
+---
+
 ## Checklist al añadir o cambiar una feature
 
 - [ ] ¿Hay **evento de producto** (`trackEvent` / `recordUserEventServer`) o **auditoría** (`recordSystemAudit`) donde corresponda?
 - [ ] ¿La **ruta o sección** nueva queda reflejada en `pathnameToEntity` / `AnalyticsEntity` si afecta métricas por pantalla?
 - [ ] ¿`event_type` y **metadata** siguen los límites y sanitización existentes?
 - [ ] ¿Los cambios en tipos o API de eventos incluyen **tests** (p. ej. bajo `src/__tests__/lib/analytics/`) y migración si aplica?
+- [ ] Si el flujo es **crítico**: ¿hay **SLI/SLO** o criterio de éxito documentado y **alerta** con acción clara cuando aplique en el entorno del equipo?
 
 ---
 

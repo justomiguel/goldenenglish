@@ -4,12 +4,12 @@ import { ArrowRight, BookOpen, ClipboardList } from "lucide-react";
 export interface LandingHeroInscriptionCtaProps {
   href: string;
   label: string;
-  /** Inscripción pública vs. usuario ya autenticado (navegar a niveles). */
+  /** Public enrollment vs. signed-in user (navigate to levels). */
   mode: "register" | "signedIn";
 }
 
 /**
- * CTA principal del hero: relieve, sombras apiladas e iconos (inscripción / niveles).
+ * Primary hero CTA: elevation, stacked shadows, and icons (enrollment / levels).
  */
 export function LandingHeroInscriptionCta({
   href,

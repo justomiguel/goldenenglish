@@ -1,7 +1,9 @@
 "use client";
 
 import { AdminRegistrationAcceptModal } from "@/components/dashboard/AdminRegistrationAcceptModal";
+import type { RegistrationAcceptUserLabels } from "@/components/dashboard/AdminRegistrationAcceptForm";
 import { AdminRegistrationDeleteModal } from "@/components/dashboard/AdminRegistrationDeleteModal";
+import { AdminRegistrationEditModal } from "@/components/dashboard/AdminRegistrationEditModal";
 import { AdminRegistrationTableRow } from "@/components/dashboard/AdminRegistrationTableRow";
 import { RegistrationListToolbar } from "@/components/molecules/RegistrationListToolbar";
 import { UniversalListView } from "@/components/organisms/UniversalListView";
@@ -16,14 +18,16 @@ type TableLabels = Dictionary["admin"]["table"];
 interface AdminRegistrationsTableDesktopProps {
   locale: string;
   rows: AdminRegistrationRow[];
+  legalAgeMajority: number;
   labels: RegLabels;
   tableLabels: TableLabels;
-  userLabels: Pick<Dictionary["admin"]["users"], "password" | "passwordHint">;
+  userLabels: RegistrationAcceptUserLabels;
 }
 
 export function AdminRegistrationsTableDesktop({
   locale,
   rows,
+  legalAgeMajority,
   labels,
   tableLabels,
   userLabels,
@@ -61,9 +65,8 @@ export function AdminRegistrationsTableDesktop({
           {
             id: "birth",
             label: labels.birthDate,
-            thClassName: `${hdr} whitespace-nowrap`,
+            thClassName: `${hdr} min-w-0`,
           },
-          { id: "status", label: labels.status, thClassName: hdr },
           { id: "received", label: labels.received, thClassName: hdr },
         ]}
         sortKey={u.sortKey}
@@ -77,9 +80,9 @@ export function AdminRegistrationsTableDesktop({
         trailingHeader={
           <th
             scope="col"
-            className="min-w-[7.5rem] px-3 py-2 font-semibold text-[var(--color-secondary)]"
+            className="min-w-0 px-3 py-2 text-left font-semibold text-[var(--color-secondary)]"
           >
-            {labels.actions}
+            <span className="break-words">{labels.actions}</span>
           </th>
         }
         pagination={
@@ -99,7 +102,20 @@ export function AdminRegistrationsTableDesktop({
         }
         emptyMessage={u.emptyMessage}
         isEmpty={u.listEmpty}
-        minTableWidth="min-w-full"
+        minTableWidth="w-full max-w-full"
+        tableClassName="table-fixed"
+        tableOverflow="hidden"
+        colgroup={
+          <colgroup>
+            <col style={{ width: "15%" }} />
+            <col style={{ width: "10%" }} />
+            <col style={{ width: "24%" }} />
+            <col style={{ width: "10%" }} />
+            <col style={{ width: "11%" }} />
+            <col style={{ width: "14%" }} />
+            <col style={{ width: "16%" }} />
+          </colgroup>
+        }
       >
         {u.pageRows.map((r) => (
           <AdminRegistrationTableRow
@@ -110,6 +126,7 @@ export function AdminRegistrationsTableDesktop({
             labels={labels}
             statusLabel={u.statusLabel}
             onAccept={u.setAcceptRow}
+            onEdit={u.setEditRow}
             onDelete={u.setDeleteRow}
           />
         ))}
@@ -126,6 +143,7 @@ export function AdminRegistrationsTableDesktop({
       <AdminRegistrationAcceptModal
         locale={locale}
         row={u.acceptRow}
+        legalAgeMajority={legalAgeMajority}
         busy={u.busyId !== null}
         onBusy={u.setBusyId}
         onClose={() => u.setAcceptRow(null)}
@@ -135,6 +153,19 @@ export function AdminRegistrationsTableDesktop({
         }}
         labels={labels}
         userLabels={userLabels}
+      />
+
+      <AdminRegistrationEditModal
+        locale={locale}
+        row={u.editRow}
+        busy={u.busyId !== null}
+        onBusy={u.setBusyId}
+        onClose={() => u.setEditRow(null)}
+        onSuccess={() => {
+          u.setToast(labels.editSuccess);
+          u.refreshList();
+        }}
+        labels={labels}
       />
     </div>
   );

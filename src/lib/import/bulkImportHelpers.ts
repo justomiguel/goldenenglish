@@ -1,55 +1,23 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CsvStudentRow } from "@/lib/import/studentRowSchema";
-import { normalizeDni } from "@/lib/import/studentImportUtils";
-import { parentDefaultEmail } from "@/lib/import/parentDefaultEmail";
-
-function inviteMeta(
-  base: Record<string, string>,
-  role: "student" | "parent",
-): Record<string, unknown> {
-  return { ...base, provisioning_source: "admin_invite", role };
-}
+import type { TutorDisplayDefaults } from "@/lib/register/tutorDisplayNameParts";
+import { ensureParentProfileByTutorDni, upsertTutorStudentLink } from "@/lib/register/ensureParentProfileByTutorDni";
 
 export async function ensureParentUserId(
   admin: SupabaseClient,
   row: CsvStudentRow,
+  tutorDefaults: TutorDisplayDefaults,
 ): Promise<string | null> {
   const raw = row.tutor_dni?.trim();
   if (!raw) return null;
-  const { dni, password } = normalizeDni(raw);
-  const email = (row.tutor_email?.trim() || parentDefaultEmail(dni)).toLowerCase();
-  const meta = inviteMeta(
-    {
-      first_name: row.tutor_first_name?.trim() || "Tutor",
-      last_name: row.tutor_last_name?.trim() || "—",
-      dni_or_passport: dni,
-      phone: row.tutor_phone?.trim() || "",
-      birth_date: "",
-    },
-    "parent",
-  );
-
-  const { data: existing } = await admin
-    .from("profiles")
-    .select("id, role")
-    .eq("dni_or_passport", dni)
-    .maybeSingle();
-
-  if (existing?.id) {
-    if (existing.role === "parent" || existing.role === "admin") {
-      return existing.id as string;
-    }
-    return null;
-  }
-
-  const { data: created, error } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: meta,
+  const r = await ensureParentProfileByTutorDni(admin, {
+    tutorDniRaw: raw,
+    tutorEmail: row.tutor_email,
+    tutorPhone: row.tutor_phone,
+    tutorFirstName: row.tutor_first_name?.trim() || tutorDefaults.defaultFirstName,
+    tutorLastName: row.tutor_last_name?.trim() || tutorDefaults.emptyLastName,
   });
-  if (error || !created.user) return null;
-  return created.user.id;
+  return r.ok ? r.parentId : null;
 }
 
 export async function linkParentStudent(
@@ -57,10 +25,7 @@ export async function linkParentStudent(
   parentId: string,
   studentId: string,
 ) {
-  await admin.from("tutor_student_rel").upsert(
-    { tutor_id: parentId, student_id: studentId },
-    { onConflict: "tutor_id,student_id" },
-  );
+  await upsertTutorStudentLink(admin, parentId, studentId, null);
 }
 
 export async function hasPaymentsForYear(

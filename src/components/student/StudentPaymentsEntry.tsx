@@ -32,7 +32,7 @@ export interface StudentPaymentsEntryProps {
   lead: string;
   payments: StudentPaymentRow[];
   labels: StudentLabels;
-  /** Si está definido, se ocultan formularios de pago (menor con tutor responsable). */
+  /** When set, payment forms are hidden (minor with a responsible tutor). */
   paymentsBlockedMessage?: string;
 }
 
@@ -91,7 +91,7 @@ export function StudentPaymentsEntry({
           promoError: labels.promoError,
         }}
       />
-      <StudentPaymentForm labels={labels} />
+      <StudentPaymentForm locale={locale} labels={labels} />
       <h2 className="mt-10 font-display text-xl font-semibold text-[var(--color-primary)]">
         {labels.paymentsHistory}
       </h2>

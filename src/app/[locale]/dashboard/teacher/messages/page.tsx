@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { TeacherFeedRow } from "@/components/teacher/TeacherMessagesFeed";
-import type { MessagingRecipient } from "@/components/teacher/TeacherPortalCompose";
+import type { MessagingRecipient } from "@/types/messaging";
 import { TeacherMessagesEntry } from "@/components/teacher/TeacherMessagesEntry";
 
 export const metadata: Metadata = {
@@ -34,7 +34,7 @@ export default async function TeacherMessagesPage({ params }: PageProps) {
     .from("profiles")
     .select("id, first_name, last_name, role")
     .neq("id", user.id)
-    .in("role", ["student", "teacher", "admin"])
+    .in("role", ["student", "parent", "teacher", "admin"])
     .order("role", { ascending: true })
     .order("last_name", { ascending: true });
 
@@ -67,7 +67,7 @@ export default async function TeacherMessagesPage({ params }: PageProps) {
       p.id,
       {
         name: `${p.first_name} ${p.last_name}`.trim(),
-        role: p.role as "student" | "teacher" | "admin",
+        role: p.role as "student" | "parent" | "teacher" | "admin",
       },
     ]),
   );
@@ -77,8 +77,8 @@ export default async function TeacherMessagesPage({ params }: PageProps) {
     const peerId = outgoing ? (m.recipient_id as string) : (m.sender_id as string);
     const meta = profileById.get(peerId);
     const peerRole = meta?.role ?? "student";
-    const peerName = meta?.name ?? "—";
-    const canReply = !outgoing && peerRole === "student";
+    const peerName = meta?.name ?? dict.common.emptyValue;
+    const canReply = !outgoing && (peerRole === "student" || peerRole === "parent");
     return {
       id: m.id as string,
       created_at: m.created_at as string,

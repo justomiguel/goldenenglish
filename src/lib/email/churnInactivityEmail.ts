@@ -1,6 +1,8 @@
 import { getBrandPublic } from "@/lib/brand/server";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { fillTemplate } from "@/lib/i18n/fillTemplate";
 import type { Locale } from "@/types/i18n";
 
 async function emailsForStudentParents(studentId: string): Promise<string[]> {
@@ -24,6 +26,14 @@ async function emailsForStudentParents(studentId: string): Promise<string[]> {
   return [...out];
 }
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 export async function sendStudentChurnAlert(params: {
   studentId: string;
   locale: Locale;
@@ -33,18 +43,17 @@ export async function sendStudentChurnAlert(params: {
   if (toList.length === 0) return;
   const brand = getBrandPublic();
   const provider = getEmailProvider();
-  const subject =
-    params.locale === "en"
-      ? `${brand.name}: we miss you on the portal`
-      : `${brand.name}: te extrañamos en el portal`;
-
-  const html = `<!DOCTYPE html><html><body style="font-family:system-ui,sans-serif;color:#103A5C;">
-<p><strong>${brand.name}</strong></p>
-<p>${params.locale === "en" ? "Hello," : "Hola,"}</p>
-<p>${params.locale === "en" ? "We noticed" : "Notamos"} <strong>${params.studentDisplayName}</strong> ${params.locale === "en" ? "has not opened the student portal recently. If you need help, contact us." : "no ha ingresado al portal del alumno recientemente. Si necesitás ayuda, escribinos."}</p>
-<p style="font-size:0.875rem;color:#6B7280;">${brand.contactEmail}</p>
-</body></html>`;
-
+  const dict = await getDictionary(params.locale);
+  const c = dict.emailChurn;
+  const display =
+    params.studentDisplayName.trim() || c.anonymousDisplayName;
+  const subject = fillTemplate(c.subject, { brandName: brand.name });
+  const html = fillTemplate(c.html, {
+    brandName: escapeHtml(brand.name),
+    greeting: escapeHtml(c.greeting),
+    studentDisplayName: escapeHtml(display),
+    contactEmail: escapeHtml(brand.contactEmail),
+  });
   for (const to of toList) {
     await provider.sendEmail({ to, subject, html });
   }

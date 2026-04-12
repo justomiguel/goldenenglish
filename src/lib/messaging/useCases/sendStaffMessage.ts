@@ -1,7 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { EmailProvider } from "@/lib/email/emailProvider";
-import { notifyPortalRecipientForStaffMessage } from "@/lib/messaging/notifyMessagingEmails";
+import {
+  notifyPortalInboxForStudentOrParent,
+  notifyPortalRecipientForStaffMessage,
+} from "@/lib/messaging/notifyMessagingEmails";
 import { stripHtmlToText } from "@/lib/messaging/stripHtml";
+import { MESSAGING_UC_PERSIST_FAILED } from "@/lib/messaging/messagingUseCaseCodes";
 
 export async function sendStaffMessageUseCase(input: {
   supabase: SupabaseClient;
@@ -17,7 +21,7 @@ export async function sendStaffMessageUseCase(input: {
     recipient_id: input.recipientId,
     body_html: input.bodyHtml,
   });
-  if (error) return { ok: false, message: error.message };
+  if (error) return { ok: false, message: MESSAGING_UC_PERSIST_FAILED };
 
   const { data: rec } = await input.supabase
     .from("profiles")
@@ -25,9 +29,9 @@ export async function sendStaffMessageUseCase(input: {
     .eq("id", input.recipientId)
     .maybeSingle();
 
-  if (rec?.role === "teacher" || rec?.role === "admin") {
-    const preview = stripHtmlToText(input.bodyHtml).slice(0, 500);
-    try {
+  const preview = stripHtmlToText(input.bodyHtml).slice(0, 500);
+  try {
+    if (rec?.role === "teacher" || rec?.role === "admin") {
       await notifyPortalRecipientForStaffMessage({
         recipientId: input.recipientId,
         senderName: input.senderDisplayName,
@@ -36,9 +40,18 @@ export async function sendStaffMessageUseCase(input: {
         emailProvider: input.emailProvider,
         recipientRole: rec.role as "teacher" | "admin",
       });
-    } catch {
-      /* best-effort */
+    } else if (rec?.role === "student" || rec?.role === "parent") {
+      await notifyPortalInboxForStudentOrParent({
+        recipientId: input.recipientId,
+        senderName: input.senderDisplayName,
+        messagePreview: preview || "(empty)",
+        locale: input.locale,
+        emailProvider: input.emailProvider,
+        recipientRole: rec.role as "student" | "parent",
+      });
     }
+  } catch {
+    /* best-effort */
   }
 
   return { ok: true };

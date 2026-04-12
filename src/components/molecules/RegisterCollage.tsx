@@ -2,7 +2,7 @@ import { LandingTiltedPhoto } from "@/components/molecules/LandingTiltedPhoto";
 import { modalidadesCollageSrc } from "@/lib/landing/sectionLandingImages";
 
 interface RegisterCollageProps {
-  /** Cuatro textos alt — p. ej. `dict.landing.collage.alts` */
+  /** Four alt strings, e.g. `dict.landing.collage.alts`. */
   alts: readonly string[];
 }
 

@@ -62,7 +62,7 @@ export function AttendancePlayboard({ rows, labels }: AttendancePlayboardProps) 
           {labels.attendance}
         </h2>
         <p className="mb-4 text-sm text-[var(--color-muted-foreground)]">
-          {labels.mandatoryMet}: {present} / {total || "—"}
+          {labels.mandatoryMet}: {present} / {total || labels.emptyValue}
         </p>
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">

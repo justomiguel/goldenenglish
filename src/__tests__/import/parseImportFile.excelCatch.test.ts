@@ -7,6 +7,7 @@ vi.mock("xlsx", () => ({
 }));
 
 import { parseImportFile } from "@/lib/import/parseImportFile";
+import { IMPORT_PARSE_EXCEL_FAILED } from "@/lib/import/parseImportErrorCodes";
 
 describe("parseImportFile excel catch branch", () => {
   it("maps non-Error throws to a generic Excel read message", async () => {
@@ -15,6 +16,6 @@ describe("parseImportFile excel catch branch", () => {
     });
     const out = await parseImportFile(file);
     expect(out.data).toEqual([]);
-    expect(out.errors).toEqual([{ message: "Excel read error" }]);
+    expect(out.errors).toEqual([{ message: IMPORT_PARSE_EXCEL_FAILED }]);
   });
 });

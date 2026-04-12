@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { describe, it, vi } from "vitest";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
@@ -32,7 +32,7 @@ vi.mock("@/app/[locale]/dashboard/admin/import/actions", () => ({
 }));
 
 vi.mock("@/app/[locale]/dashboard/admin/users/actions", () => ({
-  createDashboardUser: vi.fn().mockResolvedValue({ ok: true }),
+  createDashboardUser: vi.fn().mockResolvedValue({ ok: true, userId: "u1" }),
 }));
 
 vi.mock("@/app/[locale]/dashboard/admin/settings/actions", () => ({
@@ -96,6 +96,9 @@ describe("component smoke — dashboard & forms", () => {
     render(
       <AdminChromeHeader locale="es" brand={mockBrandPublic} dict={dictEn} />,
     );
+    expect(
+      screen.getByRole("button", { name: dictEn.nav.logout }),
+    ).toBeInTheDocument();
   });
 
   it("AdminChromeHeader uses English tagline when locale en", () => {
@@ -115,7 +118,7 @@ describe("component smoke — dashboard & forms", () => {
   });
 
   it("AdminCreateUserForm", () => {
-    render(<AdminCreateUserForm labels={dictEn.admin.users} />);
+    render(<AdminCreateUserForm locale="en" labels={dictEn.admin.users} />);
   });
 
   it("InscriptionsSettingsForm", () => {
@@ -131,23 +134,32 @@ describe("component smoke — dashboard & forms", () => {
   it("PaymentReviewRow", () => {
     render(
       <PaymentReviewRow
+        locale="en"
         paymentId="00000000-0000-4000-8000-000000000099"
         studentLabel="Student"
         periodLabel="1/2025"
         amountLabel="$10"
         previewUrl={null}
         labels={dictEn.admin.payments}
+        emptyValue={dictEn.common.emptyValue}
       />,
     );
   });
 
   it("ImportStudents", () => {
-    render(<ImportStudents labels={dictEn.admin.import} />);
+    render(
+      <ImportStudents
+        locale="en"
+        labels={dictEn.admin.import}
+        emptyLogPlaceholder={dictEn.common.emptyValue}
+      />,
+    );
   });
 
   it("ParentPaymentForm", () => {
     render(
       <ParentPaymentForm
+        locale="es"
         options={[{ id: "s1", label: "Student A" }]}
         labels={dictEn.dashboard.parent}
       />,

@@ -6,6 +6,8 @@ import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { createClient } from "@/lib/supabase/server";
 import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
 import { sendPromotionAppliedEmail } from "@/lib/email/billingBenefitEmails";
+import { paymentActionDict } from "@/lib/i18n/actionErrors";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { Locale } from "@/types/i18n";
 
 const MAX_BYTES = 4 * 1024 * 1024;
@@ -21,43 +23,44 @@ function extFromMime(mime: string): string {
 export async function submitStudentPaymentReceipt(
   formData: FormData,
 ): Promise<{ ok: boolean; message?: string }> {
+  const pe = await paymentActionDict(formData);
   const month = Number(formData.get("month"));
   const year = Number(formData.get("year"));
   const amount = Number(formData.get("amount"));
   const file = formData.get("receipt");
 
   if (!Number.isFinite(month) || !Number.isFinite(year)) {
-    return { ok: false, message: "Invalid form" };
+    return { ok: false, message: pe.invalidForm };
   }
   if (!Number.isFinite(amount) || amount <= 0) {
-    return { ok: false, message: "Invalid amount" };
+    return { ok: false, message: pe.invalidAmount };
   }
   if (!(file instanceof File) || file.size === 0) {
-    return { ok: false, message: "Receipt file required" };
+    return { ok: false, message: pe.receiptRequired };
   }
-  if (file.size > MAX_BYTES) return { ok: false, message: "File too large" };
+  if (file.size > MAX_BYTES) return { ok: false, message: pe.fileTooLarge };
 
   const mime = file.type || "application/octet-stream";
   if (!mime.startsWith("image/") && mime !== "application/pdf") {
-    return { ok: false, message: "Use PDF or image" };
+    return { ok: false, message: pe.mimeInvalid };
   }
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { ok: false, message: "Unauthorized" };
+  if (!user) return { ok: false, message: pe.unauthorized };
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .single();
-  if (profile?.role !== "student") return { ok: false, message: "Forbidden" };
+  if (profile?.role !== "student") return { ok: false, message: pe.forbidden };
 
   const perms = await getProfilePermissions(supabase, user.id);
   if (perms && !perms.canAccessPaymentsModule) {
-    return { ok: false, message: "Forbidden" };
+    return { ok: false, message: pe.forbidden };
   }
 
   const { data: pay, error: payErr } = await supabase
@@ -68,9 +71,9 @@ export async function submitStudentPaymentReceipt(
     .eq("year", year)
     .maybeSingle();
 
-  if (payErr || !pay) return { ok: false, message: "Payment slot not found" };
+  if (payErr || !pay) return { ok: false, message: pe.slotNotFound };
   if (pay.status !== "pending") {
-    return { ok: false, message: "Payment already processed" };
+    return { ok: false, message: pe.alreadyProcessed };
   }
 
   const buf = Buffer.from(await file.arrayBuffer());
@@ -81,7 +84,7 @@ export async function submitStudentPaymentReceipt(
     .from("payment-receipts")
     .upload(path, buf, { contentType: mime, upsert: false });
 
-  if (upErr) return { ok: false, message: upErr.message };
+  if (upErr) return { ok: false, message: pe.uploadFailed };
 
   const { error: upRow } = await supabase
     .from("payments")
@@ -93,7 +96,7 @@ export async function submitStudentPaymentReceipt(
     .eq("student_id", user.id)
     .eq("status", "pending");
 
-  if (upRow) return { ok: false, message: upRow.message };
+  if (upRow) return { ok: false, message: pe.uploadFailed };
 
   void recordUserEventServer({
     userId: user.id,
@@ -120,14 +123,16 @@ export async function applyPromotionCodeForStudent(
   studentId: string,
   code: string,
 ): Promise<{ ok: boolean; message?: string }> {
+  const dict = await getDictionary(locale);
+  const pe = dict.actionErrors.payment;
   const trimmed = code.trim();
-  if (!trimmed) return { ok: false, message: "Empty code" };
+  if (!trimmed) return { ok: false, message: pe.emptyPromoCode };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { ok: false, message: "Unauthorized" };
+  if (!user) return { ok: false, message: pe.unauthorized };
 
   if (user.id !== studentId) {
     const { data: link } = await supabase
@@ -136,11 +141,11 @@ export async function applyPromotionCodeForStudent(
       .eq("tutor_id", user.id)
       .eq("student_id", studentId)
       .maybeSingle();
-    if (!link) return { ok: false, message: "Forbidden" };
+    if (!link) return { ok: false, message: pe.forbidden };
   } else {
     const perms = await getProfilePermissions(supabase, user.id);
     if (perms && !perms.canAccessPaymentsModule) {
-      return { ok: false, message: "Forbidden" };
+      return { ok: false, message: pe.forbidden };
     }
   }
 
@@ -149,11 +154,14 @@ export async function applyPromotionCodeForStudent(
     p_code: trimmed,
   });
 
-  if (error) return { ok: false, message: error.message };
+  if (error) return { ok: false, message: pe.promoApplyFailed };
 
   const row = data as RpcResult | null;
   if (!row || row.ok !== true) {
-    return { ok: false, message: typeof row?.message === "string" ? row.message : "Error" };
+    return {
+      ok: false,
+      message: typeof row?.message === "string" && row.message.trim() ? row.message : pe.promoApplyFailed,
+    };
   }
 
   try {

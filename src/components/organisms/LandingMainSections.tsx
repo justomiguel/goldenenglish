@@ -6,7 +6,7 @@ import { LandingModalities } from "@/components/organisms/LandingModalities";
 import { LandingLevels } from "@/components/organisms/LandingLevels";
 import { LandingCertifications } from "@/components/organisms/LandingCertifications";
 
-/** Orden: hero → historia → modalidades (incluye públicos y cards) → niveles → certificaciones. */
+/** Order: hero → story → modalities (publics + cards) → levels → certifications. */
 interface LandingMainSectionsProps {
   dict: Dictionary;
   brand: BrandPublic;

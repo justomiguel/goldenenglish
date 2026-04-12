@@ -6,18 +6,21 @@ import { AdminRegistrationsTableDesktop } from "@/components/desktop/organisms/A
 import { AdminRegistrationsScreenNarrow } from "@/components/pwa/organisms/AdminRegistrationsScreenNarrow";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
+import type { RegistrationAcceptUserLabels } from "@/components/dashboard/AdminRegistrationAcceptForm";
 
 interface AdminRegistrationsScreenProps {
   locale: string;
   rows: AdminRegistrationRow[];
+  legalAgeMajority: number;
   labels: Dictionary["admin"]["registrations"];
   tableLabels: Dictionary["admin"]["table"];
-  userLabels: Pick<Dictionary["admin"]["users"], "password" | "passwordHint">;
+  userLabels: RegistrationAcceptUserLabels;
 }
 
 export function AdminRegistrationsScreen({
   locale,
   rows,
+  legalAgeMajority,
   labels,
   tableLabels,
   userLabels,
@@ -29,6 +32,7 @@ export function AdminRegistrationsScreen({
         <AdminRegistrationsTableDesktop
           locale={locale}
           rows={rows}
+          legalAgeMajority={legalAgeMajority}
           labels={labels}
           tableLabels={tableLabels}
           userLabels={userLabels}
@@ -38,6 +42,7 @@ export function AdminRegistrationsScreen({
         <AdminRegistrationsScreenNarrow
           locale={locale}
           rows={rows}
+          legalAgeMajority={legalAgeMajority}
           labels={labels}
           tableLabels={tableLabels}
           userLabels={userLabels}

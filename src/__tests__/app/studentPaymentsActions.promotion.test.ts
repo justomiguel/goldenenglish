@@ -3,7 +3,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { applyPromotionCodeForStudent } from "@/app/[locale]/dashboard/student/payments/actions";
+import { dictEn } from "@/test/dictEn";
 import { mockCreateClient } from "./studentPaymentsActions.shared";
+
+const pe = dictEn.actionErrors.payment;
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: () => mockCreateClient(),
@@ -77,7 +80,7 @@ describe("applyPromotionCodeForStudent analytics", () => {
   it("does not call analytics for empty code", async () => {
     expect(await applyPromotionCodeForStudent("en", "s1", "   ")).toEqual({
       ok: false,
-      message: "Empty code",
+      message: pe.emptyPromoCode,
     });
     expect(recordUserEventServer).not.toHaveBeenCalled();
   });

@@ -26,7 +26,7 @@ export function buildPublicRegistrationSchema(legalAgeMajority: number) {
         .string()
         .trim()
         .regex(/^\d{4}-\d{2}-\d{2}$/)
-        .refine(isReasonableBirthDate, { message: "invalid birth_date" }),
+        .refine(isReasonableBirthDate, { message: "invalid_birth_date" }),
       level_interest: z.string().trim().min(1).max(80),
       tutor_name: z.string().trim().max(120).optional(),
       tutor_dni: z.string().trim().max(32).optional(),

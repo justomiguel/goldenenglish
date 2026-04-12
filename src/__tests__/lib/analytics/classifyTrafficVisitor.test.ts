@@ -32,4 +32,9 @@ describe("classifyTrafficVisitor", () => {
   it("treats empty UA without user as guest", () => {
     expect(classifyTrafficVisitor("", null)).toBe("guest");
   });
+
+  it("treats undefined user agent like empty string", () => {
+    expect(classifyTrafficVisitor(undefined, "user-1")).toBe("authenticated");
+    expect(classifyTrafficVisitor(undefined, null)).toBe("guest");
+  });
 });
