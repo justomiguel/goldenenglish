@@ -2,7 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { applyExemptionRange, setPeriodExemption } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/actions";
+import {
+  applyExemptionRange,
+  setPeriodExemption,
+} from "@/app/[locale]/dashboard/admin/users/[userId]/billing/periodExemptionActions";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";

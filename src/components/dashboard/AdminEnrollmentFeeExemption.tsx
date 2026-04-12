@@ -5,7 +5,7 @@ import { useState } from "react";
 import {
   markEnrollmentFeePaidNow,
   setEnrollmentFeeExemption,
-} from "@/app/[locale]/dashboard/admin/users/[userId]/billing/actions";
+} from "@/app/[locale]/dashboard/admin/users/[userId]/billing/enrollmentFeeActions";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";

@@ -15,6 +15,9 @@ type GeoJson = {
   features: Array<{ type: string; properties?: { name?: string }; id?: string }>;
 };
 
+/** react-simple-maps render-prop payload (package ships without types). */
+type RsmGeography = { id?: string; rsmKey: string; properties?: Record<string, unknown> };
+
 interface AdminAnalyticsGeoChoroplethProps {
   labels: Pick<
     Dictionary["admin"]["analytics"],
@@ -84,7 +87,7 @@ export function AdminAnalyticsGeoChoropleth({ labels, rows }: AdminAnalyticsGeoC
           className="mx-auto max-w-full [&_svg]:h-auto [&_svg]:max-w-full"
         >
           <Geographies geography={geo}>
-            {({ geographies }) =>
+            {({ geographies }: { geographies: RsmGeography[] }) =>
               geographies.map((g) => {
                 const id = String(g.id ?? "").toUpperCase();
                 const cnt = iso3Counts.get(id) ?? 0;

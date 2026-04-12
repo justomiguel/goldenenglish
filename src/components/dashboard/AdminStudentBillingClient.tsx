@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { setPeriodExemption } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/actions";
+import { setPeriodExemption } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/periodExemptionActions";
 import { AdminEnrollmentFeeExemption } from "@/components/dashboard/AdminEnrollmentFeeExemption";
 import { AdminStudentBillingPaymentsTable } from "@/components/dashboard/AdminStudentBillingPaymentsTable";
 import { AdminStudentBillingPeriodExemptionsPanel } from "@/components/dashboard/AdminStudentBillingPeriodExemptionsPanel";
