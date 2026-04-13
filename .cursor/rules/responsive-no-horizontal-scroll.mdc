@@ -1,0 +1,90 @@
+---
+description: Reglas para garantizar responsividad y evitar scroll horizontal. Aplica a componentes UI, listas, tablas y páginas.
+globs: "*.tsx,*.ts"
+---
+
+# 📱 Responsive design y sin scroll horizontal (Golden English)
+
+## ⚠️ Regla crítica
+
+**Todos** los componentes relevantes deben comportarse bien en **viewport estrecho** y **no** provocar scroll horizontal accidental en ningún breakpoint razonable (desde ~320px). Alineado con **`05-pwa-mobile-native.mdc`** y tokens en **`01-design-system.mdc`**.
+
+## 🚫 Prohibido
+
+1. Tablas o bloques con muchas columnas rígidas que **empujen** el ancho del viewport sin `overflow-x` controlado o sin simplificar columnas en móvil.
+2. Anchos fijos grandes (`w-[1200px]`, etc.) sin `max-w-full` / contenedor acotado.
+3. Contenido que **desborde** el viewport en móvil sin `min-w-0`, `truncate` o equivalente.
+4. Columnas vacías que ocupen espacio solo para “rellenar” la tabla.
+5. Copy **visible** largo hardcodeado en JSX — va al diccionario (**`09-i18n-copy.mdc`**); en código de ejemplo de esta regla los literales son solo ilustrativos.
+
+## ✅ Obligatorio
+
+### 1. Mobile-first
+
+Diseñar primero para móvil, luego ampliar:
+
+```tsx
+// ✅ CORRECTO
+<div className="px-4 sm:px-6 lg:px-8">
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+```
+
+```tsx
+// ❌ INCORRECTO — asume desktop
+<div className="px-8">
+  <div className="grid grid-cols-4 gap-4">
+```
+
+### 2. Contenedores
+
+```tsx
+// ✅ CORRECTO — ancho fluido + tope
+<div className="w-full max-w-[var(--layout-max-width)] mx-auto">
+
+// ✅ CORRECTO — cortar overflow horizontal cuando la tabla puede crecer
+<div className="overflow-x-hidden">
+
+// ❌ INCORRECTO
+<div className="w-[1200px]">
+```
+
+### 3. Tablas y listas
+
+- Reducir columnas en móvil o **combinar** información en una columna con `min-w-0` + `truncate`.
+- Para tablas con **`UniversalListView`**, usar `tableOverflow="hidden"` cuando el diseño ya fuerza celdas acotadas y wrapping, para evitar barra horizontal innecesaria (ver props del componente).
+
+```tsx
+// ✅ CORRECTO — celda con truncado y mínimo ancho 0 en flex
+<div className="flex min-w-0">
+  <div className="truncate text-sm text-[var(--color-muted-foreground)]">{item.email}</div>
+</div>
+```
+
+### 4. Flex y grid
+
+```tsx
+// ✅ CORRECTO
+<div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+```
+
+## 📋 Checklist rápido
+
+- [ ] ¿Probado o razonable en **~320px**?
+- [ ] ¿Sin scroll horizontal no intencional?
+- [ ] ¿`min-w-0` / `truncate` donde haya texto largo o flex que comprima?
+- [ ] ¿Contenedor con `w-full` y `max-w-*` acorde al layout del dashboard?
+
+## 🎯 Patrón con `UniversalListView`
+
+El listado estándar con ordenación y paginación es **`src/components/organisms/UniversalListView.tsx`**. Mantener filas con celdas `min-w-0`, headers compactos y, si hace falta, `tableClassName` / `colgroup` para repartir anchos sin romper móvil.
+
+Referencias en el repo:
+
+- `src/components/organisms/UniversalListView.tsx`
+- Ejemplos de uso: `src/components/organisms/AdminUsersScreen.tsx`, `src/components/desktop/organisms/AdminRegistrationsTableDesktop.tsx`
+
+## 📖 Externo
+
+- [Tailwind — responsive design](https://tailwindcss.com/docs/responsive-design)

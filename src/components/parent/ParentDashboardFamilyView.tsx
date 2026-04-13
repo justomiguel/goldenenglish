@@ -4,6 +4,11 @@ import Link from "next/link";
 import type { ParentChildSummary } from "@/lib/parent/loadParentChildrenSummaries";
 import { googleCalendarEventUrl } from "@/lib/calendar/googleCalendarUrl";
 import type { Dictionary } from "@/types/i18n";
+import type { ParentHubModel } from "@/types/parentHub";
+import { ParentHubLogisticsTable } from "@/components/parent/ParentHubLogisticsTable";
+import { ParentHubBillingCard } from "@/components/parent/ParentHubBillingCard";
+import { ParentHubUpdatesList } from "@/components/parent/ParentHubUpdatesList";
+import { ParentHubIcsDownload } from "@/components/parent/ParentHubIcsDownload";
 
 export interface ParentDashboardFamilyViewProps {
   locale: string;
@@ -12,6 +17,7 @@ export interface ParentDashboardFamilyViewProps {
   navPay: string;
   payHrefBase: string;
   labels: Dictionary["dashboard"]["parent"];
+  hub?: ParentHubModel | null;
 }
 
 export function ParentDashboardFamilyView({
@@ -21,6 +27,7 @@ export function ParentDashboardFamilyView({
   navPay,
   payHrefBase,
   labels,
+  hub = null,
 }: ParentDashboardFamilyViewProps) {
   const selected =
     summaries.find((s) => s.studentId === selectedStudentId) ?? summaries[0];
@@ -127,6 +134,54 @@ export function ParentDashboardFamilyView({
               ) : null}
             </div>
           </div>
+        </div>
+      ) : null}
+
+      {hub ? (
+        <div className="space-y-6 border-t border-[var(--color-border)] pt-6">
+          <ParentHubLogisticsTable
+            rows={hub.logisticsRows}
+            scheduleOverlap={hub.scheduleOverlap}
+            dict={labels.hub}
+          />
+          {hub.icsDocument ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <ParentHubIcsDownload icsDocument={hub.icsDocument} dict={labels.hub} />
+            </div>
+          ) : null}
+          <ParentHubBillingCard
+            locale={locale}
+            studentId={selected?.studentId}
+            pending={selected ? (hub.childPaymentPending[selected.studentId] ?? false) : false}
+            payHrefBase={payHrefBase}
+            dict={labels.hub}
+          />
+          <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4">
+            <h2 className="text-base font-semibold text-[var(--color-foreground)]">{labels.hub.attendanceTitle}</h2>
+            <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.hub.attendanceLead}</p>
+            {(() => {
+              const lines = hub.attendanceLines.filter((l) =>
+                selected ? l.studentId === selected.studentId : true,
+              );
+              if (lines.length === 0) {
+                return (
+                  <p className="mt-3 text-sm text-[var(--color-muted-foreground)]">{labels.hub.attendanceEmpty}</p>
+                );
+              }
+              return (
+                <ul className="mt-3 space-y-2 text-sm text-[var(--color-foreground)]">
+                  {lines.map((l) => (
+                    <li key={l.studentId}>
+                      {labels.hub.attendanceLine
+                        .replace("{child}", l.childFirstName)
+                        .replace("{pct}", String(l.pct))}
+                    </li>
+                  ))}
+                </ul>
+              );
+            })()}
+          </section>
+          <ParentHubUpdatesList updates={hub.updates} dict={labels.hub} />
         </div>
       ) : null}
     </div>

@@ -37,6 +37,8 @@ export function resolveImportJobActivityLine(
       return labels.jobLogFinalize;
     case "completed":
       return labels.jobLogCompleted;
+    case "cancelled_by_user":
+      return labels.jobLogCancelledByUser;
     case "failed":
       return labels.jobLogFailed.replace("{{error}}", err || "—");
     default:

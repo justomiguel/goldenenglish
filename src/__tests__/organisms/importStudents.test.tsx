@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
 import { ImportStudents } from "@/components/organisms/ImportStudents";
+import { IMPORT_JOB_CANCELLED_BY_USER } from "@/lib/import/importJobErrorCodes";
 import { IMPORT_PARSE_CSV_FAILED } from "@/lib/import/parseImportErrorCodes";
 import { IMPORT_ROW_ENROLLMENT_FAILED } from "@/lib/import/importResultMessageCodes";
 
@@ -10,6 +11,8 @@ import { IMPORT_ROW_ENROLLMENT_FAILED } from "@/lib/import/importResultMessageCo
 const bulkImport = vi.hoisted(() => vi.fn());
 const parseImportFile = vi.hoisted(() => vi.fn());
 const fetchMock = vi.hoisted(() => vi.fn());
+const pollUntilDone = vi.hoisted(() => vi.fn());
+const resetLongJob = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/import/parseImportFile", () => ({
   parseImportFile: (...args: unknown[]) => parseImportFile(...args),
@@ -19,6 +22,15 @@ vi.mock("@/app/[locale]/dashboard/admin/import/actions", () => ({
   bulkImportStudentsFromRows: bulkImport,
 }));
 
+vi.mock("@/hooks/useLongJobPoll", () => ({
+  useLongJobPoll: () => ({
+    liveLine: null,
+    jobSnapshot: null,
+    reset: resetLongJob,
+    pollUntilDone,
+  }),
+}));
+
 describe("ImportStudents", () => {
   const labels = dictEn.admin.import;
 
@@ -26,11 +38,14 @@ describe("ImportStudents", () => {
     parseImportFile.mockReset();
     bulkImport.mockReset();
     fetchMock.mockReset();
+    pollUntilDone.mockReset();
+    resetLongJob.mockReset();
     fetchMock.mockResolvedValue({
       ok: true,
       status: 200,
       json: async () => ({ ok: false, code: "kv_not_configured" }),
     });
+    pollUntilDone.mockResolvedValue({ status: "done" });
     vi.stubGlobal("fetch", fetchMock);
     bulkImport.mockResolvedValue({
       processed: 1,
@@ -184,6 +199,29 @@ describe("ImportStudents", () => {
     });
     await waitFor(() => {
       expect(screen.getByText(labels.genericError)).toBeInTheDocument();
+    });
+  });
+
+  it("shows cancelled status when admin stops the running job", async () => {
+    parseImportFile.mockResolvedValue({
+      data: [mappedRow()],
+      errors: [],
+    });
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({ ok: true, jobId: "11111111-1111-1111-1111-111111111111" }),
+    });
+    pollUntilDone.mockResolvedValueOnce({
+      status: "error",
+      error: IMPORT_JOB_CANCELLED_BY_USER,
+    });
+    render(<ImportStudents locale="es" labels={labels} emptyLogPlaceholder="—" />);
+    const input = document.querySelector('input[type="file"]')!;
+    fireEvent.change(input, { target: { files: [new File(["x"], "x.csv")] } });
+    await waitFor(() => {
+      expect(screen.getByText(labels.importCancelledTitle)).toBeInTheDocument();
+      expect(document.querySelector("pre")?.textContent).toBe(labels.importCancelledByUser);
     });
   });
 

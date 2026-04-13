@@ -21,7 +21,13 @@ function addDays(d: Date, n: number): Date {
 export interface StudentAttendanceWeekStripProps {
   anchorDate: Date;
   rowByDate: Map<string, AttendanceRow>;
-  labels: { present: string; absent: string; justified: string; noClass: string };
+  labels: {
+    present: string;
+    absent: string;
+    late: string;
+    excused: string;
+    noClass: string;
+  };
 }
 
 export function StudentAttendanceWeekStrip({
@@ -34,16 +40,19 @@ export function StudentAttendanceWeekStrip({
 
   function tileClass(row: AttendanceRow | undefined): string {
     if (!row) return "border-[var(--color-border)] bg-[var(--color-muted)]/60";
-    if (row.status === "present") return "border-[var(--color-success)] bg-[var(--color-success)]/25";
-    if (row.status === "absent") return "border-[var(--color-error)] bg-[var(--color-error)]/20";
+    if (row.status === "present" || row.status === "late")
+      return "border-[var(--color-success)] bg-[var(--color-success)]/25";
+    if (row.status === "absent")
+      return "border-[var(--color-error)] bg-[var(--color-error)]/20";
     return "border-[var(--color-warning)] bg-[var(--color-warning)]/25";
   }
 
   function statusLabel(row: AttendanceRow | undefined): string {
     if (!row) return labels.noClass;
     if (row.status === "present") return labels.present;
+    if (row.status === "late") return labels.late;
     if (row.status === "absent") return labels.absent;
-    return labels.justified;
+    return labels.excused;
   }
 
   return (

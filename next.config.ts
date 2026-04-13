@@ -50,6 +50,10 @@ const nextConfig: NextConfig = {
       "@tiptap/starter-kit",
       "@tiptap/pm",
     ],
+    /** Allows profile avatar uploads up to `PROFILE_AVATAR_MAX_BYTES` via server actions. */
+    serverActions: {
+      bodySizeLimit: "16mb",
+    },
   },
   async headers() {
     return [
@@ -60,7 +64,7 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           {
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
+            value: "camera=(self), microphone=(), geolocation=()",
           },
         ],
       },

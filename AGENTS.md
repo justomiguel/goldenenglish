@@ -14,6 +14,7 @@ Workspace rules in **`.cursor/rules/`** override generic skill examples when the
 | **`09-i18n-copy.mdc`** | Copy visible: `src/dictionaries/en.json` + `es.json`, sin literales en UI; `Intl` para fechas/números; skill **`i18n-localization`**. |
 | **`10-engineering-governance.mdc`** | ADR / mini diseño para auth, datos, integraciones y contratos públicos; enlaces con TDD, DDD y terceros. |
 | **`11-long-running-jobs-ui.mdc`** | Jobs largos: `LongJobActivityModal` (log desde backend) + `LongJobLoader` + `useLongJobPoll` / SSE + `pollLongJob`. |
+| **`12-supabase-app-boundaries.mdc`** | Supabase solo vía la app: fábricas de cliente en `src/lib/supabase/`; sin PostgREST/Postgres ad hoc para negocio; alineado con DDD y `03-architecture`. |
 
 ## Security skills vs this repo
 
@@ -39,3 +40,4 @@ Workspace rules in **`.cursor/rules/`** override generic skill examples when the
 4. Cualquier texto que vea el usuario: **`.cursor/rules/09-i18n-copy.mdc`** (diccionarios y convenciones del repo).
 5. Auth, datos, integraciones o contratos públicos: **`.cursor/rules/10-engineering-governance.mdc`** (ADR / mini diseño).
 6. Importaciones o batches largos con feedback en UI: **`.cursor/rules/11-long-running-jobs-ui.mdc`** (`LongJobStatus`, `pollLongJob`).
+7. Acceso a Supabase (clientes, REST, service role): **`.cursor/rules/12-supabase-app-boundaries.mdc`**.

@@ -93,6 +93,7 @@ export default async function AdminAnalyticsPage({ params }: PageProps) {
 
   return (
     <AdminAnalyticsEntry
+      locale={locale}
       labels={dict.admin.analytics}
       trafficSummary={trafficSummary}
       trafficDaily={trafficDaily}

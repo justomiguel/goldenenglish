@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { StudentDashboardEntry } from "@/components/student/StudentDashboardEntry";
 import type { AttendanceRow } from "@/lib/attendance/stats";
+import { loadStudentHubModel } from "@/lib/student/loadStudentHubModel";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -34,23 +35,26 @@ export default async function StudentDashboardPage({ params }: PageProps) {
       : 0;
 
   const { data: rows } = await supabase
-    .from("attendance")
-    .select("attendance_date, status, is_mandatory")
-    .eq("student_id", user.id)
-    .order("attendance_date", { ascending: true });
+    .from("section_attendance")
+    .select("attended_on, status, section_enrollments!inner(student_id)")
+    .eq("section_enrollments.student_id", user.id)
+    .order("attended_on", { ascending: true });
 
   const normalized: AttendanceRow[] = (rows ?? []).map((r) => ({
-    attendance_date: String(r.attendance_date),
+    attendance_date: String(r.attended_on),
     status: r.status as AttendanceRow["status"],
-    is_mandatory: Boolean(r.is_mandatory),
   }));
+
+  const hub = await loadStudentHubModel(supabase, user.id, locale);
 
   return (
     <StudentDashboardEntry
+      locale={locale}
       title={dict.dashboard.student.title}
       engagementPoints={engagementPoints}
       rows={normalized}
       labels={dict.dashboard.student}
+      hub={hub}
     />
   );
 }

@@ -1,0 +1,69 @@
+---
+alwaysApply: true
+description: "Soluciones completas y mantenibles alineadas con la arquitectura real del repo (Next.js, capas en src/)."
+---
+# 🎯 Soluciones completas — sin parches temporales (Golden English)
+
+## ⚠️ Regla crítica
+
+**Implementa la solución arquitectónicamente correcta** para este repositorio: Next.js App Router, capas en `src/` según **`.cursor/rules/03-architecture.mdc`**, Supabase vía **`src/lib/supabase/`** (ver **`12-supabase-app-boundaries.mdc`**). Las soluciones temporales, parches rápidos “solo para pasar CI” y cambios mínimos que dejen deuda explícita están **prohibidos**.
+
+## 🚫 Prohibido
+
+1. **Soluciones temporales** — “por ahora así y después lo mejoramos” sin plan en la misma PR.
+2. **Parches rápidos** — relajar validación, silenciar errores o bajar cobertura solo para verde.
+3. **Atajos de capas** — lógica de negocio pesada en componentes; acceso a Supabase fuera de los límites acordados.
+4. **Hardcodear** lo que el proyecto ya centraliza — marca en **`system.properties`**, copy en **`src/dictionaries/`**, secretos en código.
+5. **TODO sin cierre** — no dejar `// TODO` sin issue/ADR o sin resolver en el mismo cambio cuando el alcance es cerrado.
+6. **Ignorar reglas del repo** — i18n (**`09-i18n-copy.mdc`**), analítica/auditoría (**`08`**), jobs largos (**`11`**), etc.
+
+## ✅ Obligatorio — capas reales de este monorepo
+
+Cuando toques **persistencia, auth visible, contratos públicos o flujos críticos**, actualiza **todas** las superficies afectadas en este árbol (las que apliquen al cambio):
+
+| Capa | Ubicación |
+|------|------------|
+| Esquema y políticas | **`supabase/migrations/*.sql`** (incremental, idempotente donde el repo ya lo hace). |
+| Vista / dump de contexto | **`supabase/migrations/masterdb.sql`** — referencia generada / contexto; **no** sustituye una migración nueva para cambios reales. |
+| Reglas puras, parsers, validadores | **`src/lib/<contexto>/`** — sin imports de Supabase/React en módulos **puros** (ver `03-architecture`). |
+| Clientes Supabase | Solo fábricas en **`src/lib/supabase/`**. |
+| Orquestación servidor | **`src/app/**/actions.ts`**, route handlers **`src/app/api/**`**, Server Components que lean datos. |
+| Hooks cliente | **`src/hooks/*.ts`**. |
+| UI | **`src/components/{atoms,molecules,organisms}/`**, y **`desktop/`** / **`pwa/`** cuando aplique **`05-pwa-mobile-native.mdc`**. |
+| Tipos compartidos | **`src/types/`**. |
+| Copy visible | **`src/dictionaries/en.json`** y **`es.json`**. |
+| Tests | **`src/__tests__/**`** — ver **`.cursor/rules/02-testing-tdd.mdc`**. |
+| Decisiones trazables | **`docs/adr/`** cuando gobiernen **`10-engineering-governance.mdc`**. |
+
+### Cambio de modelo de datos (campo / tabla nueva)
+
+1. Nueva migración bajo **`supabase/migrations/`** (y actualizar **`masterdb.sql`** si el equipo lo usa como vista consolidada de esquema).
+2. Tipos TS / Zod en el módulo de dominio que corresponda bajo **`src/lib/`** o **`src/types/`**.
+3. RLS y políticas en la misma migración cuando afecte acceso a datos.
+4. Server actions o routes que mutan o exponen el contrato.
+5. UI + i18n si hay superficie visible.
+6. Tests y, si aplica, **`recordSystemAudit` / `trackEvent`** según **`08`**.
+
+### Corrección de bugs
+
+- **No** el parche mínimo que oculte el síntoma.
+- **Sí** causa raíz, contrato claro, tests que fijen el comportamiento.
+
+## 📋 Checklist (antes de dar por cerrado un cambio)
+
+- ¿Respeta **`03-architecture.mdc`** (tamaño de archivo, dirección de dependencias, un componente principal por archivo)?
+- ¿Los textos visibles van al diccionario (**`09`**) y la marca no se duplica fuera de **`system.properties`** (**`01`**)?
+- ¿Cambios de datos/auth/contrato público tienen ADR o mini-diseño (**`10`**) cuando aplica?
+- ¿Migración + RLS si hay tablas nuevas o políticas nuevas?
+- ¿Tests actualizados o añadidos según **`02-testing-tdd.mdc`**?
+
+## ⏰ Alcance vs confirmación
+
+- **Dentro del alcance acordado de la tarea:** implementa la solución completa **sin pedir permiso** para cada detalle de implementación.
+- **Si los tests fallan en el flujo de commit / pre-commit:** aplica **`990-tests-failure-confirmation.mdc`**: **sí debes preguntar** antes de decidir entre cambiar test o producto para el gate.
+
+## 💡 Mentalidad
+
+> Si no se hace bien en esta PR, alguien lo paga en producción o en soporte.
+
+La deuda técnica **rara vez** se “paga sola”; evitar el parche ahora reduce coste después.

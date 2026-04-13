@@ -14,6 +14,7 @@ type GeoRow = { country: string; cnt: number };
 type FunnelRow = { section: string; viewers: number };
 
 interface AdminAnalyticsEntryProps {
+  locale: string;
   labels: Dictionary["admin"]["analytics"];
   trafficSummary: TrafficSummary;
   trafficDaily: TrafficDailyRow[];
@@ -45,6 +46,7 @@ const AdminAnalyticsCharts = dynamic(
 );
 
 export function AdminAnalyticsEntry({
+  locale,
   labels,
   trafficSummary,
   trafficDaily,
@@ -55,6 +57,7 @@ export function AdminAnalyticsEntry({
 }: AdminAnalyticsEntryProps) {
   const body = (
     <AdminAnalyticsCharts
+      locale={locale}
       labels={labels}
       trafficSummary={trafficSummary}
       trafficDaily={trafficDaily}

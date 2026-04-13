@@ -4,6 +4,10 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { AdminRegistrationsScreen } from "@/components/organisms/AdminRegistrationsScreen";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
+import {
+  loadCurrentCohort,
+  loadCurrentCohortSections,
+} from "@/lib/academics/currentCohort";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -44,6 +48,11 @@ export default async function AdminRegistrationsPage({ params }: PageProps) {
 
   const legalAgeMajority = getLegalAgeMajorityFromSystem();
 
+  const cohort = await loadCurrentCohort(supabase);
+  const cohortSections = cohort
+    ? await loadCurrentCohortSections(supabase)
+    : [];
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
@@ -67,6 +76,8 @@ export default async function AdminRegistrationsPage({ params }: PageProps) {
             password: dict.admin.users.password,
             passwordHint: dict.admin.users.passwordHint,
           }}
+          currentCohortSections={cohortSections}
+          currentCohortName={cohort?.name}
         />
       )}
     </div>

@@ -7,7 +7,7 @@ export interface ProfileAvatarProps {
   url: string | null;
   /** Used for initials fallback and alt when no image */
   displayName: string;
-  size: "sm" | "lg";
+  size: "sm" | "lg" | "xl";
   className?: string;
 }
 
@@ -19,10 +19,11 @@ function initials(name: string): string {
 }
 
 export function ProfileAvatar({ url, displayName, size, className = "" }: ProfileAvatarProps) {
-  const dim = size === "lg" ? 128 : 40;
-  const text = size === "lg" ? "text-3xl" : "text-sm";
+  const dim = size === "xl" ? 152 : size === "lg" ? 128 : 40;
+  const text = size === "xl" ? "text-4xl" : size === "lg" ? "text-3xl" : "text-sm";
 
   if (url) {
+    const bypassOptimizer = url.startsWith("blob:") || url.startsWith("data:");
     return (
       <span
         className={`relative inline-block shrink-0 overflow-hidden rounded-full bg-[var(--color-muted)] ring-1 ring-[var(--color-border)] ${className}`}
@@ -33,7 +34,8 @@ export function ProfileAvatar({ url, displayName, size, className = "" }: Profil
           alt={displayName}
           width={dim}
           height={dim}
-          sizes={size === "lg" ? "128px" : "40px"}
+          unoptimized={bypassOptimizer}
+          sizes={size === "xl" ? "152px" : size === "lg" ? "128px" : "40px"}
           className="h-full w-full object-cover"
         />
       </span>

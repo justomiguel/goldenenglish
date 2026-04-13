@@ -1,12 +1,18 @@
 "use client";
 
 import { type FormEvent, useMemo, useState } from "react";
-import { acceptRegistration } from "@/app/[locale]/dashboard/admin/registrations/actions";
+import {
+  acceptRegistration,
+  type AcceptRegistrationResult,
+} from "@/app/[locale]/dashboard/admin/registrations/actions";
+import { enrollStudentInSectionAction } from "@/app/[locale]/dashboard/admin/academic/enrollmentActions";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { AdminRegistrationAcceptSectionPicker } from "@/components/dashboard/AdminRegistrationAcceptSectionPicker";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { Dictionary } from "@/types/i18n";
+import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
 
 export type RegistrationAcceptUserLabels = Pick<
@@ -24,6 +30,8 @@ export interface AdminRegistrationAcceptFormProps {
   onSuccess: () => void;
   labels: Dictionary["admin"]["registrations"];
   userLabels: RegistrationAcceptUserLabels;
+  currentCohortSections?: CurrentCohortSection[];
+  currentCohortName?: string;
 }
 
 export function AdminRegistrationAcceptForm({
@@ -35,12 +43,16 @@ export function AdminRegistrationAcceptForm({
   onClose,
   onSuccess,
   labels,
+  currentCohortSections,
+  currentCohortName,
 }: AdminRegistrationAcceptFormProps) {
   const hasBirth = Boolean(
     row.birth_date && /^\d{4}-\d{2}-\d{2}/.test(row.birth_date),
   );
   const [birth, setBirth] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
+  const [step, setStep] = useState<"accept" | "section">("accept");
+  const [acceptedStudentId, setAcceptedStudentId] = useState<string | null>(null);
 
   const effectiveBirth = useMemo(() => {
     const b = birth.trim() || (row.birth_date?.slice(0, 10) ?? "");
@@ -52,13 +64,38 @@ export function AdminRegistrationAcceptForm({
     return fullYearsFromIsoDate(effectiveBirth) < legalAgeMajority;
   }, [effectiveBirth, legalAgeMajority]);
 
+  const hasSections = Boolean(currentCohortSections?.length);
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     onBusy(row.id);
     setFormError(null);
-    const res = await acceptRegistration(locale, {
+    const res: AcceptRegistrationResult = await acceptRegistration(locale, {
       registration_id: row.id,
       birth_date: birth.trim() || undefined,
+    });
+    onBusy(null);
+    if (res.ok) {
+      if (hasSections) {
+        setAcceptedStudentId(res.studentId);
+        setStep("section");
+      } else {
+        onClose();
+        onSuccess();
+      }
+      return;
+    }
+    setFormError(res.message ?? labels.acceptError);
+  }
+
+  async function onPickSection(sectionId: string) {
+    if (!acceptedStudentId) return;
+    onBusy(row.id);
+    setFormError(null);
+    const res = await enrollStudentInSectionAction({
+      locale,
+      studentId: acceptedStudentId,
+      sectionId,
     });
     onBusy(null);
     if (res.ok) {
@@ -66,7 +103,12 @@ export function AdminRegistrationAcceptForm({
       onSuccess();
       return;
     }
-    setFormError(res.message ?? labels.acceptError);
+    setFormError(labels.sectionEnrollError ?? res.code);
+  }
+
+  function onSkipSection() {
+    onClose();
+    onSuccess();
   }
 
   const showTutorBlock =
@@ -74,6 +116,20 @@ export function AdminRegistrationAcceptForm({
     (Boolean(row.tutor_dni?.trim()) ||
       Boolean(row.tutor_name?.trim()) ||
       Boolean(row.tutor_email?.trim()));
+
+  if (step === "section" && acceptedStudentId) {
+    return (
+      <AdminRegistrationAcceptSectionPicker
+        busy={busy}
+        formError={formError}
+        sections={currentCohortSections ?? []}
+        cohortName={currentCohortName}
+        labels={labels}
+        onPickSection={onPickSection}
+        onSkipSection={onSkipSection}
+      />
+    );
+  }
 
   return (
     <>

@@ -19,6 +19,7 @@ import {
   IMPORT_PARSE_EMPTY_WORKBOOK,
   IMPORT_PARSE_EXCEL_FAILED,
 } from "@/lib/import/parseImportErrorCodes";
+import { IMPORT_JOB_CANCELLED_BY_USER } from "@/lib/import/importJobErrorCodes";
 
 type ImportLabels = Dictionary["admin"]["import"];
 
@@ -71,6 +72,7 @@ function resolveParseErrorLine(code: string, labels: ImportLabels): string | nul
 export function resolveImportSurfaceMessage(raw: string | undefined, labels: ImportLabels): string {
   if (!raw) return labels.unknownError;
   if (raw === IMPORT_INVALID_CSV_PAYLOAD) return labels.invalidCsvPayload;
+  if (raw === IMPORT_JOB_CANCELLED_BY_USER) return labels.importCancelledByUser;
   const parseLine = resolveParseErrorLine(raw, labels);
   if (parseLine) return parseLine;
   return resolveImportRowDetailMessage(raw, labels);

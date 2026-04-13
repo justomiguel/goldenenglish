@@ -42,6 +42,7 @@ const AdminAnalyticsGeoChoropleth = dynamic(
 );
 
 interface AdminAnalyticsChartsProps {
+  locale: string;
   labels: Dictionary["admin"]["analytics"];
   trafficSummary: TrafficSummary;
   trafficDaily: TrafficDailyRow[];
@@ -72,6 +73,7 @@ function pivotHourly(rows: HourlyRow[]) {
 }
 
 export function AdminAnalyticsCharts({
+  locale,
   labels,
   trafficSummary,
   trafficDaily,
@@ -110,11 +112,15 @@ export function AdminAnalyticsCharts({
         <p className="text-sm text-[var(--color-muted-foreground)]">{labels.chartWorldMapHint}</p>
         <div className="mt-4">
           <AdminAnalyticsGeoChoropleth
+            locale={locale}
             labels={{
               chartWorldMapLegend: labels.chartWorldMapLegend,
               worldMapLoading: labels.worldMapLoading,
               worldMapError: labels.worldMapError,
               trafficTopCountries: labels.trafficTopCountries,
+              worldMapTooltipVisits: labels.worldMapTooltipVisits,
+              worldMapTooltipNoVisits: labels.worldMapTooltipNoVisits,
+              worldMapUnknownRegion: labels.worldMapUnknownRegion,
             }}
             rows={trafficGeo}
           />
@@ -158,7 +164,7 @@ export function AdminAnalyticsCharts({
                   isAnimationActive={animate}
                   dataKey="admin"
                   stackId="a"
-                  fill="#94a3b8"
+                  fill="var(--color-muted-foreground)"
                   name={labels.roleAdmin}
                 />
               </BarChart>

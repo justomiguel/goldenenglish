@@ -54,6 +54,18 @@ export default async function TeacherDashboardLayout({
             >
               {dict.dashboard.teacher.navMessages}
             </Link>
+            <Link
+              href={`${base}/sections`}
+              className="rounded-[var(--layout-border-radius)] px-3 py-2 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
+            >
+              {dict.dashboard.teacher.navMySections}
+            </Link>
+            <Link
+              href={`${base}/academics`}
+              className="rounded-[var(--layout-border-radius)] px-3 py-2 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
+            >
+              {dict.dashboard.teacher.navAcademics}
+            </Link>
           </nav>
           <LanguageSwitcher locale={locale} labels={dict.common.locale} />
         </div>

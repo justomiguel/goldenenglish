@@ -13,6 +13,10 @@ export interface ModalProps {
   children: ReactNode;
   /** When true, Escape does not close the dialog (long-running work in progress). */
   disableClose?: boolean;
+  /** Tailwind z-index class for stacking above portaled popovers (e.g. `z-[250]`). */
+  stackClassName?: string;
+  /** Extra classes on the `<dialog>` (e.g. wider modals). */
+  dialogClassName?: string;
 }
 
 export function Modal({
@@ -24,6 +28,8 @@ export function Modal({
   title,
   children,
   disableClose,
+  stackClassName = "z-[100]",
+  dialogClassName = "",
 }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null);
 
@@ -44,7 +50,7 @@ export function Modal({
   return (
     <dialog
       ref={ref}
-      className="fixed left-1/2 top-1/2 z-[100] max-h-[min(90dvh,40rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-0 text-[var(--color-foreground)] shadow-[var(--shadow-card)] ring-2 ring-[var(--color-primary)]/10 open:flex open:flex-col [&::backdrop]:bg-[color-mix(in_srgb,var(--color-primary)_42%,transparent)]"
+      className={`fixed left-1/2 top-1/2 ${stackClassName} max-h-[min(90dvh,40rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-0 text-[var(--color-foreground)] shadow-[var(--shadow-card)] ring-2 ring-[var(--color-primary)]/10 open:flex open:flex-col [&::backdrop]:bg-[color-mix(in_srgb,var(--color-primary)_42%,transparent)] ${dialogClassName}`}
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
       aria-label={ariaLabel}

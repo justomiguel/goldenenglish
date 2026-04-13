@@ -5,6 +5,7 @@ import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import { ParentDashboardFamilyView } from "@/components/parent/ParentDashboardFamilyView";
 import type { ParentChildSummary } from "@/lib/parent/loadParentChildrenSummaries";
+import type { ParentHubModel } from "@/types/parentHub";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
 
@@ -27,6 +28,7 @@ export interface ParentDashboardEntryProps {
   summaries?: ParentChildSummary[];
   selectedStudentId?: string;
   parentLabels: Dictionary["dashboard"]["parent"];
+  hub?: ParentHubModel | null;
 }
 
 export function ParentDashboardEntry({
@@ -39,6 +41,7 @@ export function ParentDashboardEntry({
   summaries,
   selectedStudentId,
   parentLabels,
+  hub = null,
 }: ParentDashboardEntryProps) {
   const body = (
     <>
@@ -52,6 +55,7 @@ export function ParentDashboardEntry({
           navPay={navPay}
           payHrefBase={payHref}
           labels={parentLabels}
+          hub={hub}
         />
       ) : (
         <ul className="mt-8 space-y-3">

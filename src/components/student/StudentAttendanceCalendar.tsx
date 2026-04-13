@@ -6,7 +6,7 @@ import "react-calendar/dist/Calendar.css";
 import { Button } from "@/components/atoms/Button";
 import { StudentAttendanceWeekStrip } from "@/components/student/StudentAttendanceWeekStrip";
 import { dateKeyFromLocalDate } from "@/lib/attendance/dateKey";
-import { mandatoryAttendanceStatsForMonth } from "@/lib/attendance/stats";
+import { attendanceStatsForMonth } from "@/lib/attendance/stats";
 import type { AttendanceRow } from "@/lib/attendance/stats";
 import type { Dictionary } from "@/types/i18n";
 
@@ -36,7 +36,7 @@ export function StudentAttendanceCalendar({ rows, labels }: StudentAttendanceCal
 
   const y = cursorDate.getFullYear();
   const mo = cursorDate.getMonth() + 1;
-  const { present, total } = mandatoryAttendanceStatsForMonth(rows, y, mo);
+  const { attended, total } = attendanceStatsForMonth(rows, y, mo);
 
   return (
     <section
@@ -67,7 +67,7 @@ export function StudentAttendanceCalendar({ rows, labels }: StudentAttendanceCal
 
       <p className="text-sm text-[var(--color-muted-foreground)]">
         <span className="font-semibold text-[var(--color-foreground)]">{labels.mandatoryMonthTitle}</span>{" "}
-        {labels.mandatoryMonthMeta.replace("{{present}}", String(present)).replace("{{total}}", String(total))}
+        {labels.mandatoryMonthMeta.replace("{{present}}", String(attended)).replace("{{total}}", String(total))}
       </p>
 
       {mode === "month" ? (
@@ -86,9 +86,10 @@ export function StudentAttendanceCalendar({ rows, labels }: StudentAttendanceCal
             const key = dateKeyFromLocalDate(date);
             const row = rowByDate.get(key);
             if (!row) return null;
-            if (row.status === "present") return "attendance-present";
+            if (row.status === "present" || row.status === "late")
+              return "attendance-present";
             if (row.status === "absent") return "attendance-absent";
-            return "attendance-justified";
+            return "attendance-excused";
           }}
         />
       ) : (
@@ -127,7 +128,8 @@ export function StudentAttendanceCalendar({ rows, labels }: StudentAttendanceCal
             labels={{
               present: labels.legendPresent,
               absent: labels.legendAbsent,
-              justified: labels.legendJustified,
+              late: labels.legendLate,
+              excused: labels.legendExcused,
               noClass: labels.legendNoRecord,
             }}
           />
@@ -139,10 +141,13 @@ export function StudentAttendanceCalendar({ rows, labels }: StudentAttendanceCal
           <span className="inline-block h-3 w-3 rounded-sm bg-[var(--color-success)]" /> {labels.legendPresent}
         </li>
         <li className="flex items-center gap-2">
+          <span className="inline-block h-3 w-3 rounded-sm bg-[var(--color-success)] opacity-60" /> {labels.legendLate}
+        </li>
+        <li className="flex items-center gap-2">
           <span className="inline-block h-3 w-3 rounded-sm bg-[var(--color-error)]" /> {labels.legendAbsent}
         </li>
         <li className="flex items-center gap-2">
-          <span className="inline-block h-3 w-3 rounded-sm bg-[var(--color-warning)]" /> {labels.legendJustified}
+          <span className="inline-block h-3 w-3 rounded-sm bg-[var(--color-warning)]" /> {labels.legendExcused}
         </li>
       </ul>
     </section>

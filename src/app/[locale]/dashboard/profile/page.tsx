@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { getBrandPublic } from "@/lib/brand/server";
 import { resolveAvatarDisplayUrl } from "@/lib/dashboard/resolveAvatarUrl";
 import { loadOrProvisionDashboardProfileRow } from "@/lib/profile/loadOrProvisionDashboardProfileRow";
 import { MyProfileSurfaceEntry } from "@/components/organisms/MyProfileSurfaceEntry";
-import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { ProfileMissingScreen } from "@/components/organisms/ProfileMissingScreen";
 
 export async function generateMetadata({
   params,
@@ -46,19 +47,7 @@ export default async function DashboardProfilePage({ params }: PageProps) {
 
   if (!resolvedProfile) {
     return (
-      <main className="mx-auto max-w-xl space-y-4 px-4 py-12">
-        <h1 className="font-display text-2xl font-semibold text-[var(--color-secondary)]">
-          {dict.dashboard.myProfile.profileMissingTitle}
-        </h1>
-        <p className="text-sm text-[var(--color-muted-foreground)]">
-          {dict.dashboard.myProfile.profileMissingBody}
-        </p>
-        <SignOutButton
-          locale={locale}
-          label={dict.nav.logout}
-          className="min-h-[44px] rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-2 text-sm font-medium text-[var(--color-foreground)]"
-        />
-      </main>
+      <ProfileMissingScreen locale={locale} brand={getBrandPublic()} labels={dict.dashboard.myProfile} />
     );
   }
 

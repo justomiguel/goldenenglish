@@ -2,6 +2,7 @@
 
 import { type FormEvent, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { UserPen } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Label } from "@/components/atoms/Label";
 import type { Dictionary } from "@/types/i18n";
@@ -9,6 +10,8 @@ import {
   updateMyProfile,
   type MyProfileActionErrorKey,
 } from "@/app/[locale]/dashboard/profile/actions";
+
+export type MyProfilePersonalFormLayout = "card" | "inset";
 
 export interface MyProfilePersonalFormProps {
   locale: string;
@@ -21,6 +24,8 @@ export interface MyProfilePersonalFormProps {
     birthDate: string;
   };
   labels: Dictionary["dashboard"]["myProfile"];
+  /** inset = section inside a parent shell (e.g. LinkedIn-style profile card). */
+  layout?: MyProfilePersonalFormLayout;
 }
 
 function mapPersonalError(key: MyProfileActionErrorKey, labels: Dictionary["dashboard"]["myProfile"]) {
@@ -42,6 +47,7 @@ export function MyProfilePersonalForm({
   minorPersonalLocked,
   initial,
   labels,
+  layout = "card",
 }: MyProfilePersonalFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -71,13 +77,27 @@ export function MyProfilePersonalForm({
   }
 
   const locked = minorPersonalLocked;
+  const inset = layout === "inset";
 
   return (
-    <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6 shadow-[var(--shadow-card)]">
-      <h2 className="mb-2 font-display text-xl font-semibold text-[var(--color-secondary)]">
+    <div className={inset ? "" : "dashboard-profile-form-slab p-6 md:p-8"}>
+      <h2
+        className={
+          inset
+            ? "mb-2 flex items-center gap-2 font-display text-lg font-semibold tracking-tight text-[var(--color-foreground)]"
+            : "mb-1 border-l-4 border-[var(--color-accent)] pl-3 font-display text-xl font-bold text-[var(--color-primary)]"
+        }
+      >
+        {inset ? (
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--color-accent)_14%,var(--color-muted))] ring-1 ring-[color-mix(in_srgb,var(--color-accent)_42%,var(--color-border))]">
+            <UserPen className="h-4 w-4 text-[var(--color-accent)]" aria-hidden strokeWidth={2} />
+          </span>
+        ) : null}
         {labels.personalDetailsTitle}
       </h2>
-      <p className="mb-6 text-sm text-[var(--color-muted-foreground)]">{labels.personalDetailsLead}</p>
+      <p className={`text-sm text-[var(--color-muted-foreground)] ${inset ? "mb-5 max-w-prose" : "mb-6"}`}>
+        {labels.personalDetailsLead}
+      </p>
       {locked ? (
         <p
           role="status"

@@ -49,6 +49,12 @@ export default async function StudentDashboardLayout({
               {dict.dashboard.student.navPayments}
             </Link>
             <Link
+              href={`${base}/billing`}
+              className="rounded-[var(--layout-border-radius)] px-3 py-2 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
+            >
+              {dict.dashboard.student.navBilling}
+            </Link>
+            <Link
               href={`${base}/messages`}
               className="rounded-[var(--layout-border-radius)] px-3 py-2 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
             >

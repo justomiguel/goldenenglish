@@ -14,6 +14,10 @@ import {
   Users,
   Wallet,
   ClipboardList,
+  CalendarDays,
+  Inbox,
+  TriangleAlert,
+  FileText,
 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 
@@ -48,10 +52,30 @@ export function AdminSidebar({
     { href: `${base}/users`, label: dict.users, icon: <Users className={iconClass} /> },
     { href: `${base}/payments`, label: dict.payments, icon: <Wallet className={iconClass} /> },
     {
+      href: `${base}/finance/receipts`,
+      label: dict.financeReceipts,
+      icon: <FileText className={iconClass} />,
+    },
+    {
       href: `${base}/registrations`,
       label: dict.registrations,
       icon: <ClipboardList className={iconClass} />,
       badge: newRegistrationsCount,
+    },
+    {
+      href: `${base}/academic`,
+      label: dict.academics,
+      icon: <CalendarDays className={iconClass} />,
+    },
+    {
+      href: `${base}/requests`,
+      label: dict.transferInboxNav,
+      icon: <Inbox className={iconClass} />,
+    },
+    {
+      href: `${base}/retention`,
+      label: dict.retention,
+      icon: <TriangleAlert className={iconClass} />,
     },
     {
       href: `${base}/messages`,

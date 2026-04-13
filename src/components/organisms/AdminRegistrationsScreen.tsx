@@ -7,6 +7,7 @@ import { AdminRegistrationsScreenNarrow } from "@/components/pwa/organisms/Admin
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { RegistrationAcceptUserLabels } from "@/components/dashboard/AdminRegistrationAcceptForm";
+import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 
 interface AdminRegistrationsScreenProps {
   locale: string;
@@ -15,6 +16,8 @@ interface AdminRegistrationsScreenProps {
   labels: Dictionary["admin"]["registrations"];
   tableLabels: Dictionary["admin"]["table"];
   userLabels: RegistrationAcceptUserLabels;
+  currentCohortSections?: CurrentCohortSection[];
+  currentCohortName?: string;
 }
 
 export function AdminRegistrationsScreen({
@@ -24,6 +27,8 @@ export function AdminRegistrationsScreen({
   labels,
   tableLabels,
   userLabels,
+  currentCohortSections,
+  currentCohortName,
 }: AdminRegistrationsScreenProps) {
   return (
     <SurfaceMountGate
@@ -36,6 +41,8 @@ export function AdminRegistrationsScreen({
           labels={labels}
           tableLabels={tableLabels}
           userLabels={userLabels}
+          currentCohortSections={currentCohortSections}
+          currentCohortName={currentCohortName}
         />
       }
       narrow={(surface) => (
@@ -47,6 +54,8 @@ export function AdminRegistrationsScreen({
           tableLabels={tableLabels}
           userLabels={userLabels}
           surface={surface}
+          currentCohortSections={currentCohortSections}
+          currentCohortName={currentCohortName}
         />
       )}
     />

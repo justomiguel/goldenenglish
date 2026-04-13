@@ -4,6 +4,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandPublic } from "@/lib/brand/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { AdminDashboardShell } from "@/components/dashboard/AdminDashboardShell";
+import { AdminCommandPalette } from "@/components/dashboard/AdminCommandPalette";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -44,6 +45,7 @@ export default async function AdminSectionLayout({
       brand={brand}
       newRegistrationsCount={count ?? 0}
     >
+      <AdminCommandPalette locale={locale} dict={dict.dashboard.adminCommandPalette} />
       {children}
     </AdminDashboardShell>
   );

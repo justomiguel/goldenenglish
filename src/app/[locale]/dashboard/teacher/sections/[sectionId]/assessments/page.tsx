@@ -1,0 +1,119 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { createClient } from "@/lib/supabase/server";
+import { getTeacherPortalAllowedRoles } from "@/lib/academics/getTeacherPortalAllowedRoles";
+import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
+import { CreateCohortAssessmentForm } from "@/components/molecules/CreateCohortAssessmentForm";
+
+interface PageProps {
+  params: Promise<{ locale: string; sectionId: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const dict = await getDictionary(locale);
+  return {
+    title: dict.dashboard.teacherAssessmentList.metaTitle,
+    robots: { index: false, follow: false },
+  };
+}
+
+export default async function TeacherSectionAssessmentsPage({ params }: PageProps) {
+  const { locale, sectionId } = await params;
+  const dict = await getDictionary(locale);
+  const d = dict.dashboard.teacherAssessmentList;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect(`/${locale}/login`);
+
+  const allowedRoles = getTeacherPortalAllowedRoles();
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  if (!profile?.role || !allowedRoles.includes(profile.role)) {
+    const isAdmin = await resolveIsAdminSession(supabase, user.id);
+    if (isAdmin) redirect(`/${locale}/dashboard/admin/academic`);
+    redirect(`/${locale}/dashboard`);
+  }
+
+  const { data: section, error: secErr } = await supabase
+    .from("academic_sections")
+    .select("id, name, cohort_id, teacher_id")
+    .eq("id", sectionId)
+    .maybeSingle();
+  if (secErr || !section || (section.teacher_id as string) !== user.id) notFound();
+
+  const cohortId = section.cohort_id as string;
+
+  const { data: assessments } = await supabase
+    .from("cohort_assessments")
+    .select("id, name, assessment_on, max_score")
+    .eq("cohort_id", cohortId)
+    .order("assessment_on", { ascending: false });
+
+  const rows = (assessments ?? []) as {
+    id: string;
+    name: string;
+    assessment_on: string;
+    max_score: number | string;
+  }[];
+
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const dateFmt = new Intl.DateTimeFormat(locale === "es" ? "es" : "en", { dateStyle: "medium" });
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <Link
+          href={`/${locale}/dashboard/teacher/sections/${sectionId}`}
+          className="text-sm font-medium text-[var(--color-primary)] hover:underline"
+        >
+          {d.backToSection}
+        </Link>
+        <h1 className="mt-2 text-2xl font-semibold text-[var(--color-foreground)]">{d.title}</h1>
+        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{section.name as string}</p>
+        <p className="mt-2 max-w-prose text-sm text-[var(--color-muted-foreground)]">{d.lead}</p>
+      </div>
+
+      {rows.length ? (
+        <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
+          <table className="min-w-full text-left text-sm">
+            <thead className="bg-[var(--color-muted)]/40">
+              <tr>
+                <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.tableName}</th>
+                <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.tableDate}</th>
+                <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.tableMax}</th>
+                <th className="px-3 py-2 font-medium text-[var(--color-foreground)]" />
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((a) => (
+                <tr key={a.id} className="border-t border-[var(--color-border)]">
+                  <td className="px-3 py-2 text-[var(--color-foreground)]">{a.name}</td>
+                  <td className="px-3 py-2 text-[var(--color-muted-foreground)]">
+                    {dateFmt.format(new Date(`${a.assessment_on}T12:00:00`))}
+                  </td>
+                  <td className="px-3 py-2 text-[var(--color-muted-foreground)]">{String(a.max_score)}</td>
+                  <td className="px-3 py-2 text-right">
+                    <Link
+                      href={`/${locale}/dashboard/teacher/sections/${sectionId}/assessments/${a.id}`}
+                      className="inline-flex min-h-[44px] items-center font-medium text-[var(--color-primary)] hover:underline"
+                    >
+                      {d.openMatrix}
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="text-sm text-[var(--color-muted-foreground)]">{d.empty}</p>
+      )}
+
+      <CreateCohortAssessmentForm locale={locale} sectionId={sectionId} defaultDate={todayIso} dict={d} />
+    </div>
+  );
+}

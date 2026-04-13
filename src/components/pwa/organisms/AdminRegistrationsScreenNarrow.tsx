@@ -11,6 +11,7 @@ import { useAdminRegistrationsList } from "@/hooks/useAdminRegistrationsList";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
+import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import type { RegistrationSortKey } from "@/lib/dashboard/adminRegistrationsSort";
 import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
 
@@ -25,6 +26,8 @@ interface AdminRegistrationsScreenNarrowProps {
   tableLabels: TableLabels;
   userLabels: RegistrationAcceptUserLabels;
   surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">;
+  currentCohortSections?: CurrentCohortSection[];
+  currentCohortName?: string;
 }
 
 export function AdminRegistrationsScreenNarrow({
@@ -35,6 +38,8 @@ export function AdminRegistrationsScreenNarrow({
   tableLabels,
   userLabels,
   surface,
+  currentCohortSections,
+  currentCohortName,
 }: AdminRegistrationsScreenNarrowProps) {
   const u = useAdminRegistrationsList({ locale, rows, labels });
 
@@ -104,6 +109,8 @@ export function AdminRegistrationsScreenNarrow({
             }}
             labels={labels}
             userLabels={userLabels}
+            currentCohortSections={currentCohortSections}
+            currentCohortName={currentCohortName}
           />
 
           <AdminRegistrationEditModal

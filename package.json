@@ -5,16 +5,19 @@
   "scripts": {
     "local": "bash scripts/run-local.sh",
     "dev": "next dev",
+    "dev:clean": "npm run clean && npm run local",
     "clean": "rm -rf .next",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
+    "check:supabase-boundaries": "node scripts/check-supabase-boundaries.mjs",
+    "masterdb:generate": "node scripts/generate-masterdb-from-migrations.mjs",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:coverage:full": "sh -c 'export VITEST_COVERAGE_FULL=1 && vitest run --coverage'",
     "lighthouse:smoke": "bash scripts/lighthouse-smoke.sh",
-    "precommit": "npm run lint && node scripts/precommit-verify.mjs && npm run build && npm run test:coverage",
+    "precommit": "npm run lint && npm run check:supabase-boundaries && node scripts/precommit-verify.mjs && npm run build && npm run test:coverage",
     "prepare": "husky"
   },
   "dependencies": {
@@ -32,6 +35,7 @@
     "react": "19.2.4",
     "react-calendar": "^6.0.1",
     "react-dom": "19.2.4",
+    "react-easy-crop": "^5.5.6",
     "react-is": "^19.2.5",
     "react-simple-maps": "^3.0.0",
     "recharts": "^3.8.1",

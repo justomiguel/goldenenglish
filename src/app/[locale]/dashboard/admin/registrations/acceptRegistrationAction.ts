@@ -60,10 +60,14 @@ async function failAfterStudentCreated(
   return { ok: false, message: localizeRegistrationAcceptError(dict, primaryCode) };
 }
 
+export type AcceptRegistrationResult =
+  | { ok: true; studentId: string }
+  | { ok: false; message: string };
+
 export async function acceptRegistration(
   locale: string,
   raw: z.infer<typeof acceptSchema>,
-): Promise<{ ok: boolean; message?: string }> {
+): Promise<AcceptRegistrationResult> {
   try {
     await assertAdmin();
   } catch {
@@ -157,7 +161,9 @@ export async function acceptRegistration(
     locale,
   });
 
-  if (!createRes.ok) return createRes;
+  if (!createRes.ok) {
+    return { ok: false, message: createRes.message ?? localizeRegistrationAcceptError(dict, "save_failed") };
+  }
   const studentId = createRes.userId;
   if (!studentId) {
     return { ok: false, message: localizeRegistrationAcceptError(dict, "no_user_returned") };
@@ -235,5 +241,5 @@ export async function acceptRegistration(
   });
 
   revalidatePath(`/${locale}/dashboard/admin/registrations`, "page");
-  return { ok: true };
+  return { ok: true, studentId };
 }

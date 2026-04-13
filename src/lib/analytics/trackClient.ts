@@ -7,7 +7,7 @@ import {
   type QueuedEvent,
 } from "@/lib/analytics/offlineQueue";
 import { browserOriginAbsolutePath } from "@/lib/analytics/browserOriginAbsolutePath";
-import { pathnameToEntity } from "@/lib/analytics/eventConstants";
+import { AnalyticsEntity, pathnameToEntity } from "@/lib/analytics/eventConstants";
 import { sanitizeAnalyticsMetadata } from "@/lib/analytics/sanitizeMetadata";
 import type { UserEventTypeName } from "@/lib/analytics/eventConstants";
 
@@ -70,7 +70,7 @@ export function trackPageView(pathname: string, search: string): void {
 }
 
 export function trackSessionStart(): void {
-  trackEvent("session_start", "session:start", {});
+  trackEvent("session_start", AnalyticsEntity.sessionStart, {});
 }
 
 export function flushOfflineAnalyticsQueue(): void {

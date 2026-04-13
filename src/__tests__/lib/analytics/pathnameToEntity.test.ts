@@ -31,6 +31,22 @@ describe("pathnameToEntity", () => {
     expect(pathnameToEntity("/en/dashboard/student/")).toBe(AnalyticsEntity.studentHome);
   });
 
+  it("maps student billing", () => {
+    expect(pathnameToEntity("/en/dashboard/student/billing")).toBe(AnalyticsEntity.billing);
+  });
+
+  it("maps parent billing", () => {
+    expect(pathnameToEntity("/es/dashboard/parent/billing")).toBe(AnalyticsEntity.billing);
+  });
+
+  it("maps admin finance", () => {
+    expect(pathnameToEntity("/en/dashboard/admin/finance/receipts")).toBe(AnalyticsEntity.billing);
+  });
+
+  it("maps profile", () => {
+    expect(pathnameToEntity("/en/dashboard/profile")).toBe(AnalyticsEntity.myProfile);
+  });
+
   it("defaults to route-prefixed entity", () => {
     expect(pathnameToEntity("/en/other")).toBe(`${AnalyticsEntity.pageViewPrefix}/en/other`);
   });

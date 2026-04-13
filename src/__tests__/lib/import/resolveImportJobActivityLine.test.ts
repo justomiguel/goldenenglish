@@ -15,6 +15,9 @@ describe("resolveImportJobActivityLine", () => {
     expect(resolveImportJobActivityLine("row_progress", { current: 2, total: 5 }, labels)).toContain(
       "2",
     );
+    expect(resolveImportJobActivityLine("cancelled_by_user", undefined, labels)).toContain(
+      "cancelled",
+    );
     expect(resolveImportJobActivityLine("failed", { error: "x" }, labels)).toContain("x");
   });
 

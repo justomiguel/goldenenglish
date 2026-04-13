@@ -31,10 +31,12 @@ describe("Tier A entries — SurfaceMountGate branches", () => {
   it("StudentDashboardEntry exposes skeleton, desktop, and narrow", () => {
     render(
       <StudentDashboardEntry
+        locale="en"
         title="T"
         engagementPoints={0}
         rows={[]}
         labels={dictEn.dashboard.student}
+        hub={null}
       />,
     );
     expect(screen.getByTestId("sk")).toBeInTheDocument();

@@ -14,7 +14,7 @@ import type { Dictionary } from "@/types/i18n";
 import type { AttendanceRow } from "@/lib/attendance/stats";
 import {
   consecutivePresentStreak,
-  mandatoryAttendanceStats,
+  attendanceStats,
 } from "@/lib/attendance/stats";
 
 interface AttendancePlayboardProps {
@@ -29,7 +29,7 @@ const COLORS = {
 };
 
 export function AttendancePlayboard({ rows, labels }: AttendancePlayboardProps) {
-  const { present, absent, total } = mandatoryAttendanceStats(rows);
+  const { present, absent, total } = attendanceStats(rows);
   const streak = consecutivePresentStreak(rows);
   const chartData = [
     { name: labels.mandatoryMet, value: present },

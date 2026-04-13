@@ -10,6 +10,7 @@ import { UniversalListView } from "@/components/organisms/UniversalListView";
 import { useAdminRegistrationsList } from "@/hooks/useAdminRegistrationsList";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
+import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
 
 type RegLabels = Dictionary["admin"]["registrations"];
@@ -22,6 +23,8 @@ interface AdminRegistrationsTableDesktopProps {
   labels: RegLabels;
   tableLabels: TableLabels;
   userLabels: RegistrationAcceptUserLabels;
+  currentCohortSections?: CurrentCohortSection[];
+  currentCohortName?: string;
 }
 
 export function AdminRegistrationsTableDesktop({
@@ -31,6 +34,8 @@ export function AdminRegistrationsTableDesktop({
   labels,
   tableLabels,
   userLabels,
+  currentCohortSections,
+  currentCohortName,
 }: AdminRegistrationsTableDesktopProps) {
   const u = useAdminRegistrationsList({ locale, rows, labels });
   const hdr =
@@ -153,6 +158,8 @@ export function AdminRegistrationsTableDesktop({
         }}
         labels={labels}
         userLabels={userLabels}
+        currentCohortSections={currentCohortSections}
+        currentCohortName={currentCohortName}
       />
 
       <AdminRegistrationEditModal

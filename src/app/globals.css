@@ -147,6 +147,137 @@ body {
   background-size: 22px 28px;
 }
 
+/*
+ * Dashboard — Mi perfil: fondo con rejilla sutil (líneas, sin puntos) + cover texturizado.
+ */
+.dashboard-profile-shell {
+  position: relative;
+  background-color: var(--color-background);
+  background-image:
+    radial-gradient(
+      ellipse 85% 55% at 18% -8%,
+      color-mix(in srgb, var(--color-accent) 12%, transparent),
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse 70% 45% at 100% 12%,
+      color-mix(in srgb, var(--color-accent) 8%, transparent),
+      transparent 52%
+    ),
+    linear-gradient(
+      color-mix(in srgb, var(--color-primary) 4.5%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-primary) 4.5%, transparent) 1px,
+      transparent 1px
+    );
+  background-size:
+    auto,
+    auto,
+    32px 32px,
+    32px 32px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-profile-shell {
+    background-image: none;
+  }
+}
+
+.dashboard-profile-cover {
+  background-color: var(--color-primary);
+  background-image:
+    radial-gradient(
+      ellipse 95% 120% at 88% -25%,
+      color-mix(in srgb, var(--color-accent) 26%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 55% 70% at 0% 100%,
+      color-mix(in srgb, var(--color-accent) 14%, transparent),
+      transparent 50%
+    ),
+    repeating-linear-gradient(
+      -22deg,
+      transparent,
+      transparent 18px,
+      color-mix(in srgb, var(--color-primary-foreground) 7%, transparent) 18px,
+      color-mix(in srgb, var(--color-primary-foreground) 7%, transparent) 19px
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-profile-cover {
+    background-image: none;
+  }
+}
+
+.dashboard-profile-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(14px);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--color-border) 65%, transparent);
+}
+
+.dashboard-profile-header::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--color-accent);
+}
+
+.dashboard-profile-lead-chip {
+  border-radius: calc(var(--layout-border-radius) + 4px);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.dashboard-profile-bento {
+  position: relative;
+  overflow: hidden;
+  border-radius: calc(var(--layout-border-radius) + 6px);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.dashboard-profile-bento::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 0;
+  width: 3px;
+  background: var(--color-secondary);
+  pointer-events: none;
+}
+
+.dashboard-profile-form-slab {
+  border-radius: calc(var(--layout-border-radius) + 4px);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-accent);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.dashboard-profile-missing-card {
+  border-radius: calc(var(--layout-border-radius) + 8px);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
 /* react-calendar — student attendance tiles (see StudentAttendanceCalendar) */
 .student-attendance-calendar .react-calendar {
   width: 100%;
@@ -166,7 +297,27 @@ body {
   color: var(--color-primary-foreground) !important;
 }
 
-.student-attendance-calendar .react-calendar__tile.attendance-justified {
+.student-attendance-calendar .react-calendar__tile.attendance-excused {
   background: color-mix(in srgb, var(--color-warning) 42%, var(--color-surface)) !important;
+  color: var(--color-foreground) !important;
+}
+
+/* react-calendar — academic schedule conflict compare (ScheduleConflictResolutionModal) */
+.academic-conflict-calendars .react-calendar {
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--layout-border-radius);
+  font-family: inherit;
+  background: var(--color-background);
+}
+
+.academic-conflict-calendars .react-calendar__tile.academic-cal-tile-busy {
+  background: color-mix(in srgb, var(--color-error) 28%, var(--color-surface)) !important;
+  color: var(--color-foreground) !important;
+}
+
+.academic-conflict-calendars .react-calendar__tile.academic-cal-tile-target {
+  background: color-mix(in srgb, var(--color-primary) 22%, var(--color-surface)) !important;
   color: var(--color-foreground) !important;
 }

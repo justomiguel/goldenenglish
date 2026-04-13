@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadParentChildrenSummaries } from "@/lib/parent/loadParentChildrenSummaries";
+import { loadParentFamilyHubModel } from "@/lib/parent/loadParentFamilyHubModel";
 import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
 
 export const metadata: Metadata = {
@@ -25,6 +26,12 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
   if (!user) redirect(`/${locale}/login`);
 
   const summaries = await loadParentChildrenSummaries(supabase, user.id);
+  const hub = await loadParentFamilyHubModel(
+    supabase,
+    user.id,
+    locale,
+    dict.dashboard.parent.hub.icsEventTitle,
+  );
 
   const kids = summaries.map((s) => ({
     id: s.studentId,
@@ -51,6 +58,7 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
       summaries={summaries}
       selectedStudentId={selectedStudentId}
       parentLabels={dict.dashboard.parent}
+      hub={hub}
     />
   );
 }

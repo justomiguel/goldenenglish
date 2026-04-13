@@ -1,0 +1,28 @@
+---
+description: Fundamentos y restricciones generales del proyecto Golden English
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Fundamentos del proyecto (Golden English)
+
+## Git y despliegue
+
+- **No** ejecutar `git commit`, `git push` ni despliegues desde el agente **salvo** que el usuario lo pida **explícitamente** en el mensaje, para evitar cambios accidentales.
+
+## Datos y esquema SQL
+
+- **Fuente de verdad aplicable en Supabase:** migraciones incrementales en **`supabase/migrations/`** (orden numérico / nombre acordado por el equipo). Cualquier tabla, columna, índice, función o política **RLS** que deba existir en entornos reales debe entrar por una migración revisada.
+- **Vista consolidada / contexto:** **`supabase/migrations/masterdb.sql`** — el propio archivo indica que es referencia de esquema (“for context”); sirve para **lectura rápida** y contexto del agente. Si el flujo del equipo exige mantenerlo al día con el modelo, **actualízalo en el mismo cambio** que toque tablas relevantes; si no forma parte del flujo, **no** lo sustituyas por escribir solo ahí sin migración.
+- **No** usar la ruta antigua `src/lib/database/masterdb.sql` — **no aplica** a este repo.
+
+## Roles y autorización
+
+- Evitar lógica frágil del estilo `role === 'teacher'` / `role === 'admin'` **repartida** en muchos sitios sin helpers.
+- Preferir los patrones ya existentes: p. ej. **`resolveIsAdminSession`**, **`assertAdmin`**, comprobaciones centralizadas en **`src/lib/auth/`** y políticas **RLS** en Postgres.
+- Si se añade UI de selección de usuarios por rol, **reutilizar** el componente o patrón que el proyecto use para listas/asignaciones (no introducir un segundo sistema de “pickers” sin alinearlo con el design system).
+
+## Coherencia
+
+- El resto de convenciones del repo están en **`.cursor/rules/`** (arquitectura, i18n, PWA, Supabase, tests). Esta regla **no** las sustituye.

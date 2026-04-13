@@ -18,13 +18,13 @@ import {
   resolveImportSurfaceMessage,
   resolveParseErrorOrUnknown,
 } from "@/lib/import/importStudentsMessages";
+import { IMPORT_JOB_CANCELLED_BY_USER } from "@/lib/import/importJobErrorCodes";
 import type { ImportJobActivityEntry } from "@/types/importJob";
 import { useLongJobPoll } from "@/hooks/useLongJobPoll";
-
+import { useImportJobCancel } from "@/hooks/useImportJobCancel";
 interface ImportStudentsProps {
   locale: string;
   labels: Dictionary["admin"]["import"];
-  /** Placeholder for an empty activity log (use `dict.common.emptyValue`). */
   emptyLogPlaceholder: string;
 }
 
@@ -38,12 +38,16 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
   const [logModalLive, setLogModalLive] = useState(false);
   const [importTotalRows, setImportTotalRows] = useState<number | null>(null);
   const { liveLine, jobSnapshot, reset, pollUntilDone } = useLongJobPoll();
-
+  const { jobId, setJobId, cancelBusy, cancelImport, resetCancelState } = useImportJobCancel({
+    genericError: labels.genericError,
+    cancelError: labels.importCancelError,
+    setSummary,
+    setDetail,
+  });
   const activityLines = useMemo(() => {
     const act = (jobSnapshot as { activity?: ImportJobActivityEntry[] } | null)?.activity;
     return formatImportJobActivityLog(act, labels);
   }, [jobSnapshot, labels]);
-
   const activityModalCopy = useMemo(
     () =>
       buildImportActivityModalCopy({
@@ -62,15 +66,14 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
       reset();
       setJobModalOpen(false);
       setLogModalLive(false);
+      resetCancelState();
       setImportTotalRows(null);
       setPhaseLine(null);
       if (!file) return;
-
       setBusy(true);
       setPhaseLine(labels.phaseReadingFile);
       try {
         const parsed = await parseImportFile(file);
-
         if (parsed.errors.length > 0) {
           setSummary(labels.parseError);
           setDetail(
@@ -80,13 +83,11 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
           );
           return;
         }
-
         const mapped = mapCsvRecords(parsed.data);
         if (mapped.length === 0) {
           setSummary(labels.noRows);
           return;
         }
-
         setPhaseLine(labels.phaseValidating);
         const checked = csvStudentRowsSchema.safeParse(mapped);
         if (!checked.success) {
@@ -94,7 +95,6 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
           setDetail(JSON.stringify(checked.error.flatten(), null, 2));
           return;
         }
-
         const startRes = await fetch("/api/admin/import/jobs", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -106,7 +106,6 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
           jobId?: string;
           error?: string;
         };
-
         if (!startJson.ok && startJson.code === "kv_not_configured") {
           setImportTotalRows(checked.data.length);
           setPhaseLine(labels.phaseImportingSync);
@@ -118,7 +117,6 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
           setDetail(d);
           return;
         }
-
         if (!startJson.ok || !startJson.jobId) {
           setSummary(labels.jobStartError);
           setDetail(
@@ -126,11 +124,11 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
           );
           return;
         }
-
         setImportTotalRows(checked.data.length);
         setPhaseLine(null);
         setJobModalOpen(true);
         setLogModalLive(true);
+        setJobId(startJson.jobId);
         const finalSnap = await pollUntilDone({
           jobId: startJson.jobId,
           pollUrl: (id) => `/api/admin/import/jobs/${id}`,
@@ -151,15 +149,17 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
           },
           isTerminal: (job) => job.status === "done" || job.status === "error",
         });
-
         setPhaseLine(null);
-
         if (finalSnap.status === "error") {
+          if (finalSnap.error === IMPORT_JOB_CANCELLED_BY_USER) {
+            setSummary(labels.importCancelledTitle);
+            setDetail(labels.importCancelledByUser);
+            return;
+          }
           setSummary(labels.genericError);
           setDetail(resolveImportSurfaceMessage(finalSnap.error, labels));
           return;
         }
-
         if (finalSnap.status === "done" && finalSnap.result) {
           const { summary: s, detail: d } = formatImportDoneSummary(
             labels,
@@ -175,15 +175,14 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
         );
       } finally {
         setLogModalLive(false);
+        resetCancelState();
         setPhaseLine(null);
         setBusy(false);
       }
     },
-    [labels, locale, pollUntilDone, reset],
+    [labels, locale, pollUntilDone, reset, resetCancelState, setJobId],
   );
-
-  const inlineProgress =
-    jobModalOpen && logModalLive ? null : (liveLine ?? phaseLine);
+  const inlineProgress = jobModalOpen && logModalLive ? null : (liveLine ?? phaseLine);
 
   return (
     <div className="max-w-xl space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6">
@@ -210,10 +209,7 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
         open={jobModalOpen}
         onOpenChange={(open: boolean) => {
           setJobModalOpen(open);
-          if (!open) {
-            reset();
-            setImportTotalRows(null);
-          }
+          if (!open) { reset(); resetCancelState(); setImportTotalRows(null); }
         }}
         titleId="import-activity-modal-title"
         title={labels.activityModalTitle}
@@ -225,6 +221,9 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
         lines={activityLines}
         emptyLogLine={emptyLogPlaceholder}
         isRunning={logModalLive}
+        isCancelling={cancelBusy}
+        onCancel={jobId ? cancelImport : undefined}
+        cancelLabel={labels.activityModalCancel}
         runningAriaLabel={labels.processing}
         closeLabel={labels.activityModalClose}
       />

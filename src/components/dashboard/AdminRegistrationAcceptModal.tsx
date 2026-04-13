@@ -5,6 +5,7 @@ import { AdminRegistrationAcceptForm } from "@/components/dashboard/AdminRegistr
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { Dictionary } from "@/types/i18n";
 import type { RegistrationAcceptUserLabels } from "@/components/dashboard/AdminRegistrationAcceptForm";
+import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 
 interface AdminRegistrationAcceptModalProps {
   locale: string;
@@ -16,6 +17,8 @@ interface AdminRegistrationAcceptModalProps {
   onSuccess: () => void;
   labels: Dictionary["admin"]["registrations"];
   userLabels: RegistrationAcceptUserLabels;
+  currentCohortSections?: CurrentCohortSection[];
+  currentCohortName?: string;
 }
 
 export function AdminRegistrationAcceptModal({
@@ -28,6 +31,8 @@ export function AdminRegistrationAcceptModal({
   onSuccess,
   labels,
   userLabels,
+  currentCohortSections,
+  currentCohortName,
 }: AdminRegistrationAcceptModalProps) {
   return (
     <Modal
@@ -57,6 +62,8 @@ export function AdminRegistrationAcceptModal({
           onSuccess={onSuccess}
           labels={labels}
           userLabels={userLabels}
+          currentCohortSections={currentCohortSections}
+          currentCohortName={currentCohortName}
         />
       ) : null}
     </Modal>

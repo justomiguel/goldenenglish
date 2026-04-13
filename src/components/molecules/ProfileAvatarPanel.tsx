@@ -9,6 +9,7 @@ import {
   uploadProfileAvatar,
   type ProfileAvatarErrorKey,
 } from "@/lib/profile/uploadProfileAvatar";
+import { fillProfileAvatarMaxMbTemplate } from "@/lib/profile/avatarUploadLimits";
 
 export interface ProfileAvatarFormLabels {
   avatarHint: string;
@@ -18,18 +19,21 @@ export interface ProfileAvatarFormLabels {
   avatarError: string;
   avatarTooBig: string;
   avatarInvalidType: string;
-  avatarForbidden: string;
+  avatarSessionMissing: string;
+  avatarProfileMissing: string;
   avatarNoFile: string;
 }
 
 function labelForError(key: ProfileAvatarErrorKey, labels: ProfileAvatarFormLabels): string {
   switch (key) {
     case "avatarTooBig":
-      return labels.avatarTooBig;
+      return fillProfileAvatarMaxMbTemplate(labels.avatarTooBig);
     case "avatarInvalidType":
       return labels.avatarInvalidType;
-    case "avatarForbidden":
-      return labels.avatarForbidden;
+    case "avatarSessionMissing":
+      return labels.avatarSessionMissing;
+    case "avatarProfileMissing":
+      return labels.avatarProfileMissing;
     case "avatarNoFile":
       return labels.avatarNoFile;
     default:
@@ -42,6 +46,10 @@ export interface ProfileAvatarPanelProps {
   avatarDisplayUrl: string | null;
   displayName: string;
   labels: ProfileAvatarFormLabels;
+  /** When true, omits outer card chrome (use inside a parent section). */
+  embedded?: boolean;
+  /** Only the upload form (avatar shown separately, e.g. LinkedIn-style hero). */
+  uploadOnly?: boolean;
 }
 
 export function ProfileAvatarPanel({
@@ -49,6 +57,8 @@ export function ProfileAvatarPanel({
   avatarDisplayUrl,
   displayName,
   labels,
+  embedded = false,
+  uploadOnly = false,
 }: ProfileAvatarPanelProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -70,16 +80,26 @@ export function ProfileAvatarPanel({
     });
   }
 
+  const shell = embedded
+    ? "p-0"
+    : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6 shadow-[var(--shadow-card)]";
+
   return (
-    <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6 shadow-[var(--shadow-card)]">
-      <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
-        <ProfileAvatar
-          key={avatarDisplayUrl ?? "none"}
-          url={avatarDisplayUrl}
-          displayName={displayName}
-          size="lg"
-        />
-        <form className="w-full max-w-md space-y-4" onSubmit={onSubmit}>
+    <div className={shell}>
+      <div
+        className={
+          uploadOnly ? "flex flex-col gap-4" : "flex flex-col items-center gap-6 sm:flex-row sm:items-start"
+        }
+      >
+        {uploadOnly ? null : (
+          <ProfileAvatar
+            key={avatarDisplayUrl ?? "none"}
+            url={avatarDisplayUrl}
+            displayName={displayName}
+            size="lg"
+          />
+        )}
+        <form className={uploadOnly ? "w-full max-w-lg space-y-4" : "w-full max-w-md space-y-4"} onSubmit={onSubmit}>
           <div>
             <Label htmlFor="profile-avatar-file">{labels.avatarChoose}</Label>
             <input
@@ -89,7 +109,9 @@ export function ProfileAvatarPanel({
               accept="image/jpeg,image/png,image/webp"
               className="mt-2 block w-full min-h-[44px] cursor-pointer text-sm text-[var(--color-foreground)] file:mr-4 file:rounded-[var(--layout-border-radius)] file:border-0 file:bg-[var(--color-muted)] file:px-4 file:py-2 file:text-sm file:font-medium file:text-[var(--color-foreground)]"
             />
-            <p className="mt-2 text-xs text-[var(--color-muted-foreground)]">{labels.avatarHint}</p>
+            <p className="mt-2 text-xs text-[var(--color-muted-foreground)]">
+              {fillProfileAvatarMaxMbTemplate(labels.avatarHint)}
+            </p>
           </div>
           <Button type="submit" disabled={pending} isLoading={pending}>
             {labels.avatarUpload}

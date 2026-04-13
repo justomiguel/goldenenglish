@@ -17,10 +17,12 @@ describe("Tier A dashboard entries", () => {
   it("StudentDashboardEntry renders title", () => {
     render(
       <StudentDashboardEntry
+        locale="en"
         title="Student title"
         engagementPoints={0}
         rows={[]}
         labels={dictEn.dashboard.student}
+        hub={null}
       />,
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Student title");

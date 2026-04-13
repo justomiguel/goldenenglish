@@ -2,7 +2,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { bulkImportStudentsFromRowsAdmin } from "@/lib/import/bulkImportStudents";
 import type { CsvStudentRow } from "@/lib/import/studentRowSchema";
 import type { TutorDisplayDefaults } from "@/lib/register/tutorDisplayNameParts";
-import { mergeImportJob } from "@/lib/import/importJobKv";
+import { mergeImportJob, readImportJob } from "@/lib/import/importJobKv";
+import { IMPORT_JOB_CANCELLED_BY_USER } from "@/lib/import/importJobErrorCodes";
 import { IMPORT_ROW_UNKNOWN } from "@/lib/import/importResultMessageCodes";
 
 const ACTIVITY_LOG_EVERY = 15;
@@ -27,8 +28,15 @@ export async function runBulkImportJobWithKv(
     });
 
     const admin = createAdminClient();
+    const throwIfCancelled = async () => {
+      const latest = await readImportJob(jobId);
+      if (latest?.phase === "cancelled" || latest?.error === IMPORT_JOB_CANCELLED_BY_USER) {
+        throw new Error(IMPORT_JOB_CANCELLED_BY_USER);
+      }
+    };
 
     const onRowStart = async (rowIndex: number, tot: number) => {
+      await throwIfCancelled();
       await mergeImportJob(jobId, {
         ownerId,
         status: "running",
@@ -41,6 +49,7 @@ export async function runBulkImportJobWithKv(
     };
 
     const onProgress = async (completed: number, tot: number) => {
+      await throwIfCancelled();
       const shouldLog =
         completed === 0 ||
         completed === tot ||
@@ -70,6 +79,7 @@ export async function runBulkImportJobWithKv(
       progressEveryRow: true,
     });
 
+    await throwIfCancelled();
     await mergeImportJob(jobId, {
       ownerId,
       status: "running",
@@ -94,6 +104,9 @@ export async function runBulkImportJobWithKv(
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : IMPORT_ROW_UNKNOWN;
+    if (msg === IMPORT_JOB_CANCELLED_BY_USER) {
+      return;
+    }
     await mergeImportJob(jobId, {
       ownerId,
       status: "error",

@@ -1,0 +1,62 @@
+---
+description: Estados de carga y percepción de velocidad alineados con los patrones reales del repo (sin spinners de pantalla completa que bloqueen el shell).
+globs:
+  - "src/app/**/*.tsx"
+  - "src/components/**/*.tsx"
+  - "src/hooks/*.ts"
+---
+
+# ⚡ Skeleton loading y carga de UI (Golden English)
+
+## 🎯 Principios
+
+1. **Percepción de velocidad** — El usuario debería ver **estructura** (layout, cabeceras, huecos de contenido) lo antes posible, no una pantalla en blanco prolongada.
+2. **Cero bloqueo del chrome** — Evitar spinners de **pantalla completa** que tapen navegación o layout principal mientras llegan datos secundarios.
+3. **Mimetismo** — El estado de carga debe **parecerse** al layout final (mismas zonas, proporciones razonables).
+4. **Feedback accesible** — Texto de “cargando” desde **diccionario** cuando sea visible (`aria-live` / `aria-busy` según el caso), según **`09-i18n-copy.mdc`**.
+
+## 🛠️ Patrones que ya usa el repo
+
+### 1. `SurfaceMountGate` + `skeleton={...}`
+
+Varias superficies montan un **esqueleto dedicado** mientras hidrata o resuelve datos. Ejemplos:
+
+- `src/components/organisms/LandingSurfaceGate.tsx` + `LandingScreenSkeleton`
+- `src/components/organisms/AdminUsersScreen.tsx` + `AdminUsersSkeleton`
+- `src/components/molecules/PortalProfileSurfaceEntry.tsx` + skeleton local
+
+**✅ Preferir** este patrón para pantallas con gate de montaje.
+
+### 2. Skeletons locales en `molecules/`
+
+Existen componentes nombrados `*Skeleton` (p. ej. `AdminRegistrationsSkeleton`, `LoginScreenSkeleton`). **✅ Reutilizar** o crear uno nuevo en la misma capa si la vista lo necesita, manteniendo **`03-architecture.mdc`** (tamaño de archivo, una pieza clara por archivo).
+
+### 3. Bloques `animate-pulse` con tokens
+
+Si no hay skeleton dedicado, **✅** usar contenedores con `rounded-[var(--layout-border-radius)]`, `bg-[var(--color-muted)]`, `animate-pulse` y alturas fijas razonables — **sin** hex sueltos (**`01-design-system.mdc`**).
+
+### 4. `UniversalListView`
+
+**No** incluye hoy una prop `loading` integrada: la carga suele resolverse **arriba** (página u organismo) mostrando skeleton hasta que hay `rows`, o mostrando vacío según reglas de negocio. **❌** No asumir una API `loading` que no exista; leer **`UniversalListView.tsx`** antes de extender.
+
+## Estrategia de datos
+
+Evitar cascadas innecesarias:
+
+- **❌** Encadenar awaits secuenciales cuando las fuentes son independientes.
+- **✅** `Promise.all` / `Promise.allSettled` para lecturas independientes en servidor o en hooks, sin duplicar lógica de negocio.
+
+## 🚨 Checklist de revisión
+
+- [ ] ¿El layout principal (header/sidebar si aplica) sigue visible?
+- [ ] ¿Se evita un único spinner a pantalla completa que bloquee toda la UI?
+- [ ] ¿El placeholder tiene forma similar al contenido final?
+- [ ] ¿Cargas independientes en paralelo donde tenga sentido?
+
+## 📖 Referencias en el repo
+
+- `src/components/organisms/LandingSurfaceGate.tsx`
+- `src/components/molecules/LandingScreenSkeleton.tsx`
+- `src/components/molecules/AdminUsersSkeleton.tsx`
+- `src/components/molecules/AdminRegistrationsSkeleton.tsx`
+- `src/components/organisms/UniversalListView.tsx`

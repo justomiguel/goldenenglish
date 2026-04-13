@@ -22,6 +22,9 @@ export interface LongJobActivityModalProps {
   /** Shown when the activity list has no entries yet (from `common.emptyValue` or similar). */
   emptyLogLine: string;
   isRunning: boolean;
+  isCancelling?: boolean;
+  onCancel?: () => void | Promise<void>;
+  cancelLabel?: string;
   runningAriaLabel?: string;
   closeLabel: string;
 }
@@ -43,6 +46,9 @@ export function LongJobActivityModal({
   lines,
   emptyLogLine,
   isRunning,
+  isCancelling = false,
+  onCancel,
+  cancelLabel,
   runningAriaLabel,
   closeLabel,
 }: LongJobActivityModalProps) {
@@ -112,6 +118,19 @@ export function LongJobActivityModal({
             )}
           </ul>
         </div>
+
+        {isRunning && onCancel && cancelLabel ? (
+          <Button
+            type="button"
+            variant="secondary"
+            className="min-h-[44px] w-full"
+            disabled={isCancelling}
+            isLoading={isCancelling}
+            onClick={() => void onCancel()}
+          >
+            {cancelLabel}
+          </Button>
+        ) : null}
 
         {!isRunning ? (
           <Button type="button" className="min-h-[44px] w-full" onClick={() => onOpenChange(false)}>

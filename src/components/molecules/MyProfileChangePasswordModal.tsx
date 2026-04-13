@@ -1,6 +1,7 @@
 "use client";
 
-import { type FormEvent, useState, useTransition } from "react";
+import { type FormEvent, useEffect, useId, useState, useTransition } from "react";
+import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
 import { Label } from "@/components/atoms/Label";
 import type { Dictionary } from "@/types/i18n";
@@ -8,11 +9,6 @@ import {
   changeMyPassword,
   type MyProfileActionErrorKey,
 } from "@/app/[locale]/dashboard/profile/actions";
-
-export interface MyProfilePasswordFormProps {
-  locale: string;
-  labels: Dictionary["dashboard"]["myProfile"];
-}
 
 function mapPwdError(key: MyProfileActionErrorKey, labels: Dictionary["dashboard"]["myProfile"]) {
   switch (key) {
@@ -28,9 +24,30 @@ function mapPwdError(key: MyProfileActionErrorKey, labels: Dictionary["dashboard
   }
 }
 
-export function MyProfilePasswordForm({ locale, labels }: MyProfilePasswordFormProps) {
+export interface MyProfileChangePasswordModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  locale: string;
+  labels: Dictionary["dashboard"]["myProfile"];
+  onSuccess?: () => void;
+}
+
+export function MyProfileChangePasswordModal({
+  open,
+  onOpenChange,
+  locale,
+  labels,
+  onSuccess,
+}: MyProfileChangePasswordModalProps) {
+  const titleId = useId();
+  const descId = useId();
   const [pending, startTransition] = useTransition();
   const [banner, setBanner] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    queueMicrotask(() => setBanner(null));
+  }, [open]);
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -50,7 +67,8 @@ export function MyProfilePasswordForm({ locale, labels }: MyProfilePasswordFormP
       });
       if (res.ok) {
         (e.target as HTMLFormElement).reset();
-        setBanner({ tone: "ok", text: labels.passwordSuccess });
+        onSuccess?.();
+        onOpenChange(false);
         return;
       }
       setBanner({ tone: "err", text: mapPwdError(res.errorKey, labels) });
@@ -58,16 +76,23 @@ export function MyProfilePasswordForm({ locale, labels }: MyProfilePasswordFormP
   }
 
   return (
-    <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6 shadow-[var(--shadow-card)]">
-      <h2 className="mb-2 font-display text-xl font-semibold text-[var(--color-secondary)]">
-        {labels.passwordSectionTitle}
-      </h2>
-      <p className="mb-6 text-sm text-[var(--color-muted-foreground)]">{labels.passwordSectionLead}</p>
+    <Modal
+      open={open}
+      onOpenChange={onOpenChange}
+      titleId={titleId}
+      descriptionId={descId}
+      title={labels.passwordSectionTitle}
+      stackClassName="z-[250]"
+      disableClose={pending}
+    >
+      <p id={descId} className="text-sm text-[var(--color-muted-foreground)]">
+        {labels.passwordSectionLead}
+      </p>
       <form className="space-y-4" onSubmit={onSubmit} autoComplete="off">
         <div>
-          <Label htmlFor="mp-cur-pw">{labels.currentPassword}</Label>
+          <Label htmlFor="mpw-cur">{labels.currentPassword}</Label>
           <input
-            id="mp-cur-pw"
+            id="mpw-cur"
             name="current_password"
             type="password"
             required
@@ -76,9 +101,9 @@ export function MyProfilePasswordForm({ locale, labels }: MyProfilePasswordFormP
           />
         </div>
         <div>
-          <Label htmlFor="mp-new-pw">{labels.newPassword}</Label>
+          <Label htmlFor="mpw-new">{labels.newPassword}</Label>
           <input
-            id="mp-new-pw"
+            id="mpw-new"
             name="new_password"
             type="password"
             required
@@ -88,9 +113,9 @@ export function MyProfilePasswordForm({ locale, labels }: MyProfilePasswordFormP
           />
         </div>
         <div>
-          <Label htmlFor="mp-confirm-pw">{labels.confirmPassword}</Label>
+          <Label htmlFor="mpw-confirm">{labels.confirmPassword}</Label>
           <input
-            id="mp-confirm-pw"
+            id="mpw-confirm"
             name="confirm_password"
             type="password"
             required
@@ -99,22 +124,20 @@ export function MyProfilePasswordForm({ locale, labels }: MyProfilePasswordFormP
             className="mt-2 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
           />
         </div>
-        <Button type="submit" disabled={pending} isLoading={pending} className="min-h-[44px]">
-          {labels.changePassword}
-        </Button>
-        {banner ? (
-          <p
-            role="status"
-            className={
-              banner.tone === "ok"
-                ? "text-sm text-[var(--color-primary)]"
-                : "text-sm text-[var(--color-error)]"
-            }
-          >
+        <div className="flex flex-wrap justify-end gap-2 pt-1">
+          <Button type="button" variant="ghost" disabled={pending} onClick={() => onOpenChange(false)}>
+            {labels.passwordModalCancel}
+          </Button>
+          <Button type="submit" disabled={pending} isLoading={pending} className="min-h-[44px]">
+            {labels.changePassword}
+          </Button>
+        </div>
+        {banner?.tone === "err" ? (
+          <p role="alert" className="text-sm text-[var(--color-error)]">
             {banner.text}
           </p>
         ) : null}
       </form>
-    </div>
+    </Modal>
   );
 }

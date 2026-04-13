@@ -15,3 +15,8 @@ export async function adminActionDict(locale: string) {
   const dict = await getDictionary(locale || defaultLocale);
   return dict.actionErrors.admin;
 }
+
+export async function billingUploadActionDict(formData: FormData) {
+  const dict = await getDictionary(localeFromFormData(formData));
+  return dict.actionErrors.billingUpload;
+}

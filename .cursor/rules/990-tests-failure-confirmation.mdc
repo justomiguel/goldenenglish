@@ -1,0 +1,39 @@
+---
+alwaysApply: true
+description: "Exigir confirmación explícita cuando fallen tests en commit."
+---
+# ✅ Regla: Confirmación explícita cuando fallan tests en commit
+
+## ⚠️ Regla obligatoria
+
+**Si al momento de commitear (o al ejecutar el flujo de pre-commit / CI local que el equipo trate como gate de merge) fallan tests** (unitarios, integración, e2e, snapshot, visual, etc.), el agente **DEBE preguntar explícitamente** qué se desea hacer **antes** de seguir con ese flujo.
+
+### Alcance
+
+- Aplica cuando el usuario o el propio flujo indica **commit, push, merge o `npm run precommit`** y los tests fallan en ese contexto.
+- **No** sustituye el trabajo normal en el editor: durante el desarrollo se corrigen tests y código sin detenerse a preguntar en cada `vitest` interactivo, salvo que el usuario pida explícitamente parar y decidir.
+
+### Opciones que se deben preguntar:
+
+1. **¿Quieres modificar el test?**
+2. **¿Quieres modificar la funcionalidad para que el test deje de fallar?**
+
+El agente **no puede continuar** con el commit ni con cambios adicionales **orientados a “hacer pasar” el gate** hasta que el usuario responda y seleccione una de las opciones anteriores.
+
+**Coherencia con otras reglas:** esta regla **prevalece** sobre cualquier otra que diga “implementa sin preguntar” **solo en este contexto** (tests en rojo en gate de commit).
+
+---
+
+## ✅ Ejemplo de comportamiento esperado
+
+**Situación:** falló `npm test` o `npm run test:coverage` durante el pre-commit.
+
+**Respuesta obligatoria del agente:**
+
+> Los tests fallaron al intentar commitear (o en el pre-commit). ¿Quieres que modifique el test o que modifique la funcionalidad para que el test deje de fallar?
+
+## 🚫 Prohibido
+
+- No asumir la opción por defecto.
+- No continuar con el commit sin confirmación explícita.
+- No editar tests ni código de producción **para el gate** antes de preguntar.

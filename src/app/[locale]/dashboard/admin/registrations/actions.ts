@@ -1,4 +1,7 @@
-export { acceptRegistration } from "./acceptRegistrationAction";
+export {
+  acceptRegistration,
+  type AcceptRegistrationResult,
+} from "./acceptRegistrationAction";
 export { deleteRegistration } from "./deleteRegistrationAction";
 export {
   updateRegistrationDraft,
