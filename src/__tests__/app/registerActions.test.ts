@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { submitPublicRegistration } from "@/app/[locale]/register/actions";
+import { REGISTRATION_UNDECIDED_FORM_VALUE } from "@/lib/register/registrationSectionConstants";
 import esDict from "@/dictionaries/es.json";
 
 vi.mock("next/cache", () => ({
@@ -16,6 +17,8 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: () => mockCreateClient(),
 }));
 
+const SECTION_ID = "00000000-0000-4000-8000-000000000001";
+
 const valid = {
   first_name: "Ada",
   last_name: "Lovelace",
@@ -23,8 +26,20 @@ const valid = {
   email: "ada@test.com",
   phone: "+100",
   birth_date: "2000-05-01",
-  level_interest: "A1",
+  preferred_section_id: SECTION_ID,
 };
+
+function mockClientWithRpcAndInsert(insertResult: { error: unknown }) {
+  return {
+    rpc: vi.fn().mockResolvedValue({
+      data: "Cohort — Section A",
+      error: null,
+    }),
+    from: () => ({
+      insert: vi.fn().mockResolvedValue(insertResult),
+    }),
+  };
+}
 
 describe("submitPublicRegistration", () => {
   beforeEach(() => {
@@ -43,20 +58,31 @@ describe("submitPublicRegistration", () => {
       ...valid,
       email: "bad",
       phone: "+1",
-      level_interest: "B1",
+      preferred_section_id: SECTION_ID,
     });
     expect(r).toEqual({ ok: false, message: esDict.register.validationError });
   });
 
-  it("returns db message on insert error", async () => {
+  it("returns invalid section when section rpc fails or returns empty", async () => {
     mockGetInscriptionsEnabled.mockResolvedValue(true);
     mockCreateClient.mockResolvedValue({
-      from: () => ({
-        insert: vi.fn().mockResolvedValue({
-          error: { message: "duplicate" },
-        }),
-      }),
+      rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
+      from: vi.fn(),
     });
+    const r = await submitPublicRegistration("es", valid);
+    expect(r).toEqual({
+      ok: false,
+      message: esDict.register.invalidSectionOption,
+    });
+  });
+
+  it("returns db message on insert error", async () => {
+    mockGetInscriptionsEnabled.mockResolvedValue(true);
+    mockCreateClient.mockResolvedValue(
+      mockClientWithRpcAndInsert({
+        error: { message: "duplicate" },
+      }),
+    );
     const r = await submitPublicRegistration("es", valid);
     expect(r).toEqual({
       ok: false,
@@ -66,12 +92,24 @@ describe("submitPublicRegistration", () => {
 
   it("returns ok on success", async () => {
     mockGetInscriptionsEnabled.mockResolvedValue(true);
-    mockCreateClient.mockResolvedValue({
-      from: () => ({
-        insert: vi.fn().mockResolvedValue({ error: null }),
-      }),
-    });
+    mockCreateClient.mockResolvedValue(
+      mockClientWithRpcAndInsert({ error: null }),
+    );
     const r = await submitPublicRegistration("en", valid);
     expect(r).toEqual({ ok: true });
+  });
+
+  it("does not call section RPC when applicant chose undecided", async () => {
+    mockGetInscriptionsEnabled.mockResolvedValue(true);
+    const rpc = vi.fn();
+    const insert = vi.fn().mockResolvedValue({ error: null });
+    mockCreateClient.mockResolvedValue({ rpc, from: () => ({ insert }) });
+    const r = await submitPublicRegistration("es", {
+      ...valid,
+      preferred_section_id: REGISTRATION_UNDECIDED_FORM_VALUE,
+    });
+    expect(r).toEqual({ ok: true });
+    expect(rpc).not.toHaveBeenCalled();
+    expect(insert).toHaveBeenCalled();
   });
 });

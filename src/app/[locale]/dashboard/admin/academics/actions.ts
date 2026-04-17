@@ -7,12 +7,15 @@ export {
   previewSectionEnrollmentAction,
   enrollStudentInSectionAction,
   adminDirectSectionMoveAction,
-  rolloverEnrollStudentsAction,
 } from "@/app/[locale]/dashboard/admin/academic/enrollmentActions";
+export { rolloverEnrollStudentsAction } from "@/app/[locale]/dashboard/admin/academic/rolloverEnrollStudentsAction";
 export {
   createAcademicCohortAction,
-  createAcademicSectionAction,
   searchAdminStudentsAction,
   listActiveStudentsInSectionForAdmin,
 } from "@/app/[locale]/dashboard/admin/academic/cohortActions";
+export {
+  createAcademicSectionAction,
+  updateAcademicSectionScheduleAction,
+} from "@/app/[locale]/dashboard/admin/academic/sectionActions";
 export { copyCohortSectionStructureAction } from "@/app/[locale]/dashboard/admin/academic/copyCohortSectionsActions";

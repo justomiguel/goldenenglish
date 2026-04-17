@@ -5,6 +5,7 @@ import type { TutorDisplayDefaults } from "@/lib/register/tutorDisplayNameParts"
 import { mergeImportJob, readImportJob } from "@/lib/import/importJobKv";
 import { IMPORT_JOB_CANCELLED_BY_USER } from "@/lib/import/importJobErrorCodes";
 import { IMPORT_ROW_UNKNOWN } from "@/lib/import/importResultMessageCodes";
+import { logServerException } from "@/lib/logging/serverActionLog";
 
 const ACTIVITY_LOG_EVERY = 15;
 
@@ -107,6 +108,7 @@ export async function runBulkImportJobWithKv(
     if (msg === IMPORT_JOB_CANCELLED_BY_USER) {
       return;
     }
+    logServerException("runBulkImportJobWithKv", e, { jobId, ownerId });
     await mergeImportJob(jobId, {
       ownerId,
       status: "error",

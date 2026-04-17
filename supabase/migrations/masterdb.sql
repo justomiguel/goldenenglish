@@ -2932,20 +2932,6 @@ CREATE TABLE IF NOT EXISTS public.section_attendance (
 CREATE INDEX IF NOT EXISTS section_attendance_section_day_idx
   ON public.section_attendance (enrollment_id, attended_on DESC);
 
-CREATE TABLE IF NOT EXISTS public.section_grades (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  enrollment_id UUID NOT NULL REFERENCES public.section_enrollments (id) ON DELETE CASCADE,
-  assessment_name TEXT NOT NULL,
-  score NUMERIC(6, 2) NOT NULL CHECK (score >= 0 AND score <= 10),
-  feedback_text TEXT,
-  rubric_data JSONB NOT NULL DEFAULT '{}'::jsonb,
-  recorded_by UUID NOT NULL REFERENCES public.profiles (id) ON DELETE RESTRICT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE INDEX IF NOT EXISTS section_grades_enrollment_idx
-  ON public.section_grades (enrollment_id, created_at DESC);
-
 CREATE TABLE IF NOT EXISTS public.retention_alerts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   enrollment_id UUID NOT NULL REFERENCES public.section_enrollments (id) ON DELETE CASCADE,
@@ -2975,7 +2961,6 @@ CREATE TRIGGER section_attendance_set_updated_at
   EXECUTE FUNCTION public.set_updated_at();
 
 ALTER TABLE public.section_attendance ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.section_grades ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.retention_alerts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.enrollment_retention_flags ENABLE ROW LEVEL SECURITY;
 
@@ -3021,9 +3006,12 @@ CREATE POLICY section_attendance_teacher_write ON public.section_attendance
   WITH CHECK (
     public.is_admin(auth.uid())
     OR (
-      public.user_has_role(auth.uid(), 'teacher')
-      AND public.section_enrollment_teacher_is_self(enrollment_id)
+      public.section_enrollment_teacher_is_self(enrollment_id)
       AND recorded_by = auth.uid()
+      AND attended_on >= (
+        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date - INTERVAL '4000 days'
+      )::date
+      AND attended_on <= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date
     )
   );
 
@@ -3033,63 +3021,26 @@ CREATE POLICY section_attendance_teacher_update ON public.section_attendance
   USING (
     public.is_admin(auth.uid())
     OR (
-      public.user_has_role(auth.uid(), 'teacher')
-      AND public.section_enrollment_teacher_is_self(enrollment_id)
+      public.section_enrollment_teacher_is_self(enrollment_id)
+      AND attended_on >= (
+        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date - INTERVAL '4000 days'
+      )::date
+      AND attended_on <= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date
     )
   )
   WITH CHECK (
     public.is_admin(auth.uid())
     OR (
-      public.user_has_role(auth.uid(), 'teacher')
-      AND public.section_enrollment_teacher_is_self(enrollment_id)
+      public.section_enrollment_teacher_is_self(enrollment_id)
+      AND attended_on >= (
+        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date - INTERVAL '4000 days'
+      )::date
+      AND attended_on <= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date
     )
   );
 
 DROP POLICY IF EXISTS section_attendance_admin_delete ON public.section_attendance;
 CREATE POLICY section_attendance_admin_delete ON public.section_attendance
-  FOR DELETE TO authenticated
-  USING (public.is_admin(auth.uid()));
-
--- section_grades
-DROP POLICY IF EXISTS section_grades_select_scope ON public.section_grades;
-CREATE POLICY section_grades_select_scope ON public.section_grades
-  FOR SELECT TO authenticated
-  USING (
-    public.is_admin(auth.uid())
-    OR public.section_enrollment_teacher_is_self(enrollment_id)
-    OR EXISTS (
-      SELECT 1 FROM public.section_enrollments e
-      WHERE e.id = section_grades.enrollment_id
-        AND (
-          e.student_id = auth.uid()
-          OR EXISTS (
-            SELECT 1 FROM public.tutor_student_rel ts
-            WHERE ts.tutor_id = auth.uid() AND ts.student_id = e.student_id
-          )
-        )
-    )
-  );
-
-DROP POLICY IF EXISTS section_grades_teacher_insert ON public.section_grades;
-CREATE POLICY section_grades_teacher_insert ON public.section_grades
-  FOR INSERT TO authenticated
-  WITH CHECK (
-    public.is_admin(auth.uid())
-    OR (
-      public.user_has_role(auth.uid(), 'teacher')
-      AND public.section_enrollment_teacher_is_self(enrollment_id)
-      AND recorded_by = auth.uid()
-    )
-  );
-
-DROP POLICY IF EXISTS section_grades_teacher_update ON public.section_grades;
-CREATE POLICY section_grades_teacher_update ON public.section_grades
-  FOR UPDATE TO authenticated
-  USING (public.is_admin(auth.uid()) OR public.section_enrollment_teacher_is_self(enrollment_id))
-  WITH CHECK (public.is_admin(auth.uid()) OR public.section_enrollment_teacher_is_self(enrollment_id));
-
-DROP POLICY IF EXISTS section_grades_admin_delete ON public.section_grades;
-CREATE POLICY section_grades_admin_delete ON public.section_grades
   FOR DELETE TO authenticated
   USING (public.is_admin(auth.uid()));
 
@@ -3150,23 +3101,6 @@ CREATE POLICY enrollment_retention_flags_teacher_update ON public.enrollment_ret
   USING (public.is_admin(auth.uid()) OR public.section_enrollment_teacher_is_self(enrollment_id))
   WITH CHECK (public.is_admin(auth.uid()) OR public.section_enrollment_teacher_is_self(enrollment_id));
 
--- ========== 021_retention_grade_average_view.sql ==========
-
--- Aggregated section grades per enrollment (admin retention / reports).
--- security_invoker: RLS on underlying section_grades applies to invoker.
-
-CREATE OR REPLACE VIEW public.v_section_enrollment_grade_average
-WITH (security_invoker = true) AS
-SELECT
-  enrollment_id,
-  ROUND(AVG(score)::numeric, 2) AS avg_score,
-  COUNT(*)::bigint AS grade_count
-FROM public.section_grades
-GROUP BY enrollment_id;
-
-COMMENT ON VIEW public.v_section_enrollment_grade_average IS
-  'Mean score per section enrollment for retention dashboards; RLS from section_grades.';
-
 -- ========== 022_section_attendance_operational.sql ==========
 
 -- Operational attendance: configurable no-class days + teacher edit window (RLS).
@@ -3193,42 +3127,7 @@ CREATE POLICY academic_no_class_days_admin_write ON public.academic_no_class_day
   USING (public.is_admin(auth.uid()))
   WITH CHECK (public.is_admin(auth.uid()));
 
--- Teachers may only insert/update attendance for the last ~48h window (inclusive: today and two prior calendar days).
-DROP POLICY IF EXISTS section_attendance_teacher_write ON public.section_attendance;
-CREATE POLICY section_attendance_teacher_write ON public.section_attendance
-  FOR INSERT TO authenticated
-  WITH CHECK (
-    public.is_admin(auth.uid())
-    OR (
-      public.user_has_role(auth.uid(), 'teacher')
-      AND public.section_enrollment_teacher_is_self(enrollment_id)
-      AND recorded_by = auth.uid()
-      AND attended_on >= (CURRENT_DATE - INTERVAL '2 days')::date
-      AND attended_on <= CURRENT_DATE
-    )
-  );
-
-DROP POLICY IF EXISTS section_attendance_teacher_update ON public.section_attendance;
-CREATE POLICY section_attendance_teacher_update ON public.section_attendance
-  FOR UPDATE TO authenticated
-  USING (
-    public.is_admin(auth.uid())
-    OR (
-      public.user_has_role(auth.uid(), 'teacher')
-      AND public.section_enrollment_teacher_is_self(enrollment_id)
-      AND attended_on >= (CURRENT_DATE - INTERVAL '2 days')::date
-      AND attended_on <= CURRENT_DATE
-    )
-  )
-  WITH CHECK (
-    public.is_admin(auth.uid())
-    OR (
-      public.user_has_role(auth.uid(), 'teacher')
-      AND public.section_enrollment_teacher_is_self(enrollment_id)
-      AND attended_on >= (CURRENT_DATE - INTERVAL '2 days')::date
-      AND attended_on <= CURRENT_DATE
-    )
-  );
+-- section_attendance teacher write/update: see policies above (020 + migrations 044/045).
 
 -- ========== 023_cohort_assessments_and_enrollment_grades.sql ==========
 
@@ -3668,7 +3567,7 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.get_current_cohort_id() TO authenticated;
 
--- 2. Retention view: switch from section_grades to enrollment_assessment_grades (published only).
+-- 2. Retention view: published enrollment assessment grades only.
 CREATE OR REPLACE VIEW public.v_section_enrollment_grade_average
 WITH (security_invoker = true) AS
 SELECT
@@ -3681,3 +3580,829 @@ GROUP BY enrollment_id;
 
 COMMENT ON VIEW public.v_section_enrollment_grade_average IS
   'Mean published assessment score per section enrollment for retention dashboards.';
+
+-- ========== 027_academic_sections_rls_no_recursion.sql ==========
+
+-- Fix: infinite recursion in policy for relation "academic_sections" (42P17).
+--
+-- peer-teacher visibility used:
+--   EXISTS (SELECT 1 FROM public.academic_sections mine WHERE mine.cohort_id = academic_sections.cohort_id ...)
+-- which re-evaluates RLS on academic_sections for the inner rows → infinite recursion.
+--
+-- Solution: SECURITY DEFINER helper (same pattern as user_has_role for profiles in 017_fix_profiles_rls_recursion.sql).
+
+CREATE OR REPLACE FUNCTION public.teacher_teaches_cohort(p_teacher_id uuid, p_cohort_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.academic_sections s
+    WHERE s.cohort_id = p_cohort_id
+      AND s.teacher_id = p_teacher_id
+  );
+$$;
+
+COMMENT ON FUNCTION public.teacher_teaches_cohort(uuid, uuid) IS
+  'SECURITY DEFINER: cohort/s teacher membership without re-entering academic_sections RLS.';
+
+GRANT EXECUTE ON FUNCTION public.teacher_teaches_cohort(uuid, uuid) TO authenticated;
+
+DROP POLICY IF EXISTS academic_sections_select_scope ON public.academic_sections;
+CREATE POLICY academic_sections_select_scope ON public.academic_sections
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR teacher_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM public.section_enrollments e
+      WHERE e.section_id = academic_sections.id
+        AND e.status = 'active'
+        AND (
+          e.student_id = auth.uid()
+          OR EXISTS (
+            SELECT 1 FROM public.tutor_student_rel ts
+            WHERE ts.tutor_id = auth.uid() AND ts.student_id = e.student_id
+          )
+        )
+    )
+    OR (
+      public.user_has_role(auth.uid(), 'teacher')
+      AND public.teacher_teaches_cohort(auth.uid(), academic_sections.cohort_id)
+    )
+  );
+
+-- ========== 028_academic_sections_rls_break_enrollment_cycle.sql ==========
+
+-- Fix 42P17: second recursion cycle between academic_sections and section_enrollments.
+--
+-- academic_sections_select_scope uses EXISTS (section_enrollments …).
+-- section_enrollments_select_scope used EXISTS (academic_sections s WHERE s.id = section_id …).
+-- Those mutual subqueries re-enter RLS → infinite recursion (even when enrollment count is 0,
+-- the planner still ties the policies together).
+--
+-- section_transfer_requests_teacher_insert also used EXISTS (academic_sections …) and can feed the same cycle.
+--
+-- cohort_assessments_teacher_insert: replace direct EXISTS on academic_sections with teacher_teaches_cohort
+-- (from 027) to avoid redundant self-joins in policies.
+
+CREATE OR REPLACE FUNCTION public.section_teacher_id(p_section_id uuid)
+RETURNS uuid
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT s.teacher_id
+  FROM public.academic_sections s
+  WHERE s.id = p_section_id
+  LIMIT 1;
+$$;
+
+COMMENT ON FUNCTION public.section_teacher_id(uuid) IS
+  'SECURITY DEFINER: read academic_sections.teacher_id without enrollment/section RLS ping-pong.';
+
+GRANT EXECUTE ON FUNCTION public.section_teacher_id(uuid) TO authenticated;
+
+DROP POLICY IF EXISTS section_enrollments_select_scope ON public.section_enrollments;
+CREATE POLICY section_enrollments_select_scope ON public.section_enrollments
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR student_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM public.tutor_student_rel ts
+      WHERE ts.tutor_id = auth.uid() AND ts.student_id = section_enrollments.student_id
+    )
+    OR public.section_teacher_id(section_enrollments.section_id) = auth.uid()
+  );
+
+DROP POLICY IF EXISTS section_transfer_requests_teacher_insert ON public.section_transfer_requests;
+CREATE POLICY section_transfer_requests_teacher_insert ON public.section_transfer_requests
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    requested_by = auth.uid()
+    AND public.user_has_role(auth.uid(), 'teacher')
+    AND public.section_teacher_id(from_section_id) = auth.uid()
+  );
+
+DROP POLICY IF EXISTS cohort_assessments_teacher_insert ON public.cohort_assessments;
+CREATE POLICY cohort_assessments_teacher_insert ON public.cohort_assessments
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    public.user_has_role(auth.uid(), 'teacher')
+    AND public.teacher_teaches_cohort(auth.uid(), cohort_assessments.cohort_id)
+  );
+
+-- ========== 029_registrations_preferred_section.sql ==========
+
+-- Public registration: preferred academic section (current cohort) instead of free-text "level".
+
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS preferred_section_id UUID REFERENCES public.academic_sections (id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS registrations_preferred_section_idx
+  ON public.registrations (preferred_section_id)
+  WHERE preferred_section_id IS NOT NULL;
+
+COMMENT ON COLUMN public.registrations.preferred_section_id IS
+  'Section the applicant selected on the public form (must belong to the current cohort).';
+
+-- Label for storing level_interest display + validation that the id is allowed for public signup.
+CREATE OR REPLACE FUNCTION public.registration_public_section_label(p_section_id uuid)
+RETURNS text
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT c.name || ' — ' || s.name
+  FROM public.academic_sections s
+  INNER JOIN public.academic_cohorts c ON c.id = s.cohort_id
+  WHERE s.id = p_section_id
+    AND c.is_current = true
+  LIMIT 1;
+$$;
+
+COMMENT ON FUNCTION public.registration_public_section_label(uuid) IS
+  'Returns cohort — section label if the section is in the current cohort; else NULL (invalid for public registration).';
+
+GRANT EXECUTE ON FUNCTION public.registration_public_section_label(uuid) TO anon;
+GRANT EXECUTE ON FUNCTION public.registration_public_section_label(uuid) TO authenticated;
+
+-- Options for <select> on /register (anon-safe list).
+CREATE OR REPLACE FUNCTION public.list_registration_section_options()
+RETURNS TABLE (id uuid, label text)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT s.id,
+         c.name || ' — ' || s.name AS label
+  FROM public.academic_sections s
+  INNER JOIN public.academic_cohorts c ON c.id = s.cohort_id
+  WHERE c.is_current = true
+  ORDER BY c.name, s.name;
+$$;
+
+COMMENT ON FUNCTION public.list_registration_section_options() IS
+  'Sections offered for public enrollment (current cohort only).';
+
+GRANT EXECUTE ON FUNCTION public.list_registration_section_options() TO anon;
+GRANT EXECUTE ON FUNCTION public.list_registration_section_options() TO authenticated;
+
+-- FK insert on registrations.preferred_section_id must pass RLS on academic_sections (PostgreSQL FK check).
+-- Allow anon to read only cohorts/sections that are offered for public signup (current cohort).
+DROP POLICY IF EXISTS academic_cohorts_select_public_current ON public.academic_cohorts;
+CREATE POLICY academic_cohorts_select_public_current ON public.academic_cohorts
+  FOR SELECT TO anon
+  USING (is_current = true);
+
+DROP POLICY IF EXISTS academic_sections_select_public_registration ON public.academic_sections;
+CREATE POLICY academic_sections_select_public_registration ON public.academic_sections
+  FOR SELECT TO anon
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.academic_cohorts c
+      WHERE c.id = academic_sections.cohort_id
+        AND c.is_current = true
+    )
+  );
+
+-- ========== 030_admin_hub_profile_counts_rpc.sql ==========
+
+-- RPC: profile counts by role + students without active section enrollment.
+-- Replaces the full profiles scan in loadAdminHubSummary (Rule 13 compliance).
+
+CREATE OR REPLACE FUNCTION public.admin_hub_profile_counts()
+RETURNS jsonb
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  WITH role_counts AS (
+    SELECT role::text AS role, count(*)::int AS cnt
+    FROM public.profiles
+    WHERE role IS NOT NULL
+    GROUP BY role
+  ),
+  total AS (
+    SELECT coalesce(sum(cnt), 0)::int AS total FROM role_counts
+  ),
+  students_without_section AS (
+    SELECT count(*)::int AS cnt
+    FROM public.profiles p
+    WHERE p.role = 'student'
+      AND NOT EXISTS (
+        SELECT 1 FROM public.section_enrollments se
+        WHERE se.student_id = p.id
+          AND se.status = 'active'
+      )
+  )
+  SELECT jsonb_build_object(
+    'total', (SELECT total FROM total),
+    'by_role', coalesce(
+      (SELECT jsonb_agg(jsonb_build_object('role', role, 'count', cnt) ORDER BY cnt DESC)
+       FROM role_counts),
+      '[]'::jsonb
+    ),
+    'students_without_section', (SELECT cnt FROM students_without_section)
+  );
+$$;
+
+COMMENT ON FUNCTION public.admin_hub_profile_counts() IS
+  'Aggregated profile counts by role + students without active section enrollment for admin hub.';
+
+REVOKE ALL ON FUNCTION public.admin_hub_profile_counts() FROM anon;
+GRANT EXECUTE ON FUNCTION public.admin_hub_profile_counts() TO authenticated;
+
+-- ========== 031_admin_traffic_geo_path_breakdown.sql ==========
+
+-- Top (country, pathname) pairs from traffic_page_hits for admin analytics (bounded).
+
+CREATE OR REPLACE FUNCTION public.admin_traffic_geo_path_breakdown(p_days int, p_limit int DEFAULT 500)
+RETURNS TABLE (country text, pathname text, cnt bigint)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  lim int := least(coalesce(nullif(p_limit, 0), 500), 2000);
+BEGIN
+  IF NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+  RETURN QUERY
+  SELECT
+    upper(trim(t.geo_country)) AS country,
+    t.pathname,
+    COUNT(*)::bigint AS cnt
+  FROM public.traffic_page_hits t
+  WHERE t.created_at >= now() - (p_days || ' days')::interval
+    AND t.geo_country IS NOT NULL
+    AND btrim(t.geo_country) <> ''
+  GROUP BY 1, 2
+  ORDER BY 3 DESC, 1, 2
+  LIMIT lim;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.admin_traffic_geo_path_breakdown(int, int) TO authenticated;
+
+CREATE INDEX IF NOT EXISTS traffic_page_hits_geo_path_created_idx
+  ON public.traffic_page_hits (geo_country, pathname, created_at DESC);
+
+-- ========== 032_admin_traffic_guest_path_breakdown.sql ==========
+
+-- Top pathnames for guest (no session) hits — admin traffic analytics.
+
+CREATE OR REPLACE FUNCTION public.admin_traffic_guest_path_breakdown(p_days int, p_limit int DEFAULT 500)
+RETURNS TABLE (pathname text, cnt bigint)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  lim int := least(coalesce(nullif(p_limit, 0), 500), 2000);
+BEGIN
+  IF NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+  RETURN QUERY
+  SELECT
+    t.pathname,
+    COUNT(*)::bigint AS cnt
+  FROM public.traffic_page_hits t
+  WHERE t.created_at >= now() - (p_days || ' days')::interval
+    AND t.visitor_kind = 'guest'::public.traffic_visitor_kind
+  GROUP BY t.pathname
+  ORDER BY cnt DESC, pathname
+  LIMIT lim;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.admin_traffic_guest_path_breakdown(int, int) TO authenticated;
+
+CREATE INDEX IF NOT EXISTS traffic_page_hits_guest_path_created_idx
+  ON public.traffic_page_hits (visitor_kind, pathname, created_at DESC);
+
+-- ========== 033_academic_cohort_section_archive.sql ==========
+
+-- Operational soft-archive for cohorts and sections (admin-driven "baja").
+-- Non-admin readers lose visibility; public registration helpers ignore archived rows.
+
+ALTER TABLE public.academic_cohorts
+  ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ NULL;
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ NULL;
+
+CREATE INDEX IF NOT EXISTS academic_cohorts_archived_idx
+  ON public.academic_cohorts (archived_at)
+  WHERE archived_at IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS academic_sections_archived_idx
+  ON public.academic_sections (archived_at)
+  WHERE archived_at IS NOT NULL;
+
+COMMENT ON COLUMN public.academic_cohorts.archived_at IS
+  'When set, cohort is hidden from non-admin operational reads until restored.';
+
+COMMENT ON COLUMN public.academic_sections.archived_at IS
+  'When set, section is hidden from non-admin operational reads until restored.';
+
+-- Peer-teacher cohort visibility: only active (non-archived) sections count.
+CREATE OR REPLACE FUNCTION public.teacher_teaches_cohort(p_teacher_id uuid, p_cohort_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.academic_sections s
+    WHERE s.cohort_id = p_cohort_id
+      AND s.teacher_id = p_teacher_id
+      AND s.archived_at IS NULL
+  );
+$$;
+
+-- Public registration options: current cohort only, both cohort and section active.
+CREATE OR REPLACE FUNCTION public.list_registration_section_options()
+RETURNS TABLE (id uuid, label text)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT s.id,
+         c.name || ' — ' || s.name AS label
+  FROM public.academic_sections s
+  INNER JOIN public.academic_cohorts c ON c.id = s.cohort_id
+  WHERE c.is_current = true
+    AND c.archived_at IS NULL
+    AND s.archived_at IS NULL
+  ORDER BY c.name, s.name;
+$$;
+
+CREATE OR REPLACE FUNCTION public.registration_public_section_label(p_section_id uuid)
+RETURNS text
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT c.name || ' — ' || s.name
+  FROM public.academic_sections s
+  INNER JOIN public.academic_cohorts c ON c.id = s.cohort_id
+  WHERE s.id = p_section_id
+    AND c.is_current = true
+    AND c.archived_at IS NULL
+    AND s.archived_at IS NULL
+  LIMIT 1;
+$$;
+
+-- Authenticated cohort reads: admins see everything; others only non-archived cohorts.
+DROP POLICY IF EXISTS academic_cohorts_select_auth ON public.academic_cohorts;
+CREATE POLICY academic_cohorts_select_auth ON public.academic_cohorts
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR public.academic_cohorts.archived_at IS NULL
+  );
+
+-- Anon public registration: current + not archived.
+DROP POLICY IF EXISTS academic_cohorts_select_public_current ON public.academic_cohorts;
+CREATE POLICY academic_cohorts_select_public_current ON public.academic_cohorts
+  FOR SELECT TO anon
+  USING (is_current = true AND archived_at IS NULL);
+
+DROP POLICY IF EXISTS academic_sections_select_public_registration ON public.academic_sections;
+CREATE POLICY academic_sections_select_public_registration ON public.academic_sections
+  FOR SELECT TO anon
+  USING (
+    academic_sections.archived_at IS NULL
+    AND EXISTS (
+      SELECT 1 FROM public.academic_cohorts c
+      WHERE c.id = academic_sections.cohort_id
+        AND c.is_current = true
+        AND c.archived_at IS NULL
+    )
+  );
+
+-- Section reads: admins bypass archive; everyone else only non-archived sections.
+DROP POLICY IF EXISTS academic_sections_select_scope ON public.academic_sections;
+CREATE POLICY academic_sections_select_scope ON public.academic_sections
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR (
+      academic_sections.archived_at IS NULL
+      AND (
+        teacher_id = auth.uid()
+        OR EXISTS (
+          SELECT 1 FROM public.section_enrollments e
+          WHERE e.section_id = academic_sections.id
+            AND e.status = 'active'
+            AND (
+              e.student_id = auth.uid()
+              OR EXISTS (
+                SELECT 1 FROM public.tutor_student_rel ts
+                WHERE ts.tutor_id = auth.uid() AND ts.student_id = e.student_id
+              )
+            )
+        )
+        OR (
+          public.user_has_role(auth.uid(), 'teacher')
+          AND public.teacher_teaches_cohort(auth.uid(), academic_sections.cohort_id)
+        )
+      )
+    )
+  );
+
+-- ========== 034_academic_section_starts_ends.sql ==========
+
+-- Operational window per section (within cohort, validated in app).
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS starts_on DATE,
+  ADD COLUMN IF NOT EXISTS ends_on DATE;
+
+UPDATE public.academic_sections s
+SET
+  starts_on = COALESCE(s.starts_on, c.starts_on, CURRENT_DATE),
+  ends_on = COALESCE(
+    s.ends_on,
+    c.ends_on,
+    COALESCE(s.starts_on, c.starts_on, CURRENT_DATE)
+  )
+FROM public.academic_cohorts c
+WHERE s.cohort_id = c.id
+  AND (s.starts_on IS NULL OR s.ends_on IS NULL);
+
+UPDATE public.academic_sections
+SET ends_on = starts_on
+WHERE ends_on IS NULL;
+
+UPDATE public.academic_sections
+SET starts_on = ends_on
+WHERE starts_on IS NULL;
+
+ALTER TABLE public.academic_sections
+  ALTER COLUMN starts_on SET NOT NULL,
+  ALTER COLUMN ends_on SET NOT NULL;
+
+ALTER TABLE public.academic_sections
+  DROP CONSTRAINT IF EXISTS academic_sections_dates_order_chk;
+
+ALTER TABLE public.academic_sections
+  ADD CONSTRAINT academic_sections_dates_order_chk
+  CHECK (starts_on <= ends_on);
+
+COMMENT ON COLUMN public.academic_sections.starts_on IS
+  'First day the section runs (calendar date; compare to cohort.starts_on/ends_on in app).';
+
+COMMENT ON COLUMN public.academic_sections.ends_on IS
+  'Last day the section runs (inclusive).';
+
+-- ========== 035_academic_section_assistants_and_staff.sql ==========
+
+-- Section lead (teacher_id) remains the canonical owner; optional assistants (same cohort tools).
+-- RLS: assistants read sections/enrollments like the lead where policies used section_teacher_id / teacher-only checks.
+
+CREATE TABLE IF NOT EXISTS public.academic_section_assistants (
+  section_id UUID NOT NULL REFERENCES public.academic_sections (id) ON DELETE CASCADE,
+  assistant_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT academic_section_assistants_pkey PRIMARY KEY (section_id, assistant_id)
+);
+
+CREATE INDEX IF NOT EXISTS academic_section_assistants_assistant_idx
+  ON public.academic_section_assistants (assistant_id);
+
+COMMENT ON TABLE public.academic_section_assistants IS
+  'Additional teachers with access to the section roster, attendance, and grades (not the lead teacher_id).';
+
+ALTER TABLE public.academic_section_assistants ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS academic_section_assistants_select_scope ON public.academic_section_assistants;
+CREATE POLICY academic_section_assistants_select_scope ON public.academic_section_assistants
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR assistant_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM public.academic_sections s
+      WHERE s.id = section_id AND s.teacher_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS academic_section_assistants_admin_insert ON public.academic_section_assistants;
+CREATE POLICY academic_section_assistants_admin_insert ON public.academic_section_assistants
+  FOR INSERT TO authenticated
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS academic_section_assistants_admin_delete ON public.academic_section_assistants;
+CREATE POLICY academic_section_assistants_admin_delete ON public.academic_section_assistants
+  FOR DELETE TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+-- Lead or assistant: used in enrollment / transfer policies (avoids recursion on academic_sections).
+CREATE OR REPLACE FUNCTION public.user_leads_or_assists_section(p_uid uuid, p_section_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.academic_sections s
+    WHERE s.id = p_section_id AND s.teacher_id = p_uid
+  )
+  OR EXISTS (
+    SELECT 1 FROM public.academic_section_assistants a
+    WHERE a.section_id = p_section_id AND a.assistant_id = p_uid
+  );
+$$;
+
+COMMENT ON FUNCTION public.user_leads_or_assists_section(uuid, uuid) IS
+  'True if the user is the section lead teacher or listed as an assistant (SECURITY DEFINER; bypasses section RLS).';
+
+GRANT EXECUTE ON FUNCTION public.user_leads_or_assists_section(uuid, uuid) TO authenticated;
+
+DROP POLICY IF EXISTS section_enrollments_select_scope ON public.section_enrollments;
+CREATE POLICY section_enrollments_select_scope ON public.section_enrollments
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR student_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM public.tutor_student_rel ts
+      WHERE ts.tutor_id = auth.uid() AND ts.student_id = section_enrollments.student_id
+    )
+    OR public.user_leads_or_assists_section(auth.uid(), section_enrollments.section_id)
+  );
+
+DROP POLICY IF EXISTS section_transfer_requests_teacher_insert ON public.section_transfer_requests;
+CREATE POLICY section_transfer_requests_teacher_insert ON public.section_transfer_requests
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    requested_by = auth.uid()
+    AND public.user_has_role(auth.uid(), 'teacher')
+    AND public.user_leads_or_assists_section(auth.uid(), from_section_id)
+  );
+
+-- Section reads: assistants see active sections they assist (same non-admin rules as lead).
+DROP POLICY IF EXISTS academic_sections_select_scope ON public.academic_sections;
+CREATE POLICY academic_sections_select_scope ON public.academic_sections
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR (
+      academic_sections.archived_at IS NULL
+      AND (
+        teacher_id = auth.uid()
+        OR EXISTS (
+          SELECT 1 FROM public.academic_section_assistants a
+          WHERE a.section_id = academic_sections.id
+            AND a.assistant_id = auth.uid()
+        )
+        OR EXISTS (
+          SELECT 1 FROM public.section_enrollments e
+          WHERE e.section_id = academic_sections.id
+            AND e.status = 'active'
+            AND (
+              e.student_id = auth.uid()
+              OR EXISTS (
+                SELECT 1 FROM public.tutor_student_rel ts
+                WHERE ts.tutor_id = auth.uid() AND ts.student_id = e.student_id
+              )
+            )
+        )
+        OR (
+          public.user_has_role(auth.uid(), 'teacher')
+          AND public.teacher_teaches_cohort(auth.uid(), academic_sections.cohort_id)
+        )
+      )
+    )
+  );
+
+CREATE OR REPLACE FUNCTION public.teacher_teaches_cohort(p_teacher_id uuid, p_cohort_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.academic_sections s
+    WHERE s.cohort_id = p_cohort_id
+      AND s.archived_at IS NULL
+      AND (
+        s.teacher_id = p_teacher_id
+        OR EXISTS (
+          SELECT 1 FROM public.academic_section_assistants a
+          WHERE a.section_id = s.id AND a.assistant_id = p_teacher_id
+        )
+      )
+  );
+$$;
+
+-- Attendance / grades: assistants may read/write rows for enrollments in sections they assist.
+CREATE OR REPLACE FUNCTION public.section_enrollment_teacher_is_self(p_enrollment_id UUID)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.section_enrollments e
+    JOIN public.academic_sections s ON s.id = e.section_id
+    WHERE e.id = p_enrollment_id
+      AND (
+        s.teacher_id = auth.uid()
+        OR EXISTS (
+          SELECT 1 FROM public.academic_section_assistants a
+          WHERE a.section_id = s.id AND a.assistant_id = auth.uid()
+        )
+      )
+  );
+$$;
+
+-- ========== 036_user_role_assistant_external_section_assistants.sql ==========
+
+-- user_role: dedicated portal staff "assistant" (not necessarily a classroom teacher).
+-- External assistants (no login): names stored per section.
+-- Transfer requests: any lead/assistant on the section may open a request (not teacher-role-only).
+
+ALTER TYPE public.user_role ADD VALUE IF NOT EXISTS 'assistant';
+
+COMMENT ON TABLE public.academic_section_assistants IS
+  'Additional profiles (teacher, student, or assistant role) with access to the section roster, attendance, and grades; not the lead teacher_id.';
+
+CREATE TABLE IF NOT EXISTS public.academic_section_external_assistants (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  section_id UUID NOT NULL REFERENCES public.academic_sections (id) ON DELETE CASCADE,
+  display_name TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT academic_section_external_assistants_display_nonempty
+    CHECK (length(trim(display_name)) > 0)
+);
+
+CREATE INDEX IF NOT EXISTS academic_section_external_assistants_section_idx
+  ON public.academic_section_external_assistants (section_id);
+
+COMMENT ON TABLE public.academic_section_external_assistants IS
+  'Volunteer or guest assistants without a profiles row; no portal access; schedule overlap is not enforced in the app.';
+
+ALTER TABLE public.academic_section_external_assistants ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS academic_section_external_assistants_select_scope
+  ON public.academic_section_external_assistants;
+CREATE POLICY academic_section_external_assistants_select_scope
+  ON public.academic_section_external_assistants
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR EXISTS (
+      SELECT 1 FROM public.academic_sections s
+      WHERE s.id = section_id AND s.teacher_id = auth.uid()
+    )
+    OR EXISTS (
+      SELECT 1 FROM public.academic_section_assistants a
+      WHERE a.section_id = section_id AND a.assistant_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS academic_section_external_assistants_admin_insert
+  ON public.academic_section_external_assistants;
+CREATE POLICY academic_section_external_assistants_admin_insert
+  ON public.academic_section_external_assistants
+  FOR INSERT TO authenticated
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS academic_section_external_assistants_admin_delete
+  ON public.academic_section_external_assistants;
+CREATE POLICY academic_section_external_assistants_admin_delete
+  ON public.academic_section_external_assistants
+  FOR DELETE TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS academic_section_external_assistants_admin_update
+  ON public.academic_section_external_assistants;
+CREATE POLICY academic_section_external_assistants_admin_update
+  ON public.academic_section_external_assistants
+  FOR UPDATE TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS section_transfer_requests_teacher_insert ON public.section_transfer_requests;
+CREATE POLICY section_transfer_requests_teacher_insert ON public.section_transfer_requests
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    requested_by = auth.uid()
+    AND public.user_leads_or_assists_section(auth.uid(), from_section_id)
+  );
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_dni TEXT;
+  v_role public.user_role;
+  v_role_raw TEXT;
+  v_provision TEXT;
+BEGIN
+  v_dni := NULLIF(trim(COALESCE(NEW.raw_user_meta_data ->> 'dni_or_passport', '')), '');
+  IF v_dni IS NULL THEN
+    v_dni := 'pending-' || replace(NEW.id::text, '-', '');
+  END IF;
+
+  v_provision := COALESCE(NEW.raw_user_meta_data ->> 'provisioning_source', '');
+  v_role_raw := lower(nullif(trim(COALESCE(NEW.raw_user_meta_data ->> 'role', '')), ''));
+
+  IF v_provision = 'admin_invite'
+     AND v_role_raw IN ('admin', 'teacher', 'student', 'parent', 'assistant') THEN
+    v_role := v_role_raw::public.user_role;
+  ELSE
+    v_role := 'student';
+  END IF;
+
+  INSERT INTO public.profiles (
+    id, role, first_name, last_name, dni_or_passport, phone, birth_date
+  )
+  VALUES (
+    NEW.id,
+    v_role,
+    COALESCE(NULLIF(trim(NEW.raw_user_meta_data ->> 'first_name'), ''), '—'),
+    COALESCE(NULLIF(trim(NEW.raw_user_meta_data ->> 'last_name'), ''), '—'),
+    v_dni,
+    NULLIF(trim(COALESCE(NEW.raw_user_meta_data ->> 'phone', '')), ''),
+    NULLIF(trim(COALESCE(NEW.raw_user_meta_data ->> 'birth_date', '')), '')::date
+  );
+  RETURN NEW;
+END;
+$$;
+
+COMMENT ON FUNCTION public.handle_new_user() IS
+  'Auth trigger: provision profile; admin_invite may set role including assistant (see 036).';
+
+-- ========== 037_fix_academic_sections_rls_recursion_assistants.sql ==========
+
+-- Break RLS recursion: academic_sections SELECT referenced academic_section_assistants,
+-- whose SELECT policy queried academic_sections again (42P17 infinite recursion).
+
+CREATE OR REPLACE FUNCTION public.user_is_section_lead_teacher(p_uid uuid, p_section_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.academic_sections s
+    WHERE s.id = p_section_id
+      AND s.teacher_id = p_uid
+  );
+$$;
+
+COMMENT ON FUNCTION public.user_is_section_lead_teacher(uuid, uuid) IS
+  'True if p_uid is the section lead (teacher_id). SECURITY DEFINER to avoid RLS recursion with academic_section_assistants policies.';
+
+GRANT EXECUTE ON FUNCTION public.user_is_section_lead_teacher(uuid, uuid) TO authenticated;
+
+DROP POLICY IF EXISTS academic_section_assistants_select_scope ON public.academic_section_assistants;
+CREATE POLICY academic_section_assistants_select_scope ON public.academic_section_assistants
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR assistant_id = auth.uid()
+    OR public.user_is_section_lead_teacher(auth.uid(), section_id)
+  );
+
+DROP POLICY IF EXISTS academic_section_external_assistants_select_scope
+  ON public.academic_section_external_assistants;
+CREATE POLICY academic_section_external_assistants_select_scope
+  ON public.academic_section_external_assistants
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR public.user_is_section_lead_teacher(auth.uid(), section_id)
+    OR EXISTS (
+      SELECT 1 FROM public.academic_section_assistants a
+      WHERE a.section_id = section_id AND a.assistant_id = auth.uid()
+    )
+  );

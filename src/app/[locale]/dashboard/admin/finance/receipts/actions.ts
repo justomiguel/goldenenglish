@@ -5,6 +5,7 @@ import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { defaultLocale, getDictionary } from "@/lib/i18n/dictionaries";
+import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 const approveSchema = z.object({
   receiptId: z.string().uuid(),
   locale: z.string().min(2).max(8),
@@ -25,6 +26,7 @@ export async function approveBillingReceipt(
     const ctx = await assertAdmin();
     supabase = ctx.supabase;
   } catch {
+    logServerAuthzDenied("approveBillingReceipt");
     const dict = await getDictionary(defaultLocale);
     return { ok: false, message: dict.actionErrors.billingReview.forbidden };
   }
@@ -41,6 +43,9 @@ export async function approveBillingReceipt(
   });
 
   if (error) {
+    logSupabaseClientError("approveBillingReceipt:rpc", error, {
+      receiptId: parsed.data.receiptId,
+    });
     return { ok: false, message: errDict.actionErrors.billingReview.rpcFailed };
   }
   const row = data as { ok?: boolean; code?: string } | null;
@@ -77,6 +82,7 @@ export async function rejectBillingReceipt(
     const ctx = await assertAdmin();
     supabase = ctx.supabase;
   } catch {
+    logServerAuthzDenied("rejectBillingReceipt");
     const dict = await getDictionary(defaultLocale);
     return { ok: false, message: dict.actionErrors.billingReview.forbidden };
   }
@@ -95,6 +101,9 @@ export async function rejectBillingReceipt(
   });
 
   if (error) {
+    logSupabaseClientError("rejectBillingReceipt:rpc", error, {
+      receiptId: parsed.data.receiptId,
+    });
     return { ok: false, message: errDict.actionErrors.billingReview.rpcFailed };
   }
   const row = data as { ok?: boolean; code?: string } | null;

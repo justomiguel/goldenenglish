@@ -17,6 +17,7 @@ describe("SignOutButton and PwaServiceWorkerRegister", () => {
   beforeEach(() => {
     mockPush.mockClear();
     mockRefresh.mockClear();
+    vi.unstubAllEnvs();
   });
 
   it("SignOutButton signs out, refreshes and navigates", async () => {
@@ -31,6 +32,7 @@ describe("SignOutButton and PwaServiceWorkerRegister", () => {
   });
 
   it("PwaServiceWorkerRegister registers service worker when available", async () => {
+    vi.stubEnv("NODE_ENV", "production");
     const reg = vi.fn().mockResolvedValue(undefined);
     const orig = navigator.serviceWorker;
     Object.defineProperty(navigator, "serviceWorker", {
@@ -59,6 +61,7 @@ describe("SignOutButton and PwaServiceWorkerRegister", () => {
   });
 
   it("PwaServiceWorkerRegister ignores register rejection", async () => {
+    vi.stubEnv("NODE_ENV", "production");
     const reg = vi.fn().mockRejectedValue(new Error("blocked"));
     const orig = navigator.serviceWorker;
     Object.defineProperty(navigator, "serviceWorker", {
@@ -67,6 +70,24 @@ describe("SignOutButton and PwaServiceWorkerRegister", () => {
     });
     render(<PwaServiceWorkerRegister />);
     await waitFor(() => expect(reg).toHaveBeenCalled());
+    Object.defineProperty(navigator, "serviceWorker", {
+      configurable: true,
+      value: orig,
+    });
+  });
+
+  // REGRESSION CHECK: Installing the service worker in development can keep stale assets
+  // alive across hot reloads, which makes the UI look broken until the dev server restarts.
+  it("PwaServiceWorkerRegister skips registration in development", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    const reg = vi.fn().mockResolvedValue(undefined);
+    const orig = navigator.serviceWorker;
+    Object.defineProperty(navigator, "serviceWorker", {
+      configurable: true,
+      value: { register: reg },
+    });
+    render(<PwaServiceWorkerRegister />);
+    await waitFor(() => expect(reg).not.toHaveBeenCalled());
     Object.defineProperty(navigator, "serviceWorker", {
       configurable: true,
       value: orig,

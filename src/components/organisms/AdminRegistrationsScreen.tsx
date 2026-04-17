@@ -8,10 +8,17 @@ import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { RegistrationAcceptUserLabels } from "@/components/dashboard/AdminRegistrationAcceptForm";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
+import type { RegistrationSortKey, RegistrationSortDir } from "@/lib/dashboard/adminRegistrationsSort";
 
-interface AdminRegistrationsScreenProps {
+export interface AdminRegistrationsScreenProps {
   locale: string;
   rows: AdminRegistrationRow[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  searchQuery: string;
+  sortKey: RegistrationSortKey;
+  sortDir: RegistrationSortDir;
   legalAgeMajority: number;
   labels: Dictionary["admin"]["registrations"];
   tableLabels: Dictionary["admin"]["table"];
@@ -20,43 +27,13 @@ interface AdminRegistrationsScreenProps {
   currentCohortName?: string;
 }
 
-export function AdminRegistrationsScreen({
-  locale,
-  rows,
-  legalAgeMajority,
-  labels,
-  tableLabels,
-  userLabels,
-  currentCohortSections,
-  currentCohortName,
-}: AdminRegistrationsScreenProps) {
+export function AdminRegistrationsScreen(props: AdminRegistrationsScreenProps) {
   return (
     <SurfaceMountGate
       skeleton={<AdminRegistrationsSkeleton />}
-      desktop={
-        <AdminRegistrationsTableDesktop
-          locale={locale}
-          rows={rows}
-          legalAgeMajority={legalAgeMajority}
-          labels={labels}
-          tableLabels={tableLabels}
-          userLabels={userLabels}
-          currentCohortSections={currentCohortSections}
-          currentCohortName={currentCohortName}
-        />
-      }
+      desktop={<AdminRegistrationsTableDesktop {...props} />}
       narrow={(surface) => (
-        <AdminRegistrationsScreenNarrow
-          locale={locale}
-          rows={rows}
-          legalAgeMajority={legalAgeMajority}
-          labels={labels}
-          tableLabels={tableLabels}
-          userLabels={userLabels}
-          surface={surface}
-          currentCohortSections={currentCohortSections}
-          currentCohortName={currentCohortName}
-        />
+        <AdminRegistrationsScreenNarrow {...props} surface={surface} />
       )}
     />
   );

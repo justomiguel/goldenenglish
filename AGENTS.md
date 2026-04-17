@@ -8,6 +8,17 @@
 
 Workspace rules in **`.cursor/rules/`** override generic skill examples when they conflict (design system, security, PWA surfaces, testing/coverage, **analytics / eventos**, **copy / i18n**).
 
+## Structured logging (ops / Vercel)
+
+Logs use a stable prefix so you can filter runtime output (local terminal, **Vercel → Logs**, log drains):
+
+| Prefix | Where | Module | Typical use |
+|--------|--------|--------|----------------|
+| **`[ge:server]`** | Node (server actions, route handlers, `src/lib/**` server code) | `src/lib/logging/serverActionLog.ts` | Supabase `.error` (`logSupabaseClientError`), thrown errors (`logServerException`), expected auth/session denials (`logServerAuthzDenied` → `console.warn`, `{ kind: "authz_denied" }`) |
+| **`[ge:client]`** | Browser (hooks, analytics cliente, PWA) | `src/lib/logging/clientLog.ts` | Failures after `sendBeacon`/`fetch`, localStorage, SSE import jobs, etc. (`logClientException`, `logClientWarn`) |
+
+**Do not** log secrets or PII in `meta`; use stable scopes (e.g. `reviewPayment:insert`) and ids when useful. The **`[ge:server]`** helpers are documented at the top of `serverActionLog.ts`.
+
 | Regla siempre activa (`alwaysApply: true`) | Tema |
 |----|-----|
 | **`08-analytics-observability.mdc`** | Métricas: `user_events`, ingestión cliente/API, `recordSystemAudit`, sin features “silenciosas”; fiabilidad tipo SRE (SLI/SLO, alertas accionables) donde aplique. |
@@ -15,6 +26,9 @@ Workspace rules in **`.cursor/rules/`** override generic skill examples when the
 | **`10-engineering-governance.mdc`** | ADR / mini diseño para auth, datos, integraciones y contratos públicos; enlaces con TDD, DDD y terceros. |
 | **`11-long-running-jobs-ui.mdc`** | Jobs largos: `LongJobActivityModal` (log desde backend) + `LongJobLoader` + `useLongJobPoll` / SSE + `pollLongJob`. |
 | **`12-supabase-app-boundaries.mdc`** | Supabase solo vía la app: fábricas de cliente en `src/lib/supabase/`; sin PostgREST/Postgres ad hoc para negocio; alineado con DDD y `03-architecture`. |
+| **`13-postgrest-pagination-bounded-queries.mdc`** | PostgREST acotado: sin `select("*")` innecesario; listados que crecen = **paginación servidor** (`range` + `count` al mismo filtro o RPC). **No** “solo `.limit(N)`” sin total/navegación; **no** paginar solo en cliente si el servidor trae todo. Patrones: `loadPaginatedRegistrations`, `loadPaginatedAdminUsers`, `chunkedIn`, RPC hub. |
+
+**Reglas con `globs` (aplican al tocar esas rutas):** p. ej. **`16-admin-buttons-icons.mdc`** — iconos Lucide + accesibilidad en botones/enlaces de acción admin.
 
 ## Security skills vs this repo
 
@@ -41,3 +55,4 @@ Workspace rules in **`.cursor/rules/`** override generic skill examples when the
 5. Auth, datos, integraciones o contratos públicos: **`.cursor/rules/10-engineering-governance.mdc`** (ADR / mini diseño).
 6. Importaciones o batches largos con feedback en UI: **`.cursor/rules/11-long-running-jobs-ui.mdc`** (`LongJobStatus`, `pollLongJob`).
 7. Acceso a Supabase (clientes, REST, service role): **`.cursor/rules/12-supabase-app-boundaries.mdc`**.
+8. Consultas listadas / volumen PostgREST: **`.cursor/rules/13-postgrest-pagination-bounded-queries.mdc`**.

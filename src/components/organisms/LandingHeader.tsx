@@ -11,7 +11,6 @@ interface LandingHeaderProps {
   dict: Dictionary;
   locale: string;
   sessionEmail: string | null;
-  isAdmin?: boolean;
 }
 
 export function LandingHeader({
@@ -19,8 +18,8 @@ export function LandingHeader({
   dict,
   locale,
   sessionEmail,
-  isAdmin = false,
 }: LandingHeaderProps) {
+  const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--color-border)]/80 bg-[var(--color-surface)]/90 shadow-[var(--shadow-soft)] backdrop-blur-md">
       <div className="mx-auto flex max-w-[var(--layout-max-width)] items-center justify-between gap-4 px-4 py-3.5">
@@ -34,6 +33,7 @@ export function LandingHeader({
               alt={brand.logoAlt || brand.name}
               width={48}
               height={48}
+              unoptimized={bypassLogoOptimizer}
               className="block h-9 w-9 rounded-[var(--layout-border-radius)] object-contain"
               priority
             />
@@ -50,9 +50,9 @@ export function LandingHeader({
             <span className="hidden pr-2 text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--color-muted-foreground)] sm:inline">
               {dict.nav.sectionsKicker}
             </span>
-            {isAdmin ? (
+            {sessionEmail ? (
               <Link
-                href={`/${locale}/dashboard/admin`}
+                href={`/${locale}/dashboard`}
                 className="inline-flex shrink-0 items-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-accent)]/55 bg-[color-mix(in_srgb,var(--color-accent)_26%,var(--color-surface))] px-2.5 py-1.5 text-sm font-semibold text-[var(--color-accent-foreground)] shadow-sm transition hover:bg-[color-mix(in_srgb,var(--color-accent)_42%,var(--color-surface))] hover:border-[var(--color-accent)]/80"
               >
                 <LayoutDashboard

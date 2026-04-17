@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandPublic } from "@/lib/brand/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
+import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { AdminDashboardShell } from "@/components/dashboard/AdminDashboardShell";
 import { AdminCommandPalette } from "@/components/dashboard/AdminCommandPalette";
 
@@ -31,6 +32,15 @@ export default async function AdminSectionLayout({
     redirect(`/${locale}`);
   }
 
+  const { data: adminProfile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+  const adminProfileRole = adminProfile?.role ?? "unknown";
+
+  const { allowed: teacherPortalAllowed } = await resolveTeacherPortalAccess(supabase, user.id);
+
   const { count } = await supabase
     .from("registrations")
     .select("id", { head: true, count: "exact" })
@@ -44,6 +54,8 @@ export default async function AdminSectionLayout({
       dict={dict}
       brand={brand}
       newRegistrationsCount={count ?? 0}
+      adminProfileRole={adminProfileRole}
+      teacherPortalAllowed={teacherPortalAllowed}
     >
       <AdminCommandPalette locale={locale} dict={dict.dashboard.adminCommandPalette} />
       {children}

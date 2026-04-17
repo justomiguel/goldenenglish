@@ -10,6 +10,8 @@ interface AdminHubMetricCardProps {
   children: ReactNode;
   linkLabel?: string;
   urgent?: boolean;
+  /** Native tooltip on the whole card link (dictionary-backed). */
+  hint?: string;
 }
 
 export function AdminHubMetricCard({
@@ -20,10 +22,12 @@ export function AdminHubMetricCard({
   children,
   linkLabel,
   urgent,
+  hint,
 }: AdminHubMetricCardProps) {
   return (
     <Link
       href={href}
+      title={hint}
       className={`group relative flex flex-col rounded-[var(--layout-border-radius)] border bg-[var(--color-background)] p-5 shadow-sm transition hover:shadow-md ${
         urgent
           ? "border-amber-300 ring-1 ring-amber-200"

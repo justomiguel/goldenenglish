@@ -114,6 +114,7 @@ export function AdminRegistrationsPwaList({
               className="flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-left text-sm font-medium text-[var(--color-secondary)] active:bg-[var(--color-muted)]"
               onClick={() => onToggleSort(key)}
               aria-pressed={active}
+              title={sortHint(key)}
             >
               <span>{colLabel(labels, key)}</span>
               {active ? (
@@ -157,6 +158,8 @@ export function AdminRegistrationsPwaList({
             prev: tableLabels.paginationPrev,
             next: tableLabels.paginationNext,
             summary: tableLabels.paginationSummary,
+            tipPrev: tableLabels.paginationTipPrev,
+            tipNext: tableLabels.paginationTipNext,
           }}
         />
       </div>

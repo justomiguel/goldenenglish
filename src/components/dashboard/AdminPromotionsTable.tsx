@@ -100,6 +100,7 @@ export function AdminPromotionsTable({ locale, rows, labels }: AdminPromotionsTa
                   type="button"
                   className="text-sm text-[var(--color-primary)] underline"
                   disabled={busy}
+                  title={labels.tipToggleActive}
                   onClick={() => toggle(r.id, !r.is_active)}
                 >
                   {r.is_active ? labels.toggleOff : labels.toggleOn}
@@ -110,6 +111,7 @@ export function AdminPromotionsTable({ locale, rows, labels }: AdminPromotionsTa
                   type="button"
                   className="text-sm text-[var(--color-secondary)] underline"
                   disabled={busy}
+                  title={labels.tipRetire}
                   onClick={() => retire(r.id)}
                 >
                   {labels.deleteSoft}

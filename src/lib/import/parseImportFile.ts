@@ -4,6 +4,7 @@ import {
   IMPORT_PARSE_EMPTY_WORKBOOK,
   IMPORT_PARSE_EXCEL_FAILED,
 } from "@/lib/import/parseImportErrorCodes";
+import { logServerException } from "@/lib/logging/serverActionLog";
 
 export type ParseImportResult = {
   data: Record<string, unknown>[];
@@ -55,7 +56,8 @@ export async function parseImportFile(file: File): Promise<ParseImportResult> {
         Object.values(row).some((v) => String(v ?? "").trim() !== ""),
       );
       return { data, errors: [] };
-    } catch {
+    } catch (err) {
+      logServerException("parseImportFile:xlsx", err, { fileName: file.name });
       return {
         data: [],
         errors: [{ message: IMPORT_PARSE_EXCEL_FAILED }],

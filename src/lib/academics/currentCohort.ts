@@ -24,6 +24,7 @@ export async function loadCurrentCohort(
     .from("academic_cohorts")
     .select("id, name, slug, starts_on, ends_on")
     .eq("is_current", true)
+    .is("archived_at", null)
     .maybeSingle();
   if (error || !data) return null;
   return data as CurrentCohort;
@@ -41,6 +42,7 @@ export async function loadCurrentCohortSections(
     .from("academic_sections")
     .select("id, name, max_students, profiles(first_name, last_name)")
     .eq("cohort_id", cohort.id)
+    .is("archived_at", null)
     .order("name", { ascending: true });
 
   if (!sections?.length) return [];

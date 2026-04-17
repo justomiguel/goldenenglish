@@ -14,33 +14,41 @@ vi.mock("@/components/molecules/SurfaceMountGate", () => ({
 }));
 
 describe("Tier A dashboard entries", () => {
-  it("StudentDashboardEntry renders title", () => {
+  it("StudentDashboardEntry renders greeting hero with student name", () => {
     render(
       <StudentDashboardEntry
         locale="en"
         title="Student title"
+        kicker="Student area"
+        greeting="Good morning"
+        fullDateLine="Monday, April 13, 2026"
+        firstName="Lucia"
         engagementPoints={0}
         rows={[]}
         labels={dictEn.dashboard.student}
         hub={null}
       />,
     );
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Student title");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Good morning, Lucia");
   });
 
-  it("ParentDashboardEntry renders title", () => {
+  it("ParentDashboardEntry renders greeting hero with parent name", () => {
     render(
       <ParentDashboardEntry
         locale="es"
         title="Parent title"
         lead="Lead"
+        kicker="Área familias"
+        greeting="Buen día"
+        fullDateLine="lunes, 13 de abril de 2026"
+        firstName="Marta"
         navPay="Pay"
         payHref="/es/pay"
         kids={[{ id: "1", first_name: "A", last_name: "B" }]}
         parentLabels={dictEn.dashboard.parent}
       />,
     );
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Parent title");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Buen día, Marta");
   });
 
   it("ParentDashboardEntry renders family summary when summaries provided", () => {
@@ -49,6 +57,10 @@ describe("Tier A dashboard entries", () => {
         locale="es"
         title="Familia"
         lead="Lead"
+        kicker="Área familias"
+        greeting="Buen día"
+        fullDateLine="lunes, 13 de abril de 2026"
+        firstName="Marta"
         navPay="Pagos"
         payHref="/es/dashboard/parent/payments"
         kids={[{ id: "s1", first_name: "Kid", last_name: "One" }]}
@@ -62,6 +74,9 @@ describe("Tier A dashboard entries", () => {
             nextExamAt: "2026-10-01",
             nextEventAt: null,
             nextEventLabel: null,
+            assignedTeacherId: null,
+            assignedTeacherName: null,
+            lastPublishedGrade: null,
           },
         ]}
         selectedStudentId="s1"

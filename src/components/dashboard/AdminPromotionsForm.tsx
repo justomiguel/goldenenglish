@@ -88,15 +88,29 @@ export function AdminPromotionsForm({ locale, labels }: AdminPromotionsFormProps
       <form onSubmit={onCreate} className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
           <Label htmlFor="pr-code">{labels.createCode}</Label>
-          <Input id="pr-code" value={code} onChange={(e) => setCode(e.target.value)} required className="mt-1" />
+          <Input
+            id="pr-code"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            required
+            className="mt-1"
+            title={labels.tipCreateCode}
+          />
         </div>
         <div>
           <Label htmlFor="pr-name">{labels.createName}</Label>
-          <Input id="pr-name" value={name} onChange={(e) => setName(e.target.value)} required className="mt-1" />
+          <Input
+            id="pr-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="mt-1"
+            title={labels.tipCreateName}
+          />
         </div>
         <div className="sm:col-span-2">
           <Label htmlFor="pr-desc">{labels.createDesc}</Label>
-          <Input id="pr-desc" value={desc} onChange={(e) => setDesc(e.target.value)} className="mt-1" />
+          <Input id="pr-desc" value={desc} onChange={(e) => setDesc(e.target.value)} className="mt-1" title={labels.tipCreateDesc} />
         </div>
         <div>
           <Label htmlFor="pr-type">{labels.createDiscountType}</Label>
@@ -104,6 +118,7 @@ export function AdminPromotionsForm({ locale, labels }: AdminPromotionsFormProps
             id="pr-type"
             className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
             value={dtype}
+            title={labels.tipCreateDiscountType}
             onChange={(e) => setDtype(e.target.value as "percent" | "fixed_amount")}
           >
             <option value="percent">{labels.typePercent}</option>
@@ -121,6 +136,7 @@ export function AdminPromotionsForm({ locale, labels }: AdminPromotionsFormProps
             onChange={(e) => setVal(e.target.value)}
             required
             className="mt-1"
+            title={labels.tipCreateValue}
           />
         </div>
         <div className="sm:col-span-2">
@@ -129,6 +145,7 @@ export function AdminPromotionsForm({ locale, labels }: AdminPromotionsFormProps
             id="pr-app"
             className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
             value={applies}
+            title={labels.tipCreateAppliesTo}
             onChange={(e) => setApplies(e.target.value as "enrollment" | "monthly" | "both")}
           >
             <option value="enrollment">{labels.appliesEnrollment}</option>
@@ -146,11 +163,12 @@ export function AdminPromotionsForm({ locale, labels }: AdminPromotionsFormProps
               value={monthlyMonths}
               onChange={(e) => setMonthlyMonths(e.target.value)}
               className="mt-1"
+              title={labels.tipCreateMonthlyMonths}
             />
           </div>
         ) : null}
         <div className="sm:col-span-2 flex items-center gap-2">
-          <label className="flex items-center gap-2 text-sm">
+          <label className="flex items-center gap-2 text-sm" title={labels.tipCreateStackable}>
             <input type="checkbox" checked={stackable} onChange={(e) => setStackable(e.target.checked)} />
             {labels.createStackable}
           </label>
@@ -163,6 +181,7 @@ export function AdminPromotionsForm({ locale, labels }: AdminPromotionsFormProps
             value={validFrom}
             onChange={(e) => setValidFrom(e.target.value)}
             className="mt-1"
+            title={labels.tipCreateValidFrom}
           />
         </div>
         <div>
@@ -173,6 +192,7 @@ export function AdminPromotionsForm({ locale, labels }: AdminPromotionsFormProps
             value={expiresAt}
             onChange={(e) => setExpiresAt(e.target.value)}
             className="mt-1"
+            title={labels.tipCreateExpires}
           />
         </div>
         <div>
@@ -184,10 +204,17 @@ export function AdminPromotionsForm({ locale, labels }: AdminPromotionsFormProps
             value={maxUses}
             onChange={(e) => setMaxUses(e.target.value)}
             className="mt-1"
+            title={labels.tipCreateMaxUses}
           />
         </div>
         <div className="sm:col-span-2">
-          <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px]">
+          <Button
+            type="submit"
+            disabled={busy}
+            isLoading={busy}
+            className="min-h-[44px]"
+            title={labels.tipCreateSubmit}
+          >
             {labels.createSubmit}
           </Button>
         </div>

@@ -58,7 +58,9 @@ export function AdminMessagesInbox({ locale, labels, rows }: AdminMessagesInboxP
               <td className="py-3 pr-4 whitespace-nowrap text-[var(--color-muted-foreground)]">
                 {formatSentAt(row.createdAt, locale)}
               </td>
-              <td className="py-3 text-[var(--color-muted-foreground)]">{row.preview}</td>
+              <td className="py-3 text-[var(--color-muted-foreground)]" title={labels.inboxPreviewHint}>
+                {row.preview}
+              </td>
             </tr>
           ))}
         </tbody>

@@ -53,6 +53,22 @@ export function supabaseForSendMessage(opts: {
             },
             error: null,
           }),
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: { role: opts.role },
+            error: null,
+          }),
+        };
+      }
+      if (table === "academic_section_staff") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        };
+      }
+      if (table === "academic_sections") {
+        return {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         };
       }
       throw new Error(`unexpected ${table}`);

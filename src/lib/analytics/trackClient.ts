@@ -9,6 +9,7 @@ import {
 import { browserOriginAbsolutePath } from "@/lib/analytics/browserOriginAbsolutePath";
 import { AnalyticsEntity, pathnameToEntity } from "@/lib/analytics/eventConstants";
 import { sanitizeAnalyticsMetadata } from "@/lib/analytics/sanitizeMetadata";
+import { logClientException } from "@/lib/logging/clientLog";
 import type { UserEventTypeName } from "@/lib/analytics/eventConstants";
 
 type Payload = {
@@ -33,15 +34,17 @@ function postEvents(events: Payload[], geo?: { country?: string; region?: string
       const blob = new Blob([body], { type: "application/json" });
       return navigator.sendBeacon(url, blob);
     }
-  } catch {
-    /* fall through */
+  } catch (beaconErr) {
+    logClientException("trackEvent:sendBeacon", beaconErr);
   }
   void fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,
     keepalive: true,
-  }).catch(() => {});
+  }).catch((fetchErr) => {
+    logClientException("trackEvent:fetch", fetchErr);
+  });
   return true;
 }
 

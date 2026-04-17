@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
+import { REGISTRATION_UNDECIDED_FORM_VALUE } from "@/lib/register/registrationSectionConstants";
 
 function isReasonableBirthDate(s: string): boolean {
   const d = new Date(`${s}T12:00:00`);
@@ -27,7 +28,10 @@ export function buildPublicRegistrationSchema(legalAgeMajority: number) {
         .trim()
         .regex(/^\d{4}-\d{2}-\d{2}$/)
         .refine(isReasonableBirthDate, { message: "invalid_birth_date" }),
-      level_interest: z.string().trim().min(1).max(80),
+      preferred_section_id: z.union([
+        z.literal(REGISTRATION_UNDECIDED_FORM_VALUE),
+        z.string().uuid(),
+      ]),
       tutor_name: z.string().trim().max(120).optional(),
       tutor_dni: z.string().trim().max(32).optional(),
       tutor_email: z.string().trim().max(254).optional(),

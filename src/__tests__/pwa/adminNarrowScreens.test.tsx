@@ -11,7 +11,9 @@ import type { AdminUserRow } from "@/lib/dashboard/adminUsersTableHelpers";
 const refresh = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh }),
+  useRouter: () => ({ refresh, replace: vi.fn() }),
+  usePathname: () => "/es/dashboard/admin",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/app/[locale]/dashboard/admin/registrations/actions", () => ({
@@ -48,6 +50,7 @@ const userRow: AdminUserRow = {
   role: "student",
   phone: "+1",
   avatarDisplayUrl: null,
+  missingSection: false,
 };
 
 describe("admin narrow screens", () => {
@@ -61,6 +64,12 @@ describe("admin narrow screens", () => {
       <AdminRegistrationsScreenNarrow
         locale="es"
         rows={[regRow]}
+        totalCount={1}
+        page={1}
+        pageSize={25}
+        searchQuery=""
+        sortKey="received"
+        sortDir="desc"
         legalAgeMajority={18}
         labels={dictEn.admin.registrations}
         tableLabels={dictEn.admin.table}
@@ -84,6 +93,13 @@ describe("admin narrow screens", () => {
     render(
       <AdminUsersScreenNarrow
         rows={[userRow]}
+        totalCount={1}
+        page={1}
+        pageSize={25}
+        searchQuery=""
+        roleFilter="all"
+        sortKey="name"
+        sortDir="asc"
         locale="es"
         currentUserId="other"
         labels={dictEn.admin.users}

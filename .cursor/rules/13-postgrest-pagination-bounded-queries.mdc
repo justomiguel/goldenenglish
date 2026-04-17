@@ -1,0 +1,63 @@
+---
+description: Consultas PostgREST/Supabase acotadas — sin listados completos sin filtro; columnas explícitas; paginación servidor obligatoria en listas que crezcan; sin “solo limit” que oculte filas.
+alwaysApply: true
+---
+
+# PostgREST: consultas acotadas y paginación
+
+## Objetivo
+
+Evitar **full table scans** vía PostgREST (`select` sin límites efectivos) que:
+
+- degradan rendimiento y **LCP** en páginas servidor,
+- chocan con **límites prácticos** (p. ej. ~1000 filas por respuesta / memoria),
+- hacen imposible escalar el producto sin rediseño.
+
+Toda **lista de negocio** que pueda superar unos cientos de filas debe nacer **paginada en servidor** (o con RPC agregada / `count` + `range`), no “traer todo y filtrar en cliente”, ni “poner un `limit` y olvidarse del resto”.
+
+## Reglas (no negociable en código nuevo)
+
+1. **No** `from("…").select("*")` **sin** cadena de filtros que **acote fuerte** el conjunto (p. ej. `.eq("status","new")`, `.in("id", boundedIds)`, ventana de fechas, FK acotada), salvo excepciones abajo.
+2. **No** `select("…")` de tablas de dominio grandes (`profiles`, `registrations`, `payments`, `user_events`, `section_enrollments`, etc.) **sin** al menos uno de: **filtro restrictivo**, **`range(from, to)`** + orden estable, **head: true + count** solo, o **RPC** pensada para el volumen.
+3. **Preferir columnas explícitas** (`select("id, name, status")`) frente a `*`: menos payload, menos sorpresas en RLS y en migraciones.
+4. **Listados UI** (tablas admin, feeds): **paginación servidor** obligatoria cuando el conjunto pueda crecer sin techo de negocio claro:
+   - Misma ventana de datos en **filas** (`range`) y en **total** (`count: "exact", head: true` en paralelo, o RPC que devuelva `{ rows, total }`).
+   - Filtros y orden que afecten al listado deben aplicarse **en la query** (o en la RPC), no solo en el cliente sobre “la página que vino por casualidad”.
+   - **Prohibido** usar solo `.limit(N)` para “acotar” un listado infinito **sin** navegación + total + misma semántica de filtro en servidor: eso **pierde datos** sin avisar al usuario.
+5. **Anti-patrón “paginación solo en cliente”**: cargar en el Server Component **todas** las filas y pasarlas a un hook que hace `slice` por página **sigue siendo un scan completo** en red/PostgREST. Si la lista puede ser grande, la paginación debe ir **antes** del borde cliente (RSC + `searchParams` / acción que devuelve página + total, etc.).
+6. **IDs conocidos y acotados** (p. ej. `in("id", ids)` donde `ids` viene de otra query ya acotada o de un formulario con límite de tamaño) se consideran acotados **solo si** la lista de IDs tiene un **tope de negocio** razonable; si puede crecer sin límite, **paginar la fuente** o **trocear** el `.in()` (p. ej. batches de ~200 UUIDs) para no reventar URL/tamaño de request.
+7. **Métricas / histogramas / conteos por rol**: preferir **una RPC SQL** (agregados en Postgres) frente a `select("id, role")` de toda la tabla y contar en Node. Si se añade RPC pública nueva para admin, alinear con **`10-engineering-governance.mdc`** (mini-ADR o nota en PR).
+
+## Patrones canónicos en este repo (reutilizar antes de inventar)
+
+| Caso | Dónde mirar |
+|------|-------------|
+| Listado admin paginado + total + `q` / `sort` / `page` vía URL | `src/lib/dashboard/loadPaginatedRegistrations.ts`, página `src/app/[locale]/dashboard/admin/registrations/page.tsx`, hooks `useAdminRegistrationsList` |
+| Listado usuarios admin paginado desde `profiles` + email por página | `src/lib/dashboard/loadPaginatedAdminUsers.ts`, página `src/app/[locale]/dashboard/admin/users/page.tsx`, hook `useAdminUsersTable` |
+| Trocear `.in("id", miles_de_uuids)` | `src/lib/supabase/chunkedIn.ts` |
+| Conteos hub admin sin scan de filas | RPC `admin_hub_profile_counts` en `supabase/migrations/030_admin_hub_profile_counts_rpc.sql`, consumo en `src/lib/dashboard/loadAdminHubSummary.ts` |
+| Jobs / cron que procesan muchos candidatos | **Lote** (`limit` razonable) + **orden estable** + re-ejecución (el siguiente run continúa); ver `src/app/api/cron/churn-inactivity/route.ts` |
+| Tabla + `UniversalListView` + `TablePagination` | Los totales que alimenta la paginación deben ser el **total servidor** del filtro activo, no `rows.length` de un subconjunto arbitrario |
+
+## Excepciones documentadas (justificar en PR o comentario mínimo)
+
+- Tablas de **configuración** o catálogos que por diseño tienen **orden de magnitud fijo** (p. ej. &lt; 100 filas) y están documentados como tal.
+- **Migraciones / seeds / scripts de plataforma** bajo `supabase/migrations/`, `scripts/` de mantenimiento, no sustitutos de UI.
+- **Solo conteo** con `head: true` + filtros, sin traer filas.
+- Lecturas **por PK** (`.eq("id", uuid).maybeSingle()`).
+- **Límite de seguridad** en un catálogo acotado por negocio (p. ej. secciones académicas de un instituto) **solo** si en la PR se documenta el techo y la UX si se alcanza (búsqueda, segunda página, RPC, etc.).
+
+## Relación con otras reglas
+
+- **`12-supabase-app-boundaries.mdc`** — dónde se construye el cliente; esta regla gobierna **forma y tamaño** de las lecturas.
+- **`03-architecture.mdc`** — orquestación en server components / actions; la paginación vive ahí o en `src/lib/` como helper **inyectando** cliente.
+- **`10-engineering-governance.mdc`** — si se introduce **RPC nueva** o contrato de listado paginado compartido, mini-ADR o nota en PR.
+
+## Checklist del agente
+
+- [ ] ¿Esta query puede superar ~500–1000 filas en producción? → **Filtro + paginación servidor** (o RPC), no solo `limit`.
+- [ ] ¿`select("*")`? → Sustituir por columnas necesarias salvo excepción arriba.
+- [ ] ¿Lista en UI sin `range` / sin **total alineado** al mismo filtro? → Alinear con patrón del repo (tabla arriba).
+- [ ] ¿`.in("id", ids)` con `ids` sin techo? → Trocear o paginar la fuente de IDs.
+- [ ] ¿Conteos / agregados sobre toda una tabla grande? → RPC o `count` + filtros, no traer columnas de todas las filas.
+- [ ] ¿Cambio en listado existente “que ya traía todo”? → Tratarlo como deuda: **misma PR** acota o pagina si el alcance lo permite; si no, issue + comentario enlazado a esta regla.

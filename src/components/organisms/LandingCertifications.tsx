@@ -14,6 +14,10 @@ interface LandingCertificationsProps {
 const cardClass =
   "flex h-full flex-col items-center rounded-[var(--layout-border-radius)] bg-[var(--color-surface)] p-6 text-center shadow-[var(--shadow-soft)] md:p-7";
 
+function bypassOptimizer(src: string): boolean {
+  return src.startsWith("/images/");
+}
+
 function CertLogosInstitutional({ alt }: { alt: string }) {
   return (
     <div className="relative mb-5 h-36 w-full max-w-[15rem] shrink-0">
@@ -21,6 +25,7 @@ function CertLogosInstitutional({ alt }: { alt: string }) {
         src={CERT_IMG_GOLDEN}
         alt={alt}
         fill
+        unoptimized={bypassOptimizer(CERT_IMG_GOLDEN)}
         className="object-contain object-center"
         sizes="(max-width: 768px) 75vw, 240px"
       />
@@ -42,6 +47,7 @@ function CertLogosNational({
           src={CERT_IMG_GOLDEN}
           alt={altGolden}
           fill
+          unoptimized={bypassOptimizer(CERT_IMG_GOLDEN)}
           className="object-contain object-center"
           sizes="140px"
         />
@@ -51,6 +57,7 @@ function CertLogosNational({
           src={CERT_IMG_UTN_INGLES}
           alt={altUtn}
           fill
+          unoptimized={bypassOptimizer(CERT_IMG_UTN_INGLES)}
           className="object-contain object-center"
           sizes="(max-width: 640px) 85vw, 320px"
         />
@@ -73,6 +80,7 @@ function CertLogosInternational({
           src={CERT_IMG_GOLDEN}
           alt={altGolden}
           fill
+          unoptimized={bypassOptimizer(CERT_IMG_GOLDEN)}
           className="object-contain object-center"
           sizes="140px"
         />
@@ -82,6 +90,7 @@ function CertLogosInternational({
           src={CERT_IMG_CAMBRIDGE}
           alt={altCambridge}
           fill
+          unoptimized={bypassOptimizer(CERT_IMG_CAMBRIDGE)}
           className="object-contain object-center"
           sizes="160px"
         />

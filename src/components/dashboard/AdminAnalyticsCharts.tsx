@@ -1,17 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { RechartsSizedFrame } from "@/components/molecules/RechartsSizedFrame";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import type { Dictionary } from "@/types/i18n";
 import {
@@ -20,10 +9,24 @@ import {
   type TrafficSummary,
 } from "@/components/dashboard/AdminAnalyticsTrafficSection";
 import type { TrafficGeoRow } from "@/components/dashboard/AdminAnalyticsGeoChoropleth";
-
-type HourlyRow = { hour: number; role: string; cnt: number };
-type GeoRow = { country: string; cnt: number };
-type FunnelRow = { section: string; viewers: number };
+import {
+  AdminAnalyticsGeoPathBreakdown,
+  type TrafficGeoPathRow,
+} from "@/components/dashboard/AdminAnalyticsGeoPathBreakdown";
+import {
+  AdminAnalyticsGuestPathBreakdown,
+  type TrafficGuestPathRow,
+} from "@/components/dashboard/AdminAnalyticsGuestPathBreakdown";
+import type { TrafficKindBreakdowns } from "@/components/dashboard/AdminAnalyticsTrafficBreakdownPanel";
+import {
+  AdminAnalyticsHourlyChart,
+  type AdminAnalyticsHourlyRow,
+} from "@/components/dashboard/AdminAnalyticsHourlyChart";
+import {
+  AdminAnalyticsFunnelGeoCharts,
+  type AdminAnalyticsFunnelRow,
+  type AdminAnalyticsGeoBarRow,
+} from "@/components/dashboard/AdminAnalyticsFunnelGeoCharts";
 
 const AdminAnalyticsGeoChoropleth = dynamic(
   () =>
@@ -47,29 +50,12 @@ interface AdminAnalyticsChartsProps {
   trafficSummary: TrafficSummary;
   trafficDaily: TrafficDailyRow[];
   trafficGeo: TrafficGeoRow[];
-  hourly: HourlyRow[];
-  geo: GeoRow[];
-  funnel: FunnelRow[];
-}
-
-const ROLE_KEYS = ["student", "parent", "teacher", "admin"] as const;
-
-function pivotHourly(rows: HourlyRow[]) {
-  const byHour = new Map<number, Record<string, number>>();
-  for (const r of rows) {
-    const h = r.hour;
-    const cur = byHour.get(h) ?? { hour: h };
-    cur[r.role] = Number(r.cnt);
-    byHour.set(h, cur);
-  }
-  return Array.from({ length: 24 }, (_, hour) => {
-    const base = byHour.get(hour) ?? { hour };
-    const row: Record<string, number> = { hour };
-    for (const k of ROLE_KEYS) {
-      row[k] = Number(base[k] ?? 0);
-    }
-    return row;
-  });
+  trafficGeoPath: TrafficGeoPathRow[];
+  trafficGuestPath: TrafficGuestPathRow[];
+  trafficBreakdowns: TrafficKindBreakdowns;
+  hourly: AdminAnalyticsHourlyRow[];
+  geo: AdminAnalyticsGeoBarRow[];
+  funnel: AdminAnalyticsFunnelRow[];
 }
 
 export function AdminAnalyticsCharts({
@@ -78,13 +64,15 @@ export function AdminAnalyticsCharts({
   trafficSummary,
   trafficDaily,
   trafficGeo,
+  trafficGeoPath,
+  trafficGuestPath,
+  trafficBreakdowns,
   hourly,
   geo,
   funnel,
 }: AdminAnalyticsChartsProps) {
   const reducedMotion = usePrefersReducedMotion();
   const animate = !reducedMotion;
-  const heatData = pivotHourly(hourly);
 
   return (
     <div className="space-y-8">
@@ -94,9 +82,11 @@ export function AdminAnalyticsCharts({
       </div>
 
       <AdminAnalyticsTrafficSection
+        locale={locale}
         labels={labels}
         summary={trafficSummary}
         daily={trafficDaily}
+        breakdowns={trafficBreakdowns}
       />
 
       <section
@@ -117,6 +107,7 @@ export function AdminAnalyticsCharts({
               chartWorldMapLegend: labels.chartWorldMapLegend,
               worldMapLoading: labels.worldMapLoading,
               worldMapError: labels.worldMapError,
+              worldMapNoCountryData: labels.worldMapNoCountryData,
               trafficTopCountries: labels.trafficTopCountries,
               worldMapTooltipVisits: labels.worldMapTooltipVisits,
               worldMapTooltipNoVisits: labels.worldMapTooltipNoVisits,
@@ -127,100 +118,33 @@ export function AdminAnalyticsCharts({
         </div>
       </section>
 
-      <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-        <h2 className="font-semibold text-[var(--color-primary)]">{labels.chartHourly}</h2>
-        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.chartHourlyHint}</p>
-        <RechartsSizedFrame height={320} className="mt-4 w-full min-w-0">
-          {(w, h) => (
-            <ResponsiveContainer width={w} height={h} minWidth={0}>
-              <BarChart data={heatData}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                <XAxis dataKey="hour" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Legend />
-                <Bar
-                  isAnimationActive={animate}
-                  dataKey="student"
-                  stackId="a"
-                  fill="var(--color-primary)"
-                  name={labels.roleStudent}
-                />
-                <Bar
-                  isAnimationActive={animate}
-                  dataKey="parent"
-                  stackId="a"
-                  fill="var(--color-accent)"
-                  name={labels.roleParent}
-                />
-                <Bar
-                  isAnimationActive={animate}
-                  dataKey="teacher"
-                  stackId="a"
-                  fill="var(--color-secondary)"
-                  name={labels.roleTeacher}
-                />
-                <Bar
-                  isAnimationActive={animate}
-                  dataKey="admin"
-                  stackId="a"
-                  fill="var(--color-muted-foreground)"
-                  name={labels.roleAdmin}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </RechartsSizedFrame>
-      </section>
+      <AdminAnalyticsGeoPathBreakdown
+        locale={locale}
+        labels={{
+          trafficGeoPathTitle: labels.trafficGeoPathTitle,
+          trafficGeoPathHint: labels.trafficGeoPathHint,
+          trafficGeoPathColCountry: labels.trafficGeoPathColCountry,
+          trafficGeoPathColPath: labels.trafficGeoPathColPath,
+          trafficGeoPathColHits: labels.trafficGeoPathColHits,
+          trafficGeoPathEmpty: labels.trafficGeoPathEmpty,
+        }}
+        rows={trafficGeoPath}
+      />
 
-      <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-        <h2 className="font-semibold text-[var(--color-primary)]">{labels.chartFunnel}</h2>
-        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.chartFunnelHint}</p>
-        <RechartsSizedFrame height={288} className="mt-4 w-full min-w-0">
-          {(w, h) => (
-            <ResponsiveContainer width={w} height={h} minWidth={0}>
-              <BarChart
-                data={funnel.map((f) => ({ name: f.section, viewers: Number(f.viewers) }))}
-                layout="vertical"
-              >
-                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                <XAxis type="number" />
-                <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 10 }} />
-                <Tooltip />
-                <Bar
-                  isAnimationActive={animate}
-                  dataKey="viewers"
-                  fill="var(--color-primary)"
-                  name={labels.viewers}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </RechartsSizedFrame>
-      </section>
+      <AdminAnalyticsGuestPathBreakdown
+        locale={locale}
+        labels={{
+          trafficGuestPathTitle: labels.trafficGuestPathTitle,
+          trafficGuestPathHint: labels.trafficGuestPathHint,
+          trafficGuestPathEmpty: labels.trafficGuestPathEmpty,
+          trafficGeoPathColPath: labels.trafficGeoPathColPath,
+          trafficGeoPathColHits: labels.trafficGeoPathColHits,
+        }}
+        rows={trafficGuestPath}
+      />
 
-      <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-        <h2 className="font-semibold text-[var(--color-primary)]">{labels.chartGeo}</h2>
-        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.chartGeoHint}</p>
-        <RechartsSizedFrame height={288} className="mt-4 w-full min-w-0">
-          {(w, h) => (
-            <ResponsiveContainer width={w} height={h} minWidth={0}>
-              <BarChart data={geo.map((g) => ({ country: g.country, cnt: Number(g.cnt) }))} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                <XAxis type="number" />
-                <YAxis type="category" dataKey="country" width={80} tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Bar
-                  isAnimationActive={animate}
-                  dataKey="cnt"
-                  fill="var(--color-secondary)"
-                  name={labels.events}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </RechartsSizedFrame>
-      </section>
+      <AdminAnalyticsHourlyChart rows={hourly} animate={animate} labels={labels} />
+      <AdminAnalyticsFunnelGeoCharts funnel={funnel} geo={geo} animate={animate} labels={labels} />
     </div>
   );
 }

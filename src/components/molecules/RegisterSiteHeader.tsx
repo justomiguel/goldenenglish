@@ -18,6 +18,7 @@ export function RegisterSiteHeader({
   dict,
 }: RegisterSiteHeaderProps) {
   const homeHref = `/${locale}`;
+  const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
 
   return (
     <header className="mx-auto mb-8 flex max-w-6xl flex-col gap-4 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
@@ -31,6 +32,7 @@ export function RegisterSiteHeader({
             alt={brand.logoAlt || brand.name}
             width={48}
             height={48}
+            unoptimized={bypassLogoOptimizer}
             className="block h-8 w-8 rounded-[var(--layout-border-radius)] object-contain sm:h-9 sm:w-9"
             priority
           />

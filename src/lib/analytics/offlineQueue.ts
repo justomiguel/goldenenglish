@@ -1,3 +1,5 @@
+import { logClientWarn } from "@/lib/logging/clientLog";
+
 const STORAGE_KEY = "ge_analytics_queue_v1";
 
 export type QueuedEvent = {
@@ -14,6 +16,7 @@ export function loadOfflineQueue(): QueuedEvent[] {
     const parsed = JSON.parse(raw) as unknown;
     return Array.isArray(parsed) ? (parsed as QueuedEvent[]) : [];
   } catch {
+    logClientWarn("offlineQueue:loadOfflineQueue:parse_failed");
     return [];
   }
 }
@@ -23,7 +26,7 @@ export function saveOfflineQueue(events: QueuedEvent[]): void {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(events.slice(-200)));
   } catch {
-    /* quota */
+    logClientWarn("offlineQueue:saveOfflineQueue:quota_or_blocked");
   }
 }
 
@@ -38,6 +41,6 @@ export function clearOfflineQueue(): void {
   try {
     window.localStorage.removeItem(STORAGE_KEY);
   } catch {
-    /* ignore */
+    logClientWarn("offlineQueue:clearOfflineQueue:failed");
   }
 }

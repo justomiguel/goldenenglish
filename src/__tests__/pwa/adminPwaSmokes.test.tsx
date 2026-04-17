@@ -33,6 +33,7 @@ const userRow: AdminUserRow = {
   role: "student",
   phone: "+1",
   avatarDisplayUrl: null,
+  missingSection: false,
 };
 
 describe("admin PWA smoke", () => {

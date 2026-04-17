@@ -6,6 +6,7 @@ import {
   MESSAGING_UC_INVALID_RECIPIENT,
   MESSAGING_UC_PERSIST_FAILED,
 } from "@/lib/messaging/messagingUseCaseCodes";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 async function parentCanMessageTeacher(
   supabase: SupabaseClient,
@@ -16,7 +17,11 @@ async function parentCanMessageTeacher(
     .from("tutor_student_rel")
     .select("student_id")
     .eq("tutor_id", parentId);
-  if (relErr || !links?.length) return false;
+  if (relErr) {
+    logSupabaseClientError("parentCanMessageTeacher:tutor_student_rel", relErr, { parentId });
+    return false;
+  }
+  if (!links?.length) return false;
 
   const studentIds = [...new Set(links.map((r) => r.student_id as string))];
   const { data: rows, error: stErr } = await supabase
@@ -25,7 +30,10 @@ async function parentCanMessageTeacher(
     .in("id", studentIds)
     .eq("assigned_teacher_id", teacherId)
     .limit(1);
-  if (stErr) return false;
+  if (stErr) {
+    logSupabaseClientError("parentCanMessageTeacher:profiles", stErr, { parentId, teacherId });
+    return false;
+  }
   return (rows?.length ?? 0) > 0;
 }
 
@@ -48,7 +56,13 @@ export async function sendParentMessageUseCase(input: {
     recipient_id: input.teacherId,
     body_html: input.bodyHtml,
   });
-  if (error) return { ok: false, message: MESSAGING_UC_PERSIST_FAILED };
+  if (error) {
+    logSupabaseClientError("sendParentMessageUseCase:insert", error, {
+      parentId: input.parentId,
+      teacherId: input.teacherId,
+    });
+    return { ok: false, message: MESSAGING_UC_PERSIST_FAILED };
+  }
 
   const preview = stripHtmlToText(input.bodyHtml).slice(0, 500);
   try {
@@ -59,8 +73,11 @@ export async function sendParentMessageUseCase(input: {
       locale: input.locale,
       emailProvider: input.emailProvider,
     });
-  } catch {
-    /* best-effort */
+  } catch (emailErr) {
+    logServerException("sendParentMessageUseCase:notifyTeacherNewMessage", emailErr, {
+      parentId: input.parentId,
+      teacherId: input.teacherId,
+    });
   }
 
   return { ok: true };

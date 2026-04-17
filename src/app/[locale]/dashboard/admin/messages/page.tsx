@@ -8,6 +8,7 @@ import type { AdminMessageRow } from "@/components/dashboard/AdminMessagesInbox"
 import { AdminMessagesTabs } from "@/components/dashboard/AdminMessagesTabs";
 import { AdminPortalCompose } from "@/components/dashboard/AdminPortalCompose";
 import type { MessagingRecipient } from "@/types/messaging";
+import { chunkedIn } from "@/lib/supabase/chunkedIn";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -80,7 +81,8 @@ export default async function AdminMessagesPage({ params }: PageProps) {
     .neq("id", user.id)
     .in("role", ["student", "parent", "teacher", "admin"])
     .order("role", { ascending: true })
-    .order("last_name", { ascending: true });
+    .order("last_name", { ascending: true })
+    .limit(500);
 
   const recipients: MessagingRecipient[] = (people ?? []).map((p) => ({
     id: p.id as string,
@@ -101,12 +103,15 @@ export default async function AdminMessagesPage({ params }: PageProps) {
     ids.add(m.recipient_id as string);
   }
   const idList = [...ids];
-  const { data: profiles } = idList.length
-    ? await supabase.from("profiles").select("id, first_name, last_name, role").in("id", idList)
-    : { data: [] as { id: string; first_name: string; last_name: string; role: string }[] };
+  const profiles = await chunkedIn<{
+    id: string;
+    first_name: string;
+    last_name: string;
+    role: string;
+  }>(supabase, "profiles", "id", idList, "id, first_name, last_name, role");
 
   const metaById = new Map(
-    (profiles ?? []).map((p) => [
+    profiles.map((p) => [
       p.id,
       {
         name: `${p.first_name} ${p.last_name}`.trim(),

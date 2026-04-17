@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 const SELECT_FULL =
   "first_name, last_name, phone, dni_or_passport, birth_date, avatar_url, role, is_minor" as const;
@@ -19,7 +20,7 @@ export type DashboardProfileRow = {
   is_minor?: boolean | null;
 };
 
-const ROLES = new Set(["admin", "teacher", "student", "parent"]);
+const ROLES = new Set(["admin", "teacher", "student", "parent", "assistant"]);
 
 export function profileRoleFromUserMetadata(meta: Record<string, unknown> | undefined): string {
   const r = meta?.role;
@@ -109,11 +110,17 @@ export async function loadOrProvisionDashboardProfileRow(
         .select(SELECT_FULL)
         .maybeSingle();
       if (!error && inserted) return inserted as DashboardProfileRow;
-      if (error?.code !== "23505") break;
+      if (error?.code !== "23505") {
+        logSupabaseClientError("loadOrProvisionDashboardProfileRow:profilesInsert", error, {
+          userId: user.id,
+        });
+        break;
+      }
     }
 
     return (await selectProfileRow(admin, user.id)) ?? null;
-  } catch {
+  } catch (err) {
+    logServerException("loadOrProvisionDashboardProfileRow", err, { userId: user.id });
     return null;
   }
 }

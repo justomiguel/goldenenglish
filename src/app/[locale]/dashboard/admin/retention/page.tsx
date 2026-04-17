@@ -4,6 +4,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { getBrandPublic } from "@/lib/brand/server";
 import { loadAdminRetentionCandidates } from "@/lib/academics/loadAdminRetentionCandidates";
+import { logServerAuthzDenied } from "@/lib/logging/serverActionLog";
 import { AdminRetentionTable } from "@/components/organisms/AdminRetentionTable";
 
 interface PageProps {
@@ -28,6 +29,7 @@ export default async function AdminRetentionPage({ params }: PageProps) {
     const { supabase } = await assertAdmin();
     rows = await loadAdminRetentionCandidates(supabase);
   } catch {
+    logServerAuthzDenied("adminRetentionPage");
     redirect(`/${locale}/dashboard`);
   }
 

@@ -8,15 +8,25 @@ import { Label } from "@/components/atoms/Label";
 import { RegisterSuccessDialog } from "@/components/molecules/RegisterSuccessDialog";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
 import type { PublicRegistrationInput } from "@/lib/register/publicRegistrationSchema";
+import { REGISTRATION_UNDECIDED_FORM_VALUE } from "@/lib/register/registrationSectionConstants";
 import type { Dictionary } from "@/types/i18n";
 
 interface RegisterFormProps {
   locale: string;
   dict: Dictionary["register"];
   legalAgeMajority: number;
+  sectionOptions: { id: string; label: string }[];
 }
 
-export function RegisterForm({ locale, dict, legalAgeMajority }: RegisterFormProps) {
+const selectClassName =
+  "w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-1 disabled:opacity-50";
+
+export function RegisterForm({
+  locale,
+  dict,
+  legalAgeMajority,
+  sectionOptions,
+}: RegisterFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [msgTone, setMsgTone] = useState<"error" | "muted">("error");
@@ -40,7 +50,7 @@ export function RegisterForm({ locale, dict, legalAgeMajority }: RegisterFormPro
       email: String(fd.get("email") ?? ""),
       phone: String(fd.get("phone") ?? ""),
       birth_date: String(fd.get("birth_date") ?? ""),
-      level_interest: String(fd.get("level_interest") ?? ""),
+      preferred_section_id: String(fd.get("preferred_section_id") ?? ""),
       tutor_name: String(fd.get("tutor_name") ?? ""),
       tutor_dni: String(fd.get("tutor_dni") ?? ""),
       tutor_email: String(fd.get("tutor_email") ?? ""),
@@ -162,9 +172,35 @@ export function RegisterForm({ locale, dict, legalAgeMajority }: RegisterFormPro
             </div>
           </fieldset>
         ) : null}
+        {sectionOptions.length === 0 ? (
+          <p className="text-sm text-[var(--color-muted-foreground)]" role="status">
+            {dict.noSectionsAvailable}
+          </p>
+        ) : null}
         <div>
-          <Label htmlFor="rg-lv">{dict.level}</Label>
-          <Input id="rg-lv" name="level_interest" required className="mt-1 w-full" />
+          <Label htmlFor="rg-section">{dict.level}</Label>
+          <select
+            id="rg-section"
+            name="preferred_section_id"
+            required
+            className={`mt-1 ${selectClassName}`}
+            defaultValue=""
+          >
+            <option value="" disabled>
+              {dict.sectionPlaceholder}
+            </option>
+            <option value={REGISTRATION_UNDECIDED_FORM_VALUE}>
+              {dict.sectionUndecidedOption}
+            </option>
+            {sectionOptions.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+            {dict.sectionUndecidedHint}
+          </p>
         </div>
         <Button type="submit" disabled={busy} isLoading={busy}>
           {dict.submit}

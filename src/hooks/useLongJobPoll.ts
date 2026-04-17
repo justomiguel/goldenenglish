@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { pollLongJob, type PollLongJobParams } from "@/lib/client/pollLongJob";
 import { streamLongJobViaSse } from "@/lib/client/streamLongJobViaSse";
 import type { LongJobSnapshot } from "@/types/longJob";
+import { logClientWarn } from "@/lib/logging/clientLog";
 
 export type RunLongJobPollArgs = Omit<PollLongJobParams, "onTick"> & {
   formatProgressLine: (snapshot: LongJobSnapshot) => string | null;
@@ -39,7 +40,7 @@ export function useLongJobPoll() {
           isTerminal: rest.isTerminal,
         });
       } catch {
-        /* Proxies, abrupt disconnect, etc. */
+        logClientWarn("useLongJobPoll:sse_fallback_to_poll");
       }
     }
 

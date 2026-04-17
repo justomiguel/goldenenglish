@@ -14,7 +14,6 @@ interface LandingHeaderPwaProps {
   dict: Dictionary;
   locale: string;
   sessionEmail: string | null;
-  isAdmin?: boolean;
 }
 
 const sectionPillClass =
@@ -31,8 +30,8 @@ export function LandingHeaderPwa({
   dict,
   locale,
   sessionEmail,
-  isAdmin = false,
 }: LandingHeaderPwaProps) {
+  const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
   const sectionNavRef = useRef<HTMLElement>(null);
   const [sectionScroll, setSectionScroll] = useState<SectionScrollState>({
     overflow: false,
@@ -82,6 +81,7 @@ export function LandingHeaderPwa({
               alt={brand.logoAlt || brand.name}
               width={40}
               height={40}
+              unoptimized={bypassLogoOptimizer}
               className="block h-8 w-8 rounded-[var(--layout-border-radius)] object-contain"
               priority
             />
@@ -149,9 +149,9 @@ export function LandingHeaderPwa({
             aria-label={dict.nav.sectionsAria}
             className="flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-smooth px-4 py-2.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {isAdmin ? (
+            {sessionEmail ? (
               <Link
-                href={`/${locale}/dashboard/admin`}
+                href={`/${locale}/dashboard`}
                 className="inline-flex shrink-0 select-none snap-start items-center gap-1.5 rounded-full border border-[var(--color-accent)]/60 bg-[color-mix(in_srgb,var(--color-accent)_24%,var(--color-surface))] px-3.5 py-2 text-[0.8125rem] font-semibold text-[var(--color-accent-foreground)] shadow-sm ring-1 ring-[var(--color-accent)]/35 active:scale-[0.98] active:bg-[color-mix(in_srgb,var(--color-accent)_38%,var(--color-surface))]"
               >
                 <LayoutDashboard

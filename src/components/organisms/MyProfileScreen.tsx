@@ -9,6 +9,7 @@ import type { Dictionary } from "@/types/i18n";
 import { ProfileAvatarChangeFab } from "@/components/molecules/ProfileAvatarChangeFab";
 import { MyProfilePersonalForm } from "@/components/molecules/MyProfilePersonalForm";
 import { MyProfileChangePasswordModal } from "@/components/molecules/MyProfileChangePasswordModal";
+import { ClassReminderPrefsSection } from "@/components/molecules/ClassReminderPrefsSection";
 
 export interface MyProfileScreenProps {
   locale: string;
@@ -24,6 +25,11 @@ export interface MyProfileScreenProps {
   avatarDisplayUrl: string | null;
   displayName: string;
   labels: Dictionary["dashboard"]["myProfile"];
+  classReminder?: {
+    studentId: string;
+    initial: Record<string, unknown> | null;
+    studentLabels: Dictionary["dashboard"]["student"];
+  } | null;
 }
 
 export function MyProfileScreen({
@@ -34,6 +40,7 @@ export function MyProfileScreen({
   avatarDisplayUrl,
   displayName,
   labels,
+  classReminder = null,
 }: MyProfileScreenProps) {
   const router = useRouter();
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
@@ -113,6 +120,14 @@ export function MyProfileScreen({
               labels={labels}
               layout="inset"
             />
+            {classReminder ? (
+              <ClassReminderPrefsSection
+                locale={locale}
+                studentId={classReminder.studentId}
+                initial={classReminder.initial as never}
+                labels={classReminder.studentLabels}
+              />
+            ) : null}
             <div className="mt-8 border-t border-[color-mix(in_srgb,var(--color-accent)_20%,var(--color-border))] pt-6">
               <p className="max-w-prose text-sm text-[var(--color-muted-foreground)]">{labels.passwordSectionLead}</p>
               <Button

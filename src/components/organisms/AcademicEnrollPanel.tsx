@@ -7,8 +7,13 @@ import { Button } from "@/components/atoms/Button";
 import {
   enrollStudentInSectionAction,
   previewSectionEnrollmentAction,
+  searchAdminStudentsAction,
 } from "@/app/[locale]/dashboard/admin/academics/actions";
 import { ScheduleConflictResolutionModal } from "@/components/molecules/ScheduleConflictResolutionModal";
+import {
+  AdminStudentSearchCombobox,
+  type AdminStudentSearchHitLike,
+} from "@/components/molecules/AdminStudentSearchCombobox";
 
 export interface SectionOption {
   id: string;
@@ -24,7 +29,8 @@ export interface AcademicEnrollPanelProps {
 export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPanelProps) {
   const d = dict.dashboard.academics.enrollPanel;
   const modalDict = dict.dashboard.academics.conflictModal;
-  const [studentId, setStudentId] = useState("");
+  const [picked, setPicked] = useState<AdminStudentSearchHitLike | null>(null);
+  const [fieldResetKey, setFieldResetKey] = useState(0);
   const [sectionId, setSectionId] = useState(sections[0]?.id ?? "");
   const [capacityOverride, setCapacityOverride] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -37,11 +43,12 @@ export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPa
   const sectionLabel = sections.find((s) => s.id === sectionId)?.label ?? "";
 
   const runPreview = () => {
+    if (!picked) return;
     setMsg(null);
     setConflicts(null);
     start(async () => {
       const r = await previewSectionEnrollmentAction({
-        studentId: studentId.trim(),
+        studentId: picked.id,
         sectionId,
         allowCapacityOverride: capacityOverride,
       });
@@ -65,11 +72,12 @@ export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPa
   };
 
   const runEnroll = (dropEnrollmentId?: string | null) => {
+    if (!picked) return;
     setMsg(null);
     start(async () => {
       const r = await enrollStudentInSectionAction({
         locale,
-        studentId: studentId.trim(),
+        studentId: picked.id,
         sectionId,
         dropSectionEnrollmentId: dropEnrollmentId ?? null,
         dropNextStatus: dropEnrollmentId ? "transferred" : undefined,
@@ -79,6 +87,8 @@ export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPa
         setModalOpen(false);
         setConflicts(null);
         setMsg(d.enrollOk);
+        setPicked(null);
+        setFieldResetKey((k) => k + 1);
         return;
       }
       const err =
@@ -94,18 +104,17 @@ export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPa
 
   return (
     <div className="max-w-xl space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <div>
-        <label className="block text-sm font-medium" htmlFor="ae-student">
-          {d.studentIdLabel}
-        </label>
-        <input
-          id="ae-student"
-          className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
-          value={studentId}
-          onChange={(e) => setStudentId(e.target.value)}
-          autoComplete="off"
-        />
-      </div>
+      <AdminStudentSearchCombobox
+        id="academic-enroll-panel-student"
+        labelText={d.studentSearchLabel}
+        placeholder={d.searchPlaceholder}
+        inputTitle={d.studentSearchTooltip}
+        minCharsHint={d.searchMin}
+        disabled={busy}
+        search={searchAdminStudentsAction}
+        onPick={setPicked}
+        resetKey={fieldResetKey}
+      />
       <div>
         <label className="block text-sm font-medium" htmlFor="ae-section">
           {d.sectionLabel}
@@ -135,10 +144,10 @@ export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPa
         <p className="text-sm font-medium text-[var(--color-error)]">{d.parentPendingWarning}</p>
       ) : null}
       <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="ghost" disabled={busy || !studentId.trim()} onClick={runPreview}>
+        <Button type="button" variant="ghost" disabled={busy || !picked} onClick={runPreview}>
           {d.preview}
         </Button>
-        <Button type="button" disabled={busy || !studentId.trim()} onClick={() => runEnroll(null)}>
+        <Button type="button" disabled={busy || !picked} onClick={() => runEnroll(null)}>
           {d.enroll}
         </Button>
       </div>

@@ -6,8 +6,9 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import type { Dictionary } from "@/types/i18n";
+import { adminUserRoleOptionLabel } from "@/lib/dashboard/adminUserRoleOptionLabel";
 
-const ROLES = ["admin", "teacher", "parent", "student"] as const;
+const ROLES = ["admin", "teacher", "parent", "student", "assistant"] as const;
 
 interface AdminCreateUserFormProps {
   locale: string;
@@ -84,7 +85,7 @@ export function AdminCreateUserForm({ locale, labels }: AdminCreateUserFormProps
         >
           {ROLES.map((r) => (
             <option key={r} value={r}>
-              {r}
+              {adminUserRoleOptionLabel(labels, r)}
             </option>
           ))}
         </select>

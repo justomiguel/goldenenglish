@@ -16,6 +16,10 @@ function srcForPhotoIndex(ix: number): string {
   return ix >= 0 && ix < max ? modalidadesCollageSrc(ix) : "";
 }
 
+function bypassOptimizer(src: string): boolean {
+  return src.startsWith("/images/");
+}
+
 interface LandingStudentGalleryProps {
   dict: Dictionary;
 }
@@ -99,6 +103,7 @@ export function LandingStudentGallery({ dict }: LandingStudentGalleryProps) {
                     src={srcForPhotoIndex(cover)}
                     alt={photoAlts[cover] ?? ""}
                     fill
+                    unoptimized={bypassOptimizer(srcForPhotoIndex(cover))}
                     className="object-cover transition duration-500 group-hover:scale-[1.03]"
                     sizes="(max-width: 640px) 100vw, 50vw"
                   />
@@ -172,6 +177,7 @@ export function LandingStudentGallery({ dict }: LandingStudentGalleryProps) {
                     src={srcForPhotoIndex(currentPhotoIx)}
                     alt={photoAlts[currentPhotoIx] ?? ""}
                     fill
+                    unoptimized={bypassOptimizer(srcForPhotoIndex(currentPhotoIx))}
                     className="object-contain bg-black/5"
                     sizes="(max-width: 1024px) 100vw, 896px"
                   />

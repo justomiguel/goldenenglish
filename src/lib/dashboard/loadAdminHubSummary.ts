@@ -21,16 +21,23 @@ export interface AdminHubSummary {
     newCount: number;
     totalCount: number;
   };
+  studentsWithoutSection: number;
   messages: {
     recentCount: number;
     latestPreview: { fromName: string; preview: string; createdAt: string } | null;
   };
 }
 
+interface ProfileCountsRpc {
+  total: number;
+  by_role: { role: string; count: number }[];
+  students_without_section: number;
+}
+
 /**
  * Fetches lightweight summary metrics for the admin hub overview.
- * Uses the authenticated admin supabase client (RLS-bound) plus
- * an admin service client for user counts.
+ * Profile counts come from `admin_hub_profile_counts` RPC (single aggregate
+ * query) instead of scanning the full profiles table.
  */
 export async function loadAdminHubSummary(
   supabase: SupabaseClient,
@@ -40,7 +47,7 @@ export async function loadAdminHubSummary(
   const [
     trafficResult,
     weeklyResult,
-    profilesResult,
+    profileCountsResult,
     paymentsResult,
     registrationsNewResult,
     registrationsTotalResult,
@@ -48,10 +55,7 @@ export async function loadAdminHubSummary(
   ] = await Promise.all([
     supabase.rpc("admin_traffic_summary", { p_days: 30 }),
     loadWeekOverWeek(supabase),
-    adminClient
-      .from("profiles")
-      .select("role")
-      .not("role", "is", null),
+    adminClient.rpc("admin_hub_profile_counts"),
     supabase
       .from("payments")
       .select("id", { head: true, count: "exact" })
@@ -68,15 +72,11 @@ export async function loadAdminHubSummary(
 
   const tRow = Array.isArray(trafficResult.data) ? trafficResult.data[0] : null;
 
-  const profiles = profilesResult.data ?? [];
-  const roleMap = new Map<string, number>();
-  for (const p of profiles) {
-    const r = (p.role as string) || "unknown";
-    roleMap.set(r, (roleMap.get(r) ?? 0) + 1);
-  }
-  const byRole = [...roleMap.entries()]
-    .map(([role, count]) => ({ role, count }))
-    .sort((a, b) => b.count - a.count);
+  const pc: ProfileCountsRpc = profileCountsResult.data ?? {
+    total: 0,
+    by_role: [],
+    students_without_section: 0,
+  };
 
   return {
     traffic: {
@@ -86,8 +86,8 @@ export async function loadAdminHubSummary(
     },
     trafficWeekOverWeek: weeklyResult,
     users: {
-      total: profiles.length,
-      byRole,
+      total: pc.total,
+      byRole: pc.by_role.map((r) => ({ role: r.role, count: r.count })),
     },
     payments: {
       pendingCount: paymentsResult.count ?? 0,
@@ -96,6 +96,7 @@ export async function loadAdminHubSummary(
       newCount: registrationsNewResult.count ?? 0,
       totalCount: registrationsTotalResult.count ?? 0,
     },
+    studentsWithoutSection: pc.students_without_section,
     messages: messagesResult,
   };
 }

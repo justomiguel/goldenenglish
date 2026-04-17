@@ -1,3 +1,4 @@
+import { logClientException, logClientWarn } from "@/lib/logging/clientLog";
 import type { LongJobSnapshot } from "@/types/longJob";
 
 export type StreamLongJobParams = {
@@ -39,11 +40,16 @@ export function streamLongJobViaSse(params: StreamLongJobParams): Promise<LongJo
           finish(() => resolve(snap));
         }
       } catch (err) {
+        logClientException("streamLongJobViaSse:onmessage", err, { jobId: params.jobId });
         finish(() => reject(err instanceof Error ? err : new Error(String(err))));
       }
     };
 
     es.onerror = () => {
+      logClientWarn("streamLongJobViaSse:onerror", {
+        jobId: params.jobId,
+        hadLastTerminal: Boolean(last && params.isTerminal(last)),
+      });
       finish(() => {
         if (last && params.isTerminal(last)) {
           resolve(last);

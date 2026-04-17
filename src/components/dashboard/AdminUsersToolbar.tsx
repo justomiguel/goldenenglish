@@ -6,10 +6,11 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { ROLE_FILTER_ALL } from "@/lib/dashboard/adminUsersTableHelpers";
+import { adminUserRoleOptionLabel } from "@/lib/dashboard/adminUserRoleOptionLabel";
 
 type UserLabels = Dictionary["admin"]["users"];
 
-const ROLES = ["admin", "teacher", "student", "parent"] as const;
+const ROLES = ["admin", "teacher", "student", "parent", "assistant"] as const;
 
 function tpl(template: string, count: number): string {
   return template.replace(/\{\{count\}\}/g, String(count));
@@ -69,6 +70,7 @@ export function AdminUsersToolbar({
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             placeholder={labels.filterPlaceholder}
+            title={labels.filterTooltip}
             className="w-full"
             autoComplete="off"
           />
@@ -79,12 +81,13 @@ export function AdminUsersToolbar({
             id="users-role-filter"
             value={roleFilter}
             onChange={(e) => onRoleFilterChange(e.target.value)}
+            title={labels.roleFilterTooltip}
             className="min-h-[44px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
           >
             <option value={ROLE_FILTER_ALL}>{labels.roleFilterAll}</option>
             {ROLES.map((r) => (
               <option key={r} value={r}>
-                {r}
+                {adminUserRoleOptionLabel(labels, r)}
               </option>
             ))}
           </select>
@@ -104,6 +107,7 @@ export function AdminUsersToolbar({
           size="sm"
           disabled={selectAllFilteredDisabled}
           onClick={onToggleSelectAllFiltered}
+          title={labels.selectAllFilteredTooltip}
         >
           {allVisibleSelected ? labels.deselectAllFiltered : labels.selectAllFiltered}
         </Button>
@@ -113,6 +117,7 @@ export function AdminUsersToolbar({
           size="sm"
           disabled={deleteDisabled}
           onClick={onDeleteSelected}
+          title={labels.deleteSelectedTooltip}
         >
           {deleteSelectedButtonLabel(labels, selectedCount)}
         </Button>

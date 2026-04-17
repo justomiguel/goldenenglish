@@ -6,6 +6,7 @@ import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { z } from "zod";
 import { getDictionary, defaultLocale } from "@/lib/i18n/dictionaries";
 import type { Dictionary } from "@/types/i18n";
+import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 function localizeCreateDashboardUserError(dict: Dictionary, code: string): string {
   const U = dict.admin.users;
@@ -25,7 +26,7 @@ function localizeCreateDashboardUserError(dict: Dictionary, code: string): strin
   }
 }
 
-const roleZ = z.enum(["admin", "teacher", "student", "parent"]);
+const roleZ = z.enum(["admin", "teacher", "student", "parent", "assistant"]);
 
 function generateTempPassword(): string {
   return randomBytes(24).toString("base64url");
@@ -52,6 +53,7 @@ export async function createDashboardUser(
   try {
     await assertAdmin();
   } catch {
+    logServerAuthzDenied("createDashboardUser");
     const dict = await getDictionary(defaultLocale);
     return { ok: false, message: localizeCreateDashboardUserError(dict, "forbidden") };
   }
@@ -89,7 +91,10 @@ export async function createDashboardUser(
     user_metadata: meta,
   });
 
-  if (error) return { ok: false, message: localizeCreateDashboardUserError(dict, "auth_failed") };
+  if (error) {
+    logSupabaseClientError("createDashboardUser:authAdminCreateUser", error);
+    return { ok: false, message: localizeCreateDashboardUserError(dict, "auth_failed") };
+  }
   if (!created.user) {
     return { ok: false, message: localizeCreateDashboardUserError(dict, "no_user_returned") };
   }
@@ -109,6 +114,7 @@ export async function createDashboardUser(
     { onConflict: "id" },
   );
   if (profileErr) {
+    logSupabaseClientError("createDashboardUser:profilesUpsert", profileErr, { userId: uid });
     return { ok: false, message: localizeCreateDashboardUserError(dict, "auth_failed") };
   }
 

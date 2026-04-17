@@ -7,6 +7,8 @@ export type AdminUserRow = {
   phone: string;
   /** Signed or absolute URL for list avatar; null if none. */
   avatarDisplayUrl: string | null;
+  /** Student with no active `section_enrollment` (non-students: always false). */
+  missingSection: boolean;
 };
 
 export type SortKey = "email" | "name" | "role" | "phone";
@@ -29,6 +31,10 @@ export function filterAdminUsers(
   if (!q) return next;
   return next.filter((row) => {
     const fullName = `${row.firstName} ${row.lastName}`.trim();
+    const sectionSearch =
+      row.missingSection && row.role.toLowerCase() === "student"
+        ? "sin-seccion sin-sección no-section missing-section"
+        : "";
     const hay = [
       row.email,
       row.firstName,
@@ -36,6 +42,7 @@ export function filterAdminUsers(
       fullName,
       row.role,
       row.phone,
+      sectionSearch,
     ]
       .join(" ")
       .toLowerCase();

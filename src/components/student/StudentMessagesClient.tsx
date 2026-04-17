@@ -83,9 +83,16 @@ export function StudentMessagesClient({
             value={body}
             onChange={setBody}
             disabled={busy}
+            title={labels.tipComposeBody}
             aria-label={labels.messagesPlaceholder}
           />
-          <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px]">
+          <Button
+            type="submit"
+            disabled={busy}
+            isLoading={busy}
+            className="min-h-[44px]"
+            title={labels.tipComposeSend}
+          >
             {labels.messagesSend}
           </Button>
         </form>
@@ -120,6 +127,7 @@ export function StudentMessagesClient({
                   variant="ghost"
                   className="mt-3 min-h-[44px]"
                   disabled={busy}
+                  title={labels.tipMessagesDelete}
                   onClick={() => onDelete(m.id)}
                 >
                   {labels.messagesDelete}

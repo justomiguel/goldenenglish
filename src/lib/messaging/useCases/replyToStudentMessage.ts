@@ -10,6 +10,7 @@ import {
   MESSAGING_UC_REPLY_INVALID_SENDER,
   MESSAGING_UC_REPLY_NOT_FOUND,
 } from "@/lib/messaging/messagingUseCaseCodes";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export async function replyToStudentMessageUseCase(input: {
   supabase: SupabaseClient;
@@ -27,7 +28,13 @@ export async function replyToStudentMessageUseCase(input: {
     .eq("recipient_id", input.teacherId)
     .maybeSingle();
 
-  if (fetchErr || !row) return { ok: false, message: MESSAGING_UC_REPLY_NOT_FOUND };
+  if (fetchErr) {
+    logSupabaseClientError("replyToStudentMessageUseCase:fetchThread", fetchErr, {
+      messageId: input.messageId,
+    });
+    return { ok: false, message: MESSAGING_UC_REPLY_NOT_FOUND };
+  }
+  if (!row) return { ok: false, message: MESSAGING_UC_REPLY_NOT_FOUND };
 
   const { data: senderProfile } = await input.supabase
     .from("profiles")
@@ -45,7 +52,13 @@ export async function replyToStudentMessageUseCase(input: {
     body_html: input.replyHtml,
   });
 
-  if (error) return { ok: false, message: MESSAGING_UC_PERSIST_FAILED };
+  if (error) {
+    logSupabaseClientError("replyToStudentMessageUseCase:insert", error, {
+      messageId: input.messageId,
+      teacherId: input.teacherId,
+    });
+    return { ok: false, message: MESSAGING_UC_PERSIST_FAILED };
+  }
 
   const preview = stripHtmlToText(input.replyHtml).slice(0, 500);
   try {
@@ -66,8 +79,10 @@ export async function replyToStudentMessageUseCase(input: {
         emailProvider: input.emailProvider,
       });
     }
-  } catch {
-    /* best-effort */
+  } catch (emailErr) {
+    logServerException("replyToStudentMessageUseCase:notifyReply", emailErr, {
+      messageId: input.messageId,
+    });
   }
 
   return { ok: true };

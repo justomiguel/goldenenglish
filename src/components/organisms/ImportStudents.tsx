@@ -201,6 +201,7 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
         variant="secondary"
         disabled={busy}
         isLoading={busy}
+        title={labels.tipChooseFile}
         onClick={() => fileRef.current?.click()}
       >
         {busy ? labels.processing : labels.chooseFile}

@@ -4,6 +4,7 @@ import { Pencil, Trash2, UserPlus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
+import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -36,7 +37,7 @@ export function AdminRegistrationTableRow({
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top">{r.dni}</td>
       <td className="min-w-0 max-w-0 break-all px-3 py-2 align-top">{r.email}</td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top">
-        {r.level_interest ?? labels.emptyValue}
+        {formatRegistrationLevelInterestDisplay(labels, r.level_interest)}
       </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top text-[var(--color-muted-foreground)]">
         {r.birth_date
@@ -59,7 +60,7 @@ export function AdminRegistrationTableRow({
                 variant="secondary"
                 size="sm"
                 aria-label={labels.accept}
-                title={labels.accept}
+                title={labels.tipAccept}
                 className="h-9 w-9 shrink-0 p-0"
                 disabled={busy}
                 onClick={() => onAccept(r)}
@@ -75,7 +76,7 @@ export function AdminRegistrationTableRow({
                 variant="ghost"
                 size="sm"
                 aria-label={labels.editTitle}
-                title={labels.editTitle}
+                title={labels.tipEditRow}
                 className="h-9 w-9 shrink-0 border border-[var(--color-border)] bg-[var(--color-surface)] p-0 text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
                 disabled={busy}
                 onClick={() => onEdit(r)}
@@ -89,7 +90,7 @@ export function AdminRegistrationTableRow({
             variant="ghost"
             size="sm"
             aria-label={labels.delete}
-            title={labels.deleteConfirmTitle}
+            title={labels.tipDeleteRow}
             className="h-9 w-9 shrink-0 border border-[var(--color-error)] bg-[var(--color-surface)] p-0 text-[var(--color-error)] hover:bg-[color-mix(in_srgb,var(--color-error)_10%,var(--color-surface))] hover:text-[var(--color-error)] focus-visible:ring-2 focus-visible:ring-[var(--color-error)]"
             disabled={busy}
             onClick={() => onDelete(r)}

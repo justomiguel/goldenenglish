@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { z } from "zod";
 import { defaultLocale, getDictionary } from "@/lib/i18n/dictionaries";
+import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 const reviewSchema = z.object({
   paymentId: z.string().uuid(),
@@ -20,6 +21,7 @@ export async function reviewPayment(
     const ctx = await assertAdmin();
     supabase = ctx.supabase;
   } catch {
+    logServerAuthzDenied("reviewPayment");
     const dict = await getDictionary(defaultLocale);
     return { ok: false, message: dict.actionErrors.paymentsReview.forbidden };
   }
@@ -40,7 +42,10 @@ export async function reviewPayment(
     })
     .eq("id", parsed.data.paymentId);
 
-  if (error) return { ok: false, message: errDict.actionErrors.paymentsReview.saveFailed };
+  if (error) {
+    logSupabaseClientError("reviewPayment", error, { paymentId: parsed.data.paymentId });
+    return { ok: false, message: errDict.actionErrors.paymentsReview.saveFailed };
+  }
   return { ok: true };
 }
 
@@ -50,6 +55,7 @@ export async function getReceiptSignedUrl(
   try {
     await assertAdmin();
   } catch {
+    logServerAuthzDenied("getReceiptSignedUrl");
     return null;
   }
 
@@ -61,6 +67,9 @@ export async function getReceiptSignedUrl(
     .from("payment-receipts")
     .createSignedUrl(trimmed, 300);
 
-  if (error || !data?.signedUrl) return null;
+  if (error || !data?.signedUrl) {
+    if (error) logSupabaseClientError("getReceiptSignedUrl:storage", error, { path: trimmed });
+    return null;
+  }
   return data.signedUrl;
 }

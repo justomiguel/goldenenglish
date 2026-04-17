@@ -87,6 +87,7 @@ export default async function AdminFinanceReceiptsPage({ params }: PageProps) {
               </div>
               <Link
                 href={`/${locale}/dashboard/admin/finance/receipts/${r.id}`}
+                title={dict.dashboard.portalBilling.tipOpenReceiptReview}
                 className="rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-foreground)]"
               >
                 {dict.dashboard.portalBilling.openReview}

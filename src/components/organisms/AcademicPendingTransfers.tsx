@@ -58,6 +58,7 @@ export function AcademicPendingTransfers({
                   type="button"
                   size="sm"
                   disabled={pending}
+                  title={d.approveTooltip}
                   onClick={() => {
                     start(async () => {
                       await approveSectionTransferRequestAction({

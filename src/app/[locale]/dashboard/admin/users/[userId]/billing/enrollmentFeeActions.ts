@@ -6,6 +6,7 @@ import { sendEnrollmentExemptionEmail } from "@/lib/email/billingBenefitEmails";
 import type { Locale } from "@/types/i18n";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { revalidateStudentBillingPaths } from "./revalidateStudentBilling";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export async function setEnrollmentFeeExemption(raw: {
   locale: Locale;
@@ -40,7 +41,10 @@ export async function setEnrollmentFeeExemption(raw: {
         enrollment_exempt_reason: raw.exempt ? reason : null,
       })
       .eq("id", sid.data);
-    if (upErr) return { ok: false, message: b.saveFailed };
+    if (upErr) {
+      logSupabaseClientError("setEnrollmentFeeExemption:profilesUpdate", upErr, { studentId: sid.data });
+      return { ok: false, message: b.saveFailed };
+    }
 
     const { error: logErr } = await supabase.from("audit_logs").insert({
       actor_id: user.id,
@@ -53,7 +57,10 @@ export async function setEnrollmentFeeExemption(raw: {
         student_name: `${prof.first_name ?? ""} ${prof.last_name ?? ""}`.trim(),
       },
     });
-    if (logErr) return { ok: false, message: b.saveFailed };
+    if (logErr) {
+      logSupabaseClientError("setEnrollmentFeeExemption:auditInsert", logErr, { studentId: sid.data });
+      return { ok: false, message: b.saveFailed };
+    }
 
     revalidateStudentBillingPaths(raw.locale, sid.data);
 
@@ -64,13 +71,16 @@ export async function setEnrollmentFeeExemption(raw: {
           locale: raw.locale,
           reason,
         });
-      } catch {
-        /* email optional */
+      } catch (emailErr) {
+        logServerException("setEnrollmentFeeExemption:sendEnrollmentExemptionEmail", emailErr, {
+          studentId: sid.data,
+        });
       }
     }
 
     return { ok: true };
-  } catch {
+  } catch (err) {
+    logServerException("setEnrollmentFeeExemption", err);
     return { ok: false, message: b.forbidden };
   }
 }
@@ -98,11 +108,15 @@ export async function markEnrollmentFeePaidNow(raw: {
       .from("profiles")
       .update({ last_enrollment_paid_at: new Date().toISOString() })
       .eq("id", sid.data);
-    if (error) return { ok: false, message: b.saveFailed };
+    if (error) {
+      logSupabaseClientError("markEnrollmentFeePaidNow:profilesUpdate", error, { studentId: sid.data });
+      return { ok: false, message: b.saveFailed };
+    }
 
     revalidateStudentBillingPaths(raw.locale, sid.data);
     return { ok: true };
-  } catch {
+  } catch (err) {
+    logServerException("markEnrollmentFeePaidNow", err);
     return { ok: false, message: b.forbidden };
   }
 }

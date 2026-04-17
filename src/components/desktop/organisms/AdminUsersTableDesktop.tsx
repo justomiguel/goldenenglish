@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dictionary } from "@/types/i18n";
-import type { AdminUserRow } from "@/lib/dashboard/adminUsersTableHelpers";
+import type { AdminUserRow, SortKey, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
 import { useAdminUsersTable } from "@/hooks/useAdminUsersTable";
 import { AdminUsersToolbar } from "@/components/dashboard/AdminUsersToolbar";
 import { AdminUsersDataTable } from "@/components/dashboard/AdminUsersDataTable";
@@ -12,6 +12,13 @@ type TableLabels = Dictionary["admin"]["table"];
 
 interface AdminUsersTableDesktopProps {
   rows: AdminUserRow[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  searchQuery: string;
+  roleFilter: string;
+  sortKey: SortKey;
+  sortDir: SortDir;
   locale: string;
   currentUserId: string;
   labels: UserLabels;
@@ -20,12 +27,31 @@ interface AdminUsersTableDesktopProps {
 
 export function AdminUsersTableDesktop({
   rows,
+  totalCount,
+  page,
+  pageSize,
+  searchQuery,
+  roleFilter,
+  sortKey,
+  sortDir,
   locale,
   currentUserId,
   labels,
   tableLabels,
 }: AdminUsersTableDesktopProps) {
-  const u = useAdminUsersTable({ rows, locale, currentUserId, labels });
+  const u = useAdminUsersTable({
+    rows,
+    totalCount,
+    page,
+    pageSize,
+    searchQuery,
+    roleFilter,
+    sortKey,
+    sortDir,
+    locale,
+    currentUserId,
+    labels,
+  });
 
   return (
     <div className="space-y-4">
@@ -38,8 +64,8 @@ export function AdminUsersTableDesktop({
             onQueryChange={u.setQuery}
             roleFilter={u.roleFilter}
             onRoleFilterChange={u.setRoleFilter}
-            totalCount={rows.length}
-            filteredCount={u.filtered.length}
+            totalCount={totalCount}
+            filteredCount={totalCount}
             selectedCount={u.selectedDeletable.length}
             onDeleteSelected={u.onDeleteSelected}
             allVisibleSelected={u.allVisibleSelected}
@@ -68,7 +94,7 @@ export function AdminUsersTableDesktop({
         pagination={{
           page: u.page,
           pageSize: u.pageSize,
-          totalCount: u.sorted.length,
+          totalCount: u.totalCount,
           onPageChange: u.setPage,
         }}
       />

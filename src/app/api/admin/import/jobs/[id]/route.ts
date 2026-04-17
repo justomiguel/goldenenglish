@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
-import { ADMIN_SESSION_UNAUTHORIZED } from "@/lib/dashboard/adminSessionErrors";
+import {
+  ADMIN_SESSION_FORBIDDEN,
+  ADMIN_SESSION_UNAUTHORIZED,
+} from "@/lib/dashboard/adminSessionErrors";
+import { logServerAuthzDenied, logServerException } from "@/lib/logging/serverActionLog";
 import { mergeImportJob, readImportJob } from "@/lib/import/importJobKv";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { IMPORT_JOB_CANCELLED_BY_USER } from "@/lib/import/importJobErrorCodes";
@@ -23,6 +27,11 @@ export async function GET(_request: Request, context: RouteContext) {
     const msg = e instanceof Error ? e.message : "";
     if (msg === ADMIN_SESSION_UNAUTHORIZED) {
       return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+    }
+    if (msg === ADMIN_SESSION_FORBIDDEN) {
+      logServerAuthzDenied("api/admin/import/jobs/[id]:GET");
+    } else {
+      logServerException("api/admin/import/jobs/[id]:GET:assertAdmin", e);
     }
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
@@ -54,6 +63,11 @@ export async function DELETE(_request: Request, context: RouteContext) {
     const msg = e instanceof Error ? e.message : "";
     if (msg === ADMIN_SESSION_UNAUTHORIZED) {
       return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+    }
+    if (msg === ADMIN_SESSION_FORBIDDEN) {
+      logServerAuthzDenied("api/admin/import/jobs/[id]:DELETE");
+    } else {
+      logServerException("api/admin/import/jobs/[id]:DELETE:assertAdmin", e);
     }
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }

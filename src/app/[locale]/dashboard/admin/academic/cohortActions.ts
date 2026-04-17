@@ -1,12 +1,18 @@
 "use server";
-
-import { revalidatePath } from "next/cache";
-import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { revalidateAcademicSurfaces } from "@/app/[locale]/dashboard/admin/academic/revalidatePaths";
+import {
+  logServerActionException,
+  logSupabaseClientError,
+} from "@/lib/logging/serverActionLog";
 
-const uuid = z.string().uuid();
+const S = {
+  setCurrentCohort: "setCurrentCohortAction",
+  createCohort: "createAcademicCohortAction",
+  listActiveStudents: "listActiveStudentsInSectionForAdmin",
+  searchStudents: "searchAdminStudentsAction",
+} as const;
 
 
 export async function setCurrentCohortAction(input: {
@@ -22,13 +28,19 @@ export async function setCurrentCohortAction(input: {
       .from("academic_cohorts")
       .update({ is_current: false })
       .eq("is_current", true);
-    if (clearErr) return { ok: false };
+    if (clearErr) {
+      logSupabaseClientError(S.setCurrentCohort, clearErr, { step: "clear_current" });
+      return { ok: false };
+    }
 
     const { error: setErr } = await supabase
       .from("academic_cohorts")
       .update({ is_current: true })
       .eq("id", id);
-    if (setErr) return { ok: false };
+    if (setErr) {
+      logSupabaseClientError(S.setCurrentCohort, setErr, { step: "set_current", cohortId: id });
+      return { ok: false };
+    }
 
     void recordSystemAudit({
       action: "academic_cohort_set_current",
@@ -39,7 +51,8 @@ export async function setCurrentCohortAction(input: {
 
     revalidateAcademicSurfaces(input.locale);
     return { ok: true };
-  } catch {
+  } catch (err) {
+    logServerActionException(S.setCurrentCohort, err, { cohortId: input.cohortId.trim() || undefined });
     return { ok: false };
   }
 }
@@ -64,7 +77,10 @@ export async function createAcademicCohortAction(input: {
       .select("id")
       .single();
 
-    if (error || !data?.id) return { ok: false };
+    if (error || !data?.id) {
+      if (error) logSupabaseClientError(S.createCohort, error, { nameLen: name.length });
+      return { ok: false };
+    }
 
     void recordSystemAudit({
       action: "academic_cohort_created",
@@ -75,74 +91,8 @@ export async function createAcademicCohortAction(input: {
 
     revalidateAcademicSurfaces(input.locale);
     return { ok: true, id: data.id as string };
-  } catch {
-    return { ok: false };
-  }
-}
-
-export async function createAcademicSectionAction(input: {
-  locale: string;
-  cohortId: string;
-  name: string;
-  teacherId: string;
-  maxStudents?: number | null;
-}): Promise<{ ok: true; id: string } | { ok: false }> {
-  try {
-    const { supabase } = await assertAdmin();
-    const cohortId = uuid.safeParse(input.cohortId.trim());
-    const teacherId = uuid.safeParse(input.teacherId.trim());
-    if (!cohortId.success || !teacherId.success) return { ok: false };
-
-    const name = input.name.trim();
-    if (name.length < 2) return { ok: false };
-
-    const { data: cohort } = await supabase
-      .from("academic_cohorts")
-      .select("id")
-      .eq("id", cohortId.data)
-      .maybeSingle();
-    if (!cohort?.id) return { ok: false };
-
-    const { data: teacher } = await supabase
-      .from("profiles")
-      .select("id, role")
-      .eq("id", teacherId.data)
-      .maybeSingle();
-    if (!teacher || (teacher as { role: string }).role !== "teacher") {
-      return { ok: false };
-    }
-
-    let maxStudents: number | null = null;
-    if (input.maxStudents != null && Number.isFinite(input.maxStudents)) {
-      const n = Math.floor(Number(input.maxStudents));
-      if (n > 0) maxStudents = n;
-    }
-
-    const { data: row, error } = await supabase
-      .from("academic_sections")
-      .insert({
-        cohort_id: cohortId.data,
-        name,
-        teacher_id: teacherId.data,
-        schedule_slots: [],
-        max_students: maxStudents,
-      })
-      .select("id")
-      .single();
-
-    if (error || !row?.id) return { ok: false };
-
-    void recordSystemAudit({
-      action: "academic_section_created",
-      resourceType: "academic_section",
-      resourceId: row.id as string,
-      payload: { cohort_id: cohortId.data, name, teacher_id: teacherId.data },
-    });
-
-    revalidateAcademicSurfaces(input.locale);
-    revalidatePath(`/${input.locale}/dashboard/admin/academic/${cohortId.data}`, "page");
-    return { ok: true, id: row.id as string };
-  } catch {
+  } catch (err) {
+    logServerActionException(S.createCohort, err);
     return { ok: false };
   }
 }
@@ -173,7 +123,10 @@ export async function listActiveStudentsInSectionForAdmin(
       .eq("section_id", sid)
       .eq("status", "active");
 
-    if (error || !data) return [];
+    if (error || !data) {
+      if (error) logSupabaseClientError(S.listActiveStudents, error, { sectionId: sid });
+      return [];
+    }
 
     return data.map((row) => {
       const r = row as {
@@ -186,7 +139,8 @@ export async function listActiveStudentsInSectionForAdmin(
       const label = p ? `${p.first_name} ${p.last_name}`.trim() : r.student_id;
       return { enrollmentId: r.id, studentId: r.student_id, label };
     });
-  } catch {
+  } catch (err) {
+    logServerActionException(S.listActiveStudents, err, { sectionId: sectionId.trim() || undefined });
     return [];
   }
 }
@@ -231,7 +185,8 @@ export async function searchAdminStudentsAction(query: string): Promise<AdminStu
       }
     }
     return [...map.values()].slice(0, 12);
-  } catch {
+  } catch (err) {
+    logServerActionException(S.searchStudents, err, { queryLen: query.trim().length });
     return [];
   }
 }

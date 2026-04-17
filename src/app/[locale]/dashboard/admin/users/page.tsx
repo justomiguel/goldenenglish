@@ -3,9 +3,11 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AdminUsersScreen } from "@/components/organisms/AdminUsersScreen";
-import type { AdminUserRow } from "@/lib/dashboard/adminUsersTableHelpers";
-import { listAllAuthUsers } from "@/lib/supabase/listAllAuthUsers";
-import { resolveAvatarUrlForAdmin } from "@/lib/dashboard/resolveAvatarUrl";
+import {
+  loadPaginatedAdminUsers,
+  type PaginatedAdminUsersParams,
+} from "@/lib/dashboard/loadPaginatedAdminUsers";
+import type { SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -13,11 +15,40 @@ export const metadata: Metadata = {
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function AdminUsersListPage({ params }: PageProps) {
+const VALID_SORT_KEYS: SortKey[] = ["email", "name", "role", "phone"];
+
+function parseSearchParams(
+  raw: Record<string, string | string[] | undefined>,
+): PaginatedAdminUsersParams {
+  const pageStr = typeof raw.page === "string" ? raw.page : "1";
+  const q = typeof raw.q === "string" ? raw.q : "";
+  const role = typeof raw.role === "string" ? raw.role : undefined;
+  const sort =
+    typeof raw.sort === "string" && VALID_SORT_KEYS.includes(raw.sort as SortKey)
+      ? (raw.sort as SortKey)
+      : "name";
+  const dir = raw.dir === "desc" ? "desc" : "asc";
+
+  return {
+    page: Math.max(1, parseInt(pageStr, 10) || 1),
+    q,
+    role,
+    sort,
+    dir,
+  };
+}
+
+export default async function AdminUsersListPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { locale } = await params;
+  const rawSp = await searchParams;
   const dict = await getDictionary(locale);
+  const paginationParams = parseSearchParams(rawSp);
 
   const supabase = await createClient();
   const {
@@ -26,41 +57,10 @@ export default async function AdminUsersListPage({ params }: PageProps) {
   const currentUserId = user?.id ?? "";
 
   const admin = createAdminClient();
-  const { users, error: listError } = await listAllAuthUsers(admin);
-  if (listError) {
-    console.error("[admin/users] listAllAuthUsers:", listError);
-    throw new Error("Failed to load users");
-  }
-  const ids = users.map((u) => u.id);
-
-  const { data: profiles } =
-    ids.length > 0
-      ? await admin
-          .from("profiles")
-          .select("id, role, first_name, last_name, phone, avatar_url")
-          .in("id", ids)
-      : { data: [] };
-
-  const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
-
-  const rowsUnsorted = await Promise.all(
-    users.map(async (u) => {
-      const p = profileById.get(u.id);
-      const avatarDisplayUrl = await resolveAvatarUrlForAdmin(admin, p?.avatar_url);
-      return {
-        id: u.id,
-        email: u.email ?? dict.common.emptyValue,
-        firstName: p?.first_name ?? dict.common.emptyValue,
-        lastName: p?.last_name ?? dict.common.emptyValue,
-        role: p?.role ?? dict.common.emptyValue,
-        phone: p?.phone?.trim() ? p.phone : dict.common.emptyValue,
-        avatarDisplayUrl,
-      };
-    }),
-  );
-
-  const rows: AdminUserRow[] = rowsUnsorted.sort((a, b) =>
-    a.email.localeCompare(b.email, locale, { sensitivity: "base" }),
+  const result = await loadPaginatedAdminUsers(
+    admin,
+    dict.common.emptyValue,
+    paginationParams,
   );
 
   return (
@@ -73,7 +73,14 @@ export default async function AdminUsersListPage({ params }: PageProps) {
       </p>
       <div className="mt-6">
         <AdminUsersScreen
-          rows={rows}
+          rows={result.rows}
+          totalCount={result.totalCount}
+          page={result.page}
+          pageSize={result.pageSize}
+          searchQuery={paginationParams.q ?? ""}
+          roleFilter={paginationParams.role ?? "all"}
+          sortKey={paginationParams.sort ?? "name"}
+          sortDir={paginationParams.dir ?? "asc"}
           locale={locale}
           currentUserId={currentUserId}
           labels={dict.admin.users}

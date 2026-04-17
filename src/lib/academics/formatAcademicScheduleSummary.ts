@@ -1,21 +1,21 @@
 /** Human-readable summary of `academic_sections.schedule_slots` JSON. */
 
-type Slot = { dayOfWeek?: number; startTime?: string; endTime?: string };
+import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
 
-function asSlots(raw: unknown): Slot[] {
-  if (!Array.isArray(raw)) return [];
-  return raw.filter((x): x is Slot => x !== null && typeof x === "object");
-}
-
+/**
+ * Uses the same parsing as attendance / conflicts (`parseSectionScheduleSlots`) so weekday labels
+ * match the matrix (e.g. string `dayOfWeek` from JSON is coerced; invalid rows are omitted).
+ */
 export function formatAcademicScheduleSummary(raw: unknown, locale: string): string {
-  const slots = asSlots(raw);
+  const slots = parseSectionScheduleSlots(raw);
   if (slots.length === 0) return "";
 
-  const fmt = new Intl.DateTimeFormat(locale, { weekday: "short" });
-  const base = new Date(Date.UTC(2024, 0, 7)); // Sunday UTC anchor
+  /** `timeZone: "UTC"` so weekday matches slot `dayOfWeek` (0=Sun..6=Sat), not the server’s local zone. */
+  const fmt = new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" });
+  const base = new Date(Date.UTC(2024, 0, 7, 12, 0, 0)); // Sunday noon UTC anchor
 
   const parts = slots.map((s) => {
-    const d = typeof s.dayOfWeek === "number" ? s.dayOfWeek : -1;
+    const d = s.dayOfWeek;
     const day =
       d >= 0 && d <= 6
         ? fmt.format(new Date(base.getTime() + d * 86400000))

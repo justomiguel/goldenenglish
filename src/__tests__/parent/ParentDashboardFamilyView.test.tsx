@@ -18,6 +18,9 @@ describe("ParentDashboardFamilyView", () => {
             nextExamAt: "2026-09-01",
             nextEventAt: "2026-09-02T10:00:00.000Z",
             nextEventLabel: "Examen oral",
+            assignedTeacherId: null,
+            assignedTeacherName: null,
+            lastPublishedGrade: null,
           },
           {
             studentId: "b",
@@ -28,6 +31,9 @@ describe("ParentDashboardFamilyView", () => {
             nextExamAt: null,
             nextEventAt: null,
             nextEventLabel: null,
+            assignedTeacherId: null,
+            assignedTeacherName: null,
+            lastPublishedGrade: null,
           },
         ]}
         selectedStudentId="a"

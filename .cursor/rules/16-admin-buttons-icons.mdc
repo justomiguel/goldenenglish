@@ -1,0 +1,42 @@
+---
+description: Botones de acción en admin (iconos Lucide, a11y, i18n)
+globs: src/components/**/*.{tsx,ts}
+alwaysApply: false
+---
+
+# Admin: botones con iconos (patrón reutilizable)
+
+## Objetivo
+
+Acciones visibles en **admin / dashboard interno** deben ser **escaneables**: icono reconocible + etiqueta de diccionario, sin duplicar marca ni romper **01-design-system** (contraste en botón destructive) ni **09-i18n-copy**.
+
+## Librería
+
+- Iconos: **`lucide-react`** (ya en el proyecto). Imports **acotados** por nombre (`import { Plus } from "lucide-react"`).
+- No añadir otra familia de iconos en la misma categoría (**07-third-party**).
+
+## Cuándo poner icono
+
+1. **Botón con texto** — Icono **leading** (antes del copy), `h-4 w-4` (o `h-3.5 w-3.5` en filas densas), **`aria-hidden`** en el SVG si el significado ya lo da el texto visible.
+2. **Solo icono** (sin texto visible) — **Prohibido** salvo espacio extremo; si existe, **`aria-label`** obligatorio con clave de **diccionario** (mismo texto que usarías como botón visible).
+3. **Enlaces estilo botón** (`<Link className="…inline-flex…">`) — Mismo criterio: icono + texto preferido; `title` opcional como refuerzo, no sustituto de `aria-label` en icon-only.
+
+## Layout y touch
+
+- Contenedor: `inline-flex items-center justify-center gap-2` (o `gap-1.5` en compacto).
+- Admin en escritorio: **`min-h-[44px]`** en CTAs del flujo principal cuando el botón sea acción frecuente o esté en zona móvil; en tablas densas puede bajar a **`min-h-[36px]`** si el contexto es solo desktop (**Tier B**).
+
+## Destructivos
+
+- No icono rojo sobre botón rojo saturado sin contraste: seguir **01** (borde neutro + texto error, o control completo relleno con foreground del token).
+
+## i18n
+
+- Texto del botón y `aria-label` / mensajes: **`src/dictionaries/en.json` + `es.json`**.
+- Los **nombres de iconos** no se traducen; el copy sí.
+
+## Referencia en código
+
+- Hub académico: `AcademicHubToolbar` (Plus + Inbox), `AcademicHubCohortRow` (ChevronRight en abrir cohorte), `AcademicCohortCurrentToggle` (`showIcon` + Star).
+- Pestañas admin (estilo **underline**, APG): `UnderlineTabBar` + consumidores `AcademicHubCohortBoard`, `AcademicSectionShellTabs` (flechas ←/→, Home, End; indicador inferior en la pestaña activa).
+- Patrón W3C: [Tabs pattern (APG)](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).

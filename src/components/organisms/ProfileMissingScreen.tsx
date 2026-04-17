@@ -20,6 +20,7 @@ const homeSecondaryClass =
 export function ProfileMissingScreen({ locale, brand, labels }: ProfileMissingScreenProps) {
   const homeHref = `/${locale}`;
   const supportEmail = brand.contactEmail?.trim() ?? "";
+  const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
   const mailHref =
     supportEmail.length > 0
       ? `mailto:${encodeURIComponent(supportEmail)}?subject=${encodeURIComponent(labels.profileMissingMailSubject)}`
@@ -44,6 +45,7 @@ export function ProfileMissingScreen({ locale, brand, labels }: ProfileMissingSc
                     alt={brand.logoAlt || brand.name}
                     width={72}
                     height={72}
+                    unoptimized={bypassLogoOptimizer}
                     className="block h-16 w-16 rounded-xl object-contain sm:h-[4.5rem] sm:w-[4.5rem]"
                   />
                 </div>

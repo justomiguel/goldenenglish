@@ -1,15 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import type { Dictionary } from "@/types/i18n";
 import { deleteAdminUsers } from "@/app/[locale]/dashboard/admin/users/deleteActions";
 import {
   ROLE_FILTER_ALL,
   applyUserRowToggle,
-  filterAdminUsers,
-  sortAdminUsers,
   type AdminUserRow,
   type SortDir,
   type SortKey,
@@ -23,6 +20,13 @@ function tpl(template: string, count: number): string {
 
 export interface UseAdminUsersTableParams {
   rows: AdminUserRow[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  searchQuery: string;
+  roleFilter: string;
+  sortKey: SortKey;
+  sortDir: SortDir;
   locale: string;
   currentUserId: string;
   labels: UserLabels;
@@ -30,51 +34,81 @@ export interface UseAdminUsersTableParams {
 
 export function useAdminUsersTable({
   rows,
+  totalCount,
+  page,
+  pageSize,
+  searchQuery,
+  roleFilter,
+  sortKey,
+  sortDir,
   locale,
   currentUserId,
   labels,
 }: UseAdminUsersTableParams) {
   const router = useRouter();
-  const [query, setQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>(ROLE_FILTER_ALL);
-  /** Single object so Strict Mode does not double-flip dir (nested setSortDir inside setSortKey was cancelling toggles). */
-  const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({
-    key: "email",
-    dir: "asc",
-  });
+  const pathname = usePathname();
+  const currentParams = useSearchParams();
+  const [, startTransition] = useTransition();
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [confirmIds, setConfirmIds] = useState<string[] | null>(null);
   const [busy, setBusy] = useState(false);
-  const [page, setPage] = useState(1);
   const selectAllRef = useRef<HTMLInputElement>(null);
-  const pageSize = DEFAULT_TABLE_PAGE_SIZE;
 
-  const filtered = useMemo(
-    () => filterAdminUsers(rows, query, roleFilter),
-    [rows, query, roleFilter],
+  const pushParams = useCallback(
+    (updates: Record<string, string | undefined>) => {
+      const sp = new URLSearchParams(currentParams.toString());
+      for (const [k, v] of Object.entries(updates)) {
+        if (v === undefined || v === "") {
+          sp.delete(k);
+        } else {
+          sp.set(k, v);
+        }
+      }
+      const qs = sp.toString();
+      startTransition(() => {
+        router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
+      });
+    },
+    [currentParams, pathname, router],
   );
 
-  const sorted = useMemo(
-    () => sortAdminUsers(filtered, sort.key, sort.dir),
-    [filtered, sort.key, sort.dir],
+  const setQuery = useCallback(
+    (q: string) => pushParams({ q: q || undefined, page: undefined }),
+    [pushParams],
   );
 
-  const maxPage = Math.max(1, Math.ceil(sorted.length / pageSize) || 1);
-  const effectivePage = Math.min(page, maxPage);
+  const setRoleFilter = useCallback(
+    (role: string) => {
+      const val = role === ROLE_FILTER_ALL ? undefined : role;
+      pushParams({ role: val, page: undefined });
+    },
+    [pushParams],
+  );
 
-  const pageRows = useMemo(() => {
-    const start = (effectivePage - 1) * pageSize;
-    return sorted.slice(start, start + pageSize);
-  }, [sorted, effectivePage, pageSize]);
+  const toggleSort = useCallback(
+    (key: SortKey) => {
+      const newDir: SortDir =
+        sortKey === key ? (sortDir === "asc" ? "desc" : "asc") : "asc";
+      pushParams({ sort: key, dir: newDir, page: undefined });
+    },
+    [pushParams, sortKey, sortDir],
+  );
+
+  const setPage = useCallback(
+    (p: number) => pushParams({ page: p > 1 ? String(p) : undefined }),
+    [pushParams],
+  );
 
   const deletableVisible = useMemo(
-    () => sorted.filter((r) => r.id !== currentUserId),
-    [sorted, currentUserId],
+    () => rows.filter((r) => r.id !== currentUserId),
+    [rows, currentUserId],
   );
 
-  const selectedDeletable = useMemo(() => {
-    return deletableVisible.filter((r) => selectedIds.has(r.id));
-  }, [deletableVisible, selectedIds]);
+  const selectedDeletable = useMemo(
+    () => deletableVisible.filter((r) => selectedIds.has(r.id)),
+    [deletableVisible, selectedIds],
+  );
 
   const allVisibleSelected =
     deletableVisible.length > 0 &&
@@ -87,31 +121,6 @@ export function useAdminUsersTable({
     if (!el) return;
     el.indeterminate = someSelected;
   }, [someSelected]);
-
-  const toggleSort = useCallback(
-    (key: SortKey) => {
-      if (sort.key !== key) {
-        setPage(1);
-      }
-      setSort((prev) => {
-        if (prev.key === key) {
-          return { ...prev, dir: prev.dir === "asc" ? "desc" : "asc" };
-        }
-        return { key, dir: "asc" };
-      });
-    },
-    [sort.key],
-  );
-
-  const setQueryAndResetPage = useCallback((v: string) => {
-    setQuery(v);
-    setPage(1);
-  }, []);
-
-  const setRoleFilterAndResetPage = useCallback((v: string) => {
-    setRoleFilter(v);
-    setPage(1);
-  }, []);
 
   const toggleRow = (id: string) => {
     setSelectedIds((prev) => applyUserRowToggle(prev, id, currentUserId));
@@ -143,16 +152,18 @@ export function useAdminUsersTable({
     }
   }
 
-  const hasActiveFilter = query.trim().length > 0 || roleFilter !== ROLE_FILTER_ALL;
+  const hasActiveFilter =
+    searchQuery.trim().length > 0 || roleFilter !== ROLE_FILTER_ALL;
   const emptyMessage = hasActiveFilter ? labels.noFilterResults : labels.emptyList;
+  const listEmpty = totalCount === 0;
 
   return {
-    query,
-    setQuery: setQueryAndResetPage,
+    query: searchQuery,
+    setQuery,
     roleFilter,
-    setRoleFilter: setRoleFilterAndResetPage,
-    sortKey: sort.key,
-    sortDir: sort.dir,
+    setRoleFilter,
+    sortKey,
+    sortDir,
     toggleSort,
     selectedIds,
     toggleRow,
@@ -161,13 +172,14 @@ export function useAdminUsersTable({
     setConfirmIds,
     busy,
     selectAllRef,
-    filtered,
-    sorted,
-    page: effectivePage,
+    filtered: rows,
+    sorted: rows,
+    page,
     setPage,
     pageSize,
-    pageRows,
-    listEmpty: sorted.length === 0,
+    pageRows: rows,
+    totalCount,
+    listEmpty,
     deletableVisible,
     selectedDeletable,
     allVisibleSelected,

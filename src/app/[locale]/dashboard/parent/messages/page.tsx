@@ -12,10 +12,12 @@ export const metadata: Metadata = {
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ to?: string }>;
 }
 
-export default async function ParentMessagesPage({ params }: PageProps) {
+export default async function ParentMessagesPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
+  const sp = await searchParams;
   const dict = await getDictionary(locale);
   const supabase = await createClient();
   const {
@@ -112,6 +114,9 @@ export default async function ParentMessagesPage({ params }: PageProps) {
     };
   });
 
+  const defaultRecipientId =
+    typeof sp.to === "string" && recipients.some((r) => r.id === sp.to) ? sp.to : undefined;
+
   return (
     <ParentMessagesEntry
       locale={locale}
@@ -121,6 +126,7 @@ export default async function ParentMessagesPage({ params }: PageProps) {
       recipients={recipients}
       canCompose={canCompose}
       labels={dict.dashboard.parent}
+      defaultRecipientId={defaultRecipientId}
     />
   );
 }

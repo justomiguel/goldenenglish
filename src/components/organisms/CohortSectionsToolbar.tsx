@@ -17,10 +17,13 @@ export interface CohortSectionsToolbarProps {
   locale: string;
   cohortId: string;
   newSectionButton: string;
+  newSectionButtonTip?: string;
   newSectionModalDict: AcademicNewSectionModalDict;
+  defaultSectionMaxStudents: number;
   teachers: { id: string; label: string }[];
   rollover: Omit<AcademicRolloverWizardProps, "locale" | "cohortId">;
   copySectionsButton?: string;
+  copySectionsButtonTip?: string;
   copySectionsModalDict?: AcademicCopySectionsModalDict;
   copySectionsSourceOptions?: { id: string; label: string }[];
 }
@@ -29,10 +32,13 @@ export function CohortSectionsToolbar({
   locale,
   cohortId,
   newSectionButton,
+  newSectionButtonTip,
   newSectionModalDict,
+  defaultSectionMaxStudents,
   teachers,
   rollover,
   copySectionsButton,
+  copySectionsButtonTip,
   copySectionsModalDict,
   copySectionsSourceOptions = [],
 }: CohortSectionsToolbarProps) {
@@ -46,7 +52,12 @@ export function CohortSectionsToolbar({
   return (
     <>
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-        <Button type="button" className="min-h-[44px]" onClick={() => setOpen(true)}>
+        <Button
+          type="button"
+          className="min-h-[44px]"
+          title={newSectionButtonTip}
+          onClick={() => setOpen(true)}
+        >
           {newSectionButton}
         </Button>
         {showCopy ? (
@@ -54,6 +65,7 @@ export function CohortSectionsToolbar({
             type="button"
             variant="secondary"
             className="min-h-[44px]"
+            title={copySectionsButtonTip}
             onClick={() => setOpenCopy(true)}
           >
             {copySectionsButton}
@@ -67,6 +79,7 @@ export function CohortSectionsToolbar({
         open={open}
         onOpenChange={setOpen}
         teachers={teachers}
+        defaultMaxStudents={defaultSectionMaxStudents}
         dict={newSectionModalDict}
       />
       {showCopy && copySectionsModalDict ? (

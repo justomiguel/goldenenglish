@@ -9,7 +9,6 @@ interface LandingScreenDesktopProps {
   dict: Dictionary;
   locale: string;
   sessionEmail: string | null;
-  isAdmin?: boolean;
   children: ReactNode;
 }
 
@@ -18,7 +17,6 @@ export function LandingScreenDesktop({
   dict,
   locale,
   sessionEmail,
-  isAdmin = false,
   children,
 }: LandingScreenDesktopProps) {
   return (
@@ -28,7 +26,6 @@ export function LandingScreenDesktop({
         dict={dict}
         locale={locale}
         sessionEmail={sessionEmail}
-        isAdmin={isAdmin}
       />
       {children}
       <LandingFooter

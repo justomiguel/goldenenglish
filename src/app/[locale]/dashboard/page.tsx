@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { loadOrProvisionDashboardProfileRow } from "@/lib/profile/loadOrProvisionDashboardProfileRow";
 
 interface DashboardIndexProps {
@@ -23,6 +24,10 @@ export default async function DashboardIndexPage({
   } = await supabase.auth.getUser();
   if (!user) {
     redirect(`/${locale}/login?next=/${locale}/dashboard`);
+  }
+
+  if (await resolveIsAdminSession(supabase, user.id)) {
+    redirect(`/${locale}/dashboard/admin`);
   }
 
   const profile = await loadOrProvisionDashboardProfileRow(user);

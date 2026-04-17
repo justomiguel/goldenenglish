@@ -1,83 +1,51 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { SectionAttendanceStatusDb } from "@/types/sectionAcademics";
-
-export type AdminAttendanceMatrixCell = SectionAttendanceStatusDb | null;
-
-export type AdminAttendanceMatrixRow = {
-  enrollmentId: string;
-  studentLabel: string;
-  cells: Record<string, AdminAttendanceMatrixCell>;
-};
-
-export type AdminAttendanceMatrixModel = {
-  dates: string[];
-  rows: AdminAttendanceMatrixRow[];
-};
-
-const WINDOW_DAYS = 28;
-
-function rollingUtcDatesInclusive(end: Date, count: number): string[] {
-  const out: string[] = [];
-  for (let i = count - 1; i >= 0; i--) {
-    const x = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate() - i));
-    out.push(x.toISOString().slice(0, 10));
-  }
-  return out;
-}
+import { getAdminAttendanceMatrixMaxClassDays } from "@/lib/academics/academicsAttendanceMatrixProperties";
+import { utcCalendarDateIso } from "@/lib/academics/sectionAttendanceDateWindow";
+import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
+import {
+  adminAttendanceMatrixColumnMaxIso,
+  adminAttendanceMatrixEffMinIso,
+  countClassDaysBetween,
+} from "@/lib/academics/teacherSectionAttendanceCalendar";
+import {
+  loadTeacherSectionAttendanceMatrix,
+  type TeacherAttendanceClassDayListMode,
+} from "@/lib/dashboard/loadTeacherSectionAttendanceMatrix";
+import { getInstituteTimeZone } from "@/lib/datetime/instituteTimeZone";
+import type { TeacherAttendanceMatrixPayload } from "@/types/teacherAttendanceMatrix";
 
 export async function loadAdminSectionAttendanceMatrix(
   supabase: SupabaseClient,
   sectionId: string,
-): Promise<AdminAttendanceMatrixModel> {
-  const end = new Date();
-  const dates = rollingUtcDatesInclusive(end, WINDOW_DAYS);
-  const sinceIso = dates[0] ?? end.toISOString().slice(0, 10);
+): Promise<TeacherAttendanceMatrixPayload> {
+  const { data: section, error: sectionError } = await supabase
+    .from("academic_sections")
+    .select("starts_on, ends_on, schedule_slots")
+    .eq("id", sectionId)
+    .maybeSingle();
 
-  const { data: enrollments } = await supabase
-    .from("section_enrollments")
-    .select("id, student_id, status, profiles(first_name,last_name)")
-    .eq("section_id", sectionId)
-    .order("created_at", { ascending: true });
-
-  const enr = (enrollments ?? []) as {
-    id: string;
-    student_id: string;
-    status: string;
-    profiles: { first_name: string; last_name: string } | { first_name: string; last_name: string }[] | null;
-  }[];
-
-  const enrollmentIds = enr.map((r) => r.id);
-  if (enrollmentIds.length === 0) {
-    return { dates, rows: [] };
+  if (sectionError || !section) {
+    return { classDays: [], classDaysTruncated: false, rows: [], cells: {}, holidayLabels: {} };
   }
 
-  const { data: att } = await supabase
-    .from("section_attendance")
-    .select("enrollment_id, attended_on, status")
-    .in("enrollment_id", enrollmentIds)
-    .gte("attended_on", sinceIso);
+  const todayIso = utcCalendarDateIso();
+  const scheduleSlots = parseSectionScheduleSlots(section.schedule_slots);
+  const effMin = adminAttendanceMatrixEffMinIso(todayIso, section.starts_on);
+  const effMax = adminAttendanceMatrixColumnMaxIso(todayIso, section.ends_on);
 
-  const byEnrDate = new Map<string, Map<string, SectionAttendanceStatusDb>>();
-  for (const a of att ?? []) {
-    const eid = a.enrollment_id as string;
-    const d = String(a.attended_on).slice(0, 10);
-    if (!dates.includes(d)) continue;
-    const inner = byEnrDate.get(eid) ?? new Map();
-    inner.set(d, a.status as SectionAttendanceStatusDb);
-    byEnrDate.set(eid, inner);
-  }
+  const instituteTz = getInstituteTimeZone();
+  const adminMaxClassDays = getAdminAttendanceMatrixMaxClassDays();
+  const totalClassDays = countClassDaysBetween(effMin, effMax, scheduleSlots, instituteTz);
+  const classDayListMode: TeacherAttendanceClassDayListMode =
+    totalClassDays > adminMaxClassDays ? "newest_capped" : "asc";
 
-  const rows: AdminAttendanceMatrixRow[] = enr.map((r) => {
-    const pRaw = r.profiles;
-    const p = Array.isArray(pRaw) ? pRaw[0] : pRaw;
-    const studentLabel = p ? `${p.first_name} ${p.last_name}`.trim() : r.student_id;
-    const cells: Record<string, AdminAttendanceMatrixCell> = {};
-    const map = byEnrDate.get(r.id);
-    for (const d of dates) {
-      cells[d] = map?.get(d) ?? null;
-    }
-    return { enrollmentId: r.id, studentLabel, cells };
+  return loadTeacherSectionAttendanceMatrix(supabase, sectionId, {
+    effMin,
+    effMax,
+    scheduleSlots,
+    weekdayTimeZone: instituteTz,
+    maxClassDays: adminMaxClassDays,
+    classDayListMode,
+    cellEligibility: "all",
   });
-
-  return { dates, rows };
 }

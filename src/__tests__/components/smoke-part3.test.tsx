@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { describe, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
@@ -69,6 +69,9 @@ vi.mock("recharts", () => {
 import { AdminDashboardShell } from "@/components/dashboard/AdminDashboardShell";
 import { AdminChromeHeader } from "@/components/dashboard/AdminChromeHeader";
 import { AdminSidebar } from "@/components/dashboard/AdminSidebar";
+import { AdminSidebarNavContent } from "@/components/dashboard/AdminSidebarNavContent";
+import { AdminMobileDrawer } from "@/components/dashboard/AdminMobileDrawer";
+import { AdminBreadcrumb } from "@/components/dashboard/AdminBreadcrumb";
 import { AdminCreateUserForm } from "@/components/dashboard/AdminCreateUserForm";
 import { InscriptionsSettingsForm } from "@/components/dashboard/InscriptionsSettingsForm";
 import { PaymentReviewRow } from "@/components/dashboard/PaymentReviewRow";
@@ -86,6 +89,8 @@ describe("component smoke — dashboard & forms", () => {
         dict={dictEn}
         brand={mockBrandPublic}
         newRegistrationsCount={0}
+        adminProfileRole="admin"
+        teacherPortalAllowed={false}
       >
         <div>page</div>
       </AdminDashboardShell>,
@@ -94,7 +99,13 @@ describe("component smoke — dashboard & forms", () => {
 
   it("AdminChromeHeader", () => {
     render(
-      <AdminChromeHeader locale="es" brand={mockBrandPublic} dict={dictEn} />,
+      <AdminChromeHeader
+        locale="es"
+        brand={mockBrandPublic}
+        dict={dictEn}
+        adminProfileRole="admin"
+        teacherPortalAllowed={false}
+      />,
     );
     expect(
       screen.getByRole("button", { name: dictEn.nav.logout }),
@@ -103,8 +114,30 @@ describe("component smoke — dashboard & forms", () => {
 
   it("AdminChromeHeader uses English tagline when locale en", () => {
     render(
-      <AdminChromeHeader locale="en" brand={mockBrandPublic} dict={dictEn} />,
+      <AdminChromeHeader
+        locale="en"
+        brand={mockBrandPublic}
+        dict={dictEn}
+        adminProfileRole="admin"
+        teacherPortalAllowed={false}
+      />,
     );
+  });
+
+  it("AdminChromeHeader links to teacher dashboard when teacher portal is allowed", () => {
+    render(
+      <AdminChromeHeader
+        locale="es"
+        brand={mockBrandPublic}
+        dict={dictEn}
+        adminProfileRole="admin"
+        teacherPortalAllowed
+      />,
+    );
+    const teacherLinks = screen.getAllByRole("link", {
+      name: dictEn.dashboard.adminChrome.openTeacherDashboardAria,
+    });
+    expect(teacherLinks.length).toBeGreaterThanOrEqual(1);
   });
 
   it("AdminSidebar", () => {
@@ -115,6 +148,55 @@ describe("component smoke — dashboard & forms", () => {
         newRegistrationsCount={1}
       />,
     );
+  });
+
+  it("AdminSidebarNavContent shows dual-role hint when teacherNav is set", () => {
+    render(
+      <AdminSidebarNavContent
+        locale="es"
+        dict={dictEn.dashboard.adminNav}
+        newRegistrationsCount={3}
+        teacherNav={{
+          href: "/es/dashboard/teacher",
+          hint: dictEn.dashboard.adminChrome.dualRoleNavHint,
+          cta: dictEn.dashboard.adminChrome.openTeacherDashboard,
+          ctaAria: dictEn.dashboard.adminChrome.openTeacherDashboardAria,
+          switchHint: dictEn.dashboard.adminNav.workspaceSwitchHint,
+        }}
+      />,
+    );
+    expect(screen.getByText(dictEn.dashboard.adminChrome.dualRoleNavHint)).toBeInTheDocument();
+  });
+
+  it("AdminSidebarNavContent", () => {
+    render(
+      <AdminSidebarNavContent
+        locale="es"
+        dict={dictEn.dashboard.adminNav}
+        newRegistrationsCount={3}
+      />,
+    );
+    expect(screen.getByText(dictEn.dashboard.adminNav.groupPeople)).toBeInTheDocument();
+  });
+
+  it("AdminMobileDrawer", () => {
+    render(
+      <AdminMobileDrawer
+        locale="es"
+        dict={dictEn}
+        newRegistrationsCount={0}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: dictEn.dashboard.adminNav.mobileOpen }),
+    ).toBeInTheDocument();
+  });
+
+  it("AdminBreadcrumb hides on admin home", () => {
+    const { container } = render(
+      <AdminBreadcrumb locale="es" dict={dictEn.dashboard.adminNav} />,
+    );
+    expect(container.querySelector("nav")).toBeNull();
   });
 
   it("AdminCreateUserForm", () => {
@@ -167,7 +249,16 @@ describe("component smoke — dashboard & forms", () => {
   });
 
   it("RegisterForm", () => {
-    render(<RegisterForm locale="es" dict={dictEn.register} />);
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={[
+          { id: "00000000-0000-4000-8000-000000000001", label: "Test" },
+        ]}
+      />,
+    );
   });
 
   it("RegisterSuccessDialog", () => {

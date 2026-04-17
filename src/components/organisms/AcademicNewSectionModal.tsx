@@ -4,31 +4,20 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
-import { Label } from "@/components/atoms/Label";
-import { Input } from "@/components/atoms/Input";
-import { createAcademicSectionAction } from "@/app/[locale]/dashboard/admin/academic/cohortActions";
+import { SectionScheduleFields } from "@/components/molecules/SectionScheduleFields";
+import { SectionPeriodFields } from "@/components/molecules/SectionPeriodFields";
+import { NewSectionMaxStudentsFields } from "@/components/molecules/NewSectionMaxStudentsFields";
+import { NewSectionTeacherAndNameFields } from "@/components/molecules/NewSectionTeacherAndNameFields";
+import { createAcademicSectionAction } from "@/app/[locale]/dashboard/admin/academic/sectionActions";
+import {
+  createEmptySectionScheduleSlotDraft,
+  sectionScheduleDraftsToSlots,
+  type SectionScheduleSlotDraft,
+} from "@/lib/academics/sectionScheduleDrafts";
+import { defaultSectionPeriodInitial, parseCustomMaxStudents } from "@/lib/academics/newSectionModalHelpers";
+import type { AcademicNewSectionModalProps } from "./AcademicNewSectionModal.types";
 
-export interface AcademicNewSectionModalDict {
-  title: string;
-  nameLabel: string;
-  teacherLabel: string;
-  teacherPlaceholder: string;
-  maxStudentsLabel: string;
-  maxStudentsHint: string;
-  submit: string;
-  cancel: string;
-  error: string;
-  noTeachers: string;
-}
-
-export interface AcademicNewSectionModalProps {
-  locale: string;
-  cohortId: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  teachers: { id: string; label: string }[];
-  dict: AcademicNewSectionModalDict;
-}
+export type { AcademicNewSectionModalDict, AcademicNewSectionModalProps } from "./AcademicNewSectionModal.types";
 
 export function AcademicNewSectionModal({
   locale,
@@ -36,47 +25,108 @@ export function AcademicNewSectionModal({
   open,
   onOpenChange,
   teachers,
+  defaultMaxStudents,
   dict,
 }: AcademicNewSectionModalProps) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [teacherId, setTeacherId] = useState("");
+  const [startsOn, setStartsOn] = useState(() => defaultSectionPeriodInitial().startsOn);
+  const [endsOn, setEndsOn] = useState(() => defaultSectionPeriodInitial().endsOn);
+  const [customizeMax, setCustomizeMax] = useState(false);
   const [maxRaw, setMaxRaw] = useState("");
+  const [scheduleRows, setScheduleRows] = useState<SectionScheduleSlotDraft[]>([
+    createEmptySectionScheduleSlotDraft(),
+  ]);
   const [err, setErr] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [openSnapshot, setOpenSnapshot] = useState(open);
+
+  if (open && !openSnapshot) {
+    setOpenSnapshot(true);
+    const d = defaultSectionPeriodInitial();
+    setStartsOn(d.startsOn);
+    setEndsOn(d.endsOn);
+  } else if (!open && openSnapshot) {
+    setOpenSnapshot(false);
+  }
+
+  const handleModalOpenChange = (next: boolean) => {
+    if (!next) {
+      setName("");
+      setTeacherId("");
+      setCustomizeMax(false);
+      setMaxRaw("");
+      setScheduleRows([createEmptySectionScheduleSlotDraft()]);
+      setErr(null);
+    }
+    onOpenChange(next);
+  };
 
   const submit = () => {
     setErr(null);
-    const max =
-      maxRaw.trim() === "" ? null : Number.parseInt(maxRaw.trim(), 10);
+    const maxParsed = parseCustomMaxStudents(customizeMax, maxRaw);
+    if (!maxParsed.ok) {
+      setErr(dict.maxStudentsInvalid);
+      return;
+    }
+    const maxStudents = maxParsed.value;
+    const scheduleSlots = sectionScheduleDraftsToSlots(scheduleRows);
+    if (!scheduleSlots || scheduleSlots.length === 0) {
+      setErr(dict.scheduleInvalid);
+      return;
+    }
     start(async () => {
       const r = await createAcademicSectionAction({
         locale,
         cohortId,
         name,
         teacherId,
-        maxStudents: max != null && Number.isFinite(max) ? max : null,
+        startsOn,
+        endsOn,
+        maxStudents,
+        scheduleSlots,
       });
       if (!r.ok) {
         setErr(dict.error);
         return;
       }
-      onOpenChange(false);
-      setName("");
-      setTeacherId("");
-      setMaxRaw("");
+      handleModalOpenChange(false);
       router.push(`/${locale}/dashboard/admin/academic/${cohortId}/${r.id}`);
       router.refresh();
     });
   };
 
+  const periodDict = {
+    startsLabel: dict.sectionPeriodStartsLabel,
+    endsLabel: dict.sectionPeriodEndsLabel,
+  };
+
+  const basicsDict = {
+    nameLabel: dict.nameLabel,
+    teacherLabel: dict.teacherLabel,
+    teacherPlaceholder: dict.teacherPlaceholder,
+  };
+
+  const maxDict = {
+    maxStudentsLabel: dict.maxStudentsLabel,
+    maxStudentsDefaultHint: dict.maxStudentsDefaultHint,
+    maxStudentsCustomize: dict.maxStudentsCustomize,
+    maxStudentsCustomLabel: dict.maxStudentsCustomLabel,
+    maxStudentsCustomHint: dict.maxStudentsCustomHint,
+  };
+
   const canSubmit =
-    name.trim().length >= 2 && teacherId.length > 0 && teachers.length > 0;
+    name.trim().length >= 2 &&
+    teacherId.length > 0 &&
+    teachers.length > 0 &&
+    startsOn.length > 0 &&
+    endsOn.length > 0;
 
   return (
     <Modal
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleModalOpenChange}
       titleId="new-section-title"
       title={dict.title}
       disableClose={pending}
@@ -86,49 +136,53 @@ export function AcademicNewSectionModal({
           <p className="text-sm text-[var(--color-muted-foreground)]">{dict.noTeachers}</p>
         ) : null}
 
-        <div>
-          <Label htmlFor="ns-name">{dict.nameLabel}</Label>
-          <Input
-            id="ns-name"
-            className="mt-1 w-full"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            disabled={pending}
-            autoComplete="off"
-          />
-        </div>
+        <NewSectionTeacherAndNameFields
+          name={name}
+          onNameChange={setName}
+          teacherId={teacherId}
+          onTeacherIdChange={setTeacherId}
+          teachers={teachers}
+          dict={basicsDict}
+          disabled={pending}
+        />
+
+        <SectionPeriodFields
+          idPrefix="ns-period"
+          startsOn={startsOn}
+          endsOn={endsOn}
+          onChange={({ startsOn: s, endsOn: e }) => {
+            setStartsOn(s);
+            setEndsOn(e);
+          }}
+          dict={periodDict}
+          disabled={pending}
+        />
+
+        <NewSectionMaxStudentsFields
+          defaultMaxStudents={defaultMaxStudents}
+          customizeMax={customizeMax}
+          onCustomizeMaxChange={(next) => {
+            setCustomizeMax(next);
+            if (next) setMaxRaw(String(defaultMaxStudents));
+            else setMaxRaw("");
+          }}
+          maxRaw={maxRaw}
+          onMaxRawChange={setMaxRaw}
+          dict={maxDict}
+          disabled={pending}
+        />
 
         <div>
-          <Label htmlFor="ns-teacher">{dict.teacherLabel}</Label>
-          <select
-            id="ns-teacher"
-            className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm text-[var(--color-foreground)]"
-            value={teacherId}
-            onChange={(e) => setTeacherId(e.target.value)}
-            disabled={pending || teachers.length === 0}
-          >
-            <option value="">{dict.teacherPlaceholder}</option>
-            {teachers.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <Label htmlFor="ns-max">{dict.maxStudentsLabel}</Label>
-          <Input
-            id="ns-max"
-            type="number"
-            min={1}
-            className="mt-1 w-full"
-            value={maxRaw}
-            onChange={(e) => setMaxRaw(e.target.value)}
-            disabled={pending}
-            placeholder=""
-          />
-          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{dict.maxStudentsHint}</p>
+          <p className="text-sm font-medium text-[var(--color-foreground)]">{dict.scheduleTitle}</p>
+          <p className="text-xs text-[var(--color-muted-foreground)]">{dict.scheduleHint}</p>
+          <div className="mt-2">
+            <SectionScheduleFields
+              rows={scheduleRows}
+              onChange={setScheduleRows}
+              dict={dict}
+              disabled={pending}
+            />
+          </div>
         </div>
 
         {err ? (
@@ -138,7 +192,7 @@ export function AcademicNewSectionModal({
         ) : null}
 
         <div className="flex flex-wrap justify-end gap-2 pt-2">
-          <Button type="button" variant="ghost" disabled={pending} onClick={() => onOpenChange(false)}>
+          <Button type="button" variant="ghost" disabled={pending} onClick={() => handleModalOpenChange(false)}>
             {dict.cancel}
           </Button>
           <Button

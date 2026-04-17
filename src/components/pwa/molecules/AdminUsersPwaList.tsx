@@ -102,6 +102,7 @@ export function AdminUsersPwaList({
           onChange={onToggleSelectAllVisible}
           disabled={deletableVisibleCount === 0}
           aria-label={labels.selectAllVisible}
+          title={labels.tipSelectAllVisible}
         />
         <span className="text-sm text-[var(--color-muted-foreground)]">
           {labels.selectAllVisible}
@@ -118,6 +119,7 @@ export function AdminUsersPwaList({
               className="flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-left text-sm font-medium text-[var(--color-secondary)] active:bg-[var(--color-muted)]"
               onClick={() => onToggleSort(key)}
               aria-pressed={active}
+              title={sortHint(key)}
             >
               <span>{colLabel(labels, key)}</span>
               {active ? (
@@ -152,6 +154,7 @@ export function AdminUsersPwaList({
                   disabled={isSelf}
                   onChange={() => onToggleRow(r.id)}
                   aria-label={`${labels.selectRow} ${r.email}`}
+                  title={isSelf ? labels.selfProtected : labels.tipSelectRow}
                 />
                 <div className="min-w-0 flex-1 space-y-1">
                   <p className="break-all font-medium text-[var(--color-foreground)]">
@@ -159,6 +162,7 @@ export function AdminUsersPwaList({
                   </p>
                   <Link
                     href={`/${locale}/dashboard/admin/users/${r.id}`}
+                    title={labels.tipOpenUserProfile}
                     className="flex items-start gap-2 text-sm text-[var(--color-muted-foreground)] active:opacity-80"
                   >
                     <ProfileAvatar
@@ -166,8 +170,18 @@ export function AdminUsersPwaList({
                       displayName={`${r.firstName} ${r.lastName}`}
                       size="sm"
                     />
-                    <span className="min-w-0 break-words font-medium text-[var(--color-foreground)]">
-                      {r.firstName} {r.lastName}
+                    <span className="flex min-w-0 flex-wrap items-center gap-1.5 break-words font-medium text-[var(--color-foreground)]">
+                      <span>
+                        {r.firstName} {r.lastName}
+                      </span>
+                      {r.missingSection ? (
+                        <span
+                          className="inline-flex shrink-0 rounded-full border border-[var(--color-accent)]/50 bg-[var(--color-accent)]/10 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-[var(--color-secondary)]"
+                          title={labels.noSectionBadgeAria}
+                        >
+                          {labels.noSectionBadge}
+                        </span>
+                      ) : null}
                     </span>
                   </Link>
                   <div className="flex flex-wrap gap-2 text-sm">
@@ -181,7 +195,7 @@ export function AdminUsersPwaList({
                   size="sm"
                   className="min-h-[44px] min-w-[44px] shrink-0 gap-0 p-2 text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
                   disabled={isSelf || busy}
-                  title={isSelf ? labels.selfProtected : undefined}
+                  title={isSelf ? labels.selfProtected : labels.tipDeleteOneRow}
                   onClick={() => onRequestDeleteOne(r.id)}
                   aria-label={`${labels.deleteOne}: ${r.email}`}
                 >
@@ -203,6 +217,8 @@ export function AdminUsersPwaList({
             prev: tableLabels.paginationPrev,
             next: tableLabels.paginationNext,
             summary: tableLabels.paginationSummary,
+            tipPrev: tableLabels.paginationTipPrev,
+            tipNext: tableLabels.paginationTipNext,
           }}
         />
       </div>

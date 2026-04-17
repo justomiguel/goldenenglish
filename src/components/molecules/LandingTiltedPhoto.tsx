@@ -28,6 +28,7 @@ export function LandingTiltedPhoto({
   aspect = "4/3",
   priority = false,
 }: LandingTiltedPhotoProps) {
+  const bypassOptimizer = src.startsWith("/images/");
   return (
     <div
       className={`${rotateClass} motion-reduce:rotate-0 motion-reduce:transform-none ${className}`}
@@ -38,6 +39,7 @@ export function LandingTiltedPhoto({
             src={src}
             alt={alt}
             fill
+            unoptimized={bypassOptimizer}
             className="object-cover"
             sizes={sizes}
             priority={priority}

@@ -14,6 +14,7 @@ interface LoginHeroPanelProps {
 export function LoginHeroPanel({ brand, locale }: LoginHeroPanelProps) {
   const homeHref = `/${locale}`;
   const tagline = taglineForLocale(brand, locale);
+  const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
 
   return (
     <div className="relative z-[1] mx-auto w-full max-w-lg md:mx-0">
@@ -28,6 +29,7 @@ export function LoginHeroPanel({ brand, locale }: LoginHeroPanelProps) {
               alt={brand.logoAlt || brand.name}
               width={96}
               height={96}
+              unoptimized={bypassLogoOptimizer}
               className="block h-20 w-20 rounded-[var(--layout-border-radius)] lg:h-24 lg:w-24"
               priority
             />

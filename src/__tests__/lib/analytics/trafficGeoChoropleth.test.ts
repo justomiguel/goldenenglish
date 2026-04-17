@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { fillForIntensity, trafficGeoRowsToIso3Counts } from "@/lib/analytics/trafficGeoChoropleth";
+import { choroplethGeographyFill, trafficGeoRowsToIso3Counts } from "@/lib/analytics/trafficGeoChoropleth";
 
 describe("trafficGeoRowsToIso3Counts", () => {
   it("maps alpha-2 to alpha-3 and sums counts", () => {
@@ -21,13 +21,21 @@ describe("trafficGeoRowsToIso3Counts", () => {
   });
 });
 
-describe("fillForIntensity", () => {
+describe("choroplethGeographyFill", () => {
   it("uses muted when no data", () => {
-    expect(fillForIntensity(0, false)).toBe("var(--color-muted)");
+    expect(choroplethGeographyFill(0, false)).toEqual({ fill: "var(--color-muted, #d9d7cf)" });
   });
 
-  it("mixes primary at full intensity", () => {
-    expect(fillForIntensity(1, true)).toContain("color-mix");
-    expect(fillForIntensity(1, true)).toContain("100%");
+  it("uses primary with full opacity at max intensity", () => {
+    expect(choroplethGeographyFill(1, true)).toEqual({
+      fill: "var(--color-primary, #103A5C)",
+      fillOpacity: 1,
+    });
+  });
+
+  it("uses primary with partial opacity at low relative traffic", () => {
+    const s = choroplethGeographyFill(0, true);
+    expect(s.fill).toBe("var(--color-primary, #103A5C)");
+    expect(s.fillOpacity).toBeCloseTo(0.45, 5);
   });
 });

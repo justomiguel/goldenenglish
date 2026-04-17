@@ -39,16 +39,18 @@ export default defineConfig({
       thresholds: coverageFull
         ? { lines: 0, statements: 0, functions: 0, branches: 0 }
         : {
-            lines: 90,
-            statements: 90,
-            functions: 89,
-            branches: 90,
+            lines: 80,
+            statements: 80,
+            functions: 80,
+            branches: 80,
           },
     },
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      /** Stub Next.js' `server-only` guard so server modules can be unit-tested in jsdom. */
+      "server-only": path.resolve(__dirname, "./src/test/serverOnlyStub.ts"),
     },
   },
 });

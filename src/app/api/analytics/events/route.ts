@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { anonymizeIp, sanitizeAnalyticsMetadata } from "@/lib/analytics/sanitizeMetadata";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export const runtime = "nodejs";
 
@@ -31,7 +32,8 @@ export async function POST(request: Request) {
   let json: unknown;
   try {
     json = await request.json();
-  } catch {
+  } catch (err) {
+    logServerException("api/analytics/events:json", err);
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
@@ -70,6 +72,7 @@ export async function POST(request: Request) {
 
   const { error } = await supabase.from("user_events").insert(rows);
   if (error) {
+    logSupabaseClientError("api/analytics/events:insert", error, { rowCount: rows.length });
     return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
   }
 

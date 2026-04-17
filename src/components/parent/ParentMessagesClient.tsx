@@ -13,6 +13,7 @@ interface ParentMessagesClientProps {
   recipients: MessagingRecipient[];
   canCompose: boolean;
   labels: Dictionary["dashboard"]["parent"];
+  defaultRecipientId?: string;
 }
 
 export function ParentMessagesClient({
@@ -21,13 +22,19 @@ export function ParentMessagesClient({
   recipients,
   canCompose,
   labels,
+  defaultRecipientId,
 }: ParentMessagesClientProps) {
   return (
     <div className="space-y-8">
       {!canCompose ? (
         <p className="text-sm text-[var(--color-muted-foreground)]">{labels.messagesNoTeachers}</p>
       ) : (
-        <ParentPortalCompose locale={locale} recipients={recipients} labels={labels} />
+        <ParentPortalCompose
+          locale={locale}
+          recipients={recipients}
+          labels={labels}
+          defaultRecipientId={defaultRecipientId}
+        />
       )}
       <ParentMessagesFeed rows={initialLines} labels={labels} />
     </div>

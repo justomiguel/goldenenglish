@@ -17,9 +17,24 @@ export default async function AdminUsersLayout({ children, params }: UsersLayout
       <AdminSectionSubnav
         ariaLabel={dict.admin.usersNav.aria}
         items={[
-          { href: base, label: dict.admin.usersNav.list },
-          { href: `${base}/new`, label: dict.admin.usersNav.add },
-          { href: `${base}/import`, label: dict.admin.usersNav.importCsv },
+          {
+            href: base,
+            label: dict.admin.usersNav.list,
+            hint: dict.admin.usersNav.tipList,
+            icon: "list",
+          },
+          {
+            href: `${base}/new`,
+            label: dict.admin.usersNav.add,
+            hint: dict.admin.usersNav.tipAdd,
+            icon: "userPlus",
+          },
+          {
+            href: `${base}/import`,
+            label: dict.admin.usersNav.importCsv,
+            hint: dict.admin.usersNav.tipImport,
+            icon: "upload",
+          },
         ]}
       />
       {children}

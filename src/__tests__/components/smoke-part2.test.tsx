@@ -165,19 +165,18 @@ describe("component smoke — molecules & PWA", () => {
     );
   });
 
-  it("LandingHeaderPwa shows administration link when isAdmin", () => {
+  it("LandingHeaderPwa shows panel link when session", () => {
     render(
       <LandingHeaderPwa
         brand={mockBrandPublic}
         dict={dictEn}
         locale="es"
-        sessionEmail="admin@example.com"
-        isAdmin
+        sessionEmail="student@example.com"
       />,
     );
     expect(screen.getByRole("link", { name: dictEn.nav.administration })).toHaveAttribute(
       "href",
-      "/es/dashboard/admin",
+      "/es/dashboard",
     );
   });
 

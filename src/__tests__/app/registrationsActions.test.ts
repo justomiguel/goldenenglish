@@ -7,6 +7,7 @@ import {
   acceptRegistration,
   deleteRegistration,
 } from "@/app/[locale]/dashboard/admin/registrations/actions";
+import { REGISTRATION_LEVEL_INTEREST_UNDECIDED } from "@/lib/register/registrationSectionConstants";
 
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
@@ -206,10 +207,17 @@ describe("acceptRegistration", () => {
     expect(r).toEqual({ ok: false, message: R.errMinorRequiresTutorDni });
   });
 
-  it("returns no_course_for_level when course is missing", async () => {
+  it("creates student without course when no course matches level (legacy)", async () => {
     mockAssertAdmin.mockResolvedValue({});
+    mockCreateUser.mockResolvedValue({ ok: true, userId: "stu-legacy" });
+    const enrollmentsFrom = mockEnrollmentsTable();
+    const updateEq = vi.fn().mockResolvedValue({ error: null });
     mockFrom.mockImplementation((table: string) => {
       if (table === "courses") return mockCoursesTable(null);
+      if (table === "enrollments") return enrollmentsFrom;
+      if (table === "tutor_student_rel") {
+        return { upsert: () => Promise.resolve({ error: null }) };
+      }
       return {
         select: () => ({
           eq: () => ({
@@ -220,11 +228,15 @@ describe("acceptRegistration", () => {
               }),
           }),
         }),
+        update: () => ({
+          eq: updateEq,
+        }),
       };
     });
     const r = await acceptRegistration("es", { registration_id: regNew.id });
-    expect(r).toEqual({ ok: false, message: R.errNoCourseForLevel });
-    expect(mockCreateUser).not.toHaveBeenCalled();
+    expect(r).toEqual({ ok: true, studentId: "stu-legacy" });
+    expect(mockCreateUser).toHaveBeenCalled();
+    expect(enrollmentsFrom.insert).not.toHaveBeenCalled();
   });
 
   it("uses registration birth_date when accept payload omits birth_date", async () => {
@@ -257,6 +269,45 @@ describe("acceptRegistration", () => {
     expect(mockCreateUser).toHaveBeenCalledWith(
       expect.objectContaining({ birth_date: "2008-03-15", locale: "es" }),
     );
+  });
+
+  it("creates student without course enrollment when request was section-undecided", async () => {
+    mockAssertAdmin.mockResolvedValue({});
+    mockCreateUser.mockResolvedValue({ ok: true, userId: "stu-u" });
+    const enrollmentsFrom = mockEnrollmentsTable();
+    const updateEq = vi.fn().mockResolvedValue({ error: null });
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "courses") return mockCoursesTable(COURSE_ID);
+      if (table === "enrollments") return enrollmentsFrom;
+      if (table === "tutor_student_rel") {
+        return { upsert: () => Promise.resolve({ error: null }) };
+      }
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: () =>
+              Promise.resolve({
+                data: {
+                  ...regNew,
+                  birth_date: "1995-04-01",
+                  preferred_section_id: null,
+                  level_interest: REGISTRATION_LEVEL_INTEREST_UNDECIDED,
+                },
+                error: null,
+              }),
+          }),
+        }),
+        update: () => ({
+          eq: updateEq,
+        }),
+      };
+    });
+    const r = await acceptRegistration("es", {
+      registration_id: regNew.id,
+      birth_date: "1995-04-01",
+    });
+    expect(r.ok).toBe(true);
+    expect(enrollmentsFrom.insert).not.toHaveBeenCalled();
   });
 
   it("creates student only for adult birth year", async () => {

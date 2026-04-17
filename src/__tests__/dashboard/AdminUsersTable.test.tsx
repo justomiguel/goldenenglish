@@ -11,7 +11,9 @@ const refresh = vi.fn();
 const deleteAdminUsers = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh }),
+  useRouter: () => ({ refresh, replace: vi.fn() }),
+  usePathname: () => "/en/dashboard/admin/users",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/app/[locale]/dashboard/admin/users/deleteActions", () => ({
@@ -27,6 +29,7 @@ const rows = [
     role: "admin",
     phone: "+1",
     avatarDisplayUrl: null,
+    missingSection: false,
   },
   {
     id: "22222222-2222-2222-2222-222222222222",
@@ -36,8 +39,19 @@ const rows = [
     role: "student",
     phone: "+2",
     avatarDisplayUrl: null,
+    missingSection: false,
   },
 ];
+
+const serverPaginationProps = {
+  totalCount: 2,
+  page: 1,
+  pageSize: 25,
+  searchQuery: "",
+  roleFilter: "all",
+  sortKey: "name" as const,
+  sortDir: "asc" as const,
+};
 
 describe("AdminUsersTable", () => {
   beforeEach(() => {
@@ -50,6 +64,7 @@ describe("AdminUsersTable", () => {
       <AdminUsersTable
         tableLabels={dictEn.admin.table}
         rows={rows}
+        {...serverPaginationProps}
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
@@ -66,6 +81,7 @@ describe("AdminUsersTable", () => {
       <AdminUsersTable
         tableLabels={dictEn.admin.table}
         rows={rows}
+        {...serverPaginationProps}
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
@@ -95,6 +111,7 @@ describe("AdminUsersTable", () => {
       <AdminUsersTable
         tableLabels={dictEn.admin.table}
         rows={rows}
+        {...serverPaginationProps}
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
@@ -110,6 +127,7 @@ describe("AdminUsersTable", () => {
       <AdminUsersTable
         tableLabels={dictEn.admin.table}
         rows={rows}
+        {...serverPaginationProps}
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
@@ -126,6 +144,7 @@ describe("AdminUsersTable", () => {
       <AdminUsersTable
         tableLabels={dictEn.admin.table}
         rows={rows}
+        {...serverPaginationProps}
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
@@ -154,6 +173,7 @@ describe("AdminUsersTable", () => {
       <AdminUsersTable
         tableLabels={dictEn.admin.table}
         rows={rows}
+        {...serverPaginationProps}
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
@@ -182,6 +202,7 @@ describe("AdminUsersTable", () => {
       <AdminUsersTable
         tableLabels={dictEn.admin.table}
         rows={rows}
+        {...serverPaginationProps}
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
@@ -205,6 +226,7 @@ describe("AdminUsersTable", () => {
       <AdminUsersTable
         tableLabels={dictEn.admin.table}
         rows={rows}
+        {...serverPaginationProps}
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
@@ -224,6 +246,7 @@ describe("AdminUsersTable", () => {
       <AdminUsersTable
         tableLabels={dictEn.admin.table}
         rows={rows}
+        {...serverPaginationProps}
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
@@ -243,6 +266,7 @@ describe("AdminUsersTable", () => {
       <AdminUsersTable
         tableLabels={dictEn.admin.table}
         rows={rows}
+        {...serverPaginationProps}
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
@@ -264,6 +288,7 @@ describe("AdminUsersTable", () => {
       <AdminUsersTable
         tableLabels={dictEn.admin.table}
         rows={rows}
+        {...serverPaginationProps}
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}

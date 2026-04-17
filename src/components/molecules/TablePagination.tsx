@@ -7,6 +7,10 @@ export interface TablePaginationLabels {
   prev: string;
   next: string;
   summary: string;
+  /** Optional native tooltip on the Previous control. */
+  tipPrev?: string;
+  /** Optional native tooltip on the Next control. */
+  tipNext?: string;
 }
 
 export interface TablePaginationProps {
@@ -39,6 +43,7 @@ export function TablePagination({
           size="sm"
           className="min-h-[44px]"
           disabled={page <= 1}
+          title={labels.tipPrev}
           onClick={() => onPageChange(page - 1)}
         >
           {labels.prev}
@@ -49,6 +54,7 @@ export function TablePagination({
           size="sm"
           className="min-h-[44px]"
           disabled={page >= totalPages}
+          title={labels.tipNext}
           onClick={() => onPageChange(page + 1)}
         >
           {labels.next}

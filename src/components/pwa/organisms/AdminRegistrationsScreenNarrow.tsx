@@ -12,8 +12,7 @@ import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
-import type { RegistrationSortKey } from "@/lib/dashboard/adminRegistrationsSort";
-import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
+import type { RegistrationSortKey, RegistrationSortDir } from "@/lib/dashboard/adminRegistrationsSort";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -21,6 +20,12 @@ type TableLabels = Dictionary["admin"]["table"];
 interface AdminRegistrationsScreenNarrowProps {
   locale: string;
   rows: AdminRegistrationRow[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  searchQuery: string;
+  sortKey: RegistrationSortKey;
+  sortDir: RegistrationSortDir;
   legalAgeMajority: number;
   labels: RegLabels;
   tableLabels: TableLabels;
@@ -33,6 +38,12 @@ interface AdminRegistrationsScreenNarrowProps {
 export function AdminRegistrationsScreenNarrow({
   locale,
   rows,
+  totalCount,
+  page,
+  pageSize,
+  searchQuery,
+  sortKey,
+  sortDir,
   legalAgeMajority,
   labels,
   tableLabels,
@@ -41,7 +52,17 @@ export function AdminRegistrationsScreenNarrow({
   currentCohortSections,
   currentCohortName,
 }: AdminRegistrationsScreenNarrowProps) {
-  const u = useAdminRegistrationsList({ locale, rows, labels });
+  const u = useAdminRegistrationsList({
+    locale,
+    rows,
+    totalCount,
+    page,
+    pageSize,
+    searchQuery,
+    sortKey,
+    sortDir,
+    labels,
+  });
 
   return (
     <PwaPageShell surface={surface}>
@@ -62,8 +83,8 @@ export function AdminRegistrationsScreenNarrow({
                 labels={labels}
                 query={u.filterQuery}
                 onQueryChange={u.setFilterQueryAndResetPage}
-                totalCount={u.rows.length}
-                filteredCount={u.filtered.length}
+                totalCount={totalCount}
+                filteredCount={totalCount}
               />
             }
             labels={labels}
@@ -82,8 +103,8 @@ export function AdminRegistrationsScreenNarrow({
             emptyMessage={u.emptyMessage}
             pagination={{
               page: u.page,
-              pageSize: DEFAULT_TABLE_PAGE_SIZE,
-              totalCount: u.sorted.length,
+              pageSize: u.pageSize,
+              totalCount: u.totalCount,
               onPageChange: u.setPage,
             }}
           />

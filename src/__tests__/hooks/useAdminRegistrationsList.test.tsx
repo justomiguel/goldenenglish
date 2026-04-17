@@ -5,8 +5,11 @@ import { useAdminRegistrationsList } from "@/hooks/useAdminRegistrationsList";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 
 const routerRefresh = vi.fn();
+const routerReplace = vi.fn();
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: routerRefresh }),
+  useRouter: () => ({ refresh: routerRefresh, replace: routerReplace }),
+  usePathname: () => "/es/dashboard/admin/registrations",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 const deleteRegistrationMock = vi.fn();
@@ -37,6 +40,17 @@ function makeRow(over: Partial<AdminRegistrationRow> = {}): AdminRegistrationRow
   };
 }
 
+const baseParams = {
+  locale: "es",
+  totalCount: 1,
+  page: 1,
+  pageSize: 25,
+  searchQuery: "",
+  sortKey: "received" as const,
+  sortDir: "desc" as const,
+  labels,
+};
+
 describe("useAdminRegistrationsList", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -45,7 +59,7 @@ describe("useAdminRegistrationsList", () => {
 
   it("maps statusLabel for known and unknown statuses", () => {
     const { result } = renderHook(() =>
-      useAdminRegistrationsList({ locale: "es", rows: [], labels }),
+      useAdminRegistrationsList({ ...baseParams, rows: [], totalCount: 0 }),
     );
     expect(result.current.statusLabel("new")).toBe(labels.new);
     expect(result.current.statusLabel("enrolled")).toBe(labels.enrolled);
@@ -53,72 +67,47 @@ describe("useAdminRegistrationsList", () => {
     expect(result.current.statusLabel("legacy")).toBe(labels.statusUnknown);
   });
 
-  it("toggles sort direction when activating the same column", () => {
+  it("toggleSort pushes URL params via router.replace", () => {
     const { result } = renderHook(() =>
-      useAdminRegistrationsList({ locale: "es", rows: [makeRow()], labels }),
+      useAdminRegistrationsList({ ...baseParams, rows: [makeRow()] }),
     );
-    expect(result.current.sortKey).toBe("received");
-    expect(result.current.sortDir).toBe("desc");
-    act(() => {
-      result.current.toggleSort("received");
-    });
-    expect(result.current.sortDir).toBe("asc");
-    act(() => {
-      result.current.toggleSort("received");
-    });
-    expect(result.current.sortDir).toBe("desc");
-  });
-
-  it("resets page to 1 when changing sort column while not on page 1", () => {
-    const rows = Array.from({ length: 30 }, (_, i) =>
-      makeRow({ id: `id-${i}`, email: `u${i}@x.co`, first_name: `N${i}` }),
-    );
-    const { result } = renderHook(() =>
-      useAdminRegistrationsList({ locale: "es", rows, labels }),
-    );
-    act(() => {
-      result.current.setPage(2);
-    });
-    expect(result.current.page).toBe(2);
     act(() => {
       result.current.toggleSort("email");
     });
-    expect(result.current.page).toBe(1);
-    expect(result.current.sortKey).toBe("email");
+    expect(routerReplace).toHaveBeenCalled();
+    const url = routerReplace.mock.calls[0][0] as string;
+    expect(url).toContain("sort=email");
+    expect(url).toContain("dir=asc");
   });
 
-  it("setFilterQueryAndResetPage forces page back to 1", () => {
-    const rows = Array.from({ length: 30 }, (_, i) => makeRow({ id: `id-${i}` }));
+  it("setFilterQueryAndResetPage pushes q param via router.replace", () => {
     const { result } = renderHook(() =>
-      useAdminRegistrationsList({ locale: "es", rows, labels }),
+      useAdminRegistrationsList({ ...baseParams, rows: [makeRow()] }),
     );
-    act(() => {
-      result.current.setPage(2);
-    });
     act(() => {
       result.current.setFilterQueryAndResetPage("needle");
     });
-    expect(result.current.page).toBe(1);
+    expect(routerReplace).toHaveBeenCalled();
+    const url = routerReplace.mock.calls[0][0] as string;
+    expect(url).toContain("q=needle");
   });
 
-  it("uses noFilterResults when query yields no rows", () => {
+  it("uses noFilterResults when search yields no rows", () => {
     const { result } = renderHook(() =>
       useAdminRegistrationsList({
-        locale: "es",
-        rows: [makeRow({ email: "only@x.co" })],
-        labels,
+        ...baseParams,
+        rows: [],
+        totalCount: 0,
+        searchQuery: "zzz",
       }),
     );
-    act(() => {
-      result.current.setFilterQueryAndResetPage("zzz");
-    });
     expect(result.current.listEmpty).toBe(true);
     expect(result.current.emptyMessage).toBe(labels.noFilterResults);
   });
 
   it("uses none when list is empty without active filter", () => {
     const { result } = renderHook(() =>
-      useAdminRegistrationsList({ locale: "es", rows: [], labels }),
+      useAdminRegistrationsList({ ...baseParams, rows: [], totalCount: 0 }),
     );
     expect(result.current.listEmpty).toBe(true);
     expect(result.current.emptyMessage).toBe(labels.none);
@@ -127,7 +116,7 @@ describe("useAdminRegistrationsList", () => {
   it("onConfirmDelete succeeds and refreshes", async () => {
     const r = makeRow({ id: "rid" });
     const { result } = renderHook(() =>
-      useAdminRegistrationsList({ locale: "es", rows: [r], labels }),
+      useAdminRegistrationsList({ ...baseParams, rows: [r] }),
     );
     act(() => {
       result.current.setDeleteRow(r);
@@ -144,7 +133,7 @@ describe("useAdminRegistrationsList", () => {
     deleteRegistrationMock.mockResolvedValueOnce({ ok: false, message: "db" });
     const r = makeRow({ id: "x1" });
     const { result } = renderHook(() =>
-      useAdminRegistrationsList({ locale: "es", rows: [r], labels }),
+      useAdminRegistrationsList({ ...baseParams, rows: [r] }),
     );
     act(() => {
       result.current.setDeleteRow(r);
@@ -158,7 +147,7 @@ describe("useAdminRegistrationsList", () => {
 
   it("onConfirmDelete is a no-op when no row is selected", async () => {
     const { result } = renderHook(() =>
-      useAdminRegistrationsList({ locale: "es", rows: [makeRow()], labels }),
+      useAdminRegistrationsList({ ...baseParams, rows: [makeRow()] }),
     );
     await act(async () => {
       await result.current.onConfirmDelete();
@@ -168,11 +157,23 @@ describe("useAdminRegistrationsList", () => {
 
   it("refreshList calls router.refresh", () => {
     const { result } = renderHook(() =>
-      useAdminRegistrationsList({ locale: "es", rows: [makeRow()], labels }),
+      useAdminRegistrationsList({ ...baseParams, rows: [makeRow()] }),
     );
     act(() => {
       result.current.refreshList();
     });
     expect(routerRefresh).toHaveBeenCalled();
+  });
+
+  it("setPage pushes page param via router.replace", () => {
+    const { result } = renderHook(() =>
+      useAdminRegistrationsList({ ...baseParams, rows: [makeRow()], totalCount: 50 }),
+    );
+    act(() => {
+      result.current.setPage(2);
+    });
+    expect(routerReplace).toHaveBeenCalled();
+    const url = routerReplace.mock.calls[0][0] as string;
+    expect(url).toContain("page=2");
   });
 });

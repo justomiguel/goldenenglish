@@ -5,47 +5,33 @@ import { AdminUsersSkeleton } from "@/components/molecules/AdminUsersSkeleton";
 import { AdminUsersTableDesktop } from "@/components/desktop/organisms/AdminUsersTableDesktop";
 import { AdminUsersScreenNarrow } from "@/components/pwa/organisms/AdminUsersScreenNarrow";
 import type { Dictionary } from "@/types/i18n";
-import type { AdminUserRow } from "@/lib/dashboard/adminUsersTableHelpers";
+import type { AdminUserRow, SortKey, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
 
 type UserLabels = Dictionary["admin"]["users"];
 type TableLabels = Dictionary["admin"]["table"];
 
 export interface AdminUsersScreenProps {
   rows: AdminUserRow[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  searchQuery: string;
+  roleFilter: string;
+  sortKey: SortKey;
+  sortDir: SortDir;
   locale: string;
   currentUserId: string;
   labels: UserLabels;
   tableLabels: TableLabels;
 }
 
-export function AdminUsersScreen({
-  rows,
-  locale,
-  currentUserId,
-  labels,
-  tableLabels,
-}: AdminUsersScreenProps) {
+export function AdminUsersScreen(props: AdminUsersScreenProps) {
   return (
     <SurfaceMountGate
       skeleton={<AdminUsersSkeleton />}
-      desktop={
-        <AdminUsersTableDesktop
-          rows={rows}
-          locale={locale}
-          currentUserId={currentUserId}
-          labels={labels}
-          tableLabels={tableLabels}
-        />
-      }
+      desktop={<AdminUsersTableDesktop {...props} />}
       narrow={(surface) => (
-        <AdminUsersScreenNarrow
-          rows={rows}
-          locale={locale}
-          currentUserId={currentUserId}
-          labels={labels}
-          tableLabels={tableLabels}
-          surface={surface}
-        />
+        <AdminUsersScreenNarrow {...props} surface={surface} />
       )}
     />
   );

@@ -2,6 +2,7 @@ import { getBrandPublic } from "@/lib/brand/server";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { logServerException } from "@/lib/logging/serverActionLog";
 import { fillTemplate } from "@/lib/i18n/fillTemplate";
 import type { Locale } from "@/types/i18n";
 
@@ -9,7 +10,8 @@ async function emailsForStudentParents(studentId: string): Promise<string[]> {
   let admin;
   try {
     admin = createAdminClient();
-  } catch {
+  } catch (err) {
+    logServerException("emailsForStudentParents:createAdminClient", err);
     return [];
   }
   const out = new Set<string>();

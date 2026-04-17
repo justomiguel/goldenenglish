@@ -4,8 +4,10 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { TeacherSectionCard } from "@/components/molecules/TeacherSectionCard";
-import { getTeacherPortalAllowedRoles } from "@/lib/academics/getTeacherPortalAllowedRoles";
+import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { formatAcademicScheduleSummary } from "@/lib/academics/formatAcademicScheduleSummary";
+import { loadTeacherSectionIdsForUser } from "@/lib/academics/loadTeacherSectionIdsForUser";
+import { chunkedIn } from "@/lib/supabase/chunkedIn";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -30,39 +32,45 @@ export default async function TeacherSectionsPage({ params }: PageProps) {
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const allowedRoles = getTeacherPortalAllowedRoles();
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (!profile?.role || !allowedRoles.includes(profile.role)) {
+  const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
+  if (!allowed) {
     const isAdmin = await resolveIsAdminSession(supabase, user.id);
     if (isAdmin) redirect(`/${locale}/dashboard/admin/academic`);
     redirect(`/${locale}/dashboard`);
   }
 
-  const { data: sections } = await supabase
-    .from("academic_sections")
-    .select("id, name, cohort_id, schedule_slots, academic_cohorts(name)")
-    .eq("teacher_id", user.id)
-    .order("name");
+  const mySectionIds = await loadTeacherSectionIdsForUser(supabase, user.id);
+  const sections =
+    mySectionIds.length === 0
+      ? []
+      : await chunkedIn<{
+          id: string;
+          name: string;
+          cohort_id: string;
+          teacher_id: string;
+          schedule_slots: unknown;
+          academic_cohorts: { name: string } | { name: string }[] | null;
+        }>(
+          supabase,
+          "academic_sections",
+          "id",
+          mySectionIds,
+          "id, name, cohort_id, teacher_id, schedule_slots, academic_cohorts(name)",
+        );
+  sections.sort((a, b) => a.name.localeCompare(b.name));
 
-  const sectionList =
-    (sections ?? []).map((s) => {
-      const r = s as {
-        id: string;
-        name: string;
-        cohort_id: string;
-        schedule_slots: unknown;
-        academic_cohorts: { name: string } | { name: string }[] | null;
-      };
-      const c = r.academic_cohorts;
-      const cohortName = Array.isArray(c) ? (c[0]?.name ?? "") : (c?.name ?? "");
-      return {
-        id: r.id,
-        name: r.name,
-        cohortId: r.cohort_id,
-        cohortName,
-        scheduleSlots: r.schedule_slots,
-      };
-    }) ?? [];
+  const sectionList = sections.map((r) => {
+    const c = r.academic_cohorts;
+    const cohortName = Array.isArray(c) ? (c[0]?.name ?? "") : (c?.name ?? "");
+    return {
+      id: r.id,
+      name: r.name,
+      cohortId: r.cohort_id,
+      cohortName,
+      scheduleSlots: r.schedule_slots,
+      accessRole: r.teacher_id === user.id ? ("lead" as const) : ("assistant" as const),
+    };
+  });
 
   const ids = sectionList.map((s) => s.id);
   const activeBySection = new Map<string, number>();
@@ -98,6 +106,7 @@ export default async function TeacherSectionsPage({ params }: PageProps) {
                 cohortName={s.cohortName}
                 scheduleSummary={formatAcademicScheduleSummary(s.scheduleSlots, locale)}
                 activeStudentCount={activeBySection.get(s.id) ?? 0}
+                accessRole={s.accessRole}
                 dict={d}
               />
             </li>

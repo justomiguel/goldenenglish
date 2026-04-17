@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadParentChildrenSummaries } from "@/lib/parent/loadParentChildrenSummaries";
 import { loadParentFamilyHubModel } from "@/lib/parent/loadParentFamilyHubModel";
+import { loadParentMonthBillingInvoiceSummary } from "@/lib/parent/loadParentMonthBillingInvoiceSummary";
+import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
 import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
 
 export const metadata: Metadata = {
@@ -25,13 +27,17 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const summaries = await loadParentChildrenSummaries(supabase, user.id);
-  const hub = await loadParentFamilyHubModel(
-    supabase,
-    user.id,
-    locale,
-    dict.dashboard.parent.hub.icsEventTitle,
-  );
+  const [{ data: profile }, summaries, hub, monthBillingSummary] = await Promise.all([
+    supabase.from("profiles").select("first_name").eq("id", user.id).maybeSingle(),
+    loadParentChildrenSummaries(supabase, user.id),
+    loadParentFamilyHubModel(
+      supabase,
+      user.id,
+      locale,
+      dict.dashboard.parent.hub.icsEventTitle,
+    ),
+    loadParentMonthBillingInvoiceSummary(supabase, user.id, locale),
+  ]);
 
   const kids = summaries.map((s) => ({
     id: s.studentId,
@@ -46,12 +52,18 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
       : summaries[0]?.studentId;
 
   const payHref = `/${locale}/dashboard/parent/payments`;
+  const { greeting, fullDateLine } = buildDashboardGreeting(locale, dict);
+  const firstName = (profile?.first_name as string | null) ?? null;
 
   return (
     <ParentDashboardEntry
       locale={locale}
       title={dict.dashboard.parent.title}
       lead={dict.dashboard.parent.lead}
+      kicker={dict.dashboard.parent.kicker}
+      greeting={greeting}
+      fullDateLine={fullDateLine}
+      firstName={firstName}
       navPay={dict.dashboard.parent.navPay}
       payHref={payHref}
       kids={kids}
@@ -59,6 +71,7 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
       selectedStudentId={selectedStudentId}
       parentLabels={dict.dashboard.parent}
       hub={hub}
+      monthBillingSummary={monthBillingSummary}
     />
   );
 }

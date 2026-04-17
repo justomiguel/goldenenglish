@@ -6,6 +6,7 @@ import type {
 } from "@/types/teacherPortal";
 import { resolveAvatarDisplayUrl } from "@/lib/dashboard/resolveAvatarUrl";
 import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionMaxStudents";
+import { loadTeacherSectionIdsForUser } from "@/lib/academics/loadTeacherSectionIdsForUser";
 
 type CohortNameCell = { name: string } | { name: string }[] | null;
 
@@ -105,11 +106,16 @@ export async function loadTeacherSectionDetailModel(
     .select("id, name, cohort_id, max_students, academic_cohorts(name)")
     .eq("cohort_id", cohortId);
 
-  const { data: myOtherCohort } = await supabase
-    .from("academic_sections")
-    .select("id, name, cohort_id, max_students, academic_cohorts(name)")
-    .eq("teacher_id", userId)
-    .neq("cohort_id", cohortId);
+  const mySectionIds = await loadTeacherSectionIdsForUser(supabase, userId);
+  let myOtherCohort: SectionForTargets[] = [];
+  if (mySectionIds.length > 0) {
+    const { data: otherRows } = await supabase
+      .from("academic_sections")
+      .select("id, name, cohort_id, max_students, academic_cohorts(name)")
+      .in("id", mySectionIds)
+      .neq("cohort_id", cohortId);
+    myOtherCohort = (otherRows ?? []) as SectionForTargets[];
+  }
 
   const mergedMap = new Map<string, SectionForTargets>();
   for (const s of cohortPeer ?? []) {

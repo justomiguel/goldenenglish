@@ -3,6 +3,7 @@ import { getBillingTerms } from "@/lib/billing/getBillingTerms";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { logServerException } from "@/lib/logging/serverActionLog";
 import { fillTemplate } from "@/lib/i18n/fillTemplate";
 import type { Locale } from "@/types/i18n";
 
@@ -10,7 +11,8 @@ async function collectRecipientEmailsForStudent(studentId: string): Promise<stri
   let admin;
   try {
     admin = createAdminClient();
-  } catch {
+  } catch (err) {
+    logServerException("collectRecipientEmailsForStudent:createAdminClient", err);
     return [];
   }
   const emails = new Set<string>();

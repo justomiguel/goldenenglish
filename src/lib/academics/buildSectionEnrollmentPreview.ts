@@ -13,7 +13,11 @@ type SectionHead = {
   name: string;
   schedule_slots: unknown;
   max_students: number | null;
-  academic_cohorts: { name: string } | { name: string }[] | null;
+  archived_at?: string | null;
+  academic_cohorts:
+    | { name: string; archived_at?: string | null }
+    | { name: string; archived_at?: string | null }[]
+    | null;
 };
 
 function cohortNameFromSection(s: SectionHead): string {
@@ -34,7 +38,7 @@ export async function buildSectionEnrollmentPreview(
 ): Promise<PreviewSectionEnrollmentResult> {
   const { data: section, error: secErr } = await supabase
     .from("academic_sections")
-    .select("id, name, schedule_slots, max_students, academic_cohorts(name)")
+    .select("id, name, schedule_slots, max_students, archived_at, academic_cohorts(name, archived_at)")
     .eq("id", input.sectionId)
     .maybeSingle();
 
@@ -43,6 +47,12 @@ export async function buildSectionEnrollmentPreview(
   }
 
   const row = section as unknown as SectionHead;
+  if (row.archived_at != null) return { ok: false, code: "PARSE" };
+  const cMeta = row.academic_cohorts;
+  const cohortArchived = Array.isArray(cMeta)
+    ? (cMeta[0]?.archived_at ?? null)
+    : (cMeta?.archived_at ?? null);
+  if (cohortArchived != null) return { ok: false, code: "PARSE" };
   const targetSlots = parseSectionScheduleSlots(row.schedule_slots);
   if (targetSlots.length === 0) {
     return { ok: false, code: "PARSE" };

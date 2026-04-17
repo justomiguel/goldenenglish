@@ -95,6 +95,10 @@ describe("landing marketing branches", () => {
       />,
     );
     expect(screen.getAllByRole("button", { name: dictEn.nav.logout }).length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: dictEn.nav.administration })).toHaveAttribute(
+      "href",
+      "/es/dashboard",
+    );
   });
 
   it("LandingHeaderPwa shows login when logged out", () => {

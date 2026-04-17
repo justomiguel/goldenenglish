@@ -37,7 +37,10 @@ export function InscriptionsSettingsForm({
       <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">
         {labels.inscriptionsHint}
       </p>
-      <label className="mt-6 flex cursor-pointer items-center gap-3">
+      <label
+        className="mt-6 flex cursor-pointer items-center gap-3"
+        title={labels.inscriptionsToggleTooltip}
+      >
         <input
           type="checkbox"
           className="h-5 w-5 rounded border-[var(--color-border)]"

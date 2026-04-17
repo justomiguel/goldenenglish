@@ -2,6 +2,8 @@
 
 import { useCallback, useState } from "react";
 
+import { logClientException } from "@/lib/logging/clientLog";
+
 interface UseImportJobCancelArgs {
   genericError: string;
   cancelError: string;
@@ -32,7 +34,8 @@ export function useImportJobCancel({
         setSummary(genericError);
         setDetail(cancelError);
       }
-    } catch {
+    } catch (err) {
+      logClientException("useImportJobCancel:fetch_delete", err, { jobId });
       setSummary(genericError);
       setDetail(cancelError);
     } finally {

@@ -43,6 +43,7 @@ const adminHubSummaryStub: AdminHubSummary = {
   users: { total: 0, byRole: [] },
   payments: { pendingCount: 0 },
   registrations: { newCount: 0, totalCount: 0 },
+  studentsWithoutSection: 0,
   messages: { recentCount: 0, latestPreview: null },
 };
 import { LoginScreenGate } from "@/components/organisms/LoginScreenGate";
@@ -131,18 +132,17 @@ describe("component smoke — landing & gates", () => {
     );
   });
 
-  it("LandingHeader shows administration link when isAdmin", () => {
+  it("LandingHeader shows panel link when session", () => {
     render(
       <LandingHeader
         brand={mockBrandPublic}
         dict={dictEn}
         locale="es"
-        sessionEmail="admin@example.com"
-        isAdmin
+        sessionEmail="teacher@example.com"
       />,
     );
-    const adminLink = screen.getByRole("link", { name: dictEn.nav.administration });
-    expect(adminLink).toHaveAttribute("href", "/es/dashboard/admin");
+    const panelLink = screen.getByRole("link", { name: dictEn.nav.administration });
+    expect(panelLink).toHaveAttribute("href", "/es/dashboard");
   });
 
   it("AdminHubHome", () => {
@@ -152,6 +152,21 @@ describe("component smoke — landing & gates", () => {
       "href",
       "/es/dashboard/admin/users",
     );
+  });
+
+  it("AdminHubHome shows students-without-section banner when count > 0", () => {
+    render(
+      <AdminHubHome
+        locale="es"
+        dict={dictEn}
+        summary={{ ...adminHubSummaryStub, studentsWithoutSection: 2 }}
+      />,
+    );
+    expect(
+      screen.getByRole("link", {
+        name: dictEn.admin.home.summary.studentsWithoutSection.linkAria.replace("{{count}}", "2"),
+      }),
+    ).toHaveAttribute("href", "/es/dashboard/admin/users");
   });
 
   it("LandingFooter", () => {

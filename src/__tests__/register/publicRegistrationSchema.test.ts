@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { buildPublicRegistrationSchema } from "@/lib/register/publicRegistrationSchema";
+import { REGISTRATION_UNDECIDED_FORM_VALUE } from "@/lib/register/registrationSectionConstants";
+
+const SECTION_ID = "00000000-0000-4000-8000-000000000001";
 
 const base = {
   first_name: "Ana",
@@ -7,7 +10,7 @@ const base = {
   dni: "123",
   email: "a@b.com",
   phone: "+549",
-  level_interest: "B1",
+  preferred_section_id: SECTION_ID,
 };
 
 describe("buildPublicRegistrationSchema", () => {
@@ -16,6 +19,15 @@ describe("buildPublicRegistrationSchema", () => {
   it("accepts valid adult payload", () => {
     const r = schema.safeParse({
       ...base,
+      birth_date: "2000-06-15",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("accepts undecided section choice", () => {
+    const r = schema.safeParse({
+      ...base,
+      preferred_section_id: REGISTRATION_UNDECIDED_FORM_VALUE,
       birth_date: "2000-06-15",
     });
     expect(r.success).toBe(true);
@@ -38,19 +50,19 @@ describe("buildPublicRegistrationSchema", () => {
     expect(r.success).toBe(false);
   });
 
-  it("rejects empty phone or level", () => {
+  it("rejects empty phone or invalid section id", () => {
     const noPhone = schema.safeParse({
       ...base,
       phone: "",
       birth_date: "2010-01-01",
     });
     expect(noPhone.success).toBe(false);
-    const noLevel = schema.safeParse({
+    const noSection = schema.safeParse({
       ...base,
       birth_date: "2010-01-01",
-      level_interest: "  ",
+      preferred_section_id: "",
     });
-    expect(noLevel.success).toBe(false);
+    expect(noSection.success).toBe(false);
   });
 
   it("rejects minor without tutor fields", () => {

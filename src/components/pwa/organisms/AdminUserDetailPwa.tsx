@@ -25,6 +25,7 @@ export function AdminUserDetailPwa({ surface, locale, labels, detail, billingHre
         <div className="mx-auto max-w-[var(--layout-max-width)] space-y-4 py-2">
           <Link
             href={`/${locale}/dashboard/admin/users`}
+            title={labels.tipDetailBack}
             className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 text-sm font-medium text-[var(--color-secondary)] active:opacity-80"
           >
             <ArrowLeft className="h-5 w-5 shrink-0" aria-hidden />
@@ -34,12 +35,13 @@ export function AdminUserDetailPwa({ surface, locale, labels, detail, billingHre
           {billingHref ? (
             <Link
               href={billingHref}
+              title={labels.tipDetailBillingLink}
               className="inline-flex min-h-[44px] items-center text-sm font-semibold text-[var(--color-primary)] active:opacity-80"
             >
               {labels.detailBillingLink}
             </Link>
           ) : null}
-          <AdminUserDetailPanel detail={detail} labels={labels} />
+          <AdminUserDetailPanel locale={locale} detail={detail} labels={labels} />
         </div>
       </div>
     </PwaPageShell>

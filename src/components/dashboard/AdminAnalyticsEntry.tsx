@@ -7,7 +7,10 @@ import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
 
 import type { TrafficGeoRow } from "@/components/dashboard/AdminAnalyticsGeoChoropleth";
+import type { TrafficGeoPathRow } from "@/components/dashboard/AdminAnalyticsGeoPathBreakdown";
+import type { TrafficGuestPathRow } from "@/components/dashboard/AdminAnalyticsGuestPathBreakdown";
 import type { TrafficDailyRow, TrafficSummary } from "@/components/dashboard/AdminAnalyticsTrafficSection";
+import type { TrafficKindBreakdowns } from "@/components/dashboard/AdminAnalyticsTrafficBreakdownPanel";
 
 type HourlyRow = { hour: number; role: string; cnt: number };
 type GeoRow = { country: string; cnt: number };
@@ -19,6 +22,9 @@ interface AdminAnalyticsEntryProps {
   trafficSummary: TrafficSummary;
   trafficDaily: TrafficDailyRow[];
   trafficGeo: TrafficGeoRow[];
+  trafficGeoPath: TrafficGeoPathRow[];
+  trafficGuestPath: TrafficGuestPathRow[];
+  trafficBreakdowns: TrafficKindBreakdowns;
   hourly: HourlyRow[];
   geo: GeoRow[];
   funnel: FunnelRow[];
@@ -51,6 +57,9 @@ export function AdminAnalyticsEntry({
   trafficSummary,
   trafficDaily,
   trafficGeo,
+  trafficGeoPath,
+  trafficGuestPath,
+  trafficBreakdowns,
   hourly,
   geo,
   funnel,
@@ -62,6 +71,9 @@ export function AdminAnalyticsEntry({
       trafficSummary={trafficSummary}
       trafficDaily={trafficDaily}
       trafficGeo={trafficGeo}
+      trafficGeoPath={trafficGeoPath}
+      trafficGuestPath={trafficGuestPath}
+      trafficBreakdowns={trafficBreakdowns}
       hourly={hourly}
       geo={geo}
       funnel={funnel}

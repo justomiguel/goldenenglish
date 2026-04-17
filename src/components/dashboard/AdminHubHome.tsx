@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Activity,
   ArrowUpRight,
@@ -21,6 +22,10 @@ interface AdminHubHomeProps {
 export function AdminHubHome({ locale, dict, summary }: AdminHubHomeProps) {
   const base = `/${locale}/dashboard/admin`;
   const t = dict.admin.home.summary;
+  const studentsNoSectionTitle = t.studentsWithoutSection.linkAria.replace(
+    "{{count}}",
+    String(summary.studentsWithoutSection),
+  );
 
   const weekDelta = summary.trafficWeekOverWeek.lastWeek > 0
     ? Math.round(
@@ -54,12 +59,32 @@ export function AdminHubHome({ locale, dict, summary }: AdminHubHomeProps) {
         {dict.admin.home.lead}
       </p>
 
+      {summary.studentsWithoutSection > 0 ? (
+        <Link
+          href={`${base}/users`}
+          className="mt-4 block rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-accent)]/10 px-4 py-3 text-sm text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-accent)]/16"
+          aria-label={studentsNoSectionTitle}
+          title={studentsNoSectionTitle}
+        >
+          <span className="font-semibold text-[var(--color-secondary)]">
+            {t.studentsWithoutSection.lead.replace(
+              "{{count}}",
+              String(summary.studentsWithoutSection),
+            )}
+          </span>{" "}
+          <span className="text-[var(--color-primary)] underline underline-offset-2">
+            {t.studentsWithoutSection.cta}
+          </span>
+        </Link>
+      ) : null}
+
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <AdminHubMetricCard
           href={`${base}/analytics`}
           icon={<Activity className="h-5 w-5" />}
           title={t.traffic.title}
           accentClass="bg-indigo-50 text-indigo-600"
+          hint={t.traffic.cardTip}
         >
           <p className="text-3xl font-bold text-[var(--color-foreground)]">
             {summary.traffic.totalHits.toLocaleString()}
@@ -90,6 +115,7 @@ export function AdminHubHome({ locale, dict, summary }: AdminHubHomeProps) {
           title={t.users.title}
           accentClass="bg-sky-50 text-sky-600"
           linkLabel={t.users.viewAll}
+          hint={t.users.cardTip}
         >
           <p className="text-3xl font-bold text-[var(--color-foreground)]">
             {summary.users.total}
@@ -110,6 +136,7 @@ export function AdminHubHome({ locale, dict, summary }: AdminHubHomeProps) {
           href={`${base}/payments`}
           icon={<Wallet className="h-5 w-5" />}
           title={t.payments.title}
+          hint={t.payments.cardTip}
           accentClass={
             summary.payments.pendingCount > 0
               ? "bg-amber-50 text-amber-600"
@@ -136,6 +163,7 @@ export function AdminHubHome({ locale, dict, summary }: AdminHubHomeProps) {
           href={`${base}/registrations`}
           icon={<ClipboardList className="h-5 w-5" />}
           title={t.registrations.title}
+          hint={t.registrations.cardTip}
           accentClass={
             summary.registrations.newCount > 0
               ? "bg-orange-50 text-orange-600"
@@ -169,6 +197,7 @@ export function AdminHubHome({ locale, dict, summary }: AdminHubHomeProps) {
         <AdminHubMessagesCard
           href={`${base}/messages`}
           labels={t.messages}
+          cardTip={t.messages.cardTip}
           recentCount={summary.messages.recentCount}
           latestPreview={summary.messages.latestPreview}
           locale={locale}

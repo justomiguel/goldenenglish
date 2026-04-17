@@ -28,6 +28,8 @@ export interface UniversalListViewProps {
       prev: string;
       next: string;
       summary: string;
+      tipPrev?: string;
+      tipNext?: string;
     };
   };
   emptyMessage: string;

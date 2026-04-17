@@ -1,4 +1,8 @@
-import { getProperty, loadProperties } from "@/lib/theme/themeParser";
+import {
+  getProperty,
+  loadProperties,
+  type ThemeProperties,
+} from "@/lib/theme/themeParser";
 
 export interface BrandPublic {
   name: string;
@@ -20,8 +24,17 @@ export interface BrandPublic {
   socialWhatsapp: string;
 }
 
-export function getBrandPublic(): BrandPublic {
-  const p = loadProperties();
+/**
+ * Pure: derives the public brand object from a properties map. Used by:
+ *  - `getBrandPublic()` (sync wrapper, file-only) for callers that don't need
+ *    runtime overrides.
+ *  - The root `app/layout.tsx`, which feeds in the merged `system.properties +
+ *    site_themes.properties` map produced by `loadEffectiveProperties()`.
+ *
+ * Keeping it pure removes the `fs` dependency for tests and lets the same
+ * brand object reflect a freshly activated theme without restarting the app.
+ */
+export function brandPublicFromProperties(p: ThemeProperties): BrandPublic {
   const tagline = getProperty(p, "app.tagline");
   const taglineEn = getProperty(p, "app.tagline.en", tagline);
   return {
@@ -40,4 +53,8 @@ export function getBrandPublic(): BrandPublic {
     socialInstagram: getProperty(p, "social.instagram"),
     socialWhatsapp: getProperty(p, "social.whatsapp"),
   };
+}
+
+export function getBrandPublic(): BrandPublic {
+  return brandPublicFromProperties(loadProperties());
 }

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { adminActionDict } from "@/lib/i18n/actionErrors";
 import { defaultLocale } from "@/lib/i18n/dictionaries";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 const createSchema = z.object({
   locale: z.string().min(2),
@@ -69,10 +70,14 @@ export async function createPromotion(
       is_active: true,
       deleted_at: null,
     });
-    if (error) return { ok: false, message: ae.saveFailed };
+    if (error) {
+      logSupabaseClientError("createPromotion", error, { code });
+      return { ok: false, message: ae.saveFailed };
+    }
     revalidatePath(`/${parsed.data.locale}/dashboard/admin/promotions`);
     return { ok: true };
-  } catch {
+  } catch (err) {
+    logServerException("createPromotion", err);
     return { ok: false, message: ae.forbidden };
   }
 }
@@ -92,10 +97,14 @@ export async function togglePromotionActive(
       .update({ is_active: isActive })
       .eq("id", id.data)
       .is("deleted_at", null);
-    if (error) return { ok: false, message: ae.saveFailed };
+    if (error) {
+      logSupabaseClientError("togglePromotionActive", error, { promotionId: id.data });
+      return { ok: false, message: ae.saveFailed };
+    }
     revalidatePath(`/${locale}/dashboard/admin/promotions`);
     return { ok: true };
-  } catch {
+  } catch (err) {
+    logServerException("togglePromotionActive", err);
     return { ok: false, message: ae.forbidden };
   }
 }
@@ -113,10 +122,14 @@ export async function softDeletePromotion(
       .from("promotions")
       .update({ deleted_at: new Date().toISOString(), is_active: false })
       .eq("id", id.data);
-    if (error) return { ok: false, message: ae.saveFailed };
+    if (error) {
+      logSupabaseClientError("softDeletePromotion", error, { promotionId: id.data });
+      return { ok: false, message: ae.saveFailed };
+    }
     revalidatePath(`/${locale}/dashboard/admin/promotions`);
     return { ok: true };
-  } catch {
+  } catch (err) {
+    logServerException("softDeletePromotion", err);
     return { ok: false, message: ae.forbidden };
   }
 }

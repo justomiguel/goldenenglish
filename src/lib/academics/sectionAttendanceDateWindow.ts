@@ -15,3 +15,11 @@ export function isTeacherAttendanceDateAllowed(iso: string, now = new Date()): b
   const max = utcCalendarDateIso(now);
   return iso >= min && iso <= max;
 }
+
+/** Add (or subtract, when negative) `n` UTC calendar days to an ISO `YYYY-MM-DD`. */
+export function addUtcCalendarDaysIso(iso: string, n: number): string {
+  const [y, m, d] = iso.split("-").map((s) => Number.parseInt(s, 10));
+  const x = new Date(Date.UTC(y, (m ?? 1) - 1, d ?? 1));
+  x.setUTCDate(x.getUTCDate() + n);
+  return x.toISOString().slice(0, 10);
+}

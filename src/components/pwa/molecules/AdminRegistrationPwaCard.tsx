@@ -4,6 +4,7 @@ import { Pencil, Trash2, UserPlus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
+import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -61,7 +62,7 @@ export function AdminRegistrationPwaCard({
             </span>
             <span>
               <span className="text-[var(--color-foreground)]">{labels.level}: </span>
-              {r.level_interest ?? labels.emptyValue}
+              {formatRegistrationLevelInterestDisplay(labels, r.level_interest)}
             </span>
           </div>
           <div className="flex flex-wrap gap-x-3">
@@ -101,7 +102,7 @@ export function AdminRegistrationPwaCard({
                 variant="secondary"
                 size="sm"
                 aria-label={labels.accept}
-                title={labels.accept}
+                title={labels.tipAccept}
                 className="min-h-[44px] w-full border border-[color-mix(in_srgb,var(--color-secondary-foreground)_22%,transparent)] px-0"
                 disabled={busy}
                 onClick={() => onAccept(r)}
@@ -117,7 +118,7 @@ export function AdminRegistrationPwaCard({
                 variant="ghost"
                 size="sm"
                 aria-label={labels.editTitle}
-                title={labels.editTitle}
+                title={labels.tipEditRow}
                 className="min-h-[44px] w-full border border-[var(--color-border)] bg-[var(--color-surface)] px-0 hover:bg-[var(--color-muted)]"
                 disabled={busy}
                 onClick={() => onEdit(r)}
@@ -131,7 +132,7 @@ export function AdminRegistrationPwaCard({
             variant="ghost"
             size="sm"
             aria-label={labels.delete}
-            title={labels.deleteConfirmTitle}
+            title={labels.tipDeleteRow}
             className={`${deleteBtnClass} ${canAccept ? "w-full" : "min-w-[44px] shrink-0"}`}
             disabled={busy}
             onClick={() => onDelete(r)}

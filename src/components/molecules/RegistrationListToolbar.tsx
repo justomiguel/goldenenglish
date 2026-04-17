@@ -39,6 +39,7 @@ export function RegistrationListToolbar({
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder={labels.filterPlaceholder}
+          title={labels.filterTooltip}
           className="w-full max-w-xl"
           autoComplete="off"
         />

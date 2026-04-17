@@ -31,6 +31,7 @@ export interface ParentMessagesEntryProps {
   recipients: MessagingRecipient[];
   canCompose: boolean;
   labels: ParentLabels;
+  defaultRecipientId?: string;
 }
 
 export function ParentMessagesEntry({
@@ -41,6 +42,7 @@ export function ParentMessagesEntry({
   recipients,
   canCompose,
   labels,
+  defaultRecipientId,
 }: ParentMessagesEntryProps) {
   const body = (
     <>
@@ -52,6 +54,7 @@ export function ParentMessagesEntry({
         recipients={recipients}
         canCompose={canCompose}
         labels={labels}
+        defaultRecipientId={defaultRecipientId}
       />
     </>
   );

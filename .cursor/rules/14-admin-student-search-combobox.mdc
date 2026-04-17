@@ -1,0 +1,26 @@
+---
+description: >-
+  Búsqueda de alumno en staff: reutilizar AdminStudentSearchCombobox (Label + Input
+  de átomos, mismo patrón que usuarios); no inputs sueltos; i18n en dictionaries.
+globs:
+  - "src/app/**/dashboard/admin/**/*.tsx"
+  - "src/components/**/*.tsx"
+  - "src/hooks/*.ts"
+---
+
+# Admin: búsqueda de alumno (mismo patrón que usuarios)
+
+## Objetivo
+
+En pantallas de **staff** donde hay que **elegir un alumno** por nombre / documento (inscripción en sección, traslados, etc.), el campo de búsqueda debe usar el **mismo patrón visual y de accesibilidad** que el filtro de la lista de usuarios (`Label` + `Input` de átomos), no un `<input>` suelto con clases distintas.
+
+## Regla
+
+1. **Reutilizar** `AdminStudentSearchCombobox` (`src/components/molecules/AdminStudentSearchCombobox.tsx`) cuando la búsqueda sea **async** y devuelva `{ id, label }`: en admin usar `searchAdminStudentsAction`; en docente, alumnos solo de sus secciones, usar `searchTeacherStudentsInOwnSectionsAction` (`src/app/[locale]/dashboard/teacher/academics/actions.ts`, lógica en `src/lib/academics/searchTeacherStudentsInOwnSections.ts`).
+2. **No** duplicar bloques `label + input + lista` ad hoc en organismos; extender el combobox o extraer otro módulo en `src/components/molecules/` si hace falta variante (p. ej. solo lectura).
+3. Textos visibles desde **`src/dictionaries/en.json` y `es.json`** (`dashboard.academicSectionPage.studentSearchLabel`, `studentSearchTooltip`, etc.).
+
+## Relación
+
+- Lista de usuarios (tabla): `AdminUsersToolbar` — mismo `Label` / `Input`.
+- Mensajería (destinatarios con lista precargada): `RecipientAutocomplete` — otro dominio; no sustituye al combobox de alumnos admin.

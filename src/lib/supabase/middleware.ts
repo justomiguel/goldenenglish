@@ -2,14 +2,19 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { hasSupabasePublicEnv, readSupabasePublicEnv } from "@/lib/supabase/publicEnv";
 
-export async function updateSession(request: NextRequest) {
+export type UpdateSessionResult = {
+  response: NextResponse;
+  userId: string | null;
+};
+
+export async function updateSession(request: NextRequest): Promise<UpdateSessionResult> {
   if (!hasSupabasePublicEnv()) {
     if (process.env.NODE_ENV === "development") {
       console.warn(
         "[supabase] Missing URL or anon key. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local (see .env.example). Session refresh skipped.",
       );
     }
-    return NextResponse.next({ request });
+    return { response: NextResponse.next({ request }), userId: null };
   }
 
   const { url, anonKey } = readSupabasePublicEnv();
@@ -32,7 +37,9 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  return supabaseResponse;
+  return { response: supabaseResponse, userId: user?.id ?? null };
 }

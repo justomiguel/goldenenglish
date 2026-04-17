@@ -1,0 +1,31 @@
+export interface AcademicSectionStaffEditorDict {
+  title: string;
+  leadLabel: string;
+  leadSave: string;
+  leadSaved: string;
+  leadError: string;
+  assistantsTitle: string;
+  assistantsHint: string;
+  pickStaffAssistantLabel: string;
+  addStaffAssistantSubmit: string;
+  staffAssistantPlaceholder: string;
+  pickStudentAssistantLabel: string;
+  studentAssistantMinHint: string;
+  assistantsSave: string;
+  assistantsSaved: string;
+  assistantsError: string;
+  assistantsScheduleOverlap: string;
+  removeAssistantAria: string;
+  assistantBadgeTeacher: string;
+  assistantBadgeStudent: string;
+  assistantBadgePortalAssistant: string;
+  externalTitle: string;
+  externalHint: string;
+  externalNameLabel: string;
+  externalNamePlaceholder: string;
+  externalAdd: string;
+  externalSave: string;
+  externalSaved: string;
+  externalError: string;
+  removeExternalAria: string;
+}

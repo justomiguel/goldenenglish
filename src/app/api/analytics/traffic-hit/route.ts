@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { classifyTrafficVisitor } from "@/lib/analytics/classifyTrafficVisitor";
-import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  clientIpFromHeaders,
+  insertTrafficPageHit,
+} from "@/lib/analytics/recordTrafficPageHitServer";
 import { createClient } from "@/lib/supabase/server";
-import { anonymizeIp } from "@/lib/analytics/sanitizeMetadata";
+import { logServerException } from "@/lib/logging/serverActionLog";
 
 export const runtime = "nodejs";
 
@@ -15,26 +17,12 @@ const bodySchema = z.object({
     .refine((s) => s.startsWith("/") && !s.includes(".."), "invalid path"),
 });
 
-function clientIpFromRequest(request: Request): string | null {
-  const xf = request.headers.get("x-forwarded-for");
-  if (xf) {
-    const first = xf.split(",")[0]?.trim();
-    return first || null;
-  }
-  return request.headers.get("x-real-ip");
-}
-
-function truncate(s: string | null, max: number): string | null {
-  if (!s) return null;
-  const t = s.trim();
-  return t.length <= max ? t : `${t.slice(0, max)}...`;
-}
-
 export async function POST(request: Request) {
   let json: unknown;
   try {
     json = await request.json();
-  } catch {
+  } catch (err) {
+    logServerException("api/analytics/traffic-hit:json", err);
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
@@ -43,38 +31,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
-  const ua = request.headers.get("user-agent") ?? "";
   const supabaseUser = await createClient();
   const {
     data: { user },
   } = await supabaseUser.auth.getUser();
-  const kind = classifyTrafficVisitor(ua, user?.id ?? null);
-
-  let admin;
-  try {
-    admin = createAdminClient();
-  } catch {
-    return NextResponse.json({ ok: false, message: "server_misconfigured" }, { status: 503 });
-  }
-
-  const country = request.headers.get("x-vercel-ip-country");
-  const region = request.headers.get("x-vercel-ip-country-region");
-  const rawIp = clientIpFromRequest(request);
-  const ip = anonymizeIp(rawIp);
-
-  const { error } = await admin.from("traffic_page_hits").insert({
-    visitor_kind: kind,
-    user_id: user?.id ?? null,
+  const get = (n: string) => request.headers.get(n);
+  const inserted = await insertTrafficPageHit({
     pathname: parsed.data.pathname,
-    referrer: truncate(request.headers.get("referer"), 400),
-    user_agent: truncate(ua, 600),
-    geo_country: country?.trim() || null,
-    geo_region: region?.trim() || null,
-    client_ip: ip,
+    userAgent: get("user-agent"),
+    userId: user?.id ?? null,
+    referrer: get("referer"),
+    geoCountry: get("x-vercel-ip-country"),
+    geoRegion: get("x-vercel-ip-country-region"),
+    clientIp: clientIpFromHeaders(get),
   });
-
-  if (error) {
-    const msg = error.message ?? "";
+  if (!inserted.ok) {
+    const msg = inserted.error.message;
+    if (msg === "server_misconfigured") {
+      return NextResponse.json({ ok: false, message: "server_misconfigured" }, { status: 503 });
+    }
     const missingRelation =
       msg.includes("traffic_page_hits") &&
       (msg.includes("does not exist") ||
@@ -90,7 +65,7 @@ export async function POST(request: Request) {
         { status: 503 },
       );
     }
-    return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
+    return NextResponse.json({ ok: false, message: msg }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

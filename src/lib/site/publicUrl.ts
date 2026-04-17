@@ -1,3 +1,5 @@
+import { logServerException } from "@/lib/logging/serverActionLog";
+
 /**
  * Public site origin for canonical URLs, OG tags, sitemap (never guess in components).
  * Prefer `NEXT_PUBLIC_APP_URL`; fallback to Vercel preview URL in prod-like deploys.
@@ -8,16 +10,16 @@ export function getPublicSiteUrl(): URL | null {
     try {
       const normalized = raw.endsWith("/") ? raw.slice(0, -1) : raw;
       return new URL(normalized);
-    } catch {
-      /* empty */
+    } catch (err) {
+      logServerException("getPublicSiteUrl:NEXT_PUBLIC_APP_URL", err);
     }
   }
   const vercel = process.env.VERCEL_URL?.trim();
   if (vercel) {
     try {
       return new URL(`https://${vercel}`);
-    } catch {
-      /* empty */
+    } catch (err) {
+      logServerException("getPublicSiteUrl:VERCEL_URL", err);
     }
   }
   return null;

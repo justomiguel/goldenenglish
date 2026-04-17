@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
+import { logClientWarn } from "@/lib/logging/clientLog";
 
 type HubDict = Dictionary["dashboard"]["student"]["hub"];
 
@@ -25,7 +26,7 @@ export function StudentPushPermissionBanner({ dict }: StudentPushPermissionBanne
           return;
         }
       } catch {
-        /* ignore */
+        logClientWarn("StudentPushPermissionBanner:read_dismissed");
       }
       if (!("Notification" in window)) {
         setUnsupported(true);
@@ -44,7 +45,7 @@ export function StudentPushPermissionBanner({ dict }: StudentPushPermissionBanne
     try {
       window.localStorage.setItem(STORAGE_KEY, "1");
     } catch {
-      /* ignore */
+      logClientWarn("StudentPushPermissionBanner:write_dismissed");
     }
     setHidden(true);
   }, []);
@@ -54,7 +55,7 @@ export function StudentPushPermissionBanner({ dict }: StudentPushPermissionBanne
     try {
       await Notification.requestPermission();
     } catch {
-      /* ignore */
+      logClientWarn("StudentPushPermissionBanner:requestPermission");
     }
     dismiss();
   }, [dismiss]);

@@ -20,6 +20,7 @@ export function AdminUserDetailDesktop({ locale, labels, detail, billingHref }: 
     <div className="mx-auto max-w-2xl space-y-6">
       <Link
         href={`/${locale}/dashboard/admin/users`}
+        title={labels.tipDetailBack}
         className="inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-[var(--color-secondary)] hover:underline"
       >
         <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
@@ -29,12 +30,13 @@ export function AdminUserDetailDesktop({ locale, labels, detail, billingHref }: 
       {billingHref ? (
         <Link
           href={billingHref}
+          title={labels.tipDetailBillingLink}
           className="inline-flex min-h-[44px] items-center text-sm font-semibold text-[var(--color-primary)] underline-offset-2 hover:underline"
         >
           {labels.detailBillingLink}
         </Link>
       ) : null}
-      <AdminUserDetailPanel detail={detail} labels={labels} />
+      <AdminUserDetailPanel locale={locale} detail={detail} labels={labels} />
     </div>
   );
 }

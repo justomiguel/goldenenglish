@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 const uuid = z.string().uuid();
 
@@ -29,11 +30,15 @@ export async function updateEnrollmentRetentionWatchAdminAction(
       { enrollment_id: enrollmentId, watch },
       { onConflict: "enrollment_id" },
     );
-    if (error) return { ok: false, code: "save" };
+    if (error) {
+      logSupabaseClientError("updateEnrollmentRetentionWatchAdminAction", error, { enrollmentId });
+      return { ok: false, code: "save" };
+    }
 
     revalidatePath(`/${locale}/dashboard/admin/retention`);
     return { ok: true };
-  } catch {
+  } catch (err) {
+    logServerException("updateEnrollmentRetentionWatchAdminAction", err);
     return { ok: false, code: "auth" };
   }
 }

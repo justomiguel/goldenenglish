@@ -3,6 +3,7 @@ import type { EmailProvider } from "@/lib/email/emailProvider";
 import { resolveTeacherIdForStudent } from "@/lib/messaging/resolveTeacherId";
 import { notifyTeacherNewMessage } from "@/lib/messaging/notifyMessagingEmails";
 import { stripHtmlToText } from "@/lib/messaging/stripHtml";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import {
   MESSAGING_UC_NO_TEACHER,
   MESSAGING_UC_PERSIST_FAILED,
@@ -26,7 +27,10 @@ export async function sendStudentMessageUseCase(input: {
     recipient_id: teacherId,
     body_html: input.bodyHtml,
   });
-  if (error) return { ok: false, message: MESSAGING_UC_PERSIST_FAILED };
+  if (error) {
+    logSupabaseClientError("sendStudentMessageUseCase:insert", error, { studentId: input.studentId });
+    return { ok: false, message: MESSAGING_UC_PERSIST_FAILED };
+  }
 
   const preview = stripHtmlToText(input.bodyHtml).slice(0, 500);
   try {
@@ -37,8 +41,10 @@ export async function sendStudentMessageUseCase(input: {
       locale: input.locale,
       emailProvider: input.emailProvider,
     });
-  } catch {
-    /* email is best-effort; message is persisted */
+  } catch (emailErr) {
+    logServerException("sendStudentMessageUseCase:notifyTeacherNewMessage", emailErr, {
+      studentId: input.studentId,
+    });
   }
 
   return { ok: true };

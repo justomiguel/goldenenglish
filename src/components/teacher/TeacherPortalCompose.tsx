@@ -70,14 +70,22 @@ export function TeacherPortalCompose({ locale, recipients = [], labels }: Teache
         emptyOptionsText={labels.messagesRecipientListEmpty}
         roleLabels={roleLabels}
         ariaLabel={labels.messagesComposeTo}
+        inputTitle={labels.tipComposeRecipient}
       />
       <RichTextEditor
         value={body}
         onChange={setBody}
         disabled={busy}
+        title={labels.tipComposeBody}
         aria-label={labels.messagesComposeAria}
       />
-      <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px]">
+      <Button
+        type="submit"
+        disabled={busy}
+        isLoading={busy}
+        className="min-h-[44px]"
+        title={labels.tipComposeSend}
+      >
         {labels.messagesComposeSend}
       </Button>
       {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}

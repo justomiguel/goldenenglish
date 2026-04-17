@@ -1,42 +1,18 @@
 @import "tailwindcss";
 
 /*
- * Tokens — align with system.properties; fonts loaded in layout.tsx (next/font).
+ * Color / layout / shadow tokens are injected at runtime by `src/app/layout.tsx`
+ * (`<style id="ge-theme-root">`) so a site theme activated from admin propagates
+ * without redeploying. See `system.properties` (defaults) +
+ * `public.site_themes.properties` (overrides) + `src/lib/theme/themeOverrides.ts`.
+ *
+ * Only font variables stay here: they reference `--font-sans` / `--font-display`
+ * provided by `next/font` on the `<html>` element and are not theme-switchable.
  */
 :root {
-  --color-primary: #103a5c;
-  --color-primary-light: #2a5b84;
-  --color-primary-dark: #0a253d;
-  --color-primary-foreground: #ffffff;
-
-  --color-secondary: #a31a22;
-  --color-secondary-light: #d43d46;
-  --color-secondary-dark: #730f15;
-  --color-secondary-foreground: #ffffff;
-
-  --color-accent: #f0b932;
-  --color-accent-foreground: #0f1f33;
-
-  --color-background: #faf9f6;
-  --color-surface: #ffffff;
-  --color-foreground: #103a5c;
-  --color-muted: #f0efea;
-  --color-muted-foreground: #5c6b7a;
-  --color-border: #e2e0d8;
-
-  --color-success: #16a34a;
-  --color-warning: #eab308;
-  --color-error: #dc2626;
-  --color-info: #2563eb;
-
   --font-body: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-display), ui-serif, Georgia, "Times New Roman",
     serif;
-
-  --layout-max-width: 1280px;
-  --layout-border-radius: 0.75rem;
-  --shadow-soft: 0 4px 24px -4px rgb(16 58 92 / 12%);
-  --shadow-card: 0 12px 40px -12px rgb(16 58 92 / 18%);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -320,4 +296,20 @@ body {
 .academic-conflict-calendars .react-calendar__tile.academic-cal-tile-target {
   background: color-mix(in srgb, var(--color-primary) 22%, var(--color-surface)) !important;
   color: var(--color-foreground) !important;
+}
+
+/* react-calendar — teacher attendance matrix (class days only) */
+.teacher-attendance-matrix-calendar .react-calendar {
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--layout-border-radius);
+  font-family: inherit;
+  background: var(--color-background);
+}
+
+.teacher-attendance-matrix-calendar .react-calendar__tile.teacher-att-cal-classday {
+  background: color-mix(in srgb, var(--color-primary) 24%, var(--color-surface)) !important;
+  color: var(--color-foreground) !important;
+  font-weight: 600;
 }

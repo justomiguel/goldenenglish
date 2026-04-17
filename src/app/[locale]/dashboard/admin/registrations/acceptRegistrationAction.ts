@@ -1,8 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { createDashboardUser } from "@/app/[locale]/dashboard/admin/users/actions";
@@ -15,50 +13,17 @@ import {
   upsertTutorStudentLink,
 } from "@/lib/register/ensureParentProfileByTutorDni";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
-import {
-  insertEnrollmentIfMissing,
-  resolveCourseIdFromLevelInterest,
-} from "@/lib/import/bulkImportEnrollment";
-import { compensateDeleteStudentAuthUser } from "@/lib/register/compensateStudentAuthUser";
+import { insertEnrollmentIfMissing } from "@/lib/import/bulkImportEnrollment";
+import { resolveCourseIdForRegistrationAccept } from "@/lib/register/resolveCourseIdForRegistrationAccept";
+import { isRegistrationUndecidedStored } from "@/lib/register/registrationSectionConstants";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import type { Dictionary } from "@/types/i18n";
 import { localizeRegistrationAcceptError } from "@/lib/register/localizeRegistrationAcceptError";
-
-const idZ = z.string().uuid();
-
-const acceptSchema = z.object({
-  registration_id: idZ,
-  password: z.string().max(72).optional(),
-  birth_date: z
-    .string()
-    .trim()
-    .optional()
-    .transform((s) => (s === "" || s == null ? undefined : s))
-    .pipe(z.union([z.undefined(), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)])),
-});
-
-async function failAfterStudentCreated(
-  admin: SupabaseClient,
-  registrationId: string,
-  studentId: string,
-  primaryCode: string,
-  dict: Dictionary,
-): Promise<{ ok: false; message: string }> {
-  const roll = await compensateDeleteStudentAuthUser(admin, studentId);
-  if (!roll.ok) {
-    void recordSystemAudit({
-      action: "registration_accept_rollback_failed",
-      resourceType: "registration",
-      resourceId: registrationId,
-      payload: { student_id: studentId, intended_error: primaryCode },
-    });
-    return {
-      ok: false,
-      message: localizeRegistrationAcceptError(dict, "rollback_failed"),
-    };
-  }
-  return { ok: false, message: localizeRegistrationAcceptError(dict, primaryCode) };
-}
+import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import {
+  acceptRegistrationSchema,
+  failAfterStudentCreated,
+  type AcceptRegistrationInput,
+} from "@/lib/register/acceptRegistrationHelpers";
 
 export type AcceptRegistrationResult =
   | { ok: true; studentId: string }
@@ -66,18 +31,19 @@ export type AcceptRegistrationResult =
 
 export async function acceptRegistration(
   locale: string,
-  raw: z.infer<typeof acceptSchema>,
+  raw: AcceptRegistrationInput,
 ): Promise<AcceptRegistrationResult> {
   try {
     await assertAdmin();
   } catch {
+    logServerAuthzDenied("acceptRegistration");
     return {
       ok: false,
       message: localizeRegistrationAcceptError(await getDictionary(locale), "forbidden"),
     };
   }
 
-  const parsed = acceptSchema.safeParse(raw);
+  const parsed = acceptRegistrationSchema.safeParse(raw);
   if (!parsed.success) {
     return {
       ok: false,
@@ -90,12 +56,18 @@ export async function acceptRegistration(
   const { data: reg, error: fetchErr } = await admin
     .from("registrations")
     .select(
-      "id,status,first_name,last_name,dni,email,phone,birth_date,level_interest,tutor_name,tutor_dni,tutor_email,tutor_phone,tutor_relationship",
+      "id,status,first_name,last_name,dni,email,phone,birth_date,level_interest,preferred_section_id,tutor_name,tutor_dni,tutor_email,tutor_phone,tutor_relationship",
     )
     .eq("id", parsed.data.registration_id)
     .maybeSingle();
 
-  if (fetchErr || !reg) {
+  if (fetchErr) {
+    logSupabaseClientError("acceptRegistration:selectRegistration", fetchErr, {
+      registrationId: parsed.data.registration_id,
+    });
+    return { ok: false, message: localizeRegistrationAcceptError(dict, "not_found") };
+  }
+  if (!reg) {
     return { ok: false, message: localizeRegistrationAcceptError(dict, "not_found") };
   }
   if (reg.status !== "new") {
@@ -141,13 +113,20 @@ export async function acceptRegistration(
     }
   }
 
-  const courseId = await resolveCourseIdFromLevelInterest(
-    admin,
-    reg.level_interest != null ? String(reg.level_interest) : null,
-  );
-  if (!courseId) {
-    return { ok: false, message: localizeRegistrationAcceptError(dict, "no_course_for_level") };
-  }
+  const levelRaw = reg.level_interest != null ? String(reg.level_interest) : null;
+  const hasPreferredSection =
+    reg.preferred_section_id != null &&
+    String(reg.preferred_section_id).trim() !== "";
+  const applicantUndecided =
+    !hasPreferredSection && isRegistrationUndecidedStored(levelRaw);
+
+  const courseId = await resolveCourseIdForRegistrationAccept(admin, {
+    preferredSectionId: hasPreferredSection
+      ? String(reg.preferred_section_id)
+      : null,
+    levelInterestFallback: applicantUndecided ? null : levelRaw,
+  });
+  const skipCourseEnrollment = !courseId;
 
   const createRes = await createDashboardUser({
     email: String(reg.email),
@@ -209,15 +188,17 @@ export async function acceptRegistration(
     }
   }
 
-  const enrollRes = await insertEnrollmentIfMissing(admin, studentId, courseId);
-  if (!enrollRes.ok) {
-    return failAfterStudentCreated(
-      admin,
-      String(reg.id),
-      studentId,
-      enrollRes.message ?? "enrollment_failed",
-      dict,
-    );
+  if (courseId) {
+    const enrollRes = await insertEnrollmentIfMissing(admin, studentId, courseId);
+    if (!enrollRes.ok) {
+      return failAfterStudentCreated(
+        admin,
+        String(reg.id),
+        studentId,
+        enrollRes.message ?? "enrollment_failed",
+        dict,
+      );
+    }
   }
 
   const { error: upErr } = await admin
@@ -237,9 +218,16 @@ export async function acceptRegistration(
       student_id: studentId,
       minor: isMinor,
       course_id: courseId,
+      course_enrollment_skipped: skipCourseEnrollment,
+      course_skip_reason: skipCourseEnrollment
+        ? applicantUndecided
+          ? "undecided"
+          : "no_resolved_course"
+        : null,
     },
   });
 
   revalidatePath(`/${locale}/dashboard/admin/registrations`, "page");
+  revalidatePath(`/${locale}/dashboard/admin`, "page");
   return { ok: true, studentId };
 }

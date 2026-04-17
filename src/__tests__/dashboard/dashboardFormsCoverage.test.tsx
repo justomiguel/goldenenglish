@@ -61,9 +61,7 @@ describe("dashboard coverage", () => {
     });
   });
 
-  it("AdminSidebar marks active link and handles mobile select", () => {
-    const loc = { href: "" };
-    vi.stubGlobal("location", loc as Location);
+  it("AdminSidebar renders grouped navigation with badge", () => {
     render(
       <AdminSidebar
         locale="es"
@@ -72,12 +70,9 @@ describe("dashboard coverage", () => {
       />,
     );
     expect(screen.getByRole("navigation", { name: dictEn.dashboard.adminNav.aria })).toBeInTheDocument();
-    const select = screen.getByRole("combobox", {
-      name: dictEn.dashboard.adminNav.mobileSelect,
-    });
-    fireEvent.change(select, { target: { value: "/es/dashboard/admin/analytics" } });
-    expect(loc.href).toBe("/es/dashboard/admin/analytics");
-    vi.unstubAllGlobals();
+    expect(screen.getByText("99+")).toBeInTheDocument();
+    expect(screen.getByText(dictEn.dashboard.adminNav.groupPeople)).toBeInTheDocument();
+    expect(screen.getByText(dictEn.dashboard.adminNav.groupFinance)).toBeInTheDocument();
   });
 
   it("AdminCreateUserForm shows success and error messages", async () => {

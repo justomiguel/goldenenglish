@@ -73,6 +73,24 @@ export default async function DashboardProfilePage({ params }: PageProps) {
 
   const backHref = `/${locale}/dashboard/${segmentForRole(profileSafe.role ?? undefined)}`;
 
+  let classReminder: {
+    studentId: string;
+    initial: Record<string, unknown> | null;
+    studentLabels: (typeof dict)["dashboard"]["student"];
+  } | null = null;
+  if (profileSafe.role === "student" && !minorPersonalLocked) {
+    const { data: crPref } = await supabase
+      .from("class_reminder_channel_prefs")
+      .select("*")
+      .eq("student_id", user.id)
+      .maybeSingle();
+    classReminder = {
+      studentId: user.id,
+      initial: crPref as Record<string, unknown> | null,
+      studentLabels: dict.dashboard.student,
+    };
+  }
+
   return (
     <MyProfileSurfaceEntry
       backHref={backHref}
@@ -90,6 +108,7 @@ export default async function DashboardProfilePage({ params }: PageProps) {
       avatarDisplayUrl={avatarDisplayUrl}
       displayName={displayName}
       labels={dict.dashboard.myProfile}
+      classReminder={classReminder}
     />
   );
 }

@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
+import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { TeacherAcademicsPanel } from "@/components/organisms/TeacherAcademicsPanel";
+import { loadTeacherSectionIdsForUser } from "@/lib/academics/loadTeacherSectionIdsForUser";
+import { chunkedIn } from "@/lib/supabase/chunkedIn";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -27,41 +29,33 @@ export default async function TeacherAcademicsPage({ params }: PageProps) {
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
+  const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
+  if (!allowed) redirect(`/${locale}/dashboard`);
 
-  if (profile?.role !== "teacher") {
-    const isAdmin = await resolveIsAdminSession(supabase, user.id);
-    if (isAdmin) redirect(`/${locale}/dashboard/admin/academic`);
-    redirect(`/${locale}/dashboard`);
-  }
+  const mySectionIds = await loadTeacherSectionIdsForUser(supabase, user.id);
+  const sections =
+    mySectionIds.length === 0
+      ? []
+      : await chunkedIn<{
+          id: string;
+          name: string;
+          cohort_id: string;
+          teacher_id: string;
+          academic_cohorts: { name: string } | { name: string }[] | null;
+        }>(supabase, "academic_sections", "id", mySectionIds, "id, name, cohort_id, teacher_id, academic_cohorts(name)");
+  sections.sort((a, b) => a.name.localeCompare(b.name));
 
-  const { data: sections } = await supabase
-    .from("academic_sections")
-    .select("id, name, cohort_id, academic_cohorts(name)")
-    .eq("teacher_id", user.id)
-    .order("name");
-
-  const rows =
-    (sections ?? []).map((s) => {
-      const r = s as {
-        id: string;
-        name: string;
-        cohort_id: string;
-        academic_cohorts: { name: string } | { name: string }[] | null;
-      };
-      const c = r.academic_cohorts;
-      const cohortName = Array.isArray(c) ? (c[0]?.name ?? "") : (c?.name ?? "");
-      return {
-        id: r.id,
-        name: r.name,
-        cohortId: r.cohort_id,
-        cohortName,
-      };
-    }) ?? [];
+  const rows = sections.map((r) => {
+    const c = r.academic_cohorts;
+    const cohortName = Array.isArray(c) ? (c[0]?.name ?? "") : (c?.name ?? "");
+    return {
+      id: r.id,
+      name: r.name,
+      cohortId: r.cohort_id,
+      cohortName,
+      accessRole: r.teacher_id === user.id ? ("lead" as const) : ("assistant" as const),
+    };
+  });
 
   return (
     <div className="space-y-6">

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { revalidateStudentBillingPaths } from "./revalidateStudentBilling";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export async function upsertStudentScholarship(raw: {
   locale: string;
@@ -69,10 +70,14 @@ export async function upsertStudentScholarship(raw: {
       },
       { onConflict: "student_id" },
     );
-    if (error) return { ok: false, message: b.saveFailed };
+    if (error) {
+      logSupabaseClientError("upsertStudentScholarship", error, { studentId: id.data });
+      return { ok: false, message: b.saveFailed };
+    }
     revalidateStudentBillingPaths(raw.locale, id.data);
     return { ok: true };
-  } catch {
+  } catch (err) {
+    logServerException("upsertStudentScholarship", err);
     return { ok: false, message: b.forbidden };
   }
 }

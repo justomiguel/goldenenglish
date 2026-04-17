@@ -8,7 +8,13 @@ const TEACHER_RECIPIENT_ROLES: ReadonlySet<PortalMessagingRole> = new Set([
 ]);
 
 export function isPortalMessagingRole(role: string | null | undefined): role is PortalMessagingRole {
-  return role === "student" || role === "parent" || role === "teacher" || role === "admin";
+  return (
+    role === "student" ||
+    role === "parent" ||
+    role === "teacher" ||
+    role === "admin" ||
+    role === "assistant"
+  );
 }
 
 export function isRecipientAllowedForTeacher(role: string | null | undefined): boolean {

@@ -4,6 +4,7 @@ import {
   ADMIN_SESSION_UNAUTHORIZED,
 } from "@/lib/dashboard/adminSessionErrors";
 import { readImportJob } from "@/lib/import/importJobKv";
+import { logServerAuthzDenied, logServerException } from "@/lib/logging/serverActionLog";
 
 export const runtime = "nodejs";
 /** Aligned with ~720 ticks × 500 ms of the stream’s internal polling window. */
@@ -27,8 +28,10 @@ export async function GET(_request: Request, context: RouteContext) {
       return new Response("unauthorized", { status: 401 });
     }
     if (msg === ADMIN_SESSION_FORBIDDEN) {
+      logServerAuthzDenied("api/admin/import/jobs/[id]/stream:GET");
       return new Response("forbidden", { status: 403 });
     }
+    logServerException("api/admin/import/jobs/[id]/stream:GET:assertAdmin", e);
     return new Response("forbidden", { status: 403 });
   }
 

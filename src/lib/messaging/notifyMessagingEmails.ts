@@ -54,7 +54,7 @@ export async function notifyPortalRecipientForStaffMessage(params: {
   messagePreview: string;
   locale: string;
   emailProvider: EmailProvider;
-  recipientRole: "teacher" | "admin";
+  recipientRole: "teacher" | "admin" | "assistant";
 }): Promise<void> {
   const to = await authEmailForUserId(params.recipientId);
   if (!to) return;

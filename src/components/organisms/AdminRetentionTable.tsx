@@ -83,6 +83,7 @@ export function AdminRetentionTable({ locale, brandAppName, rows, dict }: AdminR
                       href={wa}
                       target="_blank"
                       rel="noopener noreferrer"
+                      title={dict.tipContactWhatsapp}
                       className="font-medium text-[var(--color-primary)] hover:underline"
                     >
                       {dict.contactWhatsapp}

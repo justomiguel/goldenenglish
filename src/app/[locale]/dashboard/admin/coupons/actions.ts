@@ -5,6 +5,7 @@ import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { adminActionDict } from "@/lib/i18n/actionErrors";
 import { defaultLocale } from "@/lib/i18n/dictionaries";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 const createSchema = z.object({
   locale: z.string().min(2),
@@ -52,10 +53,14 @@ export async function createDiscountCoupon(
       uses_count: 0,
       is_active: true,
     });
-    if (error) return { ok: false, message: ae.saveFailed };
+    if (error) {
+      logSupabaseClientError("createDiscountCoupon", error, { code });
+      return { ok: false, message: ae.saveFailed };
+    }
     revalidatePath(`/${parsed.data.locale}/dashboard/admin/coupons`);
     return { ok: true };
-  } catch {
+  } catch (err) {
+    logServerException("createDiscountCoupon", err);
     return { ok: false, message: ae.forbidden };
   }
 }
@@ -74,10 +79,14 @@ export async function toggleDiscountCoupon(
       .from("discount_coupons")
       .update({ is_active: isActive })
       .eq("id", id.data);
-    if (error) return { ok: false, message: ae.saveFailed };
+    if (error) {
+      logSupabaseClientError("toggleDiscountCoupon", error, { couponId: id.data });
+      return { ok: false, message: ae.saveFailed };
+    }
     revalidatePath(`/${locale}/dashboard/admin/coupons`);
     return { ok: true };
-  } catch {
+  } catch (err) {
+    logServerException("toggleDiscountCoupon", err);
     return { ok: false, message: ae.forbidden };
   }
 }

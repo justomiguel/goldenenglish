@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST } from "@/app/api/analytics/traffic-hit/route";
 
-const insertMock = vi.fn().mockResolvedValue({ error: null });
+const insertTrafficPageHit = vi.fn().mockResolvedValue({ ok: true });
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(() => ({
@@ -12,12 +12,9 @@ vi.mock("@/lib/supabase/server", () => ({
   })),
 }));
 
-vi.mock("@/lib/supabase/admin", () => ({
-  createAdminClient: vi.fn(() => ({
-    from: vi.fn(() => ({
-      insert: insertMock,
-    })),
-  })),
+vi.mock("@/lib/analytics/recordTrafficPageHitServer", () => ({
+  insertTrafficPageHit: (...args: unknown[]) => insertTrafficPageHit(...args),
+  clientIpFromHeaders: vi.fn(() => null),
 }));
 
 describe("POST /api/analytics/traffic-hit", () => {
@@ -33,10 +30,10 @@ describe("POST /api/analytics/traffic-hit", () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(400);
-    expect(insertMock).not.toHaveBeenCalled();
+    expect(insertTrafficPageHit).not.toHaveBeenCalled();
   });
 
-  it("inserts guest hit with geo headers", async () => {
+  it("persists hit with geo headers via insertTrafficPageHit", async () => {
     const req = new Request("http://localhost/api/analytics/traffic-hit", {
       method: "POST",
       headers: {
@@ -50,12 +47,12 @@ describe("POST /api/analytics/traffic-hit", () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(200);
-    expect(insertMock).toHaveBeenCalledWith(
+    expect(insertTrafficPageHit).toHaveBeenCalledWith(
       expect.objectContaining({
-        visitor_kind: "guest",
         pathname: "/es/register",
-        geo_country: "AR",
-        geo_region: "X",
+        userId: null,
+        geoCountry: "AR",
+        geoRegion: "X",
       }),
     );
   });

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEven
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { choroplethCountryLabel } from "@/lib/analytics/choroplethCountryLabel";
 import {
-  fillForIntensity,
+  choroplethGeographyFill,
   iso3FromChoroplethGeography,
   trafficGeoRowsToIso3Counts,
 } from "@/lib/analytics/trafficGeoChoropleth";
@@ -38,6 +38,7 @@ interface AdminAnalyticsGeoChoroplethProps {
     | "chartWorldMapLegend"
     | "worldMapLoading"
     | "worldMapError"
+    | "worldMapNoCountryData"
     | "trafficTopCountries"
     | "worldMapTooltipVisits"
     | "worldMapTooltipNoVisits"
@@ -66,6 +67,7 @@ export function AdminAnalyticsGeoChoropleth({ locale, labels, rows }: AdminAnaly
   const [tip, setTip] = useState<MapTip | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const iso3Counts = useMemo(() => trafficGeoRowsToIso3Counts(rows), [rows]);
+  const hasCountryHits = iso3Counts.size > 0;
   const max = useMemo(() => Math.max(1, ...iso3Counts.values()), [iso3Counts]);
   const top = useMemo(
     () =>
@@ -143,21 +145,20 @@ export function AdminAnalyticsGeoChoropleth({ locale, labels, rows }: AdminAnaly
           <Geographies geography={geo}>
             {({ geographies }: { geographies: RsmGeography[] }) =>
               geographies.map((g) => {
-                const id = iso3FromChoroplethGeography(g);
+                const id = iso3FromChoroplethGeography(g, locale === "es" ? "es" : "en");
                 const cnt = iso3Counts.get(id) ?? 0;
                 const t = cnt / max;
-                const fill = fillForIntensity(t, cnt > 0);
+                const { fill, fillOpacity } = choroplethGeographyFill(t, cnt > 0);
                 return (
                   <Geography
                     key={g.rsmKey}
                     geography={g}
-                    fill={fill}
                     stroke="var(--color-border)"
                     strokeWidth={0.35}
                     style={{
-                      default: { outline: "none", cursor: "pointer" },
-                      hover: { outline: "none", opacity: 0.88 },
-                      pressed: { outline: "none" },
+                      default: { fill, fillOpacity, stroke: "var(--color-border)", outline: "none", cursor: "pointer" },
+                      hover: { fill, fillOpacity, stroke: "var(--color-border)", outline: "none", opacity: 0.88 },
+                      pressed: { fill, fillOpacity, stroke: "var(--color-border)", outline: "none" },
                     }}
                     onMouseEnter={(e: ReactMouseEvent<SVGPathElement>) => {
                       const { x, y } = tipCoords(e);
@@ -182,6 +183,14 @@ export function AdminAnalyticsGeoChoropleth({ locale, labels, rows }: AdminAnaly
         </ComposableMap>
       </div>
       <p className="text-xs text-[var(--color-muted-foreground)]">{labels.chartWorldMapLegend}</p>
+      {!hasCountryHits ? (
+        <p
+          className="rounded-md border border-[var(--color-border)] bg-[var(--color-muted)]/45 px-3 py-2 text-xs text-[var(--color-muted-foreground)]"
+          role="status"
+        >
+          {labels.worldMapNoCountryData}
+        </p>
+      ) : null}
       {top.length > 0 ? (
         <div>
           <p className="text-xs font-medium text-[var(--color-primary)]">{labels.trafficTopCountries}</p>

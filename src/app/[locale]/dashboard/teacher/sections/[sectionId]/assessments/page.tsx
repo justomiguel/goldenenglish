@@ -3,9 +3,10 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
-import { getTeacherPortalAllowedRoles } from "@/lib/academics/getTeacherPortalAllowedRoles";
+import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { CreateCohortAssessmentForm } from "@/components/molecules/CreateCohortAssessmentForm";
+import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
 
 interface PageProps {
   params: Promise<{ locale: string; sectionId: string }>;
@@ -30,9 +31,8 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const allowedRoles = getTeacherPortalAllowedRoles();
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (!profile?.role || !allowedRoles.includes(profile.role)) {
+  const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
+  if (!allowed) {
     const isAdmin = await resolveIsAdminSession(supabase, user.id);
     if (isAdmin) redirect(`/${locale}/dashboard/admin/academic`);
     redirect(`/${locale}/dashboard`);
@@ -43,7 +43,11 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
     .select("id, name, cohort_id, teacher_id")
     .eq("id", sectionId)
     .maybeSingle();
-  if (secErr || !section || (section.teacher_id as string) !== user.id) notFound();
+  const canOpen =
+    !secErr &&
+    section &&
+    (await userIsSectionTeacherOrAssistant(supabase, user.id, sectionId));
+  if (!canOpen) notFound();
 
   const cohortId = section.cohort_id as string;
 

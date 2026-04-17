@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 
-// REGRESSION CHECK: Home `isAdmin` must stay aligned with profile + RPC fallback.
+// REGRESSION CHECK: Admin layouts use profile role + RPC fallback consistently.
 describe("resolveIsAdminSession", () => {
   it("returns true when profile role is admin", async () => {
     const supabase = {

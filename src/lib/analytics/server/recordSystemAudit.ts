@@ -1,6 +1,15 @@
 "use server";
 
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
+import {
+  ADMIN_SESSION_FORBIDDEN,
+  ADMIN_SESSION_UNAUTHORIZED,
+} from "@/lib/dashboard/adminSessionErrors";
+import {
+  logServerAuthzDenied,
+  logServerException,
+  logSupabaseClientError,
+} from "@/lib/logging/serverActionLog";
 
 export async function recordSystemAudit(input: {
   action: string;
@@ -17,9 +26,21 @@ export async function recordSystemAudit(input: {
       resource_id: input.resourceId ?? null,
       payload: input.payload ?? {},
     });
-    if (error) return { ok: false };
+    if (error) {
+      logSupabaseClientError("recordSystemAudit:insert", error, {
+        action: input.action,
+        resourceType: input.resourceType,
+      });
+      return { ok: false };
+    }
     return { ok: true };
-  } catch {
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    if (msg === ADMIN_SESSION_UNAUTHORIZED || msg === ADMIN_SESSION_FORBIDDEN) {
+      logServerAuthzDenied("recordSystemAudit");
+    } else {
+      logServerException("recordSystemAudit", e, { action: input.action });
+    }
     return { ok: false };
   }
 }

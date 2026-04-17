@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 const idsSchema = z.array(z.string().uuid()).min(1).max(500);
 
@@ -24,6 +25,7 @@ export async function deleteAdminUsers(
     const { user } = await assertAdmin();
     adminUserId = user.id;
   } catch {
+    logServerAuthzDenied("deleteAdminUsers");
     return { ok: false, message: U.errDeleteForbidden };
   }
 
@@ -42,6 +44,7 @@ export async function deleteAdminUsers(
   for (const id of toDelete) {
     const { error } = await admin.auth.admin.deleteUser(id);
     if (error) {
+      logSupabaseClientError("deleteAdminUsers:authDeleteUser", error, { targetUserId: id });
       lastError = error.message;
     } else {
       deleted += 1;

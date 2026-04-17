@@ -6,6 +6,7 @@ import {
 } from "@/lib/messaging/notifyMessagingEmails";
 import { stripHtmlToText } from "@/lib/messaging/stripHtml";
 import { MESSAGING_UC_PERSIST_FAILED } from "@/lib/messaging/messagingUseCaseCodes";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export async function sendStaffMessageUseCase(input: {
   supabase: SupabaseClient;
@@ -21,7 +22,13 @@ export async function sendStaffMessageUseCase(input: {
     recipient_id: input.recipientId,
     body_html: input.bodyHtml,
   });
-  if (error) return { ok: false, message: MESSAGING_UC_PERSIST_FAILED };
+  if (error) {
+    logSupabaseClientError("sendStaffMessageUseCase:insert", error, {
+      senderId: input.senderId,
+      recipientId: input.recipientId,
+    });
+    return { ok: false, message: MESSAGING_UC_PERSIST_FAILED };
+  }
 
   const { data: rec } = await input.supabase
     .from("profiles")
@@ -31,14 +38,14 @@ export async function sendStaffMessageUseCase(input: {
 
   const preview = stripHtmlToText(input.bodyHtml).slice(0, 500);
   try {
-    if (rec?.role === "teacher" || rec?.role === "admin") {
+    if (rec?.role === "teacher" || rec?.role === "admin" || rec?.role === "assistant") {
       await notifyPortalRecipientForStaffMessage({
         recipientId: input.recipientId,
         senderName: input.senderDisplayName,
         messagePreview: preview || "(empty)",
         locale: input.locale,
         emailProvider: input.emailProvider,
-        recipientRole: rec.role as "teacher" | "admin",
+        recipientRole: rec.role as "teacher" | "admin" | "assistant",
       });
     } else if (rec?.role === "student" || rec?.role === "parent") {
       await notifyPortalInboxForStudentOrParent({
@@ -50,8 +57,11 @@ export async function sendStaffMessageUseCase(input: {
         recipientRole: rec.role as "student" | "parent",
       });
     }
-  } catch {
-    /* best-effort */
+  } catch (emailErr) {
+    logServerException("sendStaffMessageUseCase:notifyEmail", emailErr, {
+      senderId: input.senderId,
+      recipientId: input.recipientId,
+    });
   }
 
   return { ok: true };

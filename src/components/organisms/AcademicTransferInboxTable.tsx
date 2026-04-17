@@ -130,11 +130,19 @@ export function AcademicTransferInboxTable({
             type="button"
             size="sm"
             disabled={pending || !hasVisibleSelection}
+            title={dict.tipBulkApprove}
             onClick={bulkApprove}
           >
             {dict.bulkApprove}
           </Button>
-          <Button type="button" size="sm" variant="ghost" disabled={pending} onClick={toggleAllVisible}>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            disabled={pending}
+            title={allSelected ? dict.tipClearSelection : dict.tipSelectAll}
+            onClick={toggleAllVisible}
+          >
             {allSelected ? dict.clearSelection : dict.selectAll}
           </Button>
         </div>
@@ -153,6 +161,7 @@ export function AcademicTransferInboxTable({
                     onChange={toggleAllVisible}
                     disabled={pending || optimistic.length === 0}
                     aria-label={dict.selectAll}
+                    title={dict.tipHeaderCheckbox}
                   />
                 </th>
                 <th className="px-3 py-2">{dict.colStudent}</th>
@@ -193,6 +202,7 @@ export function AcademicTransferInboxTable({
                           type="button"
                           size="sm"
                           disabled={pending}
+                          title={dict.tipApproveRequest}
                           onClick={() => approve(r.id)}
                         >
                           {dict.approve}
@@ -202,6 +212,7 @@ export function AcademicTransferInboxTable({
                           size="sm"
                           variant="secondary"
                           disabled={pending}
+                          title={dict.tipRejectRequest}
                           onClick={() => reject(r.id)}
                         >
                           {dict.reject}

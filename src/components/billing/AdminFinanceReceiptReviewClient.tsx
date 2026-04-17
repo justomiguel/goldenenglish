@@ -62,7 +62,12 @@ export function AdminFinanceReceiptReviewClient({
           <iframe title={dict.openReview} src={signedUrl} className="h-[70vh] w-full" />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element -- signed URL from our storage
-          <img src={signedUrl} alt="" className="max-h-[70vh] w-full object-contain" />
+          <img
+            src={signedUrl}
+            alt=""
+            title={dict.tipReceiptImage}
+            className="max-h-[70vh] w-full object-contain"
+          />
         )}
       </div>
       <div className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4">
@@ -96,6 +101,7 @@ export function AdminFinanceReceiptReviewClient({
         <button
           type="button"
           disabled={busy}
+          title={dict.tipApproveReceipt}
           className="w-full rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-4 text-base font-bold text-[var(--color-primary-foreground)] disabled:opacity-50"
           onClick={async () => {
             setBusy(true);
@@ -112,6 +118,7 @@ export function AdminFinanceReceiptReviewClient({
           <button
             type="button"
             disabled={busy}
+            title={dict.tipRejectReceipt}
             className="w-full rounded-[var(--layout-border-radius)] border-2 border-[var(--color-error)] bg-[var(--color-surface)] px-4 py-3 text-sm font-semibold text-[var(--color-error)] disabled:opacity-50"
             onClick={() => setRejectOpen(true)}
           >
@@ -125,6 +132,7 @@ export function AdminFinanceReceiptReviewClient({
               <select
                 className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-2 py-2 text-sm"
                 value={code}
+                title={dict.tipRejectReasonSelect}
                 onChange={(e) => setCode(e.target.value as BillingRejectionReasonCode)}
               >
                 {REASONS.map((c) => (
@@ -140,12 +148,14 @@ export function AdminFinanceReceiptReviewClient({
                 className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-2 py-2 text-sm"
                 rows={3}
                 value={detail}
+                title={dict.tipRejectDetail}
                 onChange={(e) => setDetail(e.target.value)}
               />
             </label>
             <button
               type="button"
               disabled={busy}
+              title={dict.tipRejectSubmit}
               className="w-full rounded-[var(--layout-border-radius)] bg-[var(--color-error)] px-4 py-2 text-sm font-semibold text-[var(--color-background)] disabled:opacity-50"
               onClick={async () => {
                 setBusy(true);

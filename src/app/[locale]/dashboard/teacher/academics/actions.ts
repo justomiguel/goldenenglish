@@ -4,6 +4,13 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { assertTeacher } from "@/lib/dashboard/assertTeacher";
 import { teacherTransferReasonCodeSchema } from "@/lib/academics/teacherTransferSuggestionReasons";
+import { searchTeacherStudentsInOwnSections } from "@/lib/academics/searchTeacherStudentsInOwnSections";
+import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
+import {
+  logServerActionException,
+  logServerAuthzDenied,
+  logSupabaseClientError,
+} from "@/lib/logging/serverActionLog";
 
 const uuid = z.string().uuid();
 
@@ -17,6 +24,19 @@ function revalidateTeacherTransferPaths(locale: string) {
   revalidatePath(`/${locale}/dashboard/admin/academics`);
   revalidatePath(`/${locale}/dashboard/admin/academic`);
   revalidatePath(`/${locale}/dashboard/admin/requests`);
+}
+
+export async function searchTeacherStudentsInOwnSectionsAction(
+  query: string,
+  sectionIds: string[],
+): Promise<{ id: string; label: string }[]> {
+  try {
+    const { supabase, profileId } = await assertTeacher();
+    return await searchTeacherStudentsInOwnSections(supabase, profileId, query, sectionIds);
+  } catch (err) {
+    logServerActionException("searchTeacherStudentsInOwnSectionsAction", err);
+    return [];
+  }
 }
 
 export async function createSectionTransferRequestAction(input: {
@@ -50,10 +70,18 @@ export async function createSectionTransferRequestAction(input: {
       reason_code,
     });
 
-    if (error) return { ok: false };
+    if (error) {
+      logSupabaseClientError("createSectionTransferRequestAction:insert", error, {
+        studentId: studentId.data,
+        fromSectionId: fromId.data,
+        toSectionId: toId.data,
+      });
+      return { ok: false };
+    }
     revalidateTeacherTransferPaths(input.locale);
     return { ok: true };
   } catch {
+    logServerAuthzDenied("createSectionTransferRequestAction");
     return { ok: false };
   }
 }
@@ -93,7 +121,14 @@ export async function submitTransferSuggestionAction(
       .eq("id", fromId.data)
       .maybeSingle();
 
-    if (fromErr || !fromSec || (fromSec.teacher_id as string) !== profileId) {
+    if (fromErr) {
+      logSupabaseClientError("submitTransferSuggestionAction:fromSection", fromErr, {
+        fromSectionId: fromId.data,
+      });
+      return { ok: false, code: "forbidden" };
+    }
+    const fromOk = await userIsSectionTeacherOrAssistant(supabase, profileId, fromId.data);
+    if (!fromSec || !fromOk) {
       return { ok: false, code: "forbidden" };
     }
 
@@ -105,7 +140,11 @@ export async function submitTransferSuggestionAction(
       .eq("id", toId.data)
       .maybeSingle();
 
-    if (toErr || !toSec) return { ok: false, code: "validation" };
+    if (toErr) {
+      logSupabaseClientError("submitTransferSuggestionAction:toSection", toErr, { toSectionId: toId.data });
+      return { ok: false, code: "validation" };
+    }
+    if (!toSec) return { ok: false, code: "validation" };
 
     const toCohortId = toSec.cohort_id as string;
 
@@ -124,7 +163,14 @@ export async function submitTransferSuggestionAction(
       .eq("status", "active")
       .maybeSingle();
 
-    if (enErr || !enroll) return { ok: false, code: "validation" };
+    if (enErr) {
+      logSupabaseClientError("submitTransferSuggestionAction:enrollment", enErr, {
+        studentId: sid.data,
+        sectionId: fromId.data,
+      });
+      return { ok: false, code: "validation" };
+    }
+    if (!enroll) return { ok: false, code: "validation" };
 
     const { data: pendingRow } = await supabase
       .from("section_transfer_requests")
@@ -145,10 +191,18 @@ export async function submitTransferSuggestionAction(
       reason_code: reasonParsed.data,
     });
 
-    if (error) return { ok: false, code: "insert" };
+    if (error) {
+      logSupabaseClientError("submitTransferSuggestionAction:insert", error, {
+        studentId: sid.data,
+        fromSectionId: fromId.data,
+        toSectionId: toId.data,
+      });
+      return { ok: false, code: "insert" };
+    }
     revalidateTeacherTransferPaths(locale);
     return { ok: true };
   } catch {
+    logServerAuthzDenied("submitTransferSuggestionAction");
     return { ok: false, code: "auth" };
   }
 }

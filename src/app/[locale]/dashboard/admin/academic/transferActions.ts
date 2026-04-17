@@ -7,6 +7,8 @@ import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionM
 import { sendTransferApprovedNotifications } from "@/lib/academics/sendTransferApprovedNotifications";
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
 import { revalidateAcademicSurfaces } from "@/app/[locale]/dashboard/admin/academic/revalidatePaths";
+import { logServerException } from "@/lib/logging/serverActionLog";
+import { cancelReminderJobsForEnrollmentId } from "@/lib/notifications/cancelReminderJobsAdmin";
 
 export type AcademicTransferNotificationDict = {
   emailSubject: string;
@@ -84,6 +86,8 @@ export async function approveSectionTransferRequestAction(
     const row = rpcData as { enrollment_id?: string } | null;
     if (!row?.enrollment_id) return { ok: false, code: "RPC_FAILED" };
 
+    await cancelReminderJobsForEnrollmentId(fromEnr.id, "approveSectionTransferRequestAction");
+
     const { data: updatedRows, error: uErr } = await supabase
       .from("section_transfer_requests")
       .update({
@@ -157,7 +161,8 @@ export async function approveSectionTransferRequestAction(
 
     if (!opts?.suppressRevalidate) revalidateAcademicSurfaces(input.locale);
     return { ok: true };
-  } catch {
+  } catch (err) {
+    logServerException("approveSectionTransferRequestAction", err);
     return { ok: false, code: "UNAUTHORIZED" };
   }
 }
@@ -218,7 +223,8 @@ export async function rejectSectionTransferRequestAction(input: {
 
     revalidateAcademicSurfaces(input.locale);
     return { ok: true };
-  } catch {
+  } catch (err) {
+    logServerException("rejectSectionTransferRequestAction", err);
     return { ok: false, code: "UNAUTHORIZED" };
   }
 }

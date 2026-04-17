@@ -5,6 +5,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandPublic } from "@/lib/brand/server";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
+import { createClient } from "@/lib/supabase/server";
 import { RegisterForm } from "@/components/register/RegisterForm";
 import { RegisterCollage } from "@/components/molecules/RegisterCollage";
 import { RegisterSiteHeader } from "@/components/molecules/RegisterSiteHeader";
@@ -26,6 +27,17 @@ export default async function RegisterPage({ params }: PageProps) {
   const dict = await getDictionary(locale);
   const brand = getBrandPublic();
   const legalAgeMajority = getLegalAgeMajorityFromSystem();
+
+  const supabase = await createClient();
+  const { data: sectionOpts } = await supabase.rpc(
+    "list_registration_section_options",
+  );
+  const sectionOptions = (sectionOpts ?? []).map(
+    (row: { id: string; label: string }) => ({
+      id: String(row.id),
+      label: String(row.label),
+    }),
+  );
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[var(--color-muted)] px-4 py-10 md:py-14">
@@ -52,6 +64,7 @@ export default async function RegisterPage({ params }: PageProps) {
             locale={locale}
             dict={dict.register}
             legalAgeMajority={legalAgeMajority}
+            sectionOptions={sectionOptions}
           />
           <p className="mt-8 text-center text-sm lg:text-left">
             <Link

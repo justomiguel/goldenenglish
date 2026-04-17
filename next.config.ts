@@ -44,7 +44,6 @@ const nextConfig: NextConfig = {
     optimizePackageImports: [
       "lucide-react",
       "recharts",
-      "react-simple-maps",
       "i18n-iso-countries",
       "@tiptap/react",
       "@tiptap/starter-kit",

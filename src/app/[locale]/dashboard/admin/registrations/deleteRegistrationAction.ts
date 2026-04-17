@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 const idZ = z.string().uuid();
 
@@ -18,6 +19,7 @@ export async function deleteRegistration(
   try {
     await assertAdmin();
   } catch {
+    logServerAuthzDenied("deleteRegistration");
     return { ok: false, message: del.forbidden };
   }
 
@@ -26,7 +28,10 @@ export async function deleteRegistration(
 
   const admin = createAdminClient();
   const { error } = await admin.from("registrations").delete().eq("id", parsed.data);
-  if (error) return { ok: false, message: del.saveFailed };
+  if (error) {
+    logSupabaseClientError("deleteRegistration", error, { registrationId: parsed.data });
+    return { ok: false, message: del.saveFailed };
+  }
 
   revalidatePath(`/${locale}/dashboard/admin/registrations`, "page");
   return { ok: true };

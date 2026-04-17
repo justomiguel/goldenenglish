@@ -9,6 +9,8 @@ import { persistTeacherAssessmentGrade, type TeacherAssessmentGradePayload } fro
 import { sendGradePublishedParentEmails } from "@/lib/academics/sendGradePublishedParentEmails";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
+import { logServerException } from "@/lib/logging/serverActionLog";
 import type { RubricDimensionDef } from "@/types/rubricDimensions";
 
 const uuid = z.string().uuid();
@@ -50,12 +52,9 @@ async function teacherSectionCohortId(
   teacherId: string,
   sectionId: string,
 ): Promise<string | null> {
-  const { data } = await supabase
-    .from("academic_sections")
-    .select("cohort_id")
-    .eq("id", sectionId)
-    .eq("teacher_id", teacherId)
-    .maybeSingle();
+  const ok = await userIsSectionTeacherOrAssistant(supabase, teacherId, sectionId);
+  if (!ok) return null;
+  const { data } = await supabase.from("academic_sections").select("cohort_id").eq("id", sectionId).maybeSingle();
   return data ? (data as { cohort_id: string }).cohort_id : null;
 }
 
@@ -115,7 +114,8 @@ export async function upsertGradeAction(
     const out = mapPersistCode(code);
     if (out.ok) revalidateGradePaths(p);
     return out;
-  } catch {
+  } catch (err) {
+    logServerException("upsertGradeAction", err);
     return { ok: false, code: "auth" };
   }
 }
@@ -180,13 +180,16 @@ export async function publishGradeWithNotification(formData: FormData): Promise<
           labelByRubricKey,
           teacherFeedback: p.teacherFeedback,
         });
-      } catch {
-        /* best-effort email */
+      } catch (emailErr) {
+        logServerException("publishGradeWithNotification:sendGradePublishedParentEmails", emailErr, {
+          studentId,
+        });
       }
     }
 
     return { ok: true };
-  } catch {
+  } catch (err) {
+    logServerException("publishGradeWithNotification", err);
     return { ok: false, code: "auth" };
   }
 }
@@ -214,11 +217,12 @@ export async function createCohortAssessmentAction(
     if (!parsed.success) return { ok: false, code: "validation" };
 
     const p = parsed.data;
+    const allowed = await userIsSectionTeacherOrAssistant(supabase, profileId, p.sectionId);
+    if (!allowed) return { ok: false, code: "forbidden" };
     const { data: sec, error: sErr } = await supabase
       .from("academic_sections")
       .select("cohort_id")
       .eq("id", p.sectionId)
-      .eq("teacher_id", profileId)
       .maybeSingle();
     if (sErr || !sec) return { ok: false, code: "forbidden" };
 
@@ -237,7 +241,8 @@ export async function createCohortAssessmentAction(
     const id = (inserted as { id: string }).id;
     revalidatePath(`/${p.locale}/dashboard/teacher/sections/${p.sectionId}/assessments`);
     return { ok: true, assessmentId: id };
-  } catch {
+  } catch (err) {
+    logServerException("createCohortAssessmentAction", err);
     return { ok: false, code: "auth" };
   }
 }

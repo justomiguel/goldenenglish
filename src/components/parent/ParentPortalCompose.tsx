@@ -13,12 +13,22 @@ interface ParentPortalComposeProps {
   locale: string;
   recipients: MessagingRecipient[];
   labels: Dictionary["dashboard"]["parent"];
+  defaultRecipientId?: string;
 }
 
-export function ParentPortalCompose({ locale, recipients = [], labels }: ParentPortalComposeProps) {
+export function ParentPortalCompose({
+  locale,
+  recipients = [],
+  labels,
+  defaultRecipientId,
+}: ParentPortalComposeProps) {
   const router = useRouter();
   const singleRecipientId = recipients.length === 1 ? recipients[0].id : "";
-  const [recipientId, setRecipientId] = useState("");
+  const presetMatches =
+    defaultRecipientId && recipients.some((r) => r.id === defaultRecipientId)
+      ? defaultRecipientId
+      : "";
+  const [recipientId, setRecipientId] = useState(presetMatches);
   const [body, setBody] = useState("<p></p>");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -66,14 +76,22 @@ export function ParentPortalCompose({ locale, recipients = [], labels }: ParentP
         emptyOptionsText={labels.messagesRecipientListEmpty}
         roleLabels={roleLabels}
         ariaLabel={labels.messagesComposeTo}
+        inputTitle={labels.tipComposeRecipient}
       />
       <RichTextEditor
         value={body}
         onChange={setBody}
         disabled={busy}
+        title={labels.tipComposeBody}
         aria-label={labels.messagesComposeAria}
       />
-      <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px]">
+      <Button
+        type="submit"
+        disabled={busy}
+        isLoading={busy}
+        className="min-h-[44px]"
+        title={labels.tipComposeSend}
+      >
         {labels.messagesComposeSend}
       </Button>
       {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}

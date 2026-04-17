@@ -3,7 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { AdminAnalyticsEntry } from "@/components/dashboard/AdminAnalyticsEntry";
 import type { TrafficGeoRow } from "@/components/dashboard/AdminAnalyticsGeoChoropleth";
+import type { TrafficGeoPathRow } from "@/components/dashboard/AdminAnalyticsGeoPathBreakdown";
+import type { TrafficGuestPathRow } from "@/components/dashboard/AdminAnalyticsGuestPathBreakdown";
 import type { TrafficDailyRow, TrafficSummary } from "@/components/dashboard/AdminAnalyticsTrafficSection";
+import { loadAdminTrafficKindBreakdown } from "@/lib/dashboard/loadAdminTrafficKindBreakdowns";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -61,6 +64,27 @@ function toTrafficGeoRows(rows: unknown): TrafficGeoRow[] {
   }));
 }
 
+type TrafficGeoPathRaw = { country: string; pathname: string; cnt: number | string };
+
+function toTrafficGeoPathRows(rows: unknown): TrafficGeoPathRow[] {
+  const list = (Array.isArray(rows) ? rows : []) as TrafficGeoPathRaw[];
+  return list.map((r) => ({
+    country: String(r.country),
+    pathname: String(r.pathname),
+    cnt: Number(r.cnt ?? 0),
+  }));
+}
+
+type TrafficGuestPathRaw = { pathname: string; cnt: number | string };
+
+function toTrafficGuestPathRows(rows: unknown): TrafficGuestPathRow[] {
+  const list = (Array.isArray(rows) ? rows : []) as TrafficGuestPathRaw[];
+  return list.map((r) => ({
+    pathname: String(r.pathname),
+    cnt: Number(r.cnt ?? 0),
+  }));
+}
+
 export default async function AdminAnalyticsPage({ params }: PageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
@@ -83,6 +107,22 @@ export default async function AdminAnalyticsPage({ params }: PageProps) {
   const { data: trafficGeoRaw } = await supabase.rpc("admin_traffic_geo_totals", {
     p_days: days,
   });
+  const { data: trafficGeoPathRaw } = await supabase.rpc("admin_traffic_geo_path_breakdown", {
+    p_days: days,
+    p_limit: 500,
+  });
+  const { data: trafficGuestPathRaw } = await supabase.rpc("admin_traffic_guest_path_breakdown", {
+    p_days: days,
+    p_limit: 500,
+  });
+
+  // Pre-load top URLs + User-Agents for the interactive breakdown panel (one
+  // small query per visitor kind; bounded server-side by migration 047).
+  const [authBreakdown, guestBreakdown, botBreakdown] = await Promise.all([
+    loadAdminTrafficKindBreakdown(supabase, "authenticated", days),
+    loadAdminTrafficKindBreakdown(supabase, "guest", days),
+    loadAdminTrafficKindBreakdown(supabase, "bot", days),
+  ]);
 
   const hourly = (hourlyRaw ?? []) as HourlyRow[];
   const geo = (geoRaw ?? []) as GeoRow[];
@@ -90,6 +130,13 @@ export default async function AdminAnalyticsPage({ params }: PageProps) {
   const trafficSummary = toTrafficSummary(trafficSummaryRaw);
   const trafficDaily = toTrafficDaily(trafficDailyRaw);
   const trafficGeo = toTrafficGeoRows(trafficGeoRaw);
+  const trafficGeoPath = toTrafficGeoPathRows(trafficGeoPathRaw);
+  const trafficGuestPath = toTrafficGuestPathRows(trafficGuestPathRaw);
+  const trafficBreakdowns = {
+    authenticated: authBreakdown,
+    guest: guestBreakdown,
+    bot: botBreakdown,
+  };
 
   return (
     <AdminAnalyticsEntry
@@ -98,6 +145,9 @@ export default async function AdminAnalyticsPage({ params }: PageProps) {
       trafficSummary={trafficSummary}
       trafficDaily={trafficDaily}
       trafficGeo={trafficGeo}
+      trafficGeoPath={trafficGeoPath}
+      trafficGuestPath={trafficGuestPath}
+      trafficBreakdowns={trafficBreakdowns}
       hourly={hourly}
       geo={geo}
       funnel={funnel}

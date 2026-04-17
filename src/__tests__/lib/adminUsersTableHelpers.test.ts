@@ -16,6 +16,7 @@ const rows: AdminUserRow[] = [
     role: "student",
     phone: "+1",
     avatarDisplayUrl: null,
+    missingSection: false,
   },
   {
     id: "b",
@@ -25,6 +26,7 @@ const rows: AdminUserRow[] = [
     role: "admin",
     phone: "+2",
     avatarDisplayUrl: null,
+    missingSection: false,
   },
 ];
 
@@ -37,6 +39,16 @@ describe("filterAdminUsers", () => {
 
   it("filters by role when not all", () => {
     const r = filterAdminUsers(rows, "", "student");
+    expect(r).toHaveLength(1);
+    expect(r[0].id).toBe("a");
+  });
+
+  it("finds students missing section via filter tokens", () => {
+    const withFlag: AdminUserRow[] = [
+      { ...rows[0], missingSection: true },
+      rows[1],
+    ];
+    const r = filterAdminUsers(withFlag, "no-section", ROLE_FILTER_ALL);
     expect(r).toHaveLength(1);
     expect(r[0].id).toBe("a");
   });

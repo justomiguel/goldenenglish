@@ -9,6 +9,8 @@ interface RichTextEditorProps {
   onChange: (html: string) => void;
   disabled?: boolean;
   placeholder?: string;
+  /** Native tooltip on the editor surface (dictionary-backed when shown to users). */
+  title?: string;
   "aria-label"?: string;
 }
 
@@ -17,6 +19,7 @@ export function RichTextEditor({
   onChange,
   disabled,
   placeholder,
+  title,
   "aria-label": ariaLabel,
 }: RichTextEditorProps) {
   const editor = useEditor({
@@ -29,6 +32,7 @@ export function RichTextEditor({
         class:
           "min-h-[120px] rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm text-[var(--color-foreground)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]",
         "data-placeholder": placeholder ?? "",
+        ...(title ? { title } : {}),
         ...(ariaLabel ? { "aria-label": ariaLabel } : {}),
       },
     },

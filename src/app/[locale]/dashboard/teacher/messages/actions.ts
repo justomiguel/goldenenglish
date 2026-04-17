@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
 import { replyToStudentMessageUseCase } from "@/lib/messaging/useCases/replyToStudentMessage";
 import { isRecipientAllowedForTeacher } from "@/lib/messaging/messagingRecipientRules";
@@ -46,7 +47,9 @@ export async function replyToStudentMessage(
     .select("role, first_name, last_name")
     .eq("id", user.id)
     .single();
-  if (profile?.role !== "teacher") return { ok: false, message: msg.forbidden };
+  if (!profile) return { ok: false, message: msg.forbidden };
+  const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
+  if (!allowed) return { ok: false, message: msg.forbidden };
 
   const name = `${profile.first_name} ${profile.last_name}`.trim();
   const result = await replyToStudentMessageUseCase({
@@ -104,7 +107,9 @@ export async function sendTeacherMessage(
     .select("role, first_name, last_name")
     .eq("id", user.id)
     .single();
-  if (profile?.role !== "teacher") return { ok: false, message: msg.forbidden };
+  if (!profile) return { ok: false, message: msg.forbidden };
+  const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
+  if (!allowed) return { ok: false, message: msg.forbidden };
 
   const { data: recipientProfile } = await supabase
     .from("profiles")

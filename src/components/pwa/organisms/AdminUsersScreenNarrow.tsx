@@ -2,7 +2,7 @@
 
 import type { Dictionary } from "@/types/i18n";
 import type { AppSurface } from "@/hooks/useAppSurface";
-import type { AdminUserRow } from "@/lib/dashboard/adminUsersTableHelpers";
+import type { AdminUserRow, SortKey, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
 import { useAdminUsersTable } from "@/hooks/useAdminUsersTable";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import { AdminUsersToolbar } from "@/components/dashboard/AdminUsersToolbar";
@@ -14,6 +14,13 @@ type TableLabels = Dictionary["admin"]["table"];
 
 interface AdminUsersScreenNarrowProps {
   rows: AdminUserRow[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  searchQuery: string;
+  roleFilter: string;
+  sortKey: SortKey;
+  sortDir: SortDir;
   locale: string;
   currentUserId: string;
   labels: UserLabels;
@@ -23,13 +30,32 @@ interface AdminUsersScreenNarrowProps {
 
 export function AdminUsersScreenNarrow({
   rows,
+  totalCount,
+  page,
+  pageSize,
+  searchQuery,
+  roleFilter,
+  sortKey,
+  sortDir,
   locale,
   currentUserId,
   labels,
   tableLabels,
   surface,
 }: AdminUsersScreenNarrowProps) {
-  const u = useAdminUsersTable({ rows, locale, currentUserId, labels });
+  const u = useAdminUsersTable({
+    rows,
+    totalCount,
+    page,
+    pageSize,
+    searchQuery,
+    roleFilter,
+    sortKey,
+    sortDir,
+    locale,
+    currentUserId,
+    labels,
+  });
 
   return (
     <PwaPageShell surface={surface}>
@@ -44,8 +70,8 @@ export function AdminUsersScreenNarrow({
                 onQueryChange={u.setQuery}
                 roleFilter={u.roleFilter}
                 onRoleFilterChange={u.setRoleFilter}
-                totalCount={rows.length}
-                filteredCount={u.filtered.length}
+                totalCount={totalCount}
+                filteredCount={totalCount}
                 selectedCount={u.selectedDeletable.length}
                 onDeleteSelected={u.onDeleteSelected}
                 allVisibleSelected={u.allVisibleSelected}
@@ -56,7 +82,7 @@ export function AdminUsersScreenNarrow({
             }
             labels={labels}
             tableLabels={tableLabels}
-            listEmpty={u.sorted.length === 0}
+            listEmpty={u.listEmpty}
             rows={u.pageRows}
             currentUserId={currentUserId}
             sortKey={u.sortKey}
@@ -73,7 +99,7 @@ export function AdminUsersScreenNarrow({
             pagination={{
               page: u.page,
               pageSize: u.pageSize,
-              totalCount: u.sorted.length,
+              totalCount: u.totalCount,
               onPageChange: u.setPage,
             }}
           />

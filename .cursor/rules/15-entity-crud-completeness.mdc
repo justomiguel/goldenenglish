@@ -1,0 +1,38 @@
+---
+description: >-
+  Toda entidad de negocio debe nacer con capacidad real de creación y
+  administración completa, salvo excepción explícita y documentada.
+alwaysApply: true
+---
+
+# Entidades: CRUD completo por defecto
+
+## Objetivo
+
+Evitar entidades "fantasma" o incompletas: si el producto, la UI, una acción, una tabla o una regla de negocio **hablan de una entidad**, por defecto esa entidad debe tener ciclo de vida administrable en la app.
+
+## Regla
+
+1. **Crear es obligatorio por defecto**. Si una entidad existe en el dominio (`section schedule`, cupón, promoción, cohorte, etc.), debe existir un camino real para **crear** registros nuevos dentro del alcance funcional correcto.
+2. **CRUD completo por defecto**. Salvo excepción explícita, toda entidad debe poder:
+   - **Create** — alta inicial.
+   - **Read** — consulta/listado/detalle.
+   - **Update** — edición posterior.
+   - **Delete** — borrado, archivo, desactivación o equivalente seguro según el dominio.
+3. **No hablar de entidades que no se pueden materializar**. Si la UX, el copy o el modelo menciona una entidad administrable, no basta con leerla o mostrarla: debe existir la operación que la haga nacer. Ejemplo: si se trabaja con **horarios de secciones**, debe existir también la forma de **crear horarios** o quedar claro que vienen de otra fuente.
+4. **Delete no implica siempre hard delete**. Cuando por auditoría, historial, facturación, mensajería o integridad no convenga borrar físicamente, la obligación se cumple con una acción explícita y usable de **archivar**, **desactivar**, **cancelar** o equivalente.
+5. **Las excepciones deben quedar declaradas**. Solo se permite salir de este estándar cuando la entidad sea:
+   - catálogo fijo o dato seed,
+   - derivada/calculada,
+   - sincronizada desde un sistema externo,
+   - inmutable por cumplimiento, auditoría o integridad.
+
+## Implementación mínima esperada
+
+- La entidad debe tener soporte coherente en las capas que apliquen: persistencia/migración, reglas en `src/lib/`, server action o route, UI y tests.
+- Si una entidad se muestra en admin o en flujos operativos, la UI no debe quedar solo en "listar" o "referenciar"; debe existir también el alta y la administración posterior.
+- Si la creación o eliminación no pertenece a la misma pantalla, debe existir al menos un flujo claro dentro de la app para hacerlo.
+
+## Excepción obligatoria
+
+Si una entidad **no** tendrá create, update o delete, el cambio debe decirlo **explícitamente** en código o ADR/mini-diseño según `10-engineering-governance.mdc`, y la UI/copy no debe insinuar que esa entidad es administrable manualmente.

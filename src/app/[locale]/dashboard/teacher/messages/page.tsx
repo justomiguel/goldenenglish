@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import type { TeacherFeedRow } from "@/components/teacher/TeacherMessagesFeed";
 import type { MessagingRecipient } from "@/types/messaging";
 import { TeacherMessagesEntry } from "@/components/teacher/TeacherMessagesEntry";
@@ -23,12 +24,8 @@ export default async function TeacherMessagesPage({ params }: PageProps) {
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-  if (profile?.role !== "teacher") redirect(`/${locale}/dashboard`);
+  const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
+  if (!allowed) redirect(`/${locale}/dashboard`);
 
   const { data: people } = await supabase
     .from("profiles")

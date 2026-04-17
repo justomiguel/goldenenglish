@@ -86,7 +86,14 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
         <form onSubmit={onCreate} className="mt-4 grid gap-3 sm:grid-cols-2">
           <div>
             <Label htmlFor="cp-code">{labels.createCode}</Label>
-            <Input id="cp-code" value={code} onChange={(e) => setCode(e.target.value)} required className="mt-1" />
+            <Input
+              id="cp-code"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              required
+              title={labels.tipCreateCode}
+              className="mt-1"
+            />
           </div>
           <div>
             <Label htmlFor="cp-type">{labels.createDiscountType}</Label>
@@ -94,6 +101,7 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
               id="cp-type"
               className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
               value={dtype}
+              title={labels.tipCreateType}
               onChange={(e) => setDtype(e.target.value as "percent" | "fixed_amount")}
             >
               <option value="percent">{labels.typePercent}</option>
@@ -110,6 +118,7 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
               value={val}
               onChange={(e) => setVal(e.target.value)}
               required
+              title={labels.tipCreateValue}
               className="mt-1"
             />
           </div>
@@ -120,6 +129,7 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
               type="datetime-local"
               value={validFrom}
               onChange={(e) => setValidFrom(e.target.value)}
+              title={labels.tipCreateValidFrom}
               className="mt-1"
             />
           </div>
@@ -130,6 +140,7 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
               type="datetime-local"
               value={validUntil}
               onChange={(e) => setValidUntil(e.target.value)}
+              title={labels.tipCreateValidUntil}
               className="mt-1"
             />
           </div>
@@ -141,11 +152,18 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
               min={0}
               value={maxUses}
               onChange={(e) => setMaxUses(e.target.value)}
+              title={labels.tipCreateMaxUses}
               className="mt-1"
             />
           </div>
           <div className="sm:col-span-2">
-            <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px]">
+            <Button
+              type="submit"
+              disabled={busy}
+              isLoading={busy}
+              title={labels.tipCreateSubmit}
+              className="min-h-[44px]"
+            >
               {labels.createSubmit}
             </Button>
           </div>
@@ -190,6 +208,7 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
                       type="button"
                       className="text-sm text-[var(--color-primary)] underline"
                       disabled={busy}
+                      title={labels.tipToggleRow}
                       onClick={() => toggle(r.id, !r.is_active)}
                     >
                       {r.is_active ? labels.toggleOff : labels.toggleOn}

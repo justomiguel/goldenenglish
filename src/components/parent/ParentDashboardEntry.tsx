@@ -3,16 +3,19 @@
 import Link from "next/link";
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
+import { DashboardGreetingHero } from "@/components/molecules/DashboardGreetingHero";
 import { ParentDashboardFamilyView } from "@/components/parent/ParentDashboardFamilyView";
+import { ParentHubMonthBillingCard } from "@/components/parent/ParentHubMonthBillingCard";
 import type { ParentChildSummary } from "@/lib/parent/loadParentChildrenSummaries";
 import type { ParentHubModel } from "@/types/parentHub";
+import type { ParentMonthBillingSummary } from "@/lib/parent/loadParentMonthBillingInvoiceSummary";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
 
 function ParentDashboardSkeleton() {
   return (
     <div className="animate-pulse space-y-4" aria-hidden>
-      <div className="h-10 max-w-md rounded bg-[var(--color-muted)]" />
+      <div className="h-32 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]" />
       <div className="h-32 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]" />
     </div>
   );
@@ -22,6 +25,10 @@ export interface ParentDashboardEntryProps {
   locale: string;
   title: string;
   lead: string;
+  kicker: string;
+  greeting: string;
+  fullDateLine: string;
+  firstName: string | null;
   navPay: string;
   payHref: string;
   kids: { id: string; first_name: string; last_name: string }[];
@@ -29,12 +36,16 @@ export interface ParentDashboardEntryProps {
   selectedStudentId?: string;
   parentLabels: Dictionary["dashboard"]["parent"];
   hub?: ParentHubModel | null;
+  monthBillingSummary?: ParentMonthBillingSummary | null;
 }
 
 export function ParentDashboardEntry({
   locale,
-  title,
   lead,
+  kicker,
+  greeting,
+  fullDateLine,
+  firstName,
   navPay,
   payHref,
   kids,
@@ -42,11 +53,24 @@ export function ParentDashboardEntry({
   selectedStudentId,
   parentLabels,
   hub = null,
+  monthBillingSummary = null,
 }: ParentDashboardEntryProps) {
   const body = (
-    <>
-      <h1 className="font-display text-3xl font-bold text-[var(--color-secondary)]">{title}</h1>
-      <p className="mt-2 text-[var(--color-muted-foreground)]">{lead}</p>
+    <div className="space-y-6">
+      <DashboardGreetingHero
+        kicker={kicker}
+        greeting={greeting}
+        firstName={firstName}
+        fullDateLine={fullDateLine}
+        lead={lead}
+      />
+      {monthBillingSummary ? (
+        <ParentHubMonthBillingCard
+          locale={locale}
+          summary={monthBillingSummary}
+          dict={parentLabels.monthBilling}
+        />
+      ) : null}
       {summaries && summaries.length > 0 ? (
         <ParentDashboardFamilyView
           locale={locale}
@@ -58,10 +82,10 @@ export function ParentDashboardEntry({
           hub={hub}
         />
       ) : (
-        <ul className="mt-8 space-y-3">
+        <ul className="space-y-3">
           {kids.map((k) => (
             <li key={k.id}>
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 shadow-[var(--shadow-soft)]">
                 <span className="font-medium text-[var(--color-foreground)]">
                   {k.first_name} {k.last_name}
                 </span>
@@ -77,9 +101,9 @@ export function ParentDashboardEntry({
         </ul>
       )}
       {kids.length === 0 ? (
-        <p className="mt-6 text-sm text-[var(--color-muted-foreground)]">{lead}</p>
+        <p className="text-sm text-[var(--color-muted-foreground)]">{lead}</p>
       ) : null}
-    </>
+    </div>
   );
 
   return (
@@ -89,7 +113,7 @@ export function ParentDashboardEntry({
       narrow={(surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">) => (
         <PwaPageShell surface={surface}>
           <div className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
-            <div className="mx-auto max-w-[var(--layout-max-width)] space-y-4 py-2">{body}</div>
+            <div className="mx-auto max-w-[var(--layout-max-width)] py-2">{body}</div>
           </div>
         </PwaPageShell>
       )}

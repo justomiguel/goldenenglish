@@ -40,7 +40,7 @@ describe("updateSession", () => {
     const req = new NextRequest(new URL("http://localhost/es"), {
       headers: new Headers(),
     });
-    const res = await updateSession(req);
+    const { response: res } = await updateSession(req);
     expect(res.status).toBe(200);
     expect(createServerClient).not.toHaveBeenCalled();
   });

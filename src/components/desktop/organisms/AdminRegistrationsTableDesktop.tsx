@@ -11,7 +11,7 @@ import { useAdminRegistrationsList } from "@/hooks/useAdminRegistrationsList";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
-import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
+import type { RegistrationSortKey, RegistrationSortDir } from "@/lib/dashboard/adminRegistrationsSort";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -19,6 +19,12 @@ type TableLabels = Dictionary["admin"]["table"];
 interface AdminRegistrationsTableDesktopProps {
   locale: string;
   rows: AdminRegistrationRow[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  searchQuery: string;
+  sortKey: RegistrationSortKey;
+  sortDir: RegistrationSortDir;
   legalAgeMajority: number;
   labels: RegLabels;
   tableLabels: TableLabels;
@@ -30,6 +36,12 @@ interface AdminRegistrationsTableDesktopProps {
 export function AdminRegistrationsTableDesktop({
   locale,
   rows,
+  totalCount,
+  page,
+  pageSize,
+  searchQuery,
+  sortKey,
+  sortDir,
   legalAgeMajority,
   labels,
   tableLabels,
@@ -37,7 +49,17 @@ export function AdminRegistrationsTableDesktop({
   currentCohortSections,
   currentCohortName,
 }: AdminRegistrationsTableDesktopProps) {
-  const u = useAdminRegistrationsList({ locale, rows, labels });
+  const u = useAdminRegistrationsList({
+    locale,
+    rows,
+    totalCount,
+    page,
+    pageSize,
+    searchQuery,
+    sortKey,
+    sortDir,
+    labels,
+  });
   const hdr =
     "px-3 py-2 text-xs uppercase text-[var(--color-muted-foreground)]";
 
@@ -58,8 +80,8 @@ export function AdminRegistrationsTableDesktop({
             labels={labels}
             query={u.filterQuery}
             onQueryChange={u.setFilterQueryAndResetPage}
-            totalCount={u.rows.length}
-            filteredCount={u.filtered.length}
+            totalCount={totalCount}
+            filteredCount={totalCount}
           />
         }
         columns={[
@@ -95,13 +117,15 @@ export function AdminRegistrationsTableDesktop({
             ? undefined
             : {
                 page: u.page,
-                pageSize: DEFAULT_TABLE_PAGE_SIZE,
-                totalCount: u.sorted.length,
+                pageSize: u.pageSize,
+                totalCount: u.totalCount,
                 onPageChange: u.setPage,
                 labels: {
                   prev: tableLabels.paginationPrev,
                   next: tableLabels.paginationNext,
                   summary: tableLabels.paginationSummary,
+                  tipPrev: tableLabels.paginationTipPrev,
+                  tipNext: tableLabels.paginationTipNext,
                 },
               }
         }

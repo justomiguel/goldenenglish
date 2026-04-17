@@ -66,14 +66,22 @@ export function AdminPortalCompose({ locale, recipients, labels }: AdminPortalCo
         emptyOptionsText={labels.recipientListEmpty}
         roleLabels={roleLabels}
         ariaLabel={labels.composeTo}
+        inputTitle={labels.tipComposeRecipient}
       />
       <RichTextEditor
         value={body}
         onChange={setBody}
         disabled={busy}
+        title={labels.tipComposeBody}
         aria-label={labels.composeAria}
       />
-      <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px]">
+      <Button
+        type="submit"
+        disabled={busy}
+        isLoading={busy}
+        className="min-h-[44px]"
+        title={labels.tipComposeSend}
+      >
         {labels.composeSend}
       </Button>
       {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}

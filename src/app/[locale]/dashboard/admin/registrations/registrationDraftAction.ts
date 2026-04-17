@@ -7,6 +7,7 @@ import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { cefrLevelEnum } from "@/lib/import/studentRowSchema";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 const idZ = z.string().uuid();
 
@@ -75,6 +76,7 @@ export async function updateRegistrationDraft(
   try {
     await assertAdmin();
   } catch {
+    logServerAuthzDenied("updateRegistrationDraft");
     return { ok: false, message: reg.forbidden };
   }
 
@@ -90,7 +92,11 @@ export async function updateRegistrationDraft(
     .eq("id", registration_id)
     .maybeSingle();
 
-  if (fetchErr || !row) return { ok: false, message: reg.notFound };
+  if (fetchErr) {
+    logSupabaseClientError("updateRegistrationDraft:select", fetchErr, { registrationId: registration_id });
+    return { ok: false, message: reg.notFound };
+  }
+  if (!row) return { ok: false, message: reg.notFound };
   if (row.status !== "new") return { ok: false, message: regUi.alreadyProcessed };
 
   const { error } = await admin
@@ -99,7 +105,10 @@ export async function updateRegistrationDraft(
     .eq("id", registration_id)
     .eq("status", "new");
 
-  if (error) return { ok: false, message: reg.saveFailed };
+  if (error) {
+    logSupabaseClientError("updateRegistrationDraft:update", error, { registrationId: registration_id });
+    return { ok: false, message: reg.saveFailed };
+  }
 
   void recordSystemAudit({
     action: "registration_draft_updated",

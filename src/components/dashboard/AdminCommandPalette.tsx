@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Modal } from "@/components/atoms/Modal";
 import { searchAdminStudentsAction } from "@/app/[locale]/dashboard/admin/academics/actions";
-import type { AdminStudentSearchHit } from "@/app/[locale]/dashboard/admin/academic/cohortActions";
+import type { AdminStudentSearchHitLike } from "@/components/molecules/AdminStudentSearchCombobox";
+import { AdminStudentSearchCombobox } from "@/components/molecules/AdminStudentSearchCombobox";
 
 export interface AdminCommandPaletteProps {
   locale: string;
@@ -13,9 +16,9 @@ export interface AdminCommandPaletteProps {
 }
 
 export function AdminCommandPalette({ locale, dict }: AdminCommandPaletteProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [q, setQ] = useState("");
-  const [hits, setHits] = useState<AdminStudentSearchHit[]>([]);
+  const [resetKey, setResetKey] = useState(0);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -30,63 +33,63 @@ export function AdminCommandPalette({ locale, dict }: AdminCommandPaletteProps) 
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
-    if (!next) {
-      setQ("");
-      setHits([]);
-    }
+    if (!next) setResetKey((k) => k + 1);
   };
 
-  useEffect(() => {
-    if (!open || q.trim().length < 2) return;
-    const t = window.setTimeout(() => {
-      void (async () => {
-        const r = await searchAdminStudentsAction(q.trim());
-        setHits(r);
-      })();
-    }, 200);
-    return () => window.clearTimeout(t);
-  }, [q, open]);
-
-  const displayHits = !open || q.trim().length < 2 ? [] : hits;
+  const onPick = useCallback(
+    (hit: AdminStudentSearchHitLike) => {
+      router.push(`/${locale}/dashboard/admin/users/${hit.id}`);
+      handleOpenChange(false);
+    },
+    [locale, router],
+  );
 
   return (
-    <Modal
-      open={open}
-      onOpenChange={handleOpenChange}
-      titleId="admin-cmdk-title"
-      descriptionId="admin-cmdk-desc"
-      title={dict.title}
-      ariaLabel={dict.title}
-      dialogClassName="max-w-lg"
-    >
-      <p id="admin-cmdk-desc" className="text-xs text-[var(--color-muted-foreground)]">
-        {dict.hint}
-      </p>
-      <input
-        className="mt-3 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder={dict.placeholder}
-        autoComplete="off"
-        autoFocus
-      />
-      <ul className="mt-3 max-h-56 space-y-1 overflow-y-auto text-sm">
-        {displayHits.length === 0 && q.trim().length >= 2 ? (
-          <li className="px-2 py-2 text-[var(--color-muted-foreground)]">{dict.empty}</li>
-        ) : null}
-        {displayHits.map((h) => (
-          <li key={h.id}>
-            <Link
-              href={`/${locale}/dashboard/admin/users/${h.id}`}
-              className="block rounded-[var(--layout-border-radius)] px-2 py-2 hover:bg-[var(--color-muted)]"
-              onClick={() => setOpen(false)}
-            >
-              <span className="font-medium text-[var(--color-foreground)]">{h.label}</span>
-              <span className="ml-2 text-xs text-[var(--color-muted-foreground)]">{dict.openProfile}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </Modal>
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={dict.fabAria}
+        title={dict.fabTitle}
+        className="fixed bottom-5 right-5 z-40 hidden h-12 w-12 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)] shadow-lg transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 md:bottom-8 md:right-8 md:inline-flex"
+      >
+        <Search className="h-5 w-5 shrink-0" aria-hidden strokeWidth={2} />
+      </button>
+
+      <Modal
+        open={open}
+        onOpenChange={handleOpenChange}
+        titleId="admin-cmdk-title"
+        descriptionId="admin-cmdk-desc"
+        title={dict.title}
+        ariaLabel={dict.title}
+        dialogClassName="max-w-lg"
+      >
+        <p id="admin-cmdk-desc" className="text-xs text-[var(--color-muted-foreground)]">
+          {dict.hint}
+        </p>
+        <div className="mt-3">
+          <AdminStudentSearchCombobox
+            id="admin-command-palette-student"
+            labelText={dict.comboboxLabel}
+            placeholder={dict.placeholder}
+            inputTitle={dict.studentSearchTooltip}
+            minCharsHint={dict.searchMin}
+            search={searchAdminStudentsAction}
+            onPick={onPick}
+            resetKey={resetKey}
+          />
+        </div>
+        <p className="mt-3 text-xs text-[var(--color-muted-foreground)]">
+          <Link
+            href={`/${locale}/dashboard/admin/users`}
+            className="font-medium text-[var(--color-primary)] hover:underline"
+            onClick={() => handleOpenChange(false)}
+          >
+            {dict.openUserList}
+          </Link>
+        </p>
+      </Modal>
+    </>
   );
 }

@@ -54,6 +54,7 @@ export function PaymentReviewRow({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
+              title={labels.notesTooltip}
               className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/30 px-2 py-1 text-sm text-[var(--color-foreground)]"
             />
           </label>
@@ -72,6 +73,7 @@ export function PaymentReviewRow({
               href={previewUrl}
               target="_blank"
               rel="noopener noreferrer"
+              title={labels.receiptOpenTooltip}
               className="text-sm font-medium text-[var(--color-primary)] underline"
             >
               {labels.receipt}
@@ -85,6 +87,7 @@ export function PaymentReviewRow({
             type="button"
             disabled={busy}
             onClick={() => act("approved")}
+            title={labels.approveTooltip}
             className="rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-3 py-2 text-sm font-medium text-[var(--color-primary-foreground)]"
           >
             {labels.approve}
@@ -93,6 +96,7 @@ export function PaymentReviewRow({
             type="button"
             disabled={busy}
             onClick={() => act("rejected")}
+            title={labels.rejectTooltip}
             className="rounded-[var(--layout-border-radius)] border-2 border-[var(--color-secondary)] px-3 py-2 text-sm font-medium text-[var(--color-secondary)]"
           >
             {labels.reject}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendStudentChurnAlert } from "@/lib/email/churnInactivityEmail";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export const runtime = "nodejs";
 
@@ -23,19 +24,24 @@ export async function GET(request: Request) {
   let admin;
   try {
     admin = createAdminClient();
-  } catch {
+  } catch (err) {
+    logServerException("api/cron/churn-inactivity:createAdminClient", err);
     return NextResponse.json({ ok: false, message: "no_admin_client" }, { status: 500 });
   }
 
+  const BATCH_LIMIT = 100;
   const { data: candidates, error } = await admin
     .from("profiles")
     .select("id, first_name, last_name, last_session_start_at, churn_notified_at")
     .eq("role", "student")
     .not("last_session_start_at", "is", null)
     .lt("last_session_start_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
-    .is("churn_notified_at", null);
+    .is("churn_notified_at", null)
+    .order("last_session_start_at", { ascending: true })
+    .limit(BATCH_LIMIT);
 
   if (error) {
+    logSupabaseClientError("api/cron/churn-inactivity:profilesSelect", error);
     return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
   }
 
@@ -54,8 +60,8 @@ export async function GET(request: Request) {
         .update({ churn_notified_at: new Date().toISOString() })
         .eq("id", id);
       sent += 1;
-    } catch {
-      /* continue */
+    } catch (loopErr) {
+      logServerException("api/cron/churn-inactivity:notifyStudent", loopErr, { studentId: id });
     }
   }
 

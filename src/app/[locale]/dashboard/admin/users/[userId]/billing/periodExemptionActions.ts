@@ -4,6 +4,7 @@ import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { revalidateStudentBillingPaths } from "./revalidateStudentBilling";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 const ym = z.object({
   year: z.number().int().min(2000).max(2100),
@@ -57,7 +58,13 @@ export async function setPeriodExemption(raw: {
             receipt_url: null,
           })
           .eq("id", existing.id as string);
-        if (error) return { ok: false, message: b.saveFailed };
+        if (error) {
+          logSupabaseClientError("setPeriodExemption:paymentsUpdateExempt", error, {
+            studentId: sid.data,
+            paymentId: existing.id as string,
+          });
+          return { ok: false, message: b.saveFailed };
+        }
       } else {
         const { error } = await supabase.from("payments").insert({
           student_id: sid.data,
@@ -67,7 +74,13 @@ export async function setPeriodExemption(raw: {
           status: "exempt",
           admin_notes: raw.adminNote?.trim() || null,
         });
-        if (error) return { ok: false, message: b.saveFailed };
+        if (error) {
+          logSupabaseClientError("setPeriodExemption:paymentsInsertExempt", error, {
+            studentId: sid.data,
+            period: `${p.data.year}-${p.data.month}`,
+          });
+          return { ok: false, message: b.saveFailed };
+        }
       }
     } else if (existing?.id) {
       if (existing.status !== "exempt") {
@@ -76,7 +89,13 @@ export async function setPeriodExemption(raw: {
       const amt = existing.amount != null ? Number(existing.amount) : 0;
       if (amt === 0) {
         const { error } = await supabase.from("payments").delete().eq("id", existing.id as string);
-        if (error) return { ok: false, message: b.saveFailed };
+        if (error) {
+          logSupabaseClientError("setPeriodExemption:paymentsDelete", error, {
+            studentId: sid.data,
+            paymentId: existing.id as string,
+          });
+          return { ok: false, message: b.saveFailed };
+        }
       } else {
         const { error } = await supabase
           .from("payments")
@@ -85,13 +104,20 @@ export async function setPeriodExemption(raw: {
             admin_notes: raw.adminNote?.trim() ?? null,
           })
           .eq("id", existing.id as string);
-        if (error) return { ok: false, message: b.saveFailed };
+        if (error) {
+          logSupabaseClientError("setPeriodExemption:paymentsUpdatePending", error, {
+            studentId: sid.data,
+            paymentId: existing.id as string,
+          });
+          return { ok: false, message: b.saveFailed };
+        }
       }
     }
 
     revalidateStudentBillingPaths(raw.locale, sid.data);
     return { ok: true };
-  } catch {
+  } catch (err) {
+    logServerException("setPeriodExemption", err);
     return { ok: false, message: b.forbidden };
   }
 }

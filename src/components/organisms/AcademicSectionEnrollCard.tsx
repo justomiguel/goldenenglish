@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Dictionary } from "@/types/i18n";
 import type { SectionEnrollmentConflict, SectionScheduleSlot } from "@/types/academics";
@@ -10,8 +10,11 @@ import {
   previewSectionEnrollmentAction,
   searchAdminStudentsAction,
 } from "@/app/[locale]/dashboard/admin/academics/actions";
-import type { AdminStudentSearchHit } from "@/app/[locale]/dashboard/admin/academic/cohortActions";
 import { ScheduleConflictResolutionModal } from "@/components/molecules/ScheduleConflictResolutionModal";
+import {
+  AdminStudentSearchCombobox,
+  type AdminStudentSearchHitLike,
+} from "@/components/molecules/AdminStudentSearchCombobox";
 
 export interface AcademicSectionEnrollCardProps {
   locale: string;
@@ -31,28 +34,14 @@ export function AcademicSectionEnrollCard({
   errors,
 }: AcademicSectionEnrollCardProps) {
   const router = useRouter();
-  const [query, setQuery] = useState("");
-  const [hits, setHits] = useState<AdminStudentSearchHit[]>([]);
-  const [picked, setPicked] = useState<AdminStudentSearchHit | null>(null);
+  const [picked, setPicked] = useState<AdminStudentSearchHitLike | null>(null);
+  const [fieldResetKey, setFieldResetKey] = useState(0);
   const [capacityOverride, setCapacityOverride] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [conflicts, setConflicts] = useState<SectionEnrollmentConflict[] | null>(null);
   const [targetSlots, setTargetSlots] = useState<SectionScheduleSlot[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [busy, start] = useTransition();
-
-  useEffect(() => {
-    if (query.trim().length < 2) return;
-    const t = window.setTimeout(() => {
-      void (async () => {
-        const r = await searchAdminStudentsAction(query.trim());
-        setHits(r);
-      })();
-    }, 280);
-    return () => window.clearTimeout(t);
-  }, [query]);
-
-  const displayHits = query.trim().length < 2 ? [] : hits;
 
   const runPreview = () => {
     if (!picked) return;
@@ -96,8 +85,7 @@ export function AcademicSectionEnrollCard({
         setConflicts(null);
         setMsg(dict.successEnroll);
         setPicked(null);
-        setQuery("");
-        setHits([]);
+        setFieldResetKey((k) => k + 1);
         router.refresh();
         return;
       }
@@ -110,41 +98,17 @@ export function AcademicSectionEnrollCard({
     <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
       <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.enrollTitle}</h2>
       <div className="mt-3 space-y-3">
-        <div>
-          <label className="text-sm font-medium" htmlFor="ase-q">
-            {dict.searchPlaceholder}
-          </label>
-          <input
-            id="ase-q"
-            className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            autoComplete="off"
-            disabled={busy}
-          />
-          {query.trim().length > 0 && query.trim().length < 2 ? (
-            <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{dict.searchMin}</p>
-          ) : null}
-          {displayHits.length > 0 ? (
-            <ul className="mt-2 max-h-40 overflow-y-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-sm">
-              {displayHits.map((h) => (
-                <li key={h.id}>
-                  <button
-                    type="button"
-                    className="w-full px-3 py-2 text-left hover:bg-[var(--color-muted)]"
-                    onClick={() => {
-                      setPicked(h);
-                      setQuery(h.label);
-                      setHits([]);
-                    }}
-                  >
-                    {h.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
+        <AdminStudentSearchCombobox
+          id="academic-section-enroll-student"
+          labelText={dict.studentSearchLabel}
+          placeholder={dict.searchPlaceholder}
+          inputTitle={dict.studentSearchTooltip}
+          minCharsHint={dict.searchMin}
+          disabled={busy}
+          search={searchAdminStudentsAction}
+          onPick={setPicked}
+          resetKey={fieldResetKey}
+        />
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"

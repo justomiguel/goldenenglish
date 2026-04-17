@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadAdminUserDetail } from "@/lib/dashboard/loadAdminUserDetail";
+import { createClient } from "@/lib/supabase/server";
 import { AdminUserDetailEntry } from "@/components/dashboard/AdminUserDetailEntry";
 
 interface PageProps {
@@ -31,7 +32,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function AdminUserDetailPage({ params }: PageProps) {
   const { locale, userId } = await params;
   const dict = await getDictionary(locale);
-  const detail = await loadAdminUserDetail(userId, locale, dict.common.emptyValue);
+  const supabase = await createClient();
+  const {
+    data: { user: sessionUser },
+  } = await supabase.auth.getUser();
+  let viewerMayInlineEdit = false;
+  if (sessionUser?.id) {
+    const { data: viewerProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", sessionUser.id)
+      .maybeSingle();
+    viewerMayInlineEdit = viewerProfile?.role === "admin";
+  }
+  const detail = await loadAdminUserDetail(userId, locale, dict.common.emptyValue, viewerMayInlineEdit);
   if (!detail) notFound();
 
   const billingHref =

@@ -5,6 +5,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ParentWardProfileSurfaceEntry } from "@/components/parent/ParentWardProfileSurfaceEntry";
 import { ParentWardProfileForm } from "@/components/parent/ParentWardProfileForm";
+import { ClassReminderPrefsSection } from "@/components/molecules/ClassReminderPrefsSection";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -48,6 +49,12 @@ export default async function ParentChildEditPage({ params }: PageProps) {
   const { data: authRow } = await admin.auth.admin.getUserById(studentId);
   const wardEmail = authRow?.user?.email?.trim() ?? "";
 
+  const { data: crPref } = await supabase
+    .from("class_reminder_channel_prefs")
+    .select("*")
+    .eq("student_id", studentId)
+    .maybeSingle();
+
   const p = dict.dashboard.parent;
 
   return (
@@ -64,6 +71,17 @@ export default async function ParentChildEditPage({ params }: PageProps) {
         }}
         labels={p}
       />
+      <div className="mx-auto max-w-3xl px-4 pb-8 md:max-w-[48rem] md:px-6">
+        <h2 className="mt-8 text-lg font-semibold text-[var(--color-secondary)]">{p.childClassReminderTitle}</h2>
+        <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{p.childClassReminderHint}</p>
+        <ClassReminderPrefsSection
+          locale={locale}
+          studentId={studentId}
+          initial={crPref as Record<string, unknown> | null}
+          labels={dict.dashboard.student}
+          omitHeader
+        />
+      </div>
     </ParentWardProfileSurfaceEntry>
   );
 }

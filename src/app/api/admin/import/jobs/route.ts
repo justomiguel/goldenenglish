@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { after } from "next/server";
 import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
-import { ADMIN_SESSION_UNAUTHORIZED } from "@/lib/dashboard/adminSessionErrors";
+import {
+  ADMIN_SESSION_FORBIDDEN,
+  ADMIN_SESSION_UNAUTHORIZED,
+} from "@/lib/dashboard/adminSessionErrors";
+import { logServerAuthzDenied, logServerException } from "@/lib/logging/serverActionLog";
 import { csvStudentRowsSchema } from "@/lib/import/studentRowSchema";
 import { isKvImportConfigured, mergeImportJob } from "@/lib/import/importJobKv";
 import { runBulkImportJobWithKv } from "@/lib/import/runBulkImportJobWithKv";
@@ -24,7 +28,8 @@ export async function POST(request: Request) {
   let json: unknown;
   try {
     json = await request.json();
-  } catch {
+  } catch (err) {
+    logServerException("api/admin/import/jobs:POST:json", err);
     return NextResponse.json({ ok: false, error: "invalid_json" }, { status: 400 });
   }
 
@@ -41,6 +46,11 @@ export async function POST(request: Request) {
     const msg = e instanceof Error ? e.message : "";
     if (msg === ADMIN_SESSION_UNAUTHORIZED) {
       return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+    }
+    if (msg === ADMIN_SESSION_FORBIDDEN) {
+      logServerAuthzDenied("api/admin/import/jobs:POST");
+    } else {
+      logServerException("api/admin/import/jobs:POST:assertAdmin", e);
     }
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }

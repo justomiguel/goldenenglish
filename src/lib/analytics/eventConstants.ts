@@ -23,6 +23,10 @@ export const AnalyticsEntity = {
   billingInvoiceReceiptSubmitted: "billing_invoice_receipt_submitted",
   /** Funnel: promotion code applied (actor = whoever invoked the action) */
   promotionCodeAppliedStudent: "promotion_code_applied_student",
+  /** Teacher attendance matrix (bulk column fill, etc.) */
+  teacherSectionAttendance: "section:teacher_section_attendance",
+  /** Portal calendar + iCal subscription */
+  portalCalendar: "section:portal_calendar",
 } as const;
 
 export type UserEventTypeName = "page_view" | "click" | "action" | "session_start";
@@ -39,5 +43,10 @@ export function pathnameToEntity(pathname: string): string {
   if (pathname.includes("/dashboard/admin/settings")) return AnalyticsEntity.adminSettings;
   if (pathname.includes("/dashboard/profile")) return AnalyticsEntity.myProfile;
   if (pathname.match(/\/dashboard\/student\/?$/)) return AnalyticsEntity.studentHome;
+  if (pathname.includes("/dashboard/student/calendar")) return AnalyticsEntity.portalCalendar;
+  if (pathname.includes("/dashboard/parent/calendar")) return AnalyticsEntity.portalCalendar;
+  if (pathname.includes("/dashboard/teacher/calendar")) return AnalyticsEntity.portalCalendar;
+  if (pathname.includes("/dashboard/admin/calendar/special")) return AnalyticsEntity.portalCalendar;
+  if (pathname.includes("/dashboard/admin/calendar")) return AnalyticsEntity.portalCalendar;
   return `${AnalyticsEntity.pageViewPrefix}${pathname}`;
 }

@@ -24,6 +24,8 @@ export interface RecipientAutocompleteProps {
   roleLabels: Record<string, string>;
   /** Accessible name for the text field (e.g. translated “To”) */
   ariaLabel: string;
+  /** Optional native tooltip on the combobox input (dictionary-backed). */
+  inputTitle?: string;
 }
 
 export function RecipientAutocomplete({
@@ -37,6 +39,7 @@ export function RecipientAutocomplete({
   emptyOptionsText,
   roleLabels,
   ariaLabel,
+  inputTitle,
 }: RecipientAutocompleteProps) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -221,6 +224,7 @@ export function RecipientAutocomplete({
         aria-expanded={Boolean(showPanel && rect)}
         aria-controls={listId}
         aria-label={ariaLabel}
+        title={inputTitle}
         disabled={disabled}
         placeholder={placeholder}
         value={query}

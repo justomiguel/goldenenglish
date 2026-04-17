@@ -28,6 +28,7 @@ export function LoginScreenNarrow({
   const homeHref = `/${locale}`;
   const standalone = surface === "pwa-mobile";
   const tagline = taglineForLocale(brand, locale);
+  const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
   const bottomPad = standalone
     ? "pb-[max(1rem,env(safe-area-inset-bottom,0px))]"
     : "pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]";
@@ -71,6 +72,7 @@ export function LoginScreenNarrow({
               alt={brand.logoAlt || brand.name}
               width={64}
               height={64}
+              unoptimized={bypassLogoOptimizer}
               className="block h-14 w-14 rounded-[var(--layout-border-radius)]"
               priority
             />

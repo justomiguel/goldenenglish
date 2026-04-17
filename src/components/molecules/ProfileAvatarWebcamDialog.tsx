@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
+import { logClientException } from "@/lib/logging/clientLog";
 
 const MAX_FRAME_PX = 1600;
 
@@ -63,8 +64,9 @@ export function ProfileAvatarWebcamDialog({
         v.srcObject = mediaStream;
         await v.play();
         if (!cancelled) setReady(true);
-      } catch {
+      } catch (err) {
         if (cancelled) return;
+        logClientException("ProfileAvatarWebcamDialog:videoPlay", err);
         onFailureMessage(labels.avatarWebcamOpenFailed);
         onOpenChange(false);
       }

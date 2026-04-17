@@ -9,6 +9,7 @@ import { sendPromotionAppliedEmail } from "@/lib/email/billingBenefitEmails";
 import { paymentActionDict } from "@/lib/i18n/actionErrors";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { Locale } from "@/types/i18n";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 const MAX_BYTES = 4 * 1024 * 1024;
 
@@ -154,7 +155,10 @@ export async function applyPromotionCodeForStudent(
     p_code: trimmed,
   });
 
-  if (error) return { ok: false, message: pe.promoApplyFailed };
+  if (error) {
+    logSupabaseClientError("applyPromotionCodeForStudent:rpc", error, { studentId });
+    return { ok: false, message: pe.promoApplyFailed };
+  }
 
   const row = data as RpcResult | null;
   if (!row || row.ok !== true) {
@@ -171,8 +175,10 @@ export async function applyPromotionCodeForStudent(
       promotionName: row.promotion_name ?? "",
       codeSnapshot: row.code_snapshot ?? trimmed,
     });
-  } catch {
-    /* optional */
+  } catch (emailErr) {
+    logServerException("applyPromotionCodeForStudent:sendPromotionAppliedEmail", emailErr, {
+      studentId,
+    });
   }
 
   revalidatePath(`/${locale}/dashboard/student/payments`);

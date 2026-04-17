@@ -1,16 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useState, useTransition } from "react";
 import { deleteRegistration } from "@/app/[locale]/dashboard/admin/registrations/actions";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
-import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
-import {
-  filterRegistrationRows,
-  sortRegistrationRows,
-  type RegistrationSortDir,
-  type RegistrationSortKey,
+import type {
+  RegistrationSortDir,
+  RegistrationSortKey,
 } from "@/lib/dashboard/adminRegistrationsSort";
 
 type RegLabels = Dictionary["admin"]["registrations"];
@@ -18,64 +15,73 @@ type RegLabels = Dictionary["admin"]["registrations"];
 export interface UseAdminRegistrationsListParams {
   locale: string;
   rows: AdminRegistrationRow[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  searchQuery: string;
+  sortKey: RegistrationSortKey;
+  sortDir: RegistrationSortDir;
   labels: RegLabels;
 }
 
 export function useAdminRegistrationsList({
   locale,
   rows,
+  totalCount,
+  page,
+  pageSize,
+  searchQuery,
+  sortKey,
+  sortDir,
   labels,
 }: UseAdminRegistrationsListParams) {
   const router = useRouter();
+  const pathname = usePathname();
+  const currentParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+
   const [busyId, setBusyId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [deleteRow, setDeleteRow] = useState<AdminRegistrationRow | null>(null);
   const [acceptRow, setAcceptRow] = useState<AdminRegistrationRow | null>(null);
   const [editRow, setEditRow] = useState<AdminRegistrationRow | null>(null);
-  const [filterQuery, setFilterQuery] = useState("");
-  const [sort, setSort] = useState<{
-    key: RegistrationSortKey;
-    dir: RegistrationSortDir;
-  }>({ key: "received", dir: "desc" });
-  const [page, setPage] = useState(1);
 
-  const setFilterQueryAndResetPage = useCallback((v: string) => {
-    setFilterQuery(v);
-    setPage(1);
-  }, []);
-
-  const filtered = useMemo(
-    () => filterRegistrationRows(rows, filterQuery),
-    [rows, filterQuery],
+  const pushParams = useCallback(
+    (updates: Record<string, string | undefined>) => {
+      const sp = new URLSearchParams(currentParams.toString());
+      for (const [k, v] of Object.entries(updates)) {
+        if (v === undefined || v === "") {
+          sp.delete(k);
+        } else {
+          sp.set(k, v);
+        }
+      }
+      const qs = sp.toString();
+      startTransition(() => {
+        router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
+      });
+    },
+    [currentParams, pathname, router],
   );
 
-  const sorted = useMemo(
-    () => sortRegistrationRows(filtered, sort.key, sort.dir),
-    [filtered, sort.key, sort.dir],
+  const setFilterQuery = useCallback(
+    (q: string) => pushParams({ q: q || undefined, page: undefined }),
+    [pushParams],
   );
-
-  const maxPage = Math.max(1, Math.ceil(sorted.length / DEFAULT_TABLE_PAGE_SIZE) || 1);
-  const effectivePage = Math.min(page, maxPage);
-
-  const pageRows = useMemo(() => {
-    const start = (effectivePage - 1) * DEFAULT_TABLE_PAGE_SIZE;
-    return sorted.slice(start, start + DEFAULT_TABLE_PAGE_SIZE);
-  }, [sorted, effectivePage]);
 
   const toggleSort = useCallback(
     (id: string) => {
       const key = id as RegistrationSortKey;
-      if (sort.key !== key) {
-        setPage(1);
-      }
-      setSort((prev) => {
-        if (prev.key === key) {
-          return { ...prev, dir: prev.dir === "asc" ? "desc" : "asc" };
-        }
-        return { key, dir: "asc" };
-      });
+      const newDir: RegistrationSortDir =
+        sortKey === key ? (sortDir === "asc" ? "desc" : "asc") : "asc";
+      pushParams({ sort: key, dir: newDir, page: undefined });
     },
-    [sort.key],
+    [pushParams, sortKey, sortDir],
+  );
+
+  const setPage = useCallback(
+    (p: number) => pushParams({ page: p > 1 ? String(p) : undefined }),
+    [pushParams],
   );
 
   const statusLabel = useCallback(
@@ -88,9 +94,9 @@ export function useAdminRegistrationsList({
     [labels],
   );
 
-  const listEmpty = filtered.length === 0;
+  const listEmpty = totalCount === 0;
   const emptyMessage =
-    listEmpty && filterQuery.trim() ? labels.noFilterResults : labels.none;
+    listEmpty && searchQuery.trim() ? labels.noFilterResults : labels.none;
 
   function refreshList() {
     router.refresh();
@@ -122,21 +128,21 @@ export function useAdminRegistrationsList({
     setAcceptRow,
     editRow,
     setEditRow,
-    filterQuery,
-    setFilterQueryAndResetPage,
-    sortKey: sort.key,
-    sortDir: sort.dir,
+    filterQuery: searchQuery,
+    setFilterQueryAndResetPage: setFilterQuery,
+    sortKey,
+    sortDir,
     toggleSort,
-    page: effectivePage,
+    page,
     setPage,
-    rows,
-    filtered,
-    sorted,
-    pageRows,
+    pageRows: rows,
+    totalCount,
+    pageSize,
     listEmpty,
     emptyMessage,
     statusLabel,
     onConfirmDelete,
     refreshList,
+    isPending,
   };
 }

@@ -10,6 +10,7 @@ import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { Dictionary } from "@/types/i18n";
+import { isRegistrationUndecidedStored } from "@/lib/register/registrationSectionConstants";
 
 export interface AdminRegistrationEditFormProps {
   locale: string;
@@ -36,7 +37,11 @@ export function AdminRegistrationEditForm({
   const [email, setEmail] = useState(row.email);
   const [phone, setPhone] = useState(row.phone ?? "");
   const [birth, setBirth] = useState(row.birth_date?.slice(0, 10) ?? "");
-  const [level, setLevel] = useState(row.level_interest?.trim().toUpperCase() ?? "");
+  const [level, setLevel] = useState(() => {
+    const raw = row.level_interest?.trim() ?? "";
+    if (isRegistrationUndecidedStored(raw)) return "";
+    return raw.toUpperCase();
+  });
   const [tutorName, setTutorName] = useState(row.tutor_name ?? "");
   const [tutorDni, setTutorDni] = useState(row.tutor_dni ?? "");
   const [tutorEmail, setTutorEmail] = useState(row.tutor_email ?? "");

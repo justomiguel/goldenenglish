@@ -9,6 +9,8 @@ import { ParentHubLogisticsTable } from "@/components/parent/ParentHubLogisticsT
 import { ParentHubBillingCard } from "@/components/parent/ParentHubBillingCard";
 import { ParentHubUpdatesList } from "@/components/parent/ParentHubUpdatesList";
 import { ParentHubIcsDownload } from "@/components/parent/ParentHubIcsDownload";
+import { ParentChildLastGradeLine } from "@/components/parent/ParentChildLastGradeLine";
+import { ParentContactTeacherCta } from "@/components/parent/ParentContactTeacherCta";
 
 export interface ParentDashboardFamilyViewProps {
   locale: string;
@@ -107,6 +109,11 @@ export function ParentDashboardFamilyView({
                       : labels.emptyValue}
                   </dd>
                 </div>
+                <ParentChildLastGradeLine
+                  locale={locale}
+                  grade={selected.lastPublishedGrade}
+                  labels={labels}
+                />
               </dl>
             </div>
             <div className="flex flex-col gap-2 sm:items-end">
@@ -135,6 +142,15 @@ export function ParentDashboardFamilyView({
             </div>
           </div>
         </div>
+      ) : null}
+
+      {selected ? (
+        <ParentContactTeacherCta
+          locale={locale}
+          assignedTeacherId={selected.assignedTeacherId}
+          assignedTeacherName={selected.assignedTeacherName}
+          labels={labels}
+        />
       ) : null}
 
       {hub ? (

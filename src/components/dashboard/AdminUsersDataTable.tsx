@@ -106,6 +106,7 @@ export function AdminUsersDataTable({
             onChange={onToggleSelectAllVisible}
             disabled={deletableVisibleCount === 0}
             aria-label={labels.selectAllVisible}
+            title={labels.tipSelectAllVisible}
           />
         </th>
       }
@@ -123,6 +124,8 @@ export function AdminUsersDataTable({
           prev: tableLabels.paginationPrev,
           next: tableLabels.paginationNext,
           summary: tableLabels.paginationSummary,
+          tipPrev: tableLabels.paginationTipPrev,
+          tipNext: tableLabels.paginationTipNext,
         },
       }}
       emptyMessage={emptyMessage}
@@ -147,6 +150,7 @@ export function AdminUsersDataTable({
                 disabled={isSelf}
                 onChange={() => onToggleRow(r.id)}
                 aria-label={`${labels.selectRow} ${r.email}`}
+                title={isSelf ? labels.selfProtected : labels.tipSelectRow}
               />
             </td>
             <td className="min-w-0 max-w-0 break-words px-2 py-2 align-top text-[var(--color-foreground)]">
@@ -155,6 +159,7 @@ export function AdminUsersDataTable({
             <td className="min-w-0 px-2 py-2 align-top">
               <Link
                 href={`/${locale}/dashboard/admin/users/${r.id}`}
+                title={labels.tipOpenUserProfile}
                 className="flex items-start gap-2 text-[var(--color-foreground)] hover:underline"
               >
                 <ProfileAvatar
@@ -162,8 +167,18 @@ export function AdminUsersDataTable({
                   displayName={`${r.firstName} ${r.lastName}`}
                   size="sm"
                 />
-                <span className="min-w-0 break-words">
-                  {r.firstName} {r.lastName}
+                <span className="flex min-w-0 flex-wrap items-center gap-1.5 break-words">
+                  <span>
+                    {r.firstName} {r.lastName}
+                  </span>
+                  {r.missingSection ? (
+                    <span
+                      className="inline-flex shrink-0 rounded-full border border-[var(--color-accent)]/50 bg-[var(--color-accent)]/10 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-[var(--color-secondary)]"
+                      title={labels.noSectionBadgeAria}
+                    >
+                      {labels.noSectionBadge}
+                    </span>
+                  ) : null}
                 </span>
               </Link>
             </td>
@@ -180,7 +195,7 @@ export function AdminUsersDataTable({
                 size="sm"
                 className="min-h-[44px] gap-1 text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
                 disabled={isSelf || busy}
-                title={isSelf ? labels.selfProtected : undefined}
+                title={isSelf ? labels.selfProtected : labels.tipDeleteOneRow}
                 onClick={() => onRequestDeleteOne(r.id)}
                 aria-label={`${labels.deleteOne}: ${r.email}`}
               >
