@@ -1,6 +1,7 @@
 "use client";
 
-import { CheckCircle2, Copy, Pencil, Archive, Undo2 } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, Copy, Pencil, Archive, Undo2, Palette } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import type { SiteThemeRow } from "@/types/theming";
 import type { Dictionary } from "@/types/i18n";
@@ -88,6 +89,15 @@ export function SiteThemeTemplatesTable({
               </td>
               <td className="px-3 py-2">
                 <div className="flex flex-wrap items-center justify-end gap-1.5">
+                  {!row.archivedAt ? (
+                    <Link
+                      href={`/${locale}/dashboard/admin/cms/templates/${row.id}`}
+                      className="inline-flex items-center rounded-[var(--layout-border-radius)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+                    >
+                      <Palette aria-hidden className="mr-1 h-4 w-4" />
+                      {labels.openEditorCta}
+                    </Link>
+                  ) : null}
                   {!row.isActive && !row.archivedAt ? (
                     <Button
                       variant="ghost"

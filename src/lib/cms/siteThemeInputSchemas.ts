@@ -64,3 +64,40 @@ export const duplicateSiteThemeInputSchema = z.object({
 });
 
 export type DuplicateSiteThemeInput = z.infer<typeof duplicateSiteThemeInputSchema>;
+
+/**
+ * Override map for the design system editor. Validation rules:
+ * - Token keys mirror `system.properties` (dot-separated lowercase + digits).
+ * - Empty string values mean "fall back to default" — the action will strip
+ *   them so they never round-trip through the database.
+ * - Hard cap on the number of overrides keeps payloads bounded; the editor
+ *   tops out below this number for the foreseeable design surface.
+ */
+const tokenKeySchema = z
+  .string()
+  .trim()
+  .regex(/^[a-z][a-z0-9.]*[a-z0-9]$/u, "token_key_invalid")
+  .max(80, "token_key_invalid");
+
+const tokenValueSchema = z.string().max(200, "token_value_too_long");
+
+export const themePropertyOverridesSchema = z
+  .record(tokenKeySchema, tokenValueSchema)
+  .refine((map) => Object.keys(map).length <= 256, {
+    message: "too_many_overrides",
+  });
+
+export const updateSiteThemePropertiesInputSchema = z.object({
+  locale: z.string().min(2),
+  id: siteThemeIdSchema,
+  overrides: themePropertyOverridesSchema,
+});
+
+export type UpdateSiteThemePropertiesInput = z.infer<
+  typeof updateSiteThemePropertiesInputSchema
+>;
+
+export const resetSiteThemePropertiesInputSchema = z.object({
+  locale: z.string().min(2),
+  id: siteThemeIdSchema,
+});

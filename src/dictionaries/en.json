@@ -524,6 +524,65 @@
           "archived_cannot_activate": "Restore the template before activating it.",
           "active_cannot_archive": "Switch to another template before archiving the active one.",
           "persist_failed": "We couldn't save the change. Please try again."
+        },
+        "editor": {
+          "title": "Design tokens — {{name}}",
+          "backToTemplates": "Back to templates",
+          "activeNotice": "This template is active. Saved changes propagate to the public site within a minute.",
+          "draftNotice": "This template is a draft. Activate it from the templates list to apply these tokens to the public site.",
+          "notFound": "Template not found. It may have been removed by another admin.",
+          "saveCta": "Save changes",
+          "saveSuccess": "Changes saved.",
+          "resetAllCta": "Reset all to defaults",
+          "confirmResetAll": "Reset every token in this template to the values from system.properties? This cannot be undone.",
+          "resetToDefault": "Reset",
+          "defaultLabel": "Default",
+          "overriddenLabel": "Custom value",
+          "groups": {
+            "color": {
+              "title": "Colors",
+              "description": "Brand palette, neutrals, status, and special calendar colors. Used as CSS variables across the site."
+            },
+            "layout": {
+              "title": "Layout",
+              "description": "Page width, border radius, and similar layout tokens."
+            },
+            "shadow": {
+              "title": "Shadows",
+              "description": "Elevation tokens used by cards and surfaces."
+            },
+            "app": {
+              "title": "Brand identity",
+              "description": "App and legal names, taglines, and brand asset paths. Affects SEO metadata and the brand layer."
+            },
+            "contact": {
+              "title": "Contact",
+              "description": "Public contact info shown in the footer and brand blocks."
+            },
+            "social": {
+              "title": "Social links",
+              "description": "Public social network URLs shown in the footer and contact areas."
+            }
+          },
+          "preview": {
+            "title": "Preview",
+            "description": "Live preview of the most representative palette tokens, using the unsaved draft.",
+            "primarySwatch": "Primary",
+            "secondarySwatch": "Secondary",
+            "accentSwatch": "Accent",
+            "surfaceSwatch": "Surface",
+            "foregroundSwatch": "Background"
+          },
+          "errors": {
+            "invalid_input": "Please review the values and try again.",
+            "forbidden": "You no longer have permission for this action.",
+            "slug_taken": "That slug is already in use.",
+            "not_found": "Template not found. It may have been removed by another admin.",
+            "already_active": "This template is already active.",
+            "archived_cannot_activate": "Restore the template before activating it.",
+            "active_cannot_archive": "Switch to another template before archiving the active one.",
+            "persist_failed": "We couldn't save the changes. Please try again."
+          }
         }
       }
     },

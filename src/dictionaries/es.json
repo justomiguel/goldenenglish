@@ -524,6 +524,65 @@
           "archived_cannot_activate": "Restaurá el template antes de activarlo.",
           "active_cannot_archive": "Cambiá a otro template antes de archivar el activo.",
           "persist_failed": "No pudimos guardar el cambio. Intentá de nuevo."
+        },
+        "editor": {
+          "title": "Tokens de diseño — {{name}}",
+          "backToTemplates": "Volver a templates",
+          "activeNotice": "Este template está activo. Los cambios guardados llegan al sitio público en menos de un minuto.",
+          "draftNotice": "Este template es un borrador. Activalo desde la lista de templates para aplicar estos tokens al sitio público.",
+          "notFound": "No se encontró el template. Es posible que otro admin lo haya eliminado.",
+          "saveCta": "Guardar cambios",
+          "saveSuccess": "Cambios guardados.",
+          "resetAllCta": "Restablecer a valores por defecto",
+          "confirmResetAll": "¿Restablecer todos los tokens de este template a los valores de system.properties? Esta acción no se puede deshacer.",
+          "resetToDefault": "Restablecer",
+          "defaultLabel": "Por defecto",
+          "overriddenLabel": "Valor personalizado",
+          "groups": {
+            "color": {
+              "title": "Colores",
+              "description": "Paleta de marca, neutros, estados y colores especiales del calendario. Se usan como variables CSS en todo el sitio."
+            },
+            "layout": {
+              "title": "Layout",
+              "description": "Ancho de página, radio de bordes y tokens de layout."
+            },
+            "shadow": {
+              "title": "Sombras",
+              "description": "Tokens de elevación usados por tarjetas y superficies."
+            },
+            "app": {
+              "title": "Identidad de marca",
+              "description": "Nombre legal y comercial, eslóganes y rutas de assets de marca. Afecta SEO y la capa de marca."
+            },
+            "contact": {
+              "title": "Contacto",
+              "description": "Datos de contacto públicos que aparecen en el pie de página y bloques de contacto."
+            },
+            "social": {
+              "title": "Redes sociales",
+              "description": "URLs públicas a redes que aparecen en el pie de página y zonas de contacto."
+            }
+          },
+          "preview": {
+            "title": "Vista previa",
+            "description": "Vista en vivo de los tokens más representativos de la paleta, usando el borrador sin guardar.",
+            "primarySwatch": "Primario",
+            "secondarySwatch": "Secundario",
+            "accentSwatch": "Acento",
+            "surfaceSwatch": "Superficie",
+            "foregroundSwatch": "Fondo"
+          },
+          "errors": {
+            "invalid_input": "Revisá los valores e intentá de nuevo.",
+            "forbidden": "Ya no tenés permiso para esta acción.",
+            "slug_taken": "Ese slug ya está en uso.",
+            "not_found": "No se encontró el template. Es posible que otro admin lo haya eliminado.",
+            "already_active": "Este template ya está activo.",
+            "archived_cannot_activate": "Restaurá el template antes de activarlo.",
+            "active_cannot_archive": "Cambiá a otro template antes de archivar el activo.",
+            "persist_failed": "No pudimos guardar los cambios. Intentá de nuevo."
+          }
         }
       }
     },
