@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, Copy, Pencil, Archive, Undo2, Palette } from "lucide-react";
+import { CheckCircle2, Copy, Pencil, Archive, Undo2, Palette, LayoutDashboard, Code2 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import type { SiteThemeRow } from "@/types/theming";
 import type { Dictionary } from "@/types/i18n";
@@ -66,6 +66,7 @@ export function SiteThemeTemplatesTable({
             <th className="px-3 py-2">{labels.columnName}</th>
             <th className="px-3 py-2">{labels.columnSlug}</th>
             <th className="px-3 py-2">{labels.columnStatus}</th>
+            <th className="px-3 py-2">{labels.columnKind}</th>
             <th className="px-3 py-2">{labels.columnUpdated}</th>
             <th className="px-3 py-2 text-right">{labels.columnActions}</th>
           </tr>
@@ -84,19 +85,38 @@ export function SiteThemeTemplatesTable({
                   {statusLabel(row, labels)}
                 </span>
               </td>
+              <td className="px-3 py-2 text-xs text-[var(--color-foreground)]">
+                {labels.landing.kindPicker.options[row.templateKind]}
+              </td>
               <td className="px-3 py-2 text-xs text-[var(--color-muted-foreground)]">
                 {formatUpdated(locale, row.updatedAt)}
               </td>
               <td className="px-3 py-2">
                 <div className="flex flex-wrap items-center justify-end gap-1.5">
                   {!row.archivedAt ? (
-                    <Link
-                      href={`/${locale}/dashboard/admin/cms/templates/${row.id}`}
-                      className="inline-flex items-center rounded-[var(--layout-border-radius)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
-                    >
-                      <Palette aria-hidden className="mr-1 h-4 w-4" />
-                      {labels.openEditorCta}
-                    </Link>
+                    <>
+                      <Link
+                        href={`/${locale}/dashboard/admin/cms/templates/${row.id}`}
+                        className="inline-flex items-center rounded-[var(--layout-border-radius)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+                      >
+                        <Palette aria-hidden className="mr-1 h-4 w-4" />
+                        {labels.openEditorCta}
+                      </Link>
+                      <Link
+                        href={`/${locale}/dashboard/admin/cms/templates/${row.id}/landing`}
+                        className="inline-flex items-center rounded-[var(--layout-border-radius)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+                      >
+                        <LayoutDashboard aria-hidden className="mr-1 h-4 w-4" />
+                        {labels.landing.openCta}
+                      </Link>
+                      <Link
+                        href={`/${locale}/dashboard/admin/cms/templates/${row.id}/properties`}
+                        className="inline-flex items-center rounded-[var(--layout-border-radius)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+                      >
+                        <Code2 aria-hidden className="mr-1 h-4 w-4" />
+                        {labels.properties.openCta}
+                      </Link>
+                    </>
                   ) : null}
                   {!row.isActive && !row.archivedAt ? (
                     <Button

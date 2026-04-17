@@ -41,14 +41,71 @@ export type SiteThemeContent = Partial<
   Readonly<Record<LandingSectionSlug, SiteThemeSectionContent>>
 >;
 
+/** Personalidad visual del template:
+ *  - 'classic'   = layout original (orden hero → story → modalidades …).
+ *  - 'editorial' = shell full-bleed con bandas y agrupaciones densas.
+ *  - 'minimal'   = shell aireado, secciones centradas y separadas por mucho whitespace. */
+export const SITE_THEME_KINDS = ["classic", "editorial", "minimal"] as const;
+
+export type SiteThemeKind = (typeof SITE_THEME_KINDS)[number];
+
+/** Catálogo cerrado de tipos de bloque dinámico. Ampliarlo requiere agregar
+ *  helper, renderer y entradas en diccionarios — ver ADR PR 6 / PR 7.
+ *
+ *  - `card`     genérico (border + surface).
+ *  - `callout`  destacado con tinte de `--color-primary`.
+ *  - `quote`    cita en cursiva con tinte de `--color-secondary`.
+ *  - `feature`  card ancha con barra acento (presentar 1 característica).
+ *  - `stat`     número/dato grande + descripción corta.
+ *  - `cta`      tarjeta enfática para llamadas a la acción.
+ *  - `divider`  separador horizontal con título centrado. */
+export const LANDING_BLOCK_KINDS = [
+  "card",
+  "callout",
+  "quote",
+  "feature",
+  "stat",
+  "cta",
+  "divider",
+] as const;
+
+export type LandingBlockKind = (typeof LANDING_BLOCK_KINDS)[number];
+
+/** Copy de un bloque para un locale: título y/o cuerpo plain-text. */
+export interface LandingBlockLocaleCopy {
+  title?: string;
+  body?: string;
+}
+
+/** Subsección dinámica anclada a una sección canónica. */
+export interface LandingBlock {
+  id: string;
+  section: LandingSectionSlug;
+  kind: LandingBlockKind;
+  position: number;
+  copy: {
+    es: LandingBlockLocaleCopy;
+    en: LandingBlockLocaleCopy;
+  };
+  mediaPath?: string;
+}
+
+/** Cap suave por template (ver `13-postgrest-pagination-bounded-queries.mdc`). */
+export const LANDING_BLOCKS_PER_TEMPLATE_CAP = 24;
+
+/** Cap suave por sección (UI lo refleja antes de llegar al server). */
+export const LANDING_BLOCKS_PER_SECTION_CAP = 8;
+
 /** Row shape of `public.site_themes`. */
 export interface SiteThemeRow {
   id: string;
   slug: string;
   name: string;
   isActive: boolean;
+  templateKind: SiteThemeKind;
   properties: ThemePropertyOverrides;
   content: SiteThemeContent;
+  blocks: ReadonlyArray<LandingBlock>;
   archivedAt: string | null;
   createdAt: string;
   updatedAt: string;

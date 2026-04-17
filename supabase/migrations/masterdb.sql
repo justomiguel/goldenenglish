@@ -2932,6 +2932,20 @@ CREATE TABLE IF NOT EXISTS public.section_attendance (
 CREATE INDEX IF NOT EXISTS section_attendance_section_day_idx
   ON public.section_attendance (enrollment_id, attended_on DESC);
 
+CREATE TABLE IF NOT EXISTS public.section_grades (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  enrollment_id UUID NOT NULL REFERENCES public.section_enrollments (id) ON DELETE CASCADE,
+  assessment_name TEXT NOT NULL,
+  score NUMERIC(6, 2) NOT NULL CHECK (score >= 0 AND score <= 10),
+  feedback_text TEXT,
+  rubric_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+  recorded_by UUID NOT NULL REFERENCES public.profiles (id) ON DELETE RESTRICT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS section_grades_enrollment_idx
+  ON public.section_grades (enrollment_id, created_at DESC);
+
 CREATE TABLE IF NOT EXISTS public.retention_alerts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   enrollment_id UUID NOT NULL REFERENCES public.section_enrollments (id) ON DELETE CASCADE,
@@ -2961,6 +2975,7 @@ CREATE TRIGGER section_attendance_set_updated_at
   EXECUTE FUNCTION public.set_updated_at();
 
 ALTER TABLE public.section_attendance ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.section_grades ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.retention_alerts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.enrollment_retention_flags ENABLE ROW LEVEL SECURITY;
 
@@ -3006,12 +3021,9 @@ CREATE POLICY section_attendance_teacher_write ON public.section_attendance
   WITH CHECK (
     public.is_admin(auth.uid())
     OR (
-      public.section_enrollment_teacher_is_self(enrollment_id)
+      public.user_has_role(auth.uid(), 'teacher')
+      AND public.section_enrollment_teacher_is_self(enrollment_id)
       AND recorded_by = auth.uid()
-      AND attended_on >= (
-        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date - INTERVAL '4000 days'
-      )::date
-      AND attended_on <= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date
     )
   );
 
@@ -3021,26 +3033,63 @@ CREATE POLICY section_attendance_teacher_update ON public.section_attendance
   USING (
     public.is_admin(auth.uid())
     OR (
-      public.section_enrollment_teacher_is_self(enrollment_id)
-      AND attended_on >= (
-        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date - INTERVAL '4000 days'
-      )::date
-      AND attended_on <= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date
+      public.user_has_role(auth.uid(), 'teacher')
+      AND public.section_enrollment_teacher_is_self(enrollment_id)
     )
   )
   WITH CHECK (
     public.is_admin(auth.uid())
     OR (
-      public.section_enrollment_teacher_is_self(enrollment_id)
-      AND attended_on >= (
-        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date - INTERVAL '4000 days'
-      )::date
-      AND attended_on <= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date
+      public.user_has_role(auth.uid(), 'teacher')
+      AND public.section_enrollment_teacher_is_self(enrollment_id)
     )
   );
 
 DROP POLICY IF EXISTS section_attendance_admin_delete ON public.section_attendance;
 CREATE POLICY section_attendance_admin_delete ON public.section_attendance
+  FOR DELETE TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+-- section_grades
+DROP POLICY IF EXISTS section_grades_select_scope ON public.section_grades;
+CREATE POLICY section_grades_select_scope ON public.section_grades
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR public.section_enrollment_teacher_is_self(enrollment_id)
+    OR EXISTS (
+      SELECT 1 FROM public.section_enrollments e
+      WHERE e.id = section_grades.enrollment_id
+        AND (
+          e.student_id = auth.uid()
+          OR EXISTS (
+            SELECT 1 FROM public.tutor_student_rel ts
+            WHERE ts.tutor_id = auth.uid() AND ts.student_id = e.student_id
+          )
+        )
+    )
+  );
+
+DROP POLICY IF EXISTS section_grades_teacher_insert ON public.section_grades;
+CREATE POLICY section_grades_teacher_insert ON public.section_grades
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    public.is_admin(auth.uid())
+    OR (
+      public.user_has_role(auth.uid(), 'teacher')
+      AND public.section_enrollment_teacher_is_self(enrollment_id)
+      AND recorded_by = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS section_grades_teacher_update ON public.section_grades;
+CREATE POLICY section_grades_teacher_update ON public.section_grades
+  FOR UPDATE TO authenticated
+  USING (public.is_admin(auth.uid()) OR public.section_enrollment_teacher_is_self(enrollment_id))
+  WITH CHECK (public.is_admin(auth.uid()) OR public.section_enrollment_teacher_is_self(enrollment_id));
+
+DROP POLICY IF EXISTS section_grades_admin_delete ON public.section_grades;
+CREATE POLICY section_grades_admin_delete ON public.section_grades
   FOR DELETE TO authenticated
   USING (public.is_admin(auth.uid()));
 
@@ -3101,6 +3150,23 @@ CREATE POLICY enrollment_retention_flags_teacher_update ON public.enrollment_ret
   USING (public.is_admin(auth.uid()) OR public.section_enrollment_teacher_is_self(enrollment_id))
   WITH CHECK (public.is_admin(auth.uid()) OR public.section_enrollment_teacher_is_self(enrollment_id));
 
+-- ========== 021_retention_grade_average_view.sql ==========
+
+-- Aggregated section grades per enrollment (admin retention / reports).
+-- security_invoker: RLS on underlying section_grades applies to invoker.
+
+CREATE OR REPLACE VIEW public.v_section_enrollment_grade_average
+WITH (security_invoker = true) AS
+SELECT
+  enrollment_id,
+  ROUND(AVG(score)::numeric, 2) AS avg_score,
+  COUNT(*)::bigint AS grade_count
+FROM public.section_grades
+GROUP BY enrollment_id;
+
+COMMENT ON VIEW public.v_section_enrollment_grade_average IS
+  'Mean score per section enrollment for retention dashboards; RLS from section_grades.';
+
 -- ========== 022_section_attendance_operational.sql ==========
 
 -- Operational attendance: configurable no-class days + teacher edit window (RLS).
@@ -3127,7 +3193,42 @@ CREATE POLICY academic_no_class_days_admin_write ON public.academic_no_class_day
   USING (public.is_admin(auth.uid()))
   WITH CHECK (public.is_admin(auth.uid()));
 
--- section_attendance teacher write/update: see policies above (020 + migrations 044/045).
+-- Teachers may only insert/update attendance for the last ~48h window (inclusive: today and two prior calendar days).
+DROP POLICY IF EXISTS section_attendance_teacher_write ON public.section_attendance;
+CREATE POLICY section_attendance_teacher_write ON public.section_attendance
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    public.is_admin(auth.uid())
+    OR (
+      public.user_has_role(auth.uid(), 'teacher')
+      AND public.section_enrollment_teacher_is_self(enrollment_id)
+      AND recorded_by = auth.uid()
+      AND attended_on >= (CURRENT_DATE - INTERVAL '2 days')::date
+      AND attended_on <= CURRENT_DATE
+    )
+  );
+
+DROP POLICY IF EXISTS section_attendance_teacher_update ON public.section_attendance;
+CREATE POLICY section_attendance_teacher_update ON public.section_attendance
+  FOR UPDATE TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR (
+      public.user_has_role(auth.uid(), 'teacher')
+      AND public.section_enrollment_teacher_is_self(enrollment_id)
+      AND attended_on >= (CURRENT_DATE - INTERVAL '2 days')::date
+      AND attended_on <= CURRENT_DATE
+    )
+  )
+  WITH CHECK (
+    public.is_admin(auth.uid())
+    OR (
+      public.user_has_role(auth.uid(), 'teacher')
+      AND public.section_enrollment_teacher_is_self(enrollment_id)
+      AND attended_on >= (CURRENT_DATE - INTERVAL '2 days')::date
+      AND attended_on <= CURRENT_DATE
+    )
+  );
 
 -- ========== 023_cohort_assessments_and_enrollment_grades.sql ==========
 
@@ -3567,7 +3668,7 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.get_current_cohort_id() TO authenticated;
 
--- 2. Retention view: published enrollment assessment grades only.
+-- 2. Retention view: switch from section_grades to enrollment_assessment_grades (published only).
 CREATE OR REPLACE VIEW public.v_section_enrollment_grade_average
 WITH (security_invoker = true) AS
 SELECT
@@ -4406,3 +4507,1012 @@ CREATE POLICY academic_section_external_assistants_select_scope
       WHERE a.section_id = section_id AND a.assistant_id = auth.uid()
     )
   );
+
+-- ========== 038_section_attendance_teacher_delete.sql ==========
+
+-- Allow teachers to delete attendance rows they recorded within the same operational window as insert/update,
+-- so the client can offer a safe "undo" after a column bulk-fill of empty cells.
+
+DROP POLICY IF EXISTS section_attendance_teacher_delete ON public.section_attendance;
+CREATE POLICY section_attendance_teacher_delete ON public.section_attendance
+  FOR DELETE TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR (
+      public.user_has_role(auth.uid(), 'teacher')
+      AND public.section_enrollment_teacher_is_self(enrollment_id)
+      AND recorded_by = auth.uid()
+      AND attended_on >= (CURRENT_DATE - INTERVAL '2 days')::date
+      AND attended_on <= CURRENT_DATE
+    )
+  );
+
+-- ========== 039_portal_calendar_feed_and_section_room.sql ==========
+
+-- Portal calendar: persistent iCal subscription token on profiles; optional room label on sections (admin master calendar filter).
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS calendar_feed_token UUID NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS profiles_calendar_feed_token_uidx
+  ON public.profiles (calendar_feed_token)
+  WHERE calendar_feed_token IS NOT NULL;
+
+COMMENT ON COLUMN public.profiles.calendar_feed_token IS
+  'Opaque token for GET /api/calendar/feed/[token].ics (subscription). Rotatable; never treat as secret beyond unlisted URL.';
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS room_label TEXT NULL;
+
+COMMENT ON COLUMN public.academic_sections.room_label IS
+  'Optional classroom / room name for admin scheduling views and calendar filters.';
+
+-- ========== 040_portal_special_calendar_events.sql ==========
+
+-- Institute-wide special calendar events (holidays, assemblies) visible to all authenticated users; admin CRUD.
+
+CREATE TABLE IF NOT EXISTS public.portal_special_calendar_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  notes TEXT NULL,
+  starts_at TIMESTAMPTZ NOT NULL,
+  ends_at TIMESTAMPTZ NOT NULL,
+  all_day BOOLEAN NOT NULL DEFAULT true,
+  created_by UUID NOT NULL REFERENCES public.profiles (id) ON DELETE RESTRICT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT portal_special_calendar_events_time_chk CHECK (ends_at > starts_at)
+);
+
+CREATE INDEX IF NOT EXISTS portal_special_calendar_events_starts_idx
+  ON public.portal_special_calendar_events (starts_at ASC);
+
+COMMENT ON TABLE public.portal_special_calendar_events IS
+  'School-wide calendar rows (special / non-class) shown in portal calendars and iCal feeds.';
+
+DROP TRIGGER IF EXISTS portal_special_calendar_events_set_updated_at ON public.portal_special_calendar_events;
+CREATE TRIGGER portal_special_calendar_events_set_updated_at
+  BEFORE UPDATE ON public.portal_special_calendar_events
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+ALTER TABLE public.portal_special_calendar_events ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS portal_special_calendar_events_select_auth ON public.portal_special_calendar_events;
+CREATE POLICY portal_special_calendar_events_select_auth
+  ON public.portal_special_calendar_events FOR SELECT TO authenticated
+  USING (true);
+
+DROP POLICY IF EXISTS portal_special_calendar_events_insert_admin ON public.portal_special_calendar_events;
+CREATE POLICY portal_special_calendar_events_insert_admin
+  ON public.portal_special_calendar_events FOR INSERT TO authenticated
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS portal_special_calendar_events_update_admin ON public.portal_special_calendar_events;
+CREATE POLICY portal_special_calendar_events_update_admin
+  ON public.portal_special_calendar_events FOR UPDATE TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS portal_special_calendar_events_delete_admin ON public.portal_special_calendar_events;
+CREATE POLICY portal_special_calendar_events_delete_admin
+  ON public.portal_special_calendar_events FOR DELETE TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+-- ========== 041_class_reminder_jobs.sql ==========
+
+-- Class reminder queue, per-student channel prefs, in-app items; site_settings seeds.
+-- Jobs are written/read by service_role (cron); authenticated users have no direct job access.
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'class_reminder_job_kind') THEN
+    CREATE TYPE public.class_reminder_job_kind AS ENUM (
+      'prep_email',
+      'urgent_in_app',
+      'urgent_whatsapp'
+    );
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'class_reminder_job_status') THEN
+    CREATE TYPE public.class_reminder_job_status AS ENUM (
+      'pending',
+      'processing',
+      'sent',
+      'failed',
+      'cancelled'
+    );
+  END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.class_reminder_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  idempotency_key TEXT NOT NULL,
+  section_enrollment_id UUID NOT NULL REFERENCES public.section_enrollments (id) ON DELETE CASCADE,
+  section_id UUID NOT NULL REFERENCES public.academic_sections (id) ON DELETE CASCADE,
+  student_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  recipient_user_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  occurrence_start_at TIMESTAMPTZ NOT NULL,
+  kind public.class_reminder_job_kind NOT NULL,
+  send_at TIMESTAMPTZ NOT NULL,
+  status public.class_reminder_job_status NOT NULL DEFAULT 'pending',
+  attempt_count INT NOT NULL DEFAULT 0 CHECK (attempt_count >= 0),
+  last_error_code TEXT,
+  channels_snapshot JSONB NOT NULL DEFAULT '{}'::jsonb,
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT class_reminder_jobs_idempotency_key_unique UNIQUE (idempotency_key)
+);
+
+CREATE INDEX IF NOT EXISTS class_reminder_jobs_dispatch_idx
+  ON public.class_reminder_jobs (status, send_at ASC)
+  WHERE status IN ('pending', 'processing');
+
+CREATE INDEX IF NOT EXISTS class_reminder_jobs_enrollment_idx
+  ON public.class_reminder_jobs (section_enrollment_id);
+
+CREATE INDEX IF NOT EXISTS class_reminder_jobs_section_idx
+  ON public.class_reminder_jobs (section_id);
+
+DROP TRIGGER IF EXISTS class_reminder_jobs_set_updated_at ON public.class_reminder_jobs;
+CREATE TRIGGER class_reminder_jobs_set_updated_at
+  BEFORE UPDATE ON public.class_reminder_jobs
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+ALTER TABLE public.class_reminder_jobs ENABLE ROW LEVEL SECURITY;
+
+-- Per enrolled student: who receives email / in-app / WhatsApp for that student's class reminders.
+CREATE TABLE IF NOT EXISTS public.class_reminder_channel_prefs (
+  student_id UUID PRIMARY KEY REFERENCES public.profiles (id) ON DELETE CASCADE,
+  email_class_prep BOOLEAN NOT NULL DEFAULT true,
+  in_app_class_urgent BOOLEAN NOT NULL DEFAULT true,
+  whatsapp_class_urgent BOOLEAN NOT NULL DEFAULT false,
+  whatsapp_opt_in_at TIMESTAMPTZ,
+  whatsapp_phone_e164 TEXT,
+  whatsapp_last_error_code TEXT,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+DROP TRIGGER IF EXISTS class_reminder_channel_prefs_set_updated_at ON public.class_reminder_channel_prefs;
+CREATE TRIGGER class_reminder_channel_prefs_set_updated_at
+  BEFORE UPDATE ON public.class_reminder_channel_prefs
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+ALTER TABLE public.class_reminder_channel_prefs ENABLE ROW LEVEL SECURITY;
+
+CREATE OR REPLACE FUNCTION public.class_reminder_prefs_is_tutor_of_student(p_student uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.tutor_student_rel t
+    WHERE t.tutor_id = auth.uid()
+      AND t.student_id = p_student
+  );
+$$;
+
+COMMENT ON FUNCTION public.class_reminder_prefs_is_tutor_of_student IS
+  'True when the current user is a linked tutor for the student (RLS helper).';
+
+DROP POLICY IF EXISTS class_reminder_channel_prefs_select ON public.class_reminder_channel_prefs;
+CREATE POLICY class_reminder_channel_prefs_select ON public.class_reminder_channel_prefs
+  FOR SELECT TO authenticated
+  USING (
+    student_id = auth.uid()
+    OR public.class_reminder_prefs_is_tutor_of_student(student_id)
+  );
+
+DROP POLICY IF EXISTS class_reminder_channel_prefs_insert ON public.class_reminder_channel_prefs;
+CREATE POLICY class_reminder_channel_prefs_insert ON public.class_reminder_channel_prefs
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    (student_id = auth.uid() AND NOT COALESCE((SELECT p.is_minor FROM public.profiles p WHERE p.id = student_id), false))
+    OR public.class_reminder_prefs_is_tutor_of_student(student_id)
+  );
+
+DROP POLICY IF EXISTS class_reminder_channel_prefs_update ON public.class_reminder_channel_prefs;
+CREATE POLICY class_reminder_channel_prefs_update ON public.class_reminder_channel_prefs
+  FOR UPDATE TO authenticated
+  USING (
+    (student_id = auth.uid() AND NOT COALESCE((SELECT p.is_minor FROM public.profiles p WHERE p.id = student_id), false))
+    OR public.class_reminder_prefs_is_tutor_of_student(student_id)
+  )
+  WITH CHECK (
+    (student_id = auth.uid() AND NOT COALESCE((SELECT p.is_minor FROM public.profiles p WHERE p.id = student_id), false))
+    OR public.class_reminder_prefs_is_tutor_of_student(student_id)
+  );
+
+CREATE TABLE IF NOT EXISTS public.class_reminder_in_app (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  recipient_user_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  job_id UUID NOT NULL REFERENCES public.class_reminder_jobs (id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL,
+  read_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT class_reminder_in_app_job_unique UNIQUE (job_id)
+);
+
+CREATE INDEX IF NOT EXISTS class_reminder_in_app_recipient_idx
+  ON public.class_reminder_in_app (recipient_user_id, created_at DESC);
+
+ALTER TABLE public.class_reminder_in_app ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS class_reminder_in_app_select ON public.class_reminder_in_app;
+CREATE POLICY class_reminder_in_app_select ON public.class_reminder_in_app
+  FOR SELECT TO authenticated
+  USING (recipient_user_id = auth.uid());
+
+DROP POLICY IF EXISTS class_reminder_in_app_update ON public.class_reminder_in_app;
+CREATE POLICY class_reminder_in_app_update ON public.class_reminder_in_app
+  FOR UPDATE TO authenticated
+  USING (recipient_user_id = auth.uid())
+  WITH CHECK (recipient_user_id = auth.uid());
+
+INSERT INTO public.site_settings (key, value)
+VALUES
+  ('class_reminders_enabled', 'false'::jsonb),
+  ('class_reminder_prep_offset_minutes', '1440'::jsonb),
+  ('class_reminder_urgent_offset_minutes', '30'::jsonb),
+  ('class_reminder_institute_tz', '"America/Argentina/Cordoba"'::jsonb),
+  (
+    'class_reminder_whatsapp_quiet',
+    '{"startHour":22,"startMinute":0,"endHour":8,"endMinute":1}'::jsonb
+  )
+ON CONFLICT (key) DO NOTHING;
+
+-- ========== 042_drop_legacy_section_grades.sql ==========
+
+-- Remove deprecated quick grades table superseded by cohort assessments.
+
+DROP POLICY IF EXISTS section_grades_select_scope ON public.section_grades;
+DROP POLICY IF EXISTS section_grades_teacher_insert ON public.section_grades;
+DROP POLICY IF EXISTS section_grades_teacher_update ON public.section_grades;
+DROP POLICY IF EXISTS section_grades_admin_delete ON public.section_grades;
+
+DROP INDEX IF EXISTS public.section_grades_enrollment_idx;
+
+DROP TABLE IF EXISTS public.section_grades;
+
+-- ========== 043_portal_special_calendar_event_types_scope_rls.sql ==========
+
+-- Portal special calendar: closed event types, visibility scope, meeting URL, scoped SELECT RLS.
+
+ALTER TABLE public.portal_special_calendar_events
+  ADD COLUMN IF NOT EXISTS event_type TEXT NOT NULL DEFAULT 'social',
+  ADD COLUMN IF NOT EXISTS calendar_scope TEXT NOT NULL DEFAULT 'global',
+  ADD COLUMN IF NOT EXISTS cohort_id UUID NULL REFERENCES public.academic_cohorts (id) ON DELETE RESTRICT,
+  ADD COLUMN IF NOT EXISTS section_id UUID NULL REFERENCES public.academic_sections (id) ON DELETE RESTRICT,
+  ADD COLUMN IF NOT EXISTS meeting_url TEXT NULL;
+
+ALTER TABLE public.portal_special_calendar_events
+  DROP CONSTRAINT IF EXISTS portal_special_calendar_events_event_type_chk;
+
+ALTER TABLE public.portal_special_calendar_events
+  ADD CONSTRAINT portal_special_calendar_events_event_type_chk CHECK (
+    event_type IN (
+      'holiday',
+      'institutional_exam',
+      'parent_meeting',
+      'social',
+      'trimester_admin'
+    )
+  );
+
+ALTER TABLE public.portal_special_calendar_events
+  DROP CONSTRAINT IF EXISTS portal_special_calendar_events_scope_chk;
+
+ALTER TABLE public.portal_special_calendar_events
+  ADD CONSTRAINT portal_special_calendar_events_scope_chk CHECK (
+    (calendar_scope = 'global' AND cohort_id IS NULL AND section_id IS NULL)
+    OR (calendar_scope = 'cohort' AND cohort_id IS NOT NULL AND section_id IS NULL)
+    OR (calendar_scope = 'section' AND section_id IS NOT NULL AND cohort_id IS NULL)
+  );
+
+COMMENT ON COLUMN public.portal_special_calendar_events.event_type IS
+  'Closed catalog: holiday, institutional_exam, parent_meeting, social, trimester_admin.';
+
+COMMENT ON COLUMN public.portal_special_calendar_events.calendar_scope IS
+  'Visibility scope: global (institute), cohort (single cohort), or section (single section).';
+
+CREATE INDEX IF NOT EXISTS portal_special_calendar_events_cohort_idx
+  ON public.portal_special_calendar_events (cohort_id)
+  WHERE cohort_id IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS portal_special_calendar_events_section_idx
+  ON public.portal_special_calendar_events (section_id)
+  WHERE section_id IS NOT NULL;
+
+CREATE OR REPLACE FUNCTION public.portal_special_calendar_row_visible(
+  p_viewer uuid,
+  p_event_type text,
+  p_calendar_scope text,
+  p_cohort_id uuid,
+  p_section_id uuid
+) RETURNS boolean
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_role text;
+BEGIN
+  IF public.is_admin(p_viewer) THEN
+    RETURN true;
+  END IF;
+
+  SELECT p.role INTO v_role FROM public.profiles p WHERE p.id = p_viewer;
+  IF v_role IS NULL THEN
+    RETURN false;
+  END IF;
+
+  IF p_event_type = 'parent_meeting' THEN
+    IF v_role = 'student' THEN
+      RETURN false;
+    END IF;
+
+    IF v_role = 'parent' THEN
+      IF p_calendar_scope = 'global' THEN
+        RETURN true;
+      ELSIF p_calendar_scope = 'cohort' AND p_cohort_id IS NOT NULL THEN
+        RETURN EXISTS (
+          SELECT 1
+          FROM public.tutor_student_rel tsr
+          JOIN public.section_enrollments se ON se.student_id = tsr.student_id AND se.status = 'active'
+          JOIN public.academic_sections s ON s.id = se.section_id AND s.archived_at IS NULL
+          WHERE tsr.tutor_id = p_viewer AND s.cohort_id = p_cohort_id
+        );
+      ELSIF p_calendar_scope = 'section' AND p_section_id IS NOT NULL THEN
+        RETURN EXISTS (
+          SELECT 1
+          FROM public.tutor_student_rel tsr
+          JOIN public.section_enrollments se ON se.student_id = tsr.student_id AND se.status = 'active'
+          WHERE tsr.tutor_id = p_viewer AND se.section_id = p_section_id
+        );
+      END IF;
+      RETURN false;
+    END IF;
+
+    IF v_role IN ('teacher', 'assistant') THEN
+      IF p_calendar_scope <> 'section' OR p_section_id IS NULL THEN
+        RETURN false;
+      END IF;
+      RETURN EXISTS (
+        SELECT 1
+        FROM public.academic_sections s
+        WHERE s.id = p_section_id
+          AND s.archived_at IS NULL
+          AND (
+            s.teacher_id = p_viewer
+            OR EXISTS (
+              SELECT 1 FROM public.academic_section_assistants a
+              WHERE a.section_id = s.id AND a.assistant_id = p_viewer
+            )
+          )
+      );
+    END IF;
+
+    RETURN false;
+  END IF;
+
+  IF p_calendar_scope = 'global' THEN
+    RETURN true;
+  END IF;
+
+  IF p_calendar_scope = 'cohort' AND p_cohort_id IS NOT NULL THEN
+    IF v_role = 'student' THEN
+      RETURN EXISTS (
+        SELECT 1
+        FROM public.section_enrollments se
+        JOIN public.academic_sections s ON s.id = se.section_id AND s.archived_at IS NULL
+        WHERE se.student_id = p_viewer AND se.status = 'active' AND s.cohort_id = p_cohort_id
+      );
+    END IF;
+
+    IF v_role = 'parent' THEN
+      RETURN EXISTS (
+        SELECT 1
+        FROM public.tutor_student_rel tsr
+        JOIN public.section_enrollments se ON se.student_id = tsr.student_id AND se.status = 'active'
+        JOIN public.academic_sections s ON s.id = se.section_id AND s.archived_at IS NULL
+        WHERE tsr.tutor_id = p_viewer AND s.cohort_id = p_cohort_id
+      );
+    END IF;
+
+    IF v_role IN ('teacher', 'assistant') THEN
+      RETURN EXISTS (
+        SELECT 1
+        FROM public.academic_sections s
+        WHERE s.cohort_id = p_cohort_id
+          AND s.archived_at IS NULL
+          AND (
+            s.teacher_id = p_viewer
+            OR EXISTS (
+              SELECT 1 FROM public.academic_section_assistants a
+              WHERE a.section_id = s.id AND a.assistant_id = p_viewer
+            )
+          )
+      );
+    END IF;
+
+    RETURN false;
+  END IF;
+
+  IF p_calendar_scope = 'section' AND p_section_id IS NOT NULL THEN
+    IF v_role = 'student' THEN
+      RETURN EXISTS (
+        SELECT 1
+        FROM public.section_enrollments se
+        WHERE se.student_id = p_viewer AND se.status = 'active' AND se.section_id = p_section_id
+      );
+    END IF;
+
+    IF v_role = 'parent' THEN
+      RETURN EXISTS (
+        SELECT 1
+        FROM public.tutor_student_rel tsr
+        JOIN public.section_enrollments se ON se.student_id = tsr.student_id AND se.status = 'active'
+        WHERE tsr.tutor_id = p_viewer AND se.section_id = p_section_id
+      );
+    END IF;
+
+    IF v_role IN ('teacher', 'assistant') THEN
+      RETURN EXISTS (
+        SELECT 1
+        FROM public.academic_sections s
+        WHERE s.id = p_section_id
+          AND s.archived_at IS NULL
+          AND (
+            s.teacher_id = p_viewer
+            OR EXISTS (
+              SELECT 1 FROM public.academic_section_assistants a
+              WHERE a.section_id = s.id AND a.assistant_id = p_viewer
+            )
+          )
+      );
+    END IF;
+
+    RETURN false;
+  END IF;
+
+  RETURN false;
+END;
+$$;
+
+DROP POLICY IF EXISTS portal_special_calendar_events_select_auth ON public.portal_special_calendar_events;
+CREATE POLICY portal_special_calendar_events_select_scoped
+  ON public.portal_special_calendar_events
+  FOR SELECT TO authenticated
+  USING (
+    public.portal_special_calendar_row_visible(
+      auth.uid(),
+      event_type,
+      calendar_scope,
+      cohort_id,
+      section_id
+    )
+  );
+
+COMMENT ON FUNCTION public.portal_special_calendar_row_visible(uuid, text, text, uuid, uuid) IS
+  'RLS helper: visibility by role, event_type, and calendar_scope (mirrors app-side filter for feed).';
+
+-- ========== 044_section_attendance_rls_portal_staff.sql ==========
+
+-- Attendance writes were gated on user_has_role(..., 'teacher') while the app allows
+-- lead teachers, staff assistants, and student assistants (section_enrollment_teacher_is_self).
+-- Drop the role check; enrollment+section membership already scopes writes.
+
+DROP POLICY IF EXISTS section_attendance_teacher_write ON public.section_attendance;
+CREATE POLICY section_attendance_teacher_write ON public.section_attendance
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    public.is_admin(auth.uid())
+    OR (
+      public.section_enrollment_teacher_is_self(enrollment_id)
+      AND recorded_by = auth.uid()
+      AND attended_on >= (CURRENT_DATE - INTERVAL '2 days')::date
+      AND attended_on <= CURRENT_DATE
+    )
+  );
+
+DROP POLICY IF EXISTS section_attendance_teacher_update ON public.section_attendance;
+CREATE POLICY section_attendance_teacher_update ON public.section_attendance
+  FOR UPDATE TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR (
+      public.section_enrollment_teacher_is_self(enrollment_id)
+      AND attended_on >= (CURRENT_DATE - INTERVAL '2 days')::date
+      AND attended_on <= CURRENT_DATE
+    )
+  )
+  WITH CHECK (
+    public.is_admin(auth.uid())
+    OR (
+      public.section_enrollment_teacher_is_self(enrollment_id)
+      AND attended_on >= (CURRENT_DATE - INTERVAL '2 days')::date
+      AND attended_on <= CURRENT_DATE
+    )
+  );
+
+DROP POLICY IF EXISTS section_attendance_teacher_delete ON public.section_attendance;
+CREATE POLICY section_attendance_teacher_delete ON public.section_attendance
+  FOR DELETE TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR (
+      public.section_enrollment_teacher_is_self(enrollment_id)
+      AND recorded_by = auth.uid()
+      AND attended_on >= (CURRENT_DATE - INTERVAL '2 days')::date
+      AND attended_on <= CURRENT_DATE
+    )
+  );
+
+-- ========== 045_section_attendance_teacher_institute_window.sql ==========
+
+-- Teacher/staff portal attendance: widen write window to the institute calendar (aligned with app
+-- `getInstituteTimeZone` / analytics) instead of PostgreSQL CURRENT_DATE and “last 2 days”.
+-- Upper bound: no marks after institute-local “today”. Lower: wide bounded lookback so RLS does not
+-- contradict app rules that allow any attended_on from section start (see adminAttendanceMatrixEffMinIso).
+
+DROP POLICY IF EXISTS section_attendance_teacher_write ON public.section_attendance;
+CREATE POLICY section_attendance_teacher_write ON public.section_attendance
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    public.is_admin(auth.uid())
+    OR (
+      public.section_enrollment_teacher_is_self(enrollment_id)
+      AND recorded_by = auth.uid()
+      AND attended_on >= (
+        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date - INTERVAL '4000 days'
+      )::date
+      AND attended_on <= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date
+    )
+  );
+
+DROP POLICY IF EXISTS section_attendance_teacher_update ON public.section_attendance;
+CREATE POLICY section_attendance_teacher_update ON public.section_attendance
+  FOR UPDATE TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR (
+      public.section_enrollment_teacher_is_self(enrollment_id)
+      AND attended_on >= (
+        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date - INTERVAL '4000 days'
+      )::date
+      AND attended_on <= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date
+    )
+  )
+  WITH CHECK (
+    public.is_admin(auth.uid())
+    OR (
+      public.section_enrollment_teacher_is_self(enrollment_id)
+      AND attended_on >= (
+        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date - INTERVAL '4000 days'
+      )::date
+      AND attended_on <= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date
+    )
+  );
+
+DROP POLICY IF EXISTS section_attendance_teacher_delete ON public.section_attendance;
+CREATE POLICY section_attendance_teacher_delete ON public.section_attendance
+  FOR DELETE TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR (
+      public.section_enrollment_teacher_is_self(enrollment_id)
+      AND recorded_by = auth.uid()
+      AND attended_on >= (
+        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date - INTERVAL '4000 days'
+      )::date
+      AND attended_on <= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date
+    )
+  );
+
+-- ========== 046_site_themes.sql ==========
+
+-- Runtime theming + landing CMS
+-- Modelo: cada `site_themes` row es un "template" (default, navidad, aniversario...).
+-- Solo uno puede estar `is_active = true` a la vez (índice parcial UNIQUE).
+-- `properties` JSONB sobreescribe claves de `system.properties` (color.*, layout.*, shadow.*, app.*, contact.*).
+-- `content` JSONB guarda overrides de copy de landing por sección (ES + EN).
+-- `site_theme_media` guarda imágenes por sección + posición; storage en bucket `landing-media`.
+-- Lectura del tema activo: pública (anon + authenticated). Escritura: admin.
+
+-- site_themes ---------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.site_themes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT FALSE,
+  properties JSONB NOT NULL DEFAULT '{}'::jsonb,
+  content JSONB NOT NULL DEFAULT '{}'::jsonb,
+  archived_at TIMESTAMPTZ NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_by UUID NULL REFERENCES auth.users (id) ON DELETE SET NULL,
+  CONSTRAINT site_themes_archived_not_active
+    CHECK (archived_at IS NULL OR is_active = FALSE)
+);
+
+COMMENT ON TABLE public.site_themes IS
+  'Runtime theming / landing CMS templates. Up to one row may have is_active = true.';
+
+COMMENT ON COLUMN public.site_themes.properties IS
+  'JSONB map of system.properties overrides (e.g. {"color.primary":"#000"}). Defaults from system.properties.';
+
+COMMENT ON COLUMN public.site_themes.content IS
+  'JSONB map of landing copy overrides by section + locale. Defaults from src/dictionaries/*.json.';
+
+CREATE UNIQUE INDEX IF NOT EXISTS site_themes_only_one_active
+  ON public.site_themes (is_active)
+  WHERE is_active = TRUE;
+
+CREATE INDEX IF NOT EXISTS site_themes_admin_list_idx
+  ON public.site_themes (archived_at NULLS FIRST, is_active DESC, created_at DESC);
+
+-- updated_at trigger --------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.site_themes_set_updated_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS site_themes_set_updated_at ON public.site_themes;
+CREATE TRIGGER site_themes_set_updated_at
+  BEFORE UPDATE ON public.site_themes
+  FOR EACH ROW
+  EXECUTE FUNCTION public.site_themes_set_updated_at();
+
+-- site_theme_media ----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.site_theme_media (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  theme_id UUID NOT NULL REFERENCES public.site_themes (id) ON DELETE CASCADE,
+  section TEXT NOT NULL,
+  position INT NOT NULL DEFAULT 1,
+  storage_path TEXT NOT NULL,
+  alt_es TEXT NULL,
+  alt_en TEXT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (theme_id, section, position)
+);
+
+COMMENT ON TABLE public.site_theme_media IS
+  'Images per landing section (inicio, historia, modalidades, niveles, certificaciones, oferta). Shared ES/EN in v1.';
+
+CREATE INDEX IF NOT EXISTS site_theme_media_theme_section_idx
+  ON public.site_theme_media (theme_id, section);
+
+-- RLS -----------------------------------------------------------------------
+ALTER TABLE public.site_themes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.site_theme_media ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS site_themes_select_active ON public.site_themes;
+CREATE POLICY site_themes_select_active
+  ON public.site_themes FOR SELECT
+  TO anon, authenticated
+  USING (is_active = TRUE);
+
+DROP POLICY IF EXISTS site_themes_select_admin ON public.site_themes;
+CREATE POLICY site_themes_select_admin
+  ON public.site_themes FOR SELECT
+  TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS site_themes_all_admin ON public.site_themes;
+CREATE POLICY site_themes_all_admin
+  ON public.site_themes FOR ALL
+  TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS site_theme_media_select_active ON public.site_theme_media;
+CREATE POLICY site_theme_media_select_active
+  ON public.site_theme_media FOR SELECT
+  TO anon, authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.site_themes t
+      WHERE t.id = site_theme_media.theme_id AND t.is_active = TRUE
+    )
+  );
+
+DROP POLICY IF EXISTS site_theme_media_select_admin ON public.site_theme_media;
+CREATE POLICY site_theme_media_select_admin
+  ON public.site_theme_media FOR SELECT
+  TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS site_theme_media_all_admin ON public.site_theme_media;
+CREATE POLICY site_theme_media_all_admin
+  ON public.site_theme_media FOR ALL
+  TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+-- Storage bucket: landing-media (público RO, escritura admin) ---------------
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('landing-media', 'landing-media', TRUE)
+ON CONFLICT (id) DO NOTHING;
+
+DROP POLICY IF EXISTS landing_media_select_public ON storage.objects;
+CREATE POLICY landing_media_select_public
+  ON storage.objects FOR SELECT
+  TO anon, authenticated
+  USING (bucket_id = 'landing-media');
+
+DROP POLICY IF EXISTS landing_media_insert_admin ON storage.objects;
+CREATE POLICY landing_media_insert_admin
+  ON storage.objects FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    bucket_id = 'landing-media'
+    AND public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS landing_media_update_admin ON storage.objects;
+CREATE POLICY landing_media_update_admin
+  ON storage.objects FOR UPDATE
+  TO authenticated
+  USING (
+    bucket_id = 'landing-media'
+    AND public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS landing_media_delete_admin ON storage.objects;
+CREATE POLICY landing_media_delete_admin
+  ON storage.objects FOR DELETE
+  TO authenticated
+  USING (
+    bucket_id = 'landing-media'
+    AND public.is_admin(auth.uid())
+  );
+
+-- ========== 047_admin_traffic_visitor_breakdowns.sql ==========
+
+-- Per visitor_kind breakdowns for the admin analytics traffic cards
+-- (top pathnames + top user-agents). Bounded result sets for the UI tabs.
+
+CREATE OR REPLACE FUNCTION public.admin_traffic_kind_path_breakdown(
+  p_kind public.traffic_visitor_kind,
+  p_days int,
+  p_limit int DEFAULT 200
+)
+RETURNS TABLE (pathname text, cnt bigint)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  lim int := least(coalesce(nullif(p_limit, 0), 200), 1000);
+BEGIN
+  IF NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+  RETURN QUERY
+  SELECT
+    t.pathname,
+    COUNT(*)::bigint AS cnt
+  FROM public.traffic_page_hits t
+  WHERE t.created_at >= now() - (p_days || ' days')::interval
+    AND t.visitor_kind = p_kind
+  GROUP BY t.pathname
+  ORDER BY cnt DESC, pathname
+  LIMIT lim;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.admin_traffic_kind_path_breakdown(public.traffic_visitor_kind, int, int)
+  TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.admin_traffic_kind_agent_breakdown(
+  p_kind public.traffic_visitor_kind,
+  p_days int,
+  p_limit int DEFAULT 100
+)
+RETURNS TABLE (user_agent text, cnt bigint)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  lim int := least(coalesce(nullif(p_limit, 0), 100), 500);
+BEGIN
+  IF NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+  RETURN QUERY
+  SELECT
+    coalesce(nullif(btrim(t.user_agent), ''), '(unknown)') AS user_agent,
+    COUNT(*)::bigint AS cnt
+  FROM public.traffic_page_hits t
+  WHERE t.created_at >= now() - (p_days || ' days')::interval
+    AND t.visitor_kind = p_kind
+  GROUP BY 1
+  ORDER BY cnt DESC, user_agent
+  LIMIT lim;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.admin_traffic_kind_agent_breakdown(public.traffic_visitor_kind, int, int)
+  TO authenticated;
+
+CREATE INDEX IF NOT EXISTS traffic_page_hits_kind_path_created_idx
+  ON public.traffic_page_hits (visitor_kind, pathname, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS traffic_page_hits_kind_ua_created_idx
+  ON public.traffic_page_hits (visitor_kind, user_agent, created_at DESC);
+
+-- ========== 048_site_themes_blocks_and_kind.sql ==========
+
+-- PR 6: subsecciones dinámicas + template_kind para los templates de landing.
+-- Ver docs/adr/2026-04-cms-blocks-and-template-kind.md.
+--
+-- 1. Enum `site_theme_kind`: dos personalidades visuales en v1
+--    ('classic' = lo de hoy; 'editorial' = layout alternativo full-bleed).
+-- 2. Columna `site_themes.template_kind` con default 'classic' para no romper
+--    nada al desplegar (todas las filas existentes siguen pintando igual).
+-- 3. Columna `site_themes.blocks` JSONB para subsecciones dinámicas asociadas
+--    a las 6 secciones canónicas. La validación de forma/tamaño se hace en
+--    las server actions (`sanitizeLandingBlocksForPersistence`); aquí solo
+--    garantizamos un default seguro.
+--
+-- No se cambian RLS ni políticas: blocks/template_kind viven dentro de la
+-- propia fila, así que las policies de SELECT/ALL ya cubren ambas columnas.
+
+-- 1) Enum -------------------------------------------------------------------
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type WHERE typname = 'site_theme_kind'
+  ) THEN
+    CREATE TYPE public.site_theme_kind AS ENUM ('classic', 'editorial');
+  END IF;
+END;
+$$;
+
+COMMENT ON TYPE public.site_theme_kind IS
+  'Personalidad visual de un template de landing. classic = layout actual; editorial = shell alternativo full-bleed con tipografía display.';
+
+-- 2) Columnas en site_themes -----------------------------------------------
+ALTER TABLE public.site_themes
+  ADD COLUMN IF NOT EXISTS template_kind public.site_theme_kind
+    NOT NULL DEFAULT 'classic';
+
+ALTER TABLE public.site_themes
+  ADD COLUMN IF NOT EXISTS blocks JSONB
+    NOT NULL DEFAULT '[]'::jsonb;
+
+COMMENT ON COLUMN public.site_themes.template_kind IS
+  'Selecciona el shell de la landing pública (LandingMainSections clásico vs editorial). Defaults a classic para retrocompatibilidad.';
+
+COMMENT ON COLUMN public.site_themes.blocks IS
+  'Array de subsecciones dinámicas (cards/callouts/quotes) asociadas a las secciones canónicas. Validado por server actions (sanitizeLandingBlocksForPersistence). Cap suave de 24 bloques por template.';
+
+-- 3) Backfill defensivo (no debería hacer falta por DEFAULT, pero idempotente) -
+UPDATE public.site_themes
+SET template_kind = 'classic'
+WHERE template_kind IS NULL;
+
+UPDATE public.site_themes
+SET blocks = '[]'::jsonb
+WHERE blocks IS NULL;
+
+-- ========== 049_site_themes_seed_editorial.sql ==========
+
+-- Seed: 'Editorial' site_theme template
+-- Provides a second template with template_kind = 'editorial' so admins can
+-- duplicate / activate it from the CMS without manual SQL. Idempotent: only
+-- inserts when no row with this slug exists.
+
+INSERT INTO public.site_themes (
+  slug,
+  name,
+  is_active,
+  template_kind,
+  properties,
+  content,
+  blocks
+)
+SELECT
+  'editorial',
+  'Editorial',
+  FALSE,
+  'editorial'::public.site_theme_kind,
+  jsonb_build_object(
+    'color.primary', '#1F2937',
+    'color.secondary', '#B45309',
+    'color.background', '#FAFAF9',
+    'color.surface', '#FFFFFF',
+    'color.muted', '#E7E5E4',
+    'color.foreground', '#111827',
+    'layout.border-radius', '4px'
+  ),
+  '{}'::jsonb,
+  '[]'::jsonb
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.site_themes WHERE slug = 'editorial'
+);
+
+COMMENT ON COLUMN public.site_themes.template_kind IS
+  'Selecciona el shell de la landing pública (LandingMainSections clásico vs editorial). Defaults a classic para retrocompatibilidad.';
+
+-- ========== 050_site_themes_kind_minimal.sql ==========
+
+-- Extend site_theme_kind enum with 'minimal' so admins can switch the public
+-- landing to a third visual personality without manual SQL.
+--
+-- IMPORTANTE: Postgres no permite usar un nuevo valor de enum en la misma
+-- transacción donde se añade ("New enum values must be committed before they
+-- can be used", SQLSTATE 55P04). Supabase corre cada migración dentro de una
+-- transacción, así que esta migración SOLO añade el valor al enum. El INSERT
+-- semilla del template 'Minimal' vive en `051_site_themes_seed_minimal.sql`,
+-- que ya puede referenciar 'minimal'::public.site_theme_kind con seguridad.
+--
+-- Idempotente: salta el ALTER cuando el valor ya existe.
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_enum e
+    JOIN pg_type t ON t.oid = e.enumtypid
+    WHERE t.typname = 'site_theme_kind' AND e.enumlabel = 'minimal'
+  ) THEN
+    ALTER TYPE public.site_theme_kind ADD VALUE 'minimal';
+  END IF;
+END;
+$$;
+
+-- ========== 051_site_themes_seed_minimal.sql ==========
+
+-- Seed: 'Minimal' site_theme template
+-- Provides a third template with template_kind = 'minimal' so admins can
+-- duplicate / activate it from the CMS without manual SQL. Idempotent: only
+-- inserts when no row with this slug exists.
+--
+-- Va en una migración separada de la que añade el valor al enum (050) porque
+-- Postgres exige que los nuevos valores de enum estén "committed" antes de
+-- poder usarse en consultas (SQLSTATE 55P04). Como cada migración corre en su
+-- propia transacción, separar el ALTER del INSERT garantiza que 'minimal' ya
+-- existe y está disponible en el catálogo cuando llegamos al cast aquí abajo.
+
+INSERT INTO public.site_themes (
+  slug,
+  name,
+  is_active,
+  template_kind,
+  properties,
+  content,
+  blocks
+)
+SELECT
+  'minimal',
+  'Minimal',
+  FALSE,
+  'minimal'::public.site_theme_kind,
+  jsonb_build_object(
+    'color.primary', '#0F172A',
+    'color.secondary', '#0EA5E9',
+    'color.background', '#FFFFFF',
+    'color.surface', '#F8FAFC',
+    'color.muted', '#E2E8F0',
+    'color.foreground', '#0F172A',
+    'layout.border-radius', '12px'
+  ),
+  '{}'::jsonb,
+  '[]'::jsonb
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.site_themes WHERE slug = 'minimal'
+);

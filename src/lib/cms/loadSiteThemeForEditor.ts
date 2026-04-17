@@ -7,6 +7,10 @@ import {
   groupThemeTokens,
   type TokenGroup,
 } from "@/lib/cms/groupThemeTokens";
+import {
+  isSiteThemeKind,
+  parseLandingBlocks,
+} from "@/lib/cms/landingBlocksCatalog";
 import type {
   SiteThemeContent,
   SiteThemeRow,
@@ -23,8 +27,10 @@ interface ThemeRowFromDb {
   slug: string;
   name: string;
   is_active: boolean;
+  template_kind: unknown;
   properties: unknown;
   content: unknown;
+  blocks: unknown;
   archived_at: string | null;
   created_at: string;
   updated_at: string;
@@ -51,8 +57,10 @@ function mapRow(row: ThemeRowFromDb): SiteThemeRow {
     slug: String(row.slug),
     name: String(row.name),
     isActive: Boolean(row.is_active),
+    templateKind: isSiteThemeKind(row.template_kind) ? row.template_kind : "classic",
     properties: parseOverrides(row.properties),
     content: parseContent(row.content),
+    blocks: parseLandingBlocks(row.blocks),
     archivedAt: row.archived_at ? String(row.archived_at) : null,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
@@ -78,7 +86,7 @@ export async function loadSiteThemeForEditor(
   const { data, error } = await supabase
     .from("site_themes")
     .select(
-      "id, slug, name, is_active, properties, content, archived_at, created_at, updated_at, updated_by",
+      "id, slug, name, is_active, template_kind, properties, content, blocks, archived_at, created_at, updated_at, updated_by",
     )
     .eq("id", themeId)
     .maybeSingle();

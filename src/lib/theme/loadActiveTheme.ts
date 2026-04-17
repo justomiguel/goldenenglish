@@ -2,6 +2,10 @@ import { unstable_cache } from "next/cache";
 import { createAnonReadOnlyClient } from "@/lib/supabase/anon";
 import { logServerException, logSupabaseError } from "@/lib/logging/serverActionLog";
 import {
+  isSiteThemeKind,
+  parseLandingBlocks,
+} from "@/lib/cms/landingBlocksCatalog";
+import {
   type ActiveThemeSnapshot,
   type LandingSectionSlug,
   LANDING_SECTION_SLUGS,
@@ -38,7 +42,7 @@ async function loadActiveThemeUncached(): Promise<ActiveThemeSnapshot | null> {
   const { data: themeRow, error: themeErr } = await client
     .from("site_themes")
     .select(
-      "id, slug, name, is_active, properties, content, archived_at, created_at, updated_at, updated_by",
+      "id, slug, name, is_active, template_kind, properties, content, blocks, archived_at, created_at, updated_at, updated_by",
     )
     .eq("is_active", true)
     .is("archived_at", null)
@@ -55,8 +59,12 @@ async function loadActiveThemeUncached(): Promise<ActiveThemeSnapshot | null> {
     slug: String(themeRow.slug),
     name: String(themeRow.name),
     isActive: Boolean(themeRow.is_active),
+    templateKind: isSiteThemeKind(themeRow.template_kind)
+      ? themeRow.template_kind
+      : "classic",
     properties: parseOverrides(themeRow.properties),
     content: parseContent(themeRow.content),
+    blocks: parseLandingBlocks(themeRow.blocks),
     archivedAt: themeRow.archived_at ? String(themeRow.archived_at) : null,
     createdAt: String(themeRow.created_at),
     updatedAt: String(themeRow.updated_at),

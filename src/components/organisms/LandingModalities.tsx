@@ -9,15 +9,17 @@ import {
 import { LandingSection } from "@/components/molecules/LandingSection";
 import { LandingStudentGallery } from "@/components/molecules/LandingStudentGallery";
 import type { Dictionary } from "@/types/i18n";
+import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 
 interface LandingModalitiesProps {
   dict: Dictionary;
+  mediaMap?: LandingMediaMap;
 }
 
 const stroke = 1.75;
 const iconClass = "h-4 w-4 shrink-0 text-[var(--color-primary)]/75";
 
-export function LandingModalities({ dict }: LandingModalitiesProps) {
+export function LandingModalities({ dict, mediaMap }: LandingModalitiesProps) {
   const m = dict.landing.modalities;
   const presencialItems = [m.presencial.b1, m.presencial.b2, m.presencial.b3];
   const remotaItems = [m.remota.b1, m.remota.b2, m.remota.b3];
@@ -121,7 +123,7 @@ export function LandingModalities({ dict }: LandingModalitiesProps) {
         </div>
         </div>
 
-      <LandingStudentGallery dict={dict} />
+      <LandingStudentGallery dict={dict} mediaMap={mediaMap} />
       </div>
     </LandingSection>
   );

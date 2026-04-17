@@ -4,17 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Images, X } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import { MODALIDADES_IMAGES } from "@/lib/landing/sectionLandingImages";
 import {
-  MODALIDADES_IMAGES,
-  modalidadesCollageSrc,
-} from "@/lib/landing/sectionLandingImages";
+  resolveLandingImageSrc,
+  type LandingMediaMap,
+} from "@/lib/cms/resolveLandingMedia";
 
 const stroke = 1.75;
-
-function srcForPhotoIndex(ix: number): string {
-  const max = MODALIDADES_IMAGES.length;
-  return ix >= 0 && ix < max ? modalidadesCollageSrc(ix) : "";
-}
 
 function bypassOptimizer(src: string): boolean {
   return src.startsWith("/images/");
@@ -22,9 +18,20 @@ function bypassOptimizer(src: string): boolean {
 
 interface LandingStudentGalleryProps {
   dict: Dictionary;
+  mediaMap?: LandingMediaMap;
 }
 
-export function LandingStudentGallery({ dict }: LandingStudentGalleryProps) {
+export function LandingStudentGallery({
+  dict,
+  mediaMap,
+}: LandingStudentGalleryProps) {
+  const max = MODALIDADES_IMAGES.length;
+  const srcForPhotoIndex = (ix: number): string => {
+    if (ix < 0 || ix >= max) return "";
+    const filename = MODALIDADES_IMAGES[ix]!;
+    return resolveLandingImageSrc("modalidades", filename, mediaMap);
+  };
+
   const sg = dict.landing.studentGallery;
   const photoAlts = dict.landing.collage.alts;
   const [openIdx, setOpenIdx] = useState<number | null>(null);

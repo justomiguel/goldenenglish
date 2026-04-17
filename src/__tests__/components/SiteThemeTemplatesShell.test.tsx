@@ -39,8 +39,10 @@ function row(overrides: Partial<SiteThemeRow> = {}): SiteThemeRow {
     slug: "spring-2026",
     name: "Spring 2026",
     isActive: false,
+    templateKind: "classic",
     properties: {},
     content: {},
+    blocks: [],
     archivedAt: null,
     createdAt: "2026-04-01T10:00:00Z",
     updatedAt: "2026-04-01T10:00:00Z",
@@ -74,6 +76,36 @@ describe("SiteThemeTemplatesShell", () => {
     expect(
       screen.getByRole("button", { name: new RegExp(labels.createCta, "i") }),
     ).toBeInTheDocument();
+  });
+
+  it("renders the templateKind label in the kind column", () => {
+    render(
+      <SiteThemeTemplatesShell
+        locale="en"
+        labels={labels}
+        rows={[
+          row({ templateKind: "classic", slug: "default" }),
+          row({
+            id: "00000000-0000-4000-8000-000000000002",
+            templateKind: "editorial",
+            slug: "ed-2026",
+            name: "Spring Editorial 2026",
+          }),
+          row({
+            id: "00000000-0000-4000-8000-000000000003",
+            templateKind: "minimal",
+            slug: "min-2026",
+            name: "Spring Minimal 2026",
+          }),
+        ]}
+        total={3}
+        truncated={false}
+      />,
+    );
+    const kindLabels = labels.landing.kindPicker.options;
+    expect(screen.getByText(kindLabels.classic)).toBeInTheDocument();
+    expect(screen.getByText(kindLabels.editorial)).toBeInTheDocument();
+    expect(screen.getByText(kindLabels.minimal)).toBeInTheDocument();
   });
 
   it("hides archived rows by default and reveals them via the toggle", () => {

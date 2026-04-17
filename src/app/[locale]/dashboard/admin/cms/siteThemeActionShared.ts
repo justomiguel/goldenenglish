@@ -55,8 +55,10 @@ export interface FetchedSiteTheme {
   name: string;
   is_active: boolean;
   archived_at: string | null;
+  template_kind: unknown;
   properties: unknown;
   content: unknown;
+  blocks: unknown;
 }
 
 export async function fetchSiteThemeById(
@@ -65,7 +67,9 @@ export async function fetchSiteThemeById(
 ): Promise<FetchedSiteTheme | null> {
   const { data, error } = await supabase
     .from("site_themes")
-    .select("id, slug, name, is_active, archived_at, properties, content")
+    .select(
+      "id, slug, name, is_active, archived_at, template_kind, properties, content, blocks",
+    )
     .eq("id", id)
     .maybeSingle();
   if (error) logSupabaseError("siteThemeActions:fetchTheme", error);

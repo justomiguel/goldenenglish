@@ -45,3 +45,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# cursor IDE local debug logs
+.cursor/debug-*.log
+
+# supabase CLI temp/cache
+supabase/.temp/

@@ -3,18 +3,22 @@ import { LandingSection } from "@/components/molecules/LandingSection";
 import { LandingTiltedPhoto } from "@/components/molecules/LandingTiltedPhoto";
 import type { Dictionary } from "@/types/i18n";
 import type { BrandPublic } from "@/lib/brand/server";
+import { HISTORIA_IMAGES } from "@/lib/landing/sectionLandingImages";
 import {
-  HISTORIA_IMAGES,
-  sectionImageSrc,
-} from "@/lib/landing/sectionLandingImages";
+  resolveLandingImageSrc,
+  type LandingMediaMap,
+} from "@/lib/cms/resolveLandingMedia";
 
 interface LandingStoryProps {
   dict: Dictionary;
   brand: BrandPublic;
+  mediaMap?: LandingMediaMap;
 }
 
-export function LandingStory({ dict, brand }: LandingStoryProps) {
+export function LandingStory({ dict, brand, mediaMap }: LandingStoryProps) {
   const alts = dict.landing.collage.alts;
+  const storyImage = (index: number) =>
+    resolveLandingImageSrc("historia", HISTORIA_IMAGES[index]!, mediaMap);
 
   return (
     <LandingSection
@@ -54,14 +58,14 @@ export function LandingStory({ dict, brand }: LandingStoryProps) {
 
         <div className="relative mx-auto hidden min-h-[18rem] w-full max-w-md md:block lg:mx-0 lg:max-w-none">
           <LandingTiltedPhoto
-            src={sectionImageSrc("historia", HISTORIA_IMAGES[0])}
+            src={storyImage(0)}
             alt={alts[2] ?? ""}
             className="absolute right-[6%] top-4 w-[62%]"
             rotateClass="rotate-[6deg]"
             sizes="320px"
           />
           <LandingTiltedPhoto
-            src={sectionImageSrc("historia", HISTORIA_IMAGES[1])}
+            src={storyImage(1)}
             alt={alts[3] ?? ""}
             className="absolute bottom-2 left-0 w-[58%]"
             rotateClass="-rotate-4"

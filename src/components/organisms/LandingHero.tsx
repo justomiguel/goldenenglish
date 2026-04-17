@@ -6,8 +6,11 @@ import { LandingHeroInscriptionCta } from "@/components/molecules/LandingHeroIns
 import { LandingTiltedPhoto } from "@/components/molecules/LandingTiltedPhoto";
 import {
   INICIO_IMAGES,
-  sectionImageSrc,
 } from "@/lib/landing/sectionLandingImages";
+import {
+  resolveLandingImageSrc,
+  type LandingMediaMap,
+} from "@/lib/cms/resolveLandingMedia";
 
 interface LandingHeroProps {
   dict: Dictionary;
@@ -15,6 +18,7 @@ interface LandingHeroProps {
   locale: string;
   sessionEmail: string | null;
   inscriptionsOpen: boolean;
+  mediaMap?: LandingMediaMap;
 }
 
 export function LandingHero({
@@ -23,9 +27,12 @@ export function LandingHero({
   locale,
   sessionEmail,
   inscriptionsOpen,
+  mediaMap,
 }: LandingHeroProps) {
   const heroTagline = taglineForLocale(brand, locale);
   const shots = dict.landing.collage.alts;
+  const heroImage = (index: number) =>
+    resolveLandingImageSrc("inicio", INICIO_IMAGES[index]!, mediaMap);
 
   return (
     <section className="relative isolate overflow-hidden bg-[var(--color-primary-dark)] text-[var(--color-primary-foreground)]">
@@ -114,7 +121,7 @@ export function LandingHero({
 
             <div className="mt-10 flex justify-center gap-4 md:hidden">
               <LandingTiltedPhoto
-                src={sectionImageSrc("inicio", INICIO_IMAGES[0])}
+                src={heroImage(0)}
                 alt={shots[0] ?? ""}
                 className="w-[44%] max-w-[11rem]"
                 rotateClass="-rotate-5"
@@ -122,7 +129,7 @@ export function LandingHero({
                 priority
               />
               <LandingTiltedPhoto
-                src={sectionImageSrc("inicio", INICIO_IMAGES[1])}
+                src={heroImage(1)}
                 alt={shots[1] ?? ""}
                 className="w-[44%] max-w-[11rem] translate-y-5"
                 rotateClass="rotate-6"
@@ -133,7 +140,7 @@ export function LandingHero({
 
           <div className="relative mx-auto hidden min-h-[300px] w-full max-w-md md:block lg:mx-0 lg:max-w-none lg:min-h-[360px]">
             <LandingTiltedPhoto
-              src={sectionImageSrc("inicio", INICIO_IMAGES[0])}
+              src={heroImage(0)}
               alt={shots[0] ?? ""}
               className="absolute left-0 top-10 w-[58%] lg:w-[54%]"
               rotateClass="-rotate-6"
@@ -141,14 +148,14 @@ export function LandingHero({
               priority
             />
             <LandingTiltedPhoto
-              src={sectionImageSrc("inicio", INICIO_IMAGES[1])}
+              src={heroImage(1)}
               alt={shots[1] ?? ""}
               className="absolute right-0 top-0 z-10 w-[56%] lg:w-[52%]"
               rotateClass="rotate-[7deg]"
               sizes="300px"
             />
             <LandingTiltedPhoto
-              src={sectionImageSrc("inicio", INICIO_IMAGES[2])}
+              src={heroImage(2)}
               alt={shots[2] ?? ""}
               className="absolute bottom-0 left-[14%] z-20 w-[52%] lg:left-[18%] lg:w-[48%]"
               rotateClass="rotate-[3deg]"
