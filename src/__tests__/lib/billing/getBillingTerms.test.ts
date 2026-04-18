@@ -7,7 +7,6 @@ describe("getBillingTerms", () => {
     expect(t.enrollment.length).toBeGreaterThan(0);
     expect(t.monthly.length).toBeGreaterThan(0);
     expect(t.promotion.length).toBeGreaterThan(0);
-    expect(typeof t.enrollmentFeeDefault).toBe("number");
   });
 
   it("returns billing copy for Spanish", () => {
@@ -15,6 +14,5 @@ describe("getBillingTerms", () => {
     expect(t.enrollment.length).toBeGreaterThan(0);
     expect(t.monthly.length).toBeGreaterThan(0);
     expect(t.promotion.length).toBeGreaterThan(0);
-    expect(typeof t.enrollmentFeeDefault).toBe("number");
   });
 });

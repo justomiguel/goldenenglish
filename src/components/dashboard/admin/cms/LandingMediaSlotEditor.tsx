@@ -19,8 +19,6 @@ import {
   LANDING_MEDIA_MAX_BYTES,
   isAcceptedLandingMediaMime,
 } from "@/lib/cms/siteThemeLandingInputSchemas";
-import { resolveLandingImageSrc } from "@/lib/cms/resolveLandingMedia";
-import type { LandingImageSectionSlug } from "@/lib/landing/sectionLandingImages";
 import type { LandingSectionSlug } from "@/types/theming";
 import type { Dictionary } from "@/types/i18n";
 
@@ -36,25 +34,11 @@ export interface LandingMediaSlotEditorProps {
   themeId: string;
   section: LandingSectionSlug;
   slot: LandingMediaSlotDescriptor;
-  publicUrlFor: (storagePath: string) => string | null;
   labels: Labels;
   onChanged: () => void;
 }
 
 const ACCEPTED_MIME_LIST = LANDING_MEDIA_ACCEPTED_MIME.join(",");
-
-const IMAGE_SECTIONS: ReadonlyArray<LandingImageSectionSlug> = [
-  "inicio",
-  "historia",
-  "modalidades",
-  "niveles",
-  "certificaciones",
-  "oferta",
-];
-
-function isImageSection(section: LandingSectionSlug): section is LandingImageSectionSlug {
-  return (IMAGE_SECTIONS as ReadonlyArray<string>).includes(section);
-}
 
 function readAsBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -84,7 +68,6 @@ export function LandingMediaSlotEditor({
   themeId,
   section,
   slot,
-  publicUrlFor,
   labels,
   onChanged,
 }: LandingMediaSlotEditorProps) {
@@ -93,11 +76,8 @@ export function LandingMediaSlotEditor({
   const [errorCode, setErrorCode] = useState<ErrorCode | null>(null);
   const [statusKey, setStatusKey] = useState<"upload" | "delete" | null>(null);
 
-  const overrideUrl = slot.current ? publicUrlFor(slot.current.storagePath) : null;
-  const fallbackSrc = isImageSection(section)
-    ? resolveLandingImageSrc(section, `${slot.position}.png`)
-    : null;
-  const previewSrc = overrideUrl ?? fallbackSrc;
+  const previewSrc = slot.currentPublicUrl ?? slot.fallbackPublicUrl;
+  const hasOverride = Boolean(slot.currentPublicUrl);
 
   function applyResult(
     result: SiteThemeActionResult | { ok: false; code: SiteThemeMediaActionExtraCode },
@@ -172,7 +152,7 @@ export function LandingMediaSlotEditor({
               fill
               sizes="80px"
               className="object-cover"
-              unoptimized={Boolean(overrideUrl)}
+              unoptimized={hasOverride}
             />
           ) : null}
         </div>

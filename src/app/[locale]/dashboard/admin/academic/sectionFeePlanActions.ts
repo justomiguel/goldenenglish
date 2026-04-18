@@ -9,11 +9,19 @@ import {
   logServerActionException,
   logSupabaseClientError,
 } from "@/lib/logging/serverActionLog";
+import {
+  DEFAULT_SECTION_FEE_PLAN_CURRENCY,
+} from "@/types/sectionFeePlan";
 
 const uuid = z.string().uuid();
 
 const monthSchema = z.coerce.number().int().min(1).max(12);
 const yearSchema = z.coerce.number().int().min(2000).max(2100);
+const currencySchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .regex(/^[A-Z]{3}$/, "currency_iso4217");
 
 const upsertSchema = z.object({
   locale: z.string().min(1),
@@ -22,10 +30,7 @@ const upsertSchema = z.object({
   effectiveFromYear: yearSchema,
   effectiveFromMonth: monthSchema,
   monthlyFee: z.coerce.number().min(0),
-  paymentsCount: z.coerce.number().int().min(1).max(24),
-  chargesEnrollmentFee: z.boolean(),
-  periodStartYear: yearSchema,
-  periodStartMonth: monthSchema,
+  currency: currencySchema.default(DEFAULT_SECTION_FEE_PLAN_CURRENCY),
 });
 
 export type UpsertSectionFeePlanCode = "PARSE" | "FORBIDDEN" | "SAVE";
@@ -39,10 +44,7 @@ export async function upsertSectionFeePlanAction(input: {
   effectiveFromYear: number;
   effectiveFromMonth: number;
   monthlyFee: number;
-  paymentsCount: number;
-  chargesEnrollmentFee: boolean;
-  periodStartYear: number;
-  periodStartMonth: number;
+  currency: string;
 }): Promise<{ ok: true; planId: string } | { ok: false; code: UpsertSectionFeePlanCode }> {
   const parsed = upsertSchema.safeParse(input);
   if (!parsed.success) return { ok: false, code: "PARSE" };
@@ -67,10 +69,7 @@ export async function upsertSectionFeePlanAction(input: {
       effective_from_year: data.effectiveFromYear,
       effective_from_month: data.effectiveFromMonth,
       monthly_fee: data.monthlyFee,
-      payments_count: data.paymentsCount,
-      charges_enrollment_fee: data.chargesEnrollmentFee,
-      period_start_year: data.periodStartYear,
-      period_start_month: data.periodStartMonth,
+      currency: data.currency,
       updated_by: user.id,
     };
 
@@ -108,9 +107,7 @@ export async function upsertSectionFeePlanAction(input: {
         cohort_id: cohortId,
         effective_from: `${data.effectiveFromYear}-${String(data.effectiveFromMonth).padStart(2, "0")}`,
         monthly_fee: data.monthlyFee,
-        payments_count: data.paymentsCount,
-        charges_enrollment_fee: data.chargesEnrollmentFee,
-        period_start: `${data.periodStartYear}-${String(data.periodStartMonth).padStart(2, "0")}`,
+        currency: data.currency,
       },
     });
 

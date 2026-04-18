@@ -34,8 +34,6 @@ export interface HeroVisualEditorShellProps {
   theme: SiteThemeRow;
   section: LandingSectionEditorViewModel;
   brandName: string;
-  publicUrlFor: (storagePath: string) => string | null;
-  fallbackMediaSrc: (position: number) => string | null;
 }
 
 export function HeroVisualEditorShell({
@@ -44,8 +42,6 @@ export function HeroVisualEditorShell({
   theme,
   section,
   brandName,
-  publicUrlFor,
-  fallbackMediaSrc,
 }: HeroVisualEditorShellProps) {
   const router = useRouter();
   const editorLabels = labels.heroEditor;
@@ -64,16 +60,11 @@ export function HeroVisualEditorShell({
 
   const previewMedia = useMemo(
     () =>
-      section.media.map((slot) => {
-        const overrideUrl = slot.current
-          ? publicUrlFor(slot.current.storagePath)
-          : null;
-        return {
-          position: slot.position,
-          src: overrideUrl ?? fallbackMediaSrc(slot.position),
-        };
-      }),
-    [section.media, publicUrlFor, fallbackMediaSrc],
+      section.media.map((slot) => ({
+        position: slot.position,
+        src: slot.currentPublicUrl ?? slot.fallbackPublicUrl,
+      })),
+    [section.media],
   );
 
   function updateDraft(key: string, loc: LandingOverrideLocale, value: string) {
@@ -221,7 +212,6 @@ export function HeroVisualEditorShell({
                   themeId={theme.id}
                   section={section.section}
                   slot={slot}
-                  publicUrlFor={publicUrlFor}
                   labels={labels}
                   onChanged={() => router.refresh()}
                 />

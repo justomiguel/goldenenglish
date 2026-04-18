@@ -9,7 +9,6 @@ import {
 } from "@/lib/dashboard/adminSessionErrors";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadLandingEditorSection } from "@/lib/cms/loadSiteThemeForLandingEditor";
-import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import { LandingSectionEditorShell } from "@/components/dashboard/admin/cms/LandingSectionEditorShell";
 import { LANDING_SECTION_SLUGS, type LandingSectionSlug } from "@/types/theming";
 
@@ -63,15 +62,12 @@ export default async function AdminCmsLandingSectionPage({ params }: PageProps) 
     );
   }
 
-  const publicUrlFor = createLandingMediaPublicUrlBuilder();
-
   return (
     <LandingSectionEditorShell
       locale={locale}
       labels={labels}
       theme={viewModel.theme}
       section={viewModel.section}
-      publicUrlFor={publicUrlFor}
     />
   );
 }

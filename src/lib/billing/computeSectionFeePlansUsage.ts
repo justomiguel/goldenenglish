@@ -1,7 +1,4 @@
-import {
-  isMonthInPlanPeriod,
-  resolveEffectiveSectionFeePlan,
-} from "@/lib/billing/resolveEffectiveSectionFeePlan";
+import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
 import type { SectionFeePlan, SectionFeePlanWithUsage } from "@/types/sectionFeePlan";
 
 export interface SectionFeePlanPaymentRef {
@@ -10,16 +7,16 @@ export interface SectionFeePlanPaymentRef {
 }
 
 /**
- * Returns the set of plan ids that have at least one payment row mapped to
- * their effective window for the given section.
+ * Returns the set of plan ids that have at least one payment row attributed
+ * to them through the effective-from rule (most recent plan with
+ * `effective_from <= (year, month)`).
  *
- * A plan is considered "in use" when at least one payment falls in:
- *   - the plan's effective range (it is the most recent plan with
- *     `effective_from <= (year, month)`), AND
- *   - the plan's own period coverage (`period_start..period_start+payments_count-1`).
- *
- * Archived plans are still scored: archived doesn't erase history. The caller
+ * Archived plans are still scored: archiving doesn't erase history. The caller
  * decides what to do with the result (e.g. block hard delete).
+ *
+ * Note: with the simplified model (no `payments_count` / `period_start_*`),
+ * the temporal scope of a section is owned by `academic_sections`. We only
+ * need the effective-from chain to attribute payments to their plan.
  */
 export function computeSectionFeePlansInUseIds(
   plans: readonly SectionFeePlan[],
@@ -30,7 +27,6 @@ export function computeSectionFeePlansInUseIds(
   for (const payment of payments) {
     const effective = resolveEffectiveSectionFeePlan(plans, payment.year, payment.month);
     if (!effective) continue;
-    if (!isMonthInPlanPeriod(effective, payment.year, payment.month)) continue;
     inUse.add(effective.id);
   }
   return inUse;

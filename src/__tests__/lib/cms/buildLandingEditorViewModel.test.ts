@@ -74,6 +74,44 @@ describe("buildLandingSectionEditorViewModel", () => {
     expect(view.media[1]?.current).toBeNull();
   });
 
+  // REGRESSION CHECK: Server pages used to pass a `publicUrlFor` function as
+  // a prop to client components, which broke RSC serialization (Functions
+  // cannot be passed directly to Client Components). The view model now
+  // resolves both the override URL (via injected resolver) and the bundled
+  // fallback URL up front so the editor receives plain strings.
+  it("pre-resolves override and fallback public URLs for each slot", () => {
+    const view = buildLandingSectionEditorViewModel("inicio", {
+      defaults,
+      content: null,
+      media: sampleMedia,
+      blocks: [],
+      resolveMediaPublicUrl: (path) => `https://cdn.example/${path}`,
+    });
+    expect(view.media[0]?.currentPublicUrl).toBe(
+      "https://cdn.example/t1/inicio/1.png",
+    );
+    expect(view.media[0]?.fallbackPublicUrl).toBe(
+      "/images/sections/inicio/1.png",
+    );
+    expect(view.media[1]?.currentPublicUrl).toBeNull();
+    expect(view.media[1]?.fallbackPublicUrl).toBe(
+      "/images/sections/inicio/2.png",
+    );
+  });
+
+  it("falls back to null currentPublicUrl when no resolver is provided", () => {
+    const view = buildLandingSectionEditorViewModel("inicio", {
+      defaults,
+      content: null,
+      media: sampleMedia,
+      blocks: [],
+    });
+    expect(view.media[0]?.currentPublicUrl).toBeNull();
+    expect(view.media[0]?.fallbackPublicUrl).toBe(
+      "/images/sections/inicio/1.png",
+    );
+  });
+
   it("returns empty media for sections without slots", () => {
     const view = buildLandingSectionEditorViewModel("certificaciones", {
       defaults,

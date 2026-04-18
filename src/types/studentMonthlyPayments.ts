@@ -9,12 +9,23 @@ export type StudentMonthlyPaymentCellStatus =
   | "out-of-period"
   | "no-plan";
 
+export interface StudentMonthlyPaymentProration {
+  /** Clases disponibles para el alumno en el mes (numerador). */
+  numerator: number;
+  /** Clases totales de la sección en el mes (denominador). */
+  denominator: number;
+}
+
 export interface StudentMonthlyPaymentCell {
   month: number;
   year: number;
   status: StudentMonthlyPaymentCellStatus;
-  /** Plan-derived expected amount (monthly fee, after scholarship) for the month, or null if no plan. */
+  /** Plan-derived expected amount (monthly fee, after proration + scholarship) for the month, or null if no plan. */
   expectedAmount: number | null;
+  /** ISO 4217 currency for the cell, or null when there is no active plan. */
+  currency: string | null;
+  /** Prorrateo aplicado al expectedAmount (numerator/denominator); null si no aplica. */
+  proration: StudentMonthlyPaymentProration | null;
   /** Actual amount on the payments row, when present. */
   recordedAmount: number | null;
   /** payments.id when a row exists for (month, year), else null. */
@@ -30,7 +41,17 @@ export interface StudentMonthlyPaymentSectionRow {
   sectionName: string;
   cohortName: string;
   hasActivePlan: boolean;
-  chargesEnrollmentFee: boolean;
+  /**
+   * Monto de matrícula que cobra la sección (definido a nivel de sección).
+   * `0` significa que la sección no cobra matrícula.
+   */
+  enrollmentFeeAmount: number;
+  /**
+   * Moneda en la que se cobra la matrícula. Por contrato, coincide con la
+   * `currency` del plan vigente; cuando no hay plan activo es `null` y la
+   * matrícula no debe mostrarse con importe.
+   */
+  enrollmentFeeCurrency: string | null;
   cells: StudentMonthlyPaymentCell[];
   /** Plan effective for the current month (when present), used by the focus card. */
   currentPlan: SectionFeePlan | null;

@@ -19,6 +19,7 @@ import {
 import {
   churnInactivityTemplate,
   classReminderPrepTemplate,
+  wardEmailChangedTemplate,
 } from "@/lib/email/templates/registryNotifications";
 
 /**
@@ -40,6 +41,7 @@ const REGISTRY: ReadonlyArray<EmailTemplateDefinition> = [
   gradePublishedParentTemplate,
   churnInactivityTemplate,
   classReminderPrepTemplate,
+  wardEmailChangedTemplate,
 ];
 
 const REGISTRY_BY_KEY = new Map<EmailTemplateKey, EmailTemplateDefinition>(

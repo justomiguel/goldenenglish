@@ -15,6 +15,8 @@ import { AcademicSectionShellTabs } from "@/components/organisms/AcademicSection
 import { AcademicSectionCapacityEditor } from "@/components/organisms/AcademicSectionCapacityEditor";
 import { AcademicSectionRoomLabelEditor } from "@/components/organisms/AcademicSectionRoomLabelEditor";
 import { AcademicSectionFeePlansEditor } from "@/components/organisms/AcademicSectionFeePlansEditor";
+import { AcademicSectionEnrollmentFeeEditor } from "@/components/organisms/AcademicSectionEnrollmentFeeEditor";
+import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
 
 interface PageProps {
   params: Promise<{ locale: string; cohortId: string; sectionId: string }>;
@@ -43,11 +45,19 @@ export default async function AcademicSectionPage({ params }: PageProps) {
   const lifecycleDict = d.lifecycle ?? dEn.lifecycle;
   const staffDict = d.staff ?? dEn.staff;
   const feePlansDict = d.feePlans ?? dEn.feePlans;
+  const enrollmentFeeDict = d.enrollmentFee ?? dEn.enrollmentFee;
   const supabase = await createClient();
 
   const data = await loadAdminSectionPageData(supabase, cohortId, sectionId);
   if (!data) notFound();
-  const { section, cohort, slots, rows, debtByStudentId, staff, feePlansWithUsage, moveTargets } = data;
+  const { section, cohort, slots, rows, debtByStudentId, staff, feePlans, feePlansWithUsage, moveTargets } = data;
+  const today = new Date();
+  const currentPlan = resolveEffectiveSectionFeePlan(
+    feePlans,
+    today.getFullYear(),
+    today.getMonth() + 1,
+  );
+  const currentPlanCurrency = currentPlan?.currency ?? null;
 
   const attendanceBlock = dict.dashboard.academicSectionAttendance;
   const attendanceTitle =
@@ -131,12 +141,21 @@ export default async function AcademicSectionPage({ params }: PageProps) {
           />
         }
         fees={
-          <AcademicSectionFeePlansEditor
-            locale={locale}
-            sectionId={sectionId}
-            initialPlans={feePlansWithUsage}
-            dict={feePlansDict}
-          />
+          <div className="space-y-4">
+            <AcademicSectionFeePlansEditor
+              locale={locale}
+              sectionId={sectionId}
+              initialPlans={feePlansWithUsage}
+              dict={feePlansDict}
+            />
+            <AcademicSectionEnrollmentFeeEditor
+              locale={locale}
+              sectionId={sectionId}
+              initialAmount={section.enrollmentFeeAmount}
+              currentPlanCurrency={currentPlanCurrency}
+              dict={enrollmentFeeDict}
+            />
+          </div>
         }
         enroll={
           <AcademicSectionEnrollCard

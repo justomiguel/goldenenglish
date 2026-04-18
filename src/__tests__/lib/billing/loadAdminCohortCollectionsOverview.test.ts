@@ -85,10 +85,7 @@ describe("loadAdminCohortCollectionsOverview", () => {
             effectiveFromYear: 2026,
             effectiveFromMonth: 1,
             monthlyFee: 100,
-            paymentsCount: 12,
-            chargesEnrollmentFee: false,
-            periodStartYear: 2026,
-            periodStartMonth: 1,
+            currency: "USD",
             archivedAt: null,
           },
         ],
@@ -98,6 +95,7 @@ describe("loadAdminCohortCollectionsOverview", () => {
             studentName: `${sectionId} student`,
             documentLabel: null,
             scholarship: null,
+            enrolledAt: "2026-01-01",
             payments: paid > 0
               ? [
                   {
@@ -113,6 +111,10 @@ describe("loadAdminCohortCollectionsOverview", () => {
               : [],
           },
         ],
+        sectionStartsOn: "2026-01-01",
+        sectionEndsOn: "2026-12-31",
+        scheduleSlots: [{ dayOfWeek: 2, startTime: "18:00", endTime: "19:30" }],
+        sectionEnrollmentFeeAmount: 0,
       });
 
     vi.spyOn(sectionLoader, "loadAdminSectionCollectionsView").mockImplementation(

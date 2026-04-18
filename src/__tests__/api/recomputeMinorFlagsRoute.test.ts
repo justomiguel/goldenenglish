@@ -31,4 +31,19 @@ describe("GET /api/cron/recompute-minor-flags", () => {
     expect(rpc).toHaveBeenCalledWith("profiles_recompute_minor_flags");
     vi.unstubAllEnvs();
   });
+
+  /**
+   * REGRESSION CHECK: query-string secret used to be accepted as a fallback,
+   * which leaked the cron secret via Referer / proxy logs / browser history
+   * (OWASP A05/A07). It must NEVER trigger work, even if header is missing.
+   */
+  it("rejects ?secret=... in the query string", async () => {
+    vi.stubEnv("CRON_SECRET", "abc");
+    const res = await GET(
+      new Request("http://localhost/api/cron/recompute-minor-flags?secret=abc"),
+    );
+    expect(res.status).toBe(401);
+    expect(rpc).not.toHaveBeenCalled();
+    vi.unstubAllEnvs();
+  });
 });

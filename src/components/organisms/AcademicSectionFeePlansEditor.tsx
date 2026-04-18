@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
-import type { SectionFeePlan, SectionFeePlanWithUsage } from "@/types/sectionFeePlan";
+import {
+  DEFAULT_SECTION_FEE_PLAN_CURRENCY,
+  type SectionFeePlan,
+  type SectionFeePlanWithUsage,
+} from "@/types/sectionFeePlan";
 import { Button } from "@/components/atoms/Button";
 import {
   AcademicSectionFeePlanForm,
@@ -25,22 +29,26 @@ const valuesFromPlan = (p: SectionFeePlan): SectionFeePlanFormValues => ({
   effectiveFromYear: p.effectiveFromYear,
   effectiveFromMonth: p.effectiveFromMonth,
   monthlyFee: p.monthlyFee,
-  paymentsCount: p.paymentsCount,
-  chargesEnrollmentFee: p.chargesEnrollmentFee,
-  periodStartYear: p.periodStartYear,
-  periodStartMonth: p.periodStartMonth,
+  currency: p.currency,
 });
 
-const todayDefaults = (): SectionFeePlanFormValues => {
+const todayDefaults = (
+  fromPlans: readonly SectionFeePlan[],
+): SectionFeePlanFormValues => {
   const now = new Date();
+  const inheritedCurrency =
+    fromPlans
+      .slice()
+      .sort((a, b) =>
+        b.effectiveFromYear - a.effectiveFromYear !== 0
+          ? b.effectiveFromYear - a.effectiveFromYear
+          : b.effectiveFromMonth - a.effectiveFromMonth,
+      )[0]?.currency ?? DEFAULT_SECTION_FEE_PLAN_CURRENCY;
   return {
     effectiveFromYear: now.getFullYear(),
     effectiveFromMonth: now.getMonth() + 1,
     monthlyFee: 0,
-    paymentsCount: 10,
-    chargesEnrollmentFee: false,
-    periodStartYear: now.getFullYear(),
-    periodStartMonth: now.getMonth() + 1,
+    currency: inheritedCurrency,
   };
 };
 
@@ -67,7 +75,7 @@ export function AcademicSectionFeePlansEditor({
   };
 
   const startCreate = () => {
-    setCreating(todayDefaults());
+    setCreating(todayDefaults(editor.plans));
     editor.setEditingId(null);
     editor.clearError();
   };

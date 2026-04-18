@@ -15,6 +15,7 @@ vi.mock("@/lib/dashboard/assertAdmin", () => ({
 }));
 
 const upsertSingle = vi.fn();
+const upsertSpy = vi.fn();
 const deleteEq2 = vi.fn();
 
 vi.mock("@/lib/supabase/admin", () => ({
@@ -24,11 +25,14 @@ vi.mock("@/lib/supabase/admin", () => ({
 function buildSupabase() {
   return {
     from: () => ({
-      upsert: () => ({
-        select: () => ({
-          single: () => upsertSingle(),
-        }),
-      }),
+      upsert: (row: unknown, opts?: unknown) => {
+        upsertSpy(row, opts);
+        return {
+          select: () => ({
+            single: () => upsertSingle(),
+          }),
+        };
+      },
       delete: () => ({
         eq: () => ({
           eq: () => deleteEq2(),
@@ -159,6 +163,47 @@ describe("emailTemplateActions", () => {
         resourceId: "messaging.teacher_new::es",
       }),
     );
+  });
+
+  /**
+   * REGRESSION CHECK: previously bodyHtml landed in the DB raw, allowing a
+   * compromised admin (or template imported from elsewhere) to persist
+   * stored XSS payloads that fanned out through every branded email send.
+   */
+  it("saveEmailTemplateAction sanitizes body_html before persisting", async () => {
+    const { saveEmailTemplateAction } = await import(
+      "@/app/[locale]/dashboard/admin/communications/templates/actions"
+    );
+    const r = await saveEmailTemplateAction({
+      locale: "es",
+      templateKey: "messaging.teacher_new",
+      templateLocale: "es",
+      subject: "Asunto",
+      bodyHtml:
+        '<p onclick="evil()">hi</p><script>alert(1)</script><a href="javascript:bad()">x</a>',
+    });
+    expect(r.ok).toBe(true);
+    expect(upsertSpy).toHaveBeenCalledTimes(1);
+    const persisted = upsertSpy.mock.calls[0][0] as { body_html: string };
+    expect(persisted.body_html).not.toMatch(/<script/i);
+    expect(persisted.body_html).not.toMatch(/onclick/i);
+    expect(persisted.body_html).not.toMatch(/javascript:/i);
+    expect(persisted.body_html).toContain("hi");
+  });
+
+  it("saveEmailTemplateAction rejects bodies that are entirely forbidden markup", async () => {
+    const { saveEmailTemplateAction } = await import(
+      "@/app/[locale]/dashboard/admin/communications/templates/actions"
+    );
+    const r = await saveEmailTemplateAction({
+      locale: "es",
+      templateKey: "messaging.teacher_new",
+      templateLocale: "es",
+      subject: "Asunto",
+      bodyHtml: "<script>alert(1)</script>",
+    });
+    expect(r).toEqual({ ok: false, code: "invalid_input" });
+    expect(upsertSpy).not.toHaveBeenCalled();
   });
 
   it("resetEmailTemplateAction rejects unknown key", async () => {

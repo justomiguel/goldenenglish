@@ -1,0 +1,81 @@
+---
+description: Manejadores en bordes de confianza (cron, webhooks, server actions con cliente admin, contenido HTML persistido, contenido personalizado en respuestas). Patrones obligatorios para no reintroducir los hallazgos de la auditoría OWASP de 2026-04.
+alwaysApply: true
+---
+
+# Trust boundary handlers
+
+## Objetivo
+
+Los borders entre **mundo no controlado** (request HTTP, formulario web, scheduler externo, otra cuenta) y **estado interno** (Supabase via `service_role`, mailbox de un cliente, caché compartida) son donde fallan en silencio las auditorías OWASP. Esta regla fija **cuatro patrones no negociables** que nacieron de la auditoría de seguridad de **2026-04** y de los `docs/adr/` asociados. El agente debe revisarlos **antes** de cerrar un cambio que toque cualquiera de las superficies listadas.
+
+## Cuándo aplica esta regla
+
+Toca esta regla siempre que el cambio modifique:
+
+1. Una ruta bajo **`src/app/api/cron/**`**, un webhook (Stripe, Resend, etc.) o cualquier handler que se autentique con un secreto compartido.
+2. Una ruta bajo **`src/app/api/**`** o un **route handler** que devuelva contenido **personalizado por usuario** (ICS feed, signed URL, descarga de comprobantes, hub admin, etc.).
+3. Una **server action** o `route handler` que use **`createAdminClient`** (cliente service-role) para mutar **datos pertenecientes a otro usuario** distinto del actor (parent → ward, admin → student, tutor → tutored).
+4. Cualquier flujo que **persista HTML provisto por un humano** (plantillas de email, mensajes, descripciones, contenido CMS) en columnas que luego se renderizan con `dangerouslySetInnerHTML` o se envían como cuerpo de email.
+
+Si nada de lo anterior aplica, ignorá esta regla.
+
+## Patrón 1 — Secretos de cron / webhook **solo por header**
+
+Un secreto en la URL filtra por **Referer**, historial del navegador, logs de proxy/CDN y compartidos por error. **Prohibido** leer el secreto desde `URL.searchParams` o cuerpo público.
+
+- Permitido: `Authorization: Bearer <SECRET>` (canónico de Vercel Cron) y `x-<provider>-secret` (convención privada).
+- **Obligatorio:** reutilizar el helper canónico cuando exista (en este repo: **`src/lib/auth/verifyCronRequest.ts`**) en vez de duplicar la lógica en cada route. Si añadís un nuevo proveedor (webhook nuevo) extendé el helper o creá uno hermano bajo `src/lib/auth/`, no lógica suelta en el handler.
+- Test de regresión obligatorio: caso negativo que pase **`?secret=…`** y espere **401** (ver `src/__tests__/lib/auth/verifyCronRequest.test.ts` y `src/__tests__/api/recomputeMinorFlagsRoute.test.ts`).
+
+> Caso real (auditoría 2026-04): los 3 cron de `/api/cron/*` aceptaban `?secret=<CRON_SECRET>` como fallback. Cualquier link compartido fugaba el secreto.
+
+## Patrón 2 — `Cache-Control` para contenido personalizado
+
+Toda respuesta cuyo cuerpo dependa del **usuario, sesión o token personal** (ICS feeds, datos de un alumno, signed URLs, exports admin) debe llevar **`Cache-Control` con `private`** y, si la naturaleza del recurso lo permite, además `no-store` o `no-cache`.
+
+- **Prohibido:** `Cache-Control: public, …` en respuestas con datos personalizados, aunque el path lleve un token único: CDNs y proxies pueden compartirlo entre clientes.
+- **Permitido:** `public, immutable` solo para **assets verdaderamente públicos** (logos, fonts, builds estáticos), no para feeds de usuario.
+- Test: incluir un assert que falle si `cache-control` contiene `public` para handlers que sirven datos personales (ver `src/__tests__/api/calendarFeedRoute.test.ts`).
+
+> Caso real (auditoría 2026-04): `/api/calendar/feed/[token]` devolvía `public, max-age=300` con datos del calendario de un alumno: cualquier proxy intermedio podía servir el ICS de un cliente a otro.
+
+## Patrón 3 — Mutaciones cross-account → re-auth + auditoría + notificación
+
+Cuando una server action permite a un usuario **modificar credenciales o datos sensibles de otra cuenta** usando `createAdminClient`, los **tres** controles siguientes son obligatorios:
+
+1. **Step-up re-authentication** del actor: pedir y verificar la contraseña actual (`verifyUserPassword`) o token MFA equivalente **antes** de invocar `admin.auth.admin.updateUserById` o equivalente. No basta con que la cookie de sesión esté presente — una sesión robada pasa el chequeo de sesión pero no el de contraseña.
+2. **Auditoría persistente** en **`system_config_audit`** vía `createAdminClient` (la tabla es admin-only por RLS): `actor_id`, `action`, `resource_type`, `resource_id`, `payload` con suficiente contexto para reconstruir el incidente. Mismo patrón que `recordSystemAudit` pero con el actor real, no el admin que falsea el contexto.
+3. **Notificación al titular** del recurso afectado **a la dirección anterior** (cuando se cambia un identificador como email/teléfono) y/o a un canal alternativo. Sirve como “alerta de seguridad” estilo Google/Apple — el dueño legítimo debe poder enterarse y reaccionar.
+
+ADR obligatorio (regla **`10-engineering-governance.mdc`**) cuando la superficie es nueva. Patrón canónico: `docs/adr/2026-04-parent-ward-email-change-hardening.md` + `src/app/[locale]/dashboard/parent/children/[studentId]/actions.ts`.
+
+> Caso real (auditoría 2026-04): `updateWardProfile` permitía a un parent reasignar el email de login del alumno con `email_confirm: true` sin re-auth, sin notificar al email anterior y sin auditoría. Sesión de parent comprometida = account takeover del alumno.
+
+## Patrón 4 — HTML provisto por un humano → sanitizar en el borde de persistencia
+
+Cualquier columna que almacene **HTML** que llegó de un formulario y que después se renderiza vía `dangerouslySetInnerHTML` o se envía como cuerpo de email **debe** ser sanitizada **en el server action / use case que la persiste** (no solo en el cliente, no solo al renderizar).
+
+- Sanitizers actuales en el repo:
+  - **Mensajes del portal** (subset reducido, sin atributos): `src/lib/messaging/sanitizeMessageHtml.ts`.
+  - **Plantillas de email** (subset email-safe, permite `style`, `href`, `mailto:`): `src/lib/email/sanitizeEmailTemplateHtml.ts`.
+- **Prohibido** confiar solo en que “el caller es admin” / “lo edita un humano de confianza”: una sesión comprometida o una importación masiva por CSV son vectores reales de stored XSS y phishing fan-out.
+- **Prohibido** sanitizar solo en el componente de UI: el cuerpo persistido debe estar limpio porque puede consumirse desde múltiples superficies (web, email, export PDF) y porque facilita el rollback ante un incidente.
+- Si la sanitización deja la entrada vacía → tratar como **`invalid_input`** (no persistir markup vacío que no era la intención del usuario).
+- Test obligatorio: que el payload upserteado por la action **no** contenga `<script`, `on*=`, `javascript:` ni `data:` ejecutable (ver `src/__tests__/app/emailTemplateActions.test.ts` y `src/__tests__/lib/email/sanitizeEmailTemplateHtml.test.ts`).
+
+> Caso real (auditoría 2026-04): `saveEmailTemplateAction` upserteaba `body_html` sin tocarlo. Un admin comprometido podía persistir `<script>` que se renderizaba en cada email saliente — stored XSS con fan-out a todos los destinatarios reales.
+
+## Checklist del agente (antes de cerrar el cambio)
+
+- [ ] **Cron / webhook**: ¿el secreto se valida solo vía header (Authorization / x-*-secret)? ¿hay test que rechace `?secret=…`?
+- [ ] **Respuesta personalizada**: ¿`Cache-Control` contiene `private` y nunca `public`? ¿hay test que lo fije?
+- [ ] **Mutación cross-account con admin client**: ¿hay re-auth (`verifyUserPassword`) + auditoría en `system_config_audit` + notificación al recurso afectado? ¿hay ADR cuando la superficie es nueva?
+- [ ] **Persistencia de HTML editable**: ¿pasa por un sanitizer del repo en la server action / use case (no solo en UI)? ¿hay test que demuestre que `<script>` / `on*` / `javascript:` no llegan a la BD?
+
+## Referencias cruzadas
+
+- **`04-security.mdc`** — secretos en env, validación servidor, no confiar solo en cliente.
+- **`08-analytics-observability.mdc`** — `system_config_audit` y eventos de producto para acciones críticas.
+- **`10-engineering-governance.mdc`** — ADR obligatorio cuando se tocan flujos de auth o contratos públicos.
+- **`12-supabase-app-boundaries.mdc`** — `createAdminClient` solo bajo `src/lib/supabase/`, nunca embebido en componentes/hooks.

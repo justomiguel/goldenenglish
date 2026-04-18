@@ -40,7 +40,8 @@ function buildSection(
     sectionName,
     cohortName: `${sectionName} cohort`,
     hasActivePlan: true,
-    chargesEnrollmentFee: false,
+    enrollmentFeeAmount: 0,
+    enrollmentFeeCurrency: null,
     cells,
     currentPlan: null,
   };

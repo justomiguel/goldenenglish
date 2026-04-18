@@ -14,9 +14,6 @@ function buildSupabaseMock(responses: Record<string, TableResponse>) {
   return {
     from: vi.fn((table: string) => {
       const response = responses[table] ?? { data: [], error: null };
-      // Each table call returns a thenable-friendly chain that resolves to the
-      // configured response when an "await" terminator (.maybeSingle / .in /
-      // .eq chained then) is reached.
       const chain = {
         select: vi.fn(() => chain),
         eq: vi.fn(() => chain),
@@ -38,6 +35,10 @@ const SECTION = {
   name: "Section A",
   archived_at: null,
   cohort_id: "cohort-1",
+  starts_on: "2026-01-01",
+  ends_on: "2026-12-31",
+  schedule_slots: [{ dayOfWeek: 2, startTime: "18:00", endTime: "19:30" }],
+  enrollment_fee_amount: 0,
   academic_cohorts: { id: "cohort-1", name: "2026" },
 };
 
@@ -72,7 +73,10 @@ describe("loadAdminSectionCollectionsView", () => {
     const supa = buildSupabaseMock({
       academic_sections: { data: SECTION, error: null },
       section_enrollments: {
-        data: [{ student_id: "stu-1" }, { student_id: "stu-2" }],
+        data: [
+          { student_id: "stu-1", created_at: "2026-01-01T00:00:00Z" },
+          { student_id: "stu-2", created_at: "2026-01-01T00:00:00Z" },
+        ],
         error: null,
       },
       section_fee_plans: {
@@ -83,10 +87,7 @@ describe("loadAdminSectionCollectionsView", () => {
             effective_from_year: 2026,
             effective_from_month: 1,
             monthly_fee: 100,
-            payments_count: 12,
-            charges_enrollment_fee: false,
-            period_start_year: 2026,
-            period_start_month: 1,
+            currency: "USD",
             archived_at: null,
           },
         ],

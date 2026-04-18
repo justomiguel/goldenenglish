@@ -35,9 +35,14 @@ export function ParentWardProfileForm({
   const [birth, setBirth] = useState(
     initial.birth_date ? String(initial.birth_date).slice(0, 10) : "",
   );
+  const [parentPassword, setParentPassword] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  const trimmedEmail = email.trim().toLowerCase();
+  const initialEmail = (initial.email ?? "").trim().toLowerCase();
+  const emailChanging = trimmedEmail !== initialEmail;
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -52,10 +57,12 @@ export function ParentWardProfileForm({
       email: email.trim(),
       phone,
       birth_date: birth,
+      parentPassword: emailChanging ? parentPassword : undefined,
     });
     setBusy(false);
     if (res.ok) {
       setMsg(labels.wardSaved);
+      setParentPassword("");
       trackEvent("action", "section:parent_ward_profile", { student_id: studentId });
       return;
     }
@@ -111,6 +118,23 @@ export function ParentWardProfileForm({
             className="mt-1 w-full"
           />
         </div>
+        {emailChanging ? (
+          <div>
+            <Label htmlFor="ward-parent-pw">{labels.wardPasswordLabel}</Label>
+            <Input
+              id="ward-parent-pw"
+              type="password"
+              autoComplete="current-password"
+              value={parentPassword}
+              onChange={(e) => setParentPassword(e.target.value)}
+              required
+              className="mt-1 w-full"
+            />
+            <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+              {labels.wardPasswordHelp}
+            </p>
+          </div>
+        ) : null}
         <div>
           <Label htmlFor="ward-ph">{labels.wardPhone}</Label>
           <Input

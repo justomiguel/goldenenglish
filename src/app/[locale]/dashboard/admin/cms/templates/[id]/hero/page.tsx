@@ -9,9 +9,7 @@ import {
 } from "@/lib/dashboard/adminSessionErrors";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadLandingEditorSection } from "@/lib/cms/loadSiteThemeForLandingEditor";
-import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import { getBrandPublic } from "@/lib/brand/server";
-import { sectionImageSrc } from "@/lib/landing/sectionLandingImages";
 import { HeroVisualEditorShell } from "@/components/dashboard/admin/cms/HeroVisualEditorShell";
 
 export const metadata: Metadata = {
@@ -61,7 +59,6 @@ export default async function AdminCmsHeroVisualEditorPage({ params }: PageProps
     );
   }
 
-  const publicUrlFor = createLandingMediaPublicUrlBuilder();
   const brandName = getBrandPublic().name;
 
   return (
@@ -71,10 +68,6 @@ export default async function AdminCmsHeroVisualEditorPage({ params }: PageProps
       theme={viewModel.theme}
       section={viewModel.section}
       brandName={brandName}
-      publicUrlFor={publicUrlFor}
-      fallbackMediaSrc={(position) =>
-        sectionImageSrc("inicio", `${position}.png`)
-      }
     />
   );
 }

@@ -5,6 +5,7 @@ import {
   type SectionCollectionsStudentInput,
 } from "@/lib/billing/buildSectionCollectionsView";
 import type { SectionFeePlan } from "@/types/sectionFeePlan";
+import type { SectionScheduleSlot } from "@/types/academics";
 
 // REGRESSION CHECK: changes to the per-section health derivation, the per-cell
 // status mapping, or the aggregation of paid/overdue/upcoming may shift the
@@ -16,12 +17,15 @@ const PLAN: SectionFeePlan = {
   effectiveFromYear: 2026,
   effectiveFromMonth: 1,
   monthlyFee: 100,
-  paymentsCount: 12,
-  chargesEnrollmentFee: false,
-  periodStartYear: 2026,
-  periodStartMonth: 1,
+  currency: "USD",
   archivedAt: null,
 };
+
+// Section operates the entire calendar year; schedule with a single weekday is
+// enough for KPI tests because every month has at least one occurrence.
+const FULL_YEAR_SCHEDULE: SectionScheduleSlot[] = [
+  { dayOfWeek: 2, startTime: "18:00", endTime: "19:30" },
+];
 
 function studentWithPayments(
   studentId: string,
@@ -34,8 +38,16 @@ function studentWithPayments(
     documentLabel: `DOC-${studentId}`,
     scholarship: null,
     payments,
+    enrolledAt: "2026-01-01",
   };
 }
+
+const SECTION_RANGE = {
+  sectionStartsOn: "2026-01-01",
+  sectionEndsOn: "2026-12-31",
+  scheduleSlots: FULL_YEAR_SCHEDULE,
+  sectionEnrollmentFeeAmount: 0,
+} as const;
 
 describe("buildSectionCollectionsView", () => {
   it("returns empty kpis and no rows when there are no students", () => {
@@ -48,6 +60,7 @@ describe("buildSectionCollectionsView", () => {
       todayMonth: 6,
       plans: [PLAN],
       students: [],
+      ...SECTION_RANGE,
     });
     expect(view.students).toEqual([]);
     expect(view.kpis.totalStudents).toBe(0);
@@ -72,6 +85,7 @@ describe("buildSectionCollectionsView", () => {
       todayMonth: today.month,
       plans: [PLAN],
       students,
+      ...SECTION_RANGE,
     });
     expect(view.kpis.totalStudents).toBe(3);
     expect(view.kpis.overdueStudents).toBe(3);
@@ -82,7 +96,13 @@ describe("buildSectionCollectionsView", () => {
   });
 
   it("flags health=healthy when collection ratio >= 0.85 and no overdue", () => {
-    const shortPlan = { ...PLAN, paymentsCount: 5 };
+    // 5-month section so the year only has 5 due cells; pay them all.
+    const shortSection = {
+      sectionStartsOn: "2026-01-01",
+      sectionEndsOn: "2026-05-31",
+      scheduleSlots: FULL_YEAR_SCHEDULE,
+      sectionEnrollmentFeeAmount: 0,
+    } as const;
     const payments = Array.from({ length: 5 }, (_, i) => ({
       id: `p${i + 1}`,
       sectionId: "sec-1",
@@ -99,8 +119,9 @@ describe("buildSectionCollectionsView", () => {
       cohortName: "2026",
       todayYear: 2026,
       todayMonth: 12,
-      plans: [shortPlan],
+      plans: [PLAN],
       students: [studentWithPayments("s1", "Ana", payments)],
+      ...shortSection,
     });
     expect(view.kpis.paid).toBe(500);
     expect(view.kpis.expectedYear).toBe(500);
@@ -130,6 +151,7 @@ describe("buildSectionCollectionsView", () => {
       todayMonth: 6,
       plans: [PLAN],
       students: [studentWithPayments("s1", "Ana", payments)],
+      ...SECTION_RANGE,
     });
     // Pending cell sits at month 6 (today), so it counts as pending and stops
     // counting as upcoming for that month.
@@ -152,6 +174,7 @@ describe("buildSectionCollectionsView", () => {
         studentWithPayments("s2", "Ana", []),
         studentWithPayments("s3", "Mara", []),
       ],
+      ...SECTION_RANGE,
     });
     expect(view.students.map((s) => s.studentName)).toEqual(["Ana", "Mara", "Zara"]);
   });
@@ -166,6 +189,7 @@ describe("buildSectionCollectionsView", () => {
       todayMonth: 1,
       plans: [PLAN],
       students: [],
+      ...SECTION_RANGE,
     });
     const summary = toCohortCollectionsSectionSummary(view, "2026-01-01");
     expect(summary.sectionId).toBe("sec-1");

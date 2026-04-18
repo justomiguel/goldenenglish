@@ -32,7 +32,6 @@ export interface LandingSectionEditorShellProps {
   labels: Labels;
   theme: SiteThemeRow;
   section: LandingSectionEditorViewModel;
-  publicUrlFor: (storagePath: string) => string | null;
 }
 
 export function LandingSectionEditorShell({
@@ -40,7 +39,6 @@ export function LandingSectionEditorShell({
   labels,
   theme,
   section,
-  publicUrlFor,
 }: LandingSectionEditorShellProps) {
   const router = useRouter();
   const [draft, setDraft] = useState<LandingCopyDraft>(() =>
@@ -206,7 +204,6 @@ export function LandingSectionEditorShell({
                 themeId={theme.id}
                 section={section.section}
                 slot={slot}
-                publicUrlFor={publicUrlFor}
                 labels={labels}
                 onChanged={() => router.refresh()}
               />

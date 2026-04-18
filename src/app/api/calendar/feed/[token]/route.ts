@@ -13,7 +13,13 @@ export async function GET(_request: Request, context: { params: Promise<{ token:
     status: 200,
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
-      "Cache-Control": "public, max-age=300",
+      /**
+       * `private` so shared caches (CDN, corporate proxy, ISP) cannot store
+       * one user's calendar and serve it to another client that happens to
+       * request the same token URL. The token alone is the access credential
+       * (OWASP A02 — sensitive data exposure via caches).
+       */
+      "Cache-Control": "private, max-age=300",
     },
   });
 }

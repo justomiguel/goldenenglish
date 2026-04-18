@@ -19,12 +19,13 @@ const PLAN: SectionFeePlan = {
   effectiveFromYear: 2026,
   effectiveFromMonth: 1,
   monthlyFee: 100,
-  paymentsCount: 12,
-  chargesEnrollmentFee: false,
-  periodStartYear: 2026,
-  periodStartMonth: 1,
+  currency: "USD",
   archivedAt: null,
 };
+
+const FULL_YEAR_SCHEDULE = [
+  { dayOfWeek: 2, startTime: "18:00", endTime: "19:30" },
+];
 
 const LABELS: SectionCollectionsExportLabels = {
   studentColumn: "Alumno",
@@ -60,6 +61,7 @@ function buildView() {
         studentName: "Ana Pérez",
         documentLabel: "DOC-1",
         scholarship: null,
+        enrolledAt: "2026-01-01",
         payments: [
           {
             id: "p1",
@@ -73,6 +75,10 @@ function buildView() {
         ],
       },
     ],
+    sectionStartsOn: "2026-01-01",
+    sectionEndsOn: "2026-12-31",
+    scheduleSlots: FULL_YEAR_SCHEDULE,
+    sectionEnrollmentFeeAmount: 0,
   });
 }
 

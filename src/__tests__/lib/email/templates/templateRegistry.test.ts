@@ -20,6 +20,7 @@ describe("emailTemplateRegistry", () => {
       "academics.grade_published_parent",
       "churn.inactivity",
       "notifications.class_reminder_prep",
+      "notifications.ward_email_changed",
     ]) {
       expect(keys).toContain(key);
     }

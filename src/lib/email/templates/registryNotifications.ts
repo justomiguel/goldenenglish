@@ -29,6 +29,50 @@ export const churnInactivityTemplate: EmailTemplateDefinition = {
   },
 };
 
+export const wardEmailChangedTemplate: EmailTemplateDefinition = {
+  key: "notifications.ward_email_changed",
+  category: "notifications",
+  label: {
+    es: "Notificaciones: cambio de email del alumno",
+    en: "Notifications: student login email changed",
+  },
+  description: {
+    es: "Aviso enviado al email anterior y al nuevo cuando el tutor cambia el correo de acceso del alumno desde su portal. Permite detectar inmediatamente un cambio no autorizado.",
+    en: "Sent to the old and new student login email after a parent updates it from the parent portal. Lets the legitimate owner react if the change was not authorised.",
+  },
+  placeholders: [
+    { name: "wardName", description: "Nombre del alumno", sample: "Juan Pérez" },
+    { name: "oldEmail", description: "Email anterior", sample: "old@example.com" },
+    { name: "newEmail", description: "Email nuevo", sample: "new@example.com" },
+    { name: "parentName", description: "Nombre del tutor que hizo el cambio", sample: "María Pérez" },
+    { name: "supportEmail", description: "Email de contacto del instituto", sample: "soporte@example.com" },
+  ],
+  defaults: {
+    es: {
+      subject: "Cambiamos el correo de acceso de {{wardName}}",
+      bodyHtml: `<p>Hola,</p>
+<p>El correo de acceso de <strong>{{wardName}}</strong> fue actualizado:</p>
+<ul style="padding-left:20px;margin:12px 0;">
+  <li>Anterior: <strong>{{oldEmail}}</strong></li>
+  <li>Nuevo: <strong>{{newEmail}}</strong></li>
+  <li>Realizado por su tutor: {{parentName}}</li>
+</ul>
+<p>Si vos no autorizaste este cambio, escribinos <strong>de inmediato</strong> a <a href="mailto:{{supportEmail}}">{{supportEmail}}</a> para revertirlo.</p>`,
+    },
+    en: {
+      subject: "We updated {{wardName}}'s login email",
+      bodyHtml: `<p>Hi,</p>
+<p>The login email for <strong>{{wardName}}</strong> was changed:</p>
+<ul style="padding-left:20px;margin:12px 0;">
+  <li>Old: <strong>{{oldEmail}}</strong></li>
+  <li>New: <strong>{{newEmail}}</strong></li>
+  <li>Made by parent: {{parentName}}</li>
+</ul>
+<p>If you did not authorise this change, contact us <strong>immediately</strong> at <a href="mailto:{{supportEmail}}">{{supportEmail}}</a> so we can revert it.</p>`,
+    },
+  },
+};
+
 export const classReminderPrepTemplate: EmailTemplateDefinition = {
   key: "notifications.class_reminder_prep",
   category: "notifications",

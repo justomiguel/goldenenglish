@@ -20,9 +20,8 @@ export interface AcademicSectionFeePlanRowProps {
 
 export function formatSectionFeePlanLabel(p: SectionFeePlan, dict: FeePlansDict): string {
   const eff = `${String(p.effectiveFromMonth).padStart(2, "0")}/${p.effectiveFromYear}`;
-  const period = `${String(p.periodStartMonth).padStart(2, "0")}/${p.periodStartYear}`;
-  const matricula = p.chargesEnrollmentFee ? dict.matriculaYes : dict.matriculaNo;
-  return `${dict.effectiveFromShort} ${eff} · $${p.monthlyFee} · ${p.paymentsCount} ${dict.paymentsShort} · ${matricula} · ${dict.periodStartShort} ${period}`;
+  const amount = `${p.currency} ${p.monthlyFee.toFixed(2)}`;
+  return `${dict.effectiveFromShort} ${eff} · ${amount}`;
 }
 
 export function AcademicSectionFeePlanRow({

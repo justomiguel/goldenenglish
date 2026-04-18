@@ -12,6 +12,16 @@ import {
   type LandingOverrideLocale,
 } from "@/lib/cms/landingContentCatalog";
 import { getLandingDefaultCopy } from "@/lib/cms/applyLandingContentOverrides";
+import { sectionImageSrc } from "@/lib/landing/sectionLandingImages";
+
+/** Resolves a Storage object path to its public URL. The server caller
+ *  injects this so the pure builder stays free of Supabase env access; in
+ *  tests or environments without Supabase env it can simply return null. */
+export type LandingMediaPublicUrlResolver = (
+  storagePath: string,
+) => string | null;
+
+const NULL_PUBLIC_URL_RESOLVER: LandingMediaPublicUrlResolver = () => null;
 
 /**
  * Pure helpers that turn raw `site_themes.content` + media rows into the
@@ -34,6 +44,12 @@ export interface LandingMediaSlotDescriptor {
   position: number;
   /** Existing row when an override has been uploaded for this slot. */
   current: SiteThemeMediaRow | null;
+  /** Resolved public URL for the override (when present and reachable). The
+   *  server pre-computes this so client components do not need a function
+   *  prop crossing the RSC boundary. */
+  currentPublicUrl: string | null;
+  /** Bundled `/images/sections/<slug>/<position>.png` fallback URL. */
+  fallbackPublicUrl: string;
 }
 
 export interface LandingSectionEditorViewModel {
@@ -57,6 +73,10 @@ interface BuildArgs {
   content: SiteThemeContent | null | undefined;
   media: ReadonlyArray<SiteThemeMediaRow>;
   blocks: ReadonlyArray<LandingBlock>;
+  /** Optional resolver that turns a Storage path into a public URL. When
+   *  omitted the resulting `currentPublicUrl` is `null` (e.g. unit tests, or
+   *  environments without Supabase env vars). */
+  resolveMediaPublicUrl?: LandingMediaPublicUrlResolver;
 }
 
 function getOverrideValue(
@@ -92,10 +112,16 @@ export function buildLandingSectionEditorViewModel(
 
   const slotsTotal = LANDING_MEDIA_SLOTS_BY_SECTION[section];
   const sectionMedia = args.media.filter((row) => row.section === section);
+  const resolveUrl = args.resolveMediaPublicUrl ?? NULL_PUBLIC_URL_RESOLVER;
   const media: LandingMediaSlotDescriptor[] = [];
   for (let position = 1; position <= slotsTotal; position += 1) {
-    const current = sectionMedia.find((row) => row.position === position);
-    media.push({ position, current: current ?? null });
+    const current = sectionMedia.find((row) => row.position === position) ?? null;
+    media.push({
+      position,
+      current,
+      currentPublicUrl: current ? resolveUrl(current.storagePath) : null,
+      fallbackPublicUrl: sectionImageSrc(section, `${position}.png`),
+    });
   }
 
   const blocks = args.blocks

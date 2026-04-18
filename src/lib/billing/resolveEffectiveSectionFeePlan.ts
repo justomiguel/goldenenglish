@@ -26,19 +26,3 @@ export function resolveEffectiveSectionFeePlan(
   }
   return best;
 }
-
-/**
- * True when (year, month) belongs to the contiguous payment window of the
- * given plan: starting at (period_start_year, period_start_month) and lasting
- * `payments_count` months (inclusive).
- */
-export function isMonthInPlanPeriod(
-  plan: SectionFeePlan,
-  year: number,
-  month: number,
-): boolean {
-  const start = periodIndex(plan.periodStartYear, plan.periodStartMonth);
-  const end = start + plan.paymentsCount - 1;
-  const target = periodIndex(year, month);
-  return target >= start && target <= end;
-}

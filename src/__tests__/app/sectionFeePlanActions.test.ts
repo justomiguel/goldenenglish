@@ -39,10 +39,7 @@ const baseInput = {
   effectiveFromYear: 2026,
   effectiveFromMonth: 3,
   monthlyFee: 100,
-  paymentsCount: 10,
-  chargesEnrollmentFee: false,
-  periodStartYear: 2026,
-  periodStartMonth: 3,
+  currency: "USD",
 } as const;
 
 interface SectionsBuilderOpts {
@@ -135,10 +132,7 @@ describe("sectionFeePlanActions", () => {
         effective_from_year: 2026,
         effective_from_month: 1,
         monthly_fee: 100,
-        payments_count: 10,
-        charges_enrollment_fee: false,
-        period_start_year: 2026,
-        period_start_month: 1,
+        currency: "USD",
         archived_at: null,
       },
     ];
@@ -183,10 +177,7 @@ describe("sectionFeePlanActions", () => {
         effective_from_year: 2026,
         effective_from_month: 1,
         monthly_fee: 100,
-        payments_count: 10,
-        charges_enrollment_fee: false,
-        period_start_year: 2026,
-        period_start_month: 1,
+        currency: "USD",
         archived_at: null,
       },
     ];

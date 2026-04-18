@@ -11,10 +11,7 @@ const planA: SectionFeePlan = {
   effectiveFromYear: 2026,
   effectiveFromMonth: 1,
   monthlyFee: 100,
-  paymentsCount: 6,
-  chargesEnrollmentFee: false,
-  periodStartYear: 2026,
-  periodStartMonth: 1,
+  currency: "USD",
   archivedAt: null,
 };
 
@@ -24,10 +21,7 @@ const planB: SectionFeePlan = {
   effectiveFromYear: 2026,
   effectiveFromMonth: 6,
   monthlyFee: 120,
-  paymentsCount: 6,
-  chargesEnrollmentFee: false,
-  periodStartYear: 2026,
-  periodStartMonth: 6,
+  currency: "USD",
   archivedAt: null,
 };
 
@@ -45,8 +39,8 @@ describe("computeSectionFeePlansInUseIds", () => {
     expect([...ids]).toEqual(["A"]);
   });
 
-  it("ignores payments outside the plan period coverage", () => {
-    const ids = computeSectionFeePlansInUseIds([planA], [{ year: 2027, month: 5 }]);
+  it("ignores payments before any plan's effective_from", () => {
+    const ids = computeSectionFeePlansInUseIds([planA], [{ year: 2025, month: 12 }]);
     expect(ids.size).toBe(0);
   });
 

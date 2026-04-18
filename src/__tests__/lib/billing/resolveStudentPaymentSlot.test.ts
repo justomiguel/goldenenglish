@@ -82,7 +82,12 @@ describe("resolveStudentPaymentSlot — section-aware idempotency", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     enrolled.mockResolvedValue(true);
-    planAmount.mockResolvedValue({ code: "ok", amount: 250 });
+    planAmount.mockResolvedValue({
+      code: "ok",
+      amount: 250,
+      currency: "USD",
+      proration: { numerator: 1, denominator: 1, full: true },
+    });
   });
 
   it("returns existing pending row without inserting", async () => {

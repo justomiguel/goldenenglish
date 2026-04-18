@@ -1112,6 +1112,58 @@
       "notesTooltip": "Optional internal note stored with the decision (visible to staff)."
     },
     "finance": {
+      "hub": {
+        "title": "Finance",
+        "lead": "Cohort overview, monthly collections, invoice receipts, and payment review — all in one place.",
+        "tabs": {
+          "overview": "Cohort overview",
+          "collections": "Collections",
+          "receipts": "Invoice receipts",
+          "payments": "Payment review"
+        },
+        "tipOverview": "Every section of the active cohort with payment status by month — like a spreadsheet, but actionable.",
+        "tipCollections": "Section-by-section collection health for the cohort, with export and bulk reminders.",
+        "tipReceipts": "Approve or reject billing receipts uploaded by guardians (new invoice model).",
+        "tipPayments": "Legacy queue of monthly payment receipts pending review."
+      },
+      "overview": {
+        "title": "Cohort overview",
+        "lead": "Every active section of the cohort with payment status by month. Click a cell to drill down.",
+        "filters": {
+          "cohort": "Cohort",
+          "year": "Year",
+          "search": "Search student",
+          "searchPlaceholder": "Name or document",
+          "onlyOverdue": "Only overdue",
+          "applyFilters": "Apply filters"
+        },
+        "table": {
+          "studentColumn": "Student",
+          "sectionColumn": "Section",
+          "yearTotalsColumn": "Year",
+          "paidLabel": "Paid",
+          "expectedLabel": "Expected",
+          "overdueLabel": "Overdue"
+        },
+        "sectionHeader": {
+          "studentsCount": "{count} active students",
+          "overdueCount": "{count} overdue",
+          "openSection": "Open section",
+          "openSectionTooltip": "See the full per-student matrix and bulk actions for this section."
+        },
+        "totals": {
+          "title": "Cohort totals",
+          "expectedYear": "Expected (year)",
+          "collected": "Collected",
+          "overdue": "Overdue",
+          "ratio": "Collection ratio"
+        },
+        "empty": {
+          "noCurrentCohort": "No current cohort is set. Mark a cohort as current in the academic hub.",
+          "noSections": "This cohort has no active sections yet.",
+          "noStudentsAfterFilter": "No students match the current filter."
+        }
+      },
       "collections": {
         "title": "Collections",
         "lead": "Health of monthly fee collection across sections, plus tools for export and bulk reminders.",
@@ -1531,6 +1583,8 @@
       "tipFinanceReceipts": "List and verify official invoice receipts for billing periods.",
       "financeCollections": "Collections",
       "tipFinanceCollections": "Monthly collection health by section, with export and bulk reminders.",
+      "finance": "Finance",
+      "tipFinance": "Cohort overview, collections, invoice receipts, and payment review — all under one roof.",
       "tipRegistrations": "Review and approve enrollment requests from the public form.",
       "tipAcademics": "Cohorts, sections, enrollments, attendance, and grades.",
       "tipCalendar": "All active sections as a calendar; filter by teacher or room.",
@@ -2058,7 +2112,7 @@
       },
       "feePlans": {
         "title": "Monthly fee plans",
-        "lead": "Define what students pay each month for this section, when each version is in effect, how many monthly payments make up the full period, and whether enrollment fee applies.",
+        "lead": "Define what students pay each month for this section, in which currency, and when each version is in effect. If a student joins late, the system prorates the fee based on the classes they had available that month.",
         "empty": "No fee plan defined yet.",
         "add": "Add fee plan",
         "create": "Create fee plan",
@@ -2073,15 +2127,11 @@
         "effectiveFromMonth": "Effective from month",
         "effectiveFromYear": "Effective from year",
         "effectiveFromShort": "From",
-        "monthlyFee": "Monthly fee (USD)",
-        "paymentsCount": "Payments per period",
-        "paymentsShort": "payments",
-        "chargesEnrollmentFee": "Charges enrollment fee (matricula)",
-        "matriculaYes": "with matricula",
-        "matriculaNo": "no matricula",
-        "periodStartMonth": "Period start month",
-        "periodStartYear": "Period start year",
-        "periodStartShort": "starts",
+        "monthlyFee": "Monthly fee",
+        "currency": "Currency",
+        "currencyOther": "Other…",
+        "currencyOtherAria": "Three-letter ISO 4217 currency code (e.g. BOB, PEN)",
+        "prorateExplanation": "If the student joins mid-month, they pay proportional to the classes they had available. For example, 1 of 4 classes that month = 1/4 of the fee.",
         "inUseBadge": "In use",
         "inUseBadgeTitle": "Students already have payments under this plan.",
         "archivedBadge": "Archived",
@@ -2095,13 +2145,26 @@
         "showArchived": "Show archived plans",
         "hideArchived": "Hide archived plans"
       },
+      "enrollmentFee": {
+        "title": "Section enrollment fee",
+        "lead": "Set how much this section charges as an enrollment fee (matrícula). The currency is taken from the active monthly fee plan.",
+        "amount": "Enrollment fee amount",
+        "currencyAria": "Enrollment fee currency",
+        "currencyHelp": "The enrollment fee uses the same currency as the active monthly fee plan.",
+        "noCurrency": "—",
+        "noActivePlanHelp": "There is no active monthly fee plan yet. Define the monthly fee and currency first; the enrollment fee will display in that currency.",
+        "save": "Save enrollment fee",
+        "saved": "Enrollment fee updated.",
+        "errorSave": "Could not save the enrollment fee. Try again.",
+        "zeroMeans": "0 means this section does not charge an enrollment fee."
+      },
       "shellTabs": {
         "tablistAria": "Section workspace",
         "general": "Overview",
         "generalLead": "Lifecycle, archive controls, and quick links for this section.",
         "schedule": "Schedule",
         "fees": "Fees",
-        "feesLead": "Set the monthly fee, the period payments count, and whether this section charges an enrollment fee.",
+        "feesLead": "Set the monthly fee, its currency, and the enrollment fee that this section charges.",
         "enroll": "Enroll",
         "roster": "Roster"
       },
@@ -2646,8 +2709,8 @@
       "monthly": {
         "stripAria": "Monthly payments",
         "emptySections": "You are not enrolled in any active section right now.",
-        "chargesEnrollmentFee": "With matricula",
-        "chargesEnrollmentFeeTooltip": "This section also charges an enrollment fee, billed separately.",
+        "enrollmentFeeBadge": "Enrollment fee {amount}",
+        "enrollmentFeeTooltip": "This section charges a {amount} enrollment fee, billed separately from the monthly fees.",
         "noPlanHint": "No fee plan published yet for this section.",
         "currentMonth": "Current month",
         "statusApproved": "Paid",
@@ -2967,7 +3030,11 @@
       "wardInvalidForm": "Check the student's details and try again.",
       "wardAuthLookupFailed": "We could not load this student's account. Try again later.",
       "wardEmailTaken": "That email is already used by another account.",
-      "wardForbidden": "You do not have access to this student"
+      "wardForbidden": "You do not have access to this student",
+      "wardPasswordLabel": "Your current password",
+      "wardPasswordHelp": "We only ask for it when you change the student's login email, to confirm it is really you.",
+      "wardPasswordRequired": "Enter your current password to change the student's login email.",
+      "wardPasswordInvalid": "That password does not match your account."
     },
     "teacher": {
       "title": "Teacher area",

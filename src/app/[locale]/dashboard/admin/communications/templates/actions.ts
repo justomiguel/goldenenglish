@@ -14,6 +14,7 @@ import {
 } from "@/lib/logging/serverActionLog";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { isKnownEmailTemplateKey } from "@/lib/email/templates/templateRegistry";
+import { sanitizeEmailTemplateHtml } from "@/lib/email/sanitizeEmailTemplateHtml";
 
 export type EmailTemplateActionErrorCode =
   | "unauthorized"
@@ -44,6 +45,19 @@ export async function saveEmailTemplateAction(
     return { ok: false, code: "unknown_template_key" };
   }
 
+  /**
+   * Sanitize at the persistence boundary (OWASP A03 / A08). Even though the
+   * caller is supposed to be staff, we treat `body_html` as untrusted and
+   * strip `<script>`, `on*` handlers, `javascript:` URLs, etc. before they
+   * land in `email_templates` and get rendered into real outbound emails.
+   * If the sanitizer reduces the body to nothing the input was effectively
+   * all forbidden markup → reject as `invalid_input`.
+   */
+  const safeBodyHtml = sanitizeEmailTemplateHtml(input.bodyHtml);
+  if (!safeBodyHtml.trim()) {
+    return { ok: false, code: "invalid_input" };
+  }
+
   try {
     const { supabase, user } = await assertAdmin();
     const upsert = await supabase
@@ -53,7 +67,7 @@ export async function saveEmailTemplateAction(
           template_key: input.templateKey,
           locale: input.templateLocale,
           subject: input.subject,
-          body_html: input.bodyHtml,
+          body_html: safeBodyHtml,
           updated_by: user.id,
         },
         { onConflict: "template_key,locale" },
@@ -76,7 +90,7 @@ export async function saveEmailTemplateAction(
         templateKey: input.templateKey,
         locale: input.templateLocale,
         subjectLength: input.subject.length,
-        bodyLength: input.bodyHtml.length,
+        bodyLength: safeBodyHtml.length,
       },
     });
 

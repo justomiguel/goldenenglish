@@ -72,7 +72,9 @@ describe("dashboard coverage", () => {
     expect(screen.getByRole("navigation", { name: dictEn.dashboard.adminNav.aria })).toBeInTheDocument();
     expect(screen.getByText("99+")).toBeInTheDocument();
     expect(screen.getByText(dictEn.dashboard.adminNav.groupPeople)).toBeInTheDocument();
-    expect(screen.getByText(dictEn.dashboard.adminNav.groupFinance)).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: dictEn.dashboard.adminNav.finance }),
+    ).toBeInTheDocument();
   });
 
   it("AdminCreateUserForm shows success and error messages", async () => {

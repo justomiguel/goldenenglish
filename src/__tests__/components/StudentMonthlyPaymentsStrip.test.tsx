@@ -19,17 +19,16 @@ const baseView: StudentMonthlyPaymentsView = {
       sectionName: "B1 Tuesdays",
       cohortName: "Cohort 2026",
       hasActivePlan: true,
-      chargesEnrollmentFee: true,
+      enrollmentFeeAmount: 150,
+      enrollmentFeeCurrency: "USD",
       currentPlan: {
         id: "plan-1",
         sectionId: "sec-1",
         effectiveFromYear: 2026,
         effectiveFromMonth: 1,
         monthlyFee: 100,
-        paymentsCount: 10,
-        chargesEnrollmentFee: true,
-        periodStartYear: 2026,
-        periodStartMonth: 3,
+        currency: "USD",
+        archivedAt: null,
       },
       cells: Array.from({ length: 12 }, (_, i) => {
         const month = i + 1;
@@ -37,8 +36,10 @@ const baseView: StudentMonthlyPaymentsView = {
         return {
           month,
           year: 2026,
-          status: inPeriod ? (month === 5 ? "due" : "due") : "out-of-period",
+          status: inPeriod ? "due" : "out-of-period",
           expectedAmount: inPeriod ? 100 : null,
+          currency: inPeriod ? "USD" : null,
+          proration: inPeriod ? { numerator: 4, denominator: 4 } : null,
           recordedAmount: null,
           paymentId: null,
           receiptSignedUrl: null,

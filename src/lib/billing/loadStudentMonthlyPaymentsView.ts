@@ -13,13 +13,24 @@ import {
   type StudentMonthlyPaymentRecord,
 } from "@/lib/billing/buildStudentMonthlyPaymentsRow";
 import { studentReceiptSignedUrl } from "@/lib/payments/studentReceiptSignedUrl";
-import {
-  type ScholarshipRow,
-} from "@/lib/billing/scholarshipPeriod";
+import { type ScholarshipRow } from "@/lib/billing/scholarshipPeriod";
+import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
+import type { SectionScheduleSlot } from "@/types/academics";
 
 interface LoadOptions {
   todayYear: number;
   todayMonth: number;
+}
+
+interface SectionMeta {
+  sectionId: string;
+  sectionName: string;
+  cohortName: string;
+  startsOn: string;
+  endsOn: string;
+  scheduleSlots: SectionScheduleSlot[];
+  enrolledAt: string | null;
+  enrollmentFeeAmount: number;
 }
 
 /**
@@ -35,28 +46,30 @@ export async function loadStudentMonthlyPaymentsView(
   const { data: enrollments } = await supabase
     .from("section_enrollments")
     .select(
-      "section_id, academic_sections(id, name, academic_cohorts(name))",
+      "section_id, created_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
     )
     .eq("student_id", studentId)
     .eq("status", "active");
 
   type EnrollmentRow = {
     section_id: string;
+    created_at: string | null;
     academic_sections:
-      | {
-          id: string;
-          name: string;
-          academic_cohorts: { name: string } | { name: string }[] | null;
-        }
-      | {
-          id: string;
-          name: string;
-          academic_cohorts: { name: string } | { name: string }[] | null;
-        }[]
+      | EnrollmentSectionRow
+      | EnrollmentSectionRow[]
       | null;
   };
+  type EnrollmentSectionRow = {
+    id: string;
+    name: string;
+    starts_on: string | null;
+    ends_on: string | null;
+    schedule_slots: unknown;
+    enrollment_fee_amount: number | string | null;
+    academic_cohorts: { name: string } | { name: string }[] | null;
+  };
 
-  const sections = ((enrollments ?? []) as EnrollmentRow[]).map((row) => {
+  const sections: SectionMeta[] = ((enrollments ?? []) as EnrollmentRow[]).map((row) => {
     const sec = Array.isArray(row.academic_sections)
       ? row.academic_sections[0]
       : row.academic_sections;
@@ -65,10 +78,17 @@ export async function loadStudentMonthlyPaymentsView(
         ? sec.academic_cohorts[0]
         : sec.academic_cohorts
       : null;
+    const rawEnrollment = sec?.enrollment_fee_amount == null ? 0 : Number(sec.enrollment_fee_amount);
     return {
       sectionId: row.section_id,
       sectionName: sec?.name ?? "",
       cohortName: cohort?.name ?? "",
+      startsOn: sec?.starts_on ?? "",
+      endsOn: sec?.ends_on ?? "",
+      scheduleSlots: parseSectionScheduleSlots(sec?.schedule_slots ?? []),
+      enrolledAt: row.created_at ?? null,
+      enrollmentFeeAmount:
+        Number.isFinite(rawEnrollment) && rawEnrollment >= 0 ? rawEnrollment : 0,
     };
   });
 
@@ -79,7 +99,7 @@ export async function loadStudentMonthlyPaymentsView(
     const { data: planRows } = await supabase
       .from("section_fee_plans")
       .select(
-        "id, section_id, effective_from_year, effective_from_month, monthly_fee, payments_count, charges_enrollment_fee, period_start_year, period_start_month, archived_at",
+        "id, section_id, effective_from_year, effective_from_month, monthly_fee, currency, archived_at",
       )
       .is("archived_at", null)
       .in("section_id", sectionIds);
@@ -141,6 +161,11 @@ export async function loadStudentMonthlyPaymentsView(
       scholarship,
       todayYear: opts.todayYear,
       todayMonth: opts.todayMonth,
+      sectionStartsOn: s.startsOn,
+      sectionEndsOn: s.endsOn,
+      studentEnrolledAt: s.enrolledAt,
+      scheduleSlots: s.scheduleSlots,
+      sectionEnrollmentFeeAmount: s.enrollmentFeeAmount,
     }),
   );
 

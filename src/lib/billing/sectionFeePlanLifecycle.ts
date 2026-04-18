@@ -41,7 +41,7 @@ export async function isSectionFeePlanInUse(
   const { data: planRows } = await supabase
     .from("section_fee_plans")
     .select(
-      "id, section_id, effective_from_year, effective_from_month, monthly_fee, payments_count, charges_enrollment_fee, period_start_year, period_start_month, archived_at",
+      "id, section_id, effective_from_year, effective_from_month, monthly_fee, currency, archived_at",
     )
     .eq("section_id", sectionId);
   const plans = ((planRows ?? []) as SectionFeePlanRowDb[]).map(mapSectionFeePlanRow);

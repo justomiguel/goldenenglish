@@ -5,7 +5,6 @@ export type BillingTerms = {
   enrollment: string;
   monthly: string;
   promotion: string;
-  enrollmentFeeDefault: number;
 };
 
 export function getBillingTerms(locale: Locale): BillingTerms {
@@ -25,6 +24,5 @@ export function getBillingTerms(locale: Locale): BillingTerms {
     promotion: en
       ? getProperty(p, "billing.term.promotion.en", "Promotion")
       : getProperty(p, "billing.term.promotion", getProperty(p, "billing.term.promotion.en", "Promotion")),
-    enrollmentFeeDefault: Number(getProperty(p, "billing.enrollment_fee.default", "0")) || 0,
   };
 }

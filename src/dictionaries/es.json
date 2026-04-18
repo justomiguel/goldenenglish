@@ -1112,6 +1112,58 @@
       "notesTooltip": "Nota interna opcional que queda guardada con la decisión (visible para el equipo)."
     },
     "finance": {
+      "hub": {
+        "title": "Finanzas",
+        "lead": "Vista cohorte, cobranza mensual, comprobantes de facturación y revisión de pagos — todo en un solo lugar.",
+        "tabs": {
+          "overview": "Vista cohorte",
+          "collections": "Cobranza",
+          "receipts": "Comprobantes",
+          "payments": "Revisión de pagos"
+        },
+        "tipOverview": "Cada sección de la cohorte activa con el estado de pago por mes — como un Excel, pero accionable.",
+        "tipCollections": "Salud de cobranza por sección, con exportación y recordatorios masivos.",
+        "tipReceipts": "Aprobar o rechazar comprobantes de facturación subidos por las familias (modelo de facturación).",
+        "tipPayments": "Cola legacy de comprobantes mensuales pendientes de revisión."
+      },
+      "overview": {
+        "title": "Vista cohorte",
+        "lead": "Cada sección activa de la cohorte con el estado de pago por mes. Hacé clic en una celda para ver el detalle.",
+        "filters": {
+          "cohort": "Cohorte",
+          "year": "Año",
+          "search": "Buscar alumno",
+          "searchPlaceholder": "Nombre o documento",
+          "onlyOverdue": "Sólo morosos",
+          "applyFilters": "Aplicar filtros"
+        },
+        "table": {
+          "studentColumn": "Alumno",
+          "sectionColumn": "Sección",
+          "yearTotalsColumn": "Año",
+          "paidLabel": "Pagado",
+          "expectedLabel": "Esperado",
+          "overdueLabel": "Vencido"
+        },
+        "sectionHeader": {
+          "studentsCount": "{count} alumnos activos",
+          "overdueCount": "{count} en mora",
+          "openSection": "Abrir sección",
+          "openSectionTooltip": "Ver la matriz por alumno y las acciones masivas de esta sección."
+        },
+        "totals": {
+          "title": "Totales de la cohorte",
+          "expectedYear": "Esperado (año)",
+          "collected": "Cobrado",
+          "overdue": "Vencido",
+          "ratio": "Ratio de cobranza"
+        },
+        "empty": {
+          "noCurrentCohort": "No hay una cohorte marcada como actual. Marcá una en el panel académico.",
+          "noSections": "Esta cohorte no tiene secciones activas todavía.",
+          "noStudentsAfterFilter": "Ningún alumno coincide con el filtro actual."
+        }
+      },
       "collections": {
         "title": "Cobranza",
         "lead": "Salud de la cobranza mensual por sección, con herramientas para exportar y enviar recordatorios masivos.",
@@ -1531,6 +1583,8 @@
       "tipFinanceReceipts": "Listar y verificar comprobantes oficiales de cuotas.",
       "financeCollections": "Cobranza",
       "tipFinanceCollections": "Salud de la cobranza mensual por sección, con exportación y recordatorios masivos.",
+      "finance": "Finanzas",
+      "tipFinance": "Vista cohorte, cobranza, comprobantes y revisión de pagos — todo en un solo lugar.",
       "tipRegistrations": "Revisar y aprobar solicitudes de inscripción del formulario público.",
       "tipAcademics": "Cohortes, secciones, matrículas, asistencia y notas.",
       "tipCalendar": "Todas las secciones activas en un calendario; filtrá por docente o aula.",
@@ -2058,7 +2112,7 @@
       },
       "feePlans": {
         "title": "Planes de cuota mensual",
-        "lead": "Definí cuánto paga el alumno cada mes en esta sección, desde cuándo rige cada versión, cuántas cuotas tiene el período completo y si además se cobra matrícula.",
+        "lead": "Definí cuánto paga el alumno cada mes en esta sección, en qué moneda y desde cuándo rige cada versión. Si el alumno se incorpora más tarde, el sistema prorratea la cuota según las clases que tuvo disponibles ese mes.",
         "empty": "Aún no hay un plan de cuota definido.",
         "add": "Agregar plan",
         "create": "Crear plan",
@@ -2073,15 +2127,11 @@
         "effectiveFromMonth": "Mes desde el que rige",
         "effectiveFromYear": "Año desde el que rige",
         "effectiveFromShort": "Desde",
-        "monthlyFee": "Cuota mensual (USD)",
-        "paymentsCount": "Cuotas por período",
-        "paymentsShort": "cuotas",
-        "chargesEnrollmentFee": "Cobra matrícula",
-        "matriculaYes": "con matrícula",
-        "matriculaNo": "sin matrícula",
-        "periodStartMonth": "Mes de inicio del período",
-        "periodStartYear": "Año de inicio del período",
-        "periodStartShort": "comienza",
+        "monthlyFee": "Cuota mensual",
+        "currency": "Moneda",
+        "currencyOther": "Otra…",
+        "currencyOtherAria": "Código ISO 4217 de 3 letras (ej. BOB, PEN)",
+        "prorateExplanation": "Si el alumno se incorpora a mitad de mes, paga proporcional a las clases que tuvo disponibles. Por ejemplo, 1 de 4 clases del mes = 1/4 de la cuota.",
         "inUseBadge": "En uso",
         "inUseBadgeTitle": "Ya hay pagos de alumnos asociados a este plan.",
         "archivedBadge": "Archivado",
@@ -2095,13 +2145,26 @@
         "showArchived": "Mostrar planes archivados",
         "hideArchived": "Ocultar planes archivados"
       },
+      "enrollmentFee": {
+        "title": "Matrícula de la sección",
+        "lead": "Definí cuánto cobra esta sección por la matrícula (alta). La moneda se toma del plan de cuota mensual vigente.",
+        "amount": "Monto de matrícula",
+        "currencyAria": "Moneda de la matrícula",
+        "currencyHelp": "La matrícula se cobra en la misma moneda que la cuota mensual del plan vigente.",
+        "noCurrency": "—",
+        "noActivePlanHelp": "Aún no hay un plan de cuota vigente. Definí primero la cuota mensual y su moneda; la matrícula se mostrará con esa moneda.",
+        "save": "Guardar matrícula",
+        "saved": "Matrícula actualizada.",
+        "errorSave": "No se pudo guardar la matrícula. Intentá de nuevo.",
+        "zeroMeans": "0 significa que esta sección no cobra matrícula."
+      },
       "shellTabs": {
         "tablistAria": "Áreas de trabajo de la sección",
         "general": "Resumen",
         "generalLead": "Ciclo de vida, archivo y accesos rápidos de esta sección.",
         "schedule": "Horario",
         "fees": "Cuotas",
-        "feesLead": "Definí la cuota mensual, las cuotas del período y si esta sección cobra matrícula.",
+        "feesLead": "Definí la cuota mensual, en qué moneda se cobra y el monto de matrícula que cobra esta sección.",
         "enroll": "Inscripción",
         "roster": "Lista"
       },
@@ -2646,8 +2709,8 @@
       "monthly": {
         "stripAria": "Pagos mensuales",
         "emptySections": "No estás inscripto en ninguna sección activa en este momento.",
-        "chargesEnrollmentFee": "Con matrícula",
-        "chargesEnrollmentFeeTooltip": "Esta sección además cobra matrícula, que se factura por separado.",
+        "enrollmentFeeBadge": "Matrícula {amount}",
+        "enrollmentFeeTooltip": "Esta sección cobra una matrícula de {amount}, que se factura por separado de las cuotas mensuales.",
         "noPlanHint": "Aún no hay un plan de cuota publicado para esta sección.",
         "currentMonth": "Mes en curso",
         "statusApproved": "Pagado",
@@ -2967,7 +3030,11 @@
       "wardInvalidForm": "Revisá los datos del alumno e intentá de nuevo.",
       "wardAuthLookupFailed": "No pudimos cargar la cuenta de este alumno. Intentá más tarde.",
       "wardEmailTaken": "Ese correo ya está en uso por otra cuenta.",
-      "wardForbidden": "No tenés acceso a este alumno"
+      "wardForbidden": "No tenés acceso a este alumno",
+      "wardPasswordLabel": "Tu contraseña actual",
+      "wardPasswordHelp": "Solo te la pedimos cuando cambiás el correo de acceso del alumno, para confirmar que sos vos.",
+      "wardPasswordRequired": "Ingresá tu contraseña actual para cambiar el correo de acceso del alumno.",
+      "wardPasswordInvalid": "Esa contraseña no coincide con tu cuenta."
     },
     "teacher": {
       "title": "Docentes",

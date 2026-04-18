@@ -4,6 +4,7 @@ import {
 } from "@/lib/billing/buildStudentMonthlyPaymentsRow";
 import { periodIndex, type ScholarshipRow } from "@/lib/billing/scholarshipPeriod";
 import type { SectionFeePlan } from "@/types/sectionFeePlan";
+import type { SectionScheduleSlot } from "@/types/academics";
 import type {
   StudentMonthlyPaymentCell,
   StudentMonthlyPaymentSectionRow,
@@ -23,6 +24,8 @@ export interface SectionCollectionsStudentInput {
   documentLabel: string | null;
   scholarship: ScholarshipRow | null;
   payments: StudentMonthlyPaymentRecord[];
+  /** ISO timestamp/date — fecha de enrolment del alumno a esta sección. */
+  enrolledAt: string | null;
 }
 
 export interface BuildSectionCollectionsViewInput {
@@ -34,6 +37,13 @@ export interface BuildSectionCollectionsViewInput {
   todayMonth: number;
   plans: SectionFeePlan[];
   students: SectionCollectionsStudentInput[];
+  /** ISO date (YYYY-MM-DD). Inicio operativo de la sección. */
+  sectionStartsOn: string;
+  /** ISO date (YYYY-MM-DD). Fin operativo de la sección. */
+  sectionEndsOn: string;
+  scheduleSlots: readonly SectionScheduleSlot[];
+  /** Monto de matrícula a nivel de sección (>=0). 0 = no cobra matrícula. */
+  sectionEnrollmentFeeAmount: number;
 }
 
 interface CellAggregates {
@@ -186,6 +196,11 @@ export function buildSectionCollectionsView(
       scholarship: s.scholarship,
       todayYear: input.todayYear,
       todayMonth: input.todayMonth,
+      sectionStartsOn: input.sectionStartsOn,
+      sectionEndsOn: input.sectionEndsOn,
+      studentEnrolledAt: s.enrolledAt,
+      scheduleSlots: input.scheduleSlots,
+      sectionEnrollmentFeeAmount: input.sectionEnrollmentFeeAmount,
     });
     const agg = aggregateCells(row.cells, input.todayYear, input.todayMonth);
     return {

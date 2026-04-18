@@ -33,6 +33,29 @@ function monthLabel(locale: Locale, month: number): string {
   return formatter.format(date);
 }
 
+function formatEnrollmentFee(
+  locale: Locale,
+  amount: number,
+  currency: string | null,
+): string {
+  if (!Number.isFinite(amount) || amount <= 0) return "";
+  if (currency) {
+    try {
+      return new Intl.NumberFormat(locale, {
+        style: "currency",
+        currency,
+        maximumFractionDigits: 2,
+      }).format(amount);
+    } catch {
+      // Fall through to non-currency formatting if the ISO code is unknown.
+    }
+  }
+  const numeric = new Intl.NumberFormat(locale, {
+    maximumFractionDigits: 2,
+  }).format(amount);
+  return currency ? `${currency} ${numeric}` : numeric;
+}
+
 function findCell(section: StudentMonthlyPaymentSectionRow, month: number) {
   return section.cells.find((c) => c.month === month) ?? null;
 }
@@ -96,15 +119,22 @@ export function StudentMonthlyPaymentsStrip({
                   <p className="text-xs text-[var(--color-muted-foreground)]">{row.cohortName}</p>
                 ) : null}
               </div>
-              {row.chargesEnrollmentFee ? (
-                <span
-                  className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-foreground)]"
-                  title={labels.chargesEnrollmentFeeTooltip}
-                >
-                  <Tag className="h-3 w-3" aria-hidden />
-                  {labels.chargesEnrollmentFee}
-                </span>
-              ) : null}
+              {row.enrollmentFeeAmount > 0 ? (() => {
+                const formatted = formatEnrollmentFee(
+                  locale,
+                  row.enrollmentFeeAmount,
+                  row.enrollmentFeeCurrency,
+                );
+                return (
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-foreground)]"
+                    title={labels.enrollmentFeeTooltip.replace("{amount}", formatted)}
+                  >
+                    <Tag className="h-3 w-3" aria-hidden />
+                    {labels.enrollmentFeeBadge.replace("{amount}", formatted)}
+                  </span>
+                );
+              })() : null}
             </header>
             <div
               role="grid"

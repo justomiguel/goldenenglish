@@ -1,20 +1,12 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { verifyCronRequest } from "@/lib/auth/verifyCronRequest";
 
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET?.trim();
-  const auth = request.headers.get("authorization");
-  const url = new URL(request.url);
-  const qSecret = url.searchParams.get("secret");
-  const ok =
-    secret &&
-    (auth === `Bearer ${secret}` ||
-      request.headers.get("x-cron-secret") === secret ||
-      qSecret === secret);
-  if (!ok) {
+  if (!verifyCronRequest(request)) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 

@@ -5,18 +5,34 @@ import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { DEFAULT_SECTION_FEE_PLAN_CURRENCY } from "@/types/sectionFeePlan";
 
 export interface SectionFeePlanFormValues {
   effectiveFromYear: number;
   effectiveFromMonth: number;
   monthlyFee: number;
-  paymentsCount: number;
-  chargesEnrollmentFee: boolean;
-  periodStartYear: number;
-  periodStartMonth: number;
+  /** ISO 4217 (3 letras mayúsculas), validado en cliente y servidor. */
+  currency: string;
 }
 
 const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+/**
+ * Curated suggestions for the dropdown. The DB accepts any ISO 4217 code, so
+ * "Otra…" lets the admin type a code that is not in this short list (e.g. BOB,
+ * PEN). Stable order, alphabetical for the curated bunch.
+ */
+const SUGGESTED_CURRENCIES = [
+  "ARS",
+  "BRL",
+  "CLP",
+  "EUR",
+  "MXN",
+  "USD",
+  "UYU",
+] as const;
+
+const ISO_4217_RE = /^[A-Z]{3}$/;
 
 export interface AcademicSectionFeePlanFormProps {
   initialValues: SectionFeePlanFormValues;
@@ -41,19 +57,39 @@ export function AcademicSectionFeePlanForm({
   footerExtra,
   idPrefix,
 }: AcademicSectionFeePlanFormProps) {
-  const [values, setValues] = useState<SectionFeePlanFormValues>(initialValues);
+  const initialCurrency = (initialValues.currency || DEFAULT_SECTION_FEE_PLAN_CURRENCY)
+    .toUpperCase();
+  const [values, setValues] = useState<SectionFeePlanFormValues>({
+    ...initialValues,
+    currency: initialCurrency,
+  });
+  const initialIsCustom = !SUGGESTED_CURRENCIES.includes(
+    initialCurrency as (typeof SUGGESTED_CURRENCIES)[number],
+  );
+  const [customCurrency, setCustomCurrency] = useState<boolean>(initialIsCustom);
 
   const update = <K extends keyof SectionFeePlanFormValues>(
     key: K,
     value: SectionFeePlanFormValues[K],
   ) => setValues((prev) => ({ ...prev, [key]: value }));
 
+  const onCurrencySelect = (next: string) => {
+    if (next === "__other__") {
+      setCustomCurrency(true);
+      return;
+    }
+    setCustomCurrency(false);
+    update("currency", next);
+  };
+
+  const currencyValid = ISO_4217_RE.test(values.currency.trim().toUpperCase());
+
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        if (busy) return;
-        void onSubmit(values);
+        if (busy || !currencyValid) return;
+        void onSubmit({ ...values, currency: values.currency.trim().toUpperCase() });
       }}
       className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4"
     >
@@ -101,59 +137,55 @@ export function AcademicSectionFeePlanForm({
           />
         </div>
         <div>
-          <Label htmlFor={`${idPrefix}-payments-count`}>{dict.paymentsCount}</Label>
-          <Input
-            id={`${idPrefix}-payments-count`}
-            type="number"
-            min={1}
-            max={24}
-            value={values.paymentsCount}
-            onChange={(e) => update("paymentsCount", Number(e.target.value))}
-            disabled={busy}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor={`${idPrefix}-period-month`}>{dict.periodStartMonth}</Label>
+          <Label htmlFor={`${idPrefix}-currency`}>{dict.currency}</Label>
           <select
-            id={`${idPrefix}-period-month`}
-            value={values.periodStartMonth}
-            onChange={(e) => update("periodStartMonth", Number(e.target.value))}
+            id={`${idPrefix}-currency`}
+            value={
+              customCurrency
+                ? "__other__"
+                : SUGGESTED_CURRENCIES.includes(
+                      values.currency as (typeof SUGGESTED_CURRENCIES)[number],
+                    )
+                  ? values.currency
+                  : "__other__"
+            }
+            onChange={(e) => onCurrencySelect(e.target.value)}
             className="mt-1 min-h-[44px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2"
             disabled={busy}
           >
-            {MONTHS.map((m) => (
-              <option key={m} value={m}>
-                {String(m).padStart(2, "0")}
+            {SUGGESTED_CURRENCIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
               </option>
             ))}
+            <option value="__other__">{dict.currencyOther}</option>
           </select>
-        </div>
-        <div>
-          <Label htmlFor={`${idPrefix}-period-year`}>{dict.periodStartYear}</Label>
-          <Input
-            id={`${idPrefix}-period-year`}
-            type="number"
-            min={2000}
-            max={2100}
-            value={values.periodStartYear}
-            onChange={(e) => update("periodStartYear", Number(e.target.value))}
-            disabled={busy}
-            required
-          />
+          {customCurrency ? (
+            <Input
+              id={`${idPrefix}-currency-other`}
+              className="mt-2"
+              type="text"
+              maxLength={3}
+              minLength={3}
+              pattern="[A-Za-z]{3}"
+              placeholder="BOB"
+              aria-label={dict.currencyOtherAria}
+              value={values.currency}
+              onChange={(e) => update("currency", e.target.value.toUpperCase())}
+              disabled={busy}
+              required
+            />
+          ) : null}
         </div>
       </div>
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={values.chargesEnrollmentFee}
-          onChange={(e) => update("chargesEnrollmentFee", e.target.checked)}
-          disabled={busy}
-        />
-        <span>{dict.chargesEnrollmentFee}</span>
-      </label>
+      <p className="text-xs text-[var(--color-muted-foreground)]">{dict.prorateExplanation}</p>
       <div className="flex flex-wrap items-center gap-2">
-        <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px]">
+        <Button
+          type="submit"
+          disabled={busy || !currencyValid}
+          isLoading={busy}
+          className="min-h-[44px]"
+        >
           {submitLabel}
         </Button>
         {onCancel ? (

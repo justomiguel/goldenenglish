@@ -9,6 +9,7 @@ import {
   type LandingEditorOverviewItem,
   type LandingSectionEditorViewModel,
 } from "@/lib/cms/buildLandingEditorViewModel";
+import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import type { LandingOverrideLocale } from "@/lib/cms/landingContentCatalog";
 import {
   isSiteThemeKind,
@@ -161,6 +162,7 @@ export async function loadLandingEditorOverview(
     content: snapshot.theme.content,
     media: snapshot.media,
     blocks: snapshot.theme.blocks,
+    resolveMediaPublicUrl: createLandingMediaPublicUrlBuilder(),
   });
   return { theme: snapshot.theme, sections };
 }
@@ -183,6 +185,7 @@ export async function loadLandingEditorSection(
     content: snapshot.theme.content,
     media: snapshot.media,
     blocks: snapshot.theme.blocks,
+    resolveMediaPublicUrl: createLandingMediaPublicUrlBuilder(),
   });
   return { theme: snapshot.theme, section: view };
 }

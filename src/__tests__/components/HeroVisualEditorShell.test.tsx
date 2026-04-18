@@ -89,8 +89,6 @@ describe("HeroVisualEditorShell", () => {
         theme={theme}
         section={section}
         brandName="Golden English"
-        publicUrlFor={() => null}
-        fallbackMediaSrc={() => null}
       />,
     );
     expect(
@@ -112,8 +110,6 @@ describe("HeroVisualEditorShell", () => {
         theme={theme}
         section={section}
         brandName="GE"
-        publicUrlFor={() => null}
-        fallbackMediaSrc={() => null}
       />,
     );
     const preview = screen.getByRole("complementary", {
@@ -136,8 +132,6 @@ describe("HeroVisualEditorShell", () => {
         theme={theme}
         section={section}
         brandName="GE"
-        publicUrlFor={() => null}
-        fallbackMediaSrc={() => null}
       />,
     );
     const esInputs = screen.getAllByLabelText(labels.labelEs);

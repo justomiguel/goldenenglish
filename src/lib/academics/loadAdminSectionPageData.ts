@@ -30,6 +30,11 @@ export interface AdminSectionPageData {
     effectiveMaxStudents: number;
     siteDefaultMax: number;
     activeEnrollmentCount: number;
+    /**
+     * Monto de matrícula a nivel de sección (>=0). 0 = no cobra matrícula.
+     * Moneda se reusa del plan vigente.
+     */
+    enrollmentFeeAmount: number;
   };
   cohort: {
     name: string;
@@ -53,7 +58,7 @@ export async function loadAdminSectionPageData(
   const { data: sec, error: sErr } = await supabase
     .from("academic_sections")
     .select(
-      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, academic_cohorts(name, archived_at)",
+      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, academic_cohorts(name, archived_at)",
     )
     .eq("id", sectionId)
     .maybeSingle();
@@ -75,6 +80,7 @@ export async function loadAdminSectionPageData(
     archived_at: string | null;
     starts_on: string;
     ends_on: string;
+    enrollment_fee_amount?: number | string | null;
     academic_cohorts:
       | { name: string; archived_at?: string | null }
       | { name: string; archived_at?: string | null }[]
@@ -121,7 +127,7 @@ export async function loadAdminSectionPageData(
   const { data: feePlanRows } = await supabase
     .from("section_fee_plans")
     .select(
-      "id, section_id, effective_from_year, effective_from_month, monthly_fee, payments_count, charges_enrollment_fee, period_start_year, period_start_month, archived_at",
+      "id, section_id, effective_from_year, effective_from_month, monthly_fee, currency, archived_at",
     )
     .eq("section_id", sectionId);
   const feePlans = ((feePlanRows ?? []) as SectionFeePlanRowDb[]).map(mapSectionFeePlanRow);
@@ -144,6 +150,11 @@ export async function loadAdminSectionPageData(
     .limit(2000);
   const moveTargets = buildAdminSectionMoveTargets(allSections, sectionId);
 
+  const rawEnrollmentFee =
+    secRow.enrollment_fee_amount == null ? 0 : Number(secRow.enrollment_fee_amount);
+  const enrollmentFeeAmount =
+    Number.isFinite(rawEnrollmentFee) && rawEnrollmentFee >= 0 ? rawEnrollmentFee : 0;
+
   return {
     section: {
       id: secRow.id,
@@ -157,6 +168,7 @@ export async function loadAdminSectionPageData(
       effectiveMaxStudents,
       siteDefaultMax,
       activeEnrollmentCount,
+      enrollmentFeeAmount,
     },
     cohort: {
       name: cohortName,
