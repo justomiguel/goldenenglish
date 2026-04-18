@@ -10,6 +10,7 @@ interface FakeRow {
   slug: string;
   name: string;
   is_active: boolean;
+  is_system_default?: boolean;
   properties: unknown;
   content: unknown;
   archived_at: string | null;
@@ -54,6 +55,7 @@ const sample: FakeRow = {
   slug: "default",
   name: "Default",
   is_active: true,
+  is_system_default: true,
   properties: { "color.primary": "#103A5C" },
   content: {},
   archived_at: null,
@@ -75,6 +77,7 @@ describe("loadAdminSiteThemes", () => {
         id: "row-1",
         slug: "default",
         isActive: true,
+        isSystemDefault: true,
         archivedAt: null,
       }),
     );

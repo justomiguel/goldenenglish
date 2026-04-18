@@ -10,6 +10,15 @@ vi.mock("@/lib/supabase/admin", () => ({
         getUserById: (...a: unknown[]) => getUserById(...a),
       },
     },
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          eq: () => ({
+            maybeSingle: async () => ({ data: null, error: null }),
+          }),
+        }),
+      }),
+    }),
   })),
 }));
 
@@ -47,10 +56,11 @@ describe("notifyMessagingEmails", () => {
     expect(sendEmail).toHaveBeenCalledWith(
       expect.objectContaining({
         to: "teacher@example.com",
-        subject: expect.stringContaining("Golden English"),
+        subject: expect.any(String),
       }),
     );
     const html = sendEmail.mock.calls[0][0].html as string;
+    expect(html).toContain("Golden English");
     expect(html).not.toContain("<script>");
     expect(html).toContain("&lt;script&gt;");
   });

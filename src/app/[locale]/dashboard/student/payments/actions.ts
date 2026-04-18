@@ -10,6 +10,7 @@ import { paymentActionDict } from "@/lib/i18n/actionErrors";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { Locale } from "@/types/i18n";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { resolveStudentPaymentSlot } from "@/lib/billing/resolveStudentPaymentSlot";
 
 const MAX_BYTES = 4 * 1024 * 1024;
 
@@ -64,18 +65,27 @@ export async function submitStudentPaymentReceipt(
     return { ok: false, message: pe.forbidden };
   }
 
-  const { data: pay, error: payErr } = await supabase
-    .from("payments")
-    .select("id, status")
-    .eq("student_id", user.id)
-    .eq("month", month)
-    .eq("year", year)
-    .maybeSingle();
+  const sectionIdRaw = formData.get("sectionId");
+  const sectionId =
+    typeof sectionIdRaw === "string" && sectionIdRaw.trim().length > 0
+      ? sectionIdRaw.trim()
+      : null;
 
-  if (payErr || !pay) return { ok: false, message: pe.slotNotFound };
-  if (pay.status !== "pending") {
-    return { ok: false, message: pe.alreadyProcessed };
+  const slot = await resolveStudentPaymentSlot(supabase, {
+    studentId: user.id,
+    sectionId,
+    month,
+    year,
+    fallbackAmount: amount,
+  });
+  if (!slot.ok) {
+    if (slot.reason === "forbidden") return { ok: false, message: pe.forbidden };
+    if (slot.reason === "already_processed") return { ok: false, message: pe.alreadyProcessed };
+    if (slot.reason === "upload_failed") return { ok: false, message: pe.uploadFailed };
+    return { ok: false, message: pe.slotNotFound };
   }
+  const pay = slot.payment;
+  const effectiveAmount = slot.effectiveAmount;
 
   const buf = Buffer.from(await file.arrayBuffer());
   const ext = extFromMime(mime);
@@ -91,7 +101,7 @@ export async function submitStudentPaymentReceipt(
     .from("payments")
     .update({
       receipt_url: path,
-      amount,
+      amount: effectiveAmount,
     })
     .eq("id", pay.id)
     .eq("student_id", user.id)
@@ -107,6 +117,7 @@ export async function submitStudentPaymentReceipt(
       month,
       year,
       receipt_kind: mime === "application/pdf" ? "pdf" : "image",
+      ...(sectionId ? { section_id: sectionId } : {}),
     },
   });
   return { ok: true };

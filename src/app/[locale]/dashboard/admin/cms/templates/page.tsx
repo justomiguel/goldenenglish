@@ -8,6 +8,12 @@ import {
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadAdminSiteThemes } from "@/lib/cms/loadAdminSiteThemes";
 import { SiteThemeTemplatesShell } from "@/components/dashboard/admin/cms/SiteThemeTemplatesShell";
+import { loadProperties } from "@/lib/theme/themeParser";
+import { brandPublicFromProperties } from "@/lib/brand/server";
+import {
+  extractThemePreviewTokens,
+  type ThemePreviewTokens,
+} from "@/lib/cms/themePreviewTokens";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -39,6 +45,13 @@ export default async function AdminCmsTemplatesPage({ params }: PageProps) {
     includeArchived: true,
   });
 
+  const defaults = loadProperties();
+  const brand = brandPublicFromProperties(defaults);
+  const tokensByThemeId: Record<string, ThemePreviewTokens> = {};
+  for (const row of rows) {
+    tokensByThemeId[row.id] = extractThemePreviewTokens(defaults, row.properties);
+  }
+
   return (
     <SiteThemeTemplatesShell
       locale={locale}
@@ -46,6 +59,8 @@ export default async function AdminCmsTemplatesPage({ params }: PageProps) {
       rows={rows}
       total={total}
       truncated={truncated}
+      tokensByThemeId={tokensByThemeId}
+      brandName={brand.name}
     />
   );
 }

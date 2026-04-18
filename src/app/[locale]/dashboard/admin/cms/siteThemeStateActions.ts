@@ -73,6 +73,9 @@ export async function archiveSiteThemeAction(
   const { admin } = ctx;
   const existing = await fetchSiteThemeById(admin.supabase, parsed.data.id);
   if (!existing) return { ok: false, code: "not_found" };
+  if (existing.is_system_default) {
+    return { ok: false, code: "system_default_cannot_archive" };
+  }
   if (existing.is_active) return { ok: false, code: "active_cannot_archive" };
   if (existing.archived_at) return { ok: true, id: parsed.data.id };
 

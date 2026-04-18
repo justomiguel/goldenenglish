@@ -7,7 +7,6 @@ import type { Locale } from "@/types/i18n";
 import { loadRubricDimensionsForCohort } from "@/lib/academics/loadRubricDimensionsForCohort";
 import { persistTeacherAssessmentGrade, type TeacherAssessmentGradePayload } from "@/lib/academics/persistTeacherAssessmentGrade";
 import { sendGradePublishedParentEmails } from "@/lib/academics/sendGradePublishedParentEmails";
-import { getEmailProvider } from "@/lib/email/getEmailProvider";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
 import { logServerException } from "@/lib/logging/serverActionLog";
@@ -169,7 +168,6 @@ export async function publishGradeWithNotification(formData: FormData): Promise<
       try {
         await sendGradePublishedParentEmails({
           supabase,
-          emailProvider: getEmailProvider(),
           studentId,
           locale: loc,
           copy: emailCopy,

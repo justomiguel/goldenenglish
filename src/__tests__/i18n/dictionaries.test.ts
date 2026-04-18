@@ -60,6 +60,10 @@ describe("getDictionary", () => {
     expect(es.dashboard.academicSectionPage.shellTabs.roster).toBeTruthy();
     expect(en.dashboard.academicSectionPage.shellTabs.generalLead.length).toBeGreaterThan(10);
     expect(es.dashboard.academicSectionPage.shellTabs.generalLead.length).toBeGreaterThan(10);
+    expect(en.dashboard.academicSectionPage.shellTabs.fees).toBeTruthy();
+    expect(es.dashboard.academicSectionPage.shellTabs.fees).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.shellTabs.feesLead.length).toBeGreaterThan(10);
+    expect(es.dashboard.academicSectionPage.shellTabs.feesLead.length).toBeGreaterThan(10);
   });
 
   it("falls back to default for unknown locale", async () => {

@@ -9,12 +9,14 @@ import {
   Ticket,
   Users,
   Wallet,
+  Banknote,
   ClipboardList,
   Calendar,
   CalendarDays,
   Inbox,
   TriangleAlert,
   FileText,
+  Mail,
   User,
 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
@@ -78,6 +80,12 @@ export function buildAdminSidebarNavGroups(
           icon: <FileText className={ic} />,
           tip: dict.tipFinanceReceipts,
         },
+        {
+          href: `${base}/finance/collections`,
+          label: dict.financeCollections,
+          icon: <Banknote className={ic} />,
+          tip: dict.tipFinanceCollections,
+        },
       ],
     },
     {
@@ -134,6 +142,12 @@ export function buildAdminSidebarNavGroups(
           label: dict.messages,
           icon: <MessageCircle className={ic} />,
           tip: dict.tipMessages,
+        },
+        {
+          href: `${base}/communications/templates`,
+          label: dict.emailTemplates,
+          icon: <Mail className={ic} />,
+          tip: dict.tipEmailTemplates,
         },
       ],
     },

@@ -28,6 +28,7 @@ interface ThemeRowFromDb {
   slug: string;
   name: string;
   is_active: boolean;
+  is_system_default: boolean | null;
   template_kind: unknown;
   properties: unknown;
   content: unknown;
@@ -58,6 +59,7 @@ function mapRow(row: ThemeRowFromDb): SiteThemeRow {
     slug: String(row.slug),
     name: String(row.name),
     isActive: Boolean(row.is_active),
+    isSystemDefault: Boolean(row.is_system_default),
     templateKind: isSiteThemeKind(row.template_kind) ? row.template_kind : "classic",
     properties: parseOverrides(row.properties),
     content: parseContent(row.content),
@@ -83,7 +85,7 @@ export async function loadSiteThemeForRawEditor(
   const { data, error } = await supabase
     .from("site_themes")
     .select(
-      "id, slug, name, is_active, template_kind, properties, content, blocks, archived_at, created_at, updated_at, updated_by",
+      "id, slug, name, is_active, is_system_default, template_kind, properties, content, blocks, archived_at, created_at, updated_at, updated_by",
     )
     .eq("id", themeId)
     .maybeSingle();

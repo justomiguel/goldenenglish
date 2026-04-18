@@ -4,7 +4,9 @@ import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import { PromotionAppliedBadge } from "@/components/molecules/PromotionAppliedBadge";
 import { PromotionApplyForm } from "@/components/molecules/PromotionApplyForm";
-import { StudentPaymentForm } from "@/components/student/StudentPaymentForm";
+import { StudentMonthlyPaymentsStrip } from "@/components/student/StudentMonthlyPaymentsStrip";
+import type { SubmitMonthlyReceiptAction } from "@/components/student/StudentMonthlyPaymentFocus";
+import { StudentPaymentsYearSummary } from "@/components/student/StudentPaymentsYearSummary";
 import {
   StudentPaymentsHistory,
   type StudentPaymentRow,
@@ -12,6 +14,8 @@ import {
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
 import type { Locale } from "@/types/i18n";
+import type { StudentMonthlyPaymentsView } from "@/types/studentMonthlyPayments";
+import { buildStudentPaymentsYearSummary } from "@/lib/billing/buildStudentPaymentsYearSummary";
 
 type StudentLabels = Dictionary["dashboard"]["student"];
 
@@ -31,9 +35,16 @@ export interface StudentPaymentsEntryProps {
   title: string;
   lead: string;
   payments: StudentPaymentRow[];
+  monthlyView: StudentMonthlyPaymentsView | null;
   labels: StudentLabels;
   /** When set, payment forms are hidden (minor with a responsible tutor). */
   paymentsBlockedMessage?: string;
+  /**
+   * Server action that uploads a receipt for `studentId`. Decoupled so the same
+   * entry can be reused by tutors (`submitTutorPaymentReceipt`) without forking
+   * the strip or focus components.
+   */
+  submitReceiptAction: SubmitMonthlyReceiptAction;
 }
 
 export function StudentPaymentsEntry({
@@ -43,8 +54,10 @@ export function StudentPaymentsEntry({
   title,
   lead,
   payments,
+  monthlyView,
   labels,
   paymentsBlockedMessage,
+  submitReceiptAction,
 }: StudentPaymentsEntryProps) {
   if (paymentsBlockedMessage) {
     const blockedBody = (
@@ -91,7 +104,23 @@ export function StudentPaymentsEntry({
           promoError: labels.promoError,
         }}
       />
-      <StudentPaymentForm locale={locale} labels={labels} />
+      {monthlyView ? (
+        <>
+          <StudentPaymentsYearSummary
+            locale={locale}
+            summary={buildStudentPaymentsYearSummary(monthlyView)}
+            labels={labels.monthly.summary}
+          />
+          <StudentMonthlyPaymentsStrip
+            locale={locale}
+            studentId={studentId}
+            view={monthlyView}
+            labels={labels.monthly}
+            paymentLabels={labels}
+            submitAction={submitReceiptAction}
+          />
+        </>
+      ) : null}
       <h2 className="mt-10 font-display text-xl font-semibold text-[var(--color-primary)]">
         {labels.paymentsHistory}
       </h2>

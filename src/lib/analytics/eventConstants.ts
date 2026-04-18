@@ -14,10 +14,16 @@ export const AnalyticsEntity = {
   teacherMessageReply: "teacher_message_reply",
   teacherMessageSent: "teacher_message_sent",
   parentMessageSent: "parent_message_sent",
-  /** Funnel: receipt uploaded from parent portal */
+  /** Funnel: receipt uploaded from parent portal (legacy entity, kept for analytics history) */
   paymentReceiptSubmittedParent: "payment_receipt_submitted_parent",
   /** Funnel: receipt uploaded from student portal */
   paymentReceiptSubmittedStudent: "payment_receipt_submitted_student",
+  /** Funnel: tutor uploaded a receipt on behalf of a linked student */
+  paymentReceiptSubmittedTutor: "payment_receipt_submitted_tutor",
+  /** Privacy: adult student revoked financial access for a linked tutor */
+  tutorFinancialAccessRevokedByStudent: "tutor_financial_access_revoked_by_student",
+  /** Privacy: adult student restored financial access for a linked tutor */
+  tutorFinancialAccessRestoredByStudent: "tutor_financial_access_restored_by_student",
   billing: "section:billing",
   /** Structured invoice: receipt submitted (parent or adult student) */
   billingInvoiceReceiptSubmitted: "billing_invoice_receipt_submitted",
@@ -27,6 +33,8 @@ export const AnalyticsEntity = {
   teacherSectionAttendance: "section:teacher_section_attendance",
   /** Portal calendar + iCal subscription */
   portalCalendar: "section:portal_calendar",
+  /** Auth: user completed a password reset (recovery link → updateUser) */
+  passwordResetCompleted: "auth:password_reset_completed",
 } as const;
 
 export type UserEventTypeName = "page_view" | "click" | "action" | "session_start";

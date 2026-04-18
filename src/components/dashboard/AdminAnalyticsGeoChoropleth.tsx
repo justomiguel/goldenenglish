@@ -10,7 +10,15 @@ import {
 } from "@/lib/analytics/trafficGeoChoropleth";
 import type { Dictionary } from "@/types/i18n";
 
+/**
+ * Local public asset served from `public/geo/world.geojson`. The middleware matcher in
+ * `middleware.ts` excludes `geo/` and `*.geojson` so this path bypasses locale rewrites
+ * and renders without external network access. CDN mirrors stay as a last-resort fallback
+ * for environments where the asset was not deployed yet (e.g. preview branches without
+ * the public folder synced); they should not be the primary source.
+ */
 const GEO_URLS = [
+  "/geo/world.geojson",
   "https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/DATA/world.geojson",
   "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson",
 ];

@@ -2,7 +2,7 @@
 
 import { useId, useMemo, useState, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { CalendarDays, LayoutDashboard, UserPlus, Users } from "lucide-react";
+import { CalendarDays, CircleDollarSign, LayoutDashboard, UserPlus, Users } from "lucide-react";
 import {
   UnderlineTabBar,
   underlinePanelId,
@@ -10,24 +10,46 @@ import {
   type UnderlineTabItem,
 } from "@/components/molecules/UnderlineTabBar";
 
-export type AcademicSectionShellTabId = "general" | "schedule" | "enroll" | "roster";
+export type AcademicSectionShellTabId =
+  | "general"
+  | "schedule"
+  | "fees"
+  | "enroll"
+  | "roster";
 
 export interface AcademicSectionShellTabsLabels {
   tablistAria: string;
   general: string;
   generalLead: string;
   schedule: string;
+  fees: string;
+  feesLead: string;
   enroll: string;
   roster: string;
 }
 
-const TAB_ORDER: AcademicSectionShellTabId[] = ["general", "schedule", "enroll", "roster"];
+const TAB_ORDER: AcademicSectionShellTabId[] = [
+  "general",
+  "schedule",
+  "fees",
+  "enroll",
+  "roster",
+];
 
 const TAB_ICONS: Record<AcademicSectionShellTabId, LucideIcon> = {
   general: LayoutDashboard,
   schedule: CalendarDays,
+  fees: CircleDollarSign,
   enroll: UserPlus,
   roster: Users,
+};
+
+const TAB_LABEL_KEY: Record<AcademicSectionShellTabId, keyof AcademicSectionShellTabsLabels> = {
+  general: "general",
+  schedule: "schedule",
+  fees: "fees",
+  enroll: "enroll",
+  roster: "roster",
 };
 
 export interface AcademicSectionShellTabsProps {
@@ -35,6 +57,7 @@ export interface AcademicSectionShellTabsProps {
   defaultTab?: AcademicSectionShellTabId;
   general: ReactNode;
   schedule: ReactNode;
+  fees: ReactNode;
   enroll: ReactNode;
   roster: ReactNode;
 }
@@ -44,6 +67,7 @@ export function AcademicSectionShellTabs({
   defaultTab = "general",
   general,
   schedule,
+  fees,
   enroll,
   roster,
 }: AcademicSectionShellTabsProps) {
@@ -54,14 +78,7 @@ export function AcademicSectionShellTabs({
     () =>
       TAB_ORDER.map((t) => ({
         id: t,
-        label:
-          t === "general"
-            ? labels.general
-            : t === "schedule"
-              ? labels.schedule
-              : t === "enroll"
-                ? labels.enroll
-                : labels.roster,
+        label: labels[TAB_LABEL_KEY[t]],
         Icon: TAB_ICONS[t],
       })),
     [labels],
@@ -75,6 +92,12 @@ export function AcademicSectionShellTabs({
       </div>
     ),
     schedule,
+    fees: (
+      <div className="space-y-4">
+        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.feesLead}</p>
+        {fees}
+      </div>
+    ),
     enroll,
     roster,
   };

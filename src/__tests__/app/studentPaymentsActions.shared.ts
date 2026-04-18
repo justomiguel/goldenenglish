@@ -81,6 +81,7 @@ export function studentSupabaseFor(opts: StudentPayMockOpts) {
           return {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
+            is: vi.fn().mockReturnThis(),
             maybeSingle: vi.fn().mockResolvedValue({
               data: opts.payErr ? null : opts.pay,
               error: opts.payErr ?? null,

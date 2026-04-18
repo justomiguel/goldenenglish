@@ -9,6 +9,24 @@ vi.mock("@/components/student/AttendancePlayboard", () => ({
   AttendancePlayboard: () => <div data-testid="playboard" />,
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+}));
+
+vi.mock("@/components/student/StudentMonthlyPaymentsStrip", () => ({
+  StudentMonthlyPaymentsStrip: () => <div data-testid="payments-strip" />,
+}));
+
+vi.mock("@/components/student/StudentPaymentsHistory", () => ({
+  StudentPaymentsHistory: () => <div data-testid="pay-history" />,
+}));
+
+vi.mock("@/components/pwa/molecules/PwaPageShell", () => ({
+  PwaPageShell: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="pwa-shell">{children}</div>
+  ),
+}));
+
 vi.mock("@/components/molecules/SurfaceMountGate", () => ({
   SurfaceMountGate: ({
     skeleton,
@@ -75,8 +93,16 @@ describe("Tier A entries — SurfaceMountGate branches", () => {
         locale="en"
         title="Pay"
         lead="L"
-        options={[{ id: "1", label: "Kid" }]}
+        options={[
+          { studentId: "stu-1", displayName: "Kid", financialAccessActive: true },
+        ]}
+        selectedStudentId="stu-1"
+        monthlyView={{ todayMonth: 1, todayYear: 2026, rows: [] }}
+        payments={[]}
+        financialAccessRevoked={false}
         labels={dictEn.dashboard.parent}
+        studentLabels={dictEn.dashboard.student}
+        submitReceiptAction={vi.fn()}
       />,
     );
     expect(screen.getByTestId("sk")).toBeInTheDocument();

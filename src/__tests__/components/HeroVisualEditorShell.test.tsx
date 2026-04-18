@@ -35,6 +35,7 @@ const theme: SiteThemeRow = {
   slug: "classic",
   name: "Classic",
   isActive: true,
+  isSystemDefault: false,
   templateKind: "classic",
   properties: {},
   content: {},

@@ -8,22 +8,31 @@ const labels = {
   general: "Overview",
   generalLead: "Overview lead",
   schedule: "Schedule",
+  fees: "Fees",
+  feesLead: "Fees lead",
   enroll: "Enroll",
   roster: "Roster",
 };
 
+const renderShell = () =>
+  render(
+    <AcademicSectionShellTabs
+      labels={labels}
+      general={<p>General body</p>}
+      schedule={<p>Schedule body</p>}
+      fees={<p>Fees body</p>}
+      enroll={<p>Enroll body</p>}
+      roster={<p>Roster body</p>}
+    />,
+  );
+
 describe("AcademicSectionShellTabs", () => {
+  // REGRESSION CHECK: tabs are the public surface of the section workspace; if a
+  // tab disappears or changes id, admin features mounted on it (fees, schedule,
+  // enroll, roster) become unreachable.
   it("shows the schedule panel when the Schedule tab is activated", async () => {
     const user = userEvent.setup();
-    render(
-      <AcademicSectionShellTabs
-        labels={labels}
-        general={<p>General body</p>}
-        schedule={<p>Schedule body</p>}
-        enroll={<p>Enroll body</p>}
-        roster={<p>Roster body</p>}
-      />,
-    );
+    renderShell();
 
     expect(screen.getByText("Overview lead")).toBeVisible();
     expect(screen.getByText("General body")).toBeVisible();
@@ -32,5 +41,19 @@ describe("AcademicSectionShellTabs", () => {
     expect(screen.getByText("Schedule body")).toBeVisible();
     const schedulePanel = screen.getByRole("tabpanel", { hidden: false });
     expect(schedulePanel).toHaveTextContent("Schedule body");
+  });
+
+  it("renders the Fees tab with its lead and switches to its body", async () => {
+    const user = userEvent.setup();
+    renderShell();
+
+    const feesTab = screen.getByRole("tab", { name: /fees/i });
+    expect(feesTab).toBeInTheDocument();
+
+    await user.click(feesTab);
+    expect(screen.getByText("Fees lead")).toBeVisible();
+    expect(screen.getByText("Fees body")).toBeVisible();
+    const feesPanel = screen.getByRole("tabpanel", { hidden: false });
+    expect(feesPanel).toHaveTextContent("Fees body");
   });
 });

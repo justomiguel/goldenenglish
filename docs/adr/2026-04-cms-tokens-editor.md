@@ -45,6 +45,19 @@ Ambas devuelven el mismo `SiteThemeActionResult` discriminado que el resto de ac
 - Componentes presentacionales por separado para mantener el tope de 250 líneas: `SiteThemeEditorGroupCard`, `SiteThemeEditorTokenField`, `SiteThemeEditorPreview`, `siteThemeEditorDraft.ts`.
 - En `SiteThemeTemplatesTable` ya existía el copy `openEditorCta`; PR3 lo conecta como `Link` directo a la nueva ruta para los templates no archivados.
 
+> **Apéndice — preview visual del listado de templates** (post-PR7). La vista
+> de templates pasó de tabla a **grid de preview cards**: cada tarjeta
+> renderiza una mini-maqueta del template (kicker, título, CTAs, swatches)
+> usando los mismos tokens que aplicará en el sitio público — los `properties`
+> overrides se mezclan con `loadProperties()` server-side via el helper puro
+> `extractThemePreviewTokens` (`src/lib/cms/themePreviewTokens.ts`), de modo
+> que el cliente nunca tiene que leer `system.properties`. El tema activo se
+> identifica con un badge prominente (`Currently active` / `Tema activo`) y un
+> borde + ring tintado en `--color-primary`. La tabla densa anterior quedó
+> deprecada (`SiteThemeTemplatesTable` se eliminó). Componentes nuevos:
+> `SiteThemeTemplatesGrid`, `SiteThemeTemplatePreviewCard`,
+> `SiteThemeTemplatePreviewMock` (todos client, presentacionales).
+
 ### i18n
 
 Toda la UX del editor vive bajo `admin.cms.templates.editor.*` en `en.json` y `es.json` (títulos por grupo, labels de fields, errores estables alineados con `SiteThemeActionErrorCode`).

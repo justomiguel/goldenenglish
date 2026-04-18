@@ -1,9 +1,8 @@
 import { getBrandPublic } from "@/lib/brand/server";
-import { getEmailProvider } from "@/lib/email/getEmailProvider";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { logServerException } from "@/lib/logging/serverActionLog";
-import { fillTemplate } from "@/lib/i18n/fillTemplate";
+import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import type { Locale } from "@/types/i18n";
 
 async function emailsForStudentParents(studentId: string): Promise<string[]> {
@@ -44,19 +43,19 @@ export async function sendStudentChurnAlert(params: {
   const toList = await emailsForStudentParents(params.studentId);
   if (toList.length === 0) return;
   const brand = getBrandPublic();
-  const provider = getEmailProvider();
   const dict = await getDictionary(params.locale);
   const c = dict.emailChurn;
-  const display =
-    params.studentDisplayName.trim() || c.anonymousDisplayName;
-  const subject = fillTemplate(c.subject, { brandName: brand.name });
-  const html = fillTemplate(c.html, {
-    brandName: escapeHtml(brand.name),
-    greeting: escapeHtml(c.greeting),
-    studentDisplayName: escapeHtml(display),
-    contactEmail: escapeHtml(brand.contactEmail),
-  });
+  const display = params.studentDisplayName.trim() || c.anonymousDisplayName;
   for (const to of toList) {
-    await provider.sendEmail({ to, subject, html });
+    await sendBrandedEmail({
+      to,
+      templateKey: "churn.inactivity",
+      locale: params.locale,
+      vars: {
+        greeting: escapeHtml(c.greeting),
+        studentDisplayName: escapeHtml(display),
+        contactEmail: escapeHtml(brand.contactEmail),
+      },
+    });
   }
 }

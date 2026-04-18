@@ -3,14 +3,12 @@
 import {
   searchAdminParentsForDetailAction as searchAdminParentsForDetailImpl,
   updateAdminUserDetailFieldAction as updateAdminUserDetailFieldImpl,
-  type AdminParentSearchHit,
 } from "@/app/[locale]/dashboard/admin/users/adminUserDetailProfileActions";
 import {
   setAdminUserPasswordFromDetailAction as setAdminUserPasswordFromDetailImpl,
   replaceMinorStudentTutorFromDetailAction as replaceMinorStudentTutorFromDetailImpl,
 } from "@/app/[locale]/dashboard/admin/users/adminUserDetailCredentialActions";
-
-export type { AdminParentSearchHit };
+import type { AdminParentSearchHit } from "@/types/adminUsers";
 
 export async function searchAdminParentsForDetailAction(
   query: string,

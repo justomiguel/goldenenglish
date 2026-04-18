@@ -13,6 +13,18 @@ vi.mock("@/components/molecules/SurfaceMountGate", () => ({
   SurfaceMountGate: ({ desktop }: { desktop: React.ReactNode }) => <div>{desktop}</div>,
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+}));
+
+vi.mock("@/components/student/StudentMonthlyPaymentsStrip", () => ({
+  StudentMonthlyPaymentsStrip: () => <div data-testid="payments-strip" />,
+}));
+
+vi.mock("@/components/student/StudentPaymentsHistory", () => ({
+  StudentPaymentsHistory: () => <div data-testid="pay-history" />,
+}));
+
 describe("Tier A dashboard entries", () => {
   it("StudentDashboardEntry renders greeting hero with student name", () => {
     render(
@@ -92,8 +104,16 @@ describe("Tier A dashboard entries", () => {
         locale="en"
         title="Payments"
         lead="Lead"
-        options={[{ id: "1", label: "Kid" }]}
+        options={[
+          { studentId: "stu-1", displayName: "Kid", financialAccessActive: true },
+        ]}
+        selectedStudentId="stu-1"
+        monthlyView={{ todayMonth: 1, todayYear: 2026, rows: [] }}
+        payments={[]}
+        financialAccessRevoked={false}
         labels={dictEn.dashboard.parent}
+        studentLabels={dictEn.dashboard.student}
+        submitReceiptAction={vi.fn()}
       />,
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Payments");

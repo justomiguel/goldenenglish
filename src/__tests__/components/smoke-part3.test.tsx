@@ -43,10 +43,6 @@ vi.mock("@/app/[locale]/dashboard/admin/payments/actions", () => ({
   reviewPayment: vi.fn().mockResolvedValue({ ok: true }),
 }));
 
-vi.mock("@/app/[locale]/dashboard/parent/payments/actions", () => ({
-  submitParentPaymentReceipt: vi.fn().mockResolvedValue({ ok: true }),
-}));
-
 vi.mock("@/app/[locale]/register/actions", () => ({
   submitPublicRegistration: vi.fn().mockResolvedValue({ ok: true }),
 }));
@@ -76,7 +72,6 @@ import { AdminCreateUserForm } from "@/components/dashboard/AdminCreateUserForm"
 import { InscriptionsSettingsForm } from "@/components/dashboard/InscriptionsSettingsForm";
 import { PaymentReviewRow } from "@/components/dashboard/PaymentReviewRow";
 import { ImportStudents } from "@/components/organisms/ImportStudents";
-import { ParentPaymentForm } from "@/components/parent/ParentPaymentForm";
 import { RegisterForm } from "@/components/register/RegisterForm";
 import { AttendancePlayboard } from "@/components/student/AttendancePlayboard";
 import { RegisterSuccessDialog } from "@/components/molecules/RegisterSuccessDialog";
@@ -234,16 +229,6 @@ describe("component smoke — dashboard & forms", () => {
         locale="en"
         labels={dictEn.admin.import}
         emptyLogPlaceholder={dictEn.common.emptyValue}
-      />,
-    );
-  });
-
-  it("ParentPaymentForm", () => {
-    render(
-      <ParentPaymentForm
-        locale="es"
-        options={[{ id: "s1", label: "Student A" }]}
-        labels={dictEn.dashboard.parent}
       />,
     );
   });

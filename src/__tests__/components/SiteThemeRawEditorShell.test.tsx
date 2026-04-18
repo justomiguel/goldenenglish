@@ -29,6 +29,7 @@ const theme: SiteThemeRow = {
   slug: "default",
   name: "Default",
   isActive: true,
+  isSystemDefault: true,
   templateKind: "classic",
   properties: { "color.primary": "#abcdef" },
   content: {},

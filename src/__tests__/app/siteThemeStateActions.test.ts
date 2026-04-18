@@ -35,6 +35,7 @@ interface MakeSupabaseInput {
     slug: string;
     name: string;
     is_active: boolean;
+    is_system_default?: boolean;
     archived_at: string | null;
     properties: unknown;
     content: unknown;
@@ -217,6 +218,35 @@ describe("site theme state actions", () => {
       id: VALID_ID,
     });
     expect(result).toEqual({ ok: true, id: VALID_ID });
+    expect(updates.length).toBe(0);
+    expect(recordSystemAudit).not.toHaveBeenCalled();
+  });
+
+  it("archive refuses to archive the system default template", async () => {
+    const { from, updates } = makeSupabase({
+      fetched: {
+        id: VALID_ID,
+        slug: "default",
+        name: "Tema por defecto",
+        is_active: false,
+        is_system_default: true,
+        archived_at: null,
+        properties: {},
+        content: {},
+      },
+    });
+    mockAssertAdmin.mockResolvedValue({
+      supabase: { from },
+      user: { id: "u" },
+    });
+    const result = await archiveSiteThemeAction({
+      locale: "en",
+      id: VALID_ID,
+    });
+    expect(result).toEqual({
+      ok: false,
+      code: "system_default_cannot_archive",
+    });
     expect(updates.length).toBe(0);
     expect(recordSystemAudit).not.toHaveBeenCalled();
   });

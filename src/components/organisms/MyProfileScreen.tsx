@@ -10,6 +10,10 @@ import { ProfileAvatarChangeFab } from "@/components/molecules/ProfileAvatarChan
 import { MyProfilePersonalForm } from "@/components/molecules/MyProfilePersonalForm";
 import { MyProfileChangePasswordModal } from "@/components/molecules/MyProfileChangePasswordModal";
 import { ClassReminderPrefsSection } from "@/components/molecules/ClassReminderPrefsSection";
+import {
+  TutorFinancialAccessSection,
+  type TutorFinancialAccessRow,
+} from "@/components/molecules/TutorFinancialAccessSection";
 
 export interface MyProfileScreenProps {
   locale: string;
@@ -30,6 +34,12 @@ export interface MyProfileScreenProps {
     initial: Record<string, unknown> | null;
     studentLabels: Dictionary["dashboard"]["student"];
   } | null;
+  /**
+   * Sólo para alumnos mayores con tutores enlazados: lista los tutores y su
+   * estado de acceso financiero, con botón para revocar/restaurar. Cuando es
+   * `null` (alumnos menores, no-alumnos, o sin vínculos) la sección no se monta.
+   */
+  tutorFinancialAccess?: TutorFinancialAccessRow[] | null;
 }
 
 export function MyProfileScreen({
@@ -41,6 +51,7 @@ export function MyProfileScreen({
   displayName,
   labels,
   classReminder = null,
+  tutorFinancialAccess = null,
 }: MyProfileScreenProps) {
   const router = useRouter();
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
@@ -126,6 +137,13 @@ export function MyProfileScreen({
                 studentId={classReminder.studentId}
                 initial={classReminder.initial as never}
                 labels={classReminder.studentLabels}
+              />
+            ) : null}
+            {tutorFinancialAccess ? (
+              <TutorFinancialAccessSection
+                locale={locale}
+                tutors={tutorFinancialAccess}
+                labels={labels}
               />
             ) : null}
             <div className="mt-8 border-t border-[color-mix(in_srgb,var(--color-accent)_20%,var(--color-border))] pt-6">

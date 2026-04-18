@@ -5,8 +5,10 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandPublic } from "@/lib/brand/server";
 import { resolveAvatarDisplayUrl } from "@/lib/dashboard/resolveAvatarUrl";
 import { loadOrProvisionDashboardProfileRow } from "@/lib/profile/loadOrProvisionDashboardProfileRow";
+import { listStudentTutorsWithFinance } from "@/lib/auth/listStudentTutorsWithFinance";
 import { MyProfileSurfaceEntry } from "@/components/organisms/MyProfileSurfaceEntry";
 import { ProfileMissingScreen } from "@/components/organisms/ProfileMissingScreen";
+import type { TutorFinancialAccessRow } from "@/components/molecules/TutorFinancialAccessSection";
 
 export async function generateMetadata({
   params,
@@ -91,6 +93,16 @@ export default async function DashboardProfilePage({ params }: PageProps) {
     };
   }
 
+  let tutorFinancialAccess: TutorFinancialAccessRow[] | null = null;
+  if (profileSafe.role === "student" && !isMinor) {
+    const tutors = await listStudentTutorsWithFinance(supabase, user.id);
+    tutorFinancialAccess = tutors.map((row) => ({
+      tutorId: row.tutorId,
+      displayName: row.displayName,
+      financialAccessActive: row.financialAccessActive,
+    }));
+  }
+
   return (
     <MyProfileSurfaceEntry
       backHref={backHref}
@@ -109,6 +121,7 @@ export default async function DashboardProfilePage({ params }: PageProps) {
       displayName={displayName}
       labels={dict.dashboard.myProfile}
       classReminder={classReminder}
+      tutorFinancialAccess={tutorFinancialAccess}
     />
   );
 }

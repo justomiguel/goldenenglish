@@ -4,6 +4,7 @@ import { escapeHtml } from "@/lib/academics/escapeHtml";
 import { isValidE164Phone } from "@/lib/notifications/validateE164Phone";
 import { sendMetaClassReminderTemplate } from "@/lib/whatsapp/sendMetaClassReminderTemplate";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import {
   markJob,
   numPayload,
@@ -58,14 +59,20 @@ export async function handlePrepEmailJob(input: {
           }).format(new Date(occurrenceStartMs)),
         )
       : "";
-  const html = `<p>${escapeHtml(dict.prepEmailLead)}</p>
-<ul>
-  <li><strong>${escapeHtml(input.sectionLabel)}</strong></li>
-  <li>${escapeHtml(dict.prepEmailScheduleLine)}: ${whenLine}</li>
-  <li>${escapeHtml(input.locationLinePlain)}</li>
-</ul>
-${input.portalLine}`;
-  const r = await emailProvider.sendEmail({ to, subject: dict.prepEmailSubject, html });
+  const r = await sendBrandedEmail({
+    to,
+    templateKey: "notifications.class_reminder_prep",
+    locale: "es",
+    emailProvider,
+    vars: {
+      lead: escapeHtml(dict.prepEmailLead),
+      sectionLabel: escapeHtml(input.sectionLabel),
+      scheduleLineLabel: escapeHtml(dict.prepEmailScheduleLine),
+      whenLine,
+      locationLine: escapeHtml(input.locationLinePlain),
+      portalLine: input.portalLine,
+    },
+  });
   if (!r.ok) {
     await markJob(admin, job.id, {
       status: "failed",

@@ -42,7 +42,7 @@ async function loadActiveThemeUncached(): Promise<ActiveThemeSnapshot | null> {
   const { data: themeRow, error: themeErr } = await client
     .from("site_themes")
     .select(
-      "id, slug, name, is_active, template_kind, properties, content, blocks, archived_at, created_at, updated_at, updated_by",
+      "id, slug, name, is_active, is_system_default, template_kind, properties, content, blocks, archived_at, created_at, updated_at, updated_by",
     )
     .eq("is_active", true)
     .is("archived_at", null)
@@ -59,6 +59,7 @@ async function loadActiveThemeUncached(): Promise<ActiveThemeSnapshot | null> {
     slug: String(themeRow.slug),
     name: String(themeRow.name),
     isActive: Boolean(themeRow.is_active),
+    isSystemDefault: Boolean(themeRow.is_system_default),
     templateKind: isSiteThemeKind(themeRow.template_kind)
       ? themeRow.template_kind
       : "classic",

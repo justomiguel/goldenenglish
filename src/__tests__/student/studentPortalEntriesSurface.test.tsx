@@ -6,8 +6,8 @@ import { StudentPaymentsEntry } from "@/components/student/StudentPaymentsEntry"
 import { StudentMessagesEntry } from "@/components/student/StudentMessagesEntry";
 import { TeacherMessagesEntry } from "@/components/teacher/TeacherMessagesEntry";
 
-vi.mock("@/components/student/StudentPaymentForm", () => ({
-  StudentPaymentForm: () => <div data-testid="pay-form" />,
+vi.mock("@/components/student/StudentMonthlyPaymentsStrip", () => ({
+  StudentMonthlyPaymentsStrip: () => <div data-testid="payments-strip" />,
 }));
 
 vi.mock("@/components/molecules/PromotionApplyForm", () => ({
@@ -55,7 +55,7 @@ vi.mock("@/components/molecules/SurfaceMountGate", () => ({
 }));
 
 describe("student portal entries — SurfaceMountGate branches", () => {
-  it("StudentPaymentsEntry exposes skeleton, desktop, narrow, and payment UI", () => {
+  it("StudentPaymentsEntry exposes skeleton, desktop, narrow, and monthly payments strip", () => {
     render(
       <StudentPaymentsEntry
         locale="en"
@@ -64,13 +64,15 @@ describe("student portal entries — SurfaceMountGate branches", () => {
         title="Payments"
         lead="Upload receipts"
         payments={[]}
+        monthlyView={{ todayMonth: 1, todayYear: 2026, rows: [] }}
         labels={dictEn.dashboard.student}
+        submitReceiptAction={vi.fn()}
       />,
     );
     expect(screen.getByTestId("sk")).toBeInTheDocument();
     expect(screen.getByTestId("desktop")).toBeInTheDocument();
     expect(screen.getByTestId("narrow")).toBeInTheDocument();
-    expect(screen.getAllByTestId("pay-form")).toHaveLength(2);
+    expect(screen.getAllByTestId("payments-strip")).toHaveLength(2);
     expect(screen.getAllByTestId("pay-history")).toHaveLength(2);
     expect(screen.getAllByTestId("pwa-shell")).toHaveLength(1);
   });
@@ -84,12 +86,14 @@ describe("student portal entries — SurfaceMountGate branches", () => {
         title="Payments"
         lead="Upload receipts"
         payments={[]}
+        monthlyView={null}
         labels={dictEn.dashboard.student}
         paymentsBlockedMessage="Managed by tutor"
+        submitReceiptAction={vi.fn()}
       />,
     );
     expect(screen.getAllByText("Managed by tutor")).toHaveLength(2);
-    expect(screen.queryByTestId("pay-form")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("payments-strip")).not.toBeInTheDocument();
   });
 
   it("StudentMessagesEntry exposes skeleton, desktop, narrow, and messages client", () => {

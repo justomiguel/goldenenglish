@@ -2,8 +2,6 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
 import {
   createSiteThemeAction,
   duplicateSiteThemeAction,
@@ -20,8 +18,10 @@ import type {
 } from "@/app/[locale]/dashboard/admin/cms/siteThemeActionShared";
 import type { SiteThemeRow } from "@/types/theming";
 import type { Dictionary } from "@/types/i18n";
+import type { ThemePreviewTokens } from "@/lib/cms/themePreviewTokens";
 import { SiteThemeTemplateNameDialog } from "./SiteThemeTemplateNameDialog";
-import { SiteThemeTemplatesTable } from "./SiteThemeTemplatesTable";
+import { SiteThemeTemplatesGrid } from "./SiteThemeTemplatesGrid";
+import { SiteThemeTemplatesHeader } from "./siteThemeTemplatesHeader";
 import {
   buildDialogInitialValues,
   buildDialogLabels,
@@ -42,6 +42,12 @@ export interface SiteThemeTemplatesShellProps {
   rows: SiteThemeRow[];
   total: number;
   truncated: boolean;
+  /** Pre-computed CSS tokens (defaults + overrides) per theme id, used by the
+   *  preview cards. Resolved server-side so the client never needs to read
+   *  `system.properties`. */
+  tokensByThemeId: Readonly<Record<string, ThemePreviewTokens>>;
+  /** Brand display name used inside the preview mock copy. */
+  brandName: string;
 }
 
 
@@ -51,6 +57,8 @@ export function SiteThemeTemplatesShell({
   rows,
   total,
   truncated,
+  tokensByThemeId,
+  brandName,
 }: SiteThemeTemplatesShellProps) {
   const router = useRouter();
   const [showArchived, setShowArchived] = useState(false);
@@ -145,35 +153,13 @@ export function SiteThemeTemplatesShell({
 
   return (
     <section className="space-y-5">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
-            {labels.title}
-          </h1>
-          <p className="max-w-2xl text-sm text-[var(--color-muted-foreground)]">
-            {labels.lead}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={showArchived}
-              onChange={(e) => setShowArchived(e.target.checked)}
-            />
-            {labels.filterShowArchived}
-          </label>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setDialog({ kind: "create" })}
-            disabled={pending}
-          >
-            <Plus aria-hidden className="mr-1.5 h-4 w-4" />
-            {labels.createCta}
-          </Button>
-        </div>
-      </header>
+      <SiteThemeTemplatesHeader
+        labels={labels}
+        showArchived={showArchived}
+        onToggleShowArchived={setShowArchived}
+        onCreateClick={() => setDialog({ kind: "create" })}
+        pending={pending}
+      />
 
       {rowError ? (
         <p
@@ -192,35 +178,37 @@ export function SiteThemeTemplatesShell({
         </p>
       ) : null}
 
+      <SiteThemeTemplatesGrid
+        locale={locale}
+        labels={labels}
+        rows={visibleRows}
+        tokensByThemeId={tokensByThemeId}
+        brandName={brandName}
+        pending={pending}
+        onActivate={(row) =>
+          runRowAction(
+            () => activateSiteThemeAction({ locale, id: row.id }),
+            labels.confirmActivateBody,
+          )
+        }
+        onRename={(row) => setDialog({ kind: "rename", target: row })}
+        onDuplicate={(row) => setDialog({ kind: "duplicate", target: row })}
+        onArchive={(row) =>
+          runRowAction(
+            () => archiveSiteThemeAction({ locale, id: row.id }),
+            labels.confirmArchiveBody,
+          )
+        }
+        onRestore={(row) =>
+          runRowAction(() => restoreSiteThemeAction({ locale, id: row.id }))
+        }
+      />
+
       {visibleRows.length === 0 ? (
         <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-8 text-center text-sm text-[var(--color-muted-foreground)]">
           {labels.emptyState}
         </p>
-      ) : (
-        <SiteThemeTemplatesTable
-          locale={locale}
-          labels={labels}
-          rows={visibleRows}
-          pending={pending}
-          onActivate={(row) =>
-            runRowAction(
-              () => activateSiteThemeAction({ locale, id: row.id }),
-              labels.confirmActivateBody,
-            )
-          }
-          onRename={(row) => setDialog({ kind: "rename", target: row })}
-          onDuplicate={(row) => setDialog({ kind: "duplicate", target: row })}
-          onArchive={(row) =>
-            runRowAction(
-              () => archiveSiteThemeAction({ locale, id: row.id }),
-              labels.confirmArchiveBody,
-            )
-          }
-          onRestore={(row) =>
-            runRowAction(() => restoreSiteThemeAction({ locale, id: row.id }))
-          }
-        />
-      )}
+      ) : null}
 
       <SiteThemeTemplateNameDialog
         open={dialog.kind != null}

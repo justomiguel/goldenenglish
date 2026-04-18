@@ -6,10 +6,12 @@ import {
   effectiveAmountAfterScholarship,
   type ScholarshipRow,
 } from "@/lib/billing/scholarshipPeriod";
+import { loadStudentMonthlyPaymentsView } from "@/lib/billing/loadStudentMonthlyPaymentsView";
 import { StudentPaymentsEntry } from "@/components/student/StudentPaymentsEntry";
 import type { StudentPaymentRow } from "@/components/student/StudentPaymentsHistory";
 import { studentReceiptSignedUrl } from "@/lib/payments/studentReceiptSignedUrl";
 import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
+import { submitStudentPaymentReceipt } from "@/app/[locale]/dashboard/student/payments/actions";
 import type { Locale } from "@/types/i18n";
 
 export const metadata: Metadata = {
@@ -51,8 +53,10 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
         title={dict.dashboard.student.paymentsTitle}
         lead={dict.dashboard.student.paymentsLead}
         payments={[]}
+        monthlyView={null}
         labels={dict.dashboard.student}
         paymentsBlockedMessage={paymentsBlockedMessage}
+        submitReceiptAction={submitStudentPaymentReceipt}
       />
     );
   }
@@ -118,6 +122,14 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
     }),
   );
 
+  const today = new Date();
+  const monthlyView = await loadStudentMonthlyPaymentsView(
+    supabase,
+    user.id,
+    scholarship,
+    { todayYear: today.getFullYear(), todayMonth: today.getMonth() + 1 },
+  );
+
   return (
     <StudentPaymentsEntry
       locale={locale as Locale}
@@ -126,8 +138,10 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
       title={dict.dashboard.student.paymentsTitle}
       lead={dict.dashboard.student.paymentsLead}
       payments={rows}
+      monthlyView={monthlyView}
       labels={dict.dashboard.student}
       paymentsBlockedMessage={paymentsBlockedMessage}
+      submitReceiptAction={submitStudentPaymentReceipt}
     />
   );
 }

@@ -96,12 +96,22 @@ export const LANDING_BLOCKS_PER_TEMPLATE_CAP = 24;
 /** Cap suave por sección (UI lo refleja antes de llegar al server). */
 export const LANDING_BLOCKS_PER_SECTION_CAP = 8;
 
+/** Slug fijo del row "Tema por defecto" del sistema. Solo un row puede tener
+ *  `isSystemDefault = true` (índice parcial UNIQUE en la migración 052) y ese
+ *  row siempre existe gracias al seed idempotente. */
+export const SYSTEM_DEFAULT_THEME_SLUG = "default";
+
 /** Row shape of `public.site_themes`. */
 export interface SiteThemeRow {
   id: string;
   slug: string;
   name: string;
   isActive: boolean;
+  /** Cuando es `true`, este row representa el "Tema por defecto" del sistema:
+   *  con `properties = {}` y `content = {}` reproduce exactamente lo que vivía
+   *  en `system.properties` + diccionarios. Las server actions bloquean
+   *  archivarlo/borrarlo para garantizar fallback consistente. */
+  isSystemDefault: boolean;
   templateKind: SiteThemeKind;
   properties: ThemePropertyOverrides;
   content: SiteThemeContent;

@@ -19,10 +19,10 @@ import {
 
 const S = "adminUserDetailProfileActions";
 
+import type { AdminParentSearchHit } from "@/types/adminUsers";
+
 const localeZ = z.string().min(2).max(8);
 const uuidZ = z.string().uuid();
-
-export type AdminParentSearchHit = { id: string; label: string };
 
 export async function searchAdminParentsForDetailAction(query: string): Promise<AdminParentSearchHit[]> {
   try {

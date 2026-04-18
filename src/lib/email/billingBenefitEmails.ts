@@ -1,10 +1,7 @@
-import { getBrandPublic } from "@/lib/brand/server";
 import { getBillingTerms } from "@/lib/billing/getBillingTerms";
-import { getEmailProvider } from "@/lib/email/getEmailProvider";
+import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getDictionary } from "@/lib/i18n/dictionaries";
 import { logServerException } from "@/lib/logging/serverActionLog";
-import { fillTemplate } from "@/lib/i18n/fillTemplate";
 import type { Locale } from "@/types/i18n";
 
 async function collectRecipientEmailsForStudent(studentId: string): Promise<string[]> {
@@ -34,16 +31,6 @@ async function collectRecipientEmailsForStudent(studentId: string): Promise<stri
   return [...emails];
 }
 
-function wrapHtml(title: string, bodyLines: string[]) {
-  const brand = getBrandPublic();
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"/></head><body style="font-family:system-ui,sans-serif;line-height:1.5;color:#103A5C;">
-<p style="font-weight:600;">${brand.name}</p>
-<h1 style="font-size:1.25rem;">${title}</h1>
-${bodyLines.map((l) => `<p>${l}</p>`).join("")}
-<p style="margin-top:2rem;font-size:0.875rem;color:#6B7280;">${brand.contactEmail}</p>
-</body></html>`;
-}
-
 export async function sendEnrollmentExemptionEmail(opts: {
   studentId: string;
   locale: Locale;
@@ -53,30 +40,19 @@ export async function sendEnrollmentExemptionEmail(opts: {
   if (toList.length === 0) return;
 
   const terms = getBillingTerms(opts.locale);
-  const brand = getBrandPublic();
-  const provider = getEmailProvider();
-  const dict = await getDictionary(opts.locale);
-  const eb = dict.emailBilling;
-  const subject = `${brand.name}: ${fillTemplate(eb.enrollmentExemptionSubjectSuffix, {
-    enrollmentTerm: terms.enrollment,
-  })}`;
-
-  const bodyLines = [
-    fillTemplate(eb.enrollmentExemptionBody, {
-      enrollmentTermLower: terms.enrollment.toLowerCase(),
-    }),
-    opts.reason?.trim()
-      ? fillTemplate(eb.enrollmentExemptionNote, { reason: opts.reason.trim() })
-      : "",
-  ].filter(Boolean);
-
-  const html = wrapHtml(
-    fillTemplate(eb.enrollmentExemptionTitle, { enrollmentTerm: terms.enrollment }),
-    bodyLines,
-  );
+  const reason = opts.reason?.trim() ?? "";
 
   for (const to of toList) {
-    await provider.sendEmail({ to, subject, html });
+    await sendBrandedEmail({
+      to,
+      templateKey: "billing.enrollment_exemption",
+      locale: opts.locale,
+      vars: {
+        enrollmentTerm: terms.enrollment,
+        enrollmentTermLower: terms.enrollment.toLowerCase(),
+        reason,
+      },
+    });
   }
 }
 
@@ -90,26 +66,18 @@ export async function sendPromotionAppliedEmail(opts: {
   if (toList.length === 0) return;
 
   const terms = getBillingTerms(opts.locale);
-  const brand = getBrandPublic();
-  const provider = getEmailProvider();
-  const dict = await getDictionary(opts.locale);
-  const eb = dict.emailBilling;
-  const subject = `${brand.name}: ${fillTemplate(eb.promotionAppliedSubjectSuffix, {
-    promotionTerm: terms.promotion,
-  })}`;
 
-  const html = wrapHtml(
-    fillTemplate(eb.promotionAppliedTitle, { promotionTerm: terms.promotion }),
-    [
-      fillTemplate(eb.promotionAppliedBody, {
+  for (const to of toList) {
+    await sendBrandedEmail({
+      to,
+      templateKey: "billing.promotion_applied",
+      locale: opts.locale,
+      vars: {
+        promotionTerm: terms.promotion,
         promotionTermLower: terms.promotion.toLowerCase(),
         promotionName: opts.promotionName,
         code: opts.codeSnapshot,
-      }),
-    ],
-  );
-
-  for (const to of toList) {
-    await provider.sendEmail({ to, subject, html });
+      },
+    });
   }
 }

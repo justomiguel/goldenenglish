@@ -19,6 +19,7 @@ export type SiteThemeActionErrorCode =
   | "already_active"
   | "archived_cannot_activate"
   | "active_cannot_archive"
+  | "system_default_cannot_archive"
   | "persist_failed";
 
 export const PG_UNIQUE_VIOLATION = "23505";
@@ -54,6 +55,7 @@ export interface FetchedSiteTheme {
   slug: string;
   name: string;
   is_active: boolean;
+  is_system_default: boolean | null;
   archived_at: string | null;
   template_kind: unknown;
   properties: unknown;
@@ -68,7 +70,7 @@ export async function fetchSiteThemeById(
   const { data, error } = await supabase
     .from("site_themes")
     .select(
-      "id, slug, name, is_active, archived_at, template_kind, properties, content, blocks",
+      "id, slug, name, is_active, is_system_default, archived_at, template_kind, properties, content, blocks",
     )
     .eq("id", id)
     .maybeSingle();

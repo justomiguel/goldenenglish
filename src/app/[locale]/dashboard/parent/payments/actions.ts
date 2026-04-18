@@ -1,9 +1,12 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { createClient } from "@/lib/supabase/server";
-import { paymentActionDict } from "@/lib/i18n/actionErrors";
+import { paymentActionDict, localeFromFormData } from "@/lib/i18n/actionErrors";
+import { resolveTutorStudentLink } from "@/lib/auth/resolveTutorStudentLink";
+import { resolveStudentPaymentSlot } from "@/lib/billing/resolveStudentPaymentSlot";
 
 const MAX_BYTES = 4 * 1024 * 1024;
 
@@ -15,10 +18,21 @@ function extFromMime(mime: string): string {
   return "bin";
 }
 
-export async function submitParentPaymentReceipt(
+/**
+ * Tutor (perfil `parent`) sube un comprobante en nombre de un alumno
+ * vinculado. Reutiliza la misma resolución de slot que el alumno
+ * (`resolveStudentPaymentSlot`) para la tira mensual seccionada y, además:
+ * - exige vínculo activo en `tutor_student_rel` con acceso financiero (no
+ *   revocado por el alumno mayor),
+ * - sube siempre bajo `payment-receipts/{studentId}/...` para que la URL
+ *   firmada sirva al alumno y al tutor (RLS Storage cubre ambos),
+ * - deja `parent_id = tutorId` como traza en `payments`.
+ */
+export async function submitTutorPaymentReceipt(
   formData: FormData,
 ): Promise<{ ok: boolean; message?: string }> {
   const pe = await paymentActionDict(formData);
+  const locale = localeFromFormData(formData);
   const studentId = String(formData.get("studentId") ?? "").trim();
   const month = Number(formData.get("month"));
   const year = Number(formData.get("year"));
@@ -37,10 +51,7 @@ export async function submitParentPaymentReceipt(
   if (file.size > MAX_BYTES) return { ok: false, message: pe.fileTooLarge };
 
   const mime = file.type || "application/octet-stream";
-  if (
-    !mime.startsWith("image/") &&
-    mime !== "application/pdf"
-  ) {
+  if (!mime.startsWith("image/") && mime !== "application/pdf") {
     return { ok: false, message: pe.mimeInvalid };
   }
 
@@ -57,33 +68,39 @@ export async function submitParentPaymentReceipt(
     .single();
   if (profile?.role !== "parent") return { ok: false, message: pe.forbidden };
 
-  const { data: link } = await supabase
-    .from("tutor_student_rel")
-    .select("student_id")
-    .eq("tutor_id", user.id)
-    .eq("student_id", studentId)
-    .maybeSingle();
-  if (!link) return { ok: false, message: pe.studentNotLinked };
+  const link = await resolveTutorStudentLink(supabase, user.id, studentId);
+  if (!link.linked) return { ok: false, message: pe.studentNotLinked };
+  if (!link.financialAccessActive) return { ok: false, message: pe.forbidden };
 
-  const { data: pay, error: payErr } = await supabase
-    .from("payments")
-    .select("id, status")
-    .eq("student_id", studentId)
-    .eq("month", month)
-    .eq("year", year)
-    .maybeSingle();
+  const sectionIdRaw = formData.get("sectionId");
+  const sectionId =
+    typeof sectionIdRaw === "string" && sectionIdRaw.trim().length > 0
+      ? sectionIdRaw.trim()
+      : null;
 
-  if (payErr || !pay) return { ok: false, message: pe.slotNotFound };
-  if (pay.status === "exempt") {
-    return { ok: false, message: pe.monthExempt };
+  const slot = await resolveStudentPaymentSlot(supabase, {
+    studentId,
+    sectionId,
+    month,
+    year,
+    fallbackAmount: amount,
+  });
+  if (!slot.ok) {
+    if (slot.reason === "forbidden") return { ok: false, message: pe.forbidden };
+    if (slot.reason === "already_processed") {
+      return { ok: false, message: pe.alreadyProcessed };
+    }
+    if (slot.reason === "upload_failed") {
+      return { ok: false, message: pe.uploadFailed };
+    }
+    return { ok: false, message: pe.slotNotFound };
   }
-  if (pay.status !== "pending") {
-    return { ok: false, message: pe.alreadyProcessed };
-  }
+  const pay = slot.payment;
+  const effectiveAmount = slot.effectiveAmount;
 
   const buf = Buffer.from(await file.arrayBuffer());
   const ext = extFromMime(mime);
-  const path = `${user.id}/${pay.id}-${Date.now()}.${ext}`;
+  const path = `${studentId}/${pay.id}-${Date.now()}.${ext}`;
 
   const { error: upErr } = await supabase.storage
     .from("payment-receipts")
@@ -95,7 +112,7 @@ export async function submitParentPaymentReceipt(
     .from("payments")
     .update({
       receipt_url: path,
-      amount,
+      amount: effectiveAmount,
       parent_id: user.id,
     })
     .eq("id", pay.id)
@@ -103,14 +120,19 @@ export async function submitParentPaymentReceipt(
 
   if (upRow) return { ok: false, message: pe.uploadFailed };
 
+  revalidatePath(`/${locale}/dashboard/parent/payments`);
+  revalidatePath(`/${locale}/dashboard/student/payments`);
+
   void recordUserEventServer({
     userId: user.id,
     eventType: "action",
-    entity: AnalyticsEntity.paymentReceiptSubmittedParent,
+    entity: AnalyticsEntity.paymentReceiptSubmittedTutor,
     metadata: {
+      student_id: studentId,
       month,
       year,
       receipt_kind: mime === "application/pdf" ? "pdf" : "image",
+      ...(sectionId ? { section_id: sectionId } : {}),
     },
   });
   return { ok: true };

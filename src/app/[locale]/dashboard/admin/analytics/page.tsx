@@ -7,6 +7,7 @@ import type { TrafficGeoPathRow } from "@/components/dashboard/AdminAnalyticsGeo
 import type { TrafficGuestPathRow } from "@/components/dashboard/AdminAnalyticsGuestPathBreakdown";
 import type { TrafficDailyRow, TrafficSummary } from "@/components/dashboard/AdminAnalyticsTrafficSection";
 import { loadAdminTrafficKindBreakdown } from "@/lib/dashboard/loadAdminTrafficKindBreakdowns";
+import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -91,30 +92,45 @@ export default async function AdminAnalyticsPage({ params }: PageProps) {
   const supabase = await createClient();
 
   const days = 30;
-  const { data: hourlyRaw } = await supabase.rpc("admin_analytics_hourly_by_role", {
+  const { data: hourlyRaw, error: hourlyError } = await supabase.rpc(
+    "admin_analytics_hourly_by_role",
+    { p_days: days },
+  );
+  if (hourlyError) logSupabaseClientError("adminAnalytics:hourly", hourlyError);
+  const { data: geoRaw, error: geoError } = await supabase.rpc("admin_analytics_geo", {
     p_days: days,
   });
-  const { data: geoRaw } = await supabase.rpc("admin_analytics_geo", { p_days: days });
-  const { data: funnelRaw } = await supabase.rpc("admin_analytics_section_funnel", {
-    p_days: 7,
-  });
-  const { data: trafficSummaryRaw } = await supabase.rpc("admin_traffic_summary", {
-    p_days: days,
-  });
-  const { data: trafficDailyRaw } = await supabase.rpc("admin_traffic_daily_stacked", {
-    p_days: days,
-  });
-  const { data: trafficGeoRaw } = await supabase.rpc("admin_traffic_geo_totals", {
-    p_days: days,
-  });
-  const { data: trafficGeoPathRaw } = await supabase.rpc("admin_traffic_geo_path_breakdown", {
-    p_days: days,
-    p_limit: 500,
-  });
-  const { data: trafficGuestPathRaw } = await supabase.rpc("admin_traffic_guest_path_breakdown", {
-    p_days: days,
-    p_limit: 500,
-  });
+  if (geoError) logSupabaseClientError("adminAnalytics:geo", geoError);
+  const { data: funnelRaw, error: funnelError } = await supabase.rpc(
+    "admin_analytics_section_funnel",
+    { p_days: 7 },
+  );
+  if (funnelError) logSupabaseClientError("adminAnalytics:funnel", funnelError);
+  const { data: trafficSummaryRaw, error: trafficSummaryError } = await supabase.rpc(
+    "admin_traffic_summary",
+    { p_days: days },
+  );
+  if (trafficSummaryError) logSupabaseClientError("adminAnalytics:trafficSummary", trafficSummaryError);
+  const { data: trafficDailyRaw, error: trafficDailyError } = await supabase.rpc(
+    "admin_traffic_daily_stacked",
+    { p_days: days },
+  );
+  if (trafficDailyError) logSupabaseClientError("adminAnalytics:trafficDaily", trafficDailyError);
+  const { data: trafficGeoRaw, error: trafficGeoError } = await supabase.rpc(
+    "admin_traffic_geo_totals",
+    { p_days: days },
+  );
+  if (trafficGeoError) logSupabaseClientError("adminAnalytics:trafficGeoTotals", trafficGeoError);
+  const { data: trafficGeoPathRaw, error: trafficGeoPathError } = await supabase.rpc(
+    "admin_traffic_geo_path_breakdown",
+    { p_days: days, p_limit: 500 },
+  );
+  if (trafficGeoPathError) logSupabaseClientError("adminAnalytics:trafficGeoPath", trafficGeoPathError);
+  const { data: trafficGuestPathRaw, error: trafficGuestPathError } = await supabase.rpc(
+    "admin_traffic_guest_path_breakdown",
+    { p_days: days, p_limit: 500 },
+  );
+  if (trafficGuestPathError) logSupabaseClientError("adminAnalytics:trafficGuestPath", trafficGuestPathError);
 
   // Pre-load top URLs + User-Agents for the interactive breakdown panel (one
   // small query per visitor kind; bounded server-side by migration 047).

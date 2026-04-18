@@ -30,8 +30,30 @@ vi.mock("@/app/[locale]/dashboard/admin/cms/siteThemeStateActions", () => ({
 }));
 
 import { SiteThemeTemplatesShell } from "@/components/dashboard/admin/cms/SiteThemeTemplatesShell";
+import type { ThemePreviewTokens } from "@/lib/cms/themePreviewTokens";
 
 const labels = dictEn.admin.cms.templates;
+
+const TOKENS: ThemePreviewTokens = {
+  colorPrimary: "#103A5C",
+  colorPrimaryForeground: "#FFFFFF",
+  colorSecondary: "#A31A22",
+  colorSecondaryForeground: "#FFFFFF",
+  colorAccent: "#F0B932",
+  colorBackground: "#FAF9F6",
+  colorSurface: "#FFFFFF",
+  colorForeground: "#103A5C",
+  colorMuted: "#F0EFEA",
+  colorMutedForeground: "#5C6B7A",
+  colorBorder: "#E2E0D8",
+  layoutBorderRadius: "0.75rem",
+};
+
+function tokensFor(rows: SiteThemeRow[]): Record<string, ThemePreviewTokens> {
+  const map: Record<string, ThemePreviewTokens> = {};
+  for (const r of rows) map[r.id] = TOKENS;
+  return map;
+}
 
 function row(overrides: Partial<SiteThemeRow> = {}): SiteThemeRow {
   return {
@@ -39,6 +61,7 @@ function row(overrides: Partial<SiteThemeRow> = {}): SiteThemeRow {
     slug: "spring-2026",
     name: "Spring 2026",
     isActive: false,
+    isSystemDefault: false,
     templateKind: "classic",
     properties: {},
     content: {},
@@ -49,6 +72,17 @@ function row(overrides: Partial<SiteThemeRow> = {}): SiteThemeRow {
     updatedBy: null,
     ...overrides,
   };
+}
+
+function systemDefaultRow(overrides: Partial<SiteThemeRow> = {}): SiteThemeRow {
+  return row({
+    id: "00000000-0000-4000-8000-0000000000ff",
+    slug: "default",
+    name: "Tema por defecto",
+    isSystemDefault: true,
+    isActive: true,
+    ...overrides,
+  });
 }
 
 describe("SiteThemeTemplatesShell", () => {
@@ -70,6 +104,8 @@ describe("SiteThemeTemplatesShell", () => {
         rows={[]}
         total={0}
         truncated={false}
+        tokensByThemeId={{}}
+        brandName="Golden English"
       />,
     );
     expect(screen.getByText(labels.emptyState)).toBeInTheDocument();
@@ -79,27 +115,30 @@ describe("SiteThemeTemplatesShell", () => {
   });
 
   it("renders the templateKind label in the kind column", () => {
+    const rows = [
+      row({ templateKind: "classic", slug: "default-classic" }),
+      row({
+        id: "00000000-0000-4000-8000-000000000002",
+        templateKind: "editorial",
+        slug: "ed-2026",
+        name: "Spring Editorial 2026",
+      }),
+      row({
+        id: "00000000-0000-4000-8000-000000000003",
+        templateKind: "minimal",
+        slug: "min-2026",
+        name: "Spring Minimal 2026",
+      }),
+    ];
     render(
       <SiteThemeTemplatesShell
         locale="en"
         labels={labels}
-        rows={[
-          row({ templateKind: "classic", slug: "default" }),
-          row({
-            id: "00000000-0000-4000-8000-000000000002",
-            templateKind: "editorial",
-            slug: "ed-2026",
-            name: "Spring Editorial 2026",
-          }),
-          row({
-            id: "00000000-0000-4000-8000-000000000003",
-            templateKind: "minimal",
-            slug: "min-2026",
-            name: "Spring Minimal 2026",
-          }),
-        ]}
+        rows={rows}
         total={3}
         truncated={false}
+        tokensByThemeId={tokensFor(rows)}
+        brandName="Golden English"
       />,
     );
     const kindLabels = labels.landing.kindPicker.options;
@@ -109,7 +148,7 @@ describe("SiteThemeTemplatesShell", () => {
   });
 
   it("hides archived rows by default and reveals them via the toggle", () => {
-    const active = row({ id: "a1", isActive: true, slug: "default" });
+    const active = row({ id: "a1", isActive: true, slug: "active-2026" });
     const archived = row({
       id: "a2",
       slug: "winter-2025",
@@ -123,6 +162,8 @@ describe("SiteThemeTemplatesShell", () => {
         rows={[active, archived]}
         total={2}
         truncated={false}
+        tokensByThemeId={tokensFor([active, archived])}
+        brandName="Golden English"
       />,
     );
     expect(screen.getByText(active.name)).toBeInTheDocument();
@@ -135,18 +176,69 @@ describe("SiteThemeTemplatesShell", () => {
   });
 
   it("renders the truncated notice with shown / total interpolated", () => {
+    const rows = [row()];
     render(
       <SiteThemeTemplatesShell
         locale="en"
         labels={labels}
-        rows={[row()]}
+        rows={rows}
         total={101}
         truncated
+        tokensByThemeId={tokensFor(rows)}
+        brandName="Golden English"
       />,
     );
     const expected = labels.truncatedNotice
       .replace("{{shown}}", "1")
       .replace("{{total}}", "101");
     expect(screen.getByText(expected)).toBeInTheDocument();
+  });
+
+  it("flags exactly one active theme with the prominent active badge", () => {
+    const active = row({ id: "a-active", isActive: true, name: "Live theme" });
+    const draft = row({ id: "a-draft", slug: "draft-2026", name: "Draft" });
+    render(
+      <SiteThemeTemplatesShell
+        locale="en"
+        labels={labels}
+        rows={[active, draft]}
+        total={2}
+        truncated={false}
+        tokensByThemeId={tokensFor([active, draft])}
+        brandName="Golden English"
+      />,
+    );
+    const badges = screen.getAllByText(labels.preview.activeBadge);
+    expect(badges.length).toBe(1);
+    const activeArticle = screen.getByLabelText(
+      new RegExp(`${active.name}.*${labels.statusActive}`, "i"),
+    );
+    expect(activeArticle).toBeInTheDocument();
+  });
+
+  it("decorates the system default row with the system badge and hides Archive", () => {
+    const systemDefault = systemDefaultRow({ isActive: true });
+    const draft = row({ id: "a-draft", slug: "draft-2026", name: "Draft" });
+    render(
+      <SiteThemeTemplatesShell
+        locale="en"
+        labels={labels}
+        rows={[systemDefault, draft]}
+        total={2}
+        truncated={false}
+        tokensByThemeId={tokensFor([systemDefault, draft])}
+        brandName="Golden English"
+      />,
+    );
+    // System badge appears once and only above the system default card.
+    const systemBadges = screen.getAllByText(labels.preview.defaultBaseLabel);
+    expect(systemBadges.length).toBe(1);
+
+    const archiveButtons = screen.queryAllByRole("button", {
+      name: new RegExp(labels.archiveCta, "i"),
+    });
+    // Active rows never expose Archive, system default never exposes Archive
+    // either; only non-active, non-system-default rows do (`draft` here).
+    expect(archiveButtons.length).toBe(1);
   });
 });
