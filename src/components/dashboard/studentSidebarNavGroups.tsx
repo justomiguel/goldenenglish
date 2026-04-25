@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Calendar, Home, MessageCircle, User, Wallet } from "lucide-react";
+import { BookOpenCheck, Calendar, Home, MessageCircle, User, Wallet } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 
 export type StudentSidebarNavItem = {
@@ -41,6 +41,12 @@ export function buildStudentSidebarNavGroups(
           label: dict.calendar,
           icon: <Calendar className={ic} />,
           tip: dict.tipCalendar,
+        },
+        {
+          href: `${base}/tasks`,
+          label: dict.tasks,
+          icon: <BookOpenCheck className={ic} />,
+          tip: dict.tipTasks,
         },
       ],
     },

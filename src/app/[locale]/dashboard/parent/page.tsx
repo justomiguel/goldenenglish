@@ -5,6 +5,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadParentChildrenSummaries } from "@/lib/parent/loadParentChildrenSummaries";
 import { loadParentFamilyHubModel } from "@/lib/parent/loadParentFamilyHubModel";
 import { loadParentMonthBillingInvoiceSummary } from "@/lib/parent/loadParentMonthBillingInvoiceSummary";
+import { loadParentLearningTasks } from "@/lib/learning-tasks/loadParentLearningTasks";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
 import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
 
@@ -27,7 +28,7 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const [{ data: profile }, summaries, hub, monthBillingSummary] = await Promise.all([
+  const [{ data: profile }, summaries, hub, monthBillingSummary, learningTasks] = await Promise.all([
     supabase.from("profiles").select("first_name").eq("id", user.id).maybeSingle(),
     loadParentChildrenSummaries(supabase, user.id),
     loadParentFamilyHubModel(
@@ -37,6 +38,7 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
       dict.dashboard.parent.hub.icsEventTitle,
     ),
     loadParentMonthBillingInvoiceSummary(supabase, user.id, locale),
+    loadParentLearningTasks(supabase, user.id),
   ]);
 
   const kids = summaries.map((s) => ({
@@ -71,6 +73,7 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
       selectedStudentId={selectedStudentId}
       parentLabels={dict.dashboard.parent}
       hub={hub}
+      learningTasks={learningTasks}
       monthBillingSummary={monthBillingSummary}
     />
   );

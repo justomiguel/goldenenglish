@@ -251,7 +251,14 @@ CREATE POLICY student_task_progress_student_update ON public.student_task_progre
 DROP POLICY IF EXISTS student_task_progress_staff_insert ON public.student_task_progress;
 CREATE POLICY student_task_progress_staff_insert ON public.student_task_progress
   FOR INSERT TO authenticated
-  WITH CHECK (public.learning_task_instance_visible_to_current_user(task_instance_id));
+  WITH CHECK (
+    student_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM public.task_instances ti
+      WHERE ti.id = student_task_progress.task_instance_id
+        AND public.learning_task_staff_can_manage_section(auth.uid(), ti.section_id)
+    )
+  );
 
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 VALUES (

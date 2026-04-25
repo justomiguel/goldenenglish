@@ -8,6 +8,7 @@ import { ParentDashboardFamilyView } from "@/components/parent/ParentDashboardFa
 import { ParentHubMonthBillingCard } from "@/components/parent/ParentHubMonthBillingCard";
 import type { ParentChildSummary } from "@/lib/parent/loadParentChildrenSummaries";
 import type { ParentHubModel } from "@/types/parentHub";
+import type { ParentLearningTaskRow } from "@/types/learningTasks";
 import type { ParentMonthBillingSummary } from "@/lib/parent/loadParentMonthBillingInvoiceSummary";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
@@ -36,6 +37,7 @@ export interface ParentDashboardEntryProps {
   selectedStudentId?: string;
   parentLabels: Dictionary["dashboard"]["parent"];
   hub?: ParentHubModel | null;
+  learningTasks?: ParentLearningTaskRow[];
   monthBillingSummary?: ParentMonthBillingSummary | null;
 }
 
@@ -53,6 +55,7 @@ export function ParentDashboardEntry({
   selectedStudentId,
   parentLabels,
   hub = null,
+  learningTasks = [],
   monthBillingSummary = null,
 }: ParentDashboardEntryProps) {
   const body = (
@@ -80,6 +83,7 @@ export function ParentDashboardEntry({
           payHrefBase={payHref}
           labels={parentLabels}
           hub={hub}
+          learningTasks={learningTasks}
         />
       ) : (
         <ul className="space-y-3">

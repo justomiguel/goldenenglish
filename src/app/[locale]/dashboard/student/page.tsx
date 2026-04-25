@@ -8,6 +8,7 @@ import { loadStudentHubModel } from "@/lib/student/loadStudentHubModel";
 import { studentEnrollmentRenewalKind } from "@/lib/student/studentEnrollmentRenewalNotice";
 import { getStudentEnrollmentRenewalWarnDaysFromSystem } from "@/lib/student/studentEnrollmentRenewalWarnDays";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
+import { loadStudentLearningTasks } from "@/lib/learning-tasks/loadStudentLearningTasks";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -59,13 +60,16 @@ export default async function StudentDashboardPage({ params }: PageProps) {
   }));
 
   const hub = await loadStudentHubModel(supabase, user.id, locale);
-  const { data: crInbox } = await supabase
-    .from("class_reminder_in_app")
-    .select("id, title, body, created_at")
-    .eq("recipient_user_id", user.id)
-    .is("read_at", null)
-    .order("created_at", { ascending: false })
-    .limit(6);
+  const [{ data: crInbox }, learningTasks] = await Promise.all([
+    supabase
+      .from("class_reminder_in_app")
+      .select("id, title, body, created_at")
+      .eq("recipient_user_id", user.id)
+      .is("read_at", null)
+      .order("created_at", { ascending: false })
+      .limit(6),
+    loadStudentLearningTasks(supabase, user.id, 6),
+  ]);
   const { greeting, fullDateLine } = buildDashboardGreeting(locale, dict);
   const firstName = (prof as { first_name?: string | null } | null)?.first_name ?? null;
 
@@ -83,6 +87,7 @@ export default async function StudentDashboardPage({ params }: PageProps) {
       hub={hub}
       enrollmentRenewalKind={enrollmentRenewalKind}
       classReminderInbox={(crInbox ?? []) as { id: string; title: string; body: string; created_at: string }[]}
+      learningTasks={learningTasks}
     />
   );
 }

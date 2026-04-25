@@ -24,6 +24,8 @@ import {
   StudentClassReminderInbox,
   type ClassReminderInboxRow,
 } from "@/components/student/StudentClassReminderInbox";
+import { StudentLearningTasksSection } from "@/components/student/StudentLearningTasksSection";
+import type { StudentLearningTaskRow } from "@/types/learningTasks";
 
 type StudentLabels = Dictionary["dashboard"]["student"];
 
@@ -49,6 +51,7 @@ export interface StudentDashboardEntryProps {
   hub?: StudentHubModel | null;
   enrollmentRenewalKind?: StudentEnrollmentRenewalKind;
   classReminderInbox?: ClassReminderInboxRow[];
+  learningTasks?: StudentLearningTaskRow[];
 }
 
 export function StudentDashboardEntry({
@@ -64,6 +67,7 @@ export function StudentDashboardEntry({
   hub = null,
   enrollmentRenewalKind = "none",
   classReminderInbox = [],
+  learningTasks = [],
 }: StudentDashboardEntryProps) {
   const hubDict = labels.hub;
   const body = (
@@ -81,6 +85,7 @@ export function StudentDashboardEntry({
         rows={classReminderInbox}
         labels={labels}
       />
+      <StudentLearningTasksSection locale={locale} tasks={learningTasks} labels={labels} />
       {hub ? (
         <div className="space-y-4">
           <StudentNextClassCard sections={hub.sections} dict={hubDict} />

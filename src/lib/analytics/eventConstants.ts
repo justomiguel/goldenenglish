@@ -33,6 +33,8 @@ export const AnalyticsEntity = {
   teacherSectionAttendance: "section:teacher_section_attendance",
   /** Portal calendar + iCal subscription */
   portalCalendar: "section:portal_calendar",
+  /** Learning tasks library, detail, and completion funnel */
+  learningTasks: "section:learning_tasks",
   /** Auth: user completed a password reset (recovery link → updateUser) */
   passwordResetCompleted: "auth:password_reset_completed",
   /** Funnel: enrollment fee receipt uploaded by the student */
@@ -58,6 +60,11 @@ export function pathnameToEntity(pathname: string): string {
   if (pathname.includes("/dashboard/student/calendar")) return AnalyticsEntity.portalCalendar;
   if (pathname.includes("/dashboard/parent/calendar")) return AnalyticsEntity.portalCalendar;
   if (pathname.includes("/dashboard/teacher/calendar")) return AnalyticsEntity.portalCalendar;
+  if (pathname.includes("/dashboard/student/tasks")) return AnalyticsEntity.learningTasks;
+  if (pathname.includes("/dashboard/teacher/tasks")) return AnalyticsEntity.learningTasks;
+  if (pathname.includes("/dashboard/teacher/sections") && pathname.includes("/tasks")) {
+    return AnalyticsEntity.learningTasks;
+  }
   if (pathname.includes("/dashboard/admin/calendar/special")) return AnalyticsEntity.portalCalendar;
   if (pathname.includes("/dashboard/admin/calendar")) return AnalyticsEntity.portalCalendar;
   return `${AnalyticsEntity.pageViewPrefix}${pathname}`;

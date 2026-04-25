@@ -11,6 +11,8 @@ import { ParentHubUpdatesList } from "@/components/parent/ParentHubUpdatesList";
 import { ParentHubIcsDownload } from "@/components/parent/ParentHubIcsDownload";
 import { ParentChildLastGradeLine } from "@/components/parent/ParentChildLastGradeLine";
 import { ParentContactTeacherCta } from "@/components/parent/ParentContactTeacherCta";
+import { ParentLearningTasksPanel } from "@/components/parent/ParentLearningTasksPanel";
+import type { ParentLearningTaskRow } from "@/types/learningTasks";
 
 export interface ParentDashboardFamilyViewProps {
   locale: string;
@@ -20,6 +22,7 @@ export interface ParentDashboardFamilyViewProps {
   payHrefBase: string;
   labels: Dictionary["dashboard"]["parent"];
   hub?: ParentHubModel | null;
+  learningTasks?: ParentLearningTaskRow[];
 }
 
 export function ParentDashboardFamilyView({
@@ -30,6 +33,7 @@ export function ParentDashboardFamilyView({
   payHrefBase,
   labels,
   hub = null,
+  learningTasks = [],
 }: ParentDashboardFamilyViewProps) {
   const selected =
     summaries.find((s) => s.studentId === selectedStudentId) ?? summaries[0];
@@ -171,6 +175,12 @@ export function ParentDashboardFamilyView({
             pending={selected ? (hub.childPaymentPending[selected.studentId] ?? false) : false}
             payHrefBase={payHrefBase}
             dict={labels.hub}
+          />
+          <ParentLearningTasksPanel
+            locale={locale}
+            tasks={learningTasks}
+            labels={labels}
+            selectedStudentId={selected?.studentId}
           />
           <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4">
             <h2 className="text-base font-semibold text-[var(--color-foreground)]">{labels.hub.attendanceTitle}</h2>

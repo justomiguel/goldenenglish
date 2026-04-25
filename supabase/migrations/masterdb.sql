@@ -975,431 +975,6 @@ CREATE POLICY discount_coupons_admin_delete ON public.discount_coupons
   FOR DELETE TO authenticated
   USING (public.is_admin(auth.uid()));
 
--- ========== 062_admin_cohort_collections_benefits.sql ==========
-
--- Include enrollment-fee exemptions and active promotion metadata in the
--- finance cohort collections bulk payload.
-
-CREATE OR REPLACE FUNCTION public.admin_cohort_collections_bulk(
-  p_cohort_id uuid,
-  p_year int
-)
-RETURNS jsonb
-LANGUAGE plpgsql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  v_cohort jsonb;
-  v_sections jsonb;
-  v_enrollments jsonb;
-  v_profiles jsonb;
-  v_payments jsonb;
-  v_scholarships jsonb;
-  v_promotions jsonb;
-  v_plans jsonb;
-  v_section_ids uuid[];
-  v_student_ids uuid[];
-BEGIN
-  IF NOT public.is_admin(auth.uid()) THEN
-    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
-  END IF;
-
-  IF p_year IS NULL OR p_year < 2000 OR p_year > 2100 THEN
-    RAISE EXCEPTION 'invalid_year' USING ERRCODE = '22023';
-  END IF;
-
-  SELECT jsonb_build_object('id', c.id, 'name', c.name)
-    INTO v_cohort
-    FROM public.academic_cohorts c
-    WHERE c.id = p_cohort_id;
-
-  IF v_cohort IS NULL THEN
-    RETURN jsonb_build_object(
-      'cohort', NULL,
-      'year', p_year,
-      'sections', '[]'::jsonb,
-      'enrollments', '[]'::jsonb,
-      'profiles', '[]'::jsonb,
-      'payments', '[]'::jsonb,
-      'scholarships', '[]'::jsonb,
-      'promotions', '[]'::jsonb,
-      'plans', '[]'::jsonb
-    );
-  END IF;
-
-  SELECT array_agg(s.id), coalesce(jsonb_agg(jsonb_build_object(
-    'id', s.id,
-    'name', s.name,
-    'archived_at', s.archived_at,
-    'starts_on', s.starts_on,
-    'ends_on', s.ends_on,
-    'schedule_slots', coalesce(s.schedule_slots, '[]'::jsonb),
-    'enrollment_fee_amount', s.enrollment_fee_amount
-  ) ORDER BY s.name), '[]'::jsonb)
-    INTO v_section_ids, v_sections
-    FROM public.academic_sections s
-    WHERE s.cohort_id = p_cohort_id
-      AND s.archived_at IS NULL;
-
-  IF v_section_ids IS NULL OR array_length(v_section_ids, 1) IS NULL THEN
-    RETURN jsonb_build_object(
-      'cohort', v_cohort,
-      'year', p_year,
-      'sections', '[]'::jsonb,
-      'enrollments', '[]'::jsonb,
-      'profiles', '[]'::jsonb,
-      'payments', '[]'::jsonb,
-      'scholarships', '[]'::jsonb,
-      'promotions', '[]'::jsonb,
-      'plans', '[]'::jsonb
-    );
-  END IF;
-
-  SELECT array_agg(DISTINCT e.student_id), coalesce(jsonb_agg(jsonb_build_object(
-    'section_id', e.section_id,
-    'student_id', e.student_id,
-    'created_at', e.created_at
-  )), '[]'::jsonb)
-    INTO v_student_ids, v_enrollments
-    FROM public.section_enrollments e
-    WHERE e.section_id = ANY(v_section_ids)
-      AND e.status = 'active';
-
-  IF v_student_ids IS NULL OR array_length(v_student_ids, 1) IS NULL THEN
-    RETURN jsonb_build_object(
-      'cohort', v_cohort,
-      'year', p_year,
-      'sections', v_sections,
-      'enrollments', '[]'::jsonb,
-      'profiles', '[]'::jsonb,
-      'payments', '[]'::jsonb,
-      'scholarships', '[]'::jsonb,
-      'promotions', '[]'::jsonb,
-      'plans', coalesce((
-        SELECT jsonb_agg(jsonb_build_object(
-          'id', fp.id,
-          'section_id', fp.section_id,
-          'effective_from_year', fp.effective_from_year,
-          'effective_from_month', fp.effective_from_month,
-          'monthly_fee', fp.monthly_fee,
-          'currency', fp.currency,
-          'archived_at', fp.archived_at
-        ))
-        FROM public.section_fee_plans fp
-        WHERE fp.section_id = ANY(v_section_ids)
-          AND fp.archived_at IS NULL
-      ), '[]'::jsonb)
-    );
-  END IF;
-
-  SELECT coalesce(jsonb_agg(jsonb_build_object(
-    'id', p.id,
-    'first_name', p.first_name,
-    'last_name', p.last_name,
-    'dni_or_passport', p.dni_or_passport,
-    'enrollment_fee_exempt', p.enrollment_fee_exempt,
-    'enrollment_exempt_reason', p.enrollment_exempt_reason
-  )), '[]'::jsonb)
-    INTO v_profiles
-    FROM public.profiles p
-    WHERE p.id = ANY(v_student_ids);
-
-  SELECT coalesce(jsonb_agg(jsonb_build_object(
-    'id', pay.id,
-    'student_id', pay.student_id,
-    'section_id', pay.section_id,
-    'month', pay.month,
-    'year', pay.year,
-    'amount', pay.amount,
-    'status', pay.status,
-    'receipt_url', pay.receipt_url
-  )), '[]'::jsonb)
-    INTO v_payments
-    FROM public.payments pay
-    WHERE pay.year = p_year
-      AND pay.section_id = ANY(v_section_ids)
-      AND pay.student_id = ANY(v_student_ids);
-
-  SELECT coalesce(jsonb_agg(jsonb_build_object(
-    'student_id', sc.student_id,
-    'discount_percent', sc.discount_percent,
-    'valid_from_year', sc.valid_from_year,
-    'valid_from_month', sc.valid_from_month,
-    'valid_until_year', sc.valid_until_year,
-    'valid_until_month', sc.valid_until_month,
-    'is_active', sc.is_active
-  )), '[]'::jsonb)
-    INTO v_scholarships
-    FROM public.student_scholarships sc
-    WHERE sc.student_id = ANY(v_student_ids);
-
-  SELECT coalesce(jsonb_agg(jsonb_build_object(
-    'student_id', sp.student_id,
-    'code_snapshot', sp.code_snapshot,
-    'promotion_snapshot', sp.promotion_snapshot,
-    'applies_to_snapshot', sp.applies_to_snapshot,
-    'monthly_months_remaining', sp.monthly_months_remaining,
-    'enrollment_consumed', sp.enrollment_consumed,
-    'applied_at', sp.applied_at
-  ) ORDER BY sp.applied_at DESC), '[]'::jsonb)
-    INTO v_promotions
-    FROM public.student_promotions sp
-    WHERE sp.student_id = ANY(v_student_ids)
-      AND (
-        (
-          sp.applies_to_snapshot IN ('enrollment', 'both')
-          AND NOT sp.enrollment_consumed
-        )
-        OR (
-          sp.applies_to_snapshot IN ('monthly', 'both')
-          AND (
-            sp.monthly_months_remaining IS NULL
-            OR sp.monthly_months_remaining > 0
-          )
-        )
-      );
-
-  SELECT coalesce(jsonb_agg(jsonb_build_object(
-    'id', fp.id,
-    'section_id', fp.section_id,
-    'effective_from_year', fp.effective_from_year,
-    'effective_from_month', fp.effective_from_month,
-    'monthly_fee', fp.monthly_fee,
-    'currency', fp.currency,
-    'archived_at', fp.archived_at
-  )), '[]'::jsonb)
-    INTO v_plans
-    FROM public.section_fee_plans fp
-    WHERE fp.section_id = ANY(v_section_ids)
-      AND fp.archived_at IS NULL;
-
-  RETURN jsonb_build_object(
-    'cohort', v_cohort,
-    'year', p_year,
-    'sections', v_sections,
-    'enrollments', v_enrollments,
-    'profiles', v_profiles,
-    'payments', v_payments,
-    'scholarships', v_scholarships,
-    'promotions', v_promotions,
-    'plans', v_plans
-  );
-END;
-$$;
-
-COMMENT ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) IS
-  'Bulk fetch (admin only) of raw cohort collections data, including student billing benefits for finance indicators.';
-
-REVOKE ALL ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) FROM anon;
-GRANT EXECUTE ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) TO authenticated;
-
--- ========== 063_period_exemptions_section_repair.sql ==========
-
--- Repair period exemptions created without section_id.
---
--- Finance section matrices only count section-scoped payments. The admin
--- period-exemption action briefly created legacy rows with section_id NULL;
--- when the student has exactly one active section, the intended section is
--- unambiguous and can be repaired safely.
-
-WITH single_active_section AS (
-  SELECT
-    se.student_id,
-    (array_agg(se.section_id ORDER BY se.section_id::text))[1] AS section_id,
-    count(DISTINCT se.section_id) AS section_count
-  FROM public.section_enrollments se
-  WHERE se.status = 'active'
-  GROUP BY se.student_id
-)
-UPDATE public.payments p
-SET section_id = sas.section_id
-FROM single_active_section sas
-WHERE p.section_id IS NULL
-  AND p.student_id = sas.student_id
-  AND sas.section_count = 1
-  AND p.status = 'exempt'
-  AND NOT EXISTS (
-    SELECT 1
-    FROM public.payments scoped
-    WHERE scoped.student_id = p.student_id
-      AND scoped.section_id = sas.section_id
-      AND scoped.month = p.month
-      AND scoped.year = p.year
-  );
-
--- ========== 064_section_enrollment_billing_benefits.sql ==========
-
--- Section-scoped billing benefits.
---
--- Benefits belong to the student-section enrollment, not to the student
--- globally: one student can attend multiple active sections with different
--- enrollment-fee exemptions or scholarship percentages.
-
-ALTER TABLE public.section_enrollments
-  ADD COLUMN IF NOT EXISTS enrollment_fee_exempt BOOLEAN NOT NULL DEFAULT false,
-  ADD COLUMN IF NOT EXISTS enrollment_exempt_reason TEXT,
-  ADD COLUMN IF NOT EXISTS enrollment_exempt_authorized_by UUID REFERENCES public.profiles (id) ON DELETE SET NULL,
-  ADD COLUMN IF NOT EXISTS enrollment_exempt_at TIMESTAMPTZ,
-  ADD COLUMN IF NOT EXISTS last_enrollment_paid_at TIMESTAMPTZ,
-  ADD COLUMN IF NOT EXISTS enrollment_fee_receipt_url TEXT,
-  ADD COLUMN IF NOT EXISTS enrollment_fee_receipt_status TEXT
-    CONSTRAINT section_enrollments_receipt_status_check
-    CHECK (enrollment_fee_receipt_status IN ('pending', 'approved', 'rejected')),
-  ADD COLUMN IF NOT EXISTS enrollment_fee_receipt_uploaded_at TIMESTAMPTZ,
-  ADD COLUMN IF NOT EXISTS scholarship_discount_percent NUMERIC(5, 2) CHECK (
-    scholarship_discount_percent IS NULL
-    OR (scholarship_discount_percent >= 0 AND scholarship_discount_percent <= 100)
-  ),
-  ADD COLUMN IF NOT EXISTS scholarship_note TEXT,
-  ADD COLUMN IF NOT EXISTS scholarship_valid_from_year INT CHECK (
-    scholarship_valid_from_year IS NULL
-    OR (scholarship_valid_from_year >= 2000 AND scholarship_valid_from_year <= 2100)
-  ),
-  ADD COLUMN IF NOT EXISTS scholarship_valid_from_month INT CHECK (
-    scholarship_valid_from_month IS NULL
-    OR (scholarship_valid_from_month >= 1 AND scholarship_valid_from_month <= 12)
-  ),
-  ADD COLUMN IF NOT EXISTS scholarship_valid_until_year INT CHECK (
-    scholarship_valid_until_year IS NULL
-    OR (scholarship_valid_until_year >= 2000 AND scholarship_valid_until_year <= 2100)
-  ),
-  ADD COLUMN IF NOT EXISTS scholarship_valid_until_month INT CHECK (
-    scholarship_valid_until_month IS NULL
-    OR (scholarship_valid_until_month >= 1 AND scholarship_valid_until_month <= 12)
-  ),
-  ADD COLUMN IF NOT EXISTS scholarship_is_active BOOLEAN NOT NULL DEFAULT false;
-
-CREATE INDEX IF NOT EXISTS section_enrollments_student_section_benefits_idx
-  ON public.section_enrollments (student_id, section_id)
-  WHERE status = 'active';
-
-WITH single_active_section AS (
-  SELECT
-    se.student_id,
-    (array_agg(se.id ORDER BY se.created_at DESC, se.id))[1] AS enrollment_id,
-    count(*) AS active_count
-  FROM public.section_enrollments se
-  WHERE se.status = 'active'
-  GROUP BY se.student_id
-)
-UPDATE public.section_enrollments se
-SET
-  enrollment_fee_exempt = p.enrollment_fee_exempt,
-  enrollment_exempt_reason = p.enrollment_exempt_reason,
-  enrollment_exempt_authorized_by = p.enrollment_exempt_authorized_by,
-  enrollment_exempt_at = p.enrollment_exempt_at,
-  last_enrollment_paid_at = p.last_enrollment_paid_at
-FROM single_active_section sas
-JOIN public.profiles p ON p.id = sas.student_id
-WHERE se.id = sas.enrollment_id
-  AND sas.active_count = 1
-  AND (
-    p.enrollment_fee_exempt = true
-    OR p.last_enrollment_paid_at IS NOT NULL
-  );
-
-WITH single_active_section AS (
-  SELECT
-    se.student_id,
-    (array_agg(se.id ORDER BY se.created_at DESC, se.id))[1] AS enrollment_id,
-    count(*) AS active_count
-  FROM public.section_enrollments se
-  WHERE se.status = 'active'
-  GROUP BY se.student_id
-)
-UPDATE public.section_enrollments se
-SET
-  scholarship_discount_percent = sc.discount_percent,
-  scholarship_note = sc.note,
-  scholarship_valid_from_year = sc.valid_from_year,
-  scholarship_valid_from_month = sc.valid_from_month,
-  scholarship_valid_until_year = sc.valid_until_year,
-  scholarship_valid_until_month = sc.valid_until_month,
-  scholarship_is_active = sc.is_active
-FROM single_active_section sas
-JOIN public.student_scholarships sc ON sc.student_id = sas.student_id
-WHERE se.id = sas.enrollment_id
-  AND sas.active_count = 1;
-
-CREATE OR REPLACE FUNCTION public.submit_enrollment_fee_receipt(
-  p_student_id UUID,
-  p_enrollment_id UUID,
-  p_section_id UUID,
-  p_receipt_url TEXT
-)
-RETURNS UUID
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  v_actor_id UUID := auth.uid();
-  v_actor_role TEXT;
-  v_enrollment public.section_enrollments%ROWTYPE;
-BEGIN
-  IF v_actor_id IS NULL THEN
-    RAISE EXCEPTION 'unauthenticated' USING ERRCODE = '28000';
-  END IF;
-
-  SELECT role INTO v_actor_role
-  FROM public.profiles
-  WHERE id = v_actor_id;
-
-  IF p_student_id = v_actor_id THEN
-    IF v_actor_role <> 'student' THEN
-      RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
-    END IF;
-  ELSIF v_actor_role <> 'parent'
-    OR NOT public.tutor_can_view_student_finance(v_actor_id, p_student_id) THEN
-    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
-  END IF;
-
-  IF p_receipt_url IS NULL
-    OR btrim(p_receipt_url) = ''
-    OR p_receipt_url LIKE '%..%'
-    OR p_receipt_url NOT LIKE (p_student_id::TEXT || '/enrollment-fee/%') THEN
-    RAISE EXCEPTION 'invalid_receipt_url' USING ERRCODE = '22023';
-  END IF;
-
-  SELECT *
-  INTO v_enrollment
-  FROM public.section_enrollments
-  WHERE id = p_enrollment_id
-    AND student_id = p_student_id
-    AND section_id = p_section_id
-    AND status = 'active';
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'enrollment_not_found' USING ERRCODE = 'P0002';
-  END IF;
-
-  IF COALESCE(v_enrollment.enrollment_fee_exempt, false) THEN
-    RAISE EXCEPTION 'enrollment_fee_exempt' USING ERRCODE = '23514';
-  END IF;
-
-  IF v_enrollment.enrollment_fee_receipt_status = 'approved' THEN
-    RAISE EXCEPTION 'enrollment_receipt_already_approved' USING ERRCODE = '23514';
-  END IF;
-
-  UPDATE public.section_enrollments
-  SET
-    enrollment_fee_receipt_url = p_receipt_url,
-    enrollment_fee_receipt_status = 'pending',
-    enrollment_fee_receipt_uploaded_at = now()
-  WHERE id = v_enrollment.id;
-
-  RETURN v_enrollment.id;
-END;
-$$;
-
-REVOKE ALL ON FUNCTION public.submit_enrollment_fee_receipt(UUID, UUID, UUID, TEXT) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.submit_enrollment_fee_receipt(UUID, UUID, UUID, TEXT) TO authenticated;
-
-COMMENT ON FUNCTION public.submit_enrollment_fee_receipt(UUID, UUID, UUID, TEXT) IS
-  'Persists a student/tutor enrollment fee receipt on section_enrollments after actor and path validation; avoids broad RLS UPDATE on the enrollment row.';
-
 -- ========== 009_enrollment_promotions_audit.sql ==========
 
 -- Matrícula, motor de promociones, historial student_promotions, auditoría.
@@ -3389,11 +2964,8 @@ CREATE INDEX IF NOT EXISTS retention_alerts_status_created_idx
 
 CREATE TABLE IF NOT EXISTS public.enrollment_retention_flags (
   enrollment_id UUID PRIMARY KEY REFERENCES public.section_enrollments (id) ON DELETE CASCADE,
-  whatsapp_contact_count integer NOT NULL DEFAULT 0,
-  email_contact_count integer NOT NULL DEFAULT 0,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  CONSTRAINT enrollment_retention_flags_whatsapp_count_nonneg CHECK (whatsapp_contact_count >= 0),
-  CONSTRAINT enrollment_retention_flags_email_count_nonneg CHECK (email_contact_count >= 0)
+  watch BOOLEAN NOT NULL DEFAULT false,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 DROP TRIGGER IF EXISTS section_attendance_set_updated_at ON public.section_attendance;
@@ -3577,48 +3149,6 @@ CREATE POLICY enrollment_retention_flags_teacher_update ON public.enrollment_ret
   FOR UPDATE TO authenticated
   USING (public.is_admin(auth.uid()) OR public.section_enrollment_teacher_is_self(enrollment_id))
   WITH CHECK (public.is_admin(auth.uid()) OR public.section_enrollment_teacher_is_self(enrollment_id));
-
--- Admin follow-up counts (incremental migration 068_enrollment_retention_contact_counts.sql).
-CREATE OR REPLACE FUNCTION public.increment_enrollment_retention_contact(
-  p_enrollment_id uuid,
-  p_channel text
-)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-BEGIN
-  IF p_channel IS NULL OR p_channel NOT IN ('whatsapp', 'email') THEN
-    RAISE EXCEPTION 'invalid channel' USING ERRCODE = '22023';
-  END IF;
-  IF NOT public.is_admin(auth.uid()) THEN
-    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
-  END IF;
-
-  INSERT INTO public.enrollment_retention_flags (
-    enrollment_id,
-    whatsapp_contact_count,
-    email_contact_count,
-    updated_at
-  )
-  VALUES (
-    p_enrollment_id,
-    CASE WHEN p_channel = 'whatsapp' THEN 1 ELSE 0 END,
-    CASE WHEN p_channel = 'email' THEN 1 ELSE 0 END,
-    now()
-  )
-  ON CONFLICT (enrollment_id) DO UPDATE SET
-    whatsapp_contact_count = public.enrollment_retention_flags.whatsapp_contact_count
-      + (CASE WHEN p_channel = 'whatsapp' THEN 1 ELSE 0 END),
-    email_contact_count = public.enrollment_retention_flags.email_contact_count
-      + (CASE WHEN p_channel = 'email' THEN 1 ELSE 0 END),
-    updated_at = now();
-END;
-$$;
-
-REVOKE ALL ON FUNCTION public.increment_enrollment_retention_contact(uuid, text) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.increment_enrollment_retention_contact(uuid, text) TO authenticated;
 
 -- ========== 021_retention_grade_average_view.sql ==========
 
@@ -7379,3 +6909,1166 @@ DROP POLICY IF EXISTS discount_coupons_admin_delete ON public.discount_coupons;
 CREATE POLICY discount_coupons_admin_delete ON public.discount_coupons
   FOR DELETE TO authenticated
   USING (public.is_admin(auth.uid()));
+
+-- ========== 062_admin_cohort_collections_benefits.sql ==========
+
+-- Include enrollment-fee exemptions and active promotion metadata in the
+-- finance cohort collections bulk payload.
+
+CREATE OR REPLACE FUNCTION public.admin_cohort_collections_bulk(
+  p_cohort_id uuid,
+  p_year int
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_cohort jsonb;
+  v_sections jsonb;
+  v_enrollments jsonb;
+  v_profiles jsonb;
+  v_payments jsonb;
+  v_scholarships jsonb;
+  v_promotions jsonb;
+  v_plans jsonb;
+  v_section_ids uuid[];
+  v_student_ids uuid[];
+BEGIN
+  IF NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+
+  IF p_year IS NULL OR p_year < 2000 OR p_year > 2100 THEN
+    RAISE EXCEPTION 'invalid_year' USING ERRCODE = '22023';
+  END IF;
+
+  SELECT jsonb_build_object('id', c.id, 'name', c.name)
+    INTO v_cohort
+    FROM public.academic_cohorts c
+    WHERE c.id = p_cohort_id;
+
+  IF v_cohort IS NULL THEN
+    RETURN jsonb_build_object(
+      'cohort', NULL,
+      'year', p_year,
+      'sections', '[]'::jsonb,
+      'enrollments', '[]'::jsonb,
+      'profiles', '[]'::jsonb,
+      'payments', '[]'::jsonb,
+      'scholarships', '[]'::jsonb,
+      'promotions', '[]'::jsonb,
+      'plans', '[]'::jsonb
+    );
+  END IF;
+
+  SELECT array_agg(s.id), coalesce(jsonb_agg(jsonb_build_object(
+    'id', s.id,
+    'name', s.name,
+    'archived_at', s.archived_at,
+    'starts_on', s.starts_on,
+    'ends_on', s.ends_on,
+    'schedule_slots', coalesce(s.schedule_slots, '[]'::jsonb),
+    'enrollment_fee_amount', s.enrollment_fee_amount
+  ) ORDER BY s.name), '[]'::jsonb)
+    INTO v_section_ids, v_sections
+    FROM public.academic_sections s
+    WHERE s.cohort_id = p_cohort_id
+      AND s.archived_at IS NULL;
+
+  IF v_section_ids IS NULL OR array_length(v_section_ids, 1) IS NULL THEN
+    RETURN jsonb_build_object(
+      'cohort', v_cohort,
+      'year', p_year,
+      'sections', '[]'::jsonb,
+      'enrollments', '[]'::jsonb,
+      'profiles', '[]'::jsonb,
+      'payments', '[]'::jsonb,
+      'scholarships', '[]'::jsonb,
+      'promotions', '[]'::jsonb,
+      'plans', '[]'::jsonb
+    );
+  END IF;
+
+  SELECT array_agg(DISTINCT e.student_id), coalesce(jsonb_agg(jsonb_build_object(
+    'section_id', e.section_id,
+    'student_id', e.student_id,
+    'created_at', e.created_at
+  )), '[]'::jsonb)
+    INTO v_student_ids, v_enrollments
+    FROM public.section_enrollments e
+    WHERE e.section_id = ANY(v_section_ids)
+      AND e.status = 'active';
+
+  IF v_student_ids IS NULL OR array_length(v_student_ids, 1) IS NULL THEN
+    RETURN jsonb_build_object(
+      'cohort', v_cohort,
+      'year', p_year,
+      'sections', v_sections,
+      'enrollments', '[]'::jsonb,
+      'profiles', '[]'::jsonb,
+      'payments', '[]'::jsonb,
+      'scholarships', '[]'::jsonb,
+      'promotions', '[]'::jsonb,
+      'plans', coalesce((
+        SELECT jsonb_agg(jsonb_build_object(
+          'id', fp.id,
+          'section_id', fp.section_id,
+          'effective_from_year', fp.effective_from_year,
+          'effective_from_month', fp.effective_from_month,
+          'monthly_fee', fp.monthly_fee,
+          'currency', fp.currency,
+          'archived_at', fp.archived_at
+        ))
+        FROM public.section_fee_plans fp
+        WHERE fp.section_id = ANY(v_section_ids)
+          AND fp.archived_at IS NULL
+      ), '[]'::jsonb)
+    );
+  END IF;
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', p.id,
+    'first_name', p.first_name,
+    'last_name', p.last_name,
+    'dni_or_passport', p.dni_or_passport,
+    'enrollment_fee_exempt', p.enrollment_fee_exempt,
+    'enrollment_exempt_reason', p.enrollment_exempt_reason
+  )), '[]'::jsonb)
+    INTO v_profiles
+    FROM public.profiles p
+    WHERE p.id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', pay.id,
+    'student_id', pay.student_id,
+    'section_id', pay.section_id,
+    'month', pay.month,
+    'year', pay.year,
+    'amount', pay.amount,
+    'status', pay.status,
+    'receipt_url', pay.receipt_url
+  )), '[]'::jsonb)
+    INTO v_payments
+    FROM public.payments pay
+    WHERE pay.year = p_year
+      AND pay.section_id = ANY(v_section_ids)
+      AND pay.student_id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'student_id', sc.student_id,
+    'discount_percent', sc.discount_percent,
+    'valid_from_year', sc.valid_from_year,
+    'valid_from_month', sc.valid_from_month,
+    'valid_until_year', sc.valid_until_year,
+    'valid_until_month', sc.valid_until_month,
+    'is_active', sc.is_active
+  )), '[]'::jsonb)
+    INTO v_scholarships
+    FROM public.student_scholarships sc
+    WHERE sc.student_id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'student_id', sp.student_id,
+    'code_snapshot', sp.code_snapshot,
+    'promotion_snapshot', sp.promotion_snapshot,
+    'applies_to_snapshot', sp.applies_to_snapshot,
+    'monthly_months_remaining', sp.monthly_months_remaining,
+    'enrollment_consumed', sp.enrollment_consumed,
+    'applied_at', sp.applied_at
+  ) ORDER BY sp.applied_at DESC), '[]'::jsonb)
+    INTO v_promotions
+    FROM public.student_promotions sp
+    WHERE sp.student_id = ANY(v_student_ids)
+      AND (
+        (
+          sp.applies_to_snapshot IN ('enrollment', 'both')
+          AND NOT sp.enrollment_consumed
+        )
+        OR (
+          sp.applies_to_snapshot IN ('monthly', 'both')
+          AND (
+            sp.monthly_months_remaining IS NULL
+            OR sp.monthly_months_remaining > 0
+          )
+        )
+      );
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', fp.id,
+    'section_id', fp.section_id,
+    'effective_from_year', fp.effective_from_year,
+    'effective_from_month', fp.effective_from_month,
+    'monthly_fee', fp.monthly_fee,
+    'currency', fp.currency,
+    'archived_at', fp.archived_at
+  )), '[]'::jsonb)
+    INTO v_plans
+    FROM public.section_fee_plans fp
+    WHERE fp.section_id = ANY(v_section_ids)
+      AND fp.archived_at IS NULL;
+
+  RETURN jsonb_build_object(
+    'cohort', v_cohort,
+    'year', p_year,
+    'sections', v_sections,
+    'enrollments', v_enrollments,
+    'profiles', v_profiles,
+    'payments', v_payments,
+    'scholarships', v_scholarships,
+    'promotions', v_promotions,
+    'plans', v_plans
+  );
+END;
+$$;
+
+COMMENT ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) IS
+  'Bulk fetch (admin only) of raw cohort collections data, including student billing benefits for finance indicators.';
+
+REVOKE ALL ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) FROM anon;
+GRANT EXECUTE ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) TO authenticated;
+
+-- ========== 063_period_exemptions_section_repair.sql ==========
+
+-- Repair period exemptions created without section_id.
+--
+-- Finance section matrices only count section-scoped payments. The admin
+-- period-exemption action briefly created legacy rows with section_id NULL;
+-- when the student has exactly one active section, the intended section is
+-- unambiguous and can be repaired safely.
+
+WITH single_active_section AS (
+  SELECT
+    se.student_id,
+    (array_agg(se.section_id ORDER BY se.section_id::text))[1] AS section_id,
+    count(DISTINCT se.section_id) AS section_count
+  FROM public.section_enrollments se
+  WHERE se.status = 'active'
+  GROUP BY se.student_id
+)
+UPDATE public.payments p
+SET section_id = sas.section_id
+FROM single_active_section sas
+WHERE p.section_id IS NULL
+  AND p.student_id = sas.student_id
+  AND sas.section_count = 1
+  AND p.status = 'exempt'
+  AND NOT EXISTS (
+    SELECT 1
+    FROM public.payments scoped
+    WHERE scoped.student_id = p.student_id
+      AND scoped.section_id = sas.section_id
+      AND scoped.month = p.month
+      AND scoped.year = p.year
+  );
+
+-- ========== 064_section_enrollment_billing_benefits.sql ==========
+
+-- Section-scoped billing benefits.
+--
+-- Benefits belong to the student-section enrollment, not to the student
+-- globally: one student can attend multiple active sections with different
+-- enrollment-fee exemptions or scholarship percentages.
+
+ALTER TABLE public.section_enrollments
+  ADD COLUMN IF NOT EXISTS enrollment_fee_exempt BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS enrollment_exempt_reason TEXT,
+  ADD COLUMN IF NOT EXISTS enrollment_exempt_authorized_by UUID REFERENCES public.profiles (id) ON DELETE SET NULL,
+  ADD COLUMN IF NOT EXISTS enrollment_exempt_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS last_enrollment_paid_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS scholarship_discount_percent NUMERIC(5, 2) CHECK (
+    scholarship_discount_percent IS NULL
+    OR (scholarship_discount_percent >= 0 AND scholarship_discount_percent <= 100)
+  ),
+  ADD COLUMN IF NOT EXISTS scholarship_note TEXT,
+  ADD COLUMN IF NOT EXISTS scholarship_valid_from_year INT CHECK (
+    scholarship_valid_from_year IS NULL
+    OR (scholarship_valid_from_year >= 2000 AND scholarship_valid_from_year <= 2100)
+  ),
+  ADD COLUMN IF NOT EXISTS scholarship_valid_from_month INT CHECK (
+    scholarship_valid_from_month IS NULL
+    OR (scholarship_valid_from_month >= 1 AND scholarship_valid_from_month <= 12)
+  ),
+  ADD COLUMN IF NOT EXISTS scholarship_valid_until_year INT CHECK (
+    scholarship_valid_until_year IS NULL
+    OR (scholarship_valid_until_year >= 2000 AND scholarship_valid_until_year <= 2100)
+  ),
+  ADD COLUMN IF NOT EXISTS scholarship_valid_until_month INT CHECK (
+    scholarship_valid_until_month IS NULL
+    OR (scholarship_valid_until_month >= 1 AND scholarship_valid_until_month <= 12)
+  ),
+  ADD COLUMN IF NOT EXISTS scholarship_is_active BOOLEAN NOT NULL DEFAULT false;
+
+CREATE INDEX IF NOT EXISTS section_enrollments_student_section_benefits_idx
+  ON public.section_enrollments (student_id, section_id)
+  WHERE status = 'active';
+
+WITH single_active_section AS (
+  SELECT
+    se.student_id,
+    (array_agg(se.id ORDER BY se.created_at DESC, se.id))[1] AS enrollment_id,
+    count(*) AS active_count
+  FROM public.section_enrollments se
+  WHERE se.status = 'active'
+  GROUP BY se.student_id
+)
+UPDATE public.section_enrollments se
+SET
+  enrollment_fee_exempt = p.enrollment_fee_exempt,
+  enrollment_exempt_reason = p.enrollment_exempt_reason,
+  enrollment_exempt_authorized_by = p.enrollment_exempt_authorized_by,
+  enrollment_exempt_at = p.enrollment_exempt_at,
+  last_enrollment_paid_at = p.last_enrollment_paid_at
+FROM single_active_section sas
+JOIN public.profiles p ON p.id = sas.student_id
+WHERE se.id = sas.enrollment_id
+  AND sas.active_count = 1
+  AND (
+    p.enrollment_fee_exempt = true
+    OR p.last_enrollment_paid_at IS NOT NULL
+  );
+
+WITH single_active_section AS (
+  SELECT
+    se.student_id,
+    (array_agg(se.id ORDER BY se.created_at DESC, se.id))[1] AS enrollment_id,
+    count(*) AS active_count
+  FROM public.section_enrollments se
+  WHERE se.status = 'active'
+  GROUP BY se.student_id
+)
+UPDATE public.section_enrollments se
+SET
+  scholarship_discount_percent = sc.discount_percent,
+  scholarship_note = sc.note,
+  scholarship_valid_from_year = sc.valid_from_year,
+  scholarship_valid_from_month = sc.valid_from_month,
+  scholarship_valid_until_year = sc.valid_until_year,
+  scholarship_valid_until_month = sc.valid_until_month,
+  scholarship_is_active = sc.is_active
+FROM single_active_section sas
+JOIN public.student_scholarships sc ON sc.student_id = sas.student_id
+WHERE se.id = sas.enrollment_id
+  AND sas.active_count = 1;
+
+-- ========== 065_section_enrollment_scholarships.sql ==========
+
+-- Multiple section-scoped scholarships.
+--
+-- A student can have several scholarships in the same section enrollment. Active
+-- scholarships that cover the same month are summed by the app and capped at 100%.
+
+CREATE TABLE IF NOT EXISTS public.section_enrollment_scholarships (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  enrollment_id UUID NOT NULL REFERENCES public.section_enrollments (id) ON DELETE CASCADE,
+  section_id UUID NOT NULL REFERENCES public.academic_sections (id) ON DELETE CASCADE,
+  student_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  discount_percent NUMERIC(5, 2) NOT NULL CHECK (
+    discount_percent >= 0 AND discount_percent <= 100
+  ),
+  note TEXT,
+  valid_from_year INT NOT NULL CHECK (valid_from_year >= 2000 AND valid_from_year <= 2100),
+  valid_from_month INT NOT NULL CHECK (valid_from_month >= 1 AND valid_from_month <= 12),
+  valid_until_year INT CHECK (valid_until_year IS NULL OR (valid_until_year >= 2000 AND valid_until_year <= 2100)),
+  valid_until_month INT CHECK (valid_until_month IS NULL OR (valid_until_month >= 1 AND valid_until_month <= 12)),
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_by UUID REFERENCES public.profiles (id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT section_enrollment_scholarships_period_order CHECK (
+    valid_until_year IS NULL
+    OR valid_until_month IS NULL
+    OR (valid_until_year * 12 + valid_until_month) >= (valid_from_year * 12 + valid_from_month)
+  )
+);
+
+CREATE INDEX IF NOT EXISTS section_enrollment_scholarships_enrollment_idx
+  ON public.section_enrollment_scholarships (enrollment_id);
+
+CREATE INDEX IF NOT EXISTS section_enrollment_scholarships_scope_idx
+  ON public.section_enrollment_scholarships (section_id, student_id, is_active);
+
+CREATE UNIQUE INDEX IF NOT EXISTS section_enrollment_scholarships_legacy_backfill_once
+  ON public.section_enrollment_scholarships (enrollment_id)
+  WHERE note = 'Migrated from section_enrollments scholarship fields';
+
+ALTER TABLE public.section_enrollment_scholarships ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS section_enrollment_scholarships_select_scope ON public.section_enrollment_scholarships;
+CREATE POLICY section_enrollment_scholarships_select_scope ON public.section_enrollment_scholarships
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR student_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM public.tutor_student_rel ts
+      WHERE ts.tutor_id = auth.uid()
+        AND ts.student_id = section_enrollment_scholarships.student_id
+    )
+    OR public.user_leads_or_assists_section(auth.uid(), section_enrollment_scholarships.section_id)
+  );
+
+DROP POLICY IF EXISTS section_enrollment_scholarships_admin_write ON public.section_enrollment_scholarships;
+CREATE POLICY section_enrollment_scholarships_admin_write ON public.section_enrollment_scholarships
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+INSERT INTO public.section_enrollment_scholarships (
+  enrollment_id,
+  section_id,
+  student_id,
+  discount_percent,
+  note,
+  valid_from_year,
+  valid_from_month,
+  valid_until_year,
+  valid_until_month,
+  is_active
+)
+SELECT
+  se.id,
+  se.section_id,
+  se.student_id,
+  se.scholarship_discount_percent,
+  COALESCE(se.scholarship_note, 'Migrated from section_enrollments scholarship fields'),
+  se.scholarship_valid_from_year,
+  se.scholarship_valid_from_month,
+  se.scholarship_valid_until_year,
+  se.scholarship_valid_until_month,
+  COALESCE(se.scholarship_is_active, false)
+FROM public.section_enrollments se
+WHERE se.scholarship_discount_percent IS NOT NULL
+  AND se.scholarship_valid_from_year IS NOT NULL
+  AND se.scholarship_valid_from_month IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM public.section_enrollment_scholarships ses
+    WHERE ses.enrollment_id = se.id
+      AND ses.discount_percent = se.scholarship_discount_percent
+      AND ses.valid_from_year = se.scholarship_valid_from_year
+      AND ses.valid_from_month = se.scholarship_valid_from_month
+      AND COALESCE(ses.valid_until_year, -1) = COALESCE(se.scholarship_valid_until_year, -1)
+      AND COALESCE(ses.valid_until_month, -1) = COALESCE(se.scholarship_valid_until_month, -1)
+  );
+
+-- ========== 066_admin_cohort_collections_multiple_scholarships.sql ==========
+
+-- Finance bulk RPC now emits section-enrollment scholarships, not global rows.
+
+CREATE OR REPLACE FUNCTION public.admin_cohort_collections_bulk(
+  p_cohort_id uuid,
+  p_year int
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_cohort jsonb;
+  v_sections jsonb;
+  v_enrollments jsonb;
+  v_profiles jsonb;
+  v_payments jsonb;
+  v_scholarships jsonb;
+  v_promotions jsonb;
+  v_plans jsonb;
+  v_section_ids uuid[];
+  v_student_ids uuid[];
+BEGIN
+  IF NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+
+  IF p_year IS NULL OR p_year < 2000 OR p_year > 2100 THEN
+    RAISE EXCEPTION 'invalid_year' USING ERRCODE = '22023';
+  END IF;
+
+  SELECT jsonb_build_object('id', c.id, 'name', c.name)
+    INTO v_cohort
+    FROM public.academic_cohorts c
+    WHERE c.id = p_cohort_id;
+
+  IF v_cohort IS NULL THEN
+    RETURN jsonb_build_object('cohort', NULL, 'year', p_year, 'sections', '[]'::jsonb, 'enrollments', '[]'::jsonb, 'profiles', '[]'::jsonb, 'payments', '[]'::jsonb, 'scholarships', '[]'::jsonb, 'promotions', '[]'::jsonb, 'plans', '[]'::jsonb);
+  END IF;
+
+  SELECT array_agg(s.id), coalesce(jsonb_agg(jsonb_build_object(
+    'id', s.id,
+    'name', s.name,
+    'archived_at', s.archived_at,
+    'starts_on', s.starts_on,
+    'ends_on', s.ends_on,
+    'schedule_slots', coalesce(s.schedule_slots, '[]'::jsonb),
+    'enrollment_fee_amount', s.enrollment_fee_amount
+  ) ORDER BY s.name), '[]'::jsonb)
+    INTO v_section_ids, v_sections
+    FROM public.academic_sections s
+    WHERE s.cohort_id = p_cohort_id
+      AND s.archived_at IS NULL;
+
+  IF v_section_ids IS NULL OR array_length(v_section_ids, 1) IS NULL THEN
+    RETURN jsonb_build_object('cohort', v_cohort, 'year', p_year, 'sections', '[]'::jsonb, 'enrollments', '[]'::jsonb, 'profiles', '[]'::jsonb, 'payments', '[]'::jsonb, 'scholarships', '[]'::jsonb, 'promotions', '[]'::jsonb, 'plans', '[]'::jsonb);
+  END IF;
+
+  SELECT array_agg(DISTINCT e.student_id), coalesce(jsonb_agg(jsonb_build_object(
+    'section_id', e.section_id,
+    'student_id', e.student_id,
+    'created_at', e.created_at,
+    'enrollment_fee_exempt', e.enrollment_fee_exempt,
+    'enrollment_exempt_reason', e.enrollment_exempt_reason
+  )), '[]'::jsonb)
+    INTO v_student_ids, v_enrollments
+    FROM public.section_enrollments e
+    WHERE e.section_id = ANY(v_section_ids)
+      AND e.status = 'active';
+
+  IF v_student_ids IS NULL OR array_length(v_student_ids, 1) IS NULL THEN
+    RETURN jsonb_build_object(
+      'cohort', v_cohort,
+      'year', p_year,
+      'sections', v_sections,
+      'enrollments', '[]'::jsonb,
+      'profiles', '[]'::jsonb,
+      'payments', '[]'::jsonb,
+      'scholarships', '[]'::jsonb,
+      'promotions', '[]'::jsonb,
+      'plans', coalesce((
+        SELECT jsonb_agg(jsonb_build_object(
+          'id', fp.id,
+          'section_id', fp.section_id,
+          'effective_from_year', fp.effective_from_year,
+          'effective_from_month', fp.effective_from_month,
+          'monthly_fee', fp.monthly_fee,
+          'currency', fp.currency,
+          'archived_at', fp.archived_at
+        ))
+        FROM public.section_fee_plans fp
+        WHERE fp.section_id = ANY(v_section_ids)
+          AND fp.archived_at IS NULL
+      ), '[]'::jsonb)
+    );
+  END IF;
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', p.id,
+    'first_name', p.first_name,
+    'last_name', p.last_name,
+    'dni_or_passport', p.dni_or_passport,
+    'enrollment_fee_exempt', p.enrollment_fee_exempt,
+    'enrollment_exempt_reason', p.enrollment_exempt_reason
+  )), '[]'::jsonb)
+    INTO v_profiles
+    FROM public.profiles p
+    WHERE p.id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', pay.id,
+    'student_id', pay.student_id,
+    'section_id', pay.section_id,
+    'month', pay.month,
+    'year', pay.year,
+    'amount', pay.amount,
+    'status', pay.status,
+    'receipt_url', pay.receipt_url
+  )), '[]'::jsonb)
+    INTO v_payments
+    FROM public.payments pay
+    WHERE pay.year = p_year
+      AND pay.section_id = ANY(v_section_ids)
+      AND pay.student_id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', sc.id,
+    'section_id', sc.section_id,
+    'student_id', sc.student_id,
+    'discount_percent', sc.discount_percent,
+    'note', sc.note,
+    'valid_from_year', sc.valid_from_year,
+    'valid_from_month', sc.valid_from_month,
+    'valid_until_year', sc.valid_until_year,
+    'valid_until_month', sc.valid_until_month,
+    'is_active', sc.is_active
+  ) ORDER BY sc.created_at), '[]'::jsonb)
+    INTO v_scholarships
+    FROM public.section_enrollment_scholarships sc
+    WHERE sc.section_id = ANY(v_section_ids)
+      AND sc.student_id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'student_id', sp.student_id,
+    'code_snapshot', sp.code_snapshot,
+    'promotion_snapshot', sp.promotion_snapshot,
+    'applies_to_snapshot', sp.applies_to_snapshot,
+    'monthly_months_remaining', sp.monthly_months_remaining,
+    'enrollment_consumed', sp.enrollment_consumed,
+    'applied_at', sp.applied_at
+  ) ORDER BY sp.applied_at DESC), '[]'::jsonb)
+    INTO v_promotions
+    FROM public.student_promotions sp
+    WHERE sp.student_id = ANY(v_student_ids)
+      AND (
+        (sp.applies_to_snapshot IN ('enrollment', 'both') AND NOT sp.enrollment_consumed)
+        OR (
+          sp.applies_to_snapshot IN ('monthly', 'both')
+          AND (sp.monthly_months_remaining IS NULL OR sp.monthly_months_remaining > 0)
+        )
+      );
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', fp.id,
+    'section_id', fp.section_id,
+    'effective_from_year', fp.effective_from_year,
+    'effective_from_month', fp.effective_from_month,
+    'monthly_fee', fp.monthly_fee,
+    'currency', fp.currency,
+    'archived_at', fp.archived_at
+  )), '[]'::jsonb)
+    INTO v_plans
+    FROM public.section_fee_plans fp
+    WHERE fp.section_id = ANY(v_section_ids)
+      AND fp.archived_at IS NULL;
+
+  RETURN jsonb_build_object(
+    'cohort', v_cohort,
+    'year', p_year,
+    'sections', v_sections,
+    'enrollments', v_enrollments,
+    'profiles', v_profiles,
+    'payments', v_payments,
+    'scholarships', v_scholarships,
+    'promotions', v_promotions,
+    'plans', v_plans
+  );
+END;
+$$;
+
+COMMENT ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) IS
+  'Bulk fetch (admin only) of raw cohort collections data, including section enrollment scholarships.';
+
+REVOKE ALL ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) FROM anon;
+GRANT EXECUTE ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) TO authenticated;
+
+-- ========== 067_enrollment_fee_receipt.sql ==========
+
+-- Migration 067: enrollment fee receipt upload (student/parent/tutor)
+--
+-- Students, parents and tutors can upload a payment receipt for the enrollment
+-- fee charged per academic section.  The receipt is stored in the existing
+-- `payment-receipts` storage bucket under the path
+--   {student_id}/enrollment-fee/{enrollment_id}-{timestamp}.{ext}
+-- The path always starts with the student's own UUID, which satisfies the RLS
+-- check already in use for monthly payment receipts.
+--
+-- Admin can then approve or reject the receipt from the billing tab.
+-- Approval also records `last_enrollment_paid_at` automatically.
+
+ALTER TABLE public.section_enrollments
+  ADD COLUMN IF NOT EXISTS enrollment_fee_receipt_url        TEXT,
+  ADD COLUMN IF NOT EXISTS enrollment_fee_receipt_status     TEXT
+    CONSTRAINT section_enrollments_receipt_status_check
+    CHECK (enrollment_fee_receipt_status IN ('pending', 'approved', 'rejected')),
+  ADD COLUMN IF NOT EXISTS enrollment_fee_receipt_uploaded_at TIMESTAMPTZ;
+
+COMMENT ON COLUMN public.section_enrollments.enrollment_fee_receipt_url IS
+  'Storage path in the payment-receipts bucket for the enrollment fee receipt uploaded by the student / parent.';
+COMMENT ON COLUMN public.section_enrollments.enrollment_fee_receipt_status IS
+  'Review status of the enrollment fee receipt: pending | approved | rejected.';
+COMMENT ON COLUMN public.section_enrollments.enrollment_fee_receipt_uploaded_at IS
+  'When the student/parent last uploaded the enrollment fee receipt.';
+
+CREATE OR REPLACE FUNCTION public.submit_enrollment_fee_receipt(
+  p_student_id UUID,
+  p_enrollment_id UUID,
+  p_section_id UUID,
+  p_receipt_url TEXT
+)
+RETURNS UUID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_actor_id UUID := auth.uid();
+  v_actor_role TEXT;
+  v_enrollment public.section_enrollments%ROWTYPE;
+BEGIN
+  IF v_actor_id IS NULL THEN
+    RAISE EXCEPTION 'unauthenticated' USING ERRCODE = '28000';
+  END IF;
+
+  SELECT role INTO v_actor_role
+  FROM public.profiles
+  WHERE id = v_actor_id;
+
+  IF p_student_id = v_actor_id THEN
+    IF v_actor_role <> 'student' THEN
+      RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+    END IF;
+  ELSIF v_actor_role <> 'parent'
+    OR NOT public.tutor_can_view_student_finance(v_actor_id, p_student_id) THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+
+  IF p_receipt_url IS NULL
+    OR btrim(p_receipt_url) = ''
+    OR p_receipt_url LIKE '%..%'
+    OR p_receipt_url NOT LIKE (p_student_id::TEXT || '/enrollment-fee/%') THEN
+    RAISE EXCEPTION 'invalid_receipt_url' USING ERRCODE = '22023';
+  END IF;
+
+  SELECT *
+  INTO v_enrollment
+  FROM public.section_enrollments
+  WHERE id = p_enrollment_id
+    AND student_id = p_student_id
+    AND section_id = p_section_id
+    AND status = 'active';
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'enrollment_not_found' USING ERRCODE = 'P0002';
+  END IF;
+
+  IF COALESCE(v_enrollment.enrollment_fee_exempt, false) THEN
+    RAISE EXCEPTION 'enrollment_fee_exempt' USING ERRCODE = '23514';
+  END IF;
+
+  IF v_enrollment.enrollment_fee_receipt_status = 'approved' THEN
+    RAISE EXCEPTION 'enrollment_receipt_already_approved' USING ERRCODE = '23514';
+  END IF;
+
+  UPDATE public.section_enrollments
+  SET
+    enrollment_fee_receipt_url = p_receipt_url,
+    enrollment_fee_receipt_status = 'pending',
+    enrollment_fee_receipt_uploaded_at = now()
+  WHERE id = v_enrollment.id;
+
+  RETURN v_enrollment.id;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.submit_enrollment_fee_receipt(UUID, UUID, UUID, TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.submit_enrollment_fee_receipt(UUID, UUID, UUID, TEXT) TO authenticated;
+
+COMMENT ON FUNCTION public.submit_enrollment_fee_receipt(UUID, UUID, UUID, TEXT) IS
+  'Persists a student/tutor enrollment fee receipt on section_enrollments after actor and path validation; avoids broad RLS UPDATE on the enrollment row.';
+
+-- ========== 068_enrollment_retention_contact_counts.sql ==========
+
+-- Retention alerts: per-enrollment WhatsApp vs email follow-up counts; drops manual `watch`.
+--
+-- PREREQ: `public.section_enrollments` must exist (created in 017_academic_cohorts_sections.sql and
+-- related chain). RLS policies below reference `public.section_enrollment_teacher_is_self` from
+-- 020_section_attendance_grades_retention.sql — apply migrations in order (or `supabase db push`
+-- from an empty database with the full migration set), do not run this file alone on an empty DB.
+
+DO $$
+BEGIN
+  IF to_regclass('public.section_enrollments') IS NULL THEN
+    RAISE EXCEPTION
+      'Migration 068 requires public.section_enrollments. Apply prior migrations first (e.g. 017_academic_cohorts_sections.sql and dependencies, or the full supabase/migrations/ chain).'
+      USING ERRCODE = '42P01';
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_proc p
+    INNER JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public'
+      AND p.proname = 'section_enrollment_teacher_is_self'
+  ) THEN
+    RAISE EXCEPTION
+      'Migration 068 requires public.section_enrollment_teacher_is_self. Apply 020_section_attendance_grades_retention.sql (or earlier) before 068.'
+      USING ERRCODE = '42883';
+  END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.enrollment_retention_flags (
+  enrollment_id UUID PRIMARY KEY REFERENCES public.section_enrollments (id) ON DELETE CASCADE,
+  whatsapp_contact_count integer NOT NULL DEFAULT 0,
+  email_contact_count integer NOT NULL DEFAULT 0,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Legacy shape from 020 (watch only): add counts, then drop watch.
+ALTER TABLE public.enrollment_retention_flags
+  ADD COLUMN IF NOT EXISTS whatsapp_contact_count integer NOT NULL DEFAULT 0;
+ALTER TABLE public.enrollment_retention_flags
+  ADD COLUMN IF NOT EXISTS email_contact_count integer NOT NULL DEFAULT 0;
+
+ALTER TABLE public.enrollment_retention_flags
+  DROP CONSTRAINT IF EXISTS enrollment_retention_flags_whatsapp_count_nonneg;
+ALTER TABLE public.enrollment_retention_flags
+  ADD CONSTRAINT enrollment_retention_flags_whatsapp_count_nonneg
+  CHECK (whatsapp_contact_count >= 0);
+
+ALTER TABLE public.enrollment_retention_flags
+  DROP CONSTRAINT IF EXISTS enrollment_retention_flags_email_count_nonneg;
+ALTER TABLE public.enrollment_retention_flags
+  ADD CONSTRAINT enrollment_retention_flags_email_count_nonneg
+  CHECK (email_contact_count >= 0);
+
+ALTER TABLE public.enrollment_retention_flags
+  DROP COLUMN IF EXISTS watch;
+
+ALTER TABLE public.enrollment_retention_flags ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS enrollment_retention_flags_select ON public.enrollment_retention_flags;
+CREATE POLICY enrollment_retention_flags_select ON public.enrollment_retention_flags
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR public.section_enrollment_teacher_is_self(enrollment_id)
+  );
+
+DROP POLICY IF EXISTS enrollment_retention_flags_teacher_upsert ON public.enrollment_retention_flags;
+CREATE POLICY enrollment_retention_flags_teacher_upsert ON public.enrollment_retention_flags
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    public.is_admin(auth.uid())
+    OR (
+      public.user_has_role(auth.uid(), 'teacher')
+      AND public.section_enrollment_teacher_is_self(enrollment_id)
+    )
+  );
+
+DROP POLICY IF EXISTS enrollment_retention_flags_teacher_update ON public.enrollment_retention_flags;
+CREATE POLICY enrollment_retention_flags_teacher_update ON public.enrollment_retention_flags
+  FOR UPDATE TO authenticated
+  USING (public.is_admin(auth.uid()) OR public.section_enrollment_teacher_is_self(enrollment_id))
+  WITH CHECK (public.is_admin(auth.uid()) OR public.section_enrollment_teacher_is_self(enrollment_id));
+
+CREATE OR REPLACE FUNCTION public.increment_enrollment_retention_contact(
+  p_enrollment_id uuid,
+  p_channel text
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF p_channel IS NULL OR p_channel NOT IN ('whatsapp', 'email') THEN
+    RAISE EXCEPTION 'invalid channel' USING ERRCODE = '22023';
+  END IF;
+  IF NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+
+  INSERT INTO public.enrollment_retention_flags (
+    enrollment_id,
+    whatsapp_contact_count,
+    email_contact_count,
+    updated_at
+  )
+  VALUES (
+    p_enrollment_id,
+    CASE WHEN p_channel = 'whatsapp' THEN 1 ELSE 0 END,
+    CASE WHEN p_channel = 'email' THEN 1 ELSE 0 END,
+    now()
+  )
+  ON CONFLICT (enrollment_id) DO UPDATE SET
+    whatsapp_contact_count = public.enrollment_retention_flags.whatsapp_contact_count
+      + (CASE WHEN p_channel = 'whatsapp' THEN 1 ELSE 0 END),
+    email_contact_count = public.enrollment_retention_flags.email_contact_count
+      + (CASE WHEN p_channel = 'email' THEN 1 ELSE 0 END),
+    updated_at = now();
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.increment_enrollment_retention_contact(uuid, text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.increment_enrollment_retention_contact(uuid, text) TO authenticated;
+
+COMMENT ON FUNCTION public.increment_enrollment_retention_contact(uuid, text) IS
+  'Admin: atomically increment WhatsApp or email follow-up count for a section enrollment (retention alerts).';
+
+-- ========== 069_learning_task_core.sql ==========
+
+-- Learning task core: master templates, section instances, student progress.
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'content_asset_kind') THEN
+    CREATE TYPE public.content_asset_kind AS ENUM ('file', 'embed');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'content_embed_provider') THEN
+    CREATE TYPE public.content_embed_provider AS ENUM ('youtube', 'vimeo');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'task_progress_status') THEN
+    CREATE TYPE public.task_progress_status AS ENUM ('NOT_OPENED', 'OPENED', 'COMPLETED', 'COMPLETED_LATE');
+  END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.content_templates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL CHECK (char_length(title) BETWEEN 1 AND 180),
+  body_html TEXT NOT NULL CHECK (char_length(body_html) BETWEEN 1 AND 80000),
+  archived_at TIMESTAMPTZ NULL,
+  created_by UUID NOT NULL REFERENCES public.profiles (id) ON DELETE RESTRICT,
+  updated_by UUID NOT NULL REFERENCES public.profiles (id) ON DELETE RESTRICT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS public.content_template_assets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  template_id UUID NOT NULL REFERENCES public.content_templates (id) ON DELETE CASCADE,
+  kind public.content_asset_kind NOT NULL,
+  label TEXT NOT NULL CHECK (char_length(label) BETWEEN 1 AND 180),
+  storage_path TEXT NULL,
+  mime_type TEXT NULL,
+  byte_size BIGINT NULL CHECK (byte_size IS NULL OR byte_size BETWEEN 1 AND 52428800),
+  embed_provider public.content_embed_provider NULL,
+  embed_url TEXT NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT content_template_assets_shape CHECK (
+    (kind = 'file' AND storage_path IS NOT NULL AND mime_type IS NOT NULL AND byte_size IS NOT NULL
+      AND embed_provider IS NULL AND embed_url IS NULL)
+    OR
+    (kind = 'embed' AND storage_path IS NULL AND mime_type IS NULL AND byte_size IS NULL
+      AND embed_provider IS NOT NULL AND embed_url IS NOT NULL)
+  )
+);
+
+CREATE TABLE IF NOT EXISTS public.task_instances (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  template_id UUID NULL REFERENCES public.content_templates (id) ON DELETE SET NULL,
+  section_id UUID NOT NULL REFERENCES public.academic_sections (id) ON DELETE CASCADE,
+  title TEXT NOT NULL CHECK (char_length(title) BETWEEN 1 AND 180),
+  body_html TEXT NOT NULL CHECK (char_length(body_html) BETWEEN 1 AND 80000),
+  start_at TIMESTAMPTZ NOT NULL,
+  due_at TIMESTAMPTZ NOT NULL,
+  archived_at TIMESTAMPTZ NULL,
+  created_by UUID NOT NULL REFERENCES public.profiles (id) ON DELETE RESTRICT,
+  updated_by UUID NOT NULL REFERENCES public.profiles (id) ON DELETE RESTRICT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT task_instances_due_after_start CHECK (due_at >= start_at)
+);
+
+CREATE TABLE IF NOT EXISTS public.task_instance_assets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  task_instance_id UUID NOT NULL REFERENCES public.task_instances (id) ON DELETE CASCADE,
+  template_asset_id UUID NULL REFERENCES public.content_template_assets (id) ON DELETE SET NULL,
+  kind public.content_asset_kind NOT NULL,
+  label TEXT NOT NULL CHECK (char_length(label) BETWEEN 1 AND 180),
+  storage_path TEXT NULL,
+  mime_type TEXT NULL,
+  byte_size BIGINT NULL CHECK (byte_size IS NULL OR byte_size BETWEEN 1 AND 52428800),
+  embed_provider public.content_embed_provider NULL,
+  embed_url TEXT NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT task_instance_assets_shape CHECK (
+    (kind = 'file' AND storage_path IS NOT NULL AND mime_type IS NOT NULL AND byte_size IS NOT NULL
+      AND embed_provider IS NULL AND embed_url IS NULL)
+    OR
+    (kind = 'embed' AND storage_path IS NULL AND mime_type IS NULL AND byte_size IS NULL
+      AND embed_provider IS NOT NULL AND embed_url IS NOT NULL)
+  )
+);
+
+CREATE TABLE IF NOT EXISTS public.student_task_progress (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  task_instance_id UUID NOT NULL REFERENCES public.task_instances (id) ON DELETE CASCADE,
+  enrollment_id UUID NOT NULL REFERENCES public.section_enrollments (id) ON DELETE CASCADE,
+  student_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  status public.task_progress_status NOT NULL DEFAULT 'NOT_OPENED',
+  opened_at TIMESTAMPTZ NULL,
+  completed_at TIMESTAMPTZ NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT student_task_progress_uidx UNIQUE (task_instance_id, enrollment_id),
+  CONSTRAINT student_task_progress_completion_shape CHECK (
+    (status IN ('COMPLETED', 'COMPLETED_LATE') AND completed_at IS NOT NULL AND opened_at IS NOT NULL)
+    OR (status = 'OPENED' AND opened_at IS NOT NULL AND completed_at IS NULL)
+    OR (status = 'NOT_OPENED' AND completed_at IS NULL)
+  )
+);
+
+CREATE INDEX IF NOT EXISTS content_templates_list_idx
+  ON public.content_templates (archived_at NULLS FIRST, updated_at DESC);
+CREATE INDEX IF NOT EXISTS content_template_assets_template_idx
+  ON public.content_template_assets (template_id, sort_order, created_at);
+CREATE INDEX IF NOT EXISTS task_instances_section_due_idx
+  ON public.task_instances (section_id, archived_at, due_at DESC);
+CREATE INDEX IF NOT EXISTS task_instance_assets_instance_idx
+  ON public.task_instance_assets (task_instance_id, sort_order, created_at);
+CREATE INDEX IF NOT EXISTS student_task_progress_student_status_idx
+  ON public.student_task_progress (student_id, status, updated_at DESC);
+CREATE INDEX IF NOT EXISTS student_task_progress_task_status_idx
+  ON public.student_task_progress (task_instance_id, status);
+
+DROP TRIGGER IF EXISTS content_templates_set_updated_at ON public.content_templates;
+CREATE TRIGGER content_templates_set_updated_at
+  BEFORE UPDATE ON public.content_templates
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS task_instances_set_updated_at ON public.task_instances;
+CREATE TRIGGER task_instances_set_updated_at
+  BEFORE UPDATE ON public.task_instances
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS student_task_progress_set_updated_at ON public.student_task_progress;
+CREATE TRIGGER student_task_progress_set_updated_at
+  BEFORE UPDATE ON public.student_task_progress
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+CREATE OR REPLACE FUNCTION public.learning_task_staff_can_manage_section(p_uid uuid, p_section_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY INVOKER
+SET search_path = public
+AS $$
+  SELECT public.is_admin(p_uid) OR public.user_leads_or_assists_section(p_uid, p_section_id);
+$$;
+
+CREATE OR REPLACE FUNCTION public.learning_task_template_staff_can_read(p_uid uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY INVOKER
+SET search_path = public
+AS $$
+  SELECT public.is_admin(p_uid) OR public.user_has_role(p_uid, 'teacher');
+$$;
+
+CREATE OR REPLACE FUNCTION public.learning_task_instance_visible_to_current_user(p_task_instance_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY INVOKER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.task_instances ti
+    JOIN public.section_enrollments e ON e.section_id = ti.section_id
+    WHERE ti.id = p_task_instance_id
+      AND (
+        public.learning_task_staff_can_manage_section(auth.uid(), ti.section_id)
+        OR e.student_id = auth.uid()
+        OR EXISTS (
+          SELECT 1 FROM public.tutor_student_rel ts
+          WHERE ts.tutor_id = auth.uid() AND ts.student_id = e.student_id
+        )
+      )
+  );
+$$;
+
+ALTER TABLE public.content_templates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.content_template_assets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.task_instances ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.task_instance_assets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.student_task_progress ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS content_templates_select_staff ON public.content_templates;
+CREATE POLICY content_templates_select_staff ON public.content_templates
+  FOR SELECT TO authenticated
+  USING (public.learning_task_template_staff_can_read(auth.uid()));
+
+DROP POLICY IF EXISTS content_templates_write_staff ON public.content_templates;
+CREATE POLICY content_templates_write_staff ON public.content_templates
+  FOR ALL TO authenticated
+  USING (public.learning_task_template_staff_can_read(auth.uid()))
+  WITH CHECK (public.learning_task_template_staff_can_read(auth.uid()) AND updated_by = auth.uid());
+
+DROP POLICY IF EXISTS content_template_assets_select_staff ON public.content_template_assets;
+CREATE POLICY content_template_assets_select_staff ON public.content_template_assets
+  FOR SELECT TO authenticated
+  USING (public.learning_task_template_staff_can_read(auth.uid()));
+
+DROP POLICY IF EXISTS content_template_assets_write_staff ON public.content_template_assets;
+CREATE POLICY content_template_assets_write_staff ON public.content_template_assets
+  FOR ALL TO authenticated
+  USING (public.learning_task_template_staff_can_read(auth.uid()))
+  WITH CHECK (public.learning_task_template_staff_can_read(auth.uid()));
+
+DROP POLICY IF EXISTS task_instances_select_scope ON public.task_instances;
+CREATE POLICY task_instances_select_scope ON public.task_instances
+  FOR SELECT TO authenticated
+  USING (public.learning_task_instance_visible_to_current_user(id));
+
+DROP POLICY IF EXISTS task_instances_write_staff ON public.task_instances;
+CREATE POLICY task_instances_write_staff ON public.task_instances
+  FOR ALL TO authenticated
+  USING (public.learning_task_staff_can_manage_section(auth.uid(), section_id))
+  WITH CHECK (public.learning_task_staff_can_manage_section(auth.uid(), section_id) AND updated_by = auth.uid());
+
+DROP POLICY IF EXISTS task_instance_assets_select_scope ON public.task_instance_assets;
+CREATE POLICY task_instance_assets_select_scope ON public.task_instance_assets
+  FOR SELECT TO authenticated
+  USING (public.learning_task_instance_visible_to_current_user(task_instance_id));
+
+DROP POLICY IF EXISTS task_instance_assets_write_staff ON public.task_instance_assets;
+CREATE POLICY task_instance_assets_write_staff ON public.task_instance_assets
+  FOR ALL TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.task_instances ti
+      WHERE ti.id = task_instance_assets.task_instance_id
+        AND public.learning_task_staff_can_manage_section(auth.uid(), ti.section_id)
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.task_instances ti
+      WHERE ti.id = task_instance_assets.task_instance_id
+        AND public.learning_task_staff_can_manage_section(auth.uid(), ti.section_id)
+    )
+  );
+
+DROP POLICY IF EXISTS student_task_progress_select_scope ON public.student_task_progress;
+CREATE POLICY student_task_progress_select_scope ON public.student_task_progress
+  FOR SELECT TO authenticated
+  USING (
+    student_id = auth.uid()
+    OR public.learning_task_instance_visible_to_current_user(task_instance_id)
+  );
+
+DROP POLICY IF EXISTS student_task_progress_student_update ON public.student_task_progress;
+CREATE POLICY student_task_progress_student_update ON public.student_task_progress
+  FOR UPDATE TO authenticated
+  USING (student_id = auth.uid())
+  WITH CHECK (student_id = auth.uid());
+
+DROP POLICY IF EXISTS student_task_progress_staff_insert ON public.student_task_progress;
+CREATE POLICY student_task_progress_staff_insert ON public.student_task_progress
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    student_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM public.task_instances ti
+      WHERE ti.id = student_task_progress.task_instance_id
+        AND public.learning_task_staff_can_manage_section(auth.uid(), ti.section_id)
+    )
+  );
+
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'learning-task-assets',
+  'learning-task-assets',
+  FALSE,
+  52428800,
+  ARRAY['application/pdf', 'image/png', 'image/jpeg', 'image/webp', 'video/mp4', 'video/webm']::text[]
+)
+ON CONFLICT (id) DO UPDATE
+SET public = FALSE,
+    file_size_limit = 52428800,
+    allowed_mime_types = ARRAY['application/pdf', 'image/png', 'image/jpeg', 'image/webp', 'video/mp4', 'video/webm']::text[];
+
+DROP POLICY IF EXISTS learning_task_assets_staff_write ON storage.objects;
+CREATE POLICY learning_task_assets_staff_write ON storage.objects
+  FOR ALL TO authenticated
+  USING (bucket_id = 'learning-task-assets' AND public.learning_task_template_staff_can_read(auth.uid()))
+  WITH CHECK (bucket_id = 'learning-task-assets' AND public.learning_task_template_staff_can_read(auth.uid()));
