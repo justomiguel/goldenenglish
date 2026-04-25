@@ -114,6 +114,7 @@ describe("loadAdminCohortCollectionsBulk", () => {
       profiles: [],
       payments: [],
       scholarships: [],
+      promotions: [],
       plans: [],
     };
     const rpc = vi.fn().mockResolvedValue({ data: raw, error: null });

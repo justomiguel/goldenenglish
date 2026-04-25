@@ -12,6 +12,7 @@ import type { StudentPaymentRow } from "@/components/student/StudentPaymentsHist
 import { studentReceiptSignedUrl } from "@/lib/payments/studentReceiptSignedUrl";
 import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
 import { submitStudentPaymentReceipt } from "@/app/[locale]/dashboard/student/payments/actions";
+import { submitEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/student/payments/submitEnrollmentFeeReceiptAction";
 import type { Locale } from "@/types/i18n";
 
 export const metadata: Metadata = {
@@ -57,32 +58,36 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
         labels={dict.dashboard.student}
         paymentsBlockedMessage={paymentsBlockedMessage}
         submitReceiptAction={submitStudentPaymentReceipt}
+        submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceipt}
       />
     );
   }
 
   const { data: scholarshipData } = await supabase
-    .from("student_scholarships")
+    .from("section_enrollment_scholarships")
     .select(
-      "discount_percent, valid_from_year, valid_from_month, valid_until_year, valid_until_month, is_active",
+      "id, section_id, discount_percent, note, valid_from_year, valid_from_month, valid_until_year, valid_until_month, is_active",
     )
-    .eq("student_id", user.id)
-    .maybeSingle();
-
-  const scholarship: ScholarshipRow | null = scholarshipData
-    ? {
-        discount_percent: Number(scholarshipData.discount_percent),
-        valid_from_year: scholarshipData.valid_from_year as number,
-        valid_from_month: scholarshipData.valid_from_month as number,
-        valid_until_year: scholarshipData.valid_until_year as number | null,
-        valid_until_month: scholarshipData.valid_until_month as number | null,
-        is_active: Boolean(scholarshipData.is_active),
-      }
-    : null;
+    .eq("student_id", user.id);
+  const scholarshipsBySection = new Map<string, ScholarshipRow[]>();
+  for (const row of (scholarshipData ?? []) as Array<ScholarshipRow & { section_id: string }>) {
+    const list = scholarshipsBySection.get(row.section_id) ?? [];
+    list.push({
+      id: row.id,
+      discount_percent: Number(row.discount_percent),
+      note: row.note ?? null,
+      valid_from_year: row.valid_from_year,
+      valid_from_month: row.valid_from_month,
+      valid_until_year: row.valid_until_year,
+      valid_until_month: row.valid_until_month,
+      is_active: Boolean(row.is_active),
+    });
+    scholarshipsBySection.set(row.section_id, list);
+  }
 
   const { data: payments } = await supabase
     .from("payments")
-    .select("id, month, year, amount, status, receipt_url, updated_at")
+    .select("id, section_id, month, year, amount, status, receipt_url, updated_at")
     .eq("student_id", user.id)
     .order("year", { ascending: false })
     .order("month", { ascending: false });
@@ -105,10 +110,13 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
       );
       const y = p.year as number;
       const mo = p.month as number;
+      const scholarships = p.section_id
+        ? scholarshipsBySection.get(p.section_id as string) ?? []
+        : [];
       const displayAmount =
         st === "exempt"
           ? amount
-          : effectiveAmountAfterScholarship(amount, y, mo, scholarship);
+          : effectiveAmountAfterScholarship(amount, y, mo, scholarships);
       return {
         id: p.id as string,
         month: mo,
@@ -126,7 +134,7 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
   const monthlyView = await loadStudentMonthlyPaymentsView(
     supabase,
     user.id,
-    scholarship,
+    [],
     { todayYear: today.getFullYear(), todayMonth: today.getMonth() + 1 },
   );
 
@@ -142,6 +150,7 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
       labels={dict.dashboard.student}
       paymentsBlockedMessage={paymentsBlockedMessage}
       submitReceiptAction={submitStudentPaymentReceipt}
+      submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceipt}
     />
   );
 }

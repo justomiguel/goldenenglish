@@ -15,7 +15,11 @@ const STATUS_ICON: Record<StudentMonthlyPaymentCell["status"], LucideIcon> = {
 function classesFor(
   status: StudentMonthlyPaymentCell["status"],
   isOverdue: boolean,
+  hasScholarshipDiscount: boolean,
 ): string {
+  if (hasScholarshipDiscount) {
+    return "border-[var(--color-success)] bg-[var(--color-success)]/20 text-[var(--color-success)] shadow-[inset_0_0_0_1px_var(--color-success)]";
+  }
   switch (status) {
     case "approved":
       return "border-[var(--color-success)] bg-[var(--color-success)]/15 text-[var(--color-success)]";
@@ -39,6 +43,7 @@ export interface SectionCollectionsMonthCellProps {
   monthLabel: string;
   todayMonth: number;
   year: number;
+  scholarshipDiscountPercent?: number | null;
   ariaPrefix: string;
   locale: string;
   labels: {
@@ -92,6 +97,7 @@ export function SectionCollectionsMonthCell({
   monthLabel,
   todayMonth,
   year,
+  scholarshipDiscountPercent,
   ariaPrefix,
   locale,
   labels,
@@ -101,19 +107,28 @@ export function SectionCollectionsMonthCell({
   const todayIdx = year * 12 + todayMonth;
   const isOverdue = cell.status === "due" && cellIdx < todayIdx;
   const expectedAmount = formatExpectedAmount(cell, locale);
+  const hasScholarshipDiscount = scholarshipDiscountPercent != null;
   const aria = [
     ariaPrefix,
     monthLabel,
     statusLabel(cell.status, labels),
+    hasScholarshipDiscount ? `${scholarshipDiscountPercent}%` : null,
     expectedAmount ? `${labels.expectedAmount}: ${expectedAmount}` : null,
   ].filter(Boolean).join(" · ");
   return (
     <span
       aria-label={aria}
       title={aria}
-      className={`inline-flex h-7 min-w-[28px] items-center justify-center rounded border ${classesFor(cell.status, isOverdue)}`}
+      className={`inline-flex h-8 min-w-[34px] flex-col items-center justify-center rounded border text-[10px] font-semibold leading-none ${classesFor(cell.status, isOverdue, hasScholarshipDiscount)}`}
     >
-      <Icon className="h-3.5 w-3.5" aria-hidden />
+      {hasScholarshipDiscount ? (
+        <>
+          <span>{scholarshipDiscountPercent}%</span>
+          <Icon className="mt-0.5 h-2.5 w-2.5" aria-hidden />
+        </>
+      ) : (
+        <Icon className="h-3.5 w-3.5" aria-hidden />
+      )}
     </span>
   );
 }

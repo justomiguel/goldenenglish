@@ -60,7 +60,7 @@ function buildView() {
         studentId: "s1",
         studentName: "Ana Pérez",
         documentLabel: "DOC-1",
-        scholarship: null,
+        scholarships: [],
         enrolledAt: "2026-01-01",
         payments: [
           {

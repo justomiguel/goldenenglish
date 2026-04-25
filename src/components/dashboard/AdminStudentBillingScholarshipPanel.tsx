@@ -2,61 +2,101 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { upsertStudentScholarship } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/upsertStudentScholarship";
+import {
+  createStudentScholarship,
+  deactivateStudentScholarship,
+  updateStudentScholarship,
+} from "@/app/[locale]/dashboard/admin/users/[userId]/billing/upsertStudentScholarship";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
-import type { AdminBillingScholarship } from "@/components/dashboard/AdminStudentBillingEntry";
-import type { Dictionary } from "@/types/i18n";
-import type { Locale } from "@/types/i18n";
+import { AdminStudentBillingScholarshipDiscountMonths } from "@/components/dashboard/AdminStudentBillingScholarshipDiscountMonths";
+import type { AdminBillingScholarship } from "@/types/adminStudentBilling";
+import type { Dictionary, Locale } from "@/types/i18n";
 
 type BillingLabels = Dictionary["admin"]["billing"];
 
 export interface AdminStudentBillingScholarshipPanelProps {
   locale: Locale;
   studentId: string;
-  scholarship: AdminBillingScholarship;
+  sectionId: string | null;
+  sectionName: string | null;
+  scholarships: AdminBillingScholarship[];
   labels: BillingLabels;
   busy: boolean;
   setBusy: (v: boolean) => void;
   setMsg: (v: string | null) => void;
 }
 
+function formatMonthYear(month: number, year: number): string {
+  return `${String(month).padStart(2, "0")}/${year}`;
+}
+
+function activeScholarships(rows: AdminBillingScholarship[]) {
+  return rows.filter((s) => s.is_active && s.discount_percent > 0);
+}
+
 export function AdminStudentBillingScholarshipPanel({
   locale,
   studentId,
-  scholarship,
+  sectionId,
+  sectionName,
+  scholarships,
   labels,
   busy,
   setBusy,
   setMsg,
 }: AdminStudentBillingScholarshipPanelProps) {
   const router = useRouter();
-  const [pct, setPct] = useState(String(scholarship?.discount_percent ?? ""));
-  const [note, setNote] = useState(scholarship?.note ?? "");
-  const [vfY, setVfY] = useState(String(scholarship?.valid_from_year ?? new Date().getFullYear()));
-  const [vfM, setVfM] = useState(String(scholarship?.valid_from_month ?? 1));
-  const [vuY, setVuY] = useState(
-    scholarship?.valid_until_year != null ? String(scholarship.valid_until_year) : "",
+  const [visibleScholarships, setVisibleScholarships] = useState(
+    activeScholarships(scholarships),
   );
-  const [vuM, setVuM] = useState(
-    scholarship?.valid_until_month != null ? String(scholarship.valid_until_month) : "",
-  );
-  const [schActive, setSchActive] = useState(scholarship?.is_active ?? true);
+  const [editing, setEditing] = useState<AdminBillingScholarship | null>(null);
+  const [pct, setPct] = useState("");
+  const [note, setNote] = useState("");
+  const [vfY, setVfY] = useState(String(new Date().getFullYear()));
+  const [vfM, setVfM] = useState("1");
+  const [vuY, setVuY] = useState("");
+  const [vuM, setVuM] = useState("");
+  const [schActive, setSchActive] = useState(true);
+
+  function resetForm() {
+    setEditing(null);
+    setPct("");
+    setNote("");
+    setVfY(String(new Date().getFullYear()));
+    setVfM("1");
+    setVuY("");
+    setVuM("");
+    setSchActive(true);
+  }
+
+  function editScholarship(row: AdminBillingScholarship) {
+    setEditing(row);
+    setPct(String(row.discount_percent));
+    setNote(row.note ?? "");
+    setVfY(String(row.valid_from_year));
+    setVfM(String(row.valid_from_month));
+    setVuY(row.valid_until_year == null ? "" : String(row.valid_until_year));
+    setVuM(row.valid_until_month == null ? "" : String(row.valid_until_month));
+    setSchActive(row.is_active);
+  }
 
   async function saveScholarship(e: React.FormEvent) {
     e.preventDefault();
+    if (!sectionId) return;
     setBusy(true);
     setMsg(null);
     const p = Number(pct);
-    if (Number.isNaN(p) || p < 0 || p > 100) {
+    if (Number.isNaN(p) || p <= 0 || p > 100) {
       setMsg(labels.scholarshipInvalidPercent);
       setBusy(false);
       return;
     }
-    const res = await upsertStudentScholarship({
+    const payload = {
       locale,
       studentId,
+      sectionId,
       discountPercent: p,
       note: note.trim() || undefined,
       validFromYear: Number(vfY),
@@ -64,38 +104,112 @@ export function AdminStudentBillingScholarshipPanel({
       validUntilYear: vuY.trim() === "" ? null : Number(vuY),
       validUntilMonth: vuM.trim() === "" ? null : Number(vuM),
       isActive: schActive,
+    };
+    const res = editing
+      ? await updateStudentScholarship({ ...payload, scholarshipId: editing.id })
+      : await createStudentScholarship(payload);
+    setBusy(false);
+    setMsg(res.ok ? labels.saved : res.message ?? labels.error);
+    if (res.ok) {
+      resetForm();
+      router.refresh();
+    }
+  }
+
+  async function removeScholarship(row: AdminBillingScholarship) {
+    if (!sectionId) return;
+    setBusy(true);
+    setMsg(null);
+    const res = await deactivateStudentScholarship({
+      locale,
+      studentId,
+      sectionId,
+      scholarshipId: row.id,
     });
     setBusy(false);
     setMsg(res.ok ? labels.saved : res.message ?? labels.error);
-    if (res.ok) router.refresh();
+    if (res.ok) {
+      setVisibleScholarships((current) => current.filter((s) => s.id !== row.id));
+      if (editing?.id === row.id) resetForm();
+      router.refresh();
+    }
   }
 
   return (
     <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h2 className="font-semibold text-[var(--color-secondary)]">{labels.scholarshipTitle}</h2>
-      <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.scholarshipLead}</p>
+      <div>
+        <h2 className="font-semibold text-[var(--color-secondary)]">{labels.scholarshipTitle}</h2>
+        {sectionName ? (
+          <p className="mt-0.5 text-xs font-medium text-[var(--color-muted-foreground)]">
+            {labels.panelAppliesTo.replace("{section}", sectionName)}
+          </p>
+        ) : null}
+        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.scholarshipLead}</p>
+      </div>
+
+      {visibleScholarships.length > 0 ? (
+        <div className="mt-3 space-y-3" aria-live="polite">
+          <p className="text-sm font-semibold text-[var(--color-foreground)]">
+            {labels.scholarshipsActiveTitle}
+          </p>
+          {visibleScholarships.map((row) => (
+            <article
+              key={row.id}
+              className="rounded-[var(--layout-border-radius)] border border-[var(--color-info)] bg-[var(--color-info)]/10 px-4 py-3"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-[var(--color-foreground)]">
+                    {labels.scholarshipCurrentActive.replace("{percent}", String(row.discount_percent))}
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+                    {labels.scholarshipCurrentFrom}: {formatMonthYear(row.valid_from_month, row.valid_from_year)} ·{" "}
+                    {labels.scholarshipCurrentUntil}:{" "}
+                    {row.valid_until_year != null && row.valid_until_month != null
+                      ? formatMonthYear(row.valid_until_month, row.valid_until_year)
+                      : labels.scholarshipCurrentNoEnd}
+                  </p>
+                  {row.note ? (
+                    <p className="mt-1 text-xs text-[var(--color-foreground)]">
+                      {labels.scholarshipCurrentNote}: {row.note}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => editScholarship(row)}
+                    className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium text-[var(--color-secondary)] disabled:opacity-40"
+                  >
+                    {labels.editScholarship}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => removeScholarship(row)}
+                    className="rounded-[var(--layout-border-radius)] border border-[var(--color-error)] px-3 py-1.5 text-xs font-medium text-[var(--color-error)] disabled:opacity-40"
+                  >
+                    {labels.deactivateScholarship}
+                  </button>
+                </div>
+              </div>
+              <AdminStudentBillingScholarshipDiscountMonths scholarship={row} labels={labels} />
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-3 text-sm text-[var(--color-muted-foreground)]">{labels.scholarshipNone}</p>
+      )}
+
       <form onSubmit={saveScholarship} className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
           <Label htmlFor="sch-pct">{labels.scholarshipPercent}</Label>
-          <Input
-            id="sch-pct"
-            type="number"
-            min={0}
-            max={100}
-            step={0.5}
-            value={pct}
-            onChange={(e) => setPct(e.target.value)}
-            required
-            className="mt-1"
-          />
+          <Input id="sch-pct" type="number" min={0.5} max={100} step={0.5} value={pct} onChange={(e) => setPct(e.target.value)} required className="mt-1" />
         </div>
         <div className="flex items-end gap-2">
           <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={schActive}
-              onChange={(e) => setSchActive(e.target.checked)}
-            />
+            <input type="checkbox" checked={schActive} onChange={(e) => setSchActive(e.target.checked)} />
             {labels.scholarshipActive}
           </label>
         </div>
@@ -106,43 +220,26 @@ export function AdminStudentBillingScholarshipPanel({
         <div>
           <Label>{labels.validFrom}</Label>
           <div className="mt-1 flex gap-2">
-            <Input
-              type="number"
-              value={vfM}
-              onChange={(e) => setVfM(e.target.value)}
-              aria-label={labels.scholarshipAriaMonthFrom}
-            />
-            <Input
-              type="number"
-              value={vfY}
-              onChange={(e) => setVfY(e.target.value)}
-              aria-label={labels.scholarshipAriaYearFrom}
-            />
+            <Input type="number" value={vfM} onChange={(e) => setVfM(e.target.value)} aria-label={labels.scholarshipAriaMonthFrom} />
+            <Input type="number" value={vfY} onChange={(e) => setVfY(e.target.value)} aria-label={labels.scholarshipAriaYearFrom} />
           </div>
         </div>
         <div>
           <Label>{labels.validUntilOptional}</Label>
           <div className="mt-1 flex gap-2">
-            <Input
-              type="number"
-              value={vuM}
-              onChange={(e) => setVuM(e.target.value)}
-              placeholder={labels.scholarshipPlaceholderMonth}
-              aria-label={labels.scholarshipAriaMonthUntil}
-            />
-            <Input
-              type="number"
-              value={vuY}
-              onChange={(e) => setVuY(e.target.value)}
-              placeholder={labels.scholarshipPlaceholderYear}
-              aria-label={labels.scholarshipAriaYearUntil}
-            />
+            <Input type="number" value={vuM} onChange={(e) => setVuM(e.target.value)} placeholder={labels.scholarshipPlaceholderMonth} aria-label={labels.scholarshipAriaMonthUntil} />
+            <Input type="number" value={vuY} onChange={(e) => setVuY(e.target.value)} placeholder={labels.scholarshipPlaceholderYear} aria-label={labels.scholarshipAriaYearUntil} />
           </div>
         </div>
-        <div className="sm:col-span-2">
-          <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px]">
-            {labels.saveScholarship}
+        <div className="flex flex-wrap gap-2 sm:col-span-2">
+          <Button type="submit" disabled={busy || !sectionId} isLoading={busy} className="min-h-[44px]">
+            {editing ? labels.updateScholarship : labels.addScholarship}
           </Button>
+          {editing ? (
+            <Button type="button" variant="ghost" disabled={busy} onClick={resetForm} className="min-h-[44px]">
+              {labels.cancel}
+            </Button>
+          ) : null}
         </div>
       </form>
     </section>

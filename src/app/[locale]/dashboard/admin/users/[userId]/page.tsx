@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadAdminUserDetail } from "@/lib/dashboard/loadAdminUserDetail";
+import { loadAdminStudentBillingTabData } from "@/lib/dashboard/loadAdminStudentBillingTabData";
 import { createClient } from "@/lib/supabase/server";
 import { AdminUserDetailEntry } from "@/components/dashboard/AdminUserDetailEntry";
+import type { Locale } from "@/types/i18n";
 
 interface PageProps {
   params: Promise<{ locale: string; userId: string }>;
@@ -48,17 +50,17 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
   const detail = await loadAdminUserDetail(userId, locale, dict.common.emptyValue, viewerMayInlineEdit);
   if (!detail) notFound();
 
-  const billingHref =
-    detail.role === "student"
-      ? `/${locale}/dashboard/admin/users/${userId}/billing`
-      : undefined;
+  const billing = detail.role === "student"
+    ? await loadAdminStudentBillingTabData(supabase, userId)
+    : null;
 
   return (
     <AdminUserDetailEntry
-      locale={locale}
+      locale={locale as Locale}
       labels={dict.admin.users}
+      billingLabels={dict.admin.billing}
       detail={detail}
-      billingHref={billingHref}
+      billing={billing}
     />
   );
 }

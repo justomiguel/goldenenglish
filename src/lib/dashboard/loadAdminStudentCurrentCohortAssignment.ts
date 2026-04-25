@@ -11,15 +11,20 @@ export type AdminStudentCurrentCohortSectionOption = {
   maxStudents: number;
 };
 
+export type AdminStudentCurrentCohortEnrollment = {
+  enrollmentId: string;
+  sectionId: string;
+  sectionName: string;
+};
+
 export type AdminStudentCurrentCohortAssignment = {
   cohortId: string | null;
   cohortName: string | null;
   sections: AdminStudentCurrentCohortSectionOption[];
-  current: {
-    enrollmentId: string;
-    sectionId: string;
-    sectionName: string;
-  } | null;
+  /** @deprecated Use `currentSections` instead. Kept for backward compat. */
+  current: AdminStudentCurrentCohortEnrollment | null;
+  /** All active enrollments for this student in the current cohort. */
+  currentSections: AdminStudentCurrentCohortEnrollment[];
   hasMultipleCurrentAssignments: boolean;
 };
 
@@ -66,6 +71,7 @@ export async function loadAdminStudentCurrentCohortAssignment(
       cohortName: null,
       sections: [],
       current: null,
+      currentSections: [],
       hasMultipleCurrentAssignments: false,
     };
   }
@@ -91,6 +97,7 @@ export async function loadAdminStudentCurrentCohortAssignment(
       cohortName: cohort.name,
       sections: [],
       current: null,
+      currentSections: [],
       hasMultipleCurrentAssignments: false,
     };
   }
@@ -128,19 +135,18 @@ export async function loadAdminStudentCurrentCohortAssignment(
   }));
   const sectionNameById = new Map(sections.map((section) => [section.id, section.name]));
   const activeRows = (studentResult.data ?? []) as Array<{ id: string; section_id: string }>;
-  const currentRow = activeRows[0] ?? null;
+  const currentSections: AdminStudentCurrentCohortEnrollment[] = activeRows.map((row) => ({
+    enrollmentId: row.id,
+    sectionId: row.section_id,
+    sectionName: sectionNameById.get(row.section_id) ?? row.section_id,
+  }));
 
   return {
     cohortId: cohort.id,
     cohortName: cohort.name,
     sections,
-    current: currentRow
-      ? {
-          enrollmentId: currentRow.id,
-          sectionId: currentRow.section_id,
-          sectionName: sectionNameById.get(currentRow.section_id) ?? currentRow.section_id,
-        }
-      : null,
+    current: currentSections[0] ?? null,
+    currentSections,
     hasMultipleCurrentAssignments: activeRows.length > 1,
   };
 }

@@ -3,10 +3,11 @@ import type { SectionScheduleSlot } from "@/types/academics";
 import type {
   StudentMonthlyPaymentCell,
   StudentMonthlyPaymentSectionRow,
+  EnrollmentFeeReceiptStatus,
 } from "@/types/studentMonthlyPayments";
 import {
   effectiveAmountAfterScholarship,
-  type ScholarshipRow,
+  type ScholarshipRows,
 } from "@/lib/billing/scholarshipPeriod";
 import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
 import {
@@ -35,7 +36,7 @@ export interface BuildStudentMonthlyPaymentsRowInput {
   plans: SectionFeePlan[];
   /** All known payment rows for this student in the calendar year. */
   payments: StudentMonthlyPaymentRecord[];
-  scholarship: ScholarshipRow | null;
+  scholarship: ScholarshipRows;
   todayYear: number;
   todayMonth: number;
   /** ISO date (YYYY-MM-DD). Inicio operativo de la sección. */
@@ -56,6 +57,12 @@ export interface BuildStudentMonthlyPaymentsRowInput {
    * collection matrices can use the fee-plan year as the billing contract.
    */
   billingScope?: "operational-window" | "plan-year";
+  /** `section_enrollments.id` for this student+section row. */
+  enrollmentId?: string | null;
+  /** Review status of the student-uploaded enrollment fee receipt. */
+  enrollmentFeeReceiptStatus?: EnrollmentFeeReceiptStatus | null;
+  /** Pre-signed URL for the uploaded enrollment fee receipt. */
+  enrollmentFeeReceiptSignedUrl?: string | null;
 }
 
 function parseUtcDate(iso: string | null): Date | null {
@@ -157,6 +164,15 @@ export function buildStudentMonthlyPaymentsRow(
     const expected = plan && prorated.code === "ok"
       ? effectiveAmountAfterScholarship(prorated.amount, year, m, scholarship)
       : null;
+    const fullMonthExpected =
+      plan && prorated.code === "ok"
+        ? effectiveAmountAfterScholarship(
+            fallbackFullMonthProration(plan.monthlyFee).amount,
+            year,
+            m,
+            scholarship,
+          )
+        : null;
     const proration =
       plan && prorated.code === "ok"
         ? { numerator: prorated.numerator, denominator: prorated.denominator }
@@ -183,6 +199,7 @@ export function buildStudentMonthlyPaymentsRow(
       year,
       status,
       expectedAmount: expected,
+      fullMonthExpectedAmount: fullMonthExpected,
       currency: plan?.currency ?? null,
       proration,
       recordedAmount: row?.amount ?? null,
@@ -204,5 +221,8 @@ export function buildStudentMonthlyPaymentsRow(
     enrollmentFeeCurrency: enrollmentFeeAmount > 0 ? currentPlan?.currency ?? null : null,
     cells,
     currentPlan,
+    enrollmentId: input.enrollmentId ?? null,
+    enrollmentFeeReceiptStatus: input.enrollmentFeeReceiptStatus ?? null,
+    enrollmentFeeReceiptSignedUrl: input.enrollmentFeeReceiptSignedUrl ?? null,
   };
 }

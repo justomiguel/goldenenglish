@@ -18,6 +18,7 @@ export interface CohortCollectionsBulkRaw {
   profiles: CohortCollectionsBulkProfileRaw[];
   payments: CohortCollectionsBulkPaymentRaw[];
   scholarships: CohortCollectionsBulkScholarshipRaw[];
+  promotions: CohortCollectionsBulkStudentPromotionRaw[];
   plans: SectionFeePlanRowDb[];
 }
 
@@ -35,6 +36,14 @@ export interface CohortCollectionsBulkEnrollmentRaw {
   section_id: string;
   student_id: string;
   created_at: string | null;
+  enrollment_fee_exempt?: boolean | null;
+  enrollment_exempt_reason?: string | null;
+  scholarship_discount_percent?: number | string | null;
+  scholarship_valid_from_year?: number | null;
+  scholarship_valid_from_month?: number | null;
+  scholarship_valid_until_year?: number | null;
+  scholarship_valid_until_month?: number | null;
+  scholarship_is_active?: boolean | null;
 }
 
 export interface CohortCollectionsBulkProfileRaw {
@@ -42,6 +51,8 @@ export interface CohortCollectionsBulkProfileRaw {
   first_name: string | null;
   last_name: string | null;
   dni_or_passport: string | null;
+  enrollment_fee_exempt: boolean | null;
+  enrollment_exempt_reason: string | null;
 }
 
 export interface CohortCollectionsBulkPaymentRaw {
@@ -56,13 +67,26 @@ export interface CohortCollectionsBulkPaymentRaw {
 }
 
 export interface CohortCollectionsBulkScholarshipRaw {
+  id: string;
+  section_id: string;
   student_id: string;
   discount_percent: number | string;
+  note: string | null;
   valid_from_year: number;
   valid_from_month: number;
   valid_until_year: number | null;
   valid_until_month: number | null;
   is_active: boolean;
+}
+
+export interface CohortCollectionsBulkStudentPromotionRaw {
+  student_id: string;
+  code_snapshot: string;
+  promotion_snapshot: Record<string, unknown> | null;
+  applies_to_snapshot: "enrollment" | "monthly" | "both";
+  monthly_months_remaining: number | null;
+  enrollment_consumed: boolean | null;
+  applied_at: string | null;
 }
 
 /**

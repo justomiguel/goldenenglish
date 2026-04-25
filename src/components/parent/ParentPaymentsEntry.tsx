@@ -8,9 +8,8 @@ import { Label } from "@/components/atoms/Label";
 import { StudentPaymentsHistory } from "@/components/student/StudentPaymentsHistory";
 import type { StudentPaymentRow } from "@/components/student/StudentPaymentsHistory";
 import { StudentMonthlyPaymentsStrip } from "@/components/student/StudentMonthlyPaymentsStrip";
-import {
-  type SubmitMonthlyReceiptAction,
-} from "@/components/student/StudentMonthlyPaymentFocus";
+import { type SubmitMonthlyReceiptAction } from "@/components/student/StudentMonthlyPaymentFocus";
+import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { StudentMonthlyPaymentsView } from "@/types/studentMonthlyPayments";
@@ -57,8 +56,10 @@ export interface ParentPaymentsEntryProps {
   financialAccessRevoked: boolean;
   labels: ParentLabels;
   studentLabels: StudentLabels;
-  /** Server action que sube el comprobante en nombre del alumno. */
+  /** Server action que sube el comprobante mensual en nombre del alumno. */
   submitReceiptAction: SubmitMonthlyReceiptAction;
+  /** Server action que sube el comprobante de matrícula en nombre del alumno. */
+  submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
 }
 
 export function ParentPaymentsEntry({
@@ -73,6 +74,7 @@ export function ParentPaymentsEntry({
   labels,
   studentLabels,
   submitReceiptAction,
+  submitEnrollmentFeeReceiptAction,
 }: ParentPaymentsEntryProps) {
   const router = useRouter();
 
@@ -145,6 +147,7 @@ export function ParentPaymentsEntry({
                   labels={studentLabels.monthly}
                   paymentLabels={studentLabels}
                   submitAction={submitReceiptAction}
+                  submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceiptAction}
                 />
               ) : null}
               <h2 className="mt-10 font-display text-xl font-semibold text-[var(--color-primary)]">

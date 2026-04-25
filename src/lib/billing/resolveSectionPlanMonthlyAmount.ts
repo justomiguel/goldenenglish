@@ -91,12 +91,17 @@ export async function resolveSectionPlanMonthlyAmount(
 
   const { data: enrolment } = await supabase
     .from("section_enrollments")
-    .select("created_at")
+    .select("id, created_at")
     .eq("section_id", sectionId)
     .eq("student_id", studentId)
     .eq("status", "active")
     .maybeSingle();
-  const enrolledAt = parseUtcDate((enrolment as { created_at: string | null } | null)?.created_at ?? null);
+  type EnrollmentRow = {
+    id: string;
+    created_at: string | null;
+  };
+  const enrollmentRow = enrolment as EnrollmentRow | null;
+  const enrolledAt = parseUtcDate(enrollmentRow?.created_at ?? null);
 
   const monthRange = monthBounds(year, month);
   const sectionInMonth = sectionRange ? intersectDateRange(sectionRange, monthRange) : null;
@@ -125,25 +130,31 @@ export async function resolveSectionPlanMonthlyAmount(
   });
   if (prorated.code !== "ok") return { code: "out_of_period" };
 
-  const { data: scholarshipRow } = await supabase
-    .from("student_scholarships")
-    .select(
-      "discount_percent, valid_from_year, valid_from_month, valid_until_year, valid_until_month, is_active",
-    )
-    .eq("student_id", studentId)
-    .maybeSingle();
-  const scholarship: ScholarshipRow | null = scholarshipRow
-    ? {
-        discount_percent: Number((scholarshipRow as { discount_percent: number }).discount_percent),
-        valid_from_year: (scholarshipRow as { valid_from_year: number }).valid_from_year,
-        valid_from_month: (scholarshipRow as { valid_from_month: number }).valid_from_month,
-        valid_until_year: (scholarshipRow as { valid_until_year: number | null }).valid_until_year,
-        valid_until_month: (scholarshipRow as { valid_until_month: number | null }).valid_until_month,
-        is_active: Boolean((scholarshipRow as { is_active: boolean }).is_active),
-      }
-    : null;
+  const { data: scholarshipRows } = enrollmentRow?.id
+    ? await supabase
+        .from("section_enrollment_scholarships")
+        .select(
+          "id, discount_percent, note, valid_from_year, valid_from_month, valid_until_year, valid_until_month, is_active",
+        )
+        .eq("enrollment_id", enrollmentRow.id)
+    : { data: [] };
+  const scholarships: ScholarshipRow[] = ((scholarshipRows ?? []) as Array<ScholarshipRow>).map((row) => ({
+    id: row.id,
+    discount_percent: Number(row.discount_percent),
+    note: row.note ?? null,
+    valid_from_year: row.valid_from_year,
+    valid_from_month: row.valid_from_month,
+    valid_until_year: row.valid_until_year,
+    valid_until_month: row.valid_until_month,
+    is_active: Boolean(row.is_active),
+  }));
 
-  const adjusted = effectiveAmountAfterScholarship(prorated.amount, year, month, scholarship);
+  const adjusted = effectiveAmountAfterScholarship(
+    prorated.amount,
+    year,
+    month,
+    scholarships,
+  );
   return {
     code: "ok",
     amount: adjusted ?? prorated.amount,

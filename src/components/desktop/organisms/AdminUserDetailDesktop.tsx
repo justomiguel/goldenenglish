@@ -3,19 +3,29 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import type { Locale } from "@/types/i18n";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
+import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { AdminUserDetailPanel } from "@/components/dashboard/AdminUserDetailPanel";
 
 type UserLabels = Dictionary["admin"]["users"];
+type BillingLabels = Dictionary["admin"]["billing"];
 
 export interface AdminUserDetailDesktopProps {
-  locale: string;
+  locale: Locale;
   labels: UserLabels;
+  billingLabels: BillingLabels;
   detail: AdminUserDetailVM;
-  billingHref?: string;
+  billing: AdminStudentBillingTabData | null;
 }
 
-export function AdminUserDetailDesktop({ locale, labels, detail, billingHref }: AdminUserDetailDesktopProps) {
+export function AdminUserDetailDesktop({
+  locale,
+  labels,
+  billingLabels,
+  detail,
+  billing,
+}: AdminUserDetailDesktopProps) {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <Link
@@ -27,16 +37,13 @@ export function AdminUserDetailDesktop({ locale, labels, detail, billingHref }: 
         {labels.detailBack}
       </Link>
       <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailLead}</p>
-      {billingHref ? (
-        <Link
-          href={billingHref}
-          title={labels.tipDetailBillingLink}
-          className="inline-flex min-h-[44px] items-center text-sm font-semibold text-[var(--color-primary)] underline-offset-2 hover:underline"
-        >
-          {labels.detailBillingLink}
-        </Link>
-      ) : null}
-      <AdminUserDetailPanel locale={locale} detail={detail} labels={labels} />
+      <AdminUserDetailPanel
+        locale={locale}
+        detail={detail}
+        labels={labels}
+        billingLabels={billingLabels}
+        billing={billing}
+      />
     </div>
   );
 }

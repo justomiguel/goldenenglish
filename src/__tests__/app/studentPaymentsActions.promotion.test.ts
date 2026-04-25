@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
-import { applyPromotionCodeForStudent } from "@/app/[locale]/dashboard/student/payments/actions";
+import { applyPromotionCodeForStudent } from "@/app/[locale]/dashboard/student/payments/applyPromotionCodeForStudentAction";
 import { dictEn } from "@/test/dictEn";
 import { mockCreateClient } from "./studentPaymentsActions.shared";
 

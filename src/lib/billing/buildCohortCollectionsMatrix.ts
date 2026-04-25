@@ -9,11 +9,14 @@ import type { StudentMonthlyPaymentRecord } from "@/lib/billing/buildStudentMont
 import { aggregateCohortCollectionsTotals } from "@/lib/billing/aggregateCohortCollectionsTotals";
 import type {
   CohortCollectionsBulkRaw,
+  CohortCollectionsBulkEnrollmentRaw,
   CohortCollectionsBulkProfileRaw,
   CohortCollectionsBulkScholarshipRaw,
+  CohortCollectionsBulkStudentPromotionRaw,
   CohortCollectionsMatrix,
   CohortCollectionsMatrixSection,
 } from "@/types/cohortCollectionsMatrix";
+import { activePromotionLabel } from "@/lib/billing/studentPromotionStatus";
 
 export interface BuildCohortCollectionsMatrixOptions {
   todayYear: number;
@@ -25,11 +28,12 @@ function studentDisplayName(p: CohortCollectionsBulkProfileRaw): string {
 }
 
 function mapScholarship(
-  row: CohortCollectionsBulkScholarshipRaw | undefined,
-): ScholarshipRow | null {
-  if (!row) return null;
+  row: CohortCollectionsBulkScholarshipRaw,
+): ScholarshipRow {
   return {
+    id: row.id,
     discount_percent: Number(row.discount_percent),
+    note: row.note,
     valid_from_year: row.valid_from_year,
     valid_from_month: row.valid_from_month,
     valid_until_year: row.valid_until_year,
@@ -54,19 +58,34 @@ export function buildCohortCollectionsMatrix(
   const profileById = new Map<string, CohortCollectionsBulkProfileRaw>();
   for (const p of raw.profiles) profileById.set(p.id, p);
 
-  const scholarshipByStudent = new Map<
+  const scholarshipsByStudentSection = new Map<
     string,
-    CohortCollectionsBulkScholarshipRaw
+    CohortCollectionsBulkScholarshipRaw[]
   >();
-  for (const sc of raw.scholarships) scholarshipByStudent.set(sc.student_id, sc);
+  for (const sc of raw.scholarships) {
+    const key = `${sc.section_id}::${sc.student_id}`;
+    const list = scholarshipsByStudentSection.get(key) ?? [];
+    list.push(sc);
+    scholarshipsByStudentSection.set(key, list);
+  }
+
+  const promotionsByStudent = new Map<
+    string,
+    CohortCollectionsBulkStudentPromotionRaw[]
+  >();
+  for (const promo of raw.promotions ?? []) {
+    const list = promotionsByStudent.get(promo.student_id) ?? [];
+    list.push(promo);
+    promotionsByStudent.set(promo.student_id, list);
+  }
 
   const enrollmentsBySection = new Map<
     string,
-    Array<{ student_id: string; created_at: string | null }>
+    CohortCollectionsBulkEnrollmentRaw[]
   >();
   for (const e of raw.enrollments) {
     const list = enrollmentsBySection.get(e.section_id) ?? [];
-    list.push({ student_id: e.student_id, created_at: e.created_at });
+    list.push(e);
     enrollmentsBySection.set(e.section_id, list);
   }
 
@@ -106,12 +125,23 @@ export function buildCohortCollectionsMatrix(
           first_name: null,
           last_name: null,
           dni_or_passport: null,
+          enrollment_fee_exempt: null,
+          enrollment_exempt_reason: null,
         };
         return {
           studentId: e.student_id,
           studentName: studentDisplayName(profile),
           documentLabel: profile.dni_or_passport,
-          scholarship: mapScholarship(scholarshipByStudent.get(e.student_id)),
+          scholarships: (
+            scholarshipsByStudentSection.get(`${sectionRow.id}::${e.student_id}`) ?? []
+          ).map(mapScholarship),
+          enrollmentFeeExempt:
+            Boolean(e.enrollment_fee_exempt),
+          enrollmentExemptReason:
+            e.enrollment_exempt_reason ?? null,
+          activePromotionLabel: activePromotionLabel(
+            promotionsByStudent.get(e.student_id),
+          ),
           payments:
             paymentsByStudentSection.get(`${sectionRow.id}::${e.student_id}`) ??
             [],

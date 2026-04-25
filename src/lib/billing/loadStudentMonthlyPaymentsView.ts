@@ -23,6 +23,7 @@ interface LoadOptions {
 }
 
 interface SectionMeta {
+  enrollmentId: string;
   sectionId: string;
   sectionName: string;
   cohortName: string;
@@ -31,6 +32,11 @@ interface SectionMeta {
   scheduleSlots: SectionScheduleSlot[];
   enrolledAt: string | null;
   enrollmentFeeAmount: number;
+  enrollmentFeeExempt: boolean;
+  enrollmentFeeReceiptUrl: string | null;
+  enrollmentFeeReceiptStatus: "pending" | "approved" | "rejected" | null;
+  enrollmentFeeReceiptSignedUrl: string | null;
+  scholarships: ScholarshipRow[];
 }
 
 /**
@@ -40,24 +46,28 @@ interface SectionMeta {
 export async function loadStudentMonthlyPaymentsView(
   supabase: SupabaseClient,
   studentId: string,
-  scholarship: ScholarshipRow | null,
+  scholarship: ScholarshipRow[] | null,
   opts: LoadOptions,
 ): Promise<StudentMonthlyPaymentsView> {
   const { data: enrollments } = await supabase
     .from("section_enrollments")
     .select(
-      "section_id, created_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
+      "id, section_id, created_at, enrollment_fee_exempt, enrollment_fee_receipt_url, enrollment_fee_receipt_status, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
     )
     .eq("student_id", studentId)
     .eq("status", "active");
 
   type EnrollmentRow = {
+    id: string;
     section_id: string;
     created_at: string | null;
     academic_sections:
       | EnrollmentSectionRow
       | EnrollmentSectionRow[]
       | null;
+    enrollment_fee_exempt?: boolean | null;
+    enrollment_fee_receipt_url?: string | null;
+    enrollment_fee_receipt_status?: string | null;
   };
   type EnrollmentSectionRow = {
     id: string;
@@ -69,28 +79,82 @@ export async function loadStudentMonthlyPaymentsView(
     academic_cohorts: { name: string } | { name: string }[] | null;
   };
 
-  const sections: SectionMeta[] = ((enrollments ?? []) as EnrollmentRow[]).map((row) => {
-    const sec = Array.isArray(row.academic_sections)
-      ? row.academic_sections[0]
-      : row.academic_sections;
-    const cohort = sec
-      ? Array.isArray(sec.academic_cohorts)
-        ? sec.academic_cohorts[0]
-        : sec.academic_cohorts
-      : null;
-    const rawEnrollment = sec?.enrollment_fee_amount == null ? 0 : Number(sec.enrollment_fee_amount);
-    return {
-      sectionId: row.section_id,
-      sectionName: sec?.name ?? "",
-      cohortName: cohort?.name ?? "",
-      startsOn: sec?.starts_on ?? "",
-      endsOn: sec?.ends_on ?? "",
-      scheduleSlots: parseSectionScheduleSlots(sec?.schedule_slots ?? []),
-      enrolledAt: row.created_at ?? null,
-      enrollmentFeeAmount:
-        Number.isFinite(rawEnrollment) && rawEnrollment >= 0 ? rawEnrollment : 0,
-    };
-  });
+  const enrollmentRows = (enrollments ?? []) as EnrollmentRow[];
+  const enrollmentIds = enrollmentRows.map((row) => row.id);
+  type ScholarshipDbRow = {
+    id: string;
+    enrollment_id: string;
+    discount_percent: number | string;
+    note: string | null;
+    valid_from_year: number;
+    valid_from_month: number;
+    valid_until_year: number | null;
+    valid_until_month: number | null;
+    is_active: boolean;
+  };
+  const { data: scholarshipRows } = enrollmentIds.length === 0
+    ? { data: [] }
+    : await supabase
+        .from("section_enrollment_scholarships")
+        .select(
+          "id, enrollment_id, discount_percent, note, valid_from_year, valid_from_month, valid_until_year, valid_until_month, is_active",
+        )
+        .in("enrollment_id", enrollmentIds);
+  const scholarshipsByEnrollment = new Map<string, ScholarshipRow[]>();
+  for (const row of (scholarshipRows ?? []) as ScholarshipDbRow[]) {
+    const list = scholarshipsByEnrollment.get(row.enrollment_id) ?? [];
+    list.push({
+      id: row.id,
+      discount_percent: Number(row.discount_percent),
+      note: row.note,
+      valid_from_year: row.valid_from_year,
+      valid_from_month: row.valid_from_month,
+      valid_until_year: row.valid_until_year,
+      valid_until_month: row.valid_until_month,
+      is_active: Boolean(row.is_active),
+    });
+    scholarshipsByEnrollment.set(row.enrollment_id, list);
+  }
+
+  const sections: SectionMeta[] = await Promise.all(
+    enrollmentRows.map(async (row) => {
+      const sec = Array.isArray(row.academic_sections)
+        ? row.academic_sections[0]
+        : row.academic_sections;
+      const cohort = sec
+        ? Array.isArray(sec.academic_cohorts)
+          ? sec.academic_cohorts[0]
+          : sec.academic_cohorts
+        : null;
+      const rawEnrollment = sec?.enrollment_fee_amount == null ? 0 : Number(sec.enrollment_fee_amount);
+      const receiptUrl = row.enrollment_fee_receipt_url ?? null;
+      const receiptSignedUrl = receiptUrl
+        ? await studentReceiptSignedUrl(supabase, studentId, receiptUrl)
+        : null;
+      const rawStatus = row.enrollment_fee_receipt_status ?? null;
+      const receiptStatus =
+        rawStatus === "pending" || rawStatus === "approved" || rawStatus === "rejected"
+          ? rawStatus
+          : null;
+      return {
+        enrollmentId: row.id,
+        sectionId: row.section_id,
+        sectionName: sec?.name ?? "",
+        cohortName: cohort?.name ?? "",
+        startsOn: sec?.starts_on ?? "",
+        endsOn: sec?.ends_on ?? "",
+        scheduleSlots: parseSectionScheduleSlots(sec?.schedule_slots ?? []),
+        enrolledAt: row.created_at ?? null,
+        enrollmentFeeAmount:
+          Number.isFinite(rawEnrollment) && rawEnrollment >= 0 ? rawEnrollment : 0,
+        enrollmentFeeExempt: Boolean(row.enrollment_fee_exempt),
+        enrollmentFeeReceiptUrl: receiptUrl,
+        enrollmentFeeReceiptStatus: receiptStatus,
+        scholarships: scholarshipsByEnrollment.get(row.id) ?? [],
+        enrollmentFeeReceiptSignedUrl: receiptSignedUrl,
+      };
+    }),
+  );
 
   const sectionIds = [...new Set(sections.map((s) => s.sectionId))];
 
@@ -158,14 +222,17 @@ export async function loadStudentMonthlyPaymentsView(
       cohortName: s.cohortName,
       plans: plansBySection.get(s.sectionId) ?? [],
       payments: paymentsBySection.get(s.sectionId) ?? [],
-      scholarship,
+      scholarship: s.scholarships.length > 0 ? s.scholarships : scholarship ?? [],
       todayYear: opts.todayYear,
       todayMonth: opts.todayMonth,
       sectionStartsOn: s.startsOn,
       sectionEndsOn: s.endsOn,
       studentEnrolledAt: s.enrolledAt,
       scheduleSlots: s.scheduleSlots,
-      sectionEnrollmentFeeAmount: s.enrollmentFeeAmount,
+      sectionEnrollmentFeeAmount: s.enrollmentFeeExempt ? 0 : s.enrollmentFeeAmount,
+      enrollmentId: s.enrollmentId,
+      enrollmentFeeReceiptStatus: s.enrollmentFeeReceiptStatus,
+      enrollmentFeeReceiptSignedUrl: s.enrollmentFeeReceiptSignedUrl,
     }),
   );
 

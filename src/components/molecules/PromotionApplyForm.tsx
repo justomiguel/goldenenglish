@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { applyPromotionCodeForStudent } from "@/app/[locale]/dashboard/student/payments/actions";
+import { applyPromotionCodeForStudent } from "@/app/[locale]/dashboard/student/payments/applyPromotionCodeForStudentAction";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";

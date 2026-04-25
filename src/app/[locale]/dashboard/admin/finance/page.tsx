@@ -9,8 +9,6 @@ import {
   parseFinanceHubTab,
 } from "@/components/dashboard/admin/finance/FinanceHubTabs";
 import { FinanceOverviewPanel } from "@/components/dashboard/admin/finance/FinanceOverviewPanel";
-import { FinanceCollectionsPanel } from "@/components/dashboard/admin/finance/FinanceCollectionsPanel";
-import { FinanceReceiptsPanel } from "@/components/dashboard/admin/finance/FinanceReceiptsPanel";
 import { FinancePaymentsPanel } from "@/components/dashboard/admin/finance/FinancePaymentsPanel";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -24,18 +22,11 @@ interface PageProps {
 }
 
 async function loadPendingCounts(supabase: SupabaseClient) {
-  const [{ count: receipts }, { count: payments }] = await Promise.all([
-    supabase
-      .from("billing_receipts")
-      .select("id", { head: true, count: "exact" })
-      .eq("status", "pending_approval"),
-    supabase
-      .from("payments")
-      .select("id", { head: true, count: "exact" })
-      .eq("status", "pending"),
-  ]);
+  const { count: payments } = await supabase
+    .from("payments")
+    .select("id", { head: true, count: "exact" })
+    .eq("status", "pending");
   return {
-    receipts: receipts ?? 0,
     payments: payments ?? 0,
   };
 }
@@ -94,24 +85,6 @@ export default async function AdminFinanceHubPage({
             dict={financeDict}
             searchParams={{ cohort: search.cohort, year: search.year }}
             baseHref={baseHref}
-          />
-        ) : null}
-        {tab === "collections" ? (
-          <FinanceCollectionsPanel
-            supabase={supabase}
-            locale={locale}
-            dict={financeDict.collections}
-            navDict={dict.dashboard.adminNav}
-            searchParams={{ cohort: search.cohort, year: search.year }}
-            sectionDrillBaseHref={`${baseHref}/collections`}
-          />
-        ) : null}
-        {tab === "receipts" ? (
-          <FinanceReceiptsPanel
-            supabase={supabase}
-            locale={locale}
-            dict={dict.dashboard.portalBilling}
-            receiptHrefBase={`${baseHref}/receipts`}
           />
         ) : null}
         {tab === "payments" ? (

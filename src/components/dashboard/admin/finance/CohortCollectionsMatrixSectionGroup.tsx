@@ -2,8 +2,10 @@ import Link from "next/link";
 import { ArrowRight, Users } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { SectionCollectionsView } from "@/types/sectionCollections";
+import { effectiveScholarshipPercentForPeriod } from "@/lib/billing/scholarshipPeriod";
 import { SectionCollectionsHealthBadge } from "./SectionCollectionsHealthBadge";
 import { SectionCollectionsMonthCell } from "./SectionCollectionsMonthCell";
+import { SectionCollectionsStudentBenefits } from "./SectionCollectionsStudentBenefits";
 
 type FinanceDict = Dictionary["admin"]["finance"];
 
@@ -39,6 +41,15 @@ function studentCellCurrency(cells: SectionCollectionsView["students"][number]["
     if (c.currency) return c.currency;
   }
   return "USD";
+}
+
+function scholarshipDiscountForPeriod(
+  student: SectionCollectionsView["students"][number],
+  year: number,
+  month: number,
+): number | null {
+  const percent = effectiveScholarshipPercentForPeriod(student.scholarships, year, month);
+  return percent > 0 ? percent : null;
 }
 
 export interface CohortCollectionsMatrixSectionGroupProps {
@@ -172,6 +183,11 @@ export function CohortCollectionsMatrixSectionGroup({
                       {s.documentLabel}
                     </span>
                   ) : null}
+                  <SectionCollectionsStudentBenefits
+                    student={s}
+                    labels={collectionsDict.benefits}
+                    locale={locale}
+                  />
                 </th>
                 {s.row.cells.map((cell) => (
                   <td
@@ -183,6 +199,11 @@ export function CohortCollectionsMatrixSectionGroup({
                       monthLabel={monthShort[cell.month - 1] ?? String(cell.month)}
                       todayMonth={view.todayMonth}
                       year={view.year}
+                      scholarshipDiscountPercent={scholarshipDiscountForPeriod(
+                        s,
+                        cell.year,
+                        cell.month,
+                      )}
                       ariaPrefix={s.studentName}
                       locale={locale}
                       labels={collectionsDict.monthCell}

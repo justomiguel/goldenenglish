@@ -119,7 +119,7 @@ export async function listActiveStudentsInSectionForAdmin(
 
     const { data, error } = await supabase
       .from("section_enrollments")
-      .select("id, student_id, profiles(first_name,last_name)")
+      .select("id, student_id, profiles!student_id(first_name,last_name)")
       .eq("section_id", sid)
       .eq("status", "active");
 

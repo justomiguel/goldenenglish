@@ -1,46 +1,46 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
-import type { Dictionary } from "@/types/i18n";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { CreditCard, GraduationCap, ShieldCheck, UserRound, UsersRound } from "lucide-react";
+import type { Dictionary, Locale } from "@/types/i18n";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
-import { AdminUserInlineEditableField } from "@/components/molecules/AdminUserInlineEditableField";
-import { AdminUserDetailPasswordSection } from "@/components/molecules/AdminUserDetailPasswordSection";
-import { AdminUserDetailTutorCard } from "@/components/molecules/AdminUserDetailTutorCard";
-import { AdminStudentCurrentCohortAssignmentCard } from "@/components/molecules/AdminStudentCurrentCohortAssignmentCard";
+import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { AdminUserIdentityHero } from "@/components/molecules/AdminUserIdentityHero";
+import {
+  AdminUserProfileTabButton,
+  type AdminUserProfileTabId,
+} from "@/components/molecules/AdminUserProfileTabButton";
+import {
+  AdminUserAcademicPanel,
+  AdminUserFamilyPanel,
+  AdminUserPaymentsPanel,
+  AdminUserSecurityPanel,
+  AdminUserSummaryPanel,
+} from "@/components/molecules/AdminUserProfileTabPanels";
 
 type UserLabels = Dictionary["admin"]["users"];
+type BillingLabels = Dictionary["admin"]["billing"];
+type TabId = AdminUserProfileTabId;
 
 export interface AdminUserProfileFichaProps {
-  locale: string;
+  locale: Locale;
   labels: UserLabels;
+  billingLabels: BillingLabels;
   detail: AdminUserDetailVM;
+  billing: AdminStudentBillingTabData | null;
 }
 
-function CardShell({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="rounded-[calc(var(--layout-border-radius)*1.2)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
-      <h2 className="border-b border-[var(--color-border)] pb-3 font-display text-lg font-semibold text-[var(--color-secondary)]">
-        {title}
-      </h2>
-      <dl className="mt-4">{children}</dl>
-    </section>
-  );
-}
-
-function ReadOnlyRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="border-b border-[var(--color-border)] py-3 last:border-0">
-      <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">{label}</dt>
-      <dd className="mt-1 text-sm text-[var(--color-foreground)]">{value}</dd>
-    </div>
-  );
-}
-
-export function AdminUserProfileFicha({ locale, labels, detail }: AdminUserProfileFichaProps) {
-  const ed = detail.viewerMayInlineEdit;
+export function AdminUserProfileFicha({
+  locale,
+  labels,
+  billingLabels,
+  detail,
+  billing,
+}: AdminUserProfileFichaProps) {
+  const editable = detail.viewerMayInlineEdit;
   const displayName = `${detail.firstName} ${detail.lastName}`.trim() || detail.emailDisplay;
   const [toast, setToast] = useState<{ text: string; ok: boolean } | null>(null);
+  const [activeTab, setActiveTab] = useState<TabId>("summary");
 
   const onFeedback = useCallback((text: string, ok: boolean) => {
     setToast({ text, ok });
@@ -48,22 +48,114 @@ export function AdminUserProfileFicha({ locale, labels, detail }: AdminUserProfi
 
   useEffect(() => {
     if (!toast) return;
-    const t = window.setTimeout(() => setToast(null), 3600);
-    return () => window.clearTimeout(t);
+    const timeout = window.setTimeout(() => setToast(null), 3600);
+    return () => window.clearTimeout(timeout);
   }, [toast]);
 
-  const roleOptions = [
-    { value: "admin", label: labels.roleOptionAdmin },
-    { value: "teacher", label: labels.roleOptionTeacher },
-    { value: "student", label: labels.roleOptionStudent },
-    { value: "parent", label: labels.roleOptionParent },
-    { value: "assistant", label: labels.roleOptionAssistant },
+  const roleOptions = useMemo(
+    () => [
+      { value: "admin", label: labels.roleOptionAdmin },
+      { value: "teacher", label: labels.roleOptionTeacher },
+      { value: "student", label: labels.roleOptionStudent },
+      { value: "parent", label: labels.roleOptionParent },
+      { value: "assistant", label: labels.roleOptionAssistant },
+    ],
+    [labels],
+  );
+  const roleLabel = roleOptions.find((option) => option.value === detail.role)?.label ?? detail.role;
+  const pendingPayments = billing?.payments.filter((payment) => payment.status === "pending").length ?? 0;
+  const paymentsDisabled =
+    detail.role === "student" && !detail.currentCohortAssignment?.current;
+  const academicNeedsAttention =
+    detail.role === "student" && paymentsDisabled;
+  const tabs = [
+    { id: "summary" as const, label: labels.detailTabSummary, icon: <UserRound className="h-4 w-4" aria-hidden /> },
+    {
+      id: "academic" as const,
+      label: labels.detailTabAcademic,
+      icon: <GraduationCap className="h-4 w-4" aria-hidden />,
+      badge: academicNeedsAttention ? "!" : null,
+    },
+    ...(detail.role === "student"
+      ? [
+          {
+            id: "payments" as const,
+            label: labels.detailTabPayments,
+            icon: <CreditCard className="h-4 w-4" aria-hidden />,
+            badge: paymentsDisabled ? "!" : pendingPayments > 0 ? pendingPayments : null,
+            disabled: paymentsDisabled,
+            title: paymentsDisabled ? labels.detailPaymentsDisabledNoSection : undefined,
+          },
+          {
+            id: "family" as const,
+            label: labels.detailTabFamily,
+            icon: <UsersRound className="h-4 w-4" aria-hidden />,
+            badge: detail.tutorLinks.length > 0 ? detail.tutorLinks.length : null,
+          },
+        ]
+      : []),
+    { id: "security" as const, label: labels.detailTabSecurity, icon: <ShieldCheck className="h-4 w-4" aria-hidden /> },
   ];
+  const visibleActiveTab =
+    activeTab === "payments" && paymentsDisabled ? "academic" : activeTab;
 
-  const showFamilyCard = detail.role === "student" && (detail.isMinor || detail.tutorLinks.length > 0);
-  const roleLabel = roleOptions.find((o) => o.value === detail.role)?.label ?? detail.role;
-  const currentCohortAssignment = detail.role === "student" ? detail.currentCohortAssignment : null;
-  const showAssignment = currentCohortAssignment != null;
+  const panel = (() => {
+    if (visibleActiveTab === "summary") {
+      return (
+        <AdminUserSummaryPanel
+          locale={locale}
+          detail={detail}
+          labels={labels}
+          editable={editable}
+          onFeedback={onFeedback}
+        />
+      );
+    }
+    if (visibleActiveTab === "academic") {
+      return (
+        <AdminUserAcademicPanel
+          locale={locale}
+          detail={detail}
+          labels={labels}
+          editable={editable}
+          roleLabel={roleLabel}
+          roleOptions={roleOptions}
+          onFeedback={onFeedback}
+        />
+      );
+    }
+    if (visibleActiveTab === "payments" && billing) {
+      return (
+        <AdminUserPaymentsPanel
+          locale={locale}
+          detail={detail}
+          billing={billing}
+          billingLabels={billingLabels}
+          studentName={displayName}
+        />
+      );
+    }
+    if (visibleActiveTab === "family") {
+      return (
+        <AdminUserFamilyPanel
+          locale={locale}
+          detail={detail}
+          labels={labels}
+          editable={editable}
+          onFeedback={onFeedback}
+        />
+      );
+    }
+    return (
+      <AdminUserSecurityPanel
+        locale={locale}
+        detail={detail}
+        labels={labels}
+        editable={editable}
+        onFeedback={onFeedback}
+      />
+    );
+  })();
 
   return (
     <div className="space-y-5">
@@ -81,140 +173,46 @@ export function AdminUserProfileFicha({ locale, labels, detail }: AdminUserProfi
         </div>
       ) : null}
 
-      <div className={showAssignment ? "grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.85fr)]" : ""}>
-        <AdminUserIdentityHero
-          locale={locale}
-          detail={detail}
-          labels={labels}
-          displayName={displayName}
-          roleLabel={roleLabel}
-        />
-        {showAssignment ? (
-          <AdminStudentCurrentCohortAssignmentCard
-            locale={locale}
-            studentId={detail.userId}
-            labels={labels}
-            assignment={currentCohortAssignment}
-          />
-        ) : null}
-      </div>
+      <AdminUserIdentityHero
+        locale={locale}
+        detail={detail}
+        labels={labels}
+        displayName={displayName}
+        roleLabel={roleLabel}
+      />
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <CardShell title={labels.detailCardContact}>
-          <AdminUserInlineEditableField
-            locale={locale}
-            userId={detail.userId}
-            field="firstName"
-            label={labels.detailFieldFirstName}
-            displayValue={detail.firstName || labels.detailNoValue}
-            editInitial={detail.firstName}
-            editable={ed}
-            inputKind="text"
-            labels={labels}
-            onFeedback={onFeedback}
-          />
-          <AdminUserInlineEditableField
-            locale={locale}
-            userId={detail.userId}
-            field="lastName"
-            label={labels.detailFieldLastName}
-            displayValue={detail.lastName || labels.detailNoValue}
-            editInitial={detail.lastName}
-            editable={ed}
-            inputKind="text"
-            labels={labels}
-            onFeedback={onFeedback}
-          />
-          <AdminUserInlineEditableField
-            locale={locale}
-            userId={detail.userId}
-            field="email"
-            label={labels.detailFieldEmail}
-            displayValue={detail.emailDisplay}
-            editInitial={detail.email}
-            editable={ed}
-            inputKind="email"
-            labels={labels}
-            onFeedback={onFeedback}
-          />
-          <AdminUserInlineEditableField
-            locale={locale}
-            userId={detail.userId}
-            field="phone"
-            label={labels.detailFieldPhone}
-            displayValue={detail.phoneDisplay}
-            editInitial={detail.phone}
-            editable={ed}
-            inputKind="tel"
-            labels={labels}
-            onFeedback={onFeedback}
-          />
-          <AdminUserInlineEditableField
-            locale={locale}
-            userId={detail.userId}
-            field="dniOrPassport"
-            label={labels.detailFieldDni}
-            displayValue={detail.dniOrPassport || labels.detailNoValue}
-            editInitial={detail.dniOrPassport}
-            editable={ed}
-            inputKind="text"
-            labels={labels}
-            onFeedback={onFeedback}
-          />
-        </CardShell>
-
-        <CardShell title={labels.detailCardAcademic}>
-          <AdminUserInlineEditableField
-            locale={locale}
-            userId={detail.userId}
-            field="role"
-            label={labels.detailFieldRole}
-            displayValue={roleLabel}
-            editInitial={detail.role}
-            editable={ed}
-            inputKind="select"
-            selectOptions={roleOptions}
-            labels={labels}
-            onFeedback={onFeedback}
-          />
-          <AdminUserInlineEditableField
-            locale={locale}
-            userId={detail.userId}
-            field="birthDate"
-            label={labels.detailFieldBirth}
-            displayValue={detail.birthDateDisplay ?? labels.detailNoValue}
-            editInitial={detail.birthDateIso ?? ""}
-            editable={ed}
-            inputKind="date"
-            labels={labels}
-            onFeedback={onFeedback}
-          />
-          <ReadOnlyRow
-            label={labels.detailFieldAge}
-            value={detail.ageYears != null ? String(detail.ageYears) : labels.detailNoValue}
-          />
-          {detail.role === "student" ? (
-            <ReadOnlyRow
-              label={labels.detailFieldTeacher}
-              value={detail.assignedTeacherName ?? labels.detailNoValue}
-            />
-          ) : null}
-        </CardShell>
-      </div>
-
-      {showFamilyCard ? (
-        <AdminUserDetailTutorCard
-          locale={locale}
-          studentId={detail.userId}
-          isMinor={detail.isMinor}
-          tutorLinks={detail.tutorLinks}
-          labels={labels}
-          editable={ed}
-          onFeedback={onFeedback}
-        />
-      ) : null}
-
-      <AdminUserDetailPasswordSection locale={locale} userId={detail.userId} labels={labels} enabled={ed} onFeedback={onFeedback} />
+      <section className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
+        <div
+          role="tablist"
+          aria-label={labels.detailTitle}
+          className="overflow-x-auto border-b border-[var(--color-border)] bg-[var(--color-muted)]/25"
+        >
+          <div className="flex min-w-max">
+          {tabs.map((tab) => (
+            <AdminUserProfileTabButton
+              key={tab.id}
+              active={visibleActiveTab === tab.id}
+              badge={tab.badge}
+              disabled={"disabled" in tab ? tab.disabled : false}
+              icon={tab.icon}
+              onClick={() => setActiveTab(tab.id)}
+              tabId={tab.id}
+              title={"title" in tab ? tab.title : undefined}
+            >
+              {tab.label}
+            </AdminUserProfileTabButton>
+          ))}
+          </div>
+        </div>
+        <div
+          id="student-dossier-panel"
+          role="tabpanel"
+          aria-labelledby={`student-dossier-tab-${visibleActiveTab}`}
+          className="bg-[var(--color-background)] p-4 sm:p-5"
+        >
+          {panel}
+        </div>
+      </section>
     </div>
   );
 }

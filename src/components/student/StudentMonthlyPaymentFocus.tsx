@@ -1,8 +1,7 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useId, useState } from "react";
 import { Button } from "@/components/atoms/Button";
-import { Label } from "@/components/atoms/Label";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type {
   StudentMonthlyPaymentCell,
@@ -36,6 +35,12 @@ export interface StudentMonthlyPaymentFocusProps {
    */
   submitAction: SubmitMonthlyReceiptAction;
   onSubmitted?: () => void;
+  /**
+   * When true, the alumno ve y declara el mes completo (fee + beca) en el panel
+   * de comprobante; el servidor sigue persistiendo el monto operativo vía
+   * `resolveStudentPaymentSlot`. El tutor mantiene el default (prorrateo).
+   */
+  receiptExpectedUsesFullMonth?: boolean;
 }
 
 export function StudentMonthlyPaymentFocus({
@@ -48,11 +53,18 @@ export function StudentMonthlyPaymentFocus({
   paymentLabels,
   submitAction,
   onSubmitted,
+  receiptExpectedUsesFullMonth = false,
 }: StudentMonthlyPaymentFocusProps) {
+  const receiptInputId = useId();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [receiptFileName, setReceiptFileName] = useState<string | null>(null);
 
-  const expected = cell.expectedAmount ?? section.currentPlan?.monthlyFee ?? null;
+  const proratedOrPlan =
+    cell.expectedAmount ?? section.currentPlan?.monthlyFee ?? null;
+  const expected = receiptExpectedUsesFullMonth
+    ? (cell.fullMonthExpectedAmount ?? proratedOrPlan)
+    : proratedOrPlan;
   const canUpload =
     cell.status === "due" || cell.status === "rejected" || cell.status === "pending";
   const isLocked = cell.status === "out-of-period" || cell.status === "no-plan";
@@ -146,19 +158,43 @@ export function StudentMonthlyPaymentFocus({
             value={expected != null ? String(expected) : ""}
             readOnly
           />
-          <div>
-            <Label htmlFor={`mp-file-${section.sectionId}-${cell.month}`}>
+          <fieldset className="min-w-0 border-0 p-0">
+            <legend className="text-sm font-semibold text-[var(--color-foreground)]">
               {paymentLabels.payReceipt}
-            </Label>
-            <input
-              id={`mp-file-${section.sectionId}-${cell.month}`}
-              name="receipt"
-              type="file"
-              accept="image/*,application/pdf"
-              required
-              className="mt-1 block w-full min-h-[44px] text-sm"
-            />
-          </div>
+            </legend>
+            <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+              {paymentLabels.payReceiptHint}
+            </p>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+              <input
+                id={receiptInputId}
+                name="receipt"
+                type="file"
+                accept="image/*,application/pdf"
+                required
+                aria-label={paymentLabels.payReceipt}
+                className="sr-only"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  setReceiptFileName(f?.name ?? null);
+                }}
+              />
+              <label
+                htmlFor={receiptInputId}
+                className="inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center rounded-[var(--layout-border-radius)] border-2 border-[var(--color-primary)] bg-[var(--color-background)] px-4 py-2 text-center text-sm font-semibold text-[var(--color-primary)] transition-colors hover:bg-[var(--color-muted)] focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--color-primary)] focus-within:ring-offset-2 sm:w-auto"
+              >
+                {paymentLabels.payReceiptChooseButton}
+              </label>
+              <p
+                className="text-sm text-[var(--color-muted-foreground)] sm:min-h-[44px] sm:flex sm:max-w-[min(100%,20rem)] sm:items-center"
+                aria-live="polite"
+              >
+                <span className="break-all font-medium text-[var(--color-foreground)]">
+                  {receiptFileName ?? paymentLabels.payReceiptNoFileSelected}
+                </span>
+              </p>
+            </div>
+          </fieldset>
           <Button
             type="submit"
             disabled={busy || expected == null}

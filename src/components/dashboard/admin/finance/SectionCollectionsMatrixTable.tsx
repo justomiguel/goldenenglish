@@ -5,11 +5,22 @@ import type {
   SectionCollectionsStudentRow,
 } from "@/types/sectionCollections";
 import type { Dictionary } from "@/types/i18n";
+import { effectiveScholarshipPercentForPeriod } from "@/lib/billing/scholarshipPeriod";
 import { SectionCollectionsMonthCell } from "./SectionCollectionsMonthCell";
+import { SectionCollectionsStudentBenefits } from "./SectionCollectionsStudentBenefits";
 
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
 
 const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
+
+function scholarshipDiscountForPeriod(
+  student: SectionCollectionsStudentRow,
+  year: number,
+  month: number,
+): number | null {
+  const percent = effectiveScholarshipPercentForPeriod(student.scholarships, year, month);
+  return percent > 0 ? percent : null;
+}
 
 function moneyFormatter(locale: string, currency: string): Intl.NumberFormat {
   return new Intl.NumberFormat(locale, {
@@ -66,6 +77,11 @@ function StudentRow({
             {student.documentLabel}
           </div>
         ) : null}
+        <SectionCollectionsStudentBenefits
+          student={student}
+          labels={dict.benefits}
+          locale={locale}
+        />
       </td>
       {cells.map((cell, idx) => (
         <td key={MONTHS[idx]} className="px-1 py-1 text-center align-middle">
@@ -75,6 +91,11 @@ function StudentRow({
               monthLabel={dict.monthShort[idx]!}
               todayMonth={view.todayMonth}
               year={view.year}
+              scholarshipDiscountPercent={scholarshipDiscountForPeriod(
+                student,
+                cell.year,
+                cell.month,
+              )}
               ariaPrefix={student.studentName}
               locale={locale}
               labels={dict.monthCell}

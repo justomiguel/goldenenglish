@@ -58,7 +58,7 @@ export async function loadTeacherSectionAttendanceMatrix(
 
   const { data: enrollments } = await supabase
     .from("section_enrollments")
-    .select("id, status, student_id, created_at, updated_at, profiles(first_name,last_name)")
+    .select("id, status, student_id, created_at, updated_at, profiles!student_id(first_name,last_name)")
     .eq("section_id", sectionId)
     .order("created_at", { ascending: true });
 

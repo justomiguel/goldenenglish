@@ -29,12 +29,32 @@ function makeRaw(): CohortCollectionsBulkRaw {
       },
     ],
     enrollments: [
-      { section_id: "sec-1", student_id: "stu-ana", created_at: "2026-01-01" },
+      {
+        section_id: "sec-1",
+        student_id: "stu-ana",
+        created_at: "2026-01-01",
+        enrollment_fee_exempt: true,
+        enrollment_exempt_reason: "Sibling agreement",
+      },
       { section_id: "sec-1", student_id: "stu-zara", created_at: "2026-01-01" },
     ],
     profiles: [
-      { id: "stu-ana", first_name: "Ana", last_name: "Smith", dni_or_passport: "A1" },
-      { id: "stu-zara", first_name: "Zara", last_name: "Lopez", dni_or_passport: "Z1" },
+      {
+        id: "stu-ana",
+        first_name: "Ana",
+        last_name: "Smith",
+        dni_or_passport: "A1",
+        enrollment_fee_exempt: true,
+        enrollment_exempt_reason: "Sibling agreement",
+      },
+      {
+        id: "stu-zara",
+        first_name: "Zara",
+        last_name: "Lopez",
+        dni_or_passport: "Z1",
+        enrollment_fee_exempt: null,
+        enrollment_exempt_reason: null,
+      },
     ],
     plans: [
       {
@@ -60,6 +80,17 @@ function makeRaw(): CohortCollectionsBulkRaw {
       },
     ],
     scholarships: [],
+    promotions: [
+      {
+        student_id: "stu-zara",
+        code_snapshot: "PROMO25",
+        promotion_snapshot: { name: "Welcome promo" },
+        applies_to_snapshot: "monthly",
+        monthly_months_remaining: 2,
+        enrollment_consumed: null,
+        applied_at: "2026-01-01T00:00:00Z",
+      },
+    ],
   };
 }
 
@@ -93,6 +124,8 @@ describe("CohortCollectionsMatrixClient", () => {
     expect(screen.getByText("Section A")).toBeInTheDocument();
     expect(screen.getByText("Ana Smith")).toBeInTheDocument();
     expect(screen.getByText("Zara Lopez")).toBeInTheDocument();
+    expect(screen.getByText(collectionsDict.benefits.enrollmentExempt)).toBeInTheDocument();
+    expect(screen.getByText("Promo Welcome promo")).toBeInTheDocument();
     expect(
       screen.getByText(new RegExp(`${overviewDict.sectionHeader.monthlyFee}:`)),
     ).toBeInTheDocument();

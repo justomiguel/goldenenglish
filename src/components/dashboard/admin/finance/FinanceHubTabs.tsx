@@ -17,8 +17,6 @@ export type FinanceHubTabId =
 
 export const FINANCE_HUB_TAB_ORDER: readonly FinanceHubTabId[] = [
   "overview",
-  "collections",
-  "receipts",
   "payments",
 ];
 

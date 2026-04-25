@@ -74,7 +74,7 @@ export default async function TeacherAssessmentMatrixPage({ params }: PageProps)
 
   const { data: enrollments } = await supabase
     .from("section_enrollments")
-    .select("id, status, student_id, profiles(first_name,last_name)")
+    .select("id, status, student_id, profiles!student_id(first_name,last_name)")
     .eq("section_id", sectionId)
     .in("status", ["active", "completed"])
     .order("created_at", { ascending: false });

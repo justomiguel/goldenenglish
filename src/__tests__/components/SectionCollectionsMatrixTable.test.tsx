@@ -37,6 +37,7 @@ function buildStudent(
         year: 2026,
         status: hasOverdue && i + 1 < 6 ? "due" : "approved",
         expectedAmount: 100,
+        fullMonthExpectedAmount: 100,
         currency: "USD",
         proration: null,
         recordedAmount: 100,

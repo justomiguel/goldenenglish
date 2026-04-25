@@ -26,7 +26,7 @@ describe("AdminUserAvatarUploadForm", () => {
   // the audited admin action with targetUserId, not the current-user avatar flow.
   it("submits selected student avatar through the admin action", async () => {
     const user = userEvent.setup();
-    render(
+    const { container } = render(
       <AdminUserAvatarUploadForm
         locale="en"
         targetUserId="student-1"
@@ -34,12 +34,12 @@ describe("AdminUserAvatarUploadForm", () => {
         onPreview={vi.fn()}
       />,
     );
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
 
     await user.upload(
-      screen.getByLabelText(en.admin.users.detailAvatarChoose),
+      input,
       new File(["avatar"], "avatar.png", { type: "image/png" }),
     );
-    await user.click(screen.getByRole("button", { name: en.admin.users.detailAvatarUpload }));
 
     await waitFor(() => expect(uploadAction).toHaveBeenCalledTimes(1));
     const formData = uploadAction.mock.calls[0][0] as FormData;

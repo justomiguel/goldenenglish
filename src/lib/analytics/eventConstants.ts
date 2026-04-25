@@ -35,6 +35,10 @@ export const AnalyticsEntity = {
   portalCalendar: "section:portal_calendar",
   /** Auth: user completed a password reset (recovery link → updateUser) */
   passwordResetCompleted: "auth:password_reset_completed",
+  /** Funnel: enrollment fee receipt uploaded by the student */
+  enrollmentFeeReceiptSubmittedStudent: "enrollment_fee_receipt_submitted_student",
+  /** Funnel: enrollment fee receipt uploaded by a parent/tutor on behalf of a student */
+  enrollmentFeeReceiptSubmittedTutor: "enrollment_fee_receipt_submitted_tutor",
 } as const;
 
 export type UserEventTypeName = "page_view" | "click" | "action" | "session_start";

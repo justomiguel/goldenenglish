@@ -50,7 +50,7 @@ export async function loadTeacherSectionDetailModel(
 
   const { data: enrollments } = await supabase
     .from("section_enrollments")
-    .select("id, status, student_id, profiles(first_name,last_name,avatar_url)")
+    .select("id, status, student_id, profiles!student_id(first_name,last_name,avatar_url)")
     .eq("section_id", sectionId)
     .order("created_at", { ascending: false });
 

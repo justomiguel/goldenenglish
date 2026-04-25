@@ -8,37 +8,22 @@ import { AdminStudentBillingClient } from "@/components/dashboard/AdminStudentBi
 import type { Locale } from "@/types/i18n";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
+import type {
+  AdminBillingPaymentRow,
+  AdminBillingScholarship,
+  AdminStudentBillingSectionBenefit,
+} from "@/types/adminStudentBilling";
 
 type BillingLabels = Dictionary["admin"]["billing"];
 type UserLabels = Dictionary["admin"]["users"];
-
-export type AdminBillingPaymentRow = {
-  id: string;
-  month: number;
-  year: number;
-  amount: number | null;
-  status: string;
-  admin_notes: string | null;
-  updated_at: string;
-  receiptSignedUrl: string | null;
-};
-
-export type AdminBillingScholarship = {
-  discount_percent: number;
-  note: string | null;
-  valid_from_year: number;
-  valid_from_month: number;
-  valid_until_year: number | null;
-  valid_until_month: number | null;
-  is_active: boolean;
-} | null;
 
 interface AdminStudentBillingEntryProps {
   locale: Locale;
   studentId: string;
   studentName: string;
   payments: AdminBillingPaymentRow[];
-  scholarship: AdminBillingScholarship;
+  scholarships: AdminBillingScholarship[];
+  sectionBenefits: AdminStudentBillingSectionBenefit[];
   labels: BillingLabels;
   usersLabels: UserLabels;
   enrollmentFeeExempt: boolean;
@@ -51,7 +36,8 @@ export function AdminStudentBillingEntry({
   studentId,
   studentName,
   payments,
-  scholarship,
+  scholarships,
+  sectionBenefits,
   labels,
   usersLabels,
   enrollmentFeeExempt,
@@ -74,7 +60,8 @@ export function AdminStudentBillingEntry({
         studentId={studentId}
         studentName={studentName}
         payments={payments}
-        scholarship={scholarship}
+        scholarships={scholarships}
+        sectionBenefits={sectionBenefits}
         labels={labels}
         enrollmentFeeExempt={enrollmentFeeExempt}
         enrollmentExemptReason={enrollmentExemptReason}

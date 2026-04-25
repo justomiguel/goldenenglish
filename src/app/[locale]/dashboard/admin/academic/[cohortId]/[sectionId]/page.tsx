@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ClipboardList } from "lucide-react";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { loadAdminSectionPageData } from "@/lib/academics/loadAdminSectionPageData";
+import { instituteCalendarDateIso } from "@/lib/datetime/instituteCalendarDateIso";
+import { getInstituteTimeZone } from "@/lib/datetime/instituteTimeZone";
+import { formatAcademicScheduleSummary } from "@/lib/academics/formatAcademicScheduleSummary";
+import { loadAdminSectionAttendanceMatrix } from "@/lib/academics/loadAdminSectionAttendanceMatrix";
+import {
+  adminAttendanceMatrixColumnMaxIso,
+  adminAttendanceMatrixEffMinIso,
+  hasEligibleClassDayInWindow,
+} from "@/lib/academics/teacherSectionAttendanceCalendar";
 import { AcademicSectionScheduleEditor } from "@/components/organisms/AcademicSectionScheduleEditor";
 import { AcademicSectionEnrollCard } from "@/components/organisms/AcademicSectionEnrollCard";
 import { AcademicSectionRosterTable } from "@/components/organisms/AcademicSectionRosterTable";
@@ -16,6 +24,7 @@ import { AcademicSectionCapacityEditor } from "@/components/organisms/AcademicSe
 import { AcademicSectionRoomLabelEditor } from "@/components/organisms/AcademicSectionRoomLabelEditor";
 import { AcademicSectionFeePlansEditor } from "@/components/organisms/AcademicSectionFeePlansEditor";
 import { AcademicSectionEnrollmentFeeEditor } from "@/components/organisms/AcademicSectionEnrollmentFeeEditor";
+import { SectionAttendanceMatrix } from "@/components/organisms/SectionAttendanceMatrix";
 import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
 
 interface PageProps {
@@ -46,6 +55,7 @@ export default async function AcademicSectionPage({ params }: PageProps) {
   const staffDict = d.staff ?? dEn.staff;
   const feePlansDict = d.feePlans ?? dEn.feePlans;
   const enrollmentFeeDict = d.enrollmentFee ?? dEn.enrollmentFee;
+  const dTeacherAttendance = dict.dashboard.teacherSectionAttendance;
   const supabase = await createClient();
 
   const data = await loadAdminSectionPageData(supabase, cohortId, sectionId);
@@ -59,9 +69,56 @@ export default async function AcademicSectionPage({ params }: PageProps) {
   );
   const currentPlanCurrency = currentPlan?.currency ?? null;
 
-  const attendanceBlock = dict.dashboard.academicSectionAttendance;
-  const attendanceTitle =
-    (attendanceBlock && attendanceBlock.title) || enDict.dashboard.academicSectionAttendance.title;
+  const instituteTz = getInstituteTimeZone();
+  const todayIso = instituteCalendarDateIso(new Date(), instituteTz);
+  const attendanceEffMin = adminAttendanceMatrixEffMinIso(todayIso, section.startsOn);
+  const attendanceColumnMax = adminAttendanceMatrixColumnMaxIso(todayIso, section.endsOn);
+  const attendanceWindowOk = attendanceEffMin <= attendanceColumnMax;
+  const hasScheduleSlots = slots.length > 0;
+  const hasEligibleAttendanceDays =
+    hasScheduleSlots && hasEligibleClassDayInWindow(attendanceEffMin, attendanceColumnMax, slots, instituteTz);
+  const attendanceScheduleSummary = formatAcademicScheduleSummary(slots, locale);
+  const attendanceScheduleLine = attendanceScheduleSummary
+    ? `${dTeacherAttendance.scheduleSummaryLead} ${attendanceScheduleSummary}`
+    : "";
+  const attendanceMatrix = hasEligibleAttendanceDays
+    ? await loadAdminSectionAttendanceMatrix(supabase, sectionId)
+    : null;
+  const editableByDate = Object.fromEntries(
+    (attendanceMatrix?.classDays ?? []).map((day) => [day, day <= todayIso]),
+  );
+  const attendancePanel = (
+    <>
+      {attendanceScheduleLine ? (
+        <p className="text-xs text-[var(--color-muted-foreground)]">{attendanceScheduleLine}</p>
+      ) : null}
+      {!attendanceWindowOk ? (
+        <p role="status" className="text-sm text-[var(--color-muted-foreground)]">
+          {dTeacherAttendance.noEligibleClassDates}
+        </p>
+      ) : !hasScheduleSlots ? (
+        <p role="status" className="text-sm text-[var(--color-muted-foreground)]">
+          {dTeacherAttendance.noScheduleSlots}
+        </p>
+      ) : !hasEligibleAttendanceDays ? (
+        <p role="status" className="text-sm text-[var(--color-muted-foreground)]">
+          {dTeacherAttendance.noEligibleClassDates}
+        </p>
+      ) : attendanceMatrix ? (
+        <SectionAttendanceMatrix
+          variant="admin"
+          locale={locale}
+          sectionId={sectionId}
+          todayIso={todayIso}
+          initialPayloadJson={JSON.stringify(attendanceMatrix)}
+          editableByDateJson={JSON.stringify(editableByDate)}
+          scheduleLine={attendanceScheduleLine}
+          matrixDict={dTeacherAttendance.matrix}
+          offlineHint={dTeacherAttendance.offlineHint}
+        />
+      ) : null}
+    </>
+  );
 
   return (
     <div className="space-y-6">
@@ -120,16 +177,6 @@ export default async function AcademicSectionPage({ params }: PageProps) {
               initialRoomLabel={section.roomLabel}
               dict={roomLabelDict}
             />
-            <div className="flex flex-wrap gap-2">
-              <Link
-                href={`/${locale}/dashboard/admin/academic/${cohortId}/${sectionId}/attendance`}
-                title={attendanceTitle}
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
-              >
-                <ClipboardList className="h-4 w-4 shrink-0" aria-hidden />
-                {attendanceTitle}
-              </Link>
-            </div>
           </>
         }
         schedule={
@@ -157,6 +204,7 @@ export default async function AcademicSectionPage({ params }: PageProps) {
             />
           </div>
         }
+        attendance={attendancePanel}
         enroll={
           <AcademicSectionEnrollCard
             locale={locale}

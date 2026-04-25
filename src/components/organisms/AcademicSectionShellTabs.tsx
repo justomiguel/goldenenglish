@@ -2,7 +2,7 @@
 
 import { useId, useMemo, useState, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { CalendarDays, CircleDollarSign, LayoutDashboard, UserPlus, Users } from "lucide-react";
+import { CalendarDays, CircleDollarSign, ClipboardList, LayoutDashboard, UserPlus, Users } from "lucide-react";
 import {
   UnderlineTabBar,
   underlinePanelId,
@@ -14,6 +14,7 @@ export type AcademicSectionShellTabId =
   | "general"
   | "schedule"
   | "fees"
+  | "attendance"
   | "enroll"
   | "roster";
 
@@ -24,6 +25,8 @@ export interface AcademicSectionShellTabsLabels {
   schedule: string;
   fees: string;
   feesLead: string;
+  attendance: string;
+  attendanceLead: string;
   enroll: string;
   roster: string;
 }
@@ -32,6 +35,7 @@ const TAB_ORDER: AcademicSectionShellTabId[] = [
   "general",
   "schedule",
   "fees",
+  "attendance",
   "enroll",
   "roster",
 ];
@@ -40,6 +44,7 @@ const TAB_ICONS: Record<AcademicSectionShellTabId, LucideIcon> = {
   general: LayoutDashboard,
   schedule: CalendarDays,
   fees: CircleDollarSign,
+  attendance: ClipboardList,
   enroll: UserPlus,
   roster: Users,
 };
@@ -48,6 +53,7 @@ const TAB_LABEL_KEY: Record<AcademicSectionShellTabId, keyof AcademicSectionShel
   general: "general",
   schedule: "schedule",
   fees: "fees",
+  attendance: "attendance",
   enroll: "enroll",
   roster: "roster",
 };
@@ -58,6 +64,7 @@ export interface AcademicSectionShellTabsProps {
   general: ReactNode;
   schedule: ReactNode;
   fees: ReactNode;
+  attendance: ReactNode;
   enroll: ReactNode;
   roster: ReactNode;
 }
@@ -68,6 +75,7 @@ export function AcademicSectionShellTabs({
   general,
   schedule,
   fees,
+  attendance,
   enroll,
   roster,
 }: AcademicSectionShellTabsProps) {
@@ -96,6 +104,12 @@ export function AcademicSectionShellTabs({
       <div className="space-y-4">
         <p className="text-sm text-[var(--color-muted-foreground)]">{labels.feesLead}</p>
         {fees}
+      </div>
+    ),
+    attendance: (
+      <div className="space-y-4">
+        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.attendanceLead}</p>
+        {attendance}
       </div>
     ),
     enroll,

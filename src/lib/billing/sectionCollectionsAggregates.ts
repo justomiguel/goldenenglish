@@ -34,10 +34,12 @@ export function aggregateCells(
   let hasOverdue = false;
 
   for (const cell of cells) {
-    const expected = cell.expectedAmount ?? 0;
+    const expected = cell.status === "exempt" ? 0 : cell.expectedAmount ?? 0;
     const recorded = cell.recordedAmount ?? 0;
     const isInPeriod =
-      cell.status !== "out-of-period" && cell.status !== "no-plan";
+      cell.status !== "out-of-period" &&
+      cell.status !== "no-plan" &&
+      cell.status !== "exempt";
     if (isInPeriod) expectedYear += expected;
 
     switch (cell.status) {

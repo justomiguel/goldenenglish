@@ -17,7 +17,9 @@ import {
   type ProfileRow,
   type ScholarshipDbRow,
   type SectionMeta,
+  type StudentPromotionDbRow,
 } from "@/lib/billing/loadAdminSectionCollectionsViewQueries";
+import { activePromotionLabel } from "@/lib/billing/studentPromotionStatus";
 
 export interface LoadAdminSectionCollectionsOptions {
   todayYear: number;
@@ -43,7 +45,11 @@ export async function loadAdminSectionCollectionsView(
   ]);
   const studentIds = enrollments.map((e) => e.student_id);
   const enrolledAtByStudent = new Map<string, string | null>();
-  for (const e of enrollments) enrolledAtByStudent.set(e.student_id, e.created_at);
+  const enrollmentByStudent = new Map<string, (typeof enrollments)[number]>();
+  for (const e of enrollments) {
+    enrolledAtByStudent.set(e.student_id, e.created_at);
+    enrollmentByStudent.set(e.student_id, e);
+  }
 
   if (studentIds.length === 0) {
     return buildSectionCollectionsView({
@@ -62,13 +68,13 @@ export async function loadAdminSectionCollectionsView(
     });
   }
 
-  const [profiles, paymentsRes, scholarships] = await Promise.all([
+  const [profiles, paymentsRes, scholarshipsRes, promotions] = await Promise.all([
     chunkedIn<ProfileRow>(
       supabase,
       "profiles",
       "id",
       studentIds,
-      "id, first_name, last_name, dni_or_passport",
+      "id, first_name, last_name, dni_or_passport, enrollment_fee_exempt, enrollment_exempt_reason",
     ),
     supabase
       .from("payments")
@@ -76,12 +82,18 @@ export async function loadAdminSectionCollectionsView(
       .eq("section_id", sectionId)
       .eq("year", opts.todayYear)
       .in("student_id", studentIds),
-    chunkedIn<ScholarshipDbRow>(
+    supabase
+      .from("section_enrollment_scholarships")
+      .select(
+        "id, enrollment_id, student_id, discount_percent, note, valid_from_year, valid_from_month, valid_until_year, valid_until_month, is_active",
+      )
+      .eq("section_id", sectionId),
+    chunkedIn<StudentPromotionDbRow>(
       supabase,
-      "student_scholarships",
+      "student_promotions",
       "student_id",
       studentIds,
-      "student_id, discount_percent, valid_from_year, valid_from_month, valid_until_year, valid_until_month, is_active",
+      "student_id, code_snapshot, promotion_snapshot, applies_to_snapshot, monthly_months_remaining, enrollment_consumed, applied_at",
     ),
   ]);
 
@@ -100,9 +112,18 @@ export async function loadAdminSectionCollectionsView(
     paymentsByStudent.set(raw.student_id, list);
   }
 
-  const scholarshipByStudent = new Map<string, ScholarshipDbRow>();
-  for (const row of scholarships) {
-    scholarshipByStudent.set(row.student_id, row);
+  const scholarshipsByStudent = new Map<string, ScholarshipDbRow[]>();
+  for (const row of (scholarshipsRes.data ?? []) as ScholarshipDbRow[]) {
+    const list = scholarshipsByStudent.get(row.student_id) ?? [];
+    list.push(row);
+    scholarshipsByStudent.set(row.student_id, list);
+  }
+
+  const promotionsByStudent = new Map<string, StudentPromotionDbRow[]>();
+  for (const row of promotions) {
+    const list = promotionsByStudent.get(row.student_id) ?? [];
+    list.push(row);
+    promotionsByStudent.set(row.student_id, list);
   }
 
   const profileById = new Map<string, ProfileRow>();
@@ -114,12 +135,24 @@ export async function loadAdminSectionCollectionsView(
       first_name: null,
       last_name: null,
       dni_or_passport: null,
+      enrollment_fee_exempt: null,
+      enrollment_exempt_reason: null,
     };
+    const enrollment = enrollmentByStudent.get(id) ?? null;
     return {
       studentId: id,
       studentName: studentDisplayName(profile),
       documentLabel: profile.dni_or_passport,
-      scholarship: mapScholarship(scholarshipByStudent.get(id)),
+      scholarships: (scholarshipsByStudent.get(id) ?? []).map(mapScholarship),
+      enrollmentFeeExempt:
+        enrollment
+          ? Boolean(enrollment.enrollment_fee_exempt)
+          : Boolean(profile.enrollment_fee_exempt),
+      enrollmentExemptReason:
+        enrollment
+          ? enrollment.enrollment_exempt_reason
+          : profile.enrollment_exempt_reason,
+      activePromotionLabel: activePromotionLabel(promotionsByStudent.get(id)),
       payments: paymentsByStudent.get(id) ?? [],
       enrolledAt: enrolledAtByStudent.get(id) ?? null,
     };

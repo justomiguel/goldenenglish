@@ -2,7 +2,11 @@ import {
   buildStudentMonthlyPaymentsRow,
   type StudentMonthlyPaymentRecord,
 } from "@/lib/billing/buildStudentMonthlyPaymentsRow";
-import { periodIndex, type ScholarshipRow } from "@/lib/billing/scholarshipPeriod";
+import {
+  effectiveScholarshipPercentForPeriod,
+  periodIndex,
+  type ScholarshipRow,
+} from "@/lib/billing/scholarshipPeriod";
 import {
   aggregateCells,
   buildSectionCollectionsKpis,
@@ -21,7 +25,10 @@ export interface SectionCollectionsStudentInput {
   studentId: string;
   studentName: string;
   documentLabel: string | null;
-  scholarship: ScholarshipRow | null;
+  scholarships: ScholarshipRow[];
+  enrollmentFeeExempt?: boolean;
+  enrollmentExemptReason?: string | null;
+  activePromotionLabel?: string | null;
   payments: StudentMonthlyPaymentRecord[];
   /** ISO timestamp/date — fecha de enrolment del alumno a esta sección. */
   enrolledAt: string | null;
@@ -80,6 +87,15 @@ function enrollmentFeeIsOverdue(
   return Math.max(sectionStartIdx, enrolledIdx) < todayIdx;
 }
 
+function activeScholarshipDiscountPercent(
+  scholarships: ScholarshipRow[],
+  year: number,
+  month: number,
+): number | null {
+  const pct = effectiveScholarshipPercentForPeriod(scholarships, year, month);
+  return pct > 0 ? pct : null;
+}
+
 /**
  * Pure: build the admin section collections view by reusing the per-student
  * row builder, then aggregating per student and per section.
@@ -89,27 +105,28 @@ export function buildSectionCollectionsView(
 ): SectionCollectionsView {
   const enrollmentFee = enrollmentFeeAmount(input);
   const studentRows: SectionCollectionsStudentRow[] = input.students.map((s) => {
+    const studentEnrollmentFee = s.enrollmentFeeExempt ? 0 : enrollmentFee;
     const row: StudentMonthlyPaymentSectionRow = buildStudentMonthlyPaymentsRow({
       sectionId: input.sectionId,
       sectionName: input.sectionName,
       cohortName: input.cohortName,
       plans: input.plans,
       payments: s.payments,
-      scholarship: s.scholarship,
+      scholarship: s.scholarships,
       todayYear: input.todayYear,
       todayMonth: input.todayMonth,
       sectionStartsOn: input.sectionStartsOn,
       sectionEndsOn: input.sectionEndsOn,
       studentEnrolledAt: s.enrolledAt,
       scheduleSlots: input.scheduleSlots,
-      sectionEnrollmentFeeAmount: input.sectionEnrollmentFeeAmount,
+      sectionEnrollmentFeeAmount: studentEnrollmentFee,
       billingScope: "plan-year",
     });
     const agg = aggregateCells(row.cells, input.todayYear, input.todayMonth);
     const isEnrollmentFeeOverdue =
-      enrollmentFee > 0 && enrollmentFeeIsOverdue(input, s.enrolledAt);
-    const enrollmentFeeOverdue = isEnrollmentFeeOverdue ? enrollmentFee : 0;
-    const enrollmentFeeUpcoming = isEnrollmentFeeOverdue ? 0 : enrollmentFee;
+      studentEnrollmentFee > 0 && enrollmentFeeIsOverdue(input, s.enrolledAt);
+    const enrollmentFeeOverdue = isEnrollmentFeeOverdue ? studentEnrollmentFee : 0;
+    const enrollmentFeeUpcoming = isEnrollmentFeeOverdue ? 0 : studentEnrollmentFee;
     return {
       studentId: s.studentId,
       studentName: s.studentName,
@@ -119,8 +136,21 @@ export function buildSectionCollectionsView(
       pendingReview: agg.pendingReview,
       overdue: round2(agg.overdue + enrollmentFeeOverdue),
       upcoming: round2(agg.upcoming + enrollmentFeeUpcoming),
-      expectedYear: round2(agg.expectedYear + enrollmentFee),
+      expectedYear: round2(agg.expectedYear + studentEnrollmentFee),
       hasOverdue: agg.hasOverdue || enrollmentFeeOverdue > 0,
+      enrollmentFee: {
+        amount: enrollmentFee,
+        expectedAmount: studentEnrollmentFee,
+        exempt: Boolean(s.enrollmentFeeExempt),
+        exemptReason: s.enrollmentExemptReason ?? null,
+      },
+      scholarships: s.scholarships,
+      activeScholarshipDiscountPercent: activeScholarshipDiscountPercent(
+        s.scholarships,
+        input.todayYear,
+        input.todayMonth,
+      ),
+      activePromotionLabel: s.activePromotionLabel ?? null,
     };
   });
 

@@ -36,6 +36,24 @@ export interface SectionCollectionsStudentRow {
   upcoming: number;
   expectedYear: number;
   hasOverdue: boolean;
+  enrollmentFee: {
+    amount: number;
+    expectedAmount: number;
+    exempt: boolean;
+    exemptReason: string | null;
+  };
+  scholarships: Array<{
+    id?: string;
+    discount_percent: number;
+    note?: string | null;
+    valid_from_year: number;
+    valid_from_month: number;
+    valid_until_year: number | null;
+    valid_until_month: number | null;
+    is_active: boolean;
+  }>;
+  activeScholarshipDiscountPercent: number | null;
+  activePromotionLabel: string | null;
 }
 
 export interface SectionCollectionsView {

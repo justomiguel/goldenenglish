@@ -38,6 +38,7 @@ const baseView: StudentMonthlyPaymentsView = {
           year: 2026,
           status: inPeriod ? "due" : "out-of-period",
           expectedAmount: inPeriod ? 100 : null,
+          fullMonthExpectedAmount: inPeriod ? 100 : null,
           currency: inPeriod ? "USD" : null,
           proration: inPeriod ? { numerator: 4, denominator: 4 } : null,
           recordedAmount: null,
@@ -120,6 +121,41 @@ describe("StudentMonthlyPaymentsStrip", () => {
     expect(aprilButton).toBeDefined();
     fireEvent.click(aprilButton!);
     expect(aprilButton).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("shows full-month expected in the focus card when receiptExpectedUsesFullMonth is set", () => {
+    const viewProrated: StudentMonthlyPaymentsView = {
+      todayMonth: 5,
+      todayYear: 2026,
+      rows: [
+        {
+          ...baseView.rows[0]!,
+          cells: baseView.rows[0]!.cells.map((c) =>
+            c.month === 5
+              ? {
+                  ...c,
+                  expectedAmount: 37.5,
+                  fullMonthExpectedAmount: 100,
+                  proration: { numerator: 3, denominator: 8 },
+                }
+              : c,
+          ),
+        },
+      ],
+    };
+    render(
+      <StudentMonthlyPaymentsStrip
+        locale="en"
+        studentId="stu-1"
+        view={viewProrated}
+        labels={monthlyLabels}
+        paymentLabels={dictEn.dashboard.student}
+        submitAction={submitAction}
+        receiptExpectedUsesFullMonth
+      />,
+    );
+    expect(screen.getByText("$100")).toBeInTheDocument();
+    expect(screen.queryByText("$37.5")).not.toBeInTheDocument();
   });
 
   it("shows the empty-state message when the student has no active sections", () => {

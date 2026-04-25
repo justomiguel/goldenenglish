@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createDashboardUser } from "@/app/[locale]/dashboard/admin/users/actions";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -16,6 +17,7 @@ interface AdminCreateUserFormProps {
 }
 
 export function AdminCreateUserForm({ locale, labels }: AdminCreateUserFormProps) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<(typeof ROLES)[number]>("student");
@@ -42,6 +44,9 @@ export function AdminCreateUserForm({ locale, labels }: AdminCreateUserFormProps
     });
     setBusy(false);
     setMsg(res.ok ? labels.success : (res.message ?? labels.error));
+    if (res.ok) {
+      router.push(`/${locale}/dashboard/admin/users`);
+    }
   }
 
   return (

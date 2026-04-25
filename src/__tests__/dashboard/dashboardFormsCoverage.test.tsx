@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
-import { mockPathname } from "@/test/navigationMock";
+import { mockPathname, mockPush } from "@/test/navigationMock";
 
 const createDashboardUser = vi.hoisted(() => vi.fn());
 const setInscriptionsEnabled = vi.hoisted(() => vi.fn());
@@ -77,7 +77,8 @@ describe("dashboard coverage", () => {
     ).toBeInTheDocument();
   });
 
-  it("AdminCreateUserForm shows success and error messages", async () => {
+  // REGRESSION CHECK: User creation must return admins to the user list only after a successful create.
+  it("AdminCreateUserForm navigates to the user list after success", async () => {
     createDashboardUser.mockResolvedValueOnce({ ok: true });
     const { unmount } = render(
       <AdminCreateUserForm locale="en" labels={dictEn.admin.users} />,
@@ -87,7 +88,9 @@ describe("dashboard coverage", () => {
     await waitFor(() => {
       expect(screen.getByText(dictEn.admin.users.success)).toBeInTheDocument();
     });
+    expect(mockPush).toHaveBeenCalledWith("/en/dashboard/admin/users");
     unmount();
+    mockPush.mockClear();
     createDashboardUser.mockResolvedValueOnce({
       ok: false,
       message: dictEn.admin.users.errCreateAuth,
@@ -98,6 +101,7 @@ describe("dashboard coverage", () => {
     await waitFor(() => {
       expect(screen.getByText(dictEn.admin.users.errCreateAuth)).toBeInTheDocument();
     });
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it("InscriptionsSettingsForm saves and errors", async () => {

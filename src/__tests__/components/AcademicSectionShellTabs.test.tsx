@@ -10,6 +10,8 @@ const labels = {
   schedule: "Schedule",
   fees: "Fees",
   feesLead: "Fees lead",
+  attendance: "Attendance",
+  attendanceLead: "Attendance lead",
   enroll: "Enroll",
   roster: "Roster",
 };
@@ -21,6 +23,7 @@ const renderShell = () =>
       general={<p>General body</p>}
       schedule={<p>Schedule body</p>}
       fees={<p>Fees body</p>}
+      attendance={<p>Attendance body</p>}
       enroll={<p>Enroll body</p>}
       roster={<p>Roster body</p>}
     />,
@@ -55,5 +58,19 @@ describe("AcademicSectionShellTabs", () => {
     expect(screen.getByText("Fees body")).toBeVisible();
     const feesPanel = screen.getByRole("tabpanel", { hidden: false });
     expect(feesPanel).toHaveTextContent("Fees body");
+  });
+
+  it("renders attendance as a first-class section tab", async () => {
+    const user = userEvent.setup();
+    renderShell();
+
+    const attendanceTab = screen.getByRole("tab", { name: /attendance/i });
+    expect(attendanceTab).toBeInTheDocument();
+
+    await user.click(attendanceTab);
+    expect(screen.getByText("Attendance lead")).toBeVisible();
+    expect(screen.getByText("Attendance body")).toBeVisible();
+    const attendancePanel = screen.getByRole("tabpanel", { hidden: false });
+    expect(attendancePanel).toHaveTextContent("Attendance body");
   });
 });

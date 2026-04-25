@@ -94,7 +94,7 @@ describe("loadAdminCohortCollectionsOverview", () => {
             studentId: `${sectionId}-stu`,
             studentName: `${sectionId} student`,
             documentLabel: null,
-            scholarship: null,
+            scholarships: [],
             enrolledAt: "2026-01-01",
             payments: paid > 0
               ? [

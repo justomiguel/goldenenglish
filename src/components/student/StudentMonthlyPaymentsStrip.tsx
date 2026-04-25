@@ -8,6 +8,10 @@ import {
   StudentMonthlyPaymentFocus,
   type SubmitMonthlyReceiptAction,
 } from "@/components/student/StudentMonthlyPaymentFocus";
+import {
+  StudentEnrollmentFeeUpload,
+  type SubmitEnrollmentFeeReceiptAction,
+} from "@/components/molecules/StudentEnrollmentFeeUpload";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type {
   StudentMonthlyPaymentsView,
@@ -71,8 +75,12 @@ export interface StudentMonthlyPaymentsStripProps {
   view: StudentMonthlyPaymentsView;
   labels: Dictionary["dashboard"]["student"]["monthly"];
   paymentLabels: Dictionary["dashboard"]["student"];
-  /** Server action que persiste el comprobante para `studentId`. */
+  /** Server action que persiste el comprobante mensual para `studentId`. */
   submitAction: SubmitMonthlyReceiptAction;
+  /** Server action que persiste el comprobante de matrícula para `studentId`. */
+  submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
+  /** Solo alumno: monto esperado del comprobante = mes completo (sin prorrateo). */
+  receiptExpectedUsesFullMonth?: boolean;
 }
 
 export function StudentMonthlyPaymentsStrip({
@@ -82,6 +90,8 @@ export function StudentMonthlyPaymentsStrip({
   labels,
   paymentLabels,
   submitAction,
+  submitEnrollmentFeeReceiptAction,
+  receiptExpectedUsesFullMonth = false,
 }: StudentMonthlyPaymentsStripProps) {
   const router = useRouter();
   const [focus, setFocus] = useState<FocusKey | null>(() => pickInitialFocus(view));
@@ -157,6 +167,20 @@ export function StudentMonthlyPaymentsStrip({
             {!row.hasActivePlan ? (
               <p className="mt-3 text-xs text-[var(--color-muted-foreground)]">{labels.noPlanHint}</p>
             ) : null}
+
+            {row.enrollmentFeeAmount > 0 && row.enrollmentId ? (
+              <StudentEnrollmentFeeUpload
+                locale={locale}
+                studentId={studentId}
+                sectionId={row.sectionId}
+                enrollmentId={row.enrollmentId}
+                receiptStatus={row.enrollmentFeeReceiptStatus}
+                receiptSignedUrl={row.enrollmentFeeReceiptSignedUrl}
+                labels={labels}
+                submitAction={submitEnrollmentFeeReceiptAction}
+                onSubmitted={() => router.refresh()}
+              />
+            ) : null}
           </div>
         );
       })}
@@ -171,6 +195,7 @@ export function StudentMonthlyPaymentsStrip({
           labels={labels}
           paymentLabels={paymentLabels}
           submitAction={submitAction}
+          receiptExpectedUsesFullMonth={receiptExpectedUsesFullMonth}
           onSubmitted={() => router.refresh()}
         />
       ) : null}

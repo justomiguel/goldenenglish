@@ -26,7 +26,7 @@ export async function loadAdminRetentionCandidates(supabase: SupabaseClient): Pr
   const { data: enrollments } = await supabase
     .from("section_enrollments")
     .select(
-      "id, student_id, section_id, status, profiles(first_name,last_name), academic_sections(name)",
+      "id, student_id, section_id, status, profiles!student_id(first_name,last_name), academic_sections(name)",
     )
     .in("status", ["active", "completed"]);
 

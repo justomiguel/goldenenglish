@@ -22,6 +22,7 @@ export function StudentPaymentForm({ locale, labels }: StudentPaymentFormProps) 
   const [amount, setAmount] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [receiptFileName, setReceiptFileName] = useState<string | null>(null);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -83,17 +84,41 @@ export function StudentPaymentForm({ locale, labels }: StudentPaymentFormProps) 
           required
         />
       </div>
-      <div>
-        <Label htmlFor="sp-file">{labels.payReceipt}</Label>
-        <input
-          id="sp-file"
-          name="receipt"
-          type="file"
-          accept="image/*,application/pdf"
-          required
-          className="mt-1 block w-full min-h-[44px] text-sm"
-        />
-      </div>
+      <fieldset className="min-w-0 border-0 p-0">
+        <legend className="text-sm font-semibold text-[var(--color-foreground)]">
+          {labels.payReceipt}
+        </legend>
+        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.payReceiptHint}</p>
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+          <input
+            id="sp-file"
+            name="receipt"
+            type="file"
+            accept="image/*,application/pdf"
+            required
+            aria-label={labels.payReceipt}
+            className="sr-only"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              setReceiptFileName(f?.name ?? null);
+            }}
+          />
+          <label
+            htmlFor="sp-file"
+            className="inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center rounded-[var(--layout-border-radius)] border-2 border-[var(--color-primary)] bg-[var(--color-background)] px-4 py-2 text-center text-sm font-semibold text-[var(--color-primary)] transition-colors hover:bg-[var(--color-muted)] focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--color-primary)] focus-within:ring-offset-2 sm:w-auto"
+          >
+            {labels.payReceiptChooseButton}
+          </label>
+          <p
+            className="text-sm text-[var(--color-muted-foreground)] sm:min-h-[44px] sm:flex sm:max-w-[min(100%,20rem)] sm:items-center"
+            aria-live="polite"
+          >
+            <span className="break-all font-medium text-[var(--color-foreground)]">
+              {receiptFileName ?? labels.payReceiptNoFileSelected}
+            </span>
+          </p>
+        </div>
+      </fieldset>
       <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px] w-full sm:w-auto">
         {labels.paySubmit}
       </Button>

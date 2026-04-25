@@ -27,14 +27,10 @@ export function AdminUserIdentityHero({
   const canChangeStudentAvatar = detail.role === "student" && detail.viewerMayInlineEdit;
 
   return (
-    <section className="relative overflow-hidden rounded-[calc(var(--layout-border-radius)*1.35)] border border-[color-mix(in_srgb,var(--color-accent)_24%,var(--color-border))] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
-      <div
-        className="absolute inset-x-0 top-0 h-24 bg-[radial-gradient(circle_at_20%_0%,color-mix(in_srgb,var(--color-accent)_28%,transparent),transparent_34%),linear-gradient(135deg,color-mix(in_srgb,var(--color-primary)_18%,transparent),color-mix(in_srgb,var(--color-secondary)_14%,transparent))]"
-        aria-hidden
-      />
-      <div className="relative grid gap-5 p-5 pt-8 sm:grid-cols-[auto_minmax(0,1fr)] sm:p-6">
-        <div className="space-y-3">
-          <div className="inline-flex rounded-full bg-[var(--color-surface)] p-1.5 shadow-[var(--shadow-card)] ring-4 ring-[color-mix(in_srgb,var(--color-surface)_88%,transparent)]">
+    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
+      <div className="grid gap-5 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
+        <div className="relative w-fit">
+          <div className="inline-flex rounded-full bg-[var(--color-surface)] p-1 shadow-[var(--shadow-card)] ring-1 ring-[var(--color-border)]">
             <ProfileAvatar
               key={resolvedAvatarUrl ?? "none"}
               url={resolvedAvatarUrl}
@@ -43,19 +39,21 @@ export function AdminUserIdentityHero({
             />
           </div>
           {canChangeStudentAvatar ? (
-            <AdminUserAvatarUploadForm
-              locale={locale}
-              targetUserId={detail.userId}
-              labels={labels}
-              onPreview={setPreviewFromFile}
-            />
+            <div className="absolute -bottom-1 -left-1">
+              <AdminUserAvatarUploadForm
+                locale={locale}
+                targetUserId={detail.userId}
+                labels={labels}
+                onPreview={setPreviewFromFile}
+              />
+            </div>
           ) : null}
         </div>
 
-        <div className="min-w-0 space-y-5 pt-16 sm:pt-14">
+        <div className="min-w-0 space-y-4">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="break-words font-display text-3xl font-bold leading-tight text-[var(--color-secondary)]">
+              <h1 className="break-words font-display text-2xl font-bold leading-tight text-[var(--color-secondary)]">
                 {displayName}
               </h1>
               <span className="rounded-full border border-[color-mix(in_srgb,var(--color-accent)_30%,var(--color-border))] bg-[var(--color-background)] px-3 py-1 text-xs font-semibold text-[var(--color-primary)]">

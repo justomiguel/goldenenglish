@@ -9,6 +9,7 @@ import type { ScholarshipRow } from "@/lib/billing/scholarshipPeriod";
 import type { StudentMonthlyPaymentRecord } from "@/lib/billing/buildStudentMonthlyPaymentsRow";
 import type { SectionScheduleSlot } from "@/types/academics";
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
+import type { StudentPromotionStatusRow } from "@/lib/billing/studentPromotionStatus";
 
 export interface SectionMeta {
   id: string;
@@ -25,6 +26,14 @@ export interface SectionMeta {
 export interface EnrollmentRow {
   student_id: string;
   created_at: string | null;
+  enrollment_fee_exempt: boolean | null;
+  enrollment_exempt_reason: string | null;
+  scholarship_discount_percent: number | string | null;
+  scholarship_valid_from_year: number | null;
+  scholarship_valid_from_month: number | null;
+  scholarship_valid_until_year: number | null;
+  scholarship_valid_until_month: number | null;
+  scholarship_is_active: boolean | null;
 }
 
 export type ProfileRow = {
@@ -32,6 +41,8 @@ export type ProfileRow = {
   first_name: string | null;
   last_name: string | null;
   dni_or_passport: string | null;
+  enrollment_fee_exempt: boolean | null;
+  enrollment_exempt_reason: string | null;
 };
 
 export interface PaymentRow {
@@ -46,13 +57,21 @@ export interface PaymentRow {
 }
 
 export type ScholarshipDbRow = {
+  id: string;
+  enrollment_id: string;
   student_id: string;
   discount_percent: number | string;
+  note: string | null;
   valid_from_year: number;
   valid_from_month: number;
   valid_until_year: number | null;
   valid_until_month: number | null;
   is_active: boolean;
+};
+
+export type StudentPromotionDbRow = StudentPromotionStatusRow & Record<string, unknown> & {
+  student_id: string;
+  applied_at: string | null;
 };
 
 export async function loadSectionMeta(
@@ -121,12 +140,22 @@ export async function loadActiveEnrollments(
 ): Promise<EnrollmentRow[]> {
   const { data } = await supabase
     .from("section_enrollments")
-    .select("student_id, created_at")
+    .select(
+      "student_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, scholarship_discount_percent, scholarship_valid_from_year, scholarship_valid_from_month, scholarship_valid_until_year, scholarship_valid_until_month, scholarship_is_active",
+    )
     .eq("section_id", sectionId)
     .eq("status", "active");
   return ((data ?? []) as EnrollmentRow[]).map((row) => ({
     student_id: row.student_id,
     created_at: row.created_at ?? null,
+    enrollment_fee_exempt: row.enrollment_fee_exempt ?? null,
+    enrollment_exempt_reason: row.enrollment_exempt_reason ?? null,
+    scholarship_discount_percent: row.scholarship_discount_percent ?? null,
+    scholarship_valid_from_year: row.scholarship_valid_from_year ?? null,
+    scholarship_valid_from_month: row.scholarship_valid_from_month ?? null,
+    scholarship_valid_until_year: row.scholarship_valid_until_year ?? null,
+    scholarship_valid_until_month: row.scholarship_valid_until_month ?? null,
+    scholarship_is_active: row.scholarship_is_active ?? null,
   }));
 }
 
@@ -135,11 +164,12 @@ export function studentDisplayName(p: ProfileRow): string {
 }
 
 export function mapScholarship(
-  row: ScholarshipDbRow | undefined,
-): ScholarshipRow | null {
-  if (!row) return null;
+  row: ScholarshipDbRow,
+): ScholarshipRow {
   return {
+    id: row.id,
     discount_percent: Number(row.discount_percent),
+    note: row.note,
     valid_from_year: row.valid_from_year,
     valid_from_month: row.valid_from_month,
     valid_until_year: row.valid_until_year,
@@ -147,3 +177,32 @@ export function mapScholarship(
     is_active: Boolean(row.is_active),
   };
 }
+
+export function mapEnrollmentScholarship(
+  row: Pick<
+    EnrollmentRow,
+    | "scholarship_discount_percent"
+    | "scholarship_valid_from_year"
+    | "scholarship_valid_from_month"
+    | "scholarship_valid_until_year"
+    | "scholarship_valid_until_month"
+    | "scholarship_is_active"
+  >,
+): ScholarshipRow | null {
+  if (
+    row.scholarship_discount_percent == null ||
+    row.scholarship_valid_from_year == null ||
+    row.scholarship_valid_from_month == null
+  ) {
+    return null;
+  }
+  return {
+    discount_percent: Number(row.scholarship_discount_percent),
+    valid_from_year: row.scholarship_valid_from_year,
+    valid_from_month: row.scholarship_valid_from_month,
+    valid_until_year: row.scholarship_valid_until_year,
+    valid_until_month: row.scholarship_valid_until_month,
+    is_active: Boolean(row.scholarship_is_active),
+  };
+}
+

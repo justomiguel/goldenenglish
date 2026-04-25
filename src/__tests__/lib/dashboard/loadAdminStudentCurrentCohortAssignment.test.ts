@@ -76,6 +76,7 @@ describe("loadAdminStudentCurrentCohortAssignment", () => {
       cohortName: null,
       sections: [],
       current: null,
+      currentSections: [],
       hasMultipleCurrentAssignments: false,
     });
   });
@@ -116,6 +117,9 @@ describe("loadAdminStudentCurrentCohortAssignment", () => {
       sectionId: "section-a",
       sectionName: "A1",
     });
+    expect(result.currentSections).toEqual([
+      { enrollmentId: "enrollment-a", sectionId: "section-a", sectionName: "A1" },
+    ]);
     expect(result.sections[0]).toMatchObject({
       id: "section-a",
       name: "A1",

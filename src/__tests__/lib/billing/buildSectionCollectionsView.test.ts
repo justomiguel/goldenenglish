@@ -36,7 +36,7 @@ function studentWithPayments(
     studentId,
     studentName,
     documentLabel: `DOC-${studentId}`,
-    scholarship: null,
+    scholarships: [],
     payments,
     enrolledAt: "2026-01-01",
   };
@@ -193,6 +193,123 @@ describe("buildSectionCollectionsView", () => {
     });
     expect(view.students[0]!.expectedYear).toBe(1350);
     expect(view.kpis.expectedYear).toBe(1350);
+  });
+
+  it("does not count section enrollment fee for enrollment-fee-exempt students", () => {
+    const view = buildSectionCollectionsView({
+      sectionId: "sec-1",
+      sectionName: "Section A",
+      cohortId: "cohort-1",
+      cohortName: "2026",
+      todayYear: 2026,
+      todayMonth: 12,
+      plans: [PLAN],
+      students: [
+        {
+          ...studentWithPayments("s1", "Ana", []),
+          enrollmentFeeExempt: true,
+          enrollmentExemptReason: "Staff grant",
+        },
+      ],
+      ...SECTION_RANGE,
+      sectionEnrollmentFeeAmount: 150,
+    });
+
+    expect(view.students[0]!.expectedYear).toBe(1200);
+    expect(view.students[0]!.enrollmentFee.exempt).toBe(true);
+    expect(view.students[0]!.enrollmentFee.expectedAmount).toBe(0);
+    expect(view.kpis.expectedYear).toBe(1200);
+  });
+
+  it("does not count exempt monthly periods as expected or overdue", () => {
+    const view = buildSectionCollectionsView({
+      sectionId: "sec-1",
+      sectionName: "Section A",
+      cohortId: "cohort-1",
+      cohortName: "2026",
+      todayYear: 2026,
+      todayMonth: 6,
+      plans: [PLAN],
+      students: [
+        studentWithPayments("s1", "Ana", [
+          {
+            id: "exempt-jan",
+            sectionId: "sec-1",
+            month: 1,
+            year: 2026,
+            amount: 0,
+            status: "exempt",
+            receiptSignedUrl: null,
+          },
+        ]),
+      ],
+      ...SECTION_RANGE,
+    });
+
+    expect(view.students[0]!.row.cells[0]!.status).toBe("exempt");
+    expect(view.students[0]!.expectedYear).toBe(1100);
+    expect(view.students[0]!.overdue).toBe(400);
+    expect(view.kpis.expectedYear).toBe(1100);
+    expect(view.kpis.overdue).toBe(400);
+  });
+
+  it("marks active scholarship metadata for finance rows", () => {
+    const view = buildSectionCollectionsView({
+      sectionId: "sec-1",
+      sectionName: "Section A",
+      cohortId: "cohort-1",
+      cohortName: "2026",
+      todayYear: 2026,
+      todayMonth: 12,
+      plans: [PLAN],
+      students: [
+        {
+          ...studentWithPayments("s1", "Ana", []),
+          scholarships: [{
+            discount_percent: 25,
+            valid_from_year: 2026,
+            valid_from_month: 1,
+            valid_until_year: null,
+            valid_until_month: null,
+            is_active: true,
+          }],
+        },
+      ],
+      ...SECTION_RANGE,
+    });
+
+    expect(view.students[0]!.activeScholarshipDiscountPercent).toBe(25);
+  });
+
+  it("discounts finance expected totals when a scholarship is active", () => {
+    const view = buildSectionCollectionsView({
+      sectionId: "sec-1",
+      sectionName: "Section A",
+      cohortId: "cohort-1",
+      cohortName: "2026",
+      todayYear: 2026,
+      todayMonth: 6,
+      plans: [PLAN],
+      students: [
+        {
+          ...studentWithPayments("s1", "Ana", []),
+          scholarships: [{
+            discount_percent: 50,
+            valid_from_year: 2026,
+            valid_from_month: 1,
+            valid_until_year: null,
+            valid_until_month: null,
+            is_active: true,
+          }],
+        },
+      ],
+      ...SECTION_RANGE,
+    });
+
+    expect(view.students[0]!.expectedYear).toBe(600);
+    expect(view.students[0]!.overdue).toBe(250);
+    expect(view.kpis.expectedYear).toBe(600);
+    expect(view.kpis.overdue).toBe(250);
   });
 
   it("uses the fee-plan year in admin totals, independent of enrolment day", () => {

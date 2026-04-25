@@ -107,5 +107,11 @@ export async function loadAdminCohortCollectionsBulk(
     return loadFallbackMatrix(supabase, cohortId, opts);
   }
   const raw = data as CohortCollectionsBulkRaw;
+  const rpcHasSectionBenefits =
+    raw.enrollments.length === 0 ||
+    raw.enrollments.some((row) => "enrollment_fee_exempt" in row);
+  if (!rpcHasSectionBenefits) {
+    return loadFallbackMatrix(supabase, cohortId, opts);
+  }
   return buildCohortCollectionsMatrix(raw, opts);
 }

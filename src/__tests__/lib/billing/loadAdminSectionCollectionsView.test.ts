@@ -74,8 +74,18 @@ describe("loadAdminSectionCollectionsView", () => {
       academic_sections: { data: SECTION, error: null },
       section_enrollments: {
         data: [
-          { student_id: "stu-1", created_at: "2026-01-01T00:00:00Z" },
-          { student_id: "stu-2", created_at: "2026-01-01T00:00:00Z" },
+          {
+            student_id: "stu-1",
+            created_at: "2026-01-01T00:00:00Z",
+            enrollment_fee_exempt: true,
+            enrollment_exempt_reason: "Convenio",
+          },
+          {
+            student_id: "stu-2",
+            created_at: "2026-01-01T00:00:00Z",
+            enrollment_fee_exempt: false,
+            enrollment_exempt_reason: null,
+          },
         ],
         error: null,
       },
@@ -95,8 +105,22 @@ describe("loadAdminSectionCollectionsView", () => {
       },
       profiles: {
         data: [
-          { id: "stu-1", first_name: "Ana", last_name: "Pérez", dni_or_passport: "DOC1" },
-          { id: "stu-2", first_name: "Bea", last_name: "Gómez", dni_or_passport: "DOC2" },
+          {
+            id: "stu-1",
+            first_name: "Ana",
+            last_name: "Pérez",
+            dni_or_passport: "DOC1",
+            enrollment_fee_exempt: true,
+            enrollment_exempt_reason: "Convenio",
+          },
+          {
+            id: "stu-2",
+            first_name: "Bea",
+            last_name: "Gómez",
+            dni_or_passport: "DOC2",
+            enrollment_fee_exempt: null,
+            enrollment_exempt_reason: null,
+          },
         ],
         error: null,
       },
@@ -129,6 +153,20 @@ describe("loadAdminSectionCollectionsView", () => {
         ],
         error: null,
       },
+      student_promotions: {
+        data: [
+          {
+            student_id: "stu-2",
+            code_snapshot: "PROMO25",
+            promotion_snapshot: { name: "Promo bienvenida" },
+            applies_to_snapshot: "monthly",
+            monthly_months_remaining: 2,
+            enrollment_consumed: null,
+            applied_at: "2026-01-01T00:00:00Z",
+          },
+        ],
+        error: null,
+      },
     });
 
     const view = await loadAdminSectionCollectionsView(supa, "sec-1", {
@@ -141,5 +179,64 @@ describe("loadAdminSectionCollectionsView", () => {
       "Bea Gómez",
     ]);
     expect(view?.kpis.paid).toBe(100);
+    expect(view?.students.find((s) => s.studentId === "stu-1")?.enrollmentFee.exempt).toBe(true);
+    expect(view?.students.find((s) => s.studentId === "stu-2")?.activePromotionLabel).toBe("Promo bienvenida");
+  });
+
+  it("does not inherit profile enrollment exemption when section enrollment is not exempt", async () => {
+    const supa = buildSupabaseMock({
+      academic_sections: { data: SECTION, error: null },
+      section_enrollments: {
+        data: [
+          {
+            student_id: "stu-1",
+            created_at: "2026-01-01T00:00:00Z",
+            enrollment_fee_exempt: false,
+            enrollment_exempt_reason: null,
+          },
+        ],
+        error: null,
+      },
+      section_fee_plans: {
+        data: [
+          {
+            id: "plan-1",
+            section_id: "sec-1",
+            effective_from_year: 2026,
+            effective_from_month: 1,
+            monthly_fee: 100,
+            currency: "USD",
+            archived_at: null,
+          },
+        ],
+        error: null,
+      },
+      profiles: {
+        data: [
+          {
+            id: "stu-1",
+            first_name: "Ana",
+            last_name: "Pérez",
+            dni_or_passport: "DOC1",
+            enrollment_fee_exempt: true,
+            enrollment_exempt_reason: "Legacy global",
+          },
+        ],
+        error: null,
+      },
+      payments: { data: [], error: null },
+      student_scholarships: { data: [], error: null },
+      student_promotions: { data: [], error: null },
+    });
+
+    const view = await loadAdminSectionCollectionsView(supa, "sec-1", {
+      todayYear: 2026,
+      todayMonth: 6,
+    });
+
+    expect(view?.students[0]?.enrollmentFee).toMatchObject({
+      exempt: false,
+      exemptReason: null,
+    });
   });
 });

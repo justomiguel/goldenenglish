@@ -1,6 +1,5 @@
 "use server";
 
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {
@@ -59,16 +58,7 @@ const undoColumnSchema = z.object({
   enrollmentIds: z.array(uuid).min(1).max(200),
 });
 
-async function revalidateAdminSectionAttendancePaths(
-  supabase: SupabaseClient,
-  locale: string,
-  sectionId: string,
-) {
-  const { data: sec } = await supabase.from("academic_sections").select("cohort_id").eq("id", sectionId).maybeSingle();
-  const cohortId = sec?.cohort_id as string | undefined;
-  if (!cohortId) return;
-  revalidatePath(`/${locale}/dashboard/admin/academic/${cohortId}/${sectionId}/attendance`);
-  revalidatePath(`/${locale}/dashboard/admin/academic/${cohortId}/${sectionId}`);
+function revalidateAdminAttendanceConsumers(locale: string) {
   revalidatePath(`/${locale}/dashboard/student`);
   revalidatePath(`/${locale}/dashboard/parent`);
 }
@@ -93,7 +83,7 @@ export async function adminUpsertSectionAttendanceCellsAction(
       resourceId: sectionId,
       payload: { count: cells.length },
     });
-    await revalidateAdminSectionAttendancePaths(supabase, locale, sectionId);
+    revalidateAdminAttendanceConsumers(locale);
     return { ok: true };
   } catch (err) {
     logServerException("adminUpsertSectionAttendanceCellsAction", err);
@@ -121,7 +111,7 @@ export async function fillEmptyAdminAttendanceColumnAction(
       resourceId: sectionId,
       payload: { attendedOn, inserted: res.insertedEnrollmentIds.length },
     });
-    await revalidateAdminSectionAttendancePaths(supabase, locale, sectionId);
+    revalidateAdminAttendanceConsumers(locale);
     return { ok: true, insertedEnrollmentIds: res.insertedEnrollmentIds };
   } catch (err) {
     logServerException("fillEmptyAdminAttendanceColumnAction", err);
@@ -149,7 +139,7 @@ export async function undoAdminAttendanceColumnFillAction(
       resourceId: sectionId,
       payload: { attendedOn, count: enrollmentIds.length },
     });
-    await revalidateAdminSectionAttendancePaths(supabase, locale, sectionId);
+    revalidateAdminAttendanceConsumers(locale);
     return { ok: true };
   } catch (err) {
     logServerException("undoAdminAttendanceColumnFillAction", err);

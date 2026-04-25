@@ -143,6 +143,7 @@ describe("buildStudentMonthlyPaymentsRow", () => {
     expect(may.status).toBe("due");
     expect(may.proration).toEqual({ numerator: 3, denominator: 8 });
     expect(may.expectedAmount).toBe(37.5);
+    expect(may.fullMonthExpectedAmount).toBe(100);
   });
 
   it("sets out-of-period when the student joined after the month ended", () => {

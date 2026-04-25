@@ -2,12 +2,16 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import type { SectionAttendanceStatusDb } from "@/types/sectionAcademics";
-import { upsertTeacherAttendanceCellsAction } from "@/app/[locale]/dashboard/teacher/sections/teacherAttendanceMatrixActions";
-import { adminUpsertSectionAttendanceCellsAction } from "@/app/[locale]/dashboard/admin/academic/adminSectionAttendanceActions";
+import { logClientException } from "@/lib/logging/clientLog";
 
 type Queued = { enrollmentId: string; attendedOn: string; status: SectionAttendanceStatusDb };
 
 export type AttendanceMatrixAutosaveVariant = "teacher" | "admin";
+
+const ENDPOINT: Record<AttendanceMatrixAutosaveVariant, string> = {
+  admin: "/api/admin/attendance/cells",
+  teacher: "/api/teacher/attendance/cells",
+};
 
 export function useAttendanceMatrixAutosave(
   variant: AttendanceMatrixAutosaveVariant,
@@ -23,14 +27,20 @@ export function useAttendanceMatrixAutosave(
     const batch = [...pending.current.values()];
     pending.current.clear();
     if (batch.length === 0) return { ok: true as const };
-    const fd = new FormData();
-    fd.set("payload", JSON.stringify({ locale, sectionId, cells: batch }));
-    const res =
-      variant === "teacher"
-        ? await upsertTeacherAttendanceCellsAction(null, fd)
-        : await adminUpsertSectionAttendanceCellsAction(null, fd);
-    if (!res.ok) onFlushError?.(res.code);
-    return res;
+    try {
+      const resp = await fetch(ENDPOINT[variant], {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ locale, sectionId, cells: batch }),
+      });
+      const res = (await resp.json()) as { ok: boolean; code?: string };
+      if (!res.ok) onFlushError?.(res.code ?? "save");
+      return res;
+    } catch (err) {
+      logClientException("attendanceMatrixAutosave:flush", err);
+      onFlushError?.("network");
+      return { ok: false, code: "network" };
+    }
   }, [locale, sectionId, variant, onFlushError]);
 
   const scheduleFlush = useCallback(() => {

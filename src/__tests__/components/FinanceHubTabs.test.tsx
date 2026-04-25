@@ -21,13 +21,15 @@ describe("parseFinanceHubTab", () => {
     for (const tab of FINANCE_HUB_TAB_ORDER) {
       expect(parseFinanceHubTab(tab)).toBe(tab);
     }
+    expect(parseFinanceHubTab("collections")).toBe("overview");
+    expect(parseFinanceHubTab("receipts")).toBe("overview");
   });
 });
 
 describe("FinanceHubTabs", () => {
   it("renders one link per tab and marks the current one with aria-current", () => {
     render(
-      <FinanceHubTabs current="collections" baseHref={baseHref} dict={hubDict}>
+      <FinanceHubTabs current="payments" baseHref={baseHref} dict={hubDict}>
         <p>panel-content</p>
       </FinanceHubTabs>,
     );
@@ -38,13 +40,15 @@ describe("FinanceHubTabs", () => {
       ).toBeInTheDocument();
     }
     const active = screen.getByRole("link", {
-      name: hubDict.tabs.collections,
+      name: hubDict.tabs.payments,
     });
     expect(active).toHaveAttribute("aria-current", "page");
     expect(active).toHaveAttribute(
       "href",
-      `${baseHref}?tab=collections`,
+      `${baseHref}?tab=payments`,
     );
+    expect(screen.queryByRole("link", { name: hubDict.tabs.collections })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: hubDict.tabs.receipts })).not.toBeInTheDocument();
   });
 
   it("preserves cohort and year query across tab switches", () => {
@@ -58,10 +62,10 @@ describe("FinanceHubTabs", () => {
         <p>panel-content</p>
       </FinanceHubTabs>,
     );
-    const link = screen.getByRole("link", { name: hubDict.tabs.collections });
+    const link = screen.getByRole("link", { name: hubDict.tabs.payments });
     const href = link.getAttribute("href")!;
     expect(href.startsWith(`${baseHref}?`)).toBe(true);
-    expect(href).toContain("tab=collections");
+    expect(href).toContain("tab=payments");
     expect(href).toContain("cohort=co-1");
     expect(href).toContain("year=2026");
   });
@@ -75,7 +79,7 @@ describe("FinanceHubTabs", () => {
     expect(screen.getByTestId("finance-panel")).toBeInTheDocument();
   });
 
-  it("surfaces pending counts only on receipts and payments tabs", () => {
+  it("surfaces pending counts only on visible payments tab", () => {
     render(
       <FinanceHubTabs
         current="overview"
@@ -86,9 +90,9 @@ describe("FinanceHubTabs", () => {
         <p>panel-content</p>
       </FinanceHubTabs>,
     );
-    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.queryByText("3")).not.toBeInTheDocument();
     expect(screen.getByText("7")).toBeInTheDocument();
-    // overview / collections never get a numeric badge.
+    // overview never gets a numeric badge.
     expect(screen.queryByText("0")).not.toBeInTheDocument();
   });
 
@@ -97,7 +101,7 @@ describe("FinanceHubTabs", () => {
       <FinanceHubTabs
         current="overview"
         baseHref={baseHref}
-        pendingCounts={{ receipts: 250 }}
+        pendingCounts={{ payments: 250 }}
         dict={hubDict}
       >
         <p>panel-content</p>
@@ -108,10 +112,10 @@ describe("FinanceHubTabs", () => {
 
   it("shows the active tab's tooltip text as a contextual subtitle", () => {
     render(
-      <FinanceHubTabs current="receipts" baseHref={baseHref} dict={hubDict}>
+      <FinanceHubTabs current="payments" baseHref={baseHref} dict={hubDict}>
         <p>panel-content</p>
       </FinanceHubTabs>,
     );
-    expect(screen.getByText(hubDict.tipReceipts)).toBeInTheDocument();
+    expect(screen.getByText(hubDict.tipPayments)).toBeInTheDocument();
   });
 });

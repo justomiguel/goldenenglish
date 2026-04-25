@@ -22,6 +22,12 @@ export interface StudentMonthlyPaymentCell {
   status: StudentMonthlyPaymentCellStatus;
   /** Plan-derived expected amount (monthly fee, after proration + scholarship) for the month, or null if no plan. */
   expectedAmount: number | null;
+  /**
+   * Same fee rules as {@link expectedAmount} but on the full monthly fee (no
+   * class-based proration). Used in the student receipt panel when we show the
+   * mes completo instead of the prorated operativo.
+   */
+  fullMonthExpectedAmount: number | null;
   /** ISO 4217 currency for the cell, or null when there is no active plan. */
   currency: string | null;
   /** Prorrateo aplicado al expectedAmount (numerator/denominator); null si no aplica. */
@@ -35,6 +41,8 @@ export interface StudentMonthlyPaymentCell {
   /** True for the month that matches "today" (in the locale's calendar). */
   isCurrent: boolean;
 }
+
+export type EnrollmentFeeReceiptStatus = "pending" | "approved" | "rejected";
 
 export interface StudentMonthlyPaymentSectionRow {
   sectionId: string;
@@ -55,6 +63,15 @@ export interface StudentMonthlyPaymentSectionRow {
   cells: StudentMonthlyPaymentCell[];
   /** Plan effective for the current month (when present), used by the focus card. */
   currentPlan: SectionFeePlan | null;
+  /**
+   * `section_enrollments.id` for this student+section combo. Needed to scope
+   * the enrollment fee receipt actions.
+   */
+  enrollmentId: string | null;
+  /** Review status of the student-uploaded enrollment fee receipt. */
+  enrollmentFeeReceiptStatus: EnrollmentFeeReceiptStatus | null;
+  /** Pre-signed URL for the uploaded enrollment fee receipt, when present. */
+  enrollmentFeeReceiptSignedUrl: string | null;
 }
 
 export interface StudentMonthlyPaymentsView {

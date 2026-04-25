@@ -2,10 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import {
-  applyExemptionRange,
-  setPeriodExemption,
-} from "@/app/[locale]/dashboard/admin/users/[userId]/billing/periodExemptionActions";
+import { applyExemptionRange } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/applyExemptionRangeAction";
+import { setPeriodExemption } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/periodExemptionActions";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -17,6 +15,8 @@ type BillingLabels = Dictionary["admin"]["billing"];
 export interface AdminStudentBillingPeriodExemptionsPanelProps {
   locale: Locale;
   studentId: string;
+  sectionId: string | null;
+  sectionName: string | null;
   labels: BillingLabels;
   busy: boolean;
   setBusy: (v: boolean) => void;
@@ -26,6 +26,8 @@ export interface AdminStudentBillingPeriodExemptionsPanelProps {
 export function AdminStudentBillingPeriodExemptionsPanel({
   locale,
   studentId,
+  sectionId,
+  sectionName,
   labels,
   busy,
   setBusy,
@@ -45,6 +47,7 @@ export function AdminStudentBillingPeriodExemptionsPanel({
     const res = await setPeriodExemption({
       locale,
       studentId,
+      sectionId: sectionId ?? undefined,
       year: period.year,
       month: period.month,
       exempt,
@@ -61,6 +64,7 @@ export function AdminStudentBillingPeriodExemptionsPanel({
     const res = await applyExemptionRange({
       locale,
       studentId,
+      sectionId: sectionId ?? undefined,
       fromYear: rFromY,
       fromMonth: rFromM,
       toYear: rToY,
@@ -74,6 +78,11 @@ export function AdminStudentBillingPeriodExemptionsPanel({
   return (
     <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
       <h2 className="font-semibold text-[var(--color-secondary)]">{labels.exemptionTitle}</h2>
+      {sectionName ? (
+        <p className="mt-0.5 text-xs font-medium text-[var(--color-muted-foreground)]">
+          {labels.panelAppliesTo.replace("{section}", sectionName)}
+        </p>
+      ) : null}
       <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.exemptionLead}</p>
       <div className="mt-4 flex flex-wrap items-end gap-2">
         <div>

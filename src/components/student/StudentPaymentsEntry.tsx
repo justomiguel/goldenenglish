@@ -6,6 +6,7 @@ import { PromotionAppliedBadge } from "@/components/molecules/PromotionAppliedBa
 import { PromotionApplyForm } from "@/components/molecules/PromotionApplyForm";
 import { StudentMonthlyPaymentsStrip } from "@/components/student/StudentMonthlyPaymentsStrip";
 import type { SubmitMonthlyReceiptAction } from "@/components/student/StudentMonthlyPaymentFocus";
+import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import { StudentPaymentsYearSummary } from "@/components/student/StudentPaymentsYearSummary";
 import {
   StudentPaymentsHistory,
@@ -40,11 +41,13 @@ export interface StudentPaymentsEntryProps {
   /** When set, payment forms are hidden (minor with a responsible tutor). */
   paymentsBlockedMessage?: string;
   /**
-   * Server action that uploads a receipt for `studentId`. Decoupled so the same
+   * Server action that uploads a monthly receipt for `studentId`. Decoupled so the same
    * entry can be reused by tutors (`submitTutorPaymentReceipt`) without forking
    * the strip or focus components.
    */
   submitReceiptAction: SubmitMonthlyReceiptAction;
+  /** Server action that uploads an enrollment fee receipt for `studentId`. */
+  submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
 }
 
 export function StudentPaymentsEntry({
@@ -57,7 +60,7 @@ export function StudentPaymentsEntry({
   monthlyView,
   labels,
   paymentsBlockedMessage,
-  submitReceiptAction,
+  ...rest
 }: StudentPaymentsEntryProps) {
   if (paymentsBlockedMessage) {
     const blockedBody = (
@@ -86,6 +89,8 @@ export function StudentPaymentsEntry({
       />
     );
   }
+
+  const { submitReceiptAction, submitEnrollmentFeeReceiptAction } = rest;
 
   const body = (
     <>
@@ -118,6 +123,8 @@ export function StudentPaymentsEntry({
             labels={labels.monthly}
             paymentLabels={labels}
             submitAction={submitReceiptAction}
+            submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceiptAction}
+            receiptExpectedUsesFullMonth
           />
         </>
       ) : null}

@@ -68,8 +68,10 @@ export function SectionAttendanceMatrix({
   ) {
     setPayloadSnapshot({ payloadJson: initialPayloadJson, todayIso });
     const p = JSON.parse(initialPayloadJson) as TeacherAttendanceMatrixPayload;
-    setCells(structuredClone(p.cells));
-    setFocused(defaultMatrixFocus(p.rows, p.classDays, p.cells, todayIso));
+    if (p.classDays.length > 0) {
+      setCells(structuredClone(p.cells));
+      setFocused(defaultMatrixFocus(p.rows, p.classDays, p.cells, todayIso));
+    }
   }
 
   const onFlushError = useCallback(() => {
