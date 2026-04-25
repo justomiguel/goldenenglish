@@ -1,15 +1,20 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { dictEn } from "@/test/dictEn";
 import { ParentPaymentsEntry } from "@/components/parent/ParentPaymentsEntry";
+
+const stripSpy = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
 vi.mock("@/components/student/StudentMonthlyPaymentsStrip", () => ({
-  StudentMonthlyPaymentsStrip: () => <div data-testid="payments-strip" />,
+  StudentMonthlyPaymentsStrip: (props: Record<string, unknown>) => {
+    stripSpy(props);
+    return <div data-testid="payments-strip" />;
+  },
 }));
 
 vi.mock("@/components/student/StudentPaymentsHistory", () => ({
@@ -44,6 +49,10 @@ const labels = dictEn.dashboard.parent;
 const studentLabels = dictEn.dashboard.student;
 
 describe("ParentPaymentsEntry", () => {
+  beforeEach(() => {
+    stripSpy.mockClear();
+  });
+
   it("shows the no-linked-students empty state when options is empty", () => {
     render(
       <ParentPaymentsEntry
@@ -58,6 +67,7 @@ describe("ParentPaymentsEntry", () => {
         labels={labels}
         studentLabels={studentLabels}
         submitReceiptAction={vi.fn()}
+        submitEnrollmentFeeReceiptAction={vi.fn()}
       />,
     );
     expect(
@@ -83,11 +93,15 @@ describe("ParentPaymentsEntry", () => {
         labels={labels}
         studentLabels={studentLabels}
         submitReceiptAction={vi.fn()}
+        submitEnrollmentFeeReceiptAction={vi.fn()}
       />,
     );
     expect(screen.getAllByLabelText(labels.paymentsPickerLabel).length).toBeGreaterThan(0);
     expect(screen.getAllByTestId("payments-strip").length).toBeGreaterThan(0);
     expect(screen.getAllByTestId("pay-history").length).toBeGreaterThan(0);
+    expect(stripSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ receiptExpectedUsesFullMonth: true }),
+    );
   });
 
   it("renders the access-revoked banner instead of the strip when student opted out", () => {
@@ -106,6 +120,7 @@ describe("ParentPaymentsEntry", () => {
         labels={labels}
         studentLabels={studentLabels}
         submitReceiptAction={vi.fn()}
+        submitEnrollmentFeeReceiptAction={vi.fn()}
       />,
     );
     expect(

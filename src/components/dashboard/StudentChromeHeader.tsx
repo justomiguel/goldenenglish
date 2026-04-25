@@ -11,12 +11,20 @@ export interface StudentChromeHeaderProps {
   locale: string;
   brand: BrandPublic;
   dict: Dictionary;
+  homeHref?: string;
+  labels?: Dictionary["dashboard"]["studentChrome"];
   mobileNav?: ReactNode;
 }
 
-export function StudentChromeHeader({ locale, brand, dict, mobileNav }: StudentChromeHeaderProps) {
+export function StudentChromeHeader({
+  locale,
+  brand,
+  dict,
+  homeHref = `/${locale}/dashboard/student`,
+  labels = dict.dashboard.studentChrome,
+  mobileNav,
+}: StudentChromeHeaderProps) {
   const tagline = locale === "es" ? brand.tagline : brand.taglineEn;
-  const labels = dict.dashboard.studentChrome;
   const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
 
   return (
@@ -28,7 +36,7 @@ export function StudentChromeHeader({ locale, brand, dict, mobileNav }: StudentC
         <div className="flex min-w-0 flex-1 items-center gap-3">
           {mobileNav}
           <Link
-            href={`/${locale}/dashboard/student`}
+            href={homeHref}
             className="group flex min-w-0 flex-1 items-center gap-3 rounded-[var(--layout-border-radius)] outline-none ring-[var(--color-primary)] transition hover:opacity-95 focus-visible:ring-2 focus-visible:ring-offset-2"
           >
             <div className="shrink-0 rounded-[var(--layout-border-radius)] bg-[var(--color-background)] p-1.5 shadow-sm ring-1 ring-[var(--color-border)] transition group-hover:ring-[var(--color-accent)]/40">

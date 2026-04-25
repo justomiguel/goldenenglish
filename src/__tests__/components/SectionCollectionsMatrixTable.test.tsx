@@ -30,6 +30,8 @@ function buildStudent(
       cohortName: "Cohort 2026",
       hasActivePlan: true,
       enrollmentFeeAmount: 0,
+      enrollmentFeeExempt: false,
+      enrollmentFeeExemptReason: null,
       enrollmentFeeCurrency: null,
       currentPlan: null,
       cells: Array.from({ length: 12 }, (_, i) => ({

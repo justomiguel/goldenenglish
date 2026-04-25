@@ -148,6 +148,7 @@ export function ParentPaymentsEntry({
                   paymentLabels={studentLabels}
                   submitAction={submitReceiptAction}
                   submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceiptAction}
+                  receiptExpectedUsesFullMonth
                 />
               ) : null}
               <h2 className="mt-10 font-display text-xl font-semibold text-[var(--color-primary)]">

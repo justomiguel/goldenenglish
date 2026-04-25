@@ -123,6 +123,18 @@ describe("resolveStudentPaymentSlot — section-aware idempotency", () => {
     });
   });
 
+  it("rejects section uploads when scholarship coverage leaves no amount due", async () => {
+    planAmount.mockResolvedValueOnce({
+      code: "ok",
+      amount: 0,
+      currency: "USD",
+      proration: { numerator: 1, denominator: 1, full: true },
+    });
+    const supabase = buildSupabase({ selects: [] });
+    const result = await resolveStudentPaymentSlot(supabase, baseInput);
+    expect(result).toEqual({ ok: false, reason: "month_exempt" });
+  });
+
   it("recovers from unique_violation 23505 by re-selecting the racing row", async () => {
     const supabase = buildSupabase({
       selects: [

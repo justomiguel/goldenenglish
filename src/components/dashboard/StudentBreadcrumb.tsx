@@ -8,6 +8,7 @@ import type { Dictionary } from "@/types/i18n";
 export interface StudentBreadcrumbProps {
   locale: string;
   dict: Dictionary["dashboard"]["studentNav"];
+  baseHref?: string;
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -26,9 +27,13 @@ function segmentLabel(segment: string, dict: StudentBreadcrumbProps["dict"]): st
   return map[segment] ?? null;
 }
 
-export function StudentBreadcrumb({ locale, dict }: StudentBreadcrumbProps) {
+export function StudentBreadcrumb({
+  locale,
+  dict,
+  baseHref = `/${locale}/dashboard/student`,
+}: StudentBreadcrumbProps) {
   const pathname = usePathname();
-  const studentBase = `/${locale}/dashboard/student`;
+  const studentBase = baseHref;
 
   if (!pathname.startsWith(studentBase) || pathname === studentBase) return null;
 

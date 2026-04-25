@@ -69,4 +69,31 @@ describe("StudentDashboardShell", () => {
       "page",
     );
   });
+
+  it("can render the same chrome for the family dashboard routes", () => {
+    mockPathname.mockReturnValue("/es/dashboard/parent/payments");
+    render(
+      <StudentDashboardShell locale="es" dict={dictEn} brand={mockBrandPublic} section="parent">
+        <p>Family content</p>
+      </StudentDashboardShell>,
+    );
+
+    expect(screen.getByText("Family content")).toBeInTheDocument();
+    expect(
+      screen.getByRole("banner", { name: dictEn.dashboard.parentChrome.ariaHeader }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("navigation", { name: dictEn.dashboard.parentNav.aria }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: dictEn.dashboard.parentNav.payments }),
+    ).toHaveAttribute("href", "/es/dashboard/parent/payments");
+    const breadcrumbNav = screen.getByRole("navigation", {
+      name: dictEn.dashboard.parentNav.breadcrumbNavAria,
+    });
+    expect(within(breadcrumbNav).getByText(dictEn.dashboard.parentNav.breadcrumbPayments)).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
 });

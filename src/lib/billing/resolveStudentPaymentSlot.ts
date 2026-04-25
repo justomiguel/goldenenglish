@@ -42,6 +42,7 @@ export type StudentPaymentSlotResult =
         | "forbidden"
         | "no_plan"
         | "out_of_period"
+        | "month_exempt"
         | "slot_not_found"
         | "already_processed"
         | "upload_failed"
@@ -73,6 +74,7 @@ export async function resolveStudentPaymentSlot(
     );
     if (planAmount.code === "no_plan") return { ok: false, reason: "no_plan" };
     if (planAmount.code === "out_of_period") return { ok: false, reason: "out_of_period" };
+    if (planAmount.amount <= 0) return { ok: false, reason: "month_exempt" };
 
     const { data: existing, error: selErr } = await supabase
       .from("payments")

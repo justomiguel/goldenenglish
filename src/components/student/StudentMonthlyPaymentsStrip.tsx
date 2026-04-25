@@ -129,7 +129,15 @@ export function StudentMonthlyPaymentsStrip({
                   <p className="text-xs text-[var(--color-muted-foreground)]">{row.cohortName}</p>
                 ) : null}
               </div>
-              {row.enrollmentFeeAmount > 0 ? (() => {
+              {row.enrollmentFeeExempt ? (
+                <span
+                  className="inline-flex items-center gap-1 rounded-full border border-[var(--color-success)]/40 bg-[var(--color-success)]/10 px-2 py-0.5 text-xs font-medium text-[var(--color-success)]"
+                  title={labels.enrollmentFeeExemptTitle}
+                >
+                  <Tag className="h-3 w-3" aria-hidden />
+                  {labels.enrollmentFeeExemptBadge}
+                </span>
+              ) : row.enrollmentFeeAmount > 0 ? (() => {
                 const formatted = formatEnrollmentFee(
                   locale,
                   row.enrollmentFeeAmount,
@@ -168,7 +176,27 @@ export function StudentMonthlyPaymentsStrip({
               <p className="mt-3 text-xs text-[var(--color-muted-foreground)]">{labels.noPlanHint}</p>
             ) : null}
 
-            {row.enrollmentFeeAmount > 0 && row.enrollmentId ? (
+            {row.enrollmentFeeExempt ? (
+              <div
+                className="mt-3 rounded-[var(--layout-border-radius)] border border-[var(--color-success)]/30 bg-[var(--color-success)]/10 p-3"
+                role="status"
+              >
+                <p className="text-sm font-semibold text-[var(--color-success)]">
+                  {labels.enrollmentFeeExemptTitle}
+                </p>
+                <p className="mt-0.5 text-xs text-[var(--color-foreground)]">
+                  {labels.enrollmentFeeExemptBody}
+                </p>
+                {row.enrollmentFeeExemptReason ? (
+                  <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+                    {labels.enrollmentFeeExemptReason.replace(
+                      "{reason}",
+                      row.enrollmentFeeExemptReason,
+                    )}
+                  </p>
+                ) : null}
+              </div>
+            ) : row.enrollmentFeeAmount > 0 && row.enrollmentId ? (
               <StudentEnrollmentFeeUpload
                 locale={locale}
                 studentId={studentId}

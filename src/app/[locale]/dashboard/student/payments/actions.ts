@@ -70,6 +70,7 @@ export async function submitStudentPaymentReceipt(
   if (!slot.ok) {
     if (slot.reason === "forbidden") return { ok: false, message: pe.forbidden };
     if (slot.reason === "already_processed") return { ok: false, message: pe.alreadyProcessed };
+    if (slot.reason === "month_exempt") return { ok: false, message: pe.monthExempt };
     if (slot.reason === "upload_failed") return { ok: false, message: pe.uploadFailed };
     return { ok: false, message: pe.slotNotFound };
   }

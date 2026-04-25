@@ -94,6 +94,16 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
       [],
       { todayYear: today.getFullYear(), todayMonth: today.getMonth() + 1 },
     );
+    const fullMonthAmountByPaymentSlot = new Map<string, number>();
+    for (const section of monthlyView.rows) {
+      for (const cell of section.cells) {
+        if (cell.fullMonthExpectedAmount == null) continue;
+        fullMonthAmountByPaymentSlot.set(
+          `${section.sectionId}:${cell.year}:${cell.month}`,
+          cell.fullMonthExpectedAmount,
+        );
+      }
+    }
 
     const { data: payments } = await supabase
       .from("payments")
@@ -117,10 +127,14 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
         const scholarships = p.section_id
           ? scholarshipsBySection.get(p.section_id as string) ?? []
           : [];
+        const fullMonthDisplayAmount = p.section_id
+          ? fullMonthAmountByPaymentSlot.get(`${p.section_id as string}:${y}:${mo}`) ?? null
+          : null;
         const displayAmount =
-          st === "exempt"
+          fullMonthDisplayAmount ??
+          (st === "exempt"
             ? amount
-            : effectiveAmountAfterScholarship(amount, y, mo, scholarships);
+            : effectiveAmountAfterScholarship(amount, y, mo, scholarships));
         return {
           id: p.id as string,
           month: mo,

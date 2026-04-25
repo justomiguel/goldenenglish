@@ -11,11 +11,20 @@ import { SignOutButton } from "@/components/molecules/SignOutButton";
 export interface StudentMobileDrawerProps {
   locale: string;
   dict: Dictionary;
+  navDict?: Dictionary["dashboard"]["studentNav"];
+  chromeLabels?: Dictionary["dashboard"]["studentChrome"];
+  baseHref?: string;
+  profileHref?: string;
 }
 
-export function StudentMobileDrawer({ locale, dict }: StudentMobileDrawerProps) {
-  const navDict = dict.dashboard.studentNav;
-  const chromeDict = dict.dashboard.studentChrome;
+export function StudentMobileDrawer({
+  locale,
+  dict,
+  navDict = dict.dashboard.studentNav,
+  chromeLabels = dict.dashboard.studentChrome,
+  baseHref,
+  profileHref,
+}: StudentMobileDrawerProps) {
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
 
@@ -70,7 +79,7 @@ export function StudentMobileDrawer({ locale, dict }: StudentMobileDrawerProps) 
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-muted-foreground)]">
-                    {chromeDict.badge}
+                    {chromeLabels.badge}
                   </p>
                   <h2 className="mt-1 text-lg font-semibold text-[var(--color-foreground)]">{navDict.aria}</h2>
                 </div>
@@ -92,12 +101,12 @@ export function StudentMobileDrawer({ locale, dict }: StudentMobileDrawerProps) 
                     className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
                   >
                     <ExternalLink className="h-4 w-4" aria-hidden />
-                    <span>{chromeDict.backToSite}</span>
+                    <span>{chromeLabels.backToSite}</span>
                   </Link>
                   <SignOutButton
                     locale={locale}
                     label={dict.nav.logout}
-                    title={chromeDict.signOutHint}
+                    title={chromeLabels.signOutHint}
                     className="min-h-11 flex-1 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
                   />
                 </div>
@@ -110,6 +119,8 @@ export function StudentMobileDrawer({ locale, dict }: StudentMobileDrawerProps) 
                 <StudentSidebarNavContent
                   locale={locale}
                   dict={navDict}
+                  baseHref={baseHref}
+                  profileHref={profileHref}
                   onNavigate={close}
                   variant="mobile"
                 />

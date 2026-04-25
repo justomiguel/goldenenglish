@@ -73,8 +73,18 @@ export function StudentMonthlyPaymentCell({
 }: StudentMonthlyPaymentCellProps) {
   const Icon = STATUS_ICON[cell.status];
   const tokenClasses = statusToken(cell.status);
-  const isDisabled = cell.status === "out-of-period" || cell.status === "no-plan";
-  const aria = `${monthLabel}: ${statusLabel(cell.status, labels)}${cell.isCurrent ? ` · ${labels.currentMonth}` : ""}`;
+  const isDisabled =
+    cell.status === "no-plan" ||
+    (cell.status === "out-of-period" && cell.expectedAmount == null);
+  const scholarshipLabel =
+    cell.scholarshipDiscountPercent != null
+      ? `${cell.scholarshipDiscountPercent}%`
+      : null;
+  const aria = [
+    `${monthLabel}: ${statusLabel(cell.status, labels)}`,
+    scholarshipLabel,
+    cell.isCurrent ? labels.currentMonth : null,
+  ].filter(Boolean).join(" · ");
   const ringClasses = isFocused
     ? "ring-2 ring-[var(--color-primary)] ring-offset-2"
     : cell.isCurrent
@@ -91,7 +101,11 @@ export function StudentMonthlyPaymentCell({
       className={`flex min-h-[64px] min-w-[44px] flex-col items-center justify-center gap-1 rounded-[var(--layout-border-radius)] border px-2 py-2 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 ${tokenClasses} ${ringClasses}`}
     >
       <span className="text-[10px] uppercase tracking-wide opacity-80">{monthLabel}</span>
-      <Icon className="h-4 w-4" aria-hidden />
+      {scholarshipLabel ? (
+        <span className="text-[11px] font-bold leading-none">{scholarshipLabel}</span>
+      ) : (
+        <Icon className="h-4 w-4" aria-hidden />
+      )}
       {cell.isCurrent ? (
         <span className="sr-only">{labels.currentMonth}</span>
       ) : null}

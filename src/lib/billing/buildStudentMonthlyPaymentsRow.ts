@@ -7,6 +7,7 @@ import type {
 } from "@/types/studentMonthlyPayments";
 import {
   effectiveAmountAfterScholarship,
+  effectiveScholarshipPercentForPeriod,
   type ScholarshipRows,
 } from "@/lib/billing/scholarshipPeriod";
 import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
@@ -52,16 +53,15 @@ export interface BuildStudentMonthlyPaymentsRowInput {
    * matrícula. La moneda se reusa de la `currency` del plan vigente.
    */
   sectionEnrollmentFeeAmount: number;
+  sectionEnrollmentFeeExempt?: boolean;
+  sectionEnrollmentFeeExemptReason?: string | null;
   /**
    * Student-facing strips use the operational calendar for proration. Admin
    * collection matrices can use the fee-plan year as the billing contract.
    */
   billingScope?: "operational-window" | "plan-year";
-  /** `section_enrollments.id` for this student+section row. */
   enrollmentId?: string | null;
-  /** Review status of the student-uploaded enrollment fee receipt. */
   enrollmentFeeReceiptStatus?: EnrollmentFeeReceiptStatus | null;
-  /** Pre-signed URL for the uploaded enrollment fee receipt. */
   enrollmentFeeReceiptSignedUrl?: string | null;
 }
 
@@ -112,6 +112,8 @@ export function buildStudentMonthlyPaymentsRow(
     studentEnrolledAt,
     scheduleSlots,
     sectionEnrollmentFeeAmount,
+    sectionEnrollmentFeeExempt = false,
+    sectionEnrollmentFeeExemptReason = null,
     billingScope = "operational-window",
   } = input;
   const cells: StudentMonthlyPaymentCell[] = [];
@@ -161,34 +163,45 @@ export function buildStudentMonthlyPaymentsRow(
           ? fallbackFullMonthProration(plan.monthlyFee)
           : { code: "out_of_period" as const }
       : { code: "out_of_period" as const };
-    const expected = plan && prorated.code === "ok"
-      ? effectiveAmountAfterScholarship(prorated.amount, year, m, scholarship)
-      : null;
+    const scholarshipDiscountPercent =
+      plan ? effectiveScholarshipPercentForPeriod(scholarship, year, m) : 0;
+    const scholarshipPreview =
+      plan && prorated.code !== "ok" && scholarshipDiscountPercent > 0
+        ? fallbackFullMonthProration(plan.monthlyFee).amount
+        : null;
+    const originalExpected =
+      plan && prorated.code === "ok" ? prorated.amount : scholarshipPreview;
+    const expected =
+      originalExpected != null
+        ? effectiveAmountAfterScholarship(originalExpected, year, m, scholarship)
+        : null;
+    const fullMonthOriginalExpected =
+      plan && (prorated.code === "ok" || scholarshipPreview != null)
+        ? fallbackFullMonthProration(plan.monthlyFee).amount
+        : null;
     const fullMonthExpected =
-      plan && prorated.code === "ok"
-        ? effectiveAmountAfterScholarship(
-            fallbackFullMonthProration(plan.monthlyFee).amount,
-            year,
-            m,
-            scholarship,
-          )
+      fullMonthOriginalExpected != null
+        ? effectiveAmountAfterScholarship(fullMonthOriginalExpected, year, m, scholarship)
         : null;
     const proration =
       plan && prorated.code === "ok"
         ? { numerator: prorated.numerator, denominator: prorated.denominator }
         : null;
     const row = paymentByMonth.get(m) ?? null;
+    const isFullyCovered = expected != null && expected <= 0;
     let status: StudentMonthlyPaymentCell["status"];
     if (!plan) {
       status = "no-plan";
-    } else if (prorated.code !== "ok") {
-      status = "out-of-period";
     } else if (row?.status === "approved") {
       status = "approved";
-    } else if (row?.status === "rejected") {
-      status = "rejected";
     } else if (row?.status === "exempt") {
       status = "exempt";
+    } else if (isFullyCovered) {
+      status = "exempt";
+    } else if (prorated.code !== "ok") {
+      status = "out-of-period";
+    } else if (row?.status === "rejected") {
+      status = "rejected";
     } else if (row?.status === "pending" && row.receiptSignedUrl) {
       status = "pending";
     } else {
@@ -199,7 +212,11 @@ export function buildStudentMonthlyPaymentsRow(
       year,
       status,
       expectedAmount: expected,
+      originalExpectedAmount: originalExpected,
+      scholarshipDiscountPercent:
+        scholarshipDiscountPercent > 0 ? scholarshipDiscountPercent : null,
       fullMonthExpectedAmount: fullMonthExpected,
+      fullMonthOriginalExpectedAmount: fullMonthOriginalExpected,
       currency: plan?.currency ?? null,
       proration,
       recordedAmount: row?.amount ?? null,
@@ -218,6 +235,8 @@ export function buildStudentMonthlyPaymentsRow(
     cohortName: input.cohortName,
     hasActivePlan: currentPlan != null,
     enrollmentFeeAmount,
+    enrollmentFeeExempt: sectionEnrollmentFeeExempt,
+    enrollmentFeeExemptReason: sectionEnrollmentFeeExempt ? sectionEnrollmentFeeExemptReason : null,
     enrollmentFeeCurrency: enrollmentFeeAmount > 0 ? currentPlan?.currency ?? null : null,
     cells,
     currentPlan,

@@ -69,7 +69,21 @@ describe("buildStudentMonthlyPaymentsRow", () => {
     expect(row.cells[11].status).toBe("due");
     expect(row.hasActivePlan).toBe(true);
     expect(row.enrollmentFeeAmount).toBe(150);
+    expect(row.enrollmentFeeExempt).toBe(false);
     expect(row.enrollmentFeeCurrency).toBe("USD");
+  });
+
+  it("keeps the enrollment fee exemption reason for the portal strip", () => {
+    const row = buildStudentMonthlyPaymentsRow(
+      baseInput({
+        sectionEnrollmentFeeAmount: 0,
+        sectionEnrollmentFeeExempt: true,
+        sectionEnrollmentFeeExemptReason: "Sibling scholarship",
+      }),
+    );
+    expect(row.enrollmentFeeAmount).toBe(0);
+    expect(row.enrollmentFeeExempt).toBe(true);
+    expect(row.enrollmentFeeExemptReason).toBe("Sibling scholarship");
   });
 
   it("returns no-plan for every month when there are no plans", () => {
@@ -124,7 +138,57 @@ describe("buildStudentMonthlyPaymentsRow", () => {
         },
       }),
     );
+    expect(row.cells[4].originalExpectedAmount).toBe(100);
     expect(row.cells[4].expectedAmount).toBe(50);
+    expect(row.cells[4].scholarshipDiscountPercent).toBe(50);
+    expect(row.cells[4].fullMonthOriginalExpectedAmount).toBe(100);
+    expect(row.cells[4].fullMonthExpectedAmount).toBe(50);
+  });
+
+  it("marks a month fully covered by scholarship as exempt with no amount due", () => {
+    // REGRESSION CHECK: Student/tutor payment strips must not invite receipt
+    // uploads when scholarship coverage reduces the effective monthly amount to
+    // zero. Partial scholarships still remain payable with the net amount.
+    const row = buildStudentMonthlyPaymentsRow(
+      baseInput({
+        scholarship: {
+          discount_percent: 100,
+          valid_from_year: 2026,
+          valid_from_month: 5,
+          valid_until_year: 2026,
+          valid_until_month: 5,
+          is_active: true,
+        },
+      }),
+    );
+
+    const may = row.cells[4];
+    expect(may.status).toBe("exempt");
+    expect(may.originalExpectedAmount).toBe(100);
+    expect(may.expectedAmount).toBe(0);
+    expect(may.scholarshipDiscountPercent).toBe(100);
+    expect(may.fullMonthOriginalExpectedAmount).toBe(100);
+    expect(may.fullMonthExpectedAmount).toBe(0);
+  });
+
+  it("keeps discounted reference amounts for scholarship months outside the operative window", () => {
+    const row = buildStudentMonthlyPaymentsRow(
+      baseInput({
+        scholarship: {
+          discount_percent: 50,
+          valid_from_year: 2026,
+          valid_from_month: 1,
+          valid_until_year: 2026,
+          valid_until_month: 2,
+          is_active: true,
+        },
+      }),
+    );
+
+    expect(row.cells[0].status).toBe("out-of-period");
+    expect(row.cells[0].originalExpectedAmount).toBe(100);
+    expect(row.cells[0].expectedAmount).toBe(50);
+    expect(row.cells[0].scholarshipDiscountPercent).toBe(50);
   });
 
   it("exposes the plan currency on each cell when there is a plan", () => {

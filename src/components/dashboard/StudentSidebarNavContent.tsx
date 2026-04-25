@@ -11,6 +11,8 @@ import {
 export interface StudentSidebarNavContentProps {
   locale: string;
   dict: Dictionary["dashboard"]["studentNav"];
+  baseHref?: string;
+  profileHref?: string;
   onNavigate?: () => void;
   variant?: "desktop" | "mobile";
 }
@@ -84,12 +86,13 @@ function NavGroupBlock({
 export function StudentSidebarNavContent({
   locale,
   dict,
+  baseHref = `/${locale}/dashboard/student`,
+  profileHref = `/${locale}/dashboard/profile`,
   onNavigate,
   variant = "desktop",
 }: StudentSidebarNavContentProps) {
   const pathname = usePathname();
-  const base = `/${locale}/dashboard/student`;
-  const profileHref = `/${locale}/dashboard/profile`;
+  const base = baseHref;
   const groups = buildStudentSidebarNavGroups(base, profileHref, dict);
   const mobile = variant === "mobile";
 

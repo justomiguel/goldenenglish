@@ -45,6 +45,8 @@ function buildSection(
     cohortName: `${sectionName} cohort`,
     hasActivePlan: true,
     enrollmentFeeAmount: 0,
+    enrollmentFeeExempt: false,
+    enrollmentFeeExemptReason: null,
     enrollmentFeeCurrency: null,
     cells,
     currentPlan: null,

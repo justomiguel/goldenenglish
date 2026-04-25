@@ -22,12 +22,18 @@ export interface StudentMonthlyPaymentCell {
   status: StudentMonthlyPaymentCellStatus;
   /** Plan-derived expected amount (monthly fee, after proration + scholarship) for the month, or null if no plan. */
   expectedAmount: number | null;
+  /** Expected amount before scholarship, after any operational proration. */
+  originalExpectedAmount?: number | null;
+  /** Effective scholarship percentage applied to this period, or null when no discount applies. */
+  scholarshipDiscountPercent?: number | null;
   /**
    * Same fee rules as {@link expectedAmount} but on the full monthly fee (no
    * class-based proration). Used in the student receipt panel when we show the
    * mes completo instead of the prorated operativo.
    */
   fullMonthExpectedAmount: number | null;
+  /** Full monthly fee before scholarship. */
+  fullMonthOriginalExpectedAmount?: number | null;
   /** ISO 4217 currency for the cell, or null when there is no active plan. */
   currency: string | null;
   /** Prorrateo aplicado al expectedAmount (numerator/denominator); null si no aplica. */
@@ -54,6 +60,10 @@ export interface StudentMonthlyPaymentSectionRow {
    * `0` significa que la sección no cobra matrícula.
    */
   enrollmentFeeAmount: number;
+  /** True when admin waived the enrollment fee for this student in this section. */
+  enrollmentFeeExempt: boolean;
+  /** Admin-provided reason shown to students/tutors when the enrollment fee is waived. */
+  enrollmentFeeExemptReason: string | null;
   /**
    * Moneda en la que se cobra la matrícula. Por contrato, coincide con la
    * `currency` del plan vigente; cuando no hay plan activo es `null` y la

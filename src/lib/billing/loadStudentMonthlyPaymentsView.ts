@@ -31,6 +31,7 @@ interface SectionMeta {
   enrolledAt: string | null;
   enrollmentFeeAmount: number;
   enrollmentFeeExempt: boolean;
+  enrollmentFeeExemptReason: string | null;
   enrollmentFeeReceiptUrl: string | null;
   enrollmentFeeReceiptStatus: "pending" | "approved" | "rejected" | null;
   enrollmentFeeReceiptSignedUrl: string | null;
@@ -50,7 +51,7 @@ export async function loadStudentMonthlyPaymentsView(
   const activeEnrollmentResult = await supabase
     .from("section_enrollments")
     .select(
-      "id, section_id, created_at, enrollment_fee_exempt, enrollment_fee_receipt_url, enrollment_fee_receipt_status, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
+      "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, enrollment_fee_receipt_url, enrollment_fee_receipt_status, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
     )
     .eq("student_id", studentId)
     .eq("status", "active");
@@ -59,7 +60,7 @@ export async function loadStudentMonthlyPaymentsView(
       ? await supabase
           .from("section_enrollments")
           .select(
-            "id, section_id, created_at, enrollment_fee_exempt, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
+            "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
           )
           .eq("student_id", studentId)
           .eq("status", "active")
@@ -75,6 +76,7 @@ export async function loadStudentMonthlyPaymentsView(
       | EnrollmentSectionRow[]
       | null;
     enrollment_fee_exempt?: boolean | null;
+    enrollment_exempt_reason?: string | null;
     enrollment_fee_receipt_url?: string | null;
     enrollment_fee_receipt_status?: string | null;
   };
@@ -157,6 +159,7 @@ export async function loadStudentMonthlyPaymentsView(
         enrollmentFeeAmount:
           Number.isFinite(rawEnrollment) && rawEnrollment >= 0 ? rawEnrollment : 0,
         enrollmentFeeExempt: Boolean(row.enrollment_fee_exempt),
+        enrollmentFeeExemptReason: row.enrollment_exempt_reason ?? null,
         enrollmentFeeReceiptUrl: receiptUrl,
         enrollmentFeeReceiptStatus: receiptStatus,
         scholarships: scholarshipsByEnrollment.get(row.id) ?? [],
@@ -210,6 +213,8 @@ export async function loadStudentMonthlyPaymentsView(
       studentEnrolledAt: s.enrolledAt,
       scheduleSlots: s.scheduleSlots,
       sectionEnrollmentFeeAmount: s.enrollmentFeeExempt ? 0 : s.enrollmentFeeAmount,
+      sectionEnrollmentFeeExempt: s.enrollmentFeeExempt,
+      sectionEnrollmentFeeExemptReason: s.enrollmentFeeExemptReason,
       enrollmentId: s.enrollmentId,
       enrollmentFeeReceiptStatus: s.enrollmentFeeReceiptStatus,
       enrollmentFeeReceiptSignedUrl: s.enrollmentFeeReceiptSignedUrl,

@@ -38,9 +38,15 @@ export interface StudentMonthlyPaymentFocusProps {
   /**
    * When true, the alumno ve y declara el mes completo (fee + beca) en el panel
    * de comprobante; el servidor sigue persistiendo el monto operativo vía
-   * `resolveStudentPaymentSlot`. El tutor mantiene el default (prorrateo).
+   * `resolveStudentPaymentSlot`.
    */
   receiptExpectedUsesFullMonth?: boolean;
+}
+
+function formatAmount(locale: Locale, amount: number, currency: string | null): string {
+  void locale;
+  void currency;
+  return `$${amount}`;
 }
 
 export function StudentMonthlyPaymentFocus({
@@ -65,6 +71,14 @@ export function StudentMonthlyPaymentFocus({
   const expected = receiptExpectedUsesFullMonth
     ? (cell.fullMonthExpectedAmount ?? proratedOrPlan)
     : proratedOrPlan;
+  const originalExpected = receiptExpectedUsesFullMonth
+    ? (cell.fullMonthOriginalExpectedAmount ?? cell.originalExpectedAmount)
+    : cell.originalExpectedAmount;
+  const hasDiscountedExpected =
+    expected != null &&
+    originalExpected != null &&
+    originalExpected > expected &&
+    cell.scholarshipDiscountPercent != null;
   const recordedDisplayAmount = receiptExpectedUsesFullMonth
     ? (cell.fullMonthExpectedAmount ?? cell.recordedAmount)
     : cell.recordedAmount;
@@ -99,7 +113,18 @@ export function StudentMonthlyPaymentFocus({
         <div>
           <dt className="text-[var(--color-muted-foreground)]">{labels.expectedAmount}</dt>
           <dd className="text-base font-medium text-[var(--color-foreground)]">
-            {expected != null ? `$${expected}` : labels.notAvailable}
+            {expected != null ? (
+              <span className="inline-flex flex-wrap items-baseline gap-2">
+                {hasDiscountedExpected ? (
+                  <del className="text-sm font-normal text-[var(--color-muted-foreground)]">
+                    {formatAmount(locale, originalExpected ?? 0, cell.currency)}
+                  </del>
+                ) : null}
+                <span>{formatAmount(locale, expected, cell.currency)}</span>
+              </span>
+            ) : (
+              labels.notAvailable
+            )}
           </dd>
         </div>
         {recordedDisplayAmount != null ? (
