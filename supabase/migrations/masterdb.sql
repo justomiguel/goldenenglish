@@ -1323,6 +1323,83 @@ JOIN public.student_scholarships sc ON sc.student_id = sas.student_id
 WHERE se.id = sas.enrollment_id
   AND sas.active_count = 1;
 
+CREATE OR REPLACE FUNCTION public.submit_enrollment_fee_receipt(
+  p_student_id UUID,
+  p_enrollment_id UUID,
+  p_section_id UUID,
+  p_receipt_url TEXT
+)
+RETURNS UUID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_actor_id UUID := auth.uid();
+  v_actor_role TEXT;
+  v_enrollment public.section_enrollments%ROWTYPE;
+BEGIN
+  IF v_actor_id IS NULL THEN
+    RAISE EXCEPTION 'unauthenticated' USING ERRCODE = '28000';
+  END IF;
+
+  SELECT role INTO v_actor_role
+  FROM public.profiles
+  WHERE id = v_actor_id;
+
+  IF p_student_id = v_actor_id THEN
+    IF v_actor_role <> 'student' THEN
+      RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+    END IF;
+  ELSIF v_actor_role <> 'parent'
+    OR NOT public.tutor_can_view_student_finance(v_actor_id, p_student_id) THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+
+  IF p_receipt_url IS NULL
+    OR btrim(p_receipt_url) = ''
+    OR p_receipt_url LIKE '%..%'
+    OR p_receipt_url NOT LIKE (p_student_id::TEXT || '/enrollment-fee/%') THEN
+    RAISE EXCEPTION 'invalid_receipt_url' USING ERRCODE = '22023';
+  END IF;
+
+  SELECT *
+  INTO v_enrollment
+  FROM public.section_enrollments
+  WHERE id = p_enrollment_id
+    AND student_id = p_student_id
+    AND section_id = p_section_id
+    AND status = 'active';
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'enrollment_not_found' USING ERRCODE = 'P0002';
+  END IF;
+
+  IF COALESCE(v_enrollment.enrollment_fee_exempt, false) THEN
+    RAISE EXCEPTION 'enrollment_fee_exempt' USING ERRCODE = '23514';
+  END IF;
+
+  IF v_enrollment.enrollment_fee_receipt_status = 'approved' THEN
+    RAISE EXCEPTION 'enrollment_receipt_already_approved' USING ERRCODE = '23514';
+  END IF;
+
+  UPDATE public.section_enrollments
+  SET
+    enrollment_fee_receipt_url = p_receipt_url,
+    enrollment_fee_receipt_status = 'pending',
+    enrollment_fee_receipt_uploaded_at = now()
+  WHERE id = v_enrollment.id;
+
+  RETURN v_enrollment.id;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.submit_enrollment_fee_receipt(UUID, UUID, UUID, TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.submit_enrollment_fee_receipt(UUID, UUID, UUID, TEXT) TO authenticated;
+
+COMMENT ON FUNCTION public.submit_enrollment_fee_receipt(UUID, UUID, UUID, TEXT) IS
+  'Persists a student/tutor enrollment fee receipt on section_enrollments after actor and path validation; avoids broad RLS UPDATE on the enrollment row.';
+
 -- ========== 009_enrollment_promotions_audit.sql ==========
 
 -- Matrícula, motor de promociones, historial student_promotions, auditoría.

@@ -6,7 +6,7 @@
 // - admin can approve/reject receipts via reviewEnrollmentFeeReceipt
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import es from "@/dictionaries/es.json";
-import { submitEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/student/payments/submitEnrollmentFeeReceiptAction";
+import { submitEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/student/payments/actions";
 import { submitTutorEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/parent/payments/actions";
 import { reviewEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/enrollmentFeeActions";
 
@@ -41,12 +41,14 @@ function makeSupabase({
     enrollment_fee_receipt_status: null,
   } as FakeEnrollment | null,
   updateError = null as null | { message: string },
+  rpcError = null as null | { message: string },
   uploadError = null as null | { message: string },
   profilesErr = null as null | { message: string },
 } = {}) {
   const uploadFn = vi.fn().mockResolvedValue(makeUploadResult(uploadError));
   const storageBucket = { upload: uploadFn };
   const storage = { from: vi.fn(() => storageBucket) };
+  const rpc = vi.fn().mockResolvedValue({ data: enrollmentId, error: rpcError });
 
   const updateChain = {
     eq: vi.fn().mockReturnThis(),
@@ -76,7 +78,7 @@ function makeSupabase({
     return { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis() };
   });
 
-  return { auth: { getUser: vi.fn().mockResolvedValue(fakeUser()) }, from, storage };
+  return { auth: { getUser: vi.fn().mockResolvedValue(fakeUser()) }, from, storage, rpc };
 }
 
 // ---- Mocks ----
@@ -211,6 +213,19 @@ describe("submitEnrollmentFeeReceipt", () => {
     // storage path must start with studentId/
     const uploadCall = supabase.storage.from.mock.results[0].value.upload.mock.calls[0];
     expect(uploadCall[0]).toMatch(new RegExp(`^${studentId}/enrollment-fee/`));
+    expect(supabase.rpc).toHaveBeenCalledWith("submit_enrollment_fee_receipt", {
+      p_student_id: studentId,
+      p_enrollment_id: enrollmentId,
+      p_section_id: sectionId,
+      p_receipt_url: uploadCall[0],
+    });
+  });
+
+  it("returns error when the enrollment receipt RPC cannot persist the row", async () => {
+    mockCreateClient.mockReturnValue(makeSupabase({ rpcError: { message: "rls denied" } }));
+    const res = await submitEnrollmentFeeReceipt(makeFormData());
+    expect(res.ok).toBe(false);
+    expect(res.message).toBe(PE.uploadFailed);
   });
 
   it("returns error when user is not a student", async () => {
@@ -265,9 +280,17 @@ describe("submitTutorEnrollmentFeeReceipt", () => {
   });
 
   it("returns ok when tutor uploads a valid receipt", async () => {
-    mockCreateClient.mockReturnValue(makeParentSupabase());
+    const supabase = makeParentSupabase();
+    mockCreateClient.mockReturnValue(supabase);
     const res = await submitTutorEnrollmentFeeReceipt(makeParentFormData());
     expect(res.ok).toBe(true);
+    const uploadCall = supabase.storage.from.mock.results[0].value.upload.mock.calls[0];
+    expect(supabase.rpc).toHaveBeenCalledWith("submit_enrollment_fee_receipt", {
+      p_student_id: studentId,
+      p_enrollment_id: enrollmentId,
+      p_section_id: sectionId,
+      p_receipt_url: uploadCall[0],
+    });
   });
 });
 

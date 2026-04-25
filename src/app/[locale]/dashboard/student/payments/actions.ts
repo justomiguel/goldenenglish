@@ -171,15 +171,12 @@ export async function submitEnrollmentFeeReceipt(
     return { ok: false, message: pe.uploadFailed };
   }
 
-  const { error: updErr } = await supabase
-    .from("section_enrollments")
-    .update({
-      enrollment_fee_receipt_url: path,
-      enrollment_fee_receipt_status: "pending",
-      enrollment_fee_receipt_uploaded_at: new Date().toISOString(),
-    })
-    .eq("id", enrollment.id)
-    .eq("student_id", user.id);
+  const { error: updErr } = await supabase.rpc("submit_enrollment_fee_receipt", {
+    p_student_id: user.id,
+    p_enrollment_id: enrollment.id,
+    p_section_id: sectionIdParsed.data,
+    p_receipt_url: path,
+  });
 
   if (updErr) {
     logSupabaseClientError("submitEnrollmentFeeReceipt:update", updErr, { studentId: user.id });
