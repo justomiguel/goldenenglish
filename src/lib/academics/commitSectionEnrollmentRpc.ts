@@ -1,6 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionMaxStudents";
 
+export type CommitSectionEnrollmentRpcResult =
+  | { ok: true; enrollmentId: string }
+  | {
+      ok: false;
+      code: "SCHEDULE_OVERLAP" | "CAPACITY_EXCEEDED" | "ALREADY_ACTIVE" | "RPC";
+    };
+
 export async function commitSectionEnrollmentRpc(
   supabase: SupabaseClient,
   input: {
@@ -10,7 +17,7 @@ export async function commitSectionEnrollmentRpc(
     dropNext: "dropped" | "transferred";
     allowCapacityOverride: boolean;
   },
-) {
+): Promise<CommitSectionEnrollmentRpcResult> {
   const defMax = getDefaultSectionMaxStudents();
   const { data, error } = await supabase.rpc("academic_admin_section_enroll_commit", {
     p_student_id: input.studentId,

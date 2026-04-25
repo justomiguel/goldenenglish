@@ -51,6 +51,11 @@ export interface BuildStudentMonthlyPaymentsRowInput {
    * matrícula. La moneda se reusa de la `currency` del plan vigente.
    */
   sectionEnrollmentFeeAmount: number;
+  /**
+   * Student-facing strips use the operational calendar for proration. Admin
+   * collection matrices can use the fee-plan year as the billing contract.
+   */
+  billingScope?: "operational-window" | "plan-year";
 }
 
 function parseUtcDate(iso: string | null): Date | null {
@@ -59,6 +64,16 @@ function parseUtcDate(iso: string | null): Date | null {
   const [y, m, d] = trimmed.split("-").map((n) => Number(n));
   if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return null;
   return new Date(Date.UTC(y, m - 1, d));
+}
+
+function fallbackFullMonthProration(monthlyFee: number) {
+  return {
+    code: "ok" as const,
+    amount: Math.round((monthlyFee + Number.EPSILON) * 100) / 100,
+    numerator: 1,
+    denominator: 1,
+    full: true,
+  };
 }
 
 /**
@@ -90,6 +105,7 @@ export function buildStudentMonthlyPaymentsRow(
     studentEnrolledAt,
     scheduleSlots,
     sectionEnrollmentFeeAmount,
+    billingScope = "operational-window",
   } = input;
   const cells: StudentMonthlyPaymentCell[] = [];
   const year = todayYear;
@@ -126,11 +142,17 @@ export function buildStudentMonthlyPaymentsRow(
         })
       : 0;
     const prorated = plan
-      ? prorateMonthlyFee({
-          monthlyFee: plan.monthlyFee,
-          totalClassesInMonth: totalClasses,
-          availableClassesForStudent: availableClasses,
-        })
+      ? billingScope === "plan-year"
+        ? fallbackFullMonthProration(plan.monthlyFee)
+        : totalClasses > 0 && availableClasses > 0
+        ? prorateMonthlyFee({
+            monthlyFee: plan.monthlyFee,
+            totalClassesInMonth: totalClasses,
+            availableClassesForStudent: availableClasses,
+          })
+        : sectionInMonth && studentRange
+          ? fallbackFullMonthProration(plan.monthlyFee)
+          : { code: "out_of_period" as const }
       : { code: "out_of_period" as const };
     const expected = plan && prorated.code === "ok"
       ? effectiveAmountAfterScholarship(prorated.amount, year, m, scholarship)

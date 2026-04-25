@@ -31,7 +31,7 @@ export type ProfileRow = {
   id: string;
   first_name: string | null;
   last_name: string | null;
-  document_number: string | null;
+  dni_or_passport: string | null;
 };
 
 export interface PaymentRow {

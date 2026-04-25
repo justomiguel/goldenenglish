@@ -152,4 +152,33 @@ describe("buildStudentMonthlyPaymentsRow", () => {
     expect(row.cells[4].status).toBe("out-of-period");
     expect(row.cells[4].proration).toBeNull();
   });
+
+  it("charges a full month when a plan is active but the schedule has no detectable classes", () => {
+    const row = buildStudentMonthlyPaymentsRow(
+      baseInput({
+        scheduleSlots: [],
+        sectionStartsOn: "2026-05-01",
+        sectionEndsOn: "2026-05-31",
+        studentEnrolledAt: "2026-05-01",
+      }),
+    );
+    const may = row.cells[4];
+    expect(may.status).toBe("due");
+    expect(may.expectedAmount).toBe(100);
+    expect(may.proration).toEqual({ numerator: 1, denominator: 1 });
+  });
+
+  it("can bill the full fee-plan year for admin collection matrices", () => {
+    const row = buildStudentMonthlyPaymentsRow(
+      baseInput({
+        billingScope: "plan-year",
+        sectionStartsOn: "2026-03-03",
+        sectionEndsOn: "2026-09-30",
+        studentEnrolledAt: "2026-04-25",
+      }),
+    );
+
+    expect(row.cells.every((cell) => cell.status === "due")).toBe(true);
+    expect(row.cells.reduce((sum, cell) => sum + (cell.expectedAmount ?? 0), 0)).toBe(1200);
+  });
 });

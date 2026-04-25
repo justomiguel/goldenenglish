@@ -37,6 +37,8 @@ function buildStudent(
         year: 2026,
         status: hasOverdue && i + 1 < 6 ? "due" : "approved",
         expectedAmount: 100,
+        currency: "USD",
+        proration: null,
         recordedAmount: 100,
         paymentId: null,
         receiptSignedUrl: null,
@@ -83,6 +85,9 @@ describe("SectionCollectionsMatrixTable", () => {
     expect(screen.getByText("Bea")).toBeInTheDocument();
     expect(screen.getByText("DNI 123")).toBeInTheDocument();
     expect(screen.getByText(collectionsDict.matrix.studentColumn)).toBeInTheDocument();
+    expect(
+      screen.getAllByLabelText(/Unpaid.*Expected amount/i).length,
+    ).toBeGreaterThan(0);
   });
 
   it("invokes onToggleStudent when a row checkbox changes", () => {

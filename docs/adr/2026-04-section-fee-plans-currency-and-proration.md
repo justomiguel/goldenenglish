@@ -61,6 +61,12 @@ Tras revisión con producto:
    (`paymentReceiptSubmittedStudent`). La columna `payments.amount` sigue
    numérica y la conversión multi-moneda (si llega a hacer falta) queda fuera
    de alcance — hoy cada alumno paga en la moneda de su sección.
+6. **Vista cohorte de finanzas admin**: para totales esperados y morosidad se
+   usa el contrato anual del plan de cuota, no el prorrateo operativo por día
+   de enrolment ni por ocurrencias del schedule. Si un plan rige desde enero,
+   el esperado anual es `12 × monthly_fee + matrícula`. La vista del alumno
+   conserva el prorrateo operativo para explicar qué puede pagar en su strip
+   mensual.
 
 ## Alternativas consideradas
 

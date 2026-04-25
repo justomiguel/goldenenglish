@@ -68,7 +68,7 @@ export async function loadAdminSectionCollectionsView(
       "profiles",
       "id",
       studentIds,
-      "id, first_name, last_name, document_number",
+      "id, first_name, last_name, dni_or_passport",
     ),
     supabase
       .from("payments")
@@ -113,12 +113,12 @@ export async function loadAdminSectionCollectionsView(
       id,
       first_name: null,
       last_name: null,
-      document_number: null,
+      dni_or_passport: null,
     };
     return {
       studentId: id,
       studentName: studentDisplayName(profile),
-      documentLabel: profile.document_number,
+      documentLabel: profile.dni_or_passport,
       scholarship: mapScholarship(scholarshipByStudent.get(id)),
       payments: paymentsByStudent.get(id) ?? [],
       enrolledAt: enrolledAtByStudent.get(id) ?? null,

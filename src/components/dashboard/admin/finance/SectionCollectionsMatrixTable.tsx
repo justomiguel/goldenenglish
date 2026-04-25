@@ -26,9 +26,18 @@ interface RowProps {
   selected: boolean;
   onToggle: (id: string, next: boolean) => void;
   money: Intl.NumberFormat;
+  locale: string;
 }
 
-function StudentRow({ student, view, dict, selected, onToggle, money }: RowProps) {
+function StudentRow({
+  student,
+  view,
+  dict,
+  selected,
+  onToggle,
+  money,
+  locale,
+}: RowProps) {
   const cells = MONTHS.map((m) =>
     student.row.cells.find((c) => c.month === m && c.year === view.year),
   );
@@ -67,6 +76,8 @@ function StudentRow({ student, view, dict, selected, onToggle, money }: RowProps
               todayMonth={view.todayMonth}
               year={view.year}
               ariaPrefix={student.studentName}
+              locale={locale}
+              labels={dict.monthCell}
             />
           ) : (
             <span className="text-[10px] text-[var(--color-muted-foreground)]">
@@ -154,6 +165,7 @@ export function SectionCollectionsMatrixTable({
               selected={selectedIds.has(s.studentId)}
               onToggle={onToggleStudent}
               money={money}
+              locale={locale}
             />
           ))}
         </tbody>

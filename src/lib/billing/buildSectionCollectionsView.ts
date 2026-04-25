@@ -3,17 +3,16 @@ import {
   type StudentMonthlyPaymentRecord,
 } from "@/lib/billing/buildStudentMonthlyPaymentsRow";
 import { periodIndex, type ScholarshipRow } from "@/lib/billing/scholarshipPeriod";
+import {
+  aggregateCells,
+  buildSectionCollectionsKpis,
+  round2,
+} from "@/lib/billing/sectionCollectionsAggregates";
 import type { SectionFeePlan } from "@/types/sectionFeePlan";
 import type { SectionScheduleSlot } from "@/types/academics";
-import type {
-  StudentMonthlyPaymentCell,
-  StudentMonthlyPaymentSectionRow,
-} from "@/types/studentMonthlyPayments";
+import type { StudentMonthlyPaymentSectionRow } from "@/types/studentMonthlyPayments";
 import {
-  SECTION_COLLECTIONS_HEALTH_THRESHOLDS,
   type CohortCollectionsSectionSummary,
-  type SectionCollectionsHealth,
-  type SectionCollectionsKpis,
   type SectionCollectionsStudentRow,
   type SectionCollectionsView,
 } from "@/types/sectionCollections";
@@ -46,137 +45,39 @@ export interface BuildSectionCollectionsViewInput {
   sectionEnrollmentFeeAmount: number;
 }
 
-interface CellAggregates {
-  paid: number;
-  pendingReview: number;
-  overdue: number;
-  upcoming: number;
-  expectedYear: number;
-  hasOverdue: boolean;
-  hasInPeriod: boolean;
+function enrollmentFeeAmount(input: BuildSectionCollectionsViewInput): number {
+  const raw = Number(input.sectionEnrollmentFeeAmount);
+  return Number.isFinite(raw) && raw > 0 ? raw : 0;
 }
 
-function round2(n: number): number {
-  return Math.round(n * 100) / 100;
+function yearMonthIndex(
+  iso: string | null,
+  fallbackYear: number,
+  fallbackMonth: number,
+): number {
+  const raw = iso && iso.length >= 7
+    ? iso.slice(0, 7)
+    : `${fallbackYear}-${String(fallbackMonth).padStart(2, "0")}`;
+  const [yearRaw, monthRaw] = raw.split("-").map((n) => Number(n));
+  const dueYear = Number.isFinite(yearRaw) ? yearRaw : fallbackYear;
+  const dueMonth = Number.isFinite(monthRaw) ? monthRaw : fallbackMonth;
+  return periodIndex(dueYear, dueMonth);
 }
 
-function aggregateCells(
-  cells: readonly StudentMonthlyPaymentCell[],
-  todayYear: number,
-  todayMonth: number,
-): CellAggregates {
-  const todayIdx = periodIndex(todayYear, todayMonth);
-  let paid = 0;
-  let pendingReview = 0;
-  let overdue = 0;
-  let upcoming = 0;
-  let expectedYear = 0;
-  let hasOverdue = false;
-  let hasInPeriod = false;
-  for (const cell of cells) {
-    const expected = cell.expectedAmount ?? 0;
-    const recorded = cell.recordedAmount ?? 0;
-    const isInPeriod =
-      cell.status !== "out-of-period" && cell.status !== "no-plan";
-    if (isInPeriod) {
-      hasInPeriod = true;
-      expectedYear += expected;
-    }
-    switch (cell.status) {
-      case "approved":
-        paid += recorded;
-        break;
-      case "exempt":
-        break;
-      case "pending":
-        pendingReview += recorded > 0 ? recorded : expected;
-        break;
-      case "due":
-      case "rejected": {
-        const cellIdx = periodIndex(cell.year, cell.month);
-        if (cellIdx < todayIdx) {
-          overdue += expected;
-          hasOverdue = true;
-        } else {
-          upcoming += expected;
-        }
-        break;
-      }
-      default:
-        break;
-    }
-  }
-  return {
-    paid: round2(paid),
-    pendingReview: round2(pendingReview),
-    overdue: round2(overdue),
-    upcoming: round2(upcoming),
-    expectedYear: round2(expectedYear),
-    hasOverdue,
-    hasInPeriod,
-  };
-}
-
-function deriveHealth(
-  collectionRatio: number,
-  overdueStudents: number,
-  totalStudents: number,
-  expectedYear: number,
-): SectionCollectionsHealth {
-  if (totalStudents === 0 || expectedYear === 0) return "watch";
-  const t = SECTION_COLLECTIONS_HEALTH_THRESHOLDS;
-  const overdueShare = overdueStudents / totalStudents;
-  if (
-    collectionRatio < t.criticalMaxRatio ||
-    overdueShare >= t.watchOverdueShare
-  ) {
-    return "critical";
-  }
-  if (collectionRatio >= t.healthyMinRatio && overdueStudents === 0) {
-    return "healthy";
-  }
-  return "watch";
-}
-
-function buildKpis(
-  studentRows: readonly SectionCollectionsStudentRow[],
-): SectionCollectionsKpis {
-  let paid = 0;
-  let pendingReview = 0;
-  let overdue = 0;
-  let upcoming = 0;
-  let expectedYear = 0;
-  let totalStudents = 0;
-  let overdueStudents = 0;
-  for (const s of studentRows) {
-    paid += s.paid;
-    pendingReview += s.pendingReview;
-    overdue += s.overdue;
-    upcoming += s.upcoming;
-    expectedYear += s.expectedYear;
-    if (s.expectedYear > 0 || s.paid > 0 || s.pendingReview > 0) {
-      totalStudents += 1;
-    }
-    if (s.hasOverdue) overdueStudents += 1;
-  }
-  const collectionRatio = expectedYear > 0 ? Math.min(1, paid / expectedYear) : 0;
-  const health = deriveHealth(
-    collectionRatio,
-    overdueStudents,
-    totalStudents,
-    expectedYear,
+function enrollmentFeeIsOverdue(
+  input: BuildSectionCollectionsViewInput,
+  enrolledAt: string | null,
+): boolean {
+  const sectionStartIdx = yearMonthIndex(
+    input.sectionStartsOn,
+    input.todayYear,
+    input.todayMonth,
   );
-  return {
-    paid: round2(paid),
-    pendingReview: round2(pendingReview),
-    overdue: round2(overdue),
-    upcoming: round2(upcoming),
-    expectedYear: round2(expectedYear),
-    collectionRatio: Math.round(collectionRatio * 1000) / 1000,
-    totalStudents,
-    overdueStudents,
-    health,
-  };
+  const enrolledIdx = enrolledAt
+    ? yearMonthIndex(enrolledAt, input.todayYear, input.todayMonth)
+    : sectionStartIdx;
+  const todayIdx = periodIndex(input.todayYear, input.todayMonth);
+  return Math.max(sectionStartIdx, enrolledIdx) < todayIdx;
 }
 
 /**
@@ -186,6 +87,7 @@ function buildKpis(
 export function buildSectionCollectionsView(
   input: BuildSectionCollectionsViewInput,
 ): SectionCollectionsView {
+  const enrollmentFee = enrollmentFeeAmount(input);
   const studentRows: SectionCollectionsStudentRow[] = input.students.map((s) => {
     const row: StudentMonthlyPaymentSectionRow = buildStudentMonthlyPaymentsRow({
       sectionId: input.sectionId,
@@ -201,8 +103,13 @@ export function buildSectionCollectionsView(
       studentEnrolledAt: s.enrolledAt,
       scheduleSlots: input.scheduleSlots,
       sectionEnrollmentFeeAmount: input.sectionEnrollmentFeeAmount,
+      billingScope: "plan-year",
     });
     const agg = aggregateCells(row.cells, input.todayYear, input.todayMonth);
+    const isEnrollmentFeeOverdue =
+      enrollmentFee > 0 && enrollmentFeeIsOverdue(input, s.enrolledAt);
+    const enrollmentFeeOverdue = isEnrollmentFeeOverdue ? enrollmentFee : 0;
+    const enrollmentFeeUpcoming = isEnrollmentFeeOverdue ? 0 : enrollmentFee;
     return {
       studentId: s.studentId,
       studentName: s.studentName,
@@ -210,10 +117,10 @@ export function buildSectionCollectionsView(
       row,
       paid: agg.paid,
       pendingReview: agg.pendingReview,
-      overdue: agg.overdue,
-      upcoming: agg.upcoming,
-      expectedYear: agg.expectedYear,
-      hasOverdue: agg.hasOverdue,
+      overdue: round2(agg.overdue + enrollmentFeeOverdue),
+      upcoming: round2(agg.upcoming + enrollmentFeeUpcoming),
+      expectedYear: round2(agg.expectedYear + enrollmentFee),
+      hasOverdue: agg.hasOverdue || enrollmentFeeOverdue > 0,
     };
   });
 
@@ -227,7 +134,7 @@ export function buildSectionCollectionsView(
     year: input.todayYear,
     todayMonth: input.todayMonth,
     students: studentRows,
-    kpis: buildKpis(studentRows),
+    kpis: buildSectionCollectionsKpis(studentRows),
   };
 }
 

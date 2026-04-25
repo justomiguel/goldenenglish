@@ -1,18 +1,7 @@
--- RPC: bulk fetch of all data needed to render the cohort collections matrix
--- (overview tab in /admin/finance). Returns one JSON document with sections,
--- enrollments, profiles, payments, scholarships and active fee plans for the
--- cohort + year, in a single round-trip.
+-- Fix admin cohort collections RPC profile payload to match the real profiles schema.
 --
--- Replaces the N+1 pattern of loadAdminCohortCollectionsOverview.ts that
--- iterated loadAdminSectionCollectionsView per section. ADR follow-up of
--- 2026-04-admin-section-collections-view.md and decision documented in
--- docs/adr/2026-04-finance-unification-tabs.md.
---
--- The function returns RAW data only — monetary computations (expected
--- amount, prorate, scholarship coverage, paid/overdue/upcoming status) are
--- composed by the application using the existing pure reducers in
--- src/lib/billing/** to avoid duplicating domain logic in plpgsql
--- (rules 03-architecture and complete-solutions-always).
+-- `profiles.document_number` never existed in this schema; the canonical
+-- student identifier is `profiles.dni_or_passport`.
 
 CREATE OR REPLACE FUNCTION public.admin_cohort_collections_bulk(
   p_cohort_id uuid,
@@ -67,7 +56,8 @@ BEGIN
     'archived_at', s.archived_at,
     'starts_on', s.starts_on,
     'ends_on', s.ends_on,
-    'schedule_slots', coalesce(s.schedule_slots, '[]'::jsonb)
+    'schedule_slots', coalesce(s.schedule_slots, '[]'::jsonb),
+    'enrollment_fee_amount', s.enrollment_fee_amount
   ) ORDER BY s.name), '[]'::jsonb)
     INTO v_section_ids, v_sections
     FROM public.academic_sections s
@@ -114,7 +104,6 @@ BEGIN
           'effective_from_month', fp.effective_from_month,
           'monthly_fee', fp.monthly_fee,
           'currency', fp.currency,
-          'charges_enrollment_fee', fp.charges_enrollment_fee,
           'archived_at', fp.archived_at
         ))
         FROM public.section_fee_plans fp
@@ -170,7 +159,6 @@ BEGIN
     'effective_from_month', fp.effective_from_month,
     'monthly_fee', fp.monthly_fee,
     'currency', fp.currency,
-    'charges_enrollment_fee', fp.charges_enrollment_fee,
     'archived_at', fp.archived_at
   )), '[]'::jsonb)
     INTO v_plans
@@ -192,7 +180,7 @@ END;
 $$;
 
 COMMENT ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) IS
-  'Bulk fetch (admin only) of all raw data needed to render the cohort collections matrix in /admin/finance for a given cohort and year. Returns a single JSON document. Application composes payment status / expected amounts using src/lib/billing/** reducers. See ADR docs/adr/2026-04-finance-unification-tabs.md.';
+  'Bulk fetch (admin only) of raw cohort collections data. Profile rows expose dni_or_passport from the canonical profiles schema.';
 
 REVOKE ALL ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) FROM anon;
 GRANT EXECUTE ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) TO authenticated;

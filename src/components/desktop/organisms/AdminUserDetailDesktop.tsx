@@ -17,7 +17,7 @@ export interface AdminUserDetailDesktopProps {
 
 export function AdminUserDetailDesktop({ locale, labels, detail, billingHref }: AdminUserDetailDesktopProps) {
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6">
       <Link
         href={`/${locale}/dashboard/admin/users`}
         title={labels.tipDetailBack}

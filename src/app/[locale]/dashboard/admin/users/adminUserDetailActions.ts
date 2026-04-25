@@ -8,6 +8,7 @@ import {
   setAdminUserPasswordFromDetailAction as setAdminUserPasswordFromDetailImpl,
   replaceMinorStudentTutorFromDetailAction as replaceMinorStudentTutorFromDetailImpl,
 } from "@/app/[locale]/dashboard/admin/users/adminUserDetailCredentialActions";
+import { uploadAdminStudentAvatarAction as uploadAdminStudentAvatarImpl } from "@/app/[locale]/dashboard/admin/users/adminUserDetailAvatarActions";
 import type { AdminParentSearchHit } from "@/types/adminUsers";
 
 export async function searchAdminParentsForDetailAction(
@@ -32,4 +33,10 @@ export async function replaceMinorStudentTutorFromDetailAction(
   raw: unknown,
 ): Promise<{ ok: boolean; message?: string }> {
   return replaceMinorStudentTutorFromDetailImpl(raw);
+}
+
+export async function uploadAdminStudentAvatarAction(
+  formData: FormData,
+): Promise<{ ok: boolean; message: string }> {
+  return uploadAdminStudentAvatarImpl(formData);
 }

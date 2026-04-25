@@ -2,6 +2,10 @@ import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import type { AdminUserDetailVM, AdminUserTutorLinkVM } from "@/lib/dashboard/adminUserDetailVM";
 import { resolveAvatarUrlForAdmin } from "@/lib/dashboard/resolveAvatarUrl";
+import {
+  loadAdminStudentCurrentCohortAssignment,
+  type AdminStudentCurrentCohortAssignment,
+} from "@/lib/dashboard/loadAdminStudentCurrentCohortAssignment";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
@@ -47,6 +51,7 @@ export async function loadAdminUserDetail(
   locale: string,
   emptyDisplay = "—",
   viewerMayInlineEdit = false,
+  includeStudentAcademicContext = true,
 ): Promise<AdminUserDetailVM | null> {
   const idParsed = z.string().uuid().safeParse(rawUserId);
   if (!idParsed.success) return null;
@@ -105,8 +110,16 @@ export async function loadAdminUserDetail(
       : null;
 
   const role = String(profile.role ?? "");
-  const tutorLinks =
-    role === "student" ? await loadTutorLinksForStudent(admin, userId, emptyDisplay) : [];
+  let tutorLinks: AdminUserTutorLinkVM[] = [];
+  let currentCohortAssignment: AdminStudentCurrentCohortAssignment | null = null;
+  if (role === "student" && includeStudentAcademicContext) {
+    [tutorLinks, currentCohortAssignment] = await Promise.all([
+      loadTutorLinksForStudent(admin, userId, emptyDisplay),
+      loadAdminStudentCurrentCohortAssignment(admin, userId),
+    ]);
+  } else if (role === "student") {
+    tutorLinks = await loadTutorLinksForStudent(admin, userId, emptyDisplay);
+  }
 
   return {
     userId,
@@ -126,6 +139,7 @@ export async function loadAdminUserDetail(
     createdAtDisplay,
     avatarDisplayUrl,
     tutorLinks,
+    currentCohortAssignment,
     viewerMayInlineEdit,
   };
 }

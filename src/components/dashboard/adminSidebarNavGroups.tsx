@@ -34,12 +34,19 @@ export type AdminSidebarNavGroup = {
 
 const ic = "h-4 w-4 shrink-0 opacity-80";
 
+interface BuildAdminSidebarNavGroupsOptions {
+  financeHref?: string;
+}
+
 export function buildAdminSidebarNavGroups(
   base: string,
   profileHref: string,
   dict: Dictionary["dashboard"]["adminNav"],
   badge: number,
+  options: BuildAdminSidebarNavGroupsOptions = {},
 ): AdminSidebarNavGroup[] {
+  const financeHref = options.financeHref ?? `${base}/finance`;
+
   return [
     {
       label: dict.navScopeInstitution,
@@ -67,7 +74,7 @@ export function buildAdminSidebarNavGroups(
       label: null,
       items: [
         {
-          href: `${base}/finance`,
+          href: financeHref,
           label: dict.finance,
           icon: <Banknote className={ic} />,
           tip: dict.tipFinance,

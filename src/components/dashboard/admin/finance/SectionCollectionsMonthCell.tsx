@@ -40,6 +40,51 @@ export interface SectionCollectionsMonthCellProps {
   todayMonth: number;
   year: number;
   ariaPrefix: string;
+  locale: string;
+  labels: {
+    statusApproved: string;
+    statusPending: string;
+    statusRejected: string;
+    statusExempt: string;
+    statusDue: string;
+    statusOutOfPeriod: string;
+    statusNoPlan: string;
+    expectedAmount: string;
+  };
+}
+
+function statusLabel(
+  status: StudentMonthlyPaymentCell["status"],
+  labels: SectionCollectionsMonthCellProps["labels"],
+): string {
+  switch (status) {
+    case "approved":
+      return labels.statusApproved;
+    case "pending":
+      return labels.statusPending;
+    case "rejected":
+      return labels.statusRejected;
+    case "exempt":
+      return labels.statusExempt;
+    case "due":
+      return labels.statusDue;
+    case "out-of-period":
+      return labels.statusOutOfPeriod;
+    case "no-plan":
+      return labels.statusNoPlan;
+  }
+}
+
+function formatExpectedAmount(
+  cell: StudentMonthlyPaymentCell,
+  locale: string,
+): string | null {
+  if (cell.expectedAmount == null || cell.currency == null) return null;
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: cell.currency,
+    maximumFractionDigits: 2,
+  }).format(cell.expectedAmount);
 }
 
 export function SectionCollectionsMonthCell({
@@ -48,12 +93,20 @@ export function SectionCollectionsMonthCell({
   todayMonth,
   year,
   ariaPrefix,
+  locale,
+  labels,
 }: SectionCollectionsMonthCellProps) {
   const Icon = STATUS_ICON[cell.status];
   const cellIdx = cell.year * 12 + cell.month;
   const todayIdx = year * 12 + todayMonth;
   const isOverdue = cell.status === "due" && cellIdx < todayIdx;
-  const aria = `${ariaPrefix} · ${monthLabel}`;
+  const expectedAmount = formatExpectedAmount(cell, locale);
+  const aria = [
+    ariaPrefix,
+    monthLabel,
+    statusLabel(cell.status, labels),
+    expectedAmount ? `${labels.expectedAmount}: ${expectedAmount}` : null,
+  ].filter(Boolean).join(" · ");
   return (
     <span
       aria-label={aria}

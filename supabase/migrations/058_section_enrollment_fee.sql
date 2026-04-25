@@ -154,7 +154,7 @@ BEGIN
     'id', p.id,
     'first_name', p.first_name,
     'last_name', p.last_name,
-    'document_number', p.document_number
+    'dni_or_passport', p.dni_or_passport
   )), '[]'::jsonb)
     INTO v_profiles
     FROM public.profiles p

@@ -96,14 +96,13 @@ describe("buildSectionCollectionsView", () => {
   });
 
   it("flags health=healthy when collection ratio >= 0.85 and no overdue", () => {
-    // 5-month section so the year only has 5 due cells; pay them all.
     const shortSection = {
       sectionStartsOn: "2026-01-01",
       sectionEndsOn: "2026-05-31",
       scheduleSlots: FULL_YEAR_SCHEDULE,
       sectionEnrollmentFeeAmount: 0,
     } as const;
-    const payments = Array.from({ length: 5 }, (_, i) => ({
+    const payments = Array.from({ length: 12 }, (_, i) => ({
       id: `p${i + 1}`,
       sectionId: "sec-1",
       month: i + 1,
@@ -123,8 +122,8 @@ describe("buildSectionCollectionsView", () => {
       students: [studentWithPayments("s1", "Ana", payments)],
       ...shortSection,
     });
-    expect(view.kpis.paid).toBe(500);
-    expect(view.kpis.expectedYear).toBe(500);
+    expect(view.kpis.paid).toBe(1200);
+    expect(view.kpis.expectedYear).toBe(1200);
     expect(view.kpis.overdueStudents).toBe(0);
     expect(view.kpis.collectionRatio).toBe(1);
     expect(view.kpis.health).toBe("healthy");
@@ -177,6 +176,46 @@ describe("buildSectionCollectionsView", () => {
       ...SECTION_RANGE,
     });
     expect(view.students.map((s) => s.studentName)).toEqual(["Ana", "Mara", "Zara"]);
+  });
+
+  it("includes the section enrollment fee in each student's expected total", () => {
+    const view = buildSectionCollectionsView({
+      sectionId: "sec-1",
+      sectionName: "Section A",
+      cohortId: "cohort-1",
+      cohortName: "2026",
+      todayYear: 2026,
+      todayMonth: 12,
+      plans: [PLAN],
+      students: [studentWithPayments("s1", "Ana", [])],
+      ...SECTION_RANGE,
+      sectionEnrollmentFeeAmount: 150,
+    });
+    expect(view.students[0]!.expectedYear).toBe(1350);
+    expect(view.kpis.expectedYear).toBe(1350);
+  });
+
+  it("uses the fee-plan year in admin totals, independent of enrolment day", () => {
+    const view = buildSectionCollectionsView({
+      sectionId: "sec-1",
+      sectionName: "Section A",
+      cohortId: "cohort-1",
+      cohortName: "2026",
+      todayYear: 2026,
+      todayMonth: 12,
+      plans: [{ ...PLAN, monthlyFee: 25 }],
+      students: [
+        studentWithPayments("s1", "Ana", []),
+        { ...studentWithPayments("s2", "Bea", []), enrolledAt: "2026-04-25" },
+      ],
+      sectionStartsOn: "2026-03-03",
+      sectionEndsOn: "2026-09-30",
+      scheduleSlots: [{ dayOfWeek: 0, startTime: "13:00", endTime: "15:00" }],
+      sectionEnrollmentFeeAmount: 150,
+    });
+
+    expect(view.students.map((s) => s.expectedYear)).toEqual([450, 450]);
+    expect(view.kpis.expectedYear).toBe(900);
   });
 
   it("toCohortCollectionsSectionSummary copies kpis and archived flag", () => {

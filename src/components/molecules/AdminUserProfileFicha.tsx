@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
-import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
 import { AdminUserInlineEditableField } from "@/components/molecules/AdminUserInlineEditableField";
 import { AdminUserDetailPasswordSection } from "@/components/molecules/AdminUserDetailPasswordSection";
 import { AdminUserDetailTutorCard } from "@/components/molecules/AdminUserDetailTutorCard";
+import { AdminStudentCurrentCohortAssignmentCard } from "@/components/molecules/AdminStudentCurrentCohortAssignmentCard";
+import { AdminUserIdentityHero } from "@/components/molecules/AdminUserIdentityHero";
 
 type UserLabels = Dictionary["admin"]["users"];
 
@@ -18,8 +19,10 @@ export interface AdminUserProfileFichaProps {
 
 function CardShell({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
-      <h2 className="border-b border-[var(--color-border)] pb-3 font-display text-lg font-semibold text-[var(--color-secondary)]">{title}</h2>
+    <section className="rounded-[calc(var(--layout-border-radius)*1.2)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
+      <h2 className="border-b border-[var(--color-border)] pb-3 font-display text-lg font-semibold text-[var(--color-secondary)]">
+        {title}
+      </h2>
       <dl className="mt-4">{children}</dl>
     </section>
   );
@@ -59,9 +62,11 @@ export function AdminUserProfileFicha({ locale, labels, detail }: AdminUserProfi
 
   const showFamilyCard = detail.role === "student" && (detail.isMinor || detail.tutorLinks.length > 0);
   const roleLabel = roleOptions.find((o) => o.value === detail.role)?.label ?? detail.role;
+  const currentCohortAssignment = detail.role === "student" ? detail.currentCohortAssignment : null;
+  const showAssignment = currentCohortAssignment != null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {toast ? (
         <div
           role="status"
@@ -76,17 +81,25 @@ export function AdminUserProfileFicha({ locale, labels, detail }: AdminUserProfi
         </div>
       ) : null}
 
-      <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-[var(--shadow-card)]">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-          <ProfileAvatar url={detail.avatarDisplayUrl} displayName={displayName} size="lg" className="mx-auto sm:mx-0" />
-          <div className="min-w-0 flex-1 space-y-1 text-center sm:text-left">
-            <h1 className="font-display text-2xl font-bold text-[var(--color-secondary)]">{displayName}</h1>
-            <p className="text-sm text-[var(--color-muted-foreground)]">{detail.emailDisplay}</p>
-          </div>
-        </div>
+      <div className={showAssignment ? "grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.85fr)]" : ""}>
+        <AdminUserIdentityHero
+          locale={locale}
+          detail={detail}
+          labels={labels}
+          displayName={displayName}
+          roleLabel={roleLabel}
+        />
+        {showAssignment ? (
+          <AdminStudentCurrentCohortAssignmentCard
+            locale={locale}
+            studentId={detail.userId}
+            labels={labels}
+            assignment={currentCohortAssignment}
+          />
+        ) : null}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <CardShell title={labels.detailCardContact}>
           <AdminUserInlineEditableField
             locale={locale}
@@ -186,7 +199,6 @@ export function AdminUserProfileFicha({ locale, labels, detail }: AdminUserProfi
               value={detail.assignedTeacherName ?? labels.detailNoValue}
             />
           ) : null}
-          <ReadOnlyRow label={labels.detailFieldCreated} value={detail.createdAtDisplay} />
         </CardShell>
       </div>
 

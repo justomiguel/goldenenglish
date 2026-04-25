@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!idOk) {
     return { title: dict.admin.users.detailTitle, robots: { index: false, follow: false } };
   }
-  const detail = await loadAdminUserDetail(userId, locale, empty);
+  const detail = await loadAdminUserDetail(userId, locale, empty, false, false);
   if (!detail) {
     return { title: dict.admin.users.detailTitle, robots: { index: false, follow: false } };
   }

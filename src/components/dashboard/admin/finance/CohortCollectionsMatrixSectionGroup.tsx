@@ -22,6 +22,18 @@ function formatPercent(ratio: number, locale: string): string {
   }).format(ratio);
 }
 
+function sectionBillingSummary(view: SectionCollectionsView) {
+  const firstRow = view.students[0]?.row ?? null;
+  const currentPlan = firstRow?.currentPlan ?? null;
+  const currency =
+    currentPlan?.currency ?? firstRow?.enrollmentFeeCurrency ?? "USD";
+  return {
+    monthlyFee: currentPlan?.monthlyFee ?? null,
+    enrollmentFee: firstRow?.enrollmentFeeAmount ?? 0,
+    currency,
+  };
+}
+
 function studentCellCurrency(cells: SectionCollectionsView["students"][number]["row"]["cells"]): string {
   for (const c of cells) {
     if (c.currency) return c.currency;
@@ -56,6 +68,7 @@ export function CohortCollectionsMatrixSectionGroup({
 
   const currency =
     visibleRows.length > 0 ? studentCellCurrency(visibleRows[0]!.row.cells) : "USD";
+  const billing = sectionBillingSummary(view);
 
   return (
     <section
@@ -94,6 +107,16 @@ export function CohortCollectionsMatrixSectionGroup({
             {formatPercent(view.kpis.collectionRatio, locale)}{" "}
             {collectionsDict.kpis.collectionRatio.toLowerCase()}
           </span>
+          <span className="text-xs font-medium text-[var(--color-foreground)]">
+            {overviewDict.sectionHeader.monthlyFee}:{" "}
+            {billing.monthlyFee == null
+              ? overviewDict.sectionHeader.noFeePlan
+              : formatMoney(billing.monthlyFee, locale, billing.currency)}
+          </span>
+          <span className="text-xs font-medium text-[var(--color-foreground)]">
+            {overviewDict.sectionHeader.enrollmentFee}:{" "}
+            {formatMoney(billing.enrollmentFee, locale, billing.currency)}
+          </span>
         </div>
         <Link
           href={sectionHref}
@@ -120,8 +143,14 @@ export function CohortCollectionsMatrixSectionGroup({
                   {m}
                 </th>
               ))}
-              <th className="px-2 py-2 text-right">
-                {overviewDict.table.yearTotalsColumn}
+              <th className="px-2 py-2 text-right" scope="col">
+                {overviewDict.table.paidLabel}
+              </th>
+              <th className="px-2 py-2 text-right" scope="col">
+                {overviewDict.table.expectedLabel}
+              </th>
+              <th className="px-2 py-2 text-right" scope="col">
+                {overviewDict.table.overdueLabel}
               </th>
             </tr>
           </thead>
@@ -155,21 +184,19 @@ export function CohortCollectionsMatrixSectionGroup({
                       todayMonth={view.todayMonth}
                       year={view.year}
                       ariaPrefix={s.studentName}
+                      locale={locale}
+                      labels={collectionsDict.monthCell}
                     />
                   </td>
                 ))}
-                <td className="px-2 py-1 text-right text-[11px] font-semibold tabular-nums">
-                  <span className="text-[var(--color-success)]">
-                    {formatMoney(s.paid, locale, currency)}
-                  </span>
-                  <span className="ms-1 text-[10px] text-[var(--color-muted-foreground)]">
-                    /{formatMoney(s.expectedYear, locale, currency)}
-                  </span>
-                  {s.overdue > 0 ? (
-                    <span className="ms-1 text-[10px] font-semibold text-[var(--color-error)]">
-                      {formatMoney(s.overdue, locale, currency)}↯
-                    </span>
-                  ) : null}
+                <td className="px-2 py-1 text-right text-[11px] font-semibold tabular-nums text-[var(--color-success)]">
+                  {formatMoney(s.paid, locale, currency)}
+                </td>
+                <td className="px-2 py-1 text-right text-[11px] font-semibold tabular-nums text-[var(--color-muted-foreground)]">
+                  {formatMoney(s.expectedYear, locale, currency)}
+                </td>
+                <td className="px-2 py-1 text-right text-[11px] font-semibold tabular-nums text-[var(--color-error)]">
+                  {formatMoney(s.overdue, locale, currency)}
                 </td>
               </tr>
             ))}

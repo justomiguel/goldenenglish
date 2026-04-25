@@ -1,3 +1,5 @@
+import type { AdminStudentCurrentCohortAssignment } from "@/lib/dashboard/loadAdminStudentCurrentCohortAssignment";
+
 /** Linked guardian row for admin student profile. */
 export type AdminUserTutorLinkVM = {
   tutorId: string;
@@ -24,6 +26,7 @@ export type AdminUserDetailVM = {
   createdAtDisplay: string;
   avatarDisplayUrl: string | null;
   tutorLinks: AdminUserTutorLinkVM[];
+  currentCohortAssignment: AdminStudentCurrentCohortAssignment | null;
   /** Only `profiles.role === 'admin'` may edit inline fields and passwords (server + UI). */
   viewerMayInlineEdit: boolean;
 };

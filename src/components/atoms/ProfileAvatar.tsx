@@ -1,26 +1,44 @@
 "use client";
 
 import Image from "next/image";
-import { User } from "lucide-react";
 
 export interface ProfileAvatarProps {
   url: string | null;
-  /** Used for initials fallback and alt when no image */
+  /** Used for the image alt when a custom avatar exists. */
   displayName: string;
   size: "sm" | "lg" | "xl";
   className?: string;
 }
 
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+function DefaultProfileAvatarIcon() {
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      className="h-[62%] w-[62%] text-[var(--color-muted-foreground)]"
+      aria-hidden
+      focusable="false"
+      data-testid="default-profile-avatar-icon"
+    >
+      <circle cx="32" cy="24" r="12" fill="currentColor" opacity="0.84" />
+      <path
+        d="M14 54c2.4-11.2 10-18 18-18s15.6 6.8 18 18"
+        fill="currentColor"
+        opacity="0.72"
+      />
+      <path
+        d="M10 55c2.8-13.7 11.7-22 22-22s19.2 8.3 22 22"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="4"
+        opacity="0.28"
+      />
+    </svg>
+  );
 }
 
 export function ProfileAvatar({ url, displayName, size, className = "" }: ProfileAvatarProps) {
   const dim = size === "xl" ? 152 : size === "lg" ? 128 : 40;
-  const text = size === "xl" ? "text-4xl" : size === "lg" ? "text-3xl" : "text-sm";
 
   if (url) {
     const bypassOptimizer = url.startsWith("blob:") || url.startsWith("data:");
@@ -42,14 +60,13 @@ export function ProfileAvatar({ url, displayName, size, className = "" }: Profil
     );
   }
 
-  const ini = initials(displayName);
   return (
     <span
-      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-[var(--color-muted)] font-semibold text-[var(--color-secondary)] ring-1 ring-[var(--color-border)] ${text} ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-[var(--color-muted)] ring-1 ring-[var(--color-border)] ${className}`}
       style={{ width: dim, height: dim }}
       aria-hidden
     >
-      {ini === "?" ? <User className="h-1/2 w-1/2 text-[var(--color-muted-foreground)]" aria-hidden /> : ini}
+      <DefaultProfileAvatarIcon />
     </span>
   );
 }

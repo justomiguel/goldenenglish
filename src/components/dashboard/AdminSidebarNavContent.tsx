@@ -8,6 +8,9 @@ import {
   type AdminSidebarNavGroup,
 } from "@/components/dashboard/adminSidebarNavGroups";
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export interface AdminTeacherNavLabels {
   href: string;
   hint: string;
@@ -23,6 +26,21 @@ export interface AdminSidebarNavContentProps {
   teacherNav?: AdminTeacherNavLabels;
   onNavigate?: () => void;
   variant?: "desktop" | "mobile";
+}
+
+function financeHrefForPathname(base: string, pathname: string): string {
+  const defaultHref = `${base}/finance`;
+  const academicPrefix = `${base}/academic/`;
+  if (!pathname.startsWith(academicPrefix)) return defaultHref;
+
+  const cohortId = pathname.slice(academicPrefix.length).split("/")[0] ?? "";
+  if (!UUID_RE.test(cohortId)) return defaultHref;
+
+  const params = new URLSearchParams({
+    tab: "overview",
+    cohort: cohortId,
+  });
+  return `${defaultHref}?${params.toString()}`;
 }
 
 function TeacherSwitchCard({
@@ -142,7 +160,13 @@ export function AdminSidebarNavContent({
   const pathname = usePathname();
   const base = `/${locale}/dashboard/admin`;
   const profileHref = `/${locale}/dashboard/profile`;
-  const groups = buildAdminSidebarNavGroups(base, profileHref, dict, newRegistrationsCount);
+  const groups = buildAdminSidebarNavGroups(
+    base,
+    profileHref,
+    dict,
+    newRegistrationsCount,
+    { financeHref: financeHrefForPathname(base, pathname) },
+  );
   const mobile = variant === "mobile";
 
   return (

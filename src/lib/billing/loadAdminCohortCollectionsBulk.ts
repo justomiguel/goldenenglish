@@ -4,10 +4,81 @@ import {
   buildCohortCollectionsMatrix,
   type BuildCohortCollectionsMatrixOptions,
 } from "@/lib/billing/buildCohortCollectionsMatrix";
+import { buildCohortCollectionsMatrixFromViews } from "@/lib/billing/buildCohortCollectionsMatrixFromViews";
+import { loadAdminSectionCollectionsView } from "@/lib/billing/loadAdminSectionCollectionsView";
+import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import type {
   CohortCollectionsBulkRaw,
   CohortCollectionsMatrix,
 } from "@/types/cohortCollectionsMatrix";
+
+const MAX_SECTIONS_PER_COHORT_MATRIX = 80;
+
+interface CohortRow {
+  id: string;
+  name: string;
+}
+
+interface SectionRow {
+  id: string;
+  name: string;
+  archived_at: string | null;
+}
+
+async function loadFallbackMatrix(
+  supabase: SupabaseClient,
+  cohortId: string,
+  opts: BuildCohortCollectionsMatrixOptions,
+): Promise<CohortCollectionsMatrix | null> {
+  const { data: cohortData, error: cohortError } = await supabase
+    .from("academic_cohorts")
+    .select("id, name")
+    .eq("id", cohortId)
+    .maybeSingle();
+  if (cohortError || !cohortData) {
+    if (cohortError) logSupabaseClientError("loadAdminCohortCollectionsBulk:fallbackCohort", cohortError);
+    return null;
+  }
+
+  const { data: sectionData, error: sectionError } = await supabase
+    .from("academic_sections")
+    .select("id, name, archived_at")
+    .eq("cohort_id", cohortId)
+    .is("archived_at", null)
+    .order("name", { ascending: true })
+    .limit(MAX_SECTIONS_PER_COHORT_MATRIX);
+  if (sectionError) {
+    logSupabaseClientError("loadAdminCohortCollectionsBulk:fallbackSections", sectionError, { cohortId });
+    return null;
+  }
+
+  const cohort = cohortData as CohortRow;
+  const sections = (sectionData ?? []) as SectionRow[];
+  if (sections.length === 0) {
+    return buildCohortCollectionsMatrixFromViews({
+      cohortId: cohort.id,
+      cohortName: cohort.name,
+      year: opts.todayYear,
+      todayMonth: opts.todayMonth,
+      sections: [],
+    });
+  }
+
+  const views = await Promise.all(
+    sections.map(async (section) => {
+      const view = await loadAdminSectionCollectionsView(supabase, section.id, opts);
+      return view ? { view, archivedAt: section.archived_at } : null;
+    }),
+  );
+
+  return buildCohortCollectionsMatrixFromViews({
+    cohortId: cohort.id,
+    cohortName: cohort.name,
+    year: opts.todayYear,
+    todayMonth: opts.todayMonth,
+    sections: views.filter((v): v is NonNullable<typeof v> => v != null),
+  });
+}
 
 /**
  * Bulk loader for the cohort collections matrix used by the
@@ -31,7 +102,10 @@ export async function loadAdminCohortCollectionsBulk(
     p_cohort_id: cohortId,
     p_year: opts.todayYear,
   });
-  if (error || !data) return null;
+  if (error || !data) {
+    if (error) logSupabaseClientError("loadAdminCohortCollectionsBulk:rpc", error, { cohortId });
+    return loadFallbackMatrix(supabase, cohortId, opts);
+  }
   const raw = data as CohortCollectionsBulkRaw;
   return buildCohortCollectionsMatrix(raw, opts);
 }

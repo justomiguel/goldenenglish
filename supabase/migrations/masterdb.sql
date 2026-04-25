@@ -5517,6 +5517,362 @@ WHERE NOT EXISTS (
   SELECT 1 FROM public.site_themes WHERE slug = 'minimal'
 );
 
+-- ========== 052_site_themes_system_default.sql ==========
+
+-- PR 8: convertir el "Tema por defecto" en una fila real de site_themes,
+-- editable desde el CMS igual que cualquier otro template.
+--
+-- Antes: el grid de admin renderizaba un card "virtual" leyendo solo
+-- `system.properties`, pero los textos / properties / blocks de ese tema no se
+-- podían modificar desde la UI (no había row donde guardar overrides).
+-- Después: existe siempre un row con slug='default' marcado
+-- `is_system_default = true`, que arranca con `properties = {}` y `content = {}`
+-- (=> hereda `system.properties` y los diccionarios), y cualquier admin puede
+-- editar tokens, copy de landing, hero o blocks como con los demás templates.
+-- Las server actions bloquean archivar/borrar el system default para garantizar
+-- que siempre haya un fallback consistente.
+--
+-- Idempotente:
+-- - ADD COLUMN ... IF NOT EXISTS
+-- - índice parcial UNIQUE para que como mucho exista UN system default
+-- - INSERT ... ON CONFLICT (slug) actualiza el flag si alguien ya tenía un
+--   row con slug='default' creado a mano
+-- - si no hay ningún row activo todavía, activa el system default
+
+-- 1) Columna -----------------------------------------------------------------
+ALTER TABLE public.site_themes
+  ADD COLUMN IF NOT EXISTS is_system_default BOOLEAN NOT NULL DEFAULT FALSE;
+
+COMMENT ON COLUMN public.site_themes.is_system_default IS
+  'Marca el row "Tema por defecto" del sistema. Solo uno puede tener TRUE. Las server actions impiden archivarlo o borrarlo para garantizar fallback consistente.';
+
+-- 2) A lo más un system default -------------------------------------------
+CREATE UNIQUE INDEX IF NOT EXISTS site_themes_only_one_system_default
+  ON public.site_themes (is_system_default)
+  WHERE is_system_default = TRUE;
+
+-- 3) Seed idempotente del row default ---------------------------------------
+-- Si alguien ya creó manualmente un row con slug='default' (poco probable,
+-- pero posible), lo promovemos a system default sin pisar properties/content.
+INSERT INTO public.site_themes (
+  slug,
+  name,
+  is_active,
+  template_kind,
+  properties,
+  content,
+  blocks,
+  is_system_default
+)
+VALUES (
+  'default',
+  'Tema por defecto',
+  FALSE,
+  'classic'::public.site_theme_kind,
+  '{}'::jsonb,
+  '{}'::jsonb,
+  '[]'::jsonb,
+  TRUE
+)
+ON CONFLICT (slug) DO UPDATE
+  SET is_system_default = TRUE;
+
+-- 4) Garantizar que siempre haya un activo ----------------------------------
+-- Si no había ningún row con `is_active = true` antes de esta migración, el
+-- system default toma el rol del tema activo (el sitio público sigue pintando
+-- exactamente igual porque properties/content están vacíos).
+UPDATE public.site_themes
+SET is_active = TRUE
+WHERE is_system_default = TRUE
+  AND NOT EXISTS (
+    SELECT 1 FROM public.site_themes WHERE is_active = TRUE
+  );
+
+-- ========== 053_email_templates.sql ==========
+
+-- Communications: editable email templates per locale.
+--
+-- Modelo:
+--   - El catálogo de `template_key`s vive en código (registry TS), no en BD.
+--   - `email_templates` guarda OVERRIDES del admin por (template_key, locale).
+--     Si no existe fila, los emisores caen al default del registry y todo el
+--     producto sigue funcionando exactamente igual que antes de esta migración.
+--   - Layout/branding se aplica en `wrapEmailHtml.ts` (server-only) y NO se
+--     persiste aquí: `body_html` es solo el cuerpo (lo que cambia entre emails).
+--
+-- RLS:
+--   - SELECT/INSERT/UPDATE/DELETE: admin via `public.is_admin(auth.uid())`.
+--   - El backend (envío real de emails) lee con service-role / admin client,
+--     que hace bypass RLS, igual que el resto de adapters de `src/lib/email/`.
+
+CREATE TABLE IF NOT EXISTS public.email_templates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  template_key TEXT NOT NULL,
+  locale TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  body_html TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_by UUID NULL REFERENCES auth.users (id) ON DELETE SET NULL,
+  CONSTRAINT email_templates_locale_supported
+    CHECK (locale IN ('es', 'en')),
+  CONSTRAINT email_templates_subject_nonempty
+    CHECK (length(btrim(subject)) > 0),
+  CONSTRAINT email_templates_body_nonempty
+    CHECK (length(btrim(body_html)) > 0)
+);
+
+COMMENT ON TABLE public.email_templates IS
+  'Overrides editables del catálogo de plantillas de email (registry en código). Si no hay fila para (template_key, locale), el envío usa el default del registry.';
+
+COMMENT ON COLUMN public.email_templates.template_key IS
+  'Identificador estable de la plantilla (p. ej. "messaging.teacher_new"). El catálogo vive en src/lib/email/templates/templateRegistry.ts.';
+
+COMMENT ON COLUMN public.email_templates.body_html IS
+  'Solo el cuerpo HTML (sin layout). El wrapper unificado con header/logo/footer se aplica en wrapEmailHtml.ts.';
+
+CREATE UNIQUE INDEX IF NOT EXISTS email_templates_key_locale_uidx
+  ON public.email_templates (template_key, locale);
+
+-- updated_at trigger -------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.email_templates_set_updated_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS email_templates_set_updated_at ON public.email_templates;
+CREATE TRIGGER email_templates_set_updated_at
+  BEFORE UPDATE ON public.email_templates
+  FOR EACH ROW
+  EXECUTE FUNCTION public.email_templates_set_updated_at();
+
+-- RLS ----------------------------------------------------------------------
+ALTER TABLE public.email_templates ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS email_templates_select_admin ON public.email_templates;
+CREATE POLICY email_templates_select_admin
+  ON public.email_templates FOR SELECT
+  TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS email_templates_modify_admin ON public.email_templates;
+CREATE POLICY email_templates_modify_admin
+  ON public.email_templates FOR ALL
+  TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+-- ========== 054_section_fee_plans.sql ==========
+
+-- Section fee plans: monthly fee, payments per period, enrollment fee flag.
+--
+-- Una sección académica puede tener uno o más planes de cuotas con vigencias
+-- (effective_from_year, effective_from_month). El plan vigente para un par
+-- (year, month) es el de mayor (effective_from_year, effective_from_month) <=
+-- (year, month). Esto permite cambiar el monto durante el año sin perder el
+-- monto histórico ya facturado a los alumnos.
+--
+-- charges_enrollment_fee es metadata que indica si la sección cobra matrícula.
+-- La matrícula se sigue gestionando por billing_invoices: este flag solo
+-- declara explícitamente la propiedad de la sección y queda disponible para
+-- automatizaciones futuras.
+
+CREATE TABLE IF NOT EXISTS public.section_fee_plans (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  section_id UUID NOT NULL REFERENCES public.academic_sections (id) ON DELETE CASCADE,
+  effective_from_year SMALLINT NOT NULL,
+  effective_from_month SMALLINT NOT NULL,
+  monthly_fee NUMERIC(12, 2) NOT NULL,
+  payments_count SMALLINT NOT NULL,
+  charges_enrollment_fee BOOLEAN NOT NULL DEFAULT false,
+  period_start_year SMALLINT NOT NULL,
+  period_start_month SMALLINT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_by UUID NULL REFERENCES auth.users (id) ON DELETE SET NULL,
+  CONSTRAINT section_fee_plans_month_range
+    CHECK (effective_from_month BETWEEN 1 AND 12),
+  CONSTRAINT section_fee_plans_year_range
+    CHECK (effective_from_year BETWEEN 2000 AND 2100),
+  CONSTRAINT section_fee_plans_period_month_range
+    CHECK (period_start_month BETWEEN 1 AND 12),
+  CONSTRAINT section_fee_plans_period_year_range
+    CHECK (period_start_year BETWEEN 2000 AND 2100),
+  CONSTRAINT section_fee_plans_fee_positive
+    CHECK (monthly_fee >= 0),
+  CONSTRAINT section_fee_plans_payments_count_range
+    CHECK (payments_count BETWEEN 1 AND 24)
+);
+
+COMMENT ON TABLE public.section_fee_plans IS
+  'Planes de cuotas por sección con vigencias. El plan activo para (year, month) es el más reciente con (effective_from_year, effective_from_month) <= (year, month).';
+
+COMMENT ON COLUMN public.section_fee_plans.monthly_fee IS
+  'Monto de la cuota mensual en la moneda del instituto. El descuento por beca se aplica en la app.';
+
+COMMENT ON COLUMN public.section_fee_plans.payments_count IS
+  'Cantidad de cuotas mensuales del período cubierto por este plan (1..24).';
+
+COMMENT ON COLUMN public.section_fee_plans.charges_enrollment_fee IS
+  'Si esta sección cobra matrícula. La matrícula sigue gestionándose por billing_invoices.';
+
+COMMENT ON COLUMN public.section_fee_plans.period_start_month IS
+  'Mes (1..12) del primer pago del período cubierto por este plan.';
+
+CREATE UNIQUE INDEX IF NOT EXISTS section_fee_plans_section_effective_uidx
+  ON public.section_fee_plans (section_id, effective_from_year, effective_from_month);
+
+CREATE INDEX IF NOT EXISTS section_fee_plans_section_idx
+  ON public.section_fee_plans (section_id);
+
+-- updated_at trigger -------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.section_fee_plans_set_updated_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS section_fee_plans_set_updated_at ON public.section_fee_plans;
+CREATE TRIGGER section_fee_plans_set_updated_at
+  BEFORE UPDATE ON public.section_fee_plans
+  FOR EACH ROW
+  EXECUTE FUNCTION public.section_fee_plans_set_updated_at();
+
+-- RLS ----------------------------------------------------------------------
+ALTER TABLE public.section_fee_plans ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS section_fee_plans_select_scope ON public.section_fee_plans;
+CREATE POLICY section_fee_plans_select_scope
+  ON public.section_fee_plans FOR SELECT
+  TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR EXISTS (
+      SELECT 1 FROM public.academic_sections s
+      WHERE s.id = section_fee_plans.section_id
+        AND s.teacher_id = auth.uid()
+    )
+    OR EXISTS (
+      SELECT 1 FROM public.section_enrollments e
+      WHERE e.section_id = section_fee_plans.section_id
+        AND e.status = 'active'
+        AND (
+          e.student_id = auth.uid()
+          OR EXISTS (
+            SELECT 1 FROM public.tutor_student_rel ts
+            WHERE ts.tutor_id = auth.uid() AND ts.student_id = e.student_id
+          )
+        )
+    )
+  );
+
+DROP POLICY IF EXISTS section_fee_plans_admin_write ON public.section_fee_plans;
+CREATE POLICY section_fee_plans_admin_write
+  ON public.section_fee_plans FOR ALL
+  TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+-- Section-aware payments ----------------------------------------------------
+-- A student can be enrolled in more than one section at a time and each section
+-- can have its own monthly fee. Payments must therefore be tracked per section
+-- so the same calendar month can have a separate receipt for each section the
+-- student is enrolled in.
+
+ALTER TABLE public.payments
+  ADD COLUMN IF NOT EXISTS section_id UUID
+    REFERENCES public.academic_sections (id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS payments_section_idx ON public.payments (section_id);
+
+-- Replace the legacy single-section unique with a section-aware version.
+-- We keep both partial unique indexes:
+--   * one for rows that target a section (the new model);
+--   * one for legacy rows without section_id (preserve historical receipts).
+DO $$
+BEGIN
+  ALTER TABLE public.payments
+    DROP CONSTRAINT IF EXISTS payments_student_period_uidx;
+EXCEPTION
+  WHEN undefined_object THEN NULL;
+END $$;
+
+DROP INDEX IF EXISTS public.payments_student_period_uidx;
+
+CREATE UNIQUE INDEX IF NOT EXISTS payments_student_section_period_uidx
+  ON public.payments (student_id, section_id, month, year)
+  WHERE section_id IS NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS payments_student_legacy_period_uidx
+  ON public.payments (student_id, month, year)
+  WHERE section_id IS NULL;
+
+-- Allow a student to create their own pending payment row (with receipt) for a
+-- section they are actively enrolled in. Existing admin/parent insert policies
+-- in 002_platform_phase remain untouched.
+DROP POLICY IF EXISTS payments_insert_student_self ON public.payments;
+CREATE POLICY payments_insert_student_self
+  ON public.payments FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    student_id = auth.uid()
+    AND status = 'pending'
+    AND section_id IS NOT NULL
+    AND EXISTS (
+      SELECT 1 FROM public.section_enrollments se
+      WHERE se.student_id = auth.uid()
+        AND se.section_id = payments.section_id
+        AND se.status = 'active'
+    )
+  );
+
+-- Allow the same student to update only their own pending row (e.g. attach a
+-- receipt). Admin update policy from 002 still wins for staff.
+DROP POLICY IF EXISTS payments_update_student_self ON public.payments;
+CREATE POLICY payments_update_student_self
+  ON public.payments FOR UPDATE
+  TO authenticated
+  USING (
+    student_id = auth.uid()
+    AND status = 'pending'
+  )
+  WITH CHECK (
+    student_id = auth.uid()
+    AND status = 'pending'
+  );
+
+-- ========== 055_section_fee_plans_archive.sql ==========
+
+-- Section fee plans: lifecycle (archive / restore / hard delete).
+--
+-- Add a soft-delete column so admins can take a plan out of circulation
+-- without losing the historical reference (e.g. for sections where students
+-- already paid using that plan). Hard delete remains available for plans
+-- that were never used; the application enforces that distinction.
+
+ALTER TABLE public.section_fee_plans
+  ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ NULL,
+  ADD COLUMN IF NOT EXISTS archived_by UUID NULL REFERENCES auth.users (id) ON DELETE SET NULL;
+
+COMMENT ON COLUMN public.section_fee_plans.archived_at IS
+  'Soft-delete marker. When NOT NULL, the plan is archived: it does not appear in student / teacher views and is not selectable as the effective plan for new payments, but it is preserved for historical traceability.';
+
+COMMENT ON COLUMN public.section_fee_plans.archived_by IS
+  'Admin user that archived the plan (for audit trail).';
+
+CREATE INDEX IF NOT EXISTS section_fee_plans_section_active_idx
+  ON public.section_fee_plans (section_id)
+  WHERE archived_at IS NULL;
+
 -- ========== 055_tutor_financial_access.sql ==========
 
 -- Tutor financial access (default-allow opt-out) + shared payments view + tutor uploads in student folder.
@@ -5696,12 +6052,266 @@ CREATE POLICY tutor_student_rel_update_student_adult
     )
   );
 
+-- ========== 056_section_fee_plans_currency_and_simplify.sql ==========
+
+-- Section fee plans: add multi-currency support and simplify the model.
+--
+-- Cambios respecto a 054_section_fee_plans.sql:
+--   * ADD currency: ISO 4217 (3 letras mayúsculas), default 'USD'.
+--   * DROP payments_count, period_start_year, period_start_month: el rango
+--     temporal real lo dicta academic_sections.starts_on/ends_on. El prorrateo
+--     del primer mes se calcula en la app desde el schedule_slots.
+--
+-- Decisión documentada en docs/adr/2026-04-section-fee-plans-currency-and-proration.md.
+
+ALTER TABLE public.section_fee_plans
+  ADD COLUMN IF NOT EXISTS currency TEXT NOT NULL DEFAULT 'USD';
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'section_fee_plans_currency_iso4217'
+  ) THEN
+    ALTER TABLE public.section_fee_plans
+      ADD CONSTRAINT section_fee_plans_currency_iso4217
+      CHECK (currency ~ '^[A-Z]{3}$');
+  END IF;
+END $$;
+
+COMMENT ON COLUMN public.section_fee_plans.currency IS
+  'Código ISO 4217 (3 letras mayúsculas) en el que se cobra la cuota mensual de esta sección. Cada plan/sección puede tener su propia moneda.';
+
+-- Drop columns + their CHECK constraints introduced in 054.
+ALTER TABLE public.section_fee_plans
+  DROP CONSTRAINT IF EXISTS section_fee_plans_payments_count_range,
+  DROP CONSTRAINT IF EXISTS section_fee_plans_period_month_range,
+  DROP CONSTRAINT IF EXISTS section_fee_plans_period_year_range;
+
+ALTER TABLE public.section_fee_plans
+  DROP COLUMN IF EXISTS payments_count,
+  DROP COLUMN IF EXISTS period_start_year,
+  DROP COLUMN IF EXISTS period_start_month;
+
+COMMENT ON TABLE public.section_fee_plans IS
+  'Planes de cuotas por sección. Cada plan tiene moneda + monto mensual + vigencia (effective_from). El plan activo para (year, month) es el más reciente con effective_from <= (year, month). El rango temporal real lo da academic_sections.starts_on/ends_on; el prorrateo del primer mes lo calcula la app a partir del schedule_slots.';
+
+-- ========== 057_admin_cohort_collections_bulk.sql ==========
+
+-- RPC: bulk fetch of all data needed to render the cohort collections matrix
+-- (overview tab in /admin/finance). Returns one JSON document with sections,
+-- enrollments, profiles, payments, scholarships and active fee plans for the
+-- cohort + year, in a single round-trip.
+--
+-- Replaces the N+1 pattern of loadAdminCohortCollectionsOverview.ts that
+-- iterated loadAdminSectionCollectionsView per section. ADR follow-up of
+-- 2026-04-admin-section-collections-view.md and decision documented in
+-- docs/adr/2026-04-finance-unification-tabs.md.
+--
+-- The function returns RAW data only — monetary computations (expected
+-- amount, prorate, scholarship coverage, paid/overdue/upcoming status) are
+-- composed by the application using the existing pure reducers in
+-- src/lib/billing/** to avoid duplicating domain logic in plpgsql
+-- (rules 03-architecture and complete-solutions-always).
+
+CREATE OR REPLACE FUNCTION public.admin_cohort_collections_bulk(
+  p_cohort_id uuid,
+  p_year int
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_cohort jsonb;
+  v_sections jsonb;
+  v_enrollments jsonb;
+  v_profiles jsonb;
+  v_payments jsonb;
+  v_scholarships jsonb;
+  v_plans jsonb;
+  v_section_ids uuid[];
+  v_student_ids uuid[];
+BEGIN
+  IF NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+
+  IF p_year IS NULL OR p_year < 2000 OR p_year > 2100 THEN
+    RAISE EXCEPTION 'invalid_year' USING ERRCODE = '22023';
+  END IF;
+
+  SELECT jsonb_build_object('id', c.id, 'name', c.name)
+    INTO v_cohort
+    FROM public.academic_cohorts c
+    WHERE c.id = p_cohort_id;
+
+  IF v_cohort IS NULL THEN
+    RETURN jsonb_build_object(
+      'cohort', NULL,
+      'year', p_year,
+      'sections', '[]'::jsonb,
+      'enrollments', '[]'::jsonb,
+      'profiles', '[]'::jsonb,
+      'payments', '[]'::jsonb,
+      'scholarships', '[]'::jsonb,
+      'plans', '[]'::jsonb
+    );
+  END IF;
+
+  SELECT array_agg(s.id), coalesce(jsonb_agg(jsonb_build_object(
+    'id', s.id,
+    'name', s.name,
+    'archived_at', s.archived_at,
+    'starts_on', s.starts_on,
+    'ends_on', s.ends_on,
+    'schedule_slots', coalesce(s.schedule_slots, '[]'::jsonb)
+  ) ORDER BY s.name), '[]'::jsonb)
+    INTO v_section_ids, v_sections
+    FROM public.academic_sections s
+    WHERE s.cohort_id = p_cohort_id
+      AND s.archived_at IS NULL;
+
+  IF v_section_ids IS NULL OR array_length(v_section_ids, 1) IS NULL THEN
+    RETURN jsonb_build_object(
+      'cohort', v_cohort,
+      'year', p_year,
+      'sections', '[]'::jsonb,
+      'enrollments', '[]'::jsonb,
+      'profiles', '[]'::jsonb,
+      'payments', '[]'::jsonb,
+      'scholarships', '[]'::jsonb,
+      'plans', '[]'::jsonb
+    );
+  END IF;
+
+  SELECT array_agg(DISTINCT e.student_id), coalesce(jsonb_agg(jsonb_build_object(
+    'section_id', e.section_id,
+    'student_id', e.student_id,
+    'created_at', e.created_at
+  )), '[]'::jsonb)
+    INTO v_student_ids, v_enrollments
+    FROM public.section_enrollments e
+    WHERE e.section_id = ANY(v_section_ids)
+      AND e.status = 'active';
+
+  IF v_student_ids IS NULL OR array_length(v_student_ids, 1) IS NULL THEN
+    RETURN jsonb_build_object(
+      'cohort', v_cohort,
+      'year', p_year,
+      'sections', v_sections,
+      'enrollments', '[]'::jsonb,
+      'profiles', '[]'::jsonb,
+      'payments', '[]'::jsonb,
+      'scholarships', '[]'::jsonb,
+      'plans', coalesce((
+        SELECT jsonb_agg(jsonb_build_object(
+          'id', fp.id,
+          'section_id', fp.section_id,
+          'effective_from_year', fp.effective_from_year,
+          'effective_from_month', fp.effective_from_month,
+          'monthly_fee', fp.monthly_fee,
+          'currency', fp.currency,
+          'charges_enrollment_fee', fp.charges_enrollment_fee,
+          'archived_at', fp.archived_at
+        ))
+        FROM public.section_fee_plans fp
+        WHERE fp.section_id = ANY(v_section_ids)
+          AND fp.archived_at IS NULL
+      ), '[]'::jsonb)
+    );
+  END IF;
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', p.id,
+    'first_name', p.first_name,
+    'last_name', p.last_name,
+    'dni_or_passport', p.dni_or_passport
+  )), '[]'::jsonb)
+    INTO v_profiles
+    FROM public.profiles p
+    WHERE p.id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', pay.id,
+    'student_id', pay.student_id,
+    'section_id', pay.section_id,
+    'month', pay.month,
+    'year', pay.year,
+    'amount', pay.amount,
+    'status', pay.status,
+    'receipt_url', pay.receipt_url
+  )), '[]'::jsonb)
+    INTO v_payments
+    FROM public.payments pay
+    WHERE pay.year = p_year
+      AND pay.section_id = ANY(v_section_ids)
+      AND pay.student_id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'student_id', sc.student_id,
+    'discount_percent', sc.discount_percent,
+    'valid_from_year', sc.valid_from_year,
+    'valid_from_month', sc.valid_from_month,
+    'valid_until_year', sc.valid_until_year,
+    'valid_until_month', sc.valid_until_month,
+    'is_active', sc.is_active
+  )), '[]'::jsonb)
+    INTO v_scholarships
+    FROM public.student_scholarships sc
+    WHERE sc.student_id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', fp.id,
+    'section_id', fp.section_id,
+    'effective_from_year', fp.effective_from_year,
+    'effective_from_month', fp.effective_from_month,
+    'monthly_fee', fp.monthly_fee,
+    'currency', fp.currency,
+    'charges_enrollment_fee', fp.charges_enrollment_fee,
+    'archived_at', fp.archived_at
+  )), '[]'::jsonb)
+    INTO v_plans
+    FROM public.section_fee_plans fp
+    WHERE fp.section_id = ANY(v_section_ids)
+      AND fp.archived_at IS NULL;
+
+  RETURN jsonb_build_object(
+    'cohort', v_cohort,
+    'year', p_year,
+    'sections', v_sections,
+    'enrollments', v_enrollments,
+    'profiles', v_profiles,
+    'payments', v_payments,
+    'scholarships', v_scholarships,
+    'plans', v_plans
+  );
+END;
+$$;
+
+COMMENT ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) IS
+  'Bulk fetch (admin only) of all raw data needed to render the cohort collections matrix in /admin/finance for a given cohort and year. Returns a single JSON document. Application composes payment status / expected amounts using src/lib/billing/** reducers. See ADR docs/adr/2026-04-finance-unification-tabs.md.';
+
+REVOKE ALL ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) FROM anon;
+GRANT EXECUTE ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) TO authenticated;
+
 -- ========== 058_section_enrollment_fee.sql ==========
+
 -- Section-level enrollment fee (matrícula).
--- ADD academic_sections.enrollment_fee_amount NUMERIC(12,2) NOT NULL DEFAULT 0
--- CHECK (enrollment_fee_amount >= 0). 0 = la sección no cobra matrícula.
--- La moneda se reusa del plan vigente (section_fee_plans.currency).
--- DROP section_fee_plans.charges_enrollment_fee.
+--
+-- Decisión documentada en docs/adr/2026-04-section-enrollment-fee.md.
+--
+-- Cambios:
+--   * ADD academic_sections.enrollment_fee_amount NUMERIC(12,2) NOT NULL DEFAULT 0
+--     CHECK (enrollment_fee_amount >= 0). 0 = la sección no cobra matrícula.
+--     La moneda se reusa del plan vigente (section_fee_plans.currency).
+--   * DROP section_fee_plans.charges_enrollment_fee: la fuente de verdad de
+--     "esta sección cobra matrícula" pasa a ser enrollment_fee_amount > 0
+--     en la sección. Evita estados inconsistentes (flag true con monto 0).
+
 ALTER TABLE public.academic_sections
   ADD COLUMN IF NOT EXISTS enrollment_fee_amount NUMERIC(12, 2) NOT NULL DEFAULT 0;
 
@@ -5719,13 +6329,19 @@ BEGIN
 END $$;
 
 COMMENT ON COLUMN public.academic_sections.enrollment_fee_amount IS
-  'Monto de matrícula que cobra la sección, en la moneda del plan de cuotas vigente. 0 = la sección no cobra matrícula.';
+  'Monto de matrícula que cobra la sección, en la moneda del plan de cuotas vigente. 0 = la sección no cobra matrícula. La moneda no se almacena aquí: se toma de section_fee_plans.currency del plan activo para evitar duplicar el dato.';
 
+-- Drop deprecated flag in section_fee_plans (the boolean was insufficient: it
+-- told whether the section "charged" but never how much).
 ALTER TABLE public.section_fee_plans
   DROP COLUMN IF EXISTS charges_enrollment_fee;
 
--- Redefine cohort collections bulk RPC to expose academic_sections.enrollment_fee_amount
--- and stop reading the dropped section_fee_plans.charges_enrollment_fee column.
+-- Redefine the cohort collections bulk RPC to align with the new model:
+--   * sections payload now exposes `enrollment_fee_amount` so the application
+--     can derive whether (and how much) matrícula the section charges.
+--   * plans payload drops the deprecated `charges_enrollment_fee` field.
+-- See migration 057_admin_cohort_collections_bulk.sql for the original.
+
 CREATE OR REPLACE FUNCTION public.admin_cohort_collections_bulk(
   p_cohort_id uuid,
   p_year int
@@ -5840,7 +6456,7 @@ BEGIN
     'id', p.id,
     'first_name', p.first_name,
     'last_name', p.last_name,
-    'document_number', p.document_number
+    'dni_or_passport', p.dni_or_passport
   )), '[]'::jsonb)
     INTO v_profiles
     FROM public.profiles p
@@ -5901,3 +6517,395 @@ BEGIN
   );
 END;
 $$;
+
+-- ========== 059_admin_cohort_collections_profile_dni.sql ==========
+
+-- Fix admin cohort collections RPC profile payload to match the real profiles schema.
+--
+-- `profiles.document_number` never existed in this schema; the canonical
+-- student identifier is `profiles.dni_or_passport`.
+
+CREATE OR REPLACE FUNCTION public.admin_cohort_collections_bulk(
+  p_cohort_id uuid,
+  p_year int
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_cohort jsonb;
+  v_sections jsonb;
+  v_enrollments jsonb;
+  v_profiles jsonb;
+  v_payments jsonb;
+  v_scholarships jsonb;
+  v_plans jsonb;
+  v_section_ids uuid[];
+  v_student_ids uuid[];
+BEGIN
+  IF NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+
+  IF p_year IS NULL OR p_year < 2000 OR p_year > 2100 THEN
+    RAISE EXCEPTION 'invalid_year' USING ERRCODE = '22023';
+  END IF;
+
+  SELECT jsonb_build_object('id', c.id, 'name', c.name)
+    INTO v_cohort
+    FROM public.academic_cohorts c
+    WHERE c.id = p_cohort_id;
+
+  IF v_cohort IS NULL THEN
+    RETURN jsonb_build_object(
+      'cohort', NULL,
+      'year', p_year,
+      'sections', '[]'::jsonb,
+      'enrollments', '[]'::jsonb,
+      'profiles', '[]'::jsonb,
+      'payments', '[]'::jsonb,
+      'scholarships', '[]'::jsonb,
+      'plans', '[]'::jsonb
+    );
+  END IF;
+
+  SELECT array_agg(s.id), coalesce(jsonb_agg(jsonb_build_object(
+    'id', s.id,
+    'name', s.name,
+    'archived_at', s.archived_at,
+    'starts_on', s.starts_on,
+    'ends_on', s.ends_on,
+    'schedule_slots', coalesce(s.schedule_slots, '[]'::jsonb),
+    'enrollment_fee_amount', s.enrollment_fee_amount
+  ) ORDER BY s.name), '[]'::jsonb)
+    INTO v_section_ids, v_sections
+    FROM public.academic_sections s
+    WHERE s.cohort_id = p_cohort_id
+      AND s.archived_at IS NULL;
+
+  IF v_section_ids IS NULL OR array_length(v_section_ids, 1) IS NULL THEN
+    RETURN jsonb_build_object(
+      'cohort', v_cohort,
+      'year', p_year,
+      'sections', '[]'::jsonb,
+      'enrollments', '[]'::jsonb,
+      'profiles', '[]'::jsonb,
+      'payments', '[]'::jsonb,
+      'scholarships', '[]'::jsonb,
+      'plans', '[]'::jsonb
+    );
+  END IF;
+
+  SELECT array_agg(DISTINCT e.student_id), coalesce(jsonb_agg(jsonb_build_object(
+    'section_id', e.section_id,
+    'student_id', e.student_id,
+    'created_at', e.created_at
+  )), '[]'::jsonb)
+    INTO v_student_ids, v_enrollments
+    FROM public.section_enrollments e
+    WHERE e.section_id = ANY(v_section_ids)
+      AND e.status = 'active';
+
+  IF v_student_ids IS NULL OR array_length(v_student_ids, 1) IS NULL THEN
+    RETURN jsonb_build_object(
+      'cohort', v_cohort,
+      'year', p_year,
+      'sections', v_sections,
+      'enrollments', '[]'::jsonb,
+      'profiles', '[]'::jsonb,
+      'payments', '[]'::jsonb,
+      'scholarships', '[]'::jsonb,
+      'plans', coalesce((
+        SELECT jsonb_agg(jsonb_build_object(
+          'id', fp.id,
+          'section_id', fp.section_id,
+          'effective_from_year', fp.effective_from_year,
+          'effective_from_month', fp.effective_from_month,
+          'monthly_fee', fp.monthly_fee,
+          'currency', fp.currency,
+          'archived_at', fp.archived_at
+        ))
+        FROM public.section_fee_plans fp
+        WHERE fp.section_id = ANY(v_section_ids)
+          AND fp.archived_at IS NULL
+      ), '[]'::jsonb)
+    );
+  END IF;
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', p.id,
+    'first_name', p.first_name,
+    'last_name', p.last_name,
+    'dni_or_passport', p.dni_or_passport
+  )), '[]'::jsonb)
+    INTO v_profiles
+    FROM public.profiles p
+    WHERE p.id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', pay.id,
+    'student_id', pay.student_id,
+    'section_id', pay.section_id,
+    'month', pay.month,
+    'year', pay.year,
+    'amount', pay.amount,
+    'status', pay.status,
+    'receipt_url', pay.receipt_url
+  )), '[]'::jsonb)
+    INTO v_payments
+    FROM public.payments pay
+    WHERE pay.year = p_year
+      AND pay.section_id = ANY(v_section_ids)
+      AND pay.student_id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'student_id', sc.student_id,
+    'discount_percent', sc.discount_percent,
+    'valid_from_year', sc.valid_from_year,
+    'valid_from_month', sc.valid_from_month,
+    'valid_until_year', sc.valid_until_year,
+    'valid_until_month', sc.valid_until_month,
+    'is_active', sc.is_active
+  )), '[]'::jsonb)
+    INTO v_scholarships
+    FROM public.student_scholarships sc
+    WHERE sc.student_id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', fp.id,
+    'section_id', fp.section_id,
+    'effective_from_year', fp.effective_from_year,
+    'effective_from_month', fp.effective_from_month,
+    'monthly_fee', fp.monthly_fee,
+    'currency', fp.currency,
+    'archived_at', fp.archived_at
+  )), '[]'::jsonb)
+    INTO v_plans
+    FROM public.section_fee_plans fp
+    WHERE fp.section_id = ANY(v_section_ids)
+      AND fp.archived_at IS NULL;
+
+  RETURN jsonb_build_object(
+    'cohort', v_cohort,
+    'year', p_year,
+    'sections', v_sections,
+    'enrollments', v_enrollments,
+    'profiles', v_profiles,
+    'payments', v_payments,
+    'scholarships', v_scholarships,
+    'plans', v_plans
+  );
+END;
+$$;
+
+COMMENT ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) IS
+  'Bulk fetch (admin only) of raw cohort collections data. Profile rows expose dni_or_passport from the canonical profiles schema.';
+
+REVOKE ALL ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) FROM anon;
+GRANT EXECUTE ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) TO authenticated;
+
+-- ========== 060_payments_section_id_backfill.sql ==========
+
+-- Ensure section-scoped payments exist for the finance cohort matrix.
+--
+-- Migration 054 introduced `payments.section_id`; some environments may have
+-- section fee plans without this column. Keep this migration idempotent so the
+-- finance RPC and loaders can rely on the section-aware payment model.
+
+ALTER TABLE public.payments
+  ADD COLUMN IF NOT EXISTS section_id UUID
+    REFERENCES public.academic_sections (id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS payments_section_idx ON public.payments (section_id);
+
+DO $$
+BEGIN
+  ALTER TABLE public.payments
+    DROP CONSTRAINT IF EXISTS payments_student_period_uidx;
+EXCEPTION
+  WHEN undefined_object THEN NULL;
+END $$;
+
+DROP INDEX IF EXISTS public.payments_student_period_uidx;
+
+CREATE UNIQUE INDEX IF NOT EXISTS payments_student_section_period_uidx
+  ON public.payments (student_id, section_id, month, year)
+  WHERE section_id IS NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS payments_student_legacy_period_uidx
+  ON public.payments (student_id, month, year)
+  WHERE section_id IS NULL;
+
+-- Best-effort attribution for legacy pending/approved rows. If a student has
+-- exactly one active section, the legacy payment clearly belongs to it. Rows for
+-- students with multiple active sections stay NULL to avoid corrupt attribution.
+WITH single_active_section AS (
+  SELECT
+    se.student_id,
+    (array_agg(se.section_id ORDER BY se.section_id::text))[1] AS section_id,
+    count(DISTINCT se.section_id) AS section_count
+  FROM public.section_enrollments se
+  WHERE se.status = 'active'
+  GROUP BY se.student_id
+)
+UPDATE public.payments p
+SET section_id = sas.section_id
+FROM single_active_section sas
+WHERE p.section_id IS NULL
+  AND p.student_id = sas.student_id
+  AND sas.section_count = 1;
+
+DROP POLICY IF EXISTS payments_insert_student_self ON public.payments;
+CREATE POLICY payments_insert_student_self
+  ON public.payments FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    student_id = auth.uid()
+    AND status = 'pending'
+    AND section_id IS NOT NULL
+    AND EXISTS (
+      SELECT 1 FROM public.section_enrollments se
+      WHERE se.student_id = auth.uid()
+        AND se.section_id = payments.section_id
+        AND se.status = 'active'
+    )
+  );
+
+DROP POLICY IF EXISTS payments_update_student_self ON public.payments;
+CREATE POLICY payments_update_student_self
+  ON public.payments FOR UPDATE
+  TO authenticated
+  USING (
+    student_id = auth.uid()
+    AND status = 'pending'
+  )
+  WITH CHECK (
+    student_id = auth.uid()
+    AND status = 'pending'
+  );
+
+-- ========== 061_student_scholarships_repair.sql ==========
+
+-- Ensure scholarship tables exist for billing and finance summaries.
+--
+-- Some environments may have section fee plans and finance RPCs applied while
+-- missing the older billing-scholarships migration. This repair keeps the
+-- scholarship/coupon schema idempotent so finance loaders can always read the
+-- optional scholarship discount set.
+
+DO $$
+BEGIN
+  ALTER TYPE public.payment_status ADD VALUE 'exempt';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.student_scholarships (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  discount_percent NUMERIC(5, 2) NOT NULL CHECK (discount_percent >= 0 AND discount_percent <= 100),
+  note TEXT,
+  valid_from_year INT NOT NULL CHECK (valid_from_year >= 2000 AND valid_from_year <= 2100),
+  valid_from_month INT NOT NULL CHECK (valid_from_month >= 1 AND valid_from_month <= 12),
+  valid_until_year INT NULL CHECK (valid_until_year IS NULL OR (valid_until_year >= 2000 AND valid_until_year <= 2100)),
+  valid_until_month INT NULL CHECK (valid_until_month IS NULL OR (valid_until_month >= 1 AND valid_until_month <= 12)),
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT student_scholarships_one_per_student UNIQUE (student_id)
+);
+
+DROP TRIGGER IF EXISTS student_scholarships_set_updated_at ON public.student_scholarships;
+CREATE TRIGGER student_scholarships_set_updated_at
+  BEFORE UPDATE ON public.student_scholarships
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.discount_coupons (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code TEXT NOT NULL,
+  discount_type TEXT NOT NULL CHECK (discount_type IN ('percent', 'fixed_amount')),
+  discount_value NUMERIC(12, 2) NOT NULL CHECK (discount_value > 0),
+  valid_from TIMESTAMPTZ NOT NULL DEFAULT now(),
+  valid_until TIMESTAMPTZ NULL,
+  max_uses INT NULL CHECK (max_uses IS NULL OR max_uses >= 0),
+  uses_count INT NOT NULL DEFAULT 0 CHECK (uses_count >= 0),
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS discount_coupons_code_lower_uidx
+  ON public.discount_coupons (lower(trim(code)));
+
+DROP TRIGGER IF EXISTS discount_coupons_set_updated_at ON public.discount_coupons;
+CREATE TRIGGER discount_coupons_set_updated_at
+  BEFORE UPDATE ON public.discount_coupons
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+ALTER TABLE public.payments
+  ADD COLUMN IF NOT EXISTS coupon_id UUID REFERENCES public.discount_coupons (id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS payments_coupon_idx ON public.payments (coupon_id);
+
+ALTER TABLE public.student_scholarships ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.discount_coupons ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS student_scholarships_select ON public.student_scholarships;
+DO $$
+DECLARE
+  v_using text := 'public.is_admin(auth.uid()) OR student_id = auth.uid()';
+BEGIN
+  IF to_regclass('public.parent_student') IS NOT NULL THEN
+    v_using := v_using || ' OR EXISTS (
+      SELECT 1 FROM public.parent_student ps
+      WHERE ps.parent_id = auth.uid()
+        AND ps.student_id = student_scholarships.student_id
+    )';
+  END IF;
+
+  IF to_regclass('public.tutor_student_rel') IS NOT NULL THEN
+    v_using := v_using || ' OR EXISTS (
+      SELECT 1 FROM public.tutor_student_rel ts
+      WHERE ts.tutor_id = auth.uid()
+        AND ts.student_id = student_scholarships.student_id
+        AND ts.financial_access_revoked_at IS NULL
+    )';
+  END IF;
+
+  EXECUTE 'CREATE POLICY student_scholarships_select
+    ON public.student_scholarships FOR SELECT
+    TO authenticated
+    USING (' || v_using || ')';
+END $$;
+
+DROP POLICY IF EXISTS student_scholarships_admin_all ON public.student_scholarships;
+CREATE POLICY student_scholarships_admin_all ON public.student_scholarships
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS discount_coupons_select ON public.discount_coupons;
+CREATE POLICY discount_coupons_select ON public.discount_coupons
+  FOR SELECT TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS discount_coupons_admin_write ON public.discount_coupons;
+CREATE POLICY discount_coupons_admin_write ON public.discount_coupons
+  FOR INSERT TO authenticated
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS discount_coupons_admin_update ON public.discount_coupons;
+CREATE POLICY discount_coupons_admin_update ON public.discount_coupons
+  FOR UPDATE TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS discount_coupons_admin_delete ON public.discount_coupons;
+CREATE POLICY discount_coupons_admin_delete ON public.discount_coupons
+  FOR DELETE TO authenticated
+  USING (public.is_admin(auth.uid()));

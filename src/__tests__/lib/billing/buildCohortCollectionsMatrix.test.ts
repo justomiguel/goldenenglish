@@ -66,8 +66,8 @@ describe("buildCohortCollectionsMatrix", () => {
         { section_id: "sec-1", student_id: "stu-a", created_at: "2026-01-01" },
       ],
       profiles: [
-        { id: "stu-z", first_name: "Zara", last_name: "Z", document_number: "Z" },
-        { id: "stu-a", first_name: "Ana", last_name: "A", document_number: "A" },
+        { id: "stu-z", first_name: "Zara", last_name: "Z", dni_or_passport: "Z" },
+        { id: "stu-a", first_name: "Ana", last_name: "A", dni_or_passport: "A" },
       ],
       plans: [
         {
@@ -119,7 +119,7 @@ describe("buildCohortCollectionsMatrix", () => {
         { section_id: "sec-2", student_id: "stu-1", created_at: "2026-01-01" },
       ],
       profiles: [
-        { id: "stu-1", first_name: "Ana", last_name: "P", document_number: "1" },
+        { id: "stu-1", first_name: "Ana", last_name: "P", dni_or_passport: "1" },
       ],
       plans: [
         {
@@ -181,7 +181,7 @@ describe("buildCohortCollectionsMatrix", () => {
         { section_id: "sec-1", student_id: "stu-1", created_at: "2026-01-01" },
       ],
       profiles: [
-        { id: "stu-1", first_name: "Ana", last_name: "P", document_number: "1" },
+        { id: "stu-1", first_name: "Ana", last_name: "P", dni_or_passport: "1" },
       ],
       plans: [
         {

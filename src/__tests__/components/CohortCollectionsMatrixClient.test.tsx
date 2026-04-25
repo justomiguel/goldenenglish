@@ -33,8 +33,8 @@ function makeRaw(): CohortCollectionsBulkRaw {
       { section_id: "sec-1", student_id: "stu-zara", created_at: "2026-01-01" },
     ],
     profiles: [
-      { id: "stu-ana", first_name: "Ana", last_name: "Smith", document_number: "A1" },
-      { id: "stu-zara", first_name: "Zara", last_name: "Lopez", document_number: "Z1" },
+      { id: "stu-ana", first_name: "Ana", last_name: "Smith", dni_or_passport: "A1" },
+      { id: "stu-zara", first_name: "Zara", last_name: "Lopez", dni_or_passport: "Z1" },
     ],
     plans: [
       {
@@ -81,9 +81,24 @@ describe("CohortCollectionsMatrixClient", () => {
 
     expect(screen.getByText(overviewDict.totals.expectedYear)).toBeInTheDocument();
     expect(screen.getByText(overviewDict.totals.collected)).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: overviewDict.table.paidLabel }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: overviewDict.table.expectedLabel }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: overviewDict.table.overdueLabel }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Section A")).toBeInTheDocument();
     expect(screen.getByText("Ana Smith")).toBeInTheDocument();
     expect(screen.getByText("Zara Lopez")).toBeInTheDocument();
+    expect(
+      screen.getByText(new RegExp(`${overviewDict.sectionHeader.monthlyFee}:`)),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(new RegExp(`${overviewDict.sectionHeader.enrollmentFee}:`)),
+    ).toBeInTheDocument();
 
     const link = screen.getByRole("link", { name: overviewDict.sectionHeader.openSection });
     expect(link).toHaveAttribute(

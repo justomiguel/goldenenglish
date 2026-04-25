@@ -43,14 +43,25 @@ export function SectionCollectionsHealthBadge({
 }: SectionCollectionsHealthBadgeProps) {
   const sizeClasses =
     size === "sm" ? "px-2 py-0.5 text-[11px]" : "px-2.5 py-1 text-xs";
+  const labelText = label(health, dict);
+  const tooltipText = tooltip(health, dict);
   return (
     <span
       role="status"
-      aria-label={dict.health.ariaLabel}
-      title={tooltip(health, dict)}
-      className={`inline-flex items-center gap-1 rounded-full border font-semibold uppercase tracking-wide ${sizeClasses} ${tokenClasses(health)}`}
+      tabIndex={0}
+      aria-label={`${dict.health.ariaLabel}: ${labelText}. ${tooltipText}`}
+      title={`${labelText}: ${tooltipText}`}
+      className={`group relative inline-flex cursor-help items-center gap-1 rounded-full border font-semibold uppercase tracking-wide outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-primary)] ${sizeClasses} ${tokenClasses(health)}`}
     >
-      {label(health, dict)}
+      {labelText}
+      <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-72 -translate-x-1/2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-left text-xs normal-case leading-relaxed tracking-normal text-[var(--color-foreground)] shadow-lg group-hover:block group-focus-visible:block">
+        <span className="block font-semibold text-[var(--color-primary)]">
+          {labelText}
+        </span>
+        <span className="mt-1 block text-[var(--color-muted-foreground)]">
+          {tooltipText}
+        </span>
+      </span>
     </span>
   );
 }

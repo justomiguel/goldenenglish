@@ -4,13 +4,9 @@ import {
 } from "@/lib/billing/buildSectionCollectionsView";
 import { mapSectionFeePlanRow } from "@/types/sectionFeePlan";
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
-import {
-  SECTION_COLLECTIONS_HEALTH_THRESHOLDS,
-  type SectionCollectionsHealth,
-  type SectionCollectionsKpis,
-} from "@/types/sectionCollections";
 import type { ScholarshipRow } from "@/lib/billing/scholarshipPeriod";
 import type { StudentMonthlyPaymentRecord } from "@/lib/billing/buildStudentMonthlyPaymentsRow";
+import { aggregateCohortCollectionsTotals } from "@/lib/billing/aggregateCohortCollectionsTotals";
 import type {
   CohortCollectionsBulkRaw,
   CohortCollectionsBulkProfileRaw,
@@ -39,69 +35,6 @@ function mapScholarship(
     valid_until_year: row.valid_until_year,
     valid_until_month: row.valid_until_month,
     is_active: Boolean(row.is_active),
-  };
-}
-
-function round2(n: number): number {
-  return Math.round(n * 100) / 100;
-}
-
-function deriveOverallHealth(
-  collectionRatio: number,
-  overdueStudents: number,
-  totalStudents: number,
-  expectedYear: number,
-): SectionCollectionsHealth {
-  if (totalStudents === 0 || expectedYear === 0) return "watch";
-  const t = SECTION_COLLECTIONS_HEALTH_THRESHOLDS;
-  const overdueShare = overdueStudents / totalStudents;
-  if (
-    collectionRatio < t.criticalMaxRatio ||
-    overdueShare >= t.watchOverdueShare
-  ) {
-    return "critical";
-  }
-  if (collectionRatio >= t.healthyMinRatio && overdueStudents === 0) {
-    return "healthy";
-  }
-  return "watch";
-}
-
-function aggregateTotals(
-  sections: readonly CohortCollectionsMatrixSection[],
-): SectionCollectionsKpis {
-  let paid = 0;
-  let pendingReview = 0;
-  let overdue = 0;
-  let upcoming = 0;
-  let expectedYear = 0;
-  let totalStudents = 0;
-  let overdueStudents = 0;
-  for (const s of sections) {
-    paid += s.view.kpis.paid;
-    pendingReview += s.view.kpis.pendingReview;
-    overdue += s.view.kpis.overdue;
-    upcoming += s.view.kpis.upcoming;
-    expectedYear += s.view.kpis.expectedYear;
-    totalStudents += s.view.kpis.totalStudents;
-    overdueStudents += s.view.kpis.overdueStudents;
-  }
-  const collectionRatio = expectedYear > 0 ? Math.min(1, paid / expectedYear) : 0;
-  return {
-    paid: round2(paid),
-    pendingReview: round2(pendingReview),
-    overdue: round2(overdue),
-    upcoming: round2(upcoming),
-    expectedYear: round2(expectedYear),
-    collectionRatio: Math.round(collectionRatio * 1000) / 1000,
-    totalStudents,
-    overdueStudents,
-    health: deriveOverallHealth(
-      collectionRatio,
-      overdueStudents,
-      totalStudents,
-      expectedYear,
-    ),
   };
 }
 
@@ -172,12 +105,12 @@ export function buildCohortCollectionsMatrix(
           id: e.student_id,
           first_name: null,
           last_name: null,
-          document_number: null,
+          dni_or_passport: null,
         };
         return {
           studentId: e.student_id,
           studentName: studentDisplayName(profile),
-          documentLabel: profile.document_number,
+          documentLabel: profile.dni_or_passport,
           scholarship: mapScholarship(scholarshipByStudent.get(e.student_id)),
           payments:
             paymentsByStudentSection.get(`${sectionRow.id}::${e.student_id}`) ??
@@ -220,6 +153,6 @@ export function buildCohortCollectionsMatrix(
     year: raw.year,
     todayMonth: opts.todayMonth,
     sections: matrixSections,
-    totals: aggregateTotals(matrixSections),
+    totals: aggregateCohortCollectionsTotals(matrixSections),
   };
 }

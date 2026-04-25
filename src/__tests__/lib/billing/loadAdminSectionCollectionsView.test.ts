@@ -95,8 +95,8 @@ describe("loadAdminSectionCollectionsView", () => {
       },
       profiles: {
         data: [
-          { id: "stu-1", first_name: "Ana", last_name: "Pérez", document_number: "DOC1" },
-          { id: "stu-2", first_name: "Bea", last_name: "Gómez", document_number: "DOC2" },
+          { id: "stu-1", first_name: "Ana", last_name: "Pérez", dni_or_passport: "DOC1" },
+          { id: "stu-2", first_name: "Bea", last_name: "Gómez", dni_or_passport: "DOC2" },
         ],
         error: null,
       },
