@@ -1,51 +1,60 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { countTrailingAbsences } from "@/lib/academics/sectionAttendanceRetention";
+import {
+  buildAdminRetentionRows,
+  digitsOnly,
+  type RawEnrollmentRow,
+} from "@/lib/academics/buildAdminRetentionRows";
+import { batchAuthEmailsForUserIds } from "@/lib/auth/batchAuthEmailsForUserIds";
+import type {
+  AdminRetentionCandidate,
+  LoadAdminRetentionOptions,
+  LoadAdminRetentionResult,
+} from "@/types/adminRetention";
 import type { SectionAttendanceStatusDb } from "@/types/sectionAcademics";
 
-export type AdminRetentionCandidate = {
-  enrollmentId: string;
-  studentId: string;
-  studentLabel: string;
-  sectionId: string;
-  sectionName: string;
-  trailingAbsences: number;
-  avgScore: number | null;
-  watch: boolean;
-  guardianPhoneDigits: string | null;
-  guardianLabel: string | null;
-  reasons: ("absences" | "low_average")[];
-};
+export type { AdminRetentionCandidate, LoadAdminRetentionOptions, LoadAdminRetentionResult };
 
-function digitsOnly(phone: string | null | undefined): string | null {
-  if (!phone) return null;
-  const d = phone.replace(/\D/g, "");
-  return d.length >= 8 ? d : null;
-}
+export async function loadAdminRetentionCandidates(
+  supabase: SupabaseClient,
+  options?: LoadAdminRetentionOptions,
+): Promise<LoadAdminRetentionResult> {
+  let sectionIdFilter: string[] | null = null;
+  if (options?.cohortId) {
+    const { data: secs } = await supabase
+      .from("academic_sections")
+      .select("id")
+      .eq("cohort_id", options.cohortId);
+    sectionIdFilter = ((secs ?? []) as { id: string }[]).map((s) => s.id);
+    if (sectionIdFilter.length === 0) return { rows: [], total: 0 };
+  }
 
-export async function loadAdminRetentionCandidates(supabase: SupabaseClient): Promise<AdminRetentionCandidate[]> {
-  const { data: enrollments } = await supabase
+  let enrollmentsQuery = supabase
     .from("section_enrollments")
     .select(
-      "id, student_id, section_id, status, profiles!student_id(first_name,last_name), academic_sections(name)",
+      "id, student_id, section_id, status, profiles!student_id(first_name,last_name,is_minor,phone), academic_sections(name)",
     )
     .in("status", ["active", "completed"]);
+  if (sectionIdFilter) {
+    enrollmentsQuery = enrollmentsQuery.in("section_id", sectionIdFilter);
+  }
+  if (options?.enrollmentId) {
+    enrollmentsQuery = enrollmentsQuery.eq("id", options.enrollmentId);
+  }
 
-  const raw = (enrollments ?? []) as {
-    id: string;
-    student_id: string;
-    section_id: string;
-    status: string;
-    profiles: { first_name: string; last_name: string } | { first_name: string; last_name: string }[] | null;
-    academic_sections: { name: string } | { name: string }[] | null;
-  }[];
+  const { data: enrollments } = await enrollmentsQuery;
 
-  if (raw.length === 0) return [];
+  const raw = (enrollments ?? []) as RawEnrollmentRow[];
+
+  if (raw.length === 0) return { rows: [], total: 0 };
 
   const enrollmentIds = raw.map((r) => r.id);
   const studentIds = [...new Set(raw.map((r) => r.student_id))];
 
   const [{ data: flags }, { data: avgs }, { data: attRows }, { data: tutors }] = await Promise.all([
-    supabase.from("enrollment_retention_flags").select("enrollment_id, watch").in("enrollment_id", enrollmentIds),
+    supabase
+      .from("enrollment_retention_flags")
+      .select("enrollment_id, whatsapp_contact_count, email_contact_count")
+      .in("enrollment_id", enrollmentIds),
     supabase.from("v_section_enrollment_grade_average").select("enrollment_id, avg_score").in("enrollment_id", enrollmentIds),
     supabase
       .from("section_attendance")
@@ -55,7 +64,22 @@ export async function loadAdminRetentionCandidates(supabase: SupabaseClient): Pr
     supabase.from("tutor_student_rel").select("student_id, tutor_id").in("student_id", studentIds),
   ]);
 
-  const watchMap = new Map((flags ?? []).map((f) => [f.enrollment_id as string, Boolean(f.watch)]));
+  const countsByEnrollment = new Map(
+    (flags ?? []).map((f) => {
+      const row = f as {
+        enrollment_id: string;
+        whatsapp_contact_count?: number | null;
+        email_contact_count?: number | null;
+      };
+      return [
+        row.enrollment_id,
+        {
+          wa: Math.max(0, Number(row.whatsapp_contact_count ?? 0)),
+          em: Math.max(0, Number(row.email_contact_count ?? 0)),
+        },
+      ];
+    }),
+  );
   const avgMap = new Map((avgs ?? []).map((a) => [a.enrollment_id as string, Number(a.avg_score)]));
   const tutorIds = [...new Set((tutors ?? []).map((t) => t.tutor_id as string))];
   const { data: tutorProfiles } = tutorIds.length
@@ -63,13 +87,18 @@ export async function loadAdminRetentionCandidates(supabase: SupabaseClient): Pr
     : { data: [] as { id: string; first_name: string; last_name: string; phone: string | null }[] };
 
   const profileById = new Map(
-    (tutorProfiles ?? []).map((p) => [
-      p.id as string,
-      {
-        label: `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim(),
-        phoneDigits: digitsOnly(p.phone),
-      },
-    ]),
+    (tutorProfiles ?? []).map((p) => {
+      const phoneTrim = (p.phone ?? "").trim();
+      const phoneDigits = digitsOnly(p.phone);
+      return [
+        p.id as string,
+        {
+          label: `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim(),
+          phoneDigits,
+          phoneDisplay: phoneTrim.length > 0 ? phoneTrim : phoneDigits && phoneDigits.length > 0 ? `+${phoneDigits}` : null,
+        },
+      ];
+    }),
   );
 
   const tutorsByStudent = new Map<string, string[]>();
@@ -79,6 +108,20 @@ export async function loadAdminRetentionCandidates(supabase: SupabaseClient): Pr
     list.push(t.tutor_id as string);
     tutorsByStudent.set(sid, list);
   }
+
+  const selfPayerStudentIds: string[] = [];
+  for (const row of raw) {
+    const pr = row.profiles;
+    const p = Array.isArray(pr) ? pr[0] : pr;
+    const sid = row.student_id;
+    const hasTutors = (tutorsByStudent.get(sid) ?? []).length > 0;
+    const minor = Boolean(p?.is_minor);
+    if (!hasTutors && p && !minor) {
+      selfPayerStudentIds.push(sid);
+    }
+  }
+  const emailUserIds = [...new Set([...tutorIds, ...selfPayerStudentIds])];
+  const emailByUserId = await batchAuthEmailsForUserIds(emailUserIds);
 
   const attByEnrollment = new Map<string, { attended_on: string; status: SectionAttendanceStatusDb }[]>();
   for (const row of attRows ?? []) {
@@ -91,51 +134,15 @@ export async function loadAdminRetentionCandidates(supabase: SupabaseClient): Pr
     attByEnrollment.set(eid, list);
   }
 
-  const out: AdminRetentionCandidate[] = [];
-
-  for (const r of raw) {
-    const pRaw = r.profiles;
-    const p = Array.isArray(pRaw) ? pRaw[0] : pRaw;
-    const studentLabel = p ? `${p.first_name} ${p.last_name}`.trim() : r.student_id;
-    const secRaw = r.academic_sections;
-    const sec = Array.isArray(secRaw) ? secRaw[0] : secRaw;
-    const sectionName = sec?.name ?? "";
-
-    const hist = (attByEnrollment.get(r.id) ?? []).sort((a, b) => (a.attended_on < b.attended_on ? 1 : -1));
-    const trailingAbsences = countTrailingAbsences(hist);
-    const avgScore = avgMap.get(r.id);
-    const avg = avgScore != null && Number.isFinite(avgScore) ? avgScore : null;
-
-    const reasons: ("absences" | "low_average")[] = [];
-    if (trailingAbsences >= 2) reasons.push("absences");
-    if (avg != null && avg < 6) reasons.push("low_average");
-    if (reasons.length === 0) continue;
-
-    let guardianPhoneDigits: string | null = null;
-    let guardianLabel: string | null = null;
-    for (const tid of tutorsByStudent.get(r.student_id) ?? []) {
-      const prof = profileById.get(tid);
-      if (prof?.phoneDigits) {
-        guardianPhoneDigits = prof.phoneDigits;
-        guardianLabel = prof.label || null;
-        break;
-      }
-    }
-
-    out.push({
-      enrollmentId: r.id,
-      studentId: r.student_id,
-      studentLabel,
-      sectionId: r.section_id,
-      sectionName,
-      trailingAbsences,
-      avgScore: avg,
-      watch: watchMap.get(r.id) ?? false,
-      guardianPhoneDigits,
-      guardianLabel,
-      reasons,
-    });
-  }
+  const out = buildAdminRetentionRows({
+    raw,
+    avgMap,
+    countsByEnrollment,
+    tutorsByStudent,
+    profileById,
+    attByEnrollment,
+    emailByUserId,
+  });
 
   out.sort((a, b) => {
     if (b.trailingAbsences !== a.trailingAbsences) return b.trailingAbsences - a.trailingAbsences;
@@ -144,5 +151,12 @@ export async function loadAdminRetentionCandidates(supabase: SupabaseClient): Pr
     return aa - ba;
   });
 
-  return out;
+  const total = out.length;
+  if (options?.page != null && options?.pageSize != null) {
+    const page = Math.max(1, options.page);
+    const size = Math.min(100, Math.max(1, options.pageSize));
+    const start = (page - 1) * size;
+    return { rows: out.slice(start, start + size), total };
+  }
+  return { rows: out, total };
 }

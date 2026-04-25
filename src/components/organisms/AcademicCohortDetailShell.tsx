@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useMemo, useState, type ReactNode } from "react";
-import { LayoutDashboard, Layers } from "lucide-react";
+import { Inbox, LayoutDashboard, Layers, TriangleAlert } from "lucide-react";
 import {
   UnderlineTabBar,
   underlinePanelId,
@@ -9,13 +9,17 @@ import {
   type UnderlineTabItem,
 } from "@/components/molecules/UnderlineTabBar";
 
-export type AcademicCohortDetailTabId = "overview" | "sections";
+export type AcademicCohortDetailTabId = "overview" | "sections" | "retention" | "transfers";
 
 export interface AcademicCohortDetailShellLabels {
   tablistAria: string;
   overview: string;
   overviewLead: string;
   sections: string;
+  retention: string;
+  retentionLead: string;
+  transfers: string;
+  transfersLead: string;
 }
 
 export interface AcademicCohortDetailShellProps {
@@ -23,15 +27,19 @@ export interface AcademicCohortDetailShellProps {
   defaultTab?: AcademicCohortDetailTabId;
   overview: ReactNode;
   sections: ReactNode;
+  retention: ReactNode;
+  transferInbox: ReactNode;
 }
 
-const ORDER: AcademicCohortDetailTabId[] = ["overview", "sections"];
+const ORDER: AcademicCohortDetailTabId[] = ["overview", "sections", "retention", "transfers"];
 
 export function AcademicCohortDetailShell({
   labels,
   defaultTab = "overview",
   overview,
   sections,
+  retention,
+  transferInbox,
 }: AcademicCohortDetailShellProps) {
   const idPrefix = useId().replace(/:/g, "");
   const [tab, setTab] = useState<AcademicCohortDetailTabId>(defaultTab);
@@ -40,8 +48,10 @@ export function AcademicCohortDetailShell({
     () => [
       { id: "overview", label: labels.overview, Icon: LayoutDashboard },
       { id: "sections", label: labels.sections, Icon: Layers },
+      { id: "retention", label: labels.retention, Icon: TriangleAlert },
+      { id: "transfers", label: labels.transfers, Icon: Inbox },
     ],
-    [labels.overview, labels.sections],
+    [labels.overview, labels.sections, labels.retention, labels.transfers],
   );
 
   const panelContent: Record<AcademicCohortDetailTabId, ReactNode> = {
@@ -52,6 +62,18 @@ export function AcademicCohortDetailShell({
       </div>
     ),
     sections,
+    retention: (
+      <div className="space-y-4">
+        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.retentionLead}</p>
+        {retention}
+      </div>
+    ),
+    transfers: (
+      <div className="space-y-4">
+        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.transfersLead}</p>
+        {transferInbox}
+      </div>
+    ),
   };
 
   return (

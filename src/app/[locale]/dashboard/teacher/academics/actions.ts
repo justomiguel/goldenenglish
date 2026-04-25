@@ -22,8 +22,7 @@ function revalidateTeacherTransferPaths(locale: string) {
   revalidatePath(`/${locale}/dashboard/teacher/academics`);
   revalidatePath(`/${locale}/dashboard/teacher/sections`);
   revalidatePath(`/${locale}/dashboard/admin/academics`);
-  revalidatePath(`/${locale}/dashboard/admin/academic`);
-  revalidatePath(`/${locale}/dashboard/admin/requests`);
+  revalidatePath(`/${locale}/dashboard/admin/academic`, "layout");
 }
 
 export async function searchTeacherStudentsInOwnSectionsAction(

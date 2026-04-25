@@ -18,6 +18,7 @@ describe("emailTemplateRegistry", () => {
       "billing.promotion_applied",
       "academics.transfer_approved",
       "academics.grade_published_parent",
+      "academics.retention_contact",
       "churn.inactivity",
       "notifications.class_reminder_prep",
       "notifications.ward_email_changed",

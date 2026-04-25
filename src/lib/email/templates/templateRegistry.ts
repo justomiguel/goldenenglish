@@ -14,6 +14,7 @@ import {
 } from "@/lib/email/templates/registryBilling";
 import {
   gradePublishedParentTemplate,
+  retentionContactTemplate,
   transferApprovedTemplate,
 } from "@/lib/email/templates/registryAcademics";
 import {
@@ -39,6 +40,7 @@ const REGISTRY: ReadonlyArray<EmailTemplateDefinition> = [
   promotionAppliedTemplate,
   transferApprovedTemplate,
   gradePublishedParentTemplate,
+  retentionContactTemplate,
   churnInactivityTemplate,
   classReminderPrepTemplate,
   wardEmailChangedTemplate,

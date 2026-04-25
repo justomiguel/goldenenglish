@@ -8,6 +8,10 @@ const labels = {
   overview: "Overview",
   overviewLead: "Headline metrics and lifecycle.",
   sections: "Sections",
+  retention: "Retention alerts",
+  retentionLead: "Retention lead.",
+  transfers: "Transfer inbox",
+  transfersLead: "Transfers lead.",
 };
 
 describe("AcademicCohortDetailShell", () => {
@@ -17,6 +21,8 @@ describe("AcademicCohortDetailShell", () => {
         labels={labels}
         overview={<div>Lifecycle content</div>}
         sections={<div>Sections content</div>}
+        retention={<div>Retention panel</div>}
+        transferInbox={<div>Transfers panel</div>}
       />,
     );
     expect(screen.getByRole("tablist", { name: labels.tablistAria })).toBeInTheDocument();
@@ -34,13 +40,15 @@ describe("AcademicCohortDetailShell", () => {
         labels={labels}
         overview={<div>Overview only</div>}
         sections={<div>Sections grid</div>}
+        retention={<div>Retention panel</div>}
+        transferInbox={<div>Transfers panel</div>}
       />,
     );
     expect(screen.getByRole("tab", { name: labels.sections })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByText("Sections grid")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("tab", { name: labels.overview }));
-    expect(screen.getByText("Overview only")).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: labels.overview })).toHaveAttribute("aria-selected", "true");
+    await user.click(screen.getByRole("tab", { name: labels.retention }));
+    expect(screen.getByText("Retention panel")).toBeInTheDocument();
+    expect(screen.getByText(labels.retentionLead)).toBeInTheDocument();
   });
 });

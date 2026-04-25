@@ -33,13 +33,13 @@ describe("ResendEmailProvider", () => {
     expect(r).toEqual({ ok: false, error: "RESEND_API_KEY missing" });
   });
 
-  it("rejects when RESEND_FROM_EMAIL is missing", async () => {
+  it("returns error when RESEND_FROM_EMAIL is missing", async () => {
     process.env.RESEND_FROM_EMAIL = "  ";
     const { ResendEmailProvider } = await import("@/lib/email/resendEmailProvider");
     const p = new ResendEmailProvider();
-    await expect(p.sendEmail({ to: "a@b.com", subject: "s", html: "<p>x</p>" })).rejects.toThrow(
-      "RESEND_FROM_EMAIL",
-    );
+    const r = await p.sendEmail({ to: "a@b.com", subject: "s", html: "<p>x</p>" });
+    expect(r.ok).toBe(false);
+    expect((r as { error: string }).error).toContain("RESEND_FROM_EMAIL");
   });
 
   it("returns ok when Resend succeeds", async () => {

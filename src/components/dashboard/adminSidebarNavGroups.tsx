@@ -12,8 +12,6 @@ import {
   ClipboardList,
   Calendar,
   CalendarDays,
-  Inbox,
-  TriangleAlert,
   Mail,
   User,
 } from "lucide-react";
@@ -95,18 +93,6 @@ export function buildAdminSidebarNavGroups(
           label: dict.calendar,
           icon: <Calendar className={ic} />,
           tip: dict.tipCalendar,
-        },
-        {
-          href: `${base}/requests`,
-          label: dict.transferInboxNav,
-          icon: <Inbox className={ic} />,
-          tip: dict.tipTransferInbox,
-        },
-        {
-          href: `${base}/retention`,
-          label: dict.retention,
-          icon: <TriangleAlert className={ic} />,
-          tip: dict.tipRetention,
         },
       ],
     },

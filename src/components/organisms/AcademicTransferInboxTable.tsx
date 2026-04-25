@@ -10,22 +10,15 @@ import {
   bulkApproveSectionTransferRequestsAction,
   rejectSectionTransferRequestAction,
 } from "@/app/[locale]/dashboard/admin/academics/actions";
+import type { AdminTransferInboxRow } from "@/types/adminTransferInbox";
 
-export type TransferInboxRow = {
-  id: string;
-  studentLabel: string;
-  fromLabel: string;
-  toLabel: string;
-  byLabel: string;
-  note: string | null;
-  createdAt: string;
-};
+export type { AdminTransferInboxRow as TransferInboxRow };
 
 type Peel = { type: "remove"; ids: readonly string[] };
 
 export interface AcademicTransferInboxTableProps {
   locale: string;
-  rows: TransferInboxRow[];
+  rows: AdminTransferInboxRow[];
   dict: Dictionary["dashboard"]["academicRequests"];
   notificationDict: AcademicTransferNotificationDict;
 }

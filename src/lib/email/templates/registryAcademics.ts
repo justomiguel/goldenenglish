@@ -92,3 +92,50 @@ export const gradePublishedParentTemplate: EmailTemplateDefinition = {
     },
   },
 };
+
+export const retentionContactTemplate: EmailTemplateDefinition = {
+  key: "academics.retention_contact",
+  category: "academics",
+  label: {
+    es: "Académico: contacto retención",
+    en: "Academics: retention outreach",
+  },
+  description: {
+    es: "Correo al tutor desde la pestaña de alertas de retención (admin).",
+    en: "Email to the guardian from the retention alerts tab (admin).",
+  },
+  placeholders: [
+    { name: "brandName", description: "Nombre del instituto", sample: "Sample institute name" },
+    { name: "guardianLabel", description: "Nombre del tutor destinatario", sample: "María García" },
+    { name: "studentLabel", description: "Nombre del alumno", sample: "Ana López" },
+    { name: "sectionName", description: "Sección", sample: "Section A" },
+    { name: "signals", description: "Señales (ausencias / promedio)", sample: "Absences: 2 · Low average: 5.2" },
+    { name: "intro", description: "Párrafo introductorio", sample: "We are reaching out about your child’s progress." },
+  ],
+  defaults: {
+    es: {
+      subject: "Seguimiento académico — {{studentLabel}} ({{sectionName}})",
+      bodyHtml: `<p>{{intro}}</p>
+<p><strong>{{brandName}}</strong></p>
+<ul style="padding-left:20px;margin:12px 0;">
+  <li><strong>Alumno:</strong> {{studentLabel}}</li>
+  <li><strong>Sección:</strong> {{sectionName}}</li>
+  <li><strong>Contacto (tutor):</strong> {{guardianLabel}}</li>
+  <li><strong>Señales:</strong> {{signals}}</li>
+</ul>
+<p style="margin-top:16px;">Quedamos atentos a coordinar los próximos pasos.</p>`,
+    },
+    en: {
+      subject: "Academic follow-up — {{studentLabel}} ({{sectionName}})",
+      bodyHtml: `<p>{{intro}}</p>
+<p><strong>{{brandName}}</strong></p>
+<ul style="padding-left:20px;margin:12px 0;">
+  <li><strong>Student:</strong> {{studentLabel}}</li>
+  <li><strong>Section:</strong> {{sectionName}}</li>
+  <li><strong>Contact (guardian):</strong> {{guardianLabel}}</li>
+  <li><strong>Signals:</strong> {{signals}}</li>
+</ul>
+<p style="margin-top:16px;">We are happy to coordinate next steps.</p>`,
+    },
+  },
+};

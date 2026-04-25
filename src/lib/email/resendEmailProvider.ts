@@ -13,14 +13,26 @@ export class ResendEmailProvider implements EmailProvider {
     if (!key) {
       return { ok: false, error: "RESEND_API_KEY missing" };
     }
-    const resend = new Resend(key);
-    const { error } = await resend.emails.send({
-      from: fromAddress(),
-      to: input.to,
-      subject: input.subject,
-      html: input.html,
-    });
-    if (error) return { ok: false, error: error.message };
-    return { ok: true };
+    let from: string;
+    try {
+      from = fromAddress();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      return { ok: false, error: msg };
+    }
+    try {
+      const resend = new Resend(key);
+      const { error } = await resend.emails.send({
+        from,
+        to: input.to,
+        subject: input.subject,
+        html: input.html,
+      });
+      if (error) return { ok: false, error: error.message };
+      return { ok: true };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      return { ok: false, error: msg };
+    }
   }
 }

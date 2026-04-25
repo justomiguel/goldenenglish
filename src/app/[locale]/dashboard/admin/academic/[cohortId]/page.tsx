@@ -2,15 +2,34 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { getBrandPublic } from "@/lib/brand/server";
 import { createClient } from "@/lib/supabase/server";
+import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { loadAdminCohortPageData } from "@/lib/academics/loadAdminCohortPageData";
+import { loadAdminRetentionCandidates } from "@/lib/academics/loadAdminRetentionCandidates";
+import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
+import { loadAdminTransferInboxRows } from "@/lib/academics/loadAdminTransferInboxRows";
 import { AdminSectionCard } from "@/components/molecules/AdminSectionCard";
 import { CohortSectionsToolbar } from "@/components/organisms/CohortSectionsToolbar";
 import { AcademicCohortLifecycleBar } from "@/components/organisms/AcademicCohortLifecycleBar";
-import { AcademicCohortDetailShell } from "@/components/organisms/AcademicCohortDetailShell";
+import {
+  AcademicCohortDetailShell,
+  type AcademicCohortDetailTabId,
+} from "@/components/organisms/AcademicCohortDetailShell";
+import { AdminRetentionTable } from "@/components/organisms/AdminRetentionTable";
+import { AcademicTransferInboxTable } from "@/components/organisms/AcademicTransferInboxTable";
+import type { AcademicTransferNotificationDict } from "@/app/[locale]/dashboard/admin/academic/transferActions";
+
+const COHORT_TABS: readonly AcademicCohortDetailTabId[] = [
+  "overview",
+  "sections",
+  "retention",
+  "transfers",
+];
 
 interface PageProps {
   params: Promise<{ locale: string; cohortId: string }>;
+  searchParams: Promise<{ tab?: string | string[]; rPage?: string | string[] }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -22,8 +41,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function AcademicCohortPage({ params }: PageProps) {
+export default async function AcademicCohortPage({ params, searchParams }: PageProps) {
   const { locale, cohortId } = await params;
+  const sp = await searchParams;
+  const rPageRaw = Array.isArray(sp.rPage) ? sp.rPage[0] : sp.rPage;
+  const parsedR = parseInt(String(rPageRaw ?? "1"), 10);
+  const retentionPage = Number.isFinite(parsedR) && parsedR > 0 ? Math.min(10_000, parsedR) : 1;
   const dict = await getDictionary(locale);
   const d = dict.dashboard.academicCohortPage;
   const supabase = await createClient();
@@ -49,8 +72,43 @@ export default async function AcademicCohortPage({ params }: PageProps) {
 
   const cohortArchivedAt = (cohort as { archived_at?: string | null }).archived_at ?? null;
   const isCurrent = Boolean((cohort as { is_current?: boolean }).is_current);
-  const defaultTab =
+
+  const rawTab = Array.isArray(sp.tab) ? sp.tab[0] : sp.tab;
+  const tabParam = typeof rawTab === "string" ? rawTab : "";
+  let defaultTab: AcademicCohortDetailTabId =
     cohortArchivedAt != null ? "overview" : sectionRows.length > 0 ? "sections" : "overview";
+  if (COHORT_TABS.includes(tabParam as AcademicCohortDetailTabId)) {
+    defaultTab = tabParam as AcademicCohortDetailTabId;
+  }
+
+  let retentionRows: Awaited<ReturnType<typeof loadAdminRetentionCandidates>>["rows"] = [];
+  let retentionTotal = 0;
+  let transferRows: Awaited<ReturnType<typeof loadAdminTransferInboxRows>> = [];
+  try {
+    const { supabase: adm } = await assertAdmin();
+    const [retention, transfers] = await Promise.all([
+      loadAdminRetentionCandidates(adm, {
+        cohortId,
+        page: retentionPage,
+        pageSize: DEFAULT_TABLE_PAGE_SIZE,
+      }),
+      loadAdminTransferInboxRows(adm, locale, { cohortId }),
+    ]);
+    retentionRows = retention.rows;
+    retentionTotal = retention.total;
+    transferRows = transfers;
+  } catch {
+    /* admin layout should prevent; leave empty */
+  }
+
+  const brand = getBrandPublic();
+  const tn = dict.dashboard.academics.transferNotifications;
+  const notificationDict: AcademicTransferNotificationDict = {
+    emailSubject: tn.emailSubject,
+    emailLead: tn.emailLead,
+    inAppTitle: tn.inAppTitle,
+    inAppBody: tn.inAppBody,
+  };
 
   return (
     <div className="space-y-8">
@@ -80,7 +138,7 @@ export default async function AcademicCohortPage({ params }: PageProps) {
         defaultTab={defaultTab}
         labels={d.shellTabs}
         overview={
-          <>
+          <div className="space-y-4">
             <AcademicCohortLifecycleBar
               locale={locale}
               cohortId={cohortId}
@@ -102,7 +160,7 @@ export default async function AcademicCohortPage({ params }: PageProps) {
                 <p className="mt-1 text-2xl font-semibold text-[var(--color-foreground)]">{sectionRows.length}</p>
               </div>
             </section>
-          </>
+          </div>
         }
         sections={
           <section className="space-y-3">
@@ -147,6 +205,27 @@ export default async function AcademicCohortPage({ params }: PageProps) {
               </div>
             )}
           </section>
+        }
+        retention={
+          <AdminRetentionTable
+            locale={locale}
+            cohortId={cohortId}
+            brandAppName={brand.name}
+            rows={retentionRows}
+            dict={dict.dashboard.adminRetention}
+            retentionPage={retentionPage}
+            retentionPageSize={DEFAULT_TABLE_PAGE_SIZE}
+            retentionTotal={retentionTotal}
+            paginationLabels={dict.admin.table}
+          />
+        }
+        transferInbox={
+          <AcademicTransferInboxTable
+            locale={locale}
+            rows={transferRows}
+            dict={dict.dashboard.academicRequests}
+            notificationDict={notificationDict}
+          />
         }
       />
     </div>
