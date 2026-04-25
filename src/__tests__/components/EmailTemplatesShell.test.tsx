@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
 import type {
   EmailTemplateDefinition,
@@ -100,6 +100,7 @@ describe("EmailTemplatesShell", () => {
     renderShell();
     const subjectInput = screen.getByLabelText(labels.subjectLabel) as HTMLInputElement;
     expect(subjectInput.value).toBe("Asunto ES {{senderName}}");
+    fireEvent.click(screen.getByRole("button", { name: labels.bodyField.modeCode }));
     const bodyArea = screen.getByLabelText(labels.bodyLabel) as HTMLTextAreaElement;
     expect(bodyArea.value).toBe("<p>Body ES {{senderName}}</p>");
   });
@@ -135,14 +136,21 @@ describe("EmailTemplatesShell", () => {
   it("displays the localized error message when the save action fails", async () => {
     saveMock.mockResolvedValue({ ok: false, code: "persist_failed" });
     renderShell();
-    fireEvent.change(screen.getByLabelText(labels.subjectLabel), {
-      target: { value: "Otro asunto" },
+    // Code mode: stable textarea; TipTap in jsdom can async-normalize the body in ways that break dirty/save in tests.
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: labels.bodyField.modeCode }));
     });
-    fireEvent.click(screen.getByRole("button", { name: labels.saveCta }));
-
-    await vi.waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent(labels.errors.persist_failed);
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText(labels.subjectLabel), {
+        target: { value: "Otro asunto" },
+      });
     });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: labels.saveCta }));
+    });
+    expect(await screen.findByRole("alert", {}, { timeout: 10_000 })).toHaveTextContent(
+      labels.errors.persist_failed,
+    );
   });
 
   it("flags entries with an existing override using the editedSuffix in the dropdown", () => {

@@ -4,6 +4,7 @@ import type { EmailTemplateDefinition } from "@/types/emailTemplates";
 import type { Locale } from "@/types/i18n";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { EmailTemplateBodyField } from "@/components/molecules/EmailTemplateBodyField";
 import type { EmailTemplatesShellLabels } from "./EmailTemplatesShell";
 
 export interface EmailTemplateEditorProps {
@@ -20,6 +21,7 @@ export interface EmailTemplateEditorProps {
 export function EmailTemplateEditor({
   labels,
   definition,
+  locale,
   subject,
   bodyHtml,
   onSubjectChange,
@@ -40,19 +42,15 @@ export function EmailTemplateEditor({
         />
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="email-template-body">{labels.bodyLabel}</Label>
-        <textarea
-          id="email-template-body"
-          value={bodyHtml}
-          onChange={(e) => onBodyChange(e.target.value)}
-          disabled={disabled}
-          rows={14}
-          className="w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 font-mono text-xs leading-relaxed"
-          spellCheck={false}
-        />
-        <p className="text-xs text-[var(--color-muted-foreground)]">{labels.bodyHelp}</p>
-      </div>
+      <EmailTemplateBodyField
+        key={`${definition.key}::${locale}`}
+        bodyLabel={labels.bodyLabel}
+        bodyHelp={labels.bodyHelp}
+        bodyField={labels.bodyField}
+        bodyHtml={bodyHtml}
+        onBodyChange={onBodyChange}
+        disabled={disabled}
+      />
 
       {definition.placeholders.length > 0 ? (
         <details className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-xs">

@@ -47,6 +47,7 @@ const nextConfig: NextConfig = {
       "i18n-iso-countries",
       "@tiptap/react",
       "@tiptap/starter-kit",
+      "@tiptap/extension-table",
       "@tiptap/pm",
     ],
     /** Allows profile avatar uploads up to `PROFILE_AVATAR_MAX_BYTES` via server actions. */
