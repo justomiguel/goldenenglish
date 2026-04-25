@@ -11,6 +11,7 @@ import {
 import { FinanceOverviewPanel } from "@/components/dashboard/admin/finance/FinanceOverviewPanel";
 import { FinancePaymentsPanel } from "@/components/dashboard/admin/finance/FinancePaymentsPanel";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Locale } from "@/types/i18n";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -22,12 +23,18 @@ interface PageProps {
 }
 
 async function loadPendingCounts(supabase: SupabaseClient) {
-  const { count: payments } = await supabase
-    .from("payments")
-    .select("id", { head: true, count: "exact" })
-    .eq("status", "pending");
+  const [{ count: monthlyPayments }, { count: enrollmentFeeReceipts }] = await Promise.all([
+    supabase
+      .from("payments")
+      .select("id", { head: true, count: "exact" })
+      .eq("status", "pending"),
+    supabase
+      .from("section_enrollments")
+      .select("id", { head: true, count: "exact" })
+      .eq("enrollment_fee_receipt_status", "pending"),
+  ]);
   return {
-    payments: payments ?? 0,
+    payments: (monthlyPayments ?? 0) + (enrollmentFeeReceipts ?? 0),
   };
 }
 
@@ -90,9 +97,12 @@ export default async function AdminFinanceHubPage({
         {tab === "payments" ? (
           <FinancePaymentsPanel
             supabase={supabase}
-            locale={locale}
+            locale={locale as Locale}
             dict={dict.admin.payments}
+            portalBillingDict={dict.dashboard.portalBilling}
+            enrollmentFeeQueueDict={dict.admin.finance.enrollmentFeeQueue}
             emptyValue={dict.common.emptyValue}
+            receiptHrefBase={`/${locale}/dashboard/admin/finance/receipts`}
           />
         ) : null}
       </FinanceHubTabs>

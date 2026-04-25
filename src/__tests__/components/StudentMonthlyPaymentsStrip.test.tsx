@@ -154,7 +154,7 @@ describe("StudentMonthlyPaymentsStrip", () => {
         receiptExpectedUsesFullMonth
       />,
     );
-    expect(screen.getByText("$100")).toBeInTheDocument();
+    expect(screen.getAllByText("$100")).toHaveLength(2);
     expect(screen.queryByText("$37.5")).not.toBeInTheDocument();
   });
 

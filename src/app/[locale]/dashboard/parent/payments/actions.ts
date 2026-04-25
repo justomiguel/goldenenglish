@@ -233,5 +233,6 @@ export async function submitTutorEnrollmentFeeReceipt(
 
   revalidatePath(`/${locale}/dashboard/parent/payments`);
   revalidatePath(`/${locale}/dashboard/student/payments`);
+  revalidatePath(`/${locale}/dashboard/admin/finance`);
   return { ok: true };
 }

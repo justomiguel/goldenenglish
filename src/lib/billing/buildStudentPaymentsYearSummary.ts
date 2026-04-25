@@ -65,10 +65,11 @@ export function buildStudentPaymentsYearSummary(
     for (const cell of row.cells) {
       const expected = cell.expectedAmount ?? 0;
       const recorded = cell.recordedAmount ?? 0;
+      const displayedRecorded = cell.fullMonthExpectedAmount ?? recorded;
 
       switch (cell.status) {
         case "approved": {
-          paid += recorded;
+          paid += displayedRecorded;
           if (expected > 0 && recorded > expected) {
             creditBalance += recorded - expected;
           }
@@ -78,7 +79,7 @@ export function buildStudentPaymentsYearSummary(
           break;
         }
         case "pending": {
-          pendingReview += recorded > 0 ? recorded : expected;
+          pendingReview += displayedRecorded > 0 ? displayedRecorded : expected;
           break;
         }
         case "due":

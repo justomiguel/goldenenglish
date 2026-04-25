@@ -65,6 +65,9 @@ export function StudentMonthlyPaymentFocus({
   const expected = receiptExpectedUsesFullMonth
     ? (cell.fullMonthExpectedAmount ?? proratedOrPlan)
     : proratedOrPlan;
+  const recordedDisplayAmount = receiptExpectedUsesFullMonth
+    ? (cell.fullMonthExpectedAmount ?? cell.recordedAmount)
+    : cell.recordedAmount;
   const canUpload =
     cell.status === "due" || cell.status === "rejected" || cell.status === "pending";
   const isLocked = cell.status === "out-of-period" || cell.status === "no-plan";
@@ -99,11 +102,11 @@ export function StudentMonthlyPaymentFocus({
             {expected != null ? `$${expected}` : labels.notAvailable}
           </dd>
         </div>
-        {cell.recordedAmount != null ? (
+        {recordedDisplayAmount != null ? (
           <div>
             <dt className="text-[var(--color-muted-foreground)]">{labels.recordedAmount}</dt>
             <dd className="text-base font-medium text-[var(--color-foreground)]">
-              ${cell.recordedAmount}
+              ${recordedDisplayAmount}
             </dd>
           </div>
         ) : null}

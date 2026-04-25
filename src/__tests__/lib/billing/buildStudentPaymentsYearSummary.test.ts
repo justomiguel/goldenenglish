@@ -15,6 +15,7 @@ interface CellSeed {
   month: number;
   status: StudentMonthlyPaymentCell["status"];
   expected?: number | null;
+  fullExpected?: number | null;
   recorded?: number | null;
 }
 
@@ -30,7 +31,7 @@ function buildSection(
     year: todayYear,
     status: s.status,
     expectedAmount: s.expected ?? null,
-    fullMonthExpectedAmount: s.expected ?? null,
+    fullMonthExpectedAmount: s.fullExpected ?? s.expected ?? null,
     currency: null,
     proration: null,
     recordedAmount: s.recorded ?? null,
@@ -128,6 +129,18 @@ describe("buildStudentPaymentsYearSummary", () => {
     expect(summary.upcoming).toBe(0);
   });
 
+  it("uses the full-month amount for paid cells when the student view hides proration", () => {
+    const section = buildSection(
+      "sec1",
+      "B1",
+      [{ month: 4, status: "approved", expected: 6.25, fullExpected: 25, recorded: 6.25 }],
+      5,
+      2026,
+    );
+    const summary = buildStudentPaymentsYearSummary(viewFromRows([section]));
+    expect(summary.paid).toBe(25);
+  });
+
   it("counts exempt cells as settled with 0 amount", () => {
     const section = buildSection(
       "sec1",
@@ -154,6 +167,18 @@ describe("buildStudentPaymentsYearSummary", () => {
     );
     const summary = buildStudentPaymentsYearSummary(viewFromRows([section]));
     expect(summary.pendingReview).toBe(200);
+  });
+
+  it("uses the full-month amount for pending receipts when present", () => {
+    const section = buildSection(
+      "sec1",
+      "B1",
+      [{ month: 4, status: "pending", expected: 6.25, fullExpected: 25, recorded: 6.25 }],
+      5,
+      2026,
+    );
+    const summary = buildStudentPaymentsYearSummary(viewFromRows([section]));
+    expect(summary.pendingReview).toBe(25);
   });
 
   it("derives credit balance from over-payments on approved cells and reduces total debt", () => {

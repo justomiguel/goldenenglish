@@ -40,7 +40,6 @@ describe("StudentDashboardShell", () => {
     const expected: [string, string][] = [
       [dictEn.dashboard.studentNav.calendar, "/en/dashboard/student/calendar"],
       [dictEn.dashboard.studentNav.payments, "/en/dashboard/student/payments"],
-      [dictEn.dashboard.studentNav.billing, "/en/dashboard/student/billing"],
       [dictEn.dashboard.studentNav.messages, "/en/dashboard/student/messages"],
       [dictEn.dashboard.studentNav.myProfile, "/en/dashboard/profile"],
     ];
@@ -48,6 +47,7 @@ describe("StudentDashboardShell", () => {
     for (const [label, href] of expected) {
       expect(screen.getByRole("link", { name: label })).toHaveAttribute("href", href);
     }
+    expect(screen.queryByRole("link", { name: dictEn.dashboard.studentNav.billing })).not.toBeInTheDocument();
   });
 
   it("shows the student breadcrumb when the user is in a sub-route", () => {

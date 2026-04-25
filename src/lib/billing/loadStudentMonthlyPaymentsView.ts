@@ -8,11 +8,9 @@ import type {
   StudentMonthlyPaymentsView,
   StudentMonthlyPaymentSectionRow,
 } from "@/types/studentMonthlyPayments";
-import {
-  buildStudentMonthlyPaymentsRow,
-  type StudentMonthlyPaymentRecord,
-} from "@/lib/billing/buildStudentMonthlyPaymentsRow";
+import { buildStudentMonthlyPaymentsRow } from "@/lib/billing/buildStudentMonthlyPaymentsRow";
 import { studentReceiptSignedUrl } from "@/lib/payments/studentReceiptSignedUrl";
+import { loadStudentYearSectionPaymentsMap } from "@/lib/billing/loadStudentYearSectionPaymentsMap";
 import { type ScholarshipRow } from "@/lib/billing/scholarshipPeriod";
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
 import type { SectionScheduleSlot } from "@/types/academics";
@@ -49,13 +47,24 @@ export async function loadStudentMonthlyPaymentsView(
   scholarship: ScholarshipRow[] | null,
   opts: LoadOptions,
 ): Promise<StudentMonthlyPaymentsView> {
-  const { data: enrollments } = await supabase
+  const activeEnrollmentResult = await supabase
     .from("section_enrollments")
     .select(
       "id, section_id, created_at, enrollment_fee_exempt, enrollment_fee_receipt_url, enrollment_fee_receipt_status, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
     )
     .eq("student_id", studentId)
     .eq("status", "active");
+  const fallbackEnrollmentResult =
+    activeEnrollmentResult.error?.code === "42703"
+      ? await supabase
+          .from("section_enrollments")
+          .select(
+            "id, section_id, created_at, enrollment_fee_exempt, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
+          )
+          .eq("student_id", studentId)
+          .eq("status", "active")
+      : null;
+  const enrollments = fallbackEnrollmentResult?.data ?? activeEnrollmentResult.data;
 
   type EnrollmentRow = {
     id: string;
@@ -179,41 +188,12 @@ export async function loadStudentMonthlyPaymentsView(
     );
   }
 
-  type PaymentRow = {
-    id: string;
-    section_id: string | null;
-    month: number;
-    year: number;
-    amount: number | string | null;
-    status: StudentMonthlyPaymentRecord["status"];
-    receipt_url: string | null;
-  };
-
-  const paymentsBySection = new Map<string | null, StudentMonthlyPaymentRecord[]>();
-  if (sectionIds.length > 0) {
-    const { data: payments } = await supabase
-      .from("payments")
-      .select("id, section_id, month, year, amount, status, receipt_url")
-      .eq("student_id", studentId)
-      .eq("year", opts.todayYear)
-      .in("section_id", sectionIds);
-    const records: StudentMonthlyPaymentRecord[] = await Promise.all(
-      ((payments ?? []) as PaymentRow[]).map(async (p) => ({
-        id: p.id,
-        sectionId: p.section_id,
-        month: Number(p.month),
-        year: Number(p.year),
-        amount: p.amount == null ? null : Number(p.amount),
-        status: p.status,
-        receiptSignedUrl: await studentReceiptSignedUrl(supabase, studentId, p.receipt_url),
-      })),
-    );
-    for (const rec of records) {
-      const list = paymentsBySection.get(rec.sectionId) ?? [];
-      list.push(rec);
-      paymentsBySection.set(rec.sectionId, list);
-    }
-  }
+  const paymentsBySection = await loadStudentYearSectionPaymentsMap(
+    supabase,
+    studentId,
+    sectionIds,
+    opts.todayYear,
+  );
 
   const rows: StudentMonthlyPaymentSectionRow[] = sections.map((s) =>
     buildStudentMonthlyPaymentsRow({

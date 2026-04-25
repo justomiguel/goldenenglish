@@ -39,4 +39,9 @@ describe("StudentSidebarNavContent", () => {
       navDict.tipCalendar,
     );
   });
+
+  it("does not expose the billing route in the student sidebar", () => {
+    render(<StudentSidebarNavContent locale="en" dict={navDict} />);
+    expect(screen.queryByRole("link", { name: navDict.billing })).not.toBeInTheDocument();
+  });
 });

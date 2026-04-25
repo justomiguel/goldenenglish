@@ -1179,6 +1179,19 @@
         "tipReceipts": "Approve or reject billing receipts uploaded by guardians (new invoice model).",
         "tipPayments": "Legacy queue of monthly payment receipts pending review."
       },
+      "enrollmentFeeQueue": {
+        "title": "Enrollment fee receipts",
+        "lead": "Receipts uploaded by students or guardians for one-time section enrollment fees, awaiting approval.",
+        "empty": "No enrollment fee receipts pending review.",
+        "viewReceipt": "View receipt",
+        "approve": "Approve",
+        "reject": "Reject",
+        "approvedOk": "Receipt approved — enrollment fee marked as paid.",
+        "rejectedOk": "Receipt rejected — the student can re-upload.",
+        "studentLabel": "Student",
+        "sectionLabel": "Section",
+        "uploadedLabel": "Uploaded"
+      },
       "overview": {
         "title": "Cohort overview",
         "lead": "Every active section of the cohort with payment status by month. Click a cell to drill down.",

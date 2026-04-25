@@ -11,8 +11,10 @@ import { StudentPaymentsEntry } from "@/components/student/StudentPaymentsEntry"
 import type { StudentPaymentRow } from "@/components/student/StudentPaymentsHistory";
 import { studentReceiptSignedUrl } from "@/lib/payments/studentReceiptSignedUrl";
 import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
-import { submitStudentPaymentReceipt } from "@/app/[locale]/dashboard/student/payments/actions";
-import { submitEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/student/payments/submitEnrollmentFeeReceiptAction";
+import {
+  submitStudentPaymentReceipt,
+  submitEnrollmentFeeReceipt,
+} from "@/app/[locale]/dashboard/student/payments/actions";
 import type { Locale } from "@/types/i18n";
 
 export const metadata: Metadata = {
@@ -99,6 +101,24 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
     .eq("student_id", user.id);
   if (!promoRes.error) promoCount = promoRes.count ?? 0;
 
+  const today = new Date();
+  const monthlyView = await loadStudentMonthlyPaymentsView(
+    supabase,
+    user.id,
+    [],
+    { todayYear: today.getFullYear(), todayMonth: today.getMonth() + 1 },
+  );
+  const fullMonthAmountByPaymentSlot = new Map<string, number>();
+  for (const section of monthlyView.rows) {
+    for (const cell of section.cells) {
+      if (cell.fullMonthExpectedAmount == null) continue;
+      fullMonthAmountByPaymentSlot.set(
+        `${section.sectionId}:${cell.year}:${cell.month}`,
+        cell.fullMonthExpectedAmount,
+      );
+    }
+  }
+
   const rows: StudentPaymentRow[] = await Promise.all(
     (payments ?? []).map(async (p) => {
       const amount = p.amount != null ? Number(p.amount) : null;
@@ -113,10 +133,14 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
       const scholarships = p.section_id
         ? scholarshipsBySection.get(p.section_id as string) ?? []
         : [];
+      const fullMonthDisplayAmount = p.section_id
+        ? fullMonthAmountByPaymentSlot.get(`${p.section_id as string}:${y}:${mo}`) ?? null
+        : null;
       const displayAmount =
-        st === "exempt"
+        fullMonthDisplayAmount ??
+        (st === "exempt"
           ? amount
-          : effectiveAmountAfterScholarship(amount, y, mo, scholarships);
+          : effectiveAmountAfterScholarship(amount, y, mo, scholarships));
       return {
         id: p.id as string,
         month: mo,
@@ -128,14 +152,6 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
         receiptSignedUrl: url,
       };
     }),
-  );
-
-  const today = new Date();
-  const monthlyView = await loadStudentMonthlyPaymentsView(
-    supabase,
-    user.id,
-    [],
-    { todayYear: today.getFullYear(), todayMonth: today.getMonth() + 1 },
   );
 
   return (

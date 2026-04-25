@@ -1179,6 +1179,19 @@
         "tipReceipts": "Aprobar o rechazar comprobantes de facturación subidos por las familias (modelo de facturación).",
         "tipPayments": "Cola legacy de comprobantes mensuales pendientes de revisión."
       },
+      "enrollmentFeeQueue": {
+        "title": "Comprobantes de matrícula",
+        "lead": "Comprobantes subidos por alumnos o tutores para la matrícula de sección, pendientes de aprobación.",
+        "empty": "No hay comprobantes de matrícula pendientes de revisión.",
+        "viewReceipt": "Ver comprobante",
+        "approve": "Aprobar",
+        "reject": "Rechazar",
+        "approvedOk": "Comprobante aprobado — matrícula marcada como pagada.",
+        "rejectedOk": "Comprobante rechazado — el alumno puede volver a subir uno.",
+        "studentLabel": "Alumno",
+        "sectionLabel": "Sección",
+        "uploadedLabel": "Subido"
+      },
       "overview": {
         "title": "Vista cohorte",
         "lead": "Cada sección activa de la cohorte con el estado de pago por mes. Hacé clic en una celda para ver el detalle.",
