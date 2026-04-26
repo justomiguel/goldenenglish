@@ -1,0 +1,89 @@
+import type {
+  LearningAssessmentGradingMode,
+  StudentLearningReadinessStatus,
+} from "@/lib/learning-content/types";
+
+export type ContentSectionOption = {
+  id: string;
+  label: string;
+  cohortName: string;
+};
+
+export type SectionContentPlanModel = {
+  id: string | null;
+  sectionId: string;
+  title: string;
+  teacherObjectives: string;
+  generalScope: string;
+  evaluationCriteria: string;
+  status: "draft" | "active" | "archived";
+};
+
+export type PlannedLessonModel = {
+  id: string;
+  title: string;
+  sortOrder: number;
+  lessonKind: string;
+  isRequired: boolean;
+};
+
+export type QuestionBankItemModel = {
+  id: string;
+  prompt: string;
+  questionType: string;
+  skill: string | null;
+  cefrLevel: string | null;
+};
+
+export type LearningAssessmentModel = {
+  id: string;
+  title: string;
+  assessmentKind: string;
+  gradingMode: LearningAssessmentGradingMode;
+};
+
+export type LearningFeedbackRow = {
+  id: string;
+  title: string;
+  gradingMode: LearningAssessmentGradingMode;
+  score: number | null;
+  passed: boolean | null;
+  diagnosticLabel: string | null;
+  teacherFeedback: string;
+  readinessStatus: StudentLearningReadinessStatus | null;
+};
+
+export type StudentMiniTestQuestion = {
+  id: string;
+  prompt: string;
+  questionType: "true_false";
+};
+
+export type StudentMiniTestAssessment = {
+  id: string;
+  title: string;
+  assessmentKind: string;
+  gradingMode: LearningAssessmentGradingMode;
+  sectionName: string;
+  latestAttemptStatus: string | null;
+  questions: StudentMiniTestQuestion[];
+};
+
+export type TeacherAssessmentAttemptReview = {
+  id: string;
+  studentId: string;
+  studentLabel: string;
+  assessmentTitle: string;
+  score: number | null;
+  passed: boolean | null;
+  status: string;
+  teacherFeedback: string;
+};
+
+export type SectionContentHealth = {
+  missingObjectives: boolean;
+  missingEntryAssessment: boolean;
+  missingExitAssessment: boolean;
+  needsSupportCount: number;
+  teacherOverrideCount: number;
+};

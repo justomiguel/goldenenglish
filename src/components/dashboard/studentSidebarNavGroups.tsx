@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BookOpenCheck, Calendar, Home, MessageCircle, User, Wallet } from "lucide-react";
+import { BookOpenCheck, Calendar, ClipboardCheck, Home, MessageCircle, User, Wallet } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 
 export type StudentSidebarNavItem = {
@@ -21,6 +21,29 @@ export function buildStudentSidebarNavGroups(
   profileHref: string,
   dict: Dictionary["dashboard"]["studentNav"],
 ): StudentSidebarNavGroup[] {
+  const learningItems: StudentSidebarNavItem[] = [
+    {
+      href: `${base}/calendar`,
+      label: dict.calendar,
+      icon: <Calendar className={ic} />,
+      tip: dict.tipCalendar,
+    },
+    {
+      href: `${base}/tasks`,
+      label: dict.tasks,
+      icon: <BookOpenCheck className={ic} />,
+      tip: dict.tipTasks,
+    },
+  ];
+  if (base.includes("/dashboard/student")) {
+    learningItems.push({
+      href: `${base}/assessments`,
+      label: dict.assessments,
+      icon: <ClipboardCheck className={ic} />,
+      tip: dict.tipAssessments,
+    });
+  }
+
   return [
     {
       label: dict.navScopeStudent,
@@ -35,20 +58,7 @@ export function buildStudentSidebarNavGroups(
     },
     {
       label: dict.groupLearning,
-      items: [
-        {
-          href: `${base}/calendar`,
-          label: dict.calendar,
-          icon: <Calendar className={ic} />,
-          tip: dict.tipCalendar,
-        },
-        {
-          href: `${base}/tasks`,
-          label: dict.tasks,
-          icon: <BookOpenCheck className={ic} />,
-          tip: dict.tipTasks,
-        },
-      ],
+      items: learningItems,
     },
     {
       label: dict.groupFinance,

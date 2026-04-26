@@ -19,6 +19,14 @@ try {
  * Values are loaded above from .env.local via loadEnvConfig.
  */
 const nextConfig: NextConfig = {
+  transpilePackages: [
+    "@fullcalendar/core",
+    "@fullcalendar/react",
+    "@fullcalendar/daygrid",
+    "@fullcalendar/timegrid",
+    "@fullcalendar/list",
+    "@fullcalendar/interaction",
+  ],
   env: {
     NEXT_PUBLIC_SUPABASE_URL: supabaseUrl,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: supabaseAnonKey,

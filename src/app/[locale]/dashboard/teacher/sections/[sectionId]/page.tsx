@@ -100,6 +100,12 @@ export default async function TeacherSectionDetailPage({ params }: PageProps) {
         >
           {d.rosterLinkTasks}
         </Link>
+        <Link
+          href={`/${locale}/dashboard/teacher/sections/${sectionId}/contents`}
+          className="inline-flex min-h-[44px] items-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
+        >
+          {d.rosterLinkContents}
+        </Link>
       </div>
       <TeacherSectionRoster
         locale={locale}

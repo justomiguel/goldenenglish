@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, BookOpenCheck, Calendar, CalendarDays, Home, MessageCircle, User } from "lucide-react";
+import { BookOpen, Calendar, CalendarDays, Home, MessageCircle, User } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 
 export interface AdminWorkspaceNavLabels {
@@ -47,12 +47,6 @@ function buildGroups(base: string, profileHref: string, dict: TeacherSidebarNavC
           label: dict.calendar,
           icon: <Calendar className={ic} />,
           tip: dict.tipCalendar,
-        },
-        {
-          href: `${base}/tasks`,
-          label: dict.tasks,
-          icon: <BookOpenCheck className={ic} />,
-          tip: dict.tipTasks,
         },
         {
           href: `${base}/academics`,

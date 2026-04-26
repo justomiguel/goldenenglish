@@ -25,9 +25,11 @@ type SyncDict = {
 export interface PortalCalendarSyncBlockProps {
   dict: SyncDict;
   initialFeedUrl: string | null;
+  /** When true (e.g. inside a dialog), omit outer card chrome and heading — parent supplies title. */
+  embedded?: boolean;
 }
 
-export function PortalCalendarSyncBlock({ dict, initialFeedUrl }: PortalCalendarSyncBlockProps) {
+export function PortalCalendarSyncBlock({ dict, initialFeedUrl, embedded }: PortalCalendarSyncBlockProps) {
   const router = useRouter();
   const [feedUrl, setFeedUrl] = useState(initialFeedUrl);
   const [err, setErr] = useState<string | null>(null);
@@ -65,10 +67,14 @@ export function PortalCalendarSyncBlock({ dict, initialFeedUrl }: PortalCalendar
     });
   };
 
-  return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
-      <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{dict.lead}</p>
+  const inner = (
+    <>
+      {!embedded ? (
+        <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
+      ) : null}
+      <p className={embedded ? "text-xs text-[var(--color-muted-foreground)]" : "mt-1 text-xs text-[var(--color-muted-foreground)]"}>
+        {dict.lead}
+      </p>
       <Button type="button" className="mt-3" onClick={sync} isLoading={syncPending} disabled={syncPending}>
         {dict.button}
       </Button>
@@ -113,6 +119,16 @@ export function PortalCalendarSyncBlock({ dict, initialFeedUrl }: PortalCalendar
           </div>
         </div>
       ) : null}
+    </>
+  );
+
+  if (embedded) {
+    return <div className="space-y-2">{inner}</div>;
+  }
+
+  return (
+    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+      {inner}
     </section>
   );
 }

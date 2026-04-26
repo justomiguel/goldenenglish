@@ -1,0 +1,163 @@
+/*
+ * FullCalendar v6 — scoped PatagonIA-style shell (accent on active controls + today, soft events).
+ * Root: `.portal-calendar` (see `PortalCalendarScheduleBoard`).
+ */
+
+.portal-calendar .fc {
+  --fc-border-color: var(--color-border);
+  --fc-page-bg-color: var(--color-background);
+  --fc-neutral-bg-color: var(--color-muted);
+  --fc-button-text-color: var(--color-foreground);
+  --fc-button-bg-color: color-mix(in srgb, var(--color-muted) 50%, var(--color-surface));
+  --fc-button-border-color: var(--color-border);
+  --fc-button-hover-bg-color: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));
+  /* Active view: tint + borde acento — evita texto sobre rojo pleno (mejor contraste que secondary fill). */
+  --fc-button-active-bg-color: color-mix(in srgb, var(--color-primary) 16%, var(--color-surface));
+  --fc-button-active-border-color: var(--color-primary);
+  --fc-button-active-text-color: var(--color-foreground);
+  --fc-list-event-hover-bg-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface));
+  --fc-today-bg-color: color-mix(in srgb, var(--color-secondary) 10%, transparent);
+  --fc-now-indicator-color: var(--color-secondary);
+  --fc-event-border-color: transparent;
+  font-family: inherit;
+}
+
+.portal-calendar .fc .fc-toolbar.fc-header-toolbar {
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .portal-calendar .fc .fc-toolbar.fc-header-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .portal-calendar .fc .fc-toolbar-chunk {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem;
+  }
+}
+
+.portal-calendar .fc-toolbar-title {
+  font-family: var(--font-heading);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  letter-spacing: 0.01em;
+}
+
+.portal-calendar .fc .fc-button {
+  border-radius: var(--layout-border-radius);
+  text-transform: none;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+}
+
+.portal-calendar .fc .fc-button-primary:not(:disabled).fc-button-active {
+  font-weight: 700;
+}
+
+.portal-calendar .fc .fc-button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.portal-calendar .fc-col-header-cell,
+.portal-calendar .fc-timegrid-axis,
+.portal-calendar .fc-timegrid-slot-label {
+  color: var(--color-muted-foreground);
+  background-color: color-mix(in srgb, var(--color-muted) 35%, var(--color-surface));
+}
+
+.portal-calendar .fc-daygrid-day:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 6%, transparent);
+}
+
+.portal-calendar .fc-day-today .fc-daygrid-day-number {
+  display: inline-flex;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-foreground);
+  font-weight: 700;
+}
+
+.portal-calendar .fc-daygrid-day-number,
+.portal-calendar .fc-list-day-text {
+  color: var(--color-foreground);
+}
+
+.portal-calendar .fc-timegrid-slot {
+  min-height: 2.75rem;
+}
+
+.portal-calendar .fc-scrollgrid {
+  border-radius: var(--layout-border-radius);
+  overflow: hidden;
+}
+
+/* Event chips — background on `.fc-event` from `classNames` */
+.portal-calendar .fc-event {
+  border: none !important;
+  border-radius: var(--layout-border-radius);
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    opacity 0.12s ease;
+}
+
+.portal-calendar .fc-event:hover {
+  opacity: 0.96;
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-foreground) 12%, transparent);
+}
+
+.portal-calendar .fc-event.portal-cal-ev--past {
+  background-color: color-mix(in srgb, var(--color-muted-foreground) 22%, var(--color-surface)) !important;
+  color: var(--color-muted-foreground) !important;
+}
+
+.portal-calendar .fc-event.portal-cal-ev--today {
+  background-color: color-mix(in srgb, var(--color-warning) 42%, var(--color-surface)) !important;
+  color: var(--color-foreground) !important;
+}
+
+.portal-calendar .fc-event.portal-cal-ev--upcoming-inperson {
+  background-color: color-mix(in srgb, var(--color-success) 38%, var(--color-surface)) !important;
+  color: color-mix(in srgb, var(--color-success) 95%, var(--color-foreground)) !important;
+}
+
+.portal-calendar .fc-event.portal-cal-ev--upcoming-virtual {
+  background-color: color-mix(in srgb, var(--color-primary) 32%, var(--color-surface)) !important;
+  color: var(--color-foreground) !important;
+}
+
+/* Examen: texto neutro + acento a un lado — iconos legibles sobre el fondo tintado. */
+.portal-calendar .fc-event.portal-cal-ev--exam {
+  background-color: color-mix(in srgb, var(--color-error) 22%, var(--color-surface)) !important;
+  color: var(--color-foreground) !important;
+  box-shadow: inset 3px 0 0 0 var(--color-error);
+}
+
+.portal-calendar .fc-event.portal-cal-ev--special {
+  background-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-surface)) !important;
+  color: var(--color-foreground) !important;
+}
+
+.portal-calendar .fc-event.portal-cal-ev--own {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-secondary) 75%, transparent);
+}
+
+.portal-calendar .fc-event.portal-cal-ev--exam.portal-cal-ev--own {
+  box-shadow:
+    inset 3px 0 0 0 var(--color-error),
+    0 0 0 2px color-mix(in srgb, var(--color-secondary) 75%, transparent);
+}

@@ -6,12 +6,18 @@ import { composePortalCalendarPageEvents } from "@/lib/calendar/composePortalCal
 import { expandedOccurrencesToPortalEvents } from "@/lib/calendar/portalCalendarEventCodec";
 import { filterSpecialCalendarRowsForViewer } from "@/lib/calendar/filterSpecialCalendarRowsForViewer";
 
+/**
+ * Date-only window (UTC) for composing portal calendar rows in one server pass.
+ * Kept intentionally bounded for PostgREST load; wide enough for FullCalendar month/week navigation.
+ * If the institute grows very large schedules, prefer a range-scoped server action instead of widening further.
+ */
 function defaultViewWindow(): { viewStartIso: string; viewEndIso: string } {
   const now = new Date();
-  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  start.setUTCDate(start.getUTCDate() - 7);
-  const end = new Date(start);
-  end.setUTCDate(end.getUTCDate() + 120);
+  const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const start = new Date(todayUtc);
+  start.setUTCMonth(start.getUTCMonth() - 12);
+  const end = new Date(todayUtc);
+  end.setUTCMonth(end.getUTCMonth() + 18);
   const iso = (d: Date) => d.toISOString().slice(0, 10);
   return { viewStartIso: iso(start), viewEndIso: iso(end) };
 }

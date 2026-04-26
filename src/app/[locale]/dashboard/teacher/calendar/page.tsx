@@ -42,6 +42,12 @@ export default async function TeacherCalendarPage({ params }: PageProps) {
   const feedUrl = payload.feedToken && origin ? `${origin}/api/calendar/feed/${payload.feedToken}.ics` : null;
 
   return (
-    <PortalCalendarEntry locale={locale} dict={dict.dashboard.portalCalendar} events={payload.events} feedUrl={feedUrl} />
+    <PortalCalendarEntry
+      locale={locale}
+      dict={dict.dashboard.portalCalendar}
+      events={payload.events}
+      feedUrl={feedUrl}
+      viewerId={user.id}
+    />
   );
 }

@@ -16,6 +16,7 @@ END $$;
 CREATE TABLE IF NOT EXISTS public.content_templates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL CHECK (char_length(title) BETWEEN 1 AND 180),
+  description TEXT NOT NULL DEFAULT '',
   body_html TEXT NOT NULL CHECK (char_length(body_html) BETWEEN 1 AND 80000),
   archived_at TIMESTAMPTZ NULL,
   created_by UUID NOT NULL REFERENCES public.profiles (id) ON DELETE RESTRICT,

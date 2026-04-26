@@ -51,6 +51,7 @@ export default async function AdminCalendarPage({ params, searchParams }: PagePr
       lead={dict.dashboard.portalCalendar.adminLead}
       events={payload.events}
       feedUrl={feedUrl}
+      viewerId={user.id}
       admin={{
         teachers: payload.teacherOptions,
         rooms: payload.roomOptions,
