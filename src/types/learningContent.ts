@@ -26,6 +26,33 @@ export type LearningRouteStepModel = {
   sortOrder: number;
   stepKind: string;
   isRequired: boolean;
+  positionX: number;
+  positionY: number;
+};
+
+export type LearningRouteEdgeModel = {
+  id: string;
+  fromStepId: string;
+  toStepId: string;
+  sortOrder: number;
+  label: string;
+  conditionKind: string;
+};
+
+export type LearningRouteCheckpointModel = {
+  id: string;
+  edgeId: string;
+  assessmentId: string | null;
+  assessmentTitle: string | null;
+  assessmentKind: string | null;
+  gradingMode: LearningAssessmentGradingMode | null;
+  isRequired: boolean;
+  isPriority: boolean;
+  blocksProgress: boolean;
+  contributesToGradebook: boolean;
+  maxScore: number | null;
+  passingScore: number | null;
+  weight: number | null;
 };
 
 export type LearningRouteContentTemplateOption = {

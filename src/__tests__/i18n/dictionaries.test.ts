@@ -68,6 +68,10 @@ describe("getDictionary", () => {
     expect(es.dashboard.academicSectionPage.shellTabs.feesLead.length).toBeGreaterThan(10);
     expect(en.dashboard.academicSectionPage.shellTabs.configuration).toBeTruthy();
     expect(es.dashboard.academicSectionPage.shellTabs.configuration).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.shellTabs.evaluations).toBeTruthy();
+    expect(es.dashboard.academicSectionPage.shellTabs.evaluations).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.assessmentsPanel?.titleLearning).toBeTruthy();
+    expect(es.dashboard.academicSectionPage.assessmentsPanel?.titleLearning).toBeTruthy();
     expect(en.dashboard.academicSectionPage.shellTabs.teachers).toBeTruthy();
     expect(es.dashboard.academicSectionPage.shellTabs.teachers).toBeTruthy();
     expect(en.dashboard.academicSectionPage.staffAssignedChips.heading).toBeTruthy();

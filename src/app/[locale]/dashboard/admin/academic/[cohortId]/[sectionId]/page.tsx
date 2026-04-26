@@ -21,10 +21,13 @@ import {
   loadSectionLearningRouteWorkspace,
 } from "@/lib/learning-content/loadLearningRouteWorkspace";
 import { loadAdminSectionHealthSnapshot } from "@/lib/academics/loadAdminSectionHealthSnapshot";
+import { loadAdminSectionAssessmentsPanelData } from "@/lib/academics/loadAdminSectionAssessmentsPanelData";
+import { parseAcademicSectionShellTabParam } from "@/lib/academics/academicSectionShellTabOrder";
 import type { AdminSectionHealthLearningRoute } from "@/types/adminSectionHealth";
 
 interface PageProps {
   params: Promise<{ locale: string; cohortId: string; sectionId: string }>;
+  searchParams: Promise<{ tab?: string | string[] }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -36,8 +39,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function AcademicSectionPage({ params }: PageProps) {
+export default async function AcademicSectionPage({ params, searchParams }: PageProps) {
   const { locale, cohortId, sectionId } = await params;
+  const sp = await searchParams;
+  const defaultShellTab = parseAcademicSectionShellTabParam(sp.tab) ?? "general";
   const dict = await getDictionary(locale);
   const enDict = locale === "en" ? dict : await getDictionary("en");
   const subdicts = resolveAcademicSectionPageSubdicts(dict, enDict);
@@ -50,7 +55,7 @@ export default async function AcademicSectionPage({ params }: PageProps) {
     loadSectionLearningRouteWorkspace(supabase, sectionId),
   ]);
   if (!data) notFound();
-  const { section, cohort, slots, rows, debtByStudentId, staff, feePlans, feePlansWithUsage, moveTargets } = data;
+  const { section, slots, rows, debtByStudentId, staff, feePlans } = data;
   const leadTeacherLabel = staff.teachers.find((t) => t.id === section.teacherId)?.label ?? null;
   const assistantChipLabels = staff.initialAssistants.map((a) => a.label);
   const externalChipLabels = staff.initialExternalAssistants.map((e) => e.label);
@@ -95,9 +100,10 @@ export default async function AcademicSectionPage({ params }: PageProps) {
   const attendanceScheduleLine = attendanceScheduleSummary
     ? `${dTeacherAttendance.scheduleSummaryLead} ${attendanceScheduleSummary}`
     : "";
-  const [attendanceMatrix, healthSnapshot] = await Promise.all([
+  const [attendanceMatrix, healthSnapshot, assessmentsData] = await Promise.all([
     hasEligibleAttendanceDays ? loadAdminSectionAttendanceMatrix(supabase, sectionId) : Promise.resolve(null),
     healthSnapshotPromise,
+    loadAdminSectionAssessmentsPanelData(supabase, sectionId, section.cohortId, activeEnrollmentIds),
   ]);
   const editableByDate = Object.fromEntries(
     (attendanceMatrix?.classDays ?? []).map((day) => [day, day <= todayIso]),
@@ -135,6 +141,8 @@ export default async function AcademicSectionPage({ params }: PageProps) {
       leadTeacherLabel={leadTeacherLabel}
       assistantChipLabels={assistantChipLabels}
       externalChipLabels={externalChipLabels}
+      assessmentsData={assessmentsData}
+      defaultShellTab={defaultShellTab}
     />
   );
 }

@@ -9,6 +9,7 @@ import {
   createQuestionBankItemAction,
   saveLearningRouteAction,
 } from "@/app/[locale]/dashboard/admin/academic/contents/actions";
+import { AdminLearningRouteStepsModal } from "@/components/admin/AdminLearningRouteStepsModal";
 import { ContentPlanHealthSummary } from "@/components/molecules/ContentPlanHealthSummary";
 import type { LearningRouteModel } from "@/types/learningContent";
 import type { LearningRouteWorkspace } from "@/lib/learning-content/loadLearningRouteWorkspace";
@@ -35,7 +36,7 @@ export function AdminLearningRoutePlanner({
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
         {workspace ? <div className="xl:col-span-2"><ContentPlanHealthSummary health={workspace.health} labels={labels} /></div> : null}
         <RouteEditor locale={locale} route={route} labels={labels} />
-        <ContentSidePanel workspace={workspace} labels={labels} />
+        <ContentSidePanel locale={locale} workspace={workspace} labels={labels} />
         <RouteStepAndAssessmentForms locale={locale} route={route} workspace={workspace} labels={labels} />
       </div>
     </div>
@@ -88,10 +89,35 @@ function TextBlock({ label, value, onChange }: { label: string; value: string; o
   );
 }
 
-function ContentSidePanel({ workspace, labels }: { workspace: LearningRouteWorkspace | null; labels: Dictionary["dashboard"]["adminContents"] }) {
+function ContentSidePanel({
+  locale,
+  workspace,
+  labels,
+}: {
+  locale: string;
+  workspace: LearningRouteWorkspace | null;
+  labels: Dictionary["dashboard"]["adminContents"];
+}) {
+  const [isStepsModalOpen, setIsStepsModalOpen] = useState(false);
   return (
     <aside className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
       <List title={labels.routeStepsTitle} empty={labels.emptyRouteSteps} rows={workspace?.routeSteps.map((step) => step.contentTitle) ?? []} />
+      {workspace?.route?.id ? (
+        <>
+          <Button type="button" size="sm" onClick={() => setIsStepsModalOpen(true)}>
+            {labels.editRouteSteps}
+          </Button>
+          {isStepsModalOpen ? (
+            <AdminLearningRouteStepsModal
+              open={isStepsModalOpen}
+              locale={locale}
+              workspace={workspace}
+              labels={labels}
+              onOpenChange={setIsStepsModalOpen}
+            />
+          ) : null}
+        </>
+      ) : null}
       <List title={labels.questionsTitle} empty={labels.emptyQuestions} rows={workspace?.questions.map((q) => q.prompt) ?? []} />
       <List title={labels.assessmentsTitle} empty={labels.emptyAssessments} rows={workspace?.assessments.map((a) => a.title) ?? []} />
     </aside>
@@ -107,6 +133,26 @@ function List({ title, empty, rows }: { title: string; empty: string; rows: stri
         <ul className="mt-2 space-y-1 text-sm text-[var(--color-muted-foreground)]">{visible.map((row, idx) => <li key={`${row}:${idx}`}>{row}</li>)}</ul>
       )}
     </section>
+  );
+}
+
+function MiniForm({ title, value, onChange, onSubmit, disabled, labels }: {
+  title: string;
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  disabled: boolean;
+  labels: Dictionary["dashboard"]["adminContents"];
+}) {
+  return (
+    <div className="space-y-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] p-3">
+      <h4 className="font-medium text-[var(--color-foreground)]">{title}</h4>
+      <Input value={value} onChange={(e) => onChange(e.target.value)} />
+      <Button type="button" size="sm" onClick={onSubmit} disabled={disabled || !value.trim()}>
+        <Plus className="h-4 w-4" aria-hidden />
+        {labels.add}
+      </Button>
+    </div>
   );
 }
 
@@ -136,25 +182,5 @@ function RouteStepAndAssessmentForms({ locale, route, workspace, labels }: {
         <MiniForm title={labels.addQuestion} value={questionPrompt} onChange={setQuestionPrompt} onSubmit={() => startTransition(() => void createQuestionBankItemAction({ prompt: questionPrompt, questionType: "true_false" }))} disabled={isPending} labels={labels} />
       </div>
     </section>
-  );
-}
-
-function MiniForm({ title, value, onChange, onSubmit, disabled, labels }: {
-  title: string;
-  value: string;
-  onChange: (value: string) => void;
-  onSubmit: () => void;
-  disabled: boolean;
-  labels: Dictionary["dashboard"]["adminContents"];
-}) {
-  return (
-    <div className="space-y-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] p-3">
-      <h4 className="font-medium text-[var(--color-foreground)]">{title}</h4>
-      <Input value={value} onChange={(e) => onChange(e.target.value)} />
-      <Button type="button" size="sm" onClick={onSubmit} disabled={disabled || !value.trim()}>
-        <Plus className="h-4 w-4" aria-hidden />
-        {labels.add}
-      </Button>
-    </div>
   );
 }

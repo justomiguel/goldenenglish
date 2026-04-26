@@ -19,6 +19,9 @@ import { AcademicSectionHealthOverview } from "@/components/organisms/AcademicSe
 import type { AdminSectionHealthSnapshot } from "@/types/adminSectionHealth";
 import type { LearningRouteContentTemplateOption } from "@/types/learningContent";
 import type { LearningRouteWorkspace } from "@/lib/learning-content/loadLearningRouteWorkspace";
+import type { AdminSectionAssessmentsPanelData } from "@/types/adminSectionAssessments";
+import { AcademicSectionAssessmentsPanel } from "@/components/organisms/AcademicSectionAssessmentsPanel";
+import type { AcademicSectionShellTabId } from "@/lib/academics/academicSectionShellTabOrder";
 
 export interface AcademicSectionPageShellBodyProps {
   locale: string;
@@ -37,6 +40,9 @@ export interface AcademicSectionPageShellBodyProps {
   leadTeacherLabel: string | null;
   assistantChipLabels: string[];
   externalChipLabels: string[];
+  assessmentsData: AdminSectionAssessmentsPanelData;
+  /** When set, opens the tab (e.g. from `?tab=evaluations` in the section URL). */
+  defaultShellTab?: AcademicSectionShellTabId;
 }
 
 export function AcademicSectionPageShellBody({
@@ -56,6 +62,8 @@ export function AcademicSectionPageShellBody({
   leadTeacherLabel,
   assistantChipLabels,
   externalChipLabels,
+  assessmentsData,
+  defaultShellTab,
 }: AcademicSectionPageShellBodyProps) {
   const {
     shellTabLabels,
@@ -90,6 +98,7 @@ export function AcademicSectionPageShellBody({
 
       <AcademicSectionShellTabs
         labels={shellTabLabels}
+        defaultTab={defaultShellTab}
         general={<AcademicSectionHealthOverview locale={locale} snapshot={healthSnapshot} dict={healthDict} />}
         configuration={
           <>
@@ -150,6 +159,15 @@ export function AcademicSectionPageShellBody({
             routes={routeOptions}
             assignment={learningRouteWorkspace.assignment ?? null}
             dict={learningRouteDict}
+          />
+        }
+        evaluations={
+          <AcademicSectionAssessmentsPanel
+            locale={locale}
+            cohortId={cohortId}
+            sectionId={sectionId}
+            data={assessmentsData}
+            dict={d.assessmentsPanel}
           />
         }
         fees={

@@ -4,6 +4,7 @@ import { useId, useMemo, useState, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   CircleDollarSign,
+  ClipboardCheck,
   ClipboardList,
   GraduationCap,
   LayoutDashboard,
@@ -11,18 +12,21 @@ import {
   Settings2,
   Users,
 } from "lucide-react";
-import { AcademicSectionTwoLevelTabStrip } from "@/components/molecules/AcademicSectionTwoLevelTabStrip";
-import { underlinePanelId, underlineTabId, type UnderlineTabItem } from "@/components/molecules/UnderlineTabBar";
-import type { AcademicSectionShellTabId } from "@/types/academicSectionShell";
+import {
+  UnderlineTabBar,
+  underlinePanelId,
+  underlineTabId,
+  type UnderlineTabItem,
+} from "@/components/molecules/UnderlineTabBar";
+import {
+  type AcademicSectionShellTabId,
+  ACADEMIC_SECTION_SHELL_TAB_ORDER,
+} from "@/lib/academics/academicSectionShellTabOrder";
 
-export type { AcademicSectionShellTabId } from "@/types/academicSectionShell";
+export type { AcademicSectionShellTabId };
 
 export interface AcademicSectionShellTabsLabels {
   tablistAria: string;
-  groupListAria: string;
-  groupSetup: string;
-  groupPathAndFees: string;
-  groupClassRoster: string;
   general: string;
   generalLead: string;
   configuration: string;
@@ -31,6 +35,8 @@ export interface AcademicSectionShellTabsLabels {
   teachersLead: string;
   learningRoute: string;
   learningRouteLead: string;
+  evaluations: string;
+  evaluationsLead: string;
   fees: string;
   feesLead: string;
   attendance: string;
@@ -39,21 +45,14 @@ export interface AcademicSectionShellTabsLabels {
   studentsLead: string;
 }
 
-const TAB_ORDER: AcademicSectionShellTabId[] = [
-  "general",
-  "configuration",
-  "teachers",
-  "learningRoute",
-  "fees",
-  "attendance",
-  "students",
-];
+const TAB_ORDER: readonly AcademicSectionShellTabId[] = ACADEMIC_SECTION_SHELL_TAB_ORDER;
 
 const TAB_ICONS: Record<AcademicSectionShellTabId, LucideIcon> = {
   general: LayoutDashboard,
   configuration: Settings2,
   teachers: GraduationCap,
   learningRoute: Route,
+  evaluations: ClipboardCheck,
   fees: CircleDollarSign,
   attendance: ClipboardList,
   students: Users,
@@ -64,6 +63,7 @@ const TAB_LABEL_KEY: Record<AcademicSectionShellTabId, keyof AcademicSectionShel
   configuration: "configuration",
   teachers: "teachers",
   learningRoute: "learningRoute",
+  evaluations: "evaluations",
   fees: "fees",
   attendance: "attendance",
   students: "students",
@@ -76,6 +76,7 @@ export interface AcademicSectionShellTabsProps {
   configuration: ReactNode;
   teachers: ReactNode;
   learningRoute: ReactNode;
+  evaluations: ReactNode;
   fees: ReactNode;
   attendance: ReactNode;
   students: ReactNode;
@@ -88,6 +89,7 @@ export function AcademicSectionShellTabs({
   configuration,
   teachers,
   learningRoute,
+  evaluations,
   fees,
   attendance,
   students,
@@ -130,6 +132,12 @@ export function AcademicSectionShellTabs({
         {learningRoute}
       </div>
     ),
+    evaluations: (
+      <div className="space-y-4">
+        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.evaluationsLead}</p>
+        {evaluations}
+      </div>
+    ),
     fees: (
       <div className="space-y-4">
         <p className="text-sm text-[var(--color-muted-foreground)]">{labels.feesLead}</p>
@@ -152,18 +160,14 @@ export function AcademicSectionShellTabs({
 
   return (
     <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
-      <AcademicSectionTwoLevelTabStrip
+      <UnderlineTabBar
         idPrefix={idPrefix}
-        tablistAria={labels.tablistAria}
-        groupLabels={{
-          groupListAria: labels.groupListAria,
-          groupSetup: labels.groupSetup,
-          groupPathAndFees: labels.groupPathAndFees,
-          groupClassRoster: labels.groupClassRoster,
-        }}
-        allTabItems={items}
+        ariaLabel={labels.tablistAria}
+        items={items}
         value={tab}
-        onTabChange={setTab}
+        onChange={(id) => setTab(id as AcademicSectionShellTabId)}
+        dense
+        layout="gridTwoRow"
       />
       {TAB_ORDER.map((t) => {
         const selected = tab === t;

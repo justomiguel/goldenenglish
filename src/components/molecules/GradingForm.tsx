@@ -1,5 +1,6 @@
 "use client";
 
+import { RefreshCw } from "lucide-react";
 import type { RubricDimensionDef } from "@/types/rubricDimensions";
 import type { Dictionary } from "@/types/i18n";
 import { suggestedScoreForGrading } from "@/lib/academics/rubricSuggestedScoreFromDimensions";
@@ -148,6 +149,7 @@ export function GradingForm({
             if (s != null) setScoreStr(String(s));
           }}
         >
+          <RefreshCw className="h-4 w-4 shrink-0" aria-hidden />
           {rubricDict.syncFromRubric}
         </Button>
       </div>

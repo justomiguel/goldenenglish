@@ -1,5 +1,6 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Dictionary } from "@/types/i18n";
@@ -70,6 +71,7 @@ export function AcademicPendingTransfers({
                     });
                   }}
                 >
+                  <Check className="h-4 w-4 shrink-0" aria-hidden />
                   {d.approve}
                 </Button>
               </td>

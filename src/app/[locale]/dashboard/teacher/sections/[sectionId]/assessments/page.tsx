@@ -43,10 +43,9 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
     .select("id, name, cohort_id, teacher_id")
     .eq("id", sectionId)
     .maybeSingle();
-  const canOpen =
-    !secErr &&
-    section &&
-    (await userIsSectionTeacherOrAssistant(supabase, user.id, sectionId));
+  const isAdmin = await resolveIsAdminSession(supabase, user.id);
+  const isStaff = await userIsSectionTeacherOrAssistant(supabase, user.id, sectionId);
+  const canOpen = !secErr && section && (isAdmin || isStaff);
   if (!canOpen) notFound();
 
   const cohortId = section.cohort_id as string;

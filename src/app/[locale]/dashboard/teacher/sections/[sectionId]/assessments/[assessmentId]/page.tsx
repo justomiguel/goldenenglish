@@ -10,9 +10,11 @@ import { loadRubricDimensionsForCohort } from "@/lib/academics/loadRubricDimensi
 import type { AssessmentMatrixRosterRow, EnrollmentAssessmentGradeStatusDb } from "@/types/assessmentGrades";
 import { AssessmentRosterGradingClient } from "@/components/organisms/AssessmentRosterGradingClient";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
+import { parseSafeLocaleDashboardPath } from "@/lib/navigation/parseSafeLocaleDashboardPath";
 
 interface PageProps {
   params: Promise<{ locale: string; sectionId: string; assessmentId: string }>;
+  searchParams: Promise<{ returnTo?: string | string[] }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -24,8 +26,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function TeacherAssessmentMatrixPage({ params }: PageProps) {
+export default async function TeacherAssessmentMatrixPage({ params, searchParams }: PageProps) {
   const { locale, sectionId, assessmentId } = await params;
+  const sp = await searchParams;
+  const safeReturn = parseSafeLocaleDashboardPath(locale, sp.returnTo);
   const dict = await getDictionary(locale);
   const d = dict.dashboard.teacherAssessmentMatrix;
   const supabase = await createClient();
@@ -46,10 +50,9 @@ export default async function TeacherAssessmentMatrixPage({ params }: PageProps)
     .select("id, name, cohort_id, teacher_id")
     .eq("id", sectionId)
     .maybeSingle();
-  const canOpen =
-    !secErr &&
-    section &&
-    (await userIsSectionTeacherOrAssistant(supabase, user.id, sectionId));
+  const isAdmin = await resolveIsAdminSession(supabase, user.id);
+  const isStaff = await userIsSectionTeacherOrAssistant(supabase, user.id, sectionId);
+  const canOpen = !secErr && section && (isAdmin || isStaff);
   if (!canOpen) notFound();
 
   const cohortId = section.cohort_id as string;
@@ -121,14 +124,18 @@ export default async function TeacherAssessmentMatrixPage({ params }: PageProps)
   const dateFmt = new Intl.DateTimeFormat(locale === "es" ? "es" : "en", { dateStyle: "medium" });
   const assessmentDateLabel = dateFmt.format(new Date(`${assessment.assessment_on}T12:00:00`));
 
+  const backHref =
+    safeReturn ?? `/${locale}/dashboard/teacher/sections/${sectionId}/assessments`;
+  const backLabel = safeReturn ? d.backToPrevious : d.backToAssessments;
+
   return (
     <div className="space-y-6">
       <div>
         <Link
-          href={`/${locale}/dashboard/teacher/sections/${sectionId}/assessments`}
+          href={backHref}
           className="text-sm font-medium text-[var(--color-primary)] hover:underline"
         >
-          {d.backToAssessments}
+          {backLabel}
         </Link>
         <h1 className="mt-2 text-2xl font-semibold text-[var(--color-foreground)]">{d.title}</h1>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{section.name as string}</p>

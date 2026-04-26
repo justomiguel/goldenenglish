@@ -1,98 +1,149 @@
 "use client";
 
-import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useCallback, useState } from "react";
 import type { Dictionary } from "@/types/i18n";
-import { RechartsSizedFrame } from "@/components/molecules/RechartsSizedFrame";
+import { AcademicSectionHealthChartHelpModal } from "@/components/molecules/AcademicSectionHealthChartHelpModal";
+import { AcademicSectionHealthChartShell } from "@/components/molecules/AcademicSectionHealthChartShell";
+import {
+  HealthAssessmentsRowsBarChart,
+  HealthAttendanceCompositionBar,
+  HealthCapacityTreemap,
+  HealthEngagementColumnsBarChart,
+  HealthPaymentsDonutChart,
+  HealthReadinessColumnsBarChart,
+  HealthTasksRadialBarChart,
+  type HealthChartSlice,
+} from "@/components/molecules/AcademicSectionHealthChartPlots";
+
+export type { HealthChartSlice };
 
 export interface AcademicSectionHealthChartsProps {
   locale: string;
   dict: Dictionary["dashboard"]["academicSectionPage"]["health"];
-  attendance: { key: string; name: string; value: number; fill: string }[];
-  tasks: { key: string; name: string; value: number; fill: string }[];
+  attendance: HealthChartSlice[];
+  tasks: HealthChartSlice[];
+  capacity: HealthChartSlice[] | null;
+  payments: HealthChartSlice[];
+  engagement: { key: string; name: string; value: number }[];
+  assessments: HealthChartSlice[];
+  readiness: HealthChartSlice[];
 }
 
-function fmtInt(locale: string, n: number) {
-  return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(n);
-}
+export function AcademicSectionHealthCharts({
+  locale,
+  dict,
+  attendance,
+  tasks,
+  capacity,
+  payments,
+  engagement,
+  assessments,
+  readiness,
+}: AcademicSectionHealthChartsProps) {
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [helpTitle, setHelpTitle] = useState("");
+  const [helpBody, setHelpBody] = useState("");
 
-export function AcademicSectionHealthCharts({ locale, dict, attendance, tasks }: AcademicSectionHealthChartsProps) {
+  const openHelp = useCallback((title: string, body: string) => {
+    setHelpTitle(title);
+    setHelpBody(body);
+    setHelpOpen(true);
+  }, []);
+
   const attTotal = attendance.reduce((s, r) => s + r.value, 0);
   const taskTotal = tasks.reduce((s, r) => s + r.value, 0);
+  const capTotal = capacity?.reduce((s, r) => s + r.value, 0) ?? 0;
+  const payTotal = payments.reduce((s, r) => s + r.value, 0);
+  const engTotal = engagement.reduce((s, r) => s + r.value, 0);
+  const assTotal = assessments.reduce((s, r) => s + r.value, 0);
+  const readTotal = readiness.reduce((s, r) => s + r.value, 0);
+
+  const engagementBars = engagement.map((e, i) => ({
+    ...e,
+    fill: ["var(--color-primary)", "var(--color-success)", "var(--color-info)"][i % 3],
+  }));
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 p-4">
-        <h3 className="text-sm font-semibold text-[var(--color-foreground)]">{dict.chartAttendanceTitle}</h3>
-        {attTotal === 0 ? (
-          <p className="mt-3 text-sm text-[var(--color-muted-foreground)]">{dict.chartEmpty}</p>
-        ) : (
-          <div className="mt-3 h-52 w-full">
-            <RechartsSizedFrame height={208} className="w-full">
-              {(w, h) => (
-                <ResponsiveContainer width={w} height={h}>
-                  <PieChart>
-                    <Tooltip
-                      formatter={(value, name) => [fmtInt(locale, typeof value === "number" ? value : Number(value)), String(name)]}
-                      contentStyle={{
-                        background: "var(--color-surface)",
-                        border: "1px solid var(--color-border)",
-                        borderRadius: "var(--layout-border-radius)",
-                      }}
-                    />
-                    <Pie
-                      data={attendance}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={48}
-                      outerRadius={72}
-                      paddingAngle={2}
-                    >
-                      {attendance.map((e) => (
-                        <Cell key={e.key} fill={e.fill} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              )}
-            </RechartsSizedFrame>
-          </div>
-        )}
-      </section>
+    <>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <AcademicSectionHealthChartShell
+          title={dict.chartAttendanceTitle}
+          empty={dict.chartEmpty}
+          hasData={attTotal > 0}
+          helpAriaLabel={dict.chartHelpAria}
+          onOpenHelp={() => openHelp(dict.chartAttendanceTitle, dict.chartHelpAttendanceBody)}
+        >
+          <HealthAttendanceCompositionBar locale={locale} data={attendance} />
+        </AcademicSectionHealthChartShell>
 
-      <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 p-4">
-        <h3 className="text-sm font-semibold text-[var(--color-foreground)]">{dict.chartTasksTitle}</h3>
-        {taskTotal === 0 ? (
-          <p className="mt-3 text-sm text-[var(--color-muted-foreground)]">{dict.chartEmpty}</p>
-        ) : (
-          <div className="mt-3 h-52 w-full">
-            <RechartsSizedFrame height={208} className="w-full">
-              {(w, h) => (
-                <ResponsiveContainer width={w} height={h}>
-                  <BarChart layout="vertical" data={tasks} margin={{ left: 8, right: 16, top: 8, bottom: 8 }}>
-                    <XAxis type="number" tickFormatter={(v) => fmtInt(locale, v)} />
-                    <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 11 }} />
-                    <Tooltip
-                      formatter={(value) => fmtInt(locale, typeof value === "number" ? value : Number(value))}
-                      contentStyle={{
-                        background: "var(--color-surface)",
-                        border: "1px solid var(--color-border)",
-                        borderRadius: "var(--layout-border-radius)",
-                      }}
-                    />
-                    <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                      {tasks.map((e) => (
-                        <Cell key={e.key} fill={e.fill} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </RechartsSizedFrame>
-          </div>
-        )}
-      </section>
-    </div>
+        <AcademicSectionHealthChartShell
+          title={dict.chartTasksTitle}
+          empty={dict.chartEmpty}
+          hasData={taskTotal > 0}
+          helpAriaLabel={dict.chartHelpAria}
+          onOpenHelp={() => openHelp(dict.chartTasksTitle, dict.chartHelpTasksBody)}
+        >
+          <HealthTasksRadialBarChart locale={locale} tasks={tasks} />
+        </AcademicSectionHealthChartShell>
+
+        <AcademicSectionHealthChartShell
+          title={dict.chartCapacityTitle}
+          empty={dict.chartEmpty}
+          hasData={Boolean(capacity && capTotal > 0)}
+          helpAriaLabel={dict.chartHelpAria}
+          onOpenHelp={() => openHelp(dict.chartCapacityTitle, dict.chartHelpCapacityBody)}
+        >
+          {capacity && capTotal > 0 ? <HealthCapacityTreemap locale={locale} slices={capacity} /> : null}
+        </AcademicSectionHealthChartShell>
+
+        <AcademicSectionHealthChartShell
+          title={dict.chartPaymentsTitle}
+          empty={dict.chartEmpty}
+          hasData={payTotal > 0}
+          helpAriaLabel={dict.chartHelpAria}
+          onOpenHelp={() => openHelp(dict.chartPaymentsTitle, dict.chartHelpPaymentsBody)}
+        >
+          <HealthPaymentsDonutChart locale={locale} slices={payments} />
+        </AcademicSectionHealthChartShell>
+
+        <AcademicSectionHealthChartShell
+          title={dict.chartEngagementTitle}
+          empty={dict.chartEmpty}
+          hasData={engTotal > 0}
+          helpAriaLabel={dict.chartHelpAria}
+          onOpenHelp={() => openHelp(dict.chartEngagementTitle, dict.chartHelpEngagementBody)}
+        >
+          <HealthEngagementColumnsBarChart locale={locale} bars={engagementBars} />
+        </AcademicSectionHealthChartShell>
+
+        <AcademicSectionHealthChartShell
+          title={dict.chartAssessmentsTitle}
+          empty={dict.chartEmpty}
+          hasData={assTotal > 0}
+          helpAriaLabel={dict.chartHelpAria}
+          onOpenHelp={() => openHelp(dict.chartAssessmentsTitle, dict.chartHelpAssessmentsBody)}
+        >
+          <HealthAssessmentsRowsBarChart locale={locale} assessments={assessments} />
+        </AcademicSectionHealthChartShell>
+
+        <AcademicSectionHealthChartShell
+          title={dict.chartReadinessTitle}
+          empty={dict.chartEmpty}
+          hasData={readTotal > 0}
+          helpAriaLabel={dict.chartHelpAria}
+          onOpenHelp={() => openHelp(dict.chartReadinessTitle, dict.chartHelpReadinessBody)}
+        >
+          <HealthReadinessColumnsBarChart locale={locale} readiness={readiness} />
+        </AcademicSectionHealthChartShell>
+      </div>
+
+      <AcademicSectionHealthChartHelpModal
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        title={helpTitle}
+        body={helpBody}
+        closeLabel={dict.chartHelpClose}
+      />
+    </>
   );
 }

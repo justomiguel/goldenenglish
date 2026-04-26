@@ -34,4 +34,21 @@ describe("section content planning migration", () => {
     expect(sql).toMatch(/live_lesson_route_step_links/i);
     expect(sql).toMatch(/learning_route_visible_to_current_user/i);
   });
+
+  it("adds graph edges and evaluable checkpoints for route studios", () => {
+    const sql = readFileSync(
+      join(process.cwd(), "supabase/migrations/076_learning_route_graph_studio.sql"),
+      "utf8",
+    );
+
+    expect(sql).toMatch(/ADD COLUMN IF NOT EXISTS position_x/i);
+    expect(sql).toMatch(/CREATE TABLE IF NOT EXISTS public\.learning_route_edges/i);
+    expect(sql).toMatch(/from_step_id UUID NOT NULL REFERENCES public\.learning_route_steps \(id\) ON DELETE CASCADE/i);
+    expect(sql).toMatch(/CREATE TABLE IF NOT EXISTS public\.learning_route_checkpoints/i);
+    expect(sql).toMatch(/assessment_id UUID NULL REFERENCES public\.learning_assessments \(id\) ON DELETE CASCADE/i);
+    expect(sql).toMatch(/blocks_progress BOOLEAN NOT NULL DEFAULT FALSE/i);
+    expect(sql).toMatch(/contributes_to_gradebook BOOLEAN NOT NULL DEFAULT FALSE/i);
+    expect(sql).toMatch(/learning_route_checkpoints_delete_assessment/i);
+    expect(sql).toMatch(/learning_route_edges_select_scope/i);
+  });
 });
