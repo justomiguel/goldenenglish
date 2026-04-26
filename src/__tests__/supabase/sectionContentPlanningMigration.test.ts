@@ -15,4 +15,21 @@ describe("section content planning migration", () => {
     expect(sql).not.toMatch(/learning_task_/i);
     expect(sql).toMatch(/section_content_staff_can_manage_section/);
   });
+
+  it("renames section planning into learning routes with template-backed steps", () => {
+    const sql = readFileSync(
+      join(process.cwd(), "supabase/migrations/075_learning_routes_rename.sql"),
+      "utf8",
+    );
+
+    expect(sql).toMatch(/RENAME TO learning_routes/i);
+    expect(sql).toMatch(/RENAME TO learning_route_steps/i);
+    expect(sql).toMatch(/RENAME COLUMN template_id TO content_template_id/i);
+    expect(sql).toMatch(/ALTER COLUMN content_template_id SET NOT NULL/i);
+    expect(sql).toMatch(/REFERENCES public\.content_templates \(id\) ON DELETE RESTRICT/i);
+    expect(sql).toMatch(/learning_route_visibility/i);
+    expect(sql).toMatch(/visibility = 'global' AND section_id IS NULL/i);
+    expect(sql).toMatch(/live_lesson_route_step_links/i);
+    expect(sql).toMatch(/learning_route_visible_to_current_user/i);
+  });
 });

@@ -17,11 +17,12 @@ const LiveLessonSchema = z.object({
   sectionId: z.string().uuid(),
   title: z.string().trim().min(1).max(180),
   summary: z.string().trim().max(12000).optional(),
-  plannedLessonIds: z.array(z.string().uuid()).max(6).default([]),
+  routeStepIds: z.array(z.string().uuid()).max(6).default([]),
 });
 
-const PlanSchema = z.object({
+const LearningRouteSchema = z.object({
   locale: z.string().min(2).max(8),
+  routeId: z.string().uuid().nullable().optional(),
   sectionId: z.string().uuid(),
   title: z.string().trim().min(1).max(180),
   teacherObjectives: z.string().trim().max(12000),
@@ -51,9 +52,9 @@ export async function createLiveLessonAction(raw: unknown): Promise<TeacherConte
   try {
     const { supabase, user } = await assertCanManage(parsed.data.sectionId);
     const coverageStatus =
-      parsed.data.plannedLessonIds.length > 1
+      parsed.data.routeStepIds.length > 1
         ? "merged"
-        : parsed.data.plannedLessonIds.length === 1
+        : parsed.data.routeStepIds.length === 1
           ? "as_planned"
           : "extra";
     const { data, error } = await supabase
@@ -70,11 +71,11 @@ export async function createLiveLessonAction(raw: unknown): Promise<TeacherConte
       .single();
     if (error || !data) return { ok: false, code: "persist_failed" };
     const liveLessonId = (data as { id: string }).id;
-    if (parsed.data.plannedLessonIds.length > 0) {
-      const { error: linkError } = await supabase.from("live_lesson_planned_lesson_links").insert(
-        parsed.data.plannedLessonIds.map((plannedLessonId) => ({
+    if (parsed.data.routeStepIds.length > 0) {
+      const { error: linkError } = await supabase.from("live_lesson_route_step_links").insert(
+        parsed.data.routeStepIds.map((routeStepId) => ({
           live_lesson_id: liveLessonId,
-          planned_lesson_id: plannedLessonId,
+          learning_route_step_id: routeStepId,
         })),
       );
       if (linkError) return { ok: false, code: "persist_failed" };
@@ -86,7 +87,7 @@ export async function createLiveLessonAction(raw: unknown): Promise<TeacherConte
       resourceId: liveLessonId,
       payload: {
         sectionId: parsed.data.sectionId,
-        plannedLessonCount: parsed.data.plannedLessonIds.length,
+        routeStepCount: parsed.data.routeStepIds.length,
         coverageStatus,
       },
     });
@@ -98,39 +99,38 @@ export async function createLiveLessonAction(raw: unknown): Promise<TeacherConte
   }
 }
 
-export async function saveTeacherSectionContentPlanAction(raw: unknown): Promise<TeacherContentActionResult> {
-  const parsed = PlanSchema.safeParse(raw);
+export async function saveTeacherLearningRouteAction(raw: unknown): Promise<TeacherContentActionResult> {
+  const parsed = LearningRouteSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, code: "invalid_input" };
   try {
     const { supabase, user } = await assertCanManage(parsed.data.sectionId);
-    const { data, error } = await supabase
-      .from("section_content_plans")
-      .upsert(
-        {
-          section_id: parsed.data.sectionId,
-          title: parsed.data.title,
-          teacher_objectives: parsed.data.teacherObjectives,
-          general_scope: parsed.data.generalScope,
-          evaluation_criteria: parsed.data.evaluationCriteria,
-          created_by: user.id,
-          updated_by: user.id,
-        },
-        { onConflict: "section_id" },
-      )
+    const payload = {
+      section_id: parsed.data.sectionId,
+      visibility: "section",
+      title: parsed.data.title,
+      teacher_objectives: parsed.data.teacherObjectives,
+      general_scope: parsed.data.generalScope,
+      evaluation_criteria: parsed.data.evaluationCriteria,
+      updated_by: user.id,
+    };
+    const query = parsed.data.routeId
+      ? supabase.from("learning_routes").update(payload).eq("id", parsed.data.routeId)
+      : supabase.from("learning_routes").insert({ ...payload, created_by: user.id });
+    const { data, error } = await query
       .select("id")
       .single();
     if (error || !data) return { ok: false, code: "persist_failed" };
     await auditLearningContentStaffAction({
       actorId: user.id,
-      action: "learning_content.section_plan_saved",
-      resourceType: "section_content_plans",
+      action: "learning_content.learning_route_saved",
+      resourceType: "learning_routes",
       resourceId: (data as { id: string }).id,
       payload: { sectionId: parsed.data.sectionId },
     });
     revalidatePath(`/${parsed.data.locale}/dashboard/teacher/sections/${parsed.data.sectionId}/contents`);
     return { ok: true, id: (data as { id: string }).id };
   } catch (err) {
-    logServerException("saveTeacherSectionContentPlanAction", err);
+    logServerException("saveTeacherLearningRouteAction", err);
     return { ok: false, code: "forbidden" };
   }
 }

@@ -6,37 +6,37 @@
 import { describe, expect, it } from "vitest";
 import {
   buildQuestionSnapshot,
-  cloneTemplateIntoPlannedLesson,
+  cloneTemplateIntoLearningRouteStep,
   deriveAttemptOutcome,
   evaluateTrueFalseMiniTest,
-  linkLiveLessonToPlannedLessons,
+  linkLiveLessonToRouteSteps,
   resolveReadinessDecision,
 } from "@/lib/learning-content";
 
 describe("learning content domain", () => {
-  it("copies a global template into a detached planned lesson", () => {
-    const lesson = cloneTemplateIntoPlannedLesson({
-      templateId: "template-1",
+  it("copies repository content into a detached learning route step", () => {
+    const step = cloneTemplateIntoLearningRouteStep({
+      contentTemplateId: "template-1",
       title: "Present simple",
       bodyHtml: "<p>Global</p>",
       sortOrder: 2,
     });
-    expect(lesson).toEqual({
-      templateId: "template-1",
+    expect(step).toEqual({
+      contentTemplateId: "template-1",
       title: "Present simple",
       bodyHtml: "<p>Global</p>",
       sortOrder: 2,
-      lessonKind: "lesson",
+      stepKind: "lesson",
       isRequired: true,
     });
-    lesson.title = "Section-specific title";
-    expect(lesson.title).not.toBe("Present simple");
+    step.title = "Section-specific title";
+    expect(step.title).not.toBe("Present simple");
   });
 
-  it("allows one live class to merge multiple planned lessons", () => {
-    expect(linkLiveLessonToPlannedLessons(["a", "b"])).toEqual({
+  it("allows one live class to merge multiple route steps", () => {
+    expect(linkLiveLessonToRouteSteps(["a", "b"])).toEqual({
       coverageStatus: "merged",
-      plannedLessonIds: ["a", "b"],
+      routeStepIds: ["a", "b"],
     });
   });
 

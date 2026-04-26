@@ -5,9 +5,19 @@ export const LEARNING_TASK_MAX_FILE_BYTES = 50 * 1024 * 1024;
 
 export const LEARNING_TASK_ACCEPTED_MIME = [
   "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   "image/png",
   "image/jpeg",
   "image/webp",
+  "audio/mpeg",
+  "audio/mp4",
+  "audio/wav",
+  "audio/webm",
   "video/mp4",
   "video/webm",
 ] as const;
@@ -32,9 +42,19 @@ export function validateLearningTaskFile(file: {
 export function extensionForLearningTaskMime(mime: LearningTaskAcceptedMime): string {
   const map: Record<LearningTaskAcceptedMime, string> = {
     "application/pdf": "pdf",
+    "application/msword": "doc",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+    "application/vnd.ms-excel": "xls",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+    "application/vnd.ms-powerpoint": "ppt",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "pptx",
     "image/png": "png",
     "image/jpeg": "jpg",
     "image/webp": "webp",
+    "audio/mpeg": "mp3",
+    "audio/mp4": "m4a",
+    "audio/wav": "wav",
+    "audio/webm": "webm",
     "video/mp4": "mp4",
     "video/webm": "webm",
   };

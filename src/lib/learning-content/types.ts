@@ -1,24 +1,24 @@
-export type PlannedLessonKind = "lesson" | "unit" | "review" | "exam_prep" | "remediation";
+export type LearningRouteStepKind = "lesson" | "unit" | "review" | "exam_prep" | "remediation";
 export type LiveLessonCoverageStatus = "as_planned" | "merged" | "split" | "skipped" | "remediation" | "extra";
 export type QuestionBankItemType = "true_false" | "multiple_choice" | "short_answer" | "rubric" | "oral_check";
 export type LearningAssessmentGradingMode = "numeric" | "pass_fail" | "diagnostic" | "rubric" | "manual_feedback";
 export type StudentLearningReadinessStatus = "ready" | "needs_support" | "teacher_override";
 
-export type TemplateLessonSource = {
-  templateId: string;
+export type TemplateRouteStepSource = {
+  contentTemplateId: string;
   title: string;
   bodyHtml: string;
   sortOrder: number;
-  lessonKind?: PlannedLessonKind;
+  stepKind?: LearningRouteStepKind;
   isRequired?: boolean;
 };
 
-export type DetachedPlannedLesson = {
-  templateId: string;
+export type DetachedLearningRouteStep = {
+  contentTemplateId: string;
   title: string;
   bodyHtml: string;
   sortOrder: number;
-  lessonKind: PlannedLessonKind;
+  stepKind: LearningRouteStepKind;
   isRequired: boolean;
 };
 

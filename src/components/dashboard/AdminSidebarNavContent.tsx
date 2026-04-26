@@ -7,6 +7,7 @@ import {
   buildAdminSidebarNavGroups,
   type AdminSidebarNavGroup,
 } from "@/components/dashboard/adminSidebarNavGroups";
+import { isAdminSidebarNavItemActive } from "@/lib/dashboard/adminSidebarNavActive";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -83,6 +84,7 @@ function NavGroupBlock({
   base,
   profileHref,
   pathname,
+  allHrefs,
   mobile,
   onNavigate,
 }: {
@@ -90,6 +92,7 @@ function NavGroupBlock({
   base: string;
   profileHref: string;
   pathname: string;
+  allHrefs: readonly string[];
   mobile: boolean;
   onNavigate?: () => void;
 }) {
@@ -112,10 +115,7 @@ function NavGroupBlock({
       )}
       <div className="space-y-0.5">
         {group.items.map(({ href, label, icon, badge, tip }) => {
-          const exact = href === base || href === profileHref;
-          const active = exact
-            ? pathname === href
-            : pathname === href || pathname.startsWith(`${href}/`);
+          const active = isAdminSidebarNavItemActive(pathname, href, base, profileHref, allHrefs);
           return (
             <Link
               key={href}
@@ -167,6 +167,7 @@ export function AdminSidebarNavContent({
     newRegistrationsCount,
     { financeHref: financeHrefForPathname(base, pathname) },
   );
+  const allHrefs = groups.flatMap((g) => g.items.map((i) => i.href));
   const mobile = variant === "mobile";
 
   return (
@@ -181,6 +182,7 @@ export function AdminSidebarNavContent({
           base={base}
           profileHref={profileHref}
           pathname={pathname}
+          allHrefs={allHrefs}
           mobile={mobile}
           onNavigate={onNavigate}
         />

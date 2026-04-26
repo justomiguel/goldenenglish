@@ -4,29 +4,32 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { logServerException } from "@/lib/logging/serverActionLog";
-import { sanitizeLearningTaskHtml } from "@/lib/learning-tasks/sanitizeLearningTaskHtml";
 import { auditLearningContentStaffAction } from "@/lib/learning-content/auditLearningContentStaffAction";
 
 export type ContentActionResult =
   | { ok: true; id: string }
   | { ok: false; code: "invalid_input" | "empty_body" | "persist_failed" | "forbidden" };
 
-const PlanSchema = z.object({
+const LearningRouteSchema = z.object({
   locale: z.string().min(2).max(8),
-  sectionId: z.string().uuid(),
+  routeId: z.string().uuid().nullable().optional(),
+  sectionId: z.string().uuid().nullable(),
+  visibility: z.enum(["global", "section"]),
   title: z.string().trim().min(1).max(180),
   teacherObjectives: z.string().trim().max(12000),
   generalScope: z.string().trim().max(12000),
   evaluationCriteria: z.string().trim().max(12000),
-});
+}).refine((value) => (
+  (value.visibility === "global" && value.sectionId === null)
+  || (value.visibility === "section" && value.sectionId !== null)
+), { path: ["sectionId"] });
 
-const LessonSchema = z.object({
+const RouteStepSchema = z.object({
   locale: z.string().min(2).max(8),
-  planId: z.string().uuid(),
-  title: z.string().trim().min(1).max(180),
-  bodyHtml: z.string().trim().max(80_000).optional(),
+  routeId: z.string().uuid(),
+  contentTemplateId: z.string().uuid(),
   sortOrder: z.coerce.number().int().min(0).max(999),
-  lessonKind: z.enum(["lesson", "unit", "review", "exam_prep", "remediation"]).default("lesson"),
+  stepKind: z.enum(["lesson", "unit", "review", "exam_prep", "remediation"]).default("lesson"),
 });
 
 const QuestionSchema = z.object({
@@ -45,54 +48,64 @@ const AssessmentSchema = z.object({
   instructions: z.string().trim().max(12000).optional(),
 });
 
-export async function saveSectionContentPlanAction(raw: unknown): Promise<ContentActionResult> {
-  const parsed = PlanSchema.safeParse(raw);
+export async function saveLearningRouteAction(raw: unknown): Promise<ContentActionResult> {
+  const parsed = LearningRouteSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, code: "invalid_input" };
   try {
     const { supabase, user } = await assertAdmin();
     const payload = {
       section_id: parsed.data.sectionId,
+      visibility: parsed.data.visibility,
       title: parsed.data.title,
       teacher_objectives: parsed.data.teacherObjectives,
       general_scope: parsed.data.generalScope,
       evaluation_criteria: parsed.data.evaluationCriteria,
       updated_by: user.id,
     };
-    const { data, error } = await supabase
-      .from("section_content_plans")
-      .upsert({ ...payload, created_by: user.id }, { onConflict: "section_id" })
+    const query = parsed.data.routeId
+      ? supabase.from("learning_routes").update(payload).eq("id", parsed.data.routeId)
+      : supabase.from("learning_routes").insert({ ...payload, created_by: user.id });
+    const { data, error } = await query
       .select("id")
       .single();
     if (error || !data) return { ok: false, code: "persist_failed" };
     await auditLearningContentStaffAction({
       actorId: user.id,
-      action: "learning_content.admin_section_plan_saved",
-      resourceType: "section_content_plans",
+      action: "learning_content.admin_learning_route_saved",
+      resourceType: "learning_routes",
       resourceId: (data as { id: string }).id,
-      payload: { sectionId: parsed.data.sectionId },
+      payload: { sectionId: parsed.data.sectionId, visibility: parsed.data.visibility },
     });
     revalidatePath(`/${parsed.data.locale}/dashboard/admin/academic/contents`);
+    revalidatePath(`/${parsed.data.locale}/dashboard/admin/academic/contents/sections/${parsed.data.sectionId ?? "global"}/edit`);
     return { ok: true, id: (data as { id: string }).id };
   } catch (err) {
-    logServerException("saveSectionContentPlanAction", err);
+    logServerException("saveLearningRouteAction", err);
     return { ok: false, code: "forbidden" };
   }
 }
 
-export async function createPlannedLessonAction(raw: unknown): Promise<ContentActionResult> {
-  const parsed = LessonSchema.safeParse(raw);
+export async function addLearningRouteStepAction(raw: unknown): Promise<ContentActionResult> {
+  const parsed = RouteStepSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, code: "invalid_input" };
-  const safeBody = sanitizeLearningTaskHtml(parsed.data.bodyHtml ?? "");
   try {
     const { supabase, user } = await assertAdmin();
+    const { data: template, error: templateError } = await supabase
+      .from("content_templates")
+      .select("id, title, body_html")
+      .eq("id", parsed.data.contentTemplateId)
+      .is("archived_at", null)
+      .maybeSingle();
+    if (templateError || !template) return { ok: false, code: "invalid_input" };
     const { data, error } = await supabase
-      .from("planned_lessons")
+      .from("learning_route_steps")
       .insert({
-        section_content_plan_id: parsed.data.planId,
-        title: parsed.data.title,
-        body_html: safeBody,
+        learning_route_id: parsed.data.routeId,
+        content_template_id: parsed.data.contentTemplateId,
+        title: (template as { title: string }).title,
+        body_html: (template as { body_html: string }).body_html,
         sort_order: parsed.data.sortOrder,
-        lesson_kind: parsed.data.lessonKind,
+        lesson_kind: parsed.data.stepKind,
         created_by: user.id,
         updated_by: user.id,
       })
@@ -101,15 +114,19 @@ export async function createPlannedLessonAction(raw: unknown): Promise<ContentAc
     if (error || !data) return { ok: false, code: "persist_failed" };
     await auditLearningContentStaffAction({
       actorId: user.id,
-      action: "learning_content.planned_lesson_created",
-      resourceType: "planned_lessons",
+      action: "learning_content.learning_route_step_created",
+      resourceType: "learning_route_steps",
       resourceId: (data as { id: string }).id,
-      payload: { planId: parsed.data.planId, lessonKind: parsed.data.lessonKind },
+      payload: {
+        learningRouteId: parsed.data.routeId,
+        contentTemplateId: parsed.data.contentTemplateId,
+        stepKind: parsed.data.stepKind,
+      },
     });
     revalidatePath(`/${parsed.data.locale}/dashboard/admin/academic/contents`);
     return { ok: true, id: (data as { id: string }).id };
   } catch (err) {
-    logServerException("createPlannedLessonAction", err);
+    logServerException("addLearningRouteStepAction", err);
     return { ok: false, code: "forbidden" };
   }
 }

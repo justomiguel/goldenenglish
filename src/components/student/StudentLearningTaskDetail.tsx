@@ -10,6 +10,7 @@ import {
   completeTaskAction,
   markTaskOpenedAfterEngagementAction,
 } from "@/app/[locale]/dashboard/student/tasks/actions";
+import { collapseRichTextDisplayHtml } from "@/lib/learning-tasks/collapseRichTextDisplayHtml";
 
 interface StudentLearningTaskDetailProps {
   locale: string;
@@ -18,6 +19,7 @@ interface StudentLearningTaskDetailProps {
 }
 
 export function StudentLearningTaskDetail({ locale, task, labels }: StudentLearningTaskDetailProps) {
+  const bodyHtml = collapseRichTextDisplayHtml(task.bodyHtml ?? "");
   const [status, setStatus] = useState(task.status);
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -61,8 +63,8 @@ export function StudentLearningTaskDetail({ locale, task, labels }: StudentLearn
           <LearningTaskStatusBadge status={status} labels={labels.taskStatus} />
         </div>
         <div
-          className="prose mt-5 max-w-none text-[var(--color-foreground)]"
-          dangerouslySetInnerHTML={{ __html: task.bodyHtml }}
+          className="prose prose-sm mx-auto mt-5 w-full max-w-prose overflow-x-auto text-[var(--color-foreground)] [&_iframe]:aspect-video [&_iframe]:h-auto [&_iframe]:min-h-0 [&_iframe]:w-full [&_iframe]:max-w-full [&_img]:max-w-full [&_p:empty]:hidden [&_p]:my-2 [&_table]:max-w-full [&_table]:text-sm"
+          dangerouslySetInnerHTML={{ __html: bodyHtml }}
         />
       </div>
 

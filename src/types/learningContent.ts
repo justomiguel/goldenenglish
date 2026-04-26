@@ -9,9 +9,10 @@ export type ContentSectionOption = {
   cohortName: string;
 };
 
-export type SectionContentPlanModel = {
+export type LearningRouteModel = {
   id: string | null;
-  sectionId: string;
+  sectionId: string | null;
+  visibility: "global" | "section";
   title: string;
   teacherObjectives: string;
   generalScope: string;
@@ -19,12 +20,20 @@ export type SectionContentPlanModel = {
   status: "draft" | "active" | "archived";
 };
 
-export type PlannedLessonModel = {
+export type LearningRouteStepModel = {
   id: string;
+  contentTemplateId: string;
+  contentTitle: string;
   title: string;
   sortOrder: number;
-  lessonKind: string;
+  stepKind: string;
   isRequired: boolean;
+};
+
+export type LearningRouteContentTemplateOption = {
+  id: string;
+  title: string;
+  description: string;
 };
 
 export type QuestionBankItemModel = {

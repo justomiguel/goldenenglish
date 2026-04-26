@@ -1,14 +1,14 @@
 ---
-description: Botones de acción en admin (iconos Lucide, a11y, i18n)
-globs: src/components/**/*.{tsx,ts}
-alwaysApply: false
+description: Todo Button y enlaces tipo CTA llevan icono leading (Lucide, a11y, i18n)
+globs: src/**/*.{tsx,ts}
+alwaysApply: true
 ---
 
-# Admin: botones con iconos (patrón reutilizable)
+# Botones con iconos (obligatorio en el repo)
 
 ## Objetivo
 
-Acciones visibles en **admin / dashboard interno** deben ser **escaneables**: icono reconocible + etiqueta de diccionario, sin duplicar marca ni romper **01-design-system** (contraste en botón destructive) ni **09-i18n-copy**.
+Todo uso de **`Button`** (`@/components/atoms/Button`) y todo **enlace con apariencia de botón** (CTA primario/secundario, filas de acciones) debe incluir un **icono Lucide _leading_** junto al texto visible, salvo las excepciones listadas abajo. Mejora escaneo, coherencia con admin y **09-i18n-copy**; no duplicar marca (**01-design-system**); contraste en destructivos según **01**.
 
 ## Librería
 
@@ -17,9 +17,20 @@ Acciones visibles en **admin / dashboard interno** deben ser **escaneables**: ic
 
 ## Cuándo poner icono
 
-1. **Botón con texto** — Icono **leading** (antes del copy), `h-4 w-4` (o `h-3.5 w-3.5` en filas densas), **`aria-hidden`** en el SVG si el significado ya lo da el texto visible.
-2. **Solo icono** (sin texto visible) — **Prohibido** salvo espacio extremo; si existe, **`aria-label`** obligatorio con clave de **diccionario** (mismo texto que usarías como botón visible).
-3. **Enlaces estilo botón** (`<Link className="…inline-flex…">`) — Mismo criterio: icono + texto preferido; `title` opcional como refuerzo, no sustituto de `aria-label` en icon-only.
+1. **Botón con texto** — **Siempre** icono **leading**, `h-4 w-4` (o `h-3.5 w-3.5` en filas densas), **`aria-hidden`** en el SVG si el significado ya lo da el texto visible. El átomo `Button` incluye `gap-2` entre hijos.
+2. **Solo icono** (sin texto visible) — Solo si el espacio es extremo; entonces **`aria-label`** obligatorio con clave de **diccionario** (mismo texto que usarías como botón visible). Ej.: flechas de reordenar, barra de herramientas densa.
+3. **Enlaces estilo botón** (`<Link className="…inline-flex…">`) — Mismo criterio: `inline-flex items-center gap-2` + icono + texto; `title` opcional, no sustituto de `aria-label` en icon-only.
+4. **`<button>` nativo** usado como control de UI (no `Button`) en pantallas de producto — Mismo criterio cuando lleve copy visible o sea CTA.
+
+## Excepciones (no exige icono _adicional_)
+
+- Controles que **son** solo el icono con `aria-label` de diccionario (toolbar, paginación flecha, etc.).
+- **Tests** y Storybook si existen.
+- Terceros embebidos donde no se controle el DOM.
+
+## Deuda / auditoría
+
+Al tocar un archivo con un `Button` o `<button>`/`<Link>` CTA **sin** icono leading, **añadir el icono en el mismo cambio** cuando el alcance lo permita.
 
 ## Layout y touch
 

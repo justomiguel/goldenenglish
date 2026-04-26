@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { CheckCircle2, Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import {
   createLiveLessonAction,
-  saveTeacherSectionContentPlanAction,
+  saveTeacherLearningRouteAction,
   setStudentReadinessAction,
 } from "@/app/[locale]/dashboard/teacher/sections/[sectionId]/contents/actions";
 import { TeacherAssessmentAttemptsPanel } from "@/components/teacher/TeacherAssessmentAttemptsPanel";
 import { ContentPlanHealthSummary } from "@/components/molecules/ContentPlanHealthSummary";
-import type { SectionContentWorkspace } from "@/lib/learning-content/loadSectionContentWorkspace";
+import type { LearningRouteWorkspace } from "@/lib/learning-content/loadLearningRouteWorkspace";
 import type { Dictionary } from "@/types/i18n";
 import type { TeacherAssessmentAttemptReview } from "@/types/learningContent";
 
@@ -19,7 +20,7 @@ export type TeacherContentStudent = { id: string; label: string };
 interface TeacherSectionContentsScreenProps {
   locale: string;
   sectionId: string;
-  workspace: SectionContentWorkspace;
+  workspace: LearningRouteWorkspace;
   students: TeacherContentStudent[];
   attempts: TeacherAssessmentAttemptReview[];
   labels: Dictionary["dashboard"]["teacherContent"];
@@ -63,13 +64,13 @@ function TeacherPlanEditor({
 }: {
   locale: string;
   sectionId: string;
-  workspace: SectionContentWorkspace;
+  workspace: LearningRouteWorkspace;
   labels: Dictionary["dashboard"]["teacherContent"];
 }) {
-  const [title, setTitle] = useState(workspace.plan.title);
-  const [teacherObjectives, setTeacherObjectives] = useState(workspace.plan.teacherObjectives);
-  const [generalScope, setGeneralScope] = useState(workspace.plan.generalScope);
-  const [evaluationCriteria, setEvaluationCriteria] = useState(workspace.plan.evaluationCriteria);
+  const [title, setTitle] = useState(workspace.route.title);
+  const [teacherObjectives, setTeacherObjectives] = useState(workspace.route.teacherObjectives);
+  const [generalScope, setGeneralScope] = useState(workspace.route.generalScope);
+  const [evaluationCriteria, setEvaluationCriteria] = useState(workspace.route.evaluationCriteria);
   const [isPending, startTransition] = useTransition();
   return (
     <section className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-card)]">
@@ -82,8 +83,9 @@ function TeacherPlanEditor({
         type="button"
         isLoading={isPending}
         disabled={!title.trim()}
-        onClick={() => startTransition(() => void saveTeacherSectionContentPlanAction({
+        onClick={() => startTransition(() => void saveTeacherLearningRouteAction({
           locale,
+          routeId: workspace.route.id,
           sectionId,
           title,
           teacherObjectives,
@@ -91,6 +93,7 @@ function TeacherPlanEditor({
           evaluationCriteria,
         }))}
       >
+        <Save className="h-4 w-4" aria-hidden />
         {labels.savePlan}
       </Button>
     </section>
@@ -118,12 +121,12 @@ function LiveLessonForm({
 }: {
   locale: string;
   sectionId: string;
-  workspace: SectionContentWorkspace;
+  workspace: LearningRouteWorkspace;
   labels: Dictionary["dashboard"]["teacherContent"];
 }) {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
-  const [plannedLessonIds, setPlannedLessonIds] = useState<string[]>([]);
+  const [routeStepIds, setRouteStepIds] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
   return (
     <section className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
@@ -132,18 +135,19 @@ function LiveLessonForm({
       <TextBlock label={labels.liveLessonSummary} value={summary} onChange={setSummary} />
       <select
         multiple
-        value={plannedLessonIds}
-        onChange={(e) => setPlannedLessonIds([...e.currentTarget.selectedOptions].map((o) => o.value))}
+        value={routeStepIds}
+        onChange={(e) => setRouteStepIds([...e.currentTarget.selectedOptions].map((o) => o.value))}
         className="min-h-28 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
       >
-        {workspace.plannedLessons.map((lesson) => <option key={lesson.id} value={lesson.id}>{lesson.title}</option>)}
+        {workspace.routeSteps.map((step) => <option key={step.id} value={step.id}>{step.contentTitle}</option>)}
       </select>
       <Button
         type="button"
         isLoading={isPending}
         disabled={!title.trim()}
-        onClick={() => startTransition(() => void createLiveLessonAction({ locale, sectionId, title, summary, plannedLessonIds }))}
+        onClick={() => startTransition(() => void createLiveLessonAction({ locale, sectionId, title, summary, routeStepIds }))}
       >
+        <Save className="h-4 w-4" aria-hidden />
         {labels.saveLiveLesson}
       </Button>
     </section>
@@ -177,6 +181,7 @@ function ReadinessForm({
         disabled={!studentId}
         onClick={() => startTransition(() => void setStudentReadinessAction({ locale, sectionId, studentId, teacherApproved, reason, failedAttempt: !teacherApproved }))}
       >
+        <CheckCircle2 className="h-4 w-4" aria-hidden />
         {labels.saveReadiness}
       </Button>
     </section>

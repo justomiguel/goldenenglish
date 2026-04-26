@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { formatPaginationSummary } from "@/lib/dashboard/formatPaginationSummary";
 
@@ -46,6 +47,7 @@ export function TablePagination({
           title={labels.tipPrev}
           onClick={() => onPageChange(page - 1)}
         >
+          <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden />
           {labels.prev}
         </Button>
         <Button
@@ -57,6 +59,7 @@ export function TablePagination({
           title={labels.tipNext}
           onClick={() => onPageChange(page + 1)}
         >
+          <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
           {labels.next}
         </Button>
       </div>

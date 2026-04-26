@@ -1,218 +1,216 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Archive, Eye, Plus, Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
-import { Label } from "@/components/atoms/Label";
-import { RichTextEditor } from "@/components/molecules/RichTextEditor";
-import {
-  addGlobalContentEmbedAction,
-  saveGlobalContentAction,
-  uploadGlobalContentFileAction,
-} from "@/app/[locale]/dashboard/admin/academic/contents/globalContentActions";
-import { validateLearningTaskFile } from "@/lib/learning-tasks/assets";
+import { TablePagination } from "@/components/molecules/TablePagination";
+import { archiveGlobalContentAction } from "@/app/[locale]/dashboard/admin/academic/contents/globalContentBuilderActions";
+import { deleteGlobalContentAction } from "@/app/[locale]/dashboard/admin/academic/contents/globalContentLifecycleActions";
+import { ContentTemplateAttachmentSummary } from "@/components/admin/ContentTemplateAttachmentSummary";
 import type { ContentTemplateLibraryRow } from "@/lib/learning-tasks/loadContentTemplateLibrary";
 import type { Dictionary } from "@/types/i18n";
+
+export interface GlobalContentRepositoryPagination {
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  searchQuery: string;
+}
 
 interface AdminGlobalContentRepositoryProps {
   locale: string;
   contents: ContentTemplateLibraryRow[];
+  pagination: GlobalContentRepositoryPagination;
   labels: Dictionary["dashboard"]["adminContents"];
+}
+
+export function buildAcademicContentsListPath(
+  locale: string,
+  searchParams: URLSearchParams,
+  updates: { page?: number; q?: string },
+): string {
+  const next = new URLSearchParams(searchParams.toString());
+  if (updates.page !== undefined) {
+    if (updates.page <= 1) next.delete("page");
+    else next.set("page", String(updates.page));
+  }
+  if (updates.q !== undefined) {
+    const t = updates.q.trim();
+    if (t) next.set("q", t);
+    else next.delete("q");
+  }
+  const qs = next.toString();
+  return `/${locale}/dashboard/admin/academic/contents${qs ? `?${qs}` : ""}`;
 }
 
 export function AdminGlobalContentRepository({
   locale,
   contents,
+  pagination,
   labels,
 }: AdminGlobalContentRepositoryProps) {
-  const [createdContentId, setCreatedContentId] = useState(contents[0]?.id ?? "");
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
-      <GlobalContentForm
-        locale={locale}
-        labels={labels}
-        onCreated={setCreatedContentId}
-      />
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4">
+        <div>
+          <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{labels.repositoryTitle}</h2>
+          <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.repositoryStudioLead}</p>
+        </div>
+        <Link
+          href={`/${locale}/dashboard/admin/academic/contents/global/new`}
+          className="inline-flex items-center justify-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-2 font-medium text-[var(--color-primary-foreground)] hover:bg-[var(--color-primary-dark)]"
+        >
+          <Plus className="h-4 w-4 shrink-0" aria-hidden />
+          {labels.globalNewPageCta}
+        </Link>
+      </div>
       <RepositoryList
+        key={pagination.searchQuery}
         contents={contents}
-        selectedId={createdContentId}
-        onSelect={setCreatedContentId}
         labels={labels}
         locale={locale}
-      />
-      <MaterialManager
-        contentId={createdContentId}
-        contents={contents}
-        labels={labels}
+        pagination={pagination}
       />
     </div>
   );
 }
 
-function GlobalContentForm({
-  locale,
-  labels,
-  onCreated,
-}: {
-  locale: string;
-  labels: Dictionary["dashboard"]["adminContents"];
-  onCreated: (id: string) => void;
-}) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [bodyHtml, setBodyHtml] = useState("<p></p>");
-  const [isPending, startTransition] = useTransition();
-  return (
-    <section className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-card)]">
-      <div>
-        <h2 className="text-xl font-semibold text-[var(--color-foreground)]">{labels.globalCreateTitle}</h2>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.globalCreateLead}</p>
-      </div>
-      <div>
-        <Label htmlFor="global-content-title" required>{labels.globalTitleLabel}</Label>
-        <Input id="global-content-title" value={title} onChange={(e) => setTitle(e.target.value)} />
-      </div>
-      <div>
-        <Label htmlFor="global-content-description">{labels.globalDescriptionLabel}</Label>
-        <textarea
-          id="global-content-description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="mt-1 min-h-20 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
-        />
-      </div>
-      <div>
-        <Label required>{labels.globalBodyLabel}</Label>
-        <RichTextEditor value={bodyHtml} onChange={setBodyHtml} aria-label={labels.globalBodyLabel} />
-      </div>
-      <Button
-        type="button"
-        isLoading={isPending}
-        disabled={!title.trim()}
-        onClick={() => startTransition(async () => {
-          const result = await saveGlobalContentAction({ locale, title, description, bodyHtml });
-          if (result.ok) {
-            onCreated(result.id);
-            setTitle("");
-            setDescription("");
-            setBodyHtml("<p></p>");
-          }
-        })}
-      >
-        {labels.globalSave}
-      </Button>
-    </section>
-  );
-}
-
 function RepositoryList({
   contents,
-  selectedId,
-  onSelect,
   labels,
   locale,
+  pagination,
 }: {
   contents: ContentTemplateLibraryRow[];
-  selectedId: string;
-  onSelect: (id: string) => void;
   labels: Dictionary["dashboard"]["adminContents"];
   locale: string;
+  pagination: GlobalContentRepositoryPagination;
 }) {
-  const [query, setQuery] = useState("");
-  const visible = useMemo(
-    () => contents.filter((item) => `${item.title} ${item.description}`.toLowerCase().includes(query.toLowerCase())),
-    [contents, query],
-  );
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [draftQ, setDraftQ] = useState(pagination.searchQuery);
+  const [isPending, startTransition] = useTransition();
+
+  const go = (updates: { page?: number; q?: string }) => {
+    router.push(buildAcademicContentsListPath(locale, searchParams, updates));
+  };
+
+  const archive = (id: string) => {
+    if (!window.confirm(labels.archiveConfirm)) return;
+    startTransition(() => {
+      void (async () => {
+        const r = await archiveGlobalContentAction({ locale, id });
+        if (r.ok) router.refresh();
+      })();
+    });
+  };
+
+  const deleteContent = (id: string) => {
+    if (!window.confirm(labels.deleteConfirm)) return;
+    startTransition(() => {
+      void (async () => {
+        const r = await deleteGlobalContentAction({ locale, id });
+        if (r.ok) router.refresh();
+      })();
+    });
+  };
+
+  const emptyNoSearch = contents.length === 0 && !pagination.searchQuery.trim();
+  const emptySearch = contents.length === 0 && pagination.searchQuery.trim().length > 0;
+
   return (
     <aside className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{labels.repositoryTitle}</h2>
-      <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={labels.repositorySearchPlaceholder} />
-      {visible.length === 0 ? <p className="text-sm text-[var(--color-muted-foreground)]">{labels.repositoryEmpty}</p> : (
-        <ul className="space-y-2">
-          {visible.map((item) => (
-            <li key={item.id}>
-              <button
-                type="button"
-                onClick={() => onSelect(item.id)}
-                className={`w-full rounded-[var(--layout-border-radius)] border p-3 text-left transition hover:bg-[var(--color-muted)] ${selectedId === item.id ? "border-[var(--color-primary)] bg-[var(--color-primary)]/5" : "border-[var(--color-border)] bg-[var(--color-background)]"}`}
-              >
-                <span className="block font-semibold text-[var(--color-foreground)]">{item.title}</span>
-                <span className="mt-1 line-clamp-2 block text-xs text-[var(--color-muted-foreground)]">{item.description || labels.noDescription}</span>
-                <span className="mt-2 block text-xs text-[var(--color-muted-foreground)]">
-                  {new Date(item.updatedAt).toLocaleString(locale)} · {labels.assetCount.replace("{count}", String(item.assetCount))}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </aside>
-  );
-}
-
-function MaterialManager({
-  contentId,
-  contents,
-  labels,
-}: {
-  contentId: string;
-  contents: ContentTemplateLibraryRow[];
-  labels: Dictionary["dashboard"]["adminContents"];
-}) {
-  const [label, setLabel] = useState("");
-  const [embedUrl, setEmbedUrl] = useState("");
-  const [fileError, setFileError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
-  const selected = contents.find((item) => item.id === contentId) ?? null;
-  const uploadFile = (file: File | null) => {
-    if (!file || !contentId || !label.trim()) return;
-    const validation = validateLearningTaskFile(file);
-    if (!validation.ok) {
-      setFileError(labels.globalFileError);
-      return;
-    }
-    setFileError(null);
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = String(reader.result ?? "");
-      const fileBase64 = result.includes(",") ? result.split(",")[1] : result;
-      startTransition(() => void uploadGlobalContentFileAction({
-        templateId: contentId,
-        label,
-        filename: file.name,
-        contentType: file.type,
-        fileBase64,
-      }));
-    };
-    reader.readAsDataURL(file);
-  };
-  return (
-    <section className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4 xl:col-span-2">
-      <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{labels.materialsTitle}</h2>
-      {!selected ? <p className="text-sm text-[var(--color-muted-foreground)]">{labels.materialsSelectHint}</p> : (
+      <div>
+        <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{labels.repositoryTitle}</h2>
+        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.repositoryStudioLead}</p>
+      </div>
+      <form
+        className="flex flex-wrap items-end gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          go({ page: 1, q: draftQ });
+        }}
+      >
+        <div className="min-w-[12rem] flex-1">
+          <label htmlFor="global-repo-search" className="sr-only">
+            {labels.repositorySearchPlaceholder}
+          </label>
+          <Input
+            id="global-repo-search"
+            value={draftQ}
+            onChange={(e) => setDraftQ(e.target.value)}
+            placeholder={labels.repositorySearchPlaceholder}
+            autoComplete="off"
+          />
+        </div>
+        <Button type="submit" variant="secondary" size="sm" disabled={isPending}>
+          <Search className="h-4 w-4 shrink-0" aria-hidden />
+          {labels.repositorySearchSubmit}
+        </Button>
+      </form>
+      {emptyNoSearch ? <p className="text-sm text-[var(--color-muted-foreground)]">{labels.repositoryEmpty}</p> : null}
+      {emptySearch ? <p className="text-sm text-[var(--color-muted-foreground)]">{labels.repositorySearchNoResults}</p> : null}
+      {contents.length > 0 ? (
         <>
-          <p className="text-sm text-[var(--color-muted-foreground)]">{labels.materialsFor.replace("{title}", selected.title)}</p>
-          <div className="grid gap-3 md:grid-cols-3">
-            <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder={labels.materialLabelPlaceholder} />
-            <Input type="file" onChange={(e) => uploadFile(e.target.files?.[0] ?? null)} disabled={!label.trim() || isPending} />
-            <div className="flex gap-2">
-              <Input value={embedUrl} onChange={(e) => setEmbedUrl(e.target.value)} placeholder={labels.embedUrlPlaceholder} />
-              <Button type="button" isLoading={isPending} disabled={!label.trim() || !embedUrl.trim()} onClick={() => startTransition(() => void addGlobalContentEmbedAction({ templateId: contentId, label, url: embedUrl }))}>
-                {labels.add}
-              </Button>
-            </div>
-          </div>
-          {fileError ? <p className="text-sm text-[var(--color-error)]">{fileError}</p> : null}
-          <ul className="grid gap-2 md:grid-cols-2">
-            {selected.assets.map((asset) => (
-              <li key={asset.id} className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm">
-                <span className="font-medium text-[var(--color-foreground)]">{asset.label}</span>
-                <span className="ml-2 text-xs text-[var(--color-muted-foreground)]">{asset.kind === "embed" ? labels.embedKind : asset.mimeType}</span>
+          <ul className="space-y-2">
+            {contents.map((item) => (
+              <li key={item.id}>
+                <article className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3 transition">
+                  <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+                    <div className="min-w-0 flex-1">
+                      <span className="block font-semibold text-[var(--color-foreground)]">{item.title}</span>
+                      <span className="mt-1 line-clamp-2 block text-xs text-[var(--color-muted-foreground)]">{item.description || labels.noDescription}</span>
+                    </div>
+                    <ContentTemplateAttachmentSummary
+                      assets={item.assets}
+                      labels={labels}
+                      listClassName="mt-0 flex w-full shrink-0 flex-wrap justify-end gap-1.5 sm:w-auto sm:max-w-[min(50%,14rem)]"
+                    />
+                  </div>
+                  <span className="mt-2 block text-xs text-[var(--color-muted-foreground)]">
+                    {new Date(item.updatedAt).toLocaleString(locale)} · {labels.assetCount.replace("{count}", String(item.assetCount))} · {labels.blockCount.replace("{count}", String(item.blockCount))}
+                  </span>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Link
+                      href={`/${locale}/dashboard/admin/academic/contents/global/${item.id}`}
+                      className="inline-flex items-center justify-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-secondary)] px-3 py-1.5 text-sm font-medium text-[var(--color-secondary-foreground)] transition-colors hover:bg-[var(--color-secondary-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-secondary)] focus-visible:ring-offset-2"
+                    >
+                      <Eye className="h-4 w-4 shrink-0" aria-hidden />
+                      {labels.view}
+                    </Link>
+                    <Button type="button" variant="secondary" size="sm" disabled={isPending} onClick={() => archive(item.id)}>
+                      <Archive className="h-4 w-4 shrink-0" aria-hidden />
+                      {labels.archive}
+                    </Button>
+                    <Button type="button" variant="secondary" size="sm" disabled={isPending} onClick={() => deleteContent(item.id)}>
+                      <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
+                      {labels.delete}
+                    </Button>
+                  </div>
+                </article>
               </li>
             ))}
           </ul>
+          {pagination.totalCount > 0 ? (
+            <TablePagination
+              page={pagination.page}
+              pageSize={pagination.pageSize}
+              totalCount={pagination.totalCount}
+              onPageChange={(nextPage) => go({ page: nextPage, q: pagination.searchQuery })}
+              labels={{
+                prev: labels.repositoryPaginationPrev,
+                next: labels.repositoryPaginationNext,
+                summary: labels.repositoryPaginationSummary,
+                tipPrev: labels.repositoryPaginationTipPrev,
+                tipNext: labels.repositoryPaginationTipNext,
+              }}
+            />
+          ) : null}
         </>
-      )}
-    </section>
+      ) : null}
+    </aside>
   );
 }

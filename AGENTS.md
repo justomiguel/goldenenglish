@@ -28,8 +28,9 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`12-supabase-app-boundaries.mdc`** | Supabase solo vía la app: fábricas de cliente en `src/lib/supabase/`; sin PostgREST/Postgres ad hoc para negocio; alineado con DDD y `03-architecture`. |
 | **`13-postgrest-pagination-bounded-queries.mdc`** | PostgREST acotado: sin `select("*")` innecesario; listados que crecen = **paginación servidor** (`range` + `count` al mismo filtro o RPC). **No** “solo `.limit(N)`” sin total/navegación; **no** paginar solo en cliente si el servidor trae todo. Patrones: `loadPaginatedRegistrations`, `loadPaginatedAdminUsers`, `chunkedIn`, RPC hub. |
 | **`17-trust-boundary-handlers.mdc`** | Bordes de confianza: secretos de cron solo por header (`verifyCronRequest`), `Cache-Control: private` en respuestas personalizadas, mutaciones cross-account con `createAdminClient` requieren re-auth + auditoría (`system_config_audit`) + notificación al titular, HTML editable persistido pasa por sanitizer del repo (`sanitizeMessageHtml`, `sanitizeEmailTemplateHtml`). Origen: auditoría OWASP de 2026-04. |
+| **`16-admin-buttons-icons.mdc`** | `Button` y enlaces CTA: icono Lucide leading + a11y; al tocar un control sin icono, añadirlo si el alcance lo permite. |
 
-**Reglas con `globs` (aplican al tocar esas rutas):** p. ej. **`16-admin-buttons-icons.mdc`** — iconos Lucide + accesibilidad en botones/enlaces de acción admin.
+**Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo.
 
 ## Security skills vs this repo
 

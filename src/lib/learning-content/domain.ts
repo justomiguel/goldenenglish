@@ -1,5 +1,5 @@
 import type {
-  DetachedPlannedLesson,
+  DetachedLearningRouteStep,
   LearningAssessmentGradingMode,
   LiveLessonCoverageStatus,
   MiniTestAnswer,
@@ -7,28 +7,28 @@ import type {
   QuestionSnapshot,
   QuestionSnapshotSource,
   StudentLearningReadinessStatus,
-  TemplateLessonSource,
+  TemplateRouteStepSource,
 } from "@/lib/learning-content/types";
 
-export function cloneTemplateIntoPlannedLesson(source: TemplateLessonSource): DetachedPlannedLesson {
+export function cloneTemplateIntoLearningRouteStep(source: TemplateRouteStepSource): DetachedLearningRouteStep {
   return {
-    templateId: source.templateId,
+    contentTemplateId: source.contentTemplateId,
     title: source.title,
     bodyHtml: source.bodyHtml,
     sortOrder: source.sortOrder,
-    lessonKind: source.lessonKind ?? "lesson",
+    stepKind: source.stepKind ?? "lesson",
     isRequired: source.isRequired ?? true,
   };
 }
 
-export function linkLiveLessonToPlannedLessons(plannedLessonIds: string[]): {
+export function linkLiveLessonToRouteSteps(routeStepIds: string[]): {
   coverageStatus: LiveLessonCoverageStatus;
-  plannedLessonIds: string[];
+  routeStepIds: string[];
 } {
-  const unique = [...new Set(plannedLessonIds.filter(Boolean))];
-  if (unique.length === 0) return { coverageStatus: "extra", plannedLessonIds: [] };
-  if (unique.length === 1) return { coverageStatus: "as_planned", plannedLessonIds: unique };
-  return { coverageStatus: "merged", plannedLessonIds: unique };
+  const unique = [...new Set(routeStepIds.filter(Boolean))];
+  if (unique.length === 0) return { coverageStatus: "extra", routeStepIds: [] };
+  if (unique.length === 1) return { coverageStatus: "as_planned", routeStepIds: unique };
+  return { coverageStatus: "merged", routeStepIds: unique };
 }
 
 export function deriveAttemptOutcome(input: {

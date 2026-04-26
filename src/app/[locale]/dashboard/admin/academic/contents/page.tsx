@@ -2,13 +2,12 @@ import type { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { loadContentSections } from "@/lib/learning-content/loadContentSections";
-import { loadSectionContentWorkspace } from "@/lib/learning-content/loadSectionContentWorkspace";
-import { loadContentTemplateLibrary } from "@/lib/learning-tasks/loadContentTemplateLibrary";
+import { loadPaginatedContentTemplateLibrary } from "@/lib/learning-tasks/loadContentTemplateLibrary";
 import { AdminAcademicContentsScreen } from "@/components/admin/AdminAcademicContentsScreen";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ sectionId?: string }>;
+  searchParams: Promise<{ sectionId?: string; page?: string; q?: string; tab?: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -25,25 +24,26 @@ export default async function AdminAcademicContentsPage({ params, searchParams }
   const sp = await searchParams;
   const dict = await getDictionary(locale);
   const supabase = await createClient();
-  const [sections, globalContents] = await Promise.all([
+  const rawPage = Number.parseInt(sp.page ?? "1", 10);
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+  const q = typeof sp.q === "string" ? sp.q : "";
+  const [sections, globalRepo] = await Promise.all([
     loadContentSections(supabase),
-    loadContentTemplateLibrary(supabase, 80),
+    loadPaginatedContentTemplateLibrary(supabase, { page, q }),
   ]);
-  const selectedSectionId =
-    sp.sectionId && sections.some((section) => section.id === sp.sectionId)
-      ? sp.sectionId
-      : sections[0]?.id ?? null;
-  const workspace = selectedSectionId
-    ? await loadSectionContentWorkspace(supabase, selectedSectionId)
-    : null;
-
+  const activeTab = sp.tab === "routes" ? "routes" : "repository";
   return (
     <AdminAcademicContentsScreen
       locale={locale}
+      activeTab={activeTab}
       sections={sections}
-      selectedSectionId={selectedSectionId}
-      workspace={workspace}
-      globalContents={globalContents}
+      globalContents={globalRepo.rows}
+      repositoryPagination={{
+        page: globalRepo.page,
+        pageSize: globalRepo.pageSize,
+        totalCount: globalRepo.totalCount,
+        searchQuery: q,
+      }}
       labels={dict.dashboard.adminContents}
     />
   );
