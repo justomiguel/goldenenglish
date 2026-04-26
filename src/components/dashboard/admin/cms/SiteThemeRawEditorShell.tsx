@@ -3,8 +3,9 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, RotateCcw, Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import {
   resetSiteThemePropertiesAction,
   updateSiteThemePropertiesAction,
@@ -58,6 +59,7 @@ export function SiteThemeRawEditorShell({
   const [errorCode, setErrorCode] =
     useState<SiteThemeActionErrorCode | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [resetAllOpen, setResetAllOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const dirty = isRawEditorDraftDirty(rows, draft);
@@ -111,8 +113,7 @@ export function SiteThemeRawEditorShell({
     });
   }
 
-  function handleResetAll() {
-    if (!window.confirm(labels.confirmResetAll)) return;
+  function runResetAll() {
     startTransition(async () => {
       const result = await resetSiteThemePropertiesAction({
         locale,
@@ -129,9 +130,9 @@ export function SiteThemeRawEditorShell({
     <section className="space-y-6">
       <Link
         href={`/${locale}/dashboard/admin/cms/templates`}
-        className="inline-flex items-center text-sm font-semibold text-[var(--color-primary)] hover:underline"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)] hover:underline"
       >
-        <ArrowLeft aria-hidden className="mr-1 h-4 w-4" />
+        <ArrowLeft aria-hidden className="h-4 w-4 shrink-0" />
         {labels.backToTemplates}
       </Link>
 
@@ -148,9 +149,10 @@ export function SiteThemeRawEditorShell({
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleResetAll}
+            onClick={() => setResetAllOpen(true)}
             disabled={pending}
           >
+            <RotateCcw className="h-4 w-4 shrink-0" aria-hidden />
             {labels.resetAllCta}
           </Button>
           <Button
@@ -160,6 +162,9 @@ export function SiteThemeRawEditorShell({
             disabled={pending || !dirty}
             isLoading={pending}
           >
+            {!pending ? (
+              <Save className="h-4 w-4 shrink-0" aria-hidden />
+            ) : null}
             {labels.saveCta}
           </Button>
         </div>
@@ -198,6 +203,21 @@ export function SiteThemeRawEditorShell({
         onChange={handleFieldChange}
         onReset={handleResetRow}
         onRemove={handleResetRow}
+      />
+
+      <ConfirmActionModal
+        open={resetAllOpen}
+        onOpenChange={setResetAllOpen}
+        title={labels.resetRawModalTitle}
+        description={labels.confirmResetAll}
+        cancelLabel={labels.resetRawModalCancel}
+        confirmLabel={labels.resetRawModalConfirm}
+        confirmVariant="destructive"
+        busy={pending}
+        onConfirm={() => {
+          setResetAllOpen(false);
+          runResetAll();
+        }}
       />
     </section>
   );

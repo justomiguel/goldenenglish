@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Send, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   deleteStudentMessage,
@@ -93,6 +94,7 @@ export function StudentMessagesClient({
             className="min-h-[44px]"
             title={labels.tipComposeSend}
           >
+            {!busy ? <Send className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {labels.messagesSend}
           </Button>
         </form>
@@ -130,6 +132,7 @@ export function StudentMessagesClient({
                   title={labels.tipMessagesDelete}
                   onClick={() => onDelete(m.id)}
                 >
+                  <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
                   {labels.messagesDelete}
                 </Button>
               ) : null}

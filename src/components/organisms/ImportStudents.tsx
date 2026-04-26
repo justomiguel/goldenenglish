@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
+import { FileUp } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { LongJobSnapshot } from "@/types/longJob";
 import { Button } from "@/components/atoms/Button";
@@ -204,6 +205,7 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
         title={labels.tipChooseFile}
         onClick={() => fileRef.current?.click()}
       >
+        {!busy ? <FileUp className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {busy ? labels.processing : labels.chooseFile}
       </Button>
       <LongJobActivityModal

@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ArrowRightLeft } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { SectionEnrollmentConflict, SectionScheduleSlot } from "@/types/academics";
 import { Button } from "@/components/atoms/Button";
@@ -209,8 +209,12 @@ export function AcademicSectionRosterTable({
                           type="button"
                           size="sm"
                           disabled={busy || !picks[r.studentId]}
+                          isLoading={busy && moveCtx?.studentId === r.studentId}
                           onClick={() => runMove(r.studentId)}
                         >
+                          {!(busy && moveCtx?.studentId === r.studentId) ? (
+                            <ArrowRightLeft className="h-4 w-4 shrink-0" aria-hidden />
+                          ) : null}
                           {dict.moveRun}
                         </Button>
                       </div>

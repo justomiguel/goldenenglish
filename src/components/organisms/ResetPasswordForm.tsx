@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { KeyRound, LogIn, Mail } from "lucide-react";
 import { useResetPassword } from "@/hooks/useResetPassword";
 import { FormField } from "@/components/molecules/FormField";
 import { Button } from "@/components/atoms/Button";
@@ -71,14 +72,16 @@ export function ResetPasswordForm({ labels, locale }: ResetPasswordFormProps) {
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
             href={`/${locale}/forgot-password`}
-            className="inline-flex w-full items-center justify-center rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-2 text-base font-medium text-[var(--color-primary-foreground)] transition hover:brightness-[1.03] sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-2 text-base font-medium text-[var(--color-primary-foreground)] transition hover:brightness-[1.03] sm:w-auto"
           >
+            <Mail className="h-4 w-4 shrink-0" aria-hidden />
             {labels.requestNewLink}
           </Link>
           <Link
             href={`/${locale}/login`}
-            className="inline-flex w-full items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-base font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-muted)] sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-base font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-muted)] sm:w-auto"
           >
+            <LogIn className="h-4 w-4 shrink-0" aria-hidden />
             {labels.backToLogin}
           </Link>
         </div>
@@ -173,6 +176,7 @@ export function ResetPasswordForm({ labels, locale }: ResetPasswordFormProps) {
         isLoading={isLoading}
         className="w-full shadow-[0_8px_28px_-8px_rgb(16_58_92_/45%)] transition hover:brightness-[1.03] active:brightness-[0.98]"
       >
+        {!isLoading ? <KeyRound className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {isLoading ? labels.submitting : labels.submitButton}
       </Button>
 

@@ -13,6 +13,7 @@ import {
   previewStudentCurrentCohortSectionAssignmentAction,
   type StudentCurrentCohortAssignmentCode,
 } from "@/app/[locale]/dashboard/admin/users/studentCurrentCohortSectionAssignmentActions";
+import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { AdminStudentSectionsList } from "./AdminStudentSectionsList";
 import { AdminStudentAddSectionForm } from "./AdminStudentAddSectionForm";
 
@@ -53,6 +54,9 @@ export function AdminStudentCurrentCohortAssignmentCard({
   const [capacityOverride, setCapacityOverride] = useState(false);
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
   const [parentWarning, setParentWarning] = useState(false);
+  const [removeTarget, setRemoveTarget] = useState<AdminStudentCurrentCohortEnrollment | null>(
+    null,
+  );
   const [busy, startTransition] = useTransition();
 
   const localIds = new Set(localSections.map((cs) => cs.sectionId));
@@ -104,8 +108,7 @@ export function AdminStudentCurrentCohortAssignmentCard({
     });
   };
 
-  const runRemove = (enrollment: AdminStudentCurrentCohortEnrollment) => {
-    if (!confirm(labels.detailSectionAssignRemoveConfirm)) return;
+  const executeRemove = (enrollment: AdminStudentCurrentCohortEnrollment) => {
     setMessage(null);
     startTransition(async () => {
       const result = await removeStudentFromSectionAction({
@@ -163,7 +166,7 @@ export function AdminStudentCurrentCohortAssignmentCard({
             sections={localSections}
             labels={labels}
             busy={busy}
-            onRemove={runRemove}
+            onRemove={(e) => setRemoveTarget(e)}
           />
           <AdminStudentAddSectionForm
             availableSections={filteredAvailable}
@@ -188,6 +191,24 @@ export function AdminStudentCurrentCohortAssignmentCard({
           {message.text}
         </p>
       )}
+
+      <ConfirmActionModal
+        open={removeTarget !== null}
+        onOpenChange={(o) => {
+          if (!o) setRemoveTarget(null);
+        }}
+        title={labels.detailSectionAssignRemoveTitle}
+        description={labels.detailSectionAssignRemoveConfirm}
+        cancelLabel={labels.cancel}
+        confirmLabel={labels.detailSectionAssignRemove}
+        confirmVariant="destructive"
+        busy={busy}
+        onConfirm={() => {
+          const target = removeTarget;
+          setRemoveTarget(null);
+          if (target) executeRemove(target);
+        }}
+      />
     </section>
   );
 }

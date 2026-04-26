@@ -5,6 +5,7 @@ import { setClassRemindersGlobalsAction } from "@/app/[locale]/dashboard/admin/s
 import type { Dictionary } from "@/types/i18n";
 import type { ClassReminderSiteSettings } from "@/types/classReminders";
 import { INSTITUTE_TIME_ZONE_IDS } from "@/lib/notifications/instituteTimeZones";
+import { Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Label } from "@/components/atoms/Label";
 import { Input } from "@/components/atoms/Input";
@@ -100,7 +101,8 @@ export function ClassRemindersAdminSettingsForm({
           ))}
         </select>
       </div>
-      <Button type="submit" className="mt-6 min-h-[44px]" disabled={busy}>
+      <Button type="submit" className="mt-6 min-h-[44px]" disabled={busy} isLoading={busy}>
+        {busy ? null : <Save className="h-4 w-4 shrink-0" aria-hidden />}
         {labels.submitChanges}
       </Button>
       {msg ? <p className="mt-3 text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}

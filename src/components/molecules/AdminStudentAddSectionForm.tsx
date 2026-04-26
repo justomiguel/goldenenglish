@@ -2,6 +2,7 @@
 
 import type { Dictionary } from "@/types/i18n";
 import type { AdminStudentCurrentCohortAssignment } from "@/lib/dashboard/loadAdminStudentCurrentCohortAssignment";
+import { Eye, UserPlus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 
 type UserLabels = Dictionary["admin"]["users"];
@@ -96,6 +97,7 @@ export function AdminStudentAddSectionForm({
           onClick={onPreview}
           className="min-h-[44px]"
         >
+          <Eye className="h-4 w-4 shrink-0" aria-hidden />
           {labels.detailSectionAssignPreview}
         </Button>
         <Button
@@ -105,6 +107,9 @@ export function AdminStudentAddSectionForm({
           onClick={onAdd}
           className="min-h-[44px]"
         >
+          {!busy ? (
+            <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
+          ) : null}
           {labels.detailSectionAssignSubmit}
         </Button>
       </div>

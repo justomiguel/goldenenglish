@@ -6,6 +6,7 @@ import {
   type AcceptRegistrationResult,
 } from "@/app/[locale]/dashboard/admin/registrations/actions";
 import { enrollStudentInSectionAction } from "@/app/[locale]/dashboard/admin/academic/enrollmentActions";
+import { Check, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -227,9 +228,11 @@ export function AdminRegistrationAcceptForm({
             className="min-h-[44px] px-4"
             onClick={onClose}
           >
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             {labels.cancel}
           </Button>
-          <Button type="submit" className="min-h-[44px] px-4" disabled={busy}>
+          <Button type="submit" className="min-h-[44px] px-4" disabled={busy} isLoading={busy}>
+            {busy ? null : <Check className="h-4 w-4 shrink-0" aria-hidden />}
             {labels.accept}
           </Button>
         </div>

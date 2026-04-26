@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 import { markClassReminderInAppReadAction } from "@/app/[locale]/dashboard/student/classReminderInAppActions";
@@ -57,6 +58,7 @@ export function StudentClassReminderInbox({ locale, rows, labels }: StudentClass
               disabled={busyId === r.id}
               onClick={() => void markRead(r.id)}
             >
+              <Check className="h-4 w-4 shrink-0" aria-hidden />
               {labels.classReminderMarkRead}
             </Button>
           </li>

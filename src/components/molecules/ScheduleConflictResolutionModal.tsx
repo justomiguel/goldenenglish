@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import type { SectionEnrollmentConflict, SectionScheduleSlot } from "@/types/academics";
+import { UserMinus, X } from "lucide-react";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
 
@@ -110,6 +111,7 @@ export function ScheduleConflictResolutionModal({
       </div>
       <div className="mt-6 flex flex-wrap justify-end gap-2">
         <Button type="button" variant="ghost" disabled={isPending} onClick={onClose}>
+          {!isPending ? <X className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {dict.cancel}
         </Button>
         <Button
@@ -119,6 +121,7 @@ export function ScheduleConflictResolutionModal({
           onClick={() => onConfirmDrop(primary.enrollmentId)}
           aria-busy={isPending}
         >
+          {!isPending ? <UserMinus className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {dict.confirmDrop}
         </Button>
       </div>

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Plus, X } from "lucide-react";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
 import { SectionScheduleFields } from "@/components/molecules/SectionScheduleFields";
@@ -193,6 +194,7 @@ export function AcademicNewSectionModal({
 
         <div className="flex flex-wrap justify-end gap-2 pt-2">
           <Button type="button" variant="ghost" disabled={pending} onClick={() => handleModalOpenChange(false)}>
+            {!pending ? <X className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {dict.cancel}
           </Button>
           <Button
@@ -201,6 +203,7 @@ export function AcademicNewSectionModal({
             disabled={pending || !canSubmit}
             onClick={submit}
           >
+            {!pending ? <Plus className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {dict.submit}
           </Button>
         </div>

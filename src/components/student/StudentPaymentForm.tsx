@@ -1,5 +1,6 @@
 "use client";
 
+import { CreditCard } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { submitStudentPaymentReceipt } from "@/app/[locale]/dashboard/student/payments/actions";
 import { Button } from "@/components/atoms/Button";
@@ -120,6 +121,7 @@ export function StudentPaymentForm({ locale, labels }: StudentPaymentFormProps) 
         </div>
       </fieldset>
       <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px] w-full sm:w-auto">
+        {!busy ? <CreditCard className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {labels.paySubmit}
       </Button>
       {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}

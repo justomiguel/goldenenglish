@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Home, UserPlus } from "lucide-react";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
 import type { Dictionary } from "@/types/i18n";
@@ -46,6 +47,7 @@ export function RegisterSuccessDialog({
             onOpenChange(false);
           }}
         >
+          <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
           {dict.anotherRequest}
         </Button>
         <Button
@@ -57,6 +59,7 @@ export function RegisterSuccessDialog({
             router.push(`/${locale}`);
           }}
         >
+          <Home className="h-4 w-4 shrink-0" aria-hidden />
           {dict.backHome}
         </Button>
       </div>

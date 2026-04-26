@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Dictionary } from "@/types/i18n";
+import { Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Label } from "@/components/atoms/Label";
 import { Input } from "@/components/atoms/Input";
@@ -153,7 +154,15 @@ export function ClassReminderPrefsSection({
             </div>
           </div>
         ) : null}
-        <Button type="submit" className="min-h-[44px]" disabled={busy}>
+        <Button
+          type="submit"
+          className="min-h-[44px]"
+          disabled={busy}
+          isLoading={busy}
+        >
+          {!busy ? (
+            <Save className="h-4 w-4 shrink-0" aria-hidden />
+          ) : null}
           {labels.classReminderPrefsSave}
         </Button>
         {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}

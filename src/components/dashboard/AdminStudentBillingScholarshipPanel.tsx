@@ -7,10 +7,11 @@ import {
   deactivateStudentScholarship,
   updateStudentScholarship,
 } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/upsertStudentScholarship";
+import { Plus, Save, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
-import { AdminStudentBillingScholarshipDiscountMonths } from "@/components/dashboard/AdminStudentBillingScholarshipDiscountMonths";
+import { AdminStudentBillingScholarshipActiveCard } from "@/components/dashboard/AdminStudentBillingScholarshipActiveCard";
 import type { AdminBillingScholarship } from "@/types/adminStudentBilling";
 import type { Dictionary, Locale } from "@/types/i18n";
 
@@ -26,10 +27,6 @@ export interface AdminStudentBillingScholarshipPanelProps {
   busy: boolean;
   setBusy: (v: boolean) => void;
   setMsg: (v: string | null) => void;
-}
-
-function formatMonthYear(month: number, year: number): string {
-  return `${String(month).padStart(2, "0")}/${year}`;
 }
 
 function activeScholarships(rows: AdminBillingScholarship[]) {
@@ -153,49 +150,14 @@ export function AdminStudentBillingScholarshipPanel({
             {labels.scholarshipsActiveTitle}
           </p>
           {visibleScholarships.map((row) => (
-            <article
+            <AdminStudentBillingScholarshipActiveCard
               key={row.id}
-              className="rounded-[var(--layout-border-radius)] border border-[var(--color-info)] bg-[var(--color-info)]/10 px-4 py-3"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold text-[var(--color-foreground)]">
-                    {labels.scholarshipCurrentActive.replace("{percent}", String(row.discount_percent))}
-                  </p>
-                  <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-                    {labels.scholarshipCurrentFrom}: {formatMonthYear(row.valid_from_month, row.valid_from_year)} ·{" "}
-                    {labels.scholarshipCurrentUntil}:{" "}
-                    {row.valid_until_year != null && row.valid_until_month != null
-                      ? formatMonthYear(row.valid_until_month, row.valid_until_year)
-                      : labels.scholarshipCurrentNoEnd}
-                  </p>
-                  {row.note ? (
-                    <p className="mt-1 text-xs text-[var(--color-foreground)]">
-                      {labels.scholarshipCurrentNote}: {row.note}
-                    </p>
-                  ) : null}
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => editScholarship(row)}
-                    className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium text-[var(--color-secondary)] disabled:opacity-40"
-                  >
-                    {labels.editScholarship}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => removeScholarship(row)}
-                    className="rounded-[var(--layout-border-radius)] border border-[var(--color-error)] px-3 py-1.5 text-xs font-medium text-[var(--color-error)] disabled:opacity-40"
-                  >
-                    {labels.deactivateScholarship}
-                  </button>
-                </div>
-              </div>
-              <AdminStudentBillingScholarshipDiscountMonths scholarship={row} labels={labels} />
-            </article>
+              row={row}
+              labels={labels}
+              busy={busy}
+              onEdit={editScholarship}
+              onRemove={removeScholarship}
+            />
           ))}
         </div>
       ) : (
@@ -233,10 +195,16 @@ export function AdminStudentBillingScholarshipPanel({
         </div>
         <div className="flex flex-wrap gap-2 sm:col-span-2">
           <Button type="submit" disabled={busy || !sectionId} isLoading={busy} className="min-h-[44px]">
+            {busy ? null : editing ? (
+              <Save className="h-4 w-4 shrink-0" aria-hidden />
+            ) : (
+              <Plus className="h-4 w-4 shrink-0" aria-hidden />
+            )}
             {editing ? labels.updateScholarship : labels.addScholarship}
           </Button>
           {editing ? (
             <Button type="button" variant="ghost" disabled={busy} onClick={resetForm} className="min-h-[44px]">
+              <X className="h-4 w-4 shrink-0" aria-hidden />
               {labels.cancel}
             </Button>
           ) : null}

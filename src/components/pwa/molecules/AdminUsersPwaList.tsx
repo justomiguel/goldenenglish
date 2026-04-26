@@ -199,7 +199,7 @@ export function AdminUsersPwaList({
                   onClick={() => onRequestDeleteOne(r.id)}
                   aria-label={`${labels.deleteOne}: ${r.email}`}
                 >
-                  <Trash2 className="h-5 w-5" aria-hidden />
+                  <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
                 </Button>
               </div>
             </li>

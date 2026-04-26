@@ -20,16 +20,6 @@ const LiveLessonSchema = z.object({
   routeStepIds: z.array(z.string().uuid()).max(6).default([]),
 });
 
-const LearningRouteSchema = z.object({
-  locale: z.string().min(2).max(8),
-  routeId: z.string().uuid().nullable().optional(),
-  sectionId: z.string().uuid(),
-  title: z.string().trim().min(1).max(180),
-  teacherObjectives: z.string().trim().max(12000),
-  generalScope: z.string().trim().max(12000),
-  evaluationCriteria: z.string().trim().max(12000),
-});
-
 const ReadinessSchema = z.object({
   locale: z.string().min(2).max(8),
   sectionId: z.string().uuid(),
@@ -95,42 +85,6 @@ export async function createLiveLessonAction(raw: unknown): Promise<TeacherConte
     return { ok: true, id: liveLessonId };
   } catch (err) {
     logServerException("createLiveLessonAction", err);
-    return { ok: false, code: "forbidden" };
-  }
-}
-
-export async function saveTeacherLearningRouteAction(raw: unknown): Promise<TeacherContentActionResult> {
-  const parsed = LearningRouteSchema.safeParse(raw);
-  if (!parsed.success) return { ok: false, code: "invalid_input" };
-  try {
-    const { supabase, user } = await assertCanManage(parsed.data.sectionId);
-    const payload = {
-      section_id: parsed.data.sectionId,
-      visibility: "section",
-      title: parsed.data.title,
-      teacher_objectives: parsed.data.teacherObjectives,
-      general_scope: parsed.data.generalScope,
-      evaluation_criteria: parsed.data.evaluationCriteria,
-      updated_by: user.id,
-    };
-    const query = parsed.data.routeId
-      ? supabase.from("learning_routes").update(payload).eq("id", parsed.data.routeId)
-      : supabase.from("learning_routes").insert({ ...payload, created_by: user.id });
-    const { data, error } = await query
-      .select("id")
-      .single();
-    if (error || !data) return { ok: false, code: "persist_failed" };
-    await auditLearningContentStaffAction({
-      actorId: user.id,
-      action: "learning_content.learning_route_saved",
-      resourceType: "learning_routes",
-      resourceId: (data as { id: string }).id,
-      payload: { sectionId: parsed.data.sectionId },
-    });
-    revalidatePath(`/${parsed.data.locale}/dashboard/teacher/sections/${parsed.data.sectionId}/contents`);
-    return { ok: true, id: (data as { id: string }).id };
-  } catch (err) {
-    logServerException("saveTeacherLearningRouteAction", err);
     return { ok: false, code: "forbidden" };
   }
 }

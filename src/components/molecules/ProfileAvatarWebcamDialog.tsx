@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { Camera, X } from "lucide-react";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
 import { logClientException } from "@/lib/logging/clientLog";
@@ -134,9 +135,11 @@ export function ProfileAvatarWebcamDialog({
       </div>
       <div className="flex flex-wrap justify-end gap-2 pt-1">
         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+          <X className="h-4 w-4 shrink-0" aria-hidden />
           {labels.avatarWebcamCancel}
         </Button>
         <Button type="button" disabled={!ready} onClick={capturePhoto}>
+          <Camera className="h-4 w-4 shrink-0" aria-hidden />
           {labels.avatarWebcamCapture}
         </Button>
       </div>

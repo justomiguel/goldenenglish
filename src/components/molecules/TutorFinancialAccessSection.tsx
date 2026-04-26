@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { ShieldCheck, ShieldOff } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { setTutorFinancialAccess } from "@/app/[locale]/dashboard/profile/tutorFinancialAccessActions";
 import type { Dictionary } from "@/types/i18n";
@@ -120,6 +121,13 @@ export function TutorFinancialAccessSection({
                   disabled={isPending}
                   isLoading={isPending}
                 >
+                  {!isPending ? (
+                    isActive ? (
+                      <ShieldOff className="h-4 w-4 shrink-0" aria-hidden />
+                    ) : (
+                      <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
+                    )
+                  ) : null}
                   {isPending
                     ? labels.tutorAccessUpdating
                     : isActive

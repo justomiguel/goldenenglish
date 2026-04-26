@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { LogIn } from "lucide-react";
 import { useLogin } from "@/hooks/useLogin";
 import { FormField } from "@/components/molecules/FormField";
 import { Button } from "@/components/atoms/Button";
@@ -128,6 +129,7 @@ export function LoginForm({ labels, locale, nextPath = null }: LoginFormProps) {
         isLoading={isLoading}
         className="w-full shadow-[0_8px_28px_-8px_rgb(16_58_92_/45%)] transition hover:brightness-[1.03] active:brightness-[0.98]"
       >
+        {!isLoading ? <LogIn className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {labels.submitButton}
       </Button>
 

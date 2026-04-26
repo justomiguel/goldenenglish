@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronRight, SkipForward } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { SectionCapacityBar } from "@/components/molecules/SectionCapacityBar";
 import type { Dictionary } from "@/types/i18n";
@@ -45,6 +46,7 @@ export function AdminRegistrationAcceptSectionPicker({
                 onClick={() => void onPickSection(sec.id)}
                 className="flex w-full items-center gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] px-3 py-2 text-left transition hover:bg-[var(--color-muted)]/40 disabled:cursor-not-allowed disabled:opacity-50"
               >
+                <ChevronRight className="h-4 w-4 shrink-0 text-[var(--color-muted-foreground)]" aria-hidden />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{sec.name}</p>
                   <p className="text-xs text-[var(--color-muted-foreground)]">{sec.teacherName}</p>
@@ -70,6 +72,7 @@ export function AdminRegistrationAcceptSectionPicker({
 
       <div className="flex justify-end">
         <Button type="button" variant="secondary" className="min-h-[44px] px-4" onClick={onSkipSection}>
+          <SkipForward className="h-4 w-4 shrink-0" aria-hidden />
           {labels.skipSectionEnrollment ?? "Skip"}
         </Button>
       </div>

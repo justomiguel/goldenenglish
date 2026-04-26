@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft, Mail, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useRequestPasswordReset } from "@/hooks/useRequestPasswordReset";
 import { FormField } from "@/components/molecules/FormField";
@@ -57,12 +58,14 @@ export function ForgotPasswordForm({ labels, locale }: ForgotPasswordFormProps) 
             onClick={reset}
             className="w-full sm:w-auto"
           >
+            <RefreshCw className="h-4 w-4 shrink-0" aria-hidden />
             {labels.resend}
           </Button>
           <Link
             href={`/${locale}/login`}
-            className="inline-flex w-full items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-base font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-muted)] sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-base font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-muted)] sm:w-auto"
           >
+            <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
             {labels.backToLogin}
           </Link>
         </div>
@@ -111,6 +114,7 @@ export function ForgotPasswordForm({ labels, locale }: ForgotPasswordFormProps) 
         isLoading={isLoading}
         className="w-full shadow-[0_8px_28px_-8px_rgb(16_58_92_/45%)] transition hover:brightness-[1.03] active:brightness-[0.98]"
       >
+        {!isLoading ? <Mail className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {isLoading ? labels.submitting : labels.submitButton}
       </Button>
 

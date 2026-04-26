@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useTransition } from "react";
+import { KeyRound, X } from "lucide-react";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
 import { Label } from "@/components/atoms/Label";
@@ -126,9 +127,13 @@ export function MyProfileChangePasswordModal({
         </div>
         <div className="flex flex-wrap justify-end gap-2 pt-1">
           <Button type="button" variant="ghost" disabled={pending} onClick={() => onOpenChange(false)}>
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             {labels.passwordModalCancel}
           </Button>
           <Button type="submit" disabled={pending} isLoading={pending} className="min-h-[44px]">
+            {!pending ? (
+              <KeyRound className="h-4 w-4 shrink-0" aria-hidden />
+            ) : null}
             {labels.changePassword}
           </Button>
         </div>

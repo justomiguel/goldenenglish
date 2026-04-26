@@ -1,5 +1,6 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/atoms/Button";
 import { LearningTaskStatusBadge } from "@/components/molecules/LearningTaskStatusBadge";
@@ -98,6 +99,7 @@ export function StudentLearningTaskDetail({ locale, task, labels }: StudentLearn
           isLoading={isPending}
           disabled={status === "NOT_OPENED" || status === "COMPLETED" || status === "COMPLETED_LATE"}
         >
+          {!isPending ? <Check className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {labels.taskComplete}
         </Button>
         {message ? <p className="text-sm text-[var(--color-muted-foreground)]">{message}</p> : null}

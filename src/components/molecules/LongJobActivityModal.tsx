@@ -1,5 +1,6 @@
 "use client";
 
+import { Ban, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Modal } from "@/components/atoms/Modal";
@@ -128,12 +129,14 @@ export function LongJobActivityModal({
             isLoading={isCancelling}
             onClick={() => void onCancel()}
           >
+            {!isCancelling ? <Ban className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {cancelLabel}
           </Button>
         ) : null}
 
         {!isRunning ? (
           <Button type="button" className="min-h-[44px] w-full" onClick={() => onOpenChange(false)}>
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             {closeLabel}
           </Button>
         ) : null}

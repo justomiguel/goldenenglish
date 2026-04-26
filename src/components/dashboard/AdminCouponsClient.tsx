@@ -6,6 +6,7 @@ import {
   createDiscountCoupon,
   toggleDiscountCoupon,
 } from "@/app/[locale]/dashboard/admin/coupons/actions";
+import { Plus, Power } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -164,6 +165,7 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
               title={labels.tipCreateSubmit}
               className="min-h-[44px]"
             >
+              {busy ? null : <Plus className="h-4 w-4 shrink-0" aria-hidden />}
               {labels.createSubmit}
             </Button>
           </div>
@@ -204,15 +206,18 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
                     {r.max_uses != null ? `${r.uses_count}/${r.max_uses}` : `${r.uses_count} (${labels.unlimited})`}
                   </td>
                   <td className="px-3 py-2">
-                    <button
+                    <Button
                       type="button"
-                      className="text-sm text-[var(--color-primary)] underline"
+                      variant="ghost"
+                      size="sm"
+                      className="min-h-[36px] px-2 text-sm text-[var(--color-primary)] underline"
                       disabled={busy}
                       title={labels.tipToggleRow}
-                      onClick={() => toggle(r.id, !r.is_active)}
+                      onClick={() => void toggle(r.id, !r.is_active)}
                     >
+                      <Power className="h-3.5 w-3.5 shrink-0" aria-hidden />
                       {r.is_active ? labels.toggleOff : labels.toggleOn}
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}

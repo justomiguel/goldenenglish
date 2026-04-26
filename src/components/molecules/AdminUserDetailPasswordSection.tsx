@@ -2,7 +2,15 @@
 
 import { useId, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { KeyRound } from "lucide-react";
+import {
+  Check,
+  Copy,
+  KeyRound,
+  Keyboard,
+  RefreshCw,
+  Sparkles,
+  X,
+} from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { generateAdminPortalPassword } from "@/lib/dashboard/generateAdminPortalPassword";
 import { setAdminUserPasswordFromDetailAction } from "@/app/[locale]/dashboard/admin/users/adminUserDetailActions";
@@ -100,9 +108,11 @@ export function AdminUserDetailPasswordSection({
       <p className="mt-3 text-sm text-[var(--color-muted-foreground)]">{labels.detailPasswordLead}</p>
       <div className="mt-4 flex flex-wrap gap-2">
         <Button type="button" variant={mode === "manual" ? "primary" : "ghost"} size="sm" onClick={() => setMode("manual")}>
+          <Keyboard className="h-4 w-4 shrink-0" aria-hidden />
           {labels.detailPasswordModeManual}
         </Button>
         <Button type="button" variant={mode === "auto" ? "primary" : "ghost"} size="sm" onClick={() => setMode("auto")}>
+          <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
           {labels.detailPasswordModeAuto}
         </Button>
       </div>
@@ -124,15 +134,18 @@ export function AdminUserDetailPasswordSection({
             <Label htmlFor="admin-user-pw-auto">{labels.detailPasswordGeneratedReadonly}</Label>
             <Input id="admin-user-pw-auto" readOnly value={generated} className="mt-1 w-full font-mono text-sm" />
             <Button type="button" variant="ghost" size="sm" className="mt-2" onClick={regen}>
+              <RefreshCw className="h-4 w-4 shrink-0" aria-hidden />
               {labels.detailPasswordRegenerate}
             </Button>
           </div>
         )}
         <div className="flex flex-wrap gap-2">
           <Button type="button" variant="secondary" size="sm" onClick={() => void copyGenerated()} disabled={readonlyPwd.length === 0}>
+            <Copy className="h-4 w-4 shrink-0" aria-hidden />
             {labels.detailPasswordCopy}
           </Button>
           <Button type="button" variant="primary" size="sm" onClick={requestApply}>
+            <KeyRound className="h-4 w-4 shrink-0" aria-hidden />
             {labels.detailPasswordApply}
           </Button>
         </div>
@@ -150,9 +163,13 @@ export function AdminUserDetailPasswordSection({
         </p>
         <div className="flex flex-wrap justify-end gap-2 pt-2">
           <Button type="button" variant="ghost" size="sm" onClick={() => setConfirmOpen(false)} disabled={busy}>
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             {labels.cancel}
           </Button>
           <Button type="button" variant="primary" size="sm" isLoading={busy} onClick={() => void applyPassword()}>
+            {!busy ? (
+              <Check className="h-4 w-4 shrink-0" aria-hidden />
+            ) : null}
             {labels.detailPasswordConfirmAction}
           </Button>
         </div>

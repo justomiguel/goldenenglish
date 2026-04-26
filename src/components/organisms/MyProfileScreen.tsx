@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mail } from "lucide-react";
+import { KeyRound, Mail } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Label } from "@/components/atoms/Label";
 import type { Dictionary } from "@/types/i18n";
@@ -154,6 +154,7 @@ export function MyProfileScreen({
                 className="mt-4 min-h-[44px]"
                 onClick={() => setPasswordModalOpen(true)}
               >
+                <KeyRound className="h-4 w-4 shrink-0" aria-hidden />
                 {labels.passwordModalTrigger}
               </Button>
             </div>

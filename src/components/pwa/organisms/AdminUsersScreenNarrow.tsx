@@ -8,6 +8,7 @@ import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import { AdminUsersToolbar } from "@/components/dashboard/AdminUsersToolbar";
 import { AdminUsersPwaList } from "@/components/pwa/molecules/AdminUsersPwaList";
 import { DeleteUsersConfirmModal } from "@/components/dashboard/DeleteUsersConfirmModal";
+import { InfoNoticeModal } from "@/components/molecules/InfoNoticeModal";
 
 type UserLabels = Dictionary["admin"]["users"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -118,6 +119,16 @@ export function AdminUsersScreenNarrow({
             onConfirm={() => {
               if (u.confirmIds?.length) void u.runDelete(u.confirmIds);
             }}
+          />
+
+          <InfoNoticeModal
+            open={u.deleteOutcomeMessage !== null}
+            onOpenChange={(o) => {
+              if (!o) u.clearDeleteOutcomeMessage();
+            }}
+            title={labels.deleteResultTitle}
+            message={u.deleteOutcomeMessage ?? ""}
+            closeLabel={labels.deleteResultClose}
           />
         </div>
       </div>

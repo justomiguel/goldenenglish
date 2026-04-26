@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Save, X } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { PortalSpecialCalendarScope, PortalSpecialEventTypeSlug } from "@/types/portalSpecialCalendar";
 import { Button } from "@/components/atoms/Button";
@@ -142,9 +143,11 @@ export function PortalSpecialEventEditForm({
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         <Button type="button" onClick={save} isLoading={pending} disabled={pending || !title.trim() || !eventDate || !scopeOk}>
+          {!pending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {editDict.save}
         </Button>
         <Button type="button" variant="secondary" disabled={pending} onClick={() => router.push(`/${locale}/dashboard/admin/calendar/special`)}>
+          {!pending ? <X className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {editDict.cancel}
         </Button>
       </div>

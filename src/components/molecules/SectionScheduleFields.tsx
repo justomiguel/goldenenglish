@@ -1,5 +1,6 @@
 "use client";
 
+import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -104,6 +105,7 @@ export function SectionScheduleFields({
                   onClick={() => removeRow(index)}
                   disabled={disabled}
                 >
+                  <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
                   {dict.scheduleRemoveSlot}
                 </Button>
               </div>
@@ -128,6 +130,7 @@ export function SectionScheduleFields({
         }
         disabled={disabled}
       >
+        <Plus className="h-4 w-4 shrink-0" aria-hidden />
         {dict.scheduleAddSlot}
       </Button>
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { Archive, ArchiveRestore, Check, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/atoms/Button";
@@ -139,10 +140,12 @@ export function AcademicCohortLifecycleBar({
             onClick={() => setDialog("archive")}
             disabled={isCurrent}
           >
+            <Archive className="h-4 w-4 shrink-0" aria-hidden />
             {dict.archiveButton}
           </Button>
         ) : (
           <Button type="button" variant="secondary" size="sm" onClick={() => setDialog("unarchive")}>
+            <ArchiveRestore className="h-4 w-4 shrink-0" aria-hidden />
             {dict.unarchiveButton}
           </Button>
         )}
@@ -157,6 +160,7 @@ export function AcademicCohortLifecycleBar({
           }}
           disabled={isCurrent}
         >
+          <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
           {dict.deleteButton}
         </Button>
       </div>
@@ -172,9 +176,11 @@ export function AcademicCohortLifecycleBar({
         {error ? <p className="text-sm text-[var(--color-error)]">{error}</p> : null}
         <div className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="ghost" size="sm" onClick={closeAll} disabled={pending}>
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             {dict.cancel}
           </Button>
           <Button type="button" variant="primary" size="sm" onClick={runArchive} isLoading={pending}>
+            {!pending ? <Check className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {dict.confirm}
           </Button>
         </div>
@@ -191,9 +197,11 @@ export function AcademicCohortLifecycleBar({
         {error ? <p className="text-sm text-[var(--color-error)]">{error}</p> : null}
         <div className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="ghost" size="sm" onClick={closeAll} disabled={pending}>
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             {dict.cancel}
           </Button>
           <Button type="button" variant="primary" size="sm" onClick={runUnarchive} isLoading={pending}>
+            {!pending ? <Check className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {dict.confirm}
           </Button>
         </div>
@@ -219,6 +227,7 @@ export function AcademicCohortLifecycleBar({
         {error ? <p className="text-sm text-[var(--color-error)]">{error}</p> : null}
         <div className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="ghost" size="sm" onClick={closeAll} disabled={pending}>
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             {dict.cancel}
           </Button>
           <Button
@@ -230,6 +239,7 @@ export function AcademicCohortLifecycleBar({
             isLoading={pending}
             disabled={!deleteAck}
           >
+            {!pending ? <Trash2 className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {dict.confirm}
           </Button>
         </div>

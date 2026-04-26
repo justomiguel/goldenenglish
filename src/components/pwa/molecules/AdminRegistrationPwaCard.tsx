@@ -108,7 +108,7 @@ export function AdminRegistrationPwaCard({
                 onClick={() => onAccept(r)}
               >
                 <UserPlus
-                  className="h-5 w-5 text-[var(--color-secondary-foreground)]"
+                  className="h-4 w-4 shrink-0 text-[var(--color-secondary-foreground)]"
                   strokeWidth={2.25}
                   aria-hidden
                 />
@@ -123,7 +123,7 @@ export function AdminRegistrationPwaCard({
                 disabled={busy}
                 onClick={() => onEdit(r)}
               >
-                <Pencil className="h-5 w-5 text-[var(--color-foreground)]" strokeWidth={2.25} aria-hidden />
+                <Pencil className="h-4 w-4 shrink-0 text-[var(--color-foreground)]" strokeWidth={2.25} aria-hidden />
               </Button>
             </>
           ) : null}
@@ -137,7 +137,7 @@ export function AdminRegistrationPwaCard({
             disabled={busy}
             onClick={() => onDelete(r)}
           >
-            <Trash2 className="h-5 w-5 text-[var(--color-error)]" strokeWidth={2.25} aria-hidden />
+            <Trash2 className="h-4 w-4 shrink-0 text-[var(--color-error)]" strokeWidth={2.25} aria-hidden />
           </Button>
         </div>
       </div>

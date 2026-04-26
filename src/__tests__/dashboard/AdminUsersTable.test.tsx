@@ -137,8 +137,7 @@ describe("AdminUsersTable", () => {
     fireEvent.click(screen.getByRole("button", { name: new RegExp(dictEn.admin.users.colPhone) }));
   });
 
-  it("alerts on partial delete", async () => {
-    const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
+  it("shows outcome modal on partial delete", async () => {
     deleteAdminUsers.mockResolvedValueOnce({ ok: true, deleted: 1, partial: true });
     render(
       <AdminUsersTable
@@ -159,12 +158,19 @@ describe("AdminUsersTable", () => {
     const dlg = await screen.findByRole("dialog");
     fireEvent.click(within(dlg).getByRole("button", { name: dictEn.admin.users.confirmDelete }));
     await waitFor(() => expect(deleteAdminUsers).toHaveBeenCalled());
-    expect(alertSpy).toHaveBeenCalledWith(dictEn.admin.users.deletePartial);
-    alertSpy.mockRestore();
+    await waitFor(() =>
+      expect(
+        screen.getByRole("heading", { name: dictEn.admin.users.deleteResultTitle }),
+      ).toBeInTheDocument(),
+    );
+    const outcome = screen.getByRole("dialog", { name: dictEn.admin.users.deleteResultTitle });
+    expect(within(outcome).getByText(dictEn.admin.users.deletePartial)).toBeInTheDocument();
+    fireEvent.click(
+      within(outcome).getByRole("button", { name: dictEn.admin.users.deleteResultClose }),
+    );
   });
 
-  it("alerts on delete failure", async () => {
-    const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
+  it("shows outcome modal on delete failure", async () => {
     deleteAdminUsers.mockResolvedValueOnce({
       ok: false,
       message: dictEn.admin.users.errDeleteAllFailed,
@@ -188,16 +194,21 @@ describe("AdminUsersTable", () => {
     const dlg = await screen.findByRole("dialog");
     fireEvent.click(within(dlg).getByRole("button", { name: dictEn.admin.users.confirmDelete }));
     await waitFor(() =>
-      expect(alertSpy).toHaveBeenCalledWith(
+      expect(
+        screen.getByRole("heading", { name: dictEn.admin.users.deleteResultTitle }),
+      ).toBeInTheDocument(),
+    );
+    const outcome = screen.getByRole("dialog", { name: dictEn.admin.users.deleteResultTitle });
+    expect(
+      within(outcome).getByText(
         `${dictEn.admin.users.deleteError}: ${dictEn.admin.users.errDeleteAllFailed}`,
       ),
-    );
-    alertSpy.mockRestore();
+    ).toBeInTheDocument();
   });
 
-  it("does not alert when delete result is none", async () => {
-    const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
-    deleteAdminUsers.mockResolvedValueOnce({ ok: false });
+  it("does not show outcome modal when delete returns failure without message", async () => {
+    deleteAdminUsers.mockReset();
+    deleteAdminUsers.mockResolvedValue({ ok: false });
     render(
       <AdminUsersTable
         tableLabels={dictEn.admin.table}
@@ -217,8 +228,12 @@ describe("AdminUsersTable", () => {
     const dlg = await screen.findByRole("dialog");
     fireEvent.click(within(dlg).getByRole("button", { name: dictEn.admin.users.confirmDelete }));
     await waitFor(() => expect(deleteAdminUsers).toHaveBeenCalled());
-    expect(alertSpy).not.toHaveBeenCalled();
-    alertSpy.mockRestore();
+    expect(deleteAdminUsers).toHaveBeenCalledTimes(1);
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("heading", { name: dictEn.admin.users.deleteResultTitle }),
+      ).not.toBeInTheDocument(),
+    );
   });
 
   it("toggles per-row checkbox (toggleRow)", () => {

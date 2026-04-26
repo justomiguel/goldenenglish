@@ -6,6 +6,7 @@ import { useAdminUsersTable } from "@/hooks/useAdminUsersTable";
 import { AdminUsersToolbar } from "@/components/dashboard/AdminUsersToolbar";
 import { AdminUsersDataTable } from "@/components/dashboard/AdminUsersDataTable";
 import { DeleteUsersConfirmModal } from "@/components/dashboard/DeleteUsersConfirmModal";
+import { InfoNoticeModal } from "@/components/molecules/InfoNoticeModal";
 
 type UserLabels = Dictionary["admin"]["users"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -113,6 +114,16 @@ export function AdminUsersTableDesktop({
         onConfirm={() => {
           if (u.confirmIds?.length) void u.runDelete(u.confirmIds);
         }}
+      />
+
+      <InfoNoticeModal
+        open={u.deleteOutcomeMessage !== null}
+        onOpenChange={(o) => {
+          if (!o) u.clearDeleteOutcomeMessage();
+        }}
+        title={labels.deleteResultTitle}
+        message={u.deleteOutcomeMessage ?? ""}
+        closeLabel={labels.deleteResultClose}
       />
     </div>
   );

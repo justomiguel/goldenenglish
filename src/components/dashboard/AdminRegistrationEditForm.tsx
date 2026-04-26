@@ -5,6 +5,7 @@ import {
   updateRegistrationDraft,
   type RegistrationDraftPayload,
 } from "@/app/[locale]/dashboard/admin/registrations/actions";
+import { Save, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -175,9 +176,11 @@ export function AdminRegistrationEditForm({
       ) : null}
       <div className="flex flex-wrap justify-end gap-2 pt-2">
         <Button type="button" variant="secondary" className="min-h-[44px] px-4" onClick={onClose}>
+          <X className="h-4 w-4 shrink-0" aria-hidden />
           {labels.cancel}
         </Button>
-        <Button type="submit" className="min-h-[44px] px-4" disabled={busy}>
+        <Button type="submit" className="min-h-[44px] px-4" disabled={busy} isLoading={busy}>
+          {busy ? null : <Save className="h-4 w-4 shrink-0" aria-hidden />}
           {labels.editSave}
         </Button>
       </div>

@@ -8,12 +8,16 @@ import {
   createCohortAssessmentAction,
   type CreateAssessmentActionState,
 } from "@/app/[locale]/dashboard/teacher/sections/assessmentGradeActions";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 
 function CreateSubmit({ label, pendingLabel }: { label: string; pendingLabel: string }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" className="min-h-[44px]" isLoading={pending} disabled={pending}>
+      {!pending ? (
+        <Plus className="h-4 w-4 shrink-0" aria-hidden />
+      ) : null}
       {pending ? pendingLabel : label}
     </Button>
   );

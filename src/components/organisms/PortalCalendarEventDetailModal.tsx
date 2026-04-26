@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { X } from "lucide-react";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
 import type { Dictionary } from "@/types/i18n";
@@ -121,6 +122,7 @@ export function PortalCalendarEventDetailModal({
       </dl>
       <div className="pt-2">
         <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
+          <X className="h-4 w-4 shrink-0" aria-hidden />
           {dict.detailClose}
         </Button>
       </div>

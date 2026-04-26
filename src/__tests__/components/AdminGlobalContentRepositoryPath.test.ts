@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildAcademicContentsListPath } from "@/components/admin/AdminGlobalContentRepository";
+import { buildAcademicContentsListPath } from "@/lib/admin/buildAcademicContentsListPath";
 
 describe("buildAcademicContentsListPath", () => {
   it("preserves sectionId and updates q, resetting page to 1 when omitted from updates", () => {

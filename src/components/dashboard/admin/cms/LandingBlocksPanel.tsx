@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import {
   addLandingBlockAction,
   moveLandingBlockAction,
@@ -68,6 +69,7 @@ export function LandingBlocksPanel({
   const [adding, setAdding] = useState(false);
   const [errorCode, setErrorCode] = useState<ErrorCode | null>(null);
   const [pending, startTransition] = useTransition();
+  const [removeBlockId, setRemoveBlockId] = useState<string | null>(null);
 
   const atCap = blocks.length >= LANDING_BLOCKS_PER_SECTION_CAP;
 
@@ -96,8 +98,7 @@ export function LandingBlocksPanel({
     });
   }
 
-  function handleRemove(blockId: string) {
-    if (!window.confirm(labels.confirmRemove)) return;
+  function runRemoveBlock(blockId: string) {
     startTransition(async () => {
       const result = await removeLandingBlockAction({
         locale,
@@ -108,6 +109,7 @@ export function LandingBlocksPanel({
         setErrorCode(result.code as ErrorCode);
         return;
       }
+      setRemoveBlockId(null);
       router.refresh();
     });
   }
@@ -208,13 +210,29 @@ export function LandingBlocksPanel({
                 canMoveUp={index > 0}
                 canMoveDown={index < blocks.length - 1}
                 onSave={(copy) => handleUpdate(block.id, copy)}
-                onRemove={() => handleRemove(block.id)}
+                onRemove={() => setRemoveBlockId(block.id)}
                 onMove={(direction) => handleMove(block.id, direction)}
               />
             </li>
           ))}
         </ul>
       )}
+
+      <ConfirmActionModal
+        open={removeBlockId !== null}
+        onOpenChange={(o) => {
+          if (!o) setRemoveBlockId(null);
+        }}
+        title={labels.removeModalTitle}
+        description={labels.confirmRemove}
+        cancelLabel={labels.removeModalCancel}
+        confirmLabel={labels.removeModalConfirm}
+        confirmVariant="destructive"
+        busy={pending}
+        onConfirm={() => {
+          if (removeBlockId) runRemoveBlock(removeBlockId);
+        }}
+      />
     </article>
   );
 }

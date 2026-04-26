@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, RotateCcw, Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import {
   resetSiteThemeContentAction,
@@ -16,6 +16,7 @@ import type {
 import type { LandingSectionEditorViewModel } from "@/lib/cms/buildLandingEditorViewModel";
 import type { Dictionary } from "@/types/i18n";
 import type { SiteThemeRow } from "@/types/theming";
+import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { LandingBlocksPanel } from "./LandingBlocksPanel";
 import { LandingCopyFieldEditor } from "./LandingCopyFieldEditor";
 import { LandingMediaSlotEditor } from "./LandingMediaSlotEditor";
@@ -46,6 +47,7 @@ export function LandingSectionEditorShell({
   );
   const [errorCode, setErrorCode] = useState<SiteThemeActionErrorCode | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [resetCopyOpen, setResetCopyOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const dirty = isLandingCopyDraftDirty(section.copy, draft);
@@ -80,8 +82,7 @@ export function LandingSectionEditorShell({
     });
   }
 
-  function handleReset() {
-    if (!window.confirm(labels.confirmResetCopy)) return;
+  function runResetCopy() {
     startTransition(async () => {
       const result = await resetSiteThemeContentAction({
         locale,
@@ -103,9 +104,9 @@ export function LandingSectionEditorShell({
     <section className="space-y-6">
       <Link
         href={`/${locale}/dashboard/admin/cms/templates/${theme.id}/landing`}
-        className="inline-flex items-center text-sm font-semibold text-[var(--color-primary)] hover:underline"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)] hover:underline"
       >
-        <ArrowLeft aria-hidden className="mr-1 h-4 w-4" />
+        <ArrowLeft aria-hidden className="h-4 w-4 shrink-0" />
         {labels.backToOverview}
       </Link>
 
@@ -151,8 +152,9 @@ export function LandingSectionEditorShell({
               variant="ghost"
               size="sm"
               disabled={pending}
-              onClick={handleReset}
+              onClick={() => setResetCopyOpen(true)}
             >
+              <RotateCcw className="h-4 w-4 shrink-0" aria-hidden />
               {labels.resetCopyCta}
             </Button>
             <Button
@@ -162,6 +164,9 @@ export function LandingSectionEditorShell({
               isLoading={pending}
               onClick={handleSave}
             >
+              {!pending ? (
+                <Save className="h-4 w-4 shrink-0" aria-hidden />
+              ) : null}
               {labels.saveCopyCta}
             </Button>
           </div>
@@ -218,6 +223,20 @@ export function LandingSectionEditorShell({
         section={section.section}
         blocks={section.blocks}
         labels={labels.blocks}
+      />
+
+      <ConfirmActionModal
+        open={resetCopyOpen}
+        onOpenChange={setResetCopyOpen}
+        title={labels.resetCopyModalTitle}
+        description={labels.confirmResetCopy}
+        cancelLabel={labels.resetCopyModalCancel}
+        confirmLabel={labels.resetCopyModalConfirm}
+        busy={pending}
+        onConfirm={() => {
+          setResetCopyOpen(false);
+          runResetCopy();
+        }}
       />
     </section>
   );

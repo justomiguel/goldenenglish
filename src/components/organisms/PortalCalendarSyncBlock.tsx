@@ -2,25 +2,16 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Link2, RefreshCw } from "lucide-react";
+import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
+import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import {
   ensureCalendarFeedTokenAction,
   rotateCalendarFeedTokenAction,
 } from "@/app/[locale]/dashboard/calendar/calendarFeedActions";
 
-type SyncDict = {
-  title: string;
-  lead: string;
-  button: string;
-  urlLabel: string;
-  google: string;
-  outlook: string;
-  errorAuth: string;
-  errorSave: string;
-  rotateButton: string;
-  rotateHint: string;
-  rotateConfirm: string;
-};
+type SyncDict = Dictionary["dashboard"]["portalCalendar"]["sync"];
 
 export interface PortalCalendarSyncBlockProps {
   dict: SyncDict;
@@ -34,6 +25,7 @@ export function PortalCalendarSyncBlock({ dict, initialFeedUrl, embedded }: Port
   const [feedUrl, setFeedUrl] = useState(initialFeedUrl);
   const [err, setErr] = useState<string | null>(null);
   const [rotateErr, setRotateErr] = useState<string | null>(null);
+  const [rotateConfirmOpen, setRotateConfirmOpen] = useState(false);
   const [syncPending, startSync] = useTransition();
   const [rotatePending, startRotate] = useTransition();
 
@@ -51,9 +43,8 @@ export function PortalCalendarSyncBlock({ dict, initialFeedUrl, embedded }: Port
     });
   };
 
-  const rotate = () => {
+  const runRotate = () => {
     if (!feedUrl) return;
-    if (typeof window !== "undefined" && !window.confirm(dict.rotateConfirm)) return;
     setRotateErr(null);
     startRotate(async () => {
       const r = await rotateCalendarFeedTokenAction();
@@ -76,6 +67,7 @@ export function PortalCalendarSyncBlock({ dict, initialFeedUrl, embedded }: Port
         {dict.lead}
       </p>
       <Button type="button" className="mt-3" onClick={sync} isLoading={syncPending} disabled={syncPending}>
+        {!syncPending ? <Link2 className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {dict.button}
       </Button>
       {err ? (
@@ -97,10 +89,11 @@ export function PortalCalendarSyncBlock({ dict, initialFeedUrl, embedded }: Port
               type="button"
               variant="secondary"
               className="mt-2"
-              onClick={rotate}
+              onClick={() => setRotateConfirmOpen(true)}
               isLoading={rotatePending}
               disabled={rotatePending || syncPending}
             >
+              {!rotatePending ? <RefreshCw className="h-4 w-4 shrink-0" aria-hidden /> : null}
               {dict.rotateButton}
             </Button>
             {rotateErr ? (
@@ -119,6 +112,21 @@ export function PortalCalendarSyncBlock({ dict, initialFeedUrl, embedded }: Port
           </div>
         </div>
       ) : null}
+
+      <ConfirmActionModal
+        open={rotateConfirmOpen}
+        onOpenChange={setRotateConfirmOpen}
+        title={dict.rotateModalTitle}
+        description={dict.rotateConfirm}
+        cancelLabel={dict.rotateModalCancel}
+        confirmLabel={dict.rotateModalConfirm}
+        confirmVariant="destructive"
+        busy={rotatePending}
+        onConfirm={() => {
+          setRotateConfirmOpen(false);
+          runRotate();
+        }}
+      />
     </>
   );
 

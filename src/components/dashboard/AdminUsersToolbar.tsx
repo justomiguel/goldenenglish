@@ -1,6 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
+import { ListChecks, Trash2 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -109,6 +110,7 @@ export function AdminUsersToolbar({
           onClick={onToggleSelectAllFiltered}
           title={labels.selectAllFilteredTooltip}
         >
+          <ListChecks className="h-3.5 w-3.5 shrink-0" aria-hidden />
           {allVisibleSelected ? labels.deselectAllFiltered : labels.selectAllFiltered}
         </Button>
         <Button
@@ -119,6 +121,7 @@ export function AdminUsersToolbar({
           onClick={onDeleteSelected}
           title={labels.deleteSelectedTooltip}
         >
+          <Trash2 className="h-3.5 w-3.5 shrink-0" aria-hidden />
           {deleteSelectedButtonLabel(labels, selectedCount)}
         </Button>
       </div>

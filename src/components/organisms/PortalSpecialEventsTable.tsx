@@ -1,11 +1,13 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Pencil, Trash2 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { PortalSpecialEventTypeSlug } from "@/types/portalSpecialCalendar";
 import { Button } from "@/components/atoms/Button";
+import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { deletePortalSpecialCalendarEventAction } from "@/app/[locale]/dashboard/admin/calendar/specialEventsActions";
 import { cordobaHmFromUtcMs, cordobaIsoDateFromUtcMs } from "@/lib/calendar/cordobaFormatFromUtc";
 
@@ -29,11 +31,12 @@ export interface PortalSpecialEventsTableProps {
 export function PortalSpecialEventsTable({ locale, dict, rows }: PortalSpecialEventsTableProps) {
   const router = useRouter();
   const [pending, start] = useTransition();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const remove = (id: string) => {
-    if (typeof window !== "undefined" && !window.confirm(dict.deleteConfirm)) return;
+  const runRemove = (id: string) => {
     start(async () => {
       const r = await deletePortalSpecialCalendarEventAction({ locale, id });
+      setDeleteId(null);
       if (r.ok) router.refresh();
     });
   };
@@ -68,11 +71,22 @@ export function PortalSpecialEventsTable({ locale, dict, rows }: PortalSpecialEv
                   <div className="flex flex-wrap gap-2">
                     <Link
                       href={`/${locale}/dashboard/admin/calendar/special/${r.id}`}
-                      className="text-sm font-medium text-[var(--color-primary)] underline underline-offset-2"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-primary)] underline underline-offset-2"
                     >
+                      <Pencil className="h-4 w-4 shrink-0" aria-hidden />
                       {dict.edit}
                     </Link>
-                    <Button type="button" variant="secondary" className="text-xs" disabled={pending} onClick={() => remove(r.id)}>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="text-xs"
+                      disabled={pending}
+                      isLoading={pending && deleteId === r.id}
+                      onClick={() => setDeleteId(r.id)}
+                    >
+                      {!(pending && deleteId === r.id) ? (
+                        <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
+                      ) : null}
                       {dict.delete}
                     </Button>
                   </div>
@@ -82,6 +96,21 @@ export function PortalSpecialEventsTable({ locale, dict, rows }: PortalSpecialEv
           })}
         </tbody>
       </table>
+
+      <ConfirmActionModal
+        open={deleteId !== null}
+        onOpenChange={(o) => {
+          if (!o) setDeleteId(null);
+        }}
+        title={dict.deleteConfirm}
+        cancelLabel={dict.modalCancel}
+        confirmLabel={dict.delete}
+        confirmVariant="destructive"
+        busy={pending}
+        onConfirm={() => {
+          if (deleteId) runRemove(deleteId);
+        }}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { ClipboardList } from "lucide-react";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -69,6 +70,7 @@ export function TeacherSectionLearningTasks({
           </div>
           <div className="flex items-end">
             <Button type="button" onClick={assign} isLoading={isPending} disabled={!templateId || !startAt || !dueAt}>
+              {!isPending ? <ClipboardList className="h-4 w-4 shrink-0" aria-hidden /> : null}
               {labels.taskAssignButton}
             </Button>
           </div>

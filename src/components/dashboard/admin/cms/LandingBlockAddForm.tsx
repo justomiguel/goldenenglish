@@ -1,5 +1,6 @@
 "use client";
 
+import { Plus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { landingBlockHasField } from "@/lib/cms/landingBlockKindFields";
 import type { Dictionary } from "@/types/i18n";
@@ -96,6 +97,9 @@ export function LandingBlockAddForm({
         isLoading={pending}
         onClick={onSubmit}
       >
+        {!pending ? (
+          <Plus className="h-4 w-4 shrink-0" aria-hidden />
+        ) : null}
         {labels.submitAddCta}
       </Button>
     </fieldset>

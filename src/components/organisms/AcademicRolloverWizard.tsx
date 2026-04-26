@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft, ArrowRight, Check, Replace, X } from "lucide-react";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/components/atoms/Modal";
@@ -116,6 +117,7 @@ export function AcademicRolloverWizard({
   return (
     <>
       <Button type="button" variant="ghost" onClick={() => setOpen(true)}>
+        <Replace className="h-4 w-4 shrink-0" aria-hidden />
         {dict.openButton}
       </Button>
       <Modal
@@ -142,9 +144,11 @@ export function AcademicRolloverWizard({
             />
             <div className="flex justify-end gap-2 pt-2">
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+                <X className="h-4 w-4 shrink-0" aria-hidden />
                 {dict.cancel}
               </Button>
               <Button type="button" onClick={() => setStep(2)} disabled={!sourceSectionId}>
+                <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
                 {dict.next}
               </Button>
             </div>
@@ -165,9 +169,11 @@ export function AcademicRolloverWizard({
             />
             <div className="flex justify-between gap-2 pt-2">
               <Button type="button" variant="ghost" onClick={() => setStep(1)} disabled={pending}>
+                <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
                 {dict.back}
               </Button>
               <Button type="button" onClick={() => setStep(3)} disabled={pending || !targetSectionId}>
+                <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
                 {dict.next}
               </Button>
             </div>
@@ -200,6 +206,7 @@ export function AcademicRolloverWizard({
             {msg ? <p className="text-sm text-[var(--color-foreground)]">{msg}</p> : null}
             <div className="flex justify-between gap-2 pt-2">
               <Button type="button" variant="ghost" onClick={() => setStep(2)} disabled={pending}>
+                <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
                 {dict.back}
               </Button>
               <Button
@@ -208,6 +215,7 @@ export function AcademicRolloverWizard({
                 onClick={runRollover}
                 disabled={pending || selectedIds.length === 0}
               >
+                {!pending ? <Check className="h-4 w-4 shrink-0" aria-hidden /> : null}
                 {dict.confirm}
               </Button>
             </div>

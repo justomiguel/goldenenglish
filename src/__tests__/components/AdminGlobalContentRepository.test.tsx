@@ -12,6 +12,7 @@ const prepareGlobalContentFileUploadAction = vi.fn(async () => ({
   token: "signed-token",
 }));
 const saveGlobalContentBuilderMetadataAction = vi.fn(async () => ({ ok: true, id: "content-1" }));
+const getGlobalContentDeleteImpactAction = vi.fn(async () => ({ ok: true, routeStepCount: 2 }));
 const deleteGlobalContentAction = vi.fn(async () => ({ ok: true, id: "content-1" }));
 const uploadToSignedUrl = vi.fn(async () => ({ data: {}, error: null }));
 
@@ -41,6 +42,7 @@ vi.mock("@/app/[locale]/dashboard/admin/academic/contents/globalContentFormDataA
 }));
 
 vi.mock("@/app/[locale]/dashboard/admin/academic/contents/globalContentLifecycleActions", () => ({
+  getGlobalContentDeleteImpactAction: (...args: unknown[]) => getGlobalContentDeleteImpactAction(...args),
   deleteGlobalContentAction: (...args: unknown[]) => deleteGlobalContentAction(...args),
 }));
 
@@ -61,6 +63,7 @@ describe("AdminGlobalContentRepository", () => {
     mockRefresh.mockClear();
     prepareGlobalContentFileUploadAction.mockClear();
     saveGlobalContentBuilderMetadataAction.mockClear();
+    getGlobalContentDeleteImpactAction.mockClear();
     deleteGlobalContentAction.mockClear();
     uploadToSignedUrl.mockClear();
   });
@@ -317,7 +320,6 @@ describe("AdminGlobalContentBuilder", () => {
   it("offers a permanent delete action alongside archive", async () => {
     const user = userEvent.setup();
     const labels = dictEn.dashboard.adminContents;
-    vi.spyOn(window, "confirm").mockReturnValue(true);
 
     render(
       <AdminGlobalContentRepository
@@ -340,10 +342,77 @@ describe("AdminGlobalContentBuilder", () => {
 
     expect(screen.getByRole("button", { name: labels.archive })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: labels.delete }));
+    expect(await screen.findByText(labels.deleteConfirmWithRouteSteps.replace("{count}", "2"))).toBeInTheDocument();
+    await user.click(screen.getAllByRole("button", { name: labels.delete }).at(-1)!);
 
+    expect(getGlobalContentDeleteImpactAction).toHaveBeenCalledWith({
+      locale: "en",
+      id: "00000000-0000-4000-8000-000000000001",
+    });
     expect(deleteGlobalContentAction).toHaveBeenCalledWith({
       locale: "en",
       id: "00000000-0000-4000-8000-000000000001",
     });
+  });
+
+  it("shows a visible error when permanent delete fails", async () => {
+    deleteGlobalContentAction.mockResolvedValueOnce({ ok: false, code: "persist_failed" });
+    const user = userEvent.setup();
+    const labels = dictEn.dashboard.adminContents;
+
+    render(
+      <AdminGlobalContentRepository
+        locale="en"
+        labels={labels}
+        pagination={{ ...defaultPagination, totalCount: 1 }}
+        contents={[{
+          id: "00000000-0000-4000-8000-000000000001",
+          title: "Saved content",
+          description: "",
+          bodyHtml: "<p>Body</p>",
+          updatedAt: "2026-04-20T00:00:00Z",
+          assetCount: 0,
+          blockCount: 1,
+          assets: [],
+          blocks: [],
+        }]}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: labels.delete }));
+    await screen.findByText(labels.deleteConfirmWithRouteSteps.replace("{count}", "2"));
+    await user.click(screen.getAllByRole("button", { name: labels.delete }).at(-1)!);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(labels.repositoryActionFailed);
+    expect(mockRefresh).not.toHaveBeenCalled();
+  });
+
+  it("shows no-route-step copy before deleting unused content", async () => {
+    getGlobalContentDeleteImpactAction.mockResolvedValueOnce({ ok: true, routeStepCount: 0 });
+    const user = userEvent.setup();
+    const labels = dictEn.dashboard.adminContents;
+
+    render(
+      <AdminGlobalContentRepository
+        locale="en"
+        labels={labels}
+        pagination={{ ...defaultPagination, totalCount: 1 }}
+        contents={[{
+          id: "00000000-0000-4000-8000-000000000001",
+          title: "Saved content",
+          description: "",
+          bodyHtml: "<p>Body</p>",
+          updatedAt: "2026-04-20T00:00:00Z",
+          assetCount: 0,
+          blockCount: 1,
+          assets: [],
+          blocks: [],
+        }]}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: labels.delete }));
+
+    expect(await screen.findByText(labels.deleteConfirmNoRouteSteps)).toBeInTheDocument();
   });
 });

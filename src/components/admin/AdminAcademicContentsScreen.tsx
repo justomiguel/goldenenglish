@@ -14,8 +14,8 @@ import {
   underlineTabId,
   type UnderlineTabItem,
 } from "@/components/molecules/UnderlineTabBar";
-import type { ContentSectionOption } from "@/types/learningContent";
 import type { ContentTemplateLibraryRow } from "@/lib/learning-tasks/loadContentTemplateLibrary";
+import type { LearningRouteContentTemplateOption } from "@/types/learningContent";
 import type { Dictionary } from "@/types/i18n";
 
 export type AcademicContentsTab = "repository" | "routes";
@@ -23,7 +23,7 @@ export type AcademicContentsTab = "repository" | "routes";
 interface AdminAcademicContentsScreenProps {
   locale: string;
   activeTab: AcademicContentsTab;
-  sections: ContentSectionOption[];
+  routes: LearningRouteContentTemplateOption[];
   globalContents: ContentTemplateLibraryRow[];
   repositoryPagination: GlobalContentRepositoryPagination;
   labels: Dictionary["dashboard"]["adminContents"];
@@ -44,7 +44,7 @@ export function buildAcademicContentsHubPath(
 export function AdminAcademicContentsScreen({
   locale,
   activeTab,
-  sections,
+  routes,
   globalContents,
   repositoryPagination,
   labels,
@@ -105,7 +105,7 @@ export function AdminAcademicContentsScreen({
           className="space-y-4 px-4 py-4 sm:px-5 sm:py-5 outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
         >
           <p className="text-sm text-[var(--color-muted-foreground)]">{labels.learningRoutesLead}</p>
-          <AdminLearningRoutesGrid locale={locale} sections={sections} labels={labels} />
+          <AdminLearningRoutesGrid locale={locale} routes={routes} labels={labels} />
         </div>
       </div>
     </div>

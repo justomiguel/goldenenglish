@@ -17,7 +17,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, Link2, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -86,7 +86,10 @@ export function AdminGlobalContentMaterialsPanel({
         <div className="mt-3 grid gap-2 lg:grid-cols-[1fr_1fr_auto]">
           <Input value={materialLabel} onChange={(e) => onMaterialLabelChange(e.target.value)} placeholder={labels.materialLabelPlaceholder} />
           <Input value={embedUrl} onChange={(e) => onEmbedUrlChange(e.target.value)} placeholder={labels.embedUrlPlaceholder} />
-          <Button type="button" onClick={onAddEmbed} disabled={!materialLabel.trim() || !embedUrl.trim()}>{labels.builderAddEmbed}</Button>
+          <Button type="button" onClick={onAddEmbed} disabled={!materialLabel.trim() || !embedUrl.trim()}>
+            <Link2 className="h-4 w-4 shrink-0" aria-hidden />
+            {labels.builderAddEmbed}
+          </Button>
         </div>
         <div className="mt-2 grid gap-2 lg:grid-cols-[1fr_auto]">
           <div>
@@ -176,12 +179,15 @@ function SortableMaterialItem({
       </span>
       <span className="flex shrink-0 gap-1">
         <Button type="button" variant="ghost" size="sm" onClick={() => onMoveMaterial(index, -1)} disabled={index === 0} aria-label={labels.moveUp} title={labels.moveUp}>
-          <ArrowUp className="h-4 w-4" aria-hidden />
+          <ArrowUp className="h-3.5 w-3.5 shrink-0" aria-hidden />
         </Button>
         <Button type="button" variant="ghost" size="sm" onClick={() => onMoveMaterial(index, 1)} disabled={index === total - 1} aria-label={labels.moveDown} title={labels.moveDown}>
-          <ArrowDown className="h-4 w-4" aria-hidden />
+          <ArrowDown className="h-3.5 w-3.5 shrink-0" aria-hidden />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => onRemoveMaterial(material)}>{labels.remove}</Button>
+        <Button type="button" variant="ghost" size="sm" onClick={() => onRemoveMaterial(material)}>
+          <Trash2 className="h-3.5 w-3.5 shrink-0 text-[var(--color-foreground)]" aria-hidden />
+          {labels.remove}
+        </Button>
       </span>
     </li>
   );

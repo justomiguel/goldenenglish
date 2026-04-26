@@ -29,6 +29,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`13-postgrest-pagination-bounded-queries.mdc`** | PostgREST acotado: sin `select("*")` innecesario; listados que crecen = **paginación servidor** (`range` + `count` al mismo filtro o RPC). **No** “solo `.limit(N)`” sin total/navegación; **no** paginar solo en cliente si el servidor trae todo. Patrones: `loadPaginatedRegistrations`, `loadPaginatedAdminUsers`, `chunkedIn`, RPC hub. |
 | **`17-trust-boundary-handlers.mdc`** | Bordes de confianza: secretos de cron solo por header (`verifyCronRequest`), `Cache-Control: private` en respuestas personalizadas, mutaciones cross-account con `createAdminClient` requieren re-auth + auditoría (`system_config_audit`) + notificación al titular, HTML editable persistido pasa por sanitizer del repo (`sanitizeMessageHtml`, `sanitizeEmailTemplateHtml`). Origen: auditoría OWASP de 2026-04. |
 | **`16-admin-buttons-icons.mdc`** | `Button` y enlaces CTA: icono Lucide leading + a11y; al tocar un control sin icono, añadirlo si el alcance lo permite. |
+| **`18-no-native-browser-dialogs.mdc`** | Sin `alert` / `confirm` / `prompt` en producto: `Modal` + DS, toasts/banners existentes, **11** para jobs largos; copy **09**. |
 
 **Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo.
 

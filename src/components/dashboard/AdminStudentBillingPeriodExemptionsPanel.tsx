@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { applyExemptionRange } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/applyExemptionRangeAction";
 import { setPeriodExemption } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/periodExemptionActions";
+import { CalendarRange, Shield, ShieldOff } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -111,6 +112,7 @@ export function AdminStudentBillingPeriodExemptionsPanel({
           disabled={busy}
           onClick={() => toggleExempt({ year: exY, month: exM }, true)}
         >
+          <Shield className="h-4 w-4 shrink-0" aria-hidden />
           {labels.exemptPeriod}
         </Button>
         <Button
@@ -120,6 +122,7 @@ export function AdminStudentBillingPeriodExemptionsPanel({
           disabled={busy}
           onClick={() => toggleExempt({ year: exY, month: exM }, false)}
         >
+          <ShieldOff className="h-4 w-4 shrink-0" aria-hidden />
           {labels.unexemptPeriod}
         </Button>
       </div>
@@ -164,6 +167,7 @@ export function AdminStudentBillingPeriodExemptionsPanel({
           </div>
         </div>
         <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px]">
+          {busy ? null : <CalendarRange className="h-4 w-4 shrink-0" aria-hidden />}
           {labels.exemptRangeSubmit}
         </Button>
       </form>

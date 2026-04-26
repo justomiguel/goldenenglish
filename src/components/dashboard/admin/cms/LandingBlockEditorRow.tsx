@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import {
   isLandingBlockCopyValid,
@@ -151,6 +151,7 @@ export function LandingBlockEditorRow({
           disabled={disabled || !canSave}
           onClick={() => onSave(persisted)}
         >
+          <Save className="h-4 w-4 shrink-0" aria-hidden />
           {labels.saveCta}
         </Button>
         <Button
@@ -159,6 +160,7 @@ export function LandingBlockEditorRow({
           disabled={disabled}
           onClick={onRemove}
         >
+          <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
           {labels.removeCta}
         </Button>
       </div>

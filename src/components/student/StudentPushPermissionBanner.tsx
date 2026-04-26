@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Bell, X } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 import { logClientWarn } from "@/lib/logging/clientLog";
@@ -68,9 +69,11 @@ export function StudentPushPermissionBanner({ dict }: StudentPushPermissionBanne
       <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{dict.pushLead}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button type="button" size="sm" onClick={() => void request()}>
+          <Bell className="h-4 w-4 shrink-0" aria-hidden />
           {dict.pushEnable}
         </Button>
         <Button type="button" size="sm" variant="ghost" onClick={dismiss}>
+          <X className="h-4 w-4 shrink-0" aria-hidden />
           {dict.pushLater}
         </Button>
       </div>

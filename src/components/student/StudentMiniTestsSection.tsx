@@ -1,5 +1,6 @@
 "use client";
 
+import { Send } from "lucide-react";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/atoms/Button";
 import { submitStudentMiniTestAction } from "@/app/[locale]/dashboard/student/assessments/actions";
@@ -108,6 +109,7 @@ function MiniTestCard({
           if (response.ok) setResult(response.passed ? labels.miniTestsPassed : labels.miniTestsNeedsReview);
         })}
       >
+        {!isPending ? <Send className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {labels.submitMiniTest}
       </Button>
       {result ? <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{result}</p> : null}

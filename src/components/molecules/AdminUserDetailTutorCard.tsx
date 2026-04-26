@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Users } from "lucide-react";
+import { Save, Users } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUserTutorLinkVM } from "@/lib/dashboard/adminUserDetailVM";
 import {
@@ -115,6 +115,9 @@ export function AdminUserDetailTutorCard({
           />
           {pickedId ? <p className="text-sm font-medium text-[var(--color-foreground)]">{pickedLabel}</p> : null}
           <Button type="button" variant="primary" size="sm" isLoading={busy} onClick={() => void save()}>
+            {!busy ? (
+              <Save className="h-4 w-4 shrink-0" aria-hidden />
+            ) : null}
             {labels.detailTutorSave}
           </Button>
         </div>

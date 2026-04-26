@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Send } from "lucide-react";
 import { sendAdminMessage } from "@/app/[locale]/dashboard/admin/messages/actions";
 import { Button } from "@/components/atoms/Button";
 import { RecipientAutocomplete } from "@/components/molecules/RecipientAutocomplete";
@@ -82,6 +83,7 @@ export function AdminPortalCompose({ locale, recipients, labels }: AdminPortalCo
         className="min-h-[44px]"
         title={labels.tipComposeSend}
       >
+        {busy ? null : <Send className="h-4 w-4 shrink-0" aria-hidden />}
         {labels.composeSend}
       </Button>
       {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}

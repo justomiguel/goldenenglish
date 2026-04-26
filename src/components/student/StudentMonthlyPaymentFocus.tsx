@@ -1,5 +1,6 @@
 "use client";
 
+import { CreditCard } from "lucide-react";
 import { type FormEvent, useId, useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import type { Dictionary, Locale } from "@/types/i18n";
@@ -229,6 +230,7 @@ export function StudentMonthlyPaymentFocus({
             isLoading={busy}
             className="min-h-[44px] w-full sm:w-auto"
           >
+            {!busy ? <CreditCard className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {paymentLabels.paySubmit}
           </Button>
           {msg ? (

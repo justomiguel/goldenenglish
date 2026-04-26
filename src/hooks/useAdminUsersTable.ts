@@ -52,6 +52,7 @@ export function useAdminUsersTable({
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [confirmIds, setConfirmIds] = useState<string[] | null>(null);
+  const [deleteOutcomeMessage, setDeleteOutcomeMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const selectAllRef = useRef<HTMLInputElement>(null);
 
@@ -143,12 +144,12 @@ export function useAdminUsersTable({
       setSelectedIds(new Set());
       router.refresh();
       if (res.partial) {
-        window.alert(labels.deletePartial);
+        setDeleteOutcomeMessage(labels.deletePartial);
       }
       return;
     }
     if (res.message) {
-      window.alert(`${labels.deleteError}: ${res.message}`);
+      setDeleteOutcomeMessage(`${labels.deleteError}: ${res.message}`);
     }
   }
 
@@ -186,6 +187,8 @@ export function useAdminUsersTable({
     runDelete,
     emptyMessage,
     onDeleteSelected: () => setConfirmIds(selectedDeletable.map((r) => r.id)),
+    deleteOutcomeMessage,
+    clearDeleteOutcomeMessage: () => setDeleteOutcomeMessage(null),
     deleteDisabled: selectedDeletable.length === 0 || busy,
     selectAllFilteredDisabled: deletableVisible.length === 0 || busy,
     tpl,

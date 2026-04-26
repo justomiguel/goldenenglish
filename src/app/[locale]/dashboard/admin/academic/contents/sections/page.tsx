@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
-import { loadContentSections } from "@/lib/learning-content/loadContentSections";
+import { loadGlobalLearningRouteOptions } from "@/lib/learning-content/loadLearningRouteWorkspace";
 import { AdminLearningRoutesGrid } from "@/components/admin/AdminLearningRoutesGrid";
 
 interface PageProps {
@@ -24,7 +24,7 @@ export default async function SectionContentPickerPage({ params }: PageProps) {
   const dict = await getDictionary(locale);
   const labels = dict.dashboard.adminContents;
   const supabase = await createClient();
-  const sections = await loadContentSections(supabase);
+  const routes = await loadGlobalLearningRouteOptions(supabase);
 
   return (
     <main className="space-y-5">
@@ -39,7 +39,7 @@ export default async function SectionContentPickerPage({ params }: PageProps) {
         <h1 className="mt-3 text-2xl font-semibold text-[var(--color-foreground)]">{labels.learningRoutesTitle}</h1>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.learningRoutesLead}</p>
       </header>
-      <AdminLearningRoutesGrid locale={locale} sections={sections} labels={labels} />
+      <AdminLearningRoutesGrid locale={locale} routes={routes} labels={labels} />
     </main>
   );
 }

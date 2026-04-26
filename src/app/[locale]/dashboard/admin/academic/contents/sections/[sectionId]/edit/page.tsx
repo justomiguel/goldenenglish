@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { AdminLearningRoutePlanner } from "@/components/admin/AdminLearningRoutePlanner";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
-import { loadContentSections } from "@/lib/learning-content/loadContentSections";
-import { loadLearningRouteWorkspace } from "@/lib/learning-content/loadLearningRouteWorkspace";
+import {
+  loadLearningRouteWorkspace,
+  loadNewLearningRouteWorkspace,
+} from "@/lib/learning-content/loadLearningRouteWorkspace";
 
 interface PageProps {
   params: Promise<{ locale: string; sectionId: string }>;
@@ -26,10 +27,9 @@ export default async function EditSectionContentPage({ params }: PageProps) {
   const dict = await getDictionary(locale);
   const labels = dict.dashboard.adminContents;
   const supabase = await createClient();
-  const sections = await loadContentSections(supabase);
-  const selectedSectionId = sectionId === "global" ? null : sectionId;
-  if (selectedSectionId && !sections.some((section) => section.id === selectedSectionId)) notFound();
-  const workspace = await loadLearningRouteWorkspace(supabase, selectedSectionId);
+  const workspace = sectionId === "new"
+    ? await loadNewLearningRouteWorkspace(supabase)
+    : await loadLearningRouteWorkspace(supabase, sectionId === "global" ? null : sectionId);
 
   return (
     <main className="space-y-5">
@@ -43,8 +43,6 @@ export default async function EditSectionContentPage({ params }: PageProps) {
       </header>
       <AdminLearningRoutePlanner
         locale={locale}
-        sections={sections}
-        selectedSectionId={selectedSectionId}
         workspace={workspace}
         labels={labels}
       />

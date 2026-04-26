@@ -2,6 +2,7 @@
 
 import type { Dictionary } from "@/types/i18n";
 import type { TeacherAttendancePreviewRow } from "@/types/teacherPortal";
+import { X } from "lucide-react";
 import { TeacherSuggestionShell } from "@/components/molecules/TeacherSuggestionShell";
 import { Button } from "@/components/atoms/Button";
 
@@ -55,6 +56,7 @@ export function TeacherStudentQuickContext({
       <p className="mt-4 text-xs text-[var(--color-muted-foreground)]">{dict.quickContextGradesNote}</p>
       <div className="mt-4 flex justify-end">
         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+          <X className="h-4 w-4 shrink-0" aria-hidden />
           {dict.quickContextClose}
         </Button>
       </div>

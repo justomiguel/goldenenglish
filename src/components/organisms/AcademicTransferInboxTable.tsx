@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, ListChecks, X } from "lucide-react";
 import { useMemo, useOptimistic, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Dictionary } from "@/types/i18n";
@@ -126,6 +127,7 @@ export function AcademicTransferInboxTable({
             title={dict.tipBulkApprove}
             onClick={bulkApprove}
           >
+            <Check className="h-4 w-4 shrink-0" aria-hidden />
             {dict.bulkApprove}
           </Button>
           <Button
@@ -136,6 +138,7 @@ export function AcademicTransferInboxTable({
             title={allSelected ? dict.tipClearSelection : dict.tipSelectAll}
             onClick={toggleAllVisible}
           >
+            <ListChecks className="h-4 w-4 shrink-0" aria-hidden />
             {allSelected ? dict.clearSelection : dict.selectAll}
           </Button>
         </div>
@@ -198,6 +201,7 @@ export function AcademicTransferInboxTable({
                           title={dict.tipApproveRequest}
                           onClick={() => approve(r.id)}
                         >
+                          <Check className="h-4 w-4 shrink-0" aria-hidden />
                           {dict.approve}
                         </Button>
                         <Button
@@ -208,6 +212,7 @@ export function AcademicTransferInboxTable({
                           title={dict.tipRejectRequest}
                           onClick={() => reject(r.id)}
                         >
+                          <X className="h-4 w-4 shrink-0" aria-hidden />
                           {dict.reject}
                         </Button>
                       </div>

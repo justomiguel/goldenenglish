@@ -2,6 +2,7 @@
 
 import { type FormEvent, useState } from "react";
 import Link from "next/link";
+import { ChevronLeft, Save } from "lucide-react";
 import { updateWardProfile } from "@/app/[locale]/dashboard/parent/children/[studentId]/actions";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -75,9 +76,10 @@ export function ParentWardProfileForm({
     <div className="mx-auto max-w-lg space-y-6">
       <Link
         href={base}
-        className="inline-block text-sm font-medium text-[var(--color-primary)] underline"
+        className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-primary)] underline"
       >
-        ← {labels.navHome}
+        <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden />
+        {labels.navHome}
       </Link>
       <div>
         <h1 className="font-display text-3xl font-bold text-[var(--color-secondary)]">
@@ -167,6 +169,7 @@ export function ParentWardProfileForm({
           </p>
         ) : null}
         <Button type="submit" className="min-h-[44px] w-full sm:w-auto" disabled={busy} isLoading={busy}>
+          {!busy ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {labels.saveWard}
         </Button>
       </form>

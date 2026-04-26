@@ -5,13 +5,12 @@ import type {
   LearningRouteModel,
   LearningRouteStepModel,
   QuestionBankItemModel,
+  SectionLearningRouteAssignment,
   SectionContentHealth,
 } from "@/types/learningContent";
 
 type RouteRow = {
   id: string;
-  section_id: string | null;
-  visibility: "global" | "section";
   title: string;
   teacher_objectives: string;
   general_scope: string;
@@ -19,62 +18,108 @@ type RouteRow = {
   status: "draft" | "active" | "archived";
 };
 
+type AssignmentRow = {
+  id: string;
+  section_id: string;
+  learning_route_id: string | null;
+  mode: "route" | "free_flow";
+  learning_routes?: RouteRow | RouteRow[] | null;
+};
+
 function first<T>(raw: T | T[] | null | undefined): T | null {
   return Array.isArray(raw) ? (raw[0] ?? null) : (raw ?? null);
 }
 
 export type LearningRouteWorkspace = {
-  route: LearningRouteModel;
+  route: LearningRouteModel | null;
   routeSteps: LearningRouteStepModel[];
   contentTemplates: LearningRouteContentTemplateOption[];
   questions: QuestionBankItemModel[];
   assessments: LearningAssessmentModel[];
   health: SectionContentHealth;
+  assignment?: SectionLearningRouteAssignment | null;
 };
 
-function emptyRoute(sectionId: string | null): LearningRouteModel {
+function mapRoute(row: RouteRow): LearningRouteModel {
   return {
-    id: null,
-    sectionId,
-    visibility: sectionId ? "section" : "global",
-    title: "",
-    teacherObjectives: "",
-    generalScope: "",
-    evaluationCriteria: "",
-    status: "draft",
+    id: row.id,
+    title: row.title,
+    teacherObjectives: row.teacher_objectives,
+    generalScope: row.general_scope,
+    evaluationCriteria: row.evaluation_criteria,
+    status: row.status,
   };
+}
+
+export async function loadGlobalLearningRouteOptions(
+  supabase: SupabaseClient,
+): Promise<LearningRouteContentTemplateOption[]> {
+  const { data } = await supabase
+    .from("learning_routes")
+    .select("id, title, general_scope")
+    .order("updated_at", { ascending: false })
+    .limit(200);
+
+  return ((data ?? []) as { id: string; title: string; general_scope: string }[]).map((row) => ({
+    id: row.id,
+    title: row.title,
+    description: row.general_scope,
+  }));
 }
 
 export async function loadLearningRouteWorkspace(
   supabase: SupabaseClient,
-  sectionId: string | null,
+  routeId: string | null = null,
 ): Promise<LearningRouteWorkspace> {
   const routeQuery = supabase
     .from("learning_routes")
-    .select("id, section_id, visibility, title, teacher_objectives, general_scope, evaluation_criteria, status")
+    .select("id, title, teacher_objectives, general_scope, evaluation_criteria, status")
     .order("updated_at", { ascending: false })
     .limit(1);
 
-  const { data: routeData } = sectionId
-    ? await routeQuery.eq("section_id", sectionId).eq("visibility", "section")
-    : await routeQuery.is("section_id", null).eq("visibility", "global");
-
+  const { data: routeData } = routeId ? await routeQuery.eq("id", routeId) : await routeQuery;
   const routeRow = ((routeData ?? []) as RouteRow[])[0] ?? null;
-  const route = routeRow
-    ? {
-        id: routeRow.id,
-        sectionId: routeRow.section_id,
-        visibility: routeRow.visibility,
-        title: routeRow.title,
-        teacherObjectives: routeRow.teacher_objectives,
-        generalScope: routeRow.general_scope,
-        evaluationCriteria: routeRow.evaluation_criteria,
-        status: routeRow.status,
-      }
-    : emptyRoute(sectionId);
+  const route = routeRow ? mapRoute(routeRow) : null;
+  return buildLearningRouteWorkspace(supabase, route, null);
+}
 
+export async function loadNewLearningRouteWorkspace(
+  supabase: SupabaseClient,
+): Promise<LearningRouteWorkspace> {
+  return buildLearningRouteWorkspace(supabase, null, null);
+}
+
+export async function loadSectionLearningRouteWorkspace(
+  supabase: SupabaseClient,
+  sectionId: string,
+): Promise<LearningRouteWorkspace> {
+  const { data: assignmentData } = await supabase
+    .from("section_learning_routes")
+    .select("id, section_id, learning_route_id, mode, learning_routes(id, title, teacher_objectives, general_scope, evaluation_criteria, status)")
+    .eq("section_id", sectionId)
+    .maybeSingle();
+  const assignmentRow = assignmentData as AssignmentRow | null;
+  const routeRow = first(assignmentRow?.learning_routes);
+  const route = assignmentRow?.mode === "route" && routeRow ? mapRoute(routeRow) : null;
+  const assignment = assignmentRow
+    ? {
+        id: assignmentRow.id,
+        sectionId: assignmentRow.section_id,
+        learningRouteId: assignmentRow.learning_route_id,
+        mode: assignmentRow.mode,
+      }
+    : null;
+  return buildLearningRouteWorkspace(supabase, route, sectionId, assignment);
+}
+
+async function buildLearningRouteWorkspace(
+  supabase: SupabaseClient,
+  route: LearningRouteModel | null,
+  sectionId: string | null,
+  assignment: SectionLearningRouteAssignment | null = null,
+): Promise<LearningRouteWorkspace> {
   const [steps, templates, questions, assessments, readiness] = await Promise.all([
-    route.id
+    route?.id
       ? supabase
           .from("learning_route_steps")
           .select("id, content_template_id, title, sort_order, lesson_kind, is_required, content_templates(title)")
@@ -170,11 +215,14 @@ export async function loadLearningRouteWorkspace(
       gradingMode: row.grading_mode,
     })),
     health: {
-      missingObjectives: !route.teacherObjectives.trim() || !route.generalScope.trim() || !route.evaluationCriteria.trim(),
+      missingObjectives: route
+        ? !route.teacherObjectives.trim() || !route.generalScope.trim() || !route.evaluationCriteria.trim()
+        : true,
       missingEntryAssessment: sectionId ? !assessmentRows.some((row) => row.assessment_kind === "entry") : false,
       missingExitAssessment: sectionId ? !assessmentRows.some((row) => row.assessment_kind === "exit") : false,
       needsSupportCount: readinessRows.filter((row) => row.readiness_status === "needs_support").length,
       teacherOverrideCount: readinessRows.filter((row) => row.readiness_status === "teacher_override").length,
     },
+    assignment,
   };
 }

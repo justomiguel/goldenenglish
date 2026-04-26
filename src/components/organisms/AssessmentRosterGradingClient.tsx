@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState } from "react";
+import { ClipboardCheck } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AssessmentMatrixRosterRow } from "@/types/assessmentGrades";
 import type { RubricDimensionDef } from "@/types/rubricDimensions";
@@ -128,6 +129,7 @@ export function AssessmentRosterGradingClient({
                     aria-label={dict.evaluateAria.replace("{student}", row.studentLabel)}
                     onClick={() => setOpenId(row.enrollmentId)}
                   >
+                    <ClipboardCheck className="h-4 w-4 shrink-0" aria-hidden />
                     {dict.evaluate}
                   </Button>
                 </td>

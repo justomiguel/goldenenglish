@@ -1,5 +1,6 @@
 "use client";
 
+import { GraduationCap, MapPin } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
 import { Button } from "@/components/atoms/Button";
@@ -60,6 +61,7 @@ export function TeacherRosterStudentRow({
                 disabled={hasPendingTransfer}
                 onClick={onSuggestSection}
               >
+                <MapPin className="h-4 w-4 shrink-0" aria-hidden />
                 {dict.rosterCtaSection}
               </Button>
               <Button
@@ -70,6 +72,7 @@ export function TeacherRosterStudentRow({
                 disabled={hasPendingTransfer}
                 onClick={onSuggestCohort}
               >
+                <GraduationCap className="h-4 w-4 shrink-0" aria-hidden />
                 {dict.rosterCtaCohort}
               </Button>
             </>

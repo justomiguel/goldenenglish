@@ -6,7 +6,9 @@ import { fillTemplate } from "@/lib/i18n/fillTemplate";
 import { wrapEmailHtml } from "@/lib/email/templates/wrapEmailHtml";
 import { resetEmailTemplateAction, saveEmailTemplateAction, type EmailTemplateActionErrorCode } from "@/app/[locale]/dashboard/admin/communications/templates/actions";
 import type { Dictionary, Locale } from "@/types/i18n";
+import { RotateCcw, Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { Label } from "@/components/atoms/Label";
 import { EmailTemplateEditor } from "./EmailTemplateEditor";
 import { EmailTemplatePreview } from "./EmailTemplatePreview";
@@ -41,6 +43,7 @@ export function EmailTemplatesShell({
   const [pending, startTransition] = useTransition();
   const [errorCode, setErrorCode] = useState<EmailTemplateActionErrorCode | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [resetOpen, setResetOpen] = useState(false);
 
   const initialKey: SelectedKey = entries.length
     ? { templateKey: entries[0].definition.key, templateLocale: "es" }
@@ -96,9 +99,8 @@ export function EmailTemplatesShell({
     });
   }
 
-  function handleReset() {
+  function runResetTemplate() {
     if (!selectedEntry) return;
-    if (!window.confirm(labels.confirmReset)) return;
     startTransition(async () => {
       const result = await resetEmailTemplateAction({
         locale,
@@ -192,9 +194,13 @@ export function EmailTemplatesShell({
             disabled={pending || !dirty}
             isLoading={pending}
           >
+            {!pending ? (
+              <Save className="h-4 w-4 shrink-0" aria-hidden />
+            ) : null}
             {labels.saveCta}
           </Button>
-          <Button variant="ghost" size="sm" onClick={handleReset} disabled={pending}>
+          <Button variant="ghost" size="sm" onClick={() => setResetOpen(true)} disabled={pending}>
+            <RotateCcw className="h-4 w-4 shrink-0" aria-hidden />
             {labels.resetCta}
           </Button>
           {errorCode ? (
@@ -214,6 +220,21 @@ export function EmailTemplatesShell({
         labels={labels}
         subject={previewSubject}
         html={previewHtml}
+      />
+
+      <ConfirmActionModal
+        open={resetOpen}
+        onOpenChange={setResetOpen}
+        title={labels.resetTemplateModalTitle}
+        description={labels.confirmReset}
+        cancelLabel={labels.resetTemplateModalCancel}
+        confirmLabel={labels.resetTemplateModalConfirm}
+        confirmVariant="destructive"
+        busy={pending}
+        onConfirm={() => {
+          setResetOpen(false);
+          runResetTemplate();
+        }}
       />
     </section>
   );

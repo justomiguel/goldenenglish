@@ -11,8 +11,6 @@ export type ContentSectionOption = {
 
 export type LearningRouteModel = {
   id: string | null;
-  sectionId: string | null;
-  visibility: "global" | "section";
   title: string;
   teacherObjectives: string;
   generalScope: string;
@@ -34,6 +32,13 @@ export type LearningRouteContentTemplateOption = {
   id: string;
   title: string;
   description: string;
+};
+
+export type SectionLearningRouteAssignment = {
+  id: string | null;
+  sectionId: string;
+  learningRouteId: string | null;
+  mode: "route" | "free_flow";
 };
 
 export type QuestionBankItemModel = {

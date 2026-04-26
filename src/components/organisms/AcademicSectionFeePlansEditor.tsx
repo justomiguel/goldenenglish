@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Archive, ArchiveX, Plus } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import {
   DEFAULT_SECTION_FEE_PLAN_CURRENCY,
@@ -173,7 +173,7 @@ export function AcademicSectionFeePlansEditor({
       ) : (
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Button type="button" onClick={startCreate} className="min-h-[44px]">
-            <Plus className="mr-2 h-4 w-4" aria-hidden />
+            <Plus className="h-4 w-4 shrink-0" aria-hidden />
             {dict.add}
           </Button>
           {editor.archivedCount > 0 ? (
@@ -183,6 +183,11 @@ export function AcademicSectionFeePlansEditor({
               onClick={() => editor.setShowArchived(!editor.showArchived)}
               className="min-h-[44px]"
             >
+              {editor.showArchived ? (
+                <ArchiveX className="h-4 w-4 shrink-0" aria-hidden />
+              ) : (
+                <Archive className="h-4 w-4 shrink-0" aria-hidden />
+              )}
               {editor.showArchived
                 ? dict.hideArchived
                 : `${dict.showArchived} (${editor.archivedCount})`}

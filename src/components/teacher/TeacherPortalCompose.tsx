@@ -1,5 +1,6 @@
 "use client";
 
+import { Send } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { sendTeacherMessage } from "@/app/[locale]/dashboard/teacher/messages/actions";
@@ -86,6 +87,7 @@ export function TeacherPortalCompose({ locale, recipients = [], labels }: Teache
         className="min-h-[44px]"
         title={labels.tipComposeSend}
       >
+        {!busy ? <Send className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {labels.messagesComposeSend}
       </Button>
       {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}

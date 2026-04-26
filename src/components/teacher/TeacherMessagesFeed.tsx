@@ -1,5 +1,6 @@
 "use client";
 
+import { Send } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { replyToStudentMessage } from "@/app/[locale]/dashboard/teacher/messages/actions";
@@ -102,6 +103,7 @@ export function TeacherMessagesFeed({ locale, rows = [], labels }: TeacherMessag
                     className="min-h-[44px]"
                     onClick={() => onReply(m.id)}
                   >
+                    {busyId !== m.id ? <Send className="h-4 w-4 shrink-0" aria-hidden /> : null}
                     {labels.messagesSendReply}
                   </Button>
                 </div>

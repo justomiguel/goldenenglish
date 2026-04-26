@@ -66,7 +66,7 @@ export function AdminRegistrationTableRow({
                 onClick={() => onAccept(r)}
               >
                 <UserPlus
-                  className="h-[18px] w-[18px] text-[var(--color-secondary-foreground)]"
+                  className="h-4 w-4 shrink-0 text-[var(--color-secondary-foreground)]"
                   strokeWidth={2}
                   aria-hidden
                 />
@@ -81,7 +81,7 @@ export function AdminRegistrationTableRow({
                 disabled={busy}
                 onClick={() => onEdit(r)}
               >
-                <Pencil className="h-[18px] w-[18px] text-[var(--color-foreground)]" strokeWidth={2} aria-hidden />
+                <Pencil className="h-4 w-4 shrink-0 text-[var(--color-foreground)]" strokeWidth={2} aria-hidden />
               </Button>
             </>
           ) : null}
@@ -96,7 +96,7 @@ export function AdminRegistrationTableRow({
             onClick={() => onDelete(r)}
           >
             <Trash2
-              className="h-[18px] w-[18px] text-[var(--color-error)]"
+              className="h-4 w-4 shrink-0 text-[var(--color-error)]"
               strokeWidth={2}
               aria-hidden
             />

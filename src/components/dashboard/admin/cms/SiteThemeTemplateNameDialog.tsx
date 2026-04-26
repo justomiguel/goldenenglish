@@ -6,6 +6,7 @@ import {
   useId,
   useState,
 } from "react";
+import { Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Modal } from "@/components/atoms/Modal";
 import { normalizeThemeSlug } from "@/lib/cms/normalizeThemeSlug";
@@ -188,6 +189,9 @@ export function SiteThemeTemplateNameDialog({
         <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
           {footerExtra}
           <Button type="submit" isLoading={isSubmitting} disabled={isSubmitting}>
+            {!isSubmitting ? (
+              <Save className="h-4 w-4 shrink-0" aria-hidden />
+            ) : null}
             {labels.submit}
           </Button>
         </div>

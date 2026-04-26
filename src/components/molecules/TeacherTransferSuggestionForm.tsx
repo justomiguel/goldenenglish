@@ -9,6 +9,7 @@ import {
   submitTransferSuggestionAction,
   type TransferSuggestionActionState,
 } from "@/app/[locale]/dashboard/teacher/academics/actions";
+import { Send, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import type { TeacherTransferTargetOption } from "@/types/teacherPortal";
 
@@ -18,6 +19,7 @@ function SubmitFooter({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" className="w-full sm:w-auto" isLoading={pending} disabled={pending}>
+      {!pending ? <Send className="h-4 w-4 shrink-0" aria-hidden /> : null}
       {label}
     </Button>
   );
@@ -156,6 +158,7 @@ export function TeacherTransferSuggestionForm({
 
       <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end">
         <Button type="button" variant="ghost" className="w-full sm:w-auto" onClick={onCancel}>
+          <X className="h-4 w-4 shrink-0" aria-hidden />
           {dict.cancel}
         </Button>
         <SubmitFooter label={dict.submit} />

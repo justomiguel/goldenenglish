@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState, useTransition } from "react";
+import { Send } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 import { AdminStudentSearchCombobox } from "@/components/molecules/AdminStudentSearchCombobox";
@@ -131,6 +132,7 @@ export function TeacherAcademicsPanel({ locale, dict, sections }: TeacherAcademi
       </div>
       {msg ? <p className="text-sm text-[var(--color-foreground)]">{msg}</p> : null}
       <Button type="button" onClick={submit} disabled={pending || !picked}>
+        <Send className="h-4 w-4 shrink-0" aria-hidden />
         {d.submitRequest}
       </Button>
     </div>

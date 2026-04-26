@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { SectionScheduleFields } from "@/components/molecules/SectionScheduleFields";
 import { updateAcademicSectionScheduleAction } from "@/app/[locale]/dashboard/admin/academic/sectionActions";
@@ -93,6 +94,7 @@ export function AcademicSectionScheduleEditor({
           disabled={pending}
           onClick={save}
         >
+          {!pending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {dict.saveSchedule}
         </Button>
       </div>

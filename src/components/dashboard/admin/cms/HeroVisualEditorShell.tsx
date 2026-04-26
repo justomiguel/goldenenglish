@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { RotateCcw, Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import {
   resetSiteThemeContentAction,
@@ -17,6 +16,8 @@ import type { LandingSectionEditorViewModel } from "@/lib/cms/buildLandingEditor
 import type { LandingOverrideLocale } from "@/lib/cms/landingContentCatalog";
 import type { Dictionary } from "@/types/i18n";
 import type { SiteThemeRow } from "@/types/theming";
+import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
+import { HeroVisualEditorShellTop } from "./HeroVisualEditorShellTop";
 import { HeroVisualPreviewPane } from "./HeroVisualPreviewPane";
 import { LandingCopyFieldEditor } from "./LandingCopyFieldEditor";
 import { LandingMediaSlotEditor } from "./LandingMediaSlotEditor";
@@ -54,6 +55,7 @@ export function HeroVisualEditorShell({
     null,
   );
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [resetCopyOpen, setResetCopyOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const dirty = isLandingCopyDraftDirty(section.copy, draft);
@@ -97,8 +99,7 @@ export function HeroVisualEditorShell({
     });
   }
 
-  function handleReset() {
-    if (!window.confirm(labels.confirmResetCopy)) return;
+  function runResetCopy() {
     startTransition(async () => {
       const result = await resetSiteThemeContentAction({
         locale,
@@ -118,22 +119,12 @@ export function HeroVisualEditorShell({
 
   return (
     <section className="space-y-6">
-      <Link
-        href={`/${locale}/dashboard/admin/cms/templates/${theme.id}/landing`}
-        className="inline-flex items-center text-sm font-semibold text-[var(--color-primary)] hover:underline"
-      >
-        <ArrowLeft aria-hidden className="mr-1 h-4 w-4" />
-        {labels.backToOverview}
-      </Link>
-
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
-          {editorLabels.title}
-        </h1>
-        <p className="max-w-2xl text-sm text-[var(--color-muted-foreground)]">
-          {editorLabels.lead}
-        </p>
-      </header>
+      <HeroVisualEditorShellTop
+        backHref={`/${locale}/dashboard/admin/cms/templates/${theme.id}/landing`}
+        backLabel={labels.backToOverview}
+        title={editorLabels.title}
+        lead={editorLabels.lead}
+      />
 
       {errorCode ? (
         <p
@@ -164,8 +155,9 @@ export function HeroVisualEditorShell({
                   variant="ghost"
                   size="sm"
                   disabled={pending}
-                  onClick={handleReset}
+                  onClick={() => setResetCopyOpen(true)}
                 >
+                  <RotateCcw className="h-4 w-4 shrink-0" aria-hidden />
                   {labels.resetCopyCta}
                 </Button>
                 <Button
@@ -175,6 +167,9 @@ export function HeroVisualEditorShell({
                   isLoading={pending}
                   onClick={handleSave}
                 >
+                  {!pending ? (
+                    <Save className="h-4 w-4 shrink-0" aria-hidden />
+                  ) : null}
                   {labels.saveCopyCta}
                 </Button>
               </div>
@@ -230,6 +225,20 @@ export function HeroVisualEditorShell({
           onChangePreviewLocale={setPreviewLocale}
         />
       </div>
+
+      <ConfirmActionModal
+        open={resetCopyOpen}
+        onOpenChange={setResetCopyOpen}
+        title={labels.resetCopyModalTitle}
+        description={labels.confirmResetCopy}
+        cancelLabel={labels.resetCopyModalCancel}
+        confirmLabel={labels.resetCopyModalConfirm}
+        busy={pending}
+        onConfirm={() => {
+          setResetCopyOpen(false);
+          runResetCopy();
+        }}
+      />
     </section>
   );
 }

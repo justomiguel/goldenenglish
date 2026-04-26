@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -229,6 +230,7 @@ export function AdminGlobalContentBuilder({
       <AdminGlobalContentMaterialsPanel labels={labels} materials={materials} materialLabel={materialLabel} embedUrl={embedUrl} isUploading={isUploading} onMaterialLabelChange={setMaterialLabel} onEmbedUrlChange={setEmbedUrl} onAddEmbed={addEmbed} onAddFiles={(files) => void addFiles(files)} onReorderMaterials={setMaterials} onMoveMaterial={moveMaterial} onRemoveMaterial={removeMaterial} />
       {error ? <p className="text-sm text-[var(--color-error)]">{error}</p> : null}
       <Button type="button" isLoading={isPending} disabled={!title.trim() || isUploading} onClick={save}>
+        {isPending ? null : <Save className="h-4 w-4 shrink-0" aria-hidden />}
         {editingContent ? labels.globalUpdate : labels.globalSave}
       </Button>
     </section>

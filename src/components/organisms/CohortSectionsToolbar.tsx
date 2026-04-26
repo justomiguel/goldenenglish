@@ -1,5 +1,6 @@
 "use client";
 
+import { Copy, Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { AcademicRolloverWizard } from "@/components/organisms/AcademicRolloverWizard";
@@ -58,6 +59,7 @@ export function CohortSectionsToolbar({
           title={newSectionButtonTip}
           onClick={() => setOpen(true)}
         >
+          <Plus className="h-4 w-4 shrink-0" aria-hidden />
           {newSectionButton}
         </Button>
         {showCopy ? (
@@ -68,6 +70,7 @@ export function CohortSectionsToolbar({
             title={copySectionsButtonTip}
             onClick={() => setOpenCopy(true)}
           >
+            <Copy className="h-4 w-4 shrink-0" aria-hidden />
             {copySectionsButton}
           </Button>
         ) : null}

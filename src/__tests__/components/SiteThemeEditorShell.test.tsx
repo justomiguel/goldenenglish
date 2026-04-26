@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
 import type { SiteThemeRow } from "@/types/theming";
 import type { TokenGroup } from "@/lib/cms/groupThemeTokens";
@@ -79,7 +79,6 @@ describe("SiteThemeEditorShell", () => {
     vi.clearAllMocks();
     updateMock.mockResolvedValue({ ok: true, id: theme.id });
     resetMock.mockResolvedValue({ ok: true, id: theme.id });
-    vi.spyOn(window, "confirm").mockReturnValue(true);
   });
 
   it("renders the title with the template name and group cards", () => {
@@ -153,6 +152,12 @@ describe("SiteThemeEditorShell", () => {
     await act(async () => {
       fireEvent.click(
         screen.getByRole("button", { name: labels.resetAllCta }),
+      );
+    });
+    const dialog = screen.getByRole("dialog");
+    await act(async () => {
+      fireEvent.click(
+        within(dialog).getByRole("button", { name: labels.resetAllModalConfirm }),
       );
     });
     expect(resetMock).toHaveBeenCalledTimes(1);

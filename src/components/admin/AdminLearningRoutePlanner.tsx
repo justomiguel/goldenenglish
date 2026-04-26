@@ -6,31 +6,25 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import {
   addLearningRouteStepAction,
-  createLearningAssessmentAction,
   createQuestionBankItemAction,
   saveLearningRouteAction,
 } from "@/app/[locale]/dashboard/admin/academic/contents/actions";
 import { ContentPlanHealthSummary } from "@/components/molecules/ContentPlanHealthSummary";
-import type { ContentSectionOption, LearningRouteModel } from "@/types/learningContent";
+import type { LearningRouteModel } from "@/types/learningContent";
 import type { LearningRouteWorkspace } from "@/lib/learning-content/loadLearningRouteWorkspace";
 import type { Dictionary } from "@/types/i18n";
 
 interface AdminLearningRoutePlannerProps {
   locale: string;
-  sections: ContentSectionOption[];
-  selectedSectionId: string | null;
   workspace: LearningRouteWorkspace | null;
   labels: Dictionary["dashboard"]["adminContents"];
 }
 
 export function AdminLearningRoutePlanner({
   locale,
-  sections,
-  selectedSectionId,
   workspace,
   labels,
 }: AdminLearningRoutePlannerProps) {
-  const selected = selectedSectionId ?? "global";
   const route = workspace?.route ?? null;
   return (
     <div className="space-y-5 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-card)]">
@@ -38,34 +32,18 @@ export function AdminLearningRoutePlanner({
         <h2 className="text-xl font-semibold text-[var(--color-foreground)]">{labels.learningRoutesTitle}</h2>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.learningRoutesLead}</p>
       </header>
-      <label className="block text-sm font-medium text-[var(--color-foreground)]">
-        {labels.routeScopeLabel}
-        <select
-          value={selected}
-          onChange={(e) => {
-            window.location.href = `/${locale}/dashboard/admin/academic/contents/sections/${encodeURIComponent(e.target.value)}/edit`;
-          }}
-          className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
-        >
-          <option value="global">{labels.globalRouteOption}</option>
-          {sections.map((section) => <option key={section.id} value={section.id}>{section.label}</option>)}
-        </select>
-      </label>
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
-        {workspace && selectedSectionId ? (
-          <div className="xl:col-span-2"><ContentPlanHealthSummary health={workspace.health} labels={labels} /></div>
-        ) : null}
-        <RouteEditor locale={locale} sectionId={selectedSectionId} route={route} labels={labels} />
+        {workspace ? <div className="xl:col-span-2"><ContentPlanHealthSummary health={workspace.health} labels={labels} /></div> : null}
+        <RouteEditor locale={locale} route={route} labels={labels} />
         <ContentSidePanel workspace={workspace} labels={labels} />
-        <RouteStepAndAssessmentForms locale={locale} sectionId={selectedSectionId} route={route} workspace={workspace} labels={labels} />
+        <RouteStepAndAssessmentForms locale={locale} route={route} workspace={workspace} labels={labels} />
       </div>
     </div>
   );
 }
 
-function RouteEditor({ locale, sectionId, route, labels }: {
+function RouteEditor({ locale, route, labels }: {
   locale: string;
-  sectionId: string | null;
   route: LearningRouteModel | null;
   labels: Dictionary["dashboard"]["adminContents"];
 }) {
@@ -74,7 +52,6 @@ function RouteEditor({ locale, sectionId, route, labels }: {
   const [generalScope, setGeneralScope] = useState(route?.generalScope ?? "");
   const [evaluationCriteria, setEvaluationCriteria] = useState(route?.evaluationCriteria ?? "");
   const [isPending, startTransition] = useTransition();
-  const visibility = sectionId ? "section" : "global";
   return (
     <section className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
       <h3 className="text-lg font-semibold text-[var(--color-foreground)]">{labels.routeEditorTitle}</h3>
@@ -87,8 +64,6 @@ function RouteEditor({ locale, sectionId, route, labels }: {
         onClick={() => startTransition(() => void saveLearningRouteAction({
           locale,
           routeId: route?.id ?? null,
-          sectionId,
-          visibility,
           title,
           teacherObjectives,
           generalScope,
@@ -135,21 +110,19 @@ function List({ title, empty, rows }: { title: string; empty: string; rows: stri
   );
 }
 
-function RouteStepAndAssessmentForms({ locale, sectionId, route, workspace, labels }: {
+function RouteStepAndAssessmentForms({ locale, route, workspace, labels }: {
   locale: string;
-  sectionId: string | null;
   route: LearningRouteModel | null;
   workspace: LearningRouteWorkspace | null;
   labels: Dictionary["dashboard"]["adminContents"];
 }) {
   const [contentTemplateId, setContentTemplateId] = useState(workspace?.contentTemplates[0]?.id ?? "");
   const [questionPrompt, setQuestionPrompt] = useState("");
-  const [assessmentTitle, setAssessmentTitle] = useState("");
   const [isPending, startTransition] = useTransition();
   return (
     <section className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 xl:col-span-2">
       <h3 className="text-lg font-semibold text-[var(--color-foreground)]">{labels.routeBuilderTitle}</h3>
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] p-3">
           <h4 className="font-medium text-[var(--color-foreground)]">{labels.addRouteStep}</h4>
           <select value={contentTemplateId} onChange={(e) => setContentTemplateId(e.target.value)} className="w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm">
@@ -160,8 +133,7 @@ function RouteStepAndAssessmentForms({ locale, sectionId, route, workspace, labe
             {labels.add}
           </Button>
         </div>
-        <MiniForm title={labels.addQuestion} value={questionPrompt} onChange={setQuestionPrompt} onSubmit={() => startTransition(() => void createQuestionBankItemAction({ sectionId: sectionId ?? undefined, prompt: questionPrompt, questionType: "true_false" }))} disabled={isPending} labels={labels} />
-        <MiniForm title={labels.addAssessment} value={assessmentTitle} onChange={setAssessmentTitle} onSubmit={() => sectionId && startTransition(() => void createLearningAssessmentAction({ sectionId, title: assessmentTitle, assessmentKind: "entry", gradingMode: "diagnostic" }))} disabled={isPending || !sectionId} labels={labels} />
+        <MiniForm title={labels.addQuestion} value={questionPrompt} onChange={setQuestionPrompt} onSubmit={() => startTransition(() => void createQuestionBankItemAction({ prompt: questionPrompt, questionType: "true_false" }))} disabled={isPending} labels={labels} />
       </div>
     </section>
   );

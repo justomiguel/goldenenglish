@@ -11,10 +11,32 @@ type LifecycleResult =
   | { ok: true; id: string }
   | { ok: false; code: "invalid_input" | "persist_failed" | "forbidden" };
 
+type DeleteImpactResult =
+  | { ok: true; routeStepCount: number }
+  | { ok: false; code: "invalid_input" | "persist_failed" | "forbidden" };
+
 const ContentIdSchema = z.object({
   locale: z.string().min(2).max(8),
   id: z.string().uuid(),
 });
+
+export async function getGlobalContentDeleteImpactAction(raw: unknown): Promise<DeleteImpactResult> {
+  const parsed = ContentIdSchema.safeParse(raw);
+  if (!parsed.success) return { ok: false, code: "invalid_input" };
+
+  try {
+    const { supabase } = await assertAdmin();
+    const { count, error } = await supabase
+      .from("learning_route_steps")
+      .select("id", { count: "exact", head: true })
+      .eq("content_template_id", parsed.data.id);
+    if (error) return { ok: false, code: "persist_failed" };
+    return { ok: true, routeStepCount: count ?? 0 };
+  } catch (err) {
+    logServerException("getGlobalContentDeleteImpactAction", err);
+    return { ok: false, code: "forbidden" };
+  }
+}
 
 export async function deleteGlobalContentAction(raw: unknown): Promise<LifecycleResult> {
   const parsed = ContentIdSchema.safeParse(raw);
@@ -26,6 +48,12 @@ export async function deleteGlobalContentAction(raw: unknown): Promise<Lifecycle
       .from("content_template_assets")
       .select("storage_path")
       .eq("template_id", parsed.data.id);
+
+    const { data: routeSteps, error: routeStepsError } = await supabase
+      .from("learning_route_steps")
+      .select("id")
+      .eq("content_template_id", parsed.data.id);
+    if (routeStepsError) return { ok: false, code: "persist_failed" };
 
     const { error } = await supabase
       .from("content_templates")
@@ -45,7 +73,10 @@ export async function deleteGlobalContentAction(raw: unknown): Promise<Lifecycle
       action: "learning_content.global_content_deleted",
       resourceType: "content_templates",
       resourceId: parsed.data.id,
-      payload: { removedStorageObjects: storagePaths.length },
+      payload: {
+        removedStorageObjects: storagePaths.length,
+        removedRouteSteps: ((routeSteps ?? []) as { id: string }[]).length,
+      },
     });
     revalidatePath(`/${parsed.data.locale}/dashboard/admin/academic/contents`);
     return { ok: true, id: parsed.data.id };

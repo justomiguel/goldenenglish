@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, UserPlus } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { SectionEnrollmentConflict, SectionScheduleSlot } from "@/types/academics";
 import { Button } from "@/components/atoms/Button";
@@ -41,13 +42,15 @@ export function AcademicSectionEnrollCard({
   const [conflicts, setConflicts] = useState<SectionEnrollmentConflict[] | null>(null);
   const [targetSlots, setTargetSlots] = useState<SectionScheduleSlot[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [busy, start] = useTransition();
+  const [previewPending, startPreview] = useTransition();
+  const [enrollPending, startEnroll] = useTransition();
+  const busy = previewPending || enrollPending;
 
   const runPreview = () => {
     if (!picked) return;
     setMsg(null);
     setConflicts(null);
-    start(async () => {
+    startPreview(async () => {
       const r = await previewSectionEnrollmentAction({
         studentId: picked.id,
         sectionId,
@@ -71,7 +74,7 @@ export function AcademicSectionEnrollCard({
   const runEnroll = (dropEnrollmentId?: string | null) => {
     if (!picked) return;
     setMsg(null);
-    start(async () => {
+    startEnroll(async () => {
       const r = await enrollStudentInSectionAction({
         locale,
         studentId: picked.id,
@@ -119,10 +122,23 @@ export function AcademicSectionEnrollCard({
           {dict.capacityOverride}
         </label>
         <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="ghost" disabled={busy || !picked} onClick={runPreview}>
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={busy || !picked}
+            isLoading={previewPending}
+            onClick={runPreview}
+          >
+            {!previewPending ? <Eye className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {dict.preview}
           </Button>
-          <Button type="button" disabled={busy || !picked} onClick={() => runEnroll(null)}>
+          <Button
+            type="button"
+            disabled={busy || !picked}
+            isLoading={enrollPending}
+            onClick={() => runEnroll(null)}
+          >
+            {!enrollPending ? <UserPlus className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {dict.enroll}
           </Button>
         </div>
@@ -137,7 +153,7 @@ export function AcademicSectionEnrollCard({
         targetSlots={targetSlots}
         targetSectionLabel={sectionLabel}
         onConfirmDrop={(enrollmentId) => runEnroll(enrollmentId)}
-        isPending={busy}
+        isPending={enrollPending}
       />
     </section>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { Trash2, X } from "lucide-react";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
 
@@ -45,6 +46,7 @@ export function DeleteUsersConfirmModal({
           disabled={busy}
           onClick={() => onOpenChange(false)}
         >
+          <X className="h-4 w-4 shrink-0" aria-hidden />
           {cancelLabel}
         </Button>
         <Button
@@ -54,6 +56,7 @@ export function DeleteUsersConfirmModal({
           isLoading={busy}
           onClick={onConfirm}
         >
+          {busy ? null : <Trash2 className="h-4 w-4 shrink-0" aria-hidden />}
           {confirmLabel}
         </Button>
       </div>

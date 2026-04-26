@@ -1,5 +1,6 @@
 "use client";
 
+import { Save } from "lucide-react";
 import { Label } from "@/components/atoms/Label";
 import { Button } from "@/components/atoms/Button";
 import type { AcademicSectionStaffEditorDict } from "@/components/organisms/academicSectionStaffEditorTypes";
@@ -47,6 +48,7 @@ export function AcademicSectionStaffEditorLeadBlock({
         ))}
       </select>
       <Button type="button" disabled={pendingLead || !dirtyLead} isLoading={pendingLead} onClick={onSaveLead}>
+        {!pendingLead ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {dict.leadSave}
       </Button>
       {msgLead ? (

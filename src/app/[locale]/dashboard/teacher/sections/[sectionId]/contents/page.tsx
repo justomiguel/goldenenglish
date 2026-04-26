@@ -4,7 +4,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
-import { loadLearningRouteWorkspace } from "@/lib/learning-content/loadLearningRouteWorkspace";
+import { loadSectionLearningRouteWorkspace } from "@/lib/learning-content/loadLearningRouteWorkspace";
 import { loadTeacherAssessmentAttempts } from "@/lib/learning-content/loadTeacherAssessmentAttempts";
 import {
   TeacherSectionContentsScreen,
@@ -44,7 +44,7 @@ export default async function TeacherSectionContentsPage({ params }: PageProps) 
   if (!canOpen) notFound();
 
   const [workspace, attempts, { data: enrollments }] = await Promise.all([
-    loadLearningRouteWorkspace(supabase, sectionId),
+    loadSectionLearningRouteWorkspace(supabase, sectionId),
     loadTeacherAssessmentAttempts(supabase, sectionId),
     supabase
       .from("section_enrollments")

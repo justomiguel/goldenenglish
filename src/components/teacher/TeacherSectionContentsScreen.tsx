@@ -6,7 +6,6 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import {
   createLiveLessonAction,
-  saveTeacherLearningRouteAction,
   setStudentReadinessAction,
 } from "@/app/[locale]/dashboard/teacher/sections/[sectionId]/contents/actions";
 import { TeacherAssessmentAttemptsPanel } from "@/components/teacher/TeacherAssessmentAttemptsPanel";
@@ -40,8 +39,8 @@ export function TeacherSectionContentsScreen({
         <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">{labels.title}</h1>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.lead}</p>
       </header>
-      <ContentPlanHealthSummary health={workspace.health} labels={labels} />
-      <TeacherPlanEditor locale={locale} sectionId={sectionId} workspace={workspace} labels={labels} />
+      {workspace.route ? <ContentPlanHealthSummary health={workspace.health} labels={labels} /> : null}
+      <TeacherRouteSummary workspace={workspace} labels={labels} />
       <div className="grid gap-6 lg:grid-cols-2">
         <LiveLessonForm locale={locale} sectionId={sectionId} workspace={workspace} labels={labels} />
         <ReadinessForm locale={locale} sectionId={sectionId} students={students} labels={labels} />
@@ -56,47 +55,38 @@ export function TeacherSectionContentsScreen({
   );
 }
 
-function TeacherPlanEditor({
-  locale,
-  sectionId,
+function TeacherRouteSummary({
   workspace,
   labels,
 }: {
-  locale: string;
-  sectionId: string;
   workspace: LearningRouteWorkspace;
   labels: Dictionary["dashboard"]["teacherContent"];
 }) {
-  const [title, setTitle] = useState(workspace.route.title);
-  const [teacherObjectives, setTeacherObjectives] = useState(workspace.route.teacherObjectives);
-  const [generalScope, setGeneralScope] = useState(workspace.route.generalScope);
-  const [evaluationCriteria, setEvaluationCriteria] = useState(workspace.route.evaluationCriteria);
-  const [isPending, startTransition] = useTransition();
+  const route = workspace.route;
+  if (!route) {
+    return (
+      <section className="space-y-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-card)]">
+        <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{labels.freeFlowTitle}</h2>
+        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.freeFlowLead}</p>
+      </section>
+    );
+  }
   return (
     <section className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-card)]">
-      <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{labels.planTitle}</h2>
-      <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={labels.planNamePlaceholder} />
-      <TextBlock label={labels.teacherObjectives} value={teacherObjectives} onChange={setTeacherObjectives} />
-      <TextBlock label={labels.generalScope} value={generalScope} onChange={setGeneralScope} />
-      <TextBlock label={labels.evaluationCriteria} value={evaluationCriteria} onChange={setEvaluationCriteria} />
-      <Button
-        type="button"
-        isLoading={isPending}
-        disabled={!title.trim()}
-        onClick={() => startTransition(() => void saveTeacherLearningRouteAction({
-          locale,
-          routeId: workspace.route.id,
-          sectionId,
-          title,
-          teacherObjectives,
-          generalScope,
-          evaluationCriteria,
-        }))}
-      >
-        <Save className="h-4 w-4" aria-hidden />
-        {labels.savePlan}
-      </Button>
+      <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{route.title}</h2>
+      <ReadOnlyBlock label={labels.teacherObjectives} value={route.teacherObjectives} />
+      <ReadOnlyBlock label={labels.generalScope} value={route.generalScope} />
+      <ReadOnlyBlock label={labels.evaluationCriteria} value={route.evaluationCriteria} />
     </section>
+  );
+}
+
+function ReadOnlyBlock({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <h3 className="text-sm font-medium text-[var(--color-foreground)]">{label}</h3>
+      <p className="mt-1 whitespace-pre-wrap text-sm text-[var(--color-muted-foreground)]">{value || "—"}</p>
+    </div>
   );
 }
 

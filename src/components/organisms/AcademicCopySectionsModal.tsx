@@ -1,5 +1,6 @@
 "use client";
 
+import { Copy, X } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/components/atoms/Modal";
@@ -130,9 +131,11 @@ export function AcademicCopySectionsModal({
 
         <div className="flex flex-wrap justify-end gap-2 pt-2">
           <Button type="button" variant="ghost" disabled={pending} onClick={() => handleOpenChange(false)}>
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             {dict.cancel}
           </Button>
           <Button type="button" isLoading={pending} disabled={pending || !canSubmit} onClick={submit}>
+            {!pending ? <Copy className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {dict.submit}
           </Button>
         </div>

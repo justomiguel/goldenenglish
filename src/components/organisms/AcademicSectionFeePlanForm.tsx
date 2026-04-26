@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useState } from "react";
+import { Save, X } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -186,6 +187,7 @@ export function AcademicSectionFeePlanForm({
           isLoading={busy}
           className="min-h-[44px]"
         >
+          {!busy ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {submitLabel}
         </Button>
         {onCancel ? (
@@ -196,6 +198,7 @@ export function AcademicSectionFeePlanForm({
             disabled={busy}
             className="min-h-[44px]"
           >
+            {!busy ? <X className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {dict.cancel}
           </Button>
         ) : null}

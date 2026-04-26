@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Eye, UserPlus } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { SectionEnrollmentConflict, SectionScheduleSlot } from "@/types/academics";
 import { Button } from "@/components/atoms/Button";
@@ -38,7 +39,9 @@ export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPa
   const [conflicts, setConflicts] = useState<SectionEnrollmentConflict[] | null>(null);
   const [targetSlots, setTargetSlots] = useState<SectionScheduleSlot[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [busy, start] = useTransition();
+  const [previewPending, startPreview] = useTransition();
+  const [enrollPending, startEnroll] = useTransition();
+  const busy = previewPending || enrollPending;
 
   const sectionLabel = sections.find((s) => s.id === sectionId)?.label ?? "";
 
@@ -46,7 +49,7 @@ export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPa
     if (!picked) return;
     setMsg(null);
     setConflicts(null);
-    start(async () => {
+    startPreview(async () => {
       const r = await previewSectionEnrollmentAction({
         studentId: picked.id,
         sectionId,
@@ -74,7 +77,7 @@ export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPa
   const runEnroll = (dropEnrollmentId?: string | null) => {
     if (!picked) return;
     setMsg(null);
-    start(async () => {
+    startEnroll(async () => {
       const r = await enrollStudentInSectionAction({
         locale,
         studentId: picked.id,
@@ -144,10 +147,23 @@ export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPa
         <p className="text-sm font-medium text-[var(--color-error)]">{d.parentPendingWarning}</p>
       ) : null}
       <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="ghost" disabled={busy || !picked} onClick={runPreview}>
+        <Button
+          type="button"
+          variant="ghost"
+          disabled={busy || !picked}
+          isLoading={previewPending}
+          onClick={runPreview}
+        >
+          {!previewPending ? <Eye className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {d.preview}
         </Button>
-        <Button type="button" disabled={busy || !picked} onClick={() => runEnroll(null)}>
+        <Button
+          type="button"
+          disabled={busy || !picked}
+          isLoading={enrollPending}
+          onClick={() => runEnroll(null)}
+        >
+          {!enrollPending ? <UserPlus className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {d.enroll}
         </Button>
       </div>
@@ -161,7 +177,7 @@ export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPa
         targetSlots={targetSlots}
         targetSectionLabel={sectionLabel}
         onConfirmDrop={(enrollmentId) => runEnroll(enrollmentId)}
-        isPending={busy}
+        isPending={enrollPending}
       />
     </div>
   );

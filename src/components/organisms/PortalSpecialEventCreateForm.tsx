@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { PlusCircle } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { PortalSpecialCalendarScope, PortalSpecialEventTypeSlug } from "@/types/portalSpecialCalendar";
 import { Button } from "@/components/atoms/Button";
@@ -144,6 +145,7 @@ export function PortalSpecialEventCreateForm({ locale, dict, scopeOptions }: Por
         isLoading={pending}
         disabled={pending || !title.trim() || !eventDate || !scopeOk}
       >
+        {!pending ? <PlusCircle className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {dict.saveCreate}
       </Button>
       {msg ? (

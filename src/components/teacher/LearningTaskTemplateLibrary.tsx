@@ -1,5 +1,6 @@
 "use client";
 
+import { Link2, Save } from "lucide-react";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -95,6 +96,7 @@ export function LearningTaskTemplateLibrary({
             />
           </div>
           <Button type="button" onClick={submit} isLoading={isPending} disabled={!title.trim()}>
+            {!isPending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {labels.taskTemplateSave}
           </Button>
         </div>
@@ -147,6 +149,7 @@ export function LearningTaskTemplateLibrary({
               <div className="flex gap-2">
                 <Input id="learning-embed-url" value={embedUrl} onChange={(e) => setEmbedUrl(e.target.value)} />
                 <Button type="button" onClick={addEmbed} isLoading={isPending}>
+                  {!isPending ? <Link2 className="h-4 w-4 shrink-0" aria-hidden /> : null}
                   {labels.taskTemplateEmbedAdd}
                 </Button>
               </div>

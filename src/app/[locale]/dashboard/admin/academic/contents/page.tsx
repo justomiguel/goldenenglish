@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
-import { loadContentSections } from "@/lib/learning-content/loadContentSections";
+import { loadGlobalLearningRouteOptions } from "@/lib/learning-content/loadLearningRouteWorkspace";
 import { loadPaginatedContentTemplateLibrary } from "@/lib/learning-tasks/loadContentTemplateLibrary";
 import { AdminAcademicContentsScreen } from "@/components/admin/AdminAcademicContentsScreen";
 
@@ -27,16 +27,16 @@ export default async function AdminAcademicContentsPage({ params, searchParams }
   const rawPage = Number.parseInt(sp.page ?? "1", 10);
   const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
   const q = typeof sp.q === "string" ? sp.q : "";
-  const [sections, globalRepo] = await Promise.all([
-    loadContentSections(supabase),
+  const [globalRepo, routes] = await Promise.all([
     loadPaginatedContentTemplateLibrary(supabase, { page, q }),
+    loadGlobalLearningRouteOptions(supabase),
   ]);
   const activeTab = sp.tab === "routes" ? "routes" : "repository";
   return (
     <AdminAcademicContentsScreen
       locale={locale}
       activeTab={activeTab}
-      sections={sections}
+      routes={routes}
       globalContents={globalRepo.rows}
       repositoryPagination={{
         page: globalRepo.page,

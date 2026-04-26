@@ -2,6 +2,7 @@
 
 import { type FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { UserPlus } from "lucide-react";
 import { createDashboardUser } from "@/app/[locale]/dashboard/admin/users/actions";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -141,6 +142,7 @@ export function AdminCreateUserForm({ locale, labels }: AdminCreateUserFormProps
         />
       </div>
       <Button type="submit" disabled={busy} isLoading={busy}>
+        {busy ? null : <UserPlus className="h-4 w-4 shrink-0" aria-hidden />}
         {labels.submit}
       </Button>
       {msg ? (

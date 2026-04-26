@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Plus } from "lucide-react";
 import { createPromotion } from "@/app/[locale]/dashboard/admin/promotions/actions";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -215,6 +216,7 @@ export function AdminPromotionsForm({ locale, labels }: AdminPromotionsFormProps
             className="min-h-[44px]"
             title={labels.tipCreateSubmit}
           >
+            {busy ? null : <Plus className="h-4 w-4 shrink-0" aria-hidden />}
             {labels.createSubmit}
           </Button>
         </div>

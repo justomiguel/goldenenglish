@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useId, type ReactNode } from "react";
-import { EditorContent, useEditor, type Editor } from "@tiptap/react";
+import { useCallback, useEffect, useId, useState } from "react";
+import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
@@ -11,48 +11,13 @@ import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
 import Highlight from "@tiptap/extension-highlight";
 import { TableKit } from "@tiptap/extension-table";
-import {
-  AlignCenter,
-  AlignLeft,
-  Bold,
-  Heading2,
-  Highlighter,
-  Image as ImageIcon,
-  Italic,
-  Link as LinkIcon,
-  List,
-  ListOrdered,
-  Pilcrow,
-  Quote,
-  Redo2,
-  Table2,
-  Underline as UnderlineIcon,
-  Undo2,
-  Video as YoutubeIcon,
-} from "lucide-react";
-import { Button } from "@/components/atoms/Button";
+import { PromptStringModal } from "@/components/molecules/PromptStringModal";
+import { AcademicContentEditorToolbar } from "@/components/admin/AcademicContentEditorToolbar";
+import { tiptapAcademicLinkShouldAutoLink } from "@/lib/learning-content/tiptapAcademicLinkShouldAutoLink";
 import { logClientException } from "@/lib/logging/clientLog";
 import type { Dictionary } from "@/types/i18n";
 
 type Labels = Dictionary["dashboard"]["adminContents"];
-
-/** Mirrors @tiptap/extension-link default `shouldAutoLink`, minus YouTube (embed handled by the YouTube node). */
-function defaultTiptapLinkShouldAutoLink(url: string): boolean {
-  const hasProtocol = /^[a-z][a-z0-9+.-]*:\/\//i.test(url);
-  const hasMaybeProtocol = /^[a-z][a-z0-9+.-]*:/i.test(url);
-  if (hasProtocol || (hasMaybeProtocol && !url.includes("@"))) {
-    return true;
-  }
-  const urlWithoutUserinfo = url.includes("@") ? (url.split("@").pop() ?? url) : url;
-  const hostname = urlWithoutUserinfo.split(/[/?#:]/)[0] ?? "";
-  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) {
-    return false;
-  }
-  if (!/\./.test(hostname)) {
-    return false;
-  }
-  return true;
-}
 
 interface AcademicContentEditorProps {
   value: string;
@@ -67,24 +32,6 @@ const visualPlaceholder = (html: string | null | undefined) => {
   return s.trim() ? s : "<p></p>";
 };
 
-function addLink(editor: Editor, labels: Labels) {
-  const prev = editor.getAttributes("link").href as string | undefined;
-  const next = window.prompt(labels.editorLinkPrompt, prev ?? "https://");
-  if (next === null) return;
-  const href = next.trim();
-  if (!href) {
-    editor.chain().focus().extendMarkRange("link").unsetLink().run();
-    return;
-  }
-  editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
-}
-
-function addYoutube(editor: Editor, labels: Labels) {
-  const url = window.prompt(labels.editorYoutubePrompt, "https://www.youtube.com/watch?v=");
-  if (!url?.trim()) return;
-  editor.commands.setYoutubeVideo({ src: url.trim(), width: 720, height: 405 });
-}
-
 export function AcademicContentEditor({
   value,
   onChange,
@@ -94,6 +41,9 @@ export function AcademicContentEditor({
 }: AcademicContentEditorProps) {
   const toolbarId = useId();
   const isDisabled = Boolean(disabled);
+  const [urlDialog, setUrlDialog] = useState<
+    null | { kind: "link" | "youtube"; initial: string }
+  >(null);
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ heading: { levels: [2, 3, 4] }, link: false }),
@@ -104,7 +54,7 @@ export function AcademicContentEditor({
         shouldAutoLink: (url) => {
           if (typeof url !== "string") return false;
           if (isValidYoutubeUrl(url)) return false;
-          return defaultTiptapLinkShouldAutoLink(url);
+          return tiptapAcademicLinkShouldAutoLink(url);
         },
       }),
       Image.configure({
@@ -184,63 +134,49 @@ export function AcademicContentEditor({
 
   return (
     <div className="mx-auto w-full max-w-prose">
-      <div
-        id={toolbarId}
-        role="toolbar"
-        aria-label={labels.editorToolbar}
-        className="flex flex-wrap gap-1 rounded-t-[var(--layout-border-radius)] border border-b-0 border-[var(--color-border)] bg-[var(--color-muted)] p-2"
-      >
-        <Tool pressed={editor.isActive("bold")} disabled={isDisabled} tooltip={labels.editorBoldTooltip} onClick={() => editor.chain().focus().toggleBold().run()}><Bold className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Tool pressed={editor.isActive("italic")} disabled={isDisabled} tooltip={labels.editorItalicTooltip} onClick={() => editor.chain().focus().toggleItalic().run()}><Italic className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Tool pressed={editor.isActive("underline")} disabled={isDisabled} tooltip={labels.editorUnderlineTooltip} onClick={() => editor.chain().focus().toggleUnderline().run()}><UnderlineIcon className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Tool pressed={editor.isActive("highlight")} disabled={isDisabled} tooltip={labels.editorHighlightTooltip} onClick={() => editor.chain().focus().toggleHighlight().run()}><Highlighter className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Sep />
-        <Tool pressed={editor.isActive("heading", { level: 2 })} disabled={isDisabled} tooltip={labels.editorHeadingTooltip} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}><Heading2 className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Tool pressed={editor.isActive("paragraph")} disabled={isDisabled} tooltip={labels.editorParagraphTooltip} onClick={() => editor.chain().focus().setParagraph().run()}><Pilcrow className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Tool pressed={editor.isActive({ textAlign: "left" })} disabled={isDisabled} tooltip={labels.editorAlignLeftTooltip} onClick={() => editor.chain().focus().setTextAlign("left").run()}><AlignLeft className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Tool pressed={editor.isActive({ textAlign: "center" })} disabled={isDisabled} tooltip={labels.editorAlignCenterTooltip} onClick={() => editor.chain().focus().setTextAlign("center").run()}><AlignCenter className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Sep />
-        <Tool pressed={editor.isActive("bulletList")} disabled={isDisabled} tooltip={labels.editorBulletListTooltip} onClick={() => editor.chain().focus().toggleBulletList().run()}><List className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Tool pressed={editor.isActive("orderedList")} disabled={isDisabled} tooltip={labels.editorOrderedListTooltip} onClick={() => editor.chain().focus().toggleOrderedList().run()}><ListOrdered className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Tool pressed={editor.isActive("blockquote")} disabled={isDisabled} tooltip={labels.editorQuoteTooltip} onClick={() => editor.chain().focus().toggleBlockquote().run()}><Quote className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Sep />
-        <Tool pressed={editor.isActive("link")} disabled={isDisabled} tooltip={labels.editorLinkTooltip} onClick={() => addLink(editor, labels)}><LinkIcon className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Tool pressed={false} disabled={isDisabled} tooltip={labels.editorYoutubeTooltip} onClick={() => addYoutube(editor, labels)}><YoutubeIcon className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Tool pressed={false} disabled={isDisabled} tooltip={labels.editorImageTooltip} onClick={() => void addImage()}><ImageIcon className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Tool pressed={false} disabled={isDisabled} tooltip={labels.editorTableTooltip} onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}><Table2 className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Sep />
-        <Tool pressed={false} disabled={isDisabled || !editor.can().undo()} tooltip={labels.editorUndoTooltip} onClick={() => editor.chain().focus().undo().run()}><Undo2 className="h-4 w-4" aria-hidden={true} /></Tool>
-        <Tool pressed={false} disabled={isDisabled || !editor.can().redo()} tooltip={labels.editorRedoTooltip} onClick={() => editor.chain().focus().redo().run()}><Redo2 className="h-4 w-4" aria-hidden={true} /></Tool>
-      </div>
+      <AcademicContentEditorToolbar
+        editor={editor}
+        toolbarId={toolbarId}
+        isDisabled={isDisabled}
+        labels={labels}
+        setUrlDialog={setUrlDialog}
+        addImage={addImage}
+      />
       <EditorContent editor={editor} />
+
+      <PromptStringModal
+        open={urlDialog !== null}
+        onOpenChange={(o) => {
+          if (!o) setUrlDialog(null);
+        }}
+        title={
+          urlDialog?.kind === "youtube"
+            ? labels.editorYoutubeModalTitle
+            : labels.editorLinkModalTitle
+        }
+        description={
+          urlDialog?.kind === "youtube" ? labels.editorYoutubePrompt : labels.editorLinkPrompt
+        }
+        fieldLabel={labels.editorUrlFieldLabel}
+        initialValue={urlDialog?.initial ?? ""}
+        cancelLabel={labels.editorModalCancel}
+        confirmLabel={labels.editorModalApply}
+        onConfirm={(value) => {
+          if (!editor || !urlDialog) return;
+          if (urlDialog.kind === "link") {
+            const href = value.trim();
+            if (!href) {
+              editor.chain().focus().extendMarkRange("link").unsetLink().run();
+              return;
+            }
+            editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
+            return;
+          }
+          const u = value.trim();
+          if (!u) return;
+          editor.commands.setYoutubeVideo({ src: u, width: 720, height: 405 });
+        }}
+      />
     </div>
-  );
-}
-
-function Sep() {
-  return <span className="mx-1 h-6 w-px self-center bg-[var(--color-border)]" aria-hidden />;
-}
-
-function Tool({ children, pressed, disabled, tooltip, onClick }: {
-  children: ReactNode;
-  pressed: boolean;
-  disabled: boolean;
-  tooltip: string;
-  onClick: () => void;
-}) {
-  return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="sm"
-      disabled={disabled}
-      aria-pressed={pressed}
-      aria-label={tooltip}
-      title={tooltip}
-      className={`!px-2 !py-1.5 ${pressed ? "bg-[var(--color-background)] ring-1 ring-[var(--color-border)]" : ""}`}
-      onClick={onClick}
-    >
-      {children}
-    </Button>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import {
   softDeletePromotion,
   togglePromotionActive,
@@ -34,6 +35,7 @@ export function AdminPromotionsTable({ locale, rows, labels }: AdminPromotionsTa
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [retireTargetId, setRetireTargetId] = useState<string | null>(null);
 
   function appliesLabel(a: string) {
     if (a === "enrollment") return labels.appliesEnrollment;
@@ -50,10 +52,10 @@ export function AdminPromotionsTable({ locale, rows, labels }: AdminPromotionsTa
   }
 
   async function retire(id: string) {
-    if (!window.confirm(labels.confirmRetire)) return;
     setBusy(true);
     const res = await softDeletePromotion(locale, id);
     setBusy(false);
+    setRetireTargetId(null);
     if (res.ok) router.refresh();
     else setMsg(res.message ?? labels.genericActionError);
   }
@@ -112,7 +114,7 @@ export function AdminPromotionsTable({ locale, rows, labels }: AdminPromotionsTa
                   className="text-sm text-[var(--color-secondary)] underline"
                   disabled={busy}
                   title={labels.tipRetire}
-                  onClick={() => retire(r.id)}
+                  onClick={() => setRetireTargetId(r.id)}
                 >
                   {labels.deleteSoft}
                 </button>
@@ -121,6 +123,21 @@ export function AdminPromotionsTable({ locale, rows, labels }: AdminPromotionsTa
           ))}
         </tbody>
       </table>
+      <ConfirmActionModal
+        open={retireTargetId !== null}
+        onOpenChange={(o) => {
+          if (!o) setRetireTargetId(null);
+        }}
+        title={labels.retireModalTitle}
+        description={labels.confirmRetire}
+        cancelLabel={labels.modalCancel}
+        confirmLabel={labels.retireModalConfirm}
+        confirmVariant="destructive"
+        busy={busy}
+        onConfirm={() => {
+          if (retireTargetId) void retire(retireTargetId);
+        }}
+      />
     </div>
   );
 }

@@ -26,9 +26,11 @@ describe("section content planning migration", () => {
     expect(sql).toMatch(/RENAME TO learning_route_steps/i);
     expect(sql).toMatch(/RENAME COLUMN template_id TO content_template_id/i);
     expect(sql).toMatch(/ALTER COLUMN content_template_id SET NOT NULL/i);
-    expect(sql).toMatch(/REFERENCES public\.content_templates \(id\) ON DELETE RESTRICT/i);
-    expect(sql).toMatch(/learning_route_visibility/i);
-    expect(sql).toMatch(/visibility = 'global' AND section_id IS NULL/i);
+    expect(sql).toMatch(/REFERENCES public\.content_templates \(id\) ON DELETE CASCADE/i);
+    expect(sql).toMatch(/CREATE TABLE IF NOT EXISTS public\.section_learning_routes/i);
+    expect(sql).toMatch(/section_learning_route_mode/i);
+    expect(sql).toMatch(/DROP COLUMN IF EXISTS section_id/i);
+    expect(sql).toMatch(/DROP COLUMN IF EXISTS visibility/i);
     expect(sql).toMatch(/live_lesson_route_step_links/i);
     expect(sql).toMatch(/learning_route_visible_to_current_user/i);
   });

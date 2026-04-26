@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import {
   deleteSiteThemeMediaAction,
   uploadSiteThemeMediaAction,
@@ -75,6 +76,7 @@ export function LandingMediaSlotEditor({
   const [pending, startTransition] = useTransition();
   const [errorCode, setErrorCode] = useState<ErrorCode | null>(null);
   const [statusKey, setStatusKey] = useState<"upload" | "delete" | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const previewSrc = slot.currentPublicUrl ?? slot.fallbackPublicUrl;
   const hasOverride = Boolean(slot.currentPublicUrl);
@@ -124,9 +126,8 @@ export function LandingMediaSlotEditor({
     });
   }
 
-  function handleDelete() {
+  function runDeleteMedia() {
     if (!slot.current) return;
-    if (!window.confirm(labels.confirmDelete)) return;
     setErrorCode(null);
     setStatusKey(null);
     startTransition(async () => {
@@ -180,7 +181,7 @@ export function LandingMediaSlotEditor({
                 variant="ghost"
                 size="sm"
                 disabled={pending}
-                onClick={handleDelete}
+                onClick={() => setDeleteConfirmOpen(true)}
               >
                 <Trash2 aria-hidden className="mr-1 h-4 w-4" />
                 {labels.deleteCta}
@@ -213,6 +214,21 @@ export function LandingMediaSlotEditor({
           {statusKey === "upload" ? labels.uploadSuccess : labels.deleteSuccess}
         </p>
       ) : null}
+
+      <ConfirmActionModal
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        title={labels.restoreImageModalTitle}
+        description={labels.confirmDelete}
+        cancelLabel={labels.restoreImageModalCancel}
+        confirmLabel={labels.restoreImageModalConfirm}
+        confirmVariant="destructive"
+        busy={pending}
+        onConfirm={() => {
+          setDeleteConfirmOpen(false);
+          runDeleteMedia();
+        }}
+      />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { type FormEvent, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { UserPen } from "lucide-react";
+import { Save, UserPen } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Label } from "@/components/atoms/Label";
 import type { Dictionary } from "@/types/i18n";
@@ -171,6 +171,7 @@ export function MyProfilePersonalForm({
           />
         </div>
         <Button type="submit" disabled={pending || locked} isLoading={pending} className="min-h-[44px]">
+          {!pending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {labels.savePersonal}
         </Button>
         {banner ? (

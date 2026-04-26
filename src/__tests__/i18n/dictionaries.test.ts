@@ -56,14 +56,24 @@ describe("getDictionary", () => {
     expect(en.dashboard.academicSectionPage.capacity.save).toBeTruthy();
     expect(es.dashboard.academicSectionPage.capacity.save).toBeTruthy();
     expect(en.admin.users.roleOptionAssistant).toBeTruthy();
-    expect(en.dashboard.academicSectionPage.shellTabs.roster).toBeTruthy();
-    expect(es.dashboard.academicSectionPage.shellTabs.roster).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.shellTabs.students).toBeTruthy();
+    expect(es.dashboard.academicSectionPage.shellTabs.students).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.shellTabs.studentsLead.length).toBeGreaterThan(10);
+    expect(es.dashboard.academicSectionPage.shellTabs.studentsLead.length).toBeGreaterThan(10);
     expect(en.dashboard.academicSectionPage.shellTabs.generalLead.length).toBeGreaterThan(10);
     expect(es.dashboard.academicSectionPage.shellTabs.generalLead.length).toBeGreaterThan(10);
     expect(en.dashboard.academicSectionPage.shellTabs.fees).toBeTruthy();
     expect(es.dashboard.academicSectionPage.shellTabs.fees).toBeTruthy();
     expect(en.dashboard.academicSectionPage.shellTabs.feesLead.length).toBeGreaterThan(10);
     expect(es.dashboard.academicSectionPage.shellTabs.feesLead.length).toBeGreaterThan(10);
+    expect(en.dashboard.academicSectionPage.shellTabs.configuration).toBeTruthy();
+    expect(es.dashboard.academicSectionPage.shellTabs.configuration).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.shellTabs.teachers).toBeTruthy();
+    expect(es.dashboard.academicSectionPage.shellTabs.teachers).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.staffAssignedChips.heading).toBeTruthy();
+    expect(es.dashboard.academicSectionPage.staffAssignedChips.heading).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.health.title).toBeTruthy();
+    expect(es.dashboard.academicSectionPage.health.title).toBeTruthy();
   });
 
   it("falls back to default for unknown locale", async () => {

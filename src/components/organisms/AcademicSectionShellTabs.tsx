@@ -2,82 +2,95 @@
 
 import { useId, useMemo, useState, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { CalendarDays, CircleDollarSign, ClipboardList, LayoutDashboard, UserPlus, Users } from "lucide-react";
 import {
-  UnderlineTabBar,
-  underlinePanelId,
-  underlineTabId,
-  type UnderlineTabItem,
-} from "@/components/molecules/UnderlineTabBar";
+  CircleDollarSign,
+  ClipboardList,
+  GraduationCap,
+  LayoutDashboard,
+  Route,
+  Settings2,
+  Users,
+} from "lucide-react";
+import { AcademicSectionTwoLevelTabStrip } from "@/components/molecules/AcademicSectionTwoLevelTabStrip";
+import { underlinePanelId, underlineTabId, type UnderlineTabItem } from "@/components/molecules/UnderlineTabBar";
+import type { AcademicSectionShellTabId } from "@/types/academicSectionShell";
 
-export type AcademicSectionShellTabId =
-  | "general"
-  | "schedule"
-  | "fees"
-  | "attendance"
-  | "enroll"
-  | "roster";
+export type { AcademicSectionShellTabId } from "@/types/academicSectionShell";
 
 export interface AcademicSectionShellTabsLabels {
   tablistAria: string;
+  groupListAria: string;
+  groupSetup: string;
+  groupPathAndFees: string;
+  groupClassRoster: string;
   general: string;
   generalLead: string;
-  schedule: string;
+  configuration: string;
+  configurationLead: string;
+  teachers: string;
+  teachersLead: string;
+  learningRoute: string;
+  learningRouteLead: string;
   fees: string;
   feesLead: string;
   attendance: string;
   attendanceLead: string;
-  enroll: string;
-  roster: string;
+  students: string;
+  studentsLead: string;
 }
 
 const TAB_ORDER: AcademicSectionShellTabId[] = [
   "general",
-  "schedule",
+  "configuration",
+  "teachers",
+  "learningRoute",
   "fees",
   "attendance",
-  "enroll",
-  "roster",
+  "students",
 ];
 
 const TAB_ICONS: Record<AcademicSectionShellTabId, LucideIcon> = {
   general: LayoutDashboard,
-  schedule: CalendarDays,
+  configuration: Settings2,
+  teachers: GraduationCap,
+  learningRoute: Route,
   fees: CircleDollarSign,
   attendance: ClipboardList,
-  enroll: UserPlus,
-  roster: Users,
+  students: Users,
 };
 
 const TAB_LABEL_KEY: Record<AcademicSectionShellTabId, keyof AcademicSectionShellTabsLabels> = {
   general: "general",
-  schedule: "schedule",
+  configuration: "configuration",
+  teachers: "teachers",
+  learningRoute: "learningRoute",
   fees: "fees",
   attendance: "attendance",
-  enroll: "enroll",
-  roster: "roster",
+  students: "students",
 };
 
 export interface AcademicSectionShellTabsProps {
   labels: AcademicSectionShellTabsLabels;
   defaultTab?: AcademicSectionShellTabId;
   general: ReactNode;
-  schedule: ReactNode;
+  configuration: ReactNode;
+  teachers: ReactNode;
+  learningRoute: ReactNode;
   fees: ReactNode;
   attendance: ReactNode;
-  enroll: ReactNode;
-  roster: ReactNode;
+  students: ReactNode;
 }
 
 export function AcademicSectionShellTabs({
   labels,
   defaultTab = "general",
   general,
-  schedule,
+  configuration,
+  teachers,
+  learningRoute,
   fees,
   attendance,
-  enroll,
-  roster,
+  students,
 }: AcademicSectionShellTabsProps) {
   const idPrefix = useId().replace(/:/g, "");
   const [tab, setTab] = useState<AcademicSectionShellTabId>(defaultTab);
@@ -99,7 +112,24 @@ export function AcademicSectionShellTabs({
         {general}
       </div>
     ),
-    schedule,
+    configuration: (
+      <div className="space-y-4">
+        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.configurationLead}</p>
+        {configuration}
+      </div>
+    ),
+    teachers: (
+      <div className="space-y-4">
+        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.teachersLead}</p>
+        {teachers}
+      </div>
+    ),
+    learningRoute: (
+      <div className="space-y-4">
+        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.learningRouteLead}</p>
+        {learningRoute}
+      </div>
+    ),
     fees: (
       <div className="space-y-4">
         <p className="text-sm text-[var(--color-muted-foreground)]">{labels.feesLead}</p>
@@ -112,19 +142,28 @@ export function AcademicSectionShellTabs({
         {attendance}
       </div>
     ),
-    enroll,
-    roster,
+    students: (
+      <div className="space-y-4">
+        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.studentsLead}</p>
+        {students}
+      </div>
+    ),
   };
 
   return (
     <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
-      <UnderlineTabBar
+      <AcademicSectionTwoLevelTabStrip
         idPrefix={idPrefix}
-        ariaLabel={labels.tablistAria}
-        items={items}
+        tablistAria={labels.tablistAria}
+        groupLabels={{
+          groupListAria: labels.groupListAria,
+          groupSetup: labels.groupSetup,
+          groupPathAndFees: labels.groupPathAndFees,
+          groupClassRoster: labels.groupClassRoster,
+        }}
+        allTabItems={items}
         value={tab}
-        onChange={(id) => setTab(id as AcademicSectionShellTabId)}
-        dense
+        onTabChange={setTab}
       />
       {TAB_ORDER.map((t) => {
         const selected = tab === t;

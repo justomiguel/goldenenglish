@@ -25,12 +25,22 @@ export interface UnderlineTabBarProps {
   value: string;
   onChange: (id: string) => void;
   dense?: boolean;
+  /** When set, label can wrap to two lines (narrow tab strips with long copy). */
+  allowLabelWrap?: boolean;
 }
 
 /**
  * Accessible underline tabs (WAI-ARIA APG): bottom indicator, ArrowLeft/Right, Home, End.
  */
-export function UnderlineTabBar({ idPrefix, ariaLabel, items, value, onChange, dense }: UnderlineTabBarProps) {
+export function UnderlineTabBar({
+  idPrefix,
+  ariaLabel,
+  items,
+  value,
+  onChange,
+  dense,
+  allowLabelWrap,
+}: UnderlineTabBarProps) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const focusAt = useCallback(
@@ -90,14 +100,24 @@ export function UnderlineTabBar({ idPrefix, ariaLabel, items, value, onChange, d
             aria-controls={panelElId}
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(item.id)}
-            className={`relative flex min-h-[44px] min-w-0 flex-1 items-center justify-center gap-2 ${pad} text-sm font-medium outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 ${
+            className={`relative flex min-w-0 flex-1 items-center justify-center gap-2 ${pad} text-sm font-medium outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 ${
+              allowLabelWrap ? "min-h-[52px] sm:min-h-[48px]" : "min-h-[44px]"
+            } ${
               selected
                 ? "text-[var(--color-primary)] after:absolute after:inset-x-2 after:bottom-0 after:h-[3px] after:rounded-t after:bg-[var(--color-primary)]"
                 : "text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]/40 hover:text-[var(--color-foreground)]"
             }`}
           >
             {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-            <span className="truncate">{item.label}</span>
+            <span
+              className={
+                allowLabelWrap
+                  ? "text-balance text-center text-xs leading-tight [overflow-wrap:anywhere] sm:text-sm"
+                  : "truncate"
+              }
+            >
+              {item.label}
+            </span>
           </button>
         );
       })}

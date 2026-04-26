@@ -12,29 +12,19 @@ import {
   archiveSiteThemeAction,
   restoreSiteThemeAction,
 } from "@/app/[locale]/dashboard/admin/cms/siteThemeStateActions";
-import type {
-  SiteThemeActionErrorCode,
-  SiteThemeActionResult,
-} from "@/app/[locale]/dashboard/admin/cms/siteThemeActionShared";
+import type { SiteThemeActionResult } from "@/app/[locale]/dashboard/admin/cms/siteThemeActionShared";
 import type { SiteThemeRow } from "@/types/theming";
 import type { Dictionary } from "@/types/i18n";
 import type { ThemePreviewTokens } from "@/lib/cms/themePreviewTokens";
-import { SiteThemeTemplateNameDialog } from "./SiteThemeTemplateNameDialog";
 import { SiteThemeTemplatesGrid } from "./SiteThemeTemplatesGrid";
 import { SiteThemeTemplatesHeader } from "./siteThemeTemplatesHeader";
-import {
-  buildDialogInitialValues,
-  buildDialogLabels,
-  type SiteThemeDialogKind,
-} from "./siteThemeDialogPresentation";
+import { buildDialogInitialValues, buildDialogLabels } from "./siteThemeDialogPresentation";
+import { SiteThemeTemplatesShellAlerts } from "./SiteThemeTemplatesShellAlerts";
+import { SiteThemeTemplatesShellDialogs } from "./SiteThemeTemplatesShellDialogs";
+import type { SiteThemeRowConfirmState } from "./siteThemeTemplatesShellRowConfirm";
+import type { SiteThemeTemplatesShellDialogState } from "./siteThemeTemplatesShellDialogState";
 
 type Labels = Dictionary["admin"]["cms"]["templates"];
-
-interface DialogState {
-  kind: SiteThemeDialogKind;
-  target?: SiteThemeRow;
-  errorCode?: SiteThemeActionErrorCode | null;
-}
 
 export interface SiteThemeTemplatesShellProps {
   locale: string;
@@ -62,8 +52,9 @@ export function SiteThemeTemplatesShell({
 }: SiteThemeTemplatesShellProps) {
   const router = useRouter();
   const [showArchived, setShowArchived] = useState(false);
-  const [dialog, setDialog] = useState<DialogState>({ kind: null });
+  const [dialog, setDialog] = useState<SiteThemeTemplatesShellDialogState>({ kind: null });
   const [rowError, setRowError] = useState<string | null>(null);
+  const [rowConfirm, setRowConfirm] = useState<SiteThemeRowConfirmState>(null);
   const [pending, startTransition] = useTransition();
 
   const visibleRows = useMemo(
@@ -96,11 +87,23 @@ export function SiteThemeTemplatesShell({
     }
   }
 
-  function runRowAction(
-    fn: () => Promise<SiteThemeActionResult>,
-    confirmation?: string,
-  ) {
-    if (confirmation && !window.confirm(confirmation)) return;
+  function runRowActionImmediate(fn: () => Promise<SiteThemeActionResult>) {
+    setRowError(null);
+    startTransition(async () => {
+      const result = await fn();
+      applyResult(result, () => {}, "row");
+    });
+  }
+
+  function requestRowConfirm(next: NonNullable<SiteThemeRowConfirmState>) {
+    setRowError(null);
+    setRowConfirm(next);
+  }
+
+  function confirmRowAction() {
+    if (!rowConfirm) return;
+    const fn = rowConfirm.run;
+    setRowConfirm(null);
     setRowError(null);
     startTransition(async () => {
       const result = await fn();
@@ -161,22 +164,13 @@ export function SiteThemeTemplatesShell({
         pending={pending}
       />
 
-      {rowError ? (
-        <p
-          role="alert"
-          className="rounded-[var(--layout-border-radius)] border border-[var(--color-error)]/30 bg-[var(--color-error)]/5 px-3 py-2 text-sm text-[var(--color-error)]"
-        >
-          {rowError}
-        </p>
-      ) : null}
-
-      {truncated ? (
-        <p className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/40 px-3 py-2 text-xs text-[var(--color-muted-foreground)]">
-          {labels.truncatedNotice
-            .replace("{{shown}}", String(rows.length))
-            .replace("{{total}}", String(total))}
-        </p>
-      ) : null}
+      <SiteThemeTemplatesShellAlerts
+        rowError={rowError}
+        truncated={truncated}
+        rowsLength={rows.length}
+        total={total}
+        truncatedNotice={labels.truncatedNotice}
+      />
 
       <SiteThemeTemplatesGrid
         locale={locale}
@@ -186,21 +180,26 @@ export function SiteThemeTemplatesShell({
         brandName={brandName}
         pending={pending}
         onActivate={(row) =>
-          runRowAction(
-            () => activateSiteThemeAction({ locale, id: row.id }),
-            labels.confirmActivateBody,
-          )
+          requestRowConfirm({
+            run: () => activateSiteThemeAction({ locale, id: row.id }),
+            title: labels.confirmActivateTitle,
+            description: labels.confirmActivateBody,
+            confirmLabel: labels.activateCta,
+          })
         }
         onRename={(row) => setDialog({ kind: "rename", target: row })}
         onDuplicate={(row) => setDialog({ kind: "duplicate", target: row })}
         onArchive={(row) =>
-          runRowAction(
-            () => archiveSiteThemeAction({ locale, id: row.id }),
-            labels.confirmArchiveBody,
-          )
+          requestRowConfirm({
+            run: () => archiveSiteThemeAction({ locale, id: row.id }),
+            title: labels.confirmArchiveTitle,
+            description: labels.confirmArchiveBody,
+            confirmLabel: labels.archiveCta,
+            destructive: true,
+          })
         }
         onRestore={(row) =>
-          runRowAction(() => restoreSiteThemeAction({ locale, id: row.id }))
+          runRowActionImmediate(() => restoreSiteThemeAction({ locale, id: row.id }))
         }
       />
 
@@ -210,20 +209,20 @@ export function SiteThemeTemplatesShell({
         </p>
       ) : null}
 
-      <SiteThemeTemplateNameDialog
-        open={dialog.kind != null}
-        onOpenChange={(open) => {
-          if (!open) clearDialog();
-        }}
-        labels={dialogLabels}
-        showActivateToggle={dialog.kind === "create"}
+      <SiteThemeTemplatesShellDialogs
+        labels={labels}
+        dialog={dialog}
+        clearDialog={clearDialog}
+        dialogLabels={dialogLabels}
         initialName={initialName}
         initialSlug={initialSlug}
-        errorMessage={
-          dialog.errorCode ? labels.errors[dialog.errorCode] : null
-        }
-        isSubmitting={pending}
+        pending={pending}
         onSubmit={handleSubmit}
+        rowConfirm={rowConfirm}
+        onRowConfirmOpenChange={(o) => {
+          if (!o) setRowConfirm(null);
+        }}
+        onConfirmRowAction={confirmRowAction}
       />
     </section>
   );

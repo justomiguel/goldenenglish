@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { RotateCcw, Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import type { TokenGroup, TokenGroupId } from "@/lib/cms/groupThemeTokens";
 import {
   resetSiteThemePropertiesAction,
@@ -64,6 +66,7 @@ export function SiteThemeEditorShell({
   const [errorCode, setErrorCode] =
     useState<SiteThemeActionErrorCode | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [resetAllOpen, setResetAllOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const isDirty = isDraftDirty(groups, draft);
@@ -101,8 +104,7 @@ export function SiteThemeEditorShell({
     });
   }
 
-  function handleResetAll() {
-    if (!window.confirm(labels.confirmResetAll)) return;
+  function runResetAll() {
     startTransition(async () => {
       const result = await resetSiteThemePropertiesAction({
         locale,
@@ -135,9 +137,10 @@ export function SiteThemeEditorShell({
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleResetAll}
+            onClick={() => setResetAllOpen(true)}
             disabled={pending}
           >
+            <RotateCcw className="h-4 w-4 shrink-0" aria-hidden />
             {labels.resetAllCta}
           </Button>
           <Button
@@ -147,6 +150,9 @@ export function SiteThemeEditorShell({
             disabled={pending || !isDirty}
             isLoading={pending}
           >
+            {!pending ? (
+              <Save className="h-4 w-4 shrink-0" aria-hidden />
+            ) : null}
             {labels.saveCta}
           </Button>
         </div>
@@ -187,6 +193,21 @@ export function SiteThemeEditorShell({
           disabled={pending}
         />
       ))}
+
+      <ConfirmActionModal
+        open={resetAllOpen}
+        onOpenChange={setResetAllOpen}
+        title={labels.resetAllModalTitle}
+        description={labels.confirmResetAll}
+        cancelLabel={labels.resetAllModalCancel}
+        confirmLabel={labels.resetAllModalConfirm}
+        confirmVariant="destructive"
+        busy={pending}
+        onConfirm={() => {
+          setResetAllOpen(false);
+          runResetAll();
+        }}
+      />
     </section>
   );
 }

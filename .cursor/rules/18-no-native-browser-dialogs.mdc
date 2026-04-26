@@ -1,0 +1,46 @@
+---
+description: Prohibir alert/confirm/prompt del navegador; feedback y confirmaciones vía design system (Modal, patrones existentes)
+globs: src/**/*.{tsx,ts}
+alwaysApply: true
+---
+
+# Sin diálogos nativos del navegador (`alert` / `confirm` / `prompt`)
+
+## Objetivo
+
+Los **`window.alert`**, **`window.confirm`**, **`window.prompt`** (y llamadas equivalentes sin prefijo en código cliente) **no** deben usarse para UX de producto: bloquean el hilo, rompen accesibilidad, ignoran marca/tokens, no respetan locales de forma consistente y resultan poco profesionales frente a patrones del propio proyecto.
+
+Toda **confirmación destructiva**, **aviso de error/éxito** o **entrada de texto auxiliar** debe implementarse con **componentes y tokens del design system** y copy vía **09-i18n-copy**.
+
+## Prohibido en código de producto (`src/`)
+
+- `alert(...)`, `confirm(...)`, `prompt(...)`
+- `window.alert`, `window.confirm`, `window.prompt`
+
+## Patrones permitidos (elegir según el caso)
+
+1. **Modal / diálogo** — **`Modal`** en `src/components/atoms/Modal.tsx` (o composiciones existentes que ya usen `<dialog>` + foco y cierre coherentes con el DS). Confirmaciones: título, cuerpo, acciones primaria/secundaria con **`Button`** y **16-admin-buttons-icons**.
+2. **Feedback no modal** — Patrones ya usados en el repo: estado local de “toast” / banner en la pantalla con clases de superficie y tokens (**01-design-system**), no ventanas del SO.
+3. **Jobs largos** — **`11-long-running-jobs-ui.mdc`**: `LongJobActivityModal` + `LongJobLoader`; no sustituir por `alert` el progreso ni el resultado.
+4. **Entrada de URL o texto en editores** — Sustituir `prompt` por un **modal propio**, campo **`Input`** / formulario acotado, validación en cliente y mensajes desde diccionario.
+
+## i18n y accesibilidad
+
+- Textos visibles y `aria-label` de acciones del diálogo: **`src/dictionaries/en.json`** y **`es.json`** (**09**).
+- Los modales deben gestionar **foco**, **Escape** (si aplica al patrón) y **roles** de forma alineada con el componente canónico, no copiar el comportamiento inconsistente de los diálogos nativos.
+
+## Deuda / al tocar archivos legacy
+
+Si un cambio toca un archivo que aún usa `alert` / `confirm` / `prompt`, **migra ese flujo** al patrón del DS **dentro del alcance razonable del cambio** (misma pantalla o hook asociado). No añadir nuevos usos nativos.
+
+## Excepciones explícitas
+
+- **Tests** (`src/__tests__/**`): literales como `alert(1)` dentro de **fixtures HTML** para XSS/sanitización; no invocar APIs nativas de diálogo para asertar UX.
+- **Código fuera de `src/`** (scripts de mantenimiento, CLI): puede usar consola o prompts de terminal; no aplica esta regla de producto web.
+
+## Referencias
+
+- Modal base: `src/components/atoms/Modal.tsx`
+- Confirmación / aviso / prompt de texto reutilizables: `src/components/molecules/ConfirmActionModal.tsx`, `InfoNoticeModal.tsx`, `PromptStringModal.tsx`
+- Design system y tokens: **01-design-system.mdc**
+- Copy: **09-i18n-copy.mdc**

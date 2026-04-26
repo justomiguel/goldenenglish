@@ -1,5 +1,6 @@
 "use client";
 
+import { UserPlus } from "lucide-react";
 import { type FormEvent, useRef, useState } from "react";
 import { submitPublicRegistration } from "@/app/[locale]/register/actions";
 import { Button } from "@/components/atoms/Button";
@@ -203,6 +204,7 @@ export function RegisterForm({
           </p>
         </div>
         <Button type="submit" disabled={busy} isLoading={busy}>
+          {!busy ? <UserPlus className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {dict.submit}
         </Button>
         {msg ? (

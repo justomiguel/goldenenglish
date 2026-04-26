@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { loadAdminSectionPageData } from "@/lib/academics/loadAdminSectionPageData";
+import { resolveAcademicSectionPageSubdicts } from "@/lib/academics/resolveAcademicSectionPageSubdicts";
 import { instituteCalendarDateIso } from "@/lib/datetime/instituteCalendarDateIso";
 import { getInstituteTimeZone } from "@/lib/datetime/instituteTimeZone";
 import { formatAcademicScheduleSummary } from "@/lib/academics/formatAcademicScheduleSummary";
@@ -13,19 +13,15 @@ import {
   adminAttendanceMatrixEffMinIso,
   hasEligibleClassDayInWindow,
 } from "@/lib/academics/teacherSectionAttendanceCalendar";
-import { AcademicSectionScheduleEditor } from "@/components/organisms/AcademicSectionScheduleEditor";
-import { AcademicSectionEnrollCard } from "@/components/organisms/AcademicSectionEnrollCard";
-import { AcademicSectionRosterTable } from "@/components/organisms/AcademicSectionRosterTable";
-import { AcademicSectionLifecycleBar } from "@/components/organisms/AcademicSectionLifecycleBar";
-import { AcademicSectionPeriodEditor } from "@/components/organisms/AcademicSectionPeriodEditor";
-import { AcademicSectionStaffEditor } from "@/components/organisms/AcademicSectionStaffEditor";
-import { AcademicSectionShellTabs } from "@/components/organisms/AcademicSectionShellTabs";
-import { AcademicSectionCapacityEditor } from "@/components/organisms/AcademicSectionCapacityEditor";
-import { AcademicSectionRoomLabelEditor } from "@/components/organisms/AcademicSectionRoomLabelEditor";
-import { AcademicSectionFeePlansEditor } from "@/components/organisms/AcademicSectionFeePlansEditor";
-import { AcademicSectionEnrollmentFeeEditor } from "@/components/organisms/AcademicSectionEnrollmentFeeEditor";
-import { SectionAttendanceMatrix } from "@/components/organisms/SectionAttendanceMatrix";
+import { AcademicSectionPageAttendancePanel } from "@/components/organisms/AcademicSectionPageAttendancePanel";
+import { AcademicSectionPageShellBody } from "@/components/organisms/AcademicSectionPageShellBody";
 import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
+import {
+  loadGlobalLearningRouteOptions,
+  loadSectionLearningRouteWorkspace,
+} from "@/lib/learning-content/loadLearningRouteWorkspace";
+import { loadAdminSectionHealthSnapshot } from "@/lib/academics/loadAdminSectionHealthSnapshot";
+import type { AdminSectionHealthLearningRoute } from "@/types/adminSectionHealth";
 
 interface PageProps {
   params: Promise<{ locale: string; cohortId: string; sectionId: string }>;
@@ -44,23 +40,41 @@ export default async function AcademicSectionPage({ params }: PageProps) {
   const { locale, cohortId, sectionId } = await params;
   const dict = await getDictionary(locale);
   const enDict = locale === "en" ? dict : await getDictionary("en");
-  const d = dict.dashboard.academicSectionPage;
-  const dEn = enDict.dashboard.academicSectionPage;
-  const shellTabLabels = d.shellTabs ?? dEn.shellTabs;
-  const scheduleEditorDict = d.scheduleEditor ?? dEn.scheduleEditor;
-  const periodDict = d.period ?? dEn.period;
-  const capacityDict = d.capacity ?? dEn.capacity;
-  const roomLabelDict = d.roomLabel ?? dEn.roomLabel;
-  const lifecycleDict = d.lifecycle ?? dEn.lifecycle;
-  const staffDict = d.staff ?? dEn.staff;
-  const feePlansDict = d.feePlans ?? dEn.feePlans;
-  const enrollmentFeeDict = d.enrollmentFee ?? dEn.enrollmentFee;
+  const subdicts = resolveAcademicSectionPageSubdicts(dict, enDict);
   const dTeacherAttendance = dict.dashboard.teacherSectionAttendance;
   const supabase = await createClient();
 
-  const data = await loadAdminSectionPageData(supabase, cohortId, sectionId);
+  const [data, routeOptions, learningRouteWorkspace] = await Promise.all([
+    loadAdminSectionPageData(supabase, cohortId, sectionId),
+    loadGlobalLearningRouteOptions(supabase),
+    loadSectionLearningRouteWorkspace(supabase, sectionId),
+  ]);
   if (!data) notFound();
   const { section, cohort, slots, rows, debtByStudentId, staff, feePlans, feePlansWithUsage, moveTargets } = data;
+  const leadTeacherLabel = staff.teachers.find((t) => t.id === section.teacherId)?.label ?? null;
+  const assistantChipLabels = staff.initialAssistants.map((a) => a.label);
+  const externalChipLabels = staff.initialExternalAssistants.map((e) => e.label);
+  const activeRows = rows.filter((r) => r.status === "active");
+  const activeEnrollmentIds = activeRows.map((r) => r.enrollmentId);
+  const activeStudentIds = [...new Set(activeRows.map((r) => r.studentId))];
+
+  const learningRouteHealthBlock: AdminSectionHealthLearningRoute = {
+    mode: learningRouteWorkspace.assignment?.mode ?? null,
+    routeTitle: learningRouteWorkspace.route?.title ?? null,
+    plannedSteps: learningRouteWorkspace.routeSteps.length,
+    health: learningRouteWorkspace.health,
+  };
+
+  const healthSnapshotPromise = loadAdminSectionHealthSnapshot(supabase, {
+    sectionId,
+    cohortId: section.cohortId,
+    effectiveMaxStudents: section.effectiveMaxStudents,
+    activeEnrollmentIds,
+    activeStudentIds,
+    debtByStudentId,
+    learningRoute: learningRouteHealthBlock,
+  });
+
   const today = new Date();
   const currentPlan = resolveEffectiveSectionFeePlan(
     feePlans,
@@ -81,153 +95,46 @@ export default async function AcademicSectionPage({ params }: PageProps) {
   const attendanceScheduleLine = attendanceScheduleSummary
     ? `${dTeacherAttendance.scheduleSummaryLead} ${attendanceScheduleSummary}`
     : "";
-  const attendanceMatrix = hasEligibleAttendanceDays
-    ? await loadAdminSectionAttendanceMatrix(supabase, sectionId)
-    : null;
+  const [attendanceMatrix, healthSnapshot] = await Promise.all([
+    hasEligibleAttendanceDays ? loadAdminSectionAttendanceMatrix(supabase, sectionId) : Promise.resolve(null),
+    healthSnapshotPromise,
+  ]);
   const editableByDate = Object.fromEntries(
     (attendanceMatrix?.classDays ?? []).map((day) => [day, day <= todayIso]),
   );
   const attendancePanel = (
-    <>
-      {attendanceScheduleLine ? (
-        <p className="text-xs text-[var(--color-muted-foreground)]">{attendanceScheduleLine}</p>
-      ) : null}
-      {!attendanceWindowOk ? (
-        <p role="status" className="text-sm text-[var(--color-muted-foreground)]">
-          {dTeacherAttendance.noEligibleClassDates}
-        </p>
-      ) : !hasScheduleSlots ? (
-        <p role="status" className="text-sm text-[var(--color-muted-foreground)]">
-          {dTeacherAttendance.noScheduleSlots}
-        </p>
-      ) : !hasEligibleAttendanceDays ? (
-        <p role="status" className="text-sm text-[var(--color-muted-foreground)]">
-          {dTeacherAttendance.noEligibleClassDates}
-        </p>
-      ) : attendanceMatrix ? (
-        <SectionAttendanceMatrix
-          variant="admin"
-          locale={locale}
-          sectionId={sectionId}
-          todayIso={todayIso}
-          initialPayloadJson={JSON.stringify(attendanceMatrix)}
-          editableByDateJson={JSON.stringify(editableByDate)}
-          scheduleLine={attendanceScheduleLine}
-          matrixDict={dTeacherAttendance.matrix}
-          offlineHint={dTeacherAttendance.offlineHint}
-        />
-      ) : null}
-    </>
+    <AcademicSectionPageAttendancePanel
+      locale={locale}
+      sectionId={sectionId}
+      todayIso={todayIso}
+      attendanceScheduleLine={attendanceScheduleLine}
+      attendanceWindowOk={attendanceWindowOk}
+      hasScheduleSlots={hasScheduleSlots}
+      hasEligibleAttendanceDays={hasEligibleAttendanceDays}
+      attendanceMatrix={attendanceMatrix}
+      editableByDate={editableByDate}
+      dTeacherAttendance={dTeacherAttendance}
+    />
   );
 
   return (
-    <div className="space-y-6">
-      <div className="min-w-0 space-y-1 border-b border-[var(--color-border)] pb-4">
-        <Link
-          href={`/${locale}/dashboard/admin/academic/${cohortId}`}
-          className="text-sm font-medium text-[var(--color-primary)] hover:underline"
-        >
-          {d.backCohort}
-        </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--color-foreground)]">{section.name}</h1>
-        <p className="text-sm font-medium text-[var(--color-primary)]">{cohort.name}</p>
-        <p className="text-sm text-[var(--color-muted-foreground)]">{d.sectionLead}</p>
-      </div>
-
-      <AcademicSectionShellTabs
-        labels={shellTabLabels}
-        general={
-          <>
-            <AcademicSectionLifecycleBar
-              locale={locale}
-              cohortId={cohortId}
-              sectionId={sectionId}
-              sectionArchivedAt={section.archivedAt}
-              cohortArchivedAt={cohort.archivedAt}
-              dict={lifecycleDict}
-            />
-            <AcademicSectionPeriodEditor
-              locale={locale}
-              sectionId={sectionId}
-              initialStartsOn={section.startsOn}
-              initialEndsOn={section.endsOn}
-              dict={periodDict}
-            />
-            <AcademicSectionCapacityEditor
-              locale={locale}
-              sectionId={sectionId}
-              initialMaxStudents={section.effectiveMaxStudents}
-              activeEnrollments={section.activeEnrollmentCount}
-              siteDefaultMax={section.siteDefaultMax}
-              dict={capacityDict}
-            />
-            <AcademicSectionStaffEditor
-              locale={locale}
-              sectionId={sectionId}
-              teachers={staff.teachers}
-              assistantPortalStaffOptions={staff.assistantPortalStaffOptions}
-              initialTeacherId={section.teacherId}
-              initialAssistants={staff.initialAssistants}
-              initialExternalAssistants={staff.initialExternalAssistants}
-              dict={staffDict}
-            />
-            <AcademicSectionRoomLabelEditor
-              locale={locale}
-              sectionId={sectionId}
-              initialRoomLabel={section.roomLabel}
-              dict={roomLabelDict}
-            />
-          </>
-        }
-        schedule={
-          <AcademicSectionScheduleEditor
-            locale={locale}
-            sectionId={sectionId}
-            initialSlots={slots}
-            dict={scheduleEditorDict}
-          />
-        }
-        fees={
-          <div className="space-y-4">
-            <AcademicSectionFeePlansEditor
-              locale={locale}
-              sectionId={sectionId}
-              initialPlans={feePlansWithUsage}
-              dict={feePlansDict}
-            />
-            <AcademicSectionEnrollmentFeeEditor
-              locale={locale}
-              sectionId={sectionId}
-              initialAmount={section.enrollmentFeeAmount}
-              currentPlanCurrency={currentPlanCurrency}
-              dict={enrollmentFeeDict}
-            />
-          </div>
-        }
-        attendance={attendancePanel}
-        enroll={
-          <AcademicSectionEnrollCard
-            locale={locale}
-            sectionId={sectionId}
-            sectionLabel={cohort.label}
-            dict={d}
-            conflictDict={dict.dashboard.academics.conflictModal}
-            errors={dict.dashboard.academics.errors}
-          />
-        }
-        roster={
-          <AcademicSectionRosterTable
-            locale={locale}
-            sectionId={sectionId}
-            rows={rows}
-            moveTargets={moveTargets}
-            dict={d}
-            conflictDict={dict.dashboard.academics.conflictModal}
-            errors={dict.dashboard.academics.errors}
-            debtByStudentId={debtByStudentId}
-          />
-        }
-      />
-    </div>
+    <AcademicSectionPageShellBody
+      locale={locale}
+      cohortId={cohortId}
+      sectionId={sectionId}
+      attendancePanel={attendancePanel}
+      healthSnapshot={healthSnapshot}
+      subdicts={subdicts}
+      pageDict={dict.dashboard.academicSectionPage}
+      conflictDict={dict.dashboard.academics.conflictModal}
+      errorsDict={dict.dashboard.academics.errors}
+      data={data}
+      routeOptions={routeOptions}
+      learningRouteWorkspace={learningRouteWorkspace}
+      currentPlanCurrency={currentPlanCurrency}
+      leadTeacherLabel={leadTeacherLabel}
+      assistantChipLabels={assistantChipLabels}
+      externalChipLabels={externalChipLabels}
+    />
   );
 }

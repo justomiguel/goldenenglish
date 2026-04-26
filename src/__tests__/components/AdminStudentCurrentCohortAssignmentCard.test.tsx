@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import en from "@/dictionaries/en.json";
 import { AdminStudentCurrentCohortAssignmentCard } from "@/components/molecules/AdminStudentCurrentCohortAssignmentCard";
@@ -85,7 +85,6 @@ describe("AdminStudentCurrentCohortAssignmentCard", () => {
 
   it("removes a student from a section after confirmation", async () => {
     const user = userEvent.setup();
-    vi.spyOn(window, "confirm").mockReturnValue(true);
 
     render(
       <AdminStudentCurrentCohortAssignmentCard
@@ -97,6 +96,10 @@ describe("AdminStudentCurrentCohortAssignmentCard", () => {
     );
 
     await user.click(screen.getByRole("button", { name: /Remove B1/i }));
+    const dialog = await screen.findByRole("dialog");
+    await user.click(
+      within(dialog).getByRole("button", { name: en.admin.users.detailSectionAssignRemove }),
+    );
 
     await waitFor(() => {
       expect(removeAction).toHaveBeenCalledWith({

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Save } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -110,6 +111,7 @@ export function AcademicSectionEnrollmentFeeEditor({
             isLoading={pending}
             className="min-h-[44px]"
           >
+            {!pending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {dict.save}
           </Button>
           {amount === 0 ? (

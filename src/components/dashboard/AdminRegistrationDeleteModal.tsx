@@ -1,5 +1,6 @@
 "use client";
 
+import { Trash2, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Modal } from "@/components/atoms/Modal";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
@@ -38,14 +39,17 @@ export function AdminRegistrationDeleteModal({
           className="min-h-[44px] px-4"
           onClick={onClose}
         >
+          <X className="h-4 w-4 shrink-0" aria-hidden />
           {labels.cancel}
         </Button>
         <Button
           type="button"
           className="min-h-[44px] px-4"
           disabled={busy}
+          isLoading={busy}
           onClick={() => void onConfirm()}
         >
+          {busy ? null : <Trash2 className="h-4 w-4 shrink-0" aria-hidden />}
           {labels.confirmDelete}
         </Button>
       </div>

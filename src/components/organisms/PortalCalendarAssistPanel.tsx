@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { Palette, CalendarSync } from "lucide-react";
+import { CalendarSync, Palette, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Modal } from "@/components/atoms/Modal";
 import { PortalCalendarSpecialLegend } from "@/components/molecules/PortalCalendarSpecialLegend";
@@ -85,7 +85,6 @@ export function PortalCalendarAssistPanel({ dict, feedUrl }: PortalCalendarAssis
       <Button
         type="button"
         variant="secondary"
-        className="inline-flex items-center gap-2"
         onClick={() => setColorOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={colorOpen}
@@ -96,7 +95,6 @@ export function PortalCalendarAssistPanel({ dict, feedUrl }: PortalCalendarAssis
       <Button
         type="button"
         variant="secondary"
-        className="inline-flex items-center gap-2"
         onClick={() => setSyncOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={syncOpen}
@@ -115,6 +113,7 @@ export function PortalCalendarAssistPanel({ dict, feedUrl }: PortalCalendarAssis
         <CalendarColorReferenceBody dict={dict} />
         <div className="pt-2">
           <Button type="button" variant="secondary" onClick={() => setColorOpen(false)}>
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             {s.dialogClose}
           </Button>
         </div>
@@ -130,6 +129,7 @@ export function PortalCalendarAssistPanel({ dict, feedUrl }: PortalCalendarAssis
         <PortalCalendarSyncBlock dict={dict.sync} initialFeedUrl={feedUrl} embedded />
         <div className="pt-2">
           <Button type="button" variant="secondary" onClick={() => setSyncOpen(false)}>
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             {s.dialogClose}
           </Button>
         </div>

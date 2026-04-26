@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useId, type ReactNode } from "react";
-import { useEditor, EditorContent, type Editor } from "@tiptap/react";
+import { useCallback, useEffect, useId, useState } from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { TableKit } from "@tiptap/extension-table";
 import {
@@ -20,7 +20,8 @@ import {
   Heading2,
   Pilcrow,
 } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
+import { PromptStringModal } from "@/components/molecules/PromptStringModal";
+import { EmailTemplateTiptapBarBtn } from "@/components/molecules/EmailTemplateTiptapBarBtn";
 import type { EmailTemplateTiptapLabels } from "./EmailTemplateBodyField";
 
 export interface EmailTemplateTiptapBodyProps {
@@ -33,21 +34,11 @@ export interface EmailTemplateTiptapBodyProps {
 
 const visualPlaceholder = (html: string) => (html?.trim() ? html : "<p></p>");
 
-function execLink(editor: Editor, promptLabel: string) {
-  const prev = editor.getAttributes("link").href as string | undefined;
-  const next = typeof window !== "undefined" ? window.prompt(promptLabel, prev ?? "https://") : null;
-  if (next === null) return;
-  const t = next.trim();
-  if (t === "") {
-    editor.chain().focus().extendMarkRange("link").unsetLink().run();
-    return;
-  }
-  editor.chain().focus().extendMarkRange("link").setLink({ href: t }).run();
-}
-
 export function EmailTemplateTiptapBody({ value, onChange, disabled, tiptap }: EmailTemplateTiptapBodyProps) {
   const isDisabled = Boolean(disabled);
   const toolbarId = useId();
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
+  const [linkInitial, setLinkInitial] = useState("https://");
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -71,8 +62,10 @@ export function EmailTemplateTiptapBody({ value, onChange, disabled, tiptap }: E
 
   const onLink = useCallback(() => {
     if (!editor) return;
-    execLink(editor, tiptap.linkPrompt);
-  }, [editor, tiptap.linkPrompt]);
+    const prev = editor.getAttributes("link").href as string | undefined;
+    setLinkInitial(prev ?? "https://");
+    setLinkModalOpen(true);
+  }, [editor]);
 
   useEffect(() => {
     if (!editor) return;
@@ -99,139 +92,129 @@ export function EmailTemplateTiptapBody({ value, onChange, disabled, tiptap }: E
         role="toolbar"
         aria-label={tiptap.toolbarGroupLabel}
       >
-        <BarBtn
+        <EmailTemplateTiptapBarBtn
           pressed={Boolean(editor.isActive("bold"))}
           disabled={isDisabled || !editor.can().chain().focus().toggleBold().run()}
           label={tiptap.bold}
           onClick={() => editor.chain().focus().toggleBold().run()}
         >
           <Bold className="h-4 w-4" aria-hidden />
-        </BarBtn>
-        <BarBtn
+        </EmailTemplateTiptapBarBtn>
+        <EmailTemplateTiptapBarBtn
           pressed={Boolean(editor.isActive("italic"))}
           disabled={isDisabled || !editor.can().chain().focus().toggleItalic().run()}
           label={tiptap.italic}
           onClick={() => editor.chain().focus().toggleItalic().run()}
         >
           <Italic className="h-4 w-4" aria-hidden />
-        </BarBtn>
-        <BarBtn
+        </EmailTemplateTiptapBarBtn>
+        <EmailTemplateTiptapBarBtn
           pressed={Boolean(editor.isActive("underline"))}
           disabled={isDisabled}
           label={tiptap.underline}
           onClick={() => editor.chain().focus().toggleUnderline().run()}
         >
           <UnderlineIcon className="h-4 w-4" aria-hidden />
-        </BarBtn>
-        <BarBtn
+        </EmailTemplateTiptapBarBtn>
+        <EmailTemplateTiptapBarBtn
           pressed={Boolean(editor.isActive("strike"))}
           disabled={isDisabled}
           label={tiptap.strike}
           onClick={() => editor.chain().focus().toggleStrike().run()}
         >
           <Strikethrough className="h-4 w-4" aria-hidden />
-        </BarBtn>
+        </EmailTemplateTiptapBarBtn>
         <span className="mx-0.5 h-5 w-px self-center bg-[var(--color-border)]" aria-hidden />
-        <BarBtn
+        <EmailTemplateTiptapBarBtn
           pressed={Boolean(editor.isActive("heading", { level: 2 }))}
           disabled={isDisabled}
           label={tiptap.heading2}
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
         >
           <Heading2 className="h-4 w-4" aria-hidden />
-        </BarBtn>
-        <BarBtn
+        </EmailTemplateTiptapBarBtn>
+        <EmailTemplateTiptapBarBtn
           pressed={Boolean(editor.isActive("paragraph") && !editor.isActive("heading"))}
           disabled={isDisabled}
           label={tiptap.paragraph}
           onClick={() => editor.chain().focus().setParagraph().run()}
         >
           <Pilcrow className="h-4 w-4" aria-hidden />
-        </BarBtn>
+        </EmailTemplateTiptapBarBtn>
         <span className="mx-0.5 h-5 w-px self-center bg-[var(--color-border)]" aria-hidden />
-        <BarBtn
+        <EmailTemplateTiptapBarBtn
           pressed={Boolean(editor.isActive("bulletList"))}
           disabled={isDisabled}
           label={tiptap.bulletList}
           onClick={() => editor.chain().focus().toggleBulletList().run()}
         >
           <List className="h-4 w-4" aria-hidden />
-        </BarBtn>
-        <BarBtn
+        </EmailTemplateTiptapBarBtn>
+        <EmailTemplateTiptapBarBtn
           pressed={Boolean(editor.isActive("orderedList"))}
           disabled={isDisabled}
           label={tiptap.orderedList}
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
         >
           <ListOrdered className="h-4 w-4" aria-hidden />
-        </BarBtn>
-        <BarBtn
+        </EmailTemplateTiptapBarBtn>
+        <EmailTemplateTiptapBarBtn
           pressed={Boolean(editor.isActive("blockquote"))}
           disabled={isDisabled}
           label={tiptap.blockquote}
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
         >
           <Quote className="h-4 w-4" aria-hidden />
-        </BarBtn>
-        <BarBtn pressed={false} disabled={isDisabled} label={tiptap.horizontalRule} onClick={() => editor.chain().focus().setHorizontalRule().run()}>
+        </EmailTemplateTiptapBarBtn>
+        <EmailTemplateTiptapBarBtn pressed={false} disabled={isDisabled} label={tiptap.horizontalRule} onClick={() => editor.chain().focus().setHorizontalRule().run()}>
           <Minus className="h-4 w-4" aria-hidden />
-        </BarBtn>
+        </EmailTemplateTiptapBarBtn>
         <span className="mx-0.5 h-5 w-px self-center bg-[var(--color-border)]" aria-hidden />
-        <BarBtn
+        <EmailTemplateTiptapBarBtn
           pressed={Boolean(editor.isActive("link"))}
           disabled={isDisabled}
           label={tiptap.link}
           onClick={onLink}
         >
           <LinkIcon className="h-4 w-4" aria-hidden />
-        </BarBtn>
-        <BarBtn
+        </EmailTemplateTiptapBarBtn>
+        <EmailTemplateTiptapBarBtn
           pressed={false}
           disabled={isDisabled}
           label={tiptap.insertTable}
           onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
         >
           <Table2 className="h-4 w-4" aria-hidden />
-        </BarBtn>
+        </EmailTemplateTiptapBarBtn>
         <span className="mx-0.5 h-5 w-px self-center bg-[var(--color-border)]" aria-hidden />
-        <BarBtn pressed={false} disabled={isDisabled || !editor.can().undo()} label={tiptap.undo} onClick={() => editor.chain().focus().undo().run()}>
+        <EmailTemplateTiptapBarBtn pressed={false} disabled={isDisabled || !editor.can().undo()} label={tiptap.undo} onClick={() => editor.chain().focus().undo().run()}>
           <Undo2 className="h-4 w-4" aria-hidden />
-        </BarBtn>
-        <BarBtn pressed={false} disabled={isDisabled || !editor.can().redo()} label={tiptap.redo} onClick={() => editor.chain().focus().redo().run()}>
+        </EmailTemplateTiptapBarBtn>
+        <EmailTemplateTiptapBarBtn pressed={false} disabled={isDisabled || !editor.can().redo()} label={tiptap.redo} onClick={() => editor.chain().focus().redo().run()}>
           <Redo2 className="h-4 w-4" aria-hidden />
-        </BarBtn>
+        </EmailTemplateTiptapBarBtn>
       </div>
       <EditorContent editor={editor} />
-    </div>
-  );
-}
 
-function BarBtn({
-  children,
-  pressed,
-  disabled,
-  label,
-  onClick,
-}: {
-  children: ReactNode;
-  pressed: boolean;
-  disabled: boolean;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="sm"
-      disabled={disabled}
-      aria-pressed={pressed}
-      title={label}
-      aria-label={label}
-      className={`!px-1.5 !py-1 ${pressed ? "bg-[var(--color-surface)] ring-1 ring-[var(--color-border)]" : ""}`}
-      onClick={onClick}
-    >
-      {children}
-    </Button>
+      <PromptStringModal
+        open={linkModalOpen}
+        onOpenChange={setLinkModalOpen}
+        title={tiptap.linkModalTitle}
+        description={tiptap.linkPrompt}
+        fieldLabel={tiptap.linkUrlFieldLabel}
+        initialValue={linkInitial}
+        cancelLabel={tiptap.linkModalCancel}
+        confirmLabel={tiptap.linkModalApply}
+        onConfirm={(next) => {
+          if (!editor) return;
+          const t = next.trim();
+          if (t === "") {
+            editor.chain().focus().extendMarkRange("link").unsetLink().run();
+            return;
+          }
+          editor.chain().focus().extendMarkRange("link").setLink({ href: t }).run();
+        }}
+      />
+    </div>
   );
 }

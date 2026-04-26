@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { Save, UserPlus, X } from "lucide-react";
 import { Label } from "@/components/atoms/Label";
 import { Button } from "@/components/atoms/Button";
 import { AdminStudentSearchCombobox } from "@/components/molecules/AdminStudentSearchCombobox";
@@ -135,7 +136,7 @@ export function AcademicSectionStaffEditorAssistantsBlock({
                 onClick={() => removeAssistant(id)}
                 aria-label={dict.removeAssistantAria}
               >
-                ×
+                <X className="h-4 w-4 shrink-0" aria-hidden />
               </Button>
             </li>
           );
@@ -166,6 +167,7 @@ export function AcademicSectionStaffEditorAssistantsBlock({
           disabled={pendingAsst || !pickStaffAssistant}
           onClick={addStaffAssistant}
         >
+          <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
           {dict.addStaffAssistantSubmit}
         </Button>
       </div>
@@ -188,6 +190,7 @@ export function AcademicSectionStaffEditorAssistantsBlock({
         }}
       />
       <Button type="button" disabled={pendingAsst || !dirtyAsst} isLoading={pendingAsst} onClick={onSaveAssistants}>
+        {!pendingAsst ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {dict.assistantsSave}
       </Button>
       {msgAsst ? (

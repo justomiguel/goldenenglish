@@ -1,5 +1,6 @@
 "use client";
 
+import { CalendarDays, CalendarRange, ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -53,6 +54,7 @@ export function StudentAttendanceCalendar({ rows, labels }: StudentAttendanceCal
             variant={mode === "month" ? "primary" : "ghost"}
             onClick={() => setMode("month")}
           >
+            <CalendarDays className="h-4 w-4 shrink-0" aria-hidden />
             {labels.viewMonth}
           </Button>
           <Button
@@ -60,6 +62,7 @@ export function StudentAttendanceCalendar({ rows, labels }: StudentAttendanceCal
             variant={mode === "week" ? "primary" : "ghost"}
             onClick={() => setMode("week")}
           >
+            <CalendarRange className="h-4 w-4 shrink-0" aria-hidden />
             {labels.viewWeek}
           </Button>
         </div>
@@ -104,6 +107,7 @@ export function StudentAttendanceCalendar({ rows, labels }: StudentAttendanceCal
                 setCursorDate(d);
               }}
             >
+              <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden />
               {labels.weekPrev}
             </Button>
             <span className="text-sm font-medium text-[var(--color-foreground)]">
@@ -119,6 +123,7 @@ export function StudentAttendanceCalendar({ rows, labels }: StudentAttendanceCal
                 setCursorDate(d);
               }}
             >
+              <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
               {labels.weekNext}
             </Button>
           </div>

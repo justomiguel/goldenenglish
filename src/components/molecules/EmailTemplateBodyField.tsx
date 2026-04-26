@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { emailTemplateBodyPrefersCodeEditor } from "@/lib/email/emailTemplateBodyPrefersCodeEditor";
+import { Code, LayoutPanelLeft } from "lucide-react";
 import { Label } from "@/components/atoms/Label";
 import { Button } from "@/components/atoms/Button";
 import { EmailTemplateTiptapBody } from "./EmailTemplateTiptapBody";
@@ -51,6 +52,7 @@ export function EmailTemplateBodyField({
             className="!px-2"
             aria-pressed={mode === "visual"}
           >
+            <LayoutPanelLeft className="h-4 w-4 shrink-0" aria-hidden />
             {bodyField.modeVisual}
           </Button>
           <Button
@@ -62,6 +64,7 @@ export function EmailTemplateBodyField({
             className="!px-2"
             aria-pressed={mode === "code"}
           >
+            <Code className="h-4 w-4 shrink-0" aria-hidden />
             {bodyField.modeCode}
           </Button>
         </div>

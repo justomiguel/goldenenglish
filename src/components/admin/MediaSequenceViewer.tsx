@@ -11,6 +11,7 @@ import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/captions.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
+import { Download, Images } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import type { ContentTemplateBlock, ContentTemplateLibraryRow } from "@/lib/learning-tasks/loadContentTemplateLibrary";
 import type { Dictionary } from "@/types/i18n";
@@ -60,6 +61,7 @@ export function MediaSequenceViewer({ content, labels }: MediaSequenceViewerProp
           <p className="text-sm text-[var(--color-muted-foreground)]">{labels.mediaViewerLead}</p>
         </div>
         <Button type="button" variant="secondary" onClick={() => setIndex(0)}>
+          <Images className="h-4 w-4 shrink-0" aria-hidden />
           {labels.mediaViewerOpen}
         </Button>
       </div>
@@ -105,7 +107,13 @@ function renderCustomSlide({ slide }: RenderSlideProps, labels: Labels): ReactNo
         <div className="max-w-lg rounded-[var(--layout-border-radius)] bg-[var(--color-background)] p-6 text-center text-[var(--color-foreground)]">
           <p className="text-lg font-semibold">{String(slide.title ?? "Document")}</p>
           <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{slide.mime ?? labels.mediaViewerOfficeDocument}</p>
-          <a className="mt-4 inline-flex rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)]" href={slide.src} target="_blank" rel="noreferrer">
+          <a
+            className="mt-4 inline-flex items-center justify-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)]"
+            href={slide.src}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Download className="h-4 w-4 shrink-0" aria-hidden />
             {labels.mediaViewerOpenDocument}
           </a>
         </div>

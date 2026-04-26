@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Save } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 import { Label } from "@/components/atoms/Label";
@@ -56,6 +57,7 @@ export function AcademicSectionRoomLabelEditor({
           placeholder={dict.placeholder}
         />
         <Button type="button" disabled={pending || !dirty} isLoading={pending} onClick={save}>
+          {!pending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {dict.save}
         </Button>
         {msg ? (

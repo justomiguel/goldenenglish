@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { applyPromotionCodeForStudent } from "@/app/[locale]/dashboard/student/payments/applyPromotionCodeForStudentAction";
+import { Tag } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -65,6 +66,7 @@ export function PromotionApplyForm({ locale, studentId, labels }: PromotionApply
           />
         </div>
         <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px]">
+          {!busy ? <Tag className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {labels.promoApply}
         </Button>
       </form>

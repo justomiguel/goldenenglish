@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
 import type { SiteThemeRow } from "@/types/theming";
 import type { RawPropertyRow } from "@/lib/cms/buildRawPropertyRows";
@@ -60,7 +60,6 @@ describe("SiteThemeRawEditorShell", () => {
     vi.clearAllMocks();
     updateMock.mockResolvedValue({ ok: true, id: theme.id });
     resetMock.mockResolvedValue({ ok: true, id: theme.id });
-    vi.spyOn(window, "confirm").mockReturnValue(true);
   });
 
   it("renders the title with the template name and a row per allow-listed key", () => {
@@ -222,6 +221,12 @@ describe("SiteThemeRawEditorShell", () => {
     await act(async () => {
       fireEvent.click(
         screen.getByRole("button", { name: labels.resetAllCta }),
+      );
+    });
+    const dialog = screen.getByRole("dialog");
+    await act(async () => {
+      fireEvent.click(
+        within(dialog).getByRole("button", { name: labels.resetRawModalConfirm }),
       );
     });
     expect(resetMock).toHaveBeenCalledTimes(1);

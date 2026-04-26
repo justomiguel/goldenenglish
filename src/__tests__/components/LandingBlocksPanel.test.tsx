@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { dictEn } from "@/test/dictEn";
 import type { LandingBlock } from "@/types/theming";
@@ -118,9 +118,6 @@ describe("LandingBlocksPanel", () => {
       },
     };
     removeMock.mockResolvedValueOnce({ ok: true });
-    const confirmSpy = vi
-      .spyOn(window, "confirm")
-      .mockReturnValue(true);
     render(
       <LandingBlocksPanel
         locale="en"
@@ -134,13 +131,17 @@ describe("LandingBlocksPanel", () => {
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: labels.removeCta }));
     });
-    expect(confirmSpy).toHaveBeenCalled();
+    const dialog = screen.getByRole("dialog");
+    await act(async () => {
+      fireEvent.click(
+        within(dialog).getByRole("button", { name: labels.removeModalConfirm }),
+      );
+    });
     expect(removeMock).toHaveBeenCalledWith({
       locale: "en",
       id: themeId,
       blockId: block.id,
     });
-    confirmSpy.mockRestore();
   });
 
   it("invokes moveLandingBlockAction when the down arrow is clicked", async () => {

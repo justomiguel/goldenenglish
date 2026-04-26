@@ -1,5 +1,6 @@
 "use client";
 
+import { Calendar, TableProperties } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 
@@ -22,6 +23,7 @@ export function TeacherAttendanceMatrixViewTabs({ view, onViewChange, dict }: Te
         aria-selected={view === "sheet"}
         onClick={() => onViewChange("sheet")}
       >
+        <TableProperties className="h-4 w-4 shrink-0" aria-hidden />
         {dict.viewSheet}
       </Button>
       <Button
@@ -32,6 +34,7 @@ export function TeacherAttendanceMatrixViewTabs({ view, onViewChange, dict }: Te
         aria-selected={view === "calendar"}
         onClick={() => onViewChange("calendar")}
       >
+        <Calendar className="h-4 w-4 shrink-0" aria-hidden />
         {dict.viewCalendar}
       </Button>
     </div>

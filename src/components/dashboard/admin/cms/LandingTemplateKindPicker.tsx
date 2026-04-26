@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { setSiteThemeKindAction } from "@/app/[locale]/dashboard/admin/cms/siteThemeBlocksActions";
 import type { Dictionary } from "@/types/i18n";
@@ -124,6 +125,9 @@ export function LandingTemplateKindPicker({
           isLoading={pending}
           onClick={handleSave}
         >
+          {!pending ? (
+            <Save className="h-4 w-4 shrink-0" aria-hidden />
+          ) : null}
           {labels.saveCta}
         </Button>
       </div>

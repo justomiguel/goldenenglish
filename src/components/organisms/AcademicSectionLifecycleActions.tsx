@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { Archive, ArchiveRestore, Check, Trash2, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Modal } from "@/components/atoms/Modal";
 import {
@@ -9,49 +10,25 @@ import {
   unarchiveAcademicSectionAction,
   deleteAcademicSectionAction,
 } from "@/app/[locale]/dashboard/admin/academic/sectionArchiveActions";
-
-export type AcademicSectionLifecycleDict = {
-  archivedBanner: string;
-  cohortArchivedHint: string;
-  archiveButton: string;
-  unarchiveButton: string;
-  deleteButton: string;
-  modalArchiveTitle: string;
-  modalArchiveBody: string;
-  modalUnarchiveTitle: string;
-  modalUnarchiveBody: string;
-  modalDeleteTitle: string;
-  modalDeleteBody: string;
-  deleteConfirmCheckbox: string;
-  confirm: string;
-  cancel: string;
-  errors: {
-    active_enrollments: string;
-    cohort_archived: string;
-    enrollments_exist: string;
-    save: string;
-    parse: string;
-  };
-};
+import type { AcademicSectionLifecycleDict } from "@/types/academicSectionLifecycle";
 
 type DialogMode = "archive" | "unarchive" | "delete" | null;
 
-export interface AcademicSectionLifecycleBarProps {
+export interface AcademicSectionLifecycleActionsProps {
   locale: string;
-  cohortId: string;
   sectionId: string;
   sectionArchivedAt: string | null;
   cohortArchivedAt: string | null;
   dict: AcademicSectionLifecycleDict;
 }
 
-export function AcademicSectionLifecycleBar({
+export function AcademicSectionLifecycleActions({
   locale,
   sectionId,
   sectionArchivedAt,
   cohortArchivedAt,
   dict,
-}: AcademicSectionLifecycleBarProps) {
+}: AcademicSectionLifecycleActionsProps) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [dialog, setDialog] = useState<DialogMode>(null);
@@ -112,17 +89,11 @@ export function AcademicSectionLifecycleBar({
   }
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/25 p-4">
-      {isSectionArchived ? (
-        <p className="mb-3 text-sm text-[var(--color-muted-foreground)]">{dict.archivedBanner}</p>
-      ) : null}
-      {cohortArchived ? (
-        <p className="mb-3 text-sm text-[var(--color-error)]">{dict.cohortArchivedHint}</p>
-      ) : null}
-
-      <div className="flex flex-wrap gap-2">
+    <>
+      <div className="flex flex-wrap justify-end gap-2">
         {!isSectionArchived ? (
           <Button type="button" variant="secondary" size="sm" onClick={() => setDialog("archive")}>
+            <Archive className="h-4 w-4 shrink-0" aria-hidden />
             {dict.archiveButton}
           </Button>
         ) : (
@@ -133,6 +104,7 @@ export function AcademicSectionLifecycleBar({
             onClick={() => setDialog("unarchive")}
             disabled={cohortArchived}
           >
+            <ArchiveRestore className="h-4 w-4 shrink-0" aria-hidden />
             {dict.unarchiveButton}
           </Button>
         )}
@@ -146,6 +118,7 @@ export function AcademicSectionLifecycleBar({
             setDialog("delete");
           }}
         >
+          <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
           {dict.deleteButton}
         </Button>
       </div>
@@ -161,9 +134,11 @@ export function AcademicSectionLifecycleBar({
         {error ? <p className="text-sm text-[var(--color-error)]">{error}</p> : null}
         <div className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="ghost" size="sm" onClick={closeAll} disabled={pending}>
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             {dict.cancel}
           </Button>
           <Button type="button" variant="primary" size="sm" onClick={runArchive} isLoading={pending}>
+            <Check className="h-4 w-4 shrink-0" aria-hidden />
             {dict.confirm}
           </Button>
         </div>
@@ -180,9 +155,11 @@ export function AcademicSectionLifecycleBar({
         {error ? <p className="text-sm text-[var(--color-error)]">{error}</p> : null}
         <div className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="ghost" size="sm" onClick={closeAll} disabled={pending}>
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             {dict.cancel}
           </Button>
           <Button type="button" variant="primary" size="sm" onClick={runUnarchive} isLoading={pending}>
+            <Check className="h-4 w-4 shrink-0" aria-hidden />
             {dict.confirm}
           </Button>
         </div>
@@ -208,6 +185,7 @@ export function AcademicSectionLifecycleBar({
         {error ? <p className="text-sm text-[var(--color-error)]">{error}</p> : null}
         <div className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="ghost" size="sm" onClick={closeAll} disabled={pending}>
+            <X className="h-4 w-4 shrink-0" aria-hidden />
             {dict.cancel}
           </Button>
           <Button
@@ -219,10 +197,11 @@ export function AcademicSectionLifecycleBar({
             isLoading={pending}
             disabled={!deleteAck}
           >
+            <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
             {dict.confirm}
           </Button>
         </div>
       </Modal>
-    </section>
+    </>
   );
 }

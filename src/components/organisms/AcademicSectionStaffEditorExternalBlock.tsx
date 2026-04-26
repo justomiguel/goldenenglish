@@ -1,5 +1,6 @@
 "use client";
 
+import { Plus, Save, X } from "lucide-react";
 import { Label } from "@/components/atoms/Label";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -60,7 +61,7 @@ export function AcademicSectionStaffEditorExternalBlock({
               onClick={() => onRemoveName(name)}
               aria-label={dict.removeExternalAria}
             >
-              ×
+              <X className="h-4 w-4 shrink-0" aria-hidden />
             </Button>
           </li>
         ))}
@@ -85,10 +86,12 @@ export function AcademicSectionStaffEditorExternalBlock({
           disabled={pendingExt || !newExternalName.trim()}
           onClick={onAddExternal}
         >
+          <Plus className="h-4 w-4 shrink-0" aria-hidden />
           {dict.externalAdd}
         </Button>
       </div>
       <Button type="button" disabled={pendingExt || !dirtyExt} isLoading={pendingExt} onClick={onSaveExternal}>
+        {!pendingExt ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {dict.externalSave}
       </Button>
       {msgExt ? (

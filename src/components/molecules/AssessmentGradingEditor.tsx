@@ -13,6 +13,7 @@ import {
 } from "@/app/[locale]/dashboard/teacher/sections/assessmentGradeActions";
 import { normalizeRubricValuesForDimensions } from "@/lib/academics/cohortRubricDimensions";
 import { suggestedScoreForGrading } from "@/lib/academics/rubricSuggestedScoreFromDimensions";
+import { Save, Send, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { GradingForm } from "@/components/molecules/GradingForm";
 
@@ -32,6 +33,9 @@ function DraftSubmitRow({ label }: { label: string }) {
           if (statusRef.current) statusRef.current.value = "draft";
         }}
       >
+        {!pending ? (
+          <Save className="h-4 w-4 shrink-0" aria-hidden />
+        ) : null}
         {label}
       </Button>
     </>
@@ -180,10 +184,14 @@ export function AssessmentGradingEditor({
             });
           }}
         >
+          {!pubPending ? (
+            <Send className="h-4 w-4 shrink-0" aria-hidden />
+          ) : null}
           {dict.publishNotify}
         </Button>
       </div>
       <Button type="button" variant="ghost" className="mt-3 min-h-[44px] w-full" onClick={onClose}>
+        <X className="h-4 w-4 shrink-0" aria-hidden />
         {dict.close}
       </Button>
     </form>
