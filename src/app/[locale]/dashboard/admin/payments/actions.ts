@@ -5,6 +5,7 @@ import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { z } from "zod";
 import { defaultLocale, getDictionary } from "@/lib/i18n/dictionaries";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { auditFinanceAction } from "@/lib/audit";
 
 const reviewSchema = z.object({
   paymentId: z.string().uuid(),
@@ -17,9 +18,11 @@ export async function reviewPayment(
   raw: unknown,
 ): Promise<{ ok: boolean; message?: string }> {
   let supabase;
+  let actorId = "";
   try {
     const ctx = await assertAdmin();
     supabase = ctx.supabase;
+    actorId = ctx.user.id;
   } catch {
     logServerAuthzDenied("reviewPayment");
     const dict = await getDictionary(defaultLocale);
@@ -34,6 +37,12 @@ export async function reviewPayment(
 
   const errDict = await getDictionary(parsed.data.locale);
 
+  const { data: beforePayment } = await supabase
+    .from("payments")
+    .select("id, student_id, parent_id, month, year, amount, status, admin_notes")
+    .eq("id", parsed.data.paymentId)
+    .maybeSingle();
+
   const { error } = await supabase
     .from("payments")
     .update({
@@ -46,6 +55,30 @@ export async function reviewPayment(
     logSupabaseClientError("reviewPayment", error, { paymentId: parsed.data.paymentId });
     return { ok: false, message: errDict.actionErrors.paymentsReview.saveFailed };
   }
+  void auditFinanceAction({
+    actorId,
+    actorRole: "admin",
+    action: parsed.data.status === "approved" ? "approve" : "reject",
+    resourceType: "payment",
+    resourceId: parsed.data.paymentId,
+    summary: `Admin ${parsed.data.status} payment receipt`,
+    beforeValues: {
+      status: beforePayment?.status ?? null,
+      admin_notes: beforePayment?.admin_notes ?? null,
+      amount: beforePayment?.amount ?? null,
+    },
+    afterValues: {
+      status: parsed.data.status,
+      admin_notes: parsed.data.adminNotes ?? null,
+      amount: beforePayment?.amount ?? null,
+    },
+    metadata: {
+      student_id: beforePayment?.student_id ?? null,
+      parent_id: beforePayment?.parent_id ?? null,
+      month: beforePayment?.month ?? null,
+      year: beforePayment?.year ?? null,
+    },
+  });
   return { ok: true };
 }
 

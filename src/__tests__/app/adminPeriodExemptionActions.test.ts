@@ -16,6 +16,7 @@ vi.mock("@/app/[locale]/dashboard/admin/users/[userId]/billing/revalidateStudent
 }));
 
 const sid = "00000000-0000-4000-8000-000000000001";
+const adminUser = { id: "22222222-2222-4222-8222-222222222222" };
 
 function profilesStudent() {
   return {
@@ -103,6 +104,7 @@ describe("setPeriodExemption", () => {
 
   it("rejects non-student profile", async () => {
     mockAssertAdmin.mockResolvedValue({
+      user: adminUser,
       supabase: {
         from: vi.fn(() => ({
           select: vi.fn().mockReturnThis(),
@@ -125,7 +127,7 @@ describe("setPeriodExemption", () => {
     const { supabase } = supabaseFor([
       { id: "p1", status: "approved", amount: 100, section_id: "sec-1" },
     ]);
-    mockAssertAdmin.mockResolvedValue({ supabase });
+    mockAssertAdmin.mockResolvedValue({ supabase, user: adminUser });
     const r = await setPeriodExemption({
       locale: "es",
       studentId: sid,
@@ -140,7 +142,7 @@ describe("setPeriodExemption", () => {
     const { supabase, payments } = supabaseFor([
       { id: "p1", status: "pending", amount: 50, section_id: "sec-1" },
     ]);
-    mockAssertAdmin.mockResolvedValue({ supabase });
+    mockAssertAdmin.mockResolvedValue({ supabase, user: adminUser });
     const r = await setPeriodExemption({
       locale: "es",
       studentId: sid,
@@ -157,7 +159,7 @@ describe("setPeriodExemption", () => {
 
   it("inserts exempt row when none exists", async () => {
     const { supabase, payments } = supabaseFor([]);
-    mockAssertAdmin.mockResolvedValue({ supabase });
+    mockAssertAdmin.mockResolvedValue({ supabase, user: adminUser });
     const r = await setPeriodExemption({
       locale: "es",
       studentId: sid,
@@ -175,7 +177,7 @@ describe("setPeriodExemption", () => {
     const { supabase, payments } = supabaseFor([
       { id: "legacy", status: "exempt", amount: 0, section_id: null },
     ]);
-    mockAssertAdmin.mockResolvedValue({ supabase });
+    mockAssertAdmin.mockResolvedValue({ supabase, user: adminUser });
     const r = await setPeriodExemption({
       locale: "es",
       studentId: sid,
@@ -194,6 +196,7 @@ describe("applyExemptionRange", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAssertAdmin.mockResolvedValue({
+      user: adminUser,
       supabase: {
         from: vi.fn((t: string) => {
           if (t === "profiles") return profilesStudent();

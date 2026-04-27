@@ -20,6 +20,7 @@ import {
 const S = "adminUserDetailProfileActions";
 
 import type { AdminParentSearchHit } from "@/types/adminUsers";
+import { buildIlikePrefixPattern } from "@/lib/users/profileSearchPrefix";
 
 const localeZ = z.string().min(2).max(8);
 const uuidZ = z.string().uuid();
@@ -32,22 +33,22 @@ export async function searchAdminParentsForDetailAction(query: string): Promise<
     return [];
   }
   const q = query.trim();
-  if (q.length < 2) return [];
+  if (q.length < 1) return [];
   const admin = createAdminClient();
-  const pat = `%${q}%`;
-  const [r1, r2] = await Promise.all([
-    admin.from("profiles").select("id, first_name, last_name, role").eq("role", "parent").ilike("first_name", pat).limit(8),
-    admin.from("profiles").select("id, first_name, last_name, role").eq("role", "parent").ilike("last_name", pat).limit(8),
-  ]);
-  const map = new Map<string, AdminParentSearchHit>();
-  for (const r of [r1, r2]) {
-    if (r.error || !r.data) continue;
-    for (const p of r.data) {
-      const id = String(p.id);
-      map.set(id, { id, label: `${p.first_name} ${p.last_name}`.trim() });
-    }
-  }
-  return [...map.values()].slice(0, 12);
+  const pat = buildIlikePrefixPattern(q);
+  const { data, error } = await admin
+    .from("profiles")
+    .select("id, first_name, last_name, role")
+    .eq("role", "parent")
+    .or(`first_name.ilike.${pat},last_name.ilike.${pat},dni_or_passport.ilike.${pat}`)
+    .order("last_name", { ascending: true })
+    .order("first_name", { ascending: true })
+    .limit(16);
+  if (error || !data) return [];
+  return data.map((p) => ({
+    id: String(p.id),
+    label: `${p.first_name} ${p.last_name}`.trim(),
+  }));
 }
 
 const updatableFieldZ = z.enum([

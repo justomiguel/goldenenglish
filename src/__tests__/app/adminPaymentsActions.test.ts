@@ -10,6 +10,36 @@ vi.mock("@/lib/dashboard/assertAdmin", () => ({
   assertAdmin: () => mockAssertAdmin(),
 }));
 
+const adminUser = { id: "11111111-1111-1111-1111-111111111111" };
+
+function supabaseForReviewPayment(updateError: unknown | null) {
+  const maybeSingle = vi.fn().mockResolvedValue({
+    data: {
+      id: "00000000-0000-4000-8000-000000000002",
+      student_id: null,
+      parent_id: null,
+      month: 1,
+      year: 2026,
+      amount: 100,
+      status: "pending",
+      admin_notes: null,
+    },
+    error: null,
+  });
+  const eqUpdate = vi.fn().mockResolvedValue({ error: updateError });
+  const from = vi.fn(() => ({
+    select: vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle,
+      }),
+    }),
+    update: vi.fn().mockReturnValue({
+      eq: eqUpdate,
+    }),
+  }));
+  return { from, eqUpdate, maybeSingle };
+}
+
 const mockCreateAdminClient = vi.fn();
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => mockCreateAdminClient(),
@@ -33,7 +63,7 @@ describe("reviewPayment", () => {
   });
 
   it("returns Invalid data for bad payload", async () => {
-    mockAssertAdmin.mockResolvedValue({ supabase: {} });
+    mockAssertAdmin.mockResolvedValue({ supabase: {}, user: adminUser });
     const r = await reviewPayment({
       paymentId: "not-a-uuid",
       status: "approved",
@@ -45,10 +75,8 @@ describe("reviewPayment", () => {
   });
 
   it("surfaces update errors", async () => {
-    const eq = vi.fn().mockResolvedValue({ error: { message: "db" } });
-    const update = vi.fn().mockReturnValue({ eq });
-    const from = vi.fn().mockReturnValue({ update });
-    mockAssertAdmin.mockResolvedValue({ supabase: { from } });
+    const { from } = supabaseForReviewPayment({ message: "db" });
+    mockAssertAdmin.mockResolvedValue({ supabase: { from }, user: adminUser });
     const r = await reviewPayment({
       paymentId: "00000000-0000-4000-8000-000000000002",
       status: "rejected",
@@ -61,10 +89,21 @@ describe("reviewPayment", () => {
   });
 
   it("returns ok on success", async () => {
-    const eq = vi.fn().mockResolvedValue({ error: null });
-    const update = vi.fn().mockReturnValue({ eq });
-    const from = vi.fn().mockReturnValue({ update });
-    mockAssertAdmin.mockResolvedValue({ supabase: { from } });
+    const { from, maybeSingle } = supabaseForReviewPayment(null);
+    maybeSingle.mockResolvedValue({
+      data: {
+        id: "00000000-0000-4000-8000-000000000003",
+        student_id: null,
+        parent_id: null,
+        month: 2,
+        year: 2026,
+        amount: 50,
+        status: "pending",
+        admin_notes: null,
+      },
+      error: null,
+    });
+    mockAssertAdmin.mockResolvedValue({ supabase: { from }, user: adminUser });
     const r = await reviewPayment({
       paymentId: "00000000-0000-4000-8000-000000000003",
       status: "approved",

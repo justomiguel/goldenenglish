@@ -113,6 +113,7 @@ export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPa
         placeholder={d.searchPlaceholder}
         inputTitle={d.studentSearchTooltip}
         minCharsHint={d.searchMin}
+        prefetchWhenEmptyOnFocus
         disabled={busy}
         search={searchAdminStudentsAction}
         onPick={setPicked}

@@ -1,10 +1,9 @@
-// REGRESSION CHECK: Admin detail mutations must stay behind assertAdmin and enforce minor+tutor rules.
+// REGRESSION CHECK: Admin detail mutations must stay behind assertAdmin; profile updates use auth admin.
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import es from "@/dictionaries/es.json";
 import {
   updateAdminUserDetailFieldAction,
   setAdminUserPasswordFromDetailAction,
-  replaceMinorStudentTutorFromDetailAction,
 } from "@/app/[locale]/dashboard/admin/users/adminUserDetailActions";
 
 const U = es.admin.users;
@@ -38,15 +37,9 @@ vi.mock("@/lib/supabase/admin", () => ({
           update: () => ({ eq: mockProfilesUpdateEq }),
           select: () => ({
             eq: () => ({
-              single: () => ({ data: { role: "student", is_minor: true }, error: null }),
+              single: () => ({ data: { role: "student" }, error: null }),
             }),
           }),
-        };
-      }
-      if (table === "tutor_student_rel") {
-        return {
-          delete: () => ({ eq: vi.fn().mockResolvedValue({ error: null }) }),
-          insert: vi.fn().mockResolvedValue({ error: null }),
         };
       }
       throw new Error(`unexpected ${table}`);
@@ -114,24 +107,5 @@ describe("adminUserDetailActions", () => {
       "00000000-0000-4000-8000-000000000001",
       expect.objectContaining({ password: "12345678" }),
     );
-  });
-});
-
-describe("replaceMinorStudentTutorFromDetailAction", () => {
-  const studentId = "00000000-0000-4000-8000-000000000010";
-  const tutorId = "00000000-0000-4000-8000-000000000020";
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("returns forbidden when assertAdmin fails", async () => {
-    mockAssertAdmin.mockRejectedValue(new Error("no"));
-    const r = await replaceMinorStudentTutorFromDetailAction({
-      locale: "es",
-      studentId,
-      newTutorId: tutorId,
-    });
-    expect(r).toEqual({ ok: false, message: U.detailErrForbidden });
   });
 });

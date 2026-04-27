@@ -77,6 +77,7 @@ export function TeacherAcademicsPanel({ locale, dict, sections }: TeacherAcademi
         placeholder={d.searchPlaceholder}
         inputTitle={d.studentSearchTooltip}
         minCharsHint={d.searchMin}
+        prefetchWhenEmptyOnFocus
         disabled={pending}
         search={searchStudents}
         onPick={setPicked}

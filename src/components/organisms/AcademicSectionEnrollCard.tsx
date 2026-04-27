@@ -107,6 +107,7 @@ export function AcademicSectionEnrollCard({
           placeholder={dict.searchPlaceholder}
           inputTitle={dict.studentSearchTooltip}
           minCharsHint={dict.searchMin}
+          prefetchWhenEmptyOnFocus
           disabled={busy}
           search={searchAdminStudentsAction}
           onPick={setPicked}

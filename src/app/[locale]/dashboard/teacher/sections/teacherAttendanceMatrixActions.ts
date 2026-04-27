@@ -12,6 +12,8 @@ import {
 } from "@/lib/academics/teacherAttendanceMatrixMutations";
 import { logServerException } from "@/lib/logging/serverActionLog";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
+import { auditSectionAction } from "@/lib/audit";
+import { awardStudentBadgesForEnrollments } from "@/lib/badges/awardStudentBadgesForEnrollments";
 
 const uuid = z.string().uuid();
 const dateStr = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -79,7 +81,24 @@ export async function fillEmptyTeacherAttendanceColumnAction(
       entity: AnalyticsEntity.teacherSectionAttendance,
       metadata: { op: "fill_empty_column", sectionId, attendedOn, count: res.insertedEnrollmentIds.length },
     });
+    void auditSectionAction({
+      actorId: user.id,
+      actorRole: "teacher",
+      action: "create",
+      resourceType: "section_attendance",
+      resourceId: sectionId,
+      summary: "Teacher filled empty attendance column",
+      afterValues: {
+        section_id: sectionId,
+        attended_on: attendedOn,
+        inserted_enrollment_ids: res.insertedEnrollmentIds,
+      },
+      metadata: { count: res.insertedEnrollmentIds.length },
+    });
 
+    if (res.insertedEnrollmentIds.length) {
+      void awardStudentBadgesForEnrollments(res.insertedEnrollmentIds, locale);
+    }
     revalidateAttendance(locale, sectionId);
     return { ok: true, insertedEnrollmentIds: res.insertedEnrollmentIds };
   } catch (err) {
@@ -93,7 +112,7 @@ export async function undoTeacherAttendanceColumnFillAction(
   formData: FormData,
 ): Promise<TeacherAttendanceMatrixActionState> {
   try {
-    const { supabase, profileId } = await assertTeacher();
+    const { supabase, profileId, user } = await assertTeacher();
     const raw = formData.get("payload");
     const parsed = undoColumnSchema.safeParse(JSON.parse(typeof raw === "string" ? raw : "{}"));
     if (!parsed.success) return { ok: false, code: "validation" };
@@ -105,6 +124,25 @@ export async function undoTeacherAttendanceColumnFillAction(
 
     const res = await runTeacherAttendanceColumnUndo(supabase, profileId, sectionId, attendedOn, enrollmentIds);
     if (!res.ok) return { ok: false, code: res.code };
+    void auditSectionAction({
+      actorId: user.id,
+      actorRole: "teacher",
+      action: "delete",
+      resourceType: "section_attendance",
+      resourceId: sectionId,
+      summary: "Teacher undid attendance column fill",
+      beforeValues: {
+        section_id: sectionId,
+        attended_on: attendedOn,
+        enrollment_ids: enrollmentIds,
+      },
+      afterValues: {
+        section_id: sectionId,
+        attended_on: attendedOn,
+        enrollment_ids: [],
+      },
+      metadata: { count: enrollmentIds.length },
+    });
 
     revalidateAttendance(locale, sectionId);
     return { ok: true };
@@ -119,7 +157,7 @@ export async function upsertTeacherAttendanceCellsAction(
   formData: FormData,
 ): Promise<TeacherAttendanceMatrixActionState> {
   try {
-    const { supabase, profileId } = await assertTeacher();
+    const { supabase, profileId, user } = await assertTeacher();
     const raw = formData.get("payload");
     const parsed = upsertCellsSchema.safeParse(JSON.parse(typeof raw === "string" ? raw : "{}"));
     if (!parsed.success) return { ok: false, code: "validation" };
@@ -131,7 +169,24 @@ export async function upsertTeacherAttendanceCellsAction(
 
     const res = await runTeacherAttendanceCellsUpsert(supabase, profileId, sectionId, cells);
     if (!res.ok) return { ok: false, code: res.code };
+    void auditSectionAction({
+      actorId: user.id,
+      actorRole: "teacher",
+      action: "update",
+      resourceType: "section_attendance",
+      resourceId: sectionId,
+      summary: "Teacher updated attendance cells",
+      afterValues: {
+        section_id: sectionId,
+        cells,
+      },
+      metadata: { count: cells.length },
+    });
 
+    void awardStudentBadgesForEnrollments(
+      [...new Set(cells.map((c) => c.enrollmentId))],
+      locale,
+    );
     revalidateAttendance(locale, sectionId);
     return { ok: true };
   } catch (err) {

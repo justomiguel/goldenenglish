@@ -6,6 +6,7 @@ import { csvStudentRowsSchema } from "@/lib/import/studentRowSchema";
 import { bulkImportStudentsFromRowsAdmin } from "@/lib/import/bulkImportStudents";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { IMPORT_INVALID_CSV_PAYLOAD } from "@/lib/import/parseImportErrorCodes";
+import { auditIdentityAction } from "@/lib/audit";
 
 export type ImportRowResult = {
   rowIndex: number;
@@ -27,7 +28,7 @@ export async function bulkImportStudentsFromRows(
   locale: string,
   rows: unknown[],
 ): Promise<BulkImportResult> {
-  await assertAdmin();
+  const { user } = await assertAdmin();
 
   const parsed = csvStudentRowsSchema.safeParse(rows);
   if (!parsed.success) {
@@ -41,5 +42,25 @@ export async function bulkImportStudentsFromRows(
   };
 
   const admin = createAdminClient();
-  return bulkImportStudentsFromRowsAdmin(admin, parsed.data, tutorDefaults);
+  const result = await bulkImportStudentsFromRowsAdmin(admin, parsed.data, tutorDefaults);
+  void auditIdentityAction({
+    actorId: user.id,
+    actorRole: "admin",
+    action: "create",
+    resourceType: "student_import",
+    summary: "Admin imported students from CSV rows",
+    afterValues: {
+      processed: result.processed,
+      created_users: result.createdUsers,
+      enrolled: result.enrolled,
+      payments_seeded: result.paymentsSeeded,
+      profiles_updated: result.profilesUpdated,
+      skipped_noop: result.skippedNoop,
+    },
+    metadata: {
+      row_count: parsed.data.length,
+      failed_rows: result.results.filter((row) => !row.ok).length,
+    },
+  });
+  return result;
 }

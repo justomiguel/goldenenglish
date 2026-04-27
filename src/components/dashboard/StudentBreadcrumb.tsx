@@ -18,6 +18,7 @@ function segmentLabel(segment: string, dict: StudentBreadcrumbProps["dict"]): st
 
   const map: Record<string, string> = {
     calendar: dict.breadcrumbCalendar,
+    badges: dict.breadcrumbBadges,
     payments: dict.breadcrumbPayments,
     billing: dict.breadcrumbBilling,
     messages: dict.breadcrumbMessages,

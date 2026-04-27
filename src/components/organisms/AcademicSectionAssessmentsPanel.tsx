@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { ClipboardCheck } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminSectionAssessmentsPanelData } from "@/types/adminSectionAssessments";
+import { AdminCohortAssessmentRowActions } from "@/components/molecules/AdminCohortAssessmentRowActions";
 
 type PanelDict = Dictionary["dashboard"]["academicSectionPage"]["assessmentsPanel"];
 
@@ -135,7 +135,7 @@ export function AcademicSectionAssessmentsPanel({
                   <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.colDate}</th>
                   <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.colMax}</th>
                   <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.colPublished}</th>
-                  <th className="px-3 py-2" />
+                  <th className="px-3 py-2 text-right font-medium text-[var(--color-foreground)]">{d.colActions}</th>
                 </tr>
               </thead>
               <tbody>
@@ -149,16 +149,16 @@ export function AcademicSectionAssessmentsPanel({
                       </td>
                       <td className="px-3 py-2 tabular-nums text-[var(--color-muted-foreground)]">{row.maxScore}</td>
                       <td className="px-3 py-2 text-[var(--color-muted-foreground)]">{pub}</td>
-                      <td className="px-3 py-2 text-right">
-                        <Link
-                          href={`/${locale}/dashboard/teacher/sections/${sectionId}/assessments/${row.id}?returnTo=${encodeURIComponent(
-                            rubricReturnTo,
-                          )}`}
-                          className="inline-flex min-h-[44px] min-w-0 items-center justify-end gap-2 break-words font-medium text-[var(--color-primary)] hover:underline"
-                        >
-                          <ClipboardCheck className="h-4 w-4 shrink-0" aria-hidden />
-                          {d.openMatrix}
-                        </Link>
+                      <td className="px-3 py-2 text-right align-top">
+                        <AdminCohortAssessmentRowActions
+                          locale={locale}
+                          cohortId={cohortId}
+                          sectionId={sectionId}
+                          assessmentId={row.id}
+                          assessmentName={row.name}
+                          rubricReturnTo={rubricReturnTo}
+                          dict={d}
+                        />
                       </td>
                     </tr>
                   );

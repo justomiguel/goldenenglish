@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
-import { logServerException } from "@/lib/logging/serverActionLog";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { auditLearningContentStaffAction } from "@/lib/learning-content/auditLearningContentStaffAction";
 import {
   DeleteLearningRouteSchema,
@@ -12,7 +12,22 @@ import {
   SectionLearningRouteSchema,
 } from "@/lib/learning-content/contentsActionsSchemas";
 import { saveLearningRouteGraph } from "@/lib/learning-content/saveLearningRouteGraph";
-import type { ContentActionResult } from "@/app/[locale]/dashboard/admin/academic/contents/contentsActionShared";
+import type {
+  ContentActionFailureCode,
+  ContentActionResult,
+} from "@/app/[locale]/dashboard/admin/academic/contents/contentsActionShared";
+
+type SupabaseActionError = {
+  code?: string;
+  message?: string;
+};
+
+function learningRoutePersistCode(error: SupabaseActionError | null): ContentActionFailureCode {
+  if (error?.code === "23505") return "duplicate_title";
+  if (error?.code === "42P01" || error?.code === "42703") return "schema_not_ready";
+  if (error?.code === "42501") return "forbidden";
+  return "persist_failed";
+}
 
 export async function saveLearningRouteAction(raw: unknown): Promise<ContentActionResult> {
   const parsed = LearningRouteSchema.safeParse(raw);
@@ -30,7 +45,11 @@ export async function saveLearningRouteAction(raw: unknown): Promise<ContentActi
       ? supabase.from("learning_routes").update(payload).eq("id", parsed.data.routeId)
       : supabase.from("learning_routes").insert({ ...payload, created_by: user.id });
     const { data, error } = await query.select("id").single();
-    if (error || !data) return { ok: false, code: "persist_failed" };
+    if (error) {
+      logSupabaseClientError("saveLearningRouteAction:persist", error, { routeId: parsed.data.routeId ?? "new" });
+      return { ok: false, code: learningRoutePersistCode(error) };
+    }
+    if (!data) return { ok: false, code: "persist_failed" };
     await auditLearningContentStaffAction({
       actorId: user.id,
       action: "learning_content.admin_learning_route_saved",

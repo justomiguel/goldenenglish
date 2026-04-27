@@ -6,6 +6,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { revalidateStudentBillingPaths } from "./revalidateStudentBilling";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { auditFinanceAction } from "@/lib/audit";
 
 const ym = z.object({
   year: z.number().int().min(2000).max(2100),
@@ -52,6 +53,15 @@ function amountIsZero(value: number | string | null): boolean {
   return value == null || Number(value) === 0;
 }
 
+function auditPaymentRows(rows: PeriodPaymentRow[]) {
+  return rows.map((row) => ({
+    id: row.id,
+    status: row.status,
+    amount: row.amount,
+    section_id: row.section_id,
+  }));
+}
+
 async function updatePaymentExempt(
   supabase: SupabaseClient,
   paymentId: string,
@@ -89,7 +99,7 @@ export async function setPeriodExemption(raw: {
   if (!p.success) return { ok: false, message: b.invalidPeriod };
 
   try {
-    const { supabase } = await assertAdmin();
+    const { supabase, user } = await assertAdmin();
 
     const { data: prof } = await supabase
       .from("profiles")
@@ -200,6 +210,33 @@ export async function setPeriodExemption(raw: {
       }
     }
 
+    const afterPayments = await loadPeriodPayments(supabase, sid.data, p.data.year, p.data.month);
+    void auditFinanceAction({
+      actorId: user.id,
+      actorRole: "admin",
+      action: raw.exempt ? "create" : "delete",
+      resourceType: "period_exemption",
+      resourceId: sid.data,
+      summary: raw.exempt
+        ? "Admin applied student billing exemption"
+        : "Admin removed student billing exemption",
+      beforeValues: {
+        student_id: sid.data,
+        year: p.data.year,
+        month: p.data.month,
+        payments: auditPaymentRows(periodPayments),
+      },
+      afterValues: {
+        student_id: sid.data,
+        year: p.data.year,
+        month: p.data.month,
+        payments: auditPaymentRows(afterPayments),
+      },
+      metadata: {
+        section_ids: sectionIds,
+        note_present: Boolean(raw.adminNote?.trim()),
+      },
+    });
     revalidateStudentBillingPaths(raw.locale, sid.data);
     return { ok: true };
   } catch (err) {

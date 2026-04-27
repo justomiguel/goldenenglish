@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BookOpenCheck, Calendar, ClipboardCheck, Home, MessageCircle, User, Wallet } from "lucide-react";
+import { Award, BookOpenCheck, Calendar, ClipboardCheck, Home, MessageCircle, User, Wallet } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 
 export type StudentSidebarNavItem = {
@@ -36,6 +36,12 @@ export function buildStudentSidebarNavGroups(
     },
   ];
   if (base.includes("/dashboard/student")) {
+    learningItems.push({
+      href: `${base}/badges`,
+      label: dict.badges,
+      icon: <Award className={ic} />,
+      tip: dict.tipBadges,
+    });
     learningItems.push({
       href: `${base}/assessments`,
       label: dict.assessments,

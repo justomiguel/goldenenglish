@@ -16,6 +16,8 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 const ae = dictEn.actionErrors.admin;
 
+const adminUser = { id: "11111111-1111-1111-1111-111111111111" };
+
 const validBase = {
   locale: "en",
   code: "PROMO",
@@ -59,6 +61,7 @@ describe("createPromotion", () => {
   it("returns saveFailed on insert error", async () => {
     const insert = vi.fn().mockResolvedValue({ error: { message: "x" } });
     mockAssertAdmin.mockResolvedValue({
+      user: adminUser,
       supabase: { from: vi.fn().mockReturnValue({ insert }) },
     });
     const r = await createPromotion({
@@ -72,6 +75,7 @@ describe("createPromotion", () => {
   it("returns ok with monthly applies and null duration", async () => {
     const insert = vi.fn().mockResolvedValue({ error: null });
     mockAssertAdmin.mockResolvedValue({
+      user: adminUser,
       supabase: { from: vi.fn().mockReturnValue({ insert }) },
     });
     const r = await createPromotion({
@@ -102,8 +106,24 @@ describe("togglePromotionActive", () => {
     const is = vi.fn().mockResolvedValue({ error: { message: "x" } });
     const eq = vi.fn().mockReturnValue({ is });
     const update = vi.fn().mockReturnValue({ eq });
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: {
+        id: "00000000-0000-4000-8000-000000000001",
+        code: "P1",
+        name: "N1",
+        is_active: true,
+      },
+      error: null,
+    });
+    const from = vi.fn(() => ({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({ maybeSingle }),
+      }),
+      update,
+    }));
     mockAssertAdmin.mockResolvedValue({
-      supabase: { from: vi.fn().mockReturnValue({ update }) },
+      user: adminUser,
+      supabase: { from },
     });
     const r = await togglePromotionActive(
       "en",
@@ -118,8 +138,24 @@ describe("togglePromotionActive", () => {
     const is = vi.fn().mockResolvedValue({ error: null });
     const eq = vi.fn().mockReturnValue({ is });
     const update = vi.fn().mockReturnValue({ eq });
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: {
+        id: "00000000-0000-4000-8000-000000000002",
+        code: "P2",
+        name: "N2",
+        is_active: false,
+      },
+      error: null,
+    });
+    const from = vi.fn(() => ({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({ maybeSingle }),
+      }),
+      update,
+    }));
     mockAssertAdmin.mockResolvedValue({
-      supabase: { from: vi.fn().mockReturnValue({ update }) },
+      user: adminUser,
+      supabase: { from },
     });
     const r = await togglePromotionActive(
       "en",
@@ -139,10 +175,27 @@ describe("softDeletePromotion", () => {
   });
 
   it("returns saveFailed on update error", async () => {
-    const eq = vi.fn().mockResolvedValue({ error: { message: "x" } });
-    const update = vi.fn().mockReturnValue({ eq });
+    const eqUpdate = vi.fn().mockResolvedValue({ error: { message: "x" } });
+    const update = vi.fn().mockReturnValue({ eq: eqUpdate });
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: {
+        id: "00000000-0000-4000-8000-000000000003",
+        code: "P3",
+        name: "N3",
+        is_active: true,
+        deleted_at: null,
+      },
+      error: null,
+    });
+    const from = vi.fn(() => ({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({ maybeSingle }),
+      }),
+      update,
+    }));
     mockAssertAdmin.mockResolvedValue({
-      supabase: { from: vi.fn().mockReturnValue({ update }) },
+      user: adminUser,
+      supabase: { from },
     });
     const r = await softDeletePromotion(
       "en",
@@ -152,10 +205,27 @@ describe("softDeletePromotion", () => {
   });
 
   it("returns ok", async () => {
-    const eq = vi.fn().mockResolvedValue({ error: null });
-    const update = vi.fn().mockReturnValue({ eq });
+    const eqUpdate = vi.fn().mockResolvedValue({ error: null });
+    const update = vi.fn().mockReturnValue({ eq: eqUpdate });
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: {
+        id: "00000000-0000-4000-8000-000000000004",
+        code: "P4",
+        name: "N4",
+        is_active: true,
+        deleted_at: null,
+      },
+      error: null,
+    });
+    const from = vi.fn(() => ({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({ maybeSingle }),
+      }),
+      update,
+    }));
     mockAssertAdmin.mockResolvedValue({
-      supabase: { from: vi.fn().mockReturnValue({ update }) },
+      user: adminUser,
+      supabase: { from },
     });
     const r = await softDeletePromotion(
       "en",

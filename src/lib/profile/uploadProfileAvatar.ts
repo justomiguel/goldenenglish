@@ -8,6 +8,7 @@ import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { PROFILE_AVATAR_MAX_BYTES } from "@/lib/profile/avatarUploadLimits";
 import { loadOrProvisionDashboardProfileRow } from "@/lib/profile/loadOrProvisionDashboardProfileRow";
+import { awardStudentBadges } from "@/lib/badges/awardStudentBadges";
 
 const LOG = "[goldenenglish:avatar-upload]";
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -169,6 +170,9 @@ export async function uploadProfileAvatar(
   revalidatePath(`/${locale}/dashboard/parent/profile`);
   revalidatePath(`/${locale}/dashboard`);
 
+  if (profile?.role === "student") {
+    await awardStudentBadges({ studentId: user.id, locale });
+  }
   await recordUserEventServer({
     userId: user.id,
     eventType: "action",

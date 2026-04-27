@@ -10,6 +10,7 @@ import {
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { awardStudentBadgesForEnrollments } from "@/lib/badges/awardStudentBadgesForEnrollments";
 
 const uuid = z.string().uuid();
 const dateStr = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -83,6 +84,10 @@ export async function adminUpsertSectionAttendanceCellsAction(
       resourceId: sectionId,
       payload: { count: cells.length },
     });
+    void awardStudentBadgesForEnrollments(
+      [...new Set(cells.map((c) => c.enrollmentId))],
+      locale,
+    );
     revalidateAdminAttendanceConsumers(locale);
     return { ok: true };
   } catch (err) {
@@ -111,6 +116,9 @@ export async function fillEmptyAdminAttendanceColumnAction(
       resourceId: sectionId,
       payload: { attendedOn, inserted: res.insertedEnrollmentIds.length },
     });
+    if (res.insertedEnrollmentIds.length) {
+      void awardStudentBadgesForEnrollments(res.insertedEnrollmentIds, locale);
+    }
     revalidateAdminAttendanceConsumers(locale);
     return { ok: true, insertedEnrollmentIds: res.insertedEnrollmentIds };
   } catch (err) {
@@ -196,6 +204,7 @@ export async function adminUpsertSectionAttendanceCellAction(
     revalidatePath(`/${p.locale}/dashboard/admin/academic/${p.cohortId}/${p.sectionId}`);
     revalidatePath(`/${p.locale}/dashboard/student`);
     revalidatePath(`/${p.locale}/dashboard/parent`);
+    void awardStudentBadgesForEnrollments([p.enrollmentId], p.locale);
     return { ok: true };
   } catch (err) {
     logServerException("adminUpsertSectionAttendanceCellAction", err);

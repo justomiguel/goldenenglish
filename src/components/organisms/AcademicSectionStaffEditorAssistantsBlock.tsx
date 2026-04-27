@@ -176,6 +176,7 @@ export function AcademicSectionStaffEditorAssistantsBlock({
         labelText={dict.pickStudentAssistantLabel}
         placeholder={dict.pickStudentAssistantLabel}
         minCharsHint={dict.studentAssistantMinHint}
+        prefetchWhenEmptyOnFocus
         disabled={pendingAsst}
         search={searchStudents}
         resetKey={studentSearchReset}

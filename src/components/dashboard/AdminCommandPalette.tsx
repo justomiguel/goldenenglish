@@ -75,6 +75,7 @@ export function AdminCommandPalette({ locale, dict }: AdminCommandPaletteProps) 
             placeholder={dict.placeholder}
             inputTitle={dict.studentSearchTooltip}
             minCharsHint={dict.searchMin}
+            prefetchWhenEmptyOnFocus
             search={searchAdminStudentsAction}
             onPick={onPick}
             resetKey={resetKey}

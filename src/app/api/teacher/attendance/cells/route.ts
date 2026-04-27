@@ -5,6 +5,7 @@ import { assertTeacher } from "@/lib/dashboard/assertTeacher";
 import { runTeacherAttendanceCellsUpsert } from "@/lib/academics/teacherAttendanceMatrixMutations";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
 import { logServerException } from "@/lib/logging/serverActionLog";
+import { awardStudentBadgesForEnrollments } from "@/lib/badges/awardStudentBadgesForEnrollments";
 
 const uuid = z.string().uuid();
 const dateStr = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -46,9 +47,15 @@ export async function POST(request: Request) {
     const res = await runTeacherAttendanceCellsUpsert(supabase, profileId, sectionId, cells);
     if (!res.ok) return NextResponse.json({ ok: false, code: res.code });
 
+    void awardStudentBadgesForEnrollments(
+      [...new Set(cells.map((c) => c.enrollmentId))],
+      locale,
+    );
     revalidatePath(`/${locale}/dashboard/teacher/sections/${sectionId}/attendance`);
     revalidatePath(`/${locale}/dashboard/teacher/sections/${sectionId}`);
     revalidatePath(`/${locale}/dashboard/admin/academic`);
+    revalidatePath(`/${locale}/dashboard/student`);
+    revalidatePath(`/${locale}/dashboard/parent`);
     return NextResponse.json({ ok: true });
   } catch (e) {
     logServerException("api/teacher/attendance/cells", e);

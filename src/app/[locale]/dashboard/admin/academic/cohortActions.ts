@@ -6,6 +6,12 @@ import {
   logServerActionException,
   logSupabaseClientError,
 } from "@/lib/logging/serverActionLog";
+import {
+  searchAdminStudentsByPrefix,
+  type AdminStudentSearchHit,
+} from "@/lib/users/searchAdminStudentsByPrefix";
+
+export type { AdminStudentSearchHit };
 
 const S = {
   setCurrentCohort: "setCurrentCohortAction",
@@ -97,12 +103,6 @@ export async function createAcademicCohortAction(input: {
   }
 }
 
-export type AdminStudentSearchHit = {
-  id: string;
-  label: string;
-  role: string;
-};
-
 export type SectionStudentPick = {
   enrollmentId: string;
   studentId: string;
@@ -148,43 +148,7 @@ export async function listActiveStudentsInSectionForAdmin(
 export async function searchAdminStudentsAction(query: string): Promise<AdminStudentSearchHit[]> {
   try {
     const { supabase } = await assertAdmin();
-    const q = query.trim();
-    if (q.length < 2) return [];
-
-    const pat = `%${q}%`;
-    const [r1, r2, r3] = await Promise.all([
-      supabase
-        .from("profiles")
-        .select("id, first_name, last_name, role")
-        .eq("role", "student")
-        .ilike("first_name", pat)
-        .limit(6),
-      supabase
-        .from("profiles")
-        .select("id, first_name, last_name, role")
-        .eq("role", "student")
-        .ilike("last_name", pat)
-        .limit(6),
-      supabase
-        .from("profiles")
-        .select("id, first_name, last_name, role")
-        .eq("role", "student")
-        .ilike("dni_or_passport", pat)
-        .limit(6),
-    ]);
-
-    const map = new Map<string, AdminStudentSearchHit>();
-    for (const r of [r1, r2, r3]) {
-      if (r.error || !r.data) continue;
-      for (const p of r.data) {
-        map.set(p.id as string, {
-          id: p.id as string,
-          label: `${p.first_name} ${p.last_name}`.trim(),
-          role: p.role as string,
-        });
-      }
-    }
-    return [...map.values()].slice(0, 12);
+    return await searchAdminStudentsByPrefix(supabase, query);
   } catch (err) {
     logServerActionException(S.searchStudents, err, { queryLen: query.trim().length });
     return [];

@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { chunkedIn } from "@/lib/supabase/chunkedIn";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { personProfileMatchPrefix } from "@/lib/users/profileSearchPrefix";
 
 const uuid = z.string().uuid();
 
@@ -20,7 +21,7 @@ export async function searchTeacherStudentsInOwnSections(
   sectionIds: string[],
 ): Promise<TeacherStudentSearchHit[]> {
   const q = query.trim();
-  if (q.length < 2) return [];
+  if (q.length > 0 && q.length < 2) return [];
 
   const idsParse = z.array(uuid).max(120).safeParse(sectionIds);
   if (!idsParse.success || idsParse.data.length === 0) return [];
@@ -71,29 +72,20 @@ export async function searchTeacherStudentsInOwnSections(
     dni_or_passport: string | null;
   }>(supabase, "profiles", "id", studentIds, "id, first_name, last_name, dni_or_passport", 200);
 
-  const ql = q.toLowerCase();
-  const matches = profiles.filter((p) => {
-    const fn = (p.first_name ?? "").toLowerCase();
-    const ln = (p.last_name ?? "").toLowerCase();
-    const dni = (p.dni_or_passport ?? "").toLowerCase();
-    return (
-      fn.includes(ql) ||
-      ln.includes(ql) ||
-      `${fn} ${ln}`.trim().includes(ql) ||
-      dni.includes(ql)
-    );
+  const pool = q.length === 0 ? profiles : profiles.filter((p) => personProfileMatchPrefix(p, q));
+  pool.sort((a, b) => {
+    const ln = a.last_name.localeCompare(b.last_name, undefined, { sensitivity: "base" });
+    if (ln !== 0) return ln;
+    return a.first_name.localeCompare(b.first_name, undefined, { sensitivity: "base" });
   });
 
   const out: TeacherStudentSearchHit[] = [];
-  const seen = new Set<string>();
-  for (const p of matches) {
-    if (seen.has(p.id)) continue;
-    seen.add(p.id);
+  for (const p of pool) {
     out.push({
       id: p.id,
       label: `${p.first_name} ${p.last_name}`.trim(),
     });
-    if (out.length >= 12) break;
+    if (out.length >= 24) break;
   }
   return out;
 }

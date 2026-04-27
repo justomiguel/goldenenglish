@@ -111,16 +111,27 @@ describe("deleteRegistration", () => {
   });
 
   it("deletes and returns ok", async () => {
-    mockAssertAdmin.mockResolvedValue({});
-    const eq = vi.fn().mockResolvedValue({ error: null });
+    mockAssertAdmin.mockResolvedValue({
+      user: { id: "11111111-1111-1111-1111-111111111111" },
+    });
+    const eqDelete = vi.fn().mockResolvedValue({ error: null });
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { id: regNew.id, first_name: "A", last_name: "B", status: "new" },
+      error: null,
+    });
     mockFrom.mockReturnValue({
+      select: () => ({
+        eq: () => ({
+          maybeSingle,
+        }),
+      }),
       delete: () => ({
-        eq,
+        eq: eqDelete,
       }),
     });
     const r = await deleteRegistration("es", regNew.id);
     expect(r.ok).toBe(true);
-    expect(eq).toHaveBeenCalledWith("id", regNew.id);
+    expect(eqDelete).toHaveBeenCalledWith("id", regNew.id);
   });
 });
 

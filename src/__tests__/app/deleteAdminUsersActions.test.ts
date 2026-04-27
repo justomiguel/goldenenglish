@@ -16,6 +16,16 @@ const mockAdminClient = {
       deleteUser: (...args: unknown[]) => mockDeleteUser(...args),
     },
   },
+  from: vi.fn((table: string) => {
+    if (table === "profiles") {
+      return {
+        select: vi.fn().mockReturnValue({
+          in: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      };
+    }
+    throw new Error(`unexpected table ${table}`);
+  }),
 };
 
 vi.mock("@/lib/supabase/admin", () => ({

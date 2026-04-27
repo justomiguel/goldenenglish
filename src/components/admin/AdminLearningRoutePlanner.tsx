@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -9,8 +10,10 @@ import {
   createQuestionBankItemAction,
   saveLearningRouteAction,
 } from "@/app/[locale]/dashboard/admin/academic/contents/actions";
+import type { ContentActionFailureCode } from "@/app/[locale]/dashboard/admin/academic/contents/actions";
 import { AdminLearningRouteStepsModal } from "@/components/admin/AdminLearningRouteStepsModal";
 import { ContentPlanHealthSummary } from "@/components/molecules/ContentPlanHealthSummary";
+import { LearningRouteWizardProgress } from "@/components/admin/LearningRouteWizardProgress";
 import type { LearningRouteModel } from "@/types/learningContent";
 import type { LearningRouteWorkspace } from "@/lib/learning-content/loadLearningRouteWorkspace";
 import type { Dictionary } from "@/types/i18n";
@@ -19,65 +22,114 @@ interface AdminLearningRoutePlannerProps {
   locale: string;
   workspace: LearningRouteWorkspace | null;
   labels: Dictionary["dashboard"]["adminContents"];
+  initialGraphOpen?: boolean;
 }
 
 export function AdminLearningRoutePlanner({
   locale,
   workspace,
   labels,
+  initialGraphOpen = false,
 }: AdminLearningRoutePlannerProps) {
   const route = workspace?.route ?? null;
+  const isWizardStart = !route?.id;
   return (
     <div className="space-y-5 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-card)]">
       <header>
         <h2 className="text-xl font-semibold text-[var(--color-foreground)]">{labels.learningRoutesTitle}</h2>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.learningRoutesLead}</p>
       </header>
+      {isWizardStart || initialGraphOpen ? (
+        <LearningRouteWizardProgress activeStep={initialGraphOpen ? 2 : 1} labels={labels} />
+      ) : null}
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
-        {workspace ? <div className="xl:col-span-2"><ContentPlanHealthSummary health={workspace.health} labels={labels} /></div> : null}
-        <RouteEditor locale={locale} route={route} labels={labels} />
-        <ContentSidePanel locale={locale} workspace={workspace} labels={labels} />
-        <RouteStepAndAssessmentForms locale={locale} route={route} workspace={workspace} labels={labels} />
+        {!isWizardStart && workspace ? <div className="xl:col-span-2"><ContentPlanHealthSummary health={workspace.health} labels={labels} /></div> : null}
+        <RouteEditor locale={locale} route={route} labels={labels} isWizardStart={isWizardStart} />
+        {!isWizardStart ? (
+          <>
+            <ContentSidePanel locale={locale} workspace={workspace} labels={labels} initialGraphOpen={initialGraphOpen} />
+            <RouteStepAndAssessmentForms locale={locale} route={route} workspace={workspace} labels={labels} />
+          </>
+        ) : null}
       </div>
     </div>
   );
 }
 
-function RouteEditor({ locale, route, labels }: {
+function RouteEditor({ locale, route, labels, isWizardStart }: {
   locale: string;
   route: LearningRouteModel | null;
   labels: Dictionary["dashboard"]["adminContents"];
+  isWizardStart: boolean;
 }) {
+  const router = useRouter();
   const [title, setTitle] = useState(route?.title ?? "");
   const [teacherObjectives, setTeacherObjectives] = useState(route?.teacherObjectives ?? "");
   const [generalScope, setGeneralScope] = useState(route?.generalScope ?? "");
   const [evaluationCriteria, setEvaluationCriteria] = useState(route?.evaluationCriteria ?? "");
+  const [saveErrorCode, setSaveErrorCode] = useState<ContentActionFailureCode | null>(null);
   const [isPending, startTransition] = useTransition();
   return (
-    <section className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h3 className="text-lg font-semibold text-[var(--color-foreground)]">{labels.routeEditorTitle}</h3>
+    <section className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 xl:col-span-2">
+      <div>
+        <h3 className="text-lg font-semibold text-[var(--color-foreground)]">
+          {isWizardStart ? labels.routeWizardDetailsTitle : labels.routeEditorTitle}
+        </h3>
+        {isWizardStart ? (
+          <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.routeWizardDetailsLead}</p>
+        ) : null}
+      </div>
       <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={labels.routeNamePlaceholder} />
       <TextBlock label={labels.teacherObjectives} value={teacherObjectives} onChange={setTeacherObjectives} />
       <TextBlock label={labels.generalScope} value={generalScope} onChange={setGeneralScope} />
       <TextBlock label={labels.evaluationCriteria} value={evaluationCriteria} onChange={setEvaluationCriteria} />
+      {saveErrorCode ? (
+        <p className="text-sm font-medium text-[var(--color-error)]" role="alert">
+          {routeSaveErrorMessage(saveErrorCode, labels)}
+        </p>
+      ) : null}
       <Button
         type="button"
-        onClick={() => startTransition(() => void saveLearningRouteAction({
-          locale,
-          routeId: route?.id ?? null,
-          title,
-          teacherObjectives,
-          generalScope,
-          evaluationCriteria,
-        }))}
+        onClick={() => startTransition(() => {
+          void (async () => {
+            setSaveErrorCode(null);
+            const result = await saveLearningRouteAction({
+              locale,
+              routeId: route?.id ?? null,
+              title,
+              teacherObjectives,
+              generalScope,
+              evaluationCriteria,
+            });
+            if (!result.ok) {
+              setSaveErrorCode(result.code);
+              return;
+            }
+            if (result.ok && !route?.id) {
+              router.replace(`/${locale}/dashboard/admin/academic/contents/sections/${result.id}/edit?graph=1`);
+              router.refresh();
+            }
+          })();
+        })}
         isLoading={isPending}
         disabled={!title.trim()}
       >
         <Save className="h-4 w-4" aria-hidden />
-        {labels.saveRoute}
+        {route?.id ? labels.saveRoute : labels.nextToRouteGraph}
       </Button>
     </section>
   );
+}
+
+function routeSaveErrorMessage(
+  code: ContentActionFailureCode,
+  labels: Dictionary["dashboard"]["adminContents"],
+) {
+  if (code === "invalid_input") return labels.routeWizardSaveErrorInvalidInput;
+  if (code === "duplicate_title") return labels.routeWizardSaveErrorDuplicateTitle;
+  if (code === "schema_not_ready") return labels.routeWizardSaveErrorSchemaNotReady;
+  if (code === "forbidden") return labels.routeWizardSaveErrorForbidden;
+  return labels.routeWizardSaveErrorPersistFailed;
 }
 
 function TextBlock({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
@@ -93,12 +145,14 @@ function ContentSidePanel({
   locale,
   workspace,
   labels,
+  initialGraphOpen,
 }: {
   locale: string;
   workspace: LearningRouteWorkspace | null;
   labels: Dictionary["dashboard"]["adminContents"];
+  initialGraphOpen: boolean;
 }) {
-  const [isStepsModalOpen, setIsStepsModalOpen] = useState(false);
+  const [isStepsModalOpen, setIsStepsModalOpen] = useState(initialGraphOpen);
   return (
     <aside className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
       <List title={labels.routeStepsTitle} empty={labels.emptyRouteSteps} rows={workspace?.routeSteps.map((step) => step.contentTitle) ?? []} />
@@ -117,7 +171,14 @@ function ContentSidePanel({
             />
           ) : null}
         </>
-      ) : null}
+      ) : (
+        <div className="space-y-2">
+          <Button type="button" size="sm" disabled>
+            {labels.editRouteSteps}
+          </Button>
+          <p className="text-xs text-[var(--color-muted-foreground)]">{labels.saveRouteBeforeEditingSteps}</p>
+        </div>
+      )}
       <List title={labels.questionsTitle} empty={labels.emptyQuestions} rows={workspace?.questions.map((q) => q.prompt) ?? []} />
       <List title={labels.assessmentsTitle} empty={labels.emptyAssessments} rows={workspace?.assessments.map((a) => a.title) ?? []} />
     </aside>

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { createClient } from "@/lib/supabase/server";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { awardStudentBadges } from "@/lib/badges/awardStudentBadges";
 import {
   InvalidStateTransitionException,
   assertTaskTransition,
@@ -130,6 +131,7 @@ export async function completeTaskAction(raw: unknown): Promise<StudentTaskActio
       metadata: { task_instance_id: task.id, status: nextStatus },
     });
     revalidatePath(`/${parsed.data.locale}/dashboard/student/tasks`);
+    await awardStudentBadges({ studentId: userId, locale: parsed.data.locale });
     return { ok: true, status: nextStatus };
   } catch (err) {
     if (err instanceof InvalidStateTransitionException) {

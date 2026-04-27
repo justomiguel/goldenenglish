@@ -9,6 +9,7 @@ import {
 import { runAdminAttendanceCellsUpsert } from "@/lib/academics/adminAttendanceMatrixMutations";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { logServerAuthzDenied, logServerException } from "@/lib/logging/serverActionLog";
+import { awardStudentBadgesForEnrollments } from "@/lib/badges/awardStudentBadgesForEnrollments";
 
 const uuid = z.string().uuid();
 const dateStr = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -52,6 +53,10 @@ export async function POST(request: Request) {
       payload: { count: cells.length },
     });
 
+    void awardStudentBadgesForEnrollments(
+      [...new Set(cells.map((c) => c.enrollmentId))],
+      locale,
+    );
     revalidatePath(`/${locale}/dashboard/student`);
     revalidatePath(`/${locale}/dashboard/parent`);
     return NextResponse.json({ ok: true });

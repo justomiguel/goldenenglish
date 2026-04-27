@@ -31,13 +31,6 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
-  if (!allowed) {
-    const isAdmin = await resolveIsAdminSession(supabase, user.id);
-    if (isAdmin) redirect(`/${locale}/dashboard/admin/academic`);
-    redirect(`/${locale}/dashboard`);
-  }
-
   const { data: section, error: secErr } = await supabase
     .from("academic_sections")
     .select("id, name, cohort_id, teacher_id")
@@ -47,6 +40,9 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
   const isStaff = await userIsSectionTeacherOrAssistant(supabase, user.id, sectionId);
   const canOpen = !secErr && section && (isAdmin || isStaff);
   if (!canOpen) notFound();
+
+  const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
+  if (!allowed && !isAdmin) redirect(`/${locale}/dashboard`);
 
   const cohortId = section.cohort_id as string;
 

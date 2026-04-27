@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { recordAuditEvent, type AuditJsonObject } from "@/lib/audit";
 
 export async function auditLearningTaskStaffAction(input: {
   actorId: string;
@@ -22,6 +23,16 @@ export async function auditLearningTaskStaffAction(input: {
         action: input.action,
       });
     }
+    void recordAuditEvent({
+      actorId: input.actorId,
+      actorRole: "staff",
+      domain: "academic",
+      action: input.action,
+      resourceType: input.resourceType,
+      resourceId: input.resourceId ?? null,
+      summary: `${input.action} ${input.resourceType}`,
+      metadata: (input.payload ?? {}) as unknown as AuditJsonObject,
+    });
   } catch (err) {
     logServerException("auditLearningTaskStaffAction", err, { action: input.action });
   }

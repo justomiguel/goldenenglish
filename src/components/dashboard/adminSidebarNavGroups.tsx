@@ -14,6 +14,7 @@ import {
   Calendar,
   CalendarDays,
   Mail,
+  ScrollText,
   User,
 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
@@ -145,6 +146,12 @@ export function buildAdminSidebarNavGroups(
           label: dict.analytics,
           icon: <Activity className={ic} />,
           tip: dict.tipAnalytics,
+        },
+        {
+          href: `${base}/audit`,
+          label: dict.audit,
+          icon: <ScrollText className={ic} />,
+          tip: dict.tipAudit,
         },
         {
           href: `${base}/cms`,

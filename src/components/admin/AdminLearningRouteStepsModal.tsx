@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { ReactFlowProvider } from "@xyflow/react";
 import { Save, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
@@ -27,6 +28,7 @@ export function AdminLearningRouteStepsModal({
   labels,
   onOpenChange,
 }: AdminLearningRouteStepsModalProps) {
+  const router = useRouter();
   const titleId = useId();
   const routeId = workspace.route?.id;
   const initialNodes = useMemo(() => buildInitialNodes(workspace), [workspace]);
@@ -89,12 +91,14 @@ export function AdminLearningRouteStepsModal({
                       return;
                     }
                     onOpenChange(false);
+                    router.replace(`/${locale}/dashboard/admin/academic/contents/sections`);
+                    router.refresh();
                   })();
                 });
               }}
             >
               <Save className="h-4 w-4" aria-hidden />
-              {labels.routeGraphSave}
+              {labels.routeGraphFinish}
             </Button>
           </div>
         </div>

@@ -2,14 +2,15 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Save, Users } from "lucide-react";
+import { Save, UserPlus, Users } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUserTutorLinkVM } from "@/lib/dashboard/adminUserDetailVM";
 import {
-  replaceMinorStudentTutorFromDetailAction,
   searchAdminParentsForDetailAction,
+  upsertAdminStudentTutorLinkAction,
 } from "@/app/[locale]/dashboard/admin/users/adminUserDetailActions";
 import { AdminStudentSearchCombobox } from "@/components/molecules/AdminStudentSearchCombobox";
+import { AdminUserDetailTutorCreateModal } from "@/components/molecules/AdminUserDetailTutorCreateModal";
 import { Button } from "@/components/atoms/Button";
 
 type UserLabels = Dictionary["admin"]["users"];
@@ -38,6 +39,7 @@ export function AdminUserDetailTutorCard({
   const [pickedLabel, setPickedLabel] = useState("");
   const [resetKey, setResetKey] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const search = useCallback((q: string) => searchAdminParentsForDetailAction(q), []);
 
@@ -53,7 +55,7 @@ export function AdminUserDetailTutorCard({
     }
     setBusy(true);
     try {
-      const r = await replaceMinorStudentTutorFromDetailAction({
+      const r = await upsertAdminStudentTutorLinkAction({
         locale,
         studentId,
         newTutorId: pickedId,
@@ -72,7 +74,7 @@ export function AdminUserDetailTutorCard({
     }
   };
 
-  const showReplaceUi = editable && isMinor;
+  const showLinkUi = editable;
 
   return (
     <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
@@ -101,27 +103,45 @@ export function AdminUserDetailTutorCard({
           {labels.detailTutorMissingWarning}
         </p>
       ) : null}
-      {showReplaceUi ? (
-        <div className="mt-5 space-y-3 border-t border-[var(--color-border)] pt-4">
-          <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailTutorReplaceHint}</p>
-          <AdminStudentSearchCombobox
-            id="admin-user-tutor-search"
-            labelText={labels.detailTutorSearchLabel}
-            placeholder={labels.detailTutorSearchPlaceholder}
-            minCharsHint={labels.detailTutorMinChars}
-            search={search}
-            onPick={onPick}
-            resetKey={resetKey}
-          />
-          {pickedId ? <p className="text-sm font-medium text-[var(--color-foreground)]">{pickedLabel}</p> : null}
-          <Button type="button" variant="primary" size="sm" isLoading={busy} onClick={() => void save()}>
-            {!busy ? (
-              <Save className="h-4 w-4 shrink-0" aria-hidden />
-            ) : null}
-            {labels.detailTutorSave}
-          </Button>
+      {showLinkUi ? (
+        <div className="mt-5 space-y-4 border-t border-[var(--color-border)] pt-4">
+          <div className="space-y-3">
+            <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailTutorLinkHint}</p>
+            <AdminStudentSearchCombobox
+              id="admin-user-tutor-search"
+              labelText={labels.detailTutorSearchLabel}
+              placeholder={labels.detailTutorSearchPlaceholder}
+              minCharsHint={labels.detailTutorMinChars}
+              search={search}
+              onPick={onPick}
+              resetKey={resetKey}
+            />
+            {pickedId ? <p className="text-sm font-medium text-[var(--color-foreground)]">{pickedLabel}</p> : null}
+            <Button type="button" variant="primary" size="sm" isLoading={busy} onClick={() => void save()}>
+              {!busy ? (
+                <Save className="h-4 w-4 shrink-0" aria-hidden />
+              ) : null}
+              {labels.detailTutorSave}
+            </Button>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailTutorCreateIntro}</p>
+            <Button type="button" variant="secondary" size="sm" onClick={() => setCreateOpen(true)}>
+              <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
+              {labels.detailTutorCreateOpen}
+            </Button>
+          </div>
         </div>
       ) : null}
+      <AdminUserDetailTutorCreateModal
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        locale={locale}
+        studentId={studentId}
+        labels={labels}
+        onFeedback={onFeedback}
+        onLinked={() => router.refresh()}
+      />
     </section>
   );
 }

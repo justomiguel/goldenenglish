@@ -1,4 +1,7 @@
-export type { ContentActionResult } from "@/app/[locale]/dashboard/admin/academic/contents/contentsActionShared";
+export type {
+  ContentActionFailureCode,
+  ContentActionResult,
+} from "@/app/[locale]/dashboard/admin/academic/contents/contentsActionShared";
 
 export {
   addLearningRouteStepAction,

@@ -6,6 +6,7 @@ import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { adminActionDict } from "@/lib/i18n/actionErrors";
 import { defaultLocale } from "@/lib/i18n/dictionaries";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { auditFinanceAction } from "@/lib/audit";
 
 const createSchema = z.object({
   locale: z.string().min(2),
@@ -53,7 +54,23 @@ export async function createPromotion(
   }
 
   try {
-    const { supabase } = await assertAdmin();
+    const { supabase, user } = await assertAdmin();
+    const afterValues = {
+      code,
+      name: parsed.data.name.trim(),
+      description: parsed.data.description?.trim() || null,
+      discount_type: parsed.data.discountType,
+      discount_value: parsed.data.discountValue,
+      applies_to: parsed.data.appliesTo,
+      monthly_duration_months: monthlyDurationMonths,
+      is_stackable: parsed.data.isStackable,
+      max_uses: parsed.data.maxUses ?? null,
+      uses_count: 0,
+      valid_from: validFrom,
+      expires_at: expiresAt,
+      is_active: true,
+      deleted_at: null,
+    };
     const { error } = await supabase.from("promotions").insert({
       code,
       name: parsed.data.name.trim(),
@@ -74,6 +91,15 @@ export async function createPromotion(
       logSupabaseClientError("createPromotion", error, { code });
       return { ok: false, message: ae.saveFailed };
     }
+    void auditFinanceAction({
+      actorId: user.id,
+      actorRole: "admin",
+      action: "create",
+      resourceType: "promotion",
+      resourceId: code,
+      summary: "Admin created promotion",
+      afterValues,
+    });
     revalidatePath(`/${parsed.data.locale}/dashboard/admin/promotions`);
     return { ok: true };
   } catch (err) {
@@ -91,7 +117,12 @@ export async function togglePromotionActive(
   const id = z.string().uuid().safeParse(promotionId);
   if (!id.success) return { ok: false, message: ae.invalidId };
   try {
-    const { supabase } = await assertAdmin();
+    const { supabase, user } = await assertAdmin();
+    const { data: beforePromotion } = await supabase
+      .from("promotions")
+      .select("id, code, name, is_active")
+      .eq("id", id.data)
+      .maybeSingle();
     const { error } = await supabase
       .from("promotions")
       .update({ is_active: isActive })
@@ -101,6 +132,24 @@ export async function togglePromotionActive(
       logSupabaseClientError("togglePromotionActive", error, { promotionId: id.data });
       return { ok: false, message: ae.saveFailed };
     }
+    void auditFinanceAction({
+      actorId: user.id,
+      actorRole: "admin",
+      action: "update",
+      resourceType: "promotion",
+      resourceId: id.data,
+      summary: `Admin ${isActive ? "activated" : "deactivated"} promotion`,
+      beforeValues: {
+        code: beforePromotion?.code ?? null,
+        name: beforePromotion?.name ?? null,
+        is_active: beforePromotion?.is_active ?? null,
+      },
+      afterValues: {
+        code: beforePromotion?.code ?? null,
+        name: beforePromotion?.name ?? null,
+        is_active: isActive,
+      },
+    });
     revalidatePath(`/${locale}/dashboard/admin/promotions`);
     return { ok: true };
   } catch (err) {
@@ -117,15 +166,41 @@ export async function softDeletePromotion(
   const id = z.string().uuid().safeParse(promotionId);
   if (!id.success) return { ok: false, message: ae.invalidId };
   try {
-    const { supabase } = await assertAdmin();
+    const { supabase, user } = await assertAdmin();
+    const { data: beforePromotion } = await supabase
+      .from("promotions")
+      .select("id, code, name, is_active, deleted_at")
+      .eq("id", id.data)
+      .maybeSingle();
+    const deletedAt = new Date().toISOString();
     const { error } = await supabase
       .from("promotions")
-      .update({ deleted_at: new Date().toISOString(), is_active: false })
+      .update({ deleted_at: deletedAt, is_active: false })
       .eq("id", id.data);
     if (error) {
       logSupabaseClientError("softDeletePromotion", error, { promotionId: id.data });
       return { ok: false, message: ae.saveFailed };
     }
+    void auditFinanceAction({
+      actorId: user.id,
+      actorRole: "admin",
+      action: "delete",
+      resourceType: "promotion",
+      resourceId: id.data,
+      summary: "Admin soft-deleted promotion",
+      beforeValues: {
+        code: beforePromotion?.code ?? null,
+        name: beforePromotion?.name ?? null,
+        is_active: beforePromotion?.is_active ?? null,
+        deleted_at: beforePromotion?.deleted_at ?? null,
+      },
+      afterValues: {
+        code: beforePromotion?.code ?? null,
+        name: beforePromotion?.name ?? null,
+        is_active: false,
+        deleted_at: deletedAt,
+      },
+    });
     revalidatePath(`/${locale}/dashboard/admin/promotions`);
     return { ok: true };
   } catch (err) {

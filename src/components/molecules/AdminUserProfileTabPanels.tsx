@@ -141,8 +141,7 @@ export function AdminUserFamilyPanel({
   editable: boolean;
   onFeedback: (text: string, ok: boolean) => void;
 }) {
-  const showFamilyCard = detail.role === "student" && (detail.isMinor || detail.tutorLinks.length > 0);
-  if (!showFamilyCard) {
+  if (detail.role !== "student") {
     return (
       <CardShell title={labels.detailCardFamily}>
         <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailFamilyEmpty}</p>

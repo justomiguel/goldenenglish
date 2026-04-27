@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { evaluateTrueFalseMiniTest } from "@/lib/learning-content";
 import { logServerException } from "@/lib/logging/serverActionLog";
+import { awardStudentBadges } from "@/lib/badges/awardStudentBadges";
 
 type SubmitMiniTestResult =
   | { ok: true; id: string; score: number; passed: boolean }
@@ -118,6 +119,7 @@ export async function submitStudentMiniTestAction(raw: unknown): Promise<SubmitM
     if (error || !inserted) return { ok: false, code: "persist_failed" };
     revalidatePath(`/${parsed.data.locale}/dashboard/student/assessments`);
     revalidatePath(`/${parsed.data.locale}/dashboard/student`);
+    await awardStudentBadges({ studentId: user.id, locale: parsed.data.locale });
     return { ok: true, id: (inserted as { id: string }).id, score: outcome.score, passed: outcome.passed };
   } catch (err) {
     logServerException("submitStudentMiniTestAction", err);

@@ -6,6 +6,7 @@ import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { adminActionDict } from "@/lib/i18n/actionErrors";
 import { defaultLocale } from "@/lib/i18n/dictionaries";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { auditFinanceAction } from "@/lib/audit";
 
 const createSchema = z.object({
   locale: z.string().min(2),
@@ -42,7 +43,17 @@ export async function createDiscountCoupon(
       : null;
 
   try {
-    const { supabase } = await assertAdmin();
+    const { supabase, user } = await assertAdmin();
+    const afterValues = {
+      code,
+      discount_type: parsed.data.discountType,
+      discount_value: parsed.data.discountValue,
+      valid_from: validFrom,
+      valid_until: validUntil,
+      max_uses: parsed.data.maxUses ?? null,
+      uses_count: 0,
+      is_active: true,
+    };
     const { error } = await supabase.from("discount_coupons").insert({
       code,
       discount_type: parsed.data.discountType,
@@ -57,6 +68,15 @@ export async function createDiscountCoupon(
       logSupabaseClientError("createDiscountCoupon", error, { code });
       return { ok: false, message: ae.saveFailed };
     }
+    void auditFinanceAction({
+      actorId: user.id,
+      actorRole: "admin",
+      action: "create",
+      resourceType: "discount_coupon",
+      resourceId: code,
+      summary: "Admin created discount coupon",
+      afterValues,
+    });
     revalidatePath(`/${parsed.data.locale}/dashboard/admin/coupons`);
     return { ok: true };
   } catch (err) {
@@ -74,7 +94,12 @@ export async function toggleDiscountCoupon(
   const id = z.string().uuid().safeParse(couponId);
   if (!id.success) return { ok: false, message: ae.invalidId };
   try {
-    const { supabase } = await assertAdmin();
+    const { supabase, user } = await assertAdmin();
+    const { data: beforeCoupon } = await supabase
+      .from("discount_coupons")
+      .select("id, code, is_active")
+      .eq("id", id.data)
+      .maybeSingle();
     const { error } = await supabase
       .from("discount_coupons")
       .update({ is_active: isActive })
@@ -83,6 +108,22 @@ export async function toggleDiscountCoupon(
       logSupabaseClientError("toggleDiscountCoupon", error, { couponId: id.data });
       return { ok: false, message: ae.saveFailed };
     }
+    void auditFinanceAction({
+      actorId: user.id,
+      actorRole: "admin",
+      action: "update",
+      resourceType: "discount_coupon",
+      resourceId: id.data,
+      summary: `Admin ${isActive ? "activated" : "deactivated"} discount coupon`,
+      beforeValues: {
+        code: beforeCoupon?.code ?? null,
+        is_active: beforeCoupon?.is_active ?? null,
+      },
+      afterValues: {
+        code: beforeCoupon?.code ?? null,
+        is_active: isActive,
+      },
+    });
     revalidatePath(`/${locale}/dashboard/admin/coupons`);
     return { ok: true };
   } catch (err) {

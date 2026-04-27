@@ -11,6 +11,7 @@ import {
 
 interface PageProps {
   params: Promise<{ locale: string; sectionId: string }>;
+  searchParams: Promise<{ graph?: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -22,8 +23,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function EditSectionContentPage({ params }: PageProps) {
+export default async function EditSectionContentPage({ params, searchParams }: PageProps) {
   const { locale, sectionId } = await params;
+  const sp = await searchParams;
   const dict = await getDictionary(locale);
   const labels = dict.dashboard.adminContents;
   const supabase = await createClient();
@@ -45,6 +47,7 @@ export default async function EditSectionContentPage({ params }: PageProps) {
         locale={locale}
         workspace={workspace}
         labels={labels}
+        initialGraphOpen={sp.graph === "1" && workspace.route?.id !== null}
       />
     </main>
   );

@@ -9,6 +9,7 @@ import {
   myProfilePasswordSchema,
   myProfilePersonalSchema,
 } from "@/lib/profile/myProfileUpdateSchema";
+import { awardStudentBadges } from "@/lib/badges/awardStudentBadges";
 
 export type MyProfileActionErrorKey =
   | "unauthorized"
@@ -40,6 +41,9 @@ export async function updateMyProfile(raw: unknown): Promise<MyProfileActionResu
 
   const { locale, first_name, last_name, dni_or_passport, phone, birth_date } = parsed.data;
 
+  const { data: beforeProfile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  const isStudent = (beforeProfile as { role?: string } | null)?.role === "student";
+
   const { error } = await supabase
     .from("profiles")
     .update({
@@ -63,6 +67,9 @@ export async function updateMyProfile(raw: unknown): Promise<MyProfileActionResu
   }
 
   revalidateProfile(locale);
+  if (isStudent) {
+    await awardStudentBadges({ studentId: user.id, locale });
+  }
   await recordUserEventServer({
     userId: user.id,
     eventType: "action",

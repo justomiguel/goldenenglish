@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { AdminStudentSearchCombobox } from "@/components/molecules/AdminStudentSearchCombobox";
 
 describe("AdminStudentSearchCombobox", () => {
-  it("uses label + input and calls search after min length", async () => {
+  it("uses label + input and calls search from one character by default", async () => {
     const user = userEvent.setup();
     const search = vi.fn().mockResolvedValue([{ id: "1", label: "Ada Lovelace" }]);
     const onPick = vi.fn();
@@ -16,6 +16,7 @@ describe("AdminStudentSearchCombobox", () => {
         labelText="Search"
         placeholder="Find…"
         minCharsHint="More chars"
+        debounceMs={0}
         search={search}
         onPick={onPick}
       />,
@@ -23,14 +24,40 @@ describe("AdminStudentSearchCombobox", () => {
 
     expect(screen.getByLabelText("Search")).toBeInTheDocument();
     const input = screen.getByPlaceholderText("Find…");
-    await user.type(input, "Ad");
-    await waitFor(() => expect(search).toHaveBeenCalled());
+    await user.type(input, "A");
+    await waitFor(() => expect(search).toHaveBeenCalledWith("A"));
     await waitFor(() => expect(screen.getByRole("button", { name: "Ada Lovelace" })).toBeInTheDocument());
     await user.click(screen.getByRole("button", { name: "Ada Lovelace" }));
     expect(onPick).toHaveBeenCalledWith({ id: "1", label: "Ada Lovelace" });
   });
 
+  it("calls search with empty string when prefetchWhenEmptyOnFocus", async () => {
+    const user = userEvent.setup();
+    const search = vi.fn().mockResolvedValue([{ id: "1", label: "Zoe A" }]);
+
+    render(
+      <AdminStudentSearchCombobox
+        id="prefetch-search"
+        labelText="Search"
+        placeholder="Find…"
+        minCharsHint="More chars"
+        debounceMs={0}
+        prefetchWhenEmptyOnFocus
+        search={search}
+        onPick={() => {}}
+      />,
+    );
+
+    await waitFor(() => expect(search).toHaveBeenCalledWith(""));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Zoe A" })).toBeInTheDocument());
+    const input = screen.getByPlaceholderText("Find…");
+    await user.clear(input);
+    await user.type(input, "z");
+    await waitFor(() => expect(search).toHaveBeenCalledWith("z"));
+  });
+
   it("clears when resetKey changes", async () => {
+    const user = userEvent.setup();
     const search = vi.fn().mockResolvedValue([]);
     const { rerender } = render(
       <AdminStudentSearchCombobox
@@ -38,13 +65,14 @@ describe("AdminStudentSearchCombobox", () => {
         labelText="Search"
         placeholder="Find…"
         minCharsHint="More chars"
+        debounceMs={0}
         search={search}
         onPick={() => {}}
         resetKey={0}
       />,
     );
     const input = screen.getByPlaceholderText("Find…") as HTMLInputElement;
-    await userEvent.setup().type(input, "ab");
+    await user.type(input, "ab");
     expect(input.value).toBe("ab");
     rerender(
       <AdminStudentSearchCombobox
@@ -52,11 +80,14 @@ describe("AdminStudentSearchCombobox", () => {
         labelText="Search"
         placeholder="Find…"
         minCharsHint="More chars"
+        debounceMs={0}
         search={search}
         onPick={() => {}}
         resetKey={1}
       />,
     );
-    expect((screen.getByPlaceholderText("Find…") as HTMLInputElement).value).toBe("");
+    await waitFor(() =>
+      expect((screen.getByPlaceholderText("Find…") as HTMLInputElement).value).toBe(""),
+    );
   });
 });

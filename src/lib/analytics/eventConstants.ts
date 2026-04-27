@@ -35,6 +35,8 @@ export const AnalyticsEntity = {
   portalCalendar: "section:portal_calendar",
   /** Learning tasks library, detail, and completion funnel */
   learningTasks: "section:learning_tasks",
+  /** Student gamification: badges / achievements */
+  studentBadges: "section:student_badges",
   /** Auth: user completed a password reset (recovery link → updateUser) */
   passwordResetCompleted: "auth:password_reset_completed",
   /** Funnel: enrollment fee receipt uploaded by the student */
@@ -60,6 +62,7 @@ export function pathnameToEntity(pathname: string): string {
   if (pathname.includes("/dashboard/student/calendar")) return AnalyticsEntity.portalCalendar;
   if (pathname.includes("/dashboard/parent/calendar")) return AnalyticsEntity.portalCalendar;
   if (pathname.includes("/dashboard/teacher/calendar")) return AnalyticsEntity.portalCalendar;
+  if (pathname.includes("/dashboard/student/badges")) return AnalyticsEntity.studentBadges;
   if (pathname.includes("/dashboard/student/tasks")) return AnalyticsEntity.learningTasks;
   if (pathname.includes("/dashboard/teacher/tasks")) return AnalyticsEntity.learningTasks;
   if (pathname.includes("/dashboard/teacher/sections") && pathname.includes("/tasks")) {

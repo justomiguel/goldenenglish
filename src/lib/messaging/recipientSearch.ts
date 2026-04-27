@@ -1,24 +1,16 @@
 import type { MessagingRecipient } from "@/types/messaging";
+import { normalizePersonSearchText, personNameFieldsMatchPrefix } from "@/lib/users/profileSearchPrefix";
 
 export function messagingRecipientDisplayName(r: MessagingRecipient): string {
   return `${r.first_name} ${r.last_name}`.trim();
 }
 
 export function normalizeMessagingSearchText(s: string): string {
-  return s
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .toLowerCase()
-    .trim();
+  return normalizePersonSearchText(s);
 }
 
 export function messagingRecipientMatchesQuery(r: MessagingRecipient, rawQuery: string): boolean {
-  const q = normalizeMessagingSearchText(rawQuery);
-  if (!q) return true;
-  const full = normalizeMessagingSearchText(`${r.first_name} ${r.last_name}`);
-  const fn = normalizeMessagingSearchText(r.first_name);
-  const ln = normalizeMessagingSearchText(r.last_name);
-  return full.includes(q) || fn.includes(q) || ln.includes(q);
+  return personNameFieldsMatchPrefix(r, rawQuery);
 }
 
 export function filterMessagingRecipientsByQuery(

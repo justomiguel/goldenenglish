@@ -15,6 +15,8 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 const ae = dictEn.actionErrors.admin;
 
+const adminUser = { id: "11111111-1111-1111-1111-111111111111" };
+
 describe("createDiscountCoupon", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -64,6 +66,7 @@ describe("createDiscountCoupon", () => {
   it("returns saveFailed on insert error", async () => {
     const insert = vi.fn().mockResolvedValue({ error: { message: "dup" } });
     mockAssertAdmin.mockResolvedValue({
+      user: adminUser,
       supabase: { from: vi.fn().mockReturnValue({ insert }) },
     });
     const r = await createDiscountCoupon({
@@ -78,6 +81,7 @@ describe("createDiscountCoupon", () => {
   it("returns ok and uses trimmed code", async () => {
     const insert = vi.fn().mockResolvedValue({ error: null });
     mockAssertAdmin.mockResolvedValue({
+      user: adminUser,
       supabase: { from: vi.fn().mockReturnValue({ insert }) },
     });
     const r = await createDiscountCoupon({
@@ -116,10 +120,21 @@ describe("toggleDiscountCoupon", () => {
   });
 
   it("returns saveFailed on update error", async () => {
-    const eq = vi.fn().mockResolvedValue({ error: { message: "x" } });
-    const update = vi.fn().mockReturnValue({ eq });
+    const eqUpdate = vi.fn().mockResolvedValue({ error: { message: "x" } });
+    const update = vi.fn().mockReturnValue({ eq: eqUpdate });
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { id: "00000000-0000-4000-8000-000000000002", code: "C2", is_active: true },
+      error: null,
+    });
+    const from = vi.fn(() => ({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({ maybeSingle }),
+      }),
+      update,
+    }));
     mockAssertAdmin.mockResolvedValue({
-      supabase: { from: vi.fn().mockReturnValue({ update }) },
+      user: adminUser,
+      supabase: { from },
     });
     const r = await toggleDiscountCoupon(
       "en",
@@ -130,10 +145,21 @@ describe("toggleDiscountCoupon", () => {
   });
 
   it("returns ok on success", async () => {
-    const eq = vi.fn().mockResolvedValue({ error: null });
-    const update = vi.fn().mockReturnValue({ eq });
+    const eqUpdate = vi.fn().mockResolvedValue({ error: null });
+    const update = vi.fn().mockReturnValue({ eq: eqUpdate });
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { id: "00000000-0000-4000-8000-000000000003", code: "C3", is_active: true },
+      error: null,
+    });
+    const from = vi.fn(() => ({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({ maybeSingle }),
+      }),
+      update,
+    }));
     mockAssertAdmin.mockResolvedValue({
-      supabase: { from: vi.fn().mockReturnValue({ update }) },
+      user: adminUser,
+      supabase: { from },
     });
     const r = await toggleDiscountCoupon(
       "en",

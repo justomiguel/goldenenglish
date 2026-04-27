@@ -52,9 +52,11 @@ describe("recipientSearch", () => {
     expect(messagingRecipientMatchesQuery(ann, "   ")).toBe(true);
   });
 
-  it("messagingRecipientMatchesQuery matches partial and accent-insensitive", () => {
+  it("messagingRecipientMatchesQuery uses prefix on names (accent-insensitive)", () => {
     expect(messagingRecipientMatchesQuery(carl, "jos")).toBe(true);
     expect(messagingRecipientMatchesQuery(carl, "perez")).toBe(true);
+    expect(messagingRecipientMatchesQuery(carl, "jose p")).toBe(true);
+    expect(messagingRecipientMatchesQuery(carl, "ose")).toBe(false);
     expect(messagingRecipientMatchesQuery(ann, "zed")).toBe(true);
     expect(messagingRecipientMatchesQuery(ann, "zzz")).toBe(false);
   });

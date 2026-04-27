@@ -11,6 +11,7 @@ import {
   logServerAuthzDenied,
   logSupabaseClientError,
 } from "@/lib/logging/serverActionLog";
+import { auditSectionAction } from "@/lib/audit";
 
 const uuid = z.string().uuid();
 
@@ -47,7 +48,7 @@ export async function createSectionTransferRequestAction(input: {
   reasonCode?: string | null;
 }): Promise<{ ok: boolean }> {
   try {
-    const { supabase, profileId } = await assertTeacher();
+    const { supabase, profileId, user } = await assertTeacher();
     const studentId = uuid.safeParse(input.studentId);
     const fromId = uuid.safeParse(input.fromSectionId);
     const toId = uuid.safeParse(input.toSectionId);
@@ -77,6 +78,21 @@ export async function createSectionTransferRequestAction(input: {
       });
       return { ok: false };
     }
+    void auditSectionAction({
+      actorId: user.id,
+      actorRole: "teacher",
+      action: "submit",
+      resourceType: "section_transfer_request",
+      resourceId: studentId.data,
+      summary: "Teacher created section transfer request",
+      afterValues: {
+        student_id: studentId.data,
+        from_section_id: fromId.data,
+        to_section_id: toId.data,
+        reason_code,
+      },
+      metadata: { note_present: Boolean(input.note?.trim()) },
+    });
     revalidateTeacherTransferPaths(input.locale);
     return { ok: true };
   } catch {
@@ -95,7 +111,7 @@ export async function submitTransferSuggestionAction(
   formData: FormData,
 ): Promise<TransferSuggestionActionState> {
   try {
-    const { supabase, profileId } = await assertTeacher();
+    const { supabase, profileId, user } = await assertTeacher();
     const locale = fdStr(formData, "locale");
     const studentId = fdStr(formData, "studentId");
     const fromSectionId = fdStr(formData, "fromSectionId");
@@ -198,6 +214,22 @@ export async function submitTransferSuggestionAction(
       });
       return { ok: false, code: "insert" };
     }
+    void auditSectionAction({
+      actorId: user.id,
+      actorRole: "teacher",
+      action: "submit",
+      resourceType: "section_transfer_request",
+      resourceId: sid.data,
+      summary: "Teacher submitted transfer suggestion",
+      afterValues: {
+        student_id: sid.data,
+        from_section_id: fromId.data,
+        to_section_id: toId.data,
+        kind,
+        reason_code: reasonParsed.data,
+      },
+      metadata: { comment_present: Boolean(comment) },
+    });
     revalidateTeacherTransferPaths(locale);
     return { ok: true };
   } catch {

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { getDictionary, defaultLocale } from "@/lib/i18n/dictionaries";
 import type { Dictionary } from "@/types/i18n";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { auditIdentityAction } from "@/lib/audit";
 
 function localizeCreateDashboardUserError(dict: Dictionary, code: string): string {
   const U = dict.admin.users;
@@ -50,8 +51,10 @@ const createUserSchema = z.object({
 export async function createDashboardUser(
   raw: z.infer<typeof createUserSchema>,
 ): Promise<{ ok: boolean; message?: string; userId?: string }> {
+  let actorId = "";
   try {
-    await assertAdmin();
+    const ctx = await assertAdmin();
+    actorId = ctx.user.id;
   } catch {
     logServerAuthzDenied("createDashboardUser");
     const dict = await getDictionary(defaultLocale);
@@ -118,5 +121,24 @@ export async function createDashboardUser(
     return { ok: false, message: localizeCreateDashboardUserError(dict, "auth_failed") };
   }
 
+  void auditIdentityAction({
+    actorId,
+    actorRole: "admin",
+    action: "create",
+    resourceType: "profile",
+    resourceId: uid,
+    summary: "Admin created dashboard user",
+    afterValues: {
+      id: uid,
+      email: parsed.data.email.toLowerCase(),
+      role: finalRole,
+      first_name: parsed.data.first_name,
+      last_name: parsed.data.last_name,
+      dni_or_passport: parsed.data.dni_or_passport.trim(),
+      phone: parsed.data.phone,
+      birth_date: birthDate && birthDate.length >= 10 ? birthDate.slice(0, 10) : null,
+    },
+    metadata: { provisioning_source: "admin_invite" },
+  });
   return { ok: true, userId: uid };
 }

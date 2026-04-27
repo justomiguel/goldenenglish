@@ -29,6 +29,11 @@ vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => mockAdminClient,
 }));
 
+const adminCtx = {
+  user: { id: "11111111-1111-1111-1111-111111111111" },
+  supabase: {},
+};
+
 const validPayload = {
   email: "u@test.com",
   password: "secret12",
@@ -52,7 +57,7 @@ describe("createDashboardUser", () => {
   });
 
   it("returns Invalid data when schema fails", async () => {
-    mockAssertAdmin.mockResolvedValue({});
+    mockAssertAdmin.mockResolvedValue(adminCtx);
     const r = await createDashboardUser({
       ...validPayload,
       email: "not-an-email",
@@ -61,7 +66,7 @@ describe("createDashboardUser", () => {
   });
 
   it("returns auth_failed when createUser errors", async () => {
-    mockAssertAdmin.mockResolvedValue({});
+    mockAssertAdmin.mockResolvedValue(adminCtx);
     mockCreateUser.mockResolvedValue({
       data: { user: null },
       error: { message: "exists" },
@@ -71,7 +76,7 @@ describe("createDashboardUser", () => {
   });
 
   it("returns no_user_returned when API omits user", async () => {
-    mockAssertAdmin.mockResolvedValue({});
+    mockAssertAdmin.mockResolvedValue(adminCtx);
     mockCreateUser.mockResolvedValue({
       data: { user: null },
       error: null,
@@ -81,7 +86,7 @@ describe("createDashboardUser", () => {
   });
 
   it("returns ok on success", async () => {
-    mockAssertAdmin.mockResolvedValue({});
+    mockAssertAdmin.mockResolvedValue(adminCtx);
     mockCreateUser.mockResolvedValue({
       data: { user: { id: "x" } },
       error: null,
@@ -91,7 +96,7 @@ describe("createDashboardUser", () => {
   });
 
   it("passes optional birth_date in user_metadata", async () => {
-    mockAssertAdmin.mockResolvedValue({});
+    mockAssertAdmin.mockResolvedValue(adminCtx);
     mockCreateUser.mockResolvedValue({
       data: { user: { id: "x" } },
       error: null,
@@ -108,7 +113,7 @@ describe("createDashboardUser", () => {
   });
 
   it("generates password when empty and succeeds", async () => {
-    mockAssertAdmin.mockResolvedValue({});
+    mockAssertAdmin.mockResolvedValue(adminCtx);
     mockCreateUser.mockResolvedValue({
       data: { user: { id: "x" } },
       error: null,
@@ -127,7 +132,7 @@ describe("createDashboardUser", () => {
   });
 
   it("rejects short non-empty password", async () => {
-    mockAssertAdmin.mockResolvedValue({});
+    mockAssertAdmin.mockResolvedValue(adminCtx);
     const r = await createDashboardUser({
       ...validPayload,
       password: "12345",

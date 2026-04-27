@@ -1,26 +1,38 @@
 ---
 description: >-
-  Búsqueda de alumno en staff: reutilizar AdminStudentSearchCombobox (Label + Input
-  de átomos, mismo patrón que usuarios); no inputs sueltos; i18n en dictionaries.
+  Búsqueda de persona en staff: combobox async (AdminStudentSearchCombobox), prefijo
+  en servidor vía searchAdminStudentsByPrefix; mensajería con RecipientAutocomplete
+  y personNameFieldsMatchPrefix; no inputs sueltos; i18n en dictionaries.
 globs:
   - "src/app/**/dashboard/admin/**/*.tsx"
+  - "src/app/**/dashboard/teacher/**/*.tsx"
   - "src/components/**/*.tsx"
   - "src/hooks/*.ts"
 ---
 
-# Admin: búsqueda de alumno (mismo patrón que usuarios)
+# Staff: búsqueda de alumno / usuario (combobox + prefijo)
 
 ## Objetivo
 
-En pantallas de **staff** donde hay que **elegir un alumno** por nombre / documento (inscripción en sección, traslados, etc.), el campo de búsqueda debe usar el **mismo patrón visual y de accesibilidad** que el filtro de la lista de usuarios (`Label` + `Input` de átomos), no un `<input>` suelto con clases distintas.
+En pantallas de **staff** donde hay que **elegir un alumno** (o perfil con la misma forma `{ id, label }`) por nombre / documento (inscripción en sección, traslados, asistentes alumno, etc.), el campo debe usar **`AdminStudentSearchCombobox`** (`Label` + `Input` de átomos, lista debajo), no un `<input>` suelto con clases distintas.
 
-## Regla
+## Semántica de búsqueda (prefijo)
 
-1. **Reutilizar** `AdminStudentSearchCombobox` (`src/components/molecules/AdminStudentSearchCombobox.tsx`) cuando la búsqueda sea **async** y devuelva `{ id, label }`: en admin usar `searchAdminStudentsAction`; en docente, alumnos solo de sus secciones, usar `searchTeacherStudentsInOwnSectionsAction` (`src/app/[locale]/dashboard/teacher/academics/actions.ts`, lógica en `src/lib/academics/searchTeacherStudentsInOwnSections.ts`).
-2. **No** duplicar bloques `label + input + lista` ad hoc en organismos; extender el combobox o extraer otro módulo en `src/components/molecules/` si hace falta variante (p. ej. solo lectura).
-3. Textos visibles desde **`src/dictionaries/en.json` y `es.json`** (`dashboard.academicSectionPage.studentSearchLabel`, `studentSearchTooltip`, etc.).
+- **Servidor (admin):** `searchAdminStudentsByPrefix` en `src/lib/users/searchAdminStudentsByPrefix.ts` — coincide por **inicio** de `first_name`, `last_name` o `dni_or_passport` (patrón ILIKE `prefijo%`, con escape de `%`, `_`, `\` vía `buildIlikePrefixPattern` en `src/lib/users/profileSearchPrefix.ts`). Consulta vacía acotada: hasta **30** filas ordenadas por apellido/nombre.
+- **Servidor (tutores / detalle tutor padres):** misma idea de prefijo; `searchTeacherStudentsInOwnSections` filtra en memoria con `personProfileMatchPrefix`; lista inicial vacía + prefijo desde **1** carácter; conjunto acotado a alumnos de secciones verificadas del docente.
+- **Cliente (mensajes, lista ya cargada):** `RecipientAutocomplete` filtra con `messagingRecipientMatchesQuery` → `personNameFieldsMatchPrefix` (prefijo en nombre/apellido o cadena completa, acento-insensible).
+
+## Regla de uso del combobox
+
+1. **Reutilizar** `AdminStudentSearchCombobox` cuando la búsqueda sea **async** y devuelva `{ id, label }`:
+   - Admin alumnos: `searchAdminStudentsAction` (reexporta la lógica anterior).
+   - Docente: `searchTeacherStudentsInOwnSectionsAction` + `sectionIds` (`src/app/[locale]/dashboard/teacher/academics/actions.ts`, `src/lib/academics/searchTeacherStudentsInOwnSections.ts`).
+   - Tutor en ficha alumno (padres): `searchAdminParentsForDetailAction` — **no** activar listado masivo con campo vacío: `prefetchWhenEmptyOnFocus` **omitido o false** (por defecto es `false`).
+2. **Listado inicial acotado** (opcional): en inscripción a sección, panel de enroll, command palette, traslado docente y asistentes alumno, pasar **`prefetchWhenEmptyOnFocus`** para que consulta vacía cargue la ventana acotada del servidor (misma acción `search("")`).
+3. **No** duplicar bloques `label + input + lista` ad hoc en organismos; extender el combobox o añadir lib pura bajo `src/lib/users/` si hace falta nueva variante.
+4. Textos visibles desde **`src/dictionaries/en.json` y `es.json`** (`studentSearchTooltip`, `searchPlaceholder`, etc.).
 
 ## Relación
 
 - Lista de usuarios (tabla): `AdminUsersToolbar` — mismo `Label` / `Input`.
-- Mensajería (destinatarios con lista precargada): `RecipientAutocomplete` — otro dominio; no sustituye al combobox de alumnos admin.
+- Mensajería (destinatarios precargados en página): `RecipientAutocomplete` — comparte normalización/prefijo vía `src/lib/users/profileSearchPrefix.ts` con la semántica de “empieza por…”.
