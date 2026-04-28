@@ -95,7 +95,7 @@ export async function loadAdminSectionAssessmentsPanelData(
 
   const { data: cohortRows, error: cErr } = await supabase
     .from("cohort_assessments")
-    .select("id, name, assessment_on, max_score")
+    .select("id, name, assessment_on, max_score, created_at")
     .eq("cohort_id", cohortId)
     .order("assessment_on", { ascending: false })
     .limit(COHORT_ASSESSMENT_CAP);
@@ -106,6 +106,7 @@ export async function loadAdminSectionAssessmentsPanelData(
     name: string;
     assessment_on: string;
     max_score: string | number;
+    created_at: string;
   }[];
   const cohortIds = cohortList.map((c) => c.id);
 
@@ -128,6 +129,7 @@ export async function loadAdminSectionAssessmentsPanelData(
     name: c.name,
     assessmentOn: c.assessment_on,
     maxScore: Number(c.max_score) || 0,
+    createdAt: c.created_at,
     publishedInSection: publishedByCohort.get(c.id) ?? 0,
   }));
 

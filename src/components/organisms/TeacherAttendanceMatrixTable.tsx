@@ -1,20 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Dictionary } from "@/types/i18n";
 import type { SectionAttendanceStatusDb } from "@/types/sectionAcademics";
 import type { TeacherAttendanceMatrixCells, TeacherAttendanceMatrixRow } from "@/types/teacherAttendanceMatrix";
-import { cyclePatAdmin, cyclePatTeacher } from "@/lib/academics/attendanceMatrixCellCycle";
 import { buildAttendanceMatrixMonthGroups } from "@/lib/academics/attendanceMatrixMonthGroups";
 import { gridMoveFocus } from "@/lib/academics/teacherAttendanceMatrixNav";
 import { TeacherAttendanceMatrixThead } from "@/components/organisms/TeacherAttendanceMatrixThead";
+import { TeacherAttendanceMatrixGridRow } from "@/components/organisms/TeacherAttendanceMatrixGridRow";
 import type { AttendanceMatrixAutosaveVariant } from "@/hooks/useAttendanceMatrixAutosave";
-
-const STATUS_SURFACE: Record<"present" | "absent" | "late", string> = {
-  present: "bg-[var(--color-success)]/90 text-[var(--color-primary-foreground)] border-[var(--color-success)]",
-  absent: "bg-[var(--color-error)]/90 text-[var(--color-primary-foreground)] border-[var(--color-error)]",
-  late: "bg-[var(--color-warning)]/90 text-[var(--color-accent-foreground)] border-[var(--color-warning)]",
-};
+import type { UniversalSortDir } from "@/types/universalListView";
 
 export interface TeacherAttendanceMatrixTableProps {
   locale: string;
@@ -52,6 +47,21 @@ export function TeacherAttendanceMatrixTable({
 }: TeacherAttendanceMatrixTableProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const dfShort = useMemo(() => new Intl.DateTimeFormat(locale, { weekday: "short", day: "numeric" }), [locale]);
+  const studentSortLabels = dict.studentColumnSort;
+  const [studentSortDir, setStudentSortDir] = useState<UniversalSortDir>("asc");
+  const sortedRows = useMemo(
+    () =>
+      [...rows].sort(
+        (a, b) =>
+          a.studentLabel.localeCompare(b.studentLabel, undefined, { sensitivity: "base" }) *
+          (studentSortDir === "asc" ? 1 : -1),
+      ),
+    [rows, studentSortDir],
+  );
+  const onToggleStudentSort = useCallback((columnId: string) => {
+    if (columnId !== "student") return;
+    setStudentSortDir((d) => (d === "asc" ? "desc" : "asc"));
+  }, []);
 
   const isDateEditable = useCallback(
     (d: string) => (matrixMode === "admin" ? editableByDate[d] !== false : Boolean(editableByDate[d])),
@@ -87,7 +97,7 @@ export function TeacherAttendanceMatrixTable({
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
 
       if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        const next = gridMoveFocus(rows, classDays, cells, focused, e.key);
+        const next = gridMoveFocus(sortedRows, classDays, cells, focused, e.key);
         if (next) {
           e.preventDefault();
           onFocusChange(next);
@@ -101,7 +111,7 @@ export function TeacherAttendanceMatrixTable({
         else applyPatKey(k === "p" ? "present" : k === "a" ? "absent" : "late");
       }
     },
-    [applyPatKey, cells, focused, matrixMode, onFocusChange, rows, classDays],
+    [applyPatKey, cells, focused, matrixMode, onFocusChange, sortedRows, classDays],
   );
 
   return (
@@ -125,115 +135,28 @@ export function TeacherAttendanceMatrixTable({
           onColumnFill={onColumnFill}
           columnBusyDate={columnBusyDate}
           isDateEditable={isDateEditable}
+          studentSortKey="student"
+          studentSortDir={studentSortDir}
+          onToggleStudentSort={onToggleStudentSort}
+          studentSortLabels={studentSortLabels}
         />
         <tbody>
-          {rows.map((row) => {
-            const inactive = row.enrollmentStatus === "dropped" || row.enrollmentStatus === "transferred";
-            return (
-              <tr
-                key={row.enrollmentId}
-                className={`border-b border-[var(--color-border)] ${inactive ? "opacity-55" : ""}`}
-              >
-                <th
-                  scope="row"
-                  className="sticky left-0 z-[1] bg-[var(--color-surface)] px-2 py-2 text-left text-xs font-medium text-[var(--color-foreground)]"
-                >
-                  {row.studentLabel}
-                </th>
-                {classDays.map((d) => {
-                  const navigable = Object.prototype.hasOwnProperty.call(cells[row.enrollmentId] ?? {}, d);
-                  if (!navigable) {
-                    const label = dict.cellAria
-                      .replace("{student}", row.studentLabel)
-                      .replace("{date}", d);
-                    return (
-                      <td key={d} className="p-1 text-center">
-                        <button
-                          type="button"
-                          data-att-cell={`${row.enrollmentId}|${d}`}
-                          data-att-can-edit="false"
-                          data-att-disabled-reason="not_enrolled_on_date"
-                          tabIndex={-1}
-                          disabled
-                          aria-label={label}
-                          title={dict.cellDisabledNotEnrolledOnDate}
-                          className="touch-manipulation mx-auto flex h-9 w-9 cursor-not-allowed items-center justify-center rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-muted)]/40 text-xs font-bold text-[var(--color-muted-foreground)] opacity-80"
-                        >
-                          ·
-                        </button>
-                      </td>
-                    );
-                  }
-                  const v = cells[row.enrollmentId]![d]!;
-                  const isExcused = v === "excused";
-                  const isFocused = focused?.enrollmentId === row.enrollmentId && focused?.dateIso === d;
-                  const blockInactive = matrixMode === "teacher" && inactive;
-                  const blockExcusedReadonly = matrixMode === "teacher" && isExcused;
-                  const dateEditable = isDateEditable(d);
-                  const canEdit = dateEditable && !blockInactive && !blockExcusedReadonly;
-                  const disabledReason = !canEdit
-                    ? blockInactive
-                      ? dict.cellDisabledInactive
-                      : blockExcusedReadonly
-                        ? dict.cellDisabledExcused
-                        : !dateEditable
-                          ? d > todayIso
-                            ? dict.cellDisabledFuture
-                            : dict.cellDisabledPast
-                          : undefined
-                    : undefined;
-                  const label = dict.cellAria
-                    .replace("{student}", row.studentLabel)
-                    .replace("{date}", d);
-                  const surface =
-                    v === null
-                      ? "border border-dashed border-[var(--color-border)] bg-[var(--color-muted)]/20 text-[var(--color-muted-foreground)]"
-                      : isExcused
-                        ? "border border-[var(--color-muted-foreground)] bg-[var(--color-muted)] text-[var(--color-foreground)]"
-                        : STATUS_SURFACE[v];
-
-                  return (
-                    <td key={d} className="p-1 text-center">
-                      <button
-                        type="button"
-                        data-att-cell={`${row.enrollmentId}|${d}`}
-                        data-att-can-edit={String(canEdit)}
-                        data-att-disabled-reason={
-                          blockInactive
-                            ? "inactive"
-                            : blockExcusedReadonly
-                              ? "excused"
-                              : !dateEditable
-                                ? d > todayIso
-                                  ? "future"
-                                  : "past_or_outside"
-                                : ""
-                        }
-                        tabIndex={-1}
-                        disabled={!canEdit}
-                        aria-label={label}
-                        title={disabledReason}
-                        className={`touch-manipulation mx-auto flex h-9 w-9 items-center justify-center rounded-[var(--layout-border-radius)] text-xs font-bold transition ${surface} ${
-                          isFocused ? "ring-2 ring-[var(--color-primary)] ring-offset-1 ring-offset-[var(--color-surface)]" : ""
-                        } ${!canEdit ? "cursor-not-allowed opacity-80" : "cursor-pointer hover:brightness-110"}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          wrapRef.current?.focus();
-                          onFocusChange({ enrollmentId: row.enrollmentId, dateIso: d });
-                          if (!canEdit) return;
-                          const next =
-                            matrixMode === "admin" ? cyclePatAdmin(v) : cyclePatTeacher(v);
-                          onCellStatus(row.enrollmentId, d, next);
-                        }}
-                      >
-                        {v === null ? "·" : isExcused ? dict.excusedLetter : v === "present" ? "P" : v === "absent" ? "A" : "T"}
-                      </button>
-                    </td>
-                  );
-                })}
-              </tr>
-            );
-          })}
+          {sortedRows.map((row) => (
+            <TeacherAttendanceMatrixGridRow
+              key={row.enrollmentId}
+              row={row}
+              classDays={classDays}
+              cells={cells}
+              todayIso={todayIso}
+              focused={focused}
+              onFocusChange={onFocusChange}
+              onCellStatus={onCellStatus}
+              matrixMode={matrixMode}
+              isDateEditable={isDateEditable}
+              wrapRef={wrapRef}
+              dict={dict}
+            />
+          ))}
         </tbody>
       </table>
     </div>

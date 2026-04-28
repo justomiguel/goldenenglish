@@ -50,7 +50,7 @@ describe("admin PWA smoke", () => {
         onDelete={() => {}}
       />,
     );
-    expect(screen.getByText("A B")).toBeInTheDocument();
+    expect(screen.getByText("B A")).toBeInTheDocument();
   });
 
   it("AdminRegistrationsPwaList empty", () => {
@@ -108,7 +108,7 @@ describe("admin PWA smoke", () => {
         }}
       />,
     );
-    expect(screen.getByText("A B")).toBeInTheDocument();
+    expect(screen.getByText("B A")).toBeInTheDocument();
   });
 
   it("AdminUsersPwaList empty", () => {

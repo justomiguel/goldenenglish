@@ -24,13 +24,15 @@ En pantallas de **staff** donde hay que **elegir un alumno** (o perfil con la mi
 
 ## Regla de uso del combobox
 
-1. **Reutilizar** `AdminStudentSearchCombobox` cuando la búsqueda sea **async** y devuelva `{ id, label }`:
-   - Admin alumnos: `searchAdminStudentsAction` (reexporta la lógica anterior).
-   - Docente: `searchTeacherStudentsInOwnSectionsAction` + `sectionIds` (`src/app/[locale]/dashboard/teacher/academics/actions.ts`, `src/lib/academics/searchTeacherStudentsInOwnSections.ts`).
-   - Tutor en ficha alumno (padres): `searchAdminParentsForDetailAction` — **no** activar listado masivo con campo vacío: `prefetchWhenEmptyOnFocus` **omitido o false** (por defecto es `false`).
-2. **Listado inicial acotado** (opcional): en inscripción a sección, panel de enroll, command palette, traslado docente y asistentes alumno, pasar **`prefetchWhenEmptyOnFocus`** para que consulta vacía cargue la ventana acotada del servidor (misma acción `search("")`).
-3. **No** duplicar bloques `label + input + lista` ad hoc en organismos; extender el combobox o añadir lib pura bajo `src/lib/users/` si hace falta nueva variante.
-4. Textos visibles desde **`src/dictionaries/en.json` y `es.json`** (`studentSearchTooltip`, `searchPlaceholder`, etc.).
+1. **Cola + chips (misma UX que inscripción):** usar **`StaffSearchComboboxWithChipQueue`** (`src/components/molecules/StaffSearchComboboxWithChipQueue.tsx`) — compone `AdminStudentSearchCombobox` + `EnrollmentStudentQueue`; el estado de la cola vive en el padre (`selectedItems`, `onPick`, `onRemoveSelected`). Opcional **`persistentExcludeIds`** (p. ej. tutores ya vinculados).
+2. **Solo combobox (sin cola):** **`AdminStudentSearchCombobox`** con la acción async que corresponda:
+   - Admin alumnos: `searchAdminStudentsAction`.
+   - Docente: `searchTeacherStudentsInOwnSectionsAction` + `sectionIds`.
+   - Command palette / asistentes: `searchAdminStudentsAction` u otra acotada.
+3. **Tutor en ficha alumno:** `searchAdminParentsForDetailAction` → `searchAdminParentsByPrefix`; en UI preferir **`StaffSearchComboboxWithChipQueue`** + `prefetchWhenEmptyOnFocus` + `persistentExcludeIds` para enlaces existentes.
+4. **Listado inicial acotado:** donde aplique, **`prefetchWhenEmptyOnFocus`** y `search("")` acotado en servidor.
+5. **No** duplicar bloques `label + input + lista` ad hoc; extender combobox o lib pura bajo `src/lib/users/`.
+6. Textos visibles desde **`src/dictionaries/en.json` y `es.json`**.
 
 ## Relación
 

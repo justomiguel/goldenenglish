@@ -58,7 +58,13 @@ describe("loadAdminSectionAssessmentsPanelData", () => {
         { assessment_id: "a1", score: 50, passed: false, status: "submitted" },
       ],
       [
-        { id: "c1", name: "Final", assessment_on: "2026-06-01", max_score: 100 },
+        {
+          id: "c1",
+          name: "Final",
+          assessment_on: "2026-06-01",
+          max_score: 100,
+          created_at: "2026-01-15T12:00:00Z",
+        },
       ],
       [
         { assessment_id: "c1", status: "published" },
@@ -77,6 +83,7 @@ describe("loadAdminSectionAssessmentsPanelData", () => {
     expect(out.learning[0]!.avgScore).toBe(65);
     expect(out.cohort[0]!.id).toBe("c1");
     expect(out.cohort[0]!.publishedInSection).toBe(1);
+    expect(out.cohort[0]!.createdAt).toBe("2026-01-15T12:00:00Z");
     expect(out.activeEnrollmentCount).toBe(2);
   });
 });

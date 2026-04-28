@@ -1,0 +1,31 @@
+---
+description: Staff “registrar pago / sin comprobante” mutaciones deben auditar por período y lote; revertir pago si falla auditoría.
+globs: src/**/admin/**/payments/**, src/lib/billing/recordPaymentWithoutReceiptCore.ts, src/lib/audit/**
+alwaysApply: false
+---
+
+# Auditoría: pagos registrados por staff (sin comprobante)
+
+## Objetivo
+
+Las mutaciones que marcan un **período de cobro como pagado** desde admin (con o **sin** comprobante) deben quedar trazables en **`audit_events`** (además de analítica/RLS) para gobierno, soporte e incidentes.
+
+## Reglas (no negociable)
+
+1. **Por cada período** impactado: llamar a **`auditFinanceAction`** (o `recordAuditEvent` equivalente con `domain: "billing_finance"`) con actor staff, `resourceId` = fila de `payments`, `action` = `create` o `update` según corresponda, y metadata acotada (`billing_year`, `billing_month`, `mode`, `source`, etc.). Esto aplica a **`recordPaymentWithoutReceipt`**, **`recordPaymentsWithoutReceiptBulk`**, y cualquier acción hermana que toque `payments` por el mismo flujo.
+2. **Lote (bulk):** Tras un conjunto de períodos, un evento de **resumen** con `action: "payment_batch"`, `resourceType: "payment_batch"`, `resourceId` = **batch id** (UUID de correlación compartida con el cliente), y metadata con conteos o lista de meses, para correlacionar en UI y en exports.
+3. **Fallo de auditoría = fallo de negocio:** Si la inserción de auditoría **falla** después de un insert/update de `payments`, **revertir** el cambio en BD (compensación) o no confirmar el commit, de modo que no quede pago “huérfano” sin traza. Patrón canónico: `src/lib/billing/recordPaymentWithoutReceiptCore.ts` (`recordOnePaymentWithoutReceipt`).
+4. **No** sustituir solo `system_config_audit` o solo analítica: el pipeline de producto para este dominio es **`audit_events` +** lo que ya use el repo (p. ej. `user_events`); no duplicar el mismo hecho en dos tablas de auditoría con payloads idénticos sin motivo documentado.
+5. **Cambios en UI** (selección múltiple de meses, “marcar varios”, etc.): el cliente solo envía `months[]` + `correlationId`; la **misma** regla 1–3 aplica; no atajar con un solo evento de auditoría en lugar de uno por período.
+
+## Checklist del agente
+
+- [ ] ¿Toca `payments` desde admin con “registrar sin comprobante” o variante? → `auditFinanceAction` **por fila/periodo** y evento de **lote** si hay batch.
+- [ ] ¿Si `audit` falla, el pago queda deshecho o la transacción no confirma?
+- [ ] ¿Prueba o contrato mínimo que fije compensación o eventos esperados (donde el repo ya testee acciones de billing)?
+
+## Referencia
+
+- Core: `src/lib/billing/recordPaymentWithoutReceiptCore.ts`
+- Acciones: `src/app/[locale]/dashboard/admin/payments/recordPaymentWithoutReceiptAction.ts`, `.../actions.ts` (`reviewPayment`)
+- Regla de dominio/audit: `src/lib/audit/domainAudit.ts` (`assertAuditEventSucceeded`)

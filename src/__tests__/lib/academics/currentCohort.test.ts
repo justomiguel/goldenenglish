@@ -141,8 +141,8 @@ describe("loadCurrentCohortSections", () => {
     );
 
     expect(r).toHaveLength(3);
-    expect(r[0]).toMatchObject({ id: "s1", teacherName: "Ada Lovelace", activeCount: 2, maxStudents: 12 });
-    expect(r[1]).toMatchObject({ id: "s2", teacherName: "Grace Hopper", activeCount: 1 });
+    expect(r[0]).toMatchObject({ id: "s1", teacherName: "Lovelace Ada", activeCount: 2, maxStudents: 12 });
+    expect(r[1]).toMatchObject({ id: "s2", teacherName: "Hopper Grace", activeCount: 1 });
     expect(r[1].maxStudents).toBeGreaterThan(0);
     expect(r[2]).toMatchObject({ id: "s3", teacherName: "—", activeCount: 0, maxStudents: 8 });
   });

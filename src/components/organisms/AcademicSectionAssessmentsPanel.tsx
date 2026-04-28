@@ -1,7 +1,7 @@
 import { ClipboardCheck } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminSectionAssessmentsPanelData } from "@/types/adminSectionAssessments";
-import { AdminCohortAssessmentRowActions } from "@/components/molecules/AdminCohortAssessmentRowActions";
+import { CohortAssessmentRowActions } from "@/components/molecules/CohortAssessmentRowActions";
 
 type PanelDict = Dictionary["dashboard"]["academicSectionPage"]["assessmentsPanel"];
 
@@ -11,6 +11,8 @@ export interface AcademicSectionAssessmentsPanelProps {
   sectionId: string;
   data: AdminSectionAssessmentsPanelData;
   dict: PanelDict;
+  /** When true, staff may delete cohort exams (admin RLS). */
+  canDeleteCohortAssessments: boolean;
 }
 
 function labelKind(kind: string, d: PanelDict) {
@@ -39,6 +41,7 @@ export function AcademicSectionAssessmentsPanel({
   sectionId,
   data,
   dict: d,
+  canDeleteCohortAssessments,
 }: AcademicSectionAssessmentsPanelProps) {
   const dateFmt = new Intl.DateTimeFormat(locale === "es" ? "es" : "en", { dateStyle: "medium" });
   const nActive = data.activeEnrollmentCount;
@@ -150,13 +153,19 @@ export function AcademicSectionAssessmentsPanel({
                       <td className="px-3 py-2 tabular-nums text-[var(--color-muted-foreground)]">{row.maxScore}</td>
                       <td className="px-3 py-2 text-[var(--color-muted-foreground)]">{pub}</td>
                       <td className="px-3 py-2 text-right align-top">
-                        <AdminCohortAssessmentRowActions
+                        <CohortAssessmentRowActions
                           locale={locale}
                           cohortId={cohortId}
                           sectionId={sectionId}
-                          assessmentId={row.id}
-                          assessmentName={row.name}
+                          row={{
+                            id: row.id,
+                            name: row.name,
+                            assessmentOn: row.assessmentOn,
+                            maxScore: row.maxScore,
+                            createdAt: row.createdAt,
+                          }}
                           rubricReturnTo={rubricReturnTo}
+                          canDelete={canDeleteCohortAssessments}
                           dict={d}
                         />
                       </td>

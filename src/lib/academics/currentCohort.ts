@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionMaxStudents";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export type CurrentCohort = {
   id: string;
@@ -75,7 +76,7 @@ export async function loadCurrentCohortSections(
     return {
       id: s.id,
       name: s.name,
-      teacherName: p ? `${p.first_name} ${p.last_name}`.trim() : "—",
+      teacherName: p ? formatProfileNameSurnameFirst(p.first_name, p.last_name, "—") : "—",
       activeCount: countMap.get(s.id) ?? 0,
       maxStudents: s.max_students ?? defaultMax,
     };

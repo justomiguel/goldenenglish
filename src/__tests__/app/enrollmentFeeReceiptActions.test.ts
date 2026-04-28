@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import es from "@/dictionaries/es.json";
 import { submitEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/student/payments/actions";
-import { submitTutorEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/parent/payments/actions";
+import { submitTutorEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/parent/payments/submitTutorEnrollmentFeeReceiptAction";
 import { reviewEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/enrollmentFeeActions";
 
 const PE = es.actionErrors.payment;

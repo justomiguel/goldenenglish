@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { TaskProgressStatus } from "@/lib/learning-tasks/types";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import type { ParentLearningTaskRow } from "@/types/learningTasks";
 
 type LinkedProfile = { id: string; first_name: string; last_name: string };
@@ -43,7 +44,7 @@ export async function loadParentLearningTasks(
   const nameByStudent = new Map(
     ((profiles ?? []) as LinkedProfile[]).map((profile) => [
       profile.id,
-      `${profile.first_name} ${profile.last_name}`.trim(),
+      formatProfileSnakeSurnameFirst(profile),
     ]),
   );
   const enrollmentIds = ((enrollments ?? []) as EnrollmentRow[]).map((row) => row.id);

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildIlikePrefixPattern } from "@/lib/users/profileSearchPrefix";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export type AdminStudentSearchHit = {
   id: string;
@@ -30,7 +31,7 @@ export async function searchAdminStudentsByPrefix(
     if (error || !data) return [];
     return data.map((p) => ({
       id: p.id as string,
-      label: `${p.first_name} ${p.last_name}`.trim(),
+      label: formatProfileSnakeSurnameFirst(p as { first_name: string | null; last_name: string | null }),
       role: p.role as string,
     }));
   }
@@ -48,7 +49,7 @@ export async function searchAdminStudentsByPrefix(
   if (error || !data) return [];
   return data.map((p) => ({
     id: p.id as string,
-    label: `${p.first_name} ${p.last_name}`.trim(),
+    label: formatProfileSnakeSurnameFirst(p as { first_name: string | null; last_name: string | null }),
     role: p.role as string,
   }));
 }

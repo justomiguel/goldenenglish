@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Dictionary } from "@/types/i18n";
 import type { Locale } from "@/types/i18n";
 import { EnrollmentFeeReceiptQueueRow } from "./EnrollmentFeeReceiptQueueRow";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export interface FinanceReceiptsPanelProps {
   supabase: SupabaseClient;
@@ -74,7 +75,7 @@ export async function FinanceReceiptsPanel({
   const nameById = Object.fromEntries(
     ((profs ?? []) as ProfileLite[]).map((p) => [
       p.id,
-      `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim(),
+      formatProfileSnakeSurnameFirst(p),
     ]),
   );
 
@@ -101,7 +102,7 @@ export async function FinanceReceiptsPanel({
   const efNameById = Object.fromEntries(
     ((efProfs ?? []) as ProfileLite[]).map((p) => [
       p.id,
-      `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim(),
+      formatProfileSnakeSurnameFirst(p),
     ]),
   );
 

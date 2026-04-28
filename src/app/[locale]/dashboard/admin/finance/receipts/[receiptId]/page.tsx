@@ -5,6 +5,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { receiptSignedUrlForAdmin } from "@/lib/payments/receiptSignedUrl";
 import { AdminFinanceReceiptReviewClient } from "@/components/billing/AdminFinanceReceiptReviewClient";
 import type { BillingInvoiceRow } from "@/types/billing";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -55,7 +56,7 @@ export default async function AdminFinanceReceiptDetailPage({ params }: PageProp
 
   const studentName =
     prof != null
-      ? `${(prof as { first_name: string }).first_name} ${(prof as { last_name: string }).last_name}`.trim()
+      ? formatProfileSnakeSurnameFirst(prof as { first_name: string; last_name: string }, invoice.student_id)
       : invoice.student_id;
 
   const signed = await receiptSignedUrlForAdmin(row.receipt_storage_path);

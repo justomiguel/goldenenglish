@@ -5,6 +5,7 @@ import { loadTeacherSectionIdsForUser } from "@/lib/academics/loadTeacherSection
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
 import { pgDateToInputValue } from "@/lib/academics/pgDateToInputValue";
 import type { ExamOccurrenceInput, SectionOccurrenceInput } from "@/lib/calendar/expandPortalCalendarOccurrences";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export type PortalCalendarPageRole = "teacher" | "student" | "parent" | "admin";
 
@@ -192,7 +193,10 @@ async function loadStudentDisplayNames(supabase: SupabaseClient, ids: string[]):
   if (!ids.length) return out;
   const { data: profs } = await supabase.from("profiles").select("id, first_name, last_name").in("id", ids);
   for (const p of profs ?? []) {
-    out.set(p.id as string, `${(p.first_name as string) ?? ""} ${(p.last_name as string) ?? ""}`.trim());
+    out.set(
+      p.id as string,
+      formatProfileSnakeSurnameFirst(p as { first_name: string | null; last_name: string | null }),
+    );
   }
   return out;
 }
@@ -233,7 +237,7 @@ async function buildTeacherOptions(supabase: SupabaseClient, rows: SectionRow[])
   const { data: profs } = await supabase.from("profiles").select("id, first_name, last_name").in("id", tids);
   const out: PortalCalendarTeacherOption[] = [];
   for (const p of profs ?? []) {
-    const label = `${(p.first_name as string) ?? ""} ${(p.last_name as string) ?? ""}`.trim();
+    const label = formatProfileSnakeSurnameFirst(p as { first_name: string | null; last_name: string | null });
     out.push({ id: p.id as string, label: label || (p.id as string) });
   }
   out.sort((a, b) => a.label.localeCompare(b.label));

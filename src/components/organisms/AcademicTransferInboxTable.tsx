@@ -2,6 +2,10 @@
 
 import { Check, ListChecks, X } from "lucide-react";
 import { useMemo, useOptimistic, useState, useTransition } from "react";
+import {
+  sortAdminTransferInboxRows,
+  type TransferInboxSortKey,
+} from "@/lib/academics/sortAdminTransferInboxRows";
 import { useRouter } from "next/navigation";
 import type { Dictionary } from "@/types/i18n";
 import type { AcademicTransferNotificationDict } from "@/app/[locale]/dashboard/admin/academic/transferActions";
@@ -12,6 +16,8 @@ import {
   rejectSectionTransferRequestAction,
 } from "@/app/[locale]/dashboard/admin/academics/actions";
 import type { AdminTransferInboxRow } from "@/types/adminTransferInbox";
+import { AcademicTransferInboxTableHead } from "@/components/organisms/AcademicTransferInboxTableHead";
+import type { UniversalSortDir } from "@/types/universalListView";
 
 export type { AdminTransferInboxRow as TransferInboxRow };
 
@@ -34,10 +40,27 @@ export function AcademicTransferInboxTable({
   const [pending, start] = useTransition();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkMsg, setBulkMsg] = useState<string | null>(null);
+  const [sortKey, setSortKey] = useState<TransferInboxSortKey>("student");
+  const [sortDir, setSortDir] = useState<UniversalSortDir>("asc");
 
   const [optimistic, peel] = useOptimistic(rows, (state, u: Peel) =>
     u.type === "remove" ? state.filter((r) => !u.ids.includes(r.id)) : state,
   );
+
+  const sortedRows = useMemo(
+    () => sortAdminTransferInboxRows(optimistic, sortKey, sortDir),
+    [optimistic, sortKey, sortDir],
+  );
+
+  const onToggleSort = (columnId: string) => {
+    const id = columnId as TransferInboxSortKey;
+    if (sortKey !== id) {
+      setSortKey(id);
+      setSortDir("asc");
+      return;
+    }
+    setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+  };
 
   const visibleRowIds = useMemo(() => new Set(optimistic.map((r) => r.id)), [optimistic]);
   const hasVisibleSelection = useMemo(
@@ -55,11 +78,11 @@ export function AcademicTransferInboxTable({
   };
 
   const toggleAllVisible = () => {
-    if (selected.size === optimistic.length) {
+    if (selected.size === sortedRows.length) {
       setSelected(new Set());
       return;
     }
-    setSelected(new Set(optimistic.map((r) => r.id)));
+    setSelected(new Set(sortedRows.map((r) => r.id)));
   };
 
   const silentRefresh = () => {
@@ -114,11 +137,11 @@ export function AcademicTransferInboxTable({
     });
   };
 
-  const allSelected = optimistic.length > 0 && selected.size === optimistic.length;
+  const allSelected = sortedRows.length > 0 && selected.size === sortedRows.length;
 
   return (
     <div className="space-y-3">
-      {optimistic.length > 0 ? (
+      {sortedRows.length > 0 ? (
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
@@ -147,36 +170,25 @@ export function AcademicTransferInboxTable({
       <div className="overflow-x-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)]">
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40 text-xs uppercase text-[var(--color-muted-foreground)]">
-              <tr>
-                <th className="px-2 py-2">
-                  <span className="sr-only">{dict.colSelect}</span>
-                  <input
-                    type="checkbox"
-                    checked={allSelected}
-                    onChange={toggleAllVisible}
-                    disabled={pending || optimistic.length === 0}
-                    aria-label={dict.selectAll}
-                    title={dict.tipHeaderCheckbox}
-                  />
-                </th>
-                <th className="px-3 py-2">{dict.colStudent}</th>
-                <th className="px-3 py-2">{dict.colFrom}</th>
-                <th className="px-3 py-2">{dict.colTo}</th>
-                <th className="px-3 py-2">{dict.colBy}</th>
-                <th className="px-3 py-2">{dict.colNote}</th>
-                <th className="px-3 py-2">{dict.colActions}</th>
-              </tr>
-            </thead>
+            <AcademicTransferInboxTableHead
+              dict={dict}
+              sortKey={sortKey}
+              sortDir={sortDir}
+              allSelected={allSelected}
+              pending={pending}
+              sortedRowsLength={sortedRows.length}
+              onToggleSort={onToggleSort}
+              onToggleAllVisible={toggleAllVisible}
+            />
             <tbody>
-              {optimistic.length === 0 ? (
+              {sortedRows.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-3 py-6 text-[var(--color-muted-foreground)]">
                     {dict.empty}
                   </td>
                 </tr>
               ) : (
-                optimistic.map((r) => (
+                sortedRows.map((r) => (
                   <tr key={r.id} className="border-t border-[var(--color-border)]">
                     <td className="px-2 py-2 align-top">
                       <input

@@ -4,9 +4,9 @@ import {
 } from "@/lib/billing/buildStudentMonthlyPaymentsRow";
 import {
   effectiveScholarshipPercentForPeriod,
-  periodIndex,
   type ScholarshipRow,
 } from "@/lib/billing/scholarshipPeriod";
+import { enrollmentFeeIsOverduePrimitives } from "@/lib/billing/enrollmentFeeDue";
 import {
   aggregateCells,
   buildSectionCollectionsKpis,
@@ -14,7 +14,10 @@ import {
 } from "@/lib/billing/sectionCollectionsAggregates";
 import type { SectionFeePlan } from "@/types/sectionFeePlan";
 import type { SectionScheduleSlot } from "@/types/academics";
-import type { StudentMonthlyPaymentSectionRow } from "@/types/studentMonthlyPayments";
+import type {
+  EnrollmentFeeReceiptStatus,
+  StudentMonthlyPaymentSectionRow,
+} from "@/types/studentMonthlyPayments";
 import {
   type CohortCollectionsSectionSummary,
   type SectionCollectionsStudentRow,
@@ -32,6 +35,9 @@ export interface SectionCollectionsStudentInput {
   payments: StudentMonthlyPaymentRecord[];
   /** ISO timestamp/date — fecha de enrolment del alumno a esta sección. */
   enrolledAt: string | null;
+  enrollmentId?: string | null;
+  enrollmentFeeReceiptStatus?: EnrollmentFeeReceiptStatus | null;
+  enrollmentFeeReceiptSignedUrl?: string | null;
 }
 
 export interface BuildSectionCollectionsViewInput {
@@ -57,34 +63,16 @@ function enrollmentFeeAmount(input: BuildSectionCollectionsViewInput): number {
   return Number.isFinite(raw) && raw > 0 ? raw : 0;
 }
 
-function yearMonthIndex(
-  iso: string | null,
-  fallbackYear: number,
-  fallbackMonth: number,
-): number {
-  const raw = iso && iso.length >= 7
-    ? iso.slice(0, 7)
-    : `${fallbackYear}-${String(fallbackMonth).padStart(2, "0")}`;
-  const [yearRaw, monthRaw] = raw.split("-").map((n) => Number(n));
-  const dueYear = Number.isFinite(yearRaw) ? yearRaw : fallbackYear;
-  const dueMonth = Number.isFinite(monthRaw) ? monthRaw : fallbackMonth;
-  return periodIndex(dueYear, dueMonth);
-}
-
 function enrollmentFeeIsOverdue(
   input: BuildSectionCollectionsViewInput,
   enrolledAt: string | null,
 ): boolean {
-  const sectionStartIdx = yearMonthIndex(
+  return enrollmentFeeIsOverduePrimitives(
     input.sectionStartsOn,
+    enrolledAt,
     input.todayYear,
     input.todayMonth,
   );
-  const enrolledIdx = enrolledAt
-    ? yearMonthIndex(enrolledAt, input.todayYear, input.todayMonth)
-    : sectionStartIdx;
-  const todayIdx = periodIndex(input.todayYear, input.todayMonth);
-  return Math.max(sectionStartIdx, enrolledIdx) < todayIdx;
 }
 
 function activeScholarshipDiscountPercent(
@@ -120,6 +108,11 @@ export function buildSectionCollectionsView(
       studentEnrolledAt: s.enrolledAt,
       scheduleSlots: input.scheduleSlots,
       sectionEnrollmentFeeAmount: studentEnrollmentFee,
+      sectionEnrollmentFeeExempt: Boolean(s.enrollmentFeeExempt),
+      sectionEnrollmentFeeExemptReason: s.enrollmentExemptReason ?? null,
+      enrollmentId: s.enrollmentId ?? null,
+      enrollmentFeeReceiptStatus: s.enrollmentFeeReceiptStatus ?? null,
+      enrollmentFeeReceiptSignedUrl: s.enrollmentFeeReceiptSignedUrl ?? null,
       billingScope: "plan-year",
     });
     const agg = aggregateCells(row.cells, input.todayYear, input.todayMonth);
@@ -131,6 +124,7 @@ export function buildSectionCollectionsView(
       studentId: s.studentId,
       studentName: s.studentName,
       documentLabel: s.documentLabel,
+      enrolledAt: s.enrolledAt,
       row,
       paid: agg.paid,
       pendingReview: agg.pendingReview,
@@ -163,6 +157,8 @@ export function buildSectionCollectionsView(
     cohortName: input.cohortName,
     year: input.todayYear,
     todayMonth: input.todayMonth,
+    sectionStartsOn: input.sectionStartsOn,
+    sectionEndsOn: input.sectionEndsOn,
     students: studentRows,
     kpis: buildSectionCollectionsKpis(studentRows),
   };

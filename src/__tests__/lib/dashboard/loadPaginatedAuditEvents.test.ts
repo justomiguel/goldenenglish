@@ -65,7 +65,7 @@ describe("loadPaginatedAuditEvents", () => {
     expect(dataQuery.or).toHaveBeenCalled();
     expect(countQuery.or).toHaveBeenCalled();
     expect(dataQuery.range).toHaveBeenCalledWith(25, 49);
-    expect(result.rows[0]?.actorName).toBe("Ada Admin");
+    expect(result.rows[0]?.actorName).toBe("Admin Ada");
   });
 
   it("applies date range and actor to data and count (REGRESSION CHECK)", async () => {

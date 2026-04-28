@@ -10,6 +10,7 @@ import type { StudentMonthlyPaymentRecord } from "@/lib/billing/buildStudentMont
 import type { SectionScheduleSlot } from "@/types/academics";
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
 import type { StudentPromotionStatusRow } from "@/lib/billing/studentPromotionStatus";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export interface SectionMeta {
   id: string;
@@ -24,10 +25,13 @@ export interface SectionMeta {
 }
 
 export interface EnrollmentRow {
+  id: string;
   student_id: string;
   created_at: string | null;
   enrollment_fee_exempt: boolean | null;
   enrollment_exempt_reason: string | null;
+  enrollment_fee_receipt_url: string | null;
+  enrollment_fee_receipt_status: string | null;
   scholarship_discount_percent: number | string | null;
   scholarship_valid_from_year: number | null;
   scholarship_valid_from_month: number | null;
@@ -141,15 +145,18 @@ export async function loadActiveEnrollments(
   const { data } = await supabase
     .from("section_enrollments")
     .select(
-      "student_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, scholarship_discount_percent, scholarship_valid_from_year, scholarship_valid_from_month, scholarship_valid_until_year, scholarship_valid_until_month, scholarship_is_active",
+      "id, student_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, enrollment_fee_receipt_url, enrollment_fee_receipt_status, scholarship_discount_percent, scholarship_valid_from_year, scholarship_valid_from_month, scholarship_valid_until_year, scholarship_valid_until_month, scholarship_is_active",
     )
     .eq("section_id", sectionId)
     .eq("status", "active");
   return ((data ?? []) as EnrollmentRow[]).map((row) => ({
+    id: row.id,
     student_id: row.student_id,
     created_at: row.created_at ?? null,
     enrollment_fee_exempt: row.enrollment_fee_exempt ?? null,
     enrollment_exempt_reason: row.enrollment_exempt_reason ?? null,
+    enrollment_fee_receipt_url: row.enrollment_fee_receipt_url ?? null,
+    enrollment_fee_receipt_status: row.enrollment_fee_receipt_status ?? null,
     scholarship_discount_percent: row.scholarship_discount_percent ?? null,
     scholarship_valid_from_year: row.scholarship_valid_from_year ?? null,
     scholarship_valid_from_month: row.scholarship_valid_from_month ?? null,
@@ -160,7 +167,7 @@ export async function loadActiveEnrollments(
 }
 
 export function studentDisplayName(p: ProfileRow): string {
-  return `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim() || p.id;
+  return formatProfileSnakeSurnameFirst(p, p.id);
 }
 
 export function mapScholarship(

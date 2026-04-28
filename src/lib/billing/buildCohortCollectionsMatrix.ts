@@ -17,6 +17,15 @@ import type {
   CohortCollectionsMatrixSection,
 } from "@/types/cohortCollectionsMatrix";
 import { activePromotionLabel } from "@/lib/billing/studentPromotionStatus";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import type { EnrollmentFeeReceiptStatus } from "@/types/studentMonthlyPayments";
+
+function normalizeEnrollmentReceiptStatus(
+  raw: string | null | undefined,
+): EnrollmentFeeReceiptStatus | null {
+  if (raw === "pending" || raw === "approved" || raw === "rejected") return raw;
+  return null;
+}
 
 export interface BuildCohortCollectionsMatrixOptions {
   todayYear: number;
@@ -24,7 +33,7 @@ export interface BuildCohortCollectionsMatrixOptions {
 }
 
 function studentDisplayName(p: CohortCollectionsBulkProfileRaw): string {
-  return `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim() || p.id;
+  return formatProfileSnakeSurnameFirst(p, p.id);
 }
 
 function mapScholarship(
@@ -139,6 +148,11 @@ export function buildCohortCollectionsMatrix(
             Boolean(e.enrollment_fee_exempt),
           enrollmentExemptReason:
             e.enrollment_exempt_reason ?? null,
+          enrollmentId: e.id,
+          enrollmentFeeReceiptStatus: normalizeEnrollmentReceiptStatus(
+            e.enrollment_fee_receipt_status,
+          ),
+          enrollmentFeeReceiptSignedUrl: null,
           activePromotionLabel: activePromotionLabel(
             promotionsByStudent.get(e.student_id),
           ),

@@ -33,7 +33,10 @@ export function personNameFieldsMatchPrefix(
   const fn = normalizePersonSearchText(r.first_name);
   const ln = normalizePersonSearchText(r.last_name);
   const full = `${fn} ${ln}`.trim();
-  return fn.startsWith(q) || ln.startsWith(q) || full.startsWith(q);
+  const lastFirst = `${ln} ${fn}`.trim();
+  return (
+    fn.startsWith(q) || ln.startsWith(q) || full.startsWith(q) || lastFirst.startsWith(q)
+  );
 }
 
 /** Prefix on names or identity document (when present). */

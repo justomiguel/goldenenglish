@@ -102,8 +102,8 @@ describe("buildCohortCollectionsMatrix", () => {
     });
     expect(out!.sections).toHaveLength(1);
     expect(out!.sections[0]!.view.students.map((s) => s.studentName)).toEqual([
-      "Ana A",
-      "Zara Z",
+      "A Ana",
+      "Z Zara",
     ]);
   });
 

@@ -14,6 +14,7 @@ import {
   logSupabaseClientError,
 } from "@/lib/logging/serverActionLog";
 import type { Locale } from "@/types/i18n";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 const schema = z.object({
   locale: z.string().min(2).max(8),
@@ -137,8 +138,8 @@ export async function updateWardProfile(
       studentId: parsed.data.studentId,
       parentId: user.id,
       parentEmail: (user.email ?? "").trim().toLowerCase(),
-      parentName: [me?.first_name, me?.last_name].filter(Boolean).join(" ").trim() || "—",
-      wardName: [parsed.data.first_name, parsed.data.last_name].filter(Boolean).join(" ").trim() || "—",
+      parentName: formatProfileNameSurnameFirst(me?.first_name, me?.last_name, "—"),
+      wardName: formatProfileNameSurnameFirst(parsed.data.first_name, parsed.data.last_name, "—"),
       oldEmail: currentEmail,
       newEmail: nextEmail,
       locale: asLocale(parsed.data.locale),

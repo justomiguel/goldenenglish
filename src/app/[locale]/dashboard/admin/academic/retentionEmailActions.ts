@@ -20,6 +20,7 @@ import {
 import type { Locale } from "@/types/i18n";
 import type { SendRetentionContactEmailCode } from "@/types/retentionContactEmail";
 import { resolveRetentionContactEmailRecipient } from "@/lib/academics/resolveRetentionContactEmailRecipient";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 const uuid = z.string().uuid();
 
@@ -134,10 +135,7 @@ export async function sendRetentionContactEmailAction(input: unknown): Promise<
     .eq("id", adminUserId)
     .maybeSingle();
   const ap = adminProf as { first_name?: string | null; last_name?: string | null } | null;
-  const adminDisplayName =
-    ap && `${ap.first_name ?? ""} ${ap.last_name ?? ""}`.trim().length > 0
-      ? `${ap.first_name ?? ""} ${ap.last_name ?? ""}`.trim()
-      : "Admin";
+  const adminDisplayName = formatProfileNameSurnameFirst(ap?.first_name, ap?.last_name, "Admin");
 
   try {
     await notifyRetentionOutreachInApp({

@@ -123,13 +123,13 @@ describe("loadAdminStudentCurrentCohortAssignment", () => {
     expect(result.sections[0]).toMatchObject({
       id: "section-a",
       name: "A1",
-      teacherName: "Ada Lovelace",
+      teacherName: "Lovelace Ada",
       activeCount: 2,
       maxStudents: 12,
     });
     expect(result.sections[1]).toMatchObject({
       id: "section-b",
-      teacherName: "Grace Hopper",
+      teacherName: "Hopper Grace",
       activeCount: 0,
     });
   });

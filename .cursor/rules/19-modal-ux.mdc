@@ -1,0 +1,39 @@
+---
+description: Modal backdrop, header close, scroll budget — prefer full routes for long flows
+globs: ["src/components/atoms/Modal.tsx", "src/components/molecules/*Modal*.tsx", "src/components/**/*Modal*.tsx"]
+alwaysApply: false
+---
+
+# Modal UX (Golden English)
+
+## Objetivo
+
+Los `<dialog>` (`Modal` en `@/components/atoms/Modal`) deben mantener **foco claro**, **cierre visible** y **evitar scroll del cuerpo del modal** para flujos largos de negocio.
+
+## Backdrop
+
+- El modal usa **`::backdrop`** con **blur + tint** (`backdrop-blur-md`, `backdrop-saturate`, `color-mix` sobre el fondo de la app) para separar visualmente el contenido de fondo.
+- No sustituir por overlay plano sin blur salvo ADR / design review.
+
+## Cierre visible
+
+- Todo modal **cerrable** debe pasar **`closeLabel`** (texto del diccionario, p. ej. `common.modalClose` y/o el mismo `cancel` del flujo) para el **control explícito en cabecera** (icono + texto).
+- No usar solo el botón inferior como única salida cuando el header puede mostrar cerrar.
+
+## Scroll
+
+- Por defecto **`scrollableBody={false}`**: el **cuerpo del modal no debe hacer scroll**.
+- Si el contenido **no cabe** sin scroll del propio modal:
+  - **Preferir** una **ruta / pantalla aparte** (App Router) o un **panel inline** en la página con scroll del documento (como facturación admin con `?detail=`).
+  - Reservar **`scrollableBody={true}`** solo para casos acotados (p. ej. bitácora de jobs largos con lista interna ya acotada, confirmaciones con texto imprevisto corto).
+- Las listas **dentro** del modal pueden tener **`max-height` + scroll local** (p. ej. log de importación) sin activar `scrollableBody` en el `Modal`, siempre que el volumen esté acotado por diseño.
+
+## Copy / i18n
+
+- `closeLabel` y títulos salen de **`src/dictionaries/en.json` + `es.json`** (o `common.modalClose` cuando aplique).
+
+## Checklist al tocar `Modal`
+
+- [ ] ¿Hay **`closeLabel`** cuando `disableClose` es false?
+- [ ] ¿El flujo es corto (confirmación / aviso) o justifica `scrollableBody` / panel / nueva ruta?
+- [ ] ¿Los textos visibles van al diccionario (**`09-i18n-copy.mdc`**)?

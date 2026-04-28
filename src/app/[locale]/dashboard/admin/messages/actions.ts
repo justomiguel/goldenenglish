@@ -11,6 +11,7 @@ import { sanitizeMessageHtml } from "@/lib/messaging/sanitizeMessageHtml";
 import { stripHtmlToText } from "@/lib/messaging/stripHtml";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { mapMessagingUseCaseCode } from "@/lib/messaging/mapMessagingUseCaseCode";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 const bodySchema = z.string().min(1).max(80000);
 
@@ -58,7 +59,7 @@ export async function sendAdminMessage(
     .maybeSingle();
 
   const name = profile
-    ? `${profile.first_name} ${profile.last_name}`.trim()
+    ? formatProfileNameSurnameFirst(profile.first_name, profile.last_name)
     : senderFallback;
   const result = await sendStaffMessageUseCase({
     supabase,

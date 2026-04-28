@@ -1,6 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { SECTION_LEAD_TEACHER_ELIGIBLE_ROLES } from "@/lib/academics/sectionStaffEligibleRoles";
+import {
+  compareProfileSnakeByLastThenFirst,
+  formatProfileSnakeSurnameFirst,
+} from "@/lib/profile/formatProfileDisplayName";
 
 export type SectionStaffTeacherOption = { id: string; label: string };
 
@@ -40,7 +44,7 @@ export async function loadAdminSectionTeachersAndAssistants(
   const teachers: SectionStaffTeacherOption[] =
     (teacherRows ?? []).map((p) => {
       const r = p as { id: string; first_name: string; last_name: string };
-      return { id: r.id, label: `${r.first_name} ${r.last_name}`.trim() };
+      return { id: r.id, label: formatProfileSnakeSurnameFirst(r) };
     }) ?? [];
 
   const assistantPortalStaffOptions: SectionStaffPortalPickOption[] = (() => {
@@ -48,7 +52,7 @@ export async function loadAdminSectionTeachersAndAssistants(
     for (const t of teachers) m.set(t.id, { label: t.label, role: "teacher" });
     for (const p of portalAssistantRows ?? []) {
       const r = p as { id: string; first_name: string; last_name: string };
-      const label = `${r.first_name} ${r.last_name}`.trim();
+      const label = formatProfileSnakeSurnameFirst(r);
       if (!m.has(r.id)) m.set(r.id, { label, role: "assistant" });
     }
     return [...m.entries()]
@@ -64,7 +68,7 @@ export async function loadAdminSectionTeachersAndAssistants(
       .maybeSingle();
     const lr = leadRow as { id: string; first_name: string; last_name: string } | null;
     if (lr?.id) {
-      teachers.unshift({ id: lr.id, label: `${lr.first_name} ${lr.last_name}`.trim() });
+      teachers.unshift({ id: lr.id, label: formatProfileSnakeSurnameFirst(lr) });
     }
   }
 
@@ -88,14 +92,21 @@ export async function loadAdminSectionTeachersAndAssistants(
       .select("id, first_name, last_name, role")
       .in("id", assistantIds);
     initialAssistants =
-      (ap ?? []).map((p) => {
-        const r = p as { id: string; first_name: string; last_name: string; role: string };
-        return {
-          id: r.id,
-          label: `${r.first_name} ${r.last_name}`.trim(),
-          role: r.role,
-        };
-      }) ?? [];
+      [...(ap ?? [])]
+        .sort((a, b) =>
+          compareProfileSnakeByLastThenFirst(
+            a as { first_name: string; last_name: string },
+            b as { first_name: string; last_name: string },
+          ),
+        )
+        .map((p) => {
+          const r = p as { id: string; first_name: string; last_name: string; role: string };
+          return {
+            id: r.id,
+            label: formatProfileSnakeSurnameFirst(r),
+            role: r.role,
+          };
+        }) ?? [];
   }
 
   const extRes = await supabase

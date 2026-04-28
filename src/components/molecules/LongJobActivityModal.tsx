@@ -1,6 +1,6 @@
 "use client";
 
-import { Ban, X } from "lucide-react";
+import { Ban } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Modal } from "@/components/atoms/Modal";
@@ -69,6 +69,8 @@ export function LongJobActivityModal({
       titleId={titleId}
       title={title}
       disableClose={isRunning}
+      closeLabel={closeLabel}
+      scrollableBody
     >
       <div className="space-y-5">
         <p className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/40 px-3 py-2 text-sm text-[var(--color-muted-foreground)]">
@@ -134,12 +136,6 @@ export function LongJobActivityModal({
           </Button>
         ) : null}
 
-        {!isRunning ? (
-          <Button type="button" className="min-h-[44px] w-full" onClick={() => onOpenChange(false)}>
-            <X className="h-4 w-4 shrink-0" aria-hidden />
-            {closeLabel}
-          </Button>
-        ) : null}
       </div>
     </Modal>
   );

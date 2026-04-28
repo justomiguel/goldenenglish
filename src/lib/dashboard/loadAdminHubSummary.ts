@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export interface AdminHubSummary {
   traffic: {
@@ -170,9 +171,7 @@ async function loadMessagesSummary(
     .eq("id", senderId)
     .single();
 
-  const fromName = sender
-    ? `${sender.first_name} ${sender.last_name}`.trim()
-    : "—";
+  const fromName = sender ? formatProfileSnakeSurnameFirst(sender, "—") : "—";
 
   return {
     recentCount: list.length,

@@ -11,6 +11,7 @@ import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { mapMessagingUseCaseCode } from "@/lib/messaging/mapMessagingUseCaseCode";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 const bodySchema = z.string().min(1).max(80000);
 
@@ -46,7 +47,7 @@ export async function sendParentMessage(
     .single();
   if (profile?.role !== "parent") return { ok: false, message: msg.forbidden };
 
-  const name = `${profile.first_name} ${profile.last_name}`.trim();
+  const name = formatProfileNameSurnameFirst(profile.first_name, profile.last_name);
   const result = await sendParentMessageUseCase({
     supabase,
     parentId: user.id,

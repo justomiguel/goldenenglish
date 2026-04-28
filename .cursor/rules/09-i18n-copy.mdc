@@ -28,6 +28,12 @@ Follow **`.agents/skills/i18n-localization/SKILL.md`** for mindset (keys not lit
 - **Pluralization & gender** — avoid naive string concatenation of translated fragments; use ICU-style patterns or per-locale full sentences as agreed in the project (if the codebase adds ICU later, follow it; until then, separate keys per plural branch are acceptable).
 - **RTL** — layout uses logical properties / `dir`-aware patterns where relevant; do not assume left-to-right only for mirrored concepts.
 
+## Person full names (display order)
+
+When building a **visible full name** from profile fields (`first_name` / `last_name` or camelCase equivalents)—lists, tables, chips, page titles, emails, audit payloads, maps keyed by display label—use **`formatProfileNameSurnameFirst`** / **`formatProfileSnakeSurnameFirst`** from `@/lib/profile/formatProfileDisplayName` (surname(s) first, then given name(s)). **Do not** hand-concatenate `` `${first_name} ${last_name}` `` for display.
+
+**Exceptions:** labeled form fields / data entry order, import schemas, ILIKE search patterns, analytics field names, and copy that intentionally uses **only** the given name (e.g. informal greetings: “Hello, {firstName}”).
+
 ## Explicit exceptions (not “i18n copy”)
 
 - **Identifiers**: route segments, enum values, `event_type` names, analytics keys, DB columns, Zod field keys, feature flags — ASCII identifiers stay in code per **`08-analytics-observability.mdc`** and typing constraints.

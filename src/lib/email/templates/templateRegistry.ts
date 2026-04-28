@@ -12,6 +12,7 @@ import {
   enrollmentExemptionTemplate,
   promotionAppliedTemplate,
 } from "@/lib/email/templates/registryBilling";
+import { BILLING_PAYMENT_NOTICE_TEMPLATES } from "@/lib/email/templates/registryBillingPaymentNotices";
 import {
   gradePublishedParentTemplate,
   retentionContactTemplate,
@@ -38,6 +39,7 @@ const REGISTRY: ReadonlyArray<EmailTemplateDefinition> = [
   replyTemplate,
   enrollmentExemptionTemplate,
   promotionAppliedTemplate,
+  ...BILLING_PAYMENT_NOTICE_TEMPLATES,
   transferApprovedTemplate,
   gradePublishedParentTemplate,
   retentionContactTemplate,

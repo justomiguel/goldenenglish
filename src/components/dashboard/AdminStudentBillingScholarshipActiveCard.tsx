@@ -16,6 +16,7 @@ export interface AdminStudentBillingScholarshipActiveCardProps {
   row: AdminBillingScholarship;
   labels: BillingLabels;
   busy: boolean;
+  readOnly?: boolean;
   onEdit: (row: AdminBillingScholarship) => void;
   onRemove: (row: AdminBillingScholarship) => void;
 }
@@ -24,6 +25,7 @@ export function AdminStudentBillingScholarshipActiveCard({
   row,
   labels,
   busy,
+  readOnly = false,
   onEdit,
   onRemove,
 }: AdminStudentBillingScholarshipActiveCardProps) {
@@ -49,30 +51,32 @@ export function AdminStudentBillingScholarshipActiveCard({
             </p>
           ) : null}
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            disabled={busy}
-            onClick={() => onEdit(row)}
-            className="min-h-[36px] text-xs"
-          >
-            <Pencil className="h-3.5 w-3.5 shrink-0" aria-hidden />
-            {labels.editScholarship}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={busy}
-            onClick={() => void onRemove(row)}
-            className="min-h-[36px] border border-[var(--color-error)] text-xs text-[var(--color-error)]"
-          >
-            <Ban className="h-3.5 w-3.5 shrink-0 text-[var(--color-foreground)]" aria-hidden />
-            {labels.deactivateScholarship}
-          </Button>
-        </div>
+        {!readOnly ? (
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={busy}
+              onClick={() => onEdit(row)}
+              className="min-h-[36px] text-xs"
+            >
+              <Pencil className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              {labels.editScholarship}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={busy}
+              onClick={() => void onRemove(row)}
+              className="min-h-[36px] border border-[var(--color-error)] text-xs text-[var(--color-error)]"
+            >
+              <Ban className="h-3.5 w-3.5 shrink-0 text-[var(--color-foreground)]" aria-hidden />
+              {labels.deactivateScholarship}
+            </Button>
+          </div>
+        ) : null}
       </div>
       <AdminStudentBillingScholarshipDiscountMonths scholarship={row} labels={labels} />
     </article>

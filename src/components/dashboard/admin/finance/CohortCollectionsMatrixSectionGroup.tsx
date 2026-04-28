@@ -1,56 +1,20 @@
 import Link from "next/link";
-import { ArrowRight, Users } from "lucide-react";
+import { ArrowRight, ChevronRight, Users } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { SectionCollectionsView } from "@/types/sectionCollections";
-import { effectiveScholarshipPercentForPeriod } from "@/lib/billing/scholarshipPeriod";
+import {
+  formatCohortCollectionsMoney,
+  formatCohortCollectionsPercent,
+  scholarshipDiscountForCohortMatrixPeriod,
+  sectionBillingSummary,
+  studentCellCurrency,
+} from "@/lib/dashboard/cohortCollectionsMatrixSectionHelpers";
+import { SectionCollectionsEnrollmentFeeCell } from "./SectionCollectionsEnrollmentFeeCell";
 import { SectionCollectionsHealthBadge } from "./SectionCollectionsHealthBadge";
 import { SectionCollectionsMonthCell } from "./SectionCollectionsMonthCell";
 import { SectionCollectionsStudentBenefits } from "./SectionCollectionsStudentBenefits";
 
 type FinanceDict = Dictionary["admin"]["finance"];
-
-function formatMoney(amount: number, locale: string, currency: string): string {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
-function formatPercent(ratio: number, locale: string): string {
-  return new Intl.NumberFormat(locale, {
-    style: "percent",
-    maximumFractionDigits: 0,
-  }).format(ratio);
-}
-
-function sectionBillingSummary(view: SectionCollectionsView) {
-  const firstRow = view.students[0]?.row ?? null;
-  const currentPlan = firstRow?.currentPlan ?? null;
-  const currency =
-    currentPlan?.currency ?? firstRow?.enrollmentFeeCurrency ?? "USD";
-  return {
-    monthlyFee: currentPlan?.monthlyFee ?? null,
-    enrollmentFee: firstRow?.enrollmentFeeAmount ?? 0,
-    currency,
-  };
-}
-
-function studentCellCurrency(cells: SectionCollectionsView["students"][number]["row"]["cells"]): string {
-  for (const c of cells) {
-    if (c.currency) return c.currency;
-  }
-  return "USD";
-}
-
-function scholarshipDiscountForPeriod(
-  student: SectionCollectionsView["students"][number],
-  year: number,
-  month: number,
-): number | null {
-  const percent = effectiveScholarshipPercentForPeriod(student.scholarships, year, month);
-  return percent > 0 ? percent : null;
-}
 
 export interface CohortCollectionsMatrixSectionGroupProps {
   view: SectionCollectionsView;
@@ -80,6 +44,9 @@ export function CohortCollectionsMatrixSectionGroup({
   const currency =
     visibleRows.length > 0 ? studentCellCurrency(visibleRows[0]!.row.cells) : "USD";
   const billing = sectionBillingSummary(view);
+  const showEnrollmentFeeColumn = visibleRows.some(
+    (s) => (s.enrollmentFee?.amount ?? 0) > 0,
+  );
 
   return (
     <section
@@ -115,18 +82,18 @@ export function CohortCollectionsMatrixSectionGroup({
             </span>
           ) : null}
           <span className="text-xs text-[var(--color-muted-foreground)]">
-            {formatPercent(view.kpis.collectionRatio, locale)}{" "}
+            {formatCohortCollectionsPercent(view.kpis.collectionRatio, locale)}{" "}
             {collectionsDict.kpis.collectionRatio.toLowerCase()}
           </span>
           <span className="text-xs font-medium text-[var(--color-foreground)]">
             {overviewDict.sectionHeader.monthlyFee}:{" "}
             {billing.monthlyFee == null
               ? overviewDict.sectionHeader.noFeePlan
-              : formatMoney(billing.monthlyFee, locale, billing.currency)}
+              : formatCohortCollectionsMoney(billing.monthlyFee, locale, billing.currency)}
           </span>
           <span className="text-xs font-medium text-[var(--color-foreground)]">
             {overviewDict.sectionHeader.enrollmentFee}:{" "}
-            {formatMoney(billing.enrollmentFee, locale, billing.currency)}
+            {formatCohortCollectionsMoney(billing.enrollmentFee, locale, billing.currency)}
           </span>
         </div>
         <Link
@@ -145,6 +112,16 @@ export function CohortCollectionsMatrixSectionGroup({
               <th className="sticky left-0 z-10 min-w-[180px] bg-[var(--color-surface)] px-2 py-2">
                 {overviewDict.table.studentColumn}
               </th>
+              {showEnrollmentFeeColumn ? (
+                <th scope="col" className="w-12 px-1 py-2 text-center">
+                  <abbr
+                    title={collectionsDict.matrix.monthZeroTooltip}
+                    className="no-underline"
+                  >
+                    {collectionsDict.matrix.monthZeroColumnShort}
+                  </abbr>
+                </th>
+              ) : null}
               {monthShort.map((m, idx) => (
                 <th
                   key={`m-${idx}`}
@@ -175,9 +152,21 @@ export function CohortCollectionsMatrixSectionGroup({
                   scope="row"
                   className="sticky left-0 z-10 bg-[var(--color-surface)] px-2 py-1.5 text-left font-medium text-[var(--color-foreground)]"
                 >
-                  <span className="block truncate" title={s.studentName}>
-                    {s.studentName}
-                  </span>
+                  <Link
+                    href={`/${locale}/dashboard/admin/users/${s.studentId}/billing`}
+                    className="group inline-flex max-w-full items-center gap-1 font-medium text-[var(--color-primary)] hover:underline"
+                    title={s.studentName}
+                    aria-label={collectionsDict.matrix.openStudentBillingAria.replace(
+                      "{name}",
+                      s.studentName,
+                    )}
+                  >
+                    <span className="block truncate">{s.studentName}</span>
+                    <ChevronRight
+                      className="h-3.5 w-3.5 shrink-0 opacity-70 transition group-hover:opacity-100"
+                      aria-hidden
+                    />
+                  </Link>
                   {s.documentLabel ? (
                     <span className="block text-[10px] text-[var(--color-muted-foreground)]">
                       {s.documentLabel}
@@ -189,6 +178,18 @@ export function CohortCollectionsMatrixSectionGroup({
                     locale={locale}
                   />
                 </th>
+                {showEnrollmentFeeColumn ? (
+                  <td className="px-0.5 py-1 text-center align-middle">
+                    <SectionCollectionsEnrollmentFeeCell
+                      student={s}
+                      view={view}
+                      ariaLabel={collectionsDict.matrix.enrollmentFeeChipAria.replace(
+                        "{name}",
+                        s.studentName,
+                      )}
+                    />
+                  </td>
+                ) : null}
                 {s.row.cells.map((cell) => (
                   <td
                     key={`${s.studentId}-${cell.year}-${cell.month}`}
@@ -199,7 +200,7 @@ export function CohortCollectionsMatrixSectionGroup({
                       monthLabel={monthShort[cell.month - 1] ?? String(cell.month)}
                       todayMonth={view.todayMonth}
                       year={view.year}
-                      scholarshipDiscountPercent={scholarshipDiscountForPeriod(
+                      scholarshipDiscountPercent={scholarshipDiscountForCohortMatrixPeriod(
                         s,
                         cell.year,
                         cell.month,
@@ -211,13 +212,13 @@ export function CohortCollectionsMatrixSectionGroup({
                   </td>
                 ))}
                 <td className="px-2 py-1 text-right text-[11px] font-semibold tabular-nums text-[var(--color-success)]">
-                  {formatMoney(s.paid, locale, currency)}
+                  {formatCohortCollectionsMoney(s.paid, locale, currency)}
                 </td>
                 <td className="px-2 py-1 text-right text-[11px] font-semibold tabular-nums text-[var(--color-muted-foreground)]">
-                  {formatMoney(s.expectedYear, locale, currency)}
+                  {formatCohortCollectionsMoney(s.expectedYear, locale, currency)}
                 </td>
                 <td className="px-2 py-1 text-right text-[11px] font-semibold tabular-nums text-[var(--color-error)]">
-                  {formatMoney(s.overdue, locale, currency)}
+                  {formatCohortCollectionsMoney(s.overdue, locale, currency)}
                 </td>
               </tr>
             ))}

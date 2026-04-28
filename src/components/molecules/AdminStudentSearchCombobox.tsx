@@ -30,6 +30,10 @@ export interface AdminStudentSearchComboboxProps {
   onPick: (hit: AdminStudentSearchHitLike) => void;
   /** Change after a successful action to clear the field (e.g. enrollment completed). */
   resetKey?: number | string;
+  /** Row ids already chosen elsewhere (e.g. enrollment queue) — hidden from this dropdown. */
+  excludeIds?: readonly string[];
+  /** Shown above the result rows inside the suggestions panel (e.g. “Available to add”). */
+  resultsListHeading?: string;
 }
 
 export function AdminStudentSearchCombobox({
@@ -45,6 +49,8 @@ export function AdminStudentSearchCombobox({
   search,
   onPick,
   resetKey,
+  excludeIds,
+  resultsListHeading,
 }: AdminStudentSearchComboboxProps) {
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<AdminStudentSearchHitLike[]>([]);
@@ -73,16 +79,18 @@ export function AdminStudentSearchCombobox({
       return;
     }
 
+    const ex = new Set(excludeIds ?? []);
     const gen = ++fetchGen.current;
     const t = window.setTimeout(() => {
       void search(q).then((rows) => {
-        if (fetchGen.current === gen) setHits(rows);
+        const filtered = rows.filter((h) => !ex.has(h.id));
+        if (fetchGen.current === gen) setHits(filtered);
       });
     }, debounceMs);
     return () => {
       clearTimeout(t);
     };
-  }, [query, minQueryLength, prefetchWhenEmptyOnFocus, debounceMs, search, disabled]);
+  }, [query, minQueryLength, prefetchWhenEmptyOnFocus, debounceMs, search, disabled, excludeIds]);
 
   const qTrim = query.trim();
   const showMinHint = minQueryLength > 1 && qTrim.length > 0 && qTrim.length < minQueryLength;
@@ -106,23 +114,30 @@ export function AdminStudentSearchCombobox({
         <p className="text-xs text-[var(--color-muted-foreground)]">{minCharsHint}</p>
       ) : null}
       {showList ? (
-        <ul className="mt-2 max-h-40 overflow-y-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-sm">
-          {hits.map((h) => (
-            <li key={h.id}>
-              <button
-                type="button"
-                className="w-full px-3 py-2 text-left hover:bg-[var(--color-muted)]"
-                onClick={() => {
-                  onPick(h);
-                  setQuery(h.label);
-                  setHits([]);
-                }}
-              >
-                {h.label}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <div className="mt-2 overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-sm">
+          {resultsListHeading ? (
+            <p className="border-b border-[var(--color-border)] px-3 py-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-muted-foreground)]">
+              {resultsListHeading}
+            </p>
+          ) : null}
+          <ul className="m-0 max-h-40 list-none overflow-y-auto p-0">
+            {hits.map((h) => (
+              <li key={h.id}>
+                <button
+                  type="button"
+                  className="w-full px-3 py-2 text-left hover:bg-[var(--color-muted)]"
+                  onClick={() => {
+                    onPick(h);
+                    setQuery(h.label);
+                    setHits([]);
+                  }}
+                >
+                  {h.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : null}
     </div>
   );

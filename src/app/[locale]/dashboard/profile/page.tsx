@@ -9,6 +9,7 @@ import { listStudentTutorsWithFinance } from "@/lib/auth/listStudentTutorsWithFi
 import { MyProfileSurfaceEntry } from "@/components/organisms/MyProfileSurfaceEntry";
 import { ProfileMissingScreen } from "@/components/organisms/ProfileMissingScreen";
 import type { TutorFinancialAccessRow } from "@/components/molecules/TutorFinancialAccessSection";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export async function generateMetadata({
   params,
@@ -66,7 +67,7 @@ export default async function DashboardProfilePage({ params }: PageProps) {
 
   const avatarDisplayUrl = await resolveAvatarDisplayUrl(supabase, profileSafe.avatar_url);
   const displayName =
-    `${profileSafe.first_name ?? ""} ${profileSafe.last_name ?? ""}`.trim() ||
+    formatProfileNameSurnameFirst(profileSafe.first_name, profileSafe.last_name) ||
     user.email?.split("@")[0] ||
     "?";
 

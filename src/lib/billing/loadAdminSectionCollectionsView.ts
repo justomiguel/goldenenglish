@@ -20,6 +20,14 @@ import {
   type StudentPromotionDbRow,
 } from "@/lib/billing/loadAdminSectionCollectionsViewQueries";
 import { activePromotionLabel } from "@/lib/billing/studentPromotionStatus";
+import type { EnrollmentFeeReceiptStatus } from "@/types/studentMonthlyPayments";
+
+function normalizeEnrollmentReceiptStatus(
+  raw: string | null | undefined,
+): EnrollmentFeeReceiptStatus | null {
+  if (raw === "pending" || raw === "approved" || raw === "rejected") return raw;
+  return null;
+}
 
 export interface LoadAdminSectionCollectionsOptions {
   todayYear: number;
@@ -152,6 +160,11 @@ export async function loadAdminSectionCollectionsView(
         enrollment
           ? enrollment.enrollment_exempt_reason
           : profile.enrollment_exempt_reason,
+      enrollmentId: enrollment?.id ?? null,
+      enrollmentFeeReceiptStatus: normalizeEnrollmentReceiptStatus(
+        enrollment?.enrollment_fee_receipt_status,
+      ),
+      enrollmentFeeReceiptSignedUrl: null,
       activePromotionLabel: activePromotionLabel(promotionsByStudent.get(id)),
       payments: paymentsByStudent.get(id) ?? [],
       enrolledAt: enrolledAtByStudent.get(id) ?? null,

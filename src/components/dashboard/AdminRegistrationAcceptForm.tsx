@@ -15,6 +15,7 @@ import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { Dictionary } from "@/types/i18n";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export type RegistrationAcceptUserLabels = Pick<
   Dictionary["admin"]["users"],
@@ -138,7 +139,7 @@ export function AdminRegistrationAcceptForm({
         <div>
           <dt className="text-[var(--color-muted-foreground)]">{labels.name}</dt>
           <dd className="font-medium">
-            {row.first_name} {row.last_name}
+            {formatProfileNameSurnameFirst(row.first_name, row.last_name)}
           </dd>
         </div>
         <div>

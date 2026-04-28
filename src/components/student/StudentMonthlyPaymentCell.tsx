@@ -1,24 +1,13 @@
 "use client";
 
-import { Check, CircleDot, Clock, FileText, Lock, X } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import { SECTION_COLLECTIONS_MONTH_STATUS_ICONS } from "@/lib/billing/sectionCollectionsMonthStatusIcons";
 import type {
   StudentMonthlyPaymentCell as Cell,
   StudentMonthlyPaymentCellStatus,
 } from "@/types/studentMonthlyPayments";
 
 type Labels = Dictionary["dashboard"]["student"]["monthly"];
-
-const STATUS_ICON: Record<StudentMonthlyPaymentCellStatus, LucideIcon> = {
-  approved: Check,
-  pending: Clock,
-  rejected: X,
-  exempt: FileText,
-  due: CircleDot,
-  "out-of-period": Lock,
-  "no-plan": Lock,
-};
 
 function statusToken(status: StudentMonthlyPaymentCellStatus): string {
   switch (status) {
@@ -71,7 +60,7 @@ export function StudentMonthlyPaymentCell({
   isFocused,
   onFocus,
 }: StudentMonthlyPaymentCellProps) {
-  const Icon = STATUS_ICON[cell.status];
+  const Icon = SECTION_COLLECTIONS_MONTH_STATUS_ICONS[cell.status];
   const tokenClasses = statusToken(cell.status);
   const isDisabled =
     cell.status === "no-plan" ||

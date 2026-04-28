@@ -33,11 +33,14 @@ export interface CohortCollectionsBulkSectionRaw {
 }
 
 export interface CohortCollectionsBulkEnrollmentRaw {
+  id: string;
   section_id: string;
   student_id: string;
   created_at: string | null;
   enrollment_fee_exempt?: boolean | null;
   enrollment_exempt_reason?: string | null;
+  enrollment_fee_receipt_url?: string | null;
+  enrollment_fee_receipt_status?: string | null;
   scholarship_discount_percent?: number | string | null;
   scholarship_valid_from_year?: number | null;
   scholarship_valid_from_month?: number | null;

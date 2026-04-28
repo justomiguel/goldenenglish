@@ -1,4 +1,5 @@
 import { countTrailingAbsences } from "@/lib/academics/sectionAttendanceRetention";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import type { AdminRetentionCandidate } from "@/types/adminRetention";
 import type { SectionAttendanceStatusDb } from "@/types/sectionAcademics";
 
@@ -45,7 +46,7 @@ export function buildAdminRetentionRows(ctx: BuildContext): AdminRetentionCandid
   for (const r of raw) {
     const pRaw = r.profiles;
     const p = Array.isArray(pRaw) ? pRaw[0] : pRaw;
-    const studentLabel = p ? `${p.first_name} ${p.last_name}`.trim() : r.student_id;
+    const studentLabel = p ? formatProfileSnakeSurnameFirst(p, r.student_id) : r.student_id;
     const secRaw = r.academic_sections;
     const sec = Array.isArray(secRaw) ? secRaw[0] : secRaw;
     const sectionName = sec?.name ?? "";
@@ -130,6 +131,7 @@ export function buildAdminRetentionRows(ctx: BuildContext): AdminRetentionCandid
     });
   }
 
+  out.sort((a, b) => a.studentLabel.localeCompare(b.studentLabel, undefined, { sensitivity: "base" }));
   return out;
 }
 

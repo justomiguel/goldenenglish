@@ -1,28 +1,24 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 import { AlertTriangle, ArrowRightLeft } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
-import type { SectionEnrollmentConflict, SectionScheduleSlot } from "@/types/academics";
 import { Button } from "@/components/atoms/Button";
-import {
-  adminDirectSectionMoveAction,
-  enrollStudentInSectionAction,
-  previewSectionEnrollmentAction,
-} from "@/app/[locale]/dashboard/admin/academics/actions";
 import { ScheduleConflictResolutionModal } from "@/components/molecules/ScheduleConflictResolutionModal";
 import {
   AcademicSectionRosterToolbar,
   type SectionRosterTabKey,
 } from "@/components/organisms/AcademicSectionRosterToolbar";
+import { SortableColumnHeader } from "@/components/molecules/SortableColumnHeader";
+import type { UniversalSortDir } from "@/types/universalListView";
+import {
+  sortSectionRosterRows,
+  type SectionRosterSortKey,
+} from "@/lib/academics/sortSectionRosterRows";
+import type { SectionRosterRow } from "@/types/sectionRoster";
+import { useAcademicSectionRosterMoves } from "@/hooks/useAcademicSectionRosterMoves";
 
-export type SectionRosterRow = {
-  enrollmentId: string;
-  studentId: string;
-  label: string;
-  status: string;
-};
+export type { SectionRosterRow };
 
 function rowInTab(tab: SectionRosterTabKey, status: string) {
   if (tab === "active") return status === "active" || status === "completed";
@@ -52,93 +48,43 @@ export function AcademicSectionRosterTable({
   errors,
   debtByStudentId = {},
 }: AcademicSectionRosterTableProps) {
-  const router = useRouter();
   const [tab, setTab] = useState<SectionRosterTabKey>("active");
-  const [picks, setPicks] = useState<Record<string, string>>({});
-  const [capacityOverride, setCapacityOverride] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
-  const [busy, start] = useTransition();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [conflicts, setConflicts] = useState<SectionEnrollmentConflict[] | null>(null);
-  const [targetSlots, setTargetSlots] = useState<SectionScheduleSlot[]>([]);
-  const [targetLabel, setTargetLabel] = useState("");
-  const [moveCtx, setMoveCtx] = useState<{ studentId: string; toId: string } | null>(null);
+  const [rosterSortKey, setRosterSortKey] = useState<SectionRosterSortKey>("label");
+  const [rosterSortDir, setRosterSortDir] = useState<UniversalSortDir>("asc");
+
+  const {
+    picks,
+    setPicks,
+    capacityOverride,
+    setCapacityOverride,
+    msg,
+    busy,
+    modalOpen,
+    setModalOpen,
+    conflicts,
+    targetSlots,
+    targetLabel,
+    moveCtx,
+    setMoveCtx,
+    runMove,
+    confirmConflictMove,
+  } = useAcademicSectionRosterMoves(locale, sectionId, rows, moveTargets, dict, errors);
 
   const filtered = useMemo(() => rows.filter((r) => rowInTab(tab, r.status)), [rows, tab]);
+  const rosterSortLabels = dict.rosterTableSort;
+  const sortedFiltered = useMemo(
+    () => sortSectionRosterRows(filtered, rosterSortKey, rosterSortDir),
+    [filtered, rosterSortKey, rosterSortDir],
+  );
 
-  const activeEnrollmentId = (studentId: string) => {
-    const active = rows.find(
-      (r) => r.studentId === studentId && (r.status === "active" || r.status === "completed"),
-    );
-    return active?.enrollmentId ?? null;
-  };
-
-  const runMove = (studentId: string) => {
-    const toId = picks[studentId];
-    if (!toId) return;
-    const dropId = activeEnrollmentId(studentId);
-    if (!dropId) return;
-    setMsg(null);
-    setMoveCtx({ studentId, toId });
-    start(async () => {
-      const pre = await previewSectionEnrollmentAction({
-        studentId,
-        sectionId: toId,
-        ignoreEnrollmentId: dropId,
-        allowCapacityOverride: capacityOverride,
-      });
-      if (pre.ok) {
-        const mv = await adminDirectSectionMoveAction({
-          locale,
-          studentId,
-          fromSectionId: sectionId,
-          toSectionId: toId,
-          allowCapacityOverride: capacityOverride,
-        });
-        setMsg(mv.ok ? dict.successMove : dict.genericError);
-        if (mv.ok) router.refresh();
-        setMoveCtx(null);
-        return;
-      }
-      if (pre.code === "CAPACITY_EXCEEDED" && !capacityOverride) {
-        setMsg(errors.CAPACITY_EXCEEDED);
-        setMoveCtx(null);
-        return;
-      }
-      if (pre.code === "SCHEDULE_OVERLAP" && pre.conflicts?.length && pre.targetSlots) {
-        setConflicts(pre.conflicts);
-        setTargetSlots(pre.targetSlots);
-        setTargetLabel(moveTargets.find((m) => m.id === toId)?.label ?? toId);
-        setModalOpen(true);
-        return;
-      }
-      const err = errors[pre.code as keyof typeof errors] ?? errors.RPC;
-      setMsg(err);
-      setMoveCtx(null);
-    });
-  };
-
-  const confirmConflictMove = (dropEnrollmentId: string) => {
-    if (!moveCtx) return;
-    start(async () => {
-      const r = await enrollStudentInSectionAction({
-        locale,
-        studentId: moveCtx.studentId,
-        sectionId: moveCtx.toId,
-        dropSectionEnrollmentId: dropEnrollmentId,
-        dropNextStatus: "transferred",
-        allowCapacityOverride: capacityOverride,
-      });
-      if (r.ok) {
-        setModalOpen(false);
-        setConflicts(null);
-        setMoveCtx(null);
-        setMsg(dict.successMove);
-        router.refresh();
-        return;
-      }
-      setMsg(errors[r.code as keyof typeof errors] ?? errors.RPC);
-    });
+  const onRosterToggleSort = (columnId: string) => {
+    const id = columnId as SectionRosterSortKey;
+    if (rosterSortKey !== id) {
+      setRosterSortKey(id);
+      setRosterSortDir("asc");
+      return;
+    }
+    setRosterSortDir((d) => (d === "asc" ? "desc" : "asc"));
   };
 
   return (
@@ -157,20 +103,40 @@ export function AcademicSectionRosterTable({
         <table className="min-w-full text-left text-sm">
           <thead className="border-b border-[var(--color-border)] text-xs uppercase text-[var(--color-muted-foreground)]">
             <tr>
-              <th className="py-2 pr-3">{dict.colStudent}</th>
-              <th className="py-2 pr-3">{dict.colStatus}</th>
-              <th className="py-2">{dict.colActions}</th>
+              <th className="py-2 pr-3" scope="col" aria-sort={rosterSortKey === "label" ? (rosterSortDir === "asc" ? "ascending" : "descending") : "none"}>
+                <SortableColumnHeader
+                  columnId="label"
+                  label={dict.colStudent}
+                  sortKey={rosterSortKey}
+                  sortDir={rosterSortDir}
+                  onToggleSort={onRosterToggleSort}
+                  sortLabels={rosterSortLabels}
+                />
+              </th>
+              <th className="py-2 pr-3" scope="col" aria-sort={rosterSortKey === "status" ? (rosterSortDir === "asc" ? "ascending" : "descending") : "none"}>
+                <SortableColumnHeader
+                  columnId="status"
+                  label={dict.colStatus}
+                  sortKey={rosterSortKey}
+                  sortDir={rosterSortDir}
+                  onToggleSort={onRosterToggleSort}
+                  sortLabels={rosterSortLabels}
+                />
+              </th>
+              <th className="py-2" scope="col">
+                <span className="font-semibold text-[var(--color-secondary)]">{dict.colActions}</span>
+              </th>
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 ? (
+            {sortedFiltered.length === 0 ? (
               <tr>
                 <td colSpan={3} className="py-4 text-[var(--color-muted-foreground)]">
                   {dict.emptyTab}
                 </td>
               </tr>
             ) : (
-              filtered.map((r) => (
+              sortedFiltered.map((r) => (
                 <tr key={r.enrollmentId} className="border-t border-[var(--color-border)]">
                     <td className="py-2 pr-3 font-medium text-[var(--color-foreground)]">
                       <span className="inline-flex items-center gap-1.5">

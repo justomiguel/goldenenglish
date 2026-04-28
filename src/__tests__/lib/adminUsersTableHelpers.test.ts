@@ -78,6 +78,6 @@ describe("sortAdminUsers", () => {
 
   it("sorts by full name descending", () => {
     const r = sortAdminUsers(rows, "name", "desc");
-    expect(r.map((x) => x.id)).toEqual(["b", "a"]);
+    expect(r.map((x) => x.id)).toEqual(["a", "b"]);
   });
 });

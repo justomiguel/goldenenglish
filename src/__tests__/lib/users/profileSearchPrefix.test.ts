@@ -32,6 +32,12 @@ describe("profileSearchPrefix", () => {
     expect(personNameFieldsMatchPrefix({ first_name: "María", last_name: "García" }, "ía")).toBe(false);
   });
 
+  it("personNameFieldsMatchPrefix matches last-name-first display prefix", () => {
+    expect(
+      personNameFieldsMatchPrefix({ first_name: "María", last_name: "García" }, "garcía mar"),
+    ).toBe(true);
+  });
+
   it("personProfileMatchPrefix includes document prefix", () => {
     expect(
       personProfileMatchPrefix(

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { sectionAttendanceCyclePresentPct } from "@/lib/academics/sectionAttendanceMonthPct";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { chunkedIn } from "@/lib/supabase/chunkedIn";
 
 export type ParentChildLastGrade = {
@@ -71,7 +72,7 @@ export async function loadParentChildrenSummaries(
     for (const t of teachers ?? []) {
       teacherNameById.set(
         t.id as string,
-        `${t.first_name as string} ${t.last_name as string}`.trim(),
+        formatProfileNameSurnameFirst(t.first_name as string | null, t.last_name as string | null),
       );
     }
   }

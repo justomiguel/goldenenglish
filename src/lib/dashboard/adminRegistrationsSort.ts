@@ -1,4 +1,8 @@
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
+import {
+  compareProfileNamesByLastThenFirst,
+  formatProfileNameSurnameFirst,
+} from "@/lib/profile/formatProfileDisplayName";
 
 export type RegistrationSortKey =
   | "name"
@@ -12,7 +16,7 @@ export type RegistrationSortKey =
 export type RegistrationSortDir = "asc" | "desc";
 
 function nameKey(r: AdminRegistrationRow): string {
-  return `${r.first_name} ${r.last_name}`.trim();
+  return formatProfileNameSurnameFirst(r.first_name, r.last_name);
 }
 
 /** Client-side text filter across main registration fields. */
@@ -25,6 +29,7 @@ export function filterRegistrationRows(
   return rows.filter((r) => {
     const hay = [
       nameKey(r),
+      `${r.first_name} ${r.last_name}`.trim(),
       r.dni,
       r.email,
       r.phone ?? "",
@@ -50,10 +55,13 @@ export function sortRegistrationRows(
     let va: string;
     let vb: string;
     switch (key) {
-      case "name":
-        va = nameKey(a);
-        vb = nameKey(b);
-        break;
+      case "name": {
+        const cmp = compareProfileNamesByLastThenFirst(
+          { firstName: a.first_name, lastName: a.last_name },
+          { firstName: b.first_name, lastName: b.last_name },
+        );
+        return cmp * mult;
+      }
       case "dni":
         va = a.dni;
         vb = b.dni;

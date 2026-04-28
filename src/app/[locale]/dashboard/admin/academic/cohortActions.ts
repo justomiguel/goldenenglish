@@ -10,6 +10,7 @@ import {
   searchAdminStudentsByPrefix,
   type AdminStudentSearchHit,
 } from "@/lib/users/searchAdminStudentsByPrefix";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export type { AdminStudentSearchHit };
 
@@ -136,7 +137,7 @@ export async function listActiveStudentsInSectionForAdmin(
       };
       const pRaw = r.profiles;
       const p = Array.isArray(pRaw) ? (pRaw[0] ?? null) : pRaw;
-      const label = p ? `${p.first_name} ${p.last_name}`.trim() : r.student_id;
+      const label = p ? formatProfileSnakeSurnameFirst(p, r.student_id) : r.student_id;
       return { enrollmentId: r.id, studentId: r.student_id, label };
     });
   } catch (err) {

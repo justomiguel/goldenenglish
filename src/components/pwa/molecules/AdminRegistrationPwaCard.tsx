@@ -5,6 +5,7 @@ import { Button } from "@/components/atoms/Button";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -48,7 +49,7 @@ export function AdminRegistrationPwaCard({
     <li className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-sm">
       <div className="space-y-2">
         <p className="break-words font-medium text-[var(--color-foreground)]">
-          {r.first_name} {r.last_name}
+          {formatProfileNameSurnameFirst(r.first_name, r.last_name)}
         </p>
         <dl className="grid gap-1 text-sm text-[var(--color-muted-foreground)]">
           <div className="flex flex-wrap gap-x-2 gap-y-0.5">

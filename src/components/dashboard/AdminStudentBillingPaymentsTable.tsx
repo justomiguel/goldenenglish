@@ -14,7 +14,9 @@ export interface AdminStudentBillingPaymentsTableProps {
   scholarships: AdminBillingScholarship[];
   labels: BillingLabels;
   busy: boolean;
-  onToggleExempt: (period: { year: number; month: number }, exempt: boolean) => void;
+  /** When true, hides per-row exemption toggles (actions column shows an empty placeholder). */
+  readOnly?: boolean;
+  onToggleExempt?: (period: { year: number; month: number }, exempt: boolean) => void;
 }
 
 function formatPeriod(month: number, year: number): string {
@@ -35,6 +37,7 @@ export function AdminStudentBillingPaymentsTable({
   scholarships,
   labels,
   busy,
+  readOnly = false,
   onToggleExempt,
 }: AdminStudentBillingPaymentsTableProps) {
   return (
@@ -102,13 +105,15 @@ export function AdminStudentBillingPaymentsTable({
                   )}
                 </td>
                 <td className="px-3 py-2">
-                  {r.status !== "approved" ? (
+                  {readOnly ? (
+                    labels.emptyValue
+                  ) : r.status !== "approved" ? (
                     <button
                       type="button"
                       className="text-sm text-[var(--color-primary)] underline"
                       disabled={busy}
                       onClick={() =>
-                        onToggleExempt({ year: r.year, month: r.month }, r.status !== "exempt")
+                        onToggleExempt?.({ year: r.year, month: r.month }, r.status !== "exempt")
                       }
                     >
                       {r.status === "exempt" ? labels.unexemptPeriod : labels.exemptPeriod}

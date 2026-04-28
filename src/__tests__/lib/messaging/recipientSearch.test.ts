@@ -29,8 +29,8 @@ const carl: MessagingRecipient = {
 };
 
 describe("recipientSearch", () => {
-  it("messagingRecipientDisplayName joins first and last", () => {
-    expect(messagingRecipientDisplayName(ann)).toBe("Ann Zed");
+  it("messagingRecipientDisplayName puts surname first", () => {
+    expect(messagingRecipientDisplayName(ann)).toBe("Zed Ann");
   });
 
   it("messagingRecipientDisplayName returns empty string when both names blank", () => {

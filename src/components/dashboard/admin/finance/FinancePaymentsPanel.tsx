@@ -1,11 +1,15 @@
 import "server-only";
-import Link from "next/link";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Dictionary } from "@/types/i18n";
 import type { Locale } from "@/types/i18n";
 import { receiptSignedUrlForAdmin } from "@/lib/payments/receiptSignedUrl";
 import { PaymentReviewRow } from "@/components/dashboard/PaymentReviewRow";
 import { EnrollmentFeeReceiptQueueRow } from "./EnrollmentFeeReceiptQueueRow";
+import {
+  FinancePaymentsInvoiceReceiptsBlock,
+  type FinancePaymentsInvoiceReceiptsBlockProps,
+} from "./FinancePaymentsInvoiceReceiptsBlock";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export interface FinancePaymentsPanelProps {
   supabase: SupabaseClient;
@@ -23,19 +27,19 @@ interface ProfileLite {
   last_name: string | null;
 }
 
-interface InvoiceLite {
-  id: string;
-  description: string;
-  amount: number;
-  student_id: string;
-}
-
 interface EnrollmentFeeReceiptRow {
   id: string;
   student_id: string;
   enrollment_fee_receipt_url: string | null;
   enrollment_fee_receipt_uploaded_at: string | null;
   academic_sections: { name: string } | { name: string }[] | null;
+}
+
+interface InvoiceLite {
+  id: string;
+  description: string;
+  amount: number;
+  student_id: string;
 }
 
 export async function FinancePaymentsPanel({
@@ -67,7 +71,7 @@ export async function FinancePaymentsPanel({
   const efNameById = Object.fromEntries(
     ((efProfs ?? []) as ProfileLite[]).map((p) => [
       p.id,
-      `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim(),
+      formatProfileSnakeSurnameFirst(p),
     ]),
   );
 
@@ -101,7 +105,7 @@ export async function FinancePaymentsPanel({
   const payNameById = Object.fromEntries(
     ((payProfs ?? []) as ProfileLite[]).map((p) => [
       p.id,
-      `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim(),
+      formatProfileSnakeSurnameFirst(p),
     ]),
   );
 
@@ -140,7 +144,7 @@ export async function FinancePaymentsPanel({
   const invNameById = Object.fromEntries(
     ((invProfs ?? []) as ProfileLite[]).map((p) => [
       p.id,
-      `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim(),
+      formatProfileSnakeSurnameFirst(p),
     ]),
   );
 
@@ -207,43 +211,13 @@ export async function FinancePaymentsPanel({
         </section>
       ) : null}
 
-      {/* Invoice receipts (billing_receipts) */}
-      {invList.length > 0 ? (
-        <section className="space-y-3">
-          <h2 className="font-display text-base font-semibold text-[var(--color-primary)]">
-            {portalBillingDict.adminListTitle}
-          </h2>
-          <ul className="space-y-3">
-            {invList.map((r) => {
-              const inv = invById[r.invoice_id as string];
-              const sid = inv?.student_id;
-              return (
-                <li
-                  key={r.id as string}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3"
-                >
-                  <div>
-                    <p className="font-medium text-[var(--color-foreground)]">
-                      {sid ? (invNameById[sid] ?? sid) : "—"}
-                    </p>
-                    <p className="text-sm text-[var(--color-muted-foreground)]">
-                      {inv?.description ?? "—"} · {portalBillingDict.adminColAmount}:{" "}
-                      {r.amount_paid as number}
-                    </p>
-                  </div>
-                  <Link
-                    href={`${receiptHrefBase}/${r.id}`}
-                    title={portalBillingDict.tipOpenReceiptReview}
-                    className="rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-foreground)]"
-                  >
-                    {portalBillingDict.openReview}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      ) : null}
+      <FinancePaymentsInvoiceReceiptsBlock
+        invList={invList as unknown as FinancePaymentsInvoiceReceiptsBlockProps["invList"]}
+        invById={invById}
+        invNameById={invNameById}
+        portalBillingDict={portalBillingDict}
+        receiptHrefBase={receiptHrefBase}
+      />
     </div>
   );
 }

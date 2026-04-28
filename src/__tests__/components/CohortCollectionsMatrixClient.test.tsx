@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { dictEn } from "@/test/dictEn";
 import { CohortCollectionsMatrixClient } from "@/components/dashboard/admin/finance/CohortCollectionsMatrixClient";
@@ -111,7 +111,15 @@ describe("CohortCollectionsMatrixClient", () => {
     );
 
     expect(screen.getByText(overviewDict.totals.expectedYear)).toBeInTheDocument();
-    expect(screen.getByText(overviewDict.totals.collected)).toBeInTheDocument();
+    const cohortTotalsSection = screen
+      .getByRole("heading", { level: 2, name: overviewDict.totals.title })
+      .closest("section");
+    expect(cohortTotalsSection).not.toBeNull();
+    expect(
+      within(cohortTotalsSection as HTMLElement).getByText(
+        overviewDict.totals.collected,
+      ),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("columnheader", { name: overviewDict.table.paidLabel }),
     ).toBeInTheDocument();
@@ -122,8 +130,13 @@ describe("CohortCollectionsMatrixClient", () => {
       screen.getByRole("columnheader", { name: overviewDict.table.overdueLabel }),
     ).toBeInTheDocument();
     expect(screen.getByText("Section A")).toBeInTheDocument();
-    expect(screen.getByText("Ana Smith")).toBeInTheDocument();
-    expect(screen.getByText("Zara Lopez")).toBeInTheDocument();
+    expect(screen.getByText("Smith Ana")).toBeInTheDocument();
+    expect(screen.getByText("Lopez Zara")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", {
+        name: collectionsDict.matrix.openStudentBillingAria.replace("{name}", "Smith Ana"),
+      }),
+    ).toHaveAttribute("href", "/en/dashboard/admin/users/stu-ana/billing");
     expect(screen.getByText(collectionsDict.benefits.enrollmentExempt)).toBeInTheDocument();
     expect(screen.getByText("Promo Welcome promo")).toBeInTheDocument();
     expect(
@@ -158,8 +171,8 @@ describe("CohortCollectionsMatrixClient", () => {
       name: overviewDict.filters.search,
     });
     await userEvent.type(input, "ana");
-    expect(screen.getByText("Ana Smith")).toBeInTheDocument();
-    expect(screen.queryByText("Zara Lopez")).not.toBeInTheDocument();
+    expect(screen.getByText("Smith Ana")).toBeInTheDocument();
+    expect(screen.queryByText("Lopez Zara")).not.toBeInTheDocument();
 
     await userEvent.clear(input);
     await userEvent.type(input, "noBodyMatchesThis");

@@ -80,7 +80,7 @@ describe("admin narrow screens", () => {
         surface="web-mobile"
       />,
     );
-    expect(screen.getByText("A B")).toBeInTheDocument();
+    expect(screen.getByText("B A")).toBeInTheDocument();
     const nameSort = screen.getByRole("button", {
       name: new RegExp(`^${dictEn.admin.registrations.name}`),
     });

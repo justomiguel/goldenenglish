@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionMaxStudents";
 import { loadCurrentCohort } from "@/lib/academics/currentCohort";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
@@ -55,7 +56,7 @@ async function loadTeacherNameMap(
   return new Map(
     ((data ?? []) as Array<{ id: string; first_name: string | null; last_name: string | null }>).map((row) => [
       row.id,
-      `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim() || "—",
+      formatProfileNameSurnameFirst(row.first_name, row.last_name, "—"),
     ]),
   );
 }

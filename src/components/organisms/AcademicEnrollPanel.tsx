@@ -1,20 +1,14 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Eye, UserPlus } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
-import type { SectionEnrollmentConflict, SectionScheduleSlot } from "@/types/academics";
 import { Button } from "@/components/atoms/Button";
-import {
-  enrollStudentInSectionAction,
-  previewSectionEnrollmentAction,
-  searchAdminStudentsAction,
-} from "@/app/[locale]/dashboard/admin/academics/actions";
+import { searchAdminStudentsAction } from "@/app/[locale]/dashboard/admin/academics/actions";
 import { ScheduleConflictResolutionModal } from "@/components/molecules/ScheduleConflictResolutionModal";
-import {
-  AdminStudentSearchCombobox,
-  type AdminStudentSearchHitLike,
-} from "@/components/molecules/AdminStudentSearchCombobox";
+import { StaffSearchComboboxWithChipQueue } from "@/components/molecules/StaffSearchComboboxWithChipQueue";
+import { useSectionEnrollmentQueue } from "@/hooks/useSectionEnrollmentQueue";
 
 export interface SectionOption {
   id: string;
@@ -28,86 +22,63 @@ export interface AcademicEnrollPanelProps {
 }
 
 export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPanelProps) {
+  const router = useRouter();
   const d = dict.dashboard.academics.enrollPanel;
   const modalDict = dict.dashboard.academics.conflictModal;
-  const [picked, setPicked] = useState<AdminStudentSearchHitLike | null>(null);
-  const [fieldResetKey, setFieldResetKey] = useState(0);
-  const [sectionId, setSectionId] = useState(sections[0]?.id ?? "");
+  const errors = dict.dashboard.academics.errors;
   const [capacityOverride, setCapacityOverride] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
-  const [warnParent, setWarnParent] = useState(false);
-  const [conflicts, setConflicts] = useState<SectionEnrollmentConflict[] | null>(null);
-  const [targetSlots, setTargetSlots] = useState<SectionScheduleSlot[]>([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [previewPending, startPreview] = useTransition();
-  const [enrollPending, startEnroll] = useTransition();
-  const busy = previewPending || enrollPending;
+  const [sectionId, setSectionId] = useState(sections[0]?.id ?? "");
+
+  const copy = useMemo(
+    () => ({
+      previewOk: d.previewOk,
+      bulkPreviewAllOk: d.bulkPreviewAllOk,
+      bulkPreviewIssues: d.bulkPreviewIssues,
+      bulkEnrollDoneMany: d.bulkEnrollDoneMany,
+      bulkEnrollPartial: d.bulkEnrollPartial,
+      bulkEnrollFailed: d.bulkEnrollFailed,
+      successEnroll: d.enrollOk,
+    }),
+    [d],
+  );
+
+  const {
+    queue,
+    addPick,
+    removeId,
+    fieldResetKey,
+    msg,
+    warnParent,
+    conflicts,
+    targetSlots,
+    modalOpen,
+    setModalOpen,
+    previewPending,
+    enrollPending,
+    busy,
+    runPreview,
+    runEnrollSingle,
+    runEnrollAll,
+  } = useSectionEnrollmentQueue({
+    locale,
+    sectionId,
+    capacityOverride,
+    errors: errors as unknown as Record<string, string>,
+    copy,
+    onEnrollSuccess: () => router.refresh(),
+  });
 
   const sectionLabel = sections.find((s) => s.id === sectionId)?.label ?? "";
-
-  const runPreview = () => {
-    if (!picked) return;
-    setMsg(null);
-    setConflicts(null);
-    startPreview(async () => {
-      const r = await previewSectionEnrollmentAction({
-        studentId: picked.id,
-        sectionId,
-        allowCapacityOverride: capacityOverride,
-      });
-      if (r.ok) {
-        setWarnParent(Boolean(r.parentPaymentsPending));
-        setMsg(d.previewOk);
-        return;
-      }
-      if (r.code === "SCHEDULE_OVERLAP" && r.conflicts?.length && r.targetSlots) {
-        setConflicts(r.conflicts);
-        setTargetSlots(r.targetSlots);
-        setWarnParent(Boolean(r.parentPaymentsPending));
-        setModalOpen(true);
-        return;
-      }
-      const err =
-        dict.dashboard.academics.errors[r.code as keyof typeof dict.dashboard.academics.errors] ??
-        dict.dashboard.academics.errors.RPC;
-      setMsg(err);
-    });
-  };
-
-  const runEnroll = (dropEnrollmentId?: string | null) => {
-    if (!picked) return;
-    setMsg(null);
-    startEnroll(async () => {
-      const r = await enrollStudentInSectionAction({
-        locale,
-        studentId: picked.id,
-        sectionId,
-        dropSectionEnrollmentId: dropEnrollmentId ?? null,
-        dropNextStatus: dropEnrollmentId ? "transferred" : undefined,
-        allowCapacityOverride: capacityOverride,
-      });
-      if (r.ok) {
-        setModalOpen(false);
-        setConflicts(null);
-        setMsg(d.enrollOk);
-        setPicked(null);
-        setFieldResetKey((k) => k + 1);
-        return;
-      }
-      const err =
-        dict.dashboard.academics.errors[r.code as keyof typeof dict.dashboard.academics.errors] ??
-        dict.dashboard.academics.errors.RPC;
-      setMsg(err);
-    });
-  };
-
+  const queueLen = queue.length;
+  const previewLabel = queueLen > 1 ? d.previewAll : d.preview;
+  const enrollLabel = queueLen > 1 ? d.enrollAll : d.enroll;
   if (sections.length === 0) {
     return <p className="text-sm text-[var(--color-muted-foreground)]">{d.noSections}</p>;
   }
 
   return (
     <div className="max-w-xl space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <AdminStudentSearchCombobox
+      <StaffSearchComboboxWithChipQueue
         id="academic-enroll-panel-student"
         labelText={d.studentSearchLabel}
         placeholder={d.searchPlaceholder}
@@ -116,8 +87,15 @@ export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPa
         prefetchWhenEmptyOnFocus
         disabled={busy}
         search={searchAdminStudentsAction}
-        onPick={setPicked}
+        onPick={addPick}
         resetKey={fieldResetKey}
+        selectedItems={queue}
+        onRemoveSelected={removeId}
+        queueLegend={d.enrollQueueLegend}
+        queueReminder={d.enrollQueueReminder}
+        removeChipAriaLabel={d.removePickedStudentAria}
+        queueDisabled={busy}
+        resultsListHeading={d.enrollSearchResultsHeading}
       />
       <div>
         <label className="block text-sm font-medium" htmlFor="ae-section">
@@ -144,40 +122,38 @@ export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPa
         />
         {d.capacityOverride}
       </label>
-      {warnParent ? (
-        <p className="text-sm font-medium text-[var(--color-error)]">{d.parentPendingWarning}</p>
-      ) : null}
+      {warnParent ? <p className="text-sm font-medium text-[var(--color-error)]">{d.parentPendingWarning}</p> : null}
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"
           variant="ghost"
-          disabled={busy || !picked}
+          disabled={busy || queueLen === 0}
           isLoading={previewPending}
           onClick={runPreview}
         >
           {!previewPending ? <Eye className="h-4 w-4 shrink-0" aria-hidden /> : null}
-          {d.preview}
+          {previewLabel}
         </Button>
         <Button
           type="button"
-          disabled={busy || !picked}
+          disabled={busy || queueLen === 0}
           isLoading={enrollPending}
-          onClick={() => runEnroll(null)}
+          onClick={() => runEnrollAll()}
         >
           {!enrollPending ? <UserPlus className="h-4 w-4 shrink-0" aria-hidden /> : null}
-          {d.enroll}
+          {enrollLabel}
         </Button>
       </div>
       {msg ? <p className="text-sm text-[var(--color-foreground)]">{msg}</p> : null}
       <ScheduleConflictResolutionModal
-        open={modalOpen && Boolean(conflicts?.length)}
+        open={modalOpen && Boolean(conflicts?.length) && queueLen === 1}
         onClose={() => setModalOpen(false)}
         locale={locale}
         dict={modalDict}
         conflicts={conflicts ?? []}
         targetSlots={targetSlots}
         targetSectionLabel={sectionLabel}
-        onConfirmDrop={(enrollmentId) => runEnroll(enrollmentId)}
+        onConfirmDrop={(enrollmentId) => runEnrollSingle(enrollmentId)}
         isPending={enrollPending}
       />
     </div>

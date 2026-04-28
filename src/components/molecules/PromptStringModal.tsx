@@ -49,6 +49,7 @@ export function PromptStringModal({
       titleId={titleId}
       descriptionId={hasDesc ? descBlockId : undefined}
       title={title}
+      closeLabel={cancelLabel}
     >
       {hasDesc ? (
         <p id={descBlockId} className="text-sm text-[var(--color-muted-foreground)]">

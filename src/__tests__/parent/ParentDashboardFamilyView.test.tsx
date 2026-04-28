@@ -42,7 +42,7 @@ describe("ParentDashboardFamilyView", () => {
         labels={dictEn.dashboard.parent}
       />,
     );
-    expect(screen.getAllByText(/Uno\s+X/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/X\s+Uno/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("80%")).toBeInTheDocument();
     expect(screen.getByText("A2")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Pagos/i })).toHaveAttribute(

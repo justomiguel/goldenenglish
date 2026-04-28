@@ -1,11 +1,16 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { z } from "zod";
 import { defaultLocale, getDictionary } from "@/lib/i18n/dictionaries";
-import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { logServerAuthzDenied, logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { auditFinanceAction } from "@/lib/audit";
+import { revalidateStudentBillingPaths } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/revalidateStudentBilling";
+import { resolveSectionPlanMonthlyAmount } from "@/lib/billing/resolveSectionPlanMonthlyAmount";
+import { notifyMonthlyPaymentDecision } from "@/lib/email/billingPaymentEmails";
+import type { Locale } from "@/types/i18n";
 
 const reviewSchema = z.object({
   paymentId: z.string().uuid(),
@@ -39,7 +44,7 @@ export async function reviewPayment(
 
   const { data: beforePayment } = await supabase
     .from("payments")
-    .select("id, student_id, parent_id, month, year, amount, status, admin_notes")
+    .select("id, student_id, parent_id, month, year, amount, status, admin_notes, section_id")
     .eq("id", parsed.data.paymentId)
     .maybeSingle();
 
@@ -79,6 +84,47 @@ export async function reviewPayment(
       year: beforePayment?.year ?? null,
     },
   });
+
+  const loc = (parsed.data.locale === "en" || parsed.data.locale === "es"
+    ? parsed.data.locale
+    : "es") as Locale;
+  const studentId = beforePayment?.student_id;
+  if (typeof studentId === "string" && beforePayment && studentId) {
+    revalidateStudentBillingPaths(parsed.data.locale, studentId);
+    revalidatePath(`/${parsed.data.locale}/dashboard/parent/payments`);
+    revalidatePath(`/${parsed.data.locale}/dashboard/student/payments`);
+    const month = Number(beforePayment.month);
+    const year = Number(beforePayment.year);
+    const amt = beforePayment.amount != null ? Number(beforePayment.amount) : 0;
+    const sectionId = beforePayment.section_id as string | null;
+    void (async () => {
+      try {
+        let currency = "USD";
+        if (sectionId) {
+          const plan = await resolveSectionPlanMonthlyAmount(
+            supabase,
+            studentId,
+            sectionId,
+            year,
+            month,
+          );
+          if (plan.code === "ok") currency = plan.currency;
+        }
+        await notifyMonthlyPaymentDecision({
+          studentId,
+          locale: loc,
+          month,
+          year,
+          amount: amt,
+          currency,
+          decision: parsed.data.status,
+          adminNotes: parsed.data.adminNotes ?? null,
+        });
+      } catch (e) {
+        logServerException("reviewPayment:notify", e, { paymentId: parsed.data.paymentId });
+      }
+    })();
+  }
   return { ok: true };
 }
 

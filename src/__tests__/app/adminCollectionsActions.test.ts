@@ -331,7 +331,7 @@ describe("sendBulkCollectionsMessageAction", () => {
     expect(mockSendStaff).toHaveBeenCalledWith(
       expect.objectContaining({
         senderId: "u1",
-        senderDisplayName: "Ada Lovelace",
+        senderDisplayName: "Lovelace Ada",
         recipientId: STUDENT_A,
       }),
     );

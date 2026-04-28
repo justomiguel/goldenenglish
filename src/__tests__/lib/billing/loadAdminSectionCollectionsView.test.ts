@@ -175,8 +175,8 @@ describe("loadAdminSectionCollectionsView", () => {
     });
     expect(view?.students).toHaveLength(2);
     expect(view?.students.map((s) => s.studentName).sort()).toEqual([
-      "Ana Pérez",
-      "Bea Gómez",
+      "Gómez Bea",
+      "Pérez Ana",
     ]);
     expect(view?.kpis.paid).toBe(100);
     expect(view?.students.find((s) => s.studentId === "stu-1")?.enrollmentFee.exempt).toBe(true);

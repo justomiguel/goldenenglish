@@ -1,16 +1,20 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Save, UserPlus, Users } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUserTutorLinkVM } from "@/lib/dashboard/adminUserDetailVM";
 import {
   searchAdminParentsForDetailAction,
+  removeAdminStudentTutorLinkAction,
   upsertAdminStudentTutorLinkAction,
 } from "@/app/[locale]/dashboard/admin/users/adminUserDetailActions";
-import { AdminStudentSearchCombobox } from "@/components/molecules/AdminStudentSearchCombobox";
+import type { AdminStudentSearchHitLike } from "@/components/molecules/AdminStudentSearchCombobox";
+import { StaffSearchComboboxWithChipQueue } from "@/components/molecules/StaffSearchComboboxWithChipQueue";
 import { AdminUserDetailTutorCreateModal } from "@/components/molecules/AdminUserDetailTutorCreateModal";
+import { AdminUserDetailTutorLinkedRow } from "@/components/molecules/AdminUserDetailTutorLinkedRow";
+import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { Button } from "@/components/atoms/Button";
 
 type UserLabels = Dictionary["admin"]["users"];
@@ -35,45 +39,75 @@ export function AdminUserDetailTutorCard({
   onFeedback,
 }: AdminUserDetailTutorCardProps) {
   const router = useRouter();
-  const [pickedId, setPickedId] = useState<string | null>(null);
-  const [pickedLabel, setPickedLabel] = useState("");
-  const [resetKey, setResetKey] = useState(0);
+  const [queue, setQueue] = useState<AdminStudentSearchHitLike[]>([]);
+  const [fieldResetKey, setFieldResetKey] = useState(0);
   const [busy, setBusy] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [unlinkTarget, setUnlinkTarget] = useState<AdminUserTutorLinkVM | null>(null);
+  const [unlinkBusy, setUnlinkBusy] = useState(false);
 
   const search = useCallback((q: string) => searchAdminParentsForDetailAction(q), []);
 
-  const onPick = useCallback((hit: { id: string; label: string }) => {
-    setPickedId(hit.id);
-    setPickedLabel(hit.label);
+  const linkedTutorIds = useMemo(() => tutorLinks.map((t) => t.tutorId), [tutorLinks]);
+
+  const addPick = useCallback((hit: AdminStudentSearchHitLike) => {
+    setQueue((q) => (q.some((s) => s.id === hit.id) ? q : [...q, hit]));
+    setFieldResetKey((k) => k + 1);
+  }, []);
+
+  const removeFromQueue = useCallback((id: string) => {
+    setQueue((q) => q.filter((s) => s.id !== id));
   }, []);
 
   const save = async () => {
-    if (!pickedId) {
+    if (queue.length === 0) {
       onFeedback(labels.detailTutorPickFirst, false);
       return;
     }
     setBusy(true);
     try {
-      const r = await upsertAdminStudentTutorLinkAction({
-        locale,
-        studentId,
-        newTutorId: pickedId,
-      });
-      if (r.ok) {
-        onFeedback(r.message ?? labels.detailToastTutorSaved, true);
-        setPickedId(null);
-        setPickedLabel("");
-        setResetKey((k) => k + 1);
-        router.refresh();
-      } else {
-        onFeedback(r.message ?? labels.detailErrSave, false);
+      for (const item of queue) {
+        const r = await upsertAdminStudentTutorLinkAction({
+          locale,
+          studentId,
+          newTutorId: item.id,
+        });
+        if (!r.ok) {
+          onFeedback(r.message ?? labels.detailErrSave, false);
+          return;
+        }
       }
+      onFeedback(labels.detailToastTutorSaved, true);
+      setQueue([]);
+      setFieldResetKey((k) => k + 1);
+      router.refresh();
     } finally {
       setBusy(false);
     }
   };
 
+  const confirmUnlink = async () => {
+    if (!unlinkTarget) return;
+    setUnlinkBusy(true);
+    try {
+      const r = await removeAdminStudentTutorLinkAction({
+        locale,
+        studentId,
+        tutorId: unlinkTarget.tutorId,
+      });
+      if (r.ok) {
+        onFeedback(r.message ?? labels.detailToastTutorUnlinked, true);
+        setUnlinkTarget(null);
+        router.refresh();
+      } else {
+        onFeedback(r.message ?? labels.detailErrSave, false);
+      }
+    } finally {
+      setUnlinkBusy(false);
+    }
+  };
+
+  const rowBusyGlobal = busy || unlinkBusy;
   const showLinkUi = editable;
 
   return (
@@ -90,10 +124,15 @@ export function AdminUserDetailTutorCard({
             <li className="text-[var(--color-muted-foreground)]">{labels.detailNoValue}</li>
           ) : (
             tutorLinks.map((t) => (
-              <li key={t.tutorId} className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/20 px-3 py-2">
-                <div className="font-medium">{t.displayName}</div>
-                <div className="text-xs text-[var(--color-muted-foreground)]">{t.emailDisplay}</div>
-              </li>
+              <AdminUserDetailTutorLinkedRow
+                key={t.tutorId}
+                tutor={t}
+                editable={showLinkUi}
+                rowBusy={rowBusyGlobal}
+                unlinkLabel={labels.detailTutorUnlink}
+                unlinkAriaLabel={`${labels.detailTutorUnlink}: ${t.displayName}`}
+                onRequestUnlink={() => setUnlinkTarget(t)}
+              />
             ))
           )}
         </ul>
@@ -107,16 +146,25 @@ export function AdminUserDetailTutorCard({
         <div className="mt-5 space-y-4 border-t border-[var(--color-border)] pt-4">
           <div className="space-y-3">
             <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailTutorLinkHint}</p>
-            <AdminStudentSearchCombobox
+            <StaffSearchComboboxWithChipQueue
               id="admin-user-tutor-search"
               labelText={labels.detailTutorSearchLabel}
               placeholder={labels.detailTutorSearchPlaceholder}
+              inputTitle={labels.detailTutorSearchTooltip}
               minCharsHint={labels.detailTutorMinChars}
+              prefetchWhenEmptyOnFocus
               search={search}
-              onPick={onPick}
-              resetKey={resetKey}
+              onPick={addPick}
+              resetKey={fieldResetKey}
+              persistentExcludeIds={linkedTutorIds}
+              selectedItems={queue}
+              onRemoveSelected={removeFromQueue}
+              queueLegend={labels.detailTutorQueueLegend}
+              queueReminder={labels.detailTutorQueueReminder}
+              removeChipAriaLabel={labels.detailTutorRemoveChipAria}
+              queueDisabled={busy}
+              resultsListHeading={labels.detailTutorSearchResultsHeading}
             />
-            {pickedId ? <p className="text-sm font-medium text-[var(--color-foreground)]">{pickedLabel}</p> : null}
             <Button type="button" variant="primary" size="sm" isLoading={busy} onClick={() => void save()}>
               {!busy ? (
                 <Save className="h-4 w-4 shrink-0" aria-hidden />
@@ -141,6 +189,26 @@ export function AdminUserDetailTutorCard({
         labels={labels}
         onFeedback={onFeedback}
         onLinked={() => router.refresh()}
+      />
+      <ConfirmActionModal
+        open={unlinkTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setUnlinkTarget(null);
+        }}
+        title={labels.detailTutorUnlinkConfirmTitle}
+        description={labels.detailTutorUnlinkConfirmDescription}
+        formSlot={
+          isMinor && tutorLinks.length === 1 ? (
+            <p className="text-sm font-medium text-[var(--color-error)]">{labels.detailTutorUnlinkLastMinorWarning}</p>
+          ) : null
+        }
+        body={unlinkTarget ? `${unlinkTarget.displayName} — ${unlinkTarget.emailDisplay}` : undefined}
+        cancelLabel={labels.detailTutorCreateCancel}
+        confirmLabel={labels.detailTutorUnlink}
+        confirmVariant="destructive"
+        busy={unlinkBusy}
+        disableClose={unlinkBusy}
+        onConfirm={() => void confirmUnlink()}
       />
     </section>
   );

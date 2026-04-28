@@ -1,57 +1,25 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { receiptSignedUrlForAdmin } from "@/lib/payments/receiptSignedUrl";
+import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
 import type {
   AdminBillingScholarship,
   AdminStudentBillingTabData,
   AdminStudentBillingSectionBenefit,
 } from "@/types/adminStudentBilling";
-
-type EnrollmentBenefitRow = {
-  id: string;
-  section_id: string;
-  enrollment_fee_exempt: boolean | null;
-  enrollment_exempt_reason: string | null;
-  last_enrollment_paid_at: string | null;
-  academic_sections: { name: string } | { name: string }[] | null;
-};
-
-type ScholarshipBenefitRow = {
-  id: string;
-  enrollment_id: string;
-  discount_percent: number | string;
-  note: string | null;
-  valid_from_year: number;
-  valid_from_month: number;
-  valid_until_year: number | null;
-  valid_until_month: number | null;
-  is_active: boolean;
-};
-
-type EnrollmentReceiptRow = {
-  id: string;
-  enrollment_fee_receipt_url: string | null;
-  enrollment_fee_receipt_status: string | null;
-};
-
-function mapScholarship(row: ScholarshipBenefitRow): AdminBillingScholarship {
-  return {
-    id: row.id,
-    discount_percent: Number(row.discount_percent),
-    note: row.note,
-    valid_from_year: row.valid_from_year,
-    valid_from_month: row.valid_from_month,
-    valid_until_year: row.valid_until_year,
-    valid_until_month: row.valid_until_month,
-    is_active: Boolean(row.is_active),
-  };
-}
-
-function sectionName(row: EnrollmentBenefitRow): string {
-  const section = Array.isArray(row.academic_sections)
-    ? row.academic_sections[0]
-    : row.academic_sections;
-  return section?.name ?? row.section_id;
-}
+import {
+  mapSectionFeePlanRow,
+  type SectionFeePlan,
+  type SectionFeePlanRowDb,
+} from "@/types/sectionFeePlan";
+import {
+  type EnrollmentBenefitRow,
+  type EnrollmentReceiptRow,
+  type ScholarshipBenefitRow,
+  mapScholarship,
+  sectionEnrollmentMeta,
+  sectionNameFromEnrollment,
+  sectionScheduleSlotsAndCohort,
+} from "@/lib/dashboard/loadAdminStudentBillingTabDataMappers";
 
 export async function loadAdminStudentBillingTabData(
   supabase: SupabaseClient,
@@ -75,7 +43,7 @@ export async function loadAdminStudentBillingTabData(
     supabase
       .from("section_enrollments")
       .select(
-        "id, section_id, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, academic_sections(name)",
+        "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, academic_sections(name, enrollment_fee_amount, starts_on, ends_on, schedule_slots, academic_cohorts(name))",
       )
       .eq("student_id", studentId)
       .eq("status", "active"),
@@ -140,17 +108,51 @@ export async function loadAdminStudentBillingTabData(
     scholarshipsByEnrollment.set(row.enrollment_id, list);
   }
 
-  const sectionBenefits: AdminStudentBillingSectionBenefit[] = enrollmentRowsWithUrls.map((row) => ({
-    enrollmentId: row.id,
-    sectionId: row.section_id,
-    sectionName: sectionName(row),
-    enrollmentFeeExempt: Boolean(row.enrollment_fee_exempt),
-    enrollmentExemptReason: row.enrollment_exempt_reason,
-    lastEnrollmentPaidAt: row.last_enrollment_paid_at,
-    scholarships: scholarshipsByEnrollment.get(row.id) ?? [],
-    enrollmentFeeReceiptSignedUrl: row.receiptSignedUrl,
-    enrollmentFeeReceiptStatus: row.receiptStatus,
-  }));
+  const uniqueSectionIds = [...new Set(enrollmentRowsWithUrls.map((r) => r.section_id))];
+  const plansBySectionId = new Map<string, SectionFeePlan[]>();
+  if (uniqueSectionIds.length > 0) {
+    const { data: rawPlans } = await supabase
+      .from("section_fee_plans")
+      .select(
+        "id, section_id, effective_from_year, effective_from_month, monthly_fee, currency, archived_at",
+      )
+      .in("section_id", uniqueSectionIds)
+      .is("archived_at", null);
+    for (const row of (rawPlans ?? []) as SectionFeePlanRowDb[]) {
+      const p = mapSectionFeePlanRow(row);
+      const arr = plansBySectionId.get(p.sectionId) ?? [];
+      arr.push(p);
+      plansBySectionId.set(p.sectionId, arr);
+    }
+  }
+  const refNow = new Date();
+  const refYear = refNow.getFullYear();
+  const refMonth = refNow.getMonth() + 1;
+
+  const sectionBenefits: AdminStudentBillingSectionBenefit[] = enrollmentRowsWithUrls.map((row) => {
+    const meta = sectionEnrollmentMeta(row);
+    const plans = plansBySectionId.get(row.section_id) ?? [];
+    const eff = resolveEffectiveSectionFeePlan(plans, refYear, refMonth);
+    const slotsAndCohort = sectionScheduleSlotsAndCohort(row);
+    return {
+      enrollmentId: row.id,
+      sectionId: row.section_id,
+      sectionName: sectionNameFromEnrollment(row),
+      ...meta,
+      sectionMonthlyFeeAmount: eff?.monthlyFee ?? null,
+      sectionMonthlyFeeCurrency: eff?.currency ?? null,
+      enrollmentCreatedAt: row.created_at ?? null,
+      enrollmentFeeExempt: Boolean(row.enrollment_fee_exempt),
+      enrollmentExemptReason: row.enrollment_exempt_reason,
+      lastEnrollmentPaidAt: row.last_enrollment_paid_at,
+      scholarships: scholarshipsByEnrollment.get(row.id) ?? [],
+      enrollmentFeeReceiptSignedUrl: row.receiptSignedUrl,
+      enrollmentFeeReceiptStatus: row.receiptStatus,
+      feePlans: plans,
+      scheduleSlots: slotsAndCohort.scheduleSlots,
+      cohortName: slotsAndCohort.cohortName,
+    };
+  });
   const firstSectionBenefit = sectionBenefits[0] ?? null;
 
   return {

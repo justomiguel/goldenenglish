@@ -13,6 +13,7 @@ import type { ParentLearningFeedbackRow } from "@/lib/learning-content/loadParen
 import type { ParentMonthBillingSummary } from "@/lib/parent/loadParentMonthBillingInvoiceSummary";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 function ParentDashboardSkeleton() {
   return (
@@ -95,7 +96,7 @@ export function ParentDashboardEntry({
             <li key={k.id}>
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 shadow-[var(--shadow-soft)]">
                 <span className="font-medium text-[var(--color-foreground)]">
-                  {k.first_name} {k.last_name}
+                  {formatProfileNameSurnameFirst(k.first_name, k.last_name)}
                 </span>
                 <Link
                   href={payHref}

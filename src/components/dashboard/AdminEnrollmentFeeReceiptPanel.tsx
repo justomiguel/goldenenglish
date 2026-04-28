@@ -19,6 +19,7 @@ export function AdminEnrollmentFeeReceiptPanel({
   receiptStatus,
   enrollmentId,
   busy,
+  readOnly = false,
   onReview,
 }: {
   labels: BillingLabels;
@@ -26,6 +27,7 @@ export function AdminEnrollmentFeeReceiptPanel({
   receiptStatus: "pending" | "approved" | "rejected" | null;
   enrollmentId: string | null;
   busy: boolean;
+  readOnly?: boolean;
   onReview: (decision: "approved" | "rejected") => void;
 }) {
   if (!receiptSignedUrl && !receiptStatus) {
@@ -72,7 +74,7 @@ export function AdminEnrollmentFeeReceiptPanel({
           </a>
         )}
       </div>
-      {receiptStatus !== "approved" && enrollmentId && (
+      {receiptStatus !== "approved" && enrollmentId && !readOnly && (
         <div className="mt-2 flex flex-wrap gap-2">
           <Button
             type="button"

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { TeacherAssessmentAttemptReview } from "@/types/learningContent";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 type AttemptRow = {
   id: string;
@@ -31,7 +32,7 @@ export async function loadTeacherAssessmentAttempts(
     const assessment = first(attempt.learning_assessments);
     if (!assessment || assessment.section_id !== sectionId) return [];
     const profile = first(attempt.profiles);
-    const studentLabel = profile ? `${profile.first_name} ${profile.last_name}`.trim() : attempt.student_id;
+    const studentLabel = profile ? formatProfileSnakeSurnameFirst(profile, attempt.student_id) : attempt.student_id;
     return [{
       id: attempt.id,
       studentId: attempt.student_id,

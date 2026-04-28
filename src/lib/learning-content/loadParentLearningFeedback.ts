@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { LearningFeedbackRow } from "@/types/learningContent";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export type ParentLearningFeedbackRow = LearningFeedbackRow & {
   studentId: string;
@@ -41,7 +42,7 @@ export async function loadParentLearningFeedback(
   const nameById = new Map(
     ((profiles ?? []) as { id: string; first_name: string; last_name: string }[]).map((profile) => [
       profile.id,
-      `${profile.first_name} ${profile.last_name}`.trim(),
+      formatProfileSnakeSurnameFirst(profile),
     ]),
   );
 

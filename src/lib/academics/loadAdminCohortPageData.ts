@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionMaxStudents";
 import { SECTION_LEAD_TEACHER_ELIGIBLE_ROLES } from "@/lib/academics/sectionStaffEligibleRoles";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export interface AdminCohortSectionRow {
   id: string;
@@ -128,7 +129,7 @@ async function loadTeachers(supabase: SupabaseClient): Promise<{ id: string; lab
     .limit(200);
   return (teacherRows ?? []).map((p) => {
     const r = p as { id: string; first_name: string; last_name: string };
-    return { id: r.id, label: `${r.first_name} ${r.last_name}`.trim() };
+    return { id: r.id, label: formatProfileSnakeSurnameFirst(r) };
   });
 }
 

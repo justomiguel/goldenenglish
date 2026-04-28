@@ -9,6 +9,10 @@ import { loadParentPaymentPendingMap } from "@/lib/academics/parentPaymentPendin
 import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionMaxStudents";
 import { mapSectionFeePlanRow, type SectionFeePlan, type SectionFeePlanRowDb } from "@/types/sectionFeePlan";
 import { attachSectionFeePlansUsage, type SectionFeePlanPaymentRef } from "@/lib/billing/computeSectionFeePlansUsage";
+import {
+  compareProfileSnakeByLastThenFirst,
+  formatProfileSnakeSurnameFirst,
+} from "@/lib/profile/formatProfileDisplayName";
 
 export interface AdminSectionRosterRow {
   enrollmentId: string;
@@ -104,16 +108,24 @@ export async function loadAdminSectionPageData(
     .eq("section_id", sectionId)
     .order("created_at", { ascending: false });
 
-  const rows: AdminSectionRosterRow[] = (enrollments ?? []).map((raw) => {
-    const r = raw as {
-      id: string;
-      status: string;
-      student_id: string;
-      profiles: { first_name: string; last_name: string } | { first_name: string; last_name: string }[] | null;
-    };
+  const rawEnrollments = (enrollments ?? []) as {
+    id: string;
+    status: string;
+    student_id: string;
+    profiles: { first_name: string; last_name: string } | { first_name: string; last_name: string }[] | null;
+  }[];
+  const sortedEnrollments = [...rawEnrollments].sort((a, b) => {
+    const pa = (Array.isArray(a.profiles) ? a.profiles[0] : a.profiles) ?? null;
+    const pb = (Array.isArray(b.profiles) ? b.profiles[0] : b.profiles) ?? null;
+    if (!pa && !pb) return 0;
+    if (!pa) return 1;
+    if (!pb) return -1;
+    return compareProfileSnakeByLastThenFirst(pa, pb);
+  });
+  const rows: AdminSectionRosterRow[] = sortedEnrollments.map((r) => {
     const pRaw = r.profiles;
     const p = Array.isArray(pRaw) ? (pRaw[0] ?? null) : pRaw;
-    const label = p ? `${p.first_name} ${p.last_name}`.trim() : r.student_id;
+    const label = p ? formatProfileSnakeSurnameFirst(p, r.student_id) : r.student_id;
     return { enrollmentId: r.id, studentId: r.student_id, label, status: r.status };
   });
   const activeEnrollmentCount = rows.filter((r) => r.status === "active").length;

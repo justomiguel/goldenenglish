@@ -10,10 +10,8 @@ import {
 import { listTutorStudentsWithFinance } from "@/lib/auth/listTutorStudentsWithFinance";
 import { loadStudentMonthlyPaymentsView } from "@/lib/billing/loadStudentMonthlyPaymentsView";
 import { studentReceiptSignedUrl } from "@/lib/payments/studentReceiptSignedUrl";
-import {
-  submitTutorPaymentReceipt,
-  submitTutorEnrollmentFeeReceipt,
-} from "@/app/[locale]/dashboard/parent/payments/actions";
+import { submitTutorPaymentReceipt } from "@/app/[locale]/dashboard/parent/payments/actions";
+import { submitTutorEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/parent/payments/submitTutorEnrollmentFeeReceiptAction";
 import type { StudentPaymentRow } from "@/components/student/StudentPaymentsHistory";
 import type { Locale } from "@/types/i18n";
 

@@ -1,10 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AdminTransferInboxRow } from "@/types/adminTransferInbox";
+import {
+  compareProfileSnakeByLastThenFirst,
+  formatProfileSnakeSurnameFirst,
+} from "@/lib/profile/formatProfileDisplayName";
 
 function labelFromProfile(p: { first_name: string; last_name: string } | null | undefined, id: string) {
   if (!p) return id;
-  const s = `${p.first_name} ${p.last_name}`.trim();
-  return s || id;
+  return formatProfileSnakeSurnameFirst(p, id);
 }
 
 /**
@@ -94,7 +97,7 @@ export async function loadAdminTransferInboxRows(
     timeStyle: "short",
   });
 
-  return list.map((r) => ({
+  const mapped = list.map((r) => ({
     id: r.id,
     studentLabel: labelFromProfile(profMap.get(r.student_id), r.student_id),
     fromLabel: secMap.get(r.from_section_id) ?? r.from_section_id,
@@ -102,5 +105,13 @@ export async function loadAdminTransferInboxRows(
     byLabel: labelFromProfile(profMap.get(r.requested_by), r.requested_by),
     note: r.note,
     createdAt: df.format(new Date(r.created_at)),
+    _studentProf: profMap.get(r.student_id) ?? null,
   }));
+  mapped.sort((a, b) => {
+    if (!a._studentProf && !b._studentProf) return 0;
+    if (!a._studentProf) return 1;
+    if (!b._studentProf) return -1;
+    return compareProfileSnakeByLastThenFirst(a._studentProf, b._studentProf);
+  });
+  return mapped.map(({ _studentProf, ...row }) => row);
 }

@@ -9,6 +9,7 @@ import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots"
 import { revalidateAcademicSurfaces } from "@/app/[locale]/dashboard/admin/academic/revalidatePaths";
 import { logServerException } from "@/lib/logging/serverActionLog";
 import { cancelReminderJobsForEnrollmentId } from "@/lib/notifications/cancelReminderJobsAdmin";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export type AcademicTransferNotificationDict = {
   emailSubject: string;
@@ -138,7 +139,7 @@ export async function approveSectionTransferRequestAction(
         .eq("id", sec.teacher_id)
         .maybeSingle();
       const teacherName = teacherRow
-        ? `${teacherRow.first_name} ${teacherRow.last_name}`.trim()
+        ? formatProfileNameSurnameFirst(teacherRow.first_name, teacherRow.last_name, sec.teacher_id)
         : sec.teacher_id;
       const slots = parseSectionScheduleSlots(sec.schedule_slots);
       const loc = input.locale === "en" ? "en" : "es";

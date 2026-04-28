@@ -29,6 +29,7 @@ interface AdminStudentBillingEntryProps {
   enrollmentFeeExempt: boolean;
   enrollmentExemptReason: string | null;
   lastEnrollmentPaidAt: string | null;
+  defaultYear: number;
 }
 
 export function AdminStudentBillingEntry({
@@ -43,6 +44,7 @@ export function AdminStudentBillingEntry({
   enrollmentFeeExempt,
   enrollmentExemptReason,
   lastEnrollmentPaidAt,
+  defaultYear,
 }: AdminStudentBillingEntryProps) {
   const backHref = `/${locale}/dashboard/admin/users/${studentId}`;
 
@@ -66,6 +68,7 @@ export function AdminStudentBillingEntry({
         enrollmentFeeExempt={enrollmentFeeExempt}
         enrollmentExemptReason={enrollmentExemptReason}
         lastEnrollmentPaidAt={lastEnrollmentPaidAt}
+        defaultYear={defaultYear}
       />
     </>
   );

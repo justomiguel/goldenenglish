@@ -212,7 +212,7 @@ describe("loadParentChildrenSummaries", () => {
     const r = await loadParentChildrenSummaries(supabase as never, "t1");
     expect(r).toHaveLength(1);
     expect(r[0].assignedTeacherId).toBe("t-teacher");
-    expect(r[0].assignedTeacherName).toBe("John Doe");
+    expect(r[0].assignedTeacherName).toBe("Doe John");
     expect(r[0].lastPublishedGrade).toBeNull();
   });
 });

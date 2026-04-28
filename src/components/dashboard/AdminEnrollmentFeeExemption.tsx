@@ -29,6 +29,10 @@ interface AdminEnrollmentFeeExemptionProps {
   initialLastPaidAt: string | null;
   receiptSignedUrl: string | null;
   receiptStatus: "pending" | "approved" | "rejected" | null;
+  /** When true, show enrollment status read-only (manage via monthly matrix area workflows elsewhere). */
+  readOnly?: boolean;
+  /** Opened inside billing matrix modal: no outer card chrome; heading/lead come from the modal shell. */
+  embeddedInModal?: boolean;
 }
 
 export function AdminEnrollmentFeeExemption({
@@ -43,6 +47,8 @@ export function AdminEnrollmentFeeExemption({
   initialLastPaidAt,
   receiptSignedUrl,
   receiptStatus: initialReceiptStatus,
+  readOnly = false,
+  embeddedInModal = false,
 }: AdminEnrollmentFeeExemptionProps) {
   const router = useRouter();
   const [exempt, setExempt] = useState(initialExempt);
@@ -98,50 +104,84 @@ export function AdminEnrollmentFeeExemption({
     }
   }
 
+  const shellClass = embeddedInModal
+    ? "space-y-4"
+    : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4";
+  const ShellTag = embeddedInModal ? "div" : "section";
+
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <h2 className="font-semibold text-[var(--color-secondary)]">{labels.enrollmentFeeTitle}</h2>
-          {sectionName ? (
-            <p className="mt-1 text-sm font-medium text-[var(--color-foreground)]">
-              {labels.enrollmentSection.replace("{section}", sectionName)}
-            </p>
-          ) : null}
-        </div>
-        {sectionName && initialExempt ? (
+    <ShellTag className={shellClass}>
+      {!embeddedInModal ? (
+        <>
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <h2 className="font-semibold text-[var(--color-secondary)]">{labels.enrollmentFeeTitle}</h2>
+              {sectionName ? (
+                <p className="mt-1 text-sm font-medium text-[var(--color-foreground)]">
+                  {labels.enrollmentSection.replace("{section}", sectionName)}
+                </p>
+              ) : null}
+            </div>
+            {sectionName && initialExempt ? (
+              <span className="rounded-full border border-[var(--color-info)]/40 bg-[var(--color-info)]/10 px-3 py-1 text-xs font-semibold text-[var(--color-info)]">
+                {labels.enrollmentExemptInSection.replace("{section}", sectionName)}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.enrollmentFeeLead}</p>
+        </>
+      ) : sectionName && initialExempt ? (
+        <div className="flex flex-wrap justify-end">
           <span className="rounded-full border border-[var(--color-info)]/40 bg-[var(--color-info)]/10 px-3 py-1 text-xs font-semibold text-[var(--color-info)]">
             {labels.enrollmentExemptInSection.replace("{section}", sectionName)}
           </span>
-        ) : null}
-      </div>
-      <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.enrollmentFeeLead}</p>
-
-      <form onSubmit={saveExemption} className="mt-4 space-y-3">
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={exempt}
-            onChange={(e) => setExempt(e.target.checked)}
-            disabled={busy}
-          />
-          {labels.enrollmentExemptLabel}
-        </label>
-        <div>
-          <Label htmlFor="enr-reason">{labels.enrollmentReason}</Label>
-          <Input
-            id="enr-reason"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            className="mt-1"
-            disabled={busy}
-          />
         </div>
-        <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px]">
-          {busy ? null : <Save className="h-4 w-4 shrink-0" aria-hidden />}
-          {labels.enrollmentSave}
-        </Button>
-      </form>
+      ) : null}
+
+      {readOnly ? (
+        <dl className="mt-4 space-y-2 text-sm">
+          <div className="flex flex-wrap gap-2">
+            <dt className="font-semibold text-[var(--color-foreground)]">
+              {labels.enrollmentExemptLabel}
+            </dt>
+            <dd className="text-[var(--color-muted-foreground)]">
+              {initialExempt ? labels.enrollmentReadOnlyExemptYes : labels.enrollmentReadOnlyExemptNo}
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-[var(--color-foreground)]">{labels.enrollmentReason}</dt>
+            <dd className="mt-0.5 text-[var(--color-muted-foreground)]">
+              {initialReason?.trim() ? initialReason : labels.emptyValue}
+            </dd>
+          </div>
+        </dl>
+      ) : (
+        <form onSubmit={saveExemption} className="mt-4 space-y-3">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={exempt}
+              onChange={(e) => setExempt(e.target.checked)}
+              disabled={busy}
+            />
+            {labels.enrollmentExemptLabel}
+          </label>
+          <div>
+            <Label htmlFor="enr-reason">{labels.enrollmentReason}</Label>
+            <Input
+              id="enr-reason"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="mt-1"
+              disabled={busy}
+            />
+          </div>
+          <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px]">
+            {busy ? null : <Save className="h-4 w-4 shrink-0" aria-hidden />}
+            {labels.enrollmentSave}
+          </Button>
+        </form>
+      )}
 
       <div className="mt-6 border-t border-[var(--color-border)] pt-4">
         <p className="text-sm text-[var(--color-muted-foreground)]">
@@ -150,16 +190,18 @@ export function AdminEnrollmentFeeExemption({
             ? new Date(initialLastPaidAt).toLocaleDateString()
             : labels.enrollmentNonePaid}
         </p>
-        <Button
-          type="button"
-          variant="ghost"
-          className="mt-2 min-h-[44px]"
-          disabled={busy}
-          onClick={() => void markPaid()}
-        >
-          <Banknote className="h-4 w-4 shrink-0" aria-hidden />
-          {labels.enrollmentMarkPaid}
-        </Button>
+        {!readOnly ? (
+          <Button
+            type="button"
+            variant="ghost"
+            className="mt-2 min-h-[44px]"
+            disabled={busy}
+            onClick={() => void markPaid()}
+          >
+            <Banknote className="h-4 w-4 shrink-0" aria-hidden />
+            {labels.enrollmentMarkPaid}
+          </Button>
+        ) : null}
       </div>
 
       <AdminEnrollmentFeeReceiptPanel
@@ -168,6 +210,7 @@ export function AdminEnrollmentFeeExemption({
         receiptStatus={receiptStatus}
         enrollmentId={enrollmentId}
         busy={busy}
+        readOnly={readOnly}
         onReview={(decision) => void reviewReceipt(decision)}
       />
 
@@ -176,6 +219,6 @@ export function AdminEnrollmentFeeExemption({
           {msg}
         </p>
       ) : null}
-    </section>
+    </ShellTag>
   );
 }

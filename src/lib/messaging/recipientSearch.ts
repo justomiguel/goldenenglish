@@ -1,8 +1,9 @@
 import type { MessagingRecipient } from "@/types/messaging";
 import { normalizePersonSearchText, personNameFieldsMatchPrefix } from "@/lib/users/profileSearchPrefix";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export function messagingRecipientDisplayName(r: MessagingRecipient): string {
-  return `${r.first_name} ${r.last_name}`.trim();
+  return formatProfileSnakeSurnameFirst(r);
 }
 
 export function normalizeMessagingSearchText(s: string): string {

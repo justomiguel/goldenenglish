@@ -56,6 +56,34 @@ describe("AdminStudentSearchCombobox", () => {
     await waitFor(() => expect(search).toHaveBeenCalledWith("z"));
   });
 
+  it("hides excluded ids from result list", async () => {
+    const user = userEvent.setup();
+    const search = vi
+      .fn()
+      .mockResolvedValue([
+        { id: "1", label: "Ada" },
+        { id: "2", label: "Bob" },
+      ]);
+
+    render(
+      <AdminStudentSearchCombobox
+        id="excl-search"
+        labelText="Search"
+        placeholder="Find…"
+        minCharsHint="More chars"
+        debounceMs={0}
+        search={search}
+        onPick={() => {}}
+        excludeIds={["1"]}
+        resultsListHeading="Candidates"
+      />,
+    );
+    await user.type(screen.getByPlaceholderText("Find…"), "x");
+    await waitFor(() => expect(screen.getByText("Candidates")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByRole("button", { name: "Bob" })).toBeInTheDocument());
+    expect(screen.queryByRole("button", { name: "Ada" })).not.toBeInTheDocument();
+  });
+
   it("clears when resetKey changes", async () => {
     const user = userEvent.setup();
     const search = vi.fn().mockResolvedValue([]);

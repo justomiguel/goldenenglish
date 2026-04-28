@@ -11,6 +11,7 @@ import type {
   LoadAdminRetentionResult,
 } from "@/types/adminRetention";
 import type { SectionAttendanceStatusDb } from "@/types/sectionAcademics";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export type { AdminRetentionCandidate, LoadAdminRetentionOptions, LoadAdminRetentionResult };
 
@@ -93,7 +94,7 @@ export async function loadAdminRetentionCandidates(
       return [
         p.id as string,
         {
-          label: `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim(),
+          label: formatProfileSnakeSurnameFirst(p),
           phoneDigits,
           phoneDisplay: phoneTrim.length > 0 ? phoneTrim : phoneDigits && phoneDigits.length > 0 ? `+${phoneDigits}` : null,
         },

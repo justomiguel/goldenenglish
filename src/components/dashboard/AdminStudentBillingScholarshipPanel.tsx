@@ -27,6 +27,8 @@ export interface AdminStudentBillingScholarshipPanelProps {
   busy: boolean;
   setBusy: (v: boolean) => void;
   setMsg: (v: string | null) => void;
+  /** List-only: hide create/edit/deactivate controls (manage scholarships from the monthly matrix). */
+  readOnly?: boolean;
 }
 
 function activeScholarships(rows: AdminBillingScholarship[]) {
@@ -43,6 +45,7 @@ export function AdminStudentBillingScholarshipPanel({
   busy,
   setBusy,
   setMsg,
+  readOnly = false,
 }: AdminStudentBillingScholarshipPanelProps) {
   const router = useRouter();
   const [visibleScholarships, setVisibleScholarships] = useState(
@@ -155,6 +158,7 @@ export function AdminStudentBillingScholarshipPanel({
               row={row}
               labels={labels}
               busy={busy}
+              readOnly={readOnly}
               onEdit={editScholarship}
               onRemove={removeScholarship}
             />
@@ -164,6 +168,7 @@ export function AdminStudentBillingScholarshipPanel({
         <p className="mt-3 text-sm text-[var(--color-muted-foreground)]">{labels.scholarshipNone}</p>
       )}
 
+      {readOnly ? null : (
       <form onSubmit={saveScholarship} className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
           <Label htmlFor="sch-pct">{labels.scholarshipPercent}</Label>
@@ -210,6 +215,7 @@ export function AdminStudentBillingScholarshipPanel({
           ) : null}
         </div>
       </form>
+      )}
     </section>
   );
 }

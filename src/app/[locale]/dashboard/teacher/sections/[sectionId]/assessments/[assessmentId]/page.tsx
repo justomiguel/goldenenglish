@@ -11,6 +11,7 @@ import type { AssessmentMatrixRosterRow, EnrollmentAssessmentGradeStatusDb } fro
 import { AssessmentRosterGradingClient } from "@/components/organisms/AssessmentRosterGradingClient";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
 import { parseSafeLocaleDashboardPath } from "@/lib/navigation/parseSafeLocaleDashboardPath";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 interface PageProps {
   params: Promise<{ locale: string; sectionId: string; assessmentId: string }>;
@@ -104,7 +105,7 @@ export default async function TeacherAssessmentMatrixPage({ params, searchParams
   const rosterRows: AssessmentMatrixRosterRow[] = raw.map((r) => {
     const pRaw = r.profiles;
     const p = Array.isArray(pRaw) ? pRaw[0] : pRaw;
-    const label = p ? `${p.first_name} ${p.last_name}`.trim() : r.student_id;
+    const label = p ? formatProfileSnakeSurnameFirst(p, r.student_id) : r.student_id;
     const g = gradeByEnr.get(r.id);
     const scoreNum = g?.score != null ? Number(g.score) : null;
     return {

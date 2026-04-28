@@ -8,6 +8,10 @@ import {
   listTeacherAttendanceClassDaysIso,
 } from "@/lib/academics/teacherAttendanceClassDayMatch";
 import { getTeacherAttendanceFullCourseMaxClassDays } from "@/lib/academics/academicsAttendanceMatrixProperties";
+import {
+  compareProfileSnakeByLastThenFirst,
+  formatProfileSnakeSurnameFirst,
+} from "@/lib/profile/formatProfileDisplayName";
 
 export type TeacherAttendanceClassDayListMode = "asc" | "newest_capped";
 
@@ -71,10 +75,19 @@ export async function loadTeacherSectionAttendanceMatrix(
     profiles: { first_name: string; last_name: string } | { first_name: string; last_name: string }[] | null;
   }[];
 
-  const rows: TeacherAttendanceMatrixRow[] = raw.map((r) => {
+  const sortedRaw = [...raw].sort((a, b) => {
+    const pa = (Array.isArray(a.profiles) ? a.profiles[0] : a.profiles) ?? null;
+    const pb = (Array.isArray(b.profiles) ? b.profiles[0] : b.profiles) ?? null;
+    if (!pa && !pb) return 0;
+    if (!pa) return 1;
+    if (!pb) return -1;
+    return compareProfileSnakeByLastThenFirst(pa, pb);
+  });
+
+  const rows: TeacherAttendanceMatrixRow[] = sortedRaw.map((r) => {
     const pRaw = r.profiles;
     const p = Array.isArray(pRaw) ? pRaw[0] : pRaw;
-    const label = p ? `${p.first_name} ${p.last_name}`.trim() : r.student_id;
+    const label = p ? formatProfileSnakeSurnameFirst(p, r.student_id) : r.student_id;
     return {
       enrollmentId: r.id,
       studentLabel: label,

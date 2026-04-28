@@ -9,6 +9,7 @@ import { AdminMessagesTabs } from "@/components/dashboard/AdminMessagesTabs";
 import { AdminPortalCompose } from "@/components/dashboard/AdminPortalCompose";
 import type { MessagingRecipient } from "@/types/messaging";
 import { chunkedIn } from "@/lib/supabase/chunkedIn";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -114,7 +115,7 @@ export default async function AdminMessagesPage({ params }: PageProps) {
     profiles.map((p) => [
       p.id,
       {
-        name: `${p.first_name} ${p.last_name}`.trim(),
+        name: formatProfileSnakeSurnameFirst(p),
         role: p.role as string,
       },
     ]),

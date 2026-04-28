@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 /**
  * Vista del tutor enlazado a un alumno para la sección de privacidad del
@@ -28,7 +29,7 @@ interface ProfileRow {
 }
 
 function buildDisplayName(first: string | null, last: string | null): string {
-  return `${(first ?? "").trim()} ${(last ?? "").trim()}`.trim();
+  return formatProfileNameSurnameFirst(first, last);
 }
 
 export async function listStudentTutorsWithFinance(

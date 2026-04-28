@@ -7,6 +7,7 @@ import { loadAdminStudentBillingTabData } from "@/lib/dashboard/loadAdminStudent
 import { createClient } from "@/lib/supabase/server";
 import { AdminUserDetailEntry } from "@/components/dashboard/AdminUserDetailEntry";
 import type { Locale } from "@/types/i18n";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 interface PageProps {
   params: Promise<{ locale: string; userId: string }>;
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!detail) {
     return { title: dict.admin.users.detailTitle, robots: { index: false, follow: false } };
   }
-  const name = `${detail.firstName} ${detail.lastName}`.trim();
+  const name = formatProfileNameSurnameFirst(detail.firstName, detail.lastName);
   return {
     title: `${name} — ${dict.admin.users.detailTitle}`,
     robots: { index: false, follow: false },

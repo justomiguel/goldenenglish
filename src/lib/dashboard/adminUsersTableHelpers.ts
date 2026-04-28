@@ -1,3 +1,8 @@
+import {
+  compareProfileNamesByLastThenFirst,
+  formatProfileNameSurnameFirst,
+} from "@/lib/profile/formatProfileDisplayName";
+
 export type AdminUserRow = {
   id: string;
   email: string;
@@ -30,7 +35,7 @@ export function filterAdminUsers(
   const q = query.trim().toLowerCase();
   if (!q) return next;
   return next.filter((row) => {
-    const fullName = `${row.firstName} ${row.lastName}`.trim();
+    const fullName = formatProfileNameSurnameFirst(row.firstName, row.lastName);
     const sectionSearch =
       row.missingSection && row.role.toLowerCase() === "student"
         ? "sin-seccion sin-sección no-section missing-section"
@@ -71,14 +76,14 @@ export function sortAdminUsers(
   const copy = [...rows];
   const mult = dir === "asc" ? 1 : -1;
   copy.sort((a, b) => {
-    const va =
-      key === "name"
-        ? `${a.firstName} ${a.lastName}`.trim()
-        : a[key as keyof Pick<AdminUserRow, "email" | "role" | "phone">];
-    const vb =
-      key === "name"
-        ? `${b.firstName} ${b.lastName}`.trim()
-        : b[key as keyof Pick<AdminUserRow, "email" | "role" | "phone">];
+    if (key === "name") {
+      return compareProfileNamesByLastThenFirst(
+        { firstName: a.firstName, lastName: a.lastName },
+        { firstName: b.firstName, lastName: b.lastName },
+      ) * mult;
+    }
+    const va = a[key as keyof Pick<AdminUserRow, "email" | "role" | "phone">];
+    const vb = b[key as keyof Pick<AdminUserRow, "email" | "role" | "phone">];
     return va.localeCompare(vb, undefined, { sensitivity: "base" }) * mult;
   });
   return copy;

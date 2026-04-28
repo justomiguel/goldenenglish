@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import es from "@/dictionaries/es.json";
 import {
   upsertAdminStudentTutorLinkAction,
+  removeAdminStudentTutorLinkAction,
   createAdminParentAndLinkStudentAction,
 } from "@/app/[locale]/dashboard/admin/users/adminUserDetailTutorActions";
 
@@ -30,6 +31,11 @@ vi.mock("@/lib/register/ensureParentProfileByTutorDni", () => ({
 const studentId = "00000000-0000-4000-8000-000000000010";
 const tutorId = "00000000-0000-4000-8000-000000000020";
 
+let tutorRelDeleteResult: { data: unknown[]; error: unknown } = {
+  data: [{ tutor_id: tutorId }],
+  error: null,
+};
+
 function mockAdminClient() {
   return {
     from: (table: string) => {
@@ -46,6 +52,12 @@ function mockAdminClient() {
           }),
         };
       }
+      if (table === "tutor_student_rel") {
+        const select = vi.fn().mockImplementation(async () => tutorRelDeleteResult);
+        const eq2 = vi.fn(() => ({ select }));
+        const eq1 = vi.fn(() => ({ eq: eq2 }));
+        return { delete: vi.fn(() => ({ eq: eq1 })) };
+      }
       throw new Error(`unexpected table ${table}`);
     },
   };
@@ -58,6 +70,7 @@ vi.mock("@/lib/supabase/admin", () => ({
 describe("upsertAdminStudentTutorLinkAction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    tutorRelDeleteResult = { data: [{ tutor_id: tutorId }], error: null };
     mockAssertAdmin.mockResolvedValue({});
     mockUpsertTutorStudentLink.mockResolvedValue({ ok: true });
   });
@@ -96,9 +109,56 @@ describe("upsertAdminStudentTutorLinkAction", () => {
   });
 });
 
+describe("removeAdminStudentTutorLinkAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    tutorRelDeleteResult = { data: [{ tutor_id: tutorId }], error: null };
+    mockAssertAdmin.mockResolvedValue({});
+  });
+
+  it("returns forbidden when assertAdmin fails", async () => {
+    mockAssertAdmin.mockRejectedValue(new Error("no"));
+    const r = await removeAdminStudentTutorLinkAction({
+      locale: "es",
+      studentId,
+      tutorId,
+    });
+    expect(r).toEqual({ ok: false, message: U.detailErrForbidden });
+  });
+
+  it("deletes link, revalidates, and records audit when row existed", async () => {
+    const r = await removeAdminStudentTutorLinkAction({
+      locale: "es",
+      studentId,
+      tutorId,
+    });
+    expect(r.ok).toBe(true);
+    expect(r.message).toBe(U.detailToastTutorUnlinked);
+    expect(mockRecordSystemAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: "admin_user_detail_remove_tutor_link",
+        resourceType: "tutor_student_rel",
+        resourceId: studentId,
+        payload: { tutorId },
+      }),
+    );
+  });
+
+  it("returns tutor link not found when delete affects no rows", async () => {
+    tutorRelDeleteResult = { data: [], error: null };
+    const r = await removeAdminStudentTutorLinkAction({
+      locale: "es",
+      studentId,
+      tutorId,
+    });
+    expect(r).toEqual({ ok: false, message: U.detailErrTutorLinkNotFound });
+  });
+});
+
 describe("createAdminParentAndLinkStudentAction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    tutorRelDeleteResult = { data: [{ tutor_id: tutorId }], error: null };
     mockAssertAdmin.mockResolvedValue({});
     mockEnsureParent.mockResolvedValue({ ok: true, parentId: tutorId });
     mockUpsertTutorStudentLink.mockResolvedValue({ ok: true });

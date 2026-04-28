@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { CreateCohortAssessmentForm } from "@/components/molecules/CreateCohortAssessmentForm";
+import { CohortAssessmentRowActions } from "@/components/molecules/CohortAssessmentRowActions";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
 
 interface PageProps {
@@ -25,6 +26,7 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
   const { locale, sectionId } = await params;
   const dict = await getDictionary(locale);
   const d = dict.dashboard.teacherAssessmentList;
+  const dAssessmentsPanel = dict.dashboard.academicSectionPage.assessmentsPanel;
   const supabase = await createClient();
   const {
     data: { user },
@@ -48,7 +50,7 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
 
   const { data: assessments } = await supabase
     .from("cohort_assessments")
-    .select("id, name, assessment_on, max_score")
+    .select("id, name, assessment_on, max_score, created_at")
     .eq("cohort_id", cohortId)
     .order("assessment_on", { ascending: false });
 
@@ -57,6 +59,7 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
     name: string;
     assessment_on: string;
     max_score: number | string;
+    created_at: string;
   }[];
 
   const todayIso = new Date().toISOString().slice(0, 10);
@@ -84,7 +87,9 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
                 <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.tableName}</th>
                 <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.tableDate}</th>
                 <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.tableMax}</th>
-                <th className="px-3 py-2 font-medium text-[var(--color-foreground)]" />
+                <th className="px-3 py-2 text-right font-medium text-[var(--color-foreground)]">
+                  {dAssessmentsPanel.colActions}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -95,13 +100,22 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
                     {dateFmt.format(new Date(`${a.assessment_on}T12:00:00`))}
                   </td>
                   <td className="px-3 py-2 text-[var(--color-muted-foreground)]">{String(a.max_score)}</td>
-                  <td className="px-3 py-2 text-right">
-                    <Link
-                      href={`/${locale}/dashboard/teacher/sections/${sectionId}/assessments/${a.id}`}
-                      className="inline-flex min-h-[44px] items-center font-medium text-[var(--color-primary)] hover:underline"
-                    >
-                      {d.openMatrix}
-                    </Link>
+                  <td className="px-3 py-2 text-right align-top">
+                    <CohortAssessmentRowActions
+                      locale={locale}
+                      cohortId={cohortId}
+                      sectionId={sectionId}
+                      row={{
+                        id: a.id,
+                        name: a.name,
+                        assessmentOn: a.assessment_on,
+                        maxScore: Number(a.max_score) || 0,
+                        createdAt: a.created_at,
+                      }}
+                      rubricReturnTo={null}
+                      canDelete={isAdmin}
+                      dict={dAssessmentsPanel}
+                    />
                   </td>
                 </tr>
               ))}

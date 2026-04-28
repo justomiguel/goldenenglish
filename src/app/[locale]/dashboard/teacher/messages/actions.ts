@@ -14,6 +14,7 @@ import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { mapMessagingUseCaseCode } from "@/lib/messaging/mapMessagingUseCaseCode";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 const replySchema = z.string().min(1).max(80000);
 
@@ -51,7 +52,7 @@ export async function replyToStudentMessage(
   const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
   if (!allowed) return { ok: false, message: msg.forbidden };
 
-  const name = `${profile.first_name} ${profile.last_name}`.trim();
+  const name = formatProfileNameSurnameFirst(profile.first_name, profile.last_name);
   const result = await replyToStudentMessageUseCase({
     supabase,
     messageId: id.data,
@@ -120,7 +121,7 @@ export async function sendTeacherMessage(
     return { ok: false, message: msg.invalidRecipient };
   }
 
-  const name = `${profile.first_name} ${profile.last_name}`.trim();
+  const name = formatProfileNameSurnameFirst(profile.first_name, profile.last_name);
   const result = await sendStaffMessageUseCase({
     supabase,
     senderId: user.id,

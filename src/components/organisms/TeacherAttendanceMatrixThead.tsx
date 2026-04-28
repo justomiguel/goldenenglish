@@ -3,6 +3,8 @@
 import { CheckCheck, Loader2 } from "lucide-react";
 import type { AttendanceMatrixMonthGroup } from "@/lib/academics/attendanceMatrixMonthGroups";
 import type { Dictionary } from "@/types/i18n";
+import { SortableColumnHeader } from "@/components/molecules/SortableColumnHeader";
+import type { UniversalListSortLabels, UniversalSortDir } from "@/types/universalListView";
 
 export interface TeacherAttendanceMatrixTheadProps {
   dict: Dictionary["dashboard"]["teacherSectionAttendance"]["matrix"];
@@ -15,6 +17,10 @@ export interface TeacherAttendanceMatrixTheadProps {
   onColumnFill?: (dateIso: string) => void;
   columnBusyDate?: string | null;
   isDateEditable: (d: string) => boolean;
+  studentSortKey?: string;
+  studentSortDir?: UniversalSortDir;
+  onToggleStudentSort?: (columnId: string) => void;
+  studentSortLabels?: UniversalListSortLabels;
 }
 
 export function TeacherAttendanceMatrixThead({
@@ -28,7 +34,14 @@ export function TeacherAttendanceMatrixThead({
   onColumnFill,
   columnBusyDate,
   isDateEditable,
+  studentSortKey,
+  studentSortDir,
+  onToggleStudentSort,
+  studentSortLabels,
 }: TeacherAttendanceMatrixTheadProps) {
+  const studentSortable = Boolean(
+    onToggleStudentSort && studentSortLabels && studentSortKey != null && studentSortDir != null,
+  );
   return (
     <thead className="sticky top-0 z-[2] bg-[var(--color-muted)]/90 backdrop-blur-sm">
       <tr className="border-b border-[var(--color-border)]">
@@ -36,8 +49,26 @@ export function TeacherAttendanceMatrixThead({
           rowSpan={theadDepth}
           scope="col"
           className="sticky left-0 z-[4] min-w-[10rem] bg-[var(--color-muted)] px-2 py-2 align-middle text-xs font-semibold text-[var(--color-foreground)]"
+          aria-sort={
+            studentSortable && studentSortKey === "student"
+              ? studentSortDir === "asc"
+                ? "ascending"
+                : "descending"
+              : "none"
+          }
         >
-          {dict.colStudent}
+          {studentSortable ? (
+            <SortableColumnHeader
+              columnId="student"
+              label={dict.colStudent}
+              sortKey={studentSortKey!}
+              sortDir={studentSortDir!}
+              onToggleSort={onToggleStudentSort!}
+              sortLabels={studentSortLabels!}
+            />
+          ) : (
+            dict.colStudent
+          )}
         </th>
         {monthGroups.map((g) => (
           <th

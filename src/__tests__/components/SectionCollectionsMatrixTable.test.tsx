@@ -18,12 +18,22 @@ function buildStudent(
     studentId: id,
     studentName: name,
     documentLabel: id === "s1" ? "DNI 123" : null,
+    enrolledAt: "2026-01-01",
     paid: 0,
     pendingReview: 0,
     overdue: hasOverdue ? 100 : 0,
     upcoming: 0,
     expectedYear: 1200,
     hasOverdue,
+    enrollmentFee: {
+      amount: 0,
+      expectedAmount: 0,
+      exempt: false,
+      exemptReason: null,
+    },
+    scholarships: [],
+    activeScholarshipDiscountPercent: null,
+    activePromotionLabel: null,
     row: {
       sectionId: "sec-1",
       sectionName: "S1",
@@ -33,6 +43,9 @@ function buildStudent(
       enrollmentFeeExempt: false,
       enrollmentFeeExemptReason: null,
       enrollmentFeeCurrency: null,
+      enrollmentId: null,
+      enrollmentFeeReceiptStatus: null,
+      enrollmentFeeReceiptSignedUrl: null,
       currentPlan: null,
       cells: Array.from({ length: 12 }, (_, i) => ({
         month: i + 1,
@@ -58,6 +71,8 @@ const baseView: SectionCollectionsView = {
   cohortName: "Cohort 2026",
   year: 2026,
   todayMonth: 6,
+  sectionStartsOn: "2026-01-01",
+  sectionEndsOn: "2026-12-31",
   students: [buildStudent("s1", "Ada", true), buildStudent("s2", "Bea", false)],
   kpis: {
     paid: 0,
@@ -86,6 +101,10 @@ describe("SectionCollectionsMatrixTable", () => {
     );
     expect(screen.getByText("Ada")).toBeInTheDocument();
     expect(screen.getByText("Bea")).toBeInTheDocument();
+    const adaBilling = screen.getByRole("link", {
+      name: collectionsDict.matrix.openStudentBillingAria.replace("{name}", "Ada"),
+    });
+    expect(adaBilling).toHaveAttribute("href", "/en/dashboard/admin/users/s1/billing");
     expect(screen.getByText("DNI 123")).toBeInTheDocument();
     expect(screen.getByText(collectionsDict.matrix.studentColumn)).toBeInTheDocument();
     expect(

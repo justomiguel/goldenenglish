@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendStudentChurnAlert } from "@/lib/email/churnInactivityEmail";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { verifyCronRequest } from "@/lib/auth/verifyCronRequest";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export const runtime = "nodejs";
 
@@ -40,7 +41,7 @@ export async function GET(request: Request) {
   let sent = 0;
   for (const row of candidates ?? []) {
     const id = row.id as string;
-    const name = `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim();
+    const name = formatProfileNameSurnameFirst(row.first_name, row.last_name);
     try {
       await sendStudentChurnAlert({
         studentId: id,

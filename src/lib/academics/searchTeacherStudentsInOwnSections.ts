@@ -3,6 +3,7 @@ import { z } from "zod";
 import { chunkedIn } from "@/lib/supabase/chunkedIn";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { personProfileMatchPrefix } from "@/lib/users/profileSearchPrefix";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 const uuid = z.string().uuid();
 
@@ -83,7 +84,7 @@ export async function searchTeacherStudentsInOwnSections(
   for (const p of pool) {
     out.push({
       id: p.id,
-      label: `${p.first_name} ${p.last_name}`.trim(),
+      label: formatProfileSnakeSurnameFirst(p),
     });
     if (out.length >= 24) break;
   }

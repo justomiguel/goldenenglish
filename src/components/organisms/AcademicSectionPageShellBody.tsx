@@ -43,6 +43,7 @@ export interface AcademicSectionPageShellBodyProps {
   assessmentsData: AdminSectionAssessmentsPanelData;
   /** When set, opens the tab (e.g. from `?tab=evaluations` in the section URL). */
   defaultShellTab?: AcademicSectionShellTabId;
+  canDeleteCohortAssessments: boolean;
 }
 
 export function AcademicSectionPageShellBody({
@@ -64,6 +65,7 @@ export function AcademicSectionPageShellBody({
   externalChipLabels,
   assessmentsData,
   defaultShellTab,
+  canDeleteCohortAssessments,
 }: AcademicSectionPageShellBodyProps) {
   const {
     shellTabLabels,
@@ -168,6 +170,7 @@ export function AcademicSectionPageShellBody({
             sectionId={sectionId}
             data={assessmentsData}
             dict={d.assessmentsPanel}
+            canDeleteCohortAssessments={canDeleteCohortAssessments}
           />
         }
         fees={

@@ -8,6 +8,7 @@ import type {
 import { formatAcademicScheduleSummary } from "@/lib/academics/formatAcademicScheduleSummary";
 import { sectionAttendanceMonthPresentPct } from "@/lib/academics/sectionAttendanceMonthPct";
 import { loadStudentPublishedGrades } from "@/lib/student/loadStudentPublishedGrades";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 type CohortCell = { name: string } | { name: string }[] | null;
 
@@ -63,8 +64,10 @@ export async function loadStudentHubModel(
       .select("id, first_name, last_name")
       .in("id", teacherIds);
     for (const p of profs ?? []) {
-      teacherName[p.id as string] =
-        `${(p.first_name as string) ?? ""} ${(p.last_name as string) ?? ""}`.trim();
+      teacherName[p.id as string] = formatProfileNameSurnameFirst(
+        p.first_name as string | null,
+        p.last_name as string | null,
+      );
     }
   }
 

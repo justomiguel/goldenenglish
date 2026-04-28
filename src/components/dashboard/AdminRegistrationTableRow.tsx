@@ -2,6 +2,7 @@
 
 import { Pencil, Trash2, UserPlus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
@@ -32,7 +33,7 @@ export function AdminRegistrationTableRow({
   return (
     <tr className="border-t border-[var(--color-border)]">
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top font-medium">
-        {r.first_name} {r.last_name}
+        {formatProfileNameSurnameFirst(r.first_name, r.last_name)}
       </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top">{r.dni}</td>
       <td className="min-w-0 max-w-0 break-all px-3 py-2 align-top">{r.email}</td>

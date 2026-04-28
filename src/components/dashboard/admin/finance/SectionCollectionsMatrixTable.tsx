@@ -1,26 +1,14 @@
 "use client";
 
-import type {
-  SectionCollectionsView,
-  SectionCollectionsStudentRow,
-} from "@/types/sectionCollections";
+import type { SectionCollectionsView } from "@/types/sectionCollections";
 import type { Dictionary } from "@/types/i18n";
-import { effectiveScholarshipPercentForPeriod } from "@/lib/billing/scholarshipPeriod";
-import { SectionCollectionsMonthCell } from "./SectionCollectionsMonthCell";
-import { SectionCollectionsStudentBenefits } from "./SectionCollectionsStudentBenefits";
+import { SortableColumnHeader } from "@/components/molecules/SortableColumnHeader";
+import { useSectionCollectionsMatrixSort } from "@/hooks/useSectionCollectionsMatrixSort";
+import { SectionCollectionsMatrixStudentRow } from "./SectionCollectionsMatrixStudentRow";
 
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
 
 const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
-
-function scholarshipDiscountForPeriod(
-  student: SectionCollectionsStudentRow,
-  year: number,
-  month: number,
-): number | null {
-  const percent = effectiveScholarshipPercentForPeriod(student.scholarships, year, month);
-  return percent > 0 ? percent : null;
-}
 
 function moneyFormatter(locale: string, currency: string): Intl.NumberFormat {
   return new Intl.NumberFormat(locale, {
@@ -28,95 +16,6 @@ function moneyFormatter(locale: string, currency: string): Intl.NumberFormat {
     currency,
     maximumFractionDigits: 2,
   });
-}
-
-interface RowProps {
-  student: SectionCollectionsStudentRow;
-  view: SectionCollectionsView;
-  dict: CollectionsDict;
-  selected: boolean;
-  onToggle: (id: string, next: boolean) => void;
-  money: Intl.NumberFormat;
-  locale: string;
-}
-
-function StudentRow({
-  student,
-  view,
-  dict,
-  selected,
-  onToggle,
-  money,
-  locale,
-}: RowProps) {
-  const cells = MONTHS.map((m) =>
-    student.row.cells.find((c) => c.month === m && c.year === view.year),
-  );
-  return (
-    <tr
-      className={`border-b border-[var(--color-border)] last:border-b-0 ${student.hasOverdue ? "bg-[var(--color-error)]/5" : ""}`}
-    >
-      <td className="px-3 py-2 align-middle">
-        <input
-          type="checkbox"
-          checked={selected}
-          onChange={(e) => onToggle(student.studentId, e.target.checked)}
-          aria-label={dict.matrix.selectStudentAria.replace(
-            "{name}",
-            student.studentName,
-          )}
-          className="h-4 w-4 cursor-pointer accent-[var(--color-primary)]"
-        />
-      </td>
-      <td className="px-3 py-2 align-middle">
-        <div className="text-sm font-medium text-[var(--color-foreground)]">
-          {student.studentName}
-        </div>
-        {student.documentLabel ? (
-          <div className="text-[11px] text-[var(--color-muted-foreground)]">
-            {student.documentLabel}
-          </div>
-        ) : null}
-        <SectionCollectionsStudentBenefits
-          student={student}
-          labels={dict.benefits}
-          locale={locale}
-        />
-      </td>
-      {cells.map((cell, idx) => (
-        <td key={MONTHS[idx]} className="px-1 py-1 text-center align-middle">
-          {cell ? (
-            <SectionCollectionsMonthCell
-              cell={cell}
-              monthLabel={dict.monthShort[idx]!}
-              todayMonth={view.todayMonth}
-              year={view.year}
-              scholarshipDiscountPercent={scholarshipDiscountForPeriod(
-                student,
-                cell.year,
-                cell.month,
-              )}
-              ariaPrefix={student.studentName}
-              locale={locale}
-              labels={dict.monthCell}
-            />
-          ) : (
-            <span className="text-[10px] text-[var(--color-muted-foreground)]">
-              —
-            </span>
-          )}
-        </td>
-      ))}
-      <td className="px-3 py-2 text-right align-middle text-sm">
-        <div className="font-semibold text-[var(--color-success)]">
-          {money.format(student.paid)}
-        </div>
-        <div className="text-[11px] text-[var(--color-error)]">
-          {money.format(student.overdue)}
-        </div>
-      </td>
-    </tr>
-  );
 }
 
 export interface SectionCollectionsMatrixTableProps {
@@ -139,6 +38,9 @@ export function SectionCollectionsMatrixTable({
   onToggleAll,
 }: SectionCollectionsMatrixTableProps) {
   const money = moneyFormatter(locale, currency);
+  const sortLabels = dict.matrix.columnSort;
+  const { sortKey, sortDir, sortedStudents, onToggleSort } = useSectionCollectionsMatrixSort(view.students);
+
   if (view.students.length === 0) {
     return (
       <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-muted-foreground)]">
@@ -147,8 +49,11 @@ export function SectionCollectionsMatrixTable({
     );
   }
   const allSelected =
-    view.students.length > 0 &&
-    view.students.every((s) => selectedIds.has(s.studentId));
+    sortedStudents.length > 0 &&
+    sortedStudents.every((s) => selectedIds.has(s.studentId));
+  const showEnrollmentFeeColumn = view.students.some(
+    (s) => (s.enrollmentFee?.amount ?? 0) > 0,
+  );
   return (
     <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
       <table className="w-full min-w-[860px] table-fixed border-collapse text-sm">
@@ -163,22 +68,51 @@ export function SectionCollectionsMatrixTable({
                 className="h-4 w-4 cursor-pointer accent-[var(--color-primary)]"
               />
             </th>
-            <th scope="col" className="w-[220px] px-3 py-2 text-left">
-              {dict.matrix.studentColumn}
+            <th
+              scope="col"
+              className="w-[220px] px-3 py-2 text-left"
+              aria-sort={sortKey === "student" ? (sortDir === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <SortableColumnHeader
+                columnId="student"
+                label={dict.matrix.studentColumn}
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onToggleSort={onToggleSort}
+                sortLabels={sortLabels}
+              />
             </th>
+            {showEnrollmentFeeColumn ? (
+              <th scope="col" className="w-12 px-1 py-2 text-center">
+                <abbr title={dict.matrix.monthZeroTooltip} className="no-underline">
+                  {dict.matrix.monthZeroColumnShort}
+                </abbr>
+              </th>
+            ) : null}
             {MONTHS.map((m, i) => (
               <th key={m} scope="col" className="w-12 px-1 py-2 text-center">
                 {dict.monthShort[i]}
               </th>
             ))}
-            <th scope="col" className="w-[140px] px-3 py-2 text-right">
-              {dict.matrix.yearTotalsColumn}
+            <th
+              scope="col"
+              className="w-[140px] px-3 py-2 text-right"
+              aria-sort={sortKey === "totals" ? (sortDir === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <SortableColumnHeader
+                columnId="totals"
+                label={dict.matrix.yearTotalsColumn}
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onToggleSort={onToggleSort}
+                sortLabels={sortLabels}
+              />
             </th>
           </tr>
         </thead>
         <tbody>
-          {view.students.map((s) => (
-            <StudentRow
+          {sortedStudents.map((s) => (
+            <SectionCollectionsMatrixStudentRow
               key={s.studentId}
               student={s}
               view={view}
@@ -187,6 +121,7 @@ export function SectionCollectionsMatrixTable({
               onToggle={onToggleStudent}
               money={money}
               locale={locale}
+              showEnrollmentFeeColumn={showEnrollmentFeeColumn}
             />
           ))}
         </tbody>

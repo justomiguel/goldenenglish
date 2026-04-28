@@ -6,6 +6,7 @@ import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortal
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
 import { loadSectionLearningRouteWorkspace } from "@/lib/learning-content/loadLearningRouteWorkspace";
 import { loadTeacherAssessmentAttempts } from "@/lib/learning-content/loadTeacherAssessmentAttempts";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import {
   TeacherSectionContentsScreen,
   type TeacherContentStudent,
@@ -26,7 +27,7 @@ type EnrollmentRow = {
 
 function profileName(raw: EnrollmentRow["profiles"]): string {
   const profile = Array.isArray(raw) ? raw[0] : raw;
-  return profile ? `${profile.first_name} ${profile.last_name}`.trim() : "";
+  return profile ? formatProfileSnakeSurnameFirst(profile) : "";
 }
 
 export default async function TeacherSectionContentsPage({ params }: PageProps) {

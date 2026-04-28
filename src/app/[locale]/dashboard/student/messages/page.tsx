@@ -5,6 +5,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { resolveTeacherIdForStudent } from "@/lib/messaging/resolveTeacherId";
 import type { StudentMessageLineDto } from "@/components/student/StudentMessagesClient";
 import { StudentMessagesEntry } from "@/components/student/StudentMessagesEntry";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -54,7 +55,7 @@ export default async function StudentMessagesPage({ params }: PageProps) {
     (peerProfiles ?? []).map((p) => [
       p.id,
       {
-        name: `${p.first_name} ${p.last_name}`.trim(),
+        name: formatProfileSnakeSurnameFirst(p),
         role: p.role as string,
       },
     ]),

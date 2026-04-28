@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 /**
  * Resumen del alumno enlazado para mostrar en la UI del tutor: nombre / id +
@@ -31,7 +32,7 @@ interface ProfileRow {
 }
 
 function buildDisplayName(first: string | null, last: string | null): string {
-  return `${(first ?? "").trim()} ${(last ?? "").trim()}`.trim();
+  return formatProfileNameSurnameFirst(first, last);
 }
 
 /**

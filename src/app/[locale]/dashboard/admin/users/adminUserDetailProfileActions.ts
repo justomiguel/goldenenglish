@@ -20,7 +20,7 @@ import {
 const S = "adminUserDetailProfileActions";
 
 import type { AdminParentSearchHit } from "@/types/adminUsers";
-import { buildIlikePrefixPattern } from "@/lib/users/profileSearchPrefix";
+import { searchAdminParentsByPrefix } from "@/lib/users/searchAdminParentsByPrefix";
 
 const localeZ = z.string().min(2).max(8);
 const uuidZ = z.string().uuid();
@@ -32,23 +32,8 @@ export async function searchAdminParentsForDetailAction(query: string): Promise<
     logServerAuthzDenied(`${S}:searchParents`);
     return [];
   }
-  const q = query.trim();
-  if (q.length < 1) return [];
   const admin = createAdminClient();
-  const pat = buildIlikePrefixPattern(q);
-  const { data, error } = await admin
-    .from("profiles")
-    .select("id, first_name, last_name, role")
-    .eq("role", "parent")
-    .or(`first_name.ilike.${pat},last_name.ilike.${pat},dni_or_passport.ilike.${pat}`)
-    .order("last_name", { ascending: true })
-    .order("first_name", { ascending: true })
-    .limit(16);
-  if (error || !data) return [];
-  return data.map((p) => ({
-    id: String(p.id),
-    label: `${p.first_name} ${p.last_name}`.trim(),
-  }));
+  return searchAdminParentsByPrefix(admin, query);
 }
 
 const updatableFieldZ = z.enum([

@@ -11,6 +11,7 @@ describe("Modal", () => {
         onOpenChange={vi.fn()}
         title="T"
         ariaLabel="A11y label"
+        closeLabel="Close"
       >
         x
       </Modal>,
@@ -28,6 +29,7 @@ describe("Modal", () => {
         titleId="modal-title"
         onOpenChange={vi.fn()}
         title="Dialog title"
+        closeLabel="Close"
       >
         <p>Inner</p>
       </Modal>,
@@ -44,6 +46,7 @@ describe("Modal", () => {
         titleId="modal-title"
         onOpenChange={onOpenChange}
         title="T"
+        closeLabel="Close"
       >
         x
       </Modal>,
@@ -63,6 +66,7 @@ describe("Modal", () => {
         titleId="modal-title"
         onOpenChange={onOpenChange}
         title="T"
+        closeLabel="Close"
       >
         x
       </Modal>,
@@ -73,6 +77,7 @@ describe("Modal", () => {
         titleId="modal-title"
         onOpenChange={onOpenChange}
         title="T"
+        closeLabel="Close"
       >
         x
       </Modal>,

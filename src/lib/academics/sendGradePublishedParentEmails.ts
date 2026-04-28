@@ -4,6 +4,7 @@ import { escapeHtml } from "@/lib/academics/escapeHtml";
 import { absoluteUrl } from "@/lib/site/publicUrl";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import type { Locale } from "@/types/i18n";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export type GradePublishedEmailCopy = {
   subject: string;
@@ -49,7 +50,7 @@ export async function sendGradePublishedParentEmails(input: {
     .maybeSingle();
 
   const studentLabel = studentProfile
-    ? `${(studentProfile as { first_name: string }).first_name} ${(studentProfile as { last_name: string }).last_name}`.trim()
+    ? formatProfileSnakeSurnameFirst(studentProfile as { first_name: string; last_name: string }, input.studentId)
     : input.studentId;
 
   const rubricRows = Object.entries(input.rubricData).map(([key, val]) => ({

@@ -15,6 +15,7 @@ import { ParentLearningTasksPanel } from "@/components/parent/ParentLearningTask
 import { ParentLearningFeedbackPanel } from "@/components/parent/ParentLearningFeedbackPanel";
 import type { ParentLearningTaskRow } from "@/types/learningTasks";
 import type { ParentLearningFeedbackRow } from "@/lib/learning-content/loadParentLearningFeedback";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export interface ParentDashboardFamilyViewProps {
   locale: string;
@@ -70,7 +71,7 @@ export function ParentDashboardFamilyView({
                     : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)]"
                 }
               >
-                {s.firstName} {s.lastName}
+                {formatProfileNameSurnameFirst(s.firstName, s.lastName)}
               </Link>
             );
           })}
@@ -82,7 +83,7 @@ export function ParentDashboardFamilyView({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-[var(--color-foreground)]">
-                {selected.firstName} {selected.lastName}
+                {formatProfileNameSurnameFirst(selected.firstName, selected.lastName)}
               </p>
               <dl className="mt-3 grid gap-2 text-sm text-[var(--color-muted-foreground)] sm:grid-cols-2">
                 <div>

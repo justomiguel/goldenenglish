@@ -23,6 +23,7 @@ import {
 import { loadAdminSectionHealthSnapshot } from "@/lib/academics/loadAdminSectionHealthSnapshot";
 import { loadAdminSectionAssessmentsPanelData } from "@/lib/academics/loadAdminSectionAssessmentsPanelData";
 import { parseAcademicSectionShellTabParam } from "@/lib/academics/academicSectionShellTabOrder";
+import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import type { AdminSectionHealthLearningRoute } from "@/types/adminSectionHealth";
 
 interface PageProps {
@@ -48,6 +49,10 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
   const subdicts = resolveAcademicSectionPageSubdicts(dict, enDict);
   const dTeacherAttendance = dict.dashboard.teacherSectionAttendance;
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const canDeleteCohortAssessments = user ? await resolveIsAdminSession(supabase, user.id) : false;
 
   const [data, routeOptions, learningRouteWorkspace] = await Promise.all([
     loadAdminSectionPageData(supabase, cohortId, sectionId),
@@ -143,6 +148,7 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
       externalChipLabels={externalChipLabels}
       assessmentsData={assessmentsData}
       defaultShellTab={defaultShellTab}
+      canDeleteCohortAssessments={canDeleteCohortAssessments}
     />
   );
 }

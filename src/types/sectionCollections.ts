@@ -27,6 +27,8 @@ export interface SectionCollectionsStudentRow {
   studentId: string;
   studentName: string;
   documentLabel: string | null;
+  /** Enrollment timestamp for this section (overdue rules for month 0). */
+  enrolledAt: string | null;
   /** Reuse of the per-section row builder so cells match the student strip. */
   row: StudentMonthlyPaymentSectionRow;
   /** Convenience: per-student aggregates over the year. */
@@ -63,6 +65,9 @@ export interface SectionCollectionsView {
   cohortName: string;
   year: number;
   todayMonth: number;
+  /** ISO dates for enrollment-fee overdue rules (month 0 column). */
+  sectionStartsOn: string;
+  sectionEndsOn: string;
   students: SectionCollectionsStudentRow[];
   kpis: SectionCollectionsKpis;
 }

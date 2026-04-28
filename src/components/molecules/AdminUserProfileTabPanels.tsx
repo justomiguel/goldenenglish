@@ -124,6 +124,7 @@ export function AdminUserPaymentsPanel({
       enrollmentFeeExempt={billing.enrollmentFeeExempt}
       enrollmentExemptReason={billing.enrollmentExemptReason}
       lastEnrollmentPaidAt={billing.lastEnrollmentPaidAt}
+      defaultYear={new Date().getFullYear()}
     />
   );
 }

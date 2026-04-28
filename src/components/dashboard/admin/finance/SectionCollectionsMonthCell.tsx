@@ -1,42 +1,9 @@
-import { Check, CircleDot, Clock, FileText, Lock, X } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import {
+  sectionCollectionsMatrixChipHoverFrame,
+  sectionCollectionsMonthCellClasses,
+} from "@/lib/billing/sectionCollectionsMonthCellClasses";
+import { SECTION_COLLECTIONS_MONTH_STATUS_ICONS } from "@/lib/billing/sectionCollectionsMonthStatusIcons";
 import type { StudentMonthlyPaymentCell } from "@/types/studentMonthlyPayments";
-
-const STATUS_ICON: Record<StudentMonthlyPaymentCell["status"], LucideIcon> = {
-  approved: Check,
-  pending: Clock,
-  rejected: X,
-  exempt: FileText,
-  due: CircleDot,
-  "out-of-period": Lock,
-  "no-plan": Lock,
-};
-
-function classesFor(
-  status: StudentMonthlyPaymentCell["status"],
-  isOverdue: boolean,
-  hasScholarshipDiscount: boolean,
-): string {
-  if (hasScholarshipDiscount) {
-    return "border-[var(--color-success)] bg-[var(--color-success)]/20 text-[var(--color-success)] shadow-[inset_0_0_0_1px_var(--color-success)]";
-  }
-  switch (status) {
-    case "approved":
-      return "border-[var(--color-success)] bg-[var(--color-success)]/15 text-[var(--color-success)]";
-    case "pending":
-      return "border-[var(--color-warning)] bg-[var(--color-warning)]/20 text-[var(--color-foreground)]";
-    case "rejected":
-      return "border-[var(--color-error)] bg-[var(--color-surface)] text-[var(--color-error)]";
-    case "exempt":
-      return "border-[var(--color-info)] bg-[var(--color-info)]/15 text-[var(--color-info)]";
-    case "due":
-      return isOverdue
-        ? "border-[var(--color-error)] bg-[var(--color-error)]/10 text-[var(--color-error)]"
-        : "border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)]";
-    default:
-      return "border-[var(--color-border)] bg-[var(--color-muted)] text-[var(--color-muted-foreground)]";
-  }
-}
 
 export interface SectionCollectionsMonthCellProps {
   cell: StudentMonthlyPaymentCell;
@@ -102,7 +69,7 @@ export function SectionCollectionsMonthCell({
   locale,
   labels,
 }: SectionCollectionsMonthCellProps) {
-  const Icon = STATUS_ICON[cell.status];
+  const Icon = SECTION_COLLECTIONS_MONTH_STATUS_ICONS[cell.status];
   const cellIdx = cell.year * 12 + cell.month;
   const todayIdx = year * 12 + todayMonth;
   const isOverdue = cell.status === "due" && cellIdx < todayIdx;
@@ -116,19 +83,21 @@ export function SectionCollectionsMonthCell({
     expectedAmount ? `${labels.expectedAmount}: ${expectedAmount}` : null,
   ].filter(Boolean).join(" · ");
   return (
-    <span
-      aria-label={aria}
-      title={aria}
-      className={`inline-flex h-8 min-w-[34px] flex-col items-center justify-center rounded border text-[10px] font-semibold leading-none ${classesFor(cell.status, isOverdue, hasScholarshipDiscount)}`}
-    >
-      {hasScholarshipDiscount ? (
-        <>
-          <span>{scholarshipDiscountPercent}%</span>
-          <Icon className="mt-0.5 h-2.5 w-2.5" aria-hidden />
-        </>
-      ) : (
-        <Icon className="h-3.5 w-3.5" aria-hidden />
-      )}
+    <span className={`inline-flex ${sectionCollectionsMatrixChipHoverFrame}`}>
+      <span
+        aria-label={aria}
+        title={aria}
+        className={`inline-flex h-8 min-w-[34px] flex-col items-center justify-center rounded border text-[10px] font-semibold leading-none ${sectionCollectionsMonthCellClasses(cell.status, isOverdue, hasScholarshipDiscount)}`}
+      >
+        {hasScholarshipDiscount ? (
+          <>
+            <span>{scholarshipDiscountPercent}%</span>
+            <Icon className="mt-0.5 h-2.5 w-2.5" aria-hidden />
+          </>
+        ) : (
+          <Icon className="h-3.5 w-3.5" aria-hidden />
+        )}
+      </span>
     </span>
   );
 }

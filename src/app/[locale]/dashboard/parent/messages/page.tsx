@@ -5,6 +5,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { MessagingRecipient } from "@/types/messaging";
 import type { ParentMessageLineDto } from "@/components/parent/ParentMessagesFeed";
 import { ParentMessagesEntry } from "@/components/parent/ParentMessagesEntry";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -88,7 +89,7 @@ export default async function ParentMessagesPage({ params, searchParams }: PageP
   const peerById = new Map(
     (peerProfiles ?? []).map((p) => [
       p.id,
-      { name: `${p.first_name} ${p.last_name}`.trim(), role: p.role as string },
+      { name: formatProfileSnakeSurnameFirst(p), role: p.role as string },
     ]),
   );
 

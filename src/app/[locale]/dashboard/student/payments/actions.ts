@@ -1,14 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { defaultLocale } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/types/i18n";
 import { z } from "zod";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { createClient } from "@/lib/supabase/server";
 import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
 import { paymentActionDict, localeFromFormData } from "@/lib/i18n/actionErrors";
+import { notifyPaymentReceiptPending } from "@/lib/email/billingPaymentEmails";
+import { resolveSectionPlanMonthlyAmount } from "@/lib/billing/resolveSectionPlanMonthlyAmount";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { resolveStudentPaymentSlot } from "@/lib/billing/resolveStudentPaymentSlot";
-import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { extFromMime, MAX_PAYMENT_RECEIPT_BYTES } from "./paymentReceiptShared";
 
 export async function submitStudentPaymentReceipt(
@@ -110,6 +114,45 @@ export async function submitStudentPaymentReceipt(
       ...(sectionId ? { section_id: sectionId } : {}),
     },
   });
+
+  const lo = localeFromFormData(formData);
+  const outLocale: Locale = lo === "en" || lo === "es" ? lo : (defaultLocale as Locale);
+  revalidatePath(`/${outLocale}/dashboard/student/payments`);
+  revalidatePath(`/${outLocale}/dashboard/parent/payments`);
+
+  void (async () => {
+    try {
+      let sectionName: string | null = null;
+      let currency = "USD";
+      if (sectionId) {
+        const { data: s } = await supabase
+          .from("academic_sections")
+          .select("name")
+          .eq("id", sectionId)
+          .maybeSingle();
+        if (s?.name) sectionName = String(s.name);
+        const pl = await resolveSectionPlanMonthlyAmount(
+          supabase,
+          user.id,
+          sectionId,
+          year,
+          month,
+        );
+        if (pl.code === "ok") currency = pl.currency;
+      }
+      await notifyPaymentReceiptPending({
+        studentId: user.id,
+        locale: outLocale,
+        month,
+        year,
+        amount: effectiveAmount,
+        currency,
+        sectionName,
+      });
+    } catch (e) {
+      logServerException("submitStudentPaymentReceipt:notify", e, { userId: user.id });
+    }
+  })();
   return { ok: true };
 }
 

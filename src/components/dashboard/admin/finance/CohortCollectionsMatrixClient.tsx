@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AdminBillingMatrixLegendModal } from "@/components/dashboard/AdminBillingMatrixLegendModal";
 import type { Dictionary } from "@/types/i18n";
 import type { CohortCollectionsMatrix } from "@/types/cohortCollectionsMatrix";
+import { financeCollectionsMatrixLegendLabels } from "./collectionsMatrixLegendLabels";
 import { CohortCollectionsMatrixSectionGroup } from "./CohortCollectionsMatrixSectionGroup";
 
 type FinanceDict = Dictionary["admin"]["finance"];
@@ -107,6 +109,11 @@ export function CohortCollectionsMatrixClient({
           />
           {overviewDict.filters.onlyOverdue}
         </label>
+        <div className="ml-auto flex items-end pb-0.5">
+          <AdminBillingMatrixLegendModal
+            labels={financeCollectionsMatrixLegendLabels(collectionsDict)}
+          />
+        </div>
       </form>
 
       <section

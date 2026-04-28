@@ -19,6 +19,7 @@ import {
 import type { SectionCollectionsExportArtifact } from "@/lib/billing/formatSectionCollectionsExport";
 import type { Dictionary, Locale } from "@/types/i18n";
 import { logServerException } from "@/lib/logging/serverActionLog";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 const COLLECTIONS_BULK_RECIPIENT_LIMIT = 200;
 
@@ -170,7 +171,7 @@ export async function sendBulkCollectionsMessageAction(input: {
     .eq("id", user.id)
     .maybeSingle();
   const senderName =
-    `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim() ||
+    formatProfileNameSurnameFirst(profile?.first_name, profile?.last_name) ||
     dict.admin.messages.senderNameFallback;
 
   const provider = getEmailProvider();

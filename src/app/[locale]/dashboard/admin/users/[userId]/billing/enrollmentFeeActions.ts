@@ -8,6 +8,7 @@ import type { Locale } from "@/types/i18n";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { revalidateStudentBillingPaths } from "./revalidateStudentBilling";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export async function setEnrollmentFeeExemption(raw: {
   locale: Locale;
@@ -66,7 +67,7 @@ export async function setEnrollmentFeeExemption(raw: {
         exempt: raw.exempt,
         reason,
         section_id: target ?? null,
-        student_name: `${prof.first_name ?? ""} ${prof.last_name ?? ""}`.trim(),
+        student_name: formatProfileNameSurnameFirst(prof.first_name, prof.last_name),
       },
     });
     if (logErr) {

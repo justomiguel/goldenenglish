@@ -9,6 +9,7 @@ import { sanitizeMessageHtml } from "@/lib/messaging/sanitizeMessageHtml";
 import { stripHtmlToText } from "@/lib/messaging/stripHtml";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { mapMessagingUseCaseCode } from "@/lib/messaging/mapMessagingUseCaseCode";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 const bodySchema = z.string().min(1).max(80000);
 
@@ -40,7 +41,7 @@ export async function sendStudentMessage(
     .single();
   if (profile?.role !== "student") return { ok: false, message: msg.forbidden };
 
-  const name = `${profile.first_name} ${profile.last_name}`.trim();
+  const name = formatProfileNameSurnameFirst(profile.first_name, profile.last_name);
   const result = await sendStudentMessageUseCase({
     supabase,
     studentId: user.id,

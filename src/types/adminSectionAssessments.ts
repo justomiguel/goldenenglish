@@ -20,6 +20,7 @@ export type AdminSectionCohortAssessmentSummary = {
   name: string;
   assessmentOn: string;
   maxScore: number;
+  createdAt: string;
   /** Grades in “published” status for enrollments in this section. */
   publishedInSection: number;
 };

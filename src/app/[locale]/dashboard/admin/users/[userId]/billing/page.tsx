@@ -6,6 +6,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadAdminStudentBillingTabData } from "@/lib/dashboard/loadAdminStudentBillingTabData";
 import { AdminStudentBillingEntry } from "@/components/dashboard/AdminStudentBillingEntry";
 import type { Locale } from "@/types/i18n";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -32,10 +33,12 @@ export default async function AdminStudentBillingPage({ params }: PageProps) {
 
   if (!profile || profile.role !== "student") notFound();
 
-  const name = `${profile.first_name} ${profile.last_name}`.trim();
+  const name = formatProfileNameSurnameFirst(profile.first_name, profile.last_name);
 
   const billing = await loadAdminStudentBillingTabData(supabase, userId);
   if (!billing) notFound();
+
+  const defaultYear = new Date().getFullYear();
 
   return (
     <AdminStudentBillingEntry
@@ -50,6 +53,7 @@ export default async function AdminStudentBillingPage({ params }: PageProps) {
       enrollmentFeeExempt={billing.enrollmentFeeExempt}
       enrollmentExemptReason={billing.enrollmentExemptReason}
       lastEnrollmentPaidAt={billing.lastEnrollmentPaidAt}
+      defaultYear={defaultYear}
     />
   );
 }

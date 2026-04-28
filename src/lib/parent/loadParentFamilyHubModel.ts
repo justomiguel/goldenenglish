@@ -12,6 +12,7 @@ import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots"
 import { schedulesOverlap } from "@/lib/academics/detectScheduleOverlap";
 import { buildPlainTextFamilyScheduleIcs } from "@/lib/calendar/buildFamilyScheduleIcs";
 import { sectionAttendanceMonthPresentPct } from "@/lib/academics/sectionAttendanceMonthPct";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 type CohortCell = { name: string } | { name: string }[] | null;
 
@@ -42,7 +43,10 @@ export async function loadParentFamilyHubModel(
   const { data: profiles } = await supabase.from("profiles").select("id, first_name, last_name").in("id", ids);
   const nameBy = new Map<string, string>();
   for (const p of profiles ?? []) {
-    nameBy.set(p.id as string, `${p.first_name} ${p.last_name}`.trim());
+    nameBy.set(
+      p.id as string,
+      formatProfileSnakeSurnameFirst(p as { first_name: string | null; last_name: string | null }),
+    );
   }
 
   const { data: enr } = await supabase

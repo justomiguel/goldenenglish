@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
 import type { AuditDomain, AuditJsonObject } from "@/lib/audit/types";
 import type { AdminAuditRow, AuditSortDir, AuditSortKey } from "@/types/audit";
@@ -109,8 +110,7 @@ function buildSearchFilter(q: string): string {
 
 function actorLabel(profile: ProfileRow | undefined, fallback: string | null): string {
   if (!profile) return fallback ?? "";
-  const name = [profile.first_name, profile.last_name].filter(Boolean).join(" ").trim();
-  return name || fallback || "";
+  return formatProfileSnakeSurnameFirst(profile, fallback ?? "") || fallback || "";
 }
 
 export async function loadPaginatedAuditEvents(

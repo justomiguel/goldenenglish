@@ -64,11 +64,13 @@ describe("listTutorStudentsWithFinance", () => {
       ],
     });
     const rows = await listTutorStudentsWithFinance(supabase, "tutor-1");
-    expect(rows.map((r) => r.studentId)).toEqual(["stu-1", "stu-2"]);
-    expect(rows[0].financialAccessActive).toBe(true);
-    expect(rows[1].financialAccessActive).toBe(false);
-    expect(rows[1].isMinor).toBe(true);
-    expect(rows[0].displayName).toBe("Ana Lopez");
+    // Sorted by display name: "Diaz Bruno" before "Lopez Ana"
+    expect(rows.map((r) => r.studentId)).toEqual(["stu-2", "stu-1"]);
+    expect(rows[0].financialAccessActive).toBe(false);
+    expect(rows[1].financialAccessActive).toBe(true);
+    expect(rows[0].isMinor).toBe(true);
+    expect(rows[1].isMinor).toBe(false);
+    expect(rows[1].displayName).toBe("Lopez Ana");
   });
 
   it("sorts students alphabetically by display name (case-insensitive)", async () => {

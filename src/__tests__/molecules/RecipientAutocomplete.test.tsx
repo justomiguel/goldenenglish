@@ -35,19 +35,19 @@ describe("RecipientAutocomplete", () => {
     setup();
     const input = screen.getByRole("combobox", { name: "To" });
     await user.click(input);
-    expect(screen.getByRole("option", { name: "Ada Lovelace" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Bob Builder" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Lovelace Ada" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Builder Bob" })).toBeInTheDocument();
     await user.clear(input);
     await user.type(input, "bob");
-    expect(screen.queryByRole("option", { name: "Ada Lovelace" })).not.toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Bob Builder" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Lovelace Ada" })).not.toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Builder Bob" })).toBeInTheDocument();
   });
 
   it("selects recipient on option click", async () => {
     const user = userEvent.setup();
     const onValueChange = setup();
     await user.click(screen.getByRole("combobox", { name: "To" }));
-    await user.click(screen.getByRole("option", { name: "Ada Lovelace" }));
+    await user.click(screen.getByRole("option", { name: "Lovelace Ada" }));
     expect(onValueChange).toHaveBeenCalledWith("a1");
   });
 
@@ -168,7 +168,7 @@ describe("RecipientAutocomplete", () => {
       />,
     );
     await user.click(screen.getByRole("combobox", { name: "To" }));
-    expect(screen.getByRole("option", { name: "Ada Lovelace" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("option", { name: "Lovelace Ada" })).toHaveAttribute("aria-selected", "true");
   });
 
   it("ArrowUp from start wraps to last option", async () => {

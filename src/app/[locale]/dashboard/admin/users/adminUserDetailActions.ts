@@ -7,6 +7,7 @@ import {
 import { setAdminUserPasswordFromDetailAction as setAdminUserPasswordFromDetailImpl } from "@/app/[locale]/dashboard/admin/users/adminUserDetailCredentialActions";
 import {
   upsertAdminStudentTutorLinkAction as upsertAdminStudentTutorLinkImpl,
+  removeAdminStudentTutorLinkAction as removeAdminStudentTutorLinkImpl,
   createAdminParentAndLinkStudentAction as createAdminParentAndLinkStudentImpl,
 } from "@/app/[locale]/dashboard/admin/users/adminUserDetailTutorActions";
 import { uploadAdminStudentAvatarAction as uploadAdminStudentAvatarImpl } from "@/app/[locale]/dashboard/admin/users/adminUserDetailAvatarActions";
@@ -34,6 +35,12 @@ export async function upsertAdminStudentTutorLinkAction(
   raw: unknown,
 ): Promise<{ ok: boolean; message?: string }> {
   return upsertAdminStudentTutorLinkImpl(raw);
+}
+
+export async function removeAdminStudentTutorLinkAction(
+  raw: unknown,
+): Promise<{ ok: boolean; message?: string }> {
+  return removeAdminStudentTutorLinkImpl(raw);
 }
 
 export async function createAdminParentAndLinkStudentAction(

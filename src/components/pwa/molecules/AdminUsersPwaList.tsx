@@ -8,6 +8,7 @@ import type { AdminUserRow, SortDir, SortKey } from "@/lib/dashboard/adminUsersT
 import { Button } from "@/components/atoms/Button";
 import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
 import { TablePagination } from "@/components/molecules/TablePagination";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 type UserLabels = Dictionary["admin"]["users"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -167,13 +168,11 @@ export function AdminUsersPwaList({
                   >
                     <ProfileAvatar
                       url={r.avatarDisplayUrl}
-                      displayName={`${r.firstName} ${r.lastName}`}
+                      displayName={formatProfileNameSurnameFirst(r.firstName, r.lastName)}
                       size="sm"
                     />
                     <span className="flex min-w-0 flex-wrap items-center gap-1.5 break-words font-medium text-[var(--color-foreground)]">
-                      <span>
-                        {r.firstName} {r.lastName}
-                      </span>
+                      <span>{formatProfileNameSurnameFirst(r.firstName, r.lastName)}</span>
                       {r.missingSection ? (
                         <span
                           className="inline-flex shrink-0 rounded-full border border-[var(--color-accent)]/50 bg-[var(--color-accent)]/10 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-[var(--color-secondary)]"

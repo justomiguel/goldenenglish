@@ -9,6 +9,7 @@ import {
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 function formatDate(locale: string, iso: string | null | undefined): string | null {
   if (!iso) return null;
@@ -35,7 +36,7 @@ async function loadTutorLinksForStudent(
       admin.from("profiles").select("first_name, last_name").eq("id", tutorId).maybeSingle(),
       admin.auth.admin.getUserById(tutorId),
     ]);
-    const name = tp ? `${tp.first_name ?? ""} ${tp.last_name ?? ""}`.trim() : "";
+    const name = tp ? formatProfileNameSurnameFirst(tp.first_name, tp.last_name) : "";
     const em = authT?.user?.email?.trim() ?? "";
     out.push({
       tutorId,
@@ -93,7 +94,7 @@ export async function loadAdminUserDetail(
       .select("first_name, last_name")
       .eq("id", profile.assigned_teacher_id)
       .single();
-    assignedTeacherName = t ? `${t.first_name} ${t.last_name}`.trim() : null;
+    assignedTeacherName = t ? formatProfileNameSurnameFirst(t.first_name, t.last_name) : null;
   }
 
   const avatarDisplayUrl = await resolveAvatarUrlForAdmin(admin, profile.avatar_url);

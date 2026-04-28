@@ -6,6 +6,7 @@ import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortal
 import type { TeacherFeedRow } from "@/components/teacher/TeacherMessagesFeed";
 import type { MessagingRecipient } from "@/types/messaging";
 import { TeacherMessagesEntry } from "@/components/teacher/TeacherMessagesEntry";
+import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -63,7 +64,7 @@ export default async function TeacherMessagesPage({ params }: PageProps) {
     (profiles ?? []).map((p) => [
       p.id,
       {
-        name: `${p.first_name} ${p.last_name}`.trim(),
+        name: formatProfileSnakeSurnameFirst(p),
         role: p.role as "student" | "parent" | "teacher" | "admin",
       },
     ]),

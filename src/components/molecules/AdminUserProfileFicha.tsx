@@ -17,6 +17,7 @@ import {
   AdminUserSecurityPanel,
   AdminUserSummaryPanel,
 } from "@/components/molecules/AdminUserProfileTabPanels";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 type UserLabels = Dictionary["admin"]["users"];
 type BillingLabels = Dictionary["admin"]["billing"];
@@ -38,7 +39,7 @@ export function AdminUserProfileFicha({
   billing,
 }: AdminUserProfileFichaProps) {
   const editable = detail.viewerMayInlineEdit;
-  const displayName = `${detail.firstName} ${detail.lastName}`.trim() || detail.emailDisplay;
+  const displayName = formatProfileNameSurnameFirst(detail.firstName, detail.lastName) || detail.emailDisplay;
   const [toast, setToast] = useState<{ text: string; ok: boolean } | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>("summary");
 

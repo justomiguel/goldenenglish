@@ -7,6 +7,10 @@ import type {
 import { resolveAvatarDisplayUrl } from "@/lib/dashboard/resolveAvatarUrl";
 import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionMaxStudents";
 import { loadTeacherSectionIdsForUser } from "@/lib/academics/loadTeacherSectionIdsForUser";
+import {
+  compareProfileSnakeByLastThenFirst,
+  formatProfileSnakeSurnameFirst,
+} from "@/lib/profile/formatProfileDisplayName";
 
 type CohortNameCell = { name: string } | { name: string }[] | null;
 
@@ -54,28 +58,35 @@ export async function loadTeacherSectionDetailModel(
     .eq("section_id", sectionId)
     .order("created_at", { ascending: false });
 
-  const rawRows =
+  type ProfileJoin = { first_name: string; last_name: string; avatar_url: string | null };
+  const rawList =
     (enrollments ?? []).map((raw) => {
       const r = raw as {
         id: string;
         status: string;
         student_id: string;
-        profiles:
-          | { first_name: string; last_name: string; avatar_url: string | null }
-          | { first_name: string; last_name: string; avatar_url: string | null }[]
-          | null;
+        profiles: ProfileJoin | ProfileJoin[] | null;
       };
       const pRaw = r.profiles;
       const p = Array.isArray(pRaw) ? (pRaw[0] ?? null) : pRaw;
-      const label = p ? `${p.first_name} ${p.last_name}`.trim() : r.student_id;
+      const label = p ? formatProfileSnakeSurnameFirst(p, r.student_id) : r.student_id;
       return {
         enrollmentId: r.id,
         studentId: r.student_id,
         label,
         status: r.status,
         avatarRaw: p?.avatar_url?.trim() ? p.avatar_url.trim() : null,
+        _p: p,
       };
     }) ?? [];
+  const rawRows = [...rawList]
+    .sort((a, b) => {
+      if (!a._p && !b._p) return 0;
+      if (!a._p) return 1;
+      if (!b._p) return -1;
+      return compareProfileSnakeByLastThenFirst(a._p, b._p);
+    })
+    .map(({ _p, ...rest }) => rest);
 
   const uniqueAvatars = [...new Set(rawRows.map((x) => x.avatarRaw).filter((u): u is string => Boolean(u)))];
   const resolvedMap = new Map<string, string | null>();

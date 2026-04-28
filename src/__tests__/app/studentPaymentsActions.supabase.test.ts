@@ -14,6 +14,10 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: () => mockCreateClient(),
 }));
 
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
 vi.mock("@/lib/analytics/server/recordUserEvent", () => ({
   recordUserEventServer: vi.fn(() => Promise.resolve({ ok: true })),
 }));
