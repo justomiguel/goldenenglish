@@ -12,6 +12,7 @@ import {
   AdminBadgeFormScreen,
   type AdminBadgeFormInitial,
 } from "@/components/dashboard/admin/badges/AdminBadgeFormScreen";
+import { buildBadgeAdminPreviewProps } from "@/lib/badges/buildBadgeAdminPreviewProps";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -53,6 +54,8 @@ export default async function AdminEditBadgePage({ params }: PageProps) {
     descriptionEs: entry.translations.es?.description ?? "",
   };
 
+  const preview = await buildBadgeAdminPreviewProps();
+
   return (
     <AdminBadgeFormScreen
       mode="edit"
@@ -60,6 +63,7 @@ export default async function AdminEditBadgePage({ params }: PageProps) {
       labels={dict.admin.badges}
       adminNav={dict.dashboard.adminNav}
       initial={initial}
+      preview={preview}
     />
   );
 }

@@ -1945,7 +1945,17 @@
       "criteriaAssessmentsPassed": "Evaluaciones aprobadas (cantidad)",
       "criteriaMessagesSent": "Mensajes enviados desde el portal (cantidad)",
       "localeEn": "Inglés (EN)",
-      "localeEs": "Español (ES)"
+      "localeEs": "Español (ES)",
+      "previewTitle": "Vista previa para compartir",
+      "previewLead": "Así se verá este badge cuando un alumno o tutor comparta el enlace público. Cambia el idioma para ver cómo se renderiza en cada locale.",
+      "previewLocaleLabel": "Idioma del preview",
+      "previewWhatsApp": "WhatsApp",
+      "previewLinkedIn": "LinkedIn",
+      "previewPublicPage": "Página del enlace público",
+      "previewShareUrl": "URL de ejemplo",
+      "previewMissingTitle": "(sin título aún)",
+      "previewMissingDescription": "(sin descripción aún)",
+      "previewSampleHint": "URL y fecha de ejemplo son ilustrativas; el mensaje real usa la URL de {brand} cuando un alumno desbloquea el badge."
     },
     "registrations": {
       "title": "Inscripciones web",

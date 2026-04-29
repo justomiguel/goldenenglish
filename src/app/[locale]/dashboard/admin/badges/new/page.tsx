@@ -7,6 +7,7 @@ import {
   ADMIN_SESSION_UNAUTHORIZED,
 } from "@/lib/dashboard/adminSessionErrors";
 import { AdminBadgeFormScreen } from "@/components/dashboard/admin/badges/AdminBadgeFormScreen";
+import { buildBadgeAdminPreviewProps } from "@/lib/badges/buildBadgeAdminPreviewProps";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -27,6 +28,7 @@ export default async function AdminNewBadgePage({ params }: PageProps) {
     throw err;
   }
   const dict = await getDictionary(locale);
+  const preview = await buildBadgeAdminPreviewProps();
   return (
     <AdminBadgeFormScreen
       mode="create"
@@ -34,6 +36,7 @@ export default async function AdminNewBadgePage({ params }: PageProps) {
       labels={dict.admin.badges}
       adminNav={dict.dashboard.adminNav}
       initial={null}
+      preview={preview}
     />
   );
 }

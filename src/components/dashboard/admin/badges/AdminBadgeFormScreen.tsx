@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Award, ChevronLeft, Save } from "lucide-react";
+import { ChevronLeft, Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import type { Dictionary } from "@/types/i18n";
 import type { BadgeCategory, BadgeCriteriaType } from "@/lib/badges/badgeCatalog";
@@ -13,12 +12,16 @@ import {
   setBadgeActiveAction,
   updateBadgeAction,
 } from "@/app/[locale]/dashboard/admin/badges/updateBadgeAction";
-import { AdminBadgeImageEditor } from "@/components/dashboard/admin/badges/AdminBadgeImageEditor";
 import {
   AdminBadgeMetaFields,
   AdminBadgeTranslationInputs,
   type AdminBadgesDict,
 } from "@/components/dashboard/admin/badges/AdminBadgeFormFields";
+import { AdminBadgeEditMetaPanel } from "@/components/dashboard/admin/badges/AdminBadgeEditMetaPanel";
+import {
+  AdminBadgeSharePreview,
+  type AdminBadgeSharePreviewProps,
+} from "@/components/dashboard/admin/badges/AdminBadgeSharePreview";
 
 export type AdminBadgeFormInitial = {
   id: string;
@@ -35,16 +38,22 @@ export type AdminBadgeFormInitial = {
   descriptionEs: string;
 };
 
+type SharePreviewStaticProps = Pick<
+  AdminBadgeSharePreviewProps,
+  "publicLabels" | "brand" | "siteOrigin" | "sampleToken"
+>;
+
 export interface AdminBadgeFormScreenProps {
   mode: "create" | "edit";
   locale: string;
   labels: AdminBadgesDict;
   adminNav: Dictionary["dashboard"]["adminNav"];
   initial: AdminBadgeFormInitial | null;
+  preview: SharePreviewStaticProps;
 }
 
 export function AdminBadgeFormScreen(props: AdminBadgeFormScreenProps) {
-  const { mode, locale, labels, adminNav, initial } = props;
+  const { mode, locale, labels, adminNav, initial, preview } = props;
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -150,47 +159,16 @@ export function AdminBadgeFormScreen(props: AdminBadgeFormScreenProps) {
       ) : null}
 
       {mode === "edit" && initial ? (
-        <section className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-          <div className="flex items-start gap-3">
-            <div
-              className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--color-muted)]"
-              aria-hidden
-            >
-              {initial.imageUrl ? (
-                <Image src={initial.imageUrl} alt="" fill sizes="56px" className="object-cover" />
-              ) : (
-                <Award className="h-5 w-5 text-[var(--color-foreground)]" />
-              )}
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs uppercase tracking-wide text-[var(--color-muted-foreground)]">
-                {labels.colCode}
-              </p>
-              <p className="font-mono text-sm">{initial.code}</p>
-              <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-                {initial.isActive ? labels.statusActive : labels.statusPaused}
-              </p>
-            </div>
-            <div className="ml-auto">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={onTogglePause}
-                disabled={pending}
-              >
-                {initial.isActive ? labels.pauseCta : labels.activateCta}
-              </Button>
-            </div>
-          </div>
-          <AdminBadgeImageEditor
-            locale={locale}
-            badgeId={initial.id}
-            currentImageUrl={initial.imageUrl}
-            labels={labels}
-            disabled={pending}
-          />
-        </section>
+        <AdminBadgeEditMetaPanel
+          locale={locale}
+          badgeId={initial.id}
+          code={initial.code}
+          isActive={initial.isActive}
+          imageUrl={initial.imageUrl}
+          labels={labels}
+          pending={pending}
+          onTogglePause={onTogglePause}
+        />
       ) : null}
 
       <form onSubmit={onSubmit} className="space-y-6">
@@ -240,6 +218,19 @@ export function AdminBadgeFormScreen(props: AdminBadgeFormScreenProps) {
           </Button>
         </div>
       </form>
+
+      <AdminBadgeSharePreview
+        labels={labels}
+        publicLabels={preview.publicLabels}
+        brand={preview.brand}
+        siteOrigin={preview.siteOrigin}
+        sampleToken={preview.sampleToken}
+        imageUrl={initial?.imageUrl ?? null}
+        titleEn={titleEn}
+        titleEs={titleEs}
+        descriptionEn={descriptionEn}
+        descriptionEs={descriptionEs}
+      />
     </div>
   );
 }

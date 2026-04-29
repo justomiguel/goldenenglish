@@ -1943,7 +1943,17 @@
       "criteriaAssessmentsPassed": "Assessments passed (count)",
       "criteriaMessagesSent": "Messages sent from the portal (count)",
       "localeEn": "English (EN)",
-      "localeEs": "Spanish (ES)"
+      "localeEs": "Spanish (ES)",
+      "previewTitle": "Share preview",
+      "previewLead": "How this badge will look when a student or guardian shares the public link. Switch language to see how it lands on each locale.",
+      "previewLocaleLabel": "Preview language",
+      "previewWhatsApp": "WhatsApp",
+      "previewLinkedIn": "LinkedIn",
+      "previewPublicPage": "Public link page",
+      "previewShareUrl": "Sample URL",
+      "previewMissingTitle": "(no title yet)",
+      "previewMissingDescription": "(no description yet)",
+      "previewSampleHint": "Sample URL and date are illustrative; the share message uses the real {brand} URL once a student earns this badge."
     },
     "registrations": {
       "title": "Web registrations",
