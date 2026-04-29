@@ -1892,6 +1892,9 @@
     "badges": {
       "title": "Catálogo de logros",
       "lead": "Crear, editar, pausar o reactivar los logros que pueden desbloquear los alumnos. Los logros ya otorgados se conservan aunque pauses un badge.",
+      "categoryAll": "Todas",
+      "filterCategoryTablistAria": "Filtrar logros por categoría",
+      "emptyCategoryFilter": "No hay logros en esta categoría. Elige otra pestaña o crea uno nuevo.",
       "createCta": "Nuevo logro",
       "editCta": "Editar",
       "saveCta": "Guardar cambios",

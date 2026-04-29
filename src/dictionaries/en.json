@@ -1890,6 +1890,9 @@
     "badges": {
       "title": "Achievements catalog",
       "lead": "Add, edit, pause or restore the achievements students can unlock. Existing grants are kept even if you pause a badge.",
+      "categoryAll": "All",
+      "filterCategoryTablistAria": "Filter achievements by category",
+      "emptyCategoryFilter": "No achievements in this category. Choose another tab or create a new badge.",
       "createCta": "New badge",
       "editCta": "Edit",
       "saveCta": "Save changes",
