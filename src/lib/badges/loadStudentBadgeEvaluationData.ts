@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
-import type { StudentBadgeEvaluationContext } from "@/lib/badges/badgeEligibility";
+import type { StudentBadgeEvaluationContext } from "@/lib/badges/evaluateBadgeCatalogEligibility";
 
 const GOOD_ATTENDANCE = ["present", "late", "excused"] as const;
 
@@ -12,7 +12,7 @@ export async function loadStudentBadgeEvaluationData(
 ): Promise<StudentBadgeEvaluationContext> {
   const supabase = createAdminClient();
 
-  const [taskRes, attRes, profile, passedRes] = await Promise.all([
+  const [taskRes, attRes, profile, passedRes, messagesRes] = await Promise.all([
     supabase
       .from("student_task_progress")
       .select("id", { count: "exact", head: true })
@@ -33,6 +33,10 @@ export async function loadStudentBadgeEvaluationData(
       .select("id", { count: "exact", head: true })
       .eq("student_id", studentId)
       .eq("passed", true),
+    supabase
+      .from("portal_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("sender_id", studentId),
   ]);
 
   if (taskRes.error) {
@@ -47,9 +51,13 @@ export async function loadStudentBadgeEvaluationData(
   if (profile.error) {
     logSupabaseClientError("loadStudentBadgeEvaluationData:profile", profile.error, { studentId });
   }
+  if (messagesRes.error) {
+    logSupabaseClientError("loadStudentBadgeEvaluationData:messages", messagesRes.error, { studentId });
+  }
 
   const completedTaskCount = taskRes.error ? 0 : (taskRes.count ?? 0);
   const passedAssessmentCount = passedRes.error ? 0 : (passedRes.count ?? 0);
+  const messagesSentCount = messagesRes.error ? 0 : (messagesRes.count ?? 0);
 
   const byDay = new Map<string, true>();
   for (const row of (attRes.error ? [] : attRes.data) ?? []) {
@@ -73,5 +81,6 @@ export async function loadStudentBadgeEvaluationData(
       avatar_url: p?.avatar_url ?? null,
     },
     passedAssessmentCount,
+    messagesSentCount,
   };
 }

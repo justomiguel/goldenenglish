@@ -51,6 +51,7 @@ export function computeAdminStudentBillingMonthMatrix({
     enrollmentId: benefit.enrollmentId,
     enrollmentFeeReceiptStatus: benefit.enrollmentFeeReceiptStatus,
     enrollmentFeeReceiptSignedUrl: benefit.enrollmentFeeReceiptSignedUrl,
+    lastEnrollmentPaidAt: benefit.lastEnrollmentPaidAt,
     scholarships,
     payments,
     viewYear: billingYear,

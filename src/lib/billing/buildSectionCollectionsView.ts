@@ -38,6 +38,8 @@ export interface SectionCollectionsStudentInput {
   enrollmentId?: string | null;
   enrollmentFeeReceiptStatus?: EnrollmentFeeReceiptStatus | null;
   enrollmentFeeReceiptSignedUrl?: string | null;
+  /** Matrícula marcada pagada desde admin sin flujo de comprobante (último registro en section_enrollments). */
+  lastEnrollmentPaidAt?: string | null;
 }
 
 export interface BuildSectionCollectionsViewInput {
@@ -113,6 +115,7 @@ export function buildSectionCollectionsView(
       enrollmentId: s.enrollmentId ?? null,
       enrollmentFeeReceiptStatus: s.enrollmentFeeReceiptStatus ?? null,
       enrollmentFeeReceiptSignedUrl: s.enrollmentFeeReceiptSignedUrl ?? null,
+      lastEnrollmentPaidAt: s.lastEnrollmentPaidAt ?? null,
       billingScope: "plan-year",
     });
     const agg = aggregateCells(row.cells, input.todayYear, input.todayMonth);

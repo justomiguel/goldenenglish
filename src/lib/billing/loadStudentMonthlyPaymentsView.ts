@@ -35,6 +35,7 @@ interface SectionMeta {
   enrollmentFeeReceiptUrl: string | null;
   enrollmentFeeReceiptStatus: "pending" | "approved" | "rejected" | null;
   enrollmentFeeReceiptSignedUrl: string | null;
+  lastEnrollmentPaidAt: string | null;
   scholarships: ScholarshipRow[];
 }
 
@@ -51,7 +52,7 @@ export async function loadStudentMonthlyPaymentsView(
   const activeEnrollmentResult = await supabase
     .from("section_enrollments")
     .select(
-      "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, enrollment_fee_receipt_url, enrollment_fee_receipt_status, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
+      "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, enrollment_fee_receipt_url, enrollment_fee_receipt_status, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
     )
     .eq("student_id", studentId)
     .eq("status", "active");
@@ -60,7 +61,7 @@ export async function loadStudentMonthlyPaymentsView(
       ? await supabase
           .from("section_enrollments")
           .select(
-            "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
+            "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
           )
           .eq("student_id", studentId)
           .eq("status", "active")
@@ -79,6 +80,7 @@ export async function loadStudentMonthlyPaymentsView(
     enrollment_exempt_reason?: string | null;
     enrollment_fee_receipt_url?: string | null;
     enrollment_fee_receipt_status?: string | null;
+    last_enrollment_paid_at?: string | null;
   };
   type EnrollmentSectionRow = {
     id: string;
@@ -164,6 +166,7 @@ export async function loadStudentMonthlyPaymentsView(
         enrollmentFeeReceiptStatus: receiptStatus,
         scholarships: scholarshipsByEnrollment.get(row.id) ?? [],
         enrollmentFeeReceiptSignedUrl: receiptSignedUrl,
+        lastEnrollmentPaidAt: row.last_enrollment_paid_at ?? null,
       };
     }),
   );
@@ -218,6 +221,7 @@ export async function loadStudentMonthlyPaymentsView(
       enrollmentId: s.enrollmentId,
       enrollmentFeeReceiptStatus: s.enrollmentFeeReceiptStatus,
       enrollmentFeeReceiptSignedUrl: s.enrollmentFeeReceiptSignedUrl,
+      lastEnrollmentPaidAt: s.lastEnrollmentPaidAt,
     }),
   );
 

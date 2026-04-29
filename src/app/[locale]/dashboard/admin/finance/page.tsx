@@ -9,7 +9,12 @@ import {
   parseFinanceHubTab,
 } from "@/components/dashboard/admin/finance/FinanceHubTabs";
 import { FinanceOverviewPanel } from "@/components/dashboard/admin/finance/FinanceOverviewPanel";
-import { FinancePaymentsPanel } from "@/components/dashboard/admin/finance/FinancePaymentsPanel";
+import { FinanceInboxPanel } from "@/components/dashboard/admin/finance/FinanceInboxPanel";
+import { FinanceInsightsPanel } from "@/components/dashboard/admin/finance/FinanceInsightsPanel";
+import { CohortCollectionsMatrixClient } from "@/components/dashboard/admin/finance/CohortCollectionsMatrixClient";
+import { FinanceHubCohortSelector } from "@/components/dashboard/admin/finance/FinanceHubCohortSelector";
+import { FinanceHubKpiStrip } from "@/components/dashboard/admin/finance/FinanceHubKpiStrip";
+import { loadAdminCohortCollectionsBulk } from "@/lib/billing/loadAdminCohortCollectionsBulk";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Locale } from "@/types/i18n";
 
@@ -19,11 +24,43 @@ export const metadata: Metadata = {
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ tab?: string; cohort?: string; year?: string }>;
+  searchParams: Promise<{ tab?: string; cohort?: string; year?: string; type?: string }>;
+}
+
+interface CohortLite {
+  id: string;
+  name: string;
+  is_current: boolean | null;
+  archived_at: string | null;
+}
+
+function pickCohort(
+  cohorts: CohortLite[],
+  requestedId: string | undefined,
+): CohortLite | null {
+  if (cohorts.length === 0) return null;
+  if (requestedId) {
+    const match = cohorts.find((c) => c.id === requestedId);
+    if (match) return match;
+  }
+  const current = cohorts.find((c) => c.is_current);
+  if (current) return current;
+  return cohorts.find((c) => c.archived_at == null) ?? cohorts[0]!;
+}
+
+function parseYear(input: string | undefined, fallback: number): number {
+  if (!input) return fallback;
+  const n = Number.parseInt(input, 10);
+  if (!Number.isFinite(n) || n < 2000 || n > 2100) return fallback;
+  return n;
 }
 
 async function loadPendingCounts(supabase: SupabaseClient) {
-  const [{ count: monthlyPayments }, { count: enrollmentFeeReceipts }] = await Promise.all([
+  const [
+    { count: monthlyPayments },
+    { count: enrollmentFeeReceipts },
+    { count: invoiceReceipts },
+  ] = await Promise.all([
     supabase
       .from("payments")
       .select("id", { head: true, count: "exact" })
@@ -32,9 +69,16 @@ async function loadPendingCounts(supabase: SupabaseClient) {
       .from("section_enrollments")
       .select("id", { head: true, count: "exact" })
       .eq("enrollment_fee_receipt_status", "pending"),
+    supabase
+      .from("billing_receipts")
+      .select("id", { head: true, count: "exact" })
+      .eq("status", "pending_approval"),
   ]);
   return {
-    payments: (monthlyPayments ?? 0) + (enrollmentFeeReceipts ?? 0),
+    payments:
+      (monthlyPayments ?? 0) +
+      (enrollmentFeeReceipts ?? 0) +
+      (invoiceReceipts ?? 0),
   };
 }
 
@@ -57,7 +101,47 @@ export default async function AdminFinanceHubPage({
   const tab = parseFinanceHubTab(search.tab);
   const baseHref = `/${locale}/dashboard/admin/finance`;
   const financeDict = dict.admin.finance;
-  const pendingCounts = await loadPendingCounts(supabase);
+
+  const [pendingCounts, { data: cohortRows }] = await Promise.all([
+    loadPendingCounts(supabase),
+    supabase
+      .from("academic_cohorts")
+      .select("id, name, is_current, archived_at, created_at")
+      .order("created_at", { ascending: false }),
+  ]);
+
+  const cohorts = (cohortRows ?? []) as CohortLite[];
+  const cohort = pickCohort(cohorts, search.cohort);
+
+  const today = new Date();
+  const todayYear = today.getFullYear();
+  const todayMonth = today.getMonth() + 1;
+  const year = parseYear(search.year, todayYear);
+
+  const matrix = cohort
+    ? await loadAdminCohortCollectionsBulk(supabase, cohort.id, {
+        todayYear: year,
+        todayMonth: year === todayYear ? todayMonth : 12,
+      })
+    : null;
+
+  const selectorNode = (
+    <FinanceHubCohortSelector
+      cohorts={cohorts.map((c) => ({ id: c.id, name: c.name }))}
+      selectedCohortId={cohort?.id ?? null}
+      year={year}
+      currentTab={tab}
+      dict={financeDict.overview.filters}
+    />
+  );
+
+  const kpiNode = matrix ? (
+    <FinanceHubKpiStrip
+      kpis={matrix.totals}
+      dict={financeDict.collections.kpis}
+      locale={locale}
+    />
+  ) : null;
 
   return (
     <div className="space-y-5">
@@ -83,26 +167,49 @@ export default async function AdminFinanceHubPage({
         baseHref={baseHref}
         preservedQuery={{ cohort: search.cohort, year: search.year }}
         pendingCounts={pendingCounts}
+        cohortSelector={selectorNode}
+        kpiStrip={kpiNode}
         dict={financeDict.hub}
       >
         {tab === "overview" ? (
           <FinanceOverviewPanel
+            matrix={matrix}
+            cohortName={cohort?.name ?? null}
+            locale={locale}
+            dict={financeDict}
+            sectionDrillBaseHref={`${baseHref}/collections`}
+          />
+        ) : null}
+        {tab === "collections" && matrix ? (
+          <CohortCollectionsMatrixClient
+            matrix={matrix}
+            overviewDict={financeDict.overview}
+            collectionsDict={financeDict.collections}
+            locale={locale}
+            sectionHrefBase={`${baseHref}/collections`}
+          />
+        ) : null}
+        {tab === "collections" && !matrix && cohort ? (
+          <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-muted-foreground)]">
+            {financeDict.collections.errors.loadFailed}
+          </p>
+        ) : null}
+        {tab === "inbox" ? (
+          <FinanceInboxPanel
+            supabase={supabase}
+            locale={locale as Locale}
+            dict={dict}
+            receiptHrefBase={`${baseHref}/receipts`}
+            activeType={search.type}
+          />
+        ) : null}
+        {tab === "insights" ? (
+          <FinanceInsightsPanel
+            matrix={matrix}
+            cohortId={cohort?.id ?? null}
             supabase={supabase}
             locale={locale}
             dict={financeDict}
-            searchParams={{ cohort: search.cohort, year: search.year }}
-            baseHref={baseHref}
-          />
-        ) : null}
-        {tab === "payments" ? (
-          <FinancePaymentsPanel
-            supabase={supabase}
-            locale={locale as Locale}
-            dict={dict.admin.payments}
-            portalBillingDict={dict.dashboard.portalBilling}
-            enrollmentFeeQueueDict={dict.admin.finance.enrollmentFeeQueue}
-            emptyValue={dict.common.emptyValue}
-            receiptHrefBase={`/${locale}/dashboard/admin/finance/receipts`}
           />
         ) : null}
       </FinanceHubTabs>

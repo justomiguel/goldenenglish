@@ -71,6 +71,14 @@ describe("buildStudentMonthlyPaymentsRow", () => {
     expect(row.enrollmentFeeAmount).toBe(150);
     expect(row.enrollmentFeeExempt).toBe(false);
     expect(row.enrollmentFeeCurrency).toBe("USD");
+    expect(row.lastEnrollmentPaidAt).toBeNull();
+  });
+
+  it("exposes lastEnrollmentPaidAt on the row", () => {
+    const row = buildStudentMonthlyPaymentsRow(
+      baseInput({ lastEnrollmentPaidAt: "2026-04-01T00:00:00.000Z" }),
+    );
+    expect(row.lastEnrollmentPaidAt).toBe("2026-04-01T00:00:00.000Z");
   });
 
   it("keeps the enrollment fee exemption reason for the portal strip", () => {

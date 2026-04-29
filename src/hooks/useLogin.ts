@@ -6,10 +6,21 @@ import {
   getRememberMePreference,
   setRememberMePreference,
 } from "@/lib/supabase/client";
+import { trackEvent } from "@/lib/analytics/trackClient";
+import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
+import {
+  LOGIN_LOG_PREFIX,
+  identifierFingerprint,
+  loginTrace,
+  loginFail,
+  loginDiagnosticsVerbose,
+  safeInternalPath,
+  resolveIdentifierToEmail,
+} from "@/lib/auth/loginSubmitSupport";
 
 interface LoginErrors {
   invalidCredentials: string;
-  emailRequired: string;
+  identifierRequired: string;
   passwordRequired: string;
   generic: string;
 }
@@ -20,49 +31,8 @@ export interface UseLoginOptions {
   nextPath?: string | null;
 }
 
-const LOGIN_LOG_PREFIX = "[goldenenglish:login]";
-
-/** Traces (submit steps, fingerprints): dev by default, or set `NEXT_PUBLIC_DEBUG_LOGIN=true`. */
-function loginDiagnosticsVerbose(): boolean {
-  if (process.env.NODE_ENV === "development") return true;
-  return process.env.NEXT_PUBLIC_DEBUG_LOGIN === "true";
-}
-
-/** Safe for console: no full email, no password. */
-function emailFingerprint(raw: string): { length: number; domain: string | null } {
-  const t = raw.trim();
-  const at = t.indexOf("@");
-  if (at <= 0 || at === t.length - 1) return { length: t.length, domain: null };
-  return { length: t.length, domain: t.slice(at + 1).toLowerCase() };
-}
-
-function loginTrace(event: string, details?: Record<string, unknown>) {
-  if (!loginDiagnosticsVerbose()) return;
-  console.info(LOGIN_LOG_PREFIX, { event, at: new Date().toISOString(), ...details });
-}
-
-function loginFail(event: string, details?: Record<string, unknown>) {
-  console.error(LOGIN_LOG_PREFIX, { event, ...details });
-}
-
-/** Avoid open redirects: only relative paths without a protocol. */
-function safeInternalPath(next: string | null | undefined, locale: string): string {
-  const fallback = `/${locale}`;
-  if (next == null || next === "") return fallback;
-  const t = next.trim();
-  if (
-    !t.startsWith("/") ||
-    t.startsWith("//") ||
-    t.includes("://") ||
-    t.includes("\\")
-  ) {
-    return fallback;
-  }
-  return t;
-}
-
 export function useLogin(errorMessages: LoginErrors, options: UseLoginOptions) {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,23 +47,25 @@ export function useLogin(errorMessages: LoginErrors, options: UseLoginOptions) {
     setError(null);
     setRedirecting(false);
 
+    const fingerprint = identifierFingerprint(identifier);
+
     loginTrace("submit_start", {
       locale: options.locale,
       nextPath: options.nextPath ?? null,
       rememberMe,
-      email: emailFingerprint(email),
+      identifier: fingerprint,
     });
 
-    if (!email.trim()) {
-      loginFail("validation_failed", { reason: "email_required" });
-      setError(errorMessages.emailRequired);
+    if (!identifier.trim()) {
+      loginFail("validation_failed", { reason: "identifier_required" });
+      setError(errorMessages.identifierRequired);
       return;
     }
 
     if (!password) {
       loginFail("validation_failed", {
         reason: "password_required",
-        email: emailFingerprint(email),
+        identifier: fingerprint,
       });
       setError(errorMessages.passwordRequired);
       return;
@@ -101,14 +73,28 @@ export function useLogin(errorMessages: LoginErrors, options: UseLoginOptions) {
 
     setIsLoading(true);
     let succeeded = false;
+    const method: "email" | "dni" = fingerprint.kind === "email" ? "email" : "dni";
 
     try {
       setRememberMePreference(rememberMe);
-      loginTrace("calling_signInWithPassword", { email: emailFingerprint(email) });
+      loginTrace("resolving_identifier", { identifier: fingerprint });
+      const resolvedEmail = await resolveIdentifierToEmail(identifier);
+      if (!resolvedEmail) {
+        loginFail("identifier_resolution_failed", { identifier: fingerprint });
+        setError(errorMessages.invalidCredentials);
+        trackEvent("action", AnalyticsEntity.authLogin, {
+          method,
+          success: false,
+          stage: "resolve",
+        });
+        return;
+      }
+
+      loginTrace("calling_signInWithPassword", { identifier: fingerprint, method });
       const supabase = createClient();
       const { data, error: authError } = await supabase.auth.signInWithPassword(
         {
-          email: email.trim(),
+          email: resolvedEmail,
           password,
         },
       );
@@ -126,6 +112,11 @@ export function useLogin(errorMessages: LoginErrors, options: UseLoginOptions) {
             ? `${authError.message.trim()} (${authError.code})`
             : authError.message.trim());
         setError(detail || errorMessages.invalidCredentials);
+        trackEvent("action", AnalyticsEntity.authLogin, {
+          method,
+          success: false,
+          stage: "auth",
+        });
         return;
       }
 
@@ -135,6 +126,11 @@ export function useLogin(errorMessages: LoginErrors, options: UseLoginOptions) {
           userIdPresent: Boolean(data.user?.id),
         });
         setError(errorMessages.generic);
+        trackEvent("action", AnalyticsEntity.authLogin, {
+          method,
+          success: false,
+          stage: "no_session",
+        });
         return;
       }
 
@@ -150,6 +146,10 @@ export function useLogin(errorMessages: LoginErrors, options: UseLoginOptions) {
         sessionExpiresAt: data.session.expires_at ?? null,
         at: new Date().toISOString(),
       });
+      trackEvent("action", AnalyticsEntity.authLogin, {
+        method,
+        success: true,
+      });
       setIsLoading(false);
       setRedirecting(true);
       // Full navigation forces the doc request to carry the session cookies so
@@ -163,6 +163,11 @@ export function useLogin(errorMessages: LoginErrors, options: UseLoginOptions) {
         stack: loginDiagnosticsVerbose() ? e.stack : undefined,
       });
       setError(errorMessages.generic);
+      trackEvent("action", AnalyticsEntity.authLogin, {
+        method,
+        success: false,
+        stage: "throw",
+      });
     } finally {
       if (!succeeded) {
         setIsLoading(false);
@@ -171,12 +176,12 @@ export function useLogin(errorMessages: LoginErrors, options: UseLoginOptions) {
   }
 
   return {
-    email,
+    identifier,
     password,
     error,
     redirecting,
     isLoading,
-    setEmail,
+    setIdentifier,
     setPassword,
     rememberMe,
     setRememberMe,

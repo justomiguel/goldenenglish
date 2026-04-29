@@ -1,5 +1,6 @@
 "use client";
 
+import { FileText } from "lucide-react";
 import { resolveAdminBillingMonthChipVisual } from "@/lib/billing/adminBillingMonthCollectionVisual";
 import type { AdminBillingMonthState } from "@/lib/billing/buildAdminBillingMonthGrid";
 import { sectionCollectionsMonthCellClasses } from "@/lib/billing/sectionCollectionsMonthCellClasses";
@@ -19,6 +20,8 @@ export interface AdminRecordPaymentMonthlyMatrixCellsLabels {
   statusOutOfPeriod: string;
   scholarship: string;
   legacy: string;
+  /** Opens student receipt in a new tab (pending + URL only). */
+  viewReceipt: string;
 }
 
 export interface AdminRecordPaymentMonthlyMatrixCellsProps {
@@ -59,6 +62,7 @@ export function AdminRecordPaymentMonthlyMatrixCells({
           recordedAmount: null,
           scholarshipPercent: null,
           selectable: true,
+          revertSelectable: false,
           legacyFallback: false,
         };
         const coll = collectionCells?.[m - 1];
@@ -69,8 +73,13 @@ export function AdminRecordPaymentMonthlyMatrixCells({
           vis.hasScholarshipDiscount,
         );
         const statusText = monthGridStatusLine(state, vis, labels);
+        const receiptTrimmed =
+          vis.status === "pending" && coll?.receiptSignedUrl != null
+            ? String(coll.receiptSignedUrl).trim()
+            : "";
+        const showViewReceipt = receiptTrimmed.length > 0;
         const Icon = SECTION_COLLECTIONS_MONTH_STATUS_ICONS[vis.status];
-        const disabledMonth = disabled || !state.selectable;
+        const disabledMonth = disabled || (!state.selectable && !state.revertSelectable);
         const scholarshipPct =
           vis.hasScholarshipDiscount && coll?.scholarshipDiscountPercent != null
             ? coll.scholarshipDiscountPercent
@@ -128,6 +137,18 @@ export function AdminRecordPaymentMonthlyMatrixCells({
             >
               {statusText}
             </span>
+            {showViewReceipt ? (
+              <a
+                href={receiptTrimmed}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[36px] max-w-full items-center justify-center gap-1 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-1.5 py-0.5 text-[9px] font-semibold text-[var(--color-primary)] hover:bg-[var(--color-muted)]/25"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <FileText className="h-3 w-3 shrink-0" aria-hidden />
+                {labels.viewReceipt}
+              </a>
+            ) : null}
           </div>
         );
       })}
@@ -152,8 +173,11 @@ function monthGridStatusLine(
   if (vis.status === "due" && vis.isOverdue) {
     return labels.statusOverdue;
   }
-  switch (state.status) {
-    case "paid":
+  if (vis.status === "due") {
+    return labels.statusUnpaid;
+  }
+  switch (vis.status) {
+    case "approved":
       return labels.statusPaid;
     case "pending":
       return labels.statusPending;
@@ -161,7 +185,7 @@ function monthGridStatusLine(
       return labels.statusRejected;
     case "exempt":
       return labels.statusExempt;
-    case "unpaid":
+    default:
       return labels.statusUnpaid;
   }
 }

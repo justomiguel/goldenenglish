@@ -44,6 +44,7 @@ export interface AdminRecordPaymentMonthGridProps {
     legacy: string;
     monthZeroColumnShort: string;
     monthZeroTooltip: string;
+    viewReceipt: string;
   };
   disabled: boolean;
   /** Enrollment fee column; omit when section has no matrícula. */
@@ -56,6 +57,8 @@ export interface AdminRecordPaymentMonthGridProps {
     labels: EnrollmentMonthZeroColumnLabels;
     onActivate?: () => void;
     disabled?: boolean;
+    /** Pre-signed enrollment receipt URL when staff should open it from the matrix. */
+    receiptSignedUrl?: string | null;
   } | null;
 }
 
@@ -120,6 +123,7 @@ export function AdminRecordPaymentMonthGrid({
       statusOutOfPeriod: labels.statusOutOfPeriod,
       scholarship: labels.scholarship,
       legacy: labels.legacy,
+      viewReceipt: labels.viewReceipt,
     }),
     [labels],
   );
@@ -165,6 +169,7 @@ export function AdminRecordPaymentMonthGrid({
               labels={enrollmentMonthZero.labels}
               onActivate={enrollmentMonthZero.onActivate}
               disabled={enrollmentMonthZero.disabled}
+              receiptSignedUrl={enrollmentMonthZero.receiptSignedUrl ?? null}
             />
           ) : null}
           <AdminRecordPaymentMonthlyMatrixCells

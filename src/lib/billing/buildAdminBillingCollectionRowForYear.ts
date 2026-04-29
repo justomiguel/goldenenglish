@@ -56,6 +56,7 @@ export interface BuildAdminBillingCollectionRowForYearInput {
   enrollmentId: string | null;
   enrollmentFeeReceiptStatus: "pending" | "approved" | "rejected" | null;
   enrollmentFeeReceiptSignedUrl: string | null;
+  lastEnrollmentPaidAt: string | null;
   scholarships: AdminBillingScholarship[];
   payments: AdminBillingPaymentRow[];
   viewYear: number;
@@ -91,5 +92,6 @@ export function buildAdminBillingCollectionRowForYear(
     enrollmentId: input.enrollmentId,
     enrollmentFeeReceiptStatus: input.enrollmentFeeReceiptStatus,
     enrollmentFeeReceiptSignedUrl: input.enrollmentFeeReceiptSignedUrl,
+    lastEnrollmentPaidAt: input.lastEnrollmentPaidAt,
   });
 }

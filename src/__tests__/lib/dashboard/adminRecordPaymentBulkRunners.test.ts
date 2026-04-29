@@ -4,11 +4,15 @@ import {
   runRecordPaymentExemptBulk,
   runRecordPaymentPaidBulk,
   runRecordPaymentScholarshipBulk,
+  runRevertApprovedPaymentsBulk,
 } from "@/lib/dashboard/adminRecordPaymentBulkRunners";
 import { dictEn } from "@/test/dictEn";
 
 vi.mock("@/app/[locale]/dashboard/admin/payments/recordPaymentWithoutReceiptAction", () => ({
   recordPaymentsWithoutReceiptBulk: vi.fn(),
+}));
+vi.mock("@/app/[locale]/dashboard/admin/payments/revertApprovedPaymentsAction", () => ({
+  revertApprovedPaymentsBulk: vi.fn(),
 }));
 vi.mock("@/app/[locale]/dashboard/admin/users/[userId]/billing/periodExemptionActions", () => ({
   setPeriodExemption: vi.fn(),
@@ -18,6 +22,7 @@ vi.mock("@/app/[locale]/dashboard/admin/users/[userId]/billing/upsertStudentScho
 }));
 
 import { recordPaymentsWithoutReceiptBulk } from "@/app/[locale]/dashboard/admin/payments/recordPaymentWithoutReceiptAction";
+import { revertApprovedPaymentsBulk } from "@/app/[locale]/dashboard/admin/payments/revertApprovedPaymentsAction";
 import { setPeriodExemption } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/periodExemptionActions";
 import { createStudentScholarship } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/upsertStudentScholarship";
 
@@ -42,6 +47,24 @@ describe("adminRecordPaymentBulkRunners", () => {
       sectionId: "b",
       year: 2026,
       months: [1],
+      locale: "es",
+      labels,
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it("runRevertApprovedPaymentsBulk forwards to action", async () => {
+    vi.mocked(revertApprovedPaymentsBulk).mockResolvedValueOnce({
+      ok: true,
+      reverted: 1,
+      results: [{ month: 2, ok: true }],
+      batchId: "b2",
+    });
+    const r = await runRevertApprovedPaymentsBulk({
+      studentId: "a",
+      sectionId: "b",
+      year: 2026,
+      months: [2],
       locale: "es",
       labels,
     });

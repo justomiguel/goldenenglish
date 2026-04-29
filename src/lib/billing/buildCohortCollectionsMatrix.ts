@@ -153,6 +153,7 @@ export function buildCohortCollectionsMatrix(
             e.enrollment_fee_receipt_status,
           ),
           enrollmentFeeReceiptSignedUrl: null,
+          lastEnrollmentPaidAt: e.last_enrollment_paid_at ?? null,
           activePromotionLabel: activePromotionLabel(
             promotionsByStudent.get(e.student_id),
           ),

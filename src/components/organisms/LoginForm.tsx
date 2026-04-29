@@ -18,12 +18,12 @@ interface LoginFormProps {
 export function LoginForm({ labels, locale, nextPath = null }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const {
-    email,
+    identifier,
     password,
     error,
     redirecting,
     isLoading,
-    setEmail,
+    setIdentifier,
     setPassword,
     rememberMe,
     setRememberMe,
@@ -75,13 +75,17 @@ export function LoginForm({ labels, locale, nextPath = null }: LoginFormProps) {
 
       <div className="space-y-5">
         <FormField
-          label={labels.emailLabel}
-          type="email"
-          placeholder={labels.emailPlaceholder}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          label={labels.identifierLabel}
+          type="text"
+          placeholder={labels.identifierPlaceholder}
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
           required
-          autoComplete="email"
+          autoComplete="username"
+          inputMode="email"
+          spellCheck={false}
+          autoCapitalize="none"
+          hint={labels.identifierHint}
           className="border-[var(--color-border)] bg-[var(--color-surface)] py-2.5 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.75)]"
         />
 

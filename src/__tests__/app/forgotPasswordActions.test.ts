@@ -84,7 +84,7 @@ describe("requestPasswordResetAction", () => {
     );
   });
 
-  it("forwards a redirectTo URL pointing to the locale-specific reset page", async () => {
+  it("forwards a redirectTo URL pointing to the API recovery callback with next=/locale/reset-password", async () => {
     requestPasswordResetMock.mockResolvedValue({ ok: true });
     const { requestPasswordResetAction } = await import(
       "@/app/[locale]/forgot-password/actions"
@@ -94,7 +94,8 @@ describe("requestPasswordResetAction", () => {
       expect.objectContaining({
         email: "user@example.com",
         locale: "en",
-        redirectTo: "https://app.example.com/en/reset-password",
+        redirectTo:
+          "https://app.example.com/api/auth/recovery-callback?next=%2Fen%2Freset-password",
       }),
     );
   });

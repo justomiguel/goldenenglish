@@ -92,7 +92,8 @@
       "invalidCode": "Ingresá un código válido.",
       "forbidden": "No tenés permiso para esta acción.",
       "invalidId": "Identificador de registro no válido.",
-      "saveFailed": "No se pudo guardar. Intentá de nuevo."
+      "saveFailed": "No se pudo guardar. Intentá de nuevo.",
+      "duplicateBadgeCode": "Ya existe un logro con ese código."
     },
     "messaging": {
       "invalidRecipient": "Destinatario no válido.",
@@ -148,7 +149,10 @@
       "alreadyApproved": "Ese período ya figura como pagado.",
       "cannotOverrideExempt": "Ese período está exento. Quitá la exención primero.",
       "saveFailed": "No se pudo guardar. Intentá de nuevo.",
-      "bulkAllFailed": "No se pudo registrar ningún mes. Puede que ya estén pagados, exentos o no facturables en la sección."
+      "bulkAllFailed": "No se pudo registrar ningún mes. Puede que ya estén pagados, exentos o no facturables en la sección.",
+      "revertNotFound": "No hay fila de pago para ese mes en esta sección.",
+      "revertNotApproved": "Ese mes no está en estado pagado (o ya se revirtió).",
+      "bulkRevertAllFailed": "No se pudo revertir ningún mes. Puede que no estén registrados como pagados en esta sección."
     },
     "billingStudent": {
       "forbidden": "No tenés permiso para esta acción.",
@@ -161,7 +165,8 @@
       "invalidPeriod": "Período no válido.",
       "invalidRange": "Rango de fechas no válido.",
       "invalidRangeOrder": "El mes final debe ser igual o posterior al mes inicial.",
-      "saveFailed": "No se pudieron guardar los cambios de facturación. Intentá de nuevo."
+      "saveFailed": "No se pudieron guardar los cambios de facturación. Intentá de nuevo.",
+      "enrollmentNotPaidRecorded": "No hay fecha de matrícula pagada para quitar."
     },
     "tutorFinancialAccess": {
       "invalidForm": "Solicitud no válida.",
@@ -196,9 +201,10 @@
   "login": {
     "kicker": "Portal de alumnos",
     "title": "Iniciar sesión",
-    "subtitle": "Ingresá con el correo y la clave de tu inscripción.",
-    "emailLabel": "Correo electrónico",
-    "emailPlaceholder": "tu@ejemplo.com",
+    "subtitle": "Ingresá con tu correo o documento, y la clave de tu inscripción.",
+    "identifierLabel": "Correo o documento",
+    "identifierPlaceholder": "tu@ejemplo.com o 12345678",
+    "identifierHint": "Usá tu correo electrónico, o tu DNI/pasaporte si no tenés correo.",
     "passwordLabel": "Contraseña",
     "passwordPlaceholder": "Tu contraseña",
     "passwordHintStudent": "Alumnos: la primera contraseña suele ser tu DNI, igual que en la inscripción.",
@@ -211,8 +217,8 @@
     "noAccount": "¿No tienes cuenta?",
     "signUp": "Regístrate",
     "errors": {
-      "invalidCredentials": "Correo o contraseña inválidos",
-      "emailRequired": "El correo es obligatorio",
+      "invalidCredentials": "Correo/documento o contraseña inválidos",
+      "identifierRequired": "Ingresá tu correo o documento",
       "passwordRequired": "La contraseña es obligatoria",
       "generic": "Ocurrió un error. Intenta de nuevo."
     }
@@ -240,6 +246,8 @@
     "kicker": "Nueva contraseña",
     "title": "Elegí una nueva contraseña",
     "subtitle": "Usá una contraseña de al menos 8 caracteres. Te llevaremos a tu panel después de guardarla.",
+    "mustChangeBannerTitle": "Tenés que elegir una contraseña nueva",
+    "mustChangeBannerLead": "Un administrador acaba de restablecer tu contraseña. Elegí una nueva para seguir usando tu cuenta.",
     "passwordLabel": "Nueva contraseña",
     "passwordPlaceholder": "Tu nueva contraseña",
     "confirmLabel": "Repetí la nueva contraseña",
@@ -266,6 +274,10 @@
   "emailPasswordReset": {
     "subject": "{{brandName}} — Restablecé tu contraseña",
     "html": "<!DOCTYPE html><html><body style=\"font-family:system-ui,sans-serif;color:#103A5C;line-height:1.5;\"><p><strong>{{brandName}}</strong></p><p>Hola,</p><p>Recibimos un pedido para restablecer la contraseña de tu cuenta ({{email}}). Hacé clic en el botón para definir una nueva contraseña. El enlace dura 1 hora.</p><p style=\"margin:24px 0;\"><a href=\"{{href}}\" style=\"display:inline-block;background:#103A5C;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:600;\">Restablecer contraseña</a></p><p style=\"font-size:0.875rem;color:#6B7280;\">Si el botón no funciona, pegá este enlace en tu navegador:<br/><a href=\"{{href}}\">{{href}}</a></p><p style=\"font-size:0.875rem;color:#6B7280;\">Si no pediste este correo, podés ignorarlo. Tu contraseña no cambiará.</p></body></html>"
+  },
+  "emailAdminPasswordResetNotice": {
+    "subject": "{{brandName}} — Un administrador restableció tu contraseña",
+    "html": "<!DOCTYPE html><html><body style=\"font-family:system-ui,sans-serif;color:#103A5C;line-height:1.5;\"><p><strong>{{brandName}}</strong></p><p>Hola,</p><p>Un administrador acaba de restablecer la contraseña de tu cuenta ({{email}}). La próxima vez que ingreses te vamos a pedir que elijas una contraseña nueva.</p><p>Si no pediste este cambio ni lo coordinaste con nuestro equipo, escribinos enseguida a <a href=\"mailto:{{contactEmail}}\">{{contactEmail}}</a> para asegurar tu cuenta.</p><p style=\"font-size:0.875rem;color:#6B7280;\">Este es un aviso de seguridad automático. Podés ignorarlo si vos coordinaste el reset con nosotros.</p></body></html>"
   },
   "nav": {
     "home": "Inicio",
@@ -1245,6 +1257,25 @@
       "detailPasswordConfirmTitle": "¿Cambiar la contraseña?",
       "detailPasswordConfirmBody": "¿Estás seguro de que querés cambiar la contraseña de este usuario? Compartí la nueva contraseña por un canal seguro.",
       "detailPasswordConfirmAction": "Sí, cambiar contraseña",
+      "detailDniResetTitle": "Reset por documento",
+      "detailDniResetLead": "Reset de un click para alumnos sin email real. La nueva contraseña se deriva del DNI/pasaporte y se muestra en pantalla para que la entregues en mano.",
+      "detailDniResetButton": "Resetear contraseña por DNI",
+      "detailDniResetConfirmTitle": "¿Resetear la contraseña usando el documento?",
+      "detailDniResetConfirmBody": "Vamos a poner la contraseña del alumno a un valor derivado de su documento y le vamos a pedir que elija una nueva la próxima vez que ingrese. Esta acción no se puede deshacer — confirmá con tu propia contraseña para continuar.",
+      "detailDniResetAdminPasswordLabel": "Tu contraseña de admin",
+      "detailDniResetAdminPasswordPlaceholder": "Confirmá tu contraseña",
+      "detailDniResetConfirmAction": "Resetear y mostrar",
+      "detailDniResetRevealTitle": "Nueva contraseña temporal",
+      "detailDniResetRevealLead": "Entregá esta contraseña al alumno en persona. No la guardamos en ningún lado — una vez que cierres esta ventana vas a tener que resetear de nuevo para volver a verla.",
+      "detailDniResetRevealCopy": "Copiar contraseña",
+      "detailDniResetRevealClose": "Listo",
+      "detailDniResetRevealNoticeReal": "También enviamos un aviso de seguridad al email registrado.",
+      "detailDniResetRevealNoticeSynthetic": "Esta cuenta no tiene email real, así que no enviamos aviso por correo.",
+      "detailDniResetWarn": "Anotá o entregá ahora la contraseña: una vez cerrada esta ventana no se puede recuperar.",
+      "detailDniResetErrAdminPassword": "Tu contraseña de admin no coincide. Probá de nuevo.",
+      "detailDniResetErrTargetMissing": "Esta cuenta no tiene documento registrado, así que no podemos derivar una contraseña temporal.",
+      "detailDniResetErrSave": "No se pudo restablecer la contraseña. Probá de nuevo.",
+      "detailDniResetToastOk": "Contraseña restablecida y mostrada.",
       "detailTutorTitle": "Tutores",
       "detailTutorLead": "Cuentas de padre, madre o tutor vinculadas a este alumno.",
       "detailTutorCurrent": "Tutores vinculados",
@@ -1317,13 +1348,73 @@
         "tabs": {
           "overview": "Vista cohorte",
           "collections": "Cobranza",
-          "receipts": "Comprobantes",
-          "payments": "Revisión de pagos"
+          "inbox": "Bandeja de pagos",
+          "insights": "Análisis"
         },
         "tipOverview": "Cada sección de la cohorte activa con el estado de pago por mes — como un Excel, pero accionable.",
         "tipCollections": "Salud de cobranza por sección, con exportación y recordatorios masivos.",
-        "tipReceipts": "Aprobar o rechazar comprobantes de facturación subidos por las familias (modelo de facturación).",
-        "tipPayments": "Cola legacy de comprobantes mensuales pendientes de revisión."
+        "tipInbox": "Aprobá o rechazá comprobantes de pago subidos por familias — mensuales, matrícula y facturación en una sola cola.",
+        "tipInsights": "Tendencias de cobranza, métricas de procesamiento, proyecciones de fin de año y alertas de salud por sección."
+      },
+      "insights": {
+        "title": "Análisis financiero",
+        "lead": "Tendencias, métricas operativas y proyecciones según la cohorte y el año seleccionados.",
+        "tabs": {
+          "trends": "Tendencias",
+          "operations": "Operaciones",
+          "projections": "Proyecciones"
+        },
+        "trend": {
+          "title": "Tendencia mensual de cobranza",
+          "hint": "Vista apilada de montos cobrados, pendientes y vencidos por mes del año actual.",
+          "collected": "Cobrado",
+          "pending": "Pendiente",
+          "overdue": "Vencido",
+          "ratio": "Ratio"
+        },
+        "processing": {
+          "title": "Procesamiento de comprobantes",
+          "hint": "Velocidad de revisión de comprobantes y motivos de rechazo frecuentes.",
+          "avgDays": "Días prom. para resolver",
+          "avgDaysMonthly": "Comprobantes mensuales",
+          "avgDaysInvoice": "Comprobantes de factura",
+          "approvalRate": "Tasa de aprobación",
+          "totalProcessed": "Total procesados",
+          "pendingCount": "Pendientes ahora",
+          "rejectionReasons": "Motivos de rechazo",
+          "noData": "Aún no hay comprobantes resueltos en este período.",
+          "reasonImageBlurry": "Imagen borrosa",
+          "reasonAmountMismatch": "Monto no coincide",
+          "reasonWrongAccount": "Cuenta incorrecta",
+          "reasonOther": "Otro"
+        },
+        "comparison": {
+          "title": "Comparación entre secciones",
+          "hint": "Ratio de cobranza por sección — las secciones con peor desempeño primero.",
+          "cohortAverage": "Prom. cohorte"
+        },
+        "projection": {
+          "title": "Proyección de fin de año",
+          "hint": "Cobranza estimada al ritmo actual vs. total esperado.",
+          "projected": "Proyectado",
+          "expected": "Esperado",
+          "gap": "Diferencia",
+          "behind": "debajo del objetivo",
+          "ahead": "por encima del objetivo",
+          "monthlyAvg": "Prom. mensual",
+          "monthsLeft": "meses restantes",
+          "onTrack": "En camino — el ritmo de cobranza cumple lo esperado.",
+          "slightlyBehind": "Levemente debajo — algunas secciones requieren atención.",
+          "significantlyBehind": "Significativamente debajo del objetivo — revisá las secciones vencidas."
+        },
+        "alerts": {
+          "title": "Alertas de salud por sección",
+          "critical": "Crítico",
+          "watch": "Atención",
+          "allHealthy": "Todas las secciones están saludables — sin alertas.",
+          "overdueStudents": "alumnos vencidos",
+          "ratio": "ratio"
+        }
       },
       "enrollmentFeeQueue": {
         "title": "Comprobantes de matrícula",
@@ -1337,6 +1428,16 @@
         "studentLabel": "Alumno",
         "sectionLabel": "Sección",
         "uploadedLabel": "Subido"
+      },
+      "inbox": {
+        "title": "Bandeja de pagos",
+        "lead": "Aprobá o rechazá comprobantes subidos por familias. Usá las pestañas para cambiar de tipo.",
+        "typeMonthly": "Mensuales",
+        "typeEnrollment": "Matrícula",
+        "typeInvoice": "Facturación",
+        "empty": "No hay comprobantes pendientes en esta categoría.",
+        "agingDays": "{days}d",
+        "agingHours": "{hours}h"
       },
       "overview": {
         "title": "Vista cohorte",
@@ -1377,6 +1478,11 @@
           "noCurrentCohort": "No hay una cohorte marcada como actual. Marcá una en el panel académico.",
           "noSections": "Esta cohorte no tiene secciones activas todavía.",
           "noStudentsAfterFilter": "Ningún alumno coincide con el filtro actual."
+        },
+        "topDebtors": {
+          "title": "Mayores saldos vencidos",
+          "empty": "Sin saldos vencidos — ¡excelente!",
+          "openBilling": "Abrir facturación"
         }
       },
       "collections": {
@@ -1484,6 +1590,8 @@
           "paidColumn": "Cobrado",
           "pendingColumn": "Pendiente de revisión",
           "overdueColumn": "Vencido",
+          "ratioColumn": "Ratio %",
+          "healthColumn": "Salud",
           "totalsRowLabel": "TOTAL",
           "exportError": "No pudimos generar el reporte. Probá de nuevo.",
           "markers": {
@@ -1500,6 +1608,17 @@
         "errors": {
           "loadFailed": "No pudimos cargar la cobranza.",
           "exportFailed": "No pudimos generar la exportación."
+        },
+        "filters": {
+          "filterBySection": "Sección",
+          "allSections": "Todas las secciones",
+          "filterByHealth": "Salud",
+          "allHealth": "Todas"
+        },
+        "actionBar": {
+          "messageSelected": "Mensajear seleccionados",
+          "remindOverdue": "Recordatorio de mora",
+          "clearAll": "Limpiar selección"
         }
       }
     },
@@ -1589,6 +1708,9 @@
       "enrollmentReason": "Motivo (auditoría)",
       "enrollmentSave": "Guardar exención de matrícula",
       "enrollmentMarkPaid": "Registrar matrícula pagada (hoy)",
+      "enrollmentClearManualPaid": "Quitar fecha de pago de matrícula registrada",
+      "enrollmentClearManualPaidConfirmTitle": "¿Quitar la fecha de pago de matrícula registrada?",
+      "enrollmentClearManualPaidConfirmBody": "Se quita la última fecha de pago de matrícula registrada por staff. Si el comprobante estaba aprobado, vuelve a pendiente de revisión para que la matrícula no siga mostrándose como pagada.",
       "enrollmentLastPaid": "Último pago de matrícula",
       "enrollmentNonePaid": "Sin registro",
       "enrollmentReceiptTitle": "Comprobante del alumno",
@@ -1603,7 +1725,7 @@
       "recordPaymentTitle": "Registrar pago mensual (sin comprobante)",
       "recordPaymentLead": "Marca un mes como pagado con el arancel vigente de la sección, cuando el pago se verificó fuera del flujo de comprobante. Sección: {section}.",
       "recordPaymentMatrixTitle": "Matriz mensual de cobranzas",
-      "recordPaymentMatrixHelp": "Hacé clic en cada mes para seleccionarlo. Una vez elegidos, decidí qué hacer: registrar como pagado, aplicar una beca o marcar como exento. En la columna de matrícula abrís la configuración: eximir o no, registrar pago y revisar comprobante.",
+      "recordPaymentMatrixHelp": "Hacé clic en cada mes para seleccionarlo. Los meses pagados (verde) se pueden elegir solos para deshacer un “pagado” por error y volver a pendiente de comprobante. En otros meses: registrar pago, beca o exención. Columna matrícula: configuración, marcar pagado, deshacer pagado, revisar comprobante.",
       "recordPaymentActionsTitle": "Acciones para {count} mes(es) seleccionado(s)",
       "recordPaymentActionsCancel": "Limpiar selección",
       "recordPaymentActionMarkPaid": "Registrar como pagado",
@@ -1629,6 +1751,7 @@
       "recordPaymentEnrollmentModalTitle": "Matrícula · {section}",
       "recordPaymentEnrollmentColumnActivate": "Matrícula ({section}) — abrir opciones",
       "recordPaymentEnrollmentFeeChipAria": "{name} · Matrícula",
+      "recordPaymentViewReceipt": "Ver comprobante",
       "recordPaymentMatrixLead": "{section} · {year}. Seleccioná solo los meses que querés registrar ahora.",
       "recordPaymentMatrixAuditBadge": "Auditado por mes",
       "recordPaymentNote": "Nota interna (opcional)",
@@ -1638,7 +1761,7 @@
       "recordPaymentConfirmTitle": "¿Registrar este mes como pagado?",
       "recordPaymentConfirmBody": "Se guardará el monto del plan de esta sección como aprobado, sin nuevo comprobante, y se enviará un aviso a la familia por correo si es posible.",
       "recordPaymentConfirm": "Confirmar",
-      "recordPaymentGridHint": "Elegí uno o más meses en el año de arriba. Es el mismo criterio que en cobranzas: los meses seleccionados se marcan como pagados con el plan vigente de la sección.",
+      "recordPaymentGridHint": "Elegí meses del año de arriba. Para deshacer un mes marcado pagado por error, seleccioná solo meses pagados (verde) y usá “Marcar como no pagado”. Para nuevos pagos, usá meses no pagados o pendientes y registro, beca o exención.",
       "recordPaymentMatrixLegend": "Igual que Finanzas / cobranzas: verde = pagado; ámbar = en revisión; rojo = rechazado; azul = exento; gris claro = aún no corresponde o no está vencido; borde rojo = cuota vencida; menos en círculo = sin plan de cuota ese mes (p. ej. curso que no cobra); calendario tachado = fuera del período de cobro de la sección; % verde = beca.",
       "recordPaymentStatusNoPlan": "Sin plan de cuota (bloqueado)",
       "recordPaymentStatusOutOfPeriod": "Fuera del período de cobro (bloqueado)",
@@ -1658,6 +1781,16 @@
       "recordPaymentCountSelected": "{count} mes(es) seleccionados",
       "recordPaymentBulkConfirmTitle": "¿Registrar {count} mes(es) como pagados?",
       "recordPaymentBulkConfirmBody": "Cada mes usa el monto del plan de ese período. Se envía un correo por mes cuando haya email. Cada mes queda en la auditoría de finanzas (y en lotes, también una línea de lote con el mismo id de correlación).",
+      "recordPaymentBulkRevertConfirmTitle": "¿Revertir {count} mes(es) a no pagado?",
+      "recordPaymentBulkRevertConfirmBody": "Cada mes seleccionado debe estar pagado ahora. Volverán a pendiente de comprobante (igual que esperando carga o revisión). La nota opcional se añade a la auditoría. No se envía correo.",
+      "recordPaymentBulkRevertResultOk": "Se revirtieron {count} mes(es) a no pagado.",
+      "recordPaymentBulkRevertResultPartial": "Revertidos: {ok}. Sin revertir: {failed}.",
+      "recordPaymentRevertActionsTitle": "Deshacer estado pagado en {count} mes(es)",
+      "recordPaymentRevertActionBarHint": "Úsalo si un mes quedó pagado por error. Confirma en el diálogo.",
+      "recordPaymentActionMarkUnpaid": "Marcar como no pagado",
+      "recordPaymentRevertConfirm": "Revertir a no pagado",
+      "recordPaymentRevertNote": "Motivo (opcional, auditoría)",
+      "recordPaymentRevertNotePlaceholder": "p. ej. marcado pagado por error",
       "recordPaymentBulkResultOk": "Se registraron {count} mes(es).",
       "recordPaymentBulkResultPartial": "Registrados: {ok}. No registrados: {failed}.",
       "recordPaymentBatchId": "Id de lote (auditoría): {id}"
@@ -1755,6 +1888,64 @@
       "tipCreateMaxUses": "Tope de usos totales; vacío = ilimitado.",
       "tipCreateSubmit": "Guardar el cupón y mostrarlo en la tabla de abajo.",
       "tipToggleRow": "Activar o desactivar este cupón sin borrar el historial."
+    },
+    "badges": {
+      "title": "Catálogo de logros",
+      "lead": "Crear, editar, pausar o reactivar los logros que pueden desbloquear los alumnos. Los logros ya otorgados se conservan aunque pauses un badge.",
+      "createCta": "Nuevo logro",
+      "editCta": "Editar",
+      "saveCta": "Guardar cambios",
+      "pauseCta": "Pausar",
+      "activateCta": "Activar",
+      "uploadCta": "Subir imagen",
+      "clearImageCta": "Quitar imagen",
+      "createTitle": "Nuevo logro",
+      "editTitle": "Editar logro",
+      "formLead": "Elegí un código estable (minúsculas, dígitos y guiones bajos), cómo se desbloquea y agregá los textos en inglés y español.",
+      "formCode": "Código",
+      "formCategory": "Categoría",
+      "formCriteriaType": "Criterio",
+      "formThreshold": "Umbral",
+      "formSortOrder": "Orden",
+      "formTranslations": "Títulos y descripciones",
+      "formTitle": "Título",
+      "formDescription": "Descripción",
+      "tipCode": "Identificador estable; no se puede cambiar una vez que el logro fue otorgado. Solo minúsculas, dígitos y guiones bajos.",
+      "tipCriteriaType": "Tipo de actividad del alumno que desbloquea este logro.",
+      "tipThreshold": "Cantidad que tiene que alcanzar (por ejemplo, 5 tareas completadas). Usá 1 para hitos únicos como completar el perfil.",
+      "tipSortOrder": "Los números más bajos aparecen primero en la lista. Usá múltiplos de 10 para dejar lugar a logros nuevos.",
+      "tipImage": "PNG, JPEG, WebP o SVG cuadrado hasta 2 MB. Aparece en la previsualización de WhatsApp cuando está disponible.",
+      "imageTooLarge": "Esa imagen es demasiado grande (máximo 2 MB).",
+      "imageInvalidMime": "Usá un archivo PNG, JPEG, WebP o SVG.",
+      "savedNotice": "Guardado.",
+      "genericError": "Algo salió mal. Intentá de nuevo.",
+      "empty": "Todavía no hay logros — creá el primero con el botón de arriba.",
+      "colImage": "Imagen",
+      "colCode": "Código",
+      "colTitle": "Título (EN)",
+      "colCategory": "Categoría",
+      "colCriteria": "Criterio",
+      "colThreshold": "Umbral",
+      "colStatus": "Estado",
+      "colActions": "Acciones",
+      "statusActive": "Activo",
+      "statusPaused": "Pausado",
+      "categoryTasks": "Tareas",
+      "categoryAttendance": "Asistencia",
+      "categoryProfile": "Perfil",
+      "categoryLearning": "Evaluaciones",
+      "categoryCommunity": "Comunidad",
+      "criteriaTasksCompleted": "Tareas completadas (cantidad)",
+      "criteriaAttendanceStreak": "Racha de asistencia (días corridos)",
+      "criteriaAttendanceDaysTotal": "Clases asistidas en total (cantidad acumulada)",
+      "criteriaProfileComplete": "Perfil completo (teléfono, fecha de nacimiento, foto)",
+      "criteriaProfileAvatarSet": "Foto de perfil cargada",
+      "criteriaProfilePhoneSet": "Teléfono de perfil cargado",
+      "criteriaProfileBirthDateSet": "Fecha de nacimiento cargada",
+      "criteriaAssessmentsPassed": "Evaluaciones aprobadas (cantidad)",
+      "criteriaMessagesSent": "Mensajes enviados desde el portal (cantidad)",
+      "localeEn": "Inglés (EN)",
+      "localeEs": "Español (ES)"
     },
     "registrations": {
       "title": "Inscripciones web",
@@ -1961,7 +2152,9 @@
       "tipCoupons": "Códigos de descuento aplicables en pagos o inscripciones.",
       "tipPromotions": "Promociones de precio por tiempo limitado.",
       "tipSettings": "Preferencias del instituto, como inscripciones públicas.",
-      "tipMyProfile": "Tu perfil personal, contraseña y preferencias."
+      "tipMyProfile": "Tu perfil personal, contraseña y preferencias.",
+      "badges": "Logros",
+      "tipBadges": "Gestiona el catálogo de logros del alumno: títulos, imagen, criterios y pausa."
     },
     "adminContents": {
       "metaTitle": "Contenidos académicos",
@@ -3911,6 +4104,7 @@
       "uploading": "Subiendo…",
       "success": "Comprobante enviado",
       "openReview": "Revisar",
+      "viewReceipt": "Ver comprobante",
       "adminListTitle": "Bandeja de comprobantes",
       "adminListLead": "Comprobantes de transferencia pendientes de aprobación (cuotas estructuradas).",
       "adminEmpty": "No hay comprobantes pendientes.",
@@ -4059,6 +4253,21 @@
         "ctaPay": "Ir a pagos"
       },
       "selectChild": "Elegir alumno",
+      "wardPickerLabel": "Alumno",
+      "wardPickerHint": "Cambiar de alumno recarga la vista.",
+      "tasksPageTitle": "Tareas de aprendizaje",
+      "tasksPageLead": "Tareas asignadas a tus alumnos vinculados. Vista de solo lectura; los alumnos las completan desde su portal.",
+      "tasksPageEmpty": "No encontramos tareas activas para el alumno seleccionado.",
+      "tasksPageViewDetail": "Ver tarea",
+      "badgesPageTitle": "Logros",
+      "badgesPageKicker": "Hitos del alumno",
+      "badgesPageLead": "Medallas ganadas por el alumno seleccionado. Los enlaces para compartir están disponibles en el portal del alumno.",
+      "badgesPageEmpty": "El alumno seleccionado todavía no ganó ninguna medalla.",
+      "assessmentsPageTitle": "Mini-tests",
+      "assessmentsPageLead": "Vista de solo lectura de mini-tests del alumno seleccionado. Solo el alumno puede enviar respuestas desde su portal.",
+      "assessmentsPageEmpty": "No hay mini-tests disponibles para el alumno seleccionado.",
+      "assessmentsPageSubmitted": "Enviado",
+      "assessmentsPageReadOnly": "Solo lectura — el alumno envía desde su portal.",
       "mobileNav": "Ir a",
       "profileTitle": "Mi cuenta",
       "profileLead": "Subí tu foto desde el portal cuando ya iniciaste sesión. No se puede cargar en el formulario de solicitud de inscripción.",

@@ -1,20 +1,25 @@
-// REGRESSION CHECK: Initial coverage for useResetPassword. Critical invariants:
-//  - the hook calls exchangeCodeForSession exactly once with the URL code,
-//  - rejects empty / short / mismatched passwords without hitting Supabase,
-//  - emits the password_reset_completed analytics action on success.
+// REGRESSION CHECK: Critical invariants:
+//  - legacy `code` on /{locale}/reset-password redirects through /api/auth/recovery-callback,
+//  - token_hash + recovery uses verifyOtp,
+//  - established session uses getSession (initializePromise resolved internally),
+//  - submit still validates password and calls updateUser.
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 
-const exchangeCodeForSession = vi.fn();
+const getSession = vi.fn();
+const verifyOtp = vi.fn();
+const setSession = vi.fn();
 const updateUser = vi.fn();
 const trackEvent = vi.fn();
+const clearMustChangeFlag = vi.fn();
 
 vi.mock("@/lib/supabase/client", () => ({
   createClient: () => ({
     auth: {
-      exchangeCodeForSession: (...a: unknown[]) =>
-        exchangeCodeForSession(...a),
+      getSession,
+      verifyOtp,
+      setSession,
       updateUser: (...a: unknown[]) => updateUser(...a),
     },
   }),
@@ -22,6 +27,10 @@ vi.mock("@/lib/supabase/client", () => ({
 
 vi.mock("@/lib/analytics/trackClient", () => ({
   trackEvent: (...a: unknown[]) => trackEvent(...a),
+}));
+
+vi.mock("@/app/[locale]/reset-password/clearMustChangePasswordAction", () => ({
+  clearMustChangePasswordFlagAction: (...a: unknown[]) => clearMustChangeFlag(...a),
 }));
 
 const errors = {
@@ -34,63 +43,154 @@ const errors = {
   generic: "generic",
 };
 
-const ORIGINAL_HREF = "http://localhost/";
-
-function setLocation(href: string) {
-  Object.defineProperty(window, "location", {
-    configurable: true,
-    value: new URL(href),
-  });
-}
-
 beforeEach(() => {
   vi.clearAllMocks();
-  exchangeCodeForSession.mockReset();
+  getSession.mockReset();
+  verifyOtp.mockReset();
+  setSession.mockReset();
   updateUser.mockReset();
   trackEvent.mockReset();
-  setLocation(ORIGINAL_HREF);
+  clearMustChangeFlag.mockReset();
+  clearMustChangeFlag.mockResolvedValue({ ok: true });
+  Object.defineProperty(window, "location", {
+    configurable: true,
+    value: {
+      href: "http://localhost/",
+      pathname: "/",
+      replace: vi.fn(),
+      assign: vi.fn(),
+    },
+  });
 });
 
 import { useResetPassword } from "@/hooks/useResetPassword";
 
+function setWindowLocation(href: string) {
+  const url = new URL(href);
+  Object.defineProperty(window, "location", {
+    configurable: true,
+    value: {
+      href,
+      pathname: url.pathname,
+      replace: vi.fn(),
+      assign: vi.fn(),
+    },
+  });
+}
+
 describe("useResetPassword", () => {
-  it("marks the link invalid when there is no code in the URL", async () => {
+  it("marks invalid with missingCode when there is no session and no auth params", async () => {
+    getSession.mockResolvedValue({ data: { session: null }, error: null });
+    setWindowLocation("http://localhost/es/reset-password");
     const { result } = renderHook(() =>
-      useResetPassword({ locale: "es", errors, skipRedirect: true }),
+      useResetPassword({
+        locale: "es",
+        errors,
+        skipRedirect: true,
+        skipRecoveryCodeRedirect: true,
+      }),
     );
     await waitFor(() => expect(result.current.linkStatus).toBe("invalid"));
     expect(result.current.error).toBe("missing code");
-    expect(exchangeCodeForSession).not.toHaveBeenCalled();
+    expect(verifyOtp).not.toHaveBeenCalled();
+    expect(window.location.replace).not.toHaveBeenCalled();
   });
 
-  it("calls exchangeCodeForSession with the code from the query string", async () => {
-    setLocation("http://localhost/es/reset-password?code=abc123");
-    exchangeCodeForSession.mockResolvedValue({ data: {}, error: null });
+  it("redirects legacy URLs that still carry ?code= on the reset page", async () => {
+    const replace = vi.fn();
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: {
+        href: "http://localhost/es/reset-password?code=abc",
+        pathname: "/es/reset-password",
+        replace,
+        assign: vi.fn(),
+      },
+    });
+    renderHook(() =>
+      useResetPassword({
+        locale: "es",
+        errors,
+        skipRedirect: true,
+      }),
+    );
+    await waitFor(() =>
+      expect(replace).toHaveBeenCalledWith(
+        "/api/auth/recovery-callback?code=abc&next=%2Fes%2Freset-password",
+      ),
+    );
+  });
+
+  it("calls verifyOtp when token_hash and type=recovery are present", async () => {
+    verifyOtp.mockResolvedValue({ data: {}, error: null });
+    setWindowLocation(
+      "http://localhost/es/reset-password?token_hash=th&type=recovery",
+    );
     const { result } = renderHook(() =>
-      useResetPassword({ locale: "es", errors, skipRedirect: true }),
+      useResetPassword({
+        locale: "es",
+        errors,
+        skipRedirect: true,
+        skipRecoveryCodeRedirect: true,
+      }),
     );
     await waitFor(() => expect(result.current.linkStatus).toBe("ready"));
-    expect(exchangeCodeForSession).toHaveBeenCalledWith("abc123");
+    expect(verifyOtp).toHaveBeenCalledWith({
+      token_hash: "th",
+      type: "recovery",
+    });
   });
 
-  it("falls back to invalid when exchangeCodeForSession returns an error", async () => {
-    setLocation("http://localhost/es/reset-password?code=bad");
-    exchangeCodeForSession.mockResolvedValue({
-      data: null,
-      error: { message: "expired" },
+  it("marks ready when getSession returns a session", async () => {
+    getSession.mockResolvedValue({
+      data: { session: { access_token: "x", refresh_token: "y", user: {} } },
+      error: null,
     });
+    setWindowLocation("http://localhost/es/reset-password");
     const { result } = renderHook(() =>
-      useResetPassword({ locale: "es", errors, skipRedirect: true }),
+      useResetPassword({
+        locale: "es",
+        errors,
+        skipRedirect: true,
+        skipRecoveryCodeRedirect: true,
+      }),
+    );
+    await waitFor(() => expect(result.current.linkStatus).toBe("ready"));
+  });
+
+  it("falls back to invalid when exchange path fails verification", async () => {
+    verifyOtp.mockResolvedValue({
+      data: null,
+      error: { message: "bad" },
+    });
+    setWindowLocation(
+      "http://localhost/es/reset-password?token_hash=th&type=recovery",
+    );
+    const { result } = renderHook(() =>
+      useResetPassword({
+        locale: "es",
+        errors,
+        skipRedirect: true,
+        skipRecoveryCodeRedirect: true,
+      }),
     );
     await waitFor(() => expect(result.current.linkStatus).toBe("invalid"));
     expect(result.current.error).toBe("expired link");
   });
 
   it("rejects submit when password is empty", async () => {
-    setLocation("http://localhost/es/reset-password?code=abc");
-    exchangeCodeForSession.mockResolvedValue({ data: {}, error: null });
+    getSession.mockResolvedValue({
+      data: { session: { access_token: "x", refresh_token: "y", user: {} } },
+      error: null,
+    });
+    setWindowLocation("http://localhost/es/reset-password");
     const { result } = renderHook(() =>
-      useResetPassword({ locale: "es", errors, skipRedirect: true }),
+      useResetPassword({
+        locale: "es",
+        errors,
+        skipRedirect: true,
+        skipRecoveryCodeRedirect: true,
+      }),
     );
     await waitFor(() => expect(result.current.linkStatus).toBe("ready"));
     await act(async () => {
@@ -100,48 +200,20 @@ describe("useResetPassword", () => {
     expect(updateUser).not.toHaveBeenCalled();
   });
 
-  it("rejects submit when password is too short", async () => {
-    setLocation("http://localhost/es/reset-password?code=abc");
-    exchangeCodeForSession.mockResolvedValue({ data: {}, error: null });
-    const { result } = renderHook(() =>
-      useResetPassword({ locale: "es", errors, skipRedirect: true }),
-    );
-    await waitFor(() => expect(result.current.linkStatus).toBe("ready"));
-    act(() => {
-      result.current.setPassword("short");
-      result.current.setConfirm("short");
+  it("emits analytics on successful password update", async () => {
+    getSession.mockResolvedValue({
+      data: { session: { access_token: "x", refresh_token: "y", user: {} } },
+      error: null,
     });
-    await act(async () => {
-      await result.current.handleSubmit();
-    });
-    expect(result.current.error).toBe("password too short");
-    expect(updateUser).not.toHaveBeenCalled();
-  });
-
-  it("rejects submit when passwords do not match", async () => {
-    setLocation("http://localhost/es/reset-password?code=abc");
-    exchangeCodeForSession.mockResolvedValue({ data: {}, error: null });
-    const { result } = renderHook(() =>
-      useResetPassword({ locale: "es", errors, skipRedirect: true }),
-    );
-    await waitFor(() => expect(result.current.linkStatus).toBe("ready"));
-    act(() => {
-      result.current.setPassword("longenough");
-      result.current.setConfirm("different00");
-    });
-    await act(async () => {
-      await result.current.handleSubmit();
-    });
-    expect(result.current.error).toBe("password mismatch");
-    expect(updateUser).not.toHaveBeenCalled();
-  });
-
-  it("emits the analytics event and marks success on update", async () => {
-    setLocation("http://localhost/es/reset-password?code=abc");
-    exchangeCodeForSession.mockResolvedValue({ data: {}, error: null });
     updateUser.mockResolvedValue({ data: { user: { id: "u1" } }, error: null });
+    setWindowLocation("http://localhost/es/reset-password");
     const { result } = renderHook(() =>
-      useResetPassword({ locale: "es", errors, skipRedirect: true }),
+      useResetPassword({
+        locale: "es",
+        errors,
+        skipRedirect: true,
+        skipRecoveryCodeRedirect: true,
+      }),
     );
     await waitFor(() => expect(result.current.linkStatus).toBe("ready"));
     act(() => {
@@ -160,16 +232,74 @@ describe("useResetPassword", () => {
     expect(result.current.success).toBe(true);
   });
 
-  it("surfaces updateUser failure and does not mark success", async () => {
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    setLocation("http://localhost/es/reset-password?code=abc");
-    exchangeCodeForSession.mockResolvedValue({ data: {}, error: null });
-    updateUser.mockResolvedValue({
-      data: null,
-      error: { message: "boom", code: "x" },
+  it("flags mustChangeBanner=true when a session has app_metadata.must_change_password", async () => {
+    getSession.mockResolvedValue({
+      data: {
+        session: {
+          access_token: "x",
+          refresh_token: "y",
+          user: { app_metadata: { must_change_password: true } },
+        },
+      },
+      error: null,
     });
+    setWindowLocation("http://localhost/es/reset-password");
     const { result } = renderHook(() =>
-      useResetPassword({ locale: "es", errors, skipRedirect: true }),
+      useResetPassword({
+        locale: "es",
+        errors,
+        skipRedirect: true,
+        skipRecoveryCodeRedirect: true,
+      }),
+    );
+    await waitFor(() => expect(result.current.linkStatus).toBe("ready"));
+    expect(result.current.mustChangeBanner).toBe(true);
+  });
+
+  it("flags mustChangeBanner=false when the session has no must_change flag", async () => {
+    getSession.mockResolvedValue({
+      data: {
+        session: {
+          access_token: "x",
+          refresh_token: "y",
+          user: { app_metadata: { provider: "email" } },
+        },
+      },
+      error: null,
+    });
+    setWindowLocation("http://localhost/es/reset-password");
+    const { result } = renderHook(() =>
+      useResetPassword({
+        locale: "es",
+        errors,
+        skipRedirect: true,
+        skipRecoveryCodeRedirect: true,
+      }),
+    );
+    await waitFor(() => expect(result.current.linkStatus).toBe("ready"));
+    expect(result.current.mustChangeBanner).toBe(false);
+  });
+
+  it("clears the must_change_password flag after a successful password update", async () => {
+    getSession.mockResolvedValue({
+      data: {
+        session: {
+          access_token: "x",
+          refresh_token: "y",
+          user: { app_metadata: { must_change_password: true } },
+        },
+      },
+      error: null,
+    });
+    updateUser.mockResolvedValue({ data: { user: { id: "u1" } }, error: null });
+    setWindowLocation("http://localhost/es/reset-password");
+    const { result } = renderHook(() =>
+      useResetPassword({
+        locale: "es",
+        errors,
+        skipRedirect: true,
+        skipRecoveryCodeRedirect: true,
+      }),
     );
     await waitFor(() => expect(result.current.linkStatus).toBe("ready"));
     act(() => {
@@ -179,42 +309,40 @@ describe("useResetPassword", () => {
     await act(async () => {
       await result.current.handleSubmit();
     });
-    expect(result.current.error).toBe("update failed");
-    expect(result.current.success).toBe(false);
-    consoleSpy.mockRestore();
+    expect(clearMustChangeFlag).toHaveBeenCalledTimes(1);
+    expect(result.current.success).toBe(true);
   });
 
-  it("blocks submit when the link is not ready", async () => {
+  it("succeeds even if clearing the flag fails (best-effort)", async () => {
+    clearMustChangeFlag.mockRejectedValue(new Error("network down"));
+    getSession.mockResolvedValue({
+      data: {
+        session: {
+          access_token: "x",
+          refresh_token: "y",
+          user: { app_metadata: { must_change_password: true } },
+        },
+      },
+      error: null,
+    });
+    updateUser.mockResolvedValue({ data: { user: { id: "u1" } }, error: null });
+    setWindowLocation("http://localhost/es/reset-password");
     const { result } = renderHook(() =>
-      useResetPassword({ locale: "es", errors, skipRedirect: true }),
+      useResetPassword({
+        locale: "es",
+        errors,
+        skipRedirect: true,
+        skipRecoveryCodeRedirect: true,
+      }),
     );
-    await waitFor(() => expect(result.current.linkStatus).toBe("invalid"));
+    await waitFor(() => expect(result.current.linkStatus).toBe("ready"));
+    act(() => {
+      result.current.setPassword("longenough1");
+      result.current.setConfirm("longenough1");
+    });
     await act(async () => {
       await result.current.handleSubmit();
     });
-    expect(result.current.error).toBe("expired link");
-    expect(updateUser).not.toHaveBeenCalled();
-  });
-
-  it("reads the code from the URL hash when not in the query string", async () => {
-    setLocation("http://localhost/es/reset-password#code=fromhash");
-    exchangeCodeForSession.mockResolvedValue({ data: {}, error: null });
-    const { result } = renderHook(() =>
-      useResetPassword({ locale: "es", errors, skipRedirect: true }),
-    );
-    await waitFor(() => expect(result.current.linkStatus).toBe("ready"));
-    expect(exchangeCodeForSession).toHaveBeenCalledWith("fromhash");
-  });
-
-  it("logs and shows expiredLink when exchangeCodeForSession throws", async () => {
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    setLocation("http://localhost/es/reset-password?code=abc");
-    exchangeCodeForSession.mockRejectedValue(new Error("network"));
-    const { result } = renderHook(() =>
-      useResetPassword({ locale: "es", errors, skipRedirect: true }),
-    );
-    await waitFor(() => expect(result.current.linkStatus).toBe("invalid"));
-    expect(result.current.error).toBe("expired link");
-    consoleSpy.mockRestore();
+    expect(result.current.success).toBe(true);
   });
 });

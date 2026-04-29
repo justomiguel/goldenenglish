@@ -165,6 +165,7 @@ export async function loadAdminSectionCollectionsView(
         enrollment?.enrollment_fee_receipt_status,
       ),
       enrollmentFeeReceiptSignedUrl: null,
+      lastEnrollmentPaidAt: enrollment?.last_enrollment_paid_at ?? null,
       activePromotionLabel: activePromotionLabel(promotionsByStudent.get(id)),
       payments: paymentsByStudent.get(id) ?? [],
       enrolledAt: enrolledAtByStudent.get(id) ?? null,

@@ -18,6 +18,7 @@ export function useAdminRecordPaymentPanelLabels(args: {
   hasEnrollmentFeeModal: boolean;
   busy: boolean;
   monthStates: AdminBillingMonthState[];
+  enrollmentFeeReceiptSignedUrl: string | null;
 }) {
   const {
     labels,
@@ -29,6 +30,7 @@ export function useAdminRecordPaymentPanelLabels(args: {
     hasEnrollmentFeeModal,
     busy,
     monthStates,
+    enrollmentFeeReceiptSignedUrl,
   } = args;
 
   const monthGridLabels = useMemo(
@@ -54,6 +56,7 @@ export function useAdminRecordPaymentPanelLabels(args: {
       legacy: labels.recordPaymentLegacyStatus,
       monthZeroColumnShort: labels.recordPaymentMonthZeroColumnShort,
       monthZeroTooltip: labels.recordPaymentMonthZeroTooltip,
+      viewReceipt: labels.recordPaymentViewReceipt,
     }),
     [labels],
   );
@@ -72,6 +75,7 @@ export function useAdminRecordPaymentPanelLabels(args: {
         "{section}",
         sectionName,
       ),
+      viewReceipt: labels.recordPaymentViewReceipt,
     }),
     [labels, sectionName],
   );
@@ -83,6 +87,7 @@ export function useAdminRecordPaymentPanelLabels(args: {
         labels: enrollmentColumnLabels,
         onActivate: hasEnrollmentFeeModal ? enrollmentFeeModalOpenSetter : undefined,
         disabled: busy,
+        receiptSignedUrl: enrollmentFeeReceiptSignedUrl,
       }
     : null;
 

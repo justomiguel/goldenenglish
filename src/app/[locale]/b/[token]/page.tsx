@@ -1,15 +1,51 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandPublic } from "@/lib/brand/server";
 import { getPublicSiteUrl, absoluteUrl } from "@/lib/site/publicUrl";
 import { loadPublicStudentBadgeShareByToken } from "@/lib/badges/loadPublicStudentBadgeShare";
+import { loadPublicBadgeCatalogEntryByCode } from "@/lib/badges/loadPublicBadgeCatalogEntry";
+import { resolveBadgeTranslation } from "@/lib/badges/badgeCatalog";
+import { badgeImagePublicUrl } from "@/lib/badges/badgeImagePublicUrl";
 import { isStudentBadgeCode } from "@/lib/badges/badgeCodes";
 import { School } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ locale: string; token: string }>;
+}
+
+/** Public share page: same content per token for any visitor → safe for CDN. */
+export const revalidate = 3600;
+
+type BadgesDefs = Awaited<
+  ReturnType<typeof getDictionary>
+>["dashboard"]["student"]["badges"]["definitions"];
+
+function dictionaryFallback(defs: BadgesDefs, code: string): { title: string; description: string } {
+  const entry = defs[code as keyof BadgesDefs];
+  if (entry && typeof entry === "object" && "title" in entry) {
+    return { title: String(entry.title), description: String(entry.description) };
+  }
+  return { title: code, description: "" };
+}
+
+async function resolveTitleAndDescription(
+  locale: string,
+  badgeCode: string,
+  defs: BadgesDefs,
+): Promise<{ title: string; description: string; imageUrl: string | null }> {
+  const catalog = await loadPublicBadgeCatalogEntryByCode(badgeCode);
+  if (catalog) {
+    const t = resolveBadgeTranslation({ code: badgeCode, translations: catalog.translations }, locale);
+    return {
+      title: t.title,
+      description: t.description,
+      imageUrl: badgeImagePublicUrl(catalog.imagePath),
+    };
+  }
+  return { ...dictionaryFallback(defs, badgeCode), imageUrl: null };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -24,8 +60,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       robots: { index: false, follow: false },
     };
   }
-  const def = dict.dashboard.student.badges.definitions[data.badgeCode as keyof typeof dict.dashboard.student.badges.definitions];
-  const title = def && typeof def === "object" && "title" in def ? String(def.title) : dict.publicStudentBadge.title;
+  const { title } = await resolveTitleAndDescription(
+    locale,
+    data.badgeCode,
+    dict.dashboard.student.badges.definitions,
+  );
   const d = new Date(data.earnedAt);
   const when = Number.isNaN(d.getTime())
     ? data.earnedAt
@@ -59,15 +98,11 @@ export default async function PublicStudentBadgePage({ params }: PageProps) {
   const data = await loadPublicStudentBadgeShareByToken(token);
   if (!data || !isStudentBadgeCode(data.badgeCode)) notFound();
 
-  const def = dict.dashboard.student.badges.definitions[data.badgeCode as keyof typeof dict.dashboard.student.badges.definitions];
-  const title =
-    def && typeof def === "object" && "title" in def
-      ? String((def as { title: string }).title)
-      : data.badgeCode;
-  const sub =
-    def && typeof def === "object" && "description" in def
-      ? String((def as { description: string }).description)
-      : null;
+  const { title, description, imageUrl } = await resolveTitleAndDescription(
+    locale,
+    data.badgeCode,
+    dict.dashboard.student.badges.definitions,
+  );
   const d = new Date(data.earnedAt);
   const when = Number.isNaN(d.getTime())
     ? data.earnedAt
@@ -78,8 +113,15 @@ export default async function PublicStudentBadgePage({ params }: PageProps) {
         className="mx-auto max-w-lg rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center shadow-sm"
         data-testid="public-student-badge-card"
       >
+        {imageUrl ? (
+          <div className="mx-auto mb-4 h-28 w-28 overflow-hidden rounded-full bg-[var(--color-muted)] ring-1 ring-[var(--color-border)]">
+            <Image src={imageUrl} alt="" width={112} height={112} className="h-full w-full object-cover" />
+          </div>
+        ) : null}
         <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">{title}</h1>
-        {sub ? <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{sub}</p> : null}
+        {description ? (
+          <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{description}</p>
+        ) : null}
         <p className="mt-4 text-sm text-[var(--color-muted-foreground)]">
           {dict.publicStudentBadge.earnedOn.replace("{date}", when)}
         </p>

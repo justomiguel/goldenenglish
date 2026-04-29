@@ -15,6 +15,7 @@ export function enrollmentFeeMatrixVisualFromSectionRow(
     | "enrollmentFeeExempt"
     | "enrollmentFeeReceiptStatus"
     | "enrollmentFeeReceiptSignedUrl"
+    | "lastEnrollmentPaidAt"
   >,
   opts: {
     sectionChargesEnrollmentFee: boolean;
@@ -33,6 +34,11 @@ export function enrollmentFeeMatrixVisualFromSectionRow(
   if (row.enrollmentFeeAmount <= 0) {
     return null;
   }
+  const markedPaidManual =
+    row.lastEnrollmentPaidAt != null && String(row.lastEnrollmentPaidAt).trim() !== "";
+  if (markedPaidManual) {
+    return { status: "approved", isOverdue: false };
+  }
   const st = row.enrollmentFeeReceiptStatus;
   if (st === "approved") {
     return { status: "approved", isOverdue: false };
@@ -40,7 +46,11 @@ export function enrollmentFeeMatrixVisualFromSectionRow(
   if (st === "rejected") {
     return { status: "rejected", isOverdue: false };
   }
-  if (st === "pending") {
+  if (
+    st === "pending" &&
+    row.enrollmentFeeReceiptSignedUrl != null &&
+    String(row.enrollmentFeeReceiptSignedUrl).trim() !== ""
+  ) {
     return { status: "pending", isOverdue: false };
   }
   const overdue = enrollmentFeeIsOverduePrimitives(
@@ -59,6 +69,7 @@ export function enrollmentFeeMatrixVisualFromAdminBillingBenefit(
     enrollmentFeeReceiptStatus: EnrollmentFeeReceiptStatus | null;
     enrollmentFeeReceiptSignedUrl: string | null;
     sectionEnrollmentFeeAmount: number;
+    lastEnrollmentPaidAt: string | null;
   },
   opts: {
     sectionStartsOn: string;
@@ -73,6 +84,7 @@ export function enrollmentFeeMatrixVisualFromAdminBillingBenefit(
       enrollmentFeeExempt: benefit.enrollmentFeeExempt,
       enrollmentFeeReceiptStatus: benefit.enrollmentFeeReceiptStatus,
       enrollmentFeeReceiptSignedUrl: benefit.enrollmentFeeReceiptSignedUrl,
+      lastEnrollmentPaidAt: benefit.lastEnrollmentPaidAt,
     },
     {
       sectionChargesEnrollmentFee: benefit.sectionEnrollmentFeeAmount > 0,

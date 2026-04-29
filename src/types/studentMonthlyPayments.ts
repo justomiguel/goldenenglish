@@ -82,6 +82,10 @@ export interface StudentMonthlyPaymentSectionRow {
   enrollmentFeeReceiptStatus: EnrollmentFeeReceiptStatus | null;
   /** Pre-signed URL for the uploaded enrollment fee receipt, when present. */
   enrollmentFeeReceiptSignedUrl: string | null;
+  /**
+   * Staff marked enrollment fee paid manually (no receipt approval). When set, month-0 chip should show paid.
+   */
+  lastEnrollmentPaidAt: string | null;
 }
 
 export interface StudentMonthlyPaymentsView {

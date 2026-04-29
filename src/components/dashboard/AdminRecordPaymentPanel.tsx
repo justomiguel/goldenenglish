@@ -9,45 +9,17 @@ import { AdminRecordPaymentBulkConfirmForm } from "@/components/dashboard/AdminR
 import { AdminRecordPaymentEnrollmentModal } from "@/components/dashboard/AdminRecordPaymentEnrollmentModal";
 import { AdminRecordPaymentMonthGrid } from "@/components/dashboard/AdminRecordPaymentMonthGrid";
 import { AdminRecordPaymentPanelHeader } from "@/components/dashboard/AdminRecordPaymentPanelHeader";
+import { AdminRecordPaymentRevertBar } from "@/components/dashboard/AdminRecordPaymentRevertBar";
+import type {
+  AdminRecordPaymentPanelProps,
+  AdminRecordPaymentEnrollmentFeeSnapshot,
+} from "@/components/dashboard/adminRecordPaymentPanelTypes";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { useAdminRecordPaymentBulkConfirm } from "@/hooks/useAdminRecordPaymentBulkConfirm";
+import { useAdminRecordPaymentMonthSelection } from "@/hooks/useAdminRecordPaymentMonthSelection";
 import { useAdminRecordPaymentPanelLabels } from "@/hooks/useAdminRecordPaymentPanelLabels";
-import type { AdminBillingMonthState } from "@/lib/billing/buildAdminBillingMonthGrid";
-import type { Dictionary, Locale } from "@/types/i18n";
-import type { StudentMonthlyPaymentCell } from "@/types/studentMonthlyPayments";
 
-type BillingLabels = Dictionary["admin"]["billing"];
-
-export type AdminRecordPaymentEnrollmentFeeSnapshot = {
-  enrollmentId: string | null;
-  enrollmentFeeExempt: boolean;
-  enrollmentExemptReason: string | null;
-  lastEnrollmentPaidAt: string | null;
-  receiptSignedUrl: string | null;
-  receiptStatus: "pending" | "approved" | "rejected" | null;
-};
-
-export interface AdminRecordPaymentPanelProps {
-  locale: Locale;
-  studentId: string;
-  studentName: string;
-  sectionId: string;
-  sectionName: string;
-  year: number;
-  monthStates: AdminBillingMonthState[];
-  /** When set, monthly chips match Cobranzas (`buildStudentMonthlyPaymentsRow`). */
-  collectionCells?: StudentMonthlyPaymentCell[] | null;
-  labels: BillingLabels;
-  showEnrollmentMonthZero: boolean;
-  enrollmentMonthZeroVisual: {
-    status: StudentMonthlyPaymentCell["status"];
-    isOverdue: boolean;
-  } | null;
-  /** Enrollment row fields when the section charges matrícula — enables opening the enrollment modal from column “0”. */
-  enrollmentFeeModal?: AdminRecordPaymentEnrollmentFeeSnapshot | null;
-  /** Omit outer card chrome when nested inside admin billing section card. */
-  embedded?: boolean;
-}
+export type { AdminRecordPaymentEnrollmentFeeSnapshot };
 
 export function AdminRecordPaymentPanel({
   locale,
@@ -69,7 +41,8 @@ export function AdminRecordPaymentPanel({
   const scholarshipNoteId = useId();
   const exemptNoteId = useId();
 
-  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const { selected, setSelected, toggleMonth, clearSelection: clearMonths, selectionMode } =
+    useAdminRecordPaymentMonthSelection(monthStates);
   const [modalScholarshipPercent, setModalScholarshipPercent] = useState("");
   const [modalAdminNote, setModalAdminNote] = useState("");
   const [busy, setBusy] = useState(false);
@@ -97,6 +70,7 @@ export function AdminRecordPaymentPanel({
     hasEnrollmentFeeModal: enrollmentFeeModal != null,
     busy,
     monthStates,
+    enrollmentFeeReceiptSignedUrl: enrollmentFeeModal?.receiptSignedUrl ?? null,
   });
 
   function resetModalFields() {
@@ -104,51 +78,48 @@ export function AdminRecordPaymentPanel({
     setModalAdminNote("");
   }
 
-  const { onConfirm, confirmTitle, confirmDescription, confirmHidden } = useAdminRecordPaymentBulkConfirm({
-    locale,
-    studentId,
-    sectionId,
-    year,
-    labels,
-    selected,
-    pendingAction,
-    scholarshipConfirmReady,
-    exemptConfirmReady,
-    modalAdminNote,
-    modalScholarshipPercent,
-    setBusy,
-    setMsg,
-    setSelected,
-    setPendingAction,
-    resetModalFields,
-    nSelected,
-  });
-
-  function toggleMonth(m: number, next: boolean) {
-    setSelected((prev) => {
-      const c = new Set(prev);
-      if (next) c.add(m);
-      else c.delete(m);
-      return c;
+  const { onConfirm, confirmTitle, confirmDescription, confirmHidden, confirmLabel } =
+    useAdminRecordPaymentBulkConfirm({
+      locale,
+      studentId,
+      sectionId,
+      year,
+      labels,
+      selected,
+      pendingAction,
+      scholarshipConfirmReady,
+      exemptConfirmReady,
+      modalAdminNote,
+      modalScholarshipPercent,
+      setBusy,
+      setMsg,
+      setSelected,
+      setPendingAction,
+      resetModalFields,
+      nSelected,
     });
-  }
 
   function clearSelection() {
-    setSelected(new Set());
+    clearMonths();
     setPendingAction(null);
     resetModalFields();
   }
 
   function requestAction(action: RecordPaymentBulkAction) {
-    if (!hasSelection || busy) return;
+    if (!hasSelection || busy || action === "revert") return;
     resetModalFields();
     setMsg(null);
     setPendingAction(action);
   }
 
-  const shellClass = embedded
-    ? "space-y-4 border-t border-[var(--color-border)]/80 pt-4"
-    : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm";
+  function openRevertConfirm() {
+    if (!hasSelection || busy || selectionMode !== "revert") return;
+    resetModalFields();
+    setMsg(null);
+    setPendingAction("revert");
+  }
+
+  const shellClass = embedded ? "space-y-4 border-t border-[var(--color-border)]/80 pt-4" : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm";
 
   return (
     <section className={shellClass}>
@@ -174,7 +145,15 @@ export function AdminRecordPaymentPanel({
         enrollmentMonthZero={enrollmentMonthZero}
       />
 
-      {hasSelection ? (
+      {hasSelection && selectionMode === "revert" ? (
+        <AdminRecordPaymentRevertBar
+          labels={labels}
+          selectedCount={nSelected}
+          busy={busy}
+          onConfirmRevert={openRevertConfirm}
+          onClear={clearSelection}
+        />
+      ) : hasSelection ? (
         <AdminRecordPaymentActionBar
           labels={labels}
           selectedCount={nSelected}
@@ -211,7 +190,8 @@ export function AdminRecordPaymentPanel({
           />
         }
         cancelLabel={labels.cancel}
-        confirmLabel={labels.recordPaymentConfirm}
+        confirmLabel={confirmLabel}
+        confirmVariant={pendingAction === "revert" ? "destructive" : "primary"}
         busy={busy}
         disableClose={busy}
         confirmHidden={confirmHidden}

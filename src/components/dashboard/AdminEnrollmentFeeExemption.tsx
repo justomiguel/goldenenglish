@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Banknote, Save } from "lucide-react";
+import { Save } from "lucide-react";
+import { clearEnrollmentFeeManualPaidAt } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/clearEnrollmentFeeManualPaidAction";
 import {
   markEnrollmentFeePaidNow,
   reviewEnrollmentFeeReceipt,
@@ -11,6 +12,8 @@ import {
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { EnrollmentFeeClearManualPaidConfirm } from "@/components/dashboard/EnrollmentFeeClearManualPaidConfirm";
+import { AdminEnrollmentFeeManualPaidToolbar } from "@/components/dashboard/AdminEnrollmentFeeManualPaidToolbar";
 import { AdminEnrollmentFeeReceiptPanel } from "@/components/dashboard/AdminEnrollmentFeeReceiptPanel";
 import type { Dictionary } from "@/types/i18n";
 import type { Locale } from "@/types/i18n";
@@ -56,6 +59,7 @@ export function AdminEnrollmentFeeExemption({
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [receiptStatus, setReceiptStatus] = useState(initialReceiptStatus);
+  const [clearPaidConfirmOpen, setClearPaidConfirmOpen] = useState(false);
 
   async function saveExemption(e: React.FormEvent) {
     e.preventDefault();
@@ -82,6 +86,20 @@ export function AdminEnrollmentFeeExemption({
       sectionId: sectionId ?? undefined,
     });
     setBusy(false);
+    setMsg(res.ok ? labels.saved : res.message ?? labels.error);
+    if (res.ok) router.refresh();
+  }
+
+  async function clearManualPaidConfirmed() {
+    setBusy(true);
+    setMsg(null);
+    const res = await clearEnrollmentFeeManualPaidAt({
+      locale,
+      studentId,
+      sectionId: sectionId ?? undefined,
+    });
+    setBusy(false);
+    setClearPaidConfirmOpen(false);
     setMsg(res.ok ? labels.saved : res.message ?? labels.error);
     if (res.ok) router.refresh();
   }
@@ -183,26 +201,26 @@ export function AdminEnrollmentFeeExemption({
         </form>
       )}
 
-      <div className="mt-6 border-t border-[var(--color-border)] pt-4">
-        <p className="text-sm text-[var(--color-muted-foreground)]">
-          {labels.enrollmentLastPaid}:{" "}
-          {initialLastPaidAt
-            ? new Date(initialLastPaidAt).toLocaleDateString()
-            : labels.enrollmentNonePaid}
-        </p>
-        {!readOnly ? (
-          <Button
-            type="button"
-            variant="ghost"
-            className="mt-2 min-h-[44px]"
-            disabled={busy}
-            onClick={() => void markPaid()}
-          >
-            <Banknote className="h-4 w-4 shrink-0" aria-hidden />
-            {labels.enrollmentMarkPaid}
-          </Button>
-        ) : null}
-      </div>
+      <AdminEnrollmentFeeManualPaidToolbar
+        labels={labels}
+        initialLastPaidAt={initialLastPaidAt}
+        receiptStatus={receiptStatus}
+        readOnly={readOnly}
+        busy={busy}
+        onMarkPaid={() => void markPaid()}
+        onOpenClearConfirm={() => setClearPaidConfirmOpen(true)}
+      />
+
+      <EnrollmentFeeClearManualPaidConfirm
+        open={clearPaidConfirmOpen}
+        onOpenChange={setClearPaidConfirmOpen}
+        title={labels.enrollmentClearManualPaidConfirmTitle}
+        description={labels.enrollmentClearManualPaidConfirmBody}
+        cancelLabel={labels.cancel}
+        confirmLabel={labels.enrollmentClearManualPaid}
+        busy={busy}
+        onConfirm={() => void clearManualPaidConfirmed()}
+      />
 
       <AdminEnrollmentFeeReceiptPanel
         labels={labels}

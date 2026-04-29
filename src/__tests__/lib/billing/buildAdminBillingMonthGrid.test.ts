@@ -45,7 +45,12 @@ describe("buildAdminBillingMonthGrid", () => {
       year: 2026,
     });
 
-    expect(rows[3]).toMatchObject({ month: 4, status: "paid", selectable: false });
+    expect(rows[3]).toMatchObject({
+      month: 4,
+      status: "paid",
+      selectable: false,
+      revertSelectable: true,
+    });
     expect(rows[4]).toMatchObject({
       month: 5,
       status: "exempt",
@@ -73,6 +78,7 @@ describe("buildAdminBillingMonthGrid", () => {
       status: "unpaid",
       paymentId: null,
       selectable: false,
+      revertSelectable: false,
       legacyFallback: true,
     });
   });

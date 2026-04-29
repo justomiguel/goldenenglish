@@ -39,12 +39,18 @@ export const AnalyticsEntity = {
   studentBadges: "section:student_badges",
   /** Auth: user completed a password reset (recovery link → updateUser) */
   passwordResetCompleted: "auth:password_reset_completed",
+  /** Auth: login attempt (success or fail) — metadata.method = 'email' | 'dni' */
+  authLogin: "auth:login",
+  /** Auth: user cleared the must_change_password flag after a staff-driven reset */
+  passwordChangeRequiredCleared: "auth:password_change_required_cleared",
   /** Funnel: enrollment fee receipt uploaded by the student */
   enrollmentFeeReceiptSubmittedStudent: "enrollment_fee_receipt_submitted_student",
   /** Funnel: enrollment fee receipt uploaded by a parent/tutor on behalf of a student */
   enrollmentFeeReceiptSubmittedTutor: "enrollment_fee_receipt_submitted_tutor",
   /** Staff: monthly fee marked paid without going through receipt review */
   adminRecordedMonthlyPayment: "admin_recorded_monthly_payment",
+  /** Staff: monthly fee approval undone back to pending (mistake correction) */
+  adminRevertedMonthlyPayment: "admin_reverted_monthly_payment",
 } as const;
 
 export type UserEventTypeName = "page_view" | "click" | "action" | "session_start";

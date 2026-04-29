@@ -36,6 +36,25 @@ export function AdminRecordPaymentBulkConfirmForm({
   onAdminNoteChange,
   onScholarshipPercentChange,
 }: AdminRecordPaymentBulkConfirmFormProps) {
+  if (pendingAction === "revert") {
+    return (
+      <div>
+        <Label htmlFor={paidNoteId} className="text-xs">
+          {labels.recordPaymentRevertNote}
+        </Label>
+        <input
+          id={paidNoteId}
+          value={modalAdminNote}
+          onChange={(e) => onAdminNoteChange(e.target.value)}
+          className="mt-1 min-h-[40px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-sm"
+          maxLength={2000}
+          placeholder={labels.recordPaymentRevertNotePlaceholder}
+          disabled={busy}
+          autoComplete="off"
+        />
+      </div>
+    );
+  }
   if (pendingAction === "paid") {
     return (
       <div>

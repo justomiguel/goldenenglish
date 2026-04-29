@@ -29,6 +29,7 @@ describe("useAdminRecordPaymentPanelLabels", () => {
       recordPaymentMonthZeroTooltip: "tip",
       recordPaymentEnrollmentColumnActivate: "{section}",
       recordPaymentEnrollmentFeeChipAria: "{name}",
+      recordPaymentViewReceipt: "view",
     } as Dictionary["admin"]["billing"];
 
     const { result } = renderHook(() =>
@@ -46,6 +47,7 @@ describe("useAdminRecordPaymentPanelLabels", () => {
           { month: 2, selectable: false } as import("@/lib/billing/buildAdminBillingMonthGrid").AdminBillingMonthState,
           { month: 3, selectable: true } as import("@/lib/billing/buildAdminBillingMonthGrid").AdminBillingMonthState,
         ],
+        enrollmentFeeReceiptSignedUrl: null,
       }),
     );
 
@@ -78,6 +80,7 @@ describe("useAdminRecordPaymentPanelLabels", () => {
       recordPaymentMonthZeroTooltip: "tip",
       recordPaymentEnrollmentColumnActivate: "{section}",
       recordPaymentEnrollmentFeeChipAria: "{name}",
+      recordPaymentViewReceipt: "view",
     } as Dictionary["admin"]["billing"];
     const open = vi.fn();
     const { result } = renderHook(() =>
@@ -91,9 +94,13 @@ describe("useAdminRecordPaymentPanelLabels", () => {
         hasEnrollmentFeeModal: true,
         busy: false,
         monthStates: [],
+        enrollmentFeeReceiptSignedUrl: "https://example.com/x",
       }),
     );
     expect(result.current.enrollmentMonthZero?.onActivate).toBeDefined();
+    expect(result.current.enrollmentMonthZero?.receiptSignedUrl).toBe(
+      "https://example.com/x",
+    );
     result.current.enrollmentMonthZero?.onActivate?.();
     expect(open).toHaveBeenCalled();
   });

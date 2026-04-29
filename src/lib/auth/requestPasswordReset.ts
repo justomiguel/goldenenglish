@@ -63,7 +63,6 @@ export async function requestPasswordReset(
       options: { redirectTo: params.redirectTo },
     });
     if (error) {
-      // Most "user not found" errors land here. Do not expose to the client.
       logServerActionInvariantViolation(
         "requestPasswordReset:generateLink",
         error.message ?? "generateLink_error",

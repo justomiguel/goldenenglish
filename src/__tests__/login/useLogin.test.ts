@@ -1,5 +1,14 @@
-// REGRESSION CHECK: This is the initial test suite for useLogin.
-// No existing code to regress against — establishing baseline coverage.
+// REGRESSION CHECK: Critical invariants for the login hook:
+//  - Email-shaped identifier goes straight to signInWithPassword (no
+//    network call to the resolver), so no extra latency for the common path.
+//  - DNI-shaped identifier resolves via the opaque server endpoint and uses
+//    the returned email; failed resolution surfaces as the same generic
+//    "invalid credentials" message (opacity).
+//  - Analytics events fire with `method: 'email' | 'dni'` and `success`,
+//    so we can monitor adoption and brute-force patterns (regla 08).
+//  - Empty identifier shows `identifierRequired` (renamed from
+//    emailRequired); empty password shows passwordRequired.
+//  - Open-redirect protection on `nextPath` is preserved unchanged.
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
@@ -7,8 +16,9 @@ import { useLogin } from "@/hooks/useLogin";
 
 const mockSignInWithPassword = vi.fn();
 
-const { mockSetRememberMePreference } = vi.hoisted(() => ({
+const { mockSetRememberMePreference, mockTrackEvent } = vi.hoisted(() => ({
   mockSetRememberMePreference: vi.fn(),
+  mockTrackEvent: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/client", () => ({
@@ -21,64 +31,60 @@ vi.mock("@/lib/supabase/client", () => ({
   setRememberMePreference: mockSetRememberMePreference,
 }));
 
+vi.mock("@/lib/analytics/trackClient", () => ({
+  trackEvent: mockTrackEvent,
+}));
+
 const assignSpy = vi.fn();
 
 const loginOpts = { locale: "en" as const };
 
-const mockDictionary = {
-  login: {
-    errors: {
-      invalidCredentials: "Invalid email or password",
-      emailRequired: "Email is required",
-      passwordRequired: "Password is required",
-      generic: "An error occurred. Please try again.",
-    },
-  },
+const errorMessages = {
+  invalidCredentials: "Invalid email or password",
+  identifierRequired: "Email or document is required",
+  passwordRequired: "Password is required",
+  generic: "An error occurred. Please try again.",
 };
+
+const fetchSpy = vi.fn();
 
 describe("useLogin", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     assignSpy.mockClear();
+    fetchSpy.mockReset();
     vi.stubGlobal("location", {
       ...window.location,
       assign: assignSpy,
     });
+    vi.stubGlobal("fetch", fetchSpy);
   });
 
   it("initializes with empty fields and no errors", () => {
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
-    expect(result.current.email).toBe("");
+    expect(result.current.identifier).toBe("");
     expect(result.current.password).toBe("");
     expect(result.current.error).toBeNull();
     expect(result.current.isLoading).toBe(false);
   });
 
-  it("updates email value", () => {
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+  it("updates identifier value", () => {
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
-    act(() => result.current.setEmail("test@example.com"));
-    expect(result.current.email).toBe("test@example.com");
+    act(() => result.current.setIdentifier("test@example.com"));
+    expect(result.current.identifier).toBe("test@example.com");
   });
 
   it("updates password value", () => {
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
     act(() => result.current.setPassword("secret123"));
     expect(result.current.password).toBe("secret123");
   });
 
-  it("shows error when email is empty on submit", async () => {
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+  it("shows identifierRequired error when identifier is empty on submit", async () => {
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
     act(() => result.current.setPassword("secret123"));
 
@@ -86,16 +92,15 @@ describe("useLogin", () => {
       await result.current.handleSubmit();
     });
 
-    expect(result.current.error).toBe("Email is required");
+    expect(result.current.error).toBe("Email or document is required");
     expect(mockSignInWithPassword).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it("shows error when password is empty on submit", async () => {
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+  it("shows passwordRequired error when password is empty on submit", async () => {
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
-    act(() => result.current.setEmail("test@example.com"));
+    act(() => result.current.setIdentifier("test@example.com"));
 
     await act(async () => {
       await result.current.handleSubmit();
@@ -105,18 +110,112 @@ describe("useLogin", () => {
     expect(mockSignInWithPassword).not.toHaveBeenCalled();
   });
 
+  it("does NOT call resolver when identifier is email-shaped", async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      data: { user: { id: "1" }, session: {} },
+      error: null,
+    });
+
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
+
+    act(() => {
+      result.current.setIdentifier("user@example.com");
+      result.current.setPassword("correct123");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(mockSignInWithPassword).toHaveBeenCalledWith({
+      email: "user@example.com",
+      password: "correct123",
+    });
+  });
+
+  it("calls /api/auth/resolve-login-id and uses returned email when identifier is DNI", async () => {
+    fetchSpy.mockResolvedValue({
+      ok: true,
+      json: async () => ({ email: "12345678@students.goldenenglish.local" }),
+    });
+    mockSignInWithPassword.mockResolvedValue({
+      data: { user: { id: "1" }, session: {} },
+      error: null,
+    });
+
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
+
+    act(() => {
+      result.current.setIdentifier(" 12.345.678 ");
+      result.current.setPassword("correct123");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchSpy.mock.calls[0];
+    expect(url).toBe("/api/auth/resolve-login-id");
+    expect(JSON.parse((init as RequestInit).body as string)).toEqual({
+      identifier: "12345678",
+    });
+    expect(mockSignInWithPassword).toHaveBeenCalledWith({
+      email: "12345678@students.goldenenglish.local",
+      password: "correct123",
+    });
+  });
+
+  it("falls back to invalidCredentials when the resolver fetch returns non-ok", async () => {
+    fetchSpy.mockResolvedValue({
+      ok: false,
+      json: async () => ({}),
+    });
+
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
+
+    act(() => {
+      result.current.setIdentifier("12345678");
+      result.current.setPassword("x");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(result.current.error).toBe("Invalid email or password");
+    expect(mockSignInWithPassword).not.toHaveBeenCalled();
+  });
+
+  it("falls back to invalidCredentials when the resolver fetch throws", async () => {
+    fetchSpy.mockRejectedValue(new Error("network down"));
+
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
+
+    act(() => {
+      result.current.setIdentifier("12345678");
+      result.current.setPassword("x");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(result.current.error).toBe("Invalid email or password");
+    expect(mockSignInWithPassword).not.toHaveBeenCalled();
+  });
+
   it("shows error with invalid credentials from Supabase", async () => {
     mockSignInWithPassword.mockResolvedValue({
       data: { user: null, session: null },
       error: { message: "Invalid login credentials" },
     });
 
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
     act(() => {
-      result.current.setEmail("wrong@example.com");
+      result.current.setIdentifier("wrong@example.com");
       result.current.setPassword("wrongpass");
     });
 
@@ -139,12 +238,10 @@ describe("useLogin", () => {
       },
     });
 
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
     act(() => {
-      result.current.setEmail("a@b.com");
+      result.current.setIdentifier("a@b.com");
       result.current.setPassword("x");
     });
 
@@ -165,12 +262,10 @@ describe("useLogin", () => {
       error: null,
     });
 
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
     act(() => {
-      result.current.setEmail("user@example.com");
+      result.current.setIdentifier("user@example.com");
       result.current.setPassword("correct123");
     });
 
@@ -183,15 +278,89 @@ describe("useLogin", () => {
     expect(result.current.error).toBeNull();
   });
 
+  it("emits trackEvent with method='email' on email login success", async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      data: { user: { id: "1" }, session: {} },
+      error: null,
+    });
+
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
+
+    act(() => {
+      result.current.setIdentifier("user@example.com");
+      result.current.setPassword("x");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(mockTrackEvent).toHaveBeenCalledWith(
+      "action",
+      "auth:login",
+      expect.objectContaining({ method: "email", success: true }),
+    );
+  });
+
+  it("emits trackEvent with method='dni' on DNI login success", async () => {
+    fetchSpy.mockResolvedValue({
+      ok: true,
+      json: async () => ({ email: "12345678@students.goldenenglish.local" }),
+    });
+    mockSignInWithPassword.mockResolvedValue({
+      data: { user: { id: "1" }, session: {} },
+      error: null,
+    });
+
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
+
+    act(() => {
+      result.current.setIdentifier("12345678");
+      result.current.setPassword("x");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(mockTrackEvent).toHaveBeenCalledWith(
+      "action",
+      "auth:login",
+      expect.objectContaining({ method: "dni", success: true }),
+    );
+  });
+
+  it("emits trackEvent with success=false on auth failure", async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      data: { user: null, session: null },
+      error: { message: "Invalid login credentials" },
+    });
+
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
+
+    act(() => {
+      result.current.setIdentifier("wrong@example.com");
+      result.current.setPassword("x");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(mockTrackEvent).toHaveBeenCalledWith(
+      "action",
+      "auth:login",
+      expect.objectContaining({ method: "email", success: false }),
+    );
+  });
+
   it("passes remember-me false before sign-in when unchecked", async () => {
     mockSignInWithPassword.mockResolvedValue({
       data: { user: { id: "1" }, session: {} },
       error: null,
     });
 
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
     await act(async () => {
       await Promise.resolve();
@@ -199,7 +368,7 @@ describe("useLogin", () => {
 
     act(() => {
       result.current.setRememberMe(false);
-      result.current.setEmail("user@example.com");
+      result.current.setIdentifier("user@example.com");
       result.current.setPassword("correct123");
     });
 
@@ -217,14 +386,14 @@ describe("useLogin", () => {
     });
 
     const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, {
+      useLogin(errorMessages, {
         locale: "en",
         nextPath: "/en/dashboard/admin/users/import",
       }),
     );
 
     act(() => {
-      result.current.setEmail("user@example.com");
+      result.current.setIdentifier("user@example.com");
       result.current.setPassword("correct123");
     });
 
@@ -242,14 +411,14 @@ describe("useLogin", () => {
     });
 
     const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, {
+      useLogin(errorMessages, {
         locale: "es",
         nextPath: "//evil.com/phish",
       }),
     );
 
     act(() => {
-      result.current.setEmail("user@example.com");
+      result.current.setIdentifier("user@example.com");
       result.current.setPassword("correct123");
     });
 
@@ -268,12 +437,10 @@ describe("useLogin", () => {
       }),
     );
 
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
     act(() => {
-      result.current.setEmail("user@example.com");
+      result.current.setIdentifier("user@example.com");
       result.current.setPassword("pass");
     });
 
@@ -298,12 +465,10 @@ describe("useLogin", () => {
   it("handles unexpected errors gracefully", async () => {
     mockSignInWithPassword.mockRejectedValue(new Error("Network failure"));
 
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
     act(() => {
-      result.current.setEmail("user@example.com");
+      result.current.setIdentifier("user@example.com");
       result.current.setPassword("pass");
     });
 
@@ -323,12 +488,10 @@ describe("useLogin", () => {
       error: { message: "   " },
     });
 
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
     act(() => {
-      result.current.setEmail("a@b.com");
+      result.current.setIdentifier("a@b.com");
       result.current.setPassword("x");
     });
 
@@ -345,12 +508,10 @@ describe("useLogin", () => {
       error: { message: "  Too many attempts  " },
     });
 
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
     act(() => {
-      result.current.setEmail("a@b.com");
+      result.current.setIdentifier("a@b.com");
       result.current.setPassword("x");
     });
 
@@ -367,12 +528,10 @@ describe("useLogin", () => {
       error: null,
     });
 
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
     act(() => {
-      result.current.setEmail("user@example.com");
+      result.current.setIdentifier("user@example.com");
       result.current.setPassword("pass");
     });
 
@@ -390,12 +549,10 @@ describe("useLogin", () => {
       error: null,
     });
 
-    const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, loginOpts),
-    );
+    const { result } = renderHook(() => useLogin(errorMessages, loginOpts));
 
     act(() => {
-      result.current.setEmail("user@example.com");
+      result.current.setIdentifier("user@example.com");
       result.current.setPassword("correct123");
     });
 
@@ -413,14 +570,14 @@ describe("useLogin", () => {
     });
 
     const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, {
+      useLogin(errorMessages, {
         locale: "es",
         nextPath: "/es/page/http://trap",
       }),
     );
 
     act(() => {
-      result.current.setEmail("user@example.com");
+      result.current.setIdentifier("user@example.com");
       result.current.setPassword("x");
     });
 
@@ -438,14 +595,14 @@ describe("useLogin", () => {
     });
 
     const { result } = renderHook(() =>
-      useLogin(mockDictionary.login.errors, {
+      useLogin(errorMessages, {
         locale: "en",
         nextPath: "/en\\windows",
       }),
     );
 
     act(() => {
-      result.current.setEmail("u@e.com");
+      result.current.setIdentifier("u@e.com");
       result.current.setPassword("x");
     });
 

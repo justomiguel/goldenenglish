@@ -5,13 +5,33 @@ import { getBrandPublic, type BrandPublic } from "@/lib/brand/server";
 import { loadProperties, getProperty } from "@/lib/theme/themeParser";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadPublicStudentBadgeShareByToken } from "@/lib/badges/loadPublicStudentBadgeShare";
+import { loadPublicBadgeCatalogEntryByCode } from "@/lib/badges/loadPublicBadgeCatalogEntry";
+import { resolveBadgeTranslation } from "@/lib/badges/badgeCatalog";
+import { badgeImagePublicUrl } from "@/lib/badges/badgeImagePublicUrl";
 import { isStudentBadgeCode } from "@/lib/badges/badgeCodes";
+import { logServerException } from "@/lib/logging/serverActionLog";
 
 const brand: BrandPublic = getBrandPublic();
 export const alt = brand.name;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const dynamic = "force-dynamic";
+/** ISR: data per token is stable; revalidate daily and let CDN cache OG image. */
+export const revalidate = 86400;
+
+let cachedLogoBase64: string | null = null;
+
+function loadLogoBase64(): string | null {
+  if (cachedLogoBase64 !== null) return cachedLogoBase64;
+  try {
+    const logoPath = join(process.cwd(), "public", "images", "logo.png");
+    const logoData = readFileSync(logoPath);
+    cachedLogoBase64 = `data:image/png;base64,${logoData.toString("base64")}`;
+  } catch (err) {
+    logServerException("studentBadgeShareOgImage:logoRead", err);
+    cachedLogoBase64 = "";
+  }
+  return cachedLogoBase64 || null;
+}
 
 export default async function StudentBadgeShareOgImage({
   params,
@@ -26,17 +46,21 @@ export default async function StudentBadgeShareOgImage({
   const accentColor = getProperty(props, "color.accent", "#F0B932");
   const surfaceWhite = getProperty(props, "color.background", "#FFFFFF");
   const borderMuted = getProperty(props, "color.border", "#E5E7EB");
-  const logoPath = join(process.cwd(), "public", "images", "logo.png");
-  const logoData = readFileSync(logoPath);
-  const logoBase64 = `data:image/png;base64,${logoData.toString("base64")}`;
+  const fallbackLogo = loadLogoBase64();
 
-  const title =
-    data && isStudentBadgeCode(data.badgeCode)
+  const validCode = data && isStudentBadgeCode(data.badgeCode);
+  const catalog = validCode ? await loadPublicBadgeCatalogEntryByCode(data.badgeCode) : null;
+  const customImageUrl = catalog ? badgeImagePublicUrl(catalog.imagePath) : null;
+  const heroImage = customImageUrl ?? fallbackLogo;
+
+  const title = catalog
+    ? resolveBadgeTranslation({ code: catalog.code, translations: catalog.translations }, locale).title
+    : validCode
       ? (() => {
-          const d = dict.dashboard.student.badges.definitions[
+          const def = dict.dashboard.student.badges.definitions[
             data.badgeCode as keyof typeof dict.dashboard.student.badges.definitions
           ] as { title: string } | undefined;
-          return d?.title ?? data.badgeCode;
+          return def?.title ?? data.badgeCode;
         })()
       : dict.publicStudentBadge.title;
 
@@ -71,20 +95,22 @@ export default async function StudentBadgeShareOgImage({
             display: "flex",
           }}
         />
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: surfaceWhite,
-            padding: "20px 24px",
-            borderRadius: 20,
-            marginBottom: 24,
-            border: `2px solid ${borderMuted}`,
-          }}
-        >
-          <img src={logoBase64} alt="" width={120} height={120} style={{ display: "flex" }} />
-        </div>
+        {heroImage ? (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: surfaceWhite,
+              padding: "20px 24px",
+              borderRadius: 20,
+              marginBottom: 24,
+              border: `2px solid ${borderMuted}`,
+            }}
+          >
+            <img src={heroImage} alt="" width={160} height={160} style={{ display: "flex", objectFit: "contain" }} />
+          </div>
+        ) : null}
         <div
           style={{
             fontSize: 44,

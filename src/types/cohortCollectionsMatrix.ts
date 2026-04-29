@@ -41,6 +41,7 @@ export interface CohortCollectionsBulkEnrollmentRaw {
   enrollment_exempt_reason?: string | null;
   enrollment_fee_receipt_url?: string | null;
   enrollment_fee_receipt_status?: string | null;
+  last_enrollment_paid_at?: string | null;
   scholarship_discount_percent?: number | string | null;
   scholarship_valid_from_year?: number | null;
   scholarship_valid_from_month?: number | null;

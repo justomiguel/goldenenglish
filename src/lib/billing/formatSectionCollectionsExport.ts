@@ -13,30 +13,23 @@ export interface SectionCollectionsExportLabels {
   paidColumn: string;
   pendingColumn: string;
   overdueColumn: string;
+  ratioColumn?: string;
+  healthColumn?: string;
   totalsRowLabel: string;
   monthShortLabels: readonly string[];
-  /** Marker text written in a cell when the month is out of plan period. */
   outOfPeriodMarker: string;
-  /** Marker text written when the cell has no plan at all. */
   noPlanMarker: string;
-  /** Marker text written for a paid (approved) cell. */
   paidMarker: string;
-  /** Marker text written for a pending review cell. */
   pendingMarker: string;
-  /** Marker text written for an exempt cell. */
   exemptMarker: string;
-  /** Marker text written for a rejected cell. */
   rejectedMarker: string;
-  /** Marker text written for an upcoming due cell. */
   upcomingMarker: string;
-  /** Marker text written for an overdue cell. */
   overdueMarker: string;
 }
 
 export interface SectionCollectionsExportArtifact {
   filename: string;
   mimeType: string;
-  /** Already base64-encoded payload, ready to ship to the client. */
   base64: string;
 }
 
@@ -48,14 +41,12 @@ interface BuiltRow {
   paid: number;
   pending: number;
   overdue: number;
+  ratio: number;
+  hasOverdue: boolean;
 }
 
 function safeFilename(value: string): string {
-  return value
-    .normalize("NFKD")
-    .replace(/[^a-zA-Z0-9_-]+/g, "_")
-    .replace(/^_+|_+$/g, "")
-    .slice(0, 80) || "section";
+  return value.normalize("NFKD").replace(/[^a-zA-Z0-9_-]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 80) || "section";
 }
 
 function statusMarker(
@@ -102,6 +93,8 @@ function buildRows(
     paid: s.paid,
     pending: s.pendingReview,
     overdue: s.overdue,
+    ratio: s.expectedYear > 0 ? Math.round((s.paid / s.expectedYear) * 1000) / 1000 : 0,
+    hasOverdue: s.hasOverdue,
   }));
 }
 
@@ -123,6 +116,8 @@ export function buildSectionCollectionsCsv(
   labels: SectionCollectionsExportLabels,
 ): string {
   const rows = buildRows(view, labels);
+  const hasRatioCol = !!labels.ratioColumn;
+  const hasHealthCol = !!labels.healthColumn;
   const header = [
     labels.studentColumn,
     labels.documentColumn,
@@ -131,6 +126,8 @@ export function buildSectionCollectionsCsv(
     labels.paidColumn,
     labels.pendingColumn,
     labels.overdueColumn,
+    ...(hasRatioCol ? [labels.ratioColumn!] : []),
+    ...(hasHealthCol ? [labels.healthColumn!] : []),
   ];
   const body = rows.map((r) => [
     r.student,
@@ -140,7 +137,10 @@ export function buildSectionCollectionsCsv(
     formatCsvNumber(r.paid),
     formatCsvNumber(r.pending),
     formatCsvNumber(r.overdue),
+    ...(hasRatioCol ? [formatCsvNumber(r.ratio * 100)] : []),
+    ...(hasHealthCol ? [r.hasOverdue ? "!" : "OK"] : []),
   ]);
+  const cohortRatio = view.kpis.expectedYear > 0 ? view.kpis.paid / view.kpis.expectedYear : 0;
   const totals = [
     labels.totalsRowLabel,
     "",
@@ -149,6 +149,8 @@ export function buildSectionCollectionsCsv(
     formatCsvNumber(view.kpis.paid),
     formatCsvNumber(view.kpis.pendingReview),
     formatCsvNumber(view.kpis.overdue),
+    ...(hasRatioCol ? [formatCsvNumber(cohortRatio * 100)] : []),
+    ...(hasHealthCol ? [view.kpis.health] : []),
   ];
   const allRows = [header, ...body, totals];
   const csv = allRows
@@ -158,10 +160,9 @@ export function buildSectionCollectionsCsv(
 }
 
 function toBase64(value: string | Uint8Array): string {
-  if (typeof value === "string") {
-    return Buffer.from(value, "utf-8").toString("base64");
-  }
-  return Buffer.from(value).toString("base64");
+  return typeof value === "string"
+    ? Buffer.from(value, "utf-8").toString("base64")
+    : Buffer.from(value).toString("base64");
 }
 
 export function buildSectionCollectionsCsvArtifact(
@@ -185,6 +186,8 @@ export function buildSectionCollectionsXlsxArtifact(
   labels: SectionCollectionsExportLabels,
 ): SectionCollectionsExportArtifact {
   const rows = buildRows(view, labels);
+  const hasRatioCol = !!labels.ratioColumn;
+  const hasHealthCol = !!labels.healthColumn;
   const header = [
     labels.studentColumn,
     labels.documentColumn,
@@ -193,6 +196,8 @@ export function buildSectionCollectionsXlsxArtifact(
     labels.paidColumn,
     labels.pendingColumn,
     labels.overdueColumn,
+    ...(hasRatioCol ? [labels.ratioColumn!] : []),
+    ...(hasHealthCol ? [labels.healthColumn!] : []),
   ];
   const body = rows.map((r) => [
     r.student,
@@ -202,7 +207,10 @@ export function buildSectionCollectionsXlsxArtifact(
     r.paid,
     r.pending,
     r.overdue,
+    ...(hasRatioCol ? [Math.round(r.ratio * 10000) / 100] : []),
+    ...(hasHealthCol ? [r.hasOverdue ? "!" : "OK"] : []),
   ]);
+  const cohortRatio = view.kpis.expectedYear > 0 ? view.kpis.paid / view.kpis.expectedYear : 0;
   const totals = [
     labels.totalsRowLabel,
     "",
@@ -211,10 +219,25 @@ export function buildSectionCollectionsXlsxArtifact(
     view.kpis.paid,
     view.kpis.pendingReview,
     view.kpis.overdue,
+    ...(hasRatioCol ? [Math.round(cohortRatio * 10000) / 100] : []),
+    ...(hasHealthCol ? [view.kpis.health] : []),
   ];
   const ws = XLSX.utils.aoa_to_sheet([header, ...body, totals]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Cobranza");
+
+  const summaryRows = [
+    ["KPI", "Value"],
+    [labels.expectedColumn, view.kpis.expectedYear],
+    [labels.paidColumn, view.kpis.paid],
+    [labels.pendingColumn, view.kpis.pendingReview],
+    [labels.overdueColumn, view.kpis.overdue],
+    ...(hasRatioCol ? [[labels.ratioColumn!, `${Math.round(cohortRatio * 10000) / 100}%`]] : []),
+    ...(hasHealthCol ? [[labels.healthColumn!, view.kpis.health]] : []),
+  ];
+  const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+  XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
+
   const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" }) as Buffer;
   return {
     filename: `cobranza_${safeFilename(view.sectionName)}_${view.year}.xlsx`,

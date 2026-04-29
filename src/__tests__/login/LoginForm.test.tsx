@@ -1,5 +1,10 @@
-// REGRESSION CHECK: Initial test for LoginForm organism.
-// Depends on useLogin hook — mocked at boundary per TDD rules.
+// REGRESSION CHECK: Critical invariants for LoginForm:
+//  - Renders a SINGLE identifier input (no separate email field) so the
+//    same form accepts both real emails and DNI/passport numbers.
+//  - autoComplete="username" so password managers keep working.
+//  - Uses identifierLabel / identifierPlaceholder from the dictionary; no
+//    hardcoded strings.
+//  - Submission still wires to handleSubmit via both click and submit.
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -7,25 +12,25 @@ import userEvent from "@testing-library/user-event";
 import { LoginForm } from "@/components/organisms/LoginForm";
 
 const mockHandleSubmit = vi.fn();
-const mockSetEmail = vi.fn();
+const mockSetIdentifier = vi.fn();
 const mockSetPassword = vi.fn();
 const mockSetRememberMe = vi.fn();
 
 const defaultHookReturn = {
-  email: "",
+  identifier: "",
   password: "",
   rememberMe: true,
   error: null as string | null,
   redirecting: false,
   isLoading: false,
-  setEmail: mockSetEmail,
+  setIdentifier: mockSetIdentifier,
   setPassword: mockSetPassword,
   setRememberMe: mockSetRememberMe,
   handleSubmit: mockHandleSubmit,
 };
 
 function resetLoginFormHookMock() {
-  defaultHookReturn.email = "";
+  defaultHookReturn.identifier = "";
   defaultHookReturn.password = "";
   defaultHookReturn.rememberMe = true;
   defaultHookReturn.error = null;
@@ -41,8 +46,9 @@ const labels = {
   kicker: "Portal",
   title: "Sign In",
   subtitle: "Welcome back",
-  emailLabel: "Email",
-  emailPlaceholder: "you@example.com",
+  identifierLabel: "Email or document",
+  identifierPlaceholder: "you@example.com or 12345678",
+  identifierHint: "Use your email, or your DNI/passport.",
   passwordLabel: "Password",
   passwordPlaceholder: "Your password",
   passwordHintStudent: "Use DNI as password.",
@@ -56,7 +62,7 @@ const labels = {
   hidePassword: "Hide password",
   errors: {
     invalidCredentials: "Invalid email or password",
-    emailRequired: "Email is required",
+    identifierRequired: "Email or document is required",
     passwordRequired: "Password is required",
     generic: "An error occurred.",
   },
@@ -68,13 +74,29 @@ describe("LoginForm", () => {
     vi.clearAllMocks();
   });
 
-  it("renders email and password fields", () => {
+  it("renders a single identifier input and the password field", () => {
     render(<LoginForm labels={labels} locale="en" />);
 
-    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    const identifier = screen.getByLabelText(
+      /email or document/i,
+    ) as HTMLInputElement;
+    expect(identifier).toBeInTheDocument();
+    expect(identifier.type).toBe("text");
+    expect(identifier.autocomplete).toBe("username");
+    // No legacy `email`-typed field.
+    expect(
+      screen.queryAllByDisplayValue("").filter((el) =>
+        el instanceof HTMLInputElement && el.type === "email",
+      ),
+    ).toHaveLength(0);
     expect(
       screen.getByPlaceholderText(labels.passwordPlaceholder),
     ).toBeInTheDocument();
+  });
+
+  it("shows the identifier hint copy from the dictionary", () => {
+    render(<LoginForm labels={labels} locale="en" />);
+    expect(screen.getByText(labels.identifierHint)).toBeInTheDocument();
   });
 
   it("renders show password toggle", () => {

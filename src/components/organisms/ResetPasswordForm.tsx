@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { KeyRound, LogIn, Mail } from "lucide-react";
+import { KeyRound, LogIn, Mail, ShieldAlert } from "lucide-react";
 import { useResetPassword } from "@/hooks/useResetPassword";
 import { FormField } from "@/components/molecules/FormField";
 import { Button } from "@/components/atoms/Button";
@@ -22,6 +22,7 @@ export function ResetPasswordForm({ labels, locale }: ResetPasswordFormProps) {
     isLoading,
     success,
     linkStatus,
+    mustChangeBanner,
     setPassword,
     setConfirm,
     handleSubmit,
@@ -122,6 +123,21 @@ export function ResetPasswordForm({ labels, locale }: ResetPasswordFormProps) {
           {labels.subtitle}
         </p>
       </div>
+
+      {mustChangeBanner ? (
+        <div
+          role="status"
+          className="flex items-start gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-primary)]/30 bg-[color-mix(in_srgb,var(--color-primary)_8%,var(--color-surface))] px-4 py-3 text-sm text-[var(--color-primary)]"
+        >
+          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+          <div>
+            <p className="font-semibold">{labels.mustChangeBannerTitle}</p>
+            <p className="mt-1 text-[var(--color-foreground)]">
+              {labels.mustChangeBannerLead}
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       {error ? (
         <div

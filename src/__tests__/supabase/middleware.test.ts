@@ -88,6 +88,48 @@ describe("updateSession", () => {
     expect(all.some((c) => c.name === "a" && c.value === "b")).toBe(true);
   });
 
+  it("redirects to /{locale}/reset-password when must_change_password flag is set", async () => {
+    process.env.NODE_ENV = "test";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://x.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+    mockGetUser.mockResolvedValue({
+      data: {
+        user: {
+          id: "u1",
+          app_metadata: { must_change_password: true },
+        },
+      },
+    });
+
+    const req = new NextRequest(
+      new URL("http://localhost/es/dashboard/admin/users"),
+      { headers: new Headers() },
+    );
+    const { response } = await updateSession(req);
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toContain("/es/reset-password");
+  });
+
+  it("does NOT redirect when already on /reset-password (avoid loop)", async () => {
+    process.env.NODE_ENV = "test";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://x.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
+    mockGetUser.mockResolvedValue({
+      data: {
+        user: {
+          id: "u1",
+          app_metadata: { must_change_password: true },
+        },
+      },
+    });
+
+    const req = new NextRequest(new URL("http://localhost/es/reset-password"), {
+      headers: new Headers(),
+    });
+    const { response } = await updateSession(req);
+    expect(response.status).toBe(200);
+  });
+
   it("cookie setAll mirrors cookies onto the response", async () => {
     process.env.NODE_ENV = "test";
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://x.supabase.co";

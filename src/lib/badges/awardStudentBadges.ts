@@ -1,7 +1,8 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logServerException } from "@/lib/logging/serverActionLog";
-import { computeEligibleStudentBadgeCodes } from "@/lib/badges/badgeEligibility";
+import { computeEligibleBadgesFromCatalog } from "@/lib/badges/evaluateBadgeCatalogEligibility";
+import { loadActiveBadgeCatalog } from "@/lib/badges/loadBadgeCatalog";
 import { loadStudentBadgeEvaluationData } from "@/lib/badges/loadStudentBadgeEvaluationData";
 import { recordStudentBadgeEarnedEvent } from "@/lib/analytics/server/recordStudentBadgeEarnedEvent";
 
@@ -12,7 +13,9 @@ export type AwardStudentBadgesInput = {
 };
 
 /**
- * Evaluates rules, inserts new `student_badge_grants` via service role, emits analytics. Idempotent.
+ * Evaluates active catalog rules, inserts new `student_badge_grants` via service role,
+ * emits analytics. Idempotent. Pauses (`is_active = false`) skip eligible badges,
+ * but already-granted ones remain visible to the student.
  */
 export async function awardStudentBadges(input: AwardStudentBadgesInput): Promise<void> {
   const { studentId, locale } = input;
@@ -27,18 +30,29 @@ export async function awardStudentBadges(input: AwardStudentBadgesInput): Promis
       return;
     }
     const have = new Set((existing ?? []).map((r) => r.badge_code as string));
-    const ctx = await loadStudentBadgeEvaluationData(studentId);
-    const eligible = computeEligibleStudentBadgeCodes(ctx);
-    const toInsert = eligible.filter((c) => !have.has(c));
-    if (toInsert.length === 0) return;
+    const [ctx, catalog] = await Promise.all([
+      loadStudentBadgeEvaluationData(studentId),
+      loadActiveBadgeCatalog(),
+    ]);
+    const eligible = computeEligibleBadgesFromCatalog(ctx, catalog).filter(
+      (entry) => !have.has(entry.code),
+    );
+    if (eligible.length === 0) return;
 
-    for (const badge_code of toInsert) {
-      const { error } = await admin.from("student_badge_grants").insert({ student_id: studentId, badge_code });
+    for (const entry of eligible) {
+      const { error } = await admin.from("student_badge_grants").insert({
+        student_id: studentId,
+        badge_code: entry.code,
+        badge_id: entry.id,
+      });
       if (error) {
-        logServerException("awardStudentBadges:insert", error, { studentId, badge_code });
+        logServerException("awardStudentBadges:insert", error, {
+          studentId,
+          badge_code: entry.code,
+        });
         continue;
       }
-      await recordStudentBadgeEarnedEvent({ userId: studentId, badgeCode: badge_code });
+      await recordStudentBadgeEarnedEvent({ userId: studentId, badgeCode: entry.code });
     }
     if (locale) revalidateStudentBadgePaths(locale);
   } catch (e) {

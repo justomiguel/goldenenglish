@@ -2,9 +2,38 @@ import type { AdminBillingMonthState } from "@/lib/billing/buildAdminBillingMont
 import { periodIndex } from "@/lib/billing/scholarshipPeriod";
 import type { StudentMonthlyPaymentCell } from "@/types/studentMonthlyPayments";
 
+/** Map one Finance / Cobranzas cell to collection-matrix chip visuals (incl. overdue for `due`). */
+function collectionCellToChipVisual(
+  collectionCell: StudentMonthlyPaymentCell,
+  viewYear: number,
+  todayYear: number,
+  todayMonth: number,
+): {
+  status: StudentMonthlyPaymentCell["status"];
+  isOverdue: boolean;
+  hasScholarshipDiscount: boolean;
+} {
+  const hasSch = collectionCell.scholarshipDiscountPercent != null;
+  const cellIdx = periodIndex(viewYear, collectionCell.month);
+  const todayIdx = periodIndex(todayYear, todayMonth);
+  if (collectionCell.status === "due") {
+    return {
+      status: "due",
+      isOverdue: cellIdx < todayIdx,
+      hasScholarshipDiscount: hasSch,
+    };
+  }
+  return {
+    status: collectionCell.status,
+    isOverdue: false,
+    hasScholarshipDiscount: hasSch,
+  };
+}
+
 /**
  * Merge Cobranzas-style cells (`buildStudentMonthlyPaymentsRow`) with legacy-only
- * periods (`legacyFallback`) so locks match Finance and legacy rows keep their chip.
+ * periods (`legacyFallback`). When `collectionCell` is present and not legacy, the
+ * chip follows row logic (e.g. pending-without-receipt → `due`).
  */
 export function resolveAdminBillingMonthChipVisual(
   monthState: AdminBillingMonthState,
@@ -20,16 +49,8 @@ export function resolveAdminBillingMonthChipVisual(
   if (monthState.legacyFallback) {
     return adminMonthStateToCollectionVisual(monthState, viewYear, todayYear, todayMonth);
   }
-  if (
-    collectionCell &&
-    (collectionCell.status === "no-plan" || collectionCell.status === "out-of-period")
-  ) {
-    const hasSch = collectionCell.scholarshipDiscountPercent != null;
-    return {
-      status: collectionCell.status,
-      isOverdue: false,
-      hasScholarshipDiscount: hasSch,
-    };
+  if (collectionCell) {
+    return collectionCellToChipVisual(collectionCell, viewYear, todayYear, todayMonth);
   }
   return adminMonthStateToCollectionVisual(monthState, viewYear, todayYear, todayMonth);
 }

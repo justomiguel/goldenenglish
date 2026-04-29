@@ -3,6 +3,8 @@
 import { useCallback, useState } from "react";
 import { Link2, Share2 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { trackEvent } from "@/lib/analytics/trackClient";
+import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import type { Dictionary } from "@/types/i18n";
 
 type Labels = Pick<
@@ -13,9 +15,14 @@ type Labels = Pick<
 export interface StudentBadgeShareControlsProps {
   shareUrl: string;
   labels: Labels;
+  badgeCode: string;
 }
 
-export function StudentBadgeShareControls({ shareUrl, labels }: StudentBadgeShareControlsProps) {
+export function StudentBadgeShareControls({
+  shareUrl,
+  labels,
+  badgeCode,
+}: StudentBadgeShareControlsProps) {
   const [notice, setNotice] = useState<string | null>(null);
 
   const copy = useCallback(async () => {
@@ -26,23 +33,31 @@ export function StudentBadgeShareControls({ shareUrl, labels }: StudentBadgeShar
     try {
       await navigator.clipboard.writeText(shareUrl);
       setNotice(labels.linkCopied);
+      trackEvent("click", AnalyticsEntity.studentBadges, {
+        kind: "share_copy",
+        badge_code: badgeCode,
+      });
     } catch {
       setNotice(labels.copyFailed);
     }
-  }, [labels.copyFailed, labels.linkCopied, shareUrl]);
+  }, [badgeCode, labels.copyFailed, labels.linkCopied, shareUrl]);
 
   const share = useCallback(async () => {
     if (!shareUrl) return;
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({ title: document.title, url: shareUrl });
+        trackEvent("click", AnalyticsEntity.studentBadges, {
+          kind: "share_native",
+          badge_code: badgeCode,
+        });
         return;
       } catch {
-        // user cancelled
+        // user cancelled or share rejected
       }
     }
     void copy();
-  }, [copy, shareUrl]);
+  }, [badgeCode, copy, shareUrl]);
 
   if (!shareUrl) return null;
 

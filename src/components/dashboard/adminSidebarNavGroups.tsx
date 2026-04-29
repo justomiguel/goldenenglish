@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import {
   Activity,
+  Award,
   Gift,
   Home,
   MessageCircle,
@@ -101,6 +102,12 @@ export function buildAdminSidebarNavGroups(
           label: dict.contents,
           icon: <BookOpenCheck className={ic} />,
           tip: dict.tipContents,
+        },
+        {
+          href: `${base}/badges`,
+          label: dict.badges,
+          icon: <Award className={ic} />,
+          tip: dict.tipBadges,
         },
       ],
     },

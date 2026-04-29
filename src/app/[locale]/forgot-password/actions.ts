@@ -22,10 +22,16 @@ function clientIpFromHeaders(h: Headers): string | null {
   return h.get("x-real-ip");
 }
 
-function buildRedirectTo(locale: string): string {
+/**
+ * Recovery links must land on `/api/auth/recovery-callback` so the auth code is
+ * exchanged on the server into session cookies (browser PKCE client cannot
+ * complete `exchangeCodeForSession` without a prior code_verifier).
+ */
+function buildRecoveryRedirectTo(locale: string): string {
   const base =
     getPublicSiteUrl()?.toString().replace(/\/$/, "") ?? "http://localhost:3000";
-  return `${base}/${locale}/reset-password`;
+  const nextPath = `/${locale}/reset-password`;
+  return `${base}/api/auth/recovery-callback?next=${encodeURIComponent(nextPath)}`;
 }
 
 export async function requestPasswordResetAction(
@@ -50,7 +56,7 @@ export async function requestPasswordResetAction(
   const result = await requestPasswordReset({
     email,
     locale,
-    redirectTo: buildRedirectTo(locale),
+    redirectTo: buildRecoveryRedirectTo(locale),
     brand: getBrandPublic(),
     adminClient: createAdminClient(),
     emailProvider: getEmailProvider(),

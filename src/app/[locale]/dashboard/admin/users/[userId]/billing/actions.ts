@@ -12,3 +12,4 @@ export {
   setEnrollmentFeeExemption,
   markEnrollmentFeePaidNow,
 } from "./enrollmentFeeActions";
+export { clearEnrollmentFeeManualPaidAt } from "./clearEnrollmentFeeManualPaidAction";

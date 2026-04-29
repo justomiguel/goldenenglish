@@ -64,6 +64,8 @@ function exportLabelsFromDict(
     paidColumn: collections.export.paidColumn,
     pendingColumn: collections.export.pendingColumn,
     overdueColumn: collections.export.overdueColumn,
+    ratioColumn: collections.export.ratioColumn,
+    healthColumn: collections.export.healthColumn,
     totalsRowLabel: collections.export.totalsRowLabel,
     monthShortLabels: collections.monthShort,
     outOfPeriodMarker: collections.export.markers.outOfPeriod,

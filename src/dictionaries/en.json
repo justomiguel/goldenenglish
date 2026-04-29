@@ -92,7 +92,8 @@
       "invalidCode": "Enter a valid code.",
       "forbidden": "You are not allowed to do this.",
       "invalidId": "Invalid record id.",
-      "saveFailed": "Could not save. Try again."
+      "saveFailed": "Could not save. Try again.",
+      "duplicateBadgeCode": "A badge with that code already exists."
     },
     "messaging": {
       "invalidRecipient": "Invalid recipient.",
@@ -148,7 +149,10 @@
       "alreadyApproved": "That period is already recorded as paid.",
       "cannotOverrideExempt": "This period is marked exempt. Remove the exemption first.",
       "saveFailed": "Could not save. Try again.",
-      "bulkAllFailed": "No months could be recorded. Some may already be paid, exempt, or not billable in this section."
+      "bulkAllFailed": "No months could be recorded. Some may already be paid, exempt, or not billable in this section.",
+      "revertNotFound": "No payment row for that month in this section.",
+      "revertNotApproved": "That month is not in paid status (or was already reverted).",
+      "bulkRevertAllFailed": "No months could be reverted. They may not be recorded as paid in this section."
     },
     "billingStudent": {
       "forbidden": "You are not allowed to do this.",
@@ -161,7 +165,8 @@
       "invalidPeriod": "Invalid period.",
       "invalidRange": "Invalid date range.",
       "invalidRangeOrder": "The end month must be on or after the start month.",
-      "saveFailed": "Could not save billing changes. Try again."
+      "saveFailed": "Could not save billing changes. Try again.",
+      "enrollmentNotPaidRecorded": "No enrollment payment date is recorded to clear."
     },
     "tutorFinancialAccess": {
       "invalidForm": "Invalid request.",
@@ -197,8 +202,9 @@
     "kicker": "Student portal",
     "title": "Sign in",
     "subtitle": "Use the email and password from your enrollment.",
-    "emailLabel": "Email",
-    "emailPlaceholder": "you@example.com",
+    "identifierLabel": "Email or document",
+    "identifierPlaceholder": "you@example.com or 12345678",
+    "identifierHint": "Use your email, or your DNI/passport if you don't have one.",
     "passwordLabel": "Password",
     "passwordPlaceholder": "Your password",
     "passwordHintStudent": "Students: your first password is usually your national ID number (DNI), same as enrollment.",
@@ -212,7 +218,7 @@
     "signUp": "Sign up",
     "errors": {
       "invalidCredentials": "Invalid email or password",
-      "emailRequired": "Email is required",
+      "identifierRequired": "Email or document is required",
       "passwordRequired": "Password is required",
       "generic": "An error occurred. Please try again."
     }
@@ -240,6 +246,8 @@
     "kicker": "New password",
     "title": "Choose a new password",
     "subtitle": "Pick a password of at least 8 characters. You will be signed in automatically after saving.",
+    "mustChangeBannerTitle": "You need to choose a new password",
+    "mustChangeBannerLead": "An administrator just reset your password. Pick a new one to keep using your account.",
     "passwordLabel": "New password",
     "passwordPlaceholder": "Your new password",
     "confirmLabel": "Repeat new password",
@@ -266,6 +274,10 @@
   "emailPasswordReset": {
     "subject": "{{brandName}} — Reset your password",
     "html": "<!DOCTYPE html><html><body style=\"font-family:system-ui,sans-serif;color:#103A5C;line-height:1.5;\"><p><strong>{{brandName}}</strong></p><p>Hello,</p><p>We received a request to reset the password for your account ({{email}}). Click the button below to set a new password. The link is valid for 1 hour.</p><p style=\"margin:24px 0;\"><a href=\"{{href}}\" style=\"display:inline-block;background:#103A5C;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:600;\">Reset my password</a></p><p style=\"font-size:0.875rem;color:#6B7280;\">If the button does not work, paste this link in your browser:<br/><a href=\"{{href}}\">{{href}}</a></p><p style=\"font-size:0.875rem;color:#6B7280;\">If you did not request this email, you can safely ignore it. Your password will remain unchanged.</p></body></html>"
+  },
+  "emailAdminPasswordResetNotice": {
+    "subject": "{{brandName}} — Your password was reset by an administrator",
+    "html": "<!DOCTYPE html><html><body style=\"font-family:system-ui,sans-serif;color:#103A5C;line-height:1.5;\"><p><strong>{{brandName}}</strong></p><p>Hello,</p><p>An administrator has just reset the password for your account ({{email}}). The next time you sign in, you will be asked to choose a new password.</p><p>If you did not request this change or did not coordinate it with our staff, please contact us right away at <a href=\"mailto:{{contactEmail}}\">{{contactEmail}}</a> so we can secure your account.</p><p style=\"font-size:0.875rem;color:#6B7280;\">This is an automated security notice. You can ignore it if you arranged the reset with us.</p></body></html>"
   },
   "nav": {
     "home": "Home",
@@ -1245,6 +1257,25 @@
       "detailPasswordConfirmTitle": "Change password?",
       "detailPasswordConfirmBody": "Are you sure you want to change this user’s password? Share the new password with them through a secure channel.",
       "detailPasswordConfirmAction": "Yes, change password",
+      "detailDniResetTitle": "Reset by ID document",
+      "detailDniResetLead": "One-click reset for students who do not have a real email. The new password will be derived from their ID document and shown on screen so you can hand it over in person.",
+      "detailDniResetButton": "Reset password by ID",
+      "detailDniResetConfirmTitle": "Reset password using ID document?",
+      "detailDniResetConfirmBody": "We will set this student’s password to a value derived from their ID document and require them to choose a new password the next time they sign in. This action cannot be undone — confirm with your own password to continue.",
+      "detailDniResetAdminPasswordLabel": "Your admin password",
+      "detailDniResetAdminPasswordPlaceholder": "Confirm your password",
+      "detailDniResetConfirmAction": "Reset and reveal",
+      "detailDniResetRevealTitle": "New temporary password",
+      "detailDniResetRevealLead": "Hand this password to the student in person. We do not store it anywhere — once you close this window you will need to reset again to retrieve it.",
+      "detailDniResetRevealCopy": "Copy password",
+      "detailDniResetRevealClose": "Done",
+      "detailDniResetRevealNoticeReal": "We also sent a security notice to the email on file.",
+      "detailDniResetRevealNoticeSynthetic": "This account has no real email address, so no security notice was sent.",
+      "detailDniResetWarn": "Write down or hand over the password now — once you close this window it cannot be recovered.",
+      "detailDniResetErrAdminPassword": "Your admin password did not match. Try again.",
+      "detailDniResetErrTargetMissing": "This account does not have an ID on file, so we cannot derive a temporary password.",
+      "detailDniResetErrSave": "Could not reset the password. Try again.",
+      "detailDniResetToastOk": "Password reset and revealed.",
       "detailTutorTitle": "Guardians",
       "detailTutorLead": "Linked parent or guardian accounts for this student.",
       "detailTutorCurrent": "Linked guardians",
@@ -1317,13 +1348,73 @@
         "tabs": {
           "overview": "Cohort overview",
           "collections": "Collections",
-          "receipts": "Invoice receipts",
-          "payments": "Payment review"
+          "inbox": "Payment inbox",
+          "insights": "Insights"
         },
         "tipOverview": "Every section of the active cohort with payment status by month — like a spreadsheet, but actionable.",
         "tipCollections": "Section-by-section collection health for the cohort, with export and bulk reminders.",
-        "tipReceipts": "Approve or reject billing receipts uploaded by guardians (new invoice model).",
-        "tipPayments": "Legacy queue of monthly payment receipts pending review."
+        "tipInbox": "Approve or reject payment receipts uploaded by families — monthly, enrollment fee, and invoice receipts in one queue.",
+        "tipInsights": "Collection trends, receipt processing metrics, year-end projections, and section health alerts."
+      },
+      "insights": {
+        "title": "Finance insights",
+        "lead": "Trends, operational metrics, and projections based on the selected cohort and year.",
+        "tabs": {
+          "trends": "Trends",
+          "operations": "Operations",
+          "projections": "Projections"
+        },
+        "trend": {
+          "title": "Monthly collection trend",
+          "hint": "Stacked view of collected, pending, and overdue amounts by month for the current year.",
+          "collected": "Collected",
+          "pending": "Pending",
+          "overdue": "Overdue",
+          "ratio": "Ratio"
+        },
+        "processing": {
+          "title": "Receipt processing",
+          "hint": "How quickly receipts are reviewed and common rejection reasons.",
+          "avgDays": "Avg. days to resolve",
+          "avgDaysMonthly": "Monthly receipts",
+          "avgDaysInvoice": "Invoice receipts",
+          "approvalRate": "Approval rate",
+          "totalProcessed": "Total processed",
+          "pendingCount": "Pending now",
+          "rejectionReasons": "Rejection reasons",
+          "noData": "No resolved receipts yet for this period.",
+          "reasonImageBlurry": "Image blurry",
+          "reasonAmountMismatch": "Amount mismatch",
+          "reasonWrongAccount": "Wrong account",
+          "reasonOther": "Other"
+        },
+        "comparison": {
+          "title": "Section comparison",
+          "hint": "Collection ratio by section — worst-performing sections first.",
+          "cohortAverage": "Cohort avg."
+        },
+        "projection": {
+          "title": "Year-end projection",
+          "hint": "Estimated collection at current pace vs. expected total.",
+          "projected": "Projected",
+          "expected": "Expected",
+          "gap": "Gap",
+          "behind": "behind target",
+          "ahead": "ahead of target",
+          "monthlyAvg": "Monthly avg.",
+          "monthsLeft": "months remaining",
+          "onTrack": "On track — collection pace meets expectations.",
+          "slightlyBehind": "Slightly behind — some sections need attention.",
+          "significantlyBehind": "Significantly behind target — review overdue sections."
+        },
+        "alerts": {
+          "title": "Section health alerts",
+          "critical": "Critical",
+          "watch": "Watch",
+          "allHealthy": "All sections are healthy — no alerts.",
+          "overdueStudents": "overdue students",
+          "ratio": "ratio"
+        }
       },
       "enrollmentFeeQueue": {
         "title": "Enrollment fee receipts",
@@ -1337,6 +1428,16 @@
         "studentLabel": "Student",
         "sectionLabel": "Section",
         "uploadedLabel": "Uploaded"
+      },
+      "inbox": {
+        "title": "Payment inbox",
+        "lead": "Approve or reject receipts uploaded by families. Use the tabs below to switch between receipt types.",
+        "typeMonthly": "Monthly",
+        "typeEnrollment": "Enrollment",
+        "typeInvoice": "Invoice",
+        "empty": "No pending receipts in this category.",
+        "agingDays": "{days}d",
+        "agingHours": "{hours}h"
       },
       "overview": {
         "title": "Cohort overview",
@@ -1377,6 +1478,11 @@
           "noCurrentCohort": "No current cohort is set. Mark a cohort as current in the academic hub.",
           "noSections": "This cohort has no active sections yet.",
           "noStudentsAfterFilter": "No students match the current filter."
+        },
+        "topDebtors": {
+          "title": "Top overdue balances",
+          "empty": "No overdue balances — great!",
+          "openBilling": "Open billing"
         }
       },
       "collections": {
@@ -1484,6 +1590,8 @@
           "paidColumn": "Collected",
           "pendingColumn": "Pending review",
           "overdueColumn": "Overdue",
+          "ratioColumn": "Ratio %",
+          "healthColumn": "Health",
           "totalsRowLabel": "TOTAL",
           "exportError": "We could not generate the report. Try again.",
           "markers": {
@@ -1500,6 +1608,17 @@
         "errors": {
           "loadFailed": "Could not load collections data.",
           "exportFailed": "Could not generate the export."
+        },
+        "filters": {
+          "filterBySection": "Section",
+          "allSections": "All sections",
+          "filterByHealth": "Health",
+          "allHealth": "All"
+        },
+        "actionBar": {
+          "messageSelected": "Message selected",
+          "remindOverdue": "Overdue reminder",
+          "clearAll": "Clear selection"
         }
       }
     },
@@ -1587,6 +1706,9 @@
       "enrollmentReason": "Reason (audit)",
       "enrollmentSave": "Save enrollment exemption",
       "enrollmentMarkPaid": "Record enrollment fee paid (today)",
+      "enrollmentClearManualPaid": "Clear recorded enrollment payment date",
+      "enrollmentClearManualPaidConfirmTitle": "Clear recorded enrollment payment date?",
+      "enrollmentClearManualPaidConfirmBody": "This removes the last staff-recorded enrollment payment date. If a receipt was approved, it returns to pending review so the fee no longer appears paid.",
       "enrollmentLastPaid": "Last enrollment payment",
       "enrollmentNonePaid": "Not recorded",
       "enrollmentReceiptTitle": "Student-uploaded receipt",
@@ -1601,7 +1723,7 @@
       "recordPaymentTitle": "Record monthly payment (no receipt)",
       "recordPaymentLead": "Marks a month as paid using the current section fee. Use when payment was confirmed outside the receipt upload flow. Section: {section}.",
       "recordPaymentMatrixTitle": "Monthly collection matrix",
-      "recordPaymentMatrixHelp": "Click each month to select. Once selected, choose what to do: record as paid, apply a scholarship, or mark as exempt. Click the enrollment column (Matrícula / Enrollment) to open enrollment fee settings — exempt or not, record paid, review receipt.",
+      "recordPaymentMatrixHelp": "Click each month to select. Green (paid) months can be selected on their own to undo a mistaken “paid” and return them to receipt-pending. Other months: record as paid, scholarship, or exempt. Enrollment column (Matrícula): fee settings, mark paid, undo paid, review receipt.",
       "recordPaymentActionsTitle": "Actions for {count} selected month(s)",
       "recordPaymentActionsCancel": "Clear selection",
       "recordPaymentActionMarkPaid": "Record as paid",
@@ -1627,6 +1749,7 @@
       "recordPaymentEnrollmentModalTitle": "Enrollment fee · {section}",
       "recordPaymentEnrollmentColumnActivate": "Enrollment fee ({section}) — open settings",
       "recordPaymentEnrollmentFeeChipAria": "{name} · Enrollment fee",
+      "recordPaymentViewReceipt": "View receipt",
       "recordPaymentMatrixLead": "{section} · {year}. Select only the months you want to record now.",
       "recordPaymentMatrixAuditBadge": "Audited per month",
       "recordPaymentNote": "Internal note (optional)",
@@ -1636,7 +1759,7 @@
       "recordPaymentConfirmTitle": "Record this month as paid?",
       "recordPaymentConfirmBody": "The expected amount for this section and month will be saved as approved, with no new receipt. This notifies the family by email when possible.",
       "recordPaymentConfirm": "Confirm",
-      "recordPaymentGridHint": "Choose one or more months in the year above. This mirrors the collection matrix: selected months are recorded as paid using the current section plan.",
+      "recordPaymentGridHint": "Choose months in the year above. To undo a mistaken paid month, click only paid (green) months, then use “Mark as not paid”. For new payments, select unpaid or pending months and use Record as paid, scholarship, or exempt.",
       "recordPaymentMatrixLegend": "Same as Finance / collections: green = paid; amber = pending; red = rejected; blue = exempt; light gray = not due yet or not overdue; red outline = overdue installment; minus-in-circle = no fee plan that month (e.g. course does not charge); calendar-off = outside this section’s billing window; green % = scholarship.",
       "recordPaymentStatusNoPlan": "No fee plan (locked)",
       "recordPaymentStatusOutOfPeriod": "Outside billing window (locked)",
@@ -1656,6 +1779,16 @@
       "recordPaymentCountSelected": "{count} month(s) selected",
       "recordPaymentBulkConfirmTitle": "Record {count} month(s) as paid?",
       "recordPaymentBulkConfirmBody": "Each month uses the plan amount for that period. One email is sent per month when possible. Every period is written to the finance audit log (and bulk runs also log a single batch line).",
+      "recordPaymentBulkRevertConfirmTitle": "Revert {count} month(s) to not paid?",
+      "recordPaymentBulkRevertConfirmBody": "Each selected month must currently be paid. They will return to receipt-pending (same as waiting for upload or review). Optional note is appended for the audit log. No notification email is sent.",
+      "recordPaymentBulkRevertResultOk": "Reverted {count} month(s) to not paid.",
+      "recordPaymentBulkRevertResultPartial": "Reverted: {ok}. Not reverted: {failed}.",
+      "recordPaymentRevertActionsTitle": "Undo paid status for {count} month(s)",
+      "recordPaymentRevertActionBarHint": "Use this when a month was marked paid by mistake. Confirm in the dialog.",
+      "recordPaymentActionMarkUnpaid": "Mark as not paid",
+      "recordPaymentRevertConfirm": "Revert to not paid",
+      "recordPaymentRevertNote": "Reason (optional, audit)",
+      "recordPaymentRevertNotePlaceholder": "e.g. marked paid by mistake",
       "recordPaymentBulkResultOk": "Recorded {count} month(s).",
       "recordPaymentBulkResultPartial": "Recorded {ok} month(s). Not recorded: {failed}.",
       "recordPaymentBatchId": "Batch audit id: {id}"
@@ -1753,6 +1886,64 @@
       "tipCreateMaxUses": "Cap total redemptions; leave empty for unlimited uses.",
       "tipCreateSubmit": "Save this coupon and show it in the table below.",
       "tipToggleRow": "Enable or disable this coupon without deleting its history."
+    },
+    "badges": {
+      "title": "Achievements catalog",
+      "lead": "Add, edit, pause or restore the achievements students can unlock. Existing grants are kept even if you pause a badge.",
+      "createCta": "New badge",
+      "editCta": "Edit",
+      "saveCta": "Save changes",
+      "pauseCta": "Pause",
+      "activateCta": "Activate",
+      "uploadCta": "Upload image",
+      "clearImageCta": "Remove image",
+      "createTitle": "New badge",
+      "editTitle": "Edit badge",
+      "formLead": "Pick a stable code (lowercase letters, digits, underscores), choose how it is unlocked, and provide titles in English and Spanish.",
+      "formCode": "Code",
+      "formCategory": "Category",
+      "formCriteriaType": "Criterion",
+      "formThreshold": "Threshold",
+      "formSortOrder": "Sort order",
+      "formTranslations": "Titles and descriptions",
+      "formTitle": "Title",
+      "formDescription": "Description",
+      "tipCode": "Stable identifier; cannot be changed once the badge has been awarded. Lowercase letters, digits and underscores only.",
+      "tipCriteriaType": "Type of student activity that unlocks this badge.",
+      "tipThreshold": "Number that must be reached (e.g. 5 tasks completed). Use 1 for one-shot achievements like profile completion.",
+      "tipSortOrder": "Lower numbers appear first in the list. Use multiples of 10 to leave room for new badges.",
+      "tipImage": "Square PNG, JPEG, WebP or SVG up to 2 MB. Shown in the WhatsApp share preview when present.",
+      "imageTooLarge": "That image is too large (2 MB max).",
+      "imageInvalidMime": "Use a PNG, JPEG, WebP or SVG file.",
+      "savedNotice": "Saved.",
+      "genericError": "Something went wrong. Try again.",
+      "empty": "No badges yet — create the first one with the button above.",
+      "colImage": "Image",
+      "colCode": "Code",
+      "colTitle": "Title (EN)",
+      "colCategory": "Category",
+      "colCriteria": "Criterion",
+      "colThreshold": "Threshold",
+      "colStatus": "Status",
+      "colActions": "Actions",
+      "statusActive": "Active",
+      "statusPaused": "Paused",
+      "categoryTasks": "Tasks",
+      "categoryAttendance": "Attendance",
+      "categoryProfile": "Profile",
+      "categoryLearning": "Assessments",
+      "categoryCommunity": "Community",
+      "criteriaTasksCompleted": "Tasks completed (count)",
+      "criteriaAttendanceStreak": "Attendance streak (consecutive days)",
+      "criteriaAttendanceDaysTotal": "Total classes attended (lifetime count)",
+      "criteriaProfileComplete": "Profile completeness (phone, birth date, photo)",
+      "criteriaProfileAvatarSet": "Profile photo uploaded",
+      "criteriaProfilePhoneSet": "Profile phone added",
+      "criteriaProfileBirthDateSet": "Profile birth date added",
+      "criteriaAssessmentsPassed": "Assessments passed (count)",
+      "criteriaMessagesSent": "Messages sent from the portal (count)",
+      "localeEn": "English (EN)",
+      "localeEs": "Spanish (ES)"
     },
     "registrations": {
       "title": "Web registrations",
@@ -1959,7 +2150,9 @@
       "tipCoupons": "Discount codes families can apply at checkout or enrollment.",
       "tipPromotions": "Time-bound price promotions for courses or fees.",
       "tipSettings": "Institution-wide toggles such as public registration.",
-      "tipMyProfile": "Your personal profile, password, and preferences."
+      "tipMyProfile": "Your personal profile, password, and preferences.",
+      "badges": "Badges",
+      "tipBadges": "Manage the catalog of student achievements: titles, images, criteria and pause status."
     },
     "adminContents": {
       "metaTitle": "Academic contents",
@@ -3914,6 +4107,7 @@
       "uploading": "Uploading…",
       "success": "Receipt submitted",
       "openReview": "Review",
+      "viewReceipt": "View receipt",
       "adminListTitle": "Receipt inbox",
       "adminListLead": "Transfer proofs awaiting approval (structured invoices).",
       "adminEmpty": "No receipts awaiting review.",
@@ -4062,6 +4256,21 @@
         "ctaPay": "Make a payment"
       },
       "selectChild": "Choose student",
+      "wardPickerLabel": "Student",
+      "wardPickerHint": "Switching the student reloads the view.",
+      "tasksPageTitle": "Learning tasks",
+      "tasksPageLead": "Tasks assigned to your linked students. Viewing is read-only; students complete them from their own portal.",
+      "tasksPageEmpty": "No active tasks found for the selected student.",
+      "tasksPageViewDetail": "View task",
+      "badgesPageTitle": "Achievements",
+      "badgesPageKicker": "Student milestones",
+      "badgesPageLead": "Badges earned by the selected student. Share links are available in the student portal.",
+      "badgesPageEmpty": "The selected student has not earned any badges yet.",
+      "assessmentsPageTitle": "Mini-tests",
+      "assessmentsPageLead": "Read-only view of mini-tests for the selected student. Only the student can submit answers from their own portal.",
+      "assessmentsPageEmpty": "No mini-tests available for the selected student.",
+      "assessmentsPageSubmitted": "Submitted",
+      "assessmentsPageReadOnly": "View only — the student submits from their portal.",
       "mobileNav": "Go to",
       "profileTitle": "My account",
       "profileLead": "Upload your photo here after you sign in. Photos are not accepted on the public enrollment request form.",

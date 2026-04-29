@@ -1,4 +1,5 @@
 import { recordPaymentsWithoutReceiptBulk } from "@/app/[locale]/dashboard/admin/payments/recordPaymentWithoutReceiptAction";
+import { revertApprovedPaymentsBulk } from "@/app/[locale]/dashboard/admin/payments/revertApprovedPaymentsAction";
 import { setPeriodExemption } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/periodExemptionActions";
 import { createStudentScholarship } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/upsertStudentScholarship";
 import type { Dictionary, Locale } from "@/types/i18n";
@@ -39,6 +40,38 @@ export async function runRecordPaymentPaidBulk(args: {
       ? `${labels.recordPaymentBulkResultOk.replace("{count}", String(r.recorded))} ${labels.recordPaymentBatchId.replace("{id}", r.batchId)}`
       : `${labels.recordPaymentBulkResultPartial
           .replace("{ok}", String(r.recorded))
+          .replace(
+            "{failed}",
+            failed.map((row) => formatMonthFailureLine(locale, row.month, row.message)).join("; "),
+          )} ${labels.recordPaymentBatchId.replace("{id}", r.batchId)}`;
+  return { ok: true, message: summary };
+}
+
+export async function runRevertApprovedPaymentsBulk(args: {
+  studentId: string;
+  sectionId: string;
+  year: number;
+  months: number[];
+  locale: Locale;
+  adminNote?: string;
+  labels: Dictionary["admin"]["billing"];
+}): Promise<{ ok: true; message: string } | { ok: false; message: string }> {
+  const { studentId, sectionId, year, months, locale, adminNote, labels } = args;
+  const r = await revertApprovedPaymentsBulk({
+    studentId,
+    sectionId,
+    year,
+    months,
+    locale,
+    adminNote,
+  });
+  if (!r.ok) return { ok: false, message: r.message };
+  const failed = r.results.filter((row) => !row.ok);
+  const summary =
+    failed.length === 0
+      ? `${labels.recordPaymentBulkRevertResultOk.replace("{count}", String(r.reverted))} ${labels.recordPaymentBatchId.replace("{id}", r.batchId)}`
+      : `${labels.recordPaymentBulkRevertResultPartial
+          .replace("{ok}", String(r.reverted))
           .replace(
             "{failed}",
             failed.map((row) => formatMonthFailureLine(locale, row.month, row.message)).join("; "),

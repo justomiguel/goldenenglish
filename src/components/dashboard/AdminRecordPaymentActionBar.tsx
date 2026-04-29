@@ -6,7 +6,7 @@ import type { Dictionary } from "@/types/i18n";
 
 type BillingLabels = Dictionary["admin"]["billing"];
 
-export type RecordPaymentBulkAction = "paid" | "scholarship" | "exempt";
+export type RecordPaymentBulkAction = "paid" | "scholarship" | "exempt" | "revert";
 
 export interface AdminRecordPaymentActionBarProps {
   labels: BillingLabels;

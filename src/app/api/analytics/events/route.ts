@@ -29,9 +29,15 @@ function clientIpFromRequest(request: Request): string | null {
 }
 
 export async function POST(request: Request) {
+  const rawBody = await request.text().catch(() => "");
+
+  if (!rawBody.trim()) {
+    return NextResponse.json({ ok: false }, { status: 400 });
+  }
+
   let json: unknown;
   try {
-    json = await request.json();
+    json = JSON.parse(rawBody) as unknown;
   } catch (err) {
     logServerException("api/analytics/events:json", err);
     return NextResponse.json({ ok: false }, { status: 400 });
@@ -42,39 +48,44 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ ok: false }, { status: 401 });
-  }
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ ok: false }, { status: 401 });
+    }
 
-  const country = request.headers.get("x-vercel-ip-country");
-  const region = request.headers.get("x-vercel-ip-country-region");
-  const rawIp = clientIpFromRequest(request);
-  const ip = anonymizeIp(rawIp);
+    const country = request.headers.get("x-vercel-ip-country");
+    const region = request.headers.get("x-vercel-ip-country-region");
+    const rawIp = clientIpFromRequest(request);
+    const ip = anonymizeIp(rawIp);
 
-  const rows = parsed.data.events.map((e) => {
-    const meta = sanitizeAnalyticsMetadata({
-      ...(e.metadata ?? {}),
-      ...(country ? { geo_country: country } : {}),
-      ...(region ? { geo_region: region } : {}),
+    const rows = parsed.data.events.map((e) => {
+      const meta = sanitizeAnalyticsMetadata({
+        ...(e.metadata ?? {}),
+        ...(country ? { geo_country: country } : {}),
+        ...(region ? { geo_region: region } : {}),
+      });
+      return {
+        user_id: user.id,
+        event_type: e.event_type,
+        entity: e.entity,
+        metadata: meta,
+        client_ip: ip,
+      };
     });
-    return {
-      user_id: user.id,
-      event_type: e.event_type,
-      entity: e.entity,
-      metadata: meta,
-      client_ip: ip,
-    };
-  });
 
-  const { error } = await supabase.from("user_events").insert(rows);
-  if (error) {
-    logSupabaseClientError("api/analytics/events:insert", error, { rowCount: rows.length });
-    return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
+    const { error } = await supabase.from("user_events").insert(rows);
+    if (error) {
+      logSupabaseClientError("api/analytics/events:insert", error, { rowCount: rows.length });
+      return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    logServerException("api/analytics/events:supabase", err);
+    return NextResponse.json({ ok: false }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true });
 }

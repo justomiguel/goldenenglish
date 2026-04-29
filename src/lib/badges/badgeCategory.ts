@@ -5,12 +5,14 @@ import {
   BADGE_TASKS_1,
   BADGE_TASKS_10,
   BADGE_TASKS_5,
-  type StudentBadgeCode,
+  isSeedStudentBadgeCode,
 } from "@/lib/badges/badgeCodes";
+import type { BadgeCategory } from "@/lib/badges/badgeCatalog";
 
-export type StudentBadgeCategory = "tasks" | "attendance" | "profile" | "learning";
+/** Re-export for legacy consumers; prefer `BadgeCategory` directly. */
+export type StudentBadgeCategory = BadgeCategory;
 
-const MAP: Record<StudentBadgeCode, StudentBadgeCategory> = {
+const SEED_CATEGORY_MAP: Record<string, BadgeCategory> = {
   [BADGE_TASKS_1]: "tasks",
   [BADGE_TASKS_5]: "tasks",
   [BADGE_TASKS_10]: "tasks",
@@ -19,6 +21,12 @@ const MAP: Record<StudentBadgeCode, StudentBadgeCategory> = {
   [BADGE_FIRST_ASSESSMENT_PASSED]: "learning",
 };
 
-export function studentBadgeCategory(code: StudentBadgeCode): StudentBadgeCategory {
-  return MAP[code];
+/**
+ * Fallback resolver for legacy callers without a catalog row at hand.
+ * For catalog-driven badges, prefer the `category` column straight from the
+ * loaded `BadgeCatalogEntry`.
+ */
+export function studentBadgeCategory(code: string): BadgeCategory {
+  if (isSeedStudentBadgeCode(code)) return SEED_CATEGORY_MAP[code]!;
+  return "learning";
 }

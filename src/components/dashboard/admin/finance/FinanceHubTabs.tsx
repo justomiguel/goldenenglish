@@ -2,22 +2,20 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import {
   BarChart3,
-  Receipt,
+  Inbox,
   Table2,
-  Wallet,
+  TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 
-export type FinanceHubTabId =
-  | "overview"
-  | "collections"
-  | "receipts"
-  | "payments";
+export type FinanceHubTabId = "overview" | "collections" | "inbox" | "insights";
 
 export const FINANCE_HUB_TAB_ORDER: readonly FinanceHubTabId[] = [
   "overview",
-  "payments",
+  "collections",
+  "inbox",
+  "insights",
 ];
 
 export const DEFAULT_FINANCE_HUB_TAB: FinanceHubTabId = "overview";
@@ -34,8 +32,8 @@ type HubDict = Dictionary["admin"]["finance"]["hub"];
 const TAB_ICONS: Record<FinanceHubTabId, LucideIcon> = {
   overview: Table2,
   collections: BarChart3,
-  receipts: Receipt,
-  payments: Wallet,
+  inbox: Inbox,
+  insights: TrendingUp,
 };
 
 function tooltipFor(tab: FinanceHubTabId, dict: HubDict): string {
@@ -44,10 +42,10 @@ function tooltipFor(tab: FinanceHubTabId, dict: HubDict): string {
       return dict.tipOverview;
     case "collections":
       return dict.tipCollections;
-    case "receipts":
-      return dict.tipReceipts;
-    case "payments":
-      return dict.tipPayments;
+    case "inbox":
+      return dict.tipInbox;
+    case "insights":
+      return dict.tipInsights;
   }
 }
 
@@ -56,8 +54,7 @@ function pendingBadgeFor(
   counts: FinanceHubPendingCounts | undefined,
 ): number {
   if (!counts) return 0;
-  if (tab === "receipts") return counts.receipts ?? 0;
-  if (tab === "payments") return counts.payments ?? 0;
+  if (tab === "inbox") return counts.payments ?? 0;
   return 0;
 }
 
@@ -69,10 +66,10 @@ export interface FinanceHubPendingCounts {
 export interface FinanceHubTabsProps {
   current: FinanceHubTabId;
   baseHref: string;
-  /** Extra search params (e.g. cohort, year) preserved across tab switches. */
   preservedQuery?: Readonly<Record<string, string | undefined>>;
-  /** Pending counts surfaced as soft badges on relevant tabs. */
   pendingCounts?: FinanceHubPendingCounts;
+  cohortSelector?: ReactNode;
+  kpiStrip?: ReactNode;
   dict: HubDict;
   children: ReactNode;
 }
@@ -114,11 +111,15 @@ export function FinanceHubTabs({
   baseHref,
   preservedQuery,
   pendingCounts,
+  cohortSelector,
+  kpiStrip,
   dict,
   children,
 }: FinanceHubTabsProps) {
   return (
     <div className="space-y-4">
+      {cohortSelector}
+      {kpiStrip}
       <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
         <nav
           aria-label={dict.title}

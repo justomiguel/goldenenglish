@@ -129,7 +129,7 @@ describe("CohortCollectionsMatrixClient", () => {
     expect(
       screen.getByRole("columnheader", { name: overviewDict.table.overdueLabel }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Section A")).toBeInTheDocument();
+    expect(screen.getAllByText("Section A").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Smith Ana")).toBeInTheDocument();
     expect(screen.getByText("Lopez Zara")).toBeInTheDocument();
     expect(

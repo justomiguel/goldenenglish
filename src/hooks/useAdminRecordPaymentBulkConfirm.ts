@@ -5,6 +5,7 @@ import {
   runRecordPaymentExemptBulk,
   runRecordPaymentPaidBulk,
   runRecordPaymentScholarshipBulk,
+  runRevertApprovedPaymentsBulk,
 } from "@/lib/dashboard/adminRecordPaymentBulkRunners";
 import type { Dictionary, Locale } from "@/types/i18n";
 
@@ -70,6 +71,16 @@ export function useAdminRecordPaymentBulkConfirm(args: {
               adminNote: modalAdminNote.trim() || undefined,
               labels,
             })
+          : pendingAction === "revert"
+            ? await runRevertApprovedPaymentsBulk({
+                studentId,
+                sectionId,
+                year,
+                months,
+                locale,
+                adminNote: modalAdminNote.trim() || undefined,
+                labels,
+              })
           : pendingAction === "exempt"
             ? await runRecordPaymentExemptBulk({
                 locale,
@@ -125,6 +136,8 @@ export function useAdminRecordPaymentBulkConfirm(args: {
   const confirmTitle =
     pendingAction === "paid"
       ? labels.recordPaymentBulkConfirmTitle.replace("{count}", String(nSelected))
+      : pendingAction === "revert"
+        ? labels.recordPaymentBulkRevertConfirmTitle.replace("{count}", String(nSelected))
       : pendingAction === "scholarship"
         ? labels.recordPaymentScholarshipConfirmTitle.replace("{count}", String(nSelected))
         : pendingAction === "exempt"
@@ -134,6 +147,8 @@ export function useAdminRecordPaymentBulkConfirm(args: {
   const confirmDescription =
     pendingAction === "paid"
       ? labels.recordPaymentBulkConfirmBody
+      : pendingAction === "revert"
+        ? labels.recordPaymentBulkRevertConfirmBody
       : pendingAction === "scholarship"
         ? labels.recordPaymentScholarshipConfirmBody
         : pendingAction === "exempt"
@@ -147,5 +162,8 @@ export function useAdminRecordPaymentBulkConfirm(args: {
         ? !exemptConfirmReady
         : false;
 
-  return { onConfirm, confirmTitle, confirmDescription, confirmHidden };
+  const confirmLabel =
+    pendingAction === "revert" ? labels.recordPaymentRevertConfirm : labels.recordPaymentConfirm;
+
+  return { onConfirm, confirmTitle, confirmDescription, confirmHidden, confirmLabel };
 }

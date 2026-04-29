@@ -7,6 +7,28 @@ import type { AdminBillingMonthState } from "@/lib/billing/buildAdminBillingMont
 import type { StudentMonthlyPaymentCell } from "@/types/studentMonthlyPayments";
 
 describe("resolveAdminBillingMonthChipVisual", () => {
+  const mkCell = (
+    month: number,
+    status: StudentMonthlyPaymentCell["status"],
+    extra: Partial<StudentMonthlyPaymentCell> = {},
+  ): StudentMonthlyPaymentCell => ({
+    month,
+    year: 2026,
+    status,
+    expectedAmount: null,
+    originalExpectedAmount: null,
+    scholarshipDiscountPercent: null,
+    fullMonthExpectedAmount: null,
+    fullMonthOriginalExpectedAmount: null,
+    currency: null,
+    proration: null,
+    recordedAmount: null,
+    paymentId: null,
+    receiptSignedUrl: null,
+    isCurrent: false,
+    ...extra,
+  });
+
   const baseState = (over: Partial<AdminBillingMonthState>): AdminBillingMonthState => ({
     month: 1,
     status: "unpaid",
@@ -14,6 +36,7 @@ describe("resolveAdminBillingMonthChipVisual", () => {
     recordedAmount: null,
     scholarshipPercent: null,
     selectable: false,
+    revertSelectable: false,
     legacyFallback: false,
     ...over,
   });
@@ -28,6 +51,30 @@ describe("resolveAdminBillingMonthChipVisual", () => {
     );
     expect(vis.status).toBe("due");
     expect(vis.isOverdue).toBe(true);
+  });
+
+  it("uses cobranzas cell due when DB month is pending but no receipt is uploaded", () => {
+    const vis = resolveAdminBillingMonthChipVisual(
+      baseState({ month: 1, status: "pending", selectable: false }),
+      mkCell(1, "due"),
+      2026,
+      2026,
+      6,
+    );
+    expect(vis.status).toBe("due");
+    expect(vis.isOverdue).toBe(true);
+  });
+
+  it("shows pending when cobranzas cell is pending-with-receipt", () => {
+    const vis = resolveAdminBillingMonthChipVisual(
+      baseState({ month: 2, status: "pending" }),
+      mkCell(2, "pending", { receiptSignedUrl: "https://example.com/r.pdf" }),
+      2026,
+      2026,
+      6,
+    );
+    expect(vis.status).toBe("pending");
+    expect(vis.isOverdue).toBe(false);
   });
 
   it("shows padlock (no-plan) instead of overdue when finance marks no plan", () => {

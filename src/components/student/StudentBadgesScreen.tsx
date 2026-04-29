@@ -1,36 +1,56 @@
+import Image from "next/image";
 import { Award } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
-import type { StudentBadgeCode } from "@/lib/badges/badgeCodes";
+import {
+  resolveBadgeTranslation,
+  type BadgeCategory,
+  type BadgeTranslation,
+} from "@/lib/badges/badgeCatalog";
 import { studentBadgeCategory } from "@/lib/badges/badgeCategory";
 import { StudentBadgeShareControls } from "@/components/student/StudentBadgeShareControls";
 
 export type StudentBadgeRowModel = {
   id: string;
-  badgeCode: StudentBadgeCode;
+  badgeCode: string;
   earnedAt: string;
   shareUrl: string;
+  /** When set, takes precedence over the dictionary fallback. */
+  catalog?: {
+    category: BadgeCategory;
+    imageUrl: string | null;
+    translations: Partial<Record<"en" | "es", BadgeTranslation>>;
+  };
 };
 
 type BadgesDict = Dictionary["dashboard"]["student"]["badges"];
 type Defs = BadgesDict["definitions"];
 
-function categoryLabel(
-  d: BadgesDict,
-  code: StudentBadgeCode,
-): string {
-  const cat = studentBadgeCategory(code);
-  if (cat === "tasks") return d.categoryTasks;
-  if (cat === "attendance") return d.categoryAttendance;
-  if (cat === "profile") return d.categoryProfile;
+function categoryLabelFor(d: BadgesDict, category: BadgeCategory): string {
+  if (category === "tasks") return d.categoryTasks;
+  if (category === "attendance") return d.categoryAttendance;
+  if (category === "profile") return d.categoryProfile;
   return d.categoryLearning;
 }
 
-function titleDesc(defs: Defs, code: StudentBadgeCode): { title: string; description: string } {
+function dictionaryFallback(defs: Defs, code: string): { title: string; description: string } {
   const entry = defs[code as keyof Defs];
   if (entry && typeof entry === "object" && "title" in entry) {
     return { title: String(entry.title), description: String(entry.description) };
   }
   return { title: code, description: "" };
+}
+
+function resolveCopy(
+  row: StudentBadgeRowModel,
+  defs: Defs,
+  locale: string,
+): { title: string; description: string; category: BadgeCategory } {
+  if (row.catalog) {
+    const t = resolveBadgeTranslation({ code: row.badgeCode, translations: row.catalog.translations }, locale);
+    return { title: t.title, description: t.description, category: row.catalog.category };
+  }
+  const fallback = dictionaryFallback(defs, row.badgeCode);
+  return { ...fallback, category: studentBadgeCategory(row.badgeCode) };
 }
 
 function formatUnlocked(earnedAt: string, template: string, locale: string): string {
@@ -67,8 +87,14 @@ export function StudentBadgesScreen({ locale, rows, dict }: StudentBadgesScreenP
       ) : (
         <ul className="space-y-4" aria-label={dict.title}>
           {rows.map((row) => {
-            const { title, description } = titleDesc(dict.definitions, row.badgeCode);
-            const shareLabels = { copyLink: dict.copyLink, share: dict.share, linkCopied: dict.linkCopied, copyFailed: dict.copyFailed };
+            const { title, description, category } = resolveCopy(row, dict.definitions, locale);
+            const shareLabels = {
+              copyLink: dict.copyLink,
+              share: dict.share,
+              linkCopied: dict.linkCopied,
+              copyFailed: dict.copyFailed,
+            };
+            const imageUrl = row.catalog?.imageUrl ?? null;
             return (
               <li
                 key={row.id}
@@ -76,14 +102,24 @@ export function StudentBadgesScreen({ locale, rows, dict }: StudentBadgesScreenP
               >
                 <div className="flex items-start gap-3">
                   <div
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-muted)]"
+                    className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--color-muted)]"
                     aria-hidden
                   >
-                    <Award className="h-5 w-5 text-[var(--color-foreground)]" />
+                    {imageUrl ? (
+                      <Image
+                        src={imageUrl}
+                        alt=""
+                        fill
+                        sizes="48px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <Award className="h-5 w-5 text-[var(--color-foreground)]" />
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
-                      {categoryLabel(dict, row.badgeCode)}
+                      {categoryLabelFor(dict, category)}
                     </p>
                     <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{title}</h2>
                     {description ? (
@@ -94,7 +130,11 @@ export function StudentBadgesScreen({ locale, rows, dict }: StudentBadgesScreenP
                     </p>
                   </div>
                 </div>
-                <StudentBadgeShareControls shareUrl={row.shareUrl} labels={shareLabels} />
+                <StudentBadgeShareControls
+                  shareUrl={row.shareUrl}
+                  labels={shareLabels}
+                  badgeCode={row.badgeCode}
+                />
               </li>
             );
           })}

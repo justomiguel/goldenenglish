@@ -18,6 +18,8 @@ export interface AdminBillingMonthState {
   recordedAmount: number | null;
   scholarshipPercent: number | null;
   selectable: boolean;
+  /** Paid month with a section row: staff can revert to pending (mistake). */
+  revertSelectable: boolean;
   legacyFallback: boolean;
 }
 
@@ -96,6 +98,8 @@ export function buildAdminBillingMonthGrid({
       year,
       month,
     );
+    const revertSelectable =
+      !legacyFallback && status === "paid" && Boolean(sectionPayment?.id);
 
     return {
       month,
@@ -104,6 +108,7 @@ export function buildAdminBillingMonthGrid({
       recordedAmount: sectionPayment?.amount ?? null,
       scholarshipPercent: scholarshipPercent > 0 ? scholarshipPercent : null,
       selectable: !legacyFallback && status !== "paid" && status !== "exempt",
+      revertSelectable,
       legacyFallback,
     };
   });

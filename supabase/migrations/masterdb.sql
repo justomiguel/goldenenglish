@@ -3462,6 +3462,7 @@ CREATE TABLE IF NOT EXISTS public.billing_receipts (
   status public.billing_receipt_status NOT NULL DEFAULT 'pending_approval',
   rejection_reason_code public.billing_rejection_reason_code,
   rejection_detail TEXT,
+  resolved_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -3572,7 +3573,7 @@ BEGIN
   END IF;
 
   UPDATE public.billing_receipts
-  SET status = 'approved', rejection_reason_code = NULL, rejection_detail = NULL
+  SET status = 'approved', rejection_reason_code = NULL, rejection_detail = NULL, resolved_at = now()
   WHERE id = p_receipt_id AND status = 'pending_approval'
   RETURNING invoice_id INTO v_inv;
 
@@ -3614,7 +3615,8 @@ BEGIN
   SET
     status = 'rejected',
     rejection_reason_code = p_code,
-    rejection_detail = NULLIF(trim(COALESCE(p_detail, '')), '')
+    rejection_detail = NULLIF(trim(COALESCE(p_detail, '')), ''),
+    resolved_at = now()
   WHERE id = p_receipt_id AND status = 'pending_approval'
   RETURNING invoice_id INTO v_inv;
 
@@ -8820,7 +8822,7 @@ CREATE POLICY live_lessons_write_staff ON public.live_lessons FOR ALL TO authent
 DROP POLICY IF EXISTS question_bank_items_select_scope ON public.question_bank_items;
 DROP POLICY IF EXISTS question_bank_items_write_staff ON public.question_bank_items;
 CREATE POLICY question_bank_items_select_scope ON public.question_bank_items FOR SELECT TO authenticated
-  USING (visibility = 'global' OR public.learning_route_staff_can_manage_section(auth.uid(), section_id) OR EXISTS (SELECT 1 FROM public.section_enrollments e WHERE e.section_id = question_bank_items.section_id AND e.student_id = auth.uid()));
+  USING (visibility = 'global' OR public.learning_route_staff_can_manage_section(auth.uid(), section_id) OR EXISTS (SELECT 1 FROM public.section_enrollments e WHERE e.section_id = question_bank_items.section_id AND e.student_id = auth.uid()) OR EXISTS (SELECT 1 FROM public.section_enrollments e JOIN public.tutor_student_rel ts ON ts.student_id = e.student_id WHERE e.section_id = question_bank_items.section_id AND ts.tutor_id = auth.uid()));
 CREATE POLICY question_bank_items_write_staff ON public.question_bank_items FOR ALL TO authenticated
   USING (public.learning_route_staff_can_manage_global(auth.uid()) AND (section_id IS NULL OR public.learning_route_staff_can_manage_section(auth.uid(), section_id)))
   WITH CHECK (updated_by = auth.uid() AND public.learning_route_staff_can_manage_global(auth.uid()) AND (section_id IS NULL OR public.learning_route_staff_can_manage_section(auth.uid(), section_id)));
@@ -9072,11 +9074,18 @@ CREATE INDEX IF NOT EXISTS student_badge_grants_student_earned_idx
 
 ALTER TABLE public.student_badge_grants ENABLE ROW LEVEL SECURITY;
 
--- Students can list their own grants; no direct write for authenticated (server uses service role).
+-- Students and their linked tutors can list badge grants; no direct write (server uses service role).
 DROP POLICY IF EXISTS student_badge_grants_select_own ON public.student_badge_grants;
 CREATE POLICY student_badge_grants_select_own ON public.student_badge_grants
   FOR SELECT TO authenticated
-  USING (student_id = auth.uid());
+  USING (
+    student_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM public.tutor_student_rel ts
+      WHERE ts.tutor_id = auth.uid()
+        AND ts.student_id = student_badge_grants.student_id
+    )
+  );
 
 -- Public read for share pages: token-based RPC (SECURITY DEFINER) only; no anon table access.
 
@@ -9340,3 +9349,587 @@ CREATE POLICY cohort_assessments_teacher_update ON public.cohort_assessments
       AND public.teacher_teaches_cohort(auth.uid(), cohort_assessments.cohort_id)
     )
   );
+
+-- ========== 081_student_badges_tutor_read_rls.sql ==========
+
+DROP POLICY IF EXISTS student_badge_grants_select_own ON public.student_badge_grants;
+
+CREATE POLICY student_badge_grants_select_own ON public.student_badge_grants
+  FOR SELECT TO authenticated
+  USING (
+    student_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM public.tutor_student_rel ts
+      WHERE ts.tutor_id = auth.uid()
+        AND ts.student_id = student_badge_grants.student_id
+    )
+  );
+
+DROP POLICY IF EXISTS question_bank_items_select_scope ON public.question_bank_items;
+
+CREATE POLICY question_bank_items_select_scope ON public.question_bank_items
+  FOR SELECT TO authenticated
+  USING (
+    visibility = 'global'
+    OR public.learning_route_staff_can_manage_section(auth.uid(), section_id)
+    OR EXISTS (
+      SELECT 1 FROM public.section_enrollments e
+      WHERE e.section_id = question_bank_items.section_id
+        AND e.student_id = auth.uid()
+    )
+    OR EXISTS (
+      SELECT 1 FROM public.section_enrollments e
+      JOIN public.tutor_student_rel ts ON ts.student_id = e.student_id
+      WHERE e.section_id = question_bank_items.section_id
+        AND ts.tutor_id = auth.uid()
+    )
+  );
+
+-- ========== 082_student_badges_catalog.sql ==========
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'badge_category') THEN
+    CREATE TYPE public.badge_category AS ENUM ('tasks', 'attendance', 'profile', 'learning');
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'badge_criteria_type') THEN
+    CREATE TYPE public.badge_criteria_type AS ENUM (
+      'tasks_completed',
+      'attendance_streak',
+      'profile_complete',
+      'assessments_passed'
+    );
+  END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.badge_catalog (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code TEXT NOT NULL UNIQUE,
+  category public.badge_category NOT NULL,
+  criteria_type public.badge_criteria_type NOT NULL,
+  criteria_threshold INT NOT NULL DEFAULT 1,
+  image_path TEXT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  sort_order INT NOT NULL DEFAULT 100,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_by UUID NULL REFERENCES auth.users (id) ON DELETE SET NULL,
+  CONSTRAINT badge_catalog_code_len CHECK (char_length(code) BETWEEN 1 AND 64),
+  CONSTRAINT badge_catalog_threshold_nonneg CHECK (criteria_threshold >= 0)
+);
+
+CREATE INDEX IF NOT EXISTS badge_catalog_active_sort_idx
+  ON public.badge_catalog (is_active, sort_order, code);
+
+CREATE OR REPLACE FUNCTION public.badge_catalog_set_updated_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS badge_catalog_set_updated_at ON public.badge_catalog;
+CREATE TRIGGER badge_catalog_set_updated_at
+  BEFORE UPDATE ON public.badge_catalog
+  FOR EACH ROW
+  EXECUTE FUNCTION public.badge_catalog_set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.badge_translations (
+  badge_id UUID NOT NULL REFERENCES public.badge_catalog (id) ON DELETE CASCADE,
+  locale TEXT NOT NULL CHECK (locale IN ('en', 'es')),
+  title TEXT NOT NULL CHECK (char_length(title) BETWEEN 1 AND 120),
+  description TEXT NOT NULL CHECK (char_length(description) BETWEEN 1 AND 600),
+  PRIMARY KEY (badge_id, locale)
+);
+
+CREATE INDEX IF NOT EXISTS badge_translations_badge_idx
+  ON public.badge_translations (badge_id);
+
+ALTER TABLE public.student_badge_grants
+  ADD COLUMN IF NOT EXISTS badge_id UUID NULL REFERENCES public.badge_catalog (id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS student_badge_grants_badge_id_idx
+  ON public.student_badge_grants (badge_id);
+
+WITH inserted AS (
+  INSERT INTO public.badge_catalog (code, category, criteria_type, criteria_threshold, sort_order)
+  VALUES
+    ('tasks_completed_1',       'tasks',      'tasks_completed',      1,  10),
+    ('tasks_completed_5',       'tasks',      'tasks_completed',      5,  20),
+    ('tasks_completed_10',      'tasks',      'tasks_completed',     10,  30),
+    ('attendance_streak_5',     'attendance', 'attendance_streak',    5,  40),
+    ('profile_complete',        'profile',    'profile_complete',     1,  50),
+    ('first_assessment_passed', 'learning',   'assessments_passed',   1,  60)
+  ON CONFLICT (code) DO NOTHING
+  RETURNING id, code
+)
+INSERT INTO public.badge_translations (badge_id, locale, title, description)
+SELECT i.id, t.locale, t.title, t.description
+FROM inserted i
+JOIN (
+  VALUES
+    ('tasks_completed_1', 'en', 'First task',
+       'Mark your first learning task as completed in the student portal.'),
+    ('tasks_completed_1', 'es', 'Primera tarea',
+       'Marca tu primera tarea de aprendizaje como completada en el portal del alumno.'),
+    ('tasks_completed_5', 'en', 'Five tasks',
+       'Complete five learning tasks in total.'),
+    ('tasks_completed_5', 'es', 'Cinco tareas',
+       'Completa cinco tareas de aprendizaje en total.'),
+    ('tasks_completed_10', 'en', 'Ten tasks',
+       'Complete ten learning tasks in total.'),
+    ('tasks_completed_10', 'es', 'Diez tareas',
+       'Completa diez tareas de aprendizaje en total.'),
+    ('attendance_streak_5', 'en', 'Five-day streak',
+       'Attend class on five consecutive calendar days (present, late, or excused) without a break.'),
+    ('attendance_streak_5', 'es', 'Racha de 5 días',
+       'Asiste a clase cinco días corridos (presente, tarde o justificado) sin cortar la racha.'),
+    ('profile_complete', 'en', 'Profile ready',
+       'Add a phone number, your date of birth, and a profile photo.'),
+    ('profile_complete', 'es', 'Perfil completo',
+       'Agrega un teléfono, tu fecha de nacimiento y una foto de perfil.'),
+    ('first_assessment_passed', 'en', 'Test passed',
+       'Pass an assessed mini-test from your class.'),
+    ('first_assessment_passed', 'es', 'Mini-test aprobado',
+       'Aprueba un mini-test evaluado de tu clase.')
+) AS t(code, locale, title, description) ON t.code = i.code;
+
+UPDATE public.student_badge_grants g
+SET    badge_id = c.id
+FROM   public.badge_catalog c
+WHERE  g.badge_id IS NULL
+  AND  g.badge_code = c.code;
+
+ALTER TABLE public.badge_catalog        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.badge_translations   ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS badge_catalog_select_active ON public.badge_catalog;
+CREATE POLICY badge_catalog_select_active
+  ON public.badge_catalog FOR SELECT
+  TO anon, authenticated
+  USING (is_active = TRUE);
+
+DROP POLICY IF EXISTS badge_catalog_select_admin ON public.badge_catalog;
+CREATE POLICY badge_catalog_select_admin
+  ON public.badge_catalog FOR SELECT
+  TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS badge_catalog_all_admin ON public.badge_catalog;
+CREATE POLICY badge_catalog_all_admin
+  ON public.badge_catalog FOR ALL
+  TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS badge_translations_select_active ON public.badge_translations;
+CREATE POLICY badge_translations_select_active
+  ON public.badge_translations FOR SELECT
+  TO anon, authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.badge_catalog c
+      WHERE c.id = badge_translations.badge_id AND c.is_active = TRUE
+    )
+  );
+
+DROP POLICY IF EXISTS badge_translations_select_admin ON public.badge_translations;
+CREATE POLICY badge_translations_select_admin
+  ON public.badge_translations FOR SELECT
+  TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS badge_translations_all_admin ON public.badge_translations;
+CREATE POLICY badge_translations_all_admin
+  ON public.badge_translations FOR ALL
+  TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+CREATE OR REPLACE FUNCTION public.get_public_badge_catalog_entry(p_code text)
+RETURNS TABLE (
+  badge_id     uuid,
+  code         text,
+  category     public.badge_category,
+  image_path   text,
+  translations jsonb
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    c.id AS badge_id,
+    c.code,
+    c.category,
+    c.image_path,
+    COALESCE(
+      (
+        SELECT jsonb_object_agg(
+          t.locale,
+          jsonb_build_object('title', t.title, 'description', t.description)
+        )
+        FROM public.badge_translations t
+        WHERE t.badge_id = c.id
+      ),
+      '{}'::jsonb
+    ) AS translations
+  FROM public.badge_catalog c
+  WHERE c.code = p_code
+    AND c.is_active = TRUE
+  LIMIT 1;
+$$;
+
+REVOKE ALL ON FUNCTION public.get_public_badge_catalog_entry(text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_public_badge_catalog_entry(text)
+  TO anon, authenticated, service_role;
+
+-- ========== 083_badge_images_storage.sql ==========
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('badge-images', 'badge-images', TRUE)
+ON CONFLICT (id) DO NOTHING;
+
+DROP POLICY IF EXISTS badge_images_select_public ON storage.objects;
+CREATE POLICY badge_images_select_public
+  ON storage.objects FOR SELECT
+  TO anon, authenticated
+  USING (bucket_id = 'badge-images');
+
+DROP POLICY IF EXISTS badge_images_insert_admin ON storage.objects;
+CREATE POLICY badge_images_insert_admin
+  ON storage.objects FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    bucket_id = 'badge-images'
+    AND public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS badge_images_update_admin ON storage.objects;
+CREATE POLICY badge_images_update_admin
+  ON storage.objects FOR UPDATE
+  TO authenticated
+  USING (
+    bucket_id = 'badge-images'
+    AND public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS badge_images_delete_admin ON storage.objects;
+CREATE POLICY badge_images_delete_admin
+  ON storage.objects FOR DELETE
+  TO authenticated
+  USING (
+    bucket_id = 'badge-images'
+    AND public.is_admin(auth.uid())
+  );
+
+-- 082: Finance analytics — receipt processing stats RPC
+
+CREATE OR REPLACE FUNCTION public.admin_finance_receipt_processing_stats(
+  p_cohort_id UUID,
+  p_year INT
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_result JSONB;
+BEGIN
+  IF NOT public.is_admin(auth.uid()) THEN
+    RETURN jsonb_build_object('ok', false, 'code', 'forbidden');
+  END IF;
+
+  WITH cohort_sections AS (
+    SELECT s.id FROM public.academic_sections s WHERE s.cohort_id = p_cohort_id
+  ),
+  monthly_resolved AS (
+    SELECT p.id, p.status,
+      EXTRACT(EPOCH FROM (p.updated_at - p.created_at)) / 86400.0 AS days_to_resolve
+    FROM public.payments p
+    JOIN public.section_enrollments se ON se.student_id = p.student_id AND se.section_id = p.section_id
+    WHERE p.section_id IN (SELECT id FROM cohort_sections)
+      AND p.year = p_year AND p.status IN ('approved', 'rejected')
+  ),
+  monthly_pending AS (
+    SELECT p.id, EXTRACT(EPOCH FROM (now() - p.created_at)) / 86400.0 AS age_days
+    FROM public.payments p
+    WHERE p.section_id IN (SELECT id FROM cohort_sections) AND p.year = p_year AND p.status = 'pending'
+  ),
+  monthly_agg AS (
+    SELECT round(avg(days_to_resolve)::numeric, 1) AS avg_days,
+      count(*) FILTER (WHERE status = 'approved') AS approved_count,
+      count(*) FILTER (WHERE status = 'rejected') AS rejected_count,
+      count(*) AS total_resolved
+    FROM monthly_resolved
+  ),
+  monthly_pending_agg AS (
+    SELECT count(*) AS total_pending,
+      count(*) FILTER (WHERE age_days <= 1) AS bucket_0_24h,
+      count(*) FILTER (WHERE age_days > 1 AND age_days <= 3) AS bucket_24_72h,
+      count(*) FILTER (WHERE age_days > 3) AS bucket_72h_plus
+    FROM monthly_pending
+  ),
+  invoice_resolved AS (
+    SELECT br.id, br.status, br.rejection_reason_code,
+      EXTRACT(EPOCH FROM (br.resolved_at - br.created_at)) / 86400.0 AS days_to_resolve
+    FROM public.billing_receipts br
+    JOIN public.billing_invoices bi ON bi.id = br.invoice_id
+    JOIN public.section_enrollments se ON se.student_id = bi.student_id
+    WHERE se.section_id IN (SELECT id FROM cohort_sections)
+      AND EXTRACT(YEAR FROM bi.due_date) = p_year
+      AND br.status IN ('approved', 'rejected') AND br.resolved_at IS NOT NULL
+  ),
+  invoice_agg AS (
+    SELECT round(avg(days_to_resolve)::numeric, 1) AS avg_days,
+      count(*) FILTER (WHERE status = 'approved') AS approved_count,
+      count(*) FILTER (WHERE status = 'rejected') AS rejected_count,
+      count(*) AS total_resolved
+    FROM invoice_resolved
+  ),
+  rejection_breakdown AS (
+    SELECT COALESCE(rejection_reason_code::text, 'other') AS reason, count(*) AS cnt
+    FROM invoice_resolved WHERE status = 'rejected' GROUP BY rejection_reason_code
+  )
+  SELECT jsonb_build_object(
+    'ok', true,
+    'monthly', jsonb_build_object(
+      'avgDays', COALESCE((SELECT avg_days FROM monthly_agg), null),
+      'approvedCount', COALESCE((SELECT approved_count FROM monthly_agg), 0),
+      'rejectedCount', COALESCE((SELECT rejected_count FROM monthly_agg), 0),
+      'totalResolved', COALESCE((SELECT total_resolved FROM monthly_agg), 0)
+    ),
+    'invoice', jsonb_build_object(
+      'avgDays', COALESCE((SELECT avg_days FROM invoice_agg), null),
+      'approvedCount', COALESCE((SELECT approved_count FROM invoice_agg), 0),
+      'rejectedCount', COALESCE((SELECT rejected_count FROM invoice_agg), 0),
+      'totalResolved', COALESCE((SELECT total_resolved FROM invoice_agg), 0)
+    ),
+    'rejectionBreakdown', COALESCE(
+      (SELECT jsonb_object_agg(reason, cnt) FROM rejection_breakdown), '{}'::jsonb
+    ),
+    'pending', jsonb_build_object(
+      'total', COALESCE((SELECT total_pending FROM monthly_pending_agg), 0),
+      'bucket0_24h', COALESCE((SELECT bucket_0_24h FROM monthly_pending_agg), 0),
+      'bucket24_72h', COALESCE((SELECT bucket_24_72h FROM monthly_pending_agg), 0),
+      'bucket72hPlus', COALESCE((SELECT bucket_72h_plus FROM monthly_pending_agg), 0)
+    )
+  ) INTO v_result;
+
+  RETURN v_result;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.admin_finance_receipt_processing_stats(UUID, INT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.admin_finance_receipt_processing_stats(UUID, INT) TO authenticated;
+-- ============================================================================
+-- 085_student_badges_extra_seed.sql
+-- Extra seed badges (10) for tasks/attendance/assessments milestones.
+-- ============================================================================
+
+-- Adds extra seed badges to the catalog created in 082_student_badges_catalog.sql.
+-- Uses ONLY criteria_type values supported by the evaluator
+-- (`evaluateBadgeCatalogEligibility.ts`): tasks_completed, attendance_streak,
+-- assessments_passed. `profile_complete` already has the single one-shot row.
+-- Idempotent: ON CONFLICT (code) DO NOTHING + translations only inserted when
+-- the catalog row was actually created in this run.
+
+WITH inserted AS (
+  INSERT INTO public.badge_catalog (code, category, criteria_type, criteria_threshold, sort_order)
+  VALUES
+    -- Tasks: scale beyond 10 to keep mid- and long-term motivation.
+    ('tasks_completed_25',        'tasks',      'tasks_completed',     25,  35),
+    ('tasks_completed_50',        'tasks',      'tasks_completed',     50,  37),
+    ('tasks_completed_100',       'tasks',      'tasks_completed',    100,  39),
+    -- Attendance: warm-up (3 days), then longer streaks for stickiness.
+    ('attendance_streak_3',       'attendance', 'attendance_streak',    3,  38),
+    ('attendance_streak_10',      'attendance', 'attendance_streak',   10,  41),
+    ('attendance_streak_20',      'attendance', 'attendance_streak',   20,  42),
+    ('attendance_streak_30',      'attendance', 'attendance_streak',   30,  43),
+    -- Assessments: build on first_assessment_passed (sort 60) with milestones.
+    ('assessments_passed_5',      'learning',   'assessments_passed',   5,  61),
+    ('assessments_passed_10',     'learning',   'assessments_passed',  10,  62),
+    ('assessments_passed_25',     'learning',   'assessments_passed',  25,  63)
+  ON CONFLICT (code) DO NOTHING
+  RETURNING id, code
+)
+INSERT INTO public.badge_translations (badge_id, locale, title, description)
+SELECT i.id, t.locale, t.title, t.description
+FROM inserted i
+JOIN (
+  VALUES
+    ('tasks_completed_25', 'en', 'Twenty-five tasks',
+       'Complete twenty-five learning tasks in total.'),
+    ('tasks_completed_25', 'es', 'Veinticinco tareas',
+       'Completa veinticinco tareas de aprendizaje en total.'),
+
+    ('tasks_completed_50', 'en', 'Half a hundred',
+       'Complete fifty learning tasks in total.'),
+    ('tasks_completed_50', 'es', 'Medio centenar',
+       'Completa cincuenta tareas de aprendizaje en total.'),
+
+    ('tasks_completed_100', 'en', 'Centurion',
+       'Complete one hundred learning tasks. You are unstoppable.'),
+    ('tasks_completed_100', 'es', 'Centurión',
+       'Completa cien tareas de aprendizaje. Eres imparable.'),
+
+    ('attendance_streak_3', 'en', 'Three-day streak',
+       'Attend class for three consecutive calendar days (present, late, or excused).'),
+    ('attendance_streak_3', 'es', 'Racha de 3 días',
+       'Asiste a clase tres días corridos (presente, tarde o justificado).'),
+
+    ('attendance_streak_10', 'en', 'Ten-day streak',
+       'Attend class for ten consecutive calendar days. Habits are forming.'),
+    ('attendance_streak_10', 'es', 'Racha de 10 días',
+       'Asiste a clase diez días corridos. Estás formando hábito.'),
+
+    ('attendance_streak_20', 'en', 'Twenty-day streak',
+       'Attend class for twenty consecutive calendar days. Discipline unlocked.'),
+    ('attendance_streak_20', 'es', 'Racha de 20 días',
+       'Asiste a clase veinte días corridos. Disciplina desbloqueada.'),
+
+    ('attendance_streak_30', 'en', 'Monthly marathon',
+       'Attend class for thirty consecutive calendar days without breaking the streak.'),
+    ('attendance_streak_30', 'es', 'Maratón mensual',
+       'Asiste a clase treinta días corridos sin cortar la racha.'),
+
+    ('assessments_passed_5', 'en', 'Five tests passed',
+       'Pass five assessed mini-tests from your classes.'),
+    ('assessments_passed_5', 'es', 'Cinco tests aprobados',
+       'Aprueba cinco mini-tests evaluados de tus clases.'),
+
+    ('assessments_passed_10', 'en', 'Ten tests passed',
+       'Pass ten assessed mini-tests. You are mastering the material.'),
+    ('assessments_passed_10', 'es', 'Diez tests aprobados',
+       'Aprueba diez mini-tests evaluados. Estás dominando el contenido.'),
+
+    ('assessments_passed_25', 'en', 'Assessment expert',
+       'Pass twenty-five assessed mini-tests across your courses. Pure consistency.'),
+    ('assessments_passed_25', 'es', 'Experto en evaluaciones',
+       'Aprueba veinticinco mini-tests evaluados en tus cursos. Consistencia pura.')
+) AS t(code, locale, title, description) ON t.code = i.code;
+
+-- ============================================================================
+-- 086_student_badges_extra_criteria_types.sql
+-- ============================================================================
+
+-- Extends the badge_criteria_type enum with finer-grained platform-usage signals,
+-- and adds a `community` badge_category for engagement / messaging badges.
+-- Must commit BEFORE inserting badges that use these values (Postgres restriction
+-- on ALTER TYPE ... ADD VALUE inside a transaction). The seed lives in
+-- 087_student_badges_usage_seed.sql.
+-- See ADR docs/adr/2026-04-student-badges-admin-catalog.md (criteria DSL extension).
+
+ALTER TYPE public.badge_criteria_type ADD VALUE IF NOT EXISTS 'profile_avatar_set';
+ALTER TYPE public.badge_criteria_type ADD VALUE IF NOT EXISTS 'profile_phone_set';
+ALTER TYPE public.badge_criteria_type ADD VALUE IF NOT EXISTS 'profile_birth_date_set';
+ALTER TYPE public.badge_criteria_type ADD VALUE IF NOT EXISTS 'attendance_days_total';
+ALTER TYPE public.badge_criteria_type ADD VALUE IF NOT EXISTS 'messages_sent';
+
+ALTER TYPE public.badge_category ADD VALUE IF NOT EXISTS 'community';
+
+-- ============================================================================
+-- 087_student_badges_usage_seed.sql
+-- ============================================================================
+
+-- Seeds platform-usage badges that rely on the criteria_type and category values
+-- added in 086_student_badges_extra_criteria_types.sql.
+-- Uses the same idempotent pattern as 082/085: ON CONFLICT (code) DO NOTHING.
+-- All thresholds satisfy badge_catalog_threshold_nonneg.
+-- Sort order layout (sort_order):
+--   tasks         10–39   attendance_streak 38–43
+--   attendance    44–49   profile           50–58
+--   learning      60–69   community         70–79
+
+WITH inserted AS (
+  INSERT INTO public.badge_catalog (code, category, criteria_type, criteria_threshold, sort_order)
+  VALUES
+    -- Profile signals (one-shot). Sit alongside profile_complete (sort 50).
+    ('profile_avatar_set',     'profile',    'profile_avatar_set',     1,  51),
+    ('profile_phone_set',      'profile',    'profile_phone_set',      1,  52),
+    ('profile_birth_date_set', 'profile',    'profile_birth_date_set', 1,  53),
+
+    -- Attendance days (lifetime, distinct calendar days with good attendance).
+    ('attendance_days_first',  'attendance', 'attendance_days_total',   1,  44),
+    ('attendance_days_10',     'attendance', 'attendance_days_total',  10,  45),
+    ('attendance_days_25',     'attendance', 'attendance_days_total',  25,  46),
+    ('attendance_days_50',     'attendance', 'attendance_days_total',  50,  47),
+    ('attendance_days_100',    'attendance', 'attendance_days_total', 100,  48),
+
+    -- Messages sent from the portal (community/engagement category).
+    ('messages_sent_first',    'community',  'messages_sent',           1,  70),
+    ('messages_sent_10',       'community',  'messages_sent',          10,  71),
+    ('messages_sent_25',       'community',  'messages_sent',          25,  72)
+  ON CONFLICT (code) DO NOTHING
+  RETURNING id, code
+)
+INSERT INTO public.badge_translations (badge_id, locale, title, description)
+SELECT i.id, t.locale, t.title, t.description
+FROM inserted i
+JOIN (
+  VALUES
+    ('profile_avatar_set', 'en', 'Profile photo',
+       'Upload a profile picture so your teachers and classmates can recognize you.'),
+    ('profile_avatar_set', 'es', 'Foto de perfil',
+       'Sube una foto de perfil para que tus profesores y compañeros te reconozcan.'),
+
+    ('profile_phone_set', 'en', 'Reachable',
+       'Add a phone number to your profile so the school can reach you when needed.'),
+    ('profile_phone_set', 'es', 'Disponible',
+       'Agrega un número de teléfono a tu perfil para que el instituto te pueda contactar.'),
+
+    ('profile_birth_date_set', 'en', 'Birthday on file',
+       'Tell us your date of birth so we can wish you happy birthday.'),
+    ('profile_birth_date_set', 'es', 'Cumpleaños registrado',
+       'Cuéntanos tu fecha de nacimiento así podemos felicitarte el día indicado.'),
+
+    ('attendance_days_first', 'en', 'First class attended',
+       'You showed up to your first class. Welcome on board.'),
+    ('attendance_days_first', 'es', 'Primera clase asistida',
+       'Asististe a tu primera clase. Bienvenido a bordo.'),
+
+    ('attendance_days_10', 'en', 'Ten classes',
+       'Attend ten classes in total (any combination of days).'),
+    ('attendance_days_10', 'es', 'Diez clases',
+       'Asiste a diez clases en total (cualquier combinación de días).'),
+
+    ('attendance_days_25', 'en', 'Twenty-five classes',
+       'Attend twenty-five classes in total. You are getting into a rhythm.'),
+    ('attendance_days_25', 'es', 'Veinticinco clases',
+       'Asiste a veinticinco clases en total. Ya tienes ritmo.'),
+
+    ('attendance_days_50', 'en', 'Fifty classes',
+       'Attend fifty classes in total. Real commitment.'),
+    ('attendance_days_50', 'es', 'Cincuenta clases',
+       'Asiste a cincuenta clases en total. Compromiso de verdad.'),
+
+    ('attendance_days_100', 'en', 'Centurion attendance',
+       'Attend one hundred classes in total. You are a fixture in your cohort.'),
+    ('attendance_days_100', 'es', 'Centurión de asistencia',
+       'Asiste a cien clases en total. Ya eres parte fija de tu comisión.'),
+
+    ('messages_sent_first', 'en', 'First message',
+       'Send your first message to a teacher or classmate from the portal inbox.'),
+    ('messages_sent_first', 'es', 'Primer mensaje',
+       'Envía tu primer mensaje a un docente o compañero desde la bandeja del portal.'),
+
+    ('messages_sent_10', 'en', 'Active communicator',
+       'Send ten messages from the portal. Communication unlocks learning.'),
+    ('messages_sent_10', 'es', 'Comunicador activo',
+       'Envía diez mensajes desde el portal. La comunicación impulsa el aprendizaje.'),
+
+    ('messages_sent_25', 'en', 'Conversational',
+       'Send twenty-five messages from the portal. You are a great teammate.'),
+    ('messages_sent_25', 'es', 'Conversador',
+       'Envía veinticinco mensajes desde el portal. Eres un gran compañero de equipo.')
+) AS t(code, locale, title, description) ON t.code = i.code;

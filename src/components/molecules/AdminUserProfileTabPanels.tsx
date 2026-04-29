@@ -7,6 +7,7 @@ import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { AdminStudentBillingClient } from "@/components/dashboard/AdminStudentBillingClient";
 import { AdminStudentCurrentCohortAssignmentCard } from "@/components/molecules/AdminStudentCurrentCohortAssignmentCard";
 import { AdminUserDetailPasswordSection } from "@/components/molecules/AdminUserDetailPasswordSection";
+import { AdminUserDetailDniResetSection } from "@/components/molecules/AdminUserDetailDniResetSection";
 import { AdminUserDetailTutorCard } from "@/components/molecules/AdminUserDetailTutorCard";
 import { AdminUserInlineEditableField } from "@/components/molecules/AdminUserInlineEditableField";
 
@@ -176,13 +177,24 @@ export function AdminUserSecurityPanel({
   editable: boolean;
   onFeedback: (text: string, ok: boolean) => void;
 }) {
+  const dniResetEnabled =
+    editable && detail.role === "student" && Boolean(detail.dniOrPassport);
   return (
-    <AdminUserDetailPasswordSection
-      locale={locale}
-      userId={detail.userId}
-      labels={labels}
-      enabled={editable}
-      onFeedback={onFeedback}
-    />
+    <div className="space-y-4">
+      <AdminUserDetailPasswordSection
+        locale={locale}
+        userId={detail.userId}
+        labels={labels}
+        enabled={editable}
+        onFeedback={onFeedback}
+      />
+      <AdminUserDetailDniResetSection
+        locale={locale}
+        userId={detail.userId}
+        labels={labels}
+        enabled={dniResetEnabled}
+        onFeedback={onFeedback}
+      />
+    </div>
   );
 }

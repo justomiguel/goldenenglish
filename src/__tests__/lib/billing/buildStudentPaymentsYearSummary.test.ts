@@ -50,6 +50,10 @@ function buildSection(
     enrollmentFeeCurrency: null,
     cells,
     currentPlan: null,
+    enrollmentId: null,
+    enrollmentFeeReceiptStatus: null,
+    enrollmentFeeReceiptSignedUrl: null,
+    lastEnrollmentPaidAt: null,
   };
 }
 

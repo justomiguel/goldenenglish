@@ -34,21 +34,19 @@ export function buildStudentSidebarNavGroups(
       icon: <BookOpenCheck className={ic} />,
       tip: dict.tipTasks,
     },
-  ];
-  if (base.includes("/dashboard/student")) {
-    learningItems.push({
+    {
       href: `${base}/badges`,
       label: dict.badges,
       icon: <Award className={ic} />,
       tip: dict.tipBadges,
-    });
-    learningItems.push({
+    },
+    {
       href: `${base}/assessments`,
       label: dict.assessments,
       icon: <ClipboardCheck className={ic} />,
       tip: dict.tipAssessments,
-    });
-  }
+    },
+  ];
 
   return [
     {
