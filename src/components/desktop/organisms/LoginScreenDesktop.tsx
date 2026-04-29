@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { LoginForm } from "@/components/organisms/LoginForm";
@@ -11,6 +11,7 @@ interface LoginScreenDesktopProps {
   dict: Dictionary;
   locale: string;
   nextPath?: string | null;
+  firstRunSetupHref?: string | null;
 }
 
 export function LoginScreenDesktop({
@@ -18,6 +19,7 @@ export function LoginScreenDesktop({
   dict,
   locale,
   nextPath = null,
+  firstRunSetupHref = null,
 }: LoginScreenDesktopProps) {
   const homeHref = `/${locale}`;
 
@@ -71,6 +73,17 @@ export function LoginScreenDesktop({
               locale={locale}
               nextPath={nextPath}
             />
+            {firstRunSetupHref ? (
+              <p className="mt-6 text-center text-sm">
+                <Link
+                  href={firstRunSetupHref}
+                  className="inline-flex items-center justify-center gap-2 font-medium text-[var(--color-primary)] underline-offset-4 hover:underline"
+                >
+                  <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
+                  {dict.login.firstRunSetupLink}
+                </Link>
+              </p>
+            ) : null}
           </div>
         </div>
       </section>

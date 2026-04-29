@@ -1,14 +1,14 @@
-import { getBrandPublic } from "@/lib/brand/server";
+import type { BrandPublic } from "@/lib/brand/server";
 import { taglineForLocale } from "@/lib/brand/taglineForLocale";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 
 interface JsonLdOrganizationProps {
   locale: string;
+  brand: BrandPublic;
 }
 
 /** Schema.org EducationalOrganization — home / marketing only (omit if no public base URL). */
-export function JsonLdOrganization({ locale }: JsonLdOrganizationProps) {
-  const brand = getBrandPublic();
+export function JsonLdOrganization({ locale, brand }: JsonLdOrganizationProps) {
   const base = getPublicSiteUrl();
   if (!base) return null;
 

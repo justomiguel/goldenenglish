@@ -1,17 +1,14 @@
 import type { MetadataRoute } from "next";
-import {
-  brandLogoManifestIcon,
-  faviconPublicDir,
-} from "@/lib/brand/faviconDir";
-import { loadProperties, getProperty } from "@/lib/theme/themeParser";
-import { getBrandPublic } from "@/lib/brand/server";
+import { buildWebManifestIcons } from "@/lib/brand/buildWebManifestIcons";
+import { getBrandForRequest } from "@/lib/brand/server";
+import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
+import { getProperty } from "@/lib/theme/themeParser";
 
-export default function manifest(): MetadataRoute.Manifest {
-  const brand = getBrandPublic();
-  const p = loadProperties();
-  const background = getProperty(p, "color.background", "#FFFFFF");
-  const theme = getProperty(p, "color.primary", "#103A5C");
-  const favDir = faviconPublicDir(brand.faviconPath);
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const brand = await getBrandForRequest();
+  const { properties } = await loadEffectiveProperties();
+  const background = getProperty(properties, "color.background", "#FFFFFF");
+  const theme = getProperty(properties, "color.primary", "#103A5C");
 
   return {
     id: "/",
@@ -25,26 +22,6 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: background,
     theme_color: theme,
     lang: "es",
-    icons: [
-      {
-        src: `${favDir}/android-chrome-192x192.png`,
-        sizes: "192x192",
-        type: "image/png",
-      },
-      {
-        src: `${favDir}/android-chrome-512x512.png`,
-        sizes: "512x512",
-        type: "image/png",
-      },
-      {
-        src: brand.faviconPath,
-        sizes: "48x48",
-        type: "image/x-icon",
-      },
-      {
-        src: brand.logoPath,
-        ...brandLogoManifestIcon(brand.logoPath),
-      },
-    ],
+    icons: buildWebManifestIcons(brand),
   };
 }

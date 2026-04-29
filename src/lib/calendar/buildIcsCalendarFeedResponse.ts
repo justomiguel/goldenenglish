@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { calendarFeedRoleFromProfileRole } from "@/lib/calendar/calendarFeedRole";
 import { loadPortalCalendarPageData } from "@/lib/calendar/loadPortalCalendarPageData";
@@ -71,7 +71,7 @@ export async function buildIcsCalendarFeedResponse(tokenRaw: string): Promise<Ic
   const composed = composePortalCalendarPageEvents(page.sections, page.exams, specialRows, viewStartIso, viewEndIso);
   const dict = await getDictionary(defaultLocale);
   const rows = applyPortalSpecialEventIcsPresentation(composed, dict.dashboard.portalCalendar.specialTypes);
-  const brand = getBrandPublic();
+  const brand = await getBrandForRequest();
   const body = formatPortalCalendarIcs(rows, { calName: brand.name, brandName: brand.name });
   return { ok: true, body };
 }

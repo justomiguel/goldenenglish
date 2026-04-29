@@ -4,7 +4,7 @@ import {
   defaultLocale,
   locales,
 } from "@/lib/i18n/dictionaries";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { ResetPasswordScreenGate } from "@/components/organisms/ResetPasswordScreenGate";
 
 interface ResetPasswordPageProps {
@@ -36,7 +36,7 @@ export default async function ResetPasswordPage({
 }: ResetPasswordPageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
-  const brand = getBrandPublic();
+  const brand = await getBrandForRequest();
 
   return <ResetPasswordScreenGate brand={brand} dict={dict} locale={locale} />;
 }

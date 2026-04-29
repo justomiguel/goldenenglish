@@ -213,6 +213,8 @@
     "submitButton": "Sign In",
     "rememberMe": "Remember me on this device",
     "redirecting": "Signing you in…",
+    "firstRunSetupLink": "First-time installation (create admin)",
+    "alreadyHaveAccount": "Already have an account? Sign in",
     "forgotPassword": "Forgot your password?",
     "noAccount": "Don't have an account?",
     "signUp": "Sign up",
@@ -2166,6 +2168,91 @@
       "tipMyProfile": "Your personal profile, password, and preferences.",
       "badges": "Badges",
       "tipBadges": "Manage the catalog of student achievements: titles, images, criteria and pause status."
+    },
+    "siteSetup": {
+      "metaTitle": "Initial institute setup",
+      "firstRunPageTitle": "Installation",
+      "pageTitle": "Institute setup",
+      "pageLead": "Configure your institute identity, logo, favicon, and contact details. They are saved to the active site theme; you can edit them anytime under Content & themes.",
+      "bootstrap": {
+        "metaTitle": "Create administrator account",
+        "pageTitle": "Administrator account",
+        "pageLead": "No administrator exists yet. Create the account that will manage this installation; then you will configure institute branding and contact details.",
+        "email": "Email (login)",
+        "password": "Password",
+        "passwordConfirm": "Confirm password",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "dni": "National ID / passport",
+        "phone": "Phone",
+        "submit": "Create account and continue"
+      },
+      "stepLabel": "Step {{current}} of {{total}}",
+      "steps": {
+        "intro": "Introduction",
+        "institute": "Institute & assets",
+        "contact": "Contact & social",
+        "review": "Review"
+      },
+      "intro": {
+        "title": "Set up your public presence",
+        "body": "This wizard writes branding and contact data into the active theme so your deployment works without relying on SQL seeds.",
+        "continue": "Continue"
+      },
+      "institute": {
+        "title": "Institute identity",
+        "appName": "Public name",
+        "legalName": "Legal name",
+        "tagline": "Tagline",
+        "taglineEn": "Tagline (English, optional)",
+        "logo": "Logo image",
+        "logoHint": "PNG, JPEG, or WebP — max 4 MB.",
+        "favicon": "Favicon image",
+        "faviconHint": "Square image recommended.",
+        "logoAlt": "Logo alt text (accessibility)",
+        "logoAltHint": "Short description for screen readers.",
+        "logoRequired": "Choose a logo file.",
+        "faviconRequired": "Choose a favicon file."
+      },
+      "contact": {
+        "title": "Contact & networks",
+        "email": "Contact email",
+        "phone": "Phone",
+        "address": "Address",
+        "socialHint": "Optional — paste full https URLs."
+      },
+      "social": {
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "whatsapp": "WhatsApp URL"
+      },
+      "review": {
+        "title": "Review & finish",
+        "summaryInstitute": "Institute",
+        "summaryContact": "Contact",
+        "summarySocial": "Social & messaging links"
+      },
+      "buttons": {
+        "back": "Back",
+        "continue": "Continue",
+        "finish": "Complete setup",
+        "submitting": "Saving…"
+      },
+      "gateRedirect": "Redirecting to setup…",
+      "successToast": "Setup saved",
+      "errors": {
+        "generic": "Something went wrong. Try again.",
+        "invalid_input": "Check the fields and try again.",
+        "persist_failed": "Could not save. Try again.",
+        "payload_invalid": "Invalid file data.",
+        "mime_invalid": "Images must be PNG, JPEG, or WebP.",
+        "forbidden": "Your session does not allow this action.",
+        "not_found": "Active theme not found. Refresh and try again.",
+        "password_mismatch": "Passwords do not match.",
+        "bootstrap_closed": "Bootstrap is no longer available.",
+        "bootstrap_admin_exists": "An administrator already exists. Sign in instead.",
+        "bootstrap_auth_failed": "Could not create the account. Try a different email or a stronger password."
+      }
     },
     "adminContents": {
       "metaTitle": "Academic contents",

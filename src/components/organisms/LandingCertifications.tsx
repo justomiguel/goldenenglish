@@ -1,14 +1,12 @@
 import Image from "next/image";
 import { LandingSection } from "@/components/molecules/LandingSection";
 import type { Dictionary } from "@/types/i18n";
-import {
-  CERT_IMG_CAMBRIDGE,
-  CERT_IMG_GOLDEN,
-  CERT_IMG_UTN_INGLES,
-} from "@/lib/landing/certificacionesImages";
+import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
+import { certificacionesSlotSrc } from "@/lib/landing/certificacionesImages";
 
 interface LandingCertificationsProps {
   dict: Dictionary;
+  mediaMap?: LandingMediaMap;
 }
 
 const cardClass =
@@ -18,14 +16,21 @@ function bypassOptimizer(src: string): boolean {
   return src.startsWith("/images/");
 }
 
-function CertLogosInstitutional({ alt }: { alt: string }) {
+function CertLogosInstitutional({
+  alt,
+  mediaMap,
+}: {
+  alt: string;
+  mediaMap?: LandingMediaMap;
+}) {
+  const src = certificacionesSlotSrc(2, mediaMap);
   return (
     <div className="relative mb-5 h-36 w-full max-w-[15rem] shrink-0">
       <Image
-        src={CERT_IMG_GOLDEN}
+        src={src}
         alt={alt}
         fill
-        unoptimized={bypassOptimizer(CERT_IMG_GOLDEN)}
+        unoptimized={bypassOptimizer(src)}
         className="object-contain object-center"
         sizes="(max-width: 768px) 75vw, 240px"
       />
@@ -36,28 +41,32 @@ function CertLogosInstitutional({ alt }: { alt: string }) {
 function CertLogosNational({
   altGolden,
   altUtn,
+  mediaMap,
 }: {
   altGolden: string;
   altUtn: string;
+  mediaMap?: LandingMediaMap;
 }) {
+  const goldenSrc = certificacionesSlotSrc(2, mediaMap);
+  const utnSrc = certificacionesSlotSrc(1, mediaMap);
   return (
     <div className="mb-5 flex w-full max-w-xl flex-col items-center justify-center gap-5 sm:flex-row sm:items-center sm:gap-5">
       <div className="relative h-16 w-28 shrink-0 sm:h-[4.5rem] sm:w-32">
         <Image
-          src={CERT_IMG_GOLDEN}
+          src={goldenSrc}
           alt={altGolden}
           fill
-          unoptimized={bypassOptimizer(CERT_IMG_GOLDEN)}
+          unoptimized={bypassOptimizer(goldenSrc)}
           className="object-contain object-center"
           sizes="140px"
         />
       </div>
       <div className="relative h-24 w-full min-w-0 max-w-sm sm:h-28">
         <Image
-          src={CERT_IMG_UTN_INGLES}
+          src={utnSrc}
           alt={altUtn}
           fill
-          unoptimized={bypassOptimizer(CERT_IMG_UTN_INGLES)}
+          unoptimized={bypassOptimizer(utnSrc)}
           className="object-contain object-center"
           sizes="(max-width: 640px) 85vw, 320px"
         />
@@ -69,28 +78,32 @@ function CertLogosNational({
 function CertLogosInternational({
   altGolden,
   altCambridge,
+  mediaMap,
 }: {
   altGolden: string;
   altCambridge: string;
+  mediaMap?: LandingMediaMap;
 }) {
+  const goldenSrc = certificacionesSlotSrc(2, mediaMap);
+  const cambridgeSrc = certificacionesSlotSrc(3, mediaMap);
   return (
     <div className="mb-5 flex w-full flex-wrap items-center justify-center gap-6 sm:gap-8">
       <div className="relative h-16 w-28 shrink-0 sm:h-[4.5rem] sm:w-32">
         <Image
-          src={CERT_IMG_GOLDEN}
+          src={goldenSrc}
           alt={altGolden}
           fill
-          unoptimized={bypassOptimizer(CERT_IMG_GOLDEN)}
+          unoptimized={bypassOptimizer(goldenSrc)}
           className="object-contain object-center"
           sizes="140px"
         />
       </div>
       <div className="relative h-20 w-32 shrink-0 sm:h-24 sm:w-36">
         <Image
-          src={CERT_IMG_CAMBRIDGE}
+          src={cambridgeSrc}
           alt={altCambridge}
           fill
-          unoptimized={bypassOptimizer(CERT_IMG_CAMBRIDGE)}
+          unoptimized={bypassOptimizer(cambridgeSrc)}
           className="object-contain object-center"
           sizes="160px"
         />
@@ -99,7 +112,10 @@ function CertLogosInternational({
   );
 }
 
-export function LandingCertifications({ dict }: LandingCertificationsProps) {
+export function LandingCertifications({
+  dict,
+  mediaMap,
+}: LandingCertificationsProps) {
   const c = dict.landing.certs;
 
   return (
@@ -110,7 +126,7 @@ export function LandingCertifications({ dict }: LandingCertificationsProps) {
     >
       <div className="relative mx-auto grid max-w-6xl gap-6 md:grid-cols-3 md:gap-8">
         <article className={cardClass}>
-          <CertLogosInstitutional alt={c.altGoldenMark} />
+          <CertLogosInstitutional alt={c.altGoldenMark} mediaMap={mediaMap} />
           <h3 className="mb-4 max-w-sm font-sans text-base font-bold italic text-[var(--color-foreground)]">
             {c.cardInstitutional}
           </h3>
@@ -120,7 +136,11 @@ export function LandingCertifications({ dict }: LandingCertificationsProps) {
         </article>
 
         <article className={cardClass}>
-          <CertLogosNational altGolden={c.altGoldenMark} altUtn={c.altUtnIngles} />
+          <CertLogosNational
+            altGolden={c.altGoldenMark}
+            altUtn={c.altUtnIngles}
+            mediaMap={mediaMap}
+          />
           <h3 className="mb-4 max-w-sm font-sans text-base font-bold italic text-[var(--color-foreground)]">
             {c.cardNational}
           </h3>
@@ -133,6 +153,7 @@ export function LandingCertifications({ dict }: LandingCertificationsProps) {
           <CertLogosInternational
             altGolden={c.altGoldenMark}
             altCambridge={c.altCambridgeUniversity}
+            mediaMap={mediaMap}
           />
           <h3 className="mb-4 max-w-sm font-sans text-base font-bold italic text-[var(--color-foreground)]">
             {c.cardInternational}

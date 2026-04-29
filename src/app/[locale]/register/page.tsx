@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { createClient } from "@/lib/supabase/server";
@@ -25,7 +25,7 @@ export default async function RegisterPage({ params }: PageProps) {
   }
 
   const dict = await getDictionary(locale);
-  const brand = getBrandPublic();
+  const brand = await getBrandForRequest();
   const legalAgeMajority = getLegalAgeMajorityFromSystem();
 
   const supabase = await createClient();

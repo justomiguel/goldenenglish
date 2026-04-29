@@ -76,7 +76,7 @@ export function LandingMainSections({
         blocks={blocksFor(blocksBySection, "niveles")}
         locale={locale}
       />
-      <LandingCertifications dict={dict} />
+      <LandingCertifications dict={dict} mediaMap={mediaMap} />
       <LandingBlocksRenderer
         section="certificaciones"
         blocks={blocksFor(blocksBySection, "certificaciones")}

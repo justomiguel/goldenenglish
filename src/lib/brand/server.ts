@@ -1,8 +1,13 @@
+import { cache } from "react";
+import { resolveBrandAssetUrl } from "@/lib/brand/resolveBrandAssetUrl";
 import {
   getProperty,
   loadProperties,
   type ThemeProperties,
 } from "@/lib/theme/themeParser";
+
+const LOGO_FALLBACK = "/images/logo.png";
+const FAV_FALLBACK = "/favicon_io/favicon.ico";
 
 export interface BrandPublic {
   name: string;
@@ -14,7 +19,7 @@ export interface BrandPublic {
   legalRegistry: string;
   logoPath: string;
   logoAlt: string;
-  /** Canonical .ico URL (see `public/favicon_io/`). */
+  /** Favicon URL — site-relative, Storage (`resolveBrandAssetUrl`), or absolute. */
   faviconPath: string;
   contactEmail: string;
   contactPhone: string;
@@ -26,13 +31,12 @@ export interface BrandPublic {
 
 /**
  * Pure: derives the public brand object from a properties map. Used by:
- *  - `getBrandPublic()` (sync wrapper, file-only) for callers that don't need
- *    runtime overrides.
- *  - The root `app/layout.tsx`, which feeds in the merged `system.properties +
- *    site_themes.properties` map produced by `loadEffectiveProperties()`.
+ *  - `getBrandPublic()` — sync, file defaults only (tests / explicit sync paths).
+ *  - `getBrandForRequest()` — merged `system.properties + site_themes.properties`.
+ *  - Root `app/layout.tsx` when feeding merged props from `loadEffectiveProperties()`.
  *
- * Keeping it pure removes the `fs` dependency for tests and lets the same
- * brand object reflect a freshly activated theme without restarting the app.
+ * Reads only `process.env` for Storage URL resolution (`resolveBrandAssetUrl`);
+ * no network or filesystem I/O.
  */
 export function brandPublicFromProperties(p: ThemeProperties): BrandPublic {
   const tagline = getProperty(p, "app.tagline");
@@ -43,9 +47,15 @@ export function brandPublicFromProperties(p: ThemeProperties): BrandPublic {
     tagline,
     taglineEn,
     legalRegistry: getProperty(p, "app.legal.registry"),
-    logoPath: getProperty(p, "app.logo.path", "/images/logo.png"),
+    logoPath: resolveBrandAssetUrl(
+      getProperty(p, "app.logo.path", LOGO_FALLBACK),
+      LOGO_FALLBACK,
+    ),
     logoAlt: getProperty(p, "app.logo.alt"),
-    faviconPath: getProperty(p, "app.favicon.path", "/favicon_io/favicon.ico"),
+    faviconPath: resolveBrandAssetUrl(
+      getProperty(p, "app.favicon.path", FAV_FALLBACK),
+      FAV_FALLBACK,
+    ),
     contactEmail: getProperty(p, "contact.email"),
     contactPhone: getProperty(p, "contact.phone"),
     contactAddress: getProperty(p, "contact.address"),
@@ -58,3 +68,15 @@ export function brandPublicFromProperties(p: ThemeProperties): BrandPublic {
 export function getBrandPublic(): BrandPublic {
   return brandPublicFromProperties(loadProperties());
 }
+
+/**
+ * Brand for the current request: file defaults overlaid with the active
+ * `site_themes` row (same merge as CSS tokens). Cached per React request via `cache()`.
+ */
+export const getBrandForRequest = cache(async (): Promise<BrandPublic> => {
+  const { loadEffectiveProperties } = await import(
+    "@/lib/theme/loadEffectiveProperties"
+  );
+  const { properties } = await loadEffectiveProperties();
+  return brandPublicFromProperties(properties);
+});

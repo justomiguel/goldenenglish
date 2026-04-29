@@ -9,7 +9,7 @@ import {
 } from "@/lib/dashboard/adminSessionErrors";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadLandingEditorSection } from "@/lib/cms/loadSiteThemeForLandingEditor";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { HeroVisualEditorShell } from "@/components/dashboard/admin/cms/HeroVisualEditorShell";
 
 export const metadata: Metadata = {
@@ -59,7 +59,7 @@ export default async function AdminCmsHeroVisualEditorPage({ params }: PageProps
     );
   }
 
-  const brandName = getBrandPublic().name;
+  const brandName = (await getBrandForRequest()).name;
 
   return (
     <HeroVisualEditorShell

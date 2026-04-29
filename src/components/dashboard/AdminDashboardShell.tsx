@@ -13,6 +13,8 @@ interface AdminDashboardShellProps {
   newRegistrationsCount: number;
   adminProfileRole: string;
   teacherPortalAllowed: boolean;
+  /** When true, sidebar/breadcrumb hidden (initial site setup wizard). */
+  siteSetupRequired?: boolean;
   children: ReactNode;
 }
 
@@ -23,18 +25,20 @@ export function AdminDashboardShell({
   newRegistrationsCount,
   adminProfileRole,
   teacherPortalAllowed,
+  siteSetupRequired = false,
   children,
 }: AdminDashboardShellProps) {
   const navDict = dict.dashboard.adminNav;
-  const teacherNav = teacherPortalAllowed
-    ? {
-        href: `/${locale}/dashboard/teacher`,
-        hint: dict.dashboard.adminChrome.dualRoleNavHint,
-        cta: dict.dashboard.adminChrome.openTeacherDashboard,
-        ctaAria: dict.dashboard.adminChrome.openTeacherDashboardAria,
-        switchHint: navDict.workspaceSwitchHint,
-      }
-    : undefined;
+  const teacherNav =
+    teacherPortalAllowed && !siteSetupRequired
+      ? {
+          href: `/${locale}/dashboard/teacher`,
+          hint: dict.dashboard.adminChrome.dualRoleNavHint,
+          cta: dict.dashboard.adminChrome.openTeacherDashboard,
+          ctaAria: dict.dashboard.adminChrome.openTeacherDashboardAria,
+          switchHint: navDict.workspaceSwitchHint,
+        }
+      : undefined;
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--color-muted)]">
@@ -43,25 +47,31 @@ export function AdminDashboardShell({
         brand={brand}
         dict={dict}
         adminProfileRole={adminProfileRole}
-        teacherPortalAllowed={teacherPortalAllowed}
+        teacherPortalAllowed={siteSetupRequired ? false : teacherPortalAllowed}
         mobileNav={
-          <AdminMobileDrawer
-            locale={locale}
-            dict={dict}
-            newRegistrationsCount={newRegistrationsCount}
-            teacherNav={teacherNav}
-          />
+          siteSetupRequired ? undefined : (
+            <AdminMobileDrawer
+              locale={locale}
+              dict={dict}
+              newRegistrationsCount={newRegistrationsCount}
+              teacherNav={teacherNav}
+            />
+          )
         }
       />
       <div className="mx-auto flex w-full max-w-[var(--layout-max-width)] flex-1 gap-0 md:gap-8 md:px-2 md:pb-8 md:pt-2">
-        <AdminSidebar
-          locale={locale}
-          dict={navDict}
-          newRegistrationsCount={newRegistrationsCount}
-          teacherNav={teacherNav}
-        />
+        {siteSetupRequired ? null : (
+          <AdminSidebar
+            locale={locale}
+            dict={navDict}
+            newRegistrationsCount={newRegistrationsCount}
+            teacherNav={teacherNav}
+          />
+        )}
         <div className="min-w-0 flex-1 px-4 py-6 md:rounded-[var(--layout-border-radius)] md:border md:border-[var(--color-border)] md:bg-[var(--color-background)] md:px-8 md:py-8 md:shadow-sm">
-          <AdminBreadcrumb locale={locale} dict={navDict} />
+          {siteSetupRequired ? null : (
+            <AdminBreadcrumb locale={locale} dict={navDict} />
+          )}
           {children}
         </div>
       </div>

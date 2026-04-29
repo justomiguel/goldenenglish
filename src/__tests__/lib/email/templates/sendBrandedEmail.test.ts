@@ -27,7 +27,8 @@ vi.mock("@/lib/supabase/admin", () => ({
 }));
 
 vi.mock("@/lib/brand/server", () => ({
-  getBrandPublic: () => ({
+  getBrandForRequest: vi.fn(() =>
+    Promise.resolve({
     name: "Test Institute",
     legalName: "Test Institute LLC",
     logoPath: "/images/logo.png",
@@ -42,7 +43,8 @@ vi.mock("@/lib/brand/server", () => ({
     taglineEn: "",
     legalRegistry: "",
     faviconPath: "",
-  }),
+    }),
+  ),
 }));
 
 vi.mock("@/lib/site/publicUrl", () => ({

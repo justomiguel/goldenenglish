@@ -2,23 +2,26 @@ import { describe, it, expect, vi } from "vitest";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
 vi.mock("@/lib/brand/server", () => ({
-  getBrandPublic: () => mockBrandPublic,
+  getBrandForRequest: vi.fn(() => Promise.resolve(mockBrandPublic)),
 }));
 
-vi.mock("@/lib/theme/themeParser", () => ({
-  loadProperties: () => ({}),
-  getProperty: (_p: unknown, key: string, fallback?: string) => {
-    if (key === "color.background") return "#FAFAFA";
-    if (key === "color.primary") return "#103A5C";
-    return fallback ?? "";
-  },
+vi.mock("@/lib/theme/loadEffectiveProperties", () => ({
+  loadEffectiveProperties: vi.fn(() =>
+    Promise.resolve({
+      properties: {
+        "color.background": "#FAFAFA",
+        "color.primary": "#103A5C",
+      },
+      activeThemeSlug: "test",
+    }),
+  ),
 }));
 
 import manifest from "@/app/manifest";
 
 describe("app/manifest", () => {
-  it("builds manifest from brand and theme tokens", () => {
-    const m = manifest();
+  it("builds manifest from brand and theme tokens", async () => {
+    const m = await manifest();
     expect(m.name).toBe(mockBrandPublic.name);
     expect(m.short_name).toBe(mockBrandPublic.name);
     expect(m.description).toBe(mockBrandPublic.tagline);

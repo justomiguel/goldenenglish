@@ -13,6 +13,8 @@ interface LoginScreenGateProps {
   dict: Dictionary;
   locale: string;
   nextPath?: string | null;
+  /** When initial site setup is pending — links to `/setup/first-run`. */
+  firstRunSetupHref?: string | null;
 }
 
 export function LoginScreenGate({
@@ -21,6 +23,7 @@ export function LoginScreenGate({
   dict,
   locale,
   nextPath = null,
+  firstRunSetupHref = null,
 }: LoginScreenGateProps) {
   return (
     <SurfaceMountGate
@@ -32,6 +35,7 @@ export function LoginScreenGate({
           dict={dict}
           locale={locale}
           nextPath={nextPath}
+          firstRunSetupHref={firstRunSetupHref}
           surface={surface}
         />
       )}

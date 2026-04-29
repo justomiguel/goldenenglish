@@ -213,6 +213,8 @@
     "submitButton": "Iniciar Sesión",
     "rememberMe": "Recordarme en este equipo",
     "redirecting": "Entrando…",
+    "firstRunSetupLink": "Instalación inicial (crear administrador)",
+    "alreadyHaveAccount": "¿Ya tenés cuenta? Iniciar sesión",
     "forgotPassword": "¿Olvidaste tu contraseña?",
     "noAccount": "¿No tienes cuenta?",
     "signUp": "Regístrate",
@@ -2168,6 +2170,91 @@
       "tipMyProfile": "Tu perfil personal, contraseña y preferencias.",
       "badges": "Logros",
       "tipBadges": "Gestiona el catálogo de logros del alumno: títulos, imagen, criterios y pausa."
+    },
+    "siteSetup": {
+      "metaTitle": "Configuración inicial del instituto",
+      "firstRunPageTitle": "Instalación",
+      "pageTitle": "Configuración del instituto",
+      "pageLead": "Definí nombre legal, logo, favicon y datos de contacto. Se guardan en el tema activo; podés editarlos después en Contenidos y temas.",
+      "bootstrap": {
+        "metaTitle": "Crear cuenta de administrador",
+        "pageTitle": "Cuenta de administrador",
+        "pageLead": "Todavía no hay un administrador. Creá la cuenta que gestionará esta instalación; después configurás marca y datos de contacto del instituto.",
+        "email": "Correo (inicio de sesión)",
+        "password": "Contraseña",
+        "passwordConfirm": "Confirmar contraseña",
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "dni": "DNI / pasaporte",
+        "phone": "Teléfono",
+        "submit": "Crear cuenta y continuar"
+      },
+      "stepLabel": "Paso {{current}} de {{total}}",
+      "steps": {
+        "intro": "Introducción",
+        "institute": "Instituto y activos",
+        "contact": "Contacto y redes",
+        "review": "Revisión"
+      },
+      "intro": {
+        "title": "Configurá la presencia pública",
+        "body": "Este asistente guarda marca y contacto en el tema activo para que el despliegue funcione sin depender de seeds SQL.",
+        "continue": "Continuar"
+      },
+      "institute": {
+        "title": "Identidad del instituto",
+        "appName": "Nombre público",
+        "legalName": "Razón social",
+        "tagline": "Eslogan",
+        "taglineEn": "Eslogan (inglés, opcional)",
+        "logo": "Logo",
+        "logoHint": "PNG, JPEG o Webp — máx. 4 MB.",
+        "favicon": "Favicon",
+        "faviconHint": "Imagen cuadrada recomendada.",
+        "logoAlt": "Texto alternativo del logo (accesibilidad)",
+        "logoAltHint": "Breve descripción para lectores de pantalla.",
+        "logoRequired": "Seleccioná un archivo de logo.",
+        "faviconRequired": "Seleccioná un archivo de favicon."
+      },
+      "contact": {
+        "title": "Contacto y redes",
+        "email": "Correo de contacto",
+        "phone": "Teléfono",
+        "address": "Dirección",
+        "socialHint": "Opcional — URLs completas con https."
+      },
+      "social": {
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "whatsapp": "URL de WhatsApp"
+      },
+      "review": {
+        "title": "Revisar y finalizar",
+        "summaryInstitute": "Instituto",
+        "summaryContact": "Contacto",
+        "summarySocial": "Redes y enlaces"
+      },
+      "buttons": {
+        "back": "Volver",
+        "continue": "Continuar",
+        "finish": "Completar configuración",
+        "submitting": "Guardando…"
+      },
+      "gateRedirect": "Redirigiendo a la configuración…",
+      "successToast": "Configuración guardada",
+      "errors": {
+        "generic": "Algo salió mal. Probá de nuevo.",
+        "invalid_input": "Revisá los campos e intentá de nuevo.",
+        "persist_failed": "No se pudo guardar. Probá de nuevo.",
+        "payload_invalid": "Datos de archivo inválidos.",
+        "mime_invalid": "Las imágenes deben ser PNG, JPEG o WebP.",
+        "forbidden": "Tu sesión no permite esta acción.",
+        "not_found": "No se encontró el tema activo. Actualizá la página.",
+        "password_mismatch": "Las contraseñas no coinciden.",
+        "bootstrap_closed": "La instalación inicial ya no está disponible.",
+        "bootstrap_admin_exists": "Ya existe un administrador. Iniciá sesión.",
+        "bootstrap_auth_failed": "No se pudo crear la cuenta. Probá otro correo o una contraseña distinta."
+      }
     },
     "adminContents": {
       "metaTitle": "Contenidos académicos",

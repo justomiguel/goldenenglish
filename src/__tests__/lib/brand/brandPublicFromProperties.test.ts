@@ -1,10 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { brandPublicFromProperties } from "@/lib/brand/server";
 
-// REGRESSION CHECK: brandPublicFromProperties must stay pure (no fs / Supabase),
-// because it's called inside an unstable_cache path in src/app/layout.tsx.
-// Defaults must be preserved when keys are missing so the landing keeps
-// rendering even with an empty active theme override map.
+// REGRESSION: brandPublicFromProperties stays synchronous (no fs / network);
+// may read process.env for Storage URL resolution via resolveBrandAssetUrl.
 
 describe("brandPublicFromProperties (pure)", () => {
   it("derives every public field from the property map", () => {

@@ -4,7 +4,7 @@ import {
   defaultLocale,
   locales,
 } from "@/lib/i18n/dictionaries";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { ForgotPasswordScreenGate } from "@/components/organisms/ForgotPasswordScreenGate";
 
 interface ForgotPasswordPageProps {
@@ -36,7 +36,7 @@ export default async function ForgotPasswordPage({
 }: ForgotPasswordPageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
-  const brand = getBrandPublic();
+  const brand = await getBrandForRequest();
 
   return <ForgotPasswordScreenGate brand={brand} dict={dict} locale={locale} />;
 }

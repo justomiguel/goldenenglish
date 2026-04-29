@@ -32,6 +32,7 @@ vi.mock("@/app/[locale]/dashboard/admin/import/actions", () => ({
 
 vi.mock("@/lib/brand/server", () => ({
   getBrandPublic: () => mockBrandPublic,
+  getBrandForRequest: () => Promise.resolve(mockBrandPublic),
 }));
 
 vi.mock("@/lib/site/publicUrl", () => ({
@@ -124,7 +125,7 @@ describe("component smoke — molecules & PWA", () => {
   });
 
   it("JsonLdOrganization", () => {
-    render(<JsonLdOrganization locale="es" />);
+    render(<JsonLdOrganization locale="es" brand={mockBrandPublic} />);
   });
 
   it("LandingCefrIntroBanner", () => {

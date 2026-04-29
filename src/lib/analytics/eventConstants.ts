@@ -47,6 +47,8 @@ export const AnalyticsEntity = {
   enrollmentFeeReceiptSubmittedStudent: "enrollment_fee_receipt_submitted_student",
   /** Funnel: enrollment fee receipt uploaded by a parent/tutor on behalf of a student */
   enrollmentFeeReceiptSubmittedTutor: "enrollment_fee_receipt_submitted_tutor",
+  /** Admin one-time greenfield onboarding wizard */
+  initialSiteSetup: "section:initial_site_setup",
   /** Staff: monthly fee marked paid without going through receipt review */
   adminRecordedMonthlyPayment: "admin_recorded_monthly_payment",
   /** Staff: monthly fee approval undone back to pending (mistake correction) */

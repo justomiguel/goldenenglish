@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { requestPasswordReset } from "@/lib/auth/requestPasswordReset";
@@ -57,7 +57,7 @@ export async function requestPasswordResetAction(
     email,
     locale,
     redirectTo: buildRecoveryRedirectTo(locale),
-    brand: getBrandPublic(),
+    brand: await getBrandForRequest(),
     adminClient: createAdminClient(),
     emailProvider: getEmailProvider(),
   });

@@ -1,4 +1,4 @@
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { logServerException } from "@/lib/logging/serverActionLog";
@@ -42,7 +42,7 @@ export async function sendStudentChurnAlert(params: {
 }): Promise<void> {
   const toList = await emailsForStudentParents(params.studentId);
   if (toList.length === 0) return;
-  const brand = getBrandPublic();
+  const brand = await getBrandForRequest();
   const dict = await getDictionary(params.locale);
   const c = dict.emailChurn;
   const display = params.studentDisplayName.trim() || c.anonymousDisplayName;

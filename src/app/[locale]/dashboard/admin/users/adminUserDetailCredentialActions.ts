@@ -10,7 +10,7 @@ import { verifyUserPassword } from "@/lib/supabase/verifyUserPassword";
 import { buildResetByDniPlan } from "@/lib/auth/buildResetByDniPlan";
 import { sendAdminPasswordResetNoticeEmail } from "@/lib/email/sendAdminPasswordResetNoticeEmail";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import {
   logServerAuthzDenied,
   logServerActionException,
@@ -189,7 +189,7 @@ export async function resetUserPasswordByDniAction(
       try {
         const r = await sendAdminPasswordResetNoticeEmail({
           to: targetEmail,
-          brand: getBrandPublic(),
+          brand: await getBrandForRequest(),
           locale,
           emailProvider: getEmailProvider(),
         });

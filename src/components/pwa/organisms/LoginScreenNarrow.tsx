@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import { taglineForLocale } from "@/lib/brand/taglineForLocale";
 import type { Dictionary } from "@/types/i18n";
@@ -15,6 +15,7 @@ interface LoginScreenNarrowProps {
   dict: Dictionary;
   locale: string;
   nextPath?: string | null;
+  firstRunSetupHref?: string | null;
   surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">;
 }
 
@@ -23,6 +24,7 @@ export function LoginScreenNarrow({
   dict,
   locale,
   nextPath = null,
+  firstRunSetupHref = null,
   surface,
 }: LoginScreenNarrowProps) {
   const homeHref = `/${locale}`;
@@ -97,6 +99,17 @@ export function LoginScreenNarrow({
             locale={locale}
             nextPath={nextPath}
           />
+          {firstRunSetupHref ? (
+            <p className="mt-6 text-center text-sm">
+              <Link
+                href={firstRunSetupHref}
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] px-3 py-2 font-medium text-[var(--color-primary)] transition hover:bg-[var(--color-muted)]"
+              >
+                <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
+                {dict.login.firstRunSetupLink}
+              </Link>
+            </p>
+          ) : null}
         </div>
       </div>
     </main>

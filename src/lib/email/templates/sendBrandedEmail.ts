@@ -1,7 +1,7 @@
 import "server-only";
 import type { EmailProvider, SendEmailResult } from "@/lib/email/emailProvider";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { loadEmailTemplate } from "@/lib/email/templates/loadEmailTemplate";
 import { wrapEmailHtml } from "@/lib/email/templates/wrapEmailHtml";
@@ -46,7 +46,7 @@ export async function sendBrandedEmail(
     return { ok: false, error: "unknown_template_key" };
   }
 
-  const brand = getBrandPublic();
+  const brand = await getBrandForRequest();
   const origin = getPublicSiteUrl()?.origin ?? "http://localhost:3000";
   const html = wrapEmailHtml({
     brand,

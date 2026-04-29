@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import { incrementRetentionContactCount } from "@/lib/academics/incrementRetentionContactCount";
@@ -90,7 +90,7 @@ export async function sendRetentionContactEmailAction(input: unknown): Promise<
   }
   const { to } = resolved;
 
-  const brand = getBrandPublic();
+  const brand = await getBrandForRequest();
   const dict = await getDictionary(data.locale);
   const intro = dict.dashboard.adminRetention.emailIntro;
 

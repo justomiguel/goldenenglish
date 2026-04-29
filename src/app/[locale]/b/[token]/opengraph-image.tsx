@@ -1,37 +1,21 @@
 import { ImageResponse } from "next/og";
-import { readFileSync } from "fs";
-import { join } from "path";
-import { getBrandPublic, type BrandPublic } from "@/lib/brand/server";
-import { loadProperties, getProperty } from "@/lib/theme/themeParser";
+import { getBrandForRequest } from "@/lib/brand/server";
+import { resolveBrandLogoAbsoluteUrl } from "@/lib/brand/resolveBrandLogoUrl";
+import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
+import { getProperty } from "@/lib/theme/themeParser";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadPublicStudentBadgeShareByToken } from "@/lib/badges/loadPublicStudentBadgeShare";
 import { loadPublicBadgeCatalogEntryByCode } from "@/lib/badges/loadPublicBadgeCatalogEntry";
 import { resolveBadgeTranslation } from "@/lib/badges/badgeCatalog";
 import { badgeImagePublicUrl } from "@/lib/badges/badgeImagePublicUrl";
 import { isStudentBadgeCode } from "@/lib/badges/badgeCodes";
-import { logServerException } from "@/lib/logging/serverActionLog";
+import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 
-const brand: BrandPublic = getBrandPublic();
-export const alt = brand.name;
+export const alt = "Open Graph image";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 /** ISR: data per token is stable; revalidate daily and let CDN cache OG image. */
 export const revalidate = 86400;
-
-let cachedLogoBase64: string | null = null;
-
-function loadLogoBase64(): string | null {
-  if (cachedLogoBase64 !== null) return cachedLogoBase64;
-  try {
-    const logoPath = join(process.cwd(), "public", "images", "logo.png");
-    const logoData = readFileSync(logoPath);
-    cachedLogoBase64 = `data:image/png;base64,${logoData.toString("base64")}`;
-  } catch (err) {
-    logServerException("studentBadgeShareOgImage:logoRead", err);
-    cachedLogoBase64 = "";
-  }
-  return cachedLogoBase64 || null;
-}
 
 export default async function StudentBadgeShareOgImage({
   params,
@@ -41,17 +25,23 @@ export default async function StudentBadgeShareOgImage({
   const { locale, token } = await params;
   const data = await loadPublicStudentBadgeShareByToken(token);
   const dict = await getDictionary(locale);
-  const props = loadProperties();
-  const primaryColor = getProperty(props, "color.primary", "#103A5C");
-  const accentColor = getProperty(props, "color.accent", "#F0B932");
-  const surfaceWhite = getProperty(props, "color.background", "#FFFFFF");
-  const borderMuted = getProperty(props, "color.border", "#E5E7EB");
-  const fallbackLogo = loadLogoBase64();
+  const { properties } = await loadEffectiveProperties();
+  const primaryColor = getProperty(properties, "color.primary", "#103A5C");
+  const primaryDark = getProperty(properties, "color.primary.dark", "#0A253D");
+  const accentColor = getProperty(properties, "color.accent", "#F0B932");
+  const surfaceWhite = getProperty(properties, "color.background", "#FFFFFF");
+  const borderMuted = getProperty(properties, "color.border", "#E5E7EB");
+
+  const origin =
+    getPublicSiteUrl()?.origin.replace(/\/$/, "") ?? "http://localhost:3000";
+
+  const brand = await getBrandForRequest();
+  const fallbackLogoUrl = resolveBrandLogoAbsoluteUrl(brand, origin);
 
   const validCode = data && isStudentBadgeCode(data.badgeCode);
   const catalog = validCode ? await loadPublicBadgeCatalogEntryByCode(data.badgeCode) : null;
   const customImageUrl = catalog ? badgeImagePublicUrl(catalog.imagePath) : null;
-  const heroImage = customImageUrl ?? fallbackLogo;
+  const heroImage = customImageUrl ?? fallbackLogoUrl;
 
   const title = catalog
     ? resolveBadgeTranslation({ code: catalog.code, translations: catalog.translations }, locale).title
@@ -80,7 +70,7 @@ export default async function StudentBadgeShareOgImage({
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: `linear-gradient(135deg, ${primaryColor} 0%, #0A253D 100%)`,
+          background: `linear-gradient(135deg, ${primaryColor} 0%, ${primaryDark} 100%)`,
           position: "relative",
         }}
       >

@@ -4,7 +4,8 @@ import {
   defaultLocale,
   locales,
 } from "@/lib/i18n/dictionaries";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
+import { loadFirstRunWizardMode } from "@/lib/site/loadFirstRunWizardMode";
 import { LoginScreenDesktop } from "@/components/desktop/organisms/LoginScreenDesktop";
 import { LoginScreenGate } from "@/components/organisms/LoginScreenGate";
 
@@ -54,7 +55,11 @@ export default async function LoginPage({
   const sp = searchParams ? await searchParams : undefined;
   const nextPath = pickNextParam(sp);
   const dict = await getDictionary(locale);
-  const brand = getBrandPublic();
+  const brand = await getBrandForRequest();
+
+  const wizardMode = await loadFirstRunWizardMode();
+  const firstRunSetupHref =
+    wizardMode !== "closed" ? `/${locale}/setup/first-run` : null;
 
   return (
     <LoginScreenGate
@@ -62,12 +67,14 @@ export default async function LoginPage({
       dict={dict}
       locale={locale}
       nextPath={nextPath}
+      firstRunSetupHref={firstRunSetupHref}
       desktop={
         <LoginScreenDesktop
           brand={brand}
           dict={dict}
           locale={locale}
           nextPath={nextPath}
+          firstRunSetupHref={firstRunSetupHref}
         />
       }
     />

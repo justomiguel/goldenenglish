@@ -29,9 +29,9 @@ vi.mock("@/lib/email/templates/sendBrandedEmail", () => ({
   sendBrandedEmail: (...a: unknown[]) => sendBrandedEmailMock(...a),
 }));
 
-const getBrandPublicMock = vi.fn();
+const getBrandForRequestMock = vi.fn();
 vi.mock("@/lib/brand/server", () => ({
-  getBrandPublic: () => getBrandPublicMock(),
+  getBrandForRequest: () => getBrandForRequestMock(),
 }));
 
 // --- Supabase user-scoped client (createClient) ---
@@ -136,7 +136,7 @@ describe("updateWardProfile — email-change hardening", () => {
     });
     verifyUserPasswordMock.mockResolvedValue(true);
     sendBrandedEmailMock.mockResolvedValue({ ok: true, fromOverride: false });
-    getBrandPublicMock.mockReturnValue({ name: "Golden English", contactEmail: "soporte@example.com" });
+    getBrandForRequestMock.mockResolvedValue({ name: "Golden English", contactEmail: "soporte@example.com" });
   });
 
   it("rejects when parentPassword is missing AND email is changing", async () => {

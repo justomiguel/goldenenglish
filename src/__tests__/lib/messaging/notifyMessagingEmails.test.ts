@@ -23,9 +23,24 @@ vi.mock("@/lib/supabase/admin", () => ({
 }));
 
 vi.mock("@/lib/brand/server", () => ({
-  getBrandPublic: vi.fn(() => ({
-    name: "Golden English",
-  })),
+  getBrandForRequest: vi.fn(() =>
+    Promise.resolve({
+      name: "Golden English",
+      contactEmail: "support@example.com",
+      legalName: "",
+      tagline: "",
+      taglineEn: "",
+      legalRegistry: "",
+      logoPath: "/images/logo.png",
+      logoAlt: "",
+      faviconPath: "",
+      contactPhone: "",
+      contactAddress: "",
+      socialFacebook: "",
+      socialInstagram: "",
+      socialWhatsapp: "",
+    }),
+  ),
 }));
 
 vi.mock("@/lib/site/publicUrl", () => ({

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { loadAdminEmailTemplates } from "@/lib/email/templates/loadAdminEmailTemplates";
 import { EmailTemplatesShell } from "@/components/dashboard/admin/communications/EmailTemplatesShell";
@@ -31,7 +31,7 @@ export default async function AdminCommunicationsTemplatesPage({ params }: PageP
   if (!isAdmin) redirect(`/${locale}/dashboard`);
 
   const entries = await loadAdminEmailTemplates(supabase);
-  const brand = getBrandPublic();
+  const brand = await getBrandForRequest();
   const origin = getPublicSiteUrl()?.origin ?? "http://localhost:3000";
 
   return (

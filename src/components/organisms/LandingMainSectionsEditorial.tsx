@@ -95,7 +95,7 @@ export function LandingMainSectionsEditorial({
       </EditorialBand>
 
       <EditorialBand>
-        <LandingCertifications dict={dict} />
+        <LandingCertifications dict={dict} mediaMap={mediaMap} />
         <LandingBlocksRenderer
           section="certificaciones"
           blocks={blocksFor(blocksBySection, "certificaciones")}

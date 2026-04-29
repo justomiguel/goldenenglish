@@ -42,7 +42,7 @@ vi.mock("@/lib/email/templates/sendBrandedEmail", () => ({
 }));
 
 vi.mock("@/lib/brand/server", () => ({
-  getBrandPublic: () => ({ name: "Test Institute" }),
+  getBrandForRequest: () => Promise.resolve({ name: "Test Institute" }),
 }));
 
 vi.mock("@/lib/messaging/notifyRetentionOutreachInApp", () => ({

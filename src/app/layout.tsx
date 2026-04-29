@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Fraunces } from "next/font/google";
+import { buildRootLayoutIcons } from "@/lib/brand/buildRootLayoutIcons";
 import { brandPublicFromProperties } from "@/lib/brand/server";
-import { faviconPublicDir } from "@/lib/brand/faviconDir";
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
 import { cssRootBlock } from "@/lib/theme/themeOverrides";
 import { getProperty } from "@/lib/theme/themeParser";
@@ -40,7 +40,6 @@ export async function generateViewport(): Promise<Viewport> {
 export async function generateMetadata(): Promise<Metadata> {
   const { properties } = await loadEffectiveProperties();
   const brand = brandPublicFromProperties(properties);
-  const faviconDir = faviconPublicDir(brand.faviconPath);
   return {
     metadataBase,
     /** Root `app/manifest.ts` — must be absolute so locale pages do not resolve `/es/manifest.webmanifest`. */
@@ -55,23 +54,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: brand.name,
       statusBarStyle: "black-translucent",
     },
-    icons: {
-      icon: [
-        {
-          url: `${faviconDir}/favicon-16x16.png`,
-          sizes: "16x16",
-          type: "image/png",
-        },
-        {
-          url: `${faviconDir}/favicon-32x32.png`,
-          sizes: "32x32",
-          type: "image/png",
-        },
-        { url: brand.faviconPath, sizes: "48x48", type: "image/x-icon" },
-      ],
-      apple: `${faviconDir}/apple-touch-icon.png`,
-      shortcut: brand.faviconPath,
-    },
+    icons: buildRootLayoutIcons(brand),
   };
 }
 

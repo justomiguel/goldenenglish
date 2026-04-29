@@ -1,5 +1,5 @@
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { createClient } from "@/lib/supabase/server";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { LandingSurfaceGate } from "@/components/organisms/LandingSurfaceGate";
@@ -28,7 +28,7 @@ export default async function HomePage({ params }: HomePageProps) {
 
   const [baseDict, brand, inscriptionsOpen, activeTheme] = await Promise.all([
     getDictionary(locale),
-    Promise.resolve(getBrandPublic()),
+    getBrandForRequest(),
     getInscriptionsEnabled(),
     loadActiveTheme(),
   ]);

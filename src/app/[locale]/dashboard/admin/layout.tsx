@@ -1,11 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { AdminDashboardShell } from "@/components/dashboard/AdminDashboardShell";
 import { AdminCommandPalette } from "@/components/dashboard/AdminCommandPalette";
+import { loadNeedsInitialSiteSetup } from "@/lib/site/loadNeedsInitialSiteSetup";
+import { AdminInitialSiteSetupGate } from "@/components/dashboard/admin/site-setup/AdminInitialSiteSetupGate";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -46,7 +48,9 @@ export default async function AdminSectionLayout({
     .select("id", { head: true, count: "exact" })
     .eq("status", "new");
 
-  const brand = getBrandPublic();
+  const brand = await getBrandForRequest();
+
+  const needsInitialSiteSetup = await loadNeedsInitialSiteSetup(supabase);
 
   return (
     <AdminDashboardShell
@@ -56,9 +60,18 @@ export default async function AdminSectionLayout({
       newRegistrationsCount={count ?? 0}
       adminProfileRole={adminProfileRole}
       teacherPortalAllowed={teacherPortalAllowed}
+      siteSetupRequired={needsInitialSiteSetup}
     >
-      <AdminCommandPalette locale={locale} dict={dict.dashboard.adminCommandPalette} />
-      {children}
+      <AdminInitialSiteSetupGate
+        locale={locale}
+        needsSetup={needsInitialSiteSetup}
+        redirectLabel={dict.dashboard.siteSetup.gateRedirect}
+      >
+        {needsInitialSiteSetup ? null : (
+          <AdminCommandPalette locale={locale} dict={dict.dashboard.adminCommandPalette} />
+        )}
+        {children}
+      </AdminInitialSiteSetupGate>
     </AdminDashboardShell>
   );
 }

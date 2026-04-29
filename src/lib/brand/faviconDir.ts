@@ -1,3 +1,13 @@
+/** MIME guess for favicon/manifest/icon entries when `src`/`url` may point to Storage/CDN. */
+export function mimeForIconSrc(src: string): string {
+  const lower = src.toLowerCase();
+  if (lower.endsWith(".svg")) return "image/svg+xml";
+  if (lower.endsWith(".webp")) return "image/webp";
+  if (lower.endsWith(".png")) return "image/png";
+  if (lower.endsWith(".ico")) return "image/x-icon";
+  return "image/png";
+}
+
 /** Directory prefix for generated PNG/ICO assets under `public/` (e.g. `/favicon_io`). */
 export function faviconPublicDir(faviconIcoPath: string): string {
   const slash = faviconIcoPath.lastIndexOf("/");

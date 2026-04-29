@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { createClient } from "@/lib/supabase/server";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { loadAdminCohortPageData } from "@/lib/academics/loadAdminCohortPageData";
@@ -101,7 +101,7 @@ export default async function AcademicCohortPage({ params, searchParams }: PageP
     /* admin layout should prevent; leave empty */
   }
 
-  const brand = getBrandPublic();
+  const brand = await getBrandForRequest();
   const tn = dict.dashboard.academics.transferNotifications;
   const notificationDict: AcademicTransferNotificationDict = {
     emailSubject: tn.emailSubject,

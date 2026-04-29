@@ -8,7 +8,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { pickLocaleFromUnknownPayload } from "@/lib/parent/pickLocaleFromUnknownPayload";
 import { verifyUserPassword } from "@/lib/supabase/verifyUserPassword";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import {
   logServerException,
   logSupabaseClientError,
@@ -194,9 +194,9 @@ async function recordEmailChangeAuditAndNotify(input: {
     });
   }
 
-  const brand = getBrandPublic();
+  const brand = await getBrandForRequest();
   const supportEmail =
-    (brand as { contactEmail?: string }).contactEmail?.trim() || input.parentEmail;
+    brand.contactEmail?.trim() || input.parentEmail;
   const vars = {
     wardName: input.wardName,
     oldEmail: input.oldEmail,

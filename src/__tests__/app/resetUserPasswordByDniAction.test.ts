@@ -7,7 +7,7 @@ const {
   recordSystemAuditMock,
   sendNoticeEmailMock,
   revalidatePathMock,
-  getBrandPublicMock,
+  getBrandForRequestMock,
   getEmailProviderMock,
   profilesMaybeSingle,
   profilesEq,
@@ -29,10 +29,12 @@ const {
     recordSystemAuditMock: vi.fn(),
     sendNoticeEmailMock: vi.fn(),
     revalidatePathMock: vi.fn(),
-    getBrandPublicMock: vi.fn(() => ({
-      name: "Golden English",
-      contactEmail: "info@example.com",
-    })),
+    getBrandForRequestMock: vi.fn(() =>
+      Promise.resolve({
+        name: "Golden English",
+        contactEmail: "info@example.com",
+      }),
+    ),
     getEmailProviderMock: vi.fn(() => ({ sendEmail: vi.fn() })),
     profilesMaybeSingle,
     profilesEq,
@@ -81,7 +83,7 @@ vi.mock("@/lib/email/getEmailProvider", () => ({
 }));
 
 vi.mock("@/lib/brand/server", () => ({
-  getBrandPublic: () => getBrandPublicMock(),
+  getBrandForRequest: () => getBrandForRequestMock(),
 }));
 
 const TARGET = "11111111-2222-4333-8444-555555555555";
@@ -116,7 +118,7 @@ describe("resetUserPasswordByDniAction", () => {
     adminFrom.mockClear();
     getUserByIdMock.mockReset();
     updateUserByIdMock.mockReset();
-    getBrandPublicMock.mockClear();
+    getBrandForRequestMock.mockClear();
     getEmailProviderMock.mockClear();
 
     assertAdminMock.mockResolvedValue({

@@ -23,7 +23,9 @@ vi.mock("@/lib/email/getEmailProvider", () => ({
 }));
 
 vi.mock("@/lib/brand/server", () => ({
-  getBrandPublic: vi.fn(() => ({ name: "Golden English" })),
+  getBrandForRequest: vi.fn(() =>
+    Promise.resolve({ name: "Golden English" }),
+  ),
 }));
 
 vi.mock("@/lib/site/publicUrl", () => ({

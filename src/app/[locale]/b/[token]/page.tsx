@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { getPublicSiteUrl, absoluteUrl } from "@/lib/site/publicUrl";
 import { loadPublicStudentBadgeShareByToken } from "@/lib/badges/loadPublicStudentBadgeShare";
 import { loadPublicBadgeCatalogEntryByCode } from "@/lib/badges/loadPublicBadgeCatalogEntry";
@@ -72,8 +72,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = dict.publicStudentBadge.earnedOn.replace("{date}", when);
   const path = `/${locale}/b/${token}`;
   const abs = absoluteUrl(path);
+  const brand = await getBrandForRequest();
   return {
-    title: `${title} — ${getBrandPublic().name}`,
+    title: `${title} — ${brand.name}`,
     description: `${description} — ${dict.publicStudentBadge.headline}`,
     alternates: abs
       ? {

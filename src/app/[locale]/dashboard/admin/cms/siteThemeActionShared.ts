@@ -31,6 +31,7 @@ export function revalidateSiteThemeSurfaces(locale: string): void {
   updateTag(SITE_THEME_ACTIVE_CACHE_TAG);
   revalidatePath(`/${locale}/dashboard/admin/cms`);
   revalidatePath(`/${locale}/dashboard/admin/cms/templates`);
+  revalidatePath(`/${locale}/dashboard/admin/site-setup`);
   revalidatePath(`/${locale}`);
 }
 

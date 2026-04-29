@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { resolveAvatarDisplayUrl } from "@/lib/dashboard/resolveAvatarUrl";
 import { loadOrProvisionDashboardProfileRow } from "@/lib/profile/loadOrProvisionDashboardProfileRow";
 import { listStudentTutorsWithFinance } from "@/lib/auth/listStudentTutorsWithFinance";
@@ -49,8 +49,9 @@ export default async function DashboardProfilePage({ params }: PageProps) {
   const resolvedProfile = await loadOrProvisionDashboardProfileRow(user);
 
   if (!resolvedProfile) {
+    const brand = await getBrandForRequest();
     return (
-      <ProfileMissingScreen locale={locale} brand={getBrandPublic()} labels={dict.dashboard.myProfile} />
+      <ProfileMissingScreen locale={locale} brand={brand} labels={dict.dashboard.myProfile} />
     );
   }
 

@@ -39,8 +39,8 @@ function icsProdId(brandName?: string): string {
  * RFC5545 calendar document for subscriptions (Google / Outlook “from URL”).
  * Caps the number of VEVENT rows for safety on large admin feeds.
  *
- * `params.brandName` should come from `getBrandPublic().name` /
- * `system.properties` (no hardcoded institute identity here).
+ * `params.brandName` should come from `getBrandForRequest().name` /
+ * merged theme properties (no hardcoded institute identity here).
  */
 export function formatPortalCalendarIcs(
   rows: ExpandedPortalOccurrence[],

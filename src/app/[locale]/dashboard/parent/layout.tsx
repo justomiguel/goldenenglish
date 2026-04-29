@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { StudentDashboardShell } from "@/components/dashboard/StudentDashboardShell";
 
 interface LayoutProps {
@@ -16,7 +16,7 @@ export default async function ParentDashboardLayout({
 }: LayoutProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
-  const brand = getBrandPublic();
+  const brand = await getBrandForRequest();
   const supabase = await createClient();
   const {
     data: { user },

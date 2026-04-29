@@ -5,7 +5,7 @@ import {
   type AppLocale,
 } from "@/lib/i18n/dictionaries";
 import { notFound } from "next/navigation";
-import { getBrandPublic } from "@/lib/brand/server";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { taglineForLocale } from "@/lib/brand/taglineForLocale";
 import { JsonLdOrganization } from "@/components/molecules/JsonLdOrganization";
 import { AnalyticsRoot } from "@/components/analytics/AnalyticsRoot";
@@ -25,7 +25,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const brand = getBrandPublic();
+  const brand = await getBrandForRequest();
   const description = taglineForLocale(brand, locale);
   const path = `/${locale}`;
 
@@ -76,9 +76,11 @@ export default async function LocaleLayout({
     notFound();
   }
 
+  const brand = await getBrandForRequest();
+
   return (
     <div lang={locale} className="min-h-screen">
-      <JsonLdOrganization locale={locale} />
+      <JsonLdOrganization locale={locale} brand={brand} />
       <AnalyticsRoot>{children}</AnalyticsRoot>
     </div>
   );
