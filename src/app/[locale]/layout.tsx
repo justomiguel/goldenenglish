@@ -5,8 +5,8 @@ import {
   type AppLocale,
 } from "@/lib/i18n/dictionaries";
 import { notFound } from "next/navigation";
-import { getBrandForRequest } from "@/lib/brand/server";
 import { taglineForLocale } from "@/lib/brand/taglineForLocale";
+import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { JsonLdOrganization } from "@/components/molecules/JsonLdOrganization";
 import { AnalyticsRoot } from "@/components/analytics/AnalyticsRoot";
 
@@ -25,13 +25,17 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const brand = await getBrandForRequest();
-  const description = taglineForLocale(brand, locale);
+  const loc = locale as AppLocale;
+  const { brand, needsInitialSiteSetup, dict } =
+    await resolvePublicBrandWithSetup(loc);
+  const description = needsInitialSiteSetup
+    ? dict.greenfieldPublic.metaDescription
+    : taglineForLocale(brand, locale);
   const path = `/${locale}`;
 
   const languageAlternates: Record<string, string> = {};
-  for (const loc of locales) {
-    languageAlternates[loc] = `/${loc}`;
+  for (const alt of locales) {
+    languageAlternates[alt] = `/${alt}`;
   }
   languageAlternates["x-default"] = `/${defaultLocale}`;
 
@@ -76,11 +80,14 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  const brand = await getBrandForRequest();
+  const loc = locale as AppLocale;
+  const { brand, needsInitialSiteSetup } = await resolvePublicBrandWithSetup(loc);
 
   return (
     <div lang={locale} className="min-h-screen">
-      <JsonLdOrganization locale={locale} brand={brand} />
+      {needsInitialSiteSetup ? null : (
+        <JsonLdOrganization locale={locale} brand={brand} />
+      )}
       <AnalyticsRoot>{children}</AnalyticsRoot>
     </div>
   );

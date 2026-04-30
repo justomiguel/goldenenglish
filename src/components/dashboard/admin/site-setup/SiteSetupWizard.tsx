@@ -1,5 +1,6 @@
 "use client";
 
+import "./vargasWizardDesignTokens.css";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import type { Dictionary } from "@/types/i18n";
@@ -8,20 +9,28 @@ import { SiteSetupContactStep } from "@/components/dashboard/admin/site-setup/Si
 import { SiteSetupInstituteStep } from "@/components/dashboard/admin/site-setup/SiteSetupInstituteStep";
 import { SiteSetupIntroStep } from "@/components/dashboard/admin/site-setup/SiteSetupIntroStep";
 import { SiteSetupReviewStep } from "@/components/dashboard/admin/site-setup/SiteSetupReviewStep";
+import { SiteSetupWizardErrorAlert } from "@/components/dashboard/admin/site-setup/SiteSetupWizardErrorAlert";
 import { SiteSetupWizardNav } from "@/components/dashboard/admin/site-setup/SiteSetupWizardNav";
 import { readImageFileAsBase64 } from "@/components/dashboard/admin/site-setup/readImageFileAsBase64";
-
 type SiteSetupDict = Dictionary["dashboard"]["siteSetup"];
 
 interface SiteSetupWizardProps {
   locale: string;
   themeId: string;
   labels: SiteSetupDict;
+  platformCredit: string;
+  platformCreditAria: string;
 }
 
 const STEPS = 4;
 
-export function SiteSetupWizard({ locale, themeId, labels }: SiteSetupWizardProps) {
+export function SiteSetupWizard({
+  locale,
+  themeId,
+  labels,
+  platformCredit,
+  platformCreditAria,
+}: SiteSetupWizardProps) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -144,7 +153,10 @@ export function SiteSetupWizard({ locale, themeId, labels }: SiteSetupWizardProp
     : null;
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <section
+      data-ge-design-system="vargas-wizard"
+      className="vw-wizard-shell mx-auto w-full max-w-2xl px-4 py-8 md:py-12"
+    >
       <p className="mb-1 text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
         {stepLabel}
       </p>
@@ -156,15 +168,10 @@ export function SiteSetupWizard({ locale, themeId, labels }: SiteSetupWizardProp
       </p>
 
       {errorMessage ? (
-        <p
-          className="mt-4 rounded-[var(--layout-border-radius)] border border-[var(--color-error)] bg-[var(--color-muted)] px-3 py-2 text-sm text-[var(--color-error)]"
-          role="alert"
-        >
-          {errorMessage}
-        </p>
+        <SiteSetupWizardErrorAlert message={errorMessage} />
       ) : null}
 
-      <div className="mt-8 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
+      <div className="vw-wizard-card mt-8 rounded-[var(--layout-border-radius)] p-6">
         {step === 0 ? <SiteSetupIntroStep labels={labels.intro} /> : null}
         {step === 1 ? (
           <SiteSetupInstituteStep
@@ -227,6 +234,13 @@ export function SiteSetupWizard({ locale, themeId, labels }: SiteSetupWizardProp
           onFinish={finish}
         />
       </div>
-    </div>
+
+      <p
+        className="mt-6 text-center text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--color-primary)]"
+        aria-label={platformCreditAria}
+      >
+        {platformCredit}
+      </p>
+    </section>
   );
 }

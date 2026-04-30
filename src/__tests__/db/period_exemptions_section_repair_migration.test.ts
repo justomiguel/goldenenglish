@@ -6,11 +6,11 @@ import { resolve } from "node:path";
 // REGRESSION CHECK: legacy monthly exemptions without section_id must be
 // repaired when the student has one unambiguous active section, otherwise
 // finance section matrices cannot display the exempt month.
-describe("063_period_exemptions_section_repair.sql", () => {
+describe("064_period_exemptions_section_repair.sql", () => {
   const sql = readFileSync(
     resolve(
       process.cwd(),
-      "supabase/migrations/063_period_exemptions_section_repair.sql",
+      "supabase/migrations/064_period_exemptions_section_repair.sql",
     ),
     "utf-8",
   );

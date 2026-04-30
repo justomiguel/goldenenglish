@@ -1,0 +1,72 @@
+/**
+ * Sistemas Vargas — design tokens for the initial site-setup wizard only.
+ *
+ * UX rationale (orange / white / black):
+ * - Primary orange (#ea580c): strong CTA affordance; paired with white label text on
+ *   buttons for contrast (avoid orange-on-white for small body copy — fatigue).
+ * - Hover (#c2410c): clearly darker = predictable pressed/hover state.
+ * - “Black” as ink (#0c0c0c): softer than #000 for long-form labels.
+ * - Muted (#57534e stone): neutral complement that stays readable on warm whites.
+ * - Page wash (#fafaf9) vs card (#ffffff): separation without cold gray chrome.
+ * - Accent for decorative icons: orange-950 — same hue family as primary, no CTA competition.
+ *
+ * Scoped bridge: overrides semantic `--color-*` used by Button/Input/Label under
+ * `[data-ge-design-system="vargas-wizard"]` so child steps inherit automatically.
+ * Extend by reusing `--vw-*` canonical keys in other shells later.
+ */
+
+[data-ge-design-system="vargas-wizard"] {
+  /* Canonical palette (portable to future `@layer theme`) */
+  --vw-orange-50: #fff7ed;
+  --vw-orange-600: #ea580c;
+  --vw-orange-700: #c2410c;
+  --vw-orange-950: #431407;
+  --vw-ink: #0c0c0c;
+  --vw-ink-muted: #57534e;
+  --vw-white: #ffffff;
+  --vw-wash: #fafaf9;
+  --vw-border: #e7e5e4;
+  --vw-hover-fill: #f5f5f4;
+
+  --vw-elev-card:
+    0 1px 2px rgb(12 10 9 / 0.05), 0 10px 28px rgb(234 88 12 / 0.07);
+
+  /* Radius slightly softer than global default when shell sets --layout-border-radius */
+  --layout-border-radius: 0.75rem;
+
+  /* Semantic bridge (atoms + wizard steps) */
+  --color-background: var(--vw-wash);
+  --color-surface: var(--vw-white);
+  --color-foreground: var(--vw-ink);
+  --color-muted-foreground: var(--vw-ink-muted);
+  --color-border: var(--vw-border);
+  --color-muted: var(--vw-hover-fill);
+
+  --color-primary: var(--vw-orange-600);
+  --color-primary-dark: var(--vw-orange-700);
+  --color-primary-foreground: var(--vw-white);
+
+  --color-accent: var(--vw-orange-950);
+
+  /* Ghost / secondary paths — kept neutral so orange stays for primary actions */
+  --color-secondary: var(--vw-hover-fill);
+  --color-secondary-foreground: var(--vw-ink);
+  --color-secondary-dark: var(--vw-border);
+
+  /* Errors stay universally recognizable */
+  --color-error: #dc2626;
+
+  /* Card elevation token for wizard shell */
+  --vw-card-shadow: var(--vw-elev-card);
+}
+
+[data-ge-design-system="vargas-wizard"].vw-wizard-shell {
+  background-color: var(--color-background);
+}
+
+[data-ge-design-system="vargas-wizard"] .vw-wizard-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--color-primary);
+  box-shadow: var(--vw-card-shadow);
+}

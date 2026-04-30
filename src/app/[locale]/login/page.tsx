@@ -3,8 +3,9 @@ import {
   getDictionary,
   defaultLocale,
   locales,
+  type AppLocale,
 } from "@/lib/i18n/dictionaries";
-import { getBrandForRequest } from "@/lib/brand/server";
+import { resolvePublicBrand } from "@/lib/brand/resolvePublicBrand";
 import { loadFirstRunWizardMode } from "@/lib/site/loadFirstRunWizardMode";
 import { LoginScreenDesktop } from "@/components/desktop/organisms/LoginScreenDesktop";
 import { LoginScreenGate } from "@/components/organisms/LoginScreenGate";
@@ -55,7 +56,7 @@ export default async function LoginPage({
   const sp = searchParams ? await searchParams : undefined;
   const nextPath = pickNextParam(sp);
   const dict = await getDictionary(locale);
-  const brand = await getBrandForRequest();
+  const brand = await resolvePublicBrand(locale as AppLocale);
 
   const wizardMode = await loadFirstRunWizardMode();
   const firstRunSetupHref =

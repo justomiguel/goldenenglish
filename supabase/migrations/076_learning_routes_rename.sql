@@ -50,6 +50,17 @@ FROM public.learning_routes
 WHERE section_id IS NOT NULL
 ON CONFLICT (section_id) DO NOTHING;
 
+-- Policies may reference learning_routes.section_id (e.g. legacy names after 070).
+-- Must drop before removing the column (Postgres 2BP01); recreated below.
+DROP POLICY IF EXISTS section_content_plans_select_scope ON public.learning_routes;
+DROP POLICY IF EXISTS section_content_plans_write_staff ON public.learning_routes;
+DROP POLICY IF EXISTS learning_routes_select_scope ON public.learning_routes;
+DROP POLICY IF EXISTS learning_routes_write_staff ON public.learning_routes;
+DROP POLICY IF EXISTS planned_lessons_select_scope ON public.learning_route_steps;
+DROP POLICY IF EXISTS planned_lessons_write_staff ON public.learning_route_steps;
+DROP POLICY IF EXISTS learning_route_steps_select_scope ON public.learning_route_steps;
+DROP POLICY IF EXISTS learning_route_steps_write_staff ON public.learning_route_steps;
+
 ALTER TABLE public.learning_routes
   DROP COLUMN IF EXISTS section_id,
   DROP COLUMN IF EXISTS visibility;

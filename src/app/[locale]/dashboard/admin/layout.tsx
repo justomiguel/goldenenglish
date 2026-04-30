@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandForRequest } from "@/lib/brand/server";
+import { neutralBrandForGreenfield } from "@/lib/brand/neutralBrandForGreenfield";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { AdminDashboardShell } from "@/components/dashboard/AdminDashboardShell";
@@ -48,9 +49,11 @@ export default async function AdminSectionLayout({
     .select("id", { head: true, count: "exact" })
     .eq("status", "new");
 
-  const brand = await getBrandForRequest();
-
   const needsInitialSiteSetup = await loadNeedsInitialSiteSetup(supabase);
+
+  const brand = needsInitialSiteSetup
+    ? neutralBrandForGreenfield(dict)
+    : await getBrandForRequest();
 
   return (
     <AdminDashboardShell

@@ -5,10 +5,10 @@ import { resolve } from "node:path";
 
 // REGRESSION CHECK: Finance cohort matrices and receipt uploads rely on
 // `payments.section_id`; environments that missed migration 054 must be repaired
-// by 060 without losing legacy payment rows.
-describe("060_payments_section_id_backfill.sql", () => {
+// by 061 without losing legacy payment rows.
+describe("061_payments_section_id_backfill.sql", () => {
   const sql = readFileSync(
-    resolve(process.cwd(), "supabase/migrations/060_payments_section_id_backfill.sql"),
+    resolve(process.cwd(), "supabase/migrations/061_payments_section_id_backfill.sql"),
     "utf-8",
   );
 

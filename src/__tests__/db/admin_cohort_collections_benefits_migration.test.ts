@@ -5,11 +5,11 @@ import { resolve } from "node:path";
 
 // REGRESSION CHECK: finance overview uses the bulk RPC. If the payload omits
 // billing benefits, exempt students can be counted as owing enrollment fees.
-describe("062_admin_cohort_collections_benefits.sql", () => {
+describe("063_admin_cohort_collections_benefits.sql", () => {
   const sql = readFileSync(
     resolve(
       process.cwd(),
-      "supabase/migrations/062_admin_cohort_collections_benefits.sql",
+      "supabase/migrations/063_admin_cohort_collections_benefits.sql",
     ),
     "utf-8",
   );

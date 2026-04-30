@@ -2082,9 +2082,10 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.admin_traffic_geo_totals(int) TO authenticated;
 
--- ========== 014_profiles_update_linked_student_by_tutor.sql ==========
-
--- Padre/tutor autenticado puede actualizar perfiles de alumnos vinculados (rol sigue siendo student).
+-- ---------------------------------------------------------------------------
+-- Combined from legacy 014_profiles_update_linked_student_by_tutor.sql
+-- Padre/tutor autenticado puede actualizar perfiles de alumnos vinculados.
+-- ---------------------------------------------------------------------------
 
 DROP POLICY IF EXISTS profiles_update_linked_student_by_tutor ON public.profiles;
 
@@ -2634,7 +2635,7 @@ CREATE POLICY section_transfer_requests_admin_delete ON public.section_transfer_
   FOR DELETE TO authenticated
   USING (public.is_admin(auth.uid()));
 
--- ========== 017_fix_profiles_rls_recursion.sql ==========
+-- ========== 018_fix_profiles_rls_recursion.sql ==========
 
 -- Fix: infinite recursion in profiles RLS policies (42P17).
 --
@@ -2808,7 +2809,7 @@ CREATE POLICY payments_update_student_own ON public.payments
     AND status = 'pending'
   );
 
--- ========== 018_teacher_transfer_reason_peer_sections.sql ==========
+-- ========== 019_teacher_transfer_reason_peer_sections.sql ==========
 
 -- Structured reason for transfer metrics + teacher read of peer sections in same cohort
 -- (so a teacher can suggest moves to another section they do not teach).
@@ -2845,7 +2846,7 @@ CREATE POLICY academic_sections_select_scope ON public.academic_sections
     )
   );
 
--- ========== 019_academic_rls_tutor_student_rel.sql ==========
+-- ========== 020_academic_rls_tutor_student_rel.sql ==========
 
 -- Academic RLS: tutor_student_rel replaced parent_student in migration 011.
 -- Restores parent/tutor visibility for sections, enrollments, and transfer outcomes.
@@ -2905,7 +2906,7 @@ CREATE POLICY section_transfer_requests_select ON public.section_transfer_reques
     )
   );
 
--- ========== 020_section_attendance_grades_retention.sql ==========
+-- ========== 021_section_attendance_grades_retention.sql ==========
 
 -- Section-scoped attendance & grades (per section_enrollment), retention alerts.
 -- Distinct from legacy public.attendance (student_id + global date).
@@ -3150,7 +3151,7 @@ CREATE POLICY enrollment_retention_flags_teacher_update ON public.enrollment_ret
   USING (public.is_admin(auth.uid()) OR public.section_enrollment_teacher_is_self(enrollment_id))
   WITH CHECK (public.is_admin(auth.uid()) OR public.section_enrollment_teacher_is_self(enrollment_id));
 
--- ========== 021_retention_grade_average_view.sql ==========
+-- ========== 022_retention_grade_average_view.sql ==========
 
 -- Aggregated section grades per enrollment (admin retention / reports).
 -- security_invoker: RLS on underlying section_grades applies to invoker.
@@ -3167,7 +3168,7 @@ GROUP BY enrollment_id;
 COMMENT ON VIEW public.v_section_enrollment_grade_average IS
   'Mean score per section enrollment for retention dashboards; RLS from section_grades.';
 
--- ========== 022_section_attendance_operational.sql ==========
+-- ========== 023_section_attendance_operational.sql ==========
 
 -- Operational attendance: configurable no-class days + teacher edit window (RLS).
 
@@ -3230,7 +3231,7 @@ CREATE POLICY section_attendance_teacher_update ON public.section_attendance
     )
   );
 
--- ========== 023_cohort_assessments_and_enrollment_grades.sql ==========
+-- ========== 024_cohort_assessments_and_enrollment_grades.sql ==========
 
 -- Cohort-level assessments + per-enrollment rubric grades (draft / published).
 
@@ -3395,7 +3396,7 @@ CREATE POLICY enrollment_assessment_grades_admin_delete ON public.enrollment_ass
   FOR DELETE TO authenticated
   USING (public.is_admin(auth.uid()));
 
--- ========== 024_academic_cohort_rubric_dimensions.sql ==========
+-- ========== 025_academic_cohort_rubric_dimensions.sql ==========
 
 -- Optional cohort-level rubric template: JSON array of dimensions.
 -- enrollment_assessment_grades.rubric_data remains JSONB key-value (dimension key -> numeric score).
@@ -3406,7 +3407,7 @@ ALTER TABLE public.academic_cohorts
 COMMENT ON COLUMN public.academic_cohorts.rubric_dimensions IS
   'Optional JSON array: [{ "key": "fluency", "label": "Fluidez", "scaleMin": 1, "scaleMax": 5 }, ...]. Keys must match rubric_data object keys.';
 
--- ========== 025_billing_invoices_and_receipts.sql ==========
+-- ========== 026_billing_invoices_and_receipts.sql ==========
 
 -- Structured billing: invoices + receipt submissions (manual reconciliation).
 -- Coexists with legacy public.payments (monthly rows). MercadoPago-ready external_reference_id on invoices.
@@ -3462,7 +3463,6 @@ CREATE TABLE IF NOT EXISTS public.billing_receipts (
   status public.billing_receipt_status NOT NULL DEFAULT 'pending_approval',
   rejection_reason_code public.billing_rejection_reason_code,
   rejection_detail TEXT,
-  resolved_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -3573,7 +3573,7 @@ BEGIN
   END IF;
 
   UPDATE public.billing_receipts
-  SET status = 'approved', rejection_reason_code = NULL, rejection_detail = NULL, resolved_at = now()
+  SET status = 'approved', rejection_reason_code = NULL, rejection_detail = NULL
   WHERE id = p_receipt_id AND status = 'pending_approval'
   RETURNING invoice_id INTO v_inv;
 
@@ -3615,8 +3615,7 @@ BEGIN
   SET
     status = 'rejected',
     rejection_reason_code = p_code,
-    rejection_detail = NULLIF(trim(COALESCE(p_detail, '')), ''),
-    resolved_at = now()
+    rejection_detail = NULLIF(trim(COALESCE(p_detail, '')), '')
   WHERE id = p_receipt_id AND status = 'pending_approval'
   RETURNING invoice_id INTO v_inv;
 
@@ -3648,7 +3647,7 @@ CREATE POLICY payment_receipts_select_admin
     AND public.is_admin(auth.uid())
   );
 
--- ========== 026_cohort_is_current_and_cleanup.sql ==========
+-- ========== 027_cohort_is_current_and_cleanup.sql ==========
 
 -- Phase 1: explicit is_current flag on cohorts + retention view migration.
 
@@ -3684,7 +3683,7 @@ GROUP BY enrollment_id;
 COMMENT ON VIEW public.v_section_enrollment_grade_average IS
   'Mean published assessment score per section enrollment for retention dashboards.';
 
--- ========== 027_academic_sections_rls_no_recursion.sql ==========
+-- ========== 028_academic_sections_rls_no_recursion.sql ==========
 
 -- Fix: infinite recursion in policy for relation "academic_sections" (42P17).
 --
@@ -3738,7 +3737,7 @@ CREATE POLICY academic_sections_select_scope ON public.academic_sections
     )
   );
 
--- ========== 028_academic_sections_rls_break_enrollment_cycle.sql ==========
+-- ========== 029_academic_sections_rls_break_enrollment_cycle.sql ==========
 
 -- Fix 42P17: second recursion cycle between academic_sections and section_enrollments.
 --
@@ -3800,7 +3799,7 @@ CREATE POLICY cohort_assessments_teacher_insert ON public.cohort_assessments
     AND public.teacher_teaches_cohort(auth.uid(), cohort_assessments.cohort_id)
   );
 
--- ========== 029_registrations_preferred_section.sql ==========
+-- ========== 030_registrations_preferred_section.sql ==========
 
 -- Public registration: preferred academic section (current cohort) instead of free-text "level".
 
@@ -3876,7 +3875,7 @@ CREATE POLICY academic_sections_select_public_registration ON public.academic_se
     )
   );
 
--- ========== 030_admin_hub_profile_counts_rpc.sql ==========
+-- ========== 031_admin_hub_profile_counts_rpc.sql ==========
 
 -- RPC: profile counts by role + students without active section enrollment.
 -- Replaces the full profiles scan in loadAdminHubSummary (Rule 13 compliance).
@@ -3924,7 +3923,7 @@ COMMENT ON FUNCTION public.admin_hub_profile_counts() IS
 REVOKE ALL ON FUNCTION public.admin_hub_profile_counts() FROM anon;
 GRANT EXECUTE ON FUNCTION public.admin_hub_profile_counts() TO authenticated;
 
--- ========== 031_admin_traffic_geo_path_breakdown.sql ==========
+-- ========== 032_admin_traffic_geo_path_breakdown.sql ==========
 
 -- Top (country, pathname) pairs from traffic_page_hits for admin analytics (bounded).
 
@@ -3960,7 +3959,7 @@ GRANT EXECUTE ON FUNCTION public.admin_traffic_geo_path_breakdown(int, int) TO a
 CREATE INDEX IF NOT EXISTS traffic_page_hits_geo_path_created_idx
   ON public.traffic_page_hits (geo_country, pathname, created_at DESC);
 
--- ========== 032_admin_traffic_guest_path_breakdown.sql ==========
+-- ========== 033_admin_traffic_guest_path_breakdown.sql ==========
 
 -- Top pathnames for guest (no session) hits — admin traffic analytics.
 
@@ -3994,7 +3993,7 @@ GRANT EXECUTE ON FUNCTION public.admin_traffic_guest_path_breakdown(int, int) TO
 CREATE INDEX IF NOT EXISTS traffic_page_hits_guest_path_created_idx
   ON public.traffic_page_hits (visitor_kind, pathname, created_at DESC);
 
--- ========== 033_academic_cohort_section_archive.sql ==========
+-- ========== 034_academic_cohort_section_archive.sql ==========
 
 -- Operational soft-archive for cohorts and sections (admin-driven "baja").
 -- Non-admin readers lose visibility; public registration helpers ignore archived rows.
@@ -4129,7 +4128,7 @@ CREATE POLICY academic_sections_select_scope ON public.academic_sections
     )
   );
 
--- ========== 034_academic_section_starts_ends.sql ==========
+-- ========== 035_academic_section_starts_ends.sql ==========
 
 -- Operational window per section (within cohort, validated in app).
 
@@ -4174,7 +4173,7 @@ COMMENT ON COLUMN public.academic_sections.starts_on IS
 COMMENT ON COLUMN public.academic_sections.ends_on IS
   'Last day the section runs (inclusive).';
 
--- ========== 035_academic_section_assistants_and_staff.sql ==========
+-- ========== 036_academic_section_assistants_and_staff.sql ==========
 
 -- Section lead (teacher_id) remains the canonical owner; optional assistants (same cohort tools).
 -- RLS: assistants read sections/enrollments like the lead where policies used section_teacher_id / teacher-only checks.
@@ -4341,7 +4340,7 @@ AS $$
   );
 $$;
 
--- ========== 036_user_role_assistant_external_section_assistants.sql ==========
+-- ========== 037_user_role_assistant_external_section_assistants.sql ==========
 
 -- user_role: dedicated portal staff "assistant" (not necessarily a classroom teacher).
 -- External assistants (no login): names stored per section.
@@ -4462,7 +4461,7 @@ $$;
 COMMENT ON FUNCTION public.handle_new_user() IS
   'Auth trigger: provision profile; admin_invite may set role including assistant (see 036).';
 
--- ========== 037_fix_academic_sections_rls_recursion_assistants.sql ==========
+-- ========== 038_fix_academic_sections_rls_recursion_assistants.sql ==========
 
 -- Break RLS recursion: academic_sections SELECT referenced academic_section_assistants,
 -- whose SELECT policy queried academic_sections again (42P17 infinite recursion).
@@ -4510,7 +4509,7 @@ CREATE POLICY academic_section_external_assistants_select_scope
     )
   );
 
--- ========== 038_section_attendance_teacher_delete.sql ==========
+-- ========== 039_section_attendance_teacher_delete.sql ==========
 
 -- Allow teachers to delete attendance rows they recorded within the same operational window as insert/update,
 -- so the client can offer a safe "undo" after a column bulk-fill of empty cells.
@@ -4529,7 +4528,7 @@ CREATE POLICY section_attendance_teacher_delete ON public.section_attendance
     )
   );
 
--- ========== 039_portal_calendar_feed_and_section_room.sql ==========
+-- ========== 040_portal_calendar_feed_and_section_room.sql ==========
 
 -- Portal calendar: persistent iCal subscription token on profiles; optional room label on sections (admin master calendar filter).
 
@@ -4549,7 +4548,7 @@ ALTER TABLE public.academic_sections
 COMMENT ON COLUMN public.academic_sections.room_label IS
   'Optional classroom / room name for admin scheduling views and calendar filters.';
 
--- ========== 040_portal_special_calendar_events.sql ==========
+-- ========== 041_portal_special_calendar_events.sql ==========
 
 -- Institute-wide special calendar events (holidays, assemblies) visible to all authenticated users; admin CRUD.
 
@@ -4601,7 +4600,7 @@ CREATE POLICY portal_special_calendar_events_delete_admin
   ON public.portal_special_calendar_events FOR DELETE TO authenticated
   USING (public.is_admin(auth.uid()));
 
--- ========== 041_class_reminder_jobs.sql ==========
+-- ========== 042_class_reminder_jobs.sql ==========
 
 -- Class reminder queue, per-student channel prefs, in-app items; site_settings seeds.
 -- Jobs are written/read by service_role (cron); authenticated users have no direct job access.
@@ -4769,7 +4768,7 @@ VALUES
   )
 ON CONFLICT (key) DO NOTHING;
 
--- ========== 042_drop_legacy_section_grades.sql ==========
+-- ========== 043_drop_legacy_section_grades.sql ==========
 
 -- Remove deprecated quick grades table superseded by cohort assessments.
 
@@ -4782,7 +4781,7 @@ DROP INDEX IF EXISTS public.section_grades_enrollment_idx;
 
 DROP TABLE IF EXISTS public.section_grades;
 
--- ========== 043_portal_special_calendar_event_types_scope_rls.sql ==========
+-- ========== 044_portal_special_calendar_event_types_scope_rls.sql ==========
 
 -- Portal special calendar: closed event types, visibility scope, meeting URL, scoped SELECT RLS.
 
@@ -5005,7 +5004,7 @@ CREATE POLICY portal_special_calendar_events_select_scoped
 COMMENT ON FUNCTION public.portal_special_calendar_row_visible(uuid, text, text, uuid, uuid) IS
   'RLS helper: visibility by role, event_type, and calendar_scope (mirrors app-side filter for feed).';
 
--- ========== 044_section_attendance_rls_portal_staff.sql ==========
+-- ========== 045_section_attendance_rls_portal_staff.sql ==========
 
 -- Attendance writes were gated on user_has_role(..., 'teacher') while the app allows
 -- lead teachers, staff assistants, and student assistants (section_enrollment_teacher_is_self).
@@ -5057,7 +5056,7 @@ CREATE POLICY section_attendance_teacher_delete ON public.section_attendance
     )
   );
 
--- ========== 045_section_attendance_teacher_institute_window.sql ==========
+-- ========== 046_section_attendance_teacher_institute_window.sql ==========
 
 -- Teacher/staff portal attendance: widen write window to the institute calendar (aligned with app
 -- `getInstituteTimeZone` / analytics) instead of PostgreSQL CURRENT_DATE and “last 2 days”.
@@ -5118,7 +5117,7 @@ CREATE POLICY section_attendance_teacher_delete ON public.section_attendance
     )
   );
 
--- ========== 046_site_themes.sql ==========
+-- ========== 047_site_themes.sql ==========
 
 -- Runtime theming + landing CMS
 -- Modelo: cada `site_themes` row es un "template" (default, navidad, aniversario...).
@@ -5281,7 +5280,7 @@ CREATE POLICY landing_media_delete_admin
     AND public.is_admin(auth.uid())
   );
 
--- ========== 047_admin_traffic_visitor_breakdowns.sql ==========
+-- ========== 048_admin_traffic_visitor_breakdowns.sql ==========
 
 -- Per visitor_kind breakdowns for the admin analytics traffic cards
 -- (top pathnames + top user-agents). Bounded result sets for the UI tabs.
@@ -5356,7 +5355,7 @@ CREATE INDEX IF NOT EXISTS traffic_page_hits_kind_path_created_idx
 CREATE INDEX IF NOT EXISTS traffic_page_hits_kind_ua_created_idx
   ON public.traffic_page_hits (visitor_kind, user_agent, created_at DESC);
 
--- ========== 048_site_themes_blocks_and_kind.sql ==========
+-- ========== 049_site_themes_blocks_and_kind.sql ==========
 
 -- PR 6: subsecciones dinámicas + template_kind para los templates de landing.
 -- Ver docs/adr/2026-04-cms-blocks-and-template-kind.md.
@@ -5411,7 +5410,7 @@ UPDATE public.site_themes
 SET blocks = '[]'::jsonb
 WHERE blocks IS NULL;
 
--- ========== 049_site_themes_seed_editorial.sql ==========
+-- ========== 050_site_themes_seed_editorial.sql ==========
 
 -- Seed: 'Editorial' site_theme template
 -- Provides a second template with template_kind = 'editorial' so admins can
@@ -5450,7 +5449,7 @@ WHERE NOT EXISTS (
 COMMENT ON COLUMN public.site_themes.template_kind IS
   'Selecciona el shell de la landing pública (LandingMainSections clásico vs editorial). Defaults a classic para retrocompatibilidad.';
 
--- ========== 050_site_themes_kind_minimal.sql ==========
+-- ========== 051_site_themes_kind_minimal.sql ==========
 
 -- Extend site_theme_kind enum with 'minimal' so admins can switch the public
 -- landing to a third visual personality without manual SQL.
@@ -5477,7 +5476,7 @@ BEGIN
 END;
 $$;
 
--- ========== 051_site_themes_seed_minimal.sql ==========
+-- ========== 052_site_themes_seed_minimal.sql ==========
 
 -- Seed: 'Minimal' site_theme template
 -- Provides a third template with template_kind = 'minimal' so admins can
@@ -5519,7 +5518,7 @@ WHERE NOT EXISTS (
   SELECT 1 FROM public.site_themes WHERE slug = 'minimal'
 );
 
--- ========== 052_site_themes_system_default.sql ==========
+-- ========== 053_site_themes_system_default.sql ==========
 
 -- PR 8: convertir el "Tema por defecto" en una fila real de site_themes,
 -- editable desde el CMS igual que cualquier otro template.
@@ -5590,7 +5589,7 @@ WHERE is_system_default = TRUE
     SELECT 1 FROM public.site_themes WHERE is_active = TRUE
   );
 
--- ========== 053_email_templates.sql ==========
+-- ========== 054_email_templates.sql ==========
 
 -- Communications: editable email templates per locale.
 --
@@ -5669,7 +5668,7 @@ CREATE POLICY email_templates_modify_admin
   USING (public.is_admin(auth.uid()))
   WITH CHECK (public.is_admin(auth.uid()));
 
--- ========== 054_section_fee_plans.sql ==========
+-- ========== 055_section_fee_plans.sql ==========
 
 -- Section fee plans: monthly fee, payments per period, enrollment fee flag.
 --
@@ -5852,30 +5851,7 @@ CREATE POLICY payments_update_student_self
     AND status = 'pending'
   );
 
--- ========== 055_section_fee_plans_archive.sql ==========
-
--- Section fee plans: lifecycle (archive / restore / hard delete).
---
--- Add a soft-delete column so admins can take a plan out of circulation
--- without losing the historical reference (e.g. for sections where students
--- already paid using that plan). Hard delete remains available for plans
--- that were never used; the application enforces that distinction.
-
-ALTER TABLE public.section_fee_plans
-  ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ NULL,
-  ADD COLUMN IF NOT EXISTS archived_by UUID NULL REFERENCES auth.users (id) ON DELETE SET NULL;
-
-COMMENT ON COLUMN public.section_fee_plans.archived_at IS
-  'Soft-delete marker. When NOT NULL, the plan is archived: it does not appear in student / teacher views and is not selectable as the effective plan for new payments, but it is preserved for historical traceability.';
-
-COMMENT ON COLUMN public.section_fee_plans.archived_by IS
-  'Admin user that archived the plan (for audit trail).';
-
-CREATE INDEX IF NOT EXISTS section_fee_plans_section_active_idx
-  ON public.section_fee_plans (section_id)
-  WHERE archived_at IS NULL;
-
--- ========== 055_tutor_financial_access.sql ==========
+-- ========== 056_tutor_financial_access.sql ==========
 
 -- Tutor financial access (default-allow opt-out) + shared payments view + tutor uploads in student folder.
 --
@@ -6054,7 +6030,26 @@ CREATE POLICY tutor_student_rel_update_student_adult
     )
   );
 
--- ========== 056_section_fee_plans_currency_and_simplify.sql ==========
+-- ---------------------------------------------------------------------------
+-- Combined from legacy 055_section_fee_plans_archive.sql
+-- Section fee plans: archive / restore / lifecycle (soft-delete column).
+-- ---------------------------------------------------------------------------
+
+ALTER TABLE public.section_fee_plans
+  ADD COLUMN IF NOT EXISTS archived_at TIMESTAMPTZ NULL,
+  ADD COLUMN IF NOT EXISTS archived_by UUID NULL REFERENCES auth.users (id) ON DELETE SET NULL;
+
+COMMENT ON COLUMN public.section_fee_plans.archived_at IS
+  'Soft-delete marker. When NOT NULL, the plan is archived: it does not appear in student / teacher views and is not selectable as the effective plan for new payments, but it is preserved for historical traceability.';
+
+COMMENT ON COLUMN public.section_fee_plans.archived_by IS
+  'Admin user that archived the plan (for audit trail).';
+
+CREATE INDEX IF NOT EXISTS section_fee_plans_section_active_idx
+  ON public.section_fee_plans (section_id)
+  WHERE archived_at IS NULL;
+
+-- ========== 057_section_fee_plans_currency_and_simplify.sql ==========
 
 -- Section fee plans: add multi-currency support and simplify the model.
 --
@@ -6099,7 +6094,7 @@ ALTER TABLE public.section_fee_plans
 COMMENT ON TABLE public.section_fee_plans IS
   'Planes de cuotas por sección. Cada plan tiene moneda + monto mensual + vigencia (effective_from). El plan activo para (year, month) es el más reciente con effective_from <= (year, month). El rango temporal real lo da academic_sections.starts_on/ends_on; el prorrateo del primer mes lo calcula la app a partir del schedule_slots.';
 
--- ========== 057_admin_cohort_collections_bulk.sql ==========
+-- ========== 058_admin_cohort_collections_bulk.sql ==========
 
 -- RPC: bulk fetch of all data needed to render the cohort collections matrix
 -- (overview tab in /admin/finance). Returns one JSON document with sections,
@@ -6300,7 +6295,7 @@ COMMENT ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) IS
 REVOKE ALL ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) FROM anon;
 GRANT EXECUTE ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) TO authenticated;
 
--- ========== 058_section_enrollment_fee.sql ==========
+-- ========== 059_section_enrollment_fee.sql ==========
 
 -- Section-level enrollment fee (matrícula).
 --
@@ -6520,7 +6515,7 @@ BEGIN
 END;
 $$;
 
--- ========== 059_admin_cohort_collections_profile_dni.sql ==========
+-- ========== 060_admin_cohort_collections_profile_dni.sql ==========
 
 -- Fix admin cohort collections RPC profile payload to match the real profiles schema.
 --
@@ -6709,7 +6704,7 @@ COMMENT ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) IS
 REVOKE ALL ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) FROM anon;
 GRANT EXECUTE ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) TO authenticated;
 
--- ========== 060_payments_section_id_backfill.sql ==========
+-- ========== 061_payments_section_id_backfill.sql ==========
 
 -- Ensure section-scoped payments exist for the finance cohort matrix.
 --
@@ -6789,7 +6784,7 @@ CREATE POLICY payments_update_student_self
     AND status = 'pending'
   );
 
--- ========== 061_student_scholarships_repair.sql ==========
+-- ========== 062_student_scholarships_repair.sql ==========
 
 -- Ensure scholarship tables exist for billing and finance summaries.
 --
@@ -6912,7 +6907,7 @@ CREATE POLICY discount_coupons_admin_delete ON public.discount_coupons
   FOR DELETE TO authenticated
   USING (public.is_admin(auth.uid()));
 
--- ========== 062_admin_cohort_collections_benefits.sql ==========
+-- ========== 063_admin_cohort_collections_benefits.sql ==========
 
 -- Include enrollment-fee exemptions and active promotion metadata in the
 -- finance cohort collections bulk payload.
@@ -7132,7 +7127,7 @@ COMMENT ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) IS
 REVOKE ALL ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) FROM anon;
 GRANT EXECUTE ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) TO authenticated;
 
--- ========== 063_period_exemptions_section_repair.sql ==========
+-- ========== 064_period_exemptions_section_repair.sql ==========
 
 -- Repair period exemptions created without section_id.
 --
@@ -7166,7 +7161,7 @@ WHERE p.section_id IS NULL
       AND scoped.year = p.year
   );
 
--- ========== 064_section_enrollment_billing_benefits.sql ==========
+-- ========== 065_section_enrollment_billing_benefits.sql ==========
 
 -- Section-scoped billing benefits.
 --
@@ -7255,7 +7250,7 @@ JOIN public.student_scholarships sc ON sc.student_id = sas.student_id
 WHERE se.id = sas.enrollment_id
   AND sas.active_count = 1;
 
--- ========== 065_section_enrollment_scholarships.sql ==========
+-- ========== 066_section_enrollment_scholarships.sql ==========
 
 -- Multiple section-scoped scholarships.
 --
@@ -7356,7 +7351,7 @@ WHERE se.scholarship_discount_percent IS NOT NULL
       AND COALESCE(ses.valid_until_month, -1) = COALESCE(se.scholarship_valid_until_month, -1)
   );
 
--- ========== 066_admin_cohort_collections_multiple_scholarships.sql ==========
+-- ========== 067_admin_cohort_collections_multiple_scholarships.sql ==========
 
 -- Finance bulk RPC now emits section-enrollment scholarships, not global rows.
 
@@ -7555,7 +7550,7 @@ COMMENT ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) IS
 REVOKE ALL ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) FROM anon;
 GRANT EXECUTE ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) TO authenticated;
 
--- ========== 067_enrollment_fee_receipt.sql ==========
+-- ========== 068_enrollment_fee_receipt.sql ==========
 
 -- Migration 067: enrollment fee receipt upload (student/parent/tutor)
 --
@@ -7660,7 +7655,7 @@ GRANT EXECUTE ON FUNCTION public.submit_enrollment_fee_receipt(UUID, UUID, UUID,
 COMMENT ON FUNCTION public.submit_enrollment_fee_receipt(UUID, UUID, UUID, TEXT) IS
   'Persists a student/tutor enrollment fee receipt on section_enrollments after actor and path validation; avoids broad RLS UPDATE on the enrollment row.';
 
--- ========== 068_enrollment_retention_contact_counts.sql ==========
+-- ========== 069_enrollment_retention_contact_counts.sql ==========
 
 -- Retention alerts: per-enrollment WhatsApp vs email follow-up counts; drops manual `watch`.
 --
@@ -7792,7 +7787,7 @@ GRANT EXECUTE ON FUNCTION public.increment_enrollment_retention_contact(uuid, te
 COMMENT ON FUNCTION public.increment_enrollment_retention_contact(uuid, text) IS
   'Admin: atomically increment WhatsApp or email follow-up count for a section enrollment (retention alerts).';
 
--- ========== 069_learning_task_core.sql ==========
+-- ========== 070_learning_task_core.sql ==========
 
 -- Learning task core: master templates, section instances, student progress.
 
@@ -8076,7 +8071,7 @@ CREATE POLICY learning_task_assets_staff_write ON storage.objects
   USING (bucket_id = 'learning-task-assets' AND public.learning_task_template_staff_can_read(auth.uid()))
   WITH CHECK (bucket_id = 'learning-task-assets' AND public.learning_task_template_staff_can_read(auth.uid()));
 
--- ========== 070_section_content_planning_assessments.sql ==========
+-- ========== 071_section_content_planning_assessments.sql ==========
 
 -- Section content planning, planned/live lessons, reusable question bank, assessments, and readiness.
 
@@ -8411,7 +8406,7 @@ CREATE POLICY student_learning_readiness_write_staff ON public.student_learning_
   USING (public.section_content_staff_can_manage_section(auth.uid(), section_id))
   WITH CHECK (public.section_content_staff_can_manage_section(auth.uid(), section_id) AND set_by = auth.uid());
 
--- ========== 071_content_templates_description.sql ==========
+-- ========== 072_content_templates_description.sql ==========
 
 -- Add a short repository description to global content templates.
 DO $$
@@ -8422,7 +8417,7 @@ BEGIN
   END IF;
 END $$;
 
--- ========== 072_content_template_blocks.sql ==========
+-- ========== 073_content_template_blocks.sql ==========
 
 -- Block-based authoring for global content templates.
 DO $$
@@ -8479,7 +8474,7 @@ BEGIN
   END IF;
 END $$;
 
--- ========== 073_learning_task_assets_audio_mimes.sql ==========
+-- ========== 074_learning_task_assets_audio_mimes.sql ==========
 
 -- Allow audio files in the learning content asset bucket.
 DO $$
@@ -8502,7 +8497,7 @@ BEGIN
   END IF;
 END $$;
 
--- ========== 074_learning_task_assets_office_mimes.sql ==========
+-- ========== 075_learning_task_assets_office_mimes.sql ==========
 
 -- Allow Microsoft Office files in the learning content asset bucket.
 DO $$
@@ -8531,7 +8526,7 @@ BEGIN
   END IF;
 END $$;
 
--- ========== 075_learning_routes_rename.sql ==========
+-- ========== 076_learning_routes_rename.sql ==========
 
 -- Rename section content planning into global Learning Routes with optional section assignment.
 
@@ -8584,6 +8579,17 @@ SELECT section_id, id, 'route'::public.section_learning_route_mode, created_by, 
 FROM public.learning_routes
 WHERE section_id IS NOT NULL
 ON CONFLICT (section_id) DO NOTHING;
+
+-- Policies may reference learning_routes.section_id (e.g. legacy names after 070).
+-- Must drop before removing the column (Postgres 2BP01); recreated below.
+DROP POLICY IF EXISTS section_content_plans_select_scope ON public.learning_routes;
+DROP POLICY IF EXISTS section_content_plans_write_staff ON public.learning_routes;
+DROP POLICY IF EXISTS learning_routes_select_scope ON public.learning_routes;
+DROP POLICY IF EXISTS learning_routes_write_staff ON public.learning_routes;
+DROP POLICY IF EXISTS planned_lessons_select_scope ON public.learning_route_steps;
+DROP POLICY IF EXISTS planned_lessons_write_staff ON public.learning_route_steps;
+DROP POLICY IF EXISTS learning_route_steps_select_scope ON public.learning_route_steps;
+DROP POLICY IF EXISTS learning_route_steps_write_staff ON public.learning_route_steps;
 
 ALTER TABLE public.learning_routes
   DROP COLUMN IF EXISTS section_id,
@@ -8822,7 +8828,7 @@ CREATE POLICY live_lessons_write_staff ON public.live_lessons FOR ALL TO authent
 DROP POLICY IF EXISTS question_bank_items_select_scope ON public.question_bank_items;
 DROP POLICY IF EXISTS question_bank_items_write_staff ON public.question_bank_items;
 CREATE POLICY question_bank_items_select_scope ON public.question_bank_items FOR SELECT TO authenticated
-  USING (visibility = 'global' OR public.learning_route_staff_can_manage_section(auth.uid(), section_id) OR EXISTS (SELECT 1 FROM public.section_enrollments e WHERE e.section_id = question_bank_items.section_id AND e.student_id = auth.uid()) OR EXISTS (SELECT 1 FROM public.section_enrollments e JOIN public.tutor_student_rel ts ON ts.student_id = e.student_id WHERE e.section_id = question_bank_items.section_id AND ts.tutor_id = auth.uid()));
+  USING (visibility = 'global' OR public.learning_route_staff_can_manage_section(auth.uid(), section_id) OR EXISTS (SELECT 1 FROM public.section_enrollments e WHERE e.section_id = question_bank_items.section_id AND e.student_id = auth.uid()));
 CREATE POLICY question_bank_items_write_staff ON public.question_bank_items FOR ALL TO authenticated
   USING (public.learning_route_staff_can_manage_global(auth.uid()) AND (section_id IS NULL OR public.learning_route_staff_can_manage_section(auth.uid(), section_id)))
   WITH CHECK (updated_by = auth.uid() AND public.learning_route_staff_can_manage_global(auth.uid()) AND (section_id IS NULL OR public.learning_route_staff_can_manage_section(auth.uid(), section_id)));
@@ -8863,7 +8869,7 @@ DROP FUNCTION IF EXISTS public.section_content_plan_visible_to_current_user(uuid
 DROP FUNCTION IF EXISTS public.section_content_staff_can_manage_section(uuid, uuid);
 DROP FUNCTION IF EXISTS public.section_content_staff_can_manage_global(uuid);
 
--- ========== 076_learning_route_graph_studio.sql ==========
+-- ========== 077_learning_route_graph_studio.sql ==========
 
 -- Route Graph Studio: directed route edges and evaluable checkpoints.
 
@@ -8993,7 +8999,7 @@ CREATE POLICY learning_route_checkpoints_write_staff ON public.learning_route_ch
     )
   );
 
--- ========== 077_audit_events.sql ==========
+-- ========== 078_audit_events.sql ==========
 
 -- Staff mutation audit trail. Product usage analytics remains in user_events.
 
@@ -9049,7 +9055,7 @@ CREATE POLICY audit_events_admin_select ON public.audit_events
 -- Inserts are performed by trusted server actions. Regular authenticated
 -- clients can read as admins but cannot append arbitrary audit rows.
 
--- ========== 078_student_badges.sql ==========
+-- ========== 079_student_badges.sql ==========
 
 -- Student achievement badges: grants (server-only insert) and public read by share token via RPC.
 
@@ -9074,18 +9080,11 @@ CREATE INDEX IF NOT EXISTS student_badge_grants_student_earned_idx
 
 ALTER TABLE public.student_badge_grants ENABLE ROW LEVEL SECURITY;
 
--- Students and their linked tutors can list badge grants; no direct write (server uses service role).
+-- Students can list their own grants; no direct write for authenticated (server uses service role).
 DROP POLICY IF EXISTS student_badge_grants_select_own ON public.student_badge_grants;
 CREATE POLICY student_badge_grants_select_own ON public.student_badge_grants
   FOR SELECT TO authenticated
-  USING (
-    student_id = auth.uid()
-    OR EXISTS (
-      SELECT 1 FROM public.tutor_student_rel ts
-      WHERE ts.tutor_id = auth.uid()
-        AND ts.student_id = student_badge_grants.student_id
-    )
-  );
+  USING (student_id = auth.uid());
 
 -- Public read for share pages: token-based RPC (SECURITY DEFINER) only; no anon table access.
 
@@ -9108,7 +9107,7 @@ GRANT EXECUTE ON FUNCTION public.get_public_student_badge_share(uuid) TO anon, a
 COMMENT ON TABLE public.student_badge_grants IS
   'Badge awards for students. Inserts only from trusted server (service role).';
 
--- ========== 079_admin_cohort_collections_enrollment_receipt_fields.sql ==========
+-- ========== 080_admin_cohort_collections_enrollment_receipt_fields.sql ==========
 
 -- Enrich cohort collections bulk RPC enrollments with stable id + enrollment receipt fields for Finance month-0 column.
 
@@ -9310,7 +9309,7 @@ COMMENT ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) IS
 REVOKE ALL ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) FROM anon;
 GRANT EXECUTE ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) TO authenticated;
 
--- ========== 080_cohort_assessments_teacher_update_and_max_grade_rpc.sql ==========
+-- ========== 081_cohort_assessments_teacher_update_and_max_grade_rpc.sql ==========
 
 -- Teachers who teach the cohort (lead or section assistant) may update cohort_assessment rows.
 -- RPC: max numeric score already stored for an assessment (for validating max_score decreases).
@@ -9350,7 +9349,11 @@ CREATE POLICY cohort_assessments_teacher_update ON public.cohort_assessments
     )
   );
 
--- ========== 081_student_badges_tutor_read_rls.sql ==========
+-- ========== 082_student_badges_tutor_read_rls.sql ==========
+
+-- Allow tutors to read badge grants of their linked students (read-only).
+-- Extends the original student-only policy from 078_student_badges.sql so that
+-- the parent/tutor dashboard can display a ward's achievements.
 
 DROP POLICY IF EXISTS student_badge_grants_select_own ON public.student_badge_grants;
 
@@ -9364,6 +9367,9 @@ CREATE POLICY student_badge_grants_select_own ON public.student_badge_grants
         AND ts.student_id = student_badge_grants.student_id
     )
   );
+
+-- Allow tutors to read question bank items for sections their wards are enrolled in.
+-- Extends the existing policy so the parent assessments (read-only) page works.
 
 DROP POLICY IF EXISTS question_bank_items_select_scope ON public.question_bank_items;
 
@@ -9385,8 +9391,237 @@ CREATE POLICY question_bank_items_select_scope ON public.question_bank_items
     )
   );
 
--- ========== 082_student_badges_catalog.sql ==========
+-- ========== 083_finance_analytics_receipt_stats.sql ==========
 
+-- Finance analytics: resolved_at on billing_receipts + receipt processing stats RPC.
+
+-- 1. Add resolved_at to billing_receipts -----------------------------------------
+
+ALTER TABLE public.billing_receipts
+  ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMPTZ;
+
+-- Backfill: approximate resolved_at for already-resolved receipts.
+UPDATE public.billing_receipts
+SET resolved_at = created_at
+WHERE status != 'pending_approval' AND resolved_at IS NULL;
+
+-- 2. Patch approve / reject RPCs to set resolved_at ----------------------------
+
+CREATE OR REPLACE FUNCTION public.admin_approve_billing_receipt(p_receipt_id UUID)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_inv UUID;
+BEGIN
+  IF NOT public.is_admin(auth.uid()) THEN
+    RETURN jsonb_build_object('ok', false, 'code', 'forbidden');
+  END IF;
+
+  UPDATE public.billing_receipts
+  SET status = 'approved',
+      rejection_reason_code = NULL,
+      rejection_detail = NULL,
+      resolved_at = now()
+  WHERE id = p_receipt_id AND status = 'pending_approval'
+  RETURNING invoice_id INTO v_inv;
+
+  IF v_inv IS NULL THEN
+    RETURN jsonb_build_object('ok', false, 'code', 'not_found');
+  END IF;
+
+  UPDATE public.billing_invoices
+  SET status = 'paid', updated_at = now()
+  WHERE id = v_inv;
+
+  RETURN jsonb_build_object('ok', true);
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.admin_reject_billing_receipt(
+  p_receipt_id UUID,
+  p_code public.billing_rejection_reason_code,
+  p_detail TEXT
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_inv UUID;
+  v_due DATE;
+  v_next public.billing_invoice_status;
+BEGIN
+  IF NOT public.is_admin(auth.uid()) THEN
+    RETURN jsonb_build_object('ok', false, 'code', 'forbidden');
+  END IF;
+
+  UPDATE public.billing_receipts
+  SET
+    status = 'rejected',
+    rejection_reason_code = p_code,
+    rejection_detail = NULLIF(trim(COALESCE(p_detail, '')), ''),
+    resolved_at = now()
+  WHERE id = p_receipt_id AND status = 'pending_approval'
+  RETURNING invoice_id INTO v_inv;
+
+  IF v_inv IS NULL THEN
+    RETURN jsonb_build_object('ok', false, 'code', 'not_found');
+  END IF;
+
+  SELECT due_date INTO v_due FROM public.billing_invoices WHERE id = v_inv;
+
+  v_next := CASE
+    WHEN v_due < CURRENT_DATE THEN 'overdue'::public.billing_invoice_status
+    ELSE 'pending'::public.billing_invoice_status
+  END;
+
+  UPDATE public.billing_invoices
+  SET status = v_next, updated_at = now()
+  WHERE id = v_inv;
+
+  RETURN jsonb_build_object('ok', true);
+END;
+$$;
+
+-- 3. Receipt processing stats RPC (admin-only) ---------------------------------
+
+CREATE OR REPLACE FUNCTION public.admin_finance_receipt_processing_stats(
+  p_cohort_id UUID,
+  p_year INT
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_result JSONB;
+BEGIN
+  IF NOT public.is_admin(auth.uid()) THEN
+    RETURN jsonb_build_object('ok', false, 'code', 'forbidden');
+  END IF;
+
+  WITH cohort_sections AS (
+    SELECT s.id
+    FROM public.academic_sections s
+    WHERE s.cohort_id = p_cohort_id
+  ),
+  monthly_resolved AS (
+    SELECT
+      p.id,
+      p.status,
+      EXTRACT(EPOCH FROM (p.updated_at - p.created_at)) / 86400.0 AS days_to_resolve
+    FROM public.payments p
+    JOIN public.section_enrollments se
+      ON se.student_id = p.student_id AND se.section_id = p.section_id
+    WHERE p.section_id IN (SELECT id FROM cohort_sections)
+      AND p.year = p_year
+      AND p.status IN ('approved', 'rejected')
+  ),
+  monthly_pending AS (
+    SELECT
+      p.id,
+      EXTRACT(EPOCH FROM (now() - p.created_at)) / 86400.0 AS age_days
+    FROM public.payments p
+    WHERE p.section_id IN (SELECT id FROM cohort_sections)
+      AND p.year = p_year
+      AND p.status = 'pending'
+  ),
+  monthly_agg AS (
+    SELECT
+      round(avg(days_to_resolve)::numeric, 1) AS avg_days,
+      count(*) FILTER (WHERE status = 'approved') AS approved_count,
+      count(*) FILTER (WHERE status = 'rejected') AS rejected_count,
+      count(*) AS total_resolved
+    FROM monthly_resolved
+  ),
+  monthly_pending_agg AS (
+    SELECT
+      count(*) AS total_pending,
+      count(*) FILTER (WHERE age_days <= 1) AS bucket_0_24h,
+      count(*) FILTER (WHERE age_days > 1 AND age_days <= 3) AS bucket_24_72h,
+      count(*) FILTER (WHERE age_days > 3) AS bucket_72h_plus
+    FROM monthly_pending
+  ),
+  invoice_resolved AS (
+    SELECT
+      br.id,
+      br.status,
+      br.rejection_reason_code,
+      EXTRACT(EPOCH FROM (br.resolved_at - br.created_at)) / 86400.0 AS days_to_resolve
+    FROM public.billing_receipts br
+    JOIN public.billing_invoices bi ON bi.id = br.invoice_id
+    JOIN public.section_enrollments se ON se.student_id = bi.student_id
+    WHERE se.section_id IN (SELECT id FROM cohort_sections)
+      AND EXTRACT(YEAR FROM bi.due_date) = p_year
+      AND br.status IN ('approved', 'rejected')
+      AND br.resolved_at IS NOT NULL
+  ),
+  invoice_agg AS (
+    SELECT
+      round(avg(days_to_resolve)::numeric, 1) AS avg_days,
+      count(*) FILTER (WHERE status = 'approved') AS approved_count,
+      count(*) FILTER (WHERE status = 'rejected') AS rejected_count,
+      count(*) AS total_resolved
+    FROM invoice_resolved
+  ),
+  rejection_breakdown AS (
+    SELECT
+      COALESCE(rejection_reason_code::text, 'other') AS reason,
+      count(*) AS cnt
+    FROM invoice_resolved
+    WHERE status = 'rejected'
+    GROUP BY rejection_reason_code
+  )
+  SELECT jsonb_build_object(
+    'ok', true,
+    'monthly', jsonb_build_object(
+      'avgDays', COALESCE((SELECT avg_days FROM monthly_agg), null),
+      'approvedCount', COALESCE((SELECT approved_count FROM monthly_agg), 0),
+      'rejectedCount', COALESCE((SELECT rejected_count FROM monthly_agg), 0),
+      'totalResolved', COALESCE((SELECT total_resolved FROM monthly_agg), 0)
+    ),
+    'invoice', jsonb_build_object(
+      'avgDays', COALESCE((SELECT avg_days FROM invoice_agg), null),
+      'approvedCount', COALESCE((SELECT approved_count FROM invoice_agg), 0),
+      'rejectedCount', COALESCE((SELECT rejected_count FROM invoice_agg), 0),
+      'totalResolved', COALESCE((SELECT total_resolved FROM invoice_agg), 0)
+    ),
+    'rejectionBreakdown', COALESCE(
+      (SELECT jsonb_object_agg(reason, cnt) FROM rejection_breakdown),
+      '{}'::jsonb
+    ),
+    'pending', jsonb_build_object(
+      'total', COALESCE((SELECT total_pending FROM monthly_pending_agg), 0),
+      'bucket0_24h', COALESCE((SELECT bucket_0_24h FROM monthly_pending_agg), 0),
+      'bucket24_72h', COALESCE((SELECT bucket_24_72h FROM monthly_pending_agg), 0),
+      'bucket72hPlus', COALESCE((SELECT bucket_72h_plus FROM monthly_pending_agg), 0)
+    )
+  ) INTO v_result;
+
+  RETURN v_result;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.admin_finance_receipt_processing_stats(UUID, INT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.admin_finance_receipt_processing_stats(UUID, INT) TO authenticated;
+
+-- ========== 084_student_badges_catalog.sql ==========
+
+-- Admin-managed catalog for student badges.
+-- Tables: badge_catalog (1 row per badge code) + badge_translations (one row per locale).
+-- Enums for category and criteria_type are bounded; thresholds are configurable per badge.
+-- Seed mirrors the 6 hardcoded badges (codes + thresholds + ES/EN copy from src/dictionaries/*).
+-- Adds nullable badge_id FK to student_badge_grants and backfills it for existing rows.
+-- Public read for active rows + admin-only writes via RLS. Public catalog RPC for share page.
+-- See ADR docs/adr/2026-04-student-badges-admin-catalog.md.
+
+-- 1) Enums --------------------------------------------------------------------
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'badge_category') THEN
@@ -9406,6 +9641,7 @@ BEGIN
   END IF;
 END $$;
 
+-- 2) badge_catalog ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.badge_catalog (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   code TEXT NOT NULL UNIQUE,
@@ -9421,6 +9657,9 @@ CREATE TABLE IF NOT EXISTS public.badge_catalog (
   CONSTRAINT badge_catalog_code_len CHECK (char_length(code) BETWEEN 1 AND 64),
   CONSTRAINT badge_catalog_threshold_nonneg CHECK (criteria_threshold >= 0)
 );
+
+COMMENT ON TABLE public.badge_catalog IS
+  'Admin-managed catalog of student badges. Public SELECT only when is_active=true. See ADR 2026-04-student-badges-admin-catalog.';
 
 CREATE INDEX IF NOT EXISTS badge_catalog_active_sort_idx
   ON public.badge_catalog (is_active, sort_order, code);
@@ -9441,6 +9680,7 @@ CREATE TRIGGER badge_catalog_set_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION public.badge_catalog_set_updated_at();
 
+-- 3) badge_translations -------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.badge_translations (
   badge_id UUID NOT NULL REFERENCES public.badge_catalog (id) ON DELETE CASCADE,
   locale TEXT NOT NULL CHECK (locale IN ('en', 'es')),
@@ -9449,15 +9689,21 @@ CREATE TABLE IF NOT EXISTS public.badge_translations (
   PRIMARY KEY (badge_id, locale)
 );
 
+COMMENT ON TABLE public.badge_translations IS
+  'Per-locale title and description for a badge_catalog row. Public SELECT mirrors badge_catalog.is_active.';
+
 CREATE INDEX IF NOT EXISTS badge_translations_badge_idx
   ON public.badge_translations (badge_id);
 
+-- 4) student_badge_grants gains optional badge_id FK -------------------------
 ALTER TABLE public.student_badge_grants
   ADD COLUMN IF NOT EXISTS badge_id UUID NULL REFERENCES public.badge_catalog (id) ON DELETE SET NULL;
 
 CREATE INDEX IF NOT EXISTS student_badge_grants_badge_id_idx
   ON public.student_badge_grants (badge_id);
 
+-- 5) Seed the 6 currently-hardcoded badges ------------------------------------
+-- Insert is idempotent (ON CONFLICT on UNIQUE code).
 WITH inserted AS (
   INSERT INTO public.badge_catalog (code, category, criteria_type, criteria_threshold, sort_order)
   VALUES
@@ -9501,12 +9747,14 @@ JOIN (
        'Aprueba un mini-test evaluado de tu clase.')
 ) AS t(code, locale, title, description) ON t.code = i.code;
 
+-- 6) Backfill badge_id on existing grants -------------------------------------
 UPDATE public.student_badge_grants g
 SET    badge_id = c.id
 FROM   public.badge_catalog c
 WHERE  g.badge_id IS NULL
   AND  g.badge_code = c.code;
 
+-- 7) RLS ---------------------------------------------------------------------
 ALTER TABLE public.badge_catalog        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.badge_translations   ENABLE ROW LEVEL SECURITY;
 
@@ -9553,6 +9801,10 @@ CREATE POLICY badge_translations_all_admin
   USING (public.is_admin(auth.uid()))
   WITH CHECK (public.is_admin(auth.uid()));
 
+-- 8) Public RPC: catalog entry by code (for share page + parent/student UI) --
+-- Returns active catalog entry + ALL translations as a JSONB map.
+-- SECURITY DEFINER so the share page can read it from anon without exposing the table.
+
 CREATE OR REPLACE FUNCTION public.get_public_badge_catalog_entry(p_code text)
 RETURNS TABLE (
   badge_id     uuid,
@@ -9592,7 +9844,15 @@ REVOKE ALL ON FUNCTION public.get_public_badge_catalog_entry(text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.get_public_badge_catalog_entry(text)
   TO anon, authenticated, service_role;
 
--- ========== 083_badge_images_storage.sql ==========
+COMMENT ON FUNCTION public.get_public_badge_catalog_entry(text) IS
+  'Public catalog lookup by code (only active rows). Returns all translations as JSONB; safe for anon.';
+
+-- ========== 085_badge_images_storage.sql ==========
+
+-- Storage bucket for admin-managed badge images shown in the public share preview.
+-- Mirrors the pattern from 046_site_themes.sql (landing-media bucket).
+-- Public read so OG image / share page can render without signed URLs.
+-- Admin-only write/delete via storage.objects RLS.
 
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('badge-images', 'badge-images', TRUE)
@@ -9631,111 +9891,210 @@ CREATE POLICY badge_images_delete_admin
     AND public.is_admin(auth.uid())
   );
 
--- 082: Finance analytics — receipt processing stats RPC
+-- ========== 086_admin_cohort_collections_last_enrollment_paid_at.sql ==========
 
-CREATE OR REPLACE FUNCTION public.admin_finance_receipt_processing_stats(
-  p_cohort_id UUID,
-  p_year INT
+-- Finance cohort RPC: include last_enrollment_paid_at per enrollment so month-0 matrix shows manual "mark paid".
+
+CREATE OR REPLACE FUNCTION public.admin_cohort_collections_bulk(
+  p_cohort_id uuid,
+  p_year int
 )
-RETURNS JSONB
+RETURNS jsonb
 LANGUAGE plpgsql
 STABLE
 SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  v_result JSONB;
+  v_cohort jsonb;
+  v_sections jsonb;
+  v_enrollments jsonb;
+  v_profiles jsonb;
+  v_payments jsonb;
+  v_scholarships jsonb;
+  v_promotions jsonb;
+  v_plans jsonb;
+  v_section_ids uuid[];
+  v_student_ids uuid[];
 BEGIN
   IF NOT public.is_admin(auth.uid()) THEN
-    RETURN jsonb_build_object('ok', false, 'code', 'forbidden');
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
   END IF;
 
-  WITH cohort_sections AS (
-    SELECT s.id FROM public.academic_sections s WHERE s.cohort_id = p_cohort_id
-  ),
-  monthly_resolved AS (
-    SELECT p.id, p.status,
-      EXTRACT(EPOCH FROM (p.updated_at - p.created_at)) / 86400.0 AS days_to_resolve
-    FROM public.payments p
-    JOIN public.section_enrollments se ON se.student_id = p.student_id AND se.section_id = p.section_id
-    WHERE p.section_id IN (SELECT id FROM cohort_sections)
-      AND p.year = p_year AND p.status IN ('approved', 'rejected')
-  ),
-  monthly_pending AS (
-    SELECT p.id, EXTRACT(EPOCH FROM (now() - p.created_at)) / 86400.0 AS age_days
-    FROM public.payments p
-    WHERE p.section_id IN (SELECT id FROM cohort_sections) AND p.year = p_year AND p.status = 'pending'
-  ),
-  monthly_agg AS (
-    SELECT round(avg(days_to_resolve)::numeric, 1) AS avg_days,
-      count(*) FILTER (WHERE status = 'approved') AS approved_count,
-      count(*) FILTER (WHERE status = 'rejected') AS rejected_count,
-      count(*) AS total_resolved
-    FROM monthly_resolved
-  ),
-  monthly_pending_agg AS (
-    SELECT count(*) AS total_pending,
-      count(*) FILTER (WHERE age_days <= 1) AS bucket_0_24h,
-      count(*) FILTER (WHERE age_days > 1 AND age_days <= 3) AS bucket_24_72h,
-      count(*) FILTER (WHERE age_days > 3) AS bucket_72h_plus
-    FROM monthly_pending
-  ),
-  invoice_resolved AS (
-    SELECT br.id, br.status, br.rejection_reason_code,
-      EXTRACT(EPOCH FROM (br.resolved_at - br.created_at)) / 86400.0 AS days_to_resolve
-    FROM public.billing_receipts br
-    JOIN public.billing_invoices bi ON bi.id = br.invoice_id
-    JOIN public.section_enrollments se ON se.student_id = bi.student_id
-    WHERE se.section_id IN (SELECT id FROM cohort_sections)
-      AND EXTRACT(YEAR FROM bi.due_date) = p_year
-      AND br.status IN ('approved', 'rejected') AND br.resolved_at IS NOT NULL
-  ),
-  invoice_agg AS (
-    SELECT round(avg(days_to_resolve)::numeric, 1) AS avg_days,
-      count(*) FILTER (WHERE status = 'approved') AS approved_count,
-      count(*) FILTER (WHERE status = 'rejected') AS rejected_count,
-      count(*) AS total_resolved
-    FROM invoice_resolved
-  ),
-  rejection_breakdown AS (
-    SELECT COALESCE(rejection_reason_code::text, 'other') AS reason, count(*) AS cnt
-    FROM invoice_resolved WHERE status = 'rejected' GROUP BY rejection_reason_code
-  )
-  SELECT jsonb_build_object(
-    'ok', true,
-    'monthly', jsonb_build_object(
-      'avgDays', COALESCE((SELECT avg_days FROM monthly_agg), null),
-      'approvedCount', COALESCE((SELECT approved_count FROM monthly_agg), 0),
-      'rejectedCount', COALESCE((SELECT rejected_count FROM monthly_agg), 0),
-      'totalResolved', COALESCE((SELECT total_resolved FROM monthly_agg), 0)
-    ),
-    'invoice', jsonb_build_object(
-      'avgDays', COALESCE((SELECT avg_days FROM invoice_agg), null),
-      'approvedCount', COALESCE((SELECT approved_count FROM invoice_agg), 0),
-      'rejectedCount', COALESCE((SELECT rejected_count FROM invoice_agg), 0),
-      'totalResolved', COALESCE((SELECT total_resolved FROM invoice_agg), 0)
-    ),
-    'rejectionBreakdown', COALESCE(
-      (SELECT jsonb_object_agg(reason, cnt) FROM rejection_breakdown), '{}'::jsonb
-    ),
-    'pending', jsonb_build_object(
-      'total', COALESCE((SELECT total_pending FROM monthly_pending_agg), 0),
-      'bucket0_24h', COALESCE((SELECT bucket_0_24h FROM monthly_pending_agg), 0),
-      'bucket24_72h', COALESCE((SELECT bucket_24_72h FROM monthly_pending_agg), 0),
-      'bucket72hPlus', COALESCE((SELECT bucket_72h_plus FROM monthly_pending_agg), 0)
-    )
-  ) INTO v_result;
+  IF p_year IS NULL OR p_year < 2000 OR p_year > 2100 THEN
+    RAISE EXCEPTION 'invalid_year' USING ERRCODE = '22023';
+  END IF;
 
-  RETURN v_result;
+  SELECT jsonb_build_object('id', c.id, 'name', c.name)
+    INTO v_cohort
+    FROM public.academic_cohorts c
+    WHERE c.id = p_cohort_id;
+
+  IF v_cohort IS NULL THEN
+    RETURN jsonb_build_object('cohort', NULL, 'year', p_year, 'sections', '[]'::jsonb, 'enrollments', '[]'::jsonb, 'profiles', '[]'::jsonb, 'payments', '[]'::jsonb, 'scholarships', '[]'::jsonb, 'promotions', '[]'::jsonb, 'plans', '[]'::jsonb);
+  END IF;
+
+  SELECT array_agg(s.id), coalesce(jsonb_agg(jsonb_build_object(
+    'id', s.id,
+    'name', s.name,
+    'archived_at', s.archived_at,
+    'starts_on', s.starts_on,
+    'ends_on', s.ends_on,
+    'schedule_slots', coalesce(s.schedule_slots, '[]'::jsonb),
+    'enrollment_fee_amount', s.enrollment_fee_amount
+  ) ORDER BY s.name), '[]'::jsonb)
+    INTO v_section_ids, v_sections
+    FROM public.academic_sections s
+    WHERE s.cohort_id = p_cohort_id
+      AND s.archived_at IS NULL;
+
+  IF v_section_ids IS NULL OR array_length(v_section_ids, 1) IS NULL THEN
+    RETURN jsonb_build_object('cohort', v_cohort, 'year', p_year, 'sections', '[]'::jsonb, 'enrollments', '[]'::jsonb, 'profiles', '[]'::jsonb, 'payments', '[]'::jsonb, 'scholarships', '[]'::jsonb, 'promotions', '[]'::jsonb, 'plans', '[]'::jsonb);
+  END IF;
+
+  SELECT array_agg(DISTINCT e.student_id), coalesce(jsonb_agg(jsonb_build_object(
+    'id', e.id,
+    'section_id', e.section_id,
+    'student_id', e.student_id,
+    'created_at', e.created_at,
+    'enrollment_fee_exempt', e.enrollment_fee_exempt,
+    'enrollment_exempt_reason', e.enrollment_exempt_reason,
+    'enrollment_fee_receipt_url', e.enrollment_fee_receipt_url,
+    'enrollment_fee_receipt_status', e.enrollment_fee_receipt_status,
+    'last_enrollment_paid_at', e.last_enrollment_paid_at
+  )), '[]'::jsonb)
+    INTO v_student_ids, v_enrollments
+    FROM public.section_enrollments e
+    WHERE e.section_id = ANY(v_section_ids)
+      AND e.status = 'active';
+
+  IF v_student_ids IS NULL OR array_length(v_student_ids, 1) IS NULL THEN
+    RETURN jsonb_build_object(
+      'cohort', v_cohort,
+      'year', p_year,
+      'sections', v_sections,
+      'enrollments', '[]'::jsonb,
+      'profiles', '[]'::jsonb,
+      'payments', '[]'::jsonb,
+      'scholarships', '[]'::jsonb,
+      'promotions', '[]'::jsonb,
+      'plans', coalesce((
+        SELECT jsonb_agg(jsonb_build_object(
+          'id', fp.id,
+          'section_id', fp.section_id,
+          'effective_from_year', fp.effective_from_year,
+          'effective_from_month', fp.effective_from_month,
+          'monthly_fee', fp.monthly_fee,
+          'currency', fp.currency,
+          'archived_at', fp.archived_at
+        ))
+        FROM public.section_fee_plans fp
+        WHERE fp.section_id = ANY(v_section_ids)
+          AND fp.archived_at IS NULL
+      ), '[]'::jsonb)
+    );
+  END IF;
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', p.id,
+    'first_name', p.first_name,
+    'last_name', p.last_name,
+    'dni_or_passport', p.dni_or_passport,
+    'enrollment_fee_exempt', p.enrollment_fee_exempt,
+    'enrollment_exempt_reason', p.enrollment_exempt_reason
+  )), '[]'::jsonb)
+    INTO v_profiles
+    FROM public.profiles p
+    WHERE p.id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', pay.id,
+    'student_id', pay.student_id,
+    'section_id', pay.section_id,
+    'month', pay.month,
+    'year', pay.year,
+    'amount', pay.amount,
+    'status', pay.status,
+    'receipt_url', pay.receipt_url
+  )), '[]'::jsonb)
+    INTO v_payments
+    FROM public.payments pay
+    WHERE pay.year = p_year
+      AND pay.section_id = ANY(v_section_ids)
+      AND pay.student_id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', sc.id,
+    'section_id', sc.section_id,
+    'student_id', sc.student_id,
+    'discount_percent', sc.discount_percent,
+    'note', sc.note,
+    'valid_from_year', sc.valid_from_year,
+    'valid_from_month', sc.valid_from_month,
+    'valid_until_year', sc.valid_until_year,
+    'valid_until_month', sc.valid_until_month,
+    'is_active', sc.is_active
+  ) ORDER BY sc.created_at), '[]'::jsonb)
+    INTO v_scholarships
+    FROM public.section_enrollment_scholarships sc
+    WHERE sc.section_id = ANY(v_section_ids)
+      AND sc.student_id = ANY(v_student_ids);
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'student_id', sp.student_id,
+    'code_snapshot', sp.code_snapshot,
+    'promotion_snapshot', sp.promotion_snapshot,
+    'applies_to_snapshot', sp.applies_to_snapshot,
+    'monthly_months_remaining', sp.monthly_months_remaining,
+    'enrollment_consumed', sp.enrollment_consumed,
+    'applied_at', sp.applied_at
+  ) ORDER BY sp.applied_at DESC), '[]'::jsonb)
+    INTO v_promotions
+    FROM public.student_promotions sp
+    WHERE sp.student_id = ANY(v_student_ids)
+      AND (
+        (sp.applies_to_snapshot IN ('enrollment', 'both') AND NOT sp.enrollment_consumed)
+        OR (
+          sp.applies_to_snapshot IN ('monthly', 'both')
+          AND (sp.monthly_months_remaining IS NULL OR sp.monthly_months_remaining > 0)
+        )
+      );
+
+  SELECT coalesce(jsonb_agg(jsonb_build_object(
+    'id', fp.id,
+    'section_id', fp.section_id,
+    'effective_from_year', fp.effective_from_year,
+    'effective_from_month', fp.effective_from_month,
+    'monthly_fee', fp.monthly_fee,
+    'currency', fp.currency,
+    'archived_at', fp.archived_at
+  )), '[]'::jsonb)
+    INTO v_plans
+    FROM public.section_fee_plans fp
+    WHERE fp.section_id = ANY(v_section_ids)
+      AND fp.archived_at IS NULL;
+
+  RETURN jsonb_build_object(
+    'cohort', v_cohort,
+    'year', p_year,
+    'sections', v_sections,
+    'enrollments', v_enrollments,
+    'profiles', v_profiles,
+    'payments', v_payments,
+    'scholarships', v_scholarships,
+    'promotions', v_promotions,
+    'plans', v_plans
+  );
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.admin_finance_receipt_processing_stats(UUID, INT) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.admin_finance_receipt_processing_stats(UUID, INT) TO authenticated;
--- ============================================================================
--- 085_student_badges_extra_seed.sql
--- Extra seed badges (10) for tasks/attendance/assessments milestones.
--- ============================================================================
+COMMENT ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) IS
+  'Bulk fetch (admin only) of raw cohort collections data: enrollments include receipt fields and last_enrollment_paid_at for month-0 UI.';
+
+REVOKE ALL ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) FROM anon;
+GRANT EXECUTE ON FUNCTION public.admin_cohort_collections_bulk(uuid, int) TO authenticated;
+
+-- ========== 087_student_badges_extra_seed.sql ==========
 
 -- Adds extra seed badges to the catalog created in 082_student_badges_catalog.sql.
 -- Uses ONLY criteria_type values supported by the evaluator
@@ -9819,9 +10178,7 @@ JOIN (
        'Aprueba veinticinco mini-tests evaluados en tus cursos. Consistencia pura.')
 ) AS t(code, locale, title, description) ON t.code = i.code;
 
--- ============================================================================
--- 086_student_badges_extra_criteria_types.sql
--- ============================================================================
+-- ========== 088_student_badges_extra_criteria_types.sql ==========
 
 -- Extends the badge_criteria_type enum with finer-grained platform-usage signals,
 -- and adds a `community` badge_category for engagement / messaging badges.
@@ -9838,9 +10195,7 @@ ALTER TYPE public.badge_criteria_type ADD VALUE IF NOT EXISTS 'messages_sent';
 
 ALTER TYPE public.badge_category ADD VALUE IF NOT EXISTS 'community';
 
--- ============================================================================
--- 087_student_badges_usage_seed.sql
--- ============================================================================
+-- ========== 089_student_badges_usage_seed.sql ==========
 
 -- Seeds platform-usage badges that rely on the criteria_type and category values
 -- added in 086_student_badges_extra_criteria_types.sql.
@@ -9933,3 +10288,94 @@ JOIN (
     ('messages_sent_25', 'es', 'Conversador',
        'Envía veinticinco mensajes desde el portal. Eres un gran compañero de equipo.')
 ) AS t(code, locale, title, description) ON t.code = i.code;
+
+-- ========== 090_initial_site_setup_site_settings.sql ==========
+
+-- Initial site setup flag (greenfield wizard). Value: { "completedAt": "<ISO>" | null }
+-- Existing deployments (users or CMS data) are marked completed so upgrades are not blocked.
+
+INSERT INTO public.site_settings (key, value)
+VALUES ('initial_site_setup', '{"completedAt":null}'::jsonb)
+ON CONFLICT (key) DO NOTHING;
+
+UPDATE public.site_settings ss
+SET value = jsonb_set(ss.value, '{completedAt}', to_jsonb(now()::text), true)
+WHERE ss.key = 'initial_site_setup'
+  AND (ss.value->>'completedAt') IS NULL
+  AND (
+    EXISTS (SELECT 1 FROM public.site_theme_media LIMIT 1)
+    OR EXISTS (
+      SELECT 1 FROM public.site_themes st
+      WHERE st.is_active = TRUE
+        AND st.archived_at IS NULL
+        AND st.properties IS NOT NULL
+        AND st.properties <> '{}'::jsonb
+    )
+    OR EXISTS (SELECT 1 FROM auth.users LIMIT 1)
+  );
+
+-- ========== 091_bootstrap_wizard_handle_new_user.sql ==========
+
+-- Allow first-run wizard to provision the initial admin via trusted metadata (greenfield).
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_dni TEXT;
+  v_role public.user_role;
+  v_role_raw TEXT;
+  v_provision TEXT;
+BEGIN
+  v_dni := NULLIF(trim(COALESCE(NEW.raw_user_meta_data ->> 'dni_or_passport', '')), '');
+  IF v_dni IS NULL THEN
+    v_dni := 'pending-' || replace(NEW.id::text, '-', '');
+  END IF;
+
+  v_provision := COALESCE(NEW.raw_user_meta_data ->> 'provisioning_source', '');
+  v_role_raw := lower(nullif(trim(COALESCE(NEW.raw_user_meta_data ->> 'role', '')), ''));
+
+  IF v_provision = 'admin_invite'
+     AND v_role_raw IN ('admin', 'teacher', 'student', 'parent', 'assistant') THEN
+    v_role := v_role_raw::public.user_role;
+  ELSIF v_provision = 'bootstrap_wizard'
+        AND v_role_raw = 'admin' THEN
+    v_role := 'admin'::public.user_role;
+  ELSE
+    v_role := 'student';
+  END IF;
+
+  INSERT INTO public.profiles (
+    id, role, first_name, last_name, dni_or_passport, phone, birth_date
+  )
+  VALUES (
+    NEW.id,
+    v_role,
+    COALESCE(NULLIF(trim(NEW.raw_user_meta_data ->> 'first_name'), ''), '—'),
+    COALESCE(NULLIF(trim(NEW.raw_user_meta_data ->> 'last_name'), ''), '—'),
+    v_dni,
+    NULLIF(trim(COALESCE(NEW.raw_user_meta_data ->> 'phone', '')), ''),
+    NULLIF(trim(COALESCE(NEW.raw_user_meta_data ->> 'birth_date', '')), '')::date
+  );
+  RETURN NEW;
+END;
+$$;
+
+COMMENT ON FUNCTION public.handle_new_user() IS
+  'Auth trigger: provision profile; admin_invite sets roles; bootstrap_wizard may create first admin (089).';
+
+-- ========== 092_site_settings_public_initial_site_setup.sql ==========
+
+-- Allow anon/authenticated reads of initial_site_setup for public gating (completedAt only).
+-- Previously site_settings_select_public only exposed inscriptions_enabled.
+
+DROP POLICY IF EXISTS site_settings_select_public ON public.site_settings;
+
+CREATE POLICY site_settings_select_public
+  ON public.site_settings FOR SELECT
+  TO anon, authenticated
+  USING (
+    key IN ('inscriptions_enabled', 'initial_site_setup')
+  );

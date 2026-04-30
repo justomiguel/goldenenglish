@@ -22,9 +22,17 @@ interface BootstrapAdminFormProps {
   locale: string;
   labels: SiteSetupDict;
   loginLabels: Dictionary["login"];
+  platformCredit: string;
+  platformCreditAria: string;
 }
 
-export function BootstrapAdminForm({ locale, labels, loginLabels }: BootstrapAdminFormProps) {
+export function BootstrapAdminForm({
+  locale,
+  labels,
+  loginLabels,
+  platformCredit,
+  platformCreditAria,
+}: BootstrapAdminFormProps) {
   const router = useRouter();
   const b = labels.bootstrap;
   const err = labels.errors;
@@ -226,6 +234,12 @@ export function BootstrapAdminForm({ locale, labels, loginLabels }: BootstrapAdm
           <Mail className="h-4 w-4 shrink-0" aria-hidden />
           {loginLabels.alreadyHaveAccount}
         </a>
+      </p>
+      <p
+        className="mt-6 text-center text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--color-primary)]"
+        aria-label={platformCreditAria}
+      >
+        {platformCredit}
       </p>
     </div>
   );

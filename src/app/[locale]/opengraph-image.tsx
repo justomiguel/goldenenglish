@@ -1,5 +1,8 @@
 import { ImageResponse } from "next/og";
-import { getBrandForRequest } from "@/lib/brand/server";
+import {
+  type AppLocale,
+} from "@/lib/i18n/dictionaries";
+import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { resolveBrandLogoAbsoluteUrl } from "@/lib/brand/resolveBrandLogoUrl";
 import { getProperty } from "@/lib/theme/themeParser";
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
@@ -16,14 +19,18 @@ export default async function OgImage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const brand = await getBrandForRequest();
+  const loc = locale as AppLocale;
+  const { brand, needsInitialSiteSetup, dict } =
+    await resolvePublicBrandWithSetup(loc);
   const { properties } = await loadEffectiveProperties();
   const primaryColor = getProperty(properties, "color.primary", "#103A5C");
   const primaryDark = getProperty(properties, "color.primary.dark", "#0A253D");
   const accentColor = getProperty(properties, "color.accent", "#F0B932");
   const surfaceWhite = getProperty(properties, "color.background", "#FFFFFF");
   const borderMuted = getProperty(properties, "color.border", "#E5E7EB");
-  const tagline = taglineForLocale(brand, locale);
+  const tagline = needsInitialSiteSetup
+    ? dict.greenfieldPublic.metaDescription
+    : taglineForLocale(brand, locale);
 
   const origin =
     getPublicSiteUrl()?.origin.replace(/\/$/, "") ?? "http://localhost:3000";

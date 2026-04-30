@@ -4,17 +4,17 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 /**
- * Pin the contract of `055_tutor_financial_access.sql` as text. We don't have
+ * Pin the contract of `056_tutor_financial_access.sql` as text. We don't have
  * a Postgres harness in this repo, but the migration is the **single** place
  * that wires the privacy story (RLS + helper) for tutor ↔ student finance.
  * If any of these guarantees regresses we lose either privacy or the
  * tutor's ability to operate on the linked student's payments.
  */
-describe("055_tutor_financial_access.sql", () => {
+describe("056_tutor_financial_access.sql", () => {
   const sql = readFileSync(
     resolve(
       process.cwd(),
-      "supabase/migrations/055_tutor_financial_access.sql",
+      "supabase/migrations/056_tutor_financial_access.sql",
     ),
     "utf-8",
   );

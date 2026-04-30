@@ -1,8 +1,10 @@
-import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getBrandForRequest } from "@/lib/brand/server";
+import { type AppLocale } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
+import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { LandingSurfaceGate } from "@/components/organisms/LandingSurfaceGate";
+import { LandingGreenfieldSurfaceGate } from "@/components/organisms/LandingGreenfieldSurfaceGate";
+import { LandingGreenfieldPendingMain } from "@/components/organisms/LandingGreenfieldPendingMain";
 import { LandingScreenDesktop } from "@/components/desktop/organisms/LandingScreenDesktop";
 import { LandingMainSections } from "@/components/organisms/LandingMainSections";
 import { LandingMainSectionsEditorial } from "@/components/organisms/LandingMainSectionsEditorial";
@@ -22,16 +24,30 @@ interface HomePageProps {
 
 export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
+  const loc = locale as AppLocale;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const sessionEmail = user?.email ?? null;
 
-  const [baseDict, brand, inscriptionsOpen, activeTheme] = await Promise.all([
-    getDictionary(locale),
-    getBrandForRequest(),
-    getInscriptionsEnabled(),
-    loadActiveTheme(),
-  ]);
+  const [{ brand, needsInitialSiteSetup, dict: baseDict }, inscriptionsOpen] =
+    await Promise.all([
+      resolvePublicBrandWithSetup(loc),
+      getInscriptionsEnabled(),
+    ]);
+
+  if (needsInitialSiteSetup) {
+    return (
+      <LandingGreenfieldSurfaceGate
+        brand={brand}
+        dict={baseDict}
+        locale={locale}
+        sessionEmail={sessionEmail}
+        main={<LandingGreenfieldPendingMain locale={locale} dict={baseDict} />}
+      />
+    );
+  }
+
+  const activeTheme = await loadActiveTheme();
 
   const dict = applyLandingContentOverrides(
     baseDict,

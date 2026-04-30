@@ -13,9 +13,9 @@ import { resolve } from "node:path";
  * partial unique indexes, double clicks / two-tutor races would silently
  * create duplicate payment rows. This test fails loud in that case.
  */
-describe("054_section_fee_plans.sql — payments unique invariants", () => {
+describe("055_section_fee_plans.sql — payments unique invariants", () => {
   const sql = readFileSync(
-    resolve(process.cwd(), "supabase/migrations/054_section_fee_plans.sql"),
+    resolve(process.cwd(), "supabase/migrations/055_section_fee_plans.sql"),
     "utf-8",
   );
 

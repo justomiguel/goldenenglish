@@ -15,11 +15,11 @@ import { resolve } from "node:path";
  * This guards against accidental regressions of the migration that would
  * either drop the seed or stop preserving an existing active template.
  */
-describe("052_site_themes_system_default.sql", () => {
+describe("053_site_themes_system_default.sql", () => {
   const sql = readFileSync(
     resolve(
       process.cwd(),
-      "supabase/migrations/052_site_themes_system_default.sql",
+      "supabase/migrations/053_site_themes_system_default.sql",
     ),
     "utf-8",
   );

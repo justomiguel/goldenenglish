@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-describe("064_section_enrollment_billing_benefits.sql", () => {
+describe("065_section_enrollment_billing_benefits.sql", () => {
   const sql = readFileSync(
     resolve(
       process.cwd(),
-      "supabase/migrations/064_section_enrollment_billing_benefits.sql",
+      "supabase/migrations/065_section_enrollment_billing_benefits.sql",
     ),
     "utf-8",
   );

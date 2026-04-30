@@ -7,6 +7,7 @@
  * against a DB that has all migrations applied if you need that format).
  *
  * Source of truth for real environments: apply `supabase/migrations/*.sql` in order.
+ * To emit one concatenated file for SQL Editor (run-once, see header inside): `npm run sql:bundle-editor`.
  */
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";

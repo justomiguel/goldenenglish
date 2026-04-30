@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 describe("content template blocks migration", () => {
   it("creates ordered blocks behind an existence guard", () => {
     const sql = readFileSync(
-      join(process.cwd(), "supabase/migrations/072_content_template_blocks.sql"),
+      join(process.cwd(), "supabase/migrations/073_content_template_blocks.sql"),
       "utf8",
     );
 

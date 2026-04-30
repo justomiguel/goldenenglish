@@ -37,6 +37,8 @@ export default async function FirstRunSetupPage({ params }: PageProps) {
         locale={locale}
         labels={dict.dashboard.siteSetup}
         loginLabels={dict.login}
+        platformCredit={dict.greenfieldPublic.platformCredit}
+        platformCreditAria={dict.greenfieldPublic.platformCreditAria}
       />
     );
   }
@@ -78,6 +80,8 @@ export default async function FirstRunSetupPage({ params }: PageProps) {
       locale={locale}
       themeId={theme.id}
       labels={dict.dashboard.siteSetup}
+      platformCredit={dict.greenfieldPublic.platformCredit}
+      platformCreditAria={dict.greenfieldPublic.platformCreditAria}
     />
   );
 }

@@ -1,4 +1,4 @@
-// REGRESSION CHECK: 070 must be runnable without the learning-task template
+// REGRESSION CHECK: 071 must be runnable without the learning-task template
 // migration. It may keep detached UUID pointers, but not hard FKs/helpers from 069.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 describe("section content planning migration", () => {
   it("does not depend on learning task template tables or helpers", () => {
     const sql = readFileSync(
-      join(process.cwd(), "supabase/migrations/070_section_content_planning_assessments.sql"),
+      join(process.cwd(), "supabase/migrations/071_section_content_planning_assessments.sql"),
       "utf8",
     );
 
@@ -18,7 +18,7 @@ describe("section content planning migration", () => {
 
   it("renames section planning into learning routes with template-backed steps", () => {
     const sql = readFileSync(
-      join(process.cwd(), "supabase/migrations/075_learning_routes_rename.sql"),
+      join(process.cwd(), "supabase/migrations/076_learning_routes_rename.sql"),
       "utf8",
     );
 
@@ -37,7 +37,7 @@ describe("section content planning migration", () => {
 
   it("adds graph edges and evaluable checkpoints for route studios", () => {
     const sql = readFileSync(
-      join(process.cwd(), "supabase/migrations/076_learning_route_graph_studio.sql"),
+      join(process.cwd(), "supabase/migrations/077_learning_route_graph_studio.sql"),
       "utf8",
     );
 

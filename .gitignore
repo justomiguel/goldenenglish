@@ -41,6 +41,7 @@ yarn-error.log*
 
 # vercel
 .vercel
+scripts/vercel-targets.local.json
 
 # typescript
 *.tsbuildinfo
@@ -51,3 +52,6 @@ next-env.d.ts
 
 # supabase CLI temp/cache
 supabase/.temp/
+
+# Single-file SQL bundle for SQL Editor (generated; do not commit)
+supabase/dist/*.sql

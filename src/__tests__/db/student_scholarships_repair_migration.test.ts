@@ -4,11 +4,11 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 // REGRESSION CHECK: finance cohort collections read `student_scholarships`.
-// Environments missing the older billing migration must be repaired by 061 so
+// Environments missing the older billing migration must be repaired by 062 so
 // the RPC does not fail before the matrix can render.
-describe("061_student_scholarships_repair.sql", () => {
+describe("062_student_scholarships_repair.sql", () => {
   const sql = readFileSync(
-    resolve(process.cwd(), "supabase/migrations/061_student_scholarships_repair.sql"),
+    resolve(process.cwd(), "supabase/migrations/062_student_scholarships_repair.sql"),
     "utf-8",
   );
 

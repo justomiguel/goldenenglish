@@ -22,6 +22,16 @@
       "night": "Hola"
     }
   },
+  "greenfieldPublic": {
+    "appName": "Nueva instalación",
+    "legalName": "",
+    "tagline": "",
+    "taglineEn": "",
+    "logoAlt": "Logo del sitio",
+    "metaDescription": "Configuración inicial del instituto — plataforma educativa desarrollada por Sistemas MV.",
+    "platformCredit": "Plataforma educativa · Sistemas MV",
+    "platformCreditAria": "Plataforma educativa desarrollada por Sistemas MV"
+  },
   "publicStudentBadge": {
     "title": "Logro",
     "notFound": "Este enlace de logro no está disponible.",
@@ -297,6 +307,12 @@
     "administration": "Panel"
   },
   "landing": {
+    "greenfieldPending": {
+      "title": "Instalación en curso",
+      "lead": "Esta instalación usa software de Sistemas MV. El sitio público permanece mínimo hasta que un administrador termine la configuración y publique la marca del instituto.",
+      "cta": "Continuar instalación",
+      "footerNote": "La marca del instituto se configura en el asistente. Software de plataforma por Sistemas MV."
+    },
     "hero": {
       "kicker": "Bienvenidos al universo GOLDEN",
       "cta": "Inscripciones Anticipadas 2026",

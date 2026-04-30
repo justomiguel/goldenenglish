@@ -6,9 +6,9 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-describe("067_enrollment_fee_receipt.sql", () => {
+describe("068_enrollment_fee_receipt.sql", () => {
   const sql = readFileSync(
-    resolve(process.cwd(), "supabase/migrations/067_enrollment_fee_receipt.sql"),
+    resolve(process.cwd(), "supabase/migrations/068_enrollment_fee_receipt.sql"),
     "utf-8",
   );
 
