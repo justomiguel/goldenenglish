@@ -74,7 +74,7 @@ describe("landingPositionFromFilename", () => {
 describe("resolveLandingImageSrc", () => {
   it("returns the local fallback when there is no media map", () => {
     expect(resolveLandingImageSrc("inicio", "1.png")).toBe(
-      "/images/sections/inicio/1.png",
+      "/images/golden/inicio/1.png",
     );
   });
 
@@ -88,7 +88,7 @@ describe("resolveLandingImageSrc", () => {
   it("falls back when no row matches the position", () => {
     const map = buildLandingMediaMap(rows, publicUrl);
     expect(resolveLandingImageSrc("inicio", "3.png", map)).toBe(
-      "/images/sections/inicio/3.png",
+      "/images/golden/inicio/3.png",
     );
   });
 });

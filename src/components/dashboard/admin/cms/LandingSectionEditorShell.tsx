@@ -15,6 +15,7 @@ import type {
 } from "@/app/[locale]/dashboard/admin/cms/siteThemeActionShared";
 import type { LandingSectionEditorViewModel } from "@/lib/cms/buildLandingEditorViewModel";
 import type { Dictionary } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { SiteThemeRow } from "@/types/theming";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { LandingBlocksPanel } from "./LandingBlocksPanel";
@@ -25,12 +26,12 @@ import {
   isLandingCopyDraftDirty,
   type LandingCopyDraft,
 } from "./buildLandingCopyDraft";
-
 type Labels = Dictionary["admin"]["cms"]["templates"]["landing"];
 
 export interface LandingSectionEditorShellProps {
   locale: string;
   labels: Labels;
+  fileUploadProgress: FileUploadProgressLabels;
   theme: SiteThemeRow;
   section: LandingSectionEditorViewModel;
 }
@@ -38,6 +39,7 @@ export interface LandingSectionEditorShellProps {
 export function LandingSectionEditorShell({
   locale,
   labels,
+  fileUploadProgress,
   theme,
   section,
 }: LandingSectionEditorShellProps) {
@@ -192,9 +194,12 @@ export function LandingSectionEditorShell({
           <h2 className="text-lg font-semibold text-[var(--color-foreground)]">
             {labels.mediaTitle}
           </h2>
-          <p className="text-sm text-[var(--color-muted-foreground)]">
-            {labels.mediaLead}
-          </p>
+          <div className="space-y-2 text-sm text-[var(--color-muted-foreground)]">
+            <p>{labels.mediaLead}</p>
+            {section.section === "modalidades" ? (
+              <p>{labels.mediaLeadModalidades}</p>
+            ) : null}
+          </div>
         </header>
         {section.media.length === 0 ? (
           <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] px-3 py-4 text-center text-sm text-[var(--color-muted-foreground)]">
@@ -210,6 +215,7 @@ export function LandingSectionEditorShell({
                 section={section.section}
                 slot={slot}
                 labels={labels}
+                fileUploadProgress={fileUploadProgress}
                 onChanged={() => router.refresh()}
               />
             ))}

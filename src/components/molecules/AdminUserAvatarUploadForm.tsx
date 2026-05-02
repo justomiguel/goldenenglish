@@ -1,9 +1,11 @@
 "use client";
 
 import { Camera } from "lucide-react";
-import { useId, useRef, useState, useTransition } from "react";
+import { useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Dictionary } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { uploadAdminStudentAvatarAction } from "@/app/[locale]/dashboard/admin/users/adminUserDetailActions";
 import {
   PROFILE_AVATAR_MAX_BYTES,
@@ -16,6 +18,7 @@ export interface AdminUserAvatarUploadFormProps {
   locale: string;
   targetUserId: string;
   labels: UserLabels;
+  fileUploadProgress: FileUploadProgressLabels;
   onPreview: (file: File) => void;
 }
 
@@ -23,15 +26,16 @@ export function AdminUserAvatarUploadForm({
   locale,
   targetUserId,
   labels,
+  fileUploadProgress,
   onPreview,
 }: AdminUserAvatarUploadFormProps) {
   const router = useRouter();
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
-  const [pending, startTransition] = useTransition();
+  const [busy, setBusy] = useState(false);
 
-  const uploadFile = (file: File | null | undefined) => {
+  async function uploadFile(file: File | null | undefined) {
     if (!file) {
       setMessage({ text: labels.detailAvatarErrNoFile, ok: false });
       return;
@@ -45,18 +49,22 @@ export function AdminUserAvatarUploadForm({
     formData.set("locale", locale);
     formData.set("targetUserId", targetUserId);
     formData.set("avatar", file);
-    startTransition(async () => {
+    setBusy(true);
+    setMessage(null);
+    try {
       const result = await uploadAdminStudentAvatarAction(formData);
       setMessage({ text: result.message, ok: result.ok });
       if (result.ok) {
         onPreview(file);
         router.refresh();
       }
-    });
-  };
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
-    <div>
+    <div className="min-w-[11rem] space-y-2">
       <input
         ref={inputRef}
         id={inputId}
@@ -64,15 +72,16 @@ export function AdminUserAvatarUploadForm({
         type="file"
         accept="image/jpeg,image/png,image/webp"
         className="sr-only"
+        disabled={busy}
         onChange={(event) => {
           setMessage(null);
-          uploadFile(event.target.files?.[0]);
+          void uploadFile(event.target.files?.[0]);
           event.target.value = "";
         }}
       />
       <button
         type="button"
-        disabled={pending}
+        disabled={busy}
         aria-label={labels.detailAvatarUpload}
         title={fillProfileAvatarMaxMbTemplate(labels.detailAvatarHint)}
         onClick={() => inputRef.current?.click()}
@@ -80,10 +89,17 @@ export function AdminUserAvatarUploadForm({
       >
         <Camera className="h-5 w-5" aria-hidden />
       </button>
+      {busy ? (
+        <InlineUploadProgressBar
+          label={fileUploadProgress.progressSending}
+          indeterminate
+          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-2 py-2"
+        />
+      ) : null}
       {message ? (
         <p
           role="status"
-          className={`mt-2 w-48 text-xs ${message.ok ? "text-[var(--color-primary)]" : "text-[var(--color-error)]"}`}
+          className={`w-48 text-xs ${message.ok ? "text-[var(--color-primary)]" : "text-[var(--color-error)]"}`}
         >
           {message.text}
         </p>

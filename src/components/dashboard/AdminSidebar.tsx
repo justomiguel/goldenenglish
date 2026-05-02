@@ -10,6 +10,7 @@ export interface AdminSidebarProps {
   locale: string;
   dict: Dictionary["dashboard"]["adminNav"];
   newRegistrationsCount: number;
+  includeEmailTemplatesNav?: boolean;
   teacherNav?: AdminTeacherNavLabels;
 }
 
@@ -17,6 +18,7 @@ export function AdminSidebar({
   locale,
   dict,
   newRegistrationsCount,
+  includeEmailTemplatesNav,
   teacherNav,
 }: AdminSidebarProps) {
   return (
@@ -25,6 +27,7 @@ export function AdminSidebar({
         locale={locale}
         dict={dict}
         newRegistrationsCount={newRegistrationsCount}
+        includeEmailTemplatesNav={includeEmailTemplatesNav}
         teacherNav={teacherNav}
       />
     </aside>

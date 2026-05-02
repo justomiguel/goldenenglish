@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { Locale } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { AdminUserDetailPanel } from "@/components/dashboard/AdminUserDetailPanel";
@@ -17,6 +18,7 @@ export interface AdminUserDetailDesktopProps {
   billingLabels: BillingLabels;
   detail: AdminUserDetailVM;
   billing: AdminStudentBillingTabData | null;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
 export function AdminUserDetailDesktop({
@@ -25,6 +27,7 @@ export function AdminUserDetailDesktop({
   billingLabels,
   detail,
   billing,
+  fileUploadProgress,
 }: AdminUserDetailDesktopProps) {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -43,6 +46,7 @@ export function AdminUserDetailDesktop({
         labels={labels}
         billingLabels={billingLabels}
         billing={billing}
+        fileUploadProgress={fileUploadProgress}
       />
     </div>
   );

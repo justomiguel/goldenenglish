@@ -1,11 +1,13 @@
 import type {
   LandingSectionSlug,
   SiteThemeMediaRow,
+  SiteThemeKind,
 } from "@/types/theming";
 import {
   sectionImageSrc,
   type LandingImageSectionSlug,
 } from "@/lib/landing/sectionLandingImages";
+import { mozarthitosSectionImageSrc } from "@/lib/landing/mozarthitosLandingImages";
 
 /**
  * Pure helpers for landing media overrides.
@@ -13,7 +15,7 @@ import {
  * The runtime layer reads media rows from the active site theme and offers a
  * stable API back to the landing organisms: "give me the URL for image X of
  * section Y". When an admin uploaded a custom file we return its public URL;
- * otherwise we fall back to the bundled `/images/sections/<slug>/<file>` PNG.
+ * otherwise we fall back to the bundled `/images/golden/<slug>/<file>` PNG.
  */
 
 /** Map of `(section, position)` → public URL for the active theme's media. */
@@ -58,12 +60,26 @@ export function landingPositionFromFilename(filename: string): number | null {
 /**
  * Returns the URL to render for a given landing image. Honors a CMS override
  * when present, otherwise falls back to the bundled file under
- * `/public/images/sections/`.
+ * `/public/images/golden/`.
  *
  * The legacy local path is preserved as the fallback so the landing keeps
  * working when no theme is active (default deploy).
  */
 export function resolveLandingImageSrc(
+  section: LandingImageSectionSlug,
+  filename: string,
+  media?: LandingMediaMap,
+): string {
+  return resolveLandingImageSrcForTheme(
+    "classic",
+    section,
+    filename,
+    media,
+  );
+}
+
+export function resolveLandingImageSrcForTheme(
+  kind: SiteThemeKind,
   section: LandingImageSectionSlug,
   filename: string,
   media?: LandingMediaMap,
@@ -74,6 +90,9 @@ export function resolveLandingImageSrc(
       const override = media.get(makeKey(section, position));
       if (override) return override;
     }
+  }
+  if (kind === "mozarthitos") {
+    return mozarthitosSectionImageSrc(section, filename);
   }
   return sectionImageSrc(section, filename);
 }

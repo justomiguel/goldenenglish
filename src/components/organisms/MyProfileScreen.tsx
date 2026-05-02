@@ -6,6 +6,7 @@ import { KeyRound, Mail } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Label } from "@/components/atoms/Label";
 import type { Dictionary } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import { ProfileAvatarChangeFab } from "@/components/molecules/ProfileAvatarChangeFab";
 import { MyProfilePersonalForm } from "@/components/molecules/MyProfilePersonalForm";
 import { MyProfileChangePasswordModal } from "@/components/molecules/MyProfileChangePasswordModal";
@@ -29,6 +30,7 @@ export interface MyProfileScreenProps {
   avatarDisplayUrl: string | null;
   displayName: string;
   labels: Dictionary["dashboard"]["myProfile"];
+  fileUploadProgress: FileUploadProgressLabels;
   classReminder?: {
     studentId: string;
     initial: Record<string, unknown> | null;
@@ -50,6 +52,7 @@ export function MyProfileScreen({
   avatarDisplayUrl,
   displayName,
   labels,
+  fileUploadProgress,
   classReminder = null,
   tutorFinancialAccess = null,
 }: MyProfileScreenProps) {
@@ -92,6 +95,7 @@ export function MyProfileScreen({
               displayName={displayName}
               avatarDisplayUrl={avatarDisplayUrl}
               labels={avatarFabLabels}
+              fileUploadProgress={fileUploadProgress}
             />
           </div>
 

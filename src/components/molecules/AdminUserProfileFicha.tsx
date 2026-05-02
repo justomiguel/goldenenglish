@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CreditCard, GraduationCap, ShieldCheck, UserRound, UsersRound } from "lucide-react";
 import type { Dictionary, Locale } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { AdminUserIdentityHero } from "@/components/molecules/AdminUserIdentityHero";
@@ -29,6 +30,7 @@ export interface AdminUserProfileFichaProps {
   billingLabels: BillingLabels;
   detail: AdminUserDetailVM;
   billing: AdminStudentBillingTabData | null;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
 export function AdminUserProfileFicha({
@@ -37,6 +39,7 @@ export function AdminUserProfileFicha({
   billingLabels,
   detail,
   billing,
+  fileUploadProgress,
 }: AdminUserProfileFichaProps) {
   const editable = detail.viewerMayInlineEdit;
   const displayName = formatProfileNameSurnameFirst(detail.firstName, detail.lastName) || detail.emailDisplay;
@@ -178,6 +181,7 @@ export function AdminUserProfileFicha({
         locale={locale}
         detail={detail}
         labels={labels}
+        fileUploadProgress={fileUploadProgress}
         displayName={displayName}
         roleLabel={roleLabel}
       />

@@ -67,9 +67,18 @@ body {
   font-family: var(--font-body);
   color: var(--color-foreground);
   background-color: var(--color-background);
+  /* Theme-aware wash: follows merged `site_themes.properties` + system.properties (not Golden-only RGB). */
   background-image:
-    radial-gradient(ellipse 120% 80% at 50% -20%, rgb(240 185 50 / 8%), transparent),
-    radial-gradient(ellipse 60% 40% at 100% 0%, rgb(16 58 92 / 6%), transparent);
+    radial-gradient(
+      ellipse 120% 80% at 50% -20%,
+      color-mix(in srgb, var(--color-accent) 8%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 100% 0%,
+      color-mix(in srgb, var(--color-primary) 6%, transparent),
+      transparent
+    );
 }
 
 /* Installable app — subtle tap flash, less rubber-band than pure Safari chrome */

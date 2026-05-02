@@ -15,6 +15,8 @@ describe("LandingStudentGallery", () => {
       },
       studentGallery: {
         ...dictEn.landing.studentGallery,
+        album1PhotoIndexes: "0",
+        album2PhotoIndexes: "1, 2",
         items: [
           {
             name: "Single",

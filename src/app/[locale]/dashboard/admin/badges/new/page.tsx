@@ -37,6 +37,7 @@ export default async function AdminNewBadgePage({ params }: PageProps) {
       adminNav={dict.dashboard.adminNav}
       initial={null}
       preview={preview}
+      fileUploadProgress={dict.common.fileUpload}
     />
   );
 }

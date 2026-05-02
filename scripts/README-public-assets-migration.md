@@ -2,7 +2,7 @@
 
 ## Alcance
 
-- **Sí:** todo bajo `public/images/` (logo, `sections/*`) y `public/favicon_io/*`.
+- **Sí:** todo bajo `public/images/` (logo, `golden/*`) y `public/favicon_io/*`.
 - **No:** `public/geo/` (GeoJSON compartido entre sitios), ni otros estáticos (`sw.js`, etc.).
 
 El bucket **`landing-media`** ya existe (migración `046_site_themes.sql`). Este proceso **no añade DDL**: solo sube objetos y actualiza datos (`site_themes`, `site_theme_media`).

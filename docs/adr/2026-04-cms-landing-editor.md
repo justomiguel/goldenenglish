@@ -32,7 +32,7 @@ Sobre una copia profunda del diccionario base aplicamos los overrides por locale
 
 - `landingMediaStoragePath.ts` genera rutas canónicas `themes/<id>/<section>/<position>-<timestamp>.<ext>` dentro de `landing-media`.
 - `siteThemeMediaActions.ts` valida MIME (PNG/JPEG/WebP), tamaño (≤ 4 MB), sube al bucket, upsertea la fila `site_theme_media` y limpia el archivo anterior del slot.
-- `resolveLandingImageSrc(section, filename, mediaMap?)` honra el override si existe; si no, cae al PNG incluido en `public/images/sections/...`. La posición se deduce del prefijo numérico del filename (`1.png`), preservando la convención existente.
+- `resolveLandingImageSrc(section, filename, mediaMap?)` honra el override si existe; si no, cae al PNG incluido en `public/images/golden/...`. La posición se deduce del prefijo numérico del filename (`1.png`), preservando la convención existente.
 - `buildLandingMediaMap` usa `createLandingMediaPublicUrlBuilder()`, que construye URLs públicas a `NEXT_PUBLIC_SUPABASE_URL/storage/v1/object/public/landing-media/...` sin crear un nuevo cliente Supabase en el borde cliente (respeta `12-supabase-app-boundaries`).
 
 Las organismos del landing (`LandingHero`, `LandingStory`, `LandingStudentGallery`) reciben un `mediaMap?: LandingMediaMap` opcional. Sin el prop, el comportamiento es exactamente el actual (fallback estático).

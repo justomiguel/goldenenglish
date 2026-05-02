@@ -12,6 +12,7 @@ import { type SubmitMonthlyReceiptAction } from "@/components/student/StudentMon
 import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary, Locale } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { StudentMonthlyPaymentsView } from "@/types/studentMonthlyPayments";
 
 type ParentLabels = Dictionary["dashboard"]["parent"];
@@ -60,6 +61,7 @@ export interface ParentPaymentsEntryProps {
   submitReceiptAction: SubmitMonthlyReceiptAction;
   /** Server action que sube el comprobante de matrícula en nombre del alumno. */
   submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
 export function ParentPaymentsEntry({
@@ -75,6 +77,7 @@ export function ParentPaymentsEntry({
   studentLabels,
   submitReceiptAction,
   submitEnrollmentFeeReceiptAction,
+  fileUploadProgress,
 }: ParentPaymentsEntryProps) {
   const router = useRouter();
 
@@ -149,6 +152,7 @@ export function ParentPaymentsEntry({
                   submitAction={submitReceiptAction}
                   submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceiptAction}
                   receiptExpectedUsesFullMonth
+                  fileUploadProgress={fileUploadProgress}
                 />
               ) : null}
               <h2 className="mt-10 font-display text-xl font-semibold text-[var(--color-primary)]">

@@ -8,7 +8,12 @@ import { logSupabaseError } from "@/lib/logging/serverActionLog";
  *  copy) so the client renders messages from the dictionary, never from the
  *  server, per `09-i18n-copy.mdc`. */
 export type SiteThemeActionResult =
-  | { ok: true; id?: string }
+  | {
+      ok: true;
+      id?: string;
+      applied?: Record<string, string>;
+      cleared?: string[];
+    }
   | { ok: false; code: SiteThemeActionErrorCode };
 
 export type SiteThemeActionErrorCode =
@@ -20,7 +25,11 @@ export type SiteThemeActionErrorCode =
   | "archived_cannot_activate"
   | "active_cannot_archive"
   | "system_default_cannot_archive"
-  | "persist_failed";
+  | "persist_failed"
+  | "mime_invalid"
+  | "payload_invalid"
+  | "favicon_zip_invalid"
+  | "media_too_large";
 
 export const PG_UNIQUE_VIOLATION = "23505";
 

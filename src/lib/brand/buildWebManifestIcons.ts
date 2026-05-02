@@ -3,7 +3,9 @@ import {
   brandLogoManifestIcon,
   faviconPublicDir,
   mimeForIconSrc,
+  usesFaviconIcoBundle,
 } from "@/lib/brand/faviconDir";
+import { buildWebManifestIconsForStorageBundle } from "@/lib/brand/faviconBundleLayoutIcons";
 import type { BrandPublic } from "@/lib/brand/server";
 
 /**
@@ -13,6 +15,12 @@ import type { BrandPublic } from "@/lib/brand/server";
 export function buildWebManifestIcons(
   brand: BrandPublic,
 ): NonNullable<MetadataRoute.Manifest["icons"]> {
+  if (brand.faviconBundlePrefix) {
+    return buildWebManifestIconsForStorageBundle(
+      brand as BrandPublic & { faviconBundlePrefix: string },
+    );
+  }
+
   const fav = brand.faviconPath;
   const logo = brand.logoPath;
   const favRemote = /^https?:\/\//i.test(fav);
@@ -34,6 +42,23 @@ export function buildWebManifestIcons(
       });
     }
     if (out.length > 0) return out;
+  }
+
+  if (!usesFaviconIcoBundle(fav)) {
+    const out: NonNullable<MetadataRoute.Manifest["icons"]> = [
+      {
+        src: fav,
+        sizes: /\.svg$/i.test(fav) ? "any" : "48x48",
+        type: mimeForIconSrc(fav),
+      },
+    ];
+    if (logo.trim() !== fav.trim()) {
+      out.push({
+        src: logo,
+        ...brandLogoManifestIcon(logo),
+      });
+    }
+    return out;
   }
 
   const favDir = faviconPublicDir(fav);

@@ -26,4 +26,28 @@ describe("buildRootLayoutIcons", () => {
     );
     expect(JSON.stringify(icons)).not.toContain("favicon-16x16");
   });
+
+  it("uses a single relative icon for greenfield SVG paths (no favicon_io folder)", () => {
+    const icons = buildRootLayoutIcons({
+      ...mockBrandPublic,
+      faviconPath: "/file.svg",
+      logoPath: "/file.svg",
+    });
+    const list = icons?.icon as { url: string; type?: string }[];
+    expect(list).toHaveLength(1);
+    expect(list[0]?.url).toBe("/file.svg");
+    expect(list[0]?.type).toBe("image/svg+xml");
+    expect(JSON.stringify(icons)).not.toContain("favicon-16x16");
+  });
+
+  it("uses storage favicon bundle prefix for multi-size head icons", () => {
+    const icons = buildRootLayoutIcons({
+      ...mockBrandPublic,
+      faviconPath: "https://cdn.example/tenant/favicon.ico",
+      faviconBundlePrefix: "tid/wizard/favicon-bundle-abc",
+    });
+    const list = icons?.icon as { url: string }[];
+    expect(list?.length).toBe(3);
+    expect(icons?.shortcut).toBe("https://cdn.example/tenant/favicon.ico");
+  });
 });

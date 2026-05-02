@@ -9,6 +9,7 @@ export const mockBrandPublic: BrandPublic = {
   logoPath: "/images/logo.png",
   logoAlt: "Logo",
   faviconPath: "/favicon_io/favicon.ico",
+  faviconBundlePrefix: null,
   contactEmail: "hello@test.com",
   contactPhone: "+1000000",
   contactAddress: "Test Address",

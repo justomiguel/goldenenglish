@@ -4,6 +4,7 @@ import { StudentEnrollmentFeeUpload } from "@/components/molecules/StudentEnroll
 import dictEn from "@/dictionaries/en.json";
 
 const labels = dictEn.dashboard.student.monthly;
+const fileUploadProgress = dictEn.common.fileUpload;
 
 const baseProps = {
   locale: "es",
@@ -11,6 +12,7 @@ const baseProps = {
   sectionId: "section-1",
   enrollmentId: "enroll-1",
   labels,
+  fileUploadProgress,
   onSubmitted: vi.fn(),
 };
 

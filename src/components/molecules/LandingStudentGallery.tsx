@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Images, X } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { MODALIDADES_IMAGES } from "@/lib/landing/sectionLandingImages";
+import { resolveStudentGalleryAlbumSlides } from "@/lib/landing/studentGalleryAlbumSlides";
 import {
   resolveLandingImageSrc,
   type LandingMediaMap,
@@ -34,6 +35,18 @@ export function LandingStudentGallery({
 
   const sg = dict.landing.studentGallery;
   const photoAlts = dict.landing.collage.alts;
+
+  const albumSlides = useMemo(
+    () =>
+      sg.items.map((_, idx) => resolveStudentGalleryAlbumSlides(sg, idx, max)),
+    [sg, max],
+  );
+
+  const altForIndex = useCallback(
+    (ix: number) => photoAlts[ix] ?? photoAlts[photoAlts.length - 1] ?? "",
+    [photoAlts],
+  );
+
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const [slide, setSlide] = useState(0);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -42,14 +55,18 @@ export function LandingStudentGallery({
 
   const active =
     openIdx !== null ? (sg.items[openIdx] ?? null) : null;
-  const slides = active?.photoIndexes ?? [];
-  const slideCount = slides.length;
-  const currentPhotoIx = slideCount > 0 ? slides[slide % slideCount]! : 0;
+  const modalSlides =
+    openIdx !== null ? albumSlides[openIdx] ?? [] : [];
+  const slideCount = modalSlides.length;
+  const currentPhotoIx =
+    slideCount > 0 ? modalSlides[slide % slideCount]! : 0;
+
+  const modalSlideKey =
+    openIdx === null ? "" : modalSlides.join(",");
 
   useEffect(() => {
     if (openIdx === null) return;
-    const indexes = sg.items[openIdx]?.photoIndexes ?? [];
-    const n = indexes.length;
+    const n = modalSlides.length;
 
     const onKeyDown = (e: globalThis.KeyboardEvent) => {
       if (e.key === "Escape") close();
@@ -72,7 +89,7 @@ export function LandingStudentGallery({
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = "";
     };
-  }, [openIdx, close, sg.items]);
+  }, [openIdx, close, modalSlideKey, modalSlides.length]);
 
   function openCard(idx: number) {
     setSlide(0);
@@ -95,10 +112,14 @@ export function LandingStudentGallery({
 
       <ul className="mx-auto mt-10 grid max-w-3xl list-none gap-6 sm:grid-cols-2">
         {sg.items.map((item, idx) => {
-          const cover = item.coverIndex;
+          const slidesForCard = albumSlides[idx] ?? [];
+          const cover = slidesForCard.includes(item.coverIndex)
+            ? item.coverIndex
+            : slidesForCard[0] ?? item.coverIndex;
           const label = `${item.name} — ${sg.viewPhotos}`;
+          const coverSrc = srcForPhotoIndex(cover);
           return (
-            <li key={`${item.name}-${cover}`}>
+            <li key={`album-${idx}-${item.name}`}>
               <button
                 type="button"
                 aria-label={label}
@@ -107,10 +128,10 @@ export function LandingStudentGallery({
               >
                 <div className="relative aspect-[4/3] w-full">
                   <Image
-                    src={srcForPhotoIndex(cover)}
-                    alt={photoAlts[cover] ?? ""}
+                    src={coverSrc}
+                    alt={altForIndex(cover)}
                     fill
-                    unoptimized={bypassOptimizer(srcForPhotoIndex(cover))}
+                    unoptimized={bypassOptimizer(coverSrc)}
                     className="object-cover transition duration-500 group-hover:scale-[1.03]"
                     sizes="(max-width: 640px) 100vw, 50vw"
                   />
@@ -182,7 +203,7 @@ export function LandingStudentGallery({
                 <div className="relative mx-auto aspect-[4/3] w-full max-h-[min(60vh,520px)] max-w-3xl overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]">
                   <Image
                     src={srcForPhotoIndex(currentPhotoIx)}
-                    alt={photoAlts[currentPhotoIx] ?? ""}
+                    alt={altForIndex(currentPhotoIx)}
                     fill
                     unoptimized={bypassOptimizer(srcForPhotoIndex(currentPhotoIx))}
                     className="object-contain bg-black/5"

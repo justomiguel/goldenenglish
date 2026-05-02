@@ -14,6 +14,13 @@ export function faviconPublicDir(faviconIcoPath: string): string {
   return slash > 0 ? faviconIcoPath.slice(0, slash) : "";
 }
 
+/** Site-relative `.ico` under a folder that holds `favicon_io`-style PNG siblings. */
+export function usesFaviconIcoBundle(faviconPath: string): boolean {
+  const fav = faviconPath.trim();
+  if (/^https?:\/\//i.test(fav)) return false;
+  return faviconPublicDir(fav).length > 0 && /\.ico$/i.test(fav);
+}
+
 /** `icons` entry for the institutional logo in the web manifest (path from `system.properties`). */
 export function brandLogoManifestIcon(path: string): {
   type: string;

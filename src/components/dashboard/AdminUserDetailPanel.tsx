@@ -2,6 +2,7 @@
 
 import type { Dictionary } from "@/types/i18n";
 import type { Locale } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { AdminUserProfileFicha } from "@/components/molecules/AdminUserProfileFicha";
@@ -15,6 +16,7 @@ export interface AdminUserDetailPanelProps {
   labels: UserLabels;
   billingLabels: BillingLabels;
   billing: AdminStudentBillingTabData | null;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
 export function AdminUserDetailPanel({
@@ -23,6 +25,7 @@ export function AdminUserDetailPanel({
   labels,
   billingLabels,
   billing,
+  fileUploadProgress,
 }: AdminUserDetailPanelProps) {
   return (
     <AdminUserProfileFicha
@@ -31,6 +34,7 @@ export function AdminUserDetailPanel({
       billingLabels={billingLabels}
       detail={detail}
       billing={billing}
+      fileUploadProgress={fileUploadProgress}
     />
   );
 }

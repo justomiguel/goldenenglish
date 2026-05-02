@@ -3,16 +3,15 @@
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { logSupabaseError } from "@/lib/logging/serverActionLog";
 import { buildLandingMediaStoragePath } from "@/lib/cms/landingMediaStoragePath";
-import {
-  LANDING_MEDIA_BUCKET,
-} from "@/lib/cms/landingMediaPublicUrl";
+import { LANDING_MEDIA_BUCKET } from "@/lib/cms/landingMediaBucket";
 import {
   LANDING_MEDIA_MAX_BYTES,
+  coerceLandingMediaMime,
   deleteSiteThemeMediaInputSchema,
-  isAcceptedLandingMediaMime,
   uploadSiteThemeMediaInputSchema,
-  type LandingMediaAcceptedMime,
 } from "@/lib/cms/siteThemeLandingInputSchemas";
+import { landingMediaSlotsForTheme } from "@/lib/cms/landingThemeEditorCatalog";
+import { isSiteThemeKind } from "@/lib/cms/landingBlocksCatalog";
 import {
   fetchSiteThemeById,
   resolveAdminContext,
@@ -34,7 +33,7 @@ import {
  *
  * `deleteSiteThemeMediaAction`:
  *  - Removes the row + the storage object so the slot reverts to the
- *    bundled `/images/sections/...` fallback used by the landing.
+ *    bundled `/images/golden/...` fallback used by the landing.
  */
 
 const MEDIA_ALLOWED_MIME_CODE = "media_mime_invalid" as const;
@@ -65,10 +64,10 @@ export async function uploadSiteThemeMediaAction(
   const parsed = uploadSiteThemeMediaInputSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, code: "invalid_input" };
 
-  if (!isAcceptedLandingMediaMime(parsed.data.contentType)) {
+  const mime = coerceLandingMediaMime(parsed.data.contentType);
+  if (!mime) {
     return { ok: false, code: MEDIA_ALLOWED_MIME_CODE };
   }
-  const mime = parsed.data.contentType as LandingMediaAcceptedMime;
 
   const bytes = decodeBase64(parsed.data.fileBase64);
   if (!bytes) return { ok: false, code: MEDIA_PAYLOAD_INVALID_CODE };
@@ -79,6 +78,20 @@ export async function uploadSiteThemeMediaAction(
   const { admin } = ctx;
   const existing = await fetchSiteThemeById(admin.supabase, parsed.data.id);
   if (!existing) return { ok: false, code: "not_found" };
+
+  const templateKind = isSiteThemeKind(existing.template_kind)
+    ? existing.template_kind
+    : "classic";
+  const maxSlots = landingMediaSlotsForTheme(
+    templateKind,
+    parsed.data.section,
+  );
+  if (maxSlots <= 0) {
+    return { ok: false, code: "invalid_input" };
+  }
+  if (parsed.data.position > maxSlots) {
+    return { ok: false, code: "invalid_input" };
+  }
 
   const { data: existingRow, error: existingErr } = await admin.supabase
     .from("site_theme_media")

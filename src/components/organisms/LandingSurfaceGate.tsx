@@ -16,6 +16,10 @@ interface LandingSurfaceGateProps {
   dict: Dictionary;
   locale: string;
   sessionEmail: string | null;
+  /** Template supplies its own top navigation on every surface. */
+  suppressPwaHeader?: boolean;
+  /** Misma plantilla que `mozarthitosShell` en desktop (pie PWA). */
+  mozarthitosShell?: boolean;
 }
 
 export function LandingSurfaceGate({
@@ -25,6 +29,8 @@ export function LandingSurfaceGate({
   dict,
   locale,
   sessionEmail,
+  suppressPwaHeader = false,
+  mozarthitosShell = false,
 }: LandingSurfaceGateProps) {
   return (
     <SurfaceMountGate
@@ -33,18 +39,21 @@ export function LandingSurfaceGate({
       narrow={(surface) => (
         <PwaPageShell surface={surface}>
           <div className="flex min-h-dvh flex-col bg-[var(--color-background)]">
-            <LandingHeaderPwa
-              brand={brand}
-              dict={dict}
-              locale={locale}
-              sessionEmail={sessionEmail}
-            />
+            {suppressPwaHeader ? null : (
+              <LandingHeaderPwa
+                brand={brand}
+                dict={dict}
+                locale={locale}
+                sessionEmail={sessionEmail}
+              />
+            )}
             <div className="flex-1">{main}</div>
             <LandingFooterPwa
               dict={dict}
               brand={brand}
               locale={locale}
               sessionEmail={sessionEmail}
+              mozarthitosShell={mozarthitosShell}
             />
           </div>
         </PwaPageShell>

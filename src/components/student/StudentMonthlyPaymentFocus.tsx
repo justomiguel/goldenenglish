@@ -3,7 +3,10 @@
 import { CreditCard } from "lucide-react";
 import { type FormEvent, useId, useState } from "react";
 import { Button } from "@/components/atoms/Button";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import type { Dictionary, Locale } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
+import { formatStudentMonthlyPaymentAmount } from "@/components/student/studentMonthlyPaymentFocusFormatAmount";
 import type {
   StudentMonthlyPaymentCell,
   StudentMonthlyPaymentSectionRow,
@@ -17,11 +20,7 @@ export type SubmitMonthlyReceiptAction = (
 
 export interface StudentMonthlyPaymentFocusProps {
   locale: Locale;
-  /**
-   * Alumno cuyo pago estamos editando. Cuando lo monta el propio alumno coincide
-   * con el `auth.uid()`; cuando lo monta el tutor (`/dashboard/parent/payments`)
-   * es el alumno vinculado y se manda como hidden field a `submitAction`.
-   */
+  /** Student being edited: self on student route; ward id on parent payments. */
   studentId: string;
   section: StudentMonthlyPaymentSectionRow;
   cell: StudentMonthlyPaymentCell;
@@ -29,25 +28,12 @@ export interface StudentMonthlyPaymentFocusProps {
   labels: Labels;
   /** Used in messages and the receipt link. */
   paymentLabels: Dictionary["dashboard"]["student"];
-  /**
-   * Server action que persiste el comprobante. La firma se mantiene para que el
-   * mismo componente sirva al alumno (`submitStudentPaymentReceipt`) y al tutor
-   * (`submitTutorPaymentReceipt`); cada acción aplica su propia autorización.
-   */
+  /** Persists receipt; shared shape for student and tutor submit actions. */
   submitAction: SubmitMonthlyReceiptAction;
+  fileUploadProgress: FileUploadProgressLabels;
   onSubmitted?: () => void;
-  /**
-   * When true, the alumno ve y declara el mes completo (fee + beca) en el panel
-   * de comprobante; el servidor sigue persistiendo el monto operativo vía
-   * `resolveStudentPaymentSlot`.
-   */
+  /** Full-month amount in receipt UI; server still resolves the slot amount. */
   receiptExpectedUsesFullMonth?: boolean;
-}
-
-function formatAmount(locale: Locale, amount: number, currency: string | null): string {
-  void locale;
-  void currency;
-  return `$${amount}`;
 }
 
 export function StudentMonthlyPaymentFocus({
@@ -59,6 +45,7 @@ export function StudentMonthlyPaymentFocus({
   labels,
   paymentLabels,
   submitAction,
+  fileUploadProgress,
   onSubmitted,
   receiptExpectedUsesFullMonth = false,
 }: StudentMonthlyPaymentFocusProps) {
@@ -118,10 +105,10 @@ export function StudentMonthlyPaymentFocus({
               <span className="inline-flex flex-wrap items-baseline gap-2">
                 {hasDiscountedExpected ? (
                   <del className="text-sm font-normal text-[var(--color-muted-foreground)]">
-                    {formatAmount(locale, originalExpected ?? 0, cell.currency)}
+                    {formatStudentMonthlyPaymentAmount(locale, originalExpected ?? 0, cell.currency)}
                   </del>
                 ) : null}
-                <span>{formatAmount(locale, expected, cell.currency)}</span>
+                <span>{formatStudentMonthlyPaymentAmount(locale, expected, cell.currency)}</span>
               </span>
             ) : (
               labels.notAvailable
@@ -203,6 +190,7 @@ export function StudentMonthlyPaymentFocus({
                 required
                 aria-label={paymentLabels.payReceipt}
                 className="sr-only"
+                disabled={busy}
                 onChange={(e) => {
                   const f = e.target.files?.[0];
                   setReceiptFileName(f?.name ?? null);
@@ -224,6 +212,13 @@ export function StudentMonthlyPaymentFocus({
               </p>
             </div>
           </fieldset>
+          {busy ? (
+            <InlineUploadProgressBar
+              label={fileUploadProgress.progressSending}
+              indeterminate
+              className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+            />
+          ) : null}
           <Button
             type="submit"
             disabled={busy || expected == null}

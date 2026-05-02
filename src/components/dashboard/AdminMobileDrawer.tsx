@@ -15,6 +15,7 @@ export interface AdminMobileDrawerProps {
   locale: string;
   dict: Dictionary;
   newRegistrationsCount: number;
+  includeEmailTemplatesNav?: boolean;
   teacherNav?: AdminTeacherNavLabels;
 }
 
@@ -22,6 +23,7 @@ export function AdminMobileDrawer({
   locale,
   dict,
   newRegistrationsCount,
+  includeEmailTemplatesNav,
   teacherNav,
 }: AdminMobileDrawerProps) {
   const navDict = dict.dashboard.adminNav;
@@ -128,6 +130,7 @@ export function AdminMobileDrawer({
                 locale={locale}
                 dict={navDict}
                 newRegistrationsCount={newRegistrationsCount}
+                includeEmailTemplatesNav={includeEmailTemplatesNav}
                 teacherNav={teacherNav}
                 onNavigate={close}
                 variant="mobile"

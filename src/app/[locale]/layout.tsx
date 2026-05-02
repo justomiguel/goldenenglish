@@ -5,6 +5,7 @@ import {
   type AppLocale,
 } from "@/lib/i18n/dictionaries";
 import { notFound } from "next/navigation";
+import { buildRootLayoutIcons } from "@/lib/brand/buildRootLayoutIcons";
 import { taglineForLocale } from "@/lib/brand/taglineForLocale";
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { JsonLdOrganization } from "@/components/molecules/JsonLdOrganization";
@@ -45,6 +46,7 @@ export async function generateMetadata({
       template: `%s | ${brand.name}`,
     },
     description,
+    ...(needsInitialSiteSetup ? { icons: buildRootLayoutIcons(brand) } : {}),
     alternates: {
       canonical: path,
       languages: languageAlternates,

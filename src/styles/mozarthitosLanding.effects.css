@@ -1,0 +1,80 @@
+/* Textura + capas finas (importado desde mozarthitosLanding.css). */
+
+/* Ruido muy ligero sobre el hero — sensación “impresa”, sin pesar LCP. */
+.mz-landing .mz-hero-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.055;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E");
+}
+
+/* Línea fina dorada (no un bloque) — ribete de escenario; el logo va debajo en la barra roja. */
+.mz-landing .mz-site-header-accent {
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(243 201 78 / 92%) 20%,
+    var(--mz-yellow-soft) 50%,
+    rgb(243 201 78 / 92%) 80%,
+    transparent 100%
+  );
+  box-shadow: none;
+}
+
+/* Orígenes / llegada — números grandes tipo editorial */
+.mz-landing .mz-story-stack {
+  counter-reset: mz-story;
+}
+
+.mz-landing .mz-story-stack .mz-story-card {
+  counter-increment: mz-story;
+  padding-right: clamp(3.35rem, 9vw, 4.25rem);
+}
+
+.mz-landing .mz-story-stack .mz-story-card::before {
+  content: counter(mz-story, decimal-leading-zero);
+  position: absolute;
+  top: 1rem;
+  right: 1.15rem;
+  font-family: var(--font-mz-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  font-weight: 700;
+  line-height: 1;
+  color: rgb(255 255 255 / 24%);
+  pointer-events: none;
+}
+
+/* Cursos — lavado superior que une visualmente con el coral */
+.mz-landing .mz-cursos-surface::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 5rem;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgb(255 69 93 / 14%) 0%, transparent 100%);
+}
+
+@media (min-width: 640px) {
+  .mz-landing .mz-cursos-surface::before {
+    height: 6rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .mz-landing .mz-cursos-surface::before {
+    height: 7rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mz-landing .mz-hero-surface::after {
+    opacity: 0.03;
+  }
+}

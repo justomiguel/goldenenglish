@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { RotateCcw, Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
-import type { TokenGroup, TokenGroupId } from "@/lib/cms/groupThemeTokens";
+import type { TokenGroup } from "@/lib/cms/groupThemeTokens";
+import { filterBrandAssetKeysFromGroups } from "@/lib/cms/filterBrandAssetKeysFromGroups";
 import {
   resetSiteThemePropertiesAction,
   updateSiteThemePropertiesAction,
@@ -21,7 +22,14 @@ import {
 } from "./SiteThemeEditorTokenField";
 import { SiteThemeEditorGroupCard } from "./SiteThemeEditorGroupCard";
 import { SiteThemeEditorPreview } from "./SiteThemeEditorPreview";
+import { SiteThemeBrandAssetsPanel } from "./SiteThemeBrandAssetsPanel";
 import { buildInitialDraft } from "./siteThemeEditorDraft";
+import {
+  emptyDraftFromGroups,
+  findDefaultValue,
+  groupLabels,
+  isDraftDirty,
+} from "./siteThemeEditorShellHelpers";
 
 type Labels = Dictionary["admin"]["cms"]["templates"]["editor"];
 
@@ -30,17 +38,6 @@ export interface SiteThemeEditorShellProps {
   labels: Labels;
   theme: SiteThemeRow;
   groups: ReadonlyArray<TokenGroup>;
-}
-
-function groupLabels(labels: Labels, id: TokenGroupId) {
-  const map = labels.groups;
-  return {
-    title: map[id].title,
-    description: map[id].description,
-    resetToDefault: labels.resetToDefault,
-    defaultLabel: labels.defaultLabel,
-    overriddenLabel: labels.overriddenLabel,
-  };
 }
 
 /**
@@ -68,6 +65,11 @@ export function SiteThemeEditorShell({
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [resetAllOpen, setResetAllOpen] = useState(false);
   const [pending, startTransition] = useTransition();
+
+  const editorGroups = useMemo(
+    () => filterBrandAssetKeysFromGroups(groups),
+    [groups],
+  );
 
   const isDirty = isDraftDirty(groups, draft);
 
@@ -102,6 +104,22 @@ export function SiteThemeEditorShell({
         setSavedAt(Date.now());
       });
     });
+  }
+
+  function handleBrandAssetsUpdated(
+    applied: Record<string, string>,
+    cleared: string[],
+  ) {
+    setSavedAt(null);
+    setErrorCode(null);
+    setDraft((prev) => {
+      const next = { ...prev, ...applied };
+      for (const k of cleared) {
+        delete next[k];
+      }
+      return next;
+    });
+    router.refresh();
   }
 
   function runResetAll() {
@@ -182,7 +200,19 @@ export function SiteThemeEditorShell({
         labels={labels.preview}
       />
 
-      {groups.map((group) => (
+      <SiteThemeBrandAssetsPanel
+        locale={locale}
+        themeId={theme.id}
+        labels={labels.brandAssets}
+        errorLabels={labels.errors}
+        logoPathDraft={draft["app.logo.path"] ?? ""}
+        faviconPathDraft={draft["app.favicon.path"] ?? ""}
+        bundlePrefixDraft={draft["app.favicon.bundle.prefix"] ?? ""}
+        logoAltDraft={draft["app.logo.alt"] ?? ""}
+        onAssetsUpdated={handleBrandAssetsUpdated}
+      />
+
+      {editorGroups.map((group) => (
         <SiteThemeEditorGroupCard
           key={group.id}
           group={group}
@@ -210,37 +240,4 @@ export function SiteThemeEditorShell({
       />
     </section>
   );
-}
-
-function findDefaultValue(
-  groups: ReadonlyArray<TokenGroup>,
-  key: string,
-): string {
-  for (const g of groups) {
-    const t = g.tokens.find((x) => x.key === key);
-    if (t) return t.defaultValue;
-  }
-  return "";
-}
-
-function emptyDraftFromGroups(
-  groups: ReadonlyArray<TokenGroup>,
-): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const g of groups) {
-    for (const t of g.tokens) out[t.key] = t.defaultValue;
-  }
-  return out;
-}
-
-function isDraftDirty(
-  groups: ReadonlyArray<TokenGroup>,
-  draft: Record<string, string>,
-): boolean {
-  for (const g of groups) {
-    for (const t of g.tokens) {
-      if ((draft[t.key] ?? t.value) !== t.value) return true;
-    }
-  }
-  return false;
 }

@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
 import { Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import {
   deleteSiteThemeMediaAction,
@@ -18,11 +19,12 @@ import type { LandingMediaSlotDescriptor } from "@/lib/cms/buildLandingEditorVie
 import {
   LANDING_MEDIA_ACCEPTED_MIME,
   LANDING_MEDIA_MAX_BYTES,
-  isAcceptedLandingMediaMime,
+  coerceLandingMediaMime,
 } from "@/lib/cms/siteThemeLandingInputSchemas";
 import type { LandingSectionSlug } from "@/types/theming";
 import type { Dictionary } from "@/types/i18n";
-
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
+import { readImageFileAsBase64 } from "@/components/dashboard/admin/site-setup/readImageFileAsBase64";
 type Labels = Dictionary["admin"]["cms"]["templates"]["landing"];
 type ErrorCode =
   | SiteThemeActionErrorCode
@@ -30,33 +32,22 @@ type ErrorCode =
   | "client_too_large"
   | "client_mime";
 
+type UploadUi =
+  | { kind: "idle" }
+  | { kind: "busy"; stage: "reading"; readPercent: number }
+  | { kind: "busy"; stage: "sending" };
+
 export interface LandingMediaSlotEditorProps {
   locale: string;
   themeId: string;
   section: LandingSectionSlug;
   slot: LandingMediaSlotDescriptor;
   labels: Labels;
+  fileUploadProgress: FileUploadProgressLabels;
   onChanged: () => void;
 }
 
 const ACCEPTED_MIME_LIST = LANDING_MEDIA_ACCEPTED_MIME.join(",");
-
-function readAsBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result;
-      if (typeof result !== "string") {
-        reject(new Error("read_failed"));
-        return;
-      }
-      const comma = result.indexOf(",");
-      resolve(comma >= 0 ? result.slice(comma + 1) : result);
-    };
-    reader.onerror = () => reject(new Error("read_failed"));
-    reader.readAsDataURL(file);
-  });
-}
 
 function errorMessage(labels: Labels, code: ErrorCode): string {
   if (code === "client_too_large") return labels.fileTooLarge;
@@ -70,16 +61,19 @@ export function LandingMediaSlotEditor({
   section,
   slot,
   labels,
+  fileUploadProgress,
   onChanged,
 }: LandingMediaSlotEditorProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [pending, startTransition] = useTransition();
+  const [uploadUi, setUploadUi] = useState<UploadUi>({ kind: "idle" });
   const [errorCode, setErrorCode] = useState<ErrorCode | null>(null);
   const [statusKey, setStatusKey] = useState<"upload" | "delete" | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const previewSrc = slot.currentPublicUrl ?? slot.fallbackPublicUrl;
   const hasOverride = Boolean(slot.currentPublicUrl);
+  const uploadBusy = uploadUi.kind !== "idle";
 
   function applyResult(
     result: SiteThemeActionResult | { ok: false; code: SiteThemeMediaActionExtraCode },
@@ -93,10 +87,11 @@ export function LandingMediaSlotEditor({
     setErrorCode(result.code);
   }
 
-  function handleFile(file: File) {
+  async function handleFile(file: File) {
     setErrorCode(null);
     setStatusKey(null);
-    if (!isAcceptedLandingMediaMime(file.type)) {
+    const mime = coerceLandingMediaMime(file.type);
+    if (!mime) {
       setErrorCode("client_mime");
       return;
     }
@@ -105,25 +100,34 @@ export function LandingMediaSlotEditor({
       return;
     }
 
-    startTransition(async () => {
-      try {
-        const base64 = await readAsBase64(file);
-        const result = await uploadSiteThemeMediaAction({
-          locale,
-          id: themeId,
-          section,
-          position: slot.position,
-          contentType: file.type,
-          fileName: file.name,
-          fileBase64: base64,
-        });
-        applyResult(result, () => {
-          setStatusKey("upload");
-        });
-      } catch {
-        setErrorCode("media_payload_invalid");
-      }
-    });
+    setUploadUi({ kind: "busy", stage: "reading", readPercent: 0 });
+    try {
+      const data = await readImageFileAsBase64(file, {
+        onProgress: (r) =>
+          setUploadUi({
+            kind: "busy",
+            stage: "reading",
+            readPercent: Math.round(r * 100),
+          }),
+      });
+      setUploadUi({ kind: "busy", stage: "sending" });
+      const result = await uploadSiteThemeMediaAction({
+        locale,
+        id: themeId,
+        section,
+        position: slot.position,
+        contentType: mime,
+        fileName: file.name,
+        fileBase64: data.base64,
+      });
+      applyResult(result, () => {
+        setStatusKey("upload");
+      });
+    } catch {
+      setErrorCode("media_payload_invalid");
+    } finally {
+      setUploadUi({ kind: "idle" });
+    }
   }
 
   function runDeleteMedia() {
@@ -169,10 +173,10 @@ export function LandingMediaSlotEditor({
               type="button"
               variant="ghost"
               size="sm"
-              disabled={pending}
+              disabled={pending || uploadBusy}
               onClick={() => inputRef.current?.click()}
             >
-              <Upload aria-hidden className="mr-1 h-4 w-4" />
+              <Upload aria-hidden className="h-4 w-4 shrink-0" />
               {labels.uploadCta}
             </Button>
             {slot.current ? (
@@ -180,36 +184,47 @@ export function LandingMediaSlotEditor({
                 type="button"
                 variant="ghost"
                 size="sm"
-                disabled={pending}
+                disabled={pending || uploadBusy}
                 onClick={() => setDeleteConfirmOpen(true)}
               >
-                <Trash2 aria-hidden className="mr-1 h-4 w-4" />
+                <Trash2 aria-hidden className="h-4 w-4 shrink-0" />
                 {labels.deleteCta}
               </Button>
             ) : null}
           </div>
         </div>
       </div>
+      {uploadUi.kind === "busy" ? (
+        <InlineUploadProgressBar
+          className="mt-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+          label={
+            uploadUi.stage === "reading"
+              ? fileUploadProgress.progressReading
+              : fileUploadProgress.progressSending
+          }
+          {...(uploadUi.stage === "reading"
+            ? { value: uploadUi.readPercent, indeterminate: false }
+            : { indeterminate: true })}
+        />
+      ) : null}
       <input
         ref={inputRef}
         type="file"
         accept={ACCEPTED_MIME_LIST}
         className="hidden"
+        disabled={pending || uploadBusy}
         onChange={(event) => {
           const file = event.target.files?.[0];
-          if (file) handleFile(file);
+          if (file) void handleFile(file);
           event.target.value = "";
         }}
       />
       {errorCode ? (
-        <p
-          role="alert"
-          className="mt-2 text-xs text-[var(--color-error)]"
-        >
+        <p role="alert" className="mt-2 text-xs text-[var(--color-error)]">
           {errorMessage(labels, errorCode)}
         </p>
       ) : null}
-      {!errorCode && statusKey && !pending ? (
+      {!errorCode && statusKey && !pending && !uploadBusy ? (
         <p role="status" className="mt-2 text-xs text-[var(--color-success)]">
           {statusKey === "upload" ? labels.uploadSuccess : labels.deleteSuccess}
         </p>

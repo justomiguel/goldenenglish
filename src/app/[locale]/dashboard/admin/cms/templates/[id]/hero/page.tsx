@@ -65,6 +65,7 @@ export default async function AdminCmsHeroVisualEditorPage({ params }: PageProps
     <HeroVisualEditorShell
       locale={locale}
       labels={labels}
+      fileUploadProgress={dict.common.fileUpload}
       theme={viewModel.theme}
       section={viewModel.section}
       brandName={brandName}

@@ -1,44 +1,31 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Camera } from "lucide-react";
 import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
 import { ProfileAvatarChangeFabMenu } from "@/components/molecules/ProfileAvatarChangeFabMenu";
 import { ProfileAvatarWebcamDialog } from "@/components/molecules/ProfileAvatarWebcamDialog";
 import type { ProfileAvatarChangeFabLabels } from "@/components/molecules/profileAvatarChangeFabLabels";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { useAvatarUploadPreview } from "@/hooks/useAvatarUploadPreview";
 import { useProfileAvatarWebcam } from "@/hooks/useProfileAvatarWebcam";
-import { uploadProfileAvatar, type ProfileAvatarErrorKey } from "@/lib/profile/uploadProfileAvatar";
+import { messageForProfileAvatarError } from "@/components/molecules/profileAvatarChangeFabMessageForError";
+import { uploadProfileAvatar } from "@/lib/profile/uploadProfileAvatar";
 import {
   PROFILE_AVATAR_MAX_BYTES,
   fillProfileAvatarMaxMbTemplate,
 } from "@/lib/profile/avatarUploadLimits";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 
 export type { ProfileAvatarChangeFabLabels } from "@/components/molecules/profileAvatarChangeFabLabels";
-
-function messageForError(key: ProfileAvatarErrorKey, labels: ProfileAvatarChangeFabLabels): string {
-  switch (key) {
-    case "avatarTooBig":
-      return fillProfileAvatarMaxMbTemplate(labels.avatarTooBig);
-    case "avatarInvalidType":
-      return labels.avatarInvalidType;
-    case "avatarSessionMissing":
-      return labels.avatarSessionMissing;
-    case "avatarProfileMissing":
-      return labels.avatarProfileMissing;
-    case "avatarNoFile":
-      return labels.avatarNoFile;
-    default:
-      return labels.avatarError;
-  }
-}
 
 export interface ProfileAvatarChangeFabProps {
   locale: string;
   displayName: string;
   avatarDisplayUrl: string | null;
   labels: ProfileAvatarChangeFabLabels;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
 export function ProfileAvatarChangeFab({
@@ -46,10 +33,11 @@ export function ProfileAvatarChangeFab({
   displayName,
   avatarDisplayUrl,
   labels,
+  fileUploadProgress,
 }: ProfileAvatarChangeFabProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [pending, startTransition] = useTransition();
+  const [uploading, setUploading] = useState(false);
   const [banner, setBanner] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const menuPortalRef = useRef<HTMLDivElement>(null);
@@ -97,7 +85,7 @@ export function ProfileAvatarChangeFab({
   }, [menuOpen, closeMenu]);
 
   const runUpload = useCallback(
-    (file: File | null | undefined) => {
+    async (file: File | null | undefined) => {
       if (!file || file.size === 0) return;
       if (file.size > PROFILE_AVATAR_MAX_BYTES) {
         setBanner({ tone: "err", text: fillProfileAvatarMaxMbTemplate(labels.avatarTooBig) });
@@ -107,7 +95,8 @@ export function ProfileAvatarChangeFab({
       const fd = new FormData();
       fd.set("locale", locale);
       fd.set("avatar", file);
-      startTransition(async () => {
+      setUploading(true);
+      try {
         const res = await uploadProfileAvatar(fd);
         if (res.ok) {
           setPreviewFromFile(file);
@@ -116,8 +105,10 @@ export function ProfileAvatarChangeFab({
           router.refresh();
           return;
         }
-        setBanner({ tone: "err", text: messageForError(res.errorKey, labels) });
-      });
+        setBanner({ tone: "err", text: messageForProfileAvatarError(res.errorKey, labels) });
+      } finally {
+        setUploading(false);
+      }
     },
     [closeMenu, labels, locale, router, setPreviewFromFile],
   );
@@ -128,7 +119,7 @@ export function ProfileAvatarChangeFab({
   function onPickFromInput(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
-    runUpload(file);
+    void runUpload(file);
   }
 
   return (
@@ -168,7 +159,7 @@ export function ProfileAvatarChangeFab({
         </span>
         <button
           type="button"
-          disabled={pending}
+          disabled={uploading}
           onClick={() => setMenuOpen((o) => !o)}
           className="relative flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-[var(--color-primary)] text-[var(--color-primary-foreground)] shadow-md ring-2 ring-[var(--color-surface)] transition-[transform,box-shadow,background-color] duration-200 ease-out hover:-translate-y-px hover:bg-[var(--color-primary-dark)] hover:shadow-[0_6px_14px_-4px_color-mix(in_srgb,var(--color-foreground)_24%,transparent),inset_0_1px_0_0_color-mix(in_srgb,var(--color-primary-foreground)_32%,transparent)] active:translate-y-0 active:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 disabled:opacity-50 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
           aria-expanded={menuOpen}
@@ -216,9 +207,21 @@ export function ProfileAvatarChangeFab({
           avatarWebcamPermissionDenied: labels.avatarWebcamPermissionDenied,
           avatarWebcamOpenFailed: labels.avatarWebcamOpenFailed,
         }}
-        onPhotoFile={(file) => runUpload(file)}
+        onPhotoFile={(file) => {
+          void runUpload(file);
+        }}
         onFailureMessage={onWebcamFailure}
       />
+
+      {uploading ? (
+        <div className="mt-2 max-w-[12.5rem] sm:max-w-none">
+          <InlineUploadProgressBar
+            label={fileUploadProgress.progressSending}
+            indeterminate
+            className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+          />
+        </div>
+      ) : null}
 
       {banner ? (
         <p

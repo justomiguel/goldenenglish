@@ -15,6 +15,7 @@ import {
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
 import type { Locale } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { StudentMonthlyPaymentsView } from "@/types/studentMonthlyPayments";
 import { buildStudentPaymentsYearSummary } from "@/lib/billing/buildStudentPaymentsYearSummary";
 
@@ -48,6 +49,7 @@ export interface StudentPaymentsEntryProps {
   submitReceiptAction: SubmitMonthlyReceiptAction;
   /** Server action that uploads an enrollment fee receipt for `studentId`. */
   submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
 export function StudentPaymentsEntry({
@@ -90,7 +92,7 @@ export function StudentPaymentsEntry({
     );
   }
 
-  const { submitReceiptAction, submitEnrollmentFeeReceiptAction } = rest;
+  const { submitReceiptAction, submitEnrollmentFeeReceiptAction, fileUploadProgress } = rest;
 
   const body = (
     <>
@@ -125,6 +127,7 @@ export function StudentPaymentsEntry({
             submitAction={submitReceiptAction}
             submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceiptAction}
             receiptExpectedUsesFullMonth
+            fileUploadProgress={fileUploadProgress}
           />
         </>
       ) : null}

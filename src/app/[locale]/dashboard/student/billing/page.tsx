@@ -53,6 +53,7 @@ export default async function StudentBillingPage({ params }: PageProps) {
       viewer="student"
       isMinorStudent={isMinor}
       dict={dict.dashboard.portalBilling}
+      fileUploadProgress={dict.common.fileUpload}
       invoices={invoices}
     />
   );

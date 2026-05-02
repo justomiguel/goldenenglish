@@ -12,6 +12,7 @@ const baseBrand: BrandPublic = {
   logoPath: "/images/logo.png",
   logoAlt: "Test Institute logo",
   faviconPath: "/favicon_io/favicon.ico",
+  faviconBundlePrefix: null,
   contactEmail: "hello@test-institute.example",
   contactPhone: "+1 555 0100",
   contactAddress: "123 Main St, Caracas",

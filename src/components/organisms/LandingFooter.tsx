@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ExternalLink, LogIn, Mail } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { BrandPublic } from "@/lib/brand/server";
+import { mzLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
 
 interface LandingFooterProps {
@@ -9,6 +10,8 @@ interface LandingFooterProps {
   brand: BrandPublic;
   locale: string;
   sessionEmail: string | null;
+  /** Plantilla Mozarthitos: CTA del pie desde `landing.mz.footerCta`, no el copy genérico Golden. */
+  mozarthitosShell?: boolean;
 }
 
 const linkClass =
@@ -21,7 +24,11 @@ export function LandingFooter({
   brand,
   locale,
   sessionEmail,
+  mozarthitosShell = false,
 }: LandingFooterProps) {
+  const footerCta = mozarthitosShell
+    ? mzLandingCopy(dict, "footerCta").trim() || dict.landing.footerCta
+    : dict.landing.footerCta;
   return (
     <footer className="relative border-t border-[var(--color-primary-dark)] bg-[var(--color-primary-dark)] py-14 text-[var(--color-primary-foreground)]">
       <div
@@ -30,7 +37,7 @@ export function LandingFooter({
       />
       <div className="mx-auto max-w-[var(--layout-max-width)] px-4 text-center">
         <p className="font-display text-balance text-xl font-semibold text-[var(--color-accent)] md:text-2xl">
-          {dict.landing.footerCta}
+          {footerCta}
         </p>
         <p className="mt-4 text-sm text-white/75">{brand.legalName}</p>
         {brand.contactPhone ? (

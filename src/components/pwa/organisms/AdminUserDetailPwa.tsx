@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { Locale } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
@@ -20,6 +21,7 @@ export interface AdminUserDetailPwaProps {
   billingLabels: BillingLabels;
   detail: AdminUserDetailVM;
   billing: AdminStudentBillingTabData | null;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
 export function AdminUserDetailPwa({
@@ -29,6 +31,7 @@ export function AdminUserDetailPwa({
   billingLabels,
   detail,
   billing,
+  fileUploadProgress,
 }: AdminUserDetailPwaProps) {
   return (
     <PwaPageShell surface={surface}>
@@ -49,6 +52,7 @@ export function AdminUserDetailPwa({
             labels={labels}
             billingLabels={billingLabels}
             billing={billing}
+            fileUploadProgress={fileUploadProgress}
           />
         </div>
       </div>

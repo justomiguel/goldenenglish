@@ -24,6 +24,8 @@ export interface AdminSidebarNavContentProps {
   locale: string;
   dict: Dictionary["dashboard"]["adminNav"];
   newRegistrationsCount: number;
+  /** When true, includes Communications → Email templates (mega-admin only). */
+  includeEmailTemplatesNav?: boolean;
   teacherNav?: AdminTeacherNavLabels;
   onNavigate?: () => void;
   variant?: "desktop" | "mobile";
@@ -153,6 +155,7 @@ export function AdminSidebarNavContent({
   locale,
   dict,
   newRegistrationsCount,
+  includeEmailTemplatesNav = false,
   teacherNav,
   onNavigate,
   variant = "desktop",
@@ -165,7 +168,10 @@ export function AdminSidebarNavContent({
     profileHref,
     dict,
     newRegistrationsCount,
-    { financeHref: financeHrefForPathname(base, pathname) },
+    {
+      financeHref: financeHrefForPathname(base, pathname),
+      includeEmailTemplatesNav,
+    },
   );
   const allHrefs = groups.flatMap((g) => g.items.map((i) => i.href));
   const mobile = variant === "mobile";

@@ -65,7 +65,23 @@ describe("cleanLandingContentForPersistence", () => {
     });
   });
 
-  it("drops sections that end up empty", () => {
+  it("filters keys using mozarthitos catalog when template is mozarthitos", () => {
+    const result = cleanLandingContentForPersistence(
+      dicts,
+      {
+        historia: {
+          "story.title": { es: "Should drop" },
+          "mz.quienes.title": { es: "  Título custom  " },
+        },
+      },
+      "mozarthitos",
+    );
+    expect(result).toEqual({
+      historia: { "mz.quienes.title": { es: "Título custom" } },
+    });
+  });
+
+  it("drops sections when all values are empty after processing", () => {
     const result = cleanLandingContentForPersistence(dicts, {
       historia: { "story.title": { es: "" } },
       modalidades: { "modalities.title": {} },

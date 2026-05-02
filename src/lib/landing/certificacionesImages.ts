@@ -7,7 +7,7 @@ import { resolveLandingImageSrc } from "@/lib/cms/resolveLandingMedia";
  * - `2` — marca Golden (legacy `…1.31.42…`)
  * - `3` — Cambridge (legacy `…1.31.48…`)
  *
- * Bundled fallback filenames are `public/images/sections/certificaciones/{1..3}.png`
+ * Bundled fallback filenames are `public/images/golden/certificaciones/{1..3}.png`
  * when present; after Storage migration, overrides come from `site_theme_media`.
  */
 export function certificacionesSlotSrc(

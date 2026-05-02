@@ -2,6 +2,7 @@
 
 import type { Dictionary } from "@/types/i18n";
 import type { Locale } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { useAppSurface } from "@/hooks/useAppSurface";
@@ -17,6 +18,7 @@ export interface AdminUserDetailEntryProps {
   billingLabels: BillingLabels;
   detail: AdminUserDetailVM;
   billing: AdminStudentBillingTabData | null;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
 export function AdminUserDetailEntry({
@@ -25,6 +27,7 @@ export function AdminUserDetailEntry({
   billingLabels,
   detail,
   billing,
+  fileUploadProgress,
 }: AdminUserDetailEntryProps) {
   const surface = useAppSurface();
 
@@ -36,6 +39,7 @@ export function AdminUserDetailEntry({
         billingLabels={billingLabels}
         detail={detail}
         billing={billing}
+        fileUploadProgress={fileUploadProgress}
       />
     );
   }
@@ -48,6 +52,7 @@ export function AdminUserDetailEntry({
       billingLabels={billingLabels}
       detail={detail}
       billing={billing}
+      fileUploadProgress={fileUploadProgress}
     />
   );
 }

@@ -11,6 +11,8 @@ interface LandingGreenfieldHeaderProps {
   dict: Dictionary;
   locale: string;
   sessionEmail: string | null;
+  /** Sin cuenta admin aún: sin botón en barra (evita duplicar el CTA del cuerpo). */
+  bootstrapAccountPending?: boolean;
 }
 
 export function LandingGreenfieldHeader({
@@ -18,6 +20,7 @@ export function LandingGreenfieldHeader({
   dict,
   locale,
   sessionEmail,
+  bootstrapAccountPending = false,
 }: LandingGreenfieldHeaderProps) {
   const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
   return (
@@ -70,7 +73,7 @@ export function LandingGreenfieldHeader({
                 className="rounded-[var(--layout-border-radius)] border-2 border-[var(--color-primary)] bg-transparent px-3 py-2 text-sm font-medium text-[var(--color-primary)] transition hover:bg-[var(--color-muted)] active:scale-[0.98] sm:px-4"
               />
             </>
-          ) : (
+          ) : bootstrapAccountPending ? null : (
             <Link
               href={`/${locale}/login?next=${encodeURIComponent(`/${locale}/setup/first-run`)}`}
               className="inline-flex items-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-2 font-medium text-[var(--color-primary-foreground)] shadow-md transition hover:bg-[var(--color-primary-dark)] active:scale-[0.98]"

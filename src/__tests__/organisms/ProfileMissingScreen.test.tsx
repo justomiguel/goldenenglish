@@ -13,6 +13,7 @@ const brand: BrandPublic = {
   logoPath: "/images/logo.png",
   logoAlt: "Logo",
   faviconPath: "/favicon.ico",
+  faviconBundlePrefix: null,
   contactEmail: "help@example.com",
   contactPhone: "",
   contactAddress: "",

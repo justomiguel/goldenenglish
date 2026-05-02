@@ -1,7 +1,6 @@
 import { z } from "zod";
-import { LANDING_MEDIA_SLOTS_BY_SECTION } from "@/lib/cms/landingContentCatalog";
-import { LANDING_SECTION_SLUGS, type LandingSectionSlug } from "@/types/theming";
 import { siteThemeIdSchema } from "@/lib/cms/siteThemeInputSchemas";
+import { LANDING_SECTION_SLUGS, type LandingSectionSlug } from "@/types/theming";
 
 /**
  * Zod schemas for the landing CMS editor (copy + media). Pure module so
@@ -17,8 +16,8 @@ const landingSectionSchema: z.ZodType<LandingSectionSlug> = z.enum([
  *  schemas stay agnostic of the (closed) editable paths. */
 const localizedCopySchema = z
   .object({
-    es: z.string().max(1500, "value_too_long").optional(),
-    en: z.string().max(1500, "value_too_long").optional(),
+    es: z.string().max(4000, "value_too_long").optional(),
+    en: z.string().max(4000, "value_too_long").optional(),
   })
   .strict();
 
@@ -58,37 +57,18 @@ const mediaPositionSchema = z
   .min(1, "position_invalid")
   .max(20, "position_invalid");
 
-export const uploadSiteThemeMediaInputSchema = z
-  .object({
-    locale: z.string().min(2),
-    id: siteThemeIdSchema,
-    section: landingSectionSchema,
-    position: mediaPositionSchema,
-    contentType: z.string().min(3).max(80),
-    fileName: z.string().min(1).max(120),
-    /** Base64-encoded payload (the route layer handles `FormData` decoding). */
-    fileBase64: z.string().min(1),
-    altEs: z.string().trim().max(200).nullish(),
-    altEn: z.string().trim().max(200).nullish(),
-  })
-  .superRefine((value, ctx) => {
-    const max = LANDING_MEDIA_SLOTS_BY_SECTION[value.section];
-    if (max <= 0) {
-      ctx.addIssue({
-        code: "custom",
-        message: "section_does_not_accept_media",
-        path: ["section"],
-      });
-      return;
-    }
-    if (value.position > max) {
-      ctx.addIssue({
-        code: "custom",
-        message: "position_out_of_range",
-        path: ["position"],
-      });
-    }
-  });
+export const uploadSiteThemeMediaInputSchema = z.object({
+  locale: z.string().min(2),
+  id: siteThemeIdSchema,
+  section: landingSectionSchema,
+  position: mediaPositionSchema,
+  contentType: z.string().min(3).max(80),
+  fileName: z.string().min(1).max(120),
+  /** Base64-encoded payload (the route layer handles `FormData` decoding). */
+  fileBase64: z.string().min(1),
+  altEs: z.string().trim().max(200).nullish(),
+  altEn: z.string().trim().max(200).nullish(),
+});
 
 export type UploadSiteThemeMediaInput = z.infer<
   typeof uploadSiteThemeMediaInputSchema
@@ -114,12 +94,23 @@ export const LANDING_MEDIA_ACCEPTED_MIME = [
 export type LandingMediaAcceptedMime =
   (typeof LANDING_MEDIA_ACCEPTED_MIME)[number];
 
+/** Normalize MIME quirks before validating (some stacks report JPEG as `image/jpg`). */
+export function coerceLandingMediaMime(
+  candidate: string,
+): LandingMediaAcceptedMime | null {
+  const t = candidate.trim().toLowerCase();
+  const normalized = t === "image/jpg" ? "image/jpeg" : t;
+  return (LANDING_MEDIA_ACCEPTED_MIME as ReadonlyArray<string>).includes(
+    normalized,
+  )
+    ? (normalized as LandingMediaAcceptedMime)
+    : null;
+}
+
 export function isAcceptedLandingMediaMime(
   candidate: string,
 ): candidate is LandingMediaAcceptedMime {
-  return (LANDING_MEDIA_ACCEPTED_MIME as ReadonlyArray<string>).includes(
-    candidate,
-  );
+  return coerceLandingMediaMime(candidate) !== null;
 }
 
 /** Maximum upload size in bytes (4 MB). The Storage layer also enforces

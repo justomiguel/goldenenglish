@@ -4,13 +4,14 @@ import type {
   LocalizedCopy,
   SiteThemeContent,
   SiteThemeSectionContent,
+  SiteThemeKind,
 } from "@/types/theming";
 import { LANDING_SECTION_SLUGS } from "@/types/theming";
 import {
-  LANDING_COPY_KEYS_BY_SECTION,
   LANDING_OVERRIDE_LOCALES,
   type LandingOverrideLocale,
 } from "@/lib/cms/landingContentCatalog";
+import { landingCopyKeysForTheme } from "@/lib/cms/landingThemeEditorCatalog";
 import { getLandingDefaultCopy } from "@/lib/cms/applyLandingContentOverrides";
 
 /**
@@ -19,8 +20,8 @@ import { getLandingDefaultCopy } from "@/lib/cms/applyLandingContentOverrides";
  *
  * Rules:
  *  1. Only accept sections in {@link LANDING_SECTION_SLUGS}.
- *  2. Only accept dotted paths declared in
- *     {@link LANDING_COPY_KEYS_BY_SECTION} for the given section.
+ *  2. Only accept dotted paths declared for the active template kind (Golden
+ *     shells vs Mozarthitos) for the given section.
  *  3. Only accept locale keys in {@link LANDING_OVERRIDE_LOCALES}.
  *  4. Trim values; drop empty/whitespace-only ones.
  *  5. Drop values equal to the locale's dictionary default — keeps the JSONB
@@ -33,13 +34,14 @@ import { getLandingDefaultCopy } from "@/lib/cms/applyLandingContentOverrides";
 export function cleanLandingContentForPersistence(
   defaults: Readonly<Record<LandingOverrideLocale, Dictionary>>,
   raw: unknown,
+  templateKind: SiteThemeKind = "classic",
 ): SiteThemeContent {
   if (!raw || typeof raw !== "object") return {};
   const out: Partial<Record<LandingSectionSlug, SiteThemeSectionContent>> = {};
   const inputSections = raw as Record<string, unknown>;
 
   for (const section of LANDING_SECTION_SLUGS) {
-    const editableKeys = LANDING_COPY_KEYS_BY_SECTION[section];
+    const editableKeys = landingCopyKeysForTheme(templateKind, section);
     if (editableKeys.length === 0) continue;
     const sectionRaw = inputSections[section];
     if (!sectionRaw || typeof sectionRaw !== "object") continue;

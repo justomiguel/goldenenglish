@@ -37,6 +37,8 @@ const ic = "h-4 w-4 shrink-0 opacity-80";
 
 interface BuildAdminSidebarNavGroupsOptions {
   financeHref?: string;
+  /** Email templates editor — only for the platform mega-admin email allowlist. */
+  includeEmailTemplatesNav?: boolean;
 }
 
 export function buildAdminSidebarNavGroups(
@@ -47,6 +49,22 @@ export function buildAdminSidebarNavGroups(
   options: BuildAdminSidebarNavGroupsOptions = {},
 ): AdminSidebarNavGroup[] {
   const financeHref = options.financeHref ?? `${base}/finance`;
+  const groupCommsItems: AdminSidebarNavItem[] = [
+    {
+      href: `${base}/messages`,
+      label: dict.messages,
+      icon: <MessageCircle className={ic} />,
+      tip: dict.tipMessages,
+    },
+  ];
+  if (options.includeEmailTemplatesNav) {
+    groupCommsItems.push({
+      href: `${base}/communications/templates`,
+      label: dict.emailTemplates,
+      icon: <Mail className={ic} />,
+      tip: dict.tipEmailTemplates,
+    });
+  }
 
   return [
     {
@@ -130,20 +148,7 @@ export function buildAdminSidebarNavGroups(
     },
     {
       label: dict.groupComms,
-      items: [
-        {
-          href: `${base}/messages`,
-          label: dict.messages,
-          icon: <MessageCircle className={ic} />,
-          tip: dict.tipMessages,
-        },
-        {
-          href: `${base}/communications/templates`,
-          label: dict.emailTemplates,
-          icon: <Mail className={ic} />,
-          tip: dict.tipEmailTemplates,
-        },
-      ],
+      items: groupCommsItems,
     },
     {
       label: null,

@@ -31,6 +31,7 @@ describe("AdminUserAvatarUploadForm", () => {
         locale="en"
         targetUserId="student-1"
         labels={en.admin.users}
+        fileUploadProgress={en.common.fileUpload}
         onPreview={vi.fn()}
       />,
     );

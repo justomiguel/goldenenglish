@@ -4,10 +4,9 @@ import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { cleanThemeOverridesForPersistence } from "@/lib/cms/cleanThemeOverridesForPersistence";
-import { LANDING_MEDIA_BUCKET } from "@/lib/cms/landingMediaPublicUrl";
+import { LANDING_MEDIA_BUCKET } from "@/lib/cms/landingMediaBucket";
 import {
   isAcceptedLandingMediaMime,
-  landingMediaExtensionForMime,
   type LandingMediaAcceptedMime,
 } from "@/lib/cms/siteThemeLandingInputSchemas";
 import { logSupabaseError } from "@/lib/logging/serverActionLog";
@@ -17,11 +16,16 @@ import {
   completeInitialSiteSetupInputSchema,
   decodeSiteSetupFileBase64,
 } from "@/lib/site/siteSetupCompletionSchema";
+import { uploadFaviconZipBundleToStorage } from "@/lib/site/uploadFaviconZipBundleToStorage";
+import { buildThemeBrandAssetStoragePath } from "@/lib/cms/siteThemeBrandStoragePath";
+import { parseSiteThemePropertyStrings } from "@/lib/cms/parseSiteThemePropertyStrings";
 import {
   fetchSiteThemeById,
   resolveAdminContext,
   revalidateSiteThemeSurfaces,
 } from "@/app/[locale]/dashboard/admin/cms/siteThemeActionShared";
+import { getSiteBrandThemeSlug } from "@/lib/theme/siteBrandThemeSlug";
+import { isThemeEligibleForInitialSiteSetup } from "@/lib/site/wizardThemeEligibility";
 
 export type CompleteInitialSiteSetupResult =
   | { ok: true }
@@ -33,27 +37,9 @@ export type CompleteInitialSiteSetupResult =
         | "not_found"
         | "persist_failed"
         | "payload_invalid"
-        | "mime_invalid";
+        | "mime_invalid"
+        | "favicon_zip_invalid";
     };
-
-function buildWizardStoragePath(
-  themeId: string,
-  role: "logo" | "favicon",
-  mime: LandingMediaAcceptedMime,
-): string {
-  const ext = landingMediaExtensionForMime(mime);
-  const stamp = Date.now().toString(36);
-  return `${themeId}/wizard/${role}-${stamp}.${ext}`;
-}
-
-function parseThemeProperties(raw: unknown): Record<string, string> {
-  if (!raw || typeof raw !== "object") return {};
-  const out: Record<string, string> = {};
-  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
-    if (typeof v === "string") out[k] = v;
-  }
-  return out;
-}
 
 export async function completeInitialSiteSetupAction(
   raw: unknown,
@@ -65,33 +51,43 @@ export async function completeInitialSiteSetupAction(
   if (!parsed.success) return { ok: false, code: "invalid_input" };
 
   const data = parsed.data;
+  if (!isAcceptedLandingMediaMime(data.logoContentType)) {
+    return { ok: false, code: "mime_invalid" };
+  }
+
   if (
-    !isAcceptedLandingMediaMime(data.logoContentType) ||
+    data.faviconKind === "single" &&
     !isAcceptedLandingMediaMime(data.faviconContentType)
   ) {
     return { ok: false, code: "mime_invalid" };
   }
 
   const logoMime = data.logoContentType as LandingMediaAcceptedMime;
-  const favMime = data.faviconContentType as LandingMediaAcceptedMime;
 
   const logoBytes = decodeSiteSetupFileBase64(data.logoBase64);
-  const favBytes = decodeSiteSetupFileBase64(data.faviconBase64);
-  if (
-    !logoBytes ||
-    !favBytes ||
-    !assertSiteSetupFileSize(logoBytes) ||
-    !assertSiteSetupFileSize(favBytes)
-  ) {
+  if (!logoBytes || !assertSiteSetupFileSize(logoBytes)) {
     return { ok: false, code: "payload_invalid" };
   }
 
   const { admin } = ctx;
   const existing = await fetchSiteThemeById(admin.supabase, data.themeId);
-  if (!existing || !existing.is_active) return { ok: false, code: "not_found" };
+  if (
+    !isThemeEligibleForInitialSiteSetup(
+      existing
+        ? {
+            is_active: existing.is_active,
+            slug: existing.slug,
+            archived_at: existing.archived_at,
+          }
+        : null,
+      getSiteBrandThemeSlug(),
+    )
+  ) {
+    return { ok: false, code: "not_found" };
+  }
+  if (!existing) return { ok: false, code: "not_found" };
 
-  const logoPath = buildWizardStoragePath(data.themeId, "logo", logoMime);
-  const favPath = buildWizardStoragePath(data.themeId, "favicon", favMime);
+  const logoPath = buildThemeBrandAssetStoragePath(data.themeId, "logo", logoMime);
 
   const { error: logoErr } = await admin.supabase.storage
     .from(LANDING_MEDIA_BUCKET)
@@ -101,16 +97,54 @@ export async function completeInitialSiteSetupAction(
     return { ok: false, code: "persist_failed" };
   }
 
-  const { error: favErr } = await admin.supabase.storage
-    .from(LANDING_MEDIA_BUCKET)
-    .upload(favPath, favBytes, { contentType: favMime, upsert: false });
-  if (favErr) {
-    logSupabaseError("siteSetup:uploadFavicon", favErr);
-    await admin.supabase.storage.from(LANDING_MEDIA_BUCKET).remove([logoPath]);
-    return { ok: false, code: "persist_failed" };
+  let favPath: string;
+  const favUploadedPaths: string[] = [];
+  let faviconBundlePrefixStored: string | undefined;
+
+  if (data.faviconKind === "single") {
+    const favMime = data.faviconContentType as LandingMediaAcceptedMime;
+    const favBytes = decodeSiteSetupFileBase64(data.faviconBase64);
+    if (!favBytes || !assertSiteSetupFileSize(favBytes)) {
+      await admin.supabase.storage.from(LANDING_MEDIA_BUCKET).remove([logoPath]);
+      return { ok: false, code: "payload_invalid" };
+    }
+
+    favPath = buildThemeBrandAssetStoragePath(data.themeId, "favicon", favMime);
+    favUploadedPaths.push(favPath);
+
+    const { error: favErr } = await admin.supabase.storage
+      .from(LANDING_MEDIA_BUCKET)
+      .upload(favPath, favBytes, { contentType: favMime, upsert: false });
+    if (favErr) {
+      logSupabaseError("siteSetup:uploadFavicon", favErr);
+      await admin.supabase.storage.from(LANDING_MEDIA_BUCKET).remove([logoPath]);
+      return { ok: false, code: "persist_failed" };
+    }
+  } else {
+    const zipBytes = decodeSiteSetupFileBase64(data.faviconZipBase64);
+    if (!zipBytes || !assertSiteSetupFileSize(zipBytes)) {
+      await admin.supabase.storage.from(LANDING_MEDIA_BUCKET).remove([logoPath]);
+      return { ok: false, code: "payload_invalid" };
+    }
+
+    const zipUp = await uploadFaviconZipBundleToStorage(
+      admin.supabase,
+      data.themeId,
+      zipBytes,
+    );
+    if (!zipUp.ok) {
+      await admin.supabase.storage.from(LANDING_MEDIA_BUCKET).remove([logoPath]);
+      return zipUp.kind === "parse"
+        ? { ok: false, code: "favicon_zip_invalid" }
+        : { ok: false, code: "persist_failed" };
+    }
+
+    favPath = zipUp.favPath;
+    favUploadedPaths.push(...zipUp.uploadedPaths);
+    faviconBundlePrefixStored = zipUp.bundlePrefix;
   }
 
-  const existingFlat = parseThemeProperties(existing.properties);
+  const existingFlat = parseSiteThemePropertyStrings(existing.properties);
   const wizardFlat: Record<string, string> = {
     "app.name": data.appName,
     "app.legal.name": data.legalName,
@@ -122,17 +156,24 @@ export async function completeInitialSiteSetupAction(
     "contact.phone": data.contactPhone,
     "contact.address": data.contactAddress,
   };
+
+  if (faviconBundlePrefixStored) {
+    wizardFlat["app.favicon.bundle.prefix"] = faviconBundlePrefixStored;
+  }
+
   const tagEn = data.taglineEn?.trim();
   if (tagEn) wizardFlat["app.tagline.en"] = tagEn;
-  if (data.socialFacebook)
-    wizardFlat["social.facebook"] = data.socialFacebook;
+  if (data.socialFacebook) wizardFlat["social.facebook"] = data.socialFacebook;
   if (data.socialInstagram)
     wizardFlat["social.instagram"] = data.socialInstagram;
-  if (data.socialWhatsapp)
-    wizardFlat["social.whatsapp"] = data.socialWhatsapp;
+  if (data.socialWhatsapp) wizardFlat["social.whatsapp"] = data.socialWhatsapp;
 
   const defaults = loadProperties();
   const mergedRaw = { ...existingFlat, ...wizardFlat };
+  if (data.faviconKind === "single") {
+    delete mergedRaw["app.favicon.bundle.prefix"];
+  }
+
   const cleaned = cleanThemeOverridesForPersistence(defaults, mergedRaw);
 
   const { error: themeErr } = await admin.supabase
@@ -148,7 +189,7 @@ export async function completeInitialSiteSetupAction(
     logSupabaseError("siteSetup:updateTheme", themeErr);
     await admin.supabase.storage
       .from(LANDING_MEDIA_BUCKET)
-      .remove([logoPath, favPath]);
+      .remove([logoPath, ...favUploadedPaths]);
     return { ok: false, code: "persist_failed" };
   }
 
@@ -169,6 +210,9 @@ export async function completeInitialSiteSetupAction(
 
   if (settingsErr) {
     logSupabaseError("siteSetup:siteSettings", settingsErr);
+    await admin.supabase.storage
+      .from(LANDING_MEDIA_BUCKET)
+      .remove([logoPath, ...favUploadedPaths]);
     return { ok: false, code: "persist_failed" };
   }
 

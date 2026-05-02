@@ -34,7 +34,7 @@ async function main() {
 
   const imagesRoot = path.join(ROOT, "public", "images");
   const faviconRoot = path.join(ROOT, "public", "favicon_io");
-  const certDir = path.join(imagesRoot, "sections", "certificaciones");
+  const certDir = path.join(imagesRoot, "golden", "certificaciones");
 
   const uploads = collectMigrationUploads(imagesRoot, faviconRoot, certDir);
 

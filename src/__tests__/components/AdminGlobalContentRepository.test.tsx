@@ -164,6 +164,7 @@ describe("AdminGlobalContentBuilder", () => {
         locale="en"
         labels={labels}
         editingContent={null}
+        fileUploadProgress={dictEn.common.fileUpload}
       />,
     );
 
@@ -200,6 +201,7 @@ describe("AdminGlobalContentBuilder", () => {
         locale="en"
         labels={labels}
         editingContent={null}
+        fileUploadProgress={dictEn.common.fileUpload}
       />,
     );
 
@@ -219,6 +221,7 @@ describe("AdminGlobalContentBuilder", () => {
         locale="en"
         labels={labels}
         editingContent={null}
+        fileUploadProgress={dictEn.common.fileUpload}
       />,
     );
 
@@ -238,6 +241,7 @@ describe("AdminGlobalContentBuilder", () => {
         locale="en"
         labels={labels}
         editingContent={null}
+        fileUploadProgress={dictEn.common.fileUpload}
       />,
     );
 
@@ -259,6 +263,7 @@ describe("AdminGlobalContentBuilder", () => {
         locale="en"
         labels={labels}
         editingContent={null}
+        fileUploadProgress={dictEn.common.fileUpload}
       />,
     );
 
@@ -296,6 +301,7 @@ describe("AdminGlobalContentBuilder", () => {
         locale="en"
         labels={labels}
         editingContent={null}
+        fileUploadProgress={dictEn.common.fileUpload}
       />,
     );
 

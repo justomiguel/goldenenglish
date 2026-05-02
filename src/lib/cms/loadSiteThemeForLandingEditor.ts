@@ -163,6 +163,7 @@ export async function loadLandingEditorOverview(
     media: snapshot.media,
     blocks: snapshot.theme.blocks,
     resolveMediaPublicUrl: createLandingMediaPublicUrlBuilder(),
+    templateKind: snapshot.theme.templateKind,
   });
   return { theme: snapshot.theme, sections };
 }
@@ -186,6 +187,7 @@ export async function loadLandingEditorSection(
     media: snapshot.media,
     blocks: snapshot.theme.blocks,
     resolveMediaPublicUrl: createLandingMediaPublicUrlBuilder(),
+    templateKind: snapshot.theme.templateKind,
   });
   return { theme: snapshot.theme, section: view };
 }

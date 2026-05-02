@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
+import { isEmailTemplatesMegaAdmin } from "@/lib/auth/emailTemplatesMegaAdmin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
@@ -29,6 +30,7 @@ export default async function AdminCommunicationsTemplatesPage({ params }: PageP
 
   const isAdmin = await resolveIsAdminSession(supabase, user.id);
   if (!isAdmin) redirect(`/${locale}/dashboard`);
+  if (!isEmailTemplatesMegaAdmin(user.email)) redirect(`/${locale}/dashboard/admin`);
 
   const entries = await loadAdminEmailTemplates(supabase);
   const brand = await getBrandForRequest();

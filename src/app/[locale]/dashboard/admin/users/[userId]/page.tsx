@@ -62,6 +62,7 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
       billingLabels={dict.admin.billing}
       detail={detail}
       billing={billing}
+      fileUploadProgress={dict.common.fileUpload}
     />
   );
 }

@@ -4,6 +4,7 @@ import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { logSupabaseError } from "@/lib/logging/serverActionLog";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { cleanLandingContentForPersistence } from "@/lib/cms/cleanLandingContentForPersistence";
+import { isSiteThemeKind } from "@/lib/cms/landingBlocksCatalog";
 import {
   resetSiteThemeContentInputSchema,
   updateSiteThemeContentInputSchema,
@@ -41,9 +42,14 @@ export async function updateSiteThemeContentAction(
 
   const [es, en] = await Promise.all([getDictionary("es"), getDictionary("en")]);
 
+  const templateKind = isSiteThemeKind(existing.template_kind)
+    ? existing.template_kind
+    : "classic";
+
   const cleanedSection = cleanLandingContentForPersistence(
     { es, en },
     { [parsed.data.section]: parsed.data.copy },
+    templateKind,
   );
 
   const previous = (existing.content as SiteThemeContent | null) ?? {};

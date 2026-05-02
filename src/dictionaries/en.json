@@ -15,6 +15,10 @@
     "confirmDialogTitle": "Please confirm",
     "save": "Save",
     "emptyValue": "—",
+    "fileUpload": {
+      "progressReading": "Preparing file…",
+      "progressSending": "Uploading…"
+    },
     "greetings": {
       "morning": "Good morning",
       "afternoon": "Good afternoon",
@@ -358,6 +362,8 @@
     "studentGallery": {
       "title": "Our students",
       "intro": "Tap an album to browse photos from class and celebrations.",
+      "album1PhotoIndexes": "0, 1",
+      "album2PhotoIndexes": "2, 3",
       "viewPhotos": "Photos",
       "close": "Close gallery",
       "previous": "Previous photo",
@@ -366,12 +372,18 @@
         {
           "name": "Classroom moments",
           "coverIndex": 0,
-          "photoIndexes": [0, 1]
+          "photoIndexes": [
+            0,
+            1
+          ]
         },
         {
           "name": "Community & milestones",
           "coverIndex": 2,
-          "photoIndexes": [2, 3]
+          "photoIndexes": [
+            2,
+            3
+          ]
         }
       ]
     },
@@ -403,7 +415,86 @@
       "altUtnIngles": "English at UTN — National Higher Institute of Technical Teacher Training",
       "altCambridgeUniversity": "University of Cambridge"
     },
-    "footerCta": "Ready for 2026? Secure your spot."
+    "footerCta": "Ready for 2026? Secure your spot.",
+    "mz": {
+      "chrome": {
+        "openMenu": "Open menu",
+        "closeMenu": "Close menu"
+      },
+      "nav": {
+        "inicio": "Home",
+        "quienes": "About us",
+        "cursos": "Courses",
+        "sedes": "Locations",
+        "contacto": "Contact"
+      },
+      "hero": {
+        "title": "First academy in Chile and South America",
+        "subtitle": "with sound literacy",
+        "ctaPrimary": "Discover Mozarthitos",
+        "ctaSecondary": "Contact us"
+      },
+      "quienes": {
+        "title": "About us"
+      },
+      "origenes": {
+        "title": "Origins",
+        "body": "Mozarthitos was born in 2022 alongside Ennio—son of founders and educators Felipe Andreani and Jane Guerra—professional musicians active in higher education, early-childhood music, and Chile’s performing scene."
+      },
+      "llegada": {
+        "title": "Arrival in Chile",
+        "body": "Seeking the best system to give babies musical education as a mother tongue from day one, they earned Spain’s Mago Diapasón diploma—becoming the first certified teachers in Chile and South America for this pioneering method."
+      },
+      "tab": {
+        "felipe": "Felipe Andreani",
+        "jane": "Jane Guerra O."
+      },
+      "bio": {
+        "felipe": {
+          "p1": "As a violist and faculty member at Universidad de Chile’s School of Arts—with additional training in Spain—his career spans national and international stages.",
+          "p2": "He has performed in leading halls across Italy, France, Belgium, the UK, and Germany alongside artists such as Plácido Domingo and Cristina Gallardo-Domâs.",
+          "p3": "As principal violist of the Orchestra of the Americas he toured Brazil under Kent Nagano.",
+          "p4": "In the United States he joined the Solistas YOA ensemble as its sole violist at the Castleton Festival.",
+          "p5": "Collaborations include Luis Miguel, Andrea Bocelli, Laura Pausini, Peter Gabriel, Raphael, Ennio Morricone, Marco Antonio Solís, Il Divo, Sarah Brightman, and more.",
+          "p6": "After specialized infant music training in Spain, he founded Mozarthitos—the first center of its kind in Latin America."
+        },
+        "jane": {
+          "p1": "Violinist and composer; graduated with honours from Universidad de Chile and studied at the University of Toronto’s summer academy.",
+          "p2": "She has performed chamber recitals at the CBC’s Glenn Gould Studio and refined her technique with Gerard Claret in Barcelona.",
+          "p3": "Credits span Inti Illimani, Jessy & Joy, Sarah Brightman, Ennio Morricone, recordings for Natalino and others, and productions such as HBO’s Prófugos."
+        }
+      },
+      "cursos": {
+        "title": "Courses",
+        "subtitle": "The Mago Diapasón method",
+        "ageLine": "From 6 months of age",
+        "bodyP1": "Created by Paqui Castro, it teaches music to babies and toddlers through play, singing, and percussion—guided by the Mago Diapasón character and the story “Traveling to the land of music.”",
+        "bodyP2": "30-minute sessions start early; from age three children begin reading scores and building focus. The approach nurtures memory, creativity, attention, and social skills.",
+        "onlineCta": "Online modality"
+      },
+      "sedes": {
+        "sectionTitle": "On-site modality",
+        "sectionSubtitle": "Find us at"
+      },
+      "sede": {
+        "title": "Las Condes campus",
+        "subtitle": "670 República Árabe de Egipto"
+      },
+      "map": {
+        "embedSrc": "https://maps.google.com/maps?q=Rep%C3%BAblica%20%C3%81rabe%20de%20Egipto%20670%2C%20Las%20Condes%2C%20Santiago%2C%20Chile&t=m&z=15&output=embed&iwloc=near",
+        "iframeTitle": "Map — República Árabe de Egipto 670"
+      },
+      "contact": {
+        "title": "Contact",
+        "subtitle": "Enrolment and more information",
+        "phoneDisplay": "+56 9 5991 6314",
+        "instagramTitle": "Follow us on Instagram",
+        "instagramCta": "Follow on Instagram",
+        "instagramUrl": "https://www.instagram.com/mozarthitos/",
+        "formHint": "Use the institute contact channels or the registration flow when available to reach the team from the web."
+      },
+      "footerCta": "Ready to make music together? Book your visit or your spot at the academy."
+    }
   },
   "admin": {
     "import": {
@@ -512,7 +603,10 @@
         "title": "Email templates",
         "lead": "All emails the product sends to students, guardians, and teachers in one place. Pick a template from the dropdown to see the live preview and edit subject and body.",
         "selectLabel": "Template",
-        "localeLabel": { "es": "Spanish", "en": "English" },
+        "localeLabel": {
+          "es": "Spanish",
+          "en": "English"
+        },
         "editedSuffix": "(edited)",
         "subjectLabel": "Subject",
         "bodyLabel": "Message body",
@@ -712,7 +806,11 @@
           "archived_cannot_activate": "Restore the template before activating it.",
           "active_cannot_archive": "Switch to another template before archiving the active one.",
           "system_default_cannot_archive": "The system default template cannot be archived. It is always kept as a fallback.",
-          "persist_failed": "We couldn't save the change. Please try again."
+          "persist_failed": "We couldn't save the change. Please try again.",
+          "mime_invalid": "That file type is not accepted.",
+          "payload_invalid": "The file could not be processed.",
+          "favicon_zip_invalid": "Invalid favicon bundle ZIP.",
+          "media_too_large": "The file is larger than 4 MB."
         },
         "editor": {
           "title": "Design tokens — {{name}}",
@@ -745,7 +843,7 @@
             },
             "app": {
               "title": "Brand identity",
-              "description": "App and legal names, taglines, and brand asset paths. Affects SEO metadata and the brand layer."
+              "description": "App and legal names, taglines, and text fields. Logo and favicon paths are set via the Logo & favicon upload card above."
             },
             "contact": {
               "title": "Contact",
@@ -755,6 +853,25 @@
               "title": "Social links",
               "description": "Public social network URLs shown in the footer and contact areas."
             }
+          },
+          "brandAssets": {
+            "title": "Logo & favicon",
+            "lead": "Upload files the same way as the first-run wizard: we store them in your media bucket and set theme paths for you. Fine-tune names and taglines in Brand identity below.",
+            "logoLabel": "Logo",
+            "logoHint": "PNG, JPEG, or WebP. Used in the header, landing, and branded emails.",
+            "logoAltLabel": "Logo description (accessibility)",
+            "logoAltHint": "Short alt text for screen readers. Applied when you upload a new logo.",
+            "logoPick": "Choose logo image",
+            "logoSuccess": "Logo saved to the template.",
+            "faviconLabel": "Favicon",
+            "faviconHint": "One image (PNG, JPEG, WebP) or a favicon.io ZIP containing favicon.ico and PNG sizes.",
+            "faviconPick": "Choose favicon or ZIP",
+            "faviconSuccess": "Favicon saved to the template.",
+            "noPreview": "No preview",
+            "bundlePreview": "Favicon bundle (several sizes)",
+            "currentPath": "Path in theme",
+            "uploadProgressReading": "Preparing file…",
+            "uploadProgressSending": "Uploading & saving…"
           },
           "preview": {
             "title": "Preview",
@@ -774,7 +891,11 @@
             "archived_cannot_activate": "Restore the template before activating it.",
             "active_cannot_archive": "Switch to another template before archiving the active one.",
             "system_default_cannot_archive": "The system default template cannot be archived. It is always kept as a fallback.",
-            "persist_failed": "We couldn't save the changes. Please try again."
+            "persist_failed": "We couldn't save the changes. Please try again.",
+            "mime_invalid": "That file type is not accepted. Use PNG, JPEG, or WebP for images, or a favicon.io ZIP for bundles.",
+            "payload_invalid": "The file could not be read. Try another export or re-export the bundle.",
+            "favicon_zip_invalid": "This ZIP is not a valid favicon.io bundle (missing favicon.ico or expected files).",
+            "media_too_large": "File is too large. Maximum size is 4 MB."
           }
         },
         "landing": {
@@ -791,6 +912,7 @@
           "copyLead": "Edit the Spanish and English values shown in the landing. Leave a field empty to use the dictionary default.",
           "mediaTitle": "Images",
           "mediaLead": "Replace the bundled landing image for each slot. Accepted formats: PNG, JPEG, WebP. Maximum 4 MB per file.",
+          "mediaLeadModalidades": "Images 1–12 feed Modalidades + “Our students”: Register collage still uses photos 1–4; upload higher slots for longer carousels. In copy fields, edit studentGallery.album1PhotoIndexes / album2PhotoIndexes with 0-based indices separated by commas (e.g. 0,1,2,8).",
           "mediaEmpty": "This section has no editable images.",
           "saveCopyCta": "Save copy",
           "resetCopyCta": "Reset section to defaults",
@@ -834,7 +956,10 @@
             "persist_failed": "We couldn't save the changes. Please try again.",
             "media_mime_invalid": "Use a PNG, JPEG or WebP image.",
             "media_too_large": "The file is larger than 4 MB.",
-            "media_payload_invalid": "We couldn't read this file. Try a different image."
+            "media_payload_invalid": "We couldn't read this file. Try a different image.",
+            "mime_invalid": "That file type is not accepted. Use PNG, JPEG, or WebP for images, or a favicon.io ZIP for icon bundles.",
+            "payload_invalid": "The file could not be read. Try another file or re-export the bundle.",
+            "favicon_zip_invalid": "This ZIP is not a valid favicon.io bundle (missing favicon.ico or expected files)."
           },
           "blocks": {
             "title": "Subsections",
@@ -879,12 +1004,13 @@
           },
           "kindPicker": {
             "title": "Visual style",
-            "lead": "Switch the personality of this template. Classic keeps the original layout; Editorial uses a full-bleed shell with display typography; Minimal is airy and centered with thin separators.",
+            "lead": "Switch the personality of this template. Classic keeps the original layout; Editorial uses a full-bleed shell; Minimal is airy and centered; Mozarthitos follows the Mozarthitos reference landing (sticky bar, hero, sections).",
             "currentLabel": "Current style",
             "options": {
               "classic": "Classic",
               "editorial": "Editorial",
-              "minimal": "Minimal"
+              "minimal": "Minimal",
+              "mozarthitos": "Mozarthitos"
             },
             "saveCta": "Apply style",
             "saveSuccess": "Style applied.",
@@ -953,7 +1079,11 @@
             "archived_cannot_activate": "Restore the template before activating it.",
             "active_cannot_archive": "Switch to another template before archiving the active one.",
             "system_default_cannot_archive": "The system default template cannot be archived. It is always kept as a fallback.",
-            "persist_failed": "We couldn't save the changes. Please try again."
+            "persist_failed": "We couldn't save the changes. Please try again.",
+            "mime_invalid": "That file type is not accepted. Use PNG, JPEG, or WebP for images, or a favicon.io ZIP for icon bundles.",
+            "payload_invalid": "The file could not be read. Try another file or re-export the bundle.",
+            "favicon_zip_invalid": "This ZIP is not a valid favicon.io bundle (missing favicon.ico or expected files).",
+            "media_too_large": "The file is larger than 4 MB."
           }
         }
       }
@@ -1511,7 +1641,20 @@
         "selectYear": "Year",
         "openSection": "Open matrix",
         "tipOpenSection": "See the student-by-month matrix for this section.",
-        "monthShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        "monthShort": [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec"
+        ],
         "kpis": {
           "expectedYear": "Expected (year)",
           "paid": "Collected",
@@ -2204,6 +2347,8 @@
         "submit": "Create account and continue"
       },
       "stepLabel": "Step {{current}} of {{total}}",
+      "uploadProgressReading": "Preparing files…",
+      "uploadProgressSending": "Saving setup…",
       "steps": {
         "intro": "Introduction",
         "institute": "Institute & assets",
@@ -2223,8 +2368,8 @@
         "taglineEn": "Tagline (English, optional)",
         "logo": "Logo image",
         "logoHint": "PNG, JPEG, or WebP — max 4 MB.",
-        "favicon": "Favicon image",
-        "faviconHint": "Square image recommended.",
+        "favicon": "Favicon (image or ZIP)",
+        "faviconHint": "One PNG, JPEG, or WebP — or a favicon.io ZIP with favicon.ico plus PNG sizes (favicon-16/32, apple-touch-icon, android-chrome-192/512). Max 4 MB.",
         "logoAlt": "Logo alt text (accessibility)",
         "logoAltHint": "Short description for screen readers.",
         "logoRequired": "Choose a logo file.",
@@ -2262,6 +2407,7 @@
         "persist_failed": "Could not save. Try again.",
         "payload_invalid": "Invalid file data.",
         "mime_invalid": "Images must be PNG, JPEG, or WebP.",
+        "favicon_zip_invalid": "The ZIP must include favicon.io outputs: favicon.ico and all PNG sizes (16, 32, apple-touch, android-chrome 192 and 512).",
         "forbidden": "Your session does not allow this action.",
         "not_found": "Active theme not found. Refresh and try again.",
         "password_mismatch": "Passwords do not match.",
@@ -2399,11 +2545,6 @@
       "editorUndoTooltip": "Undo the last change in the editor.",
       "editorRedo": "Redo",
       "editorRedoTooltip": "Redo a change you previously undid.",
-      "editorLinkModalTitle": "Add link",
-      "editorYoutubeModalTitle": "Embed YouTube",
-      "editorUrlFieldLabel": "URL",
-      "editorModalCancel": "Cancel",
-      "editorModalApply": "Apply",
       "noMaterialsDraft": "No materials in this draft yet.",
       "moveUp": "Up",
       "moveDown": "Down",
@@ -3563,6 +3704,7 @@
       "taskTemplateEmbedUrl": "YouTube or Vimeo URL",
       "taskTemplateEmbedAdd": "Add video",
       "taskTemplateAssetTooLarge": "The file is larger than 50 MB.",
+      "taskTemplateAssetUploadFailed": "Could not read or upload the file. Try again.",
       "taskAssignTitle": "Assign to section",
       "taskAssignStart": "Opening date",
       "taskAssignDue": "Due date",
@@ -3579,35 +3721,40 @@
       "noEligibleClassDates": "There is no class day in the allowed window for this section. Check section dates and weekly schedule, or ask an administrator.",
       "noScheduleSlots": "Add at least one valid weekly timetable slot for this section (admin → section). Until then, class columns cannot be built. If slots exist but do not appear, check that day and times are saved correctly (e.g. Sunday 16:00–18:00).",
       "matrix": {
-        "empty": "No students in this section.",
-        "datesTruncatedNote": "Showing the first class days in this window. Ask an admin if you need a wider range in reports.",
-        "datesTruncatedNewest": "Showing the most recent class days in this window (column cap). Older sessions in the section still exist—use exports or ask for a higher cap if you need the full history in this grid.",
-        "editingPastDayBanner": "You are focused on a past class day. Double-check the column before using bulk fill.",
-        "keyboardHint": "Click the grid, then use arrow keys to move. Press P (present), A (absent), or T (late). Changes save automatically after a short pause.",
-        "keyboardHintAdmin": "Click the grid, then use arrow keys to move. Press P (present), A (absent), T (late), or E (excused). Changes save automatically after a short pause.",
-        "bulkNothingToFill": "No empty cells to fill in that column (or no eligible students for bulk in that day).",
-        "bulkError": "Could not apply bulk fill. Try again when online.",
-        "autosaveError": "Could not save a cell. Check your connection and try changing the cell again.",
-        "undoPrompt": "Column filled with present for empty cells.",
-        "undoAction": "Undo fill",
-        "undoError": "Could not undo. An admin can adjust records if needed.",
+        "gridAria": "Attendance grid",
+        "empty": "No class days or students yet to display.",
         "colStudent": "Student",
-        "gridAria": "Attendance spreadsheet",
         "cellAria": "Attendance for {student} on {date}",
-        "cellDisabledPast": "This class day can’t be edited here (section dates, timetable, or enrollment on this date).",
-        "cellDisabledFuture": "This class day is still in the future—you can record attendance once that date arrives.",
-        "cellDisabledInactive": "This student is no longer in this section (dropped or transferred), so the cell is read-only in the teacher portal. Ask coordination if this record needs to change.",
-        "cellDisabledExcused": "This class is marked as excused (E) by coordination. Only coordination can change it.",
-        "cellDisabledNotEnrolledOnDate": "This student wasn't enrolled in this section on this date (joined later, transferred, or dropped). Attendance shouldn't be recorded for that day.",
-        "columnFillTooltip": "Fill empty cells in this column with present (does not overwrite existing marks). Skips dropped/transferred rows.",
-        "columnFillDisabled": "Bulk fill is disabled for this day (outside edit window or future).",
-        "columnFillAria": "Bulk fill present for empty cells on {date}",
         "excusedLetter": "J",
+        "cellDisabledNotEnrolledOnDate": "This student wasn't enrolled in this section on this date (joined later, transferred, or dropped). Attendance shouldn't be recorded for that day.",
+        "cellDisabledInactive": "This student is no longer active in the section.",
+        "cellDisabledExcused": "Excused by admin — read-only here.",
+        "cellDisabledFuture": "This class is in the future.",
+        "cellDisabledPast": "This date is outside the editable window.",
+        "keyboardHint": "Tap a cell to cycle Present → Absent → Late → Present. Use P, A or T after focusing a cell.",
+        "keyboardHintAdmin": "Tap a cell to cycle Present → Absent → Late → Excused → Present. Use P, A, T or E after focusing a cell.",
+        "editingPastDayBanner": "You are editing a past class day. Changes will be saved automatically.",
+        "datesTruncatedNote": "Showing the operational window. Switch to full course to see every class day.",
+        "datesTruncatedNewest": "Showing the most recent class days within the section period.",
+        "undoPrompt": "Column marked present. Want to undo just the rows we just inserted?",
+        "undoAction": "Undo this fill",
+        "undoError": "Could not undo. Try again.",
+        "autosaveError": "Save failed — your taps stay on this device. Try again when you are online.",
+        "bulkError": "Could not mark the column as present.",
+        "bulkNothingToFill": "Every student in that class day already has a record.",
+        "columnFillDisabled": "This column cannot be bulk-filled.",
+        "columnFillTooltip": "Mark every still-empty student in this column as present.",
+        "columnFillAria": "Mark every empty student present for {date}",
         "viewTabsAria": "Attendance view",
-        "viewSheet": "Sheet (columns)",
+        "viewSheet": "Sheet",
         "viewCalendar": "Calendar",
-        "calendarTitle": "Class days",
-        "calendarHint": "Highlighted tiles are scheduled class days in this window. Tap a highlighted day to open the sheet with that column in view."
+        "calendarTitle": "Class calendar",
+        "calendarHint": "Tap a class day to jump to that column in the sheet.",
+        "studentColumnSort": {
+          "sortAsc": "ascending order",
+          "sortDesc": "descending order",
+          "sortNeutral": "no sort on this column"
+        }
       },
       "saveSync": "Save and sync",
       "saveFloating": "Save attendance",
@@ -3653,42 +3800,6 @@
         "absent": "Absent",
         "late": "Late",
         "excused": "Excused"
-      },
-      "matrix": {
-        "gridAria": "Attendance grid",
-        "empty": "No class days or students yet to display.",
-        "colStudent": "Student",
-        "cellAria": "Attendance for {student} on {date}",
-        "excusedLetter": "J",
-        "cellDisabledNotEnrolledOnDate": "This student wasn't enrolled in this section on this date (joined later, transferred, or dropped). Attendance shouldn't be recorded for that day.",
-        "cellDisabledInactive": "This student is no longer active in the section.",
-        "cellDisabledExcused": "Excused by admin — read-only here.",
-        "cellDisabledFuture": "This class is in the future.",
-        "cellDisabledPast": "This date is outside the editable window.",
-        "keyboardHint": "Tap a cell to cycle Present → Absent → Late → Present. Use P, A or T after focusing a cell.",
-        "keyboardHintAdmin": "Tap a cell to cycle Present → Absent → Late → Excused → Present. Use P, A, T or E after focusing a cell.",
-        "editingPastDayBanner": "You are editing a past class day. Changes will be saved automatically.",
-        "datesTruncatedNote": "Showing the operational window. Switch to full course to see every class day.",
-        "datesTruncatedNewest": "Showing the most recent class days within the section period.",
-        "undoPrompt": "Column marked present. Want to undo just the rows we just inserted?",
-        "undoAction": "Undo this fill",
-        "undoError": "Could not undo. Try again.",
-        "autosaveError": "Save failed — your taps stay on this device. Try again when you are online.",
-        "bulkError": "Could not mark the column as present.",
-        "bulkNothingToFill": "Every student in that class day already has a record.",
-        "columnFillDisabled": "This column cannot be bulk-filled.",
-        "columnFillTooltip": "Mark every still-empty student in this column as present.",
-        "columnFillAria": "Mark every empty student present for {date}",
-        "viewTabsAria": "Attendance view",
-        "viewSheet": "Sheet",
-        "viewCalendar": "Calendar",
-        "calendarTitle": "Class calendar",
-        "calendarHint": "Tap a class day to jump to that column in the sheet.",
-        "studentColumnSort": {
-          "sortAsc": "ascending order",
-          "sortDesc": "descending order",
-          "sortNeutral": "no sort on this column"
-        }
       }
     },
     "academicSectionAttendance": {
@@ -4442,7 +4553,7 @@
         "todayUtcNote": "Weekday matches the UTC calendar, same window as the attendance tool.",
         "todayEmpty": "No scheduled class blocks today on your teaching calendar.",
         "takeAttendanceCta": "Take attendance",
-      "openAssessmentsCta": "Assess",
+        "openAssessmentsCta": "Assess",
         "gradesTitle": "Published grade average by section",
         "gradesHint": "Mean of published assessment averages per active enrollment. Empty when grades are not visible to your role yet.",
         "gradesEmpty": "No sections assigned.",
@@ -4450,8 +4561,8 @@
         "gradesColAvg": "Avg score",
         "gradesColLink": "Open",
         "gradesNoData": "—",
-      "gradesOpenSection": "Section",
-      "gradesOpenAssessments": "Assessments"
+        "gradesOpenSection": "Section",
+        "gradesOpenAssessments": "Assessments"
       },
       "messagesTitle": "Messages",
       "messagesLead": "Message students, guardians, teachers, or admins. Reply to students and guardians below; each reply is a new message.",

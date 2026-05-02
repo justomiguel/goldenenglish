@@ -1,11 +1,13 @@
 "use client";
 
-import { type FormEvent, useState, useTransition } from "react";
+import { type FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Label } from "@/components/atoms/Label";
 import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import {
   uploadProfileAvatar,
   type ProfileAvatarErrorKey,
@@ -47,6 +49,7 @@ export interface ProfileAvatarPanelProps {
   avatarDisplayUrl: string | null;
   displayName: string;
   labels: ProfileAvatarFormLabels;
+  fileUploadProgress: FileUploadProgressLabels;
   /** When true, omits outer card chrome (use inside a parent section). */
   embedded?: boolean;
   /** Only the upload form (avatar shown separately, e.g. LinkedIn-style hero). */
@@ -58,19 +61,21 @@ export function ProfileAvatarPanel({
   avatarDisplayUrl,
   displayName,
   labels,
+  fileUploadProgress,
   embedded = false,
   uploadOnly = false,
 }: ProfileAvatarPanelProps) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const [busy, setBusy] = useState(false);
   const [banner, setBanner] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setBanner(null);
     const fd = new FormData(e.currentTarget);
     fd.set("locale", locale);
-    startTransition(async () => {
+    setBusy(true);
+    try {
       const res = await uploadProfileAvatar(fd);
       if (res.ok) {
         setBanner({ tone: "ok", text: labels.avatarSuccess });
@@ -78,7 +83,9 @@ export function ProfileAvatarPanel({
         return;
       }
       setBanner({ tone: "err", text: labelForError(res.errorKey, labels) });
-    });
+    } finally {
+      setBusy(false);
+    }
   }
 
   const shell = embedded
@@ -100,7 +107,7 @@ export function ProfileAvatarPanel({
             size="lg"
           />
         )}
-        <form className={uploadOnly ? "w-full max-w-lg space-y-4" : "w-full max-w-md space-y-4"} onSubmit={onSubmit}>
+        <form className={uploadOnly ? "w-full max-w-lg space-y-4" : "w-full max-w-md space-y-4"} onSubmit={(ev) => void onSubmit(ev)}>
           <div>
             <Label htmlFor="profile-avatar-file">{labels.avatarChoose}</Label>
             <input
@@ -108,14 +115,22 @@ export function ProfileAvatarPanel({
               name="avatar"
               type="file"
               accept="image/jpeg,image/png,image/webp"
+              disabled={busy}
               className="mt-2 block w-full min-h-[44px] cursor-pointer text-sm text-[var(--color-foreground)] file:mr-4 file:rounded-[var(--layout-border-radius)] file:border-0 file:bg-[var(--color-muted)] file:px-4 file:py-2 file:text-sm file:font-medium file:text-[var(--color-foreground)]"
             />
             <p className="mt-2 text-xs text-[var(--color-muted-foreground)]">
               {fillProfileAvatarMaxMbTemplate(labels.avatarHint)}
             </p>
           </div>
-          <Button type="submit" disabled={pending} isLoading={pending}>
-            {!pending ? <Upload className="h-4 w-4 shrink-0" aria-hidden /> : null}
+          {busy ? (
+            <InlineUploadProgressBar
+              label={fileUploadProgress.progressSending}
+              indeterminate
+              className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+            />
+          ) : null}
+          <Button type="submit" disabled={busy} isLoading={busy}>
+            {!busy ? <Upload className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {labels.avatarUpload}
           </Button>
           {banner ? (

@@ -20,6 +20,7 @@ describe("JsonLdOrganization", () => {
     logoPath: "/logo.png",
     logoAlt: "A",
     faviconPath: "/f.ico",
+    faviconBundlePrefix: null,
     contactEmail: "",
     contactPhone: "",
     contactAddress: "",

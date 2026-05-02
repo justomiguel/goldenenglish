@@ -1,14 +1,16 @@
 "use client";
 
-import { useRef, useState, useTransition, type ChangeEvent } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import {
   clearBadgeImageAction,
   uploadBadgeImageAction,
 } from "@/app/[locale]/dashboard/admin/badges/imageBadgeActions";
 import type { Dictionary } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 
 type AdminBadgesDict = Dictionary["admin"]["badges"];
 
@@ -20,17 +22,18 @@ export interface AdminBadgeImageEditorProps {
   badgeId: string;
   currentImageUrl: string | null;
   labels: AdminBadgesDict;
+  fileUploadProgress: FileUploadProgressLabels;
   disabled?: boolean;
 }
 
 export function AdminBadgeImageEditor(props: AdminBadgeImageEditorProps) {
-  const { locale, badgeId, currentImageUrl, labels, disabled } = props;
+  const { locale, badgeId, currentImageUrl, labels, fileUploadProgress, disabled } = props;
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement | null>(null);
-  const [pending, startTransition] = useTransition();
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function onChange(e: ChangeEvent<HTMLInputElement>) {
+  async function onChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setError(null);
@@ -44,31 +47,38 @@ export function AdminBadgeImageEditor(props: AdminBadgeImageEditorProps) {
       e.target.value = "";
       return;
     }
-    startTransition(async () => {
+    const input = e.target;
+    setBusy(true);
+    try {
       const fd = new FormData();
       fd.append("locale", locale);
       fd.append("badgeId", badgeId);
       fd.append("file", file);
       const result = await uploadBadgeImageAction(fd);
-      if (e.target) e.target.value = "";
+      input.value = "";
       if (!result.ok) {
         setError(result.message ?? labels.genericError);
         return;
       }
       router.refresh();
-    });
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function onClear() {
+  async function onClear() {
     setError(null);
-    startTransition(async () => {
+    setBusy(true);
+    try {
       const result = await clearBadgeImageAction({ locale, badgeId });
       if (!result.ok) {
         setError(result.message ?? labels.genericError);
         return;
       }
       router.refresh();
-    });
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -79,16 +89,16 @@ export function AdminBadgeImageEditor(props: AdminBadgeImageEditorProps) {
           type="file"
           accept={ACCEPT}
           className="hidden"
-          onChange={onChange}
-          disabled={pending || disabled}
+          onChange={(ev) => void onChange(ev)}
+          disabled={busy || disabled}
         />
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={() => fileRef.current?.click()}
-          disabled={pending || disabled}
-          isLoading={pending}
+          disabled={busy || disabled}
+          isLoading={busy}
         >
           <Upload className="h-4 w-4 shrink-0" aria-hidden />
           {labels.uploadCta}
@@ -98,8 +108,8 @@ export function AdminBadgeImageEditor(props: AdminBadgeImageEditorProps) {
             type="button"
             variant="ghost"
             size="sm"
-            onClick={onClear}
-            disabled={pending || disabled}
+            onClick={() => void onClear()}
+            disabled={busy || disabled}
           >
             <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
             {labels.clearImageCta}
@@ -107,6 +117,13 @@ export function AdminBadgeImageEditor(props: AdminBadgeImageEditorProps) {
         ) : null}
       </div>
       <p className="text-xs text-[var(--color-muted-foreground)]">{labels.tipImage}</p>
+      {busy ? (
+        <InlineUploadProgressBar
+          label={fileUploadProgress.progressSending}
+          indeterminate
+          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+        />
+      ) : null}
       {error ? (
         <p
           role="alert"

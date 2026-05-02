@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Modal } from "@/components/atoms/Modal";
 import { BillingUploadReceiptForm } from "@/components/billing/BillingUploadReceiptForm";
 import type { Dictionary } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { BillingInvoiceRow, BillingInvoiceStatus } from "@/types/billing";
 
 export interface BillingPortalScreenProps {
@@ -11,6 +12,7 @@ export interface BillingPortalScreenProps {
   viewer: "parent" | "student";
   isMinorStudent: boolean;
   dict: Dictionary["dashboard"]["portalBilling"];
+  fileUploadProgress: FileUploadProgressLabels;
   invoices: BillingInvoiceRow[];
 }
 
@@ -52,6 +54,7 @@ export function BillingPortalScreen({
   viewer,
   isMinorStudent,
   dict,
+  fileUploadProgress,
   invoices,
 }: BillingPortalScreenProps) {
   const [active, setActive] = useState<BillingInvoiceRow | null>(null);
@@ -158,6 +161,7 @@ export function BillingPortalScreen({
             locale={locale}
             invoice={active}
             dict={dict}
+            fileUploadProgress={fileUploadProgress}
             onDone={() => {
               setActive(null);
               window.location.reload();

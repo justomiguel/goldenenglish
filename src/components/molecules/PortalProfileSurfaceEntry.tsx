@@ -7,6 +7,7 @@ import {
   type ProfileAvatarFormLabels,
 } from "@/components/molecules/ProfileAvatarPanel";
 import type { AppSurface } from "@/hooks/useAppSurface";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 
 function PortalProfileSkeleton() {
   return (
@@ -24,6 +25,7 @@ export interface PortalProfileSurfaceEntryProps {
   avatarDisplayUrl: string | null;
   displayName: string;
   labels: ProfileAvatarFormLabels;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
 export function PortalProfileSurfaceEntry({
@@ -33,6 +35,7 @@ export function PortalProfileSurfaceEntry({
   avatarDisplayUrl,
   displayName,
   labels,
+  fileUploadProgress,
 }: PortalProfileSurfaceEntryProps) {
   const panel = (
     <>
@@ -43,6 +46,7 @@ export function PortalProfileSurfaceEntry({
         avatarDisplayUrl={avatarDisplayUrl}
         displayName={displayName}
         labels={labels}
+        fileUploadProgress={fileUploadProgress}
       />
     </>
   );

@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { RichTextEditor } from "@/components/molecules/RichTextEditor";
 import {
   addTemplateEmbedAction,
@@ -12,19 +13,28 @@ import {
   uploadTemplateFileAction,
 } from "@/app/[locale]/dashboard/teacher/tasks/actions";
 import type { ContentTemplateLibraryRow } from "@/lib/learning-tasks/loadContentTemplateLibrary";
+import { readFileAsDataUrlBase64 } from "@/lib/client/readFileAsDataUrlBase64";
 import { validateLearningTaskFile } from "@/lib/learning-tasks/assets";
 import type { Dictionary } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 
 interface LearningTaskTemplateLibraryProps {
   locale: string;
   templates: ContentTemplateLibraryRow[];
   labels: Dictionary["dashboard"]["teacherMySections"];
+  fileUploadProgress: FileUploadProgressLabels;
 }
+
+type FileUploadUi =
+  | { kind: "idle" }
+  | { kind: "busy"; stage: "reading"; readPercent: number }
+  | { kind: "busy"; stage: "sending" };
 
 export function LearningTaskTemplateLibrary({
   locale,
   templates,
   labels,
+  fileUploadProgress,
 }: LearningTaskTemplateLibraryProps) {
   const [title, setTitle] = useState("");
   const [bodyHtml, setBodyHtml] = useState("<p></p>");
@@ -32,7 +42,10 @@ export function LearningTaskTemplateLibrary({
   const [assetLabel, setAssetLabel] = useState("");
   const [embedUrl, setEmbedUrl] = useState("");
   const [fileError, setFileError] = useState<string | null>(null);
+  const [uploadUi, setUploadUi] = useState<FileUploadUi>({ kind: "idle" });
   const [isPending, startTransition] = useTransition();
+
+  const fileBusy = uploadUi.kind !== "idle";
 
   const submit = () => {
     startTransition(async () => {
@@ -44,7 +57,7 @@ export function LearningTaskTemplateLibrary({
     });
   };
 
-  const uploadFile = (file: File | null) => {
+  async function uploadFile(file: File | null) {
     if (!file || !assetTemplateId || !assetLabel.trim()) return;
     const validation = validateLearningTaskFile(file);
     if (!validation.ok) {
@@ -52,22 +65,31 @@ export function LearningTaskTemplateLibrary({
       return;
     }
     setFileError(null);
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = String(reader.result ?? "");
-      const fileBase64 = result.includes(",") ? result.split(",")[1] : result;
-      startTransition(async () => {
-        await uploadTemplateFileAction({
-          templateId: assetTemplateId,
-          label: assetLabel,
-          filename: file.name,
-          contentType: file.type,
-          fileBase64,
-        });
+    setUploadUi({ kind: "busy", stage: "reading", readPercent: 0 });
+    try {
+      const data = await readFileAsDataUrlBase64(file, {
+        onProgress: (r) =>
+          setUploadUi({
+            kind: "busy",
+            stage: "reading",
+            readPercent: Math.round(r * 100),
+          }),
       });
-    };
-    reader.readAsDataURL(file);
-  };
+      setUploadUi({ kind: "busy", stage: "sending" });
+      const result = await uploadTemplateFileAction({
+        templateId: assetTemplateId,
+        label: assetLabel,
+        filename: file.name,
+        contentType: data.mime || file.type,
+        fileBase64: data.base64,
+      });
+      if (!result.ok) setFileError(labels.taskTemplateAssetUploadFailed);
+    } catch {
+      setFileError(labels.taskTemplateAssetUploadFailed);
+    } finally {
+      setUploadUi({ kind: "idle" });
+    }
+  }
 
   const addEmbed = () => {
     if (!assetTemplateId || !assetLabel.trim() || !embedUrl.trim()) return;
@@ -84,7 +106,9 @@ export function LearningTaskTemplateLibrary({
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.taskLibraryLead}</p>
         <div className="mt-4 space-y-4">
           <div>
-            <Label htmlFor="learning-template-title" required>{labels.taskTemplateTitleLabel}</Label>
+            <Label htmlFor="learning-template-title" required>
+              {labels.taskTemplateTitleLabel}
+            </Label>
             <Input id="learning-template-title" value={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div>
@@ -108,7 +132,10 @@ export function LearningTaskTemplateLibrary({
         ) : (
           <ul className="space-y-2">
             {templates.map((template) => (
-              <li key={template.id} className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2">
+              <li
+                key={template.id}
+                className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2"
+              >
                 <p className="font-semibold text-[var(--color-foreground)]">{template.title}</p>
                 <p className="text-xs text-[var(--color-muted-foreground)]">
                   {new Date(template.updatedAt).toLocaleString(locale)} · {template.assetCount}
@@ -128,21 +155,50 @@ export function LearningTaskTemplateLibrary({
               <select
                 value={assetTemplateId}
                 onChange={(e) => setAssetTemplateId(e.target.value)}
+                disabled={fileBusy}
                 className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
               >
                 {templates.map((template) => (
-                  <option key={template.id} value={template.id}>{template.title}</option>
+                  <option key={template.id} value={template.id}>
+                    {template.title}
+                  </option>
                 ))}
               </select>
             </label>
             <div>
               <Label htmlFor="learning-asset-label">{labels.taskTemplateAssetLabel}</Label>
-              <Input id="learning-asset-label" value={assetLabel} onChange={(e) => setAssetLabel(e.target.value)} />
+              <Input
+                id="learning-asset-label"
+                value={assetLabel}
+                onChange={(e) => setAssetLabel(e.target.value)}
+                disabled={fileBusy}
+              />
             </div>
-            <div>
+            <div className="md:col-span-2">
               <Label htmlFor="learning-asset-file">{labels.taskTemplateAssetFile}</Label>
-              <Input id="learning-asset-file" type="file" onChange={(e) => uploadFile(e.target.files?.[0] ?? null)} />
+              <Input
+                id="learning-asset-file"
+                type="file"
+                disabled={fileBusy}
+                onChange={(e) => {
+                  void uploadFile(e.target.files?.[0] ?? null);
+                  e.target.value = "";
+                }}
+              />
               {fileError ? <p className="mt-1 text-sm text-[var(--color-error)]">{fileError}</p> : null}
+              {uploadUi.kind === "busy" ? (
+                <InlineUploadProgressBar
+                  className="mt-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+                  label={
+                    uploadUi.stage === "reading"
+                      ? fileUploadProgress.progressReading
+                      : fileUploadProgress.progressSending
+                  }
+                  {...(uploadUi.stage === "reading"
+                    ? { value: uploadUi.readPercent, indeterminate: false }
+                    : { indeterminate: true })}
+                />
+              ) : null}
             </div>
             <div>
               <Label htmlFor="learning-embed-url">{labels.taskTemplateEmbedUrl}</Label>

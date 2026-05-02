@@ -1,6 +1,7 @@
 "use client";
 
 import type { Dictionary } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
 import { AdminUserAvatarUploadForm } from "@/components/molecules/AdminUserAvatarUploadForm";
@@ -12,6 +13,7 @@ export interface AdminUserIdentityHeroProps {
   locale: string;
   detail: AdminUserDetailVM;
   labels: UserLabels;
+  fileUploadProgress: FileUploadProgressLabels;
   displayName: string;
   roleLabel: string;
 }
@@ -20,6 +22,7 @@ export function AdminUserIdentityHero({
   locale,
   detail,
   labels,
+  fileUploadProgress,
   displayName,
   roleLabel,
 }: AdminUserIdentityHeroProps) {
@@ -44,6 +47,7 @@ export function AdminUserIdentityHero({
                 locale={locale}
                 targetUserId={detail.userId}
                 labels={labels}
+                fileUploadProgress={fileUploadProgress}
                 onPreview={setPreviewFromFile}
               />
             </div>

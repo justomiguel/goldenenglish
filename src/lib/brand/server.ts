@@ -21,6 +21,11 @@ export interface BrandPublic {
   logoAlt: string;
   /** Favicon URL — site-relative, Storage (`resolveBrandAssetUrl`), or absolute. */
   faviconPath: string;
+  /**
+   * Storage object prefix (`landing-media` bucket) when a favicon.io ZIP was saved.
+   * Siblings: `favicon.ico`, PNG sizes, `apple-touch-icon.png`, etc.
+   */
+  faviconBundlePrefix: string | null;
   contactEmail: string;
   contactPhone: string;
   contactAddress: string;
@@ -56,6 +61,10 @@ export function brandPublicFromProperties(p: ThemeProperties): BrandPublic {
       getProperty(p, "app.favicon.path", FAV_FALLBACK),
       FAV_FALLBACK,
     ),
+    faviconBundlePrefix: (() => {
+      const raw = getProperty(p, "app.favicon.bundle.prefix", "").trim();
+      return raw.length > 0 ? raw : null;
+    })(),
     contactEmail: getProperty(p, "contact.email"),
     contactPhone: getProperty(p, "contact.phone"),
     contactAddress: getProperty(p, "contact.address"),

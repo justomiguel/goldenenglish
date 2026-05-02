@@ -15,6 +15,10 @@
     "confirmDialogTitle": "Confirmá la acción",
     "save": "Guardar",
     "emptyValue": "—",
+    "fileUpload": {
+      "progressReading": "Preparando archivo…",
+      "progressSending": "Subiendo…"
+    },
     "greetings": {
       "morning": "Buen día",
       "afternoon": "Buenas tardes",
@@ -358,6 +362,8 @@
     "studentGallery": {
       "title": "Nuestros alumnos",
       "intro": "Tocá un álbum para ver el carrusel de fotos del aula y la comunidad.",
+      "album1PhotoIndexes": "0, 1",
+      "album2PhotoIndexes": "2, 3",
       "viewPhotos": "Ver fotos",
       "close": "Cerrar galería",
       "previous": "Foto anterior",
@@ -366,12 +372,18 @@
         {
           "name": "Momentos en el aula",
           "coverIndex": 0,
-          "photoIndexes": [0, 1]
+          "photoIndexes": [
+            0,
+            1
+          ]
         },
         {
           "name": "Comunidad y logros",
           "coverIndex": 2,
-          "photoIndexes": [2, 3]
+          "photoIndexes": [
+            2,
+            3
+          ]
         }
       ]
     },
@@ -403,7 +415,86 @@
       "altUtnIngles": "Programa Inglés en la UTN — INSPT",
       "altCambridgeUniversity": "Universidad de Cambridge"
     },
-    "footerCta": "¿Arrancamos el 2026 juntos? Reservá tu lugar."
+    "footerCta": "¿Arrancamos el 2026 juntos? Reservá tu lugar.",
+    "mz": {
+      "chrome": {
+        "openMenu": "Abrir menú",
+        "closeMenu": "Cerrar menú"
+      },
+      "nav": {
+        "inicio": "Inicio",
+        "quienes": "Quienes somos",
+        "cursos": "Cursos",
+        "sedes": "Sedes",
+        "contacto": "Contáctanos"
+      },
+      "hero": {
+        "title": "Primera Academia en Chile y Sudamérica",
+        "subtitle": "con alfabetización sonora",
+        "ctaPrimary": "Conocé la academia",
+        "ctaSecondary": "Escribinos"
+      },
+      "quienes": {
+        "title": "Quiénes somos"
+      },
+      "origenes": {
+        "title": "Orígenes",
+        "body": "Mozarthitos nace el 2022, junto con el nacimiento de Ennio, hijo de nuestros fundadores y docentes Felipe Andreani y Jane Guerra; matrimonio conformado por músicos profesionales del ámbito académico universitario e Infanto-Juvenil y destacados músicos de la escena nacional."
+      },
+      "llegada": {
+        "title": "Llegada a Chile",
+        "body": "Buscando el mejor sistema que diera educación musical desde los primeros días como lengua materna a su bebé, obtienen en España el diplomado del método MAGO DIAPASÓN, convirtiéndose con ello en los primeros Profesores diplomados y certificados en Chile y Sudamérica para impartir este método pionero, revolucionario e innovador."
+      },
+      "tab": {
+        "felipe": "Felipe Andreani",
+        "jane": "Jane Guerra O."
+      },
+      "bio": {
+        "felipe": {
+          "p1": "Como violista y académico de la Facultad de Artes de la Universidad de Chile, con un diploma obtenido en España, su trayectoria musical se ha destacado tanto a nivel nacional como internacional.",
+          "p2": "Ha tenido el honor de actuar en reconocidas salas de conciertos en Italia, Francia, Bélgica, Inglaterra y Alemania, compartiendo escenario con destacados artistas como Plácido Domingo y Cristina Gallardo-Domâs.",
+          "p3": "Como Viola Solista de la Orquesta de las Américas, tuvo el privilegio de participar en giras por Brasil bajo la dirección del maestro Kent Nagano.",
+          "p4": "En Estados Unidos, formó parte del ensamble Solistas YOA como único violista y representante latinoamericano en el Festival Castleton en Washington.",
+          "p5": "Además, ha colaborado musicalmente con Luis Miguel, Andrea Bocelli, Laura Pausini, Peter Gabriel, Raphael, Ennio Morricone, Marco Antonio Solís, Il Divo, Sara Brightman, entre otros.",
+          "p6": "Tras un diplomado en España en especialización musical y entrenamiento auditivo para infantes, fundó la Academia Mozarthitos, el primer centro de su tipo en Latinoamérica."
+        },
+        "jane": {
+          "p1": "Violinista y compositora destacada, se graduó con honores en el Conservatorio de la Universidad de Chile y amplió su formación en la Universidad de Toronto (Toronto Summer Music Academy and Festival).",
+          "p2": "Ha ofrecido recitales en el Glenn Gould Studio de la CBC (Canadá) y perfeccionado su técnica con Gerard Claret en Barcelona.",
+          "p3": "Ha colaborado con Inti Illimani, Jessy & Joy, Sara Brightman y Ennio Morricone; grabaciones para Natalino, Felipe Schuster y Víctor Heredia; y producciones como Prófugos (HBO) y El Botón de Nácar."
+        }
+      },
+      "cursos": {
+        "title": "Cursos",
+        "subtitle": "El método Mago Diapasón",
+        "ageLine": "Desde los 6 meses de vida",
+        "bodyP1": "Creado por Paqui Castro, está diseñado para enseñar música a bebés y niños pequeños de manera divertida y natural. Con el personaje del Mago Diapasón y su cuento «Viajando al país de la música», los niños interactúan con personajes que presentan conceptos musicales mediante canto, juego y percusión.",
+        "bodyP2": "Las sesiones de 30 minutos comienzan desde temprana edad; a partir de los 3 años empiezan a seguir partituras y desarrollar concentración. El método fortalece memoria, creatividad, atención y habilidades sociales e intelectuales.",
+        "onlineCta": "Modalidad Online"
+      },
+      "sedes": {
+        "sectionTitle": "Modalidad presencial",
+        "sectionSubtitle": "Ubícanos en"
+      },
+      "sede": {
+        "title": "Sede Las Condes",
+        "subtitle": "República Árabe de Egipto 670"
+      },
+      "map": {
+        "embedSrc": "https://maps.google.com/maps?q=Rep%C3%BAblica%20%C3%81rabe%20de%20Egipto%20670%2C%20Las%20Condes%2C%20Santiago%2C%20Chile&t=m&z=15&output=embed&iwloc=near",
+        "iframeTitle": "Mapa — República Árabe de Egipto 670"
+      },
+      "contact": {
+        "title": "Contáctanos",
+        "subtitle": "Matrículas y más información",
+        "phoneDisplay": "+56 9 5991 6314",
+        "instagramTitle": "No olvides seguirnos en Instagram",
+        "instagramCta": "Síguenos en Instagram",
+        "instagramUrl": "https://www.instagram.com/mozarthitos/",
+        "formHint": "Para enviar un mensaje desde la web usa los canales de contacto del instituto o completá el flujo de registro cuando esté disponible."
+      },
+      "footerCta": "¿Empezamos con la música? Reservá tu visita o tu lugar en la academia."
+    }
   },
   "admin": {
     "import": {
@@ -512,7 +603,10 @@
         "title": "Plantillas de email",
         "lead": "Todos los emails que el producto envía a alumnos, tutores y docentes en un solo lugar. Elegí una plantilla del desplegable para ver la vista previa y editar el asunto y el cuerpo.",
         "selectLabel": "Plantilla",
-        "localeLabel": { "es": "Español", "en": "Inglés" },
+        "localeLabel": {
+          "es": "Español",
+          "en": "Inglés"
+        },
         "editedSuffix": "(editada)",
         "subjectLabel": "Asunto",
         "bodyLabel": "Cuerpo del mensaje",
@@ -712,7 +806,11 @@
           "archived_cannot_activate": "Restaurá el template antes de activarlo.",
           "active_cannot_archive": "Cambiá a otro template antes de archivar el activo.",
           "system_default_cannot_archive": "El template del sistema no se puede archivar. Siempre queda como respaldo.",
-          "persist_failed": "No pudimos guardar el cambio. Intentá de nuevo."
+          "persist_failed": "No pudimos guardar el cambio. Intentá de nuevo.",
+          "mime_invalid": "Ese tipo de archivo no está permitido.",
+          "payload_invalid": "No pudimos procesar el archivo.",
+          "favicon_zip_invalid": "ZIP de favicon no válido.",
+          "media_too_large": "El archivo supera los 4 MB."
         },
         "editor": {
           "title": "Tokens de diseño — {{name}}",
@@ -745,7 +843,7 @@
             },
             "app": {
               "title": "Identidad de marca",
-              "description": "Nombre legal y comercial, eslóganes y rutas de assets de marca. Afecta SEO y la capa de marca."
+              "description": "Nombre legal y comercial, eslóganes y campos de texto. Las rutas de logo y favicon se configuran con la tarjeta «Logo y favicon» arriba."
             },
             "contact": {
               "title": "Contacto",
@@ -755,6 +853,25 @@
               "title": "Redes sociales",
               "description": "URLs públicas a redes que aparecen en el pie de página y zonas de contacto."
             }
+          },
+          "brandAssets": {
+            "title": "Logo y favicon",
+            "lead": "Subí archivos igual que en el asistente inicial: los guardamos en el bucket de medios y actualizamos las rutas del tema. Podés afinar nombres y eslóganes en Identidad de marca más abajo.",
+            "logoLabel": "Logo",
+            "logoHint": "PNG, JPEG o WebP. Se usa en cabecera, landing y correos con marca.",
+            "logoAltLabel": "Descripción del logo (accesibilidad)",
+            "logoAltHint": "Texto alternativo breve para lectores de pantalla. Se aplica al subir un logo nuevo.",
+            "logoPick": "Elegir imagen del logo",
+            "logoSuccess": "Logo guardado en el template.",
+            "faviconLabel": "Favicon",
+            "faviconHint": "Una imagen (PNG, JPEG, WebP) o un ZIP de favicon.io con favicon.ico y tamaños PNG.",
+            "faviconPick": "Elegir favicon o ZIP",
+            "faviconSuccess": "Favicon guardado en el template.",
+            "noPreview": "Sin vista previa",
+            "bundlePreview": "Paquete de favicon (varios tamaños)",
+            "currentPath": "Ruta en el tema",
+            "uploadProgressReading": "Preparando archivo…",
+            "uploadProgressSending": "Subiendo y guardando…"
           },
           "preview": {
             "title": "Vista previa",
@@ -774,7 +891,11 @@
             "archived_cannot_activate": "Restaurá el template antes de activarlo.",
             "active_cannot_archive": "Cambiá a otro template antes de archivar el activo.",
             "system_default_cannot_archive": "El template del sistema no se puede archivar. Siempre queda como respaldo.",
-            "persist_failed": "No pudimos guardar los cambios. Intentá de nuevo."
+            "persist_failed": "No pudimos guardar los cambios. Intentá de nuevo.",
+            "mime_invalid": "Ese tipo de archivo no está permitido. Usá PNG, JPEG o WebP para imágenes, o un ZIP de favicon.io para paquetes.",
+            "payload_invalid": "No pudimos leer el archivo. Probá otra exportación o volvé a generar el paquete.",
+            "favicon_zip_invalid": "Este ZIP no es un paquete válido de favicon.io (falta favicon.ico o archivos esperados).",
+            "media_too_large": "El archivo es demasiado grande. El máximo es 4 MB."
           }
         },
         "landing": {
@@ -791,6 +912,7 @@
           "copyLead": "Editá las versiones en español e inglés que se muestran en el landing. Dejá vacío un campo para usar el valor del diccionario.",
           "mediaTitle": "Imágenes",
           "mediaLead": "Reemplazá la imagen que viene con el landing para cada espacio. Formatos aceptados: PNG, JPEG, WebP. Máximo 4 MB por archivo.",
+          "mediaLeadModalidades": "Las imágenes 1 a 12 alimentan Modalidades y «Nuestros alumnos»: el collage de registro sigue usando solo 1–4; para carruseles más largos subí fotos en espacios mayores. En textos, editá studentGallery.album1PhotoIndexes y album2PhotoIndexes con índices base 0 separados por comas (ej. 0,1,2,8).",
           "mediaEmpty": "Esta sección no tiene imágenes editables.",
           "saveCopyCta": "Guardar textos",
           "resetCopyCta": "Restaurar valores por defecto",
@@ -834,7 +956,10 @@
             "persist_failed": "No pudimos guardar los cambios. Intentá de nuevo.",
             "media_mime_invalid": "Usá una imagen PNG, JPEG o WebP.",
             "media_too_large": "El archivo supera los 4 MB.",
-            "media_payload_invalid": "No pudimos leer este archivo. Probá con otra imagen."
+            "media_payload_invalid": "No pudimos leer este archivo. Probá con otra imagen.",
+            "mime_invalid": "Ese tipo de archivo no está permitido. Usá PNG, JPEG o WebP para imágenes, o un ZIP de favicon.io para íconos.",
+            "payload_invalid": "No pudimos leer el archivo. Probá con otro archivo o volvé a exportar el paquete.",
+            "favicon_zip_invalid": "Este ZIP no es un paquete válido de favicon.io (falta favicon.ico o archivos esperados)."
           },
           "blocks": {
             "title": "Subsecciones",
@@ -879,12 +1004,13 @@
           },
           "kindPicker": {
             "title": "Estilo visual",
-            "lead": "Cambiá la personalidad del template. Clásico mantiene el layout original; Editorial usa un shell a sangre completa con tipografía display; Minimal es aireado y centrado con separadores finos.",
+            "lead": "Cambiá la personalidad del template. Clásico mantiene el layout original; Editorial usa un shell a sangre; Minimal es aireado y centrado; Mozarthitos replica la landing de referencia (barra fija, hero y secciones).",
             "currentLabel": "Estilo actual",
             "options": {
               "classic": "Clásico",
               "editorial": "Editorial",
-              "minimal": "Minimal"
+              "minimal": "Minimal",
+              "mozarthitos": "Mozarthitos"
             },
             "saveCta": "Aplicar estilo",
             "saveSuccess": "Estilo aplicado.",
@@ -953,7 +1079,11 @@
             "archived_cannot_activate": "Restaurá la plantilla antes de activarla.",
             "active_cannot_archive": "Cambiá a otra plantilla antes de archivar la activa.",
             "system_default_cannot_archive": "La plantilla del sistema no se puede archivar. Siempre queda como respaldo.",
-            "persist_failed": "No pudimos guardar los cambios. Probá de nuevo."
+            "persist_failed": "No pudimos guardar los cambios. Probá de nuevo.",
+            "mime_invalid": "Ese tipo de archivo no está permitido. Usá PNG, JPEG o WebP para imágenes, o un ZIP de favicon.io para íconos.",
+            "payload_invalid": "No pudimos leer el archivo. Probá con otro archivo o volvé a exportar el paquete.",
+            "favicon_zip_invalid": "Este ZIP no es un paquete válido de favicon.io (falta favicon.ico o archivos esperados).",
+            "media_too_large": "El archivo supera los 4 MB."
           }
         }
       }
@@ -1511,7 +1641,20 @@
         "selectYear": "Año",
         "openSection": "Abrir matriz",
         "tipOpenSection": "Ver la matriz alumno-mes de esta sección.",
-        "monthShort": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+        "monthShort": [
+          "Ene",
+          "Feb",
+          "Mar",
+          "Abr",
+          "May",
+          "Jun",
+          "Jul",
+          "Ago",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dic"
+        ],
         "kpis": {
           "expectedYear": "Esperado (año)",
           "paid": "Cobrado",
@@ -1718,8 +1861,6 @@
       "enrollmentSection": "Editando matrícula de: {section}",
       "enrollmentExemptInSection": "Exenta en {section}",
       "enrollmentExemptSections": "Matrícula exenta en: {sections}",
-      "enrollmentReadOnlyExemptYes": "Sí",
-      "enrollmentReadOnlyExemptNo": "No",
       "enrollmentReadOnlyExemptYes": "Sí",
       "enrollmentReadOnlyExemptNo": "No",
       "enrollmentExemptLabel": "Exento de matrícula",
@@ -2206,6 +2347,8 @@
         "submit": "Crear cuenta y continuar"
       },
       "stepLabel": "Paso {{current}} de {{total}}",
+      "uploadProgressReading": "Preparando archivos…",
+      "uploadProgressSending": "Guardando configuración…",
       "steps": {
         "intro": "Introducción",
         "institute": "Instituto y activos",
@@ -2225,8 +2368,8 @@
         "taglineEn": "Eslogan (inglés, opcional)",
         "logo": "Logo",
         "logoHint": "PNG, JPEG o Webp — máx. 4 MB.",
-        "favicon": "Favicon",
-        "faviconHint": "Imagen cuadrada recomendada.",
+        "favicon": "Favicon (imagen o ZIP)",
+        "faviconHint": "Un PNG, JPEG o WebP — o un ZIP de favicon.io con favicon.ico y los PNG (favicon-16/32, apple-touch-icon, android-chrome-192/512). Máx. 4 MB.",
         "logoAlt": "Texto alternativo del logo (accesibilidad)",
         "logoAltHint": "Breve descripción para lectores de pantalla.",
         "logoRequired": "Seleccioná un archivo de logo.",
@@ -2264,6 +2407,7 @@
         "persist_failed": "No se pudo guardar. Probá de nuevo.",
         "payload_invalid": "Datos de archivo inválidos.",
         "mime_invalid": "Las imágenes deben ser PNG, JPEG o WebP.",
+        "favicon_zip_invalid": "El ZIP debe incluir lo que exporta favicon.io: favicon.ico y todos los PNG (16, 32, apple-touch-icon, android-chrome 192 y 512).",
         "forbidden": "Tu sesión no permite esta acción.",
         "not_found": "No se encontró el tema activo. Actualizá la página.",
         "password_mismatch": "Las contraseñas no coinciden.",
@@ -3560,6 +3704,7 @@
       "taskTemplateEmbedUrl": "URL de YouTube o Vimeo",
       "taskTemplateEmbedAdd": "Agregar video",
       "taskTemplateAssetTooLarge": "El archivo supera los 50 MB.",
+      "taskTemplateAssetUploadFailed": "No se pudo leer o subir el archivo. Inténtalo de nuevo.",
       "taskAssignTitle": "Asignar a sección",
       "taskAssignStart": "Fecha de apertura",
       "taskAssignDue": "Fecha de entrega",
@@ -3576,35 +3721,40 @@
       "noEligibleClassDates": "No hay ningún día de clase en la ventana permitida para esta sección. Revise fechas de la sección y el horario semanal, o consulte a un administrador.",
       "noScheduleSlots": "Añada al menos una franja horaria semanal válida para esta sección (administración → sección). Sin eso no se pueden armar las columnas de clase. Si ya hay franjas y no aparecen, compruebe que día y horas se guardaron bien (p. ej. domingo 16:00–18:00).",
       "matrix": {
-        "empty": "No hay alumnos en esta sección.",
-        "datesTruncatedNote": "Se muestran los primeros días de clase de esta ventana. Para un rango mayor use reportes con un administrador.",
-        "datesTruncatedNewest": "Se muestran los días de clase más recientes en esta ventana (límite de columnas). Siguen existiendo sesiones anteriores en la sección: use exportaciones o pida ampliar el tope si necesita todo el historial en esta cuadrícula.",
-        "editingPastDayBanner": "El foco está en un día de clase pasado. Revise la columna antes de usar el llenado masivo.",
-        "keyboardHint": "Pulse el cuadro, luego flechas para moverse. Teclas P (presente), A (ausente) o T (tarde). Los cambios se guardan solos tras una breve pausa.",
-        "keyboardHintAdmin": "Pulse el cuadro, luego flechas. Teclas P (presente), A (ausente), T (tarde) o E (justificado). Los cambios se guardan solos tras una breve pausa.",
-        "bulkNothingToFill": "No hay celdas vacías en esa columna (o no hay alumnos elegibles para lote en ese día).",
-        "bulkError": "No se pudo aplicar el llenado masivo. Intente cuando tenga conexión.",
-        "autosaveError": "No se pudo guardar una celda. Compruebe la conexión y vuelva a cambiar la celda.",
-        "undoPrompt": "Columna rellenada con presente solo en celdas vacías.",
-        "undoAction": "Deshacer llenado",
-        "undoError": "No se pudo deshacer. Un administrador puede ajustar los registros si hace falta.",
+        "gridAria": "Grilla de asistencia",
+        "empty": "Aún no hay días de clase ni alumnos para mostrar.",
         "colStudent": "Alumno",
-        "gridAria": "Hoja de asistencia",
         "cellAria": "Asistencia de {student} el {date}",
-        "cellDisabledPast": "No puede editar este día de clase aquí (fechas de la sección, horario o alta del alumno en esta fecha).",
-        "cellDisabledFuture": "Este día de clase es futuro: podrá registrar la asistencia cuando llegue esa fecha.",
-        "cellDisabledInactive": "Este alumno ya no está en esta sección (baja o transferencia): no es editable desde el portal docente. Pida a coordinación si necesita ajustar este registro.",
-        "cellDisabledExcused": "Esta clase quedó marcada como justificada (J) por coordinación. Solo coordinación puede modificarla.",
-        "cellDisabledNotEnrolledOnDate": "Este alumno no estaba inscripto en esta sección en esa fecha (alta posterior, transferencia o baja). No corresponde marcar asistencia ese día.",
-        "columnFillTooltip": "Rellenar celdas vacías de esta columna con presente (no sobrescribe marcas existentes). Omite filas de baja o transferidos.",
-        "columnFillDisabled": "El llenado masivo no está disponible para este día (fuera de ventana o futuro).",
-        "columnFillAria": "Llenado masivo con presente en celdas vacías el {date}",
         "excusedLetter": "J",
+        "cellDisabledNotEnrolledOnDate": "Este alumno no estaba inscripto en esta sección en esa fecha (alta posterior, transferencia o baja). No corresponde marcar asistencia ese día.",
+        "cellDisabledInactive": "Este alumno ya no está activo en la sección.",
+        "cellDisabledExcused": "Justificada por administración — solo lectura aquí.",
+        "cellDisabledFuture": "Esa clase es futura.",
+        "cellDisabledPast": "Esa fecha está fuera de la ventana editable.",
+        "keyboardHint": "Toque una celda para alternar Presente → Ausente → Tarde → Presente. Use P, A o T después de enfocar una celda.",
+        "keyboardHintAdmin": "Toque una celda para alternar Presente → Ausente → Tarde → Justificada → Presente. Use P, A, T o E después de enfocar una celda.",
+        "editingPastDayBanner": "Está editando un día de clase pasado. Los cambios se guardan automáticamente.",
+        "datesTruncatedNote": "Mostrando la ventana operativa. Cambie a curso completo para ver todos los días de clase.",
+        "datesTruncatedNewest": "Mostrando los días de clase más recientes dentro del período de la sección.",
+        "undoPrompt": "Columna marcada como presente. ¿Quiere deshacer solo las filas que acabamos de insertar?",
+        "undoAction": "Deshacer este completado",
+        "undoError": "No se pudo deshacer. Intente de nuevo.",
+        "autosaveError": "No se pudo guardar — sus cambios quedan en este dispositivo. Intente cuando vuelva a tener conexión.",
+        "bulkError": "No se pudo marcar la columna como presente.",
+        "bulkNothingToFill": "Todos los alumnos de ese día ya tienen un registro.",
+        "columnFillDisabled": "Esta columna no se puede completar en bloque.",
+        "columnFillTooltip": "Marcar como presente a todos los alumnos aún sin registrar en esta columna.",
+        "columnFillAria": "Marcar a todos los alumnos vacíos como presentes para {date}",
         "viewTabsAria": "Vista de asistencia",
-        "viewSheet": "Hoja (columnas)",
+        "viewSheet": "Planilla",
         "viewCalendar": "Calendario",
-        "calendarTitle": "Días de clase",
-        "calendarHint": "Los días resaltados tienen clase según el horario de la sección en esta ventana. Toque un día resaltado para abrir la hoja con esa columna a la vista."
+        "calendarTitle": "Calendario de clases",
+        "calendarHint": "Toque un día de clase para saltar a esa columna en la planilla.",
+        "studentColumnSort": {
+          "sortAsc": "orden ascendente",
+          "sortDesc": "orden descendente",
+          "sortNeutral": "sin orden en esta columna"
+        }
       },
       "saveSync": "Guardar y sincronizar",
       "saveFloating": "Guardar asistencia",
@@ -3650,42 +3800,6 @@
         "absent": "Ausente",
         "late": "Tarde",
         "excused": "Justificada"
-      },
-      "matrix": {
-        "gridAria": "Grilla de asistencia",
-        "empty": "Aún no hay días de clase ni alumnos para mostrar.",
-        "colStudent": "Alumno",
-        "cellAria": "Asistencia de {student} el {date}",
-        "excusedLetter": "J",
-        "cellDisabledNotEnrolledOnDate": "Este alumno no estaba inscripto en esta sección en esa fecha (alta posterior, transferencia o baja). No corresponde marcar asistencia ese día.",
-        "cellDisabledInactive": "Este alumno ya no está activo en la sección.",
-        "cellDisabledExcused": "Justificada por administración — solo lectura aquí.",
-        "cellDisabledFuture": "Esa clase es futura.",
-        "cellDisabledPast": "Esa fecha está fuera de la ventana editable.",
-        "keyboardHint": "Toque una celda para alternar Presente → Ausente → Tarde → Presente. Use P, A o T después de enfocar una celda.",
-        "keyboardHintAdmin": "Toque una celda para alternar Presente → Ausente → Tarde → Justificada → Presente. Use P, A, T o E después de enfocar una celda.",
-        "editingPastDayBanner": "Está editando un día de clase pasado. Los cambios se guardan automáticamente.",
-        "datesTruncatedNote": "Mostrando la ventana operativa. Cambie a curso completo para ver todos los días de clase.",
-        "datesTruncatedNewest": "Mostrando los días de clase más recientes dentro del período de la sección.",
-        "undoPrompt": "Columna marcada como presente. ¿Quiere deshacer solo las filas que acabamos de insertar?",
-        "undoAction": "Deshacer este completado",
-        "undoError": "No se pudo deshacer. Intente de nuevo.",
-        "autosaveError": "No se pudo guardar — sus cambios quedan en este dispositivo. Intente cuando vuelva a tener conexión.",
-        "bulkError": "No se pudo marcar la columna como presente.",
-        "bulkNothingToFill": "Todos los alumnos de ese día ya tienen un registro.",
-        "columnFillDisabled": "Esta columna no se puede completar en bloque.",
-        "columnFillTooltip": "Marcar como presente a todos los alumnos aún sin registrar en esta columna.",
-        "columnFillAria": "Marcar a todos los alumnos vacíos como presentes para {date}",
-        "viewTabsAria": "Vista de asistencia",
-        "viewSheet": "Planilla",
-        "viewCalendar": "Calendario",
-        "calendarTitle": "Calendario de clases",
-        "calendarHint": "Toque un día de clase para saltar a esa columna en la planilla.",
-        "studentColumnSort": {
-          "sortAsc": "orden ascendente",
-          "sortDesc": "orden descendente",
-          "sortNeutral": "sin orden en esta columna"
-        }
       }
     },
     "academicSectionAttendance": {
@@ -4439,7 +4553,7 @@
         "todayUtcNote": "El día de la semana sigue el calendario UTC, el mismo criterio que la herramienta de asistencia.",
         "todayEmpty": "Hoy no hay bloques de clase programados en tu calendario docente.",
         "takeAttendanceCta": "Tomar asistencia",
-      "openAssessmentsCta": "Evaluar",
+        "openAssessmentsCta": "Evaluar",
         "gradesTitle": "Promedio de notas publicadas por sección",
         "gradesHint": "Media de los promedios publicados por matrícula activa. Vacío si tu rol aún no ve calificaciones.",
         "gradesEmpty": "No tenés secciones asignadas.",
@@ -4447,8 +4561,8 @@
         "gradesColAvg": "Promedio",
         "gradesColLink": "Abrir",
         "gradesNoData": "—",
-      "gradesOpenSection": "Sección",
-      "gradesOpenAssessments": "Evaluaciones"
+        "gradesOpenSection": "Sección",
+        "gradesOpenAssessments": "Evaluaciones"
       },
       "messagesTitle": "Mensajes",
       "messagesLead": "Podés escribir a alumnos, tutores, docentes o administración. Respondé a alumnos y tutores abajo; cada respuesta es un mensaje nuevo.",

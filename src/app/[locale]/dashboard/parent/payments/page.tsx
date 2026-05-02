@@ -161,6 +161,7 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
       studentLabels={dict.dashboard.student}
       submitReceiptAction={submitTutorPaymentReceipt}
       submitEnrollmentFeeReceiptAction={submitTutorEnrollmentFeeReceipt}
+      fileUploadProgress={dict.common.fileUpload}
     />
   );
 }

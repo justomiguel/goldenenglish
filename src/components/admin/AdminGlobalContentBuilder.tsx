@@ -11,6 +11,7 @@ import {
   AdminGlobalContentMaterialsPanel,
   type AdminGlobalDraftMaterial,
 } from "@/components/admin/AdminGlobalContentMaterialsPanel";
+import { mapExistingMaterials } from "@/components/admin/adminGlobalContentBuilderMapMaterials";
 import {
   cleanupGlobalContentPendingUploadAction,
   saveGlobalContentBuilderMetadataAction,
@@ -19,6 +20,7 @@ import { performGlobalMaterialFileUpload } from "@/components/admin/performGloba
 import { validateLearningTaskFile } from "@/lib/learning-tasks/assets";
 import type { ContentTemplateLibraryRow } from "@/lib/learning-tasks/loadContentTemplateLibrary";
 import type { Dictionary } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 
 type Labels = Dictionary["dashboard"]["adminContents"];
 
@@ -26,24 +28,15 @@ interface AdminGlobalContentBuilderProps {
   locale: string;
   labels: Labels;
   editingContent: ContentTemplateLibraryRow | null;
+  fileUploadProgress: FileUploadProgressLabels;
   onSaved?: (id: string) => void;
-}
-
-function mapExistingMaterials(content: ContentTemplateLibraryRow): AdminGlobalDraftMaterial[] {
-  return content.assets.map((asset) => ({
-    id: asset.id,
-    existingAssetId: asset.id,
-    kind: asset.kind,
-    label: asset.label,
-    url: asset.embedUrl ?? undefined,
-    contentType: asset.mimeType ?? undefined,
-  }));
 }
 
 export function AdminGlobalContentBuilder({
   locale,
   labels,
   editingContent,
+  fileUploadProgress,
   onSaved,
 }: AdminGlobalContentBuilderProps) {
   const [title, setTitle] = useState(editingContent?.title ?? "");
@@ -227,7 +220,21 @@ export function AdminGlobalContentBuilder({
         <Label required>{labels.globalBodyLabel}</Label>
         <AcademicContentEditor value={bodyHtml} onChange={setBodyHtml} onImageUpload={uploadInlineImage} labels={labels} disabled={isUploading} />
       </div>
-      <AdminGlobalContentMaterialsPanel labels={labels} materials={materials} materialLabel={materialLabel} embedUrl={embedUrl} isUploading={isUploading} onMaterialLabelChange={setMaterialLabel} onEmbedUrlChange={setEmbedUrl} onAddEmbed={addEmbed} onAddFiles={(files) => void addFiles(files)} onReorderMaterials={setMaterials} onMoveMaterial={moveMaterial} onRemoveMaterial={removeMaterial} />
+      <AdminGlobalContentMaterialsPanel
+        labels={labels}
+        materials={materials}
+        materialLabel={materialLabel}
+        embedUrl={embedUrl}
+        isUploading={isUploading}
+        fileUploadProgress={fileUploadProgress}
+        onMaterialLabelChange={setMaterialLabel}
+        onEmbedUrlChange={setEmbedUrl}
+        onAddEmbed={addEmbed}
+        onAddFiles={(files) => void addFiles(files)}
+        onReorderMaterials={setMaterials}
+        onMoveMaterial={moveMaterial}
+        onRemoveMaterial={removeMaterial}
+      />
       {error ? <p className="text-sm text-[var(--color-error)]">{error}</p> : null}
       <Button type="button" isLoading={isPending} disabled={!title.trim() || isUploading} onClick={save}>
         {isPending ? null : <Save className="h-4 w-4 shrink-0" aria-hidden />}

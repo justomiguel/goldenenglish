@@ -49,4 +49,16 @@ describe("LanguageSwitcher", () => {
     expect(container.querySelector("svg")).toBeNull();
     expect(screen.getByRole("link", { name: "EN" })).toHaveAttribute("href", "/en");
   });
+
+  it("compactDark variant omits globe and maps hrefs", () => {
+    mockPathname.mockReturnValue("/es/dashboard");
+    const { container } = render(
+      <LanguageSwitcher locale="en" labels={labels} variant="compactDark" />,
+    );
+    expect(container.querySelector("svg")).toBeNull();
+    expect(screen.getByRole("link", { name: "ES" })).toHaveAttribute(
+      "href",
+      "/es/dashboard",
+    );
+  });
 });

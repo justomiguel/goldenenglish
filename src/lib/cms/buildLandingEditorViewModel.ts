@@ -4,14 +4,16 @@ import type {
   LandingSectionSlug,
   SiteThemeContent,
   SiteThemeMediaRow,
+  SiteThemeKind,
 } from "@/types/theming";
 import { LANDING_SECTION_SLUGS } from "@/types/theming";
-import {
-  LANDING_COPY_KEYS_BY_SECTION,
-  LANDING_MEDIA_SLOTS_BY_SECTION,
-  type LandingOverrideLocale,
-} from "@/lib/cms/landingContentCatalog";
+import type { LandingOverrideLocale } from "@/lib/cms/landingContentCatalog";
 import { getLandingDefaultCopy } from "@/lib/cms/applyLandingContentOverrides";
+import {
+  landingCopyKeysForTheme,
+  landingMediaSlotsForTheme,
+} from "@/lib/cms/landingThemeEditorCatalog";
+import { mozarthitosSectionImageSrc } from "@/lib/landing/mozarthitosLandingImages";
 import { sectionImageSrc } from "@/lib/landing/sectionLandingImages";
 
 /** Resolves a Storage object path to its public URL. The server caller
@@ -48,7 +50,7 @@ export interface LandingMediaSlotDescriptor {
    *  server pre-computes this so client components do not need a function
    *  prop crossing the RSC boundary. */
   currentPublicUrl: string | null;
-  /** Bundled `/images/sections/<slug>/<position>.png` fallback URL. */
+  /** Bundled `/images/golden/<slug>/<position>.png` fallback URL. */
   fallbackPublicUrl: string;
 }
 
@@ -73,6 +75,8 @@ interface BuildArgs {
   content: SiteThemeContent | null | undefined;
   media: ReadonlyArray<SiteThemeMediaRow>;
   blocks: ReadonlyArray<LandingBlock>;
+  /** Landing shell (Golden classic/editorial/minimal vs Mozarthitos). */
+  templateKind?: SiteThemeKind;
   /** Optional resolver that turns a Storage path into a public URL. When
    *  omitted the resulting `currentPublicUrl` is `null` (e.g. unit tests, or
    *  environments without Supabase env vars). */
@@ -93,11 +97,14 @@ function getOverrideValue(
   return typeof value === "string" && value.length > 0 ? value : null;
 }
 
+const DEFAULT_TEMPLATE_KIND: SiteThemeKind = "classic";
+
 export function buildLandingSectionEditorViewModel(
   section: LandingSectionSlug,
   args: BuildArgs,
 ): LandingSectionEditorViewModel {
-  const editableKeys = LANDING_COPY_KEYS_BY_SECTION[section];
+  const kind = args.templateKind ?? DEFAULT_TEMPLATE_KIND;
+  const editableKeys = landingCopyKeysForTheme(kind, section);
   const copy: LandingCopyFieldDescriptor[] = editableKeys.map((key) => ({
     key,
     defaults: {
@@ -110,7 +117,7 @@ export function buildLandingSectionEditorViewModel(
     },
   }));
 
-  const slotsTotal = LANDING_MEDIA_SLOTS_BY_SECTION[section];
+  const slotsTotal = landingMediaSlotsForTheme(kind, section);
   const sectionMedia = args.media.filter((row) => row.section === section);
   const resolveUrl = args.resolveMediaPublicUrl ?? NULL_PUBLIC_URL_RESOLVER;
   const media: LandingMediaSlotDescriptor[] = [];
@@ -120,7 +127,10 @@ export function buildLandingSectionEditorViewModel(
       position,
       current,
       currentPublicUrl: current ? resolveUrl(current.storagePath) : null,
-      fallbackPublicUrl: sectionImageSrc(section, `${position}.png`),
+      fallbackPublicUrl:
+        kind === "mozarthitos"
+          ? mozarthitosSectionImageSrc(section, `${position}.png`)
+          : sectionImageSrc(section, `${position}.png`),
     });
   }
 

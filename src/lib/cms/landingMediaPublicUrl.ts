@@ -1,10 +1,9 @@
 import "server-only";
 
 import { readSupabasePublicEnv } from "@/lib/supabase/publicEnv";
+import { LANDING_MEDIA_BUCKET } from "@/lib/cms/landingMediaBucket";
 
-/** Bucket name used by the landing CMS for image overrides (matches the
- *  migration `046_site_themes.sql`). */
-export const LANDING_MEDIA_BUCKET = "landing-media";
+export { LANDING_MEDIA_BUCKET };
 
 /**
  * Builds a function that, given a storage object path inside the

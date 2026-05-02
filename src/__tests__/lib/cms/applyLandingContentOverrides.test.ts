@@ -18,6 +18,9 @@ describe("getLandingDefaultCopy", () => {
     expect(getLandingDefaultCopy(en, "modalities.presencial.b2")).toContain(
       "Printed",
     );
+    expect(getLandingDefaultCopy(en, "studentGallery.album1PhotoIndexes")).toBe(
+      "0, 1",
+    );
   });
 
   it("returns '' for non-string paths", () => {

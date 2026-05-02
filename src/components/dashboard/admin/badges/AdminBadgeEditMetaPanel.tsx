@@ -5,6 +5,7 @@ import { Award } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { AdminBadgeImageEditor } from "@/components/dashboard/admin/badges/AdminBadgeImageEditor";
 import type { AdminBadgesDict } from "@/components/dashboard/admin/badges/AdminBadgeFormFields";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 
 export interface AdminBadgeEditMetaPanelProps {
   locale: string;
@@ -13,12 +14,23 @@ export interface AdminBadgeEditMetaPanelProps {
   isActive: boolean;
   imageUrl: string | null;
   labels: AdminBadgesDict;
+  fileUploadProgress: FileUploadProgressLabels;
   pending: boolean;
   onTogglePause: () => void;
 }
 
 export function AdminBadgeEditMetaPanel(props: AdminBadgeEditMetaPanelProps) {
-  const { locale, badgeId, code, isActive, imageUrl, labels, pending, onTogglePause } = props;
+  const {
+    locale,
+    badgeId,
+    code,
+    isActive,
+    imageUrl,
+    labels,
+    fileUploadProgress,
+    pending,
+    onTogglePause,
+  } = props;
   return (
     <section className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
       <div className="flex items-start gap-3">
@@ -52,6 +64,7 @@ export function AdminBadgeEditMetaPanel(props: AdminBadgeEditMetaPanelProps) {
         badgeId={badgeId}
         currentImageUrl={imageUrl}
         labels={labels}
+        fileUploadProgress={fileUploadProgress}
         disabled={pending}
       />
     </section>

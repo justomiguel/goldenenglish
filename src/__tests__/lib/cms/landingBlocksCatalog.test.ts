@@ -37,6 +37,8 @@ describe("type guards", () => {
   it("isSiteThemeKind only accepts the v1 enum values", () => {
     expect(isSiteThemeKind("classic")).toBe(true);
     expect(isSiteThemeKind("editorial")).toBe(true);
+    expect(isSiteThemeKind("minimal")).toBe(true);
+    expect(isSiteThemeKind("mozarthitos")).toBe(true);
     expect(isSiteThemeKind("brutalist")).toBe(false);
   });
 });

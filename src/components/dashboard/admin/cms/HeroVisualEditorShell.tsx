@@ -15,6 +15,7 @@ import type {
 import type { LandingSectionEditorViewModel } from "@/lib/cms/buildLandingEditorViewModel";
 import type { LandingOverrideLocale } from "@/lib/cms/landingContentCatalog";
 import type { Dictionary } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { SiteThemeRow } from "@/types/theming";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { HeroVisualEditorShellTop } from "./HeroVisualEditorShellTop";
@@ -32,6 +33,7 @@ type Labels = Dictionary["admin"]["cms"]["templates"]["landing"];
 export interface HeroVisualEditorShellProps {
   locale: string;
   labels: Labels;
+  fileUploadProgress: FileUploadProgressLabels;
   theme: SiteThemeRow;
   section: LandingSectionEditorViewModel;
   brandName: string;
@@ -40,6 +42,7 @@ export interface HeroVisualEditorShellProps {
 export function HeroVisualEditorShell({
   locale,
   labels,
+  fileUploadProgress,
   theme,
   section,
   brandName,
@@ -208,6 +211,7 @@ export function HeroVisualEditorShell({
                   section={section.section}
                   slot={slot}
                   labels={labels}
+                  fileUploadProgress={fileUploadProgress}
                   onChanged={() => router.refresh()}
                 />
               ))}

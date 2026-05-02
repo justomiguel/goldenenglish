@@ -130,7 +130,11 @@ describe("student portal components", () => {
   it("StudentPaymentForm submits", async () => {
     const user = userEvent.setup();
     const { container } = render(
-      <StudentPaymentForm locale="es" labels={dictEn.dashboard.student} />,
+      <StudentPaymentForm
+        locale="es"
+        labels={dictEn.dashboard.student}
+        fileUploadProgress={dictEn.common.fileUpload}
+      />,
     );
     await user.type(screen.getByLabelText(dictEn.dashboard.student.payAmount), "100");
     const file = new File([new Uint8Array([1])], "r.pdf", { type: "application/pdf" });

@@ -114,6 +114,8 @@ describe("Tier A dashboard entries", () => {
         labels={dictEn.dashboard.parent}
         studentLabels={dictEn.dashboard.student}
         submitReceiptAction={vi.fn()}
+        submitEnrollmentFeeReceiptAction={vi.fn()}
+        fileUploadProgress={dictEn.common.fileUpload}
       />,
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Payments");

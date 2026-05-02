@@ -25,6 +25,7 @@ export function buildBrandForPreview(brand: EmailTemplatesShellBrand): BrandPubl
     logoPath: brand.logoPath,
     logoAlt: brand.logoAlt,
     faviconPath: "",
+    faviconBundlePrefix: null,
     contactEmail: brand.contactEmail,
     contactPhone: "",
     contactAddress: brand.contactAddress,

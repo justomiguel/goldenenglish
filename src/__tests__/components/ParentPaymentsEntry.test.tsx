@@ -68,6 +68,7 @@ describe("ParentPaymentsEntry", () => {
         studentLabels={studentLabels}
         submitReceiptAction={vi.fn()}
         submitEnrollmentFeeReceiptAction={vi.fn()}
+        fileUploadProgress={dictEn.common.fileUpload}
       />,
     );
     expect(
@@ -94,6 +95,7 @@ describe("ParentPaymentsEntry", () => {
         studentLabels={studentLabels}
         submitReceiptAction={vi.fn()}
         submitEnrollmentFeeReceiptAction={vi.fn()}
+        fileUploadProgress={dictEn.common.fileUpload}
       />,
     );
     expect(screen.getAllByLabelText(labels.paymentsPickerLabel).length).toBeGreaterThan(0);
@@ -121,6 +123,7 @@ describe("ParentPaymentsEntry", () => {
         studentLabels={studentLabels}
         submitReceiptAction={vi.fn()}
         submitEnrollmentFeeReceiptAction={vi.fn()}
+        fileUploadProgress={dictEn.common.fileUpload}
       />,
     );
     expect(

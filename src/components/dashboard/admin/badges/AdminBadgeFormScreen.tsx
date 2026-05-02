@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft, Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import type { Dictionary } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { BadgeCategory, BadgeCriteriaType } from "@/lib/badges/badgeCatalog";
 import { createBadgeAction } from "@/app/[locale]/dashboard/admin/badges/createBadgeAction";
 import {
@@ -50,10 +51,11 @@ export interface AdminBadgeFormScreenProps {
   adminNav: Dictionary["dashboard"]["adminNav"];
   initial: AdminBadgeFormInitial | null;
   preview: SharePreviewStaticProps;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
 export function AdminBadgeFormScreen(props: AdminBadgeFormScreenProps) {
-  const { mode, locale, labels, adminNav, initial, preview } = props;
+  const { mode, locale, labels, adminNav, initial, preview, fileUploadProgress } = props;
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -166,6 +168,7 @@ export function AdminBadgeFormScreen(props: AdminBadgeFormScreenProps) {
           isActive={initial.isActive}
           imageUrl={initial.imageUrl}
           labels={labels}
+          fileUploadProgress={fileUploadProgress}
           pending={pending}
           onTogglePause={onTogglePause}
         />

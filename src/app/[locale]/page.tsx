@@ -9,11 +9,13 @@ import { LandingScreenDesktop } from "@/components/desktop/organisms/LandingScre
 import { LandingMainSections } from "@/components/organisms/LandingMainSections";
 import { LandingMainSectionsEditorial } from "@/components/organisms/LandingMainSectionsEditorial";
 import { LandingMainSectionsMinimal } from "@/components/organisms/LandingMainSectionsMinimal";
+import { LandingMainSectionsMozarthitos } from "@/components/organisms/LandingMainSectionsMozarthitos";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
 import { buildLandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import { groupBlocksBySection } from "@/lib/cms/landingBlocksCatalog";
+import { loadFirstRunWizardMode } from "@/lib/site/loadFirstRunWizardMode";
 
 /** Session must reflect cookies each request (avoid stale static HTML). */
 export const dynamic = "force-dynamic";
@@ -36,12 +38,16 @@ export default async function HomePage({ params }: HomePageProps) {
     ]);
 
   if (needsInitialSiteSetup) {
+    const wizardMode = await loadFirstRunWizardMode();
+    const bootstrapAccountPending = wizardMode === "bootstrap_account";
+
     return (
       <LandingGreenfieldSurfaceGate
         brand={brand}
         dict={baseDict}
         locale={locale}
         sessionEmail={sessionEmail}
+        bootstrapAccountPending={bootstrapAccountPending}
         main={<LandingGreenfieldPendingMain locale={locale} dict={baseDict} />}
       />
     );
@@ -61,6 +67,7 @@ export default async function HomePage({ params }: HomePageProps) {
     ? groupBlocksBySection(activeTheme.theme.blocks)
     : undefined;
   const templateKind = activeTheme?.theme.templateKind ?? "classic";
+  const suppressLandingChrome = templateKind === "mozarthitos";
 
   const sharedShellProps = {
     dict,
@@ -77,6 +84,8 @@ export default async function HomePage({ params }: HomePageProps) {
       <LandingMainSectionsEditorial {...sharedShellProps} />
     ) : templateKind === "minimal" ? (
       <LandingMainSectionsMinimal {...sharedShellProps} />
+    ) : templateKind === "mozarthitos" ? (
+      <LandingMainSectionsMozarthitos {...sharedShellProps} />
     ) : (
       <LandingMainSections {...sharedShellProps} />
     );
@@ -89,6 +98,8 @@ export default async function HomePage({ params }: HomePageProps) {
           dict={dict}
           locale={locale}
           sessionEmail={sessionEmail}
+          suppressHeader={suppressLandingChrome}
+          mozarthitosShell={suppressLandingChrome}
         >
           {main}
         </LandingScreenDesktop>
@@ -98,6 +109,8 @@ export default async function HomePage({ params }: HomePageProps) {
       dict={dict}
       locale={locale}
       sessionEmail={sessionEmail}
+      suppressPwaHeader={suppressLandingChrome}
+      mozarthitosShell={suppressLandingChrome}
     />
   );
 }

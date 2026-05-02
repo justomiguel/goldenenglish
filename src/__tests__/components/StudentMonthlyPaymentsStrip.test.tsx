@@ -73,6 +73,7 @@ function renderStrip(
       submitAction={submitAction}
       submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceiptAction}
       receiptExpectedUsesFullMonth={receiptExpectedUsesFullMonth}
+      fileUploadProgress={dictEn.common.fileUpload}
     />,
   );
 }

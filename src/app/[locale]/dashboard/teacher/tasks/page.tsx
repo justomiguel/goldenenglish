@@ -30,6 +30,7 @@ export default async function TeacherTaskLibraryPage({ params }: PageProps) {
       locale={locale}
       templates={templates}
       labels={dict.dashboard.teacherMySections}
+      fileUploadProgress={dict.common.fileUpload}
     />
   );
 }

@@ -13,6 +13,7 @@ import {
   type SubmitEnrollmentFeeReceiptAction,
 } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import type { Dictionary, Locale } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type {
   StudentMonthlyPaymentsView,
   StudentMonthlyPaymentSectionRow,
@@ -81,6 +82,7 @@ export interface StudentMonthlyPaymentsStripProps {
   submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
   /** Solo alumno: monto esperado del comprobante = mes completo (sin prorrateo). */
   receiptExpectedUsesFullMonth?: boolean;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
 export function StudentMonthlyPaymentsStrip({
@@ -92,6 +94,7 @@ export function StudentMonthlyPaymentsStrip({
   submitAction,
   submitEnrollmentFeeReceiptAction,
   receiptExpectedUsesFullMonth = false,
+  fileUploadProgress,
 }: StudentMonthlyPaymentsStripProps) {
   const router = useRouter();
   const [focus, setFocus] = useState<FocusKey | null>(() => pickInitialFocus(view));
@@ -205,6 +208,7 @@ export function StudentMonthlyPaymentsStrip({
                 receiptStatus={row.enrollmentFeeReceiptStatus}
                 receiptSignedUrl={row.enrollmentFeeReceiptSignedUrl}
                 labels={labels}
+                fileUploadProgress={fileUploadProgress}
                 submitAction={submitEnrollmentFeeReceiptAction}
                 onSubmitted={() => router.refresh()}
               />
@@ -223,6 +227,7 @@ export function StudentMonthlyPaymentsStrip({
           labels={labels}
           paymentLabels={paymentLabels}
           submitAction={submitAction}
+          fileUploadProgress={fileUploadProgress}
           receiptExpectedUsesFullMonth={receiptExpectedUsesFullMonth}
           onSubmitted={() => router.refresh()}
         />

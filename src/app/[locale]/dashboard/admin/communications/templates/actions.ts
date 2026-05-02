@@ -15,6 +15,7 @@ import {
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { isKnownEmailTemplateKey } from "@/lib/email/templates/templateRegistry";
 import { sanitizeEmailTemplateHtml } from "@/lib/email/sanitizeEmailTemplateHtml";
+import { isEmailTemplatesMegaAdmin } from "@/lib/auth/emailTemplatesMegaAdmin";
 
 export type EmailTemplateActionErrorCode =
   | "unauthorized"
@@ -60,6 +61,10 @@ export async function saveEmailTemplateAction(
 
   try {
     const { supabase, user } = await assertAdmin();
+    if (!isEmailTemplatesMegaAdmin(user.email)) {
+      logServerAuthzDenied("saveEmailTemplate:notMegaAdmin");
+      return { ok: false, code: "forbidden" };
+    }
     const upsert = await supabase
       .from("email_templates")
       .upsert(
@@ -130,7 +135,11 @@ export async function resetEmailTemplateAction(
   }
 
   try {
-    const { supabase } = await assertAdmin();
+    const { supabase, user } = await assertAdmin();
+    if (!isEmailTemplatesMegaAdmin(user.email)) {
+      logServerAuthzDenied("resetEmailTemplate:notMegaAdmin");
+      return { ok: false, code: "forbidden" };
+    }
     const del = await supabase
       .from("email_templates")
       .delete()

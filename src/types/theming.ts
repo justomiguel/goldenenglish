@@ -45,7 +45,12 @@ export type SiteThemeContent = Partial<
  *  - 'classic'   = layout original (orden hero → story → modalidades …).
  *  - 'editorial' = shell full-bleed con bandas y agrupaciones densas.
  *  - 'minimal'   = shell aireado, secciones centradas y separadas por mucho whitespace. */
-export const SITE_THEME_KINDS = ["classic", "editorial", "minimal"] as const;
+export const SITE_THEME_KINDS = [
+  "classic",
+  "editorial",
+  "minimal",
+  "mozarthitos",
+] as const;
 
 export type SiteThemeKind = (typeof SITE_THEME_KINDS)[number];
 

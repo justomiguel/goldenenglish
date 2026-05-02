@@ -1,10 +1,13 @@
 {
   "golden": {
     "orgId": "team_RhplHDHqMH5tDbU3eFO9WYxg",
-    "projectId": "prj_M7zsN0yF7kpeZy4CKoJbdhXqiiXM"
+    "projectId": "prj_M7zsN0yF7kpeZy4CKoJbdhXqiiXM",
+    "projectName": "goldenenglish"
   },
   "mozarthitos": {
     "orgId": "team_RhplHDHqMH5tDbU3eFO9WYxg",
-    "projectId": "prj_hCduA05GG5GT8t5aYVqpxeb8aI7Q"
+    "projectId": "prj_hCduA05GG5GT8t5aYVqpxeb8aI7Q",
+    "projectName": "mozarthitos",
+    "envPullEnvironment": "production"
   }
 }

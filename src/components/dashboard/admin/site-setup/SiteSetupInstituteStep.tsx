@@ -114,7 +114,7 @@ export function SiteSetupInstituteStep({
         <input
           id="site-favicon"
           type="file"
-          accept="image/png,image/jpeg,image/webp"
+          accept="image/png,image/jpeg,image/webp,.ico,.zip,application/zip,application/x-zip-compressed"
           className="mt-1 block w-full text-sm text-[var(--color-muted-foreground)] file:mr-3 file:rounded-[var(--layout-border-radius)] file:border file:border-[var(--color-border)] file:bg-[var(--color-background)] file:px-3 file:py-2 file:text-sm file:text-[var(--color-foreground)]"
           onChange={(e) => setFaviconFile(e.target.files?.[0] ?? null)}
         />

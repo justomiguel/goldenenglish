@@ -13,6 +13,8 @@ interface AdminDashboardShellProps {
   newRegistrationsCount: number;
   adminProfileRole: string;
   teacherPortalAllowed: boolean;
+  /** Mega-admin only: show Communications → Email templates in nav. */
+  includeEmailTemplatesNav?: boolean;
   /** When true, sidebar/breadcrumb hidden (initial site setup wizard). */
   siteSetupRequired?: boolean;
   children: ReactNode;
@@ -25,6 +27,7 @@ export function AdminDashboardShell({
   newRegistrationsCount,
   adminProfileRole,
   teacherPortalAllowed,
+  includeEmailTemplatesNav = false,
   siteSetupRequired = false,
   children,
 }: AdminDashboardShellProps) {
@@ -65,6 +68,7 @@ export function AdminDashboardShell({
             locale={locale}
             dict={navDict}
             newRegistrationsCount={newRegistrationsCount}
+            includeEmailTemplatesNav={includeEmailTemplatesNav}
             teacherNav={teacherNav}
           />
         )}

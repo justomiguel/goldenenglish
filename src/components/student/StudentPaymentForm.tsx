@@ -6,7 +6,9 @@ import { submitStudentPaymentReceipt } from "@/app/[locale]/dashboard/student/pa
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import type { Dictionary, Locale } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 
 type StudentPayLabels = Dictionary["dashboard"]["student"];
 
@@ -15,9 +17,10 @@ const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 interface StudentPaymentFormProps {
   locale: Locale;
   labels: StudentPayLabels;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
-export function StudentPaymentForm({ locale, labels }: StudentPaymentFormProps) {
+export function StudentPaymentForm({ locale, labels, fileUploadProgress }: StudentPaymentFormProps) {
   const [month, setMonth] = useState(1);
   const [year, setYear] = useState(2026);
   const [amount, setAmount] = useState("");
@@ -99,6 +102,7 @@ export function StudentPaymentForm({ locale, labels }: StudentPaymentFormProps) 
             required
             aria-label={labels.payReceipt}
             className="sr-only"
+            disabled={busy}
             onChange={(e) => {
               const f = e.target.files?.[0];
               setReceiptFileName(f?.name ?? null);
@@ -120,6 +124,13 @@ export function StudentPaymentForm({ locale, labels }: StudentPaymentFormProps) 
           </p>
         </div>
       </fieldset>
+      {busy ? (
+        <InlineUploadProgressBar
+          label={fileUploadProgress.progressSending}
+          indeterminate
+          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+        />
+      ) : null}
       <Button type="submit" disabled={busy} isLoading={busy} className="min-h-[44px] w-full sm:w-auto">
         {!busy ? <CreditCard className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {labels.paySubmit}

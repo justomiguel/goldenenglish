@@ -4,14 +4,14 @@ import "./vargasWizardDesignTokens.css";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import type { Dictionary } from "@/types/i18n";
-import { completeInitialSiteSetupAction } from "@/app/[locale]/dashboard/admin/site-setup/siteSetupActions";
-import { SiteSetupContactStep } from "@/components/dashboard/admin/site-setup/SiteSetupContactStep";
-import { SiteSetupInstituteStep } from "@/components/dashboard/admin/site-setup/SiteSetupInstituteStep";
-import { SiteSetupIntroStep } from "@/components/dashboard/admin/site-setup/SiteSetupIntroStep";
-import { SiteSetupReviewStep } from "@/components/dashboard/admin/site-setup/SiteSetupReviewStep";
 import { SiteSetupWizardErrorAlert } from "@/components/dashboard/admin/site-setup/SiteSetupWizardErrorAlert";
-import { SiteSetupWizardNav } from "@/components/dashboard/admin/site-setup/SiteSetupWizardNav";
-import { readImageFileAsBase64 } from "@/components/dashboard/admin/site-setup/readImageFileAsBase64";
+import { SiteSetupWizardStepPanels } from "@/components/dashboard/admin/site-setup/SiteSetupWizardStepPanels";
+import {
+  submitSiteSetupWizardClient,
+  type SiteSetupWizardSubmitProgress,
+} from "@/components/dashboard/admin/site-setup/submitSiteSetupWizardClient";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
+
 type SiteSetupDict = Dictionary["dashboard"]["siteSetup"];
 
 interface SiteSetupWizardProps {
@@ -50,6 +50,9 @@ export function SiteSetupWizard({
   const [socialFacebook, setSocialFacebook] = useState("");
   const [socialInstagram, setSocialInstagram] = useState("");
   const [socialWhatsapp, setSocialWhatsapp] = useState("");
+
+  const [submitProgress, setSubmitProgress] =
+    useState<SiteSetupWizardSubmitProgress | null>(null);
 
   const stepLabel = useMemo(() => {
     return labels.stepLabel
@@ -108,31 +111,29 @@ export function SiteSetupWizard({
     }
     setBusy(true);
     setErrorKey(null);
+    setSubmitProgress(null);
     try {
-      const logoData = await readImageFileAsBase64(logoFile);
-      const favData = await readImageFileAsBase64(faviconFile);
       const alt = logoAlt.trim() || appName.trim();
-      const res = await completeInitialSiteSetupAction({
+      const result = await submitSiteSetupWizardClient({
         locale,
         themeId,
-        appName: appName.trim(),
-        legalName: legalName.trim(),
-        tagline: tagline.trim(),
-        taglineEn: taglineEn.trim() || undefined,
+        logoFile,
+        faviconFile,
         logoAlt: alt,
-        contactEmail: contactEmail.trim(),
-        contactPhone: contactPhone.trim(),
-        contactAddress: contactAddress.trim(),
-        socialFacebook: socialFacebook.trim() || undefined,
-        socialInstagram: socialInstagram.trim() || undefined,
-        socialWhatsapp: socialWhatsapp.trim() || undefined,
-        logoContentType: logoData.mime || "image/png",
-        logoBase64: logoData.base64,
-        faviconContentType: favData.mime || "image/png",
-        faviconBase64: favData.base64,
+        appName,
+        legalName,
+        tagline,
+        taglineEn,
+        contactEmail,
+        contactPhone,
+        contactAddress,
+        socialFacebook,
+        socialInstagram,
+        socialWhatsapp,
+        onProgress: setSubmitProgress,
       });
-      if (!res.ok) {
-        setErrorKey(res.code);
+      if (!result.ok) {
+        setErrorKey(result.code);
         return;
       }
       router.replace(`/${locale}/dashboard/admin`);
@@ -141,6 +142,7 @@ export function SiteSetupWizard({
       setErrorKey("generic");
     } finally {
       setBusy(false);
+      setSubmitProgress(null);
     }
   };
 
@@ -171,69 +173,55 @@ export function SiteSetupWizard({
         <SiteSetupWizardErrorAlert message={errorMessage} />
       ) : null}
 
-      <div className="vw-wizard-card mt-8 rounded-[var(--layout-border-radius)] p-6">
-        {step === 0 ? <SiteSetupIntroStep labels={labels.intro} /> : null}
-        {step === 1 ? (
-          <SiteSetupInstituteStep
-            labels={labels.institute}
-            appName={appName}
-            setAppName={setAppName}
-            legalName={legalName}
-            setLegalName={setLegalName}
-            tagline={tagline}
-            setTagline={setTagline}
-            taglineEn={taglineEn}
-            setTaglineEn={setTaglineEn}
-            logoAlt={logoAlt}
-            setLogoAlt={setLogoAlt}
-            setLogoFile={setLogoFile}
-            setFaviconFile={setFaviconFile}
+      {submitProgress ? (
+        <div className="mt-4">
+          <InlineUploadProgressBar
+            className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-3 shadow-[var(--shadow-soft)]"
+            label={
+              submitProgress.phase === "reading"
+                ? labels.uploadProgressReading
+                : labels.uploadProgressSending
+            }
+            {...(submitProgress.phase === "reading"
+              ? { value: submitProgress.percent, indeterminate: false }
+              : { indeterminate: true })}
           />
-        ) : null}
-        {step === 2 ? (
-          <SiteSetupContactStep
-            contact={labels.contact}
-            social={labels.social}
-            contactEmail={contactEmail}
-            setContactEmail={setContactEmail}
-            contactPhone={contactPhone}
-            setContactPhone={setContactPhone}
-            contactAddress={contactAddress}
-            setContactAddress={setContactAddress}
-            socialFacebook={socialFacebook}
-            setSocialFacebook={setSocialFacebook}
-            socialInstagram={socialInstagram}
-            setSocialInstagram={setSocialInstagram}
-            socialWhatsapp={socialWhatsapp}
-            setSocialWhatsapp={setSocialWhatsapp}
-          />
-        ) : null}
-        {step === 3 ? (
-          <SiteSetupReviewStep
-            labels={labels.review}
-            appName={appName}
-            legalName={legalName}
-            tagline={tagline}
-            contactEmail={contactEmail}
-            contactPhone={contactPhone}
-            contactAddress={contactAddress}
-            socialFacebook={socialFacebook}
-            socialInstagram={socialInstagram}
-            socialWhatsapp={socialWhatsapp}
-          />
-        ) : null}
+        </div>
+      ) : null}
 
-        <SiteSetupWizardNav
-          step={step}
-          totalSteps={STEPS}
-          labelsButtons={labels.buttons}
-          introContinue={labels.intro.continue}
-          busy={busy}
-          onBack={goBack}
-          onNext={goNext}
-          onFinish={finish}
-        />
-      </div>
+      <SiteSetupWizardStepPanels
+        step={step}
+        totalSteps={STEPS}
+        labels={labels}
+        busy={busy}
+        appName={appName}
+        setAppName={setAppName}
+        legalName={legalName}
+        setLegalName={setLegalName}
+        tagline={tagline}
+        setTagline={setTagline}
+        taglineEn={taglineEn}
+        setTaglineEn={setTaglineEn}
+        logoAlt={logoAlt}
+        setLogoAlt={setLogoAlt}
+        setLogoFile={setLogoFile}
+        setFaviconFile={setFaviconFile}
+        contactEmail={contactEmail}
+        setContactEmail={setContactEmail}
+        contactPhone={contactPhone}
+        setContactPhone={setContactPhone}
+        contactAddress={contactAddress}
+        setContactAddress={setContactAddress}
+        socialFacebook={socialFacebook}
+        setSocialFacebook={setSocialFacebook}
+        socialInstagram={socialInstagram}
+        setSocialInstagram={setSocialInstagram}
+        socialWhatsapp={socialWhatsapp}
+        setSocialWhatsapp={setSocialWhatsapp}
+        onBack={goBack}
+        onNext={goNext}
+        onFinish={finish}
+      />
 
       <p
         className="mt-6 text-center text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--color-primary)]"

@@ -20,6 +20,7 @@ export function neutralBrandForGreenfield(dict: Dictionary): BrandPublic {
     logoPath: resolveBrandAssetUrl(NEUTRAL_LOGO, NEUTRAL_LOGO),
     logoAlt: g.logoAlt,
     faviconPath: resolveBrandAssetUrl(NEUTRAL_FAV, NEUTRAL_FAV),
+    faviconBundlePrefix: null,
     contactEmail: "",
     contactPhone: "",
     contactAddress: "",

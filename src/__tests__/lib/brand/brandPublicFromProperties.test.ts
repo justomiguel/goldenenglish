@@ -30,6 +30,7 @@ describe("brandPublicFromProperties (pure)", () => {
       legalRegistry: "Resolución 1297/05",
       logoPath: "/images/logo.png",
       logoAlt: "Logo GE",
+      faviconBundlePrefix: null,
       faviconPath: "/favicon_io/favicon.ico",
       contactEmail: "info@example.com",
       contactPhone: "+54 9 0000 000-000",

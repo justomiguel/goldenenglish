@@ -9,6 +9,7 @@ import { AdminDashboardShell } from "@/components/dashboard/AdminDashboardShell"
 import { AdminCommandPalette } from "@/components/dashboard/AdminCommandPalette";
 import { loadNeedsInitialSiteSetup } from "@/lib/site/loadNeedsInitialSiteSetup";
 import { AdminInitialSiteSetupGate } from "@/components/dashboard/admin/site-setup/AdminInitialSiteSetupGate";
+import { isEmailTemplatesMegaAdmin } from "@/lib/auth/emailTemplatesMegaAdmin";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -63,6 +64,7 @@ export default async function AdminSectionLayout({
       newRegistrationsCount={count ?? 0}
       adminProfileRole={adminProfileRole}
       teacherPortalAllowed={teacherPortalAllowed}
+      includeEmailTemplatesNav={isEmailTemplatesMegaAdmin(user.email)}
       siteSetupRequired={needsInitialSiteSetup}
     >
       <AdminInitialSiteSetupGate

@@ -1,4 +1,5 @@
 import type { LandingSectionSlug } from "@/types/theming";
+import { MOZARTHITOS_EDITABLE_COPY_KEYS } from "@/lib/cms/landingMozarthitosCatalog";
 
 /**
  * Closed catalog of editable landing copy per section.
@@ -41,6 +42,9 @@ export const LANDING_COPY_KEYS_BY_SECTION: Readonly<
     "modalities.remota.b1",
     "modalities.remota.b2",
     "modalities.remota.b3",
+    /** 0-based indices into modalidades media slots (comma-separated). */
+    "studentGallery.album1PhotoIndexes",
+    "studentGallery.album2PhotoIndexes",
   ],
   niveles: [
     "levels.title",
@@ -69,9 +73,10 @@ export const LANDING_COPY_KEYS_BY_SECTION: Readonly<
   oferta: ["footerCta"],
 };
 
-const ALL_KEYS: ReadonlySet<string> = new Set(
-  Object.values(LANDING_COPY_KEYS_BY_SECTION).flat(),
-);
+const ALL_KEYS: ReadonlySet<string> = new Set([
+  ...Object.values(LANDING_COPY_KEYS_BY_SECTION).flat(),
+  ...MOZARTHITOS_EDITABLE_COPY_KEYS,
+]);
 
 /** Whether a dotted dict path under `landing.*` is editable from the CMS. */
 export function isEditableLandingCopyKey(path: string): boolean {
@@ -85,9 +90,11 @@ export const LANDING_MEDIA_SLOTS_BY_SECTION: Readonly<
 > = {
   inicio: 3,
   historia: 2,
-  modalidades: 4,
+  /** Pool for student gallery + register collage slots 1–4; more slots extend the gallery only. */
+  modalidades: 12,
   niveles: 0,
-  certificaciones: 0,
+  /** Three logos: UTN (1), marca Golden (2), Cambridge (3); see `LandingCertifications`. */
+  certificaciones: 3,
   oferta: 0,
 };
 

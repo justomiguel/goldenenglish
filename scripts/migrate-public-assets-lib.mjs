@@ -14,7 +14,11 @@ export const BUCKET = "landing-media";
 export const SECTION_LAYOUT = [
   { section: "inicio", files: ["1.png", "2.png", "3.png"] },
   { section: "historia", files: ["1.png", "2.png"] },
-  { section: "modalidades", files: ["1.png", "2.png", "3.png", "4.png"] },
+  {
+    section: "modalidades",
+    /** Keep length aligned with `LANDING_MEDIA_SLOTS_BY_SECTION.modalidades` in `landingContentCatalog.ts`. */
+    files: Array.from({ length: 12 }, (_, i) => `${i + 1}.png`),
+  },
 ];
 
 export const CERT_MARKERS = [
@@ -84,7 +88,7 @@ export function collectMigrationUploads(imagesRoot, faviconRoot, certDir) {
 
   for (const { section, files } of SECTION_LAYOUT) {
     for (const f of files) {
-      const local = path.join(imagesRoot, "sections", section, f);
+      const local = path.join(imagesRoot, "golden", section, f);
       if (fs.existsSync(local))
         uploads.push({ local, storageKey: "", contentType: mimeFor(local) });
     }
@@ -128,7 +132,7 @@ export function assignStorageKeys(uploads, themeId) {
     const relFromPublic = path.relative(path.join(ROOT, "public"), u.local);
     let keyPath = relFromPublic.split(path.sep).join("/");
     if (u.certDestName != null && u.slot != null) {
-      keyPath = `images/sections/certificaciones/${u.certDestName}`;
+      keyPath = `images/golden/certificaciones/${u.certDestName}`;
     }
     u.storageKey = `${themeId}/migration/${keyPath}`;
   }
@@ -146,7 +150,7 @@ export function buildMediaRows(themeId, uploads) {
         theme_id: themeId,
         section,
         position: pos,
-        storage_path: `${themeId}/migration/images/sections/${section}/${f}`,
+        storage_path: `${themeId}/migration/images/golden/${section}/${f}`,
       });
     }
   }
@@ -157,7 +161,7 @@ export function buildMediaRows(themeId, uploads) {
       theme_id: themeId,
       section: "certificaciones",
       position: slot,
-      storage_path: `${themeId}/migration/images/sections/certificaciones/${slot}.png`,
+      storage_path: `${themeId}/migration/images/golden/certificaciones/${slot}.png`,
     });
   }
 

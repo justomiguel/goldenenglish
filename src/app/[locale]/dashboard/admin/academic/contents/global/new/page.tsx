@@ -30,7 +30,7 @@ export default async function NewGlobalContentPage({ params }: PageProps) {
         <h1 className="mt-3 text-2xl font-semibold text-[var(--color-foreground)]">{labels.globalCreateTitle}</h1>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.globalFullPageLead}</p>
       </header>
-      <AdminGlobalContentBuilder locale={locale} labels={labels} editingContent={null} />
+      <AdminGlobalContentBuilder locale={locale} labels={labels} editingContent={null} fileUploadProgress={dict.common.fileUpload} />
     </main>
   );
 }

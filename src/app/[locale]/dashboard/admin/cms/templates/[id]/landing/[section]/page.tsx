@@ -66,6 +66,7 @@ export default async function AdminCmsLandingSectionPage({ params }: PageProps) 
     <LandingSectionEditorShell
       locale={locale}
       labels={labels}
+      fileUploadProgress={dict.common.fileUpload}
       theme={viewModel.theme}
       section={viewModel.section}
     />

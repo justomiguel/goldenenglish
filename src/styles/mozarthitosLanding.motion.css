@@ -1,0 +1,240 @@
+/* Mozarthitos landing — Elementor-like reveal motion (scoped under .mz-landing). */
+
+@keyframes mz-bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes mz-zoomInLeft {
+  0% {
+    opacity: 0;
+    transform: scale(0.55) translate3d(-48px, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes mz-fadeInRight {
+  from {
+    opacity: 0;
+    transform: translate3d(48px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes mz-fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translate3d(-48px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes mz-fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes mz-fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mz-slideInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 56px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.mz-landing .mz-reveal {
+  will-change: transform, opacity;
+}
+
+@media (max-width: 767px) {
+  .mz-landing .mz-reveal[data-preset="heroImage"]:not(.mz-reveal--in) {
+    opacity: 0;
+    transform: scale(0.55) translate3d(-48px, 0, 0);
+  }
+  .mz-landing .mz-reveal[data-preset="heroImage"].mz-reveal--in {
+    animation: mz-zoomInLeft 1s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+  }
+}
+
+@media (min-width: 768px) {
+  .mz-landing .mz-reveal[data-preset="heroImage"]:not(.mz-reveal--in) {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  .mz-landing .mz-reveal[data-preset="heroImage"].mz-reveal--in {
+    animation: mz-bounceIn 1s ease forwards;
+  }
+}
+
+@media (max-width: 767px) {
+  .mz-landing .mz-reveal[data-preset="heroTitle"]:not(.mz-reveal--in) {
+    opacity: 0;
+  }
+  .mz-landing .mz-reveal[data-preset="heroTitle"].mz-reveal--in {
+    animation: mz-fadeIn 1s ease forwards;
+  }
+}
+
+@media (min-width: 768px) {
+  .mz-landing .mz-reveal[data-preset="heroTitle"]:not(.mz-reveal--in) {
+    opacity: 0;
+    transform: translate3d(48px, 0, 0);
+  }
+  .mz-landing .mz-reveal[data-preset="heroTitle"].mz-reveal--in {
+    animation: mz-fadeInRight 1s ease forwards;
+  }
+}
+
+.mz-landing .mz-reveal[data-preset="quienesHeading"]:not(.mz-reveal--in) {
+  opacity: 0;
+  transform: translate3d(-48px, 0, 0);
+}
+
+.mz-landing .mz-reveal[data-preset="quienesHeading"].mz-reveal--in {
+  animation: mz-fadeInLeft 0.9s ease forwards;
+}
+
+.mz-landing .mz-reveal[data-preset="origenesCard"]:not(.mz-reveal--in),
+.mz-landing .mz-reveal[data-preset="llegadaCard"]:not(.mz-reveal--in),
+.mz-landing .mz-reveal[data-preset="bioTabs"]:not(.mz-reveal--in) {
+  opacity: 0;
+  transform: translate3d(-48px, 0, 0);
+}
+
+.mz-landing .mz-reveal[data-preset="origenesCard"].mz-reveal--in,
+.mz-landing .mz-reveal[data-preset="llegadaCard"].mz-reveal--in,
+.mz-landing .mz-reveal[data-preset="bioTabs"].mz-reveal--in {
+  animation: mz-fadeInLeft 0.9s ease forwards;
+}
+
+.mz-landing .mz-reveal[data-preset="bioPortrait"]:not(.mz-reveal--in) {
+  opacity: 0;
+  transform: translate3d(0, 40px, 0);
+}
+
+.mz-landing .mz-reveal[data-preset="bioPortrait"].mz-reveal--in {
+  animation: mz-fadeInUp 1s ease forwards;
+}
+
+.mz-landing .mz-reveal[data-preset="cursosAsideDesktop"]:not(.mz-reveal--in),
+.mz-landing .mz-reveal[data-preset="cursosAsideMobile"]:not(.mz-reveal--in) {
+  opacity: 0;
+  transform: translate3d(-48px, 0, 0);
+}
+
+.mz-landing .mz-reveal[data-preset="cursosAsideDesktop"].mz-reveal--in,
+.mz-landing .mz-reveal[data-preset="cursosAsideMobile"].mz-reveal--in {
+  animation: mz-fadeInLeft 1s ease forwards;
+}
+
+.mz-landing .mz-reveal[data-preset="cursosMainStack"]:not(.mz-reveal--in) {
+  opacity: 0;
+  transform: translate3d(48px, 0, 0);
+}
+
+.mz-landing .mz-reveal[data-preset="cursosMainStack"].mz-reveal--in {
+  animation: mz-fadeInRight 1s ease forwards;
+}
+
+.mz-landing .mz-reveal[data-preset="sedesIntro"]:not(.mz-reveal--in) {
+  opacity: 0;
+}
+
+.mz-landing .mz-reveal[data-preset="sedesIntro"].mz-reveal--in {
+  animation: mz-fadeIn 0.85s ease forwards;
+}
+
+.mz-landing .mz-reveal[data-preset="sedeDetail"]:not(.mz-reveal--in) {
+  opacity: 0;
+  transform: translate3d(0, 56px, 0);
+}
+
+.mz-landing .mz-reveal[data-preset="sedeDetail"].mz-reveal--in {
+  animation: mz-slideInUp 1s ease forwards;
+}
+
+.mz-landing .mz-reveal[data-preset="contactColLeft"]:not(.mz-reveal--in) {
+  opacity: 0;
+  transform: translate3d(-40px, 0, 0);
+}
+
+.mz-landing .mz-reveal[data-preset="contactColLeft"].mz-reveal--in {
+  animation: mz-fadeInLeft 0.95s ease forwards;
+}
+
+.mz-landing .mz-reveal[data-preset="contactColRight"]:not(.mz-reveal--in) {
+  opacity: 0;
+  transform: translate3d(40px, 0, 0);
+}
+
+.mz-landing .mz-reveal[data-preset="contactColRight"].mz-reveal--in {
+  animation: mz-fadeInRight 0.95s ease forwards;
+}
+
+.mz-landing .mz-btn-shrink {
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.mz-landing .mz-btn-shrink:hover,
+.mz-landing .mz-btn-shrink:focus-visible {
+  transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mz-landing .mz-reveal,
+  .mz-landing .mz-reveal.mz-reveal--in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .mz-landing .mz-btn-shrink:hover,
+  .mz-landing .mz-btn-shrink:focus-visible {
+    transform: none;
+  }
+
+  .mz-landing .mz-nav-link {
+    transition: none !important;
+    transform: none !important;
+  }
+}

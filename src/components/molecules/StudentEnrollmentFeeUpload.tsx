@@ -3,7 +3,9 @@
 import { useRef, useState } from "react";
 import { CheckCircle, Clock, XCircle, Upload, ExternalLink } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import type { Dictionary } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { EnrollmentFeeReceiptStatus } from "@/types/studentMonthlyPayments";
 
 type MonthlyLabels = Dictionary["dashboard"]["student"]["monthly"];
@@ -20,6 +22,7 @@ interface StudentEnrollmentFeeUploadProps {
   receiptStatus: EnrollmentFeeReceiptStatus | null;
   receiptSignedUrl: string | null;
   labels: MonthlyLabels;
+  fileUploadProgress: FileUploadProgressLabels;
   submitAction: SubmitEnrollmentFeeReceiptAction;
   onSubmitted?: () => void;
 }
@@ -32,6 +35,7 @@ export function StudentEnrollmentFeeUpload({
   receiptStatus,
   receiptSignedUrl,
   labels,
+  fileUploadProgress,
   submitAction,
   onSubmitted,
 }: StudentEnrollmentFeeUploadProps) {
@@ -148,6 +152,13 @@ export function StudentEnrollmentFeeUpload({
                 : labels.enrollmentFeeUploadBtn}
             </Button>
           </div>
+          {busy ? (
+            <InlineUploadProgressBar
+              label={fileUploadProgress.progressSending}
+              indeterminate
+              className="mt-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+            />
+          ) : null}
           {error && (
             <p className="mt-2 text-xs text-[var(--color-error)]" role="alert">
               {error}

@@ -36,6 +36,19 @@ const sampleContent: SiteThemeContent = {
 };
 
 describe("buildLandingSectionEditorViewModel", () => {
+  it("mozarthitos inicio exposes two media slots and mz hero copy", () => {
+    const view = buildLandingSectionEditorViewModel("inicio", {
+      defaults,
+      content: null,
+      media: [],
+      blocks: [],
+      templateKind: "mozarthitos",
+    });
+    expect(view.media).toHaveLength(2);
+    expect(view.copy.some((f) => f.key === "mz.hero.title")).toBe(true);
+    expect(view.media[0]?.fallbackPublicUrl).toContain("/images/mozarthitos/inicio/");
+  });
+
   it("populates copy fields with defaults and override values", () => {
     const view = buildLandingSectionEditorViewModel("inicio", {
       defaults,
@@ -91,11 +104,11 @@ describe("buildLandingSectionEditorViewModel", () => {
       "https://cdn.example/t1/inicio/1.png",
     );
     expect(view.media[0]?.fallbackPublicUrl).toBe(
-      "/images/sections/inicio/1.png",
+      "/images/golden/inicio/1.png",
     );
     expect(view.media[1]?.currentPublicUrl).toBeNull();
     expect(view.media[1]?.fallbackPublicUrl).toBe(
-      "/images/sections/inicio/2.png",
+      "/images/golden/inicio/2.png",
     );
   });
 
@@ -108,18 +121,33 @@ describe("buildLandingSectionEditorViewModel", () => {
     });
     expect(view.media[0]?.currentPublicUrl).toBeNull();
     expect(view.media[0]?.fallbackPublicUrl).toBe(
-      "/images/sections/inicio/1.png",
+      "/images/golden/inicio/1.png",
     );
   });
 
   it("returns empty media for sections without slots", () => {
-    const view = buildLandingSectionEditorViewModel("certificaciones", {
+    const view = buildLandingSectionEditorViewModel("niveles", {
       defaults,
       content: null,
       media: [],
       blocks: [],
     });
     expect(view.media).toEqual([]);
+  });
+
+  it("classic certificaciones exposes three media slots aligned with landing logos", () => {
+    const view = buildLandingSectionEditorViewModel("certificaciones", {
+      defaults,
+      content: null,
+      media: [],
+      blocks: [],
+    });
+    expect(view.media).toHaveLength(3);
+    expect(view.media.map((s) => s.fallbackPublicUrl)).toEqual([
+      "/images/golden/certificaciones/1.png",
+      "/images/golden/certificaciones/2.png",
+      "/images/golden/certificaciones/3.png",
+    ]);
   });
 
   it("returns blocks ordered by position for the requested section only", () => {
@@ -155,5 +183,6 @@ describe("buildLandingEditorOverview", () => {
     expect(inicio.blocksCount).toBe(0);
     const modal = overview.find((s) => s.section === "modalidades")!;
     expect(modal.blocksCount).toBe(1);
+    expect(modal.mediaSlotsTotal).toBe(12);
   });
 });

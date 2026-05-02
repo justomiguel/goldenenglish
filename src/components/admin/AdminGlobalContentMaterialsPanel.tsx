@@ -21,7 +21,9 @@ import { ArrowDown, ArrowUp, Link2, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import type { Dictionary } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 
 export type AdminGlobalDraftMaterial = {
   id: string;
@@ -42,6 +44,7 @@ interface AdminGlobalContentMaterialsPanelProps {
   materialLabel: string;
   embedUrl: string;
   isUploading: boolean;
+  fileUploadProgress: FileUploadProgressLabels;
   onMaterialLabelChange: (value: string) => void;
   onEmbedUrlChange: (value: string) => void;
   onAddEmbed: () => void;
@@ -57,6 +60,7 @@ export function AdminGlobalContentMaterialsPanel({
   materialLabel,
   embedUrl,
   isUploading,
+  fileUploadProgress,
   onMaterialLabelChange,
   onEmbedUrlChange,
   onAddEmbed,
@@ -109,6 +113,13 @@ export function AdminGlobalContentMaterialsPanel({
           </div>
           <span className="self-center text-xs text-[var(--color-muted-foreground)]">{labels.builderFileHint}</span>
         </div>
+        {isUploading ? (
+          <InlineUploadProgressBar
+            label={fileUploadProgress.progressSending}
+            indeterminate
+            className="mt-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+          />
+        ) : null}
       </div>
       {materials.length === 0 ? <p className="text-sm text-[var(--color-muted-foreground)]">{labels.noMaterialsDraft}</p> : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>

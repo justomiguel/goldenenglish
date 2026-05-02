@@ -6,6 +6,16 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 const supabaseCreate = vi.fn();
 
+const { adminCreate } = vi.hoisted(() => ({
+  adminCreate: vi.fn(() => {
+    throw new Error("createAdminClient not configured in this test");
+  }),
+}));
+
+vi.mock("@/lib/supabase/admin", () => ({
+  createAdminClient: () => adminCreate(),
+}));
+
 vi.mock("@supabase/supabase-js", () => ({
   createClient: (...args: unknown[]) => supabaseCreate(...args),
 }));
@@ -66,8 +76,51 @@ function buildClient({
   };
 }
 
+function buildSlugClient({
+  themeRow,
+  themeError,
+  mediaRows,
+  mediaError,
+}: {
+  themeRow: unknown;
+  themeError?: MaybeSingleResult["error"];
+  mediaRows?: unknown[];
+  mediaError?: SelectResult["error"];
+}) {
+  const themeMaybeSingle = vi.fn(
+    async (): Promise<MaybeSingleResult> => ({
+      data: themeRow,
+      error: themeError ?? null,
+    }),
+  );
+  const themeIs = vi.fn(() => ({ maybeSingle: themeMaybeSingle }));
+  const themeEqSlug = vi.fn(() => ({ is: themeIs }));
+  const themeSelect = vi.fn(() => ({ eq: themeEqSlug }));
+
+  const mediaOrder2 = vi.fn(
+    async (): Promise<SelectResult> => ({
+      data: mediaRows ?? [],
+      error: mediaError ?? null,
+    }),
+  );
+  const mediaOrder1 = vi.fn(() => ({ order: mediaOrder2 }));
+  const mediaEq = vi.fn(() => ({ order: mediaOrder1 }));
+  const mediaSelect = vi.fn(() => ({ eq: mediaEq }));
+
+  return {
+    from: vi.fn((table: string) => {
+      if (table === "site_themes") return { select: themeSelect };
+      if (table === "site_theme_media") return { select: mediaSelect };
+      throw new Error(`unexpected table ${table}`);
+    }),
+  };
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
+  adminCreate.mockImplementation(() => {
+    throw new Error("createAdminClient not configured in this test");
+  });
   process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
   errorSpy.mockClear();
@@ -76,6 +129,7 @@ beforeEach(() => {
 afterEach(() => {
   delete process.env.NEXT_PUBLIC_SUPABASE_URL;
   delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  delete process.env.SITE_BRAND_THEME_SLUG;
 });
 
 describe("loadActiveTheme", () => {
@@ -181,5 +235,64 @@ describe("loadActiveTheme", () => {
       altEs: "Hero ES",
       altEn: null,
     });
+  });
+
+  it("prefers SITE_BRAND_THEME_SLUG when admin client returns a row", async () => {
+    process.env.SITE_BRAND_THEME_SLUG = "mozarthitos";
+    vi.resetModules();
+    adminCreate.mockReturnValue(
+      buildSlugClient({
+        themeRow: {
+          id: "theme-mz",
+          slug: "mozarthitos",
+          name: "Mozarthitos",
+          is_active: false,
+          is_system_default: false,
+          template_kind: "mozarthitos",
+          properties: { "app.name": "Mozarthitos" },
+          content: {},
+          blocks: [],
+          archived_at: null,
+          created_at: "2026-01-01T00:00:00Z",
+          updated_at: "2026-01-02T00:00:00Z",
+          updated_by: null,
+        },
+        mediaRows: [],
+      }),
+    );
+    const { loadActiveTheme } = await import("@/lib/theme/loadActiveTheme");
+    const snap = await loadActiveTheme();
+    expect(snap?.theme.slug).toBe("mozarthitos");
+    expect(snap?.theme.properties).toEqual({ "app.name": "Mozarthitos" });
+    expect(supabaseCreate).not.toHaveBeenCalled();
+  });
+
+  it("falls back to anon active theme when slug row is missing", async () => {
+    process.env.SITE_BRAND_THEME_SLUG = "missing";
+    vi.resetModules();
+    adminCreate.mockReturnValue(buildSlugClient({ themeRow: null }));
+    supabaseCreate.mockReturnValueOnce(
+      buildClient({
+        themeRow: {
+          id: "theme-1",
+          slug: "default",
+          name: "Default",
+          is_active: true,
+          is_system_default: true,
+          template_kind: "classic",
+          properties: {},
+          content: {},
+          blocks: [],
+          archived_at: null,
+          created_at: "2026-01-01T00:00:00Z",
+          updated_at: "2026-01-02T00:00:00Z",
+          updated_by: null,
+        },
+        mediaRows: [],
+      }),
+    );
+    const { loadActiveTheme } = await import("@/lib/theme/loadActiveTheme");
+    const snap = await loadActiveTheme();
+    expect(snap?.theme.slug).toBe("default");
   });
 });

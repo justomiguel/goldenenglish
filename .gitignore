@@ -38,6 +38,9 @@ yarn-error.log*
 .env.development
 .env.production
 !.env.example
+# Split local secrets by Vercel/project target (copied to .env.local al arrancar dev)
+.env.local.golden
+.env.local.mozarthitos
 
 # vercel
 .vercel

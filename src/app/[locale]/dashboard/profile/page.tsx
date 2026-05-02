@@ -122,6 +122,7 @@ export default async function DashboardProfilePage({ params }: PageProps) {
       avatarDisplayUrl={avatarDisplayUrl}
       displayName={displayName}
       labels={dict.dashboard.myProfile}
+      fileUploadProgress={dict.common.fileUpload}
       classReminder={classReminder}
       tutorFinancialAccess={tutorFinancialAccess}
     />

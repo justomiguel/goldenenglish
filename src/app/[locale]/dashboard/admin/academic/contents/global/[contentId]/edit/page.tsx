@@ -36,7 +36,7 @@ export default async function EditGlobalContentPage({ params }: PageProps) {
         <h1 className="mt-3 text-2xl font-semibold text-[var(--color-foreground)]">{labels.globalEditTitle}</h1>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{content.title}</p>
       </header>
-      <AdminGlobalContentBuilder locale={locale} labels={labels} editingContent={content} />
+      <AdminGlobalContentBuilder locale={locale} labels={labels} editingContent={content} fileUploadProgress={dict.common.fileUpload} />
     </main>
   );
 }

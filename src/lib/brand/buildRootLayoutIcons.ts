@@ -3,7 +3,10 @@ import {
   brandLogoManifestIcon,
   faviconPublicDir,
   mimeForIconSrc,
+  usesFaviconIcoBundle,
 } from "@/lib/brand/faviconDir";
+import { buildRootLayoutIconsForStorageBundle } from "@/lib/brand/faviconBundleLayoutIcons";
+import { resolveBrandAssetUrl } from "@/lib/brand/resolveBrandAssetUrl";
 import type { BrandPublic } from "@/lib/brand/server";
 
 function isHttpUrl(s: string): boolean {
@@ -12,6 +15,12 @@ function isHttpUrl(s: string): boolean {
 
 /** Prefer PNG/WebP/SVG (often square) for apple-touch; else sibling under favicon_io when favicon is site-relative. */
 export function pickAppleTouchIconUrl(brand: BrandPublic): string {
+  if (brand.faviconBundlePrefix) {
+    return resolveBrandAssetUrl(
+      `${brand.faviconBundlePrefix}/apple-touch-icon.png`,
+      brand.faviconPath,
+    );
+  }
   const fav = brand.faviconPath;
   const logo = brand.logoPath;
   if (/\.(png|webp|svg)$/i.test(logo)) return logo;
@@ -29,6 +38,12 @@ export function pickAppleTouchIconUrl(brand: BrandPublic): string {
  * sibling `favicon_io/*.png` paths — those only exist for site-relative bundles.
  */
 export function buildRootLayoutIcons(brand: BrandPublic): Metadata["icons"] {
+  if (brand.faviconBundlePrefix) {
+    return buildRootLayoutIconsForStorageBundle(
+      brand as BrandPublic & { faviconBundlePrefix: string },
+    );
+  }
+
   const fav = brand.faviconPath;
   const logo = brand.logoPath;
   const favRemote = isHttpUrl(fav);
@@ -58,6 +73,21 @@ export function buildRootLayoutIcons(brand: BrandPublic): Metadata["icons"] {
         shortcut: fav,
       };
     }
+  }
+
+  if (!usesFaviconIcoBundle(fav)) {
+    const type = mimeForIconSrc(fav);
+    return {
+      icon: [
+        {
+          url: fav,
+          sizes: /\.svg$/i.test(fav) ? "any" : "48x48",
+          type,
+        },
+      ],
+      apple: pickAppleTouchIconUrl(brand),
+      shortcut: fav,
+    };
   }
 
   const faviconDir = faviconPublicDir(fav);

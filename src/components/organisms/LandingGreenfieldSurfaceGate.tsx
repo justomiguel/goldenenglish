@@ -15,6 +15,8 @@ interface LandingGreenfieldSurfaceGateProps {
   dict: Dictionary;
   locale: string;
   sessionEmail: string | null;
+  /** Sin admins: sin CTA en header (el único paso es el botón del cuerpo). */
+  bootstrapAccountPending?: boolean;
 }
 
 export function LandingGreenfieldSurfaceGate({
@@ -23,12 +25,14 @@ export function LandingGreenfieldSurfaceGate({
   dict,
   locale,
   sessionEmail,
+  bootstrapAccountPending = false,
 }: LandingGreenfieldSurfaceGateProps) {
   const shellProps = {
     brand,
     dict,
     locale,
     sessionEmail,
+    bootstrapAccountPending,
   };
 
   return (

@@ -67,6 +67,8 @@ describe("student portal entries — SurfaceMountGate branches", () => {
         monthlyView={{ todayMonth: 1, todayYear: 2026, rows: [] }}
         labels={dictEn.dashboard.student}
         submitReceiptAction={vi.fn()}
+        submitEnrollmentFeeReceiptAction={vi.fn()}
+        fileUploadProgress={dictEn.common.fileUpload}
       />,
     );
     expect(screen.getByTestId("sk")).toBeInTheDocument();
@@ -90,6 +92,8 @@ describe("student portal entries — SurfaceMountGate branches", () => {
         labels={dictEn.dashboard.student}
         paymentsBlockedMessage="Managed by tutor"
         submitReceiptAction={vi.fn()}
+        submitEnrollmentFeeReceiptAction={vi.fn()}
+        fileUploadProgress={dictEn.common.fileUpload}
       />,
     );
     expect(screen.getAllByText("Managed by tutor")).toHaveLength(2);

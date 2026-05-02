@@ -4,8 +4,8 @@ import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadFirstRunWizardMode } from "@/lib/site/loadFirstRunWizardMode";
 import { loadNeedsInitialSiteSetup } from "@/lib/site/loadNeedsInitialSiteSetup";
-import { createAnonReadOnlyClient } from "@/lib/supabase/anon";
 import { createClient } from "@/lib/supabase/server";
+import { resolveFirstRunWizardThemeId } from "@/lib/site/resolveFirstRunWizardThemeId";
 import { BootstrapAdminForm } from "@/components/dashboard/admin/site-setup/BootstrapAdminForm";
 import { SiteSetupWizard } from "@/components/dashboard/admin/site-setup/SiteSetupWizard";
 
@@ -63,22 +63,13 @@ export default async function FirstRunSetupPage({ params }: PageProps) {
     redirect(`/${locale}/dashboard/admin`);
   }
 
-  const anon = createAnonReadOnlyClient();
-  if (!anon) notFound();
-
-  const { data: theme, error } = await anon
-    .from("site_themes")
-    .select("id")
-    .eq("is_active", true)
-    .is("archived_at", null)
-    .maybeSingle();
-
-  if (error || !theme?.id) notFound();
+  const themeIdResolved = await resolveFirstRunWizardThemeId();
+  if (!themeIdResolved) notFound();
 
   return (
     <SiteSetupWizard
       locale={locale}
-      themeId={theme.id}
+      themeId={themeIdResolved}
       labels={dict.dashboard.siteSetup}
       platformCredit={dict.greenfieldPublic.platformCredit}
       platformCreditAria={dict.greenfieldPublic.platformCreditAria}

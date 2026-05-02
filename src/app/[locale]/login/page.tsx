@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import {
   getDictionary,
   defaultLocale,
@@ -59,6 +60,10 @@ export default async function LoginPage({
   const brand = await resolvePublicBrand(locale as AppLocale);
 
   const wizardMode = await loadFirstRunWizardMode();
+  if (wizardMode === "bootstrap_account") {
+    redirect(`/${locale}/setup/first-run`);
+  }
+
   const firstRunSetupHref =
     wizardMode !== "closed" ? `/${locale}/setup/first-run` : null;
 

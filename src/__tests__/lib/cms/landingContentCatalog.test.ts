@@ -23,6 +23,12 @@ describe("landingContentCatalog", () => {
     expect(isEditableLandingCopyKey("certs.cambridge")).toBe(true);
     expect(isEditableLandingCopyKey("collage.alts")).toBe(false);
     expect(isEditableLandingCopyKey("studentGallery.items")).toBe(false);
+    expect(isEditableLandingCopyKey("studentGallery.album1PhotoIndexes")).toBe(
+      true,
+    );
+    expect(isEditableLandingCopyKey("studentGallery.album2PhotoIndexes")).toBe(
+      true,
+    );
     expect(isEditableLandingCopyKey("modalities.unknown")).toBe(false);
   });
 

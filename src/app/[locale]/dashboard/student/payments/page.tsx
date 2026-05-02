@@ -61,6 +61,7 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
         paymentsBlockedMessage={paymentsBlockedMessage}
         submitReceiptAction={submitStudentPaymentReceipt}
         submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceipt}
+        fileUploadProgress={dict.common.fileUpload}
       />
     );
   }
@@ -167,6 +168,7 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
       paymentsBlockedMessage={paymentsBlockedMessage}
       submitReceiptAction={submitStudentPaymentReceipt}
       submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceipt}
+      fileUploadProgress={dict.common.fileUpload}
     />
   );
 }

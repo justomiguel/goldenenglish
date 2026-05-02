@@ -44,6 +44,20 @@ The Design System is the single source of truth for every visual decision. **Bra
 5. **Tailwind only.** Inline `style={}` is forbidden except for truly dynamic runtime values (e.g., user-uploaded image backgrounds). Prefer Tailwind classes via `className`. **Exception:** `padding`/`min-height` that incorporate `env(safe-area-inset-*)` may use inline `style` only in **PWA** layout shells when Tailwind arbitrary values are insufficient — keep those values limited to safe-area glue code.
 6. **Reusability over convenience.** Before creating a new component, verify no existing shared atom/molecule or surface-specific counterpart already covers the need.
 
+## Image file uploads (inline progress — canonical)
+
+Any **user-visible** flow where the person selects an **image** (or image-containing bundle, e.g. favicon ZIP) and the app uploads or processes it MUST surface **inline progress** next to the control — not only a disabled button or a silent wait.
+
+1. **Molecule.** Use **`InlineUploadProgressBar`** (`src/components/molecules/InlineUploadProgressBar.tsx`): semantic `<progress>`, tokens only, `aria-live="polite"` while active. Do not invent ad-hoc progress bars for image uploads.
+2. **Two-phase model (default with server actions + base64).**
+   - **Reading / preparing** — Determinate `value` (0–100) when the browser reads the `File` (e.g. **`readImageFileAsBase64`** with **`onProgress`** in `src/components/dashboard/admin/site-setup/readImageFileAsBase64.ts`).
+   - **Sending / saving** — **Indeterminate** bar (`indeterminate`) while the server action or opaque network step runs (no byte-level progress available on that path).
+3. **Copy.** Labels for those phases MUST come from **`src/dictionaries/en.json` + `es.json`** (reuse existing keys such as `dashboard.siteSetup.uploadProgress*` / `admin.cms.templates.editor.brandAssets.uploadProgress*` or add aligned keys under the feature namespace).
+4. **KV / long jobs.** **`importJobKv`** and similar are for **multi-step server jobs** (e.g. bulk import), not the default for a single image field. Do not wire KV solely to fake progress on a normal image upload unless the flow is explicitly job-based per **`11-long-running-jobs-ui.mdc`**.
+5. **True HTTP upload percentage.** When product requires **network upload** progress (large files, slow links), prefer **client upload to Storage via signed URL** with **`XMLHttpRequest` / `upload.onprogress`** (pattern aligned with `prepareGlobalContentFileUploadAction` + `uploadToSignedUrl`), then a short server action to finalize metadata — still pair with **`InlineUploadProgressBar`** for the UX shell.
+
+**Agent / PR checklist:** New or substantially changed **image file** picker → wired **`InlineUploadProgressBar`** + dictionary-backed phase labels + tests or RTL smoke for the busy state when feasible (**`02-testing-tdd.mdc`**).
+
 ## Checklist de contribución (componente nuevo en el design system)
 
 Al añadir un componente compartido o de superficie (`atoms` / `molecules` / `organisms` / `desktop` / `pwa`):

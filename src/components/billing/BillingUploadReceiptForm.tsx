@@ -3,30 +3,29 @@
 import { useFormStatus } from "react-dom";
 import { useRef, useState } from "react";
 import { uploadBillingReceipt } from "@/app/[locale]/dashboard/billing/actions";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import type { Dictionary } from "@/types/i18n";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { BillingInvoiceRow } from "@/types/billing";
 
 function SubmitRow({
   dict,
+  fileUploadProgress,
   disabled,
 }: {
   dict: Dictionary["dashboard"]["portalBilling"];
+  fileUploadProgress: FileUploadProgressLabels;
   disabled: boolean;
 }) {
   const { pending } = useFormStatus();
   return (
     <div className="space-y-2">
       {pending ? (
-        <div
-          className="h-2 w-full overflow-hidden rounded-full bg-[var(--color-muted)]"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={66}
-          aria-label={dict.uploading}
-        >
-          <div className="h-full w-2/3 animate-pulse rounded-full bg-[var(--color-primary)]" />
-        </div>
+        <InlineUploadProgressBar
+          label={fileUploadProgress.progressSending}
+          indeterminate
+          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+        />
       ) : null}
       <button
         type="submit"
@@ -43,6 +42,7 @@ export interface BillingUploadReceiptFormProps {
   locale: string;
   invoice: BillingInvoiceRow;
   dict: Dictionary["dashboard"]["portalBilling"];
+  fileUploadProgress: FileUploadProgressLabels;
   onDone: () => void;
 }
 
@@ -50,6 +50,7 @@ export function BillingUploadReceiptForm({
   locale,
   invoice,
   dict,
+  fileUploadProgress,
   onDone,
 }: BillingUploadReceiptFormProps) {
   const [file, setFile] = useState<File | null>(null);
@@ -133,7 +134,7 @@ export function BillingUploadReceiptForm({
           {message}
         </p>
       ) : null}
-      <SubmitRow dict={dict} disabled={!file} />
+      <SubmitRow dict={dict} fileUploadProgress={fileUploadProgress} disabled={!file} />
     </form>
   );
 }

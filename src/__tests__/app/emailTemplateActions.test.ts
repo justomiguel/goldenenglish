@@ -47,7 +47,10 @@ describe("emailTemplateActions", () => {
     vi.clearAllMocks();
     mockAssertAdmin.mockResolvedValue({
       supabase: buildSupabase(),
-      user: { id: "11111111-1111-4111-8111-111111111111" },
+      user: {
+        id: "11111111-1111-4111-8111-111111111111",
+        email: "justomiguelvargas@gmail.com",
+      },
     });
     upsertSingle.mockResolvedValue({
       data: { updated_at: "2026-04-17T00:00:00Z" },
@@ -108,6 +111,28 @@ describe("emailTemplateActions", () => {
     expect(r).toEqual({ ok: false, code: "forbidden" });
   });
 
+  it("saveEmailTemplateAction returns forbidden for admin who is not the templates mega-admin", async () => {
+    mockAssertAdmin.mockResolvedValue({
+      supabase: buildSupabase(),
+      user: {
+        id: "22222222-2222-4222-8222-222222222222",
+        email: "other-admin@example.com",
+      },
+    });
+    const { saveEmailTemplateAction } = await import(
+      "@/app/[locale]/dashboard/admin/communications/templates/actions"
+    );
+    const r = await saveEmailTemplateAction({
+      locale: "es",
+      templateKey: "messaging.teacher_new",
+      templateLocale: "es",
+      subject: "Asunto",
+      bodyHtml: "<p>Body</p>",
+    });
+    expect(r).toEqual({ ok: false, code: "forbidden" });
+    expect(upsertSpy).not.toHaveBeenCalled();
+  });
+
   it("saveEmailTemplateAction upserts the override and records audit", async () => {
     const { saveEmailTemplateAction } = await import(
       "@/app/[locale]/dashboard/admin/communications/templates/actions"
@@ -145,7 +170,34 @@ describe("emailTemplateActions", () => {
     expect(r).toEqual({ ok: false, code: "persist_failed" });
   });
 
+  it("resetEmailTemplateAction returns forbidden for admin who is not the templates mega-admin", async () => {
+    mockAssertAdmin.mockResolvedValue({
+      supabase: buildSupabase(),
+      user: {
+        id: "22222222-2222-4222-8222-222222222222",
+        email: "other-admin@example.com",
+      },
+    });
+    const { resetEmailTemplateAction } = await import(
+      "@/app/[locale]/dashboard/admin/communications/templates/actions"
+    );
+    const r = await resetEmailTemplateAction({
+      locale: "es",
+      templateKey: "messaging.teacher_new",
+      templateLocale: "es",
+    });
+    expect(r).toEqual({ ok: false, code: "forbidden" });
+    expect(deleteEq2).not.toHaveBeenCalled();
+  });
+
   it("resetEmailTemplateAction deletes the override and records audit", async () => {
+    mockAssertAdmin.mockResolvedValue({
+      supabase: buildSupabase(),
+      user: {
+        id: "11111111-1111-4111-8111-111111111111",
+        email: "justomiguelvargas@gmail.com",
+      },
+    });
     const { resetEmailTemplateAction } = await import(
       "@/app/[locale]/dashboard/admin/communications/templates/actions"
     );
