@@ -1,15 +1,18 @@
 import type { Dictionary } from "@/types/i18n";
+import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
 import { MozarthitosReveal } from "@/components/molecules/MozarthitosReveal";
-import { mzLandingCopy } from "@/lib/landing/mzLandingCopy";
+import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 
 export interface LandingMozarthitosSedesSectionProps {
   dict: Dictionary;
   mapSrc: string;
+  marketingBrand?: MarketingLandingBrand;
 }
 
 export function LandingMozarthitosSedesSection({
   dict,
   mapSrc,
+  marketingBrand = "mz",
 }: LandingMozarthitosSedesSectionProps) {
   return (
     <section
@@ -22,10 +25,10 @@ export function LandingMozarthitosSedesSection({
           className="mx-auto max-w-6xl space-y-3 px-[max(1rem,env(safe-area-inset-left))] pb-8 text-center sm:space-y-4 sm:pb-10 md:pb-14 lg:px-6"
         >
           <h2 className="mz-section-heading text-balance text-[clamp(1.65rem,4.5vw+0.5rem,3.75rem)] px-1 md:text-5xl lg:text-6xl">
-            {mzLandingCopy(dict, "sedes.sectionTitle")}
+            {marketingLandingCopy(dict, marketingBrand, "sedes.sectionTitle")}
           </h2>
           <p className="text-base text-white/90 sm:text-lg md:text-xl">
-            {mzLandingCopy(dict, "sedes.sectionSubtitle")}
+            {marketingLandingCopy(dict, marketingBrand, "sedes.sectionSubtitle")}
           </p>
         </MozarthitosReveal>
         <MozarthitosReveal
@@ -34,15 +37,15 @@ export function LandingMozarthitosSedesSection({
         >
           <div className="mz-sedes-card mx-auto space-y-3 px-4 pb-5 pt-7 sm:px-6 md:px-8 md:pb-8 md:pt-10">
             <h3 className="text-xl font-semibold sm:text-2xl md:text-3xl">
-              {mzLandingCopy(dict, "sede.title")}
+              {marketingLandingCopy(dict, marketingBrand, "sede.title")}
             </h3>
             <p className="text-sm text-white/90 sm:text-base md:text-lg">
-              {mzLandingCopy(dict, "sede.subtitle")}
+              {marketingLandingCopy(dict, marketingBrand, "sede.subtitle")}
             </p>
             {mapSrc ? (
               <div className="-mx-1 overflow-hidden rounded-[18px] bg-black/10 shadow-inner sm:mx-0 sm:rounded-[22px]">
                 <iframe
-                  title={mzLandingCopy(dict, "map.iframeTitle")}
+                  title={marketingLandingCopy(dict, marketingBrand, "map.iframeTitle")}
                   src={mapSrc}
                   className="aspect-video min-h-[200px] w-full sm:min-h-[240px] md:min-h-[300px]"
                   loading="lazy"

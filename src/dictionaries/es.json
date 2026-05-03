@@ -36,6 +36,19 @@
     "platformCredit": "Plataforma educativa · Sistemas MV",
     "platformCreditAria": "Plataforma educativa desarrollada por Sistemas MV"
   },
+  "socialShare": {
+    "byKind": {
+      "golden": {
+        "shareContext": "Niveles, modalidades presenciales y online, certificaciones internacionales y acompañamiento docente."
+      },
+      "mozarthitos": {
+        "shareContext": "Educación musical para la infancia: cursos, sedes y una propuesta lúdica para familias."
+      },
+      "espaciozenit": {
+        "shareContext": "Danza, teatro, música y arte escénico en un espacio formativo integral."
+      }
+    }
+  },
   "publicStudentBadge": {
     "title": "Logro",
     "notFound": "Este enlace de logro no está disponible.",
@@ -494,6 +507,140 @@
         "formHint": "Para enviar un mensaje desde la web usa los canales de contacto del instituto o completá el flujo de registro cuando esté disponible."
       },
       "footerCta": "¿Empezamos con la música? Reservá tu visita o tu lugar en la academia."
+    },
+    "ez": {
+      "chrome": {
+        "openMenu": "Abrir menú",
+        "closeMenu": "Cerrar menú"
+      },
+      "header": {
+        "subtitle": "Centro cultural y escuela de danza"
+      },
+      "nav": {
+        "nosotros": "Nosotros",
+        "disciplinas": "Disciplinas",
+        "horarios": "Horarios",
+        "galeria": "Galería",
+        "contacto": "Contacto",
+        "enroll": "Inscríbete"
+      },
+      "hero": {
+        "brushLine1": "Arte",
+        "brushLine2": "que te mueve",
+        "tagline": "Descubre tu talento. Vive la danza.",
+        "introBody": "Somos más que una escuela: somos el punto de encuentro entre la energía urbana y la técnica clásica, con profesores dedicados y un ambiente seguro para cada familia.",
+        "ctaSecondary": "Contáctanos"
+      },
+      "placeholders": {
+        "heroFigure": "Foto bailarín/a",
+        "disciplinePhoto": "Foto próximamente",
+        "groupPhoto": "Foto grupal",
+        "schedule": "Horario",
+        "gallery": "Imagen galería"
+      },
+      "disciplinas": {
+        "sectionTitle": "Nuestras disciplinas",
+        "lead": "Hip-hop y ballet clásico comparten escenario: progresión, creatividad y presentaciones que te van a emocionar.",
+        "verMas": "Ver más",
+        "ballet": {
+          "tag": "Estudio clásico",
+          "title": "Ballet clásico",
+          "body": "Alineación, repertorio y presencia escénica—desde la barra hasta la función con seguridad y elegancia."
+        },
+        "hiphop": {
+          "tag": "Laboratorio urbano infantil",
+          "title": "Hip Hop for Kids",
+          "body": "Ritmo, freestyle y coreografías para infantes que quieren groove, técnica y diversión en la misma clase."
+        }
+      },
+      "pillars": {
+        "sectionTitle": "Por qué nos eligen las familias",
+        "professors": "Profesores calificados",
+        "safe": "Ambiente seguro",
+        "formation": "Formación integral",
+        "shows": "Presentaciones y eventos"
+      },
+      "enrollment": {
+        "title": "Inscripciones abiertas todo el año",
+        "cta": "Reserva tu clase"
+      },
+      "horarios": {
+        "title": "Horarios",
+        "body": "Grupos semanales, niveles e intensivos de temporada. Reemplazá este texto y las tarjetas placeholder con tu grilla real."
+      },
+      "galeria": {
+        "title": "Galería",
+        "body": "Momentos de clases, ensayos y presentaciones. Subí tus fotos desde el CMS cuando estén listas."
+      },
+      "quienes": {
+        "title": "Sobre Espacio Zenit"
+      },
+      "origenes": {
+        "title": "Por qué abrimos",
+        "body": "Espacio Zenit une un centro cultural y una escuela de danza para que las familias encuentren arte, disciplina y comunidad en un mismo lugar."
+      },
+      "llegada": {
+        "title": "Cómo son las clases",
+        "body": "Planes ordenados, correcciones con cuidado y momentos para brillar—tu bailarín sueña con puntas o con dominar un freeze."
+      },
+      "tab": {
+        "felipe": "Dirección artística",
+        "jane": "Referenta hip-hop infantil"
+      },
+      "bio": {
+        "felipe": {
+          "p1": "Biografía placeholder párrafo uno—reemplazá con la historia real del instituto.",
+          "p2": "Biografía placeholder párrafo dos.",
+          "p3": "Biografía placeholder párrafo tres.",
+          "p4": "Biografía placeholder párrafo cuatro.",
+          "p5": "Biografía placeholder párrafo cinco.",
+          "p6": "Biografía placeholder párrafo seis."
+        },
+        "jane": {
+          "p1": "Biografía placeholder párrafo uno.",
+          "p2": "Biografía placeholder párrafo dos.",
+          "p3": "Biografía placeholder párrafo tres."
+        }
+      },
+      "cursos": {
+        "title": "Clases y matrículas",
+        "subtitle": "Programación semanal e intensivos de temporada",
+        "ageLine": "Niños y adolescentes — adultos donde figure",
+        "bodyP1": "Charlas de ubicación ayudan a empezar en el nivel correcto; hermanos pueden combinar ballet y hip-hop en horarios compatibles.",
+        "bodyP2": "Consultá por clase de prueba, uniformes y fechas de muestra—publicamos calendarios con anticipación.",
+        "onlineCta": "Pedir PDF de horarios"
+      },
+      "sedes": {
+        "sectionTitle": "Visitanos",
+        "sectionSubtitle": "Ubícanos en"
+      },
+      "sede": {
+        "title": "Estudio principal",
+        "subtitle": "Centro urbano — reemplazá con tu dirección"
+      },
+      "map": {
+        "embedSrc": "",
+        "iframeTitle": "Mapa"
+      },
+      "contact": {
+        "title": "Contacto",
+        "subtitle": "Matrículas y consultas",
+        "phoneDisplay": "+56 9 0000 0000",
+        "instagramTitle": "Instagram",
+        "instagramCta": "Seguinos",
+        "instagramUrl": "https://www.instagram.com/",
+        "facebookUrl": "",
+        "facebookAria": "Facebook",
+        "emailPlaceholder": "hola@tuestudio.cl",
+        "formHint": "Contactá al equipo por los canales habituales del instituto o por el flujo de registro cuando esté habilitado."
+      },
+      "footer": {
+        "followTitle": "Síguenos",
+        "socialHandle": "@espaciozenit.cl",
+        "contactTitle": "Contáctanos",
+        "rightsLine": "Todos los derechos reservados."
+      },
+      "footerCta": "Llegá a tu punto más alto esta temporada—escribinos para pruebas y ubicación."
     }
   },
   "admin": {
@@ -1004,13 +1151,14 @@
           },
           "kindPicker": {
             "title": "Estilo visual",
-            "lead": "Cambiá la personalidad del template. Clásico mantiene el layout original; Editorial usa un shell a sangre; Minimal es aireado y centrado; Mozarthitos replica la landing de referencia (barra fija, hero y secciones).",
+            "lead": "Cambiá la personalidad del template. Clásico mantiene el layout original; Editorial usa un shell a sangre; Minimal es aireado y centrado; Mozarthitos replica la landing de referencia; Espacio Zenit reutiliza ese shell con una paleta zen y su rama propia en el diccionario.",
             "currentLabel": "Estilo actual",
             "options": {
               "classic": "Clásico",
               "editorial": "Editorial",
               "minimal": "Minimal",
-              "mozarthitos": "Mozarthitos"
+              "mozarthitos": "Mozarthitos",
+              "espaciozenit": "Espacio Zenit"
             },
             "saveCta": "Aplicar estilo",
             "saveSuccess": "Estilo aplicado.",

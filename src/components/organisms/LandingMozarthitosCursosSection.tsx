@@ -2,19 +2,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { Laptop } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
 import { MozarthitosReveal } from "@/components/molecules/MozarthitosReveal";
-import { mzLandingCopy } from "@/lib/landing/mzLandingCopy";
+import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 
 export interface LandingMozarthitosCursosSectionProps {
   dict: Dictionary;
   locale: string;
   imgOferta: (filename: string) => string;
+  marketingBrand?: MarketingLandingBrand;
 }
 
 export function LandingMozarthitosCursosSection({
   dict,
   locale,
   imgOferta,
+  marketingBrand = "mz",
 }: LandingMozarthitosCursosSectionProps) {
   return (
     <section
@@ -31,16 +34,16 @@ export function LandingMozarthitosCursosSection({
           className="mb-10 max-w-3xl sm:mb-12 md:mb-16"
         >
           <p className="text-[0.65rem] font-bold uppercase tracking-[0.22em] text-[var(--mz-blue-heading)] sm:text-xs sm:tracking-[0.25em]">
-            {mzLandingCopy(dict, "nav.cursos")}
+            {marketingLandingCopy(dict, marketingBrand, "nav.cursos")}
           </p>
           <h2 className="mz-section-heading mt-2 text-balance text-[clamp(1.75rem,5vw+0.5rem,3.75rem)] text-[var(--mz-pink)]">
-            {mzLandingCopy(dict, "cursos.title")}
+            {marketingLandingCopy(dict, marketingBrand, "cursos.title")}
           </h2>
           <p className="mt-2 text-lg font-semibold text-[var(--mz-pink)] sm:mt-3 sm:text-xl md:text-2xl">
-            {mzLandingCopy(dict, "cursos.subtitle")}
+            {marketingLandingCopy(dict, marketingBrand, "cursos.subtitle")}
           </p>
           <p className="mt-2 text-base font-bold text-[var(--mz-blue-heading)] sm:mt-3 sm:text-lg md:text-xl">
-            {mzLandingCopy(dict, "cursos.ageLine")}
+            {marketingLandingCopy(dict, marketingBrand, "cursos.ageLine")}
           </p>
         </MozarthitosReveal>
         <div className="grid gap-10 md:grid-cols-[minmax(0,340px)_minmax(0,1fr)] md:items-start md:gap-12 lg:gap-16">
@@ -84,15 +87,15 @@ export function LandingMozarthitosCursosSection({
               />
             </div>
             <div className="space-y-4 text-[0.9375rem] leading-relaxed text-[var(--mz-ink-on-white)] sm:text-base md:text-lg">
-              <p>{mzLandingCopy(dict, "cursos.bodyP1")}</p>
-              <p>{mzLandingCopy(dict, "cursos.bodyP2")}</p>
+              <p>{marketingLandingCopy(dict, marketingBrand, "cursos.bodyP1")}</p>
+              <p>{marketingLandingCopy(dict, marketingBrand, "cursos.bodyP2")}</p>
             </div>
             <Link
               href={`/${locale}#contacto`}
               className="mz-btn-shrink inline-flex min-h-[48px] w-full max-w-md items-center justify-center gap-2 rounded-full bg-[var(--mz-blue-btn)] px-6 py-3.5 text-base font-bold text-white shadow-[0_10px_28px_rgb(0_165_255_/38%)] transition-colors hover:bg-[var(--mz-blue-btn-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mz-blue-btn)] focus-visible:ring-offset-2 sm:w-auto"
             >
               <Laptop className="h-4 w-4 shrink-0" aria-hidden />
-              {mzLandingCopy(dict, "cursos.onlineCta")}
+              {marketingLandingCopy(dict, marketingBrand, "cursos.onlineCta")}
             </Link>
           </MozarthitosReveal>
           <MozarthitosReveal

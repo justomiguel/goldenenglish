@@ -4,7 +4,8 @@ import Link from "next/link";
 import { ExternalLink, LogIn, Mail } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { BrandPublic } from "@/lib/brand/server";
-import { mzLandingCopy } from "@/lib/landing/mzLandingCopy";
+import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
+import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
 
 interface LandingFooterPwaProps {
@@ -12,7 +13,8 @@ interface LandingFooterPwaProps {
   brand: BrandPublic;
   locale: string;
   sessionEmail: string | null;
-  mozarthitosShell?: boolean;
+  marketingFullBleedShell?: boolean;
+  marketingLandingFooterBrand?: MarketingLandingBrand;
 }
 
 const btnClass =
@@ -25,11 +27,14 @@ export function LandingFooterPwa({
   brand,
   locale,
   sessionEmail,
-  mozarthitosShell = false,
+  marketingFullBleedShell = false,
+  marketingLandingFooterBrand,
 }: LandingFooterPwaProps) {
-  const footerCta = mozarthitosShell
-    ? mzLandingCopy(dict, "footerCta").trim() || dict.landing.footerCta
-    : dict.landing.footerCta;
+  const footerCta =
+    marketingFullBleedShell && marketingLandingFooterBrand
+      ? marketingLandingCopy(dict, marketingLandingFooterBrand, "footerCta").trim() ||
+        dict.landing.footerCta
+      : dict.landing.footerCta;
   return (
     <footer className="relative border-t border-[var(--color-primary-dark)] bg-[var(--color-primary-dark)] px-3 pb-[max(2.25rem,env(safe-area-inset-bottom,0px))] pt-10 text-[var(--color-primary-foreground)]">
       <div

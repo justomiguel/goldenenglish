@@ -6,7 +6,7 @@
 - **Supabase** (Postgres + Auth). Identity: **Supabase Auth only** — no parallel custom JWT/login stacks.
 - **Server actions** and route handlers under `src/app/**`: validate input (e.g. Zod), check session/roles on the server, never trust client-only checks.
 
-Workspace rules in **`.cursor/rules/`** override generic skill examples when they conflict (design system, security, PWA surfaces, testing/coverage, **analytics / eventos**, **copy / i18n**).
+Workspace rules in **`.cursor/rules/`** override generic skill examples when they conflict (design system, security, PWA surfaces, testing/coverage, **analytics / eventos**, **copy / i18n**). **Nuevo tenant local/Vercel o plantilla `site_theme_kind`:** ver **`.cursor/rules/19-multi-tenant-local-vercel-targets.mdc`**.
 
 ## Structured logging (ops / Vercel)
 

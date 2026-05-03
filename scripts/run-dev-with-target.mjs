@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * Elige entorno local (golden vs mozarthitos), copia el archivo prefijado a `.env.local`
+ * Elige entorno local (golden | mozarthitos | espaciozenit), copia el archivo prefijado a `.env.local`
  * y ejecuta `next dev`. Next solo lee `.env.local`; así evitamos deps extra (dotenv-cli).
  *
- * Archivos (gitignored): `.env.local.golden`, `.env.local.mozarthitos`
- * Sin TTY (CI): usa `GE_DEV_TARGET=golden|mozarthitos` o `--target=…`.
+ * Archivos (gitignored): `.env.local.golden`, `.env.local.mozarthitos`, `.env.local.espaciozenit`
+ * Sin TTY (CI): usa `GE_DEV_TARGET=<target>` o `--target=…`.
  */
 import { spawn } from "node:child_process";
 import { appendFileSync, copyFileSync, existsSync, readFileSync } from "node:fs";
@@ -23,21 +23,31 @@ const TARGETS = {
     label: "mozarthitos — preview / deploy mozarthitos",
     file: path.join(ROOT, ".env.local.mozarthitos"),
   },
+  espaciozenit: {
+    label: "espaciozenit — preview / deploy Espacio Zenit",
+    file: path.join(ROOT, ".env.local.espaciozenit"),
+  },
 };
+/** Targets que deben pinchar `SITE_BRAND_THEME_SLUG` al slug del tenant (ver .env.example). */
+const BRAND_THEME_TARGETS = new Set(["mozarthitos", "espaciozenit"]);
+
+const VALID_TARGETS = Object.keys(TARGETS);
+
 const OUT_LOCAL = path.join(ROOT, ".env.local");
 
 function parseTarget(argv, envTarget) {
   const fromEnv = (envTarget || "").trim().toLowerCase();
-  if (fromEnv === "golden" || fromEnv === "mozarthitos") return fromEnv;
+  if (VALID_TARGETS.includes(fromEnv)) return fromEnv;
 
   for (const a of argv) {
     if (a === "--golden") return "golden";
     if (a === "--mozarthitos") return "mozarthitos";
+    if (a === "--espaciozenit") return "espaciozenit";
     const m = /^--target=(.+)$/.exec(a);
     if (m) {
       const t = m[1].trim().toLowerCase();
-      if (t === "golden" || t === "mozarthitos") return t;
-      console.error(`Valor inválido para --target: ${m[1]} (usa golden o mozarthitos)`);
+      if (VALID_TARGETS.includes(t)) return t;
+      console.error(`Valor inválido para --target: ${m[1]} (usa ${VALID_TARGETS.join(", ")})`);
       process.exit(1);
     }
   }
@@ -49,6 +59,7 @@ function filterNextArgv(argv) {
     (a) =>
       a !== "--golden" &&
       a !== "--mozarthitos" &&
+      a !== "--espaciozenit" &&
       !/^--target=/.test(a),
   );
 }
@@ -60,15 +71,31 @@ function promptTarget() {
     console.log("Entorno local (.env):");
     console.log(`  [1] ${TARGETS.golden.label}`);
     console.log(`  [2] ${TARGETS.mozarthitos.label}`);
-    rl.question("Elegí 1 o 2 [1]: ", (answer) => {
+    console.log(`  [3] ${TARGETS.espaciozenit.label}`);
+    rl.question("Elegí 1, 2 o 3 [1]: ", (answer) => {
       rl.close();
       const t = String(answer || "").trim();
       if (t === "" || t === "1") return resolve("golden");
       if (t === "2") return resolve("mozarthitos");
-      console.error("Opción inválida (usá 1 o 2).");
+      if (t === "3") return resolve("espaciozenit");
+      console.error("Opción inválida (usá 1, 2 o 3).");
       process.exit(1);
     });
   });
+}
+
+function printMissingEnvHint(target) {
+  console.error("");
+  if (target === "golden") {
+    console.error("Creación sugerida:");
+    console.error("  cp .env.example .env.local.golden");
+    console.error("  # rellená valores; si ya tenías .env.local:");
+    console.error("  cp .env.local .env.local.golden");
+    return;
+  }
+  console.error("Creación sugerida:");
+  console.error(`  cp .env.local.golden .env.local.${target}`);
+  console.error(`  # editá NEXT_PUBLIC_APP_URL, Supabase, SITE_BRAND_THEME_SLUG=${target}, etc.`);
 }
 
 async function main() {
@@ -78,7 +105,7 @@ async function main() {
   if (!target) {
     if (!process.stdin.isTTY) {
       console.error(
-        "Sin terminal interactiva: definí GE_DEV_TARGET=golden o GE_DEV_TARGET=mozarthitos, o pasá --target=…",
+        `Sin terminal interactiva: definí GE_DEV_TARGET (${VALID_TARGETS.join("|")}) o pasá --target=…`,
       );
       process.exit(1);
     }
@@ -88,27 +115,17 @@ async function main() {
   const meta = TARGETS[target];
   if (!existsSync(meta.file)) {
     console.error(`No existe ${path.relative(ROOT, meta.file)}`);
-    console.error("");
-    if (target === "golden") {
-      console.error("Creación sugerida:");
-      console.error("  cp .env.example .env.local.golden");
-      console.error("  # rellená valores; si ya tenías .env.local:");
-      console.error("  cp .env.local .env.local.golden");
-    } else {
-      console.error("Creación sugerida:");
-      console.error("  cp .env.local.golden .env.local.mozarthitos");
-      console.error("  # editá NEXT_PUBLIC_APP_URL, Supabase, etc. para mozarthitos");
-    }
+    printMissingEnvHint(target);
     process.exit(1);
   }
 
   copyFileSync(meta.file, OUT_LOCAL);
-  if (target === "mozarthitos") {
+  if (BRAND_THEME_TARGETS.has(target)) {
     const envText = readFileSync(OUT_LOCAL, "utf8");
     if (!/^SITE_BRAND_THEME_SLUG=/m.test(envText)) {
       appendFileSync(
         OUT_LOCAL,
-        "\n# Marca vía tema `mozarthitos` sin depender de `is_active` (ver .env.example)\nSITE_BRAND_THEME_SLUG=mozarthitos\n",
+        `\n# Marca vía tema \`${target}\` sin depender de \`is_active\` (ver .env.example)\nSITE_BRAND_THEME_SLUG=${target}\n`,
       );
     }
   }

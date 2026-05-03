@@ -3,6 +3,10 @@ import {
   LANDING_MEDIA_SLOTS_BY_SECTION,
 } from "@/lib/cms/landingContentCatalog";
 import {
+  ESPACIO_ZENIT_LANDING_COPY_KEYS_BY_SECTION,
+  ESPACIO_ZENIT_MEDIA_SLOTS_BY_SECTION,
+} from "@/lib/cms/landingEspacioZenitCatalog";
+import {
   MOZARTHITOS_LANDING_COPY_KEYS_BY_SECTION,
   MOZARTHITOS_MEDIA_SLOTS_BY_SECTION,
 } from "@/lib/cms/landingMozarthitosCatalog";
@@ -15,6 +19,9 @@ export function landingCopyKeysForTheme(
   if (kind === "mozarthitos") {
     return MOZARTHITOS_LANDING_COPY_KEYS_BY_SECTION[section];
   }
+  if (kind === "espaciozenit") {
+    return ESPACIO_ZENIT_LANDING_COPY_KEYS_BY_SECTION[section];
+  }
   return LANDING_COPY_KEYS_BY_SECTION[section];
 }
 
@@ -24,6 +31,9 @@ export function landingMediaSlotsForTheme(
 ): number {
   if (kind === "mozarthitos") {
     return MOZARTHITOS_MEDIA_SLOTS_BY_SECTION[section];
+  }
+  if (kind === "espaciozenit") {
+    return ESPACIO_ZENIT_MEDIA_SLOTS_BY_SECTION[section];
   }
   return LANDING_MEDIA_SLOTS_BY_SECTION[section];
 }

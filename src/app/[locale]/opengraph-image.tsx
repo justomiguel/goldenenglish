@@ -3,11 +3,13 @@ import {
   type AppLocale,
 } from "@/lib/i18n/dictionaries";
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
-import { resolveBrandLogoAbsoluteUrl } from "@/lib/brand/resolveBrandLogoUrl";
 import { getProperty } from "@/lib/theme/themeParser";
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
 import { taglineForLocale } from "@/lib/brand/taglineForLocale";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
+import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
+import { resolveSharePreviewLogoAbsoluteUrl } from "@/lib/landing/resolveSharePreviewLogoUrl";
 
 export const alt = "Open Graph image";
 export const size = { width: 1200, height: 630 };
@@ -32,9 +34,22 @@ export default async function OgImage({
     ? dict.greenfieldPublic.metaDescription
     : taglineForLocale(brand, locale);
 
+  const activeTheme = needsInitialSiteSetup
+    ? null
+    : await loadActiveTheme();
+  const shareBundleKey = sharePreviewBundleKeyFromTemplateKind(
+    activeTheme?.theme.templateKind,
+  );
+  const shareContext =
+    dict.socialShare.byKind[shareBundleKey]?.shareContext ?? null;
+
   const origin =
     getPublicSiteUrl()?.origin.replace(/\/$/, "") ?? "http://localhost:3000";
-  const logoSrc = resolveBrandLogoAbsoluteUrl(brand, origin);
+  const logoSrc = await resolveSharePreviewLogoAbsoluteUrl(
+    origin,
+    shareBundleKey,
+    brand,
+  );
 
   return new ImageResponse(
     (
@@ -108,6 +123,22 @@ export default async function OgImage({
         >
           {tagline}
         </div>
+
+        {shareContext ? (
+          <div
+            style={{
+              marginTop: "20px",
+              fontSize: 22,
+              color: "rgba(255, 255, 255, 0.92)",
+              maxWidth: "920px",
+              textAlign: "center",
+              lineHeight: 1.45,
+              display: "flex",
+            }}
+          >
+            {shareContext}
+          </div>
+        ) : null}
 
         <div
           style={{

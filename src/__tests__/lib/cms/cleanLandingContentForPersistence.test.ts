@@ -81,6 +81,22 @@ describe("cleanLandingContentForPersistence", () => {
     });
   });
 
+  it("filters keys using espaciozenit catalog when template is espaciozenit", () => {
+    const result = cleanLandingContentForPersistence(
+      dicts,
+      {
+        historia: {
+          "mz.quienes.title": { es: "Should drop" },
+          "ez.quienes.title": { es: "  Zen title  " },
+        },
+      },
+      "espaciozenit",
+    );
+    expect(result).toEqual({
+      historia: { "ez.quienes.title": { es: "Zen title" } },
+    });
+  });
+
   it("drops sections when all values are empty after processing", () => {
     const result = cleanLandingContentForPersistence(dicts, {
       historia: { "story.title": { es: "" } },

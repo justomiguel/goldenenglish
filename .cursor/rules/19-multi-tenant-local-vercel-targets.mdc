@@ -1,0 +1,43 @@
+---
+description: Alta de tenants locales / Vercel y marca propia (env prefijados, scripts, tema site_theme).
+globs:
+  - scripts/run-dev-with-target.mjs
+  - scripts/pull-vercel-env.mjs
+  - scripts/vercel-targets.json
+  - package.json
+  - .env.example
+  - .gitignore
+alwaysApply: false
+---
+
+# Multi-tenant local + Vercel (goldenenglish repo)
+
+## Cuándo leer esta regla
+
+Al añadir un **nuevo deploy** (otro proyecto Vercel / otro Supabase / otra marca) que siga el patrón **un repo → varios targets**.
+
+## Checklist — ops (sin marca nueva en BD)
+
+1. **`public/images/<slug>/`** — subárbol acorde al landing (p. ej. `inicio/`, `historia/`, `oferta/`); `.gitkeep` si las carpetas empiezan vacías.
+2. **`.env.local.<slug>`** en la raíz (gitignored explícito en `.gitignore` junto a `.env.local.golden`).
+3. **[`scripts/run-dev-with-target.mjs`](scripts/run-dev-with-target.mjs)** — entrada en `TARGETS`, CLI `--<slug>` / `--target=<slug>`, `GE_DEV_TARGET`, prompt interactivo si aplica.
+4. **`SITE_BRAND_THEME_SLUG`** — si el tenant debe pinchar un tema por slug (servidor), añadir el slug al `Set` `BRAND_THEME_TARGETS` en ese script y documentar en `.env.example`.
+5. **[`scripts/pull-vercel-env.mjs`](scripts/pull-vercel-env.mjs)** — `OUT_FILES.<slug>` → `.env.local.<slug>`.
+6. **[`scripts/vercel-targets.json`](scripts/vercel-targets.json)** — `orgId`, `projectId`, `projectName`; opcional `envPullEnvironment`. Placeholders vacíos implican que **`npm run deploy:vercel`** fallará hasta completar IDs (o usar `scripts/vercel-targets.local.json`, gitignored).
+7. **[`package.json`](package.json)** — `dev:<slug>`, `pull:env:<slug>` si el equipo usa atajos.
+
+## Checklist — marca propia + template (`SiteThemeKind`)
+
+Si el tenant expone **plantilla propia** en CMS / landing (como `mozarthitos` / `espaciozenit`):
+
+1. **Migración** — `ALTER TYPE public.site_theme_kind ADD VALUE '<slug>'` (patrón idempotente como `093_*`).
+2. **Seed** — fila `site_themes` con `slug` y `template_kind` coherentes (`094_*`, `100_*`, …).
+3. **TS** — [`src/types/theming.ts`](src/types/theming.ts) `SITE_THEME_KINDS` + catálogo CMS (`landing*Catalog.ts`), [`resolveLandingMedia.ts`](src/lib/cms/resolveLandingMedia.ts), tests `isSiteThemeKind`.
+4. **Landing** — componentes / CSS dedicados o parametrizados; helper [`marketingLandingKinds`](src/lib/theme/marketingLandingKinds.ts) si usa chrome full-bleed como mozarthitos/espaciozenit.
+5. **Diccionarios** — `landing.<brandRoot>.*` + labels admin `kindPicker.options.<slug>`.
+
+## Referencias
+
+- Ejemplo targets existentes: `golden`, `mozarthitos`, `espaciozenit`.
+- Deploy: `npm run deploy:vercel -- <slug> [--prod]`.
+- Variables Sensitive en Vercel: documentación en `.env.example` y Vercel docs.

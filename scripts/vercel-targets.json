@@ -9,5 +9,11 @@
     "projectId": "prj_hCduA05GG5GT8t5aYVqpxeb8aI7Q",
     "projectName": "mozarthitos",
     "envPullEnvironment": "production"
+  },
+  "espaciozenit": {
+    "orgId": "team_RhplHDHqMH5tDbU3eFO9WYxg",
+    "projectId": "prj_oq0A8Dx7eeR9nyMIBJXftuy7bV7O",
+    "projectName": "espaciozenit",
+    "envPullEnvironment": "production"
   }
 }

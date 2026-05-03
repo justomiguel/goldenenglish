@@ -28,6 +28,7 @@ const KIND_HERO_ALIGNMENT: Record<SiteThemeKind, string> = {
   editorial: "items-start text-left",
   minimal: "items-center text-center",
   mozarthitos: "items-end text-left",
+  espaciozenit: "items-end text-left",
 };
 
 const KIND_HERO_PADDING: Record<SiteThemeKind, string> = {
@@ -35,6 +36,7 @@ const KIND_HERO_PADDING: Record<SiteThemeKind, string> = {
   editorial: "px-4 py-4",
   minimal: "px-4 py-7",
   mozarthitos: "px-4 py-6",
+  espaciozenit: "px-4 py-6",
 };
 
 const KIND_BODY_FONT: Record<SiteThemeKind, string> = {
@@ -42,6 +44,7 @@ const KIND_BODY_FONT: Record<SiteThemeKind, string> = {
   editorial: "text-base font-bold leading-tight tracking-tight",
   minimal: "text-sm font-medium leading-snug",
   mozarthitos: "text-sm font-bold leading-snug",
+  espaciozenit: "text-sm font-semibold leading-snug",
 };
 
 const KIND_KICKER: Record<SiteThemeKind, string> = {
@@ -49,6 +52,7 @@ const KIND_KICKER: Record<SiteThemeKind, string> = {
   editorial: "text-[11px] uppercase tracking-[0.3em]",
   minimal: "text-[10px] tracking-[0.15em]",
   mozarthitos: "text-[10px] uppercase tracking-[0.22em]",
+  espaciozenit: "text-[10px] uppercase tracking-[0.2em]",
 };
 
 function Swatch({

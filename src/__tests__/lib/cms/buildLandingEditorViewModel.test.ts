@@ -49,6 +49,19 @@ describe("buildLandingSectionEditorViewModel", () => {
     expect(view.media[0]?.fallbackPublicUrl).toContain("/images/mozarthitos/inicio/");
   });
 
+  it("espaciozenit inicio exposes two media slots and ez hero copy", () => {
+    const view = buildLandingSectionEditorViewModel("inicio", {
+      defaults,
+      content: null,
+      media: [],
+      blocks: [],
+      templateKind: "espaciozenit",
+    });
+    expect(view.media).toHaveLength(2);
+    expect(view.copy.some((f) => f.key === "ez.hero.brushLine1")).toBe(true);
+    expect(view.media[0]?.fallbackPublicUrl).toContain("/images/espaciozenit/inicio/");
+  });
+
   it("populates copy fields with defaults and override values", () => {
     const view = buildLandingSectionEditorViewModel("inicio", {
       defaults,

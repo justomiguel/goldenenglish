@@ -41,6 +41,7 @@ yarn-error.log*
 # Split local secrets by Vercel/project target (copied to .env.local al arrancar dev)
 .env.local.golden
 .env.local.mozarthitos
+.env.local.espaciozenit
 
 # vercel
 .vercel

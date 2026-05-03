@@ -51,20 +51,20 @@ function parseArgs(argv) {
   };
 }
 
-function printMozarthitosHelp() {
+function printVercelTargetFillHelp(target, projectNameHint) {
+  const name = projectNameHint || target;
   console.error(`
-[mozarthitos] Falta orgId o projectId.
+[${target}] Falta orgId o projectId.
 
 En Vercel:
-1. Abrí el proyecto "mozarthitos" (o creá uno y enlazalo al mismo repo si querés).
+1. Abrí el proyecto "${name}" (o creá uno enlazado a este repo).
 2. Settings → General → copiá "Project ID" → projectId.
-3. Team ID (team_…): Team Settings del equipo dueño del proyecto → General,
-   o mirá la URL / la CLI: vercel teams ls
+3. Team ID (team_…): Team Settings del equipo → General, o vercel teams ls
 
-Rellená scripts/vercel-targets.json o creá scripts/vercel-targets.local.json:
+Rellená scripts/vercel-targets.json o scripts/vercel-targets.local.json:
 
 {
-  "mozarthitos": {
+  "${target}": {
     "orgId": "team_XXXXXXXXXXXXXXXX",
     "projectId": "prj_XXXXXXXXXXXXXXXX"
   }
@@ -98,12 +98,7 @@ Sin --prod → preview. Con --prod → producción del proyecto elegido.
   const projectId = String(entry.projectId ?? "").trim();
 
   if (!orgId || !projectId) {
-    if (target === "mozarthitos") printMozarthitosHelp();
-    else {
-      console.error(
-        `Destino "${target}": completa orgId y projectId en vercel-targets.json o vercel-targets.local.json.`,
-      );
-    }
+    printVercelTargetFillHelp(target, String(entry.projectName ?? "").trim());
     process.exit(1);
   }
 

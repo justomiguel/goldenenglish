@@ -2,9 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle, Music2, Plane, Sparkles } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import type { SiteThemeKind } from "@/types/theming";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { resolveLandingImageSrcForTheme } from "@/lib/cms/resolveLandingMedia";
-import { mzLandingCopy, mzLandingParagraphs } from "@/lib/landing/mzLandingCopy";
+import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
+import {
+  marketingLandingCopy,
+  marketingLandingParagraphs,
+} from "@/lib/landing/mzLandingCopy";
 import { MozarthitosReveal } from "@/components/molecules/MozarthitosReveal";
 import { MozarthitosBioTabs } from "@/components/organisms/MozarthitosBioTabs";
 import { LandingMozarthitosLowerSections } from "@/components/organisms/LandingMozarthitosLowerSections";
@@ -13,20 +18,25 @@ export interface LandingMozarthitosSectionsProps {
   dict: Dictionary;
   locale: string;
   mediaMap?: LandingMediaMap;
+  marketingBrand?: MarketingLandingBrand;
+  imageThemeKind?: SiteThemeKind;
 }
 
 export function LandingMozarthitosSections({
   dict,
   locale,
   mediaMap,
+  marketingBrand = "mz",
+  imageThemeKind = "mozarthitos",
 }: LandingMozarthitosSectionsProps) {
+  const brand = marketingBrand;
   const img = (section: "inicio" | "historia" | "oferta", file: string) =>
-    resolveLandingImageSrcForTheme("mozarthitos", section, file, mediaMap);
+    resolveLandingImageSrcForTheme(imageThemeKind, section, file, mediaMap);
 
-  const felipeParas = mzLandingParagraphs(dict, "bio.felipe", 6);
-  const janeParas = mzLandingParagraphs(dict, "bio.jane", 3);
-  const mapSrc = mzLandingCopy(dict, "map.embedSrc").trim();
-  const igUrl = mzLandingCopy(dict, "contact.instagramUrl").trim();
+  const felipeParas = marketingLandingParagraphs(dict, brand, "bio.felipe", 6);
+  const janeParas = marketingLandingParagraphs(dict, brand, "bio.jane", 3);
+  const mapSrc = marketingLandingCopy(dict, brand, "map.embedSrc").trim();
+  const igUrl = marketingLandingCopy(dict, brand, "contact.instagramUrl").trim();
 
   return (
     <>
@@ -45,10 +55,10 @@ export function LandingMozarthitosSections({
                 id="mz-hero-title"
                 className="text-balance text-[clamp(1.45rem,4.6vw+0.65rem,3.1rem)] leading-[1.06] md:leading-[1.08]"
               >
-                {mzLandingCopy(dict, "hero.title")}
+                {marketingLandingCopy(dict, brand, "hero.title")}
               </h1>
               <p className="mt-4 border-l-[4px] border-[var(--mz-yellow)] pl-3 text-sm font-semibold leading-relaxed text-white/95 sm:mt-5 sm:border-l-[5px] sm:pl-4 sm:text-base md:mt-6 md:pl-5 md:text-lg">
-                {mzLandingCopy(dict, "hero.subtitle")}
+                {marketingLandingCopy(dict, brand, "hero.subtitle")}
               </p>
               <div className="mt-6 flex w-full max-w-md flex-col gap-3 sm:mt-7 sm:max-w-none sm:flex-row sm:flex-wrap md:mt-8">
                 <Link
@@ -56,14 +66,14 @@ export function LandingMozarthitosSections({
                   className="inline-flex min-h-[48px] w-full flex-1 items-center justify-center gap-2 rounded-full bg-[var(--mz-yellow)] px-5 py-3 text-sm font-bold text-[var(--mz-ink-on-white)] shadow-[0_10px_28px_rgb(0_0_0_/28%)] transition-colors hover:bg-[var(--mz-yellow-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:w-auto sm:min-w-[11rem]"
                 >
                   <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
-                  {mzLandingCopy(dict, "hero.ctaPrimary")}
+                  {marketingLandingCopy(dict, brand, "hero.ctaPrimary")}
                 </Link>
                 <Link
                   href={`/${locale}#contacto`}
                   className="inline-flex min-h-[48px] w-full flex-1 items-center justify-center gap-2 rounded-full border-2 border-white/80 bg-white/12 px-5 py-3 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/22 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:w-auto sm:min-w-[11rem]"
                 >
                   <MessageCircle className="h-4 w-4 shrink-0" aria-hidden />
-                  {mzLandingCopy(dict, "hero.ctaSecondary")}
+                  {marketingLandingCopy(dict, brand, "hero.ctaSecondary")}
                 </Link>
               </div>
             </div>
@@ -96,7 +106,7 @@ export function LandingMozarthitosSections({
           <MozarthitosReveal preset="quienesHeading" className="mb-10 md:mb-16">
             <div className="mz-quienes-ribbon inline-flex w-full max-w-full px-4 py-2.5 sm:w-auto sm:px-5 sm:py-3 md:px-8 md:py-4">
               <h2 className="mz-section-heading text-pretty text-xl text-[var(--mz-white)] sm:text-2xl md:text-4xl lg:text-5xl">
-                {mzLandingCopy(dict, "quienes.title")}
+                {marketingLandingCopy(dict, brand, "quienes.title")}
               </h2>
             </div>
           </MozarthitosReveal>
@@ -113,10 +123,10 @@ export function LandingMozarthitosSections({
                     </div>
                     <div className="min-w-0 space-y-2">
                       <h3 className="text-lg font-semibold text-[var(--mz-white)] md:text-xl">
-                        {mzLandingCopy(dict, "origenes.title")}
+                        {marketingLandingCopy(dict, brand, "origenes.title")}
                       </h3>
                       <p className="text-sm leading-relaxed text-[var(--mz-white)]/92 md:text-base">
-                        {mzLandingCopy(dict, "origenes.body")}
+                        {marketingLandingCopy(dict, brand, "origenes.body")}
                       </p>
                     </div>
                   </div>
@@ -133,10 +143,10 @@ export function LandingMozarthitosSections({
                     </div>
                     <div className="min-w-0 space-y-2">
                       <h3 className="text-lg font-semibold text-[var(--mz-white)] md:text-xl">
-                        {mzLandingCopy(dict, "llegada.title")}
+                        {marketingLandingCopy(dict, brand, "llegada.title")}
                       </h3>
                       <p className="text-sm leading-relaxed text-[var(--mz-white)]/92 md:text-base">
-                        {mzLandingCopy(dict, "llegada.body")}
+                        {marketingLandingCopy(dict, brand, "llegada.body")}
                       </p>
                     </div>
                   </div>
@@ -145,8 +155,8 @@ export function LandingMozarthitosSections({
               <MozarthitosReveal preset="bioTabs">
                 <MozarthitosBioTabs
                   surface="onPink"
-                  tabFelipe={mzLandingCopy(dict, "tab.felipe")}
-                  tabJane={mzLandingCopy(dict, "tab.jane")}
+                  tabFelipe={marketingLandingCopy(dict, brand, "tab.felipe")}
+                  tabJane={marketingLandingCopy(dict, brand, "tab.jane")}
                   felipePortraitSrc={img("historia", "2.png")}
                   janePortraitSrc={img("historia", "3.png")}
                   felipeParagraphs={felipeParas}
@@ -179,6 +189,7 @@ export function LandingMozarthitosSections({
         imgOferta={(file) => img("oferta", file)}
         mapSrc={mapSrc}
         igUrl={igUrl}
+        marketingBrand={brand}
       />
     </>
   );

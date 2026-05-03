@@ -10,6 +10,8 @@ import { taglineForLocale } from "@/lib/brand/taglineForLocale";
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { JsonLdOrganization } from "@/components/molecules/JsonLdOrganization";
 import { AnalyticsRoot } from "@/components/analytics/AnalyticsRoot";
+import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -29,9 +31,23 @@ export async function generateMetadata({
   const loc = locale as AppLocale;
   const { brand, needsInitialSiteSetup, dict } =
     await resolvePublicBrandWithSetup(loc);
-  const description = needsInitialSiteSetup
+  const taglinePart = needsInitialSiteSetup
     ? dict.greenfieldPublic.metaDescription
     : taglineForLocale(brand, locale);
+  const activeTheme = needsInitialSiteSetup
+    ? null
+    : await loadActiveTheme();
+  const shareBundleKey = sharePreviewBundleKeyFromTemplateKind(
+    activeTheme?.theme.templateKind,
+  );
+  const shareContext =
+    dict.socialShare.byKind[shareBundleKey]?.shareContext ?? null;
+  const description =
+    needsInitialSiteSetup
+      ? taglinePart
+      : shareContext
+        ? `${taglinePart} — ${shareContext}`
+        : taglinePart;
   const path = `/${locale}`;
 
   const languageAlternates: Record<string, string> = {};

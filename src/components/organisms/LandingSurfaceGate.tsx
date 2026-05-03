@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
@@ -18,8 +19,10 @@ interface LandingSurfaceGateProps {
   sessionEmail: string | null;
   /** Template supplies its own top navigation on every surface. */
   suppressPwaHeader?: boolean;
-  /** Misma plantilla que `mozarthitosShell` en desktop (pie PWA). */
-  mozarthitosShell?: boolean;
+  /** Pie PWA alineado a plantillas marketing full-bleed. */
+  marketingFullBleedShell?: boolean;
+  marketingLandingFooterBrand?: MarketingLandingBrand;
+  suppressMarketingShellFooter?: boolean;
 }
 
 export function LandingSurfaceGate({
@@ -30,7 +33,9 @@ export function LandingSurfaceGate({
   locale,
   sessionEmail,
   suppressPwaHeader = false,
-  mozarthitosShell = false,
+  marketingFullBleedShell = false,
+  marketingLandingFooterBrand,
+  suppressMarketingShellFooter = false,
 }: LandingSurfaceGateProps) {
   return (
     <SurfaceMountGate
@@ -48,13 +53,16 @@ export function LandingSurfaceGate({
               />
             )}
             <div className="flex-1">{main}</div>
-            <LandingFooterPwa
-              dict={dict}
-              brand={brand}
-              locale={locale}
-              sessionEmail={sessionEmail}
-              mozarthitosShell={mozarthitosShell}
-            />
+            {suppressMarketingShellFooter ? null : (
+              <LandingFooterPwa
+                dict={dict}
+                brand={brand}
+                locale={locale}
+                sessionEmail={sessionEmail}
+                marketingFullBleedShell={marketingFullBleedShell}
+                marketingLandingFooterBrand={marketingLandingFooterBrand}
+              />
+            )}
           </div>
         </PwaPageShell>
       )}

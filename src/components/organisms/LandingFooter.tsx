@@ -2,7 +2,8 @@ import Link from "next/link";
 import { ExternalLink, LogIn, Mail } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { BrandPublic } from "@/lib/brand/server";
-import { mzLandingCopy } from "@/lib/landing/mzLandingCopy";
+import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
+import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
 
 interface LandingFooterProps {
@@ -10,8 +11,9 @@ interface LandingFooterProps {
   brand: BrandPublic;
   locale: string;
   sessionEmail: string | null;
-  /** Plantilla Mozarthitos: CTA del pie desde `landing.mz.footerCta`, no el copy genérico Golden. */
-  mozarthitosShell?: boolean;
+  /** Plantillas marketing full-bleed: CTA desde `landing.mz|ez.footerCta`. */
+  marketingFullBleedShell?: boolean;
+  marketingLandingFooterBrand?: MarketingLandingBrand;
 }
 
 const linkClass =
@@ -24,11 +26,14 @@ export function LandingFooter({
   brand,
   locale,
   sessionEmail,
-  mozarthitosShell = false,
+  marketingFullBleedShell = false,
+  marketingLandingFooterBrand,
 }: LandingFooterProps) {
-  const footerCta = mozarthitosShell
-    ? mzLandingCopy(dict, "footerCta").trim() || dict.landing.footerCta
-    : dict.landing.footerCta;
+  const footerCta =
+    marketingFullBleedShell && marketingLandingFooterBrand
+      ? marketingLandingCopy(dict, marketingLandingFooterBrand, "footerCta").trim() ||
+        dict.landing.footerCta
+      : dict.landing.footerCta;
   return (
     <footer className="relative border-t border-[var(--color-primary-dark)] bg-[var(--color-primary-dark)] py-14 text-[var(--color-primary-foreground)]">
       <div

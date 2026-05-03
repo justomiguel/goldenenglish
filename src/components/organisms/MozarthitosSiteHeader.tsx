@@ -26,6 +26,13 @@ export interface MozarthitosSiteHeaderProps {
   labels: MozarthitosSiteHeaderLabels;
   dict: Dictionary;
   sessionEmail: string | null;
+  /** Fragment ids for in-page nav (default: quienes, cursos, sedes, contacto). */
+  navSectionIds?: Partial<{
+    quienes: string;
+    cursos: string;
+    sedes: string;
+    contacto: string;
+  }>;
 }
 
 const stroke = 1.75;
@@ -39,15 +46,20 @@ export function MozarthitosSiteHeader({
   labels,
   dict,
   sessionEmail,
+  navSectionIds,
 }: MozarthitosSiteHeaderProps) {
   const [open, setOpen] = useState(false);
   const prefix = `/${locale}`;
+  const q = navSectionIds?.quienes ?? "quienes";
+  const c = navSectionIds?.cursos ?? "cursos";
+  const s = navSectionIds?.sedes ?? "sedes";
+  const co = navSectionIds?.contacto ?? "contacto";
   const links = [
     { href: `${prefix}#top`, label: labels.inicio },
-    { href: `${prefix}#quienes`, label: labels.quienes },
-    { href: `${prefix}#cursos`, label: labels.cursos },
-    { href: `${prefix}#sedes`, label: labels.sedes },
-    { href: `${prefix}#contacto`, label: labels.contacto },
+    { href: `${prefix}#${q}`, label: labels.quienes },
+    { href: `${prefix}#${c}`, label: labels.cursos },
+    { href: `${prefix}#${s}`, label: labels.sedes },
+    { href: `${prefix}#${co}`, label: labels.contacto },
   ];
 
   return (

@@ -7,6 +7,7 @@ import {
   sectionImageSrc,
   type LandingImageSectionSlug,
 } from "@/lib/landing/sectionLandingImages";
+import { espaciozenitSectionImageSrc } from "@/lib/landing/espaciozenitLandingImages";
 import { mozarthitosSectionImageSrc } from "@/lib/landing/mozarthitosLandingImages";
 
 /**
@@ -93,6 +94,9 @@ export function resolveLandingImageSrcForTheme(
   }
   if (kind === "mozarthitos") {
     return mozarthitosSectionImageSrc(section, filename);
+  }
+  if (kind === "espaciozenit") {
+    return espaciozenitSectionImageSrc(section, filename);
   }
   return sectionImageSrc(section, filename);
 }

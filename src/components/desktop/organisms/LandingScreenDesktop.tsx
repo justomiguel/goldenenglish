@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { LandingHeader } from "@/components/organisms/LandingHeader";
@@ -12,8 +13,11 @@ interface LandingScreenDesktopProps {
   children: ReactNode;
   /** When true, the template renders its own primary navigation (e.g. Mozarthitos). */
   suppressHeader?: boolean;
-  /** Pie acorde a plantilla Mozarthitos (`landing.mz.footerCta`). */
-  mozarthitosShell?: boolean;
+  /** Pie acorde a plantillas marketing (`landing.mz|ez.footerCta`). */
+  marketingFullBleedShell?: boolean;
+  marketingLandingFooterBrand?: MarketingLandingBrand;
+  /** Plantilla incluye su propio footer (p. ej. espaciozenit mock). */
+  suppressMarketingShellFooter?: boolean;
 }
 
 export function LandingScreenDesktop({
@@ -23,7 +27,9 @@ export function LandingScreenDesktop({
   sessionEmail,
   children,
   suppressHeader = false,
-  mozarthitosShell = false,
+  marketingFullBleedShell = false,
+  marketingLandingFooterBrand,
+  suppressMarketingShellFooter = false,
 }: LandingScreenDesktopProps) {
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
@@ -36,13 +42,16 @@ export function LandingScreenDesktop({
         />
       )}
       {children}
-      <LandingFooter
-        dict={dict}
-        brand={brand}
-        locale={locale}
-        sessionEmail={sessionEmail}
-        mozarthitosShell={mozarthitosShell}
-      />
+      {suppressMarketingShellFooter ? null : (
+        <LandingFooter
+          dict={dict}
+          brand={brand}
+          locale={locale}
+          sessionEmail={sessionEmail}
+          marketingFullBleedShell={marketingFullBleedShell}
+          marketingLandingFooterBrand={marketingLandingFooterBrand}
+        />
+      )}
     </div>
   );
 }

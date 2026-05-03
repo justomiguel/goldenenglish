@@ -36,6 +36,19 @@
     "platformCredit": "Education platform · Sistemas MV",
     "platformCreditAria": "Education platform developed by Sistemas MV"
   },
+  "socialShare": {
+    "byKind": {
+      "golden": {
+        "shareContext": "Levels, on-site and online options, international certifications, and close teaching support."
+      },
+      "mozarthitos": {
+        "shareContext": "Early music education for children and families: courses, locations, and a playful, age-appropriate program."
+      },
+      "espaciozenit": {
+        "shareContext": "Dance, theater, music, and performing arts in one comprehensive creative training space."
+      }
+    }
+  },
   "publicStudentBadge": {
     "title": "Achievement",
     "notFound": "This achievement link is not available.",
@@ -494,6 +507,140 @@
         "formHint": "Use the institute contact channels or the registration flow when available to reach the team from the web."
       },
       "footerCta": "Ready to make music together? Book your visit or your spot at the academy."
+    },
+    "ez": {
+      "chrome": {
+        "openMenu": "Open menu",
+        "closeMenu": "Close menu"
+      },
+      "header": {
+        "subtitle": "Cultural center & dance school"
+      },
+      "nav": {
+        "nosotros": "About us",
+        "disciplinas": "Disciplines",
+        "horarios": "Schedule",
+        "galeria": "Gallery",
+        "contacto": "Contact",
+        "enroll": "Sign up"
+      },
+      "hero": {
+        "brushLine1": "Art",
+        "brushLine2": "that moves you",
+        "tagline": "Discover your talent. Live dance.",
+        "introBody": "We are more than a school—we are a meeting point between street energy and classical technique, with dedicated teachers and a safe environment for every family.",
+        "ctaSecondary": "Contact us"
+      },
+      "placeholders": {
+        "heroFigure": "Dancer photo",
+        "disciplinePhoto": "Photo coming soon",
+        "groupPhoto": "Group class photo",
+        "schedule": "Timetable",
+        "gallery": "Gallery image"
+      },
+      "disciplinas": {
+        "sectionTitle": "Our disciplines",
+        "lead": "Hip-hop and classical ballet share the same stage: progression, creativity, and shows you will be proud of.",
+        "verMas": "See more",
+        "ballet": {
+          "tag": "Classical studio",
+          "title": "Classical ballet",
+          "body": "Alignment, repertoire, and stage presence—from first barre work to polished performances."
+        },
+        "hiphop": {
+          "tag": "Kids street lab",
+          "title": "Hip Hop for Kids",
+          "body": "Beats, freestyle, and choreography for young dancers who want groove, discipline, and fun in the same class."
+        }
+      },
+      "pillars": {
+        "sectionTitle": "Why families choose us",
+        "professors": "Qualified teachers",
+        "safe": "Safe environment",
+        "formation": "Well-rounded training",
+        "shows": "Shows & events"
+      },
+      "enrollment": {
+        "title": "Open enrollment all year round",
+        "cta": "Book your class"
+      },
+      "horarios": {
+        "title": "Schedules",
+        "body": "Weekly groups, levels, and seasonal workshops. Replace this copy and the placeholder cards with your real timetable."
+      },
+      "galeria": {
+        "title": "Gallery",
+        "body": "Moments from classes, rehearsals, and shows. Upload your photos in the CMS when you are ready."
+      },
+      "quienes": {
+        "title": "About Espacio Zenit"
+      },
+      "origenes": {
+        "title": "Why we opened",
+        "body": "Espacio Zenit brings together a cultural centre and a dance school so families find artistry, discipline, and community in one welcoming building."
+      },
+      "llegada": {
+        "title": "How classes feel",
+        "body": "Structured syllabi, caring corrections, and spotlight moments—whether your dancer dreams of pointe shoes or mastering a freeze."
+      },
+      "tab": {
+        "felipe": "Artistic director",
+        "jane": "Kids hip-hop lead"
+      },
+      "bio": {
+        "felipe": {
+          "p1": "Placeholder biography paragraph one—replace with your institution’s story.",
+          "p2": "Placeholder biography paragraph two.",
+          "p3": "Placeholder biography paragraph three.",
+          "p4": "Placeholder biography paragraph four.",
+          "p5": "Placeholder biography paragraph five.",
+          "p6": "Placeholder biography paragraph six."
+        },
+        "jane": {
+          "p1": "Placeholder biography paragraph one.",
+          "p2": "Placeholder biography paragraph two.",
+          "p3": "Placeholder biography paragraph three."
+        }
+      },
+      "cursos": {
+        "title": "Classes & enrollment",
+        "subtitle": "Weekly programmes and seasonal intensives",
+        "ageLine": "Children to teens — adult offerings where listed",
+        "bodyP1": "Placement chats help every dancer start in the right level; siblings can mix ballet and hip-hop on compatible schedules.",
+        "bodyP2": "Ask about trial classes, uniforms, and showcase dates—we publish calendars well ahead so families can plan.",
+        "onlineCta": "Request schedule PDF"
+      },
+      "sedes": {
+        "sectionTitle": "Visit us",
+        "sectionSubtitle": "Find us at"
+      },
+      "sede": {
+        "title": "Main studio",
+        "subtitle": "City center — replace with your address"
+      },
+      "map": {
+        "embedSrc": "",
+        "iframeTitle": "Map"
+      },
+      "contact": {
+        "title": "Contact",
+        "subtitle": "Enrollment and questions",
+        "phoneDisplay": "+56 9 0000 0000",
+        "instagramTitle": "Instagram",
+        "instagramCta": "Follow",
+        "instagramUrl": "https://www.instagram.com/",
+        "facebookUrl": "",
+        "facebookAria": "Facebook",
+        "emailPlaceholder": "hello@yourstudio.com",
+        "formHint": "Reach the team through your usual institute channels or the registration flow when it is enabled."
+      },
+      "footer": {
+        "followTitle": "Follow us",
+        "socialHandle": "@espaciozenit.cl",
+        "contactTitle": "Contact us",
+        "rightsLine": "All rights reserved."
+      },
+      "footerCta": "Reach your highest point this season—message us for trials and placements."
     }
   },
   "admin": {
@@ -1004,13 +1151,14 @@
           },
           "kindPicker": {
             "title": "Visual style",
-            "lead": "Switch the personality of this template. Classic keeps the original layout; Editorial uses a full-bleed shell; Minimal is airy and centered; Mozarthitos follows the Mozarthitos reference landing (sticky bar, hero, sections).",
+            "lead": "Switch the personality of this template. Classic keeps the original layout; Editorial uses a full-bleed shell; Minimal is airy and centered; Mozarthitos follows the Mozarthitos reference landing; Espacio Zenit reuses that shell with a calm zen palette and its own dictionary branch.",
             "currentLabel": "Current style",
             "options": {
               "classic": "Classic",
               "editorial": "Editorial",
               "minimal": "Minimal",
-              "mozarthitos": "Mozarthitos"
+              "mozarthitos": "Mozarthitos",
+              "espaciozenit": "Espacio Zenit"
             },
             "saveCta": "Apply style",
             "saveSuccess": "Style applied.",

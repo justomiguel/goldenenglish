@@ -50,6 +50,7 @@ export const SITE_THEME_KINDS = [
   "editorial",
   "minimal",
   "mozarthitos",
+  "espaciozenit",
 ] as const;
 
 export type SiteThemeKind = (typeof SITE_THEME_KINDS)[number];

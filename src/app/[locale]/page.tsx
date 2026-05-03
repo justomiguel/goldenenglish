@@ -10,7 +10,13 @@ import { LandingMainSections } from "@/components/organisms/LandingMainSections"
 import { LandingMainSectionsEditorial } from "@/components/organisms/LandingMainSectionsEditorial";
 import { LandingMainSectionsMinimal } from "@/components/organisms/LandingMainSectionsMinimal";
 import { LandingMainSectionsMozarthitos } from "@/components/organisms/LandingMainSectionsMozarthitos";
+import { LandingMainSectionsEspacioZenit } from "@/components/organisms/LandingMainSectionsEspacioZenit";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
+import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
+import {
+  isMarketingFullBleedLandingKind,
+  marketingLandingSuppressesShellFooter,
+} from "@/lib/theme/marketingLandingKinds";
 import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
 import { buildLandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
@@ -67,7 +73,15 @@ export default async function HomePage({ params }: HomePageProps) {
     ? groupBlocksBySection(activeTheme.theme.blocks)
     : undefined;
   const templateKind = activeTheme?.theme.templateKind ?? "classic";
-  const suppressLandingChrome = templateKind === "mozarthitos";
+  const marketingShell = isMarketingFullBleedLandingKind(templateKind);
+  const suppressMarketingShellFooter =
+    marketingLandingSuppressesShellFooter(templateKind);
+  const marketingFooterBrand: MarketingLandingBrand | undefined =
+    templateKind === "mozarthitos"
+      ? "mz"
+      : templateKind === "espaciozenit"
+        ? "ez"
+        : undefined;
 
   const sharedShellProps = {
     dict,
@@ -86,6 +100,8 @@ export default async function HomePage({ params }: HomePageProps) {
       <LandingMainSectionsMinimal {...sharedShellProps} />
     ) : templateKind === "mozarthitos" ? (
       <LandingMainSectionsMozarthitos {...sharedShellProps} />
+    ) : templateKind === "espaciozenit" ? (
+      <LandingMainSectionsEspacioZenit {...sharedShellProps} />
     ) : (
       <LandingMainSections {...sharedShellProps} />
     );
@@ -98,8 +114,10 @@ export default async function HomePage({ params }: HomePageProps) {
           dict={dict}
           locale={locale}
           sessionEmail={sessionEmail}
-          suppressHeader={suppressLandingChrome}
-          mozarthitosShell={suppressLandingChrome}
+          suppressHeader={marketingShell}
+          suppressMarketingShellFooter={suppressMarketingShellFooter}
+          marketingFullBleedShell={marketingShell}
+          marketingLandingFooterBrand={marketingFooterBrand}
         >
           {main}
         </LandingScreenDesktop>
@@ -109,8 +127,10 @@ export default async function HomePage({ params }: HomePageProps) {
       dict={dict}
       locale={locale}
       sessionEmail={sessionEmail}
-      suppressPwaHeader={suppressLandingChrome}
-      mozarthitosShell={suppressLandingChrome}
+      suppressPwaHeader={marketingShell}
+      suppressMarketingShellFooter={suppressMarketingShellFooter}
+      marketingFullBleedShell={marketingShell}
+      marketingLandingFooterBrand={marketingFooterBrand}
     />
   );
 }

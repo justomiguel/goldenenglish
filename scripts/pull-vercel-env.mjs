@@ -19,6 +19,7 @@ const LOCAL_TARGETS_PATH = path.join(__dirname, "vercel-targets.local.json");
 const OUT_FILES = {
   golden: path.join(ROOT, ".env.local.golden"),
   mozarthitos: path.join(ROOT, ".env.local.mozarthitos"),
+  espaciozenit: path.join(ROOT, ".env.local.espaciozenit"),
 };
 
 const VERCEL_DIR = path.join(ROOT, ".vercel");
@@ -117,7 +118,7 @@ function temporaryProjectLink(orgId, projectId, projectName) {
 }
 
 function usage() {
-  console.error(`pull-vercel-env: golden|mozarthitos [--production|--preview|--development] [-y]
+  console.error(`pull-vercel-env: golden|mozarthitos|espaciozenit [--production|--preview|--development] [-y]
 Sensitive en Prod/Preview → CLI deja ""; usar Development sin Sensitive o pegar desde dashboard.
 `);
 }
@@ -162,7 +163,9 @@ function main() {
   const environment =
     cliEnvironment ?? assertPullEnvironment(entry.envPullEnvironment) ?? "development";
 
-  const outFile = path.resolve(OUT_FILES[/** @type {'golden'|'mozarthitos'} */ (target)]);
+  const outFile = path.resolve(
+    OUT_FILES[/** @type {'golden'|'mozarthitos'|'espaciozenit'} */ (target)],
+  );
   const vercelArgs = ["env", "pull", outFile, "--environment", environment];
   if (yes) vercelArgs.push("--yes");
 

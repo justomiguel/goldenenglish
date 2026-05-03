@@ -13,6 +13,7 @@ import {
   landingCopyKeysForTheme,
   landingMediaSlotsForTheme,
 } from "@/lib/cms/landingThemeEditorCatalog";
+import { espaciozenitSectionImageSrc } from "@/lib/landing/espaciozenitLandingImages";
 import { mozarthitosSectionImageSrc } from "@/lib/landing/mozarthitosLandingImages";
 import { sectionImageSrc } from "@/lib/landing/sectionLandingImages";
 
@@ -130,7 +131,9 @@ export function buildLandingSectionEditorViewModel(
       fallbackPublicUrl:
         kind === "mozarthitos"
           ? mozarthitosSectionImageSrc(section, `${position}.png`)
-          : sectionImageSrc(section, `${position}.png`),
+          : kind === "espaciozenit"
+            ? espaciozenitSectionImageSrc(section, `${position}.png`)
+            : sectionImageSrc(section, `${position}.png`),
     });
   }
 
