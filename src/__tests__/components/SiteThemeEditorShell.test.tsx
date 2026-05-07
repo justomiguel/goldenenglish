@@ -5,6 +5,7 @@ import type { SiteThemeRow } from "@/types/theming";
 import type { TokenGroup } from "@/lib/cms/groupThemeTokens";
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ refresh: vi.fn() }),
 }));
 

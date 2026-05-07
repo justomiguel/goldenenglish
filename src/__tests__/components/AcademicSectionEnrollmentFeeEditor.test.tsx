@@ -15,6 +15,7 @@ vi.mock(
 );
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ refresh: refreshMock }),
 }));
 

@@ -3,6 +3,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { dictEn } from "@/test/dictEn";
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ refresh: vi.fn() }),
 }));
 

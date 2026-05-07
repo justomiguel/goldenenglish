@@ -85,4 +85,18 @@ describe("Modal", () => {
     expect(closeSpy).toHaveBeenCalled();
     closeSpy.mockRestore();
   });
+
+  it("uses dictionary modal close label when closeLabel is omitted (locale from path)", () => {
+    render(
+      <Modal
+        open
+        titleId="modal-title"
+        onOpenChange={vi.fn()}
+        title="T"
+      >
+        x
+      </Modal>,
+    );
+    expect(screen.getByRole("button", { name: "Cerrar" })).toBeInTheDocument();
+  });
 });

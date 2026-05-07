@@ -175,7 +175,6 @@ export function AcademicNewSectionModal({
 
         <div>
           <p className="text-sm font-medium text-[var(--color-foreground)]">{dict.scheduleTitle}</p>
-          <p className="text-xs text-[var(--color-muted-foreground)]">{dict.scheduleHint}</p>
           <div className="mt-2">
             <SectionScheduleFields
               rows={scheduleRows}

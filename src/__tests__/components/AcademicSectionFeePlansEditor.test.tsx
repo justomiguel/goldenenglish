@@ -12,6 +12,7 @@ const restoreSectionFeePlanAction = vi.fn();
 const deleteSectionFeePlanAction = vi.fn();
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ refresh }),
 }));
 

@@ -72,7 +72,7 @@ export function TeacherSuggestionShell({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative max-h-[min(88dvh,32rem)] w-full overflow-y-auto rounded-t-[var(--layout-border-radius)] border border-[var(--color-border)] border-b-0 bg-[var(--color-surface)] shadow-[var(--shadow-card)]"
+        className="relative max-h-[min(88dvh,calc(100dvh-2rem))] w-full overflow-y-auto rounded-t-[var(--layout-border-radius)] border border-[var(--color-border)] border-b-0 bg-[var(--color-surface)] shadow-[var(--shadow-card)]"
         style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
       >
         <header className="sticky top-0 z-[1] border-b border-[var(--color-border)] bg-[var(--color-muted)]/35 px-4 py-3">

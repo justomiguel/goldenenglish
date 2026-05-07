@@ -5,6 +5,7 @@ import type { SiteThemeRow } from "@/types/theming";
 import type { RawPropertyRow } from "@/lib/cms/buildRawPropertyRows";
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ refresh: vi.fn() }),
 }));
 

@@ -9,6 +9,7 @@ const refresh = vi.fn();
 const createAcademicSectionAction = vi.fn();
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ push, refresh }),
 }));
 

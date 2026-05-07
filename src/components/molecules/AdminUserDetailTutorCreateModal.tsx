@@ -89,7 +89,7 @@ export function AdminUserDetailTutorCreateModal({
       <p id={descId} className="text-sm text-[var(--color-muted-foreground)]">
         {labels.detailTutorCreateLead}
       </p>
-      <div className="mt-4 max-h-[min(70vh,32rem)] space-y-3 overflow-y-auto pr-1">
+      <div className="mt-4 space-y-3">
         <FormField
           label={labels.detailTutorCreateDni}
           value={dni}

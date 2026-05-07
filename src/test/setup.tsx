@@ -29,6 +29,17 @@ if (typeof window !== "undefined") {
       }) as MediaQueryList;
   }
 
+  if (typeof globalThis.ResizeObserver === "undefined") {
+    globalThis.ResizeObserver = class {
+      constructor(cb: ResizeObserverCallback) {
+        void cb;
+      }
+      observe(): void {}
+      unobserve(): void {}
+      disconnect(): void {}
+    } as unknown as typeof ResizeObserver;
+  }
+
   if (typeof HTMLDialogElement !== "undefined") {
     if (!HTMLDialogElement.prototype.showModal) {
       HTMLDialogElement.prototype.showModal = function showModal(

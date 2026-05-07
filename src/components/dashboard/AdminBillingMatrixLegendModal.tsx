@@ -51,7 +51,6 @@ export function AdminBillingMatrixLegendModal({ labels }: AdminBillingMatrixLege
         descriptionId={legendParagraphId}
         title={labels.modalTitle}
         closeLabel={labels.cancelLabel}
-        scrollableBody
         dialogClassName="max-w-lg"
       >
         <p

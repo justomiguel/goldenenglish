@@ -26,8 +26,8 @@ export function SectionPeriodFields({
   disabled,
 }: SectionPeriodFieldsProps) {
   return (
-    <div className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
-      <div className="grid gap-3 sm:grid-cols-2">
+    <div className="@container space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
+      <div className="grid gap-3 @sm:grid-cols-2">
         <div>
           <Label htmlFor={`${idPrefix}-starts`}>{dict.startsLabel}</Label>
           <Input

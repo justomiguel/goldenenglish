@@ -8,6 +8,7 @@ const mockRefresh = vi.fn();
 const mockCreateStudentScholarship = vi.fn();
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ refresh: mockRefresh }),
 }));
 

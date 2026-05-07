@@ -10,6 +10,7 @@ vi.mock("@/components/student/AttendancePlayboard", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 

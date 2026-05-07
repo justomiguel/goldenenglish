@@ -5,6 +5,7 @@ import { dictEn } from "@/test/dictEn";
 import type { StudentMonthlyPaymentsView } from "@/types/studentMonthlyPayments";
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ refresh: vi.fn() }),
 }));
 

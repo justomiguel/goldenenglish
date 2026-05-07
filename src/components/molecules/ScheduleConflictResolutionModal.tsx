@@ -69,7 +69,7 @@ export function ScheduleConflictResolutionModal({
       <p id="academic-schedule-conflict-desc" className="text-sm text-[var(--color-muted-foreground)]">
         {dict.lead}
       </p>
-      <div className="academic-conflict-calendars mt-4 grid gap-6 md:grid-cols-2">
+      <div className="academic-conflict-calendars mt-4 grid gap-6 @md:grid-cols-2">
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-muted-foreground)]">
             {dict.currentSection}: {primary.sectionName}

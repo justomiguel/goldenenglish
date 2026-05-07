@@ -70,7 +70,6 @@ export function LongJobActivityModal({
       title={title}
       disableClose={isRunning}
       closeLabel={closeLabel}
-      scrollableBody
     >
       <div className="space-y-5">
         <p className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/40 px-3 py-2 text-sm text-[var(--color-muted-foreground)]">
@@ -108,7 +107,7 @@ export function LongJobActivityModal({
           </p>
           <ul
             ref={listRef}
-            className="max-h-40 space-y-1.5 overflow-y-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/25 p-3 text-xs text-[var(--color-foreground)]"
+            className="max-h-[min(24rem,45dvh)] min-h-[10rem] space-y-1.5 overflow-y-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/25 p-3 text-xs text-[var(--color-foreground)]"
           >
             {lines.length === 0 ? (
               <li className="text-[var(--color-muted-foreground)]">{emptyLogLine}</li>

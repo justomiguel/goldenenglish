@@ -19,6 +19,7 @@ const uploadToSignedUrl = vi.fn(async () => ({ data: {}, error: null }));
 const mockPush = vi.fn();
 const mockRefresh = vi.fn();
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ push: mockPush, refresh: mockRefresh }),
   useSearchParams: () => new URLSearchParams(),
 }));

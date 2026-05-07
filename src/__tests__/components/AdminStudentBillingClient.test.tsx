@@ -7,6 +7,7 @@ import { dictEn } from "@/test/dictEn";
 import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ refresh: vi.fn(), replace: vi.fn() }),
 }));
 

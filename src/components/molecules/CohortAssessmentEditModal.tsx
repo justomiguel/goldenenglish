@@ -194,7 +194,6 @@ export function CohortAssessmentEditModal({
       title={d.editModalTitle}
       closeLabel={d.editClose}
       disableClose={isPending}
-      scrollableBody
       dialogClassName="max-w-lg"
     >
       <p id={descId} className="text-sm text-[var(--color-muted-foreground)]">

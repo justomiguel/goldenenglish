@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { AcademicSectionLifecycleActions } from "@/components/organisms/AcademicSectionLifecycleActions";
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 

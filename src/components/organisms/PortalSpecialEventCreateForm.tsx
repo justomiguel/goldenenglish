@@ -76,7 +76,7 @@ export function PortalSpecialEventCreateForm({ locale, dict, scopeOptions }: Por
   return (
     <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
       <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.createTitle}</h2>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+      <div className="mt-3 @container grid gap-3 @sm:grid-cols-2">
         <PortalSpecialEventScopeFields
           dict={dict}
           eventType={eventType}
@@ -93,11 +93,11 @@ export function PortalSpecialEventCreateForm({ locale, dict, scopeOptions }: Por
           sections={scopeOptions.sections}
           disabled={pending}
         />
-        <div className="sm:col-span-2">
+        <div className="@sm:col-span-2">
           <Label htmlFor="spe-title">{dict.titleLabel}</Label>
           <Input id="spe-title" value={title} onChange={(e) => setTitle(e.target.value)} disabled={pending} className="mt-1" />
         </div>
-        <div className="sm:col-span-2">
+        <div className="@sm:col-span-2">
           <Label htmlFor="spe-notes">{dict.notesLabel}</Label>
           <Input id="spe-notes" value={notes} onChange={(e) => setNotes(e.target.value)} disabled={pending} className="mt-1" />
         </div>
@@ -128,12 +128,19 @@ export function PortalSpecialEventCreateForm({ locale, dict, scopeOptions }: Por
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
                 disabled={pending}
-                className="mt-1"
+                className="mt-1 min-w-[7.25rem] tabular-nums"
               />
             </div>
             <div>
               <Label htmlFor="spe-en">{dict.endTimeLabel}</Label>
-              <Input id="spe-en" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} disabled={pending} className="mt-1" />
+              <Input
+                id="spe-en"
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                disabled={pending}
+                className="mt-1 min-w-[7.25rem] tabular-nums"
+              />
             </div>
           </>
         ) : null}

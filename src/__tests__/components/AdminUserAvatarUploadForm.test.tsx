@@ -9,6 +9,7 @@ const uploadAction = vi.fn();
 const refresh = vi.fn();
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ refresh }),
 }));
 

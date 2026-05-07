@@ -8,6 +8,7 @@ const refresh = vi.fn();
 const deleteLearningRouteAction = vi.fn(async () => ({ ok: true, id: "00000000-0000-4000-8000-000000000099" }));
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh }),
   useSearchParams: () => new URLSearchParams(),
 }));

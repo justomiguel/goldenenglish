@@ -54,6 +54,7 @@ vi.mock("@/app/[locale]/dashboard/teacher/messages/actions", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ refresh: vi.fn() }),
 }));
 

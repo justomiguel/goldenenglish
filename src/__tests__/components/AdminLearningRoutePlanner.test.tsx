@@ -37,6 +37,7 @@ vi.mock("@xyflow/react", async () => {
 });
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => routerMock,
 }));
 

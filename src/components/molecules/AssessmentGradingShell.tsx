@@ -52,7 +52,7 @@ export function AssessmentGradingShell({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`absolute inset-x-0 bottom-0 flex max-h-[min(92dvh,44rem)] flex-col rounded-t-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)] transition-transform duration-200 ease-out ${open ? "translate-y-0" : "translate-y-full"}`}
+        className={`absolute inset-x-0 bottom-0 flex max-h-[min(92dvh,calc(100dvh-2rem))] flex-col rounded-t-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)] transition-transform duration-200 ease-out ${open ? "translate-y-0" : "translate-y-full"}`}
       >
         <header className="shrink-0 border-b border-[var(--color-border)] bg-[var(--color-muted)]/35 px-4 py-3">
           <h2 id={titleId} className="font-display text-lg font-semibold text-[var(--color-primary)]">

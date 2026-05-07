@@ -52,7 +52,6 @@ export function AdminRecordPaymentEnrollmentModal({
       descriptionId={descId}
       title={title}
       closeLabel={labels.cancel}
-      scrollableBody
       dialogClassName="max-w-lg"
     >
       <p id={descId} className="text-sm text-[var(--color-muted-foreground)]">

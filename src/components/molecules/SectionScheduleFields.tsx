@@ -51,8 +51,9 @@ export function SectionScheduleFields({
           {rows.map((row, index) => (
             <div
               key={`${index}-${row.dayOfWeek}-${row.startTime}-${row.endTime}`}
-              className="grid gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]"
+              className="flex flex-col gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3"
             >
+              {/* No viewport sm: grid here — this often sits in max-w-md modals; sm: used the window width and clipped type="time". */}
               <div>
                 <Label htmlFor={`section-schedule-day-${index}`}>{dict.scheduleDayLabel}</Label>
                 <select
@@ -71,31 +72,32 @@ export function SectionScheduleFields({
                 </select>
               </div>
 
-              <div>
-                <Label htmlFor={`section-schedule-start-${index}`}>{dict.scheduleStartLabel}</Label>
-                <Input
-                  id={`section-schedule-start-${index}`}
-                  type="time"
-                  className="mt-1 w-full"
-                  value={row.startTime}
-                  onChange={(event) => updateRow(index, { startTime: event.target.value })}
-                  disabled={disabled}
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="min-w-0">
+                  <Label htmlFor={`section-schedule-start-${index}`}>{dict.scheduleStartLabel}</Label>
+                  <Input
+                    id={`section-schedule-start-${index}`}
+                    type="time"
+                    className="mt-1 w-full min-w-[7.25rem] tabular-nums"
+                    value={row.startTime}
+                    onChange={(event) => updateRow(index, { startTime: event.target.value })}
+                    disabled={disabled}
+                  />
+                </div>
+                <div className="min-w-0">
+                  <Label htmlFor={`section-schedule-end-${index}`}>{dict.scheduleEndLabel}</Label>
+                  <Input
+                    id={`section-schedule-end-${index}`}
+                    type="time"
+                    className="mt-1 w-full min-w-[7.25rem] tabular-nums"
+                    value={row.endTime}
+                    onChange={(event) => updateRow(index, { endTime: event.target.value })}
+                    disabled={disabled}
+                  />
+                </div>
               </div>
 
-              <div>
-                <Label htmlFor={`section-schedule-end-${index}`}>{dict.scheduleEndLabel}</Label>
-                <Input
-                  id={`section-schedule-end-${index}`}
-                  type="time"
-                  className="mt-1 w-full"
-                  value={row.endTime}
-                  onChange={(event) => updateRow(index, { endTime: event.target.value })}
-                  disabled={disabled}
-                />
-              </div>
-
-              <div className="flex items-end">
+              <div className="flex justify-end border-t border-[var(--color-border)]/60 pt-2">
                 <Button
                   type="button"
                   variant="ghost"

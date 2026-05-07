@@ -11,6 +11,7 @@ const addAction = vi.fn();
 const removeAction = vi.fn();
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ refresh }),
 }));
 

@@ -13,6 +13,7 @@ vi.mock("next/image", () => ({
 
 const refreshMock = vi.fn();
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ refresh: refreshMock }),
 }));
 

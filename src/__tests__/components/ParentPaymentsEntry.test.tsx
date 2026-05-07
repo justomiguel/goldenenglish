@@ -7,6 +7,7 @@ import { ParentPaymentsEntry } from "@/components/parent/ParentPaymentsEntry";
 const stripSpy = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 

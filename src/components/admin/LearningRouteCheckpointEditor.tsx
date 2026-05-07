@@ -46,7 +46,7 @@ export function LearningRouteCheckpointEditor({
   const update = (next: Partial<RouteCheckpointDraft>) => onChange({ ...checkpoint, ...next });
 
   return (
-    <section className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
+    <section className="@container space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
       <h3 className="text-sm font-semibold text-[var(--color-foreground)]">{labels.routeGraphCheckpointTitle}</h3>
       <label className="flex items-center gap-2 text-sm text-[var(--color-foreground)]">
         <input type="checkbox" checked={checkpoint.enabled} onChange={(event) => update({ enabled: event.target.checked })} />
@@ -57,7 +57,7 @@ export function LearningRouteCheckpointEditor({
           <Field label={labels.routeGraphAssessmentTitle}>
             <input value={checkpoint.title} onChange={(event) => update({ title: event.target.value })} className="w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm" />
           </Field>
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid gap-2 @sm:grid-cols-2">
             <Field label={labels.routeGraphAssessmentKind}>
               <select value={checkpoint.assessmentKind} onChange={(event) => update({ assessmentKind: event.target.value as RouteCheckpointDraft["assessmentKind"] })} className="w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm">
                 {assessmentKinds.map((kind) => <option key={kind} value={kind}>{kind}</option>)}
@@ -72,12 +72,12 @@ export function LearningRouteCheckpointEditor({
           <Field label={labels.routeGraphInstructions}>
             <textarea value={checkpoint.instructions} onChange={(event) => update({ instructions: event.target.value })} className="min-h-20 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm" />
           </Field>
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div className="grid gap-2 @md:grid-cols-3">
             <NumberField label={labels.routeGraphMaxScore} value={checkpoint.maxScore} onChange={(maxScore) => update({ maxScore })} />
             <NumberField label={labels.routeGraphPassingScore} value={checkpoint.passingScore} onChange={(passingScore) => update({ passingScore })} />
             <NumberField label={labels.routeGraphWeight} value={checkpoint.weight} onChange={(weight) => update({ weight })} />
           </div>
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div className="grid gap-2 @md:grid-cols-3">
             <Toggle label={labels.routeGraphRequired} checked={checkpoint.isRequired} onChange={(isRequired) => update({ isRequired })} />
             <Toggle label={labels.routeGraphPriority} checked={checkpoint.isPriority} onChange={(isPriority) => update({ isPriority })} />
             <Toggle label={labels.routeGraphBlocksProgress} checked={checkpoint.blocksProgress} onChange={(blocksProgress) => update({ blocksProgress })} />

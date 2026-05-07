@@ -8,6 +8,7 @@ import type {
 import type { Locale } from "@/types/i18n";
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ refresh: vi.fn() }),
 }));
 

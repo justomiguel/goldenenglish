@@ -4,6 +4,7 @@ import { dictEn } from "@/test/dictEn";
 import type { SiteThemeRow } from "@/types/theming";
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/es",
   useRouter: () => ({ refresh: vi.fn() }),
 }));
 
