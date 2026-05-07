@@ -4,6 +4,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { loadTeacherDashboardModel } from "@/lib/teacher/loadTeacherDashboardModel";
+import { loadDashboardBirthdaysCard } from "@/lib/birthdays/loadDashboardBirthdaysCard";
 import { TeacherDashboardHome } from "@/components/teacher/TeacherDashboardHome";
 
 export const metadata: Metadata = {
@@ -34,6 +35,16 @@ export default async function TeacherDashboardPage({ params }: PageProps) {
 
   const model = await loadTeacherDashboardModel(supabase, user.id);
   const firstName = (profile?.first_name as string | null) ?? null;
+  const birthdayRows = await loadDashboardBirthdaysCard(supabase, user.id);
 
-  return <TeacherDashboardHome locale={locale} dict={dict} model={model} firstName={firstName} />;
+  return (
+    <TeacherDashboardHome
+      locale={locale}
+      dict={dict}
+      model={model}
+      firstName={firstName}
+      birthdayRows={birthdayRows}
+      birthdaysDict={dict.dashboard.birthdays}
+    />
+  );
 }

@@ -1,0 +1,41 @@
+---
+description: Migraciones Supabase/Postgres sin borrado destructivo de datos (producción siempre activa)
+alwaysApply: true
+---
+
+# Migraciones: sin destrucción de datos en producción
+
+## Objetivo
+
+Los entornos reales comparten el **mismo estándar de cuidado que producción**: las migraciones en **`supabase/migrations/`** deben ser **aditivas y reversibles en intención**, no operaciones que **pierdan filas o historial** salvo un **proceso explícito fuera del agente** (runbook, ventana acordada, backup verificado, aprobación humana).
+
+## Prohibido en migraciones que el agente proponga o escriba
+
+1. **`TRUNCATE`** sobre tablas de dominio o cualquier tabla con datos de negocio.
+2. **`DELETE`** masivo o sin un **subconjunto acotado y justificado en PR** (p. ej. limpieza de filas huérfanas ya validadas). Si el alcance no es trivial y acotado, **no** va en migración automática del agente.
+3. **`DROP TABLE`**, **`DROP SCHEMA`**, **`DROP DATABASE`** que eliminen datos existentes.
+4. **`DROP COLUMN`** / **`DROP TYPE`** (y equivalentes) que **destruyan datos persistidos** sin una **estrategia de retención** previa (ver alternativas abajo).
+5. Cualquier script de migración cuyo propósito principal sea **vaciar** o **reescribir en frío** datos de producción sin copia/verificación documentada.
+
+## Patrones permitidos (preferir siempre)
+
+- **Añadir** tablas, columnas nullable, índices, constraints nuevos sin borrar filas.
+- **Renombrar de forma segura**: añadir columna nueva → backfill → cambiar lectura en app → deprecar columna vieja **sin** `DROP COLUMN` hasta que el equipo defina archivo externo o ventana de retención.
+- **Soft delete / archivado**: columnas `archived_at`, tablas de archivo, particionado, vistas de “activos”.
+- **Correcciones acotadas**: `UPDATE`/`DELETE` con `WHERE` que **limite estrictamente** el conjunto (y que el revisor pueda razonar el tamaño); si el volumen o el riesgo es alto, **no** asumir que la migración del agente es el canal correcto.
+
+## Excepción (fuera del alcance del agente)
+
+Si el negocio exige borrado irreversible (cumplimiento, purga legal, etc.), el cambio debe quedar **documentado** (runbook / ADR según **`10-engineering-governance.mdc`**) y ejecutarse con **procedimiento humano** explícito. El agente **no** debe introducir migraciones destructivas “por conveniencia” ni para “limpiar” sin ese marco.
+
+## Checklist del agente
+
+- [ ] ¿Esta migración **elimina filas, tablas o columnas con datos**? → **Replantear** con patrón aditivo o detener y pedir instrucción explícita + proceso acordado.
+- [ ] ¿Es solo `UPDATE`/`DELETE` puntual? → ¿El `WHERE` acota de forma verificable y el impacto es aceptable en revisión?
+- [ ] ¿Altera solo esquema sin pérdida de valores (añadir nullable, índice, FK nueva en modo no bloqueante cuando aplique)? → OK respecto a esta regla.
+
+## Relación con otras reglas
+
+- **`foundation-rules.mdc`** — migraciones como fuente de verdad bajo **`supabase/migrations/`**.
+- **`10-engineering-governance.mdc`** — decisiones que tocan datos sensibles o irreversibles requieren contexto escrito.
+- **`20-agent-preflight.mdc`** — cambios de modelo amplios o ambiguos: acordar antes de implementar.

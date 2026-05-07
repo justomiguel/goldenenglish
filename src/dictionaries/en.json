@@ -2423,6 +2423,16 @@
       "backToSite": "View website",
       "signOutHint": "Sign out and return to the public site when you need to switch accounts."
     },
+    "birthdays": {
+      "cardTitle": "Upcoming birthdays",
+      "cardLead": "Students in your groups (this week and next, institute calendar).",
+      "empty": "No birthdays in the next two weeks.",
+      "todayBadge": "Today",
+      "todayCelebrate": "Celebrate with your group — wish them a great birthday!",
+      "calendarEventTitle": "Birthday",
+      "icsPrefix": "[BIRTHDAY]",
+      "icsDescription": "Student birthday (institute calendar)."
+    },
     "emails": {
       "gradePublishedParent": {
         "subject": "New published grade — family portal",
@@ -2989,7 +2999,8 @@
       "legend": {
         "class": "Regular class",
         "exam": "Assessment / exam",
-        "special": "Special event"
+        "special": "Special event",
+        "birthday": "Birthday"
       },
       "specialTypes": {
         "holiday": {
@@ -3040,6 +3051,7 @@
         "visualLegendPast": "Past",
         "visualLegendExam": "Exam",
         "visualLegendSpecial": "Special institute",
+        "visualLegendBirthday": "Birthday",
         "colorReferenceButton": "Color reference",
         "colorReferenceTitle": "Legend & schedule colors",
         "syncDialogButton": "Sync & subscribe",

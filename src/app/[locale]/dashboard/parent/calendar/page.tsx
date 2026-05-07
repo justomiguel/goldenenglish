@@ -31,7 +31,9 @@ export default async function ParentCalendarPage({ params }: PageProps) {
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
   if (profile?.role !== "parent") redirect(`/${locale}/dashboard`);
 
-  const payload = await buildPortalCalendarPagePayload(supabase, user.id, "parent");
+  const payload = await buildPortalCalendarPagePayload(supabase, user.id, "parent", {
+    birthdayCopy: dict.dashboard.birthdays,
+  });
   const origin = getPublicSiteUrl()?.origin ?? "";
   const feedUrl = payload.feedToken && origin ? `${origin}/api/calendar/feed/${payload.feedToken}.ics` : null;
 

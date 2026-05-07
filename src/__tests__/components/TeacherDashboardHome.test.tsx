@@ -12,7 +12,15 @@ describe("TeacherDashboardHome", () => {
       familyMessageAttentionCount: 0,
       sectionGrades: [],
     };
-    render(<TeacherDashboardHome locale="en" dict={dictEn} model={model} />);
+    render(
+      <TeacherDashboardHome
+        locale="en"
+        dict={dictEn}
+        model={model}
+        birthdayRows={[]}
+        birthdaysDict={dictEn.dashboard.birthdays}
+      />,
+    );
     expect(screen.getByText(dictEn.dashboard.teacher.home.retentionTitle)).toBeInTheDocument();
     expect(screen.getByText("2")).toBeInTheDocument();
     expect(screen.getByText(dictEn.dashboard.teacher.home.todayEmpty)).toBeInTheDocument();
@@ -26,7 +34,15 @@ describe("TeacherDashboardHome", () => {
       sectionGrades: [{ sectionId: "sec-1", label: "Kids A", avgScore: 8.5 }],
     };
 
-    render(<TeacherDashboardHome locale="en" dict={dictEn} model={model} />);
+    render(
+      <TeacherDashboardHome
+        locale="en"
+        dict={dictEn}
+        model={model}
+        birthdayRows={[]}
+        birthdaysDict={dictEn.dashboard.birthdays}
+      />,
+    );
 
     expect(screen.getByRole("link", { name: dictEn.dashboard.teacher.home.takeAttendanceCta })).toHaveAttribute(
       "href",

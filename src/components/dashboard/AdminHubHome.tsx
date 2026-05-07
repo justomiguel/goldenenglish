@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminHubSummary } from "@/lib/dashboard/loadAdminHubSummary";
+import type { UpcomingBirthdayCardRow } from "@/lib/birthdays/mapBirthdayRowsToDashboardCard";
+import { UpcomingBirthdaysCard } from "@/components/molecules/UpcomingBirthdaysCard";
 import { AdminHubMetricCard } from "@/components/dashboard/AdminHubMetricCard";
 import { AdminHubMessagesCard } from "@/components/dashboard/AdminHubMessagesCard";
 
@@ -17,9 +19,11 @@ interface AdminHubHomeProps {
   locale: string;
   dict: Dictionary;
   summary: AdminHubSummary;
+  birthdayRows: UpcomingBirthdayCardRow[];
+  birthdaysDict: Dictionary["dashboard"]["birthdays"];
 }
 
-export function AdminHubHome({ locale, dict, summary }: AdminHubHomeProps) {
+export function AdminHubHome({ locale, dict, summary, birthdayRows, birthdaysDict }: AdminHubHomeProps) {
   const base = `/${locale}/dashboard/admin`;
   const t = dict.admin.home.summary;
   const studentsNoSectionTitle = t.studentsWithoutSection.linkAria.replace(
@@ -77,6 +81,10 @@ export function AdminHubHome({ locale, dict, summary }: AdminHubHomeProps) {
           </span>
         </Link>
       ) : null}
+
+      <div className="mt-6 max-w-2xl">
+        <UpcomingBirthdaysCard locale={locale} rows={birthdayRows} dict={birthdaysDict} />
+      </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <AdminHubMetricCard

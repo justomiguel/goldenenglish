@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Video } from "lucide-react";
+import { MapPin, Video, Cake } from "lucide-react";
 import type { EventContentArg } from "@fullcalendar/core";
 import type { PortalCalendarEvent } from "@/types/portalCalendar";
 import type { Dictionary } from "@/types/i18n";
@@ -57,8 +57,9 @@ export function PortalCalendarFcEventContent({ arg, dict, locale, viewUi }: Port
       : arg.timeText || (arg.event.start ? timeFmt.format(arg.event.start) : dict.allDay);
 
   const compact = viewUi === "month" || viewUi === "list";
-  const Icon = xp.isVirtual ? Video : MapPin;
-  const subtitle = ev.roomLabel?.trim() || "—";
+  const isBirthday = xp.kind === "birthday";
+  const Icon = isBirthday ? Cake : xp.isVirtual ? Video : MapPin;
+  const subtitle = isBirthday ? "—" : ev.roomLabel?.trim() || "—";
 
   return (
     <div

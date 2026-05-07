@@ -37,4 +37,17 @@ describe("portalCalendarEventVisual", () => {
     const classes = portalCalendarEventFcClassNames(ev, now, { viewerId: "u99" });
     expect(classes).toContain("portal-cal-ev--own");
   });
+
+  it("styles birthday events with dedicated chip class", () => {
+    const ev: PortalCalendarEvent = {
+      id: "b1",
+      kind: "birthday",
+      title: "Birthday",
+      start: "2026-04-15T12:00:00.000Z",
+      end: "2026-04-16T12:00:00.000Z",
+      allDay: true,
+    };
+    const classes = portalCalendarEventFcClassNames(ev, now, {});
+    expect(classes).toContain("portal-cal-ev--birthday");
+  });
 });

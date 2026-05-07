@@ -7,6 +7,7 @@ import { AttendancePlayboard } from "@/components/student/AttendancePlayboard";
 import { EngagementBar } from "@/components/student/EngagementBar";
 import { StudentAttendanceCalendar } from "@/components/student/StudentAttendanceCalendar";
 import type { AppSurface } from "@/hooks/useAppSurface";
+import { UpcomingBirthdaysCard } from "@/components/molecules/UpcomingBirthdaysCard";
 import type { Dictionary } from "@/types/i18n";
 import type { AttendanceRow } from "@/lib/attendance/stats";
 import type { StudentHubModel } from "@/types/studentHub";
@@ -28,6 +29,7 @@ import { StudentLearningTasksSection } from "@/components/student/StudentLearnin
 import { StudentLearningFeedbackSection } from "@/components/student/StudentLearningFeedbackSection";
 import type { StudentLearningTaskRow } from "@/types/learningTasks";
 import type { LearningFeedbackRow } from "@/types/learningContent";
+import type { UpcomingBirthdayCardRow } from "@/lib/birthdays/mapBirthdayRowsToDashboardCard";
 
 type StudentLabels = Dictionary["dashboard"]["student"];
 
@@ -55,6 +57,8 @@ export interface StudentDashboardEntryProps {
   classReminderInbox?: ClassReminderInboxRow[];
   learningTasks?: StudentLearningTaskRow[];
   learningFeedback?: LearningFeedbackRow[];
+  birthdays?: UpcomingBirthdayCardRow[];
+  birthdaysDict?: Dictionary["dashboard"]["birthdays"];
 }
 
 export function StudentDashboardEntry({
@@ -72,6 +76,8 @@ export function StudentDashboardEntry({
   classReminderInbox = [],
   learningTasks = [],
   learningFeedback = [],
+  birthdays = [],
+  birthdaysDict,
 }: StudentDashboardEntryProps) {
   const hubDict = labels.hub;
   const body = (
@@ -84,6 +90,7 @@ export function StudentDashboardEntry({
         lead={title}
       />
       <StudentEnrollmentRenewalBanner locale={locale} kind={enrollmentRenewalKind} dict={labels.enrollmentRenewal} />
+      {birthdaysDict ? <UpcomingBirthdaysCard locale={locale} rows={birthdays} dict={birthdaysDict} /> : null}
       <StudentClassReminderInbox
         locale={locale}
         rows={classReminderInbox}

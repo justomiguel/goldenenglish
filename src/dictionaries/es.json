@@ -2423,6 +2423,16 @@
       "backToSite": "Ver sitio web",
       "signOutHint": "Cerrar sesión y volver al sitio público si necesitás cambiar de cuenta."
     },
+    "birthdays": {
+      "cardTitle": "Próximos cumpleaños",
+      "cardLead": "Alumnos de tus grupos (esta semana y la próxima, calendario del instituto).",
+      "empty": "No hay cumpleaños en las próximas dos semanas.",
+      "todayBadge": "Hoy",
+      "todayCelebrate": "Sumate a saludar — ¡que tenga un gran cumple!",
+      "calendarEventTitle": "Cumpleaños",
+      "icsPrefix": "[CUMPLE]",
+      "icsDescription": "Cumpleaños de alumno/a (calendario del instituto)."
+    },
     "emails": {
       "gradePublishedParent": {
         "subject": "Nueva nota publicada — portal familiar",
@@ -2989,7 +2999,8 @@
       "legend": {
         "class": "Clase regular",
         "exam": "Evaluación / examen",
-        "special": "Evento especial"
+        "special": "Evento especial",
+        "birthday": "Cumpleaños"
       },
       "specialTypes": {
         "holiday": {
@@ -3040,6 +3051,7 @@
         "visualLegendPast": "Pasado",
         "visualLegendExam": "Examen",
         "visualLegendSpecial": "Evento especial del instituto",
+        "visualLegendBirthday": "Cumpleaños",
         "colorReferenceButton": "Referencia de colores",
         "colorReferenceTitle": "Leyenda y colores del calendario",
         "syncDialogButton": "Sincronizar y suscribirse",

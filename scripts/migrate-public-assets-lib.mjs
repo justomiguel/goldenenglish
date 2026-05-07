@@ -27,10 +27,17 @@ export const CERT_MARKERS = [
   { slot: 3, needle: "1.31.48" },
 ];
 
-export function loadEnvLocal() {
-  const p = path.join(ROOT, ".env.local");
-  if (!fs.existsSync(p)) return;
-  const text = fs.readFileSync(p, "utf8");
+/**
+ * Parses a dotenv-style file into a plain object (no `process.env` mutation).
+ * Same rules as `loadEnvLocal` for quotes and `#` comments.
+ * @param {string} filePath
+ * @returns {Record<string, string>}
+ */
+export function readEnvFile(filePath) {
+  /** @type {Record<string, string>} */
+  const out = {};
+  if (!fs.existsSync(filePath)) return out;
+  const text = fs.readFileSync(filePath, "utf8");
   for (const line of text.split("\n")) {
     const t = line.trim();
     if (!t || t.startsWith("#")) continue;
@@ -44,6 +51,16 @@ export function loadEnvLocal() {
     ) {
       val = val.slice(1, -1);
     }
+    out[key] = val;
+  }
+  return out;
+}
+
+export function loadEnvLocal() {
+  const p = path.join(ROOT, ".env.local");
+  if (!fs.existsSync(p)) return;
+  const parsed = readEnvFile(p);
+  for (const [key, val] of Object.entries(parsed)) {
     if (!process.env[key]) process.env[key] = val;
   }
 }

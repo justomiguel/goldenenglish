@@ -6,11 +6,13 @@ import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import { DashboardGreetingHero } from "@/components/molecules/DashboardGreetingHero";
 import { ParentDashboardFamilyView } from "@/components/parent/ParentDashboardFamilyView";
 import { ParentHubMonthBillingCard } from "@/components/parent/ParentHubMonthBillingCard";
+import { UpcomingBirthdaysCard } from "@/components/molecules/UpcomingBirthdaysCard";
 import type { ParentChildSummary } from "@/lib/parent/loadParentChildrenSummaries";
 import type { ParentHubModel } from "@/types/parentHub";
 import type { ParentLearningTaskRow } from "@/types/learningTasks";
 import type { ParentLearningFeedbackRow } from "@/lib/learning-content/loadParentLearningFeedback";
 import type { ParentMonthBillingSummary } from "@/lib/parent/loadParentMonthBillingInvoiceSummary";
+import type { UpcomingBirthdayCardRow } from "@/lib/birthdays/mapBirthdayRowsToDashboardCard";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
@@ -42,6 +44,8 @@ export interface ParentDashboardEntryProps {
   learningTasks?: ParentLearningTaskRow[];
   learningFeedback?: ParentLearningFeedbackRow[];
   monthBillingSummary?: ParentMonthBillingSummary | null;
+  birthdayRows: UpcomingBirthdayCardRow[];
+  birthdaysDict: Dictionary["dashboard"]["birthdays"];
 }
 
 export function ParentDashboardEntry({
@@ -61,6 +65,8 @@ export function ParentDashboardEntry({
   learningTasks = [],
   learningFeedback = [],
   monthBillingSummary = null,
+  birthdayRows,
+  birthdaysDict,
 }: ParentDashboardEntryProps) {
   const body = (
     <div className="space-y-6">
@@ -71,6 +77,7 @@ export function ParentDashboardEntry({
         fullDateLine={fullDateLine}
         lead={lead}
       />
+      <UpcomingBirthdaysCard locale={locale} rows={birthdayRows} dict={birthdaysDict} />
       {monthBillingSummary ? (
         <ParentHubMonthBillingCard
           locale={locale}

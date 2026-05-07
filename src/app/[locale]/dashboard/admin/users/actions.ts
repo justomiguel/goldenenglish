@@ -2,67 +2,18 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
-import { z, type ZodIssue } from "zod";
+import { z } from "zod";
 import { getDictionary, defaultLocale } from "@/lib/i18n/dictionaries";
-import type { Dictionary } from "@/types/i18n";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { auditIdentityAction } from "@/lib/audit";
 import { ADMIN_INVITE_DEFAULT_PASSWORD } from "@/lib/dashboard/adminInviteDefaultPassword";
 import { resolveAuthAdminCreateUserDiagnostic } from "@/lib/dashboard/resolveAuthAdminCreateUserDiagnostic";
-import { resolveCreateDashboardUserZodMessageCode } from "@/lib/dashboard/resolveCreateDashboardUserZodMessageCode";
-
-function localizeCreateDashboardUserError(dict: Dictionary, code: string): string {
-  const U = dict.admin.users;
-  switch (code) {
-    case "forbidden":
-      return U.errCreateForbidden;
-    case "invalid_data":
-      return U.errCreateInvalid;
-    case "password_policy":
-      return U.errCreatePassword;
-    case "auth_failed":
-      return U.errCreateAuth;
-    case "no_user_returned":
-      return U.errCreateNoUser;
-    case "email_exists":
-      return U.errCreateEmailExists;
-    case "weak_password":
-      return U.errCreateWeakPassword;
-    case "profile_save_failed":
-      return U.errCreateProfileSave;
-    default:
-      return U.errCreateAuth;
-  }
-}
-
-function localizeCreateDashboardUserZod(dict: Dictionary, issues: ZodIssue[]): string {
-  const key = resolveCreateDashboardUserZodMessageCode(issues);
-  const U = dict.admin.users;
-  switch (key) {
-    case "invalid_email":
-      return U.errCreateInvalidEmail;
-    case "invalid_role":
-      return U.errCreateInvalidRole;
-    case "first_name_required":
-      return U.errCreateFirstNameRequired;
-    case "first_name_too_long":
-      return U.errCreateFirstNameTooLong;
-    case "last_name_required":
-      return U.errCreateLastNameRequired;
-    case "last_name_too_long":
-      return U.errCreateLastNameTooLong;
-    case "dni_too_long":
-      return U.errCreateDniTooLong;
-    case "phone_too_long":
-      return U.errCreatePhoneTooLong;
-    case "password_too_long":
-      return U.errCreatePasswordTooLong;
-    case "birth_date_invalid":
-      return U.errCreateBirthDateInvalid;
-    default:
-      return U.errCreateInvalid;
-  }
-}
+import {
+  localizeCreateDashboardUserError,
+  localizeCreateDashboardUserZod,
+} from "@/lib/dashboard/localizeCreateDashboardUser";
+import { repairAdminInviteWhenEmailExists } from "@/lib/dashboard/repairAdminInviteWhenEmailExists";
+import { upsertAdminInvitedProfile } from "@/lib/dashboard/upsertAdminInvitedProfile";
 
 const roleZ = z.enum(["admin", "teacher", "student", "parent", "assistant"]);
 
@@ -129,6 +80,7 @@ export async function createDashboardUser(
   const phone = parsed.data.phone;
 
   const admin = createAdminClient();
+  const emailNorm = parsed.data.email.toLowerCase();
   const meta: Record<string, string> = {
     first_name: parsed.data.first_name,
     last_name: parsed.data.last_name,
@@ -140,8 +92,18 @@ export async function createDashboardUser(
   const bd = parsed.data.birth_date?.trim();
   if (bd) meta.birth_date = bd;
 
+  const birthDate = parsed.data.birth_date?.trim();
+  const inviteProfile = {
+    role: finalRole,
+    first_name: parsed.data.first_name,
+    last_name: parsed.data.last_name,
+    dni_or_passport: dniOrPassport,
+    phone,
+    birth_date: parsed.data.birth_date,
+  };
+
   const { data: created, error } = await admin.auth.admin.createUser({
-    email: parsed.data.email.toLowerCase(),
+    email: emailNorm,
     password: finalPassword,
     email_confirm: true,
     user_metadata: meta,
@@ -151,6 +113,52 @@ export async function createDashboardUser(
     logSupabaseClientError("createDashboardUser:authAdminCreateUser", error);
     const diag = resolveAuthAdminCreateUserDiagnostic(error);
     if (diag === "email_exists") {
+      const repaired = await repairAdminInviteWhenEmailExists({
+        admin,
+        normalizedEmail: emailNorm,
+        password: finalPassword,
+        userMetadata: meta,
+        profile: inviteProfile,
+      });
+      if (repaired.kind === "repaired") {
+        const uid = repaired.userId;
+        void auditIdentityAction({
+          actorId,
+          actorRole: "admin",
+          action: "update",
+          resourceType: "profile",
+          resourceId: uid,
+          summary: "Admin completed profile for existing Auth user (admin invite repair)",
+          afterValues: {
+            id: uid,
+            email: emailNorm,
+            role: finalRole,
+            first_name: parsed.data.first_name,
+            last_name: parsed.data.last_name,
+            dni_or_passport: dniOrPassport ?? "",
+            phone: phone ?? "",
+            birth_date:
+              birthDate && birthDate.length >= 10 ? birthDate.slice(0, 10) : null,
+          },
+          metadata: {
+            provisioning_source: "admin_invite",
+            repaired_orphan_auth_user: true,
+          },
+        });
+        return { ok: true, userId: uid };
+      }
+      if (repaired.kind === "failed") {
+        if (repaired.diagnostic === "weak_password") {
+          return { ok: false, message: localizeCreateDashboardUserError(dict, "weak_password") };
+        }
+        if (repaired.diagnostic === "profile_save") {
+          return { ok: false, message: localizeCreateDashboardUserError(dict, "profile_save_failed") };
+        }
+        if (repaired.diagnostic === "list_users") {
+          return { ok: false, message: localizeCreateDashboardUserError(dict, "auth_failed") };
+        }
+        return { ok: false, message: localizeCreateDashboardUserError(dict, "auth_failed") };
+      }
       return { ok: false, message: localizeCreateDashboardUserError(dict, "email_exists") };
     }
     if (diag === "weak_password") {
@@ -163,19 +171,10 @@ export async function createDashboardUser(
   }
 
   const uid = created.user.id;
-  const birthDate = parsed.data.birth_date?.trim();
-  const { error: profileErr } = await admin.from("profiles").upsert(
-    {
-      id: uid,
-      role: finalRole,
-      first_name: parsed.data.first_name,
-      last_name: parsed.data.last_name,
-      dni_or_passport: dniOrPassport,
-      phone,
-      birth_date: birthDate && birthDate.length >= 10 ? birthDate.slice(0, 10) : null,
-    },
-    { onConflict: "id" },
-  );
+  const { error: profileErr } = await upsertAdminInvitedProfile(admin, {
+    userId: uid,
+    ...inviteProfile,
+  });
   if (profileErr) {
     logSupabaseClientError("createDashboardUser:profilesUpsert", profileErr, { userId: uid });
     return { ok: false, message: localizeCreateDashboardUserError(dict, "profile_save_failed") };
@@ -190,7 +189,7 @@ export async function createDashboardUser(
     summary: "Admin created dashboard user",
     afterValues: {
       id: uid,
-      email: parsed.data.email.toLowerCase(),
+      email: emailNorm,
       role: finalRole,
       first_name: parsed.data.first_name,
       last_name: parsed.data.last_name,

@@ -7,6 +7,7 @@ import { loadParentFamilyHubModel } from "@/lib/parent/loadParentFamilyHubModel"
 import { loadParentMonthBillingInvoiceSummary } from "@/lib/parent/loadParentMonthBillingInvoiceSummary";
 import { loadParentLearningTasks } from "@/lib/learning-tasks/loadParentLearningTasks";
 import { loadParentLearningFeedback } from "@/lib/learning-content/loadParentLearningFeedback";
+import { loadDashboardBirthdaysCard } from "@/lib/birthdays/loadDashboardBirthdaysCard";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
 import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
 
@@ -29,7 +30,8 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const [{ data: profile }, summaries, hub, monthBillingSummary, learningTasks, learningFeedback] = await Promise.all([
+  const [{ data: profile }, summaries, hub, monthBillingSummary, learningTasks, learningFeedback, birthdayRows] =
+    await Promise.all([
     supabase.from("profiles").select("first_name").eq("id", user.id).maybeSingle(),
     loadParentChildrenSummaries(supabase, user.id),
     loadParentFamilyHubModel(
@@ -41,6 +43,7 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
     loadParentMonthBillingInvoiceSummary(supabase, user.id, locale),
     loadParentLearningTasks(supabase, user.id),
     loadParentLearningFeedback(supabase, user.id),
+    loadDashboardBirthdaysCard(supabase, user.id),
   ]);
 
   const kids = summaries.map((s) => ({
@@ -78,6 +81,8 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
       learningTasks={learningTasks}
       learningFeedback={learningFeedback}
       monthBillingSummary={monthBillingSummary}
+      birthdayRows={birthdayRows}
+      birthdaysDict={dict.dashboard.birthdays}
     />
   );
 }

@@ -31,7 +31,9 @@ export default async function StudentCalendarPage({ params }: PageProps) {
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
   if (profile?.role !== "student") redirect(`/${locale}/dashboard`);
 
-  const payload = await buildPortalCalendarPagePayload(supabase, user.id, "student");
+  const payload = await buildPortalCalendarPagePayload(supabase, user.id, "student", {
+    birthdayCopy: dict.dashboard.birthdays,
+  });
   const origin = getPublicSiteUrl()?.origin ?? "";
   const feedUrl = payload.feedToken && origin ? `${origin}/api/calendar/feed/${payload.feedToken}.ics` : null;
 

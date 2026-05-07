@@ -1,8 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PortalCalendarEvent, PortalCalendarTeacherOption } from "@/types/portalCalendar";
+import type { Dictionary } from "@/types/i18n";
+import { birthdayRpcRowsToExpandedOccurrences } from "@/lib/birthdays/birthdayRpcRowsToExpandedOccurrences";
+import { fetchPortalBirthdaysForViewer } from "@/lib/birthdays/fetchPortalBirthdaysForViewer";
 import { loadPortalCalendarPageData, type PortalCalendarPageRole } from "@/lib/calendar/loadPortalCalendarPageData";
 import { loadPortalSpecialCalendarEventsOverlapping } from "@/lib/calendar/loadPortalSpecialCalendarEvents";
 import { composePortalCalendarPageEvents } from "@/lib/calendar/composePortalCalendarPageEvents";
+import { mergeAndSortOccurrences } from "@/lib/calendar/expandPortalCalendarOccurrences";
 import { expandedOccurrencesToPortalEvents } from "@/lib/calendar/portalCalendarEventCodec";
 import { filterSpecialCalendarRowsForViewer } from "@/lib/calendar/filterSpecialCalendarRowsForViewer";
 
@@ -26,28 +30,47 @@ export async function buildPortalCalendarPagePayload(
   supabase: SupabaseClient,
   userId: string,
   role: PortalCalendarPageRole,
-  opts?: { adminTeacherId?: string | null; adminRoom?: string | null },
+  opts?: {
+    adminTeacherId?: string | null;
+    adminRoom?: string | null;
+    /** Required for i18n titles on birthday calendar rows. */
+    birthdayCopy?: Dictionary["dashboard"]["birthdays"];
+  },
 ): Promise<{
   events: PortalCalendarEvent[];
   teacherOptions: PortalCalendarTeacherOption[];
   roomOptions: string[];
   feedToken: string | null;
 }> {
-  const page = await loadPortalCalendarPageData(supabase, {
-    role,
-    userId,
-    adminTeacherId: opts?.adminTeacherId ?? null,
-    adminRoom: opts?.adminRoom ?? null,
-  });
   const { viewStartIso, viewEndIso } = defaultViewWindow();
-  const specialRowsRaw = await loadPortalSpecialCalendarEventsOverlapping(supabase, viewStartIso, viewEndIso);
+  const [page, specialRowsRaw, birthdayRows] = await Promise.all([
+    loadPortalCalendarPageData(supabase, {
+      role,
+      userId,
+      adminTeacherId: opts?.adminTeacherId ?? null,
+      adminRoom: opts?.adminRoom ?? null,
+    }),
+    loadPortalSpecialCalendarEventsOverlapping(supabase, viewStartIso, viewEndIso),
+    opts?.birthdayCopy
+      ? fetchPortalBirthdaysForViewer(supabase, userId, viewStartIso, viewEndIso)
+      : Promise.resolve([]),
+  ]);
   const specialRows = filterSpecialCalendarRowsForViewer(specialRowsRaw, {
     role,
     userId,
     viewerSectionIds: page.viewerSectionIds,
     viewerCohortIds: page.viewerCohortIds,
   });
-  const expanded = composePortalCalendarPageEvents(page.sections, page.exams, specialRows, viewStartIso, viewEndIso);
+  const composed = composePortalCalendarPageEvents(page.sections, page.exams, specialRows, viewStartIso, viewEndIso);
+  const birthdayExpanded =
+    opts?.birthdayCopy != null
+      ? birthdayRpcRowsToExpandedOccurrences(birthdayRows, {
+          eventTitle: opts.birthdayCopy.calendarEventTitle,
+          icsPrefix: opts.birthdayCopy.icsPrefix,
+          icsDescription: opts.birthdayCopy.icsDescription,
+        })
+      : [];
+  const expanded = mergeAndSortOccurrences([composed, birthdayExpanded]);
   const events = expandedOccurrencesToPortalEvents(expanded);
 
   const { data: tokRow } = await supabase

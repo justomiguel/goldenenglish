@@ -1,6 +1,6 @@
 import type { PortalSpecialEventTypeSlug } from "@/types/portalSpecialCalendar";
 
-export type PortalCalendarEventKind = "class" | "exam" | "special";
+export type PortalCalendarEventKind = "class" | "exam" | "special" | "birthday";
 
 /** UI / JSON serialization for the portal calendar screen. */
 export type PortalCalendarEvent = {

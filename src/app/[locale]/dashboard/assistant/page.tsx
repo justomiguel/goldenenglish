@@ -6,7 +6,9 @@ import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortal
 import { loadTeacherSectionIdsForUser } from "@/lib/academics/loadTeacherSectionIdsForUser";
 import { chunkedIn } from "@/lib/supabase/chunkedIn";
 import { StaffAssistantSectionCard } from "@/components/molecules/StaffAssistantSectionCard";
+import { UpcomingBirthdaysCard } from "@/components/molecules/UpcomingBirthdaysCard";
 import { resolveStaffAssistantPortal } from "@/lib/dashboard/resolveStaffAssistantPortal";
+import { loadDashboardBirthdaysCard } from "@/lib/birthdays/loadDashboardBirthdaysCard";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -85,12 +87,15 @@ export default async function AssistantDashboardHomePage({ params }: PageProps) 
     }
   }
 
+  const birthdayRows = await loadDashboardBirthdaysCard(supabase, user.id);
+
   return (
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">{dDash.title}</h1>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{dDash.lead}</p>
       </header>
+      <UpcomingBirthdaysCard locale={locale} rows={birthdayRows} dict={dict.dashboard.birthdays} />
       {sectionList.length === 0 ? (
         <p className="text-sm text-[var(--color-muted-foreground)]">{dDash.noSections}</p>
       ) : (

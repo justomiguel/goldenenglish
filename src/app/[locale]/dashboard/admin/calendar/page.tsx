@@ -40,6 +40,7 @@ export default async function AdminCalendarPage({ params, searchParams }: PagePr
   const payload = await buildPortalCalendarPagePayload(supabase, user.id, "admin", {
     adminTeacherId: teacherRaw.trim() || null,
     adminRoom: roomRaw.trim() || null,
+    birthdayCopy: dict.dashboard.birthdays,
   });
   const origin = getPublicSiteUrl()?.origin ?? "";
   const feedUrl = payload.feedToken && origin ? `${origin}/api/calendar/feed/${payload.feedToken}.ics` : null;

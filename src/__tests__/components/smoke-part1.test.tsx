@@ -146,7 +146,7 @@ describe("component smoke — landing & gates", () => {
   });
 
   it("AdminHubHome", () => {
-    render(<AdminHubHome locale="es" dict={dictEn} summary={adminHubSummaryStub} />);
+    render(<AdminHubHome locale="es" dict={dictEn} summary={adminHubSummaryStub} birthdayRows={[]} birthdaysDict={dictEn.dashboard.birthdays} />);
     expect(screen.getByText(dictEn.admin.home.title)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: new RegExp(dictEn.dashboard.adminNav.users) })).toHaveAttribute(
       "href",
@@ -160,6 +160,8 @@ describe("component smoke — landing & gates", () => {
         locale="es"
         dict={dictEn}
         summary={{ ...adminHubSummaryStub, studentsWithoutSection: 2 }}
+        birthdayRows={[]}
+        birthdaysDict={dictEn.dashboard.birthdays}
       />,
     );
     expect(

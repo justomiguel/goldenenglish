@@ -152,6 +152,12 @@
   color: var(--color-foreground) !important;
 }
 
+.portal-calendar .fc-event.portal-cal-ev--birthday {
+  background-color: color-mix(in srgb, var(--color-secondary) 28%, var(--color-surface)) !important;
+  color: var(--color-foreground) !important;
+  box-shadow: inset 3px 0 0 0 var(--color-secondary);
+}
+
 .portal-calendar .fc-event.portal-cal-ev--own {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-secondary) 75%, transparent);
 }

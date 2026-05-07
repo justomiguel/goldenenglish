@@ -81,6 +81,8 @@ describe("Tier A entries — SurfaceMountGate branches", () => {
         payHref="/es/x"
         kids={[{ id: "1", first_name: "A", last_name: "B" }]}
         parentLabels={dictEn.dashboard.parent}
+        birthdayRows={[]}
+        birthdaysDict={dictEn.dashboard.birthdays}
       />,
     );
     expect(screen.getByTestId("sk")).toBeInTheDocument();

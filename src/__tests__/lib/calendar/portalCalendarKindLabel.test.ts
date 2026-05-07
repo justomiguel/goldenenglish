@@ -9,6 +9,10 @@ describe("portalCalendarKindLabel", () => {
     expect(portalCalendarKindLabel("exam", undefined, legend, specialTypes)).toBe(legend.exam);
   });
 
+  it("returns birthday label", () => {
+    expect(portalCalendarKindLabel("birthday", undefined, legend, specialTypes)).toBe(legend.birthday);
+  });
+
   it("returns special chip when type set", () => {
     expect(portalCalendarKindLabel("special", "holiday", legend, specialTypes)).toBe(specialTypes.holiday.chip);
   });

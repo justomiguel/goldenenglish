@@ -26,6 +26,7 @@ function icsValueDateFromUtcMs(ms: number): string {
 function categoryFor(ev: ExpandedPortalOccurrence): string {
   if (ev.kind === "class") return "GE_CLASS";
   if (ev.kind === "exam") return "GE_EXAM";
+  if (ev.kind === "birthday") return "GE_BIRTHDAY";
   if (ev.kind === "special" && ev.specialEventType) return icsCategoryForSpecialType(ev.specialEventType);
   return "GE_SPECIAL";
 }

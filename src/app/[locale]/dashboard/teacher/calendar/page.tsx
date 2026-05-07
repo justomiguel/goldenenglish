@@ -37,7 +37,9 @@ export default async function TeacherCalendarPage({ params }: PageProps) {
     redirect(`/${locale}/dashboard`);
   }
 
-  const payload = await buildPortalCalendarPagePayload(supabase, user.id, "teacher");
+  const payload = await buildPortalCalendarPagePayload(supabase, user.id, "teacher", {
+    birthdayCopy: dict.dashboard.birthdays,
+  });
   const origin = getPublicSiteUrl()?.origin ?? "";
   const feedUrl = payload.feedToken && origin ? `${origin}/api/calendar/feed/${payload.feedToken}.ics` : null;
 

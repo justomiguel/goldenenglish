@@ -2,7 +2,10 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { birthdayRpcRowsToExpandedOccurrences } from "@/lib/birthdays/birthdayRpcRowsToExpandedOccurrences";
+import { fetchPortalBirthdaysForViewer } from "@/lib/birthdays/fetchPortalBirthdaysForViewer";
 import { calendarFeedRoleFromProfileRole } from "@/lib/calendar/calendarFeedRole";
+import { mergeAndSortOccurrences } from "@/lib/calendar/expandPortalCalendarOccurrences";
 import { loadPortalCalendarPageData } from "@/lib/calendar/loadPortalCalendarPageData";
 import { loadPortalSpecialCalendarEventsOverlapping } from "@/lib/calendar/loadPortalSpecialCalendarEvents";
 import { composePortalCalendarPageEvents } from "@/lib/calendar/composePortalCalendarPageEvents";
@@ -61,7 +64,10 @@ export async function buildIcsCalendarFeedResponse(tokenRaw: string): Promise<Ic
     role: portalRole,
     userId: profile.id as string,
   });
-  const specialRowsRaw = await loadPortalSpecialCalendarEventsOverlapping(admin, viewStartIso, viewEndIso);
+  const [specialRowsRaw, birthdayRows] = await Promise.all([
+    loadPortalSpecialCalendarEventsOverlapping(admin, viewStartIso, viewEndIso),
+    fetchPortalBirthdaysForViewer(admin, profile.id as string, viewStartIso, viewEndIso),
+  ]);
   const specialRows = filterSpecialCalendarRowsForViewer(specialRowsRaw, {
     role: portalRole,
     userId: profile.id as string,
@@ -70,7 +76,14 @@ export async function buildIcsCalendarFeedResponse(tokenRaw: string): Promise<Ic
   });
   const composed = composePortalCalendarPageEvents(page.sections, page.exams, specialRows, viewStartIso, viewEndIso);
   const dict = await getDictionary(defaultLocale);
-  const rows = applyPortalSpecialEventIcsPresentation(composed, dict.dashboard.portalCalendar.specialTypes);
+  const birthdayCopy = dict.dashboard.birthdays;
+  const birthdayExpanded = birthdayRpcRowsToExpandedOccurrences(birthdayRows, {
+    eventTitle: birthdayCopy.calendarEventTitle,
+    icsPrefix: birthdayCopy.icsPrefix,
+    icsDescription: birthdayCopy.icsDescription,
+  });
+  const merged = mergeAndSortOccurrences([composed, birthdayExpanded]);
+  const rows = applyPortalSpecialEventIcsPresentation(merged, dict.dashboard.portalCalendar.specialTypes);
   const brand = await getBrandForRequest();
   const body = formatPortalCalendarIcs(rows, { calName: brand.name, brandName: brand.name });
   return { ok: true, body };

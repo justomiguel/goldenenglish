@@ -58,6 +58,8 @@ describe("Tier A dashboard entries", () => {
         payHref="/es/pay"
         kids={[{ id: "1", first_name: "A", last_name: "B" }]}
         parentLabels={dictEn.dashboard.parent}
+        birthdayRows={[]}
+        birthdaysDict={dictEn.dashboard.birthdays}
       />,
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Buen día, Marta");
@@ -93,6 +95,8 @@ describe("Tier A dashboard entries", () => {
         ]}
         selectedStudentId="s1"
         parentLabels={dictEn.dashboard.parent}
+        birthdayRows={[]}
+        birthdaysDict={dictEn.dashboard.birthdays}
       />,
     );
     expect(screen.getByText("90%")).toBeInTheDocument();

@@ -40,6 +40,13 @@ function CalendarVisualLegend({ dict }: { dict: PortalCalDict }) {
           <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--color-accent)]" aria-hidden />
           {s.visualLegendSpecial}
         </li>
+        <li className="flex items-center gap-2">
+          <span
+            className="h-2.5 w-2.5 shrink-0 rounded-full bg-[color-mix(in_srgb,var(--color-secondary)_62%,var(--color-surface))]"
+            aria-hidden
+          />
+          {s.visualLegendBirthday}
+        </li>
       </ul>
     </div>
   );
@@ -60,6 +67,10 @@ function CalendarColorReferenceBody({ dict }: { dict: PortalCalDict }) {
         <span className="inline-flex items-center gap-1">
           <span className="h-2 w-6 rounded-sm bg-[var(--color-accent)]/60" aria-hidden />
           {dict.legend.special}
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="h-2 w-6 rounded-sm bg-[color-mix(in_srgb,var(--color-secondary)_55%,var(--color-surface))]" aria-hidden />
+          {dict.legend.birthday}
         </span>
       </div>
       <PortalCalendarSpecialLegend title={dict.specialLegendTitle} types={dict.specialTypes} />

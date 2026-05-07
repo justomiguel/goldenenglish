@@ -39,5 +39,6 @@ Si el tenant expone **plantilla propia** en CMS / landing (como `mozarthitos` / 
 ## Referencias
 
 - Ejemplo targets existentes: `golden`, `mozarthitos`, `espaciozenit`.
-- Deploy: `npm run deploy:vercel -- <slug> [--prod]`.
+- Deploy (un tenant o todos, flags, prereqs): **[`scripts/README.md`](../scripts/README.md#deploy-a-vercel-multi-tenant)**.
+- Atajo todos los entornos prod: `npm run deploy:vercel:all:prod` (equiv. `node scripts/deploy-vercel.mjs --all --prod`).
 - Variables Sensitive en Vercel: documentación en `.env.example` y Vercel docs.

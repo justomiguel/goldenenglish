@@ -11,16 +11,30 @@ vi.mock("@/lib/dashboard/assertAdmin", () => ({
 }));
 
 const mockCreateUser = vi.fn();
+const mockListUsers = vi.fn();
+const mockUpdateUserById = vi.fn();
 const mockProfilesUpsert = vi.fn().mockResolvedValue({ error: null });
+const mockProfilesMaybeSingle = vi.fn().mockResolvedValue({
+  data: { id: "existing" },
+  error: null,
+});
+
 const mockAdminClient = {
   auth: {
     admin: {
       createUser: (...args: unknown[]) => mockCreateUser(...args),
+      listUsers: (...args: unknown[]) => mockListUsers(...args),
+      updateUserById: (...args: unknown[]) => mockUpdateUserById(...args),
     },
   },
   from: vi.fn((table: string) => {
     if (table === "profiles") {
-      return { upsert: mockProfilesUpsert };
+      return {
+        upsert: mockProfilesUpsert,
+        select: () => ({
+          eq: () => ({ maybeSingle: mockProfilesMaybeSingle }),
+        }),
+      };
     }
     throw new Error(`unexpected table ${table}`);
   }),
@@ -49,6 +63,15 @@ describe("createDashboardUser", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockProfilesUpsert.mockResolvedValue({ error: null });
+    mockProfilesMaybeSingle.mockResolvedValue({
+      data: { id: "existing" },
+      error: null,
+    });
+    mockListUsers.mockResolvedValue({
+      data: { users: [{ id: "orphan", email: "u@test.com" }] },
+      error: null,
+    });
+    mockUpdateUserById.mockResolvedValue({ data: { user: {} }, error: null });
   });
 
   it("returns Forbidden when not admin", async () => {
@@ -77,14 +100,38 @@ describe("createDashboardUser", () => {
     expect(r).toEqual({ ok: false, message: U.errCreateAuth });
   });
 
-  it("returns email_exists when auth reports duplicate", async () => {
+  it("returns email_exists when auth reports duplicate and profile already exists", async () => {
     mockAssertAdmin.mockResolvedValue(adminCtx);
     mockCreateUser.mockResolvedValue({
       data: { user: null },
       error: { message: "User already registered" },
     });
+    mockProfilesMaybeSingle.mockResolvedValue({
+      data: { id: "same-user" },
+      error: null,
+    });
     const r = await createDashboardUser(validPayload);
     expect(r).toEqual({ ok: false, message: U.errCreateEmailExists });
+    expect(mockUpdateUserById).not.toHaveBeenCalled();
+  });
+
+  it("repairs orphan auth user when email exists but profile row is missing", async () => {
+    mockAssertAdmin.mockResolvedValue(adminCtx);
+    mockCreateUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: "User already registered" },
+    });
+    mockProfilesMaybeSingle.mockResolvedValue({ data: null, error: null });
+    const r = await createDashboardUser(validPayload);
+    expect(r).toEqual({ ok: true, userId: "orphan" });
+    expect(mockUpdateUserById).toHaveBeenCalledWith(
+      "orphan",
+      expect.objectContaining({
+        password: validPayload.password,
+        email_confirm: true,
+      }),
+    );
+    expect(mockProfilesUpsert).toHaveBeenCalled();
   });
 
   it("returns profile_save_failed when profiles upsert fails", async () => {

@@ -1,19 +1,30 @@
 import Link from "next/link";
 import { AlertTriangle, CalendarClock, ClipboardList, Inbox, MessageSquare, BarChart3 } from "lucide-react";
+import { UpcomingBirthdaysCard } from "@/components/molecules/UpcomingBirthdaysCard";
 import { DashboardGreetingHero } from "@/components/molecules/DashboardGreetingHero";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
 import { teacherSectionAvgTone } from "@/lib/teacher/teacherSectionAvgTone";
 import type { Dictionary } from "@/types/i18n";
 import type { TeacherDashboardModel } from "@/types/teacherDashboard";
+import type { UpcomingBirthdayCardRow } from "@/lib/birthdays/mapBirthdayRowsToDashboardCard";
 
 export interface TeacherDashboardHomeProps {
   locale: string;
   dict: Dictionary;
   model: TeacherDashboardModel;
   firstName?: string | null;
+  birthdayRows: UpcomingBirthdayCardRow[];
+  birthdaysDict: Dictionary["dashboard"]["birthdays"];
 }
 
-export function TeacherDashboardHome({ locale, dict, model, firstName = null }: TeacherDashboardHomeProps) {
+export function TeacherDashboardHome({
+  locale,
+  dict,
+  model,
+  firstName = null,
+  birthdayRows,
+  birthdaysDict,
+}: TeacherDashboardHomeProps) {
   const h = dict.dashboard.teacher.home;
   const base = `/${locale}/dashboard/teacher`;
   const { greeting, fullDateLine } = buildDashboardGreeting(locale, dict);
@@ -27,6 +38,8 @@ export function TeacherDashboardHome({ locale, dict, model, firstName = null }: 
         fullDateLine={fullDateLine}
         lead={dict.dashboard.teacher.lead}
       />
+
+      <UpcomingBirthdaysCard locale={locale} rows={birthdayRows} dict={birthdaysDict} />
 
       <section aria-label={h.metricsAria} className="grid gap-4 sm:grid-cols-2">
         <KpiTile
