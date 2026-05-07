@@ -3,9 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
-import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { prepareTeacherSectionAttendancePage } from "@/lib/academics/prepareTeacherSectionAttendancePage";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
+import { resolveStaffAssistantPortal } from "@/lib/dashboard/resolveStaffAssistantPortal";
 import { SectionAttendancePageBody } from "@/components/organisms/SectionAttendancePageBody";
 import type { TeacherAttendanceScope } from "@/components/molecules/TeacherAttendanceScopeLinks";
 
@@ -28,23 +28,23 @@ function parseScope(raw: string | string[] | undefined): TeacherAttendanceScope 
   return v === "full" ? "full" : "operational";
 }
 
-export default async function TeacherSectionAttendancePage({ params, searchParams }: PageProps) {
+export default async function AssistantSectionAttendancePage({ params, searchParams }: PageProps) {
   const { locale, sectionId } = await params;
   const scope = parseScope((await searchParams).scope);
   const dict = await getDictionary(locale);
   const d = dict.dashboard.teacherSectionAttendance;
+  const dAssist = dict.dashboard.assistantDashboard;
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
+  const roleOk = await resolveStaffAssistantPortal(supabase, user.id);
+  if (!roleOk) redirect(`/${locale}/dashboard`);
+
   const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
-  if (!allowed) {
-    const isAdmin = await resolveIsAdminSession(supabase, user.id);
-    if (isAdmin) redirect(`/${locale}/dashboard/admin/academic`);
-    redirect(`/${locale}/dashboard`);
-  }
+  if (!allowed) redirect(`/${locale}/dashboard`);
 
   const { data: section, error: secErr } = await supabase
     .from("academic_sections")
@@ -66,9 +66,9 @@ export default async function TeacherSectionAttendancePage({ params, searchParam
     section: section as { starts_on?: string | null; ends_on?: string | null; schedule_slots?: unknown },
   });
 
-  const sectionHome = `/${locale}/dashboard/teacher/sections/${sectionId}`;
+  const assistantBase = `/${locale}/dashboard/assistant`;
   const buildScopeHref = (s: TeacherAttendanceScope) => {
-    const base = `/${locale}/dashboard/teacher/sections/${sectionId}/attendance`;
+    const base = `${assistantBase}/sections/${sectionId}/attendance`;
     return s === "full" ? `${base}?scope=full` : base;
   };
 
@@ -80,8 +80,8 @@ export default async function TeacherSectionAttendancePage({ params, searchParam
       sectionName={section.name as string}
       prep={prep}
       dict={d}
-      backHref={sectionHome}
-      backLabel={d.backToSection}
+      backHref={assistantBase}
+      backLabel={dAssist.backToAssistantHome}
       buildScopeHref={buildScopeHref}
     />
   );

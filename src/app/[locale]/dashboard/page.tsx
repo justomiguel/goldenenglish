@@ -10,6 +10,7 @@ interface DashboardIndexProps {
 const SEGMENT: Record<string, string> = {
   admin: "admin",
   teacher: "teacher",
+  assistant: "assistant",
   student: "student",
   parent: "parent",
 };

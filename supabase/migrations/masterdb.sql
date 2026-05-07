@@ -10379,3 +10379,606 @@ CREATE POLICY site_settings_select_public
   USING (
     key IN ('inscriptions_enabled', 'initial_site_setup')
   );
+
+-- ========== 093_site_theme_kind_mozarthitos.sql ==========
+
+-- Add Mozarthitos to site_theme_kind. Cannot INSERT using this label in the
+-- same transaction (PG 55P04). Seed rows live in 094_site_theme_mozarthitos_seed.sql.
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_enum e
+    JOIN pg_type t ON t.oid = e.enumtypid
+    WHERE t.typname = 'site_theme_kind' AND e.enumlabel = 'mozarthitos'
+  ) THEN
+    ALTER TYPE public.site_theme_kind ADD VALUE 'mozarthitos';
+  END IF;
+END $$;
+
+UPDATE public.site_themes
+SET name = 'Golden'
+WHERE slug = 'default' AND is_system_default = TRUE;
+
+-- ========== 094_site_theme_mozarthitos_seed.sql ==========
+
+-- Runs after 093 commits so 'mozarthitos' enum label is usable.
+
+INSERT INTO public.site_themes (
+  slug,
+  name,
+  is_active,
+  template_kind,
+  properties,
+  content,
+  blocks,
+  is_system_default
+)
+VALUES (
+  'mozarthitos',
+  'Mozarthitos',
+  FALSE,
+  'mozarthitos'::public.site_theme_kind,
+  jsonb_build_object(
+    'app.name', 'Mozarthitos',
+    'app.legal.name', 'Academia Mozarthitos',
+    'app.tagline', 'Primera Academia en Chile y Sudamérica con alfabetización sonora',
+    'app.tagline.en', 'First academy in Chile and South America with sound literacy',
+    'app.legal.registry', 'Mozarthitos',
+    'app.logo.path', '/images/mozarthitos/inicio/1.png',
+    'app.logo.alt', 'Mozarthitos',
+    'app.favicon.path', '/favicon_io/favicon.ico',
+    'contact.phone', '+56 9 5991 6314',
+    'contact.email', 'info@mozarthitos.cl',
+    'contact.address', 'Santiago, Chile',
+    'social.instagram', 'https://www.instagram.com/mozarthitos/'
+  ),
+  '{}'::jsonb,
+  '[]'::jsonb,
+  FALSE
+)
+ON CONFLICT (slug) DO UPDATE
+SET
+  name = EXCLUDED.name,
+  template_kind = EXCLUDED.template_kind,
+  is_system_default = FALSE,
+  properties = EXCLUDED.properties;
+
+-- ========== 095_mozarthitos_theme_brand_properties.sql ==========
+
+-- Brand overrides for mozarthitos (idempotent). Apps that ran 094 before
+-- properties were seeded need this update; fresh installs already have them via 094.
+
+UPDATE public.site_themes
+SET
+  properties =
+    coalesce(properties, '{}'::jsonb)
+    || jsonb_build_object(
+      'app.name', 'Mozarthitos',
+      'app.legal.name', 'Academia Mozarthitos',
+      'app.tagline', 'Primera Academia en Chile y Sudamérica con alfabetización sonora',
+      'app.tagline.en', 'First academy in Chile and South America with sound literacy',
+      'app.legal.registry', 'Mozarthitos',
+      'app.logo.path', '/images/mozarthitos/inicio/1.png',
+      'app.logo.alt', 'Mozarthitos',
+      'app.favicon.path', '/favicon_io/favicon.ico'
+    ),
+  updated_at = now()
+WHERE slug = 'mozarthitos';
+
+-- ========== 096_mozarthitos_theme_contact_merge.sql ==========
+
+-- Mozarthitos: fondo de contacto / redes en `site_themes.properties` (merge, no pisa otras claves).
+-- Así el pie usa la marca del tema y no solo `system.properties` (Golden).
+
+UPDATE public.site_themes
+SET
+  properties =
+    coalesce(properties, '{}'::jsonb)
+    || jsonb_build_object(
+      'contact.phone', '+56 9 5991 6314',
+      'contact.email', 'info@mozarthitos.cl',
+      'contact.address', 'Santiago, Chile',
+      'social.instagram', 'https://www.instagram.com/mozarthitos/'
+    ),
+  updated_at = now()
+WHERE slug = 'mozarthitos';
+
+-- ========== 097_mozarthitos_theme_color_palette.sql ==========
+
+-- Paleta Mozarthitos alineada a `src/styles/mozarthitosLanding.css` (--mz-*).
+-- Sin esto, `site_themes.properties` no redefine color.* y queda la paleta Golden de system.properties.
+
+UPDATE public.site_themes
+SET
+  properties =
+    coalesce(properties, '{}'::jsonb)
+    || jsonb_build_object(
+      'color.primary', '#c41e3a',
+      'color.primary.light', '#ff455d',
+      'color.primary.dark', '#9b1428',
+      'color.primary.foreground', '#FFFFFF',
+      'color.secondary', '#1096f0',
+      'color.secondary.light', '#37a4ff',
+      'color.secondary.dark', '#0c7cbd',
+      'color.secondary.foreground', '#FFFFFF',
+      'color.accent', '#f3c94e',
+      'color.accent.foreground', '#1a0a0d',
+      'color.background', '#FFFBF8',
+      'color.surface', '#FFFFFF',
+      'color.foreground', '#545454',
+      'color.muted', '#FFF5F0',
+      'color.muted.foreground', '#6B7280',
+      'color.border', '#F0E4DE',
+      'color.success', '#16A34A',
+      'color.warning', '#EAB308',
+      'color.error', '#DC2626',
+      'color.info', '#1096f0',
+      'color.calendarSpecial.holiday', '#374151',
+      'color.calendarSpecial.institutionalExam', '#9b1428',
+      'color.calendarSpecial.parentMeeting', '#6D28D9',
+      'color.calendarSpecial.social', '#166534',
+      'color.calendarSpecial.trimesterAdmin', '#1096f0',
+      'shadow.soft', '0 4px 24px -4px rgb(196 30 58 / 11%)',
+      'shadow.card', '0 12px 40px -12px rgb(16 150 240 / 16%)'
+    ),
+  updated_at = now()
+WHERE slug = 'mozarthitos';
+
+-- ========== 098_mozarthitos_address_republica_arabe.sql ==========
+
+-- Sede Las Condes: dirección correcta en propiedades del tema (pie / marca / JSON-LD).
+
+UPDATE public.site_themes
+SET
+  properties =
+    coalesce(properties, '{}'::jsonb)
+    || jsonb_build_object(
+      'contact.address',
+      'República Árabe de Egipto 670, Las Condes, Santiago, Chile'
+    ),
+  updated_at = now()
+WHERE slug = 'mozarthitos';
+
+-- ========== 099_site_theme_kind_espaciozenit.sql ==========
+
+-- Add espaciozenit to site_theme_kind. Seed rows live in 100_site_theme_espaciozenit_seed.sql.
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_enum e
+    JOIN pg_type t ON t.oid = e.enumtypid
+    WHERE t.typname = 'site_theme_kind' AND e.enumlabel = 'espaciozenit'
+  ) THEN
+    ALTER TYPE public.site_theme_kind ADD VALUE 'espaciozenit';
+  END IF;
+END $$;
+
+-- ========== 100_site_theme_espaciozenit_seed.sql ==========
+
+-- Runs after 099 commits so 'espaciozenit' enum label is usable.
+
+INSERT INTO public.site_themes (
+  slug,
+  name,
+  is_active,
+  template_kind,
+  properties,
+  content,
+  blocks,
+  is_system_default
+)
+VALUES (
+  'espaciozenit',
+  'Espacio Zenit',
+  FALSE,
+  'espaciozenit'::public.site_theme_kind,
+  jsonb_build_object(
+    'app.name', 'Espacio Zenit',
+    'app.legal.name', 'Espacio Zenit',
+    'app.tagline', 'Espacio para estudiar con calma',
+    'app.tagline.en', 'A calm space for focused learning',
+    'app.legal.registry', 'Espacio Zenit',
+    'app.logo.path', '/images/espaciozenit/inicio/1.png',
+    'app.logo.alt', 'Espacio Zenit',
+    'app.favicon.path', '/favicon_io/favicon.ico',
+    'contact.phone', '+56 9 0000 0000',
+    'contact.email', 'hola@espaciozenit.example',
+    'contact.address', 'Chile',
+    'social.instagram', 'https://www.instagram.com/'
+  ),
+  '{}'::jsonb,
+  '[]'::jsonb,
+  FALSE
+)
+ON CONFLICT (slug) DO UPDATE
+SET
+  name = EXCLUDED.name,
+  template_kind = EXCLUDED.template_kind,
+  is_system_default = FALSE,
+  properties = EXCLUDED.properties;
+
+-- ========== 101_ensure_site_theme_kind_espaciozenit_enum.sql ==========
+
+-- Guarantee `site_theme_kind` includes `espaciozenit`.
+--
+-- Greenfield installs: value is usually added in `099_site_theme_kind_espaciozenit.sql` first.
+-- Legacy: if migration `099` was already applied under an older version that only added
+-- `espaciozenith`, Postgres will NOT re-run 099 — this file fixes the enum without rewrites.
+--
+-- This file intentionally contains ONLY `ALTER TYPE … ADD VALUE` so it commits in its own
+-- migration transaction before `102_*` casts to `espaciozenit`.
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_enum e
+    JOIN pg_type t ON t.oid = e.enumtypid
+    WHERE t.typname = 'site_theme_kind' AND e.enumlabel = 'espaciozenit'
+  ) THEN
+    ALTER TYPE public.site_theme_kind ADD VALUE 'espaciozenit';
+  END IF;
+END $$;
+
+-- ========== 102_espaciozenith_to_espaciozenit_backfill.sql ==========
+
+-- Backfill for deployments that ran an older migration adding enum label `espaciozenith`
+-- and row slug `espaciozenith`. The app + seeds now use `espaciozenit`.
+--
+-- Requires migration `101_ensure_site_theme_kind_espaciozenit_enum.sql` applied first
+-- so `'espaciozenit'::site_theme_kind` exists (cannot ADDVALUE + UPDATE in same transaction).
+--
+-- Idempotent when slugs / rows are already migrated.
+
+-- 1) Any theme row still stored with retired template_kind label.
+UPDATE public.site_themes st
+SET template_kind = 'espaciozenit'::public.site_theme_kind
+WHERE st.template_kind IS NOT NULL
+  AND st.template_kind::text = 'espaciozenith';
+
+-- 2) Rename slug when there is no row yet at `espaciozenit`.
+UPDATE public.site_themes st
+SET
+  slug = 'espaciozenit',
+  name = 'Espacio Zenit',
+  properties = replace(
+    replace(st.properties::text, '/images/espaciozenith/', '/images/espaciozenit/'),
+    'espaciozenith.example',
+    'espaciozenit.example'
+  )::jsonb,
+  template_kind = 'espaciozenit'::public.site_theme_kind
+WHERE st.slug = 'espaciozenith'
+  AND NOT EXISTS (
+    SELECT 1 FROM public.site_themes z WHERE z.slug = 'espaciozenit'
+  );
+
+-- 3) Repair canonical `espaciozenit` row (paths / display name).
+UPDATE public.site_themes st
+SET
+  template_kind = 'espaciozenit'::public.site_theme_kind,
+  properties = replace(
+    replace(st.properties::text, '/images/espaciozenith/', '/images/espaciozenit/'),
+    'espaciozenith.example',
+    'espaciozenit.example'
+  )::jsonb,
+  name = CASE WHEN st.name ILIKE '%zenith%' THEN 'Espacio Zenit' ELSE st.name END
+WHERE st.slug = 'espaciozenit'
+  AND (
+    st.template_kind::text = 'espaciozenith'
+    OR st.properties::text LIKE '%espaciozenith%'
+    OR st.name ILIKE '%zenith%'
+  );
+
+-- 4) If BOTH slugs existed (seed 100 + legacy row): move media onto `espaciozenit`, merge flags, drop legacy row.
+DO $$
+DECLARE
+  id_legacy uuid := (SELECT id FROM public.site_themes WHERE slug = 'espaciozenith' LIMIT 1);
+  id_canon uuid := (SELECT id FROM public.site_themes WHERE slug = 'espaciozenit' LIMIT 1);
+  merged_active boolean;
+BEGIN
+  IF id_legacy IS NULL OR id_canon IS NULL OR id_legacy = id_canon THEN
+    RETURN;
+  END IF;
+
+  -- Snapshot before toggling rows: UNIQUE (is_active) WHERE is_active only allows one true row globally.
+  -- Setting canon active while legacy is still active causes 23505.
+  SELECT canon.is_active OR leg.is_active
+  INTO merged_active
+  FROM public.site_themes canon
+  INNER JOIN public.site_themes leg ON leg.id = id_legacy
+  WHERE canon.id = id_canon;
+
+  UPDATE public.site_themes
+  SET is_active = FALSE
+  WHERE id IN (id_canon, id_legacy);
+
+  UPDATE public.site_themes canon
+  SET
+    is_active = merged_active,
+    content = CASE
+      WHEN leg.content <> '{}'::jsonb AND canon.content = '{}'::jsonb THEN leg.content
+      ELSE canon.content
+    END,
+    properties = CASE
+      WHEN length(leg.properties::text) > length(canon.properties::text) THEN leg.properties
+      ELSE canon.properties
+    END,
+    name = CASE WHEN canon.name ILIKE '%zenith%' THEN 'Espacio Zenit' ELSE canon.name END
+  FROM public.site_themes leg
+  WHERE canon.id = id_canon
+    AND leg.id = id_legacy;
+
+  UPDATE public.site_themes canon
+  SET
+    properties = replace(
+      replace(canon.properties::text, '/images/espaciozenith/', '/images/espaciozenit/'),
+      'espaciozenith.example',
+      'espaciozenit.example'
+    )::jsonb,
+    name = CASE WHEN canon.name ILIKE '%zenith%' THEN 'Espacio Zenit' ELSE canon.name END
+  WHERE canon.id = id_canon
+    AND (
+      canon.properties::text LIKE '%espaciozenith%'
+      OR canon.name ILIKE '%zenith%'
+    );
+
+  DELETE FROM public.site_theme_media n
+  USING public.site_theme_media o
+  WHERE n.theme_id = id_canon
+    AND o.theme_id = id_legacy
+    AND n.section = o.section
+    AND n.position = o.position;
+
+  UPDATE public.site_theme_media
+  SET theme_id = id_canon
+  WHERE theme_id = id_legacy;
+
+  DELETE FROM public.site_themes WHERE id = id_legacy;
+END $$;
+
+-- 5) Stored object paths referencing old folder name (landing-media rows).
+UPDATE public.site_theme_media
+SET storage_path = replace(storage_path, 'espaciozenith', 'espaciozenit')
+WHERE storage_path LIKE '%espaciozenith%';
+
+-- ========== 103_staff_assistant_global_attendance_access.sql ==========
+
+-- Staff profiles with role `assistant` may take section attendance on any non-archived class
+-- without a row in academic_section_assistants. Scoped to attendance RLS + section/enrollment reads
+-- required for the matrix (does not widen section_enrollment_teacher_is_self elsewhere).
+
+CREATE OR REPLACE FUNCTION public.section_enrollment_global_staff_assistant_for_attendance(
+  p_enrollment_id UUID
+)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.section_enrollments e
+    JOIN public.academic_sections s ON s.id = e.section_id
+    WHERE e.id = p_enrollment_id
+      AND s.archived_at IS NULL
+      AND public.user_has_role(auth.uid(), 'assistant')
+  );
+$$;
+
+COMMENT ON FUNCTION public.section_enrollment_global_staff_assistant_for_attendance(UUID) IS
+  'True when the caller has profiles.role assistant and the enrollment belongs to a non-archived section; used only in section_attendance RLS (not retention or grades).';
+
+GRANT EXECUTE ON FUNCTION public.section_enrollment_global_staff_assistant_for_attendance(UUID) TO authenticated;
+
+DROP POLICY IF EXISTS section_attendance_select_scope ON public.section_attendance;
+CREATE POLICY section_attendance_select_scope ON public.section_attendance
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR public.section_enrollment_teacher_is_self(enrollment_id)
+    OR public.section_enrollment_global_staff_assistant_for_attendance(enrollment_id)
+    OR EXISTS (
+      SELECT 1 FROM public.section_enrollments e
+      WHERE e.id = section_attendance.enrollment_id
+        AND (
+          e.student_id = auth.uid()
+          OR EXISTS (
+            SELECT 1 FROM public.tutor_student_rel ts
+            WHERE ts.tutor_id = auth.uid() AND ts.student_id = e.student_id
+          )
+        )
+    )
+  );
+
+DROP POLICY IF EXISTS section_attendance_teacher_write ON public.section_attendance;
+CREATE POLICY section_attendance_teacher_write ON public.section_attendance
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    public.is_admin(auth.uid())
+    OR (
+      (
+        public.section_enrollment_teacher_is_self(enrollment_id)
+        OR public.section_enrollment_global_staff_assistant_for_attendance(enrollment_id)
+      )
+      AND recorded_by = auth.uid()
+      AND attended_on >= (
+        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date - INTERVAL '4000 days'
+      )::date
+      AND attended_on <= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date
+    )
+  );
+
+DROP POLICY IF EXISTS section_attendance_teacher_update ON public.section_attendance;
+CREATE POLICY section_attendance_teacher_update ON public.section_attendance
+  FOR UPDATE TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR (
+      (
+        public.section_enrollment_teacher_is_self(enrollment_id)
+        OR public.section_enrollment_global_staff_assistant_for_attendance(enrollment_id)
+      )
+      AND attended_on >= (
+        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date - INTERVAL '4000 days'
+      )::date
+      AND attended_on <= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date
+    )
+  )
+  WITH CHECK (
+    public.is_admin(auth.uid())
+    OR (
+      (
+        public.section_enrollment_teacher_is_self(enrollment_id)
+        OR public.section_enrollment_global_staff_assistant_for_attendance(enrollment_id)
+      )
+      AND attended_on >= (
+        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date - INTERVAL '4000 days'
+      )::date
+      AND attended_on <= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date
+    )
+  );
+
+DROP POLICY IF EXISTS section_attendance_teacher_delete ON public.section_attendance;
+CREATE POLICY section_attendance_teacher_delete ON public.section_attendance
+  FOR DELETE TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR (
+      (
+        public.section_enrollment_teacher_is_self(enrollment_id)
+        OR public.section_enrollment_global_staff_assistant_for_attendance(enrollment_id)
+      )
+      AND recorded_by = auth.uid()
+      AND attended_on >= (
+        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date - INTERVAL '4000 days'
+      )::date
+      AND attended_on <= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date
+    )
+  );
+
+-- List/read matrix: non-archived sections institute-wide for profile role assistant.
+DROP POLICY IF EXISTS academic_sections_select_scope ON public.academic_sections;
+CREATE POLICY academic_sections_select_scope ON public.academic_sections
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR (
+      academic_sections.archived_at IS NULL
+      AND (
+        teacher_id = auth.uid()
+        OR EXISTS (
+          SELECT 1 FROM public.academic_section_assistants a
+          WHERE a.section_id = academic_sections.id
+            AND a.assistant_id = auth.uid()
+        )
+        OR EXISTS (
+          SELECT 1 FROM public.section_enrollments e
+          WHERE e.section_id = academic_sections.id
+            AND e.status = 'active'
+            AND (
+              e.student_id = auth.uid()
+              OR EXISTS (
+                SELECT 1 FROM public.tutor_student_rel ts
+                WHERE ts.tutor_id = auth.uid() AND ts.student_id = e.student_id
+              )
+            )
+        )
+        OR (
+          public.user_has_role(auth.uid(), 'teacher')
+          AND public.teacher_teaches_cohort(auth.uid(), academic_sections.cohort_id)
+        )
+        OR public.user_has_role(auth.uid(), 'assistant')
+      )
+    )
+  );
+
+DROP POLICY IF EXISTS section_enrollments_select_scope ON public.section_enrollments;
+CREATE POLICY section_enrollments_select_scope ON public.section_enrollments
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR student_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM public.tutor_student_rel ts
+      WHERE ts.tutor_id = auth.uid() AND ts.student_id = section_enrollments.student_id
+    )
+    OR public.user_leads_or_assists_section(auth.uid(), section_enrollments.section_id)
+    OR (
+      public.user_has_role(auth.uid(), 'assistant')
+      AND public.section_is_non_archived_for_rls(section_enrollments.section_id)
+    )
+  );
+
+-- Profile reads: assistant can see student profiles (needed for attendance name labels).
+DROP POLICY IF EXISTS profiles_select_assistant_for_attendance ON public.profiles;
+CREATE POLICY profiles_select_assistant_for_attendance ON public.profiles
+  FOR SELECT TO authenticated
+  USING (
+    public.user_has_role(auth.uid(), 'assistant')
+    AND profiles.role = 'student'
+  );
+
+-- ========== 104_profiles_dni_optional.sql ==========
+
+-- Optional national ID / passport on profiles (admin quick-create, OAuth, incomplete data).
+
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_dni_nonempty;
+
+ALTER TABLE public.profiles ALTER COLUMN dni_or_passport DROP NOT NULL;
+
+DROP INDEX IF EXISTS public.profiles_dni_or_passport_uidx;
+
+CREATE UNIQUE INDEX profiles_dni_or_passport_uidx
+  ON public.profiles (lower(trim(dni_or_passport)))
+  WHERE dni_or_passport IS NOT NULL AND length(trim(dni_or_passport)) > 0;
+
+COMMENT ON COLUMN public.profiles.dni_or_passport IS
+  'National ID or passport; NULL when unknown. Uniqueness applies only when a non-empty value is present (partial unique index).';
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_dni TEXT;
+  v_role public.user_role;
+  v_role_raw TEXT;
+  v_provision TEXT;
+BEGIN
+  v_dni := NULLIF(trim(COALESCE(NEW.raw_user_meta_data ->> 'dni_or_passport', '')), '');
+
+  v_provision := COALESCE(NEW.raw_user_meta_data ->> 'provisioning_source', '');
+  v_role_raw := lower(nullif(trim(COALESCE(NEW.raw_user_meta_data ->> 'role', '')), ''));
+
+  IF v_provision = 'admin_invite'
+     AND v_role_raw IN ('admin', 'teacher', 'student', 'parent', 'assistant') THEN
+    v_role := v_role_raw::public.user_role;
+  ELSIF v_provision = 'bootstrap_wizard'
+        AND v_role_raw = 'admin' THEN
+    v_role := 'admin'::public.user_role;
+  ELSE
+    v_role := 'student';
+  END IF;
+
+  INSERT INTO public.profiles (
+    id, role, first_name, last_name, dni_or_passport, phone, birth_date
+  )
+  VALUES (
+    NEW.id,
+    v_role,
+    COALESCE(NULLIF(trim(NEW.raw_user_meta_data ->> 'first_name'), ''), '—'),
+    COALESCE(NULLIF(trim(NEW.raw_user_meta_data ->> 'last_name'), ''), '—'),
+    v_dni,
+    NULLIF(trim(COALESCE(NEW.raw_user_meta_data ->> 'phone', '')), ''),
+    NULLIF(trim(COALESCE(NEW.raw_user_meta_data ->> 'birth_date', '')), '')::date
+  );
+  RETURN NEW;
+END;
+$$;

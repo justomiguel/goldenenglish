@@ -29,7 +29,13 @@ interface PageProps {
 }
 
 function segmentForRole(role: string | undefined): string {
-  if (role === "admin" || role === "teacher" || role === "student" || role === "parent") {
+  if (
+    role === "admin" ||
+    role === "teacher" ||
+    role === "assistant" ||
+    role === "student" ||
+    role === "parent"
+  ) {
     return role;
   }
   return "student";

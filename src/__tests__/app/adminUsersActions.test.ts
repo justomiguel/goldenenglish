@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import es from "@/dictionaries/es.json";
 import { createDashboardUser } from "@/app/[locale]/dashboard/admin/users/actions";
+import { ADMIN_INVITE_DEFAULT_PASSWORD } from "@/lib/dashboard/adminInviteDefaultPassword";
 
 const U = es.admin.users;
 
@@ -56,23 +57,47 @@ describe("createDashboardUser", () => {
     expect(r).toEqual({ ok: false, message: U.errCreateForbidden });
   });
 
-  it("returns Invalid data when schema fails", async () => {
+  it("returns a field hint when schema fails email", async () => {
     mockAssertAdmin.mockResolvedValue(adminCtx);
     const r = await createDashboardUser({
       ...validPayload,
       email: "not-an-email",
+      locale: "es",
     });
-    expect(r).toEqual({ ok: false, message: U.errCreateInvalid });
+    expect(r).toEqual({ ok: false, message: U.errCreateInvalidEmail });
   });
 
   it("returns auth_failed when createUser errors", async () => {
     mockAssertAdmin.mockResolvedValue(adminCtx);
     mockCreateUser.mockResolvedValue({
       data: { user: null },
-      error: { message: "exists" },
+      error: { message: "upstream failure", code: "unknown" },
     });
     const r = await createDashboardUser(validPayload);
     expect(r).toEqual({ ok: false, message: U.errCreateAuth });
+  });
+
+  it("returns email_exists when auth reports duplicate", async () => {
+    mockAssertAdmin.mockResolvedValue(adminCtx);
+    mockCreateUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: "User already registered" },
+    });
+    const r = await createDashboardUser(validPayload);
+    expect(r).toEqual({ ok: false, message: U.errCreateEmailExists });
+  });
+
+  it("returns profile_save_failed when profiles upsert fails", async () => {
+    mockAssertAdmin.mockResolvedValue(adminCtx);
+    mockCreateUser.mockResolvedValue({
+      data: { user: { id: "x" } },
+      error: null,
+    });
+    mockProfilesUpsert.mockResolvedValue({
+      error: { message: "rls denied", code: "42501" },
+    });
+    const r = await createDashboardUser(validPayload);
+    expect(r).toEqual({ ok: false, message: U.errCreateProfileSave });
   });
 
   it("returns no_user_returned when API omits user", async () => {
@@ -112,7 +137,33 @@ describe("createDashboardUser", () => {
     expect(call.user_metadata.birth_date).toBe("2012-01-15");
   });
 
-  it("generates password when empty and succeeds", async () => {
+  it("omits blank dni_or_passport / phone from user_metadata", async () => {
+    mockAssertAdmin.mockResolvedValue(adminCtx);
+    mockCreateUser.mockResolvedValue({
+      data: { user: { id: "x" } },
+      error: null,
+    });
+    const r = await createDashboardUser({
+      email: "gen@test.com",
+      password: "secret12",
+      first_name: "A",
+      last_name: "B",
+      dni_or_passport: "  ",
+      phone: "",
+    });
+    expect(r.ok).toBe(true);
+    const call = mockCreateUser.mock.calls[0][0] as {
+      user_metadata: Record<string, string>;
+    };
+    expect(call.user_metadata.dni_or_passport).toBeUndefined();
+    expect(call.user_metadata.phone).toBeUndefined();
+    expect(mockProfilesUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({ dni_or_passport: null, phone: null }),
+      expect.any(Object),
+    );
+  });
+
+  it("uses institute default password when empty and succeeds", async () => {
     mockAssertAdmin.mockResolvedValue(adminCtx);
     mockCreateUser.mockResolvedValue({
       data: { user: { id: "x" } },
@@ -128,7 +179,7 @@ describe("createDashboardUser", () => {
     });
     expect(r).toEqual({ ok: true, userId: "x" });
     const call = mockCreateUser.mock.calls[0][0] as { password: string };
-    expect(call.password.length).toBeGreaterThanOrEqual(6);
+    expect(call.password).toBe(ADMIN_INVITE_DEFAULT_PASSWORD);
   });
 
   it("rejects short non-empty password", async () => {
@@ -136,6 +187,7 @@ describe("createDashboardUser", () => {
     const r = await createDashboardUser({
       ...validPayload,
       password: "12345",
+      locale: "es",
     });
     expect(r).toEqual({ ok: false, message: U.errCreatePassword });
   });

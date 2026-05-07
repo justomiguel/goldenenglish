@@ -1,0 +1,60 @@
+---
+description: Alineación y plan antes de implementar; palabra clave PREFLIGHT y exclusiones para cambios triviales.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Preflight: acuerdo antes de implementar
+
+## Objetivo
+
+Reducir supuestos incorrectos y deriva de alcance: en los casos que abajo se listan, el agente **no** modifica código ni archivos de configuración hasta completar el bloque “Entrega obligatoria” y recibir **confirmación explícita** del usuario.
+
+Esta regla **no** sustituye **`complete-solutions-always.mdc`**: el preflight ordena el alcance y el plan; la solución sigue siendo completa según las demás reglas del repo.
+
+## Cuándo aplicar preflight (obligatorio)
+
+Aplicar **todo** el flujo de abajo si **cualquiera** de estos puntos se cumple:
+
+1. El mensaje del usuario contiene la marca **`PREFLIGHT`** (recomendado para forzar el modo).
+2. El alcance toca **auth**, **sesión**, **roles**, **RLS** o políticas de acceso en Postgres.
+3. Hay **migración nueva**, cambio de **modelo de datos** visible fuera de un solo módulo, o **contrato público** (API route, webhook, cron, server action consumida por varios clientes).
+4. El mensaje pide explícitamente **plan**, **acordar**, **diseño** o **no implementar todavía**.
+5. La petición es **ambigua** (varias interpretaciones razonables) o falta **definition of done** claro.
+6. Toca superficies de **`.cursor/rules/17-trust-boundary-handlers.mdc`** (cron, webhooks, respuestas personalizadas, mutaciones cross-account, HTML persistido).
+
+## Cuándo **no** aplicar preflight (saltear)
+
+El agente **puede** ir directo a cambios mínimos cuando:
+
+- El usuario pide explícitamente **implementar directo**, **sin preflight**, **skip preflight**, o equivalente claro; **o**
+- El cambio es **acotado y obvio**: typo, un solo archivo ya identificado, ajuste de copy acotado, formato, o corrección trivial con riesgo bajo; **y** no cae en los bullets obligatorios de la sección anterior.
+
+Si hay duda entre “trivial” y “riesgo alto”, **aplicar preflight**.
+
+## Entrega obligatoria (antes de tocar código)
+
+En **una sola respuesta**, entregar en este orden (secciones con encabezados claros):
+
+1. **Entendimiento** — 2–4 viñetas: qué se pide y dentro de qué contexto del repo.
+2. **Supuestos y preguntas abiertas** — lo que falta confirmar; preguntas concretas al usuario.
+3. **Plan propuesto** — pasos, capas afectadas (`src/lib`, actions, UI, migraciones si aplica), patrones existentes a reutilizar (nombres de archivos si ya se conocen).
+4. **Riesgos y mitigación** — p. ej. RLS, i18n, analytics, tests, rendimiento.
+5. **Definition of done** — qué debe quedar verde o verificable (tests, checklist manual, criterios de aceptación).
+
+Luego **parar** y esperar confirmación explícita (p. ej. “adelante”, “ok implementá”, “sí”) antes de **cualquier** herramienta de edición, terminal, o patch.
+
+**Lectura de código de solo consulta** (read-only) para armar el plan está permitida antes de la confirmación cuando sea necesario para no inventar APIs.
+
+## Coherencia con gobernanza y tests
+
+- Si el preflight revela alcance cubierto por **`10-engineering-governance.mdc`**, mencionar si hace falta **ADR / mini diseño** antes o en el mismo cambio.
+- **`990-tests-failure-confirmation.mdc`** sigue aplicando en contexto de commit / gate de CI.
+
+## Checklist rápido del agente
+
+- [ ] ¿Aplica algún disparador obligatorio? → preflight completo.
+- [ ] ¿Usuario forzó `PREFLIGHT`? → siempre preflight completo.
+- [ ] ¿Usuario pidió saltear y el cambio no es de alto riesgo? → implementar directo.
+- [ ] ¿Confirmación recibida? → recién ahí editar / ejecutar comandos mutativos.

@@ -1,13 +1,15 @@
 "use server";
 
-import { randomBytes } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
-import { z } from "zod";
+import { z, type ZodIssue } from "zod";
 import { getDictionary, defaultLocale } from "@/lib/i18n/dictionaries";
 import type { Dictionary } from "@/types/i18n";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { auditIdentityAction } from "@/lib/audit";
+import { ADMIN_INVITE_DEFAULT_PASSWORD } from "@/lib/dashboard/adminInviteDefaultPassword";
+import { resolveAuthAdminCreateUserDiagnostic } from "@/lib/dashboard/resolveAuthAdminCreateUserDiagnostic";
+import { resolveCreateDashboardUserZodMessageCode } from "@/lib/dashboard/resolveCreateDashboardUserZodMessageCode";
 
 function localizeCreateDashboardUserError(dict: Dictionary, code: string): string {
   const U = dict.admin.users;
@@ -22,16 +24,47 @@ function localizeCreateDashboardUserError(dict: Dictionary, code: string): strin
       return U.errCreateAuth;
     case "no_user_returned":
       return U.errCreateNoUser;
+    case "email_exists":
+      return U.errCreateEmailExists;
+    case "weak_password":
+      return U.errCreateWeakPassword;
+    case "profile_save_failed":
+      return U.errCreateProfileSave;
     default:
       return U.errCreateAuth;
   }
 }
 
-const roleZ = z.enum(["admin", "teacher", "student", "parent", "assistant"]);
-
-function generateTempPassword(): string {
-  return randomBytes(24).toString("base64url");
+function localizeCreateDashboardUserZod(dict: Dictionary, issues: ZodIssue[]): string {
+  const key = resolveCreateDashboardUserZodMessageCode(issues);
+  const U = dict.admin.users;
+  switch (key) {
+    case "invalid_email":
+      return U.errCreateInvalidEmail;
+    case "invalid_role":
+      return U.errCreateInvalidRole;
+    case "first_name_required":
+      return U.errCreateFirstNameRequired;
+    case "first_name_too_long":
+      return U.errCreateFirstNameTooLong;
+    case "last_name_required":
+      return U.errCreateLastNameRequired;
+    case "last_name_too_long":
+      return U.errCreateLastNameTooLong;
+    case "dni_too_long":
+      return U.errCreateDniTooLong;
+    case "phone_too_long":
+      return U.errCreatePhoneTooLong;
+    case "password_too_long":
+      return U.errCreatePasswordTooLong;
+    case "birth_date_invalid":
+      return U.errCreateBirthDateInvalid;
+    default:
+      return U.errCreateInvalid;
+  }
 }
+
+const roleZ = z.enum(["admin", "teacher", "student", "parent", "assistant"]);
 
 const createUserSchema = z.object({
   email: z.string().trim().email(),
@@ -39,8 +72,20 @@ const createUserSchema = z.object({
   role: roleZ.optional(),
   first_name: z.string().trim().min(1).max(120),
   last_name: z.string().trim().min(1).max(120),
-  dni_or_passport: z.string().trim().min(1).max(32),
-  phone: z.string().trim().min(1).max(40),
+  dni_or_passport: z
+    .string()
+    .max(32)
+    .transform((s) => {
+      const t = s.trim();
+      return t === "" ? null : t;
+    }),
+  phone: z
+    .string()
+    .max(40)
+    .transform((s) => {
+      const t = s.trim();
+      return t === "" ? null : t;
+    }),
   birth_date: z.preprocess(
     (v) => (v === "" || v === undefined ? undefined : v),
     z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
@@ -61,10 +106,15 @@ export async function createDashboardUser(
     return { ok: false, message: localizeCreateDashboardUserError(dict, "forbidden") };
   }
 
+  const localeForDict = typeof raw.locale === "string" ? raw.locale : defaultLocale;
+
   const parsed = createUserSchema.safeParse(raw);
   if (!parsed.success) {
-    const dict = await getDictionary(defaultLocale);
-    return { ok: false, message: localizeCreateDashboardUserError(dict, "invalid_data") };
+    const dict = await getDictionary(localeForDict);
+    return {
+      ok: false,
+      message: localizeCreateDashboardUserZod(dict, parsed.error.issues),
+    };
   }
 
   const dict = await getDictionary(parsed.data.locale ?? defaultLocale);
@@ -72,18 +122,21 @@ export async function createDashboardUser(
   if (pwd.length > 0 && pwd.length < 6) {
     return { ok: false, message: localizeCreateDashboardUserError(dict, "password_policy") };
   }
-  const finalPassword = pwd.length >= 6 ? pwd : generateTempPassword();
+  const finalPassword =
+    pwd.length >= 6 ? pwd : ADMIN_INVITE_DEFAULT_PASSWORD;
   const finalRole = parsed.data.role ?? "student";
+  const dniOrPassport = parsed.data.dni_or_passport;
+  const phone = parsed.data.phone;
 
   const admin = createAdminClient();
   const meta: Record<string, string> = {
     first_name: parsed.data.first_name,
     last_name: parsed.data.last_name,
-    dni_or_passport: parsed.data.dni_or_passport,
-    phone: parsed.data.phone,
     provisioning_source: "admin_invite",
     role: finalRole,
   };
+  if (dniOrPassport) meta.dni_or_passport = dniOrPassport;
+  if (phone) meta.phone = phone;
   const bd = parsed.data.birth_date?.trim();
   if (bd) meta.birth_date = bd;
 
@@ -96,6 +149,13 @@ export async function createDashboardUser(
 
   if (error) {
     logSupabaseClientError("createDashboardUser:authAdminCreateUser", error);
+    const diag = resolveAuthAdminCreateUserDiagnostic(error);
+    if (diag === "email_exists") {
+      return { ok: false, message: localizeCreateDashboardUserError(dict, "email_exists") };
+    }
+    if (diag === "weak_password") {
+      return { ok: false, message: localizeCreateDashboardUserError(dict, "weak_password") };
+    }
     return { ok: false, message: localizeCreateDashboardUserError(dict, "auth_failed") };
   }
   if (!created.user) {
@@ -110,15 +170,15 @@ export async function createDashboardUser(
       role: finalRole,
       first_name: parsed.data.first_name,
       last_name: parsed.data.last_name,
-      dni_or_passport: parsed.data.dni_or_passport.trim(),
-      phone: parsed.data.phone,
+      dni_or_passport: dniOrPassport,
+      phone,
       birth_date: birthDate && birthDate.length >= 10 ? birthDate.slice(0, 10) : null,
     },
     { onConflict: "id" },
   );
   if (profileErr) {
     logSupabaseClientError("createDashboardUser:profilesUpsert", profileErr, { userId: uid });
-    return { ok: false, message: localizeCreateDashboardUserError(dict, "auth_failed") };
+    return { ok: false, message: localizeCreateDashboardUserError(dict, "profile_save_failed") };
   }
 
   void auditIdentityAction({
@@ -134,8 +194,8 @@ export async function createDashboardUser(
       role: finalRole,
       first_name: parsed.data.first_name,
       last_name: parsed.data.last_name,
-      dni_or_passport: parsed.data.dni_or_passport.trim(),
-      phone: parsed.data.phone,
+      dni_or_passport: dniOrPassport ?? "",
+      phone: phone ?? "",
       birth_date: birthDate && birthDate.length >= 10 ? birthDate.slice(0, 10) : null,
     },
     metadata: { provisioning_source: "admin_invite" },

@@ -8,6 +8,14 @@
 
 Workspace rules in **`.cursor/rules/`** override generic skill examples when they conflict (design system, security, PWA surfaces, testing/coverage, **analytics / eventos**, **copy / i18n**). **Nuevo tenant local/Vercel o plantilla `site_theme_kind`:** ver **`.cursor/rules/19-multi-tenant-local-vercel-targets.mdc`**.
 
+## Workflow: preflight (acuerdo antes de implementar)
+
+Para alinear alcance y plan **antes** de que el agente cambie código, usar la regla **`.cursor/rules/20-agent-preflight.mdc`**.
+
+- **Forzar siempre** ese modo: incluir **`PREFLIGHT`** en el mensaje.
+- **Saltear** (cambios triviales y bajo riesgo): pedir explícitamente implementar directo o “skip preflight”, salvo que el tema sea auth, datos, RLS, migración o contrato público (ver regla).
+- En tareas grandes, combinar con el **Plan** del producto (p. ej. planificación antes de ejecutar en Cursor) cuando esté disponible.
+
 ## Structured logging (ops / Vercel)
 
 Logs use a stable prefix so you can filter runtime output (local terminal, **Vercel → Logs**, log drains):
@@ -30,6 +38,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`17-trust-boundary-handlers.mdc`** | Bordes de confianza: secretos de cron solo por header (`verifyCronRequest`), `Cache-Control: private` en respuestas personalizadas, mutaciones cross-account con `createAdminClient` requieren re-auth + auditoría (`system_config_audit`) + notificación al titular, HTML editable persistido pasa por sanitizer del repo (`sanitizeMessageHtml`, `sanitizeEmailTemplateHtml`). Origen: auditoría OWASP de 2026-04. |
 | **`16-admin-buttons-icons.mdc`** | `Button` y enlaces CTA: icono Lucide leading + a11y; al tocar un control sin icono, añadirlo si el alcance lo permite. |
 | **`18-no-native-browser-dialogs.mdc`** | Sin `alert` / `confirm` / `prompt` en producto: `Modal` + DS, toasts/banners existentes, **11** para jobs largos; copy **09**. |
+| **`20-agent-preflight.mdc`** | Plan y acuerdo antes de implementar cuando aplica; marca **`PREFLIGHT`**; lectura read-only permitida para armar el plan. |
 
 **Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo.
 
@@ -51,11 +60,12 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 
 ## When in doubt
 
-1. Read the relevant **`.cursor/rules/*.mdc`** file.
-2. Prefer **project conventions** over copy-pasting generic skill code.
-3. Nuevas features con impacto en producto o admin: **`.cursor/rules/08-analytics-observability.mdc`** (eventos y auditoría).
-4. Cualquier texto que vea el usuario: **`.cursor/rules/09-i18n-copy.mdc`** (diccionarios y convenciones del repo).
-5. Auth, datos, integraciones o contratos públicos: **`.cursor/rules/10-engineering-governance.mdc`** (ADR / mini diseño).
-6. Importaciones o batches largos con feedback en UI: **`.cursor/rules/11-long-running-jobs-ui.mdc`** (`LongJobStatus`, `pollLongJob`).
-7. Acceso a Supabase (clientes, REST, service role): **`.cursor/rules/12-supabase-app-boundaries.mdc`**.
-8. Consultas listadas / volumen PostgREST: **`.cursor/rules/13-postgrest-pagination-bounded-queries.mdc`**.
+1. Alineación antes de codificar: **`.cursor/rules/20-agent-preflight.mdc`** (usar **`PREFLIGHT`** en el mensaje para forzar).
+2. Read the relevant **`.cursor/rules/*.mdc`** file.
+3. Prefer **project conventions** over copy-pasting generic skill code.
+4. Nuevas features con impacto en producto o admin: **`.cursor/rules/08-analytics-observability.mdc`** (eventos y auditoría).
+5. Cualquier texto que vea el usuario: **`.cursor/rules/09-i18n-copy.mdc`** (diccionarios y convenciones del repo).
+6. Auth, datos, integraciones o contratos públicos: **`.cursor/rules/10-engineering-governance.mdc`** (ADR / mini diseño).
+7. Importaciones o batches largos con feedback en UI: **`.cursor/rules/11-long-running-jobs-ui.mdc`** (`LongJobStatus`, `pollLongJob`).
+8. Acceso a Supabase (clientes, REST, service role): **`.cursor/rules/12-supabase-app-boundaries.mdc`**.
+9. Consultas listadas / volumen PostgREST: **`.cursor/rules/13-postgrest-pagination-bounded-queries.mdc`**.

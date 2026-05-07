@@ -6,15 +6,24 @@ import {
 } from "@/lib/i18n/dictionaries";
 
 describe("getDictionary", () => {
-  it("returns es dictionary for es", async () => {
-    const d = await getDictionary("es");
-    expect(d.common.submit.length).toBeGreaterThan(0);
-  });
+  /** First dynamic load of full JSON can exceed 5s under slow CPU / parallel vitest workers. */
+  it(
+    "returns es dictionary for es",
+    async () => {
+      const d = await getDictionary("es");
+      expect(d.common.submit.length).toBeGreaterThan(0);
+    },
+    15_000,
+  );
 
-  it("returns en dictionary for en", async () => {
-    const d = await getDictionary("en");
-    expect(d.common.submit.length).toBeGreaterThan(0);
-  });
+  it(
+    "returns en dictionary for en",
+    async () => {
+      const d = await getDictionary("en");
+      expect(d.common.submit.length).toBeGreaterThan(0);
+    },
+    15_000,
+  );
 
   it("includes academicSectionPage.scheduleEditor in en and es", async () => {
     const en = await getDictionary("en");

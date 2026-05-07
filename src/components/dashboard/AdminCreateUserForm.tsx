@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserPlus } from "lucide-react";
 import { createDashboardUser } from "@/app/[locale]/dashboard/admin/users/actions";
@@ -19,6 +19,8 @@ interface AdminCreateUserFormProps {
 
 export function AdminCreateUserForm({ locale, labels }: AdminCreateUserFormProps) {
   const router = useRouter();
+  const passwordHintId = useId();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<(typeof ROLES)[number]>("student");
@@ -26,13 +28,13 @@ export function AdminCreateUserForm({ locale, labels }: AdminCreateUserFormProps
   const [lastName, setLastName] = useState("");
   const [dni, setDni] = useState("");
   const [phone, setPhone] = useState("");
-  const [msg, setMsg] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
-    setMsg(null);
+    setFeedback(null);
     const res = await createDashboardUser({
       email,
       password,
@@ -44,7 +46,8 @@ export function AdminCreateUserForm({ locale, labels }: AdminCreateUserFormProps
       locale,
     });
     setBusy(false);
-    setMsg(res.ok ? labels.success : (res.message ?? labels.error));
+    const text = res.ok ? labels.success : (res.message ?? labels.error);
+    setFeedback({ ok: res.ok, text });
     if (res.ok) {
       router.push(`/${locale}/dashboard/admin/users`);
     }
@@ -55,6 +58,31 @@ export function AdminCreateUserForm({ locale, labels }: AdminCreateUserFormProps
       onSubmit={onSubmit}
       className="max-w-xl space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6"
     >
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <Label htmlFor="cu-ln">{labels.lastName}</Label>
+          <Input
+            id="cu-ln"
+            autoComplete="family-name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            required
+            className="mt-1 w-full"
+          />
+        </div>
+        <div>
+          <Label htmlFor="cu-fn">{labels.firstName}</Label>
+          <Input
+            id="cu-fn"
+            autoComplete="given-name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            required
+            className="mt-1 w-full"
+          />
+        </div>
+      </div>
+
       <div>
         <Label htmlFor="cu-email">{labels.email}</Label>
         <Input
@@ -75,9 +103,13 @@ export function AdminCreateUserForm({ locale, labels }: AdminCreateUserFormProps
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          aria-describedby={passwordHintId}
           className="mt-1 w-full"
         />
-        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+        <p
+          id={passwordHintId}
+          className="mt-1 text-xs text-[var(--color-muted-foreground)]"
+        >
           {labels.passwordHint}
         </p>
       </div>
@@ -95,58 +127,53 @@ export function AdminCreateUserForm({ locale, labels }: AdminCreateUserFormProps
             </option>
           ))}
         </select>
-        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-          {labels.roleHint}
-        </p>
+        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.roleHint}</p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <Label htmlFor="cu-fn">{labels.firstName}</Label>
-          <Input
-            id="cu-fn"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-            className="mt-1 w-full"
-          />
-        </div>
-        <div>
-          <Label htmlFor="cu-ln">{labels.lastName}</Label>
-          <Input
-            id="cu-ln"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-            className="mt-1 w-full"
-          />
-        </div>
-      </div>
+
       <div>
         <Label htmlFor="cu-dni">{labels.dni}</Label>
         <Input
           id="cu-dni"
+          autoComplete="off"
           value={dni}
           onChange={(e) => setDni(e.target.value)}
-          required
           className="mt-1 w-full"
         />
+        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+          {labels.dniOptionalHint}
+        </p>
       </div>
       <div>
         <Label htmlFor="cu-ph">{labels.phone}</Label>
         <Input
           id="cu-ph"
+          type="tel"
+          autoComplete="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          required
           className="mt-1 w-full"
         />
+        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+          {labels.phoneOptionalHint}
+        </p>
       </div>
+
       <Button type="submit" disabled={busy} isLoading={busy}>
         {busy ? null : <UserPlus className="h-4 w-4 shrink-0" aria-hidden />}
         {labels.submit}
       </Button>
-      {msg ? (
-        <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p>
+
+      {feedback ? (
+        <p
+          className={`text-sm ${
+            feedback.ok
+              ? "text-[var(--color-muted-foreground)]"
+              : "text-[var(--color-error)]"
+          }`}
+          role={feedback.ok ? undefined : "alert"}
+        >
+          {feedback.text}
+        </p>
       ) : null}
     </form>
   );

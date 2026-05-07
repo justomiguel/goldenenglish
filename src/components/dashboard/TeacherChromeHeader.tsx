@@ -13,6 +13,10 @@ export interface TeacherChromeHeaderProps {
   dict: Dictionary;
   showAdminWorkspace?: boolean;
   mobileNav?: ReactNode;
+  /** Logo link target (default: teacher dashboard home). */
+  dashboardHomeHref?: string;
+  /** Header badge and aria copy (default: `dict.dashboard.teacherChrome`). */
+  chromeLabels?: Dictionary["dashboard"]["teacherChrome"] | Dictionary["dashboard"]["assistantChrome"];
 }
 
 export function TeacherChromeHeader({
@@ -21,9 +25,12 @@ export function TeacherChromeHeader({
   dict,
   showAdminWorkspace = false,
   mobileNav,
+  dashboardHomeHref,
+  chromeLabels,
 }: TeacherChromeHeaderProps) {
   const tagline = locale === "es" ? brand.tagline : brand.taglineEn;
-  const labels = dict.dashboard.teacherChrome;
+  const labels = chromeLabels ?? dict.dashboard.teacherChrome;
+  const homeHref = dashboardHomeHref ?? `/${locale}/dashboard/teacher`;
   const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
   const adminHref = `/${locale}/dashboard/admin`;
 
@@ -36,7 +43,7 @@ export function TeacherChromeHeader({
         <div className="flex min-w-0 flex-1 items-center gap-3">
           {mobileNav}
           <Link
-            href={`/${locale}/dashboard/teacher`}
+            href={homeHref}
             className="group flex min-w-0 flex-1 items-center gap-3 rounded-[var(--layout-border-radius)] outline-none ring-[var(--color-primary)] transition hover:opacity-95 focus-visible:ring-2 focus-visible:ring-offset-2"
           >
             <div className="shrink-0 rounded-[var(--layout-border-radius)] bg-[var(--color-background)] p-1.5 shadow-sm ring-1 ring-[var(--color-border)] transition group-hover:ring-[var(--color-accent)]/40">

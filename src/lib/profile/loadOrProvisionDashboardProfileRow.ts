@@ -46,14 +46,14 @@ async function selectProfileRow(
   return (fb as DashboardProfileRow) ?? null;
 }
 
-function provisioningDni(user: User): string {
+function provisioningDni(user: User): string | null {
   const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
   const d = meta.dni_or_passport;
   if (typeof d === "string" && d.trim().length > 0) return d.trim();
-  return `pending-${user.id.replace(/-/g, "")}`;
+  return null;
 }
 
-function buildInsertPayload(user: User, dni: string): Record<string, unknown> {
+function buildInsertPayload(user: User, dni: string | null): Record<string, unknown> {
   const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
   const emailPrefix = user.email?.split("@")[0]?.trim();
   const first =

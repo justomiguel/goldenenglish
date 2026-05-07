@@ -47,6 +47,12 @@ describe("pathnameToEntity", () => {
     expect(pathnameToEntity("/en/dashboard/profile")).toBe(AnalyticsEntity.myProfile);
   });
 
+  it("maps staff assistant section attendance", () => {
+    expect(pathnameToEntity("/en/dashboard/assistant/sections/abc/attendance")).toBe(
+      AnalyticsEntity.teacherSectionAttendance,
+    );
+  });
+
   it("defaults to route-prefixed entity", () => {
     expect(pathnameToEntity("/en/other")).toBe(`${AnalyticsEntity.pageViewPrefix}/en/other`);
   });

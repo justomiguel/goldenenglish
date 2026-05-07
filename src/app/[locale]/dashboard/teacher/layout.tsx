@@ -22,6 +22,11 @@ export default async function TeacherDashboardLayout({ children, params }: Layou
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login?next=/${locale}/dashboard/teacher`);
 
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  if (profile?.role === "assistant") {
+    redirect(`/${locale}/dashboard/assistant`);
+  }
+
   const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
   if (!allowed) redirect(`/${locale}/dashboard`);
 

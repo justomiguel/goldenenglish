@@ -7,6 +7,15 @@ describe("loadTeacherDashboardModel", () => {
   it("returns empty model when teacher has no sections", async () => {
     const supabase = {
       from: vi.fn((table: string) => {
+        if (table === "profiles") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                maybeSingle: vi.fn().mockResolvedValue({ data: { role: "teacher" } }),
+              })),
+            })),
+          };
+        }
         if (table === "academic_sections") {
           return {
             select: vi.fn().mockReturnValue({
@@ -40,6 +49,22 @@ describe("loadTeacherDashboardModel", () => {
   it("aggregates retention count, messages, and section averages", async () => {
     const supabase = {
       from: vi.fn((table: string) => {
+        if (table === "profiles") {
+          return {
+            select: vi.fn((cols: string) => {
+              if (cols === "role") {
+                return {
+                  eq: vi.fn().mockReturnValue({
+                    maybeSingle: vi.fn().mockResolvedValue({ data: { role: "teacher" } }),
+                  }),
+                };
+              }
+              return {
+                in: vi.fn().mockResolvedValue({ data: [{ id: "s1", role: "student" }], error: null }),
+              };
+            }),
+          };
+        }
         if (table === "academic_sections") {
           return {
             select: vi.fn((cols: string) => {
@@ -105,13 +130,6 @@ describe("loadTeacherDashboardModel", () => {
                   error: null,
                 }),
               }),
-            }),
-          };
-        }
-        if (table === "profiles") {
-          return {
-            select: vi.fn().mockReturnValue({
-              in: vi.fn().mockResolvedValue({ data: [{ id: "s1", role: "student" }], error: null }),
             }),
           };
         }

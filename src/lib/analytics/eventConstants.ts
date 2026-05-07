@@ -78,6 +78,9 @@ export function pathnameToEntity(pathname: string): string {
   if (pathname.includes("/dashboard/teacher/sections") && pathname.includes("/tasks")) {
     return AnalyticsEntity.learningTasks;
   }
+  if (pathname.includes("/dashboard/assistant") && pathname.includes("/attendance")) {
+    return AnalyticsEntity.teacherSectionAttendance;
+  }
   if (pathname.includes("/dashboard/admin/calendar/special")) return AnalyticsEntity.portalCalendar;
   if (pathname.includes("/dashboard/admin/calendar")) return AnalyticsEntity.portalCalendar;
   return `${AnalyticsEntity.pageViewPrefix}${pathname}`;
