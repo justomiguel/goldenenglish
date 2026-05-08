@@ -6,6 +6,7 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import type { Dictionary } from "@/types/i18n";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 
 type AuditLabels = Dictionary["admin"]["audit"];
 
@@ -50,8 +51,29 @@ export function AdminAuditToolbar({
   onClearDateAndActor,
   canClearDateAndActor,
 }: AdminAuditToolbarProps) {
+  const querySearch = useDebouncedSearch({
+    value: query,
+    onDebouncedChange: onQueryChange,
+  });
+  const actionSearch = useDebouncedSearch({
+    value: action,
+    onDebouncedChange: onActionChange,
+  });
+  const resourceSearch = useDebouncedSearch({
+    value: resourceType,
+    onDebouncedChange: onResourceTypeChange,
+  });
+  const actorSearch = useDebouncedSearch({
+    value: actorId,
+    onDebouncedChange: onActorIdChange,
+  });
+
   function onSubmit(event: FormEvent) {
     event.preventDefault();
+    querySearch.flushNow();
+    actionSearch.flushNow();
+    resourceSearch.flushNow();
+    actorSearch.flushNow();
   }
 
   return (
@@ -61,8 +83,8 @@ export function AdminAuditToolbar({
           <Label htmlFor="audit-search">{labels.filterLabel}</Label>
           <Input
             id="audit-search"
-            value={query}
-            onChange={(event) => onQueryChange(event.target.value)}
+            value={querySearch.localValue}
+            onChange={(event) => querySearch.setLocalValue(event.target.value)}
             placeholder={labels.filterPlaceholder}
             title={labels.filterTooltip}
             autoComplete="off"
@@ -89,8 +111,8 @@ export function AdminAuditToolbar({
           <Label htmlFor="audit-action">{labels.actionFilterLabel}</Label>
           <Input
             id="audit-action"
-            value={action}
-            onChange={(event) => onActionChange(event.target.value)}
+            value={actionSearch.localValue}
+            onChange={(event) => actionSearch.setLocalValue(event.target.value)}
             placeholder={labels.actionFilterPlaceholder}
             autoComplete="off"
           />
@@ -99,8 +121,8 @@ export function AdminAuditToolbar({
           <Label htmlFor="audit-resource">{labels.resourceFilterLabel}</Label>
           <Input
             id="audit-resource"
-            value={resourceType}
-            onChange={(event) => onResourceTypeChange(event.target.value)}
+            value={resourceSearch.localValue}
+            onChange={(event) => resourceSearch.setLocalValue(event.target.value)}
             placeholder={labels.resourceFilterPlaceholder}
             autoComplete="off"
           />
@@ -132,8 +154,8 @@ export function AdminAuditToolbar({
             <Label htmlFor="audit-actor-id">{labels.actorIdFilterLabel}</Label>
             <Input
               id="audit-actor-id"
-              value={actorId}
-              onChange={(event) => onActorIdChange(event.target.value)}
+              value={actorSearch.localValue}
+              onChange={(event) => actorSearch.setLocalValue(event.target.value)}
               placeholder={labels.actorIdFilterPlaceholder}
               title={labels.actorIdFilterTooltip}
               inputMode="text"

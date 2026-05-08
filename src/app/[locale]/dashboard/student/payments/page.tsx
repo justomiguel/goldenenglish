@@ -93,7 +93,7 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
     .select("id, section_id, month, year, amount, status, receipt_url, updated_at")
     .eq("student_id", user.id)
     .order("year", { ascending: false })
-    .order("month", { ascending: false });
+    .order("month", { ascending: true });
 
   let promoCount = 0;
   const promoRes = await supabase

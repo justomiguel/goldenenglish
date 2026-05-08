@@ -8,6 +8,7 @@ import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { ROLE_FILTER_ALL } from "@/lib/dashboard/adminUsersTableHelpers";
 import { adminUserRoleOptionLabel } from "@/lib/dashboard/adminUserRoleOptionLabel";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 
 type UserLabels = Dictionary["admin"]["users"];
 
@@ -57,8 +58,12 @@ export function AdminUsersToolbar({
   deleteDisabled,
   selectAllFilteredDisabled,
 }: AdminUsersToolbarProps) {
+  const { localValue: localQuery, setLocalValue: setLocalQuery, flushNow } =
+    useDebouncedSearch({ value: query, onDebouncedChange: onQueryChange });
+
   function onSubmitFilter(e: FormEvent) {
     e.preventDefault();
+    flushNow();
   }
 
   return (
@@ -68,8 +73,8 @@ export function AdminUsersToolbar({
           <Label htmlFor="users-filter">{labels.filterLabel}</Label>
           <Input
             id="users-filter"
-            value={query}
-            onChange={(e) => onQueryChange(e.target.value)}
+            value={localQuery}
+            onChange={(e) => setLocalQuery(e.target.value)}
             placeholder={labels.filterPlaceholder}
             title={labels.filterTooltip}
             className="w-full"

@@ -10,6 +10,7 @@ import {
 } from "@/components/dashboard/EnrollmentMonthZeroColumn";
 import type { AdminBillingMonthState } from "@/lib/billing/buildAdminBillingMonthGrid";
 import type { StudentMonthlyPaymentCell } from "@/types/studentMonthlyPayments";
+import { formatCalendarMonthShort } from "@/lib/i18n/formatCalendarMonthShort";
 import type { Locale } from "@/types/i18n";
 
 export interface AdminRecordPaymentMonthGridProps {
@@ -83,12 +84,7 @@ export function AdminRecordPaymentMonthGrid({
     return { year: d.getFullYear(), month: d.getMonth() + 1 };
   });
   const monthShort = useMemo(
-    () =>
-      MONTHS.map((m) =>
-        new Intl.DateTimeFormat(locale, { month: "short" }).format(
-          new Date(Date.UTC(2000, m - 1, 1)),
-        ),
-      ),
+    () => MONTHS.map((m) => formatCalendarMonthShort(locale, m)),
     [locale],
   );
   const n = selectedMonths.size;

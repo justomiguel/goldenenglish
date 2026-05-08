@@ -108,7 +108,7 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
       .select("id, section_id, month, year, amount, status, receipt_url, updated_at")
       .eq("student_id", selected.studentId)
       .order("year", { ascending: false })
-      .order("month", { ascending: false })
+      .order("month", { ascending: true })
       .limit(50);
 
     paymentRows = await Promise.all(

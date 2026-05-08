@@ -4,6 +4,7 @@ import type { FormEvent } from "react";
 import type { Dictionary } from "@/types/i18n";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -26,8 +27,14 @@ export function RegistrationListToolbar({
   totalCount,
   filteredCount,
 }: RegistrationListToolbarProps) {
+  const { localValue, setLocalValue, flushNow } = useDebouncedSearch({
+    value: query,
+    onDebouncedChange: onQueryChange,
+  });
+
   function onSubmitFilter(e: FormEvent) {
     e.preventDefault();
+    flushNow();
   }
 
   return (
@@ -36,8 +43,8 @@ export function RegistrationListToolbar({
         <Label htmlFor="registrations-filter">{labels.filterLabel}</Label>
         <Input
           id="registrations-filter"
-          value={query}
-          onChange={(e) => onQueryChange(e.target.value)}
+          value={localValue}
+          onChange={(e) => setLocalValue(e.target.value)}
           placeholder={labels.filterPlaceholder}
           title={labels.filterTooltip}
           className="w-full max-w-xl"

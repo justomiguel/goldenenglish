@@ -107,7 +107,8 @@ export function buildAdminBillingMonthGrid({
       paymentId: sectionPayment?.id ?? null,
       recordedAmount: sectionPayment?.amount ?? null,
       scholarshipPercent: scholarshipPercent > 0 ? scholarshipPercent : null,
-      selectable: !legacyFallback && status !== "paid" && status !== "exempt",
+      /** Legacy row = old `section_id`-null payment; matrix status follows Finance (section-only). Staff must still be able to record the real section payment (inserts/applies to `section_id`). */
+      selectable: status !== "paid" && status !== "exempt",
       revertSelectable,
       legacyFallback,
     };

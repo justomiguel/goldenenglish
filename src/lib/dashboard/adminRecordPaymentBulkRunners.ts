@@ -2,6 +2,7 @@ import { recordPaymentsWithoutReceiptBulk } from "@/app/[locale]/dashboard/admin
 import { revertApprovedPaymentsBulk } from "@/app/[locale]/dashboard/admin/payments/revertApprovedPaymentsAction";
 import { setPeriodExemption } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/periodExemptionActions";
 import { createStudentScholarship } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/upsertStudentScholarship";
+import { formatCalendarMonthShort } from "@/lib/i18n/formatCalendarMonthShort";
 import type { Dictionary, Locale } from "@/types/i18n";
 
 export function formatMonthFailureLine(
@@ -9,9 +10,7 @@ export function formatMonthFailureLine(
   month: number,
   message: string | undefined,
 ): string {
-  const short = new Intl.DateTimeFormat(locale, { month: "short" }).format(
-    new Date(Date.UTC(2000, month - 1, 1)),
-  );
+  const short = formatCalendarMonthShort(locale, month);
   return `${String(month).padStart(2, "0")} ${short}: ${message ?? "—"}`;
 }
 

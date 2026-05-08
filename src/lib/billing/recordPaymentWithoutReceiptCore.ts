@@ -70,6 +70,7 @@ export async function recordOnePaymentWithoutReceipt(
     p.sectionId,
     y,
     m,
+    { billingScope: "plan-year" },
   );
   if (plan.code === "no_plan") return { success: false, code: "no_plan", month: m };
   if (plan.code === "out_of_period")

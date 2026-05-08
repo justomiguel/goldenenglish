@@ -65,7 +65,7 @@ describe("buildAdminBillingMonthGrid", () => {
     });
   });
 
-  it("ignores legacy no-section rows for matrix status (Finance parity) but blocks recording", () => {
+  it("ignores legacy no-section rows for matrix status (Finance parity) but still allows recording for the active section", () => {
     const rows = buildAdminBillingMonthGrid({
       payments: [payment(7, "pending", null)],
       scholarships: [],
@@ -77,7 +77,7 @@ describe("buildAdminBillingMonthGrid", () => {
       month: 7,
       status: "unpaid",
       paymentId: null,
-      selectable: false,
+      selectable: true,
       revertSelectable: false,
       legacyFallback: true,
     });

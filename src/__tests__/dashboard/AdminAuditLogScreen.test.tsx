@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { dictEn } from "@/test/dictEn";
 import { AdminAuditLogScreen } from "@/components/organisms/AdminAuditLogScreen";
 import type { AdminAuditRow } from "@/types/audit";
@@ -33,6 +33,10 @@ const rows: AdminAuditRow[] = [
 ];
 
 describe("AdminAuditLogScreen", () => {
+  beforeEach(() => {
+    replace.mockClear();
+  });
+
   it("renders audit rows and opens the details modal", async () => {
     render(
       <AdminAuditLogScreen
@@ -62,7 +66,7 @@ describe("AdminAuditLogScreen", () => {
     expect(within(dialog).getAllByText(/approved/).length).toBeGreaterThan(0);
   });
 
-  it("updates URL params from filters", () => {
+  it("updates URL params from filters after debounced search", async () => {
     render(
       <AdminAuditLogScreen
         rows={rows}
@@ -87,6 +91,6 @@ describe("AdminAuditLogScreen", () => {
     fireEvent.change(screen.getByLabelText(dictEn.admin.audit.filterLabel), {
       target: { value: "payment" },
     });
-    expect(replace).toHaveBeenCalled();
+    await waitFor(() => expect(replace).toHaveBeenCalled());
   });
 });

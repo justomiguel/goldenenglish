@@ -8,6 +8,7 @@ import {
   mapSectionFeePlanRow,
   type SectionFeePlanRowDb,
 } from "@/types/sectionFeePlan";
+import { fallbackFullMonthProration } from "@/lib/billing/studentMonthlyPaymentsRowModel";
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
 import {
   countSectionMonthlyClasses,
@@ -15,6 +16,18 @@ import {
   monthBounds,
 } from "@/lib/billing/countSectionMonthlyClasses";
 import { prorateMonthlyFee } from "@/lib/billing/prorateMonthlyFee";
+
+/** Matches `buildStudentMonthlyPaymentsRow` / admin Cobranzas matrices. */
+export type ResolveSectionPlanBillingScope = "operational-window" | "plan-year";
+
+export type ResolveSectionPlanMonthlyAmountOptions = {
+  /**
+   * `plan-year`: full plan fee for the calendar month (admin matrices).
+   * `operational-window`: class-based proration (alumno/padre / cupón).
+   * @default "operational-window"
+   */
+  billingScope?: ResolveSectionPlanBillingScope;
+};
 
 export type SectionPlanAmountResult =
   | {
@@ -49,6 +62,11 @@ function parseUtcDate(iso: string | null | undefined): Date | null {
   return new Date(Date.UTC(y, m - 1, d));
 }
 
+type EnrollmentRow = {
+  id: string;
+  created_at: string | null;
+};
+
 /**
  * Server-side: resolves the monthly amount the student must pay for a given
  * (sectionId, year, month), applying the section's effective plan, monthly
@@ -61,7 +79,10 @@ export async function resolveSectionPlanMonthlyAmount(
   sectionId: string,
   year: number,
   month: number,
+  options?: ResolveSectionPlanMonthlyAmountOptions,
 ): Promise<SectionPlanAmountResult> {
+  const billingScope: ResolveSectionPlanBillingScope = options?.billingScope ?? "operational-window";
+
   const { data: planRows } = await supabase
     .from("section_fee_plans")
     .select(
@@ -72,6 +93,56 @@ export async function resolveSectionPlanMonthlyAmount(
   const plans = ((planRows ?? []) as SectionFeePlanRowDb[]).map(mapSectionFeePlanRow);
   const plan = resolveEffectiveSectionFeePlan(plans, year, month);
   if (!plan) return { code: "no_plan" };
+
+  const { data: enrolment } = await supabase
+    .from("section_enrollments")
+    .select("id, created_at")
+    .eq("section_id", sectionId)
+    .eq("student_id", studentId)
+    .eq("status", "active")
+    .maybeSingle();
+  const enrollmentRow = enrolment as EnrollmentRow | null;
+
+  async function loadScholarships(enrollmentId: string | null): Promise<ScholarshipRow[]> {
+    if (!enrollmentId) return [];
+    const { data: scholarshipRows } = await supabase
+      .from("section_enrollment_scholarships")
+      .select(
+        "id, discount_percent, note, valid_from_year, valid_from_month, valid_until_year, valid_until_month, is_active",
+      )
+      .eq("enrollment_id", enrollmentId);
+    return ((scholarshipRows ?? []) as Array<ScholarshipRow>).map((row) => ({
+      id: row.id,
+      discount_percent: Number(row.discount_percent),
+      note: row.note ?? null,
+      valid_from_year: row.valid_from_year,
+      valid_from_month: row.valid_from_month,
+      valid_until_year: row.valid_until_year,
+      valid_until_month: row.valid_until_month,
+      is_active: Boolean(row.is_active),
+    }));
+  }
+
+  if (billingScope === "plan-year") {
+    const prorated = fallbackFullMonthProration(plan.monthlyFee);
+    const scholarships = await loadScholarships(enrollmentRow?.id ?? null);
+    const adjusted = effectiveAmountAfterScholarship(
+      prorated.amount,
+      year,
+      month,
+      scholarships,
+    );
+    return {
+      code: "ok",
+      amount: adjusted ?? prorated.amount,
+      currency: plan.currency,
+      proration: {
+        numerator: prorated.numerator,
+        denominator: prorated.denominator,
+        full: prorated.full,
+      },
+    };
+  }
 
   const { data: secRow } = await supabase
     .from("academic_sections")
@@ -89,18 +160,6 @@ export async function resolveSectionPlanMonthlyAmount(
       : null;
   const scheduleSlots = parseSectionScheduleSlots(sec?.schedule_slots ?? []);
 
-  const { data: enrolment } = await supabase
-    .from("section_enrollments")
-    .select("id, created_at")
-    .eq("section_id", sectionId)
-    .eq("student_id", studentId)
-    .eq("status", "active")
-    .maybeSingle();
-  type EnrollmentRow = {
-    id: string;
-    created_at: string | null;
-  };
-  const enrollmentRow = enrolment as EnrollmentRow | null;
   const enrolledAt = parseUtcDate(enrollmentRow?.created_at ?? null);
 
   const monthRange = monthBounds(year, month);
@@ -130,24 +189,7 @@ export async function resolveSectionPlanMonthlyAmount(
   });
   if (prorated.code !== "ok") return { code: "out_of_period" };
 
-  const { data: scholarshipRows } = enrollmentRow?.id
-    ? await supabase
-        .from("section_enrollment_scholarships")
-        .select(
-          "id, discount_percent, note, valid_from_year, valid_from_month, valid_until_year, valid_until_month, is_active",
-        )
-        .eq("enrollment_id", enrollmentRow.id)
-    : { data: [] };
-  const scholarships: ScholarshipRow[] = ((scholarshipRows ?? []) as Array<ScholarshipRow>).map((row) => ({
-    id: row.id,
-    discount_percent: Number(row.discount_percent),
-    note: row.note ?? null,
-    valid_from_year: row.valid_from_year,
-    valid_from_month: row.valid_from_month,
-    valid_until_year: row.valid_until_year,
-    valid_until_month: row.valid_until_month,
-    is_active: Boolean(row.is_active),
-  }));
+  const scholarships = await loadScholarships(enrollmentRow?.id ?? null);
 
   const adjusted = effectiveAmountAfterScholarship(
     prorated.amount,
