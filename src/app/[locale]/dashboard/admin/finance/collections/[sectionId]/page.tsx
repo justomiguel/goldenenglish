@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { loadAdminSectionCollectionsView } from "@/lib/billing/loadAdminSectionCollectionsView";
 import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
+import { loadSectionCollectionsScholarshipsList } from "@/lib/billing/loadSectionCollectionsScholarshipsList";
 import { SectionCollectionsClient } from "@/components/dashboard/admin/finance/SectionCollectionsClient";
 
 export const metadata: Metadata = {
@@ -46,12 +47,13 @@ export default async function AdminCollectionsSectionPage({
   const todayYear = today.getFullYear();
   const year = parseYear(search.year, todayYear);
 
-  const [view, billingCurrency] = await Promise.all([
+  const [view, billingCurrency, sectionScholarships] = await Promise.all([
     loadAdminSectionCollectionsView(supabase, sectionId, {
       todayYear: year,
       todayMonth: year === todayYear ? today.getMonth() + 1 : 12,
     }),
     loadBillingCurrencySetting(supabase),
+    loadSectionCollectionsScholarshipsList(supabase, sectionId),
   ]);
   if (!view) notFound();
 
@@ -76,6 +78,7 @@ export default async function AdminCollectionsSectionPage({
       </header>
       <SectionCollectionsClient
         view={view}
+        sectionScholarships={sectionScholarships}
         dict={d}
         billingLabels={dict.admin.billing}
         locale={locale}

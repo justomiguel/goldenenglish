@@ -5,7 +5,7 @@
   "scripts": {
     "local": "bash scripts/run-local.sh",
     "dev": "node scripts/run-dev-with-target.mjs",
-    "dev:raw": "next dev --webpack",
+    "dev:raw": "NODE_OPTIONS='--max-http-header-size=65536' next dev --webpack",
     "dev:golden": "npm run clean && node scripts/run-dev-with-target.mjs --target=golden",
     "dev:mozarthitos": "npm run clean && node scripts/run-dev-with-target.mjs --target=mozarthitos",
     "dev:espaciozenit": "npm run clean && node scripts/run-dev-with-target.mjs --target=espaciozenit",

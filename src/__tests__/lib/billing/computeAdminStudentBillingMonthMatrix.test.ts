@@ -32,6 +32,7 @@ describe("computeAdminStudentBillingMonthMatrix", () => {
     ],
     scheduleSlots: [],
     cohortName: "Cohort A",
+    annualSettlements: [],
   };
 
   it("returns merged monthStates and collectionCells", () => {
@@ -46,5 +47,45 @@ describe("computeAdminStudentBillingMonthMatrix", () => {
     expect(r.collectionCells).not.toBeNull();
     expect(r.collectionCells?.[0]?.status).toBe("no-plan");
     expect(r.monthStates[0]?.selectable).toBe(false);
+  });
+
+  it("suppresses scholarship percent in the grid for months covered by an annual settlement", () => {
+    const schol = {
+      id: "sch-1",
+      discount_percent: 40,
+      note: null as string | null,
+      valid_from_year: 2026,
+      valid_from_month: 1,
+      valid_until_year: 2026,
+      valid_until_month: 12,
+      is_active: true,
+    };
+    const benefitWithSettlement: AdminStudentBillingSectionBenefit = {
+      ...benefit,
+      annualSettlements: [
+        {
+          id: "set-1",
+          coverageFromYear: 2026,
+          coverageFromMonth: 1,
+          coverageUntilYear: 2026,
+          coverageUntilMonth: 12,
+          includesEnrollmentFee: false,
+          baselineListTotal: 100,
+          acceptedTotal: 90,
+          impliedDiscountAmount: 10,
+          currency: "USD",
+          createdAt: "2026-01-01T00:00:00.000Z",
+        },
+      ],
+    };
+    const r = computeAdminStudentBillingMonthMatrix({
+      benefit: benefitWithSettlement,
+      payments: [],
+      scholarships: [schol],
+      billingYear: 2026,
+      calendarTodayYear: 2026,
+      calendarTodayMonth: 6,
+    });
+    expect(r.monthStates[5]?.scholarshipPercent).toBeNull();
   });
 });

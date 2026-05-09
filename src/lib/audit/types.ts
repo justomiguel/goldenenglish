@@ -39,7 +39,8 @@ export interface AuditDiffEntry {
 export type AuditDiff = Record<string, AuditDiffEntry>;
 
 export interface RecordAuditEventInput {
-  actorId: string;
+  /** Null for automated gateways (e.g. payment provider webhooks). */
+  actorId?: string | null;
   actorRole?: string | null;
   domain: AuditDomain;
   action: AuditAction;

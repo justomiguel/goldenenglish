@@ -53,7 +53,7 @@ export function EnrollmentFeeReceiptQueueRow({
 
   if (done) {
     return (
-      <li className="flex items-center gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-muted-foreground)]">
+      <div className="flex items-center gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-muted-foreground)]">
         {done === "approved" ? (
           <CheckCircle className="h-4 w-4 shrink-0 text-[var(--color-success)]" aria-hidden />
         ) : (
@@ -66,12 +66,12 @@ export function EnrollmentFeeReceiptQueueRow({
           {" · "}
           {sectionName}
         </span>
-      </li>
+      </div>
     );
   }
 
   return (
-    <li className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3">
       <div className="min-w-0 space-y-0.5">
         <p className="truncate font-medium text-[var(--color-foreground)]">{studentName}</p>
         <p className="truncate text-sm text-[var(--color-muted-foreground)]">
@@ -134,6 +134,6 @@ export function EnrollmentFeeReceiptQueueRow({
           {dict.approve}
         </Button>
       </div>
-    </li>
+    </div>
   );
 }

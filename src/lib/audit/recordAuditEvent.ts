@@ -27,7 +27,7 @@ export async function recordAuditEvent(
 
     const admin = createAdminClient();
     const { error } = await admin.from("audit_events").insert({
-      actor_id: input.actorId,
+      actor_id: input.actorId ?? null,
       actor_role: input.actorRole ?? null,
       domain: input.domain,
       action: input.action,

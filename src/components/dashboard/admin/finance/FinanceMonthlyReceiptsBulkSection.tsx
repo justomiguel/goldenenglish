@@ -2,13 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckSquare, Square, Check, Trash2 } from "lucide-react";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { MonthlyReceiptItem } from "./FinanceInboxPanel";
 import { InboxAgingChip } from "./InboxAgingChip";
 import { PaymentReviewRow } from "@/components/dashboard/PaymentReviewRow";
-import { Button } from "@/components/atoms/Button";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
+import { FinanceInboxBulkToolbar } from "./FinanceInboxBulkToolbar";
 import {
   bulkDeletePendingMonthlyPayments,
   bulkReviewMonthlyPayments,
@@ -73,7 +72,11 @@ export function FinanceMonthlyReceiptsBulkSection({
       return;
     }
     setSelected(new Set());
-    setBanner(dict.bulkApproveResult.replace("{count}", String(r.processed)));
+    setBanner(
+      dict.bulkApproveResult
+        .replaceAll("{{count}}", String(r.processed))
+        .replaceAll("{count}", String(r.processed)),
+    );
     router.refresh();
   }
 
@@ -92,7 +95,11 @@ export function FinanceMonthlyReceiptsBulkSection({
       return;
     }
     setSelected(new Set());
-    setBanner(dict.bulkDeleteResult.replace("{count}", String(r.deleted)));
+    setBanner(
+      dict.bulkDeleteResult
+        .replaceAll("{{count}}", String(r.deleted))
+        .replaceAll("{count}", String(r.deleted)),
+    );
     router.refresh();
   }
 
@@ -106,50 +113,23 @@ export function FinanceMonthlyReceiptsBulkSection({
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/20 p-3">
-        <button
-          type="button"
-          onClick={toggleAll}
-          disabled={busy}
-          aria-pressed={allSelected}
-          aria-label={dict.bulkSelectAllAria}
-          className="inline-flex min-h-[36px] shrink-0 items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]/30 disabled:opacity-50"
-        >
-          {allSelected ? (
-            <CheckSquare className="h-3.5 w-3.5 shrink-0" aria-hidden />
-          ) : (
-            <Square className="h-3.5 w-3.5 shrink-0" aria-hidden />
-          )}
-          {allSelected ? dict.bulkClearSelection : dict.bulkSelectAll}
-        </button>
-        <span className="text-sm text-[var(--color-muted-foreground)]">
-          {dict.bulkSelectedCount.replace("{count}", String(nSel))}
-        </span>
-        <div className="ml-auto flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="primary"
-            size="sm"
-            className="min-h-[36px]"
-            disabled={busy || nSel === 0}
-            onClick={runBulkApprove}
-          >
-            <Check className="h-4 w-4" aria-hidden />
-            {dict.bulkApproveSelected}
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            className="min-h-[36px] border-[var(--color-error)] text-[var(--color-error)]"
-            disabled={busy || nSel === 0}
-            onClick={() => setDeleteOpen(true)}
-          >
-            <Trash2 className="h-4 w-4" aria-hidden />
-            {dict.bulkDeleteSelected}
-          </Button>
-        </div>
-      </div>
+      <FinanceInboxBulkToolbar
+        labels={{
+          bulkSelectAllAria: dict.bulkSelectAllAria,
+          bulkSelectAll: dict.bulkSelectAll,
+          bulkClearSelection: dict.bulkClearSelection,
+          bulkSelectedCount: dict.bulkSelectedCount,
+          bulkApproveSelected: dict.bulkApproveSelected,
+          bulkDestructiveSelected: dict.bulkDeleteSelected,
+        }}
+        destructiveIcon="delete"
+        allSelected={allSelected}
+        selectedCount={nSel}
+        busy={busy}
+        onToggleAll={toggleAll}
+        onApprove={runBulkApprove}
+        onOpenDestructive={() => setDeleteOpen(true)}
+      />
 
       {banner ? (
         <p className="text-sm text-[var(--color-muted-foreground)]" role="status">

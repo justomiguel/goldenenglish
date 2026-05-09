@@ -11,6 +11,7 @@ import {
 } from "@/lib/cms/siteThemeLandingInputSchemas";
 import { logSupabaseError } from "@/lib/logging/serverActionLog";
 import { loadProperties } from "@/lib/theme/themeParser";
+import { coerceInitialSiteSetupSocialFields } from "@/lib/site/coerceSiteSetupSocialUrl";
 import {
   assertSiteSetupFileSize,
   completeInitialSiteSetupInputSchema,
@@ -47,7 +48,10 @@ export async function completeInitialSiteSetupAction(
   const ctx = await resolveAdminContext();
   if (!ctx.ok) return { ok: false, code: "forbidden" };
 
-  const parsed = completeInitialSiteSetupInputSchema.safeParse(raw);
+  const coercedSocial = coerceInitialSiteSetupSocialFields(raw);
+  if (!coercedSocial.ok) return { ok: false, code: coercedSocial.code };
+
+  const parsed = completeInitialSiteSetupInputSchema.safeParse(coercedSocial.value);
   if (!parsed.success) return { ok: false, code: "invalid_input" };
 
   const data = parsed.data;

@@ -4,26 +4,35 @@ import {
   BarChart3,
   Inbox,
   Settings,
-  Table2,
   TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 
-export type FinanceHubTabId = "overview" | "collections" | "inbox" | "insights" | "settings";
+export type FinanceHubTabId =
+  | "collections"
+  | "inbox"
+  | "insights"
+  | "settings";
 
 export const FINANCE_HUB_TAB_ORDER: readonly FinanceHubTabId[] = [
-  "overview",
   "collections",
   "inbox",
   "insights",
   "settings",
 ];
 
-export const DEFAULT_FINANCE_HUB_TAB: FinanceHubTabId = "overview";
+export const DEFAULT_FINANCE_HUB_TAB: FinanceHubTabId = "collections";
+
+/** Legacy URLs used `tab=overview`; same hub view is now default `collections`. */
+const LEGACY_TAB_ALIASES: Readonly<Record<string, FinanceHubTabId>> = {
+  overview: "collections",
+};
 
 export function parseFinanceHubTab(raw: string | undefined): FinanceHubTabId {
   if (!raw) return DEFAULT_FINANCE_HUB_TAB;
+  const alias = LEGACY_TAB_ALIASES[raw];
+  if (alias) return alias;
   return (FINANCE_HUB_TAB_ORDER as readonly string[]).includes(raw)
     ? (raw as FinanceHubTabId)
     : DEFAULT_FINANCE_HUB_TAB;
@@ -32,7 +41,6 @@ export function parseFinanceHubTab(raw: string | undefined): FinanceHubTabId {
 type HubDict = Dictionary["admin"]["finance"]["hub"];
 
 const TAB_ICONS: Record<FinanceHubTabId, LucideIcon> = {
-  overview: Table2,
   collections: BarChart3,
   inbox: Inbox,
   insights: TrendingUp,
@@ -41,8 +49,6 @@ const TAB_ICONS: Record<FinanceHubTabId, LucideIcon> = {
 
 function tooltipFor(tab: FinanceHubTabId, dict: HubDict): string {
   switch (tab) {
-    case "overview":
-      return dict.tipOverview;
     case "collections":
       return dict.tipCollections;
     case "inbox":

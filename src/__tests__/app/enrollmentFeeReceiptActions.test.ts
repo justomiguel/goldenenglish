@@ -8,6 +8,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import es from "@/dictionaries/es.json";
 import { submitEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/student/payments/actions";
 import { submitTutorEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/parent/payments/submitTutorEnrollmentFeeReceiptAction";
+import { bulkReviewEnrollmentFeeReceipts } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/bulkReviewEnrollmentFeeReceiptsAction";
 import { reviewEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/enrollmentFeeActions";
 
 const PE = es.actionErrors.payment;
@@ -374,5 +375,42 @@ describe("reviewEnrollmentFeeReceipt", () => {
     });
     expect(res.ok).toBe(false);
     expect(res.message).toBe(B.saveFailed);
+  });
+});
+
+describe("bulkReviewEnrollmentFeeReceipts", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockAssertAdmin.mockResolvedValue({
+      supabase: {},
+      user: { id: "admin-1" },
+    });
+  });
+
+  it("returns invalid data when items is empty", async () => {
+    const res = await bulkReviewEnrollmentFeeReceipts({
+      locale: "es",
+      decision: "approved",
+      items: [],
+    });
+    expect(res).toEqual({
+      ok: false,
+      processed: 0,
+      message: B.invalidData,
+    });
+  });
+
+  it("returns forbidden when assertAdmin fails", async () => {
+    mockAssertAdmin.mockRejectedValueOnce(new Error("no"));
+    const res = await bulkReviewEnrollmentFeeReceipts({
+      locale: "es",
+      decision: "approved",
+      items: [{ studentId, enrollmentId }],
+    });
+    expect(res).toEqual({
+      ok: false,
+      processed: 0,
+      message: B.forbidden,
+    });
   });
 });

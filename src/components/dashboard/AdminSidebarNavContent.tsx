@@ -40,7 +40,7 @@ function financeHrefForPathname(base: string, pathname: string): string {
   if (!UUID_RE.test(cohortId)) return defaultHref;
 
   const params = new URLSearchParams({
-    tab: "overview",
+    tab: "collections",
     cohort: cohortId,
   });
   return `${defaultHref}?${params.toString()}`;

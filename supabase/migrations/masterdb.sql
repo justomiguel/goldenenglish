@@ -10298,11 +10298,6 @@ INSERT INTO public.site_settings (key, value)
 VALUES ('initial_site_setup', '{"completedAt":null}'::jsonb)
 ON CONFLICT (key) DO NOTHING;
 
--- System-wide billing currency setting (106)
-INSERT INTO public.site_settings (key, value)
-VALUES ('billing_currency', '"USD"'::jsonb)
-ON CONFLICT (key) DO NOTHING;
-
 UPDATE public.site_settings ss
 SET value = jsonb_set(ss.value, '{completedAt}', to_jsonb(now()::text), true)
 WHERE ss.key = 'initial_site_setup'
@@ -10756,6 +10751,27 @@ WHERE storage_path LIKE '%espaciozenith%';
 -- without a row in academic_section_assistants. Scoped to attendance RLS + section/enrollment reads
 -- required for the matrix (does not widen section_enrollment_teacher_is_self elsewhere).
 
+-- Helper: check if a section exists and is not archived, bypassing RLS recursion cycle.
+CREATE OR REPLACE FUNCTION public.section_is_non_archived_for_rls(p_section_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.academic_sections s
+    WHERE s.id = p_section_id
+      AND s.archived_at IS NULL
+  );
+$$;
+
+COMMENT ON FUNCTION public.section_is_non_archived_for_rls(uuid) IS
+  'SECURITY DEFINER: section exists and is not archived, without enrollment/section RLS ping-pong.';
+
+GRANT EXECUTE ON FUNCTION public.section_is_non_archived_for_rls(uuid) TO authenticated;
+
+-- Helper: check if an enrollment belongs to a non-archived section and the caller is staff assistant.
 CREATE OR REPLACE FUNCTION public.section_enrollment_global_staff_assistant_for_attendance(
   p_enrollment_id UUID
 )
@@ -10780,6 +10796,7 @@ COMMENT ON FUNCTION public.section_enrollment_global_staff_assistant_for_attenda
 
 GRANT EXECUTE ON FUNCTION public.section_enrollment_global_staff_assistant_for_attendance(UUID) TO authenticated;
 
+-- Attendance SELECT: add global staff assistant path.
 DROP POLICY IF EXISTS section_attendance_select_scope ON public.section_attendance;
 CREATE POLICY section_attendance_select_scope ON public.section_attendance
   FOR SELECT TO authenticated
@@ -10800,6 +10817,7 @@ CREATE POLICY section_attendance_select_scope ON public.section_attendance
     )
   );
 
+-- Attendance INSERT
 DROP POLICY IF EXISTS section_attendance_teacher_write ON public.section_attendance;
 CREATE POLICY section_attendance_teacher_write ON public.section_attendance
   FOR INSERT TO authenticated
@@ -10818,6 +10836,7 @@ CREATE POLICY section_attendance_teacher_write ON public.section_attendance
     )
   );
 
+-- Attendance UPDATE
 DROP POLICY IF EXISTS section_attendance_teacher_update ON public.section_attendance;
 CREATE POLICY section_attendance_teacher_update ON public.section_attendance
   FOR UPDATE TO authenticated
@@ -10848,6 +10867,7 @@ CREATE POLICY section_attendance_teacher_update ON public.section_attendance
     )
   );
 
+-- Attendance DELETE
 DROP POLICY IF EXISTS section_attendance_teacher_delete ON public.section_attendance;
 CREATE POLICY section_attendance_teacher_delete ON public.section_attendance
   FOR DELETE TO authenticated
@@ -10866,7 +10886,7 @@ CREATE POLICY section_attendance_teacher_delete ON public.section_attendance
     )
   );
 
--- List/read matrix: non-archived sections institute-wide for profile role assistant.
+-- Section reads: add global staff assistant. Admin sees ALL (including archived).
 DROP POLICY IF EXISTS academic_sections_select_scope ON public.academic_sections;
 CREATE POLICY academic_sections_select_scope ON public.academic_sections
   FOR SELECT TO authenticated
@@ -10902,6 +10922,8 @@ CREATE POLICY academic_sections_select_scope ON public.academic_sections
     )
   );
 
+-- Enrollment reads: assistant can see enrollments of non-archived sections.
+-- Uses SECURITY DEFINER helper to avoid academic_sections ↔ section_enrollments RLS cycle.
 DROP POLICY IF EXISTS section_enrollments_select_scope ON public.section_enrollments;
 CREATE POLICY section_enrollments_select_scope ON public.section_enrollments
   FOR SELECT TO authenticated
@@ -10920,6 +10942,7 @@ CREATE POLICY section_enrollments_select_scope ON public.section_enrollments
   );
 
 -- Profile reads: assistant can see student profiles (needed for attendance name labels).
+-- No subquery to other RLS-protected tables — safe from recursion.
 DROP POLICY IF EXISTS profiles_select_assistant_for_attendance ON public.profiles;
 CREATE POLICY profiles_select_assistant_for_attendance ON public.profiles
   FOR SELECT TO authenticated
@@ -10988,6 +11011,164 @@ BEGIN
 END;
 $$;
 
+-- ========== 105_portal_upcoming_birthdays_for_viewer.sql ==========
+
+-- Portal: upcoming student birthdays scoped by viewer role (sections, cohort peers, admin).
+-- SECURITY DEFINER: enforces viewer via p_viewer_id; JWT callers must pass auth.uid(); service_role (ICS feed) may pass token owner id.
+
+CREATE OR REPLACE FUNCTION public.portal_upcoming_birthdays_for_viewer(
+  p_viewer_id uuid,
+  p_range_start date,
+  p_range_end date
+)
+RETURNS TABLE (
+  student_id uuid,
+  first_name text,
+  last_name text,
+  birth_date date,
+  celebration_date date,
+  is_celebration_today boolean
+)
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_today date;
+  v_role text;
+BEGIN
+  IF auth.uid() IS NOT NULL AND p_viewer_id <> auth.uid() THEN
+    RAISE EXCEPTION 'forbidden' USING ERRCODE = '42501';
+  END IF;
+
+  IF p_range_start IS NULL OR p_range_end IS NULL OR p_range_end < p_range_start THEN
+    RETURN;
+  END IF;
+
+  v_today := (CURRENT_TIMESTAMP AT TIME ZONE 'America/Argentina/Cordoba')::date;
+
+  SELECT p.role::text INTO v_role FROM public.profiles p WHERE p.id = p_viewer_id LIMIT 1;
+  IF v_role IS NULL THEN
+    RETURN;
+  END IF;
+
+  RETURN QUERY
+  WITH scoped AS (
+    SELECT pr.id AS sid, pr.first_name, pr.last_name, pr.birth_date
+    FROM public.profiles pr
+    WHERE pr.role = 'student'
+      AND pr.birth_date IS NOT NULL
+      AND (
+        public.is_admin(p_viewer_id)
+        OR (
+          v_role = 'assistant'
+          AND EXISTS (
+            SELECT 1
+            FROM public.section_enrollments se
+            JOIN public.academic_sections sec ON sec.id = se.section_id
+            WHERE se.student_id = pr.id
+              AND se.status = 'active'
+              AND sec.archived_at IS NULL
+          )
+        )
+        OR (
+          v_role = 'teacher'
+          AND EXISTS (
+            SELECT 1
+            FROM public.section_enrollments se
+            JOIN public.academic_sections sec ON sec.id = se.section_id
+            WHERE se.student_id = pr.id
+              AND se.status = 'active'
+              AND sec.archived_at IS NULL
+              AND public.user_leads_or_assists_section(p_viewer_id, se.section_id)
+          )
+        )
+        OR (
+          v_role = 'student'
+          AND (
+            pr.id = p_viewer_id
+            OR EXISTS (
+              SELECT 1
+              FROM public.section_enrollments se1
+              JOIN public.section_enrollments se2
+                ON se1.section_id = se2.section_id AND se2.student_id = p_viewer_id
+              JOIN public.academic_sections sec ON sec.id = se1.section_id
+              WHERE se1.student_id = pr.id
+                AND se1.status = 'active'
+                AND se2.status = 'active'
+                AND sec.archived_at IS NULL
+            )
+          )
+        )
+        OR (
+          v_role = 'parent'
+          AND (
+            EXISTS (
+              SELECT 1 FROM public.tutor_student_rel ts
+              WHERE ts.tutor_id = p_viewer_id AND ts.student_id = pr.id
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM public.tutor_student_rel ts
+              JOIN public.section_enrollments sew ON sew.student_id = ts.student_id AND sew.status = 'active'
+              JOIN public.section_enrollments sep
+                ON sep.section_id = sew.section_id AND sep.student_id = pr.id AND sep.status = 'active'
+              JOIN public.academic_sections sec ON sec.id = sew.section_id
+              WHERE ts.tutor_id = p_viewer_id
+                AND sec.archived_at IS NULL
+            )
+          )
+        )
+      )
+  ),
+  matches AS (
+    SELECT
+      s.sid AS student_id,
+      s.first_name,
+      s.last_name,
+      s.birth_date,
+      gs.d::date AS celebration_date
+    FROM scoped s
+    CROSS JOIN LATERAL generate_series(
+      p_range_start,
+      p_range_end,
+      interval '1 day'
+    ) AS gs(d)
+    WHERE to_char(gs.d::date, 'MM-DD') = to_char(s.birth_date, 'MM-DD')
+  )
+  SELECT
+    m.student_id,
+    m.first_name,
+    m.last_name,
+    m.birth_date,
+    m.celebration_date,
+    (m.celebration_date = v_today) AS is_celebration_today
+  FROM matches m
+  ORDER BY m.celebration_date, m.last_name, m.first_name;
+END;
+$$;
+
+COMMENT ON FUNCTION public.portal_upcoming_birthdays_for_viewer(uuid, date, date) IS
+  'Returns student birthday celebrations (month/day) falling in [p_range_start, p_range_end] in institute (Cordoba) civil dates, scoped to sections/tutor/admin for p_viewer_id.';
+
+GRANT EXECUTE ON FUNCTION public.portal_upcoming_birthdays_for_viewer(uuid, date, date) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.portal_upcoming_birthdays_for_viewer(uuid, date, date) TO service_role;
+
+-- ========== 106_billing_currency_setting.sql ==========
+
+-- System-wide billing currency setting.
+-- All billing displays and new fee plans use this currency.
+-- Existing section_fee_plans.currency column is preserved for historical data but ignored.
+
+INSERT INTO public.site_settings (key, value)
+VALUES ('billing_currency', '"USD"'::jsonb)
+ON CONFLICT (key) DO NOTHING;
+
+-- Expose billing_currency to authenticated reads (admin policy already covers all).
+-- Update the public select policy to include this key if needed for non-admin reads.
+-- For now, only admins need to read/write this setting (existing site_settings_all_admin covers it).
+
 -- ========== 107_site_theme_kind_nago.sql ==========
 
 -- Guarantee `site_theme_kind` includes `nago`.
@@ -11052,3 +11233,119 @@ SET
   template_kind = EXCLUDED.template_kind,
   is_system_default = FALSE,
   properties = EXCLUDED.properties;
+
+-- ========== 109_section_enrollment_annual_settlements.sql ==========
+
+-- Annual tuition settlement: one accepted total for a coverage period replaces
+-- percentage scholarships for those months in billing math (see apply + resolve).
+
+CREATE TABLE IF NOT EXISTS public.section_enrollment_annual_settlements (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  enrollment_id UUID NOT NULL REFERENCES public.section_enrollments (id) ON DELETE CASCADE,
+  section_id UUID NOT NULL REFERENCES public.academic_sections (id) ON DELETE CASCADE,
+  student_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  coverage_from_year INT NOT NULL CHECK (coverage_from_year >= 2000 AND coverage_from_year <= 2100),
+  coverage_from_month INT NOT NULL CHECK (coverage_from_month >= 1 AND coverage_from_month <= 12),
+  coverage_until_year INT NOT NULL CHECK (coverage_until_year >= 2000 AND coverage_until_year <= 2100),
+  coverage_until_month INT NOT NULL CHECK (coverage_until_month >= 1 AND coverage_until_month <= 12),
+  includes_enrollment_fee BOOLEAN NOT NULL DEFAULT false,
+  baseline_list_total NUMERIC(12, 2) NOT NULL CHECK (baseline_list_total >= 0),
+  accepted_total NUMERIC(12, 2) NOT NULL CHECK (accepted_total >= 0),
+  implied_discount_amount NUMERIC(12, 2) NOT NULL,
+  currency TEXT NOT NULL,
+  created_by UUID REFERENCES public.profiles (id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT section_enrollment_annual_settlements_period_order CHECK (
+    (coverage_until_year * 12 + coverage_until_month) >=
+    (coverage_from_year * 12 + coverage_from_month)
+  )
+);
+
+CREATE INDEX IF NOT EXISTS section_enrollment_annual_settlements_enrollment_idx
+  ON public.section_enrollment_annual_settlements (enrollment_id);
+
+CREATE INDEX IF NOT EXISTS section_enrollment_annual_settlements_lookup_idx
+  ON public.section_enrollment_annual_settlements (enrollment_id, coverage_from_year, coverage_from_month);
+
+COMMENT ON TABLE public.section_enrollment_annual_settlements IS
+  'Staff-recorded annual deal: accepted_total vs list baseline; scholarship % ignored for covered months in resolveSectionPlanMonthlyAmount.';
+
+ALTER TABLE public.section_enrollment_annual_settlements ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS section_enrollment_annual_settlements_select_scope
+  ON public.section_enrollment_annual_settlements;
+CREATE POLICY section_enrollment_annual_settlements_select_scope
+  ON public.section_enrollment_annual_settlements
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR student_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM public.tutor_student_rel ts
+      WHERE ts.tutor_id = auth.uid()
+        AND ts.student_id = section_enrollment_annual_settlements.student_id
+    )
+    OR public.user_leads_or_assists_section(auth.uid(), section_enrollment_annual_settlements.section_id)
+  );
+
+DROP POLICY IF EXISTS section_enrollment_annual_settlements_admin_write
+  ON public.section_enrollment_annual_settlements;
+CREATE POLICY section_enrollment_annual_settlements_admin_write
+  ON public.section_enrollment_annual_settlements
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+-- ========== 110_payment_gateway_flow_chile.sql ==========
+
+-- Flow.cl (Chile): encrypted gateway credentials + RPC for checkout visibility
+-- without exposing API keys (authenticated can call boolean RPC only).
+
+CREATE TABLE IF NOT EXISTS public.payment_gateway_credentials (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  provider TEXT NOT NULL CHECK (provider = 'flow'),
+  country_code TEXT NOT NULL CHECK (char_length(country_code) = 2),
+  environment TEXT NOT NULL CHECK (environment IN ('sandbox', 'production')),
+  api_key_encrypted TEXT NOT NULL,
+  secret_key_encrypted TEXT NOT NULL,
+  enabled BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT payment_gateway_credentials_provider_country_uidx UNIQUE (provider, country_code)
+);
+
+DROP TRIGGER IF EXISTS payment_gateway_credentials_set_updated_at ON public.payment_gateway_credentials;
+CREATE TRIGGER payment_gateway_credentials_set_updated_at
+  BEFORE UPDATE ON public.payment_gateway_credentials
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+ALTER TABLE public.payment_gateway_credentials ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS payment_gateway_credentials_admin_all ON public.payment_gateway_credentials;
+CREATE POLICY payment_gateway_credentials_admin_all ON public.payment_gateway_credentials
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+CREATE OR REPLACE FUNCTION public.is_flow_chile_checkout_enabled()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT COALESCE(
+    (
+      SELECT c.enabled
+      FROM public.payment_gateway_credentials c
+      WHERE c.provider = 'flow'
+        AND c.country_code = 'CL'
+      LIMIT 1
+    ),
+    false
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.is_flow_chile_checkout_enabled() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.is_flow_chile_checkout_enabled() TO authenticated;

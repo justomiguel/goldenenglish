@@ -161,3 +161,34 @@ export async function runRecordPaymentScholarshipBulk(args: {
       .replace("{failed}", failLines),
   };
 }
+
+/** One scholarship row covering Jan–Dec of `year` (matrícula column bulk “discount” path). */
+export async function runRecordEnrollmentYearScholarshipBulk(args: {
+  locale: Locale;
+  studentId: string;
+  sectionId: string;
+  year: number;
+  discountPercent: number;
+  note?: string;
+  labels: Dictionary["admin"]["billing"];
+}): Promise<{ ok: boolean; message: string }> {
+  const r = await createStudentScholarship({
+    locale: args.locale,
+    studentId: args.studentId,
+    sectionId: args.sectionId,
+    discountPercent: args.discountPercent,
+    note: args.note,
+    validFromYear: args.year,
+    validFromMonth: 1,
+    validUntilYear: args.year,
+    validUntilMonth: 12,
+    isActive: true,
+  });
+  if (!r.ok) {
+    return {
+      ok: false,
+      message: `${args.labels.recordPaymentMonthZeroColumnShort}: ${r.message ?? "—"}`,
+    };
+  }
+  return { ok: true, message: "" };
+}

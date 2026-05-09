@@ -8,7 +8,10 @@ import { Label } from "@/components/atoms/Label";
 import { StudentPaymentsHistory } from "@/components/student/StudentPaymentsHistory";
 import type { StudentPaymentRow } from "@/components/student/StudentPaymentsHistory";
 import { StudentMonthlyPaymentsStrip } from "@/components/student/StudentMonthlyPaymentsStrip";
-import { type SubmitMonthlyReceiptAction } from "@/components/student/StudentMonthlyPaymentFocus";
+import {
+  type SubmitMonthlyReceiptAction,
+  type StartFlowMonthlyPaymentClientAction,
+} from "@/components/student/StudentMonthlyPaymentFocus";
 import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary, Locale } from "@/types/i18n";
@@ -61,6 +64,9 @@ export interface ParentPaymentsEntryProps {
   submitReceiptAction: SubmitMonthlyReceiptAction;
   /** Server action que sube el comprobante de matrícula en nombre del alumno. */
   submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
+  /** Server action: Flow.cl checkout for the selected ward’s month. */
+  startFlowMonthlyPaymentAction?: StartFlowMonthlyPaymentClientAction;
+  flowMonthlyPayEnabled?: boolean;
   fileUploadProgress: FileUploadProgressLabels;
 }
 
@@ -78,6 +84,8 @@ export function ParentPaymentsEntry({
   submitReceiptAction,
   submitEnrollmentFeeReceiptAction,
   fileUploadProgress,
+  startFlowMonthlyPaymentAction,
+  flowMonthlyPayEnabled = false,
 }: ParentPaymentsEntryProps) {
   const router = useRouter();
 
@@ -153,6 +161,8 @@ export function ParentPaymentsEntry({
                   submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceiptAction}
                   receiptExpectedUsesFullMonth
                   fileUploadProgress={fileUploadProgress}
+                  startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
+                  flowMonthlyPayEnabled={flowMonthlyPayEnabled}
                 />
               ) : null}
               <h2 className="mt-10 font-display text-xl font-semibold text-[var(--color-primary)]">

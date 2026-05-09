@@ -18,6 +18,8 @@ export const AnalyticsEntity = {
   paymentReceiptSubmittedParent: "payment_receipt_submitted_parent",
   /** Funnel: receipt uploaded from student portal */
   paymentReceiptSubmittedStudent: "payment_receipt_submitted_student",
+  /** Student or tutor started Flow.cl checkout for a monthly fee */
+  monthlyPaymentFlowCheckoutStarted: "monthly_payment_flow_checkout_started",
   /** Funnel: tutor uploaded a receipt on behalf of a linked student */
   paymentReceiptSubmittedTutor: "payment_receipt_submitted_tutor",
   /** Privacy: adult student revoked financial access for a linked tutor */

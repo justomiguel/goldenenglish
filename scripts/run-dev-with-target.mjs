@@ -39,6 +39,17 @@ const VALID_TARGETS = Object.keys(TARGETS);
 
 const OUT_LOCAL = path.join(ROOT, ".env.local");
 
+/** Supabase session cookies can exceed Node's default HTTP header limit in dev. */
+function envWithDevHttpHeaders(env) {
+  const extra = "--max-http-header-size=65536";
+  const cur = (env.NODE_OPTIONS ?? "").trim();
+  if (/\b--max-http-header-size=\d+\b/.test(cur)) {
+    return { ...env };
+  }
+  const NODE_OPTIONS = cur ? `${cur} ${extra}` : extra;
+  return { ...env, NODE_OPTIONS };
+}
+
 function parseTarget(argv, envTarget) {
   const fromEnv = (envTarget || "").trim().toLowerCase();
   if (VALID_TARGETS.includes(fromEnv)) return fromEnv;
@@ -151,7 +162,7 @@ async function main() {
   const child = spawn(process.execPath, [nextCli, ...nextArgs], {
     cwd: ROOT,
     stdio: "inherit",
-    env: { ...process.env, GE_DEV_TARGET: target },
+    env: envWithDevHttpHeaders({ ...process.env, GE_DEV_TARGET: target }),
   });
   child.on("exit", (code, signal) => {
     if (signal) process.kill(process.pid, signal);

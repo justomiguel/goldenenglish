@@ -12,6 +12,8 @@ import { loadStudentMonthlyPaymentsView } from "@/lib/billing/loadStudentMonthly
 import { studentReceiptSignedUrl } from "@/lib/payments/studentReceiptSignedUrl";
 import { submitTutorPaymentReceipt } from "@/app/[locale]/dashboard/parent/payments/actions";
 import { submitTutorEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/parent/payments/submitTutorEnrollmentFeeReceiptAction";
+import { startTutorFlowMonthlyPayment } from "@/app/[locale]/dashboard/parent/payments/flowMonthlyPaymentActions";
+import { isFlowChileCheckoutEnabled } from "@/lib/payment-gateways/flow/isFlowChileCheckoutEnabled";
 import type { StudentPaymentRow } from "@/components/student/StudentPaymentsHistory";
 import type { Locale } from "@/types/i18n";
 
@@ -147,6 +149,8 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
     );
   }
 
+  const flowMonthlyPayEnabled = await isFlowChileCheckoutEnabled(supabase);
+
   return (
     <ParentPaymentsEntry
       locale={locale as Locale}
@@ -162,6 +166,8 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
       submitReceiptAction={submitTutorPaymentReceipt}
       submitEnrollmentFeeReceiptAction={submitTutorEnrollmentFeeReceipt}
       fileUploadProgress={dict.common.fileUpload}
+      flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+      startFlowMonthlyPaymentAction={startTutorFlowMonthlyPayment}
     />
   );
 }

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
+import { resolvePaymentActionLocale } from "@/app/[locale]/dashboard/admin/payments/paymentActionLocale";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { defaultLocale, getDictionary } from "@/lib/i18n/dictionaries";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
@@ -132,3 +133,102 @@ export async function rejectBillingReceipt(
   revalidatePath(`/${loc}/dashboard/student/billing`);
   return { ok: true };
 }
+
+const bulkApproveIdsSchema = z.object({
+  receiptIds: z.array(z.string().uuid()).min(1).max(80),
+  locale: z.string().min(2).max(8),
+});
+
+export async function bulkApproveBillingReceipts(
+  raw: unknown,
+): Promise<{ ok: boolean; processed: number; message?: string }> {
+  try {
+    await assertAdmin();
+  } catch {
+    logServerAuthzDenied("bulkApproveBillingReceipts");
+    const dict = await getDictionary(defaultLocale);
+    return {
+      ok: false,
+      processed: 0,
+      message: dict.actionErrors.billingReview.forbidden,
+    };
+  }
+
+  const parsed = bulkApproveIdsSchema.safeParse(raw);
+  if (!parsed.success) {
+    const dict = await getDictionary(defaultLocale);
+    return {
+      ok: false,
+      processed: 0,
+      message: dict.actionErrors.billingReview.invalidData,
+    };
+  }
+
+  let processed = 0;
+  for (const receiptId of parsed.data.receiptIds) {
+    const r = await approveBillingReceipt({
+      receiptId,
+      locale: parsed.data.locale,
+    });
+    if (r.ok) processed += 1;
+  }
+
+  if (processed > 0) {
+    const loc = resolvePaymentActionLocale(parsed.data.locale);
+    revalidatePath(`/${loc}/dashboard/admin/finance`);
+  }
+
+  return { ok: processed > 0, processed };
+}
+
+const bulkRejectIdsSchema = z.object({
+  receiptIds: z.array(z.string().uuid()).min(1).max(80),
+  locale: z.string().min(2).max(8),
+  code: z.enum(["image_blurry", "amount_mismatch", "wrong_account", "other"]),
+  detail: z.string().max(2000).optional(),
+});
+
+export async function bulkRejectBillingReceipts(
+  raw: unknown,
+): Promise<{ ok: boolean; processed: number; message?: string }> {
+  try {
+    await assertAdmin();
+  } catch {
+    logServerAuthzDenied("bulkRejectBillingReceipts");
+    const dict = await getDictionary(defaultLocale);
+    return {
+      ok: false,
+      processed: 0,
+      message: dict.actionErrors.billingReview.forbidden,
+    };
+  }
+
+  const parsed = bulkRejectIdsSchema.safeParse(raw);
+  if (!parsed.success) {
+    const dict = await getDictionary(defaultLocale);
+    return {
+      ok: false,
+      processed: 0,
+      message: dict.actionErrors.billingReview.invalidData,
+    };
+  }
+
+  let processed = 0;
+  for (const receiptId of parsed.data.receiptIds) {
+    const r = await rejectBillingReceipt({
+      receiptId,
+      locale: parsed.data.locale,
+      code: parsed.data.code,
+      detail: parsed.data.detail,
+    });
+    if (r.ok) processed += 1;
+  }
+
+  if (processed > 0) {
+    const loc = resolvePaymentActionLocale(parsed.data.locale);
+    revalidatePath(`/${loc}/dashboard/admin/finance`);
+  }
+
+  return { ok: processed > 0, processed };
+}
+

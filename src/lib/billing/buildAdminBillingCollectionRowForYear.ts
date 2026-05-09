@@ -62,6 +62,8 @@ export interface BuildAdminBillingCollectionRowForYearInput {
   viewYear: number;
   calendarTodayYear: number;
   calendarTodayMonth: number;
+  /** Matrix: months where an annual settlement replaces % scholarship in displayed math. */
+  annualSettlementCoverage?: ReadonlySet<number> | null;
 }
 
 /**
@@ -93,5 +95,6 @@ export function buildAdminBillingCollectionRowForYear(
     enrollmentFeeReceiptStatus: input.enrollmentFeeReceiptStatus,
     enrollmentFeeReceiptSignedUrl: input.enrollmentFeeReceiptSignedUrl,
     lastEnrollmentPaidAt: input.lastEnrollmentPaidAt,
+    annualSettlementCoverage: input.annualSettlementCoverage ?? null,
   });
 }

@@ -15,6 +15,8 @@ export interface SectionCollectionsCellActionModalProps {
   open: boolean;
   action: SectionCellBulkAction | null;
   cellCount: number;
+  /** True when selection includes matrícula column (month 0). */
+  includesEnrollmentFee?: boolean;
   onClose: () => void;
   onConfirm: (params: {
     action: SectionCellBulkAction;
@@ -29,6 +31,7 @@ export function SectionCollectionsCellActionModal({
   open,
   action,
   cellCount,
+  includesEnrollmentFee = false,
   onClose,
   onConfirm,
   busy,
@@ -101,6 +104,17 @@ export function SectionCollectionsCellActionModal({
     >
       <div className="space-y-4">
         <p className="text-sm text-[var(--color-muted-foreground)]">{body}</p>
+        {includesEnrollmentFee && action === "paid" ? (
+          <p className="text-sm text-[var(--color-muted-foreground)]">{d.includesEnrollmentFeePaidNote}</p>
+        ) : null}
+        {includesEnrollmentFee && action === "scholarship" ? (
+          <p className="text-sm text-[var(--color-muted-foreground)]">
+            {d.includesEnrollmentFeeScholarshipNote}
+          </p>
+        ) : null}
+        {includesEnrollmentFee && action === "exempt" ? (
+          <p className="text-sm text-[var(--color-muted-foreground)]">{d.includesEnrollmentFeeExemptNote}</p>
+        ) : null}
 
         {action === "scholarship" ? (
           <div className="space-y-3">

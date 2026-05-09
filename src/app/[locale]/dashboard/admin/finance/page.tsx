@@ -8,10 +8,10 @@ import {
   FinanceHubTabs,
   parseFinanceHubTab,
 } from "@/components/dashboard/admin/finance/FinanceHubTabs";
-import { FinanceOverviewPanel } from "@/components/dashboard/admin/finance/FinanceOverviewPanel";
 import { FinanceInboxPanel } from "@/components/dashboard/admin/finance/FinanceInboxPanel";
 import { FinanceInsightsPanel } from "@/components/dashboard/admin/finance/FinanceInsightsPanel";
 import { FinanceSettingsPanel } from "@/components/dashboard/admin/finance/FinanceSettingsPanel";
+import { loadFlowChileGatewayAdminRow } from "@/app/[locale]/dashboard/admin/finance/flowGatewaySettingsActions";
 import { CohortCollectionsMatrixClient } from "@/components/dashboard/admin/finance/CohortCollectionsMatrixClient";
 import { FinanceHubCohortSelector } from "@/components/dashboard/admin/finance/FinanceHubCohortSelector";
 import { FinanceHubKpiStrip } from "@/components/dashboard/admin/finance/FinanceHubKpiStrip";
@@ -103,6 +103,7 @@ export default async function AdminFinanceHubPage({
   const tab = parseFinanceHubTab(search.tab);
   const baseHref = `/${locale}/dashboard/admin/finance`;
   const financeDict = dict.admin.finance;
+  const needsCohortBillingMatrix = tab === "collections" || tab === "insights";
 
   const [pendingCounts, { data: cohortRows }, billingCurrency] = await Promise.all([
     loadPendingCounts(supabase),
@@ -121,12 +122,13 @@ export default async function AdminFinanceHubPage({
   const todayMonth = today.getMonth() + 1;
   const year = parseYear(search.year, todayYear);
 
-  const matrix = cohort
-    ? await loadAdminCohortCollectionsBulk(supabase, cohort.id, {
-        todayYear: year,
-        todayMonth: year === todayYear ? todayMonth : 12,
-      })
-    : null;
+  const matrix =
+    needsCohortBillingMatrix && cohort
+      ? await loadAdminCohortCollectionsBulk(supabase, cohort.id, {
+          todayYear: year,
+          todayMonth: year === todayYear ? todayMonth : 12,
+        })
+      : null;
 
   const selectorNode = (
     <FinanceHubCohortSelector
@@ -146,6 +148,16 @@ export default async function AdminFinanceHubPage({
       currency={billingCurrency.currency}
     />
   ) : null;
+
+  const flowGatewayDefault = {
+    environment: "sandbox" as const,
+    enabled: false,
+    hasCredentials: false,
+  };
+  const flowGatewayInitial =
+    tab === "settings"
+      ? ((await loadFlowChileGatewayAdminRow()) ?? flowGatewayDefault)
+      : flowGatewayDefault;
 
   return (
     <div className="space-y-5">
@@ -175,16 +187,6 @@ export default async function AdminFinanceHubPage({
         kpiStrip={kpiNode}
         dict={financeDict.hub}
       >
-        {tab === "overview" ? (
-          <FinanceOverviewPanel
-            matrix={matrix}
-            cohortName={cohort?.name ?? null}
-            locale={locale}
-            dict={financeDict}
-            sectionDrillBaseHref={`${baseHref}/collections`}
-            currency={billingCurrency.currency}
-          />
-        ) : null}
         {tab === "collections" && matrix ? (
           <CohortCollectionsMatrixClient
             matrix={matrix}
@@ -223,6 +225,7 @@ export default async function AdminFinanceHubPage({
             currentCurrency={billingCurrency.currency}
             locale={locale}
             dict={financeDict.settings}
+            flowGatewayInitial={flowGatewayInitial}
           />
         ) : null}
       </FinanceHubTabs>

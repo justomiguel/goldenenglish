@@ -8,6 +8,7 @@ import type {
 } from "@/types/sectionCollections";
 import type { Dictionary } from "@/types/i18n";
 import { effectiveScholarshipPercentForPeriod } from "@/lib/billing/scholarshipPeriod";
+import { isSectionCollectionsEnrollmentFeeMatrixCellSelectable } from "@/lib/billing/sectionCollectionsEnrollmentFeeMatrixCell";
 import { SectionCollectionsEnrollmentFeeCell } from "./SectionCollectionsEnrollmentFeeCell";
 import { SectionCollectionsMonthCell } from "./SectionCollectionsMonthCell";
 import { SectionCollectionsStudentBenefits } from "./SectionCollectionsStudentBenefits";
@@ -58,6 +59,11 @@ export function SectionCollectionsMatrixStudentRow({
   const cells = MONTHS.map((m) =>
     student.row.cells.find((c) => c.month === m && c.year === view.year),
   );
+
+  const enrollmentMatrixSelectable =
+    cellSelectable &&
+    showEnrollmentFeeColumn &&
+    isSectionCollectionsEnrollmentFeeMatrixCellSelectable(student, view, showEnrollmentFeeColumn);
 
   const handleToggleCell = (month: number) => {
     onToggleCell?.(student.studentId, month);
@@ -114,6 +120,13 @@ export function SectionCollectionsMatrixStudentRow({
               "{name}",
               student.studentName,
             )}
+            selectable={enrollmentMatrixSelectable}
+            selected={isCellSelected?.(0) ?? false}
+            onToggle={
+              enrollmentMatrixSelectable && onToggleCell
+                ? (sid) => onToggleCell(sid, 0)
+                : undefined
+            }
           />
         </td>
       ) : null}

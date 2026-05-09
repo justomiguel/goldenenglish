@@ -15,6 +15,8 @@ import {
   submitStudentPaymentReceipt,
   submitEnrollmentFeeReceipt,
 } from "@/app/[locale]/dashboard/student/payments/actions";
+import { startStudentFlowMonthlyPayment } from "@/app/[locale]/dashboard/student/payments/flowMonthlyPaymentActions";
+import { isFlowChileCheckoutEnabled } from "@/lib/payment-gateways/flow/isFlowChileCheckoutEnabled";
 import type { Locale } from "@/types/i18n";
 
 export const metadata: Metadata = {
@@ -155,6 +157,8 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
     }),
   );
 
+  const flowMonthlyPayEnabled = await isFlowChileCheckoutEnabled(supabase);
+
   return (
     <StudentPaymentsEntry
       locale={locale as Locale}
@@ -169,6 +173,8 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
       submitReceiptAction={submitStudentPaymentReceipt}
       submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceipt}
       fileUploadProgress={dict.common.fileUpload}
+      flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+      startFlowMonthlyPaymentAction={startStudentFlowMonthlyPayment}
     />
   );
 }

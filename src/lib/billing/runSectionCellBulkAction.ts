@@ -1,8 +1,13 @@
+import { bulkSectionEnrollmentExemptionAction } from "@/app/[locale]/dashboard/admin/finance/collections/[sectionId]/bulkSectionEnrollmentExemptionAction";
+import { markEnrollmentFeePaidNow } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/enrollmentFeeActions";
+import { uniqueSortedMonths } from "@/app/[locale]/dashboard/admin/payments/recordPaymentWithoutReceiptActionShared";
 import {
   runRecordPaymentExemptBulk,
   runRecordPaymentPaidBulk,
   runRecordPaymentScholarshipBulk,
+  runRecordEnrollmentYearScholarshipBulk,
 } from "@/lib/dashboard/adminRecordPaymentBulkRunners";
+import { SECTION_COLLECTIONS_ENROLLMENT_FEE_CELL_MONTH } from "@/lib/billing/sectionCollectionsEnrollmentFeeCellMonth";
 import type { Dictionary, Locale } from "@/types/i18n";
 
 export type SectionCellBulkActionType = "paid" | "scholarship" | "exempt";
@@ -26,6 +31,14 @@ export interface SectionCellBulkActionResult {
   message: string;
 }
 
+function monthlySubset(months: number[]): number[] {
+  return uniqueSortedMonths(months);
+}
+
+function hasEnrollmentFeeCell(months: number[]): boolean {
+  return months.includes(SECTION_COLLECTIONS_ENROLLMENT_FEE_CELL_MONTH);
+}
+
 export async function runSectionCellBulkAction({
   action,
   sectionId,
@@ -43,53 +56,103 @@ export async function runSectionCellBulkAction({
 
   let successCount = 0;
   let failedCount = 0;
-  const failedMessages: string[] = [];
+
+  const enrollmentIdsForExempt = new Set<string>();
 
   for (const [studentId, months] of cellsByStudent) {
-    let result: { ok: boolean; message: string };
+    const monthlyMonths = monthlySubset(months);
+    const enrollmentSel = hasEnrollmentFeeCell(months);
 
-    switch (action) {
-      case "paid":
-        result = await runRecordPaymentPaidBulk({
-          studentId,
-          sectionId,
-          year,
-          months,
-          locale,
-          adminNote: note,
-          labels,
-        });
-        break;
-      case "scholarship":
-        result = await runRecordPaymentScholarshipBulk({
-          locale,
-          studentId,
-          sectionId,
-          year,
-          months,
-          discountPercent: scholarshipPercent ?? 0,
-          note,
-          labels,
-        });
-        break;
-      case "exempt":
-        result = await runRecordPaymentExemptBulk({
-          locale,
-          studentId,
-          sectionId,
-          year,
-          months,
-          adminNote: note ?? "",
-          labels,
-        });
-        break;
+    if (action === "exempt" && enrollmentSel) {
+      enrollmentIdsForExempt.add(studentId);
     }
 
-    if (result.ok) {
-      successCount += months.length;
+    switch (action) {
+      case "paid": {
+        if (monthlyMonths.length > 0) {
+          const result = await runRecordPaymentPaidBulk({
+            studentId,
+            sectionId,
+            year,
+            months: monthlyMonths,
+            locale,
+            adminNote: note,
+            labels,
+          });
+          if (result.ok) successCount += monthlyMonths.length;
+          else failedCount += monthlyMonths.length;
+        }
+        if (enrollmentSel) {
+          const r = await markEnrollmentFeePaidNow({ locale, studentId, sectionId });
+          if (r.ok) successCount += 1;
+          else failedCount += 1;
+        }
+        break;
+      }
+      case "scholarship": {
+        if (monthlyMonths.length > 0) {
+          const result = await runRecordPaymentScholarshipBulk({
+            locale,
+            studentId,
+            sectionId,
+            year,
+            months: monthlyMonths,
+            discountPercent: scholarshipPercent ?? 0,
+            note,
+            labels,
+          });
+          if (result.ok) successCount += monthlyMonths.length;
+          else failedCount += monthlyMonths.length;
+        }
+        if (enrollmentSel) {
+          const r = await runRecordEnrollmentYearScholarshipBulk({
+            locale,
+            studentId,
+            sectionId,
+            year,
+            discountPercent: scholarshipPercent ?? 0,
+            note,
+            labels,
+          });
+          if (r.ok) successCount += 1;
+          else failedCount += 1;
+        }
+        break;
+      }
+      case "exempt": {
+        if (monthlyMonths.length > 0) {
+          const result = await runRecordPaymentExemptBulk({
+            locale,
+            studentId,
+            sectionId,
+            year,
+            months: monthlyMonths,
+            adminNote: note ?? "",
+            labels,
+          });
+          if (result.ok) successCount += monthlyMonths.length;
+          else failedCount += monthlyMonths.length;
+        }
+        break;
+      }
+    }
+  }
+
+  if (action === "exempt" && enrollmentIdsForExempt.size > 0) {
+    const r = await bulkSectionEnrollmentExemptionAction({
+      locale,
+      sectionId,
+      studentIds: [...enrollmentIdsForExempt],
+      exempt: true,
+      reason: note,
+    });
+    const n = enrollmentIdsForExempt.size;
+    if (r.ok) {
+      const updated = r.updatedCount ?? n;
+      successCount += updated;
+      failedCount += n - updated;
     } else {
-      failedCount += months.length;
-      failedMessages.push(result.message);
+      failedCount += n;
     }
   }
 

@@ -5,7 +5,10 @@ import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import { PromotionAppliedBadge } from "@/components/molecules/PromotionAppliedBadge";
 import { PromotionApplyForm } from "@/components/molecules/PromotionApplyForm";
 import { StudentMonthlyPaymentsStrip } from "@/components/student/StudentMonthlyPaymentsStrip";
-import type { SubmitMonthlyReceiptAction } from "@/components/student/StudentMonthlyPaymentFocus";
+import type {
+  SubmitMonthlyReceiptAction,
+  StartFlowMonthlyPaymentClientAction,
+} from "@/components/student/StudentMonthlyPaymentFocus";
 import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import { StudentPaymentsYearSummary } from "@/components/student/StudentPaymentsYearSummary";
 import {
@@ -49,6 +52,10 @@ export interface StudentPaymentsEntryProps {
   submitReceiptAction: SubmitMonthlyReceiptAction;
   /** Server action that uploads an enrollment fee receipt for `studentId`. */
   submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
+  /** Server action to start Flow.cl checkout for monthly tuition (CLP). */
+  startFlowMonthlyPaymentAction?: StartFlowMonthlyPaymentClientAction;
+  /** Whether Flow Chile checkout is enabled in gateway settings (RPC). */
+  flowMonthlyPayEnabled?: boolean;
   fileUploadProgress: FileUploadProgressLabels;
 }
 
@@ -62,6 +69,8 @@ export function StudentPaymentsEntry({
   monthlyView,
   labels,
   paymentsBlockedMessage,
+  startFlowMonthlyPaymentAction,
+  flowMonthlyPayEnabled = false,
   ...rest
 }: StudentPaymentsEntryProps) {
   if (paymentsBlockedMessage) {
@@ -128,6 +137,8 @@ export function StudentPaymentsEntry({
             submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceiptAction}
             receiptExpectedUsesFullMonth
             fileUploadProgress={fileUploadProgress}
+            startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
+            flowMonthlyPayEnabled={flowMonthlyPayEnabled}
           />
         </>
       ) : null}

@@ -4,8 +4,8 @@ import {
   LANDING_MEDIA_MAX_BYTES,
 } from "@/lib/cms/siteThemeLandingInputSchemas";
 
-/** Empty string or omitted → skip URL validation. */
-const optionalHttpUrl = z.preprocess(
+/** Accepts `""` from clients; absolute URLs after `coerceInitialSiteSetupSocialFields`. */
+const optionalSocialUrlStored = z.preprocess(
   (raw) => {
     if (raw === undefined || raw === null) return undefined;
     if (typeof raw === "string" && raw.trim() === "") return undefined;
@@ -25,9 +25,9 @@ const siteSetupSharedSchema = z.object({
   contactEmail: z.string().trim().email().max(200),
   contactPhone: z.string().trim().min(3).max(80),
   contactAddress: z.string().trim().min(3).max(400),
-  socialFacebook: optionalHttpUrl,
-  socialInstagram: optionalHttpUrl,
-  socialWhatsapp: optionalHttpUrl,
+  socialFacebook: optionalSocialUrlStored,
+  socialInstagram: optionalSocialUrlStored,
+  socialWhatsapp: optionalSocialUrlStored,
   logoContentType: z.string().min(3).max(80),
   logoBase64: z.string().min(1),
 });

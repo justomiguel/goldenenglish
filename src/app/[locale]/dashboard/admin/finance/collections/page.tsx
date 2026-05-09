@@ -17,7 +17,7 @@ interface PageProps {
  *
  * The drill-down route `/admin/finance/collections/[sectionId]` stays alive
  * (rendered by the sibling dynamic segment) because the overview tab links
- * to it for the per-student matrix.
+ * to it for the per-student matrix from Cobranza.
  */
 export default async function AdminFinanceCollectionsRedirect({
   params,

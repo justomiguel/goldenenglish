@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AdminAnnualSettlementPanel } from "@/components/dashboard/AdminAnnualSettlementPanel";
 import { AdminBillingSectionFeeSummary } from "@/components/dashboard/AdminBillingSectionFeeSummary";
 import { AdminRecordPaymentPanel } from "@/components/dashboard/AdminRecordPaymentPanel";
 import { DEFAULT_SECTION_FEE_PLAN_CURRENCY } from "@/types/sectionFeePlan";
@@ -200,6 +201,17 @@ export function AdminStudentBillingClient({
           />
         ) : null}
       </section>
+
+      {selectedBenefit ? (
+        <AdminAnnualSettlementPanel
+          locale={locale}
+          studentId={studentId}
+          benefit={selectedBenefit}
+          billingYear={billingYear}
+          labels={labels.annualSettlement}
+          cancelLabel={labels.cancel}
+        />
+      ) : null}
 
       <AdminStudentBillingTabsPanel
         locale={locale}

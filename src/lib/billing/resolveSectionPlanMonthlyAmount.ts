@@ -1,7 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   effectiveAmountAfterScholarship,
-  type ScholarshipRow,
 } from "@/lib/billing/scholarshipPeriod";
 import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
 import {
@@ -16,6 +15,15 @@ import {
   monthBounds,
 } from "@/lib/billing/countSectionMonthlyClasses";
 import { prorateMonthlyFee } from "@/lib/billing/prorateMonthlyFee";
+import {
+  periodInAnnualSettlementCoverage,
+  type AnnualSettlementCoverageRow,
+} from "@/lib/billing/annualSettlementPeriod";
+import {
+  loadAnnualSettlementsForEnrollment,
+  loadScholarshipRowsForEnrollment,
+  parseUtcDate,
+} from "@/lib/billing/resolveSectionPlanMonthlyAmountSupport";
 
 /** Matches `buildStudentMonthlyPaymentsRow` / admin Cobranzas matrices. */
 export type ResolveSectionPlanBillingScope = "operational-window" | "plan-year";
@@ -27,6 +35,10 @@ export type ResolveSectionPlanMonthlyAmountOptions = {
    * @default "operational-window"
    */
   billingScope?: ResolveSectionPlanBillingScope;
+  /**
+   * List / plan price without applying percentage scholarships (annual settlement baseline).
+   */
+  ignoreScholarships?: boolean;
 };
 
 export type SectionPlanAmountResult =
@@ -54,14 +66,6 @@ export async function isStudentActivelyEnrolledInSection(
   return Boolean(data);
 }
 
-function parseUtcDate(iso: string | null | undefined): Date | null {
-  if (!iso) return null;
-  const trimmed = iso.length >= 10 ? iso.slice(0, 10) : iso;
-  const [y, m, d] = trimmed.split("-").map((n) => Number(n));
-  if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return null;
-  return new Date(Date.UTC(y, m - 1, d));
-}
-
 type EnrollmentRow = {
   id: string;
   created_at: string | null;
@@ -81,7 +85,8 @@ export async function resolveSectionPlanMonthlyAmount(
   month: number,
   options?: ResolveSectionPlanMonthlyAmountOptions,
 ): Promise<SectionPlanAmountResult> {
-  const billingScope: ResolveSectionPlanBillingScope = options?.billingScope ?? "operational-window";
+  const billingScope: ResolveSectionPlanBillingScope =
+    options?.billingScope ?? "operational-window";
 
   const { data: planRows } = await supabase
     .from("section_fee_plans")
@@ -103,29 +108,26 @@ export async function resolveSectionPlanMonthlyAmount(
     .maybeSingle();
   const enrollmentRow = enrolment as EnrollmentRow | null;
 
-  async function loadScholarships(enrollmentId: string | null): Promise<ScholarshipRow[]> {
-    if (!enrollmentId) return [];
-    const { data: scholarshipRows } = await supabase
-      .from("section_enrollment_scholarships")
-      .select(
-        "id, discount_percent, note, valid_from_year, valid_from_month, valid_until_year, valid_until_month, is_active",
-      )
-      .eq("enrollment_id", enrollmentId);
-    return ((scholarshipRows ?? []) as Array<ScholarshipRow>).map((row) => ({
-      id: row.id,
-      discount_percent: Number(row.discount_percent),
-      note: row.note ?? null,
-      valid_from_year: row.valid_from_year,
-      valid_from_month: row.valid_from_month,
-      valid_until_year: row.valid_until_year,
-      valid_until_month: row.valid_until_month,
-      is_active: Boolean(row.is_active),
-    }));
+  let annualSettlementRows: AnnualSettlementCoverageRow[] = [];
+  if (!options?.ignoreScholarships && enrollmentRow?.id) {
+    annualSettlementRows = await loadAnnualSettlementsForEnrollment(
+      supabase,
+      enrollmentRow.id,
+    );
   }
+  const annualSuppressesScholarship =
+    !options?.ignoreScholarships &&
+    annualSettlementRows.some((row) => periodInAnnualSettlementCoverage(year, month, row));
 
   if (billingScope === "plan-year") {
     const prorated = fallbackFullMonthProration(plan.monthlyFee);
-    const scholarships = await loadScholarships(enrollmentRow?.id ?? null);
+    const scholarships =
+      options?.ignoreScholarships || annualSuppressesScholarship
+        ? []
+        : await loadScholarshipRowsForEnrollment(
+            supabase,
+            enrollmentRow?.id ?? null,
+          );
     const adjusted = effectiveAmountAfterScholarship(
       prorated.amount,
       year,
@@ -189,7 +191,13 @@ export async function resolveSectionPlanMonthlyAmount(
   });
   if (prorated.code !== "ok") return { code: "out_of_period" };
 
-  const scholarships = await loadScholarships(enrollmentRow?.id ?? null);
+  const scholarships =
+    options?.ignoreScholarships || annualSuppressesScholarship
+      ? []
+      : await loadScholarshipRowsForEnrollment(
+          supabase,
+          enrollmentRow?.id ?? null,
+        );
 
   const adjusted = effectiveAmountAfterScholarship(
     prorated.amount,

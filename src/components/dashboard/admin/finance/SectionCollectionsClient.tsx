@@ -1,28 +1,27 @@
 "use client";
 
-import { MousePointerClick } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { sendOverdueBalanceRemindersAction } from "@/app/[locale]/dashboard/admin/finance/collections/overdueBalanceRemindersAction";
-import { Button } from "@/components/atoms/Button";
+import { GraduationCap, History, Receipt, Table2 } from "lucide-react";
+import { useId, useState } from "react";
+import {
+  UnderlineTabBar,
+  underlinePanelId,
+  underlineTabId,
+  type UnderlineTabItem,
+} from "@/components/molecules/UnderlineTabBar";
 import type { SectionCollectionsView } from "@/types/sectionCollections";
-import type { Dictionary, Locale } from "@/types/i18n";
-import { AdminBillingMatrixLegendModal } from "@/components/dashboard/AdminBillingMatrixLegendModal";
-import { useSectionCollectionsCellSelection } from "@/hooks/useSectionCollectionsCellSelection";
-import { runSectionCellBulkAction } from "@/lib/billing/runSectionCellBulkAction";
-import { SectionCollectionsKpisCard } from "./SectionCollectionsKpisCard";
-import { SectionCollectionsMatrixTable } from "./SectionCollectionsMatrixTable";
-import { SectionCollectionsExportButtons } from "./SectionCollectionsExportButtons";
-import { SectionCollectionsBulkMessageModal } from "./SectionCollectionsBulkMessageModal";
-import { financeCollectionsMatrixLegendLabels } from "./collectionsMatrixLegendLabels";
-import { SectionCollectionsCellActionBar, type SectionCellBulkAction } from "./SectionCollectionsCellActionBar";
-import { SectionCollectionsCellActionModal } from "./SectionCollectionsCellActionModal";
-import { SectionCollectionsStudentActionBar } from "./SectionCollectionsStudentActionBar";
+import type { SectionCollectionsScholarshipListRow } from "@/types/sectionCollectionsTabs";
+import type { Dictionary } from "@/types/i18n";
+import { SectionCollectionsMatrixWorkspace } from "./SectionCollectionsMatrixWorkspace";
+import { SectionCollectionsHistoryTab } from "./SectionCollectionsHistoryTab";
+import { SectionCollectionsScholarshipsTab } from "./SectionCollectionsScholarshipsTab";
+import { SectionCollectionsEnrollmentTab } from "./SectionCollectionsEnrollmentTab";
 
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
+type TabId = "matrix" | "history" | "scholarships" | "enrollment";
 
 export interface SectionCollectionsClientProps {
   view: SectionCollectionsView;
+  sectionScholarships: SectionCollectionsScholarshipListRow[];
   dict: CollectionsDict;
   billingLabels: Dictionary["admin"]["billing"];
   locale: string;
@@ -31,206 +30,103 @@ export interface SectionCollectionsClientProps {
 
 export function SectionCollectionsClient({
   view,
+  sectionScholarships,
   dict,
   billingLabels,
   locale,
   currency,
 }: SectionCollectionsClientProps) {
-  const router = useRouter();
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [modalOpen, setModalOpen] = useState(false);
-  const [overdueBusy, setOverdueBusy] = useState(false);
-  const [overdueNotice, setOverdueNotice] = useState<string | null>(null);
-  const [cellEditMode, setCellEditMode] = useState(false);
-  const [cellActionBusy, setCellActionBusy] = useState(false);
-  const [cellActionModalAction, setCellActionModalAction] = useState<SectionCellBulkAction | null>(null);
-  const [cellActionNotice, setCellActionNotice] = useState<string | null>(null);
+  const [tab, setTab] = useState<TabId>("matrix");
+  const idPrefix = useId().replace(/:/g, "");
+  const t = dict.sectionTabs;
 
-  const cellSelection = useSectionCollectionsCellSelection();
-
-  const overdueIds = useMemo(
-    () => view.students.filter((s) => s.hasOverdue).map((s) => s.studentId),
-    [view.students],
-  );
-
-  function toggleStudent(id: string, next: boolean) {
-    const student = view.students.find((s) => s.studentId === id);
-    const months = student?.row.cells.map((c) => c.month) ?? [];
-    if (cellEditMode) cellSelection.toggleStudentRow(id, next, months);
-    setSelectedIds((prev) => {
-      const copy = new Set(prev);
-      if (next) copy.add(id);
-      else copy.delete(id);
-      return copy;
-    });
-  }
-
-  function toggleAll(next: boolean) {
-    if (cellEditMode) cellSelection.toggleAllStudents(next, view.students);
-    setSelectedIds(next ? new Set(view.students.map((s) => s.studentId)) : new Set());
-  }
-
-  function selectOverdue() {
-    if (cellEditMode) cellSelection.selectAllOverdue(view.students, view.year, view.todayMonth);
-    setSelectedIds(new Set(overdueIds));
-  }
-
-  function clearSelection() {
-    setSelectedIds(new Set());
-    cellSelection.clearSelection();
-  }
-
-  const selectionCount = selectedIds.size;
-  const recipientIds = useMemo(() => Array.from(selectedIds), [selectedIds]);
-
-  const selectedOverdueIds = useMemo(
-    () => recipientIds.filter((id) => view.students.find((r) => r.studentId === id)?.hasOverdue),
-    [recipientIds, view.students],
-  );
-
-  async function handleSendOverdueReminders() {
-    if (selectedOverdueIds.length === 0) {
-      setOverdueNotice(dict.matrix.overdueEmailNoneSelected);
-      return;
-    }
-    setOverdueBusy(true);
-    setOverdueNotice(null);
-    const r = await sendOverdueBalanceRemindersAction({
-      locale,
-      sectionId: view.sectionId,
-      year: view.year,
-      recipientIds: selectedOverdueIds,
-    });
-    setOverdueBusy(false);
-    setOverdueNotice(
-      r.ok
-        ? dict.matrix.overdueEmailDone.replace("{sent}", String(r.sent)).replace("{skipped}", String(r.skipped))
-        : dict.matrix.overdueEmailFailed,
-    );
-  }
-
-  const handleCellActionConfirm = useCallback(
-    async (params: { action: SectionCellBulkAction; scholarshipPercent?: number; note?: string }) => {
-      setCellActionBusy(true);
-      setCellActionNotice(null);
-      const result = await runSectionCellBulkAction({
-        action: params.action,
-        sectionId: view.sectionId,
-        year: view.year,
-        cellsByStudent: cellSelection.cellsGroupedByStudent,
-        locale: locale as Locale,
-        labels: billingLabels,
-        scholarshipPercent: params.scholarshipPercent,
-        note: params.note,
-      });
-      setCellActionBusy(false);
-      setCellActionModalAction(null);
-      if (result.ok) {
-        setCellActionNotice(dict.cellActions.resultOk.replace("{count}", String(result.successCount)));
-        cellSelection.clearSelection();
-        router.refresh();
-      } else {
-        setCellActionNotice(
-          dict.cellActions.resultPartial
-            .replace("{ok}", String(result.successCount))
-            .replace("{failed}", String(result.failedCount)),
-        );
-      }
-    },
-    [view.sectionId, view.year, cellSelection, locale, billingLabels, dict.cellActions, router],
-  );
+  const items: readonly UnderlineTabItem[] = [
+    { id: "matrix", label: t.matrix, Icon: Table2 },
+    { id: "history", label: t.history, Icon: History },
+    { id: "scholarships", label: t.scholarships, Icon: GraduationCap },
+    { id: "enrollment", label: t.enrollment, Icon: Receipt },
+  ];
 
   return (
     <div className="flex flex-col gap-4">
-      <SectionCollectionsKpisCard kpis={view.kpis} dict={dict} locale={locale} currency={currency} />
+      <UnderlineTabBar
+        idPrefix={idPrefix}
+        ariaLabel={t.aria}
+        items={items}
+        value={tab}
+        layout="gridTwoRow"
+        onChange={(id) => setTab(id as TabId)}
+      />
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2">
-        <div className="flex flex-col gap-2">
-          {overdueNotice || cellActionNotice ? (
-            <p className="text-sm text-[var(--color-muted-foreground)]" role="status">
-              {overdueNotice ?? cellActionNotice}
-            </p>
-          ) : null}
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant={cellEditMode ? "primary" : "ghost"}
-              onClick={() => setCellEditMode((v) => !v)}
-              aria-pressed={cellEditMode}
-            >
-              <MousePointerClick className="h-4 w-4" aria-hidden />
-              {cellEditMode ? dict.cellActions.markPaid : dict.cellActions.markPaid}
-            </Button>
-            <button
-              type="button"
-              onClick={selectOverdue}
-              disabled={overdueIds.length === 0}
-              className="inline-flex min-h-[36px] items-center gap-1 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-muted)]/40 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {dict.matrix.selectOverdue}
-            </button>
-            {!cellEditMode ? (
-              <SectionCollectionsStudentActionBar
-                selectionCount={selectionCount}
-                onClear={clearSelection}
-                onOpenMessageModal={() => setModalOpen(true)}
-                onSendOverdueReminders={handleSendOverdueReminders}
-                overdueBusy={overdueBusy}
-                dict={dict}
-              />
-            ) : null}
-          </div>
-        </div>
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <AdminBillingMatrixLegendModal labels={financeCollectionsMatrixLegendLabels(dict)} />
-          <SectionCollectionsExportButtons locale={locale} sectionId={view.sectionId} year={view.year} dict={dict} />
-        </div>
+      <div
+        role="tabpanel"
+        id={underlinePanelId(idPrefix, "matrix")}
+        aria-labelledby={underlineTabId(idPrefix, "matrix")}
+        hidden={tab !== "matrix"}
+        className="min-h-0"
+      >
+        {tab === "matrix" ? (
+          <SectionCollectionsMatrixWorkspace
+            view={view}
+            dict={dict}
+            billingLabels={billingLabels}
+            locale={locale}
+            currency={currency}
+          />
+        ) : null}
       </div>
 
-      {cellEditMode && cellSelection.selectionCount > 0 ? (
-        <SectionCollectionsCellActionBar
-          cellCount={cellSelection.selectionCount}
-          studentCount={cellSelection.selectedStudents.size}
-          onClear={cellSelection.clearSelection}
-          onAction={setCellActionModalAction}
-          busy={cellActionBusy}
-          dict={dict}
-        />
-      ) : null}
+      <div
+        role="tabpanel"
+        id={underlinePanelId(idPrefix, "history")}
+        aria-labelledby={underlineTabId(idPrefix, "history")}
+        hidden={tab !== "history"}
+        className="min-h-0 pt-2"
+      >
+        {tab === "history" ? (
+          <SectionCollectionsHistoryTab
+            locale={locale}
+            sectionId={view.sectionId}
+            dict={dict}
+            billingLabels={billingLabels}
+          />
+        ) : null}
+      </div>
 
-      <SectionCollectionsMatrixTable
-        view={view}
-        dict={dict}
-        locale={locale}
-        currency={currency}
-        selectedIds={selectedIds}
-        onToggleStudent={toggleStudent}
-        onToggleAll={toggleAll}
-        cellSelectable={cellEditMode}
-        isCellSelected={cellSelection.isCellSelected}
-        onToggleCell={cellSelection.toggleCell}
-      />
+      <div
+        role="tabpanel"
+        id={underlinePanelId(idPrefix, "scholarships")}
+        aria-labelledby={underlineTabId(idPrefix, "scholarships")}
+        hidden={tab !== "scholarships"}
+        className="min-h-0 pt-2"
+      >
+        {tab === "scholarships" ? (
+          <SectionCollectionsScholarshipsTab
+            locale={locale}
+            view={view}
+            scholarships={sectionScholarships}
+            dict={dict}
+            billingLabels={billingLabels}
+          />
+        ) : null}
+      </div>
 
-      <SectionCollectionsBulkMessageModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        locale={locale}
-        sectionId={view.sectionId}
-        recipientIds={recipientIds}
-        dict={dict}
-        onSent={clearSelection}
-      />
-
-      <SectionCollectionsCellActionModal
-        open={cellActionModalAction != null}
-        action={cellActionModalAction}
-        cellCount={cellSelection.selectionCount}
-        onClose={() => setCellActionModalAction(null)}
-        onConfirm={handleCellActionConfirm}
-        busy={cellActionBusy}
-        dict={dict}
-      />
+      <div
+        role="tabpanel"
+        id={underlinePanelId(idPrefix, "enrollment")}
+        aria-labelledby={underlineTabId(idPrefix, "enrollment")}
+        hidden={tab !== "enrollment"}
+        className="min-h-0 pt-2"
+      >
+        {tab === "enrollment" ? (
+          <SectionCollectionsEnrollmentTab
+            locale={locale}
+            view={view}
+            dict={dict}
+            billingLabels={billingLabels}
+          />
+        ) : null}
+      </div>
     </div>
   );
 }

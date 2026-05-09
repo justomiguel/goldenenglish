@@ -225,6 +225,3 @@ export async function sendBulkCollectionsMessageAction(input: {
 
   return { ok: true, sent, skipped, failed };
 }
-
-export const __INTERNAL_COLLECTIONS_BULK_RECIPIENT_LIMIT =
-  COLLECTIONS_BULK_RECIPIENT_LIMIT;

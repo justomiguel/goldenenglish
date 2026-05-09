@@ -1,12 +1,10 @@
 "use client";
 
-import { CreditCard } from "lucide-react";
-import { type FormEvent, useId, useState } from "react";
-import { Button } from "@/components/atoms/Button";
-import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
+import { type FormEvent, useState } from "react";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import { formatStudentMonthlyPaymentAmount } from "@/components/student/studentMonthlyPaymentFocusFormatAmount";
+import { StudentMonthlyPaymentReceiptUploadForm } from "@/components/student/StudentMonthlyPaymentReceiptUploadForm";
 import type {
   StudentMonthlyPaymentCell,
   StudentMonthlyPaymentSectionRow,
@@ -17,6 +15,10 @@ type Labels = Dictionary["dashboard"]["student"]["monthly"];
 export type SubmitMonthlyReceiptAction = (
   formData: FormData,
 ) => Promise<{ ok: boolean; message?: string }>;
+
+export type StartFlowMonthlyPaymentClientAction = (
+  formData: FormData,
+) => Promise<{ ok: true; redirectUrl: string } | { ok: false; message: string }>;
 
 export interface StudentMonthlyPaymentFocusProps {
   locale: Locale;
@@ -30,6 +32,9 @@ export interface StudentMonthlyPaymentFocusProps {
   paymentLabels: Dictionary["dashboard"]["student"];
   /** Persists receipt; shared shape for student and tutor submit actions. */
   submitAction: SubmitMonthlyReceiptAction;
+  /** Flow.cl online checkout (Chile / CLP only); server validates credentials. */
+  startFlowAction?: StartFlowMonthlyPaymentClientAction;
+  flowMonthlyPayEnabled?: boolean;
   fileUploadProgress: FileUploadProgressLabels;
   onSubmitted?: () => void;
   /** Full-month amount in receipt UI; server still resolves the slot amount. */
@@ -45,14 +50,15 @@ export function StudentMonthlyPaymentFocus({
   labels,
   paymentLabels,
   submitAction,
+  startFlowAction,
+  flowMonthlyPayEnabled = false,
   fileUploadProgress,
   onSubmitted,
   receiptExpectedUsesFullMonth = false,
 }: StudentMonthlyPaymentFocusProps) {
-  const receiptInputId = useId();
   const [busy, setBusy] = useState(false);
+  const [flowBusy, setFlowBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  const [receiptFileName, setReceiptFileName] = useState<string | null>(null);
 
   const proratedOrPlan =
     cell.expectedAmount ?? section.currentPlan?.monthlyFee ?? null;
@@ -74,6 +80,10 @@ export function StudentMonthlyPaymentFocus({
     cell.status === "due" || cell.status === "rejected" || cell.status === "pending";
   const isLocked = cell.status === "out-of-period" || cell.status === "no-plan";
 
+  const isClp = (cell.currency ?? "").trim().toUpperCase() === "CLP";
+  const showFlowPay =
+    Boolean(flowMonthlyPayEnabled && startFlowAction && isClp && canUpload && expected != null);
+
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!canUpload || expected == null) return;
@@ -84,6 +94,26 @@ export function StudentMonthlyPaymentFocus({
     setBusy(false);
     setMsg(res.ok ? paymentLabels.paySuccess : `${paymentLabels.payError}: ${res.message ?? ""}`);
     if (res.ok && onSubmitted) onSubmitted();
+  }
+
+  async function onFlowPay() {
+    if (!showFlowPay || !startFlowAction || expected == null) return;
+    setFlowBusy(true);
+    setMsg(null);
+    const fd = new FormData();
+    fd.set("locale", locale);
+    fd.set("studentId", studentId);
+    fd.set("sectionId", section.sectionId);
+    fd.set("month", String(cell.month));
+    fd.set("year", String(cell.year));
+    fd.set("amount", String(expected));
+    const res = await startFlowAction(fd);
+    if (res.ok) {
+      window.location.href = res.redirectUrl;
+      return;
+    }
+    setFlowBusy(false);
+    setMsg(res.message);
   }
 
   return (
@@ -159,79 +189,23 @@ export function StudentMonthlyPaymentFocus({
       ) : null}
 
       {canUpload ? (
-        <form
+        <StudentMonthlyPaymentReceiptUploadForm
+          locale={locale}
+          studentId={studentId}
+          sectionId={section.sectionId}
+          month={cell.month}
+          year={cell.year}
+          expected={expected}
+          monthlyLabels={labels}
+          paymentLabels={paymentLabels}
+          fileUploadProgress={fileUploadProgress}
+          busy={busy}
+          flowBusy={flowBusy}
+          showFlowPay={showFlowPay}
+          feedbackMessage={msg}
           onSubmit={onSubmit}
-          className="mt-4 space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4"
-        >
-          <input type="hidden" name="locale" value={locale} readOnly />
-          <input type="hidden" name="studentId" value={studentId} readOnly />
-          <input type="hidden" name="sectionId" value={section.sectionId} readOnly />
-          <input type="hidden" name="month" value={cell.month} readOnly />
-          <input type="hidden" name="year" value={cell.year} readOnly />
-          <input
-            type="hidden"
-            name="amount"
-            value={expected != null ? String(expected) : ""}
-            readOnly
-          />
-          <fieldset className="min-w-0 border-0 p-0">
-            <legend className="text-sm font-semibold text-[var(--color-foreground)]">
-              {paymentLabels.payReceipt}
-            </legend>
-            <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-              {paymentLabels.payReceiptHint}
-            </p>
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-              <input
-                id={receiptInputId}
-                name="receipt"
-                type="file"
-                accept="image/*,application/pdf"
-                required
-                aria-label={paymentLabels.payReceipt}
-                className="sr-only"
-                disabled={busy}
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  setReceiptFileName(f?.name ?? null);
-                }}
-              />
-              <label
-                htmlFor={receiptInputId}
-                className="inline-flex min-h-[44px] w-full cursor-pointer items-center justify-center rounded-[var(--layout-border-radius)] border-2 border-[var(--color-primary)] bg-[var(--color-background)] px-4 py-2 text-center text-sm font-semibold text-[var(--color-primary)] transition-colors hover:bg-[var(--color-muted)] focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--color-primary)] focus-within:ring-offset-2 sm:w-auto"
-              >
-                {paymentLabels.payReceiptChooseButton}
-              </label>
-              <p
-                className="text-sm text-[var(--color-muted-foreground)] sm:min-h-[44px] sm:flex sm:max-w-[min(100%,20rem)] sm:items-center"
-                aria-live="polite"
-              >
-                <span className="break-all font-medium text-[var(--color-foreground)]">
-                  {receiptFileName ?? paymentLabels.payReceiptNoFileSelected}
-                </span>
-              </p>
-            </div>
-          </fieldset>
-          {busy ? (
-            <InlineUploadProgressBar
-              label={fileUploadProgress.progressSending}
-              indeterminate
-              className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
-            />
-          ) : null}
-          <Button
-            type="submit"
-            disabled={busy || expected == null}
-            isLoading={busy}
-            className="min-h-[44px] w-full sm:w-auto"
-          >
-            {!busy ? <CreditCard className="h-4 w-4 shrink-0" aria-hidden /> : null}
-            {paymentLabels.paySubmit}
-          </Button>
-          {msg ? (
-            <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p>
-          ) : null}
-        </form>
+          onFlowPay={onFlowPay}
+        />
       ) : null}
     </section>
   );

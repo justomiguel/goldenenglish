@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { receiptSignedUrlForAdmin } from "@/lib/payments/receiptSignedUrl";
 import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
 import type {
+  AdminBillingAnnualSettlement,
   AdminBillingScholarship,
   AdminStudentBillingTabData,
   AdminStudentBillingSectionBenefit,
@@ -108,6 +109,36 @@ export async function loadAdminStudentBillingTabData(
     scholarshipsByEnrollment.set(row.enrollment_id, list);
   }
 
+  const { data: settlementRows } = enrollmentIds.length === 0
+    ? { data: [] }
+    : await supabase
+        .from("section_enrollment_annual_settlements")
+        .select(
+          "id, enrollment_id, coverage_from_year, coverage_from_month, coverage_until_year, coverage_until_month, includes_enrollment_fee, baseline_list_total, accepted_total, implied_discount_amount, currency, created_at",
+        )
+        .in("enrollment_id", enrollmentIds)
+        .order("created_at", { ascending: false });
+  const settlementsByEnrollment = new Map<string, AdminBillingAnnualSettlement[]>();
+  for (const row of settlementRows ?? []) {
+    const r = row as Record<string, unknown>;
+    const eid = String(r.enrollment_id);
+    const list = settlementsByEnrollment.get(eid) ?? [];
+    list.push({
+      id: String(r.id),
+      coverageFromYear: Number(r.coverage_from_year),
+      coverageFromMonth: Number(r.coverage_from_month),
+      coverageUntilYear: Number(r.coverage_until_year),
+      coverageUntilMonth: Number(r.coverage_until_month),
+      includesEnrollmentFee: Boolean(r.includes_enrollment_fee),
+      baselineListTotal: Number(r.baseline_list_total),
+      acceptedTotal: Number(r.accepted_total),
+      impliedDiscountAmount: Number(r.implied_discount_amount),
+      currency: String(r.currency ?? ""),
+      createdAt: String(r.created_at ?? ""),
+    });
+    settlementsByEnrollment.set(eid, list);
+  }
+
   const uniqueSectionIds = [...new Set(enrollmentRowsWithUrls.map((r) => r.section_id))];
   const plansBySectionId = new Map<string, SectionFeePlan[]>();
   if (uniqueSectionIds.length > 0) {
@@ -151,6 +182,7 @@ export async function loadAdminStudentBillingTabData(
       feePlans: plans,
       scheduleSlots: slotsAndCohort.scheduleSlots,
       cohortName: slotsAndCohort.cohortName,
+      annualSettlements: settlementsByEnrollment.get(row.id) ?? [],
     };
   });
   const firstSectionBenefit = sectionBenefits[0] ?? null;

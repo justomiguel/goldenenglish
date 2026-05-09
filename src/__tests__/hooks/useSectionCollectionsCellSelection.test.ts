@@ -167,7 +167,7 @@ describe("useSectionCollectionsCellSelection", () => {
       ];
       const { result } = renderHook(() => useSectionCollectionsCellSelection());
       act(() => {
-        result.current.selectAllOverdue(students, 2026, 4);
+        result.current.selectAllOverdue(students, 2026, 4, "2026-01-01");
       });
       expect(result.current.isCellSelected("stu-1", 1)).toBe(true);
       expect(result.current.isCellSelected("stu-1", 2)).toBe(true);

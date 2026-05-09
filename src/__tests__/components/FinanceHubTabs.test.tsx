@@ -11,10 +11,15 @@ const hubDict = dictEn.admin.finance.hub;
 const baseHref = "/en/dashboard/admin/finance";
 
 describe("parseFinanceHubTab", () => {
-  it("falls back to overview when missing or unknown", () => {
-    expect(parseFinanceHubTab(undefined)).toBe("overview");
-    expect(parseFinanceHubTab("")).toBe("overview");
-    expect(parseFinanceHubTab("nope")).toBe("overview");
+  // REGRESSION CHECK: Default tab drives finance hub SSR query cost (matrix load rules).
+  it("defaults to collections when missing or unknown", () => {
+    expect(parseFinanceHubTab(undefined)).toBe("collections");
+    expect(parseFinanceHubTab("")).toBe("collections");
+    expect(parseFinanceHubTab("nope")).toBe("collections");
+  });
+
+  it("maps deprecated overview links to collections", () => {
+    expect(parseFinanceHubTab("overview")).toBe("collections");
   });
 
   it("accepts every allowed tab id verbatim", () => {
@@ -23,9 +28,9 @@ describe("parseFinanceHubTab", () => {
     }
   });
 
-  it("rejects legacy tab ids that are no longer in the order", () => {
-    expect(parseFinanceHubTab("payments")).toBe("overview");
-    expect(parseFinanceHubTab("receipts")).toBe("overview");
+  it("maps legacy hub tab ids removed earlier to collections", () => {
+    expect(parseFinanceHubTab("payments")).toBe("collections");
+    expect(parseFinanceHubTab("receipts")).toBe("collections");
   });
 });
 
@@ -52,22 +57,27 @@ describe("FinanceHubTabs", () => {
     );
   });
 
-  it("renders exactly five tabs (overview, collections, inbox, insights, settings)", () => {
+  it("renders exactly four tabs (collections, inbox, insights, settings)", () => {
     render(
-      <FinanceHubTabs current="overview" baseHref={baseHref} dict={hubDict}>
+      <FinanceHubTabs current="collections" baseHref={baseHref} dict={hubDict}>
         <p>panel-content</p>
       </FinanceHubTabs>,
     );
-    expect(FINANCE_HUB_TAB_ORDER).toHaveLength(5);
-    expect(FINANCE_HUB_TAB_ORDER).toEqual(["overview", "collections", "inbox", "insights", "settings"]);
+    expect(FINANCE_HUB_TAB_ORDER).toHaveLength(4);
+    expect(FINANCE_HUB_TAB_ORDER).toEqual([
+      "collections",
+      "inbox",
+      "insights",
+      "settings",
+    ]);
     const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(5);
+    expect(links).toHaveLength(4);
   });
 
   it("preserves cohort and year query across tab switches", () => {
     render(
       <FinanceHubTabs
-        current="overview"
+        current="collections"
         baseHref={baseHref}
         preservedQuery={{ cohort: "co-1", year: "2026" }}
         dict={hubDict}
@@ -85,7 +95,7 @@ describe("FinanceHubTabs", () => {
 
   it("renders the panel children inside the tab navigation wrapper", () => {
     render(
-      <FinanceHubTabs current="overview" baseHref={baseHref} dict={hubDict}>
+      <FinanceHubTabs current="collections" baseHref={baseHref} dict={hubDict}>
         <p data-testid="finance-panel">panel-content</p>
       </FinanceHubTabs>,
     );
@@ -95,7 +105,7 @@ describe("FinanceHubTabs", () => {
   it("surfaces pending counts on the inbox tab", () => {
     render(
       <FinanceHubTabs
-        current="overview"
+        current="collections"
         baseHref={baseHref}
         pendingCounts={{ payments: 7 }}
         dict={hubDict}
@@ -109,7 +119,7 @@ describe("FinanceHubTabs", () => {
   it("clamps very large pending counts to '99+'", () => {
     render(
       <FinanceHubTabs
-        current="overview"
+        current="collections"
         baseHref={baseHref}
         pendingCounts={{ payments: 250 }}
         dict={hubDict}
@@ -132,7 +142,7 @@ describe("FinanceHubTabs", () => {
   it("renders cohortSelector and kpiStrip slots when provided", () => {
     render(
       <FinanceHubTabs
-        current="overview"
+        current="collections"
         baseHref={baseHref}
         dict={hubDict}
         cohortSelector={<div data-testid="selector">selector</div>}

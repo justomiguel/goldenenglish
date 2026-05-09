@@ -13,6 +13,20 @@ export type AdminBillingPaymentRow = {
 import type { SectionScheduleSlot } from "@/types/academics";
 import type { SectionFeePlan } from "@/types/sectionFeePlan";
 
+export type AdminBillingAnnualSettlement = {
+  id: string;
+  coverageFromYear: number;
+  coverageFromMonth: number;
+  coverageUntilYear: number;
+  coverageUntilMonth: number;
+  includesEnrollmentFee: boolean;
+  baselineListTotal: number;
+  acceptedTotal: number;
+  impliedDiscountAmount: number;
+  currency: string;
+  createdAt: string;
+};
+
 export type AdminBillingScholarship = {
   id: string;
   discount_percent: number;
@@ -51,6 +65,8 @@ export type AdminStudentBillingSectionBenefit = {
   feePlans: SectionFeePlan[];
   scheduleSlots: SectionScheduleSlot[];
   cohortName: string;
+  /** Annual deals that replace % scholarship for covered months. */
+  annualSettlements: AdminBillingAnnualSettlement[];
 };
 
 export type AdminStudentBillingTabData = {

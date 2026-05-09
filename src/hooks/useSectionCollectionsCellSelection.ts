@@ -1,4 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
+import { enrollmentFeeMatrixVisualFromSectionRow } from "@/lib/billing/enrollmentFeeMatrixVisual";
+import { SECTION_COLLECTIONS_ENROLLMENT_FEE_CELL_MONTH } from "@/lib/billing/sectionCollectionsEnrollmentFeeCellMonth";
 import type { SectionCollectionsStudentRow } from "@/types/sectionCollections";
 
 export type CellKey = `${string}:${number}`;
@@ -18,7 +20,12 @@ export interface SectionCellSelectionState {
   toggleCell: (studentId: string, month: number) => void;
   toggleStudentRow: (studentId: string, checked: boolean, months: number[]) => void;
   toggleAllStudents: (checked: boolean, students: SectionCollectionsStudentRow[]) => void;
-  selectAllOverdue: (students: SectionCollectionsStudentRow[], year: number, todayMonth: number) => void;
+  selectAllOverdue: (
+    students: SectionCollectionsStudentRow[],
+    year: number,
+    todayMonth: number,
+    sectionStartsOn: string,
+  ) => void;
   clearSelection: () => void;
   selectionCount: number;
   cellsGroupedByStudent: Map<string, number[]>;
@@ -81,8 +88,14 @@ export function useSectionCollectionsCellSelection(): SectionCellSelectionState 
   );
 
   const selectAllOverdue = useCallback(
-    (students: SectionCollectionsStudentRow[], year: number, todayMonth: number) => {
+    (
+      students: SectionCollectionsStudentRow[],
+      year: number,
+      todayMonth: number,
+      sectionStartsOn: string,
+    ) => {
       const todayIdx = year * 12 + todayMonth;
+      const showEnrollment = students.some((s) => (s.enrollmentFee?.amount ?? 0) > 0);
       setSelectedCells(() => {
         const next = new Set<CellKey>();
         for (const s of students) {
@@ -91,6 +104,19 @@ export function useSectionCollectionsCellSelection(): SectionCellSelectionState 
             const isOverdue = cell.status === "due" && cellIdx < todayIdx;
             if (isOverdue) {
               next.add(cellKey(s.studentId, cell.month));
+            }
+          }
+          if (showEnrollment) {
+            const sectionCharges = (s.enrollmentFee?.amount ?? 0) > 0;
+            const visual = enrollmentFeeMatrixVisualFromSectionRow(s.row, {
+              sectionChargesEnrollmentFee: sectionCharges,
+              sectionStartsOn,
+              enrolledAt: s.enrolledAt,
+              todayYear: year,
+              todayMonth,
+            });
+            if (visual?.status === "due" && visual.isOverdue) {
+              next.add(cellKey(s.studentId, SECTION_COLLECTIONS_ENROLLMENT_FEE_CELL_MONTH));
             }
           }
         }

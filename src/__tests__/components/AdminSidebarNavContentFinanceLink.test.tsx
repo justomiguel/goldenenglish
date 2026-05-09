@@ -13,7 +13,7 @@ vi.mock("next/navigation", () => ({
 
 // REGRESSION CHECK: navigating from an academic cohort/section into Finance
 // must preserve the cohort id, otherwise the hub may default to another
-// cohort and render an apparently empty "Vista cohorte".
+// cohort and render an apparently empty collections tab.
 describe("AdminSidebarNavContent finance link", () => {
   it("preserves the academic cohort context when linking to Finance", () => {
     const cohortId = "82f70fa1-a723-4406-bc61-42278abba648";
@@ -31,7 +31,7 @@ describe("AdminSidebarNavContent finance link", () => {
       screen.getByRole("link", { name: dictEn.dashboard.adminNav.finance }),
     ).toHaveAttribute(
       "href",
-      `/es/dashboard/admin/finance?tab=overview&cohort=${cohortId}`,
+      `/es/dashboard/admin/finance?tab=collections&cohort=${cohortId}`,
     );
   });
 

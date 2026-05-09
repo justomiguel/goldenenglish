@@ -7,6 +7,7 @@ import { StudentMonthlyPaymentCell } from "@/components/student/StudentMonthlyPa
 import {
   StudentMonthlyPaymentFocus,
   type SubmitMonthlyReceiptAction,
+  type StartFlowMonthlyPaymentClientAction,
 } from "@/components/student/StudentMonthlyPaymentFocus";
 import {
   StudentEnrollmentFeeUpload,
@@ -82,6 +83,10 @@ export interface StudentMonthlyPaymentsStripProps {
   submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
   /** Solo alumno: monto esperado del comprobante = mes completo (sin prorrateo). */
   receiptExpectedUsesFullMonth?: boolean;
+  /** Server action that starts Flow.cl checkout for the focused month. */
+  startFlowMonthlyPaymentAction?: StartFlowMonthlyPaymentClientAction;
+  /** From `is_flow_chile_checkout_enabled()` — avoids leaking credential state. */
+  flowMonthlyPayEnabled?: boolean;
   fileUploadProgress: FileUploadProgressLabels;
 }
 
@@ -95,6 +100,8 @@ export function StudentMonthlyPaymentsStrip({
   submitEnrollmentFeeReceiptAction,
   receiptExpectedUsesFullMonth = false,
   fileUploadProgress,
+  startFlowMonthlyPaymentAction,
+  flowMonthlyPayEnabled = false,
 }: StudentMonthlyPaymentsStripProps) {
   const router = useRouter();
   const [focus, setFocus] = useState<FocusKey | null>(() => pickInitialFocus(view));
@@ -229,6 +236,8 @@ export function StudentMonthlyPaymentsStrip({
           submitAction={submitAction}
           fileUploadProgress={fileUploadProgress}
           receiptExpectedUsesFullMonth={receiptExpectedUsesFullMonth}
+          startFlowAction={startFlowMonthlyPaymentAction}
+          flowMonthlyPayEnabled={flowMonthlyPayEnabled}
           onSubmitted={() => router.refresh()}
         />
       ) : null}

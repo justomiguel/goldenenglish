@@ -8,6 +8,8 @@ import { Label } from "@/components/atoms/Label";
 import { Input } from "@/components/atoms/Input";
 import type { Dictionary } from "@/types/i18n";
 import { setBillingCurrencyAction } from "@/app/[locale]/dashboard/admin/finance/billingSettingsActions";
+import { FinanceFlowGatewayCard } from "@/components/dashboard/admin/finance/FinanceFlowGatewayCard";
+import type { FlowChileAdminRowSafe } from "@/app/[locale]/dashboard/admin/finance/flowGatewaySettingsActions";
 
 type SettingsDict = Dictionary["admin"]["finance"]["settings"];
 
@@ -27,12 +29,14 @@ export interface FinanceSettingsPanelProps {
   currentCurrency: string;
   locale: string;
   dict: SettingsDict;
+  flowGatewayInitial: FlowChileAdminRowSafe;
 }
 
 export function FinanceSettingsPanel({
   currentCurrency,
   locale,
   dict,
+  flowGatewayInitial,
 }: FinanceSettingsPanelProps) {
   const router = useRouter();
   const [currency, setCurrency] = useState(currentCurrency);
@@ -149,6 +153,8 @@ export function FinanceSettingsPanel({
           </div>
         </div>
       </div>
+
+      <FinanceFlowGatewayCard locale={locale} initial={flowGatewayInitial} dict={dict} />
     </section>
   );
 }

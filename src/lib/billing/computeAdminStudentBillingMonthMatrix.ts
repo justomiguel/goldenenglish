@@ -1,3 +1,4 @@
+import { annualSettlementPeriodIndicesForYear } from "@/lib/billing/annualSettlementPeriod";
 import { buildAdminBillingCollectionRowForYear } from "@/lib/billing/buildAdminBillingCollectionRowForYear";
 import { buildAdminBillingMonthGrid } from "@/lib/billing/buildAdminBillingMonthGrid";
 import type {
@@ -29,11 +30,21 @@ export function computeAdminStudentBillingMonthMatrix({
   calendarTodayYear,
   calendarTodayMonth,
 }: ComputeAdminStudentBillingMonthMatrixInput): ComputeAdminStudentBillingMonthMatrixResult {
+  const annualCoverage = annualSettlementPeriodIndicesForYear(
+    benefit.annualSettlements.map((s) => ({
+      coverage_from_year: s.coverageFromYear,
+      coverage_from_month: s.coverageFromMonth,
+      coverage_until_year: s.coverageUntilYear,
+      coverage_until_month: s.coverageUntilMonth,
+    })),
+    billingYear,
+  );
   const monthStatesBase = buildAdminBillingMonthGrid({
     payments,
     scholarships,
     sectionId: benefit.sectionId,
     year: billingYear,
+    annualSettlementCoverage: annualCoverage,
   });
 
   const collectionRow = buildAdminBillingCollectionRowForYear({
@@ -57,6 +68,7 @@ export function computeAdminStudentBillingMonthMatrix({
     viewYear: billingYear,
     calendarTodayYear,
     calendarTodayMonth,
+    annualSettlementCoverage: annualCoverage,
   });
 
   const monthStates = monthStatesBase.map((ms, i) => {

@@ -34,6 +34,7 @@ const billing: AdminStudentBillingTabData = {
       feePlans: [],
       scheduleSlots: [],
       cohortName: "",
+      annualSettlements: [],
     },
     {
       enrollmentId: "enr-2",
@@ -54,6 +55,7 @@ const billing: AdminStudentBillingTabData = {
       feePlans: [],
       scheduleSlots: [],
       cohortName: "",
+      annualSettlements: [],
     },
   ],
   enrollmentFeeExempt: false,

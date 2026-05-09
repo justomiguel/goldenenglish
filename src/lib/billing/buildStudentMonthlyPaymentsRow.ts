@@ -2,6 +2,7 @@ import type { StudentMonthlyPaymentCell, StudentMonthlyPaymentSectionRow } from 
 import {
   effectiveAmountAfterScholarship,
   effectiveScholarshipPercentForPeriod,
+  periodIndex,
 } from "@/lib/billing/scholarshipPeriod";
 import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
 import {
@@ -51,6 +52,7 @@ export function buildStudentMonthlyPaymentsRow(
     sectionEnrollmentFeeExempt = false,
     sectionEnrollmentFeeExemptReason = null,
     billingScope = "operational-window",
+    annualSettlementCoverage = null,
   } = input;
   const cells: StudentMonthlyPaymentCell[] = [];
   const year = todayYear;
@@ -99,8 +101,11 @@ export function buildStudentMonthlyPaymentsRow(
           ? fallbackFullMonthProration(plan.monthlyFee)
           : { code: "out_of_period" as const }
       : { code: "out_of_period" as const };
+    const settlementCovers =
+      annualSettlementCoverage?.has(periodIndex(year, m)) ?? false;
+    const scholarshipForCell = settlementCovers ? [] : scholarship;
     const scholarshipDiscountPercent =
-      plan ? effectiveScholarshipPercentForPeriod(scholarship, year, m) : 0;
+      plan ? effectiveScholarshipPercentForPeriod(scholarshipForCell, year, m) : 0;
     const scholarshipPreview =
       plan && prorated.code !== "ok" && scholarshipDiscountPercent > 0
         ? fallbackFullMonthProration(plan.monthlyFee).amount
@@ -109,7 +114,7 @@ export function buildStudentMonthlyPaymentsRow(
       plan && prorated.code === "ok" ? prorated.amount : scholarshipPreview;
     const expected =
       originalExpected != null
-        ? effectiveAmountAfterScholarship(originalExpected, year, m, scholarship)
+        ? effectiveAmountAfterScholarship(originalExpected, year, m, scholarshipForCell)
         : null;
     const fullMonthOriginalExpected =
       plan && (prorated.code === "ok" || scholarshipPreview != null)
@@ -117,7 +122,12 @@ export function buildStudentMonthlyPaymentsRow(
         : null;
     const fullMonthExpected =
       fullMonthOriginalExpected != null
-        ? effectiveAmountAfterScholarship(fullMonthOriginalExpected, year, m, scholarship)
+        ? effectiveAmountAfterScholarship(
+            fullMonthOriginalExpected,
+            year,
+            m,
+            scholarshipForCell,
+          )
         : null;
     const proration =
       plan && prorated.code === "ok"

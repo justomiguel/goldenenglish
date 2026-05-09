@@ -1,4 +1,4 @@
-import { effectiveScholarshipPercentForPeriod } from "@/lib/billing/scholarshipPeriod";
+import { effectiveScholarshipPercentForPeriod, periodIndex } from "@/lib/billing/scholarshipPeriod";
 import type {
   AdminBillingPaymentRow,
   AdminBillingScholarship,
@@ -28,6 +28,8 @@ interface BuildAdminBillingMonthGridInput {
   scholarships: AdminBillingScholarship[];
   sectionId: string;
   year: number;
+  /** periodIndex(year, month) covered by annual settlement (scholarship chip hidden). */
+  annualSettlementCoverage?: ReadonlySet<number> | null;
 }
 
 const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
@@ -86,6 +88,7 @@ export function buildAdminBillingMonthGrid({
   scholarships,
   sectionId,
   year,
+  annualSettlementCoverage = null,
 }: BuildAdminBillingMonthGridInput): AdminBillingMonthState[] {
   return MONTHS.map((month) => {
     const sectionPayment = findSectionPaymentForMonth(payments, sectionId, year, month);
@@ -93,11 +96,11 @@ export function buildAdminBillingMonthGrid({
     const status = paymentStatus(sectionPayment?.status ?? null);
     /** Legacy-only period: Cobranzas has no row for this section; block duplicate recording. */
     const legacyFallback = Boolean(legacyPayment && !sectionPayment);
-    const scholarshipPercent = effectiveScholarshipPercentForPeriod(
-      scholarships,
-      year,
-      month,
-    );
+    const settlementCovers =
+      annualSettlementCoverage?.has(periodIndex(year, month)) ?? false;
+    const scholarshipPercent = settlementCovers
+      ? 0
+      : effectiveScholarshipPercentForPeriod(scholarships, year, month);
     const revertSelectable =
       !legacyFallback && status === "paid" && Boolean(sectionPayment?.id);
 
