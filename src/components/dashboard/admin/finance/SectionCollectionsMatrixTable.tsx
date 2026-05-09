@@ -26,6 +26,9 @@ export interface SectionCollectionsMatrixTableProps {
   selectedIds: Set<string>;
   onToggleStudent: (id: string, next: boolean) => void;
   onToggleAll: (next: boolean) => void;
+  cellSelectable?: boolean;
+  isCellSelected?: (studentId: string, month: number) => boolean;
+  onToggleCell?: (studentId: string, month: number) => void;
 }
 
 export function SectionCollectionsMatrixTable({
@@ -36,6 +39,9 @@ export function SectionCollectionsMatrixTable({
   selectedIds,
   onToggleStudent,
   onToggleAll,
+  cellSelectable = false,
+  isCellSelected,
+  onToggleCell,
 }: SectionCollectionsMatrixTableProps) {
   const money = moneyFormatter(locale, currency);
   const sortLabels = dict.matrix.columnSort;
@@ -122,6 +128,10 @@ export function SectionCollectionsMatrixTable({
               money={money}
               locale={locale}
               showEnrollmentFeeColumn={showEnrollmentFeeColumn}
+              cellSelectable={cellSelectable}
+              isCellSelected={isCellSelected ? (m) => isCellSelected(s.studentId, m) : undefined}
+              onToggleCell={onToggleCell}
+              currency={currency}
             />
           ))}
         </tbody>

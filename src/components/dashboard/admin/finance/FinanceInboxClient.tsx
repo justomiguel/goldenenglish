@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { MonthlyReceiptItem, EnrollmentReceiptItem, InvoiceReceiptItem } from "./FinanceInboxPanel";
-import { PaymentReviewRow } from "@/components/dashboard/PaymentReviewRow";
+import { FinanceMonthlyReceiptsBulkSection } from "./FinanceMonthlyReceiptsBulkSection";
 import { EnrollmentFeeReceiptQueueRow } from "./EnrollmentFeeReceiptQueueRow";
 import { InboxAgingChip } from "./InboxAgingChip";
 
@@ -105,11 +105,12 @@ export function FinanceInboxClient({
       </nav>
 
       {active === "monthly" ? (
-        <MonthlyQueue
+        <FinanceMonthlyReceiptsBulkSection
           items={monthlyItems}
           locale={locale}
           dict={paymentsDict}
           inboxDict={inboxDict}
+          commonDict={{ cancel: dict.common.cancel }}
           emptyValue={dict.common.emptyValue}
         />
       ) : null}
@@ -128,43 +129,6 @@ export function FinanceInboxClient({
           portalBillingDict={portalBillingDict}
         />
       ) : null}
-    </div>
-  );
-}
-
-function MonthlyQueue({
-  items,
-  locale,
-  dict,
-  inboxDict,
-  emptyValue,
-}: {
-  items: MonthlyReceiptItem[];
-  locale: string;
-  dict: Dictionary["admin"]["payments"];
-  inboxDict: Dictionary["admin"]["finance"]["inbox"];
-  emptyValue: string;
-}) {
-  if (items.length === 0) return <EmptyState label={inboxDict.empty} />;
-  return (
-    <div className="space-y-3">
-      {items.map((r) => (
-        <div key={r.id} className="flex items-center gap-2">
-          <InboxAgingChip uploadedAt={r.uploadedAt} dict={inboxDict} />
-          <div className="flex-1">
-            <PaymentReviewRow
-              locale={locale}
-              paymentId={r.id}
-              studentLabel={r.studentName}
-              periodLabel={r.periodLabel}
-              amountLabel={r.amount != null ? String(r.amount) : emptyValue}
-              previewUrl={r.signedUrl}
-              labels={dict}
-              emptyValue={emptyValue}
-            />
-          </div>
-        </div>
-      ))}
     </div>
   );
 }

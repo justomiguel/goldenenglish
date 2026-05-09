@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Archive, ArchiveX, Plus } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import {
-  DEFAULT_SECTION_FEE_PLAN_CURRENCY,
   type SectionFeePlan,
   type SectionFeePlanWithUsage,
 } from "@/types/sectionFeePlan";
@@ -22,33 +21,25 @@ export interface AcademicSectionFeePlansEditorProps {
   locale: string;
   sectionId: string;
   initialPlans: SectionFeePlanWithUsage[];
+  /** System-wide billing currency from Finance > Settings. */
+  systemCurrency: string;
   dict: FeePlansDict;
 }
 
-const valuesFromPlan = (p: SectionFeePlan): SectionFeePlanFormValues => ({
+const valuesFromPlan = (p: SectionFeePlan, systemCurrency: string): SectionFeePlanFormValues => ({
   effectiveFromYear: p.effectiveFromYear,
   effectiveFromMonth: p.effectiveFromMonth,
   monthlyFee: p.monthlyFee,
-  currency: p.currency,
+  currency: systemCurrency,
 });
 
-const todayDefaults = (
-  fromPlans: readonly SectionFeePlan[],
-): SectionFeePlanFormValues => {
+const todayDefaults = (systemCurrency: string): SectionFeePlanFormValues => {
   const now = new Date();
-  const inheritedCurrency =
-    fromPlans
-      .slice()
-      .sort((a, b) =>
-        b.effectiveFromYear - a.effectiveFromYear !== 0
-          ? b.effectiveFromYear - a.effectiveFromYear
-          : b.effectiveFromMonth - a.effectiveFromMonth,
-      )[0]?.currency ?? DEFAULT_SECTION_FEE_PLAN_CURRENCY;
   return {
     effectiveFromYear: now.getFullYear(),
     effectiveFromMonth: now.getMonth() + 1,
     monthlyFee: 0,
-    currency: inheritedCurrency,
+    currency: systemCurrency,
   };
 };
 
@@ -63,6 +54,7 @@ export function AcademicSectionFeePlansEditor({
   locale,
   sectionId,
   initialPlans,
+  systemCurrency,
   dict,
 }: AcademicSectionFeePlansEditorProps) {
   const editor = useSectionFeePlansEditor({ locale, sectionId, initialPlans, dict });
@@ -75,7 +67,7 @@ export function AcademicSectionFeePlansEditor({
   };
 
   const startCreate = () => {
-    setCreating(todayDefaults(editor.plans));
+    setCreating(todayDefaults(systemCurrency));
     editor.setEditingId(null);
     editor.clearError();
   };
@@ -83,7 +75,7 @@ export function AcademicSectionFeePlansEditor({
   const startDuplicate = (plan: SectionFeePlanWithUsage) => {
     const nextEff = nextEffectiveFrom(plan);
     setCreating({
-      ...valuesFromPlan(plan),
+      ...valuesFromPlan(plan, systemCurrency),
       effectiveFromYear: nextEff.year,
       effectiveFromMonth: nextEff.month,
     });
@@ -119,7 +111,8 @@ export function AcademicSectionFeePlansEditor({
                   ) : null}
                   <AcademicSectionFeePlanForm
                     idPrefix={`fp-${plan.id}`}
-                    initialValues={valuesFromPlan(plan)}
+                    initialValues={valuesFromPlan(plan, systemCurrency)}
+                    systemCurrency={systemCurrency}
                     dict={dict}
                     submitLabel={dict.save}
                     busy={editor.pending}
@@ -159,6 +152,7 @@ export function AcademicSectionFeePlansEditor({
           <AcademicSectionFeePlanForm
             idPrefix="fp-new"
             initialValues={creating}
+            systemCurrency={systemCurrency}
             dict={dict}
             submitLabel={dict.create}
             busy={editor.pending}

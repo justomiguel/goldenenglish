@@ -23,6 +23,7 @@ Aplicar **todo** el flujo de abajo si **cualquiera** de estos puntos se cumple:
 4. El mensaje pide explícitamente **plan**, **acordar**, **diseño** o **no implementar todavía**.
 5. La petición es **ambigua** (varias interpretaciones razonables) o falta **definition of done** claro.
 6. Toca superficies de **`.cursor/rules/17-trust-boundary-handlers.mdc`** (cron, webhooks, respuestas personalizadas, mutaciones cross-account, HTML persistido).
+7. Es **alta de tenant** multi-site (nuevo slug, targets Vercel, env prefijado, y/o plantilla `site_theme_kind` nueva): la lista de datos a confirmar está en [`docs/runbooks/add-new-tenant.md`](../../docs/runbooks/add-new-tenant.md); si el mensaje no la trae, el agente debe pedirla en **Supuestos y preguntas abiertas** antes de implementar.
 
 ## Cuándo **no** aplicar preflight (saltear)
 

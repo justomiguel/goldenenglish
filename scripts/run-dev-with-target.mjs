@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * Elige entorno local (golden | mozarthitos | espaciozenit), copia el archivo prefijado a `.env.local`
+ * Elige entorno local (golden | mozarthitos | espaciozenit | nago), copia el archivo prefijado a `.env.local`
  * y ejecuta `next dev`. Next solo lee `.env.local`; así evitamos deps extra (dotenv-cli).
  *
- * Archivos (gitignored): `.env.local.golden`, `.env.local.mozarthitos`, `.env.local.espaciozenit`
+ * Archivos (gitignored): `.env.local.golden`, `.env.local.mozarthitos`, `.env.local.espaciozenit`, `.env.local.nago`
  * Sin TTY (CI): usa `GE_DEV_TARGET=<target>` o `--target=…`.
  */
 import { spawn } from "node:child_process";
@@ -27,9 +27,13 @@ const TARGETS = {
     label: "espaciozenit — preview / deploy Espacio Zenit",
     file: path.join(ROOT, ".env.local.espaciozenit"),
   },
+  nago: {
+    label: "nago — preview / deploy Capoeira Nago",
+    file: path.join(ROOT, ".env.local.nago"),
+  },
 };
 /** Targets que deben pinchar `SITE_BRAND_THEME_SLUG` al slug del tenant (ver .env.example). */
-const BRAND_THEME_TARGETS = new Set(["mozarthitos", "espaciozenit"]);
+const BRAND_THEME_TARGETS = new Set(["mozarthitos", "espaciozenit", "nago"]);
 
 const VALID_TARGETS = Object.keys(TARGETS);
 
@@ -43,6 +47,7 @@ function parseTarget(argv, envTarget) {
     if (a === "--golden") return "golden";
     if (a === "--mozarthitos") return "mozarthitos";
     if (a === "--espaciozenit") return "espaciozenit";
+    if (a === "--nago") return "nago";
     const m = /^--target=(.+)$/.exec(a);
     if (m) {
       const t = m[1].trim().toLowerCase();
@@ -60,6 +65,7 @@ function filterNextArgv(argv) {
       a !== "--golden" &&
       a !== "--mozarthitos" &&
       a !== "--espaciozenit" &&
+      a !== "--nago" &&
       !/^--target=/.test(a),
   );
 }
@@ -72,13 +78,15 @@ function promptTarget() {
     console.log(`  [1] ${TARGETS.golden.label}`);
     console.log(`  [2] ${TARGETS.mozarthitos.label}`);
     console.log(`  [3] ${TARGETS.espaciozenit.label}`);
-    rl.question("Elegí 1, 2 o 3 [1]: ", (answer) => {
+    console.log(`  [4] ${TARGETS.nago.label}`);
+    rl.question("Elegí 1, 2, 3 o 4 [1]: ", (answer) => {
       rl.close();
       const t = String(answer || "").trim();
       if (t === "" || t === "1") return resolve("golden");
       if (t === "2") return resolve("mozarthitos");
       if (t === "3") return resolve("espaciozenit");
-      console.error("Opción inválida (usá 1, 2 o 3).");
+      if (t === "4") return resolve("nago");
+      console.error("Opción inválida (usá 1, 2, 3 o 4).");
       process.exit(1);
     });
   });

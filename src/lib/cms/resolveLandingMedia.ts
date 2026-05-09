@@ -9,6 +9,7 @@ import {
 } from "@/lib/landing/sectionLandingImages";
 import { espaciozenitSectionImageSrc } from "@/lib/landing/espaciozenitLandingImages";
 import { mozarthitosSectionImageSrc } from "@/lib/landing/mozarthitosLandingImages";
+import { nagoSectionImageSrc } from "@/lib/landing/nagoLandingImages";
 
 /**
  * Pure helpers for landing media overrides.
@@ -97,6 +98,9 @@ export function resolveLandingImageSrcForTheme(
   }
   if (kind === "espaciozenit") {
     return espaciozenitSectionImageSrc(section, filename);
+  }
+  if (kind === "nago") {
+    return nagoSectionImageSrc(section, filename);
   }
   return sectionImageSrc(section, filename);
 }

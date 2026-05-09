@@ -47,6 +47,9 @@
       },
       "espaciozenit": {
         "shareContext": "Danza, teatro, música y arte escénico en un espacio formativo integral."
+      },
+      "nago": {
+        "shareContext": "Capoeira: tradición, música, movimiento y comunidad."
       }
     }
   },
@@ -149,7 +152,8 @@
     "paymentsReview": {
       "forbidden": "No tenés permiso para esta acción.",
       "invalidData": "Datos no válidos.",
-      "saveFailed": "No se pudo actualizar el pago."
+      "saveFailed": "No se pudo actualizar el pago.",
+      "nonePendingToDelete": "Ninguno de los ítems seleccionados sigue pendiente; no se eliminó nada."
     },
     "register": {
       "insertFailed": "No pudimos guardar tu solicitud. Probá más tarde."
@@ -642,6 +646,79 @@
         "rightsLine": "Todos los derechos reservados."
       },
       "footerCta": "Llegá a tu punto más alto esta temporada—escribinos para pruebas y ubicación."
+    },
+    "nago": {
+      "chrome": {
+        "openMenu": "Abrir menú",
+        "closeMenu": "Cerrar menú",
+        "facebookAria": "Capoeira Nago en Facebook",
+        "instagramAria": "Capoeira Nago en Instagram"
+      },
+      "nav": {
+        "inicio": "Inicio",
+        "sobreNosotros": "Sobre nosotros",
+        "clases": "Clases",
+        "galeria": "Galería",
+        "eventos": "Eventos",
+        "contacto": "Contacto"
+      },
+      "hero": {
+        "title": "Somos Capoeira Nago",
+        "subtitle": "Tradición que se mueve, cultura que se vive",
+        "tagline": "Capoeira es más que un arte marcial: es música, danza, tradición y comunidad."
+      },
+      "sobreNosotros": {
+        "title": "Sobre Nosotros",
+        "bodyP1": "Capoeira Nago nació con el propósito de difundir la capoeira como herramienta de transformación personal y social.",
+        "bodyP2": "A través de la enseñanza, los eventos y las presentaciones, mantenemos viva la tradición y el espíritu de la capoeira."
+      },
+      "principios": {
+        "sectionTitle": "Nuestros Principios",
+        "respeto": {
+          "title": "Respeto",
+          "body": "Valoramos a cada persona y su camino."
+        },
+        "disciplina": {
+          "title": "Disciplina",
+          "body": "Mejorar tu constante nos hace mejores."
+        },
+        "union": {
+          "title": "Unión",
+          "body": "Somos una familia dentro y fuera de la roda."
+        },
+        "cultura": {
+          "title": "Cultura",
+          "body": "Honramos nuestras raíces brasileñas."
+        }
+      },
+      "galeria": {
+        "sectionTitle": "Galería",
+        "verMas": "Ver más fotos",
+        "carouselPrev": "Foto anterior",
+        "carouselNext": "Foto siguiente",
+        "carouselPosition": "Foto {current} de {total}",
+        "carouselLoading": "Cargando foto",
+        "previewOpenAria": "Ampliar foto {n}"
+      },
+      "cta": {
+        "title": "Ven y sé parte de nuestra roda",
+        "subtitle": "No necesitas experiencia, solo ganas de aprender y compartir.",
+        "button": "Contáctanos"
+      },
+      "footer": {
+        "enlacesTitle": "Enlaces",
+        "siguenos": "Síguenos",
+        "rightsLine": "Todos los derechos reservados."
+      },
+      "contact": {
+        "title": "Contacto",
+        "phoneDisplay": "+56 9 0000 0000",
+        "instagramUrl": "https://www.instagram.com/capoeiranago/",
+        "facebookUrl": "https://www.facebook.com/capoeiranago/",
+        "whatsappUrl": "https://wa.me/56900000000",
+        "youtubeUrl": "https://www.youtube.com/@capoeiranago"
+      },
+      "footerCta": "¿Querés sumarte a la capoeira? Escribinos y empezá tu camino."
     }
   },
   "admin": {
@@ -1159,7 +1236,8 @@
               "editorial": "Editorial",
               "minimal": "Minimal",
               "mozarthitos": "Mozarthitos",
-              "espaciozenit": "Espacio Zenit"
+              "espaciozenit": "Espacio Zenit",
+              "nago": "Capoeira Nago"
             },
             "saveCta": "Aplicar estilo",
             "saveSuccess": "Estilo aplicado.",
@@ -1651,7 +1729,20 @@
       "approveTooltip": "Marcá el período como pagado luego de verificar que el comprobante coincide con el monto.",
       "rejectTooltip": "Rechazá el comprobante si es incorrecto, duplicado o no aceptable. Podés agregar una nota para la familia.",
       "receiptOpenTooltip": "Abrí la imagen o PDF del comprobante en una pestaña nueva.",
-      "notesTooltip": "Nota interna opcional que queda guardada con la decisión (visible para el equipo)."
+      "notesTooltip": "Nota interna opcional que queda guardada con la decisión (visible para el equipo).",
+      "bulkSelectAllAria": "Seleccionar todos los comprobantes de esta lista",
+      "bulkSelectRowAria": "Seleccionar comprobante · {{student}} · {{period}}",
+      "bulkSelectAll": "Seleccionar todos",
+      "bulkClearSelection": "Limpiar selección",
+      "bulkSelectedCount": "{{count}} seleccionados",
+      "bulkApproveSelected": "Aprobar seleccionados",
+      "bulkDeleteSelected": "Quitar seleccionados de la cola",
+      "bulkDeleteConfirmTitle": "¿Quitar los comprobantes seleccionados de la cola?",
+      "bulkDeleteConfirmBody": "Se eliminan definitivamente los registros de pago pendientes. La familia puede volver a subir un comprobante si hace falta. Esto no marca ningún período como pagado.",
+      "bulkDeleteConfirm": "Quitar de la cola",
+      "bulkApproveResult": "Se aprobaron {{count}} comprobante(s).",
+      "bulkDeleteResult": "Se quitaron {{count}} comprobante(s) pendiente(s).",
+      "bulkNothingProcessed": "No se actualizó ningún comprobante. Actualizá la página e intentá de nuevo."
     },
     "finance": {
       "hub": {
@@ -1661,12 +1752,25 @@
           "overview": "Vista cohorte",
           "collections": "Cobranza",
           "inbox": "Bandeja de pagos",
-          "insights": "Análisis"
+          "insights": "Análisis",
+          "settings": "Configuración"
         },
         "tipOverview": "Cada sección de la cohorte activa con el estado de pago por mes — como un Excel, pero accionable.",
         "tipCollections": "Salud de cobranza por sección, con exportación y recordatorios masivos.",
         "tipInbox": "Aprobá o rechazá comprobantes de pago subidos por familias — mensuales, matrícula y facturación en una sola cola.",
-        "tipInsights": "Tendencias de cobranza, métricas de procesamiento, proyecciones de fin de año y alertas de salud por sección."
+        "tipInsights": "Tendencias de cobranza, métricas de procesamiento, proyecciones de fin de año y alertas de salud por sección.",
+        "tipSettings": "Configurá las preferencias de facturación como la moneda usada en todos los pagos."
+      },
+      "settings": {
+        "title": "Configuración de facturación",
+        "lead": "Configurá las preferencias globales que afectan todas las visualizaciones de pagos.",
+        "currencyLabel": "Moneda del sistema",
+        "currencyOther": "Otra…",
+        "currencyOtherAria": "Ingresá código ISO 4217 de moneda",
+        "warningAffectsAll": "Cambiar la moneda afecta la visualización de todos los pagos en el sistema.",
+        "save": "Guardar",
+        "savedOk": "Moneda guardada correctamente.",
+        "savedError": "No se pudo guardar. Intentá de nuevo."
       },
       "insights": {
         "title": "Análisis financiero",
@@ -1862,6 +1966,8 @@
           "openTooltip": "Abrí la sección para ver la matriz de alumnos y las acciones masivas."
         },
         "matrix": {
+          "expandMatrixAria": "Mostrar la matriz de pagos por alumno de {section}",
+          "collapseMatrixAria": "Ocultar la matriz de pagos por alumno de {section}",
           "studentColumn": "Alumno",
           "monthZeroColumnShort": "0",
           "monthZeroTooltip": "Matrícula",
@@ -1890,6 +1996,29 @@
             "sortDesc": "orden descendente",
             "sortNeutral": "sin orden en esta columna"
           }
+        },
+        "cellActions": {
+          "selectedCount": "{cells} celda(s) seleccionada(s) en {students} alumno(s)",
+          "markPaid": "Marcar pagado",
+          "applyScholarship": "Aplicar beca",
+          "markExempt": "Marcar exento",
+          "confirmPaidTitle": "¿Marcar {count} período(s) como pagado(s)?",
+          "confirmPaidBody": "Los meses seleccionados quedarán registrados como pagados sin comprobante. Esta acción se puede revertir desde la facturación individual del alumno.",
+          "confirmScholarshipTitle": "¿Aplicar beca a {count} período(s)?",
+          "confirmScholarshipBody": "Se creará un registro de beca para cada mes seleccionado con el porcentaje de descuento indicado.",
+          "scholarshipPercentLabel": "Porcentaje de descuento",
+          "scholarshipPercentPlaceholder": "ej. 20",
+          "scholarshipNoteLabel": "Nota (opcional)",
+          "scholarshipNotePlaceholder": "Motivo de la beca",
+          "confirmExemptTitle": "¿Marcar {count} período(s) como exento(s)?",
+          "confirmExemptBody": "Los meses seleccionados quedarán marcados como exentos. Indicá el motivo abajo.",
+          "exemptReasonLabel": "Motivo",
+          "exemptReasonPlaceholder": "Razón de la exención",
+          "confirm": "Confirmar",
+          "cancel": "Cancelar",
+          "resultOk": "{count} período(s) actualizado(s) correctamente.",
+          "resultPartial": "{ok} actualizado(s), {failed} fallido(s).",
+          "resultError": "No se pudo completar la operación. Probá de nuevo."
         },
         "bulk": {
           "messageTitle": "Enviar mensaje masivo",
@@ -3595,8 +3724,8 @@
         "effectiveFromShort": "Desde",
         "monthlyFee": "Cuota mensual",
         "currency": "Moneda",
-        "currencyOther": "Otra…",
-        "currencyOtherAria": "Código ISO 4217 de 3 letras (ej. BOB, PEN)",
+        "currencySystemLabel": "Sistema",
+        "currencySystemHint": "Configurado en Finanzas → Configuración",
         "prorateExplanation": "Si el alumno se incorpora a mitad de mes, paga proporcional a las clases que tuvo disponibles. Por ejemplo, 1 de 4 clases del mes = 1/4 de la cuota.",
         "inUseBadge": "En uso",
         "inUseBadgeTitle": "Ya hay pagos de alumnos asociados a este plan.",

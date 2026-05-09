@@ -36,7 +36,8 @@ export interface AcademicSectionPageShellBodyProps {
   data: AdminSectionPageData;
   routeOptions: LearningRouteContentTemplateOption[];
   learningRouteWorkspace: LearningRouteWorkspace;
-  currentPlanCurrency: string | null;
+  /** System-wide billing currency from Finance > Settings. */
+  systemCurrency: string;
   leadTeacherLabel: string | null;
   assistantChipLabels: string[];
   externalChipLabels: string[];
@@ -59,7 +60,7 @@ export function AcademicSectionPageShellBody({
   data,
   routeOptions,
   learningRouteWorkspace,
-  currentPlanCurrency,
+  systemCurrency,
   leadTeacherLabel,
   assistantChipLabels,
   externalChipLabels,
@@ -179,13 +180,14 @@ export function AcademicSectionPageShellBody({
               locale={locale}
               sectionId={sectionId}
               initialPlans={feePlansWithUsage}
+              systemCurrency={systemCurrency}
               dict={feePlansDict}
             />
             <AcademicSectionEnrollmentFeeEditor
               locale={locale}
               sectionId={sectionId}
               initialAmount={section.enrollmentFeeAmount}
-              currentPlanCurrency={currentPlanCurrency}
+              systemCurrency={systemCurrency}
               dict={enrollmentFeeDict}
             />
           </div>

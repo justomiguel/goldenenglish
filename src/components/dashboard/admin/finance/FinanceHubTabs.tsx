@@ -3,19 +3,21 @@ import type { ReactNode } from "react";
 import {
   BarChart3,
   Inbox,
+  Settings,
   Table2,
   TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 
-export type FinanceHubTabId = "overview" | "collections" | "inbox" | "insights";
+export type FinanceHubTabId = "overview" | "collections" | "inbox" | "insights" | "settings";
 
 export const FINANCE_HUB_TAB_ORDER: readonly FinanceHubTabId[] = [
   "overview",
   "collections",
   "inbox",
   "insights",
+  "settings",
 ];
 
 export const DEFAULT_FINANCE_HUB_TAB: FinanceHubTabId = "overview";
@@ -34,6 +36,7 @@ const TAB_ICONS: Record<FinanceHubTabId, LucideIcon> = {
   collections: BarChart3,
   inbox: Inbox,
   insights: TrendingUp,
+  settings: Settings,
 };
 
 function tooltipFor(tab: FinanceHubTabId, dict: HubDict): string {
@@ -46,6 +49,8 @@ function tooltipFor(tab: FinanceHubTabId, dict: HubDict): string {
       return dict.tipInbox;
     case "insights":
       return dict.tipInsights;
+    case "settings":
+      return dict.tipSettings;
   }
 }
 

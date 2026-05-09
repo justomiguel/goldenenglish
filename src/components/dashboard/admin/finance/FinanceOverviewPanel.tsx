@@ -28,6 +28,7 @@ export interface FinanceOverviewPanelProps {
   locale: string;
   dict: Dictionary["admin"]["finance"];
   sectionDrillBaseHref: string;
+  currency: string;
 }
 
 export function FinanceOverviewPanel({
@@ -36,6 +37,7 @@ export function FinanceOverviewPanel({
   locale,
   dict,
   sectionDrillBaseHref,
+  currency,
 }: FinanceOverviewPanelProps) {
   const overviewDict = dict.overview;
   const collectionsDict = dict.collections;
@@ -77,12 +79,14 @@ export function FinanceOverviewPanel({
         dict={collectionsDict}
         locale={locale}
         baseHref={sectionDrillBaseHref}
+        currency={currency}
       />
 
       <FinanceTopDebtorsCard
         sections={matrix.sections}
         dict={overviewDict.topDebtors}
         locale={locale}
+        currency={currency}
       />
     </div>
   );

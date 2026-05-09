@@ -5,7 +5,8 @@
 | Tema | Documentación / script |
 |------|-------------------------|
 | Deploy Vercel (un tenant o todos) | Esta página → [Deploy a Vercel (multi-tenant)](#deploy-a-vercel-multi-tenant) |
-| Alta de tenant (env, targets, tema CMS) | [`.cursor/rules/19-multi-tenant-local-vercel-targets.mdc`](../.cursor/rules/19-multi-tenant-local-vercel-targets.mdc) |
+| **Alta de tenant: briefing (qué pedir) + checklist** | [`docs/runbooks/add-new-tenant.md`](../docs/runbooks/add-new-tenant.md) |
+| Alta de tenant (detalle técnico en regla) | [`.cursor/rules/19-multi-tenant-local-vercel-targets.mdc`](../.cursor/rules/19-multi-tenant-local-vercel-targets.mdc) |
 | Modelo multi-sitio (marca / proyectos) | [`docs/adr/2026-04-multi-site-brand-overlay.md`](../docs/adr/2026-04-multi-site-brand-overlay.md) |
 | Migración SQL a todas las BDs locales | [`apply-migration-all-tenants.mjs`](apply-migration-all-tenants.mjs) (cabecera del archivo) |
 | Migración de assets públicos | [`README-public-assets-migration.md`](README-public-assets-migration.md) |
@@ -91,8 +92,10 @@ Para bajar env desde Vercel hacia `.env.local.<slug>`:
 
 ```bash
 npm run pull:env:golden
-# …mozarthitos, espaciozenit (ver package.json)
+# …otros slugs definidos en package.json (cada nuevo tenant añade su script)
 ```
+
+Antes de pedir cambios en el repo para un tenant nuevo: [`docs/runbooks/add-new-tenant.md`](../docs/runbooks/add-new-tenant.md).
 
 Detalle: [`pull-vercel-env.mjs`](pull-vercel-env.mjs).
 

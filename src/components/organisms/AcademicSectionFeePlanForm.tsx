@@ -1,12 +1,11 @@
 "use client";
 
 import { type ReactNode, useState } from "react";
-import { Save, X } from "lucide-react";
+import { Save, X, Info } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
-import { DEFAULT_SECTION_FEE_PLAN_CURRENCY } from "@/types/sectionFeePlan";
 
 export interface SectionFeePlanFormValues {
   effectiveFromYear: number;
@@ -18,25 +17,10 @@ export interface SectionFeePlanFormValues {
 
 const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
-/**
- * Curated suggestions for the dropdown. The DB accepts any ISO 4217 code, so
- * "Otra…" lets the admin type a code that is not in this short list (e.g. BOB,
- * PEN). Stable order, alphabetical for the curated bunch.
- */
-const SUGGESTED_CURRENCIES = [
-  "ARS",
-  "BRL",
-  "CLP",
-  "EUR",
-  "MXN",
-  "USD",
-  "UYU",
-] as const;
-
-const ISO_4217_RE = /^[A-Z]{3}$/;
-
 export interface AcademicSectionFeePlanFormProps {
   initialValues: SectionFeePlanFormValues;
+  /** System-wide billing currency (read-only, configured in Finance > Settings). */
+  systemCurrency: string;
   dict: Dictionary["dashboard"]["academicSectionPage"]["feePlans"];
   submitLabel: string;
   onSubmit: (v: SectionFeePlanFormValues) => Promise<void> | void;
@@ -49,6 +33,7 @@ export interface AcademicSectionFeePlanFormProps {
 
 export function AcademicSectionFeePlanForm({
   initialValues,
+  systemCurrency,
   dict,
   submitLabel,
   onSubmit,
@@ -58,39 +43,23 @@ export function AcademicSectionFeePlanForm({
   footerExtra,
   idPrefix,
 }: AcademicSectionFeePlanFormProps) {
-  const initialCurrency = (initialValues.currency || DEFAULT_SECTION_FEE_PLAN_CURRENCY)
-    .toUpperCase();
-  const [values, setValues] = useState<SectionFeePlanFormValues>({
-    ...initialValues,
-    currency: initialCurrency,
+  const [values, setValues] = useState<Omit<SectionFeePlanFormValues, "currency">>({
+    effectiveFromYear: initialValues.effectiveFromYear,
+    effectiveFromMonth: initialValues.effectiveFromMonth,
+    monthlyFee: initialValues.monthlyFee,
   });
-  const initialIsCustom = !SUGGESTED_CURRENCIES.includes(
-    initialCurrency as (typeof SUGGESTED_CURRENCIES)[number],
-  );
-  const [customCurrency, setCustomCurrency] = useState<boolean>(initialIsCustom);
 
-  const update = <K extends keyof SectionFeePlanFormValues>(
+  const update = <K extends keyof Omit<SectionFeePlanFormValues, "currency">>(
     key: K,
-    value: SectionFeePlanFormValues[K],
+    value: Omit<SectionFeePlanFormValues, "currency">[K],
   ) => setValues((prev) => ({ ...prev, [key]: value }));
-
-  const onCurrencySelect = (next: string) => {
-    if (next === "__other__") {
-      setCustomCurrency(true);
-      return;
-    }
-    setCustomCurrency(false);
-    update("currency", next);
-  };
-
-  const currencyValid = ISO_4217_RE.test(values.currency.trim().toUpperCase());
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        if (busy || !currencyValid) return;
-        void onSubmit({ ...values, currency: values.currency.trim().toUpperCase() });
+        if (busy) return;
+        void onSubmit({ ...values, currency: systemCurrency });
       }}
       className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4"
     >
@@ -138,52 +107,24 @@ export function AcademicSectionFeePlanForm({
           />
         </div>
         <div>
-          <Label htmlFor={`${idPrefix}-currency`}>{dict.currency}</Label>
-          <select
-            id={`${idPrefix}-currency`}
-            value={
-              customCurrency
-                ? "__other__"
-                : SUGGESTED_CURRENCIES.includes(
-                      values.currency as (typeof SUGGESTED_CURRENCIES)[number],
-                    )
-                  ? values.currency
-                  : "__other__"
-            }
-            onChange={(e) => onCurrencySelect(e.target.value)}
-            className="mt-1 min-h-[44px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2"
-            disabled={busy}
-          >
-            {SUGGESTED_CURRENCIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-            <option value="__other__">{dict.currencyOther}</option>
-          </select>
-          {customCurrency ? (
-            <Input
-              id={`${idPrefix}-currency-other`}
-              className="mt-2"
-              type="text"
-              maxLength={3}
-              minLength={3}
-              pattern="[A-Za-z]{3}"
-              placeholder="BOB"
-              aria-label={dict.currencyOtherAria}
-              value={values.currency}
-              onChange={(e) => update("currency", e.target.value.toUpperCase())}
-              disabled={busy}
-              required
-            />
-          ) : null}
+          <Label>{dict.currency}</Label>
+          <div className="mt-1 flex min-h-[44px] items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/30 px-3 py-2 text-sm text-[var(--color-foreground)]">
+            <span className="font-medium">{systemCurrency}</span>
+            <span
+              className="ml-auto flex items-center gap-1 text-xs text-[var(--color-muted-foreground)]"
+              title={dict.currencySystemHint}
+            >
+              <Info className="h-3.5 w-3.5" aria-hidden />
+              {dict.currencySystemLabel}
+            </span>
+          </div>
         </div>
       </div>
       <p className="text-xs text-[var(--color-muted-foreground)]">{dict.prorateExplanation}</p>
       <div className="flex flex-wrap items-center gap-2">
         <Button
           type="submit"
-          disabled={busy || !currencyValid}
+          disabled={busy}
           isLoading={busy}
           className="min-h-[44px]"
         >

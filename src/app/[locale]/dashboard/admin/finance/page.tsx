@@ -11,10 +11,12 @@ import {
 import { FinanceOverviewPanel } from "@/components/dashboard/admin/finance/FinanceOverviewPanel";
 import { FinanceInboxPanel } from "@/components/dashboard/admin/finance/FinanceInboxPanel";
 import { FinanceInsightsPanel } from "@/components/dashboard/admin/finance/FinanceInsightsPanel";
+import { FinanceSettingsPanel } from "@/components/dashboard/admin/finance/FinanceSettingsPanel";
 import { CohortCollectionsMatrixClient } from "@/components/dashboard/admin/finance/CohortCollectionsMatrixClient";
 import { FinanceHubCohortSelector } from "@/components/dashboard/admin/finance/FinanceHubCohortSelector";
 import { FinanceHubKpiStrip } from "@/components/dashboard/admin/finance/FinanceHubKpiStrip";
 import { loadAdminCohortCollectionsBulk } from "@/lib/billing/loadAdminCohortCollectionsBulk";
+import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Locale } from "@/types/i18n";
 
@@ -102,12 +104,13 @@ export default async function AdminFinanceHubPage({
   const baseHref = `/${locale}/dashboard/admin/finance`;
   const financeDict = dict.admin.finance;
 
-  const [pendingCounts, { data: cohortRows }] = await Promise.all([
+  const [pendingCounts, { data: cohortRows }, billingCurrency] = await Promise.all([
     loadPendingCounts(supabase),
     supabase
       .from("academic_cohorts")
       .select("id, name, is_current, archived_at, created_at")
       .order("created_at", { ascending: false }),
+    loadBillingCurrencySetting(supabase),
   ]);
 
   const cohorts = (cohortRows ?? []) as CohortLite[];
@@ -140,6 +143,7 @@ export default async function AdminFinanceHubPage({
       kpis={matrix.totals}
       dict={financeDict.collections.kpis}
       locale={locale}
+      currency={billingCurrency.currency}
     />
   ) : null;
 
@@ -178,6 +182,7 @@ export default async function AdminFinanceHubPage({
             locale={locale}
             dict={financeDict}
             sectionDrillBaseHref={`${baseHref}/collections`}
+            currency={billingCurrency.currency}
           />
         ) : null}
         {tab === "collections" && matrix ? (
@@ -187,6 +192,7 @@ export default async function AdminFinanceHubPage({
             collectionsDict={financeDict.collections}
             locale={locale}
             sectionHrefBase={`${baseHref}/collections`}
+            totalsCurrency={billingCurrency.currency}
           />
         ) : null}
         {tab === "collections" && !matrix && cohort ? (
@@ -210,6 +216,13 @@ export default async function AdminFinanceHubPage({
             supabase={supabase}
             locale={locale}
             dict={financeDict}
+          />
+        ) : null}
+        {tab === "settings" ? (
+          <FinanceSettingsPanel
+            currentCurrency={billingCurrency.currency}
+            locale={locale}
+            dict={financeDict.settings}
           />
         ) : null}
       </FinanceHubTabs>

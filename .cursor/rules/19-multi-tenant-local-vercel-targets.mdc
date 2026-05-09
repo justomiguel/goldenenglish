@@ -12,6 +12,10 @@ alwaysApply: false
 
 # Multi-tenant local + Vercel (goldenenglish repo)
 
+## Briefing antes de implementar (qué pedir)
+
+**Operadores y agents:** si el alcance es “alta de tenant nuevo”, primero completar el briefing en **[`docs/runbooks/add-new-tenant.md`](../../docs/runbooks/add-new-tenant.md)** (tabla obligatoria: slug, Vercel IDs, plantilla `SiteThemeKind`, env, etc.). Sin eso no debe asumirse implementación completa.
+
 ## Cuándo leer esta regla
 
 Al añadir un **nuevo deploy** (otro proyecto Vercel / otro Supabase / otra marca) que siga el patrón **un repo → varios targets**.
@@ -38,6 +42,7 @@ Si el tenant expone **plantilla propia** en CMS / landing (como `mozarthitos` / 
 
 ## Referencias
 
+- Briefing y “qué pedir” antes de tocar código: [`docs/runbooks/add-new-tenant.md`](../../docs/runbooks/add-new-tenant.md).
 - Ejemplo targets existentes: `golden`, `mozarthitos`, `espaciozenit`.
 - Deploy (un tenant o todos, flags, prereqs): **[`scripts/README.md`](../scripts/README.md#deploy-a-vercel-multi-tenant)**.
 - Atajo todos los entornos prod: `npm run deploy:vercel:all:prod` (equiv. `node scripts/deploy-vercel.mjs --all --prod`).

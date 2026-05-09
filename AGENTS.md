@@ -6,7 +6,7 @@
 - **Supabase** (Postgres + Auth). Identity: **Supabase Auth only** — no parallel custom JWT/login stacks.
 - **Server actions** and route handlers under `src/app/**`: validate input (e.g. Zod), check session/roles on the server, never trust client-only checks.
 
-Workspace rules in **`.cursor/rules/`** override generic skill examples when they conflict (design system, security, PWA surfaces, testing/coverage, **analytics / eventos**, **copy / i18n**). **Nuevo tenant local/Vercel o plantilla `site_theme_kind`:** ver **`.cursor/rules/19-multi-tenant-local-vercel-targets.mdc`**. **Deploy Vercel (CLI, todos los proyectos):** [`scripts/README.md`](scripts/README.md#deploy-a-vercel-multi-tenant).
+Workspace rules in **`.cursor/rules/`** override generic skill examples when they conflict (design system, security, PWA surfaces, testing/coverage, **analytics / eventos**, **copy / i18n**). **Nuevo tenant local/Vercel o plantilla `site_theme_kind`:** briefing obligatorio en [`docs/runbooks/add-new-tenant.md`](docs/runbooks/add-new-tenant.md), luego regla **`.cursor/rules/19-multi-tenant-local-vercel-targets.mdc`**. **Deploy Vercel (CLI, todos los proyectos):** [`scripts/README.md`](scripts/README.md#deploy-a-vercel-multi-tenant).
 
 ## Workflow: preflight (acuerdo antes de implementar)
 
@@ -41,7 +41,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`20-agent-preflight.mdc`** | Plan y acuerdo antes de implementar cuando aplica; marca **`PREFLIGHT`**; lectura read-only permitida para armar el plan. |
 | **`21-migrations-production-no-data-destruction.mdc`** | Migraciones **sin** borrado destructivo de datos (`TRUNCATE`, `DROP TABLE`/columna con pérdida, `DELETE` masivo); producción y entornos reales se tratan como críticos; excepciones solo con proceso humano documentado. |
 
-**Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo.
+**Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`** para carga suave de imágenes y carruseles).
 
 ## Security skills vs this repo
 

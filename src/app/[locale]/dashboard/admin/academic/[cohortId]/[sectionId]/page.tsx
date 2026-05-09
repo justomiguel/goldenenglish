@@ -15,7 +15,7 @@ import {
 } from "@/lib/academics/teacherSectionAttendanceCalendar";
 import { AcademicSectionPageAttendancePanel } from "@/components/organisms/AcademicSectionPageAttendancePanel";
 import { AcademicSectionPageShellBody } from "@/components/organisms/AcademicSectionPageShellBody";
-import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
+import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
 import {
   loadGlobalLearningRouteOptions,
   loadSectionLearningRouteWorkspace,
@@ -54,10 +54,11 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
   } = await supabase.auth.getUser();
   const canDeleteCohortAssessments = user ? await resolveIsAdminSession(supabase, user.id) : false;
 
-  const [data, routeOptions, learningRouteWorkspace] = await Promise.all([
+  const [data, routeOptions, learningRouteWorkspace, billingCurrency] = await Promise.all([
     loadAdminSectionPageData(supabase, cohortId, sectionId),
     loadGlobalLearningRouteOptions(supabase),
     loadSectionLearningRouteWorkspace(supabase, sectionId),
+    loadBillingCurrencySetting(supabase),
   ]);
   if (!data) notFound();
   const { section, slots, rows, debtByStudentId, staff, feePlans } = data;
@@ -86,12 +87,6 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
   });
 
   const today = new Date();
-  const currentPlan = resolveEffectiveSectionFeePlan(
-    feePlans,
-    today.getFullYear(),
-    today.getMonth() + 1,
-  );
-  const currentPlanCurrency = currentPlan?.currency ?? null;
 
   const instituteTz = getInstituteTimeZone();
   const todayIso = instituteCalendarDateIso(new Date(), instituteTz);
@@ -142,7 +137,7 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
       data={data}
       routeOptions={routeOptions}
       learningRouteWorkspace={learningRouteWorkspace}
-      currentPlanCurrency={currentPlanCurrency}
+      systemCurrency={billingCurrency.currency}
       leadTeacherLabel={leadTeacherLabel}
       assistantChipLabels={assistantChipLabels}
       externalChipLabels={externalChipLabels}

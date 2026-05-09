@@ -1,0 +1,52 @@
+---
+description: Estados de carga y transición al mostrar imágenes (Next/Image o img) para evitar saltos bruscos; obligatorio más estricto en carruseles.
+globs:
+  - "src/components/**/*.tsx"
+  - "src/app/**/*.tsx"
+---
+
+# Imágenes: carga perceptible y carruseles (Golden English)
+
+## Objetivo
+
+Cuando una imagen **no está en caché** o el **`src` cambia** (modal, pestaña, slide), el usuario no debe ver un “vacío” o un cambio brusco sin feedback. La **percepción** de carga debe ser suave y accesible, alineada con **`skeleton-loading.mdc`**, **`01-design-system.mdc`** (tokens) y **`09-i18n-copy.mdc`** (copy / `aria-live`).
+
+## Cuándo aplica
+
+| Contexto | Requisito |
+|----------|-----------|
+| **`next/image` o `<img>`** con `src` dinámico o que puede tardar en decodificar | **Sí** — estado de carga hasta `onLoad` / `onError` (o equivalente). |
+| **Hero / LCP** (`priority`, above-the-fold) | Misma idea: **placeholder estable** (altura fija, `animate-pulse`, o blur placeholder si el flujo ya lo usa) y transición suave; **no** cubrir el hero con un spinner fullscreen. |
+| **Carrusel / galería** (cambio de slide, `key={src}`) | **Obligatorio** — feedback **por foto**: al cambiar índice, mostrar loader o capa de espera hasta que la nueva imagen confirme carga; **`aria-busy`** en el contenedor mientras corresponda. |
+
+## Patrones permitidos
+
+1. **Capa superpuesta** — Fondo con `color-mix` / `var(--color-muted)` + icono **`Loader2`** (`lucide-react`, `animate-spin`) o skeleton con `animate-pulse` en el **hueco de la imagen**.
+2. **Opacidad** — Imagen con `opacity-0` → `opacity-100` y `transition-opacity` al completar `onLoad` (evita parpadeo duro).
+3. **Estado sincronizado** — Al cambiar slide, poner `loading` en **`true` en el mismo handler** que actualiza el índice (no solo en `useEffect` después del paint), para no dejar un frame sin feedback.
+4. **Errores** — En `onError`, apagar el loader y, si hay superficie visible, estado vacío o mensaje desde **diccionario** (**`09`**).
+
+## Accesibilidad
+
+- Contenedor del recurso o del loader: **`aria-busy={true}`** mientras la imagen visible está pendiente.
+- Si se anuncia progreso a lectores de pantalla: **`role="status"`** + **`aria-live="polite"`** y texto desde **`src/dictionaries/en.json` + `es.json`** (p. ej. “Cargando foto”), no literales en JSX.
+
+## Evitar duplicación
+
+Si el mismo patrón (loader + `onLoad`/`onError` + transición) se repite en **dos o más** pantallas, extraer una **molécula** bajo `src/components/molecules/` (nombre claro, un componente principal por archivo) y tests acotados — **`03-architecture.mdc`**, **`02-testing-tdd.mdc`**.
+
+## Referencia en el repo
+
+- Carrusel con loader por slide: `src/components/organisms/NagoLandingGallery.tsx`.
+
+## Checklist del agente
+
+- [ ] ¿El `src` puede cambiar o la red/decodificación no es instantánea? → Hay placeholder o loader hasta `onLoad`/`onError`.
+- [ ] ¿Carrusel? → Loader (o equivalente) **por cambio de slide**, transición suave, `aria-busy` coherente.
+- [ ] ¿Copy o anuncios para usuarios? → **Diccionarios** (**`09`**).
+- [ ] ¿Colores? → Tokens (**`01`**), sin hex sueltos en estados de carga.
+
+## Relación con otras reglas
+
+- **`skeleton-loading.mdc`** — Esqueletos de pantalla y listas; esta regla cubre **huecos de imagen** y **carruseles** explícitamente.
+- **`01-design-system.mdc`** — Subidas de archivo siguen usando **`InlineUploadProgressBar`**; esta regla es para **render de imagen** ya con URL conocida.

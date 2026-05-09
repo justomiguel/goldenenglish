@@ -6,6 +6,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { loadAdminSectionCollectionsView } from "@/lib/billing/loadAdminSectionCollectionsView";
+import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
 import { SectionCollectionsClient } from "@/components/dashboard/admin/finance/SectionCollectionsClient";
 
 export const metadata: Metadata = {
@@ -45,10 +46,13 @@ export default async function AdminCollectionsSectionPage({
   const todayYear = today.getFullYear();
   const year = parseYear(search.year, todayYear);
 
-  const view = await loadAdminSectionCollectionsView(supabase, sectionId, {
-    todayYear: year,
-    todayMonth: year === todayYear ? today.getMonth() + 1 : 12,
-  });
+  const [view, billingCurrency] = await Promise.all([
+    loadAdminSectionCollectionsView(supabase, sectionId, {
+      todayYear: year,
+      todayMonth: year === todayYear ? today.getMonth() + 1 : 12,
+    }),
+    loadBillingCurrencySetting(supabase),
+  ]);
   if (!view) notFound();
 
   const overviewHref = `/${locale}/dashboard/admin/finance/collections?cohort=${view.cohortId}&year=${year}`;
@@ -70,7 +74,13 @@ export default async function AdminCollectionsSectionPage({
           {view.cohortName} · {year}
         </p>
       </header>
-      <SectionCollectionsClient view={view} dict={d} locale={locale} />
+      <SectionCollectionsClient
+        view={view}
+        dict={d}
+        billingLabels={dict.admin.billing}
+        locale={locale}
+        currency={billingCurrency.currency}
+      />
     </div>
   );
 }

@@ -53,6 +53,10 @@ Evitar cascadas innecesarias:
 - [ ] ¿El placeholder tiene forma similar al contenido final?
 - [ ] ¿Cargas independientes en paralelo donde tenga sentido?
 
+## Imágenes y carruseles
+
+Para **`next/image` / `<img>`** con carga perceptible (y **obligatorio** en carruseles al cambiar slide), seguir **`23-image-loading-ux.mdc`**.
+
 ## 📖 Referencias en el repo
 
 - `src/components/organisms/LandingSurfaceGate.tsx`

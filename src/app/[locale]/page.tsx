@@ -11,6 +11,7 @@ import { LandingMainSectionsEditorial } from "@/components/organisms/LandingMain
 import { LandingMainSectionsMinimal } from "@/components/organisms/LandingMainSectionsMinimal";
 import { LandingMainSectionsMozarthitos } from "@/components/organisms/LandingMainSectionsMozarthitos";
 import { LandingMainSectionsEspacioZenit } from "@/components/organisms/LandingMainSectionsEspacioZenit";
+import { LandingMainSectionsNago } from "@/components/organisms/LandingMainSectionsNago";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
 import {
@@ -81,7 +82,9 @@ export default async function HomePage({ params }: HomePageProps) {
       ? "mz"
       : templateKind === "espaciozenit"
         ? "ez"
-        : undefined;
+        : templateKind === "nago"
+          ? "nago"
+          : undefined;
 
   const sharedShellProps = {
     dict,
@@ -102,6 +105,8 @@ export default async function HomePage({ params }: HomePageProps) {
       <LandingMainSectionsMozarthitos {...sharedShellProps} />
     ) : templateKind === "espaciozenit" ? (
       <LandingMainSectionsEspacioZenit {...sharedShellProps} />
+    ) : templateKind === "nago" ? (
+      <LandingMainSectionsNago {...sharedShellProps} />
     ) : (
       <LandingMainSections {...sharedShellProps} />
     );

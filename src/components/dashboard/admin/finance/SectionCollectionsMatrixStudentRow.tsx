@@ -34,6 +34,11 @@ export interface SectionCollectionsMatrixStudentRowProps {
   money: Intl.NumberFormat;
   locale: string;
   showEnrollmentFeeColumn: boolean;
+  cellSelectable?: boolean;
+  isCellSelected?: (month: number) => boolean;
+  onToggleCell?: (studentId: string, month: number) => void;
+  /** System-wide billing currency from Finance > Settings. */
+  currency?: string;
 }
 
 export function SectionCollectionsMatrixStudentRow({
@@ -45,10 +50,19 @@ export function SectionCollectionsMatrixStudentRow({
   money,
   locale,
   showEnrollmentFeeColumn,
+  cellSelectable = false,
+  isCellSelected,
+  onToggleCell,
+  currency,
 }: SectionCollectionsMatrixStudentRowProps) {
   const cells = MONTHS.map((m) =>
     student.row.cells.find((c) => c.month === m && c.year === view.year),
   );
+
+  const handleToggleCell = (month: number) => {
+    onToggleCell?.(student.studentId, month);
+  };
+
   return (
     <tr
       className={`border-b border-[var(--color-border)] last:border-b-0 ${student.hasOverdue ? "bg-[var(--color-error)]/5" : ""}`}
@@ -119,6 +133,10 @@ export function SectionCollectionsMatrixStudentRow({
               ariaPrefix={student.studentName}
               locale={locale}
               labels={dict.monthCell}
+              selectable={cellSelectable}
+              selected={isCellSelected?.(cell.month) ?? false}
+              onToggle={handleToggleCell}
+              currency={currency}
             />
           ) : (
             <span className="text-[10px] text-[var(--color-muted-foreground)]">

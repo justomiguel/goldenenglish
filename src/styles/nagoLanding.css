@@ -1,0 +1,218 @@
+/**
+ * Capoeira Nago — Brasil green / gold accents (tokens only).
+ * Loaded only when template_kind = nago.
+ */
+.nago-landing {
+  --nago-green: #1b5e20;
+  --nago-green-light: #2e7d32;
+  --nago-yellow: #fdd835;
+  --nago-yellow-bright: #ffeb3b;
+  --nago-ink: #1a1a1a;
+  --nago-footer: #1a1a1a;
+  --nago-beige: #f5f0e6;
+  --nago-blue: #002776;
+}
+
+/* Hero: Brasil flag image filling full width with shadow overlay */
+.nago-hero-bg {
+  --nago-hero-green: #236b2b;
+  position: relative;
+  min-height: 70vh;
+  background-color: var(--nago-hero-green);
+  background-image: url("/images/nago/inicio/hero-bg.png");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+/* Uniform readability layer: symmetric vignette, no left-only strip */
+.nago-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(0 0 0 / 0.28) 0%,
+      rgb(0 0 0 / 0.06) 28%,
+      rgb(0 0 0 / 0.04) 72%,
+      rgb(0 0 0 / 0.32) 100%
+    ),
+    radial-gradient(
+      ellipse 130% 90% at 50% 50%,
+      rgb(0 0 0 / 0.1) 0%,
+      transparent 45%,
+      rgb(0 0 0 / 0.22) 100%
+    );
+}
+
+@media (max-width: 639px) {
+  .nago-hero-overlay {
+    background:
+      linear-gradient(
+        180deg,
+        rgb(0 0 0 / 0.35) 0%,
+        rgb(0 0 0 / 0.12) 45%,
+        rgb(0 0 0 / 0.18) 100%
+      ),
+      radial-gradient(
+        ellipse 140% 85% at 50% 42%,
+        rgb(0 0 0 / 0.08) 0%,
+        transparent 50%,
+        rgb(0 0 0 / 0.28) 100%
+      );
+  }
+}
+
+/* Soft veil on both sides: mirror tint + blur, clearer center */
+.nago-hero-text-veil {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgb(0 0 0 / 0.2) 0%,
+    rgb(0 0 0 / 0.07) 22%,
+    transparent 40%,
+    transparent 60%,
+    rgb(0 0 0 / 0.07) 78%,
+    rgb(0 0 0 / 0.2) 100%
+  );
+  backdrop-filter: blur(6px) saturate(1.02);
+  -webkit-backdrop-filter: blur(6px) saturate(1.02);
+  mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    transparent 34%,
+    transparent 66%,
+    #000 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    #000 0%,
+    transparent 34%,
+    transparent 66%,
+    #000 100%
+  );
+}
+
+@media (max-width: 639px) {
+  .nago-hero-text-veil {
+    background: linear-gradient(
+      90deg,
+      rgb(0 0 0 / 0.13) 0%,
+      rgb(0 0 0 / 0.05) 18%,
+      transparent 38%,
+      transparent 62%,
+      rgb(0 0 0 / 0.05) 82%,
+      rgb(0 0 0 / 0.13) 100%
+    );
+    backdrop-filter: blur(4px) saturate(1.02);
+    -webkit-backdrop-filter: blur(4px) saturate(1.02);
+    mask-image: linear-gradient(
+      90deg,
+      #000 0%,
+      transparent 30%,
+      transparent 70%,
+      #000 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      #000 0%,
+      transparent 30%,
+      transparent 70%,
+      #000 100%
+    );
+  }
+}
+
+/* Silhouette overlay - placed via JS or as background-image */
+.nago-hero-silhouette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-position: right 10% center;
+  background-repeat: no-repeat;
+  background-size: auto 85%;
+  opacity: 0.7;
+  mix-blend-mode: multiply;
+}
+
+/* Content above decorative layers */
+.nago-hero-content {
+  position: relative;
+  z-index: 5;
+}
+
+.nago-hero-title {
+  text-shadow:
+    0 1px 0 rgb(0 0 0 / 0.85),
+    0 2px 4px rgb(0 0 0 / 0.75),
+    0 4px 12px rgb(0 0 0 / 0.65),
+    0 8px 28px rgb(0 0 0 / 0.45);
+}
+
+.nago-hero-subtitle {
+  text-shadow:
+    0 1px 0 rgb(0 0 0 / 0.9),
+    0 2px 6px rgb(0 0 0 / 0.75),
+    0 4px 16px rgb(0 0 0 / 0.55);
+}
+
+.nago-brush-edge {
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgb(0 0 0 / 8%) 100%
+  );
+}
+
+/* Beige section background */
+.nago-section-beige {
+  background-color: var(--nago-beige);
+}
+
+/* Principle icons with green fill and yellow border */
+.nago-principle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 9rem;
+  height: 9rem;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 6px solid var(--nago-yellow);
+  background: linear-gradient(180deg, var(--nago-green-light) 0%, var(--nago-green) 100%);
+  color: var(--nago-yellow);
+}
+
+/* Gallery image frames with organic shape */
+.nago-gallery-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 40% 60% 55% 45% / 55% 45% 60% 40%;
+  border: 4px solid var(--nago-green);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 15%);
+}
+
+/* Footer social icons */
+.nago-social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--nago-green);
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.nago-social-icon:hover {
+  background: var(--nago-green-light);
+}

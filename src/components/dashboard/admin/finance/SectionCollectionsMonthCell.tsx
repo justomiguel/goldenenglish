@@ -23,6 +23,11 @@ export interface SectionCollectionsMonthCellProps {
     statusNoPlan: string;
     expectedAmount: string;
   };
+  selectable?: boolean;
+  selected?: boolean;
+  onToggle?: (month: number) => void;
+  /** System-wide billing currency from Finance > Settings. */
+  currency?: string;
 }
 
 function statusLabel(
@@ -50,11 +55,13 @@ function statusLabel(
 function formatExpectedAmount(
   cell: StudentMonthlyPaymentCell,
   locale: string,
+  currency: string | undefined,
 ): string | null {
-  if (cell.expectedAmount == null || cell.currency == null) return null;
+  if (cell.expectedAmount == null) return null;
+  const currencyCode = currency ?? cell.currency ?? "USD";
   return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: cell.currency,
+    currency: currencyCode,
     maximumFractionDigits: 2,
   }).format(cell.expectedAmount);
 }
@@ -68,12 +75,16 @@ export function SectionCollectionsMonthCell({
   ariaPrefix,
   locale,
   labels,
+  selectable = false,
+  selected = false,
+  onToggle,
+  currency,
 }: SectionCollectionsMonthCellProps) {
   const Icon = SECTION_COLLECTIONS_MONTH_STATUS_ICONS[cell.status];
   const cellIdx = cell.year * 12 + cell.month;
   const todayIdx = year * 12 + todayMonth;
   const isOverdue = cell.status === "due" && cellIdx < todayIdx;
-  const expectedAmount = formatExpectedAmount(cell, locale);
+  const expectedAmount = formatExpectedAmount(cell, locale, currency);
   const hasScholarshipDiscount = scholarshipDiscountPercent != null;
   const aria = [
     ariaPrefix,
@@ -82,12 +93,24 @@ export function SectionCollectionsMonthCell({
     hasScholarshipDiscount ? `${scholarshipDiscountPercent}%` : null,
     expectedAmount ? `${labels.expectedAmount}: ${expectedAmount}` : null,
   ].filter(Boolean).join(" · ");
+
+  const selectedRing = selected
+    ? "ring-2 ring-[var(--color-primary)] ring-offset-1"
+    : "";
+
+  const handleClick = selectable && onToggle ? () => onToggle(cell.month) : undefined;
+  const cursorClass = selectable ? "cursor-pointer" : "";
+
   return (
     <span className={`inline-flex ${sectionCollectionsMatrixChipHoverFrame}`}>
-      <span
+      <button
+        type="button"
         aria-label={aria}
+        aria-pressed={selected}
         title={aria}
-        className={`inline-flex h-8 min-w-[34px] flex-col items-center justify-center rounded border text-[10px] font-semibold leading-none ${sectionCollectionsMonthCellClasses(cell.status, isOverdue, hasScholarshipDiscount)}`}
+        disabled={!selectable}
+        onClick={handleClick}
+        className={`inline-flex h-8 min-w-[34px] flex-col items-center justify-center rounded border text-[10px] font-semibold leading-none transition-shadow disabled:cursor-default ${sectionCollectionsMonthCellClasses(cell.status, isOverdue, hasScholarshipDiscount)} ${selectedRing} ${cursorClass}`}
       >
         {hasScholarshipDiscount ? (
           <>
@@ -97,7 +120,7 @@ export function SectionCollectionsMonthCell({
         ) : (
           <Icon className="h-3.5 w-3.5" aria-hidden />
         )}
-      </span>
+      </button>
     </span>
   );
 }

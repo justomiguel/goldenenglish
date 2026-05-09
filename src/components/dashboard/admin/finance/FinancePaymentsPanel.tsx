@@ -193,7 +193,7 @@ export async function FinancePaymentsPanel({
           <h2 className="font-display text-base font-semibold text-[var(--color-primary)]">
             {dict.title}
           </h2>
-          <ul className="space-y-4">
+          <div className="space-y-4">
             {payEnriched.map((r) => (
               <PaymentReviewRow
                 key={r.id as string}
@@ -207,7 +207,7 @@ export async function FinancePaymentsPanel({
                 emptyValue={emptyValue}
               />
             ))}
-          </ul>
+          </div>
         </section>
       ) : null}
 

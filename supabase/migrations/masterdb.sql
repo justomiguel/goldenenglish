@@ -10298,6 +10298,11 @@ INSERT INTO public.site_settings (key, value)
 VALUES ('initial_site_setup', '{"completedAt":null}'::jsonb)
 ON CONFLICT (key) DO NOTHING;
 
+-- System-wide billing currency setting (106)
+INSERT INTO public.site_settings (key, value)
+VALUES ('billing_currency', '"USD"'::jsonb)
+ON CONFLICT (key) DO NOTHING;
+
 UPDATE public.site_settings ss
 SET value = jsonb_set(ss.value, '{completedAt}', to_jsonb(now()::text), true)
 WHERE ss.key = 'initial_site_setup'
@@ -10982,3 +10987,68 @@ BEGIN
   RETURN NEW;
 END;
 $$;
+
+-- ========== 107_site_theme_kind_nago.sql ==========
+
+-- Guarantee `site_theme_kind` includes `nago`.
+-- Idempotent: skips if label already exists.
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_enum e
+    JOIN pg_type t ON t.oid = e.enumtypid
+    WHERE t.typname = 'site_theme_kind' AND e.enumlabel = 'nago'
+  ) THEN
+    ALTER TYPE public.site_theme_kind ADD VALUE 'nago';
+  END IF;
+END $$;
+
+-- ========== 108_site_theme_nago_seed.sql ==========
+
+-- Runs after 107 commits so 'nago' enum label is usable.
+
+INSERT INTO public.site_themes (
+  slug,
+  name,
+  is_active,
+  template_kind,
+  properties,
+  content,
+  blocks,
+  is_system_default
+)
+VALUES (
+  'nago',
+  'Capoeira Nago',
+  FALSE,
+  'nago'::public.site_theme_kind,
+  jsonb_build_object(
+    'app.name', 'Capoeira Nago',
+    'app.legal.name', 'Capoeira Nago',
+    'app.tagline', 'Tradición que se mueve, cultura que se vive',
+    'app.tagline.en', 'Tradition that moves, culture that lives',
+    'app.legal.registry', 'Capoeira Nago',
+    'app.logo.path', '/images/nago/logo/logo.png',
+    'app.logo.alt', 'Capoeira Nago',
+    'app.favicon.path', '/images/nago/favicon.ico',
+    'contact.phone', '+56 9 0000 0000',
+    'contact.email', 'info@capoeiranago.cl',
+    'contact.address', 'Chile',
+    'social.instagram', 'https://www.instagram.com/capoeiranago/',
+    'social.facebook', 'https://www.facebook.com/capoeiranago/',
+    'color.primary', '#1B5E20',
+    'color.secondary', '#FFD54F',
+    'color.accent', '#2E7D32'
+  ),
+  '{}'::jsonb,
+  '[]'::jsonb,
+  FALSE
+)
+ON CONFLICT (slug) DO UPDATE
+SET
+  name = EXCLUDED.name,
+  template_kind = EXCLUDED.template_kind,
+  is_system_default = FALSE,
+  properties = EXCLUDED.properties;

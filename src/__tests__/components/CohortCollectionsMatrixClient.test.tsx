@@ -95,7 +95,7 @@ function makeRaw(): CohortCollectionsBulkRaw {
 }
 
 describe("CohortCollectionsMatrixClient", () => {
-  it("renders cohort totals, every active section and every student row", () => {
+  it("renders cohort totals, every active section and every student row", async () => {
     const matrix = buildCohortCollectionsMatrix(makeRaw(), {
       todayYear: 2026,
       todayMonth: 12,
@@ -120,6 +120,11 @@ describe("CohortCollectionsMatrixClient", () => {
         overviewDict.totals.collected,
       ),
     ).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: collectionsDict.matrix.expandMatrixAria.replace("{section}", "Section A"),
+      }),
+    );
     expect(
       screen.getByRole("columnheader", { name: overviewDict.table.paidLabel }),
     ).toBeInTheDocument();
@@ -171,6 +176,11 @@ describe("CohortCollectionsMatrixClient", () => {
       name: overviewDict.filters.search,
     });
     await userEvent.type(input, "ana");
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: collectionsDict.matrix.expandMatrixAria.replace("{section}", "Section A"),
+      }),
+    );
     expect(screen.getByText("Smith Ana")).toBeInTheDocument();
     expect(screen.queryByText("Lopez Zara")).not.toBeInTheDocument();
 

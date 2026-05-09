@@ -9,6 +9,7 @@ describe("sharePreviewBundleKeyFromTemplateKind", () => {
     expect(sharePreviewBundleKeyFromTemplateKind("espaciozenit")).toBe(
       "espaciozenit",
     );
+    expect(sharePreviewBundleKeyFromTemplateKind("nago")).toBe("nago");
   });
 
   it("maps classic, editorial and minimal to golden", () => {

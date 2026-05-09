@@ -52,16 +52,16 @@ describe("FinanceHubTabs", () => {
     );
   });
 
-  it("renders exactly four tabs (overview, collections, inbox, insights)", () => {
+  it("renders exactly five tabs (overview, collections, inbox, insights, settings)", () => {
     render(
       <FinanceHubTabs current="overview" baseHref={baseHref} dict={hubDict}>
         <p>panel-content</p>
       </FinanceHubTabs>,
     );
-    expect(FINANCE_HUB_TAB_ORDER).toHaveLength(4);
-    expect(FINANCE_HUB_TAB_ORDER).toEqual(["overview", "collections", "inbox", "insights"]);
+    expect(FINANCE_HUB_TAB_ORDER).toHaveLength(5);
+    expect(FINANCE_HUB_TAB_ORDER).toEqual(["overview", "collections", "inbox", "insights", "settings"]);
     const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(4);
+    expect(links).toHaveLength(5);
   });
 
   it("preserves cohort and year query across tab switches", () => {

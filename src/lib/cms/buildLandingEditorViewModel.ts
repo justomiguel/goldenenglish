@@ -15,6 +15,7 @@ import {
 } from "@/lib/cms/landingThemeEditorCatalog";
 import { espaciozenitSectionImageSrc } from "@/lib/landing/espaciozenitLandingImages";
 import { mozarthitosSectionImageSrc } from "@/lib/landing/mozarthitosLandingImages";
+import { nagoSectionImageSrc } from "@/lib/landing/nagoLandingImages";
 import { sectionImageSrc } from "@/lib/landing/sectionLandingImages";
 
 /** Resolves a Storage object path to its public URL. The server caller
@@ -133,7 +134,9 @@ export function buildLandingSectionEditorViewModel(
           ? mozarthitosSectionImageSrc(section, `${position}.png`)
           : kind === "espaciozenit"
             ? espaciozenitSectionImageSrc(section, `${position}.png`)
-            : sectionImageSrc(section, `${position}.png`),
+            : kind === "nago"
+              ? nagoSectionImageSrc(section, `${position}.png`)
+              : sectionImageSrc(section, `${position}.png`),
     });
   }
 

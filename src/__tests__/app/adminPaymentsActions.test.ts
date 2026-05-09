@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   reviewPayment,
   getReceiptSignedUrl,
+  bulkReviewMonthlyPayments,
+  bulkDeletePendingMonthlyPayments,
 } from "@/app/[locale]/dashboard/admin/payments/actions";
 import esDict from "@/dictionaries/es.json";
 
@@ -110,6 +112,63 @@ describe("reviewPayment", () => {
       locale: "es",
     });
     expect(r).toEqual({ ok: true });
+  });
+});
+
+describe("bulkReviewMonthlyPayments", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns invalid data when paymentIds is empty", async () => {
+    mockAssertAdmin.mockResolvedValue({ supabase: {}, user: adminUser });
+    const r = await bulkReviewMonthlyPayments({
+      paymentIds: [],
+      status: "approved",
+      locale: "es",
+    });
+    expect(r.ok).toBe(false);
+    expect(r.processed).toBe(0);
+    expect(r.message).toBe(esDict.actionErrors.paymentsReview.invalidData);
+  });
+
+  it("returns forbidden when assertAdmin fails", async () => {
+    mockAssertAdmin.mockRejectedValue(new Error("no"));
+    const r = await bulkReviewMonthlyPayments({
+      paymentIds: ["00000000-0000-4000-8000-000000000099"],
+      status: "approved",
+      locale: "es",
+    });
+    expect(r.ok).toBe(false);
+    expect(r.processed).toBe(0);
+    expect(r.message).toBe(esDict.actionErrors.paymentsReview.forbidden);
+  });
+});
+
+describe("bulkDeletePendingMonthlyPayments", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns forbidden when assertAdmin fails", async () => {
+    mockAssertAdmin.mockRejectedValue(new Error("no"));
+    const r = await bulkDeletePendingMonthlyPayments({
+      paymentIds: ["00000000-0000-4000-8000-000000000099"],
+      locale: "es",
+    });
+    expect(r.ok).toBe(false);
+    expect(r.deleted).toBe(0);
+    expect(r.message).toBe(esDict.actionErrors.paymentsReview.forbidden);
+  });
+
+  it("returns invalid data when paymentIds is empty", async () => {
+    mockAssertAdmin.mockResolvedValue({ supabase: {}, user: adminUser });
+    const r = await bulkDeletePendingMonthlyPayments({
+      paymentIds: [],
+      locale: "es",
+    });
+    expect(r.ok).toBe(false);
+    expect(r.deleted).toBe(0);
   });
 });
 

@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+if [ -n "${1:-}" ] && [ -f "$1" ]; then
+  node scripts/strip-cursor-commit-trailers.mjs "$1"
+fi

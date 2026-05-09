@@ -24,9 +24,7 @@ const dict = {
   lead: "Set how much this section charges.",
   amount: "Enrollment fee amount",
   currencyAria: "Enrollment fee currency",
-  currencyHelp: "Reuses the monthly plan currency.",
-  noCurrency: "—",
-  noActivePlanHelp: "Define the monthly fee first.",
+  currencyHelp: "Reuses the system currency.",
   save: "Save enrollment fee",
   saved: "Enrollment fee updated.",
   errorSave: "Could not save the enrollment fee.",
@@ -41,13 +39,13 @@ describe("AcademicSectionEnrollmentFeeEditor", () => {
     refreshMock.mockReset();
   });
 
-  it("renders the active plan currency next to the amount", () => {
+  it("renders the system currency next to the amount", () => {
     render(
       <AcademicSectionEnrollmentFeeEditor
         locale="en"
         sectionId={SECTION}
         initialAmount={150}
-        currentPlanCurrency="USD"
+        systemCurrency="USD"
         dict={dict}
       />,
     );
@@ -56,18 +54,17 @@ describe("AcademicSectionEnrollmentFeeEditor", () => {
     expect(screen.getByText(dict.currencyHelp)).toBeInTheDocument();
   });
 
-  it("shows the no-active-plan helper when currency is null", () => {
+  it("shows zero means helper when amount is 0", () => {
     render(
       <AcademicSectionEnrollmentFeeEditor
         locale="en"
         sectionId={SECTION}
         initialAmount={0}
-        currentPlanCurrency={null}
+        systemCurrency="ARS"
         dict={dict}
       />,
     );
-    expect(screen.getByLabelText(dict.currencyAria)).toHaveTextContent("—");
-    expect(screen.getByText(dict.noActivePlanHelp)).toBeInTheDocument();
+    expect(screen.getByLabelText(dict.currencyAria)).toHaveTextContent("ARS");
     expect(screen.getByText(dict.zeroMeans)).toBeInTheDocument();
   });
 
@@ -77,7 +74,7 @@ describe("AcademicSectionEnrollmentFeeEditor", () => {
         locale="en"
         sectionId={SECTION}
         initialAmount={100}
-        currentPlanCurrency="USD"
+        systemCurrency="USD"
         dict={dict}
       />,
     );
@@ -94,7 +91,7 @@ describe("AcademicSectionEnrollmentFeeEditor", () => {
         locale="en"
         sectionId={SECTION}
         initialAmount={0}
-        currentPlanCurrency="USD"
+        systemCurrency="USD"
         dict={dict}
       />,
     );
@@ -118,7 +115,7 @@ describe("AcademicSectionEnrollmentFeeEditor", () => {
         locale="en"
         sectionId={SECTION}
         initialAmount={0}
-        currentPlanCurrency="USD"
+        systemCurrency="USD"
         dict={dict}
       />,
     );

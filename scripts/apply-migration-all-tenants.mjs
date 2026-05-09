@@ -51,6 +51,11 @@ const TENANTS = [
     label: "Espacio Zenit",
     file: path.join(ROOT, ".env.local.espaciozenit"),
   },
+  {
+    id: "nago",
+    label: "Capoeira Nago",
+    file: path.join(ROOT, ".env.local.nago"),
+  },
 ];
 
 function resolvePsqlBinary() {

@@ -47,6 +47,9 @@
       },
       "espaciozenit": {
         "shareContext": "Dance, theater, music, and performing arts in one comprehensive creative training space."
+      },
+      "nago": {
+        "shareContext": "Capoeira: tradition, music, movement, and community."
       }
     }
   },
@@ -149,7 +152,8 @@
     "paymentsReview": {
       "forbidden": "You are not allowed to do this.",
       "invalidData": "Invalid data.",
-      "saveFailed": "Could not update the payment."
+      "saveFailed": "Could not update the payment.",
+      "nonePendingToDelete": "None of the selected items are still pending; nothing was removed."
     },
     "register": {
       "insertFailed": "We could not save your request. Try again later."
@@ -642,6 +646,79 @@
         "rightsLine": "All rights reserved."
       },
       "footerCta": "Reach your highest point this season—message us for trials and placements."
+    },
+    "nago": {
+      "chrome": {
+        "openMenu": "Open menu",
+        "closeMenu": "Close menu",
+        "facebookAria": "Capoeira Nago on Facebook",
+        "instagramAria": "Capoeira Nago on Instagram"
+      },
+      "nav": {
+        "inicio": "Home",
+        "sobreNosotros": "About us",
+        "clases": "Classes",
+        "galeria": "Gallery",
+        "eventos": "Events",
+        "contacto": "Contact"
+      },
+      "hero": {
+        "title": "We are Capoeira Nago",
+        "subtitle": "Tradition that moves, culture that lives",
+        "tagline": "Capoeira is more than a martial art: it's music, dance, tradition, and community."
+      },
+      "sobreNosotros": {
+        "title": "About Us",
+        "bodyP1": "Capoeira Nago was born with the purpose of spreading capoeira as a tool for personal and social transformation.",
+        "bodyP2": "Through teaching, events, and performances, we keep the tradition and spirit of capoeira alive."
+      },
+      "principios": {
+        "sectionTitle": "Our Principles",
+        "respeto": {
+          "title": "Respect",
+          "body": "We value each person and their journey."
+        },
+        "disciplina": {
+          "title": "Discipline",
+          "body": "Constant improvement makes us better."
+        },
+        "union": {
+          "title": "Union",
+          "body": "We are a family inside and outside the roda."
+        },
+        "cultura": {
+          "title": "Culture",
+          "body": "We honor our Brazilian roots."
+        }
+      },
+      "galeria": {
+        "sectionTitle": "Gallery",
+        "verMas": "View more photos",
+        "carouselPrev": "Previous photo",
+        "carouselNext": "Next photo",
+        "carouselPosition": "Photo {current} of {total}",
+        "carouselLoading": "Loading photo",
+        "previewOpenAria": "Open photo {n} larger"
+      },
+      "cta": {
+        "title": "Join our roda",
+        "subtitle": "No experience needed, just a desire to learn and share.",
+        "button": "Contact us"
+      },
+      "footer": {
+        "enlacesTitle": "Links",
+        "siguenos": "Follow us",
+        "rightsLine": "All rights reserved."
+      },
+      "contact": {
+        "title": "Contact",
+        "phoneDisplay": "+56 9 0000 0000",
+        "instagramUrl": "https://www.instagram.com/capoeiranago/",
+        "facebookUrl": "https://www.facebook.com/capoeiranago/",
+        "whatsappUrl": "https://wa.me/56900000000",
+        "youtubeUrl": "https://www.youtube.com/@capoeiranago"
+      },
+      "footerCta": "Want to join capoeira? Message us and start your journey."
     }
   },
   "admin": {
@@ -1159,7 +1236,8 @@
               "editorial": "Editorial",
               "minimal": "Minimal",
               "mozarthitos": "Mozarthitos",
-              "espaciozenit": "Espacio Zenit"
+              "espaciozenit": "Espacio Zenit",
+              "nago": "Capoeira Nago"
             },
             "saveCta": "Apply style",
             "saveSuccess": "Style applied.",
@@ -1651,7 +1729,20 @@
       "approveTooltip": "Mark this period as paid after you verified the receipt matches the amount.",
       "rejectTooltip": "Reject the receipt if it is wrong, duplicated, or not acceptable. You can add a note for the family.",
       "receiptOpenTooltip": "Open the uploaded receipt image or PDF in a new tab.",
-      "notesTooltip": "Optional internal note stored with the decision (visible to staff)."
+      "notesTooltip": "Optional internal note stored with the decision (visible to staff).",
+      "bulkSelectAllAria": "Select all receipts in this list",
+      "bulkSelectRowAria": "Select receipt for {{student}} · {{period}}",
+      "bulkSelectAll": "Select all",
+      "bulkClearSelection": "Clear selection",
+      "bulkSelectedCount": "{{count}} selected",
+      "bulkApproveSelected": "Approve selected",
+      "bulkDeleteSelected": "Remove selected from queue",
+      "bulkDeleteConfirmTitle": "Remove selected receipts from the queue?",
+      "bulkDeleteConfirmBody": "This permanently deletes the pending payment record(s). Families may upload again if needed. This does not mark any period as paid.",
+      "bulkDeleteConfirm": "Remove from queue",
+      "bulkApproveResult": "Approved {{count}} receipt(s).",
+      "bulkDeleteResult": "Removed {{count}} pending receipt(s).",
+      "bulkNothingProcessed": "No receipts were updated. Refresh and try again."
     },
     "finance": {
       "hub": {
@@ -1661,12 +1752,25 @@
           "overview": "Cohort overview",
           "collections": "Collections",
           "inbox": "Payment inbox",
-          "insights": "Insights"
+          "insights": "Insights",
+          "settings": "Settings"
         },
         "tipOverview": "Every section of the active cohort with payment status by month — like a spreadsheet, but actionable.",
         "tipCollections": "Section-by-section collection health for the cohort, with export and bulk reminders.",
         "tipInbox": "Approve or reject payment receipts uploaded by families — monthly, enrollment fee, and invoice receipts in one queue.",
-        "tipInsights": "Collection trends, receipt processing metrics, year-end projections, and section health alerts."
+        "tipInsights": "Collection trends, receipt processing metrics, year-end projections, and section health alerts.",
+        "tipSettings": "Configure billing preferences like the currency used across all payments."
+      },
+      "settings": {
+        "title": "Billing settings",
+        "lead": "Configure global preferences that affect all billing and payment displays.",
+        "currencyLabel": "System currency",
+        "currencyOther": "Other…",
+        "currencyOtherAria": "Enter ISO 4217 currency code",
+        "warningAffectsAll": "Changing the currency affects the display of all payments system-wide.",
+        "save": "Save",
+        "savedOk": "Currency saved successfully.",
+        "savedError": "Could not save. Please try again."
       },
       "insights": {
         "title": "Finance insights",
@@ -1862,6 +1966,8 @@
           "openTooltip": "Open the section to see the student matrix and bulk actions."
         },
         "matrix": {
+          "expandMatrixAria": "Show student payment matrix for {section}",
+          "collapseMatrixAria": "Hide student payment matrix for {section}",
           "studentColumn": "Student",
           "monthZeroColumnShort": "0",
           "monthZeroTooltip": "Enrollment fee",
@@ -1890,6 +1996,29 @@
             "sortDesc": "descending order",
             "sortNeutral": "no sort on this column"
           }
+        },
+        "cellActions": {
+          "selectedCount": "{cells} cell(s) selected across {students} student(s)",
+          "markPaid": "Mark paid",
+          "applyScholarship": "Apply scholarship",
+          "markExempt": "Mark exempt",
+          "confirmPaidTitle": "Mark {count} period(s) as paid?",
+          "confirmPaidBody": "The selected months will be recorded as paid without receipt. This action can be reverted from the student's individual billing page.",
+          "confirmScholarshipTitle": "Apply scholarship to {count} period(s)?",
+          "confirmScholarshipBody": "A scholarship record will be created for each selected month with the specified discount percentage.",
+          "scholarshipPercentLabel": "Discount percentage",
+          "scholarshipPercentPlaceholder": "e.g. 20",
+          "scholarshipNoteLabel": "Note (optional)",
+          "scholarshipNotePlaceholder": "Reason for the scholarship",
+          "confirmExemptTitle": "Mark {count} period(s) as exempt?",
+          "confirmExemptBody": "The selected months will be marked as exempt. Provide a reason below.",
+          "exemptReasonLabel": "Reason",
+          "exemptReasonPlaceholder": "Reason for exemption",
+          "confirm": "Confirm",
+          "cancel": "Cancel",
+          "resultOk": "{count} period(s) updated successfully.",
+          "resultPartial": "{ok} updated, {failed} failed.",
+          "resultError": "Could not complete the operation. Try again."
         },
         "bulk": {
           "messageTitle": "Send bulk message",
@@ -3595,8 +3724,8 @@
         "effectiveFromShort": "From",
         "monthlyFee": "Monthly fee",
         "currency": "Currency",
-        "currencyOther": "Other…",
-        "currencyOtherAria": "Three-letter ISO 4217 currency code (e.g. BOB, PEN)",
+        "currencySystemLabel": "System",
+        "currencySystemHint": "Configured in Finance → Settings",
         "prorateExplanation": "If the student joins mid-month, they pay proportional to the classes they had available. For example, 1 of 4 classes that month = 1/4 of the fee.",
         "inUseBadge": "In use",
         "inUseBadgeTitle": "Students already have payments under this plan.",

@@ -16,12 +16,8 @@ export interface AcademicSectionEnrollmentFeeEditorProps {
   locale: string;
   sectionId: string;
   initialAmount: number;
-  /**
-   * Moneda del plan vigente (la matrícula reusa la moneda de la cuota mensual).
-   * Si no hay plan vigente en la sección, viene `null` y solo se muestra el
-   * input numérico sin sufijo de moneda.
-   */
-  currentPlanCurrency: string | null;
+  /** System-wide billing currency from Finance > Settings. */
+  systemCurrency: string;
   dict: EnrollmentDict;
 }
 
@@ -29,7 +25,7 @@ export function AcademicSectionEnrollmentFeeEditor({
   locale,
   sectionId,
   initialAmount,
-  currentPlanCurrency,
+  systemCurrency,
   dict,
 }: AcademicSectionEnrollmentFeeEditorProps) {
   const router = useRouter();
@@ -96,11 +92,11 @@ export function AcademicSectionEnrollmentFeeEditor({
               className="text-sm font-medium text-[var(--color-foreground)]"
               aria-label={dict.currencyAria}
             >
-              {currentPlanCurrency ?? dict.noCurrency}
+              {systemCurrency}
             </span>
           </div>
           <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-            {currentPlanCurrency ? dict.currencyHelp : dict.noActivePlanHelp}
+            {dict.currencyHelp}
           </p>
         </div>
 

@@ -177,6 +177,7 @@ export function CohortCollectionsMatrixClient({
               locale={locale}
               sectionHref={`${sectionHrefBase}/${s.view.sectionId}`}
               visibleStudentIds={visibleStudentIds}
+              currency={totalsCurrency}
             />
           ))}
         </div>

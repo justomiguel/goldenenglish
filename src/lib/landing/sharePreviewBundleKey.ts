@@ -1,7 +1,11 @@
 import type { SiteThemeKind } from "@/types/theming";
 
 /** Bundled marketing assets under `public/images/<key>/logo/`. */
-export type SharePreviewBundleKey = "golden" | "mozarthitos" | "espaciozenit";
+export type SharePreviewBundleKey =
+  | "golden"
+  | "mozarthitos"
+  | "espaciozenit"
+  | "nago";
 
 /** Maps landing template kind → folder key for share preview logos. */
 export function sharePreviewBundleKeyFromTemplateKind(
@@ -9,5 +13,6 @@ export function sharePreviewBundleKeyFromTemplateKind(
 ): SharePreviewBundleKey {
   if (kind === "mozarthitos") return "mozarthitos";
   if (kind === "espaciozenit") return "espaciozenit";
+  if (kind === "nago") return "nago";
   return "golden";
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { reviewPayment } from "@/app/[locale]/dashboard/admin/payments/actions";
 import type { Dictionary } from "@/types/i18n";
 
@@ -25,6 +26,7 @@ export function PaymentReviewRow({
   labels,
   emptyValue,
 }: PaymentReviewRowProps) {
+  const router = useRouter();
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -37,11 +39,11 @@ export function PaymentReviewRow({
       locale,
     });
     setBusy(false);
-    window.location.reload();
+    router.refresh();
   }
 
   return (
-    <li className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4">
+    <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0 text-sm">
           <p className="font-semibold text-[var(--color-foreground)]">{studentLabel}</p>
@@ -103,6 +105,6 @@ export function PaymentReviewRow({
           </button>
         </div>
       </div>
-    </li>
+    </div>
   );
 }

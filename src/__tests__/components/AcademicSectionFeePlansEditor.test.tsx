@@ -45,8 +45,8 @@ const dict = {
   effectiveFromShort: "From",
   monthlyFee: "Monthly fee",
   currency: "Currency",
-  currencyOther: "Other...",
-  currencyOtherAria: "Custom currency code (ISO 4217)",
+  currencySystemLabel: "System",
+  currencySystemHint: "Configured in Finance → Settings",
   prorateExplanation:
     "Months are prorated automatically based on the classes available to each student.",
   inUseBadge: "In use",
@@ -105,6 +105,7 @@ describe("AcademicSectionFeePlansEditor", () => {
         locale="en"
         sectionId="sec"
         initialPlans={[planActiveInUse]}
+        systemCurrency="USD"
         dict={dict}
       />,
     );
@@ -119,6 +120,7 @@ describe("AcademicSectionFeePlansEditor", () => {
         locale="en"
         sectionId="sec"
         initialPlans={[planActiveUnused]}
+        systemCurrency="USD"
         dict={dict}
       />,
     );
@@ -135,6 +137,7 @@ describe("AcademicSectionFeePlansEditor", () => {
         locale="en"
         sectionId="sec"
         initialPlans={[planActiveInUse]}
+        systemCurrency="USD"
         dict={dict}
       />,
     );
@@ -155,6 +158,7 @@ describe("AcademicSectionFeePlansEditor", () => {
         locale="en"
         sectionId="sec"
         initialPlans={[planActiveUnused, planArchived]}
+        systemCurrency="USD"
         dict={dict}
       />,
     );
@@ -172,6 +176,7 @@ describe("AcademicSectionFeePlansEditor", () => {
         locale="en"
         sectionId="sec"
         initialPlans={[planActiveUnused]}
+        systemCurrency="USD"
         dict={dict}
       />,
     );
@@ -188,6 +193,7 @@ describe("AcademicSectionFeePlansEditor", () => {
         locale="en"
         sectionId="sec"
         initialPlans={[planActiveInUse]}
+        systemCurrency="USD"
         dict={dict}
       />,
     );
@@ -202,6 +208,7 @@ describe("AcademicSectionFeePlansEditor", () => {
         locale="en"
         sectionId="sec"
         initialPlans={[planActiveInUse]}
+        systemCurrency="USD"
         dict={dict}
       />,
     );
