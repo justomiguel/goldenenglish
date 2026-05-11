@@ -73,6 +73,7 @@ export async function loadAdminSectionCollectionsView(
       sectionEndsOn: meta.endsOn,
       scheduleSlots: meta.scheduleSlots,
       sectionEnrollmentFeeAmount: meta.enrollmentFeeAmount,
+      monthlyFeeChargeMode: meta.monthlyFeeChargeMode,
     });
   }
 
@@ -185,6 +186,7 @@ export async function loadAdminSectionCollectionsView(
     sectionEndsOn: meta.endsOn,
     scheduleSlots: meta.scheduleSlots,
     sectionEnrollmentFeeAmount: meta.enrollmentFeeAmount,
+    monthlyFeeChargeMode: meta.monthlyFeeChargeMode,
   });
 }
 

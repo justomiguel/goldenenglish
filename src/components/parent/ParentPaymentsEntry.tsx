@@ -8,6 +8,7 @@ import { Label } from "@/components/atoms/Label";
 import { StudentPaymentsHistory } from "@/components/student/StudentPaymentsHistory";
 import type { StudentPaymentRow } from "@/components/student/StudentPaymentsHistory";
 import { StudentMonthlyPaymentsStrip } from "@/components/student/StudentMonthlyPaymentsStrip";
+import { StudentPaymentsScreenTabs } from "@/components/student/StudentPaymentsScreenTabs";
 import {
   type SubmitMonthlyReceiptAction,
   type StartFlowMonthlyPaymentClientAction,
@@ -148,9 +149,12 @@ export function ParentPaymentsEntry({
                 {labels.paymentsAccessRevokedBody}
               </p>
             </section>
-          ) : (
-            <>
-              {monthlyView && selectedStudentId ? (
+          ) : monthlyView && selectedStudentId ? (
+            <StudentPaymentsScreenTabs
+              ariaLabel={studentLabels.paymentsScreenTabsAria}
+              overviewTabLabel={studentLabels.paymentsTabOverview}
+              historyTabLabel={studentLabels.paymentsHistory}
+              overview={
                 <StudentMonthlyPaymentsStrip
                   locale={locale}
                   studentId={selectedStudentId}
@@ -163,8 +167,13 @@ export function ParentPaymentsEntry({
                   fileUploadProgress={fileUploadProgress}
                   startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
                   flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+                  tutorPaymentMethodTabs
                 />
-              ) : null}
+              }
+              history={<StudentPaymentsHistory rows={payments} labels={studentLabels} />}
+            />
+          ) : (
+            <>
               <h2 className="mt-10 font-display text-xl font-semibold text-[var(--color-primary)]">
                 {studentLabels.paymentsHistory}
               </h2>

@@ -17,6 +17,7 @@ import {
   type StudentMonthlyPaymentRecord,
   type BuildStudentMonthlyPaymentsRowInput,
 } from "@/lib/billing/studentMonthlyPaymentsRowModel";
+import { parseMonthlyFeeChargeMode } from "@/lib/billing/monthlyFeeChargeMode";
 
 export type { StudentMonthlyPaymentRecord, BuildStudentMonthlyPaymentsRowInput };
 
@@ -53,7 +54,9 @@ export function buildStudentMonthlyPaymentsRow(
     sectionEnrollmentFeeExemptReason = null,
     billingScope = "operational-window",
     annualSettlementCoverage = null,
+    monthlyFeeChargeMode: monthlyFeeChargeModeInput,
   } = input;
+  const monthlyFeeChargeMode = parseMonthlyFeeChargeMode(monthlyFeeChargeModeInput);
   const cells: StudentMonthlyPaymentCell[] = [];
   const year = todayYear;
   const paymentByMonth = new Map<number, StudentMonthlyPaymentRecord>();
@@ -91,16 +94,20 @@ export function buildStudentMonthlyPaymentsRow(
     const prorated = plan
       ? billingScope === "plan-year"
         ? fallbackFullMonthProration(plan.monthlyFee)
-        : totalClasses > 0 && availableClasses > 0
-        ? prorateMonthlyFee({
-            monthlyFee: plan.monthlyFee,
-            totalClassesInMonth: totalClasses,
-            availableClassesForStudent: availableClasses,
-          })
-        : sectionInMonth && studentRange
-          ? fallbackFullMonthProration(plan.monthlyFee)
-          : { code: "out_of_period" as const }
-      : { code: "out_of_period" as const };
+        : monthlyFeeChargeMode === "full_month_fee"
+          ? sectionInMonth && studentRange
+            ? fallbackFullMonthProration(plan.monthlyFee)
+            : ({ code: "out_of_period" as const })
+          : totalClasses > 0 && availableClasses > 0
+            ? prorateMonthlyFee({
+                monthlyFee: plan.monthlyFee,
+                totalClassesInMonth: totalClasses,
+                availableClassesForStudent: availableClasses,
+              })
+            : sectionInMonth && studentRange
+              ? fallbackFullMonthProration(plan.monthlyFee)
+              : ({ code: "out_of_period" as const })
+      : ({ code: "out_of_period" as const });
     const settlementCovers =
       annualSettlementCoverage?.has(periodIndex(year, m)) ?? false;
     const scholarshipForCell = settlementCovers ? [] : scholarship;

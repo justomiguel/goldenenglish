@@ -84,7 +84,23 @@ describe("finalizeMonthlyPaymentFromFlowGateway", () => {
 
   it("skips invalid commerceOrder", async () => {
     mockFlow.mockResolvedValue(flowOk({ commerceOrder: "not-a-uuid" }));
-    const admin = { from: vi.fn() } as unknown as SupabaseClient;
+    const admin = {
+      from: (table: string) => {
+        if (table === "payment_flow_checkout_refs") {
+          return {
+            select: () => ({
+              eq: () => ({
+                maybeSingle: async () => ({
+                  data: null,
+                  error: null,
+                }),
+              }),
+            }),
+          };
+        }
+        return undefined;
+      },
+    } as unknown as SupabaseClient;
     const r = await finalizeMonthlyPaymentFromFlowGateway({
       admin,
       apiBaseUrl: "https://sandbox.flow.cl/api",
@@ -173,5 +189,54 @@ describe("finalizeMonthlyPaymentFromFlowGateway", () => {
       token: "t",
     });
     expect(r).toEqual({ ok: true, approved: true, paymentId: paymentUuid });
+  });
+
+  it("skips Flow getStatus when flowPaidSnapshot is provided (browser return)", async () => {
+    mockFlow.mockResolvedValue({ ok: false, error: "should_not_fetch" });
+    mockPlan.mockResolvedValue({
+      code: "ok",
+      amount: 100_000,
+      currency: "CLP",
+      proration: { numerator: 1, denominator: 1, full: true },
+    });
+
+    const admin = {
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            maybeSingle: async () => ({
+              data: {
+                id: paymentUuid,
+                student_id: "22222222-2222-4222-8222-222222222222",
+                section_id: "33333333-3333-4333-8333-333333333333",
+                month: 3,
+                year: 2026,
+                amount: 100_000,
+                status: "pending",
+                admin_notes: null,
+              },
+              error: null,
+            }),
+          }),
+        }),
+        update: () => ({
+          eq: () => ({
+            in: async () => ({ error: null }),
+          }),
+        }),
+      }),
+    } as unknown as SupabaseClient;
+
+    const snap = flowOk({ amount: 100_000 }).data;
+    const r = await finalizeMonthlyPaymentFromFlowGateway({
+      admin,
+      apiBaseUrl: "https://sandbox.flow.cl/api",
+      apiKey: "k",
+      secretKey: "s",
+      token: "t",
+      flowPaidSnapshot: snap,
+    });
+    expect(mockFlow).not.toHaveBeenCalled();
+    expect(r.ok).toBe(true);
   });
 });

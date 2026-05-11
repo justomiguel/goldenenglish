@@ -121,9 +121,13 @@ export function AdminAnnualSettlementPanel({
       </div>
 
       <AdminAnnualSettlementExistingList
+        locale={locale}
+        studentId={studentId}
+        sectionId={benefit.sectionId}
         settlements={benefit.annualSettlements}
         labels={labels}
         formatMoney={money}
+        cancelLabel={cancelLabel}
       />
 
       <div className="grid gap-3 sm:grid-cols-2">

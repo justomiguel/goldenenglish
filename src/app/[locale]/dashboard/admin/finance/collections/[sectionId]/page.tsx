@@ -83,6 +83,7 @@ export default async function AdminCollectionsSectionPage({
         billingLabels={dict.admin.billing}
         locale={locale}
         currency={billingCurrency.currency}
+        monthlyFeeChargeEditorDict={dict.dashboard.academicSectionPage.monthlyFeeChargeMode}
       />
     </div>
   );

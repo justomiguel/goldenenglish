@@ -3,12 +3,18 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { revertOneApprovedPayment } from "@/lib/billing/revertApprovedPaymentCore";
 
 const auditFinanceAction = vi.fn();
+const maybeRemoveAnnualSettlementIfFullyReverted = vi.fn().mockResolvedValue(undefined);
 vi.mock("@/lib/audit", () => ({
   auditFinanceAction: (...a: unknown[]) => auditFinanceAction(...a),
+}));
+vi.mock("@/lib/billing/annualSettlementCleanupAfterPaymentRevert", () => ({
+  maybeRemoveAnnualSettlementIfFullyReverted: (...a: unknown[]) =>
+    maybeRemoveAnnualSettlementIfFullyReverted(...a),
 }));
 
 beforeEach(() => {
   auditFinanceAction.mockResolvedValue({ ok: true });
+  maybeRemoveAnnualSettlementIfFullyReverted.mockClear();
 });
 
 function makeSupabase(
@@ -97,5 +103,6 @@ describe("revertOneApprovedPayment", () => {
     });
     expect(r).toEqual({ success: true, paymentId: "pay-99", month: 5 });
     expect(auditFinanceAction).toHaveBeenCalledTimes(1);
+    expect(maybeRemoveAnnualSettlementIfFullyReverted).toHaveBeenCalledTimes(1);
   });
 });

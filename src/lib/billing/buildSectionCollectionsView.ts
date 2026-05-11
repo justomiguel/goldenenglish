@@ -23,6 +23,10 @@ import {
   type SectionCollectionsStudentRow,
   type SectionCollectionsView,
 } from "@/types/sectionCollections";
+import {
+  parseMonthlyFeeChargeMode,
+  type MonthlyFeeChargeMode,
+} from "@/lib/billing/monthlyFeeChargeMode";
 
 export interface SectionCollectionsStudentInput {
   studentId: string;
@@ -58,6 +62,8 @@ export interface BuildSectionCollectionsViewInput {
   scheduleSlots: readonly SectionScheduleSlot[];
   /** Monto de matrícula a nivel de sección (>=0). 0 = no cobra matrícula. */
   sectionEnrollmentFeeAmount: number;
+  /** Alumno/apoderado: prorrateo por clases vs cuota mensual completa. */
+  monthlyFeeChargeMode?: MonthlyFeeChargeMode;
 }
 
 function enrollmentFeeAmount(input: BuildSectionCollectionsViewInput): number {
@@ -94,6 +100,7 @@ export function buildSectionCollectionsView(
   input: BuildSectionCollectionsViewInput,
 ): SectionCollectionsView {
   const enrollmentFee = enrollmentFeeAmount(input);
+  const monthlyFeeChargeMode = parseMonthlyFeeChargeMode(input.monthlyFeeChargeMode);
   const studentRows: SectionCollectionsStudentRow[] = input.students.map((s) => {
     const studentEnrollmentFee = s.enrollmentFeeExempt ? 0 : enrollmentFee;
     const row: StudentMonthlyPaymentSectionRow = buildStudentMonthlyPaymentsRow({
@@ -162,6 +169,7 @@ export function buildSectionCollectionsView(
     todayMonth: input.todayMonth,
     sectionStartsOn: input.sectionStartsOn,
     sectionEndsOn: input.sectionEndsOn,
+    monthlyFeeChargeMode,
     students: studentRows,
     kpis: buildSectionCollectionsKpis(studentRows),
   };

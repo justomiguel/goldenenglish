@@ -14,6 +14,10 @@ import { loadStudentYearSectionPaymentsMap } from "@/lib/billing/loadStudentYear
 import { type ScholarshipRow } from "@/lib/billing/scholarshipPeriod";
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
 import type { SectionScheduleSlot } from "@/types/academics";
+import {
+  parseMonthlyFeeChargeMode,
+  type MonthlyFeeChargeMode,
+} from "@/lib/billing/monthlyFeeChargeMode";
 
 interface LoadOptions {
   todayYear: number;
@@ -27,6 +31,7 @@ interface SectionMeta {
   cohortName: string;
   startsOn: string;
   endsOn: string;
+  monthlyFeeChargeMode: MonthlyFeeChargeMode;
   scheduleSlots: SectionScheduleSlot[];
   enrolledAt: string | null;
   enrollmentFeeAmount: number;
@@ -52,7 +57,7 @@ export async function loadStudentMonthlyPaymentsView(
   const activeEnrollmentResult = await supabase
     .from("section_enrollments")
     .select(
-      "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, enrollment_fee_receipt_url, enrollment_fee_receipt_status, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
+      "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, enrollment_fee_receipt_url, enrollment_fee_receipt_status, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, academic_cohorts(name))",
     )
     .eq("student_id", studentId)
     .eq("status", "active");
@@ -61,7 +66,7 @@ export async function loadStudentMonthlyPaymentsView(
       ? await supabase
           .from("section_enrollments")
           .select(
-            "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(name))",
+            "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, academic_cohorts(name))",
           )
           .eq("student_id", studentId)
           .eq("status", "active")
@@ -89,6 +94,7 @@ export async function loadStudentMonthlyPaymentsView(
     ends_on: string | null;
     schedule_slots: unknown;
     enrollment_fee_amount: number | string | null;
+    monthly_fee_charge_mode?: string | null;
     academic_cohorts: { name: string } | { name: string }[] | null;
   };
 
@@ -156,6 +162,7 @@ export async function loadStudentMonthlyPaymentsView(
         cohortName: cohort?.name ?? "",
         startsOn: sec?.starts_on ?? "",
         endsOn: sec?.ends_on ?? "",
+        monthlyFeeChargeMode: parseMonthlyFeeChargeMode(sec?.monthly_fee_charge_mode),
         scheduleSlots: parseSectionScheduleSlots(sec?.schedule_slots ?? []),
         enrolledAt: row.created_at ?? null,
         enrollmentFeeAmount:
@@ -222,6 +229,7 @@ export async function loadStudentMonthlyPaymentsView(
       enrollmentFeeReceiptStatus: s.enrollmentFeeReceiptStatus,
       enrollmentFeeReceiptSignedUrl: s.enrollmentFeeReceiptSignedUrl,
       lastEnrollmentPaidAt: s.lastEnrollmentPaidAt,
+      monthlyFeeChargeMode: s.monthlyFeeChargeMode,
     }),
   );
 

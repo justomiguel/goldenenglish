@@ -67,6 +67,23 @@ describe("loadAdminSectionCollectionsView", () => {
     expect(view).not.toBeNull();
     expect(view?.students).toEqual([]);
     expect(view?.kpis.totalStudents).toBe(0);
+    expect(view?.monthlyFeeChargeMode).toBe("prorate_by_classes");
+  });
+
+  it("exposes monthly_fee_charge_mode from academic_sections", async () => {
+    const supa = buildSupabaseMock({
+      academic_sections: {
+        data: { ...SECTION, monthly_fee_charge_mode: "full_month_fee" },
+        error: null,
+      },
+      section_enrollments: { data: [], error: null },
+      section_fee_plans: { data: [], error: null },
+    });
+    const view = await loadAdminSectionCollectionsView(supa, "sec-1", {
+      todayYear: 2026,
+      todayMonth: 6,
+    });
+    expect(view?.monthlyFeeChargeMode).toBe("full_month_fee");
   });
 
   it("aggregates students, plans, payments and scholarships into a view", async () => {

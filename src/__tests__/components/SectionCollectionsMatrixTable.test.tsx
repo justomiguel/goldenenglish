@@ -73,6 +73,7 @@ const baseView: SectionCollectionsView = {
   todayMonth: 6,
   sectionStartsOn: "2026-01-01",
   sectionEndsOn: "2026-12-31",
+  monthlyFeeChargeMode: "prorate_by_classes",
   students: [buildStudent("s1", "Ada", true), buildStudent("s2", "Bea", false)],
   kpis: {
     paid: 0,

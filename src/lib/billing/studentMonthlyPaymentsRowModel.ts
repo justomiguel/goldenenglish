@@ -4,6 +4,7 @@ import type {
   EnrollmentFeeReceiptStatus,
 } from "@/types/studentMonthlyPayments";
 import type { ScholarshipRows } from "@/lib/billing/scholarshipPeriod";
+import type { MonthlyFeeChargeMode } from "@/lib/billing/monthlyFeeChargeMode";
 
 /** `periodIndex(year, month)` values for months whose % scholarship is replaced by an annual settlement. */
 export type AnnualSettlementCoverageIndexSet = ReadonlySet<number>;
@@ -57,6 +58,10 @@ export interface BuildStudentMonthlyPaymentsRowInput {
   lastEnrollmentPaidAt?: string | null;
   /** Months (period index) covered by an annual settlement — scholarship % is not applied in the matrix. */
   annualSettlementCoverage?: AnnualSettlementCoverageIndexSet | null;
+  /**
+   * Section setting: student/parent dues for `operational-window` rows only.
+   */
+  monthlyFeeChargeMode?: MonthlyFeeChargeMode;
 }
 
 export function parseUtcDate(iso: string | null): Date | null {

@@ -2,10 +2,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { auditFinanceAction } from "@/lib/audit";
 import { resolveSectionPlanMonthlyAmount } from "@/lib/billing/resolveSectionPlanMonthlyAmount";
+import type { FlowFetchStatusResult, FlowStatusPayload } from "@/lib/payment-gateways/flow/flowFetchPaymentStatus";
 import { flowFetchPaymentStatus } from "@/lib/payment-gateways/flow/flowFetchPaymentStatus";
 import { notifyMonthlyPaymentDecision } from "@/lib/email/billingPaymentEmails";
 import { revalidateStudentBillingPaths } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/revalidateStudentBilling";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { lookupPaymentRowForFlowFinalize } from "@/lib/billing/lookupPaymentRowForFlowFinalize";
 import type { Locale } from "@/types/i18n";
 import { defaultLocale } from "@/lib/i18n/dictionaries";
 
@@ -19,8 +21,8 @@ function amountsMatchForCurrency(expected: number, fromFlow: number, currencyUpp
 }
 
 /**
- * Confirms a monthly `payments` row after Flow reports success, using getStatus.
- * Idempotent; intended for Flow webhook — returns diagnostics for logging only.
+ * Confirms a monthly `payments` row after Flow reports success (getStatus unless snapshot).
+ * Idempotent; intended for Flow webhook + browser return handler.
  */
 export async function finalizeMonthlyPaymentFromFlowGateway(input: {
   admin: SupabaseClient;
@@ -28,18 +30,23 @@ export async function finalizeMonthlyPaymentFromFlowGateway(input: {
   apiKey: string;
   secretKey: string;
   token: string;
+  /** When set after a successful resolver getStatus paid check, skips a second Flow hop (avoids races/transient failures). */
+  flowPaidSnapshot?: FlowStatusPayload;
 }): Promise<{
   ok: boolean;
   skipped?: string;
   approved?: boolean;
   paymentId?: string;
 }> {
-  const status = await flowFetchPaymentStatus({
-    apiBaseUrl: input.apiBaseUrl,
-    apiKey: input.apiKey,
-    secretKey: input.secretKey,
-    token: input.token,
-  });
+  const status: FlowFetchStatusResult =
+    input.flowPaidSnapshot !== undefined
+      ? { ok: true, data: input.flowPaidSnapshot }
+      : await flowFetchPaymentStatus({
+          apiBaseUrl: input.apiBaseUrl,
+          apiKey: input.apiKey,
+          secretKey: input.secretKey,
+          token: input.token,
+        });
 
   if (!status.ok) {
     logServerException("finalizeMonthlyPaymentFromFlowGateway:getStatus", new Error(status.error));
@@ -51,20 +58,24 @@ export async function finalizeMonthlyPaymentFromFlowGateway(input: {
   }
 
   const commerceOrder = status.data.commerceOrder?.trim() ?? "";
-  const uuidRe =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  if (!uuidRe.test(commerceOrder)) {
+  const { payRow, error: lookupErr, skipReason } = await lookupPaymentRowForFlowFinalize(
+    input.admin,
+    commerceOrder,
+  );
+
+  if (skipReason === "invalid_commerce_order") {
     return { ok: true, skipped: "invalid_commerce_order" };
   }
 
-  const { data: payRow, error: payErr } = await input.admin
-    .from("payments")
-    .select("id, student_id, section_id, month, year, amount, status, admin_notes")
-    .eq("id", commerceOrder)
-    .maybeSingle();
+  if (lookupErr) {
+    logSupabaseClientError("finalizeMonthlyPaymentFromFlowGateway:lookup", lookupErr ?? {}, {
+      commerceOrder,
+    });
+    return { ok: true, skipped: "payment_not_found" };
+  }
 
-  if (payErr || !payRow) {
-    logSupabaseClientError("finalizeMonthlyPaymentFromFlowGateway:select", payErr ?? {}, {
+  if (!payRow) {
+    logSupabaseClientError("finalizeMonthlyPaymentFromFlowGateway:select", {}, {
       commerceOrder,
     });
     return { ok: true, skipped: "payment_not_found" };

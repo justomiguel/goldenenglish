@@ -1,6 +1,6 @@
 "use client";
 
-import { GraduationCap, History, Receipt, Table2 } from "lucide-react";
+import { GraduationCap, History, Receipt, Settings2, Table2 } from "lucide-react";
 import { useId, useState } from "react";
 import {
   UnderlineTabBar,
@@ -15,9 +15,10 @@ import { SectionCollectionsMatrixWorkspace } from "./SectionCollectionsMatrixWor
 import { SectionCollectionsHistoryTab } from "./SectionCollectionsHistoryTab";
 import { SectionCollectionsScholarshipsTab } from "./SectionCollectionsScholarshipsTab";
 import { SectionCollectionsEnrollmentTab } from "./SectionCollectionsEnrollmentTab";
+import { SectionCollectionsBillingSettingsTab } from "./SectionCollectionsBillingSettingsTab";
 
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
-type TabId = "matrix" | "history" | "scholarships" | "enrollment";
+type TabId = "matrix" | "settings" | "history" | "scholarships" | "enrollment";
 
 export interface SectionCollectionsClientProps {
   view: SectionCollectionsView;
@@ -26,6 +27,7 @@ export interface SectionCollectionsClientProps {
   billingLabels: Dictionary["admin"]["billing"];
   locale: string;
   currency?: string;
+  monthlyFeeChargeEditorDict: Dictionary["dashboard"]["academicSectionPage"]["monthlyFeeChargeMode"];
 }
 
 export function SectionCollectionsClient({
@@ -35,6 +37,7 @@ export function SectionCollectionsClient({
   billingLabels,
   locale,
   currency,
+  monthlyFeeChargeEditorDict,
 }: SectionCollectionsClientProps) {
   const [tab, setTab] = useState<TabId>("matrix");
   const idPrefix = useId().replace(/:/g, "");
@@ -42,6 +45,7 @@ export function SectionCollectionsClient({
 
   const items: readonly UnderlineTabItem[] = [
     { id: "matrix", label: t.matrix, Icon: Table2 },
+    { id: "settings", label: t.settings, Icon: Settings2 },
     { id: "history", label: t.history, Icon: History },
     { id: "scholarships", label: t.scholarships, Icon: GraduationCap },
     { id: "enrollment", label: t.enrollment, Icon: Receipt },
@@ -72,6 +76,24 @@ export function SectionCollectionsClient({
             billingLabels={billingLabels}
             locale={locale}
             currency={currency}
+          />
+        ) : null}
+      </div>
+
+      <div
+        role="tabpanel"
+        id={underlinePanelId(idPrefix, "settings")}
+        aria-labelledby={underlineTabId(idPrefix, "settings")}
+        hidden={tab !== "settings"}
+        className="min-h-0 pt-2"
+      >
+        {tab === "settings" ? (
+          <SectionCollectionsBillingSettingsTab
+            locale={locale}
+            sectionId={view.sectionId}
+            initialMode={view.monthlyFeeChargeMode}
+            lead={t.settingsLead}
+            editorDict={monthlyFeeChargeEditorDict}
           />
         ) : null}
       </div>

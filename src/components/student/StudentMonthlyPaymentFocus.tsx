@@ -9,6 +9,7 @@ import type {
   StudentMonthlyPaymentCell,
   StudentMonthlyPaymentSectionRow,
 } from "@/types/studentMonthlyPayments";
+import { StudentMonthlyTutorPaymentMethodTabs } from "@/components/student/StudentMonthlyTutorPaymentMethodTabs";
 
 type Labels = Dictionary["dashboard"]["student"]["monthly"];
 
@@ -39,6 +40,13 @@ export interface StudentMonthlyPaymentFocusProps {
   onSubmitted?: () => void;
   /** Full-month amount in receipt UI; server still resolves the slot amount. */
   receiptExpectedUsesFullMonth?: boolean;
+  /** Tutor/parent payments: split receipt upload vs Flow in underline tabs inside this panel. */
+  paymentMethodTabLayout?: boolean;
+  /**
+   * When true, render flush inside {@link StudentMonthlyPaymentsStrip}'s section card
+   * (divider + inset surface) instead of a separate bordered card.
+   */
+  embeddedInSectionCard?: boolean;
 }
 
 export function StudentMonthlyPaymentFocus({
@@ -55,6 +63,8 @@ export function StudentMonthlyPaymentFocus({
   fileUploadProgress,
   onSubmitted,
   receiptExpectedUsesFullMonth = false,
+  paymentMethodTabLayout = false,
+  embeddedInSectionCard = false,
 }: StudentMonthlyPaymentFocusProps) {
   const [busy, setBusy] = useState(false);
   const [flowBusy, setFlowBusy] = useState(false);
@@ -116,16 +126,19 @@ export function StudentMonthlyPaymentFocus({
     setMsg(res.message);
   }
 
+  const outerClassName = embeddedInSectionCard
+    ? "mt-3 -mx-4 border-t border-[var(--color-border)] bg-[var(--color-muted)]/20 px-4 py-4"
+    : "mt-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-card)]";
+
   return (
-    <section
-      className="mt-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-card)]"
-      aria-live="polite"
-    >
+    <section className={outerClassName} aria-live="polite">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="font-display text-lg font-semibold text-[var(--color-primary)]">
           {labels.focusTitle.replace("{month}", monthLabel).replace("{year}", String(cell.year))}
         </h3>
-        <span className="text-sm text-[var(--color-muted-foreground)]">{section.sectionName}</span>
+        {embeddedInSectionCard ? null : (
+          <span className="text-sm text-[var(--color-muted-foreground)]">{section.sectionName}</span>
+        )}
       </div>
       <dl className="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
         <div>
@@ -188,7 +201,25 @@ export function StudentMonthlyPaymentFocus({
         </p>
       ) : null}
 
-      {canUpload ? (
+      {canUpload && paymentMethodTabLayout ? (
+        <StudentMonthlyTutorPaymentMethodTabs
+          locale={locale}
+          studentId={studentId}
+          section={section}
+          cell={cell}
+          labels={labels}
+          paymentLabels={paymentLabels}
+          fileUploadProgress={fileUploadProgress}
+          expected={expected}
+          showFlowPay={showFlowPay}
+          busy={busy}
+          flowBusy={flowBusy}
+          feedbackMessage={msg}
+          onSubmitReceipt={onSubmit}
+          onFlowPay={onFlowPay}
+          compactTopSpacing={embeddedInSectionCard}
+        />
+      ) : canUpload ? (
         <StudentMonthlyPaymentReceiptUploadForm
           locale={locale}
           studentId={studentId}

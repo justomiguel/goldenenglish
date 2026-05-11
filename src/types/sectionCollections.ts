@@ -1,4 +1,5 @@
 import type { StudentMonthlyPaymentSectionRow } from "@/types/studentMonthlyPayments";
+import type { MonthlyFeeChargeMode } from "@/lib/billing/monthlyFeeChargeMode";
 
 export type SectionCollectionsHealth = "healthy" | "watch" | "critical";
 
@@ -68,6 +69,8 @@ export interface SectionCollectionsView {
   /** ISO dates for enrollment-fee overdue rules (month 0 column). */
   sectionStartsOn: string;
   sectionEndsOn: string;
+  /** Student/parent monthly dues: class proration vs full month (mid-month enrollments). */
+  monthlyFeeChargeMode: MonthlyFeeChargeMode;
   students: SectionCollectionsStudentRow[];
   kpis: SectionCollectionsKpis;
 }

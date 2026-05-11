@@ -58,6 +58,9 @@ function makeSectionView(): SectionCollectionsView {
     cohortName: "2026",
     year: 2026,
     todayMonth: 6,
+    sectionStartsOn: "2026-01-01",
+    sectionEndsOn: "2026-12-31",
+    monthlyFeeChargeMode: "prorate_by_classes",
     students: [],
     kpis: {
       paid: 100,

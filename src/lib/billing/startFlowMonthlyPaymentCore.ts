@@ -1,10 +1,16 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { resolveStudentPaymentSlot } from "@/lib/billing/resolveStudentPaymentSlot";
+import {
+  resolveStudentPaymentSlot,
+  type StudentPaymentSlotFailureReason,
+} from "@/lib/billing/resolveStudentPaymentSlot";
 import { resolveSectionPlanMonthlyAmount } from "@/lib/billing/resolveSectionPlanMonthlyAmount";
 import { loadFlowChileCredentialsPlain, flowChileApiBase } from "@/lib/payment-gateways/flow/loadFlowChileCredentialsPlain";
 import { flowCreatePaymentOrder } from "@/lib/payment-gateways/flow/flowCreatePaymentOrder";
+import { reservePaymentFlowCommerceReference } from "@/lib/payment-gateways/flow/reservePaymentFlowCommerceReference";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { logServerActionInvariantViolation } from "@/lib/logging/serverActionLog";
 import type { Buffer } from "node:buffer";
+import { truncateForFlowText } from "@/lib/billing/truncateFlowText";
 
 export type StartFlowMonthlyPaymentCoreResult =
   | { ok: true; redirectUrl: string }
@@ -17,6 +23,8 @@ export type StartFlowMonthlyPaymentCoreResult =
         | "no_public_url"
         | "flow_http"
         | "flow_error";
+      /** When `code === "slot"`, why {@link resolveStudentPaymentSlot} failed. */
+      slotReason?: StudentPaymentSlotFailureReason;
     };
 
 /**
@@ -38,6 +46,10 @@ export async function startFlowMonthlyPaymentCore(input: {
   paymentsDashboard: "student" | "parent";
   /** When tutor pays for a ward, sets `payments.parent_id`. */
   tutorParentId: string | null;
+  /** Human-readable labels for Flow `optional` — no identifiers. */
+  studentLabelForFlow: string;
+  sectionLabelForFlow: string;
+  periodLabelForFlow: string;
 }): Promise<StartFlowMonthlyPaymentCoreResult> {
   const slot = await resolveStudentPaymentSlot(input.supabase, {
     studentId: input.studentId,
@@ -45,10 +57,11 @@ export async function startFlowMonthlyPaymentCore(input: {
     month: input.month,
     year: input.year,
     fallbackAmount: input.fallbackAmount,
+    actingParentIdForInsert: input.tutorParentId ?? null,
   });
 
   if (!slot.ok) {
-    return { ok: false, code: "slot" };
+    return { ok: false, code: "slot", slotReason: slot.reason };
   }
 
   const paymentId = slot.payment.id;
@@ -95,11 +108,25 @@ export async function startFlowMonthlyPaymentCore(input: {
   urlReturnBridge.searchParams.set("dashboard", input.paymentsDashboard);
   const urlReturn = urlReturnBridge.toString();
 
+  const reserved = await reservePaymentFlowCommerceReference(input.admin, {
+    paymentId,
+    year: input.year,
+    month: input.month,
+  });
+  if (!reserved.ok) {
+    logServerActionInvariantViolation(
+      "startFlowMonthlyPaymentCore:reserveCommerceRef",
+      "rpc_failed",
+      { payment_id: paymentId },
+    );
+    return { ok: false, code: "flow_error" };
+  }
+
   const created = await flowCreatePaymentOrder({
     apiBaseUrl: flowChileApiBase(creds),
     apiKey: creds.apiKey,
     secretKey: creds.secretKey,
-    commerceOrder: paymentId,
+    commerceOrder: reserved.commerceRef,
     subject: input.subject,
     currency: "CLP",
     amount: amountForFlow,
@@ -107,13 +134,19 @@ export async function startFlowMonthlyPaymentCore(input: {
     urlConfirmation,
     urlReturn,
     optionalJson: {
-      studentId: input.studentId,
-      year: String(input.year),
-      month: String(input.month),
+      student: truncateForFlowText(input.studentLabelForFlow, 120),
+      section: truncateForFlowText(input.sectionLabelForFlow, 120),
+      period: truncateForFlowText(input.periodLabelForFlow, 80),
     },
   });
 
   if (!created.ok) {
+    logServerActionInvariantViolation("startFlowMonthlyPaymentCore:flowCreatePaymentOrder", created.error, {
+      payment_id: paymentId,
+      month: input.month,
+      year: input.year,
+      section_id: input.sectionId,
+    });
     return { ok: false, code: "flow_error" };
   }
 

@@ -101,9 +101,18 @@ describe("ParentPaymentsEntry", () => {
     );
     expect(screen.getAllByLabelText(labels.paymentsPickerLabel).length).toBeGreaterThan(0);
     expect(screen.getAllByTestId("payments-strip").length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("tablist", { name: studentLabels.paymentsScreenTabsAria }).length).toBe(
+      2,
+    );
+    expect(
+      screen.getAllByRole("tab", { name: studentLabels.paymentsTabOverview }).length,
+    ).toBeGreaterThan(0);
     expect(screen.getAllByTestId("pay-history").length).toBeGreaterThan(0);
     expect(stripSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ receiptExpectedUsesFullMonth: true }),
+      expect.objectContaining({
+        receiptExpectedUsesFullMonth: true,
+        tutorPaymentMethodTabs: true,
+      }),
     );
   });
 

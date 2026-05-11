@@ -10,6 +10,7 @@ import type { AnnualTuitionSettlementPreviewResult } from "@/lib/billing/annualT
 import type { Locale } from "@/types/i18n";
 import { logServerException } from "@/lib/logging/serverActionLog";
 import { revalidateStudentBillingPaths } from "./revalidateStudentBilling";
+import { removeAnnualSettlementForAdmin } from "@/lib/billing/removeAnnualSettlementForAdmin";
 
 const localeSchema = z.enum(["en", "es"] as [Locale, Locale]);
 
@@ -24,6 +25,13 @@ const previewSchema = z.object({
 const applySchema = previewSchema.extend({
   studentId: z.string().uuid(),
   adminNote: z.string().max(4000).optional().nullable(),
+});
+
+const removeSettlementSchema = z.object({
+  locale: localeSchema,
+  studentId: z.string().uuid(),
+  sectionId: z.string().uuid(),
+  settlementId: z.string().uuid(),
 });
 
 export type AnnualTuitionPreviewActionResult =
@@ -130,6 +138,58 @@ export async function applyAnnualTuitionSettlementAction(
     return { ok: true, message: L.applySuccess };
   } catch (err) {
     logServerException("applyAnnualTuitionSettlementAction", err);
+    return { ok: false, message: L.errorForbidden };
+  }
+}
+
+export async function removeAnnualSettlementAction(
+  raw: z.infer<typeof removeSettlementSchema>,
+): Promise<{ ok: boolean; message?: string }> {
+  const parsed = removeSettlementSchema.safeParse(raw);
+  const dict = await getDictionary(parsed.success ? parsed.data.locale : "en");
+  const L = dict.admin.billing.annualSettlement;
+
+  if (!parsed.success) {
+    return { ok: false, message: L.errorInvalid };
+  }
+
+  try {
+    const { supabase, user } = await assertAdmin();
+    const r = await removeAnnualSettlementForAdmin(supabase, {
+      actorId: user.id,
+      studentId: parsed.data.studentId,
+      sectionId: parsed.data.sectionId,
+      settlementId: parsed.data.settlementId,
+      revertAdminNote: "annual settlement removed (admin)",
+    });
+
+    if (!r.ok) {
+      const msg =
+        r.code === "not_found"
+          ? L.removeErrorNotFound
+          : r.code === "scope_mismatch"
+            ? L.removeErrorScope
+            : r.code === "revert_failed"
+              ? L.removeErrorRevert
+              : L.removeErrorGeneric;
+      return { ok: false, message: msg };
+    }
+
+    await recordSystemAudit({
+      action: "annual_tuition_settlement_removed",
+      resourceType: "annual_tuition_settlement",
+      resourceId: parsed.data.settlementId,
+      summary: L.removeAuditSummary,
+      payload: {
+        student_id: parsed.data.studentId,
+        section_id: parsed.data.sectionId,
+      },
+    });
+
+    revalidateStudentBillingPaths(parsed.data.locale, parsed.data.studentId);
+    return { ok: true, message: L.removeSuccess };
+  } catch (err) {
+    logServerException("removeAnnualSettlementAction", err);
     return { ok: false, message: L.errorForbidden };
   }
 }

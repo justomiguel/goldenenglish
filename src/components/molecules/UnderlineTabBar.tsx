@@ -7,7 +7,39 @@ export type UnderlineTabItem = {
   id: string;
   label: string;
   Icon?: LucideIcon;
+  /** When true, tab is not selectable or keyboard-focusable except when already selected (caller should avoid). */
+  disabled?: boolean;
+  /** E.g. i18n reason shown as native tooltip when `disabled`. */
+  title?: string;
 };
+
+function wrapIndex(idx: number, len: number): number {
+  if (len <= 0) return 0;
+  return ((idx % len) + len) % len;
+}
+
+/** Next index reachable in direction `delta` (+1/-1), skipping disabled items. Returns `fromIdx` when no other enabled tab exists. */
+function nextEnabledTabIndex(items: readonly UnderlineTabItem[], fromIdx: number, delta: 1 | -1): number {
+  const n = items.length;
+  let i = fromIdx;
+  for (let tries = 0; tries < n; tries++) {
+    i = wrapIndex(i + delta, n);
+    if (!items[i]?.disabled) return i;
+  }
+  return fromIdx;
+}
+
+function firstEnabledTabIndex(items: readonly UnderlineTabItem[]): number {
+  const idx = items.findIndex((item) => !item.disabled);
+  return idx >= 0 ? idx : 0;
+}
+
+function lastEnabledTabIndex(items: readonly UnderlineTabItem[]): number {
+  for (let i = items.length - 1; i >= 0; i--) {
+    if (!items[i]?.disabled) return i;
+  }
+  return 0;
+}
 
 export function underlineTabId(prefix: string, tabId: string) {
   return `${prefix}-tab-${tabId}`;
@@ -58,11 +90,12 @@ export function UnderlineTabBar({
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const isGrid = layout === "gridTwoRow";
 
-  const focusAt = useCallback(
-    (index: number) => {
-      const n = ((index % items.length) + items.length) % items.length;
-      onChange(items[n].id);
-      queueMicrotask(() => refs.current[n]?.focus());
+  const focusTabAtIndex = useCallback(
+    (tabIndex: number) => {
+      const item = items[tabIndex];
+      if (!item || item.disabled) return;
+      onChange(item.id);
+      queueMicrotask(() => refs.current[tabIndex]?.focus());
     },
     [items, onChange],
   );
@@ -71,21 +104,25 @@ export function UnderlineTabBar({
     (e: KeyboardEvent) => {
       const idx = items.findIndex((i) => i.id === value);
       if (idx < 0) return;
+      const cur = items[idx];
+      if (cur?.disabled) return;
       if (e.key === "ArrowRight") {
         e.preventDefault();
-        focusAt(idx + 1);
+        const next = nextEnabledTabIndex(items, idx, 1);
+        focusTabAtIndex(next);
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
-        focusAt(idx - 1);
+        const next = nextEnabledTabIndex(items, idx, -1);
+        focusTabAtIndex(next);
       } else if (e.key === "Home") {
         e.preventDefault();
-        focusAt(0);
+        focusTabAtIndex(firstEnabledTabIndex(items));
       } else if (e.key === "End") {
         e.preventDefault();
-        focusAt(items.length - 1);
+        focusTabAtIndex(lastEnabledTabIndex(items));
       }
     },
-    [focusAt, items, value],
+    [focusTabAtIndex, items, value],
   );
 
   const pad = dense ? "px-2 py-2.5 sm:px-3" : "px-3 py-3 sm:px-4";
@@ -109,7 +146,8 @@ export function UnderlineTabBar({
       className={isGrid ? TABLIST_GRID : TABLIST_ROW}
     >
       {items.map((item, i) => {
-        const selected = item.id === value;
+        const disabled = Boolean(item.disabled);
+        const selected = item.id === value && !disabled;
         const tabElId = underlineTabId(idPrefix, item.id);
         const panelElId = underlinePanelId(idPrefix, item.id);
         const Icon = item.Icon;
@@ -133,14 +171,21 @@ export function UnderlineTabBar({
             role="tab"
             aria-selected={selected}
             aria-controls={panelElId}
+            disabled={disabled}
+            title={disabled ? item.title : undefined}
             tabIndex={selected ? 0 : -1}
-            onClick={() => onChange(item.id)}
+            onClick={() => {
+              if (disabled) return;
+              onChange(item.id);
+            }}
             className={`relative flex items-center justify-center gap-2 ${rowFlex} ${pad} text-sm font-medium outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 ${
               isGrid ? `min-h-[44px] ${gridR} ${gridB} ${mobileR}` : "min-h-[44px]"
-            } ${
+            } ${disabled ? "cursor-not-allowed opacity-55" : ""} ${
               selected
                 ? "text-[var(--color-primary)] after:absolute after:inset-x-2 after:bottom-0 after:h-[3px] after:rounded-t after:bg-[var(--color-primary)]"
-                : "text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]/40 hover:text-[var(--color-foreground)]"
+                : disabled
+                  ? "text-[var(--color-muted-foreground)]"
+                  : "text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]/40 hover:text-[var(--color-foreground)]"
             }`}
           >
             {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}

@@ -15,6 +15,7 @@ import {
   monthBounds,
 } from "@/lib/billing/countSectionMonthlyClasses";
 import { prorateMonthlyFee } from "@/lib/billing/prorateMonthlyFee";
+import { parseMonthlyFeeChargeMode } from "@/lib/billing/monthlyFeeChargeMode";
 import {
   periodInAnnualSettlementCoverage,
   type AnnualSettlementCoverageRow,
@@ -31,7 +32,8 @@ export type ResolveSectionPlanBillingScope = "operational-window" | "plan-year";
 export type ResolveSectionPlanMonthlyAmountOptions = {
   /**
    * `plan-year`: full plan fee for the calendar month (admin matrices).
-   * `operational-window`: class-based proration (alumno/padre / cupón).
+   * `operational-window`: student-facing amount — class prorate vs full month
+   * per section `monthly_fee_charge_mode` (alumno/padre / Flow).
    * @default "operational-window"
    */
   billingScope?: ResolveSectionPlanBillingScope;
@@ -148,12 +150,18 @@ export async function resolveSectionPlanMonthlyAmount(
 
   const { data: secRow } = await supabase
     .from("academic_sections")
-    .select("starts_on, ends_on, schedule_slots")
+    .select("starts_on, ends_on, schedule_slots, monthly_fee_charge_mode")
     .eq("id", sectionId)
     .maybeSingle();
   const sec = secRow as
-    | { starts_on: string | null; ends_on: string | null; schedule_slots: unknown }
+    | {
+        starts_on: string | null;
+        ends_on: string | null;
+        schedule_slots: unknown;
+        monthly_fee_charge_mode?: string | null;
+      }
     | null;
+  const monthlyFeeChargeMode = parseMonthlyFeeChargeMode(sec?.monthly_fee_charge_mode);
   const sectionFrom = parseUtcDate(sec?.starts_on ?? null);
   const sectionUntil = parseUtcDate(sec?.ends_on ?? null);
   const sectionRange =
@@ -184,11 +192,22 @@ export async function resolveSectionPlanMonthlyAmount(
       })
     : 0;
 
-  const prorated = prorateMonthlyFee({
-    monthlyFee: plan.monthlyFee,
-    totalClassesInMonth: totalClasses,
-    availableClassesForStudent: availableClasses,
-  });
+  /** Same branch order as {@link buildStudentMonthlyPaymentsRow} so Flow/receipt flows match student/tutor strips. */
+  const prorated =
+    monthlyFeeChargeMode === "full_month_fee"
+      ? sectionInMonth && studentRange
+        ? fallbackFullMonthProration(plan.monthlyFee)
+        : ({ code: "out_of_period" as const })
+      : totalClasses > 0 && availableClasses > 0
+        ? prorateMonthlyFee({
+            monthlyFee: plan.monthlyFee,
+            totalClassesInMonth: totalClasses,
+            availableClassesForStudent: availableClasses,
+          })
+        : sectionInMonth && studentRange
+          ? fallbackFullMonthProration(plan.monthlyFee)
+          : ({ code: "out_of_period" as const });
+
   if (prorated.code !== "ok") return { code: "out_of_period" };
 
   const scholarships =

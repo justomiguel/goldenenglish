@@ -87,3 +87,8 @@ export const logSupabaseError = logSupabaseClientError;
 export function logServerAuthzDenied(scope: string, meta?: Record<string, unknown>): void {
   console.warn(PREFIX, scope, { kind: "authz_denied", ...meta });
 }
+
+/** Diagnóstico operativo (no error de app): filtros locales, branching previsto. Sin PII. */
+export function logServerWarn(scope: string, meta?: Record<string, unknown>): void {
+  console.warn(PREFIX, scope, meta);
+}

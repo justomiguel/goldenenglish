@@ -2,7 +2,7 @@
 // admin tabs. Tab order, keyboard, and ARIA must stay valid for one tablist.
 import { useState } from "react";
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { UnderlineTabBar } from "@/components/molecules/UnderlineTabBar";
 
@@ -48,5 +48,31 @@ describe("UnderlineTabBar", () => {
     );
     const list = screen.getByRole("tablist", { name: /grid tabs/i });
     expect(list).toHaveClass("sm:grid", "sm:grid-cols-4");
+  });
+
+  it("skips disabled items when navigating with arrow keys", async () => {
+    const user = userEvent.setup();
+    const disabledItems = [
+      { id: "a", label: "First" },
+      { id: "b", label: "Second", disabled: true as const },
+      { id: "c", label: "Third" },
+    ];
+    function ControlledDis() {
+      const [value, setValue] = useState("a");
+      return (
+        <UnderlineTabBar
+          idPrefix="dis"
+          ariaLabel="With disabled middle"
+          items={disabledItems}
+          value={value}
+          onChange={setValue}
+        />
+      );
+    }
+    render(<ControlledDis />);
+    const list = screen.getByRole("tablist", { name: /with disabled middle/i });
+    await user.click(screen.getByRole("tab", { name: /^First$/ }));
+    fireEvent.keyDown(list, { key: "ArrowRight" });
+    expect(screen.getByRole("tab", { name: /^Third$/ })).toHaveAttribute("aria-selected", "true");
   });
 });

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { auditFinanceAction } from "@/lib/audit";
+import { maybeRemoveAnnualSettlementIfFullyReverted } from "@/lib/billing/annualSettlementCleanupAfterPaymentRevert";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export type RevertApprovedPaymentErrorCode =
@@ -118,6 +119,13 @@ export async function revertOneApprovedPayment(
       .eq("id", paymentId);
     return { success: false, code: "save_failed", month: m };
   }
+
+  await maybeRemoveAnnualSettlementIfFullyReverted(supabase, {
+    studentId: input.studentId,
+    sectionId: input.sectionId,
+    previousAdminNotes: (payRow.admin_notes as string | null) ?? null,
+    actorId: input.actorId,
+  });
 
   return { success: true, paymentId, month: m };
 }

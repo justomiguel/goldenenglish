@@ -218,6 +218,20 @@ describe("buildStudentMonthlyPaymentsRow", () => {
     expect(may.fullMonthExpectedAmount).toBe(100);
   });
 
+  it("uses full monthly fee when monthlyFeeChargeMode is full_month_fee despite mid-month enrollment", () => {
+    const row = buildStudentMonthlyPaymentsRow(
+      baseInput({
+        studentEnrolledAt: "2026-05-20",
+        monthlyFeeChargeMode: "full_month_fee",
+      }),
+    );
+    const may = row.cells[4];
+    expect(may.status).toBe("due");
+    expect(may.proration).toEqual({ numerator: 1, denominator: 1 });
+    expect(may.expectedAmount).toBe(100);
+    expect(may.fullMonthExpectedAmount).toBe(100);
+  });
+
   it("sets out-of-period when the student joined after the month ended", () => {
     const row = buildStudentMonthlyPaymentsRow(
       baseInput({ studentEnrolledAt: "2026-06-01", todayMonth: 6 }),

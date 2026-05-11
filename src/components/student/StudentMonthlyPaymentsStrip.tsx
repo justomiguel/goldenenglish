@@ -19,6 +19,10 @@ import type {
   StudentMonthlyPaymentsView,
   StudentMonthlyPaymentSectionRow,
 } from "@/types/studentMonthlyPayments";
+import {
+  monthlyStripFindCell,
+  studentMonthlyEnrollmentFeeDisplay,
+} from "@/lib/student/studentMonthlyPaymentsStripHelpers";
 
 const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
 
@@ -37,33 +41,6 @@ function monthLabel(locale: Locale, month: number): string {
   const date = new Date(2000, month - 1, 1);
   const formatter = new Intl.DateTimeFormat(locale, { month: "short" });
   return formatter.format(date);
-}
-
-function formatEnrollmentFee(
-  locale: Locale,
-  amount: number,
-  currency: string | null,
-): string {
-  if (!Number.isFinite(amount) || amount <= 0) return "";
-  if (currency) {
-    try {
-      return new Intl.NumberFormat(locale, {
-        style: "currency",
-        currency,
-        maximumFractionDigits: 2,
-      }).format(amount);
-    } catch {
-      // Fall through to non-currency formatting if the ISO code is unknown.
-    }
-  }
-  const numeric = new Intl.NumberFormat(locale, {
-    maximumFractionDigits: 2,
-  }).format(amount);
-  return currency ? `${currency} ${numeric}` : numeric;
-}
-
-function findCell(section: StudentMonthlyPaymentSectionRow, month: number) {
-  return section.cells.find((c) => c.month === month) ?? null;
 }
 
 export interface StudentMonthlyPaymentsStripProps {
@@ -88,6 +65,10 @@ export interface StudentMonthlyPaymentsStripProps {
   /** From `is_flow_chile_checkout_enabled()` — avoids leaking credential state. */
   flowMonthlyPayEnabled?: boolean;
   fileUploadProgress: FileUploadProgressLabels;
+  /**
+   * Tutor/parent route: show two large tabs (receipt vs online pay) inside each month’s focus panel.
+   */
+  tutorPaymentMethodTabs?: boolean;
 }
 
 export function StudentMonthlyPaymentsStrip({
@@ -102,6 +83,7 @@ export function StudentMonthlyPaymentsStrip({
   fileUploadProgress,
   startFlowMonthlyPaymentAction,
   flowMonthlyPayEnabled = false,
+  tutorPaymentMethodTabs = false,
 }: StudentMonthlyPaymentsStripProps) {
   const router = useRouter();
   const [focus, setFocus] = useState<FocusKey | null>(() => pickInitialFocus(view));
@@ -119,7 +101,7 @@ export function StudentMonthlyPaymentsStrip({
   const focusedSection = focus
     ? view.rows.find((r) => r.sectionId === focus.sectionId) ?? null
     : null;
-  const focusedCell = focusedSection && focus ? findCell(focusedSection, focus.month) : null;
+  const focusedCell = focusedSection && focus ? monthlyStripFindCell(focusedSection, focus.month) : null;
 
   return (
     <section className="mt-6 space-y-6" aria-label={labels.stripAria}>
@@ -148,7 +130,7 @@ export function StudentMonthlyPaymentsStrip({
                   {labels.enrollmentFeeExemptBadge}
                 </span>
               ) : row.enrollmentFeeAmount > 0 ? (() => {
-                const formatted = formatEnrollmentFee(
+                const formatted = studentMonthlyEnrollmentFeeDisplay(
                   locale,
                   row.enrollmentFeeAmount,
                   row.enrollmentFeeCurrency,
@@ -184,6 +166,26 @@ export function StudentMonthlyPaymentsStrip({
             </div>
             {!row.hasActivePlan ? (
               <p className="mt-3 text-xs text-[var(--color-muted-foreground)]">{labels.noPlanHint}</p>
+            ) : null}
+
+            {isFocusedSection && focusedCell ? (
+              <StudentMonthlyPaymentFocus
+                locale={locale}
+                studentId={studentId}
+                section={row}
+                cell={focusedCell}
+                monthLabel={monthLabels[focusedCell.month - 1]}
+                labels={labels}
+                paymentLabels={paymentLabels}
+                submitAction={submitAction}
+                fileUploadProgress={fileUploadProgress}
+                receiptExpectedUsesFullMonth={receiptExpectedUsesFullMonth}
+                startFlowAction={startFlowMonthlyPaymentAction}
+                flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+                paymentMethodTabLayout={tutorPaymentMethodTabs}
+                embeddedInSectionCard
+                onSubmitted={() => router.refresh()}
+              />
             ) : null}
 
             {row.enrollmentFeeExempt ? (
@@ -223,24 +225,6 @@ export function StudentMonthlyPaymentsStrip({
           </div>
         );
       })}
-
-      {focusedSection && focusedCell ? (
-        <StudentMonthlyPaymentFocus
-          locale={locale}
-          studentId={studentId}
-          section={focusedSection}
-          cell={focusedCell}
-          monthLabel={monthLabels[focusedCell.month - 1]}
-          labels={labels}
-          paymentLabels={paymentLabels}
-          submitAction={submitAction}
-          fileUploadProgress={fileUploadProgress}
-          receiptExpectedUsesFullMonth={receiptExpectedUsesFullMonth}
-          startFlowAction={startFlowMonthlyPaymentAction}
-          flowMonthlyPayEnabled={flowMonthlyPayEnabled}
-          onSubmitted={() => router.refresh()}
-        />
-      ) : null}
     </section>
   );
 }

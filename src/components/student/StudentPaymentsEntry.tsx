@@ -5,6 +5,7 @@ import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import { PromotionAppliedBadge } from "@/components/molecules/PromotionAppliedBadge";
 import { PromotionApplyForm } from "@/components/molecules/PromotionApplyForm";
 import { StudentMonthlyPaymentsStrip } from "@/components/student/StudentMonthlyPaymentsStrip";
+import { StudentPaymentsScreenTabs } from "@/components/student/StudentPaymentsScreenTabs";
 import type {
   SubmitMonthlyReceiptAction,
   StartFlowMonthlyPaymentClientAction,
@@ -121,31 +122,42 @@ export function StudentPaymentsEntry({
         }}
       />
       {monthlyView ? (
+        <StudentPaymentsScreenTabs
+          ariaLabel={labels.paymentsScreenTabsAria}
+          overviewTabLabel={labels.paymentsTabOverview}
+          historyTabLabel={labels.paymentsHistory}
+          overview={
+            <>
+              <StudentPaymentsYearSummary
+                locale={locale}
+                summary={buildStudentPaymentsYearSummary(monthlyView)}
+                labels={labels.monthly.summary}
+              />
+              <StudentMonthlyPaymentsStrip
+                locale={locale}
+                studentId={studentId}
+                view={monthlyView}
+                labels={labels.monthly}
+                paymentLabels={labels}
+                submitAction={submitReceiptAction}
+                submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceiptAction}
+                receiptExpectedUsesFullMonth
+                fileUploadProgress={fileUploadProgress}
+                startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
+                flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+              />
+            </>
+          }
+          history={<StudentPaymentsHistory rows={payments} labels={labels} />}
+        />
+      ) : (
         <>
-          <StudentPaymentsYearSummary
-            locale={locale}
-            summary={buildStudentPaymentsYearSummary(monthlyView)}
-            labels={labels.monthly.summary}
-          />
-          <StudentMonthlyPaymentsStrip
-            locale={locale}
-            studentId={studentId}
-            view={monthlyView}
-            labels={labels.monthly}
-            paymentLabels={labels}
-            submitAction={submitReceiptAction}
-            submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceiptAction}
-            receiptExpectedUsesFullMonth
-            fileUploadProgress={fileUploadProgress}
-            startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
-            flowMonthlyPayEnabled={flowMonthlyPayEnabled}
-          />
+          <h2 className="mt-10 font-display text-xl font-semibold text-[var(--color-primary)]">
+            {labels.paymentsHistory}
+          </h2>
+          <StudentPaymentsHistory rows={payments} labels={labels} />
         </>
-      ) : null}
-      <h2 className="mt-10 font-display text-xl font-semibold text-[var(--color-primary)]">
-        {labels.paymentsHistory}
-      </h2>
-      <StudentPaymentsHistory rows={payments} labels={labels} />
+      )}
     </>
   );
 

@@ -89,6 +89,7 @@ export async function submitTutorPaymentReceipt(
     month,
     year,
     fallbackAmount: amount,
+    actingParentIdForInsert: user.id,
   });
   if (!slot.ok) {
     if (slot.reason === "forbidden") return { ok: false, message: pe.forbidden };
@@ -97,7 +98,7 @@ export async function submitTutorPaymentReceipt(
     }
     if (slot.reason === "month_exempt") return { ok: false, message: pe.monthExempt };
     if (slot.reason === "upload_failed") {
-      return { ok: false, message: pe.uploadFailed };
+      return { ok: false, message: pe.paymentSlotSaveFailed };
     }
     return { ok: false, message: pe.slotNotFound };
   }

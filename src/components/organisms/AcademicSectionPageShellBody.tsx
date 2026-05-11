@@ -14,6 +14,7 @@ import { AcademicSectionCapacityEditor } from "@/components/organisms/AcademicSe
 import { AcademicSectionRoomLabelEditor } from "@/components/organisms/AcademicSectionRoomLabelEditor";
 import { AcademicSectionFeePlansEditor } from "@/components/organisms/AcademicSectionFeePlansEditor";
 import { AcademicSectionEnrollmentFeeEditor } from "@/components/organisms/AcademicSectionEnrollmentFeeEditor";
+import { AcademicSectionMonthlyFeeChargeModeEditor } from "@/components/organisms/AcademicSectionMonthlyFeeChargeModeEditor";
 import { AcademicSectionLearningRouteSelector } from "@/components/organisms/AcademicSectionLearningRouteSelector";
 import { AcademicSectionHealthOverview } from "@/components/organisms/AcademicSectionHealthOverview";
 import type { AdminSectionHealthSnapshot } from "@/types/adminSectionHealth";
@@ -78,6 +79,7 @@ export function AcademicSectionPageShellBody({
     staffDict,
     feePlansDict,
     enrollmentFeeDict,
+    monthlyFeeChargeModeDict,
     learningRouteDict,
     staffAssignedChipsDict,
     healthDict,
@@ -176,6 +178,12 @@ export function AcademicSectionPageShellBody({
         }
         fees={
           <div className="space-y-4">
+            <AcademicSectionMonthlyFeeChargeModeEditor
+              locale={locale}
+              sectionId={sectionId}
+              initialMode={section.monthlyFeeChargeMode}
+              dict={monthlyFeeChargeModeDict}
+            />
             <AcademicSectionFeePlansEditor
               locale={locale}
               sectionId={sectionId}

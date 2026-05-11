@@ -28,6 +28,11 @@ export interface StudentPaymentSlotInput {
    * by the plan amount (after scholarship); used as fallback for legacy rows.
    */
   fallbackAmount: number;
+  /**
+   * Linked tutor (`parent`) opening the slot must set `parent_id = auth.uid()` on INSERT
+   * so RLS `payments_insert_parent` passes (students use `payments_insert_student_self`).
+   */
+  actingParentIdForInsert?: string | null;
 }
 
 export type StudentPaymentSlotResult =
@@ -49,6 +54,11 @@ export type StudentPaymentSlotResult =
         | "select_failed";
     };
 
+export type StudentPaymentSlotFailureReason = Extract<
+  StudentPaymentSlotResult,
+  { ok: false }
+>["reason"];
+
 /**
  * Locate or create the {@link StudentPaymentSlotResult.payment} row for a
  * receipt upload. When `sectionId` is provided, fee/period are validated against
@@ -60,7 +70,7 @@ export async function resolveStudentPaymentSlot(
   supabase: SupabaseClient,
   input: StudentPaymentSlotInput,
 ): Promise<StudentPaymentSlotResult> {
-  const { studentId, sectionId, month, year, fallbackAmount } = input;
+  const { studentId, sectionId, month, year, fallbackAmount, actingParentIdForInsert } = input;
 
   if (sectionId) {
     const isEnrolled = await isStudentActivelyEnrolledInSection(supabase, studentId, sectionId);
@@ -98,6 +108,7 @@ export async function resolveStudentPaymentSlot(
           year,
           amount: planAmount.amount,
           status: "pending",
+          ...(actingParentIdForInsert ? { parent_id: actingParentIdForInsert } : {}),
         })
         .select("id, status")
         .single();

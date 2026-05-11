@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { ADMIN_INVITE_DEFAULT_PASSWORD } from "@/lib/dashboard/adminInviteDefaultPassword";
 import { normalizeDni } from "@/lib/import/studentImportUtils";
 import { parentDefaultEmail } from "@/lib/import/parentDefaultEmail";
 
@@ -29,7 +30,7 @@ export async function ensureParentProfileByTutorDni(
   if (!raw) {
     return { ok: false, message: "tutor_dni_required" };
   }
-  const { dni, password } = normalizeDni(raw);
+  const { dni } = normalizeDni(raw);
   const email = (input.tutorEmail?.trim() || parentDefaultEmail(dni)).toLowerCase();
   const meta = inviteMetaParent({
     first_name: input.tutorFirstName.trim(),
@@ -65,7 +66,7 @@ export async function ensureParentProfileByTutorDni(
 
   const { data: created, error } = await admin.auth.admin.createUser({
     email,
-    password,
+    password: ADMIN_INVITE_DEFAULT_PASSWORD,
     email_confirm: true,
     user_metadata: meta,
   });

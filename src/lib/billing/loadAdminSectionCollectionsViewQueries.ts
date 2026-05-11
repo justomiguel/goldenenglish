@@ -11,6 +11,10 @@ import type { SectionScheduleSlot } from "@/types/academics";
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
 import type { StudentPromotionStatusRow } from "@/lib/billing/studentPromotionStatus";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import {
+  parseMonthlyFeeChargeMode,
+  type MonthlyFeeChargeMode,
+} from "@/lib/billing/monthlyFeeChargeMode";
 
 export interface SectionMeta {
   id: string;
@@ -22,6 +26,7 @@ export interface SectionMeta {
   endsOn: string;
   scheduleSlots: SectionScheduleSlot[];
   enrollmentFeeAmount: number;
+  monthlyFeeChargeMode: MonthlyFeeChargeMode;
 }
 
 export interface EnrollmentRow {
@@ -86,7 +91,7 @@ export async function loadSectionMeta(
   const { data } = await supabase
     .from("academic_sections")
     .select(
-      "id, name, archived_at, cohort_id, starts_on, ends_on, schedule_slots, enrollment_fee_amount, academic_cohorts(id, name)",
+      "id, name, archived_at, cohort_id, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, academic_cohorts(id, name)",
     )
     .eq("id", sectionId)
     .maybeSingle();
@@ -100,6 +105,7 @@ export async function loadSectionMeta(
     ends_on: string | null;
     schedule_slots: unknown;
     enrollment_fee_amount: number | string | null;
+    monthly_fee_charge_mode?: string | null;
     academic_cohorts:
       | { id: string; name: string }
       | { id: string; name: string }[]
@@ -122,6 +128,7 @@ export async function loadSectionMeta(
     scheduleSlots: parseSectionScheduleSlots(row.schedule_slots ?? []),
     enrollmentFeeAmount:
       Number.isFinite(rawEnrollment) && rawEnrollment >= 0 ? rawEnrollment : 0,
+    monthlyFeeChargeMode: parseMonthlyFeeChargeMode(row.monthly_fee_charge_mode),
   };
 }
 

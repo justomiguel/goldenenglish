@@ -9,8 +9,13 @@ import { paymentActionDict, localeFromFormData } from "@/lib/i18n/actionErrors";
 import { resolveTutorStudentLink } from "@/lib/auth/resolveTutorStudentLink";
 import { loadPaymentGatewayEncryptionKeyRaw32 } from "@/lib/payment-gateways/loadPaymentGatewayEncryptionKey";
 import { startFlowMonthlyPaymentCore } from "@/lib/billing/startFlowMonthlyPaymentCore";
+import { formatBillingPeriodLabel } from "@/lib/billing/formatBillingPeriodLabel";
+import { composeFlowMonthlyOrderSubject } from "@/lib/billing/composeFlowMonthlyOrderSubject";
+import { loadAcademicSectionDisplayNameForFlow } from "@/lib/billing/loadAcademicSectionDisplayNameForFlow";
+import { loadStudentDisplayNameForFlow } from "@/lib/billing/loadStudentDisplayNameForFlow";
+import { truncateForFlowText } from "@/lib/billing/truncateFlowText";
+import { messageForFlowMonthlySlotFailure } from "@/lib/payments/messageForFlowMonthlySlotFailure";
 import { logServerException } from "@/lib/logging/serverActionLog";
-import type { Locale } from "@/types/i18n";
 
 export type StartFlowMonthlyPaymentActionResult =
   | { ok: true; redirectUrl: string }
@@ -60,9 +65,21 @@ export async function startTutorFlowMonthlyPayment(
   }
 
   const dict = await getDictionary(localeRaw);
-  const subject = dict.dashboard.student.monthly.flowOrderSubject
-    .replace("{month}", String(month))
-    .replace("{year}", String(year));
+  const sectionRaw = await loadAcademicSectionDisplayNameForFlow(supabase, sectionId);
+  const sectionFlowLabel = truncateForFlowText(
+    sectionRaw ?? dict.dashboard.student.monthly.flowUnknownSection,
+    120,
+  );
+  const studentFlowLabel = truncateForFlowText(
+    await loadStudentDisplayNameForFlow(supabase, studentId, dict.dashboard.student.monthly.flowUnknownStudent),
+    120,
+  );
+  const periodLabel = formatBillingPeriodLabel(localeRaw, year, month);
+  const subject = composeFlowMonthlyOrderSubject({
+    template: dict.dashboard.student.monthly.flowOrderSubject,
+    sectionName: sectionFlowLabel,
+    periodLabel,
+  });
 
   const admin = createAdminClient();
   const core = await startFlowMonthlyPaymentCore({
@@ -79,6 +96,9 @@ export async function startTutorFlowMonthlyPayment(
     subject,
     paymentsDashboard: "parent",
     tutorParentId: user.id,
+    studentLabelForFlow: studentFlowLabel,
+    sectionLabelForFlow: sectionFlowLabel,
+    periodLabelForFlow: periodLabel,
   });
 
   if (!core.ok) {
@@ -93,6 +113,12 @@ export async function startTutorFlowMonthlyPayment(
     }
     if (core.code === "flow_error") {
       return { ok: false, message: dict.dashboard.student.monthly.flowErrorProvider };
+    }
+    if (core.code === "slot") {
+      return {
+        ok: false,
+        message: messageForFlowMonthlySlotFailure(pe, core.slotReason),
+      };
     }
     return { ok: false, message: pe.slotNotFound };
   }

@@ -10,6 +10,10 @@ import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionM
 import { mapSectionFeePlanRow, type SectionFeePlan, type SectionFeePlanRowDb } from "@/types/sectionFeePlan";
 import { attachSectionFeePlansUsage, type SectionFeePlanPaymentRef } from "@/lib/billing/computeSectionFeePlansUsage";
 import {
+  parseMonthlyFeeChargeMode,
+  type MonthlyFeeChargeMode,
+} from "@/lib/billing/monthlyFeeChargeMode";
+import {
   compareProfileSnakeByLastThenFirst,
   formatProfileSnakeSurnameFirst,
 } from "@/lib/profile/formatProfileDisplayName";
@@ -39,6 +43,8 @@ export interface AdminSectionPageData {
      * Moneda se reusa del plan vigente.
      */
     enrollmentFeeAmount: number;
+    /** Student/parent billing: class prorate vs full month fee. */
+    monthlyFeeChargeMode: MonthlyFeeChargeMode;
   };
   cohort: {
     name: string;
@@ -62,7 +68,7 @@ export async function loadAdminSectionPageData(
   const { data: sec, error: sErr } = await supabase
     .from("academic_sections")
     .select(
-      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, academic_cohorts(name, archived_at)",
+      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, academic_cohorts(name, archived_at)",
     )
     .eq("id", sectionId)
     .maybeSingle();
@@ -85,6 +91,7 @@ export async function loadAdminSectionPageData(
     starts_on: string;
     ends_on: string;
     enrollment_fee_amount?: number | string | null;
+    monthly_fee_charge_mode?: string | null;
     academic_cohorts:
       | { name: string; archived_at?: string | null }
       | { name: string; archived_at?: string | null }[]
@@ -166,6 +173,7 @@ export async function loadAdminSectionPageData(
     secRow.enrollment_fee_amount == null ? 0 : Number(secRow.enrollment_fee_amount);
   const enrollmentFeeAmount =
     Number.isFinite(rawEnrollmentFee) && rawEnrollmentFee >= 0 ? rawEnrollmentFee : 0;
+  const monthlyFeeChargeMode = parseMonthlyFeeChargeMode(secRow.monthly_fee_charge_mode);
 
   return {
     section: {
@@ -181,6 +189,7 @@ export async function loadAdminSectionPageData(
       siteDefaultMax,
       activeEnrollmentCount,
       enrollmentFeeAmount,
+      monthlyFeeChargeMode,
     },
     cohort: {
       name: cohortName,

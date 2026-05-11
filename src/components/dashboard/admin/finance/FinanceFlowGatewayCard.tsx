@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Landmark, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Label } from "@/components/atoms/Label";
 import { Input } from "@/components/atoms/Input";
 import { FinanceFlowGatewayConfirmModals } from "@/components/dashboard/admin/finance/FinanceFlowGatewayConfirmModals";
+import { FinanceFlowGatewayStatusPanel } from "@/components/dashboard/admin/finance/FinanceFlowGatewayStatusPanel";
 import type { Dictionary } from "@/types/i18n";
-import { buildFlowStoredResumeLine } from "@/lib/payment-gateways/flowAdminStoredResume";
 import {
   deleteFlowChileGatewayCredentials,
   saveFlowChileGatewaySettings,
@@ -36,14 +36,10 @@ export function FinanceFlowGatewayCard({ locale, initial, dict }: FinanceFlowGat
   const [replaceOpen, setReplaceOpen] = useState(false);
   const [removeOpen, setRemoveOpen] = useState(false);
 
-  const resumeLine = buildFlowStoredResumeLine(
-    {
-      hasCredentials: initial.hasCredentials,
-      environment: initial.environment,
-      enabled: initial.enabled,
-    },
-    dict,
-  );
+  useEffect(() => {
+    setEnvironment(initial.environment);
+    setEnabled(initial.enabled);
+  }, [initial.environment, initial.enabled]);
 
   const persistFlowSettings = () => {
     startTransition(async () => {
@@ -107,7 +103,7 @@ export function FinanceFlowGatewayCard({ locale, initial, dict }: FinanceFlowGat
           <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{dict.flowTitle}</h2>
         </header>
         <p className="mb-3 text-sm text-[var(--color-muted-foreground)]">{dict.flowLead}</p>
-        <p className="mb-6 text-xs text-[var(--color-muted-foreground)]">{resumeLine}</p>
+        <FinanceFlowGatewayStatusPanel initial={initial} dict={dict} />
 
         <div className="max-w-sm space-y-4">
           <div>

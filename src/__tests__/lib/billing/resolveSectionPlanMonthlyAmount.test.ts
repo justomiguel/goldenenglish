@@ -89,11 +89,16 @@ describe("resolveSectionPlanMonthlyAmount", () => {
     expect(supabase.from).not.toHaveBeenCalledWith("academic_sections");
   });
 
-  it("operational-window: returns out_of_period when no classes are scheduled for that month", async () => {
+  it("operational-window: uses full-month fee like student strip when section overlaps month but class count is 0", async () => {
     const supabase = createBillingSupabaseMock(sectionRowEmptySchedule);
 
     const r = await resolveSectionPlanMonthlyAmount(supabase, STUDENT_ID, SECTION_ID, 2026, 2);
-    expect(r.code).toBe("out_of_period");
+    expect(r.code).toBe("ok");
+    if (r.code === "ok") {
+      expect(r.amount).toBe(90000);
+      expect(r.currency).toBe("CLP");
+      expect(r.proration.full).toBe(true);
+    }
     expect(supabase.from).toHaveBeenCalledWith("academic_sections");
   });
 });
