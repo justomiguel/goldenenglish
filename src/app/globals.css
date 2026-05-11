@@ -347,3 +347,75 @@ body {
   color: var(--color-foreground) !important;
   font-weight: 600;
 }
+
+/* react-day-picker — public registration birth date (full width within register form) */
+.register-day-picker-scope {
+  width: 100%;
+  max-width: 100%;
+}
+
+.register-day-picker-scope .rdp-root {
+  width: 100%;
+  max-width: 100%;
+  --rdp-accent-color: var(--color-primary);
+  --rdp-accent-background-color: color-mix(in srgb, var(--color-primary) 16%, var(--color-background));
+  --rdp-today-color: var(--color-primary);
+  --rdp-day-height: auto;
+  --rdp-day-width: auto;
+  --rdp-day_button-height: auto;
+  --rdp-day_button-width: auto;
+  --rdp-day_button-border-radius: 0.35rem;
+  --rdp-day_button-border: 1px solid transparent;
+  --rdp-selected-border: 1px solid var(--rdp-accent-color);
+  --rdp-nav_button-height: 1.875rem;
+  --rdp-nav_button-width: 1.875rem;
+  --rdp-months-gap: 0.85rem;
+  --rdp-weekday-padding: 0.35rem 0;
+  margin-inline: 0;
+  font-family: inherit;
+  font-size: 0.8125rem;
+}
+
+.register-day-picker-scope .rdp-months {
+  max-width: 100%;
+}
+
+.register-day-picker-scope .rdp-month {
+  width: 100%;
+}
+
+.register-day-picker-scope .rdp-month_grid {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+}
+
+.register-day-picker-scope .rdp-day {
+  width: auto;
+  height: auto;
+  padding: 0.0625rem;
+  vertical-align: middle;
+}
+
+.register-day-picker-scope .rdp-day_button {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+  aspect-ratio: 1;
+}
+
+.register-day-picker-scope .rdp-nav .rdp-chevron {
+  width: 1rem;
+  height: 1rem;
+}
+
+.register-day-picker-scope .rdp-selected {
+  font-size: inherit;
+  font-weight: 600;
+}
+
+.register-day-picker-scope .rdp-footer {
+  color: var(--color-muted-foreground);
+  font-size: 0.6875rem;
+  line-height: 1.1rem;
+}

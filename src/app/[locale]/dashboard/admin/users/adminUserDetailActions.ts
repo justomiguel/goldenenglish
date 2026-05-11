@@ -4,14 +4,20 @@ import {
   searchAdminParentsForDetailAction as searchAdminParentsForDetailImpl,
   updateAdminUserDetailFieldAction as updateAdminUserDetailFieldImpl,
 } from "@/app/[locale]/dashboard/admin/users/adminUserDetailProfileActions";
+import { updateAdminUserDetailHomeAddressAction as updateAdminUserDetailHomeAddressImpl } from "@/app/[locale]/dashboard/admin/users/adminUserDetailProfileHomeAddressActions";
 import { setAdminUserPasswordFromDetailAction as setAdminUserPasswordFromDetailImpl } from "@/app/[locale]/dashboard/admin/users/adminUserDetailCredentialActions";
 import {
   upsertAdminStudentTutorLinkAction as upsertAdminStudentTutorLinkImpl,
   removeAdminStudentTutorLinkAction as removeAdminStudentTutorLinkImpl,
-  createAdminParentAndLinkStudentAction as createAdminParentAndLinkStudentImpl,
 } from "@/app/[locale]/dashboard/admin/users/adminUserDetailTutorActions";
+import {
+  createAdminParentAndLinkStudentAction as createAdminParentAndLinkStudentImpl,
+  type CreateAdminParentAndLinkStudentActionResult,
+} from "@/app/[locale]/dashboard/admin/users/adminUserDetailTutorCreateActions";
 import { uploadAdminStudentAvatarAction as uploadAdminStudentAvatarImpl } from "@/app/[locale]/dashboard/admin/users/adminUserDetailAvatarActions";
 import type { AdminParentSearchHit } from "@/types/adminUsers";
+
+export type { CreateAdminParentAndLinkStudentActionResult };
 
 export async function searchAdminParentsForDetailAction(
   query: string,
@@ -23,6 +29,12 @@ export async function updateAdminUserDetailFieldAction(
   raw: unknown,
 ): Promise<{ ok: boolean; message?: string }> {
   return updateAdminUserDetailFieldImpl(raw);
+}
+
+export async function updateAdminUserDetailHomeAddressAction(
+  raw: unknown,
+): Promise<{ ok: boolean; message?: string }> {
+  return updateAdminUserDetailHomeAddressImpl(raw);
 }
 
 export async function setAdminUserPasswordFromDetailAction(
@@ -45,7 +57,7 @@ export async function removeAdminStudentTutorLinkAction(
 
 export async function createAdminParentAndLinkStudentAction(
   raw: unknown,
-): Promise<{ ok: boolean; message?: string }> {
+): Promise<CreateAdminParentAndLinkStudentActionResult> {
   return createAdminParentAndLinkStudentImpl(raw);
 }
 

@@ -21,6 +21,14 @@ export function localizeCreateDashboardUserError(dict: Dictionary, code: string)
       return U.errCreateWeakPassword;
     case "profile_save_failed":
       return U.errCreateProfileSave;
+    case "invalid_email":
+      return U.errCreateInvalidEmail;
+    case "minor_student_dni_required":
+      return U.errCreateMinorStudentDniRequired;
+    case "guardian_mode_required":
+      return U.errCreateGuardianModeRequired;
+    case "guardian_pick_required":
+      return U.errCreateGuardianPickRequired;
     default:
       return U.errCreateAuth;
   }

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, within, waitFor } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
 import { AdminUsersTable } from "@/components/dashboard/AdminUsersTable";
+import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
 
 vi.mock("@/components/molecules/SurfaceMountGate", () => ({
   SurfaceMountGate: ({ desktop }: { desktop: React.ReactNode }) => desktop,
@@ -9,6 +10,7 @@ vi.mock("@/components/molecules/SurfaceMountGate", () => ({
 
 const refresh = vi.fn();
 const deleteAdminUsers = vi.hoisted(() => vi.fn());
+const previewAdminUserDeletionPlan = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh, replace: vi.fn() }),
@@ -18,6 +20,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/app/[locale]/dashboard/admin/users/deleteActions", () => ({
   deleteAdminUsers: (...a: unknown[]) => deleteAdminUsers(...a),
+  previewAdminUserDeletionPlan: (...a: unknown[]) => previewAdminUserDeletionPlan(...a),
 }));
 
 const rows = [
@@ -43,6 +46,11 @@ const rows = [
   },
 ];
 
+const adminUsersRoleCounts: AdminUsersListRoleCounts = {
+  total: 2,
+  byRole: { admin: 1, student: 1 },
+};
+
 const serverPaginationProps = {
   totalCount: 2,
   page: 1,
@@ -57,7 +65,26 @@ describe("AdminUsersTable", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     deleteAdminUsers.mockResolvedValue({ ok: true, deleted: 1 });
+    previewAdminUserDeletionPlan.mockImplementation(async (_locale: string, raw: unknown[]) => {
+      const ids = raw as string[];
+      return {
+        ok: true as const,
+        orderedIds: [...ids],
+        totalCount: ids.length,
+        addedStudentCount: 0,
+        guardianDeletingCount: 0,
+        addedStudents: [] as { id: string; label: string }[],
+      };
+    });
   });
+
+  async function waitForDeleteModalReady(dialog: HTMLElement) {
+    await waitFor(() =>
+      expect(
+        within(dialog).getByRole("button", { name: dictEn.admin.users.confirmDelete }),
+      ).not.toBeDisabled(),
+    );
+  }
 
   it("renders counters and row emails", () => {
     render(
@@ -68,12 +95,57 @@ describe("AdminUsersTable", () => {
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
+        roleCounts={adminUsersRoleCounts}
       />,
     );
     expect(screen.getByText("u@x.co")).toBeInTheDocument();
     expect(
       screen.getByPlaceholderText(dictEn.admin.users.filterPlaceholder),
     ).toBeInTheDocument();
+  });
+
+  it("passes server preview ordered IDs to deleteAdminUsers and shows cascade copy when guardians add students", async () => {
+    const studentId = "22222222-2222-2222-2222-222222222222";
+    const extraStudentId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    previewAdminUserDeletionPlan.mockResolvedValueOnce({
+      ok: true,
+      orderedIds: [extraStudentId, studentId],
+      totalCount: 2,
+      addedStudentCount: 1,
+      guardianDeletingCount: 1,
+      addedStudents: [{ id: extraStudentId, label: "Zeta Ana" }],
+    });
+    render(
+      <AdminUsersTable
+        tableLabels={dictEn.admin.table}
+        rows={rows}
+        {...serverPaginationProps}
+        locale="en"
+        currentUserId="11111111-1111-1111-1111-111111111111"
+        labels={dictEn.admin.users}
+        roleCounts={adminUsersRoleCounts}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.selectAllFiltered }));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: dictEn.admin.users.deleteSelectedWithCount.replace(/\{\{count\}\}/g, "1"),
+      }),
+    );
+    const dlg = await screen.findByRole("dialog");
+    const cascadeExpected = dictEn.admin.users.confirmDeleteCascadeGuardians
+      .replace(/\{\{guardians\}\}/g, "1")
+      .replace(/\{\{linkedStudents\}\}/g, "1");
+    await waitFor(() => expect(within(dlg).getByText(cascadeExpected)).toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        within(dlg).getByText(dictEn.admin.users.confirmDeleteAddedStudentsHeading),
+      ).toBeInTheDocument(),
+    );
+    await waitFor(() => expect(within(dlg).getByText("Zeta Ana")).toBeInTheDocument());
+    await waitForDeleteModalReady(dlg);
+    fireEvent.click(within(dlg).getByRole("button", { name: dictEn.admin.users.confirmDelete }));
+    await waitFor(() => expect(deleteAdminUsers).toHaveBeenCalledWith("en", [extraStudentId, studentId]));
   });
 
   it("toggles column sort and opens delete confirmation", async () => {
@@ -85,6 +157,7 @@ describe("AdminUsersTable", () => {
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
+        roleCounts={adminUsersRoleCounts}
       />,
     );
     const emailBtn = screen.getByRole("button", { name: new RegExp(dictEn.admin.users.colEmail) });
@@ -98,6 +171,7 @@ describe("AdminUsersTable", () => {
 
     const dlg = await screen.findByRole("dialog");
     expect(within(dlg).getByText(dictEn.admin.users.confirmDeleteCascade)).toBeInTheDocument();
+    await waitForDeleteModalReady(dlg);
     fireEvent.click(within(dlg).getByRole("button", { name: dictEn.admin.users.confirmDelete }));
     await waitFor(() => expect(deleteAdminUsers).toHaveBeenCalled());
     expect(deleteAdminUsers).toHaveBeenCalledWith(
@@ -115,6 +189,7 @@ describe("AdminUsersTable", () => {
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
+        roleCounts={adminUsersRoleCounts}
       />,
     );
     const form = screen.getByLabelText(dictEn.admin.users.filterLabel).closest("form");
@@ -131,6 +206,7 @@ describe("AdminUsersTable", () => {
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
+        roleCounts={adminUsersRoleCounts}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: new RegExp(dictEn.admin.users.colRole) }));
@@ -147,6 +223,7 @@ describe("AdminUsersTable", () => {
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
+        roleCounts={adminUsersRoleCounts}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.selectAllFiltered }));
@@ -156,6 +233,7 @@ describe("AdminUsersTable", () => {
       }),
     );
     const dlg = await screen.findByRole("dialog");
+    await waitForDeleteModalReady(dlg);
     fireEvent.click(within(dlg).getByRole("button", { name: dictEn.admin.users.confirmDelete }));
     await waitFor(() => expect(deleteAdminUsers).toHaveBeenCalled());
     await waitFor(() =>
@@ -183,6 +261,7 @@ describe("AdminUsersTable", () => {
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
+        roleCounts={adminUsersRoleCounts}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.selectAllFiltered }));
@@ -192,6 +271,7 @@ describe("AdminUsersTable", () => {
       }),
     );
     const dlg = await screen.findByRole("dialog");
+    await waitForDeleteModalReady(dlg);
     fireEvent.click(within(dlg).getByRole("button", { name: dictEn.admin.users.confirmDelete }));
     await waitFor(() =>
       expect(
@@ -217,6 +297,7 @@ describe("AdminUsersTable", () => {
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
+        roleCounts={adminUsersRoleCounts}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.selectAllFiltered }));
@@ -226,6 +307,7 @@ describe("AdminUsersTable", () => {
       }),
     );
     const dlg = await screen.findByRole("dialog");
+    await waitForDeleteModalReady(dlg);
     fireEvent.click(within(dlg).getByRole("button", { name: dictEn.admin.users.confirmDelete }));
     await waitFor(() => expect(deleteAdminUsers).toHaveBeenCalled());
     expect(deleteAdminUsers).toHaveBeenCalledTimes(1);
@@ -245,6 +327,7 @@ describe("AdminUsersTable", () => {
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
+        roleCounts={adminUsersRoleCounts}
       />,
     );
     const rowCb = screen.getByRole("checkbox", {
@@ -265,6 +348,7 @@ describe("AdminUsersTable", () => {
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
+        roleCounts={adminUsersRoleCounts}
       />,
     );
     const selectAll = screen.getByRole("checkbox", { name: dictEn.admin.users.selectAllVisible });
@@ -285,6 +369,7 @@ describe("AdminUsersTable", () => {
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
+        roleCounts={adminUsersRoleCounts}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.selectAllFiltered }));
@@ -294,6 +379,7 @@ describe("AdminUsersTable", () => {
       }),
     );
     const dlg = await screen.findByRole("dialog");
+    await waitForDeleteModalReady(dlg);
     fireEvent.click(within(dlg).getByRole("button", { name: dictEn.admin.users.cancel }));
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
@@ -307,6 +393,7 @@ describe("AdminUsersTable", () => {
         locale="en"
         currentUserId="11111111-1111-1111-1111-111111111111"
         labels={dictEn.admin.users}
+        roleCounts={adminUsersRoleCounts}
       />,
     );
     for (const col of [dictEn.admin.users.colName, dictEn.admin.users.colRole, dictEn.admin.users.colPhone]) {

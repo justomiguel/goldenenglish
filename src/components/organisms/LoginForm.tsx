@@ -82,7 +82,7 @@ export function LoginForm({ labels, locale, nextPath = null }: LoginFormProps) {
           onChange={(e) => setIdentifier(e.target.value)}
           required
           autoComplete="username"
-          inputMode="email"
+          inputMode="text"
           spellCheck={false}
           autoCapitalize="none"
           hint={labels.identifierHint}

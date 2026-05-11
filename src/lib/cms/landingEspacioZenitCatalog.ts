@@ -17,6 +17,8 @@ export const ESPACIO_ZENIT_LANDING_COPY_KEYS_BY_SECTION: Readonly<
     "ez.nav.galeria",
     "ez.nav.contacto",
     "ez.nav.enroll",
+    "ez.register.shellTitle",
+    "ez.register.shellLead",
     "ez.hero.brushLine1",
     "ez.hero.brushLine2",
     "ez.hero.tagline",

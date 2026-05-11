@@ -1,180 +1,153 @@
 "use client";
 
-import { type FormEvent, useId, useState } from "react";
-import { useRouter } from "next/navigation";
 import { UserPlus } from "lucide-react";
-import { createDashboardUser } from "@/app/[locale]/dashboard/admin/users/actions";
 import { Button } from "@/components/atoms/Button";
-import { Input } from "@/components/atoms/Input";
-import { Label } from "@/components/atoms/Label";
 import type { Dictionary } from "@/types/i18n";
-import { adminUserRoleOptionLabel } from "@/lib/dashboard/adminUserRoleOptionLabel";
+import { AdminCreateUserMinorGuardianPanel } from "@/components/dashboard/AdminCreateUserMinorGuardianPanel";
+import { AdminCreateUserPersonalBlock } from "@/components/dashboard/AdminCreateUserPersonalBlock";
+import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
+import { useAdminCreateUserForm } from "@/hooks/useAdminCreateUserForm";
 
-const ROLES = ["admin", "teacher", "parent", "student", "assistant"] as const;
+type BirthLabels = Pick<
+  Dictionary["register"],
+  | "birthDate"
+  | "birthMonth"
+  | "birthYear"
+  | "birthDay"
+  | "birthDayPlaceholder"
+  | "birthDateHint"
+  | "birthDatePickPrompt"
+  | "birthDatePickedAnnouncement"
+>;
 
 interface AdminCreateUserFormProps {
   locale: string;
+  legalAgeMajority: number;
   labels: Dictionary["admin"]["users"];
+  birthLabels: BirthLabels;
+  birthDateIncompleteMessage: string;
 }
 
-export function AdminCreateUserForm({ locale, labels }: AdminCreateUserFormProps) {
-  const router = useRouter();
-  const passwordHintId = useId();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState<(typeof ROLES)[number]>("student");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [dni, setDni] = useState("");
-  const [phone, setPhone] = useState("");
-  const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setFeedback(null);
-    const res = await createDashboardUser({
-      email,
-      password,
-      role,
-      first_name: firstName,
-      last_name: lastName,
-      dni_or_passport: dni,
-      phone,
-      locale,
-    });
-    setBusy(false);
-    const text = res.ok ? labels.success : (res.message ?? labels.error);
-    setFeedback({ ok: res.ok, text });
-    if (res.ok) {
-      router.push(`/${locale}/dashboard/admin/users`);
-    }
-  }
+export function AdminCreateUserForm({
+  locale,
+  legalAgeMajority,
+  labels,
+  birthLabels,
+  birthDateIncompleteMessage,
+}: AdminCreateUserFormProps) {
+  const f = useAdminCreateUserForm({
+    locale,
+    legalAgeMajority,
+    labels,
+    birthDateIncompleteMessage,
+  });
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="max-w-xl space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6"
-    >
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <Label htmlFor="cu-ln">{labels.lastName}</Label>
-          <Input
-            id="cu-ln"
-            autoComplete="family-name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-            className="mt-1 w-full"
+    <>
+      <form
+        onSubmit={f.onSubmit}
+        className="max-w-xl space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6"
+      >
+        <AdminCreateUserPersonalBlock
+          locale={locale}
+          labels={labels}
+          birthLabels={birthLabels}
+          firstName={f.firstName}
+          lastName={f.lastName}
+          onFirstNameChange={f.setFirstName}
+          onLastNameChange={f.setLastName}
+          showBirth={f.showBirth}
+          birthDate={f.birthDate}
+          onBirthDateChange={(v) => {
+            f.setBirthDate(v);
+            f.resetGuardianUi();
+          }}
+          showMinorSyntheticHint={f.showMinor}
+          showAdultStudentEmail={f.showAdultStudentEmail}
+          isStudent={f.isStudent}
+          email={f.email}
+          onEmailChange={f.setEmail}
+          password={f.password}
+          onPasswordChange={f.setPassword}
+          passwordHintId={f.passwordHintId}
+          role={f.role}
+          onRoleChange={f.setRole}
+          onLeaveStudentRole={() => {
+            f.setBirthDate("");
+            f.resetGuardianUi();
+          }}
+          showMinor={f.showMinor}
+          dni={f.dni}
+          onDniChange={f.setDni}
+          phone={f.phone}
+          onPhoneChange={f.setPhone}
+        />
+
+        {f.showMinor ? (
+          <AdminCreateUserMinorGuardianPanel
+            labels={labels}
+            guardianMode={f.guardianMode}
+            onGuardianModeChange={f.setGuardianMode}
+            onResetGuardianFields={f.resetGuardianUi}
+            searchParents={f.searchParents}
+            pickedGuardian={f.pickedGuardian}
+            onPickGuardian={(hit) => {
+              f.setPickedGuardian(hit);
+              f.setGuardianSearchKey((k) => k + 1);
+            }}
+            guardianSearchKey={f.guardianSearchKey}
+            tutorDni={f.tutorDni}
+            onTutorDniChange={f.setTutorDni}
+            tutorFirstName={f.tutorFirstName}
+            onTutorFirstNameChange={f.setTutorFirstName}
+            tutorLastName={f.tutorLastName}
+            onTutorLastNameChange={f.setTutorLastName}
+            tutorEmail={f.tutorEmail}
+            onTutorEmailChange={f.setTutorEmail}
+            tutorPhone={f.tutorPhone}
+            onTutorPhoneChange={f.setTutorPhone}
+            relationship={f.relationship}
+            onRelationshipChange={f.setRelationship}
           />
-        </div>
-        <div>
-          <Label htmlFor="cu-fn">{labels.firstName}</Label>
-          <Input
-            id="cu-fn"
-            autoComplete="given-name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-            className="mt-1 w-full"
-          />
-        </div>
-      </div>
+        ) : null}
 
-      <div>
-        <Label htmlFor="cu-email">{labels.email}</Label>
-        <Input
-          id="cu-email"
-          type="email"
-          autoComplete="off"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="mt-1 w-full"
-        />
-      </div>
-      <div>
-        <Label htmlFor="cu-pass">{labels.password}</Label>
-        <Input
-          id="cu-pass"
-          type="password"
-          autoComplete="new-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          aria-describedby={passwordHintId}
-          className="mt-1 w-full"
-        />
-        <p
-          id={passwordHintId}
-          className="mt-1 text-xs text-[var(--color-muted-foreground)]"
-        >
-          {labels.passwordHint}
-        </p>
-      </div>
-      <div>
-        <Label htmlFor="cu-role">{labels.role}</Label>
-        <select
-          id="cu-role"
-          value={role}
-          onChange={(e) => setRole(e.target.value as (typeof ROLES)[number])}
-          className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2"
-        >
-          {ROLES.map((r) => (
-            <option key={r} value={r}>
-              {adminUserRoleOptionLabel(labels, r)}
-            </option>
-          ))}
-        </select>
-        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.roleHint}</p>
-      </div>
+        <Button type="submit" disabled={f.busy || f.reuseConfirm !== null} isLoading={f.busy}>
+          {f.busy ? null : <UserPlus className="h-4 w-4 shrink-0" aria-hidden />}
+          {labels.submit}
+        </Button>
 
-      <div>
-        <Label htmlFor="cu-dni">{labels.dni}</Label>
-        <Input
-          id="cu-dni"
-          autoComplete="off"
-          value={dni}
-          onChange={(e) => setDni(e.target.value)}
-          className="mt-1 w-full"
-        />
-        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-          {labels.dniOptionalHint}
-        </p>
-      </div>
-      <div>
-        <Label htmlFor="cu-ph">{labels.phone}</Label>
-        <Input
-          id="cu-ph"
-          type="tel"
-          autoComplete="tel"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="mt-1 w-full"
-        />
-        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-          {labels.phoneOptionalHint}
-        </p>
-      </div>
+        {f.feedback ? (
+          <p
+            className={`text-sm ${
+              f.feedback.ok
+                ? "text-[var(--color-muted-foreground)]"
+                : "text-[var(--color-error)]"
+            }`}
+            role={f.feedback.ok ? undefined : "alert"}
+          >
+            {f.feedback.text}
+          </p>
+        ) : null}
+      </form>
 
-      <Button type="submit" disabled={busy} isLoading={busy}>
-        {busy ? null : <UserPlus className="h-4 w-4 shrink-0" aria-hidden />}
-        {labels.submit}
-      </Button>
-
-      {feedback ? (
-        <p
-          className={`text-sm ${
-            feedback.ok
-              ? "text-[var(--color-muted-foreground)]"
-              : "text-[var(--color-error)]"
-          }`}
-          role={feedback.ok ? undefined : "alert"}
-        >
-          {feedback.text}
-        </p>
-      ) : null}
-    </form>
+      <ConfirmActionModal
+        open={f.reuseConfirm !== null}
+        onOpenChange={(o) => {
+          if (!o) f.setReuseConfirm(null);
+        }}
+        title={labels.detailTutorCreateReuseConfirmTitle}
+        description={
+          f.reuseConfirm?.reuseKind === "reused_admin"
+            ? labels.detailTutorCreateReuseConfirmDescriptionAdmin
+            : labels.detailTutorCreateReuseConfirmDescriptionParent
+        }
+        cancelLabel={labels.detailTutorCreateCancel}
+        confirmLabel={labels.detailTutorCreateReuseConfirmButton}
+        confirmVariant="primary"
+        busy={f.reuseBusy}
+        disableClose={f.reuseBusy}
+        onConfirm={() => void f.confirmReuseLink()}
+      />
+    </>
   );
 }

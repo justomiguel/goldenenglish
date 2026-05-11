@@ -33,49 +33,32 @@ describe("buildPublicRegistrationSchema", () => {
     expect(r.success).toBe(true);
   });
 
-  it("rejects invalid email", () => {
+  it("rejects invalid email for adults", () => {
     const r = schema.safeParse({
       ...base,
       email: "bad",
-      birth_date: "2010-01-01",
+      birth_date: "1990-01-01",
     });
     expect(r.success).toBe(false);
+    if (!r.success) {
+      expect(r.error.issues.some((i) => i.message === "invalid")).toBe(true);
+    }
   });
 
-  it("rejects future birth_date", () => {
+  it("rejects adult without email", () => {
     const r = schema.safeParse({
       ...base,
-      birth_date: "2099-12-31",
+      email: "",
+      birth_date: "2000-06-15",
     });
     expect(r.success).toBe(false);
   });
 
-  it("rejects empty phone or invalid section id", () => {
-    const noPhone = schema.safeParse({
+  it("accepts minor with tutor and empty student email", () => {
+    const r = schema.safeParse({
       ...base,
+      email: "",
       phone: "",
-      birth_date: "2010-01-01",
-    });
-    expect(noPhone.success).toBe(false);
-    const noSection = schema.safeParse({
-      ...base,
-      birth_date: "2010-01-01",
-      preferred_section_id: "",
-    });
-    expect(noSection.success).toBe(false);
-  });
-
-  it("rejects minor without tutor fields", () => {
-    const r = schema.safeParse({
-      ...base,
-      birth_date: "2015-01-01",
-    });
-    expect(r.success).toBe(false);
-  });
-
-  it("accepts minor with tutor fields", () => {
-    const r = schema.safeParse({
-      ...base,
       birth_date: "2015-01-01",
       tutor_name: "María",
       tutor_dni: "999",
@@ -86,23 +69,78 @@ describe("buildPublicRegistrationSchema", () => {
     expect(r.success).toBe(true);
   });
 
-  it("rejects minor when tutor email matches student email", () => {
+  it("rejects future birth_date", () => {
     const r = schema.safeParse({
       ...base,
-      email: "same@x.com",
+      birth_date: "2099-12-31",
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("rejects adult without phone", () => {
+    const r = schema.safeParse({
+      ...base,
+      phone: "",
+      birth_date: "2000-06-15",
+    });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      expect(r.error.issues.some((i) => i.path[0] === "phone")).toBe(true);
+    }
+  });
+
+  it("rejects minor without tutor fields", () => {
+    const r = schema.safeParse({
+      ...base,
+      email: "",
+      phone: "",
+      birth_date: "2015-01-01",
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("accepts minor with tutor fields", () => {
+    const r = schema.safeParse({
+      ...base,
+      email: "",
+      phone: "",
       birth_date: "2015-01-01",
       tutor_name: "María",
       tutor_dni: "999",
-      tutor_email: "same@x.com",
-      tutor_phone: "+1",
+      tutor_email: "tutor@example.com",
+      tutor_phone: "+54911",
+      tutor_relationship: "Madre",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("rejects minor when student email field is supplied", () => {
+    const r = schema.safeParse({
+      ...base,
+      email: "minor@school.test",
+      phone: "",
+      birth_date: "2015-01-01",
+      tutor_name: "María",
+      tutor_dni: "999",
+      tutor_email: "tutor@example.com",
+      tutor_phone: "+54911",
       tutor_relationship: "Madre",
     });
     expect(r.success).toBe(false);
+    if (!r.success) {
+      expect(
+        r.error.issues.some(
+          (i) => i.message === "minor_student_email_disallowed",
+        ),
+      ).toBe(true);
+    }
   });
 
   it("rejects minor when tutor DNI matches student DNI", () => {
     const r = schema.safeParse({
       ...base,
+      email: "",
+      phone: "",
       dni: "111",
       birth_date: "2015-01-01",
       tutor_name: "María",
@@ -112,5 +150,36 @@ describe("buildPublicRegistrationSchema", () => {
       tutor_relationship: "Madre",
     });
     expect(r.success).toBe(false);
+  });
+
+  it("rejects minor when student phone field is supplied", () => {
+    const r = schema.safeParse({
+      ...base,
+      email: "",
+      phone: "+111",
+      birth_date: "2015-01-01",
+      tutor_name: "María",
+      tutor_dni: "999",
+      tutor_email: "tutor@example.com",
+      tutor_phone: "+54911",
+      tutor_relationship: "Madre",
+    });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      expect(
+        r.error.issues.some(
+          (i) => i.message === "minor_student_phone_disallowed",
+        ),
+      ).toBe(true);
+    }
+  });
+
+  it("rejects invalid section id", () => {
+    const noSection = schema.safeParse({
+      ...base,
+      birth_date: "2000-06-15",
+      preferred_section_id: "",
+    });
+    expect(noSection.success).toBe(false);
   });
 });

@@ -11349,3 +11349,97 @@ $$;
 
 REVOKE ALL ON FUNCTION public.is_flow_chile_checkout_enabled() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.is_flow_chile_checkout_enabled() TO authenticated;
+
+-- ========== 111_profiles_home_address.sql ==========
+
+-- Residential address on profiles (optional). Supports Google Places selection (place_id) + formatted text.
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS home_address_text TEXT,
+  ADD COLUMN IF NOT EXISTS home_place_id TEXT;
+
+COMMENT ON COLUMN public.profiles.home_address_text IS 'Residential address (formatted display); optional.';
+COMMENT ON COLUMN public.profiles.home_place_id IS 'Google Place ID when chosen from Places Autocomplete; null if typed manually.';
+
+-- Extend minor self-edit block (migration 015): same rule as other identity-adjacent fields.
+CREATE OR REPLACE FUNCTION public.profiles_block_minor_self_sensitive_update()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF TG_OP <> 'UPDATE' THEN
+    RETURN NEW;
+  END IF;
+
+  IF auth.uid() IS DISTINCT FROM NEW.id THEN
+    RETURN NEW;
+  END IF;
+
+  IF NEW.role IS DISTINCT FROM 'student'::public.user_role THEN
+    RETURN NEW;
+  END IF;
+
+  IF NOT COALESCE(NEW.is_minor, false) THEN
+    RETURN NEW;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.tutor_student_rel ts
+    WHERE ts.student_id = NEW.id
+  ) THEN
+    RETURN NEW;
+  END IF;
+
+  IF (NEW.first_name IS DISTINCT FROM OLD.first_name)
+    OR (NEW.last_name IS DISTINCT FROM OLD.last_name)
+    OR (NEW.phone IS DISTINCT FROM OLD.phone)
+    OR (NEW.birth_date IS DISTINCT FROM OLD.birth_date)
+    OR (NEW.dni_or_passport IS DISTINCT FROM OLD.dni_or_passport)
+    OR (NEW.home_address_text IS DISTINCT FROM OLD.home_address_text)
+    OR (NEW.home_place_id IS DISTINCT FROM OLD.home_place_id)
+  THEN
+    RAISE EXCEPTION 'minor_profile_self_edit_forbidden'
+      USING ERRCODE = 'check_violation';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+-- ========== 112_admin_users_list_role_counts_rpc.sql ==========
+
+-- RPC: totals for admin users list role filter (no full-table fetch in Next).
+CREATE OR REPLACE FUNCTION public.admin_users_list_role_counts()
+RETURNS jsonb
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  WITH per_role AS (
+    SELECT lower(role::text) AS role_norm, count(*)::bigint AS cnt
+    FROM public.profiles
+    WHERE role IS NOT NULL
+      AND trim(role::text) <> ''
+    GROUP BY lower(role::text)
+  )
+  SELECT jsonb_build_object(
+    'total',
+    (SELECT count(*)::bigint FROM public.profiles),
+    'by_role',
+    COALESCE(
+      (
+        SELECT jsonb_object_agg(role_norm, cnt)
+        FROM per_role
+      ),
+      '{}'::jsonb
+    )
+  );
+$$;
+
+COMMENT ON FUNCTION public.admin_users_list_role_counts() IS
+  'Totals for profiles (all rows) plus per-role counts (lowercase role key) for admin users screen filter dropdown.';
+
+REVOKE ALL ON FUNCTION public.admin_users_list_role_counts() FROM anon;
+GRANT EXECUTE ON FUNCTION public.admin_users_list_role_counts() TO authenticated;

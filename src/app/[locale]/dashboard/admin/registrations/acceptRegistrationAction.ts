@@ -138,10 +138,15 @@ export async function acceptRegistration(
     phone,
     birth_date: birth,
     locale,
+    provisioning_route: "registration_accept",
   });
 
   if (!createRes.ok) {
-    return { ok: false, message: createRes.message ?? localizeRegistrationAcceptError(dict, "save_failed") };
+    const msg =
+      "message" in createRes && createRes.message != null
+        ? createRes.message
+        : localizeRegistrationAcceptError(dict, "save_failed");
+    return { ok: false, message: msg };
   }
   const studentId = createRes.userId;
   if (!studentId) {

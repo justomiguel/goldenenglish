@@ -55,6 +55,10 @@ describe("AdminRegistrationAcceptForm", () => {
         userLabels={userLabels}
       />,
     );
+    expect(screen.getByText("B1")).toBeInTheDocument();
+    expect(screen.getByRole("note")).toHaveTextContent(
+      dictEn.admin.registrations.acceptExplainerAccounts,
+    );
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
     await waitFor(() => expect(acceptRegistration).toHaveBeenCalled());
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());

@@ -6,6 +6,8 @@ import { Button } from "@/components/atoms/Button";
 
 export interface AdminUserDetailTutorLinkedRowProps {
   tutor: AdminUserTutorLinkVM;
+  /** Display line under email — use `formatAdminTutorRelationshipLabel` from `AdminUserDetailTutorRelationshipSelect`. */
+  relationshipLabel: string;
   editable: boolean;
   rowBusy: boolean;
   unlinkLabel: string;
@@ -15,6 +17,7 @@ export interface AdminUserDetailTutorLinkedRowProps {
 
 export function AdminUserDetailTutorLinkedRow({
   tutor,
+  relationshipLabel,
   editable,
   rowBusy,
   unlinkLabel,
@@ -26,6 +29,7 @@ export function AdminUserDetailTutorLinkedRow({
       <div className="min-w-0 flex-1">
         <div className="font-medium text-[var(--color-foreground)]">{tutor.displayName}</div>
         <div className="text-xs text-[var(--color-muted-foreground)]">{tutor.emailDisplay}</div>
+        <div className="mt-0.5 text-xs text-[var(--color-muted-foreground)]">{relationshipLabel}</div>
       </div>
       {editable ? (
         <Button

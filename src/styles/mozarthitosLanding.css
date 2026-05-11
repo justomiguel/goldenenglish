@@ -141,25 +141,29 @@
   text-shadow: 0 3px 28px rgb(0 0 0 / 35%);
 }
 
-.mz-landing .mz-hero-title-card {
+/* Hero — tarjón único: texto + CTAs + foto sobre el mismo panel */
+.mz-landing .mz-hero-unified-shell {
+  isolation: isolate;
+  overflow: hidden;
   border-radius: 28px;
   border: 3px solid var(--mz-yellow);
   background: linear-gradient(
-    145deg,
-    rgb(18 12 28 / 58%) 0%,
-    rgb(12 20 38 / 52%) 100%
+    148deg,
+    rgb(14 14 34 / 88%) 0%,
+    rgb(10 24 52 / 86%) 48%,
+    rgb(14 34 72 / 84%) 100%
   );
   box-shadow:
     0 0 0 1px rgb(255 255 255 / 12%),
-    0 26px 70px rgb(0 0 0 / 38%);
+    0 24px 80px rgb(0 0 0 / 42%),
+    0 -2px 0 rgb(255 242 164 / 10%) inset;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  transform: rotate(-0.35deg);
 }
 
 @media (min-width: 768px) {
-  .mz-landing .mz-hero-title-card {
-    transform: rotate(-0.5deg);
+  .mz-landing .mz-hero-unified-shell {
+    border-radius: 38px;
   }
 }
 
@@ -174,6 +178,24 @@
 @media (min-width: 768px) {
   .mz-landing .mz-hero-photo-frame {
     transform: rotate(-2.25deg);
+  }
+}
+
+/* Pre-inscripción: marco neutro + recorte favoreciendo figura izq. del asset */
+.mz-landing .mz-register-hero-figure {
+  border-radius: 26px;
+  padding: 0;
+  overflow: hidden;
+  background: rgb(255 255 255 / 88%);
+  border: 2px solid rgb(0 0 0 / 8%);
+  box-shadow: 0 20px 55px rgb(0 0 0 / 16%);
+  transform: rotate(-1.75deg);
+}
+
+@media (min-width: 768px) {
+  .mz-landing .mz-register-hero-figure {
+    border-radius: 28px;
+    transform: rotate(-2deg);
   }
 }
 
@@ -309,8 +331,7 @@
 @media (prefers-reduced-motion: reduce) {
   .mz-landing .mz-hero-photo-frame,
   .mz-landing .mz-bio-portrait-frame,
-  .mz-landing .mz-quienes-ribbon,
-  .mz-landing .mz-hero-title-card {
+  .mz-landing .mz-quienes-ribbon {
     transform: none;
   }
 }

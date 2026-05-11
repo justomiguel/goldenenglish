@@ -10,6 +10,7 @@ import {
   updateMyProfile,
   type MyProfileActionErrorKey,
 } from "@/app/[locale]/dashboard/profile/actions";
+import { MyProfileHomeAddressFields } from "@/components/molecules/MyProfileHomeAddressFields";
 
 export type MyProfilePersonalFormLayout = "card" | "inset";
 
@@ -22,6 +23,8 @@ export interface MyProfilePersonalFormProps {
     phone: string;
     dni: string;
     birthDate: string;
+    homeAddressText: string;
+    homePlaceId: string;
   };
   labels: Dictionary["dashboard"]["myProfile"];
   /** inset = section inside a parent shell (e.g. LinkedIn-style profile card). */
@@ -64,6 +67,8 @@ export function MyProfilePersonalForm({
       dni_or_passport: String(fd.get("dni_or_passport") ?? ""),
       phone: String(fd.get("phone") ?? ""),
       birth_date: String(fd.get("birth_date") ?? ""),
+      home_address_text: String(fd.get("home_address_text") ?? ""),
+      home_place_id: String(fd.get("home_place_id") ?? ""),
     };
     startTransition(async () => {
       const res = await updateMyProfile(payload);
@@ -157,6 +162,7 @@ export function MyProfilePersonalForm({
             autoComplete="off"
             className="mt-2 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm disabled:opacity-60"
           />
+          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.documentIdFormatHint}</p>
         </div>
         <div>
           <Label htmlFor="mp-birth">{labels.birthDate}</Label>
@@ -170,6 +176,13 @@ export function MyProfilePersonalForm({
             className="mt-2 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm disabled:opacity-60"
           />
         </div>
+        <MyProfileHomeAddressFields
+          key={`${initial.homeAddressText}|${initial.homePlaceId}`}
+          locked={locked}
+          initialText={initial.homeAddressText}
+          initialPlaceId={initial.homePlaceId}
+          labels={labels}
+        />
         <Button type="submit" disabled={pending || locked} isLoading={pending} className="min-h-[44px]">
           {!pending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {labels.savePersonal}

@@ -3,6 +3,11 @@ import type { AdminUserRow, SortKey } from "@/lib/dashboard/adminUsersTableHelpe
 import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
 import { ROLE_FILTER_ALL } from "@/lib/dashboard/adminUsersTableHelpers";
 import { resolveAvatarUrlForAdmin } from "@/lib/dashboard/resolveAvatarUrl";
+import {
+  buildAdminUsersProfileOrFilter,
+  looksLikeFullEmailQuery,
+} from "@/lib/dashboard/buildAdminUsersProfileOrFilter";
+import { findAuthUserIdByNormalizedEmail } from "@/lib/supabase/findAuthUserIdByNormalizedEmail";
 
 const PROFILE_COLUMNS = "id, role, first_name, last_name, phone, avatar_url";
 
@@ -29,16 +34,6 @@ export interface PaginatedAdminUsersParams {
   dir?: "asc" | "desc";
 }
 
-function buildSearchFilter(q: string): string {
-  const escaped = q.replace(/%/g, "\\%").replace(/_/g, "\\_");
-  const pattern = `%${escaped}%`;
-  return [
-    `first_name.ilike.${pattern}`,
-    `last_name.ilike.${pattern}`,
-    `phone.ilike.${pattern}`,
-  ].join(",");
-}
-
 export async function loadPaginatedAdminUsers(
   adminClient: SupabaseClient,
   emptyValue: string,
@@ -48,8 +43,14 @@ export async function loadPaginatedAdminUsers(
   const pageSize = params.pageSize ?? DEFAULT_TABLE_PAGE_SIZE;
   const sortCol = SORT_COLUMN_MAP[params.sort ?? "name"] ?? "last_name";
   const ascending = (params.dir ?? "asc") === "asc";
-  const q = (params.q ?? "").trim().toLowerCase();
+  const qRaw = (params.q ?? "").trim();
   const roleFilter = params.role ?? ROLE_FILTER_ALL;
+
+  let emailMatchUserId: string | null = null;
+  if (qRaw && looksLikeFullEmailQuery(qRaw)) {
+    const { userId } = await findAuthUserIdByNormalizedEmail(adminClient, qRaw);
+    emailMatchUserId = userId;
+  }
 
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
@@ -67,8 +68,8 @@ export async function loadPaginatedAdminUsers(
     countQuery = countQuery.eq("role", roleFilter);
   }
 
-  if (q) {
-    const filter = buildSearchFilter(q);
+  if (qRaw) {
+    const filter = buildAdminUsersProfileOrFilter(qRaw, emailMatchUserId);
     dataQuery = dataQuery.or(filter);
     countQuery = countQuery.or(filter);
   }

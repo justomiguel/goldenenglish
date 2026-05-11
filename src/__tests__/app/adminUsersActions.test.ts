@@ -10,6 +10,10 @@ vi.mock("@/lib/dashboard/assertAdmin", () => ({
   assertAdmin: () => mockAssertAdmin(),
 }));
 
+vi.mock("@/lib/dashboard/linkGuardianAfterMinorStudentCreate", () => ({
+  linkGuardianAfterMinorStudentCreate: vi.fn().mockResolvedValue({ kind: "ok" }),
+}));
+
 const mockCreateUser = vi.fn();
 const mockListUsers = vi.fn();
 const mockUpdateUserById = vi.fn();
@@ -57,6 +61,7 @@ const validPayload = {
   last_name: "B",
   dni_or_passport: "1",
   phone: "+100000",
+  birth_date: "1990-06-15",
 };
 
 describe("createDashboardUser", () => {
@@ -175,13 +180,13 @@ describe("createDashboardUser", () => {
     });
     const r = await createDashboardUser({
       ...validPayload,
-      birth_date: "2012-01-15",
+      birth_date: "2000-01-15",
     });
     expect(r).toEqual({ ok: true, userId: "x" });
     const call = mockCreateUser.mock.calls[0][0] as {
       user_metadata: Record<string, string>;
     };
-    expect(call.user_metadata.birth_date).toBe("2012-01-15");
+    expect(call.user_metadata.birth_date).toBe("2000-01-15");
   });
 
   it("omits blank dni_or_passport / phone from user_metadata", async () => {
@@ -193,6 +198,7 @@ describe("createDashboardUser", () => {
     const r = await createDashboardUser({
       email: "gen@test.com",
       password: "secret12",
+      role: "teacher",
       first_name: "A",
       last_name: "B",
       dni_or_passport: "  ",
@@ -219,6 +225,7 @@ describe("createDashboardUser", () => {
     const r = await createDashboardUser({
       email: "gen@test.com",
       password: "",
+      role: "teacher",
       first_name: "A",
       last_name: "B",
       dni_or_passport: "2",
@@ -237,5 +244,52 @@ describe("createDashboardUser", () => {
       locale: "es",
     });
     expect(r).toEqual({ ok: false, message: U.errCreatePassword });
+  });
+
+  it("retries MAIL_TENANT synthetic email with random letter suffix when Auth email is taken", async () => {
+    vi.stubEnv("MAIL_TENANT", "alumnos.test");
+    mockAssertAdmin.mockResolvedValue(adminCtx);
+    mockCreateUser
+      .mockResolvedValueOnce({
+        data: { user: null },
+        error: { message: "User already registered" },
+      })
+      .mockResolvedValueOnce({
+        data: { user: { id: "new-student" } },
+        error: null,
+      });
+
+    const r = await createDashboardUser({
+      email: "",
+      password: "",
+      first_name: "Ana",
+      last_name: "Garcia",
+      dni_or_passport: "12345678-9",
+      phone: "",
+      birth_date: "2018-01-10",
+      role: "student",
+      locale: "es",
+      student_guardian_mode: "new",
+      tutor_dni: "98765432-1",
+      tutor_first_name: "Luis",
+      tutor_last_name: "Garcia",
+      tutor_email: "luis@example.com",
+      tutor_relationship: "father",
+    });
+    vi.unstubAllEnvs();
+
+    expect(r).toEqual({ ok: true, userId: "new-student" });
+    expect(mockCreateUser).toHaveBeenCalledTimes(2);
+    const first = mockCreateUser.mock.calls[0][0] as { email: string };
+    const second = mockCreateUser.mock.calls[1][0] as { email: string };
+    expect(first.email).toBe("anagarcia-123456789@alumnos.test");
+    expect(second.email).not.toBe(first.email);
+    expect(second.email.endsWith("@alumnos.test")).toBe(true);
+    const extra = second.email.slice(
+      "anagarcia".length,
+      second.email.indexOf("-123456789@"),
+    );
+    expect(extra.length).toBeGreaterThanOrEqual(3);
+    expect(/^[a-z]+$/.test(extra)).toBe(true);
   });
 });

@@ -98,6 +98,7 @@ describe("admin narrow screens", () => {
         pageSize={25}
         searchQuery=""
         roleFilter="all"
+        roleCounts={{ total: 1, byRole: { student: 1 } }}
         sortKey="name"
         sortDir="asc"
         locale="es"

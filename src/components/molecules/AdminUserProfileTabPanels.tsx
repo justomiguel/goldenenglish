@@ -9,7 +9,9 @@ import { AdminStudentCurrentCohortAssignmentCard } from "@/components/molecules/
 import { AdminUserDetailPasswordSection } from "@/components/molecules/AdminUserDetailPasswordSection";
 import { AdminUserDetailDniResetSection } from "@/components/molecules/AdminUserDetailDniResetSection";
 import { AdminUserDetailTutorCard } from "@/components/molecules/AdminUserDetailTutorCard";
+import { AdminUserDetailTutorFamilyCard } from "@/components/molecules/AdminUserDetailTutorFamilyCard";
 import { AdminUserInlineEditableField } from "@/components/molecules/AdminUserInlineEditableField";
+import { AdminUserHomeAddressField } from "@/components/molecules/AdminUserHomeAddressField";
 
 type UserLabels = Dictionary["admin"]["users"];
 type BillingLabels = Dictionary["admin"]["billing"];
@@ -55,6 +57,9 @@ export function AdminUserSummaryPanel({
       <AdminUserInlineEditableField locale={locale} userId={detail.userId} field="email" label={labels.detailFieldEmail} displayValue={detail.emailDisplay} editInitial={detail.email} editable={editable} inputKind="email" labels={labels} onFeedback={onFeedback} />
       <AdminUserInlineEditableField locale={locale} userId={detail.userId} field="phone" label={labels.detailFieldPhone} displayValue={detail.phoneDisplay} editInitial={detail.phone} editable={editable} inputKind="tel" labels={labels} onFeedback={onFeedback} />
       <AdminUserInlineEditableField locale={locale} userId={detail.userId} field="dniOrPassport" label={labels.detailFieldDni} displayValue={detail.dniOrPassport || labels.detailNoValue} editInitial={detail.dniOrPassport} editable={editable} inputKind="text" labels={labels} onFeedback={onFeedback} />
+      <AdminUserInlineEditableField locale={locale} userId={detail.userId} field="birthDate" label={labels.detailFieldBirth} displayValue={detail.birthDateDisplay ?? labels.detailNoValue} editInitial={detail.birthDateIso ?? ""} editable={editable} inputKind="date" labels={labels} onFeedback={onFeedback} />
+      <ReadOnlyRow label={labels.detailFieldAge} value={detail.ageYears != null ? String(detail.ageYears) : labels.detailNoValue} />
+      <AdminUserHomeAddressField locale={locale} userId={detail.userId} detail={detail} labels={labels} editable={editable} onFeedback={onFeedback} />
     </CardShell>
   );
 }
@@ -82,8 +87,6 @@ export function AdminUserAcademicPanel({
     <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)]">
       <CardShell title={labels.detailCardAcademic}>
         <AdminUserInlineEditableField locale={locale} userId={detail.userId} field="role" label={labels.detailFieldRole} displayValue={roleLabel} editInitial={detail.role} editable={editable} inputKind="select" selectOptions={roleOptions} labels={labels} onFeedback={onFeedback} />
-        <AdminUserInlineEditableField locale={locale} userId={detail.userId} field="birthDate" label={labels.detailFieldBirth} displayValue={detail.birthDateDisplay ?? labels.detailNoValue} editInitial={detail.birthDateIso ?? ""} editable={editable} inputKind="date" labels={labels} onFeedback={onFeedback} />
-        <ReadOnlyRow label={labels.detailFieldAge} value={detail.ageYears != null ? String(detail.ageYears) : labels.detailNoValue} />
         {detail.role === "student" ? (
           <ReadOnlyRow label={labels.detailFieldTeacher} value={detail.assignedTeacherName ?? labels.detailNoValue} />
         ) : null}
@@ -134,15 +137,32 @@ export function AdminUserFamilyPanel({
   locale,
   detail,
   labels,
+  billingLabels,
   editable,
   onFeedback,
 }: {
   locale: Locale;
   detail: AdminUserDetailVM;
   labels: UserLabels;
+  billingLabels: BillingLabels;
   editable: boolean;
   onFeedback: (text: string, ok: boolean) => void;
 }) {
+  if (detail.role === "parent") {
+    return (
+      <AdminUserDetailTutorFamilyCard
+        locale={locale}
+        tutorId={detail.userId}
+        linkedStudents={detail.tutorLinkedStudents}
+        scholarshipSections={detail.tutorFamilyScholarshipSections}
+        labels={labels}
+        billingLabels={billingLabels}
+        editable={editable}
+        onFeedback={onFeedback}
+      />
+    );
+  }
+
   if (detail.role !== "student") {
     return (
       <CardShell title={labels.detailCardFamily}>

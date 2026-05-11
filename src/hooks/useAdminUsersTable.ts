@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import type { Dictionary } from "@/types/i18n";
 import { deleteAdminUsers } from "@/app/[locale]/dashboard/admin/users/deleteActions";
+import { useAdminUserDeleteConfirmation } from "@/hooks/useAdminUserDeleteConfirmation";
 import {
   ROLE_FILTER_ALL,
   applyUserRowToggle,
@@ -50,8 +51,9 @@ export function useAdminUsersTable({
   const currentParams = useSearchParams();
   const [, startTransition] = useTransition();
 
+  const del = useAdminUserDeleteConfirmation(locale, labels);
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
-  const [confirmIds, setConfirmIds] = useState<string[] | null>(null);
   const [deleteOutcomeMessage, setDeleteOutcomeMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const selectAllRef = useRef<HTMLInputElement>(null);
@@ -139,7 +141,7 @@ export function useAdminUsersTable({
     setBusy(true);
     const res = await deleteAdminUsers(locale, ids);
     setBusy(false);
-    setConfirmIds(null);
+    del.dismiss();
     if (res.ok) {
       setSelectedIds(new Set());
       router.refresh();
@@ -169,8 +171,8 @@ export function useAdminUsersTable({
     selectedIds,
     toggleRow,
     toggleSelectAllVisible,
-    confirmIds,
-    setConfirmIds,
+    confirmIds: del.confirmIds,
+    setConfirmIds: del.setConfirmIds,
     busy,
     selectAllRef,
     filtered: rows,
@@ -186,11 +188,19 @@ export function useAdminUsersTable({
     allVisibleSelected,
     runDelete,
     emptyMessage,
-    onDeleteSelected: () => setConfirmIds(selectedDeletable.map((r) => r.id)),
+    onDeleteSelected: () =>
+      del.setConfirmIds(selectedDeletable.map((r) => r.id)),
     deleteOutcomeMessage,
     clearDeleteOutcomeMessage: () => setDeleteOutcomeMessage(null),
     deleteDisabled: selectedDeletable.length === 0 || busy,
     selectAllFilteredDisabled: deletableVisible.length === 0 || busy,
     tpl,
+    deleteModalTitleCount: del.deleteModalTitleCount,
+    deletePreviewBusy: del.deletePreviewBusy,
+    cascadeNotice: del.cascadeNotice,
+    previewErrorNotice: del.previewErrorNotice,
+    resolvingNoticeLabel: del.resolvingNoticeLabel,
+    effectiveDeleteIdsOnConfirm: del.effectiveDeleteIdsOnConfirm,
+    addedStudentsPreview: del.addedStudentsPreview,
   };
 }

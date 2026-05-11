@@ -98,6 +98,17 @@ export function AdminUserProfileFicha({
           },
         ]
       : []),
+    ...(detail.role === "parent"
+      ? [
+          {
+            id: "family" as const,
+            label: labels.detailTabFamily,
+            icon: <UsersRound className="h-4 w-4" aria-hidden />,
+            badge:
+              detail.tutorLinkedStudents.length > 0 ? detail.tutorLinkedStudents.length : null,
+          },
+        ]
+      : []),
     { id: "security" as const, label: labels.detailTabSecurity, icon: <ShieldCheck className="h-4 w-4" aria-hidden /> },
   ];
   const visibleActiveTab =
@@ -145,6 +156,7 @@ export function AdminUserProfileFicha({
           locale={locale}
           detail={detail}
           labels={labels}
+          billingLabels={billingLabels}
           editable={editable}
           onFeedback={onFeedback}
         />

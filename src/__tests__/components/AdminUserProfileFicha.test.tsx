@@ -30,6 +30,8 @@ function makeStudentDetail(
     phone: "",
     phoneDisplay: "—",
     dniOrPassport: "DOC",
+    homeAddressText: "",
+    homePlaceId: null,
     birthDateIso: null,
     birthDateDisplay: null,
     ageYears: null,
@@ -38,6 +40,8 @@ function makeStudentDetail(
     createdAtDisplay: "2026-01-01",
     avatarDisplayUrl: null,
     tutorLinks: [],
+    tutorLinkedStudents: [],
+    tutorFamilyScholarshipSections: [],
     currentCohortAssignment: {
       cohortId: "cohort-1",
       cohortName: "2026",
@@ -51,6 +55,7 @@ function makeStudentDetail(
         : null,
       hasMultipleCurrentAssignments: false,
     },
+    familyHomeAddressPeerIds: [],
     viewerMayInlineEdit: true,
   };
 }

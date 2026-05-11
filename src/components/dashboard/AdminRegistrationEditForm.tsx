@@ -83,37 +83,54 @@ export function AdminRegistrationEditForm({
     <form onSubmit={(e) => void onSubmit(e)} className="mt-4 max-h-[min(70vh,520px)] space-y-3 overflow-y-auto pr-1">
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <Label htmlFor="ed-fn">{labels.editFirstName}</Label>
+          <Label htmlFor="ed-fn" required>
+            {labels.editFirstName}
+          </Label>
           <Input
             id="ed-fn"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
+            required
             className="mt-1 w-full"
             autoComplete="given-name"
           />
         </div>
         <div>
-          <Label htmlFor="ed-ln">{labels.editLastName}</Label>
+          <Label htmlFor="ed-ln" required>
+            {labels.editLastName}
+          </Label>
           <Input
             id="ed-ln"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
+            required
             className="mt-1 w-full"
             autoComplete="family-name"
           />
         </div>
       </div>
       <div>
-        <Label htmlFor="ed-dni">{labels.dni}</Label>
-        <Input id="ed-dni" value={dni} onChange={(e) => setDni(e.target.value)} className="mt-1 w-full" />
+        <Label htmlFor="ed-dni" required>
+          {labels.dni}
+        </Label>
+        <Input
+          id="ed-dni"
+          value={dni}
+          onChange={(e) => setDni(e.target.value)}
+          required
+          className="mt-1 w-full"
+        />
       </div>
       <div>
-        <Label htmlFor="ed-em">{labels.email}</Label>
+        <Label htmlFor="ed-em" required>
+          {labels.email}
+        </Label>
         <Input
           id="ed-em"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
           className="mt-1 w-full"
           autoComplete="email"
         />

@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AdminUserDetailTutorLinkedRow } from "@/components/molecules/AdminUserDetailTutorLinkedRow";
+import { dictEn } from "@/test/dictEn";
 
 describe("AdminUserDetailTutorLinkedRow", () => {
   it("renders unlink control when editable and notifies request", async () => {
@@ -14,7 +15,9 @@ describe("AdminUserDetailTutorLinkedRow", () => {
           tutorId: "t1",
           displayName: "Pérez Ana",
           emailDisplay: "a@example.com",
+          relationshipCode: "mother",
         }}
+        relationshipLabel={dictEn.admin.users.detailTutorRelationshipMother}
         editable
         rowBusy={false}
         unlinkLabel="Quitar vínculo"
@@ -30,7 +33,8 @@ describe("AdminUserDetailTutorLinkedRow", () => {
   it("hides unlink when not editable", () => {
     render(
       <AdminUserDetailTutorLinkedRow
-        tutor={{ tutorId: "t1", displayName: "X", emailDisplay: "y@z.com" }}
+        tutor={{ tutorId: "t1", displayName: "X", emailDisplay: "y@z.com", relationshipCode: null }}
+        relationshipLabel={dictEn.admin.users.detailTutorRelationshipNotSpecified}
         editable={false}
         rowBusy={false}
         unlinkLabel="Remove"

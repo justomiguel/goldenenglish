@@ -123,6 +123,8 @@ export default async function DashboardProfilePage({ params }: PageProps) {
         phone: profileSafe.phone?.trim() ?? "",
         dni: profileSafe.dni_or_passport ?? "",
         birthDate,
+        homeAddressText: profileSafe.home_address_text?.trim() ?? "",
+        homePlaceId: profileSafe.home_place_id?.trim() ?? "",
       }}
       minorPersonalLocked={minorPersonalLocked}
       avatarDisplayUrl={avatarDisplayUrl}

@@ -41,7 +41,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`20-agent-preflight.mdc`** | Plan y acuerdo antes de implementar cuando aplica; marca **`PREFLIGHT`**; lectura read-only permitida para armar el plan. |
 | **`21-migrations-production-no-data-destruction.mdc`** | Migraciones **sin** borrado destructivo de datos (`TRUNCATE`, `DROP TABLE`/columna con pérdida, `DELETE` masivo); producción y entornos reales se tratan como críticos; excepciones solo con proceso humano documentado. |
 
-**Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`** para carga suave de imágenes y carruseles).
+**Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`**, **`24-dashboard-list-filter-aggregates-rpc.mdc`** — agregados para filtros de listados en dashboard para **cualquier rol**).
 
 ## Security skills vs this repo
 
@@ -69,4 +69,4 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 6. Auth, datos, integraciones o contratos públicos: **`.cursor/rules/10-engineering-governance.mdc`** (ADR / mini diseño).
 7. Importaciones o batches largos con feedback en UI: **`.cursor/rules/11-long-running-jobs-ui.mdc`** (`LongJobStatus`, `pollLongJob`).
 8. Acceso a Supabase (clientes, REST, service role): **`.cursor/rules/12-supabase-app-boundaries.mdc`**.
-9. Consultas listadas / volumen PostgREST: **`.cursor/rules/13-postgrest-pagination-bounded-queries.mdc`**.
+9. Consultas listadas / volumen PostgREST: **`.cursor/rules/13-postgrest-pagination-bounded-queries.mdc`** (y agregados para filtros de listados en dashboard, cualquier rol: **`.cursor/rules/24-dashboard-list-filter-aggregates-rpc.mdc`**).

@@ -8,6 +8,7 @@ import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { ROLE_FILTER_ALL } from "@/lib/dashboard/adminUsersTableHelpers";
 import { adminUserRoleOptionLabel } from "@/lib/dashboard/adminUserRoleOptionLabel";
+import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 
 type UserLabels = Dictionary["admin"]["users"];
@@ -16,6 +17,10 @@ const ROLES = ["admin", "teacher", "student", "parent", "assistant"] as const;
 
 function tpl(template: string, count: number): string {
   return template.replace(/\{\{count\}\}/g, String(count));
+}
+
+function tplLabelCount(template: string, label: string, count: number): string {
+  return template.replace(/\{\{label\}\}/g, label).replace(/\{\{count\}\}/g, String(count));
 }
 
 function deleteSelectedButtonLabel(labels: UserLabels, selectedCount: number): string {
@@ -31,6 +36,8 @@ export interface AdminUsersToolbarProps {
   labels: UserLabels;
   query: string;
   onQueryChange: (v: string) => void;
+  /** From Postgres RPC `admin_users_list_role_counts`; drives parenthesized totals in role options. */
+  roleCounts: AdminUsersListRoleCounts;
   roleFilter: string;
   onRoleFilterChange: (v: string) => void;
   totalCount: number;
@@ -47,6 +54,7 @@ export function AdminUsersToolbar({
   labels,
   query,
   onQueryChange,
+  roleCounts,
   roleFilter,
   onRoleFilterChange,
   totalCount,
@@ -90,10 +98,16 @@ export function AdminUsersToolbar({
             title={labels.roleFilterTooltip}
             className="min-h-[44px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
           >
-            <option value={ROLE_FILTER_ALL}>{labels.roleFilterAll}</option>
+            <option value={ROLE_FILTER_ALL}>
+              {tpl(labels.roleFilterAllWithCount, roleCounts.total)}
+            </option>
             {ROLES.map((r) => (
               <option key={r} value={r}>
-                {adminUserRoleOptionLabel(labels, r)}
+                {tplLabelCount(
+                  labels.roleFilterOptionWithCount,
+                  adminUserRoleOptionLabel(labels, r),
+                  roleCounts.byRole[r] ?? 0,
+                )}
               </option>
             ))}
           </select>

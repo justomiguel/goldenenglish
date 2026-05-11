@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import es from "@/dictionaries/es.json";
 import {
   updateAdminUserDetailFieldAction,
+  updateAdminUserDetailHomeAddressAction,
   setAdminUserPasswordFromDetailAction,
 } from "@/app/[locale]/dashboard/admin/users/adminUserDetailActions";
 
@@ -19,9 +20,18 @@ vi.mock("@/lib/dashboard/assertAdmin", () => ({
   assertAdmin: () => mockAssertAdmin(),
 }));
 
+const hoisted = vi.hoisted(() => ({
+  loadTutorStudentFamilyClusterIds: vi.fn(),
+}));
+
+vi.mock("@/lib/dashboard/loadTutorStudentFamilyClusterIds", () => ({
+  loadTutorStudentFamilyClusterIds: hoisted.loadTutorStudentFamilyClusterIds,
+}));
+
 const mockUpdateUserById = vi.fn();
 const mockGetUserById = vi.fn();
 const mockProfilesUpdateEq = vi.fn();
+const mockProfilesUpdateIn = vi.fn();
 
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => ({
@@ -34,7 +44,10 @@ vi.mock("@/lib/supabase/admin", () => ({
     from: (table: string) => {
       if (table === "profiles") {
         return {
-          update: () => ({ eq: mockProfilesUpdateEq }),
+          update: () => ({
+            eq: mockProfilesUpdateEq,
+            in: mockProfilesUpdateIn,
+          }),
           select: () => ({
             eq: () => ({
               single: () => ({ data: { role: "student" }, error: null }),
@@ -57,6 +70,8 @@ describe("adminUserDetailActions", () => {
     });
     mockUpdateUserById.mockResolvedValue({ error: null });
     mockProfilesUpdateEq.mockResolvedValue({ error: null });
+    mockProfilesUpdateIn.mockResolvedValue({ error: null });
+    hoisted.loadTutorStudentFamilyClusterIds.mockReset();
   });
 
   it("updateAdminUserDetailFieldAction rejects forbidden session", async () => {
@@ -82,6 +97,79 @@ describe("adminUserDetailActions", () => {
       "00000000-0000-4000-8000-000000000001",
       expect.objectContaining({ email: "new@mail.com", email_confirm: true }),
     );
+  });
+
+  it("updateAdminUserDetailHomeAddressAction saves normalized address", async () => {
+    const r = await updateAdminUserDetailHomeAddressAction({
+      locale: "es",
+      targetUserId: "00000000-0000-4000-8000-000000000001",
+      homeAddressText: "  Av. Siempre Viva 742 ",
+      homePlaceId: "ChIJxyz",
+    });
+    expect(r.ok).toBe(true);
+    expect(mockProfilesUpdateEq).toHaveBeenCalled();
+    expect(mockUpdateUserById).toHaveBeenCalled();
+  });
+
+  it("updateAdminUserDetailHomeAddressAction rejects overly long text", async () => {
+    const r = await updateAdminUserDetailHomeAddressAction({
+      locale: "es",
+      targetUserId: "00000000-0000-4000-8000-000000000001",
+      homeAddressText: `${"x".repeat(501)}`,
+      homePlaceId: null,
+    });
+    expect(r.ok).toBe(false);
+    expect(r.message).toBe(U.detailErr_home_address_too_long);
+  });
+
+  const uid1 = "00000000-0000-4000-8000-000000000001";
+  const uid2 = "00000000-0000-4000-8000-000000000002";
+
+  it("updateAdminUserDetailHomeAddressAction bulk-applies when applyToFamily is true", async () => {
+    hoisted.loadTutorStudentFamilyClusterIds.mockResolvedValue([uid1, uid2]);
+    const r = await updateAdminUserDetailHomeAddressAction({
+      locale: "es",
+      targetUserId: uid1,
+      homeAddressText: "Calle Falsa 123",
+      homePlaceId: null,
+      applyToFamily: true,
+    });
+    expect(r.ok).toBe(true);
+    expect(hoisted.loadTutorStudentFamilyClusterIds).toHaveBeenCalled();
+    expect(mockProfilesUpdateIn).toHaveBeenCalledWith("id", expect.arrayContaining([uid1, uid2]));
+    expect(mockProfilesUpdateEq).not.toHaveBeenCalled();
+    expect(mockUpdateUserById).toHaveBeenCalledTimes(2);
+  });
+
+  it("updateAdminUserDetailHomeAddressAction ignores applyToFamily when clearing address", async () => {
+    hoisted.loadTutorStudentFamilyClusterIds.mockResolvedValue([uid1, uid2]);
+    const r = await updateAdminUserDetailHomeAddressAction({
+      locale: "es",
+      targetUserId: uid1,
+      homeAddressText: "   ",
+      homePlaceId: null,
+      applyToFamily: true,
+    });
+    expect(r.ok).toBe(true);
+    expect(hoisted.loadTutorStudentFamilyClusterIds).not.toHaveBeenCalled();
+    expect(mockProfilesUpdateIn).not.toHaveBeenCalled();
+    expect(mockProfilesUpdateEq).toHaveBeenCalled();
+  });
+
+  it("updateAdminUserDetailHomeAddressAction updates only target when applyToFamily is false", async () => {
+    hoisted.loadTutorStudentFamilyClusterIds.mockResolvedValue([uid1, uid2]);
+    const r = await updateAdminUserDetailHomeAddressAction({
+      locale: "es",
+      targetUserId: uid1,
+      homeAddressText: "Una calle",
+      homePlaceId: null,
+      applyToFamily: false,
+    });
+    expect(r.ok).toBe(true);
+    expect(hoisted.loadTutorStudentFamilyClusterIds).not.toHaveBeenCalled();
+    expect(mockProfilesUpdateIn).not.toHaveBeenCalled();
+    expect(mockProfilesUpdateEq).toHaveBeenCalled();
+    expect(mockUpdateUserById).toHaveBeenCalledTimes(1);
   });
 
   it("setAdminUserPasswordFromDetailAction rejects short password schema", async () => {

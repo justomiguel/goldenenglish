@@ -4,6 +4,17 @@ import { render, screen } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
+const adminCreateUserBirthLabels = {
+  birthDate: dictEn.register.birthDate,
+  birthMonth: dictEn.register.birthMonth,
+  birthYear: dictEn.register.birthYear,
+  birthDay: dictEn.register.birthDay,
+  birthDayPlaceholder: dictEn.register.birthDayPlaceholder,
+  birthDateHint: dictEn.register.birthDateHint,
+  birthDatePickPrompt: dictEn.register.birthDatePickPrompt,
+  birthDatePickedAnnouncement: dictEn.register.birthDatePickedAnnouncement,
+};
+
 vi.mock("@/hooks/useLogin", () => ({
   useLogin: () => ({
     email: "",
@@ -195,7 +206,15 @@ describe("component smoke — dashboard & forms", () => {
   });
 
   it("AdminCreateUserForm", () => {
-    render(<AdminCreateUserForm locale="en" labels={dictEn.admin.users} />);
+    render(
+      <AdminCreateUserForm
+        locale="en"
+        legalAgeMajority={18}
+        labels={dictEn.admin.users}
+        birthLabels={adminCreateUserBirthLabels}
+        birthDateIncompleteMessage={dictEn.register.birthDateIncomplete}
+      />,
+    );
   });
 
   it("InscriptionsSettingsForm", () => {

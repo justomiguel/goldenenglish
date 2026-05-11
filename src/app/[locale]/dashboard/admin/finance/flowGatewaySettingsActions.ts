@@ -5,7 +5,11 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
-import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import {
+  logServerAuthzDenied,
+  logServerActionException,
+  logSupabaseClientError,
+} from "@/lib/logging/serverActionLog";
 import { encryptAesGcmUtf8 } from "@/lib/payment-gateways/aesGcmPayload";
 import { loadPaymentGatewayEncryptionKeyRaw32 } from "@/lib/payment-gateways/loadPaymentGatewayEncryptionKey";
 
@@ -38,7 +42,8 @@ export async function saveFlowChileGatewaySettings(raw: unknown): Promise<SaveFl
   let rawKey;
   try {
     rawKey = loadPaymentGatewayEncryptionKeyRaw32();
-  } catch {
+  } catch (err) {
+    logServerActionException("saveFlowChileGatewaySettings:encryptionKey", err);
     return { ok: false, error: "encryption" };
   }
 
@@ -104,6 +109,50 @@ export async function saveFlowChileGatewaySettings(raw: unknown): Promise<SaveFl
       api_key_rotated: Boolean(apiKeyTrim),
       secret_rotated: Boolean(secretTrim),
     },
+  });
+
+  revalidatePath(`/${parsed.data.locale}/dashboard/admin/finance`, "layout");
+  return { ok: true };
+}
+
+const deleteSchema = z.object({
+  locale: z.string().min(2).max(8),
+});
+
+export type DeleteFlowChileGatewayResult =
+  | { ok: true }
+  | { ok: false; error: "unauthorized" | "invalid" | "db" };
+
+export async function deleteFlowChileGatewayCredentials(
+  raw: unknown,
+): Promise<DeleteFlowChileGatewayResult> {
+  try {
+    await assertAdmin();
+  } catch {
+    logServerAuthzDenied("deleteFlowChileGatewayCredentials");
+    return { ok: false, error: "unauthorized" };
+  }
+
+  const parsed = deleteSchema.safeParse(raw);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("payment_gateway_credentials")
+    .delete()
+    .eq("provider", "flow")
+    .eq("country_code", "CL");
+
+  if (error) {
+    logSupabaseClientError("deleteFlowChileGatewayCredentials", error, {});
+    return { ok: false, error: "db" };
+  }
+
+  await recordSystemAudit({
+    action: "payment_gateway_flow_cl_delete",
+    resourceType: "payment_gateway_credentials",
+    resourceId: "flow_CL",
+    payload: {},
   });
 
   revalidatePath(`/${parsed.data.locale}/dashboard/admin/finance`, "layout");

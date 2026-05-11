@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   LogIn,
   Menu,
-  UserPlus,
   X,
 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
@@ -42,7 +41,7 @@ export function EspacioZenitSiteHeader({
     { href: `${prefix}#disciplinas`, label: labels.nav.disciplinas },
     { href: `${prefix}#horarios`, label: labels.nav.horarios },
     { href: `${prefix}#galeria`, label: labels.nav.galeria },
-    { href: `${prefix}#contacto`, label: labels.nav.contacto },
+    { href: `${prefix}/register`, label: labels.nav.enroll },
   ];
 
   return (
@@ -123,13 +122,6 @@ export function EspacioZenitSiteHeader({
               <span className="hidden 2xl:inline">{dict.nav.login}</span>
             </Link>
           )}
-          <Link
-            href={`${prefix}#inscripciones`}
-            className="ez-mock-enroll inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[var(--ez-cyan)] px-3 py-2 text-[11px] font-bold uppercase tracking-[0.08em] text-black shadow-[0_8px_24px_rgb(0_174_239_/35%)] transition hover:bg-[var(--ez-cyan-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:px-4 sm:text-xs"
-          >
-            <UserPlus className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-            {labels.nav.enroll}
-          </Link>
           <button
             type="button"
             className="ez-mock-menu-btn inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl border border-white/35 bg-white/10 text-white lg:hidden"
@@ -165,16 +157,6 @@ export function EspacioZenitSiteHeader({
                 </Link>
               </li>
             ))}
-            <li className="pt-2">
-              <Link
-                href={`${prefix}#inscripciones`}
-                className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[var(--ez-cyan)] px-4 py-3 text-sm font-bold uppercase tracking-[0.06em] text-black"
-                onClick={() => setOpen(false)}
-              >
-                <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
-                {labels.nav.enroll}
-              </Link>
-            </li>
           </ul>
         </nav>
       ) : null}

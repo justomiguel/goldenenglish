@@ -1,6 +1,7 @@
 "use client";
 
 import type { Dictionary } from "@/types/i18n";
+import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
 import type { AdminUserRow, SortKey, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
 import { useAdminUsersTable } from "@/hooks/useAdminUsersTable";
 import { AdminUsersToolbar } from "@/components/dashboard/AdminUsersToolbar";
@@ -18,6 +19,7 @@ interface AdminUsersTableDesktopProps {
   pageSize: number;
   searchQuery: string;
   roleFilter: string;
+  roleCounts: AdminUsersListRoleCounts;
   sortKey: SortKey;
   sortDir: SortDir;
   locale: string;
@@ -33,6 +35,7 @@ export function AdminUsersTableDesktop({
   pageSize,
   searchQuery,
   roleFilter,
+  roleCounts,
   sortKey,
   sortDir,
   locale,
@@ -63,6 +66,7 @@ export function AdminUsersTableDesktop({
             labels={labels}
             query={u.query}
             onQueryChange={u.setQuery}
+            roleCounts={roleCounts}
             roleFilter={u.roleFilter}
             onRoleFilterChange={u.setRoleFilter}
             totalCount={totalCount}
@@ -105,14 +109,22 @@ export function AdminUsersTableDesktop({
         onOpenChange={(o) => {
           if (!o) u.setConfirmIds(null);
         }}
-        title={u.tpl(labels.confirmDeleteTitle, u.confirmIds?.length ?? 0)}
+        title={u.tpl(labels.confirmDeleteTitle, u.deleteModalTitleCount)}
         description={labels.confirmDeleteCascade}
-        body={u.tpl(labels.confirmDeleteIntro, u.confirmIds?.length ?? 0)}
+        resolvingNotice={u.deletePreviewBusy ? u.resolvingNoticeLabel : undefined}
+        cascadeNotice={u.cascadeNotice}
+        previewErrorNotice={u.previewErrorNotice}
+        addedStudentsHeading={
+          u.addedStudentsPreview.length ? labels.confirmDeleteAddedStudentsHeading : undefined
+        }
+        addedStudents={u.addedStudentsPreview.length ? u.addedStudentsPreview : undefined}
+        body={u.tpl(labels.confirmDeleteIntro, u.deleteModalTitleCount)}
         cancelLabel={labels.cancel}
         confirmLabel={labels.confirmDelete}
+        confirmDisabled={u.deletePreviewBusy}
         busy={u.busy}
         onConfirm={() => {
-          if (u.confirmIds?.length) void u.runDelete(u.confirmIds);
+          if (u.effectiveDeleteIdsOnConfirm.length) void u.runDelete(u.effectiveDeleteIdsOnConfirm);
         }}
       />
 

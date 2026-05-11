@@ -56,7 +56,7 @@ export function LandingEspacioZenitDisciplinasSection({
                   {marketingLandingCopy(dict, brand, "disciplinas.hiphop.body")}
                 </p>
                 <Link
-                  href={`${prefix}#inscripciones`}
+                  href={`${prefix}/register`}
                   className="mt-auto inline-flex min-h-[44px] w-fit items-center justify-center gap-2 rounded-xl bg-[var(--ez-cyan)] px-5 py-3 text-xs font-bold uppercase tracking-[0.1em] text-black transition hover:bg-[var(--ez-cyan-soft)]"
                 >
                   <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
@@ -83,7 +83,7 @@ export function LandingEspacioZenitDisciplinasSection({
                   {marketingLandingCopy(dict, brand, "disciplinas.ballet.body")}
                 </p>
                 <Link
-                  href={`${prefix}#inscripciones`}
+                  href={`${prefix}/register`}
                   className="mt-auto inline-flex min-h-[44px] w-fit items-center justify-center gap-2 rounded-xl px-5 py-3 text-xs font-bold uppercase tracking-[0.1em] text-[var(--ez-ink)] transition hover:brightness-105 ez-mock-ballet-cta"
                 >
                   <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />

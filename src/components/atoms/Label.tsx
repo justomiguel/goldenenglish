@@ -12,15 +12,14 @@ export function Label({
 }: LabelProps) {
   return (
     <label
-      className={`block text-sm font-medium text-[var(--color-foreground)] ${className}`}
+      className={`block text-sm font-medium text-[var(--color-foreground)] ${
+        required
+          ? "after:ml-1 after:inline after:text-[var(--color-error)] after:content-['*']"
+          : ""
+      } ${className}`}
       {...props}
     >
       {children}
-      {required ? (
-        <span className="ml-1 text-[var(--color-error)]" aria-hidden="true">
-          *
-        </span>
-      ) : null}
     </label>
   );
 }

@@ -32,6 +32,17 @@ import { InscriptionsSettingsForm } from "@/components/dashboard/InscriptionsSet
 import { PaymentReviewRow } from "@/components/dashboard/PaymentReviewRow";
 import { AdminRegistrationsList } from "@/components/dashboard/AdminRegistrationsList";
 
+const adminCreateUserBirthLabels = {
+  birthDate: dictEn.register.birthDate,
+  birthMonth: dictEn.register.birthMonth,
+  birthYear: dictEn.register.birthYear,
+  birthDay: dictEn.register.birthDay,
+  birthDayPlaceholder: dictEn.register.birthDayPlaceholder,
+  birthDateHint: dictEn.register.birthDateHint,
+  birthDatePickPrompt: dictEn.register.birthDatePickPrompt,
+  birthDatePickedAnnouncement: dictEn.register.birthDatePickedAnnouncement,
+};
+
 const REG_TUTOR_EMPTY = {
   tutor_name: null as string | null,
   tutor_dni: null as string | null,
@@ -81,7 +92,13 @@ describe("dashboard coverage", () => {
   it("AdminCreateUserForm navigates to the user list after success", async () => {
     createDashboardUser.mockResolvedValueOnce({ ok: true });
     const { unmount } = render(
-      <AdminCreateUserForm locale="en" labels={dictEn.admin.users} />,
+      <AdminCreateUserForm
+        locale="en"
+        legalAgeMajority={18}
+        labels={dictEn.admin.users}
+        birthLabels={adminCreateUserBirthLabels}
+        birthDateIncompleteMessage={dictEn.register.birthDateIncomplete}
+      />,
     );
     fillCreateUserForm();
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.submit }));
@@ -95,7 +112,15 @@ describe("dashboard coverage", () => {
       ok: false,
       message: dictEn.admin.users.errCreateAuth,
     });
-    render(<AdminCreateUserForm locale="en" labels={dictEn.admin.users} />);
+    render(
+      <AdminCreateUserForm
+        locale="en"
+        legalAgeMajority={18}
+        labels={dictEn.admin.users}
+        birthLabels={adminCreateUserBirthLabels}
+        birthDateIncompleteMessage={dictEn.register.birthDateIncomplete}
+      />,
+    );
     fillCreateUserForm();
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.users.submit }));
     await waitFor(() => {
@@ -367,6 +392,7 @@ describe("dashboard coverage", () => {
 
 function fillCreateUserForm() {
   const L = dictEn.admin.users;
+  fireEvent.change(screen.getByLabelText(L.role), { target: { value: "admin" } });
   fireEvent.change(screen.getByLabelText(L.email), {
     target: { value: "u@x.co" },
   });

@@ -70,6 +70,8 @@ export function AdminRegistrationAcceptSectionPicker({
         </p>
       ) : null}
 
+      <p className="text-xs text-[var(--color-muted-foreground)]">{labels.skipSectionEnrollmentLead}</p>
+
       <div className="flex justify-end">
         <Button type="button" variant="secondary" className="min-h-[44px] px-4" onClick={onSkipSection}>
           <SkipForward className="h-4 w-4 shrink-0" aria-hidden />

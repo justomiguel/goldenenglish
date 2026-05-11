@@ -1,11 +1,12 @@
-// REGRESSION CHECK: Tutor link actions require admin session, student target, parent tutor, and audit on success.
+// REGRESSION CHECK: Tutor link actions require admin session, student target, guardian tutor
+// (parent or admin — admin matches DNI reuse in ensureParentProfileByTutorDni), and audit on success.
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import es from "@/dictionaries/es.json";
 import {
   upsertAdminStudentTutorLinkAction,
   removeAdminStudentTutorLinkAction,
-  createAdminParentAndLinkStudentAction,
 } from "@/app/[locale]/dashboard/admin/users/adminUserDetailTutorActions";
+import { createAdminParentAndLinkStudentAction } from "@/app/[locale]/dashboard/admin/users/adminUserDetailTutorCreateActions";
 
 const U = es.admin.users;
 
@@ -30,6 +31,12 @@ vi.mock("@/lib/register/ensureParentProfileByTutorDni", () => ({
 
 const studentId = "00000000-0000-4000-8000-000000000010";
 const tutorId = "00000000-0000-4000-8000-000000000020";
+const tutorAdminId = "00000000-0000-4000-8000-000000000030";
+
+let tutorProfileRoleForId: Record<string, string> = {
+  [tutorId]: "parent",
+  [tutorAdminId]: "admin",
+};
 
 let tutorRelDeleteResult: { data: unknown[]; error: unknown } = {
   data: [{ tutor_id: tutorId }],
@@ -45,7 +52,8 @@ function mockAdminClient() {
             eq: (_col: string, id: string) => ({
               single: () => {
                 if (id === studentId) return { data: { role: "student" }, error: null };
-                if (id === tutorId) return { data: { role: "parent" }, error: null };
+                const role = tutorProfileRoleForId[id];
+                if (role) return { data: { role }, error: null };
                 return { data: null, error: { message: "not found" } };
               },
             }),
@@ -71,6 +79,10 @@ describe("upsertAdminStudentTutorLinkAction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tutorRelDeleteResult = { data: [{ tutor_id: tutorId }], error: null };
+    tutorProfileRoleForId = {
+      [tutorId]: "parent",
+      [tutorAdminId]: "admin",
+    };
     mockAssertAdmin.mockResolvedValue({});
     mockUpsertTutorStudentLink.mockResolvedValue({ ok: true });
   });
@@ -81,8 +93,19 @@ describe("upsertAdminStudentTutorLinkAction", () => {
       locale: "es",
       studentId,
       newTutorId: tutorId,
+      relationship: "mother",
     });
     expect(r).toEqual({ ok: false, message: U.detailErrForbidden });
+    expect(mockUpsertTutorStudentLink).not.toHaveBeenCalled();
+  });
+
+  it("returns relationship required when relationship is missing", async () => {
+    const r = await upsertAdminStudentTutorLinkAction({
+      locale: "es",
+      studentId,
+      newTutorId: tutorId,
+    });
+    expect(r).toEqual({ ok: false, message: U.detailErrTutorRelationshipRequired });
     expect(mockUpsertTutorStudentLink).not.toHaveBeenCalled();
   });
 
@@ -91,19 +114,21 @@ describe("upsertAdminStudentTutorLinkAction", () => {
       locale: "es",
       studentId,
       newTutorId: tutorId,
+      relationship: "mother",
     });
     expect(r.ok).toBe(true);
     expect(mockUpsertTutorStudentLink).toHaveBeenCalledWith(
       expect.anything(),
       tutorId,
       studentId,
-      null,
+      "mother",
     );
     expect(mockRecordSystemAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         action: "admin_user_detail_upsert_tutor_link",
         resourceType: "tutor_student_rel",
         resourceId: studentId,
+        payload: { tutorId, relationship: "mother" },
       }),
     );
   });
@@ -113,6 +138,10 @@ describe("removeAdminStudentTutorLinkAction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tutorRelDeleteResult = { data: [{ tutor_id: tutorId }], error: null };
+    tutorProfileRoleForId = {
+      [tutorId]: "parent",
+      [tutorAdminId]: "admin",
+    };
     mockAssertAdmin.mockResolvedValue({});
   });
 
@@ -144,6 +173,17 @@ describe("removeAdminStudentTutorLinkAction", () => {
     );
   });
 
+  it("allows unlink when linked tutor profile is admin (DNI reuse path)", async () => {
+    tutorRelDeleteResult = { data: [{ tutor_id: tutorAdminId }], error: null };
+    const r = await removeAdminStudentTutorLinkAction({
+      locale: "es",
+      studentId,
+      tutorId: tutorAdminId,
+    });
+    expect(r.ok).toBe(true);
+    expect(r.message).toBe(U.detailToastTutorUnlinked);
+  });
+
   it("returns tutor link not found when delete affects no rows", async () => {
     tutorRelDeleteResult = { data: [], error: null };
     const r = await removeAdminStudentTutorLinkAction({
@@ -159,8 +199,12 @@ describe("createAdminParentAndLinkStudentAction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tutorRelDeleteResult = { data: [{ tutor_id: tutorId }], error: null };
+    tutorProfileRoleForId = {
+      [tutorId]: "parent",
+      [tutorAdminId]: "admin",
+    };
     mockAssertAdmin.mockResolvedValue({});
-    mockEnsureParent.mockResolvedValue({ ok: true, parentId: tutorId });
+    mockEnsureParent.mockResolvedValue({ ok: true, parentId: tutorId, reuseKind: "created" });
     mockUpsertTutorStudentLink.mockResolvedValue({ ok: true });
   });
 
@@ -173,7 +217,7 @@ describe("createAdminParentAndLinkStudentAction", () => {
       tutorFirstName: "Pat",
       tutorLastName: "Lee",
       tutorEmail: "",
-      relationship: null,
+      relationship: "mother",
     });
     expect(r).toEqual({ ok: false, message: U.detailErrForbidden });
   });
@@ -186,21 +230,27 @@ describe("createAdminParentAndLinkStudentAction", () => {
       tutorFirstName: "Pat",
       tutorLastName: "Lee",
       tutorEmail: "",
-      relationship: "Mother",
+      relationship: "mother",
     });
     expect(r.ok).toBe(true);
+    expect(r.message).toBe(U.detailToastTutorCreatedLinked);
     expect(mockEnsureParent).toHaveBeenCalled();
     expect(mockUpsertTutorStudentLink).toHaveBeenCalledWith(
       expect.anything(),
       tutorId,
       studentId,
-      "Mother",
+      "mother",
     );
     expect(mockRecordSystemAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         action: "admin_user_detail_create_parent_link",
         resourceType: "tutor_student_rel",
         resourceId: studentId,
+        payload: expect.objectContaining({
+          parentId: tutorId,
+          reuseKind: "created",
+          relationship: "mother",
+        }),
       }),
     );
   });
@@ -214,8 +264,75 @@ describe("createAdminParentAndLinkStudentAction", () => {
       tutorFirstName: "X",
       tutorLastName: "Y",
       tutorEmail: "",
+      relationship: "father",
     });
     expect(r.ok).toBe(false);
     expect(r.message).toBe(U.detailTutorCreateErrDniStudent);
+  });
+
+  it("requires confirmation before linking reused admin profile by DNI", async () => {
+    mockEnsureParent.mockResolvedValue({ ok: true, parentId: tutorAdminId, reuseKind: "reused_admin" });
+    const r = await createAdminParentAndLinkStudentAction({
+      locale: "es",
+      studentId,
+      tutorDni: "11111111",
+      tutorFirstName: "Pat",
+      tutorLastName: "Lee",
+      tutorEmail: "",
+      relationship: "mother",
+    });
+    expect(r).toEqual({
+      ok: false,
+      needsConfirmation: true,
+      reuseKind: "reused_admin",
+      existingProfileId: tutorAdminId,
+    });
+    expect(mockUpsertTutorStudentLink).not.toHaveBeenCalled();
+  });
+
+  it("links after staff confirms reused profile id", async () => {
+    mockEnsureParent.mockResolvedValue({ ok: true, parentId: tutorAdminId, reuseKind: "reused_admin" });
+    const r = await createAdminParentAndLinkStudentAction({
+      locale: "es",
+      studentId,
+      tutorDni: "11111111",
+      tutorFirstName: "Pat",
+      tutorLastName: "Lee",
+      tutorEmail: "",
+      relationship: "mother",
+      confirmReuseOfProfileId: tutorAdminId,
+    });
+    expect(r.ok).toBe(true);
+    expect(r.message).toBe(U.detailToastTutorLinkedReusedAdmin);
+    expect(mockUpsertTutorStudentLink).toHaveBeenCalledWith(
+      expect.anything(),
+      tutorAdminId,
+      studentId,
+      "mother",
+    );
+    expect(mockRecordSystemAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        payload: expect.objectContaining({ reuseKind: "reused_admin", relationship: "mother" }),
+      }),
+    );
+  });
+
+  it("requires confirmation for reused parent profile", async () => {
+    mockEnsureParent.mockResolvedValue({ ok: true, parentId: tutorId, reuseKind: "reused_parent" });
+    const r = await createAdminParentAndLinkStudentAction({
+      locale: "es",
+      studentId,
+      tutorDni: "22222222",
+      tutorFirstName: "A",
+      tutorLastName: "B",
+      tutorEmail: "",
+      relationship: "father",
+    });
+    expect(r).toEqual({
+      ok: false,
+      needsConfirmation: true,
+      reuseKind: "reused_parent",
+      existingProfileId: tutorId,
+    });
   });
 });

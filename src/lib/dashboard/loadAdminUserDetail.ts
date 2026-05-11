@@ -1,6 +1,15 @@
 import { z } from "zod";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
-import type { AdminUserDetailVM, AdminUserTutorLinkVM } from "@/lib/dashboard/adminUserDetailVM";
+import type {
+  AdminUserDetailVM,
+  AdminUserTutorFamilySectionOptionVM,
+  AdminUserTutorFamilyStudentVM,
+  AdminUserTutorLinkVM,
+} from "@/lib/dashboard/adminUserDetailVM";
+import {
+  loadStudentsLinkedToTutorForAdminDetail,
+  loadTutorFamilyScholarshipSectionsForAdminDetail,
+} from "@/lib/dashboard/loadAdminUserDetailTutorFamily";
 import { resolveAvatarUrlForAdmin } from "@/lib/dashboard/resolveAvatarUrl";
 import {
   loadAdminStudentCurrentCohortAssignment,
@@ -10,6 +19,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { loadTutorStudentFamilyClusterIds } from "@/lib/dashboard/loadTutorStudentFamilyClusterIds";
 
 function formatDate(locale: string, iso: string | null | undefined): string | null {
   if (!iso) return null;
@@ -23,13 +33,20 @@ async function loadTutorLinksForStudent(
   studentId: string,
   emptyDisplay: string,
 ): Promise<AdminUserTutorLinkVM[]> {
-  const { data: rels, error } = await admin.from("tutor_student_rel").select("tutor_id").eq("student_id", studentId);
+  const { data: rels, error } = await admin
+    .from("tutor_student_rel")
+    .select("tutor_id, relationship")
+    .eq("student_id", studentId);
   if (error) {
     logSupabaseClientError("loadTutorLinksForStudent:tutor_student_rel", error, { studentId });
     return [];
   }
   if (!rels?.length) return [];
   const tutorIds = [...new Set(rels.map((r) => String(r.tutor_id)))];
+  const relationshipByTutor = new Map<string, string | null>();
+  for (const row of rels) {
+    relationshipByTutor.set(String(row.tutor_id), (row.relationship as string | null) ?? null);
+  }
   const out: AdminUserTutorLinkVM[] = [];
   for (const tutorId of tutorIds) {
     const [{ data: tp }, { data: authT }] = await Promise.all([
@@ -38,10 +55,12 @@ async function loadTutorLinksForStudent(
     ]);
     const name = tp ? formatProfileNameSurnameFirst(tp.first_name, tp.last_name) : "";
     const em = authT?.user?.email?.trim() ?? "";
+    const relRaw = relationshipByTutor.get(tutorId);
     out.push({
       tutorId,
       displayName: name.length > 0 ? name : emptyDisplay,
       emailDisplay: em.length > 0 ? em : emptyDisplay,
+      relationshipCode: relRaw != null && String(relRaw).trim().length > 0 ? String(relRaw).trim() : null,
     });
   }
   return out;
@@ -76,7 +95,7 @@ export async function loadAdminUserDetail(
   const { data: profile, error: pErr } = await admin
     .from("profiles")
     .select(
-      "first_name, last_name, role, phone, dni_or_passport, birth_date, age_years, assigned_teacher_id, avatar_url, created_at, is_minor",
+      "first_name, last_name, role, phone, dni_or_passport, home_address_text, home_place_id, birth_date, age_years, assigned_teacher_id, avatar_url, created_at, is_minor",
     )
     .eq("id", userId)
     .single();
@@ -86,6 +105,11 @@ export async function loadAdminUserDetail(
     return null;
   }
   if (!profile) return null;
+
+  const addrRow = profile as {
+    home_address_text?: string | null;
+    home_place_id?: string | null;
+  };
 
   let assignedTeacherName: string | null = null;
   if (profile.assigned_teacher_id) {
@@ -112,6 +136,8 @@ export async function loadAdminUserDetail(
 
   const role = String(profile.role ?? "");
   let tutorLinks: AdminUserTutorLinkVM[] = [];
+  let tutorLinkedStudents: AdminUserTutorFamilyStudentVM[] = [];
+  let tutorFamilyScholarshipSections: AdminUserTutorFamilySectionOptionVM[] = [];
   let currentCohortAssignment: AdminStudentCurrentCohortAssignment | null = null;
   if (role === "student" && includeStudentAcademicContext) {
     [tutorLinks, currentCohortAssignment] = await Promise.all([
@@ -120,7 +146,14 @@ export async function loadAdminUserDetail(
     ]);
   } else if (role === "student") {
     tutorLinks = await loadTutorLinksForStudent(admin, userId, emptyDisplay);
+  } else if (role === "parent") {
+    tutorLinkedStudents = await loadStudentsLinkedToTutorForAdminDetail(admin, userId, emptyDisplay);
+    const ids = tutorLinkedStudents.map((s) => s.studentId);
+    tutorFamilyScholarshipSections = await loadTutorFamilyScholarshipSectionsForAdminDetail(admin, ids);
   }
+
+  const familyCluster = await loadTutorStudentFamilyClusterIds(admin, userId);
+  const familyHomeAddressPeerIds = familyCluster.filter((id) => id !== userId);
 
   return {
     userId,
@@ -132,6 +165,8 @@ export async function loadAdminUserDetail(
     phone: phoneRaw,
     phoneDisplay,
     dniOrPassport: String(profile.dni_or_passport ?? ""),
+    homeAddressText: String(addrRow.home_address_text ?? ""),
+    homePlaceId: addrRow.home_place_id != null ? String(addrRow.home_place_id) : null,
     birthDateIso: birthIso,
     birthDateDisplay,
     ageYears: profile.age_years,
@@ -140,7 +175,10 @@ export async function loadAdminUserDetail(
     createdAtDisplay,
     avatarDisplayUrl,
     tutorLinks,
+    tutorLinkedStudents,
+    tutorFamilyScholarshipSections,
     currentCohortAssignment,
+    familyHomeAddressPeerIds,
     viewerMayInlineEdit,
   };
 }

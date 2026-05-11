@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { CalendarDays } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 
@@ -33,10 +33,10 @@ export function LandingEspacioZenitEnrollmentBanner({
             {marketingLandingCopy(dict, brand, "enrollment.title")}
           </h2>
           <Link
-            href={`${prefix}#contacto`}
+            href={`${prefix}/register`}
             className="inline-flex min-h-[48px] w-fit items-center justify-center gap-2 rounded-xl bg-[var(--ez-cyan)] px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-black shadow-[0_12px_36px_rgb(0_174_239_/30%)] transition hover:bg-[var(--ez-cyan-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d3d47]"
           >
-            <CalendarDays className="h-4 w-4 shrink-0" aria-hidden />
+            <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
             {marketingLandingCopy(dict, brand, "enrollment.cta")}
           </Link>
         </div>

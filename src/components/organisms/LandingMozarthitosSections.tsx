@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle, Music2, Plane, Sparkles } from "lucide-react";
+import { Music2, Plane, Sparkles, UserPlus } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { SiteThemeKind } from "@/types/theming";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
@@ -44,57 +44,61 @@ export function LandingMozarthitosSections({
         className="relative isolate z-[2] min-h-[min(100dvh,920px)] overflow-hidden text-white mz-hero-surface sm:min-h-[78vh] md:min-h-[88vh]"
         aria-labelledby="mz-hero-title"
       >
-        <div className="relative z-[1] mx-auto flex max-w-6xl flex-col gap-10 px-[max(1rem,env(safe-area-inset-left))] pb-[max(6rem,env(safe-area-inset-bottom))] pt-[max(5.5rem,env(safe-area-inset-top)+4rem)] sm:gap-12 sm:pb-28 sm:pt-28 md:flex-row md:items-end md:justify-between md:gap-10 md:pb-36 md:pt-32 lg:gap-16 lg:px-6">
-          <MozarthitosReveal
-            preset="heroTitle"
-            eager
-            className="order-2 min-w-0 max-w-xl md:order-1 md:pb-6"
-          >
-            <div className="mz-hero-title-card px-4 py-6 sm:px-6 sm:py-7 md:px-8 md:py-9">
-              <h1
-                id="mz-hero-title"
-                className="text-balance text-[clamp(1.45rem,4.6vw+0.65rem,3.1rem)] leading-[1.06] md:leading-[1.08]"
+        <div className="relative z-[1] mx-auto flex max-w-6xl min-h-[min(72dvh,820px)] flex-col justify-center px-[max(1rem,env(safe-area-inset-left))] pb-[max(5rem,env(safe-area-inset-bottom))] pe-[max(1rem,env(safe-area-inset-right))] pt-[max(5rem,env(safe-area-inset-top)+3.25rem)] sm:min-h-[min(74vh,860px)] sm:pb-24 sm:pt-24 md:min-h-[min(78vh,900px)] md:pb-32 md:pt-28 lg:px-6">
+          <div className="mz-hero-unified-shell relative w-full">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -left-[14%] -top-[18%] h-[52%] w-[52%] max-w-xl rounded-full bg-[color-mix(in_srgb,var(--mz-yellow)_22%,transparent)] blur-[80px]"
+            />
+            <div className="relative grid grid-cols-1 gap-10 px-5 py-8 sm:gap-11 sm:p-9 md:grid-cols-[minmax(0,0.94fr)_minmax(0,1.12fr)] md:items-center md:gap-10 md:px-10 md:py-10 lg:gap-14 lg:px-11 lg:py-11">
+              <MozarthitosReveal
+                preset="heroImage"
+                eager
+                className="order-1 flex justify-center px-2 md:justify-start md:px-0"
               >
-                {marketingLandingCopy(dict, brand, "hero.title")}
-              </h1>
-              <p className="mt-4 border-l-[4px] border-[var(--mz-yellow)] pl-3 text-sm font-semibold leading-relaxed text-white/95 sm:mt-5 sm:border-l-[5px] sm:pl-4 sm:text-base md:mt-6 md:pl-5 md:text-lg">
-                {marketingLandingCopy(dict, brand, "hero.subtitle")}
-              </p>
-              <div className="mt-6 flex w-full max-w-md flex-col gap-3 sm:mt-7 sm:max-w-none sm:flex-row sm:flex-wrap md:mt-8">
-                <Link
-                  href={`/${locale}#quienes`}
-                  className="inline-flex min-h-[48px] w-full flex-1 items-center justify-center gap-2 rounded-full bg-[var(--mz-yellow)] px-5 py-3 text-sm font-bold text-[var(--mz-ink-on-white)] shadow-[0_10px_28px_rgb(0_0_0_/28%)] transition-colors hover:bg-[var(--mz-yellow-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:w-auto sm:min-w-[11rem]"
-                >
-                  <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
-                  {marketingLandingCopy(dict, brand, "hero.ctaPrimary")}
-                </Link>
-                <Link
-                  href={`/${locale}#contacto`}
-                  className="inline-flex min-h-[48px] w-full flex-1 items-center justify-center gap-2 rounded-full border-2 border-white/80 bg-white/12 px-5 py-3 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/22 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:w-auto sm:min-w-[11rem]"
-                >
-                  <MessageCircle className="h-4 w-4 shrink-0" aria-hidden />
-                  {marketingLandingCopy(dict, brand, "hero.ctaSecondary")}
-                </Link>
-              </div>
+                <div className="mz-hero-photo-frame mx-auto w-full max-w-[min(100%,288px)] sm:max-w-[min(100%,312px)] md:mx-0 md:max-w-none">
+                  <Image
+                    src={img("inicio", "2.png")}
+                    alt=""
+                    width={520}
+                    height={520}
+                    className="aspect-square w-full rounded-[22px] object-cover sm:rounded-[24px] md:h-[min(34vw,340px)] md:w-[min(34vw,340px)] md:rounded-[28px]"
+                    sizes="(max-width: 768px) min(288px, 100vw), (max-width: 1280px) 34vw, 340px"
+                    priority
+                  />
+                </div>
+              </MozarthitosReveal>
+              <MozarthitosReveal preset="heroTitle" eager className="order-2 min-w-0">
+                <div className="min-w-0 space-y-0 px-0.5 text-center md:max-w-xl md:text-left md:px-0">
+                  <h1
+                    id="mz-hero-title"
+                    className="text-balance text-[clamp(1.45rem,4.6vw+0.65rem,3.1rem)] leading-[1.06] md:leading-[1.08]"
+                  >
+                    {marketingLandingCopy(dict, brand, "hero.title")}
+                  </h1>
+                  <p className="mx-auto mt-4 max-w-lg border-l-[4px] border-[var(--mz-yellow)] pl-3 text-left text-sm font-semibold leading-relaxed text-white/95 sm:mt-5 sm:border-l-[5px] sm:pl-4 sm:text-base md:mx-0 md:mt-6 md:pl-5 md:text-lg">
+                    {marketingLandingCopy(dict, brand, "hero.subtitle")}
+                  </p>
+                  <div className="mt-6 flex w-full flex-col gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:justify-center md:mt-8 md:max-w-xl md:justify-start">
+                    <Link
+                      href={`/${locale}#quienes`}
+                      className="inline-flex min-h-[48px] w-full flex-1 items-center justify-center gap-2 rounded-full bg-[var(--mz-yellow)] px-5 py-3 text-sm font-bold text-[var(--mz-ink-on-white)] shadow-[0_10px_28px_rgb(0_0_0_/28%)] transition-colors hover:bg-[var(--mz-yellow-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:min-w-[11rem]"
+                    >
+                      <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
+                      {marketingLandingCopy(dict, brand, "hero.ctaPrimary")}
+                    </Link>
+                    <Link
+                      href={`/${locale}/register`}
+                      className="inline-flex min-h-[48px] w-full flex-1 items-center justify-center gap-2 rounded-full border-2 border-white/80 bg-white/12 px-5 py-3 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/22 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:min-w-[11rem]"
+                    >
+                      <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
+                      {marketingLandingCopy(dict, brand, "hero.ctaSecondary")}
+                    </Link>
+                  </div>
+                </div>
+              </MozarthitosReveal>
             </div>
-          </MozarthitosReveal>
-          <MozarthitosReveal
-            preset="heroImage"
-            eager
-            className="order-1 flex w-full justify-center px-1 md:order-2 md:w-auto md:max-w-[42%] md:justify-end md:px-0 md:pb-2 lg:max-w-none"
-          >
-            <div className="mz-hero-photo-frame mx-auto w-full max-w-[min(100%,288px)] sm:max-w-[min(100%,300px)] md:mx-0 md:max-w-none">
-              <Image
-                src={img("inicio", "2.png")}
-                alt=""
-                width={520}
-                height={520}
-                className="aspect-square w-full rounded-[22px] object-cover sm:rounded-[24px] md:h-[min(32vw,320px)] md:w-[min(32vw,320px)] md:rounded-[28px]"
-                sizes="(max-width: 768px) min(288px, 100vw), (max-width: 1280px) 32vw, 320px"
-                priority
-              />
-            </div>
-          </MozarthitosReveal>
+          </div>
         </div>
       </section>
 

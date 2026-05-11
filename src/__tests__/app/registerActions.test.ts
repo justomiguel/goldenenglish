@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { submitPublicRegistration } from "@/app/[locale]/register/actions";
 import { REGISTRATION_UNDECIDED_FORM_VALUE } from "@/lib/register/registrationSectionConstants";
 import esDict from "@/dictionaries/es.json";
@@ -29,6 +29,21 @@ const valid = {
   preferred_section_id: SECTION_ID,
 };
 
+const minorNoStudentEmailPayload = {
+  first_name: "Juan",
+  last_name: "Pérez",
+  dni: "12-345-K",
+  email: "",
+  phone: "",
+  birth_date: "2015-01-01",
+  preferred_section_id: SECTION_ID,
+  tutor_name: "María",
+  tutor_dni: "999",
+  tutor_email: "tutor@example.com",
+  tutor_phone: "+200",
+  tutor_relationship: "Madre",
+};
+
 function mockClientWithRpcAndInsert(insertResult: { error: unknown }) {
   return {
     rpc: vi.fn().mockResolvedValue({
@@ -44,6 +59,11 @@ function mockClientWithRpcAndInsert(insertResult: { error: unknown }) {
 describe("submitPublicRegistration", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("MAIL_TENANT", "");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it("returns closed when inscriptions disabled", async () => {
@@ -111,5 +131,44 @@ describe("submitPublicRegistration", () => {
     expect(r).toEqual({ ok: true });
     expect(rpc).not.toHaveBeenCalled();
     expect(insert).toHaveBeenCalled();
+  });
+
+  it("returns validation when minor payload includes student email", async () => {
+    mockGetInscriptionsEnabled.mockResolvedValue(true);
+    vi.stubEnv("MAIL_TENANT", "alumnos.test");
+    const r = await submitPublicRegistration("es", {
+      ...minorNoStudentEmailPayload,
+      email: "tampered@x.com",
+    });
+    expect(r).toEqual({ ok: false, message: esDict.register.validationError });
+  });
+
+  it("returns mail tenant missing when minor and MAIL_TENANT unset", async () => {
+    mockGetInscriptionsEnabled.mockResolvedValue(true);
+    const r = await submitPublicRegistration("es", minorNoStudentEmailPayload);
+    expect(r).toEqual({
+      ok: false,
+      message: esDict.actionErrors.register.mailTenantMissing,
+    });
+  });
+
+  it("persists synthetic email for minor when MAIL_TENANT set", async () => {
+    vi.stubEnv("MAIL_TENANT", "alumnos.test");
+    mockGetInscriptionsEnabled.mockResolvedValue(true);
+    const insert = vi.fn().mockResolvedValue({ error: null });
+    mockCreateClient.mockResolvedValue({
+      rpc: vi.fn().mockResolvedValue({
+        data: "Cohort — Section A",
+        error: null,
+      }),
+      from: () => ({ insert }),
+    });
+    const r = await submitPublicRegistration("es", minorNoStudentEmailPayload);
+    expect(r).toEqual({ ok: true });
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: "juanperez-12345k@alumnos.test",
+      }),
+    );
   });
 });

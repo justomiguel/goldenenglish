@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 const SELECT_FULL =
-  "first_name, last_name, phone, dni_or_passport, birth_date, avatar_url, role, is_minor" as const;
+  "first_name, last_name, phone, dni_or_passport, birth_date, avatar_url, role, is_minor, home_address_text, home_place_id" as const;
 const SELECT_FALLBACK =
   "first_name, last_name, phone, dni_or_passport, birth_date, avatar_url, role" as const;
 
@@ -18,6 +18,8 @@ export type DashboardProfileRow = {
   avatar_url: string | null;
   role: string | null;
   is_minor?: boolean | null;
+  home_address_text?: string | null;
+  home_place_id?: string | null;
 };
 
 const ROLES = new Set(["admin", "teacher", "student", "parent", "assistant"]);

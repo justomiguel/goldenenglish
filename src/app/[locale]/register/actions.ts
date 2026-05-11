@@ -9,6 +9,10 @@ import {
 } from "@/lib/register/publicRegistrationSchema";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
+import { composeSyntheticMinorStudentEmail } from "@/lib/register/composeSyntheticMinorStudentEmail";
+import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
+import { randomLowercaseAlphaString } from "@/lib/server/randomLowercaseAlphaString";
 import {
   REGISTRATION_LEVEL_INTEREST_UNDECIDED,
   REGISTRATION_UNDECIDED_FORM_VALUE,
@@ -35,6 +39,18 @@ export async function submitPublicRegistration(
   }
 
   const d = parsed.data;
+  const legal = getLegalAgeMajorityFromSystem();
+  const age = fullYearsFromIsoDate(d.birth_date);
+  const tutorMail = (d.tutor_email ?? "").trim().toLowerCase();
+
+  const tenantDomain = age < legal ? getRegistrationMailTenantDomain() : null;
+  if (age < legal && !tenantDomain) {
+    return {
+      ok: false,
+      message: dict.actionErrors.register.mailTenantMissing,
+    };
+  }
+
   const supabase = await createClient();
 
   const isUndecided = d.preferred_section_id === REGISTRATION_UNDECIDED_FORM_VALUE;
@@ -60,27 +76,69 @@ export async function submitPublicRegistration(
     preferredSectionId = d.preferred_section_id;
   }
 
-  const { error } = await supabase.from("registrations").insert({
-    first_name: d.first_name,
-    last_name: d.last_name,
-    dni: d.dni,
-    email: d.email,
-    phone: d.phone,
-    birth_date: d.birth_date,
-    preferred_section_id: preferredSectionId,
-    level_interest: sectionLabelForRow,
-    status: "new",
-    tutor_name: d.tutor_name?.trim() || null,
-    tutor_dni: d.tutor_dni?.trim() || null,
-    tutor_phone: d.tutor_phone?.trim() || null,
-    tutor_email: d.tutor_email?.trim() || null,
-    tutor_relationship: d.tutor_relationship?.trim() || null,
-  });
+  const maxMinorEmailAttempts = 16;
+  const maxAttempts = age < legal ? maxMinorEmailAttempts : 1;
 
-  if (error) {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    let resolvedEmail: string;
+    if (age < legal) {
+      if (attempt === 0) {
+        resolvedEmail = composeSyntheticMinorStudentEmail(
+          d.first_name,
+          d.last_name,
+          d.dni,
+          tenantDomain!,
+        ).toLowerCase();
+      } else {
+        const suffixLen = Math.min(2 + attempt, 10);
+        resolvedEmail = composeSyntheticMinorStudentEmail(
+          d.first_name,
+          d.last_name,
+          d.dni,
+          tenantDomain!,
+          { coreSuffix: randomLowercaseAlphaString(suffixLen) },
+        ).toLowerCase();
+      }
+    } else {
+      resolvedEmail = d.email.trim().toLowerCase();
+    }
+
+    if (age < legal && tutorMail && tutorMail === resolvedEmail) {
+      return {
+        ok: false,
+        message: reg.tutorEmailSameAsStudent,
+      };
+    }
+
+    const { error } = await supabase.from("registrations").insert({
+      first_name: d.first_name,
+      last_name: d.last_name,
+      dni: d.dni,
+      email: resolvedEmail,
+      phone: age < legal ? null : d.phone.trim(),
+      birth_date: d.birth_date,
+      preferred_section_id: preferredSectionId,
+      level_interest: sectionLabelForRow,
+      status: "new",
+      tutor_name: d.tutor_name?.trim() || null,
+      tutor_dni: d.tutor_dni?.trim() || null,
+      tutor_phone: d.tutor_phone?.trim() || null,
+      tutor_email: d.tutor_email?.trim() || null,
+      tutor_relationship: d.tutor_relationship?.trim() || null,
+    });
+
+    if (!error) {
+      revalidatePath(`/${locale}/dashboard/admin/registrations`, "page");
+      return { ok: true };
+    }
+
+    const isUniqueViolation = error.code === "23505";
+    if (age < legal && isUniqueViolation && attempt < maxAttempts - 1) {
+      continue;
+    }
+
     return { ok: false, message: dict.actionErrors.register.insertFailed };
   }
 
-  revalidatePath(`/${locale}/dashboard/admin/registrations`, "page");
-  return { ok: true };
+  return { ok: false, message: dict.actionErrors.register.insertFailed };
 }

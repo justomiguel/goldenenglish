@@ -21,8 +21,8 @@ export function buildPublicRegistrationSchema(legalAgeMajority: number) {
       first_name: z.string().trim().min(1).max(120),
       last_name: z.string().trim().min(1).max(120),
       dni: z.string().trim().min(1).max(32),
-      email: z.string().trim().email().max(254),
-      phone: z.string().trim().min(1).max(40),
+      email: z.string().trim().max(254),
+      phone: z.string().trim().max(40),
       birth_date: z
         .string()
         .trim()
@@ -40,7 +40,48 @@ export function buildPublicRegistrationSchema(legalAgeMajority: number) {
     })
     .superRefine((data, ctx) => {
       const age = fullYearsFromIsoDate(data.birth_date);
-      if (age >= legalAgeMajority) return;
+      const rawEmail = data.email.trim();
+
+      if (age >= legalAgeMajority) {
+        if (!rawEmail) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["email"],
+            message: "required",
+          });
+        } else if (!z.string().email().safeParse(rawEmail).success) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["email"],
+            message: "invalid",
+          });
+        }
+        const phoneTrim = data.phone.trim();
+        if (!phoneTrim) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["phone"],
+            message: "required",
+          });
+        }
+        return;
+      }
+
+      if (rawEmail.length > 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["email"],
+          message: "minor_student_email_disallowed",
+        });
+      }
+
+      if (data.phone.trim().length > 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["phone"],
+          message: "minor_student_phone_disallowed",
+        });
+      }
 
       const tutorName = data.tutor_name?.trim();
       const tutorDni = data.tutor_dni?.trim();
@@ -81,16 +122,6 @@ export function buildPublicRegistrationSchema(legalAgeMajority: number) {
           code: z.ZodIssueCode.custom,
           path: ["tutor_relationship"],
           message: "required",
-        });
-      }
-      if (
-        tutorEmail &&
-        tutorEmail.toLowerCase() === data.email.toLowerCase()
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["tutor_email"],
-          message: "same_as_student",
         });
       }
       if (tutorDni && tutorDni.toLowerCase() === data.dni.toLowerCase()) {

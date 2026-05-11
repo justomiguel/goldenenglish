@@ -26,6 +26,8 @@ export const NAGO_LANDING_COPY_KEYS_BY_SECTION: Readonly<
     "nago.nav.galeria",
     "nago.nav.eventos",
     "nago.nav.contacto",
+    "nago.register.shellTitle",
+    "nago.register.shellLead",
     "nago.hero.title",
     "nago.hero.subtitle",
     "nago.hero.tagline",

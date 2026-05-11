@@ -12,6 +12,8 @@ export const myProfilePersonalSchema = z.object({
     .max(32)
     .optional()
     .transform((s) => (s && s.length > 0 ? s : null)),
+  home_address_text: z.string().optional(),
+  home_place_id: z.string().optional(),
 });
 
 export type MyProfilePersonalInput = z.infer<typeof myProfilePersonalSchema>;

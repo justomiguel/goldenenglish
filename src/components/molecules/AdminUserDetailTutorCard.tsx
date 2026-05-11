@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Save, UserPlus, Users } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import type { TutorStudentRelationshipCode } from "@/lib/register/tutorStudentRelationship";
 import type { AdminUserTutorLinkVM } from "@/lib/dashboard/adminUserDetailVM";
 import {
   searchAdminParentsForDetailAction,
@@ -13,6 +14,10 @@ import {
 import type { AdminStudentSearchHitLike } from "@/components/molecules/AdminStudentSearchCombobox";
 import { StaffSearchComboboxWithChipQueue } from "@/components/molecules/StaffSearchComboboxWithChipQueue";
 import { AdminUserDetailTutorCreateModal } from "@/components/molecules/AdminUserDetailTutorCreateModal";
+import {
+  AdminUserDetailTutorRelationshipSelect,
+  formatAdminTutorRelationshipLabel,
+} from "@/components/molecules/AdminUserDetailTutorRelationshipSelect";
 import { AdminUserDetailTutorLinkedRow } from "@/components/molecules/AdminUserDetailTutorLinkedRow";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { Button } from "@/components/atoms/Button";
@@ -40,6 +45,7 @@ export function AdminUserDetailTutorCard({
 }: AdminUserDetailTutorCardProps) {
   const router = useRouter();
   const [queue, setQueue] = useState<AdminStudentSearchHitLike[]>([]);
+  const [relationship, setRelationship] = useState<TutorStudentRelationshipCode | "">("");
   const [fieldResetKey, setFieldResetKey] = useState(0);
   const [busy, setBusy] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
@@ -64,6 +70,10 @@ export function AdminUserDetailTutorCard({
       onFeedback(labels.detailTutorPickFirst, false);
       return;
     }
+    if (!relationship) {
+      onFeedback(labels.detailErrTutorRelationshipRequired, false);
+      return;
+    }
     setBusy(true);
     try {
       for (const item of queue) {
@@ -71,6 +81,7 @@ export function AdminUserDetailTutorCard({
           locale,
           studentId,
           newTutorId: item.id,
+          relationship,
         });
         if (!r.ok) {
           onFeedback(r.message ?? labels.detailErrSave, false);
@@ -79,6 +90,7 @@ export function AdminUserDetailTutorCard({
       }
       onFeedback(labels.detailToastTutorSaved, true);
       setQueue([]);
+      setRelationship("");
       setFieldResetKey((k) => k + 1);
       router.refresh();
     } finally {
@@ -127,6 +139,7 @@ export function AdminUserDetailTutorCard({
               <AdminUserDetailTutorLinkedRow
                 key={t.tutorId}
                 tutor={t}
+                relationshipLabel={formatAdminTutorRelationshipLabel(labels, t.relationshipCode)}
                 editable={showLinkUi}
                 rowBusy={rowBusyGlobal}
                 unlinkLabel={labels.detailTutorUnlink}
@@ -146,6 +159,13 @@ export function AdminUserDetailTutorCard({
         <div className="mt-5 space-y-4 border-t border-[var(--color-border)] pt-4">
           <div className="space-y-3">
             <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailTutorLinkHint}</p>
+            <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailTutorLinkRelationshipLead}</p>
+            <AdminUserDetailTutorRelationshipSelect
+              value={relationship}
+              onChange={setRelationship}
+              labels={labels}
+              disabled={busy}
+            />
             <StaffSearchComboboxWithChipQueue
               id="admin-user-tutor-search"
               labelText={labels.detailTutorSearchLabel}

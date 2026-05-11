@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import es from "@/dictionaries/es.json";
-import { deleteAdminUsers } from "@/app/[locale]/dashboard/admin/users/deleteActions";
+import {
+  deleteAdminUsers,
+  previewAdminUserDeletionPlan,
+} from "@/app/[locale]/dashboard/admin/users/deleteActions";
 
 const U = es.admin.users;
 
@@ -86,6 +89,23 @@ describe("deleteAdminUsers", () => {
       .mockResolvedValueOnce({ error: { message: "nope" } });
     const r = await deleteAdminUsers("es", [idOk, idFail]);
     expect(r).toEqual({ ok: true, deleted: 1, partial: true });
+  });
+
+  it("preview rejects when not admin", async () => {
+    mockAssertAdmin.mockRejectedValue(new Error("no"));
+    const r = await previewAdminUserDeletionPlan("es", ["550e8400-e29b-41d4-a716-446655440000"]);
+    expect(r).toEqual({ ok: false, message: U.errDeleteForbidden });
+  });
+
+  it("preview returns totals for a simple delete plan", async () => {
+    mockAssertAdmin.mockResolvedValue({
+      user: { id: "11111111-1111-1111-1111-111111111111" },
+    });
+    const id = "550e8400-e29b-41d4-a716-446655440000";
+    const r = await previewAdminUserDeletionPlan("es", [id]);
+    expect(r.ok).toBe(true);
+    if (!r.ok) throw new Error("unexpected");
+    expect(r.addedStudents).toEqual([]);
   });
 
   it("returns error when every delete fails", async () => {

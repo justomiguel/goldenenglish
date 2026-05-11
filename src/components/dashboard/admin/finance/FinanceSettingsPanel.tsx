@@ -154,7 +154,12 @@ export function FinanceSettingsPanel({
         </div>
       </div>
 
-      <FinanceFlowGatewayCard locale={locale} initial={flowGatewayInitial} dict={dict} />
+      <FinanceFlowGatewayCard
+        key={`flow-gw-${flowGatewayInitial.environment}-${flowGatewayInitial.enabled}-${flowGatewayInitial.hasCredentials}`}
+        locale={locale}
+        initial={flowGatewayInitial}
+        dict={dict}
+      />
     </section>
   );
 }

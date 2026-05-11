@@ -25,6 +25,8 @@ export interface MyProfileScreenProps {
     phone: string;
     dni: string;
     birthDate: string;
+    homeAddressText: string;
+    homePlaceId: string;
   };
   minorPersonalLocked: boolean;
   avatarDisplayUrl: string | null;

@@ -6,8 +6,10 @@ function inviteMetaParent(fields: Record<string, string>): Record<string, unknow
   return { ...fields, provisioning_source: "admin_invite", role: "parent" };
 }
 
+export type EnsureParentReuseKind = "created" | "reused_parent" | "reused_admin";
+
 export type EnsureParentProfileResult =
-  | { ok: true; parentId: string }
+  | { ok: true; parentId: string; reuseKind: EnsureParentReuseKind }
   | { ok: false; message: string };
 
 /**
@@ -44,8 +46,19 @@ export async function ensureParentProfileByTutorDni(
     .maybeSingle();
 
   if (existing?.id) {
-    if (existing.role === "parent" || existing.role === "admin") {
-      return { ok: true, parentId: existing.id as string };
+    if (existing.role === "parent") {
+      return {
+        ok: true,
+        parentId: existing.id as string,
+        reuseKind: "reused_parent",
+      };
+    }
+    if (existing.role === "admin") {
+      return {
+        ok: true,
+        parentId: existing.id as string,
+        reuseKind: "reused_admin",
+      };
     }
     return { ok: false, message: "tutor_dni_in_use_by_student" };
   }
@@ -58,7 +71,7 @@ export async function ensureParentProfileByTutorDni(
   });
   if (error) return { ok: false, message: "auth_failed" };
   if (!created.user) return { ok: false, message: "no_user_returned" };
-  return { ok: true, parentId: created.user.id };
+  return { ok: true, parentId: created.user.id, reuseKind: "created" };
 }
 
 export async function upsertTutorStudentLink(

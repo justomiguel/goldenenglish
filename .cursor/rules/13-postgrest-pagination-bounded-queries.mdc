@@ -35,7 +35,8 @@ Toda **lista de negocio** que pueda superar unos cientos de filas debe nacer **p
 | Listado admin paginado + total + `q` / `sort` / `page` vía URL | `src/lib/dashboard/loadPaginatedRegistrations.ts`, página `src/app/[locale]/dashboard/admin/registrations/page.tsx`, hooks `useAdminRegistrationsList` |
 | Listado usuarios admin paginado desde `profiles` + email por página | `src/lib/dashboard/loadPaginatedAdminUsers.ts`, página `src/app/[locale]/dashboard/admin/users/page.tsx`, hook `useAdminUsersTable` |
 | Trocear `.in("id", miles_de_uuids)` | `src/lib/supabase/chunkedIn.ts` |
-| Conteos hub admin sin scan de filas | RPC `admin_hub_profile_counts` en `supabase/migrations/030_admin_hub_profile_counts_rpc.sql`, consumo en `src/lib/dashboard/loadAdminHubSummary.ts` |
+| Conteos hub admin sin scan de filas | RPC `admin_hub_profile_counts` en `supabase/migrations/031_admin_hub_profile_counts_rpc.sql`, consumo en `src/lib/dashboard/loadAdminHubSummary.ts` |
+| Conteos para **filtros** de listados en **dashboard** (cualquier rol; ej. totales en un select) | RPC dedicada + loader — ver **24-dashboard-list-filter-aggregates-rpc.mdc** (ej. staff: `admin_users_list_role_counts` en `112_admin_users_list_role_counts_rpc.sql`, `loadAdminUsersListRoleCounts.ts`) |
 | Jobs / cron que procesan muchos candidatos | **Lote** (`limit` razonable) + **orden estable** + re-ejecución (el siguiente run continúa); ver `src/app/api/cron/churn-inactivity/route.ts` |
 | Tabla + `UniversalListView` + `TablePagination` | Los totales que alimenta la paginación deben ser el **total servidor** del filtro activo, no `rows.length` de un subconjunto arbitrario |
 

@@ -52,7 +52,7 @@ const nextConfig: NextConfig = {
     optimizePackageImports: [
       "lucide-react",
       "recharts",
-      "i18n-iso-countries",
+      "react-day-picker",
       "@tiptap/react",
       "@tiptap/starter-kit",
       "@tiptap/extension-table",

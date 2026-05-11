@@ -6,7 +6,9 @@ import { submitPublicRegistration } from "@/app/[locale]/register/actions";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { RegisterBirthDateDayPicker } from "@/components/molecules/RegisterBirthDateDayPicker";
 import { RegisterSuccessDialog } from "@/components/molecules/RegisterSuccessDialog";
+import { REGISTER_NATIVE_SELECT_CN } from "@/components/register/registerFormNativeSelectCn";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
 import type { PublicRegistrationInput } from "@/lib/register/publicRegistrationSchema";
 import { REGISTRATION_UNDECIDED_FORM_VALUE } from "@/lib/register/registrationSectionConstants";
@@ -18,9 +20,6 @@ interface RegisterFormProps {
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
 }
-
-const selectClassName =
-  "w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-1 disabled:opacity-50";
 
 export function RegisterForm({
   locale,
@@ -40,6 +39,11 @@ export function RegisterForm({
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (birthDate.length !== 10) {
+      setMsgTone("error");
+      setMsg(dict.birthDateIncomplete);
+      return;
+    }
     setBusy(true);
     setMsg(null);
     setMsgTone("error");
@@ -89,51 +93,57 @@ export function RegisterForm({
         className="w-full max-w-lg space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-card)] ring-1 ring-[var(--color-primary)]/[0.06]"
       >
         <div>
-          <Label htmlFor="rg-fn">{dict.firstName}</Label>
-          <Input
-            id="rg-fn"
-            name="first_name"
-            required
-            className="mt-1 w-full"
-          />
+          <Label htmlFor="rg-fn" required>{dict.firstName}</Label>
+          <Input id="rg-fn" name="first_name" required autoComplete="given-name" className="mt-1 w-full" />
         </div>
         <div>
-          <Label htmlFor="rg-ln">{dict.lastName}</Label>
-          <Input id="rg-ln" name="last_name" required className="mt-1 w-full" />
+          <Label htmlFor="rg-ln" required>{dict.lastName}</Label>
+          <Input id="rg-ln" name="last_name" required autoComplete="family-name" className="mt-1 w-full" />
         </div>
+        <input type="hidden" name="birth_date" value={birthDate} readOnly aria-hidden />
+        <RegisterBirthDateDayPicker
+          locale={locale}
+          birthDateLegendRequired
+          labels={{
+            birthDate: dict.birthDate,
+            birthMonth: dict.birthMonth,
+            birthYear: dict.birthYear,
+            birthDay: dict.birthDay,
+            birthDayPlaceholder: dict.birthDayPlaceholder,
+            birthDateHint: dict.birthDateHint,
+            birthDatePickPrompt: dict.birthDatePickPrompt,
+            birthDatePickedAnnouncement: dict.birthDatePickedAnnouncement,
+          }}
+          value={birthDate}
+          onChange={setBirthDate}
+        />
         <div>
-          <Label htmlFor="rg-dni">{dict.dni}</Label>
-          <Input id="rg-dni" name="dni" required className="mt-1 w-full" />
+          <Label htmlFor="rg-dni" required>{dict.dni}</Label>
+          <Input id="rg-dni" name="dni" required autoComplete="off" className="mt-1 w-full" />
+          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{dict.documentIdFormatHint}</p>
         </div>
-        <div>
-          <Label htmlFor="rg-em">{dict.email}</Label>
-          <Input
-            id="rg-em"
-            name="email"
-            type="email"
-            required
-            className="mt-1 w-full"
-          />
-        </div>
-        <div>
-          <Label htmlFor="rg-ph">{dict.phone}</Label>
-          <Input id="rg-ph" name="phone" required className="mt-1 w-full" />
-        </div>
-        <div>
-          <Label htmlFor="rg-bd">{dict.birthDate}</Label>
-          <Input
-            id="rg-bd"
-            name="birth_date"
-            type="date"
-            required
-            className="mt-1 w-full"
-            autoComplete="bday"
-            onChange={(ev) => setBirthDate(ev.target.value)}
-          />
-          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-            {dict.birthDateHint}
+        {showTutor ? (
+          <p className="text-xs text-[var(--color-muted-foreground)]" role="note">
+            {dict.studentEmailNotCollectedMinorLead}
           </p>
-        </div>
+        ) : null}
+        {!showTutor ? (
+          <>
+            <div>
+              <Label htmlFor="rg-em" required>{dict.email}</Label>
+              <Input id="rg-em" name="email" type="email" required autoComplete="email" className="mt-1 w-full" />
+            </div>
+            <div>
+              <Label htmlFor="rg-ph" required>{dict.phone}</Label>
+              <Input id="rg-ph" name="phone" required autoComplete="tel" className="mt-1 w-full" />
+            </div>
+          </>
+        ) : (
+          <>
+            <input type="hidden" name="email" value="" />
+            <input type="hidden" name="phone" value="" readOnly aria-hidden />
+          </>
+        )}
         {showTutor ? (
           <fieldset className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/40 p-4">
             <legend className="px-1 text-sm font-semibold text-[var(--color-foreground)]">
@@ -141,35 +151,25 @@ export function RegisterForm({
             </legend>
             <p className="text-xs text-[var(--color-muted-foreground)]">{dict.tutorSectionLead}</p>
             <div>
-              <Label htmlFor="rg-tn">{dict.tutorName}</Label>
+              <Label htmlFor="rg-tn" required>{dict.tutorName}</Label>
               <Input id="rg-tn" name="tutor_name" required={showTutor} className="mt-1 w-full" />
             </div>
             <div>
-              <Label htmlFor="rg-td">{dict.tutorDni}</Label>
+              <Label htmlFor="rg-td" required>{dict.tutorDni}</Label>
               <Input id="rg-td" name="tutor_dni" required={showTutor} className="mt-1 w-full" />
+              <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{dict.documentIdFormatHint}</p>
             </div>
             <div>
-              <Label htmlFor="rg-te">{dict.tutorEmail}</Label>
-              <Input
-                id="rg-te"
-                name="tutor_email"
-                type="email"
-                required={showTutor}
-                className="mt-1 w-full"
-              />
+              <Label htmlFor="rg-te" required>{dict.tutorEmail}</Label>
+              <Input id="rg-te" name="tutor_email" type="email" required={showTutor} className="mt-1 w-full" />
             </div>
             <div>
-              <Label htmlFor="rg-tp">{dict.tutorPhone}</Label>
+              <Label htmlFor="rg-tp" required>{dict.tutorPhone}</Label>
               <Input id="rg-tp" name="tutor_phone" required={showTutor} className="mt-1 w-full" />
             </div>
             <div>
-              <Label htmlFor="rg-tr">{dict.tutorRelationship}</Label>
-              <Input
-                id="rg-tr"
-                name="tutor_relationship"
-                required={showTutor}
-                className="mt-1 w-full"
-              />
+              <Label htmlFor="rg-tr" required>{dict.tutorRelationship}</Label>
+              <Input id="rg-tr" name="tutor_relationship" required={showTutor} className="mt-1 w-full" />
             </div>
           </fieldset>
         ) : null}
@@ -179,12 +179,12 @@ export function RegisterForm({
           </p>
         ) : null}
         <div>
-          <Label htmlFor="rg-section">{dict.level}</Label>
+          <Label htmlFor="rg-section" required>{dict.level}</Label>
           <select
             id="rg-section"
             name="preferred_section_id"
             required
-            className={`mt-1 ${selectClassName}`}
+            className={`mt-1 ${REGISTER_NATIVE_SELECT_CN}`}
             defaultValue=""
           >
             <option value="" disabled>
@@ -209,11 +209,7 @@ export function RegisterForm({
         </Button>
         {msg ? (
           <p
-            className={
-              msgTone === "muted"
-                ? "text-sm text-[var(--color-muted-foreground)]"
-                : "text-sm text-[var(--color-error)]"
-            }
+            className={msgTone === "muted" ? "text-sm text-[var(--color-muted-foreground)]" : "text-sm text-[var(--color-error)]"}
             role="alert"
           >
             {msg}

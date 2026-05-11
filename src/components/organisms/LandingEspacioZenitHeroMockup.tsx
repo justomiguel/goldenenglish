@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { EspacioZenitHeroSplash } from "@/components/molecules/EspacioZenitHeroSplash";
@@ -97,10 +97,10 @@ export function LandingEspacioZenitHeroMockup({
               </p>
               <div className="mx-auto h-1 max-w-[min(100%,240px)] rounded-full bg-[var(--ez-cyan)] opacity-90 ez-mock-brush-rule" />
               <Link
-                href={`${prefix}#contacto`}
+                href={`${prefix}/register`}
                 className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/35 bg-white/10 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:bg-white/18 md:text-sm"
               >
-                <MessageCircle className="h-4 w-4 shrink-0" aria-hidden />
+                <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
                 {marketingLandingCopy(dict, brand, "hero.ctaSecondary")}
               </Link>
             </div>

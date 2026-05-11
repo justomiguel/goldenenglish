@@ -9,6 +9,7 @@ import {
   myProfilePasswordSchema,
   myProfilePersonalSchema,
 } from "@/lib/profile/myProfileUpdateSchema";
+import { normalizeHomeAddressInput } from "@/lib/profile/normalizeHomeAddressInput";
 import { awardStudentBadges } from "@/lib/badges/awardStudentBadges";
 
 export type MyProfileActionErrorKey =
@@ -39,7 +40,11 @@ export async function updateMyProfile(raw: unknown): Promise<MyProfileActionResu
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, errorKey: "unauthorized" };
 
-  const { locale, first_name, last_name, dni_or_passport, phone, birth_date } = parsed.data;
+  const { locale, first_name, last_name, dni_or_passport, phone, birth_date, home_address_text, home_place_id } =
+    parsed.data;
+
+  const normHome = normalizeHomeAddressInput(home_address_text ?? "", home_place_id?.trim() || null);
+  if (!normHome.ok) return { ok: false, errorKey: "validation" };
 
   const { data: beforeProfile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
   const isStudent = (beforeProfile as { role?: string } | null)?.role === "student";
@@ -52,6 +57,8 @@ export async function updateMyProfile(raw: unknown): Promise<MyProfileActionResu
       dni_or_passport,
       phone,
       birth_date,
+      home_address_text: normHome.value.text,
+      home_place_id: normHome.value.placeId,
     })
     .eq("id", user.id);
 

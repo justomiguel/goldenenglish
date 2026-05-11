@@ -7,6 +7,7 @@ import {
   loadPaginatedAdminUsers,
   type PaginatedAdminUsersParams,
 } from "@/lib/dashboard/loadPaginatedAdminUsers";
+import { loadAdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
 import type { SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
 
 export const metadata: Metadata = {
@@ -57,11 +58,10 @@ export default async function AdminUsersListPage({
   const currentUserId = user?.id ?? "";
 
   const admin = createAdminClient();
-  const result = await loadPaginatedAdminUsers(
-    admin,
-    dict.common.emptyValue,
-    paginationParams,
-  );
+  const [result, roleCounts] = await Promise.all([
+    loadPaginatedAdminUsers(admin, dict.common.emptyValue, paginationParams),
+    loadAdminUsersListRoleCounts(admin),
+  ]);
 
   return (
     <div>
@@ -79,6 +79,7 @@ export default async function AdminUsersListPage({
           pageSize={result.pageSize}
           searchQuery={paginationParams.q ?? ""}
           roleFilter={paginationParams.role ?? "all"}
+          roleCounts={roleCounts}
           sortKey={paginationParams.sort ?? "name"}
           sortDir={paginationParams.dir ?? "asc"}
           locale={locale}

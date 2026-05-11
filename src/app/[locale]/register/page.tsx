@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getDictionary, type AppLocale } from "@/lib/i18n/dictionaries";
+import {
+  getDictionary,
+  type AppLocale,
+} from "@/lib/i18n/dictionaries";
 import { resolvePublicBrand } from "@/lib/brand/resolvePublicBrand";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
@@ -9,10 +12,20 @@ import { createClient } from "@/lib/supabase/server";
 import { RegisterForm } from "@/components/register/RegisterForm";
 import { RegisterCollage } from "@/components/molecules/RegisterCollage";
 import { RegisterSiteHeader } from "@/components/molecules/RegisterSiteHeader";
+import { RegisterEspacioZenitSurface } from "@/components/organisms/RegisterEspacioZenitSurface";
+import { RegisterMozarthitosSurface } from "@/components/organisms/RegisterMozarthitosSurface";
+import { RegisterNagoSurface } from "@/components/organisms/RegisterNagoSurface";
+import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
+import { buildLandingMediaMap } from "@/lib/cms/resolveLandingMedia";
+import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
+import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 
 export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
+
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -20,13 +33,24 @@ interface PageProps {
 
 export default async function RegisterPage({ params }: PageProps) {
   const { locale } = await params;
+  const loc = locale as AppLocale;
   if (!(await getInscriptionsEnabled())) {
     redirect(`/${locale}`);
   }
 
-  const dict = await getDictionary(locale);
-  const brand = await resolvePublicBrand(locale as AppLocale);
-  const legalAgeMajority = getLegalAgeMajorityFromSystem();
+  const [baseDict, brand, snapshot, legalAgeMajority] = await Promise.all([
+    getDictionary(locale),
+    resolvePublicBrand(loc),
+    loadActiveTheme(),
+    getLegalAgeMajorityFromSystem(),
+  ]);
+
+  const templateKind = snapshot?.theme.templateKind ?? "classic";
+  const dict = applyLandingContentOverrides(
+    baseDict,
+    snapshot?.theme.content,
+    loc,
+  );
 
   const supabase = await createClient();
   const { data: sectionOpts } = await supabase.rpc(
@@ -38,6 +62,33 @@ export default async function RegisterPage({ params }: PageProps) {
       label: String(row.label),
     }),
   );
+
+  const mediaMap: LandingMediaMap | undefined = snapshot
+    ? buildLandingMediaMap(
+        snapshot.media,
+        createLandingMediaPublicUrlBuilder(),
+      )
+    : undefined;
+
+  const shellProps = {
+    locale,
+    dict,
+    brand,
+    legalAgeMajority,
+    sectionOptions,
+  };
+
+  if (templateKind === "espaciozenit") {
+    return <RegisterEspacioZenitSurface {...shellProps} mediaMap={mediaMap} />;
+  }
+
+  if (templateKind === "mozarthitos") {
+    return <RegisterMozarthitosSurface {...shellProps} mediaMap={mediaMap} />;
+  }
+
+  if (templateKind === "nago") {
+    return <RegisterNagoSurface {...shellProps} />;
+  }
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[var(--color-muted)] px-4 py-10 md:py-14">

@@ -20,6 +20,37 @@ describe("RegisterForm", () => {
     submitPublicRegistration.mockReset();
   });
 
+  /** react-day-picker: month option values are 0–11 (en/locale-independent). */
+  function pickRegisterBirthIso(isoYmd: string) {
+    const matched = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoYmd.trim());
+    if (!matched) throw new Error(`invalid iso: ${isoYmd}`);
+    const y = matched[1];
+    const mo1 = Number(matched[2]);
+    const dd = matched[3];
+    const scope = document.querySelector(".register-day-picker-scope");
+    if (!(scope instanceof HTMLElement)) throw new Error("birth picker scope missing");
+
+    const monthSelect = scope.querySelector("select[data-register-birth-month]");
+    const yearSelect = scope.querySelector("select[data-register-birth-year]");
+    if (!(monthSelect instanceof HTMLSelectElement))
+      throw new Error("months dropdown missing");
+    if (!(yearSelect instanceof HTMLSelectElement))
+      throw new Error("years dropdown missing");
+
+    fireEvent.change(monthSelect, { target: { value: String(mo1 - 1) } });
+    fireEvent.change(yearSelect, { target: { value: y } });
+
+    /** Month/year opens the calendar panel; toggling closed would undo that. */
+
+    const ymdAttr = `${y}-${matched[2]}-${dd}`;
+    const cell = scope.querySelector(`td[data-day="${ymdAttr}"]`);
+    const btn = cell?.querySelector("button");
+    if (!(btn instanceof HTMLButtonElement)) {
+      throw new Error(`day button missing for ${ymdAttr}`);
+    }
+    fireEvent.click(btn);
+  }
+
   function fillAndSubmit() {
     const r = dictEn.register;
     fireEvent.change(screen.getByLabelText(r.firstName), {
@@ -33,9 +64,7 @@ describe("RegisterForm", () => {
     fireEvent.change(screen.getByLabelText(r.phone), {
       target: { value: "+100" },
     });
-    fireEvent.change(screen.getByLabelText(r.birthDate), {
-      target: { value: "2000-06-15" },
-    });
+    pickRegisterBirthIso("2000-06-15");
     fireEvent.change(screen.getByLabelText(r.level), {
       target: { value: SECTION_ID },
     });
@@ -133,10 +162,66 @@ describe("RegisterForm", () => {
         sectionOptions={SECTION_OPTIONS}
       />,
     );
-    fireEvent.change(screen.getByLabelText(dictEn.register.birthDate), {
-      target: { value: "2015-01-01" },
-    });
+    pickRegisterBirthIso("2015-01-01");
+    expect(screen.queryByLabelText(dictEn.register.email)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(dictEn.register.phone)).not.toBeInTheDocument();
+    expect(
+      screen.getByText(dictEn.register.studentEmailNotCollectedMinorLead),
+    ).toBeInTheDocument();
     expect(screen.getByText(dictEn.register.tutorSectionTitle)).toBeInTheDocument();
+  });
+
+  it("submits minor flow without student email field", async () => {
+    submitPublicRegistration.mockResolvedValue({ ok: true });
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={SECTION_OPTIONS}
+      />,
+    );
+    const r = dictEn.register;
+    fireEvent.change(screen.getByLabelText(r.firstName), {
+      target: { value: "Ch" },
+    });
+    fireEvent.change(screen.getByLabelText(r.lastName), {
+      target: { value: "Lo" },
+    });
+    fireEvent.change(screen.getByLabelText(r.dni), { target: { value: "12345678" } });
+    pickRegisterBirthIso("2015-01-01");
+    expect(screen.queryByLabelText(r.email)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(r.phone)).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(r.tutorName), {
+      target: { value: "María" },
+    });
+    fireEvent.change(screen.getByLabelText(r.tutorDni), { target: { value: "999" } });
+    fireEvent.change(screen.getByLabelText(r.tutorEmail), {
+      target: { value: "tutor@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText(r.tutorPhone), {
+      target: { value: "+200" },
+    });
+    fireEvent.change(screen.getByLabelText(r.tutorRelationship), {
+      target: { value: "Madre" },
+    });
+    fireEvent.change(screen.getByLabelText(r.level), {
+      target: { value: SECTION_ID },
+    });
+    fireEvent.click(screen.getByRole("button", { name: r.submit }));
+    await waitFor(() => {
+      expect(screen.getByText(dictEn.register.successTitle)).toBeInTheDocument();
+    });
+    expect(submitPublicRegistration).toHaveBeenCalledWith(
+      "es",
+      expect.objectContaining({
+        email: "",
+        phone: "",
+        birth_date: "2015-01-01",
+        tutor_email: "tutor@example.com",
+        tutor_phone: "+200",
+      }),
+    );
   });
 
   it("submits undecided choice when help-me option is selected", async () => {
@@ -161,9 +246,7 @@ describe("RegisterForm", () => {
     fireEvent.change(screen.getByLabelText(r.phone), {
       target: { value: "+100" },
     });
-    fireEvent.change(screen.getByLabelText(r.birthDate), {
-      target: { value: "2000-06-15" },
-    });
+    pickRegisterBirthIso("2000-06-15");
     fireEvent.change(screen.getByLabelText(r.level), {
       target: { value: REGISTRATION_UNDECIDED_FORM_VALUE },
     });
