@@ -170,14 +170,14 @@ export function ParentPaymentsEntry({
                   tutorPaymentMethodTabs
                 />
               }
-              history={<StudentPaymentsHistory rows={payments} labels={studentLabels} />}
+              history={<StudentPaymentsHistory rows={payments} labels={studentLabels} locale={locale} />}
             />
           ) : (
             <>
               <h2 className="mt-10 font-display text-xl font-semibold text-[var(--color-primary)]">
                 {studentLabels.paymentsHistory}
               </h2>
-              <StudentPaymentsHistory rows={payments} labels={studentLabels} />
+              <StudentPaymentsHistory rows={payments} labels={studentLabels} locale={locale} />
             </>
           )}
         </>

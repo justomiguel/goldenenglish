@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
@@ -22,6 +23,8 @@ export interface PaymentsFlowReturnSurfaceEntryProps {
   lead: string;
   /** Visual emphasis for the status message. */
   variant?: "default" | "success" | "warning" | "error";
+  /** Optional content rendered below the status panel — used for the receipt on success. */
+  belowStatusContent?: ReactNode;
 }
 
 function variantPanelClass(variant: PaymentsFlowReturnSurfaceEntryProps["variant"]): string {
@@ -43,6 +46,7 @@ export function PaymentsFlowReturnSurfaceEntry({
   title,
   lead,
   variant = "default",
+  belowStatusContent,
 }: PaymentsFlowReturnSurfaceEntryProps) {
   const panel = variantPanelClass(variant);
 
@@ -56,6 +60,7 @@ export function PaymentsFlowReturnSurfaceEntry({
         <h1 className="font-display text-2xl font-bold text-[var(--color-secondary)]">{title}</h1>
         <p className="mt-3 text-sm text-[var(--color-muted-foreground)]">{lead}</p>
       </div>
+      {belowStatusContent ? <div className="mt-6">{belowStatusContent}</div> : null}
       <Link
         href={backHref}
         className="mt-6 inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border-2 border-[var(--color-primary)] bg-[var(--color-surface)] px-4 py-2 text-sm font-semibold text-[var(--color-primary)] transition-colors hover:bg-[var(--color-muted)]"
@@ -76,6 +81,7 @@ export function PaymentsFlowReturnSurfaceEntry({
         <h1 className="font-display text-2xl font-bold text-[var(--color-secondary)]">{title}</h1>
         <p className="text-sm text-[var(--color-muted-foreground)]">{lead}</p>
       </div>
+      {belowStatusContent}
       <Link
         href={backHref}
         className="inline-flex min-h-[44px] w-full max-w-xs items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border-2 border-[var(--color-primary)] bg-[var(--color-surface)] px-4 py-2 text-sm font-semibold text-[var(--color-primary)] transition-colors hover:bg-[var(--color-muted)]"

@@ -120,12 +120,38 @@ describe("student portal components", () => {
           },
         ]}
         labels={dictEn.dashboard.student}
+        locale="en"
       />,
     );
     expect(screen.getByRole("link", { name: dictEn.dashboard.student.paymentViewReceipt })).toHaveAttribute(
       "href",
       "https://x",
     );
+  });
+
+  it("StudentPaymentsHistory exposes Download PDF for approved rows pointing at the receipt endpoint", () => {
+    render(
+      <StudentPaymentsHistory
+        rows={[
+          {
+            id: "abc-123",
+            month: 4,
+            year: 2026,
+            amount: 25000,
+            displayAmount: 25000,
+            status: "approved",
+            updated_at: new Date().toISOString(),
+            receiptSignedUrl: null,
+          },
+        ]}
+        labels={dictEn.dashboard.student}
+        locale="es"
+      />,
+    );
+    const link = screen.getByRole("link", {
+      name: new RegExp(dictEn.dashboard.student.monthly.receipt.downloadPdf, "i"),
+    });
+    expect(link).toHaveAttribute("href", "/api/payments/abc-123/receipt.pdf?locale=es");
   });
 
   it("StudentPaymentForm submits", async () => {

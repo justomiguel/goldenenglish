@@ -9,6 +9,7 @@ import type {
   StudentMonthlyPaymentCell,
   StudentMonthlyPaymentSectionRow,
 } from "@/types/studentMonthlyPayments";
+import { StudentMonthlyPaymentFocusApprovedNotice } from "@/components/student/StudentMonthlyPaymentFocusApprovedNotice";
 import { StudentMonthlyTutorPaymentMethodTabs } from "@/components/student/StudentMonthlyTutorPaymentMethodTabs";
 
 type Labels = Dictionary["dashboard"]["student"]["monthly"];
@@ -190,9 +191,7 @@ export function StudentMonthlyPaymentFocus({
       ) : null}
 
       {!isLocked && cell.status === "approved" ? (
-        <p className="mt-4 rounded-[var(--layout-border-radius)] border border-[var(--color-success)]/40 bg-[var(--color-success)]/10 px-3 py-2 text-sm text-[var(--color-success)]">
-          {labels.alreadyApproved}
-        </p>
+        <StudentMonthlyPaymentFocusApprovedNotice locale={locale} paymentId={cell.paymentId} labels={labels} />
       ) : null}
 
       {!isLocked && cell.status === "exempt" ? (
@@ -203,6 +202,7 @@ export function StudentMonthlyPaymentFocus({
 
       {canUpload && paymentMethodTabLayout ? (
         <StudentMonthlyTutorPaymentMethodTabs
+          key={`${section.sectionId}-${cell.year}-${cell.month}`}
           locale={locale}
           studentId={studentId}
           section={section}

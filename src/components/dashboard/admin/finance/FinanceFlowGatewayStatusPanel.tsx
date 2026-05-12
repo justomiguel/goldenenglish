@@ -8,9 +8,15 @@ type FlowDict = Dictionary["admin"]["finance"]["settings"];
 export interface FinanceFlowGatewayStatusPanelProps {
   initial: FlowChileAdminRowSafe;
   dict: FlowDict;
+  /** When credentials exist and Flow might be switched on soon or already enabled. */
+  showFlowMinimumOperationalNotice: boolean;
 }
 
-export function FinanceFlowGatewayStatusPanel({ initial, dict }: FinanceFlowGatewayStatusPanelProps) {
+export function FinanceFlowGatewayStatusPanel({
+  initial,
+  dict,
+  showFlowMinimumOperationalNotice,
+}: FinanceFlowGatewayStatusPanelProps) {
   const configured = initial.hasCredentials;
   const detailConfigured = buildFlowStoredResumeLine(
     {
@@ -49,6 +55,19 @@ export function FinanceFlowGatewayStatusPanel({ initial, dict }: FinanceFlowGate
           <p className="text-xs leading-relaxed text-[var(--color-muted-foreground)]">
             {configured ? detailConfigured : dict.flowBannerBodyMissing}
           </p>
+          {configured && showFlowMinimumOperationalNotice ? (
+            <div
+              role="note"
+              className="mt-3 rounded-[var(--layout-border-radius)] border border-[var(--color-warning)]/40 bg-[var(--color-muted)]/30 px-3 py-2"
+            >
+              <p className="text-xs font-semibold text-[var(--color-foreground)]">
+                {dict.flowMinimumOperationalTitle}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-[var(--color-muted-foreground)]">
+                {dict.flowMinimumOperationalBody}
+              </p>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

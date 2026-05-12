@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Landmark, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
@@ -35,11 +35,6 @@ export function FinanceFlowGatewayCard({ locale, initial, dict }: FinanceFlowGat
   >(null);
   const [replaceOpen, setReplaceOpen] = useState(false);
   const [removeOpen, setRemoveOpen] = useState(false);
-
-  useEffect(() => {
-    setEnvironment(initial.environment);
-    setEnabled(initial.enabled);
-  }, [initial.environment, initial.enabled]);
 
   const persistFlowSettings = () => {
     startTransition(async () => {
@@ -103,7 +98,13 @@ export function FinanceFlowGatewayCard({ locale, initial, dict }: FinanceFlowGat
           <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{dict.flowTitle}</h2>
         </header>
         <p className="mb-3 text-sm text-[var(--color-muted-foreground)]">{dict.flowLead}</p>
-        <FinanceFlowGatewayStatusPanel initial={initial} dict={dict} />
+        <FinanceFlowGatewayStatusPanel
+          initial={initial}
+          dict={dict}
+          showFlowMinimumOperationalNotice={
+            initial.hasCredentials && (enabled || initial.enabled)
+          }
+        />
 
         <div className="max-w-sm space-y-4">
           <div>

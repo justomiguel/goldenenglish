@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { Upload, Wallet } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import {
@@ -60,16 +60,7 @@ export function StudentMonthlyTutorPaymentMethodTabs({
   compactTopSpacing = false,
 }: StudentMonthlyTutorPaymentMethodTabsProps) {
   const reactId = useId().replace(/:/g, "");
-  const scopeKey = `${section.sectionId}-${cell.year}-${cell.month}`;
   const [tab, setTab] = useState<string>(TAB_RECEIPT);
-
-  useEffect(() => {
-    setTab(TAB_RECEIPT);
-  }, [scopeKey]);
-
-  useEffect(() => {
-    if (!showFlowPay) setTab(TAB_RECEIPT);
-  }, [showFlowPay]);
 
   const effectiveTab = showFlowPay ? tab : TAB_RECEIPT;
 

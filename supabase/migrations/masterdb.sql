@@ -11526,3 +11526,59 @@ $$;
 REVOKE ALL ON FUNCTION public.payment_flow_reserve_commerce_ref(UUID, INT, INT) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION public.payment_flow_reserve_commerce_ref(UUID, INT, INT) TO service_role;
+
+-- payment_flow_finalize_records (migration 116) -----------------------------
+-- Snapshot of Flow.cl getStatus when a payments row transitions to approved.
+CREATE TABLE IF NOT EXISTS public.payment_flow_finalize_records (
+  payment_id UUID PRIMARY KEY REFERENCES public.payments (id) ON DELETE CASCADE,
+  flow_order BIGINT NOT NULL,
+  commerce_order TEXT NOT NULL,
+  currency TEXT NOT NULL CHECK (char_length(currency) BETWEEN 3 AND 8),
+  amount NUMERIC(12, 2) NOT NULL CHECK (amount >= 0),
+  paid_at TIMESTAMPTZ NOT NULL,
+  payer_email TEXT,
+  media_label TEXT,
+  raw_payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  fee NUMERIC(12, 2),
+  balance NUMERIC(12, 2),
+  transfer_date TIMESTAMPTZ,
+  conversion_rate NUMERIC(20, 8),
+  conversion_date TIMESTAMPTZ,
+  CONSTRAINT payment_flow_finalize_records_fee_nonneg CHECK (fee IS NULL OR fee >= 0),
+  CONSTRAINT payment_flow_finalize_records_balance_nonneg CHECK (balance IS NULL OR balance >= 0),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS payment_flow_finalize_records_flow_order_idx
+  ON public.payment_flow_finalize_records (flow_order);
+
+DROP TRIGGER IF EXISTS payment_flow_finalize_records_set_updated_at
+  ON public.payment_flow_finalize_records;
+CREATE TRIGGER payment_flow_finalize_records_set_updated_at
+  BEFORE UPDATE ON public.payment_flow_finalize_records
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+ALTER TABLE public.payment_flow_finalize_records ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS payment_flow_finalize_records_select
+  ON public.payment_flow_finalize_records;
+CREATE POLICY payment_flow_finalize_records_select
+  ON public.payment_flow_finalize_records FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.payments p
+      WHERE p.id = payment_flow_finalize_records.payment_id
+        AND (
+          public.is_admin(auth.uid())
+          OR p.student_id = auth.uid()
+          OR p.parent_id = auth.uid()
+          OR EXISTS (
+            SELECT 1 FROM public.profiles t
+            WHERE t.id = auth.uid() AND t.role = 'teacher'
+          )
+          OR public.tutor_can_view_student_finance(auth.uid(), p.student_id)
+        )
+    )
+  );

@@ -114,6 +114,16 @@ export async function startStudentFlowMonthlyPayment(
     if (core.code === "flow_error") {
       return { ok: false, message: dict.dashboard.student.monthly.flowErrorProvider };
     }
+    if (core.code === "flow_amount_below_minimum") {
+      const minAmt = core.flowMinClp ?? 350;
+      return {
+        ok: false,
+        message: dict.dashboard.student.monthly.flowErrorBelowMinimumClp.replace(
+          "{minAmount}",
+          String(minAmt),
+        ),
+      };
+    }
     if (core.code === "slot") {
       return {
         ok: false,

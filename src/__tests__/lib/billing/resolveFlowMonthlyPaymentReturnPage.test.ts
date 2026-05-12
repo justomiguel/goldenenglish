@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveFlowMonthlyPaymentReturnPage } from "@/lib/billing/resolveFlowMonthlyPaymentReturnPage";
 
@@ -15,18 +15,22 @@ const payRow = {
   admin_notes: null,
 };
 
+const loadKeyMock = vi.fn(() => Buffer.alloc(32));
+
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: vi.fn(),
 }));
 
 vi.mock("@/lib/payment-gateways/loadPaymentGatewayEncryptionKey", () => ({
-  loadPaymentGatewayEncryptionKeyRaw32: () => Buffer.alloc(32),
+  loadPaymentGatewayEncryptionKeyRaw32: () => loadKeyMock(),
 }));
+
+const credsState = { enabled: true };
 
 vi.mock("@/lib/payment-gateways/flow/loadFlowChileCredentialsPlain", () => ({
   flowChileApiBase: () => "https://flow.test",
   loadFlowChileCredentialsPlain: async () => ({
-    enabled: true,
+    enabled: credsState.enabled,
     apiKey: "k",
     secretKey: "s",
   }),
@@ -42,10 +46,46 @@ vi.mock("@/lib/billing/finalizeMonthlyPaymentFromFlowGateway", () => ({
   finalizeMonthlyPaymentFromFlowGateway: (...args: unknown[]) => finalize(...args),
 }));
 
+const lookup = vi.fn();
+vi.mock("@/lib/billing/lookupPaymentRowForFlowFinalize", () => ({
+  lookupPaymentRowForFlowFinalize: (...args: unknown[]) => lookup(...args),
+}));
+
 import { createAdminClient } from "@/lib/supabase/admin";
+
+function userSupabase(opts: {
+  canSeePayment: boolean;
+  secondSelect?: { status: string; month: number | null; year: number | null } | null;
+}) {
+  return {
+    from: vi.fn((t: string) => {
+      expect(t).toBe("payments");
+      return {
+        select: (cols: string) => ({
+          eq: () => ({
+            maybeSingle: async () => {
+              if (cols === "id") {
+                return {
+                  data: opts.canSeePayment ? { id: paymentUuid } : null,
+                  error: null,
+                };
+              }
+              return {
+                data: opts.secondSelect ?? { status: "approved", month: 5, year: 2026 },
+                error: null,
+              };
+            },
+          }),
+        }),
+      };
+    }),
+  } as unknown as SupabaseClient;
+}
 
 describe("resolveFlowMonthlyPaymentReturnPage", () => {
   beforeEach(() => {
+    credsState.enabled = true;
+    loadKeyMock.mockImplementation(() => Buffer.alloc(32));
     flowFetch.mockResolvedValue({
       ok: true,
       data: {
@@ -57,67 +97,130 @@ describe("resolveFlowMonthlyPaymentReturnPage", () => {
       },
     });
     finalize.mockResolvedValue({ ok: true, approved: true });
+    lookup.mockResolvedValue({
+      payRow: {
+        id: paymentUuid,
+        student_id: payRow.student_id,
+        section_id: payRow.section_id,
+        month: 5,
+        year: 2026,
+        amount: 100000,
+        status: "pending",
+        admin_notes: null,
+      },
+      error: null,
+    });
+    vi.mocked(createAdminClient).mockReturnValue({ from: vi.fn() } as unknown as SupabaseClient);
   });
 
-  it("resolves MES-* commerceOrder via payment_flow_checkout_refs (not only UUID)", async () => {
-    const fromAdmin = vi.fn((t: string) => {
-      if (t === "payment_flow_checkout_refs") {
-        return {
-          select: () => ({
-            eq: () => ({
-              maybeSingle: async () => ({
-                data: { payment_id: paymentUuid },
-                error: null,
-              }),
-            }),
-          }),
-        };
-      }
-      if (t === "payments") {
-        return {
-          select: () => ({
-            eq: () => ({
-              maybeSingle: async () => ({
-                data: payRow,
-                error: null,
-              }),
-            }),
-          }),
-        };
-      }
-      throw new Error(`unexpected admin table ${t}`);
-    });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
-    vi.mocked(createAdminClient).mockReturnValue({ from: fromAdmin } as unknown as SupabaseClient);
-
-    const userPaymentsSelect = vi.fn();
-    const userFrom = vi.fn((t: string) => {
-      expect(t).toBe("payments");
-      return {
-        select: (cols: string) => ({
-          eq: () => ({
-            maybeSingle: async () => {
-              userPaymentsSelect(cols);
-              if (cols === "id") {
-                return { data: { id: paymentUuid }, error: null };
-              }
-              return {
-                data: { status: "approved", month: 5, year: 2026 },
-                error: null,
-              };
-            },
-          }),
-        }),
-      };
-    });
-
+  it("returns success when Flow paid, lookup matches, user sees row, finalize ok, payment approved", async () => {
     const result = await resolveFlowMonthlyPaymentReturnPage({
-      supabase: { from: userFrom } as unknown as SupabaseClient,
+      supabase: userSupabase({ canSeePayment: true }),
       token: "flow-token",
     });
 
-    expect(result).toEqual({ outcome: "success", month: 5, year: 2026 });
-    expect(fromAdmin.mock.calls.some((c) => c[0] === "payment_flow_checkout_refs")).toBe(true);
+    expect(result).toEqual({
+      outcome: "success",
+      month: 5,
+      year: 2026,
+      paymentId: paymentUuid,
+    });
+    expect(lookup).toHaveBeenCalledWith(expect.any(Object), "MES-2026-05-00000001");
     expect(finalize).toHaveBeenCalled();
+  });
+
+  it("returns no_token when token missing", async () => {
+    await expect(
+      resolveFlowMonthlyPaymentReturnPage({ supabase: userSupabase({ canSeePayment: true }), token: undefined }),
+    ).resolves.toEqual({ outcome: "no_token" });
+  });
+
+  it("returns misconfigured when encryption key missing", async () => {
+    loadKeyMock.mockImplementation(() => {
+      throw new Error("no key");
+    });
+    await expect(
+      resolveFlowMonthlyPaymentReturnPage({ supabase: userSupabase({ canSeePayment: true }), token: "t" }),
+    ).resolves.toEqual({ outcome: "misconfigured" });
+  });
+
+  it("returns misconfigured when Flow credentials disabled", async () => {
+    credsState.enabled = false;
+    await expect(
+      resolveFlowMonthlyPaymentReturnPage({ supabase: userSupabase({ canSeePayment: true }), token: "t" }),
+    ).resolves.toEqual({ outcome: "misconfigured" });
+  });
+
+  it("returns status_failed when Flow status fetch fails", async () => {
+    flowFetch.mockResolvedValueOnce({ ok: false, error: "boom" });
+    await expect(
+      resolveFlowMonthlyPaymentReturnPage({ supabase: userSupabase({ canSeePayment: true }), token: "t" }),
+    ).resolves.toEqual({ outcome: "status_failed" });
+  });
+
+  it("returns not_paid when Flow status is not paid", async () => {
+    flowFetch.mockResolvedValueOnce({
+      ok: true,
+      data: {
+        flowOrder: 1,
+        commerceOrder: "MES-1",
+        status: 1,
+        amount: 1,
+        currency: "CLP",
+      },
+    });
+    await expect(
+      resolveFlowMonthlyPaymentReturnPage({ supabase: userSupabase({ canSeePayment: true }), token: "t" }),
+    ).resolves.toEqual({ outcome: "not_paid" });
+  });
+
+  it("returns reconcile_error when lookup errors", async () => {
+    lookup.mockResolvedValueOnce({ payRow: undefined, error: new Error("db") });
+    await expect(
+      resolveFlowMonthlyPaymentReturnPage({ supabase: userSupabase({ canSeePayment: true }), token: "t" }),
+    ).resolves.toEqual({ outcome: "reconcile_error" });
+  });
+
+  it("returns reconcile_error when commerce order invalid", async () => {
+    lookup.mockResolvedValueOnce({
+      payRow: undefined,
+      error: null,
+      skipReason: "invalid_commerce_order",
+    });
+    await expect(
+      resolveFlowMonthlyPaymentReturnPage({ supabase: userSupabase({ canSeePayment: true }), token: "t" }),
+    ).resolves.toEqual({ outcome: "reconcile_error" });
+  });
+
+  it("returns unauthorized_payment when session cannot see payments row", async () => {
+    await expect(
+      resolveFlowMonthlyPaymentReturnPage({
+        supabase: userSupabase({ canSeePayment: false }),
+        token: "t",
+      }),
+    ).resolves.toEqual({ outcome: "unauthorized_payment" });
+  });
+
+  it("returns reconcile_error when finalize returns not ok", async () => {
+    finalize.mockResolvedValueOnce({ ok: false, approved: false });
+    await expect(
+      resolveFlowMonthlyPaymentReturnPage({ supabase: userSupabase({ canSeePayment: true }), token: "t" }),
+    ).resolves.toEqual({ outcome: "reconcile_error" });
+  });
+
+  it("returns processing when payment not yet approved after finalize", async () => {
+    await expect(
+      resolveFlowMonthlyPaymentReturnPage({
+        supabase: userSupabase({
+          canSeePayment: true,
+          secondSelect: { status: "pending", month: 5, year: 2026 },
+        }),
+        token: "t",
+      }),
+    ).resolves.toEqual({ outcome: "processing" });
   });
 });

@@ -148,14 +148,14 @@ export function StudentPaymentsEntry({
               />
             </>
           }
-          history={<StudentPaymentsHistory rows={payments} labels={labels} />}
+          history={<StudentPaymentsHistory rows={payments} labels={labels} locale={locale} />}
         />
       ) : (
         <>
           <h2 className="mt-10 font-display text-xl font-semibold text-[var(--color-primary)]">
             {labels.paymentsHistory}
           </h2>
-          <StudentPaymentsHistory rows={payments} labels={labels} />
+          <StudentPaymentsHistory rows={payments} labels={labels} locale={locale} />
         </>
       )}
     </>

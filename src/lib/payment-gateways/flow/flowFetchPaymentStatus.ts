@@ -1,4 +1,5 @@
 import { signFlowParams } from "@/lib/payment-gateways/flow/flowParamSign";
+import { parseFlowStatusResponseBody } from "@/lib/payment-gateways/flow/parseFlowStatusResponse";
 
 export interface FlowStatusPayload {
   flowOrder: number;
@@ -7,6 +8,20 @@ export interface FlowStatusPayload {
   amount: number;
   currency: string;
   payer?: string;
+  /**
+   * Flow `paymentData` subset — when present, `date` is the authoritative paid-at timestamp.
+   * Fee / balance / transferDate enable admin financial reconciliation; conversion fields
+   * are populated when the order was paid in a currency different from the merchant settlement currency.
+   */
+  paymentData?: {
+    date?: string;
+    media?: string;
+    fee?: number;
+    balance?: number;
+    transferDate?: string;
+    conversionRate?: number;
+    conversionDate?: string;
+  };
 }
 
 export type FlowFetchStatusResult =
@@ -35,25 +50,11 @@ export async function flowFetchPaymentStatus(input: {
     return { ok: false, error: `flow_status_http_${res.status}:${t.slice(0, 200)}` };
   }
 
-  const json = (await res.json()) as Partial<FlowStatusPayload>;
-  if (
-    typeof json.flowOrder !== "number" ||
-    typeof json.commerceOrder !== "string" ||
-    typeof json.status !== "number" ||
-    typeof json.amount !== "number" ||
-    typeof json.currency !== "string"
-  ) {
-    return { ok: false, error: "flow_invalid_status_response" };
+  let json: unknown;
+  try {
+    json = await res.json();
+  } catch {
+    return { ok: false, error: "flow_status_non_json_body" };
   }
-  return {
-    ok: true,
-    data: {
-      flowOrder: json.flowOrder,
-      commerceOrder: json.commerceOrder,
-      status: json.status,
-      amount: json.amount,
-      currency: json.currency,
-      payer: typeof json.payer === "string" ? json.payer : undefined,
-    },
-  };
+  return parseFlowStatusResponseBody(json);
 }

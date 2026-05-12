@@ -1,6 +1,7 @@
 "use client";
 
-import type { Dictionary } from "@/types/i18n";
+import { Download } from "lucide-react";
+import type { Dictionary, Locale } from "@/types/i18n";
 
 export type StudentPaymentRow = {
   id: string;
@@ -17,6 +18,8 @@ export type StudentPaymentRow = {
 interface StudentPaymentsHistoryProps {
   rows: StudentPaymentRow[];
   labels: Dictionary["dashboard"]["student"];
+  /** Locale used to build the receipt PDF download URL. */
+  locale: Locale;
 }
 
 function statusLabel(
@@ -29,8 +32,9 @@ function statusLabel(
   return labels.statusPending;
 }
 
-export function StudentPaymentsHistory({ rows, labels }: StudentPaymentsHistoryProps) {
+export function StudentPaymentsHistory({ rows, labels, locale }: StudentPaymentsHistoryProps) {
   if (rows.length === 0) return null;
+  const receiptDownloadLabel = labels.monthly.receipt.downloadPdf;
 
   return (
     <div className="mt-10 overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)]">
@@ -85,18 +89,28 @@ export function StudentPaymentsHistory({ rows, labels }: StudentPaymentsHistoryP
                   {new Date(r.updated_at).toLocaleString()}
                 </td>
                 <td className="px-4 py-3">
-                  {r.receiptSignedUrl ? (
-                    <a
-                      href={r.receiptSignedUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-medium text-[var(--color-primary)] underline-offset-2 hover:underline"
-                    >
-                      {labels.paymentViewReceipt}
-                    </a>
-                  ) : (
-                    labels.emptyValue
-                  )}
+                  <div className="flex flex-col gap-1.5">
+                    {r.receiptSignedUrl ? (
+                      <a
+                        href={r.receiptSignedUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-[var(--color-primary)] underline-offset-2 hover:underline"
+                      >
+                        {labels.paymentViewReceipt}
+                      </a>
+                    ) : null}
+                    {r.status === "approved" ? (
+                      <a
+                        href={`/api/payments/${r.id}/receipt.pdf?locale=${encodeURIComponent(locale)}`}
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-primary)] underline-offset-2 hover:underline"
+                      >
+                        <Download className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                        {receiptDownloadLabel}
+                      </a>
+                    ) : null}
+                    {!r.receiptSignedUrl && r.status !== "approved" ? labels.emptyValue : null}
+                  </div>
                 </td>
               </tr>
             );

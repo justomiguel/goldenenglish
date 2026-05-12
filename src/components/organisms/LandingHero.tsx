@@ -134,6 +134,7 @@ export function LandingHero({
                 className="w-[44%] max-w-[11rem] translate-y-5"
                 rotateClass="rotate-6"
                 sizes="44vw"
+                priority
               />
             </div>
           </div>
@@ -153,6 +154,7 @@ export function LandingHero({
               className="absolute right-0 top-0 z-10 w-[56%] lg:w-[52%]"
               rotateClass="rotate-[7deg]"
               sizes="300px"
+              priority
             />
             <LandingTiltedPhoto
               src={heroImage(2)}
@@ -160,6 +162,7 @@ export function LandingHero({
               className="absolute bottom-0 left-[14%] z-20 w-[52%] lg:left-[18%] lg:w-[48%]"
               rotateClass="rotate-[3deg]"
               sizes="280px"
+              priority
             />
           </div>
         </div>

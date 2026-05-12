@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { PaymentsFlowReturnSurfaceEntry } from "@/components/organisms/PaymentsFlowReturnSurfaceEntry";
 import { resolveFlowMonthlyPaymentReturnPage } from "@/lib/billing/resolveFlowMonthlyPaymentReturnPage";
+import { buildFlowReturnReceiptSection } from "@/lib/billing/buildFlowReturnReceiptSection";
 import { formatFlowReturnPageCopy } from "@/lib/student/formatFlowReturnPageCopy";
 import type { Locale } from "@/types/i18n";
 
@@ -35,10 +36,21 @@ export default async function ParentPaymentsFlowReturnPage({ params, searchParam
     .maybeSingle();
   if (profile?.role !== "parent") redirect(`/${locale}/dashboard`);
 
-  const dict = await getDictionary(locale as Locale);
+  const localeTyped = locale as Locale;
+  const dict = await getDictionary(localeTyped);
   const monthly = dict.dashboard.student.monthly;
   const model = await resolveFlowMonthlyPaymentReturnPage({ supabase, token });
-  const presentation = formatFlowReturnPageCopy(locale as Locale, monthly, model);
+  const presentation = formatFlowReturnPageCopy(localeTyped, monthly, model);
+
+  const receiptSection =
+    model.outcome === "success"
+      ? await buildFlowReturnReceiptSection({
+          supabase,
+          locale: localeTyped,
+          monthlyDict: monthly,
+          paymentId: model.paymentId,
+        })
+      : null;
 
   return (
     <PaymentsFlowReturnSurfaceEntry
@@ -47,6 +59,7 @@ export default async function ParentPaymentsFlowReturnPage({ params, searchParam
       title={presentation.title}
       lead={presentation.lead}
       variant={presentation.variant}
+      belowStatusContent={receiptSection}
     />
   );
 }

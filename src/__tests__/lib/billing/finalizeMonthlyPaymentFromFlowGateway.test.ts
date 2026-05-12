@@ -132,6 +132,7 @@ describe("finalizeMonthlyPaymentFromFlowGateway", () => {
             }),
           }),
         }),
+        upsert: async () => ({ error: null }),
       }),
     } as unknown as SupabaseClient;
 
@@ -178,6 +179,7 @@ describe("finalizeMonthlyPaymentFromFlowGateway", () => {
             in: async () => ({ error: null }),
           }),
         }),
+        upsert: async () => ({ error: null }),
       }),
     } as unknown as SupabaseClient;
 
@@ -224,6 +226,7 @@ describe("finalizeMonthlyPaymentFromFlowGateway", () => {
             in: async () => ({ error: null }),
           }),
         }),
+        upsert: async () => ({ error: null }),
       }),
     } as unknown as SupabaseClient;
 

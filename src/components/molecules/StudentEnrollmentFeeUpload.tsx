@@ -46,6 +46,9 @@ export function StudentEnrollmentFeeUpload({
 
   const canUpload = receiptStatus !== "approved";
 
+  const showUploadLead =
+    receiptStatus === null || receiptStatus === "rejected";
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const file = fileRef.current?.files?.[0];
@@ -79,9 +82,11 @@ export function StudentEnrollmentFeeUpload({
       <p className="text-sm font-semibold text-[var(--color-foreground)]">
         {labels.enrollmentFeeUploadTitle}
       </p>
-      <p className="mt-0.5 text-xs text-[var(--color-muted-foreground)]">
-        {labels.enrollmentFeeUploadLead}
-      </p>
+      {showUploadLead ? (
+        <p className="mt-0.5 text-xs text-[var(--color-muted-foreground)]">
+          {labels.enrollmentFeeUploadLead}
+        </p>
+      ) : null}
 
       {receiptStatus === "approved" && (
         <div className="mt-2 flex items-center gap-1.5 text-sm text-[var(--color-success)]">

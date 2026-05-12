@@ -22,7 +22,7 @@ export type FlowMonthlyPaymentReturnPageModel =
   | { outcome: "status_failed" }
   | { outcome: "not_paid" }
   | { outcome: "unauthorized_payment" }
-  | { outcome: "success"; month: number; year: number }
+  | { outcome: "success"; month: number; year: number; paymentId: string }
   | { outcome: "processing" }
   | { outcome: "reconcile_error" };
 
@@ -139,6 +139,7 @@ export async function resolveFlowMonthlyPaymentReturnPage(input: {
       outcome: "success",
       month: Number(row.month),
       year: Number(row.year),
+      paymentId,
     };
   }
 

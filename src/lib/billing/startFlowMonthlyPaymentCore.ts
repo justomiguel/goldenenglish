@@ -6,6 +6,7 @@ import {
 import { resolveSectionPlanMonthlyAmount } from "@/lib/billing/resolveSectionPlanMonthlyAmount";
 import { loadFlowChileCredentialsPlain, flowChileApiBase } from "@/lib/payment-gateways/flow/loadFlowChileCredentialsPlain";
 import { flowCreatePaymentOrder } from "@/lib/payment-gateways/flow/flowCreatePaymentOrder";
+import { extractFlowMinimumClpFromCreateError } from "@/lib/payment-gateways/flow/parseFlowCreatePaymentError";
 import { reservePaymentFlowCommerceReference } from "@/lib/payment-gateways/flow/reservePaymentFlowCommerceReference";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { logServerActionInvariantViolation } from "@/lib/logging/serverActionLog";
@@ -22,9 +23,12 @@ export type StartFlowMonthlyPaymentCoreResult =
         | "clp_only"
         | "no_public_url"
         | "flow_http"
-        | "flow_error";
+        | "flow_error"
+        | "flow_amount_below_minimum";
       /** When `code === "slot"`, why {@link resolveStudentPaymentSlot} failed. */
       slotReason?: StudentPaymentSlotFailureReason;
+      /** Present when Flow returns code 1901 (minimum CLP amount). */
+      flowMinClp?: number;
     };
 
 /**
@@ -141,6 +145,18 @@ export async function startFlowMonthlyPaymentCore(input: {
   });
 
   if (!created.ok) {
+    const minParsed = extractFlowMinimumClpFromCreateError(created.error);
+    if (minParsed != null) {
+      logServerActionInvariantViolation("startFlowMonthlyPaymentCore:flowCreatePaymentOrder", created.error, {
+        payment_id: paymentId,
+        month: input.month,
+        year: input.year,
+        section_id: input.sectionId,
+        branch: "flow_minimum_amount_clp",
+        flow_min_clp: minParsed,
+      });
+      return { ok: false, code: "flow_amount_below_minimum", flowMinClp: minParsed };
+    }
     logServerActionInvariantViolation("startFlowMonthlyPaymentCore:flowCreatePaymentOrder", created.error, {
       payment_id: paymentId,
       month: input.month,

@@ -28,6 +28,7 @@ describe("StudentEnrollmentFeeUpload", () => {
       />,
     );
     expect(screen.getByText(labels.enrollmentFeeUploadTitle)).toBeTruthy();
+    expect(screen.getByText(labels.enrollmentFeeUploadLead)).toBeTruthy();
     expect(screen.getByText(labels.enrollmentFeeUploadBtn)).toBeTruthy();
   });
 
@@ -42,6 +43,7 @@ describe("StudentEnrollmentFeeUpload", () => {
       />,
     );
     expect(screen.getByText(labels.enrollmentFeeReceiptPending)).toBeTruthy();
+    expect(screen.queryByText(labels.enrollmentFeeUploadLead)).toBeNull();
   });
 
   it("shows approved message and hides upload when approved", () => {
@@ -55,6 +57,7 @@ describe("StudentEnrollmentFeeUpload", () => {
       />,
     );
     expect(screen.getByText(labels.enrollmentFeeReceiptApproved)).toBeTruthy();
+    expect(screen.queryByText(labels.enrollmentFeeUploadLead)).toBeNull();
     expect(screen.queryByText(labels.enrollmentFeeUploadBtn)).toBeNull();
   });
 
@@ -69,6 +72,7 @@ describe("StudentEnrollmentFeeUpload", () => {
       />,
     );
     expect(screen.getByText(labels.enrollmentFeeReceiptRejected)).toBeTruthy();
+    expect(screen.getByText(labels.enrollmentFeeUploadLead)).toBeTruthy();
     expect(screen.getByText(labels.enrollmentFeeReuploadBtn)).toBeTruthy();
   });
 

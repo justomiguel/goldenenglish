@@ -8,6 +8,7 @@ import { notifyMonthlyPaymentDecision } from "@/lib/email/billingPaymentEmails";
 import { revalidateStudentBillingPaths } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/revalidateStudentBilling";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { lookupPaymentRowForFlowFinalize } from "@/lib/billing/lookupPaymentRowForFlowFinalize";
+import { upsertFlowFinalizeRecord } from "@/lib/billing/upsertFlowFinalizeRecord";
 import type { Locale } from "@/types/i18n";
 import { defaultLocale } from "@/lib/i18n/dictionaries";
 
@@ -83,6 +84,12 @@ export async function finalizeMonthlyPaymentFromFlowGateway(input: {
 
   const st = String(payRow.status);
   if (st === "approved") {
+    /** Guarantee a finalize record exists even when the original transition pre-dated this table. */
+    await upsertFlowFinalizeRecord({
+      admin: input.admin,
+      paymentId: payRow.id as string,
+      snapshot: status.data,
+    });
     return { ok: true, approved: true, paymentId: payRow.id as string };
   }
   if (st === "exempt") {
@@ -183,6 +190,13 @@ export async function finalizeMonthlyPaymentFromFlowGateway(input: {
       .eq("id", payRow.id as string);
     return { ok: false };
   }
+
+  /** Persist Flow snapshot so receipts can be regenerated later with authoritative paid_at + flow_order. */
+  await upsertFlowFinalizeRecord({
+    admin: input.admin,
+    paymentId: payRow.id as string,
+    snapshot: status.data,
+  });
 
   const loc = defaultLocale as Locale;
   void notifyMonthlyPaymentDecision({
