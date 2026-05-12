@@ -17,7 +17,7 @@ describe("localizeRegistrationAcceptError", () => {
     ["tutor_dni_same_as_student", R.errTutorDniSameAsStudent],
     ["no_course_for_level", R.errNoCourseForLevel],
     ["no_user_returned", U.errCreateNoUser],
-    ["auth_failed", U.errCreateAuth],
+    ["auth_failed", U.inviteAuthUnexpected],
     ["password_policy", U.errCreatePassword],
     ["tutor_dni_required", R.errMinorRequiresTutorDni],
     ["tutor_dni_in_use_by_student", R.errTutorDniInUseByStudent],
@@ -26,6 +26,12 @@ describe("localizeRegistrationAcceptError", () => {
     ["save_failed", R.errSaveFailed],
   ] as const)("maps code %s", (code, expected) => {
     expect(localizeRegistrationAcceptError(dictEn, code)).toBe(expected);
+  });
+
+  it("routes tutor_auth_* provisioning codes through admin guardian invite messaging", () => {
+    expect(localizeRegistrationAcceptError(dictEn, "tutor_auth_rate_limited")).toBe(
+      U.inviteAuthGuardianRateLimited,
+    );
   });
 
   it("uses default copy for unknown codes", () => {

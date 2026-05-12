@@ -172,6 +172,7 @@ export async function acceptRegistration(
         studentId,
         parentRes.message,
         dict,
+        parentRes.incidentRef,
       );
     }
     const rel =

@@ -1,7 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { Dictionary } from "@/types/i18n";
+import { appendAuthIncidentReferenceLine } from "@/lib/dashboard/appendAuthIncidentReferenceLine";
 import es from "@/dictionaries/es.json";
 import { createDashboardUser } from "@/app/[locale]/dashboard/admin/users/actions";
 import { ADMIN_INVITE_DEFAULT_PASSWORD } from "@/lib/dashboard/adminInviteDefaultPassword";
+
+vi.mock("@/lib/server/createIncidentSupportRef", () => ({
+  createIncidentSupportRef: vi.fn(() => "00000000-0000-4000-8000-000000000099"),
+}));
 
 const U = es.admin.users;
 
@@ -95,14 +101,50 @@ describe("createDashboardUser", () => {
     expect(r).toEqual({ ok: false, message: U.errCreateInvalidEmail });
   });
 
-  it("returns auth_failed when createUser errors", async () => {
+  it("returns unexpected invite provider message when createUser fails with unrecognized error", async () => {
     mockAssertAdmin.mockResolvedValue(adminCtx);
     mockCreateUser.mockResolvedValue({
       data: { user: null },
       error: { message: "upstream failure", code: "unknown" },
     });
+    const ref = "00000000-0000-4000-8000-000000000099";
     const r = await createDashboardUser(validPayload);
-    expect(r).toEqual({ ok: false, message: U.errCreateAuth });
+    expect(r).toEqual({
+      ok: false,
+      message: appendAuthIncidentReferenceLine(es as Dictionary, U.inviteAuthUnexpected, ref),
+    });
+  });
+
+  it("scopes unrecognized student auth failures to minor-student wording when guardian flow applies", async () => {
+    vi.stubEnv("MAIL_TENANT", "alumnos.test");
+    mockAssertAdmin.mockResolvedValue(adminCtx);
+    mockCreateUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: "upstream failure", code: "unknown" },
+    });
+    const r = await createDashboardUser({
+      email: "",
+      password: "",
+      first_name: "Ana",
+      last_name: "Garcia",
+      dni_or_passport: "12345678-9",
+      phone: "",
+      birth_date: "2018-01-10",
+      role: "student",
+      locale: "es",
+      student_guardian_mode: "new",
+      tutor_dni: "98765432-1",
+      tutor_first_name: "Luis",
+      tutor_last_name: "Garcia",
+      tutor_email: "luis@example.com",
+      tutor_relationship: "father",
+    });
+    vi.unstubAllEnvs();
+    const ref = "00000000-0000-4000-8000-000000000099";
+    expect(r).toEqual({
+      ok: false,
+      message: appendAuthIncidentReferenceLine(es as Dictionary, U.inviteAuthMinorStudentUnexpected, ref),
+    });
   });
 
   it("returns email_exists when auth reports duplicate and profile already exists", async () => {
@@ -159,7 +201,11 @@ describe("createDashboardUser", () => {
       error: null,
     });
     const r = await createDashboardUser(validPayload);
-    expect(r).toEqual({ ok: false, message: U.errCreateNoUser });
+    const ref = "00000000-0000-4000-8000-000000000099";
+    expect(r).toEqual({
+      ok: false,
+      message: appendAuthIncidentReferenceLine(es as Dictionary, U.errCreateNoUser, ref),
+    });
   });
 
   it("returns ok on success", async () => {

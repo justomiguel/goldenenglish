@@ -14,6 +14,9 @@ import {
 } from "@/lib/import/bulkImportHelpers";
 import type { TutorDisplayDefaults } from "@/lib/register/tutorDisplayNameParts";
 import { inviteMeta, isDuplicateAuthError } from "@/lib/import/bulkImportStudentsAuthHelpers";
+import { resolveAuthAdminInviteCreateUserIssue } from "@/lib/dashboard/resolveAuthAdminCreateUserDiagnostic";
+import { logAuthAdminCreateUserFailure } from "@/lib/logging/serverActionLog";
+import { authInviteCollisionEmailMeta } from "@/lib/logging/authInviteAttemptLogMeta";
 import {
   IMPORT_ROW_AUTH_ERROR,
   IMPORT_ROW_EMAIL_DNI_CONFLICT,
@@ -92,6 +95,11 @@ async function resolveOrCreateStudentId(
       const retryId = map.get(emailNorm);
       if (retryId) return { studentId: retryId, createdUsers, emailMap: map };
     }
+    const issue = resolveAuthAdminInviteCreateUserIssue(createErr);
+    logAuthAdminCreateUserFailure("bulkImportStudentRow:authAdminCreateUser", createErr, {
+      classified_issue: issue,
+      ...(issue === "email_exists" ? authInviteCollisionEmailMeta(emailNorm) : {}),
+    });
     return { studentId: null, createdUsers, emailMap: map, rowFailMessage: IMPORT_ROW_AUTH_ERROR };
   }
   if (created?.user) {

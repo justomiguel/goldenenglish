@@ -138,8 +138,10 @@ export function AdminUserDetailTutorCard({
             tutorLinks.map((t) => (
               <AdminUserDetailTutorLinkedRow
                 key={t.tutorId}
+                locale={locale}
                 tutor={t}
                 relationshipLabel={formatAdminTutorRelationshipLabel(labels, t.relationshipCode)}
+                openProfileLabel={labels.detailTutorOpenProfile}
                 editable={showLinkUi}
                 rowBusy={rowBusyGlobal}
                 unlinkLabel={labels.detailTutorUnlink}
@@ -155,7 +157,7 @@ export function AdminUserDetailTutorCard({
           {labels.detailTutorMissingWarning}
         </p>
       ) : null}
-      {showLinkUi ? (
+      {showLinkUi && tutorLinks.length === 0 ? (
         <div className="mt-5 space-y-4 border-t border-[var(--color-border)] pt-4">
           <div className="space-y-3">
             <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailTutorLinkHint}</p>

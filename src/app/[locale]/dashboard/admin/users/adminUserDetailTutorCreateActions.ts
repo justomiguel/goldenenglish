@@ -17,6 +17,7 @@ import {
   logServerActionException,
   logSupabaseClientError,
 } from "@/lib/logging/serverActionLog";
+import { mapEnsureParentFailureToUserMessage } from "@/lib/dashboard/mapEnsureParentFailureToUserMessage";
 
 const S = "adminUserDetailTutorCreateActions";
 
@@ -26,7 +27,7 @@ export type CreateAdminParentAndLinkStudentActionResult =
   | {
       ok: false;
       needsConfirmation: true;
-      reuseKind: Exclude<EnsureParentReuseKind, "created">;
+      reuseKind: Exclude<EnsureParentReuseKind, "created" | "provisioned_prior_auth">;
       existingProfileId: string;
     };
 
@@ -99,24 +100,21 @@ export async function createAdminParentAndLinkStudentAction(
       tutorLastName: tutorLastName.trim(),
     });
     if (!ensured.ok) {
-      const code = ensured.message;
-      if (code === "tutor_dni_required") return { ok: false, message: L.detailTutorCreateErrDniRequired };
-      if (code === "tutor_dni_in_use_by_student") return { ok: false, message: L.detailTutorCreateErrDniStudent };
-      if (code === "auth_failed" || code === "no_user_returned") return { ok: false, message: L.detailTutorCreateErrAuth };
-      return { ok: false, message: L.detailErrSave };
+      return { ok: false, message: mapEnsureParentFailureToUserMessage(dict, ensured.message, ensured.incidentRef) };
     }
 
     if (studentId === ensured.parentId) {
       return { ok: false, message: L.detailErrTutorSelf };
     }
 
-    if (ensured.reuseKind !== "created") {
+    if (ensured.reuseKind === "reused_parent" || ensured.reuseKind === "reused_admin") {
+      const reuseKind = ensured.reuseKind;
       const ack = confirmReuseOfProfileId;
       if (!ack || ack !== ensured.parentId) {
         return {
           ok: false,
           needsConfirmation: true,
-          reuseKind: ensured.reuseKind,
+          reuseKind,
           existingProfileId: ensured.parentId,
         };
       }
@@ -141,12 +139,16 @@ export async function createAdminParentAndLinkStudentAction(
     revalidatePath(`/${locale}/dashboard/admin/users/${ensured.parentId}`);
     revalidatePath(`/${locale}/dashboard/admin/users`);
 
-    const okMessage =
-      ensured.reuseKind === "created"
-        ? L.detailToastTutorCreatedLinked
-        : ensured.reuseKind === "reused_admin"
-          ? L.detailToastTutorLinkedReusedAdmin
-          : L.detailToastTutorLinkedReusedParent;
+    let okMessage: string;
+    if (ensured.reuseKind === "reused_admin") {
+      okMessage = L.detailToastTutorLinkedReusedAdmin;
+    } else if (ensured.reuseKind === "reused_parent") {
+      okMessage = L.detailToastTutorLinkedReusedParent;
+    } else if (ensured.reuseKind === "provisioned_prior_auth") {
+      okMessage = L.detailToastTutorProvisionedPriorLogin;
+    } else {
+      okMessage = L.detailToastTutorCreatedLinked;
+    }
 
     return { ok: true, message: okMessage };
   } catch (e) {

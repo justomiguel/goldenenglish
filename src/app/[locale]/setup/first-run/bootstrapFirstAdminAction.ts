@@ -1,9 +1,15 @@
 "use server";
 
 import { z } from "zod";
-import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { resolveAuthAdminInviteCreateUserIssue } from "@/lib/dashboard/resolveAuthAdminCreateUserDiagnostic";
+import {
+  logAuthAdminCreateUserFailure,
+  logSupabaseClientError,
+} from "@/lib/logging/serverActionLog";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { parseInitialSiteSetupCompletedAt } from "@/lib/site/parseInitialSiteSetupRecord";
+import { createIncidentSupportRef } from "@/lib/server/createIncidentSupportRef";
+import { authInviteCollisionEmailMeta } from "@/lib/logging/authInviteAttemptLogMeta";
 
 const bootstrapFirstAdminInputSchema = z
   .object({
@@ -82,7 +88,14 @@ export async function bootstrapFirstAdminAction(
   });
 
   if (authErr || !created.user) {
-    logSupabaseClientError("bootstrapFirstAdmin:createUser", authErr ?? null);
+    const classified = authErr ? resolveAuthAdminInviteCreateUserIssue(authErr) : "unexpected";
+    const incidentRef = createIncidentSupportRef();
+    logAuthAdminCreateUserFailure("bootstrapFirstAdmin:createUser", authErr ?? undefined, {
+      classified_issue: classified,
+      hadAuthUserPayload: Boolean(created?.user),
+      incidentRef,
+      ...(classified === "email_exists" ? authInviteCollisionEmailMeta(email) : {}),
+    });
     return { ok: false, code: "auth_failed" };
   }
 

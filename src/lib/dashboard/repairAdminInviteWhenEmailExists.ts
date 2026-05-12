@@ -4,7 +4,15 @@ import {
   type AdminInvitedProfileFields,
   upsertAdminInvitedProfile,
 } from "@/lib/dashboard/upsertAdminInvitedProfile";
-import { resolveAuthAdminCreateUserDiagnostic } from "@/lib/dashboard/resolveAuthAdminCreateUserDiagnostic";
+import {
+  resolveAuthAdminCreateUserDiagnostic,
+  resolveAuthAdminInviteCreateUserIssue,
+} from "@/lib/dashboard/resolveAuthAdminCreateUserDiagnostic";
+import {
+  logAuthAdminCreateUserFailure,
+  logSupabaseClientError,
+} from "@/lib/logging/serverActionLog";
+import { authInviteCollisionEmailMeta } from "@/lib/logging/authInviteAttemptLogMeta";
 
 export type RepairAdminInviteEmailExistsResult =
   | { kind: "repaired"; userId: string }
@@ -37,6 +45,7 @@ export async function repairAdminInviteWhenEmailExists(input: {
     normalizedEmail,
   );
   if (findErr) {
+    logSupabaseClientError("repairAdminInvite:findAuthUserIdByEmail", findErr);
     return { kind: "failed", diagnostic: "list_users" };
   }
   if (!userId) {
@@ -50,6 +59,7 @@ export async function repairAdminInviteWhenEmailExists(input: {
     .maybeSingle();
 
   if (profReadErr) {
+    logSupabaseClientError("repairAdminInvite:profilesRead", profReadErr, { candidateUserId: userId });
     return { kind: "failed", diagnostic: "profile_save" };
   }
   if (existingProfile?.id) {
@@ -62,6 +72,12 @@ export async function repairAdminInviteWhenEmailExists(input: {
     user_metadata: userMetadata,
   });
   if (updErr) {
+    const issue = resolveAuthAdminInviteCreateUserIssue(updErr);
+    logAuthAdminCreateUserFailure("repairAdminInvite:updateUserById", updErr, {
+      classified_issue: issue,
+      orphan_auth_repair: true,
+      ...(issue === "email_exists" ? authInviteCollisionEmailMeta(normalizedEmail) : {}),
+    });
     const diag = resolveAuthAdminCreateUserDiagnostic(updErr);
     if (diag === "weak_password") {
       return { kind: "failed", diagnostic: "weak_password" };
@@ -74,6 +90,7 @@ export async function repairAdminInviteWhenEmailExists(input: {
     userId,
   });
   if (upsertErr) {
+    logSupabaseClientError("repairAdminInvite:profilesUpsert", upsertErr, { userId });
     return { kind: "failed", diagnostic: "profile_save" };
   }
 

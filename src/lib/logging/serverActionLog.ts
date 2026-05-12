@@ -92,3 +92,39 @@ export function logServerAuthzDenied(scope: string, meta?: Record<string, unknow
 export function logServerWarn(scope: string, meta?: Record<string, unknown>): void {
   console.warn(PREFIX, scope, meta);
 }
+
+type AuthAdminErrLike = {
+  message?: string | null;
+  code?: string | null;
+  status?: number | string | null;
+};
+
+/**
+ * Auth `admin.createUser` / invite failures — log message/code/status for ops (mirror Supabase Auth logs).
+ *
+ * `meta` must not include passwords, tokens, or **arbitrary** PII blobs.
+ * For duplicate-login diagnosis only (`classified_issue: "email_exists"`), callers may add
+ * `collision_attempt_email_normalized` plus `collision_email_domain_suffix` using
+ * `authInviteCollisionEmailMeta()` (`@/lib/logging/authInviteAttemptLogMeta`) — privileged ops
+ * correlation (same login address used with Supabase Auth).
+ */
+export function logAuthAdminCreateUserFailure(
+  scope: string,
+  error: AuthAdminErrLike | null | undefined,
+  meta?: Record<string, unknown>,
+): void {
+  const message = error?.message != null ? String(error.message) : "";
+  const code = error?.code != null ? String(error.code) : "";
+  const statusRaw = error?.status;
+  const statusNum =
+    typeof statusRaw === "number" && Number.isFinite(statusRaw)
+      ? statusRaw
+      : typeof statusRaw === "string" && /^[0-9]+$/.test(statusRaw)
+        ? Number.parseInt(statusRaw, 10)
+        : undefined;
+  console.error(PREFIX, scope, {
+    kind: "auth_admin_create_user_failure",
+    ...meta,
+    auth_error: message || code || statusRaw != null ? { message, code, status: statusNum ?? statusRaw } : null,
+  });
+}

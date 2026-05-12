@@ -27,6 +27,8 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 
 **Do not** log secrets or PII in `meta`; use stable scopes (e.g. `reviewPayment:insert`) and ids when useful. The **`[ge:server]`** helpers are documented at the top of `serverActionLog.ts`.
 
+**Operational errors:** every server-side failure path must log structured context diagnosticable later — **`25-server-error-logging.mdc`**.
+
 | Regla siempre activa (`alwaysApply: true`) | Tema |
 |----|-----|
 | **`08-analytics-observability.mdc`** | Métricas: `user_events`, ingestión cliente/API, `recordSystemAudit`, sin features “silenciosas”; fiabilidad tipo SRE (SLI/SLO, alertas accionables) donde aplique. |
@@ -40,6 +42,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`18-no-native-browser-dialogs.mdc`** | Sin `alert` / `confirm` / `prompt` en producto: `Modal` + DS, toasts/banners existentes, **11** para jobs largos; copy **09**. |
 | **`20-agent-preflight.mdc`** | Plan y acuerdo antes de implementar cuando aplica; marca **`PREFLIGHT`**; lectura read-only permitida para armar el plan. |
 | **`21-migrations-production-no-data-destruction.mdc`** | Migraciones **sin** borrado destructivo de datos (`TRUNCATE`, `DROP TABLE`/columna con pérdida, `DELETE` masivo); producción y entornos reales se tratan como críticos; excepciones solo con proceso humano documentado. |
+| **`25-server-error-logging.mdc`** | Todo error servidor: **`[ge:server]`** (`serverActionLog.ts`) — `scope` estable, códigos/IDs, suficiente para Vercel/ops; prohibido swallow silencioso; sin PII/secrets. |
 
 **Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`**, **`24-dashboard-list-filter-aggregates-rpc.mdc`** — agregados para filtros de listados en dashboard para **cualquier rol**).
 

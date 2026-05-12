@@ -32,6 +32,7 @@ export async function failAfterStudentCreated(
   studentId: string,
   primaryCode: string,
   dict: Dictionary,
+  incidentRef?: string,
 ): Promise<{ ok: false; message: string }> {
   const roll = await compensateDeleteStudentAuthUser(admin, studentId);
   if (!roll.ok) {
@@ -46,5 +47,5 @@ export async function failAfterStudentCreated(
       message: localizeRegistrationAcceptError(dict, "rollback_failed"),
     };
   }
-  return { ok: false, message: localizeRegistrationAcceptError(dict, primaryCode) };
+  return { ok: false, message: localizeRegistrationAcceptError(dict, primaryCode, incidentRef) };
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { UserPlus, X } from "lucide-react";
+import { AlertCircle, UserPlus, X } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { TutorStudentRelationshipCode } from "@/lib/register/tutorStudentRelationship";
 import { Modal } from "@/components/atoms/Modal";
@@ -50,6 +50,7 @@ export function AdminUserDetailTutorCreateModal({
   const [phone, setPhone] = useState("");
   const [relationship, setRelationship] = useState<TutorStudentRelationshipCode | "">("");
   const [busy, setBusy] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [reusePrompt, setReusePrompt] = useState<{
     reuseKind: "reused_parent" | "reused_admin";
     existingProfileId: string;
@@ -64,16 +65,22 @@ export function AdminUserDetailTutorCreateModal({
       setPhone("");
       setRelationship("");
       setBusy(false);
+      setSubmitError(null);
       setReusePrompt(null);
     }
   }, [open]);
 
+  useEffect(() => {
+    setSubmitError(null);
+  }, [dni, firstName, lastName, email, phone, relationship]);
+
   async function runSubmit(confirmReuseOfProfileId?: string) {
     if (!relationship) {
-      onFeedback(labels.detailErrTutorRelationshipRequired, false);
+      setSubmitError(labels.detailErrTutorRelationshipRequired);
       return;
     }
     setBusy(true);
+    setSubmitError(null);
     try {
       const r = await createAdminParentAndLinkStudentAction({
         locale,
@@ -100,7 +107,8 @@ export function AdminUserDetailTutorCreateModal({
         });
         return;
       }
-      onFeedback(r.message, false);
+      setReusePrompt(null);
+      setSubmitError("message" in r && r.message ? r.message : labels.detailErrSave);
     } finally {
       setBusy(false);
     }
@@ -130,6 +138,15 @@ export function AdminUserDetailTutorCreateModal({
         <p id={descId} className="text-sm text-[var(--color-muted-foreground)]">
           {labels.detailTutorCreateLead}
         </p>
+        {submitError ? (
+          <div
+            role="alert"
+            className="mt-4 flex gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-error)]/40 bg-[var(--color-muted)]/30 p-3 text-sm text-[var(--color-error)]"
+          >
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+            <span className="whitespace-pre-wrap">{submitError}</span>
+          </div>
+        ) : null}
         <div className="mt-4 space-y-3">
           <FormField
             label={labels.detailTutorCreateDni}
@@ -140,16 +157,18 @@ export function AdminUserDetailTutorCreateModal({
             disabled={busy}
           />
           <FormField
-            label={labels.detailTutorCreateFirstName}
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            label={labels.detailTutorCreateLastName}
+            autoComplete="family-name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
             required
             disabled={busy}
           />
           <FormField
-            label={labels.detailTutorCreateLastName}
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            label={labels.detailTutorCreateFirstName}
+            autoComplete="given-name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
             required
             disabled={busy}
           />

@@ -1,7 +1,13 @@
 import type { Dictionary } from "@/types/i18n";
+import { appendAuthIncidentReferenceLine } from "@/lib/dashboard/appendAuthIncidentReferenceLine";
+import { mapEnsureParentFailureToUserMessage } from "@/lib/dashboard/mapEnsureParentFailureToUserMessage";
 
 /** Maps internal accept-registration outcome codes to `admin.registrations` / `admin.users` copy. */
-export function localizeRegistrationAcceptError(dict: Dictionary, code: string): string {
+export function localizeRegistrationAcceptError(
+  dict: Dictionary,
+  code: string,
+  incidentRef?: string,
+): string {
   const R = dict.admin.registrations;
   const U = dict.admin.users;
   switch (code) {
@@ -24,9 +30,9 @@ export function localizeRegistrationAcceptError(dict: Dictionary, code: string):
     case "no_course_for_level":
       return R.errNoCourseForLevel;
     case "no_user_returned":
-      return U.errCreateNoUser;
+      return appendAuthIncidentReferenceLine(dict, U.errCreateNoUser, incidentRef);
     case "auth_failed":
-      return U.errCreateAuth;
+      return appendAuthIncidentReferenceLine(dict, U.inviteAuthUnexpected, incidentRef);
     case "password_policy":
       return U.errCreatePassword;
     case "tutor_dni_required":
@@ -40,6 +46,9 @@ export function localizeRegistrationAcceptError(dict: Dictionary, code: string):
     case "save_failed":
       return R.errSaveFailed;
     default:
+      if (code.startsWith("tutor_auth_") || code.startsWith("tutor_email_")) {
+        return mapEnsureParentFailureToUserMessage(dict, code, incidentRef);
+      }
       return R.errSaveFailed;
   }
 }

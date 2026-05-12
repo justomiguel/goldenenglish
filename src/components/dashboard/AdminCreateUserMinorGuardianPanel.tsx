@@ -123,21 +123,23 @@ export function AdminCreateUserMinorGuardianPanel({
             />
           </div>
           <div>
-            <Label htmlFor="cu-tfn">{labels.detailTutorCreateFirstName}</Label>
+            <Label htmlFor="cu-tln">{labels.detailTutorCreateLastName}</Label>
             <Input
-              id="cu-tfn"
-              value={tutorFirstName}
-              onChange={(e) => onTutorFirstNameChange(e.target.value)}
+              id="cu-tln"
+              autoComplete="family-name"
+              value={tutorLastName}
+              onChange={(e) => onTutorLastNameChange(e.target.value)}
               required
               className="mt-1 w-full"
             />
           </div>
           <div>
-            <Label htmlFor="cu-tln">{labels.detailTutorCreateLastName}</Label>
+            <Label htmlFor="cu-tfn">{labels.detailTutorCreateFirstName}</Label>
             <Input
-              id="cu-tln"
-              value={tutorLastName}
-              onChange={(e) => onTutorLastNameChange(e.target.value)}
+              id="cu-tfn"
+              autoComplete="given-name"
+              value={tutorFirstName}
+              onChange={(e) => onTutorFirstNameChange(e.target.value)}
               required
               className="mt-1 w-full"
             />
