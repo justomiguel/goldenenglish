@@ -2,6 +2,7 @@
 
 import { useCallback, useId, useMemo, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
+import luxon3Plugin from "@fullcalendar/luxon3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
@@ -20,6 +21,7 @@ import {
 } from "@/components/organisms/PortalCalendarFcEventContent";
 import { PortalCalendarEventDetailModal } from "@/components/organisms/PortalCalendarEventDetailModal";
 import type { Dictionary } from "@/types/i18n";
+import { INSTITUTE_CALENDAR_TIMEZONE } from "@/lib/birthdays/instituteCalendarTz";
 import "./portalCalendarFullCalendar.css";
 
 export type PortalCalendarScheduleBoardDict = {
@@ -141,7 +143,8 @@ export function PortalCalendarScheduleBoard({
   return (
     <div className="portal-calendar min-w-0">
       <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+        plugins={[luxon3Plugin, dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+        timeZone={INSTITUTE_CALENDAR_TIMEZONE}
         locale={fcLocale}
         initialView={initialView}
         headerToolbar={headerToolbar}

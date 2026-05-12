@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   removeAdminStudentTutorLinkAction,
@@ -9,21 +9,18 @@ import {
 import { searchAdminStudentsAction } from "@/app/[locale]/dashboard/admin/academic/cohortActions";
 import type { TutorStudentRelationshipCode } from "@/lib/register/tutorStudentRelationship";
 import { Button } from "@/components/atoms/Button";
-import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import type { AdminStudentSearchHitLike } from "@/components/molecules/AdminStudentSearchCombobox";
-import { StaffSearchComboboxWithChipQueue } from "@/components/molecules/StaffSearchComboboxWithChipQueue";
 import { AdminUserDetailTutorFamilyScholarshipModal } from "@/components/molecules/AdminUserDetailTutorFamilyScholarshipModal";
+import { AdminUserDetailTutorFamilyLinkStudentsPanel } from "@/components/molecules/AdminUserDetailTutorFamilyLinkStudentsPanel";
 import { AdminUserDetailTutorFamilyStudentRow } from "@/components/molecules/AdminUserDetailTutorFamilyStudentRow";
-import {
-  AdminUserDetailTutorRelationshipSelect,
-  formatAdminTutorRelationshipLabel,
-} from "@/components/molecules/AdminUserDetailTutorRelationshipSelect";
+import { AdminUserDetailTutorFamilyUnlinkConfirmModal } from "@/components/molecules/AdminUserDetailTutorFamilyUnlinkConfirmModal";
+import { formatAdminTutorRelationshipLabel } from "@/components/molecules/AdminUserDetailTutorRelationshipSelect";
 import type {
   AdminUserTutorFamilySectionOptionVM,
   AdminUserTutorFamilyStudentVM,
 } from "@/lib/dashboard/adminUserDetailVM";
 import type { Dictionary, Locale } from "@/types/i18n";
-import { Percent, Save, Users } from "lucide-react";
+import { Percent, UserPlus, Users } from "lucide-react";
 
 type UserLabels = Dictionary["admin"]["users"];
 type BillingLabels = Dictionary["admin"]["billing"];
@@ -57,6 +54,13 @@ export function AdminUserDetailTutorFamilyCard({
   const [unlinkTarget, setUnlinkTarget] = useState<AdminUserTutorFamilyStudentVM | null>(null);
   const [unlinkBusy, setUnlinkBusy] = useState(false);
   const [scholarshipOpen, setScholarshipOpen] = useState(false);
+  const [linkStudentsPanelOpen, setLinkStudentsPanelOpen] = useState(() => linkedStudents.length === 0);
+
+  useEffect(() => {
+    if (linkedStudents.length === 0) {
+      setLinkStudentsPanelOpen(true);
+    }
+  }, [tutorId, linkedStudents.length]);
 
   const search = useCallback((q: string) => searchAdminStudentsAction(q), []);
 
@@ -98,6 +102,7 @@ export function AdminUserDetailTutorFamilyCard({
       setQueue([]);
       setRelationship("");
       setFieldResetKey((k) => k + 1);
+      setLinkStudentsPanelOpen(false);
       router.refresh();
     } finally {
       setBusy(false);
@@ -174,39 +179,39 @@ export function AdminUserDetailTutorFamilyCard({
       </div>
 
       {editable ? (
-        <div className="mt-5 space-y-4 border-t border-[var(--color-border)] pt-4">
-          <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailTutorFamilyLinkStudentsIntro}</p>
-          <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailTutorFamilyLinkRelationshipLead}</p>
-          <AdminUserDetailTutorRelationshipSelect
-            value={relationship}
-            onChange={setRelationship}
-            labels={labels}
-            disabled={busy}
-          />
-          <StaffSearchComboboxWithChipQueue
-            id="admin-user-tutor-family-student-search"
-            labelText={labels.detailTutorFamilyStudentSearchLabel}
-            placeholder={labels.detailTutorFamilyStudentSearchPlaceholder}
-            inputTitle={labels.detailTutorFamilyStudentSearchTooltip}
-            minCharsHint={labels.detailTutorMinChars}
-            prefetchWhenEmptyOnFocus
-            search={search}
-            onPick={addPick}
-            resetKey={fieldResetKey}
-            persistentExcludeIds={linkedStudentIds}
-            selectedItems={queue}
-            onRemoveSelected={removeFromQueue}
-            queueLegend={labels.detailTutorQueueLegend}
-            queueReminder={labels.detailTutorFamilyQueueReminder}
-            removeChipAriaLabel={labels.detailTutorRemoveChipAria}
-            queueDisabled={busy}
-            resultsListHeading={labels.detailTutorFamilyStudentSearchResultsHeading}
-          />
-          <Button type="button" variant="primary" size="sm" isLoading={busy} onClick={() => void saveLinks()}>
-            {!busy ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
-            {labels.detailTutorFamilySaveLinks}
-          </Button>
-        </div>
+        <>
+          {linkedStudents.length > 0 && !linkStudentsPanelOpen ? (
+            <div className="mt-5 border-t border-[var(--color-border)] pt-4">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={rowBusyGlobal}
+                onClick={() => setLinkStudentsPanelOpen(true)}
+              >
+                <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
+                {labels.detailTutorFamilyShowLinkStudentsPanel}
+              </Button>
+            </div>
+          ) : null}
+          {(linkedStudents.length === 0 || linkStudentsPanelOpen) && (
+            <AdminUserDetailTutorFamilyLinkStudentsPanel
+              labels={labels}
+              hasLinkedStudents={linkedStudents.length > 0}
+              onHide={() => setLinkStudentsPanelOpen(false)}
+              relationship={relationship}
+              onRelationshipChange={setRelationship}
+              busy={busy}
+              search={search}
+              onPick={addPick}
+              fieldResetKey={fieldResetKey}
+              linkedStudentIds={linkedStudentIds}
+              queue={queue}
+              onRemoveFromQueue={removeFromQueue}
+              onSave={saveLinks}
+            />
+          )}
+        </>
       ) : null}
 
       <AdminUserDetailTutorFamilyScholarshipModal
@@ -220,25 +225,14 @@ export function AdminUserDetailTutorFamilyCard({
         onCompleteMessage={onFeedback}
       />
 
-      <ConfirmActionModal
-        open={unlinkTarget !== null}
+      <AdminUserDetailTutorFamilyUnlinkConfirmModal
+        labels={labels}
+        unlinkTarget={unlinkTarget}
+        unlinkBusy={unlinkBusy}
         onOpenChange={(open) => {
           if (!open) setUnlinkTarget(null);
         }}
-        title={labels.detailTutorFamilyUnlinkConfirmTitle}
-        description={labels.detailTutorFamilyUnlinkConfirmDescription}
-        formSlot={
-          unlinkTarget?.isMinor ? (
-            <p className="text-sm font-medium text-[var(--color-error)]">{labels.detailTutorFamilyUnlinkMinorWarning}</p>
-          ) : null
-        }
-        body={unlinkTarget ? `${unlinkTarget.displayName} — ${unlinkTarget.emailDisplay}` : undefined}
-        cancelLabel={labels.detailTutorCreateCancel}
-        confirmLabel={labels.detailTutorFamilyUnlinkStudent}
-        confirmVariant="destructive"
-        busy={unlinkBusy}
-        disableClose={unlinkBusy}
-        onConfirm={() => void confirmUnlink()}
+        onConfirm={confirmUnlink}
       />
     </section>
   );

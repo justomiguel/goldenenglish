@@ -8,31 +8,33 @@ import type { Dictionary } from "@/types/i18n";
 import type { PortalCalendarFcExtendedProps } from "@/lib/calendar/portalEventsToFullCalendar";
 import { portalCalendarKindLabel } from "@/lib/calendar/portalCalendarKindLabel";
 import { safeCalendarMeetingHref } from "@/lib/calendar/safeCalendarMeetingHref";
+import { INSTITUTE_CALENDAR_TIMEZONE } from "@/lib/birthdays/instituteCalendarTz";
 
 export type PortalCalendarEventDetailModalDict = Dictionary["dashboard"]["portalCalendar"]["schedule"] & {
   legend: Dictionary["dashboard"]["portalCalendar"]["legend"];
   specialTypes: Dictionary["dashboard"]["portalCalendar"]["specialTypes"];
 };
 
-function sameLocalCalendarDay(a: Date, b: Date): boolean {
-  return (
-    a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
-  );
+function sameInstituteCalendarDay(a: Date, b: Date): boolean {
+  const opts = { timeZone: INSTITUTE_CALENDAR_TIMEZONE } as const;
+  return a.toLocaleDateString("en-CA", opts) === b.toLocaleDateString("en-CA", opts);
 }
 
 function formatWhen(start: Date | null, end: Date | null, allDay: boolean, locale: string): string {
   if (!start) return "";
+  const tz = INSTITUTE_CALENDAR_TIMEZONE;
   const dateFmt = new Intl.DateTimeFormat(locale, {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: tz,
   });
   if (allDay) {
-    if (end && !sameLocalCalendarDay(start, end)) return `${dateFmt.format(start)} – ${dateFmt.format(end)}`;
+    if (end && !sameInstituteCalendarDay(start, end)) return `${dateFmt.format(start)} – ${dateFmt.format(end)}`;
     return dateFmt.format(start);
   }
-  const timeFmt = new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" });
+  const timeFmt = new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit", timeZone: tz });
   const startT = timeFmt.format(start);
   if (!end || end.getTime() === start.getTime()) return `${dateFmt.format(start)} · ${startT}`;
   return `${dateFmt.format(start)} · ${startT}–${timeFmt.format(end)}`;

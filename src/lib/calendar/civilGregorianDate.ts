@@ -14,6 +14,24 @@ export function parseIsoDateParts(iso: string): { y: number; m: number; d: numbe
   return { y, m: mo, d };
 }
 
+/** Gregorian YYYY-MM-DD from a UTC instant (uses `getUTC*`; for all-day ranges built with UTC noon). */
+export function formatIsoDateUtcFromMs(ms: number): string {
+  const d = new Date(ms);
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+/** Add calendar days to a date-only ISO string; walks via UTC noon to avoid DST issues. */
+export function addCalendarDaysToIsoDate(isoYmd: string, deltaDays: number): string | null {
+  const p = parseIsoDateParts(isoYmd);
+  if (!p) return null;
+  const t = Date.UTC(p.y, p.m - 1, p.d, 12, 0, 0) + deltaDays * 86400000;
+  const d = new Date(t);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+}
+
 /** Inclusive range; `cb` receives YYYY-MM-DD strings. */
 export function forEachIsoDateInRange(
   startIso: string,

@@ -1,22 +1,44 @@
 import type { PortalCalendarEvent } from "@/types/portalCalendar";
+import { addCalendarDaysToIsoDate } from "@/lib/calendar/civilGregorianDate";
+import {
+  instituteCivilIsoDateFromInstant,
+  instituteZonedDayBoundsMs,
+} from "@/lib/birthdays/instituteCalendarTz";
 
 export type PortalCalendarEventTiming = "past" | "today" | "upcoming";
 
-/** Compare using the viewer's local calendar day for "today" band. */
+const ISO_DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Past / institute-"today" / upcoming for chips — matches FullCalendar when it uses
+ * `timeZone: America/Argentina/Cordoba` (institute wall calendar).
+ */
 export function portalCalendarEventTiming(
-  ev: Pick<PortalCalendarEvent, "start" | "end">,
+  ev: Pick<PortalCalendarEvent, "start" | "end" | "allDay">,
   now: Date,
 ): PortalCalendarEventTiming {
+  if (
+    ev.allDay &&
+    ISO_DATE_ONLY.test(ev.start.trim()) &&
+    ISO_DATE_ONLY.test(ev.end.trim())
+  ) {
+    const startYmd = ev.start.trim();
+    const endExclusiveYmd = ev.end.trim();
+    const lastInclusive = addCalendarDaysToIsoDate(endExclusiveYmd, -1);
+    if (lastInclusive) {
+      const todayInstitute = instituteCivilIsoDateFromInstant(now);
+      if (lastInclusive < todayInstitute) return "past";
+      if (startYmd <= todayInstitute && todayInstitute <= lastInclusive) return "today";
+      return "upcoming";
+    }
+  }
+
   const start = new Date(ev.start);
   const end = new Date(ev.end);
   if (end.getTime() < now.getTime()) return "past";
 
-  const y = now.getFullYear();
-  const m = now.getMonth();
-  const d = now.getDate();
-  const dayStart = new Date(y, m, d, 0, 0, 0, 0).getTime();
-  const dayEnd = new Date(y, m, d, 23, 59, 59, 999).getTime();
-  if (start.getTime() <= dayEnd && end.getTime() >= dayStart) return "today";
+  const { dayStartMs, dayEndMs } = instituteZonedDayBoundsMs(now);
+  if (start.getTime() <= dayEndMs && end.getTime() >= dayStartMs) return "today";
 
   return "upcoming";
 }

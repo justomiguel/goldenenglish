@@ -4,9 +4,15 @@ import {
   portalCalendarEventTiming,
 } from "@/lib/calendar/portalCalendarEventVisual";
 import type { PortalCalendarEvent } from "@/types/portalCalendar";
+import { DateTime } from "luxon";
+import { INSTITUTE_CALENDAR_TIMEZONE } from "@/lib/birthdays/instituteCalendarTz";
 
 describe("portalCalendarEventVisual", () => {
-  const now = new Date("2026-04-10T15:00:00.000Z");
+  /** Institute civil 2026-04-10 afternoon — stable vs FullCalendar `timeZone`. */
+  const now = DateTime.fromObject(
+    { year: 2026, month: 4, day: 10, hour: 15 },
+    { zone: INSTITUTE_CALENDAR_TIMEZONE },
+  ).toJSDate();
 
   it("classifies past when end before now", () => {
     const ev: PortalCalendarEvent = {
@@ -17,6 +23,18 @@ describe("portalCalendarEventVisual", () => {
       end: "2026-04-01T11:00:00.000Z",
     };
     expect(portalCalendarEventTiming(ev, now)).toBe("past");
+  });
+
+  it("classifies all-day date-only events using institute civil YYYY-MM-DD (exclusive end)", () => {
+    const ev: PortalCalendarEvent = {
+      id: "all-day",
+      kind: "special",
+      title: "Holiday",
+      start: "2026-04-10",
+      end: "2026-04-11",
+      allDay: true,
+    };
+    expect(portalCalendarEventTiming(ev, now)).toBe("today");
   });
 
   it("detects https meeting as virtual", () => {
@@ -43,8 +61,8 @@ describe("portalCalendarEventVisual", () => {
       id: "b1",
       kind: "birthday",
       title: "Birthday",
-      start: "2026-04-15T12:00:00.000Z",
-      end: "2026-04-16T12:00:00.000Z",
+      start: "2026-04-15",
+      end: "2026-04-16",
       allDay: true,
     };
     const classes = portalCalendarEventFcClassNames(ev, now, {});
