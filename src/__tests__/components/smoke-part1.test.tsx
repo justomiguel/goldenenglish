@@ -74,8 +74,6 @@ describe("component smoke — landing & gates", () => {
         dict={dictEn}
         brand={mockBrandPublic}
         locale="es"
-        sessionEmail={null}
-        inscriptionsOpen
       />,
     );
   });
@@ -99,8 +97,6 @@ describe("component smoke — landing & gates", () => {
         dict={dictEn}
         brand={mockBrandPublic}
         locale="es"
-        sessionEmail={null}
-        inscriptionsOpen
       />,
     );
   });

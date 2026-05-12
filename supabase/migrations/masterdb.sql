@@ -843,6 +843,24 @@ CREATE POLICY portal_messages_delete_student ON public.portal_messages
     )
   );
 
+-- ========== 122_portal_messages_external_contact_reply_email.sql ==========
+ALTER TABLE public.portal_messages
+  ADD COLUMN IF NOT EXISTS external_contact_reply_email TEXT NULL;
+
+COMMENT ON COLUMN public.portal_messages.external_contact_reply_email IS
+  'Email supplied with public-site contact submissions; used when admins reply by mail (visitor has no portal account).';
+
+-- ========== 121_admin_portal_messages_delete.sql ==========
+DROP POLICY IF EXISTS portal_messages_delete_admin ON public.portal_messages;
+CREATE POLICY portal_messages_delete_admin ON public.portal_messages
+  FOR DELETE TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid() AND p.role = 'admin'
+    )
+  );
+
 DROP POLICY IF EXISTS student_messages_select ON public.student_messages;
 DROP POLICY IF EXISTS student_messages_insert ON public.student_messages;
 DROP POLICY IF EXISTS student_messages_teacher_update ON public.student_messages;

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, LogIn, Mail } from "lucide-react";
+import { ExternalLink, LogIn, Mail, MessageSquare } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
@@ -66,6 +66,10 @@ export function LandingFooterPwa({
               {dict.nav.login}
             </Link>
           )}
+          <Link href={`/${locale}#contacto`} className={btnClass}>
+            <MessageSquare className="h-4 w-4 opacity-90" aria-hidden strokeWidth={stroke} />
+            {dict.publicContact.footerCta}
+          </Link>
           {brand.socialInstagram ? (
             <a
               href={brand.socialInstagram}

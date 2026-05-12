@@ -3,6 +3,7 @@ import { Camera, Mail, Phone, Share2 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { BrandPublic } from "@/lib/brand/server";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
+import { PublicContactForm } from "@/components/molecules/PublicContactForm";
 
 export interface LandingEspacioZenitFooterProps {
   dict: Dictionary;
@@ -107,6 +108,15 @@ export function LandingEspacioZenitFooter({
           >
             {dict.nav.login}
           </Link>
+        </div>
+      </div>
+      <div className="mx-auto mt-12 w-full max-w-lg border-t border-white/15 px-4 pt-12 lg:mt-14">
+        <h2 className="text-center text-lg font-semibold text-[var(--ez-cyan-soft)]">
+          {dict.publicContact.title}
+        </h2>
+        <p className="mx-auto mt-3 max-w-xl text-center text-sm text-white/78">{dict.publicContact.lead}</p>
+        <div className="mt-8 rounded-[var(--layout-border-radius)] border border-white/22 bg-[var(--color-surface)] p-6 text-[var(--color-foreground)] shadow-[0_12px_40px_rgb(0_0_0_/45%)] md:p-8">
+          <PublicContactForm locale={locale} labels={dict.publicContact} embedded />
         </div>
       </div>
       {footerCta ? (

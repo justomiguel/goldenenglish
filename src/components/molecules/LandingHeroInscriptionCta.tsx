@@ -1,23 +1,16 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, ClipboardList } from "lucide-react";
+import { ArrowRight, ClipboardList } from "lucide-react";
 
 export interface LandingHeroInscriptionCtaProps {
   href: string;
   label: string;
-  /** Public enrollment vs. signed-in user (navigate to levels). */
-  mode: "register" | "signedIn";
 }
 
-/**
- * Primary hero CTA: elevation, stacked shadows, and icons (enrollment / levels).
- */
+/** Primary hero enrollment CTA: elevation, stacked shadows, and icon. */
 export function LandingHeroInscriptionCta({
   href,
   label,
-  mode,
 }: LandingHeroInscriptionCtaProps) {
-  const LeadIcon = mode === "register" ? ClipboardList : BookOpen;
-
   return (
     <Link
       href={href}
@@ -34,7 +27,7 @@ export function LandingHeroInscriptionCta({
           aria-hidden
           className="flex w-[3.35rem] shrink-0 items-center justify-center bg-[color-mix(in_srgb,var(--color-accent-foreground)_9%,transparent)] shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]"
         >
-          <LeadIcon
+          <ClipboardList
             className="h-7 w-7 shrink-0 text-[var(--color-accent-foreground)] drop-shadow-sm"
             strokeWidth={2}
             aria-hidden

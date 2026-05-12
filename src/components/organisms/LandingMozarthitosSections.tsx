@@ -81,18 +81,18 @@ export function LandingMozarthitosSections({
                   </p>
                   <div className="mt-6 flex w-full flex-col gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:justify-center md:mt-8 md:max-w-xl md:justify-start">
                     <Link
-                      href={`/${locale}#quienes`}
+                      href={`/${locale}/register`}
                       className="inline-flex min-h-[48px] w-full flex-1 items-center justify-center gap-2 rounded-full bg-[var(--mz-yellow)] px-5 py-3 text-sm font-bold text-[var(--mz-ink-on-white)] shadow-[0_10px_28px_rgb(0_0_0_/28%)] transition-colors hover:bg-[var(--mz-yellow-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:min-w-[11rem]"
+                    >
+                      <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
+                      {dict.landing.hero.ctaReserveSpot}
+                    </Link>
+                    <Link
+                      href={`/${locale}#quienes`}
+                      className="inline-flex min-h-[48px] w-full flex-1 items-center justify-center gap-2 rounded-full border-2 border-white/80 bg-white/12 px-5 py-3 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/22 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:min-w-[11rem]"
                     >
                       <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
                       {marketingLandingCopy(dict, brand, "hero.ctaPrimary")}
-                    </Link>
-                    <Link
-                      href={`/${locale}/register`}
-                      className="inline-flex min-h-[48px] w-full flex-1 items-center justify-center gap-2 rounded-full border-2 border-white/80 bg-white/12 px-5 py-3 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/22 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:min-w-[11rem]"
-                    >
-                      <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
-                      {marketingLandingCopy(dict, brand, "hero.ctaSecondary")}
                     </Link>
                   </div>
                 </div>

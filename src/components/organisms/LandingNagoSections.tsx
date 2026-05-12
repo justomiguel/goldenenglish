@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, Sparkles, Users, Drum } from "lucide-react";
+import { Heart, Sparkles, UserPlus, Users, Drum } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { resolveLandingImageSrcForTheme } from "@/lib/cms/resolveLandingMedia";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { NagoLandingGallery } from "@/components/organisms/NagoLandingGallery";
+import { NagoLandingContactSection } from "@/components/organisms/NagoLandingContactSection";
 
 interface LandingNagoSectionsProps {
   dict: Dictionary;
@@ -52,6 +53,13 @@ export function LandingNagoSections({
           <p className="nago-hero-subtitle mt-6 max-w-md text-lg font-medium leading-snug text-white md:text-xl">
             {t("hero.subtitle")}
           </p>
+          <Link
+            href={`/${locale}/register`}
+            className="mt-8 inline-flex min-h-[48px] w-fit max-w-full items-center justify-center gap-2 rounded-full border-2 border-white bg-white/10 px-8 py-3 text-sm font-bold uppercase tracking-wide text-white backdrop-blur-sm transition hover:bg-white/20"
+          >
+            <UserPlus className="h-4 w-4 shrink-0" aria-hidden strokeWidth={2} />
+            {dict.landing.hero.ctaReserveSpot}
+          </Link>
         </div>
       </section>
 
@@ -134,10 +142,11 @@ export function LandingNagoSections({
         </Link>
       </section>
 
+      <NagoLandingContactSection dict={dict} locale={locale} />
+
       {/* Footer */}
       <footer
-        id="contacto"
-        className="scroll-mt-24 bg-[var(--nago-footer)] px-[max(1.5rem,env(safe-area-inset-left))] py-14 pb-[max(2rem,env(safe-area-inset-bottom))] pe-[max(1.5rem,env(safe-area-inset-right))] text-white md:py-16"
+        className="bg-[var(--nago-footer)] px-[max(1.5rem,env(safe-area-inset-left))] py-14 pb-[max(2rem,env(safe-area-inset-bottom))] pe-[max(1.5rem,env(safe-area-inset-right))] text-white md:py-16"
       >
         <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-3 md:gap-12">
           {/* Brand + tagline */}

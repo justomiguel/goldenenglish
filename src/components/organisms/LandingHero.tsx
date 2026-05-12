@@ -16,8 +16,6 @@ interface LandingHeroProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
-  sessionEmail: string | null;
-  inscriptionsOpen: boolean;
   mediaMap?: LandingMediaMap;
 }
 
@@ -25,8 +23,6 @@ export function LandingHero({
   dict,
   brand,
   locale,
-  sessionEmail,
-  inscriptionsOpen,
   mediaMap,
 }: LandingHeroProps) {
   const heroTagline = taglineForLocale(brand, locale);
@@ -78,19 +74,10 @@ export function LandingHero({
               </span>
             </h1>
             <div className="animate-fade-up animate-delay-3 mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-5 lg:justify-start">
-              {sessionEmail || inscriptionsOpen ? (
-                <LandingHeroInscriptionCta
-                  href={
-                    sessionEmail ? `/${locale}#niveles` : `/${locale}/register`
-                  }
-                  label={
-                    sessionEmail
-                      ? dict.landing.hero.ctaSignedIn
-                      : dict.landing.hero.ctaRegister
-                  }
-                  mode={sessionEmail ? "signedIn" : "register"}
-                />
-              ) : null}
+              <LandingHeroInscriptionCta
+                href={`/${locale}/register`}
+                label={dict.landing.hero.ctaReserveSpot}
+              />
               {brand.socialWhatsapp ? (
                 <a
                   href={brand.socialWhatsapp}

@@ -10,6 +10,8 @@ import { AdminCommandPalette } from "@/components/dashboard/AdminCommandPalette"
 import { loadNeedsInitialSiteSetup } from "@/lib/site/loadNeedsInitialSiteSetup";
 import { AdminInitialSiteSetupGate } from "@/components/dashboard/admin/site-setup/AdminInitialSiteSetupGate";
 import { isEmailTemplatesMegaAdmin } from "@/lib/auth/emailTemplatesMegaAdmin";
+import { loadAdminRecentInboundMessageCount } from "@/lib/dashboard/loadAdminRecentInboundMessageCount";
+import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -45,10 +47,17 @@ export default async function AdminSectionLayout({
 
   const { allowed: teacherPortalAllowed } = await resolveTeacherPortalAccess(supabase, user.id);
 
-  const { count } = await supabase
-    .from("registrations")
-    .select("id", { head: true, count: "exact" })
-    .eq("status", "new");
+  const [registrationsResult, recentInboundMessagesCount] = await Promise.all([
+    supabase
+      .from("registrations")
+      .select("id", { head: true, count: "exact" })
+      .eq("status", "new"),
+    loadAdminRecentInboundMessageCount(supabase, user.id),
+  ]);
+  const newRegistrationsCount = registrationsResult.count ?? 0;
+  if (registrationsResult.error) {
+    logSupabaseClientError("adminLayout.registrationsNewCount", registrationsResult.error, {});
+  }
 
   const needsInitialSiteSetup = await loadNeedsInitialSiteSetup(supabase);
 
@@ -61,7 +70,8 @@ export default async function AdminSectionLayout({
       locale={locale}
       dict={dict}
       brand={brand}
-      newRegistrationsCount={count ?? 0}
+      newRegistrationsCount={newRegistrationsCount}
+      recentInboundMessagesCount={recentInboundMessagesCount}
       adminProfileRole={adminProfileRole}
       teacherPortalAllowed={teacherPortalAllowed}
       includeEmailTemplatesNav={isEmailTemplatesMegaAdmin(user.email)}

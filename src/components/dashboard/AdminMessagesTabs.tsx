@@ -1,17 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { AdminMessagesInbox, type AdminMessageRow } from "@/components/dashboard/AdminMessagesInbox";
+import { useId, useMemo, useState } from "react";
+import { Inbox, SendHorizontal } from "lucide-react";
+import {
+  UnderlineTabBar,
+  underlinePanelId,
+  underlineTabId,
+  type UnderlineTabItem,
+} from "@/components/molecules/UnderlineTabBar";
+import { AdminMessagesInbox } from "@/components/dashboard/AdminMessagesInbox";
 import type { Dictionary } from "@/types/i18n";
+import type { AdminPortalMessageRow } from "@/types/messaging";
 
-type Tab = "inbox" | "sent" | "all";
+type TabId = "inbox" | "sent";
 
 interface AdminMessagesTabsProps {
   locale: string;
   labels: Dictionary["admin"]["messages"];
-  inboxRows: AdminMessageRow[];
-  sentRows: AdminMessageRow[];
-  allRows: AdminMessageRow[];
+  inboxRows: AdminPortalMessageRow[];
+  sentRows: AdminPortalMessageRow[];
+  emptyListLabel?: string;
 }
 
 export function AdminMessagesTabs({
@@ -19,41 +27,75 @@ export function AdminMessagesTabs({
   labels,
   inboxRows,
   sentRows,
-  allRows,
+  emptyListLabel,
 }: AdminMessagesTabsProps) {
-  const [tab, setTab] = useState<Tab>("inbox");
-  const rows = tab === "inbox" ? inboxRows : tab === "sent" ? sentRows : allRows;
+  const reactId = useId().replace(/:/g, "");
+  const idPrefix = `admin-msg-${reactId}`;
+  const [tab, setTab] = useState<TabId>("inbox");
 
-  const tabTips: Record<Tab, string> = {
-    inbox: labels.tabInboxTooltip,
-    sent: labels.tabSentTooltip,
-    all: labels.tabAllTooltip,
-  };
+  const items: UnderlineTabItem[] = useMemo(
+    () => [
+      {
+        id: "inbox",
+        label: labels.tabsInbox,
+        Icon: Inbox,
+      },
+      {
+        id: "sent",
+        label: labels.tabsSent,
+        Icon: SendHorizontal,
+      },
+    ],
+    [labels],
+  );
 
-  const btn = (t: Tab, label: string) => (
-    <button
-      key={t}
-      type="button"
-      onClick={() => setTab(t)}
-      title={tabTips[t]}
-      className={`min-h-[44px] rounded-[var(--layout-border-radius)] px-4 py-2 text-sm font-medium transition ${
-        tab === t
-          ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
-          : "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
-      }`}
+  const hint = tab === "inbox" ? labels.tabInboxDescription : labels.tabSentDescription;
+
+  const rowsFor = (t: TabId) => (t === "inbox" ? inboxRows : sentRows);
+
+  const panel = (t: TabId) => (
+    <div
+      role="tabpanel"
+      id={underlinePanelId(idPrefix, t)}
+      aria-labelledby={underlineTabId(idPrefix, t)}
+      hidden={tab !== t}
+      className="min-w-0"
     >
-      {label}
-    </button>
+      {tab === t ? (
+        <AdminMessagesInbox
+          locale={locale}
+          labels={labels}
+          rows={rowsFor(t)}
+          listTopMargin={false}
+          emptyListLabel={emptyListLabel}
+        />
+      ) : null}
+    </div>
   );
 
   return (
-    <div className="mt-8 space-y-4">
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label={labels.tablistAria}>
-        {btn("inbox", labels.tabsInbox)}
-        {btn("sent", labels.tabsSent)}
-        {btn("all", labels.tabsAll)}
+    <section className="mt-8 min-w-0 overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
+      {/* Tab strip */}
+      <div className="bg-[var(--color-muted)]/30 px-2 pt-2 md:px-4 md:pt-3">
+        <UnderlineTabBar
+          idPrefix={idPrefix}
+          ariaLabel={labels.tablistAria}
+          items={items}
+          value={tab}
+          onChange={(id) => setTab(id as TabId)}
+        />
       </div>
-      <AdminMessagesInbox locale={locale} labels={labels} rows={rows} />
-    </div>
+
+      {/* Active folder content */}
+      <div className="bg-[var(--color-background)] px-3 py-4 md:px-5 md:py-5">
+        <p className="text-sm leading-snug text-[var(--color-muted-foreground)]" aria-live="polite">
+          {hint}
+        </p>
+        <div className="mt-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/12 p-3 md:p-4">
+          {panel("inbox")}
+          {panel("sent")}
+        </div>
+      </div>
+    </section>
   );
 }

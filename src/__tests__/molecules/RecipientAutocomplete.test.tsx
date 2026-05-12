@@ -250,4 +250,68 @@ describe("RecipientAutocomplete", () => {
     await user.click(screen.getByRole("combobox", { name: "To" }));
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
   });
+
+  it("clears visible query after pick when emptyInputWhenSelected", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <RecipientAutocomplete
+        id="rec-chip"
+        options={options}
+        value=""
+        onValueChange={onValueChange}
+        placeholder="Search"
+        noMatchesText="None"
+        emptyOptionsText="Directory empty"
+        roleLabels={roleLabels}
+        ariaLabel="To"
+        emptyInputWhenSelected
+      />,
+    );
+    await user.click(screen.getByRole("combobox", { name: "To" }));
+    await user.click(screen.getByRole("option", { name: "Lovelace Ada" }));
+    expect(onValueChange).toHaveBeenCalledWith("a1");
+    expect((screen.getByRole("combobox", { name: "To" }) as HTMLInputElement).value).toBe("");
+  });
+
+  it("with emptyInputWhenSelected keeps input empty while value is set", () => {
+    render(
+      <RecipientAutocomplete
+        id="rec-chip-set"
+        options={options}
+        value="a1"
+        onValueChange={vi.fn()}
+        placeholder="Search"
+        noMatchesText="None"
+        emptyOptionsText="Directory empty"
+        roleLabels={roleLabels}
+        ariaLabel="To"
+        emptyInputWhenSelected
+      />,
+    );
+    expect((screen.getByRole("combobox", { name: "To" }) as HTMLInputElement).value).toBe("");
+  });
+
+  it("with emptyInputWhenSelected typing does not clear selection until a new pick", async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <RecipientAutocomplete
+        id="rec-chip-type"
+        options={options}
+        value="a1"
+        onValueChange={onValueChange}
+        placeholder="Search"
+        noMatchesText="None"
+        emptyOptionsText="Directory empty"
+        roleLabels={roleLabels}
+        ariaLabel="To"
+        emptyInputWhenSelected
+      />,
+    );
+    const input = screen.getByRole("combobox", { name: "To" });
+    await user.click(input);
+    await user.type(input, "bob");
+    expect(onValueChange).not.toHaveBeenCalledWith("");
+  });
 });

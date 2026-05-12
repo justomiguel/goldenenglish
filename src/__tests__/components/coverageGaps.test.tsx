@@ -134,8 +134,6 @@ describe("coverage gap closure", () => {
         dict={dict}
         brand={mockBrandPublic}
         locale="es"
-        sessionEmail={null}
-        inscriptionsOpen={false}
       />,
     );
     expect(container.querySelectorAll("img").length).toBeGreaterThan(0);

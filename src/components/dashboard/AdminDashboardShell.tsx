@@ -11,6 +11,7 @@ interface AdminDashboardShellProps {
   dict: Dictionary;
   brand: BrandPublic;
   newRegistrationsCount: number;
+  recentInboundMessagesCount: number;
   adminProfileRole: string;
   teacherPortalAllowed: boolean;
   /** Mega-admin only: show Communications → Email templates in nav. */
@@ -25,6 +26,7 @@ export function AdminDashboardShell({
   dict,
   brand,
   newRegistrationsCount,
+  recentInboundMessagesCount,
   adminProfileRole,
   teacherPortalAllowed,
   includeEmailTemplatesNav = false,
@@ -57,6 +59,8 @@ export function AdminDashboardShell({
               locale={locale}
               dict={dict}
               newRegistrationsCount={newRegistrationsCount}
+              recentInboundMessagesCount={recentInboundMessagesCount}
+              includeEmailTemplatesNav={includeEmailTemplatesNav}
               teacherNav={teacherNav}
             />
           )
@@ -68,6 +72,7 @@ export function AdminDashboardShell({
             locale={locale}
             dict={navDict}
             newRegistrationsCount={newRegistrationsCount}
+            recentInboundMessagesCount={recentInboundMessagesCount}
             includeEmailTemplatesNav={includeEmailTemplatesNav}
             teacherNav={teacherNav}
           />

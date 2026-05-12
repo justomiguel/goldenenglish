@@ -20,6 +20,7 @@ describe("AdminSidebar contents navigation", () => {
         locale="en"
         dict={dictEn.dashboard.adminNav}
         newRegistrationsCount={0}
+        recentInboundMessagesCount={0}
       />,
     );
 
@@ -36,6 +37,7 @@ describe("AdminSidebar contents navigation", () => {
         locale="en"
         dict={dictEn.dashboard.adminNav}
         newRegistrationsCount={0}
+        recentInboundMessagesCount={0}
       />,
     );
 

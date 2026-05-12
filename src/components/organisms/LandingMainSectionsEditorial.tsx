@@ -7,6 +7,7 @@ import { LandingStory } from "@/components/organisms/LandingStory";
 import { LandingModalities } from "@/components/organisms/LandingModalities";
 import { LandingLevels } from "@/components/organisms/LandingLevels";
 import { LandingCertifications } from "@/components/organisms/LandingCertifications";
+import { LandingContactBand } from "@/components/organisms/LandingContactBand";
 import { LandingBlocksRenderer } from "@/components/organisms/LandingBlocksRenderer";
 
 /**
@@ -23,8 +24,6 @@ interface LandingMainSectionsEditorialProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
-  sessionEmail: string | null;
-  inscriptionsOpen: boolean;
   mediaMap?: LandingMediaMap;
   blocksBySection?: Readonly<
     Record<LandingSectionSlug, ReadonlyArray<LandingBlock>>
@@ -50,8 +49,6 @@ export function LandingMainSectionsEditorial({
   dict,
   brand,
   locale,
-  sessionEmail,
-  inscriptionsOpen,
   mediaMap,
   blocksBySection,
 }: LandingMainSectionsEditorialProps) {
@@ -61,8 +58,6 @@ export function LandingMainSectionsEditorial({
         dict={dict}
         brand={brand}
         locale={locale}
-        sessionEmail={sessionEmail}
-        inscriptionsOpen={inscriptionsOpen}
         mediaMap={mediaMap}
       />
       <LandingBlocksRenderer
@@ -110,6 +105,10 @@ export function LandingMainSectionsEditorial({
           blocks={blocksFor(blocksBySection, "niveles")}
           locale={locale}
         />
+      </EditorialBand>
+
+      <EditorialBand>
+        <LandingContactBand dict={dict} locale={locale} />
       </EditorialBand>
     </main>
   );

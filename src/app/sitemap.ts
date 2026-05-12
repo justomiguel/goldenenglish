@@ -3,7 +3,7 @@ import { locales } from "@/lib/i18n/dictionaries";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 
 /** Public marketing + auth entry; admin/dashboard excluded (noindex elsewhere). */
-const INDEXED_PATHS = ["", "/login"] as const;
+const INDEXED_PATHS = ["", "/login", "/contact"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = getPublicSiteUrl();

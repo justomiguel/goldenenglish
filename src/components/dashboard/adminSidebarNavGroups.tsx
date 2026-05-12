@@ -41,11 +41,16 @@ interface BuildAdminSidebarNavGroupsOptions {
   includeEmailTemplatesNav?: boolean;
 }
 
+export interface AdminSidebarNavBadges {
+  newRegistrations: number;
+  recentInboundMessages: number;
+}
+
 export function buildAdminSidebarNavGroups(
   base: string,
   profileHref: string,
   dict: Dictionary["dashboard"]["adminNav"],
-  badge: number,
+  badges: AdminSidebarNavBadges,
   options: BuildAdminSidebarNavGroupsOptions = {},
 ): AdminSidebarNavGroup[] {
   const financeHref = options.financeHref ?? `${base}/finance`;
@@ -54,6 +59,7 @@ export function buildAdminSidebarNavGroups(
       href: `${base}/messages`,
       label: dict.messages,
       icon: <MessageCircle className={ic} />,
+      badge: badges.recentInboundMessages,
       tip: dict.tipMessages,
     },
   ];
@@ -84,7 +90,7 @@ export function buildAdminSidebarNavGroups(
           href: `${base}/registrations`,
           label: dict.registrations,
           icon: <ClipboardList className={ic} />,
-          badge,
+          badge: badges.newRegistrations,
           tip: dict.tipRegistrations,
         },
       ],

@@ -7,6 +7,7 @@ import { LandingStory } from "@/components/organisms/LandingStory";
 import { LandingModalities } from "@/components/organisms/LandingModalities";
 import { LandingLevels } from "@/components/organisms/LandingLevels";
 import { LandingCertifications } from "@/components/organisms/LandingCertifications";
+import { LandingContactBand } from "@/components/organisms/LandingContactBand";
 import { LandingBlocksRenderer } from "@/components/organisms/LandingBlocksRenderer";
 
 /** Order: hero → story → modalities (publics + cards) → levels → certifications. */
@@ -14,8 +15,6 @@ interface LandingMainSectionsProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
-  sessionEmail: string | null;
-  inscriptionsOpen: boolean;
   mediaMap?: LandingMediaMap;
   blocksBySection?: Readonly<
     Record<LandingSectionSlug, ReadonlyArray<LandingBlock>>
@@ -33,8 +32,6 @@ export function LandingMainSections({
   dict,
   brand,
   locale,
-  sessionEmail,
-  inscriptionsOpen,
   mediaMap,
   blocksBySection,
 }: LandingMainSectionsProps) {
@@ -44,8 +41,6 @@ export function LandingMainSections({
         dict={dict}
         brand={brand}
         locale={locale}
-        sessionEmail={sessionEmail}
-        inscriptionsOpen={inscriptionsOpen}
         mediaMap={mediaMap}
       />
       <LandingBlocksRenderer
@@ -82,6 +77,7 @@ export function LandingMainSections({
         blocks={blocksFor(blocksBySection, "certificaciones")}
         locale={locale}
       />
+      <LandingContactBand dict={dict} locale={locale} />
     </main>
   );
 }

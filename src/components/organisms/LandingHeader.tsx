@@ -87,6 +87,12 @@ export function LandingHeader({
             >
               {dict.nav.certifications}
             </a>
+            <a
+              href={`/${locale}#contacto`}
+              className="shrink-0 rounded-[var(--layout-border-radius)] px-2.5 py-1.5 text-[var(--color-foreground)] transition hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)]"
+            >
+              {dict.nav.contact}
+            </a>
           </nav>
           <span
             aria-hidden

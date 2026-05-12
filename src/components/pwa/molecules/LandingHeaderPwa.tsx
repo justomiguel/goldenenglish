@@ -174,6 +174,9 @@ export function LandingHeaderPwa({
             <a href={`/${locale}#certificaciones`} className={sectionPillClass}>
               {dict.nav.certifications}
             </a>
+            <a href={`/${locale}#contacto`} className={sectionPillClass}>
+              {dict.nav.contact}
+            </a>
           </nav>
         </div>
       </div>

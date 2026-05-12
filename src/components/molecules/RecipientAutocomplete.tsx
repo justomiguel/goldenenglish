@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import type { FocusEvent, KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { Input } from "@/components/atoms/Input";
+import { RecipientAutocompleteDropdown } from "@/components/molecules/RecipientAutocompleteDropdown";
 import {
   filterMessagingRecipientsByQuery,
   groupMessagingRecipientsForPicker,
@@ -26,6 +28,11 @@ export interface RecipientAutocompleteProps {
   ariaLabel: string;
   /** Optional native tooltip on the combobox input (dictionary-backed). */
   inputTitle?: string;
+  /**
+   * When true and a recipient id is selected, the input stays empty (placeholder visible).
+   * Use when selection is shown elsewhere (e.g. chip); typing filters without clearing the current id until a new pick.
+   */
+  emptyInputWhenSelected?: boolean;
 }
 
 export function RecipientAutocomplete({
@@ -40,6 +47,7 @@ export function RecipientAutocomplete({
   roleLabels,
   ariaLabel,
   inputTitle,
+  emptyInputWhenSelected = false,
 }: RecipientAutocompleteProps) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -76,10 +84,14 @@ export function RecipientAutocomplete({
         if (prev) setQuery("");
         return;
       }
+      if (emptyInputWhenSelected) {
+        setQuery("");
+        return;
+      }
       const sel = options.find((o) => o.id === value);
       if (sel) setQuery(messagingRecipientDisplayName(sel));
     });
-  }, [value, options]);
+  }, [value, options, emptyInputWhenSelected]);
 
   useEffect(() => {
     function onDocMouseDown(e: MouseEvent) {
@@ -96,17 +108,18 @@ export function RecipientAutocomplete({
   const pick = useCallback(
     (r: MessagingRecipient) => {
       onValueChange(r.id);
-      setQuery(messagingRecipientDisplayName(r));
+      if (emptyInputWhenSelected) setQuery("");
+      else setQuery(messagingRecipientDisplayName(r));
       setOpen(false);
       inputRef.current?.blur();
     },
-    [onValueChange],
+    [onValueChange, emptyInputWhenSelected],
   );
 
   const onInputChange = (next: string) => {
     setHighlight(-1);
     setQuery(next);
-    if (value) {
+    if (value && !emptyInputWhenSelected) {
       const sel = options.find((o) => o.id === value);
       if (sel && messagingRecipientDisplayName(sel) !== next) {
         onValueChange("");
@@ -115,7 +128,7 @@ export function RecipientAutocomplete({
     setOpen(true);
   };
 
-  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (!open && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
       setOpen(true);
       return;
@@ -136,15 +149,14 @@ export function RecipientAutocomplete({
       );
     } else if (e.key === "Enter") {
       if (!open || !flatOptions.length) return;
-      const idx =
-        highlight >= 0 ? highlight : flatOptions.length === 1 ? 0 : -1;
+      const idx = highlight >= 0 ? highlight : flatOptions.length === 1 ? 0 : -1;
       if (idx < 0) return;
       e.preventDefault();
       pick(flatOptions[idx]);
     }
   };
 
-  function closePanelIfFocusOutside(e: React.FocusEvent<HTMLDivElement>) {
+  function closePanelIfFocusOutside(e: FocusEvent<HTMLDivElement>) {
     const next = e.relatedTarget as Node | null;
     if (next) {
       if (rootRef.current?.contains(next)) return;
@@ -152,64 +164,31 @@ export function RecipientAutocomplete({
     }
     setOpen(false);
     if (value) {
-      const sel = options.find((o) => o.id === value);
-      if (sel) setQuery(messagingRecipientDisplayName(sel));
+      if (emptyInputWhenSelected) {
+        setQuery("");
+      } else {
+        const sel = options.find((o) => o.id === value);
+        if (sel) setQuery(messagingRecipientDisplayName(sel));
+      }
     }
   }
 
   const dropdown =
     showPanel && rect ? (
-      <div
-        ref={portalRef}
-        className="fixed z-[100] max-h-60 overflow-y-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] py-1 shadow-md"
-        style={{
-          top: rect.top + 4,
-          left: rect.left,
-          width: Math.max(rect.width, 200),
-        }}
-      >
-        <ul id={listId} role="listbox" className="m-0 list-none p-0">
-          {options.length === 0 ? (
-            <li className="px-3 py-2 text-sm text-[var(--color-muted-foreground)]" role="status">
-              {emptyOptionsText}
-            </li>
-          ) : flatOptions.length === 0 ? (
-            <li className="px-3 py-2 text-sm text-[var(--color-muted-foreground)]" role="presentation">
-              {noMatchesText}
-            </li>
-          ) : (
-            grouped.map((g) => (
-              <li key={g.role} role="presentation" className="list-none">
-                <div className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-muted-foreground)]">
-                  {g.label}
-                </div>
-                <ul className="list-none p-0">
-                  {g.items.map((r) => {
-                    const flatIdx = flatIndexById.get(r.id) ?? 0;
-                    const active = highlight >= 0 && flatIdx === highlight;
-                    return (
-                      <li key={r.id} role="none" className="list-none">
-                        <button
-                          type="button"
-                          role="option"
-                          aria-selected={value === r.id}
-                          className={`flex min-h-[44px] w-full items-center px-3 py-2 text-left text-sm text-[var(--color-foreground)] hover:bg-[var(--color-muted)] ${
-                            active ? "bg-[var(--color-muted)]" : ""
-                          }`}
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() => pick(r)}
-                        >
-                          {messagingRecipientDisplayName(r)}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </li>
-            ))
-          )}
-        </ul>
-      </div>
+      <RecipientAutocompleteDropdown
+        listId={listId}
+        portalRef={portalRef}
+        rect={rect}
+        options={options}
+        emptyOptionsText={emptyOptionsText}
+        noMatchesText={noMatchesText}
+        grouped={grouped}
+        flatOptions={flatOptions}
+        flatIndexById={flatIndexById}
+        highlight={highlight}
+        value={value}
+        onPick={pick}
+      />
     ) : null;
 
   return (

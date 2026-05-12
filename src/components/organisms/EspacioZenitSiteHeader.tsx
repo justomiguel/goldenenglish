@@ -41,6 +41,7 @@ export function EspacioZenitSiteHeader({
     { href: `${prefix}#disciplinas`, label: labels.nav.disciplinas },
     { href: `${prefix}#horarios`, label: labels.nav.horarios },
     { href: `${prefix}#galeria`, label: labels.nav.galeria },
+    { href: `${prefix}#contacto`, label: labels.nav.contacto },
     { href: `${prefix}/register`, label: labels.nav.enroll },
   ];
 

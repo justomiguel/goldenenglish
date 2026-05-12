@@ -1,7 +1,6 @@
 import { type AppLocale } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
-import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { LandingSurfaceGate } from "@/components/organisms/LandingSurfaceGate";
 import { LandingGreenfieldSurfaceGate } from "@/components/organisms/LandingGreenfieldSurfaceGate";
 import { LandingGreenfieldPendingMain } from "@/components/organisms/LandingGreenfieldPendingMain";
@@ -38,11 +37,8 @@ export default async function HomePage({ params }: HomePageProps) {
   const { data: { user } } = await supabase.auth.getUser();
   const sessionEmail = user?.email ?? null;
 
-  const [{ brand, needsInitialSiteSetup, dict: baseDict }, inscriptionsOpen] =
-    await Promise.all([
-      resolvePublicBrandWithSetup(loc),
-      getInscriptionsEnabled(),
-    ]);
+  const { brand, needsInitialSiteSetup, dict: baseDict } =
+    await resolvePublicBrandWithSetup(loc);
 
   if (needsInitialSiteSetup) {
     const wizardMode = await loadFirstRunWizardMode();
@@ -86,29 +82,31 @@ export default async function HomePage({ params }: HomePageProps) {
           ? "nago"
           : undefined;
 
-  const sharedShellProps = {
+  const landingContentProps = {
     dict,
     brand,
     locale,
-    sessionEmail,
-    inscriptionsOpen,
     mediaMap,
     blocksBySection,
+  };
+  const marketingTenantProps = {
+    ...landingContentProps,
+    sessionEmail,
   };
 
   const main =
     templateKind === "editorial" ? (
-      <LandingMainSectionsEditorial {...sharedShellProps} />
+      <LandingMainSectionsEditorial {...landingContentProps} />
     ) : templateKind === "minimal" ? (
-      <LandingMainSectionsMinimal {...sharedShellProps} />
+      <LandingMainSectionsMinimal {...landingContentProps} />
     ) : templateKind === "mozarthitos" ? (
-      <LandingMainSectionsMozarthitos {...sharedShellProps} />
+      <LandingMainSectionsMozarthitos {...marketingTenantProps} />
     ) : templateKind === "espaciozenit" ? (
-      <LandingMainSectionsEspacioZenit {...sharedShellProps} />
+      <LandingMainSectionsEspacioZenit {...marketingTenantProps} />
     ) : templateKind === "nago" ? (
-      <LandingMainSectionsNago {...sharedShellProps} />
+      <LandingMainSectionsNago {...marketingTenantProps} />
     ) : (
-      <LandingMainSections {...sharedShellProps} />
+      <LandingMainSections {...landingContentProps} />
     );
 
   return (

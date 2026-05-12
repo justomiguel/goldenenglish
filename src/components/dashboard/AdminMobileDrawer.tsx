@@ -15,6 +15,7 @@ export interface AdminMobileDrawerProps {
   locale: string;
   dict: Dictionary;
   newRegistrationsCount: number;
+  recentInboundMessagesCount: number;
   includeEmailTemplatesNav?: boolean;
   teacherNav?: AdminTeacherNavLabels;
 }
@@ -23,6 +24,7 @@ export function AdminMobileDrawer({
   locale,
   dict,
   newRegistrationsCount,
+  recentInboundMessagesCount,
   includeEmailTemplatesNav,
   teacherNav,
 }: AdminMobileDrawerProps) {
@@ -130,6 +132,7 @@ export function AdminMobileDrawer({
                 locale={locale}
                 dict={navDict}
                 newRegistrationsCount={newRegistrationsCount}
+                recentInboundMessagesCount={recentInboundMessagesCount}
                 includeEmailTemplatesNav={includeEmailTemplatesNav}
                 teacherNav={teacherNav}
                 onNavigate={close}

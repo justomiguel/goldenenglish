@@ -27,9 +27,11 @@ describe("landing marketing branches", () => {
         dict={dictEn}
         brand={{ ...mockBrandPublic, socialWhatsapp: "" }}
         locale="es"
-        sessionEmail={null}
-        inscriptionsOpen={false}
       />,
+    );
+    expect(screen.getByRole("link", { name: dictEn.landing.hero.ctaReserveSpot })).toHaveAttribute(
+      "href",
+      "/es/register",
     );
     expect(screen.queryByRole("link", { name: /WhatsApp/i })).not.toBeInTheDocument();
     rerender(
@@ -37,11 +39,9 @@ describe("landing marketing branches", () => {
         dict={dictEn}
         brand={brandRich}
         locale="es"
-        sessionEmail={null}
-        inscriptionsOpen
       />,
     );
-    expect(screen.getByRole("link", { name: dictEn.landing.hero.ctaRegister })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: dictEn.landing.hero.ctaReserveSpot })).toHaveAttribute(
       "href",
       "/es/register",
     );
@@ -49,18 +49,6 @@ describe("landing marketing branches", () => {
       "href",
       brandRich.socialWhatsapp,
     );
-    rerender(
-      <LandingHero
-        dict={dictEn}
-        brand={brandRich}
-        locale="es"
-        sessionEmail="x@y.co"
-        inscriptionsOpen={false}
-      />,
-    );
-    expect(
-      screen.getByRole("link", { name: dictEn.landing.hero.ctaSignedIn }),
-    ).toHaveAttribute("href", "/es#niveles");
   });
 
   it("LandingStory uses empty alts fallback", () => {

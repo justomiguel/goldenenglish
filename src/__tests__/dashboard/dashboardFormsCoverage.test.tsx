@@ -78,6 +78,7 @@ describe("dashboard coverage", () => {
         locale="es"
         dict={dictEn.dashboard.adminNav}
         newRegistrationsCount={100}
+        recentInboundMessagesCount={0}
       />,
     );
     expect(screen.getByRole("navigation", { name: dictEn.dashboard.adminNav.aria })).toBeInTheDocument();

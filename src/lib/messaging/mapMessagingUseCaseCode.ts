@@ -1,6 +1,7 @@
 import type { Dictionary } from "@/types/i18n";
 import {
   MESSAGING_UC_INVALID_RECIPIENT,
+  MESSAGING_UC_NO_ADMINS,
   MESSAGING_UC_NO_TEACHER,
   MESSAGING_UC_PERSIST_FAILED,
   MESSAGING_UC_REPLY_INVALID_SENDER,
@@ -14,6 +15,8 @@ export function mapMessagingUseCaseCode(
   switch (code) {
     case MESSAGING_UC_NO_TEACHER:
       return messaging.noTeacherForStudent;
+    case MESSAGING_UC_NO_ADMINS:
+      return messaging.noAdminsInstitution;
     case MESSAGING_UC_REPLY_NOT_FOUND:
       return messaging.replyMessageNotFound;
     case MESSAGING_UC_REPLY_INVALID_SENDER:

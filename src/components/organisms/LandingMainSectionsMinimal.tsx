@@ -7,6 +7,7 @@ import { LandingStory } from "@/components/organisms/LandingStory";
 import { LandingModalities } from "@/components/organisms/LandingModalities";
 import { LandingLevels } from "@/components/organisms/LandingLevels";
 import { LandingCertifications } from "@/components/organisms/LandingCertifications";
+import { LandingContactBand } from "@/components/organisms/LandingContactBand";
 import { LandingBlocksRenderer } from "@/components/organisms/LandingBlocksRenderer";
 
 /**
@@ -23,8 +24,6 @@ interface LandingMainSectionsMinimalProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
-  sessionEmail: string | null;
-  inscriptionsOpen: boolean;
   mediaMap?: LandingMediaMap;
   blocksBySection?: Readonly<
     Record<LandingSectionSlug, ReadonlyArray<LandingBlock>>
@@ -59,8 +58,6 @@ export function LandingMainSectionsMinimal({
   dict,
   brand,
   locale,
-  sessionEmail,
-  inscriptionsOpen,
   mediaMap,
   blocksBySection,
 }: LandingMainSectionsMinimalProps) {
@@ -70,8 +67,6 @@ export function LandingMainSectionsMinimal({
         dict={dict}
         brand={brand}
         locale={locale}
-        sessionEmail={sessionEmail}
-        inscriptionsOpen={inscriptionsOpen}
         mediaMap={mediaMap}
       />
       <LandingBlocksRenderer
@@ -123,6 +118,11 @@ export function LandingMainSectionsMinimal({
           blocks={blocksFor(blocksBySection, "certificaciones")}
           locale={locale}
         />
+      </MinimalBlock>
+
+      <MinimalDivider />
+      <MinimalBlock>
+        <LandingContactBand dict={dict} locale={locale} />
       </MinimalBlock>
     </main>
   );

@@ -36,6 +36,7 @@ export function LandingMozarthitosLowerSections({
       />
       <LandingMozarthitosContactSection
         dict={dict}
+        locale={locale}
         igUrl={igUrl}
         marketingBrand={marketingBrand}
       />

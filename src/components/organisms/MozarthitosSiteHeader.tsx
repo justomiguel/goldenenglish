@@ -53,13 +53,13 @@ export function MozarthitosSiteHeader({
   const q = navSectionIds?.quienes ?? "quienes";
   const c = navSectionIds?.cursos ?? "cursos";
   const s = navSectionIds?.sedes ?? "sedes";
-  const co = navSectionIds?.contacto ?? "contacto";
+  const k = navSectionIds?.contacto ?? "contacto";
   const links = [
     { href: `${prefix}#top`, label: labels.inicio },
     { href: `${prefix}#${q}`, label: labels.quienes },
     { href: `${prefix}#${c}`, label: labels.cursos },
     { href: `${prefix}#${s}`, label: labels.sedes },
-    { href: `${prefix}#${co}`, label: labels.contacto },
+    { href: `${prefix}#${k}`, label: labels.contacto },
   ];
 
   return (

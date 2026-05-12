@@ -5,15 +5,16 @@ import { dictEn } from "@/test/dictEn";
 describe("buildAdminSidebarNavGroups — email templates mega-admin flag", () => {
   const base = "/en/dashboard/admin";
   const profile = "/en/dashboard/profile";
+  const badgesZero = { newRegistrations: 0, recentInboundMessages: 0 };
 
   it("hides Communications → Email templates by default", () => {
-    const groups = buildAdminSidebarNavGroups(base, profile, dictEn.dashboard.adminNav, 0);
+    const groups = buildAdminSidebarNavGroups(base, profile, dictEn.dashboard.adminNav, badgesZero);
     const hrefs = groups.flatMap((g) => g.items.map((i) => i.href));
     expect(hrefs).not.toContain(`${base}/communications/templates`);
   });
 
   it("shows Communications → Email templates when includeEmailTemplatesNav", () => {
-    const groups = buildAdminSidebarNavGroups(base, profile, dictEn.dashboard.adminNav, 0, {
+    const groups = buildAdminSidebarNavGroups(base, profile, dictEn.dashboard.adminNav, badgesZero, {
       includeEmailTemplatesNav: true,
     });
     const hrefs = groups.flatMap((g) => g.items.map((i) => i.href));

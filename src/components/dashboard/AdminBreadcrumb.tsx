@@ -31,6 +31,7 @@ function segmentLabel(
     requests: dict.transferInboxNav,
     retention: dict.retention,
     messages: dict.messages,
+    compose: dict.breadcrumbCompose,
     coupons: dict.coupons,
     promotions: dict.promotions,
     settings: dict.settings,

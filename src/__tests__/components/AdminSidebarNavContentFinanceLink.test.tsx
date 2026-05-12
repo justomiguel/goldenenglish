@@ -24,6 +24,7 @@ describe("AdminSidebarNavContent finance link", () => {
         locale="es"
         dict={dictEn.dashboard.adminNav}
         newRegistrationsCount={0}
+        recentInboundMessagesCount={0}
       />,
     );
 
@@ -43,6 +44,7 @@ describe("AdminSidebarNavContent finance link", () => {
         locale="es"
         dict={dictEn.dashboard.adminNav}
         newRegistrationsCount={0}
+        recentInboundMessagesCount={0}
       />,
     );
 

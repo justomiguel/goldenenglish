@@ -95,6 +95,7 @@ describe("component smoke — dashboard & forms", () => {
         dict={dictEn}
         brand={mockBrandPublic}
         newRegistrationsCount={0}
+        recentInboundMessagesCount={0}
         adminProfileRole="admin"
         teacherPortalAllowed={false}
       >
@@ -152,6 +153,7 @@ describe("component smoke — dashboard & forms", () => {
         locale="es"
         dict={dictEn.dashboard.adminNav}
         newRegistrationsCount={1}
+        recentInboundMessagesCount={0}
       />,
     );
   });
@@ -162,6 +164,7 @@ describe("component smoke — dashboard & forms", () => {
         locale="es"
         dict={dictEn.dashboard.adminNav}
         newRegistrationsCount={3}
+        recentInboundMessagesCount={0}
         teacherNav={{
           href: "/es/dashboard/teacher",
           hint: dictEn.dashboard.adminChrome.dualRoleNavHint,
@@ -180,6 +183,7 @@ describe("component smoke — dashboard & forms", () => {
         locale="es"
         dict={dictEn.dashboard.adminNav}
         newRegistrationsCount={3}
+        recentInboundMessagesCount={0}
       />,
     );
     expect(screen.getByText(dictEn.dashboard.adminNav.groupPeople)).toBeInTheDocument();
@@ -191,6 +195,7 @@ describe("component smoke — dashboard & forms", () => {
         locale="es"
         dict={dictEn}
         newRegistrationsCount={0}
+        recentInboundMessagesCount={0}
       />,
     );
     expect(

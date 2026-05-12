@@ -19,11 +19,12 @@ describe("app/sitemap", () => {
     expect(sitemap()).toEqual([]);
   });
 
-  it("emits marketing + login URLs per locale", () => {
+  it("emits marketing + login + contact URLs per locale", () => {
     mockGetPublicSiteUrl.mockReturnValue(new URL("https://golden.test"));
     const entries = sitemap();
-    expect(entries).toHaveLength(locales.length * 2);
+    expect(entries).toHaveLength(locales.length * 3);
     expect(entries[0]?.url).toContain("/");
     expect(entries.some((e) => e.url.includes("/login"))).toBe(true);
+    expect(entries.some((e) => e.url.includes("/contact"))).toBe(true);
   });
 });

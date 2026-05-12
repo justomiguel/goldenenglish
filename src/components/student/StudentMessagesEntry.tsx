@@ -9,8 +9,6 @@ import {
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
 
-type StudentLabels = Dictionary["dashboard"]["student"];
-
 function MessagesSkeleton() {
   return (
     <div className="animate-pulse space-y-4" aria-hidden>
@@ -25,8 +23,9 @@ export interface StudentMessagesEntryProps {
   title: string;
   lead: string;
   lines: StudentMessageLineDto[];
-  canCompose: boolean;
-  labels: StudentLabels;
+  teacherComposeAvailable: boolean;
+  administrationComposeAvailable: boolean;
+  labels: Dictionary["dashboard"]["student"];
 }
 
 export function StudentMessagesEntry({
@@ -34,7 +33,8 @@ export function StudentMessagesEntry({
   title,
   lead,
   lines,
-  canCompose,
+  teacherComposeAvailable,
+  administrationComposeAvailable,
   labels,
 }: StudentMessagesEntryProps) {
   const body = (
@@ -44,7 +44,8 @@ export function StudentMessagesEntry({
       <StudentMessagesClient
         locale={locale}
         initialLines={lines}
-        canCompose={canCompose}
+        teacherComposeAvailable={teacherComposeAvailable}
+        administrationComposeAvailable={administrationComposeAvailable}
         labels={labels}
       />
     </>

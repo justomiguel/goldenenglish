@@ -12,7 +12,6 @@ interface LandingMainSectionsMozarthitosProps {
   brand: BrandPublic;
   locale: string;
   sessionEmail: string | null;
-  inscriptionsOpen: boolean;
   mediaMap?: LandingMediaMap;
 }
 
@@ -21,7 +20,6 @@ export function LandingMainSectionsMozarthitos({
   brand,
   locale,
   sessionEmail,
-  inscriptionsOpen: _inscriptionsOpen,
   mediaMap,
 }: LandingMainSectionsMozarthitosProps) {
   const logoSrc = resolveLandingImageSrcForTheme(

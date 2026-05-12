@@ -41,7 +41,12 @@ describe("AdminMobileDrawer", () => {
   it("closes and unlocks body when viewport crosses md while open", async () => {
     const user = userEvent.setup();
     render(
-      <AdminMobileDrawer locale="es" dict={dictEn} newRegistrationsCount={0} />,
+      <AdminMobileDrawer
+        locale="es"
+        dict={dictEn}
+        newRegistrationsCount={0}
+        recentInboundMessagesCount={0}
+      />,
     );
 
     await user.click(screen.getByRole("button", { name: dictEn.dashboard.adminNav.mobileOpen }));

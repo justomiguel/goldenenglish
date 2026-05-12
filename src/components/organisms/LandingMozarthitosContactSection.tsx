@@ -3,16 +3,19 @@ import { Images, MessageCircle } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
 import { MozarthitosReveal } from "@/components/molecules/MozarthitosReveal";
+import { PublicContactForm } from "@/components/molecules/PublicContactForm";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 
 export interface LandingMozarthitosContactSectionProps {
   dict: Dictionary;
+  locale: string;
   igUrl: string;
   marketingBrand?: MarketingLandingBrand;
 }
 
 export function LandingMozarthitosContactSection({
   dict,
+  locale,
   igUrl,
   marketingBrand = "mz",
 }: LandingMozarthitosContactSectionProps) {
@@ -69,7 +72,10 @@ export function LandingMozarthitosContactSection({
           </div>
         </MozarthitosReveal>
         <MozarthitosReveal preset="contactColRight">
-          <div className="mz-contact-hint-card p-5 text-sm leading-relaxed text-white sm:p-7 md:p-9 md:text-base">
+          <div className="rounded-[28px] bg-white/[0.97] p-6 text-[var(--color-foreground)] shadow-[0_18px_50px_rgb(0_0_0_/28%)] sm:p-8">
+            <PublicContactForm locale={locale} labels={dict.publicContact} embedded />
+          </div>
+          <div className="mz-contact-hint-card mt-6 p-5 text-sm leading-relaxed text-white sm:p-7 md:p-9 md:text-base">
             <p>{marketingLandingCopy(dict, marketingBrand, "contact.formHint")}</p>
           </div>
         </MozarthitosReveal>

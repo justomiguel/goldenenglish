@@ -7,6 +7,7 @@ import {
 import { replyToStudentMessage as replyTeacherMessage } from "@/app/[locale]/dashboard/teacher/messages/actions";
 import { replyToStudentMessageUseCase } from "@/lib/messaging/useCases/replyToStudentMessage";
 import { sendStudentMessageUseCase } from "@/lib/messaging/useCases/sendStudentMessage";
+import { sendStudentMessageToAdministrationUseCase } from "@/lib/messaging/useCases/sendStudentMessageToAdministration";
 import { dictEn } from "@/test/dictEn";
 import { MESSAGING_UC_NO_TEACHER } from "@/lib/messaging/messagingUseCaseCodes";
 import {
@@ -24,6 +25,9 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/messaging/useCases/sendStudentMessage", () => ({
   sendStudentMessageUseCase: vi.fn(),
 }));
+vi.mock("@/lib/messaging/useCases/sendStudentMessageToAdministration", () => ({
+  sendStudentMessageToAdministrationUseCase: vi.fn(),
+}));
 vi.mock("@/lib/messaging/useCases/replyToStudentMessage", () => ({
   replyToStudentMessageUseCase: vi.fn(),
 }));
@@ -38,10 +42,19 @@ describe("sendStudentMessage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(sendStudentMessageUseCase).mockResolvedValue({ ok: true });
+    vi.mocked(sendStudentMessageToAdministrationUseCase).mockResolvedValue({ ok: true });
+  });
+
+  it("rejects invalid destination", async () => {
+    mockCreateClient.mockResolvedValue(supabaseForSendMessage({ userId: "u1", role: "student" }));
+    const res = await sendStudentMessage("en", "<p>Hi</p>", "wrong");
+    expect(res).toEqual({ ok: false, message: msg.invalidRecipient });
+    expect(sendStudentMessageUseCase).not.toHaveBeenCalled();
+    expect(sendStudentMessageToAdministrationUseCase).not.toHaveBeenCalled();
   });
 
   it("rejects empty body after sanitization", async () => {
-    const res = await sendStudentMessage("en", "<script></script>");
+    const res = await sendStudentMessage("en", "<script></script>", "teacher");
     expect(res).toEqual({ ok: false, message: msg.emptyMessage });
     expect(sendStudentMessageUseCase).not.toHaveBeenCalled();
   });
@@ -53,7 +66,7 @@ describe("sendStudentMessage", () => {
       },
       from: vi.fn(),
     });
-    const res = await sendStudentMessage("en", "<p>Hi</p>");
+    const res = await sendStudentMessage("en", "<p>Hi</p>", "teacher");
     expect(res).toEqual({ ok: false, message: msg.unauthorized });
     expect(sendStudentMessageUseCase).not.toHaveBeenCalled();
   });
@@ -62,7 +75,7 @@ describe("sendStudentMessage", () => {
     mockCreateClient.mockResolvedValue(
       supabaseForSendMessage({ userId: "u1", role: "teacher" }),
     );
-    const res = await sendStudentMessage("en", "<p>Hi</p>");
+    const res = await sendStudentMessage("en", "<p>Hi</p>", "teacher");
     expect(res).toEqual({ ok: false, message: msg.forbidden });
     expect(sendStudentMessageUseCase).not.toHaveBeenCalled();
   });
@@ -71,7 +84,7 @@ describe("sendStudentMessage", () => {
     mockCreateClient.mockResolvedValue(
       supabaseForSendMessage({ userId: "u1", role: "student" }),
     );
-    await sendStudentMessage("en", "<p>x</p><script>bad()</script>");
+    await sendStudentMessage("en", "<p>x</p><script>bad()</script>", "teacher");
     expect(sendStudentMessageUseCase).toHaveBeenCalledWith(
       expect.objectContaining({
         bodyHtml: expect.not.stringMatching(/script/i),
@@ -87,7 +100,7 @@ describe("sendStudentMessage", () => {
     mockCreateClient.mockResolvedValue(
       supabaseForSendMessage({ userId: "u1", role: "student" }),
     );
-    const res = await sendStudentMessage("en", "<p>Hi</p>");
+    const res = await sendStudentMessage("en", "<p>Hi</p>", "teacher");
     expect(res).toEqual({ ok: false, message: msg.noTeacherForStudent });
   });
 });
@@ -120,9 +133,17 @@ describe("deleteStudentMessage", () => {
           };
         }
         if (table === "portal_messages") {
-          const end = vi.fn().mockResolvedValue({ error: { message: "rls" } });
-          const mid = vi.fn().mockReturnValue({ eq: end });
-          return { delete: vi.fn().mockReturnValue({ eq: mid }) };
+          const deleteSecondEq = vi.fn().mockResolvedValue({ error: { message: "rls" } });
+          const deleteFirstEq = vi.fn().mockReturnValue({ eq: deleteSecondEq });
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            maybeSingle: vi.fn().mockResolvedValue({
+              data: { broadcast_batch_id: null },
+              error: null,
+            }),
+            delete: vi.fn().mockReturnValue({ eq: deleteFirstEq }),
+          };
         }
         throw new Error(`unexpected ${table}`);
       }),

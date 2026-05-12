@@ -19,10 +19,16 @@ export function supabaseForStudentMessageDelete(opts: { userId: string }) {
         };
       }
       if (table === "portal_messages") {
-        const end = vi.fn().mockResolvedValue({ error: null });
-        const mid = vi.fn().mockReturnValue({ eq: end });
+        const deleteSecondEq = vi.fn().mockResolvedValue({ error: null });
+        const deleteFirstEq = vi.fn().mockReturnValue({ eq: deleteSecondEq });
         return {
-          delete: vi.fn().mockReturnValue({ eq: mid }),
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: { broadcast_batch_id: null },
+            error: null,
+          }),
+          delete: vi.fn().mockReturnValue({ eq: deleteFirstEq }),
         };
       }
       throw new Error(`unexpected ${table}`);
