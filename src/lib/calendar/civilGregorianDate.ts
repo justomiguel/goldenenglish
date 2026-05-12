@@ -54,6 +54,28 @@ export function forEachIsoDateInRange(
   }
 }
 
+/**
+ * Render a civil date (YYYY-MM-DD; no zone) consistently across server/client.
+ *
+ * Why this exists: `new Date("2010-06-13")` is parsed as UTC midnight, so when
+ * the environment that formats it sits west of UTC (e.g. America/Argentina/Cordoba,
+ * UTC-3) the output shifts to the previous day. Birth dates, registration dates,
+ * etc. are *civil* dates without a zone — the wall-clock day must survive any
+ * server timezone. Format in `timeZone: "UTC"` so the formatter never shifts.
+ */
+export function formatCivilIsoDateForDisplay(
+  locale: string,
+  isoYmd: string | null | undefined,
+  options: Intl.DateTimeFormatOptions = { dateStyle: "medium" },
+): string | null {
+  if (!isoYmd) return null;
+  const trimmed = String(isoYmd).slice(0, 10);
+  const p = parseIsoDateParts(trimmed);
+  if (!p) return null;
+  const d = new Date(Date.UTC(p.y, p.m - 1, p.d, 0, 0, 0));
+  return new Intl.DateTimeFormat(locale, { ...options, timeZone: "UTC" }).format(d);
+}
+
 export function compareIsoDate(a: string, b: string): number {
   return a.localeCompare(b);
 }

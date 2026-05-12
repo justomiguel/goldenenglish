@@ -2,6 +2,7 @@ import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { Dictionary } from "@/types/i18n";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { formatRegistrationLevelInterestForAdmin } from "@/lib/register/formatRegistrationLevelInterestForAdmin";
+import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
 
 export interface AdminRegistrationAcceptSummaryProps {
   locale: string;
@@ -47,11 +48,11 @@ export function AdminRegistrationAcceptSummary({
           <div>
             <dt className="text-[var(--color-muted-foreground)]">{labels.birthDate}</dt>
             <dd>
-              {new Date(`${row.birth_date!.slice(0, 10)}T12:00:00`).toLocaleDateString(locale, {
+              {formatCivilIsoDateForDisplay(locale, row.birth_date, {
                 year: "numeric",
                 month: "short",
                 day: "numeric",
-              })}
+              }) ?? ""}
             </dd>
           </div>
         ) : null}

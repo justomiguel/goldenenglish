@@ -3,7 +3,8 @@
 
 /*
  * Color / layout / shadow tokens are injected at runtime by `src/app/layout.tsx`
- * (`<style id="ge-theme-root">`) so a site theme activated from admin propagates
+ * (`<style id="ge-theme-root">`, after a FullCalendar placeholder — see comment there)
+ * so a site theme activated from admin propagates
  * without redeploying. See `system.properties` (defaults) +
  * `public.site_themes.properties` (overrides) + `src/lib/theme/themeOverrides.ts`.
  *

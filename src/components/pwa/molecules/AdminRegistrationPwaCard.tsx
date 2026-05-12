@@ -6,6 +6,7 @@ import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -31,13 +32,12 @@ export function AdminRegistrationPwaCard({
   onDelete,
 }: AdminRegistrationPwaCardProps) {
   const canAccept = r.status === "new";
-  const birthDisplay = r.birth_date
-    ? new Date(`${r.birth_date}T12:00:00`).toLocaleDateString(locale, {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
-    : labels.emptyValue;
+  const birthDisplay =
+    formatCivilIsoDateForDisplay(locale, r.birth_date, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }) ?? labels.emptyValue;
   const receivedDisplay = r.created_at
     ? new Date(r.created_at).toLocaleString(locale)
     : labels.emptyValue;

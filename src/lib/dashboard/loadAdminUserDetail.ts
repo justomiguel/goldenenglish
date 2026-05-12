@@ -20,8 +20,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { loadTutorStudentFamilyClusterIds } from "@/lib/dashboard/loadTutorStudentFamilyClusterIds";
+import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
 
-function formatDate(locale: string, iso: string | null | undefined): string | null {
+function formatTimestampForDisplay(
+  locale: string,
+  iso: string | null | undefined,
+): string | null {
   if (!iso) return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
@@ -125,8 +129,8 @@ export async function loadAdminUserDetail(
 
   const phoneRaw = (profile.phone ?? "").trim();
   const phoneDisplay = phoneRaw.length > 0 ? phoneRaw : emptyDisplay;
-  const birthDateDisplay = formatDate(locale, profile.birth_date);
-  const createdAtDisplay = formatDate(locale, profile.created_at) ?? emptyDisplay;
+  const birthDateDisplay = formatCivilIsoDateForDisplay(locale, profile.birth_date);
+  const createdAtDisplay = formatTimestampForDisplay(locale, profile.created_at) ?? emptyDisplay;
   const emailRaw = (authData.user.email ?? "").trim();
   const emailDisplay = emailRaw.length > 0 ? emailRaw : emptyDisplay;
   const birthIso =

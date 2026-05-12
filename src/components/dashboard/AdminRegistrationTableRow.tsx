@@ -6,6 +6,7 @@ import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDispla
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
+import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -41,13 +42,11 @@ export function AdminRegistrationTableRow({
         {formatRegistrationLevelInterestDisplay(labels, r.level_interest)}
       </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top text-[var(--color-muted-foreground)]">
-        {r.birth_date
-          ? new Date(`${r.birth_date}T12:00:00`).toLocaleDateString(locale, {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })
-          : labels.emptyValue}
+        {formatCivilIsoDateForDisplay(locale, r.birth_date, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }) ?? labels.emptyValue}
       </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top text-[var(--color-muted-foreground)]">
         {r.created_at ? new Date(r.created_at).toLocaleString() : labels.emptyValue}

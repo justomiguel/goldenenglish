@@ -76,6 +76,15 @@ export default async function RootLayout({
       className={`${dmSans.variable} ${fraunces.variable}`}
     >
       <head>
+        {/**
+         * FullCalendar injects global CSS on module load (`registerStylesRoot` in
+         * `@fullcalendar/core/internal-common`): it inserts `style[data-fullcalendar]` *before*
+         * the first `<style>` in `<head>`, which pushed `#ge-theme-root` down and broke React
+         * hydration. A placeholder first lets FC reuse this node via `querySelector` and keeps
+         * theme order stable. FC uses `CSSStyleSheet#insertRule` (not `innerHTML`); content may
+         * diverge from SSR — safe to suppress hydration for this tag only.
+         */}
+        <style data-fullcalendar="" suppressHydrationWarning />
         <style
           id="ge-theme-root"
           dangerouslySetInnerHTML={{ __html: themeRootCss }}
