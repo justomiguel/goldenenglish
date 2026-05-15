@@ -14,10 +14,12 @@ import type {
   SiteThemeActionResult,
 } from "@/app/[locale]/dashboard/admin/cms/siteThemeActionShared";
 import type { LandingSectionEditorViewModel } from "@/lib/cms/buildLandingEditorViewModel";
+import type { LandingOverrideLocale } from "@/lib/cms/landingContentCatalog";
 import type { Dictionary } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { SiteThemeRow } from "@/types/theming";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
+import { LandingThemeContentPersistAlerts } from "./LandingThemeContentPersistAlerts";
 import { LandingBlocksPanel } from "./LandingBlocksPanel";
 import { LandingCopyFieldEditor } from "./LandingCopyFieldEditor";
 import { LandingMediaSlotEditor } from "./LandingMediaSlotEditor";
@@ -54,12 +56,15 @@ export function LandingSectionEditorShell({
 
   const dirty = isLandingCopyDraftDirty(section.copy, draft);
 
-  function updateDraft(key: string, locale: "es" | "en", value: string) {
+  function updateDraft(key: string, loc: LandingOverrideLocale, value: string) {
     setErrorCode(null);
     setSavedAt(null);
     setDraft((prev) => ({
       ...prev,
-      [key]: { ...(prev[key] ?? { es: "", en: "" }), [locale]: value },
+      [key]: {
+        ...(prev[key] ?? { es: "", en: "", pt: "" }),
+        [loc]: value,
+      },
     }));
   }
 
@@ -94,7 +99,7 @@ export function LandingSectionEditorShell({
       applyResult(result, () => {
         const clear: LandingCopyDraft = {};
         for (const field of section.copy) {
-          clear[field.key] = { es: "", en: "" };
+          clear[field.key] = { es: "", en: "", pt: "" };
         }
         setDraft(clear);
         setSavedAt(Date.now());
@@ -121,23 +126,12 @@ export function LandingSectionEditorShell({
         </p>
       </header>
 
-      {errorCode ? (
-        <p
-          role="alert"
-          className="rounded-[var(--layout-border-radius)] border border-[var(--color-error)]/30 bg-[var(--color-error)]/5 px-3 py-2 text-sm text-[var(--color-error)]"
-        >
-          {labels.errors[errorCode] ?? labels.errors.persist_failed}
-        </p>
-      ) : null}
-
-      {savedAt && !pending && !errorCode ? (
-        <p
-          role="status"
-          className="rounded-[var(--layout-border-radius)] border border-[var(--color-success)]/30 bg-[var(--color-success)]/5 px-3 py-2 text-sm text-[var(--color-success)]"
-        >
-          {labels.saveCopySuccess}
-        </p>
-      ) : null}
+      <LandingThemeContentPersistAlerts
+        labels={labels}
+        errorCode={errorCode}
+        savedAt={savedAt}
+        pending={pending}
+      />
 
       <article className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4">
         <header className="flex flex-wrap items-start justify-between gap-3">
@@ -181,8 +175,10 @@ export function LandingSectionEditorShell({
               labels={labels}
               draftEs={draft[field.key]?.es ?? ""}
               draftEn={draft[field.key]?.en ?? ""}
+              draftPt={draft[field.key]?.pt ?? ""}
               onChangeEs={(value) => updateDraft(field.key, "es", value)}
               onChangeEn={(value) => updateDraft(field.key, "en", value)}
+              onChangePt={(value) => updateDraft(field.key, "pt", value)}
               disabled={pending}
             />
           ))}

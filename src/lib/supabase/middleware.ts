@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { hasSupabasePublicEnv, readSupabasePublicEnv } from "@/lib/supabase/publicEnv";
 import { mustRedirectToResetPassword } from "@/lib/supabase/mustRedirectToResetPassword";
 import { defaultLocale, locales } from "@/lib/i18n/dictionaries";
+import { GE_REQUEST_LOCALE_HEADER } from "@/lib/i18n/requestLocaleHeader";
 
 export type UpdateSessionResult = {
   response: NextResponse;
@@ -18,6 +19,12 @@ function extractLocaleFromPathname(pathname: string): string {
   return defaultLocale;
 }
 
+function nextWithLocaleHeader(request: NextRequest): NextResponse {
+  const headers = new Headers(request.headers);
+  headers.set(GE_REQUEST_LOCALE_HEADER, extractLocaleFromPathname(request.nextUrl.pathname));
+  return NextResponse.next({ request: { headers } });
+}
+
 export async function updateSession(request: NextRequest): Promise<UpdateSessionResult> {
   if (!hasSupabasePublicEnv()) {
     if (process.env.NODE_ENV === "development") {
@@ -25,11 +32,11 @@ export async function updateSession(request: NextRequest): Promise<UpdateSession
         "[supabase] Missing URL or anon key. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local (see .env.example). Session refresh skipped.",
       );
     }
-    return { response: NextResponse.next({ request }), userId: null };
+    return { response: nextWithLocaleHeader(request), userId: null };
   }
 
   const { url, anonKey } = readSupabasePublicEnv();
-  let supabaseResponse = NextResponse.next({ request });
+  let supabaseResponse = nextWithLocaleHeader(request);
 
   const supabase = createServerClient(url, anonKey, {
     cookies: {
@@ -40,7 +47,7 @@ export async function updateSession(request: NextRequest): Promise<UpdateSession
         cookiesToSet.forEach(({ name, value }) =>
           request.cookies.set(name, value),
         );
-        supabaseResponse = NextResponse.next({ request });
+        supabaseResponse = nextWithLocaleHeader(request);
         cookiesToSet.forEach(({ name, value, options }) =>
           supabaseResponse.cookies.set(name, value, options),
         );

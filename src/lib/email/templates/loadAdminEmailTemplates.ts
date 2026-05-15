@@ -67,6 +67,7 @@ export async function loadAdminEmailTemplates(
     overridesByLocale: {
       es: overrideIndex.get(`${definition.key}::es`) ?? null,
       en: overrideIndex.get(`${definition.key}::en`) ?? null,
+      pt: overrideIndex.get(`${definition.key}::pt`) ?? null,
     },
   }));
 }

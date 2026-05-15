@@ -3,7 +3,8 @@
     "locale": {
       "label": "Idioma",
       "es": "ES",
-      "en": "EN"
+      "en": "EN",
+      "pt": "PT"
     },
     "loading": "Cargando...",
     "loadingAria": "Cargando",
@@ -895,7 +896,8 @@
         "selectLabel": "Plantilla",
         "localeLabel": {
           "es": "Español",
-          "en": "Inglés"
+          "en": "Inglés",
+          "pt": "Portugués"
         },
         "editedSuffix": "(editada)",
         "subjectLabel": "Asunto",
@@ -1111,7 +1113,7 @@
           "saveCta": "Guardar cambios",
           "saveSuccess": "Cambios guardados.",
           "resetAllCta": "Restablecer a valores por defecto",
-          "confirmResetAll": "¿Restablecer todos los tokens de este template a los valores de system.properties? Esta acción no se puede deshacer.",
+          "confirmResetAll": "¿Restablecer todos los tokens de este template a los valores por defecto del sistema? Esta acción no se puede deshacer.",
           "resetAllModalTitle": "¿Restablecer todos los tokens de diseño?",
           "resetAllModalConfirm": "Restablecer",
           "resetAllModalCancel": "Cancelar",
@@ -1191,7 +1193,7 @@
         "landing": {
           "openCta": "Editar copy e imágenes del landing",
           "overviewTitle": "Contenido del landing — {{name}}",
-          "overviewLead": "Sustituí los textos bilingües y las imágenes que vienen por defecto con el landing. Si dejás un campo vacío usamos el valor del diccionario.",
+          "overviewLead": "Sustituí los textos en español, inglés y portugués y las imágenes que vienen por defecto con el landing. Si dejás un campo vacío usamos el valor del diccionario.",
           "backToTemplates": "Volver a templates",
           "backToOverview": "Volver a las secciones",
           "notFound": "No se encontró el template. Es posible que otro admin lo haya eliminado.",
@@ -1199,7 +1201,7 @@
           "copyOverridesSummary": "{{count}} de {{total}} campos personalizados",
           "mediaOverridesSummary": "{{count}} de {{total}} imágenes personalizadas",
           "copyTitle": "Textos",
-          "copyLead": "Editá las versiones en español e inglés que se muestran en el landing. Dejá vacío un campo para usar el valor del diccionario.",
+          "copyLead": "Editá las versiones en español, inglés y portugués que se muestran en el landing. Dejá vacío un campo para usar el valor del diccionario.",
           "mediaTitle": "Imágenes",
           "mediaLead": "Reemplazá la imagen que viene con el landing para cada espacio. Formatos aceptados: PNG, JPEG, WebP. Máximo 4 MB por archivo.",
           "mediaLeadModalidades": "Las imágenes 1 a 12 alimentan Modalidades y «Nuestros alumnos»: el collage de registro sigue usando solo 1–4; para carruseles más largos subí fotos en espacios mayores. En textos, editá studentGallery.album1PhotoIndexes y album2PhotoIndexes con índices base 0 separados por comas (ej. 0,1,2,8).",
@@ -1215,6 +1217,7 @@
           "deleteSuccess": "Imagen eliminada.",
           "labelEs": "Español",
           "labelEn": "Inglés",
+          "labelPt": "Portugués",
           "defaultLabel": "Por defecto",
           "overriddenLabel": "Personalizado",
           "uploadCta": "Subir imagen",
@@ -1253,7 +1256,7 @@
           },
           "blocks": {
             "title": "Subsecciones",
-            "lead": "Sumá tarjetas, llamados, citas, features, stats, llamadas a la acción o separadores bilingües que se renderizan al pie de esta sección. Tope: 8 por sección, 24 por template.",
+            "lead": "Sumá tarjetas, llamados, citas, features, stats, llamadas a la acción o separadores en español, inglés y portugués que se renderizan al pie de esta sección. Tope: 8 por sección, 24 por template.",
             "blocksSummary": "{{count}} subsecciones",
             "emptyState": "Todavía no hay subsecciones. Agregá una para enriquecer esta sección.",
             "addCta": "Agregar subsección",
@@ -1270,8 +1273,10 @@
             },
             "titleEsLabel": "Título en español",
             "titleEnLabel": "Título en inglés",
+            "titlePtLabel": "Título en portugués",
             "bodyEsLabel": "Cuerpo en español",
             "bodyEnLabel": "Cuerpo en inglés",
+            "bodyPtLabel": "Cuerpo en portugués",
             "submitAddCta": "Crear subsección",
             "saveCta": "Guardar subsección",
             "removeCta": "Eliminar",
@@ -1284,7 +1289,7 @@
             "saveSuccess": "Subsección guardada.",
             "addSuccess": "Subsección agregada.",
             "removeSuccess": "Subsección eliminada.",
-            "blockEmpty": "Indicá al menos un título o cuerpo en español o inglés.",
+            "blockEmpty": "Indicá al menos un título o cuerpo en español, inglés o portugués.",
             "errors": {
               "invalid_input": "Revisá los valores e intentá de nuevo.",
               "forbidden": "Ya no tenés permiso para esta acción.",
@@ -1335,7 +1340,7 @@
           "saveCta": "Guardar cambios",
           "saveSuccess": "Cambios guardados.",
           "resetAllCta": "Restablecer todo a los valores por defecto",
-          "confirmResetAll": "¿Restablecer todas las sobrescrituras de esta plantilla a los valores de system.properties? Esta acción no se puede deshacer.",
+          "confirmResetAll": "¿Restablecer todas las sobrescrituras de esta plantilla a los valores por defecto del sistema? Esta acción no se puede deshacer.",
           "resetRawModalTitle": "¿Restablecer todas las sobrescrituras?",
           "resetRawModalConfirm": "Restablecer",
           "resetRawModalCancel": "Cancelar",
@@ -3053,7 +3058,9 @@
       "tipSettings": "Preferencias del instituto, como inscripciones públicas.",
       "tipMyProfile": "Tu perfil personal, contraseña y preferencias.",
       "badges": "Logros",
-      "tipBadges": "Gestiona el catálogo de logros del alumno: títulos, imagen, criterios y pausa."
+      "tipBadges": "Gestiona el catálogo de logros del alumno: títulos, imagen, criterios y pausa.",
+      "siteSetup": "Configuración del sitio",
+      "tipSiteSetup": "Volvé a abrir el asistente para actualizar marca, contacto y parámetros operativos."
     },
     "siteSetup": {
       "metaTitle": "Configuración inicial del instituto",
@@ -3080,7 +3087,66 @@
         "intro": "Introducción",
         "institute": "Instituto y activos",
         "contact": "Contacto y redes",
+        "visual": "Identidad visual",
+        "academics": "Académicos",
+        "legalBilling": "Legal y facturación",
+        "analytics": "Analítica",
         "review": "Revisión"
+      },
+      "visual": {
+        "title": "Colores, fuentes y layout",
+        "lead": "Elegí los colores de marca, fuentes y tokens de layout que usan el sitio público y los dashboards.",
+        "colorPrimary": "Color primario",
+        "colorSecondary": "Color secundario",
+        "colorAccent": "Color de acento",
+        "colorBackground": "Color de fondo",
+        "colorSurface": "Color de superficie",
+        "fontPrimary": "Fuente principal",
+        "fontSecondary": "Fuente de display",
+        "fontMono": "Fuente monoespaciada",
+        "layoutMaxWidth": "Ancho máximo de contenido",
+        "layoutBorderRadius": "Radio de bordes"
+      },
+      "academics": {
+        "title": "Configuración académica",
+        "lead": "Cupo de sección, acceso al portal docente y límites de la matriz de asistencia.",
+        "sectionMaxStudents": "Cupo por defecto por sección",
+        "teacherPortalAllowedProfileRoles": "Roles de perfil del portal docente",
+        "teacherPortalAllowedProfileRolesHint": "Roles separados por comas habilitados para el portal docente (p. ej. teacher,assistant).",
+        "advancedShow": "Mostrar ajustes avanzados de la matriz",
+        "advancedHide": "Ocultar ajustes avanzados de la matriz",
+        "attendanceTeacherScanLookbackBufferDays": "Buffer de lookback docente (días)",
+        "attendanceTeacherOperationalCivilLookbackDays": "Lookback civil operacional docente (días)",
+        "attendanceTeacherOperationalMaxClassDays": "Máx. días de clase (vista operacional docente)",
+        "attendanceTeacherFullCourseMaxClassDays": "Máx. días de clase (vista curso completo)",
+        "attendanceAdminFallbackLookbackDays": "Fallback de lookback admin (días)",
+        "attendanceAdminMaxClassDays": "Máx. días de clase admin",
+        "attendancePickAdjacentCivilDays": "Radio de días civiles adyacentes al elegir clase",
+        "attendanceHasEligibleWindowMaxScans": "Máx. escaneos al buscar día de clase elegible"
+      },
+      "legalBilling": {
+        "title": "Legal y facturación",
+        "lead": "Edad legal, aviso de renovación de matrícula y etiquetas de facturación.",
+        "legalAgeMajority": "Edad legal de mayoría",
+        "legalAgeMajorityHint": "Se usa para los flujos de portal adulto/menor.",
+        "studentRenewalWarnDays": "Aviso de renovación de matrícula (días)",
+        "studentRenewalWarnDaysHint": "Los alumnos adultos ven un aviso si el último pago de matrícula es más viejo que esto.",
+        "billingTermsTitle": "Etiquetas de facturación",
+        "billingTermEnrollment": "Etiqueta de matrícula (español)",
+        "billingTermEnrollmentEn": "Etiqueta de matrícula (inglés)",
+        "billingTermMonthly": "Etiqueta de cuota mensual (español)",
+        "billingTermMonthlyEn": "Etiqueta de cuota mensual (inglés)",
+        "billingTermPromotion": "Etiqueta de promoción (español)",
+        "billingTermPromotionEn": "Etiqueta de promoción (inglés)"
+      },
+      "analytics": {
+        "title": "Analítica",
+        "lead": "Prefijo, versión y zona horaria que usa el pipeline de analítica.",
+        "eventNamespace": "Namespace de eventos",
+        "eventNamespaceHint": "Se usa como prefijo de los tipos de evento internos en exports.",
+        "eventVersion": "Versión de eventos",
+        "timezone": "Zona horaria del instituto",
+        "timezoneHint": "Zona IANA (p. ej. America/Argentina/Cordoba) usada para dashboards y agregados."
       },
       "intro": {
         "title": "Configurá la presencia pública",
@@ -3100,7 +3166,11 @@
         "logoAlt": "Texto alternativo del logo (accesibilidad)",
         "logoAltHint": "Breve descripción para lectores de pantalla.",
         "logoRequired": "Seleccioná un archivo de logo.",
-        "faviconRequired": "Seleccioná un archivo de favicon."
+        "faviconRequired": "Seleccioná un archivo de favicon.",
+        "currentLogoHint": "Logo actual — elegí un archivo nuevo para reemplazarlo o dejalo vacío para conservar este.",
+        "currentLogoPreviewAlt": "Logo guardado actualmente",
+        "currentFaviconHint": "Favicon actual — elegí un archivo nuevo para reemplazarlo o dejalo vacío para conservar este.",
+        "currentFaviconPreviewAlt": "Favicon guardado actualmente"
       },
       "contact": {
         "title": "Contacto y redes",

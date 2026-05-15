@@ -15,11 +15,14 @@ export const LANDING_SECTION_SLUGS = [
 
 export type LandingSectionSlug = (typeof LANDING_SECTION_SLUGS)[number];
 
-/** Subset of `system.properties` keys that DB overrides are allowed to touch. */
+/** Subset of `SYSTEM_PROPERTIES_DEFAULTS` keys that DB overrides are allowed to
+ *  touch on the *theme* row. Operational settings (legal / billing / academic
+ *  matrix / analytics) live in `site_settings`, not here. */
 export const THEME_OVERRIDE_KEY_PREFIXES = [
   "color.",
   "layout.",
   "shadow.",
+  "font.",
   "app.",
   "contact.",
   "social.",
@@ -27,10 +30,11 @@ export const THEME_OVERRIDE_KEY_PREFIXES = [
 
 export type ThemePropertyOverrides = Readonly<Record<string, string>>;
 
-/** Locale-aware copy bag (es/en) used inside `SiteThemeContent`. */
+/** Locale-aware copy bag (es/en/pt) used inside `SiteThemeContent`. */
 export interface LocalizedCopy {
   es?: string;
   en?: string;
+  pt?: string;
 }
 
 /** Map of arbitrary keys (per section) → localized copy. Shape stays open
@@ -93,6 +97,7 @@ export interface LandingBlock {
   copy: {
     es: LandingBlockLocaleCopy;
     en: LandingBlockLocaleCopy;
+    pt: LandingBlockLocaleCopy;
   };
   mediaPath?: string;
 }
@@ -116,7 +121,7 @@ export interface SiteThemeRow {
   isActive: boolean;
   /** Cuando es `true`, este row representa el "Tema por defecto" del sistema:
    *  con `properties = {}` y `content = {}` reproduce exactamente lo que vivía
-   *  en `system.properties` + diccionarios. Las server actions bloquean
+   *  en `SYSTEM_PROPERTIES_DEFAULTS` + diccionarios. Las server actions bloquean
    *  archivarlo/borrarlo para garantizar fallback consistente. */
   isSystemDefault: boolean;
   templateKind: SiteThemeKind;
@@ -148,7 +153,7 @@ export interface ActiveThemeSnapshot {
 
 /** Merged result handed to the layout / brand layer. */
 export interface EffectiveProperties {
-  /** Defaults from `system.properties` overlaid with active theme overrides. */
+  /** Defaults from `SYSTEM_PROPERTIES_DEFAULTS` overlaid with active theme overrides. */
   properties: ThemeProperties;
   /** Active theme metadata (for audit / preview), null if no override active. */
   activeThemeSlug: string | null;

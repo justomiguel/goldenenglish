@@ -8,7 +8,7 @@ La carpeta [`../README.md`](../README.md) describe el propósito: datos **por pr
 2. Abre `seed.sql` y sustituye:
    - `TENANT_SLUG` — valor único del row (`site_themes.slug`).
    - `TENANT_DISPLAY_NAME` — nombre visible en admin/CMS.
-   - Los JSON `properties`, `content` y `blocks` según tu marca y el CMS (tokens como en `system.properties`, copy por sección/locale, bloques dinámicos).
+   - Los JSON `properties`, `content` y `blocks` según tu marca y el CMS (tokens como en `SYSTEM_PROPERTIES_DEFAULTS`, copy por sección/locale, bloques dinámicos).
 3. Opcional: ajusta `template_kind` (`classic`, `editorial` o `minimal` según enum en tu BD).
 4. Ejecuta el SQL **después** de aplicar todas las migraciones (`supabase db push`, CI, etc.).
 

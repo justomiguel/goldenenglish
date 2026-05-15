@@ -3,11 +3,20 @@ import { scheduleTrafficPageHitFromMiddleware } from "@/lib/analytics/scheduleTr
 import { updateSession } from "@/lib/supabase/middleware";
 import { defaultLocale, locales } from "@/lib/i18n/dictionaries";
 
-const rootStaticAssetPattern =
-  /^\/(?!(?:en|es)\/)(?:(?:_next\/.*)|(?:favicon\.ico$)|(?:favicon_io\/.*)|(?:images\/.*)|(?:geo\/.*)|(?:sw\.js$)|(?:robots\.txt$)|(?:sitemap\.xml$)|(?:manifest\.webmanifest$)|(?:.*\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map|geojson|webmanifest|txt|xml|woff2?|ttf|otf)$))/;
+const localeAlternation = locales.join("|");
 
-const localePrefixedAssetPattern =
-  /^\/(en|es)\/(?:(?:_next\/.*)|(?:favicon\.ico$)|(?:favicon_io\/.*)|(?:images\/.*)|(?:geo\/.*)|(?:sw\.js$)|(?:robots\.txt$)|(?:sitemap\.xml$)|(?:manifest\.webmanifest$)|(?:.*\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map|geojson|webmanifest|txt|xml|woff2?|ttf|otf)$))/;
+const localeAwareStaticPathPattern =
+  "(?:(?:_next\\/.*)|(?:favicon\\.ico$)|(?:favicon_io\\/.*)|(?:images\\/.*)|(?:geo\\/.*)|(?:sw\\.js$)|(?:robots\\.txt$)|(?:sitemap\\.xml$)|(?:manifest\\.webmanifest$)|(?:.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map|geojson|webmanifest|txt|xml|woff2?|ttf|otf)$))";
+
+const rootStaticAssetPattern = new RegExp(
+  `^\\/(?!(?:${localeAlternation})\\/)${localeAwareStaticPathPattern}`,
+);
+
+const localePrefixedAssetPattern = new RegExp(
+  `^\\/(?:${localeAlternation})\\/${localeAwareStaticPathPattern}`,
+);
+
+const localePrefixStripPattern = new RegExp(`^\\/(?:${localeAlternation})(?=\\/)`);
 
 /**
  * Paths without a locale prefix always redirect to `defaultLocale` (Spanish).
@@ -28,7 +37,7 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   }
 
   if (localePrefixedAssetPattern.test(pathname)) {
-    request.nextUrl.pathname = pathname.replace(/^\/(en|es)(?=\/)/, "");
+    request.nextUrl.pathname = pathname.replace(localePrefixStripPattern, "");
     return NextResponse.rewrite(request.nextUrl);
   }
 

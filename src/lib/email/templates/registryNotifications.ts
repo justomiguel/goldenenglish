@@ -1,4 +1,5 @@
 import type { EmailTemplateDefinition } from "@/types/emailTemplates";
+import { withPtFallback } from "@/lib/email/templates/withPtEmailDefaults";
 
 export const churnInactivityTemplate: EmailTemplateDefinition = {
   key: "churn.inactivity",
@@ -13,7 +14,7 @@ export const churnInactivityTemplate: EmailTemplateDefinition = {
     { name: "studentDisplayName", description: "Nombre del alumno", sample: "Juan" },
     { name: "contactEmail", description: "Email de contacto del instituto", sample: "contacto@example.com" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Te extrañamos en el portal",
       bodyHtml: `<p>{{greeting}}</p>
@@ -26,7 +27,7 @@ export const churnInactivityTemplate: EmailTemplateDefinition = {
 <p>We noticed <strong>{{studentDisplayName}}</strong> has not opened the student portal recently. If you need help, contact us.</p>
 <p style="font-size:0.875rem;color:#6B7280;">{{contactEmail}}</p>`,
     },
-  },
+  }),
 };
 
 export const wardEmailChangedTemplate: EmailTemplateDefinition = {
@@ -47,7 +48,7 @@ export const wardEmailChangedTemplate: EmailTemplateDefinition = {
     { name: "parentName", description: "Nombre del tutor que hizo el cambio", sample: "María Pérez" },
     { name: "supportEmail", description: "Email de contacto del instituto", sample: "soporte@example.com" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Cambiamos el correo de acceso de {{wardName}}",
       bodyHtml: `<p>Hola,</p>
@@ -70,7 +71,7 @@ export const wardEmailChangedTemplate: EmailTemplateDefinition = {
 </ul>
 <p>If you did not authorise this change, contact us <strong>immediately</strong> at <a href="mailto:{{supportEmail}}">{{supportEmail}}</a> so we can revert it.</p>`,
     },
-  },
+  }),
 };
 
 export const classReminderPrepTemplate: EmailTemplateDefinition = {
@@ -89,7 +90,7 @@ export const classReminderPrepTemplate: EmailTemplateDefinition = {
     { name: "locationLine", description: "Aula o link de la clase online", sample: "Aula 3" },
     { name: "portalLine", description: "Línea con el enlace al portal", sample: "Abrí el portal: https://example.com" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Recordatorio de clase",
       bodyHtml: `<p>{{lead}}</p>
@@ -110,5 +111,5 @@ export const classReminderPrepTemplate: EmailTemplateDefinition = {
 </ul>
 <p style="margin-top:16px;">{{portalLine}}</p>`,
     },
-  },
+  }),
 };

@@ -1,39 +1,40 @@
 ---
-description: Supabase y DDD — acceso solo vía la app; una puerta de cliente; sin PostgREST/Postgres ad hoc fuera de los límites acordados.
+description: Supabase + DDD — access only via the Next.js boundaries; centralized client factories; no ad hoc REST/Postgres access for runtime business flows.
 alwaysApply: true
 ---
 
-# Supabase y límites de la aplicación (DDD)
+# Supabase & application boundaries (DDD style)
 
-## Objetivo
+## Objective
 
-**Postgres / Auth / Storage de Supabase son infraestructura detrás de la aplicación Next.js**, no un backend público al que cualquier capa o herramienta pueda conectarse “por atajo”. Las mutaciones y lecturas con significado de negocio deben pasar por **acciones de servidor, route handlers, Server Components** y adaptadores bajo `src/lib/`, respetando **`03-architecture.mdc`** (núcleo puro sin clientes de red) y **`04-security.mdc`**.
+Postgres / Auth / Supabase Storage are **implementation details backing the Next.js app**, **not** a public backend reachable by shortcuts from arbitrary layers/tools. Reads and writes meaningful to the business traverse **server actions, route handlers, Server Components**, and adapters under `src/lib/`, obeying **`03-architecture.mdc`** (pure core without network plumbing) plus **`04-security.mdc`**.
 
-## Qué cuenta como “acceso directo” (prohibido salvo excepciones abajo)
+## What qualifies as illicit “direct access” (forbidden unless exceptions listed below)
 
-1. **Instanciar clientes Supabase fuera de `src/lib/supabase/`** — No añadir `createBrowserClient`, `createServerClient`, `createClient` de `@supabase/ssr` / `@supabase/supabase-js` en componentes, hooks, `src/lib/<dominio>/` u otras rutas. La **única** ubicación permitida para fábricas y wiring de cookies/headers es **`src/lib/supabase/`** (p. ej. `client.ts`, `server.ts`, `admin.ts`, `middleware.ts`). El resto del código **recibe** un `SupabaseClient` ya creado o llama a funciones exportadas desde ese módulo.
+1. **Instantiating Supabase clients anywhere other than `src/lib/supabase/`** — Never add `createBrowserClient`, `createServerClient`, or `createClient` from `@supabase/ssr` / `@supabase/supabase-js` inside components, hooks, `src/lib/<domain>/`, or miscellaneous paths. The **only** allowed location for factories + cookie/header wiring remains **`src/lib/supabase/`** (e.g. `client.ts`, `server.ts`, `admin.ts`, `middleware.ts`). Other code receives an injected client or invokes exported wrappers from that folder.
 
-2. **Llamadas HTTP manuales a la API REST de Supabase** (`*.supabase.co/rest/v1/...`, `auth/v1`, etc.) desde `src/` para datos de negocio — Usar el SDK y los clientes canónicos, no `fetch` duplicado a PostgREST salvo un ADR que justifique un caso extremo (integración externa fuera del runtime de la app).
+2. **Manual REST calls against Supabase** (`*.supabase.co/rest/v1/…`, `auth/v1`, etc.) inside `src/` for business payloads — Prefer the SDK/canonical adapters; duplicated `fetch` to PostgREST requires an ADR justifying extremes (integrations outside runtime).
 
-3. **Conexiones Postgres o `supabase db` como sustituto del dominio en runtime** — El código de producto no debe abrir conexiones JDBC/PSQL paralelas al pool de Supabase para la misma base que sirve la app. **Migraciones, seeds y operaciones de plataforma** bajo `supabase/migrations/` (y flujos documentados de DBA) son la excepción: esquema y datos de arranque, no sustitutos de server actions.
+3. **Parallel JDBC/Raw Postgres / `supabase db` substitutes for domain workflows** — Product code shouldn’t bypass Supabase pooled access for writes/reads mirrored by runtime features. Exceptions: **`supabase/migrations/`**, seeds, and documented ops tasks (bootstrap schema)—not substitutes for domain server actions.
 
-4. **Scripts one-off con `service_role` contra producción** que implementen reglas de negocio (altas, pagos, importaciones) **sin** pasar por los mismos caminos que la app (validación, RLS donde aplique, auditoría, eventos en **`08-analytics-observability.mdc`**) — Prohibido para flujos rutinarios; si es imprescindible en incidente, debe quedar **documentado** (runbook / ADR según **`10-engineering-governance.mdc`**).
+4. **Throwaway scripts using `service_role` against prod** orchestrating canonical business workflows (signup, tuition, imports) **without** the validation/RLS/audit/analytics present in **`08-analytics-observability.mdc`**. Incident-only exceptions remain **explicitly documented** (runbooks/ADR **`10`**).
 
-## Permitido (no es “acceso directo” ilegítimo)
+## Acceptable approaches (still not “illegal shortcuts”)
 
-- Importar **solo tipos** desde `@supabase/supabase-js` en módulos de dominio o tests (`import type { SupabaseClient }`) cuando el cliente lo **inyecta** el borde de la app.
-- **`src/lib/supabase/*`** como único lugar donde se construyen clientes browser/server/admin y se centraliza env (`publicEnv`, etc.).
-- **Migraciones SQL** en `supabase/migrations/` y políticas RLS como contrato de persistencia; el **uso** en producto sigue siendo vía la app.
-- **Dashboard de Supabase / SQL ad hoc** solo para diagnóstico o tareas operativas excepcionales, no como canal habitual de negocio; alinear con gobernanza si el cambio es durable.
+- Import **`type`**-only aliases from `@supabase/supabase-js` (`import type { SupabaseClient }`) for domain/tests when the boundary injects implementations.
+- Build clients **only** in **`src/lib/supabase/**` centralizing browser/server/admin factories + env (`publicEnv`, …).
+- SQL migrations/RLS under `supabase/migrations/` express persistence contracts — application usage still crosses app surfaces.
+- Supabase dashboards / exploratory SQL strictly for troubleshooting or irregular ops—not default business ingress; governance applies if changes become persistent.
 
-## Relación con capas (DDD)
+## Layer relationship (DDD)
 
-- **Puertos:** la app expone casos de uso vía actions/routes; **adaptadores** en `src/lib/` (incl. `src/lib/supabase/`) hablan con Supabase.
-- **Dominio puro** (`src/lib/<contexto>/` sin imports de Supabase): reglas testables; quien orquesta I/O es la capa de aplicación (hooks, actions, handlers).
+- **Ports** — outward APIs are server actions / routes exposing use cases.
+- **Adapters** — `src/lib/` (especially `supabase`) translate those ports to Supabase.
+- **Pure domain** modules (`src/lib/<context>/` with **no Supabase**) hold testable logic; orchestration pulls from hooks/actions/handlers instead.
 
-## Checklist del agente
+## Agent checklist
 
-- [ ] ¿Se está creando un **nuevo** cliente Supabase? → Solo en **`src/lib/supabase/`** y reutilizar patrones existentes.
-- [ ] ¿Un componente o hook importa `@supabase/ssr` o `@supabase/supabase-js` para crear cliente? → **Mover** el acceso al borde servidor o usar el browser client ya expuesto por la lib.
-- [ ] ¿Hay `fetch` a URLs de proyecto Supabase? → Sustituir por SDK/adaptador o documentar excepción en ADR.
-- [ ] ¿Cambios que tocan **auth, datos o contrato público**? → ADR / mini diseño según **`10-engineering-governance.mdc`**.
+- [ ] Creating **new Supabase factories** → only **`src/lib/supabase/`** with existing patterns reused.
+- [ ] Hook/component importing `@supabase/ssr|supabase-js` to instantiate clients → **lift** boundary or reuse browser singleton.
+- [ ] Seeing `fetch` to Supabase project URLs → replace with adapters unless ADR’d.
+- [ ] Surfacing sensitive auth/data/contracts → satisfy **`10-engineering-governance.mdc`**.

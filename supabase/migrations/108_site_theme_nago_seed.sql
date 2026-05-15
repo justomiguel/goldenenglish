@@ -30,8 +30,10 @@ VALUES (
     'social.instagram', 'https://www.instagram.com/capoeiranago/',
     'social.facebook', 'https://www.facebook.com/capoeiranago/',
     'color.primary', '#1B5E20',
-    'color.secondary', '#FFD54F',
-    'color.accent', '#2E7D32'
+    'color.secondary', '#002776',
+    'color.secondary.foreground', '#FFFFFF',
+    'color.accent', '#2E7D32',
+    'color.accent.foreground', '#FFFFFF'
   ),
   '{}'::jsonb,
   '[]'::jsonb,

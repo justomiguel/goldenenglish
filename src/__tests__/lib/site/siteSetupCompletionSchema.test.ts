@@ -52,4 +52,38 @@ describe("completeInitialSiteSetupInputSchema", () => {
     });
     expect(r.success).toBe(true);
   });
+
+  it("rejects greenfield payload missing logo file", () => {
+    const { logoContentType: _ct, logoBase64: _b64, ...withoutLogo } = shared;
+    void _ct;
+    void _b64;
+    const r = completeInitialSiteSetupInputSchema.safeParse({
+      ...withoutLogo,
+      faviconKind: "single",
+      faviconContentType: "image/png",
+      faviconBase64: "e30=",
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("accepts edit mode without logo or favicon files", () => {
+    const { logoContentType: _ct, logoBase64: _b64, ...withoutLogo } = shared;
+    void _ct;
+    void _b64;
+    const r = completeInitialSiteSetupInputSchema.safeParse({
+      ...withoutLogo,
+      mode: "edit",
+      faviconKind: "none",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("accepts edit mode keeping favicon=single without payload (kept as-is)", () => {
+    const r = completeInitialSiteSetupInputSchema.safeParse({
+      ...shared,
+      mode: "edit",
+      faviconKind: "single",
+    });
+    expect(r.success).toBe(true);
+  });
 });

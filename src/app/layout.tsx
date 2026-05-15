@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { DM_Sans, Fraunces } from "next/font/google";
 import { buildRootLayoutIcons } from "@/lib/brand/buildRootLayoutIcons";
 import { brandPublicFromProperties } from "@/lib/brand/server";
+import { defaultLocale, locales, type AppLocale } from "@/lib/i18n/dictionaries";
+import { GE_REQUEST_LOCALE_HEADER } from "@/lib/i18n/requestLocaleHeader";
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
 import { cssRootBlock } from "@/lib/theme/themeOverrides";
 import { getProperty } from "@/lib/theme/themeParser";
@@ -65,14 +68,22 @@ export default async function RootLayout({
 }) {
   const { properties } = await loadEffectiveProperties();
   /** `:root` token block (color/layout/shadow) is injected from the merged
-   *  `system.properties + active site_themes.properties` so changing a theme
+   *  `SYSTEM_PROPERTIES_DEFAULTS + active site_themes.properties` so changing a theme
    *  in admin propagates without redeploying. Other static rules
    *  (animations, body, fonts) live in `globals.css`. */
   const themeRootCss = cssRootBlock(properties);
 
+  const headerStore = await headers();
+  const headerLocale = headerStore.get(GE_REQUEST_LOCALE_HEADER);
+  const htmlLang: AppLocale =
+    headerLocale && (locales as readonly string[]).includes(headerLocale)
+      ? (headerLocale as AppLocale)
+      : defaultLocale;
+
   return (
     <html
       suppressHydrationWarning
+      lang={htmlLang}
       className={`${dmSans.variable} ${fraunces.variable}`}
     >
       <head>

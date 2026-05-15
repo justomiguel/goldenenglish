@@ -29,7 +29,7 @@ function colorInputProps(kind: TokenFieldKind): { type: string } {
 /**
  * One token row in the design system editor. Renders a color picker for
  * `color.*` keys, otherwise a text input. Shows a "reset to default" affordance
- * when the current value diverges from the default from `system.properties`.
+ * when the current value diverges from the default from `SYSTEM_PROPERTIES_DEFAULTS`.
  */
 export function SiteThemeEditorTokenField({
   token,

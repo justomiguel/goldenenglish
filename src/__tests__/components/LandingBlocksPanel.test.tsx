@@ -103,6 +103,7 @@ describe("LandingBlocksPanel", () => {
       copy: {
         es: { title: "Subsección", body: undefined },
         en: { title: undefined, body: undefined },
+        pt: { title: undefined, body: undefined },
       },
     });
   });
@@ -116,6 +117,7 @@ describe("LandingBlocksPanel", () => {
       copy: {
         es: { title: "Hola" },
         en: { title: "Hello" },
+        pt: {},
       },
     };
     removeMock.mockResolvedValueOnce({ ok: true });
@@ -152,14 +154,14 @@ describe("LandingBlocksPanel", () => {
         section: "inicio",
         kind: "card",
         position: 0,
-        copy: { es: { title: "Uno" }, en: {} },
+        copy: { es: { title: "Uno" }, en: {}, pt: {} },
       },
       {
         id: "00000000-0000-4000-8000-000000000002",
         section: "inicio",
         kind: "card",
         position: 1,
-        copy: { es: { title: "Dos" }, en: {} },
+        copy: { es: { title: "Dos" }, en: {}, pt: {} },
       },
     ];
     moveMock.mockResolvedValueOnce({ ok: true });
@@ -210,6 +212,7 @@ describe("LandingBlocksPanel", () => {
     expect(screen.getByLabelText(labels.titleEsLabel)).toBeInTheDocument();
     expect(screen.queryByLabelText(labels.bodyEsLabel)).toBeNull();
     expect(screen.queryByLabelText(labels.bodyEnLabel)).toBeNull();
+    expect(screen.queryByLabelText(labels.bodyPtLabel)).toBeNull();
   });
 
   it("hides body fields on the editor row of an existing divider block", () => {
@@ -218,7 +221,7 @@ describe("LandingBlocksPanel", () => {
       section: "inicio",
       kind: "divider",
       position: 0,
-      copy: { es: { title: "Capítulo II" }, en: {} },
+      copy: { es: { title: "Capítulo II" }, en: {}, pt: {} },
     };
     render(
       <LandingBlocksPanel
@@ -239,7 +242,7 @@ describe("LandingBlocksPanel", () => {
       section: "inicio",
       kind: "card",
       position: 0,
-      copy: { es: { title: "Solo" }, en: {} },
+      copy: { es: { title: "Solo" }, en: {}, pt: {} },
     };
     render(
       <LandingBlocksPanel

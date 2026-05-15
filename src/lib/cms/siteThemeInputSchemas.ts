@@ -67,7 +67,7 @@ export type DuplicateSiteThemeInput = z.infer<typeof duplicateSiteThemeInputSche
 
 /**
  * Override map for the design system editor. Validation rules:
- * - Token keys mirror `system.properties` (dot-separated lowercase + digits).
+ * - Token keys mirror `SYSTEM_PROPERTIES_DEFAULTS` (dot-separated lowercase + digits).
  * - Empty string values mean "fall back to default" — the action will strip
  *   them so they never round-trip through the database.
  * - Hard cap on the number of overrides keeps payloads bounded; the editor

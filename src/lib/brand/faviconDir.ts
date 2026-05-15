@@ -21,7 +21,7 @@ export function usesFaviconIcoBundle(faviconPath: string): boolean {
   return faviconPublicDir(fav).length > 0 && /\.ico$/i.test(fav);
 }
 
-/** `icons` entry for the institutional logo in the web manifest (path from `system.properties`). */
+/** `icons` entry for the institutional logo in the web manifest (path from `SYSTEM_PROPERTIES_DEFAULTS` + active theme overrides). */
 export function brandLogoManifestIcon(path: string): {
   type: string;
   sizes?: string;

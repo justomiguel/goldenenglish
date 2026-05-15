@@ -34,7 +34,7 @@ export interface SiteThemeTemplatesShellProps {
   truncated: boolean;
   /** Pre-computed CSS tokens (defaults + overrides) per theme id, used by the
    *  preview cards. Resolved server-side so the client never needs to read
-   *  `system.properties`. */
+   *  `SYSTEM_PROPERTIES_DEFAULTS`. */
   tokensByThemeId: Readonly<Record<string, ThemePreviewTokens>>;
   /** Brand display name used inside the preview mock copy. */
   brandName: string;

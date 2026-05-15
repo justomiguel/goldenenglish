@@ -9,7 +9,7 @@ import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
 import type { ThemeProperties } from "@/lib/theme/themeParser";
 
 describe("getBrandPublic", () => {
-  it("loads branding from system.properties", () => {
+  it("loads branding from SYSTEM_PROPERTIES_DEFAULTS", () => {
     const b = getBrandPublic();
     expect(b.name.length).toBeGreaterThan(0);
     expect(b.taglineEn.length).toBeGreaterThan(0);

@@ -19,6 +19,7 @@ export function buildInitialLandingCopyDraft(
     draft[field.key] = {
       es: field.overrides.es ?? "",
       en: field.overrides.en ?? "",
+      pt: field.overrides.pt ?? "",
     };
   }
   return draft;
@@ -33,7 +34,13 @@ export function isLandingCopyDraftDirty(
     if (!slot) continue;
     const initialEs = field.overrides.es ?? "";
     const initialEn = field.overrides.en ?? "";
-    if (slot.es !== initialEs || slot.en !== initialEn) return true;
+    const initialPt = field.overrides.pt ?? "";
+    if (
+      slot.es !== initialEs ||
+      slot.en !== initialEn ||
+      slot.pt !== initialPt
+    )
+      return true;
   }
   return false;
 }

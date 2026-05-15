@@ -1,10 +1,9 @@
 ---
-description: Design System + branding — Atomic Design, tokens from system.properties, no ad-hoc identity.
+description: Design System + branding — Atomic Design, tokens from SYSTEM_PROPERTIES_DEFAULTS + DB overrides, no ad-hoc identity.
 globs:
   - "**/*.tsx"
   - "**/*.ts"
   - "**/*.css"
-  - "system.properties"
 alwaysApply: true
 ---
 
@@ -12,26 +11,25 @@ alwaysApply: true
 
 ## Absolute Priority
 
-The Design System is the single source of truth for every visual decision. **Branding and institutional identity** are the same: everything that would change if the institute rebrands (name, legal name, tagline, logos, favicon, contact blocks, social links, palette, fonts) MUST be driven from `system.properties`, not duplicated in code.
+The Design System is the single source of truth for every visual decision. **Branding and institutional identity** are the same: everything that would change if the institute rebrands (name, legal name, tagline, logos, favicon, contact blocks, social links, palette, fonts) MUST be driven from the brand layer (`SYSTEM_PROPERTIES_DEFAULTS` in TS + per-tenant overrides in `public.site_themes`), not duplicated in code.
 
-## Branding & `system.properties` (non-negotiable)
+## Branding & system defaults (non-negotiable)
 
-1. **Single source of truth.** The file `system.properties` at the project root owns:
-   - Identity: `app.name`, `app.legal.name`, `app.tagline`, `app.logo.path`, `app.logo.alt`, `app.favicon.path`
-   - Visual tokens: colors, fonts, layout tokens (already listed there)
-   - Global public info: contact email/phone/address, social URLs
-2. **How it reaches the app.** Values are read via `src/lib/theme/themeParser.ts` (and related helpers), mirrored into CSS custom properties in `src/app/globals.css` (or generated theme), and/or exposed through a small server-only `getBrandConfig()` (or equivalent) consumed by layout and SEO metadata. Do not introduce a second “brand config” file unless it is generated from `system.properties`.
+1. **Single source of truth.** Two layers, in this order:
+   - **Defaults** — `src/lib/theme/systemPropertiesDefaults.ts` exports `SYSTEM_PROPERTIES_DEFAULTS` (identity, visual tokens, contact, social, operational keys). It is the read-only base every tenant inherits.
+   - **Overrides** — `public.site_themes.properties` (JSONB) holds the per-tenant deltas applied on top; operational parameters live in `public.site_settings`. Both are configured through the **Site Setup Wizard** (`/dashboard/admin/site-setup`) and, for advanced editing, the CMS properties editor.
+2. **How it reaches the app.** Server code calls `loadEffectiveProperties()` (`src/lib/theme/loadEffectiveProperties.ts`) which merges defaults + active theme overrides; the result feeds CSS custom properties in `src/app/globals.css`, `getBrandPublic()` for SEO/metadata, and brand asset resolution. Do not introduce a second “brand config” file unless it consumes the same layer.
 3. **Forbidden.** Hardcoding in `.tsx`, `.ts`, dictionaries (JSON), tests, or `layout` metadata:
    - Institute or product display names, legal names, or taglines as string literals (except tests that assert behavior on **mock** brand objects)
-   - Paths or URLs to logos, favicon, or branded assets not derived from `system.properties` keys
-   - Contact or social URLs that duplicate what belongs in `system.properties`
-4. **i18n copy.** User-facing sentences stay in `src/dictionaries/*.json`, but **brand proper nouns and global slogans** that must stay aligned with legal/marketing SHOULD come from the same branding layer (e.g. props from config parsed from `system.properties`), not a second hardcoded string in every locale file. If a temporary literal exists during migration, it must match `app.name` / `app.tagline` in `system.properties` and be removed when the plumbing exists.
-5. **New branding fields.** When product needs a new branded value (secondary logo, partner name, footer accreditation), add a key to `system.properties`, extend the parser/types if needed, then consume the token — never ship a one-off string in a component.
+   - Paths or URLs to logos, favicon, or branded assets not derived from the brand layer keys
+   - Contact or social URLs that duplicate what belongs in the brand layer
+4. **i18n copy.** User-facing sentences stay in `src/dictionaries/*.json`, but **brand proper nouns and global slogans** that must stay aligned with legal/marketing SHOULD come from the brand layer (e.g. props from `getBrandPublic()`), not a second hardcoded string in every locale file.
+5. **New branding fields.** When product needs a new branded value (secondary logo, partner name, footer accreditation), add a key to `SYSTEM_PROPERTIES_DEFAULTS` (and, if it should be tenant-overridable, extend `THEME_OVERRIDE_KEY_PREFIXES` in `src/types/theming.ts` + the wizard step) — never ship a one-off string in a component.
 
 ## Constraints
 
-1. **No ad-hoc styles.** Every visual property (color, spacing, typography, shadow, border-radius) MUST reference a Design Token defined in the Tailwind theme or CSS custom properties sourced from `system.properties`.
-2. **No hardcoded hex/rgb values.** Use semantic token names (`bg-primary`, `text-secondary`, etc.). If a new color is needed, add it to `system.properties` and the theme first.
+1. **No ad-hoc styles.** Every visual property (color, spacing, typography, shadow, border-radius) MUST reference a Design Token defined in the Tailwind theme or CSS custom properties sourced from the brand layer.
+2. **No hardcoded hex/rgb values.** Use semantic token names (`bg-primary`, `text-secondary`, etc.). If a new color is needed, add it to `SYSTEM_PROPERTIES_DEFAULTS` and the theme first.
 3. **Atomic Design methodology.** Components live in three **shared** layers when behavior and layout are the same on every surface:
    - `src/components/atoms/` — Indivisible UI primitives shared across surfaces (Button, Input, Label, Badge).
    - `src/components/molecules/` — Shared compositions (FormField, shared field groups).
@@ -58,19 +56,21 @@ Any **user-visible** flow where the person selects an **image** (or image-contai
 
 **Agent / PR checklist:** New or substantially changed **image file** picker → wired **`InlineUploadProgressBar`** + dictionary-backed phase labels + tests or RTL smoke for the busy state when feasible (**`02-testing-tdd.mdc`**).
 
-## Checklist de contribución (componente nuevo en el design system)
+## Contribution checklist (new component in the design system)
 
-Al añadir un componente compartido o de superficie (`atoms` / `molecules` / `organisms` / `desktop` / `pwa`):
+When adding a shared or surface component (`atoms` / `molecules` / `organisms` / `desktop` / `pwa`):
 
-- [ ] **Tokens** — colores, radios, tipografía y espaciado solo vía tema / CSS vars de `system.properties` (`01`), sin hex sueltos.
-- [ ] **Export** — **named export**, un componente principal por archivo (`03-architecture.mdc`).
-- [ ] **Superficie** — carpeta correcta (compartido vs `desktop/` vs `pwa/`); Tier A detrás de `useAppSurface()` cuando aplique (`05-pwa-mobile-native.mdc`).
-- [ ] **i18n** — copy visible desde diccionarios (`09-i18n-copy.mdc`); `aria-label` / `title` accionables igual.
-- [ ] **Tests** — al menos **humo** o prueba de comportamiento con Testing Library en `src/__tests__/` para interacción o estados relevantes; regresiones visibles cubiertas.
-- [ ] **Accesibilidad** — contraste y controles solo icono con etiqueta; sin depender solo de hover para acciones críticas (`05`).
-- [ ] **Documentación** — en la PR: propósito, props principales y ejemplo de uso (si el repo añade Storybook u otra vitrina en el futuro, enlazar o duplicar ahí).
+- [ ] **Tokens** — colors, radii, typography, and spacing only via theme / CSS vars from the brand layer (`SYSTEM_PROPERTIES_DEFAULTS` + `site_themes`), no stray hex values.
+- [ ] **Export** — **named export**, one primary component per file (`03-architecture.mdc`).
+- [ ] **Surface** — correct folder (shared vs `desktop/` vs `pwa/`); Tier A behind `useAppSurface()` when applicable (`05-pwa-mobile-native.mdc`).
+- [ ] **i18n** — visible copy from dictionaries (`09-i18n-copy.mdc`); actionable `aria-label` / `title` likewise.
+- [ ] **Tests** — at least **smoke** or behavior tests with Testing Library in `src/__tests__/` for interactions or important states; visible regressions covered.
+- [ ] **Accessibility** — contrast and icon-only controls with labels; avoid hover-only critical affordances (`05`).
+- [ ] **Documentation** — in the PR: purpose, main props, and usage example (if the repo adds Storybook or another showcase later, link or duplicate there).
 
 ## Contrast (WCAG-minded)
+
+Expanded guidance (text, non-text UI, focus, document language, accessible names on controls, not color-only, verification): **`26-accessibility-contrast.mdc`**.
 
 1. **Text and icons** on any background must keep **readable contrast** (aim for **WCAG AA**: ~**4.5:1** for normal text, ~**3:1** for large text / **non-text UI** such as icon strokes on interactive controls).
 2. **Destructive / error affordances** — Do **not** place `text-[var(--color-error)]` (or similar) on **same-hue saturated** surfaces (e.g. brand red `secondary` button): the icon and label fail contrast. Prefer **neutral surfaces** (`surface`, `muted`) with **`border-[var(--color-error)]`** and **`text-[var(--color-error)]`**, or **light-on-dark** using `secondary-foreground` on the brand red **only** when the whole control is that fill (single foreground color).

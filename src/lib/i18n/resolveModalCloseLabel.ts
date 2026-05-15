@@ -1,13 +1,18 @@
 import en from "@/dictionaries/en.json";
 import es from "@/dictionaries/es.json";
+import pt from "@/dictionaries/pt.json";
 
 /**
- * Infers `en` | `es` from App Router paths like `/en/dashboard/...`.
+ * Infers active dictionary locale from App Router paths like `/en/dashboard/...`.
  */
-export function localeCodeFromPathname(pathname: string | null | undefined): "en" | "es" {
+export function localeCodeFromPathname(
+  pathname: string | null | undefined,
+): "en" | "es" | "pt" {
   if (!pathname) return "es";
-  const m = pathname.match(/^\/(en|es)(?:\/|$)/);
-  return m?.[1] === "en" ? "en" : "es";
+  const m = pathname.match(/^\/(en|es|pt)(?:\/|$)/);
+  if (m?.[1] === "en") return "en";
+  if (m?.[1] === "pt") return "pt";
+  return "es";
 }
 
 /**
@@ -23,14 +28,16 @@ export function resolveModalCloseLabel(
   if (closeLabel !== undefined && closeLabel.trim().length > 0) {
     return closeLabel;
   }
-  return localeCodeFromPathname(pathname) === "en"
-    ? en.common.modalClose
-    : es.common.modalClose;
+  const code = localeCodeFromPathname(pathname);
+  if (code === "en") return en.common.modalClose;
+  if (code === "pt") return pt.common.modalClose;
+  return es.common.modalClose;
 }
 
 /** Hint when modal body is scrollable (affordance + screen readers). */
 export function resolveModalScrollMoreHint(pathname: string | null | undefined): string {
-  return localeCodeFromPathname(pathname) === "en"
-    ? en.common.modalScrollMore
-    : es.common.modalScrollMore;
+  const code = localeCodeFromPathname(pathname);
+  if (code === "en") return en.common.modalScrollMore;
+  if (code === "pt") return pt.common.modalScrollMore;
+  return es.common.modalScrollMore;
 }

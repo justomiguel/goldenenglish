@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // REGRESSION CHECK: loadEffectiveProperties is the single I/O entry consumed
-// by src/app/layout.tsx. Defaults from system.properties must always come
+// by src/app/layout.tsx. Defaults from SYSTEM_PROPERTIES_DEFAULTS must always come
 // through, and overrides for whitelisted prefixes must replace them.
 
 const loadProperties = vi.fn();

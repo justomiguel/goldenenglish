@@ -1,16 +1,20 @@
 /**
- * Capoeira Nago — Brasil green / gold accents (tokens only).
- * Loaded only when template_kind = nago.
+ * Capoeira Nago — Verde Brasil + azul bandera (#002776) en acentos y CTAs.
+ * El dorado/amarillo se retira del chrome principal por legibilidad y cohesión con la bandera.
  */
 .nago-landing {
   --nago-green: #1b5e20;
   --nago-green-light: #2e7d32;
-  --nago-yellow: #fdd835;
-  --nago-yellow-bright: #ffeb3b;
+  /* Azul bandera BR — rellenos de botón, vínculos de acento */
+  --nago-blue: #002776;
+  --nago-blue-hover: #003694;
+  /* Borde circular claro sobre rellenos verdes (contraste frente al verde medio) */
+  --nago-blue-soft: #90caf9;
   --nago-ink: #1a1a1a;
   --nago-footer: #1a1a1a;
   --nago-beige: #f5f0e6;
-  --nago-blue: #002776;
+  /* Titulares sobre franja verde u oscuros */
+  --nago-heading-solid: #ffffff;
 }
 
 /* Hero: Brasil flag image filling full width with shadow overlay */
@@ -177,7 +181,7 @@
   background-color: var(--nago-beige);
 }
 
-/* Principle icons with green fill and yellow border */
+/* Principle icons: green fill + sky-blue ring + white glyphs (readable vs green) */
 .nago-principle-icon {
   display: flex;
   align-items: center;
@@ -186,9 +190,9 @@
   height: 9rem;
   margin: 0 auto;
   border-radius: 50%;
-  border: 6px solid var(--nago-yellow);
+  border: 6px solid var(--nago-blue-soft);
   background: linear-gradient(180deg, var(--nago-green-light) 0%, var(--nago-green) 100%);
-  color: var(--nago-yellow);
+  color: var(--nago-heading-solid);
 }
 
 /* Gallery image frames with organic shape */

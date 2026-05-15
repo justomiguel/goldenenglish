@@ -1,4 +1,4 @@
-/** Calendar Y-M-D parts for `timeZone` (IANA), e.g. from `analytics.timezone` in `system.properties`. */
+/** Calendar Y-M-D parts for `timeZone` (IANA), e.g. from `analytics.timezone` in `SYSTEM_PROPERTIES_DEFAULTS` or `site_settings.analytics_config`. */
 export function instituteCalendarPartsInTimeZone(now: Date, timeZone: string): { y: number; m: number; d: number } {
   const fmt = new Intl.DateTimeFormat("en-CA", {
     timeZone,

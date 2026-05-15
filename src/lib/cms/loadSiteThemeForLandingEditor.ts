@@ -101,8 +101,12 @@ function mapMedia(rows: ReadonlyArray<MediaRowFromDb>): SiteThemeMediaRow[] {
 async function loadDictionaries(): Promise<
   Record<LandingOverrideLocale, Awaited<ReturnType<typeof getDictionary>>>
 > {
-  const [es, en] = await Promise.all([getDictionary("es"), getDictionary("en")]);
-  return { es, en };
+  const [es, en, pt] = await Promise.all([
+    getDictionary("es"),
+    getDictionary("en"),
+    getDictionary("pt"),
+  ]);
+  return { es, en, pt };
 }
 
 interface BaseSnapshot {

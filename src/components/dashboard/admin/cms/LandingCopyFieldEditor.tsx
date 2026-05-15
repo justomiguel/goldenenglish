@@ -3,6 +3,7 @@
 import { useId } from "react";
 import { Input } from "@/components/atoms/Input";
 import type { LandingCopyFieldDescriptor } from "@/lib/cms/buildLandingEditorViewModel";
+import type { LandingOverrideLocale } from "@/lib/cms/landingContentCatalog";
 import type { Dictionary } from "@/types/i18n";
 
 type Labels = Dictionary["admin"]["cms"]["templates"]["landing"];
@@ -12,8 +13,10 @@ export interface LandingCopyFieldEditorProps {
   labels: Labels;
   draftEs: string;
   draftEn: string;
+  draftPt: string;
   onChangeEs: (value: string) => void;
   onChangeEn: (value: string) => void;
+  onChangePt: (value: string) => void;
   disabled?: boolean;
 }
 
@@ -26,19 +29,23 @@ export function LandingCopyFieldEditor({
   labels,
   draftEs,
   draftEn,
+  draftPt,
   onChangeEs,
   onChangeEn,
+  onChangePt,
   disabled,
 }: LandingCopyFieldEditorProps) {
   const useTextarea =
-    shouldUseTextarea(field.defaults.es) || shouldUseTextarea(field.defaults.en);
+    shouldUseTextarea(field.defaults.es) ||
+    shouldUseTextarea(field.defaults.en) ||
+    shouldUseTextarea(field.defaults.pt);
 
   return (
     <fieldset className="space-y-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
       <legend className="px-1 text-xs font-mono text-[var(--color-muted-foreground)]">
         {field.key}
       </legend>
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-3">
         <LocaleField
           locale="es"
           label={labels.labelEs}
@@ -57,13 +64,22 @@ export function LandingCopyFieldEditor({
           disabled={disabled}
           useTextarea={useTextarea}
         />
+        <LocaleField
+          locale="pt"
+          label={labels.labelPt}
+          defaultValue={field.defaults.pt}
+          value={draftPt}
+          onChange={onChangePt}
+          disabled={disabled}
+          useTextarea={useTextarea}
+        />
       </div>
     </fieldset>
   );
 }
 
 interface LocaleFieldProps {
-  locale: "es" | "en";
+  locale: LandingOverrideLocale;
   label: string;
   defaultValue: string;
   value: string;

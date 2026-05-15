@@ -1,9 +1,6 @@
-import fs from "fs";
-import path from "path";
+import { SYSTEM_PROPERTIES_DEFAULTS } from "@/lib/theme/systemPropertiesDefaults";
 
 export type ThemeProperties = Record<string, string>;
-
-const PROPERTIES_FILE = "system.properties";
 
 function parseLine(line: string): [string, string] | null {
   const trimmed = line.trim();
@@ -28,10 +25,14 @@ export function parseProperties(content: string): ThemeProperties {
   return props;
 }
 
+/**
+ * Returns a fresh copy of the canonical system defaults (clone so callers can
+ * mutate freely). Historically read from a `system.properties` file on disk; now
+ * sourced from `SYSTEM_PROPERTIES_DEFAULTS` (TS module) so the values ship as
+ * part of the bundle and survive in environments without the original file.
+ */
 export function loadProperties(): ThemeProperties {
-  const filePath = path.resolve(process.cwd(), PROPERTIES_FILE);
-  const content = fs.readFileSync(filePath, "utf-8");
-  return parseProperties(content);
+  return { ...SYSTEM_PROPERTIES_DEFAULTS };
 }
 
 export function getProperty(

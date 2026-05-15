@@ -44,9 +44,9 @@ export function LandingFooter({
         <p className="font-display text-balance text-xl font-semibold text-[var(--color-accent)] md:text-2xl">
           {footerCta}
         </p>
-        <p className="mt-4 text-sm text-white/75">{brand.legalName}</p>
+        <p className="mt-4 text-sm text-neutral-200">{brand.legalName}</p>
         {brand.contactPhone ? (
-          <p className="mt-2 text-sm text-white/60">{brand.contactPhone}</p>
+          <p className="mt-2 text-sm text-neutral-300">{brand.contactPhone}</p>
         ) : null}
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           {sessionEmail ? (

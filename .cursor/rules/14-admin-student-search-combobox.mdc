@@ -1,8 +1,7 @@
 ---
 description: >-
-  Búsqueda de persona en staff: combobox async (AdminStudentSearchCombobox), prefijo
-  en servidor vía searchAdminStudentsByPrefix; mensajería con RecipientAutocomplete
-  y personNameFieldsMatchPrefix; no inputs sueltos; i18n en dictionaries.
+  Staff-facing person lookup: async combobox (`AdminStudentSearchCombobox`), server-prefix search via `searchAdminStudentsByPrefix`;
+  messaging via `RecipientAutocomplete` + `personNameFieldsMatchPrefix`; no stray inputs; dictionaries for copy.
 globs:
   - "src/app/**/dashboard/admin/**/*.tsx"
   - "src/app/**/dashboard/teacher/**/*.tsx"
@@ -10,31 +9,31 @@ globs:
   - "src/hooks/*.ts"
 ---
 
-# Staff: búsqueda de alumno / usuario (combobox + prefijo)
+# Staff: student/user search (async combobox + prefix matching)
 
-## Objetivo
+## Objective
 
-En pantallas de **staff** donde hay que **elegir un alumno** (o perfil con la misma forma `{ id, label }`) por nombre / documento (inscripción en sección, traslados, asistentes alumno, etc.), el campo debe usar **`AdminStudentSearchCombobox`** (`Label` + `Input` de átomos, lista debajo), no un `<input>` suelto con clases distintas.
+Screens where staff **pick a student** (same `{ id, label }` persona shape) via name/document (section enrollment, transfers, assistants, …) **must use** **`AdminStudentSearchCombobox`** (atom `Label` + `Input` + inline list)—not disparate `<input>` styling.
 
-## Semántica de búsqueda (prefijo)
+## Search semantics (prefix)
 
-- **Servidor (admin):** `searchAdminStudentsByPrefix` en `src/lib/users/searchAdminStudentsByPrefix.ts` — coincide por **inicio** de `first_name`, `last_name` o `dni_or_passport` (patrón ILIKE `prefijo%`, con escape de `%`, `_`, `\` vía `buildIlikePrefixPattern` en `src/lib/users/profileSearchPrefix.ts`). Consulta vacía acotada: hasta **30** filas ordenadas por apellido/nombre.
-- **Servidor (tutores / detalle tutor padres):** misma idea de prefijo; `searchTeacherStudentsInOwnSections` filtra en memoria con `personProfileMatchPrefix`; lista inicial vacía + prefijo desde **1** carácter; conjunto acotado a alumnos de secciones verificadas del docente.
-- **Cliente (mensajes, lista ya cargada):** `RecipientAutocomplete` filtra con `messagingRecipientMatchesQuery` → `personNameFieldsMatchPrefix` (prefijo en nombre/apellido o cadena completa, acento-insensible).
+- **Admin server:** `searchAdminStudentsByPrefix` (`src/lib/users/searchAdminStudentsByPrefix.ts`) matches **starting** substring on `first_name`, `last_name`, or `dni_or_passport` (ILIKE `prefix%`, escaping `%`, `_`, `\` through `buildIlikePrefixPattern` in `src/lib/users/profileSearchPrefix.ts`). Limit **30 rows** alphabetized by surname/given names when keyword empty yet prefetched safely.
+- **Teacher/parent linkage flows:** reuse prefix intent; `searchTeacherStudentsInOwnSections` trims in-memory with `personProfileMatchPrefix`; start empty lists; require prefixes from **≥1 character** bounded to cohorts validated for that teacher role.
+- **Messaging (recipient list already loaded client-side):** `RecipientAutocomplete` → `messagingRecipientMatchesQuery` → `personNameFieldsMatchPrefix` (`starts-with`/full-token accent-insensitive match).
 
-## Regla de uso del combobox
+## Combobox adoption rules
 
-1. **Cola + chips (misma UX que inscripción):** usar **`StaffSearchComboboxWithChipQueue`** (`src/components/molecules/StaffSearchComboboxWithChipQueue.tsx`) — compone `AdminStudentSearchCombobox` + `EnrollmentStudentQueue`; el estado de la cola vive en el padre (`selectedItems`, `onPick`, `onRemoveSelected`). Opcional **`persistentExcludeIds`** (p. ej. tutores ya vinculados).
-2. **Solo combobox (sin cola):** **`AdminStudentSearchCombobox`** con la acción async que corresponda:
-   - Admin alumnos: `searchAdminStudentsAction`.
-   - Docente: `searchTeacherStudentsInOwnSectionsAction` + `sectionIds`.
-   - Command palette / asistentes: `searchAdminStudentsAction` u otra acotada.
-3. **Tutor en ficha alumno:** `searchAdminParentsForDetailAction` → `searchAdminParentsByPrefix`; en UI preferir **`StaffSearchComboboxWithChipQueue`** + `prefetchWhenEmptyOnFocus` + `persistentExcludeIds` para enlaces existentes.
-4. **Listado inicial acotado:** donde aplique, **`prefetchWhenEmptyOnFocus`** y `search("")` acotado en servidor.
-5. **No** duplicar bloques `label + input + lista` ad hoc; extender combobox o lib pura bajo `src/lib/users/`.
-6. Textos visibles desde **`src/dictionaries/en.json` y `es.json`**.
+1. **Queues + removable chips (“enrollment parity”):** use **`StaffSearchComboboxWithChipQueue`** (`src/components/molecules/StaffSearchComboboxWithChipQueue.tsx`) layering `AdminStudentSearchCombobox` + `EnrollmentStudentQueue`; parent owns `selectedItems`, `onPick`, `onRemoveSelected`. Optional **`persistentExcludeIds`** prevents re-selection (already linked guardians, tutors, …).
+2. **Single-picker combobox flows:** **`AdminStudentSearchCombobox`** + whichever async resolver applies:
+   - Admin users: `searchAdminStudentsAction`.
+   - Teachers: `searchTeacherStudentsInOwnSectionsAction` + scoped `sectionIds`.
+   - Command palette / assistants: `searchAdminStudentsAction` etc.
+3. **Tutor linkage on profile detail:** `searchAdminParentsForDetailAction` → `searchAdminParentsByPrefix`; still prefer **`StaffSearchComboboxWithChipQueue`** with `prefetchWhenEmptyOnFocus` + `persistentExcludeIds` for existing guardians.
+4. **Bounded initial payloads:** leverage **`prefetchWhenEmptyOnFocus`** + deterministic `search("")`.
+5. **No bespoke `label/input/list`** stacks — extend canonical comboboxes or helpers under `src/lib/users/` instead.
+6. Visible strings originate from **`src/dictionaries/en.json` + `es.json`**.
 
-## Relación
+## Related references
 
-- Lista de usuarios (tabla): `AdminUsersToolbar` — mismo `Label` / `Input`.
-- Mensajería (destinatarios precargados en página): `RecipientAutocomplete` — comparte normalización/prefijo vía `src/lib/users/profileSearchPrefix.ts` con la semántica de “empieza por…”.
+- User table toolbar: mirrors same `Label`/`Input`: `AdminUsersToolbar`.
+- Messaging pickers seeded server-side → `RecipientAutocomplete` sharing normalization/prefix rules from `profileSearchPrefix.ts`.

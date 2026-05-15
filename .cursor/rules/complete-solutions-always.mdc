@@ -1,69 +1,69 @@
 ---
 alwaysApply: true
-description: "Soluciones completas y mantenibles alineadas con la arquitectura real del repo (Next.js, capas en src/)."
+description: "Complete, maintainable solutions aligned with the repo’s real architecture (Next.js and `src/` layering)."
 ---
-# 🎯 Soluciones completas — sin parches temporales (Golden English)
+# 🎯 Complete solutions — no temporary patches (Golden English)
 
-## ⚠️ Regla crítica
+## ⚠️ Critical rule
 
-**Implementa la solución arquitectónicamente correcta** para este repositorio: Next.js App Router, capas en `src/` según **`.cursor/rules/03-architecture.mdc`**, Supabase vía **`src/lib/supabase/`** (ver **`12-supabase-app-boundaries.mdc`**). Las soluciones temporales, parches rápidos “solo para pasar CI” y cambios mínimos que dejen deuda explícita están **prohibidos**.
+**Implement the architecturally correct solution** for this repository: Next.js App Router, layers in `src/` per **`.cursor/rules/03-architecture.mdc`**, Supabase via **`src/lib/supabase/`** (see **`12-supabase-app-boundaries.mdc`**). Temporary fixes, quick “green CI only” patches, and minimal changes that create explicit tech debt are **forbidden**.
 
-## 🚫 Prohibido
+## 🚫 Forbidden
 
-1. **Soluciones temporales** — “por ahora así y después lo mejoramos” sin plan en la misma PR.
-2. **Parches rápidos** — relajar validación, silenciar errores o bajar cobertura solo para verde.
-3. **Atajos de capas** — lógica de negocio pesada en componentes; acceso a Supabase fuera de los límites acordados.
-4. **Hardcodear** lo que el proyecto ya centraliza — marca en **`system.properties`**, copy en **`src/dictionaries/`**, secretos en código.
-5. **TODO sin cierre** — no dejar `// TODO` sin issue/ADR o sin resolver en el mismo cambio cuando el alcance es cerrado.
-6. **Ignorar reglas del repo** — i18n (**`09-i18n-copy.mdc`**), analítica/auditoría (**`08`**), jobs largos (**`11`**), etc.
+1. **Temporary solutions** — “we’ll do it this way for now and improve later” with no plan in the same PR.
+2. **Quick patches** — relaxing validation, silencing errors, or lowering coverage just to go green.
+3. **Layer shortcuts** — heavy business logic in components; Supabase access outside agreed boundaries.
+4. **Hardcoding** what this project centralizes — brand in the brand layer (**`SYSTEM_PROPERTIES_DEFAULTS`** + **`site_themes`**), copy in **`src/dictionaries/`**, secrets in code.
+5. **Unresolved TODOs** — do not leave `// TODO` without an issue/ADR or fixing it within the change when scope is bounded.
+6. **Ignoring repo rules** — i18n (**`09-i18n-copy.mdc`**), analytics/audit (**`08`**), long jobs (**`11`**), etc.
 
-## ✅ Obligatorio — capas reales de este monorepo
+## ✅ Mandatory — real layers in this monorepo
 
-Cuando toques **persistencia, auth visible, contratos públicos o flujos críticos**, actualiza **todas** las superficies afectadas en este árbol (las que apliquen al cambio):
+Whenever you touch **persistence, visible auth, public contracts, or critical flows**, update **every** affected surface in the tree below (as applicable):
 
-| Capa | Ubicación |
+| Layer | Location |
 |------|------------|
-| Esquema y políticas | **`supabase/migrations/*.sql`** (incremental, idempotente donde el repo ya lo hace). |
-| Vista / dump de contexto | **`supabase/migrations/masterdb.sql`** — referencia generada / contexto; **no** sustituye una migración nueva para cambios reales. |
-| Reglas puras, parsers, validadores | **`src/lib/<contexto>/`** — sin imports de Supabase/React en módulos **puros** (ver `03-architecture`). |
-| Clientes Supabase | Solo fábricas en **`src/lib/supabase/`**. |
-| Orquestación servidor | **`src/app/**/actions.ts`**, route handlers **`src/app/api/**`**, Server Components que lean datos. |
-| Hooks cliente | **`src/hooks/*.ts`**. |
-| UI | **`src/components/{atoms,molecules,organisms}/`**, y **`desktop/`** / **`pwa/`** cuando aplique **`05-pwa-mobile-native.mdc`**. |
-| Tipos compartidos | **`src/types/`**. |
-| Copy visible | **`src/dictionaries/en.json`** y **`es.json`**. |
-| Tests | **`src/__tests__/**`** — ver **`.cursor/rules/02-testing-tdd.mdc`**. |
-| Decisiones trazables | **`docs/adr/`** cuando gobiernen **`10-engineering-governance.mdc`**. |
+| Schema and policies | **`supabase/migrations/*.sql`** (incremental, idempotent where the repo already does so). |
+| Consolidated schema view / dump | **`supabase/migrations/masterdb.sql`** — generated reference / context; **does not** replace a new migration for real changes. |
+| Pure rules, parsers, validators | **`src/lib/<context>/`** — no Supabase/React imports in **pure** modules (see `03-architecture`). |
+| Supabase clients | Factories **only** in **`src/lib/supabase/`**. |
+| Server orchestration | **`src/app/**/actions.ts`**, **`src/app/api/**`** route handlers, Server Components that read data. |
+| Client hooks | **`src/hooks/*.ts`**. |
+| UI | **`src/components/{atoms,molecules,organisms}/`**, and **`desktop/`** / **`pwa/`** when **`05-pwa-mobile-native.mdc`** applies. |
+| Shared types | **`src/types/`**. |
+| Visible copy | **`src/dictionaries/en.json`** and **`es.json`**. |
+| Tests | **`src/__tests__/**`** — see **`.cursor/rules/02-testing-tdd.mdc`**. |
+| Traceable decisions | **`docs/adr/`** when governed by **`10-engineering-governance.mdc`**. |
 
-### Cambio de modelo de datos (campo / tabla nueva)
+### Data model changes (new field / table)
 
-1. Nueva migración bajo **`supabase/migrations/`** (y actualizar **`masterdb.sql`** si el equipo lo usa como vista consolidada de esquema).
-2. Tipos TS / Zod en el módulo de dominio que corresponda bajo **`src/lib/`** o **`src/types/`**.
-3. RLS y políticas en la misma migración cuando afecte acceso a datos.
-4. Server actions o routes que mutan o exponen el contrato.
-5. UI + i18n si hay superficie visible.
-6. Tests y, si aplica, **`recordSystemAudit` / `trackEvent`** según **`08`**.
+1. New migration under **`supabase/migrations/`** (and update **`masterdb.sql`** if the team treats it as a consolidated schema view).
+2. TS / Zod types in the matching domain module under **`src/lib/`** or **`src/types/`**.
+3. RLS and policies in the same migration when access to data changes.
+4. Server actions or routes that mutate or expose the contract.
+5. UI + i18n if there is a visible surface.
+6. Tests and, where relevant, **`recordSystemAudit` / `trackEvent`** per **`08`**.
 
-### Corrección de bugs
+### Bug fixes
 
-- **No** el parche mínimo que oculte el síntoma.
-- **Sí** causa raíz, contrato claro, tests que fijen el comportamiento.
+- **Do not** apply the smallest patch that hides the symptom alone.
+- **Do** fix root causes, clarify contracts, and add tests that lock behavior.
 
-## 📋 Checklist (antes de dar por cerrado un cambio)
+## 📋 Checklist before considering a change done
 
-- ¿Respeta **`03-architecture.mdc`** (tamaño de archivo, dirección de dependencias, un componente principal por archivo)?
-- ¿Los textos visibles van al diccionario (**`09`**) y la marca no se duplica fuera de **`system.properties`** (**`01`**)?
-- ¿Cambios de datos/auth/contrato público tienen ADR o mini-diseño (**`10`**) cuando aplica?
-- ¿Migración + RLS si hay tablas nuevas o políticas nuevas?
-- ¿Tests actualizados o añadidos según **`02-testing-tdd.mdc`**?
+- Does it comply with **`03-architecture.mdc`** (file size, dependency direction, one main component per file)?
+- Does visible text go through the dictionaries (**`09`**) without duplicating brand outside the brand layer (**`01`**)?
+- Do data/auth/public-contract changes include an ADR or mini-design (**`10`**) where required?
+- Is there migration + RLS for new tables or policies?
+- Are tests updated or added per **`02-testing-tdd.mdc`**?
 
-## ⏰ Alcance vs confirmación
+## ⏰ Scope vs confirmation
 
-- **Dentro del alcance acordado de la tarea:** implementa la solución completa **sin pedir permiso** para cada detalle de implementación.
-- **Si los tests fallan en el flujo de commit / pre-commit:** aplica **`990-tests-failure-confirmation.mdc`**: **sí debes preguntar** antes de decidir entre cambiar test o producto para el gate.
+- **Within agreed task scope:** implement the complete solution **without asking permission** for every implementation detail.
+- **If tests fail during commit / pre-commit:** follow **`990-tests-failure-confirmation.mdc`** — **you must ask** before deciding whether to change tests or application code for the gate.
 
-## 💡 Mentalidad
+## 💡 Mindset
 
-> Si no se hace bien en esta PR, alguien lo paga en producción o en soporte.
+> If we do not ship it properly in this PR, someone pays in production or support.
 
-La deuda técnica **rara vez** se “paga sola”; evitar el parche ahora reduce coste después.
+Technical debt **rarely** “pays itself off”; skipping the shortcut now lowers cost later.

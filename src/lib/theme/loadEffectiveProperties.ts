@@ -5,7 +5,7 @@ import type { EffectiveProperties } from "@/types/theming";
 
 /**
  * Resolves the property map that should drive the current request:
- * `system.properties` defaults overlaid with the active site theme overrides.
+ * `SYSTEM_PROPERTIES_DEFAULTS` overlaid with the active site theme overrides.
  *
  * Pure helpers (`mergeProperties`, `cssVariablesBlock`) keep the merge logic
  * testable; this module only orchestrates I/O so it stays trivial and the

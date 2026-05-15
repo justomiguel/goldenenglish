@@ -12,11 +12,13 @@ describe("localeCodeFromPathname", () => {
     expect(localeCodeFromPathname("/fr/foo")).toBe("es");
   });
 
-  it("reads leading en or es segment", () => {
+  it("reads leading en, es, or pt segment", () => {
     expect(localeCodeFromPathname("/en")).toBe("en");
     expect(localeCodeFromPathname("/en/dashboard")).toBe("en");
     expect(localeCodeFromPathname("/es")).toBe("es");
     expect(localeCodeFromPathname("/es/registro")).toBe("es");
+    expect(localeCodeFromPathname("/pt")).toBe("pt");
+    expect(localeCodeFromPathname("/pt/contato")).toBe("pt");
   });
 });
 
@@ -25,9 +27,10 @@ describe("resolveModalCloseLabel", () => {
     expect(resolveModalCloseLabel("Cancelar", "/en/x")).toBe("Cancelar");
   });
 
-  it("uses common.modalClose for en and es when closeLabel is omitted", () => {
+  it("uses common.modalClose for en, es, and pt when closeLabel is omitted", () => {
     expect(resolveModalCloseLabel(undefined, "/en")).toBe("Close");
     expect(resolveModalCloseLabel(undefined, "/es")).toBe("Cerrar");
+    expect(resolveModalCloseLabel(undefined, "/pt")).toBe("Fechar");
   });
 
   it("returns null when closeLabel is empty string", () => {
@@ -36,8 +39,9 @@ describe("resolveModalCloseLabel", () => {
 });
 
 describe("resolveModalScrollMoreHint", () => {
-  it("uses common.modalScrollMore for en and es paths", () => {
+  it("uses common.modalScrollMore for en, es, and pt paths", () => {
     expect(resolveModalScrollMoreHint("/en/dashboard")).toBe("More content below");
     expect(resolveModalScrollMoreHint("/es/dashboard")).toBe("Hay más contenido abajo");
+    expect(resolveModalScrollMoreHint("/pt/dashboard")).toBe("Mais conteúdo abaixo");
   });
 });

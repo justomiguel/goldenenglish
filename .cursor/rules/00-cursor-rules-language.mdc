@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+globs:
+  - "**/*"
+description: Cursor rules authoring language — all `.cursor/rules/*.mdc` files MUST be written in English (en-US); user-facing product copy stays in `src/dictionaries/` per 09-i18n-copy.
+---
+
+# Cursor rules language (Golden English)
+
+## Requirement
+
+Every file under **`.cursor/rules/*.mdc`** in this repository **must** be authored in **English (en-US)**. That includes narrative text, headings, checklist items, tables, examples, and the **`description` field** in YAML frontmatter.
+
+Exception: **identifiers** unchanged by language (routes, filenames, CLI flags, table names in SQL, quoted code, etc.) stay as-is when they mirror the codebase.
+
+## User-facing copy vs Cursor rules
+
+**Do not** use `.cursor/rules` as storage for strings shown to learners, parents, or staff on the live site.
+
+User-visible wording belongs in **`src/dictionaries/`** and follows **`.cursor/rules/09-i18n-copy.mdc`**.
+
+## Semantics when editing rules
+
+Translating or editing a rule **must not change its intent**. Preserve cross-references to other rules (**`03-architecture.mdc`**, **`12-supabase-app-boundaries.mdc`**, etc.), repository paths in backticks, and technical contracts described in sibling files.

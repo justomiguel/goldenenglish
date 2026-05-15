@@ -1,4 +1,4 @@
--- Golden English — tema explícito alineado con system.properties del repo.
+-- Golden English — tema explícito alineado con SYSTEM_PROPERTIES_DEFAULTS (src/lib/theme/systemPropertiesDefaults.ts).
 -- Idempotente: ON CONFLICT (slug) actualiza propiedades visibles para CMS/runtime.
 
 INSERT INTO public.site_themes (
@@ -39,8 +39,8 @@ VALUES (
     'color.surface', '#FFFFFF',
     'color.foreground', '#103A5C',
     'color.muted', '#F0EFEA',
-    'color.muted.foreground', '#5C6B7A',
-    'color.border', '#E2E0D8',
+    'color.muted.foreground', '#4B5563',
+    'color.border', '#8A8275',
     'color.success', '#16A34A',
     'color.warning', '#EAB308',
     'color.error', '#DC2626',

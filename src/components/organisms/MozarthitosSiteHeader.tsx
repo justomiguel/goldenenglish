@@ -114,6 +114,7 @@ export function MozarthitosSiteHeader({
                 href={`/${locale}/dashboard`}
                 className="mz-chrome-dash inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border-2 border-white/50 bg-white/15 px-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-white/25 sm:px-3"
                 title={dict.nav.administration}
+                aria-label={dict.nav.administration}
               >
                 <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
                 <span className="hidden xl:inline">{dict.nav.administration}</span>
@@ -130,6 +131,7 @@ export function MozarthitosSiteHeader({
             <Link
               href={`/${locale}/login`}
               className="mz-chrome-login inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border-2 border-white/55 bg-[var(--mz-yellow)] px-3 py-2 text-xs font-bold text-[var(--mz-ink-on-white)] shadow-md transition hover:bg-[var(--mz-yellow-soft)] sm:px-4 sm:text-sm"
+              aria-label={dict.nav.login}
             >
               <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
               <span className="hidden sm:inline">{dict.nav.login}</span>

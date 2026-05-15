@@ -7,7 +7,7 @@ const NEUTRAL_FAV = "/file.svg";
 
 /**
  * Public shell copy while `initial_site_setup` is incomplete — avoids showing
- * seeded institute defaults from `system.properties` (repo template identity).
+ * seeded institute defaults from `SYSTEM_PROPERTIES_DEFAULTS` (repo template identity).
  */
 export function neutralBrandForGreenfield(dict: Dictionary): BrandPublic {
   const g = dict.greenfieldPublic;

@@ -31,7 +31,7 @@ export type EmailTemplateActionResult =
 const SaveSchema = z.object({
   locale: z.string(),
   templateKey: z.string().min(1).max(120),
-  templateLocale: z.enum(["es", "en"]),
+  templateLocale: z.enum(["es", "en", "pt"]),
   subject: z.string().trim().min(1).max(300),
   bodyHtml: z.string().trim().min(1).max(60_000),
 });
@@ -121,7 +121,7 @@ export async function saveEmailTemplateAction(
 const ResetSchema = z.object({
   locale: z.string(),
   templateKey: z.string().min(1).max(120),
-  templateLocale: z.enum(["es", "en"]),
+  templateLocale: z.enum(["es", "en", "pt"]),
 });
 
 export async function resetEmailTemplateAction(

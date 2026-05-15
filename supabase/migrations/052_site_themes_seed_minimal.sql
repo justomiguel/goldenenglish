@@ -26,6 +26,7 @@ SELECT
   jsonb_build_object(
     'color.primary', '#0F172A',
     'color.secondary', '#0EA5E9',
+    'color.secondary.foreground', '#0F172A',
     'color.background', '#FFFFFF',
     'color.surface', '#F8FAFC',
     'color.muted', '#E2E8F0',

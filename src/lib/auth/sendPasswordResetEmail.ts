@@ -27,7 +27,7 @@ export interface SendPasswordResetEmailParams {
 
 /**
  * Compose and dispatch the password reset email. Brand and copy come from the
- * project sources of truth (`system.properties` + dictionaries) so a rebrand
+ * project sources of truth (`SYSTEM_PROPERTIES_DEFAULTS` + dictionaries) so a rebrand
  * or translation change reaches users without code changes here.
  */
 export async function sendPasswordResetEmail(

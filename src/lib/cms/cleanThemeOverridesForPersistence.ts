@@ -14,7 +14,7 @@ import type { ThemeProperties } from "@/lib/theme/themeParser";
  * 1. Drop keys outside the allow-list (`color.*`, `layout.*`, `shadow.*`,
  *    `app.*`, `contact.*`, `social.*`).
  * 2. Drop empty / whitespace-only values: an empty value in the editor means
- *    "fall back to the default from `system.properties`", so we don't store
+ *    "fall back to the default from `SYSTEM_PROPERTIES_DEFAULTS`", so we don't store
  *    it as an override.
  * 3. Drop values that match the default exactly: same reason, no need to keep
  *    a no-op override sitting in the row.

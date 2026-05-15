@@ -8,11 +8,11 @@ import type { ThemeProperties } from "@/lib/theme/themeParser";
  * Pure helpers backing the "raw properties" editor (PR 5).
  *
  * The grouped editor (PR 3) renders one field per **known** token from
- * `system.properties`, which is what admins want 99% of the time. This editor
+ * `SYSTEM_PROPERTIES_DEFAULTS`, which is what admins want 99% of the time. This editor
  * sits next to it for the long tail:
  *
  * - Overrides with keys the runtime already understands but that are not yet
- *   declared in `system.properties` (e.g. a new `color.seasonal-accent`).
+ *   declared in `SYSTEM_PROPERTIES_DEFAULTS` (e.g. a new `color.seasonal-accent`).
  * - Inspection of the full properties map (defaults + overrides) in one place.
  *
  * These helpers stay framework-free so the action layer and component tests
@@ -22,7 +22,7 @@ import type { ThemeProperties } from "@/lib/theme/themeParser";
 export interface RawPropertyRow {
   /** Full key, e.g. `color.primary` or `social.tiktok`. */
   key: string;
-  /** Value from `system.properties`. `null` when the key only exists as an override
+  /** Value from `SYSTEM_PROPERTIES_DEFAULTS`. `null` when the key only exists as an override
    *  (e.g. a seasonal color that the defaults file does not declare). */
   defaultValue: string | null;
   /** Current override, or `null` when none. */
@@ -43,7 +43,7 @@ function byKeyAscending(a: RawPropertyRow, b: RawPropertyRow): number {
 }
 
 /**
- * Builds one row per allow-listed key, merging defaults (from `system.properties`)
+ * Builds one row per allow-listed key, merging defaults (from `SYSTEM_PROPERTIES_DEFAULTS`)
  * and current overrides. Keys outside the allow-list are filtered out so the
  * editor surface always matches what the runtime layer is willing to apply.
  *

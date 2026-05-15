@@ -11,7 +11,7 @@ import {
 } from "@/lib/academics/academicsAttendanceMatrixProperties";
 
 describe("academicsAttendanceMatrixProperties", () => {
-  it("exposes positive integers aligned with system.properties defaults", () => {
+  it("exposes positive integers aligned with SYSTEM_PROPERTIES_DEFAULTS values", () => {
     expect(getTeacherAttendanceMatrixScanLookbackBufferDays()).toBeGreaterThanOrEqual(0);
     expect(getTeacherAttendanceOperationalCivilLookbackDays()).toBeGreaterThan(0);
     expect(getTeacherAttendanceOperationalMaxClassDays()).toBeGreaterThan(0);

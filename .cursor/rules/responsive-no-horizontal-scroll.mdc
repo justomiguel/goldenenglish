@@ -1,90 +1,86 @@
 ---
-description: Reglas para garantizar responsividad y evitar scroll horizontal. Aplica a componentes UI, listas, tablas y páginas.
+description: Responsive layout rules preventing accidental horizontal scrolling across breakpoints.
 globs: "*.tsx,*.ts"
 ---
 
-# 📱 Responsive design y sin scroll horizontal (Golden English)
+# 📱 Responsive design & avoiding horizontal scroll (Golden English)
 
-## ⚠️ Regla crítica
+## Critical rule
 
-**Todos** los componentes relevantes deben comportarse bien en **viewport estrecho** y **no** provocar scroll horizontal accidental en ningún breakpoint razonable (desde ~320px). Alineado con **`05-pwa-mobile-native.mdc`** y tokens en **`01-design-system.mdc`**.
+**All materially visible UI must behave gracefully down to narrow (~320 px) viewports**, avoiding unintended horizontal scrolling. Align tokens with **`05-pwa-mobile-native.mdc`** & **`01-design-system.mdc`**.
 
-## 🚫 Prohibido
+## Forbidden
 
-1. Tablas o bloques con muchas columnas rígidas que **empujen** el ancho del viewport sin `overflow-x` controlado o sin simplificar columnas en móvil.
-2. Anchos fijos grandes (`w-[1200px]`, etc.) sin `max-w-full` / contenedor acotado.
-3. Contenido que **desborde** el viewport en móvil sin `min-w-0`, `truncate` o equivalente.
-4. Columnas vacías que ocupen espacio solo para “rellenar” la tabla.
-5. Copy **visible** largo hardcodeado en JSX — va al diccionario (**`09-i18n-copy.mdc`**); en código de ejemplo de esta regla los literales son solo ilustrativos.
+1. Dense tables/grid columns squeezing widths beyond viewport without controlled `overflow-x` or deliberate column hiding on mobile.
+2. Giant fixed widths (`w-[1200px]`, …) lacking `max-w-full`/wrapper constraints.
+3. Flex children/Text lacking `min-w-0`/truncation exploding horizontally.
+4. Empty columns artificially inflating grids.
+5. Long inline literals in JSX (copy belongs under **`09-i18n-copy.mdc`**; examples herein stay illustrative placeholders only).
 
-## ✅ Obligatorio
+## Required practices
 
-### 1. Mobile-first
+### 1. Mobile-first progression
 
-Diseñar primero para móvil, luego ampliar:
+Start small, escalate layout complexity:
 
 ```tsx
-// ✅ CORRECTO
+// ✅ CORRECT
 <div className="px-4 sm:px-6 lg:px-8">
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 ```
 
 ```tsx
-// ❌ INCORRECTO — asume desktop
+// ❌ INCORRECT — desktop assumptions only
 <div className="px-8">
   <div className="grid grid-cols-4 gap-4">
 ```
 
-### 2. Contenedores
+### 2. Fluid containers / overflow shields
 
 ```tsx
-// ✅ CORRECTO — ancho fluido + tope
+// ✅ CORRECT — capped fluid width
 <div className="w-full max-w-[var(--layout-max-width)] mx-auto">
 
-// ✅ CORRECTO — cortar overflow horizontal cuando la tabla puede crecer
+// ✅ CORRECT — gate overflow when unavoidable wide tables reside inside
 <div className="overflow-x-hidden">
 
-// ❌ INCORRECTO
+// ❌ INCORRECT
 <div className="w-[1200px]">
 ```
 
-### 3. Tablas y listas
+### 3. Tables & stacked lists
 
-- Reducir columnas en móvil o **combinar** información en una columna con `min-w-0` + `truncate`.
-- Para tablas con **`UniversalListView`**, usar `tableOverflow="hidden"` cuando el diseño ya fuerza celdas acotadas y wrapping, para evitar barra horizontal innecesaria (ver props del componente).
+- Collapse/stack columns on XS breakpoints or merge textual detail into richer single columns with `truncate`/`min-w-0`.
+- `UniversalListView` consumers may leverage `tableOverflow="hidden"` alongside thoughtful cell truncation (see prop docs).
 
 ```tsx
-// ✅ CORRECTO — celda con truncado y mínimo ancho 0 en flex
+// ✅ Typical truncated flex cell pattern
 <div className="flex min-w-0">
   <div className="truncate text-sm text-[var(--color-muted-foreground)]">{item.email}</div>
 </div>
 ```
 
-### 4. Flex y grid
+### 4. Responsive flex/grid scaffolding
 
 ```tsx
-// ✅ CORRECTO
 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
 
 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 ```
 
-## 📋 Checklist rápido
+## Quick checklist
 
-- [ ] ¿Probado o razonable en **~320px**?
-- [ ] ¿Sin scroll horizontal no intencional?
-- [ ] ¿`min-w-0` / `truncate` donde haya texto largo o flex que comprima?
-- [ ] ¿Contenedor con `w-full` y `max-w-*` acorde al layout del dashboard?
+- [ ] Reasonable sanity at ~320 px widths?
+- [ ] Horizontal scroll unintentional ⇒ absent?
+- [ ] `min-w-0`/truncation guarding long tokens within flex/grid?
+- [ ] Top-level wrappers use fluid `w-full` + sanctioned `max-w-*` combos?
 
-## 🎯 Patrón con `UniversalListView`
+### `UniversalListView` synergy
 
-El listado estándar con ordenación y paginación es **`src/components/organisms/UniversalListView.tsx`**. Mantener filas con celdas `min-w-0`, headers compactos y, si hace falta, `tableClassName` / `colgroup` para repartir anchos sin romper móvil.
+Prefer `UniversalListView` row cells with `min-w-0`, lean headers, `tableClassName`, `colgroup` tuning for equitable column budgets.
 
-Referencias en el repo:
+Example consumers: `AdminUsersScreen`, `AdminRegistrationsTableDesktop`.
 
-- `src/components/organisms/UniversalListView.tsx`
-- Ejemplos de uso: `src/components/organisms/AdminUsersScreen.tsx`, `src/components/desktop/organisms/AdminRegistrationsTableDesktop.tsx`
+## External refs
 
-## 📖 Externo
-
-- [Tailwind — responsive design](https://tailwindcss.com/docs/responsive-design)
+- [Tailwind responsive design docs](https://tailwindcss.com/docs/responsive-design)

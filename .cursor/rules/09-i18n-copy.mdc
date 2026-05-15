@@ -19,7 +19,7 @@ Follow **`.agents/skills/i18n-localization/SKILL.md`** for mindset (keys not lit
 
 ## Branding vs i18n (must agree with `01-design-system.mdc`)
 
-- **Institute / product identity** (legal name, tagline, logos, contact blocks) stays in **`system.properties`** and brand helpers — **not** duplicated as fresh literals in components or dictionaries.
+- **Institute / product identity** (legal name, tagline, logos, contact blocks) stays in the brand layer (`SYSTEM_PROPERTIES_DEFAULTS` + `site_themes` overrides) and brand helpers — **not** duplicated as fresh literals in components or dictionaries.
 - **Sentences and UI chrome** belong in **dictionaries**. Do not reintroduce brand prose as hardcoded JSX strings.
 
 ## Formatting & grammar in translated strings

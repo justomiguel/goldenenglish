@@ -5,7 +5,7 @@
  * Color / layout / shadow tokens are injected at runtime by `src/app/layout.tsx`
  * (`<style id="ge-theme-root">`, after a FullCalendar placeholder — see comment there)
  * so a site theme activated from admin propagates
- * without redeploying. See `system.properties` (defaults) +
+ * without redeploying. See `SYSTEM_PROPERTIES_DEFAULTS` (defaults) +
  * `public.site_themes.properties` (overrides) + `src/lib/theme/themeOverrides.ts`.
  *
  * Only font variables stay here: they reference `--font-sans` / `--font-display`
@@ -68,7 +68,7 @@ body {
   font-family: var(--font-body);
   color: var(--color-foreground);
   background-color: var(--color-background);
-  /* Theme-aware wash: follows merged `site_themes.properties` + system.properties (not Golden-only RGB). */
+  /* Theme-aware wash: follows merged `site_themes.properties` + SYSTEM_PROPERTIES_DEFAULTS (not Golden-only RGB). */
   background-image:
     radial-gradient(
       ellipse 120% 80% at 50% -20%,
@@ -126,7 +126,7 @@ body {
 }
 
 /*
- * Landing “collage” washes — only semantic palette tokens (see system.properties).
+ * Landing “collage” washes — only semantic palette tokens (see SYSTEM_PROPERTIES_DEFAULTS).
  */
 .landing-informal-wash {
   background-image:

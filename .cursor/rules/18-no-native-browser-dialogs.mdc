@@ -1,46 +1,46 @@
 ---
-description: Prohibir alert/confirm/prompt del navegador; feedback y confirmaciones vía design system (Modal, patrones existentes)
+description: Ban browser `alert`/`confirm`/`prompt`; confirmations and banners use DS modals/toasts/long-job patterns plus dictionary copy.
 globs: src/**/*.{tsx,ts}
 alwaysApply: true
 ---
 
-# Sin diálogos nativos del navegador (`alert` / `confirm` / `prompt`)
+# No native browser dialogs (`alert` / `confirm` / `prompt`)
 
-## Objetivo
+## Objective
 
-Los **`window.alert`**, **`window.confirm`**, **`window.prompt`** (y llamadas equivalentes sin prefijo en código cliente) **no** deben usarse para UX de producto: bloquean el hilo, rompen accesibilidad, ignoran marca/tokens, no respetan locales de forma consistente y resultan poco profesionales frente a patrones del propio proyecto.
+**`window.alert`**, **`window.confirm`**, **`window.prompt`** (and bare equivalents) degrade product UX—they block threads, harm accessibility, ignore brand tokens, skip locale coherence, and look unpolished beside project patterns.
 
-Toda **confirmación destructiva**, **aviso de error/éxito** o **entrada de texto auxiliar** debe implementarse con **componentes y tokens del design system** y copy vía **09-i18n-copy**.
+All **destructive confirmations**, **success/error messaging**, or **secondary text prompts** rely on **design-system components** wired to dictionary strings (**09-i18n-copy**).
 
-## Prohibido en código de producto (`src/`)
+## Forbidden in product code (`src/`)
 
 - `alert(...)`, `confirm(...)`, `prompt(...)`
 - `window.alert`, `window.confirm`, `window.prompt`
 
-## Patrones permitidos (elegir según el caso)
+## Allowed substitutes
 
-1. **Modal / diálogo** — **`Modal`** en `src/components/atoms/Modal.tsx` (o composiciones existentes que ya usen `<dialog>` + foco y cierre coherentes con el DS). Confirmaciones: título, cuerpo, acciones primaria/secundaria con **`Button`** y **16-admin-buttons-icons**.
-2. **Feedback no modal** — Patrones ya usados en el repo: estado local de “toast” / banner en la pantalla con clases de superficie y tokens (**01-design-system**), no ventanas del SO.
-3. **Jobs largos** — **`11-long-running-jobs-ui.mdc`**: `LongJobActivityModal` + `LongJobLoader`; no sustituir por `alert` el progreso ni el resultado.
-4. **Entrada de URL o texto en editores** — Sustituir `prompt` por un **modal propio**, campo **`Input`** / formulario acotado, validación en cliente y mensajes desde diccionario.
+1. **Modal/dialog primitives** — `src/components/atoms/Modal.tsx` (or composites already wrapping `<dialog>` with shared focus traps). Confirmation flows pair primary/secondary **`Button`**s (**16-admin-buttons-icons**) with headings/body sourced from dictionaries.
+2. **Non-blocking feedback** — existing toast/banners using DS surfaces/tokens (**01**) instead of OS chrome.
+3. **Long jobs** — **`11-long-running-jobs-ui.mdc`**: `LongJobActivityModal` + loaders; never `alert` progression.
+4. **URL/text collection** — bespoke modal + **`Input`**/forms with client validation plus dictionary-backed errors (no `prompt`).
 
-## i18n y accesibilidad
+## Localization & accessibility
 
-- Textos visibles y `aria-label` de acciones del diálogo: **`src/dictionaries/en.json`** y **`es.json`** (**09**).
-- Los modales deben gestionar **foco**, **Escape** (si aplica al patrón) y **roles** de forma alineada con el componente canónico, no copiar el comportamiento inconsistente de los diálogos nativos.
+- Visible modal copy + actionable `aria-label`s live under **`src/dictionaries/en.json` + `es.json`**.
+- Maintain focus trapping, ESC handling parity with canonical **`Modal`**—do not imitate inconsistent native dialogs.
 
-## Deuda / al tocar archivos legacy
+## Legacy remediation
 
-Si un cambio toca un archivo que aún usa `alert` / `confirm` / `prompt`, **migra ese flujo** al patrón del DS **dentro del alcance razonable del cambio** (misma pantalla o hook asociado). No añadir nuevos usos nativos.
+Updating files already containing natives? **migrate** touchpoints touching the scope (same screens/hooks) without introducing fresh native usage.
 
-## Excepciones explícitas
+## Exceptions
 
-- **Tests** (`src/__tests__/**`): literales como `alert(1)` dentro de **fixtures HTML** para XSS/sanitización; no invocar APIs nativas de diálogo para asertar UX.
-- **Código fuera de `src/`** (scripts de mantenimiento, CLI): puede usar consola o prompts de terminal; no aplica esta regla de producto web.
+- **Tests** inserting literal snippets like `alert(1)` purely for XSS sanitization fixtures—avoid relying on dialogs for behavioral assertions otherwise.
+- **Non-`src/` scripts/CLIs**: console output or Terminal prompts unaffected.
 
-## Referencias
+## References
 
-- Modal base: `src/components/atoms/Modal.tsx`
-- Confirmación / aviso / prompt de texto reutilizables: `src/components/molecules/ConfirmActionModal.tsx`, `InfoNoticeModal.tsx`, `PromptStringModal.tsx`
-- Design system y tokens: **01-design-system.mdc**
-- Copy: **09-i18n-copy.mdc**
+- Base modal: `src/components/atoms/Modal.tsx`
+- Reusable dialogs: `src/components/molecules/ConfirmActionModal.tsx`, `InfoNoticeModal.tsx`, `PromptStringModal.tsx`
+- Tokens: **01-design-system.mdc**
+- Copy layering: **09-i18n-copy.mdc**

@@ -6,6 +6,7 @@
 |------|-------------------------|
 | Deploy Vercel (un tenant o todos) | Esta página → [Deploy a Vercel (multi-tenant)](#deploy-a-vercel-multi-tenant) |
 | **Alta de tenant: briefing (qué pedir) + checklist** | [`docs/runbooks/add-new-tenant.md`](../docs/runbooks/add-new-tenant.md) |
+| **Lighthouse Accessibility multi-tenant** (manifiesto de URLs) | [`docs/runbooks/accessibility-multi-tenant.md`](../docs/runbooks/accessibility-multi-tenant.md) — `npm run lighthouse:a11y:tenants` |
 | Alta de tenant (detalle técnico en regla) | [`.cursor/rules/19-multi-tenant-local-vercel-targets.mdc`](../.cursor/rules/19-multi-tenant-local-vercel-targets.mdc) |
 | Modelo multi-sitio (marca / proyectos) | [`docs/adr/2026-04-multi-site-brand-overlay.md`](../docs/adr/2026-04-multi-site-brand-overlay.md) |
 | Migración SQL a todas las BDs locales | [`apply-migration-all-tenants.mjs`](apply-migration-all-tenants.mjs) (cabecera del archivo) |

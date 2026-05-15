@@ -112,10 +112,12 @@ export function buildLandingSectionEditorViewModel(
     defaults: {
       es: getLandingDefaultCopy(args.defaults.es, key),
       en: getLandingDefaultCopy(args.defaults.en, key),
+      pt: getLandingDefaultCopy(args.defaults.pt, key),
     },
     overrides: {
       es: getOverrideValue(args.content, section, key, "es"),
       en: getOverrideValue(args.content, section, key, "en"),
+      pt: getOverrideValue(args.content, section, key, "pt"),
     },
   }));
 
@@ -154,7 +156,10 @@ export function buildLandingEditorOverview(
   return LANDING_SECTION_SLUGS.map((section) => {
     const view = buildLandingSectionEditorViewModel(section, args);
     const copyOverrides = view.copy.reduce((acc, field) => {
-      const has = field.overrides.es !== null || field.overrides.en !== null;
+      const has =
+        field.overrides.es !== null ||
+        field.overrides.en !== null ||
+        field.overrides.pt !== null;
       return acc + (has ? 1 : 0);
     }, 0);
     const mediaOverrides = view.media.reduce(

@@ -103,7 +103,7 @@ export const LANDING_MEDIA_SLOTS_BY_SECTION: Readonly<
 };
 
 /** Closed catalog of locales that can carry overrides. Mirrors `Locale`. */
-export const LANDING_OVERRIDE_LOCALES = ["es", "en"] as const;
+export const LANDING_OVERRIDE_LOCALES = ["es", "en", "pt"] as const;
 export type LandingOverrideLocale = (typeof LANDING_OVERRIDE_LOCALES)[number];
 
 export function isLandingOverrideLocale(

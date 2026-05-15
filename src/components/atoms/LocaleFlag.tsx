@@ -26,6 +26,17 @@ export function LocaleFlag({ locale, className = "" }: LocaleFlagProps) {
     );
   }
 
+  if (locale === "pt") {
+    return (
+      <span className={`${box} h-2.5 w-[0.94rem]`} aria-hidden>
+        <svg viewBox="0 0 3 2" className="size-full" xmlns="http://www.w3.org/2000/svg">
+          <rect width="1.2" height="2" fill="#006847" />
+          <rect x="1.2" width="1.8" height="2" fill="#DA291C" />
+        </svg>
+      </span>
+    );
+  }
+
   return (
     <span className={`${box} h-2.5 w-[1.125rem]`} aria-hidden>
       <svg

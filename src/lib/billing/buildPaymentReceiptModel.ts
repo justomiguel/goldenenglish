@@ -2,7 +2,7 @@
  * Pure shaping for "comprobante de pago" (informal payment proof, not an SII boleta / AFIP invoice).
  *
  * Inputs come from the loader (auth + DB) and the brand layer (`getBrandPublic()` already merges
- * `system.properties` with site_themes overrides per tenant). Output is consumed by both the HTML
+ * `SYSTEM_PROPERTIES_DEFAULTS` with site_themes overrides per tenant). Output is consumed by both the HTML
  * surface on the flow-return page and the `@react-pdf/renderer` document.
  *
  * No React / Supabase imports here — keeps the receipt rules trivially unit-testable.

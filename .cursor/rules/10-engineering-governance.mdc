@@ -1,40 +1,40 @@
 ---
-description: "Gobernanza de ingeniería: ADR / diseño técnico para cambios sensibles; enlaces con TDD, DDD y analítica."
+description: Engineering governance — ADR / lightweight design specs for sensitive changes; links to TDD, DDD, analytics.
 alwaysApply: true
 ---
 
-# Gobernanza de diseño técnico (ADR / mini especificación)
+# Technical design governance (ADR / lightweight spec)
 
-## Objetivo
+## Goal
 
-Decisiones que afectan **auth**, **datos**, **integraciones**, **contratos públicos** (API routes, server actions consumidos por varios clientes) o **riesgo operativo** no deben quedar solo en código implícito. Debe existir **contexto escrito** para revisión, onboarding y incidentes.
+Changes affecting **authentication**, **data**, **integrations**, **public contracts** (API routes, server actions touched by multiple clients), or **operational risk** should not rely on implicit tribal knowledge alone. Maintain **written context** for reviewers, onboarding, and incidents.
 
-## Cuándo escribir un ADR o mini diseño
+## When to produce an ADR or mini design document
 
-Obligatorio **al menos** un documento breve (ADR en Markdown bajo `docs/adr/` o sección “Decisiones” en la PR) cuando el cambio incluya:
+Produce **at least** a concise write-up (Markdown ADR under `docs/adr/` or a “Decisions” PR section) when the change introduces:
 
-1. Nuevo proveedor, cola o canal externo; cambio de estrategia de cache o de modelo de datos visible fuera de un solo módulo.
-2. Cambios en **flujos de autenticación / sesión / roles** o políticas RLS que alteren quién puede hacer qué.
-3. Nuevo tipo de evento de analítica o auditoría que expanda el contrato con BD (cruzar con **`08-analytics-observability.mdc`**).
-4. Sustitución o competencia entre **librerías de la misma categoría** (tabla, charts, etc.); alinear con **`07-third-party-ui-components.mdc`**.
+1. A new vendor, queue, or external integration; materially different caching/data exposure beyond a module boundary.
+2. Changes to **auth/session/roles flows** or RLS policies altering who may do what.
+3. **New analytics/audit events** widening the persisted contract with the database (coordinate with **`08-analytics-observability.mdc`**).
+4. Replacement or rivalry between **libraries in the same category** (tables, charts, …); coordinate with **`07-third-party-ui-components.mdc`**.
 
-## Formato mínimo (ADR o mini-TDD)
+## Minimum outline (ADR or mini-design)
 
-- **Contexto** — problema y restricciones.
-- **Decisión** — qué se elige (una frase o lista corta).
-- **Opciones consideradas** — al menos una alternativa descartada y por qué.
-- **Consecuencias** — positivas, riesgos, follow-ups (tests, migraciones, métricas).
+- **Context** — problem and constraints.
+- **Decision** — what we chose (one sentence or bullets).
+- **Options considered** — at least one alternative with rationale for rejection.
+- **Consequences** — positives, risks, follow-ups (tests, migrations, metrics).
 
-Referencias externas: [Architecture decision records (Google Cloud)](https://cloud.google.com/architecture/architecture-decision-records) como guía de propósito y estructura.
+Further reading pattern: Google Cloud’s [**Architecture decision records**](https://cloud.google.com/architecture/architecture-decision-records).
 
-## Relación con otras reglas
+## Relationships to other rules
 
-- **DDD y capas** — **`03-architecture.mdc`** (bounded contexts, puertos).
-- **TDD** — **`02-testing-tdd.mdc`**; el ADR no sustituye tests: el contrato de comportamiento sigue en Vitest.
-- **Terceros y design system** — **`07-third-party-ui-components.mdc`**, **`01-design-system.mdc`**.
+- **DDD & layers** — **`03-architecture.mdc`** (bounded contexts, ports).
+- **TDD** — **`02-testing-tdd.mdc`**; ADRs **do not** replace behavioral tests anchored in Vitest.
+- **Third-party + design system** — **`07-third-party-ui-components.mdc`**, **`01-design-system.mdc`**.
 
-## Checklist del agente
+## Agent checklist
 
-- [ ] ¿Este cambio toca auth, datos, integración o contrato público? Si sí → **ADR o mini diseño** antes de considerar la tarea cerrada.
-- [ ] ¿La PR enlaza el documento o resume las mismas secciones en la descripción?
-- [ ] ¿Las consecuencias incluyen **tests** y **observabilidad** si aplica (`08`)?
+- [ ] Touches auth, data, integration, or a public surface? → **ADR/mini-design** required before declaring the task done.
+- [ ] Does the PR link the doc or mirror its sections inline?
+- [ ] Do consequences document **tests** and **observability** when relevant (`08`)?

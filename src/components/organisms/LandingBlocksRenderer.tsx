@@ -21,10 +21,20 @@ interface LocalizedCopy {
 
 function pickCopy(block: LandingBlock, locale: string): LocalizedCopy {
   const lc = locale.toLowerCase();
-  const primary = lc.startsWith("en") ? block.copy.en : block.copy.es;
-  const fallback = lc.startsWith("en") ? block.copy.es : block.copy.en;
-  const title = primary.title?.trim() || fallback.title?.trim() || null;
-  const body = primary.body?.trim() || fallback.body?.trim() || null;
+  const order: ReadonlyArray<keyof LandingBlock["copy"]> = lc.startsWith("pt")
+    ? ["pt", "es", "en"]
+    : lc.startsWith("en")
+      ? ["en", "es", "pt"]
+      : ["es", "en", "pt"];
+
+  let title: string | null = null;
+  let body: string | null = null;
+  for (const key of order) {
+    const slice = block.copy[key];
+    if (!title && slice.title?.trim()) title = slice.title.trim();
+    if (!body && slice.body?.trim()) body = slice.body.trim();
+    if (title && body) break;
+  }
   return { title, body };
 }
 

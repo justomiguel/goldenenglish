@@ -40,14 +40,18 @@ export async function updateSiteThemeContentAction(
   const existing = await fetchSiteThemeById(admin.supabase, parsed.data.id);
   if (!existing) return { ok: false, code: "not_found" };
 
-  const [es, en] = await Promise.all([getDictionary("es"), getDictionary("en")]);
+  const [es, en, pt] = await Promise.all([
+    getDictionary("es"),
+    getDictionary("en"),
+    getDictionary("pt"),
+  ]);
 
   const templateKind = isSiteThemeKind(existing.template_kind)
     ? existing.template_kind
     : "classic";
 
   const cleanedSection = cleanLandingContentForPersistence(
-    { es, en },
+    { es, en, pt },
     { [parsed.data.section]: parsed.data.copy },
     templateKind,
   );

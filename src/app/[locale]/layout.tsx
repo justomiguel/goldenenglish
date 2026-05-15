@@ -102,7 +102,7 @@ export default async function LocaleLayout({
   const { brand, needsInitialSiteSetup } = await resolvePublicBrandWithSetup(loc);
 
   return (
-    <div lang={locale} className="min-h-screen">
+    <div className="min-h-screen">
       {needsInitialSiteSetup ? null : (
         <JsonLdOrganization locale={locale} brand={brand} />
       )}

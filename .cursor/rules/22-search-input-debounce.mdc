@@ -1,5 +1,5 @@
 ---
-description: Debounce en barras de búsqueda para evitar bloqueos de UI
+description: Debounce search inputs tied to routing/fetches to prevent UI freezes.
 globs:
   - "src/components/**/*Toolbar*.tsx"
   - "src/components/**/*Search*.tsx"
@@ -7,24 +7,24 @@ globs:
 alwaysApply: false
 ---
 
-# Búsquedas con debounce (obligatorio)
+# Debounced searches (mandatory wiring)
 
-## Objetivo
+## Objective
 
-Evitar que la UI se "trabe" cuando el usuario escribe en una barra de búsqueda. Sin debounce, cada tecla dispara una navegación o fetch al servidor, degradando la experiencia.
+Typing in search-heavy toolbars shouldn’t choke the UI. Without debouncing, **each keystroke** triggers navigation/fetch bursts—especially painful on constrained devices.
 
-## Regla
+## Rule
 
-**Todo input de búsqueda que dispare navegación, fetch, o actualización de URL** debe usar **`useDebouncedSearch`** (`src/hooks/useDebouncedSearch.ts`).
+Whenever a **search `<input>`** drives **routing**, **URL `searchParams`**, **fetch/server actions**, or **remote list reloading**, funnel through **`useDebouncedSearch`** (`src/hooks/useDebouncedSearch.ts`).
 
-### Qué hace el hook
+### Hook behavior recap
 
-1. **Respuesta visual inmediata**: el input actualiza un estado local al instante.
-2. **Búsqueda diferida**: la navegación/fetch real solo se dispara **300ms** después de que el usuario deja de escribir.
-3. **Sincronización**: si el valor viene del servidor (navegación, link directo), se sincroniza automáticamente.
-4. **Flush on submit**: si el usuario presiona Enter, la búsqueda se dispara inmediatamente.
+1. **Instant mirrored typing** locally (no perceptible latency).
+2. **Deferred side effects (~300 ms)** after typing pauses (`debounceMs` override sparingly).
+3. **Hydration coherence** syncing server-provided keywords when SSR/navigation primes values.
+4. **Immediate flush** pressing **Enter**/submit executes `flushNow()`.
 
-### Uso canónico
+### Canonical snippet
 
 ```tsx
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
@@ -40,44 +40,43 @@ function MyToolbar({ query, onQueryChange }: Props) {
       <Input
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
-        placeholder="Buscar..."
+        placeholder={dict.toolbar.searchPlaceholder}
       />
     </form>
   );
 }
 ```
 
-### Opciones del hook
+Remember placeholder copy still belongs in dictionaries per **09** (snippet uses `dict.toolbar.searchPlaceholder` as illustration).
 
-| Prop | Tipo | Default | Descripción |
-|------|------|---------|-------------|
-| `value` | `string` | — | Valor inicial/servidor de la búsqueda |
-| `onDebouncedChange` | `(v: string) => void` | — | Callback tras el debounce |
-| `debounceMs` | `number` | `300` | Delay en ms (ajustar solo si hay razón clara) |
+### Hook props
 
-## Cuándo aplicar
+| Prop | Type | Default | Notes |
+|------|------|---------|-------|
+| `value` | `string` | — | Server/route canonical query |
+| `onDebouncedChange` | `(v: string) => void` | — | Debounced callback |
+| `debounceMs` | `number` | `300` | Adjust sparingly |
 
-- **Sí**: inputs que actualizan `searchParams` en URL, disparan `router.replace`, llaman a server actions de búsqueda, o hacen fetch de listados.
-- **No**: inputs cuyo valor solo se usa en submit (formularios tradicionales), o filtros locales sobre datos ya cargados en memoria sin costo de red.
+## Coverage guidance
 
-## Componentes ya migrados (referencia)
+- **Yes:** keystrokes rewriting `router.replace`, invoking server lookups, reloading tables.
+- **No:** vanilla forms submitting exclusively on `<form submit>` with no incremental server chatter, purely local memo filters atop already loaded arrays.
 
-- `AdminUsersToolbar` — búsqueda de usuarios admin
-- `RegistrationListToolbar` — búsqueda de registraciones
-- `AdminAuditToolbar` — búsqueda y filtros de auditoría (query, action, resourceType, actorId)
+### Already migrated references
 
-## Deuda / al tocar archivos con búsqueda
+`AdminUsersToolbar`, `RegistrationListToolbar`, `AdminAuditToolbar`.
 
-Si un cambio toca un componente con input de búsqueda que **no** usa `useDebouncedSearch` y dispara navegación/fetch por tecla, **migrar al patrón** en el mismo cambio cuando el alcance lo permita.
+## Debt reduction
 
-## Checklist del agente
+Encountering stray `router.replace`/actions bound directly inside `onChange`? Migrate within reachable scope concurrently.
 
-- [ ] ¿El input de búsqueda dispara navegación o fetch? → Usar `useDebouncedSearch`.
-- [ ] ¿Se usa `onChange` directo hacia `router.replace` / action? → Refactorizar.
-- [ ] ¿El form tiene submit? → Llamar `flushNow()` en `onSubmit`.
+### Agent checklist
 
-## Referencias
+- [ ] Routed/fetched search ⇒ `useDebouncedSearch`.
+- [ ] Keystrokes no longer call `router.replace`/actions directly inside `onChange`?
+- [ ] `<form>` uses `flushNow()` submissions.
+
+### Further reading
 
 - Hook: `src/hooks/useDebouncedSearch.ts`
-- Ejemplo canónico: `src/components/dashboard/AdminUsersToolbar.tsx`
-- Contexto: evitar el patrón de "cada tecla = roundtrip al servidor" que degrada UX.
+- Reference toolbar: `src/components/dashboard/AdminUsersToolbar.tsx`

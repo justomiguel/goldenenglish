@@ -15,13 +15,13 @@ const DEFAULTS: ThemeProperties = {
   "color.surface": "#FFFFFF",
   "color.foreground": "#103A5C",
   "color.muted": "#F0EFEA",
-  "color.muted.foreground": "#5C6B7A",
-  "color.border": "#E2E0D8",
+  "color.muted.foreground": "#4B5563",
+  "color.border": "#8A8275",
   "layout.border.radius": "0.75rem",
 };
 
 describe("extractThemePreviewTokens", () => {
-  it("returns the system.properties defaults when there are no overrides", () => {
+  it("returns the SYSTEM_PROPERTIES_DEFAULTS values when there are no overrides", () => {
     const tokens = extractThemePreviewTokens(DEFAULTS, null);
     expect(tokens.colorPrimary).toBe("#103A5C");
     expect(tokens.colorSecondary).toBe("#A31A22");

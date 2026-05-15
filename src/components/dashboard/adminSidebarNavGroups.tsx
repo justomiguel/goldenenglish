@@ -7,6 +7,7 @@ import {
   MessageCircle,
   Palette,
   Settings,
+  SlidersHorizontal,
   Ticket,
   Users,
   Banknote,
@@ -176,6 +177,12 @@ export function buildAdminSidebarNavGroups(
           label: dict.cms,
           icon: <Palette className={ic} />,
           tip: dict.tipCms,
+        },
+        {
+          href: `${base}/site-setup`,
+          label: dict.siteSetup,
+          icon: <SlidersHorizontal className={ic} />,
+          tip: dict.tipSiteSetup,
         },
         {
           href: `${base}/settings`,

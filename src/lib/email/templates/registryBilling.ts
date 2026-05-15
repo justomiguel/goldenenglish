@@ -1,4 +1,5 @@
 import type { EmailTemplateDefinition } from "@/types/emailTemplates";
+import { withPtFallback } from "@/lib/email/templates/withPtEmailDefaults";
 
 export const enrollmentExemptionTemplate: EmailTemplateDefinition = {
   key: "billing.enrollment_exemption",
@@ -13,7 +14,7 @@ export const enrollmentExemptionTemplate: EmailTemplateDefinition = {
     { name: "enrollmentTermLower", description: "Mismo término en minúsculas", sample: "matrícula" },
     { name: "reason", description: "Motivo de la exención (opcional)", sample: "Beca de excelencia académica" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Exención de {{enrollmentTerm}} aplicada",
       bodyHtml: `<h1 style="font-size:1.25rem;margin:0 0 12px;">Exención de {{enrollmentTerm}} aplicada</h1>
@@ -26,7 +27,7 @@ export const enrollmentExemptionTemplate: EmailTemplateDefinition = {
 <p>We have applied an {{enrollmentTermLower}} exemption to the student's account.</p>
 <p style="color:#6B7280;font-size:0.875rem;">{{reason}}</p>`,
     },
-  },
+  }),
 };
 
 export const promotionAppliedTemplate: EmailTemplateDefinition = {
@@ -43,7 +44,7 @@ export const promotionAppliedTemplate: EmailTemplateDefinition = {
     { name: "promotionName", description: "Nombre de la promoción", sample: "Beca hermanos" },
     { name: "code", description: "Código aplicado", sample: "HERM10" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "{{promotionTerm}} aplicada a tu pago",
       bodyHtml: `<h1 style="font-size:1.25rem;margin:0 0 12px;">{{promotionTerm}} aplicada</h1>
@@ -54,5 +55,5 @@ export const promotionAppliedTemplate: EmailTemplateDefinition = {
       bodyHtml: `<h1 style="font-size:1.25rem;margin:0 0 12px;">{{promotionTerm}} applied</h1>
 <p>The {{promotionTermLower}} <strong>{{promotionName}}</strong> was applied with code <strong>{{code}}</strong>.</p>`,
     },
-  },
+  }),
 };

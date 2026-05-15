@@ -1,64 +1,69 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { mockPathname } from "@/test/navigationMock";
 
-const labels = { label: "Lang", es: "ES", en: "EN" };
+vi.mock("next/navigation", () => ({
+  usePathname: () => mockPathname(),
+}));
+
+const labels = { label: "Lang", es: "ES", en: "EN", pt: "PT" };
 
 describe("LanguageSwitcher", () => {
   beforeEach(() => {
     mockPathname.mockReturnValue("/es");
   });
 
-  it("maps bare locale path to root slug", () => {
+  it("renders locale navigation with three links", () => {
     mockPathname.mockReturnValue("/en");
     render(<LanguageSwitcher locale="en" labels={labels} />);
-    expect(screen.getByRole("link", { name: "ES" })).toHaveAttribute(
-      "href",
-      "/es",
-    );
-    expect(screen.getByRole("link", { name: "EN" })).toHaveAttribute(
-      "href",
-      "/en",
-    );
+    const nav = screen.getByRole("navigation", { name: labels.label });
+    expect(nav).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /^ES$/ })).toHaveAttribute("href", "/es");
+    expect(screen.getByRole("link", { name: /^EN$/ })).toHaveAttribute("href", "/en");
+    expect(screen.getByRole("link", { name: /^PT$/ })).toHaveAttribute("href", "/pt");
   });
 
-  it("strips locale prefix from nested path", () => {
+  it("marks the active locale with aria-current=page", () => {
+    mockPathname.mockReturnValue("/en/contact");
+    render(<LanguageSwitcher locale="en" labels={labels} />);
+    expect(screen.getByRole("link", { name: /^EN$/ })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("link", { name: /^ES$/ })).not.toHaveAttribute("aria-current");
+  });
+
+  it("preserves nested path when switching locale", () => {
     mockPathname.mockReturnValue("/en/about/team");
-    render(<LanguageSwitcher locale="es" labels={labels} />);
-    expect(screen.getByRole("link", { name: /es/i })).toHaveAttribute(
+    render(<LanguageSwitcher locale="en" labels={labels} />);
+    expect(screen.getByRole("link", { name: /^PT$/ })).toHaveAttribute(
       "href",
-      "/es/about/team",
+      "/pt/about/team",
     );
   });
 
-  it("leaves pathname unchanged when no locale prefix", () => {
+  it("prefixes raw paths without a locale segment", () => {
     mockPathname.mockReturnValue("/raw/path");
     render(<LanguageSwitcher locale="en" labels={labels} />);
-    expect(screen.getByRole("link", { name: /es/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /^ES$/ })).toHaveAttribute(
       "href",
       "/es/raw/path",
     );
   });
 
-  it("compact variant omits globe and still maps hrefs", () => {
+  it("compact variant still exposes three locale links", () => {
     mockPathname.mockReturnValue("/es");
-    const { container } = render(
-      <LanguageSwitcher locale="es" labels={labels} variant="compact" />,
-    );
-    expect(container.querySelector("svg")).toBeNull();
-    expect(screen.getByRole("link", { name: "EN" })).toHaveAttribute("href", "/en");
+    render(<LanguageSwitcher locale="es" labels={labels} variant="compact" />);
+    expect(screen.getByRole("link", { name: /^EN$/ })).toHaveAttribute("href", "/en");
   });
 
-  it("compactDark variant omits globe and maps hrefs", () => {
+  it("compactDark variant links preserve dashboard path", () => {
     mockPathname.mockReturnValue("/es/dashboard");
-    const { container } = render(
-      <LanguageSwitcher locale="en" labels={labels} variant="compactDark" />,
-    );
-    expect(container.querySelector("svg")).toBeNull();
-    expect(screen.getByRole("link", { name: "ES" })).toHaveAttribute(
+    render(<LanguageSwitcher locale="es" labels={labels} variant="compactDark" />);
+    expect(screen.getByRole("link", { name: /^PT$/ })).toHaveAttribute(
       "href",
-      "/es/dashboard",
+      "/pt/dashboard",
     );
   });
 });

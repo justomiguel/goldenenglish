@@ -1,7 +1,7 @@
 -- Menores / tutores: is_minor, tutor_student_rel (reemplaza parent_student), campos tutor en registrations,
 -- eventos portal para padres, auditoría de vínculos, políticas RLS actualizadas.
 
--- Edad legal (DB; alinear con system.properties en despliegue)
+-- Edad legal (DB; alinear con site_settings.legal_age_majority en despliegue)
 INSERT INTO public.site_settings (key, value)
 VALUES ('legal_age_of_majority', '18'::jsonb)
 ON CONFLICT (key) DO NOTHING;

@@ -73,7 +73,7 @@ function mapRow(row: ThemeRowFromDb): SiteThemeRow {
 /**
  * Server-only loader that powers the design system editor.
  *
- * Reads `system.properties` for defaults (single source of truth per
+ * Reads `SYSTEM_PROPERTIES_DEFAULTS` for defaults (single source of truth per
  * `01-design-system.mdc`) and combines them with the row's `properties`
  * overrides so the editor can render the full token catalog with current
  * values + reset affordances.

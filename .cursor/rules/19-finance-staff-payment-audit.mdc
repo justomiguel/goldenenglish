@@ -1,31 +1,31 @@
 ---
-description: Staff “registrar pago / sin comprobante” mutaciones deben auditar por período y lote; revertir pago si falla auditoría.
+description: Staff mutations that register payments without receipts must audit per billing period plus batch summaries; rollback payments if auditing fails.
 globs: src/**/admin/**/payments/**, src/lib/billing/recordPaymentWithoutReceiptCore.ts, src/lib/audit/**
 alwaysApply: false
 ---
 
-# Auditoría: pagos registrados por staff (sin comprobante)
+# Audit trail: staff-registered payments (no receipt)
 
-## Objetivo
+## Objective
 
-Las mutaciones que marcan un **período de cobro como pagado** desde admin (con o **sin** comprobante) deben quedar trazables en **`audit_events`** (además de analítica/RLS) para gobierno, soporte e incidentes.
+Admin flows marking **billing periods paid**—with **or without** uploaded receipts—must produce durable trails in **`audit_events`** atop analytics/RLS so finance, compliance, and support can reconcile incidents.
 
-## Reglas (no negociable)
+## Non-negotiable rules
 
-1. **Por cada período** impactado: llamar a **`auditFinanceAction`** (o `recordAuditEvent` equivalente con `domain: "billing_finance"`) con actor staff, `resourceId` = fila de `payments`, `action` = `create` o `update` según corresponda, y metadata acotada (`billing_year`, `billing_month`, `mode`, `source`, etc.). Esto aplica a **`recordPaymentWithoutReceipt`**, **`recordPaymentsWithoutReceiptBulk`**, y cualquier acción hermana que toque `payments` por el mismo flujo.
-2. **Lote (bulk):** Tras un conjunto de períodos, un evento de **resumen** con `action: "payment_batch"`, `resourceType: "payment_batch"`, `resourceId` = **batch id** (UUID de correlación compartida con el cliente), y metadata con conteos o lista de meses, para correlacionar en UI y en exports.
-3. **Fallo de auditoría = fallo de negocio:** Si la inserción de auditoría **falla** después de un insert/update de `payments`, **revertir** el cambio en BD (compensación) o no confirmar el commit, de modo que no quede pago “huérfano” sin traza. Patrón canónico: `src/lib/billing/recordPaymentWithoutReceiptCore.ts` (`recordOnePaymentWithoutReceipt`).
-4. **No** sustituir solo `system_config_audit` o solo analítica: el pipeline de producto para este dominio es **`audit_events` +** lo que ya use el repo (p. ej. `user_events`); no duplicar el mismo hecho en dos tablas de auditoría con payloads idénticos sin motivo documentado.
-5. **Cambios en UI** (selección múltiple de meses, “marcar varios”, etc.): el cliente solo envía `months[]` + `correlationId`; la **misma** regla 1–3 aplica; no atajar con un solo evento de auditoría en lugar de uno por período.
+1. **Per impacted period**, call **`auditFinanceAction`** / `recordAuditEvent` with `domain: "billing_finance"`, staff actor, `resourceId` pointing at matching `payments` rows, `action` reflecting `create` vs `update`, and bounded metadata (`billing_year`, `billing_month`, `mode`, `source`, …). Applies to **`recordPaymentWithoutReceipt`**, **`recordPaymentsWithoutReceiptBulk`**, and sibling paths mutating payments identically.
+2. **Batch operations:** emit a rollup event `action: "payment_batch"` with `resourceType: "payment_batch"`, `resourceId` = shared client correlation UUID, metadata enumerating totals/month keys for UI ↔ export alignment.
+3. **Audit failure == business failure:** if audit inserts fail **after** `payments` mutate, compensate (rollback/supabase transaction semantics) ensuring no “payment without audit” orphans. Canonical template: `src/lib/billing/recordPaymentWithoutReceiptCore.ts` (`recordOnePaymentWithoutReceipt`).
+4. **Pipeline clarity:** complement—not replace—with `system_config_audit` / telemetry when needed; duplicate identical payloads across audit tables absent justification is discouraged.
+5. **UI concurrency:** bulk month selections still obey per-period auditing + rollup events—do not shortcut with a solitary audit referencing unrelated months silently.
 
-## Checklist del agente
+## Agent checklist
 
-- [ ] ¿Toca `payments` desde admin con “registrar sin comprobante” o variante? → `auditFinanceAction` **por fila/periodo** y evento de **lote** si hay batch.
-- [ ] ¿Si `audit` falla, el pago queda deshecho o la transacción no confirma?
-- [ ] ¿Prueba o contrato mínimo que fije compensación o eventos esperados (donde el repo ya testee acciones de billing)?
+- [ ] Paths touching unpaid periods via “register without receipt” invoke **per-period** auditing + aggregated batch payloads when multiples fire.
+- [ ] Failed auditing aborts/compensates financial writes.
+- [ ] Automated coverage (existing billing tests) reinforces compensation contracts.
 
-## Referencia
+## Pointer files
 
 - Core: `src/lib/billing/recordPaymentWithoutReceiptCore.ts`
-- Acciones: `src/app/[locale]/dashboard/admin/payments/recordPaymentWithoutReceiptAction.ts`, `.../actions.ts` (`reviewPayment`)
-- Regla de dominio/audit: `src/lib/audit/domainAudit.ts` (`assertAuditEventSucceeded`)
+- Actions: `[locale]/dashboard/admin/payments/recordPaymentWithoutReceiptAction.ts`, sibling `reviewPayment`
+- Guards: `src/lib/audit/domainAudit.ts` (`assertAuditEventSucceeded`)

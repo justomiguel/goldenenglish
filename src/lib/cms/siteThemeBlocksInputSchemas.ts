@@ -38,12 +38,15 @@ const blockCopyInputSchema = z
   .object({
     es: localeCopyInputSchema,
     en: localeCopyInputSchema,
+    pt: localeCopyInputSchema.optional(),
   })
   .strict()
   .superRefine((value, ctx) => {
+    const pt = value.pt ?? {};
     const hasAnyCopy =
       Boolean(value.es.title || value.es.body) ||
-      Boolean(value.en.title || value.en.body);
+      Boolean(value.en.title || value.en.body) ||
+      Boolean(pt.title || pt.body);
     if (!hasAnyCopy) {
       ctx.addIssue({
         code: "custom",
@@ -51,7 +54,12 @@ const blockCopyInputSchema = z
         path: ["es"],
       });
     }
-  });
+  })
+  .transform((value) => ({
+    es: value.es,
+    en: value.en,
+    pt: value.pt ?? {},
+  }));
 
 export const addLandingBlockInputSchema = z.object({
   locale: z.string().min(2),

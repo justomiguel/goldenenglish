@@ -1517,7 +1517,7 @@ GRANT EXECUTE ON FUNCTION public.admin_analytics_section_funnel(int) TO authenti
 -- Menores / tutores: is_minor, tutor_student_rel (reemplaza parent_student), campos tutor en registrations,
 -- eventos portal para padres, auditoría de vínculos, políticas RLS actualizadas.
 
--- Edad legal (DB; alinear con system.properties en despliegue)
+-- Edad legal (DB; alinear con site_settings.legal_age_majority en despliegue)
 INSERT INTO public.site_settings (key, value)
 VALUES ('legal_age_of_majority', '18'::jsonb)
 ON CONFLICT (key) DO NOTHING;
@@ -5140,7 +5140,7 @@ CREATE POLICY section_attendance_teacher_delete ON public.section_attendance
 -- Runtime theming + landing CMS
 -- Modelo: cada `site_themes` row es un "template" (default, navidad, aniversario...).
 -- Solo uno puede estar `is_active = true` a la vez (índice parcial UNIQUE).
--- `properties` JSONB sobreescribe claves de `system.properties` (color.*, layout.*, shadow.*, app.*, contact.*).
+-- `properties` JSONB sobreescribe claves de `SYSTEM_PROPERTIES_DEFAULTS` (color.*, layout.*, shadow.*, app.*, contact.*).
 -- `content` JSONB guarda overrides de copy de landing por sección (ES + EN).
 -- `site_theme_media` guarda imágenes por sección + posición; storage en bucket `landing-media`.
 -- Lectura del tema activo: pública (anon + authenticated). Escritura: admin.
@@ -5165,7 +5165,7 @@ COMMENT ON TABLE public.site_themes IS
   'Runtime theming / landing CMS templates. Up to one row may have is_active = true.';
 
 COMMENT ON COLUMN public.site_themes.properties IS
-  'JSONB map of system.properties overrides (e.g. {"color.primary":"#000"}). Defaults from system.properties.';
+  'JSONB map of brand-layer overrides (e.g. {"color.primary":"#000"}). Defaults from SYSTEM_PROPERTIES_DEFAULTS (src/lib/theme/systemPropertiesDefaults.ts).';
 
 COMMENT ON COLUMN public.site_themes.content IS
   'JSONB map of landing copy overrides by section + locale. Defaults from src/dictionaries/*.json.';
@@ -5524,6 +5524,7 @@ SELECT
   jsonb_build_object(
     'color.primary', '#0F172A',
     'color.secondary', '#0EA5E9',
+    'color.secondary.foreground', '#0F172A',
     'color.background', '#FFFFFF',
     'color.surface', '#F8FAFC',
     'color.muted', '#E2E8F0',
@@ -5542,11 +5543,11 @@ WHERE NOT EXISTS (
 -- editable desde el CMS igual que cualquier otro template.
 --
 -- Antes: el grid de admin renderizaba un card "virtual" leyendo solo
--- `system.properties`, pero los textos / properties / blocks de ese tema no se
+-- `SYSTEM_PROPERTIES_DEFAULTS`, pero los textos / properties / blocks de ese tema no se
 -- podían modificar desde la UI (no había row donde guardar overrides).
 -- Después: existe siempre un row con slug='default' marcado
 -- `is_system_default = true`, que arranca con `properties = {}` y `content = {}`
--- (=> hereda `system.properties` y los diccionarios), y cualquier admin puede
+-- (=> hereda `SYSTEM_PROPERTIES_DEFAULTS` y los diccionarios), y cualquier admin puede
 -- editar tokens, copy de landing, hero o blocks como con los demás templates.
 -- Las server actions bloquean archivar/borrar el system default para garantizar
 -- que siempre haya un fallback consistente.
@@ -5634,7 +5635,7 @@ CREATE TABLE IF NOT EXISTS public.email_templates (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_by UUID NULL REFERENCES auth.users (id) ON DELETE SET NULL,
   CONSTRAINT email_templates_locale_supported
-    CHECK (locale IN ('es', 'en')),
+    CHECK (locale IN ('es', 'en', 'pt')),
   CONSTRAINT email_templates_subject_nonempty
     CHECK (length(btrim(subject)) > 0),
   CONSTRAINT email_templates_body_nonempty
@@ -10488,7 +10489,7 @@ WHERE slug = 'mozarthitos';
 -- ========== 096_mozarthitos_theme_contact_merge.sql ==========
 
 -- Mozarthitos: fondo de contacto / redes en `site_themes.properties` (merge, no pisa otras claves).
--- Así el pie usa la marca del tema y no solo `system.properties` (Golden).
+-- Así el pie usa la marca del tema y no solo `SYSTEM_PROPERTIES_DEFAULTS` (Golden).
 
 UPDATE public.site_themes
 SET
@@ -10506,7 +10507,7 @@ WHERE slug = 'mozarthitos';
 -- ========== 097_mozarthitos_theme_color_palette.sql ==========
 
 -- Paleta Mozarthitos alineada a `src/styles/mozarthitosLanding.css` (--mz-*).
--- Sin esto, `site_themes.properties` no redefine color.* y queda la paleta Golden de system.properties.
+-- Sin esto, `site_themes.properties` no redefine color.* y queda la paleta Golden de SYSTEM_PROPERTIES_DEFAULTS.
 
 UPDATE public.site_themes
 SET
@@ -10520,7 +10521,7 @@ SET
       'color.secondary', '#1096f0',
       'color.secondary.light', '#37a4ff',
       'color.secondary.dark', '#0c7cbd',
-      'color.secondary.foreground', '#FFFFFF',
+      'color.secondary.foreground', '#0F172A',
       'color.accent', '#f3c94e',
       'color.accent.foreground', '#1a0a0d',
       'color.background', '#FFFBF8',
@@ -10528,7 +10529,7 @@ SET
       'color.foreground', '#545454',
       'color.muted', '#FFF5F0',
       'color.muted.foreground', '#6B7280',
-      'color.border', '#F0E4DE',
+      'color.border', '#8A8275',
       'color.success', '#16A34A',
       'color.warning', '#EAB308',
       'color.error', '#DC2626',
@@ -11238,8 +11239,10 @@ VALUES (
     'social.instagram', 'https://www.instagram.com/capoeiranago/',
     'social.facebook', 'https://www.facebook.com/capoeiranago/',
     'color.primary', '#1B5E20',
-    'color.secondary', '#FFD54F',
-    'color.accent', '#2E7D32'
+    'color.secondary', '#002776',
+    'color.secondary.foreground', '#FFFFFF',
+    'color.accent', '#2E7D32',
+    'color.accent.foreground', '#FFFFFF'
   ),
   '{}'::jsonb,
   '[]'::jsonb,
@@ -11600,3 +11603,71 @@ CREATE POLICY payment_flow_finalize_records_select
         )
     )
   );
+
+-- ========== 124_site_themes_accessible_contrast.sql ==========
+
+-- WCAG AA: fix secondary/accent foregrounds and borders on seeded templates whose
+-- partial overrides inherited failing pairs from codebase defaults (#26-accessibility-contrast).
+-- Global token tuning lives in src/lib/theme/systemPropertiesDefaults.ts (SYSTEM_PROPERTIES_DEFAULTS).
+
+UPDATE public.site_themes
+SET
+  properties =
+    coalesce(properties, '{}'::jsonb)
+    || jsonb_build_object('color.secondary.foreground', '#0F172A'),
+  updated_at = now()
+WHERE slug = 'minimal';
+
+UPDATE public.site_themes
+SET
+  properties =
+    coalesce(properties, '{}'::jsonb)
+    || jsonb_build_object(
+      'color.secondary.foreground',
+      '#171717',
+      'color.accent.foreground',
+      '#FFFFFF'
+    ),
+  updated_at = now()
+WHERE slug = 'nago';
+
+UPDATE public.site_themes
+SET
+  properties =
+    coalesce(properties, '{}'::jsonb)
+    || jsonb_build_object(
+      'color.secondary.foreground',
+      '#0F172A',
+      'color.border',
+      '#8A8275'
+    ),
+  updated_at = now()
+WHERE slug = 'mozarthitos';
+
+UPDATE public.site_themes
+SET
+  properties =
+    coalesce(properties, '{}'::jsonb)
+    || jsonb_build_object(
+      'color.muted.foreground',
+      '#4B5563',
+      'color.border',
+      '#8A8275'
+    ),
+  updated_at = now()
+WHERE slug = 'golden-english';
+
+-- ========== 126_nago_site_theme_br_blue_secondary.sql ==========
+
+UPDATE public.site_themes
+SET
+  properties =
+    coalesce(properties, '{}'::jsonb)
+    || jsonb_build_object(
+      'color.secondary',
+      '#002776',
+      'color.secondary.foreground',
+      '#FFFFFF'
+    ),
+  updated_at = now()
+WHERE slug = 'nago';

@@ -1,7 +1,7 @@
 -- Runtime theming + landing CMS
 -- Modelo: cada `site_themes` row es un "template" (default, navidad, aniversario...).
 -- Solo uno puede estar `is_active = true` a la vez (índice parcial UNIQUE).
--- `properties` JSONB sobreescribe claves de `system.properties` (color.*, layout.*, shadow.*, app.*, contact.*).
+-- `properties` JSONB sobreescribe claves de `SYSTEM_PROPERTIES_DEFAULTS` (color.*, layout.*, shadow.*, app.*, contact.*).
 -- `content` JSONB guarda overrides de copy de landing por sección (ES + EN).
 -- `site_theme_media` guarda imágenes por sección + posición; storage en bucket `landing-media`.
 -- Lectura del tema activo: pública (anon + authenticated). Escritura: admin.
@@ -26,7 +26,7 @@ COMMENT ON TABLE public.site_themes IS
   'Runtime theming / landing CMS templates. Up to one row may have is_active = true.';
 
 COMMENT ON COLUMN public.site_themes.properties IS
-  'JSONB map of system.properties overrides (e.g. {"color.primary":"#000"}). Defaults from system.properties.';
+  'JSONB map of brand-layer overrides (e.g. {"color.primary":"#000"}). Defaults from SYSTEM_PROPERTIES_DEFAULTS (src/lib/theme/systemPropertiesDefaults.ts).';
 
 COMMENT ON COLUMN public.site_themes.content IS
   'JSONB map of landing copy overrides by section + locale. Defaults from src/dictionaries/*.json.';

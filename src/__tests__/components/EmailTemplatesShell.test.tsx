@@ -6,6 +6,7 @@ import type {
   EmailTemplateOverrideRow,
 } from "@/types/emailTemplates";
 import type { Locale } from "@/types/i18n";
+import { withPtFallback } from "@/lib/email/templates/withPtEmailDefaults";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/es",
@@ -39,10 +40,10 @@ const definition: EmailTemplateDefinition = {
     { name: "messagePreview", description: "Resumen", sample: "Hi" },
     { name: "href", description: "URL", sample: "https://x" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: { subject: "Asunto ES {{senderName}}", bodyHtml: "<p>Body ES {{senderName}}</p>" },
     en: { subject: "Subject EN", bodyHtml: "<p>Body EN</p>" },
-  },
+  }),
 };
 
 function makeEntry(
@@ -53,6 +54,7 @@ function makeEntry(
     overridesByLocale: {
       es: overrides.es ?? null,
       en: overrides.en ?? null,
+      pt: overrides.pt ?? null,
     },
   };
 }

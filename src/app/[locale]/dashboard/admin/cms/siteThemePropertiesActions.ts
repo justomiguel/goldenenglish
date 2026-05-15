@@ -21,7 +21,7 @@ import {
  * The action accepts the full overrides map sent from the editor, then sanitizes
  * it through `cleanThemeOverridesForPersistence` so:
  *   - keys outside the allow-list never reach the row,
- *   - values matching the default from `system.properties` are stripped (so the
+ *   - values matching the default from `SYSTEM_PROPERTIES_DEFAULTS` are stripped (so the
  *     JSONB stays minimal and rebrands of the defaults still propagate),
  *   - the persisted shape is sorted (diff-friendly snapshots).
  *
@@ -77,7 +77,7 @@ export async function updateSiteThemePropertiesAction(
 
 /**
  * Wipes all overrides on a template, restoring the design tokens to the
- * defaults from `system.properties`. Useful when admins want a quick "reset"
+ * defaults from `SYSTEM_PROPERTIES_DEFAULTS`. Useful when admins want a quick "reset"
  * before iterating again.
  */
 export async function resetSiteThemePropertiesAction(

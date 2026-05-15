@@ -100,7 +100,7 @@ export function NagoLandingGallery({ dict }: NagoLandingGalleryProps) {
         <Button
           type="button"
           variant="secondary"
-          className="min-h-[44px] gap-2 rounded-full bg-[var(--nago-yellow)] px-8 py-3 text-sm font-bold uppercase tracking-wide text-[var(--nago-ink)] shadow-md hover:brightness-105"
+          className="min-h-[44px] gap-2 rounded-full bg-[var(--nago-blue)] px-8 py-3 text-sm font-bold uppercase tracking-wide text-[var(--nago-heading-solid)] shadow-md transition-colors hover:bg-[var(--nago-blue-hover)]"
           onClick={openCarousel}
         >
           <Images className="h-4 w-4 shrink-0" aria-hidden />

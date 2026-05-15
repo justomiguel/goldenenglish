@@ -25,11 +25,22 @@ describe("getDictionary", () => {
     15_000,
   );
 
-  it("includes academicSectionPage.scheduleEditor in en and es", async () => {
+  it(
+    "returns pt dictionary for pt",
+    async () => {
+      const d = await getDictionary("pt");
+      expect(d.common.submit.length).toBeGreaterThan(0);
+    },
+    15_000,
+  );
+
+  it("includes academicSectionPage.scheduleEditor in en, es, and pt", async () => {
     const en = await getDictionary("en");
     const es = await getDictionary("es");
+    const pt = await getDictionary("pt");
     expect(en.dashboard.academicSectionPage.scheduleEditor?.scheduleTitle).toBeTruthy();
     expect(es.dashboard.academicSectionPage.scheduleEditor?.scheduleTitle).toBeTruthy();
+    expect(pt.dashboard.academicSectionPage.scheduleEditor?.scheduleTitle).toBeTruthy();
   });
 
   it("includes academic cohort and section lifecycle copy in en and es", async () => {
@@ -97,6 +108,7 @@ describe("getDictionary", () => {
 
   it("exports locale list", () => {
     expect(locales).toContain("en");
+    expect(locales).toContain("pt");
     expect(defaultLocale).toBe("es");
   });
 });

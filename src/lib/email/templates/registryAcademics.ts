@@ -1,4 +1,5 @@
 import type { EmailTemplateDefinition } from "@/types/emailTemplates";
+import { withPtFallback } from "@/lib/email/templates/withPtEmailDefaults";
 
 const tableStyle =
   "border-collapse:collapse;width:100%;max-width:480px;font-size:14px;";
@@ -18,7 +19,7 @@ export const transferApprovedTemplate: EmailTemplateDefinition = {
     { name: "teacherName", description: "Nombre del docente", sample: "Prof. López" },
     { name: "scheduleHtml", description: "HTML con el horario (días + horas)", sample: "<li>Lun 18:00–19:30</li>" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Traslado de sección aprobado",
       bodyHtml: `<p>{{lead}}</p>
@@ -41,7 +42,7 @@ export const transferApprovedTemplate: EmailTemplateDefinition = {
 <p style="margin:0 0 6px;font-weight:600;">Schedule:</p>
 <ul style="padding-left:20px;margin:0;">{{scheduleHtml}}</ul>`,
     },
-  },
+  }),
 };
 
 export const gradePublishedParentTemplate: EmailTemplateDefinition = {
@@ -63,7 +64,7 @@ export const gradePublishedParentTemplate: EmailTemplateDefinition = {
     { name: "portalHref", description: "URL al portal del tutor", sample: "https://example.com/es/dashboard/parent" },
     { name: "portalCta", description: "Texto del CTA al portal", sample: "Abrir portal" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Nueva calificación publicada",
       bodyHtml: `<h1 style="font-size:1.25rem;margin:0 0 12px;">{{headline}}</h1>
@@ -90,7 +91,7 @@ export const gradePublishedParentTemplate: EmailTemplateDefinition = {
 <div style="margin-top:12px;">{{feedbackHtml}}</div>
 <p style="margin-top:20px;"><a href="{{portalHref}}" style="color:#103A5C;font-weight:600;">{{portalCta}}</a></p>`,
     },
-  },
+  }),
 };
 
 export const retentionContactTemplate: EmailTemplateDefinition = {
@@ -112,7 +113,7 @@ export const retentionContactTemplate: EmailTemplateDefinition = {
     { name: "signals", description: "Señales (ausencias / promedio)", sample: "Absences: 2 · Low average: 5.2" },
     { name: "intro", description: "Párrafo introductorio", sample: "We are reaching out about your child’s progress." },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Seguimiento académico — {{studentLabel}} ({{sectionName}})",
       bodyHtml: `<p>{{intro}}</p>
@@ -137,5 +138,5 @@ export const retentionContactTemplate: EmailTemplateDefinition = {
 </ul>
 <p style="margin-top:16px;">We are happy to coordinate next steps.</p>`,
     },
-  },
+  }),
 };

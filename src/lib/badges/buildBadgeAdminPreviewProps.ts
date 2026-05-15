@@ -10,7 +10,7 @@ import type { Dictionary } from "@/types/i18n";
  * round-tripping to the server when the preview language switches.
  *
  * - Loads BOTH locale dictionary slices for `publicStudentBadge` chrome.
- * - Resolves the brand identity (name + logo URL) from `system.properties`.
+ * - Resolves the brand identity (name + logo URL) from `SYSTEM_PROPERTIES_DEFAULTS` + active theme overrides.
  * - Resolves the public site origin (NEXT_PUBLIC_APP_URL → VERCEL_URL → localhost).
  */
 export async function buildBadgeAdminPreviewProps(): Promise<{

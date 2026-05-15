@@ -1,53 +1,53 @@
 ---
-description: Todo Button y enlaces tipo CTA llevan icono leading (Lucide, a11y, i18n)
+description: Every `Button` and button-styled CTAs ship with a leading Lucide icon (unless listed exceptions); a11y + dictionary copy enforced.
 globs: src/**/*.{tsx,ts}
 alwaysApply: true
 ---
 
-# Botones con iconos (obligatorio en el repo)
+# Buttons must include icons (repo standard)
 
-## Objetivo
+## Objective
 
-Todo uso de **`Button`** (`@/components/atoms/Button`) y todo **enlace con apariencia de botón** (CTA primario/secundario, filas de acciones) debe incluir un **icono Lucide _leading_** junto al texto visible, salvo las excepciones listadas abajo. Mejora escaneo, coherencia con admin y **09-i18n-copy**; no duplicar marca (**01-design-system**); contraste en destructivos según **01**.
+All uses of **`Button`** (`@/components/atoms/Button`) and visually button-like **`Link`/`<button>`** CTAs ought to include **leading Lucide SVGs**, except enumerated carve-outs below. Faster scanning + admin consistency + **`09-i18n-copy`**; brand tokens untouched (**`01-design-system.mdc`**); destructive controls respect contrast (**`01-design-system.mdc`**, **`26-accessibility-contrast.mdc`**).
 
-## Librería
+## Library
 
-- Iconos: **`lucide-react`** (ya en el proyecto). Imports **acotados** por nombre (`import { Plus } from "lucide-react"`).
-- No añadir otra familia de iconos en la misma categoría (**07-third-party**).
+- Icons: **`lucide-react`** — import **narrowly** (`import { Plus } from "lucide-react"`).
+- Do **not** add parallel icon ecosystems for identical purposes (**07-third-party-ui-components** bans duplicate categories).
 
-## Cuándo poner icono
+## When to attach icons
 
-1. **Botón con texto** — **Siempre** icono **leading**, `h-4 w-4` (o `h-3.5 w-3.5` en filas densas), **`aria-hidden`** en el SVG si el significado ya lo da el texto visible. El átomo `Button` incluye `gap-2` entre hijos.
-2. **Solo icono** (sin texto visible) — Solo si el espacio es extremo; entonces **`aria-label`** obligatorio con clave de **diccionario** (mismo texto que usarías como botón visible). Ej.: flechas de reordenar, barra de herramientas densa.
-3. **Enlaces estilo botón** (`<Link className="…inline-flex…">`) — Mismo criterio: `inline-flex items-center gap-2` + icono + texto; `title` opcional, no sustituto de `aria-label` en icon-only.
-4. **`<button>` nativo** usado como control de UI (no `Button`) en pantallas de producto — Mismo criterio cuando lleve copy visible o sea CTA.
+1. **Buttons with textual labels:** always expose a **leading icon** sized `h-4 w-4` (`h-3.5 w-3.5` for dense grids). Decorate SVG as **`aria-hidden`** when textual label already conveys meaning. Atom `Button` sets `gap-2`.
+2. **Icon-only triggers:** permissible only where space forbids prose; **`aria-label` dictionary keys mandatory** (“same label you’d show next to visible text”).
+3. **Link CTAs disguised as buttons:** match flex layout (`inline-flex items-center gap-2`) + Lucide companion; `title` optional but never substitutes `aria-label` on icon-only.
+4. **Raw `<button>` UI controls:** treat like `Button` when user-facing messaging or destructive flows appear.
 
-## Excepciones (no exige icono _adicional_)
+## Exceptions (skip *extra* ornamental icons)
 
-- Controles que **son** solo el icono con `aria-label` de diccionario (toolbar, paginación flecha, etc.).
-- **Tests** y Storybook si existen.
-- Terceros embebidos donde no se controle el DOM.
+- Pure icon controls already carrying **`aria-label` dictionary keys** (`toolbar arrows`, paging chevrons, etc.).
+- **Tests**/**Storybook** fixtures.
+- Third-party embedded widgets unreachable for DOM patching.
 
-## Deuda / auditoría
+## Tech debt etiquette
 
-Al tocar un archivo con un `Button` o `<button>`/`<Link>` CTA **sin** icono leading, **añadir el icono en el mismo cambio** cuando el alcance lo permita.
+Whenever you touch legacy files missing leading icons inside scope, **add icons** concurrently if realistically feasible.
 
-## Layout y touch
+## Layout & ergonomics
 
-- Contenedor: `inline-flex items-center justify-center gap-2` (o `gap-1.5` en compacto).
-- Admin en escritorio: **`min-h-[44px]`** en CTAs del flujo principal cuando el botón sea acción frecuente o esté en zona móvil; en tablas densas puede bajar a **`min-h-[36px]`** si el contexto es solo desktop (**Tier B**).
+- Container pattern: `inline-flex items-center justify-center gap-2` (fallback `gap-1.5`).
+- Dense admin desktops: **`min-h-[44px]`** frequent CTAs in mobile hotspots; tighten to **`min-h-[36px]`** purely desktop tables (**Tier B**).
 
-## Destructivos
+## Destructives
 
-- No icono rojo sobre botón rojo saturado sin contraste: seguir **01** (borde neutro + texto error, o control completo relleno con foreground del token).
+Avoid low-contrast crimson glyphs on saturated crimson shells—prefer neutral surfaces (**`surface`**) with **`border/text` pointing at `--color-error`**, **or fully filled brand reds** where token foreground already passes contrast.
 
 ## i18n
 
-- Texto del botón y `aria-label` / mensajes: **`src/dictionaries/en.json` + `es.json`**.
-- Los **nombres de iconos** no se traducen; el copy sí.
+- Button literals + `aria-label`s live in **`src/dictionaries/en.json` + `es.json`**.
+- Icon **names remain English** identifiers; localized copy surrounds them separately.
 
-## Referencia en código
+## Code references
 
-- Hub académico: `AcademicHubToolbar` (Plus + Inbox), `AcademicHubCohortRow` (ChevronRight en abrir cohorte), `AcademicCohortCurrentToggle` (`showIcon` + Star).
-- Pestañas admin (estilo **underline**, APG): `UnderlineTabBar` + consumidores `AcademicHubCohortBoard`, `AcademicSectionShellTabs` (flechas ←/→, Home, End; indicador inferior en la pestaña activa).
-- Patrón W3C: [Tabs pattern (APG)](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
+- Academic hub tooling: `AcademicHubToolbar` (Plus/Inbox combos), cohort rows (`AcademicHubCohortRow` ChevronRight), toggles leveraging `showIcon`/Star combos.
+- Admin underline tabs (**APG**): `UnderlineTabBar`, `AcademicHubCohortBoard`, `AcademicSectionShellTabs` (arrow/Home/End support + active underline cues).
+- W3C pattern: [**Tabs APG**](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).

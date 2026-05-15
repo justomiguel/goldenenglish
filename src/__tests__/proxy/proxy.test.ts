@@ -72,6 +72,13 @@ describe("proxy", () => {
     expect(scheduleTrafficPageHitFromMiddleware).toHaveBeenCalledTimes(1);
   });
 
+  it("delegates to updateSession when Portuguese locale prefix is present", async () => {
+    const req = new NextRequest(new URL("http://localhost/pt/dashboard/student/payments"));
+    await proxy(req, stubEvent());
+    expect(updateSession).toHaveBeenCalledTimes(1);
+    expect(scheduleTrafficPageHitFromMiddleware).toHaveBeenCalledTimes(1);
+  });
+
   it("delegates to updateSession for login (session refresh on public auth pages)", async () => {
     const req = new NextRequest(new URL("http://localhost/es/login"));
     await proxy(req, stubEvent());
@@ -119,8 +126,28 @@ describe("proxy", () => {
     expect(res.headers.get("x-middleware-rewrite")).toContain("/_next/static/chunks/app.js");
   });
 
+  it("rewrites Portuguese locale-prefixed Next.js chunks back to root _next", async () => {
+    const req = new NextRequest(new URL("http://localhost/pt/_next/static/chunks/app.js"));
+    const res = await proxy(req, stubEvent());
+    expect(updateSession).not.toHaveBeenCalled();
+    expect(scheduleTrafficPageHitFromMiddleware).not.toHaveBeenCalled();
+    expect(res.headers.get("x-middleware-rewrite")).toContain("/_next/static/chunks/app.js");
+  });
+
   it("rewrites locale-prefixed public assets back to root path", async () => {
     const req = new NextRequest(new URL("http://localhost/es/favicon_io/android-chrome-192x192.png"));
+    const res = await proxy(req, stubEvent());
+    expect(updateSession).not.toHaveBeenCalled();
+    expect(scheduleTrafficPageHitFromMiddleware).not.toHaveBeenCalled();
+    expect(res.headers.get("x-middleware-rewrite")).toContain(
+      "/favicon_io/android-chrome-192x192.png",
+    );
+  });
+
+  it("rewrites Portuguese locale-prefixed public assets back to root path", async () => {
+    const req = new NextRequest(
+      new URL("http://localhost/pt/favicon_io/android-chrome-192x192.png"),
+    );
     const res = await proxy(req, stubEvent());
     expect(updateSession).not.toHaveBeenCalled();
     expect(scheduleTrafficPageHitFromMiddleware).not.toHaveBeenCalled();
@@ -141,6 +168,14 @@ describe("proxy", () => {
 
   it("rewrites locale-prefixed geojson public assets back to root path", async () => {
     const req = new NextRequest(new URL("http://localhost/es/geo/world.geojson"));
+    const res = await proxy(req, stubEvent());
+    expect(updateSession).not.toHaveBeenCalled();
+    expect(scheduleTrafficPageHitFromMiddleware).not.toHaveBeenCalled();
+    expect(res.headers.get("x-middleware-rewrite")).toContain("/geo/world.geojson");
+  });
+
+  it("rewrites Portuguese locale-prefixed geojson public assets back to root path", async () => {
+    const req = new NextRequest(new URL("http://localhost/pt/geo/world.geojson"));
     const res = await proxy(req, stubEvent());
     expect(updateSession).not.toHaveBeenCalled();
     expect(scheduleTrafficPageHitFromMiddleware).not.toHaveBeenCalled();

@@ -7,7 +7,7 @@ import type { ThemeProperties } from "@/lib/theme/themeParser";
 /**
  * Pure helpers to render the design system editor.
  *
- * The editor is driven by `system.properties` keys: the file is the source of
+ * The editor is driven by `SYSTEM_PROPERTIES_DEFAULTS` keys: that constant is the source of
  * truth for which tokens exist and their default values. The DB only stores
  * **overrides** keyed the same way, so the editor never invents tokens that the
  * runtime layer does not understand.
@@ -32,7 +32,7 @@ export interface TokenDescriptor {
   key: string;
   /** Effective value (override > default). Empty string when neither is set. */
   value: string;
-  /** Default from `system.properties` (used to render the reset affordance). */
+  /** Default from `SYSTEM_PROPERTIES_DEFAULTS` (used to render the reset affordance). */
   defaultValue: string;
   /** Whether the editor is showing an override different from the default. */
   isOverridden: boolean;
@@ -74,7 +74,7 @@ function isEditableKey(key: string): boolean {
  * Builds the editor view-model from defaults + overrides.
  *
  * - Iterates over `defaults` so the editor always shows every token defined in
- *   `system.properties`, even when no override exists yet.
+ *   `SYSTEM_PROPERTIES_DEFAULTS`, even when no override exists yet.
  * - Filters out keys outside `THEME_OVERRIDE_KEY_PREFIXES` so non-visual config
  *   (e.g. `legal.age.majority`, `analytics.timezone`) never leaks into the UI.
  * - Returns groups in the canonical order from `TOKEN_GROUP_IDS`; empty groups
@@ -121,7 +121,7 @@ export function groupThemeTokens(
 /**
  * Pure: validates a single token edit. Returns the trimmed value when it
  * should be persisted, or `null` when the field should be cleared (i.e. fall
- * back to the default from `system.properties`).
+ * back to the default from `SYSTEM_PROPERTIES_DEFAULTS`).
  */
 export function normalizeTokenValueForPersistence(
   key: string,

@@ -1,64 +1,64 @@
 ---
-description: Consultas PostgREST/Supabase acotadas — sin listados completos sin filtro; columnas explícitas; paginación servidor obligatoria en listas que crezcan; sin “solo limit” que oculte filas.
+description: Bounded PostgREST/Supabase queries — no unconstrained selects; explicit columns; server pagination for scalable lists; no “limit-only” hiding missing rows.
 alwaysApply: true
 ---
 
-# PostgREST: consultas acotadas y paginación
+# PostgREST: constrained queries & pagination
 
-## Objetivo
+## Objective
 
-Evitar **full table scans** vía PostgREST (`select` sin límites efectivos) que:
+Prevent **full table scans** via PostgREST (`select` without meaningful filters) because they:
 
-- degradan rendimiento y **LCP** en páginas servidor,
-- chocan con **límites prácticos** (p. ej. ~1000 filas por respuesta / memoria),
-- hacen imposible escalar el producto sin rediseño.
+- harm performance/server **LCP**,
+- hit practical limits (~1000 rows / payloads),
+- block scaling later.
 
-Toda **lista de negocio** que pueda superar unos cientos de filas debe nacer **paginada en servidor** (o con RPC agregada / `count` + `range`), no “traer todo y filtrar en cliente”, ni “poner un `limit` y olvidarse del resto”.
+Any **business list** touching hundreds+ rows must bootstrap as **server-paginated** (or aggregated RPC/count+range combos), never “pull everything → filter server-side arbitrarily” nor “sprinkle `.limit()` and forget paging”.
 
-## Reglas (no negociable en código nuevo)
+## Rules (mandatory on new code)
 
-1. **No** `from("…").select("*")` **sin** cadena de filtros que **acote fuerte** el conjunto (p. ej. `.eq("status","new")`, `.in("id", boundedIds)`, ventana de fechas, FK acotada), salvo excepciones abajo.
-2. **No** `select("…")` de tablas de dominio grandes (`profiles`, `registrations`, `payments`, `user_events`, `section_enrollments`, etc.) **sin** al menos uno de: **filtro restrictivo**, **`range(from, to)`** + orden estable, **head: true + count** solo, o **RPC** pensada para el volumen.
-3. **Preferir columnas explícitas** (`select("id, name, status")`) frente a `*`: menos payload, menos sorpresas en RLS y en migraciones.
-4. **Listados UI** (tablas admin, feeds): **paginación servidor** obligatoria cuando el conjunto pueda crecer sin techo de negocio claro:
-   - Misma ventana de datos en **filas** (`range`) y en **total** (`count: "exact", head: true` en paralelo, o RPC que devuelva `{ rows, total }`).
-   - Filtros y orden que afecten al listado deben aplicarse **en la query** (o en la RPC), no solo en el cliente sobre “la página que vino por casualidad”.
-   - **Prohibido** usar solo `.limit(N)` para “acotar” un listado infinito **sin** navegación + total + misma semántica de filtro en servidor: eso **pierde datos** sin avisar al usuario.
-5. **Anti-patrón “paginación solo en cliente”**: cargar en el Server Component **todas** las filas y pasarlas a un hook que hace `slice` por página **sigue siendo un scan completo** en red/PostgREST. Si la lista puede ser grande, la paginación debe ir **antes** del borde cliente (RSC + `searchParams` / acción que devuelve página + total, etc.).
-6. **IDs conocidos y acotados** (p. ej. `in("id", ids)` donde `ids` viene de otra query ya acotada o de un formulario con límite de tamaño) se consideran acotados **solo si** la lista de IDs tiene un **tope de negocio** razonable; si puede crecer sin límite, **paginar la fuente** o **trocear** el `.in()` (p. ej. batches de ~200 UUIDs) para no reventar URL/tamaño de request.
-7. **Métricas / histogramas / conteos por rol**: preferir **una RPC SQL** (agregados en Postgres) frente a `select("id, role")` de toda la tabla y contar en Node. Si se añade RPC pública nueva para admin, alinear con **`10-engineering-governance.mdc`** (mini-ADR o nota en PR).
+1. Avoid `from("…").select("*")` **without** tight filters (`eq`, scoped `in`, date windows, FK-bounded lookups, …) except intentional exceptions cited below.
+2. Avoid querying large domain tables (`profiles`, `registrations`, `payments`, `user_events`, `section_enrollments`, …) without at least **one** guardrail among: restrictive predicates, deterministic ordering + **`range`** windows, **`head:true` counting alone**, or a **purpose-built RPC** sized for throughput.
+3. Prefer **explicit column lists** (`select("id, name, status")`) versus `*` to reduce payloads and surprise deltas under RLS/migrations.
+4. **Admin/list UIs**: **mandatory server pagination** when growth is unbounded:
+   - Rows via **`range`**, totals via **`count: "exact", head:true` in parallel—or RPC exposing `{ rows, total }`.
+   - Sorting/filter predicates live **inside** queries/RPC—not only “whatever rows happened to arrive” on the client.
+   - Forbidden: lone `.limit(N)` on limitless listings **without navigation + authoritative totals**.
+5. Anti-pattern—“**client pagination only**”: loading **all rows** inside an RSC then slicing in hooks still performs a **scan** upstream. Pagination must reside **ahead** of the client boundary (`searchParams`/actions handing page+total tuples).
+6. **Bounded ID lists**: `.in("id", ids)` is safe **only when** IDs have credible business ceilings. If unconstrained growth is possible, **paginate origins** or **chunk** `.in()` calls (~200 UUID batches) avoiding URL/request blowups.
+7. **Charts / aggregates / histograms**: favor **RPC SQL aggregates** versus `select id,role` over entire populations. New admin RPC warrants **`10`** (mini PR note/ADR).
 
-## Patrones canónicos en este repo (reutilizar antes de inventar)
+## Canonical patterns already in-repo (reuse before reinventing)
 
-| Caso | Dónde mirar |
+| Scenario | Implementation reference |
 |------|-------------|
-| Listado admin paginado + total + `q` / `sort` / `page` vía URL | `src/lib/dashboard/loadPaginatedRegistrations.ts`, página `src/app/[locale]/dashboard/admin/registrations/page.tsx`, hooks `useAdminRegistrationsList` |
-| Listado usuarios admin paginado desde `profiles` + email por página | `src/lib/dashboard/loadPaginatedAdminUsers.ts`, página `src/app/[locale]/dashboard/admin/users/page.tsx`, hook `useAdminUsersTable` |
-| Trocear `.in("id", miles_de_uuids)` | `src/lib/supabase/chunkedIn.ts` |
-| Conteos hub admin sin scan de filas | RPC `admin_hub_profile_counts` en `supabase/migrations/031_admin_hub_profile_counts_rpc.sql`, consumo en `src/lib/dashboard/loadAdminHubSummary.ts` |
-| Conteos para **filtros** de listados en **dashboard** (cualquier rol; ej. totales en un select) | RPC dedicada + loader — ver **24-dashboard-list-filter-aggregates-rpc.mdc** (ej. staff: `admin_users_list_role_counts` en `112_admin_users_list_role_counts_rpc.sql`, `loadAdminUsersListRoleCounts.ts`) |
-| Jobs / cron que procesan muchos candidatos | **Lote** (`limit` razonable) + **orden estable** + re-ejecución (el siguiente run continúa); ver `src/app/api/cron/churn-inactivity/route.ts` |
-| Tabla + `UniversalListView` + `TablePagination` | Los totales que alimenta la paginación deben ser el **total servidor** del filtro activo, no `rows.length` de un subconjunto arbitrario |
+| Admin registrations + filters + paging | `src/lib/dashboard/loadPaginatedRegistrations.ts`, `src/app/[locale]/dashboard/admin/registrations/page.tsx`, `useAdminRegistrationsList` |
+| Paginated profiles + masked emails/page | `src/lib/dashboard/loadPaginatedAdminUsers.ts`, `users` page hook `useAdminUsersTable` |
+| Chunk `.in(...)` explosions | `src/lib/supabase/chunkedIn.ts` |
+| Admin hub aggregates w/o scans | RPC `admin_hub_profile_counts`, migration `031_admin_hub_profile_counts_rpc.sql`, loader `src/lib/dashboard/loadAdminHubSummary.ts` |
+| **Dashboard filter aggregates** across roles | RPC + loaders — **`24-dashboard-list-filter-aggregates-rpc.mdc`** (`admin_users_list_role_counts`, `112_*`, loader `loadAdminUsersListRoleCounts.ts`) |
+| Cron ingestion at scale | sane batch `limit`, stable ordering + idempotent resumes (see `src/app/api/cron/churn-inactivity/route.ts`) |
+| `UniversalListView`/`TablePagination` | pagination totals derive from **matching server aggregates**, never `pageRows.length`. |
 
-## Excepciones documentadas (justificar en PR o comentario mínimo)
+## Documentable exceptions
 
-- Tablas de **configuración** o catálogos que por diseño tienen **orden de magnitud fijo** (p. ej. &lt; 100 filas) y están documentados como tal.
-- **Migraciones / seeds / scripts de plataforma** bajo `supabase/migrations/`, `scripts/` de mantenimiento, no sustitutos de UI.
-- **Solo conteo** con `head: true` + filtros, sin traer filas.
-- Lecturas **por PK** (`.eq("id", uuid).maybeSingle()`).
-- **Límite de seguridad** en un catálogo acotado por negocio (p. ej. secciones académicas de un instituto) **solo** si en la PR se documenta el techo y la UX si se alcanza (búsqueda, segunda página, RPC, etc.).
+- Tiny **configuration catalogs** anchored at &lt;100 rows documented as fixed.
+- **Migrations/seeds/scripts** under `supabase/migrations/` or `scripts/` (ops only).
+- **count-only queries** (`head:true`, bounded filters).
+- **PK lookups** (`.eq("id", uuid).maybeSingle()`).
+- **Safety caps on proven small catalogs** (e.g. institute sections)—PR must cite ceiling & UX fallback if hit.
 
-## Relación con otras reglas
+## Cross-rule references
 
-- **`12-supabase-app-boundaries.mdc`** — dónde se construye el cliente; esta regla gobierna **forma y tamaño** de las lecturas.
-- **`03-architecture.mdc`** — orquestación en server components / actions; la paginación vive ahí o en `src/lib/` como helper **inyectando** cliente.
-- **`10-engineering-governance.mdc`** — si se introduce **RPC nueva** o contrato de listado paginado compartido, mini-ADR o nota en PR.
+- **`12-supabase-app-boundaries.mdc`** — factories & adapter placement.
+- **`03-architecture.mdc`** — where pagination orchestration lives (`lib` injecting clients).
+- **`10-engineering-governance.mdc`** — documenting new RPC/contracts.
 
-## Checklist del agente
+## Agent checklist
 
-- [ ] ¿Esta query puede superar ~500–1000 filas en producción? → **Filtro + paginación servidor** (o RPC), no solo `limit`.
-- [ ] ¿`select("*")`? → Sustituir por columnas necesarias salvo excepción arriba.
-- [ ] ¿Lista en UI sin `range` / sin **total alineado** al mismo filtro? → Alinear con patrón del repo (tabla arriba).
-- [ ] ¿`.in("id", ids)` con `ids` sin techo? → Trocear o paginar la fuente de IDs.
-- [ ] ¿Conteos / agregados sobre toda una tabla grande? → RPC o `count` + filtros, no traer columnas de todas las filas.
-- [ ] ¿Cambio en listado existente “que ya traía todo”? → Tratarlo como deuda: **misma PR** acota o pagina si el alcance lo permite; si no, issue + comentario enlazado a esta regla.
+- [ ] Query may exceed ~500–1k prod rows → **filtered server pagination**, not only `.limit`.
+- [ ] Replacing stray `*` selects with purposeful columns whenever feasible.
+- [ ] Listing UI aligns `range`-backed paging with **total matching identical filters**.
+- [ ] Oversized `.in("id")` payloads → chunked/paginated parents.
+- [ ] Aggregation across huge datasets → RPC / head counts—not row dumps.
+- [ ] Legacy endpoints still pulling everything flagged as tech debt fixed same PR or tracked with comment tying back here.

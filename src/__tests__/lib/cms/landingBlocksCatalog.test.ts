@@ -55,11 +55,11 @@ describe("parseLandingBlocks", () => {
   it("drops entries with invalid id, section, kind or no copy", () => {
     const raw = [
       null,
-      { id: "", section: "modalidades", kind: "card", copy: { es: { title: "x" }, en: {} } },
-      { id: "a", section: "unknown", kind: "card", copy: { es: { title: "x" }, en: {} } },
-      { id: "b", section: "modalidades", kind: "video", copy: { es: { title: "x" }, en: {} } },
-      { id: "c", section: "modalidades", kind: "card", copy: { es: {}, en: {} } },
-      { id: "d", section: "modalidades", kind: "card", copy: { es: { title: "ok" }, en: {} }, position: 1 },
+      { id: "", section: "modalidades", kind: "card", copy: { es: { title: "x" }, en: {}, pt: {} } },
+      { id: "a", section: "unknown", kind: "card", copy: { es: { title: "x" }, en: {}, pt: {} } },
+      { id: "b", section: "modalidades", kind: "video", copy: { es: { title: "x" }, en: {}, pt: {} } },
+      { id: "c", section: "modalidades", kind: "card", copy: { es: {}, en: {}, pt: {} } },
+      { id: "d", section: "modalidades", kind: "card", copy: { es: { title: "ok" }, en: {}, pt: {} }, position: 1 },
     ];
     const blocks = parseLandingBlocks(raw);
     expect(blocks).toHaveLength(1);
@@ -74,7 +74,7 @@ describe("parseLandingBlocks", () => {
         id: "a",
         section: "inicio",
         kind: "callout",
-        copy: { es: { title: `  ${longTitle}  ` }, en: { body: " hi " } },
+        copy: { es: { title: `  ${longTitle}  ` }, en: { body: " hi " }, pt: {} },
       },
     ]);
     expect(blocks[0].copy.es.title?.length).toBe(120);
@@ -87,14 +87,14 @@ describe("parseLandingBlocks", () => {
         id: "a",
         section: "inicio",
         kind: "card",
-        copy: { es: { title: "x" }, en: {} },
+        copy: { es: { title: "x" }, en: {}, pt: {} },
         mediaPath: "x".repeat(300),
       },
       {
         id: "b",
         section: "inicio",
         kind: "card",
-        copy: { es: { title: "y" }, en: {} },
+        copy: { es: { title: "y" }, en: {}, pt: {} },
         mediaPath: "themes/abc/blocks/img.png",
       },
     ]);
@@ -108,9 +108,9 @@ describe("parseLandingBlocks", () => {
 describe("normalizeBlockPositions", () => {
   it("re-numbers per section starting at 0 keeping relative order", () => {
     const input: LandingBlock[] = [
-      { id: "a", section: "modalidades", kind: "card", position: 7, copy: { es: { title: "1" }, en: {} } },
-      { id: "b", section: "modalidades", kind: "card", position: 2, copy: { es: { title: "2" }, en: {} } },
-      { id: "c", section: "inicio", kind: "callout", position: 5, copy: { es: { title: "i" }, en: {} } },
+      { id: "a", section: "modalidades", kind: "card", position: 7, copy: { es: { title: "1" }, en: {}, pt: {} } },
+      { id: "b", section: "modalidades", kind: "card", position: 2, copy: { es: { title: "2" }, en: {}, pt: {} } },
+      { id: "c", section: "inicio", kind: "callout", position: 5, copy: { es: { title: "i" }, en: {}, pt: {} } },
     ];
     const out = normalizeBlockPositions(input);
     const inicio = out.filter((b) => b.section === "inicio");
@@ -126,8 +126,8 @@ describe("normalizeBlockPositions", () => {
 describe("groupBlocksBySection", () => {
   it("returns one entry per canonical section, ordered by position", () => {
     const grouped = groupBlocksBySection([
-      { id: "a", section: "modalidades", kind: "card", position: 1, copy: { es: { title: "1" }, en: {} } },
-      { id: "b", section: "modalidades", kind: "card", position: 0, copy: { es: { title: "2" }, en: {} } },
+      { id: "a", section: "modalidades", kind: "card", position: 1, copy: { es: { title: "1" }, en: {}, pt: {} } },
+      { id: "b", section: "modalidades", kind: "card", position: 0, copy: { es: { title: "2" }, en: {}, pt: {} } },
     ]);
     expect(grouped.modalidades.map((b) => b.id)).toEqual(["b", "a"]);
     expect(grouped.inicio).toEqual([]);
@@ -142,7 +142,7 @@ describe("sanitizeLandingBlocksForPersistence", () => {
       section,
       kind: "card",
       position: 0,
-      copy: { es: { title: id }, en: {} },
+      copy: { es: { title: id }, en: {}, pt: {} },
     };
   }
 
@@ -190,7 +190,7 @@ describe("moveLandingBlock", () => {
       section,
       kind: "card",
       position,
-      copy: { es: { title: id }, en: {} },
+      copy: { es: { title: id }, en: {}, pt: {} },
     };
   }
 

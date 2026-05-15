@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import enDict from "@/dictionaries/en.json";
 import esDict from "@/dictionaries/es.json";
+import ptDict from "@/dictionaries/pt.json";
 import { cleanLandingContentForPersistence } from "@/lib/cms/cleanLandingContentForPersistence";
 import type { Dictionary } from "@/types/i18n";
 
 const dicts = {
   en: enDict as Dictionary,
   es: esDict as Dictionary,
+  pt: ptDict as Dictionary,
 };
 
 describe("cleanLandingContentForPersistence", () => {
@@ -94,6 +96,19 @@ describe("cleanLandingContentForPersistence", () => {
     );
     expect(result).toEqual({
       historia: { "ez.quienes.title": { es: "Zen title" } },
+    });
+  });
+
+  it("persists Portuguese overrides when they differ from pt dictionary defaults", () => {
+    const result = cleanLandingContentForPersistence(dicts, {
+      historia: {
+        "story.title": { pt: "  Título PT custom  " },
+      },
+    });
+    expect(result).toEqual({
+      historia: {
+        "story.title": { pt: "Título PT custom" },
+      },
     });
   });
 

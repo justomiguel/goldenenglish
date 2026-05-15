@@ -14,7 +14,7 @@ describe("getLegalAgeMajorityFromSystem", () => {
     vi.mocked(loadProperties).mockReturnValue({});
   });
 
-  it("returns 18 from system.properties by default", () => {
+  it("returns 18 from SYSTEM_PROPERTIES_DEFAULTS by default", () => {
     vi.mocked(getProperty).mockImplementation((_p, _k, fb) => fb as string);
     expect(getLegalAgeMajorityFromSystem()).toBe(18);
   });

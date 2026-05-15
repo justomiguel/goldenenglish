@@ -1,66 +1,62 @@
 ---
-description: Estados de carga y percepción de velocidad alineados con los patrones reales del repo (sin spinners de pantalla completa que bloqueen el shell).
+description: Loading states and perceived-speed patterns aligned with this repo — avoid fullscreen spinners masking core chrome.
 globs:
   - "src/app/**/*.tsx"
   - "src/components/**/*.tsx"
   - "src/hooks/*.ts"
 ---
 
-# ⚡ Skeleton loading y carga de UI (Golden English)
+# ⚡ Skeleton loading & UI loading states (Golden English)
 
-## 🎯 Principios
+## Principles
 
-1. **Percepción de velocidad** — El usuario debería ver **estructura** (layout, cabeceras, huecos de contenido) lo antes posible, no una pantalla en blanco prolongada.
-2. **Cero bloqueo del chrome** — Evitar spinners de **pantalla completa** que tapen navegación o layout principal mientras llegan datos secundarios.
-3. **Mimetismo** — El estado de carga debe **parecerse** al layout final (mismas zonas, proporciones razonables).
-4. **Feedback accesible** — Texto de “cargando” desde **diccionario** cuando sea visible (`aria-live` / `aria-busy` según el caso), según **`09-i18n-copy.mdc`**.
+1. **Perceived performance** — show **layout scaffolding** fast (structure, headings, placeholders) instead of lingering blank canvases.
+2. **Preserve shell chrome** — avoid fullscreen loaders blocking persistent navigation/chrome while ancillary data resolves.
+3. **Mimesis** — skeletons loosely mirror final anatomy (matching regions + proportions).
+4. **Accessible narration** — when copy is surfaced, hydrate from dictionaries with `aria-busy` / polite live regions (**`09-i18n-copy.mdc`**).
 
-## 🛠️ Patrones que ya usa el repo
+## Patterns already exercised
 
 ### 1. `SurfaceMountGate` + `skeleton={...}`
 
-Varias superficies montan un **esqueleto dedicado** mientras hidrata o resuelve datos. Ejemplos:
+Screens gate hydration using dedicated skeleton components:
 
-- `src/components/organisms/LandingSurfaceGate.tsx` + `LandingScreenSkeleton`
-- `src/components/organisms/AdminUsersScreen.tsx` + `AdminUsersSkeleton`
-- `src/components/molecules/PortalProfileSurfaceEntry.tsx` + skeleton local
+- `LandingSurfaceGate` + `LandingScreenSkeleton`
+- `AdminUsersScreen` + `AdminUsersSkeleton`
+- `PortalProfileSurfaceEntry` + localized skeleton JSX
 
-**✅ Preferir** este patrón para pantallas con gate de montaje.
+Prefer this pairing for gated experiences.
 
-### 2. Skeletons locales en `molecules/`
+### 2. Dedicated `*Skeleton` molecules
 
-Existen componentes nombrados `*Skeleton` (p. ej. `AdminRegistrationsSkeleton`, `LoginScreenSkeleton`). **✅ Reutilizar** o crear uno nuevo en la misma capa si la vista lo necesita, manteniendo **`03-architecture.mdc`** (tamaño de archivo, una pieza clara por archivo).
+Named skeleton pieces (`AdminRegistrationsSkeleton`, `LoginScreenSkeleton`, …) — **reuse or extend**, honoring **`03-architecture.mdc`** file-size guidance.
 
-### 3. Bloques `animate-pulse` con tokens
+### 3. Pulse blocks with DS tokens
 
-Si no hay skeleton dedicado, **✅** usar contenedores con `rounded-[var(--layout-border-radius)]`, `bg-[var(--color-muted)]`, `animate-pulse` y alturas fijas razonables — **sin** hex sueltos (**`01-design-system.mdc`**).
+When bespoke skeleton atoms don’t yet exist: `rounded-[var(--layout-border-radius)]`, `bg-[var(--color-muted)]`, `animate-pulse`, stable heights (**`01-design-system.mdc`** forbids random hex improvisation).
 
-### 4. `UniversalListView`
+### 4. `UniversalListView` expectations
 
-**No** incluye hoy una prop `loading` integrada: la carga suele resolverse **arriba** (página u organismo) mostrando skeleton hasta que hay `rows`, o mostrando vacío según reglas de negocio. **❌** No asumir una API `loading` que no exista; leer **`UniversalListView.tsx`** antes de extender.
+Does **not** ship an integrated `loading` prop yet—usually the parent organism/page swaps skeleton grids until rows exist. ❌ Avoid assuming phantom APIs—read `UniversalListView.tsx` before customizing.
 
-## Estrategia de datos
+## Data orchestration cues
 
-Evitar cascadas innecesarias:
+Avoid serialized waterfalls when reads are orthogonal — favor **`Promise.all` / `allSettled`** on server hooks without duplicating business logic.
 
-- **❌** Encadenar awaits secuenciales cuando las fuentes son independientes.
-- **✅** `Promise.all` / `Promise.allSettled` para lecturas independientes en servidor o en hooks, sin duplicar lógica de negocio.
+### Review checklist
 
-## 🚨 Checklist de revisión
+- [ ] Core navigation/layout remain visible mid-load?
+- [ ] Avoid single viewport-blocking spinner overlays?
+- [ ] Skeleton geometry approximates final cards/tables/lists?
+- [ ] Parallel fetching when dependencies allow?
 
-- [ ] ¿El layout principal (header/sidebar si aplica) sigue visible?
-- [ ] ¿Se evita un único spinner a pantalla completa que bloquee toda la UI?
-- [ ] ¿El placeholder tiene forma similar al contenido final?
-- [ ] ¿Cargas independientes en paralelo donde tenga sentido?
+### Imagery interplay
 
-## Imágenes y carruseles
+Carousel / remote image flows → **`23-image-loading-ux.mdc`**.
 
-Para **`next/image` / `<img>`** con carga perceptible (y **obligatorio** en carruseles al cambiar slide), seguir **`23-image-loading-ux.mdc`**.
+### Repo pointers
 
-## 📖 Referencias en el repo
-
-- `src/components/organisms/LandingSurfaceGate.tsx`
-- `src/components/molecules/LandingScreenSkeleton.tsx`
-- `src/components/molecules/AdminUsersSkeleton.tsx`
-- `src/components/molecules/AdminRegistrationsSkeleton.tsx`
-- `src/components/organisms/UniversalListView.tsx`
+- `LandingSurfaceGate`, `LandingScreenSkeleton`
+- `AdminUsersSkeleton`
+- `AdminRegistrationsSkeleton`
+- `UniversalListView`

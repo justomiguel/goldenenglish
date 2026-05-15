@@ -3,7 +3,8 @@
     "locale": {
       "label": "Language",
       "es": "ES",
-      "en": "EN"
+      "en": "EN",
+      "pt": "PT"
     },
     "loading": "Loading...",
     "loadingAria": "Loading",
@@ -895,7 +896,8 @@
         "selectLabel": "Template",
         "localeLabel": {
           "es": "Spanish",
-          "en": "English"
+          "en": "English",
+          "pt": "Portuguese"
         },
         "editedSuffix": "(edited)",
         "subjectLabel": "Subject",
@@ -1111,7 +1113,7 @@
           "saveCta": "Save changes",
           "saveSuccess": "Changes saved.",
           "resetAllCta": "Reset all to defaults",
-          "confirmResetAll": "Reset every token in this template to the values from system.properties? This cannot be undone.",
+          "confirmResetAll": "Reset every token in this template to the system default values? This cannot be undone.",
           "resetAllModalTitle": "Reset all design tokens?",
           "resetAllModalConfirm": "Reset",
           "resetAllModalCancel": "Cancel",
@@ -1191,7 +1193,7 @@
         "landing": {
           "openCta": "Edit landing copy & images",
           "overviewTitle": "Landing content — {{name}}",
-          "overviewLead": "Override the bilingual copy and section images shipped with the bundled landing. Empty fields fall back to the dictionary defaults.",
+          "overviewLead": "Override Spanish, English, and Portuguese copy and section images shipped with the bundled landing. Empty fields fall back to the dictionary defaults.",
           "backToTemplates": "Back to templates",
           "backToOverview": "Back to landing sections",
           "notFound": "Template not found. It may have been removed by another admin.",
@@ -1199,7 +1201,7 @@
           "copyOverridesSummary": "{{count}} of {{total}} copy fields customized",
           "mediaOverridesSummary": "{{count}} of {{total}} images customized",
           "copyTitle": "Copy",
-          "copyLead": "Edit the Spanish and English values shown in the landing. Leave a field empty to use the dictionary default.",
+          "copyLead": "Edit the Spanish, English, and Portuguese values shown in the landing. Leave a field empty to use the dictionary default.",
           "mediaTitle": "Images",
           "mediaLead": "Replace the bundled landing image for each slot. Accepted formats: PNG, JPEG, WebP. Maximum 4 MB per file.",
           "mediaLeadModalidades": "Images 1–12 feed Modalidades + “Our students”: Register collage still uses photos 1–4; upload higher slots for longer carousels. In copy fields, edit studentGallery.album1PhotoIndexes / album2PhotoIndexes with 0-based indices separated by commas (e.g. 0,1,2,8).",
@@ -1215,6 +1217,7 @@
           "deleteSuccess": "Image deleted.",
           "labelEs": "Spanish",
           "labelEn": "English",
+          "labelPt": "Portuguese",
           "defaultLabel": "Default",
           "overriddenLabel": "Custom",
           "uploadCta": "Upload image",
@@ -1253,7 +1256,7 @@
           },
           "blocks": {
             "title": "Subsections",
-            "lead": "Add bilingual cards, callouts, quotes, features, stats, CTAs or dividers that render at the bottom of this section. Cap: 8 per section, 24 per template.",
+            "lead": "Add trilingual cards, callouts, quotes, features, stats, CTAs, or dividers that render at the bottom of this section. Cap: 8 per section, 24 per template.",
             "blocksSummary": "{{count}} subsections",
             "emptyState": "No subsections yet. Add one to enrich this section.",
             "addCta": "Add subsection",
@@ -1270,8 +1273,10 @@
             },
             "titleEsLabel": "Spanish title",
             "titleEnLabel": "English title",
+            "titlePtLabel": "Portuguese title",
             "bodyEsLabel": "Spanish body",
             "bodyEnLabel": "English body",
+            "bodyPtLabel": "Portuguese body",
             "submitAddCta": "Create subsection",
             "saveCta": "Save subsection",
             "removeCta": "Remove",
@@ -1284,7 +1289,7 @@
             "saveSuccess": "Subsection saved.",
             "addSuccess": "Subsection added.",
             "removeSuccess": "Subsection removed.",
-            "blockEmpty": "Provide at least a title or body in Spanish or English.",
+            "blockEmpty": "Provide at least a title or body in Spanish, English, or Portuguese.",
             "errors": {
               "invalid_input": "Please review the values and try again.",
               "forbidden": "You no longer have permission for this action.",
@@ -1335,7 +1340,7 @@
           "saveCta": "Save changes",
           "saveSuccess": "Changes saved.",
           "resetAllCta": "Reset all to defaults",
-          "confirmResetAll": "Reset every override in this template to the values from system.properties? This cannot be undone.",
+          "confirmResetAll": "Reset every override in this template to the system default values? This cannot be undone.",
           "resetRawModalTitle": "Reset all overrides?",
           "resetRawModalConfirm": "Reset",
           "resetRawModalCancel": "Cancel",
@@ -3053,7 +3058,9 @@
       "tipSettings": "Institution-wide toggles such as public registration.",
       "tipMyProfile": "Your personal profile, password, and preferences.",
       "badges": "Badges",
-      "tipBadges": "Manage the catalog of student achievements: titles, images, criteria and pause status."
+      "tipBadges": "Manage the catalog of student achievements: titles, images, criteria and pause status.",
+      "siteSetup": "Site setup",
+      "tipSiteSetup": "Re-run the setup wizard to update branding, contact details, and operational defaults."
     },
     "siteSetup": {
       "metaTitle": "Initial institute setup",
@@ -3080,7 +3087,66 @@
         "intro": "Introduction",
         "institute": "Institute & assets",
         "contact": "Contact & social",
+        "visual": "Visual identity",
+        "academics": "Academics",
+        "legalBilling": "Legal & billing",
+        "analytics": "Analytics",
         "review": "Review"
+      },
+      "visual": {
+        "title": "Colors, fonts & layout",
+        "lead": "Pick the brand colors, font families and layout tokens used by the public site and dashboards.",
+        "colorPrimary": "Primary color",
+        "colorSecondary": "Secondary color",
+        "colorAccent": "Accent color",
+        "colorBackground": "Background color",
+        "colorSurface": "Surface color",
+        "fontPrimary": "Primary font",
+        "fontSecondary": "Display font",
+        "fontMono": "Monospace font",
+        "layoutMaxWidth": "Maximum content width",
+        "layoutBorderRadius": "Border radius"
+      },
+      "academics": {
+        "title": "Academic settings",
+        "lead": "Section capacity, teacher portal access, and attendance-matrix limits.",
+        "sectionMaxStudents": "Default students per section",
+        "teacherPortalAllowedProfileRoles": "Teacher portal profile roles",
+        "teacherPortalAllowedProfileRolesHint": "Comma-separated profile roles allowed in the teacher portal (e.g. teacher,assistant).",
+        "advancedShow": "Show attendance matrix advanced settings",
+        "advancedHide": "Hide attendance matrix advanced settings",
+        "attendanceTeacherScanLookbackBufferDays": "Teacher scan lookback buffer (days)",
+        "attendanceTeacherOperationalCivilLookbackDays": "Teacher operational civil lookback (days)",
+        "attendanceTeacherOperationalMaxClassDays": "Teacher operational max class days",
+        "attendanceTeacherFullCourseMaxClassDays": "Teacher full-course max class days",
+        "attendanceAdminFallbackLookbackDays": "Admin fallback lookback (days)",
+        "attendanceAdminMaxClassDays": "Admin max class days",
+        "attendancePickAdjacentCivilDays": "Pick adjacent civil days radius",
+        "attendanceHasEligibleWindowMaxScans": "Max scans when picking an eligible class day"
+      },
+      "legalBilling": {
+        "title": "Legal & billing",
+        "lead": "Age of majority, enrollment renewal reminder, and billing labels.",
+        "legalAgeMajority": "Legal age of majority",
+        "legalAgeMajorityHint": "Used for adult/minor portal flows.",
+        "studentRenewalWarnDays": "Enrollment renewal warning (days)",
+        "studentRenewalWarnDaysHint": "Adult students see a renewal notice when their last enrollment payment is older than this.",
+        "billingTermsTitle": "Billing labels",
+        "billingTermEnrollment": "Enrollment label (Spanish)",
+        "billingTermEnrollmentEn": "Enrollment label (English)",
+        "billingTermMonthly": "Monthly fee label (Spanish)",
+        "billingTermMonthlyEn": "Monthly fee label (English)",
+        "billingTermPromotion": "Promotion label (Spanish)",
+        "billingTermPromotionEn": "Promotion label (English)"
+      },
+      "analytics": {
+        "title": "Analytics",
+        "lead": "Event prefix, version and timezone used by the analytics pipeline.",
+        "eventNamespace": "Event namespace",
+        "eventNamespaceHint": "Used to prefix internal event types in exports.",
+        "eventVersion": "Event version",
+        "timezone": "Institute timezone",
+        "timezoneHint": "IANA timezone (e.g. America/Argentina/Cordoba) used for dashboards and aggregates."
       },
       "intro": {
         "title": "Set up your public presence",
@@ -3100,7 +3166,11 @@
         "logoAlt": "Logo alt text (accessibility)",
         "logoAltHint": "Short description for screen readers.",
         "logoRequired": "Choose a logo file.",
-        "faviconRequired": "Choose a favicon file."
+        "faviconRequired": "Choose a favicon file.",
+        "currentLogoHint": "Current logo — pick a new file to replace it, or leave empty to keep this one.",
+        "currentLogoPreviewAlt": "Currently saved logo",
+        "currentFaviconHint": "Current favicon — pick a new file to replace it, or leave empty to keep this one.",
+        "currentFaviconPreviewAlt": "Currently saved favicon"
       },
       "contact": {
         "title": "Contact & networks",

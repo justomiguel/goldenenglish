@@ -1,5 +1,5 @@
 -- Mozarthitos: fondo de contacto / redes en `site_themes.properties` (merge, no pisa otras claves).
--- Así el pie usa la marca del tema y no solo `system.properties` (Golden).
+-- Así el pie usa la marca del tema y no solo `SYSTEM_PROPERTIES_DEFAULTS` (Golden).
 
 UPDATE public.site_themes
 SET

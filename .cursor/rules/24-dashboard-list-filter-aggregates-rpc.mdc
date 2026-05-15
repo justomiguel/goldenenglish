@@ -1,7 +1,7 @@
 ---
 description: >-
-  Conteos y agregados para filtros/chrome de listados en el dashboard (cualquier rol: admin, teacher, parent, student, staff):
-  siempre vía RPC/agregado en Postgres; prohibido escanear tablas grandes en el front o sumar en cliente.
+  Aggregate counts powering dashboard filters (every role — admin/teacher/parent/student/staff): compute via Postgres RPC/aggs;
+  never rely on fetching entire large tables Client-side totals.
 globs:
   - src/app/**/dashboard/**/**
   - src/lib/dashboard/**/*.ts
@@ -12,41 +12,37 @@ globs:
 alwaysApply: false
 ---
 
-# Dashboard: agregados para filtros de listado vía RPC (cualquier rol)
+# Dashboard filter aggregates belong in SQL/RPC
 
-## Objetivo
+## Goal
 
-Cuando **cualquier** pantalla bajo `dashboard/` (admin, docente, padre, alumno, personal, etc.) muestra **filtros** (select, chips, tabs) con **totales entre paréntesis** o métricas derivadas de tablas grandes, esos números deben calcularse **en la base** con **funciones RPC** (u otra agregación SQL acotada). Así se evita:
+Screens under **`dashboard/`** exposing filter chrome (tabs, selects, chips) with **“(N)” totals** referencing large Postgres tables MUST compute aggregates **inside the database** (RPC/other bounded SQL paths). Keeps payloads lean, aligns with **`13-postgrest-pagination-bounded-queries.mdc`**, and prevents divergent meanings between totals vs tabular datasets.
 
-- traer muchas filas solo para contar en Node/React,
-- degradar LCP y **regla 13** (PostgREST acotado),
-- duplicar semántica entre “lo que cuenta el filtro” y “lo que muestra el listado”.
+## Rules
 
-## Reglas
+1. **New totals for filter UI ⇒ SQL migration.** Staff-global metrics often reuse `SECURITY DEFINER`, `SET search_path = public`, `REVOKE … FROM anon`, `GRANT EXECUTE … TO authenticated`, mirroring `admin_hub_profile_counts` / `admin_users_list_role_counts`. Scoped-to-user aggregates require invoker-aware SQL or explicit UID checks aligning with **RLS** (**document PR + `10`**).
+2. **Consumers:** loaders under bounded contexts (`src/lib/dashboard/*` etc.) invoking the correct Supabase client (`createAdminClient` only where product already mandates cross-scope operations; ordinary personas stick to session-bound clients honoring RLS-aware RPC semantics). Normalize JSON payloads in **pure parsers** whenever functions return structured `jsonb`.
+3. **Server components:** prefetch aggregates **`Promise.all`** alongside paginated datasets sharing the same UX.
+4. **Client/UI:** totals arrive via props/state—**never** approximate using `pageRows.length`.
+5. **i18n:** templates using `{{count}}` placeholders live inside **`src/dictionaries/en.json` + `es.json`** (**`09`**).
+6. **Governance:** auth/visibility shifts from new RPC need **ADR/mini-notes** (**`10`**).
 
-1. **Nuevo conteo para UI de filtro** → migración `supabase/migrations/*.sql` con agregación en SQL. Patrón habitual para métricas globales de staff: `STABLE`, `SECURITY DEFINER`, `SET search_path = public`, `REVOKE ALL … FROM anon`, `GRANT EXECUTE … TO authenticated` (como `admin_hub_profile_counts` / `admin_users_list_role_counts`). Si el conteo debe **acotarse al usuario** (padre solo sus hijos, alumno solo su ámbito), preferir RPC con **semántica de invoker + RLS** o **parámetros + comprobación explícita** en la función — documentar en PR (**10**).
-2. **Consumo**: adaptador en `src/lib/<contexto>/` o `src/lib/dashboard/` según el bounded context; llamada con el **cliente adecuado** (`createAdminClient` solo donde el producto ya centraliza operaciones cross-tenant/staff; en flujos de usuario final, cliente de sesión + RPC que respete permisos). Normalizar JSON en módulo **puro de parseo** cuando el payload sea `jsonb` (testeable sin Supabase).
-3. **Página RSC / servidor**: cargar agregados **en paralelo** con el listado paginado (`Promise.all`) cuando ambos alimentan la misma vista.
-4. **Cliente**: el componente solo **muestra** totales recibidos por props; **no** usar `rows.length` de una página ni traer listas completas para contar.
-5. **i18n**: plantillas con `{{count}}` / `{{label}}` en `src/dictionaries/en.json` y `es.json` (**09**).
-6. **Gobernanza**: RPC nueva o cambio de contrato sigue **10** (mini nota en PR o ADR si afecta auth, datos visibles multi-rol o RLS).
+## Established examples (staff-heavy)
 
-## Referencias en este repo (ejemplos staff / global)
+| Use case | Reference |
+|-----------|-----------|
+| Admin hub aggregates (profiles missing sections, totals by role…) | RPC `admin_hub_profile_counts` (`031_admin_hub_profile_counts_rpc.sql`), `loadAdminHubSummary.ts` |
+| Admin user directory role chips | RPC `admin_users_list_role_counts` (`112_*`), `loadAdminUsersListRoleCounts.ts`, parser `parseAdminUsersListRoleCountsPayload.ts` |
 
-| Uso | Implementación |
-|-----|----------------|
-| Hub admin: totales por rol + alumnos sin sección | RPC `admin_hub_profile_counts` (`031_admin_hub_profile_counts_rpc.sql`), `loadAdminHubSummary.ts` |
-| Listado usuarios (staff): totales en “Filtrar por rol” | RPC `admin_users_list_role_counts` (`112_admin_users_list_role_counts_rpc.sql`), `loadAdminUsersListRoleCounts.ts`, `parseAdminUsersListRoleCountsPayload.ts` |
+Other personas follow identical patterns but encode correct **scopes** (`auth.uid()` vs global staff).
 
-Para **otros roles**, reutilizar el mismo **patrón** (RPC + loader + parse); la función SQL debe codificar el **alcance** correcto (global vs por `auth.uid()` / RLS).
+### Agent checkpoints
 
-## Checklist del agente
+- [ ] Filter totals over unbounded datasets → reuse existing RPC/SQL aggregates or introduce new guarded functions.
+- [ ] Duplicate RPC narrowly? Prefer extending shared definitions first.
 
-- [ ] ¿El filtro muestra conteos sobre datos que pueden crecer sin techo claro? → RPC o agregado SQL existente, no `select('*')` + contar en app.
-- [ ] ¿Existe ya un RPC que devuelva esos totales para otro consumidor? → Preferir reutilizar antes de duplicar funciones.
+### Cross references
 
-## Relación con otras reglas
-
-- **13** — paginación acotada; conteos/agregados preferir RPC.
-- **12** — clientes Supabase desde fábricas; orquestación en RSC/actions.
-- **10** — ADR/mini diseño si el alcance cruza roles o políticas nuevas.
+- **13** — pagination + sizing discipline.
+- **12** — Supabase adapters + client correctness.
+- **10** — ADR commitments when roles/policies expand.

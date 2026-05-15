@@ -1,57 +1,58 @@
 ---
-description: Logging obligatorio en servidor para todo error operativo — contexto suficiente para diagnosticar desde Vercel/terminal sin PII/secrets.
+description: Mandatory structured server-side logging (`[ge:server]`) for operational failures — enough context without leaking secrets or PII.
 alwaysApply: true
 ---
 
-# Logs de servidor — todo error debe quedar registrado (Golden English)
+# Server logs — operational errors must emit structured telemetry
 
-## Objetivo
+## Objective
 
-Cada **camino que termina en error para el usuario o en inconsistencia tratada como fallo** en **servidor** (server actions, `src/app/api/**`, orquestación en `src/lib/**` ejecutada sólo server) debe **emitir una línea estructurada** buscable con el prefijo **`[ge:server]`**, con **información suficiente** para reconstruir *qué* falló *dónde* y **con qué IDs/códigos** — **sin** passwords, tokens, ni volcados de formularios o PII innecesaria.
+Any **server-bound code path ending in failure for users or logically treated as failures** (`src/app/api/**`, server actions, `src/lib/**` server-only orchestration, etc.) must emit **structured log lines prefixed with `[ge:server]`**, carrying **actionable scopes + identifiers** while excluding passwords/tokens/full PII payloads.
 
-Esto complementa **`08-analytics-observability.mdc`**: métricas/auditoría de producto no sustituyen un **trace operativo** en logs cuando soporte debe depurar un incidente.
+Analytics/audit trails (**08**) complement—but **never replace**—support-grade logging surfaced in **`src/lib/logging/serverActionLog.ts`**.
 
-## Fuente canónica
+## Canonical helper map
 
-| Qué loguear | Helper | Cuándo |
-|-------------|--------|--------|
-| Error objeto de `.error` en cliente Supabase (PostgREST) | `logSupabaseClientError` / `logSupabaseError` | Tras cualquier llamada donde se inspeccione `error`; no devolver sólo `{ ok:false }` al cliente sin registrar el error de infra. |
-| `throw`, bugs, fallos de red, errores JSON inesperados | `logServerActionException` / `logServerException` | Todo `catch` que no sea re-lanzamiento puro; antes de responder 5xx o `ok:false` genérico. |
-| Estado imposible o contrato violado después de escritura OK | `logServerActionInvariantViolation` | Ej.: insert OK pero PK ausente; contadores que no cierran. |
-| Sesión/autorización **esperada** (no bug) | `logServerAuthzDenied` | `assertAdmin`/role denials; usar **warn**, no inundar errores como 500 falsos en alertas. |
-| Fallo `admin`/Auth admin API con contexto ya acotado | `logAuthAdminCreateUserFailure` | Sigue el doc inline del helper; sólo meta permitida ahí para colisiones de email. |
-| Rama operativa conocida pero fallida (422 de negocio, validación servidor) | `logServerWarn` **o** `logSupabase*`/`logServerException` según causa | Obligatorio al menos **`scope` + código estable** (`appErrorCode`, `classified_issue`, clave interna ya usada por el caso de uso) + FKs cuando existan. |
+| Situation | Helper | Guidance |
+|-----------|--------|----------|
+| Supabase/PostgREST `.error` objects | `logSupabaseClientError` / `logSupabaseError` | After inspecting `error`, log before silently returning `{ ok:false }`. |
+| Thrown/handled defects, flaky JSON/network | `logServerActionException` / `logServerException` | Use on every meaningful `catch` before surfacing generic 500/`ok:false`. |
+| Integrity violations despite “success” | `logServerActionInvariantViolation` | Missing PK after insert; counters mismatched. |
+| Expected authorization/session denials | `logServerAuthzDenied` | `assertAdmin` etc.—**warn**, not noisy error severity. |
+| Auth admin collisions / constrained contexts | `logAuthAdminCreateUserFailure` | Follow inline helper allowances (email collisions only where documented). |
+| Known operational rejects (business 422…) | `logServerWarn` *(or contextual Supabase/logServer helpers)* | Must still include stable **`scope` + codes**. |
 
-**Archivo:** `src/lib/logging/serverActionLog.ts` — leer los comentarios del módulo antes de crear helpers paralelos.
+Read module header comments inside `serverActionLog.ts` before spawning parallel helpers.
 
-## Qué cuenta como «error» (debés loguear)
+## What counts as an “error needing logs”?
 
-1. **`catch`** en borde servidor (acción, route, job interno server-only).
-2. **Respuesta negativa persistente**: `supabase`/HTTP devolvió datos de error.
-3. **Retorno `{ ok: false }`**, **4xx/5xx**, o **`NextResponse`/JSON de error** hacia cliente **después** de lógica de negocio o I/O externa — **salvo** puras validaciones triviales sintácticas en el mismo request que **jamás** tocan BD ni otros servicios *(si en duda: log breve en `warn` con `reason: "validation"` y campo Zod sanitizado tipo `fields: ["email"]`, sin valores)*.
+1. **`catch` blocks on server borders** backing user-visible flows/jobs/API.
+2. **Negative Supabase/HTTP payloads** surfaced outward.
+3. **`{ ok:false }`, HTTP 4xx/5xx, `NextResponse` errors** emitted **after** touching external systems—or heavy validation mixing remote dependencies.
+4. **Exception:** purely syntactic Zod validations with **zero** datastore/network side effects MAY skip heavy logging—but when uncertain, emit `logServerWarn({ reason: "validation", fields:["email"], … })`.
 
-## Contenido mínimo de diagnóstico (`meta`)
+## Minimum diagnostics (`meta` payload norms)
 
-- **`scope`** (primer argumento de los helpers): string **estable y único** por flujo (`"adminUserDetail.createTutor"`, `"billing.finalizeMonthlyPayment"`). No mensajes para humanos aquí por defecto.
-- **Identificadores de negocio** ya presentes en el request: UUIDs (`student_id`, `payment_id`, `section_id`). No emails ni nombres completos salvo el patrón documentado para colisiones de Auth.
-- **Código estable** conocido por el dominio cuando exista (`tutor_email_mismatch`, `flow_status_invalid`, equivalente TS); **no** el texto i18n mostrado al usuario.
-- **En desarrollo** los helpers pueden incluir **stack acotado** vía `serializeUnknownError`; no confiar en stack en prod para reglas — el `scope` + códigos + ids deben bastar para filtrar en Vercel Logs.
+- **`scope`** stable per flow (`billing.finalizeMonthlyPayment`).
+- UUID/column identifiers already in scope (**no** arbitrary email/full names unless sanctioned patterns demand it).
+- **Stable internal codes** (`flow_status_invalid`, …) alongside user-facing localized messages.
+- Dev stacks via `serializeUnknownError` tolerated; prod triage hinges on **`scope`/codes/uuids**.
 
-## Prohibido
+## Forbidden
 
-1. **`catch {}` vacío**, o **sólo** `return { ok:false, message }` sin ninguna llamada `log*` / **`console`** estructurada con **`[ge:server]`** (usar helpers, no reinventar formato).
-2. **PII/secrets en `meta`**: passwords, refresh tokens, `Authorization`, cuerpo completo de formularios, HTML de usuarios sin truncar cuando no aporta.
-3. Dependencia exclusiva del **mensaje visible al usuario** (traducido o genérico) como única evidencia en logs — debe existir **código/`scope`/id** paralelo.
+1. Silent `catch {}` or lone `{ ok:false }` skips without `[ge:server]` emits.
+2. Logging secrets/token headers/raw forms/HTML dumps.
+3. Relying **only** on translated user strings for RCA.
 
-## Checklist del agente
+## Agent checklist
 
-- [ ] ¿Toca server action / API route / `lib` server tras error o `ok:false` con I/O? → **Hay al menos una línea** con prefijo efectivo **`[ge:server]`** (vía helpers).
-- [ ] ¿El `meta` permite filtrar en producción (**scope**, **codes**, **FKs**) sin exponer datos sensibles?
-- [ ] ¿No mezclo **authz esperada** (warn / `authz_denied`) con bugs (error)?
-- [ ] ¿Tests que mockean acciones pueden seguir igual? (no asserts obligados del `console`, salvo test dedicado que verifique observabilidad de un caso crítico cuando el equipo lo agregue).
+- [ ] Negative server outcomes touching I/O call `log*` helpers.
+- [ ] Structured metadata supports Vercel log filtering minus sensitive payloads.
+- [ ] Distinguished expected auth denies vs catastrophic bugs appropriately.
+- [ ] Vitest mocks remain unaffected unless tests explicitly inspect logging semantics.
 
-## Relación con otras reglas
+### Cross-rules
 
-- **`04-security.mdc`** — no fugas en logs.
-- **`08`** — eventos/analytics auditan producto; **esta regla** audita diagnóstico en runtime.
-- **`17-trust-boundary-handlers.mdc`** — rutas públicas/handlers sensibles: siempre registrar fallos negativos y paths de seguridad con contexto ya acotado.
+- **`04-security.mdc`** — secret hygiene.
+- **`08`** — product analytics vs infra logs distinctions.
+- **`17-trust-boundary-handlers.mdc`** — log trust-bound failures with purposeful scopes.

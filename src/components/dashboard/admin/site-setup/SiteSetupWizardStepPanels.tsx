@@ -1,9 +1,14 @@
 import type { Dictionary } from "@/types/i18n";
+import { SiteSetupAcademicsStep } from "@/components/dashboard/admin/site-setup/SiteSetupAcademicsStep";
+import { SiteSetupAnalyticsStep } from "@/components/dashboard/admin/site-setup/SiteSetupAnalyticsStep";
 import { SiteSetupContactStep } from "@/components/dashboard/admin/site-setup/SiteSetupContactStep";
 import { SiteSetupInstituteStep } from "@/components/dashboard/admin/site-setup/SiteSetupInstituteStep";
 import { SiteSetupIntroStep } from "@/components/dashboard/admin/site-setup/SiteSetupIntroStep";
+import { SiteSetupLegalBillingStep } from "@/components/dashboard/admin/site-setup/SiteSetupLegalBillingStep";
 import { SiteSetupReviewStep } from "@/components/dashboard/admin/site-setup/SiteSetupReviewStep";
+import { SiteSetupVisualStep } from "@/components/dashboard/admin/site-setup/SiteSetupVisualStep";
 import { SiteSetupWizardNav } from "@/components/dashboard/admin/site-setup/SiteSetupWizardNav";
+import type { SiteSetupWizardState } from "@/hooks/useSiteSetupWizardState";
 
 type SiteSetupDict = Dictionary["dashboard"]["siteSetup"];
 
@@ -12,30 +17,9 @@ export interface SiteSetupWizardStepPanelsProps {
   totalSteps: number;
   labels: SiteSetupDict;
   busy: boolean;
-  appName: string;
-  setAppName: (v: string) => void;
-  legalName: string;
-  setLegalName: (v: string) => void;
-  tagline: string;
-  setTagline: (v: string) => void;
-  taglineEn: string;
-  setTaglineEn: (v: string) => void;
-  logoAlt: string;
-  setLogoAlt: (v: string) => void;
-  setLogoFile: (f: File | null) => void;
-  setFaviconFile: (f: File | null) => void;
-  contactEmail: string;
-  setContactEmail: (v: string) => void;
-  contactPhone: string;
-  setContactPhone: (v: string) => void;
-  contactAddress: string;
-  setContactAddress: (v: string) => void;
-  socialFacebook: string;
-  setSocialFacebook: (v: string) => void;
-  socialInstagram: string;
-  setSocialInstagram: (v: string) => void;
-  socialWhatsapp: string;
-  setSocialWhatsapp: (v: string) => void;
+  state: SiteSetupWizardState;
+  hasExistingLogo?: boolean;
+  hasExistingFavicon?: boolean;
   onBack: () => void;
   onNext: () => void;
   onFinish: () => void;
@@ -46,30 +30,9 @@ export function SiteSetupWizardStepPanels({
   totalSteps,
   labels,
   busy,
-  appName,
-  setAppName,
-  legalName,
-  setLegalName,
-  tagline,
-  setTagline,
-  taglineEn,
-  setTaglineEn,
-  logoAlt,
-  setLogoAlt,
-  setLogoFile,
-  setFaviconFile,
-  contactEmail,
-  setContactEmail,
-  contactPhone,
-  setContactPhone,
-  contactAddress,
-  setContactAddress,
-  socialFacebook,
-  setSocialFacebook,
-  socialInstagram,
-  setSocialInstagram,
-  socialWhatsapp,
-  setSocialWhatsapp,
+  state,
+  hasExistingLogo = false,
+  hasExistingFavicon = false,
   onBack,
   onNext,
   onFinish,
@@ -80,50 +43,82 @@ export function SiteSetupWizardStepPanels({
       {step === 1 ? (
         <SiteSetupInstituteStep
           labels={labels.institute}
-          appName={appName}
-          setAppName={setAppName}
-          legalName={legalName}
-          setLegalName={setLegalName}
-          tagline={tagline}
-          setTagline={setTagline}
-          taglineEn={taglineEn}
-          setTaglineEn={setTaglineEn}
-          logoAlt={logoAlt}
-          setLogoAlt={setLogoAlt}
-          setLogoFile={setLogoFile}
-          setFaviconFile={setFaviconFile}
+          appName={state.appName}
+          setAppName={state.setAppName}
+          legalName={state.legalName}
+          setLegalName={state.setLegalName}
+          tagline={state.tagline}
+          setTagline={state.setTagline}
+          taglineEn={state.taglineEn}
+          setTaglineEn={state.setTaglineEn}
+          logoAlt={state.logoAlt}
+          setLogoAlt={state.setLogoAlt}
+          setLogoFile={state.setLogoFile}
+          setFaviconFile={state.setFaviconFile}
+          initialLogoUrl={state.initial.logoUrl}
+          initialFaviconUrl={state.initial.faviconUrl}
+          hasExistingLogo={hasExistingLogo}
+          hasExistingFavicon={hasExistingFavicon}
         />
       ) : null}
       {step === 2 ? (
         <SiteSetupContactStep
           contact={labels.contact}
           social={labels.social}
-          contactEmail={contactEmail}
-          setContactEmail={setContactEmail}
-          contactPhone={contactPhone}
-          setContactPhone={setContactPhone}
-          contactAddress={contactAddress}
-          setContactAddress={setContactAddress}
-          socialFacebook={socialFacebook}
-          setSocialFacebook={setSocialFacebook}
-          socialInstagram={socialInstagram}
-          setSocialInstagram={setSocialInstagram}
-          socialWhatsapp={socialWhatsapp}
-          setSocialWhatsapp={setSocialWhatsapp}
+          contactEmail={state.contactEmail}
+          setContactEmail={state.setContactEmail}
+          contactPhone={state.contactPhone}
+          setContactPhone={state.setContactPhone}
+          contactAddress={state.contactAddress}
+          setContactAddress={state.setContactAddress}
+          socialFacebook={state.socialFacebook}
+          setSocialFacebook={state.setSocialFacebook}
+          socialInstagram={state.socialInstagram}
+          setSocialInstagram={state.setSocialInstagram}
+          socialWhatsapp={state.socialWhatsapp}
+          setSocialWhatsapp={state.setSocialWhatsapp}
         />
       ) : null}
       {step === 3 ? (
+        <SiteSetupVisualStep
+          labels={labels.visual}
+          operational={state.operational}
+          update={state.updateOperational}
+        />
+      ) : null}
+      {step === 4 ? (
+        <SiteSetupAcademicsStep
+          labels={labels.academics}
+          operational={state.operational}
+          update={state.updateOperational}
+        />
+      ) : null}
+      {step === 5 ? (
+        <SiteSetupLegalBillingStep
+          labels={labels.legalBilling}
+          operational={state.operational}
+          update={state.updateOperational}
+        />
+      ) : null}
+      {step === 6 ? (
+        <SiteSetupAnalyticsStep
+          labels={labels.analytics}
+          operational={state.operational}
+          update={state.updateOperational}
+        />
+      ) : null}
+      {step === 7 ? (
         <SiteSetupReviewStep
           labels={labels.review}
-          appName={appName}
-          legalName={legalName}
-          tagline={tagline}
-          contactEmail={contactEmail}
-          contactPhone={contactPhone}
-          contactAddress={contactAddress}
-          socialFacebook={socialFacebook}
-          socialInstagram={socialInstagram}
-          socialWhatsapp={socialWhatsapp}
+          appName={state.appName}
+          legalName={state.legalName}
+          tagline={state.tagline}
+          contactEmail={state.contactEmail}
+          contactPhone={state.contactPhone}
+          contactAddress={state.contactAddress}
+          socialFacebook={state.socialFacebook}
+          socialInstagram={state.socialInstagram}
+          socialWhatsapp={state.socialWhatsapp}
         />
       ) : null}
 

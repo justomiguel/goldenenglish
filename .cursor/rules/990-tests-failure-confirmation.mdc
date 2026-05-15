@@ -1,39 +1,39 @@
 ---
 alwaysApply: true
-description: "Exigir confirmación explícita cuando fallen tests en commit."
+description: "Require explicit confirmation when tests fail during commit or merge gates."
 ---
-# ✅ Regla: Confirmación explícita cuando fallan tests en commit
+# ✅ Rule: explicit confirmation when tests fail on commit
 
-## ⚠️ Regla obligatoria
+## ⚠️ Mandatory rule
 
-**Si al momento de commitear (o al ejecutar el flujo de pre-commit / CI local que el equipo trate como gate de merge) fallan tests** (unitarios, integración, e2e, snapshot, visual, etc.), el agente **DEBE preguntar explícitamente** qué se desea hacer **antes** de seguir con ese flujo.
+**If, at commit time (or when running the pre-commit / local CI flow the team treats as a merge gate) tests fail** (unit, integration, e2e, snapshot, visual, etc.), the agent **MUST explicitly ask** what to do **before** continuing that flow.
 
-### Alcance
+### Scope
 
-- Aplica cuando el usuario o el propio flujo indica **commit, push, merge o `npm run precommit`** y los tests fallan en ese contexto.
-- **No** sustituye el trabajo normal en el editor: durante el desarrollo se corrigen tests y código sin detenerse a preguntar en cada `vitest` interactivo, salvo que el usuario pida explícitamente parar y decidir.
+- Applies when the user or flow indicates **commit, push, merge, or `npm run precommit`** and tests fail in that context.
+- **Does not** replace normal editor work: during development, fix tests and code without pausing on every interactive `vitest` run unless the user asks to stop and decide.
 
-### Opciones que se deben preguntar:
+### Options you must offer
 
-1. **¿Quieres modificar el test?**
-2. **¿Quieres modificar la funcionalidad para que el test deje de fallar?**
+1. **Do you want to change the test?**
+2. **Do you want to change the application code so the test passes?**
 
-El agente **no puede continuar** con el commit ni con cambios adicionales **orientados a “hacer pasar” el gate** hasta que el usuario responda y seleccione una de las opciones anteriores.
+The agent **may not continue** with the commit or with additional changes **aimed at “making the gate green”** until the user answers and picks one of the options.
 
-**Coherencia con otras reglas:** esta regla **prevalece** sobre cualquier otra que diga “implementa sin preguntar” **solo en este contexto** (tests en rojo en gate de commit).
+**Consistency with other rules:** this rule **overrides** any rule that says “implement without asking” **only in this context** (failing tests at the commit gate).
 
 ---
 
-## ✅ Ejemplo de comportamiento esperado
+## ✅ Expected behavior example
 
-**Situación:** falló `npm test` o `npm run test:coverage` durante el pre-commit.
+**Situation:** `npm test` or `npm run test:coverage` failed during pre-commit.
 
-**Respuesta obligatoria del agente:**
+**Mandatory agent response:**
 
-> Los tests fallaron al intentar commitear (o en el pre-commit). ¿Quieres que modifique el test o que modifique la funcionalidad para que el test deje de fallar?
+> Tests failed while committing (or in pre-commit). Do you want me to change the test, or change the application code so the test passes?
 
-## 🚫 Prohibido
+## 🚫 Forbidden
 
-- No asumir la opción por defecto.
-- No continuar con el commit sin confirmación explícita.
-- No editar tests ni código de producción **para el gate** antes de preguntar.
+- Do not assume a default option.
+- Do not continue the commit without explicit confirmation.
+- Do not edit tests or production code **for the gate** before asking.

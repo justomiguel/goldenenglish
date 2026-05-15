@@ -103,6 +103,7 @@ export function EspacioZenitSiteHeader({
                 href={`/${locale}/dashboard`}
                 className="hidden min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/35 bg-white/10 px-2 text-[11px] font-bold text-white transition hover:bg-white/18 xl:inline-flex"
                 title={dict.nav.administration}
+                aria-label={dict.nav.administration}
               >
                 <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
               </Link>
@@ -118,6 +119,7 @@ export function EspacioZenitSiteHeader({
             <Link
               href={`/${locale}/login`}
               className="hidden min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/35 bg-white/10 px-3 py-2 text-[11px] font-bold text-white hover:bg-white/18 xl:inline-flex"
+              aria-label={dict.nav.login}
             >
               <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
               <span className="hidden 2xl:inline">{dict.nav.login}</span>

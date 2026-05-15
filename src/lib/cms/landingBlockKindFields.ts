@@ -43,6 +43,7 @@ export const LANDING_BLOCK_REQUIRED_FIELDS_BY_KIND: Readonly<
 export interface LandingBlockCopyShape {
   es: { title?: string; body?: string };
   en: { title?: string; body?: string };
+  pt: { title?: string; body?: string };
 }
 
 export function landingBlockHasField(
@@ -61,7 +62,7 @@ export function isLandingBlockCopyValid(
   copy: LandingBlockCopyShape,
 ): boolean {
   const required = LANDING_BLOCK_REQUIRED_FIELDS_BY_KIND[kind];
-  for (const locale of ["es", "en"] as const) {
+  for (const locale of ["es", "en", "pt"] as const) {
     const all = required.every((field) => {
       const value = copy[locale][field];
       return typeof value === "string" && value.trim().length > 0;

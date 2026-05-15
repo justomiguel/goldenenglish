@@ -58,7 +58,13 @@ beforeEach(() => {
   vi.clearAllMocks();
   getDictionary.mockImplementation((locale: string) =>
     Promise.resolve(
-      dictWithLanding(locale === "es" ? "Nuestra historia" : "Our story"),
+      dictWithLanding(
+        locale === "es"
+          ? "Nuestra historia"
+          : locale === "pt"
+            ? "Nossa história"
+            : "Our story",
+      ),
     ),
   );
 });

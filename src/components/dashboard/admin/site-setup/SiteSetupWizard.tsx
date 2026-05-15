@@ -11,8 +11,12 @@ import {
   type SiteSetupWizardSubmitProgress,
 } from "@/components/dashboard/admin/site-setup/submitSiteSetupWizardClient";
 import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
+import { useSiteSetupWizardState } from "@/hooks/useSiteSetupWizardState";
+import type { SiteSetupCurrentValues } from "@/lib/site/loadSiteSetupCurrentValues";
 
 type SiteSetupDict = Dictionary["dashboard"]["siteSetup"];
+
+export type SiteSetupWizardMode = "create" | "edit";
 
 interface SiteSetupWizardProps {
   locale: string;
@@ -20,9 +24,13 @@ interface SiteSetupWizardProps {
   labels: SiteSetupDict;
   platformCredit: string;
   platformCreditAria: string;
+  /** When omitted we behave as greenfield ("create"). */
+  mode?: SiteSetupWizardMode;
+  /** Preloaded values for re-edition. Required when `mode === "edit"`. */
+  initialValues?: SiteSetupCurrentValues;
 }
 
-const STEPS = 4;
+const STEPS = 8;
 
 export function SiteSetupWizard({
   locale,
@@ -30,27 +38,19 @@ export function SiteSetupWizard({
   labels,
   platformCredit,
   platformCreditAria,
+  mode = "create",
+  initialValues,
 }: SiteSetupWizardProps) {
   const router = useRouter();
+  const state = useSiteSetupWizardState(initialValues);
+  const { initial } = state;
+  const hasExistingLogo = mode === "edit" && initial.rawLogoPath.length > 0;
+  const hasExistingFavicon =
+    mode === "edit" && initial.rawFaviconPath.length > 0;
+
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
-
-  const [appName, setAppName] = useState("");
-  const [legalName, setLegalName] = useState("");
-  const [tagline, setTagline] = useState("");
-  const [taglineEn, setTaglineEn] = useState("");
-  const [logoAlt, setLogoAlt] = useState("");
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [faviconFile, setFaviconFile] = useState<File | null>(null);
-
-  const [contactEmail, setContactEmail] = useState("");
-  const [contactPhone, setContactPhone] = useState("");
-  const [contactAddress, setContactAddress] = useState("");
-  const [socialFacebook, setSocialFacebook] = useState("");
-  const [socialInstagram, setSocialInstagram] = useState("");
-  const [socialWhatsapp, setSocialWhatsapp] = useState("");
-
   const [submitProgress, setSubmitProgress] =
     useState<SiteSetupWizardSubmitProgress | null>(null);
 
@@ -71,26 +71,29 @@ export function SiteSetupWizard({
   const goNext = () => {
     setErrorKey(null);
     if (step === 1) {
-      if (!logoFile) {
+      if (!state.logoFile && !hasExistingLogo) {
         setErrorKey("logo_required");
         return;
       }
-      if (!faviconFile) {
+      if (!state.faviconFile && !hasExistingFavicon) {
         setErrorKey("favicon_required");
         return;
       }
-      if (!appName.trim() || !legalName.trim() || !tagline.trim()) {
+      if (
+        !state.appName.trim() ||
+        !state.legalName.trim() ||
+        !state.tagline.trim()
+      ) {
         setErrorKey("invalid_input");
         return;
       }
-      const alt = logoAlt.trim() || appName.trim();
-      setLogoAlt(alt);
+      state.setLogoAlt(state.logoAlt.trim() || state.appName.trim());
     }
     if (step === 2) {
       if (
-        !contactEmail.trim() ||
-        !contactPhone.trim() ||
-        !contactAddress.trim()
+        !state.contactEmail.trim() ||
+        !state.contactPhone.trim() ||
+        !state.contactAddress.trim()
       ) {
         setErrorKey("invalid_input");
         return;
@@ -105,7 +108,7 @@ export function SiteSetupWizard({
   };
 
   const finish = async () => {
-    if (!logoFile || !faviconFile) {
+    if (mode === "create" && (!state.logoFile || !state.faviconFile)) {
       setErrorKey("invalid_input");
       return;
     }
@@ -113,23 +116,25 @@ export function SiteSetupWizard({
     setErrorKey(null);
     setSubmitProgress(null);
     try {
-      const alt = logoAlt.trim() || appName.trim();
+      const alt = state.logoAlt.trim() || state.appName.trim();
       const result = await submitSiteSetupWizardClient({
         locale,
         themeId,
-        logoFile,
-        faviconFile,
+        mode,
+        logoFile: state.logoFile,
+        faviconFile: state.faviconFile,
         logoAlt: alt,
-        appName,
-        legalName,
-        tagline,
-        taglineEn,
-        contactEmail,
-        contactPhone,
-        contactAddress,
-        socialFacebook,
-        socialInstagram,
-        socialWhatsapp,
+        appName: state.appName,
+        legalName: state.legalName,
+        tagline: state.tagline,
+        taglineEn: state.taglineEn,
+        contactEmail: state.contactEmail,
+        contactPhone: state.contactPhone,
+        contactAddress: state.contactAddress,
+        socialFacebook: state.socialFacebook,
+        socialInstagram: state.socialInstagram,
+        socialWhatsapp: state.socialWhatsapp,
+        operational: state.operational,
         onProgress: setSubmitProgress,
       });
       if (!result.ok) {
@@ -194,30 +199,9 @@ export function SiteSetupWizard({
         totalSteps={STEPS}
         labels={labels}
         busy={busy}
-        appName={appName}
-        setAppName={setAppName}
-        legalName={legalName}
-        setLegalName={setLegalName}
-        tagline={tagline}
-        setTagline={setTagline}
-        taglineEn={taglineEn}
-        setTaglineEn={setTaglineEn}
-        logoAlt={logoAlt}
-        setLogoAlt={setLogoAlt}
-        setLogoFile={setLogoFile}
-        setFaviconFile={setFaviconFile}
-        contactEmail={contactEmail}
-        setContactEmail={setContactEmail}
-        contactPhone={contactPhone}
-        setContactPhone={setContactPhone}
-        contactAddress={contactAddress}
-        setContactAddress={setContactAddress}
-        socialFacebook={socialFacebook}
-        setSocialFacebook={setSocialFacebook}
-        socialInstagram={socialInstagram}
-        setSocialInstagram={setSocialInstagram}
-        socialWhatsapp={socialWhatsapp}
-        setSocialWhatsapp={setSocialWhatsapp}
+        state={state}
+        hasExistingLogo={hasExistingLogo}
+        hasExistingFavicon={hasExistingFavicon}
         onBack={goBack}
         onNext={goNext}
         onFinish={finish}

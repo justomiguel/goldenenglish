@@ -12,7 +12,7 @@ const FALLBACK_TZ = "UTC";
 
 /**
  * Builds the localized greeting and a long date line in the institute calendar
- * (`analytics.timezone` from `system.properties`). Used by every role hero.
+ * (`analytics.timezone` from `SYSTEM_PROPERTIES_DEFAULTS` or `site_settings.analytics_config`). Used by every role hero.
  */
 export function buildDashboardGreeting(
   locale: string,

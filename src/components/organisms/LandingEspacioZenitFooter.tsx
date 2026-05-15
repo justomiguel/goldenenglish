@@ -124,7 +124,7 @@ export function LandingEspacioZenitFooter({
           {footerCta}
         </p>
       ) : null}
-      <p className="mx-auto mt-10 max-w-6xl border-t border-white/10 pt-8 text-center text-[11px] text-white/45 lg:mt-12">
+      <p className="mx-auto mt-10 max-w-6xl border-t border-white/10 pt-8 text-center text-[11px] text-neutral-400 lg:mt-12">
         © {new Date().getFullYear()} {brand.legalName || brand.name}.{" "}
         {marketingLandingCopy(dict, "ez", "footer.rightsLine")}
       </p>

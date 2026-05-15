@@ -39,10 +39,6 @@ function fail(msg) {
   errors.push(msg);
 }
 
-function warn(msg) {
-  console.warn(`\x1b[33m⚠\x1b[0m ${msg}`);
-}
-
 function sh(cmd, opts = {}) {
   return execSync(cmd, {
       cwd: ROOT,
@@ -53,19 +49,27 @@ function sh(cmd, opts = {}) {
     .trim();
 }
 
-function parseProperties(filePath) {
-  const text = readFileSync(filePath, "utf8");
-  /** @type {Record<string, string>} */
-  const map = {};
-  for (const line of text.split("\n")) {
-    const t = line.trim();
-    if (!t || t.startsWith("#")) continue;
-    const eq = t.indexOf("=");
-    if (eq === -1) continue;
-    map[t.slice(0, eq).trim()] = t.slice(eq + 1).trim();
-  }
-  return map;
-}
+/**
+ * Mirror of `SYSTEM_PROPERTIES_DEFAULTS` from
+ * `src/lib/theme/systemPropertiesDefaults.ts`. Kept here in sync (CI fail-safe)
+ * so the precommit guardrail can run without TS compilation. Only the keys
+ * listed in `BRAND_KEYS` are scanned; updating that subset is enough — the rest
+ * of the values are tolerated to drift.
+ */
+const BRAND_DEFAULTS = {
+  "app.name": "Golden English",
+  "app.legal.name": "Instituto de Lenguas Golden English",
+  "app.tagline": "Más de 20 años enseñando inglés, creando oportunidades",
+  "app.logo.alt": "Logo GE Golden English",
+  "app.legal.registry":
+    "Resolución 1297/05 - Ministerio de Educación, Formosa",
+  "contact.email": "crisins@hotmail.com",
+  "contact.phone": "+54 9 3718 528-383 ",
+  "contact.address": "Riacho He Hé, Provincia de Formosa, Argentina",
+  "social.facebook": "https://www.facebook.com/Lateachergolden",
+  "social.instagram": "https://www.instagram.com/goldenenglishok/",
+  "social.whatsapp": "https://wa.me/5493718528383",
+};
 
 function gitTrackedSrcTsx() {
   try {
@@ -80,18 +84,15 @@ function isSkippablePath(f) {
     f.startsWith("src/dictionaries/") ||
     f.includes("__tests__/") ||
     f.endsWith(".test.ts") ||
-    f.endsWith(".test.tsx")
+    f.endsWith(".test.tsx") ||
+    f === "src/lib/theme/systemPropertiesDefaults.ts"
   );
 }
 
 function checkBrandLiterals() {
-  const propsPath = join(ROOT, "system.properties");
-  if (!existsSync(propsPath)) {
-    warn("system.properties missing; skipping brand literal scan");
-    return;
-  }
-  const props = parseProperties(propsPath);
-  const needles = BRAND_KEYS.map((k) => props[k]).filter((v) => v && v.length >= 5);
+  const needles = BRAND_KEYS.map((k) => BRAND_DEFAULTS[k]).filter(
+    (v) => v && v.length >= 5,
+  );
 
   const files = gitTrackedSrcTsx().filter((f) => !isSkippablePath(f));
   for (const file of files) {
@@ -106,7 +107,7 @@ function checkBrandLiterals() {
     for (const s of needles) {
       if (content.includes(s)) {
         fail(
-          `Hardcoded brand or contact string from system.properties in ${file}: "${s.slice(0, 64)}${s.length > 64 ? "…" : ""}" — use getBrandPublic() / dictionaries.`,
+          `Hardcoded brand or contact string in ${file}: "${s.slice(0, 64)}${s.length > 64 ? "…" : ""}" — use getBrandPublic() / dictionaries.`,
         );
       }
     }

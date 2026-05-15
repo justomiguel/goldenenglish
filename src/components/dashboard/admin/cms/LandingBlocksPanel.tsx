@@ -51,6 +51,10 @@ function draftToCopy(draft: LandingBlockAddFormDraft): PersistedCopy {
       title: draft.titleEn.trim() || undefined,
       body: draft.bodyEn.trim() || undefined,
     },
+    pt: {
+      title: draft.titlePt.trim() || undefined,
+      body: draft.bodyPt.trim() || undefined,
+    },
   };
 }
 

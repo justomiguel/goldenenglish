@@ -1,5 +1,5 @@
 ---
-description: Alta de tenants locales / Vercel y marca propia (env prefijados, scripts, tema site_theme).
+description: Onboarding tenants locally/on Vercel with branded deployments (prefixed env, tooling scripts, `site_theme`).
 globs:
   - scripts/run-dev-with-target.mjs
   - scripts/pull-vercel-env.mjs
@@ -10,40 +10,40 @@ globs:
 alwaysApply: false
 ---
 
-# Multi-tenant local + Vercel (goldenenglish repo)
+# Multi-tenant workflow (local + Vercel — goldenenglish)
 
-## Briefing antes de implementar (qué pedir)
+## Mandatory briefing inputs
 
-**Operadores y agents:** si el alcance es “alta de tenant nuevo”, primero completar el briefing en **[`docs/runbooks/add-new-tenant.md`](../../docs/runbooks/add-new-tenant.md)** (tabla obligatoria: slug, Vercel IDs, plantilla `SiteThemeKind`, env, etc.). Sin eso no debe asumirse implementación completa.
+**Operators/agents:** for “provision new tenant”, complete **`docs/runbooks/add-new-tenant.md`** tables (slug, Vercel project IDs, `SiteThemeKind`, env scaffolding, …) before guessing implementation completeness.
 
-## Cuándo leer esta regla
+## When to read this rule
 
-Al añadir un **nuevo deploy** (otro proyecto Vercel / otro Supabase / otra marca) que siga el patrón **un repo → varios targets**.
+Adding another **deployment target** (distinct Vercel project/Supabase/brand) leveraging the repo’s single-codebase/multi-target playbook.
 
-## Checklist — ops (sin marca nueva en BD)
+## Checklist — operations (without new DB-backed brand entries)
 
-1. **`public/images/<slug>/`** — subárbol acorde al landing (p. ej. `inicio/`, `historia/`, `oferta/`); `.gitkeep` si las carpetas empiezan vacías.
-2. **`.env.local.<slug>`** en la raíz (gitignored explícito en `.gitignore` junto a `.env.local.golden`).
-3. **[`scripts/run-dev-with-target.mjs`](scripts/run-dev-with-target.mjs)** — entrada en `TARGETS`, CLI `--<slug>` / `--target=<slug>`, `GE_DEV_TARGET`, prompt interactivo si aplica.
-4. **`SITE_BRAND_THEME_SLUG`** — si el tenant debe pinchar un tema por slug (servidor), añadir el slug al `Set` `BRAND_THEME_TARGETS` en ese script y documentar en `.env.example`.
-5. **[`scripts/pull-vercel-env.mjs`](scripts/pull-vercel-env.mjs)** — `OUT_FILES.<slug>` → `.env.local.<slug>`.
-6. **[`scripts/vercel-targets.json`](scripts/vercel-targets.json)** — `orgId`, `projectId`, `projectName`; opcional `envPullEnvironment`. Placeholders vacíos implican que **`npm run deploy:vercel`** fallará hasta completar IDs (o usar `scripts/vercel-targets.local.json`, gitignored).
-7. **[`package.json`](package.json)** — `dev:<slug>`, `pull:env:<slug>` si el equipo usa atajos.
+1. **`public/images/<slug>/`** — landing asset folders (`inicio/`, `historia/`, etc.); add `.gitkeep` when empty scaffolding must exist in git.
+2. **`.env.local.<slug>`** tracked via `.gitignore` alongside `.env.local.golden` conventions.
+3. **`scripts/run-dev-with-target.mjs`** — extend `TARGETS`, CLI aliases `--<slug>` / `--target=<slug>`, `GE_DEV_TARGET`, optional prompts.
+4. **`SITE_BRAND_THEME_SLUG`** — when pinning brand themes via slug serverside, whitelist inside `BRAND_THEME_TARGETS` in that script plus `.env.example` notes.
+5. **`scripts/pull-vercel-env.mjs`** — extend `OUT_FILES.<slug>` → `.env.local.<slug>`.
+6. **`scripts/vercel-targets.json`** — `orgId`, `projectId`, `projectName`; optional `envPullEnvironment`. Empty placeholders block `npm run deploy:vercel` until curated (or defer to **`scripts/vercel-targets.local.json`**, ignored).
+7. **`package.json`** — optional `dev:<slug>`, `pull:env:<slug>` ergonomics adopted by contributors.
 
-## Checklist — marca propia + template (`SiteThemeKind`)
+## Checklist — brand-specific templates (`SiteThemeKind`)
 
-Si el tenant expone **plantilla propia** en CMS / landing (como `mozarthitos` / `espaciozenit`):
+When exposing bespoke CMS/marketing scaffolding (Mozarthitos / EspacioZenit pattern):
 
-1. **Migración** — `ALTER TYPE public.site_theme_kind ADD VALUE '<slug>'` (patrón idempotente como `093_*`).
-2. **Seed** — fila `site_themes` con `slug` y `template_kind` coherentes (`094_*`, `100_*`, …).
-3. **TS** — [`src/types/theming.ts`](src/types/theming.ts) `SITE_THEME_KINDS` + catálogo CMS (`landing*Catalog.ts`), [`resolveLandingMedia.ts`](src/lib/cms/resolveLandingMedia.ts), tests `isSiteThemeKind`.
-4. **Landing** — componentes / CSS dedicados o parametrizados; helper [`marketingLandingKinds`](src/lib/theme/marketingLandingKinds.ts) si usa chrome full-bleed como mozarthitos/espaciozenit.
-5. **Diccionarios** — `landing.<brandRoot>.*` + labels admin `kindPicker.options.<slug>`.
+1. **Migration:** `ALTER TYPE public.site_theme_kind ADD VALUE '<slug>'` (`093_*`-style idempotency).
+2. **Seed:** `site_themes` rows aligning `slug`/`template_kind` (`094_*`, `100_*`, …).
+3. **TypeScript catalogs:** [`src/types/theming.ts`](src/types/theming.ts), `SITE_THEME_KINDS`, CMS catalogs (`landing*Catalog.ts`), [`resolveLandingMedia.ts`](src/lib/cms/resolveLandingMedia.ts), `isSiteThemeKind` tests.
+4. **Landing experience:** parameterized/dedicated CSS & components referencing [`marketingLandingKinds`](src/lib/theme/marketingLandingKinds.ts) chrome when full-bleed treatments apply.
+5. **Dictionaries:** `landing.<brandRoot>.*` + admin selectors `kindPicker.options.<slug>`.
 
-## Referencias
+## References
 
-- Briefing y “qué pedir” antes de tocar código: [`docs/runbooks/add-new-tenant.md`](../../docs/runbooks/add-new-tenant.md).
-- Ejemplo targets existentes: `golden`, `mozarthitos`, `espaciozenit`.
-- Deploy (un tenant o todos, flags, prereqs): **[`scripts/README.md`](../scripts/README.md#deploy-a-vercel-multi-tenant)**.
-- Atajo todos los entornos prod: `npm run deploy:vercel:all:prod` (equiv. `node scripts/deploy-vercel.mjs --all --prod`).
-- Variables Sensitive en Vercel: documentación en `.env.example` y Vercel docs.
+- Runbook prerequisites: [`docs/runbooks/add-new-tenant.md`](../../docs/runbooks/add-new-tenant.md).
+- Example tenants: `golden`, `mozarthitos`, `espaciozenit`.
+- Deploy playbook: [`scripts/README.md`](../scripts/README.md#deploy-a-vercel-multi-tenant).
+- Promote-all shortcut: `npm run deploy:vercel:all:prod` ≡ `node scripts/deploy-vercel.mjs --all --prod`.
+- Sensitive Vercel env documentation: `.env.example` plus official docs.

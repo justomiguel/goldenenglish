@@ -1,7 +1,10 @@
 "use client";
 
 import type { LandingCopyFieldDescriptor } from "@/lib/cms/buildLandingEditorViewModel";
-import type { LandingOverrideLocale } from "@/lib/cms/landingContentCatalog";
+import {
+  LANDING_OVERRIDE_LOCALES,
+  type LandingOverrideLocale,
+} from "@/lib/cms/landingContentCatalog";
 import type { Dictionary } from "@/types/i18n";
 import { HeroLivePreview, type HeroPreviewMedia } from "./HeroLivePreview";
 import type { LandingCopyDraft } from "./buildLandingCopyDraft";
@@ -18,8 +21,6 @@ export interface HeroVisualPreviewPaneProps {
   onChangePreviewLocale: (locale: LandingOverrideLocale) => void;
 }
 
-const LOCALES: ReadonlyArray<LandingOverrideLocale> = ["es", "en"];
-
 export function HeroVisualPreviewPane({
   labels,
   fields,
@@ -32,7 +33,7 @@ export function HeroVisualPreviewPane({
   return (
     <div>
       <div className="mb-2 flex justify-end gap-1">
-        {LOCALES.map((loc) => (
+        {LANDING_OVERRIDE_LOCALES.map((loc) => (
           <button
             key={loc}
             type="button"

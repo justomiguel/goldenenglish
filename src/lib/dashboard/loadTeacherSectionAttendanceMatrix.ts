@@ -27,7 +27,7 @@ export async function loadTeacherSectionAttendanceMatrix(
     scheduleSlots: SectionScheduleSlot[];
     /** Match slot weekdays in this IANA zone (institute calendar). */
     weekdayTimeZone?: string;
-    /** Defaults to `academics.attendance.matrix.teacher.fullCourseMaxClassDays` in system.properties. */
+    /** Defaults to `academics.attendance.matrix.teacher.fullCourseMaxClassDays` in SYSTEM_PROPERTIES_DEFAULTS. */
     maxClassDays?: number;
     /** `newest_capped`: most recent class sessions in the window (admin). Default: oldest-first (teacher). */
     classDayListMode?: TeacherAttendanceClassDayListMode;

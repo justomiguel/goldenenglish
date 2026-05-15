@@ -1,7 +1,7 @@
 /**
  * Client-safe theme tokens — no fs access.
  * Values are injected at build time via CSS custom properties
- * from system.properties → globals.css :root block.
+ * from SYSTEM_PROPERTIES_DEFAULTS → globals.css :root block.
  */
 
 export const theme = {

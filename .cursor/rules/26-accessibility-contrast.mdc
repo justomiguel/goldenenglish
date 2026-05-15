@@ -1,0 +1,98 @@
+---
+description: Contrast, perceptible states, document language, and accessible names — WCAG AA, Lighthouse-aligned patterns in this repo.
+globs:
+  - "**/*.tsx"
+  - "**/*.ts"
+  - "**/*.css"
+alwaysApply: true
+---
+
+# Accessibility — contrast, color, perceptible states, language, names
+
+## Goal
+
+**All interfaces** should maintain **adequate contrast** between foreground and background (and adjacent UI chrome) so people with **low vision**, **color vision deficiency**, or **reduced contrast sensitivity** can **read, find controls, and understand states** without extreme effort. This rule anchors project expectations; the **design system** and tokens remain the implementation authority (**`01-design-system.mdc`**).
+
+## Compliance level
+
+- **Baseline:** **WCAG 2.2 Level AA** for contrast (**1.4.3 Minimum Contrast**, **1.4.11 Non-text Contrast** where applicable).
+- **Aspirational AA+:** localized changes (e.g. a critical form block) may target higher ratios or AAA contrast **without** introducing a parallel palette outside tokens.
+
+## Text contrast (foreground / background)
+
+1. **Normal text** (body, labels, `placeholder` when subserving visible design, helper text): contrast ratio **≥ 4.5:1** versus the immediate background.
+2. **Large text** (at least **18 pt / 24 px** non-bold, or **14 pt / 18.67 px** bold, or CSS equivalent): **≥ 3:1** versus the background.
+3. **Text over images or gradients** — ratios must hold on **actually readable** areas (translucent scrim, overlay, solid token-backed layer); do not assume photographic backgrounds “look fine”.
+4. **Links and interactive text** — same thresholds as text; visited/hover/active must not dip below minimum for decorative styling gain.
+5. **Semantic typography** — avoid **“muted”** text so faint it fails AA; secondary but still functional copy (errors, brief legal notes) stays **AA** on its background.
+
+## Non-text contrast (UI, focus, borders)
+
+1. **UI components and informational graphics** (input borders, checkboxes, dividers between controls, icons conveying action/state, chart segments carrying meaning): **≥ 3:1** versus adjacent colors, unless the change is purely decorative and another **accessible** signal exists (“Not color alone”).
+2. **Focus indicators** — ring or indicator contrast must be **perceived** (**2.4.7 Focus Appearance**, **2.4.11 Focus Not Obscured**): do **not** use `outline: none` without a replacement meeting contrast plus thickness/offset aligned with DS.
+3. **Error/success states** — when signaled with color, keep contrast for **label, icon, or border** against its surface; prefer **neutral surface + border/text error** from **`01-design-system.mdc`** when saturated fills hurt contrast.
+4. **Lucide icons on controls** — stroke **≥ 3:1** against control background (consistent with **`16-admin-buttons-icons.mdc`** for icon-only and labels).
+
+## Do not rely on color alone (1.4.1)
+
+1. **States** (error, active, required, “new”): add **text**, **icon with accessible name**, or a non-color-only pattern.
+2. **Charts and legends** — legends must be textually available; do not rely solely on similar hues.
+3. **Tables and rows** — when striping or row highlight, keep text contrast; if highlight is color-only, ensure it is not the **only** selection signal in critical flows.
+
+## Implementation in this repository
+
+1. **Tokens and semantic pairs** — colors from the brand layer (**`SYSTEM_PROPERTIES_DEFAULTS`** + **`site_themes`** overrides, see **`01-design-system.mdc`**): use defined **foreground/background** pairs (`primary` + `primary-foreground`, `muted` + `muted-foreground`, etc.) instead of arbitrary token mixing.
+2. **Forbidden** — pairing `text-*` / `bg-*` “by eye” with **arbitrary** values like `text-[#…]` / `bg-[#…]` in product UI unless PR documents accessibility review and ratio checks.
+3. **Third parties** (charts, rich text) — if the library auto-picks colors, **pin** to semantic palette or verified series; do not accept poor contrast only because it is the chart default.
+4. **Dark mode / themes** — when duplicating tokens for variants, **revalidate** contrast **per** theme; do not assume the same hex “scales” everywhere.
+
+## Patterns that repeatedly failed Lighthouse (fixed in-product, keep avoiding)
+
+These showed up on **public marketing landings** across tenants (Espacio Zenit, Nago, Golden classic footer, Mozarthitos chrome). They are **not** a substitute for full WCAG review; they are **high-recurrence** automated audits.
+
+### 1. Document language (`<html lang>`) — **WCAG 3.1.1**
+
+- **Lighthouse `html-has-lang`** expects **`lang` on the `<html>` element**, not only on an inner wrapper (e.g. a `div` around `[locale]` content).
+- In this repo, locale for the document is forwarded from middleware into the request (**`GE_REQUEST_LOCALE_HEADER`** in **`src/lib/i18n/requestLocaleHeader.ts`**) and **`src/app/layout.tsx`** sets **`lang`** on **`<html>`**. When touching auth/session plumbing, **do not remove** that wiring without replacing it.
+
+### 2. Link names (`link-name`) — **WCAG 2.4.4 / 4.1.2**
+
+- **Problem:** A **Next `<Link>`** (or `<a>`) uses **`hidden`** together with **`lg:inline-flex`** / **`xl:inline-flex`** (or shows **only an icon** until a breakpoint). At the **Lighthouse desktop** viewport, Tailwind order or width **below** `lg`/`xl` can leave the control **focusable** with **no visible text** and no **`aria-label`**.
+- **Fix:** Provide a stable accessible name — typically **`aria-label={...}`** with copy from **`src/dictionaries`** (**`09-i18n-copy.mdc`**) — on **login**, **dashboard**, and similar chrome links whenever icon-only or `hidden`-until-breakpoint patterns are used.
+
+### 3. Muted / legal copy on dark panels — **WCAG 1.4.3**
+
+- **Problem:** Utilities like **`text-white/45`**, **`text-white/50`**, **`text-white/60`**, **`text-white/75`** on **near-black** or **dark brand** footers often land **just under 4.5:1** for **small** text (e.g. 11px copyright); Lighthouse reports **`color-contrast`** with the blended gray (e.g. ~`#737373` on `#000`).
+- **Fix:** Use **verified** neutrals for those surfaces (examples used in-repo: **`text-neutral-400`** on black legal one-liners; **`text-neutral-200`** / **`text-neutral-300`** for secondary lines on **`color-primary-dark`** footers) or a **token pair** you have measured for that background. Do not stack low-opacity white on dark for **small legal** text without a ratio check.
+
+## Verification (manual + automatable)
+
+1. **Lighthouse → Accessibility** on touched flows (**`06-seo-performance.mdc`**) — fix **new** contrast and focus failures.
+2. **Multi-tenant / multi-URL smoke** — when several deploys or preview URLs must be compared, use **`docs/runbooks/accessibility-multi-tenant.md`** and **`npm run lighthouse:a11y:tenants`** (manifest of absolute URLs + locale path). This still does **not** replace keyboard/focus/ARIA manual QA.
+3. **Spot checks** with a contrast calculator (foreground/background and adjacent non-text) when introducing **new surfaces, badges, or states**.
+4. **Color blindness / simulation** — design tool or browser aids to ensure **states** and **charts** do not collapse to indistinguishable swatches.
+5. **Windows High Contrast / `forced-colors`** — when editing critical control CSS, ensure **borders and text** do not vanish.
+
+## Relationship to other rules
+
+| Rule | Relationship |
+|-------|-----------|
+| **`01-design-system.mdc`** | Tokens, no stray hex, destructive/error pattern |
+| **`16-admin-buttons-icons.mdc`** | Button icons and contrast on brand fills |
+| **`06-seo-performance.mdc`** | Lighthouse pass on affected routes |
+| **`05-pwa-mobile-native.mdc`** | Touch targets; contrast applies to PWA too |
+| **`09-i18n-copy.mdc`** | `aria-label` / visible names for controls must use dictionary-backed copy |
+| **Runbook** | Multi-URL Lighthouse: **`docs/runbooks/accessibility-multi-tenant.md`** (local port conflicts → adjust manifest URL) |
+
+## Agent checklist
+
+- [ ] Do normal and large text meet **4.5:1** / **3:1** on their real backgrounds (including states)?
+- [ ] Do control borders, informative icons, and visible focus meet **≥ 3:1** where required?
+- [ ] Does **`<html lang>`** stay correct for locale routes (middleware header + root layout), not only an inner `lang` wrapper?
+- [ ] Do **links and icon controls** have a **discernible name** at every breakpoint where they are focusable (**`aria-label`** from dictionaries when text is hidden or icon-only)?
+- [ ] Do states **avoid color-only** signaling (text/icon/pattern backup)?
+- [ ] Are **semantic token pairs** used instead of ad hoc combinations?
+- [ ] Were **dark mode** or **new surfaces** reviewed for contrast?
+- [ ] On **dark footers / legal one-liners**, avoid **very low `text-white/xx` opacity** for small type without verifying ratio (prefer verified neutrals or measured tokens)?
+- [ ] Did Lighthouse Accessibility (or equivalent) on the touched screen show **no new** contrast/focus/link-name/`html`-lang regressions?
+- [ ] When several tenant URLs must ship: were **multi-URL Lighthouse** smokes run or scheduled per **`docs/runbooks/accessibility-multi-tenant.md`** (where applicable)?

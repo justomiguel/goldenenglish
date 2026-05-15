@@ -1,15 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { Globe } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { locales } from "@/lib/i18n/dictionaries";
+import {
+  defaultLocale,
+  locales,
+  type AppLocale,
+} from "@/lib/i18n/dictionaries";
 import { LocaleFlag } from "@/components/atoms/LocaleFlag";
 
 export interface LanguageSwitcherLabels {
   label: string;
   es: string;
   en: string;
+  pt: string;
 }
 
 interface LanguageSwitcherProps {
@@ -30,6 +34,66 @@ function pathWithoutLocale(pathname: string): string {
   return pathname;
 }
 
+function labelForLocale(labels: LanguageSwitcherLabels, loc: AppLocale): string {
+  switch (loc) {
+    case "es":
+      return labels.es;
+    case "en":
+      return labels.en;
+    case "pt":
+      return labels.pt;
+    default:
+      return loc;
+  }
+}
+
+function trackClasses(variant: LanguageSwitcherProps["variant"]): string {
+  if (variant === "compactDark") {
+    return [
+      "inline-flex list-none flex-row items-stretch gap-0.5 rounded-full border border-white/45 bg-black/30 p-0.5",
+      "shadow-[0_2px_12px_rgb(0_0_0_/22%),inset_0_1px_0_rgb(255_255_255_/12%)] backdrop-blur-sm",
+    ].join(" ");
+  }
+  if (variant === "compact") {
+    return "inline-flex list-none flex-row items-stretch gap-0.5 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/35 p-0.5 shadow-sm";
+  }
+  return "inline-flex list-none flex-row items-stretch gap-0.5 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/40 p-0.5 shadow-sm";
+}
+
+function segmentClasses(
+  variant: LanguageSwitcherProps["variant"],
+  active: boolean,
+): string {
+  const compactDark = variant === "compactDark";
+  const compact = variant === "compact" || compactDark;
+
+  const layout = compact
+    ? "min-h-[36px] min-w-[2.25rem] gap-1 px-2 py-1 text-[0.65rem] font-semibold leading-none sm:min-h-[40px] sm:px-2.5"
+    : "min-h-[40px] gap-1.5 px-3 py-2 text-xs font-semibold leading-none sm:min-h-[44px] sm:px-3.5";
+
+  const base = [
+    "inline-flex shrink-0 items-center justify-center rounded-full transition-colors",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+    layout,
+  ].join(" ");
+
+  if (compactDark) {
+    return [
+      base,
+      active
+        ? "bg-white/28 text-white shadow-sm focus-visible:ring-white focus-visible:ring-offset-transparent"
+        : "text-white/78 hover:bg-white/14 hover:text-white focus-visible:ring-white focus-visible:ring-offset-transparent",
+    ].join(" ");
+  }
+
+  return [
+    base,
+    active
+      ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)] shadow-sm focus-visible:ring-[var(--color-primary)]"
+      : "text-[var(--color-muted-foreground)] hover:bg-[var(--color-surface)] hover:text-[var(--color-foreground)] focus-visible:ring-[var(--color-primary)]",
+  ].join(" ");
+}
+
 export function LanguageSwitcher({
   locale,
   labels,
@@ -37,62 +101,33 @@ export function LanguageSwitcher({
 }: LanguageSwitcherProps) {
   const pathname = usePathname();
   const rest = pathWithoutLocale(pathname);
-  const compactDark = variant === "compactDark";
-  const compact = variant === "compact" || compactDark;
+  const active = locales.includes(locale as AppLocale)
+    ? (locale as AppLocale)
+    : defaultLocale;
+
+  const hrefFor = (loc: AppLocale) =>
+    rest === "/" ? `/${loc}` : `/${loc}${rest}`;
 
   return (
-    <div
-      className={
-        compactDark
-          ? "inline-flex items-center gap-0 rounded-full border border-white/50 bg-black/35 py-0.5 pl-1 pr-0.5 text-[0.65rem] font-semibold leading-none shadow-[0_2px_12px_rgb(0_0_0_/22%),inset_0_1px_0_rgb(255_255_255_/14%)] backdrop-blur-sm"
-          : compact
-            ? "inline-flex items-center gap-0 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] py-0.5 pl-1 pr-0.5 text-[0.65rem] font-semibold leading-none shadow-sm"
-            : "inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] py-1 pl-2 pr-1 text-xs font-semibold shadow-sm"
-      }
-      role="navigation"
-      aria-label={labels.label}
-    >
-      {!compact ? (
-        <Globe
-          className="h-3 w-3 shrink-0 text-[var(--color-muted-foreground)]"
-          aria-hidden
-          strokeWidth={1.75}
-        />
-      ) : null}
-      {locales.map((loc) => {
-        const href = rest === "/" ? `/${loc}` : `/${loc}${rest}`;
-        const active = loc === locale;
-        return (
-          <Link
-            key={loc}
-            href={href}
-            hrefLang={loc}
-            className={
-              compactDark
-                ? `inline-flex min-h-7 min-w-[1.75rem] items-center justify-center rounded-full px-1.5 py-1 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
-                    active
-                      ? "bg-[var(--mz-yellow)] font-bold text-[var(--mz-ink-on-white)] shadow-md"
-                      : "text-white/92 hover:bg-white/14 hover:text-white"
-                  }`
-                : compact
-                  ? `inline-flex min-h-7 min-w-[1.75rem] items-center justify-center rounded-full px-1.5 py-1 transition ${
-                      active
-                        ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)] shadow-sm"
-                        : "text-[var(--color-muted-foreground)] hover:text-[var(--color-primary)]"
-                    }`
-                  : `inline-flex items-center gap-1 rounded-full px-3 py-1.5 transition ${
-                      active
-                        ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)] shadow-sm"
-                        : "text-[var(--color-muted-foreground)] hover:text-[var(--color-primary)]"
-                    }`
-            }
-            prefetch={false}
-          >
-            {compact ? null : <LocaleFlag locale={loc} />}
-            {loc === "es" ? labels.es : labels.en}
-          </Link>
-        );
-      })}
-    </div>
+    <nav aria-label={labels.label}>
+      <ul className={`m-0 p-0 ${trackClasses(variant)}`}>
+        {locales.map((loc) => {
+          const isActive = loc === active;
+          return (
+            <li key={loc} className="flex">
+              <Link
+                href={hrefFor(loc)}
+                aria-current={isActive ? "page" : undefined}
+                className={segmentClasses(variant, isActive)}
+                title={labelForLocale(labels, loc)}
+              >
+                <LocaleFlag locale={loc} className="translate-y-px" />
+                <span>{labelForLocale(labels, loc)}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }

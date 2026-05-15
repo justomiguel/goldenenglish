@@ -100,7 +100,7 @@ describe("addLandingBlockAction", () => {
       id: VALID_ID,
       section: "modalidades",
       kind: "card",
-      copy: { es: { title: "ES" }, en: { title: "EN" } },
+      copy: { es: { title: "ES" }, en: { title: "EN" }, pt: {} },
     });
     expect(result).toEqual({ ok: false, code: "forbidden" });
   });
@@ -117,14 +117,14 @@ describe("addLandingBlockAction", () => {
     expect(result).toEqual({ ok: false, code: "invalid_input" });
   });
 
-  it("rejects when both locales are empty", async () => {
+  it("rejects when no locale has usable title/body", async () => {
     mockAssertAdmin.mockResolvedValue({ supabase: {}, user: { id: "u" } });
     const result = await addLandingBlockAction({
       locale: "en",
       id: VALID_ID,
       section: "modalidades",
       kind: "card",
-      copy: { es: {}, en: {} },
+      copy: { es: {}, en: {}, pt: {} },
     });
     expect(result).toEqual({ ok: false, code: "invalid_input" });
   });
@@ -137,7 +137,7 @@ describe("addLandingBlockAction", () => {
       id: VALID_ID,
       section: "modalidades",
       kind: "card",
-      copy: { es: { title: "Hola" }, en: { title: "Hello" } },
+      copy: { es: { title: "Hola" }, en: { title: "Hello" }, pt: {} },
     });
     expect(result).toEqual({ ok: true, id: VALID_ID });
     const blocks = (supabase.updates[0] as { blocks: ReadonlyArray<{ id: string; section: string; position: number }> })
@@ -150,6 +150,25 @@ describe("addLandingBlockAction", () => {
     expect(recordSystemAudit).toHaveBeenCalledWith(
       expect.objectContaining({ action: "site_theme_blocks_updated" }),
     );
+  });
+
+  it("accepts Portuguese-only copy when ES and EN are empty", async () => {
+    const supabase = makeSupabase(baseRow);
+    mockAssertAdmin.mockResolvedValue({ supabase, user: { id: "u" } });
+    const result = await addLandingBlockAction({
+      locale: "pt",
+      id: VALID_ID,
+      section: "modalidades",
+      kind: "card",
+      copy: { es: {}, en: {}, pt: { title: "Apenas PT" } },
+    });
+    expect(result).toEqual({ ok: true, id: VALID_ID });
+    const blocks = (
+      supabase.updates[0] as {
+        blocks: ReadonlyArray<{ copy: { pt: { title?: string } } }>;
+      }
+    ).blocks;
+    expect(blocks[0].copy.pt.title).toBe("Apenas PT");
   });
 });
 

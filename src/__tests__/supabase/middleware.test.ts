@@ -11,6 +11,7 @@ vi.mock("@supabase/ssr", () => ({
 }));
 
 import { updateSession } from "@/lib/supabase/middleware";
+import { GE_REQUEST_LOCALE_HEADER } from "@/lib/i18n/requestLocaleHeader";
 
 describe("updateSession", () => {
   const prevEnv = { ...process.env };
@@ -32,6 +33,23 @@ describe("updateSession", () => {
     nextSpy.mockRestore();
     process.env = { ...prevEnv };
     warn.mockClear();
+  });
+
+  it("sets GE_REQUEST_LOCALE_HEADER on NextResponse.next from URL prefix", async () => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    nextSpy.mockImplementation((init?: { request?: { headers?: Headers } }) => {
+      const forwarded = init?.request?.headers?.get(GE_REQUEST_LOCALE_HEADER);
+      expect(forwarded).toBe("en");
+      return new NextResponse(null, { status: 200 });
+    });
+
+    const req = new NextRequest(new URL("http://localhost/en/contact"), {
+      headers: new Headers(),
+    });
+    await updateSession(req);
+    expect(nextSpy).toHaveBeenCalled();
   });
 
   it("skips Supabase when public env incomplete", async () => {

@@ -9,7 +9,7 @@ import type { PaymentReceiptInputBrand } from "@/lib/billing/buildPaymentReceipt
 const FALLBACK_PRIMARY = "#103A5C";
 
 /**
- * Receipt header data for the active tenant. Merges brand layer (system.properties +
+ * Receipt header data for the active tenant. Merges brand layer (SYSTEM_PROPERTIES_DEFAULTS +
  * site_themes overrides) with the primary color used as PDF emphasis. Logo URL is forced
  * absolute because PDFs render outside the browser context.
  */

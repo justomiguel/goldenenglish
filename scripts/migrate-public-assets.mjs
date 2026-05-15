@@ -144,15 +144,9 @@ async function main() {
   console.log(`[migrate-public-assets] site_theme_media: ${mediaRows.length} filas.`);
 
   if (writeSystemProps) {
-    const sp = path.join(ROOT, "system.properties");
-    let body = fs.readFileSync(sp, "utf8");
-    body = body.replace(/^app\.logo\.path=.*$/m, `app.logo.path=${props["app.logo.path"]}`);
-    body = body.replace(
-      /^app\.favicon\.path=.*$/m,
-      `app.favicon.path=${props["app.favicon.path"]}`,
+    console.warn(
+      "[migrate-public-assets] --write-system-properties is a no-op: defaults now live in src/lib/theme/systemPropertiesDefaults.ts. Updating SYSTEM_PROPERTIES_DEFAULTS requires a code change.",
     );
-    fs.writeFileSync(sp, body);
-    console.log("[migrate-public-assets] system.properties OK.");
   }
 
   if (deletePublic) {

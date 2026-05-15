@@ -12,7 +12,7 @@ const CANDIDATES: Record<SharePreviewBundleKey, readonly string[]> = {
 
 /**
  * Absolute logo URL for Open Graph generation: prefers bundled theme logos,
- * falls back to merged brand logo from `system.properties` / theme overrides.
+ * falls back to merged brand logo from `SYSTEM_PROPERTIES_DEFAULTS` / theme overrides.
  */
 export async function resolveSharePreviewLogoAbsoluteUrl(
   siteOrigin: string,

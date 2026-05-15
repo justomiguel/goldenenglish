@@ -20,6 +20,7 @@ import type { SiteThemeRow } from "@/types/theming";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { HeroVisualEditorShellTop } from "./HeroVisualEditorShellTop";
 import { HeroVisualPreviewPane } from "./HeroVisualPreviewPane";
+import { LandingThemeContentPersistAlerts } from "./LandingThemeContentPersistAlerts";
 import { LandingCopyFieldEditor } from "./LandingCopyFieldEditor";
 import { LandingMediaSlotEditor } from "./LandingMediaSlotEditor";
 import {
@@ -77,7 +78,10 @@ export function HeroVisualEditorShell({
     setSavedAt(null);
     setDraft((prev) => ({
       ...prev,
-      [key]: { ...(prev[key] ?? { es: "", en: "" }), [loc]: value },
+      [key]: {
+        ...(prev[key] ?? { es: "", en: "", pt: "" }),
+        [loc]: value,
+      },
     }));
   }
 
@@ -112,7 +116,7 @@ export function HeroVisualEditorShell({
       applyResult(result, () => {
         const cleared: LandingCopyDraft = {};
         for (const field of section.copy) {
-          cleared[field.key] = { es: "", en: "" };
+          cleared[field.key] = { es: "", en: "", pt: "" };
         }
         setDraft(cleared);
         setSavedAt(Date.now());
@@ -129,22 +133,12 @@ export function HeroVisualEditorShell({
         lead={editorLabels.lead}
       />
 
-      {errorCode ? (
-        <p
-          role="alert"
-          className="rounded-[var(--layout-border-radius)] border border-[var(--color-error)]/30 bg-[var(--color-error)]/5 px-3 py-2 text-sm text-[var(--color-error)]"
-        >
-          {labels.errors[errorCode] ?? labels.errors.persist_failed}
-        </p>
-      ) : null}
-      {savedAt && !pending && !errorCode ? (
-        <p
-          role="status"
-          className="rounded-[var(--layout-border-radius)] border border-[var(--color-success)]/30 bg-[var(--color-success)]/5 px-3 py-2 text-sm text-[var(--color-success)]"
-        >
-          {labels.saveCopySuccess}
-        </p>
-      ) : null}
+      <LandingThemeContentPersistAlerts
+        labels={labels}
+        errorCode={errorCode}
+        savedAt={savedAt}
+        pending={pending}
+      />
 
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="space-y-4">
@@ -185,8 +179,10 @@ export function HeroVisualEditorShell({
                   labels={labels}
                   draftEs={draft[field.key]?.es ?? ""}
                   draftEn={draft[field.key]?.en ?? ""}
+                  draftPt={draft[field.key]?.pt ?? ""}
                   onChangeEs={(value) => updateDraft(field.key, "es", value)}
                   onChangeEn={(value) => updateDraft(field.key, "en", value)}
+                  onChangePt={(value) => updateDraft(field.key, "pt", value)}
                   disabled={pending}
                 />
               ))}

@@ -1,57 +1,57 @@
 ---
-description: SEO técnico, Core Web Vitals / Lighthouse y headers — obligatorio en rutas y assets públicos.
+description: Technical SEO, Core Web Vitals / Lighthouse, headers — required on public routes and assets.
 alwaysApply: true
 ---
 
-# SEO, rendimiento (Lighthouse / Google) y buenas prácticas
+# SEO, performance (Lighthouse / Google), and best practices
 
-## Objetivo
+## Goal
 
-Cada cambio que afecte **rutas públicas**, **metadatos**, **imágenes** o **bundles** debe mantener buena puntuación en **Google Search Essentials**, **Lighthouse** (Performance, Accessibility, Best Practices, SEO) y **Core Web Vitals** (LCP, INP, CLS).
-
-***
-
-## SEO técnico (no negociable para páginas índice)
-
-1. **`NEXT_PUBLIC_APP_URL`** — Debe ser el **origen canónico** real en producción (HTTPS, sin barra final inconsistente). Se usa vía `getPublicSiteUrl()` en `src/lib/site/publicUrl.ts` para **metadataBase**, OG absolutos cuando aplica, **sitemap** y **JSON-LD**. En Vercel, si falta la env, existe **fallback** a `VERCEL_URL`; en local usar `http://localhost:3000`.
-2. **Metadatos** — Rutas con intención de ranking deben definir **`generateMetadata`** o **`metadata`** con **título** (idealmente con `template` en el root), **description** útil, y **canónica** / **hreflang** donde haya locales (`alternates.canonical`, `alternates.languages`, `x-default` alineado a `defaultLocale` en `src/lib/i18n/dictionaries.ts`).
-3. **`robots.ts` / `sitemap.ts`** — Mantener coherencia: **no** listar en el sitemap rutas que deban ser **noindex** (p. ej. herramientas autenticadas). Las páginas privadas o de back-office deben exportar **`robots: { index: false, follow: false }`**.
-4. **Datos estructurados** — Organización / negocio: preferir **JSON-LD** alineado a `schema.org`, con datos de **`getBrandPublic()`** / `system.properties`, no strings sueltos de marca.
-5. **Branding en copy** — Títulos y descripciones que incluyan nombre o lema siguen **01-design-system** (fuente única de marca).
+Every change that touches **public routes**, **metadata**, **images**, or **bundles** should keep solid scores in **Google Search Essentials**, **Lighthouse** (Performance, Accessibility, Best Practices, SEO), and **Core Web Vitals** (LCP, INP, CLS).
 
 ***
 
-## Rendimiento y Lighthouse
+## Technical SEO (non-negotiable for indexable pages)
 
-1. **`next/image`** — Imágenes con **dimensiones** explícitas o `fill` + contenedor estable; **`priority`** solo en **LCP**; resto **lazy** por defecto.
-2. **Fuentes** — `next/font`: **`display: swap`**, **`adjustFontFallback: true`** donde el proveedor lo permita; evitar cadenas de fuentes innecesarias.
-3. **Bundles** — Preferir imports **acotados** (p. ej. iconos); mantener **`experimental.optimizePackageImports`** para librerías listadas en `next.config.ts` cuando el upgrade lo siga soportando.
-4. **`next.config`** — Respetar **`images.formats`** (AVIF/WebP), **`minimumCacheTTL`** razonable, **headers** de seguridad ligera ya definidos; no desactivar **compress** en producción.
-
-## Presupuesto de rendimiento y accesibilidad (UI crítica)
-
-Cambios que toquen **LCP** (hero, landing, primera vista del dashboard público), **listas densas**, **modales de flujo principal** o **bundles grandes** no deben **degradar LCP / INP / CLS** sin **medición antes/después** (Lighthouse local o informe de Vercel / Web Vitals en preview).
-
-1. **Antes del merge** — ejecutar Lighthouse (o equivalente) sobre la ruta afectada en **móvil**; anotar en la PR **LCP**, **INP** (o TBT como proxy si INP no está disponible) y **CLS** si el cambio introduce layout shift.
-2. **Regresión** — si los números empeoran de forma material, justificar con mitigación (lazy load, menos JS en cliente, `next/image`, división de `'use client'`) o revertir; no fusionar “a ciegas”.
-3. **Accesibilidad** — misma pasada Lighthouse **Accessibility** en pantallas tocadas; incumplimientos nuevos de contraste o nombres accesibles deben corregirse salvo excepción documentada (alineado con **`01-design-system.mdc`**).
-4. **Automatización local** — con el servidor en marcha: `BASE_URL=http://localhost:3000 npm run lighthouse:smoke` (script `scripts/lighthouse-smoke.sh`, categorías performance + accessibility). En CI opcional: job manual o nocturno que exporte el HTML como artefacto.
+1. **`NEXT_PUBLIC_APP_URL`** — Must be the real **canonical origin** in production (HTTPS, trailing slash consistent). Used via `getPublicSiteUrl()` in `src/lib/site/publicUrl.ts` for **metadataBase**, absolute OG when needed, **sitemap**, and **JSON-LD**. On Vercel, if missing, there is a **fallback** to `VERCEL_URL`; locally use `http://localhost:3000`.
+2. **Metadata** — Routes meant to rank should define **`generateMetadata`** or **`metadata`** with **title** (ideally with root `template`), a useful **description**, and **canonical** / **hreflang** when locales exist (`alternates.canonical`, `alternates.languages`, `x-default` aligned with `defaultLocale` in `src/lib/i18n/dictionaries.ts`).
+3. **`robots.ts` / `sitemap.ts`** — Keep them aligned: **do not** list in the sitemap routes that must be **noindex** (e.g. authenticated tools). Private or back-office pages should export **`robots: { index: false, follow: false }`**.
+4. **Structured data** — Organization/business: prefer **JSON-LD** aligned with `schema.org`, using **`getBrandPublic()`** (which reads `SYSTEM_PROPERTIES_DEFAULTS` + `site_themes` overrides), not stray brand literals.
+5. **Branding in copy** — Titles/descriptions mentioning name or tagline follow **01-design-system** (single brand source).
 
 ***
 
-## Checklist al añadir una ruta pública
+## Performance and Lighthouse
 
-- [ ] ¿Hay **title/description** y **canonical** (y traducciones si aplica)?
-- [ ] ¿La URL debe ir en **sitemap**? Si no, ¿**noindex**?
-- [ ] ¿Hay **LCP** (imagen o texto) sin CLS brusco?
-- [ ] ¿**OG/Twitter** coherentes con la página (o heredados correctamente del layout)?
-- [ ] ¿Nada de **marca duplicada** fuera de `system.properties` / capa brand?
+1. **`next/image`** — Images need **explicit dimensions** or `fill` + stable container; **`priority`** only for **LCP**; everything else **lazy** by default.
+2. **Fonts** — `next/font`: **`display: swap`**, **`adjustFontFallback: true`** when supported; avoid unnecessary font stacks.
+3. **Bundles** — Prefer **narrow** imports (e.g. icons); keep **`experimental.optimizePackageImports`** for packages listed in `next.config.ts` while upgrades still support it.
+4. **`next.config`** — Honor **`images.formats`** (AVIF/WebP), reasonable **`minimumCacheTTL`**, already-defined lightweight **security** headers; do not disable **compress** in production.
+
+## Performance & accessibility budgets (critical UI)
+
+Changes touching **LCP** (hero, landing, first view of public dashboard), **dense lists**, **main-flow modals**, or **large bundles** must not **hurt LCP / INP / CLS** without **before/after measurement** (local Lighthouse or Vercel/Web Vitals on preview).
+
+1. **Before merge** — Run Lighthouse (or equivalent) on the affected route on **mobile**; note **LCP**, **INP** (or **TBT** as proxy where INP is unavailable), and **CLS** if the change introduces layout shift.
+2. **Regression** — If metrics materially regress, justify with mitigation (lazy load, less client JS, `next/image`, splitting `'use client'`) or revert; avoid blind merges.
+3. **Accessibility** — Same Lighthouse **Accessibility** pass on touched screens; fix **new** contrast or naming issues unless documented as accepted (aligned with **`01-design-system.mdc`**).
+4. **Local automation** — with the dev server: `BASE_URL=http://localhost:3000 npm run lighthouse:smoke` (script `scripts/lighthouse-smoke.sh`, Performance + Accessibility). For **several previews / tenants**, use **`docs/runbooks/accessibility-multi-tenant.md`** (`npm run lighthouse:a11y:tenants` + manifest). In CI, optional nightly/manual jobs exporting HTML as artifacts.
 
 ***
 
-## Referencias en el repo
+## Checklist when adding a public route
 
-- Origen público: `src/lib/site/publicUrl.ts`
-- Layout locale + hreflang + OG por defecto: `src/app/[locale]/layout.tsx`
+- [ ] **title/description** and **canonical** (and translations if applicable)?
+- [ ] Should the URL be in **sitemap**? If not, **noindex**?
+- [ ] Solid **LCP** (image or text) without harsh CLS?
+- [ ] Consistent **OG/Twitter** (or correctly inherited layout defaults)?
+- [ ] No **duplicate branding** outside the brand layer (`SYSTEM_PROPERTIES_DEFAULTS` + `site_themes`) / brand helpers?
+
+***
+
+## Repo references
+
+- Public origin: `src/lib/site/publicUrl.ts`
+- Locale layout + hreflang + default OG: `src/app/[locale]/layout.tsx`
 - JSON-LD: `src/components/molecules/JsonLdOrganization.tsx`
 - Sitemap / robots: `src/app/sitemap.ts`, `src/app/robots.ts`

@@ -1,4 +1,5 @@
 import type { EmailTemplateDefinition } from "@/types/emailTemplates";
+import { withPtFallback } from "@/lib/email/templates/withPtEmailDefaults";
 
 const previewBlockStyle =
   "border-left:3px solid #cccccc;padding:8px 12px;margin:12px 0;color:#374151;background:#f9fafb;";
@@ -18,7 +19,7 @@ export const teacherNewTemplate: EmailTemplateDefinition = {
     { name: "messagePreview", description: "Resumen del mensaje (sin HTML)", sample: "Hola, ¿podríamos hablar sobre..." },
     { name: "href", description: "URL al inbox del docente", sample: "https://example.com/es/dashboard/teacher/messages" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Nuevo mensaje del portal",
       bodyHtml: `<p>Tenés un nuevo mensaje de <strong>{{senderName}}</strong>.</p>
@@ -31,7 +32,7 @@ export const teacherNewTemplate: EmailTemplateDefinition = {
 <blockquote style="${previewBlockStyle}">{{messagePreview}}</blockquote>
 <p><a href="{{href}}" style="${linkStyle}">Open teacher inbox</a></p>`,
     },
-  },
+  }),
 };
 
 export const staffPortalNewTemplate: EmailTemplateDefinition = {
@@ -48,7 +49,7 @@ export const staffPortalNewTemplate: EmailTemplateDefinition = {
     { name: "href", description: "URL al portal del destinatario", sample: "https://example.com/es/dashboard/student/messages" },
     { name: "openLinkLabel", description: "Texto del enlace", sample: "Abrir el portal" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Nuevo mensaje en tu portal",
       bodyHtml: `<p>Tenés un nuevo mensaje de <strong>{{senderName}}</strong>.</p>
@@ -61,7 +62,7 @@ export const staffPortalNewTemplate: EmailTemplateDefinition = {
 <blockquote style="${previewBlockStyle}">{{messagePreview}}</blockquote>
 <p><a href="{{href}}" style="${linkStyle}">{{openLinkLabel}}</a></p>`,
     },
-  },
+  }),
 };
 
 export const replyTemplate: EmailTemplateDefinition = {
@@ -78,7 +79,7 @@ export const replyTemplate: EmailTemplateDefinition = {
     { name: "href", description: "URL al portal", sample: "https://example.com/es/dashboard/student/messages" },
     { name: "openLinkLabel", description: "Texto del enlace", sample: "Abrir mensajes" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Tenés una respuesta a tu mensaje",
       bodyHtml: `<p><strong>{{teacherName}}</strong> respondió a tu mensaje.</p>
@@ -91,5 +92,5 @@ export const replyTemplate: EmailTemplateDefinition = {
 <blockquote style="${previewBlockStyle}">{{replyPreview}}</blockquote>
 <p><a href="{{href}}" style="${linkStyle}">{{openLinkLabel}}</a></p>`,
     },
-  },
+  }),
 };

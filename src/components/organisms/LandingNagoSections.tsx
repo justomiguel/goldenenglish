@@ -7,7 +7,7 @@ import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { resolveLandingImageSrcForTheme } from "@/lib/cms/resolveLandingMedia";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { NagoLandingGallery } from "@/components/organisms/NagoLandingGallery";
-import { NagoLandingContactSection } from "@/components/organisms/NagoLandingContactSection";
+import { NagoLandingContactPanel } from "@/components/organisms/NagoLandingContactPanel";
 
 interface LandingNagoSectionsProps {
   dict: Dictionary;
@@ -123,27 +123,17 @@ export function LandingNagoSections({
 
       <NagoLandingGallery dict={dict} />
 
-      {/* CTA band */}
+      {/* CTA + contact form (single “contactanos” bloc; `#contacto` marks the form for deep links). */}
       <section
         id="cta"
-        className="scroll-mt-24 bg-[var(--nago-green)] px-[max(1.5rem,env(safe-area-inset-left))] py-14 pe-[max(1.5rem,env(safe-area-inset-right))] text-center md:py-16"
+        className="scroll-mt-24 bg-[var(--nago-green)] px-[max(1.5rem,env(safe-area-inset-left))] py-14 pb-[max(3rem,env(safe-area-inset-bottom))] pe-[max(1.5rem,env(safe-area-inset-right))] text-center md:py-16 md:pb-[max(4rem,env(safe-area-inset-bottom))]"
       >
-        <h2 className="font-[family-name:var(--font-nago-display)] text-2xl font-bold uppercase text-[var(--nago-yellow)] md:text-3xl lg:text-4xl">
+        <h2 className="font-[family-name:var(--font-nago-display)] text-2xl font-bold uppercase text-[var(--nago-heading-solid)] md:text-3xl lg:text-4xl">
           {t("cta.title")}
         </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-sm text-white/90 md:text-base">
-          {t("cta.subtitle")}
-        </p>
-        <Link
-          href={`/${locale}#contacto`}
-          className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-full border-2 border-white bg-transparent px-10 py-3 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-white hover:text-[var(--nago-green)]"
-        >
-          {t("cta.button")}
-        </Link>
+        <p className="mx-auto mt-4 max-w-2xl text-sm text-white/90 md:text-base">{t("cta.subtitle")}</p>
+        <NagoLandingContactPanel dict={dict} locale={locale} />
       </section>
-
-      <NagoLandingContactSection dict={dict} locale={locale} />
-
       {/* Footer */}
       <footer
         className="bg-[var(--nago-footer)] px-[max(1.5rem,env(safe-area-inset-left))] py-14 pb-[max(2rem,env(safe-area-inset-bottom))] pe-[max(1.5rem,env(safe-area-inset-right))] text-white md:py-16"
@@ -159,7 +149,7 @@ export function LandingNagoSections({
                 className="h-14 w-auto max-w-[140px] object-contain brightness-0 invert"
               />
             )}
-            <p className="text-sm leading-relaxed text-white/70">{t("hero.tagline")}</p>
+            <p className="text-sm leading-relaxed text-neutral-200">{t("hero.tagline")}</p>
           </div>
 
           {/* Enlaces */}
@@ -167,32 +157,32 @@ export function LandingNagoSections({
             <p className="font-bold uppercase tracking-wide">{t("footer.enlacesTitle")}</p>
             <ul className="mt-4 space-y-2 text-sm">
               <li>
-                <Link href={`/${locale}#top`} className="text-white/75 underline decoration-white/30 underline-offset-2 hover:text-white">
+                <Link href={`/${locale}#top`} className="text-white/90 underline decoration-white/40 underline-offset-2 hover:text-white">
                   {t("nav.inicio")}
                 </Link>
               </li>
               <li>
-                <Link href={`/${locale}#sobre`} className="text-white/75 underline decoration-white/30 underline-offset-2 hover:text-white">
+                <Link href={`/${locale}#sobre`} className="text-white/90 underline decoration-white/40 underline-offset-2 hover:text-white">
                   {t("nav.sobreNosotros")}
                 </Link>
               </li>
               <li>
-                <Link href={`/${locale}#principios`} className="text-white/75 underline decoration-white/30 underline-offset-2 hover:text-white">
+                <Link href={`/${locale}#principios`} className="text-white/90 underline decoration-white/40 underline-offset-2 hover:text-white">
                   {t("nav.clases")}
                 </Link>
               </li>
               <li>
-                <Link href={`/${locale}#galeria`} className="text-white/75 underline decoration-white/30 underline-offset-2 hover:text-white">
+                <Link href={`/${locale}#galeria`} className="text-white/90 underline decoration-white/40 underline-offset-2 hover:text-white">
                   {t("nav.galeria")}
                 </Link>
               </li>
               <li>
-                <Link href={`/${locale}#cta`} className="text-white/75 underline decoration-white/30 underline-offset-2 hover:text-white">
+                <Link href={`/${locale}#cta`} className="text-white/90 underline decoration-white/40 underline-offset-2 hover:text-white">
                   {t("nav.eventos")}
                 </Link>
               </li>
               <li>
-                <Link href={`/${locale}#contacto`} className="text-white/75 underline decoration-white/30 underline-offset-2 hover:text-white">
+                <Link href={`/${locale}#contacto`} className="text-white/90 underline decoration-white/40 underline-offset-2 hover:text-white">
                   {t("nav.contacto")}
                 </Link>
               </li>
@@ -240,7 +230,7 @@ export function LandingNagoSections({
           </div>
         </div>
 
-        <p className="mx-auto mt-12 max-w-6xl border-t border-white/10 pt-6 text-center text-xs text-white/50">
+        <p className="mx-auto mt-12 max-w-6xl border-t border-white/10 pt-6 text-center text-xs text-neutral-400">
           © {new Date().getFullYear()} {brand.legalName} — {t("footer.rightsLine")}
         </p>
       </footer>

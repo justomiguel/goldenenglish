@@ -19,7 +19,7 @@ VALUES (
   'TENANT_DISPLAY_NAME',
   FALSE,
   'classic'::public.site_theme_kind,
-  -- TODO: overrides de tokens (alinear con system.properties / CMS).
+  -- TODO: overrides de tokens (alinear con SYSTEM_PROPERTIES_DEFAULTS / CMS).
   jsonb_build_object(
     'color.primary', '#000000',
     'color.secondary', '#000000',

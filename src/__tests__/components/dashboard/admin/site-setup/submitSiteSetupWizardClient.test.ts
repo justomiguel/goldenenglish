@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { submitSiteSetupWizardClient } from "@/components/dashboard/admin/site-setup/submitSiteSetupWizardClient";
 
 // REGRESSION CHECK: Wizard submit orchestrates two FileReader passes then server action.
@@ -25,6 +25,10 @@ vi.mock("@/app/[locale]/dashboard/admin/site-setup/siteSetupActions", () => ({
 }));
 
 describe("submitSiteSetupWizardClient", () => {
+  beforeEach(() => {
+    completeMock.mockReset();
+  });
+
   it("reports reading then sending and returns ok when action succeeds", async () => {
     completeMock.mockResolvedValueOnce({ ok: true });
 
@@ -35,6 +39,7 @@ describe("submitSiteSetupWizardClient", () => {
     const result = await submitSiteSetupWizardClient({
       locale: "es",
       themeId: "t1",
+      mode: "create",
       logoFile: logo,
       faviconFile: fav,
       logoAlt: "Alt",
@@ -67,6 +72,7 @@ describe("submitSiteSetupWizardClient", () => {
     const result = await submitSiteSetupWizardClient({
       locale: "es",
       themeId: "t1",
+      mode: "create",
       logoFile: logo,
       faviconFile: fav,
       logoAlt: "Alt",
@@ -80,5 +86,32 @@ describe("submitSiteSetupWizardClient", () => {
     });
 
     expect(result).toEqual({ ok: false, code: "persist_failed" });
+  });
+
+  it("calls action with faviconKind=none when both files omitted in edit mode", async () => {
+    completeMock.mockResolvedValueOnce({ ok: true });
+
+    const result = await submitSiteSetupWizardClient({
+      locale: "es",
+      themeId: "t1",
+      mode: "edit",
+      logoFile: null,
+      faviconFile: null,
+      logoAlt: "Alt",
+      appName: "A",
+      legalName: "L",
+      tagline: "T",
+      contactEmail: "e@e.com",
+      contactPhone: "1",
+      contactAddress: "x",
+      onProgress: vi.fn(),
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(completeMock).toHaveBeenCalledTimes(1);
+    const [payload] = completeMock.mock.calls[0];
+    expect(payload.faviconKind).toBe("none");
+    expect(payload.mode).toBe("edit");
+    expect(payload.logoBase64).toBeUndefined();
   });
 });

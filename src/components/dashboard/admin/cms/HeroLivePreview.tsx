@@ -37,7 +37,7 @@ function copy(
 /**
  * Lightweight, presentational mock of the Hero. Mirrors the live structure
  * (kicker, brand title, CTAs, image collage) but uses tokens directly so it
- * stays in sync with `system.properties` without re-rendering the full
+ * stays in sync with `SYSTEM_PROPERTIES_DEFAULTS` without re-rendering the full
  * organism. Updates as the admin types in the editor.
  */
 export function HeroLivePreview({

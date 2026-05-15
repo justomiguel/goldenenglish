@@ -52,8 +52,13 @@ describe("toCssString", () => {
 });
 
 describe("loadProperties", () => {
-  it("reads system.properties from cwd", () => {
+  it("returns a fresh copy of the TS defaults", () => {
     const p = loadProperties();
     expect(p["app.name"].length).toBeGreaterThan(0);
+    expect(p["legal.age.majority"]).toBe("18");
+
+    p["app.name"] = "Mutated";
+    const p2 = loadProperties();
+    expect(p2["app.name"]).not.toBe("Mutated");
   });
 });

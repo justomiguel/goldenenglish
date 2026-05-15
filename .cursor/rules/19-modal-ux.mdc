@@ -1,43 +1,46 @@
 ---
-description: Modal backdrop, header close, scroll budget — prefer full routes for long flows
+description: Modal backdrop, header dismiss control, scroll budget — route-level flows for oversized content remain preferred over giant dialogs.
 globs: ["src/components/atoms/Modal.tsx", "src/components/molecules/*Modal*.tsx", "src/components/**/*Modal*.tsx"]
 alwaysApply: false
 ---
 
 # Modal UX (Golden English)
 
-## Objetivo
+## Objective
 
-Los `<dialog>` (`Modal` en `@/components/atoms/Modal`) deben mantener **foco claro**, **cierre visible** y **evitar scroll del cuerpo del modal** para flujos largos de negocio.
+`<dialog>` surfaces (`Modal` from `@/components/atoms/Modal`) must clarify **keyboard focus**, **visible dismiss controls**, and **scroll ergonomics**. Very long transactional flows still belong on standalone routes—not endless modals.
 
-## Backdrop
+## Backdrop treatment
 
-- El modal usa **`::backdrop`** con **blur + tint** (`backdrop-blur-md`, `backdrop-saturate`, `color-mix` sobre el fondo de la app) para separar visualmente el contenido de fondo.
-- No sustituir por overlay plano sin blur salvo ADR / design review.
+`::backdrop` uses **blur + tint** (`backdrop-blur-md`, `backdrop-saturate`, `color-mix` tinted against app shells) distinguishing foreground vs background stacks.
 
-## Cierre visible
+Avoid flat monochrome overlays lacking blur unless justified via ADR or explicit design approval.
 
-- Todo modal **cerrable** debe pasar **`closeLabel`** (texto del diccionario, p. ej. `common.modalClose` y/o el mismo `cancel` del flujo) para el **control explícito en cabecera** (icono + texto).
-- No usar solo el botón inferior como única salida cuando el header puede mostrar cerrar.
+## Dismiss visibility
 
-## Tamaño y vista
+Dismissible dialogs must expose **`closeLabel`** (dictionary key such as `common.modalClose`, or coherent cancel wording) powering the explicit header close control (**icon + text**).
 
-- El **`Modal`** aplica **`max-w-[calc(100vw-2rem)]`** (nunca desborda el viewport) y **`sm:max-w-lg md:max-w-xl lg:max-w-2xl`** para que el diálogo **crezca con la pantalla** hasta un techo razonable; **`dialogClassName`** sigue pudiendo fijar otro ancho (p. ej. `max-w-4xl`).
-- El cuerpo lleva **`@container`** para que rejillas internas usen **`@sm:` / `@md:`** según el ancho real del modal, no solo el viewport.
+Avoid relying exclusively on footer buttons while the chrome could still show dismiss affordances.
 
-## Scroll
+## Sizing / responsive behavior
 
-- Cuando el cuerpo hace **scroll** (contenido más alto que el área visible), **`Modal`** muestra **degradados suaves** arriba y abajo para indicar que hay más contenido (sin texto fijo; el gradiente usa `--color-surface`).
-- El **`Modal`** aplica **`flex-1 min-h-0 overflow-y-auto`** al cuerpo para que use hasta **`min(92dvh, calc(100dvh - 2rem))`** de alto (sin tope `48rem` artificial): evita contenido recortado y scroll innecesario cuando hay espacio en pantalla.
-- Los flujos **muy largos** siguen debiendo ir a una **ruta / pantalla aparte** o **panel inline** (`?detail=`, etc.), no a un modal kilométrico.
-- Las listas **dentro** del modal pueden seguir llevando **`max-height` + scroll local** (p. ej. log de importación) cuando el volumen esté acotado por diseño y convenga un “viewport” fijo dentro del cuerpo.
+`Modal` enforces **`max-w-[calc(100vw-2rem)]`** (prevents bleed) layered with **`sm:max-w-lg md:max-w-xl lg:max-w-2xl`** so dialogs scale until hitting sensible ceilings—`dialogClassName` may override widths (for example **`max-w-4xl`** when necessary).
 
-## Copy / i18n
+Bodies opt into **`@container`** grids so internals use **`@sm:`/`@md:`** tied to modal width—not only global breakpoints.
 
-- `closeLabel` y títulos salen de **`src/dictionaries/en.json` + `es.json`** (o `common.modalClose` cuando aplique).
+## Scrolling ergonomics
 
-## Checklist al tocar `Modal`
+- When overflowing vertically, soften top/bottom scrims hinting unseen content (**gradients tinted with `--color-surface`**).
+- Bodies leverage **`flex-1 min-h-0 overflow-y-auto`** targeting up to **`min(92dvh, calc(100dvh - 2rem))`**, avoiding artificial `48rem` caps chopping tall content prematurely.
+- **Very long narratives** migrate to routed pages/detail panels (`?detail=`) instead of “scroll skyscrapers” inside dialogs.
+- **Nested lists/logs** inside modals may keep local **`max-height` + scrolling**—especially deterministic bounded logs (`import traces`, etc.).
 
-- [ ] ¿Hay **`closeLabel`** cuando `disableClose` es false?
-- [ ] ¿El flujo es corto (confirmación / aviso) o justifica panel / nueva ruta en lugar de mucho contenido en modal?
-- [ ] ¿Los textos visibles van al diccionario (**`09-i18n-copy.mdc`**)?
+## Copy localization
+
+Titles + **`closeLabel`** route through dictionaries (**`src/dictionaries/en.json` + `es.json`**, leaning on **`common.modalClose`** when reused).
+
+## `Modal` QA checklist when editing
+
+- [ ] `disableClose=false` ⇒ **`closeLabel` present**.
+- [ ] Evaluate whether oversized flows warrant dedicated routes versus modal cramming.
+- [ ] Visible copy dictionary-backed (**`09-i18n-copy.mdc`**)?

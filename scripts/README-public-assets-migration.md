@@ -25,7 +25,7 @@ node scripts/migrate-public-assets.mjs --dry-run
 # Migrar (sube, actualiza BD)
 node scripts/migrate-public-assets.mjs
 
-# Además: escribe `app.logo.path` / `app.favicon.path` en `system.properties`
+# Nota: la flag `--write-system-properties` quedó como no-op tras eliminar el archivo. Los defaults viven en `src/lib/theme/systemPropertiesDefaults.ts` y los overrides se editan vía el wizard / CMS.
 node scripts/migrate-public-assets.mjs --write-system-properties
 
 # Tras verificar la home: borrar `public/images` y `public/favicon_io` locales (re-ejecuta subida + BD; idempotente)

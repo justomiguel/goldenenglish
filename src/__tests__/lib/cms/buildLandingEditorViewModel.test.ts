@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import enDict from "@/dictionaries/en.json";
 import esDict from "@/dictionaries/es.json";
+import ptDict from "@/dictionaries/pt.json";
 import {
   buildLandingEditorOverview,
   buildLandingSectionEditorViewModel,
@@ -14,6 +15,7 @@ import type {
 const defaults = {
   en: enDict as Dictionary,
   es: esDict as Dictionary,
+  pt: ptDict as Dictionary,
 };
 
 const sampleMedia: SiteThemeMediaRow[] = [
@@ -72,6 +74,7 @@ describe("buildLandingSectionEditorViewModel", () => {
     const kicker = view.copy.find((f) => f.key === "hero.kicker")!;
     expect(kicker.defaults.es).toBe(defaults.es.landing.hero.kicker);
     expect(kicker.defaults.en).toBe(defaults.en.landing.hero.kicker);
+    expect(kicker.defaults.pt).toBe(defaults.pt.landing.hero.kicker);
     expect(kicker.overrides.es).toBe("Hola");
     expect(kicker.overrides.en).toBe("Hello");
   });
@@ -169,9 +172,9 @@ describe("buildLandingSectionEditorViewModel", () => {
       content: null,
       media: [],
       blocks: [
-        { id: "a", section: "inicio", kind: "card", position: 0, copy: { es: { title: "x" }, en: {} } },
-        { id: "b", section: "modalidades", kind: "card", position: 1, copy: { es: { title: "second" }, en: {} } },
-        { id: "c", section: "modalidades", kind: "card", position: 0, copy: { es: { title: "first" }, en: {} } },
+        { id: "a", section: "inicio", kind: "card", position: 0, copy: { es: { title: "x" }, en: {}, pt: {} } },
+        { id: "b", section: "modalidades", kind: "card", position: 1, copy: { es: { title: "second" }, en: {}, pt: {} } },
+        { id: "c", section: "modalidades", kind: "card", position: 0, copy: { es: { title: "first" }, en: {}, pt: {} } },
       ],
     });
     expect(view.blocks.map((b) => b.id)).toEqual(["c", "b"]);
@@ -185,7 +188,7 @@ describe("buildLandingEditorOverview", () => {
       content: sampleContent,
       media: sampleMedia,
       blocks: [
-        { id: "a", section: "modalidades", kind: "card", position: 0, copy: { es: { title: "x" }, en: {} } },
+        { id: "a", section: "modalidades", kind: "card", position: 0, copy: { es: { title: "x" }, en: {}, pt: {} } },
       ],
     });
     const inicio = overview.find((s) => s.section === "inicio")!;

@@ -21,6 +21,10 @@ interface SiteSetupInstituteStepProps {
   setLogoAlt: (v: string) => void;
   setLogoFile: (f: File | null) => void;
   setFaviconFile: (f: File | null) => void;
+  initialLogoUrl?: string;
+  initialFaviconUrl?: string;
+  hasExistingLogo?: boolean;
+  hasExistingFavicon?: boolean;
 }
 
 export function SiteSetupInstituteStep({
@@ -37,6 +41,10 @@ export function SiteSetupInstituteStep({
   setLogoAlt,
   setLogoFile,
   setFaviconFile,
+  initialLogoUrl = "",
+  initialFaviconUrl = "",
+  hasExistingLogo = false,
+  hasExistingFavicon = false,
 }: SiteSetupInstituteStepProps) {
   return (
     <div className="space-y-4">
@@ -98,6 +106,19 @@ export function SiteSetupInstituteStep({
       </div>
       <div>
         <Label htmlFor="site-logo">{labels.logo}</Label>
+        {hasExistingLogo && initialLogoUrl ? (
+          <div className="mt-1 flex items-center gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={initialLogoUrl}
+              alt={labels.currentLogoPreviewAlt ?? ""}
+              className="h-12 w-12 rounded object-contain"
+            />
+            <p className="text-xs text-[var(--color-muted-foreground)]">
+              {labels.currentLogoHint}
+            </p>
+          </div>
+        ) : null}
         <input
           id="site-logo"
           type="file"
@@ -111,6 +132,19 @@ export function SiteSetupInstituteStep({
       </div>
       <div>
         <Label htmlFor="site-favicon">{labels.favicon}</Label>
+        {hasExistingFavicon && initialFaviconUrl ? (
+          <div className="mt-1 flex items-center gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={initialFaviconUrl}
+              alt={labels.currentFaviconPreviewAlt ?? ""}
+              className="h-8 w-8 rounded object-contain"
+            />
+            <p className="text-xs text-[var(--color-muted-foreground)]">
+              {labels.currentFaviconHint}
+            </p>
+          </div>
+        ) : null}
         <input
           id="site-favicon"
           type="file"

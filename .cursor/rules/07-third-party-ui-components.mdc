@@ -1,44 +1,44 @@
 ---
-description: Before custom tables, calendars, charts, etc., prefer popular maintained third-party libraries; custom UI only when no fit exists.
+description: Before custom tables, calendars, charts, etc., prefer popular maintained third-party libraries; custom UI only when no reasonable fit exists.
 alwaysApply: true
 ---
 
-# UI complejo: librerías antes que componentes caseros
+# Heavy UI — libraries before bespoke components
 
-## Regla
+## Rule
 
-Antes de **implementar desde cero** piezas pesadas de interfaz —**tablas** (ordenación, virtualización, paginación avanzada), **calendarios / date pickers**, **gráficos**, **selects** complejos, **arrastrar y soltar**, **editores de texto enriquecido**, **carruseles**, **mapas**, etc.— el agente y el equipo deben **buscar primero** una **librería de terceros** que:
+Before **building from scratch** heavy interface pieces — **tables** (sorting, virtualization, advanced pagination), **calendars / date pickers**, **charts**, complex **selects**, **drag and drop**, **rich text editors**, **carousels**, **maps**, etc. — agents and contributors should **first** look for a **third-party library** that:
 
-1. Sea **popular y mantenida** (descargas semanales razonables, commits recientes, issues atendidos).
-2. Sea **compatible** con el stack del repo (React / Next.js, App Router, `'use client'` donde haga falta).
-3. Tenga **licencia** aceptable para el producto.
-4. Sea razonable en **tamaño de bundle** y **accesibilidad** (no empeorar LCP/INP sin medir).
+1. Is **popular and actively maintained** (reasonable weekly downloads, recent commits, triaged issues).
+2. **Fits this stack** (React / Next.js, App Router, `'use client'` where needed).
+3. Has an **acceptable license** for this product.
+4. Is reasonable in **bundle footprint** and **accessibility** (do not degrade LCP/INP without measuring).
 
-**Solo** se construye un componente propio cuando **no** existe una librería adecuada que cubra el caso, o cuando restricciones de producto/seguridad lo impongan (y debe quedar **justificado** en el cambio).
+Ship a custom component **only** when **no** suitable library covers the case, or product/security constraints require it (**documented** in the change).
 
-## Cuándo está permitido un componente o UI propia (criterios explícitos)
+## When custom UI is allowed (explicit criteria)
 
-Además del caso “no hay librería razonable”, el custom está permitido cuando:
+Beyond “no reasonable library”, custom builds are acceptable when:
 
-1. **Primitivo de marca o layout** que no justifica dependencia (p. ej. wrapper de token, chip interno) y cumple **`01-design-system.mdc`**.
-2. **Composición delgada** sobre una librería ya elegida (no sustituir la categoría con otra librería nueva).
-3. **Restricción legal / seguridad / datos** documentada (sin SDK alternativo aceptable).
+1. **Brand or layout primitives** where a dependency is unjustified (e.g. token wrapper, internal chip) and **`01-design-system.mdc`** is honored.
+2. **Thin composition** on a library already chosen (do **not** add a competing library in the same category).
+3. **Legal / security / data** constraints documented without an acceptable alternate SDK.
 
-En la **misma PR** que añada o mantenga UI pesada o una dependencia nueva, debe quedar explícito (descripción o comentario de revisión):
+In the **same PR** that adds heavy UI or a new dependency, explicitly cover (description or review comment):
 
-- **Bundle** — impacto esperado (import acotado, lazy si aplica) y alternativa descartada.
-- **Accesibilidad** — patrones del componente (teclado, foco, roles) o enlace a docs de la librería.
-- **Licencia** — compatible con el producto; sin cláusulas que impidan uso comercial o deploy en Vercel.
+- **Bundle** — expected impact (narrow imports, lazy when applicable) and rejected alternatives.
+- **Accessibility** — component patterns (keyboard, focus, roles) or link to library docs.
+- **License** — compatible with the product; no clauses blocking commercial/Vercel use.
 
-## Alineación con el proyecto
+## Project alignment
 
-- Revisar **`package.json`**: reutilizar lo ya instalado cuando encaje (p. ej. **Recharts** para gráficos, **Lucide** para iconos, **Papa Parse** / **xlsx** para hojas).
-- **No duplicar categorías** en `package.json`: una sola dependencia “líder” por categoría de problema (p. ej. una familia de data-table, un stack de charts). Si ya existe solución en el repo, **extenderla** antes de añadir otra librería competidora.
-- Nuevas dependencias: seguir **`04-security.mdc`** (auditoría, no exponer secretos, preferir paquetes con tracción).
+- Read **`package.json`**: reuse what is already installed where it fits (e.g. **Recharts**, **Lucide**, **Papa Parse** / **xlsx** for spreadsheets).
+- **Do not duplicate categories** in `package.json`: one “leader” dependency per problem class (one data-table family, one chart stack). If the repo already has a solution, **extend it** before adding a competing stack.
+- New dependencies — follow **`04-security.mdc`** (audit trail, never expose secrets, prefer broadly used packages).
 
 ## Agent checklist
 
-1. ¿Esta UI es un problema **ya resuelto** por librerías estándar (tabla, calendario, chart, etc.)?
-2. ¿Se buscó al menos una opción **mantenida** y **amplia** en la comunidad React/Next?
-3. Si se propone **custom**: ¿encaja en los **criterios de exclusión** anteriores y por qué las opciones existentes **no** sirven (bundle, a11y, diseño, licencia)?
-4. Si se añade dependencia: ¿evita **duplicar categoría** en `package.json`, encaja con **tokens / design system** (`01-design-system.mdc`) y con **rendimiento** (`06-seo-performance.mdc`)?
+1. Is this problem **already solved** by mainstream libraries (table, calendar, chart, etc.)?
+2. Was at least one maintained, widely adopted React/Next option evaluated?
+3. If proposing **custom**: does it meet the **exceptions** above **and** why do existing libraries fail (bundle, a11y, design, license)?
+4. If adding a dependency: does it **avoid duplicate categories** in `package.json`, honor **tokens / design system** (`01-design-system.mdc`), and **performance** (`06-seo-performance.mdc`)?

@@ -18,6 +18,7 @@ const localizedCopySchema = z
   .object({
     es: z.string().max(4000, "value_too_long").optional(),
     en: z.string().max(4000, "value_too_long").optional(),
+    pt: z.string().max(4000, "value_too_long").optional(),
   })
   .strict();
 
@@ -30,7 +31,7 @@ export const updateSiteThemeContentInputSchema = z.object({
   locale: z.string().min(2),
   id: siteThemeIdSchema,
   section: landingSectionSchema,
-  /** Map of `<dotted dict path>` → `{ es?, en? }` for the section. The action
+  /** Map of `<dotted dict path>` → `{ es?, en?, pt? }` for the section. The action
    *  layer runs `cleanLandingContentForPersistence` to drop unknown keys
    *  before persisting. */
   copy: sectionContentSchema,

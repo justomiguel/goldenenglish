@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getDictionary } from "@/lib/i18n/dictionaries";
+import { getDictionary, locales } from "@/lib/i18n/dictionaries";
 import { pickLocaleFromUnknownPayload } from "@/lib/parent/pickLocaleFromUnknownPayload";
 import { verifyUserPassword } from "@/lib/supabase/verifyUserPassword";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
@@ -35,7 +35,7 @@ const schema = z.object({
 
 export type UpdateWardProfileInput = z.infer<typeof schema>;
 
-const SUPPORTED_LOCALES: ReadonlyArray<Locale> = ["es", "en"];
+const SUPPORTED_LOCALES: ReadonlyArray<Locale> = locales;
 function asLocale(raw: string): Locale {
   return (SUPPORTED_LOCALES as ReadonlyArray<string>).includes(raw)
     ? (raw as Locale)

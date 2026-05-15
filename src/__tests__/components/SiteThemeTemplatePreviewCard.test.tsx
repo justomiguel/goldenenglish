@@ -17,8 +17,8 @@ const TOKENS: ThemePreviewTokens = {
   colorSurface: "#FFFFFF",
   colorForeground: "#103A5C",
   colorMuted: "#F0EFEA",
-  colorMutedForeground: "#5C6B7A",
-  colorBorder: "#E2E0D8",
+  colorMutedForeground: "#4B5563",
+  colorBorder: "#8A8275",
   layoutBorderRadius: "0.75rem",
 };
 

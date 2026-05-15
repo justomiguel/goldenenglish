@@ -53,3 +53,4 @@ Resumen:
 - `npm run dev:<slug>` levanta con el env correcto.
 - `npm run pull:env:<slug>` escribe `.env.local.<slug>` (recordar variables sensibles en Vercel pueden venir vacías en pull).
 - `npm run deploy:vercel -- <slug> --prod` (o `--all --prod`) apunta al proyecto esperado.
+- Tras tener URLs de preview/producción, podés automatizar Lighthouse (accesibilidad + rendimiento) por tenant con **`docs/runbooks/accessibility-multi-tenant.md`** (`npm run lighthouse:a11y:tenants`); no sustituye prueba manual de teclado/foco para decir WCAG «completo».

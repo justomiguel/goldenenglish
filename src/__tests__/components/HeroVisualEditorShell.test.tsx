@@ -52,23 +52,23 @@ const section: LandingSectionEditorViewModel = {
   copy: [
     {
       key: "hero.kicker",
-      defaults: { es: "Bienvenidos", en: "Welcome" },
-      overrides: { es: null, en: null },
+      defaults: { es: "Bienvenidos", en: "Welcome", pt: "Bem-vindo" },
+      overrides: { es: null, en: null, pt: null },
     },
     {
       key: "hero.ctaRegister",
-      defaults: { es: "Inscribirme", en: "Register" },
-      overrides: { es: null, en: null },
+      defaults: { es: "Inscribirme", en: "Register", pt: "Inscrever" },
+      overrides: { es: null, en: null, pt: null },
     },
     {
       key: "hero.ctaSignedIn",
-      defaults: { es: "Ir al panel", en: "Open dashboard" },
-      overrides: { es: null, en: null },
+      defaults: { es: "Ir al panel", en: "Open dashboard", pt: "Painel" },
+      overrides: { es: null, en: null, pt: null },
     },
     {
       key: "hero.whatsappCta",
-      defaults: { es: "WhatsApp", en: "WhatsApp" },
-      overrides: { es: null, en: null },
+      defaults: { es: "WhatsApp", en: "WhatsApp", pt: "WhatsApp" },
+      overrides: { es: null, en: null, pt: null },
     },
   ],
   media: [],
@@ -149,7 +149,11 @@ describe("HeroVisualEditorShell", () => {
       id: themeId,
       section: "inicio",
     });
-    expect(callArg.copy["hero.kicker"]).toEqual({ es: "Nuevo kicker", en: "" });
+    expect(callArg.copy["hero.kicker"]).toEqual({
+      es: "Nuevo kicker",
+      en: "",
+      pt: "",
+    });
     expect(refreshMock).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("status")).toHaveTextContent(labels.saveCopySuccess);
   });

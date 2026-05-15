@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import enDict from "@/dictionaries/en.json";
 import esDict from "@/dictionaries/es.json";
+import ptDict from "@/dictionaries/pt.json";
 import {
   applyLandingContentOverrides,
   getLandingDefaultCopy,
@@ -10,6 +11,7 @@ import type { SiteThemeContent } from "@/types/theming";
 
 const en: Dictionary = enDict as Dictionary;
 const es: Dictionary = esDict as Dictionary;
+const pt: Dictionary = ptDict as Dictionary;
 
 describe("getLandingDefaultCopy", () => {
   it("returns scalar values from the landing dictionary", () => {
@@ -77,6 +79,17 @@ describe("applyLandingContentOverrides", () => {
     const esResult = applyLandingContentOverrides(es, content, "es");
     expect(esResult.landing.story.title).toBe("Solo ES");
     expect(esResult.landing.story.body1).toBe("Cuerpo ES");
+  });
+
+  it("applies Portuguese overrides when locale is pt", () => {
+    const content: SiteThemeContent = {
+      historia: {
+        "story.title": { pt: "História PT", es: "ES", en: "EN" },
+      },
+    };
+    const ptResult = applyLandingContentOverrides(pt, content, "pt");
+    expect(ptResult.landing.story.title).toBe("História PT");
+    expect(ptResult.landing.story.body1).toBe(pt.landing.story.body1);
   });
 
   it("falls back to the default when override is empty/whitespace", () => {

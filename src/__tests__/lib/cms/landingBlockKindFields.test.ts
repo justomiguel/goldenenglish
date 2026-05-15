@@ -38,18 +38,28 @@ describe("isLandingBlockCopyValid", () => {
       isLandingBlockCopyValid("card", {
         es: { body: "solo cuerpo" },
         en: {},
+        pt: {},
       }),
     ).toBe(false);
     expect(
       isLandingBlockCopyValid("card", {
         es: { title: "Hola" },
         en: {},
+        pt: {},
       }),
     ).toBe(true);
     expect(
       isLandingBlockCopyValid("feature", {
         es: {},
         en: { title: "Feature" },
+        pt: {},
+      }),
+    ).toBe(true);
+    expect(
+      isLandingBlockCopyValid("card", {
+        es: {},
+        en: {},
+        pt: { title: "Olá" },
       }),
     ).toBe(true);
   });
@@ -59,24 +69,27 @@ describe("isLandingBlockCopyValid", () => {
       isLandingBlockCopyValid("quote", {
         es: { title: "Solo atribución" },
         en: {},
+        pt: {},
       }),
     ).toBe(false);
     expect(
       isLandingBlockCopyValid("quote", {
         es: { body: "Una cita inspiradora." },
         en: {},
+        pt: {},
       }),
     ).toBe(true);
   });
 
   it("requires only the title for divider", () => {
     expect(
-      isLandingBlockCopyValid("divider", { es: {}, en: {} }),
+      isLandingBlockCopyValid("divider", { es: {}, en: {}, pt: {} }),
     ).toBe(false);
     expect(
       isLandingBlockCopyValid("divider", {
         es: { title: "Capítulo II" },
         en: {},
+        pt: {},
       }),
     ).toBe(true);
   });
@@ -86,6 +99,7 @@ describe("isLandingBlockCopyValid", () => {
       isLandingBlockCopyValid("card", {
         es: { title: "   " },
         en: { title: "" },
+        pt: {},
       }),
     ).toBe(false);
   });

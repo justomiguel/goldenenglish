@@ -13,6 +13,7 @@ export interface WrapEmailHtmlInput {
 const FOOTER_LABELS: Record<Locale, { contactPrefix: string; address: string }> = {
   es: { contactPrefix: "Contacto", address: "Dirección" },
   en: { contactPrefix: "Contact", address: "Address" },
+  pt: { contactPrefix: "Contacto", address: "Morada" },
 };
 
 const FONT_STACK =

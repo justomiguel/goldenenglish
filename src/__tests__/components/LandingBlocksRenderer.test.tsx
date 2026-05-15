@@ -4,15 +4,23 @@ import { LandingBlocksRenderer } from "@/components/organisms/LandingBlocksRende
 import type { LandingBlock } from "@/types/theming";
 
 function makeBlock(partial: Partial<LandingBlock> & { id: string }): LandingBlock {
+  const defaultCopy = {
+    es: { title: "Hola", body: "Cuerpo" },
+    en: { title: "Hello", body: "Body" },
+    pt: {},
+  };
   return {
     id: partial.id,
     section: partial.section ?? "inicio",
     kind: partial.kind ?? "card",
     position: partial.position ?? 1,
-    copy: partial.copy ?? {
-      es: { title: "Hola", body: "Cuerpo" },
-      en: { title: "Hello", body: "Body" },
-    },
+    copy: partial.copy
+      ? {
+          es: partial.copy.es ?? {},
+          en: partial.copy.en ?? {},
+          pt: partial.copy.pt ?? {},
+        }
+      : defaultCopy,
     mediaPath: partial.mediaPath,
   };
 }
@@ -37,6 +45,27 @@ describe("LandingBlocksRenderer", () => {
     expect(screen.getByText("Body")).toBeInTheDocument();
   });
 
+  it("renders Portuguese copy when locale starts with 'pt'", () => {
+    render(
+      <LandingBlocksRenderer
+        section="inicio"
+        blocks={[
+          makeBlock({
+            id: "b1",
+            copy: {
+              es: {},
+              en: {},
+              pt: { title: "Olá", body: "Corpo PT" },
+            },
+          }),
+        ]}
+        locale="pt"
+      />,
+    );
+    expect(screen.getByText("Olá")).toBeInTheDocument();
+    expect(screen.getByText("Corpo PT")).toBeInTheDocument();
+  });
+
   it("falls back to the alternate locale when the primary is empty", () => {
     render(
       <LandingBlocksRenderer
@@ -47,6 +76,7 @@ describe("LandingBlocksRenderer", () => {
             copy: {
               es: { title: "Solo ES" },
               en: {},
+              pt: {},
             },
           }),
         ]}
@@ -63,7 +93,7 @@ describe("LandingBlocksRenderer", () => {
         blocks={[
           makeBlock({
             id: "empty",
-            copy: { es: {}, en: {} },
+            copy: { es: {}, en: {}, pt: {} },
           }),
         ]}
         locale="es"
@@ -83,6 +113,7 @@ describe("LandingBlocksRenderer", () => {
             copy: {
               es: { title: "Estudiante", body: "Aprendí muchísimo." },
               en: {},
+              pt: {},
             },
           }),
         ]}
@@ -106,6 +137,7 @@ describe("LandingBlocksRenderer", () => {
             copy: {
               es: { title: "98%", body: "Estudiantes aprobados" },
               en: {},
+              pt: {},
             },
           }),
         ]}
@@ -124,7 +156,7 @@ describe("LandingBlocksRenderer", () => {
           makeBlock({
             id: "d1",
             kind: "divider",
-            copy: { es: { title: "Más abajo" }, en: {} },
+            copy: { es: { title: "Más abajo" }, en: {}, pt: {} },
           }),
         ]}
         locale="es"
@@ -138,10 +170,26 @@ describe("LandingBlocksRenderer", () => {
       <LandingBlocksRenderer
         section="inicio"
         blocks={[
-          makeBlock({ id: "f1", kind: "feature", copy: { es: { title: "F" }, en: {} } }),
-          makeBlock({ id: "c1", kind: "cta", copy: { es: { title: "C" }, en: {} } }),
-          makeBlock({ id: "d1", kind: "divider", copy: { es: { title: "D" }, en: {} } }),
-          makeBlock({ id: "k1", kind: "card", copy: { es: { title: "K" }, en: {} } }),
+          makeBlock({
+            id: "f1",
+            kind: "feature",
+            copy: { es: { title: "F" }, en: {}, pt: {} },
+          }),
+          makeBlock({
+            id: "c1",
+            kind: "cta",
+            copy: { es: { title: "C" }, en: {}, pt: {} },
+          }),
+          makeBlock({
+            id: "d1",
+            kind: "divider",
+            copy: { es: { title: "D" }, en: {}, pt: {} },
+          }),
+          makeBlock({
+            id: "k1",
+            kind: "card",
+            copy: { es: { title: "K" }, en: {}, pt: {} },
+          }),
         ]}
         locale="es"
       />,

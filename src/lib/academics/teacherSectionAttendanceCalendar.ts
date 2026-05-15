@@ -88,7 +88,7 @@ export function isTeacherAttendanceDateAllowedForSection(
   return true;
 }
 
-/** Admin matrix lower bound: section start when set, else lookback from `system.properties` (`academics.attendance.matrix.admin.fallbackLookbackDays`). */
+/** Admin matrix lower bound: section start when set, else lookback from `SYSTEM_PROPERTIES_DEFAULTS` / `site_settings.academics_attendance_matrix` (`academics.attendance.matrix.admin.fallbackLookbackDays`). */
 export function adminAttendanceMatrixEffMinIso(
   todayIso: string,
   sectionStartsOn: string | null | undefined,

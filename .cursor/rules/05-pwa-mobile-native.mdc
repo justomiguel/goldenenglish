@@ -30,7 +30,7 @@ Desktop-only tools should still behave reasonably on narrow viewports (e.g. hori
 
 When layout, navigation, or components differ between desktop and phone/installed PWA, **split into two trees** and choose at runtime. Responsive Tailwind alone is **not** enough in those cases.
 
-Branding follows `01-design-system.mdc` (`system.properties`, no duplicate institute identity).
+Branding follows `01-design-system.mdc` (brand layer: `SYSTEM_PROPERTIES_DEFAULTS` + `site_themes` overrides, no duplicate institute identity).
 
 ---
 

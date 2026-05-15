@@ -83,6 +83,7 @@ export async function addLandingBlockAction(
     copy: {
       es: parsed.data.copy.es,
       en: parsed.data.copy.en,
+      pt: parsed.data.copy.pt,
     },
   };
   const next = [...current, newBlock];
@@ -121,7 +122,11 @@ export async function updateLandingBlockAction(
     block.id === target.id
       ? {
           ...block,
-          copy: { es: parsed.data.copy.es, en: parsed.data.copy.en },
+          copy: {
+            es: parsed.data.copy.es,
+            en: parsed.data.copy.en,
+            pt: parsed.data.copy.pt,
+          },
         }
       : block,
   );

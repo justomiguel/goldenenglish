@@ -3,25 +3,20 @@
 import { useState } from "react";
 import { ArrowDown, ArrowUp, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
-import {
-  isLandingBlockCopyValid,
-  landingBlockHasField,
-} from "@/lib/cms/landingBlockKindFields";
+import { isLandingBlockCopyValid } from "@/lib/cms/landingBlockKindFields";
 import type { Dictionary } from "@/types/i18n";
 import type { LandingBlock } from "@/types/theming";
+import {
+  LandingBlockLocaleTripleInputs,
+  type BlockLocaleTripleDraft,
+} from "./LandingBlockLocaleTripleInputs";
 
 type Labels = Dictionary["admin"]["cms"]["templates"]["landing"]["blocks"];
-
-interface DraftCopy {
-  titleEs: string;
-  titleEn: string;
-  bodyEs: string;
-  bodyEn: string;
-}
 
 export interface PersistedCopy {
   es: { title?: string; body?: string };
   en: { title?: string; body?: string };
+  pt: { title?: string; body?: string };
 }
 
 export interface LandingBlockEditorRowProps {
@@ -35,26 +30,30 @@ export interface LandingBlockEditorRowProps {
   onMove: (direction: -1 | 1) => void;
 }
 
-function buildDraft(block: LandingBlock): DraftCopy {
+function buildDraft(block: LandingBlock): BlockLocaleTripleDraft {
   return {
     titleEs: block.copy.es.title ?? "",
     titleEn: block.copy.en.title ?? "",
+    titlePt: block.copy.pt.title ?? "",
     bodyEs: block.copy.es.body ?? "",
     bodyEn: block.copy.en.body ?? "",
+    bodyPt: block.copy.pt.body ?? "",
   };
 }
 
-function isDirty(block: LandingBlock, draft: DraftCopy) {
+function isDirty(block: LandingBlock, draft: BlockLocaleTripleDraft) {
   const original = buildDraft(block);
   return (
     original.titleEs !== draft.titleEs ||
     original.titleEn !== draft.titleEn ||
+    original.titlePt !== draft.titlePt ||
     original.bodyEs !== draft.bodyEs ||
-    original.bodyEn !== draft.bodyEn
+    original.bodyEn !== draft.bodyEn ||
+    original.bodyPt !== draft.bodyPt
   );
 }
 
-function toPersisted(draft: DraftCopy): PersistedCopy {
+function toPersisted(draft: BlockLocaleTripleDraft): PersistedCopy {
   return {
     es: {
       title: draft.titleEs.trim() || undefined,
@@ -63,6 +62,10 @@ function toPersisted(draft: DraftCopy): PersistedCopy {
     en: {
       title: draft.titleEn.trim() || undefined,
       body: draft.bodyEn.trim() || undefined,
+    },
+    pt: {
+      title: draft.titlePt.trim() || undefined,
+      body: draft.bodyPt.trim() || undefined,
     },
   };
 }
@@ -77,12 +80,21 @@ export function LandingBlockEditorRow({
   onRemove,
   onMove,
 }: LandingBlockEditorRowProps) {
-  const [draft, setDraft] = useState<DraftCopy>(() => buildDraft(block));
+  const [draft, setDraft] = useState<BlockLocaleTripleDraft>(() =>
+    buildDraft(block),
+  );
   const dirty = isDirty(block, draft);
   const persisted = toPersisted(draft);
   const canSave = dirty && isLandingBlockCopyValid(block.kind, persisted);
-  const showTitle = landingBlockHasField(block.kind, "title");
-  const showBody = landingBlockHasField(block.kind, "body");
+
+  const tripleLabels = {
+    titleEs: labels.titleEsLabel,
+    titleEn: labels.titleEnLabel,
+    titlePt: labels.titlePtLabel,
+    bodyEs: labels.bodyEsLabel,
+    bodyEn: labels.bodyEnLabel,
+    bodyPt: labels.bodyPtLabel,
+  };
 
   return (
     <fieldset
@@ -116,34 +128,12 @@ export function LandingBlockEditorRow({
           </button>
         </div>
       </div>
-      {showTitle ? (
-        <>
-          <RowField
-            label={labels.titleEsLabel}
-            value={draft.titleEs}
-            onChange={(v) => setDraft((d) => ({ ...d, titleEs: v }))}
-          />
-          <RowField
-            label={labels.titleEnLabel}
-            value={draft.titleEn}
-            onChange={(v) => setDraft((d) => ({ ...d, titleEn: v }))}
-          />
-        </>
-      ) : null}
-      {showBody ? (
-        <>
-          <RowTextarea
-            label={labels.bodyEsLabel}
-            value={draft.bodyEs}
-            onChange={(v) => setDraft((d) => ({ ...d, bodyEs: v }))}
-          />
-          <RowTextarea
-            label={labels.bodyEnLabel}
-            value={draft.bodyEn}
-            onChange={(v) => setDraft((d) => ({ ...d, bodyEn: v }))}
-          />
-        </>
-      ) : null}
+      <LandingBlockLocaleTripleInputs
+        kind={block.kind}
+        draft={draft}
+        labels={tripleLabels}
+        onPatch={(patch) => setDraft((d) => ({ ...d, ...patch }))}
+      />
       <div className="flex flex-wrap gap-2">
         <Button
           variant="primary"
@@ -154,62 +144,11 @@ export function LandingBlockEditorRow({
           <Save className="h-4 w-4 shrink-0" aria-hidden />
           {labels.saveCta}
         </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={disabled}
-          onClick={onRemove}
-        >
+        <Button variant="ghost" size="sm" disabled={disabled} onClick={onRemove}>
           <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
           {labels.removeCta}
         </Button>
       </div>
     </fieldset>
-  );
-}
-
-function RowField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="flex flex-col gap-1 text-sm">
-      <span className="font-semibold">{label}</span>
-      <input
-        type="text"
-        value={value}
-        maxLength={120}
-        onChange={(e) => onChange(e.target.value)}
-        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-2 py-1.5"
-      />
-    </label>
-  );
-}
-
-function RowTextarea({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="flex flex-col gap-1 text-sm">
-      <span className="font-semibold">{label}</span>
-      <textarea
-        value={value}
-        maxLength={600}
-        rows={3}
-        onChange={(e) => onChange(e.target.value)}
-        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-2 py-1.5"
-      />
-    </label>
   );
 }

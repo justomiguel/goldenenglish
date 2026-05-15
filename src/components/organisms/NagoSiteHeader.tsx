@@ -155,6 +155,7 @@ export function NagoSiteHeader({
               <Link
                 href={`/${locale}/dashboard`}
                 className="hidden min-h-[44px] items-center justify-center gap-2 rounded-full border border-[var(--nago-green)]/40 px-3 py-2 text-xs font-semibold text-[var(--nago-green)] lg:inline-flex"
+                aria-label={dict.nav.administration}
               >
                 <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
                 {dict.nav.administration}
@@ -165,6 +166,7 @@ export function NagoSiteHeader({
             <Link
               href={`/${locale}/login`}
               className="hidden min-h-[44px] items-center justify-center gap-2 rounded-full bg-[var(--nago-green)] px-4 py-2 text-xs font-semibold text-white lg:inline-flex"
+              aria-label={dict.nav.login}
             >
               <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
               {dict.nav.login}

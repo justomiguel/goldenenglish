@@ -22,7 +22,7 @@ interface PageProps {
 /**
  * Raw properties editor (PR 5). Sits next to the grouped token editor to
  * cover the long tail of allow-listed overrides that are not declared in
- * `system.properties` (e.g. a new `social.tiktok`, a seasonal color).
+ * `SYSTEM_PROPERTIES_DEFAULTS` (e.g. a new `social.tiktok`, a seasonal color).
  */
 export default async function AdminCmsTemplateRawPropertiesPage({
   params,

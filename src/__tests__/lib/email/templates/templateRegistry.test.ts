@@ -32,12 +32,14 @@ describe("emailTemplateRegistry", () => {
     }
   });
 
-  it("returns a definition with es/en defaults for every registered key", () => {
+  it("returns a definition with es/en/pt defaults for every registered key", () => {
     for (const def of listEmailTemplateDefinitions()) {
       expect(def.defaults.es.subject).toBeTruthy();
       expect(def.defaults.es.bodyHtml).toBeTruthy();
       expect(def.defaults.en.subject).toBeTruthy();
       expect(def.defaults.en.bodyHtml).toBeTruthy();
+      expect(def.defaults.pt.subject).toBe(def.defaults.es.subject);
+      expect(def.defaults.pt.bodyHtml).toBe(def.defaults.es.bodyHtml);
       expect(EMAIL_TEMPLATE_CATEGORIES).toContain(def.category);
     }
   });

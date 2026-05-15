@@ -1,6 +1,6 @@
 import { getProperty, loadProperties } from "@/lib/theme/themeParser";
 
-/** Legal age of majority from `system.properties` (`legal.age.majority`). */
+/** Legal age of majority from `SYSTEM_PROPERTIES_DEFAULTS` (`legal.age.majority`). Deprecated: prefer `loadLegalAgeMajority` for DB-backed value. */
 export function getLegalAgeMajorityFromSystem(): number {
   const props = loadProperties();
   const raw = getProperty(props, "legal.age.majority", "18");

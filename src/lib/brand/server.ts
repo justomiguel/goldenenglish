@@ -37,7 +37,7 @@ export interface BrandPublic {
 /**
  * Pure: derives the public brand object from a properties map. Used by:
  *  - `getBrandPublic()` — sync, file defaults only (tests / explicit sync paths).
- *  - `getBrandForRequest()` — merged `system.properties + site_themes.properties`.
+ *  - `getBrandForRequest()` — merged `SYSTEM_PROPERTIES_DEFAULTS + site_themes.properties`.
  *  - Root `app/layout.tsx` when feeding merged props from `loadEffectiveProperties()`.
  *
  * Reads only `process.env` for Storage URL resolution (`resolveBrandAssetUrl`);

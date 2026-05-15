@@ -3,7 +3,7 @@ import { getProperty, loadProperties } from "@/lib/theme/themeParser";
 import { getStudentEnrollmentRenewalWarnDaysFromSystem } from "@/lib/student/studentEnrollmentRenewalWarnDays";
 
 describe("getStudentEnrollmentRenewalWarnDaysFromSystem", () => {
-  it("matches student.enrollment.renewal.warn.days in system.properties (clamped)", () => {
+  it("matches student.enrollment.renewal.warn.days in SYSTEM_PROPERTIES_DEFAULTS (clamped)", () => {
     const raw = getProperty(loadProperties(), "student.enrollment.renewal.warn.days", "300");
     const parsed = Number.parseInt(raw, 10);
     const expected =

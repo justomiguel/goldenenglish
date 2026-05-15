@@ -1,4 +1,5 @@
 import type { EmailTemplateDefinition } from "@/types/emailTemplates";
+import { withPtFallback } from "@/lib/email/templates/withPtEmailDefaults";
 
 export const receiptSubmittedPendingTemplate: EmailTemplateDefinition = {
   key: "billing.receipt_submitted_pending",
@@ -16,7 +17,7 @@ export const receiptSubmittedPendingTemplate: EmailTemplateDefinition = {
     { name: "amountLabel", description: "Monto", sample: "USD 120" },
     { name: "sectionName", description: "Sección (o guión)", sample: "A2 Morning" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Recibimos tu comprobante · {{periodLabel}}",
       bodyHtml: `<p style="margin:0 0 12px;">Hola,</p>
@@ -29,7 +30,7 @@ export const receiptSubmittedPendingTemplate: EmailTemplateDefinition = {
 <p style="margin:0 0 12px;">We received your payment receipt for <strong>{{periodLabel}}</strong> ({{amountLabel}}) — <strong>{{sectionName}}</strong>.</p>
 <p style="margin:0;color:#6B7280;font-size:0.875rem;">Our team will review it and email you with the result.</p>`,
     },
-  },
+  }),
 };
 
 export const monthlyPaymentApprovedTemplate: EmailTemplateDefinition = {
@@ -44,7 +45,7 @@ export const monthlyPaymentApprovedTemplate: EmailTemplateDefinition = {
     { name: "periodLabel", description: "Período", sample: "03/2026" },
     { name: "amountLabel", description: "Monto aprobado", sample: "USD 120" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Pago aprobado · {{periodLabel}}",
       bodyHtml: `<p style="margin:0 0 12px;">Hola,</p>
@@ -55,7 +56,7 @@ export const monthlyPaymentApprovedTemplate: EmailTemplateDefinition = {
       bodyHtml: `<p style="margin:0 0 12px;">Hello,</p>
 <p style="margin:0;">Your payment for <strong>{{periodLabel}}</strong> — <strong>{{amountLabel}}</strong> — is approved.</p>`,
     },
-  },
+  }),
 };
 
 export const monthlyPaymentRejectedTemplate: EmailTemplateDefinition = {
@@ -70,7 +71,7 @@ export const monthlyPaymentRejectedTemplate: EmailTemplateDefinition = {
     { name: "periodLabel", description: "Período", sample: "03/2026" },
     { name: "rejectionNote", description: "Nota (opcional)", sample: "—" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Comprobante no aprobado · {{periodLabel}}",
       bodyHtml: `<p style="margin:0 0 12px;">Hola,</p>
@@ -83,7 +84,7 @@ export const monthlyPaymentRejectedTemplate: EmailTemplateDefinition = {
 <p style="margin:0 0 8px;">We could not approve the receipt for <strong>{{periodLabel}}</strong>.</p>
 <p style="margin:0;color:#6B7280;font-size:0.875rem;">{{rejectionNote}}</p>`,
     },
-  },
+  }),
 };
 
 export const adminRecordedMonthlyPaidTemplate: EmailTemplateDefinition = {
@@ -102,7 +103,7 @@ export const adminRecordedMonthlyPaidTemplate: EmailTemplateDefinition = {
     { name: "amountLabel", description: "Monto", sample: "USD 120" },
     { name: "sectionName", description: "Sección", sample: "A2 Morning" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Pago registrado · {{periodLabel}}",
       bodyHtml: `<p style="margin:0 0 12px;">Hola,</p>
@@ -113,7 +114,7 @@ export const adminRecordedMonthlyPaidTemplate: EmailTemplateDefinition = {
       bodyHtml: `<p style="margin:0 0 12px;">Hello,</p>
 <p style="margin:0;">We recorded your payment for <strong>{{periodLabel}}</strong> ({{amountLabel}}) — <strong>{{sectionName}}</strong>.</p>`,
     },
-  },
+  }),
 };
 
 export const overdueBalanceReminderTemplate: EmailTemplateDefinition = {
@@ -129,7 +130,7 @@ export const overdueBalanceReminderTemplate: EmailTemplateDefinition = {
     { name: "amountLabel", description: "Monto vencido", sample: "USD 240" },
     { name: "periodContext", description: "Contexto de período o año", sample: "2026" },
   ],
-  defaults: {
+  defaults: withPtFallback({
     es: {
       subject: "Recordatorio: cuota pendiente · {{sectionName}}",
       bodyHtml: `<p style="margin:0 0 12px;">Hola,</p>
@@ -142,7 +143,7 @@ export const overdueBalanceReminderTemplate: EmailTemplateDefinition = {
 <p style="margin:0 0 8px;">Your account shows <strong>{{amountLabel}}</strong> overdue for <strong>{{sectionName}}</strong> ({{periodContext}}).</p>
 <p style="margin:0;color:#6B7280;font-size:0.875rem;">Please upload a receipt or contact us if you have already paid.</p>`,
     },
-  },
+  }),
 };
 
 export const BILLING_PAYMENT_NOTICE_TEMPLATES: ReadonlyArray<EmailTemplateDefinition> = [

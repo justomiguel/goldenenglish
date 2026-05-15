@@ -3,7 +3,7 @@ import type { ThemePropertyOverrides } from "@/types/theming";
 
 /** Subset of design tokens that are visually meaningful in the small theme
  *  preview card shown in the admin templates grid. Each value is a CSS color
- *  string already merged from `system.properties` defaults + the theme's
+ *  string already merged from `SYSTEM_PROPERTIES_DEFAULTS` + the theme's
  *  `properties` overrides — the consumer just spreads them into `style`. */
 export interface ThemePreviewTokens {
   colorPrimary: string;
@@ -30,8 +30,8 @@ const FALLBACK: ThemePreviewTokens = {
   colorSurface: "#FFFFFF",
   colorForeground: "#103A5C",
   colorMuted: "#F0EFEA",
-  colorMutedForeground: "#5C6B7A",
-  colorBorder: "#E2E0D8",
+  colorMutedForeground: "#4B5563",
+  colorBorder: "#8A8275",
   layoutBorderRadius: "0.75rem",
 };
 
@@ -61,7 +61,7 @@ function pick(
 }
 
 /** Pure: build the preview tokens for one theme. `defaults` should be the
- *  loaded `system.properties` map (so we don't I/O per theme), `overrides`
+ *  loaded `SYSTEM_PROPERTIES_DEFAULTS` map (so we don't I/O per theme), `overrides`
  *  the row's `properties` JSON. Unsafe values silently fall back. */
 export function extractThemePreviewTokens(
   defaults: ThemeProperties,

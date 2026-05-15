@@ -1,52 +1,52 @@
 ---
-description: Estados de carga y transición al mostrar imágenes (Next/Image o img) para evitar saltos bruscos; obligatorio más estricto en carruseles.
+description: Loading and transition states for `next/image` or `<img>` to avoid abrupt layout jumps — stricter guidance for carousels.
 globs:
   - "src/components/**/*.tsx"
   - "src/app/**/*.tsx"
 ---
 
-# Imágenes: carga perceptible y carruseles (Golden English)
+# Images: perceptible loading + carousel expectations (Golden English)
 
-## Objetivo
+## Objective
 
-Cuando una imagen **no está en caché** o el **`src` cambia** (modal, pestaña, slide), el usuario no debe ver un “vacío” o un cambio brusco sin feedback. La **percepción** de carga debe ser suave y accesible, alineada con **`skeleton-loading.mdc`**, **`01-design-system.mdc`** (tokens) y **`09-i18n-copy.mdc`** (copy / `aria-live`).
+Whenever an image lacks cache priming or its **`src`** mutates (tabs, modals, slides), skip “empty flashes” or abrupt swaps. Loading states should feel smooth, accessible, and DS-aligned — see **`skeleton-loading.mdc`**, **`01-design-system.mdc`** (tokens), **`09-i18n-copy.mdc`** (copy/`aria-live`).
 
-## Cuándo aplica
+## Applicability matrix
 
-| Contexto | Requisito |
-|----------|-----------|
-| **`next/image` o `<img>`** con `src` dinámico o que puede tardar en decodificar | **Sí** — estado de carga hasta `onLoad` / `onError` (o equivalente). |
-| **Hero / LCP** (`priority`, above-the-fold) | Misma idea: **placeholder estable** (altura fija, `animate-pulse`, o blur placeholder si el flujo ya lo usa) y transición suave; **no** cubrir el hero con un spinner fullscreen. |
-| **Carrusel / galería** (cambio de slide, `key={src}`) | **Obligatorio** — feedback **por foto**: al cambiar índice, mostrar loader o capa de espera hasta que la nueva imagen confirme carga; **`aria-busy`** en el contenedor mientras corresponda. |
+| Scenario | Requirement |
+|----------|-------------|
+| `next/image` or `<img>` with dynamic `src` / slow decode | Maintain explicit loading affordance until load/error callbacks fire. |
+| Hero / LCP (`priority`, above-the-fold) | Stable placeholders (fixed height, shimmer, blur data URL if already used)—**no** fullscreen spinners occluding hero text. |
+| Carousels/galleries (slide index swaps, `key={src}`) | **Mandatory** per-photo feedback: show loader/overlay until incoming asset loads; apply `aria-busy` on container while pending. |
 
-## Patrones permitidos
+## Recommended patterns
 
-1. **Capa superpuesta** — Fondo con `color-mix` / `var(--color-muted)` + icono **`Loader2`** (`lucide-react`, `animate-spin`) o skeleton con `animate-pulse` en el **hueco de la imagen**.
-2. **Opacidad** — Imagen con `opacity-0` → `opacity-100` y `transition-opacity` al completar `onLoad` (evita parpadeo duro).
-3. **Estado sincronizado** — Al cambiar slide, poner `loading` en **`true` en el mismo handler** que actualiza el índice (no solo en `useEffect` después del paint), para no dejar un frame sin feedback.
-4. **Errores** — En `onError`, apagar el loader y, si hay superficie visible, estado vacío o mensaje desde **diccionario** (**`09`**).
+1. **Overlay shim** — tinted `color-mix` / `var(--color-muted)` slab with spinning **`Loader2`** (`lucide-react`, `animate-spin`) sized to image frame.
+2. **Opacity fades** — Start `opacity-0` → animate to `opacity-100` upon `onLoad` to reduce hard pops.
+3. **State sync** — When slide index changes, set `loading=true` **within the same handler** that updates media (avoid one blank frame before `useEffect`).
+4. **Errors** — Clear overlays on `onError`; show dictionary-backed empty/error states when user-facing.
 
-## Accesibilidad
+## Accessibility
 
-- Contenedor del recurso o del loader: **`aria-busy={true}`** mientras la imagen visible está pendiente.
-- Si se anuncia progreso a lectores de pantalla: **`role="status"`** + **`aria-live="polite"`** y texto desde **`src/dictionaries/en.json` + `es.json`** (p. ej. “Cargando foto”), no literales en JSX.
+- Containers carry **`aria-busy={true}`** while waiting for the active asset.
+- Announce progress only when necessary using **`role="status"`** + **`aria-live="polite"`** with dictionary strings (**`09`**), not inline literals.
 
-## Evitar duplicación
+## Avoid duplication
 
-Si el mismo patrón (loader + `onLoad`/`onError` + transición) se repite en **dos o más** pantallas, extraer una **molécula** bajo `src/components/molecules/` (nombre claro, un componente principal por archivo) y tests acotados — **`03-architecture.mdc`**, **`02-testing-tdd.mdc`**.
+Repeated loader logic across ≥2 flows deserves a **`src/components/molecules`** extraction (single exported component/file) backed by **`02-testing-tdd.mdc`**.
 
-## Referencia en el repo
+### Existing reference carousel
 
-- Carrusel con loader por slide: `src/components/organisms/NagoLandingGallery.tsx`.
+`src/components/organisms/NagoLandingGallery.tsx`.
 
-## Checklist del agente
+### Agent QA
 
-- [ ] ¿El `src` puede cambiar o la red/decodificación no es instantánea? → Hay placeholder o loader hasta `onLoad`/`onError`.
-- [ ] ¿Carrusel? → Loader (o equivalente) **por cambio de slide**, transición suave, `aria-busy` coherente.
-- [ ] ¿Copy o anuncios para usuarios? → **Diccionarios** (**`09`**).
-- [ ] ¿Colores? → Tokens (**`01`**), sin hex sueltos en estados de carga.
+- [ ] Dynamic `src` / network ⇒ placeholder/loader lifecycle until settle.
+- [ ] Carousel transitions always show discernible loaders + cohesive `aria-busy`.
+- [ ] User-visible strings ⇒ dictionaries (**`09`**).
+- [ ] Colors rely on semantic tokens (**`01`**).
 
-## Relación con otras reglas
+### Related rules
 
-- **`skeleton-loading.mdc`** — Esqueletos de pantalla y listas; esta regla cubre **huecos de imagen** y **carruseles** explícitamente.
-- **`01-design-system.mdc`** — Subidas de archivo siguen usando **`InlineUploadProgressBar`**; esta regla es para **render de imagen** ya con URL conocida.
+- **`skeleton-loading.mdc`** — page/list skeleton scaffolding; this focuses on inline images/carousels.
+- **`01-design-system.mdc`** — uploads still channel through **`InlineUploadProgressBar`**; this rule focuses on fetched/render-time imagery.

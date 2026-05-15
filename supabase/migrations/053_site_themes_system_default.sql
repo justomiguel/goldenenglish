@@ -2,11 +2,11 @@
 -- editable desde el CMS igual que cualquier otro template.
 --
 -- Antes: el grid de admin renderizaba un card "virtual" leyendo solo
--- `system.properties`, pero los textos / properties / blocks de ese tema no se
+-- `SYSTEM_PROPERTIES_DEFAULTS`, pero los textos / properties / blocks de ese tema no se
 -- podían modificar desde la UI (no había row donde guardar overrides).
 -- Después: existe siempre un row con slug='default' marcado
 -- `is_system_default = true`, que arranca con `properties = {}` y `content = {}`
--- (=> hereda `system.properties` y los diccionarios), y cualquier admin puede
+-- (=> hereda `SYSTEM_PROPERTIES_DEFAULTS` y los diccionarios), y cualquier admin puede
 -- editar tokens, copy de landing, hero o blocks como con los demás templates.
 -- Las server actions bloquean archivar/borrar el system default para garantizar
 -- que siempre haya un fallback consistente.

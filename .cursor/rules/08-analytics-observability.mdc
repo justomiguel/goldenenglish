@@ -1,68 +1,68 @@
 ---
-description: "Analytics / observabilidad: user_events, API /api/analytics/events, recordSystemAudit; features sin flujos silenciosos."
+description: "Analytics / observability: user_events, /api/analytics/events, recordSystemAudit; no silent flows."
 alwaysApply: true
 ---
 
-> **Cursor:** frontmatter con `alwaysApply: true` → esta regla cuenta como **Always** (aplicación global en cada chat). No uses `globs` aquí: ya cubre todo el repo.
+> **Cursor:** `alwaysApply: true` frontmatter marks this rule as **Always** (global coverage in chats). Do not add `globs` here—it already scopes the repo.
 
-# Analytics y registro de eventos (no negociable)
+# Analytics & event tracking (non-negotiable)
 
-## Objetivo
+## Goal
 
-Cada **feature nueva** o cambio sustancial en flujos autenticados debe **dejar constancia observable** en el sistema de métricas del proyecto: **emitir eventos**, **consumirlos** de forma coherente (agregados, engagement, admin) o **exportarlos** vía las tablas y RPC ya definidas. No se aceptan flujos “silenciosos” que no puedan auditarse ni analizarse con el mismo pipeline.
+Every **new feature** or material change to **authenticated flows** must leave **observable traces** in the project’s measurement system: **emit events**, **consume them coherently** (aggregates, engagement, admin) or **export them** via the existing tables/RPC routes. Silent flows that cannot be audited or analyzed with the same pipeline are unacceptable.
 
 ---
 
-## Fuentes de verdad en el repo
+## Sources of truth in this repo
 
-| Propósito | Dónde | Cuándo usarlo |
+| Purpose | Location | When to use |
 |-----|-----|-----|
-| Eventos de producto (usuario autenticado) | Tabla `public.user_events` (migración `010_analytics_observability.sql`) | Navegación, clicks, acciones de negocio que deben verse en analítica y exports admin. |
-| Ingesta cliente | `trackEvent` / `trackPageView` en `src/lib/analytics/trackClient.ts` → `POST /api/analytics/events` | Interacción en el navegador (PWA/web) con sesión; respeta cola offline y `sanitizeAnalyticsMetadata`. |
-| Ingesta servidor (mismo usuario) | `recordUserEventServer` en `src/lib/analytics/server/recordUserEvent.ts` | Cuando el registro debe ocurrir en el servidor tras una acción (acción ya autenticada, mismo `userId`). |
-| Cambios / acciones de staff (auditoría) | `public.system_config_audit` + `recordSystemAudit` en `src/lib/analytics/server/recordSystemAudit.ts` | Mutaciones admin, cambios de configuración, operaciones que deben quedar **actor + recurso + payload** sin mezclarlas con `user_events` de alumno. |
+| Product events (signed-in users) | `public.user_events` (migration `010_analytics_observability.sql`) | Navigation, clicks, business actions surfaced in analytics and admin exports |
+| Client ingest | `trackEvent` / `trackPageView` in `src/lib/analytics/trackClient.ts` → `POST /api/analytics/events` | Browser interaction (PWA/web) with session; respects offline queue and `sanitizeAnalyticsMetadata` |
+| Server ingest (same user) | `recordUserEventServer` in `src/lib/analytics/server/recordUserEvent.ts` | Logging must occur on the server after an action (action already authenticated, same `userId`) |
+| Staff/system changes (audit trail) | `public.system_config_audit` + `recordSystemAudit` in `src/lib/analytics/server/recordSystemAudit.ts` | Admin mutations, configuration changes — **actor + resource + payload**, not mixed into student-facing `user_events` |
 
-El layout ya monta telemetría de sesión y página vía `src/components/analytics/AnalyticsProvider.tsx`; las rutas nuevas del dashboard deben **completar** el modelo (entidades, acciones), no ignorarlo.
-
----
-
-## Reglas de implementación
-
-1. **Tipos y entidades estables** — Los valores de `event_type` están acotados al union `UserEventTypeName` en `src/lib/analytics/eventConstants.ts` y al enum en BD / `zod` en `src/app/api/analytics/events/route.ts`. Añadir un tipo nuevo implica **migración SQL** + actualizar **tipo TS**, **schema del route** y **tests**; no introducir strings sueltos.
-2. **Claves `entity` predecibles** — Reutilizar o extender `AnalyticsEntity` y `pathnameToEntity()` en `eventConstants.ts` para rutas o secciones nuevas cuando aporten métricas de funnel o engagement; prefijo estable (`section:`, `route:`, `material:`, etc.) para agregados SQL.
-3. **Metadata segura** — Todo metadata pasa por `sanitizeAnalyticsMetadata` (cliente en `trackClient`, servidor en el route y en `recordUserEventServer`). No volcar PII, tokens ni payloads completos de formularios.
-4. **Acciones de negocio relevantes** — Tras éxito de una mutación visible para el usuario (pago enviado, mensaje enviado, importación completada, etc.), registrar al menos un `action` o `click` (o auditoría admin) con `entity` y metadata mínima útil para soporte y producto.
-5. **Solo staff / sistema** — Para cambios de configuración o herramientas internas, preferir `recordSystemAudit` con `action`, `resource_type`, `resource_id` y `payload` acotado; no duplicar en `user_events` salvo que el evento sea genuinamente “usuario en el producto”.
-6. **Consumo y exports** — Si la feature lee analítica (gráficos admin, listados), debe usar las mismas tablas/RPC existentes o proponer extensión documentada (nueva RPC, índice, vista) **sin** consultas ad hoc a tablas ignoradas en RLS.
+Layouts already attach session/page telemetry via `src/components/analytics/AnalyticsProvider.tsx`; **new dashboard routes must extend** the model (entities, actions), not ignore it.
 
 ---
 
-## Fiabilidad y prácticas tipo SRE (donde aplique)
+## Implementation rules
 
-Las tablas y pipelines de eventos y auditoría descritos arriba son la capa de **observabilidad de producto**. Para flujos **autenticados críticos** (pagos, registro, mensajería, importaciones), además:
-
-1. **SLI / SLO ligeros** — definir **indicadores** medibles con los datos ya expuestos (p. ej. tasa de éxito de `action` relevantes, latencia de API propia, ratio de errores 5xx en rutas asociadas). Un **SLO** es un objetivo interno (p. ej. “≥ 99% de envíos de mensaje registrados como éxito en ventana de 7 días”) documentado en ADR o runbook cuando el flujo sea nuevo o de alto riesgo; ver **`10-engineering-governance.mdc`**.
-2. **Alertas accionables** — toda alerta debe indicar **qué mirar** (dashboard, query, tabla `user_events` / logs) y **qué hacer**; evitar alertas solo “subió el tráfico” sin umbral ni runbook. Alineado con buenas prácticas de servicios en producción ([SRE Book — prácticas de servicios](https://sre.google/sre-book/service-best-practices/)).
-3. **No sustituir monitoreo de infra** — esta regla **no** exige duplicar APM; exige que los flujos críticos **no queden silenciosos** (eventos + auditoría + documentación de umbrales cuando el equipo los adopte).
-4. **Plantilla** — para nuevos flujos críticos, copiar `docs/runbooks/slo-template.md` al repo de runbooks o enlazarlo desde la PR.
-
----
-
-## Checklist al añadir o cambiar una feature
-
-- [ ] ¿Hay **evento de producto** (`trackEvent` / `recordUserEventServer`) o **auditoría** (`recordSystemAudit`) donde corresponda?
-- [ ] ¿La **ruta o sección** nueva queda reflejada en `pathnameToEntity` / `AnalyticsEntity` si afecta métricas por pantalla?
-- [ ] ¿`event_type` y **metadata** siguen los límites y sanitización existentes?
-- [ ] ¿Los cambios en tipos o API de eventos incluyen **tests** (p. ej. bajo `src/__tests__/lib/analytics/`) y migración si aplica?
-- [ ] Si el flujo es **crítico**: ¿hay **SLI/SLO** o criterio de éxito documentado y **alerta** con acción clara cuando aplique en el entorno del equipo?
+1. **Stable types / entities** — `event_type` values are constrained to the `UserEventTypeName` union in `src/lib/analytics/eventConstants.ts` and mirrored in the DB enum / Zod in `src/app/api/analytics/events/route.ts`. New types imply **SQL migration**, **TS updates**, **route schema**, and **tests**; no loose strings.
+2. **Predictable `entity` keys** — Reuse or extend `AnalyticsEntity` and `pathnameToEntity()` in `eventConstants.ts` for routes/sections contributing funnel metrics; stable prefixes (`section:`, `route:`, `material:`, …) aid SQL aggregates.
+3. **Safe metadata** — All metadata flows through `sanitizeAnalyticsMetadata` (client in `trackClient`, server in the route + `recordUserEventServer`). Do not dump PII, tokens, or full forms.
+4. **Meaningful business mutations** — After visible success (payment submitted, message sent, import finished, …), emit at least one `action` or `click` (or admin audit) with helpful `entity` + minimal metadata for support/product.
+5. **Staff/system only** — For configuration/tooling internals, prefer `recordSystemAudit` (`action`, `resource_type`, `resource_id`, bounded `payload`). Do **not** duplicate identical facts in `user_events` unless genuinely end-user-visible.
+6. **Consumption exports** — If a feature surfaces analytics charts/lists, reuse existing tables/RPC or propose a documented extension (new RPC/index/view); **avoid** bespoke queries against ignored RLS semantics.
 
 ---
 
-## Referencias rápidas
+## Reliability / SRE-style guidance (when applicable)
 
-- Constantes y mapeo de entidad: `src/lib/analytics/eventConstants.ts`
-- Cliente y cola: `src/lib/analytics/trackClient.ts`, `src/lib/analytics/offlineQueue.ts`
-- API: `src/app/api/analytics/events/route.ts`
-- Servidor: `src/lib/analytics/server/recordUserEvent.ts`, `src/lib/analytics/server/recordSystemAudit.ts`
-- Sanitización: `src/lib/analytics/sanitizeMetadata.ts`
-- Esquema: `supabase/migrations/010_analytics_observability.sql`
+The tables above are **product observability**. For **critical authenticated journeys** (payments, registration, messaging, imports), also:
+
+1. **Light SLI / SLO** — define measurable signals from exposed data (e.g. success rate on key `action`s, latency of internal APIs, 5xx rates on tied routes). An **SLO** is internal (example: “≥ 99% messaging sends logged as successful over 7 days”) documented via ADR or runbook when a flow is new or high risk; see **`10-engineering-governance.mdc`**.
+2. **Actionable alerts** — every alert must say **what to inspect** (dashboard/query/`user_events` / logs) and **what to do**; skip vague “traffic up” thresholds without docs. Mirrors production service practices described in Google’s [**SRE book — service practices**](https://sre.google/sre-book/service-best-practices/).
+3. **No substitute for infra monitoring** — this rule doesn’t mandate duplicating APM; it forbids silent critical journeys (events + audit + documented thresholds when adopted).
+4. **Template** — for new critical paths, copy `docs/runbooks/slo-template.md` into runbooks or link from PRs.
+
+---
+
+## Feature checklist
+
+- [ ] Is there **product instrumentation** (`trackEvent` / `recordUserEventServer`) or **audit logging** (`recordSystemAudit`) where appropriate?
+- [ ] Does a **route/section addition** extend `pathnameToEntity` / `AnalyticsEntity` if page-level metrics matter?
+- [ ] Do `event_type` + **metadata** respect limits/sanitization?
+- [ ] Do type/API changes ship with **tests** (e.g. under `src/__tests__/lib/analytics/`) and migrations when schema changes occur?
+- [ ] Critical flows documented with **SLI/SLO**, success signals, actionable alerts when warranted?
+
+---
+
+## Quick references
+
+- Constants + entity routing: `src/lib/analytics/eventConstants.ts`
+- Client & queue: `src/lib/analytics/trackClient.ts`, `src/lib/analytics/offlineQueue.ts`
+- API handler: `src/app/api/analytics/events/route.ts`
+- Server helpers: `src/lib/analytics/server/recordUserEvent.ts`, `src/lib/analytics/server/recordSystemAudit.ts`
+- Sanitizer: `src/lib/analytics/sanitizeMetadata.ts`
+- Schema: `supabase/migrations/010_analytics_observability.sql`

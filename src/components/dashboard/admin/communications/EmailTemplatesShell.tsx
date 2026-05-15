@@ -6,6 +6,7 @@ import { fillTemplate } from "@/lib/i18n/fillTemplate";
 import { wrapEmailHtml } from "@/lib/email/templates/wrapEmailHtml";
 import { resetEmailTemplateAction, saveEmailTemplateAction, type EmailTemplateActionErrorCode } from "@/app/[locale]/dashboard/admin/communications/templates/actions";
 import type { Dictionary, Locale } from "@/types/i18n";
+import { locales } from "@/lib/i18n/dictionaries";
 import { RotateCcw, Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
@@ -25,6 +26,10 @@ export interface EmailTemplatesShellProps {
   entries: EmailTemplatesShellEntry[];
   brand: EmailTemplatesShellBrand;
   origin: string;
+}
+
+function templateAdminCopyLocale(loc: Locale): "es" | "en" {
+  return loc === "en" ? "en" : "es";
 }
 
 interface SelectedKey {
@@ -75,8 +80,8 @@ export function EmailTemplatesShell({
 
   function onSelectChange(value: string) {
     const [k, l] = value.split("::");
-    if (!k || (l !== "es" && l !== "en")) return;
-    changeSelection({ templateKey: k, templateLocale: l });
+    if (!k || !(locales as readonly string[]).includes(l)) return;
+    changeSelection({ templateKey: k, templateLocale: l as Locale });
   }
 
   function handleSave() {
@@ -154,9 +159,9 @@ export function EmailTemplatesShell({
           className="w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm"
         >
           {entries.map((entry) =>
-            (["es", "en"] as Locale[]).map((loc) => (
+            locales.map((loc) => (
               <option key={`${entry.definition.key}::${loc}`} value={`${entry.definition.key}::${loc}`}>
-                {entry.definition.label[loc === "es" ? "es" : "en"]} — {labels.localeLabel[loc]}
+                {entry.definition.label[templateAdminCopyLocale(loc)]} — {labels.localeLabel[loc]}
                 {entry.overridesByLocale[loc] ? ` ${labels.editedSuffix}` : ""}
               </option>
             )),
@@ -164,7 +169,7 @@ export function EmailTemplatesShell({
         </select>
 
         <p className="text-xs text-[var(--color-muted-foreground)]">
-          {selectedEntry.definition.description[selected.templateLocale === "es" ? "es" : "en"]}
+          {selectedEntry.definition.description[templateAdminCopyLocale(selected.templateLocale)]}
         </p>
 
         <EmailTemplateEditor

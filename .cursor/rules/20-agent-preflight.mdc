@@ -1,61 +1,61 @@
 ---
-description: Alineación y plan antes de implementar; palabra clave PREFLIGHT y exclusiones para cambios triviales.
+description: Align on plan before implementing; PREFLIGHT keyword and carve-outs for trivial changes.
 globs:
   - "**/*"
 alwaysApply: true
 ---
 
-# Preflight: acuerdo antes de implementar
+# Preflight: agreement before implementation
 
-## Objetivo
+## Goal
 
-Reducir supuestos incorrectos y deriva de alcance: en los casos que abajo se listan, el agente **no** modifica código ni archivos de configuración hasta completar el bloque “Entrega obligatoria” y recibir **confirmación explícita** del usuario.
+Reduce wrong assumptions and scope drift: in the cases listed below, the agent **must not** modify code or configuration until it finishes the **mandatory deliverable** block and receives **explicit user confirmation**.
 
-Esta regla **no** sustituye **`complete-solutions-always.mdc`**: el preflight ordena el alcance y el plan; la solución sigue siendo completa según las demás reglas del repo.
+This rule **does not** replace **`complete-solutions-always.mdc`**: preflight scopes the plan; the solution still must be complete per the rest of the repo rules.
 
-## Cuándo aplicar preflight (obligatorio)
+## When preflight is mandatory
 
-Aplicar **todo** el flujo de abajo si **cualquiera** de estos puntos se cumple:
+Apply the **full** flow below if **any** of these is true:
 
-1. El mensaje del usuario contiene la marca **`PREFLIGHT`** (recomendado para forzar el modo).
-2. El alcance toca **auth**, **sesión**, **roles**, **RLS** o políticas de acceso en Postgres.
-3. Hay **migración nueva**, cambio de **modelo de datos** visible fuera de un solo módulo, o **contrato público** (API route, webhook, cron, server action consumida por varios clientes).
-4. El mensaje pide explícitamente **plan**, **acordar**, **diseño** o **no implementar todavía**.
-5. La petición es **ambigua** (varias interpretaciones razonables) o falta **definition of done** claro.
-6. Toca superficies de **`.cursor/rules/17-trust-boundary-handlers.mdc`** (cron, webhooks, respuestas personalizadas, mutaciones cross-account, HTML persistido).
-7. Es **alta de tenant** multi-site (nuevo slug, targets Vercel, env prefijado, y/o plantilla `site_theme_kind` nueva): la lista de datos a confirmar está en [`docs/runbooks/add-new-tenant.md`](../../docs/runbooks/add-new-tenant.md); si el mensaje no la trae, el agente debe pedirla en **Supuestos y preguntas abiertas** antes de implementar.
+1. The user message includes the **`PREFLIGHT`** tag (recommended to force the mode).
+2. Scope touches **auth**, **session**, **roles**, **RLS**, or Postgres access policies.
+3. There is a **new migration**, a **data model change** visible outside a single module, or a **public contract** (API route, webhook, cron, server action consumed by multiple clients).
+4. The message explicitly asks for **plan**, **alignment**, **design**, or **do not implement yet**.
+5. The request is **ambiguous** (multiple reasonable readings) or lacks a clear **definition of done**.
+6. It touches surfaces covered by **`.cursor/rules/17-trust-boundary-handlers.mdc`** (cron, webhooks, personalized responses, cross-account mutations, persisted HTML).
+7. It is **multi-site tenant onboarding** (new slug, Vercel targets, prefixed env, and/or new `site_theme_kind` template): required data to confirm is in [`docs/runbooks/add-new-tenant.md`](../../docs/runbooks/add-new-tenant.md); if the message omits it, the agent must request it under **Assumptions and open questions** before implementing.
 
-## Cuándo **no** aplicar preflight (saltear)
+## When **not** to apply preflight (skip)
 
-El agente **puede** ir directo a cambios mínimos cuando:
+The agent **may** go straight to minimal changes when:
 
-- El usuario pide explícitamente **implementar directo**, **sin preflight**, **skip preflight**, o equivalente claro; **o**
-- El cambio es **acotado y obvio**: typo, un solo archivo ya identificado, ajuste de copy acotado, formato, o corrección trivial con riesgo bajo; **y** no cae en los bullets obligatorios de la sección anterior.
+- The user explicitly asks to **implement directly**, **skip preflight**, **no preflight**, or clear equivalent; **or**
+- The change is **narrow and obvious**: typo, single already-identified file, small copy tweak, formatting, or low-risk trivial fix; **and** it does not fall under the mandatory bullets above.
 
-Si hay duda entre “trivial” y “riesgo alto”, **aplicar preflight**.
+If unsure between “trivial” and “high risk,” **apply preflight**.
 
-## Entrega obligatoria (antes de tocar código)
+## Mandatory deliverable (before touching code)
 
-En **una sola respuesta**, entregar en este orden (secciones con encabezados claros):
+In **one** response, provide in this order (clear section headings):
 
-1. **Entendimiento** — 2–4 viñetas: qué se pide y dentro de qué contexto del repo.
-2. **Supuestos y preguntas abiertas** — lo que falta confirmar; preguntas concretas al usuario.
-3. **Plan propuesto** — pasos, capas afectadas (`src/lib`, actions, UI, migraciones si aplica), patrones existentes a reutilizar (nombres de archivos si ya se conocen).
-4. **Riesgos y mitigación** — p. ej. RLS, i18n, analytics, tests, rendimiento.
-5. **Definition of done** — qué debe quedar verde o verificable (tests, checklist manual, criterios de aceptación).
+1. **Understanding** — 2–4 bullets: what is requested and in what repo context.
+2. **Assumptions and open questions** — what still needs confirmation; concrete questions for the user.
+3. **Proposed plan** — steps, affected layers (`src/lib`, actions, UI, migrations if any), existing patterns to reuse (filenames if known).
+4. **Risks and mitigation** — e.g. RLS, i18n, analytics, tests, performance.
+5. **Definition of done** — what must be green or verifiable (tests, manual checklist, acceptance criteria).
 
-Luego **parar** y esperar confirmación explícita (p. ej. “adelante”, “ok implementá”, “sí”) antes de **cualquier** herramienta de edición, terminal, o patch.
+Then **stop** and wait for explicit confirmation (e.g. “go ahead”, “ok implement”, “yes”) before **any** editing tool, terminal mutation, or patch.
 
-**Lectura de código de solo consulta** (read-only) para armar el plan está permitida antes de la confirmación cuando sea necesario para no inventar APIs.
+**Read-only** code review to build the plan is allowed before confirmation when needed to avoid inventing APIs.
 
-## Coherencia con gobernanza y tests
+## Alignment with governance and tests
 
-- Si el preflight revela alcance cubierto por **`10-engineering-governance.mdc`**, mencionar si hace falta **ADR / mini diseño** antes o en el mismo cambio.
-- **`990-tests-failure-confirmation.mdc`** sigue aplicando en contexto de commit / gate de CI.
+- If preflight surfaces scope under **`10-engineering-governance.mdc`**, note whether an **ADR / mini design** is needed before or in the same change.
+- **`990-tests-failure-confirmation.mdc`** still applies in commit / CI gate contexts.
 
-## Checklist rápido del agente
+## Quick agent checklist
 
-- [ ] ¿Aplica algún disparador obligatorio? → preflight completo.
-- [ ] ¿Usuario forzó `PREFLIGHT`? → siempre preflight completo.
-- [ ] ¿Usuario pidió saltear y el cambio no es de alto riesgo? → implementar directo.
-- [ ] ¿Confirmación recibida? → recién ahí editar / ejecutar comandos mutativos.
+- [ ] Does a mandatory trigger apply? → full preflight.
+- [ ] Did the user force `PREFLIGHT`? → always full preflight.
+- [ ] Did the user ask to skip and the change is not high risk? → implement directly.
+- [ ] Confirmation received? → only then edit / run mutating commands.

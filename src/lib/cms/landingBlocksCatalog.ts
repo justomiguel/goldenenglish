@@ -75,7 +75,7 @@ function parseMediaPath(raw: unknown): string | undefined {
 /**
  * Parses a raw `blocks` JSONB into the canonical `LandingBlock[]` shape:
  *  - drops entries with invalid id / section / kind,
- *  - drops entries with no copy in either locale (avoids empty cards leaking
+ *  - drops entries with no usable copy in any locale (avoids empty cards leaking
  *    into the public landing),
  *  - clamps oversize strings,
  *  - re-numbers `position` per section so renderers get a contiguous order.
@@ -100,10 +100,12 @@ export function parseLandingBlocks(raw: unknown): ReadonlyArray<LandingBlock> {
     const copy = {
       es: parseLocaleCopy(copySource.es),
       en: parseLocaleCopy(copySource.en),
+      pt: parseLocaleCopy(copySource.pt),
     };
     const hasAnyCopy =
       Boolean(copy.es.title || copy.es.body) ||
-      Boolean(copy.en.title || copy.en.body);
+      Boolean(copy.en.title || copy.en.body) ||
+      Boolean(copy.pt.title || copy.pt.body);
     if (!hasAnyCopy) continue;
     const positionRaw = Number(candidate.position);
     const position = Number.isFinite(positionRaw) ? positionRaw : valid.length;

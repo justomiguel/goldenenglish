@@ -17,7 +17,7 @@ export type PublicBrandWithSetup = {
 
 /**
  * Brand + setup flag for marketing/auth shells. When initial site setup is
- * pending, omits Golden-template identity from `system.properties`.
+ * pending, omits Golden-template identity from `SYSTEM_PROPERTIES_DEFAULTS`.
  */
 export const resolvePublicBrandWithSetup = cache(
   async (locale: AppLocale): Promise<PublicBrandWithSetup> => {

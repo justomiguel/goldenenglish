@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+.venv-pt-translate/
 
 # Local spreadsheets (often contain PII); never commit rosters
 public/*.xlsx
@@ -47,6 +48,8 @@ yarn-error.log*
 # vercel
 .vercel
 scripts/vercel-targets.local.json
+scripts/a11y-lighthouse-manifest.local.json
+.lighthouse/
 
 # typescript
 *.tsbuildinfo

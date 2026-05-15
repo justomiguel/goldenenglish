@@ -42,7 +42,7 @@ export interface SiteThemeRawEditorShellProps {
  * The admin mutates a single `draft` map in memory and submits the full
  * overrides payload to `updateSiteThemePropertiesAction`. The server-side
  * sanitizer (`cleanThemeOverridesForPersistence`) drops empty values and
- * values matching the default from `system.properties`, so this shell doesn't
+ * values matching the default from `SYSTEM_PROPERTIES_DEFAULTS`, so this shell doesn't
  * need a bespoke "remove single override" action — it just omits the key from
  * the draft and lets the server persist the cleaned map.
  */
