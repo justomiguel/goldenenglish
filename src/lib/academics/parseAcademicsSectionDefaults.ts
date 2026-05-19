@@ -1,10 +1,12 @@
 export interface AcademicsSectionDefaults {
   maxStudents: number;
+  minAttendancePercent: number;
   teacherPortalRoles: readonly string[];
 }
 
 const DEFAULTS: AcademicsSectionDefaults = {
   maxStudents: 60,
+  minAttendancePercent: 75,
   teacherPortalRoles: ["teacher", "assistant"],
 };
 
@@ -42,8 +44,20 @@ export function parseAcademicsSectionDefaults(
     const n = Number.parseInt(r.maxStudents, 10);
     if (Number.isFinite(n) && n > 0) maxStudents = n;
   }
+  let minAttendancePercent = defaults.minAttendancePercent;
+  if (
+    typeof r.minAttendancePercent === "number" &&
+    Number.isFinite(r.minAttendancePercent) &&
+    r.minAttendancePercent >= 0 &&
+    r.minAttendancePercent <= 100
+  ) {
+    minAttendancePercent = Math.trunc(r.minAttendancePercent);
+  } else if (typeof r.minAttendancePercent === "string") {
+    const n = Number.parseInt(r.minAttendancePercent, 10);
+    if (Number.isFinite(n) && n >= 0 && n <= 100) minAttendancePercent = n;
+  }
   const roles = parseRolesArray(r.teacherPortalRoles) ?? defaults.teacherPortalRoles;
-  return { maxStudents, teacherPortalRoles: roles };
+  return { maxStudents, minAttendancePercent, teacherPortalRoles: roles };
 }
 
 export const ACADEMICS_SECTION_DEFAULTS = DEFAULTS;

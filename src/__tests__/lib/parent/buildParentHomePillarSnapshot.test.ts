@@ -42,6 +42,7 @@ describe("buildParentHomePillarSnapshot", () => {
     const snapshot = buildParentHomePillarSnapshot({
       selectedStudentId: "s1",
       attendanceByStudent: { s1: 60 },
+      attendanceMinPercent: 75,
       overdueByStudent: { s1: true },
       staffInboundCount: 0,
       overdueInvoiceCount: 0,
@@ -64,6 +65,18 @@ describe("buildParentHomePillarSnapshot", () => {
     });
     expect(snapshot.attendance.level).toBe("ok");
     expect(snapshot.payments.level).toBe("ok");
+  });
+
+  it("prefers per-section level map over aggregate percent", () => {
+    const snapshot = buildParentHomePillarSnapshot({
+      selectedStudentId: "s1",
+      attendanceByStudent: { s1: 80 },
+      attendanceLevelByStudent: { s1: "attention" },
+      overdueByStudent: { s1: false },
+      staffInboundCount: 0,
+      overdueInvoiceCount: 0,
+    });
+    expect(snapshot.attendance.level).toBe("attention");
   });
 
   it("does not flag payments when only future pending exists for selected child", () => {

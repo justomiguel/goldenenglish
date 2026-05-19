@@ -160,12 +160,15 @@ describe("tenant landing headers — PWA visibility", () => {
       expect(
         screen.getAllByRole("link", { name: dictEn.nav.administration }).length,
       ).toBeGreaterThan(0);
+      expect(
+        screen.getAllByRole("button", { name: dictEn.nav.logout }).length,
+      ).toBeGreaterThan(0);
       await user.click(
         screen.getByRole("button", { name: nagoLabels.openMenu }),
       );
       expect(
         screen.getAllByRole("button", { name: dictEn.nav.logout }).length,
-      ).toBeGreaterThan(0);
+      ).toBeGreaterThan(1);
     });
   });
 });

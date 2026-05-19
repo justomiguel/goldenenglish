@@ -1,5 +1,6 @@
 import { getProperty } from "@/lib/theme/themeParser";
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
+import { loadAcademicsSectionDefaults } from "@/lib/academics/loadAcademicsSectionDefaults";
 import { resolveBrandAssetUrl } from "@/lib/brand/resolveBrandAssetUrl";
 
 const LOGO_FALLBACK = "/images/logo.png";
@@ -20,6 +21,7 @@ export interface SiteSetupOperationalValues {
   layoutMaxWidth: string;
   layoutBorderRadius: string;
   academicsSectionMaxStudents: string;
+  academicsSectionMinAttendancePercent: string;
   academicsTeacherPortalRoles: string;
   attendanceTeacherScanLookbackBufferDays: string;
   attendanceTeacherOperationalCivilLookbackDays: string;
@@ -77,7 +79,10 @@ export interface SiteSetupCurrentValues {
  * Server-only — uses `loadEffectiveProperties()` which talks to Supabase.
  */
 export async function loadSiteSetupCurrentValues(): Promise<SiteSetupCurrentValues> {
-  const { properties } = await loadEffectiveProperties();
+  const [{ properties }, sectionDefaults] = await Promise.all([
+    loadEffectiveProperties(),
+    loadAcademicsSectionDefaults(),
+  ]);
 
   const rawLogo = getProperty(properties, "app.logo.path");
   const rawFav = getProperty(properties, "app.favicon.path");
@@ -111,6 +116,7 @@ export async function loadSiteSetupCurrentValues(): Promise<SiteSetupCurrentValu
       layoutMaxWidth: g("layout.max.width"),
       layoutBorderRadius: g("layout.border.radius"),
       academicsSectionMaxStudents: g("academics.section.max_students"),
+      academicsSectionMinAttendancePercent: String(sectionDefaults.minAttendancePercent),
       academicsTeacherPortalRoles: g(
         "academics.teacherPortal.allowedProfileRoles",
       ),

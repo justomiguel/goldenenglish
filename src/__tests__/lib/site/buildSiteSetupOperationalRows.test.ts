@@ -64,6 +64,7 @@ describe("buildSiteSetupOperationalRows", () => {
     const rows = buildSiteSetupOperationalRows(
       baseInput({
         academicsSectionMaxStudents: "45",
+        academicsSectionMinAttendancePercent: "80",
         academicsTeacherPortalRoles: "teacher, assistant",
       }),
     );
@@ -71,6 +72,7 @@ describe("buildSiteSetupOperationalRows", () => {
     expect(academic).toBeDefined();
     expect(academic!.value).toEqual({
       maxStudents: 45,
+      minAttendancePercent: 80,
       teacherPortalRoles: ["teacher", "assistant"],
     });
   });

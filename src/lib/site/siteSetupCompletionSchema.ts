@@ -69,6 +69,7 @@ const siteSetupSharedSchema = z.object({
   layoutBorderRadius: optionalCssToken,
   // Operational settings (persisted in `site_settings` in Phase 4).
   academicsSectionMaxStudents: optionalIntegerString,
+  academicsSectionMinAttendancePercent: optionalIntegerString,
   academicsTeacherPortalRoles: optionalShortString,
   attendanceTeacherScanLookbackBufferDays: optionalIntegerString,
   attendanceTeacherOperationalCivilLookbackDays: optionalIntegerString,

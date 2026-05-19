@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Home, MessageCircle, Settings, TrendingUp, Wallet } from "lucide-react";
+import { CalendarCheck, Home, MessageCircle, Settings, TrendingUp, Wallet } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 
 export type ParentPwaTabId =
@@ -49,7 +49,7 @@ export function ParentPwaTabBar({ locale, dict, baseHref = `/${locale}/dashboard
       id: "schedule",
       href: `${baseHref}/calendar`,
       label: dict.calendar,
-      icon: <Calendar className={tabIconClass} aria-hidden />,
+      icon: <CalendarCheck className={tabIconClass} aria-hidden />,
     },
     {
       id: "progress",

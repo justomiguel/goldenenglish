@@ -11,6 +11,7 @@ import { AcademicSectionPeriodEditor } from "@/components/organisms/AcademicSect
 import { AcademicSectionStaffEditor } from "@/components/organisms/AcademicSectionStaffEditor";
 import { AcademicSectionShellTabs } from "@/components/organisms/AcademicSectionShellTabs";
 import { AcademicSectionCapacityEditor } from "@/components/organisms/AcademicSectionCapacityEditor";
+import { AcademicSectionMinAttendanceEditor } from "@/components/organisms/AcademicSectionMinAttendanceEditor";
 import { AcademicSectionRoomLabelEditor } from "@/components/organisms/AcademicSectionRoomLabelEditor";
 import { AcademicSectionFeePlansEditor } from "@/components/organisms/AcademicSectionFeePlansEditor";
 import { AcademicSectionEnrollmentFeeEditor } from "@/components/organisms/AcademicSectionEnrollmentFeeEditor";
@@ -75,6 +76,7 @@ export function AcademicSectionPageShellBody({
     scheduleEditorDict,
     periodDict,
     capacityDict,
+    minAttendanceDict,
     roomLabelDict,
     lifecycleDict,
     staffDict,
@@ -123,6 +125,13 @@ export function AcademicSectionPageShellBody({
               activeEnrollments={section.activeEnrollmentCount}
               siteDefaultMax={section.siteDefaultMax}
               dict={capacityDict}
+            />
+            <AcademicSectionMinAttendanceEditor
+              locale={locale}
+              sectionId={sectionId}
+              initialSectionOverride={section.minAttendancePercentOverride}
+              siteDefaultMin={section.siteDefaultMinAttendancePercent}
+              dict={minAttendanceDict}
             />
             <AcademicSectionRoomLabelEditor
               locale={locale}

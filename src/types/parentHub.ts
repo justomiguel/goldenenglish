@@ -1,3 +1,5 @@
+import type { ParentPillarLevel } from "@/lib/parent/buildParentHomePillarSnapshot";
+
 export type ParentHubLogisticsRow = {
   studentId: string;
   childLabel: string;
@@ -27,4 +29,6 @@ export type ParentHubModel = {
   childPaymentPending: Record<string, boolean>;
   /** Month attendance % from section registers (active enrollments). */
   attendanceLines: ParentHubAttendanceLine[];
+  /** Per-student level using each section's required minimum (worst section wins). */
+  attendanceLevelByStudent: Record<string, ParentPillarLevel>;
 };

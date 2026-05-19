@@ -65,12 +65,14 @@ export function buildSiteSetupOperationalRows(
   if (billingHasAny) rows.push({ key: "billing_terms", value: billing });
 
   const sectionMax = pickInt(data.academicsSectionMaxStudents);
+  const sectionMin = pickInt(data.academicsSectionMinAttendancePercent);
   const roles = pickStr(data.academicsTeacherPortalRoles);
-  if (sectionMax !== null || roles) {
+  if (sectionMax !== null || sectionMin !== null || roles) {
     rows.push({
       key: "academics_section_defaults",
       value: {
         ...(sectionMax !== null ? { maxStudents: sectionMax } : {}),
+        ...(sectionMin !== null ? { minAttendancePercent: sectionMin } : {}),
         ...(roles
           ? {
               teacherPortalRoles: roles

@@ -20,6 +20,7 @@ import { LandingFooter } from "@/components/organisms/LandingFooter";
 import { LandingFooterPwa } from "@/components/pwa/molecules/LandingFooterPwa";
 import { LandingEspacioZenitFooter } from "@/components/organisms/LandingEspacioZenitFooter";
 import { LandingGreenfieldFooter } from "@/components/organisms/LandingGreenfieldFooter";
+import { LandingNagoSections } from "@/components/organisms/LandingNagoSections";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => mockPathname(),
@@ -216,6 +217,20 @@ describe("Language selector — footer-only across landings", () => {
       mockPathname.mockReturnValue("/es");
       render(
         <LandingGreenfieldFooter
+          dict={dictEn}
+          brand={mockBrandPublic}
+          locale="es"
+        />,
+      );
+      const nav = screen.getByRole("navigation", { name: languageLabel });
+      expect(nav).toBeInTheDocument();
+      expectAllLocaleLinks(nav);
+    });
+
+    it("LandingNagoSections (Nago custom footer)", () => {
+      mockPathname.mockReturnValue("/es");
+      render(
+        <LandingNagoSections
           dict={dictEn}
           brand={mockBrandPublic}
           locale="es"

@@ -1,11 +1,16 @@
-/** Institute default: at or above this monthly % we treat attendance as "OK". */
-export const PARENT_ATTENDANCE_OK_MIN_PERCENT = 75;
+import { DEFAULT_MIN_ATTENDANCE_PERCENT } from "@/lib/academics/resolveSectionMinAttendancePercent";
+
+/** @deprecated Use `loadAcademicsSectionDefaults().minAttendancePercent` or resolved per-section values. */
+export const PARENT_ATTENDANCE_OK_MIN_PERCENT = DEFAULT_MIN_ATTENDANCE_PERCENT;
 
 export type ParentPillarLevel = "ok" | "attention" | "unknown";
 
-export function resolveParentAttendanceLevel(monthPercent: number | null): ParentPillarLevel {
+export function resolveParentAttendanceLevel(
+  monthPercent: number | null,
+  minPercent = DEFAULT_MIN_ATTENDANCE_PERCENT,
+): ParentPillarLevel {
   if (monthPercent == null) return "unknown";
-  if (monthPercent >= PARENT_ATTENDANCE_OK_MIN_PERCENT) return "ok";
+  if (monthPercent >= minPercent) return "ok";
   return "attention";
 }
 
@@ -34,6 +39,9 @@ export type ParentHomePillarSnapshot = {
 export function buildParentHomePillarSnapshot(params: {
   selectedStudentId?: string;
   attendanceByStudent: Record<string, number>;
+  /** When set, overrides level derived from aggregate % (per-section thresholds). */
+  attendanceLevelByStudent?: Record<string, ParentPillarLevel>;
+  attendanceMinPercent?: number;
   overdueByStudent: Record<string, boolean>;
   staffInboundCount: number;
   overdueInvoiceCount: number;
@@ -41,6 +49,8 @@ export function buildParentHomePillarSnapshot(params: {
   const {
     selectedStudentId,
     attendanceByStudent,
+    attendanceLevelByStudent,
+    attendanceMinPercent = DEFAULT_MIN_ATTENDANCE_PERCENT,
     overdueByStudent,
     staffInboundCount,
     overdueInvoiceCount,
@@ -49,13 +59,18 @@ export function buildParentHomePillarSnapshot(params: {
   const monthPercent =
     selectedStudentId != null ? (attendanceByStudent[selectedStudentId] ?? null) : null;
 
+  const attendanceLevel =
+    selectedStudentId && attendanceLevelByStudent?.[selectedStudentId] != null
+      ? attendanceLevelByStudent[selectedStudentId]!
+      : resolveParentAttendanceLevel(monthPercent, attendanceMinPercent);
+
   const hasOverdueMonthly = selectedStudentId
     ? Boolean(overdueByStudent[selectedStudentId])
     : Object.values(overdueByStudent).some(Boolean);
 
   return {
     attendance: {
-      level: resolveParentAttendanceLevel(monthPercent),
+      level: attendanceLevel,
       monthPercent,
     },
     messages: {

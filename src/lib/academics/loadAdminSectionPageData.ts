@@ -7,6 +7,7 @@ import { buildAdminSectionMoveTargets } from "@/lib/academics/buildAdminSectionM
 import { loadAdminSectionTeachersAndAssistants } from "@/lib/academics/loadAdminSectionTeachersAndAssistants";
 import { loadParentPaymentPendingMap } from "@/lib/academics/parentPaymentPending";
 import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionMaxStudents";
+import { loadAcademicsSectionDefaults } from "@/lib/academics/loadAcademicsSectionDefaults";
 import { mapSectionFeePlanRow, type SectionFeePlan, type SectionFeePlanRowDb } from "@/types/sectionFeePlan";
 import { attachSectionFeePlansUsage, type SectionFeePlanPaymentRef } from "@/lib/billing/computeSectionFeePlansUsage";
 import {
@@ -46,6 +47,8 @@ export interface AdminSectionPageData {
     /** Student/parent billing: class prorate vs full month fee. */
     monthlyFeeChargeMode: MonthlyFeeChargeMode;
     allowAdvanceMonthlyPayment: boolean;
+    minAttendancePercentOverride: number | null;
+    siteDefaultMinAttendancePercent: number;
   };
   cohort: {
     name: string;
@@ -69,7 +72,7 @@ export async function loadAdminSectionPageData(
   const { data: sec, error: sErr } = await supabase
     .from("academic_sections")
     .select(
-      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(name, archived_at)",
+      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, min_attendance_percent, academic_cohorts(name, archived_at)",
     )
     .eq("id", sectionId)
     .maybeSingle();
@@ -94,6 +97,7 @@ export async function loadAdminSectionPageData(
     enrollment_fee_amount?: number | string | null;
     monthly_fee_charge_mode?: string | null;
     allow_advance_monthly_payment?: boolean | null;
+    min_attendance_percent?: number | null;
     academic_cohorts:
       | { name: string; archived_at?: string | null }
       | { name: string; archived_at?: string | null }[]
@@ -108,6 +112,8 @@ export async function loadAdminSectionPageData(
   const sectionEndsOn = pgDateToInputValue((secRow as { ends_on?: unknown }).ends_on) || sectionStartsOn;
   const slots = parseSectionScheduleSlots(secRow.schedule_slots);
   const siteDefaultMax = getDefaultSectionMaxStudents();
+  const { minAttendancePercent: siteDefaultMinAttendancePercent } =
+    await loadAcademicsSectionDefaults();
   const storedMax = secRow.max_students;
   const effectiveMaxStudents = storedMax != null && Number.isFinite(storedMax) ? Math.floor(storedMax) : siteDefaultMax;
 
@@ -176,6 +182,9 @@ export async function loadAdminSectionPageData(
   const enrollmentFeeAmount =
     Number.isFinite(rawEnrollmentFee) && rawEnrollmentFee >= 0 ? rawEnrollmentFee : 0;
   const monthlyFeeChargeMode = parseMonthlyFeeChargeMode(secRow.monthly_fee_charge_mode);
+  const rawMinAtt = secRow.min_attendance_percent;
+  const minAttendancePercentOverride =
+    rawMinAtt != null && Number.isFinite(rawMinAtt) ? Math.trunc(rawMinAtt) : null;
 
   return {
     section: {
@@ -193,6 +202,8 @@ export async function loadAdminSectionPageData(
       enrollmentFeeAmount,
       monthlyFeeChargeMode,
       allowAdvanceMonthlyPayment: secRow.allow_advance_monthly_payment === true,
+      minAttendancePercentOverride,
+      siteDefaultMinAttendancePercent,
     },
     cohort: {
       name: cohortName,

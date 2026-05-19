@@ -65,6 +65,7 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
   const pillars = buildParentHomePillarSnapshot({
     selectedStudentId,
     attendanceByStudent,
+    attendanceLevelByStudent: hub?.attendanceLevelByStudent,
     overdueByStudent: paymentOverdue.overdueByStudent,
     staffInboundCount: messageSignals.staffInboundCount,
     overdueInvoiceCount: paymentOverdue.overdueInvoiceCount,

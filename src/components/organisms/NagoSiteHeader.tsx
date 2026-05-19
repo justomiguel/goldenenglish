@@ -113,26 +113,40 @@ export function NagoSiteHeader({
               <BrandInstagramIcon className="h-5 w-5" />
             </a>
           ) : null}
-          {sessionEmail ? (
-            <Link
-              href={`/${locale}/dashboard`}
-              className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full border border-[var(--nago-green)]/40 bg-white px-3 py-2 text-xs font-semibold text-[var(--nago-green)] shadow-sm transition hover:bg-[var(--nago-green)]/8 sm:px-3.5"
-              aria-label={dict.nav.administration}
-              title={dict.nav.administration}
-            >
-              <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-              <span className="hidden md:inline">{dict.nav.administration}</span>
-            </Link>
-          ) : (
-            <Link
-              href={`/${locale}/login`}
-              className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full bg-[var(--nago-green)] px-3 py-2 text-xs font-semibold text-white shadow-[0_6px_18px_-8px_rgb(27_94_32_/55%)] transition hover:bg-[var(--nago-green-light)] sm:px-4"
-              aria-label={dict.nav.login}
-            >
-              <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-              <span className="hidden md:inline">{dict.nav.login}</span>
-            </Link>
-          )}
+          <nav
+            aria-label={dict.nav.accountAria}
+            className="flex shrink-0 items-center gap-1.5 sm:gap-2"
+          >
+            {sessionEmail ? (
+              <>
+                <Link
+                  href={`/${locale}/dashboard`}
+                  className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full border border-[var(--nago-green)]/40 bg-white px-3 py-2 text-xs font-semibold text-[var(--nago-green)] shadow-sm transition hover:bg-[var(--nago-green)]/8 sm:px-3.5"
+                  aria-label={dict.nav.administration}
+                  title={dict.nav.administration}
+                >
+                  <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
+                  <span className="hidden md:inline">{dict.nav.administration}</span>
+                </Link>
+                <SignOutButton
+                  locale={locale}
+                  label={dict.nav.logout}
+                  iconOnly
+                  title={dict.nav.logout}
+                  className="inline-flex min-h-[44px] min-w-[44px] rounded-full border border-[var(--nago-green)]/40 bg-white text-[var(--nago-green)] shadow-sm transition hover:bg-[var(--nago-green)]/8"
+                />
+              </>
+            ) : (
+              <Link
+                href={`/${locale}/login`}
+                className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full bg-[var(--nago-green)] px-3 py-2 text-xs font-semibold text-white shadow-[0_6px_18px_-8px_rgb(27_94_32_/55%)] transition hover:bg-[var(--nago-green-light)] sm:px-4"
+                aria-label={dict.nav.login}
+              >
+                <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
+                <span className="hidden md:inline">{dict.nav.login}</span>
+              </Link>
+            )}
+          </nav>
           <button
             type="button"
             className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[var(--nago-green)]/35 bg-white text-[var(--nago-green)] shadow-sm lg:hidden"

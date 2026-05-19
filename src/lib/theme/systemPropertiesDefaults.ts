@@ -124,6 +124,7 @@ const OPERATIONAL = {
   "billing.term.promotion": "Promoción",
   "billing.term.promotion.en": "Promotion",
   "academics.section.max_students": "60",
+  "academics.parent.attendance.minPercent": "75",
   "academics.teacherPortal.allowedProfileRoles": "teacher,assistant",
   "academics.attendance.matrix.teacher.scanLookbackBufferDays": "7",
   "academics.attendance.matrix.teacher.operationalCivilLookbackDays": "14",

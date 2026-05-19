@@ -29,6 +29,7 @@ function flattenOperational(
   set("layoutMaxWidth", op.layoutMaxWidth);
   set("layoutBorderRadius", op.layoutBorderRadius);
   set("academicsSectionMaxStudents", op.academicsSectionMaxStudents);
+  set("academicsSectionMinAttendancePercent", op.academicsSectionMinAttendancePercent);
   set("academicsTeacherPortalRoles", op.academicsTeacherPortalRoles);
   set(
     "attendanceTeacherScanLookbackBufferDays",

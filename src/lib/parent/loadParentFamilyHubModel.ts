@@ -1,6 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
-  ParentHubAttendanceLine,
   ParentHubLogisticsRow,
   ParentHubModel,
   ParentHubUpdateRow,
@@ -11,7 +10,9 @@ import { formatAcademicScheduleSummary } from "@/lib/academics/formatAcademicSch
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
 import { schedulesOverlap } from "@/lib/academics/detectScheduleOverlap";
 import { buildPlainTextFamilyScheduleIcs } from "@/lib/calendar/buildFamilyScheduleIcs";
-import { sectionAttendanceMonthPresentPct } from "@/lib/academics/sectionAttendanceMonthPct";
+import { loadAcademicsSectionDefaults } from "@/lib/academics/loadAcademicsSectionDefaults";
+import { loadSectionMinAttendanceOverrides } from "@/lib/academics/loadSectionMinAttendanceOverrides";
+import { buildParentHubAttendanceSnapshot } from "@/lib/parent/buildParentHubAttendanceSnapshot";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 type CohortCell = { name: string } | { name: string }[] | null;
@@ -34,6 +35,7 @@ export async function loadParentFamilyHubModel(
     icsDocument: null,
     childPaymentPending: {},
     attendanceLines: [],
+    attendanceLevelByStudent: {},
   };
 
   const { data: links } = await supabase.from("tutor_student_rel").select("student_id").eq("tutor_id", tutorId);
@@ -54,6 +56,8 @@ export async function loadParentFamilyHubModel(
     .select("id, student_id, status, section_id")
     .in("student_id", ids);
 
+  const { minAttendancePercent: globalMin } = await loadAcademicsSectionDefaults();
+
   const sectionIds = [...new Set((enr ?? []).map((e) => e.section_id as string))];
   const sectionsMeta: Record<
     string,
@@ -73,6 +77,11 @@ export async function loadParentFamilyHubModel(
       };
     }
   }
+
+  const sectionMinOverrideBySectionId = await loadSectionMinAttendanceOverrides(
+    supabase,
+    sectionIds,
+  );
 
   const logisticsRows: ParentHubLogisticsRow[] = [];
   const mergedSlots = new Map<string, SectionScheduleSlot[]>();
@@ -138,42 +147,22 @@ export async function loadParentFamilyHubModel(
   const childPaymentPending: Record<string, boolean> = {};
   for (const id of ids) childPaymentPending[id] = pendingMap.get(id) ?? false;
 
-  const activeEnrollmentIds = (enr ?? [])
-    .filter((row) => row.status === "active")
-    .map((row) => row.id as string);
-  const now = new Date();
-  const y = now.getUTCFullYear();
-  const mo = now.getUTCMonth() + 1;
-  const monthStart = `${y}-${String(mo).padStart(2, "0")}-01`;
-  const monthEnd = new Date(Date.UTC(y, mo, 0)).toISOString().slice(0, 10);
+  const enrollmentRows = (enr ?? []).map((row) => ({
+    id: row.id as string,
+    student_id: row.student_id as string,
+    status: row.status as string,
+    section_id: row.section_id as string,
+  }));
 
-  let attRows: { enrollment_id: string; attended_on: string; status: string }[] = [];
-  if (activeEnrollmentIds.length) {
-    const { data: att } = await supabase
-      .from("section_attendance")
-      .select("enrollment_id, attended_on, status")
-      .in("enrollment_id", activeEnrollmentIds)
-      .gte("attended_on", monthStart)
-      .lte("attended_on", monthEnd);
-    attRows = (att ?? []) as { enrollment_id: string; attended_on: string; status: string }[];
-  }
-
-  const attendanceLines: ParentHubAttendanceLine[] = [];
-  for (const sid of ids) {
-    const enrIdsForChild = (enr ?? [])
-      .filter((row) => row.student_id === sid && row.status === "active")
-      .map((row) => row.id as string);
-    if (!enrIdsForChild.length) continue;
-    const slice = attRows.filter((r) => enrIdsForChild.includes(r.enrollment_id));
-    const pct = sectionAttendanceMonthPresentPct(
-      slice.map((r) => ({ attended_on: r.attended_on, status: r.status })),
-      y,
-      mo,
-    );
-    if (pct == null) continue;
-    const childFirstName = (nameBy.get(sid) ?? "").split(/\s+/)[0] ?? "";
-    attendanceLines.push({ studentId: sid, childFirstName, pct });
-  }
+  const { attendanceLines, attendanceLevelByStudent } = await buildParentHubAttendanceSnapshot(
+    supabase,
+    ids,
+    enrollmentRows,
+    nameBy,
+    sectionsMeta,
+    globalMin,
+    sectionMinOverrideBySectionId,
+  );
 
   const activeLines = logisticsRows
     .filter((r) => r.active)
@@ -193,5 +182,6 @@ export async function loadParentFamilyHubModel(
     icsDocument,
     childPaymentPending,
     attendanceLines,
+    attendanceLevelByStudent,
   };
 }

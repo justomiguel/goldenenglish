@@ -71,6 +71,12 @@ export function SiteSetupAcademicsStep({
           value={operational.academicsSectionMaxStudents}
           onChange={(v) => update("academicsSectionMaxStudents", v)}
         />
+        <NumberField
+          id="academics-min-attendance"
+          label={labels.sectionMinAttendancePercent}
+          value={operational.academicsSectionMinAttendancePercent}
+          onChange={(v) => update("academicsSectionMinAttendancePercent", v)}
+        />
         <div>
           <Label htmlFor="academics-roles">
             {labels.teacherPortalAllowedProfileRoles}

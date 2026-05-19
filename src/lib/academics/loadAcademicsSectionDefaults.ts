@@ -20,13 +20,19 @@ function tsDefaults(): AcademicsSectionDefaults {
     Number.isFinite(maxParsed) && maxParsed > 0
       ? maxParsed
       : ACADEMICS_SECTION_DEFAULTS.maxStudents;
+  const minRaw = SYSTEM_PROPERTIES_DEFAULTS["academics.parent.attendance.minPercent"];
+  const minParsed = Number.parseInt(minRaw ?? "", 10);
+  const minAttendancePercent =
+    Number.isFinite(minParsed) && minParsed >= 0 && minParsed <= 100
+      ? minParsed
+      : ACADEMICS_SECTION_DEFAULTS.minAttendancePercent;
   const teacherPortalRoles = rolesRaw
     ? rolesRaw
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean)
     : [...ACADEMICS_SECTION_DEFAULTS.teacherPortalRoles];
-  return { maxStudents, teacherPortalRoles };
+  return { maxStudents, minAttendancePercent, teacherPortalRoles };
 }
 
 export const loadAcademicsSectionDefaults = cache(
