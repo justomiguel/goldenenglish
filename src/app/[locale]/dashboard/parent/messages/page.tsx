@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import type { MessagingRecipient } from "@/types/messaging";
 import { ParentMessagesEntry } from "@/components/parent/ParentMessagesEntry";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import {
@@ -10,6 +9,10 @@ import {
   type RawPortalMessageRow,
 } from "@/lib/parent/buildParentPortalMessageLines";
 import { countProfilesWithRole } from "@/lib/dashboard/countProfilesWithRole";
+import {
+  loadLinkedStudentIdsForParent,
+  loadParentMessageTeacherRecipients,
+} from "@/lib/messaging/loadParentLinkedTeacherIds";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -37,41 +40,10 @@ export default async function ParentMessagesPage({ params, searchParams }: PageP
     .single();
   if (profile?.role !== "parent") redirect(`/${locale}/dashboard`);
 
-  const { data: rels } = await supabase
-    .from("tutor_student_rel")
-    .select("student_id")
-    .eq("tutor_id", user.id);
-  const studentIds = [...new Set((rels ?? []).map((r) => r.student_id as string))];
+  const studentIds = await loadLinkedStudentIdsForParent(supabase, user.id);
   const hasLinkedStudents = studentIds.length > 0;
 
-  let recipients: MessagingRecipient[] = [];
-  if (studentIds.length) {
-    const { data: studs } = await supabase
-      .from("profiles")
-      .select("assigned_teacher_id")
-      .in("id", studentIds);
-    const teacherIdSet = new Set<string>();
-    for (const s of studs ?? []) {
-      const tid = s.assigned_teacher_id as string | null;
-      if (tid) teacherIdSet.add(tid);
-    }
-    const teacherIds = [...teacherIdSet];
-    if (teacherIds.length) {
-      const { data: teachers } = await supabase
-        .from("profiles")
-        .select("id, first_name, last_name, role")
-        .in("id", teacherIds)
-        .eq("role", "teacher")
-        .order("last_name", { ascending: true });
-      recipients = (teachers ?? []).map((t) => ({
-        id: t.id as string,
-        first_name: t.first_name as string,
-        last_name: t.last_name as string,
-        role: "teacher",
-      }));
-    }
-  }
-
+  const recipients = await loadParentMessageTeacherRecipients(supabase, user.id);
   const teacherComposeAvailable = recipients.length > 0;
   const administrationComposeAvailable =
     hasLinkedStudents && (await countProfilesWithRole("admin")) > 0;

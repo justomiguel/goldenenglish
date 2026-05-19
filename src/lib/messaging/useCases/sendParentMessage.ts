@@ -7,35 +7,7 @@ import {
   MESSAGING_UC_PERSIST_FAILED,
 } from "@/lib/messaging/messagingUseCaseCodes";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
-
-async function parentCanMessageTeacher(
-  supabase: SupabaseClient,
-  parentId: string,
-  teacherId: string,
-): Promise<boolean> {
-  const { data: links, error: relErr } = await supabase
-    .from("tutor_student_rel")
-    .select("student_id")
-    .eq("tutor_id", parentId);
-  if (relErr) {
-    logSupabaseClientError("parentCanMessageTeacher:tutor_student_rel", relErr, { parentId });
-    return false;
-  }
-  if (!links?.length) return false;
-
-  const studentIds = [...new Set(links.map((r) => r.student_id as string))];
-  const { data: rows, error: stErr } = await supabase
-    .from("profiles")
-    .select("id")
-    .in("id", studentIds)
-    .eq("assigned_teacher_id", teacherId)
-    .limit(1);
-  if (stErr) {
-    logSupabaseClientError("parentCanMessageTeacher:profiles", stErr, { parentId, teacherId });
-    return false;
-  }
-  return (rows?.length ?? 0) > 0;
-}
+import { parentCanMessageTeacher } from "@/lib/messaging/loadParentLinkedTeacherIds";
 
 export async function sendParentMessageUseCase(input: {
   supabase: SupabaseClient;

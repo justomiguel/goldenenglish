@@ -15,6 +15,7 @@ describe("loadParentChildrenSummaries", () => {
   });
 
   it("builds summary for linked student", async () => {
+    let profilesCall = 0;
     const supabase = {
       from: vi.fn((table: string) => {
         if (table === "tutor_student_rel") {
@@ -28,6 +29,17 @@ describe("loadParentChildrenSummaries", () => {
           };
         }
         if (table === "profiles") {
+          profilesCall += 1;
+          if (profilesCall === 1) {
+            return {
+              select: vi.fn().mockReturnValue({
+                in: vi.fn().mockResolvedValue({
+                  data: [{ id: "s1", assigned_teacher_id: null }],
+                  error: null,
+                }),
+              }),
+            };
+          }
           return {
             select: vi.fn().mockReturnValue({
               in: vi.fn().mockResolvedValue({
@@ -48,14 +60,24 @@ describe("loadParentChildrenSummaries", () => {
         }
         if (table === "section_enrollments") {
           return {
-            select: vi.fn().mockReturnValue({
-              eq: vi.fn().mockReturnValue({
+            select: vi.fn().mockImplementation(() => ({
+              eq: vi.fn().mockImplementation(() => ({
                 eq: vi.fn().mockResolvedValue({
                   data: [{ id: "en1" }],
                   error: null,
                 }),
+                in: vi.fn().mockReturnValue({
+                  eq: vi.fn().mockReturnValue({
+                    order: vi.fn().mockResolvedValue({ data: [], error: null }),
+                  }),
+                }),
+              })),
+              in: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  order: vi.fn().mockResolvedValue({ data: [], error: null }),
+                }),
               }),
-            }),
+            })),
           };
         }
         if (table === "section_attendance") {
@@ -156,29 +178,38 @@ describe("loadParentChildrenSummaries", () => {
             return {
               select: vi.fn().mockReturnValue({
                 in: vi.fn().mockResolvedValue({
-                  data: [
-                    {
-                      id: "s1",
-                      first_name: "Ana",
-                      last_name: "G",
-                      next_exam_at: null,
-                      student_portal_next_event_at: null,
-                      student_portal_next_event_label: null,
-                      assigned_teacher_id: "t-teacher",
-                    },
-                  ],
+                  data: [{ id: "s1", assigned_teacher_id: "t-teacher" }],
                   error: null,
+                }),
+              }),
+            };
+          }
+          if (profilesCall === 2) {
+            return {
+              select: vi.fn().mockReturnValue({
+                in: vi.fn().mockReturnValue({
+                  eq: vi.fn().mockResolvedValue({
+                    data: [{ id: "t-teacher", first_name: "John", last_name: "Doe" }],
+                    error: null,
+                  }),
                 }),
               }),
             };
           }
           return {
             select: vi.fn().mockReturnValue({
-              in: vi.fn().mockReturnValue({
-                eq: vi.fn().mockResolvedValue({
-                  data: [{ id: "t-teacher", first_name: "John", last_name: "Doe" }],
-                  error: null,
-                }),
+              in: vi.fn().mockResolvedValue({
+                data: [
+                  {
+                    id: "s1",
+                    first_name: "Ana",
+                    last_name: "G",
+                    next_exam_at: null,
+                    student_portal_next_event_at: null,
+                    student_portal_next_event_label: null,
+                  },
+                ],
+                error: null,
               }),
             }),
           };

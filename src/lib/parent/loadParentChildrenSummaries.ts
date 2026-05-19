@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { sectionAttendanceCyclePresentPct } from "@/lib/academics/sectionAttendanceMonthPct";
+import { loadTeacherIdByStudentId } from "@/lib/messaging/loadParentLinkedTeacherIds";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { chunkedIn } from "@/lib/supabase/chunkedIn";
 
@@ -48,20 +49,8 @@ export async function loadParentChildrenSummaries(
   const ids = (links ?? []).map((l) => l.student_id as string);
   if (ids.length === 0) return [];
 
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select(
-      "id, first_name, last_name, next_exam_at, student_portal_next_event_at, student_portal_next_event_label, assigned_teacher_id",
-    )
-    .in("id", ids);
-
-  const teacherIds = [
-    ...new Set(
-      (profiles ?? [])
-        .map((p) => p.assigned_teacher_id as string | null)
-        .filter((x): x is string => typeof x === "string" && x.length > 0),
-    ),
-  ];
+  const teacherIdByStudentId = await loadTeacherIdByStudentId(supabase, ids);
+  const teacherIds = [...new Set(teacherIdByStudentId.values())];
   const teacherNameById = new Map<string, string>();
   if (teacherIds.length) {
     const { data: teachers } = await supabase
@@ -76,6 +65,13 @@ export async function loadParentChildrenSummaries(
       );
     }
   }
+
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select(
+      "id, first_name, last_name, next_exam_at, student_portal_next_event_at, student_portal_next_event_label",
+    )
+    .in("id", ids);
 
   const out: ParentChildSummary[] = [];
 
@@ -145,7 +141,7 @@ export async function loadParentChildrenSummaries(
       levelLabel = String((course as { level: string }).level);
     }
 
-    const assignedTeacherId = (p.assigned_teacher_id as string | null) ?? null;
+    const assignedTeacherId = teacherIdByStudentId.get(sid) ?? null;
     out.push({
       studentId: sid,
       firstName: p.first_name as string,
