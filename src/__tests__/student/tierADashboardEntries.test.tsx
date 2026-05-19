@@ -4,6 +4,13 @@ import { dictEn } from "@/test/dictEn";
 import { StudentDashboardEntry } from "@/components/student/StudentDashboardEntry";
 import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
 import { ParentPaymentsEntry } from "@/components/parent/ParentPaymentsEntry";
+import type { ParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
+
+const samplePillars: ParentHomePillarSnapshot = {
+  attendance: { level: "ok", monthPercent: 90 },
+  messages: { level: "ok", staffInboundCount: 0 },
+  payments: { level: "ok", hasOverdueMonthly: false, overdueInvoiceCount: 0 },
+};
 
 vi.mock("@/components/student/AttendancePlayboard", () => ({
   AttendancePlayboard: () => <div data-testid="playboard" />,
@@ -16,6 +23,7 @@ vi.mock("@/components/molecules/SurfaceMountGate", () => ({
 vi.mock("next/navigation", () => ({
   usePathname: () => "/es",
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/student/StudentMonthlyPaymentsStrip", () => ({
@@ -49,30 +57,41 @@ describe("Tier A dashboard entries", () => {
     render(
       <ParentDashboardEntry
         locale="es"
-        title="Parent title"
         lead="Lead"
-        kicker="Área familias"
         greeting="Buen día"
         fullDateLine="lunes, 13 de abril de 2026"
         firstName="Marta"
         navPay="Pay"
         payHref="/es/pay"
         kids={[{ id: "1", first_name: "A", last_name: "B" }]}
+        summaries={[
+          {
+            studentId: "1",
+            firstName: "A",
+            lastName: "B",
+            attendancePercent: 90,
+            levelLabel: null,
+            nextExamAt: null,
+            nextEventAt: null,
+            nextEventLabel: null,
+            assignedTeacherId: null,
+            assignedTeacherName: null,
+            lastPublishedGrade: null,
+          },
+        ]}
+        selectedStudentId="1"
         parentLabels={dictEn.dashboard.parent}
-        birthdayRows={[]}
-        birthdaysDict={dictEn.dashboard.birthdays}
+        pillars={samplePillars}
       />,
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Buen día, Marta");
   });
 
-  it("ParentDashboardEntry renders family summary when summaries provided", () => {
+  it("ParentDashboardEntry renders attendance pillar for selected child", () => {
     render(
       <ParentDashboardEntry
         locale="es"
-        title="Familia"
         lead="Lead"
-        kicker="Área familias"
         greeting="Buen día"
         fullDateLine="lunes, 13 de abril de 2026"
         firstName="Marta"
@@ -96,11 +115,10 @@ describe("Tier A dashboard entries", () => {
         ]}
         selectedStudentId="s1"
         parentLabels={dictEn.dashboard.parent}
-        birthdayRows={[]}
-        birthdaysDict={dictEn.dashboard.birthdays}
+        pillars={samplePillars}
       />,
     );
-    expect(screen.getByText("90%")).toBeInTheDocument();
+    expect(screen.getByText(/90%/)).toBeInTheDocument();
   });
 
   it("ParentPaymentsEntry renders title", () => {
@@ -121,6 +139,7 @@ describe("Tier A dashboard entries", () => {
         submitReceiptAction={vi.fn()}
         submitEnrollmentFeeReceiptAction={vi.fn()}
         fileUploadProgress={dictEn.common.fileUpload}
+        feesPanel={<div />}
       />,
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Payments");

@@ -1,17 +1,15 @@
-import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadParentChildrenSummaries } from "@/lib/parent/loadParentChildrenSummaries";
 import { loadParentFamilyHubModel } from "@/lib/parent/loadParentFamilyHubModel";
-import { loadParentMonthBillingInvoiceSummary } from "@/lib/parent/loadParentMonthBillingInvoiceSummary";
-import { loadParentLearningTasks } from "@/lib/learning-tasks/loadParentLearningTasks";
-import { loadParentLearningFeedback } from "@/lib/learning-content/loadParentLearningFeedback";
-import { loadDashboardBirthdaysCard } from "@/lib/birthdays/loadDashboardBirthdaysCard";
+import { loadParentHomeMessageSignals } from "@/lib/parent/loadParentHomeMessageSignals";
+import { loadParentHomePaymentOverdueSignals } from "@/lib/parent/loadParentHomePaymentOverdueSignals";
+import { buildParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
 import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
 
-export const metadata: Metadata = {
+export const metadata = {
   robots: { index: false, follow: false },
 };
 
@@ -30,8 +28,7 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const [{ data: profile }, summaries, hub, monthBillingSummary, learningTasks, learningFeedback, birthdayRows] =
-    await Promise.all([
+  const [{ data: profile }, summaries, hub, messageSignals, paymentOverdue] = await Promise.all([
     supabase.from("profiles").select("first_name").eq("id", user.id).maybeSingle(),
     loadParentChildrenSummaries(supabase, user.id),
     loadParentFamilyHubModel(
@@ -40,10 +37,8 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
       locale,
       dict.dashboard.parent.hub.icsEventTitle,
     ),
-    loadParentMonthBillingInvoiceSummary(supabase, user.id, locale),
-    loadParentLearningTasks(supabase, user.id),
-    loadParentLearningFeedback(supabase, user.id),
-    loadDashboardBirthdaysCard(supabase, user.id),
+    loadParentHomeMessageSignals(supabase, user.id),
+    loadParentHomePaymentOverdueSignals(supabase, user.id),
   ]);
 
   const kids = summaries.map((s) => ({
@@ -62,12 +57,23 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
   const { greeting, fullDateLine } = buildDashboardGreeting(locale, dict);
   const firstName = (profile?.first_name as string | null) ?? null;
 
+  const attendanceByStudent: Record<string, number> = {};
+  for (const line of hub?.attendanceLines ?? []) {
+    attendanceByStudent[line.studentId] = line.pct;
+  }
+
+  const pillars = buildParentHomePillarSnapshot({
+    selectedStudentId,
+    attendanceByStudent,
+    overdueByStudent: paymentOverdue.overdueByStudent,
+    staffInboundCount: messageSignals.staffInboundCount,
+    overdueInvoiceCount: paymentOverdue.overdueInvoiceCount,
+  });
+
   return (
     <ParentDashboardEntry
       locale={locale}
-      title={dict.dashboard.parent.title}
       lead={dict.dashboard.parent.lead}
-      kicker={dict.dashboard.parent.kicker}
       greeting={greeting}
       fullDateLine={fullDateLine}
       firstName={firstName}
@@ -77,12 +83,7 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
       summaries={summaries}
       selectedStudentId={selectedStudentId}
       parentLabels={dict.dashboard.parent}
-      hub={hub}
-      learningTasks={learningTasks}
-      learningFeedback={learningFeedback}
-      monthBillingSummary={monthBillingSummary}
-      birthdayRows={birthdayRows}
-      birthdaysDict={dict.dashboard.birthdays}
+      pillars={pillars}
     />
   );
 }

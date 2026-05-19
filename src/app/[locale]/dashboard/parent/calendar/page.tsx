@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { buildPortalCalendarPagePayload } from "@/lib/calendar/buildPortalCalendarPagePayload";
+import { loadParentFamilyHubModel } from "@/lib/parent/loadParentFamilyHubModel";
 import { PortalCalendarEntry } from "@/components/organisms/PortalCalendarEntry";
+import { ParentCalendarExtras } from "@/components/parent/ParentCalendarExtras";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 
 interface PageProps {
@@ -34,16 +36,25 @@ export default async function ParentCalendarPage({ params }: PageProps) {
   const payload = await buildPortalCalendarPagePayload(supabase, user.id, "parent", {
     birthdayCopy: dict.dashboard.birthdays,
   });
+  const hub = await loadParentFamilyHubModel(
+    supabase,
+    user.id,
+    locale,
+    dict.dashboard.parent.hub.icsEventTitle,
+  );
   const origin = getPublicSiteUrl()?.origin ?? "";
   const feedUrl = payload.feedToken && origin ? `${origin}/api/calendar/feed/${payload.feedToken}.ics` : null;
 
   return (
-    <PortalCalendarEntry
-      locale={locale}
-      dict={dict.dashboard.portalCalendar}
-      events={payload.events}
-      feedUrl={feedUrl}
-      viewerId={user.id}
-    />
+    <>
+      <PortalCalendarEntry
+        locale={locale}
+        dict={dict.dashboard.portalCalendar}
+        events={payload.events}
+        feedUrl={feedUrl}
+        viewerId={user.id}
+      />
+      {hub ? <ParentCalendarExtras hub={hub} dict={dict.dashboard.parent.hub} /> : null}
+    </>
   );
 }

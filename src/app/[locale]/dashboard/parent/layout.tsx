@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandForRequest } from "@/lib/brand/server";
-import { StudentDashboardShell } from "@/components/dashboard/StudentDashboardShell";
+import { ParentDashboardShell } from "@/components/dashboard/ParentDashboardShell";
 
 interface LayoutProps {
   children: ReactNode;
@@ -31,8 +31,8 @@ export default async function ParentDashboardLayout({
   if (profile?.role !== "parent") redirect(`/${locale}/dashboard`);
 
   return (
-    <StudentDashboardShell locale={locale} dict={dict} brand={brand} section="parent">
+    <ParentDashboardShell locale={locale} dict={dict} brand={brand}>
       {children}
-    </StudentDashboardShell>
+    </ParentDashboardShell>
   );
 }

@@ -17,7 +17,6 @@ import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type {
   StudentMonthlyPaymentsView,
-  StudentMonthlyPaymentSectionRow,
 } from "@/types/studentMonthlyPayments";
 import {
   monthlyStripFindCell,
@@ -69,6 +68,8 @@ export interface StudentMonthlyPaymentsStripProps {
    * Tutor/parent route: show two large tabs (receipt vs online pay) inside each month’s focus panel.
    */
   tutorPaymentMethodTabs?: boolean;
+  /** When set, opens this month first (e.g. first pending due month from parent payments). */
+  initialFocus?: FocusKey | null;
 }
 
 export function StudentMonthlyPaymentsStrip({
@@ -84,9 +85,10 @@ export function StudentMonthlyPaymentsStrip({
   startFlowMonthlyPaymentAction,
   flowMonthlyPayEnabled = false,
   tutorPaymentMethodTabs = false,
+  initialFocus = null,
 }: StudentMonthlyPaymentsStripProps) {
   const router = useRouter();
-  const [focus, setFocus] = useState<FocusKey | null>(() => pickInitialFocus(view));
+  const [focus, setFocus] = useState<FocusKey | null>(() => initialFocus ?? pickInitialFocus(view));
 
   const monthLabels = useMemo(() => MONTHS.map((m) => monthLabel(locale, m)), [locale]);
 

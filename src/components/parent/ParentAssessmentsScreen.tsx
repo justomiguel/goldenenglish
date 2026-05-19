@@ -9,6 +9,7 @@ interface ParentAssessmentsScreenProps {
   selectedStudentId: string | null;
   parentLabels: Dictionary["dashboard"]["parent"];
   studentLabels: Dictionary["dashboard"]["student"];
+  embedded?: boolean;
 }
 
 export function ParentAssessmentsScreen({
@@ -18,26 +19,31 @@ export function ParentAssessmentsScreen({
   selectedStudentId,
   parentLabels,
   studentLabels,
+  embedded = false,
 }: ParentAssessmentsScreenProps) {
   const basePath = `/${locale}/dashboard/parent/assessments`;
   return (
-    <div className="space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">
-          {parentLabels.assessmentsPageTitle}
-        </h1>
-        <p className="text-sm text-[var(--color-muted-foreground)]">
-          {parentLabels.assessmentsPageLead}
-        </p>
-      </header>
+    <div className={embedded ? "space-y-3" : "space-y-6"}>
+      {embedded ? null : (
+        <header className="space-y-1">
+          <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">
+            {parentLabels.assessmentsPageTitle}
+          </h1>
+          <p className="text-sm text-[var(--color-muted-foreground)]">
+            {parentLabels.assessmentsPageLead}
+          </p>
+        </header>
+      )}
 
-      <ParentWardPicker
-        options={wardOptions}
-        selectedStudentId={selectedStudentId}
-        label={parentLabels.wardPickerLabel}
-        hint={parentLabels.wardPickerHint}
-        basePath={basePath}
-      />
+      {embedded ? null : (
+        <ParentWardPicker
+          options={wardOptions}
+          selectedStudentId={selectedStudentId}
+          label={parentLabels.wardPickerLabel}
+          hint={parentLabels.wardPickerHint}
+          basePath={basePath}
+        />
+      )}
 
       {assessments.length === 0 ? (
         <p className="text-sm text-[var(--color-muted-foreground)]">

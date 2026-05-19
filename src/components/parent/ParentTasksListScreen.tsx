@@ -12,6 +12,7 @@ interface ParentTasksListScreenProps {
   selectedStudentId: string | null;
   parentLabels: Dictionary["dashboard"]["parent"];
   studentLabels: Dictionary["dashboard"]["student"];
+  embedded?: boolean;
 }
 
 export function ParentTasksListScreen({
@@ -21,26 +22,29 @@ export function ParentTasksListScreen({
   selectedStudentId,
   parentLabels,
   studentLabels,
+  embedded = false,
 }: ParentTasksListScreenProps) {
   const basePath = `/${locale}/dashboard/parent/tasks`;
   return (
-    <div className="space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">
-          {parentLabels.tasksPageTitle}
-        </h1>
-        <p className="text-sm text-[var(--color-muted-foreground)]">
-          {parentLabels.tasksPageLead}
-        </p>
-      </header>
+    <div className={embedded ? "space-y-3" : "space-y-6"}>
+      {embedded ? null : (
+        <header className="space-y-1">
+          <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">
+            {parentLabels.tasksPageTitle}
+          </h1>
+          <p className="text-sm text-[var(--color-muted-foreground)]">{parentLabels.tasksPageLead}</p>
+        </header>
+      )}
 
-      <ParentWardPicker
-        options={wardOptions}
-        selectedStudentId={selectedStudentId}
-        label={parentLabels.wardPickerLabel}
-        hint={parentLabels.wardPickerHint}
-        basePath={basePath}
-      />
+      {embedded ? null : (
+        <ParentWardPicker
+          options={wardOptions}
+          selectedStudentId={selectedStudentId}
+          label={parentLabels.wardPickerLabel}
+          hint={parentLabels.wardPickerHint}
+          basePath={basePath}
+        />
+      )}
 
       {tasks.length === 0 ? (
         <p className="text-sm text-[var(--color-muted-foreground)]">

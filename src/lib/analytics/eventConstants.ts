@@ -71,11 +71,14 @@ export function pathnameToEntity(pathname: string): string {
   if (pathname.includes("/dashboard/admin/settings")) return AnalyticsEntity.adminSettings;
   if (pathname.includes("/dashboard/profile")) return AnalyticsEntity.myProfile;
   if (pathname.match(/\/dashboard\/student\/?$/)) return AnalyticsEntity.studentHome;
+  if (pathname.match(/\/dashboard\/parent\/?$/)) return `${AnalyticsEntity.pageViewPrefix}${pathname}`;
   if (pathname.includes("/dashboard/student/calendar")) return AnalyticsEntity.portalCalendar;
   if (pathname.includes("/dashboard/parent/calendar")) return AnalyticsEntity.portalCalendar;
   if (pathname.includes("/dashboard/teacher/calendar")) return AnalyticsEntity.portalCalendar;
   if (pathname.includes("/dashboard/student/badges")) return AnalyticsEntity.studentBadges;
   if (pathname.includes("/dashboard/student/tasks")) return AnalyticsEntity.learningTasks;
+  if (pathname.includes("/dashboard/parent/progress")) return AnalyticsEntity.learningTasks;
+  if (pathname.includes("/dashboard/parent/tasks")) return AnalyticsEntity.learningTasks;
   if (pathname.includes("/dashboard/teacher/tasks")) return AnalyticsEntity.learningTasks;
   if (pathname.includes("/dashboard/teacher/sections") && pathname.includes("/tasks")) {
     return AnalyticsEntity.learningTasks;

@@ -40,6 +40,7 @@ export interface ClassReminderPrefsSectionProps {
   labels: Labels;
   /** When true, render only the form (parent supplies title/hint). */
   omitHeader?: boolean;
+  variant?: "default" | "pwa";
 }
 
 export function ClassReminderPrefsSection({
@@ -48,6 +49,7 @@ export function ClassReminderPrefsSection({
   initial,
   labels,
   omitHeader = false,
+  variant = "default",
 }: ClassReminderPrefsSectionProps) {
   const [emailPrep, setEmailPrep] = useState(initial?.email_class_prep ?? true);
   const [inApp, setInApp] = useState(initial?.in_app_class_urgent ?? true);
@@ -77,9 +79,10 @@ export function ClassReminderPrefsSection({
   }
 
   const showWaBanner = Boolean(initial?.whatsapp_last_error_code);
+  const pwa = variant === "pwa";
 
   return (
-    <section className="mt-8 border-t border-[color-mix(in_srgb,var(--color-accent)_20%,var(--color-border))] pt-6">
+    <section className={pwa ? "" : "mt-8 border-t border-[color-mix(in_srgb,var(--color-accent)_20%,var(--color-border))] pt-6"}>
       {!omitHeader ? (
         <>
           <h2 className="font-display text-lg font-semibold text-[var(--color-secondary)]">
@@ -91,12 +94,24 @@ export function ClassReminderPrefsSection({
         </>
       ) : null}
       {showWaBanner ? (
-        <p className="mt-4 rounded-lg border border-[var(--color-error)] bg-[var(--color-muted)] px-3 py-2 text-sm text-[var(--color-error)]">
+        <p
+          className={
+            pwa
+              ? "border-b border-[var(--color-border)] bg-[var(--color-muted)]/40 px-4 py-3 text-sm text-[var(--color-error)]"
+              : "mt-4 rounded-lg border border-[var(--color-error)] bg-[var(--color-muted)] px-3 py-2 text-sm text-[var(--color-error)]"
+          }
+        >
           {labels.classReminderWhatsappErrorBanner}
         </p>
       ) : null}
-      <form onSubmit={(ev) => void onSubmit(ev)} className="mt-6 space-y-4">
-        <label className="flex cursor-pointer items-center gap-3">
+      <form onSubmit={(ev) => void onSubmit(ev)} className={pwa ? "" : "mt-6 space-y-4"}>
+        <label
+          className={
+            pwa
+              ? "flex min-h-[52px] cursor-pointer items-center gap-3 border-b border-[var(--color-border)] px-4 py-3 active:bg-[var(--color-muted)]/50"
+              : "flex cursor-pointer items-center gap-3"
+          }
+        >
           <input
             type="checkbox"
             className="h-5 w-5 rounded border-[var(--color-border)]"
@@ -105,7 +120,13 @@ export function ClassReminderPrefsSection({
           />
           <span className="text-sm font-medium text-[var(--color-foreground)]">{labels.classReminderEmailPrep}</span>
         </label>
-        <label className="flex cursor-pointer items-center gap-3">
+        <label
+          className={
+            pwa
+              ? "flex min-h-[52px] cursor-pointer items-center gap-3 border-b border-[var(--color-border)] px-4 py-3 active:bg-[var(--color-muted)]/50"
+              : "flex cursor-pointer items-center gap-3"
+          }
+        >
           <input
             type="checkbox"
             className="h-5 w-5 rounded border-[var(--color-border)]"
@@ -114,7 +135,13 @@ export function ClassReminderPrefsSection({
           />
           <span className="text-sm font-medium text-[var(--color-foreground)]">{labels.classReminderInAppUrgent}</span>
         </label>
-        <label className="flex cursor-pointer items-center gap-3">
+        <label
+          className={
+            pwa
+              ? "flex min-h-[52px] cursor-pointer items-center gap-3 border-b border-[var(--color-border)] px-4 py-3 active:bg-[var(--color-muted)]/50"
+              : "flex cursor-pointer items-center gap-3"
+          }
+        >
           <input
             type="checkbox"
             className="h-5 w-5 rounded border-[var(--color-border)]"
@@ -129,7 +156,7 @@ export function ClassReminderPrefsSection({
           </span>
         </label>
         {wa ? (
-          <div className="ml-8 space-y-3 border-l border-[var(--color-border)] pl-4">
+          <div className={pwa ? "border-b border-[var(--color-border)] px-4 py-3" : "ml-8 space-y-3 border-l border-[var(--color-border)] pl-4"}>
             <label className="flex cursor-pointer items-center gap-3">
               <input
                 type="checkbox"
@@ -154,19 +181,21 @@ export function ClassReminderPrefsSection({
             </div>
           </div>
         ) : null}
-        <Button
-          type="submit"
-          className="min-h-[44px]"
-          disabled={busy}
-          isLoading={busy}
-        >
+        <div className={pwa ? "border-t border-[var(--color-border)] px-4 py-3" : undefined}>
+          <Button
+            type="submit"
+            className="min-h-[44px] w-full"
+            disabled={busy}
+            isLoading={busy}
+          >
           {!busy ? (
             <Save className="h-4 w-4 shrink-0" aria-hidden />
           ) : null}
           {labels.classReminderPrefsSave}
         </Button>
-        {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}
-        {err ? <p className="text-sm text-[var(--color-error)]">{err}</p> : null}
+        </div>
+        {msg ? <p className={`text-sm text-[var(--color-muted-foreground)] ${pwa ? "px-4 pb-3" : ""}`}>{msg}</p> : null}
+        {err ? <p className={`text-sm text-[var(--color-error)] ${pwa ? "px-4 pb-3" : ""}`}>{err}</p> : null}
       </form>
     </section>
   );

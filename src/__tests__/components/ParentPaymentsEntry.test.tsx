@@ -9,6 +9,7 @@ const stripSpy = vi.hoisted(() => vi.fn());
 vi.mock("next/navigation", () => ({
   usePathname: () => "/es",
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/student/StudentMonthlyPaymentsStrip", () => ({
@@ -49,6 +50,8 @@ vi.mock("@/components/molecules/SurfaceMountGate", () => ({
 const labels = dictEn.dashboard.parent;
 const studentLabels = dictEn.dashboard.student;
 
+const feesPanel = <div data-testid="fees-panel" />;
+
 describe("ParentPaymentsEntry", () => {
   beforeEach(() => {
     stripSpy.mockClear();
@@ -70,6 +73,7 @@ describe("ParentPaymentsEntry", () => {
         submitReceiptAction={vi.fn()}
         submitEnrollmentFeeReceiptAction={vi.fn()}
         fileUploadProgress={dictEn.common.fileUpload}
+        feesPanel={feesPanel}
       />,
     );
     expect(
@@ -97,6 +101,7 @@ describe("ParentPaymentsEntry", () => {
         submitReceiptAction={vi.fn()}
         submitEnrollmentFeeReceiptAction={vi.fn()}
         fileUploadProgress={dictEn.common.fileUpload}
+        feesPanel={feesPanel}
       />,
     );
     expect(screen.getAllByLabelText(labels.paymentsPickerLabel).length).toBeGreaterThan(0);
@@ -134,6 +139,7 @@ describe("ParentPaymentsEntry", () => {
         submitReceiptAction={vi.fn()}
         submitEnrollmentFeeReceiptAction={vi.fn()}
         fileUploadProgress={dictEn.common.fileUpload}
+        feesPanel={feesPanel}
       />,
     );
     expect(

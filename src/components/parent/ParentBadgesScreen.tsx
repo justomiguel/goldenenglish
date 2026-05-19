@@ -54,6 +54,7 @@ interface ParentBadgesScreenProps {
   selectedStudentId: string | null;
   parentLabels: Dictionary["dashboard"]["parent"];
   badgesDict: BadgesDict;
+  embedded?: boolean;
 }
 
 export function ParentBadgesScreen({
@@ -63,29 +64,32 @@ export function ParentBadgesScreen({
   selectedStudentId,
   parentLabels,
   badgesDict,
+  embedded = false,
 }: ParentBadgesScreenProps) {
   const basePath = `/${locale}/dashboard/parent/badges`;
   return (
-    <div className="space-y-6">
-      <header className="space-y-1">
-        <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
-          {parentLabels.badgesPageKicker}
-        </p>
-        <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">
-          {parentLabels.badgesPageTitle}
-        </h1>
-        <p className="text-sm text-[var(--color-muted-foreground)]">
-          {parentLabels.badgesPageLead}
-        </p>
-      </header>
+    <div className={embedded ? "space-y-3" : "space-y-6"}>
+      {embedded ? null : (
+        <header className="space-y-1">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
+            {parentLabels.badgesPageKicker}
+          </p>
+          <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">
+            {parentLabels.badgesPageTitle}
+          </h1>
+          <p className="text-sm text-[var(--color-muted-foreground)]">{parentLabels.badgesPageLead}</p>
+        </header>
+      )}
 
-      <ParentWardPicker
-        options={wardOptions}
-        selectedStudentId={selectedStudentId}
-        label={parentLabels.wardPickerLabel}
-        hint={parentLabels.wardPickerHint}
-        basePath={basePath}
-      />
+      {embedded ? null : (
+        <ParentWardPicker
+          options={wardOptions}
+          selectedStudentId={selectedStudentId}
+          label={parentLabels.wardPickerLabel}
+          hint={parentLabels.wardPickerHint}
+          basePath={basePath}
+        />
+      )}
 
       {rows.length === 0 ? (
         <p

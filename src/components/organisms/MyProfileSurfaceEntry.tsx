@@ -4,8 +4,8 @@ import Link from "next/link";
 import { ChevronLeft, UserCircle } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
-import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
+import { MyProfilePwaScreen } from "@/components/pwa/organisms/MyProfilePwaScreen";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import { MyProfileScreen, type MyProfileScreenProps } from "./MyProfileScreen";
 
@@ -68,7 +68,7 @@ export function MyProfileSurfaceEntry({
     </header>
   );
 
-  const main = (
+  const desktopMain = (
     <main
       aria-labelledby="dashboard-profile-page-label"
       className="motion-safe:animate-fade-up mx-auto max-w-3xl px-4 pb-[max(3rem,env(safe-area-inset-bottom,0px))] pt-6 md:max-w-[48rem] md:px-6 md:pb-12 md:pt-8"
@@ -77,27 +77,24 @@ export function MyProfileSurfaceEntry({
     </main>
   );
 
-  const inner = (
-    <>
-      {header}
-      {main}
-    </>
-  );
-
   return (
     <SurfaceMountGate
       skeleton={<MyProfileSkeleton />}
       desktop={
         <div className="dashboard-profile-shell relative min-h-screen">
-          <div className="relative z-[1]">{inner}</div>
+          <div className="relative z-[1]">
+            {header}
+            {desktopMain}
+          </div>
         </div>
       }
       narrow={(surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">) => (
-        <PwaPageShell surface={surface}>
-          <div className="dashboard-profile-shell relative min-h-dvh">
-            <div className="relative z-[1] pt-[max(0.25rem,env(safe-area-inset-top,0px))]">{inner}</div>
-          </div>
-        </PwaPageShell>
+        <MyProfilePwaScreen
+          surface={surface}
+          backHref={backHref}
+          labels={labels}
+          {...screen}
+        />
       )}
     />
   );

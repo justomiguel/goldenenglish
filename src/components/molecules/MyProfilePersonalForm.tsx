@@ -4,15 +4,15 @@ import { type FormEvent, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Save, UserPen } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
-import { Label } from "@/components/atoms/Label";
 import type { Dictionary } from "@/types/i18n";
 import {
   updateMyProfile,
   type MyProfileActionErrorKey,
 } from "@/app/[locale]/dashboard/profile/actions";
-import { MyProfileHomeAddressFields } from "@/components/molecules/MyProfileHomeAddressFields";
+import { MyProfilePersonalFields } from "@/components/molecules/MyProfilePersonalFields";
+import { PwaGroupedSection } from "@/components/pwa/molecules/PwaGroupedSection";
 
-export type MyProfilePersonalFormLayout = "card" | "inset";
+export type MyProfilePersonalFormLayout = "card" | "inset" | "pwa";
 
 export interface MyProfilePersonalFormProps {
   locale: string;
@@ -27,7 +27,7 @@ export interface MyProfilePersonalFormProps {
     homePlaceId: string;
   };
   labels: Dictionary["dashboard"]["myProfile"];
-  /** inset = section inside a parent shell (e.g. LinkedIn-style profile card). */
+  /** inset = section inside a parent shell; pwa = grouped native mobile sections. */
   layout?: MyProfilePersonalFormLayout;
 }
 
@@ -83,6 +83,59 @@ export function MyProfilePersonalForm({
 
   const locked = minorPersonalLocked;
   const inset = layout === "inset";
+  const pwa = layout === "pwa";
+
+  const lockedNotice = locked ? (
+    <p
+      role="status"
+      className={
+        pwa
+          ? "border-b border-[var(--color-border)] bg-[var(--color-muted)]/30 px-4 py-3 text-sm text-[var(--color-muted-foreground)]"
+          : "mb-6 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/40 px-3 py-2 text-sm text-[var(--color-muted-foreground)]"
+      }
+    >
+      {labels.minorNotice}
+    </p>
+  ) : null;
+
+  const bannerNode = banner ? (
+    <p
+      role="status"
+      className={
+        pwa
+          ? `px-4 py-2 text-sm ${banner.tone === "ok" ? "text-[var(--color-primary)]" : "text-[var(--color-error)]"}`
+          : banner.tone === "ok"
+            ? "text-sm text-[var(--color-primary)]"
+            : "text-sm text-[var(--color-error)]"
+      }
+    >
+      {banner.text}
+    </p>
+  ) : null;
+
+  const saveButton = (
+    <Button type="submit" disabled={pending || locked} isLoading={pending} className="min-h-[44px] w-full">
+      {!pending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
+      {labels.savePersonal}
+    </Button>
+  );
+
+  if (pwa) {
+    return (
+      <PwaGroupedSection
+        title={labels.personalDetailsTitle}
+        footer={labels.personalDetailsLead}
+        className="pt-1"
+      >
+        {lockedNotice}
+        <form onSubmit={onSubmit}>
+          <MyProfilePersonalFields locked={locked} initial={initial} labels={labels} layout="pwa" />
+          <div className="border-t border-[var(--color-border)] px-4 py-3">{saveButton}</div>
+          {bannerNode}
+        </form>
+      </PwaGroupedSection>
+    );
+  }
 
   return (
     <div className={inset ? "" : "dashboard-profile-form-slab p-6 md:p-8"}>
@@ -103,102 +156,11 @@ export function MyProfilePersonalForm({
       <p className={`text-sm text-[var(--color-muted-foreground)] ${inset ? "mb-5 max-w-prose" : "mb-6"}`}>
         {labels.personalDetailsLead}
       </p>
-      {locked ? (
-        <p
-          role="status"
-          className="mb-6 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/40 px-3 py-2 text-sm text-[var(--color-muted-foreground)]"
-        >
-          {labels.minorNotice}
-        </p>
-      ) : null}
+      {lockedNotice}
       <form className="space-y-4" onSubmit={onSubmit}>
-        <div>
-          <Label htmlFor="mp-first">{labels.firstName}</Label>
-          <input
-            id="mp-first"
-            name="first_name"
-            type="text"
-            required
-            disabled={locked}
-            defaultValue={initial.firstName}
-            autoComplete="given-name"
-            className="mt-2 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm disabled:opacity-60"
-          />
-        </div>
-        <div>
-          <Label htmlFor="mp-last">{labels.lastName}</Label>
-          <input
-            id="mp-last"
-            name="last_name"
-            type="text"
-            required
-            disabled={locked}
-            defaultValue={initial.lastName}
-            autoComplete="family-name"
-            className="mt-2 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm disabled:opacity-60"
-          />
-        </div>
-        <div>
-          <Label htmlFor="mp-phone">{labels.phone}</Label>
-          <input
-            id="mp-phone"
-            name="phone"
-            type="tel"
-            disabled={locked}
-            defaultValue={initial.phone}
-            autoComplete="tel"
-            className="mt-2 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm disabled:opacity-60"
-          />
-        </div>
-        <div>
-          <Label htmlFor="mp-dni">{labels.dni}</Label>
-          <input
-            id="mp-dni"
-            name="dni_or_passport"
-            type="text"
-            required
-            disabled={locked}
-            defaultValue={initial.dni}
-            autoComplete="off"
-            className="mt-2 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm disabled:opacity-60"
-          />
-          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.documentIdFormatHint}</p>
-        </div>
-        <div>
-          <Label htmlFor="mp-birth">{labels.birthDate}</Label>
-          <input
-            id="mp-birth"
-            name="birth_date"
-            type="date"
-            disabled={locked}
-            defaultValue={initial.birthDate}
-            autoComplete="bday"
-            className="mt-2 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm disabled:opacity-60"
-          />
-        </div>
-        <MyProfileHomeAddressFields
-          key={`${initial.homeAddressText}|${initial.homePlaceId}`}
-          locked={locked}
-          initialText={initial.homeAddressText}
-          initialPlaceId={initial.homePlaceId}
-          labels={labels}
-        />
-        <Button type="submit" disabled={pending || locked} isLoading={pending} className="min-h-[44px]">
-          {!pending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
-          {labels.savePersonal}
-        </Button>
-        {banner ? (
-          <p
-            role="status"
-            className={
-              banner.tone === "ok"
-                ? "text-sm text-[var(--color-primary)]"
-                : "text-sm text-[var(--color-error)]"
-            }
-          >
-            {banner.text}
-          </p>
-        ) : null}
+        <MyProfilePersonalFields locked={locked} initial={initial} labels={labels} layout={layout} />
+        {saveButton}
+        {bannerNode}
       </form>
     </div>
   );

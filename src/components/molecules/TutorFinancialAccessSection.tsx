@@ -19,6 +19,7 @@ export interface TutorFinancialAccessSectionProps {
   locale: string;
   tutors: TutorFinancialAccessRow[];
   labels: Labels;
+  variant?: "default" | "pwa";
 }
 
 /**
@@ -30,6 +31,7 @@ export function TutorFinancialAccessSection({
   locale,
   tutors,
   labels,
+  variant = "default",
 }: TutorFinancialAccessSectionProps) {
   const router = useRouter();
   const [pendingTutor, setPendingTutor] = useState<string | null>(null);
@@ -61,35 +63,51 @@ export function TutorFinancialAccessSection({
 
   return (
     <section
-      className="mt-8 border-t border-[color-mix(in_srgb,var(--color-accent)_20%,var(--color-border))] pt-6"
-      aria-labelledby="tutor-access-section-title"
+      className={
+        variant === "pwa"
+          ? ""
+          : "mt-8 border-t border-[color-mix(in_srgb,var(--color-accent)_20%,var(--color-border))] pt-6"
+      }
+      aria-labelledby={variant === "pwa" ? undefined : "tutor-access-section-title"}
     >
-      <h2
-        id="tutor-access-section-title"
-        className="font-display text-lg font-semibold text-[var(--color-secondary)]"
-      >
-        {labels.tutorAccessSectionTitle}
-      </h2>
-      <p className="mt-2 max-w-prose text-sm text-[var(--color-muted-foreground)]">
-        {labels.tutorAccessSectionLead}
-      </p>
+      {variant === "pwa" ? null : (
+        <>
+          <h2
+            id="tutor-access-section-title"
+            className="font-display text-lg font-semibold text-[var(--color-secondary)]"
+          >
+            {labels.tutorAccessSectionTitle}
+          </h2>
+          <p className="mt-2 max-w-prose text-sm text-[var(--color-muted-foreground)]">
+            {labels.tutorAccessSectionLead}
+          </p>
+        </>
+      )}
 
       {tutors.length === 0 ? (
         <p
-          className="mt-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-muted-foreground)]"
+          className={
+            variant === "pwa"
+              ? "px-4 py-3.5 text-sm text-[var(--color-muted-foreground)]"
+              : "mt-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-muted-foreground)]"
+          }
           role="status"
         >
           {labels.tutorAccessNoTutors}
         </p>
       ) : (
-        <ul className="mt-4 space-y-3">
+        <ul className={variant === "pwa" ? "divide-y divide-[var(--color-border)]" : "mt-4 space-y-3"}>
           {tutors.map((tutor) => {
             const isActive = tutor.financialAccessActive;
             const isPending = pendingTutor === tutor.tutorId;
             return (
               <li
                 key={tutor.tutorId}
-                className="flex flex-col gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                className={
+                  variant === "pwa"
+                    ? "flex flex-col gap-3 px-4 py-4"
+                    : "flex flex-col gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                }
               >
                 <div>
                   <p className="text-sm font-semibold text-[var(--color-foreground)]">
@@ -116,7 +134,7 @@ export function TutorFinancialAccessSection({
                 <Button
                   type="button"
                   variant={isActive ? "secondary" : "primary"}
-                  className="min-h-[44px] sm:w-auto"
+                  className={`min-h-[44px] ${variant === "pwa" ? "w-full" : "sm:w-auto"}`}
                   onClick={() => onToggle(tutor)}
                   disabled={isPending}
                   isLoading={isPending}

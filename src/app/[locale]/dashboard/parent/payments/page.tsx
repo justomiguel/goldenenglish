@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { ParentPaymentsEntry, type TutorLinkedStudentOption } from "@/components/parent/ParentPaymentsEntry";
+import { BillingPortalScreen } from "@/components/billing/BillingPortalScreen";
 import {
   effectiveAmountAfterScholarship,
   type ScholarshipRow,
@@ -15,6 +17,7 @@ import { submitTutorEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/parent
 import { startTutorFlowMonthlyPayment } from "@/app/[locale]/dashboard/parent/payments/flowMonthlyPaymentActions";
 import { isFlowChileCheckoutEnabled } from "@/lib/payment-gateways/flow/isFlowChileCheckoutEnabled";
 import type { StudentPaymentRow } from "@/components/student/StudentPaymentsHistory";
+import type { BillingInvoiceRow } from "@/types/billing";
 import type { Locale } from "@/types/i18n";
 
 export const metadata: Metadata = {
@@ -151,23 +154,55 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
 
   const flowMonthlyPayEnabled = await isFlowChileCheckoutEnabled(supabase);
 
-  return (
-    <ParentPaymentsEntry
-      locale={locale as Locale}
-      title={dict.dashboard.parent.paymentsTitle}
-      lead={dict.dashboard.parent.paymentsLead}
-      options={options}
-      selectedStudentId={selectedStudentId}
-      monthlyView={monthlyView}
-      payments={paymentRows}
-      financialAccessRevoked={accessRevoked}
-      labels={dict.dashboard.parent}
-      studentLabels={dict.dashboard.student}
-      submitReceiptAction={submitTutorPaymentReceipt}
-      submitEnrollmentFeeReceiptAction={submitTutorEnrollmentFeeReceipt}
+  const { data: links } = await supabase.from("tutor_student_rel").select("student_id").eq("tutor_id", user.id);
+  const linkedIds = (links ?? []).map((l) => l.student_id as string);
+  const { data: profs } = linkedIds.length
+    ? await supabase.from("profiles").select("id, is_minor").in("id", linkedIds)
+    : { data: [] as { id: string; is_minor: boolean }[] };
+  const minorIds = (profs ?? []).filter((p) => p.is_minor).map((p) => p.id as string);
+  const { data: invRows } = minorIds.length
+    ? await supabase
+        .from("billing_invoices")
+        .select(
+          "id, student_id, amount, due_date, status, description, external_reference_id, created_at, updated_at",
+        )
+        .in("student_id", minorIds)
+        .neq("status", "voided")
+        .order("due_date", { ascending: true })
+    : { data: [] as BillingInvoiceRow[] };
+  const invoices = (invRows ?? []) as BillingInvoiceRow[];
+
+  const feesPanel = (
+    <BillingPortalScreen
+      locale={locale}
+      viewer="parent"
+      isMinorStudent={false}
+      dict={dict.dashboard.portalBilling}
       fileUploadProgress={dict.common.fileUpload}
-      flowMonthlyPayEnabled={flowMonthlyPayEnabled}
-      startFlowMonthlyPaymentAction={startTutorFlowMonthlyPayment}
+      invoices={invoices}
     />
+  );
+
+  return (
+    <Suspense fallback={<div className="h-32 animate-pulse rounded bg-[var(--color-muted)]" aria-hidden />}>
+      <ParentPaymentsEntry
+        locale={locale as Locale}
+        title={dict.dashboard.parent.paymentsTitle}
+        lead={dict.dashboard.parent.paymentsLead}
+        options={options}
+        selectedStudentId={selectedStudentId}
+        monthlyView={monthlyView}
+        payments={paymentRows}
+        financialAccessRevoked={accessRevoked}
+        labels={dict.dashboard.parent}
+        studentLabels={dict.dashboard.student}
+        submitReceiptAction={submitTutorPaymentReceipt}
+        submitEnrollmentFeeReceiptAction={submitTutorEnrollmentFeeReceipt}
+        fileUploadProgress={dict.common.fileUpload}
+        flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+        startFlowMonthlyPaymentAction={startTutorFlowMonthlyPayment}
+        feesPanel={feesPanel}
+      />
+    </Suspense>
   );
 }

@@ -4,6 +4,13 @@ import { dictEn } from "@/test/dictEn";
 import { StudentDashboardEntry } from "@/components/student/StudentDashboardEntry";
 import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
 import { ParentPaymentsEntry } from "@/components/parent/ParentPaymentsEntry";
+import type { ParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
+
+const samplePillars: ParentHomePillarSnapshot = {
+  attendance: { level: "ok", monthPercent: null },
+  messages: { level: "ok", staffInboundCount: 0 },
+  payments: { level: "ok", hasOverdueMonthly: false, overdueInvoiceCount: 0 },
+};
 
 vi.mock("@/components/student/AttendancePlayboard", () => ({
   AttendancePlayboard: () => <div data-testid="playboard" />,
@@ -12,6 +19,7 @@ vi.mock("@/components/student/AttendancePlayboard", () => ({
 vi.mock("next/navigation", () => ({
   usePathname: () => "/es",
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/student/StudentMonthlyPaymentsStrip", () => ({
@@ -72,18 +80,30 @@ describe("Tier A entries — SurfaceMountGate branches", () => {
     render(
       <ParentDashboardEntry
         locale="es"
-        title="P"
         lead="L"
-        kicker="Área familias"
         greeting="Hola"
         fullDateLine="lunes"
         firstName={null}
         navPay="Pay"
         payHref="/es/x"
         kids={[{ id: "1", first_name: "A", last_name: "B" }]}
+        summaries={[
+          {
+            studentId: "1",
+            firstName: "A",
+            lastName: "B",
+            attendancePercent: null,
+            levelLabel: null,
+            nextExamAt: null,
+            nextEventAt: null,
+            nextEventLabel: null,
+            assignedTeacherId: null,
+            assignedTeacherName: null,
+            lastPublishedGrade: null,
+          },
+        ]}
         parentLabels={dictEn.dashboard.parent}
-        birthdayRows={[]}
-        birthdaysDict={dictEn.dashboard.birthdays}
+        pillars={samplePillars}
       />,
     );
     expect(screen.getByTestId("sk")).toBeInTheDocument();
@@ -106,6 +126,9 @@ describe("Tier A entries — SurfaceMountGate branches", () => {
         labels={dictEn.dashboard.parent}
         studentLabels={dictEn.dashboard.student}
         submitReceiptAction={vi.fn()}
+        submitEnrollmentFeeReceiptAction={vi.fn()}
+        fileUploadProgress={dictEn.common.fileUpload}
+        feesPanel={<div />}
       />,
     );
     expect(screen.getByTestId("sk")).toBeInTheDocument();
