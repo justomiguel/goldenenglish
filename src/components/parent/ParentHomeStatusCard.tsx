@@ -2,6 +2,10 @@ import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { ChevronRight } from "lucide-react";
 import type { ParentPillarLevel } from "@/lib/parent/buildParentHomePillarSnapshot";
+import {
+  ParentHomeStatusCardChildRows,
+  type ParentHomeStatusCardChildRowsProps,
+} from "@/components/parent/ParentHomeStatusCardChildRows";
 
 export interface ParentHomeStatusCardProps {
   href: string;
@@ -11,6 +15,8 @@ export interface ParentHomeStatusCardProps {
   level: ParentPillarLevel;
   icon: LucideIcon;
   variant?: "default" | "pwa";
+  childRows?: ParentHomeStatusCardChildRowsProps["rows"];
+  childRowsAriaLabel?: string;
 }
 
 function levelClasses(level: ParentPillarLevel): string {
@@ -37,18 +43,21 @@ export function ParentHomeStatusCard({
   level,
   icon: Icon,
   variant = "default",
+  childRows,
+  childRowsAriaLabel,
 }: ParentHomeStatusCardProps) {
   const isPwa = variant === "pwa";
+  const hasChildRows = childRows != null && childRows.length > 0;
 
   return (
     <Link
       href={href}
-      className={`flex min-h-[72px] items-center gap-3 rounded-[var(--layout-border-radius)] border px-4 py-4 shadow-[var(--shadow-soft)] transition active:scale-[0.99] ${levelClasses(level)} ${
+      className={`flex min-h-[72px] items-start gap-3 rounded-[var(--layout-border-radius)] border px-4 py-4 shadow-[var(--shadow-soft)] transition active:scale-[0.99] ${levelClasses(level)} ${
         isPwa ? "min-h-[88px]" : ""
       }`}
     >
       <span
-        className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--color-surface)] ${statusTone(level)}`}
+        className={`mt-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--color-surface)] ${statusTone(level)}`}
         aria-hidden
       >
         <Icon className="h-5 w-5" />
@@ -58,9 +67,16 @@ export function ParentHomeStatusCard({
         <span className={`mt-0.5 block text-xs font-semibold uppercase tracking-wide ${statusTone(level)}`}>
           {statusLabel}
         </span>
-        <span className="mt-1 block text-sm text-[var(--color-muted-foreground)]">{detail}</span>
+        {hasChildRows ? (
+          <ParentHomeStatusCardChildRows rows={childRows} ariaLabel={childRowsAriaLabel ?? title} />
+        ) : (
+          <span className="mt-1 block text-sm text-[var(--color-muted-foreground)]">{detail}</span>
+        )}
       </span>
-      <ChevronRight className="h-5 w-5 shrink-0 text-[var(--color-muted-foreground)]" aria-hidden />
+      <ChevronRight
+        className="mt-3 h-5 w-5 shrink-0 text-[var(--color-muted-foreground)]"
+        aria-hidden
+      />
     </Link>
   );
 }

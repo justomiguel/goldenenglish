@@ -1,36 +1,15 @@
-import Image from "next/image";
-import { Award } from "lucide-react";
-import type { Dictionary } from "@/types/i18n";
-import {
-  resolveBadgeTranslation,
-  type BadgeCategory,
-  type BadgeTranslation,
-} from "@/lib/badges/badgeCatalog";
+import { BadgeAchievementCard } from "@/components/molecules/BadgeAchievementCard";
+import { badgeCategoryLabel } from "@/lib/badges/badgeCategoryLabel";
+import { resolveBadgeTranslation, type BadgeCategory } from "@/lib/badges/badgeCatalog";
 import { studentBadgeCategory } from "@/lib/badges/badgeCategory";
+import { formatBadgeProgressDetail } from "@/lib/badges/formatBadgeProgressDetail";
+import { resolveBadgeAchievementVisual } from "@/lib/badges/resolveBadgeAchievementVisual";
 import { StudentBadgeShareControls } from "@/components/student/StudentBadgeShareControls";
-
-export type StudentBadgeRowModel = {
-  id: string;
-  badgeCode: string;
-  earnedAt: string;
-  shareUrl: string;
-  /** When set, takes precedence over the dictionary fallback. */
-  catalog?: {
-    category: BadgeCategory;
-    imageUrl: string | null;
-    translations: Partial<Record<"en" | "es", BadgeTranslation>>;
-  };
-};
+import type { Dictionary, Locale } from "@/types/i18n";
+import type { StudentBadgeRowModel } from "@/types/studentBadges";
 
 type BadgesDict = Dictionary["dashboard"]["student"]["badges"];
 type Defs = BadgesDict["definitions"];
-
-function categoryLabelFor(d: BadgesDict, category: BadgeCategory): string {
-  if (category === "tasks") return d.categoryTasks;
-  if (category === "attendance") return d.categoryAttendance;
-  if (category === "profile") return d.categoryProfile;
-  return d.categoryLearning;
-}
 
 function dictionaryFallback(defs: Defs, code: string): { title: string; description: string } {
   const entry = defs[code as keyof Defs];
@@ -61,12 +40,21 @@ function formatUnlocked(earnedAt: string, template: string, locale: string): str
 }
 
 export interface StudentBadgesScreenProps {
-  locale: string;
+  locale: Locale;
   rows: StudentBadgeRowModel[];
   dict: BadgesDict;
 }
 
 export function StudentBadgesScreen({ locale, rows, dict }: StudentBadgesScreenProps) {
+  const shareLabels = {
+    copyLink: dict.copyLink,
+    share: dict.share,
+    linkCopied: dict.linkCopied,
+    copyFailed: dict.copyFailed,
+  };
+
+  const hasCatalogRows = rows.length > 0;
+
   return (
     <div className="space-y-6">
       <header className="space-y-1">
@@ -77,7 +65,7 @@ export function StudentBadgesScreen({ locale, rows, dict }: StudentBadgesScreenP
         <p className="text-sm text-[var(--color-muted-foreground)]">{dict.howItWorks}</p>
       </header>
 
-      {rows.length === 0 ? (
+      {!hasCatalogRows ? (
         <p
           className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-6 text-center text-sm text-[var(--color-muted-foreground)]"
           role="status"
@@ -88,52 +76,40 @@ export function StudentBadgesScreen({ locale, rows, dict }: StudentBadgesScreenP
         <ul className="space-y-4" aria-label={dict.title}>
           {rows.map((row) => {
             const { title, description, category } = resolveCopy(row, dict.definitions, locale);
-            const shareLabels = {
-              copyLink: dict.copyLink,
-              share: dict.share,
-              linkCopied: dict.linkCopied,
-              copyFailed: dict.copyFailed,
-            };
-            const imageUrl = row.catalog?.imageUrl ?? null;
+            const visual = resolveBadgeAchievementVisual(category, row.badgeCode);
+            const progressDetail =
+              row.locked && row.progress
+                ? formatBadgeProgressDetail(locale, row.progress, {
+                    progressFraction: dict.progressFraction,
+                    progressComplete: dict.progressComplete,
+                  })
+                : undefined;
             return (
-              <li
-                key={row.id}
-                className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm"
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--color-muted)]"
-                    aria-hidden
-                  >
-                    {imageUrl ? (
-                      <Image
-                        src={imageUrl}
-                        alt=""
-                        fill
-                        sizes="48px"
-                        className="object-cover"
+              <li key={row.id}>
+                <BadgeAchievementCard
+                  visual={visual}
+                  categoryLabel={badgeCategoryLabel(category, dict)}
+                  title={title}
+                  description={description || undefined}
+                  statusLine={
+                    row.locked
+                      ? dict.lockedStatus
+                      : formatUnlocked(row.earnedAt ?? "", dict.unlocked, locale)
+                  }
+                  imageUrl={row.catalog?.imageUrl ?? null}
+                  locked={row.locked}
+                  progress={row.progress}
+                  progressDetail={progressDetail}
+                  progressAriaLabel={dict.progressAria.replace("{title}", title)}
+                  footer={
+                    row.locked ? undefined : (
+                      <StudentBadgeShareControls
+                        shareUrl={row.shareUrl}
+                        labels={shareLabels}
+                        badgeCode={row.badgeCode}
                       />
-                    ) : (
-                      <Award className="h-5 w-5 text-[var(--color-foreground)]" />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
-                      {categoryLabelFor(dict, category)}
-                    </p>
-                    <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{title}</h2>
-                    {description ? (
-                      <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{description}</p>
-                    ) : null}
-                    <p className="mt-2 text-xs text-[var(--color-muted-foreground)]">
-                      {formatUnlocked(row.earnedAt, dict.unlocked, locale)}
-                    </p>
-                  </div>
-                </div>
-                <StudentBadgeShareControls
-                  shareUrl={row.shareUrl}
-                  labels={shareLabels}
-                  badgeCode={row.badgeCode}
+                    )
+                  }
                 />
               </li>
             );
@@ -143,3 +119,5 @@ export function StudentBadgesScreen({ locale, rows, dict }: StudentBadgesScreenP
     </div>
   );
 }
+
+export type { StudentBadgeRowModel } from "@/types/studentBadges";

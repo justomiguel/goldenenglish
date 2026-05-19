@@ -43,7 +43,7 @@ export function ParentPortalCompose({
     if (!effectiveRecipientId) return;
     setBusy(true);
     setMsg(null);
-    const res = await sendParentMessage(locale, effectiveRecipientId, body);
+    const res = await sendParentMessage(locale, body, "teacher", effectiveRecipientId);
     setBusy(false);
     if (res.ok) {
       setMsg(labels.messagesComposeSent);

@@ -117,7 +117,8 @@
       "promoApplyFailed": "O código não pôde ser aplicado.",
       "enrollmentAlreadyApproved": "Esta taxa de inscrição já foi confirmada.",
       "enrollmentNotFound": "Matrícula ativa não encontrada para este aluno e seção.",
-      "enrollmentFeeExempt": "Este aluno está isento da taxa de matrícula."
+      "enrollmentFeeExempt": "Este aluno está isento da taxa de matrícula.",
+      "futureMonthNotAllowed": "Esta seção ainda não permite pagar esse mês futuro."
     },
     "admin": {
       "invalidData": "Dados inválidos.",
@@ -328,6 +329,8 @@
     "accountAria": "Idioma e conta",
     "sectionsKicker": "Explorar",
     "sectionsScrollHint": "Role para o lado para ver todas as seções",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu",
     "modalities": "Modalidades",
     "certifications": "Credenciais",
     "administration": "Painel"
@@ -3654,6 +3657,8 @@
         "viewsWeek": "Semana",
         "viewsDay": "Dia",
         "viewsList": "Lista",
+        "agendaPrevWeek": "Semana anterior",
+        "agendaNextWeek": "Próxima semana",
         "today": "Hoje",
         "allDay": "O dia todo",
         "moreEvents": "+%d mais",
@@ -4419,6 +4424,15 @@
         "sortAsc": "ordem crescente",
         "sortDesc": "ordem decrescente",
         "sortNeutral": "nenhuma classificação nesta coluna"
+      },
+      "allowAdvanceMonthlyPayment": {
+        "title": "Pagamentos antecipados",
+        "lead": "Quando ativo, alunos e responsáveis podem pagar meses futuros antes do vencimento.",
+        "toggleLabel": "Permitir pagar meses futuros",
+        "toggleHelp": "Quando desativado, apenas o mês atual e vencidos aceitam comprovante ou checkout online.",
+        "save": "Salvar pagamentos antecipados",
+        "saved": "Configuração atualizada.",
+        "errorSave": "Não foi possível salvar. Tente novamente."
       }
     },
     "academicRequests": {
@@ -4849,10 +4863,15 @@
         "linkCopied": "Link copiado para a área de transferência",
         "copyFailed": "Não foi possível copiar. Tente novamente.",
         "howItWorks": "Nós os desbloqueamos quando você conclui tarefas, aparece na aula, finaliza seu perfil e passa em um miniteste.",
+        "lockedStatus": "Ainda não desbloqueado",
+        "progressFraction": "{current} de {target}",
+        "progressComplete": "Requisito atendido — desbloqueio em breve",
+        "progressAria": "Progresso em direção a {title}",
         "categoryTasks": "Tarefas",
         "categoryAttendance": "Presença",
         "categoryProfile": "Perfil",
         "categoryLearning": "Avaliações",
+        "categoryCommunity": "Comunidade",
         "definitions": {
           "tasks_completed_1": {
             "title": "Primeira tarefa",
@@ -5115,7 +5134,8 @@
           "nextDueLabel": "Próximo vencimento",
           "nextDueLine": "{section} · {month} {year} · {amount}",
           "noNextDue": "Nenhum pagamento devido – você está totalmente no caminho certo para o ano."
-        }
+        },
+        "advancePaymentBlocked": "Esta seção ainda não permite pagar esse mês futuro."
       },
       "messagesTitle": "Mensagens",
       "messagesLead": "Escreva para o professor designado ou para a administração. Você pode excluir uma mensagem enviada até que um professor ou administrador responda.",
@@ -5215,6 +5235,28 @@
           "vocabulary": "Vocabulário",
           "listening": "Audição",
           "fluency": "Fluência"
+        }
+      },
+      "paymentsPwa": {
+        "totalDebtLabel": "Seu saldo pendente",
+        "totalDebtHint": "Valor pendente para {year}.",
+        "settledBanner": "Você está em dia em {year}",
+        "expandSection": "Ver meses",
+        "collapseSection": "Ocultar meses",
+        "monthsToPayTitle": "Meses a pagar:",
+        "monthDetailHint": "Toque em Matrícula ou em um mês para ver os detalhes",
+        "detailPanelTitle": "Detalhe: {label}",
+        "enrollmentFeeChipLabel": "Matrícula",
+        "legend": {
+          "aria": "Legenda da grade",
+          "menuAria": "Opções da grade de pagamentos",
+          "showSettled": "Mostrar meses pagos",
+          "hideSettled": "Ocultar meses pagos",
+          "sectionSettled": "Em dia nesta seção",
+          "due": "A pagar — toque para pagar",
+          "disabled": "Sem cobrança",
+          "paid": "Pago",
+          "pending": "Em análise"
         }
       }
     },
@@ -5324,8 +5366,13 @@
         "COMPLETED_LATE": "Concluído com atraso"
       },
       "messagesTitle": "Mensagens",
-      "messagesLead": "Escreva para os professores atribuídos aos seus alunos vinculados. Você só pode enviar mensagens para esses professores.",
-      "messagesComposeTitle": "Escreva para um professor",
+      "messagesLead": "Escreva para o professor do seu filho ou para a administração. As respostas da equipe aparecem na sua linha do tempo abaixo.",
+      "messagesComposeTitle": "Nova mensagem",
+      "messagesComposeTabsAria": "Escolha quem recebe sua mensagem",
+      "messagesComposeTabTeacher": "Professor",
+      "messagesComposeTabAdministration": "Administração",
+      "messagesComposeHintTeacher": "Vai para um professor atribuído a um dos seus alunos vinculados.",
+      "messagesComposeHintAdministration": "A equipe administrativa recebe — cada administrador tem sua própria cópia na caixa de entrada.",
       "messagesComposeTo": "Professor",
       "messagesComposeSend": "Enviar mensagem",
       "messagesComposeSent": "Mensagem enviada",
@@ -5333,14 +5380,21 @@
       "messagesComposeAria": "Corpo da mensagem",
       "tipComposeRecipient": "Pesquise por nome e escolha um dos professores designados para seus filhos.",
       "tipComposeBody": "Mensagem rica que o professor verá; use a barra de ferramentas para ênfase e listas.",
+      "tipComposeBodyAdministration": "Mensagem rica para a administração — inclua os detalhes que a equipe precisa.",
       "tipComposeSend": "Envie da sua conta de responsável e atualize a lista de conversas.",
+      "tipComposeSendAdministration": "Envie para a administração e a equipe será notificada por e-mail.",
       "messagesRecipientSearchPlaceholder": "Digite um nome para encontrar um professor",
       "messagesRecipientNoMatches": "Nenhum professor corresponde à sua pesquisa",
       "messagesRecipientListEmpty": "Nenhum professor designado está disponível ainda.",
       "messagesFeedTitle": "Suas mensagens",
       "messagesYouSentTo": "Para",
       "messagesFromTeacher": "Professor",
-      "messagesNoTeachers": "Nenhum professor foi atribuído aos alunos vinculados ainda.",
+      "messagesFromAdmin": "Administração",
+      "administrationPeerLabel": "Administração",
+      "messagesNoCompose": "Você precisa de pelo menos um aluno vinculado para enviar mensagens. Entre em contato com o instituto se seus filhos não estiverem vinculados.",
+      "messagesNoTeachers": "Nenhum professor foi atribuído aos alunos vinculados ainda. Você ainda pode escrever para a administração.",
+      "messagesNoAdministration": "O envio para a administração não está disponível no momento. Entre em contato com o instituto se precisar de ajuda.",
+      "messagesWriteCta": "Escrever mensagem",
       "messagesEmpty": "Nenhuma mensagem ainda.",
       "messagesSenderFallback": "Guardião",
       "messagesRoleTeacher": "Professores",
@@ -5404,6 +5458,9 @@
         "pillarsAria": "Visão geral do aluno",
         "pwaPillarsLead": "Toque em um cartão para detalhes — frequência, mensagens da equipe e tarifas.",
         "pwaChildContext": "Acompanhando {child}",
+        "pwaFamilyContext": "Visão geral de cada aluno vinculado",
+        "pwaChildRowsAttendanceAria": "Presença por aluno",
+        "pwaChildRowsPaymentsAria": "Pagamentos por aluno",
         "pillarAttendanceTitle": "Frequência",
         "pillarMessagesTitle": "Mensagens",
         "pillarPaymentsTitle": "Pagamentos",
@@ -5486,7 +5543,41 @@
       "wardPasswordLabel": "Sua senha atual",
       "wardPasswordHelp": "Só solicitamos quando você altera o e-mail de login do aluno, para confirmar que é realmente você.",
       "wardPasswordRequired": "Digite sua senha atual para alterar o e-mail de login do aluno.",
-      "wardPasswordInvalid": "Essa senha não corresponde à sua conta."
+      "wardPasswordInvalid": "Essa senha não corresponde à sua conta.",
+      "paymentsPwa": {
+        "familyTotalLabel": "Saldo familiar pendente",
+        "familyTotalHint": "Valor consolidado pendente para {year} (mensalidades, faturas, matrícula).",
+        "settledBanner": "Em dia em {year}",
+        "breakdownTitle": "Por aluno",
+        "breakdownAria": "Valores pendentes por aluno vinculado",
+        "childNoLines": "Sem itens pendentes para este aluno.",
+        "lineOverdue": "Mensalidade em atraso",
+        "linePendingReview": "Comprovante em análise",
+        "lineUpcoming": "Mensalidade futura",
+        "lineInvoice": "Fatura em aberto",
+        "lineEnrollment": "Matrícula",
+        "lineOther": "Pendente",
+        "childPickerOptionPending": "{name} — {amount} pendente",
+        "childPickerOptionSettled": "{name} — em dia",
+        "gridPickerHint": "Escolha um aluno para pagar um mês específico abaixo.",
+        "expandSection": "Ver meses",
+        "collapseSection": "Ocultar meses",
+        "monthsToPayTitle": "Meses a pagar:",
+        "monthDetailHint": "Toque em Matrícula ou em um mês para ver os detalhes",
+        "detailPanelTitle": "Detalhe: {label}",
+        "enrollmentFeeChipLabel": "Matrícula",
+        "legend": {
+          "aria": "Legenda da grade",
+          "menuAria": "Opções da grade de pagamentos",
+          "showSettled": "Mostrar meses pagos",
+          "hideSettled": "Ocultar meses pagos",
+          "sectionSettled": "Em dia nesta seção",
+          "due": "A pagar — toque para pagar",
+          "disabled": "Sem cobrança",
+          "paid": "Pago",
+          "pending": "Em análise"
+        }
+      }
     },
     "teacher": {
       "title": "Área do professor",

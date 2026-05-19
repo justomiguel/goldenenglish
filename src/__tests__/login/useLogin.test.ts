@@ -8,7 +8,8 @@
 //    so we can monitor adoption and brute-force patterns (regla 08).
 //  - Empty identifier shows `identifierRequired` (renamed from
 //    emailRequired); empty password shows passwordRequired.
-//  - Open-redirect protection on `nextPath` is preserved unchanged.
+//  - Open-redirect protection on `nextPath` is preserved; missing/unsafe `next`
+//    falls back to `/{locale}/dashboard` (panel), not the public landing.
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
@@ -274,7 +275,7 @@ describe("useLogin", () => {
     });
 
     expect(mockSetRememberMePreference).toHaveBeenCalledWith(true);
-    expect(assignSpy).toHaveBeenCalledWith("/en");
+    expect(assignSpy).toHaveBeenCalledWith("/en/dashboard");
     expect(result.current.error).toBeNull();
   });
 
@@ -426,7 +427,7 @@ describe("useLogin", () => {
       await result.current.handleSubmit();
     });
 
-    expect(assignSpy).toHaveBeenCalledWith("/es");
+    expect(assignSpy).toHaveBeenCalledWith("/es/dashboard");
   });
 
   it("sets isLoading during submission", async () => {
@@ -585,7 +586,7 @@ describe("useLogin", () => {
       await result.current.handleSubmit();
     });
 
-    expect(assignSpy).toHaveBeenCalledWith("/es");
+    expect(assignSpy).toHaveBeenCalledWith("/es/dashboard");
   });
 
   it("falls back when next contains backslash", async () => {
@@ -610,6 +611,6 @@ describe("useLogin", () => {
       await result.current.handleSubmit();
     });
 
-    expect(assignSpy).toHaveBeenCalledWith("/en");
+    expect(assignSpy).toHaveBeenCalledWith("/en/dashboard");
   });
 });

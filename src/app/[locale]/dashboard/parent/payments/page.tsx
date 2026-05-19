@@ -11,6 +11,8 @@ import {
 } from "@/lib/billing/scholarshipPeriod";
 import { listTutorStudentsWithFinance } from "@/lib/auth/listTutorStudentsWithFinance";
 import { loadStudentMonthlyPaymentsView } from "@/lib/billing/loadStudentMonthlyPaymentsView";
+import { buildFamilyPaymentsSummary } from "@/lib/billing/buildFamilyPaymentsSummary";
+import { findStudentPaymentsInitialFocus } from "@/lib/billing/findStudentPaymentsInitialFocus";
 import { studentReceiptSignedUrl } from "@/lib/payments/studentReceiptSignedUrl";
 import { submitTutorPaymentReceipt } from "@/app/[locale]/dashboard/parent/payments/actions";
 import { submitTutorEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/parent/payments/submitTutorEnrollmentFeeReceiptAction";
@@ -64,10 +66,56 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
 
   const accessRevoked = selected ? !selected.financialAccessActive : false;
 
-  let monthlyView = null;
-  let paymentRows: StudentPaymentRow[] = [];
+  const today = new Date();
+  const todayYear = today.getFullYear();
+  const todayMonth = today.getMonth() + 1;
 
-  if (selected && selected.financialAccessActive) {
+  const childrenPayload = await Promise.all(
+    linkedStudents.map(async (row) => {
+      if (!row.financialAccessActive) {
+        return {
+          studentId: row.studentId,
+          displayName: row.displayName || row.studentId,
+          financialAccessActive: false,
+          monthlyView: null,
+          invoices: [] as BillingInvoiceRow[],
+        };
+      }
+
+      const monthlyView = await loadStudentMonthlyPaymentsView(supabase, row.studentId, [], {
+        todayYear,
+        todayMonth,
+      });
+
+      const { data: invRows } = await supabase
+        .from("billing_invoices")
+        .select(
+          "id, student_id, amount, due_date, status, description, external_reference_id, created_at, updated_at",
+        )
+        .eq("student_id", row.studentId)
+        .neq("status", "voided")
+        .order("due_date", { ascending: true });
+
+      return {
+        studentId: row.studentId,
+        displayName: row.displayName || row.studentId,
+        financialAccessActive: true,
+        monthlyView,
+        invoices: (invRows ?? []) as BillingInvoiceRow[],
+      };
+    }),
+  );
+
+  const familySummary = buildFamilyPaymentsSummary(childrenPayload);
+
+  const monthlyView = selected?.financialAccessActive
+    ? childrenPayload.find((c) => c.studentId === selectedStudentId)?.monthlyView ?? null
+    : null;
+
+  let paymentRows: StudentPaymentRow[] = [];
+  const initialFocus = monthlyView ? findStudentPaymentsInitialFocus(monthlyView) : null;
+
+  if (selected && selected.financialAccessActive && monthlyView) {
     const { data: scholarshipData } = await supabase
       .from("section_enrollment_scholarships")
       .select(
@@ -90,13 +138,6 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
       scholarshipsBySection.set(row.section_id, list);
     }
 
-    const today = new Date();
-    monthlyView = await loadStudentMonthlyPaymentsView(
-      supabase,
-      selected.studentId,
-      [],
-      { todayYear: today.getFullYear(), todayMonth: today.getMonth() + 1 },
-    );
     const fullMonthAmountByPaymentSlot = new Map<string, number>();
     for (const section of monthlyView.rows) {
       for (const cell of section.cells) {
@@ -154,23 +195,8 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
 
   const flowMonthlyPayEnabled = await isFlowChileCheckoutEnabled(supabase);
 
-  const { data: links } = await supabase.from("tutor_student_rel").select("student_id").eq("tutor_id", user.id);
-  const linkedIds = (links ?? []).map((l) => l.student_id as string);
-  const { data: profs } = linkedIds.length
-    ? await supabase.from("profiles").select("id, is_minor").in("id", linkedIds)
-    : { data: [] as { id: string; is_minor: boolean }[] };
-  const minorIds = (profs ?? []).filter((p) => p.is_minor).map((p) => p.id as string);
-  const { data: invRows } = minorIds.length
-    ? await supabase
-        .from("billing_invoices")
-        .select(
-          "id, student_id, amount, due_date, status, description, external_reference_id, created_at, updated_at",
-        )
-        .in("student_id", minorIds)
-        .neq("status", "voided")
-        .order("due_date", { ascending: true })
-    : { data: [] as BillingInvoiceRow[] };
-  const invoices = (invRows ?? []) as BillingInvoiceRow[];
+  const selectedInvoices =
+    childrenPayload.find((c) => c.studentId === selectedStudentId)?.invoices ?? [];
 
   const feesPanel = (
     <BillingPortalScreen
@@ -179,7 +205,7 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
       isMinorStudent={false}
       dict={dict.dashboard.portalBilling}
       fileUploadProgress={dict.common.fileUpload}
-      invoices={invoices}
+      invoices={selectedInvoices}
     />
   );
 
@@ -192,6 +218,7 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
         options={options}
         selectedStudentId={selectedStudentId}
         monthlyView={monthlyView}
+        familySummary={familySummary}
         payments={paymentRows}
         financialAccessRevoked={accessRevoked}
         labels={dict.dashboard.parent}
@@ -202,6 +229,7 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
         flowMonthlyPayEnabled={flowMonthlyPayEnabled}
         startFlowMonthlyPaymentAction={startTutorFlowMonthlyPayment}
         feesPanel={feesPanel}
+        initialFocus={initialFocus}
       />
     </Suspense>
   );

@@ -10,7 +10,6 @@ import {
   X,
 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
-import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
 
 export interface EspacioZenitSiteHeaderProps {
@@ -92,37 +91,33 @@ export function EspacioZenitSiteHeader({
         </nav>
 
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-          <LanguageSwitcher
-            locale={locale}
-            labels={dict.common.locale}
-            variant="compactDark"
-          />
           {sessionEmail ? (
             <>
               <Link
                 href={`/${locale}/dashboard`}
-                className="hidden min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/35 bg-white/10 px-2 text-[11px] font-bold text-white transition hover:bg-white/18 xl:inline-flex"
+                className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[var(--ez-cyan)]/65 bg-[var(--ez-cyan)]/12 px-3 text-[11px] font-bold uppercase tracking-[0.1em] text-white shadow-[0_4px_18px_-8px_rgb(0_174_239_/55%)] transition hover:bg-[var(--ez-cyan)]/22 sm:px-3.5"
                 title={dict.nav.administration}
                 aria-label={dict.nav.administration}
               >
                 <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
+                <span className="hidden md:inline">{dict.nav.administration}</span>
               </Link>
               <SignOutButton
                 locale={locale}
                 label={dict.nav.logout}
                 iconOnly
                 title={dict.nav.logout}
-                className="hidden min-h-[44px] min-w-[44px] rounded-xl border border-white/35 bg-white/10 text-white xl:flex"
+                className="hidden min-h-[44px] min-w-[44px] rounded-xl border border-white/35 bg-white/10 text-white transition hover:bg-white/18 sm:flex"
               />
             </>
           ) : (
             <Link
               href={`/${locale}/login`}
-              className="hidden min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/35 bg-white/10 px-3 py-2 text-[11px] font-bold text-white hover:bg-white/18 xl:inline-flex"
+              className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[var(--ez-cyan)] bg-[var(--ez-cyan)]/15 px-3 text-[11px] font-bold uppercase tracking-[0.1em] text-white shadow-[0_4px_18px_-8px_rgb(0_174_239_/55%)] transition hover:bg-[var(--ez-cyan)]/28 sm:px-3.5"
               aria-label={dict.nav.login}
             >
               <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-              <span className="hidden 2xl:inline">{dict.nav.login}</span>
+              <span className="hidden md:inline">{dict.nav.login}</span>
             </Link>
           )}
           <button
@@ -142,26 +137,55 @@ export function EspacioZenitSiteHeader({
         </div>
       </div>
       {open ? (
-        <nav
+        <div
           id="ez-mock-mobile-nav"
           className="border-t border-[rgb(0_174_239_/25%)] bg-[#070b12] px-[max(1rem,env(safe-area-inset-left))] py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pe-[max(1rem,env(safe-area-inset-right))] lg:hidden"
-          aria-label={dict.nav.sectionsAria}
         >
-          <ul className="flex flex-col gap-1">
-            {links.map(({ href, label }) => (
-              <li key={href}>
+          <nav aria-label={dict.nav.sectionsAria}>
+            <ul className="flex flex-col gap-1">
+              {links.map(({ href, label }) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className="flex min-h-[48px] items-center gap-2 rounded-xl px-2 py-2 text-base font-semibold text-white/92 hover:bg-white/8 hover:text-[var(--ez-cyan)]"
+                    onClick={() => setOpen(false)}
+                  >
+                    <ChevronRight className="h-4 w-4 shrink-0 text-[var(--ez-cyan)]" aria-hidden />
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <div className="mt-3 border-t border-white/20 pt-3" role="group" aria-label={dict.nav.accountAria}>
+            {sessionEmail ? (
+              <div className="flex flex-col gap-2">
                 <Link
-                  href={href}
-                  className="flex min-h-[48px] items-center gap-2 rounded-xl px-2 py-2 text-base font-semibold text-white/92 hover:bg-white/8 hover:text-[var(--ez-cyan)]"
+                  href={`/${locale}/dashboard`}
+                  className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-[var(--ez-cyan)] px-4 py-2 text-sm font-bold uppercase tracking-[0.1em] text-black"
                   onClick={() => setOpen(false)}
                 >
-                  <ChevronRight className="h-4 w-4 shrink-0 text-[var(--ez-cyan)]" aria-hidden />
-                  {label}
+                  <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
+                  {dict.nav.administration}
                 </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+                <SignOutButton
+                  locale={locale}
+                  label={dict.nav.logout}
+                  className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white"
+                />
+              </div>
+            ) : (
+              <Link
+                href={`/${locale}/login`}
+                className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[var(--ez-cyan)] px-4 py-2 text-sm font-bold uppercase tracking-[0.1em] text-black"
+                onClick={() => setOpen(false)}
+              >
+                <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
+                {dict.nav.login}
+              </Link>
+            )}
+          </div>
+        </div>
       ) : null}
     </header>
   );

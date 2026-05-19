@@ -3,7 +3,6 @@ import Link from "next/link";
 import { LayoutDashboard, LogIn } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
-import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
 
 interface LandingGreenfieldHeaderProps {
@@ -49,11 +48,6 @@ export function LandingGreenfieldHeader({
           aria-label={dict.nav.accountAria}
           className="flex shrink-0 flex-nowrap items-center gap-2 sm:gap-2.5"
         >
-          <LanguageSwitcher
-            locale={locale}
-            labels={dict.common.locale}
-            variant="compact"
-          />
           {sessionEmail ? (
             <>
               <Link

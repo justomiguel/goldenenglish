@@ -165,11 +165,9 @@ describe("student portal components", () => {
     );
     await user.type(screen.getByLabelText(dictEn.dashboard.student.payAmount), "100");
     const file = new File([new Uint8Array([1])], "r.pdf", { type: "application/pdf" });
-    await user.upload(screen.getByLabelText(dictEn.dashboard.student.payReceipt), file);
-    const form = container.querySelector("form");
-    expect(form).not.toBeNull();
-    // requestSubmit + required file is flaky in jsdom; fireEvent.submit invokes React onSubmit.
-    fireEvent.submit(form!);
+    const fileInput = container.querySelector("input[type='file']");
+    expect(fileInput).not.toBeNull();
+    await user.upload(fileInput!, file);
     expect(await screen.findByText(dictEn.dashboard.student.paySuccess)).toBeInTheDocument();
   });
 

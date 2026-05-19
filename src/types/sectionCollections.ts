@@ -71,6 +71,7 @@ export interface SectionCollectionsView {
   sectionEndsOn: string;
   /** Student/parent monthly dues: class proration vs full month (mid-month enrollments). */
   monthlyFeeChargeMode: MonthlyFeeChargeMode;
+  allowAdvanceMonthlyPayment: boolean;
   students: SectionCollectionsStudentRow[];
   kpis: SectionCollectionsKpis;
 }

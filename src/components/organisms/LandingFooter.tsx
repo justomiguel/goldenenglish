@@ -4,6 +4,7 @@ import type { Dictionary } from "@/types/i18n";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
+import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
 
 interface LandingFooterProps {
@@ -97,6 +98,13 @@ export function LandingFooter({
               {brand.contactEmail}
             </a>
           ) : null}
+        </div>
+        <div className="mt-10 flex justify-center border-t border-white/10 pt-6">
+          <LanguageSwitcher
+            locale={locale}
+            labels={dict.common.locale}
+            variant="compactDark"
+          />
         </div>
       </div>
     </footer>

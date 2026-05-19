@@ -1,75 +1,57 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { StudentMonthlyPaymentCell } from "@/components/student/StudentMonthlyPaymentCell";
 import {
-  StudentMonthlyPaymentFocus,
   type SubmitMonthlyReceiptAction,
   type StartFlowMonthlyPaymentClientAction,
 } from "@/components/student/StudentMonthlyPaymentFocus";
-import {
-  StudentEnrollmentFeeUpload,
-  type SubmitEnrollmentFeeReceiptAction,
-} from "@/components/molecules/StudentEnrollmentFeeUpload";
+import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
+import { MonthlyPaymentsGridLegend } from "@/components/student/MonthlyPaymentsGridLegend";
+import { StudentMonthlyPaymentsDesktopSection } from "@/components/student/StudentMonthlyPaymentsDesktopSection";
+import { StudentMonthlyPaymentsPwaAccordionList } from "@/components/student/StudentMonthlyPaymentsPwaAccordionList";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
-import type {
-  StudentMonthlyPaymentsView,
-} from "@/types/studentMonthlyPayments";
+import type { StudentMonthlyPaymentsView } from "@/types/studentMonthlyPayments";
+import { filterMonthlyStripVisibleCells } from "@/lib/billing/filterMonthlyStripVisibleCells";
+import { isSectionMonthlyPaymentsFullySettled } from "@/lib/billing/isSectionMonthlyPaymentsFullySettled";
+import { sortMonthlyPaymentSectionRows } from "@/lib/billing/sortMonthlyPaymentSectionRows";
+import { monthlyStripFindCell } from "@/lib/student/studentMonthlyPaymentsStripHelpers";
 import {
-  monthlyStripFindCell,
-  studentMonthlyEnrollmentFeeDisplay,
-} from "@/lib/student/studentMonthlyPaymentsStripHelpers";
+  buildDefaultExpandedBySection,
+  monthlyStripMonthLabels,
+  pickInitialMonthlyStripFocus,
+  type StudentMonthlyPaymentsStripFocus,
+} from "@/lib/student/studentMonthlyPaymentsStripState";
 
-const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
-
-interface FocusKey {
-  sectionId: string;
-  month: number;
-}
-
-function pickInitialFocus(view: StudentMonthlyPaymentsView): FocusKey | null {
-  if (view.rows.length === 0) return null;
-  const first = view.rows[0];
-  return { sectionId: first.sectionId, month: view.todayMonth };
-}
-
-function monthLabel(locale: Locale, month: number): string {
-  const date = new Date(2000, month - 1, 1);
-  const formatter = new Intl.DateTimeFormat(locale, { month: "short" });
-  return formatter.format(date);
-}
+export type { StudentMonthlyPaymentsStripFocus };
 
 export interface StudentMonthlyPaymentsStripProps {
   locale: Locale;
-  /**
-   * Alumno cuya tira se está renderizando. Cuando lo monta el propio alumno
-   * coincide con `auth.uid()`; cuando lo monta el tutor desde
-   * `/dashboard/parent/payments` es el alumno vinculado seleccionado.
-   */
   studentId: string;
   view: StudentMonthlyPaymentsView;
   labels: Dictionary["dashboard"]["student"]["monthly"];
   paymentLabels: Dictionary["dashboard"]["student"];
-  /** Server action que persiste el comprobante mensual para `studentId`. */
   submitAction: SubmitMonthlyReceiptAction;
-  /** Server action que persiste el comprobante de matrícula para `studentId`. */
   submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
-  /** Solo alumno: monto esperado del comprobante = mes completo (sin prorrateo). */
   receiptExpectedUsesFullMonth?: boolean;
-  /** Server action that starts Flow.cl checkout for the focused month. */
   startFlowMonthlyPaymentAction?: StartFlowMonthlyPaymentClientAction;
-  /** From `is_flow_chile_checkout_enabled()` — avoids leaking credential state. */
   flowMonthlyPayEnabled?: boolean;
   fileUploadProgress: FileUploadProgressLabels;
-  /**
-   * Tutor/parent route: show two large tabs (receipt vs online pay) inside each month’s focus panel.
-   */
   tutorPaymentMethodTabs?: boolean;
-  /** When set, opens this month first (e.g. first pending due month from parent payments). */
-  initialFocus?: FocusKey | null;
+  initialFocus?: StudentMonthlyPaymentsStripFocus | null;
+  hideNonBillableMonths?: boolean;
+  pwaSectionAccordion?: boolean;
+  gridLegendLabels?: Dictionary["dashboard"]["student"]["paymentsPwa"]["legend"];
+  pwaSectionLabels?: Pick<
+    Dictionary["dashboard"]["student"]["paymentsPwa"],
+    | "expandSection"
+    | "collapseSection"
+    | "monthsToPayTitle"
+    | "monthDetailHint"
+    | "detailPanelTitle"
+    | "enrollmentFeeChipLabel"
+  >;
 }
 
 export function StudentMonthlyPaymentsStrip({
@@ -86,11 +68,30 @@ export function StudentMonthlyPaymentsStrip({
   flowMonthlyPayEnabled = false,
   tutorPaymentMethodTabs = false,
   initialFocus = null,
+  hideNonBillableMonths = false,
+  pwaSectionAccordion = false,
+  gridLegendLabels,
+  pwaSectionLabels,
 }: StudentMonthlyPaymentsStripProps) {
   const router = useRouter();
-  const [focus, setFocus] = useState<FocusKey | null>(() => initialFocus ?? pickInitialFocus(view));
+  const sortedRows = useMemo(
+    () =>
+      pwaSectionAccordion
+        ? sortMonthlyPaymentSectionRows(view.rows, isSectionMonthlyPaymentsFullySettled)
+        : view.rows,
+    [view.rows, pwaSectionAccordion],
+  );
+  const isPwaAccordion = Boolean(pwaSectionAccordion && gridLegendLabels && pwaSectionLabels);
+  const [expandedBySection, setExpandedBySection] = useState<Record<string, boolean>>(() =>
+    pwaSectionAccordion ? buildDefaultExpandedBySection(sortedRows) : {},
+  );
+  const [focus, setFocus] = useState<StudentMonthlyPaymentsStripFocus | null>(() => {
+    if (pwaSectionAccordion) return null;
+    if (initialFocus != null) return initialFocus;
+    return pickInitialMonthlyStripFocus(sortedRows, hideNonBillableMonths, view.todayMonth);
+  });
 
-  const monthLabels = useMemo(() => MONTHS.map((m) => monthLabel(locale, m)), [locale]);
+  const monthLabels = useMemo(() => monthlyStripMonthLabels(locale), [locale]);
 
   if (view.rows.length === 0) {
     return (
@@ -100,133 +101,82 @@ export function StudentMonthlyPaymentsStrip({
     );
   }
 
-  const focusedSection = focus
-    ? view.rows.find((r) => r.sectionId === focus.sectionId) ?? null
-    : null;
-  const focusedCell = focusedSection && focus ? monthlyStripFindCell(focusedSection, focus.month) : null;
+  const filterOpts = { hideNonBillableMonths };
+
+  if (isPwaAccordion && pwaSectionLabels && gridLegendLabels) {
+    return (
+      <StudentMonthlyPaymentsPwaAccordionList
+        locale={locale}
+        studentId={studentId}
+        sortedRows={sortedRows}
+        monthLabels={monthLabels}
+        labels={labels}
+        paymentLabels={paymentLabels}
+        gridLegendLabels={gridLegendLabels}
+        pwaSectionLabels={pwaSectionLabels}
+        hideNonBillableMonths={hideNonBillableMonths}
+        expandedBySection={expandedBySection}
+        onExpandedBySectionChange={(sectionId, open) =>
+          setExpandedBySection((prev) => ({ ...prev, [sectionId]: open }))
+        }
+        focus={focus}
+        onFocusChange={setFocus}
+        submitAction={submitAction}
+        submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceiptAction}
+        receiptExpectedUsesFullMonth={receiptExpectedUsesFullMonth}
+        fileUploadProgress={fileUploadProgress}
+        startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
+        flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+        tutorPaymentMethodTabs={tutorPaymentMethodTabs}
+      />
+    );
+  }
+
+  const paymentsLegend = gridLegendLabels ? (
+    <MonthlyPaymentsGridLegend
+      gridLegendLabels={gridLegendLabels}
+      hideNonBillableMonths={hideNonBillableMonths}
+    />
+  ) : null;
 
   return (
     <section className="mt-6 space-y-6" aria-label={labels.stripAria}>
       {view.rows.map((row) => {
         const isFocusedSection = focus?.sectionId === row.sectionId;
+        const focusMonth =
+          isFocusedSection && focus?.month != null && !focus.enrollment ? focus.month : null;
+        const sectionSettled = isSectionMonthlyPaymentsFullySettled(row);
+        const visibleCells = filterMonthlyStripVisibleCells(row.cells, filterOpts);
+        const cell = focusMonth != null ? monthlyStripFindCell(row, focusMonth) : null;
         return (
-          <div
+          <StudentMonthlyPaymentsDesktopSection
             key={row.sectionId}
-            className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-card)]"
-          >
-            <header className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-              <div>
-                <h2 className="font-display text-lg font-semibold text-[var(--color-secondary)]">
-                  {row.sectionName}
-                </h2>
-                {row.cohortName ? (
-                  <p className="text-xs text-[var(--color-muted-foreground)]">{row.cohortName}</p>
-                ) : null}
-              </div>
-              {row.enrollmentFeeExempt ? (
-                <span
-                  className="inline-flex items-center gap-1 rounded-full border border-[var(--color-success)]/40 bg-[var(--color-success)]/10 px-2 py-0.5 text-xs font-medium text-[var(--color-success)]"
-                  title={labels.enrollmentFeeExemptTitle}
-                >
-                  <Tag className="h-3 w-3" aria-hidden />
-                  {labels.enrollmentFeeExemptBadge}
-                </span>
-              ) : row.enrollmentFeeAmount > 0 ? (() => {
-                const formatted = studentMonthlyEnrollmentFeeDisplay(
-                  locale,
-                  row.enrollmentFeeAmount,
-                  row.enrollmentFeeCurrency,
-                );
-                return (
-                  <span
-                    className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-foreground)]"
-                    title={labels.enrollmentFeeTooltip.replace("{amount}", formatted)}
-                  >
-                    <Tag className="h-3 w-3" aria-hidden />
-                    {labels.enrollmentFeeBadge.replace("{amount}", formatted)}
-                  </span>
-                );
-              })() : null}
-            </header>
-            <div
-              role="grid"
-              aria-label={`${row.sectionName} ${labels.stripAria}`}
-              className="grid grid-cols-6 gap-2 sm:grid-cols-12"
-            >
-              {row.cells.map((cell) => (
-                <StudentMonthlyPaymentCell
-                  key={`${row.sectionId}-${cell.month}`}
-                  cell={cell}
-                  monthLabel={monthLabels[cell.month - 1]}
-                  labels={labels}
-                  isFocused={
-                    isFocusedSection && focus?.month === cell.month
-                  }
-                  onFocus={() => setFocus({ sectionId: row.sectionId, month: cell.month })}
-                />
-              ))}
-            </div>
-            {!row.hasActivePlan ? (
-              <p className="mt-3 text-xs text-[var(--color-muted-foreground)]">{labels.noPlanHint}</p>
-            ) : null}
-
-            {isFocusedSection && focusedCell ? (
-              <StudentMonthlyPaymentFocus
-                locale={locale}
-                studentId={studentId}
-                section={row}
-                cell={focusedCell}
-                monthLabel={monthLabels[focusedCell.month - 1]}
-                labels={labels}
-                paymentLabels={paymentLabels}
-                submitAction={submitAction}
-                fileUploadProgress={fileUploadProgress}
-                receiptExpectedUsesFullMonth={receiptExpectedUsesFullMonth}
-                startFlowAction={startFlowMonthlyPaymentAction}
-                flowMonthlyPayEnabled={flowMonthlyPayEnabled}
-                paymentMethodTabLayout={tutorPaymentMethodTabs}
-                embeddedInSectionCard
-                onSubmitted={() => router.refresh()}
-              />
-            ) : null}
-
-            {row.enrollmentFeeExempt ? (
-              <div
-                className="mt-3 rounded-[var(--layout-border-radius)] border border-[var(--color-success)]/30 bg-[var(--color-success)]/10 p-3"
-                role="status"
-              >
-                <p className="text-sm font-semibold text-[var(--color-success)]">
-                  {labels.enrollmentFeeExemptTitle}
-                </p>
-                <p className="mt-0.5 text-xs text-[var(--color-foreground)]">
-                  {labels.enrollmentFeeExemptBody}
-                </p>
-                {row.enrollmentFeeExemptReason ? (
-                  <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-                    {labels.enrollmentFeeExemptReason.replace(
-                      "{reason}",
-                      row.enrollmentFeeExemptReason,
-                    )}
-                  </p>
-                ) : null}
-              </div>
-            ) : row.enrollmentFeeAmount > 0 && row.enrollmentId ? (
-              <StudentEnrollmentFeeUpload
-                locale={locale}
-                studentId={studentId}
-                sectionId={row.sectionId}
-                enrollmentId={row.enrollmentId}
-                receiptStatus={row.enrollmentFeeReceiptStatus}
-                receiptSignedUrl={row.enrollmentFeeReceiptSignedUrl}
-                labels={labels}
-                fileUploadProgress={fileUploadProgress}
-                submitAction={submitEnrollmentFeeReceiptAction}
-                onSubmitted={() => router.refresh()}
-              />
-            ) : null}
-          </div>
+            locale={locale}
+            studentId={studentId}
+            row={row}
+            sectionSettled={sectionSettled}
+            visibleCells={visibleCells}
+            monthLabels={monthLabels}
+            labels={labels}
+            paymentLabels={paymentLabels}
+            gridLegendLabels={gridLegendLabels}
+            stripAria={labels.stripAria}
+            isFocusedSection={isFocusedSection}
+            focusMonth={focusMonth}
+            focusedCell={cell}
+            onFocusMonth={(month) => setFocus({ sectionId: row.sectionId, month })}
+            submitAction={submitAction}
+            submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceiptAction}
+            receiptExpectedUsesFullMonth={receiptExpectedUsesFullMonth}
+            fileUploadProgress={fileUploadProgress}
+            startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
+            flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+            tutorPaymentMethodTabs={tutorPaymentMethodTabs}
+            onSubmitted={() => router.refresh()}
+          />
         );
       })}
+      {paymentsLegend}
     </section>
   );
 }

@@ -17,6 +17,8 @@ export function resolveAcademicSectionPageSubdicts(
     feePlansDict: d.feePlans ?? dEn.feePlans,
     enrollmentFeeDict: d.enrollmentFee ?? dEn.enrollmentFee,
     monthlyFeeChargeModeDict: d.monthlyFeeChargeMode ?? dEn.monthlyFeeChargeMode,
+    allowAdvanceMonthlyPaymentDict:
+      d.allowAdvanceMonthlyPayment ?? dEn.allowAdvanceMonthlyPayment,
     learningRouteDict: d.learningRoute ?? dEn.learningRoute,
     staffAssignedChipsDict: d.staffAssignedChips ?? dEn.staffAssignedChips,
     healthDict: d.health ?? dEn.health,

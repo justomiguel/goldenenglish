@@ -54,6 +54,7 @@ function buildSection(
     enrollmentFeeReceiptStatus: null,
     enrollmentFeeReceiptSignedUrl: null,
     lastEnrollmentPaidAt: null,
+    allowAdvanceMonthlyPayment: false,
   };
 }
 
@@ -66,7 +67,7 @@ function viewFromRows(
 }
 
 describe("buildStudentPaymentsYearSummary", () => {
-  it("returns zeroed buckets and no nextDue for an empty view", () => {
+  it("returns zeroed buckets for an empty view", () => {
     const summary = buildStudentPaymentsYearSummary(viewFromRows([]));
     expect(summary).toMatchObject({
       year: 2026,
@@ -76,7 +77,6 @@ describe("buildStudentPaymentsYearSummary", () => {
       upcoming: 0,
       creditBalance: 0,
       totalDebt: 0,
-      nextDue: null,
     });
   });
 
@@ -236,65 +236,4 @@ describe("buildStudentPaymentsYearSummary", () => {
     expect(summary.overdue).toBe(100);
   });
 
-  it("returns the earliest in-period due/rejected cell across sections as nextDue", () => {
-    const a = buildSection(
-      "sec-a",
-      "Alpha",
-      [{ month: 7, status: "due", expected: 120 }],
-      5,
-      2026,
-    );
-    const b = buildSection(
-      "sec-b",
-      "Beta",
-      [
-        { month: 4, status: "due", expected: 90 },
-        { month: 6, status: "due", expected: 90 },
-      ],
-      5,
-      2026,
-    );
-    const summary = buildStudentPaymentsYearSummary(viewFromRows([a, b]));
-    expect(summary.nextDue).toEqual({
-      sectionId: "sec-b",
-      sectionName: "Beta",
-      year: 2026,
-      month: 4,
-      amount: 90,
-    });
-  });
-
-  it("returns null nextDue when nothing is due/rejected", () => {
-    const a = buildSection(
-      "sec-a",
-      "Alpha",
-      [
-        { month: 3, status: "approved", expected: 100, recorded: 100 },
-        { month: 4, status: "exempt", expected: 0 },
-      ],
-      5,
-      2026,
-    );
-    const summary = buildStudentPaymentsYearSummary(viewFromRows([a]));
-    expect(summary.nextDue).toBeNull();
-  });
-
-  it("breaks ties on (year, month) deterministically by section name", () => {
-    const a = buildSection(
-      "sec-a",
-      "Bravo",
-      [{ month: 6, status: "due", expected: 100 }],
-      5,
-      2026,
-    );
-    const b = buildSection(
-      "sec-b",
-      "Alpha",
-      [{ month: 6, status: "due", expected: 100 }],
-      5,
-      2026,
-    );
-    const summary = buildStudentPaymentsYearSummary(viewFromRows([a, b]));
-    expect(summary.nextDue?.sectionName).toBe("Alpha");
-  });
 });

@@ -74,6 +74,7 @@ export async function loadAdminSectionCollectionsView(
       scheduleSlots: meta.scheduleSlots,
       sectionEnrollmentFeeAmount: meta.enrollmentFeeAmount,
       monthlyFeeChargeMode: meta.monthlyFeeChargeMode,
+      allowAdvanceMonthlyPayment: meta.allowAdvanceMonthlyPayment,
     });
   }
 

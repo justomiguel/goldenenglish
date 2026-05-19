@@ -84,6 +84,8 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
       selectedStudentId={selectedStudentId}
       parentLabels={dict.dashboard.parent}
       pillars={pillars}
+      attendanceByStudent={attendanceByStudent}
+      overdueByStudent={paymentOverdue.overdueByStudent}
     />
   );
 }

@@ -28,6 +28,7 @@ export interface SectionCollectionsClientProps {
   locale: string;
   currency?: string;
   monthlyFeeChargeEditorDict: Dictionary["dashboard"]["academicSectionPage"]["monthlyFeeChargeMode"];
+  advancePaymentEditorDict: Dictionary["dashboard"]["academicSectionPage"]["allowAdvanceMonthlyPayment"];
 }
 
 export function SectionCollectionsClient({
@@ -38,6 +39,7 @@ export function SectionCollectionsClient({
   locale,
   currency,
   monthlyFeeChargeEditorDict,
+  advancePaymentEditorDict,
 }: SectionCollectionsClientProps) {
   const [tab, setTab] = useState<TabId>("matrix");
   const idPrefix = useId().replace(/:/g, "");
@@ -92,8 +94,10 @@ export function SectionCollectionsClient({
             locale={locale}
             sectionId={view.sectionId}
             initialMode={view.monthlyFeeChargeMode}
+            initialAllowAdvance={view.allowAdvanceMonthlyPayment}
             lead={t.settingsLead}
             editorDict={monthlyFeeChargeEditorDict}
+            advanceEditorDict={advancePaymentEditorDict}
           />
         ) : null}
       </div>

@@ -3,9 +3,13 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { MessagingRecipient } from "@/types/messaging";
-import type { ParentMessageLineDto } from "@/components/parent/ParentMessagesFeed";
 import { ParentMessagesEntry } from "@/components/parent/ParentMessagesEntry";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import {
+  buildParentPortalMessageLines,
+  type RawPortalMessageRow,
+} from "@/lib/parent/buildParentPortalMessageLines";
+import { countProfilesWithRole } from "@/lib/dashboard/countProfilesWithRole";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -38,6 +42,7 @@ export default async function ParentMessagesPage({ params, searchParams }: PageP
     .select("student_id")
     .eq("tutor_id", user.id);
   const studentIds = [...new Set((rels ?? []).map((r) => r.student_id as string))];
+  const hasLinkedStudents = studentIds.length > 0;
 
   let recipients: MessagingRecipient[] = [];
   if (studentIds.length) {
@@ -67,11 +72,13 @@ export default async function ParentMessagesPage({ params, searchParams }: PageP
     }
   }
 
-  const canCompose = recipients.length > 0;
+  const teacherComposeAvailable = recipients.length > 0;
+  const administrationComposeAvailable =
+    hasLinkedStudents && (await countProfilesWithRole("admin")) > 0;
 
   const { data: raw } = await supabase
     .from("portal_messages")
-    .select("id, sender_id, recipient_id, body_html, created_at")
+    .select("id, sender_id, recipient_id, body_html, created_at, broadcast_batch_id")
     .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
     .order("created_at", { ascending: true });
 
@@ -93,26 +100,29 @@ export default async function ParentMessagesPage({ params, searchParams }: PageP
     ]),
   );
 
-  const sorted = [...(raw ?? [])].sort(
-    (a, b) =>
-      new Date(a.created_at as string).getTime() - new Date(b.created_at as string).getTime(),
+  const sortedAsc: RawPortalMessageRow[] = [...(raw ?? [])].map((m) => ({
+    id: m.id as string,
+    sender_id: m.sender_id as string,
+    recipient_id: m.recipient_id as string,
+    body_html: m.body_html as string,
+    created_at: m.created_at as string,
+    broadcast_batch_id: (m.broadcast_batch_id as string | null) ?? null,
+  }));
+
+  sortedAsc.sort(
+    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
   );
 
-  const lines: ParentMessageLineDto[] = sorted.map((m) => {
-    const fromMe = (m.sender_id as string) === user.id;
-    const peerId = fromMe ? (m.recipient_id as string) : (m.sender_id as string);
-    const peer = peerById.get(peerId);
-    const peerName = peer?.name ?? dict.common.emptyValue;
-    const incomingLabel = dict.dashboard.parent.messagesFromTeacher;
-
-    return {
-      id: m.id as string,
-      from_me: fromMe,
-      body_html: m.body_html as string,
-      created_at: m.created_at as string,
-      peer_name: peerName,
-      incoming_label: incomingLabel,
-    };
+  const lines = buildParentPortalMessageLines({
+    userId: user.id,
+    sortedAsc,
+    peerById,
+    labels: {
+      messagesFromTeacher: dict.dashboard.parent.messagesFromTeacher,
+      messagesFromAdmin: dict.dashboard.parent.messagesFromAdmin,
+      administrationPeerLabel: dict.dashboard.parent.administrationPeerLabel,
+      emptyValue: dict.common.emptyValue,
+    },
   });
 
   const defaultRecipientId =
@@ -125,7 +135,8 @@ export default async function ParentMessagesPage({ params, searchParams }: PageP
       lead={dict.dashboard.parent.messagesLead}
       lines={lines}
       recipients={recipients}
-      canCompose={canCompose}
+      teacherComposeAvailable={teacherComposeAvailable}
+      administrationComposeAvailable={administrationComposeAvailable}
       labels={dict.dashboard.parent}
       defaultRecipientId={defaultRecipientId}
     />

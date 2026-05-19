@@ -45,6 +45,7 @@ export interface AdminSectionPageData {
     enrollmentFeeAmount: number;
     /** Student/parent billing: class prorate vs full month fee. */
     monthlyFeeChargeMode: MonthlyFeeChargeMode;
+    allowAdvanceMonthlyPayment: boolean;
   };
   cohort: {
     name: string;
@@ -68,7 +69,7 @@ export async function loadAdminSectionPageData(
   const { data: sec, error: sErr } = await supabase
     .from("academic_sections")
     .select(
-      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, academic_cohorts(name, archived_at)",
+      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(name, archived_at)",
     )
     .eq("id", sectionId)
     .maybeSingle();
@@ -92,6 +93,7 @@ export async function loadAdminSectionPageData(
     ends_on: string;
     enrollment_fee_amount?: number | string | null;
     monthly_fee_charge_mode?: string | null;
+    allow_advance_monthly_payment?: boolean | null;
     academic_cohorts:
       | { name: string; archived_at?: string | null }
       | { name: string; archived_at?: string | null }[]
@@ -190,6 +192,7 @@ export async function loadAdminSectionPageData(
       activeEnrollmentCount,
       enrollmentFeeAmount,
       monthlyFeeChargeMode,
+      allowAdvanceMonthlyPayment: secRow.allow_advance_monthly_payment === true,
     },
     cohort: {
       name: cohortName,

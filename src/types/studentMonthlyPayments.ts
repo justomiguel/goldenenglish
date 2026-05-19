@@ -86,6 +86,8 @@ export interface StudentMonthlyPaymentSectionRow {
    * Staff marked enrollment fee paid manually (no receipt approval). When set, month-0 chip should show paid.
    */
   lastEnrollmentPaidAt: string | null;
+  /** When false, portal blocks Flow/receipt for months after the current calendar month. */
+  allowAdvanceMonthlyPayment: boolean;
 }
 
 export interface StudentMonthlyPaymentsView {

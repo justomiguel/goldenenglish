@@ -41,7 +41,13 @@ export function PortalCalendarPageLayout({
           <aside className="rounded-[var(--layout-border-radius)] bg-[var(--color-muted)]/30 p-3 sm:p-4">{toolbar}</aside>
           {adminFilters}
           {adminSpecialLink}
-          <div className="min-h-[min(28rem,70dvh)] min-w-0 overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-2 sm:p-4">
+          <div
+            className={
+              variant === "narrow"
+                ? "flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-2"
+                : "min-h-[min(28rem,70dvh)] min-w-0 overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-2 sm:p-4"
+            }
+          >
             {schedule}
           </div>
         </div>

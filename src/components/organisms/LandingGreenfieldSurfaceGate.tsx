@@ -42,7 +42,7 @@ export function LandingGreenfieldSurfaceGate({
         <div className="flex min-h-screen flex-col bg-[var(--color-background)]">
           <LandingGreenfieldHeader {...shellProps} />
           <div className="flex flex-1 flex-col">{main}</div>
-          <LandingGreenfieldFooter dict={dict} brand={brand} />
+          <LandingGreenfieldFooter dict={dict} brand={brand} locale={locale} />
         </div>
       }
       narrow={(surface) => (
@@ -50,7 +50,7 @@ export function LandingGreenfieldSurfaceGate({
           <div className="flex min-h-dvh flex-col bg-[var(--color-background)]">
             <LandingGreenfieldHeader {...shellProps} />
             <div className="flex flex-1 flex-col">{main}</div>
-            <LandingGreenfieldFooter dict={dict} brand={brand} />
+            <LandingGreenfieldFooter dict={dict} brand={brand} locale={locale} />
           </div>
         </PwaPageShell>
       )}

@@ -3,6 +3,9 @@
 import { Suspense, type ChangeEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Label } from "@/components/atoms/Label";
+import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
+import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
+import { ParentPaymentsScreenPwa } from "@/components/pwa/organisms/ParentPaymentsScreenPwa";
 import { StudentPaymentsHistory } from "@/components/student/StudentPaymentsHistory";
 import type { StudentPaymentRow } from "@/components/student/StudentPaymentsHistory";
 import { StudentMonthlyPaymentsStrip } from "@/components/student/StudentMonthlyPaymentsStrip";
@@ -13,7 +16,9 @@ import {
 } from "@/components/student/StudentMonthlyPaymentFocus";
 import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import { ParentFinanceTabs } from "@/components/parent/ParentFinanceTabs";
-import { ParentRouteSurfaceGate } from "@/components/parent/ParentRouteSurfaceGate";
+import type { FamilyPaymentsSummary } from "@/lib/billing/buildFamilyPaymentsSummary";
+import type { StudentPaymentsFocusKey } from "@/lib/billing/findStudentPaymentsInitialFocus";
+import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { StudentMonthlyPaymentsView } from "@/types/studentMonthlyPayments";
@@ -34,6 +39,7 @@ export interface ParentPaymentsEntryProps {
   options: TutorLinkedStudentOption[];
   selectedStudentId: string | null;
   monthlyView: StudentMonthlyPaymentsView | null;
+  familySummary: FamilyPaymentsSummary;
   payments: StudentPaymentRow[];
   financialAccessRevoked: boolean;
   labels: ParentLabels;
@@ -44,9 +50,10 @@ export interface ParentPaymentsEntryProps {
   flowMonthlyPayEnabled?: boolean;
   fileUploadProgress: FileUploadProgressLabels;
   feesPanel: ReactNode;
+  initialFocus?: StudentPaymentsFocusKey | null;
 }
 
-function ParentPaymentsBody({
+function ParentPaymentsBodyDesktop({
   locale,
   title,
   lead,
@@ -63,6 +70,7 @@ function ParentPaymentsBody({
   startFlowMonthlyPaymentAction,
   flowMonthlyPayEnabled = false,
   feesPanel,
+  initialFocus = null,
 }: ParentPaymentsEntryProps) {
   const router = useRouter();
 
@@ -137,6 +145,7 @@ function ParentPaymentsBody({
                 startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
                 flowMonthlyPayEnabled={flowMonthlyPayEnabled}
                 tutorPaymentMethodTabs
+                initialFocus={initialFocus}
               />
             }
             history={<StudentPaymentsHistory rows={payments} labels={studentLabels} locale={locale} />}
@@ -157,11 +166,25 @@ function ParentPaymentsBody({
 }
 
 export function ParentPaymentsEntry(props: ParentPaymentsEntryProps) {
+  const skeleton = (
+    <div className="h-24 animate-pulse rounded bg-[var(--color-muted)]" aria-hidden />
+  );
+
   return (
-    <Suspense fallback={<div className="h-24 animate-pulse rounded bg-[var(--color-muted)]" aria-hidden />}>
-      <ParentRouteSurfaceGate>
-        <ParentPaymentsBody {...props} />
-      </ParentRouteSurfaceGate>
+    <Suspense fallback={skeleton}>
+      <SurfaceMountGate
+        skeleton={skeleton}
+        desktop={<ParentPaymentsBodyDesktop {...props} />}
+        narrow={(surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">) => (
+          <PwaPageShell surface={surface}>
+            <div className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
+              <div className="mx-auto max-w-[var(--layout-max-width)] py-2">
+                <ParentPaymentsScreenPwa {...props} />
+              </div>
+            </div>
+          </PwaPageShell>
+        )}
+      />
     </Suspense>
   );
 }

@@ -15,6 +15,7 @@ import { AcademicSectionRoomLabelEditor } from "@/components/organisms/AcademicS
 import { AcademicSectionFeePlansEditor } from "@/components/organisms/AcademicSectionFeePlansEditor";
 import { AcademicSectionEnrollmentFeeEditor } from "@/components/organisms/AcademicSectionEnrollmentFeeEditor";
 import { AcademicSectionMonthlyFeeChargeModeEditor } from "@/components/organisms/AcademicSectionMonthlyFeeChargeModeEditor";
+import { AcademicSectionAdvanceMonthlyPaymentEditor } from "@/components/organisms/AcademicSectionAdvanceMonthlyPaymentEditor";
 import { AcademicSectionLearningRouteSelector } from "@/components/organisms/AcademicSectionLearningRouteSelector";
 import { AcademicSectionHealthOverview } from "@/components/organisms/AcademicSectionHealthOverview";
 import type { AdminSectionHealthSnapshot } from "@/types/adminSectionHealth";
@@ -80,6 +81,7 @@ export function AcademicSectionPageShellBody({
     feePlansDict,
     enrollmentFeeDict,
     monthlyFeeChargeModeDict,
+    allowAdvanceMonthlyPaymentDict,
     learningRouteDict,
     staffAssignedChipsDict,
     healthDict,
@@ -183,6 +185,12 @@ export function AcademicSectionPageShellBody({
               sectionId={sectionId}
               initialMode={section.monthlyFeeChargeMode}
               dict={monthlyFeeChargeModeDict}
+            />
+            <AcademicSectionAdvanceMonthlyPaymentEditor
+              locale={locale}
+              sectionId={sectionId}
+              initialAllowAdvance={section.allowAdvanceMonthlyPayment}
+              dict={allowAdvanceMonthlyPaymentDict}
             />
             <AcademicSectionFeePlansEditor
               locale={locale}

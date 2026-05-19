@@ -62,6 +62,7 @@ export interface BuildStudentMonthlyPaymentsRowInput {
    * Section setting: student/parent dues for `operational-window` rows only.
    */
   monthlyFeeChargeMode?: MonthlyFeeChargeMode;
+  allowAdvanceMonthlyPayment?: boolean;
 }
 
 export function parseUtcDate(iso: string | null): Date | null {

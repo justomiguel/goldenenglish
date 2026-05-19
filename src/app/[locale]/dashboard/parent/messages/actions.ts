@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
 import { sendParentMessageUseCase } from "@/lib/messaging/useCases/sendParentMessage";
+import { sendParentMessageToAdministrationUseCase } from "@/lib/messaging/useCases/sendParentMessageToAdministration";
 import { sanitizeMessageHtml } from "@/lib/messaging/sanitizeMessageHtml";
 import { stripHtmlToText } from "@/lib/messaging/stripHtml";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
@@ -14,18 +15,20 @@ import { mapMessagingUseCaseCode } from "@/lib/messaging/mapMessagingUseCaseCode
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 const bodySchema = z.string().min(1).max(80000);
+const destinationSchema = z.enum(["teacher", "administration"]);
 
 export async function sendParentMessage(
   locale: string,
-  teacherId: string,
   bodyHtml: string,
+  destinationRaw: unknown,
+  teacherIdRaw?: string,
 ): Promise<{ ok: boolean; message?: string }> {
   const dict = await getDictionary(locale);
   const msg = dict.actionErrors.messaging;
   const senderFb = dict.dashboard.parent.messagesSenderFallback;
 
-  const tid = z.string().uuid().safeParse(teacherId);
-  if (!tid.success) return { ok: false, message: msg.invalidRecipient };
+  const destinationParse = destinationSchema.safeParse(destinationRaw);
+  if (!destinationParse.success) return { ok: false, message: msg.invalidRecipient };
 
   const parsed = bodySchema.safeParse(bodyHtml);
   if (!parsed.success) return { ok: false, message: msg.invalidMessage };
@@ -48,10 +51,37 @@ export async function sendParentMessage(
   if (profile?.role !== "parent") return { ok: false, message: msg.forbidden };
 
   const name = formatProfileNameSurnameFirst(profile.first_name, profile.last_name);
+  const displayName = name || senderFb;
+
+  if (destinationParse.data === "administration") {
+    const result = await sendParentMessageToAdministrationUseCase({
+      supabase,
+      parentId: user.id,
+      parentDisplayName: displayName,
+      bodyHtml: safeHtml,
+      locale,
+      emailProvider: getEmailProvider(),
+    });
+    if (!result.ok) {
+      return { ok: false, message: mapMessagingUseCaseCode(result.message, msg) };
+    }
+    void recordUserEventServer({
+      userId: user.id,
+      eventType: "action",
+      entity: AnalyticsEntity.parentMessageSent,
+      metadata: { destination: "administration" },
+    });
+    revalidatePath(`/${locale}/dashboard/parent/messages`);
+    return { ok: true };
+  }
+
+  const tid = z.string().uuid().safeParse(teacherIdRaw);
+  if (!tid.success) return { ok: false, message: msg.invalidRecipient };
+
   const result = await sendParentMessageUseCase({
     supabase,
     parentId: user.id,
-    parentDisplayName: name || senderFb,
+    parentDisplayName: displayName,
     teacherId: tid.data,
     bodyHtml: safeHtml,
     locale,
@@ -65,7 +95,7 @@ export async function sendParentMessage(
     userId: user.id,
     eventType: "action",
     entity: AnalyticsEntity.parentMessageSent,
-    metadata: { recipient_id: tid.data },
+    metadata: { destination: "teacher", recipient_id: tid.data },
   });
   revalidatePath(`/${locale}/dashboard/parent/messages`);
   return { ok: true };

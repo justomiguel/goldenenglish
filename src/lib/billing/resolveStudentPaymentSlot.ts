@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { assertAdvanceMonthlyPaymentAllowed } from "@/lib/billing/assertAdvanceMonthlyPaymentAllowed";
 import {
   isStudentActivelyEnrolledInSection,
   resolveSectionPlanMonthlyAmount,
@@ -51,7 +52,8 @@ export type StudentPaymentSlotResult =
         | "slot_not_found"
         | "already_processed"
         | "upload_failed"
-        | "select_failed";
+        | "select_failed"
+        | "future_month_not_allowed";
     };
 
 export type StudentPaymentSlotFailureReason = Extract<
@@ -85,6 +87,16 @@ export async function resolveStudentPaymentSlot(
     if (planAmount.code === "no_plan") return { ok: false, reason: "no_plan" };
     if (planAmount.code === "out_of_period") return { ok: false, reason: "out_of_period" };
     if (planAmount.amount <= 0) return { ok: false, reason: "month_exempt" };
+
+    const now = new Date();
+    const advance = await assertAdvanceMonthlyPaymentAllowed(supabase, {
+      sectionId,
+      year,
+      month,
+      todayYear: now.getFullYear(),
+      todayMonth: now.getMonth() + 1,
+    });
+    if (!advance.allowed) return { ok: false, reason: "future_month_not_allowed" };
 
     const { data: existing, error: selErr } = await supabase
       .from("payments")

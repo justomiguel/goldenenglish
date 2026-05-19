@@ -32,6 +32,7 @@ interface SectionMeta {
   startsOn: string;
   endsOn: string;
   monthlyFeeChargeMode: MonthlyFeeChargeMode;
+  allowAdvanceMonthlyPayment: boolean;
   scheduleSlots: SectionScheduleSlot[];
   enrolledAt: string | null;
   enrollmentFeeAmount: number;
@@ -57,7 +58,7 @@ export async function loadStudentMonthlyPaymentsView(
   const activeEnrollmentResult = await supabase
     .from("section_enrollments")
     .select(
-      "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, enrollment_fee_receipt_url, enrollment_fee_receipt_status, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, academic_cohorts(name))",
+      "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, enrollment_fee_receipt_url, enrollment_fee_receipt_status, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(name))",
     )
     .eq("student_id", studentId)
     .eq("status", "active");
@@ -66,7 +67,7 @@ export async function loadStudentMonthlyPaymentsView(
       ? await supabase
           .from("section_enrollments")
           .select(
-            "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, academic_cohorts(name))",
+            "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(name))",
           )
           .eq("student_id", studentId)
           .eq("status", "active")
@@ -95,6 +96,7 @@ export async function loadStudentMonthlyPaymentsView(
     schedule_slots: unknown;
     enrollment_fee_amount: number | string | null;
     monthly_fee_charge_mode?: string | null;
+    allow_advance_monthly_payment?: boolean | null;
     academic_cohorts: { name: string } | { name: string }[] | null;
   };
 
@@ -163,6 +165,7 @@ export async function loadStudentMonthlyPaymentsView(
         startsOn: sec?.starts_on ?? "",
         endsOn: sec?.ends_on ?? "",
         monthlyFeeChargeMode: parseMonthlyFeeChargeMode(sec?.monthly_fee_charge_mode),
+        allowAdvanceMonthlyPayment: sec?.allow_advance_monthly_payment === true,
         scheduleSlots: parseSectionScheduleSlots(sec?.schedule_slots ?? []),
         enrolledAt: row.created_at ?? null,
         enrollmentFeeAmount:
@@ -230,6 +233,7 @@ export async function loadStudentMonthlyPaymentsView(
       enrollmentFeeReceiptSignedUrl: s.enrollmentFeeReceiptSignedUrl,
       lastEnrollmentPaidAt: s.lastEnrollmentPaidAt,
       monthlyFeeChargeMode: s.monthlyFeeChargeMode,
+      allowAdvanceMonthlyPayment: s.allowAdvanceMonthlyPayment,
     }),
   );
 

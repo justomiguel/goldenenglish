@@ -32,6 +32,8 @@ export interface ParentDashboardEntryProps {
   selectedStudentId?: string;
   parentLabels: Dictionary["dashboard"]["parent"];
   pillars: ParentHomePillarSnapshot;
+  attendanceByStudent: Record<string, number>;
+  overdueByStudent: Record<string, boolean>;
 }
 
 export function ParentDashboardEntry({
@@ -47,6 +49,8 @@ export function ParentDashboardEntry({
   selectedStudentId,
   parentLabels,
   pillars,
+  attendanceByStudent,
+  overdueByStudent,
 }: ParentDashboardEntryProps) {
   if (summaries.length === 0 && kids.length === 0) {
     return <p className="text-sm text-[var(--color-muted-foreground)]">{lead}</p>;
@@ -78,6 +82,8 @@ export function ParentDashboardEntry({
     summaries,
     selectedStudentId,
     pillars,
+    attendanceByStudent,
+    overdueByStudent,
     labels: parentLabels,
   };
 

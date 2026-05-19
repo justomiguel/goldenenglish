@@ -6,8 +6,10 @@ import {
   locales,
   type AppLocale,
 } from "@/lib/i18n/dictionaries";
+import { safeInternalPath } from "@/lib/auth/loginSubmitSupport";
 import { resolvePublicBrand } from "@/lib/brand/resolvePublicBrand";
 import { loadFirstRunWizardMode } from "@/lib/site/loadFirstRunWizardMode";
+import { createClient } from "@/lib/supabase/server";
 import { LoginScreenDesktop } from "@/components/desktop/organisms/LoginScreenDesktop";
 import { LoginScreenGate } from "@/components/organisms/LoginScreenGate";
 
@@ -62,6 +64,14 @@ export default async function LoginPage({
   const wizardMode = await loadFirstRunWizardMode();
   if (wizardMode === "bootstrap_account") {
     redirect(`/${locale}/setup/first-run`);
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    redirect(safeInternalPath(nextPath, locale));
   }
 
   const firstRunSetupHref =

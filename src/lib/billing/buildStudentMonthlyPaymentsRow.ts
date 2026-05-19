@@ -197,5 +197,6 @@ export function buildStudentMonthlyPaymentsRow(
     enrollmentFeeReceiptStatus: input.enrollmentFeeReceiptStatus ?? null,
     enrollmentFeeReceiptSignedUrl: input.enrollmentFeeReceiptSignedUrl ?? null,
     lastEnrollmentPaidAt: input.lastEnrollmentPaidAt ?? null,
+    allowAdvanceMonthlyPayment: input.allowAdvanceMonthlyPayment ?? false,
   };
 }

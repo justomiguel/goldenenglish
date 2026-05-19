@@ -20,7 +20,7 @@ function statusToken(status: StudentMonthlyPaymentCellStatus): string {
     case "exempt":
       return "border-[var(--color-info)] bg-[var(--color-info)]/15 text-[var(--color-info)]";
     case "due":
-      return "border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)]";
+      return "border-[var(--color-warning)] bg-[var(--color-warning)]/15 text-[var(--color-foreground)] font-semibold";
     default:
       return "border-[var(--color-border)] bg-[var(--color-muted)] text-[var(--color-muted-foreground)]";
   }
@@ -51,6 +51,8 @@ export interface StudentMonthlyPaymentCellProps {
   labels: Labels;
   isFocused: boolean;
   onFocus: () => void;
+  /** PWA accordion: enlarge the current calendar month. */
+  emphasizeCurrentMonth?: boolean;
 }
 
 export function StudentMonthlyPaymentCell({
@@ -59,6 +61,7 @@ export function StudentMonthlyPaymentCell({
   labels,
   isFocused,
   onFocus,
+  emphasizeCurrentMonth = false,
 }: StudentMonthlyPaymentCellProps) {
   const Icon = SECTION_COLLECTIONS_MONTH_STATUS_ICONS[cell.status];
   const tokenClasses = statusToken(cell.status);
@@ -76,9 +79,16 @@ export function StudentMonthlyPaymentCell({
   ].filter(Boolean).join(" · ");
   const ringClasses = isFocused
     ? "ring-2 ring-[var(--color-primary)] ring-offset-2"
-    : cell.isCurrent
+    : !emphasizeCurrentMonth && cell.isCurrent
       ? "ring-2 ring-[var(--color-primary)]/40"
       : "";
+  const isEmphasized = emphasizeCurrentMonth && cell.isCurrent;
+  const sizeClasses = isEmphasized
+    ? "z-[1] min-h-[72px] min-w-[50px] shrink-0 scale-110 px-2.5 py-2.5 text-sm shadow-md"
+    : "min-h-[56px] min-w-[44px] shrink-0 px-2 py-2 text-xs";
+  const monthLabelClasses = isEmphasized
+    ? "text-xs uppercase tracking-wide opacity-90 font-semibold"
+    : "text-[10px] uppercase tracking-wide opacity-80";
   return (
     <button
       type="button"
@@ -87,13 +97,13 @@ export function StudentMonthlyPaymentCell({
       aria-label={aria}
       title={aria}
       aria-pressed={isFocused}
-      className={`flex min-h-[64px] min-w-[44px] flex-col items-center justify-center gap-1 rounded-[var(--layout-border-radius)] border px-2 py-2 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 ${tokenClasses} ${ringClasses}`}
+      className={`flex flex-col items-center justify-center gap-1 self-end rounded-[var(--layout-border-radius)] border font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 ${sizeClasses} ${tokenClasses} ${ringClasses}`}
     >
-      <span className="text-[10px] uppercase tracking-wide opacity-80">{monthLabel}</span>
+      <span className={monthLabelClasses}>{monthLabel}</span>
       {scholarshipLabel ? (
         <span className="text-[11px] font-bold leading-none">{scholarshipLabel}</span>
       ) : (
-        <Icon className="h-4 w-4" aria-hidden />
+        <Icon className={isEmphasized ? "h-5 w-5" : "h-4 w-4"} aria-hidden />
       )}
       {cell.isCurrent ? (
         <span className="sr-only">{labels.currentMonth}</span>

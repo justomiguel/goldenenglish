@@ -13,7 +13,6 @@ import { StudentMonthlyPaymentReceiptUploadForm } from "@/components/student/Stu
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { StudentMonthlyPaymentCell, StudentMonthlyPaymentSectionRow } from "@/types/studentMonthlyPayments";
-import type { FormEvent } from "react";
 
 type Labels = Dictionary["dashboard"]["student"]["monthly"];
 
@@ -33,7 +32,7 @@ export interface StudentMonthlyTutorPaymentMethodTabsProps {
   busy: boolean;
   flowBusy: boolean;
   feedbackMessage: string | null;
-  onSubmitReceipt: (e: FormEvent<HTMLFormElement>) => void | Promise<void>;
+  onSubmitReceipt: (formData: FormData) => void | Promise<void>;
   onFlowPay: () => void | Promise<void>;
   /** When embedded below the month grid, reduce outer top margin vs standalone card chrome. */
   compactTopSpacing?: boolean;

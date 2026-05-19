@@ -64,6 +64,7 @@ export interface BuildSectionCollectionsViewInput {
   sectionEnrollmentFeeAmount: number;
   /** Alumno/apoderado: prorrateo por clases vs cuota mensual completa. */
   monthlyFeeChargeMode?: MonthlyFeeChargeMode;
+  allowAdvanceMonthlyPayment?: boolean;
 }
 
 function enrollmentFeeAmount(input: BuildSectionCollectionsViewInput): number {
@@ -170,6 +171,7 @@ export function buildSectionCollectionsView(
     sectionStartsOn: input.sectionStartsOn,
     sectionEndsOn: input.sectionEndsOn,
     monthlyFeeChargeMode,
+    allowAdvanceMonthlyPayment: input.allowAdvanceMonthlyPayment === true,
     students: studentRows,
     kpis: buildSectionCollectionsKpis(studentRows),
   };

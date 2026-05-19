@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { LayoutDashboard, LogIn, Menu, X } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
-import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
 
 export interface MozarthitosSiteHeaderLabels {
@@ -69,7 +68,7 @@ export function MozarthitosSiteHeader({
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="mz-site-header-accent w-full shrink-0" aria-hidden />
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-[max(1rem,env(safe-area-inset-left))] py-3 pe-[max(1rem,env(safe-area-inset-right))] sm:gap-3 md:gap-4 lg:py-4">
+      <div className="mx-auto flex max-w-6xl items-center gap-2 px-[max(1rem,env(safe-area-inset-left))] py-3 pe-[max(1rem,env(safe-area-inset-right))] sm:gap-3 lg:gap-4 lg:py-4">
         <Link href={prefix} className="mz-header-logo-link min-w-0 shrink-0">
           {/*
             `next/image` + remotePatterns del build; logos en Storage: <img> directo.
@@ -99,80 +98,110 @@ export function MozarthitosSiteHeader({
             </Link>
           ))}
         </nav>
-        <nav
-          aria-label={dict.nav.accountAria}
-          className="mz-chrome-tools flex shrink-0 items-center gap-1.5 sm:gap-2"
-        >
-          <LanguageSwitcher
-            locale={locale}
-            labels={dict.common.locale}
-            variant="compactDark"
-          />
-          {sessionEmail ? (
-            <>
+        <div className="ms-auto flex shrink-0 items-center gap-1 sm:gap-1.5 lg:ms-0 lg:gap-2">
+          <nav
+            aria-label={dict.nav.accountAria}
+            className="mz-chrome-tools flex shrink-0 items-center gap-1 sm:gap-1.5"
+          >
+            {sessionEmail ? (
+              <>
+                <Link
+                  href={`/${locale}/dashboard`}
+                  className="mz-chrome-dash inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border-2 border-white/55 bg-white/15 px-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-white/25 sm:min-w-0 sm:px-3 md:px-3.5"
+                  title={dict.nav.administration}
+                  aria-label={dict.nav.administration}
+                >
+                  <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
+                  <span className="hidden md:inline">{dict.nav.administration}</span>
+                </Link>
+                <SignOutButton
+                  locale={locale}
+                  label={dict.nav.logout}
+                  iconOnly
+                  title={dict.nav.logout}
+                  className="mz-chrome-signout min-h-[44px] min-w-[44px] rounded-2xl border-2 border-white/55 bg-white/15 text-white shadow-sm transition hover:bg-white/25"
+                />
+              </>
+            ) : (
               <Link
-                href={`/${locale}/dashboard`}
-                className="mz-chrome-dash inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border-2 border-white/50 bg-white/15 px-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-white/25 sm:px-3"
-                title={dict.nav.administration}
-                aria-label={dict.nav.administration}
+                href={`/${locale}/login`}
+                className="mz-chrome-login inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full border-2 border-white/60 bg-[var(--mz-yellow)] px-2.5 py-2 text-xs font-bold text-[var(--mz-ink-on-white)] shadow-md transition hover:bg-[var(--mz-yellow-soft)] sm:min-w-0 sm:gap-2 sm:px-4 sm:text-sm"
+                aria-label={dict.nav.login}
               >
-                <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                <span className="hidden xl:inline">{dict.nav.administration}</span>
+                <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
+                <span className="hidden sm:inline">{dict.nav.login}</span>
               </Link>
-              <SignOutButton
-                locale={locale}
-                label={dict.nav.logout}
-                iconOnly
-                title={dict.nav.logout}
-                className="mz-chrome-signout min-h-[44px] min-w-[44px] rounded-2xl border-2 border-white/50 bg-white/15 text-white shadow-sm transition hover:bg-white/25"
-              />
-            </>
-          ) : (
-            <Link
-              href={`/${locale}/login`}
-              className="mz-chrome-login inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border-2 border-white/55 bg-[var(--mz-yellow)] px-3 py-2 text-xs font-bold text-[var(--mz-ink-on-white)] shadow-md transition hover:bg-[var(--mz-yellow-soft)] sm:px-4 sm:text-sm"
-              aria-label={dict.nav.login}
-            >
-              <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-              <span className="hidden sm:inline">{dict.nav.login}</span>
-            </Link>
-          )}
-        </nav>
-        <button
-          type="button"
-          className="mz-menu-btn inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-2xl lg:hidden"
-          aria-expanded={open}
-          aria-controls="mz-mobile-nav"
-          aria-label={open ? labels.closeMenu : labels.openMenu}
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? (
-            <X className="h-6 w-6" aria-hidden />
-          ) : (
-            <Menu className="h-6 w-6" aria-hidden />
-          )}
-        </button>
+            )}
+          </nav>
+          <button
+            type="button"
+            className="mz-menu-btn inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-2xl lg:hidden"
+            aria-expanded={open}
+            aria-controls="mz-mobile-nav"
+            aria-label={open ? labels.closeMenu : labels.openMenu}
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? (
+              <X className="h-6 w-6" aria-hidden />
+            ) : (
+              <Menu className="h-6 w-6" aria-hidden />
+            )}
+          </button>
+        </div>
       </div>
       {open ? (
-        <nav
+        <div
           id="mz-mobile-nav"
           className="mz-mobile-sheet border-t px-[max(1rem,env(safe-area-inset-left))] py-3 pe-[max(1rem,env(safe-area-inset-right))] pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden"
-          aria-label="Primary mobile"
         >
-          <ul className="flex flex-col gap-1">
-            {links.map(({ href, label }) => (
-              <li key={href}>
+          <nav aria-label={dict.nav.sectionsAria}>
+            <ul className="flex flex-col gap-1">
+              {links.map(({ href, label }) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className="mz-nav-link flex min-h-[48px] items-center rounded-xl px-1 py-2 text-base font-semibold"
+                    onClick={() => setOpen(false)}
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <div
+            className="mt-3 flex flex-col gap-2 border-t border-white/20 pt-3"
+            role="group"
+            aria-label={dict.nav.accountAria}
+          >
+            {sessionEmail ? (
+              <>
                 <Link
-                  href={href}
-                  className="mz-nav-link flex min-h-[48px] items-center rounded-xl px-1 py-2 text-base font-semibold"
+                  href={`/${locale}/dashboard`}
+                  className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-[var(--mz-yellow)] px-4 py-2 text-sm font-bold text-[var(--mz-ink-on-white)]"
                   onClick={() => setOpen(false)}
                 >
-                  {label}
+                  <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
+                  {dict.nav.administration}
                 </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+                <SignOutButton
+                  locale={locale}
+                  label={dict.nav.logout}
+                  className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full border-2 border-white/55 bg-white/10 px-4 py-2 text-sm font-semibold text-white"
+                />
+              </>
+            ) : (
+              <Link
+                href={`/${locale}/login`}
+                className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-[var(--mz-yellow)] px-4 py-2 text-sm font-bold text-[var(--mz-ink-on-white)]"
+                onClick={() => setOpen(false)}
+              >
+                <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
+                {dict.nav.login}
+              </Link>
+            )}
+          </div>
+        </div>
       ) : null}
     </header>
   );

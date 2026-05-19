@@ -40,9 +40,14 @@ export function loginFail(event: string, details?: Record<string, unknown>) {
   console.error(LOGIN_LOG_PREFIX, { event, ...details });
 }
 
+/** Default destination after sign-in when `next` is absent or unsafe. */
+export function defaultPostLoginPath(locale: string): string {
+  return `/${locale}/dashboard`;
+}
+
 /** Avoid open redirects: only relative paths without a protocol. */
 export function safeInternalPath(next: string | null | undefined, locale: string): string {
-  const fallback = `/${locale}`;
+  const fallback = defaultPostLoginPath(locale);
   if (next == null || next === "") return fallback;
   const t = next.trim();
   if (

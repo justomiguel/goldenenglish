@@ -64,14 +64,7 @@ export function BillingPortalScreen({
       ["pending", "verifying", "overdue"].includes(i.status),
     );
     const balance = open.reduce((a, i) => a + Number(i.amount), 0);
-    const next =
-      open.length === 0
-        ? null
-        : open
-            .map((i) => i.due_date)
-            .sort()
-            .at(0) ?? null;
-    return { balance, next };
+    return { balance };
   }, [invoices]);
 
   if (viewer === "student" && isMinorStudent) {
@@ -82,23 +75,13 @@ export function BillingPortalScreen({
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted-foreground)]">
-            {dict.balancePending}
-          </p>
-          <p className="mt-1 text-2xl font-bold text-[var(--color-foreground)]">
-            {formatMoney(locale, summary.balance)}
-          </p>
-        </div>
-        <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted-foreground)]">
-            {dict.nextDue}
-          </p>
-          <p className="mt-1 text-lg font-semibold text-[var(--color-foreground)]">
-            {summary.next ? formatDate(locale, summary.next) : dict.none}
-          </p>
-        </div>
+      <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted-foreground)]">
+          {dict.balancePending}
+        </p>
+        <p className="mt-1 text-2xl font-bold text-[var(--color-foreground)]">
+          {formatMoney(locale, summary.balance)}
+        </p>
       </div>
 
       {invoices.length === 0 ? (

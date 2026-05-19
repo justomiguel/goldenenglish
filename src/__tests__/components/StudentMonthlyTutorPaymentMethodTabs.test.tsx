@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from "vitest";
-import type { FormEvent } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { StudentMonthlyTutorPaymentMethodTabs } from "@/components/student/StudentMonthlyTutorPaymentMethodTabs";
 import { dictEn } from "@/test/dictEn";
@@ -54,9 +53,7 @@ const dueCell: StudentMonthlyPaymentCell = {
 
 describe("StudentMonthlyTutorPaymentMethodTabs", () => {
   it("switches panels between receipt upload and Flow pay tab", () => {
-    const onReceipt = vi.fn((e: FormEvent) => {
-      e.preventDefault();
-    });
+    const onReceipt = vi.fn();
     const onFlow = vi.fn();
     render(
       <StudentMonthlyTutorPaymentMethodTabs

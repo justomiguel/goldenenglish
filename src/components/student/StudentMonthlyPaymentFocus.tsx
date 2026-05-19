@@ -1,9 +1,9 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { useState } from "react";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
-import { formatStudentMonthlyPaymentAmount } from "@/components/student/studentMonthlyPaymentFocusFormatAmount";
+import { StudentMonthlyPaymentFocusAmounts } from "@/components/student/StudentMonthlyPaymentFocusAmounts";
 import { StudentMonthlyPaymentReceiptUploadForm } from "@/components/student/StudentMonthlyPaymentReceiptUploadForm";
 import type {
   StudentMonthlyPaymentCell,
@@ -11,6 +11,7 @@ import type {
 } from "@/types/studentMonthlyPayments";
 import { StudentMonthlyPaymentFocusApprovedNotice } from "@/components/student/StudentMonthlyPaymentFocusApprovedNotice";
 import { StudentMonthlyTutorPaymentMethodTabs } from "@/components/student/StudentMonthlyTutorPaymentMethodTabs";
+import { isAdvanceMonthlyPaymentAllowedForCell } from "@/lib/billing/assertAdvanceMonthlyPaymentAllowed";
 
 type Labels = Dictionary["dashboard"]["student"]["monthly"];
 
@@ -24,30 +25,21 @@ export type StartFlowMonthlyPaymentClientAction = (
 
 export interface StudentMonthlyPaymentFocusProps {
   locale: Locale;
-  /** Student being edited: self on student route; ward id on parent payments. */
   studentId: string;
   section: StudentMonthlyPaymentSectionRow;
   cell: StudentMonthlyPaymentCell;
   monthLabel: string;
   labels: Labels;
-  /** Used in messages and the receipt link. */
   paymentLabels: Dictionary["dashboard"]["student"];
-  /** Persists receipt; shared shape for student and tutor submit actions. */
   submitAction: SubmitMonthlyReceiptAction;
-  /** Flow.cl online checkout (Chile / CLP only); server validates credentials. */
   startFlowAction?: StartFlowMonthlyPaymentClientAction;
   flowMonthlyPayEnabled?: boolean;
   fileUploadProgress: FileUploadProgressLabels;
   onSubmitted?: () => void;
-  /** Full-month amount in receipt UI; server still resolves the slot amount. */
   receiptExpectedUsesFullMonth?: boolean;
-  /** Tutor/parent payments: split receipt upload vs Flow in underline tabs inside this panel. */
   paymentMethodTabLayout?: boolean;
-  /**
-   * When true, render flush inside {@link StudentMonthlyPaymentsStrip}'s section card
-   * (divider + inset surface) instead of a separate bordered card.
-   */
   embeddedInSectionCard?: boolean;
+  pwaNestedHierarchy?: boolean;
 }
 
 export function StudentMonthlyPaymentFocus({
@@ -66,6 +58,7 @@ export function StudentMonthlyPaymentFocus({
   receiptExpectedUsesFullMonth = false,
   paymentMethodTabLayout = false,
   embeddedInSectionCard = false,
+  pwaNestedHierarchy = false,
 }: StudentMonthlyPaymentFocusProps) {
   const [busy, setBusy] = useState(false);
   const [flowBusy, setFlowBusy] = useState(false);
@@ -87,20 +80,29 @@ export function StudentMonthlyPaymentFocus({
   const recordedDisplayAmount = receiptExpectedUsesFullMonth
     ? (cell.fullMonthExpectedAmount ?? cell.recordedAmount)
     : cell.recordedAmount;
-  const canUpload =
+  const todayYear = new Date().getFullYear();
+  const todayMonth = new Date().getMonth() + 1;
+  const advanceAllowedFixed = isAdvanceMonthlyPaymentAllowedForCell(
+    section.allowAdvanceMonthlyPayment,
+    cell.year,
+    cell.month,
+    todayYear,
+    todayMonth,
+  );
+  const canUploadBase =
     cell.status === "due" || cell.status === "rejected" || cell.status === "pending";
+  const canUpload = canUploadBase && advanceAllowedFixed;
   const isLocked = cell.status === "out-of-period" || cell.status === "no-plan";
+  const futureMonthBlocked = canUploadBase && !advanceAllowedFixed;
 
   const isClp = (cell.currency ?? "").trim().toUpperCase() === "CLP";
   const showFlowPay =
     Boolean(flowMonthlyPayEnabled && startFlowAction && isClp && canUpload && expected != null);
 
-  async function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function onSubmit(fd: FormData) {
     if (!canUpload || expected == null) return;
     setBusy(true);
     setMsg(null);
-    const fd = new FormData(e.currentTarget);
     const res = await submitAction(fd);
     setBusy(false);
     setMsg(res.ok ? paymentLabels.paySuccess : `${paymentLabels.payError}: ${res.message ?? ""}`);
@@ -127,62 +129,36 @@ export function StudentMonthlyPaymentFocus({
     setMsg(res.message);
   }
 
-  const outerClassName = embeddedInSectionCard
-    ? "mt-3 -mx-4 border-t border-[var(--color-border)] bg-[var(--color-muted)]/20 px-4 py-4"
-    : "mt-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-card)]";
+  const outerClassName = pwaNestedHierarchy
+    ? "mt-0 p-0"
+    : embeddedInSectionCard
+      ? "mt-3 -mx-4 border-t border-[var(--color-border)] bg-[var(--color-muted)]/20 px-4 py-4"
+      : "mt-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-card)]";
 
   return (
     <section className={outerClassName} aria-live="polite">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="font-display text-lg font-semibold text-[var(--color-primary)]">
-          {labels.focusTitle.replace("{month}", monthLabel).replace("{year}", String(cell.year))}
-        </h3>
-        {embeddedInSectionCard ? null : (
-          <span className="text-sm text-[var(--color-muted-foreground)]">{section.sectionName}</span>
-        )}
-      </div>
-      <dl className="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-        <div>
-          <dt className="text-[var(--color-muted-foreground)]">{labels.expectedAmount}</dt>
-          <dd className="text-base font-medium text-[var(--color-foreground)]">
-            {expected != null ? (
-              <span className="inline-flex flex-wrap items-baseline gap-2">
-                {hasDiscountedExpected ? (
-                  <del className="text-sm font-normal text-[var(--color-muted-foreground)]">
-                    {formatStudentMonthlyPaymentAmount(locale, originalExpected ?? 0, cell.currency)}
-                  </del>
-                ) : null}
-                <span>{formatStudentMonthlyPaymentAmount(locale, expected, cell.currency)}</span>
-              </span>
-            ) : (
-              labels.notAvailable
-            )}
-          </dd>
+      {pwaNestedHierarchy ? null : (
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 className="font-display text-lg font-semibold text-[var(--color-primary)]">
+            {labels.focusTitle.replace("{month}", monthLabel).replace("{year}", String(cell.year))}
+          </h3>
+          {embeddedInSectionCard ? null : (
+            <span className="text-sm text-[var(--color-muted-foreground)]">{section.sectionName}</span>
+          )}
         </div>
-        {recordedDisplayAmount != null ? (
-          <div>
-            <dt className="text-[var(--color-muted-foreground)]">{labels.recordedAmount}</dt>
-            <dd className="text-base font-medium text-[var(--color-foreground)]">
-              ${recordedDisplayAmount}
-            </dd>
-          </div>
-        ) : null}
-        {cell.receiptSignedUrl ? (
-          <div className="sm:col-span-2">
-            <dt className="text-[var(--color-muted-foreground)]">{paymentLabels.paymentViewReceipt}</dt>
-            <dd>
-              <a
-                href={cell.receiptSignedUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-[var(--color-primary)] underline-offset-2 hover:underline"
-              >
-                {paymentLabels.paymentViewReceipt}
-              </a>
-            </dd>
-          </div>
-        ) : null}
-      </dl>
+      )}
+      <StudentMonthlyPaymentFocusAmounts
+        locale={locale}
+        section={section}
+        cell={cell}
+        labels={labels}
+        paymentLabels={paymentLabels}
+        expected={expected}
+        originalExpected={originalExpected}
+        hasDiscountedExpected={hasDiscountedExpected}
+        recordedDisplayAmount={recordedDisplayAmount}
+        pwaNestedHierarchy={pwaNestedHierarchy}
+      />
 
       {isLocked ? (
         <p className="mt-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)] px-3 py-2 text-sm text-[var(--color-muted-foreground)]">
@@ -197,6 +173,12 @@ export function StudentMonthlyPaymentFocus({
       {!isLocked && cell.status === "exempt" ? (
         <p className="mt-4 rounded-[var(--layout-border-radius)] border border-[var(--color-info)]/40 bg-[var(--color-info)]/10 px-3 py-2 text-sm text-[var(--color-info)]">
           {labels.exemptHint}
+        </p>
+      ) : null}
+
+      {futureMonthBlocked ? (
+        <p className="mt-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)] px-3 py-2 text-sm text-[var(--color-muted-foreground)]">
+          {labels.advancePaymentBlocked}
         </p>
       ) : null}
 

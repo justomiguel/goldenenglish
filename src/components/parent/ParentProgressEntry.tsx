@@ -11,6 +11,7 @@ import {
 } from "@/components/molecules/UnderlineTabBar";
 import { ParentWardPicker, type ParentWardOption } from "@/components/parent/ParentWardPicker";
 import { ParentRouteSurfaceGate } from "@/components/parent/ParentRouteSurfaceGate";
+import { useAppSurface } from "@/hooks/useAppSurface";
 import { ParentTasksListScreen } from "@/components/parent/ParentTasksListScreen";
 import { ParentAssessmentsScreen } from "@/components/parent/ParentAssessmentsScreen";
 import { ParentBadgesScreen } from "@/components/parent/ParentBadgesScreen";
@@ -59,6 +60,8 @@ export function ParentProgressEntry({
   const idPrefix = `parent-progress-${reactId}`;
   const [tab, setTab] = useState<string>(initialTab);
   const basePath = `/${locale}/dashboard/parent/progress`;
+  const surface = useAppSurface();
+  const isNarrowParent = surface === "web-mobile" || surface === "pwa-mobile";
 
   const items: UnderlineTabItem[] = useMemo(
     () => [
@@ -98,6 +101,8 @@ export function ParentProgressEntry({
         label={parentLabels.wardPickerLabel}
         hint={parentLabels.wardPickerHint}
         basePath={basePath}
+        variant={isNarrowParent ? "pwa" : "default"}
+        selectId="parent-progress-ward-picker"
       />
 
       <UnderlineTabBar

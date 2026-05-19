@@ -11489,6 +11489,14 @@ COMMENT ON COLUMN public.academic_sections.monthly_fee_charge_mode IS
   'full_month_fee = full plan month fee whenever the student is in-period for that month. '
   'Admin Cobranzas plan-year matrices are unchanged by this flag.';
 
+-- ========== 128_section_allow_advance_monthly_payment.sql ==========
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS allow_advance_monthly_payment boolean NOT NULL DEFAULT false;
+
+COMMENT ON COLUMN public.academic_sections.allow_advance_monthly_payment IS
+  'When true, portal users may submit receipts or Flow checkout for months after the current calendar month.';
+
 -- ========== 114_payment_flow_checkout_refs.sql ==========
 
 CREATE SEQUENCE IF NOT EXISTS public.payment_flow_commerce_serial_seq;

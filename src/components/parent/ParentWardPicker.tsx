@@ -17,6 +17,17 @@ interface ParentWardPickerProps {
   /** Base path for URL updates (e.g. "/en/dashboard/parent/tasks") */
   basePath: string;
   paramName?: string;
+  /** Full-width touch styling for PWA parent routes */
+  variant?: "default" | "pwa";
+  selectId?: string;
+}
+
+function resolveDisplayName(
+  options: ParentWardOption[],
+  selectedStudentId: string | null,
+): string {
+  const match = options.find((o) => o.studentId === selectedStudentId);
+  return match?.displayName ?? options[0]?.displayName ?? "";
 }
 
 export function ParentWardPicker({
@@ -26,8 +37,12 @@ export function ParentWardPicker({
   hint,
   basePath,
   paramName = "studentId",
+  variant = "default",
+  selectId = "parent-ward-picker",
 }: ParentWardPickerProps) {
   const router = useRouter();
+  const hintId = `${selectId}-hint`;
+  const wrapperClass = variant === "pwa" ? "relative isolate w-full" : "max-w-sm";
 
   function onChange(event: ChangeEvent<HTMLSelectElement>) {
     const next = event.target.value;
@@ -37,18 +52,29 @@ export function ParentWardPicker({
     router.push(`${url.pathname}?${url.searchParams.toString()}`);
   }
 
-  if (options.length <= 1) return null;
+  if (options.length === 0) return null;
+
+  const displayName = resolveDisplayName(options, selectedStudentId);
+
+  if (options.length === 1) {
+    return (
+      <div className={wrapperClass}>
+        <p className="text-sm font-medium text-[var(--color-muted-foreground)]">{label}</p>
+        <p className="mt-1 text-base font-semibold text-[var(--color-foreground)]">{displayName}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-sm">
-      <Label htmlFor="parent-ward-picker">{label}</Label>
+    <div className={wrapperClass}>
+      <Label htmlFor={selectId}>{label}</Label>
       <select
-        id="parent-ward-picker"
+        id={selectId}
         name={paramName}
         value={selectedStudentId ?? ""}
         onChange={onChange}
-        className="mt-1 block min-h-[44px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-foreground)]"
-        aria-describedby="parent-ward-picker-hint"
+        className="mt-1 block min-h-[44px] w-full appearance-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-foreground)]"
+        aria-describedby={hintId}
       >
         {options.map((option) => (
           <option key={option.studentId} value={option.studentId}>
@@ -56,10 +82,7 @@ export function ParentWardPicker({
           </option>
         ))}
       </select>
-      <p
-        id="parent-ward-picker-hint"
-        className="mt-1 text-xs text-[var(--color-muted-foreground)]"
-      >
+      <p id={hintId} className="mt-1 text-xs text-[var(--color-muted-foreground)]">
         {hint}
       </p>
     </div>

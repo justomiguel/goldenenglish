@@ -1,17 +1,5 @@
 import { periodIndex } from "@/lib/billing/scholarshipPeriod";
-import type {
-  StudentMonthlyPaymentCell,
-  StudentMonthlyPaymentSectionRow,
-  StudentMonthlyPaymentsView,
-} from "@/types/studentMonthlyPayments";
-
-export interface StudentPaymentsYearSummaryNextDue {
-  year: number;
-  month: number;
-  sectionId: string;
-  sectionName: string;
-  amount: number;
-}
+import type { StudentMonthlyPaymentsView } from "@/types/studentMonthlyPayments";
 
 export interface StudentPaymentsYearSummary {
   year: number;
@@ -27,20 +15,6 @@ export interface StudentPaymentsYearSummary {
   creditBalance: number;
   /** overdue + pendingReview + upcoming, minus credit balance, floored at 0. */
   totalDebt: number;
-  /** Earliest in-period due/rejected cell across all sections (or null). */
-  nextDue: StudentPaymentsYearSummaryNextDue | null;
-}
-
-interface RowCell {
-  cell: StudentMonthlyPaymentCell;
-  row: StudentMonthlyPaymentSectionRow;
-}
-
-function compareNextDue(a: RowCell, b: RowCell): number {
-  const ai = periodIndex(a.cell.year, a.cell.month);
-  const bi = periodIndex(b.cell.year, b.cell.month);
-  if (ai !== bi) return ai - bi;
-  return a.row.sectionName.localeCompare(b.row.sectionName);
 }
 
 /**
@@ -59,7 +33,6 @@ export function buildStudentPaymentsYearSummary(
   let overdue = 0;
   let upcoming = 0;
   let creditBalance = 0;
-  let nextDueCandidate: RowCell | null = null;
 
   for (const row of view.rows) {
     for (const cell of row.cells) {
@@ -90,13 +63,6 @@ export function buildStudentPaymentsYearSummary(
           } else {
             upcoming += expected;
           }
-          const candidate = { cell, row };
-          if (
-            nextDueCandidate == null ||
-            compareNextDue(candidate, nextDueCandidate) < 0
-          ) {
-            nextDueCandidate = candidate;
-          }
           break;
         }
         default:
@@ -108,16 +74,6 @@ export function buildStudentPaymentsYearSummary(
   const totalDebtRaw = overdue + pendingReview + upcoming - creditBalance;
   const totalDebt = Math.max(0, totalDebtRaw);
 
-  const nextDue: StudentPaymentsYearSummaryNextDue | null = nextDueCandidate
-    ? {
-        year: nextDueCandidate.cell.year,
-        month: nextDueCandidate.cell.month,
-        sectionId: nextDueCandidate.row.sectionId,
-        sectionName: nextDueCandidate.row.sectionName,
-        amount: nextDueCandidate.cell.expectedAmount ?? 0,
-      }
-    : null;
-
   return {
     year: view.todayYear,
     paid: round2(paid),
@@ -126,7 +82,6 @@ export function buildStudentPaymentsYearSummary(
     upcoming: round2(upcoming),
     creditBalance: round2(creditBalance),
     totalDebt: round2(totalDebt),
-    nextDue,
   };
 }
 

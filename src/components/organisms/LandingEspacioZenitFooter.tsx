@@ -3,6 +3,7 @@ import { Camera, Mail, Phone, Share2 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { BrandPublic } from "@/lib/brand/server";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
+import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { PublicContactForm } from "@/components/molecules/PublicContactForm";
 
 export interface LandingEspacioZenitFooterProps {
@@ -124,7 +125,14 @@ export function LandingEspacioZenitFooter({
           {footerCta}
         </p>
       ) : null}
-      <p className="mx-auto mt-10 max-w-6xl border-t border-white/10 pt-8 text-center text-[11px] text-neutral-400 lg:mt-12">
+      <div className="mx-auto mt-10 flex max-w-6xl justify-center lg:mt-12">
+        <LanguageSwitcher
+          locale={locale}
+          labels={dict.common.locale}
+          variant="compactDark"
+        />
+      </div>
+      <p className="mx-auto mt-6 max-w-6xl border-t border-white/10 pt-8 text-center text-[11px] text-neutral-400">
         © {new Date().getFullYear()} {brand.legalName || brand.name}.{" "}
         {marketingLandingCopy(dict, "ez", "footer.rightsLine")}
       </p>

@@ -27,6 +27,7 @@ export interface SectionMeta {
   scheduleSlots: SectionScheduleSlot[];
   enrollmentFeeAmount: number;
   monthlyFeeChargeMode: MonthlyFeeChargeMode;
+  allowAdvanceMonthlyPayment: boolean;
 }
 
 export interface EnrollmentRow {
@@ -91,7 +92,7 @@ export async function loadSectionMeta(
   const { data } = await supabase
     .from("academic_sections")
     .select(
-      "id, name, archived_at, cohort_id, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, academic_cohorts(id, name)",
+      "id, name, archived_at, cohort_id, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(id, name)",
     )
     .eq("id", sectionId)
     .maybeSingle();
@@ -106,6 +107,7 @@ export async function loadSectionMeta(
     schedule_slots: unknown;
     enrollment_fee_amount: number | string | null;
     monthly_fee_charge_mode?: string | null;
+    allow_advance_monthly_payment?: boolean | null;
     academic_cohorts:
       | { id: string; name: string }
       | { id: string; name: string }[]
@@ -129,6 +131,7 @@ export async function loadSectionMeta(
     enrollmentFeeAmount:
       Number.isFinite(rawEnrollment) && rawEnrollment >= 0 ? rawEnrollment : 0,
     monthlyFeeChargeMode: parseMonthlyFeeChargeMode(row.monthly_fee_charge_mode),
+    allowAdvanceMonthlyPayment: row.allow_advance_monthly_payment === true,
   };
 }
 

@@ -20,7 +20,6 @@ function buildSummary(overrides: Partial<Summary> = {}): Summary {
     upcoming: 0,
     creditBalance: 0,
     totalDebt: 0,
-    nextDue: null,
     ...overrides,
   };
 }
@@ -51,41 +50,6 @@ describe("StudentPaymentsYearSummary", () => {
     expect(screen.getByText("$300")).toBeInTheDocument();
     expect(screen.getByText("$400")).toBeInTheDocument();
     expect(screen.getByText("$800")).toBeInTheDocument();
-  });
-
-  it("shows the next due section, month, year and amount when provided", () => {
-    render(
-      <StudentPaymentsYearSummary
-        locale="en"
-        labels={labels}
-        summary={buildSummary({
-          overdue: 100,
-          totalDebt: 100,
-          nextDue: {
-            sectionId: "sec-a",
-            sectionName: "B1 Tuesdays",
-            year: 2026,
-            month: 4,
-            amount: 100,
-          },
-        })}
-      />,
-    );
-    expect(screen.getByText(labels.nextDueLabel)).toBeInTheDocument();
-    expect(
-      screen.getByText(/B1 Tuesdays · April 2026 · \$100/),
-    ).toBeInTheDocument();
-  });
-
-  it("shows the up-to-date message when there is no next due date", () => {
-    render(
-      <StudentPaymentsYearSummary
-        locale="en"
-        labels={labels}
-        summary={buildSummary({ paid: 1000 })}
-      />,
-    );
-    expect(screen.getByText(labels.noNextDue)).toBeInTheDocument();
   });
 
   it("renders the credit-balance hint only when credit balance is positive", () => {

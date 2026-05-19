@@ -104,6 +104,8 @@ describe("Tier A entries — SurfaceMountGate branches", () => {
         ]}
         parentLabels={dictEn.dashboard.parent}
         pillars={samplePillars}
+        attendanceByStudent={{}}
+        overdueByStudent={{}}
       />,
     );
     expect(screen.getByTestId("sk")).toBeInTheDocument();
@@ -121,6 +123,12 @@ describe("Tier A entries — SurfaceMountGate branches", () => {
         ]}
         selectedStudentId="stu-1"
         monthlyView={{ todayMonth: 1, todayYear: 2026, rows: [] }}
+        familySummary={{
+          year: 2026,
+          familyTotalPending: 0,
+          isFamilySettled: true,
+          children: [],
+        }}
         payments={[]}
         financialAccessRevoked={false}
         labels={dictEn.dashboard.parent}

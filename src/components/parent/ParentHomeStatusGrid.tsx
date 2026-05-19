@@ -1,5 +1,7 @@
 import { CalendarCheck, MessageSquare, Wallet } from "lucide-react";
 import type { ParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
+import type { ParentHomeChildPillarRow } from "@/lib/parent/buildParentHomeChildPillarRows";
+import { aggregatePillarLevelFromChildRows } from "@/lib/parent/buildParentHomeChildPillarRows";
 import type { Dictionary } from "@/types/i18n";
 import { ParentHomeStatusCard } from "@/components/parent/ParentHomeStatusCard";
 
@@ -8,6 +10,9 @@ export interface ParentHomeStatusGridProps {
   pillars: ParentHomePillarSnapshot;
   labels: Dictionary["dashboard"]["parent"]["homeInbox"];
   variant?: "default" | "pwa";
+  /** When set, attendance and payments cards list one row per linked child (PWA home). */
+  attendanceChildRows?: ParentHomeChildPillarRow[];
+  paymentChildRows?: ParentHomeChildPillarRow[];
 }
 
 function statusLabel(level: ParentHomePillarSnapshot["attendance"]["level"], labels: ParentHomeStatusGridProps["labels"]) {
@@ -21,9 +26,18 @@ export function ParentHomeStatusGrid({
   pillars,
   labels,
   variant = "default",
+  attendanceChildRows,
+  paymentChildRows,
 }: ParentHomeStatusGridProps) {
   const base = `/${locale}/dashboard/parent`;
   const { attendance, messages, payments } = pillars;
+
+  const attendanceLevel = attendanceChildRows?.length
+    ? aggregatePillarLevelFromChildRows(attendanceChildRows)
+    : attendance.level;
+  const paymentsLevel = paymentChildRows?.length
+    ? aggregatePillarLevelFromChildRows(paymentChildRows)
+    : payments.level;
 
   const attendanceDetail =
     attendance.monthPercent != null
@@ -61,10 +75,12 @@ export function ParentHomeStatusGrid({
             href={`${base}/calendar`}
             title={labels.pillarAttendanceTitle}
             detail={attendanceDetail}
-            statusLabel={statusLabel(attendance.level, labels)}
-            level={attendance.level}
+            statusLabel={statusLabel(attendanceLevel, labels)}
+            level={attendanceLevel}
             icon={CalendarCheck}
             variant={variant}
+            childRows={attendanceChildRows}
+            childRowsAriaLabel={labels.pwaChildRowsAttendanceAria}
           />
         </li>
         <li>
@@ -83,10 +99,12 @@ export function ParentHomeStatusGrid({
             href={`${base}/payments`}
             title={labels.pillarPaymentsTitle}
             detail={paymentsDetail}
-            statusLabel={statusLabel(payments.level, labels)}
-            level={payments.level}
+            statusLabel={statusLabel(paymentsLevel, labels)}
+            level={paymentsLevel}
             icon={Wallet}
             variant={variant}
+            childRows={paymentChildRows}
+            childRowsAriaLabel={labels.pwaChildRowsPaymentsAria}
           />
         </li>
       </ul>

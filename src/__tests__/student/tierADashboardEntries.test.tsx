@@ -82,6 +82,8 @@ describe("Tier A dashboard entries", () => {
         selectedStudentId="1"
         parentLabels={dictEn.dashboard.parent}
         pillars={samplePillars}
+        attendanceByStudent={{}}
+        overdueByStudent={{}}
       />,
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Buen día, Marta");
@@ -116,6 +118,8 @@ describe("Tier A dashboard entries", () => {
         selectedStudentId="s1"
         parentLabels={dictEn.dashboard.parent}
         pillars={samplePillars}
+        attendanceByStudent={{ s1: 90 }}
+        overdueByStudent={{ s1: false }}
       />,
     );
     expect(screen.getByText(/90%/)).toBeInTheDocument();
@@ -132,6 +136,12 @@ describe("Tier A dashboard entries", () => {
         ]}
         selectedStudentId="stu-1"
         monthlyView={{ todayMonth: 1, todayYear: 2026, rows: [] }}
+        familySummary={{
+          year: 2026,
+          familyTotalPending: 0,
+          isFamilySettled: true,
+          children: [],
+        }}
         payments={[]}
         financialAccessRevoked={false}
         labels={dictEn.dashboard.parent}

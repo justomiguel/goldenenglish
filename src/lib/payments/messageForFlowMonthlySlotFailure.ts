@@ -10,5 +10,6 @@ export function messageForFlowMonthlySlotFailure(
   if (slotReason === "already_processed") return pe.alreadyProcessed;
   if (slotReason === "month_exempt") return pe.monthExempt;
   if (slotReason === "forbidden") return pe.forbidden;
+  if (slotReason === "future_month_not_allowed") return pe.futureMonthNotAllowed;
   return pe.slotNotFound;
 }

@@ -26,14 +26,27 @@ export type BuildPortalCalendarFcEventInputsContext = PortalCalendarEventVisualC
   now: Date;
 };
 
+export function portalCalendarFcExtendedPropsFromEvent(
+  ev: PortalCalendarEvent,
+  ctx: BuildPortalCalendarFcEventInputsContext,
+): PortalCalendarFcExtendedProps {
+  const timing = portalCalendarEventTiming(ev, ctx.now);
+  return {
+    kind: ev.kind,
+    specialEventType: ev.specialEventType,
+    meetingUrl: ev.meetingUrl ?? null,
+    roomLabel: ev.roomLabel ?? null,
+    timing,
+    isVirtual: portalCalendarEventIsVirtual(ev),
+    isOwn: portalCalendarEventIsOwn(ev, ctx),
+  };
+}
+
 export function buildPortalCalendarFcEventInputs(
   events: PortalCalendarEvent[],
   ctx: BuildPortalCalendarFcEventInputsContext,
 ): EventInput[] {
   return events.map((ev) => {
-    const timing = portalCalendarEventTiming(ev, ctx.now);
-    const isVirtual = portalCalendarEventIsVirtual(ev);
-    const isOwn = portalCalendarEventIsOwn(ev, ctx);
     return {
       id: ev.id,
       title: ev.title,
@@ -41,15 +54,7 @@ export function buildPortalCalendarFcEventInputs(
       end: ev.end,
       allDay: Boolean(ev.allDay),
       classNames: portalCalendarEventFcClassNames(ev, ctx.now, ctx),
-      extendedProps: {
-        kind: ev.kind,
-        specialEventType: ev.specialEventType,
-        meetingUrl: ev.meetingUrl ?? null,
-        roomLabel: ev.roomLabel ?? null,
-        timing,
-        isVirtual,
-        isOwn,
-      } satisfies PortalCalendarFcExtendedProps,
+      extendedProps: portalCalendarFcExtendedPropsFromEvent(ev, ctx),
     };
   });
 }

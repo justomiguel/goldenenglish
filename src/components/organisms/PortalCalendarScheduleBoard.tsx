@@ -20,6 +20,7 @@ import {
   type PortalCalendarFcViewUi,
 } from "@/components/organisms/PortalCalendarFcEventContent";
 import { PortalCalendarEventDetailModal } from "@/components/organisms/PortalCalendarEventDetailModal";
+import { PortalCalendarNarrowAgenda } from "@/components/pwa/organisms/PortalCalendarNarrowAgenda";
 import type { Dictionary } from "@/types/i18n";
 import { INSTITUTE_CALENDAR_TIMEZONE } from "@/lib/birthdays/instituteCalendarTz";
 import "./portalCalendarFullCalendar.css";
@@ -139,6 +140,18 @@ export function PortalCalendarScheduleBoard({
     }),
     [dict],
   );
+
+  if (narrowAgenda) {
+    return (
+      <PortalCalendarNarrowAgenda
+        locale={locale}
+        events={events}
+        dict={dict}
+        viewerId={viewerId}
+        highlightTeacherId={highlightTeacherId}
+      />
+    );
+  }
 
   return (
     <div className="portal-calendar min-w-0">

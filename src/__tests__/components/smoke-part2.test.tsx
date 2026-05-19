@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
@@ -166,7 +167,8 @@ describe("component smoke — molecules & PWA", () => {
     );
   });
 
-  it("LandingHeaderPwa shows panel link when session", () => {
+  it("LandingHeaderPwa shows panel link when session", async () => {
+    const user = userEvent.setup();
     render(
       <LandingHeaderPwa
         brand={mockBrandPublic}
@@ -175,6 +177,7 @@ describe("component smoke — molecules & PWA", () => {
         sessionEmail="student@example.com"
       />,
     );
+    await user.click(screen.getByRole("button", { name: dictEn.nav.openMenu }));
     expect(screen.getByRole("link", { name: dictEn.nav.administration })).toHaveAttribute(
       "href",
       "/es/dashboard",

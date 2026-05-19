@@ -75,7 +75,7 @@ describe("student portal entries — SurfaceMountGate branches", () => {
     expect(screen.getByTestId("desktop")).toBeInTheDocument();
     expect(screen.getByTestId("narrow")).toBeInTheDocument();
     expect(screen.getAllByTestId("payments-strip")).toHaveLength(2);
-    expect(screen.getAllByTestId("pay-history")).toHaveLength(2);
+    expect(screen.getAllByTestId("pay-history")).toHaveLength(1);
     expect(screen.getAllByTestId("pwa-shell")).toHaveLength(1);
   });
 

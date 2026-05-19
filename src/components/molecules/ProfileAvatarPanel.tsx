@@ -1,12 +1,9 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Upload } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
-import { Label } from "@/components/atoms/Label";
+import { ReceiptAutoUploadField } from "@/components/molecules/ReceiptAutoUploadField";
 import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
-import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import {
   uploadProfileAvatar,
@@ -68,12 +65,14 @@ export function ProfileAvatarPanel({
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [banner, setBanner] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
+  const [lastFileName, setLastFileName] = useState<string | null>(null);
 
-  async function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function uploadAvatar(file: File) {
     setBanner(null);
-    const fd = new FormData(e.currentTarget);
+    setLastFileName(file.name);
+    const fd = new FormData();
     fd.set("locale", locale);
+    fd.set("avatar", file);
     setBusy(true);
     try {
       const res = await uploadProfileAvatar(fd);
@@ -107,32 +106,22 @@ export function ProfileAvatarPanel({
             size="lg"
           />
         )}
-        <form className={uploadOnly ? "w-full max-w-lg space-y-4" : "w-full max-w-md space-y-4"} onSubmit={(ev) => void onSubmit(ev)}>
-          <div>
-            <Label htmlFor="profile-avatar-file">{labels.avatarChoose}</Label>
-            <input
-              id="profile-avatar-file"
-              name="avatar"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              disabled={busy}
-              className="mt-2 block w-full min-h-[44px] cursor-pointer text-sm text-[var(--color-foreground)] file:mr-4 file:rounded-[var(--layout-border-radius)] file:border-0 file:bg-[var(--color-muted)] file:px-4 file:py-2 file:text-sm file:font-medium file:text-[var(--color-foreground)]"
-            />
-            <p className="mt-2 text-xs text-[var(--color-muted-foreground)]">
-              {fillProfileAvatarMaxMbTemplate(labels.avatarHint)}
-            </p>
-          </div>
-          {busy ? (
-            <InlineUploadProgressBar
-              label={fileUploadProgress.progressSending}
-              indeterminate
-              className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
-            />
-          ) : null}
-          <Button type="submit" disabled={busy} isLoading={busy}>
-            {!busy ? <Upload className="h-4 w-4 shrink-0" aria-hidden /> : null}
-            {labels.avatarUpload}
-          </Button>
+        <div className={uploadOnly ? "w-full max-w-lg space-y-4" : "w-full max-w-md space-y-4"}>
+          <p className="text-sm font-medium text-[var(--color-foreground)]">{labels.avatarChoose}</p>
+          <p className="text-xs text-[var(--color-muted-foreground)]">
+            {fillProfileAvatarMaxMbTemplate(labels.avatarHint)}
+          </p>
+          <ReceiptAutoUploadField
+            buttonLabel={labels.avatarUpload}
+            inputAriaLabel={labels.avatarUpload}
+            accept="image/jpeg,image/png,image/webp"
+            inputName="avatar"
+            disabled={busy}
+            busy={busy}
+            selectedFileName={lastFileName}
+            fileUploadProgress={fileUploadProgress}
+            onFileSelected={uploadAvatar}
+          />
           {banner ? (
             <p
               role="status"
@@ -145,7 +134,7 @@ export function ProfileAvatarPanel({
               {banner.text}
             </p>
           ) : null}
-        </form>
+        </div>
       </div>
     </div>
   );

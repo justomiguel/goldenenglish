@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { StudentEnrollmentFeeUpload } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import dictEn from "@/dictionaries/en.json";
 
@@ -29,7 +29,7 @@ describe("StudentEnrollmentFeeUpload", () => {
     );
     expect(screen.getByText(labels.enrollmentFeeUploadTitle)).toBeTruthy();
     expect(screen.getByText(labels.enrollmentFeeUploadLead)).toBeTruthy();
-    expect(screen.getByText(labels.enrollmentFeeUploadBtn)).toBeTruthy();
+    expect(screen.getByRole("button", { name: labels.enrollmentFeeUploadBtn })).toBeTruthy();
   });
 
   it("shows 'under review' message when status is pending", () => {
@@ -73,7 +73,7 @@ describe("StudentEnrollmentFeeUpload", () => {
     );
     expect(screen.getByText(labels.enrollmentFeeReceiptRejected)).toBeTruthy();
     expect(screen.getByText(labels.enrollmentFeeUploadLead)).toBeTruthy();
-    expect(screen.getByText(labels.enrollmentFeeReuploadBtn)).toBeTruthy();
+    expect(screen.getByRole("button", { name: labels.enrollmentFeeReuploadBtn })).toBeTruthy();
   });
 
   it("shows view receipt link when signed url is present and pending", () => {
@@ -90,9 +90,9 @@ describe("StudentEnrollmentFeeUpload", () => {
     expect(link.closest("a")).toBeTruthy();
   });
 
-  it("calls submit action with correct formData fields on submit", async () => {
+  it("uploads immediately when a file is selected", async () => {
     const action = vi.fn().mockResolvedValue({ ok: true });
-    render(
+    const { container } = render(
       <StudentEnrollmentFeeUpload
         {...baseProps}
         receiptStatus={null}
@@ -102,14 +102,10 @@ describe("StudentEnrollmentFeeUpload", () => {
     );
 
     const file = new File(["data"], "receipt.jpg", { type: "image/jpeg" });
-    const input = screen.getByRole("button", { name: new RegExp(labels.enrollmentFeeUploadBtn) })
-      .closest("form")
-      ?.querySelector("input[type='file']") as HTMLInputElement;
-
+    const input = container.querySelector("input[type='file']") as HTMLInputElement;
     fireEvent.change(input, { target: { files: [file] } });
-    fireEvent.submit(input.closest("form")!);
 
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(action).toHaveBeenCalledOnce();
       const fd: FormData = action.mock.calls[0][0];
       expect(fd.get("sectionId")).toBe("section-1");
@@ -121,7 +117,7 @@ describe("StudentEnrollmentFeeUpload", () => {
 
   it("shows error message when action returns an error", async () => {
     const action = vi.fn().mockResolvedValue({ ok: false, message: "Upload failed." });
-    render(
+    const { container } = render(
       <StudentEnrollmentFeeUpload
         {...baseProps}
         receiptStatus={null}
@@ -131,13 +127,10 @@ describe("StudentEnrollmentFeeUpload", () => {
     );
 
     const file = new File(["data"], "r.jpg", { type: "image/jpeg" });
-    const form = screen.getByRole("button", { name: new RegExp(labels.enrollmentFeeUploadBtn) })
-      .closest("form")!;
-    const input = form.querySelector("input[type='file']") as HTMLInputElement;
+    const input = container.querySelector("input[type='file']") as HTMLInputElement;
     fireEvent.change(input, { target: { files: [file] } });
-    fireEvent.submit(form);
 
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(screen.getByRole("alert").textContent).toBe("Upload failed.");
     });
   });

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { Dictionary } from "@/types/i18n";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
@@ -100,7 +101,8 @@ describe("coverage gap closure", () => {
     expect(document.querySelector('a[href^="mailto:"]')).toBeNull();
   });
 
-  it("LandingHeaderPwa session branch and horizontal scroll hints", async () => {
+  it("LandingHeaderPwa session branch and mobile hamburger menu", async () => {
+    const user = userEvent.setup();
     render(
       <LandingHeaderPwa
         brand={{ ...mockBrandPublic, logoAlt: "" }}
@@ -109,16 +111,14 @@ describe("coverage gap closure", () => {
         sessionEmail="a@b.co"
       />,
     );
-    const nav = screen.getByRole("navigation", { name: dictEn.nav.sectionsAria });
-    Object.defineProperty(nav, "scrollWidth", { value: 800, configurable: true });
-    Object.defineProperty(nav, "clientWidth", { value: 100, configurable: true });
-    Object.defineProperty(nav, "scrollLeft", { value: 0, configurable: true });
-    await act(async () => {
-      fireEvent(window, new Event("resize"));
-    });
-    await waitFor(() => {
-      expect(screen.getByText(dictEn.nav.sectionsScrollHint)).toBeInTheDocument();
-    });
+    await user.click(screen.getByRole("button", { name: dictEn.nav.openMenu }));
+    expect(screen.getByRole("link", { name: dictEn.nav.about })).toHaveAttribute(
+      "href",
+      "/es#historia",
+    );
+    expect(
+      screen.getAllByRole("link", { name: dictEn.nav.administration }).length,
+    ).toBeGreaterThan(0);
   });
 
   it("LandingHero uses short collage alts with optional chaining", () => {

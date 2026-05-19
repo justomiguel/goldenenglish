@@ -117,7 +117,8 @@
       "promoApplyFailed": "The code could not be applied.",
       "enrollmentAlreadyApproved": "This enrollment fee has already been confirmed.",
       "enrollmentNotFound": "Active enrollment not found for this student and section.",
-      "enrollmentFeeExempt": "This student is exempt from the enrollment fee."
+      "enrollmentFeeExempt": "This student is exempt from the enrollment fee.",
+      "futureMonthNotAllowed": "This section does not allow paying that future month yet."
     },
     "admin": {
       "invalidData": "Invalid data.",
@@ -328,6 +329,8 @@
     "accountAria": "Language and account",
     "sectionsKicker": "Explore",
     "sectionsScrollHint": "Scroll sideways for all sections",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
     "modalities": "Modalities",
     "certifications": "Credentials",
     "administration": "Panel"
@@ -816,8 +819,7 @@
       "composePageTitle": "Write message",
       "composePageLead": "Pick a recipient and send from your admin account. You will return to the list after a successful send.",
       "composePageLeadReplyPortal": "Recipient is pre-filled from the message you chose. Edit the body and send.",
-      "composePageLeadReplyExternal":
-        "This visitor used the website contact form and has no portal account. Their email is shown below—sending delivers mail to that address.",
+      "composePageLeadReplyExternal": "This visitor used the website contact form and has no portal account. Their email is shown below—sending delivers mail to that address.",
       "tabsInbox": "Received",
       "tabsSent": "Sent",
       "composeTitle": "New message",
@@ -870,8 +872,7 @@
       "deletePortalMessageTitle": "Delete this message",
       "deletePortalMessageAction": "Delete",
       "deletePortalMessageConfirmTitle": "Delete message?",
-      "deletePortalMessageConfirmDescription":
-        "This removes one inbox row from the portal. Copies sent to other admins (broadcasts) are not deleted.",
+      "deletePortalMessageConfirmDescription": "This removes one inbox row from the portal. Copies sent to other admins (broadcasts) are not deleted.",
       "deletePortalMessageConfirm": "Delete permanently",
       "deletePortalMessageCancel": "Cancel",
       "deletePortalMessageError": "Could not delete the message.",
@@ -3656,6 +3657,8 @@
         "viewsWeek": "Week",
         "viewsDay": "Day",
         "viewsList": "List",
+        "agendaPrevWeek": "Previous week",
+        "agendaNextWeek": "Next week",
         "today": "Today",
         "allDay": "All day",
         "moreEvents": "+%d more",
@@ -4421,6 +4424,15 @@
         "sortAsc": "ascending order",
         "sortDesc": "descending order",
         "sortNeutral": "no sort on this column"
+      },
+      "allowAdvanceMonthlyPayment": {
+        "title": "Advance monthly payments",
+        "lead": "When enabled, students and guardians can pay future calendar months before they are due.",
+        "toggleLabel": "Allow paying future months",
+        "toggleHelp": "When off, only the current month and past due months accept receipts or online checkout.",
+        "save": "Save advance payment setting",
+        "saved": "Advance payment setting updated.",
+        "errorSave": "Could not save. Try again."
       }
     },
     "academicRequests": {
@@ -4851,10 +4863,15 @@
         "linkCopied": "Link copied to clipboard",
         "copyFailed": "Could not copy. Try again.",
         "howItWorks": "We unlock these when you complete tasks, show up to class, finish your profile, and pass a mini-test.",
+        "lockedStatus": "Not unlocked yet",
+        "progressFraction": "{current} of {target}",
+        "progressComplete": "Requirement met — unlocking soon",
+        "progressAria": "Progress toward {title}",
         "categoryTasks": "Tasks",
         "categoryAttendance": "Attendance",
         "categoryProfile": "Profile",
         "categoryLearning": "Assessments",
+        "categoryCommunity": "Community",
         "definitions": {
           "tasks_completed_1": {
             "title": "First task",
@@ -5117,7 +5134,8 @@
           "nextDueLabel": "Next due",
           "nextDueLine": "{section} · {month} {year} · {amount}",
           "noNextDue": "No payment due — you are fully on track for the year."
-        }
+        },
+        "advancePaymentBlocked": "This section does not allow paying that future month yet."
       },
       "messagesTitle": "Messages",
       "messagesLead": "Write to your assigned teacher or to administration. You can delete an outbound message until a teacher or administrator replies.",
@@ -5217,6 +5235,28 @@
           "vocabulary": "Vocabulary",
           "listening": "Listening",
           "fluency": "Fluency"
+        }
+      },
+      "paymentsPwa": {
+        "totalDebtLabel": "Your balance due",
+        "totalDebtHint": "Pending amount for {year}.",
+        "settledBanner": "You are up to date for {year}",
+        "expandSection": "Show months",
+        "collapseSection": "Hide months",
+        "monthsToPayTitle": "Months to pay:",
+        "monthDetailHint": "Tap Enrollment or a month to view details",
+        "detailPanelTitle": "Detail: {label}",
+        "enrollmentFeeChipLabel": "Enrollment",
+        "legend": {
+          "aria": "Payment grid legend",
+          "menuAria": "Payment grid options",
+          "showSettled": "Show paid months",
+          "hideSettled": "Hide paid months",
+          "sectionSettled": "Up to date for this section",
+          "due": "Due — tap to pay",
+          "disabled": "Not billable",
+          "paid": "Paid",
+          "pending": "Pending review"
         }
       }
     },
@@ -5326,8 +5366,13 @@
         "COMPLETED_LATE": "Completed late"
       },
       "messagesTitle": "Messages",
-      "messagesLead": "Write to teachers assigned to your linked students. You can only message those teachers.",
-      "messagesComposeTitle": "Write to a teacher",
+      "messagesLead": "Write to your child's teacher or to administration. Staff replies appear in your timeline below.",
+      "messagesComposeTitle": "New message",
+      "messagesComposeTabsAria": "Choose who receives your message",
+      "messagesComposeTabTeacher": "Teacher",
+      "messagesComposeTabAdministration": "Administration",
+      "messagesComposeHintTeacher": "This goes to a teacher assigned to one of your linked students.",
+      "messagesComposeHintAdministration": "Administration staff receive this — each administrator gets their own inbox copy.",
       "messagesComposeTo": "Teacher",
       "messagesComposeSend": "Send message",
       "messagesComposeSent": "Message sent",
@@ -5335,14 +5380,21 @@
       "messagesComposeAria": "Message body",
       "tipComposeRecipient": "Search by name, then pick one of your children's assigned teachers.",
       "tipComposeBody": "Rich message the teacher will see; use the toolbar for emphasis and lists.",
+      "tipComposeBodyAdministration": "Rich message for administration — include clear details staff need.",
       "tipComposeSend": "Send from your guardian account and refresh the thread list.",
+      "tipComposeSendAdministration": "Send to administration and notify staff by email.",
       "messagesRecipientSearchPlaceholder": "Type a name to find a teacher",
       "messagesRecipientNoMatches": "No teachers match your search",
       "messagesRecipientListEmpty": "No assigned teachers are available yet.",
       "messagesFeedTitle": "Your messages",
       "messagesYouSentTo": "To",
       "messagesFromTeacher": "Teacher",
-      "messagesNoTeachers": "No teachers are assigned to your linked students yet.",
+      "messagesFromAdmin": "Administration",
+      "administrationPeerLabel": "Administration",
+      "messagesNoCompose": "You need at least one linked student to send messages. Contact the institute if your children are not linked yet.",
+      "messagesNoTeachers": "No teachers are assigned to your linked students yet. You can still write to administration.",
+      "messagesNoAdministration": "Administration messaging is not available right now. Contact the institute if you need help.",
+      "messagesWriteCta": "Write message",
       "messagesEmpty": "No messages yet.",
       "messagesSenderFallback": "Guardian",
       "messagesRoleTeacher": "Teachers",
@@ -5406,6 +5458,9 @@
         "pillarsAria": "Student status overview",
         "pwaPillarsLead": "Tap a card for details — attendance, messages from staff, and fees.",
         "pwaChildContext": "Checking on {child}",
+        "pwaFamilyContext": "Overview for each linked student",
+        "pwaChildRowsAttendanceAria": "Attendance by student",
+        "pwaChildRowsPaymentsAria": "Payments by student",
         "pillarAttendanceTitle": "Attendance",
         "pillarMessagesTitle": "Messages",
         "pillarPaymentsTitle": "Payments",
@@ -5488,7 +5543,41 @@
       "wardPasswordLabel": "Your current password",
       "wardPasswordHelp": "We only ask for it when you change the student's login email, to confirm it is really you.",
       "wardPasswordRequired": "Enter your current password to change the student's login email.",
-      "wardPasswordInvalid": "That password does not match your account."
+      "wardPasswordInvalid": "That password does not match your account.",
+      "paymentsPwa": {
+        "familyTotalLabel": "Family balance due",
+        "familyTotalHint": "Consolidated pending amount for {year} (monthly fees, invoices, enrollment).",
+        "settledBanner": "All set for {year}",
+        "breakdownTitle": "By student",
+        "breakdownAria": "Pending amounts by linked student",
+        "childNoLines": "No pending items for this student.",
+        "lineOverdue": "Overdue monthly fee",
+        "linePendingReview": "Receipt under review",
+        "lineUpcoming": "Upcoming monthly fee",
+        "lineInvoice": "Open invoice",
+        "lineEnrollment": "Enrollment fee",
+        "lineOther": "Pending",
+        "childPickerOptionPending": "{name} — {amount} pending",
+        "childPickerOptionSettled": "{name} — up to date",
+        "gridPickerHint": "Choose a student to pay a specific month below.",
+        "expandSection": "Show months",
+        "collapseSection": "Hide months",
+        "monthsToPayTitle": "Months to pay:",
+        "monthDetailHint": "Tap Enrollment or a month to view details",
+        "detailPanelTitle": "Detail: {label}",
+        "enrollmentFeeChipLabel": "Enrollment",
+        "legend": {
+          "aria": "Payment grid legend",
+          "menuAria": "Payment grid options",
+          "showSettled": "Show paid months",
+          "hideSettled": "Hide paid months",
+          "sectionSettled": "Up to date for this section",
+          "due": "Due — tap to pay",
+          "disabled": "Not billable",
+          "paid": "Paid",
+          "pending": "Pending review"
+        }
+      }
     },
     "teacher": {
       "title": "Teacher area",

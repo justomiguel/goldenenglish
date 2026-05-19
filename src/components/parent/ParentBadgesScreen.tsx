@@ -1,20 +1,16 @@
-import Image from "next/image";
-import { Award } from "lucide-react";
 import { ParentWardPicker, type ParentWardOption } from "@/components/parent/ParentWardPicker";
-import type { StudentBadgeRowModel } from "@/components/student/StudentBadgesScreen";
+import { BadgeAchievementCard } from "@/components/molecules/BadgeAchievementCard";
+import { badgeCategoryLabel } from "@/lib/badges/badgeCategoryLabel";
+import type { StudentBadgeRowModel } from "@/types/studentBadges";
 import type { Dictionary } from "@/types/i18n";
+import type { Locale } from "@/types/i18n";
 import { resolveBadgeTranslation, type BadgeCategory } from "@/lib/badges/badgeCatalog";
 import { studentBadgeCategory } from "@/lib/badges/badgeCategory";
+import { formatBadgeProgressDetail } from "@/lib/badges/formatBadgeProgressDetail";
+import { resolveBadgeAchievementVisual } from "@/lib/badges/resolveBadgeAchievementVisual";
 
 type BadgesDict = Dictionary["dashboard"]["student"]["badges"];
 type Defs = BadgesDict["definitions"];
-
-function categoryLabelFor(d: BadgesDict, category: BadgeCategory): string {
-  if (category === "tasks") return d.categoryTasks;
-  if (category === "attendance") return d.categoryAttendance;
-  if (category === "profile") return d.categoryProfile;
-  return d.categoryLearning;
-}
 
 function dictionaryFallback(defs: Defs, code: string): { title: string; description: string } {
   const entry = defs[code as keyof Defs];
@@ -67,6 +63,8 @@ export function ParentBadgesScreen({
   embedded = false,
 }: ParentBadgesScreenProps) {
   const basePath = `/${locale}/dashboard/parent/badges`;
+  const hasCatalogRows = rows.length > 0;
+
   return (
     <div className={embedded ? "space-y-3" : "space-y-6"}>
       {embedded ? null : (
@@ -91,7 +89,7 @@ export function ParentBadgesScreen({
         />
       )}
 
-      {rows.length === 0 ? (
+      {!hasCatalogRows ? (
         <p
           className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-6 text-center text-sm text-[var(--color-muted-foreground)]"
           role="status"
@@ -106,40 +104,32 @@ export function ParentBadgesScreen({
               badgesDict.definitions,
               locale,
             );
-            const imageUrl = row.catalog?.imageUrl ?? null;
+            const visual = resolveBadgeAchievementVisual(category, row.badgeCode);
+            const progressDetail =
+              row.locked && row.progress
+                ? formatBadgeProgressDetail(locale as Locale, row.progress, {
+                    progressFraction: badgesDict.progressFraction,
+                    progressComplete: badgesDict.progressComplete,
+                  })
+                : undefined;
             return (
-              <li
-                key={row.id}
-                className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm"
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--color-muted)]"
-                    aria-hidden
-                  >
-                    {imageUrl ? (
-                      <Image src={imageUrl} alt="" fill sizes="48px" className="object-cover" />
-                    ) : (
-                      <Award className="h-5 w-5 text-[var(--color-foreground)]" />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
-                      {categoryLabelFor(badgesDict, category)}
-                    </p>
-                    <h2 className="text-lg font-semibold text-[var(--color-foreground)]">
-                      {title}
-                    </h2>
-                    {description ? (
-                      <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
-                        {description}
-                      </p>
-                    ) : null}
-                    <p className="mt-2 text-xs text-[var(--color-muted-foreground)]">
-                      {formatUnlocked(row.earnedAt, badgesDict.unlocked, locale)}
-                    </p>
-                  </div>
-                </div>
+              <li key={row.id}>
+                <BadgeAchievementCard
+                  visual={visual}
+                  categoryLabel={badgeCategoryLabel(category, badgesDict)}
+                  title={title}
+                  description={description || undefined}
+                  statusLine={
+                    row.locked
+                      ? badgesDict.lockedStatus
+                      : formatUnlocked(row.earnedAt ?? "", badgesDict.unlocked, locale)
+                  }
+                  imageUrl={row.catalog?.imageUrl ?? null}
+                  locked={row.locked}
+                  progress={row.progress}
+                  progressDetail={progressDetail}
+                  progressAriaLabel={badgesDict.progressAria.replace("{title}", title)}
+                />
               </li>
             );
           })}

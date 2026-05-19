@@ -23,11 +23,6 @@ function formatMoney(locale: Locale, amount: number): string {
   return `$${formatted}`;
 }
 
-function monthName(locale: Locale, month: number): string {
-  const date = new Date(2000, Math.max(0, month - 1), 1);
-  return new Intl.DateTimeFormat(locale, { month: "long" }).format(date);
-}
-
 interface BucketTone {
   border: string;
   surface: string;
@@ -97,14 +92,6 @@ export function StudentPaymentsYearSummary({
     [labels.heading, summary.year],
   );
 
-  const nextDueLine = summary.nextDue
-    ? labels.nextDueLine
-        .replace("{section}", summary.nextDue.sectionName)
-        .replace("{month}", monthName(locale, summary.nextDue.month))
-        .replace("{year}", String(summary.nextDue.year))
-        .replace("{amount}", formatMoney(locale, summary.nextDue.amount))
-    : null;
-
   return (
     <section
       className="mt-6 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-card)] sm:p-6"
@@ -149,9 +136,9 @@ export function StudentPaymentsYearSummary({
         />
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
+      <div className="mt-4">
         <div
-          className="rounded-[var(--layout-border-radius)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 p-4 lg:col-span-2"
+          className="rounded-[var(--layout-border-radius)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 p-4"
           aria-live="polite"
         >
           <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
@@ -174,21 +161,6 @@ export function StudentPaymentsYearSummary({
               </span>
             </p>
           ) : null}
-        </div>
-
-        <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
-            {labels.nextDueLabel}
-          </p>
-          {nextDueLine ? (
-            <p className="mt-1 text-sm font-medium text-[var(--color-foreground)]">
-              {nextDueLine}
-            </p>
-          ) : (
-            <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
-              {labels.noNextDue}
-            </p>
-          )}
         </div>
       </div>
     </section>

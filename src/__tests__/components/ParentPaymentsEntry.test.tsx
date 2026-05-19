@@ -52,6 +52,13 @@ const studentLabels = dictEn.dashboard.student;
 
 const feesPanel = <div data-testid="fees-panel" />;
 
+const emptyFamilySummary = {
+  year: 2026,
+  familyTotalPending: 0,
+  isFamilySettled: true,
+  children: [],
+};
+
 describe("ParentPaymentsEntry", () => {
   beforeEach(() => {
     stripSpy.mockClear();
@@ -66,6 +73,7 @@ describe("ParentPaymentsEntry", () => {
         options={[]}
         selectedStudentId={null}
         monthlyView={null}
+        familySummary={emptyFamilySummary}
         payments={[]}
         financialAccessRevoked={false}
         labels={labels}
@@ -94,6 +102,27 @@ describe("ParentPaymentsEntry", () => {
         ]}
         selectedStudentId="stu-1"
         monthlyView={{ todayMonth: 1, todayYear: 2026, rows: [] }}
+        familySummary={{
+          year: 2026,
+          familyTotalPending: 500,
+          isFamilySettled: false,
+          children: [
+            {
+              studentId: "stu-1",
+              displayName: "Ana Lopez",
+              financialAccessActive: true,
+              subtotal: 300,
+              lines: [],
+            },
+            {
+              studentId: "stu-2",
+              displayName: "Bruno Diaz",
+              financialAccessActive: true,
+              subtotal: 200,
+              lines: [],
+            },
+          ],
+        }}
         payments={[]}
         financialAccessRevoked={false}
         labels={labels}
@@ -105,10 +134,13 @@ describe("ParentPaymentsEntry", () => {
       />,
     );
     expect(screen.getAllByLabelText(labels.paymentsPickerLabel).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByRole("option", { name: /Ana Lopez — \$300 pending/ }).length,
+    ).toBeGreaterThan(0);
     expect(screen.getAllByTestId("payments-strip").length).toBeGreaterThan(0);
-    expect(screen.getAllByRole("tablist", { name: studentLabels.paymentsScreenTabsAria }).length).toBe(
-      2,
-    );
+    expect(
+      screen.getAllByRole("tablist", { name: studentLabels.paymentsScreenTabsAria }).length,
+    ).toBeGreaterThan(0);
     expect(
       screen.getAllByRole("tab", { name: studentLabels.paymentsTabOverview }).length,
     ).toBeGreaterThan(0);
@@ -132,6 +164,7 @@ describe("ParentPaymentsEntry", () => {
         ]}
         selectedStudentId="stu-1"
         monthlyView={null}
+        familySummary={emptyFamilySummary}
         payments={[]}
         financialAccessRevoked={true}
         labels={labels}

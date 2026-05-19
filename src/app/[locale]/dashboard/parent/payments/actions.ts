@@ -97,6 +97,9 @@ export async function submitTutorPaymentReceipt(
       return { ok: false, message: pe.alreadyProcessed };
     }
     if (slot.reason === "month_exempt") return { ok: false, message: pe.monthExempt };
+    if (slot.reason === "future_month_not_allowed") {
+      return { ok: false, message: pe.futureMonthNotAllowed };
+    }
     if (slot.reason === "upload_failed") {
       return { ok: false, message: pe.paymentSlotSaveFailed };
     }

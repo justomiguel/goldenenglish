@@ -25,6 +25,11 @@ const baseView: StudentMonthlyPaymentsView = {
       enrollmentFeeExempt: false,
       enrollmentFeeExemptReason: null,
       enrollmentFeeCurrency: "USD",
+      enrollmentId: "enr-1",
+      enrollmentFeeReceiptStatus: null,
+      enrollmentFeeReceiptSignedUrl: null,
+      lastEnrollmentPaidAt: null,
+      allowAdvanceMonthlyPayment: true,
       currentPlan: {
         id: "plan-1",
         sectionId: "sec-1",
@@ -190,6 +195,70 @@ describe("StudentMonthlyPaymentsStrip", () => {
     expect(screen.getAllByText("$50").length).toBeGreaterThan(0);
     expect(screen.queryByText("$75")).not.toBeInTheDocument();
     expect(screen.queryByText("$37.5")).not.toBeInTheDocument();
+  });
+
+  it("in PWA mode hides non-billable and settled months per section grid", () => {
+    const pwaLegend = dictEn.dashboard.student.paymentsPwa.legend;
+    render(
+      <StudentMonthlyPaymentsStrip
+        locale="en"
+        studentId="stu-1"
+        view={viewWithCell(3, { status: "approved" })}
+        labels={monthlyLabels}
+        paymentLabels={dictEn.dashboard.student}
+        submitAction={submitAction}
+        submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceiptAction}
+        fileUploadProgress={dictEn.common.fileUpload}
+        hideNonBillableMonths
+        pwaSectionAccordion
+        gridLegendLabels={pwaLegend}
+        pwaSectionLabels={{
+          expandSection: dictEn.dashboard.student.paymentsPwa.expandSection,
+          collapseSection: dictEn.dashboard.student.paymentsPwa.collapseSection,
+          monthsToPayTitle: dictEn.dashboard.student.paymentsPwa.monthsToPayTitle,
+          monthDetailHint: dictEn.dashboard.student.paymentsPwa.monthDetailHint,
+          enrollmentFeeChipLabel: dictEn.dashboard.student.paymentsPwa.enrollmentFeeChipLabel,
+          detailPanelTitle: dictEn.dashboard.student.paymentsPwa.detailPanelTitle,
+        }}
+      />,
+    );
+    const grid = screen.getByRole("grid", { name: /B1 Tuesdays/ });
+    const months = grid.querySelectorAll("button");
+    expect(months.length).toBeLessThan(12);
+    expect(
+      screen.queryByRole("button", {
+        name: new RegExp(monthlyLabels.statusOutOfPeriod),
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Mar:.*approved/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        level: 3,
+        name: dictEn.dashboard.student.paymentsPwa.monthsToPayTitle,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(dictEn.dashboard.student.paymentsPwa.monthDetailHint),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(monthlyLabels.expectedAmount)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: new RegExp(dictEn.dashboard.student.paymentsPwa.enrollmentFeeChipLabel),
+      }),
+    ).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: new RegExp(dictEn.dashboard.student.paymentsPwa.enrollmentFeeChipLabel),
+      }),
+    );
+    expect(screen.getByText(monthlyLabels.enrollmentFeeUploadTitle)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /B1 Tuesdays/i })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+    expect(screen.queryByText(pwaLegend.disabled)).not.toBeInTheDocument();
   });
 
   it("shows the empty-state message when the student has no active sections", () => {
