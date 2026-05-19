@@ -13,6 +13,7 @@ export function buildStudentPortalMessageLines(params: {
   userId: string;
   sortedAsc: RawPortalMessageRow[];
   peerById: Map<string, { name: string; role: string }>;
+  adminRecipientIds?: ReadonlySet<string>;
   labels: {
     messagesFromTeacher: string;
     messagesFromAdmin: string;

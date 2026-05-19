@@ -9,6 +9,7 @@ import {
   type RawPortalMessageRow,
 } from "@/lib/parent/buildParentPortalMessageLines";
 import { countProfilesWithRole } from "@/lib/dashboard/countProfilesWithRole";
+import { loadAdminProfileIds } from "@/lib/messaging/loadAdminProfileIds";
 import {
   loadLinkedStudentIdsForParent,
   loadParentMessageTeacherRecipients,
@@ -85,10 +86,13 @@ export default async function ParentMessagesPage({ params, searchParams }: PageP
     (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
   );
 
+  const adminRecipientIds = await loadAdminProfileIds();
+
   const lines = buildParentPortalMessageLines({
     userId: user.id,
     sortedAsc,
     peerById,
+    adminRecipientIds,
     labels: {
       messagesFromTeacher: dict.dashboard.parent.messagesFromTeacher,
       messagesFromAdmin: dict.dashboard.parent.messagesFromAdmin,

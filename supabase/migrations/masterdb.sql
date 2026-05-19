@@ -11720,11 +11720,11 @@ CREATE POLICY portal_messages_insert_parent ON public.portal_messages
   WITH CHECK (
     sender_id = auth.uid()
     AND recipient_id <> auth.uid()
-    AND EXISTS (SELECT 1 FROM public.profiles s WHERE s.id = auth.uid() AND s.role = 'parent')
+    AND public.user_has_role(auth.uid(), 'parent')
     AND (
       public.parent_may_message_teacher(recipient_id)
       OR (
-        EXISTS (SELECT 1 FROM public.profiles r WHERE r.id = recipient_id AND r.role = 'admin')
+        public.profile_role(recipient_id) = 'admin'
         AND EXISTS (
           SELECT 1 FROM public.tutor_student_rel ts
           WHERE ts.tutor_id = auth.uid()
@@ -11732,6 +11732,9 @@ CREATE POLICY portal_messages_insert_parent ON public.portal_messages
       )
     )
   );
+
+-- ========== 131_parent_portal_messages_admin_rls_profile_role.sql ==========
+-- (policy recreated above; requires parent_may_message_teacher from 129)
 
 DROP POLICY IF EXISTS profiles_select_teachers_assigned_to_tutored_students ON public.profiles;
 CREATE POLICY profiles_select_teachers_assigned_to_tutored_students ON public.profiles

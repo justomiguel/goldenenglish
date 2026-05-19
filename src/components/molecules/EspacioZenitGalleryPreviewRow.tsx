@@ -9,9 +9,10 @@ import {
 
 export type { EspacioZenitGalleryStripHandle };
 
+const EMPTY_GALLERY_IMAGES: readonly string[] = [];
+
 export interface EspacioZenitGalleryPreviewRowProps {
   images: readonly string[];
-  activeIndex: number;
   onSelect: (index: number) => void;
   onActiveIndexChange?: (index: number) => void;
   previewOpenAria: (oneBasedIndex: number) => string;
@@ -21,27 +22,32 @@ export const EspacioZenitGalleryPreviewRow = forwardRef<
   EspacioZenitGalleryStripHandle,
   EspacioZenitGalleryPreviewRowProps
 >(function EspacioZenitGalleryPreviewRow(
-  { images, activeIndex, onSelect, onActiveIndexChange, previewOpenAria },
+  { images: imagesProp, onSelect, onActiveIndexChange, previewOpenAria },
   ref,
 ) {
+  const images = imagesProp ?? EMPTY_GALLERY_IMAGES;
+
   const {
     viewportRef,
     trackRef,
     loopedImages,
+    activeIndex,
     translatePx,
     transitionEnabled,
     onTrackTransitionEnd,
     remeasure,
     step,
+    goToIndex,
   } = useEspacioZenitGalleryStrip({
     images,
-    activeIndex,
     onActiveIndexChange,
   });
 
-  useImperativeHandle(ref, () => ({ step }), [step]);
+  useImperativeHandle(ref, () => ({ step, goToIndex }), [step, goToIndex]);
 
-  if (images.length === 0) return null;
+  if (imagesProp == null || images.length === 0) {
+    return null;
+  }
 
   return (
     <div

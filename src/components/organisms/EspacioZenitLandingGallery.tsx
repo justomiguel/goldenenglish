@@ -11,6 +11,7 @@ import {
   EspacioZenitGalleryPreviewRow,
   type EspacioZenitGalleryStripHandle,
 } from "@/components/molecules/EspacioZenitGalleryPreviewRow";
+import { EspacioZenitGalleryModalControls } from "@/components/molecules/EspacioZenitGalleryModalControls";
 import { EspacioZenitGallerySlidePanel } from "@/components/molecules/EspacioZenitGallerySlidePanel";
 import { MozarthitosReveal } from "@/components/molecules/MozarthitosReveal";
 
@@ -51,11 +52,16 @@ export function EspacioZenitLandingGallery({ dict }: EspacioZenitLandingGalleryP
 
   const advanceStrip = useCallback(() => stripGoNext(), [stripGoNext]);
 
-  const openCarouselAt = (startIndex: number) => {
-    setSlideLoading(true);
-    setIndex(Math.max(0, Math.min(startIndex, safeTotal - 1)));
-    setOpen(true);
-  };
+  const openCarouselAt = useCallback(
+    (startIndex: number) => {
+      const clamped = Math.max(0, Math.min(startIndex, safeTotal - 1));
+      setSlideLoading(true);
+      setIndex(clamped);
+      stripRef.current?.goToIndex(clamped);
+      setOpen(true);
+    },
+    [safeTotal],
+  );
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -91,39 +97,6 @@ export function EspacioZenitLandingGallery({ dict }: EspacioZenitLandingGalleryP
   const positionLabel = t("carouselPosition")
     .replace("{current}", String(index + 1))
     .replace("{total}", String(total));
-
-  const modalControls = (
-    <>
-      <Button
-        type="button"
-        variant="secondary"
-        size="sm"
-        className="min-h-[44px] gap-2 border-[rgb(0_174_239_/35%)] bg-black/40 text-white hover:bg-[rgb(0_174_239_/12%)]"
-        onClick={goPrev}
-        aria-label={t("carouselPrev")}
-      >
-        <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden />
-        <span className="hidden sm:inline">{t("carouselPrev")}</span>
-      </Button>
-      <span
-        className="min-w-[4.5rem] text-center text-sm font-medium text-white/75"
-        aria-hidden
-      >
-        {index + 1} / {total}
-      </span>
-      <Button
-        type="button"
-        variant="secondary"
-        size="sm"
-        className="min-h-[44px] gap-2 border-[rgb(0_174_239_/35%)] bg-black/40 text-white hover:bg-[rgb(0_174_239_/12%)]"
-        onClick={goNext}
-        aria-label={t("carouselNext")}
-      >
-        <span className="hidden sm:inline">{t("carouselNext")}</span>
-        <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
-      </Button>
-    </>
-  );
 
   return (
     <section
@@ -182,7 +155,6 @@ export function EspacioZenitLandingGallery({ dict }: EspacioZenitLandingGalleryP
                 <EspacioZenitGalleryPreviewRow
                   ref={stripRef}
                   images={images}
-                  activeIndex={index}
                   onActiveIndexChange={setIndex}
                   onSelect={(i) => openCarouselAt(i)}
                   previewOpenAria={(n) =>
@@ -240,7 +212,14 @@ export function EspacioZenitLandingGallery({ dict }: EspacioZenitLandingGalleryP
             frameClass="relative aspect-[4/3] w-full max-h-[min(70dvh,520px)] min-h-[12rem] overflow-hidden rounded-xl border border-[rgb(0_174_239_/20%)] bg-black"
           />
           <div className="flex flex-wrap items-center justify-center gap-3">
-            {modalControls}
+            <EspacioZenitGalleryModalControls
+              index={index}
+              total={total}
+              onPrev={goPrev}
+              onNext={goNext}
+              prevLabel={t("carouselPrev")}
+              nextLabel={t("carouselNext")}
+            />
           </div>
         </div>
       </Modal>

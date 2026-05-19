@@ -17,13 +17,15 @@ import {
   snapTrackOffsetAfterTransition,
 } from "@/lib/landing/buildLoopedGallerySlides";
 
+const EMPTY_GALLERY_IMAGES: readonly string[] = [];
+
 export type EspacioZenitGalleryStripHandle = {
   step: (delta: number) => void;
+  goToIndex: (index: number) => void;
 };
 
 export interface UseEspacioZenitGalleryStripArgs {
   images: readonly string[];
-  activeIndex: number;
   onActiveIndexChange?: (index: number) => void;
 }
 
@@ -31,29 +33,30 @@ export interface UseEspacioZenitGalleryStripResult {
   viewportRef: RefObject<HTMLDivElement | null>;
   trackRef: RefObject<HTMLUListElement | null>;
   loopedImages: ReturnType<typeof buildLoopedGallerySlides>;
+  activeIndex: number;
   translatePx: number;
   transitionEnabled: boolean;
   onTrackTransitionEnd: (e: TransitionEvent<HTMLUListElement>) => void;
   remeasure: () => void;
   step: (delta: number) => void;
+  goToIndex: (index: number) => void;
 }
 
 export function useEspacioZenitGalleryStrip({
-  images,
-  activeIndex,
+  images: imagesArg,
   onActiveIndexChange,
 }: UseEspacioZenitGalleryStripArgs): UseEspacioZenitGalleryStripResult {
+  const images = imagesArg ?? EMPTY_GALLERY_IMAGES;
   const total = images.length;
   const looped = useMemo(() => buildLoopedGallerySlides(images), [images]);
 
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLUListElement>(null);
   const pendingSnapRef = useRef(false);
-  const lastReportedLogicalRef = useRef(activeIndex);
-  const prevActiveIndexRef = useRef(activeIndex);
+  const lastReportedLogicalRef = useRef(0);
 
   const [trackOffset, setTrackOffset] = useState(() =>
-    total > 1 ? middleTrackOffset(activeIndex, total) : activeIndex,
+    total > 1 ? middleTrackOffset(0, total) : 0,
   );
   const [translatePx, setTranslatePx] = useState(0);
   const [transitionEnabled, setTransitionEnabled] = useState(true);
@@ -104,26 +107,24 @@ export function useEspacioZenitGalleryStrip({
     onActiveIndexChange?.(logical);
   }, [trackOffset, total, onActiveIndexChange]);
 
-  useEffect(() => {
-    if (activeIndex === prevActiveIndexRef.current) return;
-    prevActiveIndexRef.current = activeIndex;
-
-    const syncTrackToActiveIndex = () => {
+  const goToIndex = useCallback(
+    (index: number) => {
+      if (total <= 0) return;
+      const clamped = Math.max(0, Math.min(index, total - 1));
       if (total <= 1) {
-        setTrackOffset(activeIndex);
+        setTrackOffset(clamped);
         return;
       }
       setTrackOffset((offset) => {
-        if (logicalIndexFromTrackOffset(offset, total) === activeIndex) return offset;
+        if (logicalIndexFromTrackOffset(offset, total) === clamped) return offset;
         pendingSnapRef.current = true;
         setTransitionEnabled(false);
-        lastReportedLogicalRef.current = activeIndex;
-        return middleTrackOffset(activeIndex, total);
+        lastReportedLogicalRef.current = clamped;
+        return middleTrackOffset(clamped, total);
       });
-    };
-
-    queueMicrotask(syncTrackToActiveIndex);
-  }, [activeIndex, total]);
+    },
+    [total],
+  );
 
   const step = useCallback(
     (delta: number) => {
@@ -151,14 +152,19 @@ export function useEspacioZenitGalleryStrip({
     [snapWithoutTransition, total, trackOffset],
   );
 
+  const activeIndex =
+    total <= 1 ? trackOffset : logicalIndexFromTrackOffset(trackOffset, total);
+
   return {
     viewportRef,
     trackRef,
     loopedImages: looped,
+    activeIndex,
     translatePx,
     transitionEnabled,
     onTrackTransitionEnd,
     remeasure: measureCenter,
     step,
+    goToIndex,
   };
 }

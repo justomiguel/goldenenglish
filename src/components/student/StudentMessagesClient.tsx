@@ -167,7 +167,11 @@ export function StudentMessagesClient({
               </p>
               <p className="mt-1 text-sm font-semibold text-[var(--color-primary)]">
                 {m.from_me
-                  ? `${labels.messagesYouSentTo}: ${m.peer_name}`
+                  ? m.outbound_administration ||
+                      m.peer_name === labels.administrationPeerLabel
+                    ? (labels.messagesYouSentToAdministration ??
+                      `${labels.messagesYouSentTo}: ${labels.administrationPeerLabel}`)
+                    : `${labels.messagesYouSentTo}: ${m.peer_name}`
                   : `${m.incoming_label}: ${m.peer_name}`}
               </p>
               <div className={htmlBlockClass} dangerouslySetInnerHTML={{ __html: m.body_html }} />

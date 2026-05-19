@@ -8,6 +8,7 @@ import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDispl
 import { buildStudentPortalMessageLines } from "@/lib/student/buildStudentPortalMessageLines";
 import type { RawPortalMessageRow } from "@/lib/student/buildStudentPortalMessageLines";
 import { countProfilesWithRole } from "@/lib/dashboard/countProfilesWithRole";
+import { loadAdminProfileIds } from "@/lib/messaging/loadAdminProfileIds";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -77,10 +78,13 @@ export default async function StudentMessagesPage({ params }: PageProps) {
     (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
   );
 
+  const adminRecipientIds = await loadAdminProfileIds();
+
   const lines = buildStudentPortalMessageLines({
     userId: user.id,
     sortedAsc,
     peerById,
+    adminRecipientIds,
     labels: {
       messagesFromTeacher: dict.dashboard.student.messagesFromTeacher,
       messagesFromAdmin: dict.dashboard.student.messagesFromAdmin,
