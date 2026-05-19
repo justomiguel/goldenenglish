@@ -539,7 +539,6 @@
       "nav": {
         "nosotros": "Sobre nós",
         "disciplinas": "Disciplinas",
-        "horarios": "Agendar",
         "galeria": "Galeria",
         "contacto": "Contato",
         "enroll": "Inscrever-se"
@@ -588,13 +587,15 @@
         "title": "Inscrições abertas o ano todo",
         "cta": "Reserve sua aula"
       },
-      "horarios": {
-        "title": "Horários",
-        "body": "Grupos semanais, níveis e workshops sazonais. Substitua esta cópia e os cartões de espaço reservado pelo seu horário real."
-      },
       "galeria": {
         "title": "Galeria",
-        "body": "Momentos de aulas, ensaios e shows. Carregue suas fotos no CMS quando estiver pronto."
+        "body": "Grupos semanais por idade e nível, aulas no estúdio, ensaios e apresentações. Conheça o ambiente do Espacio Zenit em imagens.",
+        "verMas": "Ver mais fotos",
+        "carouselPrev": "Foto anterior",
+        "carouselNext": "Próxima foto",
+        "carouselPosition": "Foto {current} de {total}",
+        "carouselLoading": "Carregando foto",
+        "previewOpenAria": "Ampliar foto {n}"
       },
       "quienes": {
         "title": "Sobre o Espacio Zenit"

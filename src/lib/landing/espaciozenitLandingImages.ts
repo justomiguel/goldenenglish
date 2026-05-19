@@ -8,3 +8,8 @@ export function espaciozenitSectionImageSrc(
 ): string {
   return encodeURI(`${BASE}/${section}/${filename}`);
 }
+
+/** Bundled assets outside CMS section slugs (disciplinas, horarios, galeria, …). */
+export function espaciozenitBundledAssetSrc(relativePath: string): string {
+  return encodeURI(`${BASE}/${relativePath}`);
+}

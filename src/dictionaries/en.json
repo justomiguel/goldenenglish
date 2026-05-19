@@ -539,7 +539,6 @@
       "nav": {
         "nosotros": "About us",
         "disciplinas": "Disciplines",
-        "horarios": "Schedule",
         "galeria": "Gallery",
         "contacto": "Contact",
         "enroll": "Sign up"
@@ -588,13 +587,15 @@
         "title": "Open enrollment all year round",
         "cta": "Book your class"
       },
-      "horarios": {
-        "title": "Schedules",
-        "body": "Weekly groups, levels, and seasonal workshops. Replace this copy and the placeholder cards with your real timetable."
-      },
       "galeria": {
         "title": "Gallery",
-        "body": "Moments from classes, rehearsals, and shows. Upload your photos in the CMS when you are ready."
+        "body": "Weekly groups by age and level, studio classes, rehearsals, and performances. See what Espacio Zenit feels like in photos.",
+        "verMas": "See more photos",
+        "carouselPrev": "Previous photo",
+        "carouselNext": "Next photo",
+        "carouselPosition": "Photo {current} of {total}",
+        "carouselLoading": "Loading photo",
+        "previewOpenAria": "Enlarge photo {n}"
       },
       "quienes": {
         "title": "About Espacio Zenit"

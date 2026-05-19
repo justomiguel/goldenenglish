@@ -101,9 +101,9 @@ describe("tenant landing headers — PWA visibility", () => {
       expect(loginLinks[0]).toHaveAttribute("href", "/es/login");
     });
 
-    it("includes Account section in mobile drawer when logged in", async () => {
+    it("keeps panel/logout out of mobile drawer when logged in", async () => {
       const user = userEvent.setup();
-      render(
+      const { container } = render(
         <EspacioZenitSiteHeader
           locale="es"
           logoSrc="/images/logo.png"
@@ -118,12 +118,12 @@ describe("tenant landing headers — PWA visibility", () => {
           name: dictEn.landing.ez.chrome.openMenu,
         }),
       );
+      const drawer = container.querySelector("#ez-mock-mobile-nav");
+      expect(drawer).toBeTruthy();
       expect(
-        screen.getAllByRole("link", { name: dictEn.nav.administration }).length,
-      ).toBeGreaterThan(0);
-      expect(
-        screen.getAllByRole("button", { name: dictEn.nav.logout }).length,
-      ).toBeGreaterThan(0);
+        drawer?.querySelector(`a[href="/es/dashboard"]`),
+      ).toBeNull();
+      expect(drawer?.textContent).not.toContain(dictEn.nav.logout);
     });
   });
 

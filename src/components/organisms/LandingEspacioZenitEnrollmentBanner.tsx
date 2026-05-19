@@ -3,6 +3,7 @@ import Image from "next/image";
 import { UserPlus } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
+import { EZ_OFERTA_ENROLLMENT_SRC } from "@/lib/landing/espacioZenitLandingMedia";
 
 export interface LandingEspacioZenitEnrollmentBannerProps {
   dict: Dictionary;
@@ -17,6 +18,8 @@ export function LandingEspacioZenitEnrollmentBanner({
 }: LandingEspacioZenitEnrollmentBannerProps) {
   const brand = "ez" as const;
   const prefix = `/${locale}`;
+  const photoSrc = studioPhotoSrc ?? EZ_OFERTA_ENROLLMENT_SRC;
+  const photoAlt = marketingLandingCopy(dict, brand, "placeholders.groupPhoto");
 
   return (
     <section
@@ -41,21 +44,13 @@ export function LandingEspacioZenitEnrollmentBanner({
           </Link>
         </div>
         <div className="relative min-h-[240px] lg:min-h-[320px] lg:rounded-r-[28px]">
-          {studioPhotoSrc ? (
-            <Image
-              src={studioPhotoSrc}
-              alt=""
-              fill
-              className="object-cover lg:rounded-r-[28px]"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
-          ) : (
-            <div className="flex h-full min-h-[inherit] flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#111827] via-black to-[#082f49] px-6 lg:rounded-r-[28px]">
-              <span className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-white/38">
-                {marketingLandingCopy(dict, brand, "placeholders.groupPhoto")}
-              </span>
-            </div>
-          )}
+          <Image
+            src={photoSrc}
+            alt={photoAlt}
+            fill
+            className="object-cover lg:rounded-r-[28px]"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+          />
         </div>
       </div>
     </section>

@@ -38,7 +38,6 @@ export function EspacioZenitSiteHeader({
   const links = [
     { href: `${prefix}#nosotros`, label: labels.nav.nosotros },
     { href: `${prefix}#disciplinas`, label: labels.nav.disciplinas },
-    { href: `${prefix}#horarios`, label: labels.nav.horarios },
     { href: `${prefix}#galeria`, label: labels.nav.galeria },
     { href: `${prefix}#contacto`, label: labels.nav.contacto },
     { href: `${prefix}/register`, label: labels.nav.enroll },
@@ -91,34 +90,36 @@ export function EspacioZenitSiteHeader({
         </nav>
 
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-          {sessionEmail ? (
-            <>
-              <Link
-                href={`/${locale}/dashboard`}
-                className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[var(--ez-cyan)]/65 bg-[var(--ez-cyan)]/12 px-3 text-[11px] font-bold uppercase tracking-[0.1em] text-white shadow-[0_4px_18px_-8px_rgb(0_174_239_/55%)] transition hover:bg-[var(--ez-cyan)]/22 sm:px-3.5"
-                title={dict.nav.administration}
-                aria-label={dict.nav.administration}
-              >
-                <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                <span className="hidden md:inline">{dict.nav.administration}</span>
-              </Link>
-              <SignOutButton
-                locale={locale}
-                label={dict.nav.logout}
-                iconOnly
-                title={dict.nav.logout}
-                className="hidden min-h-[44px] min-w-[44px] rounded-xl border border-white/35 bg-white/10 text-white transition hover:bg-white/18 sm:flex"
-              />
-            </>
-          ) : (
+          {!sessionEmail ? (
             <Link
               href={`/${locale}/login`}
               className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[var(--ez-cyan)] bg-[var(--ez-cyan)]/15 px-3 text-[11px] font-bold uppercase tracking-[0.1em] text-white shadow-[0_4px_18px_-8px_rgb(0_174_239_/55%)] transition hover:bg-[var(--ez-cyan)]/28 sm:px-3.5"
               aria-label={dict.nav.login}
             >
               <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-              <span className="hidden md:inline">{dict.nav.login}</span>
+              <span className="hidden sm:inline">{dict.nav.login}</span>
             </Link>
+          ) : (
+            <nav
+              aria-label={dict.nav.accountAria}
+              className="hidden items-center gap-1.5 lg:flex xl:gap-2"
+            >
+              <Link
+                href={`/${locale}/dashboard`}
+                className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-xl border border-[var(--ez-cyan)]/40 bg-[var(--ez-cyan)]/15 px-3 text-[11px] font-bold uppercase tracking-[0.1em] text-white transition hover:bg-[var(--ez-cyan)]/28 sm:px-3.5"
+                aria-label={dict.nav.administration}
+              >
+                <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
+                <span className="hidden xl:inline">{dict.nav.administration}</span>
+              </Link>
+              <SignOutButton
+                locale={locale}
+                label={dict.nav.logout}
+                iconOnly
+                title={dict.nav.logout}
+                className="inline-flex min-h-[44px] min-w-[44px] shrink-0 rounded-xl border border-white/30 bg-white/10 text-white"
+              />
+            </nav>
           )}
           <button
             type="button"
@@ -157,24 +158,12 @@ export function EspacioZenitSiteHeader({
               ))}
             </ul>
           </nav>
-          <div className="mt-3 border-t border-white/20 pt-3" role="group" aria-label={dict.nav.accountAria}>
-            {sessionEmail ? (
-              <div className="flex flex-col gap-2">
-                <Link
-                  href={`/${locale}/dashboard`}
-                  className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-[var(--ez-cyan)] px-4 py-2 text-sm font-bold uppercase tracking-[0.1em] text-black"
-                  onClick={() => setOpen(false)}
-                >
-                  <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
-                  {dict.nav.administration}
-                </Link>
-                <SignOutButton
-                  locale={locale}
-                  label={dict.nav.logout}
-                  className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white"
-                />
-              </div>
-            ) : (
+          {!sessionEmail ? (
+            <div
+              className="mt-3 border-t border-white/20 pt-3"
+              role="group"
+              aria-label={dict.nav.accountAria}
+            >
               <Link
                 href={`/${locale}/login`}
                 className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[var(--ez-cyan)] px-4 py-2 text-sm font-bold uppercase tracking-[0.1em] text-black"
@@ -183,8 +172,8 @@ export function EspacioZenitSiteHeader({
                 <LogIn className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
                 {dict.nav.login}
               </Link>
-            )}
-          </div>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </header>

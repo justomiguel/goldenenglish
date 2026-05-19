@@ -6,11 +6,13 @@ import { LandingEspacioZenitEnrollmentBanner } from "@/components/organisms/Land
 import { LandingEspacioZenitFooter } from "@/components/organisms/LandingEspacioZenitFooter";
 import { LandingEspacioZenitHeroMockup } from "@/components/organisms/LandingEspacioZenitHeroMockup";
 import { LandingEspacioZenitPillarsBar } from "@/components/organisms/LandingEspacioZenitPillarsBar";
-import { LandingEspacioZenitPlaceholderRail } from "@/components/organisms/LandingEspacioZenitPlaceholderRail";
+import { EspacioZenitLandingGallery } from "@/components/organisms/EspacioZenitLandingGallery";
+import { EZ_OFERTA_ENROLLMENT_SRC } from "@/lib/landing/espacioZenitLandingMedia";
 
 export interface LandingEspacioZenitSectionsProps {
   dict: Dictionary;
   locale: string;
+  sessionEmail: string | null;
   mediaMap?: LandingMediaMap;
   logoSrc: string;
   logoAlt: string;
@@ -20,12 +22,13 @@ export interface LandingEspacioZenitSectionsProps {
 export function LandingEspacioZenitSections({
   dict,
   locale,
+  sessionEmail,
   mediaMap,
   logoSrc,
   logoAlt,
   brand,
 }: LandingEspacioZenitSectionsProps) {
-  const enrollmentPhoto = mediaMap?.get("oferta::1");
+  const enrollmentPhoto = mediaMap?.get("oferta::1") ?? EZ_OFERTA_ENROLLMENT_SRC;
 
   return (
     <>
@@ -42,13 +45,14 @@ export function LandingEspacioZenitSections({
         locale={locale}
         studioPhotoSrc={enrollmentPhoto}
       />
-      <LandingEspacioZenitPlaceholderRail dict={dict} />
+      <EspacioZenitLandingGallery dict={dict} />
       <LandingEspacioZenitFooter
         dict={dict}
         locale={locale}
         logoSrc={logoSrc}
         logoAlt={logoAlt}
         brand={brand}
+        sessionEmail={sessionEmail}
       />
     </>
   );

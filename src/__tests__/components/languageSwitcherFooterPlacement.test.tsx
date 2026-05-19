@@ -206,6 +206,7 @@ describe("Language selector — footer-only across landings", () => {
           logoSrc="/images/logo.png"
           logoAlt="Logo"
           brand={mockBrandPublic}
+          sessionEmail={null}
         />,
       );
       const nav = screen.getByRole("navigation", { name: languageLabel });

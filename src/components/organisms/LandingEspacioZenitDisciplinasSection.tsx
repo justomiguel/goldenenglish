@@ -1,7 +1,12 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
+import {
+  EZ_DISCIPLINE_BALLET_SRC,
+  EZ_DISCIPLINE_HIPHOP_SRC,
+} from "@/lib/landing/espacioZenitLandingMedia";
 import { MozarthitosReveal } from "@/components/molecules/MozarthitosReveal";
 
 export interface LandingEspacioZenitDisciplinasSectionProps {
@@ -42,11 +47,13 @@ export function LandingEspacioZenitDisciplinasSection({
           <MozarthitosReveal preset="origenesCard">
             <article className="ez-mock-discipline-card ez-mock-discipline-card--hiphop flex h-full flex-col overflow-hidden rounded-[22px] border border-[rgb(0_174_239_/40%)] bg-[#070b12] shadow-[0_28px_70px_rgb(0_0_0_/55%)]">
               <div className="relative aspect-[16/11] w-full bg-[#111827]">
-                <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#0f172a] via-black to-[#082f49] px-4">
-                  <span className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-white/35">
-                    {marketingLandingCopy(dict, brand, "placeholders.disciplinePhoto")}
-                  </span>
-                </div>
+                <Image
+                  src={EZ_DISCIPLINE_HIPHOP_SRC}
+                  alt=""
+                  fill
+                  className="object-cover object-center"
+                  sizes="(max-width:1024px) 100vw, 50vw"
+                />
               </div>
               <div className="flex flex-1 flex-col gap-4 p-6 md:p-8">
                 <p className="ez-mock-discipline-hiphop-title ez-mock-brush--cyan text-[clamp(1.65rem,4vw,2.35rem)] leading-tight">
@@ -69,11 +76,13 @@ export function LandingEspacioZenitDisciplinasSection({
           <MozarthitosReveal preset="llegadaCard">
             <article className="ez-mock-discipline-card ez-mock-discipline-card--ballet flex h-full flex-col overflow-hidden rounded-[22px] border border-[rgb(255_255_255_/18%)] bg-[#07080c] shadow-[0_28px_70px_rgb(0_0_0_/50%)]">
               <div className="relative aspect-[16/11] w-full bg-[#1c1917]">
-                <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-[#faf5f5] via-[#e7e5e4] to-[#d6d3d1] px-4">
-                  <span className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-black/35">
-                    {marketingLandingCopy(dict, brand, "placeholders.disciplinePhoto")}
-                  </span>
-                </div>
+                <Image
+                  src={EZ_DISCIPLINE_BALLET_SRC}
+                  alt=""
+                  fill
+                  className="object-cover object-center"
+                  sizes="(max-width:1024px) 100vw, 50vw"
+                />
               </div>
               <div className="flex flex-1 flex-col gap-4 p-6 md:p-8">
                 <p className="ez-mock-discipline-ballet-title text-[clamp(1.35rem,3.2vw,2rem)] font-normal capitalize tracking-[0.06em] text-white">

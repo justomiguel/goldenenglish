@@ -1,10 +1,13 @@
+"use client";
+
 import Link from "next/link";
-import { Camera, Mail, Phone, Share2 } from "lucide-react";
+import { Camera, LayoutDashboard, Mail, Phone } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { BrandPublic } from "@/lib/brand/server";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { PublicContactForm } from "@/components/molecules/PublicContactForm";
+import { SignOutButton } from "@/components/molecules/SignOutButton";
 
 export interface LandingEspacioZenitFooterProps {
   dict: Dictionary;
@@ -12,6 +15,7 @@ export interface LandingEspacioZenitFooterProps {
   logoSrc: string;
   logoAlt: string;
   brand: BrandPublic;
+  sessionEmail: string | null;
 }
 
 const ICON = 1.6;
@@ -22,10 +26,12 @@ export function LandingEspacioZenitFooter({
   logoSrc,
   logoAlt,
   brand,
+  sessionEmail,
 }: LandingEspacioZenitFooterProps) {
   const ez = dict.landing.ez;
-  const ig = ez.contact.instagramUrl.trim();
-  const fb = ez.contact.facebookUrl.trim();
+  const phone = brand.contactPhone.trim();
+  const phoneHref = phone ? `tel:${phone.replace(/\s+/g, "")}` : "";
+  const ig = brand.socialInstagram.trim();
   const footerCta = marketingLandingCopy(dict, "ez", "footerCta").trim();
 
   return (
@@ -51,17 +57,6 @@ export function LandingEspacioZenitFooter({
                 <Camera className="h-5 w-5" aria-hidden strokeWidth={ICON} />
               </Link>
             ) : null}
-            {fb ? (
-              <Link
-                href={fb}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border border-white/25 bg-white/8 text-white transition hover:border-[var(--ez-cyan)] hover:text-[var(--ez-cyan)]"
-                aria-label={ez.contact.facebookAria}
-              >
-                <Share2 className="h-5 w-5" aria-hidden strokeWidth={ICON} />
-              </Link>
-            ) : null}
           </div>
         </div>
 
@@ -85,10 +80,21 @@ export function LandingEspacioZenitFooter({
             {ez.footer.contactTitle}
           </p>
           <ul className="space-y-4 text-sm">
-            <li className="flex items-start gap-3">
-              <Phone className="mt-0.5 h-5 w-5 shrink-0 text-[var(--ez-cyan)]" aria-hidden strokeWidth={ICON} />
-              <span className="text-white/88">{ez.contact.phoneDisplay}</span>
-            </li>
+            {phone ? (
+              <li className="flex items-start gap-3">
+                <Phone
+                  className="mt-0.5 h-5 w-5 shrink-0 text-[var(--ez-cyan)]"
+                  aria-hidden
+                  strokeWidth={ICON}
+                />
+                <Link
+                  href={phoneHref}
+                  className="text-white/88 underline-offset-4 hover:text-[var(--ez-cyan-soft)] hover:underline"
+                >
+                  {phone}
+                </Link>
+              </li>
+            ) : null}
             <li className="flex items-start gap-3">
               <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[var(--ez-cyan)]" aria-hidden strokeWidth={ICON} />
               {brand.contactEmail.trim() ? (
@@ -103,12 +109,26 @@ export function LandingEspacioZenitFooter({
               )}
             </li>
           </ul>
-          <Link
-            href={`/${locale}/login`}
-            className="inline-flex text-xs font-semibold uppercase tracking-[0.14em] text-white/55 hover:text-[var(--ez-cyan)]"
-          >
-            {dict.nav.login}
-          </Link>
+          {sessionEmail ? (
+            <div
+              className="mt-6 flex flex-col gap-2 border-t border-white/15 pt-5 lg:hidden"
+              role="group"
+              aria-label={dict.nav.accountAria}
+            >
+              <Link
+                href={`/${locale}/dashboard`}
+                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-[var(--ez-cyan)] px-4 py-2 text-sm font-bold uppercase tracking-[0.1em] text-black"
+              >
+                <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={ICON} />
+                {dict.nav.administration}
+              </Link>
+              <SignOutButton
+                locale={locale}
+                label={dict.nav.logout}
+                className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white"
+              />
+            </div>
+          ) : null}
         </div>
       </div>
       <div className="mx-auto mt-12 w-full max-w-lg border-t border-white/15 px-4 pt-12 lg:mt-14">

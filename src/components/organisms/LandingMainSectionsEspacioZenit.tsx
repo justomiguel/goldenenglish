@@ -37,6 +37,7 @@ export function LandingMainSectionsEspacioZenit({
         <LandingEspacioZenitSections
           dict={dict}
           locale={locale}
+          sessionEmail={sessionEmail}
           mediaMap={mediaMap}
           logoSrc={logoSrc}
           logoAlt={brand.logoAlt}
