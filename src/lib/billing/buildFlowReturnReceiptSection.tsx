@@ -30,6 +30,7 @@ export async function buildFlowReturnReceiptSection(
     supabase,
     paymentId,
     flowMethodLabel: copy.flowMethodLabel,
+    mercadoPagoMethodLabel: copy.mercadoPagoMethodLabel,
     uploadMethodLabel: copy.uploadMethodLabel,
   });
 

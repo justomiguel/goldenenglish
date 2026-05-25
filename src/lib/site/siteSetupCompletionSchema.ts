@@ -87,6 +87,16 @@ const siteSetupSharedSchema = z.object({
   billingTermMonthlyEn: optionalShortString,
   billingTermPromotion: optionalShortString,
   billingTermPromotionEn: optionalShortString,
+  billingCurrency: z.preprocess(
+    (raw) =>
+      typeof raw === "string" && raw.trim() === "" ? undefined : raw,
+    z
+      .string()
+      .trim()
+      .toUpperCase()
+      .regex(/^[A-Z]{3}$/u, { message: "invalid_currency" })
+      .optional(),
+  ),
   analyticsEventNamespace: optionalShortString,
   analyticsEventVersion: optionalShortString,
   analyticsTimezone: optionalShortString,

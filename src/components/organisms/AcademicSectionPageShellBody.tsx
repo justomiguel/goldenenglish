@@ -212,7 +212,6 @@ export function AcademicSectionPageShellBody({
               locale={locale}
               sectionId={sectionId}
               initialAmount={section.enrollmentFeeAmount}
-              systemCurrency={systemCurrency}
               dict={enrollmentFeeDict}
             />
           </div>

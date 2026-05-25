@@ -1,11 +1,11 @@
 "use client";
 
-import { Wallet } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/atoms/Button";
 import { ReceiptAutoUploadField } from "@/components/molecules/ReceiptAutoUploadField";
+import { OnlineMonthlyPaymentCheckoutPanel } from "@/components/molecules/OnlineMonthlyPaymentCheckoutPanel";
 import type { Dictionary } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
+import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 
 type MonthlyLabels = Dictionary["dashboard"]["student"]["monthly"];
 
@@ -20,11 +20,12 @@ export interface StudentMonthlyPaymentReceiptUploadFormProps {
   paymentLabels: Dictionary["dashboard"]["student"];
   fileUploadProgress: FileUploadProgressLabels;
   busy: boolean;
-  flowBusy: boolean;
-  showFlowPay: boolean;
+  onlineBusy: boolean;
+  showOnlinePay: boolean;
+  enabledOnlineGateways: PaymentGatewayProvider[];
   feedbackMessage: string | null;
   onSubmit: (formData: FormData) => void | Promise<void>;
-  onFlowPay: () => void | Promise<void>;
+  onOnlinePay: (provider: PaymentGatewayProvider) => void | Promise<void>;
 }
 
 export function StudentMonthlyPaymentReceiptUploadForm({
@@ -38,11 +39,12 @@ export function StudentMonthlyPaymentReceiptUploadForm({
   paymentLabels,
   fileUploadProgress,
   busy,
-  flowBusy,
-  showFlowPay,
+  onlineBusy,
+  showOnlinePay,
+  enabledOnlineGateways,
   feedbackMessage,
   onSubmit,
-  onFlowPay,
+  onOnlinePay,
 }: StudentMonthlyPaymentReceiptUploadFormProps) {
   const [receiptFileName, setReceiptFileName] = useState<string | null>(null);
 
@@ -80,7 +82,7 @@ export function StudentMonthlyPaymentReceiptUploadForm({
           <ReceiptAutoUploadField
             buttonLabel={paymentLabels.paySubmit}
             inputAriaLabel={paymentLabels.payReceipt}
-            disabled={busy || flowBusy || expected == null}
+            disabled={busy || onlineBusy || expected == null}
             busy={busy}
             selectedFileName={receiptFileName}
             noFileSelectedLabel={paymentLabels.payReceiptNoFileSelected}
@@ -89,25 +91,16 @@ export function StudentMonthlyPaymentReceiptUploadForm({
           />
         </div>
       </fieldset>
-      {showFlowPay ? (
-        <>
-          <p className="text-xs text-[var(--color-muted-foreground)]">
-            {monthlyLabels.payWithFlowHint}
-          </p>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={busy || flowBusy}
-            isLoading={flowBusy}
-            onClick={() => void onFlowPay()}
-            className="min-h-[44px] w-full sm:w-auto"
-          >
-            {!flowBusy ? <Wallet className="h-4 w-4 shrink-0" aria-hidden /> : null}
-            {monthlyLabels.payWithFlow}
-          </Button>
-        </>
-      ) : null}
-      {feedbackMessage ? (
+      {showOnlinePay ? (
+        <OnlineMonthlyPaymentCheckoutPanel
+          labels={monthlyLabels}
+          enabledGateways={enabledOnlineGateways}
+          busy={busy}
+          onlineBusy={onlineBusy}
+          feedbackMessage={feedbackMessage}
+          onPay={onOnlinePay}
+        />
+      ) : feedbackMessage ? (
         <p className="text-sm text-[var(--color-muted-foreground)]">{feedbackMessage}</p>
       ) : null}
     </form>

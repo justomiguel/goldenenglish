@@ -34,6 +34,7 @@ interface PaymentRow {
   receipt_url: string | null;
   payment_kind: string | null;
   section_id: string | null;
+  gateway_provider: string | null;
   updated_at: string;
   created_at: string;
 }
@@ -55,6 +56,7 @@ export async function loadPaymentForReceipt(input: {
   paymentId: string;
   /** "monthly" | "enrollment" — already-localized strings for the receipt method label. */
   flowMethodLabel: string;
+  mercadoPagoMethodLabel: string;
   uploadMethodLabel: string;
 }): Promise<PaymentReceiptLoadOutcome> {
   const { supabase, paymentId } = input;
@@ -62,7 +64,7 @@ export async function loadPaymentForReceipt(input: {
   const { data: row, error } = await supabase
     .from("payments")
     .select(
-      "id, parent_id, student_id, month, year, amount, status, receipt_url, payment_kind, section_id, updated_at, created_at",
+      "id, parent_id, student_id, month, year, amount, status, receipt_url, payment_kind, section_id, gateway_provider, updated_at, created_at",
     )
     .eq("id", paymentId)
     .maybeSingle<PaymentRow>();
@@ -72,7 +74,8 @@ export async function loadPaymentForReceipt(input: {
 
   const admin = createAdminClient();
 
-  const [studentNamesRes, parentNamesRes, sectionRes, currencyRes, refRes, finalizeRes] = await Promise.all([
+  const [studentNamesRes, parentNamesRes, sectionRes, currencyRes, refRes, flowFinalizeRes, mpFinalizeRes] =
+    await Promise.all([
     admin
       .from("profiles")
       .select("first_name, last_name, email")
@@ -105,13 +108,19 @@ export async function loadPaymentForReceipt(input: {
       .select("flow_order, paid_at, payer_email, media_label, commerce_order, currency, amount")
       .eq("payment_id", row.id)
       .maybeSingle<FlowFinalizeRecordRow>(),
+    admin
+      .from("payment_mp_finalize_records")
+      .select("mp_payment_id, paid_at, payer_email, payment_method, currency, amount")
+      .eq("payment_id", row.id)
+      .maybeSingle<MpFinalizeRecordRow>(),
   ]);
 
   const studentRow = studentNamesRes.data;
   const parentRow = parentNamesRes.data;
   const sectionRow = sectionRes.data;
   const flowRef = refRes.data;
-  const finalize = finalizeRes.data;
+  const flowFinalize = flowFinalizeRes.data;
+  const mpFinalize = mpFinalizeRes.data;
 
   const studentName = formatProfileSnakeSurnameFirst(studentRow ?? {}, "—");
   const parentName = parentRow ? formatProfileSnakeSurnameFirst(parentRow, "") : "";
@@ -119,26 +128,36 @@ export async function loadPaymentForReceipt(input: {
   const paidByTutor = Boolean(row.parent_id) && row.parent_id !== row.student_id;
   const payerFullName = paidByTutor && parentName ? parentName : studentName;
   const profilePayerEmail = paidByTutor ? parentRow?.email ?? null : studentRow?.email ?? null;
-  const payerEmail = finalize?.payer_email ?? profilePayerEmail;
+  const payerEmail = flowFinalize?.payer_email ?? mpFinalize?.payer_email ?? profilePayerEmail;
 
   const paymentKind: PaymentReceiptKind = row.payment_kind === "enrollment" ? "enrollment" : "monthly";
-  const isFlowPayment = Boolean(flowRef || finalize);
+  const gatewayProvider = row.gateway_provider?.trim().toLowerCase() ?? null;
+  const isFlowPayment = gatewayProvider === "flow" || Boolean(flowRef || flowFinalize);
+  const isMercadoPagoPayment =
+    gatewayProvider === "mercadopago" || Boolean(mpFinalize);
   const methodLabel = composeMethodLabel({
     flowMethodLabel: input.flowMethodLabel,
+    mercadoPagoMethodLabel: input.mercadoPagoMethodLabel,
     uploadMethodLabel: input.uploadMethodLabel,
     isFlowPayment,
-    flowOrder: finalize?.flow_order ?? null,
-    mediaLabel: finalize?.media_label ?? null,
+    isMercadoPagoPayment,
+    flowOrder: flowFinalize?.flow_order ?? null,
+    mediaLabel: flowFinalize?.media_label ?? null,
+    mpPaymentMethod: mpFinalize?.payment_method ?? null,
   });
 
-  const receiptNumber = finalize?.commerce_order ?? flowRef?.commerce_ref ?? formatManualReceiptNumber(row.id);
+  const receiptNumber =
+    flowFinalize?.commerce_order ??
+    flowRef?.commerce_ref ??
+    (mpFinalize ? `MP-${mpFinalize.mp_payment_id}` : formatManualReceiptNumber(row.id));
 
-  /** Authoritative paid_at from Flow when available; otherwise payments.updated_at as a proxy. */
-  const paidAt = finalize?.paid_at ?? row.updated_at;
-  /** Currency from finalize snapshot when available — covers tenants who switched billing currency later. */
-  const currency = finalize?.currency ?? currencyRes.currency;
-  /** Use Flow's exact charged amount when stored. */
-  const amount = finalize ? Number(finalize.amount) : Number(row.amount ?? 0);
+  const paidAt = flowFinalize?.paid_at ?? mpFinalize?.paid_at ?? row.updated_at;
+  const currency = flowFinalize?.currency ?? mpFinalize?.currency ?? currencyRes.currency;
+  const amount = flowFinalize
+    ? Number(flowFinalize.amount)
+    : mpFinalize
+      ? Number(mpFinalize.amount)
+      : Number(row.amount ?? 0);
 
   return {
     ok: true,
@@ -175,13 +194,30 @@ interface FlowFinalizeRecordRow {
   amount: number;
 }
 
+interface MpFinalizeRecordRow {
+  mp_payment_id: number;
+  paid_at: string;
+  payer_email: string | null;
+  payment_method: string | null;
+  currency: string;
+  amount: number;
+}
+
 function composeMethodLabel(input: {
   flowMethodLabel: string;
+  mercadoPagoMethodLabel: string;
   uploadMethodLabel: string;
   isFlowPayment: boolean;
+  isMercadoPagoPayment: boolean;
   flowOrder: number | null;
   mediaLabel: string | null;
+  mpPaymentMethod: string | null;
 }): string {
+  if (input.isMercadoPagoPayment) {
+    const parts: string[] = [input.mercadoPagoMethodLabel];
+    if (input.mpPaymentMethod) parts.push(input.mpPaymentMethod);
+    return parts.join(" · ");
+  }
   if (!input.isFlowPayment) return input.uploadMethodLabel;
   const parts: string[] = [input.flowMethodLabel];
   if (input.mediaLabel) parts.push(input.mediaLabel);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { setClassRemindersGlobalsAction } from "@/app/[locale]/dashboard/admin/settings/actions";
 import type { Dictionary } from "@/types/i18n";
 import type { ClassReminderSiteSettings } from "@/types/classReminders";
@@ -28,6 +29,7 @@ export function ClassRemindersAdminSettingsForm({
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const router = useRouter();
 
   async function onSave(e: React.FormEvent) {
     e.preventDefault();
@@ -42,8 +44,10 @@ export function ClassRemindersAdminSettingsForm({
       instituteTz: tz,
     });
     setBusy(false);
-    if (res.ok) setMsg(labels.classRemindersSaved);
-    else setErr(labels.classRemindersSaveError);
+    if (res.ok) {
+      setMsg(labels.classRemindersSaved);
+      router.refresh();
+    } else setErr(labels.classRemindersSaveError);
   }
 
   return (

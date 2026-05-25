@@ -12,6 +12,7 @@ import { FinanceInboxPanel } from "@/components/dashboard/admin/finance/FinanceI
 import { FinanceInsightsPanel } from "@/components/dashboard/admin/finance/FinanceInsightsPanel";
 import { FinanceSettingsPanel } from "@/components/dashboard/admin/finance/FinanceSettingsPanel";
 import { loadFlowChileGatewayAdminRow } from "@/app/[locale]/dashboard/admin/finance/flowGatewaySettingsActions";
+import { loadMercadoPagoGatewayAdminRows } from "@/app/[locale]/dashboard/admin/finance/mercadoPagoGatewaySettingsActions";
 import { CohortCollectionsMatrixClient } from "@/components/dashboard/admin/finance/CohortCollectionsMatrixClient";
 import { FinanceHubCohortSelector } from "@/components/dashboard/admin/finance/FinanceHubCohortSelector";
 import { FinanceHubKpiStrip } from "@/components/dashboard/admin/finance/FinanceHubKpiStrip";
@@ -154,10 +155,19 @@ export default async function AdminFinanceHubPage({
     enabled: false,
     hasCredentials: false,
   };
-  const flowGatewayInitial =
+  const mercadoPagoGatewayDefault = [
+    { countryCode: "CL" as const, environment: "sandbox" as const, enabled: false, hasCredentials: false },
+    { countryCode: "AR" as const, environment: "sandbox" as const, enabled: false, hasCredentials: false },
+  ];
+  const [flowGatewayInitial, mercadoPagoGatewayInitial] =
     tab === "settings"
-      ? ((await loadFlowChileGatewayAdminRow()) ?? flowGatewayDefault)
-      : flowGatewayDefault;
+      ? await Promise.all([
+          loadFlowChileGatewayAdminRow().then((row) => row ?? flowGatewayDefault),
+          loadMercadoPagoGatewayAdminRows().then((rows) =>
+            rows.length > 0 ? rows : mercadoPagoGatewayDefault,
+          ),
+        ])
+      : [flowGatewayDefault, mercadoPagoGatewayDefault];
 
   return (
     <div className="space-y-5">
@@ -226,6 +236,7 @@ export default async function AdminFinanceHubPage({
             locale={locale}
             dict={financeDict.settings}
             flowGatewayInitial={flowGatewayInitial}
+            mercadoPagoGatewayInitial={mercadoPagoGatewayInitial}
           />
         ) : null}
       </FinanceHubTabs>

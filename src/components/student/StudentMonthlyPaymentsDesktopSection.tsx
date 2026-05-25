@@ -5,8 +5,9 @@ import { StudentMonthlyPaymentCell } from "@/components/student/StudentMonthlyPa
 import {
   StudentMonthlyPaymentFocus,
   type SubmitMonthlyReceiptAction,
-  type StartFlowMonthlyPaymentClientAction,
+  type StartOnlineMonthlyPaymentClientAction,
 } from "@/components/student/StudentMonthlyPaymentFocus";
+import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 import {
   StudentEnrollmentFeeUpload,
   type SubmitEnrollmentFeeReceiptAction,
@@ -40,8 +41,9 @@ export interface StudentMonthlyPaymentsDesktopSectionProps {
   submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
   receiptExpectedUsesFullMonth: boolean;
   fileUploadProgress: FileUploadProgressLabels;
-  startFlowMonthlyPaymentAction?: StartFlowMonthlyPaymentClientAction;
-  flowMonthlyPayEnabled: boolean;
+  startFlowMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
+  startMercadoPagoMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
+  enabledOnlineGateways: PaymentGatewayProvider[];
   tutorPaymentMethodTabs: boolean;
   onSubmitted: () => void;
 }
@@ -66,7 +68,8 @@ export function StudentMonthlyPaymentsDesktopSection({
   receiptExpectedUsesFullMonth,
   fileUploadProgress,
   startFlowMonthlyPaymentAction,
-  flowMonthlyPayEnabled,
+  startMercadoPagoMonthlyPaymentAction,
+  enabledOnlineGateways,
   tutorPaymentMethodTabs,
   onSubmitted,
 }: StudentMonthlyPaymentsDesktopSectionProps) {
@@ -156,7 +159,8 @@ export function StudentMonthlyPaymentsDesktopSection({
           fileUploadProgress={fileUploadProgress}
           receiptExpectedUsesFullMonth={receiptExpectedUsesFullMonth}
           startFlowAction={startFlowMonthlyPaymentAction}
-          flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+          startMercadoPagoAction={startMercadoPagoMonthlyPaymentAction}
+          enabledOnlineGateways={enabledOnlineGateways}
           paymentMethodTabLayout={tutorPaymentMethodTabs}
           embeddedInSectionCard
           onSubmitted={onSubmitted}

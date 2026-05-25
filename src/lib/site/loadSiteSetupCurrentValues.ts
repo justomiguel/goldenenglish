@@ -1,6 +1,8 @@
 import { getProperty } from "@/lib/theme/themeParser";
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
 import { loadAcademicsSectionDefaults } from "@/lib/academics/loadAcademicsSectionDefaults";
+import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
+import { createClient } from "@/lib/supabase/server";
 import { resolveBrandAssetUrl } from "@/lib/brand/resolveBrandAssetUrl";
 
 const LOGO_FALLBACK = "/images/logo.png";
@@ -39,6 +41,7 @@ export interface SiteSetupOperationalValues {
   billingTermMonthlyEn: string;
   billingTermPromotion: string;
   billingTermPromotionEn: string;
+  billingCurrency: string;
   analyticsEventNamespace: string;
   analyticsEventVersion: string;
   analyticsTimezone: string;
@@ -79,9 +82,11 @@ export interface SiteSetupCurrentValues {
  * Server-only — uses `loadEffectiveProperties()` which talks to Supabase.
  */
 export async function loadSiteSetupCurrentValues(): Promise<SiteSetupCurrentValues> {
-  const [{ properties }, sectionDefaults] = await Promise.all([
+  const supabase = await createClient();
+  const [{ properties }, sectionDefaults, billingCurrency] = await Promise.all([
     loadEffectiveProperties(),
     loadAcademicsSectionDefaults(),
+    loadBillingCurrencySetting(supabase),
   ]);
 
   const rawLogo = getProperty(properties, "app.logo.path");
@@ -152,6 +157,7 @@ export async function loadSiteSetupCurrentValues(): Promise<SiteSetupCurrentValu
       billingTermMonthlyEn: g("billing.term.monthly.en"),
       billingTermPromotion: g("billing.term.promotion"),
       billingTermPromotionEn: g("billing.term.promotion.en"),
+      billingCurrency: billingCurrency.currency,
       analyticsEventNamespace: g("analytics.event.namespace"),
       analyticsEventVersion: g("analytics.event.version"),
       analyticsTimezone: g("analytics.timezone"),

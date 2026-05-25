@@ -79,6 +79,7 @@ async function loadMonthlyQueue(
     .from("payments")
     .select("id, student_id, month, year, amount, receipt_url, status, created_at")
     .eq("status", "pending")
+    .not("receipt_url", "is", null)
     .order("created_at", { ascending: true })
     .limit(80);
 

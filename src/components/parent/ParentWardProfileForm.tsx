@@ -2,6 +2,7 @@
 
 import { type FormEvent, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronLeft, Save } from "lucide-react";
 import { updateWardProfile } from "@/app/[locale]/dashboard/parent/children/[studentId]/actions";
 import { Button } from "@/components/atoms/Button";
@@ -40,6 +41,7 @@ export function ParentWardProfileForm({
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const router = useRouter();
 
   const trimmedEmail = email.trim().toLowerCase();
   const initialEmail = (initial.email ?? "").trim().toLowerCase();
@@ -65,6 +67,7 @@ export function ParentWardProfileForm({
       setMsg(labels.wardSaved);
       setParentPassword("");
       trackEvent("action", "section:parent_ward_profile", { student_id: studentId });
+      router.refresh();
       return;
     }
     setErr(res.message ?? labels.wardError);

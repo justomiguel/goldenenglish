@@ -4,6 +4,7 @@ import { Banknote } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { BillingCurrencySelectField } from "@/components/molecules/BillingCurrencySelectField";
 import type { SiteSetupOperationalValues } from "@/lib/site/loadSiteSetupCurrentValues";
 
 type L = Dictionary["dashboard"]["siteSetup"]["legalBilling"];
@@ -38,6 +39,19 @@ export function SiteSetupLegalBillingStep({
       </p>
 
       <div className="grid gap-3 sm:grid-cols-2">
+        <div className="sm:col-span-2">
+          <BillingCurrencySelectField
+            id="site-setup-billing-currency"
+            value={operational.billingCurrency}
+            onChange={(v) => update("billingCurrency", v)}
+            label={labels.billingCurrencyLabel}
+            otherOptionLabel={labels.billingCurrencyOther}
+            otherInputAriaLabel={labels.billingCurrencyOtherAria}
+          />
+          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+            {labels.billingCurrencyHint}
+          </p>
+        </div>
         <div>
           <Label htmlFor="legal-age">{labels.legalAgeMajority}</Label>
           <Input

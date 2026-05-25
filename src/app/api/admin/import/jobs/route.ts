@@ -85,7 +85,7 @@ export async function POST(request: Request) {
   });
 
   after(() =>
-    runBulkImportJobWithKv(jobId, userId, rowsParsed.data, tutorDefaults),
+    runBulkImportJobWithKv(jobId, userId, rowsParsed.data, tutorDefaults, parsedBody.data.locale),
   );
 
   return NextResponse.json({ ok: true, jobId });

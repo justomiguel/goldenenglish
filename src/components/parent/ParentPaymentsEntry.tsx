@@ -12,8 +12,9 @@ import { StudentMonthlyPaymentsStrip } from "@/components/student/StudentMonthly
 import { StudentPaymentsScreenTabs } from "@/components/student/StudentPaymentsScreenTabs";
 import {
   type SubmitMonthlyReceiptAction,
-  type StartFlowMonthlyPaymentClientAction,
+  type StartOnlineMonthlyPaymentClientAction,
 } from "@/components/student/StudentMonthlyPaymentFocus";
+import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import { ParentFinanceTabs } from "@/components/parent/ParentFinanceTabs";
 import type { FamilyPaymentsSummary } from "@/lib/billing/buildFamilyPaymentsSummary";
@@ -46,8 +47,9 @@ export interface ParentPaymentsEntryProps {
   studentLabels: StudentLabels;
   submitReceiptAction: SubmitMonthlyReceiptAction;
   submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
-  startFlowMonthlyPaymentAction?: StartFlowMonthlyPaymentClientAction;
-  flowMonthlyPayEnabled?: boolean;
+  startFlowMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
+  startMercadoPagoMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
+  enabledOnlineGateways?: PaymentGatewayProvider[];
   fileUploadProgress: FileUploadProgressLabels;
   feesPanel: ReactNode;
   initialFocus?: StudentPaymentsFocusKey | null;
@@ -68,7 +70,8 @@ function ParentPaymentsBodyDesktop({
   submitEnrollmentFeeReceiptAction,
   fileUploadProgress,
   startFlowMonthlyPaymentAction,
-  flowMonthlyPayEnabled = false,
+  startMercadoPagoMonthlyPaymentAction,
+  enabledOnlineGateways = [],
   feesPanel,
   initialFocus = null,
 }: ParentPaymentsEntryProps) {
@@ -143,7 +146,8 @@ function ParentPaymentsBodyDesktop({
                 receiptExpectedUsesFullMonth
                 fileUploadProgress={fileUploadProgress}
                 startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
-                flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+                startMercadoPagoMonthlyPaymentAction={startMercadoPagoMonthlyPaymentAction}
+                enabledOnlineGateways={enabledOnlineGateways}
                 tutorPaymentMethodTabs
                 initialFocus={initialFocus}
               />

@@ -5,6 +5,11 @@ import es from "@/dictionaries/es.json";
 import { createDashboardUser } from "@/app/[locale]/dashboard/admin/users/actions";
 import { ADMIN_INVITE_DEFAULT_PASSWORD } from "@/lib/dashboard/adminInviteDefaultPassword";
 
+const mockRevalidatePath = vi.hoisted(() => vi.fn());
+vi.mock("next/cache", () => ({
+  revalidatePath: mockRevalidatePath,
+}));
+
 vi.mock("@/lib/server/createIncidentSupportRef", () => ({
   createIncidentSupportRef: vi.fn(() => "00000000-0000-4000-8000-000000000099"),
 }));
@@ -73,6 +78,7 @@ const validPayload = {
 describe("createDashboardUser", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockRevalidatePath.mockClear();
     mockProfilesUpsert.mockResolvedValue({ error: null });
     mockProfilesMaybeSingle.mockResolvedValue({
       data: { id: "existing" },
@@ -216,6 +222,7 @@ describe("createDashboardUser", () => {
     });
     const r = await createDashboardUser(validPayload);
     expect(r).toEqual({ ok: true, userId: "x" });
+    expect(mockRevalidatePath).toHaveBeenCalledWith("/es/dashboard/admin/users", "page");
   });
 
   it("passes optional birth_date in user_metadata", async () => {

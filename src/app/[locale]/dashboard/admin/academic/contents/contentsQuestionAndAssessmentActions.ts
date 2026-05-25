@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { logServerException } from "@/lib/logging/serverActionLog";
 import { auditLearningContentStaffAction } from "@/lib/learning-content/auditLearningContentStaffAction";
@@ -33,6 +34,7 @@ export async function createQuestionBankItemAction(raw: unknown): Promise<Conten
       resourceId: (data as { id: string }).id,
       payload: { sectionId: parsed.data.sectionId ?? null, questionType: parsed.data.questionType },
     });
+    revalidatePath(`/${parsed.data.locale}/dashboard/admin/academic/contents`);
     return { ok: true, id: (data as { id: string }).id };
   } catch (err) {
     logServerException("createQuestionBankItemAction", err);
@@ -70,6 +72,7 @@ export async function createLearningAssessmentAction(raw: unknown): Promise<Cont
         gradingMode: parsed.data.gradingMode,
       },
     });
+    revalidatePath(`/${parsed.data.locale}/dashboard/admin/academic/contents`);
     return { ok: true, id: (data as { id: string }).id };
   } catch (err) {
     logServerException("createLearningAssessmentAction", err);

@@ -743,6 +743,150 @@
         "youtubeUrl": "https://www.youtube.com/@capoeiranago"
       },
       "footerCta": "Want to join capoeira? Message us and start your journey."
+    },
+    "mm": {
+      "chrome": {
+        "openMenu": "Open menu",
+        "closeMenu": "Close menu",
+        "facebookAria": "Follow us on Facebook",
+        "instagramAria": "Follow us on Instagram"
+      },
+      "nav": {
+        "inicio": "Home",
+        "propuesta": "Approach",
+        "salas": "Classrooms",
+        "galeria": "Gallery",
+        "contacto": "Contact"
+      },
+      "hero": {
+        "kicker": "Mi Mundo Nursery · Belgrano, Buenos Aires",
+        "title": "A world where childhood discovers itself through play",
+        "subtitle": "We nurture the growth of every child with love, play, and a Reggio-inspired pedagogical approach, from 45 days to 5 years old.",
+        "ctaReservar": "Reserve my spot",
+        "ctaLogin": "Sign in"
+      },
+      "propuesta": {
+        "sectionLabel": "Our approach",
+        "title": "Learning with the whole body, with all the senses",
+        "bodyP1": "At Mi Mundo we believe that childhood deserves beautiful spaces, real materials, and attentive adults. Our pedagogical approach is inspired by Reggio Emilia and the Pikler philosophy: we respect individual timelines, propose prepared environments, and support free play as the engine of learning.",
+        "bodyP2": "We have specialized teachers, bright spaces, and a green courtyard where nature enters the nursery every day.",
+        "pilar1": "🎨 Art and creative expression",
+        "pilar2": "🌿 Connection with nature",
+        "pilar3": "🎵 Music and rhythm",
+        "pilar4": "📚 Early literacy",
+        "pilar5": "🤸 Free movement and motor skills"
+      },
+      "pilares": {
+        "sectionTitle": "Five pillars of our approach",
+        "arte": {
+          "title": "Art & expression",
+          "body": "Weekly art, drama, and painting workshops with natural materials. Every piece reflects each child's unique perspective."
+        },
+        "naturaleza": {
+          "title": "Living nature",
+          "body": "Vegetable garden, compost, and outdoor exploration corners. Soil, water, and plants are the protagonists."
+        },
+        "musica": {
+          "title": "Music & rhythm",
+          "body": "From lullabies to group percussion. Sound as language and bond."
+        },
+        "juego": {
+          "title": "Free play",
+          "body": "Prepared spaces where the child chooses, decides, and builds. The adult observes and supports without interfering."
+        },
+        "lectura": {
+          "title": "Early literacy",
+          "body": "Classroom library, daily story time, and spontaneous writing projects from age 3."
+        }
+      },
+      "salas": {
+        "sectionTitle": "Our classrooms",
+        "bebes": {
+          "nombre": "Bubbles Room",
+          "edades": "45 days – 12 months",
+          "descripcion": "A warm, safe space for first experiences of the world. Caregivers specialized in respectful parenting and early stimulation."
+        },
+        "sala1": {
+          "nombre": "Little Ants Room",
+          "edades": "1 to 2 years",
+          "descripcion": "Sensory exploration, first steps and words. Natural materials and environments prepared for autonomous movement."
+        },
+        "sala2": {
+          "nombre": "Butterflies Room",
+          "edades": "2 to 3 years",
+          "descripcion": "Language takes flight and creativity explodes. Art projects, dramatic play, and first group dynamics."
+        },
+        "sala3": {
+          "nombre": "Sun Room",
+          "edades": "3 to 4 years",
+          "descripcion": "Autonomy, friendship, and symbolic thinking. Early literacy, gardening, and science projects."
+        },
+        "sala4": {
+          "nombre": "Moon Room",
+          "edades": "4 to 5 years",
+          "descripcion": "Logical thinking and written expression. Interdisciplinary projects, theater, and learning outings."
+        },
+        "sala5": {
+          "nombre": "Stars Room",
+          "edades": "5 years",
+          "descripcion": "The transition year. We prepare each child for primary school with confidence, curiosity, and joy."
+        }
+      },
+      "jornada": {
+        "sectionTitle": "A day at Mi Mundo",
+        "intro": "Every day is a little adventure. Here's what a typical day at our nursery looks like:",
+        "paso1": {
+          "hora": "8:00 – 9:00",
+          "titulo": "Welcome and free play in courtyards and corners"
+        },
+        "paso2": {
+          "hora": "9:00 – 10:30",
+          "titulo": "Daily project: art, science, music or literacy"
+        },
+        "paso3": {
+          "hora": "10:30 – 11:00",
+          "titulo": "Nutritious snack and circle conversation"
+        },
+        "paso4": {
+          "hora": "11:00 – 12:00",
+          "titulo": "Outdoor movement, play and dramatic exploration"
+        },
+        "paso5": {
+          "hora": "12:00 – 13:00",
+          "titulo": "Lunch and closing story. Nap time (Bubbles & Ants)"
+        }
+      },
+      "galeria": {
+        "sectionTitle": "Moments we treasure",
+        "sectionSubtitle": "A glimpse into everyday life at Mi Mundo.",
+        "verMas": "See all photos",
+        "previewOpenAria": "Open photo {n}",
+        "carouselLoading": "Loading image…",
+        "carouselPosition": "Image {current} of {total}",
+        "carouselPrev": "Previous photo",
+        "carouselNext": "Next photo"
+      },
+      "equipo": {
+        "sectionTitle": "Our team",
+        "body": "More than 20 professionals specialized in early childhood, educational psychology, music, and arts. Ongoing training, pedagogical supervision, and lots of love."
+      },
+      "cta": {
+        "title": "Want to join Mi Mundo?",
+        "subtitle": "Spots are limited. Reserve yours today and start the year on the right foot.",
+        "button": "Reserve my spot"
+      },
+      "contact": {
+        "title": "Come meet us",
+        "direccion": "Av. del Libertador 1234, Belgrano · Buenos Aires",
+        "telefono": "+54 11 4555-1234",
+        "email": "hola@mimundo.com.ar",
+        "mapaAria": "View on Google Maps"
+      },
+      "footer": {
+        "rightsLine": "© 2025 Mi Mundo Nursery. All rights reserved.",
+        "siguenos": "Follow us"
+      },
+      "footerCta": "Reserve my spot"
     }
   },
   "admin": {
@@ -1309,7 +1453,8 @@
               "minimal": "Minimal",
               "mozarthitos": "Mozarthitos",
               "espaciozenit": "Espacio Zenit",
-              "nago": "Capoeira Nago"
+              "nago": "Capoeira Nago",
+              "mimundo": "Mi Mundo"
             },
             "saveCta": "Apply style",
             "saveSuccess": "Style applied.",
@@ -1988,7 +2133,26 @@
         "flowRemoveConfirmDescription": "Stored keys will be deleted. Online checkout via Flow stays unavailable until you save new credentials.",
         "flowRemoveConfirmAction": "Remove",
         "flowRemovedOk": "Flow credentials were removed.",
-        "flowRemovedError": "Could not remove credentials. Please try again."
+        "flowRemovedError": "Could not remove credentials. Please try again.",
+        "mpCountryArTitle": "Mercado Pago (Argentina)",
+        "mpCountryClTitle": "Mercado Pago (Chile)",
+        "mpLead": "Let families pay monthly tuition online with Mercado Pago Checkout Pro. Enter your access token and webhook secret for each country, choose sandbox or production, and enable checkout on student and guardian payment screens.",
+        "mpEnvironment": "Environment",
+        "mpEnabled": "Enable Mercado Pago checkout for families",
+        "mpAccessToken": "Access token",
+        "mpWebhookSecret": "Webhook secret",
+        "mpSave": "Save Mercado Pago settings",
+        "mpSavedOk": "Mercado Pago settings saved.",
+        "mpSavedError": "Could not save Mercado Pago settings.",
+        "mpNeedKeys": "Enter access token and webhook secret for the first setup.",
+        "mpPlaceholderTokenUnchanged": "Leave blank to keep the stored access token",
+        "mpWebhookPlaceholder": "Secret from your Mercado Pago webhook configuration",
+        "mpRemoveButton": "Remove saved credentials",
+        "mpRotateConfirmTitle": "Overwrite saved Mercado Pago credentials?",
+        "mpRotateConfirmDescription": "You already have Mercado Pago keys saved. Continuing will overwrite them with what you typed now (leave a field blank to keep that stored value unchanged).",
+        "mpRemoveConfirmTitle": "Remove Mercado Pago credentials from the server?",
+        "mpRemoveConfirmDescription": "Stored keys will be deleted. Online checkout via Mercado Pago stays unavailable until you save new credentials.",
+        "mpRemovedOk": "Mercado Pago credentials were removed."
       },
       "insights": {
         "title": "Finance insights",
@@ -3129,7 +3293,11 @@
       },
       "legalBilling": {
         "title": "Legal & billing",
-        "lead": "Age of majority, enrollment renewal reminder, and billing labels.",
+        "lead": "Institute currency, age of majority, enrollment renewal reminder, and billing labels.",
+        "billingCurrencyLabel": "Institute currency",
+        "billingCurrencyHint": "Used for fees, enrollment charges, and billing screens. You can change it later under Finance → Settings.",
+        "billingCurrencyOther": "Other (ISO 4217)",
+        "billingCurrencyOtherAria": "Custom three-letter currency code",
         "legalAgeMajority": "Legal age of majority",
         "legalAgeMajorityHint": "Used for adult/minor portal flows.",
         "studentRenewalWarnDays": "Enrollment renewal warning (days)",
@@ -4218,7 +4386,7 @@
       },
       "feePlans": {
         "title": "Monthly fee plans",
-        "lead": "Define what students pay each month for this section, in which currency, and when each version is in effect. If a student joins late, the system prorates the fee based on the classes they had available that month.",
+        "lead": "Define what students pay each month for this section and when each version is in effect. If a student joins late, the system prorates the fee based on the classes they had available that month.",
         "empty": "No fee plan defined yet.",
         "add": "Add fee plan",
         "create": "Create fee plan",
@@ -4253,7 +4421,7 @@
       },
       "enrollmentFee": {
         "title": "Section enrollment fee",
-        "lead": "Set how much this section charges as an enrollment fee (matrícula). The currency is taken from the active monthly fee plan.",
+        "lead": "Set how much this section charges as an enrollment fee (matrícula).",
         "amount": "Enrollment fee amount",
         "currencyAria": "Enrollment fee currency",
         "currencyHelp": "The enrollment fee uses the same currency as the active monthly fee plan.",
@@ -5082,6 +5250,24 @@
         "exemptHint": "Your scholarship covers this month.",
         "payWithFlow": "Pay online with Flow",
         "payWithFlowHint": "Card, bank transfer, or other methods available from Flow (Chile).",
+        "payWithMercadoPago": "Pay online with Mercado Pago",
+        "payWithMercadoPagoHint": "Card, bank transfer, or other methods available from Mercado Pago.",
+        "choosePaymentGateway": "Choose how to pay online",
+        "gatewayFlow": "Flow (Chile)",
+        "gatewayMercadoPago": "Mercado Pago",
+        "mpBusy": "Redirecting to Mercado Pago…",
+        "mpErrorUnavailable": "Online payment is not available right now.",
+        "mpErrorProvider": "Could not start payment with Mercado Pago. Try again or upload a receipt.",
+        "mpErrorCurrencyUnsupported": "Online payment with Mercado Pago is not available for this currency.",
+        "mpReturnBack": "Back to payments",
+        "mpReturnNoRefTitle": "Back from Mercado Pago",
+        "mpReturnNoRefLead": "We could not read the payment reference from the link. Open Payments to see if your month is already marked as paid, or start the payment again.",
+        "mpReturnSuccessTitle": "Payment received",
+        "mpReturnSuccessLead": "{month} {year} is recorded as paid. Thank you.",
+        "mpReturnNotCompletedTitle": "Payment not completed",
+        "mpReturnNotCompletedLead": "The payment was not finished or was cancelled in Mercado Pago. You can try again from Payments or upload a receipt if your institute allows it.",
+        "mpReturnProcessingTitle": "Confirming your payment",
+        "mpReturnProcessingLead": "Mercado Pago reports a successful payment, but your account is still updating. Please wait a few minutes and check Payments again. If it does not change, contact the institute.",
         "paymentMethodTabsAria": "Ways to settle this month",
         "tutorMonthlyTabReceipt": "Upload receipt",
         "tutorMonthlyTabOnline": "Pay online",
@@ -5113,6 +5299,7 @@
           "downloadPdf": "Download PDF",
           "legalNotice": "Internal proof of payment. Not a tax invoice (boleta / factura).",
           "methodFlow": "Online payment (Flow)",
+          "methodMercadoPago": "Online payment (Mercado Pago)",
           "methodUpload": "Receipt uploaded",
           "descriptionMonthly": "Monthly fee",
           "descriptionEnrollment": "Enrollment fee",

@@ -38,6 +38,23 @@ Opciones del script (`node scripts/a11y-lighthouse-tenants.mjs`):
 
 **Requiere Chromium** instalado en el PATH (similar a `npm run lighthouse:smoke`; en CI típico `ubuntu-latest` ya lo trae).
 
+### Tenants conocidos (manifest de referencia)
+
+| Slug | Locale path | Notas |
+|------|-------------|-------|
+| `golden` / `golden-local` | `/es` | Golden English clásico |
+| `nago` | `/es` | Nago — landing full-bleed |
+| `espaciozenit` | `/es` | Espacio Zenit — landing full-bleed |
+| `mimundo` | `/es` | Jardín Maternal Mi Mundo — landing full-bleed (PR 2026-05). **Pendiente** URL de producción; usar `http://localhost:3000/es` tras `npm run dev:mimundo` para verificación local. Añadir URL absoluta de preview Vercel cuando se provisione el proyecto. |
+
+Para verificar `mimundo` localmente:
+```bash
+npm run dev:mimundo   # apunta al .env.local.mimundo
+# en otra terminal:
+node scripts/a11y-lighthouse-tenants.mjs scripts/a11y-lighthouse-manifest.local.json
+# asegurarse de que la fila "mimundo" en el manifiesto local apunte a http://localhost:3000/es
+```
+
 ### Estrategia útil por tenant
 
 1. **Deploy preview** por proyecto (`npm run deploy:vercel -- <slug>` o ya publicado).

@@ -4,32 +4,26 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Settings, Save, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
-import { Label } from "@/components/atoms/Label";
-import { Input } from "@/components/atoms/Input";
 import type { Dictionary } from "@/types/i18n";
 import { setBillingCurrencyAction } from "@/app/[locale]/dashboard/admin/finance/billingSettingsActions";
 import { FinanceFlowGatewayCard } from "@/components/dashboard/admin/finance/FinanceFlowGatewayCard";
+import { FinanceMercadoPagoGatewayCard } from "@/components/dashboard/admin/finance/FinanceMercadoPagoGatewayCard";
+import { BillingCurrencySelectField } from "@/components/molecules/BillingCurrencySelectField";
+import {
+  ISO_4217_CURRENCY_RE,
+  normalizeBillingCurrencyInput,
+} from "@/lib/billing/billingCurrencyConstants";
 import type { FlowChileAdminRowSafe } from "@/app/[locale]/dashboard/admin/finance/flowGatewaySettingsActions";
+import type { MercadoPagoAdminRowSafe } from "@/app/[locale]/dashboard/admin/finance/mercadoPagoGatewaySettingsActions";
 
 type SettingsDict = Dictionary["admin"]["finance"]["settings"];
-
-const SUGGESTED_CURRENCIES = [
-  "ARS",
-  "BRL",
-  "CLP",
-  "EUR",
-  "MXN",
-  "USD",
-  "UYU",
-] as const;
-
-const ISO_4217_RE = /^[A-Z]{3}$/;
 
 export interface FinanceSettingsPanelProps {
   currentCurrency: string;
   locale: string;
   dict: SettingsDict;
   flowGatewayInitial: FlowChileAdminRowSafe;
+  mercadoPagoGatewayInitial: MercadoPagoAdminRowSafe[];
 }
 
 export function FinanceSettingsPanel({
@@ -37,27 +31,16 @@ export function FinanceSettingsPanel({
   locale,
   dict,
   flowGatewayInitial,
+  mercadoPagoGatewayInitial,
 }: FinanceSettingsPanelProps) {
   const router = useRouter();
   const [currency, setCurrency] = useState(currentCurrency);
-  const [customMode, setCustomMode] = useState(
-    !SUGGESTED_CURRENCIES.includes(currentCurrency as (typeof SUGGESTED_CURRENCIES)[number]),
-  );
   const [isPending, startTransition] = useTransition();
   const [saveResult, setSaveResult] = useState<"success" | "error" | null>(null);
 
-  const currencyValid = ISO_4217_RE.test(currency.trim().toUpperCase());
-  const hasChanges = currency.trim().toUpperCase() !== currentCurrency;
-
-  const onSelectChange = (value: string) => {
-    if (value === "__other__") {
-      setCustomMode(true);
-      return;
-    }
-    setCustomMode(false);
-    setCurrency(value);
-    setSaveResult(null);
-  };
+  const currencyValid = ISO_4217_CURRENCY_RE.test(normalizeBillingCurrencyInput(currency));
+  const hasChanges =
+    normalizeBillingCurrencyInput(currency) !== normalizeBillingCurrencyInput(currentCurrency);
 
   const handleSave = () => {
     if (!currencyValid || !hasChanges) return;
@@ -85,49 +68,18 @@ export function FinanceSettingsPanel({
         </p>
 
         <div className="max-w-sm space-y-4">
-          <div>
-            <Label htmlFor="billing-currency">{dict.currencyLabel}</Label>
-            <select
-              id="billing-currency"
-              value={
-                customMode
-                  ? "__other__"
-                  : SUGGESTED_CURRENCIES.includes(
-                        currency as (typeof SUGGESTED_CURRENCIES)[number],
-                      )
-                    ? currency
-                    : "__other__"
-              }
-              onChange={(e) => onSelectChange(e.target.value)}
-              disabled={isPending}
-              className="mt-1 min-h-[44px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2"
-            >
-              {SUGGESTED_CURRENCIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-              <option value="__other__">{dict.currencyOther}</option>
-            </select>
-            {customMode ? (
-              <Input
-                id="billing-currency-custom"
-                className="mt-2"
-                type="text"
-                maxLength={3}
-                minLength={3}
-                pattern="[A-Za-z]{3}"
-                placeholder="BOB"
-                aria-label={dict.currencyOtherAria}
-                value={currency}
-                onChange={(e) => {
-                  setCurrency(e.target.value.toUpperCase());
-                  setSaveResult(null);
-                }}
-                disabled={isPending}
-              />
-            ) : null}
-          </div>
+          <BillingCurrencySelectField
+            id="billing-currency"
+            value={currency}
+            onChange={(next) => {
+              setCurrency(next);
+              setSaveResult(null);
+            }}
+            label={dict.currencyLabel}
+            otherOptionLabel={dict.currencyOther}
+            otherInputAriaLabel={dict.currencyOtherAria}
+            disabled={isPending}
+          />
 
           <div className="flex items-center gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-warning)]/30 bg-[var(--color-warning)]/5 px-3 py-2 text-xs text-[var(--color-warning)]">
             <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden />
@@ -160,6 +112,15 @@ export function FinanceSettingsPanel({
         initial={flowGatewayInitial}
         dict={dict}
       />
+
+      {mercadoPagoGatewayInitial.map((row) => (
+        <FinanceMercadoPagoGatewayCard
+          key={`mp-gw-${row.countryCode}-${row.environment}-${row.enabled}-${row.hasCredentials}`}
+          locale={locale}
+          initial={row}
+          dict={dict}
+        />
+      ))}
     </section>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Modal } from "@/components/atoms/Modal";
 import { RichTextEditor } from "@/components/molecules/RichTextEditor";
 import type { Dictionary } from "@/types/i18n";
@@ -36,6 +37,7 @@ export function SectionCollectionsBulkMessageModal({
   const [body, setBody] = useState("");
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackState | null>(null);
+  const router = useRouter();
 
   function close() {
     if (busy) return;
@@ -89,6 +91,7 @@ export function SectionCollectionsBulkMessageModal({
         variant: res.failed.length > 0 ? "warn" : "success",
         message: parts.join(" "),
       });
+      router.refresh();
       onSent?.({
         sent: res.sent,
         skipped: res.skipped.length,

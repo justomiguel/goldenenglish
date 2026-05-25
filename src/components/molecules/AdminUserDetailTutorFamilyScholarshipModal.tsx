@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Percent, X } from "lucide-react";
 import { applyAdminTutorFamilyScholarshipAction } from "@/app/[locale]/dashboard/admin/users/adminUserDetailTutorFamilyScholarshipActions";
 import { Button } from "@/components/atoms/Button";
@@ -45,6 +46,7 @@ export function AdminUserDetailTutorFamilyScholarshipModal({
   const [vuM, setVuM] = useState("");
   const [schActive, setSchActive] = useState(true);
   const [busy, setBusy] = useState(false);
+  const router = useRouter();
 
   const sectionSelectId = useId();
 
@@ -87,7 +89,10 @@ export function AdminUserDetailTutorFamilyScholarshipModal({
         isActive: schActive,
       });
       onCompleteMessage(r.message ?? (r.ok ? "" : userLabels.detailErrSave), r.ok);
-      if (r.ok) onOpenChange(false);
+      if (r.ok) {
+        router.refresh();
+        onOpenChange(false);
+      }
     } finally {
       setBusy(false);
     }

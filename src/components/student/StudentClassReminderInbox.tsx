@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
@@ -25,9 +26,15 @@ export interface StudentClassReminderInboxProps {
 }
 
 export function StudentClassReminderInbox({ locale, rows, labels }: StudentClassReminderInboxProps) {
+  const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [dismissed, setDismissed] = useState<Set<string>>(() => new Set());
+  const visibleRows = useMemo(
+    () => rows.filter((row) => !dismissed.has(row.id)),
+    [dismissed, rows],
+  );
 
-  if (!rows.length) {
+  if (!visibleRows.length) {
     return (
       <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
         <h2 className="text-sm font-semibold text-[var(--color-secondary)]">{labels.classReminderUpcomingTitle}</h2>
@@ -38,15 +45,19 @@ export function StudentClassReminderInbox({ locale, rows, labels }: StudentClass
 
   async function markRead(id: string) {
     setBusyId(id);
-    await markClassReminderInAppReadAction(locale, id);
+    const res = await markClassReminderInAppReadAction(locale, id);
     setBusyId(null);
+    if (res.ok) {
+      setDismissed((prev) => new Set(prev).add(id));
+      router.refresh();
+    }
   }
 
   return (
     <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
       <h2 className="text-sm font-semibold text-[var(--color-secondary)]">{labels.classReminderUpcomingTitle}</h2>
       <ul className="mt-3 space-y-3">
-        {rows.map((r) => (
+        {visibleRows.map((r) => (
           <li key={r.id} className="rounded-lg border border-[var(--color-border)] p-3">
             <p className="text-sm font-medium text-[var(--color-foreground)]">{r.title}</p>
             <p className="mt-1 whitespace-pre-wrap text-xs text-[var(--color-muted-foreground)]">{r.body}</p>

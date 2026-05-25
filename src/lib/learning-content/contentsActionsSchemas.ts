@@ -38,6 +38,7 @@ export const RouteStepSchema = z.object({
 });
 
 export const QuestionSchema = z.object({
+  locale: z.string().min(2).max(8),
   sectionId: z.string().uuid().optional(),
   prompt: z.string().trim().min(1).max(4000),
   questionType: z.enum(["true_false", "multiple_choice", "short_answer", "rubric", "oral_check"]),
@@ -46,6 +47,7 @@ export const QuestionSchema = z.object({
 });
 
 export const AssessmentSchema = z.object({
+  locale: z.string().min(2).max(8),
   sectionId: z.string().uuid(),
   title: z.string().trim().min(1).max(180),
   assessmentKind: z.enum(["entry", "exit", "formative", "mini_test", "diagnostic"]),

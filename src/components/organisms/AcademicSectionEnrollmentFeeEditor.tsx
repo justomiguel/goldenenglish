@@ -16,8 +16,6 @@ export interface AcademicSectionEnrollmentFeeEditorProps {
   locale: string;
   sectionId: string;
   initialAmount: number;
-  /** System-wide billing currency from Finance > Settings. */
-  systemCurrency: string;
   dict: EnrollmentDict;
 }
 
@@ -25,7 +23,6 @@ export function AcademicSectionEnrollmentFeeEditor({
   locale,
   sectionId,
   initialAmount,
-  systemCurrency,
   dict,
 }: AcademicSectionEnrollmentFeeEditorProps) {
   const router = useRouter();
@@ -76,28 +73,18 @@ export function AcademicSectionEnrollmentFeeEditor({
       >
         <div>
           <Label htmlFor={`section-enrollment-fee-${sectionId}`}>{dict.amount}</Label>
-          <div className="mt-1 flex items-center gap-2">
-            <Input
-              id={`section-enrollment-fee-${sectionId}`}
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="0.01"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              disabled={pending}
-              required
-            />
-            <span
-              className="text-sm font-medium text-[var(--color-foreground)]"
-              aria-label={dict.currencyAria}
-            >
-              {systemCurrency}
-            </span>
-          </div>
-          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-            {dict.currencyHelp}
-          </p>
+          <Input
+            id={`section-enrollment-fee-${sectionId}`}
+            className="mt-1"
+            type="number"
+            inputMode="decimal"
+            min={0}
+            step="0.01"
+            value={amount}
+            onChange={(e) => setAmount(Number(e.target.value))}
+            disabled={pending}
+            required
+          />
         </div>
 
         <div className="flex items-center gap-2">

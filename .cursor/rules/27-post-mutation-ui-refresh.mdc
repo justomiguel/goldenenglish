@@ -1,0 +1,87 @@
+---
+description: After POST/PUT/DELETE mutations, invalidate Next.js cache server-side and refresh the client RSC tree so UI updates without manual reload.
+alwaysApply: true
+---
+
+# Post-mutation UI refresh (non-negotiable)
+
+## Goal
+
+After a **successful mutation** that changes data shown on the current page (or sibling panels on the same layout), the UI must reflect the new state **without** asking the user to reload. This repo uses a **two-layer** pattern: server cache invalidation **and** client refresh.
+
+## Two layers (both required when RSC data is visible)
+
+| Layer | Where | What |
+|-------|--------|------|
+| **Server** | Server actions, route handlers, KV workers that finish a user-visible job | `revalidatePath` (or a domain helper that wraps it) for every affected route/layout |
+| **Client** | `'use client'` components and hooks that invoke the mutation | `router.refresh()` from `next/navigation` after `{ ok: true }` |
+
+**Server alone is not enough** for pages already rendered in the browser: Next may still show stale RSC payload until the client calls `refresh()`.
+
+**Client alone is not enough** if the server action never revalidates: `refresh()` re-fetches cached server output that may still be stale.
+
+## Server — revalidate affected surfaces
+
+1. Prefer existing helpers before ad-hoc paths:
+   - Academic hub / cohorts / sections: `revalidateAcademicSurfaces` in `src/app/[locale]/dashboard/admin/academic/revalidatePaths.ts`
+   - Site theme / CMS brand: helpers in `src/app/[locale]/dashboard/admin/cms/siteThemeActionShared.ts`
+   - Student billing: `revalidateStudentBillingPaths`
+2. Pass **`locale`** into actions/workers when revalidation paths are locale-prefixed (`/${locale}/dashboard/...`).
+3. Revalidate the **narrowest layout/page** that owns the mutated data, plus any **sibling routes** that read the same aggregate (see `revalidateAcademicSurfaces`).
+
+```typescript
+// Server action (after successful write)
+revalidatePath(`/${locale}/dashboard/admin/academic/contents/sections/${routeId}/edit`);
+return { ok: true as const };
+```
+
+## Client — refresh after success
+
+```typescript
+const router = useRouter();
+
+const result = await saveSomethingAction({ locale, ...payload });
+if (!result.ok) return;
+router.refresh();
+```
+
+### Hooks
+
+Mutation hooks (`src/hooks/use*.ts`) should call **`router.refresh()` internally** on success, not rely on every caller to remember. Keep optional callbacks for **local** optimistic state only.
+
+Reference: `useSectionEnrollmentQueue`, `useSiteThemeBrandAssetUploads`.
+
+### Optimistic UI
+
+Local optimistic updates (hide row, toggle badge) **supplement** `router.refresh()`; they do **not** replace it when other parts of the page depend on server truth (e.g. “current cohort” badges on sibling rows).
+
+### Navigation vs refresh
+
+- **`router.replace` / `router.push`** — use when the success path changes URL (create → edit, wizard step).
+- **`router.refresh()`** — call **in addition** whenever the user stays on a page whose RSC props must update (including **edit existing** flows, not only create).
+
+Long-running jobs (**`11-long-running-jobs-ui.mdc`**) call `router.refresh()` when the job reaches a **terminal success** state (see `ImportStudents`).
+
+## When to skip
+
+- **Pure client state** with no server-backed list/detail on screen (e.g. toggling a local panel).
+- **Mutations whose only effect is navigation away** to a new URL that fully remounts the tree (still revalidate server-side for back navigation).
+- **Background analytics / fire-and-forget** with no visible persisted entity on the current view.
+
+When unsure, apply both layers.
+
+## Agent checklist (new or changed mutation)
+
+- [ ] Server write path calls `revalidatePath` or a domain revalidate helper for all affected routes.
+- [ ] Client caller or hook calls `router.refresh()` after `{ ok: true }`.
+- [ ] Edit flows refresh, not only create flows.
+- [ ] Hooks expose refresh built-in; components do not depend on a parent remembering.
+- [ ] Vitest: mock `next/navigation` `useRouter` when asserting refresh behavior (`vi.hoisted` + `routerMock.refresh`).
+
+## References in-repo
+
+- Components: `TeacherSectionLearningTasks`, `AcademicSectionLearningRouteSelector`, `ClassReminderPrefsSection`, `ClassRemindersAdminSettingsForm`, `InscriptionsSettingsForm`, `ParentWardProfileForm`, `StudentLearningTaskDetail`, `StudentMiniTestsSection`, `AdminUserDetailTutorFamilyScholarshipModal`, `SectionCollectionsBulkMessageModal`, plus prior fixes (`AdminLearningRoutePlanner`, `AcademicCohortCurrentToggle`, `ImportStudents`, …)
+- Hooks: `useSectionEnrollmentQueue`, `useSiteThemeBrandAssetUploads`, `useSectionAttendanceMatrixBulk` (undo path)
+- Server: `createDashboardUser` in `users/actions.ts`, `cohortActions.ts`, `runBulkImportJobWithKv.ts`, `contentsQuestionAndAssessmentActions.ts`
+
+Cross-rules: **`03-architecture.mdc`** (actions vs hooks), **`complete-solutions-always.mdc`**, **`02-testing-tdd.mdc`**.

@@ -149,6 +149,7 @@ export async function finalizeMonthlyPaymentFromFlowGateway(input: {
       status: "approved",
       amount: flowAmount,
       admin_notes: "flow.cl",
+      gateway_provider: "flow",
     })
     .eq("id", payRow.id as string)
     .in("status", ["pending", "rejected"]);

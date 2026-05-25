@@ -43,6 +43,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`20-agent-preflight.mdc`** | Plan y acuerdo antes de implementar cuando aplica; marca **`PREFLIGHT`**; lectura read-only permitida para armar el plan. |
 | **`21-migrations-production-no-data-destruction.mdc`** | Migraciones **sin** borrado destructivo de datos (`TRUNCATE`, `DROP TABLE`/columna con pérdida, `DELETE` masivo); producción y entornos reales se tratan como críticos; excepciones solo con proceso humano documentado. |
 | **`25-server-error-logging.mdc`** | Todo error servidor: **`[ge:server]`** (`serverActionLog.ts`) — `scope` estable, códigos/IDs, suficiente para Vercel/ops; prohibido swallow silencioso; sin PII/secrets. |
+| **`27-post-mutation-ui-refresh.mdc`** | Tras mutaciones visibles: **`revalidatePath`** (server) + **`router.refresh()`** (client/hooks); edit flows incluidos; hooks con refresh integrado. |
 
 **Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`**, **`24-dashboard-list-filter-aggregates-rpc.mdc`** — agregados para filtros de listados en dashboard para **cualquier rol**).
 
@@ -73,3 +74,4 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 7. Importaciones o batches largos con feedback en UI: **`.cursor/rules/11-long-running-jobs-ui.mdc`** (`LongJobStatus`, `pollLongJob`).
 8. Acceso a Supabase (clientes, REST, service role): **`.cursor/rules/12-supabase-app-boundaries.mdc`**.
 9. Consultas listadas / volumen PostgREST: **`.cursor/rules/13-postgrest-pagination-bounded-queries.mdc`** (y agregados para filtros de listados en dashboard, cualquier rol: **`.cursor/rules/24-dashboard-list-filter-aggregates-rpc.mdc`**).
+10. Mutaciones que cambian datos visibles en pantalla: **`.cursor/rules/27-post-mutation-ui-refresh.mdc`** (`revalidatePath` + `router.refresh()`).

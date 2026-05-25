@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { setInscriptionsEnabled } from "@/app/[locale]/dashboard/admin/settings/actions";
 import type { Dictionary } from "@/types/i18n";
 
@@ -17,6 +18,7 @@ export function InscriptionsSettingsForm({
 }: InscriptionsSettingsFormProps) {
   const [enabled, setEnabled] = useState(initialEnabled);
   const [msg, setMsg] = useState<string | null>(null);
+  const router = useRouter();
 
   async function onToggle(next: boolean) {
     setMsg(null);
@@ -24,6 +26,7 @@ export function InscriptionsSettingsForm({
     if (res.ok) {
       setEnabled(next);
       setMsg(labels.saved);
+      router.refresh();
     } else {
       setMsg(labels.error);
     }

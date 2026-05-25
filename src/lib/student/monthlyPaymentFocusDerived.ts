@@ -2,6 +2,8 @@ import type {
   StudentMonthlyPaymentCell,
   StudentMonthlyPaymentSectionRow,
 } from "@/types/studentMonthlyPayments";
+import type { PaymentGatewayProvider } from "@/types/paymentGateway";
+import { gatewaySupportsBillingCurrency } from "@/lib/payment-gateways/gatewayCountryForBillingCurrency";
 
 export type MonthlyPaymentFocusDerived = {
   expected: number | null;
@@ -10,16 +12,17 @@ export type MonthlyPaymentFocusDerived = {
   recordedDisplayAmount: number | null | undefined;
   canUpload: boolean;
   isLocked: boolean;
-  isClp: boolean;
-  showFlowPay: boolean;
+  enabledOnlineGateways: PaymentGatewayProvider[];
+  showOnlinePay: boolean;
 };
 
 export function deriveMonthlyPaymentFocusState(input: {
   cell: StudentMonthlyPaymentCell;
   section: StudentMonthlyPaymentSectionRow;
   receiptExpectedUsesFullMonth: boolean;
-  flowMonthlyPayEnabled: boolean;
+  enabledOnlineGateways: PaymentGatewayProvider[];
   hasStartFlowAction: boolean;
+  hasStartMercadoPagoAction: boolean;
 }): MonthlyPaymentFocusDerived {
   const { cell, section, receiptExpectedUsesFullMonth } = input;
   const proratedOrPlan = cell.expectedAmount ?? section.currentPlan?.monthlyFee ?? null;
@@ -40,14 +43,16 @@ export function deriveMonthlyPaymentFocusState(input: {
   const canUpload =
     cell.status === "due" || cell.status === "rejected" || cell.status === "pending";
   const isLocked = cell.status === "out-of-period" || cell.status === "no-plan";
-  const isClp = (cell.currency ?? "").trim().toUpperCase() === "CLP";
-  const showFlowPay = Boolean(
-    input.flowMonthlyPayEnabled &&
-      input.hasStartFlowAction &&
-      isClp &&
-      canUpload &&
-      expected != null,
-  );
+  const currency = (cell.currency ?? "").trim().toUpperCase();
+
+  const gateways = input.enabledOnlineGateways.filter((provider) => {
+    if (!gatewaySupportsBillingCurrency(provider, currency)) return false;
+    if (provider === "flow") return input.hasStartFlowAction;
+    if (provider === "mercadopago") return input.hasStartMercadoPagoAction;
+    return false;
+  });
+
+  const showOnlinePay = Boolean(canUpload && expected != null && gateways.length > 0);
 
   return {
     expected: expected ?? null,
@@ -56,7 +61,7 @@ export function deriveMonthlyPaymentFocusState(input: {
     recordedDisplayAmount,
     canUpload,
     isLocked,
-    isClp,
-    showFlowPay,
+    enabledOnlineGateways: gateways,
+    showOnlinePay,
   };
 }

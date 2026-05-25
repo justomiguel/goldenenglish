@@ -2,7 +2,6 @@
 
 import { useId, useMemo, useState } from "react";
 import { Upload, Wallet } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
 import {
   UnderlineTabBar,
   underlinePanelId,
@@ -10,9 +9,11 @@ import {
   type UnderlineTabItem,
 } from "@/components/molecules/UnderlineTabBar";
 import { StudentMonthlyPaymentReceiptUploadForm } from "@/components/student/StudentMonthlyPaymentReceiptUploadForm";
+import { OnlineMonthlyPaymentCheckoutPanel } from "@/components/molecules/OnlineMonthlyPaymentCheckoutPanel";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { StudentMonthlyPaymentCell, StudentMonthlyPaymentSectionRow } from "@/types/studentMonthlyPayments";
+import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 
 type Labels = Dictionary["dashboard"]["student"]["monthly"];
 
@@ -28,19 +29,16 @@ export interface StudentMonthlyTutorPaymentMethodTabsProps {
   paymentLabels: Dictionary["dashboard"]["student"];
   fileUploadProgress: FileUploadProgressLabels;
   expected: number | null;
-  showFlowPay: boolean;
+  showOnlinePay: boolean;
+  enabledOnlineGateways: PaymentGatewayProvider[];
   busy: boolean;
-  flowBusy: boolean;
+  onlineBusy: boolean;
   feedbackMessage: string | null;
   onSubmitReceipt: (formData: FormData) => void | Promise<void>;
-  onFlowPay: () => void | Promise<void>;
-  /** When embedded below the month grid, reduce outer top margin vs standalone card chrome. */
+  onOnlinePay: (provider: PaymentGatewayProvider) => void | Promise<void>;
   compactTopSpacing?: boolean;
 }
 
-/**
- * Tutor payments: splits “upload receipt” vs “pay online” into two underline tabs inside the monthly focus panel.
- */
 export function StudentMonthlyTutorPaymentMethodTabs({
   locale,
   studentId,
@@ -50,18 +48,19 @@ export function StudentMonthlyTutorPaymentMethodTabs({
   paymentLabels,
   fileUploadProgress,
   expected,
-  showFlowPay,
+  showOnlinePay,
+  enabledOnlineGateways,
   busy,
-  flowBusy,
+  onlineBusy,
   feedbackMessage,
   onSubmitReceipt,
-  onFlowPay,
+  onOnlinePay,
   compactTopSpacing = false,
 }: StudentMonthlyTutorPaymentMethodTabsProps) {
   const reactId = useId().replace(/:/g, "");
   const [tab, setTab] = useState<string>(TAB_RECEIPT);
 
-  const effectiveTab = showFlowPay ? tab : TAB_RECEIPT;
+  const effectiveTab = showOnlinePay ? tab : TAB_RECEIPT;
 
   const items: UnderlineTabItem[] = useMemo(
     () => [
@@ -70,11 +69,11 @@ export function StudentMonthlyTutorPaymentMethodTabs({
         id: TAB_ONLINE,
         label: labels.tutorMonthlyTabOnline,
         Icon: Wallet,
-        disabled: !showFlowPay,
-        title: !showFlowPay ? labels.tutorMonthlyPayOnlineUnavailableLead : undefined,
+        disabled: !showOnlinePay,
+        title: !showOnlinePay ? labels.tutorMonthlyPayOnlineUnavailableLead : undefined,
       },
     ],
-    [labels.tutorMonthlyPayOnlineUnavailableLead, labels.tutorMonthlyTabOnline, labels.tutorMonthlyTabReceipt, showFlowPay],
+    [labels.tutorMonthlyPayOnlineUnavailableLead, labels.tutorMonthlyTabOnline, labels.tutorMonthlyTabReceipt, showOnlinePay],
   );
 
   return (
@@ -104,11 +103,12 @@ export function StudentMonthlyTutorPaymentMethodTabs({
           paymentLabels={paymentLabels}
           fileUploadProgress={fileUploadProgress}
           busy={busy}
-          flowBusy={flowBusy}
-          showFlowPay={false}
+          onlineBusy={onlineBusy}
+          showOnlinePay={false}
+          enabledOnlineGateways={[]}
           feedbackMessage={feedbackMessage}
           onSubmit={onSubmitReceipt}
-          onFlowPay={onFlowPay}
+          onOnlinePay={onOnlinePay}
         />
       </div>
       <div
@@ -118,24 +118,15 @@ export function StudentMonthlyTutorPaymentMethodTabs({
         hidden={effectiveTab !== TAB_ONLINE}
         className="min-w-0 pt-4"
       >
-        {showFlowPay ? (
-          <div className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4">
-            <p className="text-sm text-[var(--color-muted-foreground)]">{labels.payWithFlowHint}</p>
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={busy || flowBusy}
-              isLoading={flowBusy}
-              onClick={() => void onFlowPay()}
-              className="min-h-[44px] w-full sm:w-auto"
-            >
-              {!flowBusy ? <Wallet className="h-4 w-4 shrink-0" aria-hidden /> : null}
-              {labels.payWithFlow}
-            </Button>
-            {feedbackMessage ? (
-              <p className="text-sm text-[var(--color-muted-foreground)]">{feedbackMessage}</p>
-            ) : null}
-          </div>
+        {showOnlinePay ? (
+          <OnlineMonthlyPaymentCheckoutPanel
+            labels={labels}
+            enabledGateways={enabledOnlineGateways}
+            busy={busy}
+            onlineBusy={onlineBusy}
+            feedbackMessage={feedbackMessage}
+            onPay={onOnlinePay}
+          />
         ) : null}
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { bulkImportStudentsFromRowsAdmin } from "@/lib/import/bulkImportStudents";
 import type { CsvStudentRow } from "@/lib/import/studentRowSchema";
@@ -14,6 +15,7 @@ export async function runBulkImportJobWithKv(
   ownerId: string,
   rows: CsvStudentRow[],
   tutorDefaults: TutorDisplayDefaults,
+  locale: string,
 ): Promise<void> {
   const total = rows.length;
   try {
@@ -103,6 +105,9 @@ export async function runBulkImportJobWithKv(
       result,
       activityAppend: { t: Date.now(), code: "completed" },
     });
+    revalidatePath(`/${locale}/dashboard/admin/users`);
+    revalidatePath(`/${locale}/dashboard/admin/registrations`);
+    revalidatePath(`/${locale}/dashboard/admin/academic`, "layout");
   } catch (e) {
     const msg = e instanceof Error ? e.message : IMPORT_ROW_UNKNOWN;
     if (msg === IMPORT_JOB_CANCELLED_BY_USER) {

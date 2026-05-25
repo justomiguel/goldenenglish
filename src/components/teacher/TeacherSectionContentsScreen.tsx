@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2, Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -114,6 +115,7 @@ function LiveLessonForm({
   workspace: LearningRouteWorkspace;
   labels: Dictionary["dashboard"]["teacherContent"];
 }) {
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [routeStepIds, setRouteStepIds] = useState<string[]>([]);
@@ -135,7 +137,23 @@ function LiveLessonForm({
         type="button"
         isLoading={isPending}
         disabled={!title.trim()}
-        onClick={() => startTransition(() => void createLiveLessonAction({ locale, sectionId, title, summary, routeStepIds }))}
+        onClick={() =>
+          startTransition(async () => {
+            const res = await createLiveLessonAction({
+              locale,
+              sectionId,
+              title,
+              summary,
+              routeStepIds,
+            });
+            if (res.ok) {
+              setTitle("");
+              setSummary("");
+              setRouteStepIds([]);
+              router.refresh();
+            }
+          })
+        }
       >
         <Save className="h-4 w-4" aria-hidden />
         {labels.saveLiveLesson}
@@ -150,6 +168,7 @@ function ReadinessForm({
   students,
   labels,
 }: Pick<TeacherSectionContentsScreenProps, "locale" | "sectionId" | "students" | "labels">) {
+  const router = useRouter();
   const [studentId, setStudentId] = useState(students[0]?.id ?? "");
   const [teacherApproved, setTeacherApproved] = useState(true);
   const [reason, setReason] = useState("");
@@ -169,7 +188,21 @@ function ReadinessForm({
         type="button"
         isLoading={isPending}
         disabled={!studentId}
-        onClick={() => startTransition(() => void setStudentReadinessAction({ locale, sectionId, studentId, teacherApproved, reason, failedAttempt: !teacherApproved }))}
+        onClick={() =>
+          startTransition(async () => {
+            const res = await setStudentReadinessAction({
+              locale,
+              sectionId,
+              studentId,
+              teacherApproved,
+              reason,
+              failedAttempt: !teacherApproved,
+            });
+            if (res.ok) {
+              router.refresh();
+            }
+          })
+        }
       >
         <CheckCircle2 className="h-4 w-4" aria-hidden />
         {labels.saveReadiness}

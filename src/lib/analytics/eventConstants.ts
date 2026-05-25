@@ -20,6 +20,8 @@ export const AnalyticsEntity = {
   paymentReceiptSubmittedStudent: "payment_receipt_submitted_student",
   /** Student or tutor started Flow.cl checkout for a monthly fee */
   monthlyPaymentFlowCheckoutStarted: "monthly_payment_flow_checkout_started",
+  /** Student or tutor started MercadoPago Checkout Pro for a monthly fee */
+  monthlyPaymentMercadoPagoCheckoutStarted: "monthly_payment_mercadopago_checkout_started",
   /** Funnel: tutor uploaded a receipt on behalf of a linked student */
   paymentReceiptSubmittedTutor: "payment_receipt_submitted_tutor",
   /** Privacy: adult student revoked financial access for a linked tutor */
@@ -55,6 +57,8 @@ export const AnalyticsEntity = {
   adminRecordedMonthlyPayment: "admin_recorded_monthly_payment",
   /** Staff: monthly fee approval undone back to pending (mistake correction) */
   adminRevertedMonthlyPayment: "admin_reverted_monthly_payment",
+  /** Funnel: MercadoPago monthly payment finalized as approved (webhook or return-bridge) */
+  monthlyPaymentMercadoPagoCompleted: "monthly_payment_mercadopago_completed",
 } as const;
 
 export type UserEventTypeName = "page_view" | "click" | "action" | "session_start";

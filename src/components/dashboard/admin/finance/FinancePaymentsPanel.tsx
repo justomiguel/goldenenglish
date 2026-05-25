@@ -91,6 +91,7 @@ export async function FinancePaymentsPanel({
     .from("payments")
     .select("id, student_id, month, year, amount, receipt_url, status")
     .eq("status", "pending")
+    .not("receipt_url", "is", null)
     .order("year", { ascending: false })
     .order("month", { ascending: false })
     .limit(80);

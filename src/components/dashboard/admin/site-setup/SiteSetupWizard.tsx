@@ -12,6 +12,7 @@ import {
 } from "@/components/dashboard/admin/site-setup/submitSiteSetupWizardClient";
 import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { useSiteSetupWizardState } from "@/hooks/useSiteSetupWizardState";
+import { isValidBillingCurrency } from "@/lib/billing/billingCurrencyConstants";
 import type { SiteSetupCurrentValues } from "@/lib/site/loadSiteSetupCurrentValues";
 
 type SiteSetupDict = Dictionary["dashboard"]["siteSetup"];
@@ -99,6 +100,10 @@ export function SiteSetupWizard({
         return;
       }
     }
+    if (step === 5 && !isValidBillingCurrency(state.operational.billingCurrency)) {
+      setErrorKey("invalid_input");
+      return;
+    }
     setStep((s) => Math.min(s + 1, STEPS - 1));
   };
 
@@ -109,6 +114,10 @@ export function SiteSetupWizard({
 
   const finish = async () => {
     if (mode === "create" && (!state.logoFile || !state.faviconFile)) {
+      setErrorKey("invalid_input");
+      return;
+    }
+    if (!isValidBillingCurrency(state.operational.billingCurrency)) {
       setErrorKey("invalid_input");
       return;
     }

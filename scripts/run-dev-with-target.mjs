@@ -31,6 +31,10 @@ const TARGETS = {
     label: "nago — preview / deploy Capoeira Nago",
     file: path.join(ROOT, ".env.local.nago"),
   },
+  mimundo: {
+    label: "mimundo — preview / deploy Jardín Maternal Mi Mundo",
+    file: path.join(ROOT, ".env.local.mimundo"),
+  },
 };
 /** Targets que deben pinchar `SITE_BRAND_THEME_SLUG` al slug del tenant (ver .env.example). */
 const BRAND_THEME_TARGETS = new Set(["mozarthitos", "espaciozenit", "nago"]);
@@ -59,6 +63,7 @@ function parseTarget(argv, envTarget) {
     if (a === "--mozarthitos") return "mozarthitos";
     if (a === "--espaciozenit") return "espaciozenit";
     if (a === "--nago") return "nago";
+    if (a === "--mimundo") return "mimundo";
     const m = /^--target=(.+)$/.exec(a);
     if (m) {
       const t = m[1].trim().toLowerCase();
@@ -77,6 +82,7 @@ function filterNextArgv(argv) {
       a !== "--mozarthitos" &&
       a !== "--espaciozenit" &&
       a !== "--nago" &&
+      a !== "--mimundo" &&
       !/^--target=/.test(a),
   );
 }
@@ -90,14 +96,16 @@ function promptTarget() {
     console.log(`  [2] ${TARGETS.mozarthitos.label}`);
     console.log(`  [3] ${TARGETS.espaciozenit.label}`);
     console.log(`  [4] ${TARGETS.nago.label}`);
-    rl.question("Elegí 1, 2, 3 o 4 [1]: ", (answer) => {
+    console.log(`  [5] ${TARGETS.mimundo.label}`);
+    rl.question("Elegí 1, 2, 3, 4 o 5 [1]: ", (answer) => {
       rl.close();
       const t = String(answer || "").trim();
       if (t === "" || t === "1") return resolve("golden");
       if (t === "2") return resolve("mozarthitos");
       if (t === "3") return resolve("espaciozenit");
       if (t === "4") return resolve("nago");
-      console.error("Opción inválida (usá 1, 2, 3 o 4).");
+      if (t === "5") return resolve("mimundo");
+      console.error("Opción inválida (usá 1, 2, 3, 4 o 5).");
       process.exit(1);
     });
   });

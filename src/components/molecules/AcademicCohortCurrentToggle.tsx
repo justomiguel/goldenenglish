@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
 import { setCurrentCohortAction } from "@/app/[locale]/dashboard/admin/academic/cohortActions";
 import { Button } from "@/components/atoms/Button";
@@ -19,13 +20,17 @@ export function AcademicCohortCurrentToggle({
   label,
   showIcon,
 }: AcademicCohortCurrentToggleProps) {
+  const router = useRouter();
   const [pending, start] = useTransition();
   const [done, setDone] = useState(false);
 
   function handleClick() {
     start(async () => {
       const res = await setCurrentCohortAction({ cohortId, locale });
-      if (res.ok) setDone(true);
+      if (res.ok) {
+        setDone(true);
+        router.refresh();
+      }
     });
   }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   enrollStudentInSectionAction,
   previewSectionEnrollmentAction,
@@ -36,6 +37,7 @@ export function useSectionEnrollmentQueue(input: {
   onEnrollSuccess?: () => void;
 }) {
   const { locale, sectionId, capacityOverride, errors, copy, onEnrollSuccess } = input;
+  const router = useRouter();
   const [queue, setQueue] = useState<AdminStudentSearchHitLike[]>([]);
   const queueRef = useRef(queue);
   useEffect(() => {
@@ -132,7 +134,8 @@ export function useSectionEnrollmentQueue(input: {
     setQueue([]);
     setFieldResetKey((k) => k + 1);
     onEnrollSuccess?.();
-  }, [copy.successEnroll, onEnrollSuccess]);
+    router.refresh();
+  }, [copy.successEnroll, onEnrollSuccess, router]);
 
   const runEnrollSingle = useCallback(
     (dropEnrollmentId?: string | null) => {
@@ -187,7 +190,10 @@ export function useSectionEnrollmentQueue(input: {
       }
       setQueue(failed);
       setFieldResetKey((k) => k + 1);
-      if (ok > 0) onEnrollSuccess?.();
+      if (ok > 0) {
+        onEnrollSuccess?.();
+        router.refresh();
+      }
       if (failed.length === 0) {
         setMsg(copy.bulkEnrollDoneMany.replace("{{count}}", String(ok)));
       } else if (ok === 0) {
@@ -215,6 +221,7 @@ export function useSectionEnrollmentQueue(input: {
     copy.bulkEnrollFailed,
     runEnrollSingle,
     onEnrollSuccess,
+    router,
   ]);
 
   return {

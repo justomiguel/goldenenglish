@@ -50,6 +50,7 @@ export async function GET(req: Request, { params }: RouteContext): Promise<Respo
     supabase,
     paymentId,
     flowMethodLabel: copy.flowMethodLabel,
+    mercadoPagoMethodLabel: copy.mercadoPagoMethodLabel,
     uploadMethodLabel: copy.uploadMethodLabel,
   });
 

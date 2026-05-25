@@ -5,8 +5,9 @@ import { MonthlyPaymentsGridLegend } from "@/components/student/MonthlyPaymentsG
 import { MonthlyPaymentsSectionAccordion } from "@/components/pwa/molecules/MonthlyPaymentsSectionAccordion";
 import type {
   SubmitMonthlyReceiptAction,
-  StartFlowMonthlyPaymentClientAction,
+  StartOnlineMonthlyPaymentClientAction,
 } from "@/components/student/StudentMonthlyPaymentFocus";
+import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
@@ -45,8 +46,9 @@ export interface StudentMonthlyPaymentsPwaAccordionListProps {
   submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
   receiptExpectedUsesFullMonth: boolean;
   fileUploadProgress: FileUploadProgressLabels;
-  startFlowMonthlyPaymentAction?: StartFlowMonthlyPaymentClientAction;
-  flowMonthlyPayEnabled: boolean;
+  startFlowMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
+  startMercadoPagoMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
+  enabledOnlineGateways: PaymentGatewayProvider[];
   tutorPaymentMethodTabs: boolean;
 }
 
@@ -69,7 +71,8 @@ export function StudentMonthlyPaymentsPwaAccordionList({
   receiptExpectedUsesFullMonth,
   fileUploadProgress,
   startFlowMonthlyPaymentAction,
-  flowMonthlyPayEnabled,
+  startMercadoPagoMonthlyPaymentAction,
+  enabledOnlineGateways,
   tutorPaymentMethodTabs,
 }: StudentMonthlyPaymentsPwaAccordionListProps) {
   const router = useRouter();
@@ -130,7 +133,8 @@ export function StudentMonthlyPaymentsPwaAccordionList({
             receiptExpectedUsesFullMonth={receiptExpectedUsesFullMonth}
             fileUploadProgress={fileUploadProgress}
             startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
-            flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+            startMercadoPagoMonthlyPaymentAction={startMercadoPagoMonthlyPaymentAction}
+            enabledOnlineGateways={enabledOnlineGateways}
             tutorPaymentMethodTabs={tutorPaymentMethodTabs}
             onSubmitted={() => router.refresh()}
           />

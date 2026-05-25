@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Dictionary } from "@/types/i18n";
 import { Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
@@ -51,6 +52,7 @@ export function ClassReminderPrefsSection({
   omitHeader = false,
   variant = "default",
 }: ClassReminderPrefsSectionProps) {
+  const router = useRouter();
   const [emailPrep, setEmailPrep] = useState(initial?.email_class_prep ?? true);
   const [inApp, setInApp] = useState(initial?.in_app_class_urgent ?? true);
   const [wa, setWa] = useState(Boolean(initial?.whatsapp_class_urgent));
@@ -74,8 +76,10 @@ export function ClassReminderPrefsSection({
       whatsappPhoneE164: phone.trim() || null,
     });
     setBusy(false);
-    if (res.ok) setMsg(res.message ?? labels.classReminderPrefsSaved);
-    else setErr(res.message ?? labels.classReminderPrefsError);
+    if (res.ok) {
+      setMsg(res.message ?? labels.classReminderPrefsSaved);
+      router.refresh();
+    } else setErr(res.message ?? labels.classReminderPrefsError);
   }
 
   const showWaBanner = Boolean(initial?.whatsapp_last_error_code);

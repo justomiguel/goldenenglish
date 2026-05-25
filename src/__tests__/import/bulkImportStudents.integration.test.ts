@@ -14,6 +14,10 @@ vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => mockCreateAdmin(),
 }));
 
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
 import { bulkImportStudentsFromRows } from "@/app/[locale]/dashboard/admin/import/actions";
 import {
   ADMIN_SESSION_FORBIDDEN,

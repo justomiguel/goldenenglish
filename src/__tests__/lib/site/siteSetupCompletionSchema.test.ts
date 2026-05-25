@@ -86,4 +86,23 @@ describe("completeInitialSiteSetupInputSchema", () => {
     });
     expect(r.success).toBe(true);
   });
+
+  it("accepts billing currency when valid ISO 4217", () => {
+    const r = completeInitialSiteSetupInputSchema.safeParse({
+      ...singlePayload,
+      billingCurrency: "ars",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.billingCurrency).toBe("ARS");
+    }
+  });
+
+  it("rejects invalid billing currency", () => {
+    const r = completeInitialSiteSetupInputSchema.safeParse({
+      ...singlePayload,
+      billingCurrency: "EURO",
+    });
+    expect(r.success).toBe(false);
+  });
 });

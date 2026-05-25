@@ -2,6 +2,7 @@
 
 import { Save } from "lucide-react";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { reviewAssessmentAttemptAction } from "@/app/[locale]/dashboard/teacher/sections/[sectionId]/contents/reviewActions";
@@ -54,6 +55,7 @@ function AttemptReviewCard({
   attempt: TeacherAssessmentAttemptReview;
   labels: Dictionary["dashboard"]["teacherContent"];
 }) {
+  const router = useRouter();
   const [score, setScore] = useState(attempt.score?.toString() ?? "");
   const [passed, setPassed] = useState<boolean | null>(attempt.passed);
   const [teacherApproved, setTeacherApproved] = useState(true);
@@ -93,16 +95,23 @@ function AttemptReviewCard({
         size="sm"
         className="mt-3"
         isLoading={isPending}
-        onClick={() => startTransition(() => void reviewAssessmentAttemptAction({
-          locale,
-          sectionId,
-          attemptId: attempt.id,
-          studentId: attempt.studentId,
-          score: score ? Number(score) : undefined,
-          passed,
-          teacherFeedback,
-          teacherApproved,
-        }))}
+        onClick={() =>
+          startTransition(async () => {
+            const res = await reviewAssessmentAttemptAction({
+              locale,
+              sectionId,
+              attemptId: attempt.id,
+              studentId: attempt.studentId,
+              score: score ? Number(score) : undefined,
+              passed,
+              teacherFeedback,
+              teacherApproved,
+            });
+            if (res.ok) {
+              router.refresh();
+            }
+          })
+        }
       >
         {!isPending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
         {labels.saveReview}

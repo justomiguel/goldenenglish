@@ -65,6 +65,7 @@ function flattenOperational(
   set("billingTermMonthlyEn", op.billingTermMonthlyEn);
   set("billingTermPromotion", op.billingTermPromotion);
   set("billingTermPromotionEn", op.billingTermPromotionEn);
+  set("billingCurrency", op.billingCurrency);
   set("analyticsEventNamespace", op.analyticsEventNamespace);
   set("analyticsEventVersion", op.analyticsEventVersion);
   set("analyticsTimezone", op.analyticsTimezone);

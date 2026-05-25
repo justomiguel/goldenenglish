@@ -12,6 +12,12 @@ vi.mock("@/app/[locale]/dashboard/admin/academics/actions", () => ({
   enrollStudentInSectionAction: vi.fn(),
 }));
 
+const routerRefresh = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: routerRefresh }),
+}));
+
 const copy = {
   previewOk: "ok",
   bulkPreviewAllOk: "all {{count}} ok",
@@ -121,6 +127,7 @@ describe("useSectionEnrollmentQueue", () => {
     await waitFor(() => {
       expect(result.current.queue).toHaveLength(0);
       expect(onOk).toHaveBeenCalled();
+      expect(routerRefresh).toHaveBeenCalled();
     });
   });
 

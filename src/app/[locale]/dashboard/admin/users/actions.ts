@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import type { z } from "zod";
 import type { CreateDashboardUserResult } from "@/lib/dashboard/createDashboardUserInviteResult";
 import { logServerAuthzDenied } from "@/lib/logging/serverActionLog";
@@ -55,11 +56,17 @@ export async function createDashboardUser(
     return { ok: false, message: plan.message };
   }
 
-  return runCreateDashboardUserInviteOrchestration({
+  const result = await runCreateDashboardUserInviteOrchestration({
     actorId,
     dict,
     appLocale,
     parsed: parsed.data,
     planOk: plan,
   });
+
+  if (result.ok) {
+    revalidatePath(`/${appLocale}/dashboard/admin/users`, "page");
+  }
+
+  return result;
 }

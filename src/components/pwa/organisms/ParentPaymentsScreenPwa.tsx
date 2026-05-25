@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { ParentPaymentsFamilyHero } from "@/components/pwa/molecules/ParentPaymentsFamilyHero";
 import { ParentPaymentsStudentPicker } from "@/components/pwa/molecules/ParentPaymentsStudentPicker";
 import { StudentMonthlyPaymentsStrip } from "@/components/student/StudentMonthlyPaymentsStrip";
-import type { SubmitMonthlyReceiptAction, StartFlowMonthlyPaymentClientAction } from "@/components/student/StudentMonthlyPaymentFocus";
+import type { SubmitMonthlyReceiptAction, StartOnlineMonthlyPaymentClientAction } from "@/components/student/StudentMonthlyPaymentFocus";
+import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import type { FamilyPaymentsSummary } from "@/lib/billing/buildFamilyPaymentsSummary";
 import type { StudentPaymentsFocusKey } from "@/lib/billing/findStudentPaymentsInitialFocus";
@@ -30,8 +31,9 @@ export interface ParentPaymentsScreenPwaProps {
   studentLabels: StudentLabels;
   submitReceiptAction: SubmitMonthlyReceiptAction;
   submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
-  startFlowMonthlyPaymentAction?: StartFlowMonthlyPaymentClientAction;
-  flowMonthlyPayEnabled?: boolean;
+  startFlowMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
+  startMercadoPagoMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
+  enabledOnlineGateways?: PaymentGatewayProvider[];
   fileUploadProgress: FileUploadProgressLabels;
   initialFocus?: StudentPaymentsFocusKey | null;
 }
@@ -51,7 +53,8 @@ export function ParentPaymentsScreenPwa({
   submitEnrollmentFeeReceiptAction,
   fileUploadProgress,
   startFlowMonthlyPaymentAction,
-  flowMonthlyPayEnabled = false,
+  startMercadoPagoMonthlyPaymentAction,
+  enabledOnlineGateways = [],
   initialFocus = null,
 }: ParentPaymentsScreenPwaProps) {
   const router = useRouter();
@@ -123,7 +126,8 @@ export function ParentPaymentsScreenPwa({
               receiptExpectedUsesFullMonth
               fileUploadProgress={fileUploadProgress}
               startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
-              flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+              startMercadoPagoMonthlyPaymentAction={startMercadoPagoMonthlyPaymentAction}
+              enabledOnlineGateways={enabledOnlineGateways}
               tutorPaymentMethodTabs
               initialFocus={initialFocus}
               hideNonBillableMonths

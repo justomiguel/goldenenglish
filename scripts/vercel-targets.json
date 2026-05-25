@@ -21,5 +21,11 @@
     "projectId": "prj_IsgjX57gxHzYwWFg3enNx9cTE6gp",
     "projectName": "capoeira-nago",
     "envPullEnvironment": "production"
+  },
+  "mimundo": {
+    "orgId": "",
+    "projectId": "",
+    "projectName": "mimundo",
+    "envPullEnvironment": "production"
   }
 }

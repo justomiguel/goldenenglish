@@ -80,6 +80,7 @@ export async function addTemplateEmbedAction(raw: unknown): Promise<LearningTask
       resourceId: parsed.data.templateId,
       payload: { provider: normalized.provider },
     });
+    revalidatePath(`/${parsed.data.locale}/dashboard/teacher/tasks`);
     return { ok: true, id: (data as { id: string }).id };
   } catch (err) {
     logServerException("addTemplateEmbedAction", err);
@@ -138,6 +139,7 @@ export async function uploadTemplateFileAction(raw: unknown): Promise<LearningTa
       resourceId: parsed.data.templateId,
       payload: { bytes: bytes.byteLength, mime: validated.mime },
     });
+    revalidatePath(`/${parsed.data.locale}/dashboard/teacher/tasks`);
     return { ok: true, id: (data as { id: string }).id };
   } catch (err) {
     logServerException("uploadTemplateFileAction", err);

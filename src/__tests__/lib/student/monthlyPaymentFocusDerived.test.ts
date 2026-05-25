@@ -39,6 +39,7 @@ function baseSection(): StudentMonthlyPaymentSectionRow {
     enrollmentFeeReceiptSignedUrl: null,
     lastEnrollmentPaidAt: null,
     hasActivePlan: true,
+    allowAdvanceMonthlyPayment: false,
     cells: [],
     currentPlan: {
       id: "p1",
@@ -53,29 +54,58 @@ function baseSection(): StudentMonthlyPaymentSectionRow {
 }
 
 describe("deriveMonthlyPaymentFocusState", () => {
-  it("enables Flow pay only for CLP when gateway flag and action exist", () => {
+  it("enables online pay for CLP when Flow gateway and action exist", () => {
     const s = deriveMonthlyPaymentFocusState({
       cell: baseCell({ status: "due", currency: "CLP" }),
       section: baseSection(),
       receiptExpectedUsesFullMonth: false,
-      flowMonthlyPayEnabled: true,
+      enabledOnlineGateways: ["flow"],
       hasStartFlowAction: true,
+      hasStartMercadoPagoAction: false,
     });
-    expect(s.showFlowPay).toBe(true);
+    expect(s.showOnlinePay).toBe(true);
+    expect(s.enabledOnlineGateways).toEqual(["flow"]);
   });
 
-  it("disables Flow pay for non-CLP", () => {
+  it("supports Mercado Pago for ARS when action exists", () => {
+    const s = deriveMonthlyPaymentFocusState({
+      cell: baseCell({ currency: "ARS", status: "due" }),
+      section: baseSection(),
+      receiptExpectedUsesFullMonth: false,
+      enabledOnlineGateways: ["mercadopago"],
+      hasStartFlowAction: false,
+      hasStartMercadoPagoAction: true,
+    });
+    expect(s.showOnlinePay).toBe(true);
+    expect(s.enabledOnlineGateways).toEqual(["mercadopago"]);
+  });
+
+  it("offers both gateways in Chile when both are enabled", () => {
+    const s = deriveMonthlyPaymentFocusState({
+      cell: baseCell({ currency: "CLP", status: "due" }),
+      section: baseSection(),
+      receiptExpectedUsesFullMonth: false,
+      enabledOnlineGateways: ["flow", "mercadopago"],
+      hasStartFlowAction: true,
+      hasStartMercadoPagoAction: true,
+    });
+    expect(s.enabledOnlineGateways).toEqual(["flow", "mercadopago"]);
+    expect(s.showOnlinePay).toBe(true);
+  });
+
+  it("disables online pay for unsupported currency", () => {
     const s = deriveMonthlyPaymentFocusState({
       cell: baseCell({ currency: "USD" }),
       section: baseSection(),
       receiptExpectedUsesFullMonth: false,
-      flowMonthlyPayEnabled: true,
+      enabledOnlineGateways: ["flow", "mercadopago"],
       hasStartFlowAction: true,
+      hasStartMercadoPagoAction: true,
     });
-    expect(s.showFlowPay).toBe(false);
+    expect(s.showOnlinePay).toBe(false);
+    expect(s.enabledOnlineGateways).toEqual([]);
   });
 
-  // REGRESSION CHECK: full-month mode must drive expected / originals / recorded consistently.
   it("pulls amounts from full-month fields when receiptExpectedUsesFullMonth is true", () => {
     const s = deriveMonthlyPaymentFocusState({
       cell: baseCell({
@@ -85,8 +115,9 @@ describe("deriveMonthlyPaymentFocusState", () => {
       }),
       section: baseSection(),
       receiptExpectedUsesFullMonth: true,
-      flowMonthlyPayEnabled: false,
+      enabledOnlineGateways: [],
       hasStartFlowAction: false,
+      hasStartMercadoPagoAction: false,
     });
     expect(s.expected).toBe(50_000);
     expect(s.originalExpected).toBe(48_000);
@@ -101,8 +132,9 @@ describe("deriveMonthlyPaymentFocusState", () => {
       }),
       section: baseSection(),
       receiptExpectedUsesFullMonth: false,
-      flowMonthlyPayEnabled: false,
+      enabledOnlineGateways: [],
       hasStartFlowAction: false,
+      hasStartMercadoPagoAction: false,
     });
     expect(s.hasDiscountedExpected).toBe(true);
   });
@@ -113,8 +145,9 @@ describe("deriveMonthlyPaymentFocusState", () => {
         cell: baseCell({ status: "out-of-period" }),
         section: baseSection(),
         receiptExpectedUsesFullMonth: false,
-        flowMonthlyPayEnabled: false,
+        enabledOnlineGateways: [],
         hasStartFlowAction: false,
+        hasStartMercadoPagoAction: false,
       }).isLocked,
     ).toBe(true);
     expect(
@@ -122,8 +155,9 @@ describe("deriveMonthlyPaymentFocusState", () => {
         cell: baseCell({ status: "no-plan" }),
         section: baseSection(),
         receiptExpectedUsesFullMonth: false,
-        flowMonthlyPayEnabled: false,
+        enabledOnlineGateways: [],
         hasStartFlowAction: false,
+        hasStartMercadoPagoAction: false,
       }).isLocked,
     ).toBe(true);
   });
@@ -134,10 +168,10 @@ describe("deriveMonthlyPaymentFocusState", () => {
         cell: baseCell({ currency: " clp ", status: "due" }),
         section: baseSection(),
         receiptExpectedUsesFullMonth: false,
-        flowMonthlyPayEnabled: true,
+        enabledOnlineGateways: ["flow"],
         hasStartFlowAction: true,
-      }).showFlowPay,
+        hasStartMercadoPagoAction: false,
+      }).showOnlinePay,
     ).toBe(true);
   });
 });
-

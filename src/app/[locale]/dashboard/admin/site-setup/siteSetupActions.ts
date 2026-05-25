@@ -5,7 +5,6 @@ import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { cleanThemeOverridesForPersistence } from "@/lib/cms/cleanThemeOverridesForPersistence";
-import { isAcceptedLandingMediaMime } from "@/lib/cms/siteThemeLandingInputSchemas";
 import { logSupabaseError } from "@/lib/logging/serverActionLog";
 import { loadProperties } from "@/lib/theme/themeParser";
 import { coerceInitialSiteSetupSocialFields } from "@/lib/site/coerceSiteSetupSocialUrl";
@@ -15,12 +14,6 @@ import {
   buildSiteSetupOperationalRows,
   persistSiteSetupOperationalSettings,
 } from "@/lib/site/persistSiteSetupOperationalSettings";
-import {
-  rollbackSiteSetupUploads,
-  uploadSiteSetupFaviconBundle,
-  uploadSiteSetupLogo,
-  uploadSiteSetupSingleFavicon,
-} from "@/lib/site/uploadSiteSetupAssets";
 import { parseSiteThemePropertyStrings } from "@/lib/cms/parseSiteThemePropertyStrings";
 import {
   fetchSiteThemeById,
@@ -30,6 +23,12 @@ import {
 import { getSiteBrandThemeSlug } from "@/lib/theme/siteBrandThemeSlug";
 import { isThemeEligibleForInitialSiteSetup } from "@/lib/site/wizardThemeEligibility";
 import { SITE_SETTINGS_OPERATIONAL_CACHE_TAG } from "@/lib/site/siteSettingsOperationalTag";
+import { updateBillingCurrencySetting } from "@/lib/billing/updateBillingCurrencySetting";
+import { isValidBillingCurrency } from "@/lib/billing/billingCurrencyConstants";
+import {
+  rollbackSiteSetupWizardAssets,
+  uploadInitialSiteSetupWizardAssets,
+} from "@/lib/site/uploadInitialSiteSetupWizardAssets";
 
 export type CompleteInitialSiteSetupResult =
   | { ok: true }
@@ -62,20 +61,6 @@ export async function completeInitialSiteSetupAction(
   const data = parsed.data;
   const mode = data.mode ?? "create";
 
-  if (
-    data.logoContentType &&
-    !isAcceptedLandingMediaMime(data.logoContentType)
-  ) {
-    return { ok: false, code: "mime_invalid" };
-  }
-  if (
-    data.faviconKind === "single" &&
-    data.faviconContentType &&
-    !isAcceptedLandingMediaMime(data.faviconContentType)
-  ) {
-    return { ok: false, code: "mime_invalid" };
-  }
-
   const { admin } = ctx;
   const existing = await fetchSiteThemeById(admin.supabase, data.themeId);
   if (
@@ -94,68 +79,17 @@ export async function completeInitialSiteSetupAction(
   }
   if (!existing) return { ok: false, code: "not_found" };
 
-  // ------- upload assets when provided -------
-  let logoPath: string | null = null;
-  if (data.logoContentType && data.logoBase64) {
-    const up = await uploadSiteSetupLogo(
-      admin.supabase,
-      data.themeId,
-      data.logoContentType,
-      data.logoBase64,
-    );
-    if (!up.ok) return { ok: false, code: up.code };
-    logoPath = up.logo.path;
-  } else if (mode === "create") {
-    return { ok: false, code: "invalid_input" };
-  }
+  const assets = await uploadInitialSiteSetupWizardAssets(admin.supabase, data, mode);
+  if (!assets.ok) return { ok: false, code: assets.code };
 
-  let favPath: string | null = null;
-  const favUploadedPaths: string[] = [];
-  let faviconBundlePrefixStored: string | undefined;
-  let clearFaviconBundlePrefix = false;
+  const {
+    logoPath,
+    favPath,
+    favUploadedPaths,
+    faviconBundlePrefixStored,
+    clearFaviconBundlePrefix,
+  } = assets;
 
-  if (
-    data.faviconKind === "single" &&
-    data.faviconBase64 &&
-    data.faviconContentType
-  ) {
-    const up = await uploadSiteSetupSingleFavicon(
-      admin.supabase,
-      data.themeId,
-      data.faviconContentType,
-      data.faviconBase64,
-    );
-    if (!up.ok) {
-      await rollbackSiteSetupUploads(
-        admin.supabase,
-        logoPath ? [logoPath] : [],
-      );
-      return { ok: false, code: up.code };
-    }
-    favPath = up.favicon.favPath;
-    favUploadedPaths.push(...up.favicon.uploadedPaths);
-    clearFaviconBundlePrefix = true;
-  } else if (data.faviconKind === "zip" && data.faviconZipBase64) {
-    const up = await uploadSiteSetupFaviconBundle(
-      admin.supabase,
-      data.themeId,
-      data.faviconZipBase64,
-    );
-    if (!up.ok) {
-      await rollbackSiteSetupUploads(
-        admin.supabase,
-        logoPath ? [logoPath] : [],
-      );
-      return { ok: false, code: up.code };
-    }
-    favPath = up.favicon.favPath;
-    favUploadedPaths.push(...up.favicon.uploadedPaths);
-    faviconBundlePrefixStored = up.favicon.bundlePrefix;
-  } else if (mode === "create") {
-    return { ok: false, code: "invalid_input" };
-  }
-
-  // ------- build override map + persist -------
   const existingFlat = parseSiteThemePropertyStrings(existing.properties);
   const wizardFlat = buildSiteSetupOverrideMap({
     data,
@@ -181,14 +115,10 @@ export async function completeInitialSiteSetupAction(
 
   if (themeErr) {
     logSupabaseError("siteSetup:updateTheme", themeErr);
-    await rollbackSiteSetupUploads(admin.supabase, [
-      ...(logoPath ? [logoPath] : []),
-      ...favUploadedPaths,
-    ]);
+    await rollbackSiteSetupWizardAssets(admin.supabase, logoPath, favUploadedPaths);
     return { ok: false, code: "persist_failed" };
   }
 
-  // ------- persist operational rows (legal / billing / academics / analytics) -------
   const operationalRows = buildSiteSetupOperationalRows(data);
   if (operationalRows.length > 0) {
     const opRes = await persistSiteSetupOperationalSettings(
@@ -196,12 +126,26 @@ export async function completeInitialSiteSetupAction(
       operationalRows,
     );
     if (!opRes.ok) {
-      await rollbackSiteSetupUploads(admin.supabase, [
-        ...(logoPath ? [logoPath] : []),
-        ...favUploadedPaths,
-      ]);
+      await rollbackSiteSetupWizardAssets(admin.supabase, logoPath, favUploadedPaths);
       return { ok: false, code: "persist_failed" };
     }
+  }
+
+  if (data.billingCurrency && isValidBillingCurrency(data.billingCurrency)) {
+    const currencyRes = await updateBillingCurrencySetting(
+      admin.supabase,
+      data.billingCurrency,
+    );
+    if (!currencyRes.ok) {
+      await rollbackSiteSetupWizardAssets(admin.supabase, logoPath, favUploadedPaths);
+      return { ok: false, code: "persist_failed" };
+    }
+    void recordSystemAudit({
+      action: "billing_currency_update",
+      resourceType: "site_settings",
+      resourceId: "billing_currency",
+      payload: { currency: data.billingCurrency.trim().toUpperCase(), source: "site_setup_wizard" },
+    });
   }
 
   if (mode === "create") {
@@ -217,15 +161,11 @@ export async function completeInitialSiteSetupAction(
 
     if (settingsErr) {
       logSupabaseError("siteSetup:siteSettings", settingsErr);
-      await rollbackSiteSetupUploads(admin.supabase, [
-        ...(logoPath ? [logoPath] : []),
-        ...favUploadedPaths,
-      ]);
+      await rollbackSiteSetupWizardAssets(admin.supabase, logoPath, favUploadedPaths);
       return { ok: false, code: "persist_failed" };
     }
   }
 
-  // ------- audit + analytics -------
   void recordSystemAudit({
     action:
       mode === "create"

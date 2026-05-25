@@ -19,6 +19,10 @@ vi.mock("@/app/[locale]/dashboard/teacher/tasks/actions", () => ({
   uploadTemplateFileAction: (...args: unknown[]) => uploadTemplateFileAction(...args),
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
+
 const labels = {
   taskLibraryTitle: "Master classes",
   taskLibraryLead: "Create templates",

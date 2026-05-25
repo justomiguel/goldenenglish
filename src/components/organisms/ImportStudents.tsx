@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FileUp } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { LongJobSnapshot } from "@/types/longJob";
@@ -30,6 +31,7 @@ interface ImportStudentsProps {
 }
 
 export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportStudentsProps) {
+  const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
@@ -116,6 +118,7 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
           const { summary: s, detail: d } = formatImportDoneSummary(labels, result);
           setSummary(s);
           setDetail(d);
+          router.refresh();
           return;
         }
         if (!startJson.ok || !startJson.jobId) {
@@ -168,6 +171,7 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
           );
           setSummary(s);
           setDetail(d);
+          router.refresh();
         }
       } catch (e) {
         setSummary(labels.genericError);
@@ -181,7 +185,7 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
         setBusy(false);
       }
     },
-    [labels, locale, pollUntilDone, reset, resetCancelState, setJobId],
+    [labels, locale, pollUntilDone, reset, resetCancelState, router, setJobId],
   );
   const inlineProgress = jobModalOpen && logModalLive ? null : (liveLine ?? phaseLine);
 

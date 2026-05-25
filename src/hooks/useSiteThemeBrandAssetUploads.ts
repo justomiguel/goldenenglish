@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { readImageFileAsBase64 } from "@/components/dashboard/admin/site-setup/readImageFileAsBase64";
 import {
   uploadSiteThemeFaviconFromEditorAction,
@@ -28,6 +29,7 @@ export function useSiteThemeBrandAssetUploads(props: {
   ) => void;
 }) {
   const { locale, themeId, logoAltDraft, onAssetsUpdated } = props;
+  const router = useRouter();
   const logoInputId = useId();
   const favInputId = useId();
   const logoFileRef = useRef<HTMLInputElement | null>(null);
@@ -99,13 +101,14 @@ export function useSiteThemeBrandAssetUploads(props: {
         }
         onAssetsUpdated(res.applied ?? {}, res.cleared ?? []);
         setLogoOk(true);
+        router.refresh();
       } catch {
         setErrorCode("persist_failed");
       } finally {
         setUploadUi({ kind: "idle" });
       }
     },
-    [altInput, locale, onAssetsUpdated, themeId],
+    [altInput, locale, onAssetsUpdated, router, themeId],
   );
 
   const handleFaviconFile = useCallback(
@@ -158,13 +161,14 @@ export function useSiteThemeBrandAssetUploads(props: {
         }
         onAssetsUpdated(res.applied ?? {}, res.cleared ?? []);
         setFavOk(true);
+        router.refresh();
       } catch {
         setErrorCode("persist_failed");
       } finally {
         setUploadUi({ kind: "idle" });
       }
     },
-    [locale, onAssetsUpdated, themeId],
+    [locale, onAssetsUpdated, router, themeId],
   );
 
   return {

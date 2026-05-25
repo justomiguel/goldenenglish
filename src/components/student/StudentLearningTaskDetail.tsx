@@ -2,6 +2,7 @@
 
 import { Check } from "lucide-react";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms/Button";
 import { LearningTaskStatusBadge } from "@/components/molecules/LearningTaskStatusBadge";
 import { useTaskEngagementTimer } from "@/hooks/useTaskEngagementTimer";
@@ -24,6 +25,7 @@ export function StudentLearningTaskDetail({ locale, task, labels }: StudentLearn
   const [status, setStatus] = useState(task.status);
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   useTaskEngagementTimer({
     enabled: status === "NOT_OPENED",
@@ -33,7 +35,10 @@ export function StudentLearningTaskDetail({ locale, task, labels }: StudentLearn
           locale,
           taskInstanceId: task.taskInstanceId,
         });
-        if (result.ok) setStatus(result.status);
+        if (result.ok) {
+          setStatus(result.status);
+          router.refresh();
+        }
       });
     },
   });
@@ -44,6 +49,7 @@ export function StudentLearningTaskDetail({ locale, task, labels }: StudentLearn
       if (result.ok) {
         setStatus(result.status);
         setMessage(labels.taskCompleted);
+        router.refresh();
       } else {
         setMessage(labels.taskCompletionError);
       }

@@ -12,6 +12,8 @@ import type {
 import { StudentMonthlyPaymentFocusApprovedNotice } from "@/components/student/StudentMonthlyPaymentFocusApprovedNotice";
 import { StudentMonthlyTutorPaymentMethodTabs } from "@/components/student/StudentMonthlyTutorPaymentMethodTabs";
 import { isAdvanceMonthlyPaymentAllowedForCell } from "@/lib/billing/assertAdvanceMonthlyPaymentAllowed";
+import type { PaymentGatewayProvider } from "@/types/paymentGateway";
+import { deriveMonthlyPaymentFocusState } from "@/lib/student/monthlyPaymentFocusDerived";
 
 type Labels = Dictionary["dashboard"]["student"]["monthly"];
 
@@ -19,9 +21,12 @@ export type SubmitMonthlyReceiptAction = (
   formData: FormData,
 ) => Promise<{ ok: boolean; message?: string }>;
 
-export type StartFlowMonthlyPaymentClientAction = (
+export type StartOnlineMonthlyPaymentClientAction = (
   formData: FormData,
 ) => Promise<{ ok: true; redirectUrl: string } | { ok: false; message: string }>;
+
+/** @deprecated Use StartOnlineMonthlyPaymentClientAction */
+export type StartFlowMonthlyPaymentClientAction = StartOnlineMonthlyPaymentClientAction;
 
 export interface StudentMonthlyPaymentFocusProps {
   locale: Locale;
@@ -32,8 +37,9 @@ export interface StudentMonthlyPaymentFocusProps {
   labels: Labels;
   paymentLabels: Dictionary["dashboard"]["student"];
   submitAction: SubmitMonthlyReceiptAction;
-  startFlowAction?: StartFlowMonthlyPaymentClientAction;
-  flowMonthlyPayEnabled?: boolean;
+  enabledOnlineGateways?: PaymentGatewayProvider[];
+  startFlowAction?: StartOnlineMonthlyPaymentClientAction;
+  startMercadoPagoAction?: StartOnlineMonthlyPaymentClientAction;
   fileUploadProgress: FileUploadProgressLabels;
   onSubmitted?: () => void;
   receiptExpectedUsesFullMonth?: boolean;
@@ -51,8 +57,9 @@ export function StudentMonthlyPaymentFocus({
   labels,
   paymentLabels,
   submitAction,
+  enabledOnlineGateways = [],
   startFlowAction,
-  flowMonthlyPayEnabled = false,
+  startMercadoPagoAction,
   fileUploadProgress,
   onSubmitted,
   receiptExpectedUsesFullMonth = false,
@@ -61,25 +68,28 @@ export function StudentMonthlyPaymentFocus({
   pwaNestedHierarchy = false,
 }: StudentMonthlyPaymentFocusProps) {
   const [busy, setBusy] = useState(false);
-  const [flowBusy, setFlowBusy] = useState(false);
+  const [onlineBusy, setOnlineBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
-  const proratedOrPlan =
-    cell.expectedAmount ?? section.currentPlan?.monthlyFee ?? null;
-  const expected = receiptExpectedUsesFullMonth
-    ? (cell.fullMonthExpectedAmount ?? proratedOrPlan)
-    : proratedOrPlan;
-  const originalExpected = receiptExpectedUsesFullMonth
-    ? (cell.fullMonthOriginalExpectedAmount ?? cell.originalExpectedAmount)
-    : cell.originalExpectedAmount;
-  const hasDiscountedExpected =
-    expected != null &&
-    originalExpected != null &&
-    originalExpected > expected &&
-    cell.scholarshipDiscountPercent != null;
-  const recordedDisplayAmount = receiptExpectedUsesFullMonth
-    ? (cell.fullMonthExpectedAmount ?? cell.recordedAmount)
-    : cell.recordedAmount;
+  const derived = deriveMonthlyPaymentFocusState({
+    cell,
+    section,
+    receiptExpectedUsesFullMonth,
+    enabledOnlineGateways,
+    hasStartFlowAction: Boolean(startFlowAction),
+    hasStartMercadoPagoAction: Boolean(startMercadoPagoAction),
+  });
+
+  const {
+    expected,
+    originalExpected,
+    hasDiscountedExpected,
+    recordedDisplayAmount,
+    canUpload,
+    isLocked,
+    showOnlinePay,
+  } = derived;
+
   const todayYear = new Date().getFullYear();
   const todayMonth = new Date().getMonth() + 1;
   const advanceAllowedFixed = isAdvanceMonthlyPaymentAllowedForCell(
@@ -89,18 +99,12 @@ export function StudentMonthlyPaymentFocus({
     todayYear,
     todayMonth,
   );
-  const canUploadBase =
-    cell.status === "due" || cell.status === "rejected" || cell.status === "pending";
-  const canUpload = canUploadBase && advanceAllowedFixed;
-  const isLocked = cell.status === "out-of-period" || cell.status === "no-plan";
-  const futureMonthBlocked = canUploadBase && !advanceAllowedFixed;
-
-  const isClp = (cell.currency ?? "").trim().toUpperCase() === "CLP";
-  const showFlowPay =
-    Boolean(flowMonthlyPayEnabled && startFlowAction && isClp && canUpload && expected != null);
+  const canUploadEffective = canUpload && advanceAllowedFixed;
+  const futureMonthBlocked = canUpload && !advanceAllowedFixed;
+  const showOnlinePayEffective = showOnlinePay && canUploadEffective;
 
   async function onSubmit(fd: FormData) {
-    if (!canUpload || expected == null) return;
+    if (!canUploadEffective || expected == null) return;
     setBusy(true);
     setMsg(null);
     const res = await submitAction(fd);
@@ -109,9 +113,11 @@ export function StudentMonthlyPaymentFocus({
     if (res.ok && onSubmitted) onSubmitted();
   }
 
-  async function onFlowPay() {
-    if (!showFlowPay || !startFlowAction || expected == null) return;
-    setFlowBusy(true);
+  async function onOnlinePay(provider: PaymentGatewayProvider) {
+    if (!showOnlinePayEffective || expected == null) return;
+    const action = provider === "flow" ? startFlowAction : startMercadoPagoAction;
+    if (!action) return;
+    setOnlineBusy(true);
     setMsg(null);
     const fd = new FormData();
     fd.set("locale", locale);
@@ -120,12 +126,12 @@ export function StudentMonthlyPaymentFocus({
     fd.set("month", String(cell.month));
     fd.set("year", String(cell.year));
     fd.set("amount", String(expected));
-    const res = await startFlowAction(fd);
+    const res = await action(fd);
     if (res.ok) {
       window.location.href = res.redirectUrl;
       return;
     }
-    setFlowBusy(false);
+    setOnlineBusy(false);
     setMsg(res.message);
   }
 
@@ -182,7 +188,7 @@ export function StudentMonthlyPaymentFocus({
         </p>
       ) : null}
 
-      {canUpload && paymentMethodTabLayout ? (
+      {canUploadEffective && paymentMethodTabLayout ? (
         <StudentMonthlyTutorPaymentMethodTabs
           key={`${section.sectionId}-${cell.year}-${cell.month}`}
           locale={locale}
@@ -193,15 +199,16 @@ export function StudentMonthlyPaymentFocus({
           paymentLabels={paymentLabels}
           fileUploadProgress={fileUploadProgress}
           expected={expected}
-          showFlowPay={showFlowPay}
+          showOnlinePay={showOnlinePayEffective}
+          enabledOnlineGateways={derived.enabledOnlineGateways}
           busy={busy}
-          flowBusy={flowBusy}
+          onlineBusy={onlineBusy}
           feedbackMessage={msg}
           onSubmitReceipt={onSubmit}
-          onFlowPay={onFlowPay}
+          onOnlinePay={onOnlinePay}
           compactTopSpacing={embeddedInSectionCard}
         />
-      ) : canUpload ? (
+      ) : canUploadEffective ? (
         <StudentMonthlyPaymentReceiptUploadForm
           locale={locale}
           studentId={studentId}
@@ -213,11 +220,12 @@ export function StudentMonthlyPaymentFocus({
           paymentLabels={paymentLabels}
           fileUploadProgress={fileUploadProgress}
           busy={busy}
-          flowBusy={flowBusy}
-          showFlowPay={showFlowPay}
+          onlineBusy={onlineBusy}
+          showOnlinePay={showOnlinePayEffective}
+          enabledOnlineGateways={derived.enabledOnlineGateways}
           feedbackMessage={msg}
           onSubmit={onSubmit}
-          onFlowPay={onFlowPay}
+          onOnlinePay={onOnlinePay}
         />
       ) : null}
     </section>

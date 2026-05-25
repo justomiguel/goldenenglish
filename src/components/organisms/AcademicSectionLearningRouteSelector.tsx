@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { saveSectionLearningRouteAction } from "@/app/[locale]/dashboard/admin/academic/contents/actions";
@@ -33,6 +34,7 @@ export function AcademicSectionLearningRouteSelector({
   const [value, setValue] = useState(initialValue);
   const [message, setMessage] = useState<"saved" | "error" | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const isFreeFlow = value === "free_flow";
 
   return (
@@ -84,6 +86,7 @@ export function AcademicSectionLearningRouteSelector({
                 learningRouteId: isFreeFlow ? null : value,
               });
               setMessage(result.ok ? "saved" : "error");
+              if (result.ok) router.refresh();
             })();
           });
         }}

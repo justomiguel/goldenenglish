@@ -8,8 +8,9 @@ import { StudentMonthlyPaymentsStrip } from "@/components/student/StudentMonthly
 import { StudentPaymentsScreenTabs } from "@/components/student/StudentPaymentsScreenTabs";
 import type {
   SubmitMonthlyReceiptAction,
-  StartFlowMonthlyPaymentClientAction,
+  StartOnlineMonthlyPaymentClientAction,
 } from "@/components/student/StudentMonthlyPaymentFocus";
+import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import { StudentPaymentsYearSummary } from "@/components/student/StudentPaymentsYearSummary";
 import { StudentPaymentsPwaHero } from "@/components/pwa/molecules/StudentPaymentsPwaHero";
@@ -54,10 +55,12 @@ export interface StudentPaymentsEntryProps {
   submitReceiptAction: SubmitMonthlyReceiptAction;
   /** Server action that uploads an enrollment fee receipt for `studentId`. */
   submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
-  /** Server action to start Flow.cl checkout for monthly tuition (CLP). */
-  startFlowMonthlyPaymentAction?: StartFlowMonthlyPaymentClientAction;
-  /** Whether Flow Chile checkout is enabled in gateway settings (RPC). */
-  flowMonthlyPayEnabled?: boolean;
+  /** Server action to start Flow.cl checkout for monthly tuition. */
+  startFlowMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
+  /** Server action to start MercadoPago Checkout Pro for monthly tuition. */
+  startMercadoPagoMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
+  /** Online gateways enabled for the tenant billing currency. */
+  enabledOnlineGateways?: PaymentGatewayProvider[];
   fileUploadProgress: FileUploadProgressLabels;
 }
 
@@ -72,7 +75,8 @@ export function StudentPaymentsEntry({
   labels,
   paymentsBlockedMessage,
   startFlowMonthlyPaymentAction,
-  flowMonthlyPayEnabled = false,
+  startMercadoPagoMonthlyPaymentAction,
+  enabledOnlineGateways = [],
   ...rest
 }: StudentPaymentsEntryProps) {
   if (paymentsBlockedMessage) {
@@ -145,7 +149,8 @@ export function StudentPaymentsEntry({
                 receiptExpectedUsesFullMonth
                 fileUploadProgress={fileUploadProgress}
                 startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
-                flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+                startMercadoPagoMonthlyPaymentAction={startMercadoPagoMonthlyPaymentAction}
+                enabledOnlineGateways={enabledOnlineGateways}
               />
             </>
           }
@@ -205,7 +210,8 @@ export function StudentPaymentsEntry({
                   receiptExpectedUsesFullMonth
                   fileUploadProgress={fileUploadProgress}
                   startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
-                  flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+                  startMercadoPagoMonthlyPaymentAction={startMercadoPagoMonthlyPaymentAction}
+                  enabledOnlineGateways={enabledOnlineGateways}
                   hideNonBillableMonths
                   pwaSectionAccordion
                   gridLegendLabels={labels.paymentsPwa.legend}

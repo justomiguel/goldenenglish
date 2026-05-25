@@ -56,6 +56,11 @@ const TENANTS = [
     label: "Capoeira Nago",
     file: path.join(ROOT, ".env.local.nago"),
   },
+  {
+    id: "mimundo",
+    label: "Jardín Maternal Mi Mundo",
+    file: path.join(ROOT, ".env.local.mimundo"),
+  },
 ];
 
 function resolvePsqlBinary() {

@@ -6,6 +6,7 @@ type ReceiptDict = Dictionary["dashboard"]["student"]["monthly"]["receipt"];
 export interface PaymentReceiptCopy {
   copy: PaymentReceiptInputCopy;
   flowMethodLabel: string;
+  mercadoPagoMethodLabel: string;
   uploadMethodLabel: string;
   downloadLabel: string;
   loadErrorMessage: string;
@@ -24,6 +25,7 @@ export function buildPaymentReceiptCopy(monthlyDict: { receipt: ReceiptDict }): 
       },
     },
     flowMethodLabel: r.methodFlow,
+    mercadoPagoMethodLabel: r.methodMercadoPago,
     uploadMethodLabel: r.methodUpload,
     downloadLabel: r.downloadPdf,
     loadErrorMessage: r.loadError,

@@ -83,9 +83,18 @@ export function useSectionAttendanceMatrixBulk(
         setToast(matrixDict.undoError);
         return;
       }
+      setCells((prev) => {
+        const next = structuredClone(prev);
+        for (const id of undoOffer.ids) {
+          if (next[id]?.[undoOffer.dateIso] === "present") {
+            next[id]![undoOffer.dateIso] = null;
+          }
+        }
+        return next;
+      });
       router.refresh();
     },
-    [locale, matrixDict.undoError, router, sectionId, setToast, setUndoOffer, variant],
+    [locale, matrixDict.undoError, router, sectionId, setCells, setToast, setUndoOffer, variant],
   );
 
   return { handleColumnFill, handleUndo };

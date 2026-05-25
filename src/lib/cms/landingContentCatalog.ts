@@ -1,5 +1,6 @@
 import type { LandingSectionSlug } from "@/types/theming";
 import { ESPACIO_ZENIT_EDITABLE_COPY_KEYS } from "@/lib/cms/landingEspacioZenitCatalog";
+import { MIMUNDO_EDITABLE_COPY_KEYS } from "@/lib/cms/landingMimundoCatalog";
 import { MOZARTHITOS_EDITABLE_COPY_KEYS } from "@/lib/cms/landingMozarthitosCatalog";
 import { NAGO_EDITABLE_COPY_KEYS } from "@/lib/cms/landingNagoCatalog";
 
@@ -80,6 +81,7 @@ const ALL_KEYS: ReadonlySet<string> = new Set([
   ...MOZARTHITOS_EDITABLE_COPY_KEYS,
   ...ESPACIO_ZENIT_EDITABLE_COPY_KEYS,
   ...NAGO_EDITABLE_COPY_KEYS,
+  ...MIMUNDO_EDITABLE_COPY_KEYS,
 ]);
 
 /** Whether a dotted dict path under `landing.*` is editable from the CMS. */

@@ -14,6 +14,7 @@ const sectionRow: StudentMonthlyPaymentSectionRow = {
   sectionName: "B1 Tuesdays",
   cohortName: "Cohort",
   hasActivePlan: true,
+  allowAdvanceMonthlyPayment: false,
   enrollmentFeeAmount: 0,
   enrollmentFeeExempt: true,
   enrollmentFeeExemptReason: null,
@@ -52,9 +53,9 @@ const dueCell: StudentMonthlyPaymentCell = {
 };
 
 describe("StudentMonthlyTutorPaymentMethodTabs", () => {
-  it("switches panels between receipt upload and Flow pay tab", () => {
+  it("switches panels between receipt upload and online pay tab", () => {
     const onReceipt = vi.fn();
-    const onFlow = vi.fn();
+    const onOnline = vi.fn();
     render(
       <StudentMonthlyTutorPaymentMethodTabs
         locale="en"
@@ -65,12 +66,13 @@ describe("StudentMonthlyTutorPaymentMethodTabs", () => {
         paymentLabels={dictEn.dashboard.student}
         fileUploadProgress={dictEn.common.fileUpload}
         expected={999}
-        showFlowPay
+        showOnlinePay
+        enabledOnlineGateways={["flow"]}
         busy={false}
-        flowBusy={false}
+        onlineBusy={false}
         feedbackMessage={null}
         onSubmitReceipt={onReceipt}
-        onFlowPay={onFlow}
+        onOnlinePay={onOnline}
       />,
     );
 
@@ -86,7 +88,7 @@ describe("StudentMonthlyTutorPaymentMethodTabs", () => {
     expect(screen.getByText(dictEn.dashboard.student.payReceipt)).toBeVisible();
   });
 
-  it("disables the online-pay tab when Flow is not enabled for the month", () => {
+  it("disables the online-pay tab when no gateway is enabled for the month", () => {
     render(
       <StudentMonthlyTutorPaymentMethodTabs
         locale="en"
@@ -97,12 +99,13 @@ describe("StudentMonthlyTutorPaymentMethodTabs", () => {
         paymentLabels={dictEn.dashboard.student}
         fileUploadProgress={dictEn.common.fileUpload}
         expected={999}
-        showFlowPay={false}
+        showOnlinePay={false}
+        enabledOnlineGateways={[]}
         busy={false}
-        flowBusy={false}
+        onlineBusy={false}
         feedbackMessage={null}
         onSubmitReceipt={vi.fn()}
-        onFlowPay={vi.fn()}
+        onOnlinePay={vi.fn()}
       />,
     );
     const onlineTab = screen.getByRole("tab", { name: labels.tutorMonthlyTabOnline });

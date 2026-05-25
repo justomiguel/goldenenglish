@@ -2,6 +2,7 @@
 
 import { ClipboardList } from "lucide-react";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -29,16 +30,18 @@ export function TeacherSectionLearningTasks({
   const [startAt, setStartAt] = useState("");
   const [dueAt, setDueAt] = useState("");
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const assign = () => {
     startTransition(async () => {
-      await assignTemplateToSectionAction({
+      const result = await assignTemplateToSectionAction({
         locale,
         sectionId,
         templateId,
         startAt: new Date(startAt).toISOString(),
         dueAt: new Date(dueAt).toISOString(),
       });
+      if (result.ok) router.refresh();
     });
   };
 

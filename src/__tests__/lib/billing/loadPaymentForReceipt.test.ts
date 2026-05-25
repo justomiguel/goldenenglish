@@ -43,10 +43,20 @@ function sessionClient(row: unknown | null, error: unknown | null = null): Supab
   } as unknown as SupabaseClient;
 }
 
+const methodLabels = {
+  flowMethodLabel: "Flow",
+  mercadoPagoMethodLabel: "Mercado Pago",
+  uploadMethodLabel: "Upload",
+} as const;
+
 function adminFromFactory(responders: Record<string, () => Promise<{ data: unknown; error: null }>>) {
+  const withMpDefault = {
+    payment_mp_finalize_records: async () => ({ data: null, error: null }),
+    ...responders,
+  };
   return {
     from: vi.fn((table: string) => {
-      const run = responders[table];
+      const run = withMpDefault[table];
       if (!run) throw new Error(`unexpected admin table ${table}`);
       return {
         select: vi.fn().mockReturnThis(),
@@ -68,8 +78,7 @@ describe("loadPaymentForReceipt", () => {
     const out = await loadPaymentForReceipt({
       supabase: sessionClient(null, null),
       paymentId,
-      flowMethodLabel: "Flow",
-      uploadMethodLabel: "Upload",
+      ...methodLabels,
     });
     expect(out).toEqual({ ok: false, reason: "not_found" });
   });
@@ -78,8 +87,7 @@ describe("loadPaymentForReceipt", () => {
     const out = await loadPaymentForReceipt({
       supabase: sessionClient(null, { message: "rls" }),
       paymentId,
-      flowMethodLabel: "Flow",
-      uploadMethodLabel: "Upload",
+      ...methodLabels,
     });
     expect(out).toEqual({ ok: false, reason: "not_found" });
   });
@@ -88,8 +96,7 @@ describe("loadPaymentForReceipt", () => {
     const out = await loadPaymentForReceipt({
       supabase: sessionClient({ ...baseRow, status: "pending" }),
       paymentId,
-      flowMethodLabel: "Flow",
-      uploadMethodLabel: "Upload",
+      ...methodLabels,
     });
     expect(out).toEqual({ ok: false, reason: "not_paid" });
   });
@@ -115,6 +122,7 @@ describe("loadPaymentForReceipt", () => {
       supabase: sessionClient({ ...baseRow }),
       paymentId,
       flowMethodLabel: "Flow",
+      mercadoPagoMethodLabel: "Mercado Pago",
       uploadMethodLabel: "Comprobante",
     });
 
@@ -165,6 +173,7 @@ describe("loadPaymentForReceipt", () => {
       }),
       paymentId,
       flowMethodLabel: "Flow",
+      mercadoPagoMethodLabel: "Mercado Pago",
       uploadMethodLabel: "Comprobante",
     });
 
@@ -213,6 +222,7 @@ describe("loadPaymentForReceipt", () => {
       }),
       paymentId,
       flowMethodLabel: "Flow",
+      mercadoPagoMethodLabel: "Mercado Pago",
       uploadMethodLabel: "Upload",
     });
 
@@ -251,11 +261,53 @@ describe("loadPaymentForReceipt", () => {
       supabase: sessionClient({ ...baseRow, parent_id: null }),
       paymentId,
       flowMethodLabel: "Flow",
+      mercadoPagoMethodLabel: "Mercado Pago",
       uploadMethodLabel: "Up",
     });
 
     expect(out.ok).toBe(true);
     if (!out.ok) throw new Error("expected ok");
     expect(out.payment.methodLabel).toBe("Flow · Nº 3");
+  });
+
+  it("uses MercadoPago finalize snapshot when gateway_provider is mercadopago", async () => {
+    vi.mocked(createAdminClient).mockReturnValue(
+      adminFromFactory({
+        profiles: async () => ({
+          data: { first_name: "Tomás", last_name: "Pérez", email: "t@e.com" },
+          error: null,
+        }),
+        academic_sections: async () => ({ data: { name: "Inglés B2" }, error: null }),
+        payment_flow_checkout_refs: async () => ({ data: null, error: null }),
+        payment_flow_finalize_records: async () => ({ data: null, error: null }),
+        payment_mp_finalize_records: async () => ({
+          data: {
+            mp_payment_id: 987654321,
+            paid_at: "2026-05-11T09:00:00Z",
+            payer_email: "mp-payer@e.com",
+            payment_method: "credit_card",
+            currency: "CLP",
+            amount: 50000,
+          },
+          error: null,
+        }),
+      }) as unknown as ReturnType<typeof createAdminClient>,
+    );
+
+    const out = await loadPaymentForReceipt({
+      supabase: sessionClient({
+        ...baseRow,
+        parent_id: null,
+        gateway_provider: "mercadopago",
+      }),
+      paymentId,
+      ...methodLabels,
+    });
+
+    expect(out.ok).toBe(true);
+    if (!out.ok) throw new Error("expected ok");
+    expect(out.payment.receiptNumber).toBe("MP-987654321");
+    expect(out.payment.methodLabel).toBe("Mercado Pago · credit_card");
+    expect(out.payer.email).toBe("mp-payer@e.com");
   });
 });

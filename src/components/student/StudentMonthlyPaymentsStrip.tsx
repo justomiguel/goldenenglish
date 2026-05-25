@@ -4,8 +4,9 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   type SubmitMonthlyReceiptAction,
-  type StartFlowMonthlyPaymentClientAction,
+  type StartOnlineMonthlyPaymentClientAction,
 } from "@/components/student/StudentMonthlyPaymentFocus";
+import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import { MonthlyPaymentsGridLegend } from "@/components/student/MonthlyPaymentsGridLegend";
 import { StudentMonthlyPaymentsDesktopSection } from "@/components/student/StudentMonthlyPaymentsDesktopSection";
@@ -35,8 +36,9 @@ export interface StudentMonthlyPaymentsStripProps {
   submitAction: SubmitMonthlyReceiptAction;
   submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
   receiptExpectedUsesFullMonth?: boolean;
-  startFlowMonthlyPaymentAction?: StartFlowMonthlyPaymentClientAction;
-  flowMonthlyPayEnabled?: boolean;
+  startFlowMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
+  startMercadoPagoMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
+  enabledOnlineGateways?: PaymentGatewayProvider[];
   fileUploadProgress: FileUploadProgressLabels;
   tutorPaymentMethodTabs?: boolean;
   initialFocus?: StudentMonthlyPaymentsStripFocus | null;
@@ -65,7 +67,8 @@ export function StudentMonthlyPaymentsStrip({
   receiptExpectedUsesFullMonth = false,
   fileUploadProgress,
   startFlowMonthlyPaymentAction,
-  flowMonthlyPayEnabled = false,
+  startMercadoPagoMonthlyPaymentAction,
+  enabledOnlineGateways = [],
   tutorPaymentMethodTabs = false,
   initialFocus = null,
   hideNonBillableMonths = false,
@@ -126,7 +129,8 @@ export function StudentMonthlyPaymentsStrip({
         receiptExpectedUsesFullMonth={receiptExpectedUsesFullMonth}
         fileUploadProgress={fileUploadProgress}
         startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
-        flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+        startMercadoPagoMonthlyPaymentAction={startMercadoPagoMonthlyPaymentAction}
+        enabledOnlineGateways={enabledOnlineGateways}
         tutorPaymentMethodTabs={tutorPaymentMethodTabs}
       />
     );
@@ -170,7 +174,8 @@ export function StudentMonthlyPaymentsStrip({
             receiptExpectedUsesFullMonth={receiptExpectedUsesFullMonth}
             fileUploadProgress={fileUploadProgress}
             startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
-            flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+            startMercadoPagoMonthlyPaymentAction={startMercadoPagoMonthlyPaymentAction}
+            enabledOnlineGateways={enabledOnlineGateways}
             tutorPaymentMethodTabs={tutorPaymentMethodTabs}
             onSubmitted={() => router.refresh()}
           />

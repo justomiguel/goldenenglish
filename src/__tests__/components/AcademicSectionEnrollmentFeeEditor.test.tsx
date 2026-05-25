@@ -39,19 +39,18 @@ describe("AcademicSectionEnrollmentFeeEditor", () => {
     refreshMock.mockReset();
   });
 
-  it("renders the system currency next to the amount", () => {
+  it("renders the amount field without showing currency", () => {
     render(
       <AcademicSectionEnrollmentFeeEditor
         locale="en"
         sectionId={SECTION}
         initialAmount={150}
-        systemCurrency="USD"
         dict={dict}
       />,
     );
     expect(screen.getByLabelText(dict.amount)).toHaveValue(150);
-    expect(screen.getByLabelText(dict.currencyAria)).toHaveTextContent("USD");
-    expect(screen.getByText(dict.currencyHelp)).toBeInTheDocument();
+    expect(screen.queryByLabelText(dict.currencyAria)).not.toBeInTheDocument();
+    expect(screen.queryByText(dict.currencyHelp)).not.toBeInTheDocument();
   });
 
   it("shows zero means helper when amount is 0", () => {
@@ -60,11 +59,9 @@ describe("AcademicSectionEnrollmentFeeEditor", () => {
         locale="en"
         sectionId={SECTION}
         initialAmount={0}
-        systemCurrency="ARS"
         dict={dict}
       />,
     );
-    expect(screen.getByLabelText(dict.currencyAria)).toHaveTextContent("ARS");
     expect(screen.getByText(dict.zeroMeans)).toBeInTheDocument();
   });
 
@@ -74,7 +71,6 @@ describe("AcademicSectionEnrollmentFeeEditor", () => {
         locale="en"
         sectionId={SECTION}
         initialAmount={100}
-        systemCurrency="USD"
         dict={dict}
       />,
     );
@@ -91,7 +87,6 @@ describe("AcademicSectionEnrollmentFeeEditor", () => {
         locale="en"
         sectionId={SECTION}
         initialAmount={0}
-        systemCurrency="USD"
         dict={dict}
       />,
     );
@@ -115,7 +110,6 @@ describe("AcademicSectionEnrollmentFeeEditor", () => {
         locale="en"
         sectionId={SECTION}
         initialAmount={0}
-        systemCurrency="USD"
         dict={dict}
       />,
     );

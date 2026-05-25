@@ -11,6 +11,10 @@ import {
   MOZARTHITOS_MEDIA_SLOTS_BY_SECTION,
 } from "@/lib/cms/landingMozarthitosCatalog";
 import {
+  MIMUNDO_LANDING_COPY_KEYS_BY_SECTION,
+  MIMUNDO_MEDIA_SLOTS_BY_SECTION,
+} from "@/lib/cms/landingMimundoCatalog";
+import {
   NAGO_LANDING_COPY_KEYS_BY_SECTION,
   NAGO_MEDIA_SLOTS_BY_SECTION,
 } from "@/lib/cms/landingNagoCatalog";
@@ -29,6 +33,9 @@ export function landingCopyKeysForTheme(
   if (kind === "nago") {
     return NAGO_LANDING_COPY_KEYS_BY_SECTION[section];
   }
+  if (kind === "mimundo") {
+    return MIMUNDO_LANDING_COPY_KEYS_BY_SECTION[section];
+  }
   return LANDING_COPY_KEYS_BY_SECTION[section];
 }
 
@@ -44,6 +51,9 @@ export function landingMediaSlotsForTheme(
   }
   if (kind === "nago") {
     return NAGO_MEDIA_SLOTS_BY_SECTION[section];
+  }
+  if (kind === "mimundo") {
+    return MIMUNDO_MEDIA_SLOTS_BY_SECTION[section];
   }
   return LANDING_MEDIA_SLOTS_BY_SECTION[section];
 }

@@ -23,12 +23,14 @@ export const TemplateSchema = z.object({
 });
 
 export const EmbedSchema = z.object({
+  locale: z.string().min(2).max(8),
   templateId: z.string().uuid(),
   label: z.string().trim().min(1).max(180),
   url: z.string().trim().min(1).max(1000),
 });
 
 export const UploadSchema = z.object({
+  locale: z.string().min(2).max(8),
   templateId: z.string().uuid(),
   label: z.string().trim().min(1).max(180),
   filename: z.string().trim().min(1).max(240),

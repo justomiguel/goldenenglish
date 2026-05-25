@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactNode, useState } from "react";
-import { Save, X, Info } from "lucide-react";
+import { Save, X } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -93,7 +93,7 @@ export function AcademicSectionFeePlanForm({
             required
           />
         </div>
-        <div>
+        <div className="sm:col-span-2">
           <Label htmlFor={`${idPrefix}-monthly-fee`}>{dict.monthlyFee}</Label>
           <Input
             id={`${idPrefix}-monthly-fee`}
@@ -105,19 +105,6 @@ export function AcademicSectionFeePlanForm({
             disabled={busy}
             required
           />
-        </div>
-        <div>
-          <Label>{dict.currency}</Label>
-          <div className="mt-1 flex min-h-[44px] items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/30 px-3 py-2 text-sm text-[var(--color-foreground)]">
-            <span className="font-medium">{systemCurrency}</span>
-            <span
-              className="ml-auto flex items-center gap-1 text-xs text-[var(--color-muted-foreground)]"
-              title={dict.currencySystemHint}
-            >
-              <Info className="h-3.5 w-3.5" aria-hidden />
-              {dict.currencySystemLabel}
-            </span>
-          </div>
         </div>
       </div>
       <p className="text-xs text-[var(--color-muted-foreground)]">{dict.prorateExplanation}</p>

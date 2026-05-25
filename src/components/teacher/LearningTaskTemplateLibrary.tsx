@@ -2,6 +2,7 @@
 
 import { Link2, Save } from "lucide-react";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -36,6 +37,7 @@ export function LearningTaskTemplateLibrary({
   labels,
   fileUploadProgress,
 }: LearningTaskTemplateLibraryProps) {
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [bodyHtml, setBodyHtml] = useState("<p></p>");
   const [assetTemplateId, setAssetTemplateId] = useState(templates[0]?.id ?? "");
@@ -53,6 +55,7 @@ export function LearningTaskTemplateLibrary({
       if (result.ok) {
         setTitle("");
         setBodyHtml("<p></p>");
+        router.refresh();
       }
     });
   };
@@ -77,6 +80,7 @@ export function LearningTaskTemplateLibrary({
       });
       setUploadUi({ kind: "busy", stage: "sending" });
       const result = await uploadTemplateFileAction({
+        locale,
         templateId: assetTemplateId,
         label: assetLabel,
         filename: file.name,
@@ -84,6 +88,7 @@ export function LearningTaskTemplateLibrary({
         fileBase64: data.base64,
       });
       if (!result.ok) setFileError(labels.taskTemplateAssetUploadFailed);
+      else router.refresh();
     } catch {
       setFileError(labels.taskTemplateAssetUploadFailed);
     } finally {
@@ -94,8 +99,16 @@ export function LearningTaskTemplateLibrary({
   const addEmbed = () => {
     if (!assetTemplateId || !assetLabel.trim() || !embedUrl.trim()) return;
     startTransition(async () => {
-      await addTemplateEmbedAction({ templateId: assetTemplateId, label: assetLabel, url: embedUrl });
-      setEmbedUrl("");
+      const result = await addTemplateEmbedAction({
+        locale,
+        templateId: assetTemplateId,
+        label: assetLabel,
+        url: embedUrl,
+      });
+      if (result.ok) {
+        setEmbedUrl("");
+        router.refresh();
+      }
     });
   };
 

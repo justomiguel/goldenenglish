@@ -16,7 +16,10 @@ import {
   submitEnrollmentFeeReceipt,
 } from "@/app/[locale]/dashboard/student/payments/actions";
 import { startStudentFlowMonthlyPayment } from "@/app/[locale]/dashboard/student/payments/flowMonthlyPaymentActions";
-import { isFlowChileCheckoutEnabled } from "@/lib/payment-gateways/flow/isFlowChileCheckoutEnabled";
+import { startStudentMercadoPagoMonthlyPayment } from "@/app/[locale]/dashboard/student/payments/mercadoPagoMonthlyPaymentActions";
+import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
+import { loadEnabledGatewaysForBillingCurrency } from "@/lib/payment-gateways/loadEnabledGatewaysForBillingCurrency";
+import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 import type { Locale } from "@/types/i18n";
 
 export const metadata: Metadata = {
@@ -157,7 +160,9 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
     }),
   );
 
-  const flowMonthlyPayEnabled = await isFlowChileCheckoutEnabled(supabase);
+  const billingCurrency = await loadBillingCurrencySetting(supabase);
+  const enabledGateways = await loadEnabledGatewaysForBillingCurrency(supabase, billingCurrency.currency);
+  const enabledOnlineGateways = enabledGateways.map((g) => g.provider) as PaymentGatewayProvider[];
 
   return (
     <StudentPaymentsEntry
@@ -173,8 +178,15 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
       submitReceiptAction={submitStudentPaymentReceipt}
       submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceipt}
       fileUploadProgress={dict.common.fileUpload}
-      flowMonthlyPayEnabled={flowMonthlyPayEnabled}
-      startFlowMonthlyPaymentAction={startStudentFlowMonthlyPayment}
+      enabledOnlineGateways={enabledOnlineGateways}
+      startFlowMonthlyPaymentAction={
+        enabledOnlineGateways.includes("flow") ? startStudentFlowMonthlyPayment : undefined
+      }
+      startMercadoPagoMonthlyPaymentAction={
+        enabledOnlineGateways.includes("mercadopago")
+          ? startStudentMercadoPagoMonthlyPayment
+          : undefined
+      }
     />
   );
 }

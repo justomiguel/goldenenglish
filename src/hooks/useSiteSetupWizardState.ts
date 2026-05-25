@@ -36,6 +36,7 @@ const EMPTY_OPERATIONAL: SiteSetupOperationalValues = {
   billingTermMonthlyEn: "",
   billingTermPromotion: "",
   billingTermPromotionEn: "",
+  billingCurrency: "USD",
   analyticsEventNamespace: "",
   analyticsEventVersion: "",
   analyticsTimezone: "",

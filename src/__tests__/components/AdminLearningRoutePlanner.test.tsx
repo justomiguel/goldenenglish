@@ -141,7 +141,24 @@ describe("AdminLearningRoutePlanner", () => {
       expect(routerMock.replace).toHaveBeenCalledWith(
         "/en/dashboard/admin/academic/contents/sections/00000000-0000-4000-8000-000000000099/edit?graph=1",
       );
+      expect(routerMock.refresh).toHaveBeenCalled();
     });
+  });
+
+  it("refreshes after saving an existing route without navigating away", async () => {
+    vi.mocked(saveLearningRouteAction).mockResolvedValue({ ok: true, id: workspace.route!.id });
+    const user = userEvent.setup();
+    const labels = dictEn.dashboard.adminContents;
+    render(<AdminLearningRoutePlanner locale="en" workspace={workspace} labels={labels} />);
+
+    await user.clear(screen.getByPlaceholderText(labels.routeNamePlaceholder));
+    await user.type(screen.getByPlaceholderText(labels.routeNamePlaceholder), "Updated route");
+    await user.click(screen.getByRole("button", { name: labels.saveRoute }));
+
+    await waitFor(() => {
+      expect(routerMock.refresh).toHaveBeenCalled();
+    });
+    expect(routerMock.replace).not.toHaveBeenCalled();
   });
 
   it("shows a specific wizard creation error when the schema is not ready", async () => {

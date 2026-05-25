@@ -743,6 +743,150 @@
         "youtubeUrl": "https://www.youtube.com/@capoeiranago"
       },
       "footerCta": "Quer ingressar na capoeira? Envie-nos uma mensagem e comece sua jornada."
+    },
+    "mm": {
+      "chrome": {
+        "openMenu": "Abrir menu",
+        "closeMenu": "Fechar menu",
+        "facebookAria": "Siga-nos no Facebook",
+        "instagramAria": "Siga-nos no Instagram"
+      },
+      "nav": {
+        "inicio": "Início",
+        "propuesta": "Proposta",
+        "salas": "Salas",
+        "galeria": "Galeria",
+        "contacto": "Contato"
+      },
+      "hero": {
+        "kicker": "Jardim Maternal Mi Mundo · Belgrano, Buenos Aires",
+        "title": "Um mundo onde a infância se descobre brincando",
+        "subtitle": "Acompanhamos o crescimento de cada criança com amor, brincadeira e proposta pedagógica inspirada em Reggio Emilia, dos 45 dias aos 5 anos.",
+        "ctaReservar": "Reservar minha vaga",
+        "ctaLogin": "Entrar"
+      },
+      "propuesta": {
+        "sectionLabel": "Nossa proposta",
+        "title": "Aprender com todo o corpo, com todos os sentidos",
+        "bodyP1": "No Mi Mundo acreditamos que a infância merece espaços bonitos, materiais reais e adultos atentos. Nossa proposta pedagógica é inspirada na abordagem Reggio Emilia e na filosofia Pikler: respeitamos os tempos individuais, propomos ambientes preparados e acompanhamos o brincar livre como motor da aprendizagem.",
+        "bodyP2": "Contamos com professoras especializadas, espaços luminosos e um pátio verde onde a natureza entra no jardim todos os dias.",
+        "pilar1": "🎨 Arte e expressão criativa",
+        "pilar2": "🌿 Contato com a natureza",
+        "pilar3": "🎵 Música e ritmo",
+        "pilar4": "📚 Iniciação à leitura e escrita",
+        "pilar5": "🤸 Movimento livre e psicomotricidade"
+      },
+      "pilares": {
+        "sectionTitle": "Cinco pilares da nossa proposta",
+        "arte": {
+          "title": "Arte e expressão",
+          "body": "Ateliês semanais de artes plásticas, teatro e pintura com materiais naturais. Cada obra reflete o olhar único de cada criança."
+        },
+        "naturaleza": {
+          "title": "Natureza viva",
+          "body": "Horta, composteira e cantinhos de exploração ao ar livre. Terra, água e plantas são protagonistas."
+        },
+        "musica": {
+          "title": "Música e ritmo",
+          "body": "De canções de ninar à percussão coletiva. O som como linguagem e vínculo."
+        },
+        "juego": {
+          "title": "Brincar livre",
+          "body": "Espaços preparados onde a criança escolhe, decide e constrói. O adulto observa e acompanha sem interromper."
+        },
+        "lectura": {
+          "title": "Iniciação leitora",
+          "body": "Biblioteca de sala, hora do conto diária e projetos de escrita espontânea a partir dos 3 anos."
+        }
+      },
+      "salas": {
+        "sectionTitle": "Nossas salas",
+        "bebes": {
+          "nombre": "Sala Bolhas",
+          "edades": "45 dias – 12 meses",
+          "descripcion": "Um espaço aconchegante e seguro para as primeiras experiências do mundo. Cuidadoras especializadas em cuidado respeitoso e estimulação precoce."
+        },
+        "sala1": {
+          "nombre": "Sala Formiguinhas",
+          "edades": "1 a 2 anos",
+          "descripcion": "Exploração sensorial, primeiros passos e palavras. Materiais naturais e ambientes preparados para o movimento autônomo."
+        },
+        "sala2": {
+          "nombre": "Sala Borboletas",
+          "edades": "2 a 3 anos",
+          "descripcion": "A linguagem decola e a criatividade explode. Projetos artísticos, jogo dramático e primeiras convivências em grupo."
+        },
+        "sala3": {
+          "nombre": "Sala Sol",
+          "edades": "3 a 4 anos",
+          "descripcion": "Autonomia, amizade e pensamento simbólico. Iniciação à leitura, horta e projetos de ciências."
+        },
+        "sala4": {
+          "nombre": "Sala Lua",
+          "edades": "4 a 5 anos",
+          "descripcion": "Pensamento lógico e expressão escrita. Projetos interdisciplinares, teatro e saídas pedagógicas."
+        },
+        "sala5": {
+          "nombre": "Sala Estrelas",
+          "edades": "5 anos",
+          "descripcion": "O ano da transição. Preparamos cada criança para a escola primária com confiança, curiosidade e alegria."
+        }
+      },
+      "jornada": {
+        "sectionTitle": "Um dia no Mi Mundo",
+        "intro": "Cada jornada é uma pequena aventura. Veja como é um dia típico no nosso jardim:",
+        "paso1": {
+          "hora": "8:00 – 9:00",
+          "titulo": "Boas-vindas e brincar livre nos pátios e cantinhos"
+        },
+        "paso2": {
+          "hora": "9:00 – 10:30",
+          "titulo": "Projeto do dia: arte, ciências, música ou leitura"
+        },
+        "paso3": {
+          "hora": "10:30 – 11:00",
+          "titulo": "Lanche nutritivo e conversa em roda"
+        },
+        "paso4": {
+          "hora": "11:00 – 12:00",
+          "titulo": "Pátio, movimento e jogo dramático ao ar livre"
+        },
+        "paso5": {
+          "hora": "12:00 – 13:00",
+          "titulo": "Almoço e leitura final. Soneca (Bolhas e Formiguinhas)"
+        }
+      },
+      "galeria": {
+        "sectionTitle": "Momentos que guardamos",
+        "sectionSubtitle": "Um olhar para o dia a dia no Mi Mundo.",
+        "verMas": "Ver todas as fotos",
+        "previewOpenAria": "Abrir foto {n}",
+        "carouselLoading": "Carregando imagem…",
+        "carouselPosition": "Imagem {current} de {total}",
+        "carouselPrev": "Foto anterior",
+        "carouselNext": "Próxima foto"
+      },
+      "equipo": {
+        "sectionTitle": "Nossa equipe",
+        "body": "Mais de 20 profissionais especializadas em primeira infância, psicologia educacional, música e artes. Formação contínua, supervisão pedagógica e muito amor."
+      },
+      "cta": {
+        "title": "Quer fazer parte do Mi Mundo?",
+        "subtitle": "As vagas são limitadas. Reserve a sua hoje e comece o ano com o pé direito.",
+        "button": "Reservar minha vaga"
+      },
+      "contact": {
+        "title": "Venha nos conhecer",
+        "direccion": "Av. del Libertador 1234, Belgrano · Buenos Aires",
+        "telefono": "+54 11 4555-1234",
+        "email": "hola@mimundo.com.ar",
+        "mapaAria": "Ver no Google Maps"
+      },
+      "footer": {
+        "rightsLine": "© 2025 Jardim Maternal Mi Mundo. Todos os direitos reservados.",
+        "siguenos": "Siga-nos"
+      },
+      "footerCta": "Reservar minha vaga"
     }
   },
   "admin": {
@@ -1309,7 +1453,8 @@
               "minimal": "Mínimo",
               "mozarthitos": "Mozarthitos",
               "espaciozenit": "Espaço Zenit",
-              "nago": "Capoeira Nagô"
+              "nago": "Capoeira Nagô",
+              "mimundo": "Mi Mundo"
             },
             "saveCta": "Aplicar estilo",
             "saveSuccess": "Estilo aplicado.",
@@ -1988,7 +2133,26 @@
         "flowRemoveConfirmDescription": "As chaves armazenadas serão excluídas. A finalização da compra online via Flow permanece indisponível até que você salve novas credenciais.",
         "flowRemoveConfirmAction": "Remover",
         "flowRemovedOk": "As credenciais de fluxo foram removidas.",
-        "flowRemovedError": "Não foi possível remover as credenciais. Por favor, tente novamente."
+        "flowRemovedError": "Não foi possível remover as credenciais. Por favor, tente novamente.",
+        "mpCountryArTitle": "Mercado Pago (Argentina)",
+        "mpCountryClTitle": "Mercado Pago (Chile)",
+        "mpLead": "Permita que as famílias paguem a mensalidade online com Mercado Pago Checkout Pro. Informe o access token e o secret do webhook para cada país, escolha sandbox ou produção e ative o checkout nas telas de pagamento de estudantes e responsáveis.",
+        "mpEnvironment": "Ambiente",
+        "mpEnabled": "Ativar checkout Mercado Pago para famílias",
+        "mpAccessToken": "Access token",
+        "mpWebhookSecret": "Secret do webhook",
+        "mpSave": "Salvar configurações Mercado Pago",
+        "mpSavedOk": "Configurações do Mercado Pago salvas.",
+        "mpSavedError": "Não foi possível salvar as configurações do Mercado Pago.",
+        "mpNeedKeys": "Informe access token e secret do webhook na primeira configuração.",
+        "mpPlaceholderTokenUnchanged": "Deixe em branco para manter o access token salvo",
+        "mpWebhookPlaceholder": "Secret da configuração de webhook no Mercado Pago",
+        "mpRemoveButton": "Remover credenciais salvas",
+        "mpRotateConfirmTitle": "Substituir credenciais salvas do Mercado Pago?",
+        "mpRotateConfirmDescription": "Já existem credenciais do Mercado Pago salvas. Continuar substituirá pelo que você digitou agora (deixe um campo em branco para manter o valor salvo).",
+        "mpRemoveConfirmTitle": "Remover credenciais do Mercado Pago do servidor?",
+        "mpRemoveConfirmDescription": "As chaves salvas serão excluídas. O checkout online via Mercado Pago ficará indisponível até salvar novas credenciais.",
+        "mpRemovedOk": "Credenciais do Mercado Pago removidas."
       },
       "insights": {
         "title": "Informações financeiras",
@@ -3129,7 +3293,11 @@
       },
       "legalBilling": {
         "title": "Legal e cobrança",
-        "lead": "Idade legal, aviso de renovação de matrícula e rótulos de cobrança.",
+        "lead": "Moeda do instituto, idade legal, aviso de renovação de matrícula e rótulos de cobrança.",
+        "billingCurrencyLabel": "Moeda do instituto",
+        "billingCurrencyHint": "Usada em mensalidades, matrículas e telas de cobrança. Você pode alterá-la depois em Finanças → Configurações.",
+        "billingCurrencyOther": "Outra (ISO 4217)",
+        "billingCurrencyOtherAria": "Código de moeda personalizado de três letras",
         "legalAgeMajority": "Idade legal de maioridade",
         "legalAgeMajorityHint": "Usado nos fluxos de portal adulto/menor.",
         "studentRenewalWarnDays": "Aviso de renovação de matrícula (dias)",
@@ -4218,7 +4386,7 @@
       },
       "feePlans": {
         "title": "Planos de taxas mensais",
-        "lead": "Defina quanto os alunos pagam mensalmente por esta seção, em qual moeda e quando cada versão entrará em vigor. Se um aluno ingressar tarde, o sistema rateia a taxa com base nas aulas disponíveis naquele mês.",
+        "lead": "Defina quanto os alunos pagam mensalmente por esta seção e quando cada versão entrará em vigor. Se um aluno ingressar tarde, o sistema rateia a taxa com base nas aulas disponíveis naquele mês.",
         "empty": "Nenhum plano de taxas definido ainda.",
         "add": "Adicionar plano de taxas",
         "create": "Criar plano de taxas",
@@ -4253,7 +4421,7 @@
       },
       "enrollmentFee": {
         "title": "Taxa de inscrição na seção",
-        "lead": "Defina quanto esta seção cobra como taxa de matrícula. A moeda é retirada do plano de mensalidade ativo.",
+        "lead": "Defina quanto esta seção cobra como taxa de matrícula.",
         "amount": "Valor da taxa de inscrição",
         "currencyAria": "Moeda da taxa de inscrição",
         "currencyHelp": "A taxa de inscrição usa a mesma moeda do plano de mensalidade ativo.",
@@ -5082,6 +5250,24 @@
         "exemptHint": "Sua bolsa cobre este mês.",
         "payWithFlow": "Pague on-line com Flow",
         "payWithFlowHint": "Cartão, transferência bancária ou outros métodos disponíveis na Flow (Chile).",
+        "payWithMercadoPago": "Pague on-line com Mercado Pago",
+        "payWithMercadoPagoHint": "Cartão, transferência bancária ou outros métodos disponíveis no Mercado Pago.",
+        "choosePaymentGateway": "Escolha como pagar online",
+        "gatewayFlow": "Flow (Chile)",
+        "gatewayMercadoPago": "Mercado Pago",
+        "mpBusy": "Redirecionando para Mercado Pago…",
+        "mpErrorUnavailable": "O pagamento online não está disponível no momento.",
+        "mpErrorProvider": "Não foi possível iniciar o pagamento com Mercado Pago. Tente novamente ou envie um recibo.",
+        "mpErrorCurrencyUnsupported": "O pagamento online com Mercado Pago não está disponível para esta moeda.",
+        "mpReturnBack": "Voltar aos pagamentos",
+        "mpReturnNoRefTitle": "Retorno do Mercado Pago",
+        "mpReturnNoRefLead": "Não foi possível ler a referência de pagamento no link. Abra Pagamentos para ver se o mês já está marcado como pago ou inicie o pagamento novamente.",
+        "mpReturnSuccessTitle": "Pagamento recebido",
+        "mpReturnSuccessLead": "{month} {year} foi registrado como pago. Obrigado.",
+        "mpReturnNotCompletedTitle": "Pagamento não concluído",
+        "mpReturnNotCompletedLead": "O pagamento não foi finalizado ou foi cancelado no Mercado Pago. Você pode tentar novamente em Pagamentos ou enviar um recibo se sua instituição permitir.",
+        "mpReturnProcessingTitle": "Confirmando seu pagamento",
+        "mpReturnProcessingLead": "O Mercado Pago informa um pagamento bem-sucedido, mas sua conta ainda está sendo atualizada. Aguarde alguns minutos e verifique Pagamentos novamente. Se não mudar, entre em contato com o instituto.",
         "paymentMethodTabsAria": "Maneiras de liquidar este mês",
         "tutorMonthlyTabReceipt": "Carregar recibo",
         "tutorMonthlyTabOnline": "Pague on-line",
@@ -5113,6 +5299,7 @@
           "downloadPdf": "Baixar PDF",
           "legalNotice": "Comprovante interno de pagamento. Não é nota fiscal (boleta/factura).",
           "methodFlow": "Pagamento on-line (fluxo)",
+          "methodMercadoPago": "Pagamento on-line (Mercado Pago)",
           "methodUpload": "Recibo enviado",
           "descriptionMonthly": "Taxa mensal",
           "descriptionEnrollment": "Taxa de inscrição",

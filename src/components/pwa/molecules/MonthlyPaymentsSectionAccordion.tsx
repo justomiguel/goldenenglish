@@ -6,8 +6,9 @@ import { StudentMonthlyEnrollmentFeeCell } from "@/components/pwa/molecules/Stud
 import {
   StudentMonthlyPaymentFocus,
   type SubmitMonthlyReceiptAction,
-  type StartFlowMonthlyPaymentClientAction,
+  type StartOnlineMonthlyPaymentClientAction,
 } from "@/components/student/StudentMonthlyPaymentFocus";
+import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import { MonthlyPaymentsSectionEnrollmentDetail } from "@/components/pwa/molecules/MonthlyPaymentsSectionEnrollmentDetail";
 import type { Dictionary, Locale } from "@/types/i18n";
@@ -52,8 +53,9 @@ export interface MonthlyPaymentsSectionAccordionProps {
   submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
   receiptExpectedUsesFullMonth: boolean;
   fileUploadProgress: FileUploadProgressLabels;
-  startFlowMonthlyPaymentAction?: StartFlowMonthlyPaymentClientAction;
-  flowMonthlyPayEnabled: boolean;
+  startFlowMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
+  startMercadoPagoMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
+  enabledOnlineGateways: PaymentGatewayProvider[];
   tutorPaymentMethodTabs: boolean;
   onSubmitted: () => void;
 }
@@ -88,7 +90,8 @@ export function MonthlyPaymentsSectionAccordion({
   receiptExpectedUsesFullMonth,
   fileUploadProgress,
   startFlowMonthlyPaymentAction,
-  flowMonthlyPayEnabled,
+  startMercadoPagoMonthlyPaymentAction,
+  enabledOnlineGateways,
   tutorPaymentMethodTabs,
   onSubmitted,
 }: MonthlyPaymentsSectionAccordionProps) {
@@ -203,7 +206,8 @@ export function MonthlyPaymentsSectionAccordion({
                 fileUploadProgress={fileUploadProgress}
                 receiptExpectedUsesFullMonth={receiptExpectedUsesFullMonth}
                 startFlowAction={startFlowMonthlyPaymentAction}
-                flowMonthlyPayEnabled={flowMonthlyPayEnabled}
+                startMercadoPagoAction={startMercadoPagoMonthlyPaymentAction}
+                enabledOnlineGateways={enabledOnlineGateways}
                 paymentMethodTabLayout={tutorPaymentMethodTabs}
                 pwaNestedHierarchy
                 onSubmitted={onSubmitted}

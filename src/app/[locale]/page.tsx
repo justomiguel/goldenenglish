@@ -11,6 +11,7 @@ import { LandingMainSectionsMinimal } from "@/components/organisms/LandingMainSe
 import { LandingMainSectionsMozarthitos } from "@/components/organisms/LandingMainSectionsMozarthitos";
 import { LandingMainSectionsEspacioZenit } from "@/components/organisms/LandingMainSectionsEspacioZenit";
 import { LandingMainSectionsNago } from "@/components/organisms/LandingMainSectionsNago";
+import { LandingMainSectionsMimundo } from "@/components/organisms/LandingMainSectionsMimundo";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
 import {
@@ -80,7 +81,9 @@ export default async function HomePage({ params }: HomePageProps) {
         ? "ez"
         : templateKind === "nago"
           ? "nago"
-          : undefined;
+          : templateKind === "mimundo"
+            ? "mm"
+            : undefined;
 
   const landingContentProps = {
     dict,
@@ -105,6 +108,8 @@ export default async function HomePage({ params }: HomePageProps) {
       <LandingMainSectionsEspacioZenit {...marketingTenantProps} />
     ) : templateKind === "nago" ? (
       <LandingMainSectionsNago {...marketingTenantProps} />
+    ) : templateKind === "mimundo" ? (
+      <LandingMainSectionsMimundo {...marketingTenantProps} />
     ) : (
       <LandingMainSections {...landingContentProps} />
     );

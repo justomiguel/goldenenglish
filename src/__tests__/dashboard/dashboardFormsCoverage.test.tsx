@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { dictEn } from "@/test/dictEn";
-import { mockPathname, mockPush } from "@/test/navigationMock";
+import { mockPathname, mockPush, mockRefresh } from "@/test/navigationMock";
 
 const createDashboardUser = vi.hoisted(() => vi.fn());
 const setInscriptionsEnabled = vi.hoisted(() => vi.fn());
@@ -143,6 +143,7 @@ describe("dashboard coverage", () => {
     await waitFor(() => {
       expect(screen.getByText(dictEn.admin.settings.saved)).toBeInTheDocument();
     });
+    expect(mockRefresh).toHaveBeenCalled();
     unmount();
     setInscriptionsEnabled.mockResolvedValueOnce({ ok: false });
     render(

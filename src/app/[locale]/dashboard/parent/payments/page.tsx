@@ -17,7 +17,10 @@ import { studentReceiptSignedUrl } from "@/lib/payments/studentReceiptSignedUrl"
 import { submitTutorPaymentReceipt } from "@/app/[locale]/dashboard/parent/payments/actions";
 import { submitTutorEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/parent/payments/submitTutorEnrollmentFeeReceiptAction";
 import { startTutorFlowMonthlyPayment } from "@/app/[locale]/dashboard/parent/payments/flowMonthlyPaymentActions";
-import { isFlowChileCheckoutEnabled } from "@/lib/payment-gateways/flow/isFlowChileCheckoutEnabled";
+import { startTutorMercadoPagoMonthlyPayment } from "@/app/[locale]/dashboard/parent/payments/mercadoPagoMonthlyPaymentActions";
+import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
+import { loadEnabledGatewaysForBillingCurrency } from "@/lib/payment-gateways/loadEnabledGatewaysForBillingCurrency";
+import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 import type { StudentPaymentRow } from "@/components/student/StudentPaymentsHistory";
 import type { BillingInvoiceRow } from "@/types/billing";
 import type { Locale } from "@/types/i18n";
@@ -193,7 +196,9 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
     );
   }
 
-  const flowMonthlyPayEnabled = await isFlowChileCheckoutEnabled(supabase);
+  const billingCurrency = await loadBillingCurrencySetting(supabase);
+  const enabledGateways = await loadEnabledGatewaysForBillingCurrency(supabase, billingCurrency.currency);
+  const enabledOnlineGateways = enabledGateways.map((g) => g.provider) as PaymentGatewayProvider[];
 
   const selectedInvoices =
     childrenPayload.find((c) => c.studentId === selectedStudentId)?.invoices ?? [];
@@ -226,8 +231,15 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
         submitReceiptAction={submitTutorPaymentReceipt}
         submitEnrollmentFeeReceiptAction={submitTutorEnrollmentFeeReceipt}
         fileUploadProgress={dict.common.fileUpload}
-        flowMonthlyPayEnabled={flowMonthlyPayEnabled}
-        startFlowMonthlyPaymentAction={startTutorFlowMonthlyPayment}
+        enabledOnlineGateways={enabledOnlineGateways}
+        startFlowMonthlyPaymentAction={
+          enabledOnlineGateways.includes("flow") ? startTutorFlowMonthlyPayment : undefined
+        }
+        startMercadoPagoMonthlyPaymentAction={
+          enabledOnlineGateways.includes("mercadopago")
+            ? startTutorMercadoPagoMonthlyPayment
+            : undefined
+        }
         feesPanel={feesPanel}
         initialFocus={initialFocus}
       />

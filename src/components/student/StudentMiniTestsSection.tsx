@@ -2,6 +2,7 @@
 
 import { Send } from "lucide-react";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms/Button";
 import { submitStudentMiniTestAction } from "@/app/[locale]/dashboard/student/assessments/actions";
 import type { Dictionary } from "@/types/i18n";
@@ -53,6 +54,7 @@ function MiniTestCard({
   const [answers, setAnswers] = useState<AnswerState>({});
   const [result, setResult] = useState<string | null>(assessment.latestAttemptStatus);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const isComplete = assessment.questions.every((question) => question.id in answers);
 
   return (
@@ -106,7 +108,10 @@ function MiniTestCard({
             assessmentId: assessment.id,
             answers: Object.entries(answers).map(([questionId, answer]) => ({ questionId, answer })),
           });
-          if (response.ok) setResult(response.passed ? labels.miniTestsPassed : labels.miniTestsNeedsReview);
+          if (response.ok) {
+            setResult(response.passed ? labels.miniTestsPassed : labels.miniTestsNeedsReview);
+            router.refresh();
+          }
         })}
       >
         {!isPending ? <Send className="h-4 w-4 shrink-0" aria-hidden /> : null}

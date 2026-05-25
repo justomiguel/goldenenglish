@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { csvStudentRowsSchema } from "@/lib/import/studentRowSchema";
@@ -62,5 +63,8 @@ export async function bulkImportStudentsFromRows(
       failed_rows: result.results.filter((row) => !row.ok).length,
     },
   });
+  revalidatePath(`/${locale}/dashboard/admin/users`);
+  revalidatePath(`/${locale}/dashboard/admin/registrations`);
+  revalidatePath(`/${locale}/dashboard/admin/academic`, "layout");
   return result;
 }
