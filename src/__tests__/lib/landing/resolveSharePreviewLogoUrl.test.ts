@@ -28,6 +28,24 @@ describe("resolveSharePreviewLogoAbsoluteUrl", () => {
     expect(out).toBe("https://example.com/images/mozarthitos/logo/1.png");
   });
 
+  it("uses Mi Mundo bundled logo for mimundo share preview", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.endsWith("/images/mimundo/logo/logo.jpg")) {
+        return { ok: true };
+      }
+      return { ok: false };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const out = await resolveSharePreviewLogoAbsoluteUrl(
+      "https://example.com",
+      "mimundo",
+      brand,
+    );
+    expect(out).toBe("https://example.com/images/mimundo/logo/logo.jpg");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it("tries golden PNG then AVIF before falling back to brand logo", async () => {
     const fetchMock = vi.fn(async (url: string) => {
       if (url.endsWith("/images/golden/logo/1.png")) return { ok: false };

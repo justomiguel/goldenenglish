@@ -5,7 +5,8 @@ export type SharePreviewBundleKey =
   | "golden"
   | "mozarthitos"
   | "espaciozenit"
-  | "nago";
+  | "nago"
+  | "mimundo";
 
 /** Maps landing template kind → folder key for share preview logos. */
 export function sharePreviewBundleKeyFromTemplateKind(
@@ -14,5 +15,6 @@ export function sharePreviewBundleKeyFromTemplateKind(
   if (kind === "mozarthitos") return "mozarthitos";
   if (kind === "espaciozenit") return "espaciozenit";
   if (kind === "nago") return "nago";
+  if (kind === "mimundo") return "mimundo";
   return "golden";
 }

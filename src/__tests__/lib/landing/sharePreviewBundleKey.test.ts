@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
 
 describe("sharePreviewBundleKeyFromTemplateKind", () => {
-  it("maps mozarthitos and espaciozenit kinds", () => {
+  it("maps branded tenant landing kinds", () => {
     expect(sharePreviewBundleKeyFromTemplateKind("mozarthitos")).toBe(
       "mozarthitos",
     );
@@ -10,6 +10,7 @@ describe("sharePreviewBundleKeyFromTemplateKind", () => {
       "espaciozenit",
     );
     expect(sharePreviewBundleKeyFromTemplateKind("nago")).toBe("nago");
+    expect(sharePreviewBundleKeyFromTemplateKind("mimundo")).toBe("mimundo");
   });
 
   it("maps classic, editorial and minimal to golden", () => {
