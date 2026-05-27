@@ -1,5 +1,11 @@
 -- Runs after 133 commits so 'mimundo' enum label is usable.
 -- Jardín Maternal Mi Mundo — dedicated Supabase project, so is_active = TRUE.
+-- site_themes_only_one_active: deactivate others before setting mimundo active.
+
+UPDATE public.site_themes
+SET is_active = FALSE
+WHERE slug <> 'mimundo'
+  AND is_active = TRUE;
 
 INSERT INTO public.site_themes (
   slug,
@@ -24,9 +30,9 @@ VALUES (
     'app.tagline.en',    'A world where childhood discovers itself through play',
     'app.tagline.pt',    'Um mundo onde a infância se descobre brincando',
     'app.legal.registry','Jardín Maternal Mi Mundo',
-    'app.logo.path',     '/images/mimundo/logo/logo.svg',
+    'app.logo.path',     '/images/mimundo/logo/logo.jpg',
     'app.logo.alt',      'Jardín Maternal Mi Mundo',
-    'app.favicon.path',  '/images/mimundo/logo/logo.svg',
+    'app.favicon.path',  '/images/mimundo/logo/logo.jpg',
     -- Brand palette
     -- Primary: verde oscuro del logo — pasa AA como bg para texto blanco
     'color.primary',                '#557945',

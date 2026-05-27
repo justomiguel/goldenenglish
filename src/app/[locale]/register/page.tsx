@@ -13,6 +13,7 @@ import { RegisterForm } from "@/components/register/RegisterForm";
 import { RegisterCollage } from "@/components/molecules/RegisterCollage";
 import { RegisterSiteHeader } from "@/components/molecules/RegisterSiteHeader";
 import { RegisterEspacioZenitSurface } from "@/components/organisms/RegisterEspacioZenitSurface";
+import { RegisterMiMundoSurface } from "@/components/organisms/RegisterMiMundoSurface";
 import { RegisterMozarthitosSurface } from "@/components/organisms/RegisterMozarthitosSurface";
 import { RegisterNagoSurface } from "@/components/organisms/RegisterNagoSurface";
 import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
@@ -88,6 +89,10 @@ export default async function RegisterPage({ params }: PageProps) {
 
   if (templateKind === "nago") {
     return <RegisterNagoSurface {...shellProps} />;
+  }
+
+  if (templateKind === "mimundo") {
+    return <RegisterMiMundoSurface {...shellProps} />;
   }
 
   return (

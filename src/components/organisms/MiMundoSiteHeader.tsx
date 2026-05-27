@@ -153,7 +153,7 @@ export function MiMundoSiteHeader({
                   <span className="hidden md:inline">{labels.login}</span>
                 </Link>
                 <Link href={`/${locale}/register`}
-                  className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full bg-[var(--mm-blue)] px-3 py-2 text-xs font-semibold text-white shadow-[0_6px_18px_-8px_rgb(47_125_190_/55%)] transition hover:bg-[var(--mm-blue-dark)] sm:px-4"
+                  className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full bg-[var(--mm-blue-dark)] px-3 py-2 text-xs font-semibold text-white shadow-[0_6px_18px_-8px_rgb(35_94_142_/55%)] transition hover:bg-[#1a486c] sm:px-4"
                   aria-label={labels.reservar}>
                   <Sparkles className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
                   <span>{labels.reservar}</span>
@@ -206,7 +206,7 @@ export function MiMundoSiteHeader({
                   {labels.login}
                 </Link>
                 <Link href={`/${locale}/register`}
-                  className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-[var(--mm-blue)] px-4 py-2 text-sm font-semibold text-white"
+                  className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-[var(--mm-blue-dark)] px-4 py-2 text-sm font-semibold text-white"
                   onClick={() => setOpen(false)}>
                   <Sparkles className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
                   {labels.reservar}

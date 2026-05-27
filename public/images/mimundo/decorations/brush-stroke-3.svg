@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" preserveAspectRatio="none" aria-hidden="true">
+  <!--
+    Brush stroke #3 � almost flat, higher octave turbulence ? most frayed.
+    Cycled into nth-child(3n+3) to break up the rhythm of strokes #1 and #2.
+  -->
+  <defs>
+    <filter id="mm-brush-rough-3" x="-4%" y="-14%" width="108%" height="128%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05 0.18" numOctaves="3" seed="47"/>
+      <feDisplacementMap in="SourceGraphic" scale="8"/>
+    </filter>
+  </defs>
+  <path
+    d="M 8 12
+       Q 60 6, 120 12
+       Q 180 18, 232 8
+       Q 236 30, 230 62
+       Q 170 74, 110 66
+       Q 50 72, 14 68
+       Q 2 30, 8 12 Z"
+    fill="#fff"
+    filter="url(#mm-brush-rough-3)"
+  />
+</svg>

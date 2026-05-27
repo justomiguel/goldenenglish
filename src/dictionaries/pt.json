@@ -758,11 +758,27 @@
         "galeria": "Galeria",
         "contacto": "Contato"
       },
+      "register": {
+        "shellTitle": "Reserve a vaga no Mi Mundo",
+        "shellLead": "Conte-nos um pouco sobre seu pequeno. Revisamos cada solicitação com carinho e respondemos com a sala que mais combina e como começar.",
+        "figureKicker": "Jardim feito com amor",
+        "figureTitle": "Um mundo pronto para acolher",
+        "figureLead": "De 45 dias até 5 anos, cada sala está preparada para que as crianças brinquem, explorem e cresçam no próprio ritmo.",
+        "figureBullets": {
+          "play": "Aprender brincando, inspiração Reggio Emilia",
+          "nature": "Pátio verde, horta e compostagem",
+          "care": "Equipe especializada em primeira infância"
+        },
+        "ctaCallout": "É só um minuto!",
+        "loginCta": "Já tenho conta",
+        "backHome": "Voltar ao início"
+      },
       "hero": {
         "kicker": "Jardim Maternal Mi Mundo · Belgrano, Buenos Aires",
         "title": "Um mundo onde a infância se descobre brincando",
         "subtitle": "Acompanhamos o crescimento de cada criança com amor, brincadeira e proposta pedagógica inspirada em Reggio Emilia, dos 45 dias aos 5 anos.",
         "ctaReservar": "Reservar minha vaga",
+        "ctaCallout": "Inscreva-se!",
         "ctaLogin": "Entrar"
       },
       "propuesta": {
@@ -800,7 +816,8 @@
         }
       },
       "salas": {
-        "sectionTitle": "Nossas salas",
+        "kicker": "Nossas salas",
+        "sectionTitle": "Crescemos por idade",
         "bebes": {
           "nombre": "Sala Bolhas",
           "edades": "45 dias – 12 meses",
@@ -857,6 +874,7 @@
         }
       },
       "galeria": {
+        "kicker": "Nosso álbum",
         "sectionTitle": "Momentos que guardamos",
         "sectionSubtitle": "Um olhar para o dia a dia no Mi Mundo.",
         "verMas": "Ver todas as fotos",

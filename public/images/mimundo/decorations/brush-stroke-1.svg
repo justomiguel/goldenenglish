@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" preserveAspectRatio="none" aria-hidden="true">
+  <!--
+    Brush stroke #1 � slight upward bow.
+    `feTurbulence` + `feDisplacementMap` roughens the outline so the alpha
+    silhouette reads as bristle-frayed paper edges, not a clean ellipse.
+    Used as `mask-image` in mimundoLanding.css ? the white fill controls
+    where the painted background shows through.
+
+    Path covers ~y=10..70 (75% of vertical) so a 1em-tall word with modest
+    padding sits comfortably inside the paint band without descenders or
+    cap-heights poking past the frayed top/bottom edges.
+  -->
+  <defs>
+    <filter id="mm-brush-rough-1" x="-4%" y="-12%" width="108%" height="124%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.06 0.16" numOctaves="2" seed="11"/>
+      <feDisplacementMap in="SourceGraphic" scale="6"/>
+    </filter>
+  </defs>
+  <path
+    d="M 12 14
+       C 60 6, 130 6, 200 10
+       Q 232 14, 230 28
+       Q 232 64, 200 70
+       C 130 76, 60 72, 14 68
+       Q 4 60, 6 28
+       Q 4 18, 12 14 Z"
+    fill="#fff"
+    filter="url(#mm-brush-rough-1)"
+  />
+</svg>

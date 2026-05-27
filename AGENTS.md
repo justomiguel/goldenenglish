@@ -45,7 +45,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`25-server-error-logging.mdc`** | Todo error servidor: **`[ge:server]`** (`serverActionLog.ts`) — `scope` estable, códigos/IDs, suficiente para Vercel/ops; prohibido swallow silencioso; sin PII/secrets. |
 | **`27-post-mutation-ui-refresh.mdc`** | Tras mutaciones visibles: **`revalidatePath`** (server) + **`router.refresh()`** (client/hooks); edit flows incluidos; hooks con refresh integrado. |
 
-**Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`**, **`24-dashboard-list-filter-aggregates-rpc.mdc`** — agregados para filtros de listados en dashboard para **cualquier rol**).
+**Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`**, **`24-dashboard-list-filter-aggregates-rpc.mdc`** — agregados para filtros de listados en dashboard para **cualquier rol**, **`28-tenant-register-surface.mdc`** — `/register` con superficie dedicada por `SiteThemeKind`).
 
 ## Security skills vs this repo
 

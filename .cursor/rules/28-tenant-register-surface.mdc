@@ -1,0 +1,73 @@
+---
+description: Every new tenant template (`SiteThemeKind`) ships a dedicated `Register<Tenant>Surface` aligned with its landing — no falling back to the classic Golden English layout.
+globs:
+  - src/app/[locale]/register/**
+  - src/components/organisms/Register*Surface.tsx
+  - src/components/molecules/*RegisterHeader.tsx
+  - src/types/theming.ts
+  - src/dictionaries/en.json
+  - src/dictionaries/es.json
+  - src/dictionaries/pt.json
+  - supabase/migrations/*site_theme*
+alwaysApply: false
+---
+
+# Tenant onboarding — dedicated register surface
+
+## Objective
+
+The **`/[locale]/register`** route is a **Tier A** student/parent flow (**`05-pwa-mobile-native.mdc`**) and the **entry point** of the marketing funnel. Whenever the repo gains a new tenant template (new `SiteThemeKind` enum value + `site_themes` seed), the registration page **must ship the matching themed surface in the same change**. Falling back to the generic (classic / Golden English-flavored) layout is **not** acceptable for production tenants — it breaks the brand promise built by the landing.
+
+This rule complements **`19-multi-tenant-local-vercel-targets.mdc`** (target/env/landing wiring) and **`15-entity-crud-completeness.mdc`** (ghost surfaces forbidden).
+
+## When this rule applies
+
+Trigger the checklist below whenever a change introduces or modifies any of:
+
+1. A **new `SiteThemeKind` enum value** (`ALTER TYPE public.site_theme_kind ADD VALUE '<slug>'`) **or** a new `site_themes` seed row whose `template_kind` is not yet wired into `/register`.
+2. A new tenant landing experience (`Landing<Tenant>Sections.tsx`, `<Tenant>FontRoot.tsx`, brand-specific CSS) — register page **must** be updated in the same PR.
+3. Edits to `src/app/[locale]/register/page.tsx` that touch the `templateKind` dispatch.
+4. Edits to `src/types/theming.ts` (`SITE_THEME_KINDS`).
+
+## Mandatory checklist
+
+1. **Dedicated surface component** — `src/components/organisms/Register<Tenant>Surface.tsx`, exporting `Register<Tenant>Surface` and a `Register<Tenant>SurfaceProps` interface compatible with the shared `shellProps` shape (`locale`, `dict`, `brand`, `legalAgeMajority`, `sectionOptions`, optional `mediaMap`). Wraps `<RegisterForm />` inside the tenant's `Font|Theme Root` so the page inherits the tenant's typography, palette and decorative classes (e.g. `MiMundoFontRoot`, `MozarthitosFontRoot`).
+2. **Dedicated header (recommended)** — `src/components/molecules/<Tenant>RegisterHeader.tsx` with logo (from `brand.logoPath`), `LanguageSwitcher`, and a "back to home" link styled with the tenant's tokens. Reuse the brand chrome of the landing header — do **not** render `RegisterSiteHeader` for branded tenants.
+3. **Dispatch wired** — `src/app/[locale]/register/page.tsx` adds the matching branch:
+
+   ```ts
+   if (templateKind === "<slug>") {
+     return <Register<Tenant>Surface {...shellProps} mediaMap={mediaMap} />;
+   }
+   ```
+
+   The classic `<RegisterSiteHeader />` + `RegisterCollage` block remains **only** for `classic` / unbranded tenants.
+4. **Dictionaries** — `dict.landing.<brand>.register.*` populated in **`en.json` + `es.json` + `pt.json`** with at least: `shellTitle`, `shellLead`, and any tenant-specific figure / bullet / CTA copy (`figureKicker`, `figureTitle`, `figureLead`, `figureBullets.*`, `loginCta`, `backHome`, …). All visible strings come from the dictionary (**`09-i18n-copy.mdc`**); no JSX literals.
+5. **Reused theme assets** — pull mascot / decorative artwork from `brand.logoPath` or `resolveLandingImageSrcForTheme(...)`; do **not** invent new image folders specifically for `/register`.
+6. **Accessibility & contrast** — destructive / colored surfaces follow **`26-accessibility-contrast.mdc`** (AA text on backgrounds, ≥3:1 non-text). Decorative motion respects `prefers-reduced-motion` (reuse `.mm-*` / `.mz-*` / equivalent reduced-motion blocks already in the theme CSS file).
+7. **PWA / mobile parity** — Tier A flow: touch targets ≥ 44 px, `env(safe-area-inset-*)` aware chrome, fits one viewport without scrolling to the primary submit on common mobiles when feasible (**`05-pwa-mobile-native.mdc`**).
+8. **Test** — `src/__tests__/organisms/Register<Tenant>Surface.test.tsx` mirroring the pattern of `RegisterMozarthitosSurface.test.tsx`: mock `Font|Theme Root` + tenant chrome + `RegisterForm`, then assert the shell h1 / figure h2 / login link / bullets render from the new dictionary keys.
+9. **File-size & architecture** — surface ≤ 250 LOC (**`03-architecture.mdc`**), single primary named export per file, decorative client widgets (cursor trails, butterflies, doodles) imported from existing molecules — no new client/server boundaries solely for `/register`.
+
+## Forbidden
+
+- Letting `/register` fall through to the classic generic `<RegisterSiteHeader />` + collage layout for any tenant that already has a branded landing (`mozarthitos`, `espaciozenit`, `nago`, `mimundo`, …).
+- Forking `RegisterForm.tsx` to introduce per-tenant variants. The shared form already consumes `--color-*` tokens from the active `site_theme` — extend the **surrounding surface**, not the form atom.
+- Hardcoded brand strings / hex values in the surface (`01-design-system.mdc`).
+- Pushing the new tenant landing without the matching register surface in the same PR (`complete-solutions-always.mdc`).
+
+## Exceptions
+
+A tenant **may** keep using the classic register layout **only** when:
+
+- The tenant is `classic` (Golden English default), or
+- The tenant is explicitly scoped as **back-office / internal-only** (no public registration), documented in an ADR per **`10-engineering-governance.mdc`** and reflected in `getInscriptionsEnabled()` returning `false` for that brand.
+
+## References
+
+- Examples in tree: `RegisterMozarthitosSurface`, `RegisterEspacioZenitSurface`, `RegisterNagoSurface`, `RegisterMiMundoSurface`.
+- Dispatcher: [`src/app/[locale]/register/page.tsx`](../../src/app/[locale]/register/page.tsx).
+- Shared form: [`src/components/register/RegisterForm.tsx`](../../src/components/register/RegisterForm.tsx).
+- Theme enum + catalogs: [`src/types/theming.ts`](../../src/types/theming.ts).
+- Tenant runbook: [`docs/runbooks/add-new-tenant.md`](../../docs/runbooks/add-new-tenant.md).
+- Related rules: **`19-multi-tenant-local-vercel-targets.mdc`**, **`15-entity-crud-completeness.mdc`**, **`05-pwa-mobile-native.mdc`**, **`09-i18n-copy.mdc`**, **`26-accessibility-contrast.mdc`**.

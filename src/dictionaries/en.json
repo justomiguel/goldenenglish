@@ -758,11 +758,27 @@
         "galeria": "Gallery",
         "contacto": "Contact"
       },
+      "register": {
+        "shellTitle": "Save your spot at Mi Mundo",
+        "shellLead": "Tell us a little about your little one. We review every request with care and reply with the room that fits and how to start.",
+        "figureKicker": "Garden made with love",
+        "figureTitle": "A world ready to welcome them",
+        "figureLead": "From 45 days to 5 years old, every classroom is prepared so children can play, explore and grow at their own pace.",
+        "figureBullets": {
+          "play": "Play-based learning, Reggio-inspired",
+          "nature": "Daily outdoor time, garden and compost",
+          "care": "Specialised early-years team"
+        },
+        "ctaCallout": "Just a minute!",
+        "loginCta": "I already have an account",
+        "backHome": "Back to home"
+      },
       "hero": {
         "kicker": "Mi Mundo Nursery · Belgrano, Buenos Aires",
         "title": "A world where childhood discovers itself through play",
         "subtitle": "We nurture the growth of every child with love, play, and a Reggio-inspired pedagogical approach, from 45 days to 5 years old.",
         "ctaReservar": "Reserve my spot",
+        "ctaCallout": "Sign up!",
         "ctaLogin": "Sign in"
       },
       "propuesta": {
@@ -800,7 +816,8 @@
         }
       },
       "salas": {
-        "sectionTitle": "Our classrooms",
+        "kicker": "Our classrooms",
+        "sectionTitle": "We grow by age",
         "bebes": {
           "nombre": "Bubbles Room",
           "edades": "45 days – 12 months",
@@ -857,6 +874,7 @@
         }
       },
       "galeria": {
+        "kicker": "Our album",
         "sectionTitle": "Moments we treasure",
         "sectionSubtitle": "A glimpse into everyday life at Mi Mundo.",
         "verMas": "See all photos",

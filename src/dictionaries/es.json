@@ -758,11 +758,27 @@
         "galeria": "Galería",
         "contacto": "Contacto"
       },
+      "register": {
+        "shellTitle": "Reservá el cupo en Mi Mundo",
+        "shellLead": "Contanos un poco sobre tu peque. Revisamos cada solicitud con dedicación y te respondemos con la sala que mejor le siente y cómo arrancar.",
+        "figureKicker": "Jardín hecho con amor",
+        "figureTitle": "Un mundo listo para recibirlos",
+        "figureLead": "Desde los 45 días hasta los 5 años, cada sala está preparada para que las infancias jueguen, exploren y crezcan a su ritmo.",
+        "figureBullets": {
+          "play": "Juego libre, propuesta Reggio-inspirada",
+          "nature": "Patio verde, huerta y compostera",
+          "care": "Equipo especializado en primera infancia"
+        },
+        "ctaCallout": "¡Es un minuto!",
+        "loginCta": "Ya tengo cuenta",
+        "backHome": "Volver al inicio"
+      },
       "hero": {
         "kicker": "Jardín Maternal Mi Mundo · Belgrano, CABA",
         "title": "Un mundo donde la infancia se descubre jugando",
         "subtitle": "Acompañamos el crecimiento de cada niña y niño con amor, juego y propuesta pedagógica Reggio-inspirada, desde los 45 días hasta los 5 años.",
         "ctaReservar": "Reservar mi cupo",
+        "ctaCallout": "¡Anotate!",
         "ctaLogin": "Iniciar sesión"
       },
       "propuesta": {
@@ -800,7 +816,8 @@
         }
       },
       "salas": {
-        "sectionTitle": "Nuestras salas",
+        "kicker": "Nuestras salas",
+        "sectionTitle": "Crecemos por edades",
         "bebes": {
           "nombre": "Sala Burbujas",
           "edades": "45 días – 12 meses",
@@ -857,6 +874,7 @@
         }
       },
       "galeria": {
+        "kicker": "Álbum del jardín",
         "sectionTitle": "Momentos que guardamos",
         "sectionSubtitle": "Una mirada a la vida cotidiana en Mi Mundo.",
         "verMas": "Ver todas las fotos",

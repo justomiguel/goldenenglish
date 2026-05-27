@@ -47,6 +47,7 @@ Resumen:
 1. **Ops (casi siempre):** `.gitignore` → `.env.local.<slug>`; `vercel-targets.json` (o `.local`); `run-dev-with-target.mjs` (`TARGETS`, flag `--<slug>`, menú interactivo); `pull-vercel-env.mjs` (`OUT_FILES`); `package.json` (`dev:<slug>`, `pull:env:<slug>`); `apply-migration-all-tenants.mjs` (lista `TENANTS`); `.env.example` si aplica `SITE_BRAND_THEME_SLUG`.
 2. **Deploy en serie:** `deploy-vercel.mjs --all` recorre **todas** las claves del JSON mergeado, **orden alfabético**; entradas sin `orgId`/`projectId` se omiten.
 3. **Nueva plantilla (`SiteThemeKind`):** migración idempotente al enum; seed `site_themes`; `SITE_THEME_KINDS` en `src/types/theming.ts`; catálogos CMS / landing / media; `marketingLandingKinds` si el shell es full-bleed; diccionarios; tests (`isSiteThemeKind`); `masterdb.sql` si el equipo lo mantiene como vista de esquema.
+4. **Superficie `/register` por tenant (obligatorio para landings con marca propia):** crear `Register<Tenant>Surface` + header dedicado (e.g. `<Tenant>RegisterHeader`), agregar la rama `templateKind === "<slug>"` en `src/app/[locale]/register/page.tsx`, copy en `landing.<marca>.register.*` (`en` + `es` + `pt`) y test en `src/__tests__/organisms/Register<Tenant>Surface.test.tsx`. Detalle y excepciones: [`.cursor/rules/28-tenant-register-surface.mdc`](../../.cursor/rules/28-tenant-register-surface.mdc).
 
 ## Verificación rápida
 
