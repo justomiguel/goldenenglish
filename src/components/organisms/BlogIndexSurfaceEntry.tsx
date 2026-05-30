@@ -2,6 +2,7 @@
 
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import type { BlogArticleListItem } from "@/lib/blog/server";
+import type { BlogArticleCardLabels } from "@/components/molecules/BlogArticleCard";
 import { BlogIndexDesktop } from "@/components/desktop/organisms/BlogIndexDesktop";
 import { BlogIndexMobile } from "@/components/pwa/organisms/BlogIndexMobile";
 
@@ -11,8 +12,7 @@ interface BlogIndexSurfaceEntryProps {
   labels: {
     title: string;
     empty: string;
-    readMore: string;
-  };
+  } & BlogArticleCardLabels;
 }
 
 export function BlogIndexSurfaceEntry({ locale, rows, labels }: BlogIndexSurfaceEntryProps) {

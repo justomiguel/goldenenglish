@@ -1,5 +1,5 @@
 import type { BlogArticleListItem } from "@/lib/blog/server";
-import { BlogArticleCard } from "@/components/molecules/BlogArticleCard";
+import { BlogArticleCard, type BlogArticleCardLabels } from "@/components/molecules/BlogArticleCard";
 
 interface BlogIndexDesktopProps {
   locale: string;
@@ -7,8 +7,7 @@ interface BlogIndexDesktopProps {
   labels: {
     title: string;
     empty: string;
-    readMore: string;
-  };
+  } & BlogArticleCardLabels;
 }
 
 export function BlogIndexDesktop({ locale, rows, labels }: BlogIndexDesktopProps) {
@@ -20,7 +19,7 @@ export function BlogIndexDesktop({ locale, rows, labels }: BlogIndexDesktopProps
       ) : null}
       <div className="grid gap-4 md:grid-cols-2">
         {rows.map((row) => (
-          <BlogArticleCard key={row.id} locale={locale} article={row} readMoreLabel={labels.readMore} />
+          <BlogArticleCard key={row.id} locale={locale} article={row} labels={labels} />
         ))}
       </div>
     </section>

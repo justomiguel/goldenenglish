@@ -6380,12 +6380,42 @@
     "list": {
       "title": "Blog",
       "empty": "Articles will be published soon.",
-      "readMore": "Read more"
+      "readMore": "Read more",
+      "publishedDateAria": "Publication date",
+      "viewsCount": "{{count}} views"
     },
     "detail": {
       "relatedTitle": "Related articles",
       "share": "Share article",
-      "attachmentsTitle": "Article materials"
+      "shareCopied": "Link copied!",
+      "backToBlog": "Back to blog",
+      "articleEyebrow": "Article",
+      "attachmentsTitle": "Article materials",
+      "downloadFile": "Download file",
+      "audioLabel": "Attached audio",
+      "videoLabel": "Attached video",
+      "attachmentTypes": {
+        "pdf": "PDF document",
+        "word": "Word document",
+        "spreadsheet": "Spreadsheet",
+        "presentation": "Presentation",
+        "office": "Office document",
+        "image": "Image",
+        "audio": "Audio",
+        "video": "Video",
+        "other": "File"
+      },
+      "pdfViewer": {
+        "viewPdf": "View PDF",
+        "loading": "Loading document…",
+        "loadError": "We couldn't load this PDF. Try opening it in a new tab.",
+        "pageSummary": "Page {{current}} of {{total}}",
+        "previousPage": "Previous page",
+        "nextPage": "Next page",
+        "openInNewTab": "Open in new tab",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out"
+      }
     },
     "comments": {
       "title": "Comments",

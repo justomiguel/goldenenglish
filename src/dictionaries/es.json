@@ -6380,12 +6380,42 @@
     "list": {
       "title": "Blog",
       "empty": "Pronto vamos a publicar artículos.",
-      "readMore": "Leer más"
+      "readMore": "Leer más",
+      "publishedDateAria": "Fecha de publicación",
+      "viewsCount": "{{count}} vistas"
     },
     "detail": {
       "relatedTitle": "Artículos relacionados",
       "share": "Compartir artículo",
-      "attachmentsTitle": "Materiales del artículo"
+      "shareCopied": "¡Enlace copiado!",
+      "backToBlog": "Volver al blog",
+      "articleEyebrow": "Artículo",
+      "attachmentsTitle": "Materiales del artículo",
+      "downloadFile": "Descargar archivo",
+      "audioLabel": "Audio adjunto",
+      "videoLabel": "Video adjunto",
+      "attachmentTypes": {
+        "pdf": "Documento PDF",
+        "word": "Documento Word",
+        "spreadsheet": "Hoja de cálculo",
+        "presentation": "Presentación",
+        "office": "Documento Office",
+        "image": "Imagen",
+        "audio": "Audio",
+        "video": "Video",
+        "other": "Archivo"
+      },
+      "pdfViewer": {
+        "viewPdf": "Ver PDF",
+        "loading": "Cargando documento…",
+        "loadError": "No pudimos cargar este PDF. Probá abrirlo en una pestaña nueva.",
+        "pageSummary": "Página {{current}} de {{total}}",
+        "previousPage": "Página anterior",
+        "nextPage": "Página siguiente",
+        "openInNewTab": "Abrir en pestaña nueva",
+        "zoomIn": "Acercar",
+        "zoomOut": "Alejar"
+      }
     },
     "comments": {
       "title": "Comentarios",
