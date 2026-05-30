@@ -4,6 +4,7 @@ import type { Dictionary } from "@/types/i18n";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { MiMundoSiteHeader } from "@/components/organisms/MiMundoSiteHeader";
+import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
 
 export interface PublicBlogScreenMiMundoProps {
   locale: string;
@@ -54,6 +55,12 @@ export function PublicBlogScreenMiMundo({
         }}
       />
       <div className="mx-auto w-full max-w-6xl px-4 py-6">{children}</div>
+      <PublicContentLanguageFooter
+        locale={locale}
+        labels={dict.common.locale}
+        variant="compactDark"
+        tone="dark"
+      />
     </main>
   );
 }

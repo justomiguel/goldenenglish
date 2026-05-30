@@ -4,6 +4,7 @@ import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { PublicContactForm } from "@/components/molecules/PublicContactForm";
 import { RegisterSiteHeader } from "@/components/molecules/RegisterSiteHeader";
+import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
 
 export interface PublicContactScreenClassicProps {
   locale: string;
@@ -45,6 +46,10 @@ export function PublicContactScreenClassic({ locale, dict, brand }: PublicContac
           </Link>
         </p>
       </div>
+      <PublicContentLanguageFooter
+        locale={locale}
+        labels={dict.common.locale}
+      />
     </div>
   );
 }

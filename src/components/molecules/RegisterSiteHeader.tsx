@@ -3,8 +3,6 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
-import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
-
 interface RegisterSiteHeaderProps {
   brand: BrandPublic;
   locale: string;
@@ -77,7 +75,6 @@ export function RegisterSiteHeader({
           />
           {dict.nav.home}
         </Link>
-        <LanguageSwitcher locale={locale} labels={dict.common.locale} />
       </div>
     </header>
   );

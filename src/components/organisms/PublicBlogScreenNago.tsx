@@ -4,6 +4,7 @@ import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { NagoSiteHeader } from "@/components/organisms/NagoSiteHeader";
 import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
+import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
 
 export interface PublicBlogScreenNagoProps {
   locale: string;
@@ -51,6 +52,10 @@ export function PublicBlogScreenNago({
           }}
         />
         <div className="mx-auto w-full max-w-6xl px-4 py-6">{children}</div>
+        <PublicContentLanguageFooter
+          locale={locale}
+          labels={dict.common.locale}
+        />
       </main>
     </NagoFontRoot>
   );

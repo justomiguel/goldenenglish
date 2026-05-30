@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { RegisterSiteHeader } from "@/components/molecules/RegisterSiteHeader";
+import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
 
 export interface PublicBlogScreenClassicProps {
   locale: string;
@@ -35,6 +36,10 @@ export function PublicBlogScreenClassic({
         blogLabel={blogEnabled ? blogLabel : undefined}
       />
       <div className="mx-auto w-full max-w-6xl">{children}</div>
+      <PublicContentLanguageFooter
+        locale={locale}
+        labels={dict.common.locale}
+      />
     </div>
   );
 }

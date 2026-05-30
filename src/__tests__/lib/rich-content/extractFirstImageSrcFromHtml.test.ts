@@ -27,7 +27,7 @@ describe("resolveEventCoverImageUrl", () => {
 });
 
 describe("resolveBlogCoverImageUrl", () => {
-  it("prefers explicit cover storage path over body html", () => {
+  it("prefers the first inline body image for cards and social share", () => {
     const prevUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://project.supabase.co";
     try {
@@ -36,7 +36,21 @@ describe("resolveBlogCoverImageUrl", () => {
           '<p><img src="https://cdn.example/body.jpg" /></p>',
           "articles/abc/cover.webp",
         ),
-      ).toBe("https://project.supabase.co/storage/v1/object/public/blog-media/articles/abc/cover.webp");
+      ).toBe("https://cdn.example/body.jpg");
+    } finally {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = prevUrl;
+    }
+  });
+
+  it("falls back to cover storage path when the body has no image", () => {
+    const prevUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://project.supabase.co";
+    try {
+      expect(
+        resolveBlogCoverImageUrl("<p>Text only</p>", "articles/abc/cover.webp"),
+      ).toBe(
+        "https://project.supabase.co/storage/v1/object/public/blog-media/articles/abc/cover.webp",
+      );
     } finally {
       process.env.NEXT_PUBLIC_SUPABASE_URL = prevUrl;
     }
