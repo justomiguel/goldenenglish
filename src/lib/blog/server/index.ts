@@ -8,5 +8,6 @@ export * from "@/lib/blog/server/saveArticleAction";
 export * from "@/lib/blog/server/submitForReviewAction";
 export * from "@/lib/blog/server/publishScheduledArticles";
 export * from "@/lib/blog/server/incrementArticleViewCount";
+export * from "@/lib/blog/server/loadBlogArticleShareCover";
 export * from "@/lib/blog/server/commentActions";
 export * from "@/lib/blog/server/translateArticleAction";

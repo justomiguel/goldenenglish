@@ -27,13 +27,19 @@ export async function saveArticleAction(
   const parsed = articleCreateInputSchema.safeParse(input.payload);
   if (!parsed.success) return { ok: false, code: "invalid_input" };
 
+  const {
+    data: { user: sessionUser },
+  } = await supabase.auth.getUser();
+  const actorId = input.actorId?.trim() || sessionUser?.id || "";
+  if (!actorId) return { ok: false, code: "unauthorized" };
+
   const normalizedPayload = parsed.data;
   const normalizedTags = normalizeTags(normalizedPayload.tags);
 
   try {
     let existingStatus: "draft" | "pending_review" | "scheduled" | "published" | "archived" =
       "draft";
-    let authorIdForRow = input.actorId;
+    let authorIdForRow = actorId;
 
     if (input.articleId) {
       const { data: existing, error } = await supabase
@@ -51,7 +57,7 @@ export async function saveArticleAction(
 
       if (
         !canWriteArticle({
-          actorId: input.actorId,
+          actorId,
           actorRole: input.actorRole,
           authorId: existing.author_id,
           nextStatus: normalizedPayload.status,
@@ -59,6 +65,15 @@ export async function saveArticleAction(
       ) {
         return { ok: false, code: "forbidden" };
       }
+    } else if (
+      !canWriteArticle({
+        actorId,
+        actorRole: input.actorRole,
+        authorId: actorId,
+        nextStatus: normalizedPayload.status,
+      })
+    ) {
+      return { ok: false, code: "forbidden" };
     }
 
     const rowInput = {
@@ -69,23 +84,23 @@ export async function saveArticleAction(
       tags: normalizedTags,
       comments_enabled: normalizedPayload.commentsEnabled,
       is_pinned: normalizedPayload.isPinned,
-      updated_by: input.actorId,
+      updated_by: actorId,
       ...(normalizedPayload.status === "published"
         ? { published_at: new Date().toISOString() }
         : {}),
     };
 
-    const articleUpsertRow = {
-      ...rowInput,
-      author_id: authorIdForRow,
-      ...(input.articleId ? { id: input.articleId } : {}),
-    };
+    const articleWriteQuery = input.articleId
+      ? supabase
+          .from("blog_articles")
+          .update(rowInput)
+          .eq("id", input.articleId)
+      : supabase.from("blog_articles").insert({
+          ...rowInput,
+          author_id: authorIdForRow,
+        });
 
-    const { data: articleRow, error: articleError } = await supabase
-      .from("blog_articles")
-      .upsert(articleUpsertRow, { onConflict: "id" })
-      .select("id")
-      .single();
+    const { data: articleRow, error: articleError } = await articleWriteQuery.select("id").single();
 
     if (articleError || !articleRow?.id) {
       logSupabaseClientError("blog.save.upsert_article", articleError, {
@@ -145,6 +160,7 @@ export async function saveArticleAction(
   } catch (error) {
     logServerActionException("blog.save.unhandled", error, {
       actorRole: input.actorRole,
+      actorId,
     });
     return { ok: false, code: "unexpected_error" };
   }

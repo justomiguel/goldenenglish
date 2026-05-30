@@ -15,9 +15,15 @@ export function buildPublicShareMetadata(input: {
   coverImageUrl?: string | null;
   fallbackImageUrl?: string | null;
   ogType?: "website" | "article";
+  /** Route-level `opengraph-image.tsx` supplies the image; keep large card without inline URLs. */
+  deferShareImageToFileMetadata?: boolean;
 }): Pick<Metadata, "openGraph" | "twitter"> {
   const shareImageRaw = input.coverImageUrl ?? input.fallbackImageUrl ?? null;
-  const shareImage = shareImageRaw ? toAbsoluteShareUrl(shareImageRaw) : null;
+  const shareImage =
+    input.deferShareImageToFileMetadata || !shareImageRaw
+      ? null
+      : toAbsoluteShareUrl(shareImageRaw);
+  const useLargeCard = Boolean(shareImage || input.deferShareImageToFileMetadata);
   const pageUrl = absoluteUrl(input.path)?.toString() ?? input.path;
 
   return {
@@ -29,7 +35,7 @@ export function buildPublicShareMetadata(input: {
       ...(shareImage ? { images: [{ url: shareImage, alt: input.title }] } : {}),
     },
     twitter: {
-      card: shareImage ? "summary_large_image" : "summary",
+      card: useLargeCard ? "summary_large_image" : "summary",
       title: input.title,
       description: input.description,
       ...(shareImage ? { images: [shareImage] } : {}),

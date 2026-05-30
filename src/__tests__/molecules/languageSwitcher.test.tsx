@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
+import { BlogArticleLocaleHrefProvider } from "@/components/blog/BlogArticleLocaleHrefProvider";
 import { mockPathname } from "@/test/navigationMock";
 
 vi.mock("next/navigation", () => ({
@@ -64,6 +65,25 @@ describe("LanguageSwitcher", () => {
     expect(screen.getByRole("link", { name: /^PT$/ })).toHaveAttribute(
       "href",
       "/pt/dashboard",
+    );
+  });
+
+  it("uses blog article locale href overrides when provided", () => {
+    mockPathname.mockReturnValue("/es/blog/mi-articulo");
+    render(
+      <BlogArticleLocaleHrefProvider
+        hrefs={{
+          es: "/es/blog/mi-articulo",
+          en: "/en/blog/my-article",
+          pt: "/pt/blog/meu-artigo",
+        }}
+      >
+        <LanguageSwitcher locale="es" labels={labels} />
+      </BlogArticleLocaleHrefProvider>,
+    );
+    expect(screen.getByRole("link", { name: /^EN$/ })).toHaveAttribute(
+      "href",
+      "/en/blog/my-article",
     );
   });
 });

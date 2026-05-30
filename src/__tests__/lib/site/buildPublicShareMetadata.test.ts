@@ -24,6 +24,19 @@ describe("buildPublicShareMetadata", () => {
     }
   });
 
+  it("defers image urls when route opengraph-image handles preview", () => {
+    const meta = buildPublicShareMetadata({
+      title: "Post",
+      description: "Body",
+      path: "/es/blog/post",
+      coverImageUrl: "https://cdn.example/cover.jpg",
+      deferShareImageToFileMetadata: true,
+    });
+    expect(meta.openGraph?.images).toBeUndefined();
+    expect(meta.twitter?.images).toBeUndefined();
+    expect(meta.twitter?.card).toBe("summary_large_image");
+  });
+
   it("resolves site-relative fallback urls", () => {
     const prev = process.env.NEXT_PUBLIC_APP_URL;
     process.env.NEXT_PUBLIC_APP_URL = "https://example.com";

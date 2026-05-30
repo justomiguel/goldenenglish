@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -7,6 +7,12 @@ import {
   loadArticleBySlug,
   loadRelatedArticles,
 } from "@/lib/blog/server";
+import type { BlogLocale } from "@/lib/blog/domain";
+import {
+  buildBlogArticleLanguageAlternates,
+  buildBlogArticleLocalePaths,
+} from "@/lib/blog/buildBlogArticleLocalePaths";
+import { BlogArticleLocaleHrefProvider } from "@/components/blog/BlogArticleLocaleHrefProvider";
 import { pickBlogRichContentLabels } from "@/lib/blog/pickBlogRichContentLabels";
 import { BlogArticleDetailSurfaceEntry } from "@/components/organisms/BlogArticleDetailSurfaceEntry";
 import { JsonLdArticle } from "@/components/molecules/JsonLdArticle";
@@ -29,22 +35,21 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
+  const blogLocale = locale as BlogLocale;
   const supabase = await createClient();
-  const { article, translation } = await loadArticleBySlug(supabase, locale as "en" | "es" | "pt", slug);
+  const { article, translation, localeSlugs } = await loadArticleBySlug(
+    supabase,
+    blogLocale,
+    slug,
+  );
   if (!article || !translation) return {};
   const title = translation.seoTitle ?? translation.title;
   const description = translation.seoDescription ?? translation.excerpt;
-  const brand = await getBrandForRequest();
-  const coverImageUrl = resolveBlogCoverImageUrl(
-    translation.bodyHtml,
-    article.coverStoragePath,
-  );
   const share = buildPublicShareMetadata({
     title,
     description,
     path: `/${locale}/blog/${translation.slug}`,
-    coverImageUrl,
-    fallbackImageUrl: brand.logoPath,
+    deferShareImageToFileMetadata: true,
     ogType: "article",
   });
   return {
@@ -52,6 +57,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description,
     alternates: {
       canonical: `/${locale}/blog/${translation.slug}`,
+      languages: buildBlogArticleLanguageAlternates(localeSlugs, article.defaultLocale),
     },
     ...share,
   };
@@ -59,17 +65,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BlogDetailPage({ params }: PageProps) {
   const { locale, slug } = await params;
+  const blogLocale = locale as BlogLocale;
   const dict = await getDictionary(locale);
   const detailLabels = dict.blog.detail;
   const listLabels = dict.blog.list;
   const commentLabels = dict.blog.comments;
   const supabase = await createClient();
-  const { article, translation } = await loadArticleBySlug(
+  const { article, translation, localeSlugs } = await loadArticleBySlug(
     supabase,
-    locale as "en" | "es" | "pt",
+    blogLocale,
     slug,
   );
   if (!article || !translation) notFound();
+
+  if (translation.slug !== slug) {
+    redirect(`/${locale}/blog/${translation.slug}`);
+  }
+
+  const localeHrefMap = buildBlogArticleLocalePaths(localeSlugs);
 
   const {
     data: { user },
@@ -93,7 +106,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
   const related = await loadRelatedArticles(supabase, {
     articleId: article.id,
     tags: article.tags,
-    locale: locale as "en" | "es" | "pt",
+    locale: blogLocale,
     limit: 3,
   });
   const publicUrl = getPublicSiteUrl();
@@ -109,49 +122,51 @@ export default async function BlogDetailPage({ params }: PageProps) {
   const richContentLabels = pickBlogRichContentLabels(dict);
 
   return (
-    <div className="space-y-8">
-      <BlogArticleDetailSurfaceEntry
-        locale={locale}
-        title={translation.title}
-        excerpt={translation.excerpt}
-        bodyHtml={bodyHtml}
-        coverImageUrl={coverImageUrl}
-        coverUnoptimized={Boolean(coverUnoptimized)}
-        attachments={translation.attachments}
-        attachmentsTitle={detailLabels.attachmentsTitle}
-        heroLabels={{
-          backToBlog: detailLabels.backToBlog,
-          articleEyebrow: detailLabels.articleEyebrow,
-          publishedDateAria: listLabels.publishedDateAria,
-        }}
-        displayDate={displayDate}
-        displayDateIso={displayDateIso}
-        viewsLabel={viewsLabel}
-        richContentLabels={richContentLabels}
-        shareUrl={`${publicUrl}/${locale}/blog/${translation.slug}`}
-        shareLabel={detailLabels.share}
-        shareCopiedLabel={detailLabels.shareCopied}
-      />
-
-      <JsonLdArticle
-        url={`${publicUrl}/${locale}/blog/${translation.slug}`}
-        title={translation.title}
-        description={translation.excerpt}
-        publishedAt={article.publishedAt ?? article.createdAt}
-        imageUrl={coverImageUrl}
-      />
-
-      {related.length > 0 ? (
-        <BlogArticleRelatedInline
+    <BlogArticleLocaleHrefProvider hrefs={localeHrefMap}>
+      <div className="space-y-8">
+        <BlogArticleDetailSurfaceEntry
           locale={locale}
-          articles={related}
-          title={detailLabels.relatedTitle}
+          title={translation.title}
+          excerpt={translation.excerpt}
+          bodyHtml={bodyHtml}
+          coverImageUrl={coverImageUrl}
+          coverUnoptimized={Boolean(coverUnoptimized)}
+          attachments={translation.attachments}
+          attachmentsTitle={detailLabels.attachmentsTitle}
+          heroLabels={{
+            backToBlog: detailLabels.backToBlog,
+            articleEyebrow: detailLabels.articleEyebrow,
+            publishedDateAria: listLabels.publishedDateAria,
+          }}
+          displayDate={displayDate}
+          displayDateIso={displayDateIso}
+          viewsLabel={viewsLabel}
+          richContentLabels={richContentLabels}
+          shareUrl={`${publicUrl}/${locale}/blog/${translation.slug}`}
+          shareLabel={detailLabels.share}
+          shareCopiedLabel={detailLabels.shareCopied}
         />
-      ) : null}
 
-      {user && article.commentsEnabled ? (
-        <BlogCommentsSection articleId={article.id} labels={commentLabels} />
-      ) : null}
-    </div>
+        <JsonLdArticle
+          url={`${publicUrl}/${locale}/blog/${translation.slug}`}
+          title={translation.title}
+          description={translation.excerpt}
+          publishedAt={article.publishedAt ?? article.createdAt}
+          imageUrl={coverImageUrl}
+        />
+
+        {related.length > 0 ? (
+          <BlogArticleRelatedInline
+            locale={locale}
+            articles={related}
+            title={detailLabels.relatedTitle}
+          />
+        ) : null}
+
+        {user && article.commentsEnabled ? (
+          <BlogCommentsSection articleId={article.id} labels={commentLabels} />
+        ) : null}
+      </div>
+    </BlogArticleLocaleHrefProvider>
   );
 }

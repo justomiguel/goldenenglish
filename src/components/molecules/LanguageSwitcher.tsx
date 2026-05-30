@@ -8,6 +8,7 @@ import {
   type AppLocale,
 } from "@/lib/i18n/dictionaries";
 import { LocaleFlag } from "@/components/atoms/LocaleFlag";
+import { useBlogArticleLocaleHrefs } from "@/components/blog/BlogArticleLocaleHrefProvider";
 
 export interface LanguageSwitcherLabels {
   label: string;
@@ -100,13 +101,17 @@ export function LanguageSwitcher({
   variant = "default",
 }: LanguageSwitcherProps) {
   const pathname = usePathname();
+  const blogLocaleHrefs = useBlogArticleLocaleHrefs();
   const rest = pathWithoutLocale(pathname);
   const active = locales.includes(locale as AppLocale)
     ? (locale as AppLocale)
     : defaultLocale;
 
-  const hrefFor = (loc: AppLocale) =>
-    rest === "/" ? `/${loc}` : `/${loc}${rest}`;
+  const hrefFor = (loc: AppLocale) => {
+    const blogHref = blogLocaleHrefs?.[loc];
+    if (blogHref) return blogHref;
+    return rest === "/" ? `/${loc}` : `/${loc}${rest}`;
+  };
 
   return (
     <nav aria-label={labels.label}>
