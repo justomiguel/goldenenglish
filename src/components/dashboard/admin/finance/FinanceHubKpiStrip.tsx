@@ -1,5 +1,6 @@
 import type { SectionCollectionsKpis } from "@/types/sectionCollections";
 import type { Dictionary } from "@/types/i18n";
+import type { EventPaymentsFinanceKpis } from "@/lib/billing/financeSources/loadEventPaymentsForFinanceKpis";
 
 type KpiStripDict = Dictionary["admin"]["finance"]["collections"]["kpis"];
 
@@ -48,6 +49,7 @@ export interface FinanceHubKpiStripProps {
   dict: KpiStripDict;
   locale: string;
   currency?: string;
+  eventKpis?: EventPaymentsFinanceKpis | null;
 }
 
 export function FinanceHubKpiStrip({
@@ -55,6 +57,7 @@ export function FinanceHubKpiStrip({
   dict,
   locale,
   currency = "USD",
+  eventKpis,
 }: FinanceHubKpiStripProps) {
   return (
     <section
@@ -93,6 +96,13 @@ export function FinanceHubKpiStrip({
         value={String(kpis.totalStudents)}
         hint={`${dict.overdueStudents}: ${kpis.overdueStudents}`}
       />
+      {eventKpis ? (
+        <Tile
+          label={dict.eventsApproved}
+          value={String(eventKpis.totalApproved)}
+          hint={`${dict.eventsPending}: ${eventKpis.totalPending}`}
+        />
+      ) : null}
     </section>
   );
 }

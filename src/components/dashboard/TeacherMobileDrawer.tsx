@@ -15,9 +15,10 @@ export interface TeacherMobileDrawerProps {
   locale: string;
   dict: Dictionary;
   adminNav?: AdminWorkspaceNavLabels;
+  includeBlogNav?: boolean;
 }
 
-export function TeacherMobileDrawer({ locale, dict, adminNav }: TeacherMobileDrawerProps) {
+export function TeacherMobileDrawer({ locale, dict, adminNav, includeBlogNav }: TeacherMobileDrawerProps) {
   const navDict = dict.dashboard.teacherNav;
   const chromeDict = dict.dashboard.teacherChrome;
   const [open, setOpen] = useState(false);
@@ -115,6 +116,7 @@ export function TeacherMobileDrawer({ locale, dict, adminNav }: TeacherMobileDra
                   locale={locale}
                   dict={navDict}
                   adminNav={adminNav}
+                  includeBlogNav={includeBlogNav}
                   onNavigate={close}
                   variant="mobile"
                 />

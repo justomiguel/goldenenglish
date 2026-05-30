@@ -27,6 +27,8 @@ export interface AdminSidebarNavContentProps {
   recentInboundMessagesCount: number;
   /** When true, includes Communications → Email templates (mega-admin only). */
   includeEmailTemplatesNav?: boolean;
+  /** When true, includes Blog under CMS tools (tenant `blog_enabled`). */
+  includeBlogNav?: boolean;
   teacherNav?: AdminTeacherNavLabels;
   onNavigate?: () => void;
   variant?: "desktop" | "mobile";
@@ -158,6 +160,7 @@ export function AdminSidebarNavContent({
   newRegistrationsCount,
   recentInboundMessagesCount,
   includeEmailTemplatesNav = false,
+  includeBlogNav = false,
   teacherNav,
   onNavigate,
   variant = "desktop",
@@ -171,6 +174,7 @@ export function AdminSidebarNavContent({
   }, {
     financeHref: financeHrefForPathname(base, pathname),
     includeEmailTemplatesNav,
+    includeBlogNav,
   });
   const allHrefs = groups.flatMap((g) => g.items.map((i) => i.href));
   const mobile = variant === "mobile";

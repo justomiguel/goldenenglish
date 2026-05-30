@@ -59,6 +59,8 @@ export const AnalyticsEntity = {
   adminRevertedMonthlyPayment: "admin_reverted_monthly_payment",
   /** Funnel: MercadoPago monthly payment finalized as approved (webhook or return-bridge) */
   monthlyPaymentMercadoPagoCompleted: "monthly_payment_mercadopago_completed",
+  blog: "section:blog",
+  events: "section:events",
 } as const;
 
 export type UserEventTypeName = "page_view" | "click" | "action" | "session_start";
@@ -92,5 +94,7 @@ export function pathnameToEntity(pathname: string): string {
   }
   if (pathname.includes("/dashboard/admin/calendar/special")) return AnalyticsEntity.portalCalendar;
   if (pathname.includes("/dashboard/admin/calendar")) return AnalyticsEntity.portalCalendar;
+  if (pathname.includes("/blog")) return AnalyticsEntity.blog;
+  if (pathname.includes("/events")) return AnalyticsEntity.events;
   return `${AnalyticsEntity.pageViewPrefix}${pathname}`;
 }

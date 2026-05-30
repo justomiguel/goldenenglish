@@ -17,6 +17,7 @@ export interface AdminMobileDrawerProps {
   newRegistrationsCount: number;
   recentInboundMessagesCount: number;
   includeEmailTemplatesNav?: boolean;
+  includeBlogNav?: boolean;
   teacherNav?: AdminTeacherNavLabels;
 }
 
@@ -26,6 +27,7 @@ export function AdminMobileDrawer({
   newRegistrationsCount,
   recentInboundMessagesCount,
   includeEmailTemplatesNav,
+  includeBlogNav,
   teacherNav,
 }: AdminMobileDrawerProps) {
   const navDict = dict.dashboard.adminNav;
@@ -134,6 +136,7 @@ export function AdminMobileDrawer({
                 newRegistrationsCount={newRegistrationsCount}
                 recentInboundMessagesCount={recentInboundMessagesCount}
                 includeEmailTemplatesNav={includeEmailTemplatesNav}
+                includeBlogNav={includeBlogNav}
                 teacherNav={teacherNav}
                 onNavigate={close}
                 variant="mobile"

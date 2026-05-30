@@ -22,7 +22,7 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
-import type { Dictionary } from "@/types/i18n";
+import type { ContentMaterialsPanelLabels } from "@/types/contentMaterialsPanelLabels";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 
 export type AdminGlobalDraftMaterial = {
@@ -39,7 +39,8 @@ export type AdminGlobalDraftMaterial = {
 };
 
 interface AdminGlobalContentMaterialsPanelProps {
-  labels: Dictionary["dashboard"]["adminContents"];
+  labels: ContentMaterialsPanelLabels;
+  fileInputId?: string;
   materials: AdminGlobalDraftMaterial[];
   materialLabel: string;
   embedUrl: string;
@@ -56,6 +57,7 @@ interface AdminGlobalContentMaterialsPanelProps {
 
 export function AdminGlobalContentMaterialsPanel({
   labels,
+  fileInputId = "global-content-file",
   materials,
   materialLabel,
   embedUrl,
@@ -97,9 +99,9 @@ export function AdminGlobalContentMaterialsPanel({
         </div>
         <div className="mt-2 grid gap-2 lg:grid-cols-[1fr_auto]">
           <div>
-            <Label htmlFor="global-content-file">{labels.builderFileLabel}</Label>
+            <Label htmlFor={fileInputId}>{labels.builderFileLabel}</Label>
             <Input
-              id="global-content-file"
+              id={fileInputId}
               type="file"
               multiple
               accept="application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,image/png,image/jpeg,image/webp,audio/mpeg,audio/mp4,audio/wav,audio/webm,video/mp4,video/webm"
@@ -155,7 +157,7 @@ function SortableMaterialItem({
   material: AdminGlobalDraftMaterial;
   index: number;
   total: number;
-  labels: Dictionary["dashboard"]["adminContents"];
+  labels: ContentMaterialsPanelLabels;
   onMoveMaterial: (index: number, direction: -1 | 1) => void;
   onRemoveMaterial: (material: AdminGlobalDraftMaterial) => void;
 }) {

@@ -14,6 +14,12 @@ export interface NagoSiteHeaderProps {
   logoAlt: string;
   dict: Dictionary;
   sessionEmail: string | null;
+  /** When set, adds a link to the public blog in desktop and mobile nav. */
+  showBlogLink?: boolean;
+  blogLabel?: string;
+  /** When true, adds /events (uses labels.eventos). Defaults true — Nago always lists public events. */
+  showEventsLink?: boolean;
+  eventsLabel?: string;
   labels: {
     inicio: string;
     sobreNosotros: string;
@@ -34,6 +40,10 @@ export function NagoSiteHeader({
   logoAlt,
   dict,
   sessionEmail,
+  showBlogLink = false,
+  blogLabel,
+  showEventsLink = true,
+  eventsLabel,
   labels,
 }: NagoSiteHeaderProps) {
   const [open, setOpen] = useState(false);
@@ -47,7 +57,12 @@ export function NagoSiteHeader({
     { href: `${prefix}#sobre`, label: labels.sobreNosotros },
     { href: `${prefix}#principios`, label: labels.clases },
     { href: `${prefix}#galeria`, label: labels.galeria },
-    { href: `${prefix}#cta`, label: labels.eventos },
+    ...(showEventsLink
+      ? [{ href: `${prefix}/events`, label: eventsLabel ?? labels.eventos }]
+      : []),
+    ...(showBlogLink && blogLabel
+      ? [{ href: `${prefix}/blog`, label: blogLabel }]
+      : []),
     { href: `${prefix}#contacto`, label: labels.contacto },
   ];
 

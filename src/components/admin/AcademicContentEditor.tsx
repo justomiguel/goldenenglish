@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
@@ -15,6 +15,10 @@ import { PromptStringModal } from "@/components/molecules/PromptStringModal";
 import { AcademicContentEditorToolbar } from "@/components/admin/AcademicContentEditorToolbar";
 import { tiptapAcademicLinkShouldAutoLink } from "@/lib/learning-content/tiptapAcademicLinkShouldAutoLink";
 import { logClientException } from "@/lib/logging/clientLog";
+import { BlogAttachChooserModal } from "@/components/dashboard/admin/cms/blog/BlogAttachChooserModal";
+import { useAcademicEditorMediaInsert } from "@/hooks/useAcademicEditorMediaInsert";
+import type { BlogEditorMediaAttachConfig } from "@/lib/blog/blogEditorMediaAttach";
+import type { MediaSyncToAllLocalesPayload } from "@/lib/learning-content/insertAcademicEditorMedia";
 import type { Dictionary } from "@/types/i18n";
 
 type Labels = Dictionary["dashboard"]["adminContents"];
@@ -25,6 +29,9 @@ interface AcademicContentEditorProps {
   onImageUpload: (file: File) => Promise<{ src: string; alt: string } | null>;
   labels: Labels;
   disabled?: boolean;
+  mediaAttach?: BlogEditorMediaAttachConfig;
+  /** Mirrors inline media into every locale body (blog articles, event translations). */
+  syncMediaToAllLocales?: (payload: MediaSyncToAllLocalesPayload) => void;
 }
 
 const visualPlaceholder = (html: string | null | undefined) => {
@@ -38,9 +45,12 @@ export function AcademicContentEditor({
   onImageUpload,
   labels,
   disabled,
+  mediaAttach,
+  syncMediaToAllLocales,
 }: AcademicContentEditorProps) {
   const toolbarId = useId();
   const isDisabled = Boolean(disabled);
+  const [attachChooserOpen, setAttachChooserOpen] = useState(false);
   const [urlDialog, setUrlDialog] = useState<
     null | { kind: "link" | "youtube"; initial: string }
   >(null);
@@ -59,7 +69,7 @@ export function AcademicContentEditor({
       }),
       Image.configure({
         allowBase64: false,
-        inline: false,
+        inline: true,
         resize: {
           enabled: true,
           minWidth: 48,
@@ -86,23 +96,12 @@ export function AcademicContentEditor({
     onUpdate: ({ editor: ed }) => onChange(ed.getHTML()),
   });
 
-  const addImage = useCallback(async () => {
-    if (!editor) return;
-    const input = document.createElement("input");
-    input.type = "file";
-    input.multiple = true;
-    input.accept = "image/png,image/jpeg,image/webp";
-    input.onchange = async () => {
-      const files = input.files ? Array.from(input.files) : [];
-      for (const file of files) {
-        const uploaded = await onImageUpload(file);
-        if (uploaded) {
-          editor.chain().focus().setImage({ src: uploaded.src, alt: uploaded.alt }).run();
-        }
-      }
-    };
-    input.click();
-  }, [editor, onImageUpload]);
+  const { addImage, addMediaFile, insertYoutubeFromUrl } = useAcademicEditorMediaInsert({
+    editor,
+    onImageUpload,
+    mediaAttach,
+    syncMediaToAllLocales,
+  });
 
   useEffect(() => {
     if (!editor) return;
@@ -141,8 +140,31 @@ export function AcademicContentEditor({
         labels={labels}
         setUrlDialog={setUrlDialog}
         addImage={addImage}
+        mediaAttach={
+          mediaAttach
+            ? {
+                clipTooltip: mediaAttach.labels.clipTooltip,
+                onOpenChooser: () => setAttachChooserOpen(true),
+              }
+            : undefined
+        }
       />
       <EditorContent editor={editor} />
+
+      {mediaAttach ? (
+        <BlogAttachChooserModal
+          open={attachChooserOpen}
+          onOpenChange={setAttachChooserOpen}
+          labels={mediaAttach.labels}
+          onChooseYoutube={() =>
+            setUrlDialog({
+              kind: "youtube",
+              initial: "https://www.youtube.com/watch?v=",
+            })
+          }
+          onChooseFile={() => void addMediaFile()}
+        />
+      ) : null}
 
       <PromptStringModal
         open={urlDialog !== null}
@@ -172,9 +194,7 @@ export function AcademicContentEditor({
             editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
             return;
           }
-          const u = value.trim();
-          if (!u) return;
-          editor.commands.setYoutubeVideo({ src: u, width: 720, height: 405 });
+          insertYoutubeFromUrl(value.trim());
         }}
       />
     </div>

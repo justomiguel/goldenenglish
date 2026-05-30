@@ -11,6 +11,7 @@ import { loadNeedsInitialSiteSetup } from "@/lib/site/loadNeedsInitialSiteSetup"
 import { AdminInitialSiteSetupGate } from "@/components/dashboard/admin/site-setup/AdminInitialSiteSetupGate";
 import { isEmailTemplatesMegaAdmin } from "@/lib/auth/emailTemplatesMegaAdmin";
 import { loadAdminRecentInboundMessageCount } from "@/lib/dashboard/loadAdminRecentInboundMessageCount";
+import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 interface AdminLayoutProps {
@@ -59,7 +60,10 @@ export default async function AdminSectionLayout({
     logSupabaseClientError("adminLayout.registrationsNewCount", registrationsResult.error, {});
   }
 
-  const needsInitialSiteSetup = await loadNeedsInitialSiteSetup(supabase);
+  const [needsInitialSiteSetup, blogEnabled] = await Promise.all([
+    loadNeedsInitialSiteSetup(supabase),
+    loadBlogEnabled(),
+  ]);
 
   const brand = needsInitialSiteSetup
     ? neutralBrandForGreenfield(dict)
@@ -75,6 +79,7 @@ export default async function AdminSectionLayout({
       adminProfileRole={adminProfileRole}
       teacherPortalAllowed={teacherPortalAllowed}
       includeEmailTemplatesNav={isEmailTemplatesMegaAdmin(user.email)}
+      includeBlogNav={blogEnabled && !needsInitialSiteSetup}
       siteSetupRequired={needsInitialSiteSetup}
     >
       <AdminInitialSiteSetupGate

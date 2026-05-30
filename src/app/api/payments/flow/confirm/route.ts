@@ -3,9 +3,12 @@ import { finalizeMonthlyPaymentFromFlowGateway } from "@/lib/billing/finalizeMon
 import { loadPaymentGatewayEncryptionKeyRaw32 } from "@/lib/payment-gateways/loadPaymentGatewayEncryptionKey";
 import { loadFlowChileCredentialsPlain, flowChileApiBase } from "@/lib/payment-gateways/flow/loadFlowChileCredentialsPlain";
 import { logServerException } from "@/lib/logging/serverActionLog";
+import { finalizeEventPaymentFromFlowGateway } from "@/lib/events/server/finalizeEventPaymentFromFlowGateway";
 
 export async function POST(req: Request): Promise<Response> {
   try {
+    const url = new URL(req.url);
+    const purpose = url.searchParams.get("purpose")?.trim() ?? "monthly";
     const raw = await req.text();
     const params = new URLSearchParams(raw);
     const token = params.get("token")?.trim() ?? "";
@@ -28,13 +31,22 @@ export async function POST(req: Request): Promise<Response> {
     }
 
     const base = flowChileApiBase(creds);
-    const result = await finalizeMonthlyPaymentFromFlowGateway({
-      admin,
-      apiBaseUrl: base,
-      apiKey: creds.apiKey,
-      secretKey: creds.secretKey,
-      token,
-    });
+    const result =
+      purpose === "event"
+        ? await finalizeEventPaymentFromFlowGateway({
+            admin,
+            apiBaseUrl: base,
+            apiKey: creds.apiKey,
+            secretKey: creds.secretKey,
+            token,
+          })
+        : await finalizeMonthlyPaymentFromFlowGateway({
+            admin,
+            apiBaseUrl: base,
+            apiKey: creds.apiKey,
+            secretKey: creds.secretKey,
+            token,
+          });
 
     if (!result.ok) {
       logServerException("flowConfirm:finalize_failed", new Error("finalize_failed"));

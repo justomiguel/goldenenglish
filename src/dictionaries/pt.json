@@ -1181,6 +1181,7 @@
     },
     "settings": {
       "title": "Configurações",
+      "integrationsTitle": "Integrações",
       "scopeLead": "Essas configurações se aplicam a todo o instituto. O ensino diário (suas aulas, frequência e mensagens da aula) está no painel do professor.",
       "inscriptions": "Cadastros públicos",
       "inscriptionsHint": "Quando desativado, o botão de inscrição fica oculto na página inicial.",
@@ -1195,7 +1196,18 @@
       "classRemindersTimeZone": "Fuso horário do instituto (horário silencioso para WhatsApp)",
       "classRemindersSaved": "Configurações de lembrete salvas",
       "classRemindersSaveError": "Não foi possível salvar as configurações do lembrete",
-      "submitChanges": "Salvar alterações"
+      "submitChanges": "Salvar alterações",
+      "blogTranslate": {
+        "title": "Google Translate (blog)",
+        "hint": "Defina a API key usada para traduzir artigos do blog.",
+        "inputLabel": "API key",
+        "inputPlaceholder": "Cole a API key do Google",
+        "save": "Salvar key",
+        "saved": "Key salva",
+        "error": "Não foi possível salvar a key",
+        "keyMaskedPrefix": "Key configurada:",
+        "keyNotConfigured": "Nenhuma key configurada"
+      }
     },
     "cms": {
       "navLabel": "Conteúdo e temas",
@@ -1204,6 +1216,79 @@
       "templatesNav": "Modelos",
       "templatesHubCta": "Abrir modelos",
       "templatesHubDescription": "Mude o modelo ativo para alterar a aparência do destino (por exemplo, aniversário, feriados). As edições nos modelos são salvas imediatamente e o site público é atualizado em um minuto.",
+      "blogHubTitle": "Blog",
+      "blogHubCta": "Abrir blog",
+      "blogHubDescription": "Criar artigos, agendar publicação, moderar comentários e gerenciar traduções.",
+      "blog": {
+        "list": {
+          "title": "Artigos do blog",
+          "create": "Novo artigo",
+          "empty": "Ainda não há artigos.",
+          "publish": "Publicar",
+          "archive": "Arquivar",
+          "submitForReview": "Enviar para revisão",
+          "pin": "Fixar",
+          "unpin": "Desafixar",
+          "edit": "Editar",
+          "views": "Visualizações"
+        },
+        "editor": {
+          "title": "Título",
+          "excerpt": "Resumo",
+          "body": "Conteúdo",
+          "save": "Salvar artigo",
+          "saveError": "Não foi possível salvar o artigo",
+          "saveSuccess": "Artigo salvo",
+          "localeTabsAria": "Idioma do artigo",
+          "localeTabs": {
+            "en": "Inglês",
+            "es": "Espanhol",
+            "pt": "Português"
+          },
+          "editingLocaleHint": "Você está editando a versão em {locale}. Troque de aba para carregar ou escrever outro idioma manualmente.",
+          "translateToLocale": "Traduzir com Google → {locale}",
+          "translateSuccess": "Tradução aplicada. Revise o texto e salve.",
+          "translateNeedsSave": "Salve o artigo uma vez antes de usar o Google Translate.",
+          "translateManualHint": "Você pode escrever cada idioma manualmente nas abas acima, sem Google Translate.",
+          "translateMissingKey": "O Google Translate não está configurado; use as abas para preencher EN, ES e PT manualmente.",
+          "saveNeedOneLocale": "Preencha pelo menos um idioma (título e conteúdo) antes de salvar.",
+          "metaStatus": "Status",
+          "metaTags": "Tags CSV",
+          "metaScheduled": "Agendado para",
+          "metaPinned": "Fixado",
+          "fileError": "O arquivo é muito grande ou não é suportado.",
+          "attach": {
+            "clipTooltip": "Anexar mídia",
+            "title": "O que você quer adicionar?",
+            "lead": "Escolha uma opção para inserir no conteúdo do artigo.",
+            "chooseYoutube": "Vídeo do YouTube ou Vimeo",
+            "chooseFile": "Arquivo (imagem, áudio, vídeo, PDF…)",
+            "cancel": "Cancelar"
+          },
+          "materials": {
+            "title": "Anexos e incorporações",
+            "lead": "Adicione arquivos ou URLs incorporadas (vídeos, formulários, mapas) exibidas abaixo do corpo do artigo neste idioma.",
+            "materialLabelPlaceholder": "Rótulo visível",
+            "embedUrlPlaceholder": "URL para incorporar (YouTube, Vimeo, Google Form…)",
+            "addEmbed": "Adicionar incorporação",
+            "uploadFiles": "Enviar arquivos",
+            "uploadFilesHint": "Imagem, áudio, vídeo ou PDF até 50 MB.",
+            "empty": "Ainda não há anexos para este idioma."
+          }
+        },
+        "review": {
+          "title": "Fila de revisão",
+          "empty": "Não há artigos pendentes de revisão.",
+          "approve": "Aprovar e publicar"
+        },
+        "comments": {
+          "title": "Moderação de comentários",
+          "empty": "Não há comentários para moderar.",
+          "hide": "Ocultar",
+          "show": "Mostrar",
+          "flag": "Sinalizar"
+        }
+      },
       "templates": {
         "title": "Modelos de sites",
         "lead": "Um modelo está ativo por vez. A ativação de um modelo aplica seus tokens de design e substituições de conteúdo de destino ao site público.",
@@ -2101,11 +2186,13 @@
         "tabs": {
           "collections": "Coleções",
           "inbox": "Caixa de entrada de pagamento",
+          "events": "Eventos",
           "insights": "Percepções",
           "settings": "Configurações"
         },
         "tipCollections": "Integridade da coleção seção por seção para a coorte, com exportação e lembretes em massa.",
         "tipInbox": "Aprove ou rejeite recibos de pagamento enviados pelas famílias – mensalidade, taxa de inscrição e recibos de fatura em uma fila.",
+        "tipEvents": "Revise pagamentos de eventos e comprovantes de transferência pendentes.",
         "tipInsights": "Tendências de cobrança, métricas de processamento de recibos, projeções de final de ano e alertas de integridade da seção.",
         "tipSettings": "Configure preferências de cobrança, como a moeda usada em todos os pagamentos."
       },
@@ -2332,6 +2419,14 @@
           "openBilling": "Faturamento aberto"
         }
       },
+      "events": {
+        "title": "Pagamentos de eventos",
+        "lead": "Comprovantes de transferência pendentes e status de pagamentos de inscrições em eventos.",
+        "empty": "Não há pagamentos de eventos pendentes.",
+        "pendingLabel": "Pendente",
+        "approvedLabel": "Aprovado",
+        "rejectedLabel": "Rejeitado"
+      },
       "collections": {
         "title": "Coleções",
         "lead": "Saúde da cobrança de taxas mensais em todas as seções, além de ferramentas para exportação e lembretes em massa.",
@@ -2362,7 +2457,9 @@
           "upcoming": "Por vir",
           "collectionRatio": "Proporção de arrecadação",
           "students": "Alunos",
-          "overdueStudents": "Alunos com atraso"
+          "overdueStudents": "Alunos com atraso",
+          "eventsApproved": "Eventos aprovados",
+          "eventsPending": "Eventos pendentes"
         },
         "health": {
           "healthy": "Saudável",
@@ -3052,6 +3149,274 @@
       "skipSectionEnrollment": "Pular por enquanto",
       "sectionEnrollError": "Não foi possível inscrever o aluno na seção",
       "enrollSuccess": "Aluno matriculado na seção"
+    },
+    "events": {
+      "lead": "Gerencie próximos eventos públicos, participantes e pagamentos.",
+      "kpis": {
+        "upcoming": "Próximos",
+        "waitlist": "Lista de espera"
+      },
+      "list": {
+        "countSuffix": "eventos",
+        "create": "Criar evento",
+        "free": "Grátis",
+        "manage": "Gerenciar",
+        "empty": "Nenhum evento encontrado.",
+        "columns": {
+          "title": "Título",
+          "date": "Data",
+          "status": "Status",
+          "capacity": "Vagas",
+          "views": "Visualizações",
+          "price": "Preço",
+          "actions": "Ações"
+        }
+      },
+      "detail": {
+        "titlePrefix": "Evento:",
+        "eventDate": "Data",
+        "status": "Status",
+        "viewCount": "Visualizações",
+        "attendeesTitle": "Participantes",
+        "formTitle": "Formulário",
+        "archive": "Arquivar",
+        "draftHint": "Este evento está em rascunho e não aparece na página pública de eventos. Publique quando estiver pronto.",
+        "publish": "Publicar evento",
+        "publishSuccess": "Evento publicado. Agora está visível no site público.",
+        "publishError": "Não foi possível publicar o evento. Tente novamente.",
+        "unpublish": "Despublicar evento",
+        "unpublishSuccess": "O evento voltou para rascunho e não aparece mais no site público.",
+        "unpublishError": "Não foi possível despublicar o evento. Tente novamente.",
+        "viewPublic": "Ver página pública de eventos",
+        "publishedHint": "Este evento está publicado e visível no site público.",
+        "waitlistLead": "Revise e promova manualmente participantes da lista de espera quando houver vagas disponíveis.",
+        "notificationsLead": "Lembretes do evento e decisões de pagamento são enviados com modelos padrão."
+      },
+      "new": {
+        "title": "Novo evento",
+        "lead": "Crie o evento e depois configure os campos do formulário.",
+        "titleLabel": "Título",
+        "descriptionLabel": "Descrição",
+        "eventDateLabel": "Data e hora",
+        "locationLabel": "Local (opcional)",
+        "capacityLabel": "Capacidade",
+        "priceLocalLabel": "Preço residentes locais",
+        "priceNonLocalLabel": "Preço não residentes",
+        "priceHint": "Deixe vazio para evento gratuito. Se só preencher o preço local, aplica-se a ambos.",
+        "currencyLabel": "Moeda",
+        "submit": "Criar evento",
+        "back": "Voltar aos eventos",
+        "errorSave": "Não foi possível salvar o evento. Tente novamente.",
+        "validationError": "Verifique os campos obrigatórios e tente novamente."
+      },
+      "pricing": {
+        "sectionTitle": "Preços por residência",
+        "priceLocalLabel": "Preço residentes locais",
+        "priceNonLocalLabel": "Preço não residentes",
+        "priceHint": "Deixe vazio para gratuito. Se só preencher o preço local, aplica-se a ambos.",
+        "currencyLabel": "Moeda",
+        "bankTransferInstructionsLabel": "Dados para transferência bancária",
+        "bankTransferInstructionsHint": "Titular, banco, número da conta e referência que o pagador deve informar. Exibido para quem escolher transferência.",
+        "save": "Salvar preços",
+        "savedOk": "Preços atualizados.",
+        "errorSave": "Não foi possível salvar os preços."
+      },
+      "i18n": {
+        "sectionTitle": "Traduções do evento",
+        "localeTabsAria": "Idiomas do evento",
+        "localeTab": {
+          "es": "Espanhol",
+          "en": "Inglês",
+          "pt": "Português"
+        },
+        "titleLabel": "Título",
+        "descriptionLabel": "Descrição",
+        "locationLabel": "Local",
+        "save": "Salvar traduções",
+        "translate": "Traduzir com Google",
+        "translateDisabled": "Escolha um idioma diferente do principal para traduzir.",
+        "savedOk": "Traduções salvas.",
+        "errorSave": "Não foi possível salvar as traduções.",
+        "errorTranslate": "Não foi possível traduzir. Tente novamente.",
+        "googleKeyMissing": "Configure o Google Translate em integrações para tradução automática."
+      },
+      "form": {
+        "lead": "O formulário público sempre inclui os campos base de inscrição. Aqui você pode adicionar campos extras específicos do evento.",
+        "baseFieldsTitle": "Campos base (sempre incluídos)",
+        "baseFieldsLead": "Esses campos aparecem na inscrição pública e não podem ser removidos.",
+        "customFieldsTitle": "Campos adicionais",
+        "customFieldsEmpty": "Ainda não há campos extras. Adicione um abaixo se precisar de mais informações.",
+        "requiredBadge": "Obrigatório",
+        "optionalBadge": "Opcional",
+        "conditionalBadge": "Condicional",
+        "addFieldTitle": "Adicionar campo extra",
+        "fieldKeyLabel": "Chave interna",
+        "fieldKeyHint": "Somente minúsculas, números e sublinhados (ex.: school_name).",
+        "fieldTypeLabel": "Tipo",
+        "fieldLabelLabel": "Rótulo visível",
+        "requiredLabel": "Campo obrigatório para inscrição",
+        "addButton": "Adicionar campo",
+        "errorSave": "Não foi possível salvar o campo. Tente novamente.",
+        "errorValidation": "Revise a chave e o rótulo do campo.",
+        "errorDuplicateKey": "Já existe um campo com essa chave neste evento.",
+        "errorSelectOptions": "Adicione pelo menos duas opções para um campo de lista.",
+        "selectOptionsCount": "{{count}} opções",
+        "previewTitle": "Como aparecerá na inscrição",
+        "previewPlaceholder": {
+          "text": "Resposta curta…",
+          "textarea": "Resposta longa…",
+          "number": "0",
+          "date": "AAAA-MM-DD",
+          "email": "nome@exemplo.com",
+          "phone": "+55 11 91234 5678",
+          "file": "Escolher um arquivo…",
+          "image": "Escolher uma imagem…"
+        },
+        "selectOptions": {
+          "title": "Opções da lista",
+          "hint": "O participante escolhe uma opção. Preencha pelo menos as duas primeiras; adicione mais se precisar.",
+          "optionLabel": "Opção {{n}}",
+          "addOption": "Adicionar opção",
+          "removeOptionAria": "Remover opção {{n}}"
+        },
+        "fileTypesLabel": "Tipos de arquivo aceitos (opcional)",
+        "fileTypesHint": "Tipos MIME separados por vírgula. Deixe vazio para formatos comuns. Exemplo: image/jpeg, image/png",
+        "baseFields": {
+          "firstName": "Nome",
+          "lastName": "Sobrenome",
+          "dniOrPassport": "Documento / RUT / passaporte",
+          "email": "E-mail",
+          "phone": "Telefone",
+          "birthDate": "Data de nascimento",
+          "consent": "Consentimento de dados",
+          "tutor": "Dados do responsável",
+          "residency": "Residência (local / não local)",
+          "payment": "Forma de pagamento"
+        },
+        "baseFieldNotes": {
+          "phone": "Opcional na inscrição.",
+          "birthDate": "Opcional; usada para detectar menores.",
+          "tutor": "Obrigatório apenas se o participante for menor.",
+          "residency": "Somente quando há preços distintos para locais e não locais.",
+          "payment": "Somente quando o evento tem custo."
+        },
+        "fieldTypes": {
+          "text": "Texto curto",
+          "textarea": "Texto longo",
+          "number": "Número",
+          "date": "Data",
+          "email": "E-mail",
+          "phone": "Telefone",
+          "select": "Lista de opções",
+          "file": "Arquivo",
+          "image": "Imagem"
+        }
+      }
+    }
+  },
+  "events": {
+    "public": {
+      "metaTitle": "Eventos",
+      "metaDescription": "Próximos eventos pagos e gratuitos.",
+      "title": "Eventos",
+      "lead": "Descubra os próximos eventos e reserve sua vaga.",
+      "free": "Grátis",
+      "priceTiered": "Local: {local} · Não local: {nonLocal}",
+      "registrationCardTitle": "Inscrição",
+      "dateLabel": "Data e horário",
+      "locationLabel": "Local",
+      "priceLabel": "Preço",
+      "priceLocal": "Residentes locais",
+      "priceNonLocal": "Não residentes",
+      "viewDetail": "Ver evento",
+      "registerCta": "Inscrever-se",
+      "backToEvents": "Voltar aos eventos",
+      "adminEdit": "Editar evento",
+      "adminEditAriaLabel": "Abrir este evento no editor de administração",
+      "eventEyebrow": "Evento",
+      "downloadFile": "Baixar arquivo",
+      "audioLabel": "Áudio anexo",
+      "videoLabel": "Vídeo anexo",
+      "attachmentTypes": {
+        "pdf": "Documento PDF",
+        "word": "Documento Word",
+        "spreadsheet": "Planilha",
+        "presentation": "Apresentação",
+        "office": "Documento Office",
+        "image": "Imagem",
+        "audio": "Áudio",
+        "video": "Vídeo",
+        "other": "Arquivo"
+      },
+      "pdfViewer": {
+        "viewPdf": "Ver PDF",
+        "loading": "Carregando documento…",
+        "loadError": "Não foi possível carregar este PDF. Tente abrir em uma nova aba.",
+        "pageSummary": "Página {{current}} de {{total}}",
+        "previousPage": "Página anterior",
+        "nextPage": "Próxima página",
+        "openInNewTab": "Abrir em nova aba",
+        "zoomIn": "Aumentar zoom",
+        "zoomOut": "Diminuir zoom"
+      }
+    },
+    "register": {
+      "title": "Inscrição no evento",
+      "lead": "Preencha o formulário para garantir sua vaga.",
+      "backToEvent": "Voltar ao evento",
+      "participantSection": "Dados do participante",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "dni": "Documento / RUT / passaporte",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "birthDate": "Data de nascimento",
+      "submit": "Enviar inscrição",
+      "consent": "Aceito o uso dos meus dados para inscrição e notificações operacionais do evento.",
+      "successModal": {
+        "title": "Obrigado!",
+        "body": "Sua inscrição foi enviada com sucesso.",
+        "close": "Voltar ao início"
+      },
+      "error": "Não foi possível processar sua inscrição. Tente novamente.",
+      "selectPlaceholder": "Selecione uma opção",
+      "captchaRequired": "A validação captcha é obrigatória antes de enviar o formulário.",
+      "tutor": {
+        "title": "Dados do responsável",
+        "firstName": "Nome do responsável",
+        "lastName": "Sobrenome do responsável",
+        "dni": "Documento do responsável",
+        "email": "E-mail do responsável",
+        "phone": "Telefone do responsável",
+        "relationship": "Parentesco"
+      },
+      "payment": {
+        "title": "Método de pagamento",
+        "flow": "Flow",
+        "mercadopago": "Mercado Pago",
+        "transfer": "Transferência bancária"
+      },
+      "residency": {
+        "title": "Você é residente local?",
+        "local": "Sim, sou residente local",
+        "nonLocal": "Não, não sou residente local",
+        "localPrice": "Preço: {amount}",
+        "nonLocalPrice": "Preço: {amount}"
+      },
+      "transferReceipt": {
+        "title": "Comprovante de transferência",
+        "button": "Escolher comprovante",
+        "hint": "PDF ou foto nítida (JPG, PNG, WebP). Tamanho máximo {max} MB.",
+        "noFile": "Nenhum arquivo selecionado",
+        "required": "Envie o comprovante de transferência para continuar.",
+        "tooLarge": "O arquivo excede o limite de {max} MB.",
+        "invalidType": "Use uma imagem ou um PDF.",
+        "uploadFailed": "Sua inscrição foi registrada, mas não foi possível enviar o comprovante. Entre em contato com o organizador.",
+        "inputAriaLabel": "Selecionar comprovante de transferência"
+      },
+      "transferInstructions": {
+        "title": "Onde transferir"
+      }
     }
   },
   "register": {
@@ -3194,6 +3559,7 @@
       "payments": "Pagamentos",
       "financeReceipts": "Recibos de faturas",
       "registrations": "Inscrições",
+      "events": "Eventos",
       "messages": "Mensagens",
       "emailTemplates": "Modelos de e-mail",
       "coupons": "Cupons",
@@ -3207,6 +3573,8 @@
       "myProfile": "Meu perfil",
       "cms": "Conteúdo e temas",
       "tipCms": "Gerenciar modelos de sites públicos e conteúdo de destino",
+      "blog": "Blog",
+      "tipBlog": "Escrever, revisar e publicar artigos do blog público.",
       "groupPeople": "Pessoas",
       "groupFinance": "Financiar",
       "groupAcademic": "Acadêmico",
@@ -3233,6 +3601,7 @@
       "finance": "Financiar",
       "tipFinance": "Visão geral do grupo, cobranças, recebimentos de faturas e revisão de pagamentos – tudo sob o mesmo teto.",
       "tipRegistrations": "Revise e aprove solicitações de inscrição no formulário público.",
+      "tipEvents": "Crie e gerencie eventos pagos ou gratuitos, participantes, lista de espera e revisão de pagamentos.",
       "tipAcademics": "Coortes, seções, matrículas, frequência e notas.",
       "tipCalendar": "Todas as seções ativas como um calendário; filtrar por professor ou sala.",
       "tipContents": "Crie conteúdo reutilizável e rotas de aprendizagem globais.",
@@ -3651,7 +4020,9 @@
       "tipTasks": "Crie master classes reutilizáveis ​​e atribua-as a seções.",
       "tipAcademics": "Proponha transferências e gerencie suas tarefas acadêmicas.",
       "tipMessages": "Envie mensagens para alunos, responsáveis, professores ou administradores.",
-      "tipMyProfile": "Seu perfil pessoal, senha e preferências."
+      "tipMyProfile": "Seu perfil pessoal, senha e preferências.",
+      "blog": "Blog",
+      "tipBlog": "Escrever e enviar artigos para o blog público."
     },
     "assistantNav": {
       "aria": "Navegação assistente",
@@ -5833,8 +6204,8 @@
           "paid": "Pago",
           "pending": "Em análise"
         }
-      }
-    },
+    }
+  },
     "teacher": {
       "title": "Área do professor",
       "lead": "Sinais de retenção, mensagens familiares, aulas de hoje (UTC) e médias publicadas para suas seções.",
@@ -5897,6 +6268,26 @@
       "messagesError": "Não foi possível enviar resposta",
       "messagesYourReply": "Sua resposta",
       "messagesSenderFallback": "Professor"
+    }
+  },
+  "blog": {
+    "list": {
+      "title": "Blog",
+      "empty": "Em breve publicaremos artigos.",
+      "readMore": "Ler mais"
+    },
+    "detail": {
+      "relatedTitle": "Artigos relacionados",
+      "share": "Compartilhar artigo",
+      "attachmentsTitle": "Materiais do artigo"
+    },
+    "comments": {
+      "title": "Comentários",
+      "placeholder": "Escreva um comentário",
+      "send": "Enviar",
+      "signInRequired": "Faça login para comentar",
+      "report": "Denunciar",
+      "rateLimited": "Comentários em excesso. Tente novamente mais tarde."
     }
   }
 }

@@ -12,6 +12,7 @@ interface LandingMainSectionsEspacioZenitProps {
   locale: string;
   sessionEmail: string | null;
   mediaMap?: LandingMediaMap;
+  blogEnabled?: boolean;
 }
 
 export function LandingMainSectionsEspacioZenit({
@@ -20,6 +21,7 @@ export function LandingMainSectionsEspacioZenit({
   locale,
   sessionEmail,
   mediaMap,
+  blogEnabled = false,
 }: LandingMainSectionsEspacioZenitProps) {
   const logoSrc = resolveEspacioZenitHeaderLogo(brand, mediaMap);
 
@@ -33,6 +35,10 @@ export function LandingMainSectionsEspacioZenit({
           brandDisplayName={brand.name}
           dict={dict}
           sessionEmail={sessionEmail}
+          showBlogLink={blogEnabled}
+          blogLabel={blogEnabled ? dict.blog.list.title : undefined}
+          showEventsLink
+          eventsLabel={dict.events.public.title}
         />
         <LandingEspacioZenitSections
           dict={dict}

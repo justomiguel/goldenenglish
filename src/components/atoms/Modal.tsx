@@ -84,10 +84,11 @@ export function Modal({
         if (disableClose) e.preventDefault();
       }}
     >
-      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 sm:gap-4 sm:px-5 sm:py-3.5">
+      <header className="flex shrink-0 items-center justify-between gap-2 border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 sm:gap-4 sm:px-5 sm:py-3.5">
         <h2
           id={titleId}
-          className="min-w-0 flex-1 text-balance font-display text-lg font-semibold leading-snug tracking-tight text-[var(--color-foreground)] sm:text-xl"
+          className="min-w-0 flex-1 truncate font-display text-base font-semibold leading-snug tracking-tight text-[var(--color-foreground)] sm:text-xl"
+          title={title}
         >
           {title}
         </h2>
@@ -96,11 +97,12 @@ export function Modal({
             type="button"
             variant="ghost"
             size="sm"
-            className="shrink-0 gap-2 self-center border border-transparent px-2.5 py-2 font-semibold text-[var(--color-foreground)] hover:bg-[var(--color-muted)] sm:min-h-[44px] sm:px-3"
+            aria-label={headerCloseLabel ?? undefined}
+            className="min-h-[44px] min-w-[44px] shrink-0 gap-2 self-center border border-transparent px-2.5 py-2 font-semibold text-[var(--color-foreground)] hover:bg-[var(--color-muted)] sm:min-h-[36px] sm:min-w-0 sm:px-3"
             onClick={requestDismiss}
           >
             <X className="h-4 w-4 shrink-0" aria-hidden />
-            <span>{headerCloseLabel}</span>
+            <span className="hidden sm:inline">{headerCloseLabel}</span>
           </Button>
         ) : null}
       </header>

@@ -13,6 +13,9 @@ interface LandingHeaderProps {
   dict: Dictionary;
   locale: string;
   sessionEmail: string | null;
+  blogEnabled?: boolean;
+  /** Public events list at /{locale}/events (no feature flag yet). */
+  showEventsLink?: boolean;
 }
 
 const stroke = 1.75;
@@ -25,6 +28,8 @@ export function LandingHeader({
   dict,
   locale,
   sessionEmail,
+  blogEnabled = false,
+  showEventsLink = true,
 }: LandingHeaderProps) {
   const [open, setOpen] = useState(false);
   const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
@@ -34,6 +39,12 @@ export function LandingHeader({
     { href: `${prefix}#modalidades`, label: dict.nav.modalities },
     { href: `${prefix}#niveles`, label: dict.nav.courses },
     { href: `${prefix}#certificaciones`, label: dict.nav.certifications },
+    ...(showEventsLink
+      ? [{ href: `${prefix}/events`, label: dict.events.public.title }]
+      : []),
+    ...(blogEnabled
+      ? [{ href: `${prefix}/blog`, label: dict.blog.list.title }]
+      : []),
     { href: `${prefix}#contacto`, label: dict.nav.contact },
   ];
 

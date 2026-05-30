@@ -5,6 +5,7 @@ import { loadMercadoPagoCredentialsPlain } from "@/lib/payment-gateways/mercadop
 import { mercadoPagoVerifyWebhookSignature } from "@/lib/payment-gateways/mercadopago/mercadoPagoVerifyWebhookSignature";
 import { logServerException, logServerWarn } from "@/lib/logging/serverActionLog";
 import type { PaymentGatewayCountryCode } from "@/types/paymentGateway";
+import { finalizeEventPaymentFromMercadoPago } from "@/lib/events/server/finalizeEventPaymentFromMercadoPago";
 
 function parseCountry(raw: string | null): PaymentGatewayCountryCode | null {
   const c = raw?.trim().toUpperCase();
@@ -16,6 +17,7 @@ export async function POST(req: Request): Promise<Response> {
   try {
     const url = new URL(req.url);
     const country = parseCountry(url.searchParams.get("country"));
+    const purpose = url.searchParams.get("purpose")?.trim() ?? "monthly";
     if (!country) {
       logServerWarn("mpWebhook:missing_country", {});
       return new Response("ok", { status: 200 });
@@ -79,11 +81,18 @@ export async function POST(req: Request): Promise<Response> {
       return new Response("unauthorized", { status: 401 });
     }
 
-    const result = await finalizeMercadoPagoPayment({
-      admin,
-      accessToken: creds.accessToken,
-      mpPaymentId: resolvedDataId,
-    });
+    const result =
+      purpose === "event"
+        ? await finalizeEventPaymentFromMercadoPago({
+            admin,
+            accessToken: creds.accessToken,
+            mpPaymentId: resolvedDataId,
+          })
+        : await finalizeMercadoPagoPayment({
+            admin,
+            accessToken: creds.accessToken,
+            mpPaymentId: resolvedDataId,
+          });
 
     if (!result.ok) {
       logServerException("mpWebhook:finalize_failed", new Error("finalize_failed"));

@@ -9,7 +9,7 @@ export type { AdminUsersListRoleCounts };
 
 /**
  * Loads role totals for the admin users filter dropdown via Postgres RPC
- * `admin_users_list_role_counts`.
+ * `admin_users_list_role_counts` (excludes synthetic `site_contact` sender; migration 136).
  */
 export async function loadAdminUsersListRoleCounts(
   adminClient: SupabaseClient,

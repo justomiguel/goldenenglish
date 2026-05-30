@@ -6,6 +6,7 @@ import { getBrandForRequest } from "@/lib/brand/server";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { TeacherDashboardShell } from "@/components/dashboard/TeacherDashboardShell";
+import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
 
 interface LayoutProps {
   children: ReactNode;
@@ -30,7 +31,10 @@ export default async function TeacherDashboardLayout({ children, params }: Layou
   const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
   if (!allowed) redirect(`/${locale}/dashboard`);
 
-  const isAdmin = await resolveIsAdminSession(supabase, user.id);
+  const [isAdmin, blogEnabled] = await Promise.all([
+    resolveIsAdminSession(supabase, user.id),
+    loadBlogEnabled(),
+  ]);
   const navDict = dict.dashboard.teacherNav;
   const chromeDict = dict.dashboard.teacherChrome;
   const adminNav = isAdmin
@@ -44,7 +48,13 @@ export default async function TeacherDashboardLayout({ children, params }: Layou
     : undefined;
 
   return (
-    <TeacherDashboardShell locale={locale} dict={dict} brand={brand} adminNav={adminNav}>
+    <TeacherDashboardShell
+      locale={locale}
+      dict={dict}
+      brand={brand}
+      adminNav={adminNav}
+      includeBlogNav={blogEnabled}
+    >
       {children}
     </TeacherDashboardShell>
   );

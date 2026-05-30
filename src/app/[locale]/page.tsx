@@ -23,6 +23,7 @@ import { buildLandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import { groupBlocksBySection } from "@/lib/cms/landingBlocksCatalog";
 import { loadFirstRunWizardMode } from "@/lib/site/loadFirstRunWizardMode";
+import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
 
 /** Session must reflect cookies each request (avoid stale static HTML). */
 export const dynamic = "force-dynamic";
@@ -57,7 +58,7 @@ export default async function HomePage({ params }: HomePageProps) {
     );
   }
 
-  const activeTheme = await loadActiveTheme();
+  const [activeTheme, blogEnabled] = await Promise.all([loadActiveTheme(), loadBlogEnabled()]);
 
   const dict = applyLandingContentOverrides(
     baseDict,
@@ -91,6 +92,7 @@ export default async function HomePage({ params }: HomePageProps) {
     locale,
     mediaMap,
     blocksBySection,
+    blogEnabled,
   };
   const marketingTenantProps = {
     ...landingContentProps,
@@ -122,6 +124,7 @@ export default async function HomePage({ params }: HomePageProps) {
           dict={dict}
           locale={locale}
           sessionEmail={sessionEmail}
+          blogEnabled={blogEnabled}
           suppressHeader={marketingShell}
           suppressMarketingShellFooter={suppressMarketingShellFooter}
           marketingFullBleedShell={marketingShell}

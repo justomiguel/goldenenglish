@@ -12,6 +12,7 @@ interface LandingMainSectionsNagoProps {
   locale: string;
   sessionEmail: string | null;
   mediaMap?: LandingMediaMap;
+  blogEnabled?: boolean;
 }
 
 export function LandingMainSectionsNago({
@@ -20,6 +21,7 @@ export function LandingMainSectionsNago({
   locale,
   sessionEmail,
   mediaMap,
+  blogEnabled = false,
 }: LandingMainSectionsNagoProps) {
   const logoSrc = brand.logoPath;
 
@@ -32,6 +34,10 @@ export function LandingMainSectionsNago({
           logoAlt={brand.logoAlt}
           dict={dict}
           sessionEmail={sessionEmail}
+          showBlogLink={blogEnabled}
+          blogLabel={blogEnabled ? dict.blog.list.title : undefined}
+          showEventsLink
+          eventsLabel={marketingLandingCopy(dict, "nago", "nav.eventos")}
           labels={{
             inicio: marketingLandingCopy(dict, "nago", "nav.inicio"),
             sobreNosotros: marketingLandingCopy(dict, "nago", "nav.sobreNosotros"),

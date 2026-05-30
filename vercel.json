@@ -12,6 +12,10 @@
     {
       "path": "/api/cron/class-reminders",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/publish-scheduled-articles",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

@@ -11429,6 +11429,7 @@ END;
 $$;
 
 -- ========== 112_admin_users_list_role_counts_rpc.sql ==========
+-- Superseded by 136_admin_users_directory_exclude_site_contact.sql (site_contact excluded).
 
 -- RPC: totals for admin users list role filter (no full-table fetch in Next).
 CREATE OR REPLACE FUNCTION public.admin_users_list_role_counts()
@@ -11438,16 +11439,22 @@ STABLE
 SECURITY DEFINER
 SET search_path = public
 AS $$
-  WITH per_role AS (
-    SELECT lower(role::text) AS role_norm, count(*)::bigint AS cnt
+  WITH eligible AS (
+    SELECT role
     FROM public.profiles
+    WHERE role IS DISTINCT FROM 'site_contact'::public.user_role
+      AND id <> '6f0e8c8a-7b1d-4c2e-9f3a-8e5d2c1b0a99'::uuid
+  ),
+  per_role AS (
+    SELECT lower(role::text) AS role_norm, count(*)::bigint AS cnt
+    FROM eligible
     WHERE role IS NOT NULL
       AND trim(role::text) <> ''
     GROUP BY lower(role::text)
   )
   SELECT jsonb_build_object(
     'total',
-    (SELECT count(*)::bigint FROM public.profiles),
+    (SELECT count(*)::bigint FROM eligible),
     'by_role',
     COALESCE(
       (
@@ -11460,7 +11467,7 @@ AS $$
 $$;
 
 COMMENT ON FUNCTION public.admin_users_list_role_counts() IS
-  'Totals for profiles (all rows) plus per-role counts (lowercase role key) for admin users screen filter dropdown.';
+  'Totals for admin users list: real directory profiles only (excludes site_contact synthetic sender).';
 
 REVOKE ALL ON FUNCTION public.admin_users_list_role_counts() FROM anon;
 GRANT EXECUTE ON FUNCTION public.admin_users_list_role_counts() TO authenticated;
@@ -11847,4 +11854,8 @@ CREATE POLICY profiles_select_teachers_assigned_to_tutored_students ON public.pr
     AND profiles.role = 'teacher'
     AND public.parent_may_message_teacher(profiles.id)
   );
+
+-- ========== 136_admin_users_directory_exclude_site_contact.sql ==========
+
+-- (Function body matches replacement in 112 section above.)
 

@@ -16,6 +16,8 @@ interface AdminDashboardShellProps {
   teacherPortalAllowed: boolean;
   /** Mega-admin only: show Communications → Email templates in nav. */
   includeEmailTemplatesNav?: boolean;
+  /** When true, show Blog in admin sidebar (`blog_enabled`). */
+  includeBlogNav?: boolean;
   /** When true, sidebar/breadcrumb hidden (initial site setup wizard). */
   siteSetupRequired?: boolean;
   children: ReactNode;
@@ -30,6 +32,7 @@ export function AdminDashboardShell({
   adminProfileRole,
   teacherPortalAllowed,
   includeEmailTemplatesNav = false,
+  includeBlogNav = false,
   siteSetupRequired = false,
   children,
 }: AdminDashboardShellProps) {
@@ -61,6 +64,7 @@ export function AdminDashboardShell({
               newRegistrationsCount={newRegistrationsCount}
               recentInboundMessagesCount={recentInboundMessagesCount}
               includeEmailTemplatesNav={includeEmailTemplatesNav}
+              includeBlogNav={includeBlogNav}
               teacherNav={teacherNav}
             />
           )
@@ -74,6 +78,7 @@ export function AdminDashboardShell({
             newRegistrationsCount={newRegistrationsCount}
             recentInboundMessagesCount={recentInboundMessagesCount}
             includeEmailTemplatesNav={includeEmailTemplatesNav}
+            includeBlogNav={includeBlogNav}
             teacherNav={teacherNav}
           />
         )}

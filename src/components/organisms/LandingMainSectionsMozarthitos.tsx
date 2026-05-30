@@ -13,6 +13,7 @@ interface LandingMainSectionsMozarthitosProps {
   locale: string;
   sessionEmail: string | null;
   mediaMap?: LandingMediaMap;
+  blogEnabled?: boolean;
 }
 
 export function LandingMainSectionsMozarthitos({
@@ -21,6 +22,7 @@ export function LandingMainSectionsMozarthitos({
   locale,
   sessionEmail,
   mediaMap,
+  blogEnabled = false,
 }: LandingMainSectionsMozarthitosProps) {
   const logoSrc = resolveLandingImageSrcForTheme(
     "mozarthitos",
@@ -40,6 +42,10 @@ export function LandingMainSectionsMozarthitos({
           logoHeight={303}
           dict={dict}
           sessionEmail={sessionEmail}
+          showBlogLink={blogEnabled}
+          blogLabel={blogEnabled ? dict.blog.list.title : undefined}
+          showEventsLink
+          eventsLabel={dict.events.public.title}
           labels={{
             inicio: mzLandingCopy(dict, "nav.inicio"),
             quienes: mzLandingCopy(dict, "nav.quienes"),

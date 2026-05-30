@@ -144,6 +144,42 @@ describe("tenant landing headers — PWA visibility", () => {
       expect(loginLinks[0]).toHaveAttribute("href", "/es/login");
     });
 
+    it("links Eventos to public events list", () => {
+      render(
+        <NagoSiteHeader
+          locale="es"
+          logoSrc="/images/logo.png"
+          logoAlt="Logo"
+          dict={dictEn}
+          sessionEmail={null}
+          labels={nagoLabels}
+        />,
+      );
+      expect(screen.getByRole("link", { name: nagoLabels.eventos })).toHaveAttribute(
+        "href",
+        "/es/events",
+      );
+    });
+
+    it("shows blog link when showBlogLink", () => {
+      render(
+        <NagoSiteHeader
+          locale="es"
+          logoSrc="/images/logo.png"
+          logoAlt="Logo"
+          dict={dictEn}
+          sessionEmail={null}
+          showBlogLink
+          blogLabel={dictEn.blog.list.title}
+          labels={nagoLabels}
+        />,
+      );
+      expect(screen.getByRole("link", { name: dictEn.blog.list.title })).toHaveAttribute(
+        "href",
+        "/es/blog",
+      );
+    });
+
     it("includes Account section with Dashboard + SignOut when logged in", async () => {
       const user = userEvent.setup();
       void mockBrandPublic;

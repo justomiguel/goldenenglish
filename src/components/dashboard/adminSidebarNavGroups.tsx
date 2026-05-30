@@ -16,6 +16,7 @@ import {
   Calendar,
   CalendarDays,
   Mail,
+  Newspaper,
   ScrollText,
   User,
 } from "lucide-react";
@@ -40,6 +41,8 @@ interface BuildAdminSidebarNavGroupsOptions {
   financeHref?: string;
   /** Email templates editor — only for the platform mega-admin email allowlist. */
   includeEmailTemplatesNav?: boolean;
+  /** Public blog CMS — when `blog_enabled` is on for the tenant. */
+  includeBlogNav?: boolean;
 }
 
 export interface AdminSidebarNavBadges {
@@ -72,6 +75,14 @@ export function buildAdminSidebarNavGroups(
       tip: dict.tipEmailTemplates,
     });
   }
+  if (options.includeBlogNav) {
+    groupCommsItems.push({
+      href: `${base}/cms/blog`,
+      label: dict.blog,
+      icon: <Newspaper className={ic} />,
+      tip: dict.tipBlog,
+    });
+  }
 
   return [
     {
@@ -93,6 +104,12 @@ export function buildAdminSidebarNavGroups(
           icon: <ClipboardList className={ic} />,
           badge: badges.newRegistrations,
           tip: dict.tipRegistrations,
+        },
+        {
+          href: `${base}/events`,
+          label: dict.events,
+          icon: <Calendar className={ic} />,
+          tip: dict.tipEvents,
         },
       ],
     },

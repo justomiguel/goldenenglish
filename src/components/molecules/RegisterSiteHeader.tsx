@@ -9,6 +9,10 @@ interface RegisterSiteHeaderProps {
   brand: BrandPublic;
   locale: string;
   dict: Dictionary;
+  blogHref?: string;
+  blogLabel?: string;
+  eventsHref?: string;
+  eventsLabel?: string;
 }
 
 /** Marca (logo + nombre) y acceso al inicio, alineado al login desktop. */
@@ -16,6 +20,10 @@ export function RegisterSiteHeader({
   brand,
   locale,
   dict,
+  blogHref,
+  blogLabel,
+  eventsHref,
+  eventsLabel,
 }: RegisterSiteHeaderProps) {
   const homeHref = `/${locale}`;
   const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
@@ -42,6 +50,22 @@ export function RegisterSiteHeader({
         </span>
       </Link>
       <div className="flex flex-wrap items-center gap-2 sm:justify-end sm:gap-3">
+        {eventsHref && eventsLabel ? (
+          <Link
+            href={eventsHref}
+            className="inline-flex min-h-[44px] items-center rounded-[var(--layout-border-radius)] px-2.5 py-2 text-sm font-semibold text-[var(--color-foreground)] outline-none ring-[var(--color-primary)] transition hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-offset-2 sm:px-3"
+          >
+            {eventsLabel}
+          </Link>
+        ) : null}
+        {blogHref && blogLabel ? (
+          <Link
+            href={blogHref}
+            className="inline-flex min-h-[44px] items-center rounded-[var(--layout-border-radius)] px-2.5 py-2 text-sm font-semibold text-[var(--color-foreground)] outline-none ring-[var(--color-primary)] transition hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-offset-2 sm:px-3"
+          >
+            {blogLabel}
+          </Link>
+        ) : null}
         <Link
           href={homeHref}
           className="inline-flex items-center gap-2 rounded-[var(--layout-border-radius)] px-2.5 py-2 text-sm font-semibold text-[var(--color-foreground)] outline-none ring-[var(--color-primary)] transition hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)] focus-visible:ring-2 focus-visible:ring-offset-2 sm:px-3"

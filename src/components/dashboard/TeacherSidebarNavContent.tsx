@@ -3,7 +3,15 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Calendar, CalendarDays, Home, MessageCircle, User } from "lucide-react";
+import {
+  BookOpen,
+  Calendar,
+  CalendarDays,
+  Home,
+  MessageCircle,
+  Newspaper,
+  User,
+} from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 
 export interface AdminWorkspaceNavLabels {
@@ -23,11 +31,18 @@ export interface TeacherSidebarNavContentProps {
   locale: string;
   dict: Dictionary["dashboard"]["teacherNav"];
   adminNav?: AdminWorkspaceNavLabels;
+  includeBlogNav?: boolean;
   onNavigate?: () => void;
   variant?: "desktop" | "mobile";
 }
 
-function buildGroups(base: string, profileHref: string, dict: TeacherSidebarNavContentProps["dict"]): NavGroup[] {
+function buildGroups(
+  base: string,
+  profileHref: string,
+  dict: TeacherSidebarNavContentProps["dict"],
+  locale: string,
+  includeBlogNav: boolean,
+): NavGroup[] {
   return [
     {
       label: dict.navScopeTeaching,
@@ -65,6 +80,16 @@ function buildGroups(base: string, profileHref: string, dict: TeacherSidebarNavC
           icon: <MessageCircle className={ic} />,
           tip: dict.tipMessages,
         },
+        ...(includeBlogNav
+          ? [
+              {
+                href: `/${locale}/dashboard/admin/cms/blog`,
+                label: dict.blog,
+                icon: <Newspaper className={ic} />,
+                tip: dict.tipBlog,
+              },
+            ]
+          : []),
       ],
     },
     {
@@ -85,13 +110,14 @@ export function TeacherSidebarNavContent({
   locale,
   dict,
   adminNav,
+  includeBlogNav = false,
   onNavigate,
   variant = "desktop",
 }: TeacherSidebarNavContentProps) {
   const pathname = usePathname();
   const base = `/${locale}/dashboard/teacher`;
   const profileHref = `/${locale}/dashboard/profile`;
-  const groups = buildGroups(base, profileHref, dict);
+  const groups = buildGroups(base, profileHref, dict, locale, includeBlogNav);
   const mobile = variant === "mobile";
 
   return (

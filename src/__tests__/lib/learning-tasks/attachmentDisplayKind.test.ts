@@ -12,6 +12,9 @@ describe("classifyAttachmentDisplayKind", () => {
   it("classifies PDF by mime or extension", () => {
     expect(classifyAttachmentDisplayKind({ kind: "file", mimeType: "application/pdf" })).toBe("pdf");
     expect(classifyAttachmentDisplayKind({ kind: "file", mimeType: "", label: "Handout.PDF" })).toBe("pdf");
+    expect(
+      classifyAttachmentDisplayKind({ kind: "file", mimeType: "", extension: "pdf" }),
+    ).toBe("pdf");
   });
 
   it("classifies Word, Excel, and Office by mime or extension", () => {

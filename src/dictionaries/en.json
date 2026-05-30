@@ -1181,6 +1181,7 @@
     },
     "settings": {
       "title": "Settings",
+      "integrationsTitle": "Integrations",
       "scopeLead": "These settings apply to the whole institute. Day-to-day teaching (your classes, attendance, and class messaging) is in the teacher dashboard.",
       "inscriptions": "Public registrations",
       "inscriptionsHint": "When off, the enrollment button is hidden from the landing page.",
@@ -1195,7 +1196,18 @@
       "classRemindersTimeZone": "Institute time zone (quiet hours for WhatsApp)",
       "classRemindersSaved": "Reminder settings saved",
       "classRemindersSaveError": "Could not save reminder settings",
-      "submitChanges": "Save changes"
+      "submitChanges": "Save changes",
+      "blogTranslate": {
+        "title": "Google Translate (blog)",
+        "hint": "Set the API key used for blog article translation actions.",
+        "inputLabel": "API key",
+        "inputPlaceholder": "Paste Google API key",
+        "save": "Save key",
+        "saved": "Key saved",
+        "error": "Could not save the key",
+        "keyMaskedPrefix": "Configured key:",
+        "keyNotConfigured": "No key configured"
+      }
     },
     "cms": {
       "navLabel": "Content & themes",
@@ -1204,6 +1216,79 @@
       "templatesNav": "Templates",
       "templatesHubCta": "Open templates",
       "templatesHubDescription": "Switch the active template to change the landing look (e.g. anniversary, holidays). Edits to templates are saved immediately and the public site refreshes within a minute.",
+      "blogHubTitle": "Blog",
+      "blogHubCta": "Open blog",
+      "blogHubDescription": "Create articles, schedule publishing, moderate comments, and manage translations.",
+      "blog": {
+        "list": {
+          "title": "Blog articles",
+          "create": "New article",
+          "empty": "No blog articles yet.",
+          "publish": "Publish",
+          "archive": "Archive",
+          "submitForReview": "Submit for review",
+          "pin": "Pin",
+          "unpin": "Unpin",
+          "edit": "Edit",
+          "views": "Views"
+        },
+        "editor": {
+          "title": "Title",
+          "excerpt": "Excerpt",
+          "body": "Body",
+          "save": "Save article",
+          "saveError": "Could not save article",
+          "saveSuccess": "Article saved",
+          "localeTabsAria": "Article language",
+          "localeTabs": {
+            "en": "English",
+            "es": "Spanish",
+            "pt": "Portuguese"
+          },
+          "editingLocaleHint": "You are editing the {locale} version. Switch tabs to load or type another language manually.",
+          "translateToLocale": "Translate with Google → {locale}",
+          "translateSuccess": "Translation applied. Review the text and save.",
+          "translateNeedsSave": "Save the article once before using Google Translate.",
+          "translateManualHint": "You can write each language manually using the tabs above, without Google Translate.",
+          "translateMissingKey": "Google Translate is not configured; use the tabs to enter EN, ES, and PT manually.",
+          "saveNeedOneLocale": "Complete at least one language (title and body) before saving.",
+          "metaStatus": "Status",
+          "metaTags": "Tags CSV",
+          "metaScheduled": "Scheduled for",
+          "metaPinned": "Pinned",
+          "fileError": "The file is too large or not supported.",
+          "attach": {
+            "clipTooltip": "Attach media",
+            "title": "What do you want to add?",
+            "lead": "Choose an option to insert it into the article body.",
+            "chooseYoutube": "YouTube or Vimeo video",
+            "chooseFile": "File (image, audio, video, PDF…)",
+            "cancel": "Cancel"
+          },
+          "materials": {
+            "title": "Attachments & embeds",
+            "lead": "Add files or embed URLs (videos, forms, maps) shown below the article body for this language.",
+            "materialLabelPlaceholder": "Visible label",
+            "embedUrlPlaceholder": "Embed URL (YouTube, Vimeo, Google Form…)",
+            "addEmbed": "Add embed",
+            "uploadFiles": "Upload files",
+            "uploadFilesHint": "Images, audio, video, or PDF up to 50 MB.",
+            "empty": "No attachments for this language yet."
+          }
+        },
+        "review": {
+          "title": "Review queue",
+          "empty": "No pending review articles.",
+          "approve": "Approve and publish"
+        },
+        "comments": {
+          "title": "Comments moderation",
+          "empty": "No comments pending moderation.",
+          "hide": "Hide",
+          "show": "Show",
+          "flag": "Flag"
+        }
+      },
       "templates": {
         "title": "Site templates",
         "lead": "One template is active at a time. Activating a template applies its design tokens and landing content overrides to the public site.",
@@ -2101,11 +2186,13 @@
         "tabs": {
           "collections": "Collections",
           "inbox": "Payment inbox",
+          "events": "Events",
           "insights": "Insights",
           "settings": "Settings"
         },
         "tipCollections": "Section-by-section collection health for the cohort, with export and bulk reminders.",
         "tipInbox": "Approve or reject payment receipts uploaded by families — monthly, enrollment fee, and invoice receipts in one queue.",
+        "tipEvents": "Review event payment statuses and pending event transfer receipts.",
         "tipInsights": "Collection trends, receipt processing metrics, year-end projections, and section health alerts.",
         "tipSettings": "Configure billing preferences like the currency used across all payments."
       },
@@ -2332,6 +2419,14 @@
           "openBilling": "Open billing"
         }
       },
+      "events": {
+        "title": "Event payments",
+        "lead": "Pending transfer receipts and statuses from event registrations.",
+        "empty": "No pending event payments.",
+        "pendingLabel": "Pending",
+        "approvedLabel": "Approved",
+        "rejectedLabel": "Rejected"
+      },
       "collections": {
         "title": "Collections",
         "lead": "Health of monthly fee collection across sections, plus tools for export and bulk reminders.",
@@ -2362,7 +2457,9 @@
           "upcoming": "Upcoming",
           "collectionRatio": "Collection ratio",
           "students": "Students",
-          "overdueStudents": "Students with overdue"
+          "overdueStudents": "Students with overdue",
+          "eventsApproved": "Events approved",
+          "eventsPending": "Events pending"
         },
         "health": {
           "healthy": "Healthy",
@@ -3052,6 +3149,380 @@
       "skipSectionEnrollment": "Skip for now",
       "sectionEnrollError": "Could not enroll student in section",
       "enrollSuccess": "Student enrolled in section"
+    },
+    "events": {
+      "lead": "Manage upcoming public events, attendees, and payments.",
+      "kpis": {
+        "upcoming": "Upcoming",
+        "waitlist": "Waitlist"
+      },
+      "list": {
+        "countSuffix": "events",
+        "create": "Create event",
+        "free": "Free",
+        "manage": "Manage",
+        "empty": "No events found.",
+        "columns": {
+          "title": "Title",
+          "date": "Date",
+          "status": "Status",
+          "capacity": "Capacity",
+          "views": "Views",
+          "price": "Price",
+          "actions": "Actions"
+        }
+      },
+      "detail": {
+        "titlePrefix": "Event:",
+        "backToList": "Back to events",
+        "eventDate": "Date",
+        "status": "Status",
+        "viewCount": "Views",
+        "attendeesTitle": "Attendees",
+        "attendeesEmpty": "No registrations yet.",
+        "attendeesSearchPlaceholder": "Search by name, ID, email, or phone…",
+        "attendeesSearchButton": "Search",
+        "attendeesTutorSectionTitle": "Guardian / tutor",
+        "attendeesCustomFieldsTitle": "Additional form answers",
+        "attendeesNoPhone": "Not provided",
+        "attendeesNoBirthDate": "Not provided",
+        "attendeesNoPayment": "No payment required",
+        "attendeesExport": {
+          "downloadXlsx": "Export Excel",
+          "downloadPdf": "Export PDF",
+          "tipXlsx": "Download all registered attendees as a branded Excel workbook",
+          "tipPdf": "Download all registered attendees as a branded PDF",
+          "exportError": "We could not export the attendee list. Try again.",
+          "exportEmpty": "There are no attendees to export yet.",
+          "documentTitle": "Attendees list",
+          "exportedAt": "Exported at",
+          "attendeeCount": "Attendees",
+          "sheetName": "Attendees",
+          "tutorRelationship": "Relationship to participant",
+          "emptyValue": "—"
+        },
+        "attendeesDelete": "Remove attendee",
+        "attendeesDeleteTooltip": "Permanently remove this registration and related transfer data",
+        "attendeesDeleteConfirmTitle": "Remove this attendee?",
+        "attendeesDeleteConfirmBody": "This permanently deletes the registration, custom form answers, and any pending or rejected bank-transfer payment. This cannot be undone.",
+        "attendeesDeleteConfirm": "Remove attendee",
+        "attendeesDeleteCancel": "Cancel",
+        "attendeesErrorDelete": "We could not remove this attendee. Try again.",
+        "attendeesErrorNotDeletable": "This attendee cannot be removed because they have an approved payment or an online checkout (Flow / Mercado Pago).",
+        "attendeesColumns": {
+          "name": "Name",
+          "dni": "ID / passport",
+          "email": "Email",
+          "phone": "Phone",
+          "birthDate": "Date of birth",
+          "status": "Status",
+          "payment": "Payment",
+          "registered": "Registered",
+          "source": "Source",
+          "residency": "Residency",
+          "actions": "Actions"
+        },
+        "attendeesMoreDetails": "More details",
+        "attendeesExpandRow": "Show attendee details",
+        "attendeesCollapseRow": "Hide attendee details",
+        "attendeesPaginationPageOf": "Page {{page}} of {{totalPages}}",
+        "attendeesPaginationNav": "Attendees list pagination",
+        "attendeesStatusLabels": {
+          "pending_payment": "Pending payment",
+          "confirmed": "Confirmed",
+          "waitlist": "Waitlist",
+          "cancelled": "Cancelled"
+        },
+        "attendeesResidencyLabels": {
+          "local": "Local resident",
+          "nonLocal": "Non-local"
+        },
+        "attendeesSourceLabels": {
+          "public": "Public registration",
+          "logged_in": "Logged-in user",
+          "admin_manual": "Added by staff"
+        },
+        "paymentsLead": "Review transfer receipts, payment method, and attendee details. Approve or reject pending payments from here.",
+        "paymentsEmpty": "No payments match the current filters.",
+        "paymentsSearchPlaceholder": "Search by attendee name, ID, or email…",
+        "paymentsSearchButton": "Search",
+        "paymentsFilterAll": "All",
+        "paymentsSummaryPending": "{{count}} pending review",
+        "paymentsSummaryApproved": "{{count}} approved",
+        "paymentsSummaryRejected": "{{count}} rejected",
+        "paymentsMethodLabel": "Payment method",
+        "paymentsNoReceipt": "No receipt uploaded yet",
+        "paymentsReviewNotesLabel": "Review notes",
+        "paymentsPaidAtLabel": "Paid at",
+        "paymentsErrorSave": "We could not save the payment decision. Try again.",
+        "paymentsDelete": "Remove submission",
+        "paymentsDeleteTooltip": "Permanently delete this transfer payment record and its receipt file",
+        "paymentsDeleteConfirmTitle": "Delete this payment record?",
+        "paymentsDeleteConfirmBody": "This permanently deletes the payment record and any uploaded receipt. This cannot be undone.",
+        "paymentsDeleteConfirm": "Remove submission",
+        "paymentsDeleteCancel": "Cancel",
+        "paymentsErrorDelete": "We could not remove this payment submission. Try again.",
+        "paymentsMethodLabels": {
+          "bank_transfer": "Bank transfer",
+          "flow": "Flow",
+          "mercadopago": "Mercado Pago"
+        },
+        "formTitle": "Form",
+        "tabsAria": "Event sections",
+        "tabs": {
+          "summary": "Summary",
+          "form": "Registration form",
+          "attendees": "Attendees",
+          "payments": "Payments",
+          "waitlist": "Waitlist",
+          "notifications": "Notifications"
+        },
+        "tabLeads": {
+          "summary": "Publish settings, pricing, and localized title and description.",
+          "form": "Configure built-in and custom fields for the public registration form.",
+          "attendees": "Registered participants and their enrollment status.",
+          "payments": "Transfer receipts and payment statuses linked to registrations.",
+          "waitlist": "Review and manually promote attendees when spots open up.",
+          "notifications": "Reminder and payment decision emails sent from default templates."
+        },
+        "archive": "Archive",
+        "draftHint": "This event is a draft and is not visible on the public events page. Publish it when you are ready.",
+        "publish": "Publish event",
+        "publishSuccess": "Event published. It is now visible on the public site.",
+        "publishError": "We could not publish the event. Try again.",
+        "unpublish": "Unpublish event",
+        "unpublishSuccess": "Event moved back to draft. It is no longer visible on the public site.",
+        "unpublishError": "We could not unpublish the event. Try again.",
+        "viewPublic": "View public events page",
+        "publishedHint": "This event is published and visible on the public site.",
+        "waitlistLead": "Review and manually promote attendees from waitlist when spots become available.",
+        "notificationsLead": "Event reminders and payment decision emails are sent using default templates."
+      },
+      "new": {
+        "title": "New event",
+        "lead": "Create the event and then configure its form fields.",
+        "titleLabel": "Title",
+        "descriptionLabel": "Description",
+        "eventDateLabel": "Date and time",
+        "locationLabel": "Location (optional)",
+        "capacityLabel": "Capacity",
+        "priceLocalLabel": "Local resident price",
+        "priceNonLocalLabel": "Non-local price",
+        "priceHint": "Leave empty for a free event. If only local price is set, it applies to both.",
+        "currencyLabel": "Currency",
+        "submit": "Create event",
+        "back": "Back to events",
+        "errorSave": "We could not save the event. Try again.",
+        "validationError": "Check required fields and try again."
+      },
+      "pricing": {
+        "sectionTitle": "Residency-based pricing",
+        "priceLocalLabel": "Local resident price",
+        "priceNonLocalLabel": "Non-local price",
+        "priceHint": "Leave empty for free. If only local price is set, it applies to both.",
+        "currencyLabel": "Currency",
+        "bankTransferInstructionsLabel": "Bank transfer details",
+        "bankTransferInstructionsHint": "Account holder, bank, account number, and any reference the payer must include. Shown to registrants who choose bank transfer.",
+        "save": "Save prices",
+        "savedOk": "Prices updated.",
+        "errorSave": "We could not save prices."
+      },
+      "i18n": {
+        "sectionTitle": "Event translations",
+        "localeTabsAria": "Event languages",
+        "localeTab": {
+          "es": "Spanish",
+          "en": "English",
+          "pt": "Portuguese"
+        },
+        "titleLabel": "Title",
+        "descriptionLabel": "Description",
+        "locationLabel": "Location",
+        "save": "Save translations",
+        "translate": "Translate with Google",
+        "translateDisabled": "Pick a language other than the primary locale to translate.",
+        "savedOk": "Translations saved.",
+        "errorSave": "We could not save translations.",
+        "errorTranslate": "Translation failed. Try again.",
+        "googleKeyMissing": "Configure Google Translate in integrations to use auto-translate."
+      },
+      "form": {
+        "lead": "The public registration form always includes the base enrollment fields. Here you can add event-specific extra fields.",
+        "baseFieldsTitle": "Base fields (always included)",
+        "baseFieldsLead": "These fields appear on public registration and cannot be removed.",
+        "customFieldsTitle": "Additional fields",
+        "customFieldsEmpty": "No extra fields yet. Add one below if you need more information.",
+        "requiredBadge": "Required",
+        "optionalBadge": "Optional",
+        "conditionalBadge": "Conditional",
+        "addFieldTitle": "Add extra field",
+        "fieldKeyLabel": "Internal key",
+        "fieldKeyHint": "Lowercase letters, numbers, and underscores only (e.g. school_name).",
+        "fieldTypeLabel": "Type",
+        "fieldLabelLabel": "Visible label",
+        "requiredLabel": "Required to register",
+        "addButton": "Add field",
+        "errorSave": "We could not save the field. Try again.",
+        "errorValidation": "Check the field key and label.",
+        "errorDuplicateKey": "A field with that key already exists for this event.",
+        "errorSelectOptions": "Add at least two options for a dropdown field.",
+        "selectOptionsCount": "{{count}} options",
+        "previewTitle": "How it will look on registration",
+        "previewPlaceholder": {
+          "text": "Short answer…",
+          "textarea": "Long answer…",
+          "number": "0",
+          "date": "YYYY-MM-DD",
+          "email": "name@example.com",
+          "phone": "+56 9 1234 5678",
+          "file": "Choose a file…",
+          "image": "Choose an image…"
+        },
+        "selectOptions": {
+          "title": "Dropdown options",
+          "hint": "Attendees pick one option. Fill in at least the first two choices; add more if needed.",
+          "optionLabel": "Option {{n}}",
+          "addOption": "Add option",
+          "removeOptionAria": "Remove option {{n}}"
+        },
+        "fileTypesLabel": "Accepted file types (optional)",
+        "fileTypesHint": "Comma-separated MIME types. Leave empty to allow common formats. Example: image/jpeg, image/png",
+        "baseFields": {
+          "firstName": "First name",
+          "lastName": "Last name",
+          "dniOrPassport": "ID / passport",
+          "email": "Email",
+          "phone": "Phone",
+          "birthDate": "Date of birth",
+          "consent": "Data consent",
+          "tutor": "Guardian details",
+          "residency": "Residency (local / non-local)",
+          "payment": "Payment method"
+        },
+        "baseFieldNotes": {
+          "phone": "Optional on registration.",
+          "birthDate": "Optional; used to detect minors.",
+          "tutor": "Required only when the attendee is a minor.",
+          "residency": "Only when local and non-local prices differ.",
+          "payment": "Only when the event has a cost."
+        },
+        "fieldTypes": {
+          "text": "Short text",
+          "textarea": "Long text",
+          "number": "Number",
+          "date": "Date",
+          "email": "Email",
+          "phone": "Phone",
+          "select": "Option list",
+          "file": "File",
+          "image": "Image"
+        }
+      }
+    }
+  },
+  "events": {
+    "public": {
+      "metaTitle": "Events",
+      "metaDescription": "Upcoming paid and free events.",
+      "title": "Events",
+      "lead": "Discover upcoming events and reserve your spot.",
+      "free": "Free",
+      "priceTiered": "Local: {local} · Non-local: {nonLocal}",
+      "registrationCardTitle": "Registration",
+      "dateLabel": "Date & time",
+      "locationLabel": "Location",
+      "priceLabel": "Price",
+      "priceLocal": "Local residents",
+      "priceNonLocal": "Non-local",
+      "viewDetail": "View event",
+      "registerCta": "Register now",
+      "backToEvents": "Back to events",
+      "adminEdit": "Edit event",
+      "adminEditAriaLabel": "Open this event in the admin editor",
+      "eventEyebrow": "Event",
+      "downloadFile": "Download file",
+      "audioLabel": "Attached audio",
+      "videoLabel": "Attached video",
+      "attachmentTypes": {
+        "pdf": "PDF document",
+        "word": "Word document",
+        "spreadsheet": "Spreadsheet",
+        "presentation": "Presentation",
+        "office": "Office document",
+        "image": "Image",
+        "audio": "Audio",
+        "video": "Video",
+        "other": "File"
+      },
+      "pdfViewer": {
+        "viewPdf": "View PDF",
+        "loading": "Loading document…",
+        "loadError": "Could not load this PDF. Try opening it in a new tab.",
+        "pageSummary": "Page {{current}} of {{total}}",
+        "previousPage": "Previous page",
+        "nextPage": "Next page",
+        "openInNewTab": "Open in new tab",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out"
+      }
+    },
+    "register": {
+      "title": "Event registration",
+      "lead": "Complete the form to secure your spot.",
+      "backToEvent": "Back to event",
+      "participantSection": "Participant details",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "dni": "ID / RUT / passport",
+      "email": "Email",
+      "phone": "Phone",
+      "birthDate": "Birth date",
+      "submit": "Submit registration",
+      "consent": "I accept the use of my data for event registration and operational notifications.",
+      "successModal": {
+        "title": "Thank you!",
+        "body": "Your registration was submitted successfully.",
+        "close": "Back to home"
+      },
+      "error": "We could not process your registration. Try again.",
+      "selectPlaceholder": "Select an option",
+      "captchaRequired": "Captcha validation is required before sending the form.",
+      "tutor": {
+        "title": "Guardian details",
+        "firstName": "Guardian first name",
+        "lastName": "Guardian last name",
+        "dni": "Guardian document",
+        "email": "Guardian email",
+        "phone": "Guardian phone",
+        "relationship": "Relationship"
+      },
+      "payment": {
+        "title": "Payment method",
+        "flow": "Flow",
+        "mercadopago": "Mercado Pago",
+        "transfer": "Bank transfer"
+      },
+      "residency": {
+        "title": "Are you a local resident?",
+        "local": "Yes, I am a local resident",
+        "nonLocal": "No, I am not a local resident",
+        "localPrice": "Price: {amount}",
+        "nonLocalPrice": "Price: {amount}"
+      },
+      "transferReceipt": {
+        "title": "Transfer proof",
+        "button": "Choose proof file",
+        "hint": "Use a PDF or a clear photo (JPG, PNG, WebP). Maximum size {max} MB.",
+        "noFile": "No file selected",
+        "required": "Upload your bank transfer proof to continue.",
+        "tooLarge": "The file exceeds the {max} MB limit.",
+        "invalidType": "Use an image or a PDF.",
+        "uploadFailed": "Your registration was saved, but we could not upload the proof. Contact the organizer.",
+        "inputAriaLabel": "Select bank transfer proof"
+      },
+      "transferInstructions": {
+        "title": "Where to transfer"
+      }
     }
   },
   "register": {
@@ -3194,6 +3665,7 @@
       "payments": "Payments",
       "financeReceipts": "Invoice receipts",
       "registrations": "Registrations",
+      "events": "Events",
       "messages": "Messages",
       "emailTemplates": "Email templates",
       "coupons": "Coupons",
@@ -3207,6 +3679,8 @@
       "myProfile": "My profile",
       "cms": "Content & themes",
       "tipCms": "Manage public site templates and landing content",
+      "blog": "Blog",
+      "tipBlog": "Write, review, and publish public blog articles.",
       "groupPeople": "People",
       "groupFinance": "Finance",
       "groupAcademic": "Academic",
@@ -3233,6 +3707,7 @@
       "finance": "Finance",
       "tipFinance": "Cohort overview, collections, invoice receipts, and payment review — all under one roof.",
       "tipRegistrations": "Review and approve enrollment requests from the public form.",
+      "tipEvents": "Create and manage paid/free events, attendees, waitlist, and payment review.",
       "tipAcademics": "Cohorts, sections, enrollments, attendance, and grades.",
       "tipCalendar": "All active sections as a calendar; filter by teacher or room.",
       "tipContents": "Create reusable content and global learning routes.",
@@ -3651,7 +4126,9 @@
       "tipTasks": "Create reusable master classes and assign them to sections.",
       "tipAcademics": "Propose transfers and manage your academic tasks.",
       "tipMessages": "Message students, guardians, teachers, or admins.",
-      "tipMyProfile": "Your personal profile, password, and preferences."
+      "tipMyProfile": "Your personal profile, password, and preferences.",
+      "blog": "Blog",
+      "tipBlog": "Author and submit articles for the public blog."
     },
     "assistantNav": {
       "aria": "Assistant navigation",
@@ -5834,7 +6311,7 @@
           "pending": "Pending review"
         }
       }
-    },
+  },
     "teacher": {
       "title": "Teacher area",
       "lead": "Retention signals, family messages, today's classes (UTC), and published averages for your sections.",
@@ -5897,6 +6374,26 @@
       "messagesError": "Could not send reply",
       "messagesYourReply": "Your reply",
       "messagesSenderFallback": "Teacher"
+    }
+  },
+  "blog": {
+    "list": {
+      "title": "Blog",
+      "empty": "Articles will be published soon.",
+      "readMore": "Read more"
+    },
+    "detail": {
+      "relatedTitle": "Related articles",
+      "share": "Share article",
+      "attachmentsTitle": "Article materials"
+    },
+    "comments": {
+      "title": "Comments",
+      "placeholder": "Write a comment",
+      "send": "Send",
+      "signInRequired": "Sign in to comment",
+      "report": "Report",
+      "rateLimited": "Too many comments. Try again later."
     }
   }
 }

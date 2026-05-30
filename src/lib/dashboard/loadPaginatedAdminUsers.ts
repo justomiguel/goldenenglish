@@ -8,6 +8,10 @@ import {
   looksLikeFullEmailQuery,
 } from "@/lib/dashboard/buildAdminUsersProfileOrFilter";
 import { findAuthUserIdByNormalizedEmail } from "@/lib/supabase/findAuthUserIdByNormalizedEmail";
+import {
+  ADMIN_USERS_DIRECTORY_EXCLUDED_PROFILE_IDS,
+  ADMIN_USERS_DIRECTORY_EXCLUDED_ROLE,
+} from "@/lib/dashboard/adminUsersDirectoryExclusions";
 
 const PROFILE_COLUMNS = "id, role, first_name, last_name, phone, avatar_url";
 
@@ -57,11 +61,18 @@ export async function loadPaginatedAdminUsers(
 
   let dataQuery = adminClient
     .from("profiles")
-    .select(PROFILE_COLUMNS);
+    .select(PROFILE_COLUMNS)
+    .neq("role", ADMIN_USERS_DIRECTORY_EXCLUDED_ROLE);
 
   let countQuery = adminClient
     .from("profiles")
-    .select("id", { head: true, count: "exact" });
+    .select("id", { head: true, count: "exact" })
+    .neq("role", ADMIN_USERS_DIRECTORY_EXCLUDED_ROLE);
+
+  for (const id of ADMIN_USERS_DIRECTORY_EXCLUDED_PROFILE_IDS) {
+    dataQuery = dataQuery.neq("id", id);
+    countQuery = countQuery.neq("id", id);
+  }
 
   if (roleFilter !== ROLE_FILTER_ALL) {
     dataQuery = dataQuery.eq("role", roleFilter);
@@ -83,8 +94,8 @@ export async function loadPaginatedAdminUsers(
     countQuery,
   ]);
 
-  const profiles = dataResult.data ?? [];
-  const profileIds = profiles.map((p) => p.id as string);
+  const profiles = (dataResult.data ?? []) as Array<Record<string, unknown>>;
+  const profileIds = profiles.map((p: Record<string, unknown>) => p.id as string);
 
   const emailById = new Map<string, string>();
   await Promise.all(
@@ -99,7 +110,7 @@ export async function loadPaginatedAdminUsers(
   const sectionSet = await loadActiveEnrollmentSet(adminClient, profileIds);
 
   const rows: AdminUserRow[] = await Promise.all(
-    profiles.map(async (p) => {
+    profiles.map(async (p: Record<string, unknown>) => {
       const id = p.id as string;
       const role = (p.role as string) ?? emptyValue;
       const avatarDisplayUrl = await resolveAvatarUrlForAdmin(

@@ -19,6 +19,7 @@ import {
   Table2,
   Underline as UnderlineIcon,
   Undo2,
+  Paperclip,
   Video as YoutubeIcon,
 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
@@ -33,6 +34,7 @@ export function AcademicContentEditorToolbar({
   labels,
   setUrlDialog,
   addImage,
+  mediaAttach,
 }: {
   editor: Editor;
   toolbarId: string;
@@ -40,7 +42,9 @@ export function AcademicContentEditorToolbar({
   labels: Labels;
   setUrlDialog: (next: null | { kind: "link" | "youtube"; initial: string }) => void;
   addImage: () => void;
+  mediaAttach?: { clipTooltip: string; onOpenChooser: () => void };
 }) {
+  const useClipMenu = Boolean(mediaAttach);
   return (
     <div
       id={toolbarId}
@@ -73,20 +77,33 @@ export function AcademicContentEditorToolbar({
       >
         <LinkIcon className="h-4 w-4 shrink-0" aria-hidden={true} />
       </Tool>
-      <Tool
-        pressed={false}
-        disabled={isDisabled}
-        tooltip={labels.editorYoutubeTooltip}
-        onClick={() =>
-          setUrlDialog({
-            kind: "youtube",
-            initial: "https://www.youtube.com/watch?v=",
-          })
-        }
-      >
-        <YoutubeIcon className="h-4 w-4 shrink-0" aria-hidden={true} />
+      {useClipMenu ? (
+        <Tool
+          pressed={false}
+          disabled={isDisabled}
+          tooltip={mediaAttach!.clipTooltip}
+          onClick={() => mediaAttach!.onOpenChooser()}
+        >
+          <Paperclip className="h-4 w-4 shrink-0" aria-hidden={true} />
+        </Tool>
+      ) : (
+        <Tool
+          pressed={false}
+          disabled={isDisabled}
+          tooltip={labels.editorYoutubeTooltip}
+          onClick={() =>
+            setUrlDialog({
+              kind: "youtube",
+              initial: "https://www.youtube.com/watch?v=",
+            })
+          }
+        >
+          <YoutubeIcon className="h-4 w-4 shrink-0" aria-hidden={true} />
+        </Tool>
+      )}
+      <Tool pressed={false} disabled={isDisabled} tooltip={labels.editorImageTooltip} onClick={() => void addImage()}>
+        <ImageIcon className="h-4 w-4 shrink-0" aria-hidden={true} />
       </Tool>
-      <Tool pressed={false} disabled={isDisabled} tooltip={labels.editorImageTooltip} onClick={() => void addImage()}><ImageIcon className="h-4 w-4 shrink-0" aria-hidden={true} /></Tool>
       <Tool pressed={false} disabled={isDisabled} tooltip={labels.editorTableTooltip} onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}><Table2 className="h-4 w-4 shrink-0" aria-hidden={true} /></Tool>
       <Sep />
       <Tool pressed={false} disabled={isDisabled || !editor.can().undo()} tooltip={labels.editorUndoTooltip} onClick={() => editor.chain().focus().undo().run()}><Undo2 className="h-4 w-4 shrink-0" aria-hidden={true} /></Tool>

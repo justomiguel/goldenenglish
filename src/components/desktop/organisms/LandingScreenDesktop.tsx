@@ -10,6 +10,7 @@ interface LandingScreenDesktopProps {
   dict: Dictionary;
   locale: string;
   sessionEmail: string | null;
+  blogEnabled?: boolean;
   children: ReactNode;
   /** When true, the template renders its own primary navigation (e.g. Mozarthitos). */
   suppressHeader?: boolean;
@@ -25,6 +26,7 @@ export function LandingScreenDesktop({
   dict,
   locale,
   sessionEmail,
+  blogEnabled = false,
   children,
   suppressHeader = false,
   marketingFullBleedShell = false,
@@ -39,6 +41,7 @@ export function LandingScreenDesktop({
           dict={dict}
           locale={locale}
           sessionEmail={sessionEmail}
+          blogEnabled={blogEnabled}
         />
       )}
       {children}

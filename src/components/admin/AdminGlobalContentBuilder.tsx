@@ -17,6 +17,7 @@ import {
   saveGlobalContentBuilderMetadataAction,
 } from "@/app/[locale]/dashboard/admin/academic/contents/globalContentFormDataActions";
 import { performGlobalMaterialFileUpload } from "@/components/admin/performGlobalMaterialFileUpload";
+import { pickContentMaterialsPanelLabels } from "@/lib/learning-content/pickContentMaterialsPanelLabels";
 import { validateLearningTaskFile } from "@/lib/learning-tasks/assets";
 import type { ContentTemplateLibraryRow } from "@/lib/learning-tasks/loadContentTemplateLibrary";
 import type { Dictionary } from "@/types/i18n";
@@ -221,7 +222,7 @@ export function AdminGlobalContentBuilder({
         <AcademicContentEditor value={bodyHtml} onChange={setBodyHtml} onImageUpload={uploadInlineImage} labels={labels} disabled={isUploading} />
       </div>
       <AdminGlobalContentMaterialsPanel
-        labels={labels}
+        labels={pickContentMaterialsPanelLabels(labels)}
         materials={materials}
         materialLabel={materialLabel}
         embedUrl={embedUrl}

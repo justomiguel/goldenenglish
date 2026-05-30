@@ -12,10 +12,18 @@ export interface TeacherDashboardShellProps {
   dict: Dictionary;
   brand: BrandPublic;
   adminNav?: AdminWorkspaceNavLabels;
+  includeBlogNav?: boolean;
   children: ReactNode;
 }
 
-export function TeacherDashboardShell({ locale, dict, brand, adminNav, children }: TeacherDashboardShellProps) {
+export function TeacherDashboardShell({
+  locale,
+  dict,
+  brand,
+  adminNav,
+  includeBlogNav = false,
+  children,
+}: TeacherDashboardShellProps) {
   const navDict = dict.dashboard.teacherNav;
 
   return (
@@ -25,10 +33,12 @@ export function TeacherDashboardShell({ locale, dict, brand, adminNav, children 
         brand={brand}
         dict={dict}
         showAdminWorkspace={Boolean(adminNav)}
-        mobileNav={<TeacherMobileDrawer locale={locale} dict={dict} adminNav={adminNav} />}
+        mobileNav={
+          <TeacherMobileDrawer locale={locale} dict={dict} adminNav={adminNav} includeBlogNav={includeBlogNav} />
+        }
       />
       <div className="mx-auto flex w-full max-w-[var(--layout-max-width)] flex-1 gap-0 md:gap-8 md:px-2 md:pb-8 md:pt-2">
-        <TeacherSidebar locale={locale} dict={navDict} adminNav={adminNav} />
+        <TeacherSidebar locale={locale} dict={navDict} adminNav={adminNav} includeBlogNav={includeBlogNav} />
         <div className="min-w-0 flex-1 px-4 py-6 md:rounded-[var(--layout-border-radius)] md:border md:border-[var(--color-border)] md:bg-[var(--color-background)] md:px-8 md:py-8 md:shadow-sm">
           <TeacherBreadcrumb locale={locale} dict={navDict} />
           {children}

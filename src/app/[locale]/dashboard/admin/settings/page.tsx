@@ -4,6 +4,12 @@ import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { loadClassRemindersAdminPageModel } from "@/lib/settings/loadClassRemindersAdminPageModel";
 import { InscriptionsSettingsForm } from "@/components/dashboard/InscriptionsSettingsForm";
 import { ClassRemindersAdminSettingsForm } from "@/components/dashboard/ClassRemindersAdminSettingsForm";
+import { GoogleTranslateSettingsForm } from "@/components/dashboard/admin/settings/GoogleTranslateSettingsForm";
+import { createClient } from "@/lib/supabase/server";
+import {
+  loadGoogleTranslateCredentials,
+  maskGoogleApiKey,
+} from "@/lib/blog/integrations/google/loadGoogleTranslateCredentials";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -18,6 +24,8 @@ export default async function AdminSettingsPage({ params }: PageProps) {
   const dict = await getDictionary(locale);
   const enabled = await getInscriptionsEnabled();
   const classReminders = await loadClassRemindersAdminPageModel();
+  const supabase = await createClient();
+  const googleCredentials = await loadGoogleTranslateCredentials(supabase);
 
   return (
     <div>
@@ -39,6 +47,11 @@ export default async function AdminSettingsPage({ params }: PageProps) {
           labels={dict.admin.settings}
         />
       ) : null}
+      <GoogleTranslateSettingsForm
+        locale={locale}
+        labels={dict.admin.settings.blogTranslate}
+        initialMaskedKey={maskGoogleApiKey(googleCredentials.apiKey)}
+      />
     </div>
   );
 }

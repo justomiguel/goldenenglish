@@ -20,4 +20,14 @@ describe("buildAdminSidebarNavGroups — email templates mega-admin flag", () =>
     const hrefs = groups.flatMap((g) => g.items.map((i) => i.href));
     expect(hrefs).toContain(`${base}/communications/templates`);
   });
+
+  it("shows Blog under Communications when includeBlogNav", () => {
+    const groups = buildAdminSidebarNavGroups(base, profile, dictEn.dashboard.adminNav, badgesZero, {
+      includeBlogNav: true,
+    });
+    const hrefs = groups.flatMap((g) => g.items.map((i) => i.href));
+    expect(hrefs).toContain(`${base}/cms/blog`);
+    const commsGroup = groups.find((g) => g.label === dictEn.dashboard.adminNav.groupComms);
+    expect(commsGroup?.items.some((item) => item.href === `${base}/cms/blog`)).toBe(true);
+  });
 });

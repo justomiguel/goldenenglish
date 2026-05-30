@@ -17,6 +17,9 @@ const localePrefixedAssetPattern = new RegExp(
 );
 
 const localePrefixStripPattern = new RegExp(`^\\/(?:${localeAlternation})(?=\\/)`);
+const localeBlogPreviewPathPattern = new RegExp(
+  `^\\/(?:${localeAlternation})\\/blog\\/preview\\/[^/]+$`,
+);
 
 /**
  * Paths without a locale prefix always redirect to `defaultLocale` (Spanish).
@@ -59,6 +62,9 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
 
   /** Always refresh the Supabase session (incl. `/login` / `/register`) so cookies stay in sync after sign-in. */
   const { response, userId } = await updateSession(request);
+  if (localeBlogPreviewPathPattern.test(pathname)) {
+    response.headers.set("Cache-Control", "private, no-store");
+  }
   scheduleTrafficPageHitFromMiddleware(request, userId, event);
   return response;
 }

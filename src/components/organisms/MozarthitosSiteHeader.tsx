@@ -25,6 +25,10 @@ export interface MozarthitosSiteHeaderProps {
   labels: MozarthitosSiteHeaderLabels;
   dict: Dictionary;
   sessionEmail: string | null;
+  showBlogLink?: boolean;
+  blogLabel?: string;
+  showEventsLink?: boolean;
+  eventsLabel?: string;
   /** Fragment ids for in-page nav (default: quienes, cursos, sedes, contacto). */
   navSectionIds?: Partial<{
     quienes: string;
@@ -45,6 +49,10 @@ export function MozarthitosSiteHeader({
   labels,
   dict,
   sessionEmail,
+  showBlogLink = false,
+  blogLabel,
+  showEventsLink = false,
+  eventsLabel,
   navSectionIds,
 }: MozarthitosSiteHeaderProps) {
   const [open, setOpen] = useState(false);
@@ -58,6 +66,12 @@ export function MozarthitosSiteHeader({
     { href: `${prefix}#${q}`, label: labels.quienes },
     { href: `${prefix}#${c}`, label: labels.cursos },
     { href: `${prefix}#${s}`, label: labels.sedes },
+    ...(showEventsLink && eventsLabel
+      ? [{ href: `${prefix}/events`, label: eventsLabel }]
+      : []),
+    ...(showBlogLink && blogLabel
+      ? [{ href: `${prefix}/blog`, label: blogLabel }]
+      : []),
     { href: `${prefix}#${k}`, label: labels.contacto },
   ];
 

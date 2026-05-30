@@ -12,6 +12,7 @@ Marketing sites across tenants need a single **Contact us** entry that collects 
 2. On submit, a **server action** validates input, builds sanitized HTML for `body_html`, and uses **`createAdminClient`** to insert one `portal_messages` row per real admin and trigger the existing staff email notification helper (same as other staff-originated mail).
 3. Public UI lives at `/[locale]/contact`, themed per active `site_themes.templateKind` (classic / editorial / minimal / mozarthitos / espaciozenit / nago) reusing register-style shells.
 4. Admin inbox filters include messages from `site_contact` / the fixed sender id; compose recipient list excludes that profile.
+5. Admin **users directory** list + `admin_users_list_role_counts` RPC exclude `site_contact` and the fixed sender UUID (migration `136`).
 
 ## Options considered
 

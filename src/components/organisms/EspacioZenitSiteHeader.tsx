@@ -19,6 +19,10 @@ export interface EspacioZenitSiteHeaderProps {
   brandDisplayName: string;
   dict: Dictionary;
   sessionEmail: string | null;
+  showBlogLink?: boolean;
+  blogLabel?: string;
+  showEventsLink?: boolean;
+  eventsLabel?: string;
 }
 
 const stroke = 1.75;
@@ -30,6 +34,10 @@ export function EspacioZenitSiteHeader({
   brandDisplayName,
   dict,
   sessionEmail,
+  showBlogLink = false,
+  blogLabel,
+  showEventsLink = false,
+  eventsLabel,
 }: EspacioZenitSiteHeaderProps) {
   const [open, setOpen] = useState(false);
   const prefix = `/${locale}`;
@@ -39,6 +47,12 @@ export function EspacioZenitSiteHeader({
     { href: `${prefix}#nosotros`, label: labels.nav.nosotros },
     { href: `${prefix}#disciplinas`, label: labels.nav.disciplinas },
     { href: `${prefix}#galeria`, label: labels.nav.galeria },
+    ...(showEventsLink && eventsLabel
+      ? [{ href: `${prefix}/events`, label: eventsLabel }]
+      : []),
+    ...(showBlogLink && blogLabel
+      ? [{ href: `${prefix}/blog`, label: blogLabel }]
+      : []),
     { href: `${prefix}#contacto`, label: labels.nav.contacto },
     { href: `${prefix}/register`, label: labels.nav.enroll },
   ];

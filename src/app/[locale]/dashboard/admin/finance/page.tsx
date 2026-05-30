@@ -18,7 +18,13 @@ import { FinanceHubCohortSelector } from "@/components/dashboard/admin/finance/F
 import { FinanceHubKpiStrip } from "@/components/dashboard/admin/finance/FinanceHubKpiStrip";
 import { loadAdminCohortCollectionsBulk } from "@/lib/billing/loadAdminCohortCollectionsBulk";
 import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { loadEventPaymentsForFinanceKpis } from "@/lib/billing/financeSources/loadEventPaymentsForFinanceKpis";
+import { FinanceEventsPaymentsPanel } from "@/components/dashboard/admin/finance/FinanceEventsPaymentsPanel";
+import {
+  loadFinanceHubPendingCounts,
+  parseFinanceHubYear,
+  pickFinanceHubCohort,
+} from "@/lib/dashboard/finance/loadFinanceHubPendingCounts";
 import type { Locale } from "@/types/i18n";
 
 export const metadata: Metadata = {
@@ -28,61 +34,6 @@ export const metadata: Metadata = {
 interface PageProps {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ tab?: string; cohort?: string; year?: string; type?: string }>;
-}
-
-interface CohortLite {
-  id: string;
-  name: string;
-  is_current: boolean | null;
-  archived_at: string | null;
-}
-
-function pickCohort(
-  cohorts: CohortLite[],
-  requestedId: string | undefined,
-): CohortLite | null {
-  if (cohorts.length === 0) return null;
-  if (requestedId) {
-    const match = cohorts.find((c) => c.id === requestedId);
-    if (match) return match;
-  }
-  const current = cohorts.find((c) => c.is_current);
-  if (current) return current;
-  return cohorts.find((c) => c.archived_at == null) ?? cohorts[0]!;
-}
-
-function parseYear(input: string | undefined, fallback: number): number {
-  if (!input) return fallback;
-  const n = Number.parseInt(input, 10);
-  if (!Number.isFinite(n) || n < 2000 || n > 2100) return fallback;
-  return n;
-}
-
-async function loadPendingCounts(supabase: SupabaseClient) {
-  const [
-    { count: monthlyPayments },
-    { count: enrollmentFeeReceipts },
-    { count: invoiceReceipts },
-  ] = await Promise.all([
-    supabase
-      .from("payments")
-      .select("id", { head: true, count: "exact" })
-      .eq("status", "pending"),
-    supabase
-      .from("section_enrollments")
-      .select("id", { head: true, count: "exact" })
-      .eq("enrollment_fee_receipt_status", "pending"),
-    supabase
-      .from("billing_receipts")
-      .select("id", { head: true, count: "exact" })
-      .eq("status", "pending_approval"),
-  ]);
-  return {
-    payments:
-      (monthlyPayments ?? 0) +
-      (enrollmentFeeReceipts ?? 0) +
-      (invoiceReceipts ?? 0),
-  };
 }
 
 export default async function AdminFinanceHubPage({
@@ -106,22 +57,23 @@ export default async function AdminFinanceHubPage({
   const financeDict = dict.admin.finance;
   const needsCohortBillingMatrix = tab === "collections" || tab === "insights";
 
-  const [pendingCounts, { data: cohortRows }, billingCurrency] = await Promise.all([
-    loadPendingCounts(supabase),
+  const [pendingCounts, { data: cohortRows }, billingCurrency, eventKpis] = await Promise.all([
+    loadFinanceHubPendingCounts(supabase),
     supabase
       .from("academic_cohorts")
       .select("id, name, is_current, archived_at, created_at")
       .order("created_at", { ascending: false }),
     loadBillingCurrencySetting(supabase),
+    loadEventPaymentsForFinanceKpis(supabase),
   ]);
 
-  const cohorts = (cohortRows ?? []) as CohortLite[];
-  const cohort = pickCohort(cohorts, search.cohort);
+  const cohorts = cohortRows ?? [];
+  const cohort = pickFinanceHubCohort(cohorts, search.cohort);
 
   const today = new Date();
   const todayYear = today.getFullYear();
   const todayMonth = today.getMonth() + 1;
-  const year = parseYear(search.year, todayYear);
+  const year = parseFinanceHubYear(search.year, todayYear);
 
   const matrix =
     needsCohortBillingMatrix && cohort
@@ -147,6 +99,7 @@ export default async function AdminFinanceHubPage({
       dict={financeDict.collections.kpis}
       locale={locale}
       currency={billingCurrency.currency}
+      eventKpis={eventKpis}
     />
   ) : null;
 
@@ -228,6 +181,13 @@ export default async function AdminFinanceHubPage({
             supabase={supabase}
             locale={locale}
             dict={financeDict}
+          />
+        ) : null}
+        {tab === "events" ? (
+          <FinanceEventsPaymentsPanel
+            supabase={supabase}
+            dict={financeDict.events}
+            locale={locale}
           />
         ) : null}
         {tab === "settings" ? (

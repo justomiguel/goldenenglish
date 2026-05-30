@@ -12,6 +12,7 @@ interface LandingMainSectionsMimundoProps {
   locale: string;
   sessionEmail: string | null;
   mediaMap?: LandingMediaMap;
+  blogEnabled?: boolean;
 }
 
 export function LandingMainSectionsMimundo({
@@ -20,6 +21,7 @@ export function LandingMainSectionsMimundo({
   locale,
   sessionEmail,
   mediaMap,
+  blogEnabled = false,
 }: LandingMainSectionsMimundoProps) {
   const t = (path: string) => marketingLandingCopy(dict, "mm", path);
 
@@ -34,6 +36,10 @@ export function LandingMainSectionsMimundo({
           sessionEmail={sessionEmail}
           socialFacebook={brand.socialFacebook}
           socialInstagram={brand.socialInstagram}
+          showBlogLink={blogEnabled}
+          blogLabel={blogEnabled ? dict.blog.list.title : undefined}
+          showEventsLink
+          eventsLabel={dict.events.public.title}
           labels={{
             inicio: t("nav.inicio"),
             propuesta: t("nav.propuesta"),

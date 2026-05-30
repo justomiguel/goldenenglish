@@ -33,6 +33,10 @@ export interface MiMundoSiteHeaderProps {
   sessionEmail: string | null;
   socialFacebook?: string;
   socialInstagram?: string;
+  showBlogLink?: boolean;
+  blogLabel?: string;
+  showEventsLink?: boolean;
+  eventsLabel?: string;
   labels: {
     inicio: string;
     propuesta: string;
@@ -56,6 +60,10 @@ export function MiMundoSiteHeader({
   sessionEmail,
   socialFacebook,
   socialInstagram,
+  showBlogLink = false,
+  blogLabel,
+  showEventsLink = false,
+  eventsLabel,
   labels,
 }: MiMundoSiteHeaderProps) {
   const [open, setOpen] = useState(false);
@@ -78,6 +86,12 @@ export function MiMundoSiteHeader({
     { href: `${prefix}#top`, label: labels.inicio },
     { href: `${prefix}#propuesta`, label: labels.propuesta },
     { href: `${prefix}#salas`, label: labels.salas },
+    ...(showEventsLink && eventsLabel
+      ? [{ href: `${prefix}/events`, label: eventsLabel }]
+      : []),
+    ...(showBlogLink && blogLabel
+      ? [{ href: `${prefix}/blog`, label: blogLabel }]
+      : []),
     { href: `${prefix}#galeria`, label: labels.galeria },
     { href: `${prefix}#contacto`, label: labels.contacto },
   ];

@@ -75,14 +75,29 @@ export const ATTACHMENT_DISPLAY_SECTION_ORDER: AttachmentDisplayKind[] = [
   "other",
 ];
 
+const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "gif", "webp", "svg", "avif"]);
+const AUDIO_EXTENSIONS = new Set(["mp3", "wav", "ogg", "m4a", "aac", "flac"]);
+const VIDEO_EXTENSIONS = new Set(["mp4", "mov", "webm", "avi", "mkv"]);
+
 export function classifyAttachmentDisplayKind(input: {
   kind: "file" | "embed";
   mimeType?: string | null;
   filename?: string | null;
   /** When no filename, e.g. use asset label for extension sniffing */
   label?: string | null;
+  extension?: string | null;
 }): AttachmentDisplayKind {
   if (input.kind === "embed") return "embed";
+
+  const ext = (input.extension ?? "").toLowerCase().trim();
+  if (ext) {
+    const docFromExt = classifyDocumentAttachmentKind(null, `file.${ext}`);
+    if (docFromExt) return docFromExt;
+    if (IMAGE_EXTENSIONS.has(ext)) return "image";
+    if (AUDIO_EXTENSIONS.has(ext)) return "audio";
+    if (VIDEO_EXTENSIONS.has(ext)) return "video";
+  }
+
   const mime = (input.mimeType ?? "").toLowerCase().trim();
   const name = (input.filename ?? input.label ?? "").toLowerCase();
 

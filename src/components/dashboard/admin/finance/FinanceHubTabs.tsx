@@ -5,6 +5,7 @@ import {
   Inbox,
   Settings,
   TrendingUp,
+  CalendarDays,
   type LucideIcon,
 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
@@ -12,12 +13,14 @@ import type { Dictionary } from "@/types/i18n";
 export type FinanceHubTabId =
   | "collections"
   | "inbox"
+  | "events"
   | "insights"
   | "settings";
 
 export const FINANCE_HUB_TAB_ORDER: readonly FinanceHubTabId[] = [
   "collections",
   "inbox",
+  "events",
   "insights",
   "settings",
 ];
@@ -43,6 +46,7 @@ type HubDict = Dictionary["admin"]["finance"]["hub"];
 const TAB_ICONS: Record<FinanceHubTabId, LucideIcon> = {
   collections: BarChart3,
   inbox: Inbox,
+  events: CalendarDays,
   insights: TrendingUp,
   settings: Settings,
 };
@@ -53,6 +57,8 @@ function tooltipFor(tab: FinanceHubTabId, dict: HubDict): string {
       return dict.tipCollections;
     case "inbox":
       return dict.tipInbox;
+    case "events":
+      return dict.tipEvents;
     case "insights":
       return dict.tipInsights;
     case "settings":
@@ -66,6 +72,7 @@ function pendingBadgeFor(
 ): number {
   if (!counts) return 0;
   if (tab === "inbox") return counts.payments ?? 0;
+  if (tab === "events") return counts.receipts ?? 0;
   return 0;
 }
 

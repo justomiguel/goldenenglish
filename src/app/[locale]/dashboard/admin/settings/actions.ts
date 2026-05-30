@@ -7,6 +7,7 @@ import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { z } from "zod";
 import { INSTITUTE_TIME_ZONE_IDS } from "@/lib/notifications/instituteTimeZones";
+import { maskGoogleApiKey } from "@/lib/blog/integrations/google/loadGoogleTranslateCredentials";
 
 export async function setInscriptionsEnabled(
   locale: string,
@@ -112,4 +113,58 @@ export async function setClassRemindersGlobalsAction(input: {
 
   revalidatePath(`/${input.locale}/dashboard/admin/settings`);
   return { ok: true };
+}
+
+const googleCredentialsSchema = z.object({
+  locale: z.string().min(2),
+  apiKey: z.string().trim().min(10),
+});
+
+export async function setGoogleTranslateCredentialsAction(input: {
+  locale: string;
+  apiKey: string;
+}): Promise<{ ok: boolean; maskedKey?: string }> {
+  try {
+    await assertAdmin();
+  } catch {
+    logServerAuthzDenied("setGoogleTranslateCredentialsAction");
+    return { ok: false };
+  }
+
+  const parsed = googleCredentialsSchema.safeParse(input);
+  if (!parsed.success) return { ok: false };
+
+  const supabase = await createClient();
+  const now = new Date().toISOString();
+  const payload = {
+    apiKey: parsed.data.apiKey,
+    updatedAt: now,
+    updatedBy: "admin",
+  };
+
+  const { error } = await supabase.from("site_settings").upsert(
+    {
+      key: "google_translation_credentials",
+      value: payload as never,
+      updated_at: now,
+    },
+    { onConflict: "key" },
+  );
+
+  if (error) {
+    logSupabaseClientError("setGoogleTranslateCredentialsAction", error, {
+      key: "google_translation_credentials",
+    });
+    return { ok: false };
+  }
+
+  void recordSystemAudit({
+    action: "integrations.google_translate.update",
+    resourceType: "site_settings",
+    resourceId: "google_translation_credentials",
+    payload: { updatedAt: now },
+  });
+
+  revalidatePath(`/${input.locale}/dashboard/admin/settings`);
+  return { ok: true, maskedKey: maskGoogleApiKey(parsed.data.apiKey) };
 }

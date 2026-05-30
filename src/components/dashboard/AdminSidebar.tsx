@@ -12,6 +12,7 @@ export interface AdminSidebarProps {
   newRegistrationsCount: number;
   recentInboundMessagesCount: number;
   includeEmailTemplatesNav?: boolean;
+  includeBlogNav?: boolean;
   teacherNav?: AdminTeacherNavLabels;
 }
 
@@ -21,6 +22,7 @@ export function AdminSidebar({
   newRegistrationsCount,
   recentInboundMessagesCount,
   includeEmailTemplatesNav,
+  includeBlogNav,
   teacherNav,
 }: AdminSidebarProps) {
   return (
@@ -31,6 +33,7 @@ export function AdminSidebar({
         newRegistrationsCount={newRegistrationsCount}
         recentInboundMessagesCount={recentInboundMessagesCount}
         includeEmailTemplatesNav={includeEmailTemplatesNav}
+        includeBlogNav={includeBlogNav}
         teacherNav={teacherNav}
       />
     </aside>
