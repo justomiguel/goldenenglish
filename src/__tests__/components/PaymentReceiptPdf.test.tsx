@@ -1,3 +1,4 @@
+/** @vitest-environment node */
 import { describe, it, expect } from "vitest";
 import { createElement, type ComponentProps, type ReactElement } from "react";
 import { renderToBuffer, Document } from "@react-pdf/renderer";

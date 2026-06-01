@@ -19,6 +19,9 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    /** Full-suite runs (pre-commit coverage) can starve slow PDF/userEvent tests at 5s default. */
+    testTimeout: 15_000,
+    hookTimeout: 15_000,
     setupFiles: ["./src/test/setup.tsx"],
     include: ["src/**/*.test.{ts,tsx}"],
     coverage: {

@@ -27,7 +27,7 @@ function ControlledBar() {
 
 describe("UnderlineTabBar", () => {
   it("updates the selected tab when a tab is clicked (controlled)", async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     render(<ControlledBar />);
 
     expect(screen.getByRole("tab", { name: /first tab label/i })).toHaveAttribute("tabIndex", "0");
@@ -51,7 +51,7 @@ describe("UnderlineTabBar", () => {
   });
 
   it("skips disabled items when navigating with arrow keys", async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     const disabledItems = [
       { id: "a", label: "First" },
       { id: "b", label: "Second", disabled: true as const },

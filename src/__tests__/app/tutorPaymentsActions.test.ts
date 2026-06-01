@@ -1,6 +1,7 @@
 /** @vitest-environment node */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { dictEn } from "@/test/dictEn";
+import { submitTutorPaymentReceipt } from "@/app/[locale]/dashboard/parent/payments/actions";
 
 const resolveTutorStudentLink = vi.fn();
 const resolveStudentPaymentSlot = vi.fn();
@@ -114,18 +115,12 @@ beforeEach(() => {
 
 describe("submitTutorPaymentReceipt validation", () => {
   it("rejects missing studentId before touching Supabase", async () => {
-    const { submitTutorPaymentReceipt } = await import(
-      "@/app/[locale]/dashboard/parent/payments/actions"
-    );
     const form = tutorFd({ studentId: "" });
     const result = await submitTutorPaymentReceipt(form);
     expect(result).toEqual({ ok: false, message: pe.invalidForm });
   });
 
   it("rejects non-positive amount", async () => {
-    const { submitTutorPaymentReceipt } = await import(
-      "@/app/[locale]/dashboard/parent/payments/actions"
-    );
     const form = tutorFd({ amount: "0" });
     expect(await submitTutorPaymentReceipt(form)).toEqual({
       ok: false,
@@ -134,9 +129,6 @@ describe("submitTutorPaymentReceipt validation", () => {
   });
 
   it("rejects missing file", async () => {
-    const { submitTutorPaymentReceipt } = await import(
-      "@/app/[locale]/dashboard/parent/payments/actions"
-    );
     expect(await submitTutorPaymentReceipt(tutorFd({ file: null }))).toEqual({
       ok: false,
       message: pe.receiptRequired,
@@ -144,9 +136,6 @@ describe("submitTutorPaymentReceipt validation", () => {
   });
 
   it("rejects oversized file", async () => {
-    const { submitTutorPaymentReceipt } = await import(
-      "@/app/[locale]/dashboard/parent/payments/actions"
-    );
     const big = new Uint8Array(4 * 1024 * 1024 + 1);
     const form = tutorFd({
       file: new File([big], "big.pdf", { type: "application/pdf" }),
@@ -161,9 +150,6 @@ describe("submitTutorPaymentReceipt validation", () => {
 describe("submitTutorPaymentReceipt authorization", () => {
   it("rejects unauthenticated callers", async () => {
     supabaseRef.current = buildSupabase({ user: null });
-    const { submitTutorPaymentReceipt } = await import(
-      "@/app/[locale]/dashboard/parent/payments/actions"
-    );
     expect(await submitTutorPaymentReceipt(tutorFd())).toEqual({
       ok: false,
       message: pe.unauthorized,
@@ -175,9 +161,6 @@ describe("submitTutorPaymentReceipt authorization", () => {
       user: { id: "tutor-1" },
       tutorRole: "student",
     });
-    const { submitTutorPaymentReceipt } = await import(
-      "@/app/[locale]/dashboard/parent/payments/actions"
-    );
     expect(await submitTutorPaymentReceipt(tutorFd())).toEqual({
       ok: false,
       message: pe.forbidden,
@@ -193,9 +176,6 @@ describe("submitTutorPaymentReceipt authorization", () => {
       linked: false,
       financialAccessActive: false,
     });
-    const { submitTutorPaymentReceipt } = await import(
-      "@/app/[locale]/dashboard/parent/payments/actions"
-    );
     expect(await submitTutorPaymentReceipt(tutorFd())).toEqual({
       ok: false,
       message: pe.studentNotLinked,
@@ -211,9 +191,6 @@ describe("submitTutorPaymentReceipt authorization", () => {
       linked: true,
       financialAccessActive: false,
     });
-    const { submitTutorPaymentReceipt } = await import(
-      "@/app/[locale]/dashboard/parent/payments/actions"
-    );
     expect(await submitTutorPaymentReceipt(tutorFd())).toEqual({
       ok: false,
       message: pe.forbidden,
@@ -268,9 +245,6 @@ describe("submitTutorPaymentReceipt authorization", () => {
       throw new Error(`unexpected ${table}`);
     }) as typeof supabase.from;
 
-    const { submitTutorPaymentReceipt } = await import(
-      "@/app/[locale]/dashboard/parent/payments/actions"
-    );
     const form = tutorFd({ studentId: "stu-42", amount: "150" });
     const result = await submitTutorPaymentReceipt(form);
 

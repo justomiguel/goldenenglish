@@ -7,11 +7,15 @@ import { resolveBrandLogoAbsoluteUrl } from "@/lib/brand/resolveBrandLogoUrl";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
 import { getProperty } from "@/lib/theme/themeParser";
+import { optimizeRemoteImageForShare } from "@/lib/rich-content/optimizeRemoteImageForShare";
+import { logServerWarn } from "@/lib/logging/serverActionLog";
 
 export const alt = "Blog article preview";
 export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const contentType = "image/jpeg";
 export const revalidate = 3600;
+
+const OG_CACHE_CONTROL = "public, max-age=86400, stale-while-revalidate=604800";
 
 export default async function BlogArticleOpenGraphImage({
   params,
@@ -29,63 +33,30 @@ export default async function BlogArticleOpenGraphImage({
   const origin =
     getPublicSiteUrl()?.origin.replace(/\/$/, "") ?? "http://localhost:3000";
   const fallbackLogo = resolveBrandLogoAbsoluteUrl(brand, origin);
-  const heroImage = share?.coverImageUrl ?? fallbackLogo;
   const title = share?.title ?? brand.name;
+
+  if (share?.coverImageUrl) {
+    try {
+      const optimized = await optimizeRemoteImageForShare(share.coverImageUrl);
+      return new Response(new Uint8Array(optimized.buffer), {
+        headers: {
+          "Content-Type": optimized.contentType,
+          "Cache-Control": OG_CACHE_CONTROL,
+        },
+      });
+    } catch (error) {
+      logServerWarn("blog.opengraph-image.optimize", {
+        slug,
+        locale,
+        reason: "cover_optimize_failed",
+        error,
+      });
+    }
+  }
+
   const { properties } = await loadEffectiveProperties();
   const primaryColor = getProperty(properties, "color.primary", "#103A5C");
   const primaryDark = getProperty(properties, "color.primary.dark", "#0A253D");
-
-  if (share?.coverImageUrl) {
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            position: "relative",
-          }}
-        >
-          <img
-            src={heroImage}
-            alt=""
-            width={1200}
-            height={630}
-            style={{
-              display: "flex",
-              objectFit: "cover",
-              width: "100%",
-              height: "100%",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              bottom: 0,
-              padding: "36px 48px",
-              background: "linear-gradient(transparent, rgba(0,0,0,0.82))",
-              display: "flex",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 44,
-                fontWeight: 700,
-                color: "#FFFFFF",
-                lineHeight: 1.15,
-                display: "flex",
-              }}
-            >
-              {title}
-            </div>
-          </div>
-        </div>
-      ),
-      { ...size },
-    );
-  }
 
   return new ImageResponse(
     (
