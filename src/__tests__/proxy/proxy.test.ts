@@ -67,9 +67,12 @@ describe("proxy", () => {
     const req = new NextRequest(
       new URL("http://localhost/es/dashboard/student/payments"),
     );
-    await proxy(req, stubEvent());
+    const res = await proxy(req, stubEvent());
     expect(updateSession).toHaveBeenCalledTimes(1);
     expect(scheduleTrafficPageHitFromMiddleware).toHaveBeenCalledTimes(1);
+    expect(res.cookies.get("ge_content_view_sid")?.value).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    );
   });
 
   it("delegates to updateSession when Portuguese locale prefix is present", async () => {

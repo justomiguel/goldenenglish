@@ -1,5 +1,9 @@
 import { type NextFetchEvent, type NextRequest, NextResponse } from "next/server";
 import { scheduleTrafficPageHitFromMiddleware } from "@/lib/analytics/scheduleTrafficPageHitFromMiddleware";
+import {
+  resolveContentViewViewerSessionOnRequest,
+  syncContentViewViewerSessionCookie,
+} from "@/lib/analytics/server/contentViewSession";
 import { updateSession } from "@/lib/supabase/middleware";
 import { defaultLocale, locales } from "@/lib/i18n/dictionaries";
 
@@ -61,7 +65,9 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   }
 
   /** Always refresh the Supabase session (incl. `/login` / `/register`) so cookies stay in sync after sign-in. */
+  resolveContentViewViewerSessionOnRequest(request);
   const { response, userId } = await updateSession(request);
+  syncContentViewViewerSessionCookie(request, response);
   if (localeBlogPreviewPathPattern.test(pathname)) {
     response.headers.set("Cache-Control", "private, no-store");
   }

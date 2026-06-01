@@ -3,6 +3,10 @@ import { notFound, redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import {
+  buildContentViewSessionKey,
+  getContentViewViewerSessionId,
+} from "@/lib/analytics/server/contentViewSession";
+import {
   incrementArticleViewCount,
   loadArticleBySlug,
   loadRelatedArticles,
@@ -87,11 +91,12 @@ export default async function BlogDetailPage({ params }: PageProps) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const viewerSessionId = await getContentViewViewerSessionId();
   const viewIncrement = await incrementArticleViewCount(supabase, {
     articleId: article.id,
     entity: "section:blog",
     userId: user?.id ?? null,
-    sessionKey: `${locale}:${translation.slug}`,
+    sessionKey: buildContentViewSessionKey(locale, translation.slug, viewerSessionId),
   });
   const displayViewCount =
     viewIncrement.ok && !viewIncrement.deduped ? article.viewCount + 1 : article.viewCount;

@@ -6,6 +6,10 @@ import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { loadEventForPublicLanding } from "@/lib/dashboard/events/loadEventForPublicLanding";
 import { resolveSessionEventAdminEditHref } from "@/lib/dashboard/events/resolveSessionEventAdminEditHref";
 import { incrementEventViewCount } from "@/lib/events/server/incrementEventViewCount";
+import {
+  buildContentViewSessionKey,
+  getContentViewViewerSessionId,
+} from "@/lib/analytics/server/contentViewSession";
 import { htmlToPlain } from "@/lib/blog/htmlToPlain";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { EventDescriptionHtml } from "@/components/organisms/EventDescriptionHtml";
@@ -56,11 +60,12 @@ export default async function EventDetailPage({ params }: PageProps) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const viewerSessionId = await getContentViewViewerSessionId();
   await incrementEventViewCount(supabase, {
     eventId: event.id,
     entity: AnalyticsEntity.events,
     userId: user?.id ?? null,
-    sessionKey: `${locale}:${event.slug}`,
+    sessionKey: buildContentViewSessionKey(locale, event.slug, viewerSessionId),
   });
 
   const adminEditHref = await resolveSessionEventAdminEditHref(supabase, locale, event.id);
