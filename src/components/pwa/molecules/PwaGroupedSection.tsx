@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export interface PwaGroupedSectionProps {
   title?: string;
-  footer?: string;
+  footer?: ReactNode;
   children: ReactNode;
   className?: string;
 }
@@ -19,7 +19,7 @@ export function PwaGroupedSection({ title, footer, children, className = "" }: P
         {children}
       </div>
       {footer ? (
-        <p className="mt-2 px-1 text-xs leading-relaxed text-[var(--color-muted-foreground)]">{footer}</p>
+        <div className="mt-2 px-1 text-xs leading-relaxed text-[var(--color-muted-foreground)]">{footer}</div>
       ) : null}
     </section>
   );

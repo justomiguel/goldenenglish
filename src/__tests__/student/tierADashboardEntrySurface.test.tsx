@@ -106,6 +106,7 @@ describe("Tier A entries — SurfaceMountGate branches", () => {
         pillars={samplePillars}
         attendanceByStudent={{}}
         overdueByStudent={{}}
+        newsItems={[]}
       />,
     );
     expect(screen.getByTestId("sk")).toBeInTheDocument();
