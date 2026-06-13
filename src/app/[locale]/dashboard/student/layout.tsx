@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandForRequest } from "@/lib/brand/server";
-import { StudentDashboardShell } from "@/components/dashboard/StudentDashboardShell";
+import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
+import { ParentDashboardShell } from "@/components/dashboard/ParentDashboardShell";
 
 interface LayoutProps {
   children: ReactNode;
@@ -30,9 +31,19 @@ export default async function StudentDashboardLayout({
     .single();
   if (profile?.role !== "student") redirect(`/${locale}/dashboard`);
 
+  const perms = await getProfilePermissions(supabase, user.id);
+  const includePayments = perms?.canAccessPaymentsModule ?? false;
+  const baseHref = `/${locale}/dashboard/student`;
+
   return (
-    <StudentDashboardShell locale={locale} dict={dict} brand={brand}>
+    <ParentDashboardShell
+      locale={locale}
+      dict={dict}
+      brand={brand}
+      baseHref={baseHref}
+      includePayments={includePayments}
+    >
       {children}
-    </StudentDashboardShell>
+    </ParentDashboardShell>
   );
 }

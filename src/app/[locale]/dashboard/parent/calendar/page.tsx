@@ -3,7 +3,10 @@ import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { buildPortalCalendarPagePayload } from "@/lib/calendar/buildPortalCalendarPagePayload";
-import { listTutorStudentsWithFinance } from "@/lib/auth/listTutorStudentsWithFinance";
+import {
+  listTutorStudentsWithFinance,
+  type TutorStudentSummary,
+} from "@/lib/auth/listTutorStudentsWithFinance";
 import { loadParentFamilyHubModel } from "@/lib/parent/loadParentFamilyHubModel";
 import { resolveSelectedWard } from "@/lib/parent/resolveSelectedWard";
 import { ParentPortalCalendarEntry } from "@/components/parent/ParentPortalCalendarEntry";
@@ -52,7 +55,7 @@ export default async function ParentCalendarPage({ params, searchParams }: PageP
     loadParentRecentAttendance(supabase, user.id),
     listTutorStudentsWithFinance(supabase, user.id),
   ]);
-  const wardOptions = students.map((s) => ({
+  const wardOptions = students.map((s: TutorStudentSummary) => ({
     studentId: s.studentId,
     displayName: s.displayName,
   }));

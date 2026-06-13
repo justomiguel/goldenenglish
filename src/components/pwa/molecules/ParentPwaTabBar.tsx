@@ -35,11 +35,17 @@ interface ParentPwaTabBarProps {
   locale: string;
   dict: Dictionary["dashboard"]["parentNav"];
   baseHref?: string;
+  includePayments?: boolean;
 }
 
 const tabIconClass = "h-5 w-5 shrink-0";
 
-export function ParentPwaTabBar({ locale, dict, baseHref = `/${locale}/dashboard/parent` }: ParentPwaTabBarProps) {
+export function ParentPwaTabBar({
+  locale,
+  dict,
+  baseHref = `/${locale}/dashboard/parent`,
+  includePayments = true,
+}: ParentPwaTabBarProps) {
   const pathname = usePathname();
   const active = resolveParentPwaTab(pathname, baseHref);
 
@@ -57,12 +63,18 @@ export function ParentPwaTabBar({ locale, dict, baseHref = `/${locale}/dashboard
       label: dict.progress,
       icon: <TrendingUp className={tabIconClass} aria-hidden />,
     },
-    {
+  ];
+
+  if (includePayments) {
+    tabs.push({
       id: "payments",
       href: `${baseHref}/payments`,
       label: dict.payments,
       icon: <Wallet className={tabIconClass} aria-hidden />,
-    },
+    });
+  }
+
+  tabs.push(
     {
       id: "messages",
       href: `${baseHref}/messages`,
@@ -75,7 +87,7 @@ export function ParentPwaTabBar({ locale, dict, baseHref = `/${locale}/dashboard
       label: dict.settings,
       icon: <Settings className={tabIconClass} aria-hidden />,
     },
-  ];
+  );
 
   return (
     <nav

@@ -51,6 +51,18 @@ describe("buildParentSidebarNavGroups", () => {
       "/en/dashboard/profile",
     ]);
   });
+
+  it("omits payments when includePayments is false", () => {
+    const groups = buildParentSidebarNavGroups(
+      "/en/dashboard/student",
+      "/en/dashboard/profile",
+      dictEn.dashboard.parentNav,
+      { includePayments: false },
+    );
+    const hrefs = groups.flatMap((group) => group.items.map((item) => item.href));
+    expect(hrefs).not.toContain("/en/dashboard/student/payments");
+    expect(hrefs).toContain("/en/dashboard/student/progress");
+  });
 });
 
 describe("resolveParentPwaTab", () => {

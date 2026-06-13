@@ -8,11 +8,26 @@ export interface ParentDashboardShellProps {
   dict: Dictionary;
   brand: BrandPublic;
   children: ReactNode;
+  baseHref?: string;
+  includePayments?: boolean;
 }
 
-export function ParentDashboardShell({ locale, dict, brand, children }: ParentDashboardShellProps) {
+export function ParentDashboardShell({
+  locale,
+  dict,
+  brand,
+  children,
+  baseHref,
+  includePayments,
+}: ParentDashboardShellProps) {
   return (
-    <ParentDashboardShellClient locale={locale} dict={dict} brand={brand}>
+    <ParentDashboardShellClient
+      locale={locale}
+      dict={dict}
+      brand={brand}
+      baseHref={baseHref}
+      includePayments={includePayments}
+    >
       {children}
     </ParentDashboardShellClient>
   );

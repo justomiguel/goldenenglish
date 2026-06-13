@@ -39,6 +39,8 @@ interface ParentProgressEntryProps {
   studentLabels: Dictionary["dashboard"]["student"];
   badgesDict: Dictionary["dashboard"]["student"]["badges"];
   navDict: Dictionary["dashboard"]["parentNav"];
+  /** Route base for ward picker URL updates (defaults to parent progress). */
+  progressBasePath?: string;
 }
 
 export function ParentProgressEntry({
@@ -53,13 +55,14 @@ export function ParentProgressEntry({
   studentLabels,
   badgesDict,
   navDict,
+  progressBasePath,
 }: ParentProgressEntryProps) {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") ?? PARENT_PROGRESS_TAB_TASKS;
   const reactId = useId().replace(/:/g, "");
   const idPrefix = `parent-progress-${reactId}`;
   const [tab, setTab] = useState<string>(initialTab);
-  const basePath = `/${locale}/dashboard/parent/progress`;
+  const basePath = progressBasePath ?? `/${locale}/dashboard/parent/progress`;
   const surface = useAppSurface();
   const isNarrowParent = surface === "web-mobile" || surface === "pwa-mobile";
 

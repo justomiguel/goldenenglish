@@ -13,6 +13,8 @@ export interface ParentHomeInboxProps {
   selectedStudentId?: string;
   pillars: ParentHomePillarSnapshot;
   labels: Dictionary["dashboard"]["parent"];
+  dashboardBase?: string;
+  includePayments?: boolean;
 }
 
 export function ParentHomeInbox({
@@ -24,6 +26,8 @@ export function ParentHomeInbox({
   selectedStudentId,
   pillars,
   labels,
+  dashboardBase,
+  includePayments = true,
 }: ParentHomeInboxProps) {
   const inbox = labels.homeInbox;
   const headline = firstName ? `${greeting}, ${firstName}` : greeting;
@@ -47,9 +51,16 @@ export function ParentHomeInbox({
         summaries={summaries}
         selectedStudentId={selected?.studentId}
         ariaLabel={labels.selectChild}
+        dashboardBase={dashboardBase}
       />
 
-      <ParentHomeStatusGrid locale={locale} pillars={pillars} labels={inbox} />
+      <ParentHomeStatusGrid
+        locale={locale}
+        pillars={pillars}
+        labels={inbox}
+        dashboardBase={dashboardBase}
+        includePayments={includePayments}
+      />
     </div>
   );
 }

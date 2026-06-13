@@ -36,6 +36,8 @@ export interface ParentDashboardEntryProps {
   attendanceByStudent: Record<string, number>;
   overdueByStudent: Record<string, boolean>;
   newsItems: ParentHomeNewsItem[];
+  dashboardBase?: string;
+  includePayments?: boolean;
 }
 
 export function ParentDashboardEntry({
@@ -54,6 +56,8 @@ export function ParentDashboardEntry({
   attendanceByStudent,
   overdueByStudent,
   newsItems,
+  dashboardBase,
+  includePayments = true,
 }: ParentDashboardEntryProps) {
   if (summaries.length === 0 && kids.length === 0) {
     return <p className="text-sm text-[var(--color-muted-foreground)]">{lead}</p>;
@@ -89,6 +93,8 @@ export function ParentDashboardEntry({
     overdueByStudent,
     labels: parentLabels,
     newsItems,
+    dashboardBase,
+    includePayments,
   };
 
   return (

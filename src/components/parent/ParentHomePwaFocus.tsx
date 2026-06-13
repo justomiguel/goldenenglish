@@ -26,6 +26,8 @@ export interface ParentHomePwaFocusProps {
   overdueByStudent: Record<string, boolean>;
   labels: Dictionary["dashboard"]["parent"];
   newsItems: ParentHomeNewsItem[];
+  dashboardBase?: string;
+  includePayments?: boolean;
 }
 
 export function ParentHomePwaFocus({
@@ -39,6 +41,8 @@ export function ParentHomePwaFocus({
   overdueByStudent,
   labels,
   newsItems,
+  dashboardBase,
+  includePayments = true,
 }: ParentHomePwaFocusProps) {
   const inbox = labels.homeInbox;
   const multipleChildren = summaries.length > 1;
@@ -98,6 +102,7 @@ export function ParentHomePwaFocus({
           summaries={summaries}
           selectedStudentId={selected?.studentId}
           ariaLabel={labels.selectChild}
+          dashboardBase={dashboardBase}
         />
       )}
 
@@ -108,6 +113,8 @@ export function ParentHomePwaFocus({
         variant="pwa"
         attendanceChildRows={attendanceChildRows}
         paymentChildRows={paymentChildRows}
+        dashboardBase={dashboardBase}
+        includePayments={includePayments}
       />
 
       <ParentHomeNewsFeed locale={locale} items={newsItems} labels={inbox.newsFeed} />

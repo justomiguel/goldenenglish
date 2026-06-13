@@ -20,7 +20,41 @@ export function buildParentSidebarNavGroups(
   base: string,
   profileHref: string,
   dict: Dictionary["dashboard"]["parentNav"],
+  options?: { includePayments?: boolean },
 ): ParentSidebarNavGroup[] {
+  const includePayments = options?.includePayments ?? true;
+
+  const mainItems: ParentSidebarNavItem[] = [
+    {
+      href: `${base}/calendar`,
+      label: dict.calendar,
+      icon: <Calendar className={ic} aria-hidden />,
+      tip: dict.tipCalendar,
+    },
+    {
+      href: `${base}/progress`,
+      label: dict.progress,
+      icon: <TrendingUp className={ic} aria-hidden />,
+      tip: dict.tipProgress,
+    },
+  ];
+
+  if (includePayments) {
+    mainItems.push({
+      href: `${base}/payments`,
+      label: dict.payments,
+      icon: <Wallet className={ic} aria-hidden />,
+      tip: dict.tipPayments,
+    });
+  }
+
+  mainItems.push({
+    href: `${base}/messages`,
+    label: dict.messages,
+    icon: <MessageCircle className={ic} aria-hidden />,
+    tip: dict.tipMessages,
+  });
+
   return [
     {
       label: dict.navScopeStudent,
@@ -35,32 +69,7 @@ export function buildParentSidebarNavGroups(
     },
     {
       label: null,
-      items: [
-        {
-          href: `${base}/calendar`,
-          label: dict.calendar,
-          icon: <Calendar className={ic} aria-hidden />,
-          tip: dict.tipCalendar,
-        },
-        {
-          href: `${base}/progress`,
-          label: dict.progress,
-          icon: <TrendingUp className={ic} aria-hidden />,
-          tip: dict.tipProgress,
-        },
-        {
-          href: `${base}/payments`,
-          label: dict.payments,
-          icon: <Wallet className={ic} aria-hidden />,
-          tip: dict.tipPayments,
-        },
-        {
-          href: `${base}/messages`,
-          label: dict.messages,
-          icon: <MessageCircle className={ic} aria-hidden />,
-          tip: dict.tipMessages,
-        },
-      ],
+      items: mainItems,
     },
     {
       label: dict.groupYou,

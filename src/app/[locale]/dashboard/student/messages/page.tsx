@@ -96,8 +96,8 @@ export default async function StudentMessagesPage({ params }: PageProps) {
   return (
     <StudentMessagesEntry
       locale={locale}
-      title={dict.dashboard.student.messagesTitle}
-      lead={dict.dashboard.student.messagesLead}
+      title={dict.dashboard.parent.messagesTitle}
+      lead={dict.dashboard.parent.messagesLead}
       lines={lines}
       teacherComposeAvailable={teacherComposeAvailable}
       administrationComposeAvailable={administrationComposeAvailable}

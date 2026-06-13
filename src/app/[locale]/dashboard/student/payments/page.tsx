@@ -1,26 +1,19 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import {
-  effectiveAmountAfterScholarship,
-  type ScholarshipRow,
-} from "@/lib/billing/scholarshipPeriod";
-import { loadStudentMonthlyPaymentsView } from "@/lib/billing/loadStudentMonthlyPaymentsView";
-import { StudentPaymentsEntry } from "@/components/student/StudentPaymentsEntry";
-import type { StudentPaymentRow } from "@/components/student/StudentPaymentsHistory";
-import { studentReceiptSignedUrl } from "@/lib/payments/studentReceiptSignedUrl";
 import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { ParentPaymentsEntry } from "@/components/parent/ParentPaymentsEntry";
+import { BillingPortalScreen } from "@/components/billing/BillingPortalScreen";
+import { loadStudentSelfPaymentsPagePayload } from "@/lib/billing/loadStudentSelfPaymentsPagePayload";
 import {
   submitStudentPaymentReceipt,
   submitEnrollmentFeeReceipt,
 } from "@/app/[locale]/dashboard/student/payments/actions";
 import { startStudentFlowMonthlyPayment } from "@/app/[locale]/dashboard/student/payments/flowMonthlyPaymentActions";
 import { startStudentMercadoPagoMonthlyPayment } from "@/app/[locale]/dashboard/student/payments/mercadoPagoMonthlyPaymentActions";
-import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
-import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTransferInstructionsSetting";
-import { loadEnabledGatewaysForBillingCurrency } from "@/lib/payment-gateways/loadEnabledGatewaysForBillingCurrency";
-import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 import type { Locale } from "@/types/i18n";
 
 export const metadata: Metadata = {
@@ -42,157 +35,64 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, first_name, last_name")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
   if (profile?.role !== "student") redirect(`/${locale}/dashboard`);
 
   const perms = await getProfilePermissions(supabase, user.id);
-  const paymentsBlockedMessage =
-    perms && !perms.canAccessPaymentsModule
-      ? dict.dashboard.student.tutorManagesPayments
-      : undefined;
+  if (perms && !perms.canAccessPaymentsModule) {
+    redirect(`/${locale}/dashboard/student`);
+  }
 
-  if (paymentsBlockedMessage) {
-    return (
-      <StudentPaymentsEntry
+  const displayName = formatProfileNameSurnameFirst(profile.first_name, profile.last_name);
+  const payload = await loadStudentSelfPaymentsPagePayload(
+    supabase,
+    user.id,
+    displayName || user.id,
+  );
+
+  const feesPanel = (
+    <BillingPortalScreen
+      locale={locale}
+      viewer="student"
+      isMinorStudent={false}
+      dict={dict.dashboard.portalBilling}
+      fileUploadProgress={dict.common.fileUpload}
+      invoices={payload.selectedInvoices}
+    />
+  );
+
+  return (
+    <Suspense fallback={<div className="h-32 animate-pulse rounded bg-[var(--color-muted)]" aria-hidden />}>
+      <ParentPaymentsEntry
         locale={locale as Locale}
-        studentId={user.id}
-        hasPromotionApplied={false}
-        title={dict.dashboard.student.paymentsTitle}
-        lead={dict.dashboard.student.paymentsLead}
-        payments={[]}
-        monthlyView={null}
-        labels={dict.dashboard.student}
-        paymentsBlockedMessage={paymentsBlockedMessage}
+        title={dict.dashboard.parent.paymentsTitle}
+        lead={dict.dashboard.parent.paymentsLead}
+        options={payload.options}
+        selectedStudentId={payload.selectedStudentId}
+        monthlyView={payload.monthlyView}
+        familySummary={payload.familySummary}
+        payments={payload.paymentRows}
+        financialAccessRevoked={payload.accessRevoked}
+        labels={dict.dashboard.parent}
+        studentLabels={dict.dashboard.student}
         submitReceiptAction={submitStudentPaymentReceipt}
         submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceipt}
         fileUploadProgress={dict.common.fileUpload}
-        bankTransferInstructions={null}
+        enabledOnlineGateways={payload.enabledOnlineGateways}
+        startFlowMonthlyPaymentAction={
+          payload.enabledOnlineGateways.includes("flow") ? startStudentFlowMonthlyPayment : undefined
+        }
+        startMercadoPagoMonthlyPaymentAction={
+          payload.enabledOnlineGateways.includes("mercadopago")
+            ? startStudentMercadoPagoMonthlyPayment
+            : undefined
+        }
+        feesPanel={feesPanel}
+        initialFocus={payload.initialFocus}
+        bankTransferInstructions={payload.bankTransferInstructions}
       />
-    );
-  }
-
-  const { data: scholarshipData } = await supabase
-    .from("section_enrollment_scholarships")
-    .select(
-      "id, section_id, discount_percent, note, valid_from_year, valid_from_month, valid_until_year, valid_until_month, is_active",
-    )
-    .eq("student_id", user.id);
-  const scholarshipsBySection = new Map<string, ScholarshipRow[]>();
-  for (const row of (scholarshipData ?? []) as Array<ScholarshipRow & { section_id: string }>) {
-    const list = scholarshipsBySection.get(row.section_id) ?? [];
-    list.push({
-      id: row.id,
-      discount_percent: Number(row.discount_percent),
-      note: row.note ?? null,
-      valid_from_year: row.valid_from_year,
-      valid_from_month: row.valid_from_month,
-      valid_until_year: row.valid_until_year,
-      valid_until_month: row.valid_until_month,
-      is_active: Boolean(row.is_active),
-    });
-    scholarshipsBySection.set(row.section_id, list);
-  }
-
-  const { data: payments } = await supabase
-    .from("payments")
-    .select("id, section_id, month, year, amount, status, receipt_url, updated_at")
-    .eq("student_id", user.id)
-    .order("year", { ascending: false })
-    .order("month", { ascending: true });
-
-  let promoCount = 0;
-  const promoRes = await supabase
-    .from("student_promotions")
-    .select("id", { count: "exact", head: true })
-    .eq("student_id", user.id);
-  if (!promoRes.error) promoCount = promoRes.count ?? 0;
-
-  const today = new Date();
-  const monthlyView = await loadStudentMonthlyPaymentsView(
-    supabase,
-    user.id,
-    [],
-    { todayYear: today.getFullYear(), todayMonth: today.getMonth() + 1 },
-  );
-  const fullMonthAmountByPaymentSlot = new Map<string, number>();
-  for (const section of monthlyView.rows) {
-    for (const cell of section.cells) {
-      if (cell.fullMonthExpectedAmount == null) continue;
-      fullMonthAmountByPaymentSlot.set(
-        `${section.sectionId}:${cell.year}:${cell.month}`,
-        cell.fullMonthExpectedAmount,
-      );
-    }
-  }
-
-  const rows: StudentPaymentRow[] = await Promise.all(
-    (payments ?? []).map(async (p) => {
-      const amount = p.amount != null ? Number(p.amount) : null;
-      const st = p.status as StudentPaymentRow["status"];
-      const url = await studentReceiptSignedUrl(
-        supabase,
-        user.id,
-        p.receipt_url as string | null,
-      );
-      const y = p.year as number;
-      const mo = p.month as number;
-      const scholarships = p.section_id
-        ? scholarshipsBySection.get(p.section_id as string) ?? []
-        : [];
-      const fullMonthDisplayAmount = p.section_id
-        ? fullMonthAmountByPaymentSlot.get(`${p.section_id as string}:${y}:${mo}`) ?? null
-        : null;
-      const displayAmount =
-        fullMonthDisplayAmount ??
-        (st === "exempt"
-          ? amount
-          : effectiveAmountAfterScholarship(amount, y, mo, scholarships));
-      return {
-        id: p.id as string,
-        month: mo,
-        year: y,
-        amount,
-        displayAmount,
-        status: st,
-        updated_at: p.updated_at as string,
-        receiptSignedUrl: url,
-      };
-    }),
-  );
-
-  const [billingCurrency, bankTransferInstructions] = await Promise.all([
-    loadBillingCurrencySetting(supabase),
-    loadBankTransferInstructionsSetting(supabase),
-  ]);
-  const enabledGateways = await loadEnabledGatewaysForBillingCurrency(supabase, billingCurrency.currency);
-  const enabledOnlineGateways = enabledGateways.map((g) => g.provider) as PaymentGatewayProvider[];
-
-  return (
-    <StudentPaymentsEntry
-      locale={locale as Locale}
-      studentId={user.id}
-      hasPromotionApplied={promoCount > 0}
-      title={dict.dashboard.student.paymentsTitle}
-      lead={dict.dashboard.student.paymentsLead}
-      payments={rows}
-      monthlyView={monthlyView}
-      labels={dict.dashboard.student}
-      paymentsBlockedMessage={paymentsBlockedMessage}
-      submitReceiptAction={submitStudentPaymentReceipt}
-      submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceipt}
-      fileUploadProgress={dict.common.fileUpload}
-      bankTransferInstructions={bankTransferInstructions.instructions}
-      enabledOnlineGateways={enabledOnlineGateways}
-      startFlowMonthlyPaymentAction={
-        enabledOnlineGateways.includes("flow") ? startStudentFlowMonthlyPayment : undefined
-      }
-      startMercadoPagoMonthlyPaymentAction={
-        enabledOnlineGateways.includes("mercadopago")
-          ? startStudentMercadoPagoMonthlyPayment
-          : undefined
-      }
-    />
+    </Suspense>
   );
 }

@@ -16,7 +16,9 @@ interface ParentPwaShellProps {
   dict: Dictionary;
   children: ReactNode;
   baseHref?: string;
-  profileHref?: string;
+  includePayments?: boolean;
+  chromeLabels?: Dictionary["dashboard"]["parentChrome"];
+  navDict?: Dictionary["dashboard"]["parentNav"];
 }
 
 const headerActionClass =
@@ -28,9 +30,13 @@ export function ParentPwaShell({
   dict,
   children,
   baseHref = `/${locale}/dashboard/parent`,
-  profileHref = `/${locale}/dashboard/profile`,
+  includePayments = true,
+  chromeLabels,
+  navDict,
 }: ParentPwaShellProps) {
-  const chrome = dict.dashboard.parentChrome;
+  const chrome = chromeLabels ?? dict.dashboard.parentChrome;
+  const nav = navDict ?? dict.dashboard.parentNav;
+  const profileHref = `/${locale}/dashboard/profile`;
   const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
 
   return (
@@ -63,8 +69,8 @@ export function ParentPwaShell({
           <div className="flex shrink-0 items-center gap-2">
             <Link
               href={profileHref}
-              aria-label={dict.dashboard.parentNav.myProfile}
-              title={dict.dashboard.parentNav.tipMyProfile}
+              aria-label={nav.myProfile}
+              title={nav.tipMyProfile}
               className={headerActionClass}
             >
               <User className="h-5 w-5" aria-hidden />
@@ -90,7 +96,12 @@ export function ParentPwaShell({
         {children}
       </main>
 
-      <ParentPwaTabBar locale={locale} dict={dict.dashboard.parentNav} baseHref={baseHref} />
+      <ParentPwaTabBar
+        locale={locale}
+        dict={nav}
+        baseHref={baseHref}
+        includePayments={includePayments}
+      />
     </div>
   );
 }

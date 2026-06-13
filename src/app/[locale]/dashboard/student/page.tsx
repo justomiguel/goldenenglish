@@ -1,18 +1,18 @@
-import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { StudentDashboardEntry } from "@/components/student/StudentDashboardEntry";
-import type { AttendanceRow } from "@/lib/attendance/stats";
-import { loadStudentHubModel } from "@/lib/student/loadStudentHubModel";
-import { studentEnrollmentRenewalKind } from "@/lib/student/studentEnrollmentRenewalNotice";
-import { getStudentEnrollmentRenewalWarnDaysFromSystem } from "@/lib/student/studentEnrollmentRenewalWarnDays";
+import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
+import { loadChildrenSummariesForStudentIds } from "@/lib/parent/loadChildrenSummariesForStudentIds";
+import { loadFamilyHubModelForStudentIds } from "@/lib/parent/loadFamilyHubModelForStudentIds";
+import { loadParentHomeMessageSignals } from "@/lib/parent/loadParentHomeMessageSignals";
+import { loadStudentHomePaymentOverdueSignals } from "@/lib/student/loadStudentHomePaymentOverdueSignals";
+import { buildParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
+import { loadPortalCalendarPageData } from "@/lib/calendar/loadPortalCalendarPageData";
+import { loadParentHomeNewsFeed } from "@/lib/parent/loadParentHomeNewsFeed";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
-import { loadStudentLearningTasks } from "@/lib/learning-tasks/loadStudentLearningTasks";
-import { loadStudentLearningFeedback } from "@/lib/learning-content/loadStudentLearningFeedback";
-import { loadDashboardBirthdaysCard } from "@/lib/birthdays/loadDashboardBirthdaysCard";
+import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
 
-export const metadata: Metadata = {
+export const metadata = {
   robots: { index: false, follow: false },
 };
 
@@ -29,73 +29,78 @@ export default async function StudentDashboardPage({ params }: PageProps) {
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const { data: prof } = await supabase
-    .from("profiles")
-    .select("engagement_points, is_minor, last_enrollment_paid_at, first_name")
-    .eq("id", user.id)
-    .maybeSingle();
+  const [{ data: profile }, perms] = await Promise.all([
+    supabase.from("profiles").select("first_name, is_minor").eq("id", user.id).maybeSingle(),
+    getProfilePermissions(supabase, user.id),
+  ]);
 
-  const engagementPoints =
-    prof && typeof prof === "object" && "engagement_points" in prof
-      ? Number((prof as { engagement_points?: number }).engagement_points ?? 0)
-      : 0;
+  const isMinor = perms?.isMinor ?? Boolean(profile?.is_minor);
+  const includePayments = perms?.canAccessPaymentsModule ?? !isMinor;
+  const studentId = user.id;
+  const dashboardBase = `/${locale}/dashboard/student`;
 
-  const isMinor = Boolean((prof as { is_minor?: boolean } | null)?.is_minor);
-  const lastPaid = (prof as { last_enrollment_paid_at?: string | null } | null)?.last_enrollment_paid_at ?? null;
-  const enrollmentRenewalWarnDays = getStudentEnrollmentRenewalWarnDaysFromSystem();
-  const enrollmentRenewalKind = studentEnrollmentRenewalKind(
-    isMinor,
-    lastPaid,
-    new Date(),
-    enrollmentRenewalWarnDays,
-  );
+  const [summaries, hub, messageSignals, paymentOverdue, calendarPage] = await Promise.all([
+    loadChildrenSummariesForStudentIds(supabase, [studentId]),
+    loadFamilyHubModelForStudentIds(
+      supabase,
+      [studentId],
+      locale,
+      dict.dashboard.parent.hub.icsEventTitle,
+    ),
+    loadParentHomeMessageSignals(supabase, user.id),
+    loadStudentHomePaymentOverdueSignals(supabase, studentId, isMinor),
+    loadPortalCalendarPageData(supabase, { role: "student", userId: user.id }),
+  ]);
 
-  const { data: rows } = await supabase
-    .from("section_attendance")
-    .select("attended_on, status, section_enrollments!inner(student_id)")
-    .eq("section_enrollments.student_id", user.id)
-    .order("attended_on", { ascending: true });
+  const newsItems = await loadParentHomeNewsFeed(supabase, {
+    locale,
+    viewerSectionIds: calendarPage.viewerSectionIds,
+  });
 
-  const normalized: AttendanceRow[] = (rows ?? []).map((r) => ({
-    attendance_date: String(r.attended_on),
-    status: r.status as AttendanceRow["status"],
+  const kids = summaries.map((s) => ({
+    id: s.studentId,
+    first_name: s.firstName,
+    last_name: s.lastName,
   }));
 
-  const hub = await loadStudentHubModel(supabase, user.id, locale);
-  const [{ data: crInbox }, learningTasks, learningFeedback, birthdayRows] = await Promise.all([
-    supabase
-      .from("class_reminder_in_app")
-      .select("id, title, body, created_at")
-      .eq("recipient_user_id", user.id)
-      .is("read_at", null)
-      .order("created_at", { ascending: false })
-      .limit(6),
-    loadStudentLearningTasks(supabase, user.id, 6),
-    loadStudentLearningFeedback(supabase, user.id, 6),
-    loadDashboardBirthdaysCard(supabase, user.id),
-  ]);
+  const selectedStudentId = studentId;
+  const payHref = `${dashboardBase}/payments`;
   const { greeting, fullDateLine } = buildDashboardGreeting(locale, dict);
-  const firstName = (prof as { first_name?: string | null } | null)?.first_name ?? null;
+  const firstName = (profile?.first_name as string | null) ?? null;
+
+  const attendanceByStudent: Record<string, number> = {};
+  for (const line of hub?.attendanceLines ?? []) {
+    attendanceByStudent[line.studentId] = line.pct;
+  }
+
+  const pillars = buildParentHomePillarSnapshot({
+    selectedStudentId,
+    attendanceByStudent,
+    attendanceLevelByStudent: hub?.attendanceLevelByStudent,
+    overdueByStudent: paymentOverdue.overdueByStudent,
+    staffInboundCount: messageSignals.staffInboundCount,
+    overdueInvoiceCount: paymentOverdue.overdueInvoiceCount,
+  });
 
   return (
-    <StudentDashboardEntry
+    <ParentDashboardEntry
       locale={locale}
-      title={dict.dashboard.student.title}
-      kicker={dict.dashboard.student.kicker}
+      lead={dict.dashboard.parent.lead}
       greeting={greeting}
       fullDateLine={fullDateLine}
       firstName={firstName}
-      engagementPoints={engagementPoints}
-      rows={normalized}
-      labels={dict.dashboard.student}
-      hub={hub}
-      enrollmentRenewalKind={enrollmentRenewalKind}
-      classReminderInbox={(crInbox ?? []) as { id: string; title: string; body: string; created_at: string }[]}
-      learningTasks={learningTasks}
-      learningFeedback={learningFeedback}
-      birthdays={birthdayRows}
-      birthdaysDict={dict.dashboard.birthdays}
-      pwaInstall={dict.pwa.install}
+      navPay={dict.dashboard.parent.navPay}
+      payHref={payHref}
+      kids={kids}
+      summaries={summaries}
+      selectedStudentId={selectedStudentId}
+      parentLabels={dict.dashboard.parent}
+      pillars={pillars}
+      attendanceByStudent={attendanceByStudent}
+      overdueByStudent={paymentOverdue.overdueByStudent}
+      newsItems={newsItems}
+      dashboardBase={dashboardBase}
+      includePayments={includePayments}
     />
   );
 }

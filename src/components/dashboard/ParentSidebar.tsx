@@ -6,9 +6,10 @@ export interface ParentSidebarProps {
   dict: Dictionary["dashboard"]["parentNav"];
   baseHref?: string;
   profileHref?: string;
+  includePayments?: boolean;
 }
 
-export function ParentSidebar({ locale, dict, baseHref, profileHref }: ParentSidebarProps) {
+export function ParentSidebar({ locale, dict, baseHref, profileHref, includePayments }: ParentSidebarProps) {
   return (
     <aside className="hidden w-56 shrink-0 md:block md:rounded-[var(--layout-border-radius)] md:border md:border-[var(--color-border)] md:bg-[var(--color-surface)] md:py-5 md:pl-2 md:pr-2 md:shadow-sm">
       <ParentSidebarNavContent
@@ -16,6 +17,7 @@ export function ParentSidebar({ locale, dict, baseHref, profileHref }: ParentSid
         dict={dict}
         baseHref={baseHref}
         profileHref={profileHref}
+        includePayments={includePayments}
       />
     </aside>
   );

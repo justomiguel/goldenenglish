@@ -121,12 +121,20 @@ const TIER_A_PARENT_HUB_REDIRECT_PAGES = new Set([
   "src/app/[locale]/dashboard/parent/billing/page.tsx",
 ]);
 
+/** Student hub redirects — no UI; progress tab page owns SurfaceMountGate. */
+const TIER_A_STUDENT_HUB_REDIRECT_PAGES = new Set([
+  "src/app/[locale]/dashboard/student/tasks/page.tsx",
+  "src/app/[locale]/dashboard/student/badges/page.tsx",
+  "src/app/[locale]/dashboard/student/assessments/page.tsx",
+]);
+
 export function findTierAStudentParentPages(listRelPaths) {
   return listRelPaths.filter(
     (f) =>
       f.endsWith("/page.tsx") &&
       /src\/app\/\[locale\]\/dashboard\/(student|parent)\//.test(f) &&
       !TIER_A_PROFILE_REDIRECT_PAGES.has(f) &&
-      !TIER_A_PARENT_HUB_REDIRECT_PAGES.has(f),
+      !TIER_A_PARENT_HUB_REDIRECT_PAGES.has(f) &&
+      !TIER_A_STUDENT_HUB_REDIRECT_PAGES.has(f),
   );
 }

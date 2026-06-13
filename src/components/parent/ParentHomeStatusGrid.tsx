@@ -13,6 +13,10 @@ export interface ParentHomeStatusGridProps {
   /** When set, attendance and payments cards list one row per linked child (PWA home). */
   attendanceChildRows?: ParentHomeChildPillarRow[];
   paymentChildRows?: ParentHomeChildPillarRow[];
+  /** Dashboard base path segment (defaults to parent). */
+  dashboardBase?: string;
+  /** When false, the payments pillar card is omitted (student minors). */
+  includePayments?: boolean;
 }
 
 function statusLabel(level: ParentHomePillarSnapshot["attendance"]["level"], labels: ParentHomeStatusGridProps["labels"]) {
@@ -28,8 +32,10 @@ export function ParentHomeStatusGrid({
   variant = "default",
   attendanceChildRows,
   paymentChildRows,
+  dashboardBase,
+  includePayments = true,
 }: ParentHomeStatusGridProps) {
-  const base = `/${locale}/dashboard/parent`;
+  const base = dashboardBase ?? `/${locale}/dashboard/parent`;
   const { attendance, messages, payments } = pillars;
 
   const attendanceLevel = attendanceChildRows?.length
@@ -94,19 +100,21 @@ export function ParentHomeStatusGrid({
             variant={variant}
           />
         </li>
-        <li>
-          <ParentHomeStatusCard
-            href={`${base}/payments`}
-            title={labels.pillarPaymentsTitle}
-            detail={paymentsDetail}
-            statusLabel={statusLabel(paymentsLevel, labels)}
-            level={paymentsLevel}
-            icon={Wallet}
-            variant={variant}
-            childRows={paymentChildRows}
-            childRowsAriaLabel={labels.pwaChildRowsPaymentsAria}
-          />
-        </li>
+        {includePayments ? (
+          <li>
+            <ParentHomeStatusCard
+              href={`${base}/payments`}
+              title={labels.pillarPaymentsTitle}
+              detail={paymentsDetail}
+              statusLabel={statusLabel(paymentsLevel, labels)}
+              level={paymentsLevel}
+              icon={Wallet}
+              variant={variant}
+              childRows={paymentChildRows}
+              childRowsAriaLabel={labels.pwaChildRowsPaymentsAria}
+            />
+          </li>
+        ) : null}
       </ul>
     </section>
   );

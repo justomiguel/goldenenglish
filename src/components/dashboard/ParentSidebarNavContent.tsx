@@ -13,6 +13,7 @@ export interface ParentSidebarNavContentProps {
   dict: Dictionary["dashboard"]["parentNav"];
   baseHref?: string;
   profileHref?: string;
+  includePayments?: boolean;
   onNavigate?: () => void;
   variant?: "desktop" | "mobile";
 }
@@ -88,11 +89,12 @@ export function ParentSidebarNavContent({
   dict,
   baseHref = `/${locale}/dashboard/parent`,
   profileHref = `/${locale}/dashboard/profile`,
+  includePayments = true,
   onNavigate,
   variant = "desktop",
 }: ParentSidebarNavContentProps) {
   const pathname = usePathname();
-  const groups = buildParentSidebarNavGroups(baseHref, profileHref, dict);
+  const groups = buildParentSidebarNavGroups(baseHref, profileHref, dict, { includePayments });
   const mobile = variant === "mobile";
 
   return (
