@@ -27,6 +27,7 @@ import {
   parseMonthlyFeeChargeMode,
   type MonthlyFeeChargeMode,
 } from "@/lib/billing/monthlyFeeChargeMode";
+import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
 
 export interface SectionCollectionsStudentInput {
   studentId: string;
@@ -102,6 +103,11 @@ export function buildSectionCollectionsView(
 ): SectionCollectionsView {
   const enrollmentFee = enrollmentFeeAmount(input);
   const monthlyFeeChargeMode = parseMonthlyFeeChargeMode(input.monthlyFeeChargeMode);
+  const referencePlan = resolveEffectiveSectionFeePlan(
+    input.plans,
+    input.todayYear,
+    input.todayMonth,
+  );
   const studentRows: SectionCollectionsStudentRow[] = input.students.map((s) => {
     const studentEnrollmentFee = s.enrollmentFeeExempt ? 0 : enrollmentFee;
     const row: StudentMonthlyPaymentSectionRow = buildStudentMonthlyPaymentsRow({
@@ -172,6 +178,8 @@ export function buildSectionCollectionsView(
     sectionEndsOn: input.sectionEndsOn,
     monthlyFeeChargeMode,
     allowAdvanceMonthlyPayment: input.allowAdvanceMonthlyPayment === true,
+    referenceMonthlyFeeAmount: referencePlan?.monthlyFee ?? null,
+    referenceMonthlyFeeCurrency: referencePlan?.currency ?? null,
     students: studentRows,
     kpis: buildSectionCollectionsKpis(studentRows),
   };

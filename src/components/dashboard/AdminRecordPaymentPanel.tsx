@@ -31,19 +31,20 @@ export function AdminRecordPaymentPanel({
   monthStates,
   collectionCells = null,
   labels,
+  sectionMonthlyFeeAmount = null,
+  sectionMonthlyFeeCurrency = null,
   showEnrollmentMonthZero,
   enrollmentMonthZeroVisual,
   enrollmentFeeModal = null,
   embedded = false,
 }: AdminRecordPaymentPanelProps) {
   const paidNoteId = useId();
-  const scholarshipPctId = useId();
   const scholarshipNoteId = useId();
   const exemptNoteId = useId();
 
   const { selected, setSelected, toggleMonth, clearSelection: clearMonths, selectionMode } =
     useAdminRecordPaymentMonthSelection(monthStates);
-  const [modalScholarshipPercent, setModalScholarshipPercent] = useState("");
+  const [resolvedScholarshipPercent, setResolvedScholarshipPercent] = useState<number | null>(null);
   const [modalAdminNote, setModalAdminNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -53,11 +54,10 @@ export function AdminRecordPaymentPanel({
   const nSelected = selected.size;
   const hasSelection = nSelected > 0;
 
-  const scholarshipPctNum = Number(modalScholarshipPercent);
   const scholarshipConfirmReady =
-    Number.isFinite(scholarshipPctNum) &&
-    scholarshipPctNum >= 1 &&
-    scholarshipPctNum <= 100;
+    resolvedScholarshipPercent != null &&
+    resolvedScholarshipPercent >= 1 &&
+    resolvedScholarshipPercent <= 100;
   const exemptConfirmReady = modalAdminNote.trim().length > 0;
 
   const { monthGridLabels, enrollmentMonthZero, selectableMonths } = useAdminRecordPaymentPanelLabels({
@@ -74,7 +74,7 @@ export function AdminRecordPaymentPanel({
   });
 
   function resetModalFields() {
-    setModalScholarshipPercent("");
+    setResolvedScholarshipPercent(null);
     setModalAdminNote("");
   }
 
@@ -90,7 +90,7 @@ export function AdminRecordPaymentPanel({
       scholarshipConfirmReady,
       exemptConfirmReady,
       modalAdminNote,
-      modalScholarshipPercent,
+      resolvedScholarshipPercent,
       setBusy,
       setMsg,
       setSelected,
@@ -177,16 +177,17 @@ export function AdminRecordPaymentPanel({
           <AdminRecordPaymentBulkConfirmForm
             pendingAction={pendingAction}
             paidNoteId={paidNoteId}
-            scholarshipPctId={scholarshipPctId}
             scholarshipNoteId={scholarshipNoteId}
             exemptNoteId={exemptNoteId}
             modalAdminNote={modalAdminNote}
-            modalScholarshipPercent={modalScholarshipPercent}
             scholarshipConfirmReady={scholarshipConfirmReady}
             busy={busy}
+            locale={locale}
             labels={labels}
+            referenceMonthlyAmount={sectionMonthlyFeeAmount}
+            referenceMonthlyCurrency={sectionMonthlyFeeCurrency}
             onAdminNoteChange={setModalAdminNote}
-            onScholarshipPercentChange={setModalScholarshipPercent}
+            onResolvedScholarshipPercentChange={setResolvedScholarshipPercent}
           />
         }
         cancelLabel={labels.cancel}

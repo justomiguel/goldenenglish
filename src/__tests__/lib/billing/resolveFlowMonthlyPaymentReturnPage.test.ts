@@ -55,8 +55,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 function userSupabase(opts: {
   canSeePayment: boolean;
-  secondSelect?: { status: string; month: number | null; year: number | null } | null;
+  statusReads?: Array<{ status: string; month: number | null; year: number | null } | null>;
 }) {
+  let statusCall = 0;
+  const reads = opts.statusReads ?? [{ status: "approved", month: 5, year: 2026 }];
   return {
     from: vi.fn((t: string) => {
       expect(t).toBe("payments");
@@ -70,10 +72,8 @@ function userSupabase(opts: {
                   error: null,
                 };
               }
-              return {
-                data: opts.secondSelect ?? { status: "approved", month: 5, year: 2026 },
-                error: null,
-              };
+              const row = reads[Math.min(statusCall++, reads.length - 1)] ?? reads[reads.length - 1];
+              return { data: row, error: null };
             },
           }),
         }),
@@ -117,7 +117,7 @@ describe("resolveFlowMonthlyPaymentReturnPage", () => {
     vi.clearAllMocks();
   });
 
-  it("returns success when Flow paid, lookup matches, user sees row, finalize ok, payment approved", async () => {
+  it("returns success when payment already approved (skips finalize)", async () => {
     const result = await resolveFlowMonthlyPaymentReturnPage({
       supabase: userSupabase({ canSeePayment: true }),
       token: "flow-token",
@@ -130,7 +130,42 @@ describe("resolveFlowMonthlyPaymentReturnPage", () => {
       paymentId: paymentUuid,
     });
     expect(lookup).toHaveBeenCalledWith(expect.any(Object), "MES-2026-05-00000001");
+    expect(finalize).not.toHaveBeenCalled();
+  });
+
+  it("returns success when Flow paid, lookup matches, finalize ok, payment approved", async () => {
+    const result = await resolveFlowMonthlyPaymentReturnPage({
+      supabase: userSupabase({
+        canSeePayment: true,
+        statusReads: [
+          { status: "pending", month: 5, year: 2026 },
+          { status: "approved", month: 5, year: 2026 },
+        ],
+      }),
+      token: "flow-token",
+      allowFinalize: true,
+    });
+
+    expect(result).toEqual({
+      outcome: "success",
+      month: 5,
+      year: 2026,
+      paymentId: paymentUuid,
+    });
     expect(finalize).toHaveBeenCalled();
+  });
+
+  it("returns processing when allowFinalize is false and payment still pending", async () => {
+    await expect(
+      resolveFlowMonthlyPaymentReturnPage({
+        supabase: userSupabase({
+          canSeePayment: true,
+          statusReads: [{ status: "pending", month: 5, year: 2026 }],
+        }),
+        token: "flow-token",
+      }),
+    ).resolves.toEqual({ outcome: "processing" });
+    expect(finalize).not.toHaveBeenCalled();
   });
 
   it("returns no_token when token missing", async () => {
@@ -208,7 +243,14 @@ describe("resolveFlowMonthlyPaymentReturnPage", () => {
   it("returns reconcile_error when finalize returns not ok", async () => {
     finalize.mockResolvedValueOnce({ ok: false, approved: false });
     await expect(
-      resolveFlowMonthlyPaymentReturnPage({ supabase: userSupabase({ canSeePayment: true }), token: "t" }),
+      resolveFlowMonthlyPaymentReturnPage({
+        supabase: userSupabase({
+          canSeePayment: true,
+          statusReads: [{ status: "pending", month: 5, year: 2026 }],
+        }),
+        token: "t",
+        allowFinalize: true,
+      }),
     ).resolves.toEqual({ outcome: "reconcile_error" });
   });
 
@@ -217,9 +259,13 @@ describe("resolveFlowMonthlyPaymentReturnPage", () => {
       resolveFlowMonthlyPaymentReturnPage({
         supabase: userSupabase({
           canSeePayment: true,
-          secondSelect: { status: "pending", month: 5, year: 2026 },
+          statusReads: [
+            { status: "pending", month: 5, year: 2026 },
+            { status: "pending", month: 5, year: 2026 },
+          ],
         }),
         token: "t",
+        allowFinalize: true,
       }),
     ).resolves.toEqual({ outcome: "processing" });
   });

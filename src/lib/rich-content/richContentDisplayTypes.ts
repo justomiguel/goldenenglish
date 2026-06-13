@@ -61,4 +61,6 @@ export type RichContentDisplayLabels = {
   videoLabel: string;
   attachmentTypes: RichContentAttachmentTypeLabels;
   pdfViewer: RichContentPdfViewerLabels;
+  /** When set with `groupNonImageAttachments`, shown above trailing file/audio/video blocks. */
+  attachmentsSectionTitle?: string;
 };

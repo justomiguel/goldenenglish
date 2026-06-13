@@ -28,7 +28,9 @@ export interface SectionCollectionsMatrixTableProps {
   onToggleAll: (next: boolean) => void;
   cellSelectable?: boolean;
   isCellSelected?: (studentId: string, month: number) => boolean;
+  isCellSelectable?: (studentId: string, month: number) => boolean;
   onToggleCell?: (studentId: string, month: number) => void;
+  showEnrollmentFeeColumn?: boolean;
 }
 
 export function SectionCollectionsMatrixTable({
@@ -41,7 +43,9 @@ export function SectionCollectionsMatrixTable({
   onToggleAll,
   cellSelectable = false,
   isCellSelected,
+  isCellSelectable,
   onToggleCell,
+  showEnrollmentFeeColumn: showEnrollmentFeeColumnProp,
 }: SectionCollectionsMatrixTableProps) {
   const money = moneyFormatter(locale, currency);
   const sortLabels = dict.matrix.columnSort;
@@ -57,9 +61,9 @@ export function SectionCollectionsMatrixTable({
   const allSelected =
     sortedStudents.length > 0 &&
     sortedStudents.every((s) => selectedIds.has(s.studentId));
-  const showEnrollmentFeeColumn = view.students.some(
-    (s) => (s.enrollmentFee?.amount ?? 0) > 0,
-  );
+  const showEnrollmentFeeColumn =
+    showEnrollmentFeeColumnProp ??
+    view.students.some((s) => (s.enrollmentFee?.amount ?? 0) > 0);
   return (
     <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
       <table className="w-full min-w-[860px] table-fixed border-collapse text-sm">
@@ -130,6 +134,7 @@ export function SectionCollectionsMatrixTable({
               showEnrollmentFeeColumn={showEnrollmentFeeColumn}
               cellSelectable={cellSelectable}
               isCellSelected={isCellSelected ? (m) => isCellSelected(s.studentId, m) : undefined}
+              isCellSelectable={isCellSelectable ? (m) => isCellSelectable(s.studentId, m) : undefined}
               onToggleCell={onToggleCell}
               currency={currency}
             />

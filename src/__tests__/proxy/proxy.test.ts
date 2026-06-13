@@ -110,6 +110,13 @@ describe("proxy", () => {
     expect(res.status).not.toBe(307);
   });
 
+  it("does not prefix /offline with locale (Serwist offline fallback)", async () => {
+    const req = new NextRequest(new URL("http://localhost/offline"));
+    const res = await proxy(req, stubEvent());
+    expect(updateSession).not.toHaveBeenCalled();
+    expect(res.status).not.toBe(307);
+  });
+
   // REGRESSION CHECK: Dev asset endpoints like `/_next/webpack-hmr` must never pass
   // through locale redirects or rewrites, otherwise Turbopack can serve stale/missing CSS
   // and chunks until the dev server is restarted.

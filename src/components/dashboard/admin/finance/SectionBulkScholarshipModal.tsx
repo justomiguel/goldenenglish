@@ -5,9 +5,11 @@ import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
-import type { Dictionary } from "@/types/i18n";
+import { ScholarshipDiscountFields } from "@/components/molecules/ScholarshipDiscountFields";
+import type { Dictionary, Locale } from "@/types/i18n";
 
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
+type BillingLabels = Dictionary["admin"]["billing"];
 
 export type BulkScholarshipScope = "all" | "selected" | "pending";
 
@@ -23,6 +25,10 @@ export interface SectionBulkScholarshipModalProps {
   }) => void;
   busy: boolean;
   dict: CollectionsDict;
+  billingLabels: BillingLabels;
+  locale: Locale;
+  referenceMonthlyAmount: number | null;
+  referenceMonthlyCurrency: string | null;
   studentCount: number;
   selectedStudentCount: number;
   year: number;
@@ -36,11 +42,15 @@ export function SectionBulkScholarshipModal({
   onConfirm,
   busy,
   dict,
+  billingLabels,
+  locale,
+  referenceMonthlyAmount,
+  referenceMonthlyCurrency,
   studentCount,
   selectedStudentCount,
   year,
 }: SectionBulkScholarshipModalProps) {
-  const [discountPercent, setDiscountPercent] = useState("");
+  const [resolvedPercent, setResolvedPercent] = useState<number | null>(null);
   const [scope, setScope] = useState<BulkScholarshipScope>("all");
   const [fromMonth, setFromMonth] = useState(1);
   const [toMonth, setToMonth] = useState(12);
@@ -49,8 +59,7 @@ export function SectionBulkScholarshipModal({
   const d = dict.bulkScholarship;
   const monthLabels = dict.monthShort;
 
-  const pctNum = Number(discountPercent);
-  const pctValid = Number.isFinite(pctNum) && pctNum >= 1 && pctNum <= 100;
+  const pctValid = resolvedPercent != null && resolvedPercent >= 1 && resolvedPercent <= 100;
   const rangeValid = fromMonth <= toMonth;
   const canConfirm = pctValid && rangeValid;
 
@@ -62,9 +71,9 @@ export function SectionBulkScholarshipModal({
         : studentCount;
 
   function handleConfirm() {
-    if (!canConfirm) return;
+    if (!canConfirm || resolvedPercent == null) return;
     onConfirm({
-      discountPercent: pctNum,
+      discountPercent: resolvedPercent,
       scope,
       fromMonth,
       toMonth,
@@ -73,7 +82,7 @@ export function SectionBulkScholarshipModal({
   }
 
   function handleClose() {
-    setDiscountPercent("");
+    setResolvedPercent(null);
     setScope("all");
     setFromMonth(1);
     setToMonth(12);
@@ -87,18 +96,16 @@ export function SectionBulkScholarshipModal({
         <p className="text-sm text-[var(--color-muted-foreground)]">{d.lead}</p>
 
         <div className="space-y-3">
-          <div className="space-y-1">
-            <Label htmlFor="bulk-scholarship-pct">{d.percentLabel}</Label>
-            <Input
-              id="bulk-scholarship-pct"
-              type="number"
-              min={1}
-              max={100}
-              value={discountPercent}
-              onChange={(e) => setDiscountPercent(e.target.value)}
-              placeholder={d.percentPlaceholder}
-            />
-          </div>
+          <ScholarshipDiscountFields
+            idPrefix="bulk-scholarship"
+            locale={locale}
+            currency={referenceMonthlyCurrency}
+            referenceMonthlyAmount={referenceMonthlyAmount}
+            labels={billingLabels}
+            disabled={busy}
+            minPercent={1}
+            onResolvedPercentChange={setResolvedPercent}
+          />
 
           <fieldset className="space-y-2">
             <legend className="text-sm font-medium text-[var(--color-foreground)]">
@@ -191,7 +198,7 @@ export function SectionBulkScholarshipModal({
 
           <p className="rounded-[var(--layout-border-radius)] bg-[var(--color-muted)]/30 px-3 py-2 text-sm text-[var(--color-muted-foreground)]">
             {d.preview
-              .replace("{percent}", discountPercent || "0")
+              .replace("{percent}", resolvedPercent != null ? String(resolvedPercent) : "0")
               .replace("{students}", String(affectedCount))
               .replace("{months}", String(toMonth - fromMonth + 1))}
           </p>

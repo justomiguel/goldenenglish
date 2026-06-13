@@ -13,16 +13,12 @@ export interface StudentMonthlyPaymentsStripFocus {
 
 export function pickInitialMonthlyStripFocus(
   rows: StudentMonthlyPaymentsView["rows"],
-  hideNonBillableMonths: boolean,
+  filterOpts: { hideNonBillableMonths: boolean; hideSettledMonths?: boolean },
   todayMonth: number,
 ): StudentMonthlyPaymentsStripFocus | null {
   if (rows.length === 0) return null;
   const first = rows[0]!;
-  const month = pickDefaultMonthlyStripFocusMonth(
-    first.cells,
-    { hideNonBillableMonths },
-    todayMonth,
-  );
+  const month = pickDefaultMonthlyStripFocusMonth(first.cells, filterOpts, todayMonth);
   if (month == null) return null;
   return { sectionId: first.sectionId, month };
 }

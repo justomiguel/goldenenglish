@@ -32,6 +32,7 @@ export default async function StudentCalendarPage({ params }: PageProps) {
   if (profile?.role !== "student") redirect(`/${locale}/dashboard`);
 
   const payload = await buildPortalCalendarPagePayload(supabase, user.id, "student", {
+    locale,
     birthdayCopy: dict.dashboard.birthdays,
   });
   const origin = getPublicSiteUrl()?.origin ?? "";

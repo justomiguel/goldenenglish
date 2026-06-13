@@ -98,6 +98,7 @@ export function PortalCalendarEntry({
           dict={scheduleDict}
           viewerId={viewerId}
           highlightTeacherId={highlightTeacherId}
+          adminCanEditEvents={Boolean(admin)}
         />
       }
     />
@@ -119,6 +120,7 @@ export function PortalCalendarEntry({
           dict={scheduleDict}
           viewerId={viewerId}
           highlightTeacherId={highlightTeacherId}
+          adminCanEditEvents={Boolean(admin)}
         />
       }
     />

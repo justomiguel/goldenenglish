@@ -38,6 +38,7 @@ export default async function TeacherCalendarPage({ params }: PageProps) {
   }
 
   const payload = await buildPortalCalendarPagePayload(supabase, user.id, "teacher", {
+    locale,
     birthdayCopy: dict.dashboard.birthdays,
   });
   const origin = getPublicSiteUrl()?.origin ?? "";

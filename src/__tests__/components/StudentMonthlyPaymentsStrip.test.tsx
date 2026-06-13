@@ -210,6 +210,7 @@ describe("StudentMonthlyPaymentsStrip", () => {
         submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceiptAction}
         fileUploadProgress={dictEn.common.fileUpload}
         hideNonBillableMonths
+        hideSettledMonths
         pwaSectionAccordion
         gridLegendLabels={pwaLegend}
         pwaSectionLabels={{
@@ -231,8 +232,13 @@ describe("StudentMonthlyPaymentsStrip", () => {
       }),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: /Mar:.*approved/i }),
+      screen.queryByRole("button", { name: /Mar:.*Paid/i }),
     ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: new RegExp(`Apr:.*${monthlyLabels.statusDue}`, "i"),
+      }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
         level: 3,

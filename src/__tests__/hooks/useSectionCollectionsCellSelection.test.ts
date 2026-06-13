@@ -7,7 +7,10 @@ import {
 } from "@/hooks/useSectionCollectionsCellSelection";
 import type { SectionCollectionsStudentRow } from "@/types/sectionCollections";
 
-function makeStudent(studentId: string, months: number[]): SectionCollectionsStudentRow {
+function makeStudent(
+  studentId: string,
+  months: Array<{ month: number; status: "due" | "approved"; paymentId?: string | null }>,
+): SectionCollectionsStudentRow {
   return {
     studentId,
     studentName: `Student ${studentId}`,
@@ -22,16 +25,16 @@ function makeStudent(studentId: string, months: number[]): SectionCollectionsStu
       enrollmentFeeExempt: false,
       enrollmentFeeExemptReason: null,
       enrollmentFeeCurrency: "USD",
-      cells: months.map((m) => ({
-        month: m,
+      cells: months.map(({ month, status, paymentId = null }) => ({
+        month,
         year: 2026,
-        status: "due" as const,
+        status,
         expectedAmount: 100,
         fullMonthExpectedAmount: 100,
         currency: "USD",
         proration: null,
-        recordedAmount: null,
-        paymentId: null,
+        recordedAmount: status === "approved" ? 100 : null,
+        paymentId: paymentId ?? (status === "approved" ? `pay-${month}` : null),
         receiptSignedUrl: null,
         isCurrent: false,
       })),
@@ -74,7 +77,6 @@ describe("useSectionCollectionsCellSelection", () => {
       expect(result.current.isCellSelected("stu-1", 3)).toBe(true);
       expect(result.current.selectionCount).toBe(1);
     });
-
     it("removes a cell when toggling a selected cell", () => {
       const { result } = renderHook(() => useSectionCollectionsCellSelection());
       act(() => {
@@ -162,8 +164,16 @@ describe("useSectionCollectionsCellSelection", () => {
   describe("selectAllOverdue", () => {
     it("selects only overdue cells", () => {
       const students: SectionCollectionsStudentRow[] = [
-        makeStudent("stu-1", [1, 2, 3]),
-        makeStudent("stu-2", [4, 5, 6]),
+        makeStudent("stu-1", [
+          { month: 1, status: "due" },
+          { month: 2, status: "due" },
+          { month: 3, status: "due" },
+        ]),
+        makeStudent("stu-2", [
+          { month: 4, status: "due" },
+          { month: 5, status: "due" },
+          { month: 6, status: "due" },
+        ]),
       ];
       const { result } = renderHook(() => useSectionCollectionsCellSelection());
       act(() => {
@@ -173,6 +183,34 @@ describe("useSectionCollectionsCellSelection", () => {
       expect(result.current.isCellSelected("stu-1", 2)).toBe(true);
       expect(result.current.isCellSelected("stu-1", 3)).toBe(true);
       expect(result.current.isCellSelected("stu-2", 4)).toBe(false);
+    });
+  });
+
+  describe("selectionMode", () => {
+    it("uses revert mode for paid cells and resets when mixing with due cells", () => {
+      const students = [
+        makeStudent("stu-1", [
+          { month: 3, status: "due" },
+          { month: 5, status: "approved" },
+        ]),
+      ];
+      const context = {
+        students,
+        year: 2026,
+        sectionStartsOn: "2026-01-01",
+        todayMonth: 6,
+        showEnrollmentFeeColumn: false,
+      };
+      const { result } = renderHook(() => useSectionCollectionsCellSelection(context));
+      act(() => {
+        result.current.toggleCell("stu-1", 5);
+      });
+      expect(result.current.selectionMode).toBe("revert");
+      act(() => {
+        result.current.toggleCell("stu-1", 3);
+      });
+      expect(result.current.selectionMode).toBe("record");
+      expect(result.current.isCellSelected("stu-1", 5)).toBe(false);
     });
   });
 });

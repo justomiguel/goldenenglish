@@ -11475,7 +11475,7 @@ GRANT EXECUTE ON FUNCTION public.admin_users_list_role_counts() TO authenticated
 -- ========== 113_academic_sections_monthly_fee_charge_mode.sql ==========
 
 ALTER TABLE public.academic_sections
-ADD COLUMN IF NOT EXISTS monthly_fee_charge_mode text NOT NULL DEFAULT 'prorate_by_classes';
+ADD COLUMN IF NOT EXISTS monthly_fee_charge_mode text NOT NULL DEFAULT 'full_month_fee';
 
 DO $$
 BEGIN
@@ -11499,7 +11499,7 @@ COMMENT ON COLUMN public.academic_sections.monthly_fee_charge_mode IS
 -- ========== 128_section_allow_advance_monthly_payment.sql ==========
 
 ALTER TABLE public.academic_sections
-  ADD COLUMN IF NOT EXISTS allow_advance_monthly_payment boolean NOT NULL DEFAULT false;
+  ADD COLUMN IF NOT EXISTS allow_advance_monthly_payment boolean NOT NULL DEFAULT true;
 
 COMMENT ON COLUMN public.academic_sections.allow_advance_monthly_payment IS
   'When true, portal users may submit receipts or Flow checkout for months after the current calendar month.';
@@ -11858,4 +11858,78 @@ CREATE POLICY profiles_select_teachers_assigned_to_tutored_students ON public.pr
 -- ========== 136_admin_users_directory_exclude_site_contact.sql ==========
 
 -- (Function body matches replacement in 112 section above.)
+
+-- ========== 150_billing_currency_portal_read.sql ==========
+
+DROP POLICY IF EXISTS site_settings_select_public ON public.site_settings;
+
+CREATE POLICY site_settings_select_public
+  ON public.site_settings FOR SELECT
+  TO anon, authenticated
+  USING (
+    key IN ('inscriptions_enabled', 'initial_site_setup', 'billing_currency')
+  );
+
+-- ========== 151_push_subscriptions.sql ==========
+
+CREATE TABLE IF NOT EXISTS public.push_subscriptions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  endpoint text NOT NULL,
+  keys_p256dh text NOT NULL,
+  keys_auth text NOT NULL,
+  user_agent text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  last_used_at timestamptz,
+  UNIQUE (user_id, endpoint)
+);
+
+CREATE INDEX IF NOT EXISTS push_subscriptions_user_id_idx
+  ON public.push_subscriptions (user_id);
+
+ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS push_subscriptions_users_own ON public.push_subscriptions;
+CREATE POLICY push_subscriptions_users_own ON public.push_subscriptions
+  FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.push_subscriptions TO authenticated;
+
+-- ========== 152_bank_transfer_instructions_setting.sql ==========
+
+INSERT INTO public.site_settings (key, value)
+VALUES ('bank_transfer_instructions', '""'::jsonb)
+ON CONFLICT (key) DO NOTHING;
+
+DROP POLICY IF EXISTS site_settings_select_public ON public.site_settings;
+
+CREATE POLICY site_settings_select_public
+  ON public.site_settings FOR SELECT
+  TO anon, authenticated
+  USING (
+    key IN (
+      'inscriptions_enabled',
+      'initial_site_setup',
+      'billing_currency',
+      'bank_transfer_instructions'
+    )
+  );
+
+-- ========== 154_section_billing_defaults.sql ==========
+
+ALTER TABLE public.academic_sections
+  ALTER COLUMN allow_advance_monthly_payment SET DEFAULT true;
+
+UPDATE public.academic_sections
+  SET allow_advance_monthly_payment = true
+  WHERE allow_advance_monthly_payment IS DISTINCT FROM true;
+
+ALTER TABLE public.academic_sections
+  ALTER COLUMN monthly_fee_charge_mode SET DEFAULT 'full_month_fee';
+
+UPDATE public.academic_sections
+  SET monthly_fee_charge_mode = 'full_month_fee'
+  WHERE monthly_fee_charge_mode IS DISTINCT FROM 'full_month_fee';
 

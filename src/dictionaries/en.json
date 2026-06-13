@@ -28,6 +28,31 @@
       "night": "Hello"
     }
   },
+  "pwa": {
+    "offline": {
+      "title": "You're offline",
+      "body": "Check your connection and try again.",
+      "retry": "Back to {brand}"
+    },
+    "install": {
+      "title": "Install the app",
+      "lead": "Add to your home screen for quicker access and notifications.",
+      "install": "Install app",
+      "later": "Not now",
+      "iosLead": "Install this app on your iPhone:",
+      "iosSteps": "Tap Share, then Add to Home Screen"
+    },
+    "push": {
+      "newMessageTitle": "New message",
+      "teacherReplyTitle": "Reply from your teacher"
+    },
+    "shortcuts": {
+      "parentPayments": "Parent payments",
+      "parentPaymentsShort": "Payments",
+      "parentMessages": "Parent messages",
+      "parentMessagesShort": "Messages"
+    }
+  },
   "greenfieldPublic": {
     "appName": "New installation",
     "legalName": "",
@@ -1226,6 +1251,14 @@
           "empty": "No blog articles yet.",
           "publish": "Publish",
           "archive": "Archive",
+          "delete": "Delete permanently",
+          "deleteConfirmTitle": "Delete this article?",
+          "deleteConfirmBody": "This removes the article, its translations, and comments. This cannot be undone.",
+          "deleteCancel": "Cancel",
+          "deleteConfirm": "Delete article",
+          "deleteError": "Could not delete the article.",
+          "copyLink": "Copy public link",
+          "copyLinkCopied": "Link copied",
           "submitForReview": "Submit for review",
           "pin": "Pin",
           "unpin": "Unpin",
@@ -1239,6 +1272,17 @@
           "save": "Save article",
           "saveError": "Could not save article",
           "saveSuccess": "Article saved",
+          "shareLinksTitle": "Share links",
+          "shareLinksPreviewHint": "Preview links expire after 24 hours and require staff access to generate.",
+          "shareLinksCopy": "Copy link",
+          "shareLinksCopied": "Copied",
+          "shareLinksOpen": "Open",
+          "delete": "Delete permanently",
+          "deleteConfirmTitle": "Delete this article?",
+          "deleteConfirmBody": "This removes the article, its translations, and comments. This cannot be undone.",
+          "deleteCancel": "Cancel",
+          "deleteConfirm": "Delete article",
+          "deleteError": "Could not delete the article.",
           "localeTabsAria": "Article language",
           "localeTabs": {
             "en": "English",
@@ -2206,6 +2250,13 @@
         "save": "Save",
         "savedOk": "Currency saved successfully.",
         "savedError": "Could not save. Please try again.",
+        "bankTransferInstructionsTitle": "Bank transfers",
+        "bankTransferInstructionsLead": "These details appear before uploading receipts for monthly tuition and for event registrations paid by transfer.",
+        "bankTransferInstructionsLabel": "Transfer details",
+        "bankTransferInstructionsHint": "Account holder, bank, account number, and any reference the payer must include.",
+        "bankTransferInstructionsSave": "Save transfer details",
+        "bankTransferInstructionsSavedOk": "Transfer details saved.",
+        "bankTransferInstructionsSavedError": "Could not save transfer details.",
         "flowTitle": "Flow (Chile)",
         "flowLead": "Let families pay monthly tuition online with Flow, in Chilean pesos (CLP). Enter your Flow API credentials, choose sandbox or production, and turn on the option so the pay button appears on student and guardian payment screens.",
         "flowEnvironment": "Environment",
@@ -2528,10 +2579,12 @@
         "cellActions": {
           "selectedCount": "{cells} cell(s) selected across {students} student(s)",
           "markPaid": "Mark paid",
+          "markUnpaid": "Mark as not paid",
+          "revertHint": "Paid months — you can revert them to pending.",
           "applyScholarship": "Apply scholarship",
           "markExempt": "Mark exempt",
           "confirmPaidTitle": "Mark {count} period(s) as paid?",
-          "confirmPaidBody": "The selected months will be recorded as paid without receipt. This action can be reverted from the student's individual billing page.",
+          "confirmPaidBody": "The selected months will be recorded as paid without receipt. You can revert them from this matrix or from the student's individual billing page.",
           "includesEnrollmentFeePaidNote": "The enrollment fee (matrícula) column is included: those enrollments will be marked paid for this section.",
           "confirmScholarshipTitle": "Apply scholarship to {count} period(s)?",
           "confirmScholarshipBody": "A scholarship record will be created for each selected month with the specified discount percentage.",
@@ -2545,6 +2598,11 @@
           "includesEnrollmentFeeExemptNote": "The enrollment fee (matrícula) column is included: those enrollments will be marked exempt for this section (same reason as above).",
           "exemptReasonLabel": "Reason",
           "exemptReasonPlaceholder": "Reason for exemption",
+          "confirmRevertTitle": "Revert {count} period(s) to not paid?",
+          "confirmRevertBody": "Each selected month must currently be paid. They will return to pending (as if waiting for upload or review). Optional note is stored in the audit log.",
+          "confirmRevert": "Revert to not paid",
+          "revertNoteLabel": "Reason (optional, audit)",
+          "revertNotePlaceholder": "e.g. marked paid by mistake",
           "confirm": "Confirm",
           "cancel": "Cancel",
           "resultOk": "{count} period(s) updated successfully.",
@@ -2610,6 +2668,7 @@
           "scholarshipsColStudent": "Student",
           "scholarshipsColDiscount": "Discount",
           "scholarshipsColPeriod": "Valid period",
+          "scholarshipsColActions": "Actions",
           "scholarshipsBulkHint": "Create scholarships for many students at once:",
           "enrollmentLead": "Enrollment fee status for each student in this section.",
           "enrollmentColExempt": "Exempt",
@@ -2701,7 +2760,7 @@
       "tabEnrollment": "Enrollment fee",
       "tabHistoryEmpty": "No payments recorded yet for this section.",
       "tabScholarshipsEmpty": "No active scholarships for this section. Select months in the monthly matrix above to apply a scholarship.",
-      "billingTabsReadOnlyHint": "These tabs are read-only. Apply scholarships, exemptions, enrollment fee changes, and payment recording from the monthly matrix above.",
+      "billingTabsReadOnlyHint": "History and enrollment are read-only. Apply scholarships from the monthly matrix above; remove active scholarships in the Scholarships tab or section scholarships list.",
       "billingFeeSummaryEnrollmentLabel": "Enrollment fee",
       "billingFeeSummaryMonthlyLabel": "Monthly fee (current plan)",
       "billingFeeSummaryMonthlyUnavailable": "No active fee plan",
@@ -2709,6 +2768,18 @@
       "scholarshipTitle": "Scholarship",
       "scholarshipLead": "Percentage off the listed fee for months in the range. Leave “until” empty for no end date.",
       "scholarshipPercent": "Discount (%)",
+      "scholarshipInputModeLegend": "How do you want to set the discount?",
+      "scholarshipInputModePercent": "Percentage",
+      "scholarshipInputModeMonthly": "Monthly amount to pay",
+      "scholarshipInputModeAnnual": "Annual amount to pay",
+      "scholarshipReferenceMonthly": "Listed monthly fee: {amount}",
+      "scholarshipReferenceAnnual": "Listed annual fee (12 months): {amount}",
+      "scholarshipReferenceMissing": "No monthly plan fee is configured for this section — enter a percentage instead.",
+      "scholarshipTargetMonthly": "Monthly amount after scholarship",
+      "scholarshipTargetAnnual": "Annual amount after scholarship",
+      "scholarshipDerivedPercent": "Equivalent discount: {percent}%",
+      "scholarshipAmountInvalid": "Enter a valid amount (0 or more).",
+      "scholarshipAmountAboveReference": "The amount cannot exceed the listed fee for that period.",
       "scholarshipNote": "Internal note",
       "scholarshipActive": "Active",
       "validFrom": "Valid from (month / year)",
@@ -3315,6 +3386,12 @@
         "errorSave": "We could not save the event. Try again.",
         "validationError": "Check required fields and try again."
       },
+      "schedule": {
+        "sectionTitle": "Date and location",
+        "save": "Save schedule",
+        "savedOk": "Date and location updated.",
+        "errorSave": "We could not save the schedule. Try again."
+      },
       "pricing": {
         "sectionTitle": "Residency-based pricing",
         "priceLocalLabel": "Local resident price",
@@ -3322,7 +3399,7 @@
         "priceHint": "Leave empty for free. If only local price is set, it applies to both.",
         "currencyLabel": "Currency",
         "bankTransferInstructionsLabel": "Bank transfer details",
-        "bankTransferInstructionsHint": "Account holder, bank, account number, and any reference the payer must include. Shown to registrants who choose bank transfer.",
+        "bankTransferInstructionsHint": "Optional: leave empty to use the details configured under Finance → Settings.",
         "save": "Save prices",
         "savedOk": "Prices updated.",
         "errorSave": "We could not save prices."
@@ -3440,7 +3517,9 @@
       "adminEdit": "Edit event",
       "adminEditAriaLabel": "Open this event in the admin editor",
       "eventEyebrow": "Event",
+      "viewsCount": "{{count}} views",
       "downloadFile": "Download file",
+      "attachmentsSectionTitle": "Attached files",
       "audioLabel": "Attached audio",
       "videoLabel": "Attached video",
       "attachmentTypes": {
@@ -4291,7 +4370,8 @@
         "class": "Regular class",
         "exam": "Assessment / exam",
         "special": "Special event",
-        "birthday": "Birthday"
+        "birthday": "Birthday",
+        "instituteEvent": "Institute event"
       },
       "specialTypes": {
         "holiday": {
@@ -4337,6 +4417,8 @@
         "detailRoom": "Room",
         "detailMeeting": "Meeting link",
         "detailTitleFallback": "Event",
+        "detailViewPublic": "View event details",
+        "detailEditEvent": "Edit date and details",
         "visualLegendTitle": "Schedule colors",
         "visualLegendInPerson": "In person",
         "visualLegendVirtual": "Online / meeting link",
@@ -4345,6 +4427,7 @@
         "visualLegendExam": "Exam",
         "visualLegendSpecial": "Special institute",
         "visualLegendBirthday": "Birthday",
+        "visualLegendInstituteEvent": "Institute event",
         "colorReferenceButton": "Color reference",
         "colorReferenceTitle": "Legend & schedule colors",
         "syncDialogButton": "Sync & subscribe",
@@ -5696,6 +5779,7 @@
       "payAmount": "Amount",
       "payReceipt": "Receipt (PDF or image)",
       "payReceiptHint": "Use a PDF or a clear photo (JPG, PNG, WebP). Maximum size 4 MB.",
+      "transferInstructionsTitle": "Where to transfer",
       "payReceiptChooseButton": "Choose file",
       "payReceiptNoFileSelected": "No file selected yet",
       "paySubmit": "Send receipt",
@@ -6221,7 +6305,19 @@
         "noChildLinked": "No linked students yet.",
         "quickActionsAria": "Quick actions",
         "quickActionsTitle": "Quick actions",
-        "messageTeacher": "Message teacher"
+        "messageTeacher": "Message teacher",
+        "pushTitle": "Stay in the loop",
+        "pushLead": "Allow notifications for new messages, class reminders, and payment alerts.",
+        "pushEnable": "Allow notifications",
+        "pushLater": "Not now",
+        "newsFeed": {
+          "title": "News",
+          "empty": "No news right now.",
+          "typeBlog": "Blog",
+          "typeEvent": "Event",
+          "seeAllBlog": "All articles",
+          "seeAllEvents": "All events"
+        }
       },
       "progressPageTitle": "Learning progress",
       "progressPageLead": "Tasks, assessments, feedback, and achievements for your linked students.",

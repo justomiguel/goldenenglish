@@ -3,38 +3,21 @@ import {
   isAcceptedLandingMediaMime,
   LANDING_MEDIA_MAX_BYTES,
 } from "@/lib/cms/siteThemeLandingInputSchemas";
+import { zodOptionalEmptyField, zodOptionalEmptyUrl } from "@/lib/validation/zodOptionalEmptyField";
 
 /** Accepts `""` from clients; absolute URLs after `coerceInitialSiteSetupSocialFields`. */
-const optionalSocialUrlStored = z.preprocess(
-  (raw) => {
-    if (raw === undefined || raw === null) return undefined;
-    if (typeof raw === "string" && raw.trim() === "") return undefined;
-    return raw;
-  },
-  z.string().trim().max(500).url().optional(),
-);
+const optionalSocialUrlStored = zodOptionalEmptyUrl(500);
 
-const optionalShortString = z.preprocess(
-  (raw) =>
-    typeof raw === "string" && raw.trim() === "" ? undefined : raw,
-  z.string().trim().max(120).optional(),
-);
+const optionalShortString = zodOptionalEmptyField(z.string().trim().max(120));
 
-const optionalCssToken = z.preprocess(
-  (raw) =>
-    typeof raw === "string" && raw.trim() === "" ? undefined : raw,
-  z.string().trim().max(60).optional(),
-);
+const optionalCssToken = zodOptionalEmptyField(z.string().trim().max(60));
 
-const optionalIntegerString = z.preprocess(
-  (raw) =>
-    typeof raw === "string" && raw.trim() === "" ? undefined : raw,
+const optionalIntegerString = zodOptionalEmptyField(
   z
     .string()
     .trim()
     .max(10)
-    .regex(/^\d+$/u, { message: "expected_integer" })
-    .optional(),
+    .regex(/^\d+$/u, { message: "expected_integer" }),
 );
 
 const siteSetupSharedSchema = z.object({
@@ -87,15 +70,12 @@ const siteSetupSharedSchema = z.object({
   billingTermMonthlyEn: optionalShortString,
   billingTermPromotion: optionalShortString,
   billingTermPromotionEn: optionalShortString,
-  billingCurrency: z.preprocess(
-    (raw) =>
-      typeof raw === "string" && raw.trim() === "" ? undefined : raw,
+  billingCurrency: zodOptionalEmptyField(
     z
       .string()
       .trim()
       .toUpperCase()
-      .regex(/^[A-Z]{3}$/u, { message: "invalid_currency" })
-      .optional(),
+      .regex(/^[A-Z]{3}$/u, { message: "invalid_currency" }),
   ),
   analyticsEventNamespace: optionalShortString,
   analyticsEventVersion: optionalShortString,

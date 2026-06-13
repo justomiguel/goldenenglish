@@ -1,22 +1,32 @@
 import { useCallback, useMemo, useState } from "react";
-import { enrollmentFeeMatrixVisualFromSectionRow } from "@/lib/billing/enrollmentFeeMatrixVisual";
-import { SECTION_COLLECTIONS_ENROLLMENT_FEE_CELL_MONTH } from "@/lib/billing/sectionCollectionsEnrollmentFeeCellMonth";
+import { buildSectionCollectionsOverdueCellSelection } from "@/lib/billing/buildSectionCollectionsOverdueCellSelection";
+import {
+  sectionCollectionsCellActionMode,
+  type SectionCollectionsCellSelectionMode,
+} from "@/lib/billing/sectionCollectionsCellActionability";
+import {
+  cellKey,
+  groupSelectedCellsByStudent,
+  parseCellKey,
+  type CellKey,
+} from "@/lib/billing/sectionCollectionsCellSelectionKeys";
 import type { SectionCollectionsStudentRow } from "@/types/sectionCollections";
 
-export type CellKey = `${string}:${number}`;
+export type { CellKey };
+export { cellKey, parseCellKey };
 
-export function cellKey(studentId: string, month: number): CellKey {
-  return `${studentId}:${month}`;
-}
-
-export function parseCellKey(key: CellKey): { studentId: string; month: number } {
-  const [studentId, monthStr] = key.split(":");
-  return { studentId: studentId!, month: Number(monthStr) };
+export interface SectionCollectionsCellSelectionContext {
+  students: SectionCollectionsStudentRow[];
+  year: number;
+  sectionStartsOn: string;
+  todayMonth: number;
+  showEnrollmentFeeColumn: boolean;
 }
 
 export interface SectionCellSelectionState {
   selectedCells: Set<CellKey>;
   selectedStudents: Set<string>;
+  selectionMode: SectionCollectionsCellSelectionMode | null;
   toggleCell: (studentId: string, month: number) => void;
   toggleStudentRow: (studentId: string, checked: boolean, months: number[]) => void;
   toggleAllStudents: (checked: boolean, students: SectionCollectionsStudentRow[]) => void;
@@ -31,23 +41,99 @@ export interface SectionCellSelectionState {
   cellsGroupedByStudent: Map<string, number[]>;
   isStudentFullySelected: (studentId: string, availableMonths: number[]) => boolean;
   isCellSelected: (studentId: string, month: number) => boolean;
+  isCellSelectable: (studentId: string, month: number) => boolean;
 }
 
-export function useSectionCollectionsCellSelection(): SectionCellSelectionState {
+function buildStudentMap(students: SectionCollectionsStudentRow[]): Map<string, SectionCollectionsStudentRow> {
+  return new Map(students.map((s) => [s.studentId, s]));
+}
+
+function resolveCellMode(
+  student: SectionCollectionsStudentRow,
+  month: number,
+  context: SectionCollectionsCellSelectionContext,
+): SectionCollectionsCellSelectionMode | null {
+  return sectionCollectionsCellActionMode(
+    student,
+    context.year,
+    month,
+    context.showEnrollmentFeeColumn,
+    context.sectionStartsOn,
+    context.todayMonth,
+  );
+}
+
+export function useSectionCollectionsCellSelection(
+  context?: SectionCollectionsCellSelectionContext,
+): SectionCellSelectionState {
   const [selectedCells, setSelectedCells] = useState<Set<CellKey>>(new Set());
 
-  const toggleCell = useCallback((studentId: string, month: number) => {
-    setSelectedCells((prev) => {
-      const key = cellKey(studentId, month);
-      const next = new Set(prev);
-      if (next.has(key)) {
-        next.delete(key);
-      } else {
+  const studentById = useMemo(
+    () => (context ? buildStudentMap(context.students) : null),
+    [context],
+  );
+
+  const isCellSelectable = useCallback(
+    (studentId: string, month: number): boolean => {
+      if (!context || !studentById) return true;
+      const student = studentById.get(studentId);
+      if (!student) return false;
+      return resolveCellMode(student, month, context) != null;
+    },
+    [context, studentById],
+  );
+
+  const selectionMode = useMemo((): SectionCollectionsCellSelectionMode | null => {
+    if (selectedCells.size === 0 || !context || !studentById) return null;
+    const firstKey = [...selectedCells][0]!;
+    const { studentId, month } = parseCellKey(firstKey);
+    const student = studentById.get(studentId);
+    if (!student) return null;
+    return resolveCellMode(student, month, context);
+  }, [selectedCells, context, studentById]);
+
+  const toggleCell = useCallback(
+    (studentId: string, month: number) => {
+      if (!isCellSelectable(studentId, month)) return;
+
+      setSelectedCells((prev) => {
+        const key = cellKey(studentId, month);
+        if (prev.has(key)) {
+          const next = new Set(prev);
+          next.delete(key);
+          return next;
+        }
+
+        if (!context || !studentById) {
+          return new Set(prev).add(key);
+        }
+
+        const student = studentById.get(studentId);
+        if (!student) return prev;
+
+        const clickedMode = resolveCellMode(student, month, context);
+        if (!clickedMode) return prev;
+
+        if (prev.size === 0) {
+          return new Set([key]);
+        }
+
+        const first = [...prev][0]!;
+        const parsed = parseCellKey(first);
+        const st = studentById.get(parsed.studentId);
+        const existingMode = st ? resolveCellMode(st, parsed.month, context) : null;
+
+        if (existingMode && existingMode !== clickedMode) {
+          return new Set([key]);
+        }
+
+        const next = new Set(prev);
         next.add(key);
-      }
-      return next;
-    });
-  }, []);
+        return next;
+      });
+    },
+    [context, studentById, isCellSelectable],
+  );
 
   const toggleStudentRow = useCallback(
     (studentId: string, checked: boolean, months: number[]) => {
@@ -56,7 +142,7 @@ export function useSectionCollectionsCellSelection(): SectionCellSelectionState 
         for (const m of months) {
           const key = cellKey(studentId, m);
           if (checked) {
-            next.add(key);
+            if (isCellSelectable(studentId, m)) next.add(key);
           } else {
             next.delete(key);
           }
@@ -64,7 +150,7 @@ export function useSectionCollectionsCellSelection(): SectionCellSelectionState 
         return next;
       });
     },
-    [],
+    [isCellSelectable],
   );
 
   const toggleAllStudents = useCallback(
@@ -75,7 +161,7 @@ export function useSectionCollectionsCellSelection(): SectionCellSelectionState 
           for (const cell of s.row.cells) {
             const key = cellKey(s.studentId, cell.month);
             if (checked) {
-              next.add(key);
+              if (isCellSelectable(s.studentId, cell.month)) next.add(key);
             } else {
               next.delete(key);
             }
@@ -84,7 +170,7 @@ export function useSectionCollectionsCellSelection(): SectionCellSelectionState 
         return next;
       });
     },
-    [],
+    [isCellSelectable],
   );
 
   const selectAllOverdue = useCallback(
@@ -94,34 +180,9 @@ export function useSectionCollectionsCellSelection(): SectionCellSelectionState 
       todayMonth: number,
       sectionStartsOn: string,
     ) => {
-      const todayIdx = year * 12 + todayMonth;
-      const showEnrollment = students.some((s) => (s.enrollmentFee?.amount ?? 0) > 0);
-      setSelectedCells(() => {
-        const next = new Set<CellKey>();
-        for (const s of students) {
-          for (const cell of s.row.cells) {
-            const cellIdx = cell.year * 12 + cell.month;
-            const isOverdue = cell.status === "due" && cellIdx < todayIdx;
-            if (isOverdue) {
-              next.add(cellKey(s.studentId, cell.month));
-            }
-          }
-          if (showEnrollment) {
-            const sectionCharges = (s.enrollmentFee?.amount ?? 0) > 0;
-            const visual = enrollmentFeeMatrixVisualFromSectionRow(s.row, {
-              sectionChargesEnrollmentFee: sectionCharges,
-              sectionStartsOn,
-              enrolledAt: s.enrolledAt,
-              todayYear: year,
-              todayMonth,
-            });
-            if (visual?.status === "due" && visual.isOverdue) {
-              next.add(cellKey(s.studentId, SECTION_COLLECTIONS_ENROLLMENT_FEE_CELL_MONTH));
-            }
-          }
-        }
-        return next;
-      });
+      setSelectedCells(() =>
+        buildSectionCollectionsOverdueCellSelection(students, year, todayMonth, sectionStartsOn),
+      );
     },
     [],
   );
@@ -130,19 +191,10 @@ export function useSectionCollectionsCellSelection(): SectionCellSelectionState 
     setSelectedCells(new Set());
   }, []);
 
-  const cellsGroupedByStudent = useMemo(() => {
-    const map = new Map<string, number[]>();
-    for (const key of selectedCells) {
-      const { studentId, month } = parseCellKey(key);
-      const arr = map.get(studentId) ?? [];
-      arr.push(month);
-      map.set(studentId, arr);
-    }
-    for (const arr of map.values()) {
-      arr.sort((a, b) => a - b);
-    }
-    return map;
-  }, [selectedCells]);
+  const cellsGroupedByStudent = useMemo(
+    () => groupSelectedCellsByStudent(selectedCells),
+    [selectedCells],
+  );
 
   const selectedStudents = useMemo(() => {
     return new Set(cellsGroupedByStudent.keys());
@@ -157,15 +209,14 @@ export function useSectionCollectionsCellSelection(): SectionCellSelectionState 
   );
 
   const isCellSelected = useCallback(
-    (studentId: string, month: number) => {
-      return selectedCells.has(cellKey(studentId, month));
-    },
+    (studentId: string, month: number) => selectedCells.has(cellKey(studentId, month)),
     [selectedCells],
   );
 
   return {
     selectedCells,
     selectedStudents,
+    selectionMode,
     toggleCell,
     toggleStudentRow,
     toggleAllStudents,
@@ -175,5 +226,6 @@ export function useSectionCollectionsCellSelection(): SectionCellSelectionState 
     cellsGroupedByStudent,
     isStudentFullySelected,
     isCellSelected,
+    isCellSelectable,
   };
 }

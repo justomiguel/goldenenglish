@@ -125,6 +125,7 @@ export default async function EventDetailPage({ params }: PageProps) {
               videoLabel: publicLabels.videoLabel,
               attachmentTypes: publicLabels.attachmentTypes,
               pdfViewer: publicLabels.pdfViewer,
+              attachmentsSectionTitle: publicLabels.attachmentsSectionTitle,
             }}
           />
         </div>

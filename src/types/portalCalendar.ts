@@ -1,6 +1,6 @@
 import type { PortalSpecialEventTypeSlug } from "@/types/portalSpecialCalendar";
 
-export type PortalCalendarEventKind = "class" | "exam" | "special" | "birthday";
+export type PortalCalendarEventKind = "class" | "exam" | "special" | "birthday" | "institute_event";
 
 /** UI / JSON serialization for the portal calendar screen. */
 export type PortalCalendarEvent = {
@@ -18,6 +18,8 @@ export type PortalCalendarEvent = {
   cohortId?: string;
   teacherId?: string;
   roomLabel?: string | null;
+  /** Public CMS event detail URL (published institute events). */
+  publicHref?: string;
 };
 
 export type PortalCalendarTeacherOption = { id: string; label: string };

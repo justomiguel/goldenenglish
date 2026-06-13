@@ -22,7 +22,7 @@ export function useAdminRecordPaymentBulkConfirm(args: {
   scholarshipConfirmReady: boolean;
   exemptConfirmReady: boolean;
   modalAdminNote: string;
-  modalScholarshipPercent: string;
+  resolvedScholarshipPercent: number | null;
   setBusy: (v: boolean) => void;
   setMsg: (v: string | null) => void;
   setSelected: (v: Set<number>) => void;
@@ -42,7 +42,7 @@ export function useAdminRecordPaymentBulkConfirm(args: {
     scholarshipConfirmReady,
     exemptConfirmReady,
     modalAdminNote,
-    modalScholarshipPercent,
+    resolvedScholarshipPercent,
     setBusy,
     setMsg,
     setSelected,
@@ -97,7 +97,7 @@ export function useAdminRecordPaymentBulkConfirm(args: {
                 sectionId,
                 year,
                 months,
-                discountPercent: Number(modalScholarshipPercent),
+                discountPercent: resolvedScholarshipPercent!,
                 note: modalAdminNote.trim() || undefined,
                 labels,
               });
@@ -125,7 +125,7 @@ export function useAdminRecordPaymentBulkConfirm(args: {
     year,
     locale,
     modalAdminNote,
-    modalScholarshipPercent,
+    resolvedScholarshipPercent,
     labels,
     setSelected,
     setPendingAction,

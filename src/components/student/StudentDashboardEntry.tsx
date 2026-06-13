@@ -15,7 +15,8 @@ import { StudentNextClassCard } from "@/components/student/StudentNextClassCard"
 import { StudentMyScheduleWeek } from "@/components/student/StudentMyScheduleWeek";
 import { StudentAcademicJourney } from "@/components/student/StudentAcademicJourney";
 import { StudentScheduleUpdateStrip } from "@/components/student/StudentScheduleUpdateStrip";
-import { StudentPushPermissionBanner } from "@/components/student/StudentPushPermissionBanner";
+import { PushPermissionBanner } from "@/components/molecules/PushPermissionBanner";
+import { PwaInstallPrompt } from "@/components/molecules/PwaInstallPrompt";
 import { StudentBillingStrip } from "@/components/student/StudentBillingStrip";
 import { StudentPublishedGradesSection } from "@/components/student/StudentPublishedGradesSection";
 import { StudentAttendanceDonut } from "@/components/student/StudentAttendanceDonut";
@@ -59,6 +60,7 @@ export interface StudentDashboardEntryProps {
   learningFeedback?: LearningFeedbackRow[];
   birthdays?: UpcomingBirthdayCardRow[];
   birthdaysDict?: Dictionary["dashboard"]["birthdays"];
+  pwaInstall?: Dictionary["pwa"]["install"];
 }
 
 export function StudentDashboardEntry({
@@ -78,6 +80,7 @@ export function StudentDashboardEntry({
   learningFeedback = [],
   birthdays = [],
   birthdaysDict,
+  pwaInstall,
 }: StudentDashboardEntryProps) {
   const hubDict = labels.hub;
   const body = (
@@ -102,7 +105,15 @@ export function StudentDashboardEntry({
         <div className="space-y-4">
           <StudentNextClassCard sections={hub.sections} dict={hubDict} />
           <StudentScheduleUpdateStrip pings={hub.approvedTransfers} dict={hubDict} />
-          <StudentPushPermissionBanner dict={hubDict} />
+          <PushPermissionBanner
+            copy={{
+              pushTitle: hubDict.pushTitle,
+              pushLead: hubDict.pushLead,
+              pushEnable: hubDict.pushEnable,
+              pushLater: hubDict.pushLater,
+            }}
+            storageKey="ge_push_prompt_dismissed_student"
+          />
           <StudentMyScheduleWeek sections={hub.sections} dict={hubDict} />
           <StudentAcademicJourney items={hub.journey} dict={hubDict} />
           <StudentBillingStrip locale={locale} pending={hub.billingPending} dict={hubDict} />
@@ -127,7 +138,10 @@ export function StudentDashboardEntry({
       narrow={(surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">) => (
         <PwaPageShell surface={surface}>
           <div className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
-            <div className="mx-auto max-w-[var(--layout-max-width)] py-2">{body}</div>
+            <div className="mx-auto max-w-[var(--layout-max-width)] space-y-3 py-2">
+              {pwaInstall ? <PwaInstallPrompt copy={pwaInstall} /> : null}
+              {body}
+            </div>
           </div>
         </PwaPageShell>
       )}

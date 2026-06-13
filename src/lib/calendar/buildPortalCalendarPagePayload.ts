@@ -9,6 +9,10 @@ import { composePortalCalendarPageEvents } from "@/lib/calendar/composePortalCal
 import { mergeAndSortOccurrences } from "@/lib/calendar/expandPortalCalendarOccurrences";
 import { expandedOccurrencesToPortalEvents } from "@/lib/calendar/portalCalendarEventCodec";
 import { filterSpecialCalendarRowsForViewer } from "@/lib/calendar/filterSpecialCalendarRowsForViewer";
+import {
+  loadPortalInstituteEventsForCalendar,
+  mapInstituteEventRowsToPortalCalendarEvents,
+} from "@/lib/calendar/loadPortalInstituteEventsForCalendar";
 
 /**
  * Date-only window (UTC) for composing portal calendar rows in one server pass.
@@ -30,7 +34,8 @@ export async function buildPortalCalendarPagePayload(
   supabase: SupabaseClient,
   userId: string,
   role: PortalCalendarPageRole,
-  opts?: {
+  opts: {
+    locale: string;
     adminTeacherId?: string | null;
     adminRoom?: string | null;
     /** Required for i18n titles on birthday calendar rows. */
@@ -71,7 +76,16 @@ export async function buildPortalCalendarPagePayload(
         })
       : [];
   const expanded = mergeAndSortOccurrences([composed, birthdayExpanded]);
-  const events = expandedOccurrencesToPortalEvents(expanded);
+  const baseEvents = expandedOccurrencesToPortalEvents(expanded);
+  const instituteRows = await loadPortalInstituteEventsForCalendar(supabase, {
+    viewStartIso,
+    viewEndIso,
+    locale: opts.locale,
+    role,
+    viewerSectionIds: page.viewerSectionIds,
+  });
+  const instituteEvents = mapInstituteEventRowsToPortalCalendarEvents(instituteRows, opts.locale);
+  const events = [...baseEvents, ...instituteEvents].sort((a, b) => a.start.localeCompare(b.start));
 
   const { data: tokRow } = await supabase
     .from("profiles")

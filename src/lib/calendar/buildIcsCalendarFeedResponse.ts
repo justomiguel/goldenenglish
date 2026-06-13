@@ -11,6 +11,10 @@ import { loadPortalSpecialCalendarEventsOverlapping } from "@/lib/calendar/loadP
 import { composePortalCalendarPageEvents } from "@/lib/calendar/composePortalCalendarPageEvents";
 import { formatPortalCalendarIcs } from "@/lib/calendar/formatPortalCalendarIcs";
 import { filterSpecialCalendarRowsForViewer } from "@/lib/calendar/filterSpecialCalendarRowsForViewer";
+import {
+  loadPortalInstituteEventsForCalendar,
+  mapInstituteEventRowsToExpandedOccurrences,
+} from "@/lib/calendar/loadPortalInstituteEventsForCalendar";
 import { applyPortalSpecialEventIcsPresentation } from "@/lib/calendar/portalSpecialEventIcsPresentation";
 import { defaultLocale, getDictionary } from "@/lib/i18n/dictionaries";
 
@@ -75,6 +79,14 @@ export async function buildIcsCalendarFeedResponse(tokenRaw: string): Promise<Ic
     viewerCohortIds: page.viewerCohortIds,
   });
   const composed = composePortalCalendarPageEvents(page.sections, page.exams, specialRows, viewStartIso, viewEndIso);
+  const instituteRows = await loadPortalInstituteEventsForCalendar(admin, {
+    viewStartIso,
+    viewEndIso,
+    locale: defaultLocale,
+    role: portalRole,
+    viewerSectionIds: page.viewerSectionIds,
+  });
+  const instituteExpanded = mapInstituteEventRowsToExpandedOccurrences(instituteRows);
   const dict = await getDictionary(defaultLocale);
   const birthdayCopy = dict.dashboard.birthdays;
   const birthdayExpanded = birthdayRpcRowsToExpandedOccurrences(birthdayRows, {
@@ -82,7 +94,7 @@ export async function buildIcsCalendarFeedResponse(tokenRaw: string): Promise<Ic
     icsPrefix: birthdayCopy.icsPrefix,
     icsDescription: birthdayCopy.icsDescription,
   });
-  const merged = mergeAndSortOccurrences([composed, birthdayExpanded]);
+  const merged = mergeAndSortOccurrences([composed, birthdayExpanded, instituteExpanded]);
   const rows = applyPortalSpecialEventIcsPresentation(merged, dict.dashboard.portalCalendar.specialTypes);
   const brand = await getBrandForRequest();
   const body = formatPortalCalendarIcs(rows, { calName: brand.name, brandName: brand.name });

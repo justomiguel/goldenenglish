@@ -13,6 +13,12 @@ describe("portalCalendarKindLabel", () => {
     expect(portalCalendarKindLabel("birthday", undefined, legend, specialTypes)).toBe(legend.birthday);
   });
 
+  it("returns institute event label", () => {
+    expect(portalCalendarKindLabel("institute_event", undefined, legend, specialTypes)).toBe(
+      legend.instituteEvent,
+    );
+  });
+
   it("returns special chip when type set", () => {
     expect(portalCalendarKindLabel("special", "holiday", legend, specialTypes)).toBe(specialTypes.holiday.chip);
   });

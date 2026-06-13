@@ -47,12 +47,19 @@ vi.mock("@/lib/site/publicUrl", () => ({
   getPublicSiteUrl: vi.fn(() => new URL("https://example.com")),
 }));
 
+const pushAfterNotify = vi.fn().mockResolvedValue(undefined);
+
+vi.mock("@/lib/push/pushAfterNotify", () => ({
+  pushAfterNotify: (...args: unknown[]) => pushAfterNotify(...args),
+}));
+
 describe("notifyMessagingEmails", () => {
   const sendEmail = vi.fn().mockResolvedValue({ ok: true });
 
   beforeEach(async () => {
     getUserById.mockReset();
     sendEmail.mockClear();
+    pushAfterNotify.mockClear();
     getUserById.mockResolvedValue({
       data: { user: { email: "teacher@example.com" } },
       error: null,
@@ -194,9 +201,10 @@ describe("notifyMessagingEmails", () => {
     expect(sendEmail.mock.calls[1][0].html as string).toContain(
       "/es/dashboard/student/messages",
     );
+    expect(pushAfterNotify).toHaveBeenCalledTimes(2);
   });
 
-  it("notifyPortalInboxForStudentOrParent no-ops when recipient has no email", async () => {
+  it("notifyPortalInboxForStudentOrParent still sends push when recipient has no email", async () => {
     getUserById.mockResolvedValue({ data: { user: null }, error: null });
     const { notifyPortalInboxForStudentOrParent } = await import(
       "@/lib/messaging/notifyMessagingEmails"
@@ -210,9 +218,14 @@ describe("notifyMessagingEmails", () => {
       recipientRole: "parent",
     });
     expect(sendEmail).not.toHaveBeenCalled();
+    expect(pushAfterNotify).toHaveBeenCalledWith(
+      "p1",
+      expect.objectContaining({ url: expect.stringContaining("/en/dashboard/parent/messages") }),
+      "notifyPortalInboxForStudentOrParent",
+    );
   });
 
-  it("notifyStudentTeacherReplied no-ops when student has no email", async () => {
+  it("notifyStudentTeacherReplied still sends push when student has no email", async () => {
     getUserById.mockResolvedValue({ data: { user: null }, error: null });
     const { notifyStudentTeacherReplied } = await import(
       "@/lib/messaging/notifyMessagingEmails"
@@ -225,6 +238,11 @@ describe("notifyMessagingEmails", () => {
       emailProvider: { sendEmail },
     });
     expect(sendEmail).not.toHaveBeenCalled();
+    expect(pushAfterNotify).toHaveBeenCalledWith(
+      "s1",
+      expect.objectContaining({ url: expect.stringContaining("/es/dashboard/student/messages") }),
+      "notifyStudentTeacherReplied",
+    );
   });
 
   it("notifyParentTeacherReplied sends to parent inbox link", async () => {
@@ -244,7 +262,7 @@ describe("notifyMessagingEmails", () => {
     expect(html).toContain("Pat&lt;&gt;");
   });
 
-  it("notifyParentTeacherReplied no-ops when parent has no email", async () => {
+  it("notifyParentTeacherReplied still sends push when parent has no email", async () => {
     getUserById.mockResolvedValue({ data: { user: null }, error: null });
     const { notifyParentTeacherReplied } = await import(
       "@/lib/messaging/notifyMessagingEmails"
@@ -257,5 +275,10 @@ describe("notifyMessagingEmails", () => {
       emailProvider: { sendEmail },
     });
     expect(sendEmail).not.toHaveBeenCalled();
+    expect(pushAfterNotify).toHaveBeenCalledWith(
+      "p1",
+      expect.objectContaining({ url: expect.stringContaining("/es/dashboard/parent/messages") }),
+      "notifyParentTeacherReplied",
+    );
   });
 });

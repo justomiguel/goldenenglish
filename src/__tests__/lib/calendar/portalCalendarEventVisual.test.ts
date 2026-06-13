@@ -68,4 +68,17 @@ describe("portalCalendarEventVisual", () => {
     const classes = portalCalendarEventFcClassNames(ev, now, {});
     expect(classes).toContain("portal-cal-ev--birthday");
   });
+
+  it("styles institute events with dedicated chip class", () => {
+    const ev: PortalCalendarEvent = {
+      id: "ie1",
+      kind: "institute_event",
+      title: "Concert",
+      start: "2026-06-01T18:00:00.000Z",
+      end: "2026-06-01T20:00:00.000Z",
+      publicHref: "/es/events/concierto",
+    };
+    const classes = portalCalendarEventFcClassNames(ev, now, {});
+    expect(classes).toContain("portal-cal-ev--institute-event");
+  });
 });

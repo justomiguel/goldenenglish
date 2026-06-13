@@ -14,6 +14,7 @@ export interface PublicEventDetail {
   slug: string;
   title: string;
   description: string;
+  viewCount: number;
   eventDate: string;
   location: string | null;
   price: number | null;
@@ -36,7 +37,7 @@ export async function loadEventForPublicLanding(
   const { data: eventRow } = await supabase
     .from("events")
     .select(
-      "id, slug, title, description, event_date, location, price, price_local, price_non_local, currency, capacity, default_locale, bank_transfer_instructions",
+      "id, slug, title, description, view_count, event_date, location, price, price_local, price_non_local, currency, capacity, default_locale, bank_transfer_instructions",
     )
     .eq("slug", slug)
     .eq("status", "published")
@@ -98,6 +99,7 @@ export async function loadEventForPublicLanding(
     slug: String(eventRow.slug),
     title: resolved.title,
     description: resolved.description,
+    viewCount: Number(eventRow.view_count ?? 0),
     eventDate: String(eventRow.event_date ?? ""),
     location: resolved.location,
     price: priceLocal,

@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadEventForPublicLanding } from "@/lib/dashboard/events/loadEventForPublicLanding";
 import { loadEventRegistrationPaymentMethods } from "@/lib/events/server/loadEventRegistrationPaymentMethods";
+import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTransferInstructionsSetting";
+import { resolveBankTransferInstructions } from "@/lib/billing/resolveBankTransferInstructions";
 import { resolveSessionEventAdminEditHref } from "@/lib/dashboard/events/resolveSessionEventAdminEditHref";
 import { fillEventTransferReceiptMaxMbTemplate } from "@/lib/events/eventTransferReceiptLimits";
 import { EventRegisterSurfaceEntry } from "@/components/organisms/EventRegisterSurfaceEntry";
@@ -22,6 +24,15 @@ export default async function EventRegisterPage({ params }: PageProps) {
   if (!event) notFound();
 
   const paymentMethods = await loadEventRegistrationPaymentMethods(event.currency);
+  const { instructions: globalBankTransferInstructions } =
+    await loadBankTransferInstructionsSetting(supabase);
+  const eventForRegister = {
+    ...event,
+    bankTransferInstructions: resolveBankTransferInstructions(
+      event.bankTransferInstructions,
+      globalBankTransferInstructions,
+    ),
+  };
   const adminEditHref = await resolveSessionEventAdminEditHref(supabase, locale, event.id);
 
   return (
@@ -49,7 +60,7 @@ export default async function EventRegisterPage({ params }: PageProps) {
       </div>
       <EventRegisterSurfaceEntry
         locale={locale}
-        event={event}
+        event={eventForRegister}
         paymentMethods={paymentMethods}
         labels={{
           participantSection: dict.events.register.participantSection,

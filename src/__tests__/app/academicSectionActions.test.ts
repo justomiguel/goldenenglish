@@ -95,6 +95,8 @@ describe("academic section actions", () => {
       expect.objectContaining({
         starts_on: "2026-01-15",
         ends_on: "2026-06-30",
+        allow_advance_monthly_payment: true,
+        monthly_fee_charge_mode: "full_month_fee",
         schedule_slots: [
           { dayOfWeek: 1, startTime: "08:00", endTime: "09:00" },
           { dayOfWeek: 4, startTime: "18:00", endTime: "19:00" },

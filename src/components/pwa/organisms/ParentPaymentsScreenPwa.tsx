@@ -36,6 +36,7 @@ export interface ParentPaymentsScreenPwaProps {
   enabledOnlineGateways?: PaymentGatewayProvider[];
   fileUploadProgress: FileUploadProgressLabels;
   initialFocus?: StudentPaymentsFocusKey | null;
+  bankTransferInstructions?: string | null;
 }
 
 export function ParentPaymentsScreenPwa({
@@ -56,6 +57,7 @@ export function ParentPaymentsScreenPwa({
   startMercadoPagoMonthlyPaymentAction,
   enabledOnlineGateways = [],
   initialFocus = null,
+  bankTransferInstructions = null,
 }: ParentPaymentsScreenPwaProps) {
   const router = useRouter();
   const pwaLabels = labels.paymentsPwa;
@@ -128,9 +130,11 @@ export function ParentPaymentsScreenPwa({
               startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
               startMercadoPagoMonthlyPaymentAction={startMercadoPagoMonthlyPaymentAction}
               enabledOnlineGateways={enabledOnlineGateways}
+              bankTransferInstructions={bankTransferInstructions}
               tutorPaymentMethodTabs
               initialFocus={initialFocus}
               hideNonBillableMonths
+              hideSettledMonths
               pwaSectionAccordion
               gridLegendLabels={pwaLabels.legend}
               pwaSectionLabels={{

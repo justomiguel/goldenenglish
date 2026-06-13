@@ -31,7 +31,10 @@ export async function resolveMercadoPagoMonthlyPaymentReturnPage(input: {
   mpPaymentId: string | undefined;
   returnStatus: string | undefined;
   countryCode: string | undefined;
+  /** When false (default), skips DB finalize + cache revalidation — safe for RSC render. */
+  allowFinalize?: boolean;
 }): Promise<MercadoPagoReturnPageModel> {
+  const allowFinalize = input.allowFinalize === true;
   const externalRef = input.externalReference?.trim() ?? "";
   const mpId = input.mpPaymentId?.trim() ?? "";
   if (!externalRef && !mpId) {
@@ -98,6 +101,13 @@ export async function resolveMercadoPagoMonthlyPaymentReturnPage(input: {
         paymentId: visible.id as string,
       };
     }
+    if (!allowFinalize) {
+      return { outcome: "processing" };
+    }
+  }
+
+  if (!allowFinalize) {
+    return { outcome: "processing" };
   }
 
   const finalized = await finalizeMercadoPagoPayment({

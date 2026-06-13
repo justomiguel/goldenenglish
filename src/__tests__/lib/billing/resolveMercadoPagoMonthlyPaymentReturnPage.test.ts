@@ -177,4 +177,48 @@ describe("resolveMercadoPagoMonthlyPaymentReturnPage", () => {
     });
     expect(result).toEqual({ outcome: "processing" });
   });
+
+  it("does not finalize during display-only resolve when payment is still pending", async () => {
+    mockGetPayment.mockResolvedValue({
+      ok: true,
+      data: { status: "approved", external_reference: "pay-1", transaction_amount: 100, currency_id: "CLP" },
+    });
+    const supa = makeSupa({ id: "pay-1", month: 6, year: 2026, status: "pending" });
+    const result = await resolveMercadoPagoMonthlyPaymentReturnPage({
+      supabase: supa as never,
+      externalReference: "pay-1",
+      mpPaymentId: "mp-1",
+      returnStatus: "success",
+      countryCode: "CL",
+    });
+    expect(result).toEqual({ outcome: "processing" });
+    expect(mockFinalize).not.toHaveBeenCalled();
+  });
+
+  it("finalizes when allowFinalize is true and payment is pending", async () => {
+    mockGetPayment.mockResolvedValue({
+      ok: true,
+      data: { status: "approved", external_reference: "pay-1", transaction_amount: 100, currency_id: "CLP" },
+    });
+    mockFinalize.mockResolvedValue({ ok: true, approved: true, paymentId: "pay-1" });
+    const supa = makeSupa({ id: "pay-1", month: 6, year: 2026, status: "pending" });
+    supa._maybeSingle
+      .mockResolvedValueOnce({ data: { id: "pay-1", month: 6, year: 2026, status: "pending" }, error: null })
+      .mockResolvedValueOnce({ data: { month: 6, year: 2026 }, error: null });
+    const result = await resolveMercadoPagoMonthlyPaymentReturnPage({
+      supabase: supa as never,
+      allowFinalize: true,
+      externalReference: "pay-1",
+      mpPaymentId: "mp-1",
+      returnStatus: "success",
+      countryCode: "CL",
+    });
+    expect(mockFinalize).toHaveBeenCalled();
+    expect(result).toEqual({
+      outcome: "success",
+      month: 6,
+      year: 2026,
+      paymentId: "pay-1",
+    });
+  });
 });

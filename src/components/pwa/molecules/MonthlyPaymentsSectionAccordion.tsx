@@ -58,6 +58,7 @@ export interface MonthlyPaymentsSectionAccordionProps {
   enabledOnlineGateways: PaymentGatewayProvider[];
   tutorPaymentMethodTabs: boolean;
   onSubmitted: () => void;
+  bankTransferInstructions?: string | null;
 }
 
 export function MonthlyPaymentsSectionAccordion({
@@ -94,6 +95,7 @@ export function MonthlyPaymentsSectionAccordion({
   enabledOnlineGateways,
   tutorPaymentMethodTabs,
   onSubmitted,
+  bankTransferInstructions = null,
 }: MonthlyPaymentsSectionAccordionProps) {
   const panelId = `payments-section-panel-${row.sectionId}`;
   const toggleAria = isExpanded ? collapseLabel : expandLabel;
@@ -210,6 +212,7 @@ export function MonthlyPaymentsSectionAccordion({
                 enabledOnlineGateways={enabledOnlineGateways}
                 paymentMethodTabLayout={tutorPaymentMethodTabs}
                 pwaNestedHierarchy
+                bankTransferInstructions={bankTransferInstructions}
                 onSubmitted={onSubmitted}
               />
             </MonthlyPaymentsPwaNestedDetail>

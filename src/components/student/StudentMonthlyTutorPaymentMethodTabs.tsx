@@ -37,6 +37,7 @@ export interface StudentMonthlyTutorPaymentMethodTabsProps {
   onSubmitReceipt: (formData: FormData) => void | Promise<void>;
   onOnlinePay: (provider: PaymentGatewayProvider) => void | Promise<void>;
   compactTopSpacing?: boolean;
+  bankTransferInstructions?: string | null;
 }
 
 export function StudentMonthlyTutorPaymentMethodTabs({
@@ -56,6 +57,7 @@ export function StudentMonthlyTutorPaymentMethodTabs({
   onSubmitReceipt,
   onOnlinePay,
   compactTopSpacing = false,
+  bankTransferInstructions = null,
 }: StudentMonthlyTutorPaymentMethodTabsProps) {
   const reactId = useId().replace(/:/g, "");
   const [tab, setTab] = useState<string>(TAB_RECEIPT);
@@ -107,6 +109,7 @@ export function StudentMonthlyTutorPaymentMethodTabs({
           showOnlinePay={false}
           enabledOnlineGateways={[]}
           feedbackMessage={feedbackMessage}
+          bankTransferInstructions={bankTransferInstructions}
           onSubmit={onSubmitReceipt}
           onOnlinePay={onOnlinePay}
         />

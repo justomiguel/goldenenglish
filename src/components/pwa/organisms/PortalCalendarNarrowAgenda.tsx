@@ -20,10 +20,12 @@ import {
 import { PortalCalendarNarrowAgendaList } from "@/components/pwa/molecules/PortalCalendarNarrowAgendaList";
 import { PortalCalendarNarrowAgendaMonth } from "@/components/pwa/molecules/PortalCalendarNarrowAgendaMonth";
 import { PortalCalendarEventDetailModal } from "@/components/organisms/PortalCalendarEventDetailModal";
+import { portalCalendarAdminEditHref } from "@/lib/calendar/portalCalendarAdminEditHref";
 import type { PortalCalendarScheduleBoardDict } from "@/components/organisms/PortalCalendarScheduleBoard";
 import type { PortalCalendarEvent } from "@/types/portalCalendar";
 
 type DetailState = {
+  portalEventId: string;
   title: string;
   start: Date | null;
   end: Date | null;
@@ -37,6 +39,7 @@ export interface PortalCalendarNarrowAgendaProps {
   dict: PortalCalendarScheduleBoardDict;
   viewerId?: string;
   highlightTeacherId?: string;
+  adminCanEditEvents?: boolean;
 }
 
 export function PortalCalendarNarrowAgenda({
@@ -45,6 +48,7 @@ export function PortalCalendarNarrowAgenda({
   dict,
   viewerId,
   highlightTeacherId,
+  adminCanEditEvents = false,
 }: PortalCalendarNarrowAgendaProps) {
   const titleId = useId();
   const [view, setView] = useState<PortalCalendarNarrowAgendaView>("list");
@@ -95,6 +99,7 @@ export function PortalCalendarNarrowAgenda({
   const openEvent = useCallback(
     (ev: PortalCalendarEvent) => {
       setDetail({
+        portalEventId: ev.id,
         title: ev.title,
         start: ev.start ? new Date(ev.start) : null,
         end: ev.end ? new Date(ev.end) : null,
@@ -109,6 +114,7 @@ export function PortalCalendarNarrowAgenda({
     info.jsEvent.preventDefault();
     const xp = info.event.extendedProps as PortalCalendarFcExtendedProps;
     setDetail({
+      portalEventId: info.event.id,
       title: info.event.title || "",
       start: info.event.start,
       end: info.event.end,
@@ -177,6 +183,11 @@ export function PortalCalendarNarrowAgenda({
           extendedProps={detail.extendedProps}
           locale={locale}
           dict={detailDict}
+          adminEditHref={
+            adminCanEditEvents
+              ? portalCalendarAdminEditHref(locale, detail.portalEventId, detail.extendedProps.kind)
+              : null
+          }
         />
       ) : null}
     </div>

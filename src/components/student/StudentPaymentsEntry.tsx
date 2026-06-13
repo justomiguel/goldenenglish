@@ -62,6 +62,7 @@ export interface StudentPaymentsEntryProps {
   /** Online gateways enabled for the tenant billing currency. */
   enabledOnlineGateways?: PaymentGatewayProvider[];
   fileUploadProgress: FileUploadProgressLabels;
+  bankTransferInstructions?: string | null;
 }
 
 export function StudentPaymentsEntry({
@@ -77,6 +78,7 @@ export function StudentPaymentsEntry({
   startFlowMonthlyPaymentAction,
   startMercadoPagoMonthlyPaymentAction,
   enabledOnlineGateways = [],
+  bankTransferInstructions = null,
   ...rest
 }: StudentPaymentsEntryProps) {
   if (paymentsBlockedMessage) {
@@ -151,6 +153,7 @@ export function StudentPaymentsEntry({
                 startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
                 startMercadoPagoMonthlyPaymentAction={startMercadoPagoMonthlyPaymentAction}
                 enabledOnlineGateways={enabledOnlineGateways}
+                bankTransferInstructions={bankTransferInstructions}
               />
             </>
           }
@@ -212,6 +215,7 @@ export function StudentPaymentsEntry({
                   startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
                   startMercadoPagoMonthlyPaymentAction={startMercadoPagoMonthlyPaymentAction}
                   enabledOnlineGateways={enabledOnlineGateways}
+                  bankTransferInstructions={bankTransferInstructions}
                   hideNonBillableMonths
                   pwaSectionAccordion
                   gridLegendLabels={labels.paymentsPwa.legend}

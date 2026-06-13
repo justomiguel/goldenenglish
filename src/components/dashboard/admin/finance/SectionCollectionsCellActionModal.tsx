@@ -1,15 +1,17 @@
 "use client";
 
 import { useId, useState } from "react";
-import { Check, X } from "lucide-react";
+import { Check, Undo2, X } from "lucide-react";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
-import type { Dictionary } from "@/types/i18n";
+import { ScholarshipDiscountFields } from "@/components/molecules/ScholarshipDiscountFields";
+import type { Dictionary, Locale } from "@/types/i18n";
 import type { SectionCellBulkAction } from "./SectionCollectionsCellActionBar";
 
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
+type BillingLabels = Dictionary["admin"]["billing"];
 
 export interface SectionCollectionsCellActionModalProps {
   open: boolean;
@@ -25,6 +27,10 @@ export interface SectionCollectionsCellActionModalProps {
   }) => void;
   busy: boolean;
   dict: CollectionsDict;
+  billingLabels: BillingLabels;
+  locale: Locale;
+  referenceMonthlyAmount: number | null;
+  referenceMonthlyCurrency: string | null;
 }
 
 export function SectionCollectionsCellActionModal({
@@ -36,9 +42,13 @@ export function SectionCollectionsCellActionModal({
   onConfirm,
   busy,
   dict,
+  billingLabels,
+  locale,
+  referenceMonthlyAmount,
+  referenceMonthlyCurrency,
 }: SectionCollectionsCellActionModalProps) {
   const titleId = useId();
-  const [scholarshipPercent, setScholarshipPercent] = useState("");
+  const [resolvedPercent, setResolvedPercent] = useState<number | null>(null);
   const [note, setNote] = useState("");
 
   const d = dict.cellActions;
@@ -50,7 +60,9 @@ export function SectionCollectionsCellActionModal({
         ? d.confirmScholarshipTitle.replace("{count}", String(cellCount))
         : action === "exempt"
           ? d.confirmExemptTitle.replace("{count}", String(cellCount))
-          : "";
+          : action === "revert"
+            ? d.confirmRevertTitle.replace("{count}", String(cellCount))
+            : "";
 
   const body =
     action === "paid"
@@ -59,13 +71,12 @@ export function SectionCollectionsCellActionModal({
         ? d.confirmScholarshipBody
         : action === "exempt"
           ? d.confirmExemptBody
-          : "";
+          : action === "revert"
+            ? d.confirmRevertBody
+            : "";
 
-  const scholarshipPctNum = Number(scholarshipPercent);
   const scholarshipValid =
-    Number.isFinite(scholarshipPctNum) &&
-    scholarshipPctNum >= 1 &&
-    scholarshipPctNum <= 100;
+    resolvedPercent != null && resolvedPercent >= 1 && resolvedPercent <= 100;
   const exemptValid = note.trim().length > 0;
 
   const canConfirm =
@@ -75,19 +86,22 @@ export function SectionCollectionsCellActionModal({
         ? scholarshipValid
         : action === "exempt"
           ? exemptValid
-          : false;
+          : action === "revert"
+            ? true
+            : false;
 
   function handleConfirm() {
     if (!action || !canConfirm) return;
     onConfirm({
       action,
-      scholarshipPercent: action === "scholarship" ? scholarshipPctNum : undefined,
+      scholarshipPercent:
+        action === "scholarship" && resolvedPercent != null ? resolvedPercent : undefined,
       note: note.trim() || undefined,
     });
   }
 
   function handleClose() {
-    setScholarshipPercent("");
+    setResolvedPercent(null);
     setNote("");
     onClose();
   }
@@ -118,18 +132,16 @@ export function SectionCollectionsCellActionModal({
 
         {action === "scholarship" ? (
           <div className="space-y-3">
-            <div className="space-y-1">
-              <Label htmlFor="scholarship-percent">{d.scholarshipPercentLabel}</Label>
-              <Input
-                id="scholarship-percent"
-                type="number"
-                min={1}
-                max={100}
-                value={scholarshipPercent}
-                onChange={(e) => setScholarshipPercent(e.target.value)}
-                placeholder={d.scholarshipPercentPlaceholder}
-              />
-            </div>
+            <ScholarshipDiscountFields
+              idPrefix="cell-scholarship"
+              locale={locale}
+              currency={referenceMonthlyCurrency}
+              referenceMonthlyAmount={referenceMonthlyAmount}
+              labels={billingLabels}
+              disabled={busy}
+              minPercent={1}
+              onResolvedPercentChange={setResolvedPercent}
+            />
             <div className="space-y-1">
               <Label htmlFor="scholarship-note">{d.scholarshipNoteLabel}</Label>
               <Input
@@ -156,6 +168,19 @@ export function SectionCollectionsCellActionModal({
           </div>
         ) : null}
 
+        {action === "revert" ? (
+          <div className="space-y-1">
+            <Label htmlFor="revert-note">{d.revertNoteLabel}</Label>
+            <Input
+              id="revert-note"
+              type="text"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder={d.revertNotePlaceholder}
+            />
+          </div>
+        ) : null}
+
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="ghost" onClick={handleClose} disabled={busy}>
             <X className="h-4 w-4 shrink-0" aria-hidden />
@@ -163,13 +188,17 @@ export function SectionCollectionsCellActionModal({
           </Button>
           <Button
             type="button"
-            variant="primary"
+            variant={action === "revert" ? "secondary" : "primary"}
             onClick={handleConfirm}
             disabled={!canConfirm || busy}
             isLoading={busy}
           >
-            <Check className="h-4 w-4 shrink-0" aria-hidden />
-            {d.confirm}
+            {action === "revert" ? (
+              <Undo2 className="h-4 w-4 shrink-0" aria-hidden />
+            ) : (
+              <Check className="h-4 w-4 shrink-0" aria-hidden />
+            )}
+            {action === "revert" ? d.confirmRevert : d.confirm}
           </Button>
         </div>
       </div>

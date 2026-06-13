@@ -10,6 +10,9 @@ import {
 import type { Dictionary } from "@/types/i18n";
 import { ParentChildSwitcher } from "@/components/parent/ParentChildSwitcher";
 import { ParentHomeStatusGrid } from "@/components/parent/ParentHomeStatusGrid";
+import { ParentHomeNewsFeed } from "@/components/pwa/molecules/ParentHomeNewsFeed";
+import { PushPermissionBanner } from "@/components/molecules/PushPermissionBanner";
+import type { ParentHomeNewsItem } from "@/lib/parent/loadParentHomeNewsFeed";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export interface ParentHomePwaFocusProps {
@@ -22,6 +25,7 @@ export interface ParentHomePwaFocusProps {
   attendanceByStudent: Record<string, number>;
   overdueByStudent: Record<string, boolean>;
   labels: Dictionary["dashboard"]["parent"];
+  newsItems: ParentHomeNewsItem[];
 }
 
 export function ParentHomePwaFocus({
@@ -34,6 +38,7 @@ export function ParentHomePwaFocus({
   attendanceByStudent,
   overdueByStudent,
   labels,
+  newsItems,
 }: ParentHomePwaFocusProps) {
   const inbox = labels.homeInbox;
   const multipleChildren = summaries.length > 1;
@@ -82,6 +87,11 @@ export function ParentHomePwaFocus({
         ) : null}
       </header>
 
+      <PushPermissionBanner
+        copy={inbox}
+        storageKey="ge_push_prompt_dismissed_parent"
+      />
+
       {multipleChildren ? null : (
         <ParentChildSwitcher
           locale={locale}
@@ -99,6 +109,8 @@ export function ParentHomePwaFocus({
         attendanceChildRows={attendanceChildRows}
         paymentChildRows={paymentChildRows}
       />
+
+      <ParentHomeNewsFeed locale={locale} items={newsItems} labels={inbox.newsFeed} />
     </div>
   );
 }

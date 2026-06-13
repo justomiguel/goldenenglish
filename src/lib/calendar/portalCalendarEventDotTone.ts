@@ -12,6 +12,7 @@ export type PortalCalendarEventDotTone =
   | "exam"
   | "special"
   | "birthday"
+  | "institute_event"
   | "today"
   | "virtual"
   | "inperson";
@@ -21,6 +22,7 @@ const DOT_TONE_CLASS: Record<PortalCalendarEventDotTone, string> = {
   exam: "bg-[var(--color-error)]",
   special: "bg-[var(--color-accent)]",
   birthday: "bg-[var(--color-secondary)]",
+  institute_event: "bg-[var(--color-primary-dark)]",
   today: "bg-[var(--color-warning)]",
   virtual: "bg-[var(--color-primary)]",
   inperson: "bg-[var(--color-success)]",
@@ -35,6 +37,7 @@ export function portalCalendarEventDotTone(
   if (ev.kind === "exam") return "exam";
   if (ev.kind === "special") return "special";
   if (ev.kind === "birthday") return "birthday";
+  if (ev.kind === "institute_event") return "institute_event";
   if (timing === "today") return "today";
   if (portalCalendarEventIsVirtual(ev)) return "virtual";
   return "inperson";

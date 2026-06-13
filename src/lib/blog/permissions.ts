@@ -21,6 +21,10 @@ export function canModerateComments(actorRole: BlogActorRole): boolean {
   return canReviewArticles(actorRole);
 }
 
+export function canDeleteArticle(actorRole: BlogActorRole): boolean {
+  return canReviewArticles(actorRole);
+}
+
 export function canWriteArticle(ctx: BlogPermissionContext): boolean {
   const { actorRole, actorId, authorId, nextStatus } = ctx;
   if (!canCreateArticle(actorRole)) return false;

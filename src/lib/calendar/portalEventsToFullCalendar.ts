@@ -16,6 +16,7 @@ export type PortalCalendarFcExtendedProps = {
   specialEventType?: PortalSpecialEventTypeSlug;
   meetingUrl: string | null;
   roomLabel: string | null;
+  publicHref: string | null;
   timing: PortalCalendarEventTiming;
   isVirtual: boolean;
   isOwn: boolean;
@@ -36,6 +37,7 @@ export function portalCalendarFcExtendedPropsFromEvent(
     specialEventType: ev.specialEventType,
     meetingUrl: ev.meetingUrl ?? null,
     roomLabel: ev.roomLabel ?? null,
+    publicHref: ev.publicHref ?? null,
     timing,
     isVirtual: portalCalendarEventIsVirtual(ev),
     isOwn: portalCalendarEventIsOwn(ev, ctx),

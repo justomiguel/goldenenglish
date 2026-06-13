@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { BlogLocale } from "@/lib/blog/domain";
-import { translateBlogArticleAdminAction } from "@/app/[locale]/dashboard/admin/cms/blog/actions";
+import { translateBlogArticleAdminAction } from "@/app/[locale]/dashboard/admin/cms/blog/blogTranslateAdminActions";
 
 interface UseBlogTranslateInput {
   articleId: string;

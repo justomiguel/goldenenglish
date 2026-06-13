@@ -5,19 +5,15 @@ import { useRouter } from "next/navigation";
 import { sendOverdueBalanceRemindersAction } from "@/app/[locale]/dashboard/admin/finance/collections/overdueBalanceRemindersAction";
 import type { SectionCollectionsView } from "@/types/sectionCollections";
 import type { Dictionary, Locale } from "@/types/i18n";
-import { AdminBillingMatrixLegendModal } from "@/components/dashboard/AdminBillingMatrixLegendModal";
 import { useSectionCollectionsCellSelection } from "@/hooks/useSectionCollectionsCellSelection";
 import { runSectionCellBulkAction } from "@/lib/billing/runSectionCellBulkAction";
 import { SECTION_COLLECTIONS_ENROLLMENT_FEE_CELL_MONTH } from "@/lib/billing/sectionCollectionsEnrollmentFeeCellMonth";
 import { SectionCollectionsKpisCard } from "./SectionCollectionsKpisCard";
 import { SectionCollectionsMatrixTable } from "./SectionCollectionsMatrixTable";
-import { SectionCollectionsExportButtons } from "./SectionCollectionsExportButtons";
 import { SectionCollectionsBulkMessageModal } from "./SectionCollectionsBulkMessageModal";
-import { financeCollectionsMatrixLegendLabels } from "./collectionsMatrixLegendLabels";
 import { SectionCollectionsCellActionBar, type SectionCellBulkAction } from "./SectionCollectionsCellActionBar";
 import { SectionCollectionsCellActionModal } from "./SectionCollectionsCellActionModal";
-import { SectionCollectionsStudentActionBar } from "./SectionCollectionsStudentActionBar";
-import { SectionCollectionsBulkScholarshipTrigger } from "./SectionCollectionsBulkScholarshipTrigger";
+import { SectionCollectionsMatrixToolbar } from "./SectionCollectionsMatrixToolbar";
 
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
 
@@ -47,7 +43,17 @@ export function SectionCollectionsMatrixWorkspace({
   const [cellActionModalAction, setCellActionModalAction] = useState<SectionCellBulkAction | null>(null);
   const [cellActionNotice, setCellActionNotice] = useState<string | null>(null);
 
-  const cellSelection = useSectionCollectionsCellSelection();
+  const showEnrollmentFeeColumn = view.students.some(
+    (s) => (s.enrollmentFee?.amount ?? 0) > 0,
+  );
+
+  const cellSelection = useSectionCollectionsCellSelection({
+    students: view.students,
+    year: view.year,
+    sectionStartsOn: view.sectionStartsOn,
+    todayMonth: view.todayMonth,
+    showEnrollmentFeeColumn,
+  });
 
   const selectionIncludesEnrollmentFee = useMemo(() => {
     for (const months of cellSelection.cellsGroupedByStudent.values()) {
@@ -149,59 +155,37 @@ export function SectionCollectionsMatrixWorkspace({
     [view.sectionId, view.year, cellSelection, locale, billingLabels, dict.cellActions, router],
   );
 
-  const setScholarNotice = onBulkScholarshipNotice ?? (() => {});
-
   return (
     <div className="flex flex-col gap-4">
       <SectionCollectionsKpisCard kpis={view.kpis} dict={dict} locale={locale} currency={currency} />
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2">
-        <div className="flex flex-col gap-2">
-          {overdueNotice || cellActionNotice ? (
-            <p className="text-sm text-[var(--color-muted-foreground)]" role="status">
-              {overdueNotice ?? cellActionNotice}
-            </p>
-          ) : null}
-          <div className="flex flex-wrap items-center gap-2">
-            <SectionCollectionsBulkScholarshipTrigger
-              locale={locale}
-              sectionId={view.sectionId}
-              year={view.year}
-              studentCount={view.students.length}
-              selectedStudentIds={recipientIds}
-              dict={dict}
-              onNotice={setScholarNotice}
-            />
-            <button
-              type="button"
-              onClick={selectOverdue}
-              disabled={overdueIds.length === 0}
-              className="inline-flex min-h-[36px] items-center gap-1 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-muted)]/40 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {dict.matrix.selectOverdue}
-            </button>
-            {selectionCount > 0 ? (
-              <SectionCollectionsStudentActionBar
-                selectionCount={selectionCount}
-                onClear={clearSelection}
-                onOpenMessageModal={() => setModalOpen(true)}
-                onSendOverdueReminders={handleSendOverdueReminders}
-                overdueBusy={overdueBusy}
-                dict={dict}
-              />
-            ) : null}
-          </div>
-        </div>
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <AdminBillingMatrixLegendModal labels={financeCollectionsMatrixLegendLabels(dict)} />
-          <SectionCollectionsExportButtons locale={locale} sectionId={view.sectionId} year={view.year} dict={dict} />
-        </div>
-      </div>
+      <SectionCollectionsMatrixToolbar
+        dict={dict}
+        billingLabels={billingLabels}
+        locale={locale}
+        sectionId={view.sectionId}
+        year={view.year}
+        studentCount={view.students.length}
+        recipientIds={recipientIds}
+        overdueIds={overdueIds}
+        selectionCount={selectionCount}
+        overdueNotice={overdueNotice}
+        cellActionNotice={cellActionNotice}
+        overdueBusy={overdueBusy}
+        referenceMonthlyAmount={view.referenceMonthlyFeeAmount}
+        referenceMonthlyCurrency={view.referenceMonthlyFeeCurrency}
+        onSelectOverdue={selectOverdue}
+        onClearSelection={clearSelection}
+        onOpenMessageModal={() => setModalOpen(true)}
+        onSendOverdueReminders={handleSendOverdueReminders}
+        onBulkScholarshipNotice={onBulkScholarshipNotice}
+      />
 
       {cellSelection.selectionCount > 0 ? (
         <SectionCollectionsCellActionBar
           cellCount={cellSelection.selectionCount}
           studentCount={cellSelection.selectedStudents.size}
+          selectionMode={cellSelection.selectionMode}
           onClear={cellSelection.clearSelection}
           onAction={setCellActionModalAction}
           busy={cellActionBusy}
@@ -219,7 +203,9 @@ export function SectionCollectionsMatrixWorkspace({
         onToggleAll={toggleAll}
         cellSelectable
         isCellSelected={cellSelection.isCellSelected}
+        isCellSelectable={cellSelection.isCellSelectable}
         onToggleCell={cellSelection.toggleCell}
+        showEnrollmentFeeColumn={showEnrollmentFeeColumn}
       />
 
       <SectionCollectionsBulkMessageModal
@@ -241,6 +227,10 @@ export function SectionCollectionsMatrixWorkspace({
         onConfirm={handleCellActionConfirm}
         busy={cellActionBusy}
         dict={dict}
+        billingLabels={billingLabels}
+        locale={locale as Locale}
+        referenceMonthlyAmount={view.referenceMonthlyFeeAmount}
+        referenceMonthlyCurrency={view.referenceMonthlyFeeCurrency}
       />
     </div>
   );

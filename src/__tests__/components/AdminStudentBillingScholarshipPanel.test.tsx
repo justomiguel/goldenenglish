@@ -30,6 +30,8 @@ describe("AdminStudentBillingScholarshipPanel", () => {
         studentId="00000000-0000-4000-8000-000000000099"
         sectionId="00000000-0000-4000-8000-000000000001"
         sectionName="Section A"
+        referenceMonthlyAmount={1000}
+        referenceMonthlyCurrency="USD"
         scholarships={[{
           id: "00000000-0000-4000-8000-000000000010",
           discount_percent: 100,
@@ -53,6 +55,42 @@ describe("AdminStudentBillingScholarshipPanel", () => {
     expect(screen.getByText("07/2026 · 100% discount")).toBeInTheDocument();
   });
 
+  it("shows remove when readOnly and allowRemove are set", () => {
+    render(
+      <AdminStudentBillingScholarshipPanel
+        locale="en"
+        studentId="00000000-0000-4000-8000-000000000099"
+        sectionId="00000000-0000-4000-8000-000000000001"
+        sectionName="Section A"
+        referenceMonthlyAmount={1000}
+        referenceMonthlyCurrency="USD"
+        scholarships={[{
+          id: "00000000-0000-4000-8000-000000000010",
+          discount_percent: 50,
+          note: null,
+          valid_from_year: 2026,
+          valid_from_month: 1,
+          valid_until_year: null,
+          valid_until_month: null,
+          is_active: true,
+        }]}
+        labels={dictEn.admin.billing}
+        busy={false}
+        setBusy={vi.fn()}
+        setMsg={vi.fn()}
+        readOnly
+        allowRemove
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: dictEn.admin.billing.removeScholarship }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: dictEn.admin.billing.addScholarship }),
+    ).not.toBeInTheDocument();
+  });
+
   it("shows the saved scholarship immediately after a successful save", async () => {
     mockCreateStudentScholarship.mockResolvedValue({ ok: true });
     const user = userEvent.setup();
@@ -63,6 +101,8 @@ describe("AdminStudentBillingScholarshipPanel", () => {
         studentId="00000000-0000-4000-8000-000000000099"
         sectionId="00000000-0000-4000-8000-000000000001"
         sectionName="Section A"
+        referenceMonthlyAmount={1000}
+        referenceMonthlyCurrency="USD"
         scholarships={[]}
         labels={dictEn.admin.billing}
         busy={false}

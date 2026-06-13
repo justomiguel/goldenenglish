@@ -18,6 +18,7 @@ export function EventDescriptionHtml({ html, labels, className }: EventDescripti
       className={className ?? "space-y-8"}
       proseClassName={EVENT_DESCRIPTION_PROSE}
       indentFirstProseBlock
+      groupNonImageAttachments
     />
   );
 }

@@ -53,6 +53,7 @@ export interface ParentPaymentsEntryProps {
   fileUploadProgress: FileUploadProgressLabels;
   feesPanel: ReactNode;
   initialFocus?: StudentPaymentsFocusKey | null;
+  bankTransferInstructions?: string | null;
 }
 
 function ParentPaymentsBodyDesktop({
@@ -74,6 +75,7 @@ function ParentPaymentsBodyDesktop({
   enabledOnlineGateways = [],
   feesPanel,
   initialFocus = null,
+  bankTransferInstructions = null,
 }: ParentPaymentsEntryProps) {
   const router = useRouter();
 
@@ -148,8 +150,11 @@ function ParentPaymentsBodyDesktop({
                 startFlowMonthlyPaymentAction={startFlowMonthlyPaymentAction}
                 startMercadoPagoMonthlyPaymentAction={startMercadoPagoMonthlyPaymentAction}
                 enabledOnlineGateways={enabledOnlineGateways}
+                bankTransferInstructions={bankTransferInstructions}
                 tutorPaymentMethodTabs
                 initialFocus={initialFocus}
+                hideNonBillableMonths
+                hideSettledMonths
               />
             }
             history={<StudentPaymentsHistory rows={payments} labels={studentLabels} locale={locale} />}

@@ -82,6 +82,8 @@ export function portalCalendarEventFcClassNames(
     classes.push("portal-cal-ev--special");
   } else if (ev.kind === "birthday") {
     classes.push("portal-cal-ev--birthday");
+  } else if (ev.kind === "institute_event") {
+    classes.push("portal-cal-ev--institute-event");
   } else if (timing === "today") {
     classes.push("portal-cal-ev--today");
   } else if (portalCalendarEventIsVirtual(ev)) {

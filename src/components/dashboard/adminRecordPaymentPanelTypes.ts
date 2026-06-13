@@ -24,6 +24,8 @@ export interface AdminRecordPaymentPanelProps {
   /** When set, monthly chips match Cobranzas (`buildStudentMonthlyPaymentsRow`). */
   collectionCells?: StudentMonthlyPaymentCell[] | null;
   labels: BillingLabels;
+  sectionMonthlyFeeAmount?: number | null;
+  sectionMonthlyFeeCurrency?: string | null;
   showEnrollmentMonthZero: boolean;
   enrollmentMonthZeroVisual: {
     status: StudentMonthlyPaymentCell["status"];

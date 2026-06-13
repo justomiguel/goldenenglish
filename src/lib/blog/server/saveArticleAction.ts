@@ -7,6 +7,9 @@ import { sanitizeBlogHtml } from "@/lib/blog/sanitizeBlogHtml";
 import { blogAttachmentsSchema } from "@/lib/blog/attachments";
 import { normalizeTags } from "@/lib/blog/tags";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
+import { resolveBlogArticleAdminShareLinks } from "@/lib/blog/server/resolveBlogArticleAdminShareLinks";
+import type { BlogArticleAdminShareLink } from "@/lib/blog/server/resolveBlogArticleAdminShareLinks";
+import type { BlogLocale } from "@/lib/blog/domain";
 import {
   logServerActionException,
   logServerWarn,
@@ -23,7 +26,7 @@ export interface SaveArticleActionInput {
 export async function saveArticleAction(
   supabase: SupabaseClient,
   input: SaveArticleActionInput,
-): Promise<{ ok: boolean; articleId?: string; code?: string }> {
+): Promise<{ ok: boolean; articleId?: string; code?: string; shareLinks?: BlogArticleAdminShareLink[] }> {
   const parsed = articleCreateInputSchema.safeParse(input.payload);
   if (!parsed.success) return { ok: false, code: "invalid_input" };
 
@@ -156,7 +159,17 @@ export async function saveArticleAction(
       });
     }
 
-    return { ok: true, articleId: articleRow.id };
+    const slugsByLocale = Object.fromEntries(
+      translationRows.map((row) => [row.locale, row.slug]),
+    ) as Partial<Record<BlogLocale, string>>;
+
+    const shareLinks = resolveBlogArticleAdminShareLinks({
+      articleId: articleRow.id,
+      status: normalizedPayload.status,
+      slugsByLocale,
+    });
+
+    return { ok: true, articleId: articleRow.id, shareLinks };
   } catch (error) {
     logServerActionException("blog.save.unhandled", error, {
       actorRole: input.actorRole,

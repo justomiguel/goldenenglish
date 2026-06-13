@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { EnabledPaymentGateway, PaymentGatewayProvider } from "@/types/paymentGateway";
+import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import {
   gatewayCountryForBillingCurrency,
   gatewaySupportsBillingCurrency,
@@ -24,7 +25,15 @@ export async function loadEnabledGatewaysForBillingCurrency(
     p_country_code: country,
   });
 
-  if (error || !Array.isArray(data)) return [];
+  if (error) {
+    logSupabaseClientError("loadEnabledGatewaysForBillingCurrency.rpc", error, {
+      scope: "paymentGateways.loadEnabled",
+      country,
+      billingCurrency,
+    });
+    return [];
+  }
+  if (!Array.isArray(data)) return [];
 
   const out: EnabledPaymentGateway[] = [];
   for (const raw of data) {

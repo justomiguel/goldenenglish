@@ -18,6 +18,7 @@ import {
 import { startStudentFlowMonthlyPayment } from "@/app/[locale]/dashboard/student/payments/flowMonthlyPaymentActions";
 import { startStudentMercadoPagoMonthlyPayment } from "@/app/[locale]/dashboard/student/payments/mercadoPagoMonthlyPaymentActions";
 import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
+import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTransferInstructionsSetting";
 import { loadEnabledGatewaysForBillingCurrency } from "@/lib/payment-gateways/loadEnabledGatewaysForBillingCurrency";
 import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 import type { Locale } from "@/types/i18n";
@@ -67,6 +68,7 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
         submitReceiptAction={submitStudentPaymentReceipt}
         submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceipt}
         fileUploadProgress={dict.common.fileUpload}
+        bankTransferInstructions={null}
       />
     );
   }
@@ -160,7 +162,10 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
     }),
   );
 
-  const billingCurrency = await loadBillingCurrencySetting(supabase);
+  const [billingCurrency, bankTransferInstructions] = await Promise.all([
+    loadBillingCurrencySetting(supabase),
+    loadBankTransferInstructionsSetting(supabase),
+  ]);
   const enabledGateways = await loadEnabledGatewaysForBillingCurrency(supabase, billingCurrency.currency);
   const enabledOnlineGateways = enabledGateways.map((g) => g.provider) as PaymentGatewayProvider[];
 
@@ -178,6 +183,7 @@ export default async function StudentPaymentsPage({ params }: PageProps) {
       submitReceiptAction={submitStudentPaymentReceipt}
       submitEnrollmentFeeReceiptAction={submitEnrollmentFeeReceipt}
       fileUploadProgress={dict.common.fileUpload}
+      bankTransferInstructions={bankTransferInstructions.instructions}
       enabledOnlineGateways={enabledOnlineGateways}
       startFlowMonthlyPaymentAction={
         enabledOnlineGateways.includes("flow") ? startStudentFlowMonthlyPayment : undefined

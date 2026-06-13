@@ -2,9 +2,11 @@ import type {
   AdminUserTutorFamilySectionOptionVM,
   AdminUserTutorFamilyStudentVM,
 } from "@/lib/dashboard/adminUserDetailVM";
+import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { mapSectionFeePlanRow, type SectionFeePlanRowDb } from "@/types/sectionFeePlan";
 
 /** Matches `listTutorStudentsWithFinance` ceiling — guardian-linked sets stay bounded. */
 export const MAX_TUTOR_FAMILY_STUDENTS = 200;
@@ -95,15 +97,58 @@ export async function loadTutorFamilyScholarshipSectionsForAdminDetail(
     return [];
   }
   const bySection = new Map<string, string>();
+  const sectionIds: string[] = [];
   for (const raw of enrollRows ?? []) {
     const row = raw as EnrollmentSectionRow;
     const sid = String(row.section_id);
     if (!bySection.has(sid)) {
       bySection.set(sid, academicSectionNameFromEnrollmentRow(row));
+      sectionIds.push(sid);
     }
   }
+
+  const refNow = new Date();
+  const refYear = refNow.getFullYear();
+  const refMonth = refNow.getMonth() + 1;
+  const feeBySection = new Map<string, { amount: number | null; currency: string | null }>();
+
+  if (sectionIds.length > 0) {
+    const { data: planRows, error: planErr } = await admin
+      .from("section_fee_plans")
+      .select(
+        "id, section_id, effective_from_year, effective_from_month, monthly_fee, currency, archived_at",
+      )
+      .is("archived_at", null)
+      .in("section_id", sectionIds);
+    if (planErr) {
+      logSupabaseClientError("loadTutorFamilyScholarshipSections:fee_plans", planErr, {
+        sectionCount: sectionIds.length,
+      });
+    } else {
+      const plansBySection = new Map<string, ReturnType<typeof mapSectionFeePlanRow>[]>();
+      for (const rawPlan of planRows ?? []) {
+        const plan = mapSectionFeePlanRow(rawPlan as SectionFeePlanRowDb);
+        const list = plansBySection.get(plan.sectionId) ?? [];
+        list.push(plan);
+        plansBySection.set(plan.sectionId, list);
+      }
+      for (const sid of sectionIds) {
+        const eff = resolveEffectiveSectionFeePlan(plansBySection.get(sid) ?? [], refYear, refMonth);
+        feeBySection.set(sid, {
+          amount: eff?.monthlyFee ?? null,
+          currency: eff?.currency ?? null,
+        });
+      }
+    }
+  }
+
   const options: AdminUserTutorFamilySectionOptionVM[] = [...bySection.entries()].map(
-    ([sectionId, sectionLabel]) => ({ sectionId, sectionLabel }),
+    ([sectionId, sectionLabel]) => ({
+      sectionId,
+      sectionLabel,
+      monthlyFeeAmount: feeBySection.get(sectionId)?.amount ?? null,
+      monthlyFeeCurrency: feeBySection.get(sectionId)?.currency ?? null,
+    }),
   );
   options.sort((a, b) =>
     a.sectionLabel.toLocaleLowerCase().localeCompare(b.sectionLabel.toLocaleLowerCase()),

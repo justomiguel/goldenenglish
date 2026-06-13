@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { X } from "lucide-react";
+import { X, ExternalLink, Pencil } from "lucide-react";
+import Link from "next/link";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
 import type { Dictionary } from "@/types/i18n";
@@ -51,6 +52,8 @@ export interface PortalCalendarEventDetailModalProps {
   extendedProps: PortalCalendarFcExtendedProps;
   locale: string;
   dict: PortalCalendarEventDetailModalDict;
+  /** Admin: link to edit special or institute event date/details. */
+  adminEditHref?: string | null;
 }
 
 export function PortalCalendarEventDetailModal({
@@ -64,6 +67,7 @@ export function PortalCalendarEventDetailModal({
   extendedProps,
   locale,
   dict,
+  adminEditHref,
 }: PortalCalendarEventDetailModalProps) {
   const kindLabel = useMemo(
     () =>
@@ -122,6 +126,28 @@ export function PortalCalendarEventDetailModal({
           </div>
         ) : null}
       </dl>
+      {adminEditHref ? (
+        <div className="pt-1">
+          <Link
+            href={adminEditHref}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)] underline underline-offset-2"
+          >
+            <Pencil className="h-4 w-4 shrink-0" aria-hidden />
+            {dict.detailEditEvent}
+          </Link>
+        </div>
+      ) : null}
+      {extendedProps.publicHref ? (
+        <div className="pt-1">
+          <Link
+            href={extendedProps.publicHref}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)] underline underline-offset-2"
+          >
+            <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
+            {dict.detailViewPublic}
+          </Link>
+        </div>
+      ) : null}
       <div className="pt-2">
         <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
           <X className="h-4 w-4 shrink-0" aria-hidden />

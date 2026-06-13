@@ -184,6 +184,8 @@ export function AdminStudentBillingClient({
             monthStates={monthStates}
             collectionCells={collectionCells}
             labels={labels}
+            sectionMonthlyFeeAmount={selectedBenefit.sectionMonthlyFeeAmount}
+            sectionMonthlyFeeCurrency={selectedBenefit.sectionMonthlyFeeCurrency}
             showEnrollmentMonthZero={selectedBenefit.sectionEnrollmentFeeAmount > 0}
             enrollmentMonthZeroVisual={enrollmentMonthZeroVisual}
             enrollmentFeeModal={

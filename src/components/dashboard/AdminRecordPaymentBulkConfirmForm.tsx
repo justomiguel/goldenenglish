@@ -1,40 +1,42 @@
 "use client";
 
-import { Percent } from "lucide-react";
 import { Label } from "@/components/atoms/Label";
+import { ScholarshipDiscountFields } from "@/components/molecules/ScholarshipDiscountFields";
 import type { RecordPaymentBulkAction } from "@/components/dashboard/AdminRecordPaymentActionBar";
-import type { Dictionary } from "@/types/i18n";
+import type { Dictionary, Locale } from "@/types/i18n";
 
 type BillingLabels = Dictionary["admin"]["billing"];
 
 export interface AdminRecordPaymentBulkConfirmFormProps {
   pendingAction: RecordPaymentBulkAction | null;
   paidNoteId: string;
-  scholarshipPctId: string;
   scholarshipNoteId: string;
   exemptNoteId: string;
   modalAdminNote: string;
-  modalScholarshipPercent: string;
   scholarshipConfirmReady: boolean;
   busy: boolean;
+  locale: Locale;
   labels: BillingLabels;
+  referenceMonthlyAmount: number | null;
+  referenceMonthlyCurrency: string | null;
   onAdminNoteChange: (v: string) => void;
-  onScholarshipPercentChange: (v: string) => void;
+  onResolvedScholarshipPercentChange: (v: number | null) => void;
 }
 
 export function AdminRecordPaymentBulkConfirmForm({
   pendingAction,
   paidNoteId,
-  scholarshipPctId,
   scholarshipNoteId,
   exemptNoteId,
   modalAdminNote,
-  modalScholarshipPercent,
   scholarshipConfirmReady,
   busy,
+  locale,
   labels,
+  referenceMonthlyAmount,
+  referenceMonthlyCurrency,
   onAdminNoteChange,
-  onScholarshipPercentChange,
+  onResolvedScholarshipPercentChange,
 }: AdminRecordPaymentBulkConfirmFormProps) {
   if (pendingAction === "revert") {
     return (
@@ -77,33 +79,21 @@ export function AdminRecordPaymentBulkConfirmForm({
   if (pendingAction === "scholarship") {
     return (
       <>
-        <div>
-          <Label htmlFor={scholarshipPctId} className="text-xs">
-            <Percent className="mr-1 inline h-3 w-3 align-text-top" aria-hidden />
-            {labels.recordPaymentScholarshipPercentLabel}
-          </Label>
-          <input
-            id={scholarshipPctId}
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={100}
-            value={modalScholarshipPercent}
-            onChange={(e) => onScholarshipPercentChange(e.target.value)}
-            className="mt-1 min-h-[40px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-sm"
-            placeholder={labels.recordPaymentScholarshipPercentPlaceholder}
-            disabled={busy}
-            autoComplete="off"
-            aria-invalid={
-              modalScholarshipPercent !== "" && !scholarshipConfirmReady ? true : undefined
-            }
-          />
-          {modalScholarshipPercent !== "" && !scholarshipConfirmReady ? (
-            <p className="mt-1 text-xs text-[var(--color-error)]" role="alert">
-              {labels.recordPaymentScholarshipPercentInvalid}
-            </p>
-          ) : null}
-        </div>
+        <ScholarshipDiscountFields
+          idPrefix="record-payment-scholarship"
+          locale={locale}
+          currency={referenceMonthlyCurrency}
+          referenceMonthlyAmount={referenceMonthlyAmount}
+          labels={labels}
+          disabled={busy}
+          minPercent={1}
+          onResolvedPercentChange={onResolvedScholarshipPercentChange}
+        />
+        {!scholarshipConfirmReady ? (
+          <p className="text-xs text-[var(--color-error)]" role="alert">
+            {labels.recordPaymentScholarshipPercentInvalid}
+          </p>
+        ) : null}
         <div>
           <Label htmlFor={scholarshipNoteId} className="text-xs">
             {labels.recordPaymentNote}

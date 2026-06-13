@@ -17,6 +17,14 @@ vi.mock("@/lib/theme/loadEffectiveProperties", () => ({
   ),
 }));
 
+vi.mock("next/headers", () => ({
+  headers: vi.fn(() =>
+    Promise.resolve({
+      get: (name: string) => (name === "x-ge-locale" ? "en" : null),
+    }),
+  ),
+}));
+
 import manifest from "@/app/manifest";
 
 describe("app/manifest", () => {
@@ -27,6 +35,9 @@ describe("app/manifest", () => {
     expect(m.description).toBe(mockBrandPublic.tagline);
     expect(m.theme_color).toBe("#103A5C");
     expect(m.background_color).toBe("#FAFAFA");
+    expect(m.lang).toBe("en");
+    expect(m.icons?.some((i) => i.purpose === "maskable")).toBe(true);
+    expect(m.shortcuts?.length).toBeGreaterThan(0);
     expect(m.icons?.some((i) => i.src.includes("android-chrome"))).toBe(true);
   });
 });

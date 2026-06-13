@@ -13,7 +13,7 @@ describe("POST /api/payments/flow/return-bridge", () => {
     vi.mocked(getPublicSiteUrl).mockReturnValue(new URL("https://example.com"));
   });
 
-  it("303-redirects to localized GET flow-return with token (Flow POST body)", async () => {
+  it("303-redirects to return-reconcile with token (Flow POST body)", async () => {
     const req = new Request(
       "https://example.com/api/payments/flow/return-bridge?locale=es&dashboard=student",
       {
@@ -25,7 +25,7 @@ describe("POST /api/payments/flow/return-bridge", () => {
     const res = await POST(req);
     expect(res.status).toBe(303);
     expect(res.headers.get("location")).toBe(
-      "https://example.com/es/dashboard/student/payments/flow-return?token=abc123",
+      "https://example.com/api/payments/flow/return-reconcile?locale=es&dashboard=student&token=abc123",
     );
     const cc = res.headers.get("cache-control") ?? "";
     expect(cc).toMatch(/private/);
@@ -42,7 +42,8 @@ describe("POST /api/payments/flow/return-bridge", () => {
       },
     );
     const res = await POST(req);
-    expect(res.headers.get("location")).toContain("/dashboard/parent/payments/flow-return");
+    expect(res.headers.get("location")).toContain("/api/payments/flow/return-reconcile");
+    expect(res.headers.get("location")).toContain("dashboard=parent");
   });
 
   it("returns 502 when public origin is missing", async () => {

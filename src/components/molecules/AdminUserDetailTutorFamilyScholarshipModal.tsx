@@ -7,6 +7,7 @@ import { applyAdminTutorFamilyScholarshipAction } from "@/app/[locale]/dashboard
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { ScholarshipDiscountFields } from "@/components/molecules/ScholarshipDiscountFields";
 import { Modal } from "@/components/atoms/Modal";
 import type { AdminUserTutorFamilySectionOptionVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { Dictionary, Locale } from "@/types/i18n";
@@ -38,7 +39,7 @@ export function AdminUserDetailTutorFamilyScholarshipModal({
   const titleId = useId();
   const descId = useId();
   const [sectionId, setSectionId] = useState("");
-  const [pct, setPct] = useState("10");
+  const [resolvedPercent, setResolvedPercent] = useState<number | null>(10);
   const [note, setNote] = useState("");
   const [vfY, setVfY] = useState(String(new Date().getFullYear()));
   const [vfM, setVfM] = useState("1");
@@ -50,6 +51,8 @@ export function AdminUserDetailTutorFamilyScholarshipModal({
 
   const sectionSelectId = useId();
 
+  const selectedSection = sections.find((s) => s.sectionId === sectionId) ?? sections[0] ?? null;
+
   useEffect(() => {
     if (!open || sections.length === 0) return;
     setSectionId((prev) => (sections.some((s) => s.sectionId === prev) ? prev : sections[0]!.sectionId));
@@ -57,8 +60,8 @@ export function AdminUserDetailTutorFamilyScholarshipModal({
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const discountPercent = Number.parseFloat(pct.replace(",", "."));
-    if (!Number.isFinite(discountPercent) || discountPercent < 0 || discountPercent > 100) {
+    const discountPercent = resolvedPercent;
+    if (discountPercent == null || discountPercent < 0 || discountPercent > 100) {
       onCompleteMessage(userLabels.detailErrInvalid, false);
       return;
     }
@@ -135,21 +138,18 @@ export function AdminUserDetailTutorFamilyScholarshipModal({
               ))}
             </select>
           </div>
-          <div>
-            <Label htmlFor="fam-sch-pct">{billingLabels.scholarshipPercent}</Label>
-            <Input
-              id="fam-sch-pct"
-              type="number"
-              min={0}
-              max={100}
-              step={0.5}
-              value={pct}
-              onChange={(ev) => setPct(ev.target.value)}
-              required
-              disabled={busy}
-              className="mt-1"
-            />
-          </div>
+          <ScholarshipDiscountFields
+            key={sectionId}
+            idPrefix="fam-sch"
+            locale={locale}
+            currency={selectedSection?.monthlyFeeCurrency}
+            referenceMonthlyAmount={selectedSection?.monthlyFeeAmount ?? null}
+            labels={billingLabels}
+            disabled={busy}
+            minPercent={0.5}
+            defaultPercent="10"
+            onResolvedPercentChange={setResolvedPercent}
+          />
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"

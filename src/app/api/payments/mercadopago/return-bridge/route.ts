@@ -20,7 +20,9 @@ export async function GET(req: Request): Promise<Response> {
       return new Response("misconfigured", { status: 502 });
     }
 
-    const dest = new URL(`/${localeRaw}/dashboard/${dashboard}/payments/mp-return`, base);
+    const dest = new URL("/api/payments/mercadopago/return-reconcile", base);
+    dest.searchParams.set("locale", localeRaw);
+    dest.searchParams.set("dashboard", dashboard);
     if (status) dest.searchParams.set("status", status);
     if (externalReference) dest.searchParams.set("external_reference", externalReference);
     if (paymentId) dest.searchParams.set("payment_id", paymentId);

@@ -32,6 +32,11 @@ const localeBlogPreviewPathPattern = new RegExp(
 export async function proxy(request: NextRequest, event: NextFetchEvent) {
   const { pathname } = request.nextUrl;
 
+  /** Offline fallback page — must stay locale-free for Serwist navigation fallback. */
+  if (pathname === "/offline" || pathname === "/offline/") {
+    return NextResponse.next();
+  }
+
   /** App Router APIs live at `/api/*`, not under `[locale]` — skip locale prefix redirect. */
   if (pathname === "/api" || pathname.startsWith("/api/")) {
     const { response } = await updateSession(request);

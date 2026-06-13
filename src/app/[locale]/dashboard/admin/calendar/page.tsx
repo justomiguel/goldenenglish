@@ -38,6 +38,7 @@ export default async function AdminCalendarPage({ params, searchParams }: PagePr
   const roomRaw = typeof sp.room === "string" ? sp.room : "";
 
   const payload = await buildPortalCalendarPagePayload(supabase, user.id, "admin", {
+    locale,
     adminTeacherId: teacherRaw.trim() || null,
     adminRoom: roomRaw.trim() || null,
     birthdayCopy: dict.dashboard.birthdays,

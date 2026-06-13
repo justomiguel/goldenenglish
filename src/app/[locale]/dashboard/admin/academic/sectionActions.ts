@@ -97,6 +97,8 @@ export async function createAcademicSectionAction(input: {
         ends_on: input.endsOn.trim(),
         schedule_slots: scheduleSlots,
         max_students: maxStudents,
+        allow_advance_monthly_payment: true,
+        monthly_fee_charge_mode: "full_month_fee",
       })
       .select("id")
       .single();

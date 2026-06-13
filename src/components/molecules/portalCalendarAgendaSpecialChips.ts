@@ -21,6 +21,9 @@ export function specialTypeSwatchClass(t: PortalSpecialEventTypeSlug): string {
 
 export function chipClassForPortalCalendarEvent(ev: PortalCalendarEvent): string {
   if (ev.kind === "exam") return "border-[var(--color-error)] bg-[var(--color-error)]/10 text-[var(--color-error)]";
+  if (ev.kind === "institute_event") {
+    return "border-[var(--color-primary-dark)] bg-[color-mix(in_srgb,var(--color-primary-dark)_14%,var(--color-surface))] text-[var(--color-foreground)]";
+  }
   if (ev.kind === "class") return "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]";
   if (ev.kind === "special" && ev.specialEventType) {
     return (

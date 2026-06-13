@@ -45,6 +45,8 @@ export function AdminStudentBillingTabsPanel({
   lastEnrollmentPaidAt,
 }: AdminStudentBillingTabsPanelProps) {
   const [active, setActive] = useState<BillingTabId>("history");
+  const [scholarshipBusy, setScholarshipBusy] = useState(false);
+  const [scholarshipMsg, setScholarshipMsg] = useState<string | null>(null);
   const idPrefix = useId().replace(/:/g, "");
 
   const items: readonly UnderlineTabItem[] = [
@@ -55,6 +57,8 @@ export function AdminStudentBillingTabsPanel({
 
   const sectionId = selectedBenefit?.sectionId ?? null;
   const sectionName = selectedBenefit?.sectionName ?? null;
+  const referenceMonthlyAmount = selectedBenefit?.sectionMonthlyFeeAmount ?? null;
+  const referenceMonthlyCurrency = selectedBenefit?.sectionMonthlyFeeCurrency ?? null;
 
   return (
     <section className="space-y-3">
@@ -99,19 +103,29 @@ export function AdminStudentBillingTabsPanel({
         className="pt-2"
       >
         {active === "scholarships" ? (
-          <AdminStudentBillingScholarshipPanel
-            key={`scholarship-${sectionId ?? "global"}`}
-            locale={locale}
-            studentId={studentId}
-            sectionId={sectionId}
-            sectionName={sectionName}
-            scholarships={selectedScholarships}
-            labels={labels}
-            busy={false}
-            setBusy={() => {}}
-            setMsg={() => {}}
-            readOnly
-          />
+          <>
+            {scholarshipMsg ? (
+              <p className="text-sm text-[var(--color-muted-foreground)]" role="status">
+                {scholarshipMsg}
+              </p>
+            ) : null}
+            <AdminStudentBillingScholarshipPanel
+              key={`scholarship-${sectionId ?? "global"}`}
+              locale={locale}
+              studentId={studentId}
+              sectionId={sectionId}
+              sectionName={sectionName}
+              referenceMonthlyAmount={referenceMonthlyAmount}
+              referenceMonthlyCurrency={referenceMonthlyCurrency}
+              scholarships={selectedScholarships}
+              labels={labels}
+              busy={scholarshipBusy}
+              setBusy={setScholarshipBusy}
+              setMsg={setScholarshipMsg}
+              readOnly
+              allowRemove
+            />
+          </>
         ) : null}
       </div>
 

@@ -4,6 +4,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { EmailProvider } from "@/lib/email/emailProvider";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import type { Locale } from "@/types/i18n";
+import { pushAfterNotify } from "@/lib/push/pushAfterNotify";
 
 async function authEmailForUserId(userId: string): Promise<string | null> {
   const admin = createAdminClient();
@@ -91,24 +92,34 @@ export async function notifyPortalInboxForStudentOrParent(params: {
   emailProvider: EmailProvider;
   recipientRole: "student" | "parent";
 }): Promise<void> {
-  const to = await authEmailForUserId(params.recipientId);
-  if (!to) return;
   const dashboard =
     params.recipientRole === "parent" ? "dashboard/parent/messages" : "dashboard/student/messages";
   const href = `${originOrLocal()}/${params.locale}/${dashboard}`;
   const dict = await getDictionary(params.locale);
-  await sendBrandedEmail({
-    to,
-    templateKey: "messaging.staff_portal_new",
-    locale: asLocale(params.locale),
-    emailProvider: params.emailProvider,
-    vars: {
-      senderName: escapeHtml(params.senderName),
-      messagePreview: escapeHtml(previewBlock(params.messagePreview)),
-      href,
-      openLinkLabel: dict.emailMessaging.portalOpenMessages,
+  const to = await authEmailForUserId(params.recipientId);
+  if (to) {
+    await sendBrandedEmail({
+      to,
+      templateKey: "messaging.staff_portal_new",
+      locale: asLocale(params.locale),
+      emailProvider: params.emailProvider,
+      vars: {
+        senderName: escapeHtml(params.senderName),
+        messagePreview: escapeHtml(previewBlock(params.messagePreview)),
+        href,
+        openLinkLabel: dict.emailMessaging.portalOpenMessages,
+      },
+    });
+  }
+  await pushAfterNotify(
+    params.recipientId,
+    {
+      title: dict.pwa.push.newMessageTitle,
+      body: previewBlock(params.messagePreview),
+      url: href,
     },
-  });
+    "notifyPortalInboxForStudentOrParent",
+  );
 }
 
 export async function notifyStudentTeacherReplied(params: {
@@ -118,22 +129,32 @@ export async function notifyStudentTeacherReplied(params: {
   locale: string;
   emailProvider: EmailProvider;
 }): Promise<void> {
-  const to = await authEmailForUserId(params.studentId);
-  if (!to) return;
   const href = `${originOrLocal()}/${params.locale}/dashboard/student/messages`;
   const dict = await getDictionary(params.locale);
-  await sendBrandedEmail({
-    to,
-    templateKey: "messaging.reply",
-    locale: asLocale(params.locale),
-    emailProvider: params.emailProvider,
-    vars: {
-      teacherName: escapeHtml(params.teacherName),
-      replyPreview: escapeHtml(previewBlock(params.replyPreview)),
-      href,
-      openLinkLabel: dict.emailMessaging.portalOpenMessages,
+  const to = await authEmailForUserId(params.studentId);
+  if (to) {
+    await sendBrandedEmail({
+      to,
+      templateKey: "messaging.reply",
+      locale: asLocale(params.locale),
+      emailProvider: params.emailProvider,
+      vars: {
+        teacherName: escapeHtml(params.teacherName),
+        replyPreview: escapeHtml(previewBlock(params.replyPreview)),
+        href,
+        openLinkLabel: dict.emailMessaging.portalOpenMessages,
+      },
+    });
+  }
+  await pushAfterNotify(
+    params.studentId,
+    {
+      title: dict.pwa.push.teacherReplyTitle,
+      body: previewBlock(params.replyPreview),
+      url: href,
     },
-  });
+    "notifyStudentTeacherReplied",
+  );
 }
 
 export async function notifyParentTeacherReplied(params: {
@@ -143,20 +164,30 @@ export async function notifyParentTeacherReplied(params: {
   locale: string;
   emailProvider: EmailProvider;
 }): Promise<void> {
-  const to = await authEmailForUserId(params.parentId);
-  if (!to) return;
   const href = `${originOrLocal()}/${params.locale}/dashboard/parent/messages`;
   const dict = await getDictionary(params.locale);
-  await sendBrandedEmail({
-    to,
-    templateKey: "messaging.reply",
-    locale: asLocale(params.locale),
-    emailProvider: params.emailProvider,
-    vars: {
-      teacherName: escapeHtml(params.teacherName),
-      replyPreview: escapeHtml(previewBlock(params.replyPreview)),
-      href,
-      openLinkLabel: dict.emailMessaging.portalOpenMessages,
+  const to = await authEmailForUserId(params.parentId);
+  if (to) {
+    await sendBrandedEmail({
+      to,
+      templateKey: "messaging.reply",
+      locale: asLocale(params.locale),
+      emailProvider: params.emailProvider,
+      vars: {
+        teacherName: escapeHtml(params.teacherName),
+        replyPreview: escapeHtml(previewBlock(params.replyPreview)),
+        href,
+        openLinkLabel: dict.emailMessaging.portalOpenMessages,
+      },
+    });
+  }
+  await pushAfterNotify(
+    params.parentId,
+    {
+      title: dict.pwa.push.teacherReplyTitle,
+      body: previewBlock(params.replyPreview),
+      url: href,
     },
-  });
+    "notifyParentTeacherReplied",
+  );
 }

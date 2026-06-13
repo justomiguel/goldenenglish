@@ -9,6 +9,7 @@ import type {
 import type { Dictionary } from "@/types/i18n";
 import { effectiveScholarshipPercentForPeriod } from "@/lib/billing/scholarshipPeriod";
 import { isSectionCollectionsEnrollmentFeeMatrixCellSelectable } from "@/lib/billing/sectionCollectionsEnrollmentFeeMatrixCell";
+import { SECTION_COLLECTIONS_ENROLLMENT_FEE_CELL_MONTH } from "@/lib/billing/sectionCollectionsEnrollmentFeeCellMonth";
 import { SectionCollectionsEnrollmentFeeCell } from "./SectionCollectionsEnrollmentFeeCell";
 import { SectionCollectionsMonthCell } from "./SectionCollectionsMonthCell";
 import { SectionCollectionsStudentBenefits } from "./SectionCollectionsStudentBenefits";
@@ -37,6 +38,7 @@ export interface SectionCollectionsMatrixStudentRowProps {
   showEnrollmentFeeColumn: boolean;
   cellSelectable?: boolean;
   isCellSelected?: (month: number) => boolean;
+  isCellSelectable?: (month: number) => boolean;
   onToggleCell?: (studentId: string, month: number) => void;
   /** System-wide billing currency from Finance > Settings. */
   currency?: string;
@@ -53,6 +55,7 @@ export function SectionCollectionsMatrixStudentRow({
   showEnrollmentFeeColumn,
   cellSelectable = false,
   isCellSelected,
+  isCellSelectable,
   onToggleCell,
   currency,
 }: SectionCollectionsMatrixStudentRowProps) {
@@ -63,7 +66,8 @@ export function SectionCollectionsMatrixStudentRow({
   const enrollmentMatrixSelectable =
     cellSelectable &&
     showEnrollmentFeeColumn &&
-    isSectionCollectionsEnrollmentFeeMatrixCellSelectable(student, view, showEnrollmentFeeColumn);
+    isSectionCollectionsEnrollmentFeeMatrixCellSelectable(student, view, showEnrollmentFeeColumn) &&
+    (isCellSelectable?.(SECTION_COLLECTIONS_ENROLLMENT_FEE_CELL_MONTH) ?? true);
 
   const handleToggleCell = (month: number) => {
     onToggleCell?.(student.studentId, month);
@@ -146,7 +150,10 @@ export function SectionCollectionsMatrixStudentRow({
               ariaPrefix={student.studentName}
               locale={locale}
               labels={dict.monthCell}
-              selectable={cellSelectable}
+              selectable={
+                cellSelectable &&
+                (isCellSelectable?.(cell.month) ?? true)
+              }
               selected={isCellSelected?.(cell.month) ?? false}
               onToggle={handleToggleCell}
               currency={currency}

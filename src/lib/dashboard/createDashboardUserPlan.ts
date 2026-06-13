@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { zodOptionalEmptyField } from "@/lib/validation/zodOptionalEmptyField";
 import type { Dictionary } from "@/types/i18n";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
@@ -35,27 +36,15 @@ export const createDashboardUserSchema = z.object({
       const t = s.trim();
       return t === "" ? null : t;
     }),
-  birth_date: z.preprocess(
-    (v) => (v === "" || v === undefined ? undefined : v),
-    z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  ),
-  student_guardian_mode: z.preprocess(
-    (v) => (v === "" || v === undefined ? undefined : v),
-    guardianModeZ.optional(),
-  ),
-  existing_guardian_id: z.preprocess(
-    (v) => (v === "" || v === undefined ? undefined : v),
-    z.string().uuid().optional(),
-  ),
+  birth_date: zodOptionalEmptyField(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  student_guardian_mode: zodOptionalEmptyField(guardianModeZ),
+  existing_guardian_id: zodOptionalEmptyField(z.string().uuid()),
   tutor_dni: z.string().max(64).optional(),
   tutor_first_name: z.string().max(120).optional(),
   tutor_last_name: z.string().max(120).optional(),
   tutor_email: z.string().max(320).optional(),
   tutor_phone: z.string().max(40).optional(),
-  tutor_relationship: z.preprocess(
-    (v) => (v === "" || v === undefined ? undefined : v),
-    tutorRelationshipZ.optional(),
-  ),
+  tutor_relationship: zodOptionalEmptyField(tutorRelationshipZ),
   provisioning_route: z.enum(["admin_ui", "registration_accept"]).optional(),
   locale: z.string().min(2).max(8).optional(),
 });

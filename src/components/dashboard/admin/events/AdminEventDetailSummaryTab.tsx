@@ -1,4 +1,5 @@
 import { AdminEventPublishBar } from "@/components/dashboard/admin/events/AdminEventPublishBar";
+import { AdminEventSummaryScheduleForm } from "@/components/dashboard/admin/events/AdminEventSummaryScheduleForm";
 import { AdminEventSummaryPricingForm } from "@/components/dashboard/admin/events/AdminEventSummaryPricingForm";
 import { AdminEventTranslationsEditor } from "@/components/dashboard/admin/events/AdminEventTranslationsEditor";
 import type { EventLocale } from "@/lib/events/domain";
@@ -24,6 +25,8 @@ export function AdminEventDetailSummaryTab({
   const detail = dict.admin.events.detail;
   const i18n = dict.admin.events.i18n;
   const pricing = dict.admin.events.pricing;
+  const schedule = dict.admin.events.schedule;
+  const formLabels = dict.admin.events.new;
 
   return (
     <div className="space-y-4">
@@ -44,9 +47,34 @@ export function AdminEventDetailSummaryTab({
         }}
       />
       <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-        <p className="text-sm text-[var(--color-muted-foreground)]">
-          {dict.admin.events.kpis.upcoming}: {new Date(String(event.event_date)).toLocaleDateString()} · {dict.admin.events.list.columns.capacity}: {Number(event.capacity)}
-        </p>
+        <h3 className="mb-3 text-sm font-semibold text-[var(--color-foreground)]">{schedule.sectionTitle}</h3>
+        <AdminEventSummaryScheduleForm
+          locale={locale}
+          eventId={eventId}
+          initial={{
+            title: String(event.title),
+            description: String(event.description ?? ""),
+            eventDate: String(event.event_date),
+            location: String(event.location ?? ""),
+            capacity: Number(event.capacity),
+            priceLocal: event.price_local == null ? null : Number(event.price_local),
+            priceNonLocal: event.price_non_local == null ? null : Number(event.price_non_local),
+            currency: String(event.currency ?? "CLP"),
+            bankTransferInstructions:
+              event.bank_transfer_instructions == null
+                ? null
+                : String(event.bank_transfer_instructions),
+          }}
+          labels={{
+            eventDateLabel: formLabels.eventDateLabel,
+            locationLabel: formLabels.locationLabel,
+            capacityLabel: formLabels.capacityLabel,
+            save: schedule.save,
+            savedOk: schedule.savedOk,
+            errorSave: schedule.errorSave,
+            validationError: formLabels.validationError,
+          }}
+        />
       </section>
       <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
         <h3 className="mb-3 text-sm font-semibold text-[var(--color-foreground)]">{pricing.sectionTitle}</h3>

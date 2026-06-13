@@ -18,6 +18,7 @@ import { FinanceHubCohortSelector } from "@/components/dashboard/admin/finance/F
 import { FinanceHubKpiStrip } from "@/components/dashboard/admin/finance/FinanceHubKpiStrip";
 import { loadAdminCohortCollectionsBulk } from "@/lib/billing/loadAdminCohortCollectionsBulk";
 import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
+import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTransferInstructionsSetting";
 import { loadEventPaymentsForFinanceKpis } from "@/lib/billing/financeSources/loadEventPaymentsForFinanceKpis";
 import { FinanceEventsPaymentsPanel } from "@/components/dashboard/admin/finance/FinanceEventsPaymentsPanel";
 import {
@@ -57,13 +58,15 @@ export default async function AdminFinanceHubPage({
   const financeDict = dict.admin.finance;
   const needsCohortBillingMatrix = tab === "collections" || tab === "insights";
 
-  const [pendingCounts, { data: cohortRows }, billingCurrency, eventKpis] = await Promise.all([
+  const [pendingCounts, { data: cohortRows }, billingCurrency, bankTransferInstructions, eventKpis] =
+    await Promise.all([
     loadFinanceHubPendingCounts(supabase),
     supabase
       .from("academic_cohorts")
       .select("id, name, is_current, archived_at, created_at")
       .order("created_at", { ascending: false }),
     loadBillingCurrencySetting(supabase),
+    loadBankTransferInstructionsSetting(supabase),
     loadEventPaymentsForFinanceKpis(supabase),
   ]);
 
@@ -193,6 +196,7 @@ export default async function AdminFinanceHubPage({
         {tab === "settings" ? (
           <FinanceSettingsPanel
             currentCurrency={billingCurrency.currency}
+            currentBankTransferInstructions={bankTransferInstructions.instructions}
             locale={locale}
             dict={financeDict.settings}
             flowGatewayInitial={flowGatewayInitial}

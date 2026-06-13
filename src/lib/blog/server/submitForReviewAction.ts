@@ -1,6 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import {
+  resolveBlogArticleAdminShareLinks,
+  type BlogArticleAdminShareLink,
+} from "@/lib/blog/server/resolveBlogArticleAdminShareLinks";
+import type { BlogLocale } from "@/lib/blog/domain";
 
 export async function submitForReviewAction(
   supabase: SupabaseClient,
@@ -40,7 +45,7 @@ export async function publishArticleAction(
     actorRole: "admin" | "assistant" | "teacher";
     actorId?: string;
   },
-): Promise<{ ok: boolean; code?: string }> {
+): Promise<{ ok: boolean; code?: string; shareLinks?: BlogArticleAdminShareLink[] }> {
   if (input.actorRole === "teacher") return { ok: false, code: "forbidden" };
 
   const nowIso = new Date().toISOString();
@@ -52,6 +57,21 @@ export async function publishArticleAction(
     logSupabaseClientError("blog.publish", error, { articleId: input.articleId });
     return { ok: false, code: "publish_failed" };
   }
+
+  const { data: translationRows } = await supabase
+    .from("blog_article_translations")
+    .select("locale, slug")
+    .eq("article_id", input.articleId);
+
+  const slugsByLocale = Object.fromEntries(
+    (translationRows ?? []).map((row) => [row.locale as BlogLocale, row.slug]),
+  ) as Partial<Record<BlogLocale, string>>;
+
+  const shareLinks = resolveBlogArticleAdminShareLinks({
+    articleId: input.articleId,
+    status: "published",
+    slugsByLocale,
+  });
 
   if (input.actorRole === "admin") {
     await recordSystemAudit({
@@ -70,7 +90,7 @@ export async function publishArticleAction(
     });
   }
 
-  return { ok: true };
+  return { ok: true, shareLinks };
 }
 
 export async function archiveArticleAction(
@@ -106,6 +126,42 @@ export async function archiveArticleAction(
       event_type: "action",
       entity: "section:blog",
       metadata: { kind: "article_archive", articleId: input.articleId },
+    });
+  }
+
+  return { ok: true };
+}
+
+export async function deleteArticleAction(
+  supabase: SupabaseClient,
+  input: {
+    articleId: string;
+    actorRole: "admin" | "assistant" | "teacher";
+    actorId?: string;
+  },
+): Promise<{ ok: boolean; code?: string }> {
+  if (input.actorRole === "teacher") return { ok: false, code: "forbidden" };
+
+  const { error } = await supabase.from("blog_articles").delete().eq("id", input.articleId);
+  if (error) {
+    logSupabaseClientError("blog.delete", error, { articleId: input.articleId });
+    return { ok: false, code: "delete_failed" };
+  }
+
+  if (input.actorRole === "admin") {
+    await recordSystemAudit({
+      action: "blog.delete",
+      resourceType: "blog_article",
+      resourceId: input.articleId,
+      payload: {},
+    });
+  }
+  if (input.actorId) {
+    await supabase.from("user_events").insert({
+      user_id: input.actorId,
+      event_type: "action",
+      entity: "section:blog",
+      metadata: { kind: "article_delete", articleId: input.articleId },
     });
   }
 

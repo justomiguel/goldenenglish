@@ -24,7 +24,9 @@ export async function POST(req: Request): Promise<Response> {
       return new Response("misconfigured", { status: 502 });
     }
 
-    const dest = new URL(`/${localeRaw}/dashboard/${dashboard}/payments/flow-return`, base);
+    const dest = new URL("/api/payments/flow/return-reconcile", base);
+    dest.searchParams.set("locale", localeRaw);
+    dest.searchParams.set("dashboard", dashboard);
     if (token) {
       dest.searchParams.set("token", token);
     }

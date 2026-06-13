@@ -95,6 +95,7 @@ export default async function StudentDashboardPage({ params }: PageProps) {
       learningFeedback={learningFeedback}
       birthdays={birthdayRows}
       birthdaysDict={dict.dashboard.birthdays}
+      pwaInstall={dict.pwa.install}
     />
   );
 }

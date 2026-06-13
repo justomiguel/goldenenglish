@@ -10,6 +10,8 @@ import { BlogArticleEditor } from "@/components/dashboard/admin/cms/blog/BlogArt
 import { loadGoogleTranslateCredentials } from "@/lib/blog/integrations/google/loadGoogleTranslateCredentials";
 import { blogAttachmentsToDraftMaterials } from "@/lib/blog/mapDraftMaterials";
 import { parseBlogAttachmentsFromDb } from "@/lib/blog/attachments";
+import { canDeleteArticle } from "@/lib/blog/permissions";
+import { resolveBlogArticleAdminShareLinks } from "@/lib/blog/server/resolveBlogArticleAdminShareLinks";
 import { BLOG_LOCALES, type BlogLocale } from "@/lib/blog/domain";
 
 export const metadata: Metadata = {
@@ -23,8 +25,9 @@ interface PageProps {
 export default async function AdminBlogEditPage({ params }: PageProps) {
   const { locale, id } = await params;
   let supabase: Awaited<ReturnType<typeof assertBlogAuthor>>["supabase"];
+  let role: Awaited<ReturnType<typeof assertBlogAuthor>>["role"];
   try {
-    ({ supabase } = await assertBlogAuthor());
+    ({ supabase, role } = await assertBlogAuthor());
   } catch (error) {
     const message = (error as Error)?.message;
     if (message === ADMIN_SESSION_UNAUTHORIZED) redirect(`/${locale}/login`);
@@ -41,7 +44,7 @@ export default async function AdminBlogEditPage({ params }: PageProps) {
 
   const { data: translationRows } = await supabase
     .from("blog_article_translations")
-    .select("locale, title, excerpt, body_html, attachments")
+    .select("locale, title, excerpt, body_html, attachments, slug")
     .eq("article_id", id);
 
   const translationsByLocale: Partial<
@@ -70,13 +73,25 @@ export default async function AdminBlogEditPage({ params }: PageProps) {
   const credentials = await loadGoogleTranslateCredentials(supabase);
   const defaultLocale = (article.default_locale as BlogLocale) ?? "es";
 
+  const slugsByLocale = Object.fromEntries(
+    (translationRows ?? []).map((row) => [row.locale as BlogLocale, row.slug]),
+  ) as Partial<Record<BlogLocale, string>>;
+
+  const initialShareLinks = resolveBlogArticleAdminShareLinks({
+    articleId: id,
+    status: article.status,
+    slugsByLocale,
+  });
+
   return (
     <BlogArticleEditor
       locale={locale}
       articleId={id}
+      canDelete={canDeleteArticle(role)}
       labels={dict.admin.cms.blog.editor}
       academicLabels={dict.dashboard.adminContents}
       fileUploadProgress={dict.common.fileUpload}
+      initialShareLinks={initialShareLinks}
       initial={{
         defaultLocale,
         status: article.status,

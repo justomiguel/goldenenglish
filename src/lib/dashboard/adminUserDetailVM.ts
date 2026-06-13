@@ -24,6 +24,8 @@ export type AdminUserTutorFamilyStudentVM = {
 export type AdminUserTutorFamilySectionOptionVM = {
   sectionId: string;
   sectionLabel: string;
+  monthlyFeeAmount: number | null;
+  monthlyFeeCurrency: string | null;
 };
 
 /** Serializable view model for admin user detail (any role). */

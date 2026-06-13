@@ -38,6 +38,7 @@ export interface StudentMonthlyPaymentsPwaAccordionListProps {
   gridLegendLabels: GridLegend;
   pwaSectionLabels: PwaSectionLabels;
   hideNonBillableMonths: boolean;
+  hideSettledMonths?: boolean;
   expandedBySection: Record<string, boolean>;
   onExpandedBySectionChange: (sectionId: string, open: boolean) => void;
   focus: StudentMonthlyPaymentsStripFocus | null;
@@ -50,6 +51,7 @@ export interface StudentMonthlyPaymentsPwaAccordionListProps {
   startMercadoPagoMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
   enabledOnlineGateways: PaymentGatewayProvider[];
   tutorPaymentMethodTabs: boolean;
+  bankTransferInstructions?: string | null;
 }
 
 export function StudentMonthlyPaymentsPwaAccordionList({
@@ -62,6 +64,7 @@ export function StudentMonthlyPaymentsPwaAccordionList({
   gridLegendLabels,
   pwaSectionLabels,
   hideNonBillableMonths,
+  hideSettledMonths = false,
   expandedBySection,
   onExpandedBySectionChange,
   focus,
@@ -74,9 +77,10 @@ export function StudentMonthlyPaymentsPwaAccordionList({
   startMercadoPagoMonthlyPaymentAction,
   enabledOnlineGateways,
   tutorPaymentMethodTabs,
+  bankTransferInstructions = null,
 }: StudentMonthlyPaymentsPwaAccordionListProps) {
   const router = useRouter();
-  const filterOpts = { hideNonBillableMonths };
+  const filterOpts = { hideNonBillableMonths, hideSettledMonths };
 
   return (
     <section className="mt-6 space-y-3" aria-label={labels.stripAria}>
@@ -136,6 +140,7 @@ export function StudentMonthlyPaymentsPwaAccordionList({
             startMercadoPagoMonthlyPaymentAction={startMercadoPagoMonthlyPaymentAction}
             enabledOnlineGateways={enabledOnlineGateways}
             tutorPaymentMethodTabs={tutorPaymentMethodTabs}
+            bankTransferInstructions={bankTransferInstructions}
             onSubmitted={() => router.refresh()}
           />
         );

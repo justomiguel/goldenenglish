@@ -1,6 +1,19 @@
+import { spawnSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import type { NextConfig } from "next";
 import { loadEnvConfig } from "@next/env";
+import withSerwistInit from "@serwist/next";
 import { readSupabasePublicEnv } from "./src/lib/supabase/publicEnv";
+
+const swRevision =
+  spawnSync("git", ["rev-parse", "HEAD"], { encoding: "utf-8" }).stdout.trim() || randomUUID();
+
+const withSerwist = withSerwistInit({
+  swSrc: "src/sw.ts",
+  swDest: "public/sw.js",
+  additionalPrecacheEntries: [{ url: "/offline", revision: swRevision }],
+  disable: process.env.NODE_ENV === "development",
+});
 
 const projectDir = process.cwd();
 loadEnvConfig(projectDir);
@@ -72,7 +85,7 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           {
             key: "Permissions-Policy",
-            value: "camera=(self), microphone=(), geolocation=()",
+            value: "camera=(self), microphone=(), geolocation=(), notifications=(self)",
           },
         ],
       },
@@ -95,4 +108,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSerwist(nextConfig);

@@ -46,6 +46,7 @@ export interface StudentMonthlyPaymentsDesktopSectionProps {
   enabledOnlineGateways: PaymentGatewayProvider[];
   tutorPaymentMethodTabs: boolean;
   onSubmitted: () => void;
+  bankTransferInstructions?: string | null;
 }
 
 export function StudentMonthlyPaymentsDesktopSection({
@@ -72,6 +73,7 @@ export function StudentMonthlyPaymentsDesktopSection({
   enabledOnlineGateways,
   tutorPaymentMethodTabs,
   onSubmitted,
+  bankTransferInstructions = null,
 }: StudentMonthlyPaymentsDesktopSectionProps) {
   return (
     <div
@@ -163,6 +165,7 @@ export function StudentMonthlyPaymentsDesktopSection({
           enabledOnlineGateways={enabledOnlineGateways}
           paymentMethodTabLayout={tutorPaymentMethodTabs}
           embeddedInSectionCard
+          bankTransferInstructions={bankTransferInstructions}
           onSubmitted={onSubmitted}
         />
       ) : null}

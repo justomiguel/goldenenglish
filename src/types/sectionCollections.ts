@@ -72,6 +72,9 @@ export interface SectionCollectionsView {
   /** Student/parent monthly dues: class proration vs full month (mid-month enrollments). */
   monthlyFeeChargeMode: MonthlyFeeChargeMode;
   allowAdvanceMonthlyPayment: boolean;
+  /** List monthly plan fee for scholarship % derivation (current month). */
+  referenceMonthlyFeeAmount: number | null;
+  referenceMonthlyFeeCurrency: string | null;
   students: SectionCollectionsStudentRow[];
   kpis: SectionCollectionsKpis;
 }

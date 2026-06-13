@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { ReceiptAutoUploadField } from "@/components/molecules/ReceiptAutoUploadField";
+import { BankTransferInstructionsPanel } from "@/components/molecules/BankTransferInstructionsPanel";
 import { OnlineMonthlyPaymentCheckoutPanel } from "@/components/molecules/OnlineMonthlyPaymentCheckoutPanel";
 import type { Dictionary } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
@@ -24,6 +24,7 @@ export interface StudentMonthlyPaymentReceiptUploadFormProps {
   showOnlinePay: boolean;
   enabledOnlineGateways: PaymentGatewayProvider[];
   feedbackMessage: string | null;
+  bankTransferInstructions?: string | null;
   onSubmit: (formData: FormData) => void | Promise<void>;
   onOnlinePay: (provider: PaymentGatewayProvider) => void | Promise<void>;
 }
@@ -43,11 +44,10 @@ export function StudentMonthlyPaymentReceiptUploadForm({
   showOnlinePay,
   enabledOnlineGateways,
   feedbackMessage,
+  bankTransferInstructions,
   onSubmit,
   onOnlinePay,
 }: StudentMonthlyPaymentReceiptUploadFormProps) {
-  const [receiptFileName, setReceiptFileName] = useState<string | null>(null);
-
   function buildFormData(receipt: File): FormData {
     const fd = new FormData();
     fd.set("locale", locale);
@@ -61,8 +61,6 @@ export function StudentMonthlyPaymentReceiptUploadForm({
   }
 
   function uploadReceipt(file: File) {
-    if (expected == null) return;
-    setReceiptFileName(file.name);
     void onSubmit(buildFormData(file));
   }
 
@@ -78,13 +76,22 @@ export function StudentMonthlyPaymentReceiptUploadForm({
         <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
           {paymentLabels.payReceiptHint}
         </p>
+        {bankTransferInstructions?.trim() ? (
+          <div className="mt-3">
+            <BankTransferInstructionsPanel
+              title={paymentLabels.transferInstructionsTitle}
+              instructions={bankTransferInstructions}
+            />
+          </div>
+        ) : null}
         <div className="mt-3">
           <ReceiptAutoUploadField
+            uploadFlow="confirm"
+            chooseButtonLabel={paymentLabels.payReceiptChooseButton}
             buttonLabel={paymentLabels.paySubmit}
             inputAriaLabel={paymentLabels.payReceipt}
             disabled={busy || onlineBusy || expected == null}
             busy={busy}
-            selectedFileName={receiptFileName}
             noFileSelectedLabel={paymentLabels.payReceiptNoFileSelected}
             fileUploadProgress={fileUploadProgress}
             onFileSelected={uploadReceipt}

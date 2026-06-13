@@ -1,20 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { BlogArticleLocaleTabs } from "@/components/dashboard/admin/cms/blog/BlogArticleLocaleTabs";
 import { BlogArticleLocaleFields } from "@/components/dashboard/admin/cms/blog/BlogArticleLocaleFields";
 import { BlogArticleMetaForm } from "@/components/dashboard/admin/cms/blog/BlogArticleMetaForm";
 import { BlogArticleEditorActionsBar } from "@/components/dashboard/admin/cms/blog/BlogArticleEditorActionsBar";
-import {
-  saveBlogArticleAdminAction,
-  translateBlogArticleFieldsAdminAction,
-} from "@/app/[locale]/dashboard/admin/cms/blog/actions";
+import { BlogArticleAdminShareLinks } from "@/components/dashboard/admin/cms/blog/BlogArticleAdminShareLinks";
+import { BlogArticleEditorDeleteControls } from "@/components/dashboard/admin/cms/blog/BlogArticleEditorDeleteControls";
 import { useBlogArticleEditorLocales } from "@/hooks/useBlogArticleEditorLocales";
+import { useBlogArticleEditorActions } from "@/hooks/useBlogArticleEditorActions";
 import { otherBlogLocales } from "@/lib/blog/blogEditorTranslationDraft";
 import { draftMaterialsToBlogAttachments } from "@/lib/blog/mapDraftMaterials";
 import { pickBlogMaterialsPanelLabels } from "@/lib/blog/pickBlogMaterialsPanelLabels";
 import { BLOG_LOCALES, type BlogLocale } from "@/lib/blog/domain";
+import type { BlogArticleAdminShareLink } from "@/lib/blog/server/resolveBlogArticleAdminShareLinks";
 import type { AdminGlobalDraftMaterial } from "@/components/admin/AdminGlobalContentMaterialsPanel";
 import type { Dictionary } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
@@ -22,9 +21,11 @@ import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels"
 interface BlogArticleEditorProps {
   locale: string;
   articleId?: string;
+  canDelete?: boolean;
   labels: Dictionary["admin"]["cms"]["blog"]["editor"];
   academicLabels: Dictionary["dashboard"]["adminContents"];
   fileUploadProgress: FileUploadProgressLabels;
+  initialShareLinks?: BlogArticleAdminShareLink[];
   initial: {
     defaultLocale: BlogLocale;
     status: string;
@@ -49,12 +50,13 @@ interface BlogArticleEditorProps {
 export function BlogArticleEditor({
   locale,
   articleId,
+  canDelete = false,
   labels,
   academicLabels,
   fileUploadProgress,
+  initialShareLinks = [],
   initial,
 }: BlogArticleEditorProps) {
-  const router = useRouter();
   const startLocale = BLOG_LOCALES.includes(locale as BlogLocale)
     ? (locale as BlogLocale)
     : initial.defaultLocale;
@@ -84,8 +86,6 @@ export function BlogArticleEditor({
   const [tagsCsv, setTagsCsv] = useState(initial.tags.join(", "));
   const [scheduledFor, setScheduledFor] = useState(initial.scheduledFor);
   const [isPinned, setIsPinned] = useState(initial.isPinned);
-  const [msg, setMsg] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
 
   const tags = useMemo(
     () =>
@@ -103,75 +103,34 @@ export function BlogArticleEditor({
 
   const translateTargets = otherBlogLocales(editingLocale);
 
-  async function onSave() {
-    if (savableTranslations.length === 0) {
-      setMsg(labels.saveNeedOneLocale);
-      return;
-    }
-    setBusy(true);
-    setMsg(null);
-    const result = await saveBlogArticleAdminAction({
-      locale,
-      articleId,
-      payload: {
-        defaultLocale: initial.defaultLocale,
-        status,
-        tags,
-        commentsEnabled: true,
-        isPinned,
-        scheduledFor: scheduledFor ? new Date(scheduledFor).toISOString() : null,
-        translations: savableTranslations.map((row) => ({
-          locale: row.locale,
-          slug: row.slug,
-          title: row.title,
-          excerpt: row.excerpt,
-          bodyHtml: row.bodyHtml,
-          attachments: draftMaterialsToBlogAttachments(row.materials),
-        })),
-      },
-    });
-    setBusy(false);
-    if (!result.ok) {
-      setMsg(labels.saveError);
-      return;
-    }
-    setMsg(labels.saveSuccess);
-    if (!articleId && result.articleId) {
-      router.push(`/${locale}/dashboard/admin/cms/blog/${result.articleId}/edit`);
-      router.refresh();
-      return;
-    }
-    router.refresh();
-  }
-
-  async function onTranslateWithGoogle(targetLocale: BlogLocale) {
-    if (!initial.hasGoogleKey) {
-      setMsg(labels.translateMissingKey);
-      return;
-    }
-    if (!articleId) {
-      setMsg(labels.translateNeedsSave);
-      return;
-    }
-
-    setBusy(true);
-    setMsg(null);
-    const response = await translateBlogArticleFieldsAdminAction({
-      articleId,
-      sourceLocale: editingLocale,
-      targetLocale,
-      title,
-      excerpt,
-      bodyHtml,
-    });
-    setBusy(false);
-    if (!response.ok || !response.fields) {
-      setMsg(labels.saveError);
-      return;
-    }
-    applyTranslatedLocale(targetLocale, response.fields);
-    setMsg(labels.translateSuccess);
-  }
+  const {
+    msg,
+    setMsg,
+    busy,
+    shareLinks,
+    deleteOpen,
+    setDeleteOpen,
+    onSave,
+    onTranslateWithGoogle,
+    onConfirmDelete,
+  } = useBlogArticleEditorActions({
+    locale,
+    articleId,
+    labels,
+    initial,
+    status,
+    tags,
+    isPinned,
+    scheduledFor,
+    editingLocale,
+    title,
+    excerpt,
+    bodyHtml,
+    savableTranslations,
+    applyTranslatedLocale,
+    draftMaterialsToBlogAttachments,
+    initialShareLinks,
+  });
 
   return (
     <div className="grid gap-6">
@@ -232,6 +191,28 @@ export function BlogArticleEditor({
         onSave={() => void onSave()}
         onTranslate={(targetLocale) => void onTranslateWithGoogle(targetLocale)}
       />
+
+      {shareLinks.length > 0 ? (
+        <BlogArticleAdminShareLinks
+          links={shareLinks}
+          localeTabLabels={labels.localeTabs}
+          title={labels.shareLinksTitle}
+          previewHint={labels.shareLinksPreviewHint}
+          copyLabel={labels.shareLinksCopy}
+          copiedLabel={labels.shareLinksCopied}
+          openLabel={labels.shareLinksOpen}
+        />
+      ) : null}
+
+      {canDelete && articleId ? (
+        <BlogArticleEditorDeleteControls
+          labels={labels}
+          open={deleteOpen}
+          busy={busy}
+          onOpenChange={setDeleteOpen}
+          onConfirm={() => void onConfirmDelete()}
+        />
+      ) : null}
     </div>
   );
 }

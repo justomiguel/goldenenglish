@@ -17,6 +17,8 @@ export interface AdminStudentBillingScholarshipActiveCardProps {
   labels: BillingLabels;
   busy: boolean;
   readOnly?: boolean;
+  /** When tabs are read-only, still allow removing an applied scholarship. */
+  allowRemove?: boolean;
   onEdit: (row: AdminBillingScholarship) => void;
   onRemove: (row: AdminBillingScholarship) => void;
 }
@@ -26,9 +28,12 @@ export function AdminStudentBillingScholarshipActiveCard({
   labels,
   busy,
   readOnly = false,
+  allowRemove = false,
   onEdit,
   onRemove,
 }: AdminStudentBillingScholarshipActiveCardProps) {
+  const showEdit = !readOnly;
+  const showRemove = !readOnly || allowRemove;
   return (
     <article
       className="rounded-[var(--layout-border-radius)] border border-[var(--color-info)] bg-[var(--color-info)]/10 px-4 py-3"
@@ -51,30 +56,34 @@ export function AdminStudentBillingScholarshipActiveCard({
             </p>
           ) : null}
         </div>
-        {!readOnly ? (
+        {showEdit || showRemove ? (
           <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              disabled={busy}
-              onClick={() => onEdit(row)}
-              className="min-h-[36px] text-xs"
-            >
-              <Pencil className="h-3.5 w-3.5 shrink-0" aria-hidden />
-              {labels.editScholarship}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled={busy}
-              onClick={() => void onRemove(row)}
-              className="min-h-[36px] border border-[var(--color-error)] text-xs text-[var(--color-error)]"
-            >
-              <Ban className="h-3.5 w-3.5 shrink-0 text-[var(--color-foreground)]" aria-hidden />
-              {labels.deactivateScholarship}
-            </Button>
+            {showEdit ? (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={busy}
+                onClick={() => onEdit(row)}
+                className="min-h-[36px] text-xs"
+              >
+                <Pencil className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                {labels.editScholarship}
+              </Button>
+            ) : null}
+            {showRemove ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={busy}
+                onClick={() => void onRemove(row)}
+                className="min-h-[36px] border border-[var(--color-error)] text-xs text-[var(--color-error)]"
+              >
+                <Ban className="h-3.5 w-3.5 shrink-0 text-[var(--color-foreground)]" aria-hidden />
+                {labels.removeScholarship}
+              </Button>
+            ) : null}
           </div>
         ) : null}
       </div>

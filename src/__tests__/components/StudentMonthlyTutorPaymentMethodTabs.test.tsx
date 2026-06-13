@@ -85,7 +85,8 @@ describe("StudentMonthlyTutorPaymentMethodTabs", () => {
     expect(screen.getByRole("button", { name: labels.payWithFlow })).toBeInTheDocument();
 
     fireEvent.click(receiptTab);
-    expect(screen.getByText(dictEn.dashboard.student.payReceipt)).toBeVisible();
+    expect(screen.getByRole("button", { name: dictEn.dashboard.student.payReceiptChooseButton })).toBeVisible();
+    expect(screen.getByRole("button", { name: dictEn.dashboard.student.paySubmit })).toBeVisible();
   });
 
   it("disables the online-pay tab when no gateway is enabled for the month", () => {

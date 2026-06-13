@@ -4,6 +4,8 @@ import { escapeHtml } from "@/lib/academics/escapeHtml";
 import { isValidE164Phone } from "@/lib/notifications/validateE164Phone";
 import { sendMetaClassReminderTemplate } from "@/lib/whatsapp/sendMetaClassReminderTemplate";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { pushAfterNotify } from "@/lib/push/pushAfterNotify";
+import { absoluteUrl } from "@/lib/site/publicUrl";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import {
   markJob,
@@ -136,6 +138,16 @@ export async function handleUrgentInAppJob(input: {
     return;
   }
   await markJob(admin, job.id, { status: "sent", channels_snapshot: { in_app: "sent" } });
+  const portal = absoluteUrl("/es/dashboard/student");
+  await pushAfterNotify(
+    job.recipient_user_id,
+    {
+      title: dict.urgentInAppTitle,
+      body,
+      url: portal?.href ?? "/es/dashboard/student",
+    },
+    "classReminder.urgent_in_app",
+  );
 }
 
 export async function handleUrgentWhatsappJob(input: {

@@ -33,7 +33,10 @@ export type FlowMonthlyPaymentReturnPageModel =
 export async function resolveFlowMonthlyPaymentReturnPage(input: {
   supabase: SupabaseClient;
   token: string | undefined;
+  /** When false (default), skips DB finalize + cache revalidation — safe for RSC render. */
+  allowFinalize?: boolean;
 }): Promise<FlowMonthlyPaymentReturnPageModel> {
+  const allowFinalize = input.allowFinalize === true;
   const rawToken = input.token?.trim() ?? "";
   if (!rawToken) {
     logResolve("reject", { outcome: "no_token" });
@@ -112,6 +115,25 @@ export async function resolveFlowMonthlyPaymentReturnPage(input: {
       payment_id_prefix: paymentId.slice(0, 8),
     });
     return { outcome: "unauthorized_payment" };
+  }
+
+  const { data: currentRow } = await input.supabase
+    .from("payments")
+    .select("status, month, year")
+    .eq("id", paymentId)
+    .maybeSingle();
+
+  if (currentRow?.status === "approved" && currentRow.month != null && currentRow.year != null) {
+    return {
+      outcome: "success",
+      month: Number(currentRow.month),
+      year: Number(currentRow.year),
+      paymentId,
+    };
+  }
+
+  if (!allowFinalize) {
+    return { outcome: "processing" };
   }
 
   const finalized = await finalizeMonthlyPaymentFromFlowGateway({

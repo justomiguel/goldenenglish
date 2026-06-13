@@ -4,6 +4,7 @@ import Link from "next/link";
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import type { ParentChildSummary } from "@/lib/parent/loadParentChildrenSummaries";
 import type { ParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
+import type { ParentHomeNewsItem } from "@/lib/parent/loadParentHomeNewsFeed";
 import type { Dictionary } from "@/types/i18n";
 import { ParentHomeInbox } from "@/components/parent/ParentHomeInbox";
 import { ParentHomePwaFocus } from "@/components/parent/ParentHomePwaFocus";
@@ -34,6 +35,7 @@ export interface ParentDashboardEntryProps {
   pillars: ParentHomePillarSnapshot;
   attendanceByStudent: Record<string, number>;
   overdueByStudent: Record<string, boolean>;
+  newsItems: ParentHomeNewsItem[];
 }
 
 export function ParentDashboardEntry({
@@ -51,6 +53,7 @@ export function ParentDashboardEntry({
   pillars,
   attendanceByStudent,
   overdueByStudent,
+  newsItems,
 }: ParentDashboardEntryProps) {
   if (summaries.length === 0 && kids.length === 0) {
     return <p className="text-sm text-[var(--color-muted-foreground)]">{lead}</p>;
@@ -85,6 +88,7 @@ export function ParentDashboardEntry({
     attendanceByStudent,
     overdueByStudent,
     labels: parentLabels,
+    newsItems,
   };
 
   return (

@@ -12,6 +12,15 @@ import type { BrandPublic } from "@/lib/brand/server";
  * PWA manifest icons: full favicon_io set when paths are site-relative; when a
  * logo/favicon is already an absolute URL (Storage/CDN), emit those entries only.
  */
+export function appendMaskableManifestIcons(
+  icons: NonNullable<MetadataRoute.Manifest["icons"]>,
+): NonNullable<MetadataRoute.Manifest["icons"]> {
+  const maskable = icons
+    .filter((icon) => icon.sizes === "512x512")
+    .map((icon) => ({ ...icon, purpose: "maskable" as const }));
+  return maskable.length > 0 ? [...icons, ...maskable] : icons;
+}
+
 export function buildWebManifestIcons(
   brand: BrandPublic,
 ): NonNullable<MetadataRoute.Manifest["icons"]> {

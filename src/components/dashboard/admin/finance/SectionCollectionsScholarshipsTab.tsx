@@ -4,8 +4,9 @@ import { GraduationCap } from "lucide-react";
 import { useState } from "react";
 import type { SectionCollectionsScholarshipListRow } from "@/types/sectionCollectionsTabs";
 import type { SectionCollectionsView } from "@/types/sectionCollections";
-import type { Dictionary } from "@/types/i18n";
+import type { Dictionary, Locale } from "@/types/i18n";
 import { SectionCollectionsBulkScholarshipTrigger } from "./SectionCollectionsBulkScholarshipTrigger";
+import { SectionCollectionsScholarshipRemoveButton } from "./SectionCollectionsScholarshipRemoveButton";
 
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
 
@@ -42,12 +43,15 @@ export function SectionCollectionsScholarshipsTab({
         <GraduationCap className="h-4 w-4 shrink-0 text-[var(--color-muted-foreground)]" aria-hidden />
         <p className="text-sm text-[var(--color-muted-foreground)]">{t.scholarshipsBulkHint}</p>
         <SectionCollectionsBulkScholarshipTrigger
-          locale={locale}
+          locale={locale as Locale}
           sectionId={view.sectionId}
           year={view.year}
           studentCount={view.students.length}
           selectedStudentIds={[]}
           dict={dict}
+          billingLabels={billingLabels}
+          referenceMonthlyAmount={view.referenceMonthlyFeeAmount}
+          referenceMonthlyCurrency={view.referenceMonthlyFeeCurrency}
           onNotice={setNotice}
         />
       </div>
@@ -65,6 +69,7 @@ export function SectionCollectionsScholarshipsTab({
                 <th className="px-3 py-2">{t.scholarshipsColDiscount}</th>
                 <th className="px-3 py-2">{t.scholarshipsColPeriod}</th>
                 <th className="px-3 py-2">{billingLabels.scholarshipCurrentNote}</th>
+                <th className="px-3 py-2">{t.scholarshipsColActions}</th>
               </tr>
             </thead>
             <tbody>
@@ -85,6 +90,16 @@ export function SectionCollectionsScholarshipsTab({
                     <td className="px-3 py-2 text-xs text-[var(--color-muted-foreground)]">{period}</td>
                     <td className="px-3 py-2 text-xs text-[var(--color-muted-foreground)]">
                       {s.note ?? billingLabels.emptyValue}
+                    </td>
+                    <td className="px-3 py-2">
+                      <SectionCollectionsScholarshipRemoveButton
+                        locale={locale as Locale}
+                        sectionId={view.sectionId}
+                        studentId={row.studentId}
+                        scholarshipId={row.id}
+                        labels={billingLabels}
+                        onNotice={setNotice}
+                      />
                     </td>
                   </tr>
                 );

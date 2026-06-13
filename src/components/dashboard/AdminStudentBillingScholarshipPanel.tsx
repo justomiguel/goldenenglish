@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   createStudentScholarship,
   deactivateStudentScholarship,
@@ -11,6 +11,7 @@ import { Plus, Save, X } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { ScholarshipDiscountFields } from "@/components/molecules/ScholarshipDiscountFields";
 import { AdminStudentBillingScholarshipActiveCard } from "@/components/dashboard/AdminStudentBillingScholarshipActiveCard";
 import type { AdminBillingScholarship } from "@/types/adminStudentBilling";
 import type { Dictionary, Locale } from "@/types/i18n";
@@ -22,13 +23,17 @@ export interface AdminStudentBillingScholarshipPanelProps {
   studentId: string;
   sectionId: string | null;
   sectionName: string | null;
+  referenceMonthlyAmount: number | null;
+  referenceMonthlyCurrency: string | null;
   scholarships: AdminBillingScholarship[];
   labels: BillingLabels;
   busy: boolean;
   setBusy: (v: boolean) => void;
   setMsg: (v: string | null) => void;
-  /** List-only: hide create/edit/deactivate controls (manage scholarships from the monthly matrix). */
+  /** List-only: hide create/edit form (apply new scholarships from the monthly matrix). */
   readOnly?: boolean;
+  /** When read-only, still show remove on active scholarships. */
+  allowRemove?: boolean;
 }
 
 function activeScholarships(rows: AdminBillingScholarship[]) {
@@ -40,19 +45,26 @@ export function AdminStudentBillingScholarshipPanel({
   studentId,
   sectionId,
   sectionName,
+  referenceMonthlyAmount,
+  referenceMonthlyCurrency,
   scholarships,
   labels,
   busy,
   setBusy,
   setMsg,
   readOnly = false,
+  allowRemove = false,
 }: AdminStudentBillingScholarshipPanelProps) {
   const router = useRouter();
   const [visibleScholarships, setVisibleScholarships] = useState(
     activeScholarships(scholarships),
   );
+
+  useEffect(() => {
+    setVisibleScholarships(activeScholarships(scholarships));
+  }, [scholarships]);
   const [editing, setEditing] = useState<AdminBillingScholarship | null>(null);
-  const [pct, setPct] = useState("");
+  const [resolvedPercent, setResolvedPercent] = useState<number | null>(null);
   const [note, setNote] = useState("");
   const [vfY, setVfY] = useState(String(new Date().getFullYear()));
   const [vfM, setVfM] = useState("1");
@@ -62,7 +74,7 @@ export function AdminStudentBillingScholarshipPanel({
 
   function resetForm() {
     setEditing(null);
-    setPct("");
+    setResolvedPercent(null);
     setNote("");
     setVfY(String(new Date().getFullYear()));
     setVfM("1");
@@ -73,7 +85,7 @@ export function AdminStudentBillingScholarshipPanel({
 
   function editScholarship(row: AdminBillingScholarship) {
     setEditing(row);
-    setPct(String(row.discount_percent));
+    setResolvedPercent(row.discount_percent);
     setNote(row.note ?? "");
     setVfY(String(row.valid_from_year));
     setVfM(String(row.valid_from_month));
@@ -87,8 +99,8 @@ export function AdminStudentBillingScholarshipPanel({
     if (!sectionId) return;
     setBusy(true);
     setMsg(null);
-    const p = Number(pct);
-    if (Number.isNaN(p) || p <= 0 || p > 100) {
+    const p = resolvedPercent;
+    if (p == null || p <= 0 || p > 100) {
       setMsg(labels.scholarshipInvalidPercent);
       setBusy(false);
       return;
@@ -159,6 +171,7 @@ export function AdminStudentBillingScholarshipPanel({
               labels={labels}
               busy={busy}
               readOnly={readOnly}
+              allowRemove={allowRemove}
               onEdit={editScholarship}
               onRemove={removeScholarship}
             />
@@ -170,9 +183,18 @@ export function AdminStudentBillingScholarshipPanel({
 
       {readOnly ? null : (
       <form onSubmit={saveScholarship} className="mt-4 grid gap-3 sm:grid-cols-2">
-        <div>
-          <Label htmlFor="sch-pct">{labels.scholarshipPercent}</Label>
-          <Input id="sch-pct" type="number" min={0.5} max={100} step={0.5} value={pct} onChange={(e) => setPct(e.target.value)} required className="mt-1" />
+        <div className="sm:col-span-2">
+          <ScholarshipDiscountFields
+            idPrefix="sch"
+            locale={locale}
+            currency={referenceMonthlyCurrency}
+            referenceMonthlyAmount={referenceMonthlyAmount}
+            labels={labels}
+            disabled={busy}
+            minPercent={0.5}
+            defaultPercent={editing ? String(editing.discount_percent) : ""}
+            onResolvedPercentChange={setResolvedPercent}
+          />
         </div>
         <div className="flex items-end gap-2">
           <label className="flex items-center gap-2 text-sm">

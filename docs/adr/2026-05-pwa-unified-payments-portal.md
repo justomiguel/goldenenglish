@@ -10,7 +10,8 @@ Parent and student payment screens on narrow/PWA surfaces showed inconsistent ba
 2. **Parent PWA** uses `ParentPaymentsScreenPwa` (hero + accordion + child picker + strip); desktop keeps `ParentFinanceTabs`.
 3. **Student PWA** uses hero + filtered strip (no four-bucket year summary card on narrow).
 4. **Remove “next due”** from `BillingPortalScreen`, `StudentPaymentsYearSummary`, and `buildStudentPaymentsYearSummary`.
-5. **`academic_sections.allow_advance_monthly_payment`** (default `false`) enforced in `resolveStudentPaymentSlot`, Flow start, and focus UI.
+5. **`academic_sections.allow_advance_monthly_payment`** (default `true` since migration `154`) enforced in `resolveStudentPaymentSlot`, Flow start, and focus UI.
+6. **`academic_sections.monthly_fee_charge_mode`** defaults to `full_month_fee` (full plan month fee) since migration `154`; `prorate_by_classes` remains available per section.
 
 ## Consequences
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import { StudentMonthlyPaymentFocusAmounts } from "@/components/student/StudentMonthlyPaymentFocusAmounts";
@@ -46,6 +47,7 @@ export interface StudentMonthlyPaymentFocusProps {
   paymentMethodTabLayout?: boolean;
   embeddedInSectionCard?: boolean;
   pwaNestedHierarchy?: boolean;
+  bankTransferInstructions?: string | null;
 }
 
 export function StudentMonthlyPaymentFocus({
@@ -66,7 +68,9 @@ export function StudentMonthlyPaymentFocus({
   paymentMethodTabLayout = false,
   embeddedInSectionCard = false,
   pwaNestedHierarchy = false,
+  bankTransferInstructions = null,
 }: StudentMonthlyPaymentFocusProps) {
+  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [onlineBusy, setOnlineBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -104,13 +108,23 @@ export function StudentMonthlyPaymentFocus({
   const showOnlinePayEffective = showOnlinePay && canUploadEffective;
 
   async function onSubmit(fd: FormData) {
-    if (!canUploadEffective || expected == null) return;
+    if (!canUploadEffective) {
+      setMsg(futureMonthBlocked ? labels.advancePaymentBlocked : paymentLabels.payError);
+      return;
+    }
+    if (expected == null) {
+      setMsg(`${paymentLabels.payError}: ${labels.lockedNoPlan}`);
+      return;
+    }
     setBusy(true);
     setMsg(null);
     const res = await submitAction(fd);
     setBusy(false);
     setMsg(res.ok ? paymentLabels.paySuccess : `${paymentLabels.payError}: ${res.message ?? ""}`);
-    if (res.ok && onSubmitted) onSubmitted();
+    if (res.ok) {
+      router.refresh();
+      onSubmitted?.();
+    }
   }
 
   async function onOnlinePay(provider: PaymentGatewayProvider) {
@@ -207,6 +221,7 @@ export function StudentMonthlyPaymentFocus({
           onSubmitReceipt={onSubmit}
           onOnlinePay={onOnlinePay}
           compactTopSpacing={embeddedInSectionCard}
+          bankTransferInstructions={bankTransferInstructions}
         />
       ) : canUploadEffective ? (
         <StudentMonthlyPaymentReceiptUploadForm
@@ -224,6 +239,7 @@ export function StudentMonthlyPaymentFocus({
           showOnlinePay={showOnlinePayEffective}
           enabledOnlineGateways={derived.enabledOnlineGateways}
           feedbackMessage={msg}
+          bankTransferInstructions={bankTransferInstructions}
           onSubmit={onSubmit}
           onOnlinePay={onOnlinePay}
         />

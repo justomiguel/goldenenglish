@@ -7,6 +7,7 @@ import {
   ADMIN_SESSION_UNAUTHORIZED,
 } from "@/lib/dashboard/adminSessionErrors";
 import { loadAdminArticles } from "@/lib/blog/server";
+import { canDeleteArticle } from "@/lib/blog/permissions";
 import { BlogAdminListShell } from "@/components/dashboard/admin/cms/blog/BlogAdminListShell";
 
 export const metadata: Metadata = {
@@ -20,8 +21,9 @@ interface PageProps {
 export default async function AdminBlogPage({ params }: PageProps) {
   const { locale } = await params;
   let supabase: Awaited<ReturnType<typeof assertBlogAuthor>>["supabase"];
+  let role: Awaited<ReturnType<typeof assertBlogAuthor>>["role"];
   try {
-    ({ supabase } = await assertBlogAuthor());
+    ({ supabase, role } = await assertBlogAuthor());
   } catch (error) {
     const message = (error as Error)?.message;
     if (message === ADMIN_SESSION_UNAUTHORIZED) redirect(`/${locale}/login`);
@@ -40,6 +42,7 @@ export default async function AdminBlogPage({ params }: PageProps) {
     <BlogAdminListShell
       locale={locale}
       rows={list.rows}
+      canDelete={canDeleteArticle(role)}
       labels={dict.admin.cms.blog.list}
     />
   );

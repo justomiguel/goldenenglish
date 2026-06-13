@@ -6,11 +6,12 @@ import {
   runRecordPaymentPaidBulk,
   runRecordPaymentScholarshipBulk,
   runRecordEnrollmentYearScholarshipBulk,
+  runRevertApprovedPaymentsBulk,
 } from "@/lib/dashboard/adminRecordPaymentBulkRunners";
 import { SECTION_COLLECTIONS_ENROLLMENT_FEE_CELL_MONTH } from "@/lib/billing/sectionCollectionsEnrollmentFeeCellMonth";
 import type { Dictionary, Locale } from "@/types/i18n";
 
-export type SectionCellBulkActionType = "paid" | "scholarship" | "exempt";
+export type SectionCellBulkActionType = "paid" | "scholarship" | "exempt" | "revert";
 
 export interface SectionCellBulkActionInput {
   action: SectionCellBulkActionType;
@@ -128,6 +129,22 @@ export async function runSectionCellBulkAction({
             year,
             months: monthlyMonths,
             adminNote: note ?? "",
+            labels,
+          });
+          if (result.ok) successCount += monthlyMonths.length;
+          else failedCount += monthlyMonths.length;
+        }
+        break;
+      }
+      case "revert": {
+        if (monthlyMonths.length > 0) {
+          const result = await runRevertApprovedPaymentsBulk({
+            studentId,
+            sectionId,
+            year,
+            months: monthlyMonths,
+            locale,
+            adminNote: note,
             labels,
           });
           if (result.ok) successCount += monthlyMonths.length;

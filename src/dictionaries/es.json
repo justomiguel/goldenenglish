@@ -28,6 +28,31 @@
       "night": "Hola"
     }
   },
+  "pwa": {
+    "offline": {
+      "title": "Sin conexión",
+      "body": "Revisá tu conexión e intentá de nuevo.",
+      "retry": "Volver a {brand}"
+    },
+    "install": {
+      "title": "Instalá la app",
+      "lead": "Agregala a la pantalla de inicio para acceder más rápido y recibir avisos.",
+      "install": "Instalar app",
+      "later": "Ahora no",
+      "iosLead": "Instalá esta app en tu iPhone:",
+      "iosSteps": "Tocá Compartir y luego Agregar a Inicio"
+    },
+    "push": {
+      "newMessageTitle": "Nuevo mensaje",
+      "teacherReplyTitle": "Respuesta de tu docente"
+    },
+    "shortcuts": {
+      "parentPayments": "Pagos (familia)",
+      "parentPaymentsShort": "Pagos",
+      "parentMessages": "Mensajes (familia)",
+      "parentMessagesShort": "Mensajes"
+    }
+  },
   "greenfieldPublic": {
     "appName": "Nueva instalación",
     "legalName": "",
@@ -1226,6 +1251,14 @@
           "empty": "Todavía no hay artículos.",
           "publish": "Publicar",
           "archive": "Archivar",
+          "delete": "Eliminar definitivamente",
+          "deleteConfirmTitle": "¿Eliminar este artículo?",
+          "deleteConfirmBody": "Se eliminarán el artículo, sus traducciones y comentarios. Esta acción no se puede deshacer.",
+          "deleteCancel": "Cancelar",
+          "deleteConfirm": "Eliminar artículo",
+          "deleteError": "No se pudo eliminar el artículo.",
+          "copyLink": "Copiar enlace público",
+          "copyLinkCopied": "Enlace copiado",
           "submitForReview": "Enviar a revisión",
           "pin": "Fijar",
           "unpin": "Quitar fijado",
@@ -1239,6 +1272,17 @@
           "save": "Guardar artículo",
           "saveError": "No se pudo guardar el artículo",
           "saveSuccess": "Artículo guardado",
+          "shareLinksTitle": "Enlaces para compartir",
+          "shareLinksPreviewHint": "Los enlaces de vista previa expiran a las 24 horas.",
+          "shareLinksCopy": "Copiar enlace",
+          "shareLinksCopied": "Copiado",
+          "shareLinksOpen": "Abrir",
+          "delete": "Eliminar definitivamente",
+          "deleteConfirmTitle": "¿Eliminar este artículo?",
+          "deleteConfirmBody": "Se eliminarán el artículo, sus traducciones y comentarios. Esta acción no se puede deshacer.",
+          "deleteCancel": "Cancelar",
+          "deleteConfirm": "Eliminar artículo",
+          "deleteError": "No se pudo eliminar el artículo.",
           "localeTabsAria": "Idioma del artículo",
           "localeTabs": {
             "en": "Inglés",
@@ -2206,6 +2250,13 @@
         "save": "Guardar",
         "savedOk": "Moneda guardada correctamente.",
         "savedError": "No se pudo guardar. Intentá de nuevo.",
+        "bankTransferInstructionsTitle": "Transferencias bancarias",
+        "bankTransferInstructionsLead": "Estos datos se muestran antes de subir comprobantes en cuotas mensuales y en inscripciones a eventos con transferencia.",
+        "bankTransferInstructionsLabel": "Datos para transferencia",
+        "bankTransferInstructionsHint": "Titular, banco, número de cuenta y referencia que debe indicar quien paga.",
+        "bankTransferInstructionsSave": "Guardar datos de transferencia",
+        "bankTransferInstructionsSavedOk": "Datos de transferencia guardados.",
+        "bankTransferInstructionsSavedError": "No se pudieron guardar los datos de transferencia.",
         "flowTitle": "Flow (Chile)",
         "flowLead": "Permití que las familias paguen la mensualidad online con Flow, en pesos chilenos (CLP). Ingresá las credenciales de API de Flow, elegí sandbox o producción, y activá la opción para que aparezca el botón de pago en las pantallas de pagos del alumno y del apoderado.",
         "flowEnvironment": "Entorno",
@@ -2528,10 +2579,12 @@
         "cellActions": {
           "selectedCount": "{cells} celda(s) seleccionada(s) en {students} alumno(s)",
           "markPaid": "Marcar pagado",
+          "markUnpaid": "Marcar como no pagado",
+          "revertHint": "Meses pagados — podés revertirlos a pendiente.",
           "applyScholarship": "Aplicar beca",
           "markExempt": "Marcar exento",
           "confirmPaidTitle": "¿Marcar {count} período(s) como pagado(s)?",
-          "confirmPaidBody": "Los meses seleccionados quedarán registrados como pagados sin comprobante. Esta acción se puede revertir desde la facturación individual del alumno.",
+          "confirmPaidBody": "Los meses seleccionados quedarán registrados como pagados sin comprobante. Podés revertirlos desde esta matriz o desde la facturación individual del alumno.",
           "includesEnrollmentFeePaidNote": "Incluye la columna de matrícula: esas inscripciones quedarán como pagadas en esta sección.",
           "confirmScholarshipTitle": "¿Aplicar beca a {count} período(s)?",
           "confirmScholarshipBody": "Se creará un registro de beca para cada mes seleccionado con el porcentaje de descuento indicado.",
@@ -2545,6 +2598,11 @@
           "includesEnrollmentFeeExemptNote": "Incluye la columna de matrícula: esas inscripciones quedarán como exentas en esta sección (mismo motivo que arriba).",
           "exemptReasonLabel": "Motivo",
           "exemptReasonPlaceholder": "Razón de la exención",
+          "confirmRevertTitle": "¿Revertir {count} período(s) a no pagado?",
+          "confirmRevertBody": "Cada mes seleccionado debe estar pagado. Volverán a pendiente (como si esperaran comprobante o revisión). La nota opcional queda en auditoría.",
+          "confirmRevert": "Revertir a no pagado",
+          "revertNoteLabel": "Motivo (opcional, auditoría)",
+          "revertNotePlaceholder": "p. ej. marcado pagado por error",
           "confirm": "Confirmar",
           "cancel": "Cancelar",
           "resultOk": "{count} período(s) actualizado(s) correctamente.",
@@ -2610,6 +2668,7 @@
           "scholarshipsColStudent": "Alumno",
           "scholarshipsColDiscount": "Descuento",
           "scholarshipsColPeriod": "Vigencia",
+          "scholarshipsColActions": "Acciones",
           "scholarshipsBulkHint": "Creá becas para muchos alumnos a la vez:",
           "enrollmentLead": "Estado de la matrícula por alumno en esta sección.",
           "enrollmentColExempt": "Exento",
@@ -2701,7 +2760,7 @@
       "tabEnrollment": "Matrícula",
       "tabHistoryEmpty": "Todavía no hay pagos registrados para esta sección.",
       "tabScholarshipsEmpty": "No hay becas activas para esta sección. Seleccioná meses en la matriz mensual de arriba para aplicar una beca.",
-      "billingTabsReadOnlyHint": "Estas pestañas son solo lectura. Las becas, exenciones, matrícula y registros de pago se gestionan desde la matriz mensual de arriba.",
+      "billingTabsReadOnlyHint": "Historial y matrícula son solo lectura. Aplicá becas desde la matriz mensual de arriba; quitá becas activas en la pestaña Becas o en el listado de becas de la sección.",
       "billingFeeSummaryEnrollmentLabel": "Matrícula",
       "billingFeeSummaryMonthlyLabel": "Cuota mensual (plan vigente)",
       "billingFeeSummaryMonthlyUnavailable": "Sin plan de cuotas activo",
@@ -2709,6 +2768,18 @@
       "scholarshipTitle": "Beca",
       "scholarshipLead": "Porcentaje de descuento sobre la cuota en el rango indicado. Dejá “hasta” vacío para sin fecha de fin.",
       "scholarshipPercent": "Descuento (%)",
+      "scholarshipInputModeLegend": "¿Cómo querés definir el descuento?",
+      "scholarshipInputModePercent": "Porcentaje",
+      "scholarshipInputModeMonthly": "Monto mensual a pagar",
+      "scholarshipInputModeAnnual": "Monto anual a pagar",
+      "scholarshipReferenceMonthly": "Cuota mensual de lista: {amount}",
+      "scholarshipReferenceAnnual": "Cuota anual de lista (12 meses): {amount}",
+      "scholarshipReferenceMissing": "Esta sección no tiene cuota mensual configurada — usá porcentaje.",
+      "scholarshipTargetMonthly": "Monto mensual con beca",
+      "scholarshipTargetAnnual": "Monto anual con beca",
+      "scholarshipDerivedPercent": "Descuento equivalente: {percent}%",
+      "scholarshipAmountInvalid": "Ingresá un monto válido (0 o más).",
+      "scholarshipAmountAboveReference": "El monto no puede superar la cuota de lista de ese período.",
       "scholarshipNote": "Nota interna",
       "scholarshipActive": "Activa",
       "validFrom": "Válida desde (mes / año)",
@@ -3315,6 +3386,12 @@
         "errorSave": "No pudimos guardar el evento. Intentá de nuevo.",
         "validationError": "Revisá los campos obligatorios e intentá de nuevo."
       },
+      "schedule": {
+        "sectionTitle": "Fecha y lugar",
+        "save": "Guardar fecha y lugar",
+        "savedOk": "Fecha y lugar actualizados.",
+        "errorSave": "No pudimos guardar la fecha y el lugar. Intentá de nuevo."
+      },
       "pricing": {
         "sectionTitle": "Precios por residencia",
         "priceLocalLabel": "Precio residentes locales",
@@ -3322,7 +3399,7 @@
         "priceHint": "Dejá vacío para evento gratuito. Si solo completás el precio local, se aplica a ambos.",
         "currencyLabel": "Moneda",
         "bankTransferInstructionsLabel": "Datos para transferencia bancaria",
-        "bankTransferInstructionsHint": "Titular, banco, número de cuenta y referencia que debe indicar quien paga. Se muestra a quienes elijan transferencia.",
+        "bankTransferInstructionsHint": "Opcional: si lo dejás vacío se usan los datos configurados en Finanzas → Configuración.",
         "save": "Guardar precios",
         "savedOk": "Precios actualizados.",
         "errorSave": "No pudimos guardar los precios."
@@ -3440,7 +3517,9 @@
       "adminEdit": "Editar evento",
       "adminEditAriaLabel": "Abrir este evento en el editor de administración",
       "eventEyebrow": "Evento",
+      "viewsCount": "{{count}} vistas",
       "downloadFile": "Descargar archivo",
+      "attachmentsSectionTitle": "Archivos adjuntos",
       "audioLabel": "Audio adjunto",
       "videoLabel": "Video adjunto",
       "attachmentTypes": {
@@ -4291,7 +4370,8 @@
         "class": "Clase regular",
         "exam": "Evaluación / examen",
         "special": "Evento especial",
-        "birthday": "Cumpleaños"
+        "birthday": "Cumpleaños",
+        "instituteEvent": "Evento del instituto"
       },
       "specialTypes": {
         "holiday": {
@@ -4337,6 +4417,8 @@
         "detailRoom": "Aula",
         "detailMeeting": "Enlace de reunión",
         "detailTitleFallback": "Evento",
+        "detailViewPublic": "Ver ficha del evento",
+        "detailEditEvent": "Editar fecha y datos",
         "visualLegendTitle": "Colores del calendario",
         "visualLegendInPerson": "Presencial",
         "visualLegendVirtual": "En línea / enlace",
@@ -4345,6 +4427,7 @@
         "visualLegendExam": "Examen",
         "visualLegendSpecial": "Evento especial del instituto",
         "visualLegendBirthday": "Cumpleaños",
+        "visualLegendInstituteEvent": "Evento del instituto",
         "colorReferenceButton": "Referencia de colores",
         "colorReferenceTitle": "Leyenda y colores del calendario",
         "syncDialogButton": "Sincronizar y suscribirse",
@@ -5696,6 +5779,7 @@
       "payAmount": "Monto",
       "payReceipt": "Comprobante (PDF o imagen)",
       "payReceiptHint": "Un PDF o una foto legible (JPG, PNG, WebP). Tamaño máximo 4 MB.",
+      "transferInstructionsTitle": "Dónde transferir",
       "payReceiptChooseButton": "Elegir archivo",
       "payReceiptNoFileSelected": "Todavía no elegiste ningún archivo",
       "paySubmit": "Enviar comprobante",
@@ -6221,7 +6305,19 @@
         "noChildLinked": "Todavía no hay alumnos vinculados.",
         "quickActionsAria": "Acciones rápidas",
         "quickActionsTitle": "Acciones rápidas",
-        "messageTeacher": "Mensaje al docente"
+        "messageTeacher": "Mensaje al docente",
+        "pushTitle": "Mantenete al día",
+        "pushLead": "Activá notificaciones para mensajes nuevos, recordatorios de clase y avisos de pagos.",
+        "pushEnable": "Permitir notificaciones",
+        "pushLater": "Ahora no",
+        "newsFeed": {
+          "title": "Novedades",
+          "empty": "No hay novedades por ahora.",
+          "typeBlog": "Blog",
+          "typeEvent": "Evento",
+          "seeAllBlog": "Ver blog",
+          "seeAllEvents": "Ver eventos"
+        }
       },
       "progressPageTitle": "Progreso de aprendizaje",
       "progressPageLead": "Tareas, evaluaciones, feedback y logros de tus alumnos vinculados.",

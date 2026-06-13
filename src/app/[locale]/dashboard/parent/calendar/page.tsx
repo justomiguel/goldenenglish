@@ -39,6 +39,7 @@ export default async function ParentCalendarPage({ params, searchParams }: PageP
   if (profile?.role !== "parent") redirect(`/${locale}/dashboard`);
 
   const payload = await buildPortalCalendarPagePayload(supabase, user.id, "parent", {
+    locale,
     birthdayCopy: dict.dashboard.birthdays,
   });
   const [hub, attendance, students] = await Promise.all([

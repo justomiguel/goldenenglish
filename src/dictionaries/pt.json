@@ -28,6 +28,31 @@
       "night": "Olá"
     }
   },
+  "pwa": {
+    "offline": {
+      "title": "Sem conexão",
+      "body": "Verifique sua conexão e tente novamente.",
+      "retry": "Voltar para {brand}"
+    },
+    "install": {
+      "title": "Instalar o app",
+      "lead": "Adicione à tela inicial para acesso rápido e notificações.",
+      "install": "Instalar app",
+      "later": "Agora não",
+      "iosLead": "Instale este app no seu iPhone:",
+      "iosSteps": "Toque em Compartilhar e depois Adicionar à Tela de Início"
+    },
+    "push": {
+      "newMessageTitle": "Nova mensagem",
+      "teacherReplyTitle": "Resposta do seu professor"
+    },
+    "shortcuts": {
+      "parentPayments": "Pagamentos (família)",
+      "parentPaymentsShort": "Pagamentos",
+      "parentMessages": "Mensagens (família)",
+      "parentMessagesShort": "Mensagens"
+    }
+  },
   "greenfieldPublic": {
     "appName": "Nova instalação",
     "legalName": "",
@@ -1226,6 +1251,14 @@
           "empty": "Ainda não há artigos.",
           "publish": "Publicar",
           "archive": "Arquivar",
+          "delete": "Excluir permanentemente",
+          "deleteConfirmTitle": "Excluir este artigo?",
+          "deleteConfirmBody": "Isso remove o artigo, traduções e comentários. Não pode ser desfeito.",
+          "deleteCancel": "Cancelar",
+          "deleteConfirm": "Excluir artigo",
+          "deleteError": "Não foi possível excluir o artigo.",
+          "copyLink": "Copiar link público",
+          "copyLinkCopied": "Link copiado",
           "submitForReview": "Enviar para revisão",
           "pin": "Fixar",
           "unpin": "Desafixar",
@@ -1239,6 +1272,17 @@
           "save": "Salvar artigo",
           "saveError": "Não foi possível salvar o artigo",
           "saveSuccess": "Artigo salvo",
+          "shareLinksTitle": "Links para compartilhar",
+          "shareLinksPreviewHint": "Links de pré-visualização expiram em 24 horas.",
+          "shareLinksCopy": "Copiar link",
+          "shareLinksCopied": "Copiado",
+          "shareLinksOpen": "Abrir",
+          "delete": "Excluir permanentemente",
+          "deleteConfirmTitle": "Excluir este artigo?",
+          "deleteConfirmBody": "Isso remove o artigo, traduções e comentários. Não pode ser desfeito.",
+          "deleteCancel": "Cancelar",
+          "deleteConfirm": "Excluir artigo",
+          "deleteError": "Não foi possível excluir o artigo.",
           "localeTabsAria": "Idioma do artigo",
           "localeTabs": {
             "en": "Inglês",
@@ -2528,10 +2572,12 @@
         "cellActions": {
           "selectedCount": "{cells} célula(s) selecionada(s) em {students} aluno(s)",
           "markPaid": "Marcar como pago",
+          "markUnpaid": "Marcar como não pago",
+          "revertHint": "Meses pagos — você pode revertê-los para pendente.",
           "applyScholarship": "Aplicar bolsa de estudos",
           "markExempt": "Marcar isento",
           "confirmPaidTitle": "Marcar {count} período(s) como pago(s)?",
-          "confirmPaidBody": "Os meses selecionados serão registrados como pagos sem recibo. Esta ação pode ser revertida na página de cobrança individual do aluno.",
+          "confirmPaidBody": "Os meses selecionados serão registrados como pagos sem recibo. Você pode revertê-los nesta matriz ou na página de cobrança individual do aluno.",
           "includesEnrollmentFeePaidNote": "A coluna taxa de matrícula (matrícula) está incluída: essas matrículas serão marcadas como pagas para esta seção.",
           "confirmScholarshipTitle": "Aplicar bolsa de estudos para período(s) {count}?",
           "confirmScholarshipBody": "Será criado um registro de bolsa para cada mês selecionado com o percentual de desconto especificado.",
@@ -2545,6 +2591,11 @@
           "includesEnrollmentFeeExemptNote": "A coluna taxa de matrícula (matrícula) está incluída: essas matrículas serão marcadas como isentas para esta seção (mesmo motivo acima).",
           "exemptReasonLabel": "Razão",
           "exemptReasonPlaceholder": "Motivo da isenção",
+          "confirmRevertTitle": "Reverter {count} período(s) para não pago?",
+          "confirmRevertBody": "Cada mês selecionado deve estar pago. Eles voltarão para pendente (como se aguardassem envio ou revisão). A nota opcional fica no log de auditoria.",
+          "confirmRevert": "Reverter para não pago",
+          "revertNoteLabel": "Motivo (opcional, auditoria)",
+          "revertNotePlaceholder": "ex.: marcado pago por engano",
           "confirm": "Confirmar",
           "cancel": "Cancelar",
           "resultOk": "{count} período(s) atualizado(s) com sucesso.",
@@ -2610,6 +2661,7 @@
           "scholarshipsColStudent": "Estudante",
           "scholarshipsColDiscount": "Desconto",
           "scholarshipsColPeriod": "Período válido",
+          "scholarshipsColActions": "Ações",
           "scholarshipsBulkHint": "Crie bolsas de estudo para muitos alunos ao mesmo tempo:",
           "enrollmentLead": "Status da taxa de matrícula para cada aluno nesta seção.",
           "enrollmentColExempt": "Isentar",
@@ -2701,7 +2753,7 @@
       "tabEnrollment": "Taxa de inscrição",
       "tabHistoryEmpty": "Nenhum pagamento registrado ainda para esta seção.",
       "tabScholarshipsEmpty": "Não há bolsas ativas para esta seção. Selecione os meses na matriz mensal acima para solicitar uma bolsa.",
-      "billingTabsReadOnlyHint": "Essas guias são somente leitura. Aplique bolsas de estudo, isenções, alterações de taxas de matrícula e registro de pagamentos da matriz mensal acima.",
+      "billingTabsReadOnlyHint": "Histórico e matrícula são somente leitura. Aplique bolsas na matriz mensal acima; remova bolsas ativas na aba Bolsas ou na lista de bolsas da seção.",
       "billingFeeSummaryEnrollmentLabel": "Taxa de inscrição",
       "billingFeeSummaryMonthlyLabel": "Taxa mensal (plano atual)",
       "billingFeeSummaryMonthlyUnavailable": "Nenhum plano de taxas ativo",
@@ -2709,6 +2761,18 @@
       "scholarshipTitle": "Bolsa de estudos",
       "scholarshipLead": "Porcentagem de desconto sobre a taxa listada para meses na faixa. Deixe “até” vazio para não ter data de término.",
       "scholarshipPercent": "Desconto (%)",
+      "scholarshipInputModeLegend": "Como você quer definir o desconto?",
+      "scholarshipInputModePercent": "Percentual",
+      "scholarshipInputModeMonthly": "Valor mensal a pagar",
+      "scholarshipInputModeAnnual": "Valor anual a pagar",
+      "scholarshipReferenceMonthly": "Mensalidade de lista: {amount}",
+      "scholarshipReferenceAnnual": "Anuidade de lista (12 meses): {amount}",
+      "scholarshipReferenceMissing": "Esta seção não tem mensalidade configurada — use percentual.",
+      "scholarshipTargetMonthly": "Valor mensal com bolsa",
+      "scholarshipTargetAnnual": "Valor anual com bolsa",
+      "scholarshipDerivedPercent": "Desconto equivalente: {percent}%",
+      "scholarshipAmountInvalid": "Digite um valor válido (0 ou mais).",
+      "scholarshipAmountAboveReference": "O valor não pode exceder a mensalidade de lista do período.",
       "scholarshipNote": "Nota interna",
       "scholarshipActive": "Ativo",
       "validFrom": "Válido a partir de (mês/ano)",
@@ -3209,6 +3273,12 @@
         "errorSave": "Não foi possível salvar o evento. Tente novamente.",
         "validationError": "Verifique os campos obrigatórios e tente novamente."
       },
+      "schedule": {
+        "sectionTitle": "Data e local",
+        "save": "Salvar data e local",
+        "savedOk": "Data e local atualizados.",
+        "errorSave": "Não foi possível salvar a data e o local. Tente novamente."
+      },
       "pricing": {
         "sectionTitle": "Preços por residência",
         "priceLocalLabel": "Preço residentes locais",
@@ -3334,7 +3404,9 @@
       "adminEdit": "Editar evento",
       "adminEditAriaLabel": "Abrir este evento no editor de administração",
       "eventEyebrow": "Evento",
+      "viewsCount": "{{count}} visualizações",
       "downloadFile": "Baixar arquivo",
+      "attachmentsSectionTitle": "Arquivos anexos",
       "audioLabel": "Áudio anexo",
       "videoLabel": "Vídeo anexo",
       "attachmentTypes": {
@@ -4185,7 +4257,8 @@
         "class": "Aula normal",
         "exam": "Avaliação/exame",
         "special": "Evento especial",
-        "birthday": "Aniversário"
+        "birthday": "Aniversário",
+        "instituteEvent": "Evento do instituto"
       },
       "specialTypes": {
         "holiday": {
@@ -4231,6 +4304,8 @@
         "detailRoom": "Sala",
         "detailMeeting": "Link da reunião",
         "detailTitleFallback": "Evento",
+        "detailViewPublic": "Ver detalhes do evento",
+        "detailEditEvent": "Editar data e detalhes",
         "visualLegendTitle": "Agendar cores",
         "visualLegendInPerson": "Pessoalmente",
         "visualLegendVirtual": "Link on-line/reunião",
@@ -4239,6 +4314,7 @@
         "visualLegendExam": "Exame",
         "visualLegendSpecial": "Instituto especial",
         "visualLegendBirthday": "Aniversário",
+        "visualLegendInstituteEvent": "Evento do instituto",
         "colorReferenceButton": "Referência de cores",
         "colorReferenceTitle": "Cores da legenda e da programação",
         "syncDialogButton": "Sincronizar e assinar",
@@ -6115,7 +6191,19 @@
         "noChildLinked": "Ainda não há alunos vinculados.",
         "quickActionsAria": "Ações rápidas",
         "quickActionsTitle": "Ações rápidas",
-        "messageTeacher": "Mensagem ao professor"
+        "messageTeacher": "Mensagem ao professor",
+        "pushTitle": "Fique por dentro",
+        "pushLead": "Permita notificações para novas mensagens, lembretes de aula e avisos de pagamento.",
+        "pushEnable": "Permitir notificações",
+        "pushLater": "Agora não",
+        "newsFeed": {
+          "title": "Novidades",
+          "empty": "Não há novidades no momento.",
+          "typeBlog": "Blog",
+          "typeEvent": "Evento",
+          "seeAllBlog": "Ver blog",
+          "seeAllEvents": "Ver eventos"
+        }
       },
       "progressPageTitle": "Progresso de aprendizagem",
       "progressPageLead": "Tarefas, avaliações, feedback e conquistas dos alunos vinculados.",

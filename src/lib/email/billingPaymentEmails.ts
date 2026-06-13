@@ -1,5 +1,6 @@
 import { collectRecipientEmailsForStudent } from "@/lib/email/billingEmailRecipients";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
+import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
 import { logServerException } from "@/lib/logging/serverActionLog";
 import type { Locale } from "@/types/i18n";
 import type { EmailTemplateKey } from "@/types/emailTemplates";
@@ -8,17 +9,7 @@ export function formatBillingPeriodLabel(month: number, year: number): string {
   return `${String(month).padStart(2, "0")}/${year}`;
 }
 
-export function formatMoneyLabel(
-  amount: number,
-  currency: string,
-  locale: string,
-): string {
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
+export { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
 
 function dashIfEmpty(s: string): string {
   const t = s.trim();

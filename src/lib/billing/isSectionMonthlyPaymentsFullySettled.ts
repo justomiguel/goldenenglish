@@ -16,6 +16,11 @@ export function isMonthlyCellSettled(cell: StudentMonthlyPaymentCell): boolean {
   return cell.status === "approved" || cell.status === "exempt";
 }
 
+/** Billable month that still requires payment or review. */
+export function isUnsettledPayableMonthlyCell(cell: StudentMonthlyPaymentCell): boolean {
+  return isPayableMonthlyCell(cell) && !isMonthlyCellSettled(cell);
+}
+
 export function isSectionEnrollmentSettled(row: StudentMonthlyPaymentSectionRow): boolean {
   if (row.enrollmentFeeExempt) return true;
   if (row.enrollmentFeeAmount <= 0) return true;

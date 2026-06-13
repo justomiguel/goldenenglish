@@ -7,6 +7,7 @@ import { User } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { PwaInstallPrompt } from "@/components/molecules/PwaInstallPrompt";
 import { ParentPwaTabBar } from "@/components/pwa/molecules/ParentPwaTabBar";
 
 interface ParentPwaShellProps {
@@ -83,6 +84,9 @@ export function ParentPwaShell({
         className="mx-auto w-full max-w-[var(--layout-max-width)] flex-1 px-4 py-4"
         style={{ paddingBottom: "calc(4.5rem + max(0.5rem, env(safe-area-inset-bottom, 0px)))" }}
       >
+        <div className="mb-4">
+          <PwaInstallPrompt copy={dict.pwa.install} />
+        </div>
         {children}
       </main>
 

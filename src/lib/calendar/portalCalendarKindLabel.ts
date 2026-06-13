@@ -4,7 +4,13 @@ import type { PortalSpecialEventTypeSlug } from "@/types/portalSpecialCalendar";
 type SpecialChipSource = Record<PortalSpecialEventTypeSlug, { chip: string }>;
 
 /** Matches `dashboard.portalCalendar.legend` keys in dictionaries. */
-type PortalCalendarLegendLabels = { class: string; exam: string; special: string; birthday: string };
+type PortalCalendarLegendLabels = {
+  class: string;
+  exam: string;
+  special: string;
+  birthday: string;
+  instituteEvent: string;
+};
 
 export function portalCalendarKindLabel(
   kind: PortalCalendarEventKind,
@@ -14,6 +20,7 @@ export function portalCalendarKindLabel(
 ): string {
   if (kind === "exam") return legend.exam;
   if (kind === "birthday") return legend.birthday;
+  if (kind === "institute_event") return legend.instituteEvent;
   if (kind === "special" && specialEventType) return specialTypes[specialEventType].chip;
   if (kind === "special") return legend.special;
   return legend.class;

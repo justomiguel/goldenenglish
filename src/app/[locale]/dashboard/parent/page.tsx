@@ -6,6 +6,8 @@ import { loadParentFamilyHubModel } from "@/lib/parent/loadParentFamilyHubModel"
 import { loadParentHomeMessageSignals } from "@/lib/parent/loadParentHomeMessageSignals";
 import { loadParentHomePaymentOverdueSignals } from "@/lib/parent/loadParentHomePaymentOverdueSignals";
 import { buildParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
+import { loadPortalCalendarPageData } from "@/lib/calendar/loadPortalCalendarPageData";
+import { loadParentHomeNewsFeed } from "@/lib/parent/loadParentHomeNewsFeed";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
 import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
 
@@ -28,7 +30,7 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const [{ data: profile }, summaries, hub, messageSignals, paymentOverdue] = await Promise.all([
+  const [{ data: profile }, summaries, hub, messageSignals, paymentOverdue, calendarPage] = await Promise.all([
     supabase.from("profiles").select("first_name").eq("id", user.id).maybeSingle(),
     loadParentChildrenSummaries(supabase, user.id),
     loadParentFamilyHubModel(
@@ -39,7 +41,13 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
     ),
     loadParentHomeMessageSignals(supabase, user.id),
     loadParentHomePaymentOverdueSignals(supabase, user.id),
+    loadPortalCalendarPageData(supabase, { role: "parent", userId: user.id }),
   ]);
+
+  const newsItems = await loadParentHomeNewsFeed(supabase, {
+    locale,
+    viewerSectionIds: calendarPage.viewerSectionIds,
+  });
 
   const kids = summaries.map((s) => ({
     id: s.studentId,
@@ -87,6 +95,7 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
       pillars={pillars}
       attendanceByStudent={attendanceByStudent}
       overdueByStudent={paymentOverdue.overdueByStudent}
+      newsItems={newsItems}
     />
   );
 }

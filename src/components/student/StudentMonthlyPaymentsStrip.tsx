@@ -40,9 +40,12 @@ export interface StudentMonthlyPaymentsStripProps {
   startMercadoPagoMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
   enabledOnlineGateways?: PaymentGatewayProvider[];
   fileUploadProgress: FileUploadProgressLabels;
+  bankTransferInstructions?: string | null;
   tutorPaymentMethodTabs?: boolean;
   initialFocus?: StudentMonthlyPaymentsStripFocus | null;
   hideNonBillableMonths?: boolean;
+  /** Parent / tutor unpaid grid: hide approved and exempt months. */
+  hideSettledMonths?: boolean;
   pwaSectionAccordion?: boolean;
   gridLegendLabels?: Dictionary["dashboard"]["student"]["paymentsPwa"]["legend"];
   pwaSectionLabels?: Pick<
@@ -72,9 +75,11 @@ export function StudentMonthlyPaymentsStrip({
   tutorPaymentMethodTabs = false,
   initialFocus = null,
   hideNonBillableMonths = false,
+  hideSettledMonths = false,
   pwaSectionAccordion = false,
   gridLegendLabels,
   pwaSectionLabels,
+  bankTransferInstructions = null,
 }: StudentMonthlyPaymentsStripProps) {
   const router = useRouter();
   const sortedRows = useMemo(
@@ -91,7 +96,11 @@ export function StudentMonthlyPaymentsStrip({
   const [focus, setFocus] = useState<StudentMonthlyPaymentsStripFocus | null>(() => {
     if (pwaSectionAccordion) return null;
     if (initialFocus != null) return initialFocus;
-    return pickInitialMonthlyStripFocus(sortedRows, hideNonBillableMonths, view.todayMonth);
+    return pickInitialMonthlyStripFocus(
+      sortedRows,
+      { hideNonBillableMonths, hideSettledMonths },
+      view.todayMonth,
+    );
   });
 
   const monthLabels = useMemo(() => monthlyStripMonthLabels(locale), [locale]);
@@ -104,7 +113,7 @@ export function StudentMonthlyPaymentsStrip({
     );
   }
 
-  const filterOpts = { hideNonBillableMonths };
+  const filterOpts = { hideNonBillableMonths, hideSettledMonths };
 
   if (isPwaAccordion && pwaSectionLabels && gridLegendLabels) {
     return (
@@ -118,6 +127,7 @@ export function StudentMonthlyPaymentsStrip({
         gridLegendLabels={gridLegendLabels}
         pwaSectionLabels={pwaSectionLabels}
         hideNonBillableMonths={hideNonBillableMonths}
+        hideSettledMonths={hideSettledMonths}
         expandedBySection={expandedBySection}
         onExpandedBySectionChange={(sectionId, open) =>
           setExpandedBySection((prev) => ({ ...prev, [sectionId]: open }))
@@ -132,6 +142,7 @@ export function StudentMonthlyPaymentsStrip({
         startMercadoPagoMonthlyPaymentAction={startMercadoPagoMonthlyPaymentAction}
         enabledOnlineGateways={enabledOnlineGateways}
         tutorPaymentMethodTabs={tutorPaymentMethodTabs}
+        bankTransferInstructions={bankTransferInstructions}
       />
     );
   }
@@ -177,6 +188,7 @@ export function StudentMonthlyPaymentsStrip({
             startMercadoPagoMonthlyPaymentAction={startMercadoPagoMonthlyPaymentAction}
             enabledOnlineGateways={enabledOnlineGateways}
             tutorPaymentMethodTabs={tutorPaymentMethodTabs}
+            bankTransferInstructions={bankTransferInstructions}
             onSubmitted={() => router.refresh()}
           />
         );
