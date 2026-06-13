@@ -1,12 +1,10 @@
-import { spawnSync } from "node:child_process";
-import { randomUUID } from "node:crypto";
 import type { NextConfig } from "next";
 import { loadEnvConfig } from "@next/env";
 import withSerwistInit from "@serwist/next";
 import { readSupabasePublicEnv } from "./src/lib/supabase/publicEnv";
 
-const swRevision =
-  spawnSync("git", ["rev-parse", "HEAD"], { encoding: "utf-8" }).stdout.trim() || randomUUID();
+/** Vercel sets commit SHA in CI; local builds use a stable revision to avoid sw.js churn per commit. */
+const swRevision = process.env.VERCEL_GIT_COMMIT_SHA?.trim() || "local-dev";
 
 const withSerwist = withSerwistInit({
   swSrc: "src/sw.ts",
