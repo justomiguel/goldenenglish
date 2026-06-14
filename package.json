@@ -38,7 +38,7 @@
     "test:coverage:full": "sh -c 'export VITEST_COVERAGE_FULL=1 && vitest run --coverage'",
     "lighthouse:smoke": "bash scripts/lighthouse-smoke.sh",
     "lighthouse:a11y:tenants": "node scripts/a11y-lighthouse-tenants.mjs",
-    "precommit": "npm run clean:test-cache && npm run lint && npm run check:supabase-boundaries && node scripts/precommit-verify.mjs && npm run build && npm run test:coverage",
+    "precommit": "npm run clean:test-cache && npm run lint && npm run check:supabase-boundaries && node scripts/precommit-verify.mjs && npm run build && git add public/sw.js && npm run test:coverage",
     "prepare": "husky"
   },
   "dependencies": {
