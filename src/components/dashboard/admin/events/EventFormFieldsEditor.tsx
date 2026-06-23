@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Archive, GripVertical } from "lucide-react";
 import { archiveEventFormFieldAction } from "@/app/[locale]/dashboard/admin/events/actions";
 import { EventFormBuiltinFieldsSection } from "@/components/dashboard/admin/events/EventFormBuiltinFieldsSection";
+import { EventFormCollectBirthDateToggle } from "@/components/dashboard/admin/events/EventFormCollectBirthDateToggle";
 import { EventFormFieldAddPanel } from "@/components/dashboard/admin/events/EventFormFieldAddPanel";
 import type { EventRegistrationBaseFieldId } from "@/lib/events/eventRegistrationBaseFields";
 import type { EventFormFieldDefinition, EventFormFieldType } from "@/lib/events/types";
@@ -14,11 +15,19 @@ interface EventFormFieldsEditorProps {
   fields: EventFormFieldDefinition[];
   locale: string;
   defaultLocale: string;
+  showBirthDateField: boolean;
   showResidencyField: boolean;
   showPaymentField: boolean;
+  collectBirthDate: boolean;
   nextFieldPosition: number;
   labels: {
     pageLead: string;
+    collectBirthDate: {
+      title: string;
+      lead: string;
+      checkboxLabel: string;
+      errorSave: string;
+    };
     customFieldsTitle: string;
     customFieldsEmpty: string;
     archive: string;
@@ -89,8 +98,10 @@ export function EventFormFieldsEditor({
   fields,
   locale,
   defaultLocale,
+  showBirthDateField,
   showResidencyField,
   showPaymentField,
+  collectBirthDate,
   nextFieldPosition,
   labels,
 }: EventFormFieldsEditorProps) {
@@ -109,7 +120,15 @@ export function EventFormFieldsEditor({
     <div className="space-y-4">
       <p className="text-sm text-[var(--color-muted-foreground)]">{labels.pageLead}</p>
 
+      <EventFormCollectBirthDateToggle
+        locale={locale}
+        eventId={eventId}
+        collectBirthDate={collectBirthDate}
+        labels={labels.collectBirthDate}
+      />
+
       <EventFormBuiltinFieldsSection
+        showBirthDateField={showBirthDateField}
         showResidencyField={showResidencyField}
         showPaymentField={showPaymentField}
         labels={labels.baseFields}

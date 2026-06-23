@@ -33,6 +33,7 @@ export interface ValidateEventAttendeePayloadInput {
   fieldValues: EventFieldPayloadEntry[];
   fields: EventFormFieldDefinition[];
   legalAgeMajority: number;
+  collectBirthDate?: boolean;
   now?: Date;
 }
 
@@ -46,11 +47,17 @@ export interface ValidateEventAttendeePayloadResult {
 export function validateEventAttendeePayload(
   input: ValidateEventAttendeePayloadInput,
 ): ValidateEventAttendeePayloadResult {
-  const parsedBase = baseSchema.parse(input.base);
-  const parsedTutor = tutorSchema.parse(input.tutor);
+  const collectBirthDate = input.collectBirthDate ?? false;
+  const baseInput = collectBirthDate
+    ? input.base
+    : { ...input.base, birthDate: undefined };
+  const parsedBase = baseSchema.parse(baseInput);
+  const parsedTutor = tutorSchema.parse(collectBirthDate ? input.tutor : {});
   const parsedFieldValues = buildEventFieldValuesSchema(input.fields).parse(input.fieldValues);
 
-  const isMinor = resolveAttendeeIsMinor(parsedBase.birthDate, input.legalAgeMajority, input.now);
+  const isMinor = collectBirthDate
+    ? resolveAttendeeIsMinor(parsedBase.birthDate, input.legalAgeMajority, input.now)
+    : false;
   if (isMinor) {
     const hasTutorId = Boolean(parsedTutor.tutorId);
     const hasTutorData =

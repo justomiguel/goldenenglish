@@ -3,6 +3,12 @@
 import { Send } from "lucide-react";
 import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { EventRegisterConsent } from "@/components/organisms/EventRegisterConsent";
+import type { PublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
+import {
+  publicEventRegisterProgressClass,
+  publicEventRegisterSubmitClass,
+  publicEventRegisterTypography,
+} from "@/lib/events/publicEventSurfaceClasses";
 
 interface EventRegisterFormFooterProps {
   consent: boolean;
@@ -14,6 +20,7 @@ interface EventRegisterFormFooterProps {
   isPending: boolean;
   fileUploadProgressSending: string;
   message: string;
+  surfaceVariant?: PublicEventSurfaceVariant;
 }
 
 export function EventRegisterFormFooter({
@@ -26,11 +33,19 @@ export function EventRegisterFormFooter({
   isPending,
   fileUploadProgressSending,
   message,
+  surfaceVariant = "default",
 }: EventRegisterFormFooterProps) {
+  const typography = publicEventRegisterTypography(surfaceVariant);
+
   return (
     <>
-      <EventRegisterConsent checked={consent} onChange={onConsentChange} label={consentLabel} />
-      <p className="text-xs text-[var(--color-muted-foreground)]">{captchaRequired}</p>
+      <EventRegisterConsent
+        checked={consent}
+        onChange={onConsentChange}
+        label={consentLabel}
+        className={typography.consent}
+      />
+      <p className={typography.hint}>{captchaRequired}</p>
 
       {receiptFieldError ? (
         <p className="text-sm text-[var(--color-error)]" role="alert">
@@ -41,7 +56,7 @@ export function EventRegisterFormFooter({
       <button
         type="submit"
         disabled={isPending || !consent}
-        className="inline-flex min-h-[44px] items-center gap-2 rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-foreground)] disabled:opacity-60"
+        className={publicEventRegisterSubmitClass(surfaceVariant)}
       >
         <Send className="h-4 w-4" aria-hidden />
         {submitLabel}
@@ -51,7 +66,7 @@ export function EventRegisterFormFooter({
         <InlineUploadProgressBar
           label={fileUploadProgressSending}
           indeterminate
-          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 px-3 py-3"
+          className={publicEventRegisterProgressClass(surfaceVariant)}
         />
       ) : null}
 

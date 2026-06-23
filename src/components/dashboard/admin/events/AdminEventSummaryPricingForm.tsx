@@ -26,6 +26,7 @@ interface AdminEventSummaryPricingFormProps {
     priceNonLocalLabel: string;
     priceHint: string;
     currencyLabel: string;
+    currencyGatewayWarning: string;
     bankTransferInstructionsLabel: string;
     bankTransferInstructionsHint: string;
     save: string;
@@ -100,6 +101,7 @@ export function AdminEventSummaryPricingForm({
           priceNonLocalLabel: labels.priceNonLocalLabel,
           priceHint: labels.priceHint,
           currencyLabel: labels.currencyLabel,
+          currencyGatewayWarning: labels.currencyGatewayWarning,
           bankTransferInstructionsLabel: labels.bankTransferInstructionsLabel,
           bankTransferInstructionsHint: labels.bankTransferInstructionsHint,
         }}

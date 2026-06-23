@@ -100,6 +100,7 @@ export function AdminEventDetailSummaryTab({
             priceNonLocalLabel: pricing.priceNonLocalLabel,
             priceHint: pricing.priceHint,
             currencyLabel: pricing.currencyLabel,
+            currencyGatewayWarning: pricing.currencyGatewayWarning,
             bankTransferInstructionsLabel: pricing.bankTransferInstructionsLabel,
             bankTransferInstructionsHint: pricing.bankTransferInstructionsHint,
             save: pricing.save,

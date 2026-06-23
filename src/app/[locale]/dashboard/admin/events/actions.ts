@@ -13,6 +13,8 @@ export {
   archiveEventFormFieldAction,
 } from "@/app/[locale]/dashboard/admin/events/eventFormFieldActions";
 
+export { updateEventCollectBirthDateAction } from "@/app/[locale]/dashboard/admin/events/eventRegistrationSettingsActions";
+
 export {
   approveEventPaymentAction,
   rejectEventPaymentAction,

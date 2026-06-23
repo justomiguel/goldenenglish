@@ -32,7 +32,7 @@ export async function loadAdminEventDetailPageModel(input: {
   const { data: event } = await admin
     .from("events")
     .select(
-      "id, title, description, event_date, status, capacity, location, price, price_local, price_non_local, currency, default_locale, view_count, bank_transfer_instructions",
+      "id, title, description, event_date, status, capacity, location, price, price_local, price_non_local, currency, default_locale, view_count, bank_transfer_instructions, collect_birth_date",
     )
     .eq("id", input.eventId)
     .maybeSingle();
@@ -96,10 +96,12 @@ export async function loadAdminEventDetailPageModel(input: {
     priceLocal: event.price_local == null ? null : Number(event.price_local),
     priceNonLocal: event.price_non_local == null ? null : Number(event.price_non_local),
   };
+  const collectBirthDate = Boolean(event.collect_birth_date);
   const showResidencyField = eventHasTieredPricing(priceSource);
   const localPrice = resolveEventLocalPrice(priceSource) ?? 0;
   const nonLocalPrice = resolveEventNonLocalPrice(priceSource) ?? 0;
   const showPaymentField = localPrice > 0 || nonLocalPrice > 0;
+  const showBirthDateField = collectBirthDate;
   const mappedFields = (fields ?? []).map((field) => ({
     id: String(field.id),
     fieldKey: String(field.field_key),
@@ -123,6 +125,8 @@ export async function loadAdminEventDetailPageModel(input: {
     eventPayments,
     paymentsQuery,
     mappedFields,
+    collectBirthDate,
+    showBirthDateField,
     showResidencyField,
     showPaymentField,
     nextFieldPosition,

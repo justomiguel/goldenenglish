@@ -12,6 +12,10 @@ vi.mock("@/app/[locale]/dashboard/admin/events/actions", () => ({
   addEventFormFieldAction: vi.fn(),
 }));
 
+vi.mock("@/app/[locale]/dashboard/admin/events/eventRegistrationSettingsActions", () => ({
+  updateEventCollectBirthDateAction: vi.fn(),
+}));
+
 const formLabels = en.admin.events.form;
 
 describe("EventFormFieldsEditor", () => {
@@ -22,11 +26,14 @@ describe("EventFormFieldsEditor", () => {
         fields={[]}
         locale="es"
         defaultLocale="es"
+        showBirthDateField={false}
         showResidencyField={false}
         showPaymentField={false}
+        collectBirthDate={false}
         nextFieldPosition={0}
         labels={{
           pageLead: formLabels.lead,
+          collectBirthDate: formLabels.collectBirthDate,
           customFieldsTitle: formLabels.customFieldsTitle,
           customFieldsEmpty: formLabels.customFieldsEmpty,
           archive: en.admin.events.detail.archive,
@@ -65,6 +72,7 @@ describe("EventFormFieldsEditor", () => {
 
     expect(screen.getByText(formLabels.baseFieldsTitle)).toBeInTheDocument();
     expect(screen.getByText(formLabels.baseFields.firstName)).toBeInTheDocument();
+    expect(screen.getByText(formLabels.collectBirthDate.checkboxLabel)).toBeInTheDocument();
     expect(screen.getByText(formLabels.customFieldsEmpty)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: formLabels.addButton })).toBeInTheDocument();
   });

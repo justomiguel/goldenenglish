@@ -1348,7 +1348,7 @@ END $$;
 
 CREATE TABLE IF NOT EXISTS public.user_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  user_id UUID REFERENCES public.profiles (id) ON DELETE CASCADE,
   event_type public.user_event_type NOT NULL,
   entity TEXT NOT NULL DEFAULT '',
   metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -1391,6 +1391,10 @@ AS $$
 DECLARE
   r text;
 BEGIN
+  IF NEW.user_id IS NULL THEN
+    RETURN NEW;
+  END IF;
+
   SELECT role::text INTO r FROM public.profiles WHERE id = NEW.user_id;
   IF r IS NULL OR r <> 'student' THEN
     RETURN NEW;
@@ -11932,4 +11936,18 @@ ALTER TABLE public.academic_sections
 UPDATE public.academic_sections
   SET monthly_fee_charge_mode = 'full_month_fee'
   WHERE monthly_fee_charge_mode IS DISTINCT FROM 'full_month_fee';
+
+-- ========== 156_events_collect_birth_date.sql ==========
+
+ALTER TABLE public.events
+  ADD COLUMN IF NOT EXISTS collect_birth_date BOOLEAN NOT NULL DEFAULT false;
+
+COMMENT ON COLUMN public.events.collect_birth_date IS
+  'When true, public registration shows birth date and may require tutor data for minors. When false, birth_date is stored as NULL.';
+
+-- ========== 157_events_bank_transfer_enabled_setting.sql ==========
+
+INSERT INTO public.site_settings (key, value)
+VALUES ('events_bank_transfer_enabled', 'true'::jsonb)
+ON CONFLICT (key) DO NOTHING;
 

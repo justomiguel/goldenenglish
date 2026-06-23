@@ -2257,6 +2257,13 @@
         "bankTransferInstructionsSave": "Save transfer details",
         "bankTransferInstructionsSavedOk": "Transfer details saved.",
         "bankTransferInstructionsSavedError": "Could not save transfer details.",
+        "eventsBankTransferTitle": "Bank transfer for event registration",
+        "eventsBankTransferLead": "Allow attendees to pay event registrations by bank transfer and upload a receipt, alongside online gateways.",
+        "eventsBankTransferToggle": "Accept bank transfer on event registration",
+        "eventsBankTransferHint": "When enabled, the registration form shows a 'Bank transfer' option with the transfer details and a receipt upload. Turn it off to only accept online payments.",
+        "eventsBankTransferSave": "Save bank transfer option",
+        "eventsBankTransferSavedOk": "Bank transfer option saved.",
+        "eventsBankTransferSavedError": "Could not save the bank transfer option.",
         "flowTitle": "Flow (Chile)",
         "flowLead": "Let families pay monthly tuition online with Flow, in Chilean pesos (CLP). Enter your Flow API credentials, choose sandbox or production, and turn on the option so the pay button appears on student and guardian payment screens.",
         "flowEnvironment": "Environment",
@@ -3398,6 +3405,7 @@
         "priceNonLocalLabel": "Non-local price",
         "priceHint": "Leave empty for free. If only local price is set, it applies to both.",
         "currencyLabel": "Currency",
+        "currencyGatewayWarning": "This currency is not supported by Mercado Pago or Flow, so online payment will not be available. Only bank transfer will work. Use CLP or ARS to enable online payment.",
         "bankTransferInstructionsLabel": "Bank transfer details",
         "bankTransferInstructionsHint": "Optional: leave empty to use the details configured under Finance → Settings.",
         "save": "Save prices",
@@ -3426,7 +3434,13 @@
       "form": {
         "lead": "The public registration form always includes the base enrollment fields. Here you can add event-specific extra fields.",
         "baseFieldsTitle": "Base fields (always included)",
-        "baseFieldsLead": "These fields appear on public registration and cannot be removed.",
+        "baseFieldsLead": "These fields appear on public registration. Birth date is enabled below.",
+        "collectBirthDate": {
+          "title": "Date of birth",
+          "lead": "Enable this when you need the attendee's age (for example, to detect minors and collect tutor details).",
+          "checkboxLabel": "Ask for date of birth on registration",
+          "errorSave": "We could not save this setting. Please try again."
+        },
         "customFieldsTitle": "Additional fields",
         "customFieldsEmpty": "No extra fields yet. Add one below if you need more information.",
         "requiredBadge": "Required",
@@ -3478,7 +3492,7 @@
         },
         "baseFieldNotes": {
           "phone": "Optional on registration.",
-          "birthDate": "Optional; used to detect minors.",
+          "birthDate": "Optional; used to detect minors and collect tutor details.",
           "tutor": "Required only when the attendee is a minor.",
           "residency": "Only when local and non-local prices differ.",
           "payment": "Only when the event has a cost."
@@ -3543,6 +3557,17 @@
         "openInNewTab": "Open in new tab",
         "zoomIn": "Zoom in",
         "zoomOut": "Zoom out"
+      },
+      "paymentStatus": {
+        "successTitle": "Payment confirmed!",
+        "successBody": "We received your payment. We'll email you your registration confirmation.",
+        "pendingTitle": "Payment pending",
+        "pendingBody": "We're confirming your payment. As soon as it clears, we'll email your confirmation.",
+        "processingTitle": "We're processing your payment",
+        "processingBody": "Your payment is being verified. This may take a few minutes.",
+        "failureTitle": "We couldn't process your payment",
+        "failureBody": "The payment didn't go through. You can try again from the registration page.",
+        "dismiss": "Dismiss"
       }
     },
     "register": {
@@ -3579,7 +3604,8 @@
         "title": "Payment method",
         "flow": "Flow",
         "mercadopago": "Mercado Pago",
-        "transfer": "Bank transfer"
+        "transfer": "Bank transfer",
+        "startFailed": "We couldn't start the payment. Please try again in a few minutes."
       },
       "residency": {
         "title": "Are you a local resident?",

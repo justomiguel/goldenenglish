@@ -7,6 +7,8 @@ import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { updateBillingCurrencySetting } from "@/lib/billing/updateBillingCurrencySetting";
 import { updateBankTransferInstructionsSetting } from "@/lib/billing/updateBankTransferInstructionsSetting";
+import { updateEventsBankTransferEnabledSetting } from "@/lib/events/server/updateEventsBankTransferEnabledSetting";
+import { EVENTS_BANK_TRANSFER_ENABLED_KEY } from "@/lib/events/eventsBankTransferSetting";
 
 export interface SetBillingCurrencyResult {
   ok: boolean;
@@ -87,6 +89,46 @@ export async function setBankTransferInstructionsAction(
   revalidatePath(`/${locale}/dashboard/admin/finance`, "layout");
   revalidatePath(`/${locale}/dashboard/student/payments`, "layout");
   revalidatePath(`/${locale}/dashboard/parent/payments`, "layout");
+  revalidatePath(`/${locale}/events`, "layout");
+  return { ok: true };
+}
+
+export interface SetEventsBankTransferEnabledResult {
+  ok: boolean;
+  error?: "unauthorized" | "db_error";
+}
+
+export async function setEventsBankTransferEnabledAction(
+  locale: string,
+  enabled: boolean,
+): Promise<SetEventsBankTransferEnabledResult> {
+  try {
+    await assertAdmin();
+  } catch {
+    logServerAuthzDenied("setEventsBankTransferEnabledAction");
+    return { ok: false, error: "unauthorized" };
+  }
+
+  const supabase = await createClient();
+  const result = await updateEventsBankTransferEnabledSetting(supabase, enabled);
+
+  if (!result.ok) {
+    logSupabaseClientError(
+      "setEventsBankTransferEnabledAction",
+      { message: result.error ?? "unknown" },
+      { key: EVENTS_BANK_TRANSFER_ENABLED_KEY },
+    );
+    return { ok: false, error: "db_error" };
+  }
+
+  void recordSystemAudit({
+    action: "events_bank_transfer_enabled_update",
+    resourceType: "site_settings",
+    resourceId: EVENTS_BANK_TRANSFER_ENABLED_KEY,
+    payload: { enabled },
+  });
+
+  revalidatePath(`/${locale}/dashboard/admin/finance`, "layout");
   revalidatePath(`/${locale}/events`, "layout");
   return { ok: true };
 }

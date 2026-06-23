@@ -1,8 +1,14 @@
 "use client";
 
 import { FormField } from "@/components/molecules/FormField";
+import type { PublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
+import {
+  publicEventRegisterPanelClass,
+  publicEventRegisterTypography,
+} from "@/lib/events/publicEventSurfaceClasses";
 
 interface EventRegisterTutorBlockProps {
+  surfaceVariant?: PublicEventSurfaceVariant;
   values: {
     tutorFirstName: string;
     tutorLastName: string;
@@ -23,10 +29,17 @@ interface EventRegisterTutorBlockProps {
   };
 }
 
-export function EventRegisterTutorBlock({ values, onChange, labels }: EventRegisterTutorBlockProps) {
+export function EventRegisterTutorBlock({
+  values,
+  onChange,
+  surfaceVariant = "default",
+  labels,
+}: EventRegisterTutorBlockProps) {
+  const typography = publicEventRegisterTypography(surfaceVariant);
+
   return (
-    <section className="space-y-3 rounded-xl border border-[var(--color-border)] p-4">
-      <h3 className="text-sm font-semibold text-[var(--color-foreground)]">{labels.title}</h3>
+    <section className={publicEventRegisterPanelClass(surfaceVariant)}>
+      <h3 className={typography.sectionTitle}>{labels.title}</h3>
       <div className="grid gap-3 md:grid-cols-2">
         <FormField
           label={labels.firstName}
@@ -34,6 +47,7 @@ export function EventRegisterTutorBlock({ values, onChange, labels }: EventRegis
           onChange={(event) => onChange("tutorFirstName", event.currentTarget.value)}
           required
           autoComplete="given-name"
+          surfaceVariant={surfaceVariant}
         />
         <FormField
           label={labels.lastName}
@@ -41,6 +55,7 @@ export function EventRegisterTutorBlock({ values, onChange, labels }: EventRegis
           onChange={(event) => onChange("tutorLastName", event.currentTarget.value)}
           required
           autoComplete="family-name"
+          surfaceVariant={surfaceVariant}
         />
         <FormField
           label={labels.dni}
@@ -48,6 +63,7 @@ export function EventRegisterTutorBlock({ values, onChange, labels }: EventRegis
           onChange={(event) => onChange("tutorDniOrPassport", event.currentTarget.value)}
           required
           autoComplete="off"
+          surfaceVariant={surfaceVariant}
         />
         <FormField
           label={labels.email}
@@ -56,6 +72,7 @@ export function EventRegisterTutorBlock({ values, onChange, labels }: EventRegis
           onChange={(event) => onChange("tutorEmail", event.currentTarget.value)}
           required
           autoComplete="email"
+          surfaceVariant={surfaceVariant}
         />
         <FormField
           label={labels.phone}
@@ -63,6 +80,7 @@ export function EventRegisterTutorBlock({ values, onChange, labels }: EventRegis
           value={values.tutorPhone}
           onChange={(event) => onChange("tutorPhone", event.currentTarget.value)}
           autoComplete="tel"
+          surfaceVariant={surfaceVariant}
         />
         <FormField
           label={labels.relationship}
@@ -70,6 +88,7 @@ export function EventRegisterTutorBlock({ values, onChange, labels }: EventRegis
           onChange={(event) => onChange("tutorRelationship", event.currentTarget.value)}
           required
           autoComplete="off"
+          surfaceVariant={surfaceVariant}
         />
       </div>
     </section>

@@ -6,6 +6,7 @@ import {
 } from "@/lib/events/eventRegistrationBaseFields";
 
 interface EventFormBuiltinFieldsSectionProps {
+  showBirthDateField: boolean;
   showResidencyField: boolean;
   showPaymentField: boolean;
   labels: {
@@ -29,11 +30,16 @@ function kindBadge(
 }
 
 export function EventFormBuiltinFieldsSection({
+  showBirthDateField,
   showResidencyField,
   showPaymentField,
   labels,
 }: EventFormBuiltinFieldsSectionProps) {
-  const fields = listVisibleEventRegistrationBaseFields({ showResidencyField, showPaymentField });
+  const fields = listVisibleEventRegistrationBaseFields({
+    showBirthDateField,
+    showResidencyField,
+    showPaymentField,
+  });
 
   return (
     <section className="space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">

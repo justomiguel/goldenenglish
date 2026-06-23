@@ -26,6 +26,7 @@ export interface PublicEventDetail {
   defaultLocale: EventLocale;
   localeUsed: EventLocale;
   bankTransferInstructions: string | null;
+  collectBirthDate: boolean;
   fields: EventFormFieldDefinition[];
 }
 
@@ -37,7 +38,7 @@ export async function loadEventForPublicLanding(
   const { data: eventRow } = await supabase
     .from("events")
     .select(
-      "id, slug, title, description, view_count, event_date, location, price, price_local, price_non_local, currency, capacity, default_locale, bank_transfer_instructions",
+      "id, slug, title, description, view_count, event_date, location, price, price_local, price_non_local, currency, capacity, default_locale, bank_transfer_instructions, collect_birth_date",
     )
     .eq("slug", slug)
     .eq("status", "published")
@@ -114,6 +115,7 @@ export async function loadEventForPublicLanding(
       eventRow.bank_transfer_instructions == null
         ? null
         : String(eventRow.bank_transfer_instructions),
+    collectBirthDate: Boolean(eventRow.collect_birth_date),
     fields,
   };
 }

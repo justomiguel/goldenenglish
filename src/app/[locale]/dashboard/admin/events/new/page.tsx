@@ -40,6 +40,7 @@ export default async function AdminEventNewPage({ params }: PageProps) {
           priceNonLocalLabel: formLabels.priceNonLocalLabel,
           priceHint: formLabels.priceHint,
           currencyLabel: formLabels.currencyLabel,
+          currencyGatewayWarning: dict.admin.events.pricing.currencyGatewayWarning,
           bankTransferInstructionsLabel: dict.admin.events.pricing.bankTransferInstructionsLabel,
           bankTransferInstructionsHint: dict.admin.events.pricing.bankTransferInstructionsHint,
           submit: formLabels.submit,

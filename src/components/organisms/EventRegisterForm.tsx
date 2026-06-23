@@ -11,6 +11,8 @@ import {
 import type { EventRegistrationPaymentMethod } from "@/lib/events/resolveEventRegistrationPaymentMethods";
 import type { PublicEventDetail } from "@/lib/dashboard/events/loadEventForPublicLanding";
 import type { EventRegisterFormLabels } from "@/lib/events/eventRegisterFormLabels";
+import type { PublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
+import { publicEventRegisterTypography } from "@/lib/events/publicEventSurfaceClasses";
 import { EventRegisterFormFields } from "@/components/organisms/EventRegisterFormFields";
 import { EventRegisterTutorBlock } from "@/components/organisms/EventRegisterTutorBlock";
 import { EventRegisterPaymentPicker } from "@/components/organisms/EventRegisterPaymentPicker";
@@ -24,6 +26,7 @@ interface EventRegisterFormProps {
   locale: string;
   event: PublicEventDetail;
   paymentMethods: EventRegistrationPaymentMethod[];
+  surfaceVariant?: PublicEventSurfaceVariant;
   labels: EventRegisterFormLabels;
 }
 
@@ -31,6 +34,7 @@ export function EventRegisterForm({
   locale,
   event,
   paymentMethods,
+  surfaceVariant = "default",
   labels,
 }: EventRegisterFormProps) {
   const [firstName, setFirstName] = useState("");
@@ -61,12 +65,13 @@ export function EventRegisterForm({
       error: labels.error,
       transferReceiptRequired: labels.transferReceipt.required,
       transferReceiptUploadFailed: labels.transferReceipt.uploadFailed,
+      paymentStartFailed: labels.payment.startFailed,
     },
   });
 
   const isMinor = useMemo(
-    () => resolveAttendeeIsMinor(birthDate, 18),
-    [birthDate],
+    () => (event.collectBirthDate ? resolveAttendeeIsMinor(birthDate, 18) : false),
+    [birthDate, event.collectBirthDate],
   );
 
   const priceSource = useMemo(
@@ -117,6 +122,8 @@ export function EventRegisterForm({
     });
   }
 
+  const typography = publicEventRegisterTypography(surfaceVariant);
+
   return (
     <>
     <EventRegisterSuccessDialog
@@ -127,6 +134,8 @@ export function EventRegisterForm({
     <form className="space-y-6" onSubmit={handleSubmit}>
       <EventRegisterParticipantFields
         sectionTitle={labels.participantSection}
+        surfaceVariant={surfaceVariant}
+        showBirthDate={event.collectBirthDate}
         labels={{
           firstName: labels.firstName,
           lastName: labels.lastName,
@@ -153,6 +162,7 @@ export function EventRegisterForm({
         values={fieldValues}
         onChange={(fieldId, value) => setFieldValues((current) => ({ ...current, [fieldId]: value }))}
         selectPlaceholder={labels.selectPlaceholder}
+        surfaceVariant={surfaceVariant}
       />
 
       {event.hasTieredPricing ? (
@@ -163,6 +173,7 @@ export function EventRegisterForm({
           currency={event.currency}
           priceLocal={event.priceLocal}
           priceNonLocal={event.priceNonLocal}
+          surfaceVariant={surfaceVariant}
         />
       ) : null}
 
@@ -172,6 +183,7 @@ export function EventRegisterForm({
           value={paymentMethod}
           onChange={setPaymentMethod}
           labels={labels.payment}
+          surfaceVariant={surfaceVariant}
         />
       ) : null}
 
@@ -179,6 +191,7 @@ export function EventRegisterForm({
         <EventRegisterBankTransferInstructions
           title={labels.transferInstructions.title}
           instructions={event.bankTransferInstructions}
+          surfaceVariant={surfaceVariant}
         />
       ) : null}
 
@@ -189,11 +202,12 @@ export function EventRegisterForm({
           onFileChange={setReceiptFile}
           onValidationError={setReceiptFieldError}
           disabled={isPending}
+          surfaceVariant={surfaceVariant}
         />
       ) : null}
 
       {selectedPrice != null && selectedPrice > 0 ? (
-        <p className="text-sm text-[var(--color-muted-foreground)]">
+        <p className={typography.price}>
           {event.currency} {selectedPrice.toFixed(2)}
         </p>
       ) : null}
@@ -203,6 +217,7 @@ export function EventRegisterForm({
           values={tutor}
           onChange={(key, value) => setTutor((current) => ({ ...current, [key]: value }))}
           labels={labels.tutor}
+          surfaceVariant={surfaceVariant}
         />
       ) : null}
 
@@ -216,6 +231,7 @@ export function EventRegisterForm({
         isPending={isPending}
         fileUploadProgressSending={labels.fileUploadProgressSending}
         message={message}
+        surfaceVariant={surfaceVariant}
       />
     </form>
     </>

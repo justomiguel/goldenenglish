@@ -31,12 +31,15 @@ export const EVENT_REGISTRATION_BASE_FIELDS: EventRegistrationBaseFieldMeta[] = 
 ];
 
 export function listVisibleEventRegistrationBaseFields(input: {
+  showBirthDateField: boolean;
   showResidencyField: boolean;
   showPaymentField: boolean;
 }): EventRegistrationBaseFieldMeta[] {
   return EVENT_REGISTRATION_BASE_FIELDS.filter((field) => {
+    if (field.id === "birthDate") return input.showBirthDateField;
     if (field.id === "residency") return input.showResidencyField;
     if (field.id === "payment") return input.showPaymentField;
+    if (field.id === "tutor") return input.showBirthDateField;
     return true;
   });
 }

@@ -4,6 +4,8 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadPublicEventsList } from "@/lib/dashboard/events/loadPublicEventsList";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { PublicEventListCard } from "@/components/molecules/PublicEventListCard";
+import { loadPublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
+import { publicEventListPageHeaderClasses } from "@/lib/events/publicEventSurfaceClasses";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -25,7 +27,10 @@ export default async function PublicEventsPage({ params, searchParams }: PagePro
   const sp = await searchParams;
   const page = Math.max(1, Number.parseInt(String(sp.page ?? "1"), 10) || 1);
   const supabase = await createClient();
-  const result = await loadPublicEventsList(supabase, locale, page, 12);
+  const [result, surfaceVariant] = await Promise.all([
+    loadPublicEventsList(supabase, locale, page, 12),
+    loadPublicEventSurfaceVariant(),
+  ]);
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -55,11 +60,13 @@ export default async function PublicEventsPage({ params, searchParams }: PagePro
     adminEditAriaLabel: publicLabels.adminEditAriaLabel,
   };
 
+  const headerClasses = publicEventListPageHeaderClasses(surfaceVariant);
+
   return (
     <main className="space-y-6">
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold text-[var(--color-secondary)]">{publicLabels.title}</h1>
-        <p className="max-w-2xl text-[var(--color-muted-foreground)]">{publicLabels.lead}</p>
+        <h1 className={headerClasses.title}>{publicLabels.title}</h1>
+        <p className={headerClasses.lead}>{publicLabels.lead}</p>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2">
@@ -69,6 +76,7 @@ export default async function PublicEventsPage({ params, searchParams }: PagePro
             locale={locale}
             row={row}
             showAdminEdit={showAdminEdit}
+            surfaceVariant={surfaceVariant}
             labels={cardLabels}
           />
         ))}

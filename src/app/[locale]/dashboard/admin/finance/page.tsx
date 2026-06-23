@@ -19,6 +19,7 @@ import { FinanceHubKpiStrip } from "@/components/dashboard/admin/finance/Finance
 import { loadAdminCohortCollectionsBulk } from "@/lib/billing/loadAdminCohortCollectionsBulk";
 import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
 import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTransferInstructionsSetting";
+import { loadEventsBankTransferEnabledSetting } from "@/lib/events/server/loadEventsBankTransferEnabledSetting";
 import { loadEventPaymentsForFinanceKpis } from "@/lib/billing/financeSources/loadEventPaymentsForFinanceKpis";
 import { FinanceEventsPaymentsPanel } from "@/components/dashboard/admin/finance/FinanceEventsPaymentsPanel";
 import {
@@ -115,15 +116,16 @@ export default async function AdminFinanceHubPage({
     { countryCode: "CL" as const, environment: "sandbox" as const, enabled: false, hasCredentials: false },
     { countryCode: "AR" as const, environment: "sandbox" as const, enabled: false, hasCredentials: false },
   ];
-  const [flowGatewayInitial, mercadoPagoGatewayInitial] =
+  const [flowGatewayInitial, mercadoPagoGatewayInitial, eventsBankTransferEnabled] =
     tab === "settings"
       ? await Promise.all([
           loadFlowChileGatewayAdminRow().then((row) => row ?? flowGatewayDefault),
           loadMercadoPagoGatewayAdminRows().then((rows) =>
             rows.length > 0 ? rows : mercadoPagoGatewayDefault,
           ),
+          loadEventsBankTransferEnabledSetting(supabase).then((s) => s.enabled),
         ])
-      : [flowGatewayDefault, mercadoPagoGatewayDefault];
+      : [flowGatewayDefault, mercadoPagoGatewayDefault, true];
 
   return (
     <div className="space-y-5">
@@ -197,6 +199,7 @@ export default async function AdminFinanceHubPage({
           <FinanceSettingsPanel
             currentCurrency={billingCurrency.currency}
             currentBankTransferInstructions={bankTransferInstructions.instructions}
+            eventsBankTransferEnabled={eventsBankTransferEnabled}
             locale={locale}
             dict={financeDict.settings}
             flowGatewayInitial={flowGatewayInitial}

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { flowFetchPaymentStatus } from "@/lib/payment-gateways/flow/flowFetchPaymentStatus";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { parseEventPaymentIdFromCommerceOrder } from "@/lib/events/parseEventPaymentCommerceOrder";
 
 const FLOW_PAID_STATUS = 2;
 
@@ -20,7 +21,7 @@ export async function finalizeEventPaymentFromFlowGateway(input: {
   if (!status.ok) return { ok: false };
   if (status.data.status !== FLOW_PAID_STATUS) return { ok: true, skipped: "flow_not_paid" };
 
-  const paymentId = status.data.commerceOrder?.replace("event_payment:", "").trim() ?? "";
+  const paymentId = parseEventPaymentIdFromCommerceOrder(status.data.commerceOrder);
   if (!paymentId) return { ok: true, skipped: "missing_payment_id" };
 
   const { error } = await input.admin

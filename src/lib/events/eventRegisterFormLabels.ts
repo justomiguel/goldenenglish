@@ -30,6 +30,7 @@ export interface EventRegisterFormLabels {
     flow: string;
     mercadopago: string;
     transfer: string;
+    startFailed: string;
   };
   residency: {
     title: string;

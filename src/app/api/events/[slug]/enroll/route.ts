@@ -97,10 +97,11 @@ export async function POST(
 
     const validated = validateEventAttendeePayload({
       base: body.base,
-      tutor: body.tutor ?? {},
+      tutor: event.collectBirthDate ? (body.tutor ?? {}) : {},
       fieldValues: body.fieldValues ?? [],
       fields: event.fields,
       legalAgeMajority: 18,
+      collectBirthDate: event.collectBirthDate,
     });
 
     const result = await enrollEventAttendeeServer({

@@ -15,12 +15,16 @@ import { getBrandForRequest } from "@/lib/brand/server";
 import { EventDescriptionHtml } from "@/components/organisms/EventDescriptionHtml";
 import { PublicEventDetailHero } from "@/components/molecules/PublicEventDetailHero";
 import { PublicEventDetailPanel } from "@/components/molecules/PublicEventDetailPanel";
+import { PublicEventPaymentStatusBanner } from "@/components/molecules/PublicEventPaymentStatusBanner";
+import { normalizeEventPaymentBannerStatus } from "@/lib/events/buildEventPaymentReturnUrl";
 import { resolveEventCoverImageUrl } from "@/lib/rich-content/resolvePublicContentCoverUrl";
 import { stripFirstImageFromHtml } from "@/lib/rich-content/stripFirstImageFromHtml";
 import { buildPublicShareMetadata } from "@/lib/site/buildPublicShareMetadata";
+import { loadPublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
+  searchParams: Promise<{ payment?: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -50,11 +54,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function EventDetailPage({ params }: PageProps) {
+export default async function EventDetailPage({ params, searchParams }: PageProps) {
   const { locale, slug } = await params;
+  const { payment } = await searchParams;
+  const paymentBannerStatus = normalizeEventPaymentBannerStatus(payment);
   const dict = await getDictionary(locale);
   const supabase = await createClient();
-  const event = await loadEventForPublicLanding(supabase, slug, locale);
+  const [event, surfaceVariant] = await Promise.all([
+    loadEventForPublicLanding(supabase, slug, locale),
+    loadPublicEventSurfaceVariant(),
+  ]);
   if (!event) notFound();
 
   const {
@@ -101,12 +110,20 @@ export default async function EventDetailPage({ params }: PageProps) {
 
   return (
     <main className="space-y-6">
+      {paymentBannerStatus ? (
+        <PublicEventPaymentStatusBanner
+          status={paymentBannerStatus}
+          labels={publicLabels.paymentStatus}
+        />
+      ) : null}
+
       <PublicEventDetailHero
         locale={locale}
         title={event.title}
         coverImageUrl={coverImageUrl}
         coverUnoptimized={Boolean(coverUnoptimized)}
         adminEditHref={adminEditHref}
+        surfaceVariant={surfaceVariant}
         labels={{
           backToEvents: publicLabels.backToEvents,
           eventEyebrow: publicLabels.eventEyebrow,
@@ -119,6 +136,7 @@ export default async function EventDetailPage({ params }: PageProps) {
         <div className="order-2 min-w-0 lg:order-1">
           <EventDescriptionHtml
             html={descriptionHtml}
+            surfaceVariant={surfaceVariant}
             labels={{
               downloadFile: publicLabels.downloadFile,
               audioLabel: publicLabels.audioLabel,
@@ -135,6 +153,7 @@ export default async function EventDetailPage({ params }: PageProps) {
             locale={locale}
             eventDate={event.eventDate}
             location={event.location}
+            surfaceVariant={surfaceVariant}
             priceSource={{
               price: event.price,
               priceLocal: event.priceLocal,

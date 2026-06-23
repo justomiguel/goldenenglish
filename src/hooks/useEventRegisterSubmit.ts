@@ -4,6 +4,13 @@ import { useState } from "react";
 import type { EventRegistrationPaymentMethod } from "@/lib/events/resolveEventRegistrationPaymentMethods";
 import { validateEventTransferReceiptFile } from "@/lib/events/eventTransferReceiptLimits";
 import { uploadEventPaymentReceipt } from "@/lib/client/uploadEventPaymentReceipt";
+import { startEventGatewayPayment } from "@/lib/client/startEventGatewayPayment";
+
+function isOnlineGatewayMethod(
+  method: EventRegistrationPaymentMethod,
+): method is "mercadopago" | "flow" {
+  return method === "mercadopago" || method === "flow";
+}
 
 export interface EventRegisterSubmitPayload {
   locale: string;
@@ -35,6 +42,7 @@ export interface EventRegisterSubmitLabels {
   error: string;
   transferReceiptRequired: string;
   transferReceiptUploadFailed: string;
+  paymentStartFailed: string;
 }
 
 interface UseEventRegisterSubmitArgs {
@@ -72,7 +80,9 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
             dniOrPassport: payload.dni,
             email: payload.email,
             phone: payload.phone,
-            birthDate: payload.birthDate,
+            ...(payload.birthDate.trim()
+              ? { birthDate: payload.birthDate.trim() }
+              : {}),
           },
           tutor: payload.isMinor ? payload.tutor : {},
           paymentMethod: payload.showPaymentPicker ? payload.paymentMethod : undefined,
@@ -109,6 +119,27 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
           setMessage(labels.transferReceiptUploadFailed);
           return;
         }
+        setSuccessOpen(true);
+        return;
+      }
+
+      const wantsOnlinePayment =
+        payload.showPaymentPicker && isOnlineGatewayMethod(payload.paymentMethod);
+      if (wantsOnlinePayment && paymentId) {
+        const started = await startEventGatewayPayment({
+          slug: payload.slug,
+          paymentId,
+          method: payload.paymentMethod as "mercadopago" | "flow",
+          email: payload.email,
+          dniOrPassport: payload.dni,
+          locale: payload.locale,
+        });
+        if (!started.ok) {
+          setMessage(labels.paymentStartFailed);
+          return;
+        }
+        window.location.assign(started.redirectUrl);
+        return;
       }
 
       setSuccessOpen(true);

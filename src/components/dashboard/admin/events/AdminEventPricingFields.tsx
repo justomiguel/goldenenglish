@@ -1,7 +1,9 @@
 "use client";
 
+import { AlertTriangle } from "lucide-react";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { shouldWarnEventCurrencyGateway } from "@/lib/events/resolveEventCurrencyGatewayWarning";
 
 interface AdminEventPricingFieldsProps {
   priceLocal: string;
@@ -14,6 +16,7 @@ interface AdminEventPricingFieldsProps {
     priceNonLocalLabel: string;
     priceHint: string;
     currencyLabel: string;
+    currencyGatewayWarning: string;
     bankTransferInstructionsLabel: string;
     bankTransferInstructionsHint: string;
   };
@@ -35,6 +38,11 @@ export function AdminEventPricingFields({
   onCurrencyChange,
   onBankTransferInstructionsChange,
 }: AdminEventPricingFieldsProps) {
+  const showCurrencyWarning = shouldWarnEventCurrencyGateway({
+    currency,
+    priceLocal,
+    priceNonLocal,
+  });
   return (
     <>
       <div>
@@ -74,6 +82,18 @@ export function AdminEventPricingFields({
           maxLength={8}
           className="mt-1"
         />
+        {showCurrencyWarning ? (
+          <p
+            className="mt-2 flex items-start gap-2 rounded-md border border-[var(--color-warning)] bg-[var(--color-surface)] px-3 py-2 text-xs text-[var(--color-foreground)]"
+            role="status"
+          >
+            <AlertTriangle
+              className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-warning)]"
+              aria-hidden
+            />
+            <span>{labels.currencyGatewayWarning}</span>
+          </p>
+        ) : null}
       </div>
       <div className="md:col-span-2">
         <Label htmlFor="event-bank-transfer-instructions">

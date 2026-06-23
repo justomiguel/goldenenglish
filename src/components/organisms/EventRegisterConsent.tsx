@@ -4,11 +4,12 @@ interface EventRegisterConsentProps {
   checked: boolean;
   onChange: (next: boolean) => void;
   label: string;
+  className?: string;
 }
 
-export function EventRegisterConsent({ checked, onChange, label }: EventRegisterConsentProps) {
+export function EventRegisterConsent({ checked, onChange, label, className = "" }: EventRegisterConsentProps) {
   return (
-    <label className="flex items-start gap-2 text-sm text-[var(--color-foreground)]">
+    <label className={`flex items-start gap-2 ${className}`.trim()}>
       <input
         type="checkbox"
         checked={checked}

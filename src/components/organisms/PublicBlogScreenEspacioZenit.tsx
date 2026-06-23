@@ -3,6 +3,7 @@ import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { EspacioZenitSiteHeader } from "@/components/organisms/EspacioZenitSiteHeader";
+import { EspacioZenitFontRoot } from "@/components/organisms/EspacioZenitFontRoot";
 import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
 
 export interface PublicBlogScreenEspacioZenitProps {
@@ -28,7 +29,7 @@ export function PublicBlogScreenEspacioZenit({
   children,
 }: PublicBlogScreenEspacioZenitProps) {
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-black text-white">
+    <EspacioZenitFontRoot className="relative min-h-screen overflow-x-hidden bg-black text-white">
       <EspacioZenitSiteHeader
         locale={locale}
         logoSrc={brand.logoPath}
@@ -48,6 +49,6 @@ export function PublicBlogScreenEspacioZenit({
         variant="compactDark"
         tone="dark"
       />
-    </main>
+    </EspacioZenitFontRoot>
   );
 }

@@ -141,6 +141,7 @@ describe("validateEventAttendeePayload", () => {
         fieldValues: [{ fieldId: fields[0]!.id, valueText: "ABC" }],
         fields,
         legalAgeMajority: 18,
+        collectBirthDate: true,
         now: new Date("2026-05-27T00:00:00.000Z"),
       }),
     ).toThrowError(/event_tutor_required/);
@@ -159,8 +160,29 @@ describe("validateEventAttendeePayload", () => {
       fieldValues: [{ fieldId: fields[0]!.id, valueText: "ABC" }],
       fields,
       legalAgeMajority: 18,
+      collectBirthDate: true,
       now: new Date("2026-05-27T00:00:00.000Z"),
     });
     expect(parsed.isMinor).toBe(false);
+  });
+
+  it("ignores birth date and tutor when collection is disabled", () => {
+    const parsed = validateEventAttendeePayload({
+      base: {
+        firstName: "Ana",
+        lastName: "Perez",
+        dniOrPassport: "123",
+        email: "ana@example.com",
+        birthDate: "2012-02-01",
+      },
+      tutor: {},
+      fieldValues: [{ fieldId: fields[0]!.id, valueText: "ABC" }],
+      fields,
+      legalAgeMajority: 18,
+      collectBirthDate: false,
+      now: new Date("2026-05-27T00:00:00.000Z"),
+    });
+    expect(parsed.isMinor).toBe(false);
+    expect(parsed.base.birthDate).toBeUndefined();
   });
 });

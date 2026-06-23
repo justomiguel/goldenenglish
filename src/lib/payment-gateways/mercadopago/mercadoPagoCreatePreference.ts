@@ -15,6 +15,12 @@ export type MercadoPagoCreatePreferenceInput = {
     failure: string;
     pending: string;
   };
+  /**
+   * Send `auto_return: "approved"` so MP redirects back on success. Only valid
+   * when back_urls are publicly reachable; MP rejects auto_return for localhost.
+   * Defaults to true to preserve production behavior.
+   */
+  autoReturn?: boolean;
 };
 
 export type MercadoPagoCreatePreferenceResult =
@@ -24,7 +30,7 @@ export type MercadoPagoCreatePreferenceResult =
 export async function mercadoPagoCreatePreference(
   input: MercadoPagoCreatePreferenceInput,
 ): Promise<MercadoPagoCreatePreferenceResult> {
-  const body = {
+  const body: Record<string, unknown> = {
     items: [
       {
         title: input.title,
@@ -35,10 +41,13 @@ export async function mercadoPagoCreatePreference(
     ],
     payer: { email: input.payerEmail },
     back_urls: input.backUrls,
-    auto_return: "approved",
     notification_url: input.notificationUrl,
     external_reference: input.externalReference,
   };
+
+  if (input.autoReturn !== false) {
+    body.auto_return = "approved";
+  }
 
   const res = await fetch(`${MERCADOPAGO_API_BASE}/checkout/preferences`, {
     method: "POST",

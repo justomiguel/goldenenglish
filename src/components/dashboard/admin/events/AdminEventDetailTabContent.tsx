@@ -38,11 +38,14 @@ export function AdminEventDetailTabContent({
         fields={model.mappedFields}
         locale={locale}
         defaultLocale={model.defaultLocale as EventLocale}
+        showBirthDateField={model.showBirthDateField}
         showResidencyField={model.showResidencyField}
         showPaymentField={model.showPaymentField}
+        collectBirthDate={model.collectBirthDate}
         nextFieldPosition={model.nextFieldPosition}
         labels={{
           pageLead: formLabels.lead,
+          collectBirthDate: formLabels.collectBirthDate,
           customFieldsTitle: formLabels.customFieldsTitle,
           customFieldsEmpty: formLabels.customFieldsEmpty,
           archive: detail.archive,

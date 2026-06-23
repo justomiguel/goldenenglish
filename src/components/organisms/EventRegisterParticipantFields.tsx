@@ -1,9 +1,13 @@
 "use client";
 
 import { FormField } from "@/components/molecules/FormField";
+import type { PublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
+import { publicEventRegisterTypography } from "@/lib/events/publicEventSurfaceClasses";
 
 interface EventRegisterParticipantFieldsProps {
   sectionTitle: string;
+  surfaceVariant?: PublicEventSurfaceVariant;
+  showBirthDate?: boolean;
   labels: {
     firstName: string;
     lastName: string;
@@ -32,13 +36,17 @@ interface EventRegisterParticipantFieldsProps {
 
 export function EventRegisterParticipantFields({
   sectionTitle,
+  surfaceVariant = "default",
+  showBirthDate = false,
   labels,
   values,
   onChange,
 }: EventRegisterParticipantFieldsProps) {
+  const typography = publicEventRegisterTypography(surfaceVariant);
+
   return (
     <section className="space-y-3">
-      <h2 className="text-base font-semibold text-[var(--color-foreground)]">{sectionTitle}</h2>
+      <h2 className={typography.sectionTitle}>{sectionTitle}</h2>
       <div className="grid gap-3 md:grid-cols-2">
         <FormField
           label={labels.firstName}
@@ -46,6 +54,7 @@ export function EventRegisterParticipantFields({
           onChange={(eventInput) => onChange.firstName(eventInput.currentTarget.value)}
           required
           autoComplete="given-name"
+          surfaceVariant={surfaceVariant}
         />
         <FormField
           label={labels.lastName}
@@ -53,6 +62,7 @@ export function EventRegisterParticipantFields({
           onChange={(eventInput) => onChange.lastName(eventInput.currentTarget.value)}
           required
           autoComplete="family-name"
+          surfaceVariant={surfaceVariant}
         />
         <FormField
           label={labels.dni}
@@ -60,6 +70,7 @@ export function EventRegisterParticipantFields({
           onChange={(eventInput) => onChange.dni(eventInput.currentTarget.value)}
           required
           autoComplete="off"
+          surfaceVariant={surfaceVariant}
         />
         <FormField
           label={labels.email}
@@ -68,6 +79,7 @@ export function EventRegisterParticipantFields({
           onChange={(eventInput) => onChange.email(eventInput.currentTarget.value)}
           required
           autoComplete="email"
+          surfaceVariant={surfaceVariant}
         />
         <FormField
           label={labels.phone}
@@ -75,13 +87,17 @@ export function EventRegisterParticipantFields({
           value={values.phone}
           onChange={(eventInput) => onChange.phone(eventInput.currentTarget.value)}
           autoComplete="tel"
+          surfaceVariant={surfaceVariant}
         />
-        <FormField
-          label={labels.birthDate}
-          type="date"
-          value={values.birthDate}
-          onChange={(eventInput) => onChange.birthDate(eventInput.currentTarget.value)}
-        />
+        {showBirthDate ? (
+          <FormField
+            label={labels.birthDate}
+            type="date"
+            value={values.birthDate}
+            onChange={(eventInput) => onChange.birthDate(eventInput.currentTarget.value)}
+            surfaceVariant={surfaceVariant}
+          />
+        ) : null}
       </div>
     </section>
   );

@@ -1,10 +1,17 @@
 "use client";
 
 import { MapPin } from "lucide-react";
+import type { PublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
+import {
+  publicEventRegisterResidencyFieldsetClass,
+  publicEventRegisterResidencyOptionClass,
+  publicEventRegisterTypography,
+} from "@/lib/events/publicEventSurfaceClasses";
 
 interface EventRegisterResidencyPickerProps {
   value: boolean;
   onChange: (isLocal: boolean) => void;
+  surfaceVariant?: PublicEventSurfaceVariant;
   labels: {
     title: string;
     local: string;
@@ -25,18 +32,21 @@ function formatAmount(currency: string, amount: number | null): string {
 export function EventRegisterResidencyPicker({
   value,
   onChange,
+  surfaceVariant = "default",
   labels,
   currency,
   priceLocal,
   priceNonLocal,
 }: EventRegisterResidencyPickerProps) {
+  const typography = publicEventRegisterTypography(surfaceVariant);
+
   return (
-    <fieldset className="space-y-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
-      <legend className="inline-flex items-center gap-2 px-1 text-sm font-semibold text-[var(--color-foreground)]">
+    <fieldset className={publicEventRegisterResidencyFieldsetClass(surfaceVariant)}>
+      <legend className={`inline-flex items-center gap-2 px-1 ${typography.sectionTitle}`}>
         <MapPin className="h-4 w-4" aria-hidden />
         {labels.title}
       </legend>
-      <label className="flex cursor-pointer items-start gap-2 rounded-md border border-[var(--color-border)] p-3 has-[:checked]:border-[var(--color-primary)]">
+      <label className={publicEventRegisterResidencyOptionClass(surfaceVariant)}>
         <input
           type="radio"
           name="event-residency"
@@ -45,13 +55,13 @@ export function EventRegisterResidencyPicker({
           className="mt-0.5"
         />
         <span className="text-sm">
-          <span className="font-medium">{labels.local}</span>
-          <span className="mt-0.5 block text-[var(--color-muted-foreground)]">
+          <span className={`font-medium ${typography.body}`}>{labels.local}</span>
+          <span className={`mt-0.5 block ${typography.muted}`}>
             {labels.localPrice.replace("{amount}", formatAmount(currency, priceLocal))}
           </span>
         </span>
       </label>
-      <label className="flex cursor-pointer items-start gap-2 rounded-md border border-[var(--color-border)] p-3 has-[:checked]:border-[var(--color-primary)]">
+      <label className={publicEventRegisterResidencyOptionClass(surfaceVariant)}>
         <input
           type="radio"
           name="event-residency"
@@ -60,8 +70,8 @@ export function EventRegisterResidencyPicker({
           className="mt-0.5"
         />
         <span className="text-sm">
-          <span className="font-medium">{labels.nonLocal}</span>
-          <span className="mt-0.5 block text-[var(--color-muted-foreground)]">
+          <span className={`font-medium ${typography.body}`}>{labels.nonLocal}</span>
+          <span className={`mt-0.5 block ${typography.muted}`}>
             {labels.nonLocalPrice.replace("{amount}", formatAmount(currency, priceNonLocal))}
           </span>
         </span>

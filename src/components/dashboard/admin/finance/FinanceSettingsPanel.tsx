@@ -8,6 +8,7 @@ import type { Dictionary } from "@/types/i18n";
 import { setBillingCurrencyAction, setBankTransferInstructionsAction } from "@/app/[locale]/dashboard/admin/finance/billingSettingsActions";
 import { FinanceFlowGatewayCard } from "@/components/dashboard/admin/finance/FinanceFlowGatewayCard";
 import { FinanceMercadoPagoGatewayCard } from "@/components/dashboard/admin/finance/FinanceMercadoPagoGatewayCard";
+import { FinanceEventsBankTransferCard } from "@/components/dashboard/admin/finance/FinanceEventsBankTransferCard";
 import { BillingCurrencySelectField } from "@/components/molecules/BillingCurrencySelectField";
 import { Label } from "@/components/atoms/Label";
 import {
@@ -22,6 +23,7 @@ type SettingsDict = Dictionary["admin"]["finance"]["settings"];
 export interface FinanceSettingsPanelProps {
   currentCurrency: string;
   currentBankTransferInstructions: string | null;
+  eventsBankTransferEnabled: boolean;
   locale: string;
   dict: SettingsDict;
   flowGatewayInitial: FlowChileAdminRowSafe;
@@ -31,6 +33,7 @@ export interface FinanceSettingsPanelProps {
 export function FinanceSettingsPanel({
   currentCurrency,
   currentBankTransferInstructions,
+  eventsBankTransferEnabled,
   locale,
   dict,
   flowGatewayInitial,
@@ -180,6 +183,13 @@ export function FinanceSettingsPanel({
           </div>
         </div>
       </div>
+
+      <FinanceEventsBankTransferCard
+        key={`events-bank-transfer-${eventsBankTransferEnabled}`}
+        locale={locale}
+        initialEnabled={eventsBankTransferEnabled}
+        dict={dict}
+      />
 
       <FinanceFlowGatewayCard
         key={`flow-gw-${flowGatewayInitial.environment}-${flowGatewayInitial.enabled}-${flowGatewayInitial.hasCredentials}`}

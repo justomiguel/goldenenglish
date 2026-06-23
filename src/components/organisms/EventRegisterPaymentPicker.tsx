@@ -1,11 +1,18 @@
 "use client";
 
 import type { EventRegistrationPaymentMethod } from "@/lib/events/resolveEventRegistrationPaymentMethods";
+import type { PublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
+import {
+  publicEventRegisterPaymentOptionClass,
+  publicEventRegisterSectionClass,
+  publicEventRegisterTypography,
+} from "@/lib/events/publicEventSurfaceClasses";
 
 interface EventRegisterPaymentPickerProps {
   methods: EventRegistrationPaymentMethod[];
   value: EventRegistrationPaymentMethod;
   onChange: (next: EventRegistrationPaymentMethod) => void;
+  surfaceVariant?: PublicEventSurfaceVariant;
   labels: {
     title: string;
     flow: string;
@@ -24,23 +31,25 @@ export function EventRegisterPaymentPicker({
   methods,
   value,
   onChange,
+  surfaceVariant = "default",
   labels,
 }: EventRegisterPaymentPickerProps) {
   if (methods.length === 0) return null;
+  const typography = publicEventRegisterTypography(surfaceVariant);
 
   const showSelector = methods.length > 1;
   const active = showSelector ? value : methods[0]!;
 
   return (
-    <section className="space-y-2 rounded-xl border border-[var(--color-border)] p-3">
+    <section className={publicEventRegisterSectionClass(surfaceVariant)}>
       <fieldset className="min-w-0 border-0 p-0">
-        <legend className="text-sm font-semibold text-[var(--color-foreground)]">{labels.title}</legend>
+        <legend className={`${typography.sectionTitle} px-0`}>{labels.title}</legend>
         {showSelector ? (
           <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {methods.map((method) => (
               <label
                 key={method}
-                className="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-md border border-[var(--color-border)] px-3 py-2 text-sm"
+                className={publicEventRegisterPaymentOptionClass(surfaceVariant)}
               >
                 <input
                   type="radio"
@@ -54,7 +63,7 @@ export function EventRegisterPaymentPicker({
             ))}
           </div>
         ) : (
-          <p className="mt-2 text-sm text-[var(--color-foreground)]">{labelFor(active, labels)}</p>
+          <p className={`mt-2 ${typography.body}`}>{labelFor(active, labels)}</p>
         )}
       </fieldset>
     </section>

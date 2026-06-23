@@ -11,6 +11,8 @@ import { resolveSessionEventAdminEditHref } from "@/lib/dashboard/events/resolve
 import { fillEventTransferReceiptMaxMbTemplate } from "@/lib/events/eventTransferReceiptLimits";
 import { EventRegisterSurfaceEntry } from "@/components/organisms/EventRegisterSurfaceEntry";
 import { PublicEventAdminEditLink } from "@/components/molecules/PublicEventAdminEditLink";
+import { loadPublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
+import { publicEventRegisterPageClasses } from "@/lib/events/publicEventSurfaceClasses";
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -20,7 +22,10 @@ export default async function EventRegisterPage({ params }: PageProps) {
   const { locale, slug } = await params;
   const dict = await getDictionary(locale);
   const supabase = await createClient();
-  const event = await loadEventForPublicLanding(supabase, slug, locale);
+  const [event, surfaceVariant] = await Promise.all([
+    loadEventForPublicLanding(supabase, slug, locale),
+    loadPublicEventSurfaceVariant(),
+  ]);
   if (!event) notFound();
 
   const paymentMethods = await loadEventRegistrationPaymentMethods(event.currency);
@@ -34,13 +39,14 @@ export default async function EventRegisterPage({ params }: PageProps) {
     ),
   };
   const adminEditHref = await resolveSessionEventAdminEditHref(supabase, locale, event.id);
+  const pageClasses = publicEventRegisterPageClasses(surfaceVariant);
 
   return (
     <main className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href={`/${locale}/events/${event.slug}`}
-          className="inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-[var(--color-primary)] hover:underline"
+          className={pageClasses.backLink}
         >
           <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
           {dict.events.register.backToEvent}
@@ -55,13 +61,14 @@ export default async function EventRegisterPage({ params }: PageProps) {
       </div>
 
       <div className="space-y-3">
-        <h1 className="text-3xl font-bold text-[var(--color-secondary)]">{dict.events.register.title}</h1>
-        <p className="text-[var(--color-muted-foreground)]">{dict.events.register.lead}</p>
+        <h1 className={pageClasses.title}>{dict.events.register.title}</h1>
+        <p className={pageClasses.lead}>{dict.events.register.lead}</p>
       </div>
       <EventRegisterSurfaceEntry
         locale={locale}
         event={eventForRegister}
         paymentMethods={paymentMethods}
+        surfaceVariant={surfaceVariant}
         labels={{
           participantSection: dict.events.register.participantSection,
           firstName: dict.events.register.firstName,
@@ -89,6 +96,7 @@ export default async function EventRegisterPage({ params }: PageProps) {
             flow: dict.events.register.payment.flow,
             mercadopago: dict.events.register.payment.mercadopago,
             transfer: dict.events.register.payment.transfer,
+            startFailed: dict.events.register.payment.startFailed,
           },
           residency: {
             title: dict.events.register.residency.title,

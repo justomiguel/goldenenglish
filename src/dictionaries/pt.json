@@ -2250,6 +2250,13 @@
         "save": "Salvar",
         "savedOk": "Moeda salva com sucesso.",
         "savedError": "Não foi possível salvar. Por favor, tente novamente.",
+        "eventsBankTransferTitle": "Transferência bancária em inscrições de eventos",
+        "eventsBankTransferLead": "Permita que quem se inscreve em um evento pague por transferência bancária e envie o comprovante, além das plataformas online.",
+        "eventsBankTransferToggle": "Aceitar transferência bancária em inscrições de eventos",
+        "eventsBankTransferHint": "Quando ativado, o formulário de inscrição mostra a opção 'Transferência bancária' com os dados para transferência e o envio do comprovante. Desative para aceitar apenas pagamentos online.",
+        "eventsBankTransferSave": "Salvar opção de transferência",
+        "eventsBankTransferSavedOk": "Opção de transferência salva.",
+        "eventsBankTransferSavedError": "Não foi possível salvar a opção de transferência.",
         "flowTitle": "Fluxo (Chile)",
         "flowLead": "Permita que as famílias paguem mensalidades online com o Flow, em pesos chilenos (CLP). Insira suas credenciais da API Flow, escolha sandbox ou produção e ative a opção para que o botão de pagamento apareça nas telas de pagamento de alunos e responsáveis.",
         "flowEnvironment": "Ambiente",
@@ -3285,6 +3292,7 @@
         "priceNonLocalLabel": "Preço não residentes",
         "priceHint": "Deixe vazio para gratuito. Se só preencher o preço local, aplica-se a ambos.",
         "currencyLabel": "Moeda",
+        "currencyGatewayWarning": "Esta moeda não é compatível com Mercado Pago nem Flow, portanto não será possível cobrar online. Só funcionará a transferência bancária. Use CLP ou ARS para habilitar o pagamento online.",
         "bankTransferInstructionsLabel": "Dados para transferência bancária",
         "bankTransferInstructionsHint": "Titular, banco, número da conta e referência que o pagador deve informar. Exibido para quem escolher transferência.",
         "save": "Salvar preços",
@@ -3313,7 +3321,13 @@
       "form": {
         "lead": "O formulário público sempre inclui os campos base de inscrição. Aqui você pode adicionar campos extras específicos do evento.",
         "baseFieldsTitle": "Campos base (sempre incluídos)",
-        "baseFieldsLead": "Esses campos aparecem na inscrição pública e não podem ser removidos.",
+        "baseFieldsLead": "Esses campos aparecem na inscrição pública. A data de nascimento é ativada abaixo.",
+        "collectBirthDate": {
+          "title": "Data de nascimento",
+          "lead": "Ative esta opção se precisar da idade do participante (por exemplo, para detectar menores e pedir dados do tutor).",
+          "checkboxLabel": "Pedir data de nascimento na inscrição",
+          "errorSave": "Não foi possível salvar a configuração. Tente novamente."
+        },
         "customFieldsTitle": "Campos adicionais",
         "customFieldsEmpty": "Ainda não há campos extras. Adicione um abaixo se precisar de mais informações.",
         "requiredBadge": "Obrigatório",
@@ -3365,7 +3379,7 @@
         },
         "baseFieldNotes": {
           "phone": "Opcional na inscrição.",
-          "birthDate": "Opcional; usada para detectar menores.",
+          "birthDate": "Opcional; usada para detectar menores e pedir dados do tutor.",
           "tutor": "Obrigatório apenas se o participante for menor.",
           "residency": "Somente quando há preços distintos para locais e não locais.",
           "payment": "Somente quando o evento tem custo."
@@ -3430,6 +3444,17 @@
         "openInNewTab": "Abrir em nova aba",
         "zoomIn": "Aumentar zoom",
         "zoomOut": "Diminuir zoom"
+      },
+      "paymentStatus": {
+        "successTitle": "Pagamento confirmado!",
+        "successBody": "Recebemos seu pagamento. Enviaremos a confirmação da sua inscrição por e-mail.",
+        "pendingTitle": "Pagamento em processamento",
+        "pendingBody": "Estamos confirmando seu pagamento. Assim que for aprovado, enviaremos a confirmação por e-mail.",
+        "processingTitle": "Estamos processando seu pagamento",
+        "processingBody": "Seu pagamento está sendo verificado. Isso pode levar alguns minutos.",
+        "failureTitle": "Não foi possível processar seu pagamento",
+        "failureBody": "O pagamento não foi concluído. Você pode tentar novamente na página de inscrição.",
+        "dismiss": "Fechar"
       }
     },
     "register": {
@@ -3466,7 +3491,8 @@
         "title": "Método de pagamento",
         "flow": "Flow",
         "mercadopago": "Mercado Pago",
-        "transfer": "Transferência bancária"
+        "transfer": "Transferência bancária",
+        "startFailed": "Não foi possível iniciar o pagamento. Tente novamente em alguns minutos."
       },
       "residency": {
         "title": "Você é residente local?",

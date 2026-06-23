@@ -6,13 +6,12 @@ import {
   resolveEventRegistrationPaymentMethods,
   type EventRegistrationPaymentMethod,
 } from "@/lib/events/resolveEventRegistrationPaymentMethods";
+import {
+  EVENTS_BANK_TRANSFER_ENABLED_DEFAULT,
+  EVENTS_BANK_TRANSFER_ENABLED_KEY,
+  parseEventsBankTransferEnabled,
+} from "@/lib/events/eventsBankTransferSetting";
 import type { PaymentGatewayProvider } from "@/types/paymentGateway";
-
-function parseSiteSettingsBoolean(raw: unknown): boolean | null {
-  if (raw === true || raw === "true") return true;
-  if (raw === false || raw === "false") return false;
-  return null;
-}
 
 /** Enabled online gateways + optional bank transfer for public event registration. */
 export async function loadEventRegistrationPaymentMethods(
@@ -25,12 +24,11 @@ export async function loadEventRegistrationPaymentMethods(
   const { data } = await admin
     .from("site_settings")
     .select("value")
-    .eq("key", "events_bank_transfer_enabled")
+    .eq("key", EVENTS_BANK_TRANSFER_ENABLED_KEY)
     .maybeSingle();
 
-  const explicitTransfer = parseSiteSettingsBoolean(data?.value);
   const bankTransferEnabled =
-    explicitTransfer ?? enabledGateways.length === 0;
+    parseEventsBankTransferEnabled(data?.value) ?? EVENTS_BANK_TRANSFER_ENABLED_DEFAULT;
 
   return resolveEventRegistrationPaymentMethods({ enabledGateways, bankTransferEnabled });
 }
