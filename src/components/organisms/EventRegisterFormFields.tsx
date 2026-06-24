@@ -5,6 +5,8 @@ import type { EventFormFieldDefinition } from "@/lib/events/types";
 import { Label } from "@/components/atoms/Label";
 import { Input } from "@/components/atoms/Input";
 import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
+import { EventRegisterCustomFileField } from "@/components/molecules/EventRegisterCustomFileField";
+import type { EventRegisterCustomFileFieldLabels } from "@/components/molecules/EventRegisterCustomFileField";
 import type { PublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
 import {
   publicEventRegisterFieldClass,
@@ -17,9 +19,15 @@ interface EventRegisterFormFieldsProps {
   locale: string;
   defaultLocale: string;
   values: Record<string, string>;
+  fieldFiles: Record<string, File | null>;
   onChange: (fieldId: string, value: string) => void;
+  onFileChange: (fieldId: string, file: File | null) => void;
+  onFileValidationError: (fieldId: string, message: string) => void;
+  fileFieldErrors: Record<string, string>;
   uploadingFieldId?: string | null;
   selectPlaceholder: string;
+  customFileFieldLabels: EventRegisterCustomFileFieldLabels;
+  disabled?: boolean;
   surfaceVariant?: PublicEventSurfaceVariant;
 }
 
@@ -45,14 +53,24 @@ function inputTypeForField(fieldType: EventFormFieldDefinition["fieldType"]): st
   return "text";
 }
 
+function isFileField(fieldType: EventFormFieldDefinition["fieldType"]): boolean {
+  return fieldType === "file" || fieldType === "image";
+}
+
 export function EventRegisterFormFields({
   fields,
   locale,
   defaultLocale,
   values,
+  fieldFiles,
   onChange,
+  onFileChange,
+  onFileValidationError,
+  fileFieldErrors,
   uploadingFieldId,
   selectPlaceholder,
+  customFileFieldLabels,
+  disabled = false,
   surfaceVariant = "default",
 }: EventRegisterFormFieldsProps) {
   const groupId = useId();
@@ -73,8 +91,8 @@ export function EventRegisterFormFields({
         const fieldId = `${groupId}-${field.id}`;
         const label = pickLabel(field.labelI18n, locale, defaultLocale) || field.fieldKey;
         const help = pickLabel(field.helpTextI18n, locale, defaultLocale);
-        const isFile = field.fieldType === "file" || field.fieldType === "image";
         const options = pickOptions(field.optionsI18n, locale, defaultLocale);
+        const fileError = fileFieldErrors[field.id];
 
         return (
           <div key={field.id} className="space-y-1.5">
@@ -87,6 +105,7 @@ export function EventRegisterFormFields({
                 value={values[field.id] ?? ""}
                 onChange={(event) => onChange(field.id, event.currentTarget.value)}
                 required={field.required}
+                disabled={disabled}
                 aria-describedby={help ? `${fieldId}-help` : undefined}
                 className={selectClass}
               >
@@ -103,18 +122,20 @@ export function EventRegisterFormFields({
                 value={values[field.id] ?? ""}
                 onChange={(event) => onChange(field.id, event.currentTarget.value)}
                 required={field.required}
+                disabled={disabled}
                 rows={4}
                 aria-describedby={help ? `${fieldId}-help` : undefined}
                 className={textareaClass}
               />
-            ) : isFile ? (
-              <Input
-                id={fieldId}
-                type="text"
-                value={values[field.id] ?? ""}
-                onChange={(event) => onChange(field.id, event.currentTarget.value)}
-                placeholder="uploaded/path.ext"
-                className={fieldClass}
+            ) : isFileField(field.fieldType) ? (
+              <EventRegisterCustomFileField
+                field={field}
+                labels={customFileFieldLabels}
+                file={fieldFiles[field.id] ?? null}
+                onFileChange={(file) => onFileChange(field.id, file)}
+                onValidationError={(message) => onFileValidationError(field.id, message)}
+                disabled={disabled}
+                surfaceVariant={surfaceVariant}
               />
             ) : (
               <Input
@@ -123,12 +144,18 @@ export function EventRegisterFormFields({
                 value={values[field.id] ?? ""}
                 onChange={(event) => onChange(field.id, event.currentTarget.value)}
                 required={field.required}
+                disabled={disabled}
                 aria-describedby={help ? `${fieldId}-help` : undefined}
                 className={fieldClass}
               />
             )}
             {uploadingFieldId === field.id ? (
               <InlineUploadProgressBar label={label} indeterminate />
+            ) : null}
+            {fileError ? (
+              <p className={`${typography.hint} text-[var(--color-error)]`} role="alert">
+                {fileError}
+              </p>
             ) : null}
             {help ? (
               <p id={`${fieldId}-help`} className={typography.hint}>

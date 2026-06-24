@@ -19,6 +19,7 @@ export {
   approveEventPaymentAction,
   rejectEventPaymentAction,
   deleteEventPaymentAction,
+  revertEventPaymentApprovalAction,
 } from "@/app/[locale]/dashboard/admin/events/eventPaymentActions";
 
 export {

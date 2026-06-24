@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { approveEventPayment, rejectEventPayment } from "@/lib/events/server/reviewEventPaymentServer";
+import { approveEventPayment, rejectEventPayment, revertEventPaymentApproval } from "@/lib/events/server/reviewEventPaymentServer";
 import { deleteEventPayment } from "@/lib/events/server/deleteEventPaymentServer";
 import {
   adminEventsPath,
@@ -66,6 +66,37 @@ export async function deleteEventPaymentAction(
           : result.code === "not_found"
             ? "not_found"
             : "delete_failed",
+    };
+  }
+  return { ok: true };
+}
+
+export async function revertEventPaymentApprovalAction(
+  locale: string,
+  paymentId: string,
+  notes?: string,
+  eventId?: string,
+): Promise<EventMutationResult> {
+  const actorId = await requireAdminEventActor();
+  if (!actorId) return { ok: false, message: "forbidden" };
+  const admin = createAdminClient();
+  const result = await revertEventPaymentApproval({
+    adminClient: admin,
+    actorId,
+    paymentId,
+    notes: notes ?? null,
+  });
+  revalidatePath(adminEventsPath(locale), "page");
+  if (eventId) revalidatePath(`${adminEventsPath(locale)}/${eventId}`, "page");
+  if (!result.ok) {
+    return {
+      ok: false,
+      message:
+        result.code === "not_revertible"
+          ? "not_revertible"
+          : result.code === "not_found"
+            ? "not_found"
+            : "save_failed",
     };
   }
   return { ok: true };

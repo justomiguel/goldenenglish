@@ -1,7 +1,11 @@
+"use client";
+
+import { useState } from "react";
 import { Users } from "lucide-react";
-import { AdminEventAttendeesTableBody } from "@/components/dashboard/admin/events/AdminEventAttendeesTableBody";
+import { AdminEventAttendeeTableRow } from "@/components/dashboard/admin/events/AdminEventAttendeeTableRow";
 import type { AdminEventAttendeesPanelLabels } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
 import { ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL } from "@/lib/dashboard/events/adminEventAttendeesTableClasses";
+import { canDeleteEventAttendee } from "@/lib/events/canDeleteEventAttendee";
 import type { EventAttendeeCustomFieldValuesMap } from "@/lib/dashboard/events/loadEventAttendeeCustomFieldValues";
 import type { EventAttendeeRow } from "@/lib/dashboard/events/loadEventAttendeesPaginated";
 
@@ -20,6 +24,12 @@ export function AdminEventAttendeesTable({
   customFieldValues,
   labels,
 }: AdminEventAttendeesTableProps) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  function toggleRow(rowId: string) {
+    setExpandedId((current) => (current === rowId ? null : rowId));
+  }
+
   if (rows.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-muted)_35%,var(--color-surface))] px-6 py-12 text-center">
@@ -33,17 +43,7 @@ export function AdminEventAttendeesTable({
 
   return (
     <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
-      <table className="w-full min-w-[56rem] table-fixed border-collapse text-sm">
-        <colgroup>
-          <col className="w-12" />
-          <col className="w-[14%]" />
-          <col className="w-[10%]" />
-          <col className="w-[22%]" />
-          <col className="w-[12%]" />
-          <col className="w-[13%]" />
-          <col className="w-[14%]" />
-          <col className="w-[5.5rem]" />
-        </colgroup>
+      <table className="w-full min-w-[56rem] border-collapse text-sm">
         <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40 text-[11px] uppercase tracking-wide text-[var(--color-muted-foreground)]">
           <tr>
             <th scope="col" className={`${ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL} w-12`}>
@@ -67,18 +67,26 @@ export function AdminEventAttendeesTable({
             <th scope="col" className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL}>
               {labels.columns.payment}
             </th>
-            <th scope="col" className={`${ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL} text-right`}>
+            <th scope="col" className={`${ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL} min-w-[11rem] text-right`}>
               {labels.columns.actions}
             </th>
           </tr>
         </thead>
-        <AdminEventAttendeesTableBody
-          locale={locale}
-          eventId={eventId}
-          rows={rows}
-          customFieldValues={customFieldValues}
-          labels={labels}
-        />
+        <tbody>
+          {rows.map((row) => (
+            <AdminEventAttendeeTableRow
+              key={row.id}
+              row={row}
+              customFields={customFieldValues[row.id] ?? []}
+              locale={locale}
+              eventId={eventId}
+              labels={labels}
+              expanded={expandedId === row.id}
+              deletable={canDeleteEventAttendee(row.payment)}
+              onToggle={() => toggleRow(row.id)}
+            />
+          ))}
+        </tbody>
       </table>
     </div>
   );

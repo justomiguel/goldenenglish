@@ -1,9 +1,8 @@
 "use client";
 
-import type { KeyboardEvent } from "react";
-import { ChevronDown, Wallet } from "lucide-react";
+import { Wallet } from "lucide-react";
 import { AdminEventAttendeeAvatar } from "@/components/dashboard/admin/events/AdminEventAttendeeAvatar";
-import { AdminEventAttendeeDeleteButton } from "@/components/dashboard/admin/events/AdminEventAttendeeDeleteButton";
+import { AdminEventAttendeeRowActions } from "@/components/dashboard/admin/events/AdminEventAttendeeRowActions";
 import { AdminEventAttendeeExpandedDetails } from "@/components/dashboard/admin/events/AdminEventAttendeeExpandedDetails";
 import {
   AdminEventAttendeeNoPaymentBadge,
@@ -51,18 +50,10 @@ export function AdminEventAttendeeTableRow({
   deletable,
   onToggle,
 }: AdminEventAttendeeTableRowProps) {
-  const expandLabel = expanded ? labels.collapseRow : labels.expandRow;
   const displayName = formatAttendeeDisplayName(row);
   const statusLabel = formatAttendeeStatus(row.status, labels);
   const paymentStatusLabel = formatAttendeePaymentStatusLabel(row.payment, labels);
   const paymentAmount = row.payment ? formatAttendeePaymentAmount(row.payment, locale) : null;
-
-  function handleRowKeyDown(event: KeyboardEvent<HTMLTableRowElement>) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      onToggle();
-    }
-  }
 
   return (
     <>
@@ -70,13 +61,8 @@ export function AdminEventAttendeeTableRow({
         className={`border-b border-[var(--color-border)] transition-colors last:border-b-0 ${
           expanded
             ? "bg-[color-mix(in_srgb,var(--color-primary)_6%,var(--color-surface))]"
-            : "bg-[var(--color-background)] hover:bg-[color-mix(in_srgb,var(--color-primary)_4%,var(--color-surface))]"
+            : "bg-[var(--color-background)]"
         }`}
-        onClick={onToggle}
-        onKeyDown={handleRowKeyDown}
-        tabIndex={0}
-        aria-expanded={expanded}
-        aria-label={`${expandLabel}: ${displayName}`}
       >
         <td className={`${ADMIN_EVENT_ATTENDEES_TABLE_BODY_CELL} w-12`}>
           <AdminEventAttendeeAvatar
@@ -137,36 +123,23 @@ export function AdminEventAttendeeTableRow({
             <AdminEventAttendeeNoPaymentBadge label={labels.noPayment} />
           )}
         </td>
-        <td
-          className={`${ADMIN_EVENT_ATTENDEES_TABLE_BODY_CELL} w-[5.5rem] text-right`}
-          onClick={(event) => event.stopPropagation()}
-          onKeyDown={(event) => event.stopPropagation()}
-        >
-          <div className="flex items-center justify-end gap-1">
-            <span
-              className={`inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-muted-foreground)] transition-transform duration-200 ${
-                expanded ? "rotate-180 border-[var(--color-primary)]/30 text-[var(--color-primary-dark)]" : ""
-              }`}
-              aria-hidden
-            >
-              <ChevronDown className="h-4 w-4" />
-            </span>
-            {deletable ? (
-              <AdminEventAttendeeDeleteButton
-                locale={locale}
-                eventId={eventId}
-                attendeeId={row.id}
-                labels={labels.delete}
-                compact
-              />
-            ) : (
-              <span className="inline-block h-9 w-9 shrink-0" aria-hidden />
-            )}
-          </div>
+        <td className={`${ADMIN_EVENT_ATTENDEES_TABLE_BODY_CELL} text-right`}>
+          <AdminEventAttendeeRowActions
+            locale={locale}
+            eventId={eventId}
+            attendeeId={row.id}
+            expanded={expanded}
+            deletable={deletable}
+            labels={labels}
+            onToggle={onToggle}
+          />
         </td>
       </tr>
       {expanded ? (
-        <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface)] last:border-b-0">
+        <tr
+          className="border-b border-[var(--color-border)] bg-[var(--color-surface)] last:border-b-0"
+          data-testid={`attendee-expanded-${row.id}`}
+        >
           <td colSpan={8} className="p-0">
             <AdminEventAttendeeExpandedDetails
               row={row}

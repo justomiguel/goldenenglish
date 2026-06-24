@@ -67,7 +67,7 @@ export function AdminEventAttendeeDeleteButton({
         className={
           compact
             ? "inline-flex h-9 min-h-9 w-9 min-w-9 items-center justify-center p-0 text-[var(--color-muted-foreground)] hover:border-[var(--color-error)] hover:bg-[color-mix(in_srgb,var(--color-error)_8%,var(--color-surface))] hover:text-[var(--color-error)]"
-            : "border border-[var(--color-border)] text-[var(--color-muted-foreground)]"
+            : "min-h-9 shrink-0 border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-error)] hover:border-[var(--color-error)] hover:bg-[color-mix(in_srgb,var(--color-error)_8%,var(--color-surface))]"
         }
       >
         <Trash2 className="h-4 w-4" aria-hidden />

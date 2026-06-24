@@ -101,6 +101,7 @@ export function AdminEventDetailTabContent({
           searchButton: detail.attendeesSearchButton,
           expandRow: detail.attendeesExpandRow,
           collapseRow: detail.attendeesCollapseRow,
+          moreDetails: detail.attendeesMoreDetails,
           columns: detail.attendeesColumns,
           statusLabels: detail.attendeesStatusLabels,
           paymentLabels: {

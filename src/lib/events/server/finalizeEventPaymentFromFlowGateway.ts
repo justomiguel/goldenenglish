@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { flowFetchPaymentStatus } from "@/lib/payment-gateways/flow/flowFetchPaymentStatus";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { parseEventPaymentIdFromCommerceOrder } from "@/lib/events/parseEventPaymentCommerceOrder";
+import { markEventPaymentApprovedCore } from "@/lib/events/server/markEventPaymentApprovedCore";
 
 const FLOW_PAID_STATUS = 2;
 
@@ -24,13 +25,18 @@ export async function finalizeEventPaymentFromFlowGateway(input: {
   const paymentId = parseEventPaymentIdFromCommerceOrder(status.data.commerceOrder);
   if (!paymentId) return { ok: true, skipped: "missing_payment_id" };
 
-  const { error } = await input.admin
-    .from("event_payments")
-    .update({ status: "approved", gateway_provider: "flow", paid_at: new Date().toISOString() })
-    .eq("id", paymentId)
-    .eq("status", "pending");
-  if (error) {
-    logSupabaseClientError("finalizeEventPaymentFromFlowGateway:update", error, { paymentId });
+  const approved = await markEventPaymentApprovedCore({
+    admin: input.admin,
+    paymentId,
+    gatewayProvider: "flow",
+    paidAt: status.data.paymentData?.date ?? new Date().toISOString(),
+  });
+
+  if (!approved.ok) {
+    if (approved.code === "not_found") {
+      return { ok: true, skipped: "event_payment_not_found" };
+    }
+    logSupabaseClientError("finalizeEventPaymentFromFlowGateway:approve", {}, { paymentId });
     return { ok: false };
   }
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Calendar, ChartNoAxesColumn, Users } from "lucide-react";
+import { Calendar, ChartNoAxesColumn, Settings2, Users } from "lucide-react";
 import type { AdminEventRow } from "@/lib/dashboard/events/loadPaginatedAdminEvents";
 import { TablePagination } from "@/components/molecules/TablePagination";
 import type { EventSortKey } from "@/lib/dashboard/events/loadPaginatedAdminEvents";
@@ -127,12 +127,12 @@ export function AdminEventsScreen({
                 <td className="px-3 py-2">
                   {row.price == null ? labels.free : `${row.currency} ${row.price.toFixed(2)}`}
                 </td>
-                <td className="px-3 py-2">
+                <td className="px-3 py-2 text-right">
                   <Link
                     href={`/${locale}/dashboard/admin/events/${row.id}`}
-                    className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] px-2 py-1"
+                    className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] transition-colors hover:border-[color-mix(in_srgb,var(--color-primary)_35%,var(--color-border))] hover:bg-[color-mix(in_srgb,var(--color-primary)_8%,var(--color-surface))]"
                   >
-                    <Calendar className="h-4 w-4" aria-hidden />
+                    <Settings2 className="h-4 w-4 shrink-0 text-[var(--color-primary-dark)]" aria-hidden />
                     {labels.manage}
                   </Link>
                 </td>

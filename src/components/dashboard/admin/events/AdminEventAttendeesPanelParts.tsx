@@ -12,6 +12,7 @@ export interface AdminEventAttendeesPanelLabels {
   searchButton: string;
   expandRow: string;
   collapseRow: string;
+  moreDetails: string;
   columns: {
     name: string;
     dni: string;

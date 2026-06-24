@@ -3340,6 +3340,12 @@
         "paymentsDeleteConfirm": "Quitar comprobante",
         "paymentsDeleteCancel": "Cancelar",
         "paymentsErrorDelete": "No pudimos quitar este comprobante. Intentá de nuevo.",
+        "paymentsRevert": "Deshacer aprobación",
+        "paymentsRevertTooltip": "Vuelve esta transferencia a revisión pendiente y marca al asistente como pendiente de pago",
+        "paymentsRevertConfirmTitle": "¿Deshacer la aprobación del pago?",
+        "paymentsRevertConfirmBody": "El pago vuelve a revisión pendiente y el estado del asistente pasa a pendiente de pago si estaba confirmado.",
+        "paymentsRevertConfirm": "Deshacer aprobación",
+        "paymentsErrorNotRevertible": "Este pago no se puede revertir. Solo se pueden deshacer transferencias aprobadas manualmente.",
         "paymentsMethodLabels": {
           "bank_transfer": "Transferencia bancaria",
           "flow": "Flow",
@@ -3627,6 +3633,17 @@
       },
       "transferInstructions": {
         "title": "Dónde transferir"
+      },
+      "customFieldFile": {
+        "fileButton": "Elegir archivo",
+        "imageButton": "Elegir imagen",
+        "noFile": "Ningún archivo seleccionado",
+        "required": "Subí un archivo para este campo.",
+        "tooLarge": "El archivo supera el límite de {max} MB.",
+        "invalidType": "Este tipo de archivo no está permitido.",
+        "uploadFailed": "No pudimos subir uno de tus archivos. Intentá nuevamente.",
+        "fileInputAriaLabel": "Seleccionar archivo",
+        "imageInputAriaLabel": "Seleccionar imagen"
       }
     }
   },

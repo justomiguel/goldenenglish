@@ -87,4 +87,27 @@ describe("EventFormFieldAddPanel", () => {
 
     expect(screen.getByText(formLabels.previewTitle)).toBeInTheDocument();
   });
+
+  it("shows a file input preview for file and image field types", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <EventFormFieldAddPanel
+        locale="es"
+        eventId="evt-1"
+        nextPosition={0}
+        labels={panelLabels}
+      />,
+    );
+
+    const typeSelect = screen.getByLabelText(formLabels.fieldTypeLabel);
+
+    await user.selectOptions(typeSelect, "file");
+    expect(screen.getByLabelText(formLabels.fileTypesLabel)).toBeInTheDocument();
+    expect(document.querySelector('input[type="file"]')).toBeInTheDocument();
+
+    await user.selectOptions(typeSelect, "image");
+    expect(document.querySelector('input[type="file"]')).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText(formLabels.previewPlaceholder.text)).not.toBeInTheDocument();
+  });
 });

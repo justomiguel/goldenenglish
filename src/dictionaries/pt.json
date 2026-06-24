@@ -3514,6 +3514,17 @@
       },
       "transferInstructions": {
         "title": "Onde transferir"
+      },
+      "customFieldFile": {
+        "fileButton": "Escolher arquivo",
+        "imageButton": "Escolher imagem",
+        "noFile": "Nenhum arquivo selecionado",
+        "required": "Envie um arquivo para este campo.",
+        "tooLarge": "O arquivo excede o limite de {max} MB.",
+        "invalidType": "Este tipo de arquivo não é permitido.",
+        "uploadFailed": "Não foi possível enviar um dos seus arquivos. Tente novamente.",
+        "fileInputAriaLabel": "Selecionar arquivo",
+        "imageInputAriaLabel": "Selecionar imagem"
       }
     }
   },

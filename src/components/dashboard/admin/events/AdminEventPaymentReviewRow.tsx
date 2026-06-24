@@ -100,7 +100,7 @@ export function AdminEventPaymentReviewRow({
         ) : null}
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_14rem]">
+      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)]">
         <div className="space-y-3">
           {!isPending && row.reviewNotes?.trim() ? (
             <p className="text-sm text-[var(--color-muted-foreground)]">
@@ -114,31 +114,34 @@ export function AdminEventPaymentReviewRow({
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-2">
-          {receiptPreviewUrl && !isPdf ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={receiptPreviewUrl}
-              alt=""
-              className="max-h-36 w-full rounded-md object-contain ring-1 ring-[var(--color-border)]"
-            />
-          ) : null}
-          {receiptPreviewUrl ? (
-            <a
-              href={receiptPreviewUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={labels.receiptOpenTooltip}
-              className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-primary)] underline"
-            >
-              <ExternalLink className="h-4 w-4" aria-hidden />
-              {labels.receipt}
-            </a>
-          ) : (
-            <span className="text-sm text-[var(--color-muted-foreground)]">
-              {labels.receipt}: {labels.noReceipt}
-            </span>
-          )}
+        <div className="flex flex-col gap-3">
+          <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
+            {receiptPreviewUrl && !isPdf ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={receiptPreviewUrl}
+                alt=""
+                className="mb-3 max-h-36 w-full rounded-md object-contain ring-1 ring-[var(--color-border)]"
+              />
+            ) : null}
+            {receiptPreviewUrl ? (
+              <a
+                href={receiptPreviewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={labels.receiptOpenTooltip}
+                aria-label={labels.receiptOpenTooltip}
+                className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-1.5 text-sm font-medium text-[var(--color-primary-dark)] transition-colors hover:border-[color-mix(in_srgb,var(--color-primary)_35%,var(--color-border))] hover:bg-[color-mix(in_srgb,var(--color-primary)_8%,var(--color-surface))]"
+              >
+                <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
+                {labels.receipt}
+              </a>
+            ) : (
+              <p className="text-sm text-[var(--color-muted-foreground)]">
+                {labels.receipt}: {labels.noReceipt}
+              </p>
+            )}
+          </div>
           <AdminEventPaymentReviewActions
             locale={locale}
             eventId={eventId}

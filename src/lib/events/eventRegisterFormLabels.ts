@@ -54,4 +54,15 @@ export interface EventRegisterFormLabels {
     title: string;
   };
   selectPlaceholder: string;
+  customFieldFile: {
+    fileButton: string;
+    imageButton: string;
+    noFile: string;
+    required: string;
+    tooLarge: string;
+    invalidType: string;
+    uploadFailed: string;
+    fileInputAriaLabel: string;
+    imageInputAriaLabel: string;
+  };
 }

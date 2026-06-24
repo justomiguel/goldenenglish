@@ -40,6 +40,7 @@ export function AdminEventDetailPaymentsTab({
         summaryApproved: detail.paymentsSummaryApproved,
         summaryRejected: detail.paymentsSummaryRejected,
         row: {
+          actionsTitle: detail.attendeesColumns.actions,
           amount: dict.admin.payments.amount,
           dni: detail.attendeesColumns.dni,
           email: detail.attendeesColumns.email,
@@ -66,6 +67,12 @@ export function AdminEventDetailPaymentsTab({
           reviewNotes: detail.paymentsReviewNotesLabel,
           paidAt: detail.paymentsPaidAtLabel,
           errorSave: detail.paymentsErrorSave,
+          revert: detail.paymentsRevert,
+          revertTooltip: detail.paymentsRevertTooltip,
+          revertConfirmTitle: detail.paymentsRevertConfirmTitle,
+          revertConfirmBody: detail.paymentsRevertConfirmBody,
+          revertConfirm: detail.paymentsRevertConfirm,
+          errorNotRevertible: detail.paymentsErrorNotRevertible,
           statusLabels: {
             pending: dict.admin.finance.events.pendingLabel,
             approved: dict.admin.finance.events.approvedLabel,

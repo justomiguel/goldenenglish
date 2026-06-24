@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { mercadoPagoGetPayment } from "@/lib/payment-gateways/mercadopago/mercadoPagoGetPayment";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { markEventPaymentApprovedCore } from "@/lib/events/server/markEventPaymentApprovedCore";
 
 export async function finalizeEventPaymentFromMercadoPago(input: {
   admin: SupabaseClient;
@@ -19,7 +20,7 @@ export async function finalizeEventPaymentFromMercadoPago(input: {
   if (!externalReference) return { ok: true, skipped: "missing_external_reference" };
 
   const paymentIdFromExternalRef = externalReference.startsWith("event_payment:")
-    ? externalReference.replace("event_payment:", "").trim()
+    ? externalReference.replace("event_payment:", "").trim().split(":")[0]?.trim() ?? ""
     : "";
 
   const { data: row, error: selectError } = await input.admin
@@ -40,18 +41,14 @@ export async function finalizeEventPaymentFromMercadoPago(input: {
   }
 
   const paymentId = String(row.id);
-  const { error } = await input.admin
-    .from("event_payments")
-    .update({
-      status: "approved",
-      gateway_provider: "mercadopago",
-      paid_at: payment.date_approved ?? new Date().toISOString(),
-    })
-    .eq("id", paymentId)
-    .eq("status", "pending");
+  const approved = await markEventPaymentApprovedCore({
+    admin: input.admin,
+    paymentId,
+    gatewayProvider: "mercadopago",
+    paidAt: payment.date_approved ?? new Date().toISOString(),
+  });
 
-  if (error) {
-    logSupabaseClientError("finalizeEventPaymentFromMercadoPago:update", error, { paymentId });
+  if (!approved.ok) {
     return { ok: false };
   }
 

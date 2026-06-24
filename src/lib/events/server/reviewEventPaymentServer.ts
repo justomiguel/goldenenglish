@@ -1,7 +1,10 @@
 import "server-only";
+
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { auditFinanceAction } from "@/lib/audit";
-import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { logServerWarn, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { markEventPaymentApprovedCore } from "@/lib/events/server/markEventPaymentApprovedCore";
+import { revertEventPaymentApprovalCore } from "@/lib/events/server/revertEventPaymentApprovalCore";
 
 export async function approveEventPayment(input: {
   adminClient: SupabaseClient;
@@ -15,18 +18,14 @@ export async function approveEventPayment(input: {
     .eq("id", input.paymentId)
     .maybeSingle();
 
-  const { error } = await input.adminClient
-    .from("event_payments")
-    .update({
-      status: "approved",
-      review_notes: input.notes ?? null,
-      reviewed_by: input.actorId,
-      paid_at: new Date().toISOString(),
-    })
-    .eq("id", input.paymentId);
+  const approved = await markEventPaymentApprovedCore({
+    admin: input.adminClient,
+    paymentId: input.paymentId,
+    reviewedBy: input.actorId,
+    reviewNotes: input.notes ?? null,
+  });
 
-  if (error) {
-    logSupabaseClientError("approveEventPayment:update", error, { paymentId: input.paymentId });
+  if (!approved.ok) {
     return { ok: false };
   }
 
@@ -41,7 +40,12 @@ export async function approveEventPayment(input: {
     afterValues: { status: "approved", review_notes: input.notes ?? null },
     metadata: { payment_id: input.paymentId },
   });
-  return { ok: audit.ok };
+
+  if (!audit.ok) {
+    logServerWarn("approveEventPayment:audit_failed", { payment_id: input.paymentId });
+  }
+
+  return { ok: true };
 }
 
 export async function rejectEventPayment(input: {
@@ -81,5 +85,56 @@ export async function rejectEventPayment(input: {
     afterValues: { status: "rejected", review_notes: input.notes },
     metadata: { payment_id: input.paymentId },
   });
-  return { ok: audit.ok };
+
+  if (!audit.ok) {
+    logServerWarn("rejectEventPayment:audit_failed", { payment_id: input.paymentId });
+  }
+
+  return { ok: true };
+}
+
+export async function revertEventPaymentApproval(input: {
+  adminClient: SupabaseClient;
+  actorId: string;
+  paymentId: string;
+  notes?: string | null;
+}): Promise<{ ok: boolean; code?: "not_revertible" | "not_found" | "update_failed" }> {
+  const { data: beforeRow } = await input.adminClient
+    .from("event_payments")
+    .select("status, review_notes, event_attendee_id")
+    .eq("id", input.paymentId)
+    .maybeSingle();
+
+  const reverted = await revertEventPaymentApprovalCore({
+    admin: input.adminClient,
+    paymentId: input.paymentId,
+    reviewedBy: input.actorId,
+    reviewNotes: input.notes ?? null,
+  });
+
+  if (!reverted.ok) {
+    return { ok: false, code: reverted.code };
+  }
+
+  const audit = await auditFinanceAction({
+    actorId: input.actorId,
+    actorRole: "admin",
+    action: "update",
+    resourceType: "event_payment",
+    resourceId: input.paymentId,
+    summary: "Admin reverted an approved event payment to pending review",
+    beforeValues: beforeRow ?? {},
+    afterValues: { status: "pending", review_notes: input.notes ?? null },
+    metadata: {
+      payment_id: input.paymentId,
+      attendee_id: beforeRow?.event_attendee_id ?? null,
+      attendee_reverted: reverted.attendeeReverted,
+    },
+  });
+
+  if (!audit.ok) {
+    logServerWarn("revertEventPaymentApproval:audit_failed", { payment_id: input.paymentId });
+  }
+
+  return { ok: true };
 }

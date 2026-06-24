@@ -3340,6 +3340,12 @@
         "paymentsDeleteConfirm": "Remove submission",
         "paymentsDeleteCancel": "Cancel",
         "paymentsErrorDelete": "We could not remove this payment submission. Try again.",
+        "paymentsRevert": "Undo approval",
+        "paymentsRevertTooltip": "Return this bank transfer to pending review and mark the attendee as awaiting payment again",
+        "paymentsRevertConfirmTitle": "Undo payment approval?",
+        "paymentsRevertConfirmBody": "The payment returns to pending review and the attendee status changes back to awaiting payment if they were confirmed.",
+        "paymentsRevertConfirm": "Undo approval",
+        "paymentsErrorNotRevertible": "This payment cannot be reverted. Only manually approved bank transfers can be undone.",
         "paymentsMethodLabels": {
           "bank_transfer": "Bank transfer",
           "flow": "Flow",
@@ -3627,6 +3633,17 @@
       },
       "transferInstructions": {
         "title": "Where to transfer"
+      },
+      "customFieldFile": {
+        "fileButton": "Choose file",
+        "imageButton": "Choose image",
+        "noFile": "No file selected",
+        "required": "Upload a file for this field.",
+        "tooLarge": "The file exceeds the {max} MB limit.",
+        "invalidType": "This file type is not allowed.",
+        "uploadFailed": "We could not upload one of your files. Try again.",
+        "fileInputAriaLabel": "Select file",
+        "imageInputAriaLabel": "Select image"
       }
     }
   },

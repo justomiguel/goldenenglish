@@ -123,6 +123,17 @@ export default async function EventRegisterPage({ params }: PageProps) {
           },
           selectPlaceholder: dict.events.register.selectPlaceholder,
           fileUploadProgressSending: dict.common.fileUpload.progressSending,
+          customFieldFile: {
+            fileButton: dict.events.register.customFieldFile.fileButton,
+            imageButton: dict.events.register.customFieldFile.imageButton,
+            noFile: dict.events.register.customFieldFile.noFile,
+            required: dict.events.register.customFieldFile.required,
+            tooLarge: dict.events.register.customFieldFile.tooLarge,
+            invalidType: dict.events.register.customFieldFile.invalidType,
+            uploadFailed: dict.events.register.customFieldFile.uploadFailed,
+            fileInputAriaLabel: dict.events.register.customFieldFile.fileInputAriaLabel,
+            imageInputAriaLabel: dict.events.register.customFieldFile.imageInputAriaLabel,
+          },
         }}
       />
     </main>
