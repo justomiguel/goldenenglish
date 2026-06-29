@@ -86,13 +86,16 @@ export async function resolveFlowMonthlyPaymentReturnPage(input: {
 
   const commerceOrder = fetched.data.commerceOrder?.trim() ?? "";
 
-  /** Flow commerceOrder may be `payments.id` (UUID, legacy) or `MES-*` refs (see payment_flow_checkout_refs). */
-  const { payRow: matched, error: lookupErr, skipReason } = await lookupPaymentRowForFlowFinalize(
+  /**
+   * Flow commerceOrder may be a legacy `payments.id` link, or a deferred-creation
+   * `tuition:` slot link (no row yet) — see payment_flow_checkout_refs.
+   */
+  const { payRow: matched, slot, error: lookupErr, skipReason } = await lookupPaymentRowForFlowFinalize(
     admin,
     commerceOrder,
   );
 
-  if (lookupErr || skipReason === "invalid_commerce_order" || !matched) {
+  if (lookupErr || skipReason === "invalid_commerce_order" || (!matched && !slot)) {
     logResolve("reject", {
       outcome: "reconcile_error",
       branch: lookupErr ? "lookup_db" : skipReason ?? "no_matched_payment",
@@ -101,37 +104,43 @@ export async function resolveFlowMonthlyPaymentReturnPage(input: {
     return { outcome: "reconcile_error" };
   }
 
-  const paymentId = matched.id;
+  // Legacy path: an existing row → enforce RLS visibility and short-circuit when
+  // already approved before attempting a finalize.
+  if (matched) {
+    const paymentId = matched.id;
 
-  const { data: visible, error: visErr } = await input.supabase
-    .from("payments")
-    .select("id")
-    .eq("id", paymentId)
-    .maybeSingle();
+    const { data: visible, error: visErr } = await input.supabase
+      .from("payments")
+      .select("id")
+      .eq("id", paymentId)
+      .maybeSingle();
 
-  if (visErr || !visible) {
-    logResolve("reject", {
-      outcome: "unauthorized_payment",
-      payment_id_prefix: paymentId.slice(0, 8),
-    });
-    return { outcome: "unauthorized_payment" };
+    if (visErr || !visible) {
+      logResolve("reject", {
+        outcome: "unauthorized_payment",
+        payment_id_prefix: paymentId.slice(0, 8),
+      });
+      return { outcome: "unauthorized_payment" };
+    }
+
+    const { data: currentRow } = await input.supabase
+      .from("payments")
+      .select("status, month, year")
+      .eq("id", paymentId)
+      .maybeSingle();
+
+    if (currentRow?.status === "approved" && currentRow.month != null && currentRow.year != null) {
+      return {
+        outcome: "success",
+        month: Number(currentRow.month),
+        year: Number(currentRow.year),
+        paymentId,
+      };
+    }
   }
 
-  const { data: currentRow } = await input.supabase
-    .from("payments")
-    .select("status, month, year")
-    .eq("id", paymentId)
-    .maybeSingle();
-
-  if (currentRow?.status === "approved" && currentRow.month != null && currentRow.year != null) {
-    return {
-      outcome: "success",
-      month: Number(currentRow.month),
-      year: Number(currentRow.year),
-      paymentId,
-    };
-  }
-
+  // Deferred-creation slot refs have no row yet, so the row (and ownership) is
+  // verified after finalize by re-reading through the user-scoped client below.
   if (!allowFinalize) {
     return { outcome: "processing" };
   }
@@ -150,10 +159,15 @@ export async function resolveFlowMonthlyPaymentReturnPage(input: {
     return { outcome: "reconcile_error" };
   }
 
+  const finalPaymentId = matched?.id ?? finalized.paymentId ?? "";
+  if (!finalPaymentId) {
+    return { outcome: "processing" };
+  }
+
   const { data: row } = await input.supabase
     .from("payments")
     .select("status, month, year")
-    .eq("id", paymentId)
+    .eq("id", finalPaymentId)
     .maybeSingle();
 
   if (row?.status === "approved" && row.month != null && row.year != null) {
@@ -161,7 +175,7 @@ export async function resolveFlowMonthlyPaymentReturnPage(input: {
       outcome: "success",
       month: Number(row.month),
       year: Number(row.year),
-      paymentId,
+      paymentId: finalPaymentId,
     };
   }
 

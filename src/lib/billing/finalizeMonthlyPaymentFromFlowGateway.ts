@@ -8,6 +8,7 @@ import { notifyMonthlyPaymentDecision } from "@/lib/email/billingPaymentEmails";
 import { revalidateStudentBillingPaths } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/revalidateStudentBilling";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { lookupPaymentRowForFlowFinalize } from "@/lib/billing/lookupPaymentRowForFlowFinalize";
+import { finalizeFlowMonthlySlot } from "@/lib/billing/finalizeFlowMonthlySlot";
 import { upsertFlowFinalizeRecord } from "@/lib/billing/upsertFlowFinalizeRecord";
 import type { Locale } from "@/types/i18n";
 import { defaultLocale } from "@/lib/i18n/dictionaries";
@@ -59,13 +60,18 @@ export async function finalizeMonthlyPaymentFromFlowGateway(input: {
   }
 
   const commerceOrder = status.data.commerceOrder?.trim() ?? "";
-  const { payRow, error: lookupErr, skipReason } = await lookupPaymentRowForFlowFinalize(
+  const { payRow, slot, error: lookupErr, skipReason } = await lookupPaymentRowForFlowFinalize(
     input.admin,
     commerceOrder,
   );
 
   if (skipReason === "invalid_commerce_order") {
     return { ok: true, skipped: "invalid_commerce_order" };
+  }
+
+  // Deferred creation: the commerce ref maps to a tuition slot with no row yet.
+  if (slot) {
+    return finalizeFlowMonthlySlot({ admin: input.admin, slot, snapshot: status.data });
   }
 
   if (lookupErr) {

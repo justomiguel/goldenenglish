@@ -48,9 +48,17 @@ export async function reviewPayment(
 
   const { data: beforePayment } = await supabase
     .from("payments")
-    .select("id, student_id, parent_id, month, year, amount, status, admin_notes, section_id")
+    .select("id, student_id, parent_id, month, year, amount, status, admin_notes, section_id, gateway_provider")
     .eq("id", parsed.data.paymentId)
     .maybeSingle();
+
+  // Deferred creation: gateway-confirmed tuition rows (Mercado Pago / Flow) are
+  // materialized directly as `approved`; they are not manual receipts and must
+  // not be re-reviewed from the receipts inbox.
+  if (beforePayment?.gateway_provider) {
+    logServerAuthzDenied("reviewPayment:gateway_managed");
+    return { ok: false, message: errDict.actionErrors.paymentsReview.gatewayManaged };
+  }
 
   const { error } = await supabase
     .from("payments")

@@ -185,6 +185,7 @@
       "forbidden": "You are not allowed to do this.",
       "invalidData": "Invalid data.",
       "saveFailed": "Could not update the payment.",
+      "gatewayManaged": "This payment was confirmed by the payment gateway and is already approved; it cannot be reviewed manually.",
       "nonePendingToDelete": "None of the selected items are still pending; nothing was removed."
     },
     "register": {

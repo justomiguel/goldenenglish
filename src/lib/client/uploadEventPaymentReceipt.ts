@@ -1,6 +1,6 @@
 export interface UploadEventPaymentReceiptInput {
   slug: string;
-  paymentId: string;
+  attendeeId: string;
   email: string;
   dniOrPassport: string;
   file: File;
@@ -14,7 +14,7 @@ export async function uploadEventPaymentReceipt(
   input: UploadEventPaymentReceiptInput,
 ): Promise<UploadEventPaymentReceiptResult> {
   const form = new FormData();
-  form.set("paymentId", input.paymentId);
+  form.set("attendeeId", input.attendeeId);
   form.set("email", input.email);
   form.set("dniOrPassport", input.dniOrPassport);
   form.set("receipt", input.file);

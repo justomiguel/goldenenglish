@@ -11,12 +11,20 @@ export async function approveEventPayment(input: {
   actorId: string;
   paymentId: string;
   notes?: string | null;
-}): Promise<{ ok: boolean }> {
+}): Promise<{ ok: boolean; code?: "gateway_managed" }> {
   const { data: beforeRow } = await input.adminClient
     .from("event_payments")
-    .select("status, review_notes")
+    .select("status, review_notes, gateway_provider")
     .eq("id", input.paymentId)
     .maybeSingle();
+
+  if (beforeRow?.gateway_provider) {
+    logServerWarn("approveEventPayment:gateway_managed", {
+      payment_id: input.paymentId,
+      gateway_provider: String(beforeRow.gateway_provider),
+    });
+    return { ok: false, code: "gateway_managed" };
+  }
 
   const approved = await markEventPaymentApprovedCore({
     admin: input.adminClient,
@@ -53,12 +61,20 @@ export async function rejectEventPayment(input: {
   actorId: string;
   paymentId: string;
   notes: string;
-}): Promise<{ ok: boolean }> {
+}): Promise<{ ok: boolean; code?: "gateway_managed" }> {
   const { data: beforeRow } = await input.adminClient
     .from("event_payments")
-    .select("status, review_notes")
+    .select("status, review_notes, gateway_provider")
     .eq("id", input.paymentId)
     .maybeSingle();
+
+  if (beforeRow?.gateway_provider) {
+    logServerWarn("rejectEventPayment:gateway_managed", {
+      payment_id: input.paymentId,
+      gateway_provider: String(beforeRow.gateway_provider),
+    });
+    return { ok: false, code: "gateway_managed" };
+  }
 
   const { error } = await input.adminClient
     .from("event_payments")

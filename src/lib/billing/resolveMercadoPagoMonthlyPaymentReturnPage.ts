@@ -7,6 +7,7 @@ import { finalizeMercadoPagoPayment } from "@/lib/billing/finalizeMercadoPagoPay
 import { loadPaymentGatewayEncryptionKeyRaw32 } from "@/lib/payment-gateways/loadPaymentGatewayEncryptionKey";
 import { loadMercadoPagoCredentialsPlain } from "@/lib/payment-gateways/mercadopago/loadMercadoPagoCredentialsPlain";
 import { mercadoPagoGetPayment } from "@/lib/payment-gateways/mercadopago/mercadoPagoGetPayment";
+import { parseMonthlyGatewayReference } from "@/lib/billing/parseMonthlyGatewayReference";
 import { logServerWarn } from "@/lib/logging/serverActionLog";
 import type { PaymentGatewayCountryCode } from "@/types/paymentGateway";
 
@@ -83,12 +84,16 @@ export async function resolveMercadoPagoMonthlyPaymentReturnPage(input: {
     return { outcome: "not_paid" };
   }
 
-  const paymentIdForRls = externalRef || fetched.data.external_reference?.trim() || "";
-  if (paymentIdForRls) {
+  const refRaw = externalRef || fetched.data.external_reference?.trim() || "";
+  const ref = parseMonthlyGatewayReference(refRaw);
+
+  // Legacy `payments.id` references: enforce RLS visibility on the existing row
+  // before finalizing so a user only ever sees their own payment.
+  if (ref?.kind === "payment") {
     const { data: visible } = await input.supabase
       .from("payments")
       .select("id, month, year, status")
-      .eq("id", paymentIdForRls)
+      .eq("id", ref.paymentId)
       .maybeSingle();
     if (!visible) {
       return { outcome: "unauthorized_payment" };
@@ -101,11 +106,11 @@ export async function resolveMercadoPagoMonthlyPaymentReturnPage(input: {
         paymentId: visible.id as string,
       };
     }
-    if (!allowFinalize) {
-      return { outcome: "processing" };
-    }
   }
 
+  // Deferred-creation (`tuition:` slot) references have no row yet, so we cannot
+  // pre-check RLS here. The row is materialized via the admin client below and
+  // ownership is enforced by re-reading it through the user-scoped client.
   if (!allowFinalize) {
     return { outcome: "processing" };
   }

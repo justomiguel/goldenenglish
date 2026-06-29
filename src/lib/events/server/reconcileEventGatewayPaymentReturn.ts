@@ -7,9 +7,12 @@ import {
   loadFlowChileCredentialsPlain,
   flowChileApiBase,
 } from "@/lib/payment-gateways/flow/loadFlowChileCredentialsPlain";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { gatewayCountryForBillingCurrency } from "@/lib/payment-gateways/gatewayCountryForBillingCurrency";
 import { finalizeEventPaymentFromMercadoPago } from "@/lib/events/server/finalizeEventPaymentFromMercadoPago";
 import { finalizeEventPaymentFromFlowGateway } from "@/lib/events/server/finalizeEventPaymentFromFlowGateway";
+import { parseEventGatewayReference } from "@/lib/events/parseEventGatewayReference";
+import { loadEventAttendeeGatewayContext } from "@/lib/events/server/loadEventAttendeeGatewayContext";
 import type { EventPaymentReturnStatus } from "@/lib/events/buildEventPaymentReturnUrl";
 import { logServerException, logServerWarn } from "@/lib/logging/serverActionLog";
 
@@ -17,10 +20,31 @@ function firstParam(raw: string | null | undefined): string {
   return raw?.trim() ?? "";
 }
 
-function parseEventPaymentIdFromExternalReference(externalReference: string): string {
-  const raw = externalReference.trim();
-  if (!raw.startsWith("event_payment:")) return "";
-  return raw.slice("event_payment:".length).split(":")[0]?.trim() ?? "";
+/**
+ * Resolves the billing currency for the gateway return.
+ *
+ * Deferred-creation flow: the event_payments row may not exist yet at return time, so the
+ * currency is derived from the attendee context (`event_attendee:` reference). Legacy
+ * checkouts (`event_payment:` reference) still resolve from the pre-created payment row.
+ */
+async function resolveReturnCurrency(
+  admin: SupabaseClient,
+  externalReference: string,
+): Promise<string> {
+  const reference = parseEventGatewayReference(externalReference);
+  if (!reference) return "";
+
+  if (reference.kind === "attendee") {
+    const context = await loadEventAttendeeGatewayContext(admin, reference.attendeeId);
+    return context?.currency ?? "";
+  }
+
+  const { data: paymentRow } = await admin
+    .from("event_payments")
+    .select("currency")
+    .eq("id", reference.paymentId)
+    .maybeSingle();
+  return String(paymentRow?.currency ?? "");
 }
 
 function mpReturnLooksFailed(status: string): boolean {
@@ -42,8 +66,6 @@ export async function reconcileEventMercadoPagoReturn(input: {
     return "processing";
   }
 
-  const paymentId = parseEventPaymentIdFromExternalReference(input.externalReference);
-
   let rawKey;
   try {
     rawKey = loadPaymentGatewayEncryptionKeyRaw32();
@@ -53,20 +75,12 @@ export async function reconcileEventMercadoPagoReturn(input: {
   }
 
   const admin = createAdminClient();
-  let country = null as ReturnType<typeof gatewayCountryForBillingCurrency>;
-
-  if (paymentId) {
-    const { data: paymentRow } = await admin
-      .from("event_payments")
-      .select("currency")
-      .eq("id", paymentId)
-      .maybeSingle();
-    country = gatewayCountryForBillingCurrency(String(paymentRow?.currency ?? ""));
-  }
+  const currency = await resolveReturnCurrency(admin, input.externalReference);
+  const country = gatewayCountryForBillingCurrency(currency);
 
   if (!country) {
     logServerWarn("reconcileEventMpReturn:missing_country", {
-      payment_id_prefix: paymentId.slice(0, 8),
+      has_external_reference: Boolean(input.externalReference.trim()),
     });
     return "processing";
   }

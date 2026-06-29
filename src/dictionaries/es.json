@@ -185,6 +185,7 @@
       "forbidden": "No tenés permiso para esta acción.",
       "invalidData": "Datos no válidos.",
       "saveFailed": "No se pudo actualizar el pago.",
+      "gatewayManaged": "Este pago fue confirmado por la pasarela de pago y ya está aprobado; no se puede revisar manualmente.",
       "nonePendingToDelete": "Ninguno de los ítems seleccionados sigue pendiente; no se eliminó nada."
     },
     "register": {

@@ -67,6 +67,50 @@ describe("reviewEventPaymentServer", () => {
     expect(mockMarkApproved).toHaveBeenCalled();
   });
 
+  it("approveEventPayment refuses gateway-managed payments", async () => {
+    const adminClient = paymentSelectRow({
+      status: "pending",
+      review_notes: null,
+      gateway_provider: "mercadopago",
+    });
+
+    const result = await approveEventPayment({
+      adminClient: adminClient as never,
+      actorId: "admin-1",
+      paymentId: "pay-1",
+    });
+
+    expect(result).toEqual({ ok: false, code: "gateway_managed" });
+    expect(mockMarkApproved).not.toHaveBeenCalled();
+  });
+
+  it("rejectEventPayment refuses gateway-managed payments", async () => {
+    const update = vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) }));
+    const adminClient = {
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn(async () => ({
+              data: { status: "pending", review_notes: null, gateway_provider: "flow" },
+              error: null,
+            })),
+          })),
+        })),
+        update,
+      })),
+    };
+
+    const result = await rejectEventPayment({
+      adminClient: adminClient as never,
+      actorId: "admin-1",
+      paymentId: "pay-1",
+      notes: "n/a",
+    });
+
+    expect(result).toEqual({ ok: false, code: "gateway_managed" });
+    expect(update).not.toHaveBeenCalled();
+  });
+
   it("approveEventPayment returns ok false when core fails", async () => {
     mockMarkApproved.mockResolvedValue({ ok: false, code: "not_found" });
     const adminClient = paymentSelectRow({ status: "pending", review_notes: null });

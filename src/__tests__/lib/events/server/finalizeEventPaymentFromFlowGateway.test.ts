@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockFlowStatus = vi.fn();
 const mockMarkApproved = vi.fn();
+const mockUpsertApproved = vi.fn();
 
 vi.mock("@/lib/payment-gateways/flow/flowFetchPaymentStatus", () => ({
   flowFetchPaymentStatus: (...args: unknown[]) => mockFlowStatus(...args),
@@ -9,6 +10,10 @@ vi.mock("@/lib/payment-gateways/flow/flowFetchPaymentStatus", () => ({
 
 vi.mock("@/lib/events/server/markEventPaymentApprovedCore", () => ({
   markEventPaymentApprovedCore: (...args: unknown[]) => mockMarkApproved(...args),
+}));
+
+vi.mock("@/lib/events/server/upsertApprovedEventGatewayPaymentCore", () => ({
+  upsertApprovedEventGatewayPaymentCore: (...args: unknown[]) => mockUpsertApproved(...args),
 }));
 
 vi.mock("@/lib/logging/serverActionLog", () => ({
@@ -21,6 +26,7 @@ describe("finalizeEventPaymentFromFlowGateway", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockMarkApproved.mockResolvedValue({ ok: true, paymentId: "pay-flow", paymentUpdated: true, attendeeConfirmed: true });
+    mockUpsertApproved.mockResolvedValue({ ok: true, paymentId: "pay-flow" });
   });
 
   it("returns ok false when Flow status lookup fails", async () => {
@@ -111,6 +117,64 @@ describe("finalizeEventPaymentFromFlowGateway", () => {
       }),
     );
     expect(upsert).toHaveBeenCalled();
+  });
+
+  it("materializes an approved payment for an attendee commerce order (deferred creation)", async () => {
+    mockFlowStatus.mockResolvedValue({
+      ok: true,
+      data: {
+        status: 2,
+        commerceOrder: "event_attendee:att-1:lk9z2",
+        flowOrder: 12345,
+        currency: "CLP",
+        amount: 15000,
+        payer: "payer@example.com",
+        paymentData: { date: "2026-06-24T12:00:00.000Z", media: "webpay" },
+      },
+    });
+
+    const upsert = vi.fn(async () => ({ error: null }));
+    const admin = {
+      from: vi.fn((table: string) => {
+        if (table === "event_payment_flow_finalize_records") {
+          return { upsert };
+        }
+        throw new Error(`unexpected table ${table}`);
+      }),
+    };
+
+    const result = await finalizeEventPaymentFromFlowGateway({
+      admin: admin as never,
+      apiBaseUrl: "https://flow.test",
+      apiKey: "key",
+      secretKey: "secret",
+      token: "token",
+    });
+
+    expect(result).toEqual({ ok: true, paymentId: "pay-flow" });
+    expect(mockUpsertApproved).toHaveBeenCalledWith(
+      expect.objectContaining({ attendeeId: "att-1", gatewayProvider: "flow" }),
+    );
+    expect(mockMarkApproved).not.toHaveBeenCalled();
+    expect(upsert).toHaveBeenCalled();
+  });
+
+  it("skips when the attendee no longer exists", async () => {
+    mockFlowStatus.mockResolvedValue({
+      ok: true,
+      data: { status: 2, commerceOrder: "event_attendee:att-x" },
+    });
+    mockUpsertApproved.mockResolvedValue({ ok: true, skipped: "event_attendee_not_found" });
+
+    const result = await finalizeEventPaymentFromFlowGateway({
+      admin: { from: vi.fn() } as never,
+      apiBaseUrl: "https://flow.test",
+      apiKey: "key",
+      secretKey: "secret",
+      token: "token",
+    });
+
+    expect(result).toEqual({ ok: true, skipped: "event_attendee_not_found" });
   });
 
   it("skips when event payment row is missing", async () => {

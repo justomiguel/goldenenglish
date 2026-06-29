@@ -54,7 +54,7 @@ export async function POST(
     const { slug } = await context.params;
     const body = (await request.json().catch(() => null)) as
       | {
-          paymentId?: unknown;
+          attendeeId?: unknown;
           method?: unknown;
           email?: unknown;
           dniOrPassport?: unknown;
@@ -62,14 +62,14 @@ export async function POST(
         }
       | null;
 
-    const paymentId = String(body?.paymentId ?? "").trim();
+    const attendeeId = String(body?.attendeeId ?? "").trim();
     const method = String(body?.method ?? "").trim();
     const email = String(body?.email ?? "").trim();
     const dniOrPassport = String(body?.dniOrPassport ?? "").trim();
     const localeRaw = String(body?.locale ?? "es").trim();
     const locale = localeRaw === "en" || localeRaw === "pt" ? localeRaw : "es";
 
-    if (!paymentId || !email || !dniOrPassport || !isGatewayMethod(method)) {
+    if (!attendeeId || !email || !dniOrPassport || !isGatewayMethod(method)) {
       logServerWarn("api.events.paymentStart", { reason: "invalid_body", slug });
       return NextResponse.json(
         { ok: false, code: "invalid_body" },
@@ -92,7 +92,7 @@ export async function POST(
       admin: createAdminClient(),
       encryptionKey32,
       slug,
-      paymentId,
+      attendeeId,
       method,
       email,
       dniOrPassport,

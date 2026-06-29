@@ -179,7 +179,7 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
       const body = (await response.json().catch(() => null)) as
         | {
             ok?: boolean;
-            result?: { paymentId?: string | null };
+            result?: { attendeeId?: string | null; paymentRequired?: boolean };
           }
         | null;
 
@@ -188,11 +188,12 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
         return;
       }
 
-      const paymentId = body.result?.paymentId ?? null;
-      if (payload.requiresTransferReceipt && paymentId && payload.receiptFile) {
+      const attendeeId = body.result?.attendeeId ?? null;
+      const paymentRequired = Boolean(body.result?.paymentRequired);
+      if (payload.requiresTransferReceipt && attendeeId && paymentRequired && payload.receiptFile) {
         const upload = await uploadEventPaymentReceipt({
           slug: payload.slug,
-          paymentId,
+          attendeeId,
           email: payload.email,
           dniOrPassport: payload.dni,
           file: payload.receiptFile,
@@ -207,10 +208,10 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
 
       const wantsOnlinePayment =
         payload.showPaymentPicker && isOnlineGatewayMethod(payload.paymentMethod);
-      if (wantsOnlinePayment && paymentId) {
+      if (wantsOnlinePayment && attendeeId && paymentRequired) {
         const started = await startEventGatewayPayment({
           slug: payload.slug,
-          paymentId,
+          attendeeId,
           method: payload.paymentMethod as "mercadopago" | "flow",
           email: payload.email,
           dniOrPassport: payload.dni,

@@ -22,7 +22,13 @@ export async function approveEventPaymentAction(
   const result = await approveEventPayment({ adminClient: admin, actorId, paymentId, notes: notes ?? null });
   revalidatePath(adminEventsPath(locale), "page");
   if (eventId) revalidatePath(`${adminEventsPath(locale)}/${eventId}`, "page");
-  return { ok: result.ok, message: result.ok ? undefined : "save_failed" };
+  if (!result.ok) {
+    return {
+      ok: false,
+      message: result.code === "gateway_managed" ? "gateway_managed" : "save_failed",
+    };
+  }
+  return { ok: true };
 }
 
 export async function rejectEventPaymentAction(
@@ -37,7 +43,13 @@ export async function rejectEventPaymentAction(
   const result = await rejectEventPayment({ adminClient: admin, actorId, paymentId, notes });
   revalidatePath(adminEventsPath(locale), "page");
   if (eventId) revalidatePath(`${adminEventsPath(locale)}/${eventId}`, "page");
-  return { ok: result.ok, message: result.ok ? undefined : "save_failed" };
+  if (!result.ok) {
+    return {
+      ok: false,
+      message: result.code === "gateway_managed" ? "gateway_managed" : "save_failed",
+    };
+  }
+  return { ok: true };
 }
 
 export async function deleteEventPaymentAction(

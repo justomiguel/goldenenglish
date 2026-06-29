@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   flowChileApiBase: vi.fn(() => "https://flow.test/api"),
   flowCreatePaymentOrder: vi.fn(),
   getPublicSiteUrl: vi.fn(() => "https://goldenenglish.cl"),
+  loadEventAttendeeGatewayContext: vi.fn(),
 }));
 
 vi.mock("@/lib/payment-gateways/mercadopago/loadMercadoPagoCredentialsPlain", () => ({
@@ -26,6 +27,9 @@ vi.mock("@/lib/payment-gateways/flow/flowCreatePaymentOrder", () => ({
 vi.mock("@/lib/site/publicUrl", () => ({
   getPublicSiteUrl: mocks.getPublicSiteUrl,
 }));
+vi.mock("@/lib/events/server/loadEventAttendeeGatewayContext", () => ({
+  loadEventAttendeeGatewayContext: mocks.loadEventAttendeeGatewayContext,
+}));
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logServerActionInvariantViolation: vi.fn(),
   logSupabaseClientError: vi.fn(),
@@ -33,8 +37,8 @@ vi.mock("@/lib/logging/serverActionLog", () => ({
 
 import { startEventGatewayPaymentCore } from "@/lib/events/server/startEventGatewayPaymentCore";
 
-interface PaymentRowOverrides {
-  status?: string;
+interface ContextOverrides {
+  attendeeStatus?: string;
   amount?: number;
   currency?: string;
   email?: string;
@@ -42,42 +46,27 @@ interface PaymentRowOverrides {
   slug?: string;
 }
 
-function buildAdmin(overrides: PaymentRowOverrides = {}) {
-  const updateEq2 = vi.fn(async () => ({ error: null }));
-  const updateEq1 = vi.fn(() => ({ eq: updateEq2 }));
-  const update = vi.fn(() => ({ eq: updateEq1 }));
-
-  const row = {
-    id: "pay-1",
-    status: overrides.status ?? "pending",
-    amount: overrides.amount ?? 15000,
+function buildContext(overrides: ContextOverrides = {}) {
+  return {
+    attendeeId: "att-1",
+    eventId: "evt-1",
+    attendeeStatus: overrides.attendeeStatus ?? "pending_payment",
+    isLocalResident: true,
+    email: overrides.email ?? "[email protected]",
+    dniOrPassport: overrides.dni ?? "12345678",
+    slug: overrides.slug ?? "gala",
+    title: "Gala",
     currency: overrides.currency ?? "CLP",
-    event_attendees: {
-      email: overrides.email ?? "[email protected]",
-      dni_or_passport: overrides.dni ?? "12345678",
-      event_id: "evt-1",
-      events: { slug: overrides.slug ?? "gala", title: "Gala" },
-    },
+    amount: overrides.amount ?? 15000,
   };
-
-  const admin = {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          maybeSingle: vi.fn(async () => ({ data: row, error: null })),
-        })),
-      })),
-      update,
-    })),
-  };
-
-  return { admin, update, updateEq1, updateEq2 };
 }
+
+const admin = {} as never;
 
 const baseInput = {
   encryptionKey32: Buffer.alloc(32),
   slug: "gala",
-  paymentId: "pay-1",
+  attendeeId: "att-1",
   email: "[email protected]",
   dniOrPassport: "12345678",
   locale: "es",
@@ -87,11 +76,11 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.getPublicSiteUrl.mockReturnValue("https://goldenenglish.cl");
   mocks.flowChileApiBase.mockReturnValue("https://flow.test/api");
+  mocks.loadEventAttendeeGatewayContext.mockResolvedValue(buildContext());
 });
 
 describe("startEventGatewayPaymentCore", () => {
-  it("creates a Mercado Pago preference and returns the redirect URL", async () => {
-    const { admin, update } = buildAdmin();
+  it("creates a Mercado Pago preference linked to the attendee and never writes a payment row", async () => {
     mocks.loadMercadoPagoCredentialsPlain.mockResolvedValue({
       enabled: true,
       accessToken: "tok",
@@ -105,20 +94,18 @@ describe("startEventGatewayPaymentCore", () => {
 
     const result = await startEventGatewayPaymentCore({
       ...baseInput,
-      admin: admin as never,
+      admin,
       method: "mercadopago",
     });
 
     expect(result).toEqual({ ok: true, redirectUrl: "https://mp.test/checkout/pref-1" });
     expect(mocks.mercadoPagoCreatePreference).toHaveBeenCalledTimes(1);
-    expect(update).toHaveBeenCalledWith({
-      mp_preference_id: "pref-1",
-      gateway_provider: "mercadopago",
-    });
+    expect(mocks.mercadoPagoCreatePreference).toHaveBeenCalledWith(
+      expect.objectContaining({ externalReference: "event_attendee:att-1" }),
+    );
   });
 
-  it("creates a Flow order and appends the token to the redirect URL", async () => {
-    const { admin, update } = buildAdmin();
+  it("creates a Flow order with an attendee-scoped commerceOrder and appends the token", async () => {
     mocks.loadFlowChileCredentialsPlain.mockResolvedValue({
       enabled: true,
       apiKey: "key",
@@ -132,7 +119,7 @@ describe("startEventGatewayPaymentCore", () => {
 
     const result = await startEventGatewayPaymentCore({
       ...baseInput,
-      admin: admin as never,
+      admin,
       method: "flow",
     });
 
@@ -140,15 +127,29 @@ describe("startEventGatewayPaymentCore", () => {
       ok: true,
       redirectUrl: "https://flow.test/pay?token=tok%20123",
     });
-    expect(update).toHaveBeenCalledWith({ gateway_provider: "flow" });
+    const callArg = mocks.flowCreatePaymentOrder.mock.calls[0][0] as { commerceOrder: string };
+    expect(callArg.commerceOrder.startsWith("event_attendee:att-1:")).toBe(true);
   });
 
-  it("rejects when the identity does not match the attendee", async () => {
-    const { admin } = buildAdmin({ dni: "99999999" });
+  it("returns payment_not_found when the attendee context is missing", async () => {
+    mocks.loadEventAttendeeGatewayContext.mockResolvedValue(null);
 
     const result = await startEventGatewayPaymentCore({
       ...baseInput,
-      admin: admin as never,
+      admin,
+      method: "mercadopago",
+    });
+
+    expect(result).toEqual({ ok: false, code: "payment_not_found" });
+    expect(mocks.mercadoPagoCreatePreference).not.toHaveBeenCalled();
+  });
+
+  it("rejects when the identity does not match the attendee", async () => {
+    mocks.loadEventAttendeeGatewayContext.mockResolvedValue(buildContext({ dni: "99999999" }));
+
+    const result = await startEventGatewayPaymentCore({
+      ...baseInput,
+      admin,
       method: "mercadopago",
     });
 
@@ -156,24 +157,28 @@ describe("startEventGatewayPaymentCore", () => {
     expect(mocks.mercadoPagoCreatePreference).not.toHaveBeenCalled();
   });
 
-  it("rejects when the payment is not pending", async () => {
-    const { admin } = buildAdmin({ status: "approved" });
+  it("rejects when the attendee is not pending payment", async () => {
+    mocks.loadEventAttendeeGatewayContext.mockResolvedValue(
+      buildContext({ attendeeStatus: "confirmed" }),
+    );
 
     const result = await startEventGatewayPaymentCore({
       ...baseInput,
-      admin: admin as never,
+      admin,
       method: "mercadopago",
     });
 
     expect(result).toEqual({ ok: false, code: "payment_not_pending" });
   });
 
-  it("rejects when the slug does not match the payment's event", async () => {
-    const { admin } = buildAdmin({ slug: "other-event" });
+  it("rejects when the slug does not match the attendee's event", async () => {
+    mocks.loadEventAttendeeGatewayContext.mockResolvedValue(
+      buildContext({ slug: "other-event" }),
+    );
 
     const result = await startEventGatewayPaymentCore({
       ...baseInput,
-      admin: admin as never,
+      admin,
       method: "mercadopago",
     });
 
@@ -181,11 +186,11 @@ describe("startEventGatewayPaymentCore", () => {
   });
 
   it("rejects unsupported currencies", async () => {
-    const { admin } = buildAdmin({ currency: "USD" });
+    mocks.loadEventAttendeeGatewayContext.mockResolvedValue(buildContext({ currency: "USD" }));
 
     const result = await startEventGatewayPaymentCore({
       ...baseInput,
-      admin: admin as never,
+      admin,
       method: "mercadopago",
     });
 
@@ -193,11 +198,11 @@ describe("startEventGatewayPaymentCore", () => {
   });
 
   it("rejects when the chosen method does not support the currency (Flow + ARS)", async () => {
-    const { admin } = buildAdmin({ currency: "ARS" });
+    mocks.loadEventAttendeeGatewayContext.mockResolvedValue(buildContext({ currency: "ARS" }));
 
     const result = await startEventGatewayPaymentCore({
       ...baseInput,
-      admin: admin as never,
+      admin,
       method: "flow",
     });
 
@@ -205,7 +210,6 @@ describe("startEventGatewayPaymentCore", () => {
   });
 
   it("returns gateway_error when the provider fails", async () => {
-    const { admin, update } = buildAdmin();
     mocks.loadMercadoPagoCredentialsPlain.mockResolvedValue({
       enabled: true,
       accessToken: "tok",
@@ -215,21 +219,19 @@ describe("startEventGatewayPaymentCore", () => {
 
     const result = await startEventGatewayPaymentCore({
       ...baseInput,
-      admin: admin as never,
+      admin,
       method: "mercadopago",
     });
 
     expect(result).toEqual({ ok: false, code: "gateway_error" });
-    expect(update).not.toHaveBeenCalled();
   });
 
   it("returns method_unavailable when MP credentials are disabled", async () => {
-    const { admin } = buildAdmin();
     mocks.loadMercadoPagoCredentialsPlain.mockResolvedValue({ enabled: false });
 
     const result = await startEventGatewayPaymentCore({
       ...baseInput,
-      admin: admin as never,
+      admin,
       method: "mercadopago",
     });
 

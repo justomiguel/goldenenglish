@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockMpGetPayment = vi.fn();
 const mockMarkApproved = vi.fn();
+const mockUpsertApproved = vi.fn();
 
 vi.mock("@/lib/payment-gateways/mercadopago/mercadoPagoGetPayment", () => ({
   mercadoPagoGetPayment: (...args: unknown[]) => mockMpGetPayment(...args),
@@ -9,6 +10,10 @@ vi.mock("@/lib/payment-gateways/mercadopago/mercadoPagoGetPayment", () => ({
 
 vi.mock("@/lib/events/server/markEventPaymentApprovedCore", () => ({
   markEventPaymentApprovedCore: (...args: unknown[]) => mockMarkApproved(...args),
+}));
+
+vi.mock("@/lib/events/server/upsertApprovedEventGatewayPaymentCore", () => ({
+  upsertApprovedEventGatewayPaymentCore: (...args: unknown[]) => mockUpsertApproved(...args),
 }));
 
 vi.mock("@/lib/logging/serverActionLog", () => ({
@@ -21,6 +26,7 @@ describe("finalizeEventPaymentFromMercadoPago", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockMarkApproved.mockResolvedValue({ ok: true, paymentId: "pay-1", paymentUpdated: true, attendeeConfirmed: true });
+    mockUpsertApproved.mockResolvedValue({ ok: true, paymentId: "pay-1" });
   });
 
   it("returns ok false when Mercado Pago lookup fails", async () => {
@@ -113,6 +119,61 @@ describe("finalizeEventPaymentFromMercadoPago", () => {
       }),
     );
     expect(upsert).toHaveBeenCalled();
+  });
+
+  it("materializes an approved payment for an attendee reference (deferred creation)", async () => {
+    mockMpGetPayment.mockResolvedValue({
+      ok: true,
+      data: {
+        id: 1001,
+        status: "approved",
+        external_reference: "event_attendee:att-1",
+        date_approved: "2026-06-24T12:00:00.000Z",
+        currency_id: "CLP",
+        transaction_amount: 15000,
+        payer: { email: "payer@example.com" },
+        payment_method_id: "visa",
+      },
+    });
+
+    const upsertRecord = vi.fn(async () => ({ error: null }));
+    const admin = {
+      from: vi.fn((table: string) => {
+        if (table === "event_payment_mp_finalize_records") {
+          return { upsert: upsertRecord };
+        }
+        throw new Error(`unexpected table ${table}`);
+      }),
+    };
+
+    const result = await finalizeEventPaymentFromMercadoPago({
+      admin: admin as never,
+      accessToken: "token",
+      mpPaymentId: "1001",
+    });
+
+    expect(result).toEqual({ ok: true, paymentId: "pay-1" });
+    expect(mockUpsertApproved).toHaveBeenCalledWith(
+      expect.objectContaining({ attendeeId: "att-1", gatewayProvider: "mercadopago" }),
+    );
+    expect(mockMarkApproved).not.toHaveBeenCalled();
+    expect(upsertRecord).toHaveBeenCalled();
+  });
+
+  it("skips when the attendee no longer exists", async () => {
+    mockMpGetPayment.mockResolvedValue({
+      ok: true,
+      data: { id: 1001, status: "approved", external_reference: "event_attendee:att-x" },
+    });
+    mockUpsertApproved.mockResolvedValue({ ok: true, skipped: "event_attendee_not_found" });
+
+    const result = await finalizeEventPaymentFromMercadoPago({
+      admin: { from: vi.fn() } as never,
+      accessToken: "token",
+      mpPaymentId: "1001",
+    });
+
+    expect(result).toEqual({ ok: true, skipped: "event_attendee_not_found" });
   });
 
   it("returns ok false when approval core fails", async () => {

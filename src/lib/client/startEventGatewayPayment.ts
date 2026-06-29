@@ -1,6 +1,6 @@
 export interface StartEventGatewayPaymentInput {
   slug: string;
-  paymentId: string;
+  attendeeId: string;
   method: "mercadopago" | "flow";
   email: string;
   dniOrPassport: string;
@@ -20,7 +20,7 @@ export async function startEventGatewayPayment(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        paymentId: input.paymentId,
+        attendeeId: input.attendeeId,
         method: input.method,
         email: input.email,
         dniOrPassport: input.dniOrPassport,

@@ -2,6 +2,43 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { mercadoPagoGetPayment } from "@/lib/payment-gateways/mercadopago/mercadoPagoGetPayment";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { markEventPaymentApprovedCore } from "@/lib/events/server/markEventPaymentApprovedCore";
+import { upsertApprovedEventGatewayPaymentCore } from "@/lib/events/server/upsertApprovedEventGatewayPaymentCore";
+import { parseEventGatewayReference } from "@/lib/events/parseEventGatewayReference";
+
+type LegacyResolution =
+  | { status: "ok"; paymentId: string }
+  | { status: "not_found" }
+  | { status: "error" };
+
+async function resolveLegacyPaymentId(
+  admin: SupabaseClient,
+  paymentId: string,
+  paidAt: string,
+): Promise<LegacyResolution> {
+  const { data: row, error } = await admin
+    .from("event_payments")
+    .select("id")
+    .eq("id", paymentId)
+    .maybeSingle();
+  if (error) {
+    logSupabaseClientError("finalizeEventPaymentFromMercadoPago:legacySelect", error, {
+      paymentId,
+    });
+    return { status: "error" };
+  }
+  if (!row?.id) return { status: "not_found" };
+
+  const approved = await markEventPaymentApprovedCore({
+    admin,
+    paymentId: String(row.id),
+    gatewayProvider: "mercadopago",
+    paidAt,
+  });
+  if (approved.ok) return { status: "ok", paymentId: String(row.id) };
+  // A genuine approval failure (e.g. update_failed) must surface so the webhook retries;
+  // only a missing row counts as "not found".
+  return approved.code === "not_found" ? { status: "not_found" } : { status: "error" };
+}
 
 export async function finalizeEventPaymentFromMercadoPago(input: {
   admin: SupabaseClient;
@@ -17,39 +54,27 @@ export async function finalizeEventPaymentFromMercadoPago(input: {
   if (payment.status !== "approved") return { ok: true, skipped: "mp_not_approved" };
 
   const externalReference = payment.external_reference?.trim() ?? "";
-  if (!externalReference) return { ok: true, skipped: "missing_external_reference" };
+  const reference = parseEventGatewayReference(externalReference);
+  if (!reference) return { ok: true, skipped: "missing_external_reference" };
 
-  const paymentIdFromExternalRef = externalReference.startsWith("event_payment:")
-    ? externalReference.replace("event_payment:", "").trim().split(":")[0]?.trim() ?? ""
-    : "";
+  const paidAt = payment.date_approved ?? new Date().toISOString();
 
-  const { data: row, error: selectError } = await input.admin
-    .from("event_payments")
-    .select("id")
-    .eq(
-      paymentIdFromExternalRef ? "id" : "mp_preference_id",
-      paymentIdFromExternalRef || externalReference,
-    )
-    .maybeSingle();
-  if (selectError || !row?.id) {
-    if (selectError) {
-      logSupabaseClientError("finalizeEventPaymentFromMercadoPago:select", selectError, {
-        externalReference,
-      });
-    }
-    return { ok: true, skipped: "event_payment_not_found" };
-  }
-
-  const paymentId = String(row.id);
-  const approved = await markEventPaymentApprovedCore({
-    admin: input.admin,
-    paymentId,
-    gatewayProvider: "mercadopago",
-    paidAt: payment.date_approved ?? new Date().toISOString(),
-  });
-
-  if (!approved.ok) {
-    return { ok: false };
+  let paymentId: string;
+  if (reference.kind === "attendee") {
+    const result = await upsertApprovedEventGatewayPaymentCore({
+      admin: input.admin,
+      attendeeId: reference.attendeeId,
+      gatewayProvider: "mercadopago",
+      paidAt,
+    });
+    if (!result.ok) return { ok: false };
+    if ("skipped" in result) return { ok: true, skipped: "event_attendee_not_found" };
+    paymentId = result.paymentId;
+  } else {
+    const legacy = await resolveLegacyPaymentId(input.admin, reference.paymentId, paidAt);
+    if (legacy.status === "not_found") return { ok: true, skipped: "event_payment_not_found" };
+    if (legacy.status === "error") return { ok: false };
+    paymentId = legacy.paymentId;
   }
 
   await input.admin.from("event_payment_mp_finalize_records").upsert({
@@ -58,7 +83,7 @@ export async function finalizeEventPaymentFromMercadoPago(input: {
     mp_preference_id: externalReference,
     currency: payment.currency_id,
     amount: Number(payment.transaction_amount ?? 0),
-    paid_at: payment.date_approved ?? new Date().toISOString(),
+    paid_at: paidAt,
     payer_email: payment.payer?.email ?? null,
     payment_method: payment.payment_method_id ?? null,
     raw_payload: payment,

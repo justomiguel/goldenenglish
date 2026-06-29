@@ -1,13 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import {
-  resolveStudentPaymentSlot,
-  type StudentPaymentSlotFailureReason,
-} from "@/lib/billing/resolveStudentPaymentSlot";
-import { resolveSectionPlanMonthlyAmount } from "@/lib/billing/resolveSectionPlanMonthlyAmount";
+import type { StudentPaymentSlotFailureReason } from "@/lib/billing/resolveStudentPaymentSlot";
+import { validateStudentSectionMonthlySlot } from "@/lib/billing/validateStudentSectionMonthlySlot";
 import { loadFlowChileCredentialsPlain, flowChileApiBase } from "@/lib/payment-gateways/flow/loadFlowChileCredentialsPlain";
 import { flowCreatePaymentOrder } from "@/lib/payment-gateways/flow/flowCreatePaymentOrder";
 import { extractFlowMinimumClpFromCreateError } from "@/lib/payment-gateways/flow/parseFlowCreatePaymentError";
-import { reservePaymentFlowCommerceReference } from "@/lib/payment-gateways/flow/reservePaymentFlowCommerceReference";
+import { reservePaymentFlowCommerceReferenceForSlot } from "@/lib/payment-gateways/flow/reservePaymentFlowCommerceReference";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { logServerActionInvariantViolation } from "@/lib/logging/serverActionLog";
 import type { Buffer } from "node:buffer";
@@ -55,47 +52,27 @@ export async function startFlowMonthlyPaymentCore(input: {
   sectionLabelForFlow: string;
   periodLabelForFlow: string;
 }): Promise<StartFlowMonthlyPaymentCoreResult> {
-  const slot = await resolveStudentPaymentSlot(input.supabase, {
+  // Deferred creation: validate the billing slot only. No `payments` row is
+  // created here — the row is materialized as `approved` on gateway confirmation.
+  const validation = await validateStudentSectionMonthlySlot(input.supabase, {
     studentId: input.studentId,
     sectionId: input.sectionId,
     month: input.month,
     year: input.year,
-    fallbackAmount: input.fallbackAmount,
-    actingParentIdForInsert: input.tutorParentId ?? null,
   });
 
-  if (!slot.ok) {
-    return { ok: false, code: "slot", slotReason: slot.reason };
+  if (!validation.ok) {
+    return { ok: false, code: "slot", slotReason: validation.reason };
   }
 
-  const paymentId = slot.payment.id;
-  const effective = slot.effectiveAmount;
-
-  if (input.tutorParentId) {
-    await input.supabase
-      .from("payments")
-      .update({ parent_id: input.tutorParentId })
-      .eq("id", paymentId)
-      .eq("student_id", input.studentId)
-      .in("status", ["pending", "rejected"]);
-  }
+  const effective = validation.effectiveAmount;
 
   const creds = await loadFlowChileCredentialsPlain(input.admin, input.encryptionKey32);
   if (!creds?.enabled) {
     return { ok: false, code: "no_credentials" };
   }
 
-  const plan = await resolveSectionPlanMonthlyAmount(
-    input.supabase,
-    input.studentId,
-    input.sectionId,
-    input.year,
-    input.month,
-  );
-  if (plan.code !== "ok") {
-    return { ok: false, code: "slot" };
-  }
-  const cur = plan.currency.trim().toUpperCase();
+  const cur = validation.currency.trim().toUpperCase();
   if (cur !== "CLP") {
     return { ok: false, code: "clp_only" };
   }
@@ -112,16 +89,18 @@ export async function startFlowMonthlyPaymentCore(input: {
   urlReturnBridge.searchParams.set("dashboard", input.paymentsDashboard);
   const urlReturn = urlReturnBridge.toString();
 
-  const reserved = await reservePaymentFlowCommerceReference(input.admin, {
-    paymentId,
+  const reserved = await reservePaymentFlowCommerceReferenceForSlot(input.admin, {
+    studentId: input.studentId,
+    sectionId: input.sectionId,
     year: input.year,
     month: input.month,
+    parentId: input.tutorParentId ?? null,
   });
   if (!reserved.ok) {
     logServerActionInvariantViolation(
       "startFlowMonthlyPaymentCore:reserveCommerceRef",
       "rpc_failed",
-      { payment_id: paymentId },
+      { student_id: input.studentId, section_id: input.sectionId },
     );
     return { ok: false, code: "flow_error" };
   }
@@ -148,7 +127,7 @@ export async function startFlowMonthlyPaymentCore(input: {
     const minParsed = extractFlowMinimumClpFromCreateError(created.error);
     if (minParsed != null) {
       logServerActionInvariantViolation("startFlowMonthlyPaymentCore:flowCreatePaymentOrder", created.error, {
-        payment_id: paymentId,
+        commerce_ref: reserved.commerceRef,
         month: input.month,
         year: input.year,
         section_id: input.sectionId,
@@ -158,7 +137,7 @@ export async function startFlowMonthlyPaymentCore(input: {
       return { ok: false, code: "flow_amount_below_minimum", flowMinClp: minParsed };
     }
     logServerActionInvariantViolation("startFlowMonthlyPaymentCore:flowCreatePaymentOrder", created.error, {
-      payment_id: paymentId,
+      commerce_ref: reserved.commerceRef,
       month: input.month,
       year: input.year,
       section_id: input.sectionId,

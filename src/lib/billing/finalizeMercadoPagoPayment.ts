@@ -11,6 +11,8 @@ import { upsertMpFinalizeRecord } from "@/lib/billing/upsertMpFinalizeRecord";
 import { resolveUserLocale } from "@/lib/i18n/resolveUserLocale";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { sanitizeAnalyticsMetadata } from "@/lib/analytics/sanitizeMetadata";
+import { parseMonthlyGatewayReference } from "@/lib/billing/parseMonthlyGatewayReference";
+import { finalizeMercadoPagoMonthlySlot } from "@/lib/billing/finalizeMercadoPagoMonthlySlot";
 
 const MP_APPROVED = "approved";
 
@@ -66,7 +68,21 @@ export async function finalizeMercadoPagoPayment(input: {
   }
 
   const externalRef = snapshot.external_reference?.trim() ?? "";
-  const payRow = await loadPaymentByExternalReference(input.admin, externalRef);
+  const ref = parseMonthlyGatewayReference(externalRef);
+  if (!ref) {
+    return { ok: true, skipped: "payment_not_found" };
+  }
+
+  // Deferred creation: a `tuition:` slot reference has no pre-existing row.
+  if (ref.kind === "slot") {
+    return finalizeMercadoPagoMonthlySlot({
+      admin: input.admin,
+      slot: ref.slot,
+      snapshot,
+    });
+  }
+
+  const payRow = await loadPaymentByExternalReference(input.admin, ref.paymentId);
   if (!payRow) {
     return { ok: true, skipped: "payment_not_found" };
   }

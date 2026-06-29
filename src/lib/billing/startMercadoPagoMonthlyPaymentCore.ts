@@ -1,9 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import {
-  resolveStudentPaymentSlot,
-  type StudentPaymentSlotFailureReason,
-} from "@/lib/billing/resolveStudentPaymentSlot";
-import { resolveSectionPlanMonthlyAmount } from "@/lib/billing/resolveSectionPlanMonthlyAmount";
+import type { StudentPaymentSlotFailureReason } from "@/lib/billing/resolveStudentPaymentSlot";
+import { validateStudentSectionMonthlySlot } from "@/lib/billing/validateStudentSectionMonthlySlot";
+import { buildTuitionGatewayReference } from "@/lib/billing/parseMonthlyGatewayReference";
 import { loadMercadoPagoCredentialsPlain } from "@/lib/payment-gateways/mercadopago/loadMercadoPagoCredentialsPlain";
 import { mercadoPagoCreatePreference } from "@/lib/payment-gateways/mercadopago/mercadoPagoCreatePreference";
 import { gatewayCountryForBillingCurrency } from "@/lib/payment-gateways/gatewayCountryForBillingCurrency";
@@ -48,30 +46,20 @@ export async function startMercadoPagoMonthlyPaymentCore(input: {
     return { ok: false, code: "no_country" };
   }
 
-  const slot = await resolveStudentPaymentSlot(input.supabase, {
+  // Deferred creation: validate the billing slot only. No `payments` row is
+  // created here — the row is materialized as `approved` on gateway confirmation.
+  const validation = await validateStudentSectionMonthlySlot(input.supabase, {
     studentId: input.studentId,
     sectionId: input.sectionId,
     month: input.month,
     year: input.year,
-    fallbackAmount: input.fallbackAmount,
-    actingParentIdForInsert: input.tutorParentId ?? null,
   });
 
-  if (!slot.ok) {
-    return { ok: false, code: "slot", slotReason: slot.reason };
+  if (!validation.ok) {
+    return { ok: false, code: "slot", slotReason: validation.reason };
   }
 
-  const paymentId = slot.payment.id;
-  const effective = slot.effectiveAmount;
-
-  if (input.tutorParentId) {
-    await input.supabase
-      .from("payments")
-      .update({ parent_id: input.tutorParentId })
-      .eq("id", paymentId)
-      .eq("student_id", input.studentId)
-      .in("status", ["pending", "rejected"]);
-  }
+  const effective = validation.effectiveAmount;
 
   const creds = await loadMercadoPagoCredentialsPlain(
     input.admin,
@@ -82,22 +70,19 @@ export async function startMercadoPagoMonthlyPaymentCore(input: {
     return { ok: false, code: "no_credentials" };
   }
 
-  const plan = await resolveSectionPlanMonthlyAmount(
-    input.supabase,
-    input.studentId,
-    input.sectionId,
-    input.year,
-    input.month,
-  );
-  if (plan.code !== "ok") {
-    return { ok: false, code: "slot" };
-  }
-
-  const cur = plan.currency.trim().toUpperCase();
+  const cur = validation.currency.trim().toUpperCase();
   const billingCur = input.billingCurrency.trim().toUpperCase();
   if (cur !== billingCur || (cur !== "CLP" && cur !== "ARS")) {
     return { ok: false, code: "currency_unsupported" };
   }
+
+  const externalReference = buildTuitionGatewayReference({
+    studentId: input.studentId,
+    sectionId: input.sectionId,
+    year: input.year,
+    month: input.month,
+    parentId: input.tutorParentId ?? null,
+  });
 
   const unitPrice = Math.round(effective);
   const origin = getPublicSiteUrl();
@@ -120,7 +105,7 @@ export async function startMercadoPagoMonthlyPaymentCore(input: {
     title: input.title,
     unitPrice,
     currencyId: cur,
-    externalReference: paymentId,
+    externalReference,
     payerEmail: input.payerEmail,
     notificationUrl: notificationUrl.toString(),
     backUrls: {
@@ -132,7 +117,7 @@ export async function startMercadoPagoMonthlyPaymentCore(input: {
 
   if (!created.ok) {
     logServerActionInvariantViolation("startMercadoPagoMonthlyPaymentCore:createPreference", created.error, {
-      payment_id: paymentId,
+      external_reference: externalReference,
       month: input.month,
       year: input.year,
       section_id: input.sectionId,
@@ -140,18 +125,7 @@ export async function startMercadoPagoMonthlyPaymentCore(input: {
     return { ok: false, code: "mp_error" };
   }
 
-  const { error: prefErr } = await input.admin
-    .from("payments")
-    .update({ mp_preference_id: created.preferenceId })
-    .eq("id", paymentId);
-
-  if (prefErr) {
-    logServerActionInvariantViolation(
-      "startMercadoPagoMonthlyPaymentCore:storePreference",
-      prefErr.message,
-      { payment_id: paymentId },
-    );
-  }
-
+  // No `payments` row exists yet (deferred creation), so the MP preference id is
+  // not persisted at start; finalize stores it via upsertMpFinalizeRecord.
   return { ok: true, redirectUrl: created.redirectUrl };
 }

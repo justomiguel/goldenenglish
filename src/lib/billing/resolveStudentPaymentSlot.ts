@@ -1,10 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
-import { assertAdvanceMonthlyPaymentAllowed } from "@/lib/billing/assertAdvanceMonthlyPaymentAllowed";
-import {
-  isStudentActivelyEnrolledInSection,
-  resolveSectionPlanMonthlyAmount,
-} from "@/lib/billing/resolveSectionPlanMonthlyAmount";
+import { validateStudentSectionMonthlySlot } from "@/lib/billing/validateStudentSectionMonthlySlot";
 
 /** Postgres `unique_violation`; PostgREST surfaces it on `error.code`. */
 const PG_UNIQUE_VIOLATION = "23505";
@@ -75,28 +71,14 @@ export async function resolveStudentPaymentSlot(
   const { studentId, sectionId, month, year, fallbackAmount, actingParentIdForInsert } = input;
 
   if (sectionId) {
-    const isEnrolled = await isStudentActivelyEnrolledInSection(supabase, studentId, sectionId);
-    if (!isEnrolled) return { ok: false, reason: "forbidden" };
-    const planAmount = await resolveSectionPlanMonthlyAmount(
-      supabase,
+    const validation = await validateStudentSectionMonthlySlot(supabase, {
       studentId,
       sectionId,
-      year,
       month,
-    );
-    if (planAmount.code === "no_plan") return { ok: false, reason: "no_plan" };
-    if (planAmount.code === "out_of_period") return { ok: false, reason: "out_of_period" };
-    if (planAmount.amount <= 0) return { ok: false, reason: "month_exempt" };
-
-    const now = new Date();
-    const advance = await assertAdvanceMonthlyPaymentAllowed(supabase, {
-      sectionId,
       year,
-      month,
-      todayYear: now.getFullYear(),
-      todayMonth: now.getMonth() + 1,
     });
-    if (!advance.allowed) return { ok: false, reason: "future_month_not_allowed" };
+    if (!validation.ok) return { ok: false, reason: validation.reason };
+    const planAmount = { amount: validation.effectiveAmount };
 
     const { data: existing, error: selErr } = await supabase
       .from("payments")

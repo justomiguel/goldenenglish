@@ -1,20 +1,16 @@
 /** @vitest-environment node */
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-const mockResolveSlot = vi.fn();
+const mockValidateSlot = vi.fn();
 const mockLoadCreds = vi.fn();
-const mockResolvePlan = vi.fn();
 const mockCreatePreference = vi.fn();
 const mockLogInvariant = vi.fn();
 
-vi.mock("@/lib/billing/resolveStudentPaymentSlot", () => ({
-  resolveStudentPaymentSlot: (...a: unknown[]) => mockResolveSlot(...a),
+vi.mock("@/lib/billing/validateStudentSectionMonthlySlot", () => ({
+  validateStudentSectionMonthlySlot: (...a: unknown[]) => mockValidateSlot(...a),
 }));
 vi.mock("@/lib/payment-gateways/mercadopago/loadMercadoPagoCredentialsPlain", () => ({
   loadMercadoPagoCredentialsPlain: (...a: unknown[]) => mockLoadCreds(...a),
-}));
-vi.mock("@/lib/billing/resolveSectionPlanMonthlyAmount", () => ({
-  resolveSectionPlanMonthlyAmount: (...a: unknown[]) => mockResolvePlan(...a),
 }));
 vi.mock("@/lib/payment-gateways/mercadopago/mercadoPagoCreatePreference", () => ({
   mercadoPagoCreatePreference: (...a: unknown[]) => mockCreatePreference(...a),
@@ -29,23 +25,18 @@ vi.mock("@/lib/site/publicUrl", () => ({
 import { startMercadoPagoMonthlyPaymentCore } from "@/lib/billing/startMercadoPagoMonthlyPaymentCore";
 import { Buffer } from "node:buffer";
 
-const mockAdmin = {
-  from: vi.fn(() => ({
-    update: vi.fn(() => ({
-      eq: vi.fn(() => ({
-        eq: vi.fn(() => ({ in: vi.fn(() => ({ error: null })) })),
-        error: null,
-      })),
-    })),
-  })),
-};
+const STUDENT_ID = "11111111-1111-4111-8111-111111111111";
+const SECTION_ID = "22222222-2222-4222-8222-222222222222";
+
+// Deferred creation: start no longer reads/writes a `payments` row.
+const mockAdmin = { from: vi.fn() };
 
 const baseInput = {
   supabase: {} as never,
   admin: mockAdmin as never,
   encryptionKey32: Buffer.alloc(32),
-  studentId: "student-1",
-  sectionId: "section-1",
+  studentId: STUDENT_ID,
+  sectionId: SECTION_ID,
   month: 6,
   year: 2026,
   fallbackAmount: 50000,
@@ -62,31 +53,22 @@ describe("startMercadoPagoMonthlyPaymentCore", () => {
     vi.clearAllMocks();
   });
 
-  it("returns slot error when slot resolution fails", async () => {
-    mockResolveSlot.mockResolvedValue({ ok: false, reason: "already_approved" });
+  it("returns slot error when slot validation fails", async () => {
+    mockValidateSlot.mockResolvedValue({ ok: false, reason: "forbidden" });
     const result = await startMercadoPagoMonthlyPaymentCore(baseInput);
-    expect(result).toEqual({ ok: false, code: "slot", slotReason: "already_approved" });
+    expect(result).toEqual({ ok: false, code: "slot", slotReason: "forbidden" });
   });
 
   it("returns no_credentials when creds are missing", async () => {
-    mockResolveSlot.mockResolvedValue({
-      ok: true,
-      payment: { id: "pay-1" },
-      effectiveAmount: 50000,
-    });
+    mockValidateSlot.mockResolvedValue({ ok: true, effectiveAmount: 50000, currency: "CLP" });
     mockLoadCreds.mockResolvedValue(null);
     const result = await startMercadoPagoMonthlyPaymentCore(baseInput);
     expect(result).toEqual({ ok: false, code: "no_credentials" });
   });
 
-  it("returns currency_unsupported when currency does not match", async () => {
-    mockResolveSlot.mockResolvedValue({
-      ok: true,
-      payment: { id: "pay-1" },
-      effectiveAmount: 50000,
-    });
+  it("returns currency_unsupported when plan currency does not match billing currency", async () => {
+    mockValidateSlot.mockResolvedValue({ ok: true, effectiveAmount: 50000, currency: "USD" });
     mockLoadCreds.mockResolvedValue({ enabled: true, accessToken: "tok", environment: "production" });
-    mockResolvePlan.mockResolvedValue({ code: "ok", amount: 50000, currency: "USD" });
     const result = await startMercadoPagoMonthlyPaymentCore(baseInput);
     expect(result).toEqual({ ok: false, code: "currency_unsupported" });
   });
@@ -99,18 +81,13 @@ describe("startMercadoPagoMonthlyPaymentCore", () => {
     expect(result).toEqual({ ok: false, code: "no_country" });
   });
 
-  it("returns redirectUrl and persists preference on success", async () => {
-    mockResolveSlot.mockResolvedValue({
-      ok: true,
-      payment: { id: "pay-1" },
-      effectiveAmount: 50000,
-    });
+  it("returns redirectUrl with a tuition slot reference on success (no row created)", async () => {
+    mockValidateSlot.mockResolvedValue({ ok: true, effectiveAmount: 50000, currency: "CLP" });
     mockLoadCreds.mockResolvedValue({
       enabled: true,
       accessToken: "tok",
       environment: "production",
     });
-    mockResolvePlan.mockResolvedValue({ code: "ok", amount: 50000, currency: "CLP" });
     mockCreatePreference.mockResolvedValue({
       ok: true,
       preferenceId: "pref-abc",
@@ -124,23 +101,38 @@ describe("startMercadoPagoMonthlyPaymentCore", () => {
         accessToken: "tok",
         unitPrice: 50000,
         currencyId: "CLP",
-        externalReference: "pay-1",
+        externalReference: `tuition:${STUDENT_ID}:${SECTION_ID}:2026:6`,
+      }),
+    );
+    // No `payments` row is touched during start.
+    expect(mockAdmin.from).not.toHaveBeenCalled();
+  });
+
+  it("encodes the tutor parent id in the slot reference when present", async () => {
+    const PARENT_ID = "33333333-3333-4333-8333-333333333333";
+    mockValidateSlot.mockResolvedValue({ ok: true, effectiveAmount: 50000, currency: "CLP" });
+    mockLoadCreds.mockResolvedValue({ enabled: true, accessToken: "tok", environment: "production" });
+    mockCreatePreference.mockResolvedValue({
+      ok: true,
+      preferenceId: "pref-abc",
+      redirectUrl: "https://mp.com/checkout/pref-abc",
+    });
+
+    await startMercadoPagoMonthlyPaymentCore({ ...baseInput, tutorParentId: PARENT_ID });
+    expect(mockCreatePreference).toHaveBeenCalledWith(
+      expect.objectContaining({
+        externalReference: `tuition:${STUDENT_ID}:${SECTION_ID}:2026:6:${PARENT_ID}`,
       }),
     );
   });
 
   it("returns mp_error when preference creation fails", async () => {
-    mockResolveSlot.mockResolvedValue({
-      ok: true,
-      payment: { id: "pay-1" },
-      effectiveAmount: 50000,
-    });
+    mockValidateSlot.mockResolvedValue({ ok: true, effectiveAmount: 50000, currency: "CLP" });
     mockLoadCreds.mockResolvedValue({
       enabled: true,
       accessToken: "tok",
       environment: "production",
     });
-    mockResolvePlan.mockResolvedValue({ code: "ok", amount: 50000, currency: "CLP" });
     mockCreatePreference.mockResolvedValue({ ok: false, error: "timeout" });
 
     const result = await startMercadoPagoMonthlyPaymentCore(baseInput);

@@ -43,12 +43,12 @@ export async function POST(
 
     const { slug } = await context.params;
     const form = await request.formData();
-    const paymentId = String(form.get("paymentId") ?? "").trim();
+    const attendeeId = String(form.get("attendeeId") ?? "").trim();
     const email = String(form.get("email") ?? "").trim();
     const dniOrPassport = String(form.get("dniOrPassport") ?? "").trim();
     const receipt = form.get("receipt");
 
-    if (!paymentId || !email || !dniOrPassport || !(receipt instanceof File)) {
+    if (!attendeeId || !email || !dniOrPassport || !(receipt instanceof File)) {
       logServerWarn("api.events.paymentReceipt", { reason: "invalid_body", slug });
       return NextResponse.json(
         { ok: false, code: "invalid_body" },
@@ -64,7 +64,7 @@ export async function POST(
     const fileBytes = Buffer.from(await receipt.arrayBuffer());
     const result = await uploadEventPaymentReceiptServer({
       slug,
-      paymentId,
+      attendeeId,
       email,
       dniOrPassport,
       fileName: receipt.name || "receipt",

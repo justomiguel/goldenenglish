@@ -18,11 +18,10 @@ import {
 } from "@/lib/events/eventTransferReceiptLimits";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { isPubliclyReachableUrl } from "@/lib/site/isPubliclyReachableUrl";
-import {
-  logServerActionInvariantViolation,
-  logSupabaseClientError,
-} from "@/lib/logging/serverActionLog";
+import { logServerActionInvariantViolation } from "@/lib/logging/serverActionLog";
 import { buildEventPaymentReturnUrl } from "@/lib/events/buildEventPaymentReturnUrl";
+import { buildEventAttendeeReference } from "@/lib/events/parseEventGatewayReference";
+import { loadEventAttendeeGatewayContext } from "@/lib/events/server/loadEventAttendeeGatewayContext";
 
 export type EventGatewayMethod = "mercadopago" | "flow";
 
@@ -30,7 +29,7 @@ export interface StartEventGatewayPaymentInput {
   admin: SupabaseClient;
   encryptionKey32: Buffer;
   slug: string;
-  paymentId: string;
+  attendeeId: string;
   method: EventGatewayMethod;
   email: string;
   dniOrPassport: string;
@@ -51,77 +50,53 @@ export type StartEventGatewayPaymentResult =
         | "gateway_error";
     };
 
-interface PaymentRow {
-  id: string;
-  status: string;
-  amount: number;
-  currency: string;
-  event_attendees: {
-    email: string;
-    dni_or_passport: string;
-    event_id: string;
-    events: { slug: string; title: string };
-  };
-}
-
-async function loadPayment(
-  admin: SupabaseClient,
-  paymentId: string,
-): Promise<PaymentRow | null> {
-  const { data, error } = await admin
-    .from("event_payments")
-    .select(
-      "id, status, amount, currency, event_attendees!inner(email, dni_or_passport, event_id, events!inner(slug, title))",
-    )
-    .eq("id", paymentId)
-    .maybeSingle();
-  if (error) {
-    logSupabaseClientError("startEventGatewayPaymentCore:loadPayment", error, { paymentId });
-    return null;
-  }
-  return (data as PaymentRow | null) ?? null;
-}
-
-/** Creates the gateway checkout for a pending event payment and returns the redirect URL. */
+/**
+ * Creates the gateway checkout for a pending-payment attendee and returns the redirect URL.
+ *
+ * Deferred-creation flow: this never creates or mutates an event_payments row. The payment
+ * record is materialized as `approved` only once the gateway confirms payment (webhook /
+ * return reconciliation). The checkout is linked to the attendee via the external reference.
+ */
 export async function startEventGatewayPaymentCore(
   input: StartEventGatewayPaymentInput,
 ): Promise<StartEventGatewayPaymentResult> {
-  const payment = await loadPayment(input.admin, input.paymentId);
-  if (!payment) return { ok: false, code: "payment_not_found" };
+  const context = await loadEventAttendeeGatewayContext(input.admin, input.attendeeId);
+  if (!context) return { ok: false, code: "payment_not_found" };
 
-  const attendee = payment.event_attendees;
-  if (attendee.events.slug !== input.slug) {
+  if (context.slug !== input.slug) {
     return { ok: false, code: "payment_not_found" };
   }
 
   const emailOk =
-    normalizeEventRegistrationEmail(attendee.email) ===
+    normalizeEventRegistrationEmail(context.email) ===
     normalizeEventRegistrationEmail(input.email);
   const dniOk =
-    normalizeEventRegistrationDni(attendee.dni_or_passport) ===
+    normalizeEventRegistrationDni(context.dniOrPassport) ===
     normalizeEventRegistrationDni(input.dniOrPassport);
   if (!emailOk || !dniOk) {
     return { ok: false, code: "identity_mismatch" };
   }
 
-  if (payment.status !== "pending") {
+  if (context.attendeeStatus !== "pending_payment") {
     return { ok: false, code: "payment_not_pending" };
   }
 
-  const currency = String(payment.currency).trim().toUpperCase();
+  const currency = String(context.currency).trim().toUpperCase();
   const country = gatewayCountryForBillingCurrency(currency);
   if (!country) return { ok: false, code: "currency_unsupported" };
   if (!gatewaySupportsBillingCurrency(input.method, currency)) {
     return { ok: false, code: "method_unavailable" };
   }
 
+  const amount = Math.round(Number(context.amount));
+  if (!(amount > 0)) return { ok: false, code: "payment_not_pending" };
+
   const origin = getPublicSiteUrl();
   if (!origin) return { ok: false, code: "no_public_url" };
   const originStr = origin.toString();
 
-  const amount = Math.round(Number(payment.amount));
-  const title = attendee.events.title || "Evento";
-  const externalReference = `event_payment:${payment.id}`;
+  const title = context.title || "Evento";
+  const externalReference = buildEventAttendeeReference(context.attendeeId);
 
   if (input.method === "mercadopago") {
     const creds = await loadMercadoPagoCredentialsPlain(input.admin, input.encryptionKey32, country);
@@ -151,16 +126,10 @@ export async function startEventGatewayPaymentCore(
       logServerActionInvariantViolation(
         "startEventGatewayPaymentCore:mpCreatePreference",
         created.error,
-        { payment_id: payment.id },
+        { attendee_id: context.attendeeId },
       );
       return { ok: false, code: "gateway_error" };
     }
-
-    await input.admin
-      .from("event_payments")
-      .update({ mp_preference_id: created.preferenceId, gateway_provider: "mercadopago" })
-      .eq("id", payment.id)
-      .eq("status", "pending");
 
     return { ok: true, redirectUrl: created.redirectUrl };
   }
@@ -192,16 +161,10 @@ export async function startEventGatewayPaymentCore(
     logServerActionInvariantViolation(
       "startEventGatewayPaymentCore:flowCreatePaymentOrder",
       created.error,
-      { payment_id: payment.id },
+      { attendee_id: context.attendeeId },
     );
     return { ok: false, code: "gateway_error" };
   }
-
-  await input.admin
-    .from("event_payments")
-    .update({ gateway_provider: "flow" })
-    .eq("id", payment.id)
-    .eq("status", "pending");
 
   return { ok: true, redirectUrl: `${created.url}?token=${encodeURIComponent(created.token)}` };
 }

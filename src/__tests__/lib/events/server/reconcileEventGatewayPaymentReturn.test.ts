@@ -8,6 +8,7 @@ const mockFlowApiBase = vi.fn();
 const mockGatewayCountry = vi.fn();
 const mockFinalizeMp = vi.fn();
 const mockFinalizeFlow = vi.fn();
+const mockLoadAttendeeContext = vi.fn();
 
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => mockCreateAdminClient(),
@@ -36,6 +37,10 @@ vi.mock("@/lib/events/server/finalizeEventPaymentFromMercadoPago", () => ({
 
 vi.mock("@/lib/events/server/finalizeEventPaymentFromFlowGateway", () => ({
   finalizeEventPaymentFromFlowGateway: (...args: unknown[]) => mockFinalizeFlow(...args),
+}));
+
+vi.mock("@/lib/events/server/loadEventAttendeeGatewayContext", () => ({
+  loadEventAttendeeGatewayContext: (...args: unknown[]) => mockLoadAttendeeContext(...args),
 }));
 
 vi.mock("@/lib/logging/serverActionLog", () => ({
@@ -147,6 +152,20 @@ describe("reconcileEventMercadoPagoReturn", () => {
     expect(mockFinalizeMp).toHaveBeenCalledWith(
       expect.objectContaining({ mpPaymentId: "123", accessToken: "mp-token" }),
     );
+  });
+
+  it("resolves currency from the attendee context for deferred-creation references", async () => {
+    mockLoadAttendeeContext.mockResolvedValue({ currency: "ARS" });
+
+    const result = await reconcileEventMercadoPagoReturn({
+      mpPaymentId: "123",
+      externalReference: "event_attendee:att-1",
+      returnStatus: "approved",
+    });
+
+    expect(result).toBe("success");
+    expect(mockLoadAttendeeContext).toHaveBeenCalledWith(expect.anything(), "att-1");
+    expect(mockGatewayCountry).toHaveBeenCalledWith("ARS");
   });
 
   it("returns processing when Mercado Pago credentials are disabled", async () => {

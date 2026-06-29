@@ -269,4 +269,53 @@ describe("resolveFlowMonthlyPaymentReturnPage", () => {
       }),
     ).resolves.toEqual({ outcome: "processing" });
   });
+
+  it("returns processing for a slot ref during display-only resolve (no finalize)", async () => {
+    lookup.mockResolvedValueOnce({
+      slot: {
+        studentId: payRow.student_id,
+        sectionId: payRow.section_id,
+        year: 2026,
+        month: 5,
+        parentId: null,
+      },
+      error: null,
+    });
+    await expect(
+      resolveFlowMonthlyPaymentReturnPage({
+        supabase: userSupabase({ canSeePayment: false }),
+        token: "flow-token",
+      }),
+    ).resolves.toEqual({ outcome: "processing" });
+    expect(finalize).not.toHaveBeenCalled();
+  });
+
+  it("finalizes a slot ref via admin and returns success after re-reading the new row", async () => {
+    lookup.mockResolvedValueOnce({
+      slot: {
+        studentId: payRow.student_id,
+        sectionId: payRow.section_id,
+        year: 2026,
+        month: 5,
+        parentId: null,
+      },
+      error: null,
+    });
+    finalize.mockResolvedValueOnce({ ok: true, approved: true, paymentId: paymentUuid });
+    const result = await resolveFlowMonthlyPaymentReturnPage({
+      supabase: userSupabase({
+        canSeePayment: false,
+        statusReads: [{ status: "approved", month: 5, year: 2026 }],
+      }),
+      token: "flow-token",
+      allowFinalize: true,
+    });
+    expect(finalize).toHaveBeenCalled();
+    expect(result).toEqual({
+      outcome: "success",
+      month: 5,
+      year: 2026,
+      paymentId: paymentUuid,
+    });
+  });
 });

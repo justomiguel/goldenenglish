@@ -843,24 +843,6 @@ CREATE POLICY portal_messages_delete_student ON public.portal_messages
     )
   );
 
--- ========== 122_portal_messages_external_contact_reply_email.sql ==========
-ALTER TABLE public.portal_messages
-  ADD COLUMN IF NOT EXISTS external_contact_reply_email TEXT NULL;
-
-COMMENT ON COLUMN public.portal_messages.external_contact_reply_email IS
-  'Email supplied with public-site contact submissions; used when admins reply by mail (visitor has no portal account).';
-
--- ========== 121_admin_portal_messages_delete.sql ==========
-DROP POLICY IF EXISTS portal_messages_delete_admin ON public.portal_messages;
-CREATE POLICY portal_messages_delete_admin ON public.portal_messages
-  FOR DELETE TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles p
-      WHERE p.id = auth.uid() AND p.role = 'admin'
-    )
-  );
-
 DROP POLICY IF EXISTS student_messages_select ON public.student_messages;
 DROP POLICY IF EXISTS student_messages_insert ON public.student_messages;
 DROP POLICY IF EXISTS student_messages_teacher_update ON public.student_messages;
@@ -1348,7 +1330,7 @@ END $$;
 
 CREATE TABLE IF NOT EXISTS public.user_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES public.profiles (id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
   event_type public.user_event_type NOT NULL,
   entity TEXT NOT NULL DEFAULT '',
   metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -1391,10 +1373,6 @@ AS $$
 DECLARE
   r text;
 BEGIN
-  IF NEW.user_id IS NULL THEN
-    RETURN NEW;
-  END IF;
-
   SELECT role::text INTO r FROM public.profiles WHERE id = NEW.user_id;
   IF r IS NULL OR r <> 'student' THEN
     RETURN NEW;
@@ -5639,7 +5617,7 @@ CREATE TABLE IF NOT EXISTS public.email_templates (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_by UUID NULL REFERENCES auth.users (id) ON DELETE SET NULL,
   CONSTRAINT email_templates_locale_supported
-    CHECK (locale IN ('es', 'en', 'pt')),
+    CHECK (locale IN ('es', 'en')),
   CONSTRAINT email_templates_subject_nonempty
     CHECK (length(btrim(subject)) > 0),
   CONSTRAINT email_templates_body_nonempty
@@ -11433,7 +11411,6 @@ END;
 $$;
 
 -- ========== 112_admin_users_list_role_counts_rpc.sql ==========
--- Superseded by 136_admin_users_directory_exclude_site_contact.sql (site_contact excluded).
 
 -- RPC: totals for admin users list role filter (no full-table fetch in Next).
 CREATE OR REPLACE FUNCTION public.admin_users_list_role_counts()
@@ -11443,22 +11420,16 @@ STABLE
 SECURITY DEFINER
 SET search_path = public
 AS $$
-  WITH eligible AS (
-    SELECT role
-    FROM public.profiles
-    WHERE role IS DISTINCT FROM 'site_contact'::public.user_role
-      AND id <> '6f0e8c8a-7b1d-4c2e-9f3a-8e5d2c1b0a99'::uuid
-  ),
-  per_role AS (
+  WITH per_role AS (
     SELECT lower(role::text) AS role_norm, count(*)::bigint AS cnt
-    FROM eligible
+    FROM public.profiles
     WHERE role IS NOT NULL
       AND trim(role::text) <> ''
     GROUP BY lower(role::text)
   )
   SELECT jsonb_build_object(
     'total',
-    (SELECT count(*)::bigint FROM eligible),
+    (SELECT count(*)::bigint FROM public.profiles),
     'by_role',
     COALESCE(
       (
@@ -11471,15 +11442,18 @@ AS $$
 $$;
 
 COMMENT ON FUNCTION public.admin_users_list_role_counts() IS
-  'Totals for admin users list: real directory profiles only (excludes site_contact synthetic sender).';
+  'Totals for profiles (all rows) plus per-role counts (lowercase role key) for admin users screen filter dropdown.';
 
 REVOKE ALL ON FUNCTION public.admin_users_list_role_counts() FROM anon;
 GRANT EXECUTE ON FUNCTION public.admin_users_list_role_counts() TO authenticated;
 
 -- ========== 113_academic_sections_monthly_fee_charge_mode.sql ==========
 
+-- How student/parent-facing monthly dues are computed for this section
+-- (`operational-window` in app): prorate by class count vs charge full monthly plan fee.
+
 ALTER TABLE public.academic_sections
-ADD COLUMN IF NOT EXISTS monthly_fee_charge_mode text NOT NULL DEFAULT 'full_month_fee';
+ADD COLUMN IF NOT EXISTS monthly_fee_charge_mode text NOT NULL DEFAULT 'prorate_by_classes';
 
 DO $$
 BEGIN
@@ -11500,15 +11474,12 @@ COMMENT ON COLUMN public.academic_sections.monthly_fee_charge_mode IS
   'full_month_fee = full plan month fee whenever the student is in-period for that month. '
   'Admin Cobranzas plan-year matrices are unchanged by this flag.';
 
--- ========== 128_section_allow_advance_monthly_payment.sql ==========
-
-ALTER TABLE public.academic_sections
-  ADD COLUMN IF NOT EXISTS allow_advance_monthly_payment boolean NOT NULL DEFAULT true;
-
-COMMENT ON COLUMN public.academic_sections.allow_advance_monthly_payment IS
-  'When true, portal users may submit receipts or Flow checkout for months after the current calendar month.';
-
 -- ========== 114_payment_flow_checkout_refs.sql ==========
+
+-- Flow.cl: readable commerceOrder per checkout attempt + deterministic mapping to payments.id.
+-- Older checkouts sent payments.id as commerceOrder (UUID); finalize still resolves by id.
+
+BEGIN;
 
 CREATE SEQUENCE IF NOT EXISTS public.payment_flow_commerce_serial_seq;
 
@@ -11527,8 +11498,54 @@ CREATE INDEX IF NOT EXISTS payment_flow_checkout_refs_payment_idx
 
 ALTER TABLE public.payment_flow_checkout_refs ENABLE ROW LEVEL SECURITY;
 
-COMMENT ON TABLE public.payment_flow_checkout_refs IS
-  'Maps Flow commerceOrder refs to payments; many refs per payment (retries/new sessions).';
+COMMENT ON TABLE public.payment_flow_checkout_refs IS 'Maps Flow commerceOrder refs to payments; many refs per payment (retries/new sessions).';
+
+CREATE OR REPLACE FUNCTION public.payment_flow_reserve_commerce_ref(
+  p_payment_id UUID,
+  p_year INT,
+  p_month INT
+)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+SET row_security = off AS $$
+DECLARE
+  seq BIGINT;
+  ref TEXT;
+BEGIN
+  IF p_year IS NULL OR p_year NOT BETWEEN 2000 AND 2100 THEN
+    RAISE EXCEPTION 'invalid_year';
+  END IF;
+  IF p_month IS NULL OR p_month < 1 OR p_month > 12 THEN
+    RAISE EXCEPTION 'invalid_month';
+  END IF;
+
+  seq := nextval('public.payment_flow_commerce_serial_seq'::regclass);
+  ref := 'MES-' || p_year::text || '-' ||
+    LPAD(p_month::text, 2, '0') || '-' ||
+    LPAD(seq::text, 8, '0');
+
+  INSERT INTO public.payment_flow_checkout_refs (commerce_ref, payment_id)
+  VALUES (ref, p_payment_id);
+
+  RETURN ref;
+END;
+$$;
+
+-- Supabase callers: invoke only with service-role / admin tooling.
+REVOKE ALL ON FUNCTION public.payment_flow_reserve_commerce_ref(UUID, INT, INT) FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.payment_flow_reserve_commerce_ref(UUID, INT, INT) TO service_role;
+
+COMMIT;
+
+-- ========== 115_payment_flow_reserve_commerce_ref_nextval_fix.sql ==========
+
+-- Fix NEXTVAL(...) in PL/pgSQL: NEXTVAL(public.seq_name) parses as column ref on
+-- relation alias "public", not as regclass → 42P01 "missing FROM-clause entry for table public".
+
+BEGIN;
 
 CREATE OR REPLACE FUNCTION public.payment_flow_reserve_commerce_ref(
   p_payment_id UUID,
@@ -11567,8 +11584,20 @@ REVOKE ALL ON FUNCTION public.payment_flow_reserve_commerce_ref(UUID, INT, INT) 
 
 GRANT EXECUTE ON FUNCTION public.payment_flow_reserve_commerce_ref(UUID, INT, INT) TO service_role;
 
--- payment_flow_finalize_records (migration 116) -----------------------------
--- Snapshot of Flow.cl getStatus when a payments row transitions to approved.
+COMMIT;
+
+-- ========== 116_payment_flow_finalize_records.sql ==========
+
+-- One row per Flow.cl-approved payments row. Stores the authoritative bits we need to
+-- regenerate a receipt later (paid_at as Flow saw it, payer_email, flow order id, raw snapshot
+-- for forensic re-derivation). Pre-existing approved payments without this row keep working
+-- via the loader fallback (payments + payment_flow_checkout_refs).
+--
+-- Writes: only via service_role (finalize hook in `finalizeMonthlyPaymentFromFlowGateway`).
+-- Reads: the same audience as `payments` (alumno propio, parent/tutor con acceso, admin, teacher).
+
+BEGIN;
+
 CREATE TABLE IF NOT EXISTS public.payment_flow_finalize_records (
   payment_id UUID PRIMARY KEY REFERENCES public.payments (id) ON DELETE CASCADE,
   flow_order BIGINT NOT NULL,
@@ -11579,13 +11608,6 @@ CREATE TABLE IF NOT EXISTS public.payment_flow_finalize_records (
   payer_email TEXT,
   media_label TEXT,
   raw_payload JSONB NOT NULL DEFAULT '{}'::jsonb,
-  fee NUMERIC(12, 2),
-  balance NUMERIC(12, 2),
-  transfer_date TIMESTAMPTZ,
-  conversion_rate NUMERIC(20, 8),
-  conversion_date TIMESTAMPTZ,
-  CONSTRAINT payment_flow_finalize_records_fee_nonneg CHECK (fee IS NULL OR fee >= 0),
-  CONSTRAINT payment_flow_finalize_records_balance_nonneg CHECK (balance IS NULL OR balance >= 0),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -11623,12 +11645,254 @@ CREATE POLICY payment_flow_finalize_records_select
     )
   );
 
+-- No INSERT / UPDATE / DELETE policies: service_role bypasses RLS, and end users must never
+-- write here directly. Mutations live in the finalize hook (Flow webhook + return resolver).
+
+COMMENT ON TABLE public.payment_flow_finalize_records IS
+  'Snapshot of Flow.cl getStatus when a payments row transitioned to approved. Source of truth for receipts re-issued after the original return page.';
+
+COMMIT;
+
+-- ========== 117_payment_flow_finalize_records_settlement_fields.sql ==========
+
+-- Extend `payment_flow_finalize_records` with the financial settlement fields Flow returns
+-- via getStatus().paymentData. These are admin-only data points (commission, net amount, settlement
+-- date, FX rate when the order was multi-currency) used for finance reporting and reconciliation.
+--
+-- All columns are NULLable: Flow does not always return paymentData on every transaction
+-- (e.g. legacy ones, sandbox sometimes omits fee). Pre-existing rows survive untouched.
+
+BEGIN;
+
+ALTER TABLE public.payment_flow_finalize_records
+  ADD COLUMN IF NOT EXISTS fee NUMERIC(12, 2),
+  ADD COLUMN IF NOT EXISTS balance NUMERIC(12, 2),
+  ADD COLUMN IF NOT EXISTS transfer_date TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS conversion_rate NUMERIC(20, 8),
+  ADD COLUMN IF NOT EXISTS conversion_date TIMESTAMPTZ;
+
+ALTER TABLE public.payment_flow_finalize_records
+  DROP CONSTRAINT IF EXISTS payment_flow_finalize_records_fee_nonneg;
+ALTER TABLE public.payment_flow_finalize_records
+  ADD CONSTRAINT payment_flow_finalize_records_fee_nonneg
+  CHECK (fee IS NULL OR fee >= 0);
+
+ALTER TABLE public.payment_flow_finalize_records
+  DROP CONSTRAINT IF EXISTS payment_flow_finalize_records_balance_nonneg;
+ALTER TABLE public.payment_flow_finalize_records
+  ADD CONSTRAINT payment_flow_finalize_records_balance_nonneg
+  CHECK (balance IS NULL OR balance >= 0);
+
+COMMENT ON COLUMN public.payment_flow_finalize_records.fee IS
+  'Comisión cobrada por Flow para esta orden (paymentData.fee). NULL si Flow no la informó.';
+COMMENT ON COLUMN public.payment_flow_finalize_records.balance IS
+  'Monto neto que Flow liquidará al instituto (amount - fee). NULL si Flow no lo informó.';
+COMMENT ON COLUMN public.payment_flow_finalize_records.transfer_date IS
+  'Fecha estimada de liquidación del balance al comercio (paymentData.transferDate).';
+COMMENT ON COLUMN public.payment_flow_finalize_records.conversion_rate IS
+  'Tasa de conversión aplicada por Flow para órdenes multimoneda (paymentData.conversionRate).';
+COMMENT ON COLUMN public.payment_flow_finalize_records.conversion_date IS
+  'Fecha de la conversión cambiaria aplicada (paymentData.conversionDate).';
+
+COMMIT;
+
+-- ========== 118_public_site_contact_sender.sql ==========
+
+-- Enum only: Postgres forbids using a new enum label in the same transaction that adds it (55P04).
+-- Profile/auth bootstrap lives in 119_public_site_contact_sender_profile.sql.
+
+ALTER TYPE public.user_role ADD VALUE IF NOT EXISTS 'site_contact';
+
+-- ========== 119_public_site_contact_sender_profile.sql ==========
+
+-- System profile + auth user used as portal_messages.sender_id for public "contact us"
+-- form submissions (service-role inserts). Not for interactive login.
+-- Depends on 118_public_site_contact_sender.sql (user_role.site_contact committed).
+
+DO $$
+DECLARE
+  v_id uuid := '6f0e8c8a-7b1d-4c2e-9f3a-8e5d2c1b0a99'::uuid;
+  v_email text := 'site-contact-sender@internal.invalid';
+  v_instance uuid := '00000000-0000-0000-0000-000000000000'::uuid;
+  v_password text := 'do-not-login-site-contact-sender-placeholder';
+  v_meta jsonb := jsonb_build_object(
+    'first_name', 'Site',
+    'last_name', 'contact form',
+    'dni_or_passport', ''
+  );
+BEGIN
+  IF EXISTS (SELECT 1 FROM auth.users WHERE id = v_id) THEN
+    UPDATE public.profiles
+    SET
+      role = 'site_contact'::public.user_role,
+      first_name = 'Site',
+      last_name = 'contact form',
+      dni_or_passport = NULL,
+      updated_at = now()
+    WHERE id = v_id;
+    RETURN;
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM auth.users WHERE lower(email) = lower(v_email) LIMIT 1) THEN
+    RAISE EXCEPTION 'auth user email collision for site contact sender: %', v_email;
+  END IF;
+
+  INSERT INTO auth.users (
+    id,
+    instance_id,
+    aud,
+    role,
+    email,
+    encrypted_password,
+    email_confirmed_at,
+    confirmation_token,
+    recovery_token,
+    email_change,
+    email_change_token_new,
+    is_sso_user,
+    is_anonymous,
+    raw_app_meta_data,
+    raw_user_meta_data,
+    created_at,
+    updated_at
+  )
+  VALUES (
+    v_id,
+    v_instance,
+    'authenticated',
+    'authenticated',
+    v_email,
+    crypt(v_password, gen_salt('bf')),
+    now(),
+    '',
+    '',
+    '',
+    '',
+    false,
+    false,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    v_meta,
+    now(),
+    now()
+  );
+
+  INSERT INTO auth.identities (
+    id,
+    user_id,
+    identity_data,
+    provider,
+    provider_id,
+    last_sign_in_at,
+    created_at,
+    updated_at
+  )
+  VALUES (
+    gen_random_uuid(),
+    v_id,
+    jsonb_build_object('sub', v_id::text, 'email', lower(v_email)),
+    'email',
+    v_id::text,
+    now(),
+    now(),
+    now()
+  );
+
+  UPDATE public.profiles
+  SET
+    role = 'site_contact'::public.user_role,
+    first_name = 'Site',
+    last_name = 'contact form',
+    dni_or_passport = NULL,
+    updated_at = now()
+  WHERE id = v_id;
+END;
+$$;
+
+-- ========== 120_student_admin_portal_broadcast.sql ==========
+
+-- Students may message admins (broadcast copies share broadcast_batch_id).
+-- Broadens INSERT and simplifies DELETE reply checks for teacher or admin recipients.
+
+ALTER TABLE public.portal_messages
+  ADD COLUMN IF NOT EXISTS broadcast_batch_id UUID NULL;
+
+COMMENT ON COLUMN public.portal_messages.broadcast_batch_id IS
+  'Logical group when one compose creates identical copies (e.g. student note to each admin inbox).';
+
+DROP POLICY IF EXISTS portal_messages_insert_student ON public.portal_messages;
+CREATE POLICY portal_messages_insert_student ON public.portal_messages
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    sender_id = auth.uid()
+    AND EXISTS (SELECT 1 FROM public.profiles s WHERE s.id = auth.uid() AND s.role = 'student')
+    AND EXISTS (
+      SELECT 1 FROM public.profiles r
+      WHERE r.id = recipient_id
+        AND r.role IN ('teacher', 'admin')
+    )
+  );
+
+DROP POLICY IF EXISTS portal_messages_delete_student ON public.portal_messages;
+CREATE POLICY portal_messages_delete_student ON public.portal_messages
+  FOR DELETE TO authenticated
+  USING (
+    sender_id = auth.uid()
+    AND EXISTS (SELECT 1 FROM public.profiles s WHERE s.id = auth.uid() AND s.role = 'student')
+    AND EXISTS (
+      SELECT 1 FROM public.profiles r
+      WHERE r.id = portal_messages.recipient_id
+        AND r.role IN ('teacher', 'admin')
+    )
+    AND NOT EXISTS (
+      SELECT 1 FROM public.portal_messages reply
+      WHERE reply.recipient_id = portal_messages.sender_id
+        AND EXISTS (
+          SELECT 1 FROM public.profiles p WHERE p.id = reply.sender_id AND p.role IN ('teacher', 'admin')
+        )
+        AND reply.created_at > portal_messages.created_at
+    )
+  );
+
+-- ========== 121_admin_portal_messages_delete.sql ==========
+
+-- Admins may delete portal_messages rows (inbox moderation / hygiene).
+
+DROP POLICY IF EXISTS portal_messages_delete_admin ON public.portal_messages;
+CREATE POLICY portal_messages_delete_admin ON public.portal_messages
+  FOR DELETE TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles p
+      WHERE p.id = auth.uid() AND p.role = 'admin'
+    )
+  );
+
+-- ========== 122_portal_messages_external_contact_reply_email.sql ==========
+
+-- Visitor email for website contact portal rows (sender = site_contact profile).
+-- Enables admins to reply by outbound email without messaging that synthetic profile.
+
+ALTER TABLE public.portal_messages
+  ADD COLUMN IF NOT EXISTS external_contact_reply_email TEXT NULL;
+
+COMMENT ON COLUMN public.portal_messages.external_contact_reply_email IS
+  'Email supplied with public-site contact submissions; used when admins reply by mail (visitor has no portal account).';
+
+-- ========== 123_email_templates_locale_pt.sql ==========
+
+-- Allow Portuguese overrides row locale values alongside ES/EN.
+ALTER TABLE public.email_templates DROP CONSTRAINT IF EXISTS email_templates_locale_supported;
+
+ALTER TABLE public.email_templates ADD CONSTRAINT email_templates_locale_supported
+  CHECK (locale IN ('es', 'en', 'pt'));
+
 -- ========== 124_site_themes_accessible_contrast.sql ==========
 
 -- WCAG AA: fix secondary/accent foregrounds and borders on seeded templates whose
 -- partial overrides inherited failing pairs from codebase defaults (#26-accessibility-contrast).
 -- Global token tuning lives in src/lib/theme/systemPropertiesDefaults.ts (SYSTEM_PROPERTIES_DEFAULTS).
 
+-- minimal: sky secondary + inherited white foreground failed contrast
 UPDATE public.site_themes
 SET
   properties =
@@ -11637,6 +11901,7 @@ SET
   updated_at = now()
 WHERE slug = 'minimal';
 
+-- nago: amber secondary + white foreground failed; accent green + inherited dark navy failed
 UPDATE public.site_themes
 SET
   properties =
@@ -11650,6 +11915,7 @@ SET
   updated_at = now()
 WHERE slug = 'nago';
 
+-- mozarthitos palette: brighten secondary label contrast; border readable on cream/white
 UPDATE public.site_themes
 SET
   properties =
@@ -11663,6 +11929,7 @@ SET
   updated_at = now()
 WHERE slug = 'mozarthitos';
 
+-- golden-english row often stores explicit tokens; align with tightened defaults when present
 UPDATE public.site_themes
 SET
   properties =
@@ -11676,7 +11943,68 @@ SET
   updated_at = now()
 WHERE slug = 'golden-english';
 
+-- ========== 125_site_settings_operational_defaults.sql ==========
+
+-- Operational defaults previously sourced from `system.properties` on disk.
+-- Moves them to `public.site_settings` so each tenant can override them via
+-- the re-entrant site setup wizard or the existing admin Settings surface,
+-- without relying on a checked-in file at the repo root.
+--
+-- Aditiva e idempotente: `ON CONFLICT (key) DO NOTHING` preserva cualquier
+-- valor preexistente (no destruye datos — ver regla
+-- `.cursor/rules/21-migrations-production-no-data-destruction.mdc`). Los
+-- valores insertados son **idénticos** a los defaults Golden para que los
+-- tenants no perciban un cambio funcional tras desplegar esta migración.
+
+INSERT INTO public.site_settings (key, value) VALUES
+  ('legal_age_majority',           '{"value":18}'::jsonb),
+  ('student_renewal_warn_days',    '{"value":300}'::jsonb),
+  (
+    'billing_terms',
+    '{
+      "enrollment":{"es":"Matrícula","en":"Enrollment fee"},
+      "monthly":{"es":"Mensualidad","en":"Monthly fee"},
+      "promotion":{"es":"Promoción","en":"Promotion"}
+    }'::jsonb
+  ),
+  (
+    'academics_section_defaults',
+    '{
+      "maxStudents":60,
+      "teacherPortalRoles":["teacher","assistant"]
+    }'::jsonb
+  ),
+  (
+    'academics_attendance_matrix',
+    '{
+      "teacher":{
+        "scanLookbackBufferDays":7,
+        "operationalCivilLookbackDays":14,
+        "operationalMaxClassDays":28,
+        "fullCourseMaxClassDays":156
+      },
+      "admin":{
+        "fallbackLookbackDays":400,
+        "maxClassDays":520
+      },
+      "pickAdjacentCivilDays":14,
+      "hasEligibleWindowMaxScans":400
+    }'::jsonb
+  ),
+  (
+    'analytics_config',
+    '{
+      "namespace":"goldenenglish",
+      "version":"1",
+      "timezone":"America/Argentina/Cordoba"
+    }'::jsonb
+  )
+ON CONFLICT (key) DO NOTHING;
+
 -- ========== 126_nago_site_theme_br_blue_secondary.sql ==========
+
+-- Nago: shift theme secondary from warm yellow (DS buttons) to Brazilian flag navy blue
+-- for readable white-on-accent pairs and alignment with landing tokens (see `nagoLanding.css`).
 
 UPDATE public.site_themes
 SET
@@ -11691,7 +12019,51 @@ SET
   updated_at = now()
 WHERE slug = 'nago';
 
+-- ========== 127_parent_admin_portal_messages.sql ==========
+
+-- Guardians may message admins (broadcast copies share broadcast_batch_id),
+-- when they have at least one linked student via tutor_student_rel.
+
+DROP POLICY IF EXISTS portal_messages_insert_parent ON public.portal_messages;
+CREATE POLICY portal_messages_insert_parent ON public.portal_messages
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    sender_id = auth.uid()
+    AND recipient_id <> auth.uid()
+    AND EXISTS (SELECT 1 FROM public.profiles s WHERE s.id = auth.uid() AND s.role = 'parent')
+    AND (
+      (
+        EXISTS (SELECT 1 FROM public.profiles r WHERE r.id = recipient_id AND r.role = 'teacher')
+        AND EXISTS (
+          SELECT 1
+          FROM public.tutor_student_rel ts
+          JOIN public.profiles st ON st.id = ts.student_id
+          WHERE ts.tutor_id = auth.uid()
+            AND st.assigned_teacher_id = recipient_id
+        )
+      )
+      OR (
+        EXISTS (SELECT 1 FROM public.profiles r WHERE r.id = recipient_id AND r.role = 'admin')
+        AND EXISTS (
+          SELECT 1 FROM public.tutor_student_rel ts
+          WHERE ts.tutor_id = auth.uid()
+        )
+      )
+    )
+  );
+
+-- ========== 128_section_allow_advance_monthly_payment.sql ==========
+
+-- Per-section toggle: allow guardians/students to pay future months before they are due.
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS allow_advance_monthly_payment boolean NOT NULL DEFAULT false;
+
+COMMENT ON COLUMN public.academic_sections.allow_advance_monthly_payment IS
+  'When true, portal users may submit receipts or Flow checkout for months after the current calendar month.';
+
 -- ========== 129_parent_messaging_section_teachers.sql ==========
+
+-- Parents may message teachers linked via assigned_teacher_id OR active section enrollment.
 
 CREATE OR REPLACE FUNCTION public.parent_may_message_teacher(teacher_id uuid)
 RETURNS boolean
@@ -11725,6 +12097,68 @@ AS $$
     );
 $$;
 
+COMMENT ON FUNCTION public.parent_may_message_teacher(uuid) IS
+  'True when auth parent may portal-message teacher_id via linked student assigned_teacher_id or active section lead teacher.';
+
+DROP POLICY IF EXISTS portal_messages_insert_parent ON public.portal_messages;
+CREATE POLICY portal_messages_insert_parent ON public.portal_messages
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    sender_id = auth.uid()
+    AND recipient_id <> auth.uid()
+    AND EXISTS (SELECT 1 FROM public.profiles s WHERE s.id = auth.uid() AND s.role = 'parent')
+    AND (
+      public.parent_may_message_teacher(recipient_id)
+      OR (
+        EXISTS (SELECT 1 FROM public.profiles r WHERE r.id = recipient_id AND r.role = 'admin')
+        AND EXISTS (
+          SELECT 1 FROM public.tutor_student_rel ts
+          WHERE ts.tutor_id = auth.uid()
+        )
+      )
+    )
+  );
+
+DROP POLICY IF EXISTS profiles_select_teachers_assigned_to_tutored_students ON public.profiles;
+CREATE POLICY profiles_select_teachers_assigned_to_tutored_students ON public.profiles
+  FOR SELECT TO authenticated
+  USING (
+    public.user_has_role(auth.uid(), 'parent')
+    AND profiles.role = 'teacher'
+    AND public.parent_may_message_teacher(profiles.id)
+  );
+
+-- ========== 130_parent_attendance_min_percent.sql ==========
+
+-- Parent portal: configurable minimum monthly attendance % (site default + per-section override).
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS min_attendance_percent smallint NULL;
+
+ALTER TABLE public.academic_sections
+  DROP CONSTRAINT IF EXISTS academic_sections_min_attendance_percent_range;
+
+ALTER TABLE public.academic_sections
+  ADD CONSTRAINT academic_sections_min_attendance_percent_range
+  CHECK (
+    min_attendance_percent IS NULL
+    OR (min_attendance_percent >= 0 AND min_attendance_percent <= 100)
+  );
+
+COMMENT ON COLUMN public.academic_sections.min_attendance_percent IS
+  'Optional override for parent attendance target (%). NULL inherits site default from academics_section_defaults.minAttendancePercent.';
+
+UPDATE public.site_settings
+SET value = value || '{"minAttendancePercent": 75}'::jsonb
+WHERE key = 'academics_section_defaults'
+  AND NOT (value ? 'minAttendancePercent');
+
+-- ========== 131_parent_portal_messages_admin_rls_profile_role.sql ==========
+
+-- Parent → admin portal_messages INSERT failed when policies read profiles.role via
+-- SELECT on public.profiles: parents cannot SELECT admin rows, so EXISTS(...) was false.
+-- Use SECURITY DEFINER helpers (same pattern as 018_fix_profiles_rls_recursion.sql).
+
 DROP POLICY IF EXISTS portal_messages_insert_parent ON public.portal_messages;
 CREATE POLICY portal_messages_insert_parent ON public.portal_messages
   FOR INSERT TO authenticated
@@ -11744,13 +12178,13 @@ CREATE POLICY portal_messages_insert_parent ON public.portal_messages
     )
   );
 
--- ========== 131_parent_portal_messages_admin_rls_profile_role.sql ==========
--- (policy recreated above; requires parent_may_message_teacher from 129)
-
 -- ========== 132_payment_gateway_mercadopago.sql ==========
 
 -- MercadoPago Checkout Pro: extend gateway credentials, finalize records, portal RPC.
 
+BEGIN;
+
+-- Allow mercadopago alongside flow
 ALTER TABLE public.payment_gateway_credentials
   DROP CONSTRAINT IF EXISTS payment_gateway_credentials_provider_check;
 
@@ -11764,6 +12198,7 @@ ALTER TABLE public.payment_gateway_credentials
 COMMENT ON COLUMN public.payment_gateway_credentials.webhook_secret_encrypted IS
   'AES-GCM encrypted webhook signing secret (MercadoPago). NULL for Flow.';
 
+-- Track which gateway approved a payment + active MP preference
 ALTER TABLE public.payments
   ADD COLUMN IF NOT EXISTS gateway_provider TEXT
   CHECK (gateway_provider IS NULL OR gateway_provider IN ('flow', 'mercadopago'));
@@ -11781,6 +12216,7 @@ CREATE INDEX IF NOT EXISTS payments_mp_preference_id_idx
   ON public.payments (mp_preference_id)
   WHERE mp_preference_id IS NOT NULL;
 
+-- MercadoPago finalize snapshot (mirrors payment_flow_finalize_records)
 CREATE TABLE IF NOT EXISTS public.payment_mp_finalize_records (
   payment_id UUID PRIMARY KEY REFERENCES public.payments (id) ON DELETE CASCADE,
   mp_payment_id BIGINT NOT NULL,
@@ -11831,6 +12267,7 @@ CREATE POLICY payment_mp_finalize_records_select
 COMMENT ON TABLE public.payment_mp_finalize_records IS
   'Snapshot of MercadoPago payment when a payments row transitioned to approved via Checkout Pro.';
 
+-- Enabled providers for a billing country (CL, AR, …) — no secret columns exposed
 CREATE OR REPLACE FUNCTION public.enabled_payment_gateways_for_country(p_country_code text)
 RETURNS text[]
 LANGUAGE sql
@@ -11850,20 +12287,2112 @@ $$;
 REVOKE ALL ON FUNCTION public.enabled_payment_gateways_for_country(text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.enabled_payment_gateways_for_country(text) TO authenticated;
 
-DROP POLICY IF EXISTS profiles_select_teachers_assigned_to_tutored_students ON public.profiles;
-CREATE POLICY profiles_select_teachers_assigned_to_tutored_students ON public.profiles
-  FOR SELECT TO authenticated
-  USING (
-    public.user_has_role(auth.uid(), 'parent')
-    AND profiles.role = 'teacher'
-    AND public.parent_may_message_teacher(profiles.id)
-  );
+COMMIT;
+
+-- ========== 133_site_theme_kind_mimundo.sql ==========
+
+-- Guarantee `site_theme_kind` includes `mimundo`.
+-- Idempotent: skips if label already exists.
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_enum e
+    JOIN pg_type t ON t.oid = e.enumtypid
+    WHERE t.typname = 'site_theme_kind' AND e.enumlabel = 'mimundo'
+  ) THEN
+    ALTER TYPE public.site_theme_kind ADD VALUE 'mimundo';
+  END IF;
+END $$;
+
+-- ========== 134_site_theme_mimundo_seed.sql ==========
+
+-- Runs after 133 commits so 'mimundo' enum label is usable.
+-- Jardín Maternal Mi Mundo — dedicated Supabase project, so is_active = TRUE.
+-- site_themes_only_one_active: deactivate others before setting mimundo active.
+
+UPDATE public.site_themes
+SET is_active = FALSE
+WHERE slug <> 'mimundo'
+  AND is_active = TRUE;
+
+INSERT INTO public.site_themes (
+  slug,
+  name,
+  is_active,
+  template_kind,
+  properties,
+  content,
+  blocks,
+  is_system_default
+)
+VALUES (
+  'mimundo',
+  'Jardín Maternal Mi Mundo',
+  TRUE,
+  'mimundo'::public.site_theme_kind,
+  jsonb_build_object(
+    -- Identity
+    'app.name',          'Jardín Maternal Mi Mundo',
+    'app.legal.name',    'Jardín Maternal Mi Mundo',
+    'app.tagline',       'Un mundo donde la infancia se descubre jugando',
+    'app.tagline.en',    'A world where childhood discovers itself through play',
+    'app.tagline.pt',    'Um mundo onde a infância se descobre brincando',
+    'app.legal.registry','Jardín Maternal Mi Mundo',
+    'app.logo.path',     '/images/mimundo/logo/logo.jpg',
+    'app.logo.alt',      'Jardín Maternal Mi Mundo',
+    'app.favicon.path',  '/images/mimundo/logo/logo.jpg',
+    -- Brand palette
+    -- Primary: verde oscuro del logo — pasa AA como bg para texto blanco
+    'color.primary',                '#557945',
+    'color.primary.foreground',     '#FFFFFF',
+    -- Secondary: azul infantil — CTAs sólidas, contraste AA sobre crema
+    'color.secondary',              '#2F7DBE',
+    'color.secondary.foreground',   '#FFFFFF',
+    -- Accent: amarillo vivo — solo non-text / chips / decoración (regla 26)
+    'color.accent',                 '#FFD426',
+    'color.accent.foreground',      '#6D4C41',
+    -- Error/destructive: rojo infantil
+    'color.error',                  '#E22E30',
+    -- Backgrounds
+    'color.background',             '#FFF8EC',
+    'color.surface',                '#FAF6EA',
+    -- Foreground: marrón crayón — texto principal, ≥ 4.5:1 sobre crema
+    'color.foreground',             '#6D4C41',
+    'color.muted',                  '#8D6E63',
+    'color.muted.foreground',       '#5D4037',
+    -- Contact info (placeholder until real data is provided)
+    'contact.phone',    '+54 11 4555-1234',
+    'contact.whatsapp', 'https://wa.me/541145551234',
+    'contact.email',    'hola@mimundo.com.ar',
+    'contact.address',  'Av. del Libertador 1234, Belgrano · CABA',
+    -- Social
+    'social.instagram', 'https://www.instagram.com/mimundo.jardin/',
+    'social.facebook',  'https://www.facebook.com/mimundojardin',
+    -- Billing
+    'billing.currency', 'ARS',
+    'billing.country',  'AR'
+  ),
+  '{}'::jsonb,
+  '[]'::jsonb,
+  FALSE
+)
+ON CONFLICT (slug) DO UPDATE
+SET
+  name          = EXCLUDED.name,
+  template_kind = EXCLUDED.template_kind,
+  is_active     = EXCLUDED.is_active,
+  is_system_default = FALSE,
+  properties    = EXCLUDED.properties;
+
+-- ========== 135_mimundo_logo_path_swap.sql ==========
+
+-- Mi Mundo — swap placeholder logo path to the real JPG asset.
+-- Idempotent: only updates when the stored value still points at the
+-- legacy /images/mimundo/logo/logo.svg placeholder, so manual overrides
+-- saved via the Site Setup wizard or CMS are preserved.
+
+UPDATE public.site_themes
+SET properties = properties
+    || jsonb_build_object(
+         'app.logo.path',    '/images/mimundo/logo/logo.jpg',
+         'app.favicon.path', '/images/mimundo/logo/logo.jpg'
+       )
+WHERE slug = 'mimundo'
+  AND properties ->> 'app.logo.path' = '/images/mimundo/logo/logo.svg';
 
 -- ========== 136_admin_users_directory_exclude_site_contact.sql ==========
 
--- (Function body matches replacement in 112 section above.)
+-- Admin users directory: exclude synthetic website-contact sender from totals and role chips.
+
+CREATE OR REPLACE FUNCTION public.admin_users_list_role_counts()
+RETURNS jsonb
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  WITH eligible AS (
+    SELECT role
+    FROM public.profiles
+    WHERE role IS DISTINCT FROM 'site_contact'::public.user_role
+      AND id <> '6f0e8c8a-7b1d-4c2e-9f3a-8e5d2c1b0a99'::uuid
+  ),
+  per_role AS (
+    SELECT lower(role::text) AS role_norm, count(*)::bigint AS cnt
+    FROM eligible
+    WHERE role IS NOT NULL
+      AND trim(role::text) <> ''
+    GROUP BY lower(role::text)
+  )
+  SELECT jsonb_build_object(
+    'total',
+    (SELECT count(*)::bigint FROM eligible),
+    'by_role',
+    COALESCE(
+      (
+        SELECT jsonb_object_agg(role_norm, cnt)
+        FROM per_role
+      ),
+      '{}'::jsonb
+    )
+  );
+$$;
+
+COMMENT ON FUNCTION public.admin_users_list_role_counts() IS
+  'Totals for admin users list: real directory profiles only (excludes site_contact synthetic sender).';
+
+-- ========== 137_events_core.sql ==========
+
+BEGIN;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'event_status') THEN
+    CREATE TYPE public.event_status AS ENUM ('draft', 'published', 'closed', 'cancelled');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'event_attendee_status') THEN
+    CREATE TYPE public.event_attendee_status AS ENUM ('pending_payment', 'confirmed', 'waitlist', 'cancelled');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'event_payment_status') THEN
+    CREATE TYPE public.event_payment_status AS ENUM ('pending', 'approved', 'rejected');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'event_form_field_type') THEN
+    CREATE TYPE public.event_form_field_type AS ENUM (
+      'text',
+      'textarea',
+      'number',
+      'date',
+      'email',
+      'phone',
+      'select',
+      'file',
+      'image'
+    );
+  END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug TEXT NOT NULL UNIQUE,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  event_date TIMESTAMPTZ NOT NULL,
+  location TEXT,
+  section_id UUID NULL REFERENCES public.academic_sections (id) ON DELETE SET NULL,
+  private_to_section BOOLEAN NOT NULL DEFAULT false,
+  capacity INT NOT NULL CHECK (capacity > 0),
+  price NUMERIC(12, 2) NULL CHECK (price IS NULL OR price >= 0),
+  currency TEXT NOT NULL DEFAULT 'CLP' CHECK (char_length(currency) BETWEEN 3 AND 8),
+  status public.event_status NOT NULL DEFAULT 'draft',
+  default_locale TEXT NOT NULL DEFAULT 'es' CHECK (default_locale IN ('es', 'en', 'pt')),
+  cover_image_path TEXT,
+  created_by UUID NOT NULL REFERENCES public.profiles (id) ON DELETE RESTRICT,
+  published_at TIMESTAMPTZ,
+  archived_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS events_status_event_date_idx
+  ON public.events (status, event_date);
+CREATE INDEX IF NOT EXISTS events_archived_idx
+  ON public.events (archived_at);
+CREATE INDEX IF NOT EXISTS events_section_idx
+  ON public.events (section_id)
+  WHERE section_id IS NOT NULL;
+
+DROP TRIGGER IF EXISTS events_set_updated_at ON public.events;
+CREATE TRIGGER events_set_updated_at
+  BEFORE UPDATE ON public.events
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.event_form_fields (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id UUID NOT NULL REFERENCES public.events (id) ON DELETE CASCADE,
+  field_key TEXT NOT NULL,
+  field_type public.event_form_field_type NOT NULL,
+  label_i18n JSONB NOT NULL DEFAULT '{}'::jsonb,
+  help_text_i18n JSONB NOT NULL DEFAULT '{}'::jsonb,
+  options_i18n JSONB NOT NULL DEFAULT '{}'::jsonb,
+  required BOOLEAN NOT NULL DEFAULT false,
+  position INT NOT NULL DEFAULT 0,
+  max_file_size_bytes INT NOT NULL DEFAULT 26214400 CHECK (max_file_size_bytes BETWEEN 1 AND 26214400),
+  allowed_mime_types TEXT[] NOT NULL DEFAULT ARRAY[]::text[],
+  archived_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT event_form_fields_event_key_unique UNIQUE (event_id, field_key)
+);
+
+CREATE INDEX IF NOT EXISTS event_form_fields_event_position_idx
+  ON public.event_form_fields (event_id, position, created_at);
+
+DROP TRIGGER IF EXISTS event_form_fields_set_updated_at ON public.event_form_fields;
+CREATE TRIGGER event_form_fields_set_updated_at
+  BEFORE UPDATE ON public.event_form_fields
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.event_attendees (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id UUID NOT NULL REFERENCES public.events (id) ON DELETE CASCADE,
+  user_id UUID NULL REFERENCES public.profiles (id) ON DELETE SET NULL,
+  tutor_id UUID NULL REFERENCES public.profiles (id) ON DELETE SET NULL,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  dni_or_passport TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  birth_date DATE,
+  status public.event_attendee_status NOT NULL DEFAULT 'confirmed',
+  source TEXT NOT NULL DEFAULT 'public' CHECK (source IN ('public', 'logged_in', 'admin_manual')),
+  tutor_first_name TEXT,
+  tutor_last_name TEXT,
+  tutor_dni_or_passport TEXT,
+  tutor_email TEXT,
+  tutor_phone TEXT,
+  tutor_relationship TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT event_attendees_event_dni_unique UNIQUE (event_id, dni_or_passport)
+);
+
+CREATE INDEX IF NOT EXISTS event_attendees_event_status_idx
+  ON public.event_attendees (event_id, status, created_at);
+CREATE INDEX IF NOT EXISTS event_attendees_user_id_idx
+  ON public.event_attendees (user_id)
+  WHERE user_id IS NOT NULL;
+
+DROP TRIGGER IF EXISTS event_attendees_set_updated_at ON public.event_attendees;
+CREATE TRIGGER event_attendees_set_updated_at
+  BEFORE UPDATE ON public.event_attendees
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.event_attendee_field_values (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  attendee_id UUID NOT NULL REFERENCES public.event_attendees (id) ON DELETE CASCADE,
+  field_id UUID NOT NULL REFERENCES public.event_form_fields (id) ON DELETE CASCADE,
+  value_text TEXT,
+  value_number NUMERIC,
+  value_date DATE,
+  file_storage_path TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT event_attendee_field_values_unique UNIQUE (attendee_id, field_id),
+  CONSTRAINT event_attendee_field_values_one_value CHECK (
+    (
+      CASE WHEN value_text IS NULL THEN 0 ELSE 1 END +
+      CASE WHEN value_number IS NULL THEN 0 ELSE 1 END +
+      CASE WHEN value_date IS NULL THEN 0 ELSE 1 END +
+      CASE WHEN file_storage_path IS NULL THEN 0 ELSE 1 END
+    ) <= 1
+  )
+);
+
+CREATE INDEX IF NOT EXISTS event_attendee_field_values_attendee_idx
+  ON public.event_attendee_field_values (attendee_id);
+
+CREATE TABLE IF NOT EXISTS public.event_payments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_attendee_id UUID NOT NULL UNIQUE REFERENCES public.event_attendees (id) ON DELETE CASCADE,
+  amount NUMERIC(12, 2) NOT NULL CHECK (amount >= 0),
+  currency TEXT NOT NULL CHECK (char_length(currency) BETWEEN 3 AND 8),
+  status public.event_payment_status NOT NULL DEFAULT 'pending',
+  gateway_provider TEXT CHECK (gateway_provider IS NULL OR gateway_provider IN ('flow', 'mercadopago')),
+  mp_preference_id TEXT,
+  receipt_storage_path TEXT,
+  receipt_uploaded_by UUID REFERENCES public.profiles (id) ON DELETE SET NULL,
+  reviewed_by UUID REFERENCES public.profiles (id) ON DELETE SET NULL,
+  review_notes TEXT,
+  paid_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS event_payments_status_idx
+  ON public.event_payments (status, created_at);
+CREATE INDEX IF NOT EXISTS event_payments_gateway_provider_idx
+  ON public.event_payments (gateway_provider);
+
+DROP TRIGGER IF EXISTS event_payments_set_updated_at ON public.event_payments;
+CREATE TRIGGER event_payments_set_updated_at
+  BEFORE UPDATE ON public.event_payments
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.event_payment_flow_finalize_records (
+  event_payment_id UUID PRIMARY KEY REFERENCES public.event_payments (id) ON DELETE CASCADE,
+  flow_order BIGINT NOT NULL,
+  commerce_order TEXT NOT NULL,
+  currency TEXT NOT NULL CHECK (char_length(currency) BETWEEN 3 AND 8),
+  amount NUMERIC(12, 2) NOT NULL CHECK (amount >= 0),
+  paid_at TIMESTAMPTZ NOT NULL,
+  payer_email TEXT,
+  media_label TEXT,
+  raw_payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS event_payment_flow_finalize_records_flow_order_idx
+  ON public.event_payment_flow_finalize_records (flow_order);
+
+DROP TRIGGER IF EXISTS event_payment_flow_finalize_records_set_updated_at ON public.event_payment_flow_finalize_records;
+CREATE TRIGGER event_payment_flow_finalize_records_set_updated_at
+  BEFORE UPDATE ON public.event_payment_flow_finalize_records
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.event_payment_mp_finalize_records (
+  event_payment_id UUID PRIMARY KEY REFERENCES public.event_payments (id) ON DELETE CASCADE,
+  mp_payment_id BIGINT NOT NULL,
+  mp_preference_id TEXT NOT NULL,
+  currency TEXT NOT NULL CHECK (char_length(currency) BETWEEN 3 AND 8),
+  amount NUMERIC(12, 2) NOT NULL CHECK (amount >= 0),
+  paid_at TIMESTAMPTZ NOT NULL,
+  payer_email TEXT,
+  payment_method TEXT,
+  raw_payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS event_payment_mp_finalize_records_mp_payment_id_idx
+  ON public.event_payment_mp_finalize_records (mp_payment_id);
+
+DROP TRIGGER IF EXISTS event_payment_mp_finalize_records_set_updated_at ON public.event_payment_mp_finalize_records;
+CREATE TRIGGER event_payment_mp_finalize_records_set_updated_at
+  BEFORE UPDATE ON public.event_payment_mp_finalize_records
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+COMMENT ON TABLE public.events IS
+  'Public/admin events with optional section scope and optional paid registration.';
+COMMENT ON TABLE public.event_form_fields IS
+  'Per-event dynamic registration form schema with i18n labels/help/options.';
+COMMENT ON TABLE public.event_attendees IS
+  'One attendee row per event and identity document.';
+COMMENT ON TABLE public.event_payments IS
+  'Event registration payments (gateway or transfer receipt approval workflow).';
+
+COMMIT;
+
+-- ========== 138_events_rls.sql ==========
+
+BEGIN;
+
+ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_form_fields ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_attendees ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_attendee_field_values ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_payments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_payment_flow_finalize_records ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_payment_mp_finalize_records ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS events_select_public_or_admin ON public.events;
+CREATE POLICY events_select_public_or_admin ON public.events
+  FOR SELECT TO anon, authenticated
+  USING (
+    (
+      status = 'published'
+      AND archived_at IS NULL
+    )
+    OR public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS events_modify_admin ON public.events;
+CREATE POLICY events_modify_admin ON public.events
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS event_form_fields_select_public_or_admin ON public.event_form_fields;
+CREATE POLICY event_form_fields_select_public_or_admin ON public.event_form_fields
+  FOR SELECT TO anon, authenticated
+  USING (
+    (
+      archived_at IS NULL
+      AND EXISTS (
+        SELECT 1
+        FROM public.events e
+        WHERE e.id = event_form_fields.event_id
+          AND e.status = 'published'
+          AND e.archived_at IS NULL
+      )
+    )
+    OR public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS event_form_fields_modify_admin ON public.event_form_fields;
+CREATE POLICY event_form_fields_modify_admin ON public.event_form_fields
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS event_attendees_select_owner_or_admin ON public.event_attendees;
+CREATE POLICY event_attendees_select_owner_or_admin ON public.event_attendees
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR user_id = auth.uid()
+    OR tutor_id = auth.uid()
+  );
+
+DROP POLICY IF EXISTS event_attendees_modify_admin ON public.event_attendees;
+CREATE POLICY event_attendees_modify_admin ON public.event_attendees
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS event_attendee_field_values_select_owner_or_admin ON public.event_attendee_field_values;
+CREATE POLICY event_attendee_field_values_select_owner_or_admin ON public.event_attendee_field_values
+  FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.event_attendees a
+      WHERE a.id = event_attendee_field_values.attendee_id
+        AND (
+          public.is_admin(auth.uid())
+          OR a.user_id = auth.uid()
+          OR a.tutor_id = auth.uid()
+        )
+    )
+  );
+
+DROP POLICY IF EXISTS event_attendee_field_values_modify_admin ON public.event_attendee_field_values;
+CREATE POLICY event_attendee_field_values_modify_admin ON public.event_attendee_field_values
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS event_payments_select_owner_or_admin ON public.event_payments;
+CREATE POLICY event_payments_select_owner_or_admin ON public.event_payments
+  FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.event_attendees a
+      WHERE a.id = event_payments.event_attendee_id
+        AND (
+          public.is_admin(auth.uid())
+          OR a.user_id = auth.uid()
+          OR a.tutor_id = auth.uid()
+        )
+    )
+  );
+
+DROP POLICY IF EXISTS event_payments_modify_admin ON public.event_payments;
+CREATE POLICY event_payments_modify_admin ON public.event_payments
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS event_payment_flow_finalize_records_select_owner_or_admin ON public.event_payment_flow_finalize_records;
+CREATE POLICY event_payment_flow_finalize_records_select_owner_or_admin ON public.event_payment_flow_finalize_records
+  FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.event_payments ep
+      JOIN public.event_attendees a ON a.id = ep.event_attendee_id
+      WHERE ep.id = event_payment_flow_finalize_records.event_payment_id
+        AND (
+          public.is_admin(auth.uid())
+          OR a.user_id = auth.uid()
+          OR a.tutor_id = auth.uid()
+        )
+    )
+  );
+
+DROP POLICY IF EXISTS event_payment_mp_finalize_records_select_owner_or_admin ON public.event_payment_mp_finalize_records;
+CREATE POLICY event_payment_mp_finalize_records_select_owner_or_admin ON public.event_payment_mp_finalize_records
+  FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.event_payments ep
+      JOIN public.event_attendees a ON a.id = ep.event_attendee_id
+      WHERE ep.id = event_payment_mp_finalize_records.event_payment_id
+        AND (
+          public.is_admin(auth.uid())
+          OR a.user_id = auth.uid()
+          OR a.tutor_id = auth.uid()
+        )
+    )
+  );
+
+COMMIT;
+
+-- ========== 139_events_storage.sql ==========
+
+BEGIN;
+
+INSERT INTO storage.buckets (id, name, public, file_size_limit)
+VALUES ('event-uploads', 'event-uploads', false, 26214400)
+ON CONFLICT (id) DO UPDATE
+SET file_size_limit = EXCLUDED.file_size_limit;
+
+DROP POLICY IF EXISTS event_uploads_select_owner_or_admin ON storage.objects;
+CREATE POLICY event_uploads_select_owner_or_admin ON storage.objects
+  FOR SELECT TO authenticated
+  USING (
+    bucket_id = 'event-uploads'
+    AND (
+      public.is_admin(auth.uid())
+      OR EXISTS (
+        SELECT 1
+        FROM public.event_attendees ea
+        WHERE (storage.foldername(name))[2] ~* '^[0-9a-f-]{36}$'
+          AND ea.id = ((storage.foldername(name))[2])::uuid
+          AND (ea.user_id = auth.uid() OR ea.tutor_id = auth.uid())
+      )
+    )
+  );
+
+DROP POLICY IF EXISTS event_uploads_insert_admin ON storage.objects;
+CREATE POLICY event_uploads_insert_admin ON storage.objects
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    bucket_id = 'event-uploads'
+    AND public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS event_uploads_update_admin ON storage.objects;
+CREATE POLICY event_uploads_update_admin ON storage.objects
+  FOR UPDATE TO authenticated
+  USING (
+    bucket_id = 'event-uploads'
+    AND public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS event_uploads_delete_admin ON storage.objects;
+CREATE POLICY event_uploads_delete_admin ON storage.objects
+  FOR DELETE TO authenticated
+  USING (
+    bucket_id = 'event-uploads'
+    AND public.is_admin(auth.uid())
+  );
+
+COMMIT;
+
+-- ========== 140_events_enroll_rpc.sql ==========
+
+BEGIN;
+
+CREATE OR REPLACE FUNCTION public.enroll_event_attendee(
+  p_event_id UUID,
+  p_user_id UUID DEFAULT NULL,
+  p_first_name TEXT DEFAULT NULL,
+  p_last_name TEXT DEFAULT NULL,
+  p_dni_or_passport TEXT DEFAULT NULL,
+  p_email TEXT DEFAULT NULL,
+  p_phone TEXT DEFAULT NULL,
+  p_birth_date DATE DEFAULT NULL,
+  p_tutor_id UUID DEFAULT NULL,
+  p_tutor_first_name TEXT DEFAULT NULL,
+  p_tutor_last_name TEXT DEFAULT NULL,
+  p_tutor_dni_or_passport TEXT DEFAULT NULL,
+  p_tutor_email TEXT DEFAULT NULL,
+  p_tutor_phone TEXT DEFAULT NULL,
+  p_tutor_relationship TEXT DEFAULT NULL,
+  p_source TEXT DEFAULT 'public',
+  p_field_values JSONB DEFAULT '[]'::jsonb
+)
+RETURNS TABLE (
+  attendee_id UUID,
+  attendee_status public.event_attendee_status,
+  payment_required BOOLEAN,
+  payment_id UUID,
+  result_code TEXT
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_event public.events%ROWTYPE;
+  v_attendee_id UUID;
+  v_payment_id UUID;
+  v_occupied_count INT;
+  v_legal_age_majority INT := 18;
+  v_age INT;
+  v_is_minor BOOLEAN := false;
+  v_target_status public.event_attendee_status;
+  v_price NUMERIC(12, 2);
+BEGIN
+  SELECT *
+  INTO v_event
+  FROM public.events
+  WHERE id = p_event_id
+  FOR UPDATE;
+
+  IF v_event.id IS NULL THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_not_found';
+    RETURN;
+  END IF;
+
+  IF v_event.archived_at IS NOT NULL OR v_event.status <> 'published' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_not_open';
+    RETURN;
+  END IF;
+
+  IF p_dni_or_passport IS NULL OR btrim(p_dni_or_passport) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'dni_required';
+    RETURN;
+  END IF;
+
+  IF p_first_name IS NULL OR btrim(p_first_name) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'first_name_required';
+    RETURN;
+  END IF;
+
+  IF p_last_name IS NULL OR btrim(p_last_name) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'last_name_required';
+    RETURN;
+  END IF;
+
+  IF p_email IS NULL OR btrim(p_email) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'email_required';
+    RETURN;
+  END IF;
+
+  IF v_event.private_to_section THEN
+    IF p_user_id IS NULL OR v_event.section_id IS NULL THEN
+      RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_section_membership_required';
+      RETURN;
+    END IF;
+
+    IF NOT EXISTS (
+      SELECT 1
+      FROM public.section_enrollments se
+      WHERE se.section_id = v_event.section_id
+        AND se.student_id = p_user_id
+        AND se.status = 'active'
+    ) THEN
+      RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_section_membership_required';
+      RETURN;
+    END IF;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM public.event_attendees ea
+    WHERE ea.event_id = p_event_id
+      AND lower(ea.dni_or_passport) = lower(p_dni_or_passport)
+  ) THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'duplicate_dni';
+    RETURN;
+  END IF;
+
+  SELECT COALESCE((value->>'value')::int, 18)
+  INTO v_legal_age_majority
+  FROM public.site_settings
+  WHERE key = 'legal_age_majority';
+
+  IF p_birth_date IS NOT NULL THEN
+    v_age := EXTRACT(YEAR FROM age(now()::date, p_birth_date))::int;
+    v_is_minor := v_age < v_legal_age_majority;
+  END IF;
+
+  IF v_is_minor THEN
+    IF (
+      (p_tutor_id IS NULL)
+      AND (p_tutor_first_name IS NULL OR btrim(p_tutor_first_name) = '')
+    ) THEN
+      RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_tutor_required';
+      RETURN;
+    END IF;
+  END IF;
+
+  SELECT COUNT(*)::int
+  INTO v_occupied_count
+  FROM public.event_attendees ea
+  WHERE ea.event_id = p_event_id
+    AND ea.status IN ('confirmed', 'pending_payment');
+
+  IF v_occupied_count >= v_event.capacity THEN
+    v_target_status := 'waitlist';
+  ELSE
+    IF v_event.price IS NULL OR v_event.price = 0 THEN
+      v_target_status := 'confirmed';
+    ELSE
+      v_target_status := 'pending_payment';
+    END IF;
+  END IF;
+
+  INSERT INTO public.event_attendees (
+    event_id,
+    user_id,
+    tutor_id,
+    first_name,
+    last_name,
+    dni_or_passport,
+    email,
+    phone,
+    birth_date,
+    status,
+    source,
+    tutor_first_name,
+    tutor_last_name,
+    tutor_dni_or_passport,
+    tutor_email,
+    tutor_phone,
+    tutor_relationship
+  ) VALUES (
+    p_event_id,
+    p_user_id,
+    p_tutor_id,
+    btrim(p_first_name),
+    btrim(p_last_name),
+    btrim(p_dni_or_passport),
+    lower(btrim(p_email)),
+    NULLIF(btrim(COALESCE(p_phone, '')), ''),
+    p_birth_date,
+    v_target_status,
+    COALESCE(NULLIF(btrim(COALESCE(p_source, '')), ''), 'public'),
+    NULLIF(btrim(COALESCE(p_tutor_first_name, '')), ''),
+    NULLIF(btrim(COALESCE(p_tutor_last_name, '')), ''),
+    NULLIF(btrim(COALESCE(p_tutor_dni_or_passport, '')), ''),
+    NULLIF(lower(btrim(COALESCE(p_tutor_email, ''))), ''),
+    NULLIF(btrim(COALESCE(p_tutor_phone, '')), ''),
+    NULLIF(btrim(COALESCE(p_tutor_relationship, '')), '')
+  )
+  RETURNING id INTO v_attendee_id;
+
+  IF jsonb_typeof(p_field_values) = 'array' THEN
+    INSERT INTO public.event_attendee_field_values (
+      attendee_id,
+      field_id,
+      value_text,
+      value_number,
+      value_date,
+      file_storage_path
+    )
+    SELECT
+      v_attendee_id,
+      (raw_item->>'field_id')::uuid,
+      NULLIF(raw_item->>'value_text', ''),
+      (raw_item->>'value_number')::numeric,
+      (raw_item->>'value_date')::date,
+      NULLIF(raw_item->>'file_storage_path', '')
+    FROM jsonb_array_elements(p_field_values) raw_item
+    WHERE (raw_item->>'field_id') IS NOT NULL
+      AND EXISTS (
+        SELECT 1
+        FROM public.event_form_fields f
+        WHERE f.id = (raw_item->>'field_id')::uuid
+          AND f.event_id = p_event_id
+          AND f.archived_at IS NULL
+      );
+  END IF;
+
+  v_price := COALESCE(v_event.price, 0);
+  IF v_target_status = 'pending_payment' AND v_price > 0 THEN
+    INSERT INTO public.event_payments (event_attendee_id, amount, currency, status)
+    VALUES (v_attendee_id, v_price, v_event.currency, 'pending')
+    RETURNING id INTO v_payment_id;
+  END IF;
+
+  RETURN QUERY
+    SELECT
+      v_attendee_id,
+      v_target_status,
+      (v_target_status = 'pending_payment'),
+      v_payment_id,
+      CASE
+        WHEN v_target_status = 'waitlist' THEN 'waitlist'
+        WHEN v_target_status = 'pending_payment' THEN 'payment_pending'
+        ELSE 'confirmed'
+      END;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.enroll_event_attendee(
+  UUID,
+  UUID,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  DATE,
+  UUID,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  JSONB
+) FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.enroll_event_attendee(
+  UUID,
+  UUID,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  DATE,
+  UUID,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  JSONB
+) TO anon, authenticated;
+
+COMMIT;
+
+-- ========== 141_events_aggregates_rpc.sql ==========
+
+BEGIN;
+
+CREATE OR REPLACE FUNCTION public.events_admin_list_aggregates(
+  p_search TEXT DEFAULT '',
+  p_status public.event_status[] DEFAULT NULL
+)
+RETURNS TABLE (
+  total_events BIGINT,
+  total_published BIGINT,
+  total_upcoming BIGINT,
+  total_attendees BIGINT,
+  total_waitlist BIGINT
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  WITH filtered_events AS (
+    SELECT e.id, e.status, e.event_date
+    FROM public.events e
+    WHERE e.archived_at IS NULL
+      AND (
+        p_search IS NULL
+        OR btrim(p_search) = ''
+        OR e.title ILIKE ('%' || p_search || '%')
+        OR e.slug ILIKE ('%' || p_search || '%')
+      )
+      AND (
+        p_status IS NULL
+        OR cardinality(p_status) = 0
+        OR e.status = ANY(p_status)
+      )
+  )
+  SELECT
+    COUNT(*)::bigint AS total_events,
+    COUNT(*) FILTER (WHERE fe.status = 'published')::bigint AS total_published,
+    COUNT(*) FILTER (WHERE fe.event_date >= now())::bigint AS total_upcoming,
+    (
+      SELECT COUNT(*)::bigint
+      FROM public.event_attendees ea
+      WHERE ea.event_id IN (SELECT id FROM filtered_events)
+    ) AS total_attendees,
+    (
+      SELECT COUNT(*)::bigint
+      FROM public.event_attendees ea
+      WHERE ea.event_id IN (SELECT id FROM filtered_events)
+        AND ea.status = 'waitlist'
+    ) AS total_waitlist
+  FROM filtered_events fe;
+$$;
+
+CREATE OR REPLACE FUNCTION public.events_admin_attendees_aggregates(
+  p_event_id UUID
+)
+RETURNS TABLE (
+  total_attendees BIGINT,
+  total_confirmed BIGINT,
+  total_pending_payment BIGINT,
+  total_waitlist BIGINT,
+  total_cancelled BIGINT
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    COUNT(*)::bigint AS total_attendees,
+    COUNT(*) FILTER (WHERE ea.status = 'confirmed')::bigint AS total_confirmed,
+    COUNT(*) FILTER (WHERE ea.status = 'pending_payment')::bigint AS total_pending_payment,
+    COUNT(*) FILTER (WHERE ea.status = 'waitlist')::bigint AS total_waitlist,
+    COUNT(*) FILTER (WHERE ea.status = 'cancelled')::bigint AS total_cancelled
+  FROM public.event_attendees ea
+  WHERE ea.event_id = p_event_id;
+$$;
+
+REVOKE ALL ON FUNCTION public.events_admin_list_aggregates(TEXT, public.event_status[]) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.events_admin_attendees_aggregates(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.events_admin_list_aggregates(TEXT, public.event_status[]) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.events_admin_attendees_aggregates(UUID) TO authenticated;
+
+COMMIT;
+
+-- ========== 142_events_email_templates_seed.sql ==========
+
+BEGIN;
+
+INSERT INTO public.email_templates (template_key, locale, subject, body_html)
+VALUES
+  (
+    'events.registered',
+    'es',
+    'Inscripción recibida',
+    '<p>Tu inscripción al evento fue recibida correctamente.</p>'
+  ),
+  (
+    'events.registered',
+    'en',
+    'Registration received',
+    '<p>Your event registration was received successfully.</p>'
+  ),
+  (
+    'events.payment_approved',
+    'es',
+    'Pago aprobado',
+    '<p>Tu pago del evento fue aprobado. ¡Nos vemos pronto!</p>'
+  ),
+  (
+    'events.payment_approved',
+    'en',
+    'Payment approved',
+    '<p>Your event payment was approved. See you soon!</p>'
+  ),
+  (
+    'events.payment_rejected',
+    'es',
+    'Pago rechazado',
+    '<p>No pudimos aprobar tu pago del evento. Revisa el comprobante e inténtalo nuevamente.</p>'
+  ),
+  (
+    'events.payment_rejected',
+    'en',
+    'Payment rejected',
+    '<p>We could not approve your event payment. Please review the receipt and try again.</p>'
+  ),
+  (
+    'events.reminder',
+    'es',
+    'Recordatorio de evento',
+    '<p>Te recordamos que tu evento está próximo a comenzar.</p>'
+  ),
+  (
+    'events.reminder',
+    'en',
+    'Event reminder',
+    '<p>This is a reminder that your event is starting soon.</p>'
+  )
+ON CONFLICT (template_key, locale) DO NOTHING;
+
+COMMIT;
+
+-- ========== 143_events_analytics_event_type.sql ==========
+
+DO $$
+BEGIN
+  ALTER TYPE public.user_event_type ADD VALUE IF NOT EXISTS 'event';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+-- ========== 144_blog_cms_initial.sql ==========
+
+-- Blog/CMS foundation (multi-locale, moderation workflow, comments, search).
+-- Version 144: 136 is reserved by admin_users_directory_exclude_site_contact (applied first on remote).
+-- Tenant scope follows deployment scope (no tenant_id columns).
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type WHERE typname = 'blog_article_status'
+  ) THEN
+    CREATE TYPE public.blog_article_status AS ENUM (
+      'draft',
+      'pending_review',
+      'scheduled',
+      'published',
+      'archived'
+    );
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type WHERE typname = 'blog_comment_status'
+  ) THEN
+    CREATE TYPE public.blog_comment_status AS ENUM (
+      'visible',
+      'hidden',
+      'flagged'
+    );
+  END IF;
+END $$;
+
+CREATE OR REPLACE FUNCTION public.blog_user_is_staff(uid uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT (
+    public.is_admin(uid)
+    OR public.user_has_role(uid, 'assistant')
+    OR public.user_has_role(uid, 'teacher')
+  );
+$$;
+
+COMMENT ON FUNCTION public.blog_user_is_staff(uuid) IS
+  'SECURITY DEFINER: blog writer role (admin, assistant, teacher).';
+
+CREATE OR REPLACE FUNCTION public.blog_user_can_review(uid uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT (
+    public.is_admin(uid)
+    OR public.user_has_role(uid, 'assistant')
+  );
+$$;
+
+COMMENT ON FUNCTION public.blog_user_can_review(uuid) IS
+  'SECURITY DEFINER: reviewers for moderation queues (admin, assistant).';
+
+CREATE TABLE IF NOT EXISTS public.blog_articles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  default_locale TEXT NOT NULL CHECK (default_locale IN ('en', 'es', 'pt')),
+  status public.blog_article_status NOT NULL DEFAULT 'draft',
+  published_at TIMESTAMPTZ NULL,
+  scheduled_for TIMESTAMPTZ NULL,
+  cover_storage_path TEXT NULL,
+  tags TEXT[] NOT NULL DEFAULT '{}'::text[],
+  is_pinned BOOLEAN NOT NULL DEFAULT FALSE,
+  pinned_at TIMESTAMPTZ NULL,
+  comments_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  author_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
+  view_count INT NOT NULL DEFAULT 0 CHECK (view_count >= 0),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_by UUID NULL REFERENCES public.profiles(id) ON DELETE SET NULL,
+  CONSTRAINT blog_articles_schedule_requires_date
+    CHECK (status <> 'scheduled' OR scheduled_for IS NOT NULL),
+  CONSTRAINT blog_articles_published_requires_date
+    CHECK (status <> 'published' OR published_at IS NOT NULL),
+  CONSTRAINT blog_articles_tags_max_30
+    CHECK (coalesce(array_length(tags, 1), 0) <= 30)
+);
+
+CREATE TABLE IF NOT EXISTS public.blog_article_translations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  article_id UUID NOT NULL REFERENCES public.blog_articles(id) ON DELETE CASCADE,
+  locale TEXT NOT NULL CHECK (locale IN ('en', 'es', 'pt')),
+  slug TEXT NOT NULL CHECK (length(trim(slug)) > 0),
+  title TEXT NOT NULL CHECK (length(trim(title)) > 0),
+  excerpt TEXT NOT NULL DEFAULT '' CHECK (char_length(excerpt) <= 280),
+  body_html TEXT NOT NULL DEFAULT '' CHECK (length(trim(body_html)) > 0),
+  body_text_plain TEXT NOT NULL DEFAULT '',
+  reading_time_minutes INT NOT NULL DEFAULT 1 CHECK (reading_time_minutes >= 1),
+  seo_title TEXT NULL,
+  seo_description TEXT NULL CHECK (
+    seo_description IS NULL OR char_length(seo_description) <= 320
+  ),
+  tsv tsvector GENERATED ALWAYS AS (
+    setweight(to_tsvector('simple', coalesce(title, '')), 'A')
+    || setweight(to_tsvector('simple', coalesce(excerpt, '')), 'B')
+    || setweight(to_tsvector('simple', coalesce(body_text_plain, '')), 'C')
+  ) STORED,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT blog_article_translations_article_locale_unique
+    UNIQUE (article_id, locale),
+  CONSTRAINT blog_article_translations_locale_slug_unique
+    UNIQUE (locale, slug)
+);
+
+CREATE TABLE IF NOT EXISTS public.blog_article_comments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  article_id UUID NOT NULL REFERENCES public.blog_articles(id) ON DELETE CASCADE,
+  author_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  parent_comment_id UUID NULL REFERENCES public.blog_article_comments(id) ON DELETE CASCADE,
+  body_text TEXT NOT NULL CHECK (
+    char_length(trim(body_text)) >= 1 AND char_length(body_text) <= 2000
+  ),
+  status public.blog_comment_status NOT NULL DEFAULT 'visible',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS public.blog_comment_reports (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  comment_id UUID NOT NULL REFERENCES public.blog_article_comments(id) ON DELETE CASCADE,
+  reporter_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  reason TEXT NULL CHECK (reason IS NULL OR char_length(reason) <= 300),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT blog_comment_reports_unique_reporter
+    UNIQUE (comment_id, reporter_id)
+);
+
+CREATE INDEX IF NOT EXISTS blog_articles_status_published_idx
+  ON public.blog_articles (status, published_at DESC NULLS LAST);
+
+CREATE INDEX IF NOT EXISTS blog_articles_scheduled_idx
+  ON public.blog_articles (scheduled_for)
+  WHERE status = 'scheduled';
+
+CREATE INDEX IF NOT EXISTS blog_articles_author_idx
+  ON public.blog_articles (author_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS blog_articles_tags_gin_idx
+  ON public.blog_articles
+  USING GIN (tags);
+
+CREATE INDEX IF NOT EXISTS blog_articles_pinned_idx
+  ON public.blog_articles (pinned_at DESC NULLS LAST)
+  WHERE is_pinned = TRUE;
+
+CREATE INDEX IF NOT EXISTS blog_article_translations_article_idx
+  ON public.blog_article_translations (article_id, locale);
+
+CREATE INDEX IF NOT EXISTS blog_article_translations_tsv_gin_idx
+  ON public.blog_article_translations
+  USING GIN (tsv);
+
+CREATE INDEX IF NOT EXISTS blog_comments_article_idx
+  ON public.blog_article_comments (article_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS blog_comments_author_idx
+  ON public.blog_article_comments (author_id, created_at DESC);
+
+CREATE OR REPLACE FUNCTION public.blog_articles_set_updated_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS blog_articles_set_updated_at ON public.blog_articles;
+CREATE TRIGGER blog_articles_set_updated_at
+  BEFORE UPDATE ON public.blog_articles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.blog_articles_set_updated_at();
+
+CREATE OR REPLACE FUNCTION public.blog_article_translations_set_updated_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS blog_article_translations_set_updated_at ON public.blog_article_translations;
+CREATE TRIGGER blog_article_translations_set_updated_at
+  BEFORE UPDATE ON public.blog_article_translations
+  FOR EACH ROW
+  EXECUTE FUNCTION public.blog_article_translations_set_updated_at();
+
+CREATE OR REPLACE FUNCTION public.blog_article_comments_set_updated_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS blog_article_comments_set_updated_at ON public.blog_article_comments;
+CREATE TRIGGER blog_article_comments_set_updated_at
+  BEFORE UPDATE ON public.blog_article_comments
+  FOR EACH ROW
+  EXECUTE FUNCTION public.blog_article_comments_set_updated_at();
+
+CREATE OR REPLACE FUNCTION public.blog_articles_validate_transitions()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  is_admin_role boolean := public.is_admin(auth.uid());
+  is_assistant_role boolean := public.user_has_role(auth.uid(), 'assistant');
+  is_teacher_role boolean := public.user_has_role(auth.uid(), 'teacher');
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    IF NOT public.blog_user_is_staff(auth.uid()) THEN
+      RAISE EXCEPTION 'blog_not_allowed_writer';
+    END IF;
+    IF NEW.author_id <> auth.uid() AND NOT (is_admin_role OR is_assistant_role) THEN
+      RAISE EXCEPTION 'blog_author_mismatch';
+    END IF;
+    IF NEW.status <> 'draft' AND NOT (is_admin_role OR is_assistant_role) THEN
+      RAISE EXCEPTION 'blog_insert_draft_required';
+    END IF;
+    RETURN NEW;
+  END IF;
+
+  IF NOT (is_admin_role OR is_assistant_role OR (is_teacher_role AND NEW.author_id = auth.uid())) THEN
+    RAISE EXCEPTION 'blog_update_forbidden';
+  END IF;
+
+  IF is_teacher_role AND NOT (is_admin_role OR is_assistant_role) THEN
+    IF NEW.status = 'published' OR NEW.status = 'archived' THEN
+      RAISE EXCEPTION 'blog_teacher_cannot_publish_or_archive';
+    END IF;
+  END IF;
+
+  IF NEW.status = 'published' AND NOT (is_admin_role OR is_assistant_role) THEN
+    RAISE EXCEPTION 'blog_publish_requires_reviewer';
+  END IF;
+
+  IF NEW.status = 'archived' AND NOT (is_admin_role OR is_assistant_role) THEN
+    RAISE EXCEPTION 'blog_archive_requires_reviewer';
+  END IF;
+
+  IF OLD.status = 'published' AND NEW.status = 'draft' THEN
+    RAISE EXCEPTION 'blog_invalid_status_rewind';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS blog_articles_validate_transitions ON public.blog_articles;
+CREATE TRIGGER blog_articles_validate_transitions
+  BEFORE INSERT OR UPDATE ON public.blog_articles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.blog_articles_validate_transitions();
+
+CREATE OR REPLACE FUNCTION public.blog_comments_validate_parent_depth()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  parent_parent_id UUID;
+  parent_article_id UUID;
+BEGIN
+  IF NEW.parent_comment_id IS NULL THEN
+    RETURN NEW;
+  END IF;
+
+  SELECT parent_comment_id, article_id
+  INTO parent_parent_id, parent_article_id
+  FROM public.blog_article_comments
+  WHERE id = NEW.parent_comment_id;
+
+  IF parent_article_id IS NULL THEN
+    RAISE EXCEPTION 'blog_comment_parent_not_found';
+  END IF;
+
+  IF parent_article_id <> NEW.article_id THEN
+    RAISE EXCEPTION 'blog_comment_parent_article_mismatch';
+  END IF;
+
+  IF parent_parent_id IS NOT NULL THEN
+    RAISE EXCEPTION 'blog_comment_depth_exceeded';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS blog_comments_validate_parent_depth ON public.blog_article_comments;
+CREATE TRIGGER blog_comments_validate_parent_depth
+  BEFORE INSERT OR UPDATE ON public.blog_article_comments
+  FOR EACH ROW
+  EXECUTE FUNCTION public.blog_comments_validate_parent_depth();
+
+CREATE OR REPLACE FUNCTION public.blog_comments_rate_limit_insert()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  recent_count INT;
+BEGIN
+  SELECT COUNT(*)::INT
+    INTO recent_count
+  FROM public.blog_article_comments c
+  WHERE c.author_id = NEW.author_id
+    AND c.created_at >= now() - interval '1 hour';
+
+  IF recent_count >= 3 THEN
+    RAISE EXCEPTION 'blog_comment_rate_limited';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.increment_blog_article_view_count(p_article_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  UPDATE public.blog_articles
+  SET view_count = view_count + 1
+  WHERE id = p_article_id;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.increment_blog_article_view_count(uuid) TO anon, authenticated;
+
+DROP TRIGGER IF EXISTS blog_comments_rate_limit_insert ON public.blog_article_comments;
+CREATE TRIGGER blog_comments_rate_limit_insert
+  BEFORE INSERT ON public.blog_article_comments
+  FOR EACH ROW
+  EXECUTE FUNCTION public.blog_comments_rate_limit_insert();
+
+ALTER TABLE public.blog_articles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.blog_article_translations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.blog_article_comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.blog_comment_reports ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS blog_articles_select_published ON public.blog_articles;
+CREATE POLICY blog_articles_select_published ON public.blog_articles
+  FOR SELECT TO anon, authenticated
+  USING (status = 'published' AND published_at IS NOT NULL AND published_at <= now());
+
+DROP POLICY IF EXISTS blog_articles_select_staff ON public.blog_articles;
+CREATE POLICY blog_articles_select_staff ON public.blog_articles
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR public.user_has_role(auth.uid(), 'assistant')
+    OR (
+      public.user_has_role(auth.uid(), 'teacher')
+      AND author_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS blog_articles_insert_staff ON public.blog_articles;
+CREATE POLICY blog_articles_insert_staff ON public.blog_articles
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    public.blog_user_is_staff(auth.uid())
+    AND (author_id = auth.uid() OR public.blog_user_can_review(auth.uid()))
+  );
+
+DROP POLICY IF EXISTS blog_articles_update_staff ON public.blog_articles;
+CREATE POLICY blog_articles_update_staff ON public.blog_articles
+  FOR UPDATE TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR public.user_has_role(auth.uid(), 'assistant')
+    OR (
+      public.user_has_role(auth.uid(), 'teacher')
+      AND author_id = auth.uid()
+    )
+  )
+  WITH CHECK (
+    public.is_admin(auth.uid())
+    OR public.user_has_role(auth.uid(), 'assistant')
+    OR (
+      public.user_has_role(auth.uid(), 'teacher')
+      AND author_id = auth.uid()
+      AND status <> 'published'
+      AND status <> 'archived'
+    )
+  );
+
+DROP POLICY IF EXISTS blog_articles_delete_admin ON public.blog_articles;
+CREATE POLICY blog_articles_delete_admin ON public.blog_articles
+  FOR DELETE TO authenticated
+  USING (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS blog_article_translations_select_published ON public.blog_article_translations;
+CREATE POLICY blog_article_translations_select_published ON public.blog_article_translations
+  FOR SELECT TO anon, authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.blog_articles a
+      WHERE a.id = article_id
+        AND a.status = 'published'
+        AND a.published_at IS NOT NULL
+        AND a.published_at <= now()
+    )
+  );
+
+DROP POLICY IF EXISTS blog_article_translations_select_staff ON public.blog_article_translations;
+CREATE POLICY blog_article_translations_select_staff ON public.blog_article_translations
+  FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.blog_articles a
+      WHERE a.id = article_id
+        AND (
+          public.is_admin(auth.uid())
+          OR public.user_has_role(auth.uid(), 'assistant')
+          OR (
+            public.user_has_role(auth.uid(), 'teacher')
+            AND a.author_id = auth.uid()
+          )
+        )
+    )
+  );
+
+DROP POLICY IF EXISTS blog_article_translations_insert_staff ON public.blog_article_translations;
+CREATE POLICY blog_article_translations_insert_staff ON public.blog_article_translations
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1
+      FROM public.blog_articles a
+      WHERE a.id = article_id
+        AND (
+          public.is_admin(auth.uid())
+          OR public.user_has_role(auth.uid(), 'assistant')
+          OR (
+            public.user_has_role(auth.uid(), 'teacher')
+            AND a.author_id = auth.uid()
+          )
+        )
+    )
+  );
+
+DROP POLICY IF EXISTS blog_article_translations_update_staff ON public.blog_article_translations;
+CREATE POLICY blog_article_translations_update_staff ON public.blog_article_translations
+  FOR UPDATE TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.blog_articles a
+      WHERE a.id = article_id
+        AND (
+          public.is_admin(auth.uid())
+          OR public.user_has_role(auth.uid(), 'assistant')
+          OR (
+            public.user_has_role(auth.uid(), 'teacher')
+            AND a.author_id = auth.uid()
+            AND a.status <> 'published'
+            AND a.status <> 'archived'
+          )
+        )
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1
+      FROM public.blog_articles a
+      WHERE a.id = article_id
+        AND (
+          public.is_admin(auth.uid())
+          OR public.user_has_role(auth.uid(), 'assistant')
+          OR (
+            public.user_has_role(auth.uid(), 'teacher')
+            AND a.author_id = auth.uid()
+            AND a.status <> 'published'
+            AND a.status <> 'archived'
+          )
+        )
+    )
+  );
+
+DROP POLICY IF EXISTS blog_article_translations_delete_admin ON public.blog_article_translations;
+CREATE POLICY blog_article_translations_delete_admin ON public.blog_article_translations
+  FOR DELETE TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR public.user_has_role(auth.uid(), 'assistant')
+  );
+
+DROP POLICY IF EXISTS blog_comments_select_scope ON public.blog_article_comments;
+CREATE POLICY blog_comments_select_scope ON public.blog_article_comments
+  FOR SELECT TO authenticated
+  USING (
+    status = 'visible'
+    OR author_id = auth.uid()
+    OR public.blog_user_can_review(auth.uid())
+  );
+
+DROP POLICY IF EXISTS blog_comments_insert_authenticated ON public.blog_article_comments;
+CREATE POLICY blog_comments_insert_authenticated ON public.blog_article_comments
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    author_id = auth.uid()
+    AND EXISTS (
+      SELECT 1
+      FROM public.blog_articles a
+      WHERE a.id = article_id
+        AND a.status = 'published'
+        AND a.published_at IS NOT NULL
+        AND a.published_at <= now()
+        AND a.comments_enabled = TRUE
+    )
+  );
+
+DROP POLICY IF EXISTS blog_comments_update_scope ON public.blog_article_comments;
+CREATE POLICY blog_comments_update_scope ON public.blog_article_comments
+  FOR UPDATE TO authenticated
+  USING (
+    public.blog_user_can_review(auth.uid())
+    OR (
+      author_id = auth.uid()
+      AND created_at >= now() - interval '5 minutes'
+    )
+  )
+  WITH CHECK (
+    public.blog_user_can_review(auth.uid())
+    OR (
+      author_id = auth.uid()
+      AND created_at >= now() - interval '5 minutes'
+      AND status = 'visible'
+    )
+  );
+
+DROP POLICY IF EXISTS blog_comments_delete_scope ON public.blog_article_comments;
+CREATE POLICY blog_comments_delete_scope ON public.blog_article_comments
+  FOR DELETE TO authenticated
+  USING (
+    public.blog_user_can_review(auth.uid())
+    OR author_id = auth.uid()
+  );
+
+DROP POLICY IF EXISTS blog_comment_reports_select_reviewers ON public.blog_comment_reports;
+CREATE POLICY blog_comment_reports_select_reviewers ON public.blog_comment_reports
+  FOR SELECT TO authenticated
+  USING (public.blog_user_can_review(auth.uid()));
+
+DROP POLICY IF EXISTS blog_comment_reports_insert_authenticated ON public.blog_comment_reports;
+CREATE POLICY blog_comment_reports_insert_authenticated ON public.blog_comment_reports
+  FOR INSERT TO authenticated
+  WITH CHECK (reporter_id = auth.uid());
+
+DROP POLICY IF EXISTS blog_comment_reports_delete_reviewers ON public.blog_comment_reports;
+CREATE POLICY blog_comment_reports_delete_reviewers ON public.blog_comment_reports
+  FOR DELETE TO authenticated
+  USING (public.blog_user_can_review(auth.uid()));
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('blog-media', 'blog-media', TRUE)
+ON CONFLICT (id) DO NOTHING;
+
+DROP POLICY IF EXISTS blog_media_select_public ON storage.objects;
+CREATE POLICY blog_media_select_public ON storage.objects
+  FOR SELECT TO anon, authenticated
+  USING (bucket_id = 'blog-media');
+
+DROP POLICY IF EXISTS blog_media_insert_staff ON storage.objects;
+CREATE POLICY blog_media_insert_staff ON storage.objects
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    bucket_id = 'blog-media'
+    AND public.blog_user_is_staff(auth.uid())
+  );
+
+DROP POLICY IF EXISTS blog_media_update_staff ON storage.objects;
+CREATE POLICY blog_media_update_staff ON storage.objects
+  FOR UPDATE TO authenticated
+  USING (
+    bucket_id = 'blog-media'
+    AND public.blog_user_is_staff(auth.uid())
+  );
+
+DROP POLICY IF EXISTS blog_media_delete_staff ON storage.objects;
+CREATE POLICY blog_media_delete_staff ON storage.objects
+  FOR DELETE TO authenticated
+  USING (
+    bucket_id = 'blog-media'
+    AND public.blog_user_is_staff(auth.uid())
+  );
+
+INSERT INTO public.site_settings (key, value)
+VALUES ('blog_enabled', 'true'::jsonb)
+ON CONFLICT (key) DO NOTHING;
+
+INSERT INTO public.site_settings (key, value)
+VALUES (
+  'google_translation_credentials',
+  '{"apiKey":null,"updatedAt":null,"updatedBy":null}'::jsonb
+)
+ON CONFLICT (key) DO NOTHING;
+
+DROP POLICY IF EXISTS site_settings_select_blog_public ON public.site_settings;
+CREATE POLICY site_settings_select_blog_public ON public.site_settings
+  FOR SELECT TO anon, authenticated
+  USING (key = 'blog_enabled');
+
+-- ========== 145_blog_article_attachments.sql ==========
+
+-- Blog article translation attachments (files + embeds), same contract as academic global content materials.
+
+ALTER TABLE public.blog_article_translations
+  ADD COLUMN IF NOT EXISTS attachments JSONB NOT NULL DEFAULT '[]'::jsonb;
+
+ALTER TABLE public.blog_article_translations
+  DROP CONSTRAINT IF EXISTS blog_article_translations_attachments_is_array;
+
+ALTER TABLE public.blog_article_translations
+  ADD CONSTRAINT blog_article_translations_attachments_is_array
+  CHECK (jsonb_typeof(attachments) = 'array');
+
+COMMENT ON COLUMN public.blog_article_translations.attachments IS
+  'Ordered list of { kind: file|embed, label, url?, storagePath?, filename?, contentType?, byteSize?, sortOrder }.';
+
+-- ========== 146_events_i18n_tiered_pricing.sql ==========
+
+BEGIN;
+
+ALTER TABLE public.events
+  ADD COLUMN IF NOT EXISTS price_local NUMERIC(12, 2) NULL
+    CHECK (price_local IS NULL OR price_local >= 0),
+  ADD COLUMN IF NOT EXISTS price_non_local NUMERIC(12, 2) NULL
+    CHECK (price_non_local IS NULL OR price_non_local >= 0);
+
+UPDATE public.events
+SET
+  price_local = COALESCE(price_local, price),
+  price_non_local = COALESCE(price_non_local, price)
+WHERE price IS NOT NULL;
+
+CREATE TABLE IF NOT EXISTS public.event_translations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id UUID NOT NULL REFERENCES public.events (id) ON DELETE CASCADE,
+  locale TEXT NOT NULL CHECK (locale IN ('es', 'en', 'pt')),
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  location TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT event_translations_event_locale_unique UNIQUE (event_id, locale)
+);
+
+CREATE INDEX IF NOT EXISTS event_translations_event_locale_idx
+  ON public.event_translations (event_id, locale);
+
+DROP TRIGGER IF EXISTS event_translations_set_updated_at ON public.event_translations;
+CREATE TRIGGER event_translations_set_updated_at
+  BEFORE UPDATE ON public.event_translations
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+INSERT INTO public.event_translations (event_id, locale, title, description, location)
+SELECT e.id, e.default_locale, e.title, e.description, e.location
+FROM public.events e
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM public.event_translations t
+  WHERE t.event_id = e.id
+    AND t.locale = e.default_locale
+);
+
+ALTER TABLE public.event_attendees
+  ADD COLUMN IF NOT EXISTS is_local_resident BOOLEAN NOT NULL DEFAULT true;
+
+ALTER TABLE public.event_translations ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS event_translations_select_public_or_admin ON public.event_translations;
+CREATE POLICY event_translations_select_public_or_admin ON public.event_translations
+  FOR SELECT TO anon, authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.events e
+      WHERE e.id = event_translations.event_id
+        AND (
+          (e.status = 'published' AND e.archived_at IS NULL)
+          OR public.is_admin(auth.uid())
+        )
+    )
+  );
+
+DROP POLICY IF EXISTS event_translations_modify_admin ON public.event_translations;
+CREATE POLICY event_translations_modify_admin ON public.event_translations
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+CREATE OR REPLACE FUNCTION public.enroll_event_attendee(
+  p_event_id UUID,
+  p_user_id UUID DEFAULT NULL,
+  p_first_name TEXT DEFAULT NULL,
+  p_last_name TEXT DEFAULT NULL,
+  p_dni_or_passport TEXT DEFAULT NULL,
+  p_email TEXT DEFAULT NULL,
+  p_phone TEXT DEFAULT NULL,
+  p_birth_date DATE DEFAULT NULL,
+  p_tutor_id UUID DEFAULT NULL,
+  p_tutor_first_name TEXT DEFAULT NULL,
+  p_tutor_last_name TEXT DEFAULT NULL,
+  p_tutor_dni_or_passport TEXT DEFAULT NULL,
+  p_tutor_email TEXT DEFAULT NULL,
+  p_tutor_phone TEXT DEFAULT NULL,
+  p_tutor_relationship TEXT DEFAULT NULL,
+  p_source TEXT DEFAULT 'public',
+  p_is_local_resident BOOLEAN DEFAULT true,
+  p_field_values JSONB DEFAULT '[]'::jsonb
+)
+RETURNS TABLE (
+  attendee_id UUID,
+  attendee_status public.event_attendee_status,
+  payment_required BOOLEAN,
+  payment_id UUID,
+  result_code TEXT
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_event public.events%ROWTYPE;
+  v_attendee_id UUID;
+  v_payment_id UUID;
+  v_occupied_count INT;
+  v_legal_age_majority INT := 18;
+  v_age INT;
+  v_is_minor BOOLEAN := false;
+  v_target_status public.event_attendee_status;
+  v_price NUMERIC(12, 2);
+  v_local_price NUMERIC(12, 2);
+  v_non_local_price NUMERIC(12, 2);
+BEGIN
+  SELECT *
+  INTO v_event
+  FROM public.events
+  WHERE id = p_event_id
+  FOR UPDATE;
+
+  IF v_event.id IS NULL THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_not_found';
+    RETURN;
+  END IF;
+
+  IF v_event.archived_at IS NOT NULL OR v_event.status <> 'published' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_not_open';
+    RETURN;
+  END IF;
+
+  IF p_dni_or_passport IS NULL OR btrim(p_dni_or_passport) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'dni_required';
+    RETURN;
+  END IF;
+
+  IF p_first_name IS NULL OR btrim(p_first_name) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'first_name_required';
+    RETURN;
+  END IF;
+
+  IF p_last_name IS NULL OR btrim(p_last_name) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'last_name_required';
+    RETURN;
+  END IF;
+
+  IF p_email IS NULL OR btrim(p_email) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'email_required';
+    RETURN;
+  END IF;
+
+  IF v_event.private_to_section THEN
+    IF p_user_id IS NULL OR v_event.section_id IS NULL THEN
+      RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_section_membership_required';
+      RETURN;
+    END IF;
+
+    IF NOT EXISTS (
+      SELECT 1
+      FROM public.section_enrollments se
+      WHERE se.section_id = v_event.section_id
+        AND se.student_id = p_user_id
+        AND se.status = 'active'
+    ) THEN
+      RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_section_membership_required';
+      RETURN;
+    END IF;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM public.event_attendees ea
+    WHERE ea.event_id = p_event_id
+      AND lower(ea.dni_or_passport) = lower(p_dni_or_passport)
+  ) THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'duplicate_dni';
+    RETURN;
+  END IF;
+
+  SELECT COALESCE((value->>'value')::int, 18)
+  INTO v_legal_age_majority
+  FROM public.site_settings
+  WHERE key = 'legal_age_majority';
+
+  IF p_birth_date IS NOT NULL THEN
+    v_age := EXTRACT(YEAR FROM age(now()::date, p_birth_date))::int;
+    v_is_minor := v_age < v_legal_age_majority;
+  END IF;
+
+  IF v_is_minor THEN
+    IF (
+      (p_tutor_id IS NULL)
+      AND (p_tutor_first_name IS NULL OR btrim(p_tutor_first_name) = '')
+    ) THEN
+      RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_tutor_required';
+      RETURN;
+    END IF;
+  END IF;
+
+  v_local_price := COALESCE(v_event.price_local, v_event.price, 0);
+  v_non_local_price := COALESCE(v_event.price_non_local, v_local_price, 0);
+  v_price := CASE
+    WHEN COALESCE(p_is_local_resident, true) THEN v_local_price
+    ELSE v_non_local_price
+  END;
+
+  SELECT COUNT(*)::int
+  INTO v_occupied_count
+  FROM public.event_attendees ea
+  WHERE ea.event_id = p_event_id
+    AND ea.status IN ('confirmed', 'pending_payment');
+
+  IF v_occupied_count >= v_event.capacity THEN
+    v_target_status := 'waitlist';
+  ELSE
+    IF v_price IS NULL OR v_price = 0 THEN
+      v_target_status := 'confirmed';
+    ELSE
+      v_target_status := 'pending_payment';
+    END IF;
+  END IF;
+
+  INSERT INTO public.event_attendees (
+    event_id,
+    user_id,
+    tutor_id,
+    first_name,
+    last_name,
+    dni_or_passport,
+    email,
+    phone,
+    birth_date,
+    status,
+    source,
+    is_local_resident,
+    tutor_first_name,
+    tutor_last_name,
+    tutor_dni_or_passport,
+    tutor_email,
+    tutor_phone,
+    tutor_relationship
+  ) VALUES (
+    p_event_id,
+    p_user_id,
+    p_tutor_id,
+    btrim(p_first_name),
+    btrim(p_last_name),
+    btrim(p_dni_or_passport),
+    lower(btrim(p_email)),
+    NULLIF(btrim(COALESCE(p_phone, '')), ''),
+    p_birth_date,
+    v_target_status,
+    COALESCE(NULLIF(btrim(COALESCE(p_source, '')), ''), 'public'),
+    COALESCE(p_is_local_resident, true),
+    NULLIF(btrim(COALESCE(p_tutor_first_name, '')), ''),
+    NULLIF(btrim(COALESCE(p_tutor_last_name, '')), ''),
+    NULLIF(btrim(COALESCE(p_tutor_dni_or_passport, '')), ''),
+    NULLIF(lower(btrim(COALESCE(p_tutor_email, ''))), ''),
+    NULLIF(btrim(COALESCE(p_tutor_phone, '')), ''),
+    NULLIF(btrim(COALESCE(p_tutor_relationship, '')), '')
+  )
+  RETURNING id INTO v_attendee_id;
+
+  IF jsonb_typeof(p_field_values) = 'array' THEN
+    INSERT INTO public.event_attendee_field_values (
+      attendee_id,
+      field_id,
+      value_text,
+      value_number,
+      value_date,
+      file_storage_path
+    )
+    SELECT
+      v_attendee_id,
+      (raw_item->>'field_id')::uuid,
+      NULLIF(raw_item->>'value_text', ''),
+      (raw_item->>'value_number')::numeric,
+      (raw_item->>'value_date')::date,
+      NULLIF(raw_item->>'file_storage_path', '')
+    FROM jsonb_array_elements(p_field_values) raw_item
+    WHERE (raw_item->>'field_id') IS NOT NULL
+      AND EXISTS (
+        SELECT 1
+        FROM public.event_form_fields f
+        WHERE f.id = (raw_item->>'field_id')::uuid
+          AND f.event_id = p_event_id
+          AND f.archived_at IS NULL
+      );
+  END IF;
+
+  IF v_target_status = 'pending_payment' AND v_price > 0 THEN
+    INSERT INTO public.event_payments (event_attendee_id, amount, currency, status)
+    VALUES (v_attendee_id, v_price, v_event.currency, 'pending')
+    RETURNING id INTO v_payment_id;
+  END IF;
+
+  RETURN QUERY
+    SELECT
+      v_attendee_id,
+      v_target_status,
+      (v_target_status = 'pending_payment'),
+      v_payment_id,
+      CASE
+        WHEN v_target_status = 'waitlist' THEN 'waitlist'
+        WHEN v_target_status = 'pending_payment' THEN 'payment_pending'
+        ELSE 'confirmed'
+      END;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.enroll_event_attendee(
+  UUID,
+  UUID,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  DATE,
+  UUID,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  BOOLEAN,
+  JSONB
+) FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.enroll_event_attendee(
+  UUID,
+  UUID,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  DATE,
+  UUID,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  BOOLEAN,
+  JSONB
+) TO anon, authenticated;
+
+COMMENT ON TABLE public.event_translations IS
+  'Per-locale title, description, and location for public event pages.';
+COMMENT ON COLUMN public.events.price_local IS
+  'Registration price for local residents; mirrors legacy price when unset.';
+COMMENT ON COLUMN public.events.price_non_local IS
+  'Registration price for non-local residents; falls back to price_local when unset.';
+
+COMMIT;
+
+-- ========== 147_events_media_storage.sql ==========
+
+BEGIN;
+
+INSERT INTO storage.buckets (id, name, public, file_size_limit)
+VALUES ('event-media', 'event-media', TRUE, 26214400)
+ON CONFLICT (id) DO UPDATE
+SET public = EXCLUDED.public,
+    file_size_limit = EXCLUDED.file_size_limit;
+
+DROP POLICY IF EXISTS event_media_select_public ON storage.objects;
+CREATE POLICY event_media_select_public ON storage.objects
+  FOR SELECT TO anon, authenticated
+  USING (bucket_id = 'event-media');
+
+DROP POLICY IF EXISTS event_media_insert_admin ON storage.objects;
+CREATE POLICY event_media_insert_admin ON storage.objects
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    bucket_id = 'event-media'
+    AND public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS event_media_update_admin ON storage.objects;
+CREATE POLICY event_media_update_admin ON storage.objects
+  FOR UPDATE TO authenticated
+  USING (
+    bucket_id = 'event-media'
+    AND public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS event_media_delete_admin ON storage.objects;
+CREATE POLICY event_media_delete_admin ON storage.objects
+  FOR DELETE TO authenticated
+  USING (
+    bucket_id = 'event-media'
+    AND public.is_admin(auth.uid())
+  );
+
+COMMIT;
+
+-- ========== 148_events_view_count.sql ==========
+
+-- Public event detail view counter (mirrors blog_articles.view_count pattern).
+
+ALTER TABLE public.events
+  ADD COLUMN IF NOT EXISTS view_count INT NOT NULL DEFAULT 0;
+
+CREATE OR REPLACE FUNCTION public.increment_event_view_count(p_event_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  UPDATE public.events
+  SET view_count = view_count + 1
+  WHERE id = p_event_id
+    AND status = 'published'
+    AND archived_at IS NULL;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.increment_event_view_count(uuid) TO anon, authenticated;
+
+-- ========== 149_events_bank_transfer_instructions.sql ==========
+
+-- Per-event bank transfer destination / account details shown on public registration.
+
+ALTER TABLE public.events
+  ADD COLUMN IF NOT EXISTS bank_transfer_instructions TEXT NULL;
+
+COMMENT ON COLUMN public.events.bank_transfer_instructions IS
+  'Plain-text instructions for bank transfer payments (account, holder, reference). Shown on public registration when transfer is selected.';
 
 -- ========== 150_billing_currency_portal_read.sql ==========
+
+-- Parents/students resolve online payment gateways via loadBillingCurrencySetting +
+-- enabled_payment_gateways_for_country. billing_currency was admin-only in SELECT RLS
+-- (106_billing_currency_setting.sql), so portal sessions fell back to USD → no CL/AR
+-- gateways → "Pagar online" tab stayed disabled despite admin Flow/MP config.
 
 DROP POLICY IF EXISTS site_settings_select_public ON public.site_settings;
 
@@ -11874,8 +14403,12 @@ CREATE POLICY site_settings_select_public
     key IN ('inscriptions_enabled', 'initial_site_setup', 'billing_currency')
   );
 
+COMMENT ON POLICY site_settings_select_public ON public.site_settings IS
+  'Public/authenticated reads for registration gating, wizard state, and portal billing currency (non-secret ISO code).';
+
 -- ========== 151_push_subscriptions.sql ==========
 
+-- Web Push subscriptions (VAPID) — one row per browser endpoint per user.
 CREATE TABLE IF NOT EXISTS public.push_subscriptions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -11903,6 +14436,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.push_subscriptions TO authenticat
 
 -- ========== 152_bank_transfer_instructions_setting.sql ==========
 
+-- Institute-wide bank transfer destination details (Finanzas → Configuración).
+-- Shown before transfer receipt upload on monthly payments and public event registration.
+
 INSERT INTO public.site_settings (key, value)
 VALUES ('bank_transfer_instructions', '""'::jsonb)
 ON CONFLICT (key) DO NOTHING;
@@ -11921,7 +14457,27 @@ CREATE POLICY site_settings_select_public
     )
   );
 
+COMMENT ON POLICY site_settings_select_public ON public.site_settings IS
+  'Public/authenticated reads for registration gating, wizard state, billing currency, and bank transfer instructions (non-secret plain text).';
+
+-- ========== 153_blog_articles_delete_staff.sql ==========
+
+-- Allow admin and assistant staff to hard-delete blog articles (translations/comments cascade).
+
+DROP POLICY IF EXISTS blog_articles_delete_admin ON public.blog_articles;
+
+CREATE POLICY blog_articles_delete_staff ON public.blog_articles
+  FOR DELETE TO authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR public.user_has_role(auth.uid(), 'assistant')
+  );
+
 -- ========== 154_section_billing_defaults.sql ==========
+
+-- Product default: sections allow advance monthly payments and charge the full
+-- plan month fee (not prorated by class count). Applies to new rows and
+-- backfills existing sections that still carry the prior defaults.
 
 ALTER TABLE public.academic_sections
   ALTER COLUMN allow_advance_monthly_payment SET DEFAULT true;
@@ -11937,7 +14493,49 @@ UPDATE public.academic_sections
   SET monthly_fee_charge_mode = 'full_month_fee'
   WHERE monthly_fee_charge_mode IS DISTINCT FROM 'full_month_fee';
 
+-- ========== 155_user_events_nullable_anonymous_views.sql ==========
+
+-- Public blog/event view telemetry dedupes anonymous browsers via sessionKey in
+-- metadata. Server-side inserts use service_role and may omit user_id.
+
+ALTER TABLE public.user_events
+  ALTER COLUMN user_id DROP NOT NULL;
+
+CREATE OR REPLACE FUNCTION public.user_events_after_insert()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  r text;
+BEGIN
+  IF NEW.user_id IS NULL THEN
+    RETURN NEW;
+  END IF;
+
+  SELECT role::text INTO r FROM public.profiles WHERE id = NEW.user_id;
+  IF r IS NULL OR r <> 'student' THEN
+    RETURN NEW;
+  END IF;
+  IF NEW.event_type = 'session_start' THEN
+    UPDATE public.profiles
+    SET last_session_start_at = NEW.created_at,
+        churn_notified_at = NULL
+    WHERE id = NEW.user_id;
+  END IF;
+  IF NEW.event_type = 'page_view' AND NEW.entity LIKE 'material:%' THEN
+    UPDATE public.profiles
+    SET engagement_points = engagement_points + 5
+    WHERE id = NEW.user_id;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
 -- ========== 156_events_collect_birth_date.sql ==========
+
+-- Optional birth date on public event registration (off by default).
 
 ALTER TABLE public.events
   ADD COLUMN IF NOT EXISTS collect_birth_date BOOLEAN NOT NULL DEFAULT false;
@@ -11947,7 +14545,405 @@ COMMENT ON COLUMN public.events.collect_birth_date IS
 
 -- ========== 157_events_bank_transfer_enabled_setting.sql ==========
 
+-- Admin toggle: accept bank transfer on public event registration.
+-- Controlled from Finance → Settings. When true, the registration form offers a
+-- "Bank transfer" payment method (transfer details + receipt upload) alongside
+-- online gateways (Mercado Pago / Flow). Read server-side via the admin client
+-- in loadEventRegistrationPaymentMethods; written by admins through
+-- site_settings_all_admin RLS. Default true so transfer coexists with gateways.
+
 INSERT INTO public.site_settings (key, value)
 VALUES ('events_bank_transfer_enabled', 'true'::jsonb)
 ON CONFLICT (key) DO NOTHING;
 
+-- ========== 158_events_defer_payment_creation.sql ==========
+
+-- 158_events_defer_payment_creation.sql
+--
+-- Deferred event payment lifecycle.
+--
+-- Previously enroll_event_attendee created a `pending` event_payments row at enrollment
+-- time, before any payment method had actually charged the attendee. Abandoned or rejected
+-- Mercado Pago / Flow checkouts left "ghost" pending payments in the admin approval queue.
+--
+-- New contract:
+--   * Online gateways (Mercado Pago / Flow): the event_payments row is materialized as
+--     `approved` only when the gateway confirms payment (webhook / return reconciliation).
+--   * Bank transfer: the event_payments row is materialized as `pending` only when the
+--     attendee uploads a receipt for manual admin review.
+--
+-- Therefore the RPC no longer inserts into event_payments and always returns a NULL
+-- payment_id. The attendee row + status workflow are unchanged.
+
+CREATE OR REPLACE FUNCTION public.enroll_event_attendee(
+  p_event_id UUID,
+  p_user_id UUID DEFAULT NULL,
+  p_first_name TEXT DEFAULT NULL,
+  p_last_name TEXT DEFAULT NULL,
+  p_dni_or_passport TEXT DEFAULT NULL,
+  p_email TEXT DEFAULT NULL,
+  p_phone TEXT DEFAULT NULL,
+  p_birth_date DATE DEFAULT NULL,
+  p_tutor_id UUID DEFAULT NULL,
+  p_tutor_first_name TEXT DEFAULT NULL,
+  p_tutor_last_name TEXT DEFAULT NULL,
+  p_tutor_dni_or_passport TEXT DEFAULT NULL,
+  p_tutor_email TEXT DEFAULT NULL,
+  p_tutor_phone TEXT DEFAULT NULL,
+  p_tutor_relationship TEXT DEFAULT NULL,
+  p_source TEXT DEFAULT 'public',
+  p_is_local_resident BOOLEAN DEFAULT true,
+  p_field_values JSONB DEFAULT '[]'::jsonb
+)
+RETURNS TABLE (
+  attendee_id UUID,
+  attendee_status public.event_attendee_status,
+  payment_required BOOLEAN,
+  payment_id UUID,
+  result_code TEXT
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_event public.events%ROWTYPE;
+  v_attendee_id UUID;
+  v_occupied_count INT;
+  v_legal_age_majority INT := 18;
+  v_age INT;
+  v_is_minor BOOLEAN := false;
+  v_target_status public.event_attendee_status;
+  v_price NUMERIC(12, 2);
+  v_local_price NUMERIC(12, 2);
+  v_non_local_price NUMERIC(12, 2);
+BEGIN
+  SELECT *
+  INTO v_event
+  FROM public.events
+  WHERE id = p_event_id
+  FOR UPDATE;
+
+  IF v_event.id IS NULL THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_not_found';
+    RETURN;
+  END IF;
+
+  IF v_event.archived_at IS NOT NULL OR v_event.status <> 'published' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_not_open';
+    RETURN;
+  END IF;
+
+  IF p_dni_or_passport IS NULL OR btrim(p_dni_or_passport) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'dni_required';
+    RETURN;
+  END IF;
+
+  IF p_first_name IS NULL OR btrim(p_first_name) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'first_name_required';
+    RETURN;
+  END IF;
+
+  IF p_last_name IS NULL OR btrim(p_last_name) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'last_name_required';
+    RETURN;
+  END IF;
+
+  IF p_email IS NULL OR btrim(p_email) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'email_required';
+    RETURN;
+  END IF;
+
+  IF v_event.private_to_section THEN
+    IF p_user_id IS NULL OR v_event.section_id IS NULL THEN
+      RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_section_membership_required';
+      RETURN;
+    END IF;
+
+    IF NOT EXISTS (
+      SELECT 1
+      FROM public.section_enrollments se
+      WHERE se.section_id = v_event.section_id
+        AND se.student_id = p_user_id
+        AND se.status = 'active'
+    ) THEN
+      RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_section_membership_required';
+      RETURN;
+    END IF;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM public.event_attendees ea
+    WHERE ea.event_id = p_event_id
+      AND lower(ea.dni_or_passport) = lower(p_dni_or_passport)
+  ) THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'duplicate_dni';
+    RETURN;
+  END IF;
+
+  SELECT COALESCE((value->>'value')::int, 18)
+  INTO v_legal_age_majority
+  FROM public.site_settings
+  WHERE key = 'legal_age_majority';
+
+  IF p_birth_date IS NOT NULL THEN
+    v_age := EXTRACT(YEAR FROM age(now()::date, p_birth_date))::int;
+    v_is_minor := v_age < v_legal_age_majority;
+  END IF;
+
+  IF v_is_minor THEN
+    IF (
+      (p_tutor_id IS NULL)
+      AND (p_tutor_first_name IS NULL OR btrim(p_tutor_first_name) = '')
+    ) THEN
+      RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_tutor_required';
+      RETURN;
+    END IF;
+  END IF;
+
+  v_local_price := COALESCE(v_event.price_local, v_event.price, 0);
+  v_non_local_price := COALESCE(v_event.price_non_local, v_local_price, 0);
+  v_price := CASE
+    WHEN COALESCE(p_is_local_resident, true) THEN v_local_price
+    ELSE v_non_local_price
+  END;
+
+  SELECT COUNT(*)::int
+  INTO v_occupied_count
+  FROM public.event_attendees ea
+  WHERE ea.event_id = p_event_id
+    AND ea.status IN ('confirmed', 'pending_payment');
+
+  IF v_occupied_count >= v_event.capacity THEN
+    v_target_status := 'waitlist';
+  ELSE
+    IF v_price IS NULL OR v_price = 0 THEN
+      v_target_status := 'confirmed';
+    ELSE
+      v_target_status := 'pending_payment';
+    END IF;
+  END IF;
+
+  INSERT INTO public.event_attendees (
+    event_id,
+    user_id,
+    tutor_id,
+    first_name,
+    last_name,
+    dni_or_passport,
+    email,
+    phone,
+    birth_date,
+    status,
+    source,
+    is_local_resident,
+    tutor_first_name,
+    tutor_last_name,
+    tutor_dni_or_passport,
+    tutor_email,
+    tutor_phone,
+    tutor_relationship
+  ) VALUES (
+    p_event_id,
+    p_user_id,
+    p_tutor_id,
+    btrim(p_first_name),
+    btrim(p_last_name),
+    btrim(p_dni_or_passport),
+    lower(btrim(p_email)),
+    NULLIF(btrim(COALESCE(p_phone, '')), ''),
+    p_birth_date,
+    v_target_status,
+    COALESCE(NULLIF(btrim(COALESCE(p_source, '')), ''), 'public'),
+    COALESCE(p_is_local_resident, true),
+    NULLIF(btrim(COALESCE(p_tutor_first_name, '')), ''),
+    NULLIF(btrim(COALESCE(p_tutor_last_name, '')), ''),
+    NULLIF(btrim(COALESCE(p_tutor_dni_or_passport, '')), ''),
+    NULLIF(lower(btrim(COALESCE(p_tutor_email, ''))), ''),
+    NULLIF(btrim(COALESCE(p_tutor_phone, '')), ''),
+    NULLIF(btrim(COALESCE(p_tutor_relationship, '')), '')
+  )
+  RETURNING id INTO v_attendee_id;
+
+  IF jsonb_typeof(p_field_values) = 'array' THEN
+    INSERT INTO public.event_attendee_field_values (
+      attendee_id,
+      field_id,
+      value_text,
+      value_number,
+      value_date,
+      file_storage_path
+    )
+    SELECT
+      v_attendee_id,
+      (raw_item->>'field_id')::uuid,
+      NULLIF(raw_item->>'value_text', ''),
+      (raw_item->>'value_number')::numeric,
+      (raw_item->>'value_date')::date,
+      NULLIF(raw_item->>'file_storage_path', '')
+    FROM jsonb_array_elements(p_field_values) raw_item
+    WHERE (raw_item->>'field_id') IS NOT NULL
+      AND EXISTS (
+        SELECT 1
+        FROM public.event_form_fields f
+        WHERE f.id = (raw_item->>'field_id')::uuid
+          AND f.event_id = p_event_id
+          AND f.archived_at IS NULL
+      );
+  END IF;
+
+  -- Deferred payment lifecycle: no event_payments row is created here. Gateway-confirmed
+  -- payments are materialized as `approved` by the finalize flow; transfer payments are
+  -- materialized as `pending` only when a receipt is uploaded.
+
+  RETURN QUERY
+    SELECT
+      v_attendee_id,
+      v_target_status,
+      (v_target_status = 'pending_payment'),
+      NULL::uuid,
+      CASE
+        WHEN v_target_status = 'waitlist' THEN 'waitlist'
+        WHEN v_target_status = 'pending_payment' THEN 'payment_pending'
+        ELSE 'confirmed'
+      END;
+END;
+$$;
+
+-- ========== 159_tuition_defer_payment_creation.sql ==========
+
+-- 159_tuition_defer_payment_creation.sql
+--
+-- Deferred monthly tuition payment lifecycle (mirrors 158 for events).
+--
+-- Previously the Mercado Pago / Flow checkout start for monthly tuition pre-created a
+-- `pending` payments row (resolveStudentPaymentSlot). Abandoned or rejected gateway
+-- checkouts left "ghost" pending payments in the admin approval queue.
+--
+-- New contract:
+--   * Online gateways (Mercado Pago / Flow): the payments row is materialized as
+--     `approved` only when the gateway confirms payment (return reconciliation / webhook),
+--     via upsertApprovedMonthlyPaymentCore.
+--   * Bank transfer: the payments row is materialized as `pending` only when the student
+--     or tutor uploads a receipt for manual admin review (resolveStudentPaymentSlot).
+--
+-- Mercado Pago carries the billing slot in `external_reference`
+-- (`tuition:<studentId>:<sectionId>:<year>:<month>[:<parentId>]`). Flow's commerceOrder
+-- max length forces a server-side mapping, so payment_flow_checkout_refs is generalized
+-- here to store the slot when no payment row exists yet.
+
+BEGIN;
+
+-- 1) Generalize payment_flow_checkout_refs: a checkout ref may now point at either a
+--    legacy payments.id OR a not-yet-materialized tuition slot.
+ALTER TABLE public.payment_flow_checkout_refs
+  ADD COLUMN IF NOT EXISTS student_id UUID
+    REFERENCES public.profiles (id) ON DELETE CASCADE,
+  ADD COLUMN IF NOT EXISTS section_id UUID
+    REFERENCES public.academic_sections (id) ON DELETE CASCADE,
+  ADD COLUMN IF NOT EXISTS parent_id UUID
+    REFERENCES public.profiles (id) ON DELETE SET NULL,
+  ADD COLUMN IF NOT EXISTS year INT,
+  ADD COLUMN IF NOT EXISTS month INT;
+
+ALTER TABLE public.payment_flow_checkout_refs
+  ALTER COLUMN payment_id DROP NOT NULL;
+
+-- Replace the legacy "payment_id required" check with one that accepts either a
+-- legacy payment_id mapping or a complete tuition slot mapping.
+ALTER TABLE public.payment_flow_checkout_refs
+  DROP CONSTRAINT IF EXISTS payment_flow_checkout_refs_payment_id_not_empty;
+
+DO $$
+BEGIN
+  ALTER TABLE public.payment_flow_checkout_refs
+    ADD CONSTRAINT payment_flow_checkout_refs_target_chk CHECK (
+      payment_id IS NOT NULL
+      OR (
+        student_id IS NOT NULL
+        AND section_id IS NOT NULL
+        AND year IS NOT NULL
+        AND month IS NOT NULL
+      )
+    );
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+  ALTER TABLE public.payment_flow_checkout_refs
+    ADD CONSTRAINT payment_flow_checkout_refs_month_chk CHECK (
+      month IS NULL OR (month >= 1 AND month <= 12)
+    );
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$
+BEGIN
+  ALTER TABLE public.payment_flow_checkout_refs
+    ADD CONSTRAINT payment_flow_checkout_refs_year_chk CHECK (
+      year IS NULL OR (year >= 2000 AND year <= 2100)
+    );
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+CREATE INDEX IF NOT EXISTS payment_flow_checkout_refs_slot_idx
+  ON public.payment_flow_checkout_refs (student_id, section_id, year, month);
+
+COMMENT ON TABLE public.payment_flow_checkout_refs IS
+  'Maps Flow commerceOrder refs to either a legacy payments.id or a deferred tuition slot (student/section/year/month); many refs per target (retries/new sessions).';
+
+-- 2) New reservation RPC for the deferred (slot) model: no payments row exists yet.
+CREATE OR REPLACE FUNCTION public.payment_flow_reserve_commerce_ref_slot(
+  p_student_id UUID,
+  p_section_id UUID,
+  p_year INT,
+  p_month INT,
+  p_parent_id UUID DEFAULT NULL
+)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+SET row_security = off AS $$
+DECLARE
+  seq BIGINT;
+  ref TEXT;
+BEGIN
+  IF p_student_id IS NULL THEN
+    RAISE EXCEPTION 'invalid_student';
+  END IF;
+  IF p_section_id IS NULL THEN
+    RAISE EXCEPTION 'invalid_section';
+  END IF;
+  IF p_year IS NULL OR p_year NOT BETWEEN 2000 AND 2100 THEN
+    RAISE EXCEPTION 'invalid_year';
+  END IF;
+  IF p_month IS NULL OR p_month < 1 OR p_month > 12 THEN
+    RAISE EXCEPTION 'invalid_month';
+  END IF;
+
+  seq := nextval('public.payment_flow_commerce_serial_seq'::regclass);
+  ref := 'MES-' || p_year::text || '-' ||
+    LPAD(p_month::text, 2, '0') || '-' ||
+    LPAD(seq::text, 8, '0');
+
+  INSERT INTO public.payment_flow_checkout_refs (
+    commerce_ref, student_id, section_id, parent_id, year, month
+  )
+  VALUES (ref, p_student_id, p_section_id, p_parent_id, p_year, p_month);
+
+  RETURN ref;
+END;
+$$;
+
+-- Supabase callers: invoke only with service-role / admin tooling.
+REVOKE ALL ON FUNCTION public.payment_flow_reserve_commerce_ref_slot(UUID, UUID, INT, INT, UUID) FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.payment_flow_reserve_commerce_ref_slot(UUID, UUID, INT, INT, UUID) TO service_role;
+
+COMMIT;
