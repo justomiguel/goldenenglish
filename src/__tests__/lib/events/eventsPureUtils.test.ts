@@ -7,6 +7,7 @@ import { pickEventFieldLabel } from "@/lib/events/pickEventFieldLabel";
 import { buildEventAttendeeUploadPath } from "@/lib/events/buildEventAttendeeUploadPath";
 import { buildEventFieldValuesSchema } from "@/lib/events/eventFormFieldsSchema";
 import { validateEventAttendeePayload } from "@/lib/events/validateEventAttendeePayload";
+import { serializeEventFieldValuesForEnrollRpc } from "@/lib/events/serializeEventFieldValuesForEnrollRpc";
 import type { EventFormFieldDefinition } from "@/lib/events/types";
 
 describe("events pure utils", () => {
@@ -58,6 +59,25 @@ describe("events pure utils", () => {
       now: 123,
     });
     expect(path).toMatch(/^evt-id\/att-id\/field-id\/comprobante-de-pago-.*\.pdf$/);
+  });
+
+  it("serializes custom field payloads for enroll_event_attendee RPC", () => {
+    const fieldId = "11111111-1111-4111-8111-111111111111";
+    expect(
+      serializeEventFieldValuesForEnrollRpc([
+        { fieldId, valueText: "Colegio Norte" },
+        {
+          fieldId: "22222222-2222-4222-8222-222222222222",
+          fileStoragePath: "evt/att/file.pdf",
+        },
+      ]),
+    ).toEqual([
+      { field_id: fieldId, value_text: "Colegio Norte" },
+      {
+        field_id: "22222222-2222-4222-8222-222222222222",
+        file_storage_path: "evt/att/file.pdf",
+      },
+    ]);
   });
 });
 

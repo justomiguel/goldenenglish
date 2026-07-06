@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Users } from "lucide-react";
 import { AdminEventAttendeeTableRow } from "@/components/dashboard/admin/events/AdminEventAttendeeTableRow";
+import type { AdminEventAttendeeCustomFieldColumn } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
 import type { AdminEventAttendeesPanelLabels } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
 import { ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL } from "@/lib/dashboard/events/adminEventAttendeesTableClasses";
 import { canDeleteEventAttendee } from "@/lib/events/canDeleteEventAttendee";
@@ -14,6 +15,7 @@ interface AdminEventAttendeesTableProps {
   eventId: string;
   rows: EventAttendeeRow[];
   customFieldValues: EventAttendeeCustomFieldValuesMap;
+  customFieldColumns: AdminEventAttendeeCustomFieldColumn[];
   labels: AdminEventAttendeesPanelLabels;
 }
 
@@ -22,6 +24,7 @@ export function AdminEventAttendeesTable({
   eventId,
   rows,
   customFieldValues,
+  customFieldColumns,
   labels,
 }: AdminEventAttendeesTableProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -67,6 +70,11 @@ export function AdminEventAttendeesTable({
             <th scope="col" className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL}>
               {labels.columns.payment}
             </th>
+            {customFieldColumns.map((column) => (
+              <th key={column.fieldKey} scope="col" className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL}>
+                {column.label}
+              </th>
+            ))}
             <th scope="col" className={`${ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL} min-w-[11rem] text-right`}>
               {labels.columns.actions}
             </th>
@@ -78,6 +86,7 @@ export function AdminEventAttendeesTable({
               key={row.id}
               row={row}
               customFields={customFieldValues[row.id] ?? []}
+              customFieldColumns={customFieldColumns}
               locale={locale}
               eventId={eventId}
               labels={labels}

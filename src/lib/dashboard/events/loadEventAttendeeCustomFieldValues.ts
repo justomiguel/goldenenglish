@@ -37,7 +37,7 @@ export async function loadEventAttendeeCustomFieldValues(
     "event_attendee_field_values",
     "attendee_id",
     uniqueIds,
-    "attendee_id, value_text, value_number, value_date, file_storage_path, event_form_fields!inner(field_key, label_i18n)",
+    "attendee_id, value_text, value_number, value_date, file_storage_path, event_form_fields!inner(field_key, label_i18n, archived_at)",
   );
 
   const result: EventAttendeeCustomFieldValuesMap = {};
@@ -45,11 +45,11 @@ export async function loadEventAttendeeCustomFieldValues(
   for (const row of rows) {
     const attendeeId = String(row.attendee_id);
     const field = row.event_form_fields as
-      | { field_key: string; label_i18n: Record<string, string> | null }
-      | { field_key: string; label_i18n: Record<string, string> | null }[]
+      | { field_key: string; label_i18n: Record<string, string> | null; archived_at: string | null }
+      | { field_key: string; label_i18n: Record<string, string> | null; archived_at: string | null }[]
       | null;
     const fieldRow = Array.isArray(field) ? field[0] : field;
-    if (!fieldRow) continue;
+    if (!fieldRow || fieldRow.archived_at) continue;
 
     const displayValue = formatFieldDisplayValue({
       value_text: row.value_text as string | null,

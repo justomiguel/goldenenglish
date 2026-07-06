@@ -6,6 +6,7 @@ import type { EventAdminTab } from "@/components/dashboard/admin/events/AdminEve
 import type { EventLocale } from "@/lib/events/domain";
 import type { Dictionary } from "@/types/i18n";
 import type { loadAdminEventDetailPageModel } from "@/lib/dashboard/events/loadAdminEventDetailPageModel";
+import { pickEventFieldLabel } from "@/lib/events/pickEventFieldLabel";
 
 type EventDetailModel = Awaited<ReturnType<typeof loadAdminEventDetailPageModel>>;
 
@@ -84,12 +85,18 @@ export function AdminEventDetailTabContent({
   }
 
   if (tab === "attendees") {
+    const customFieldColumns = model.mappedFields.map((field) => ({
+      fieldKey: field.fieldKey,
+      label: pickEventFieldLabel(field.labelI18n, locale, model.defaultLocale) || field.fieldKey,
+    }));
+
     return (
       <AdminEventAttendeesPanel
         locale={locale}
         eventId={eventId}
         rows={model.attendees.rows}
         customFieldValues={model.attendeeCustomFields}
+        customFieldColumns={customFieldColumns}
         totalCount={model.attendees.totalCount}
         page={model.attendees.page}
         pageSize={model.attendees.pageSize}

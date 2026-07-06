@@ -4,6 +4,7 @@ import type { EventAttendeeCustomFieldValuesMap } from "@/lib/dashboard/events/l
 import { AdminEventAttendeesExportButtons } from "@/components/dashboard/admin/events/AdminEventAttendeesExportButtons";
 import { AdminEventAttendeesPaginationBar } from "@/components/dashboard/admin/events/AdminEventAttendeesPaginationBar";
 import { AdminEventAttendeesTable } from "@/components/dashboard/admin/events/AdminEventAttendeesTable";
+import type { AdminEventAttendeeCustomFieldColumn } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
 import type { AdminEventAttendeesPanelLabels } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
 
 export type { AdminEventAttendeesPanelLabels };
@@ -13,6 +14,7 @@ interface AdminEventAttendeesPanelProps {
   eventId: string;
   rows: EventAttendeeRow[];
   customFieldValues: EventAttendeeCustomFieldValuesMap;
+  customFieldColumns: AdminEventAttendeeCustomFieldColumn[];
   totalCount: number;
   page: number;
   pageSize: number;
@@ -25,6 +27,7 @@ export function AdminEventAttendeesPanel({
   eventId,
   rows,
   customFieldValues,
+  customFieldColumns,
   totalCount,
   page,
   pageSize,
@@ -78,6 +81,7 @@ export function AdminEventAttendeesPanel({
         eventId={eventId}
         rows={rows}
         customFieldValues={customFieldValues}
+        customFieldColumns={customFieldColumns}
         labels={labels}
       />
     </section>

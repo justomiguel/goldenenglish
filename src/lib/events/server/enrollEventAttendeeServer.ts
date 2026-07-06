@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { serializeEventFieldValuesForEnrollRpc } from "@/lib/events/serializeEventFieldValuesForEnrollRpc";
 import type { EventFieldPayloadEntry, EventTutorPayload } from "@/lib/events/types";
 
 export interface EnrollEventAttendeeServerInput {
@@ -49,7 +50,7 @@ async function callEnrollRpc(
     p_tutor_relationship: input.tutor?.tutorRelationship ?? null,
     p_source: input.source,
     p_is_local_resident: input.isLocalResident ?? true,
-    p_field_values: input.fieldValues,
+    p_field_values: serializeEventFieldValuesForEnrollRpc(input.fieldValues),
   });
 
   if (error) {

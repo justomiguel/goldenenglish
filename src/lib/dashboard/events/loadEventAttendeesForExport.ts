@@ -52,6 +52,7 @@ export async function loadEventFormFieldColumnsForExport(
     .from("event_form_fields")
     .select("field_key, label_i18n, position")
     .eq("event_id", eventId)
+    .is("archived_at", null)
     .order("position", { ascending: true });
 
   if (error || !data) return [];

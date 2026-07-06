@@ -14,6 +14,9 @@ import {
   formatAttendeePaymentStatusLabel,
   formatAttendeeStatus,
   formatAttendeeValue,
+  resolveAttendeeCustomFieldDisplayValue,
+  ADMIN_EVENT_ATTENDEES_BASE_COLUMN_COUNT,
+  type AdminEventAttendeeCustomFieldColumn,
   type AdminEventAttendeesPanelLabels,
 } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
 import {
@@ -32,6 +35,7 @@ import {
 interface AdminEventAttendeeTableRowProps {
   row: EventAttendeeRow;
   customFields: EventAttendeeCustomFieldValue[];
+  customFieldColumns: AdminEventAttendeeCustomFieldColumn[];
   locale: string;
   eventId: string;
   labels: AdminEventAttendeesPanelLabels;
@@ -43,6 +47,7 @@ interface AdminEventAttendeeTableRowProps {
 export function AdminEventAttendeeTableRow({
   row,
   customFields,
+  customFieldColumns,
   locale,
   eventId,
   labels,
@@ -123,6 +128,16 @@ export function AdminEventAttendeeTableRow({
             <AdminEventAttendeeNoPaymentBadge label={labels.noPayment} />
           )}
         </td>
+        {customFieldColumns.map((column) => {
+          const value = resolveAttendeeCustomFieldDisplayValue(customFields, column.fieldKey);
+          return (
+            <td key={column.fieldKey} className={ADMIN_EVENT_ATTENDEES_TABLE_BODY_CELL}>
+              <span className={ADMIN_EVENT_ATTENDEES_TABLE_TEXT} title={value}>
+                {value}
+              </span>
+            </td>
+          );
+        })}
         <td className={`${ADMIN_EVENT_ATTENDEES_TABLE_BODY_CELL} text-right`}>
           <AdminEventAttendeeRowActions
             locale={locale}
@@ -140,7 +155,7 @@ export function AdminEventAttendeeTableRow({
           className="border-b border-[var(--color-border)] bg-[var(--color-surface)] last:border-b-0"
           data-testid={`attendee-expanded-${row.id}`}
         >
-          <td colSpan={8} className="p-0">
+          <td colSpan={ADMIN_EVENT_ATTENDEES_BASE_COLUMN_COUNT + customFieldColumns.length} className="p-0">
             <AdminEventAttendeeExpandedDetails
               row={row}
               customFields={customFields}

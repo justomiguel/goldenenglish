@@ -23,6 +23,7 @@ describe("loadEventAttendeeCustomFieldValues", () => {
         event_form_fields: {
           field_key: "school_name",
           label_i18n: { es: "Colegio", en: "School" },
+          archived_at: null,
         },
       },
     ]);

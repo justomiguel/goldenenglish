@@ -138,6 +138,21 @@ export function formatAttendeeCustomFieldValue(field: EventAttendeeCustomFieldVa
   return field.displayValue.trim() || "—";
 }
 
+export const ADMIN_EVENT_ATTENDEES_BASE_COLUMN_COUNT = 8;
+
+export interface AdminEventAttendeeCustomFieldColumn {
+  fieldKey: string;
+  label: string;
+}
+
+export function resolveAttendeeCustomFieldDisplayValue(
+  customFields: EventAttendeeCustomFieldValue[],
+  fieldKey: string,
+): string {
+  const match = customFields.find((field) => field.fieldKey === fieldKey);
+  return match ? formatAttendeeCustomFieldValue(match) : "—";
+}
+
 export function formatAttendeeDisplayName(row: EventAttendeeRow): string {
   return formatProfileNameSurnameFirst(row.firstName, row.lastName);
 }
