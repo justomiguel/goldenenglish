@@ -42,7 +42,7 @@ export function MiMundoRegisterHeader({
             height={108}
             decoding="async"
             fetchPriority="high"
-            className="h-12 w-auto max-w-[180px] object-contain sm:h-14 sm:max-w-[220px] md:h-16 md:max-w-[260px]"
+            className="h-14 w-auto max-w-[200px] object-contain sm:h-16 sm:max-w-[240px] md:h-[4.75rem] md:max-w-[280px]"
           />
         </Link>
 

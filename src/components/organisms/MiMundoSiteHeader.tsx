@@ -39,6 +39,8 @@ export interface MiMundoSiteHeaderProps {
   eventsLabel?: string;
   labels: {
     inicio: string;
+    institucional: string;
+    colonia: string;
     propuesta: string;
     salas: string;
     galeria: string;
@@ -84,6 +86,8 @@ export function MiMundoSiteHeader({
 
   const links = [
     { href: `${prefix}#top`, label: labels.inicio },
+    { href: `${prefix}#institucional`, label: labels.institucional },
+    { href: `${prefix}#colonia`, label: labels.colonia },
     { href: `${prefix}#propuesta`, label: labels.propuesta },
     { href: `${prefix}#salas`, label: labels.salas },
     ...(showEventsLink && eventsLabel
@@ -113,7 +117,7 @@ export function MiMundoSiteHeader({
             height={108}
             decoding="async"
             fetchPriority="high"
-            className="h-14 w-auto max-w-[180px] object-contain sm:h-16 sm:max-w-[240px] md:h-20 md:max-w-[280px] lg:h-[5rem] lg:max-w-[320px]"
+            className="h-16 w-auto max-w-[210px] object-contain sm:h-[4.25rem] sm:max-w-[260px] md:h-[5.25rem] md:max-w-[300px] lg:h-[5.75rem] lg:max-w-[360px]"
           />
         </Link>
         <nav className="hidden items-center lg:flex" aria-label={dict.nav.sectionsAria}>

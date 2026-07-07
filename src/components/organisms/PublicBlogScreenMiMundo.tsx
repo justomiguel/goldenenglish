@@ -44,6 +44,8 @@ export function PublicBlogScreenMiMundo({
         eventsLabel={eventsLabel}
         labels={{
           inicio: marketingLandingCopy(dict, "mm", "nav.inicio"),
+          institucional: marketingLandingCopy(dict, "mm", "nav.institucional"),
+          colonia: marketingLandingCopy(dict, "mm", "nav.colonia"),
           propuesta: marketingLandingCopy(dict, "mm", "nav.propuesta"),
           salas: marketingLandingCopy(dict, "mm", "nav.salas"),
           galeria: marketingLandingCopy(dict, "mm", "nav.galeria"),

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { mimundoSectionImageSrc } from "@/lib/landing/mimundoLandingImages";
+import {
+  MIMUNDO_DECORATIVE_BUTTERFLY_SRC,
+  mimundoSectionImageSrc,
+} from "@/lib/landing/mimundoLandingImages";
 import {
   MIMUNDO_GALLERY_FILENAMES,
   MIMUNDO_GALLERY_URLS,
@@ -7,6 +10,12 @@ import {
 } from "@/lib/landing/mimundoGalleryImages";
 
 describe("mimundoSectionImageSrc", () => {
+  it("exposes decorative butterfly crop from logo", () => {
+    expect(MIMUNDO_DECORATIVE_BUTTERFLY_SRC).toBe(
+      "/images/mimundo/decorative/butterfly.png",
+    );
+  });
+
   it("constructs paths rooted at /images/mimundo/", () => {
     expect(mimundoSectionImageSrc("modalidades", "burbujas.jpg")).toBe(
       "/images/mimundo/modalidades/burbujas.jpg",

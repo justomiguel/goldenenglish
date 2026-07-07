@@ -30,7 +30,7 @@ describe("resolveSharePreviewLogoAbsoluteUrl", () => {
 
   it("uses Mi Mundo bundled logo for mimundo share preview", async () => {
     const fetchMock = vi.fn(async (url: string) => {
-      if (url.endsWith("/images/mimundo/logo/logo.jpg")) {
+      if (url.endsWith("/images/mimundo/logo/logo.png")) {
         return { ok: true };
       }
       return { ok: false };
@@ -42,7 +42,7 @@ describe("resolveSharePreviewLogoAbsoluteUrl", () => {
       "mimundo",
       brand,
     );
-    expect(out).toBe("https://example.com/images/mimundo/logo/logo.jpg");
+    expect(out).toBe("https://example.com/images/mimundo/logo/logo.png");
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 

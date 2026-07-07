@@ -4,6 +4,7 @@ import { Heart, LogIn, Sparkles, Sprout } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
+import { resolveMiMundoRegisterDict } from "@/lib/register/resolveMiMundoRegisterDict";
 import { RegisterForm } from "@/components/register/RegisterForm";
 import { MiMundoRegisterHeader } from "@/components/molecules/MiMundoRegisterHeader";
 import { MiMundoFontRoot } from "@/components/organisms/MiMundoFontRoot";
@@ -49,10 +50,12 @@ export function RegisterMiMundoSurface({
   const bulletNature = t("register.figureBullets.nature");
   const bulletCare = t("register.figureBullets.care");
 
+  const registerDict = resolveMiMundoRegisterDict(dict.register, dict.landing.mm.register);
+
   const titleWords = figureTitle.split(/\s+/).filter(Boolean);
 
   // Mascot reuses the same logo asset rendered by the hero (`mm-mascot-bob`)
-  // — `brand.logoPath` resolves to `/images/mimundo/logo/logo.jpg` per the
+  // — `brand.logoPath` resolves to `/images/mimundo/logo/logo.png` per the
   // mimundo site_theme seed, so the journey from `/` to `/register` shows
   // the exact same mascot.
   const mascotSrc = brand.logoPath;
@@ -180,7 +183,7 @@ export function RegisterMiMundoSurface({
             <div className="mm-register-form-wrap mm-hero-reveal mm-hero-reveal-4 relative flex justify-center lg:justify-start">
               <RegisterForm
                 locale={locale}
-                dict={dict.register}
+                dict={registerDict}
                 legalAgeMajority={legalAgeMajority}
                 sectionOptions={sectionOptions}
               />

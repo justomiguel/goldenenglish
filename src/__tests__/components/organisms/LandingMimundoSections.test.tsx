@@ -46,7 +46,7 @@ const defaultProps = {
     socialFacebook: "https://facebook.com/mimundo",
     socialInstagram: "https://instagram.com/mimundo",
     logoPath: "/images/mimundo/logo/logo.png",
-    legalName: "Jardín Maternal Mi Mundo S.A.",
+    legalName: "Jardín Materno Infantil Mi Mundo",
   },
   locale: "en",
 };

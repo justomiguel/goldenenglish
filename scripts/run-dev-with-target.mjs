@@ -32,7 +32,7 @@ const TARGETS = {
     file: path.join(ROOT, ".env.local.nago"),
   },
   mimundo: {
-    label: "mimundo — preview / deploy Jardín Maternal Mi Mundo",
+    label: "mimundo — preview / deploy Jardín Materno Infantil Mi Mundo",
     file: path.join(ROOT, ".env.local.mimundo"),
   },
 };

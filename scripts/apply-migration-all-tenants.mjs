@@ -58,7 +58,7 @@ const TENANTS = [
   },
   {
     id: "mimundo",
-    label: "Jardín Maternal Mi Mundo",
+    label: "Jardín Materno Infantil Mi Mundo",
     file: path.join(ROOT, ".env.local.mimundo"),
   },
 ];

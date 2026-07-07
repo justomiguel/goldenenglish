@@ -12309,7 +12309,7 @@ END $$;
 -- ========== 134_site_theme_mimundo_seed.sql ==========
 
 -- Runs after 133 commits so 'mimundo' enum label is usable.
--- Jardín Maternal Mi Mundo — dedicated Supabase project, so is_active = TRUE.
+-- Jardín Materno Infantil Mi Mundo — dedicated Supabase project, so is_active = TRUE.
 -- site_themes_only_one_active: deactivate others before setting mimundo active.
 
 UPDATE public.site_themes
@@ -12329,20 +12329,20 @@ INSERT INTO public.site_themes (
 )
 VALUES (
   'mimundo',
-  'Jardín Maternal Mi Mundo',
+  'Jardín Materno Infantil Mi Mundo',
   TRUE,
   'mimundo'::public.site_theme_kind,
   jsonb_build_object(
     -- Identity
-    'app.name',          'Jardín Maternal Mi Mundo',
-    'app.legal.name',    'Jardín Maternal Mi Mundo',
-    'app.tagline',       'Un mundo donde la infancia se descubre jugando',
-    'app.tagline.en',    'A world where childhood discovers itself through play',
-    'app.tagline.pt',    'Um mundo onde a infância se descobre brincando',
-    'app.legal.registry','Jardín Maternal Mi Mundo',
-    'app.logo.path',     '/images/mimundo/logo/logo.jpg',
-    'app.logo.alt',      'Jardín Maternal Mi Mundo',
-    'app.favicon.path',  '/images/mimundo/logo/logo.jpg',
+    'app.name',          'Jardín Materno Infantil Mi Mundo',
+    'app.legal.name',    'Jardín Materno Infantil Mi Mundo',
+    'app.tagline',       'Bienvenidos a un lugar donde la imaginación se vuelve realidad..',
+    'app.tagline.en',    'Welcome to a place where imagination becomes reality..',
+    'app.tagline.pt',    'Bem-vindos a um lugar onde a imaginação se torna realidade..',
+    'app.legal.registry','Jardín Materno Infantil Mi Mundo',
+    'app.logo.path',     '/images/mimundo/logo/logo.png',
+    'app.logo.alt',      'Jardín Materno Infantil Mi Mundo',
+    'app.favicon.path',  '/images/mimundo/logo/logo.png',
     -- Brand palette
     -- Primary: verde oscuro del logo — pasa AA como bg para texto blanco
     'color.primary',                '#557945',
@@ -12363,10 +12363,10 @@ VALUES (
     'color.muted',                  '#8D6E63',
     'color.muted.foreground',       '#5D4037',
     -- Contact info (placeholder until real data is provided)
-    'contact.phone',    '+54 11 4555-1234',
-    'contact.whatsapp', 'https://wa.me/541145551234',
-    'contact.email',    'hola@mimundo.com.ar',
-    'contact.address',  'Av. del Libertador 1234, Belgrano · CABA',
+    'contact.phone',    '+54 9 362 470-8145',
+    'contact.whatsapp', 'https://wa.me/5493624708145',
+    'contact.email',    'mimundojardin@gmail.com',
+    'contact.address',  'French 535, Resistencia, Chaco',
     -- Social
     'social.instagram', 'https://www.instagram.com/mimundo.jardin/',
     'social.facebook',  'https://www.facebook.com/mimundojardin',
@@ -12401,6 +12401,48 @@ SET properties = properties
        )
 WHERE slug = 'mimundo'
   AND properties ->> 'app.logo.path' = '/images/mimundo/logo/logo.svg';
+
+-- ========== 160_mimundo_tagline_imaginacion.sql ==========
+
+-- Mi Mundo — hero tagline / app.tagline refresh (Resistencia tenant copy).
+
+UPDATE public.site_themes
+SET properties = properties
+  || jsonb_build_object(
+    'app.tagline',    'Bienvenidos a un lugar donde la imaginación se vuelve realidad..',
+    'app.tagline.en', 'Welcome to a place where imagination becomes reality..',
+    'app.tagline.pt', 'Bem-vindos a um lugar onde a imaginação se torna realidade..'
+  )
+WHERE slug = 'mimundo';
+
+-- ========== 161_mimundo_resistencia_brand_identity.sql ==========
+
+-- Mi Mundo — Resistencia location + materno infantil legal identity (brand layer).
+
+UPDATE public.site_themes
+SET
+  name = 'Jardín Materno Infantil Mi Mundo',
+  properties = properties
+    || jsonb_build_object(
+      'app.name',           'Jardín Materno Infantil Mi Mundo',
+      'app.legal.name',     'Jardín Materno Infantil Mi Mundo',
+      'app.legal.registry', 'Jardín Materno Infantil Mi Mundo',
+      'app.logo.alt',       'Jardín Materno Infantil Mi Mundo',
+      'contact.address',    'French 535, Resistencia, Chaco'
+    )
+WHERE slug = 'mimundo';
+
+-- ========== 165_mimundo_logo_png_transparent.sql ==========
+
+-- Mi Mundo — transparent PNG logo (replaces legacy logo.jpg path).
+
+UPDATE public.site_themes
+SET properties = properties
+  || jsonb_build_object(
+    'app.logo.path',    '/images/mimundo/logo/logo.png',
+    'app.favicon.path', '/images/mimundo/logo/logo.png'
+  )
+WHERE slug = 'mimundo';
 
 -- ========== 136_admin_users_directory_exclude_site_contact.sql ==========
 

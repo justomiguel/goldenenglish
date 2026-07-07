@@ -1,15 +1,15 @@
 import type { LandingSectionSlug } from "@/types/theming";
 
 /**
- * Editable copy + media slots for the `mimundo` (Jardín Maternal Mi Mundo) landing shell.
+ * Editable copy + media slots for the `mimundo` (Jardín Materno Infantil Mi Mundo) landing shell.
  * Dict paths live under `dict.landing.mm.*` (see dictionaries).
  *
  * Sections:
- * - inicio:         Hero con mariposas flotantes, header, CTA "Reservar mi cupo"
- * - historia:       Propuesta pedagógica e historia del jardín
+ * - inicio:         Hero, header, nav (Institucional, Colonia…)
+ * - historia:       ¿Quiénes somos? + propuesta pedagógica
  * - oferta:         5 pilares educativos
- * - modalidades:    6 salas (Burbujas, Hormiguitas, Mariposas, Sol, Luna, Estrellas)
- * - niveles:        Día típico / jornada
+ * - modalidades:    9 salas (edades + Atelier, Música, Inglés)
+ * - niveles:        Colonia de vacaciones + día típico / jornada
  * - certificaciones: Equipo + CTA final + footer
  */
 export const MIMUNDO_LANDING_COPY_KEYS_BY_SECTION: Readonly<
@@ -21,6 +21,8 @@ export const MIMUNDO_LANDING_COPY_KEYS_BY_SECTION: Readonly<
     "mm.chrome.facebookAria",
     "mm.chrome.instagramAria",
     "mm.nav.inicio",
+    "mm.nav.institucional",
+    "mm.nav.colonia",
     "mm.nav.propuesta",
     "mm.nav.salas",
     "mm.nav.galeria",
@@ -32,6 +34,13 @@ export const MIMUNDO_LANDING_COPY_KEYS_BY_SECTION: Readonly<
     "mm.hero.ctaLogin",
   ],
   historia: [
+    "mm.institucional.sectionLabel",
+    "mm.institucional.title",
+    "mm.institucional.bodyP1",
+    "mm.institucional.bodyP2",
+    "mm.institucional.highlight1",
+    "mm.institucional.highlight2",
+    "mm.institucional.highlight3",
     "mm.propuesta.sectionLabel",
     "mm.propuesta.title",
     "mm.propuesta.bodyP1",
@@ -75,8 +84,25 @@ export const MIMUNDO_LANDING_COPY_KEYS_BY_SECTION: Readonly<
     "mm.salas.sala5.nombre",
     "mm.salas.sala5.edades",
     "mm.salas.sala5.descripcion",
+    "mm.salas.sala6.nombre",
+    "mm.salas.sala6.edades",
+    "mm.salas.sala6.descripcion",
+    "mm.salas.sala7.nombre",
+    "mm.salas.sala7.edades",
+    "mm.salas.sala7.descripcion",
+    "mm.salas.sala8.nombre",
+    "mm.salas.sala8.edades",
+    "mm.salas.sala8.descripcion",
   ],
   niveles: [
+    "mm.colonia.sectionLabel",
+    "mm.colonia.title",
+    "mm.colonia.bodyP1",
+    "mm.colonia.bodyP2",
+    "mm.colonia.bullet1",
+    "mm.colonia.bullet2",
+    "mm.colonia.note",
+    "mm.colonia.cta",
     "mm.jornada.sectionTitle",
     "mm.jornada.intro",
     "mm.jornada.paso1.hora",
@@ -112,10 +138,10 @@ export const MIMUNDO_MEDIA_SLOTS_BY_SECTION: Readonly<
   Record<LandingSectionSlug, number>
 > = {
   inicio: 2,
-  historia: 1,
+  historia: 2,
   oferta: 5,
-  modalidades: 6,
-  niveles: 1,
+  modalidades: 9,
+  niveles: 2,
   certificaciones: 9,
 };
 

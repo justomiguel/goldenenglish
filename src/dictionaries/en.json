@@ -78,7 +78,7 @@
         "shareContext": "Capoeira: tradition, music, movement, and community."
       },
       "mimundo": {
-        "shareContext": "Reggio-inspired nursery in Belgrano: love, play, and care from 45 days to 5 years old."
+        "shareContext": "Reggio-inspired early childhood center in Resistencia, Chaco: love, play, and care from 45 days to 5 years old."
       }
     }
   },
@@ -782,6 +782,8 @@
       },
       "nav": {
         "inicio": "Home",
+        "institucional": "About us",
+        "colonia": "Summer camp",
         "propuesta": "Approach",
         "salas": "Classrooms",
         "galeria": "Gallery",
@@ -800,15 +802,37 @@
         },
         "ctaCallout": "Just a minute!",
         "loginCta": "I already have an account",
-        "backHome": "Back to home"
+        "backHome": "Back to home",
+        "dni": "ID / passport",
+        "documentIdFormatHint": "Use letters and numbers as on the document (e.g. passport).",
+        "tutorDni": "Guardian document (ID / passport)"
       },
       "hero": {
-        "kicker": "Mi Mundo Nursery · Belgrano, Buenos Aires",
-        "title": "A world where childhood discovers itself through play",
-        "subtitle": "We nurture the growth of every child with love, play, and a Reggio-inspired pedagogical approach, from 45 days to 5 years old.",
+        "kicker": "Mi Mundo Early Childhood Center, Resistencia, Chaco",
+        "title": "Welcome to a place where imagination becomes reality..",
+        "subtitle": "Mi Mundo grows from a formative and educational approach where the early years of life are of paramount importance. We support growth from 45 days of age until 5 years old.",
         "ctaReservar": "Reserve my spot",
         "ctaCallout": "Sign up!",
         "ctaLogin": "Sign in"
+      },
+      "institucional": {
+        "sectionLabel": "Who we are",
+        "title": "Mi Mundo — a community where children grow",
+        "bodyP1": "We are an early childhood center in Resistencia, Chaco, supporting families through the first years of life — from 45 days to 5 years old — with a thoughtful, high-quality educational approach.",
+        "bodyP2": "Our interdisciplinary team works with care, listening, and pedagogical rigor. We believe childhood is the protagonist, relationships matter, and beautiful spaces invite children to explore, play, and learn every day.",
+        "highlight1": "Reggio Emilia– and Pikler-inspired practice",
+        "highlight2": "Green courtyard, garden, and living nature",
+        "highlight3": "Families as partners in learning"
+      },
+      "colonia": {
+        "sectionLabel": "Summer camp",
+        "title": "A summer to play, explore, and rest",
+        "bodyP1": "During school holidays we run our summer camp: days filled with free play, art, music, movement, and outdoor experiences in our courtyards and nature corners.",
+        "bodyP2": "For children aged 3 to 12 (places vary by age). Full or half-day options and healthy snacks. A safe, joyful space while families plan their summer.",
+        "bullet1": "Outdoor time, creative workshops, and group play",
+        "bullet2": "Seasonal enrollment — dates and fees published each year",
+        "note": "Enrollment opens each season. Contact us or reserve a spot to receive dates, fees, and updates.",
+        "cta": "Ask about a spot"
       },
       "propuesta": {
         "sectionLabel": "Our approach",
@@ -825,57 +849,72 @@
         "sectionTitle": "Five pillars of our approach",
         "arte": {
           "title": "Art & expression",
-          "body": "Weekly art, drama, and painting workshops with natural materials. Every piece reflects each child's unique perspective."
+          "body": "A dedicated space for visual arts, painting, and crafts."
         },
         "naturaleza": {
-          "title": "Living nature",
-          "body": "Vegetable garden, compost, and outdoor exploration corners. Soil, water, and plants are the protagonists."
+          "title": "Outdoor play",
+          "body": "We have a spacious courtyard filled with fruit trees and flowering plants. Plus play areas, a vegetable garden, and exploration corners in living nature."
         },
         "musica": {
           "title": "Music & rhythm",
-          "body": "From lullabies to group percussion. Sound as language and bond."
+          "body": "We work with sound as language and connection with specialists in the field, offering showcases for families."
         },
         "juego": {
-          "title": "Free play",
-          "body": "Prepared spaces where the child chooses, decides, and builds. The adult observes and supports without interfering."
+          "title": "Free play in the SUM",
+          "body": "Prepared spaces where the child chooses, decides, and builds."
         },
         "lectura": {
-          "title": "Early literacy",
-          "body": "Classroom library, daily story time, and spontaneous writing projects from age 3."
+          "title": "Interdisciplinary team",
+          "body": "Its purpose is to enrich teaching-learning processes and provide comprehensive support for learners."
         }
       },
       "salas": {
         "kicker": "Our classrooms",
-        "sectionTitle": "We grow by age",
+        "sectionTitle": "Stories of growth.",
         "bebes": {
-          "nombre": "Bubbles Room",
+          "nombre": "Baby room",
           "edades": "45 days – 12 months",
-          "descripcion": "A warm, safe space for first experiences of the world. Caregivers specialized in respectful parenting and early stimulation."
+          "descripcion": "A warm, safe haven for first discoveries. We nurture the awakening of their senses with love, respectful care, and gentle stimulation that embraces their first steps in the world."
         },
         "sala1": {
-          "nombre": "Little Ants Room",
+          "nombre": "Room for ages 1 to 2",
           "edades": "1 to 2 years",
-          "descripcion": "Sensory exploration, first steps and words. Natural materials and environments prepared for autonomous movement."
+          "descripcion": "Where curiosity becomes adventure. We foster autonomy and symbolic play in an environment designed for each child to explore, create, and build their own experiences with joy."
         },
         "sala2": {
-          "nombre": "Butterflies Room",
+          "nombre": "Room for ages 2 to 3",
           "edades": "2 to 3 years",
-          "descripcion": "Language takes flight and creativity explodes. Art projects, dramatic play, and first group dynamics."
+          "descripcion": "A lively space for learning and imagination. Here, play is the engine that strengthens critical thinking and the ability to live together, co-creating projects that make sense of the world around them."
         },
         "sala3": {
-          "nombre": "Sun Room",
+          "nombre": "Room for ages 3 to 4",
           "edades": "3 to 4 years",
-          "descripcion": "Autonomy, friendship, and symbolic thinking. Early literacy, gardening, and science projects."
+          "descripcion": "The stage where autonomy flourishes and thinking expands. Through symbolic play and inquiry projects, we support children in discovering their talents, strengthening emotional security and their ability to build meaningful bonds in an environment designed to awaken their wonder."
         },
         "sala4": {
-          "nombre": "Moon Room",
+          "nombre": "Room for ages 4 to 5",
           "edades": "4 to 5 years",
-          "descripcion": "Logical thinking and written expression. Interdisciplinary projects, theater, and learning outings."
+          "descripcion": "A space for intellectual adventure and creative expression. We integrate knowledge through active methodologies and experience labs, where each child, as the protagonist of their learning, develops critical, collaborative, and artistic tools that prepare them with confidence and curiosity for new challenges."
         },
         "sala5": {
           "nombre": "Stars Room",
           "edades": "5 years",
           "descripcion": "The transition year. We prepare each child for primary school with confidence, curiosity, and joy."
+        },
+        "sala6": {
+          "nombre": "Art Room (Atelier)",
+          "edades": "All ages",
+          "descripcion": "A space for expressive freedom and sensory experimentation. In our Atelier, children become the 'hundred languages' (Reggio Emilia), exploring open-ended, provocative materials to co-create meaning and make their thinking visible through many forms of art."
+        },
+        "sala7": {
+          "nombre": "Music Room",
+          "edades": "All ages",
+          "descripcion": "The rhythmic pulse of our community. Through movement, song, and exploring instruments, we foster attentive listening, collaboration, and emotional expression, cultivating a shared aesthetic sensitivity across all ages."
+        },
+        "sala8": {
+          "nombre": "English Room",
+          "edades": "All ages",
+          "descripcion": "Our window to a global community. We integrate English playfully and naturally into daily routines, using pedagogical narratives, music, and role play, preparing children with confidence to communicate and live together in a multicultural world."
         }
       },
       "jornada": {
@@ -924,13 +963,13 @@
       },
       "contact": {
         "title": "Come meet us",
-        "direccion": "Av. del Libertador 1234, Belgrano · Buenos Aires",
-        "telefono": "+54 11 4555-1234",
-        "email": "hola@mimundo.com.ar",
+        "direccion": "French 535, Resistencia, Chaco",
+        "telefono": "+54 9 362 470-8145",
+        "email": "mimundojardin@gmail.com",
         "mapaAria": "View on Google Maps"
       },
       "footer": {
-        "rightsLine": "© 2025 Mi Mundo Nursery. All rights reserved.",
+        "rightsLine": "All rights reserved.",
         "siguenos": "Follow us"
       },
       "footerCta": "Reserve my spot"

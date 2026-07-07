@@ -1,5 +1,5 @@
 -- Runs after 133 commits so 'mimundo' enum label is usable.
--- Jardín Maternal Mi Mundo — dedicated Supabase project, so is_active = TRUE.
+-- Jardín Materno Infantil Mi Mundo — dedicated Supabase project, so is_active = TRUE.
 -- site_themes_only_one_active: deactivate others before setting mimundo active.
 
 UPDATE public.site_themes
@@ -19,19 +19,19 @@ INSERT INTO public.site_themes (
 )
 VALUES (
   'mimundo',
-  'Jardín Maternal Mi Mundo',
+  'Jardín Materno Infantil Mi Mundo',
   TRUE,
   'mimundo'::public.site_theme_kind,
   jsonb_build_object(
     -- Identity
-    'app.name',          'Jardín Maternal Mi Mundo',
-    'app.legal.name',    'Jardín Maternal Mi Mundo',
-    'app.tagline',       'Un mundo donde la infancia se descubre jugando',
-    'app.tagline.en',    'A world where childhood discovers itself through play',
-    'app.tagline.pt',    'Um mundo onde a infância se descobre brincando',
-    'app.legal.registry','Jardín Maternal Mi Mundo',
+    'app.name',          'Jardín Materno Infantil Mi Mundo',
+    'app.legal.name',    'Jardín Materno Infantil Mi Mundo',
+    'app.tagline',       'Bienvenidos a un lugar donde la imaginación se vuelve realidad..',
+    'app.tagline.en',    'Welcome to a place where imagination becomes reality..',
+    'app.tagline.pt',    'Bem-vindos a um lugar onde a imaginação se torna realidade..',
+    'app.legal.registry','Jardín Materno Infantil Mi Mundo',
     'app.logo.path',     '/images/mimundo/logo/logo.jpg',
-    'app.logo.alt',      'Jardín Maternal Mi Mundo',
+    'app.logo.alt',      'Jardín Materno Infantil Mi Mundo',
     'app.favicon.path',  '/images/mimundo/logo/logo.jpg',
     -- Brand palette
     -- Primary: verde oscuro del logo — pasa AA como bg para texto blanco
@@ -56,7 +56,7 @@ VALUES (
     'contact.phone',    '+54 11 4555-1234',
     'contact.whatsapp', 'https://wa.me/541145551234',
     'contact.email',    'hola@mimundo.com.ar',
-    'contact.address',  'Av. del Libertador 1234, Belgrano · CABA',
+    'contact.address',  'Resistencia, Chaco',
     -- Social
     'social.instagram', 'https://www.instagram.com/mimundo.jardin/',
     'social.facebook',  'https://www.facebook.com/mimundojardin',

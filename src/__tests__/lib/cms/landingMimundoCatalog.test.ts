@@ -30,9 +30,9 @@ describe("MIMUNDO_LANDING_COPY_KEYS_BY_SECTION", () => {
     expect(inicio).toContain("mm.hero.title");
   });
 
-  it("modalidades section lists all 6 sala keys", () => {
+  it("modalidades section lists all 9 sala keys", () => {
     const modal = MIMUNDO_LANDING_COPY_KEYS_BY_SECTION.modalidades;
-    const rooms = ["bebes", "sala1", "sala2", "sala3", "sala4", "sala5"];
+    const rooms = ["bebes", "sala1", "sala2", "sala3", "sala4", "sala5", "sala6", "sala7", "sala8"];
     for (const room of rooms) {
       expect(modal).toContain(`mm.salas.${room}.nombre`);
       expect(modal).toContain(`mm.salas.${room}.edades`);
@@ -61,8 +61,8 @@ describe("MIMUNDO_MEDIA_SLOTS_BY_SECTION", () => {
     }
   });
 
-  it("modalidades has 6 media slots (one per sala)", () => {
-    expect(MIMUNDO_MEDIA_SLOTS_BY_SECTION.modalidades).toBe(6);
+  it("modalidades has 9 media slots (one per sala)", () => {
+    expect(MIMUNDO_MEDIA_SLOTS_BY_SECTION.modalidades).toBe(9);
   });
 });
 

@@ -78,7 +78,7 @@
         "shareContext": "Capoeira: tradição, música, movimento e comunidade."
       },
       "mimundo": {
-        "shareContext": "Jardim maternal inspirado em Reggio em Belgrano: amor, brincadeira e acompanhamento dos 45 dias aos 5 anos."
+        "shareContext": "Jardim materno infantil inspirado em Reggio em Resistencia, Chaco: amor, brincadeira e acompanhamento dos 45 dias aos 5 anos."
       }
     }
   },
@@ -782,6 +782,8 @@
       },
       "nav": {
         "inicio": "Início",
+        "institucional": "Institucional",
+        "colonia": "Colônia de férias",
         "propuesta": "Proposta",
         "salas": "Salas",
         "galeria": "Galeria",
@@ -800,15 +802,37 @@
         },
         "ctaCallout": "É só um minuto!",
         "loginCta": "Já tenho conta",
-        "backHome": "Voltar ao início"
+        "backHome": "Voltar ao início",
+        "dni": "Documento / passaporte",
+        "documentIdFormatHint": "Use letras e números como no documento (p. ex. passaporte).",
+        "tutorDni": "Documento do responsável (documento / passaporte)"
       },
       "hero": {
-        "kicker": "Jardim Maternal Mi Mundo · Belgrano, Buenos Aires",
-        "title": "Um mundo onde a infância se descobre brincando",
-        "subtitle": "Acompanhamos o crescimento de cada criança com amor, brincadeira e proposta pedagógica inspirada em Reggio Emilia, dos 45 dias aos 5 anos.",
+        "kicker": "Jardim Materno Infantil Mi Mundo, Resistencia, Chaco",
+        "title": "Bem-vindos a um lugar onde a imaginação se torna realidade..",
+        "subtitle": "O Jardim Mi Mundo surge de uma proposta formativa e educativa onde a importância primordial recai nos primeiros anos de vida. Acompanhamos o crescimento dos 45 dias de nascimento até os 5 anos.",
         "ctaReservar": "Reservar minha vaga",
         "ctaCallout": "Inscreva-se!",
         "ctaLogin": "Entrar"
+      },
+      "institucional": {
+        "sectionLabel": "Quem somos",
+        "title": "Mi Mundo — um espaço para crescer em comunidade",
+        "bodyP1": "Somos um jardim materno infantil em Resistencia, Chaco, dedicado a acompanhar as famílias nos primeiros anos de vida — dos 45 dias aos 5 anos — com uma proposta formativa e educativa de qualidade.",
+        "bodyP2": "Nossa equipe interdisciplinar trabalha com amor, escuta e rigor pedagógico. Acreditamos na infância como protagonista, em vínculos cuidados e em espaços bonitos que convidam a explorar, brincar e aprender todos os dias.",
+        "highlight1": "Proposta inspirada em Reggio Emilia e Pikler",
+        "highlight2": "Pátio verde, horta e natureza viva",
+        "highlight3": "Famílias como parceiras do processo educativo"
+      },
+      "colonia": {
+        "sectionLabel": "Colônia de férias",
+        "title": "Verão para brincar, explorar e descansar",
+        "bodyP1": "Durante as férias escolares abrimos nossa colônia de verão: dias cheios de brincadeira livre, arte, música, movimento e experiências ao ar livre em nossos pátios e cantinhos de natureza.",
+        "bodyP2": "Proposta para crianças de 3 a 12 anos (consulte vagas por idade). Jornada integral ou meio período e lanches saudáveis. Um espaço seguro e alegre enquanto as famílias organizam o verão.",
+        "bullet1": "Atividades ao ar livre, oficinas criativas e brincadeira em grupo",
+        "bullet2": "Inscrições por temporada — datas e valores publicados a cada ano",
+        "note": "As inscrições abrem a cada temporada. Escreva-nos ou reserve uma vaga para receber datas, valores e novidades.",
+        "cta": "Consultar vaga"
       },
       "propuesta": {
         "sectionLabel": "Nossa proposta",
@@ -825,57 +849,72 @@
         "sectionTitle": "Cinco pilares da nossa proposta",
         "arte": {
           "title": "Arte e expressão",
-          "body": "Ateliês semanais de artes plásticas, teatro e pintura com materiais naturais. Cada obra reflete o olhar único de cada criança."
+          "body": "Espaço preparado exclusivamente para desenvolver artes plásticas, pintura e manualidades."
         },
         "naturaleza": {
-          "title": "Natureza viva",
-          "body": "Horta, composteira e cantinhos de exploração ao ar livre. Terra, água e plantas são protagonistas."
+          "title": "Ar livre",
+          "body": "Contamos com um pátio amplo, repleto de árvores frutíferas e plantas com flores. Além disso, brinquedos, horta e cantinhos de exploração na natureza viva."
         },
         "musica": {
           "title": "Música e ritmo",
-          "body": "De canções de ninar à percussão coletiva. O som como linguagem e vínculo."
+          "body": "Trabalhamos o som como linguagem e vínculo com profissionais da área, realizando apresentações para as famílias."
         },
         "juego": {
-          "title": "Brincar livre",
-          "body": "Espaços preparados onde a criança escolhe, decide e constrói. O adulto observa e acompanha sem interromper."
+          "title": "Brincar livre no SUM",
+          "body": "Espaços preparados onde a criança escolhe, decide e constrói."
         },
         "lectura": {
-          "title": "Iniciação leitora",
-          "body": "Biblioteca de sala, hora do conto diária e projetos de escrita espontânea a partir dos 3 anos."
+          "title": "Equipe interdisciplinar",
+          "body": "Seu propósito é enriquecer os processos de ensino-aprendizagem e oferecer apoio integral aos educandos."
         }
       },
       "salas": {
         "kicker": "Nossas salas",
-        "sectionTitle": "Crescemos por idade",
+        "sectionTitle": "Histórias de crescimento.",
         "bebes": {
-          "nombre": "Sala Bolhas",
+          "nombre": "Sala de bebês",
           "edades": "45 dias – 12 meses",
-          "descripcion": "Um espaço aconchegante e seguro para as primeiras experiências do mundo. Cuidadoras especializadas em cuidado respeitoso e estimulação precoce."
+          "descripcion": "Um refúgio acolhedor e seguro para as primeiras descobertas. Acompanhamos o despertar dos sentidos com amor, cuidado respeitoso e estímulos suaves que abraçam seus primeiros passos no mundo."
         },
         "sala1": {
-          "nombre": "Sala Formiguinhas",
+          "nombre": "Sala de 1 a 2 anos",
           "edades": "1 a 2 anos",
-          "descripcion": "Exploração sensorial, primeiros passos e palavras. Materiais naturais e ambientes preparados para o movimento autônomo."
+          "descripcion": "O lugar onde a curiosidade se transforma em aventura. Fomentamos a autonomia e o brincar simbólico em um ambiente pensado para que cada criança explore, crie e construa suas próprias vivências com alegria."
         },
         "sala2": {
-          "nombre": "Sala Borboletas",
+          "nombre": "Sala de 2 a 3 anos",
           "edades": "2 a 3 anos",
-          "descripcion": "A linguagem decola e a criatividade explode. Projetos artísticos, jogo dramático e primeiras convivências em grupo."
+          "descripcion": "Um espaço vivo de aprendizagem e imaginação. Aqui, o brincar é o motor que potencializa o pensamento crítico e a capacidade de conviver, criando juntos projetos que dão sentido ao mundo ao redor."
         },
         "sala3": {
-          "nombre": "Sala Sol",
+          "nombre": "Sala de 3 a 4 anos",
           "edades": "3 a 4 anos",
-          "descripcion": "Autonomia, amizade e pensamento simbólico. Iniciação à leitura, horta e projetos de ciências."
+          "descripcion": "O cenário onde a autonomia floresce e o pensamento se expande. Por meio do brincar simbólico e projetos de investigação, acompanhamos as crianças na descoberta de seus talentos, fortalecendo sua segurança emocional e sua capacidade de criar vínculos significativos em um ambiente pensado para despertar seu encantamento."
         },
         "sala4": {
-          "nombre": "Sala Lua",
+          "nombre": "Sala de 4 a 5 anos",
           "edades": "4 a 5 anos",
-          "descripcion": "Pensamento lógico e expressão escrita. Projetos interdisciplinares, teatro e saídas pedagógicas."
+          "descripcion": "Um espaço para a aventura intelectual e a expressão criativa. Integramos saberes por meio de metodologias ativas e laboratórios de experiências, onde cada criança, como protagonista de sua aprendizagem, desenvolve ferramentas críticas, colaborativas e artísticas que a preparam com confiança e curiosidade para seus novos desafios."
         },
         "sala5": {
           "nombre": "Sala Estrelas",
           "edades": "5 anos",
           "descripcion": "O ano da transição. Preparamos cada criança para a escola primária com confiança, curiosidade e alegria."
+        },
+        "sala6": {
+          "nombre": "Sala de Arte (Atelier)",
+          "edades": "Todas as idades",
+          "descripcion": "Um espaço para a liberdade expressiva e a experimentação sensorial. No nosso Atelier, as crianças tornam-se 'cem linguagens' (Reggio Emilia), explorando materiais abertos e provocadores para co-criar significados e tornar visível o seu pensamento através de múltiplas formas de arte."
+        },
+        "sala7": {
+          "nombre": "Sala de Música",
+          "edades": "Todas as idades",
+          "descripcion": "O pulso rítmico da nossa comunidade. Através do movimento, do canto e da exploração de instrumentos, fomentamos a escuta atenta, a colaboração e a expressão emocional, cultivando uma sensibilidade estética partilhada por todas as idades."
+        },
+        "sala8": {
+          "nombre": "Sala de Inglês",
+          "edades": "Todas as idades",
+          "descripcion": "A nossa janela para uma comunidade global. Integramos o inglês de forma lúdica e natural na rotina diária, utilizando narrativas pedagógicas, música e jogo de papéis, preparando as crianças com confiança para comunicar e conviver num mundo multicultural."
         }
       },
       "jornada": {
@@ -924,13 +963,13 @@
       },
       "contact": {
         "title": "Venha nos conhecer",
-        "direccion": "Av. del Libertador 1234, Belgrano · Buenos Aires",
-        "telefono": "+54 11 4555-1234",
-        "email": "hola@mimundo.com.ar",
+        "direccion": "French 535, Resistencia, Chaco",
+        "telefono": "+54 9 362 470-8145",
+        "email": "mimundojardin@gmail.com",
         "mapaAria": "Ver no Google Maps"
       },
       "footer": {
-        "rightsLine": "© 2025 Jardim Maternal Mi Mundo. Todos os direitos reservados.",
+        "rightsLine": "Todos os direitos reservados.",
         "siguenos": "Siga-nos"
       },
       "footerCta": "Reservar minha vaga"

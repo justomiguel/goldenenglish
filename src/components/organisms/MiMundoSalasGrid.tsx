@@ -22,6 +22,9 @@ const SALAS = [
   { key: "sala3", file: "sol.jpg",        accent: "var(--mm-yellow)", emoji: "☀️", washi: "var(--mm-violet)",     tilt: "5deg" },
   { key: "sala4", file: "luna.jpg",       accent: "var(--mm-violet)", emoji: "🌙", washi: "var(--mm-green)",      tilt: "-4deg" },
   { key: "sala5", file: "estrellas.jpg",  accent: "var(--mm-red)",   emoji: "⭐", washi: "var(--mm-yellow-deep, #f5b800)", tilt: "6deg" },
+  { key: "sala6", file: "atelier.jpg",    accent: "var(--mm-pink)",  emoji: "🎨", washi: "var(--mm-green)",              tilt: "-5deg" },
+  { key: "sala7", file: "sala-musica.jpg", accent: "var(--mm-yellow)", emoji: "🎵", washi: "var(--mm-pink)",            tilt: "3deg" },
+  { key: "sala8", file: "sala-ingles.jpg", accent: "var(--mm-blue)",  emoji: "🌍", washi: "var(--mm-violet)",            tilt: "-2deg" },
 ] as const;
 
 export function MiMundoSalasGrid({ dict }: MiMundoSalasGridProps) {

@@ -16,6 +16,8 @@ import { MiMundoLandingContactPanel } from "@/components/organisms/MiMundoLandin
 import { MiMundoFloatingDoodles } from "@/components/molecules/MiMundoFloatingDoodles";
 import { MiMundoCursorTrail } from "@/components/molecules/MiMundoCursorTrail";
 import { MiMundoPropuestaSection } from "@/components/organisms/MiMundoPropuestaSection";
+import { MiMundoInstitucionalSection } from "@/components/organisms/MiMundoInstitucionalSection";
+import { MiMundoColoniaSection } from "@/components/organisms/MiMundoColoniaSection";
 
 interface LandingMimundoSectionsProps {
   dict: Dictionary;
@@ -78,6 +80,9 @@ export function LandingMimundoSections({
         </svg>
       </div>
 
+      <MiMundoInstitucionalSection dict={dict} mediaMap={mediaMap} />
+      <MiMundoColoniaSection dict={dict} locale={locale} mediaMap={mediaMap} />
+
       <MiMundoPropuestaSection dict={dict} mediaMap={mediaMap} />
 
       <MiMundoSalasGrid dict={dict} />
@@ -138,9 +143,9 @@ export function LandingMimundoSections({
                 <Image
                   src={brand.logoPath}
                   alt={brand.logoAlt}
-                  width={180}
+                  width={220}
                   height={130}
-                  className="h-16 w-auto max-w-[180px] object-contain"
+                  className="h-20 w-auto max-w-[220px] object-contain"
                 />
               </div>
             )}
@@ -149,7 +154,7 @@ export function LandingMimundoSections({
           <div>
             <p className="font-bold uppercase tracking-wide text-neutral-100">{t("nav.inicio")}</p>
             <ul className="mt-4 space-y-2 text-sm">
-              {(["inicio", "propuesta", "salas", "galeria", "contacto"] as const).map((key) => (
+              {(["inicio", "institucional", "colonia", "propuesta", "salas", "galeria", "contacto"] as const).map((key) => (
                 <li key={key}>
                   <Link
                     href={`/${locale}#${key === "inicio" ? "top" : key}`}

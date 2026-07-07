@@ -42,6 +42,8 @@ export function LandingMainSectionsMimundo({
           eventsLabel={dict.events.public.title}
           labels={{
             inicio: t("nav.inicio"),
+            institucional: t("nav.institucional"),
+            colonia: t("nav.colonia"),
             propuesta: t("nav.propuesta"),
             salas: t("nav.salas"),
             galeria: t("nav.galeria"),

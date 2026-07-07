@@ -45,7 +45,7 @@ Opciones del script (`node scripts/a11y-lighthouse-tenants.mjs`):
 | `golden` / `golden-local` | `/es` | Golden English clásico |
 | `nago` | `/es` | Nago — landing full-bleed |
 | `espaciozenit` | `/es` | Espacio Zenit — landing full-bleed |
-| `mimundo` | `/es` | Jardín Maternal Mi Mundo — landing full-bleed (PR 2026-05). **Pendiente** URL de producción; usar `http://localhost:3000/es` tras `npm run dev:mimundo` para verificación local. Añadir URL absoluta de preview Vercel cuando se provisione el proyecto. |
+| `mimundo` | `/es` | Jardín Materno Infantil Mi Mundo — landing full-bleed (PR 2026-05). **Pendiente** URL de producción; usar `http://localhost:3000/es` tras `npm run dev:mimundo` para verificación local. Añadir URL absoluta de preview Vercel cuando se provisione el proyecto. |
 
 Para verificar `mimundo` localmente:
 ```bash
