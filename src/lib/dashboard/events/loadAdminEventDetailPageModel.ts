@@ -86,7 +86,7 @@ export async function loadAdminEventDetailPageModel(input: {
   });
   const { data: fields } = await admin
     .from("event_form_fields")
-    .select("id, field_key, field_type, label_i18n, options_i18n, required, position")
+    .select("id, field_key, field_type, label_i18n, options_i18n, required, position, allowed_mime_types")
     .eq("event_id", input.eventId)
     .is("archived_at", null)
     .order("position", { ascending: true });
@@ -110,6 +110,9 @@ export async function loadAdminEventDetailPageModel(input: {
     optionsI18n: (field.options_i18n as Record<string, string[]>) ?? {},
     required: Boolean(field.required),
     position: Number(field.position),
+    allowedMimeTypes: Array.isArray(field.allowed_mime_types)
+      ? (field.allowed_mime_types as string[])
+      : [],
   }));
   const nextFieldPosition =
     mappedFields.reduce((max, field) => Math.max(max, field.position), -1) + 1;

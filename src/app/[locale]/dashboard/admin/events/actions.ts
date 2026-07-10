@@ -10,6 +10,7 @@ export {
 
 export {
   addEventFormFieldAction,
+  updateEventFormFieldAction,
   archiveEventFormFieldAction,
 } from "@/app/[locale]/dashboard/admin/events/eventFormFieldActions";
 

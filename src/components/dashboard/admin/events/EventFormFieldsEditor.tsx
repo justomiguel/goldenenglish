@@ -1,12 +1,16 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Archive, GripVertical } from "lucide-react";
+import { Archive, GripVertical, Pencil } from "lucide-react";
 import { archiveEventFormFieldAction } from "@/app/[locale]/dashboard/admin/events/actions";
 import { EventFormBuiltinFieldsSection } from "@/components/dashboard/admin/events/EventFormBuiltinFieldsSection";
 import { EventFormCollectBirthDateToggle } from "@/components/dashboard/admin/events/EventFormCollectBirthDateToggle";
 import { EventFormFieldAddPanel } from "@/components/dashboard/admin/events/EventFormFieldAddPanel";
+import {
+  EventFormFieldEditPanel,
+  type EventFormFieldEditLabels,
+} from "@/components/dashboard/admin/events/EventFormFieldEditPanel";
 import type { EventRegistrationBaseFieldId } from "@/lib/events/eventRegistrationBaseFields";
 import type { EventFormFieldDefinition, EventFormFieldType } from "@/lib/events/types";
 
@@ -31,6 +35,7 @@ interface EventFormFieldsEditorProps {
     customFieldsTitle: string;
     customFieldsEmpty: string;
     archive: string;
+    edit: string;
     baseFields: {
       title: string;
       lead: string;
@@ -65,6 +70,7 @@ interface EventFormFieldsEditorProps {
       fileTypesLabel: string;
       fileTypesHint: string;
     };
+    editField: EventFormFieldEditLabels;
     selectOptionsCount: string;
   };
 }
@@ -107,11 +113,14 @@ export function EventFormFieldsEditor({
 }: EventFormFieldsEditorProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [editingFieldId, setEditingFieldId] = useState<string | null>(null);
+  const editingField = fields.find((field) => field.id === editingFieldId) ?? null;
 
   function handleArchive(fieldId: string) {
     startTransition(async () => {
       const result = await archiveEventFormFieldAction(locale, fieldId);
       if (!result.ok) return;
+      if (editingFieldId === fieldId) setEditingFieldId(null);
       router.refresh();
     });
   }
@@ -146,51 +155,73 @@ export function EventFormFieldsEditor({
                   ? countSelectOptions(field.optionsI18n, locale, defaultLocale)
                   : 0;
               return (
-              <li
-                key={field.id}
-                className="flex items-center justify-between gap-3 rounded-md border border-[var(--color-border)] px-3 py-2 text-sm"
-              >
-                <span className="inline-flex min-w-0 flex-wrap items-center gap-2">
-                  <GripVertical className="h-4 w-4 shrink-0" aria-hidden />
-                  <span className="font-medium text-[var(--color-foreground)]">
-                    {pickLabel(field.labelI18n, locale, defaultLocale) || field.fieldKey}
-                  </span>
-                  <span className="rounded-full bg-[var(--color-muted)] px-2 py-0.5 text-xs text-[var(--color-muted-foreground)]">
-                    {labels.addField.fieldTypes[field.fieldType]}
-                  </span>
-                  {field.fieldType === "select" && optionCount > 0 ? (
-                    <span className="text-xs text-[var(--color-muted-foreground)]">
-                      {formatSelectOptionsCount(labels.selectOptionsCount, optionCount)}
-                    </span>
-                  ) : null}
-                  {field.required ? (
-                    <span className="text-xs text-[var(--color-muted-foreground)]">
-                      ({labels.baseFields.requiredBadge})
-                    </span>
-                  ) : null}
-                </span>
-                <button
-                  type="button"
-                  disabled={pending}
-                  onClick={() => handleArchive(field.id)}
-                  className="inline-flex shrink-0 items-center gap-2 rounded-md border border-[var(--color-border)] px-2 py-1 disabled:opacity-50"
+                <li
+                  key={field.id}
+                  className="flex items-center justify-between gap-3 rounded-md border border-[var(--color-border)] px-3 py-2 text-sm"
                 >
-                  <Archive className="h-4 w-4" aria-hidden />
-                  {labels.archive}
-                </button>
-              </li>
+                  <span className="inline-flex min-w-0 flex-wrap items-center gap-2">
+                    <GripVertical className="h-4 w-4 shrink-0" aria-hidden />
+                    <span className="font-medium text-[var(--color-foreground)]">
+                      {pickLabel(field.labelI18n, locale, defaultLocale) || field.fieldKey}
+                    </span>
+                    <span className="rounded-full bg-[var(--color-muted)] px-2 py-0.5 text-xs text-[var(--color-muted-foreground)]">
+                      {labels.addField.fieldTypes[field.fieldType]}
+                    </span>
+                    {field.fieldType === "select" && optionCount > 0 ? (
+                      <span className="text-xs text-[var(--color-muted-foreground)]">
+                        {formatSelectOptionsCount(labels.selectOptionsCount, optionCount)}
+                      </span>
+                    ) : null}
+                    {field.required ? (
+                      <span className="text-xs text-[var(--color-muted-foreground)]">
+                        ({labels.baseFields.requiredBadge})
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="inline-flex shrink-0 items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={pending}
+                      onClick={() => setEditingFieldId(field.id)}
+                      className="inline-flex min-h-[36px] items-center gap-2 rounded-md border border-[var(--color-border)] px-2 py-1 disabled:opacity-50"
+                    >
+                      <Pencil className="h-4 w-4" aria-hidden />
+                      {labels.edit}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={pending}
+                      onClick={() => handleArchive(field.id)}
+                      className="inline-flex min-h-[36px] items-center gap-2 rounded-md border border-[var(--color-border)] px-2 py-1 disabled:opacity-50"
+                    >
+                      <Archive className="h-4 w-4" aria-hidden />
+                      {labels.archive}
+                    </button>
+                  </span>
+                </li>
               );
             })}
           </ul>
         )}
       </section>
 
-      <EventFormFieldAddPanel
-        locale={locale}
-        eventId={eventId}
-        nextPosition={nextFieldPosition}
-        labels={labels.addField}
-      />
+      {editingField ? (
+        <EventFormFieldEditPanel
+          key={editingField.id}
+          locale={locale}
+          defaultLocale={defaultLocale}
+          field={editingField}
+          labels={labels.editField}
+          onCancel={() => setEditingFieldId(null)}
+        />
+      ) : (
+        <EventFormFieldAddPanel
+          locale={locale}
+          eventId={eventId}
+          nextPosition={nextFieldPosition}
+          labels={labels.addField}
+        />
+      )}
     </div>
   );
 }

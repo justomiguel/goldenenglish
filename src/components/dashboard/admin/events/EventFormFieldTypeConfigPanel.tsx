@@ -13,6 +13,7 @@ interface EventFormFieldTypeConfigPanelProps {
   allowedMimeTypes: string;
   onAllowedMimeTypesChange: (value: string) => void;
   disabled?: boolean;
+  mimeInputId?: string;
   labels: {
     previewTitle: string;
     previewPlaceholder: Record<Exclude<EventFormFieldType, "select">, string>;
@@ -44,6 +45,7 @@ export function EventFormFieldTypeConfigPanel({
   allowedMimeTypes,
   onAllowedMimeTypesChange,
   disabled = false,
+  mimeInputId = "event-field-mime-types",
   labels,
 }: EventFormFieldTypeConfigPanelProps) {
   if (fieldType === "select") {
@@ -79,9 +81,9 @@ export function EventFormFieldTypeConfigPanel({
         <div className="space-y-3">
           <Input type="file" disabled aria-hidden className="text-sm" />
           <div>
-            <Label htmlFor="event-field-mime-types">{labels.fileTypesLabel}</Label>
+            <Label htmlFor={mimeInputId}>{labels.fileTypesLabel}</Label>
             <Input
-              id="event-field-mime-types"
+              id={mimeInputId}
               value={allowedMimeTypes}
               onChange={(event) => onAllowedMimeTypesChange(event.currentTarget.value)}
               disabled={disabled}
