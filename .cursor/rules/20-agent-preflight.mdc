@@ -1,61 +1,56 @@
 ---
-description: Align on plan before implementing; PREFLIGHT keyword and carve-outs for trivial changes.
+description: SDD Gate 0 — align and draft a written spec before any implementation; PREFLIGHT forces the mode.
 globs:
   - "**/*"
 alwaysApply: true
 ---
 
-# Preflight: agreement before implementation
+# Preflight = Spec-Driven Development Gate 0
 
 ## Goal
 
-Reduce wrong assumptions and scope drift: in the cases listed below, the agent **must not** modify code or configuration until it finishes the **mandatory deliverable** block and receives **explicit user confirmation**.
+Before any implementation, align intent and produce (or update) a **written spec** under `docs/superpowers/specs/`. This rule is Gate 0 of Spec-Driven Development (see **`29-spec-driven-development.mdc`**). It does **not** replace **`complete-solutions-always.mdc`**.
 
-This rule **does not** replace **`complete-solutions-always.mdc`**: preflight scopes the plan; the solution still must be complete per the rest of the repo rules.
+## When Gate 0 is mandatory
 
-## When preflight is mandatory
+**Always** for work that will edit the repo (product code, tests, config, rules, docs intended as deliverables)—including one-line and “trivial” changes. A **mini-spec** is enough for tiny work.
 
-Apply the **full** flow below if **any** of these is true:
+Also force this mode when the user includes **`PREFLIGHT`** or **`SPEC`**.
 
-1. The user message includes the **`PREFLIGHT`** tag (recommended to force the mode).
-2. Scope touches **auth**, **session**, **roles**, **RLS**, or Postgres access policies.
-3. There is a **new migration**, a **data model change** visible outside a single module, or a **public contract** (API route, webhook, cron, server action consumed by multiple clients).
-4. The message explicitly asks for **plan**, **alignment**, **design**, or **do not implement yet**.
-5. The request is **ambiguous** (multiple reasonable readings) or lacks a clear **definition of done**.
-6. It touches surfaces covered by **`.cursor/rules/17-trust-boundary-handlers.mdc`** (cron, webhooks, personalized responses, cross-account mutations, persisted HTML).
-7. It is **multi-site tenant onboarding** (new slug, Vercel targets, prefixed env, and/or new `site_theme_kind` template): required data to confirm is in [`docs/runbooks/add-new-tenant.md`](../../docs/runbooks/add-new-tenant.md); if the message omits it, the agent must request it under **Assumptions and open questions** before implementing.
+## Carve-out (read-only only)
 
-## When **not** to apply preflight (skip)
+The agent may explore with **read-only** tools to draft the spec without confirmation. **No** edits, patches, or mutating shell until the user approves the written spec (or mini-spec).
 
-The agent **may** go straight to minimal changes when:
+The only skip of Gate 0 is when the user message is purely conversational with **no** requested repo change.
 
-- The user explicitly asks to **implement directly**, **skip preflight**, **no preflight**, or clear equivalent; **or**
-- The change is **narrow and obvious**: typo, single already-identified file, small copy tweak, formatting, or low-risk trivial fix; **and** it does not fall under the mandatory bullets above.
+## Mandatory deliverable (before touching files)
 
-If unsure between “trivial” and “high risk,” **apply preflight**.
+In **one** response, provide:
 
-## Mandatory deliverable (before touching code)
+1. **Understanding** — 2–4 bullets.
+2. **Assumptions and open questions** — what needs confirmation.
+3. **Proposed plan** — steps and affected layers (this becomes the plan or plan outline).
+4. **Risks and mitigation**
+5. **Definition of done**
 
-In **one** response, provide in this order (clear section headings):
+Then write or update:
 
-1. **Understanding** — 2–4 bullets: what is requested and in what repo context.
-2. **Assumptions and open questions** — what still needs confirmation; concrete questions for the user.
-3. **Proposed plan** — steps, affected layers (`src/lib`, actions, UI, migrations if any), existing patterns to reuse (filenames if known).
-4. **Risks and mitigation** — e.g. RLS, i18n, analytics, tests, performance.
-5. **Definition of done** — what must be green or verifiable (tests, manual checklist, acceptance criteria).
+`docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
 
-Then **stop** and wait for explicit confirmation (e.g. “go ahead”, “ok implement”, “yes”) before **any** editing tool, terminal mutation, or patch.
+- **Mini** (tiny): Intent / Done when / Out of scope.
+- **Full**: per design-spec template / brainstorming output.
 
-**Read-only** code review to build the plan is allowed before confirmation when needed to avoid inventing APIs.
+**Stop** and wait for explicit approval (e.g. “go ahead”, “ok”, “yes”) before any edit.
 
-## Alignment with governance and tests
+## Alignment
 
-- If preflight surfaces scope under **`10-engineering-governance.mdc`**, note whether an **ADR / mini design** is needed before or in the same change.
-- **`990-tests-failure-confirmation.mdc`** still applies in commit / CI gate contexts.
+- Auth / data / public contracts → also satisfy **`10-engineering-governance.mdc`** (ADR when required). The spec **references** the ADR; it does not replace it.
+- **`990-tests-failure-confirmation.mdc`** still applies at commit/CI gates.
+- Tests for new/touched code → **`30-harness-self-contained-tests.mdc`** + **`02-testing-tdd.mdc`**.
 
-## Quick agent checklist
+## Checklist
 
-- [ ] Does a mandatory trigger apply? → full preflight.
-- [ ] Did the user force `PREFLIGHT`? → always full preflight.
-- [ ] Did the user ask to skip and the change is not high risk? → implement directly.
-- [ ] Confirmation received? → only then edit / run mutating commands.
+- [ ] Spec path on disk (mini or full)?
+- [ ] User approved?
+- [ ] Plan file or inline plan ready when scope > mini?
+- [ ] Only then implement (TDD).

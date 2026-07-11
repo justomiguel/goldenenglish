@@ -1,0 +1,44 @@
+---
+description: Spec-Driven Development — written spec approval then plan then TDD; always for repo changes.
+alwaysApply: true
+---
+
+# Spec-Driven Development (SDD)
+
+## Iron law
+
+**No implementation without an approved written spec** under `docs/superpowers/specs/`.
+
+Violating the letter is violating the spirit. Do not “code first and document later.”
+
+## Flow
+
+1. **Gate 0** — `.cursor/rules/20-agent-preflight.mdc` (Understanding → … → DoD + draft spec).
+2. **Spec on disk** — `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` (mini or full).
+3. **User approval** of that file (or explicit OK of mini-spec).
+4. **Plan** — `docs/superpowers/plans/YYYY-MM-DD-<feature>.md` when >1 file or behavior change; else short plan inline in the mini-spec.
+5. **Implement** — TDD (`.cursor/rules/02-testing-tdd.mdc`, skill `tdd`); self-contained tests (`.cursor/rules/30-harness-self-contained-tests.mdc`).
+
+Writing or updating files under `docs/superpowers/specs/` is part of Gate 0 and is allowed before user approval; all other implementation edits wait for approval.
+
+## Skills
+
+- **REQUIRED:** `.agents/skills/spec-driven-development/SKILL.md` when starting features/bugs/refactors.
+- Superpowers: brainstorming (design) → writing-plans (after spec approval) → executing-plans or subagent-driven-development.
+
+## Mini-spec minimum
+
+- Intent
+- Done when
+- Out of scope
+
+## Red flags — STOP
+
+- Editing `src/` before a spec file exists
+- “Too small for a spec”
+- Spec only in chat, never written to `docs/superpowers/specs/`
+- Implementing while “waiting” for approval
+
+## Governance
+
+When **`10-engineering-governance.mdc`** requires an ADR, create/update it and link it from the spec.

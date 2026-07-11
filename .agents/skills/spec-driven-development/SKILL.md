@@ -1,0 +1,48 @@
+---
+name: spec-driven-development
+description: Use when starting any feature, bugfix, refactor, or repo change before writing implementation code; also when the user mentions SPEC, PREFLIGHT, spec-driven, or asks for a design/spec/plan first.
+---
+
+# Spec-Driven Development
+
+## Overview
+
+Every repo change starts with a **written spec** the user approves. Preflight is Gate 0. Implementation follows TDD only after approval.
+
+**REQUIRED BACKGROUND:** Superpowers brainstorming (design) and writing-plans (after spec approval). Repo rules: `20-agent-preflight.mdc`, `29-spec-driven-development.mdc`.
+
+## Iron law
+
+No implementation before an approved file under `docs/superpowers/specs/`.
+
+Writing or updating files under `docs/superpowers/specs/` is allowed before approval; all other implementation edits wait.
+
+## Steps
+
+1. Run Gate 0 deliverable (Understanding → DoD).
+2. Write mini or full spec to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`.
+3. Stop for user approval.
+4. If scope >1 file or behavior: write plan via writing-plans to `docs/superpowers/plans/`.
+5. Implement with skill `tdd` + rule `30` for tests.
+
+## Mini-spec template
+
+```markdown
+# <title>
+
+**Intent:** …
+**Done when:** …
+**Out of scope:** …
+```
+
+## Red flags
+
+- Coding before the spec file exists
+- “Too small for a spec”
+- Spec only in chat
+
+## Related
+
+- Harness tests: `harness-self-contained-tests`
+- TDD: `tdd`
+- Governance ADRs: `.cursor/rules/10-engineering-governance.mdc`
