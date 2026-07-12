@@ -21,6 +21,10 @@ import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDispla
 import { loadAdminPortalReplyComposeContext } from "@/lib/dashboard/loadAdminPortalReplyComposeContext";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { sendAdminSiteContactVisitorReplyEmail } from "@/lib/messaging/useCases/sendAdminSiteContactVisitorReplyEmail";
+import {
+  markAdminPortalExternalReplied,
+  markAdminPortalMessageRead,
+} from "@/lib/messaging/markAdminPortalMessageAttention";
 import type { Locale } from "@/types/i18n";
 
 const bodySchema = z.string().min(1).max(80000);
@@ -30,6 +34,7 @@ export async function sendAdminMessage(
   locale: string,
   recipientId: string,
   bodyHtml: string,
+  replyToMessageId?: string,
 ): Promise<{ ok: boolean; message?: string }> {
   const dict = await getDictionary(locale);
   const msg = dict.actionErrors.messaging;
@@ -84,6 +89,12 @@ export async function sendAdminMessage(
 
   if (!result.ok) {
     return { ok: false, message: mapMessagingUseCaseCode(result.message, msg) };
+  }
+  if (replyToMessageId) {
+    const mid = messageIdSchema.safeParse(replyToMessageId);
+    if (mid.success) {
+      await markAdminPortalMessageRead(supabase, mid.data);
+    }
   }
   revalidatePath(`/${locale}/dashboard/admin/messages`);
   revalidatePath(`/${locale}/dashboard/admin/messages/compose`);
@@ -146,6 +157,17 @@ export async function sendAdminSiteContactVisitorReply(
     });
     return { ok: false, message: labels.composeExternalReplyEmailFailed };
   }
+
+  const { data: sourceRow } = await supabase
+    .from("portal_messages")
+    .select("broadcast_batch_id")
+    .eq("id", mid.data)
+    .maybeSingle();
+
+  await markAdminPortalExternalReplied(supabase, {
+    messageId: mid.data,
+    broadcastBatchId: (sourceRow?.broadcast_batch_id as string | null) ?? null,
+  });
 
   void recordSystemAudit({
     action: "admin_site_contact_visitor_reply_sent",

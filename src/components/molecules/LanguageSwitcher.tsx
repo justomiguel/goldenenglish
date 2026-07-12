@@ -22,6 +22,8 @@ interface LanguageSwitcherProps {
   labels: LanguageSwitcherLabels;
   /** Narrow pill for dense headers (e.g. marketing top bar). */
   variant?: "default" | "compact" | "compactDark";
+  /** Stable Driver.js / help-tour anchor. */
+  tourAnchor?: string;
 }
 
 function pathWithoutLocale(pathname: string): string {
@@ -99,6 +101,7 @@ export function LanguageSwitcher({
   locale,
   labels,
   variant = "default",
+  tourAnchor,
 }: LanguageSwitcherProps) {
   const pathname = usePathname();
   const blogLocaleHrefs = useBlogArticleLocaleHrefs();
@@ -114,7 +117,7 @@ export function LanguageSwitcher({
   };
 
   return (
-    <nav aria-label={labels.label}>
+    <nav aria-label={labels.label} {...(tourAnchor ? { "data-tour": tourAnchor } : {})}>
       <ul className={`m-0 p-0 ${trackClasses(variant)}`}>
         {locales.map((loc) => {
           const isActive = loc === active;

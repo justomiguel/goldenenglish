@@ -5,6 +5,7 @@ import type { Dictionary } from "@/types/i18n";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -38,7 +39,7 @@ export function RegistrationListToolbar({
   }
 
   return (
-    <>
+    <div data-tour={ADMIN_TOUR_ANCHORS.registrationsToolbar}>
       <form onSubmit={onSubmitFilter} className="space-y-1">
         <Label htmlFor="registrations-filter">{labels.filterLabel}</Label>
         <Input
@@ -55,6 +56,6 @@ export function RegistrationListToolbar({
         <span>{tpl(labels.countTotal, totalCount)}</span>
         <span>{tpl(labels.countAfterFilter, filteredCount)}</span>
       </div>
-    </>
+    </div>
   );
 }

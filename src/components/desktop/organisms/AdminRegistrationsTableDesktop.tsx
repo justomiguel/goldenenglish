@@ -8,6 +8,7 @@ import { AdminRegistrationTableRow } from "@/components/dashboard/AdminRegistrat
 import { RegistrationListToolbar } from "@/components/molecules/RegistrationListToolbar";
 import { UniversalListView } from "@/components/organisms/UniversalListView";
 import { useAdminRegistrationsList } from "@/hooks/useAdminRegistrationsList";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
@@ -74,6 +75,7 @@ export function AdminRegistrationsTableDesktop({
         </p>
       ) : null}
 
+      <div data-tour={ADMIN_TOUR_ANCHORS.registrationsTable}>
       <UniversalListView
         toolbar={
           <RegistrationListToolbar
@@ -168,6 +170,7 @@ export function AdminRegistrationsTableDesktop({
         onConfirm={u.onConfirmDelete}
         labels={labels}
       />
+      </div>
 
       <AdminRegistrationAcceptModal
         locale={locale}

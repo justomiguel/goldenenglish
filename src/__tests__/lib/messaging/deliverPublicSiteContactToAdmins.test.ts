@@ -25,6 +25,7 @@ describe("deliverPublicSiteContactToAdmins", () => {
       metaLines: [{ label: "Nombre", value: "Juan" }],
       bodyPlain: "Hola",
       senderDisplayName: "Juan (Contacto)",
+      visitorDisplayName: "Juan",
       visitorReplyEmail: "juan@example.com",
       emailProvider: { sendEmail: vi.fn().mockResolvedValue({ ok: true }) },
     });
@@ -60,6 +61,7 @@ describe("deliverPublicSiteContactToAdmins", () => {
       metaLines: [{ label: "Nombre", value: "Juan" }],
       bodyPlain: "Hola",
       senderDisplayName: "Juan (Contacto)",
+      visitorDisplayName: "Juan",
       visitorReplyEmail: "juan@example.com",
       emailProvider: { sendEmail: vi.fn().mockResolvedValue({ ok: true }) },
     });
@@ -67,6 +69,8 @@ describe("deliverPublicSiteContactToAdmins", () => {
     expect(insert).toHaveBeenCalledTimes(1);
     expect(insert.mock.calls[0][0]).toMatchObject({
       external_contact_reply_email: "juan@example.com",
+      external_contact_display_name: "Juan",
+      broadcast_batch_id: expect.any(String),
     });
   });
 });

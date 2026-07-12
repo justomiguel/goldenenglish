@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
 import type { AppSurface } from "@/hooks/useAppSurface";
@@ -10,6 +11,7 @@ import { AdminUsersToolbar } from "@/components/dashboard/AdminUsersToolbar";
 import { AdminUsersPwaList } from "@/components/pwa/molecules/AdminUsersPwaList";
 import { DeleteUsersConfirmModal } from "@/components/dashboard/DeleteUsersConfirmModal";
 import { InfoNoticeModal } from "@/components/molecules/InfoNoticeModal";
+import { AdminUsersExportModal } from "@/components/molecules/AdminUsersExportModal";
 
 type UserLabels = Dictionary["admin"]["users"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -47,6 +49,7 @@ export function AdminUsersScreenNarrow({
   tableLabels,
   surface,
 }: AdminUsersScreenNarrowProps) {
+  const [exportOpen, setExportOpen] = useState(false);
   const u = useAdminUsersTable({
     rows,
     totalCount,
@@ -83,6 +86,7 @@ export function AdminUsersScreenNarrow({
                 onToggleSelectAllFiltered={u.toggleSelectAllVisible}
                 deleteDisabled={u.deleteDisabled}
                 selectAllFilteredDisabled={u.selectAllFilteredDisabled}
+                onExportUsers={() => setExportOpen(true)}
               />
             }
             labels={labels}
@@ -142,6 +146,18 @@ export function AdminUsersScreenNarrow({
             message={u.deleteOutcomeMessage ?? ""}
             closeLabel={labels.deleteResultClose}
           />
+
+          {labels.spreadsheet ? (
+            <AdminUsersExportModal
+              open={exportOpen}
+              onOpenChange={setExportOpen}
+              locale={locale}
+              labels={labels.spreadsheet}
+              selectedIds={[...u.selectedIds]}
+              searchQuery={u.query}
+              roleFilter={u.roleFilter}
+            />
+          ) : null}
         </div>
       </div>
     </PwaPageShell>

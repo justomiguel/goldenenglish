@@ -31,7 +31,7 @@ describe("EventAttendeesExportPdf", () => {
         }}
         table={{
           headers: ["Name", "Email"],
-          rows: [["Ana García", "ana@example.com"]],
+          rows: [[{ text: "Ana García" }, { text: "ana@example.com" }]],
         }}
         attendeeCount={1}
         exportedAtFormatted="30/05/2026 10:00"

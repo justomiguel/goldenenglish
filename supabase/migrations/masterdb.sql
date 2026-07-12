@@ -14989,3 +14989,20 @@ REVOKE ALL ON FUNCTION public.payment_flow_reserve_commerce_ref_slot(UUID, UUID,
 GRANT EXECUTE ON FUNCTION public.payment_flow_reserve_commerce_ref_slot(UUID, UUID, INT, INT, UUID) TO service_role;
 
 COMMIT;
+-- ========== 167_portal_messages_read_at.sql ==========
+ALTER TABLE public.portal_messages
+  ADD COLUMN IF NOT EXISTS read_at TIMESTAMPTZ;
+ALTER TABLE public.portal_messages
+  ADD COLUMN IF NOT EXISTS external_replied_at TIMESTAMPTZ;
+
+COMMENT ON COLUMN public.portal_messages.read_at IS
+  'When the recipient (admin copy) opened or answered this inbox row.';
+COMMENT ON COLUMN public.portal_messages.external_replied_at IS
+  'When staff sent an email reply to a website contact submission (shared across broadcast batch).';
+
+-- ========== 168_portal_messages_external_contact_display_name.sql ==========
+ALTER TABLE public.portal_messages
+  ADD COLUMN IF NOT EXISTS external_contact_display_name TEXT NULL;
+
+COMMENT ON COLUMN public.portal_messages.external_contact_display_name IS
+  'Visitor full name from the public contact form; shown in admin inbox instead of the synthetic site_contact profile.';

@@ -1,10 +1,10 @@
 import type { Dictionary } from "@/types/i18n";
-import { ImportStudents } from "@/components/organisms/ImportStudents";
+import { ImportUsers } from "@/components/organisms/ImportUsers";
 
 interface AdminImportScreenDesktopProps {
   locale: string;
   dict: Dictionary;
-  /** When true, only the form (e.g. under Usuarios → Importar CSV tab). */
+  /** When true, only the form (e.g. under Users → Import users tab). */
   embedded?: boolean;
 }
 
@@ -14,11 +14,7 @@ export function AdminImportScreenDesktop({
   embedded = false,
 }: AdminImportScreenDesktopProps) {
   const form = (
-    <ImportStudents
-      locale={locale}
-      labels={dict.admin.import}
-      emptyLogPlaceholder={dict.common.emptyValue}
-    />
+    <ImportUsers locale={locale} labels={dict.admin.users.spreadsheet} />
   );
   if (embedded) {
     return form;
@@ -27,7 +23,7 @@ export function AdminImportScreenDesktop({
     <main className="min-h-screen bg-[var(--color-muted)] px-4 py-10">
       <div className="mx-auto max-w-[var(--layout-max-width)] py-6">
         <h1 className="mb-6 text-2xl font-bold text-[var(--color-secondary)]">
-          {dict.admin.import.title}
+          {dict.admin.users.spreadsheet.importTitle}
         </h1>
         {form}
       </div>

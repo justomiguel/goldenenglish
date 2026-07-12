@@ -14,9 +14,9 @@ import {
 import {
   AdminEventAttendeePresentationBadge,
 } from "@/components/dashboard/admin/events/AdminEventAttendeePresentationBadge";
+import { AdminEventAttendeeCustomFieldMediaCell } from "@/components/dashboard/admin/events/AdminEventAttendeeCustomFieldMediaCell";
 import {
   formatAttendeeBirthDate,
-  formatAttendeeCustomFieldValue,
   formatAttendeeDate,
   formatAttendeePaymentAmount,
   formatAttendeePaymentStatusLabel,
@@ -102,11 +102,20 @@ export function AdminEventAttendeeExpandedDetails({
         <AttendeeDetailSection icon={ClipboardList} title={labels.customFieldsTitle}>
           <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {customFields.map((field) => (
-              <AttendeeDetailStat
-                key={field.fieldKey}
-                label={field.label}
-                value={formatAttendeeCustomFieldValue(field)}
-              />
+              <div key={field.fieldKey} className="min-w-0">
+                <dt className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--color-muted-foreground)]">
+                  {field.label}
+                </dt>
+                <dd className="mt-1">
+                  <AdminEventAttendeeCustomFieldMediaCell
+                    field={field}
+                    emptyLabel="—"
+                    openFileLabel={labels.openCustomFile}
+                    imageAltTemplate={labels.customFieldImageAlt}
+                    size="md"
+                  />
+                </dd>
+              </div>
             ))}
           </dl>
         </AttendeeDetailSection>

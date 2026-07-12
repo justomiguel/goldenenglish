@@ -1,10 +1,16 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { chunkedIn } from "@/lib/supabase/chunkedIn";
+import { createEventUploadReadSignedUrlMap } from "@/lib/events/createEventUploadReadSignedUrl";
+import { basenameFromStoragePath } from "@/lib/events/eventUploadPathDisplay";
+import type { EventFormFieldType } from "@/lib/events/types";
 
 export interface EventAttendeeCustomFieldValue {
   fieldKey: string;
   label: string;
   displayValue: string;
+  fieldType?: EventFormFieldType;
+  fileStoragePath?: string | null;
+  previewUrl?: string | null;
 }
 
 export type EventAttendeeCustomFieldValuesMap = Record<string, EventAttendeeCustomFieldValue[]>;
@@ -19,10 +25,17 @@ function formatFieldDisplayValue(row: {
   if (row.value_number != null) return String(row.value_number);
   if (row.value_date != null) return row.value_date;
   if (row.file_storage_path != null && row.file_storage_path.trim() !== "") {
-    return row.file_storage_path.trim();
+    return basenameFromStoragePath(row.file_storage_path);
   }
   return "";
 }
+
+type FieldJoin = {
+  field_key: string;
+  field_type: string;
+  label_i18n: Record<string, string> | null;
+  archived_at: string | null;
+};
 
 export async function loadEventAttendeeCustomFieldValues(
   adminClient: SupabaseClient,
@@ -37,25 +50,33 @@ export async function loadEventAttendeeCustomFieldValues(
     "event_attendee_field_values",
     "attendee_id",
     uniqueIds,
-    "attendee_id, value_text, value_number, value_date, file_storage_path, event_form_fields!inner(field_key, label_i18n, archived_at)",
+    "attendee_id, value_text, value_number, value_date, file_storage_path, event_form_fields!inner(field_key, field_type, label_i18n, archived_at)",
   );
+
+  const filePaths: string[] = [];
+  for (const row of rows) {
+    const path = typeof row.file_storage_path === "string" ? row.file_storage_path.trim() : "";
+    if (path) filePaths.push(path);
+  }
+  const signedUrlByPath = await createEventUploadReadSignedUrlMap(filePaths, adminClient);
 
   const result: EventAttendeeCustomFieldValuesMap = {};
 
   for (const row of rows) {
     const attendeeId = String(row.attendee_id);
-    const field = row.event_form_fields as
-      | { field_key: string; label_i18n: Record<string, string> | null; archived_at: string | null }
-      | { field_key: string; label_i18n: Record<string, string> | null; archived_at: string | null }[]
-      | null;
+    const field = row.event_form_fields as FieldJoin | FieldJoin[] | null;
     const fieldRow = Array.isArray(field) ? field[0] : field;
     if (!fieldRow || fieldRow.archived_at) continue;
 
+    const fileStoragePath =
+      typeof row.file_storage_path === "string" && row.file_storage_path.trim()
+        ? row.file_storage_path.trim()
+        : null;
     const displayValue = formatFieldDisplayValue({
       value_text: row.value_text as string | null,
       value_number: row.value_number as number | null,
       value_date: row.value_date as string | null,
-      file_storage_path: row.file_storage_path as string | null,
+      file_storage_path: fileStoragePath,
     });
     if (!displayValue) continue;
 
@@ -71,6 +92,9 @@ export async function loadEventAttendeeCustomFieldValues(
       fieldKey: String(fieldRow.field_key),
       label,
       displayValue,
+      fieldType: String(fieldRow.field_type) as EventFormFieldType,
+      fileStoragePath,
+      previewUrl: fileStoragePath ? (signedUrlByPath.get(fileStoragePath) ?? null) : null,
     });
   }
 

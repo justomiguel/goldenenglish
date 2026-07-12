@@ -1,6 +1,7 @@
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type {
   EventAttendeesExportBrandHeader,
+  EventAttendeesExportCell,
   EventAttendeesExportEventHeader,
   EventAttendeesExportMetaLabels,
   EventAttendeesExportTable,
@@ -13,7 +14,9 @@ const NEUTRAL = {
   surfaceMuted: "#F3F4F6",
 };
 
-const ROWS_PER_PAGE = 22;
+function rowsPerPage(hasImages: boolean): number {
+  return hasImages ? 10 : 22;
+}
 
 export interface EventAttendeesExportPdfProps {
   brand: EventAttendeesExportBrandHeader;
@@ -30,10 +33,17 @@ function computeCellWidth(columnCount: number): number {
   return Math.max(36, Math.floor((pageWidth - padding) / Math.max(columnCount, 1)));
 }
 
-function chunkRows(rows: string[][]): string[][][] {
-  const chunks: string[][][] = [];
-  for (let i = 0; i < rows.length; i += ROWS_PER_PAGE) {
-    chunks.push(rows.slice(i, i + ROWS_PER_PAGE));
+function tableHasImages(rows: EventAttendeesExportCell[][]): boolean {
+  return rows.some((row) => row.some((cell) => Boolean(cell.image?.dataUrl)));
+}
+
+function chunkRows(
+  rows: EventAttendeesExportCell[][],
+  size: number,
+): EventAttendeesExportCell[][][] {
+  const chunks: EventAttendeesExportCell[][][] = [];
+  for (let i = 0; i < rows.length; i += size) {
+    chunks.push(rows.slice(i, i + size));
   }
   return chunks.length > 0 ? chunks : [[]];
 }
@@ -47,7 +57,8 @@ export function EventAttendeesExportPdf({
   exportedAtFormatted,
 }: EventAttendeesExportPdfProps) {
   const cellWidth = computeCellWidth(table.headers.length);
-  const rowChunks = chunkRows(table.rows);
+  const hasImages = tableHasImages(table.rows);
+  const rowChunks = chunkRows(table.rows, rowsPerPage(hasImages));
 
   const styles = StyleSheet.create({
     page: {
@@ -77,13 +88,13 @@ export function EventAttendeesExportPdf({
     tableHeaderRow: {
       flexDirection: "row",
       backgroundColor: NEUTRAL.surfaceMuted,
-      borderBottomColor: NEUTRAL.border,
-      borderBottomWidth: 1,
     },
     tableRow: {
       flexDirection: "row",
       borderBottomColor: NEUTRAL.border,
       borderBottomWidth: 0.5,
+      alignItems: "center",
+      minHeight: hasImages ? 42 : undefined,
     },
     headerCell: {
       width: cellWidth,
@@ -93,6 +104,7 @@ export function EventAttendeesExportPdf({
       color: NEUTRAL.muted,
     },
     cell: { width: cellWidth, padding: 3, fontSize: 6 },
+    cellImage: { width: 36, height: 36, objectFit: "cover", marginBottom: 2 },
     footer: { marginTop: 10, fontSize: 7, color: NEUTRAL.muted },
   });
 
@@ -149,9 +161,13 @@ export function EventAttendeesExportPdf({
           {chunk.map((row, rowIndex) => (
             <View key={`row-${pageIndex}-${rowIndex}`} style={styles.tableRow}>
               {row.map((cell, cellIndex) => (
-                <Text key={`cell-${pageIndex}-${rowIndex}-${cellIndex}`} style={styles.cell}>
-                  {cell}
-                </Text>
+                <View key={`cell-${pageIndex}-${rowIndex}-${cellIndex}`} style={styles.cell}>
+                  {cell.image?.dataUrl ? (
+                    /* eslint-disable-next-line jsx-a11y/alt-text */
+                    <Image src={cell.image.dataUrl} style={styles.cellImage} />
+                  ) : null}
+                  <Text>{cell.text}</Text>
+                </View>
               ))}
             </View>
           ))}

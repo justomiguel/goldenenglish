@@ -72,6 +72,8 @@ When adding a shared or surface component (`atoms` / `molecules` / `organisms` /
 
 Expanded guidance (text, non-text UI, focus, document language, accessible names on controls, not color-only, verification): **`26-accessibility-contrast.mdc`**.
 
+**Hover, focus, and active** on every button-like control must keep WCAG AA contrast — see **Interactive state contrast** in **`26-accessibility-contrast.mdc`** (no `hover:opacity-*` on fills; prefer `primary-dark` / `muted` token shifts like atom `Button`).
+
 1. **Text and icons** on any background must keep **readable contrast** (aim for **WCAG AA**: ~**4.5:1** for normal text, ~**3:1** for large text / **non-text UI** such as icon strokes on interactive controls).
 2. **Destructive / error affordances** — Do **not** place `text-[var(--color-error)]` (or similar) on **same-hue saturated** surfaces (e.g. brand red `secondary` button): the icon and label fail contrast. Prefer **neutral surfaces** (`surface`, `muted`) with **`border-[var(--color-error)]`** and **`text-[var(--color-error)]`**, or **light-on-dark** using `secondary-foreground` on the brand red **only** when the whole control is that fill (single foreground color).
 

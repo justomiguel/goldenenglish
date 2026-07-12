@@ -12,6 +12,8 @@ interface AdminHubMetricCardProps {
   urgent?: boolean;
   /** Native tooltip on the whole card link (dictionary-backed). */
   hint?: string;
+  /** Stable Driver.js / help-tour anchor. */
+  tourAnchor?: string;
 }
 
 export function AdminHubMetricCard({
@@ -23,11 +25,13 @@ export function AdminHubMetricCard({
   linkLabel,
   urgent,
   hint,
+  tourAnchor,
 }: AdminHubMetricCardProps) {
   return (
     <Link
       href={href}
       title={hint}
+      {...(tourAnchor ? { "data-tour": tourAnchor } : {})}
       className={`group relative flex flex-col rounded-[var(--layout-border-radius)] border bg-[var(--color-background)] p-5 shadow-sm transition hover:shadow-md ${
         urgent
           ? "border-amber-300 ring-1 ring-amber-200"

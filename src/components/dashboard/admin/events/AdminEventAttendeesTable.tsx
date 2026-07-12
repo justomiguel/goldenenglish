@@ -5,7 +5,11 @@ import { Users } from "lucide-react";
 import { AdminEventAttendeeTableRow } from "@/components/dashboard/admin/events/AdminEventAttendeeTableRow";
 import type { AdminEventAttendeeCustomFieldColumn } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
 import type { AdminEventAttendeesPanelLabels } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
-import { ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL } from "@/lib/dashboard/events/adminEventAttendeesTableClasses";
+import {
+  ADMIN_EVENT_ATTENDEES_TABLE_ACTIONS_HEAD_CELL,
+  ADMIN_EVENT_ATTENDEES_TABLE_CUSTOM_HEAD_CELL,
+  ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL,
+} from "@/lib/dashboard/events/adminEventAttendeesTableClasses";
 import { canDeleteEventAttendee } from "@/lib/events/canDeleteEventAttendee";
 import type { EventAttendeeCustomFieldValuesMap } from "@/lib/dashboard/events/loadEventAttendeeCustomFieldValues";
 import type { EventAttendeeRow } from "@/lib/dashboard/events/loadEventAttendeesPaginated";
@@ -46,7 +50,7 @@ export function AdminEventAttendeesTable({
 
   return (
     <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
-      <table className="w-full min-w-[56rem] border-collapse text-sm">
+      <table className="w-max min-w-full border-collapse text-sm">
         <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40 text-[11px] uppercase tracking-wide text-[var(--color-muted-foreground)]">
           <tr>
             <th scope="col" className={`${ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL} w-12`}>
@@ -71,11 +75,11 @@ export function AdminEventAttendeesTable({
               {labels.columns.payment}
             </th>
             {customFieldColumns.map((column) => (
-              <th key={column.fieldKey} scope="col" className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL}>
+              <th key={column.fieldKey} scope="col" className={ADMIN_EVENT_ATTENDEES_TABLE_CUSTOM_HEAD_CELL}>
                 {column.label}
               </th>
             ))}
-            <th scope="col" className={`${ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL} min-w-[11rem] text-right`}>
+            <th scope="col" className={ADMIN_EVENT_ATTENDEES_TABLE_ACTIONS_HEAD_CELL}>
               {labels.columns.actions}
             </th>
           </tr>

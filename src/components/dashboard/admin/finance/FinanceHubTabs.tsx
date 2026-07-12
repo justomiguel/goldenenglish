@@ -9,6 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export type FinanceHubTabId =
   | "collections"
@@ -27,9 +28,11 @@ export const FINANCE_HUB_TAB_ORDER: readonly FinanceHubTabId[] = [
 
 export const DEFAULT_FINANCE_HUB_TAB: FinanceHubTabId = "collections";
 
-/** Legacy URLs used `tab=overview`; same hub view is now default `collections`. */
+/** Legacy URLs: overview → collections; payments/receipts → inbox. */
 const LEGACY_TAB_ALIASES: Readonly<Record<string, FinanceHubTabId>> = {
   overview: "collections",
+  payments: "inbox",
+  receipts: "inbox",
 };
 
 export function parseFinanceHubTab(raw: string | undefined): FinanceHubTabId {
@@ -136,11 +139,14 @@ export function FinanceHubTabs({
 }: FinanceHubTabsProps) {
   return (
     <div className="space-y-4">
-      {cohortSelector}
+      {cohortSelector ? (
+        <div data-tour={ADMIN_TOUR_ANCHORS.financeCohortYear}>{cohortSelector}</div>
+      ) : null}
       {kpiStrip}
       <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
         <nav
           aria-label={dict.title}
+          data-tour={ADMIN_TOUR_ANCHORS.financeTabs}
           className="flex w-full overflow-x-auto border-b border-[var(--color-border)]"
         >
           {FINANCE_HUB_TAB_ORDER.map((tab) => {
@@ -179,7 +185,7 @@ export function FinanceHubTabs({
           {tooltipFor(current, dict)}
         </p>
       </div>
-      <div>{children}</div>
+      <div data-tour={ADMIN_TOUR_ANCHORS.financeWorkspace}>{children}</div>
     </div>
   );
 }

@@ -12,6 +12,7 @@ import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
 import type { AdminStudentSearchHitLike } from "@/components/molecules/AdminStudentSearchCombobox";
 import type { TutorStudentRelationshipCode } from "@/lib/register/tutorStudentRelationship";
 import type { AdminCreateUserRoleOption } from "@/components/dashboard/AdminCreateUserPersonalBlock";
+import { useAdminCreateUserTourDemoListener } from "@/hooks/useAdminCreateUserTourDemoListener";
 
 export function useAdminCreateUserForm(opts: {
   locale: string;
@@ -63,7 +64,7 @@ export function useAdminCreateUserForm(opts: {
     [],
   );
 
-  function resetGuardianUi() {
+  const resetGuardianUi = useCallback(() => {
     setPickedGuardian(null);
     setGuardianSearchKey((k) => k + 1);
     setTutorDni("");
@@ -72,7 +73,14 @@ export function useAdminCreateUserForm(opts: {
     setTutorEmail("");
     setTutorPhone("");
     setRelationship("");
-  }
+  }, []);
+
+  useAdminCreateUserTourDemoListener({
+    legalAgeMajority,
+    setRole,
+    setBirthDate,
+    resetGuardianUi,
+  });
 
   async function confirmReuseLink() {
     if (!reuseConfirm || !relationship) return;

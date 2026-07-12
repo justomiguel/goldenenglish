@@ -1,0 +1,2 @@
+# Playwright auth artifacts (never commit credentials / session)
+e2e/.auth/

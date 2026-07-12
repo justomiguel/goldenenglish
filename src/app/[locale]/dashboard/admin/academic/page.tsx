@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AcademicHubToolbar } from "@/components/organisms/AcademicHubToolbar";
 import { AcademicHubCohortBoard } from "@/components/organisms/AcademicHubCohortBoard";
 import type { AcademicHubCohortSummary } from "@/components/molecules/AcademicHubCohortRow";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -51,7 +52,10 @@ export default async function AcademicHubPage({ params }: PageProps) {
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-col gap-4 border-b border-[var(--color-border)] pb-6 sm:flex-row sm:items-start sm:justify-between">
+      <header
+        className="flex flex-col gap-4 border-b border-[var(--color-border)] pb-6 sm:flex-row sm:items-start sm:justify-between"
+        data-tour={ADMIN_TOUR_ANCHORS.academicTitle}
+      >
         <div className="min-w-0 space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-foreground)]">{d.title}</h1>
           <p className="max-w-2xl text-sm leading-relaxed text-[var(--color-muted-foreground)]">{d.lead}</p>

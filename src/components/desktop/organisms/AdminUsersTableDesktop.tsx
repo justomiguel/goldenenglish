@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
 import type { AdminUserRow, SortKey, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
@@ -8,6 +9,8 @@ import { AdminUsersToolbar } from "@/components/dashboard/AdminUsersToolbar";
 import { AdminUsersDataTable } from "@/components/dashboard/AdminUsersDataTable";
 import { DeleteUsersConfirmModal } from "@/components/dashboard/DeleteUsersConfirmModal";
 import { InfoNoticeModal } from "@/components/molecules/InfoNoticeModal";
+import { AdminUsersExportModal } from "@/components/molecules/AdminUsersExportModal";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type UserLabels = Dictionary["admin"]["users"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -43,6 +46,7 @@ export function AdminUsersTableDesktop({
   labels,
   tableLabels,
 }: AdminUsersTableDesktopProps) {
+  const [exportOpen, setExportOpen] = useState(false);
   const u = useAdminUsersTable({
     rows,
     totalCount,
@@ -59,6 +63,7 @@ export function AdminUsersTableDesktop({
 
   return (
     <div className="space-y-4">
+      <div data-tour={ADMIN_TOUR_ANCHORS.usersTable}>
       <AdminUsersDataTable
         locale={locale}
         toolbar={
@@ -77,6 +82,7 @@ export function AdminUsersTableDesktop({
             onToggleSelectAllFiltered={u.toggleSelectAllVisible}
             deleteDisabled={u.deleteDisabled}
             selectAllFilteredDisabled={u.selectAllFilteredDisabled}
+            onExportUsers={() => setExportOpen(true)}
           />
         }
         labels={labels}
@@ -103,6 +109,7 @@ export function AdminUsersTableDesktop({
           onPageChange: u.setPage,
         }}
       />
+      </div>
 
       <DeleteUsersConfirmModal
         open={u.confirmIds !== null && u.confirmIds.length > 0}
@@ -137,6 +144,18 @@ export function AdminUsersTableDesktop({
         message={u.deleteOutcomeMessage ?? ""}
         closeLabel={labels.deleteResultClose}
       />
+
+      {labels.spreadsheet ? (
+        <AdminUsersExportModal
+          open={exportOpen}
+          onOpenChange={setExportOpen}
+          locale={locale}
+          labels={labels.spreadsheet}
+          selectedIds={[...u.selectedIds]}
+          searchQuery={u.query}
+          roleFilter={u.roleFilter}
+        />
+      ) : null}
     </div>
   );
 }

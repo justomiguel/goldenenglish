@@ -68,8 +68,33 @@ describe("buildEventAttendeesExportTable", () => {
 
     expect(table.headers.at(-1)).toBe("School");
     expect(table.rows).toHaveLength(1);
-    expect(table.rows[0]?.[0]).toContain("García");
-    expect(table.rows[0]?.at(-1)).toBe("Colegio Norte");
+    expect(table.rows[0]?.[0]?.text).toContain("García");
+    expect(table.rows[0]?.at(-1)).toEqual({ text: "Colegio Norte" });
+  });
+
+  it("marks image custom fields with imagePath for export enrichment", () => {
+    const table = buildEventAttendeesExportTable({
+      attendees: [attendee],
+      customColumns: [{ fieldKey: "photo", label: "Photo" }],
+      customFieldValues: {
+        "att-1": [
+          {
+            fieldKey: "photo",
+            label: "Photo",
+            displayValue: "face.jpg",
+            fieldType: "image",
+            fileStoragePath: "evt/staging/x/face.jpg",
+          },
+        ],
+      },
+      locale: "en-US",
+      labels,
+    });
+
+    expect(table.rows[0]?.at(-1)).toEqual({
+      text: "face.jpg",
+      imagePath: "evt/staging/x/face.jpg",
+    });
   });
 
   it("fills empty custom values with emptyValue label", () => {
@@ -81,6 +106,6 @@ describe("buildEventAttendeesExportTable", () => {
       labels,
     });
 
-    expect(table.rows[0]?.at(-1)).toBe("—");
+    expect(table.rows[0]?.at(-1)).toEqual({ text: "—" });
   });
 });

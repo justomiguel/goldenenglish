@@ -23,6 +23,7 @@ import {
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { clientAbsoluteUrl } from "@/lib/client/publicUrl";
 import type { BlogArticleListItem } from "@/lib/blog/server";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 interface BlogAdminListShellProps {
   locale: string;
@@ -97,10 +98,11 @@ export function BlogAdminListShell({
 
   return (
     <section className="space-y-4">
-      <header className="flex items-center justify-between gap-3">
+      <header className="flex items-center justify-between gap-3" data-tour={ADMIN_TOUR_ANCHORS.blogTitle}>
         <h1 className="text-2xl font-bold text-[var(--color-secondary)]">{labels.title}</h1>
         <Link
           href={`/${locale}/dashboard/admin/cms/blog/new`}
+          data-tour={ADMIN_TOUR_ANCHORS.blogCreateCta}
           className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary)] px-3 py-2 text-sm font-semibold text-[var(--color-primary-foreground)]"
         >
           <Plus aria-hidden className="h-4 w-4" />
@@ -116,7 +118,7 @@ export function BlogAdminListShell({
         </p>
       ) : null}
 
-      <div className="grid gap-3">
+      <div className="grid gap-3" data-tour={ADMIN_TOUR_ANCHORS.blogArticleList}>
         {rows.map((row) => (
           <article
             key={row.id}

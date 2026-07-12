@@ -119,7 +119,7 @@ function NavGroupBlock({
         </h3>
       )}
       <div className="space-y-0.5">
-        {group.items.map(({ href, label, icon, badge, tip }) => {
+        {group.items.map(({ href, label, icon, badge, tip, tourId }) => {
           const active = isAdminSidebarNavItemActive(pathname, href, base, profileHref, allHrefs);
           return (
             <Link
@@ -127,6 +127,7 @@ function NavGroupBlock({
               href={href}
               onClick={onNavigate}
               title={tip}
+              {...(tourId ? { "data-tour": tourId } : {})}
               className={`flex items-center gap-2.5 rounded-[var(--layout-border-radius)] px-3 text-[0.8125rem] font-medium transition ${
                 active
                   ? `border-l-2 border-[var(--color-primary)] text-[var(--color-primary)] ${

@@ -91,7 +91,7 @@ export function AcademicSectionPageShellBody({
   const { section, cohort, slots, rows, moveTargets, debtByStudentId, staff, feePlansWithUsage } = data;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-tour="academic-section-detail">
       <AcademicSectionPageHeader
         locale={locale}
         cohortId={cohortId}

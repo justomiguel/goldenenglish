@@ -59,6 +59,7 @@ export async function submitPublicContactForm(
       metaLines,
       bodyPlain: body,
       senderDisplayName: `${fullName} (${dict.publicContact.title})`,
+      visitorDisplayName: fullName,
       visitorReplyEmail: email,
     });
 

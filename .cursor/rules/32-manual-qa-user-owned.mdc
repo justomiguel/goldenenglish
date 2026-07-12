@@ -1,0 +1,44 @@
+---
+description: Manual QA and browser walkthroughs are owned by the user; agents run automated tests only unless explicitly asked.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Manual QA — user-owned
+
+## Objective
+
+**Manual** verification (clicking through flows in a real browser, tenant-specific smoke, visual checks, Lighthouse on a running dev server, authenticated admin/student journeys) is performed by the **user**, not the agent.
+
+The agent focuses on **automated** gates: Vitest, typecheck, lint, and scripted checks that do not require human judgment on live UI.
+
+## Agent behavior
+
+1. **Do not** proactively offer to “test in the browser”, “open dev:nago and walk through the tour”, or run **cursor-ide-browser** / Playwright for product QA unless the user **explicitly** asks.
+2. **Do not** treat manual QA as a blocker for declaring implementation done. List manual steps for the user when specs/plans require them; mark them **user-owned**.
+3. **Do** run `vitest`, targeted test files, and other non-interactive automation when validating changes during development.
+4. **Do** document a short **Manual QA checklist** in specs/plans when flows are hard to cover with unit tests (tours, multi-step modals, tenant branding).
+5. If the user reports a manual QA failure, fix with TDD where possible; do not re-run manual steps yourself unless asked.
+
+## Specs and plans
+
+- **Definition of done** may include manual items; label them `Manual QA (user)` and do not check them off as agent work.
+- Avoid “agent will verify in browser before merge” in plans unless the user requests it.
+
+## Exceptions (agent may use browser tools)
+
+- User explicitly asks: “test this in the browser”, “use Playwright”, “open localhost and click through …”.
+- Debugging a specific failure the user already reproduced and asked the agent to investigate interactively.
+
+## Cross-rules
+
+- **`02-testing-tdd.mdc`** — automated behavioral tests remain mandatory where applicable.
+- **`06-seo-performance.mdc`** — Lighthouse smokes are **user-run** unless the user asks the agent to run `lighthouse:smoke` / tenant manifests.
+- **`foundation-rules.mdc`** — same posture as “no commit unless asked”: no unsolicited manual QA sessions.
+
+## Agent checklist
+
+- [ ] Offered a concise manual QA checklist for the user when UI/tour flows changed?
+- [ ] Avoided unsolicited browser MCP / dev-server walkthrough offers?
+- [ ] Ran automated tests relevant to the change?

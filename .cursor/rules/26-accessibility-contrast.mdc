@@ -26,6 +26,26 @@ alwaysApply: true
 4. **Links and interactive text** — same thresholds as text; visited/hover/active must not dip below minimum for decorative styling gain.
 5. **Semantic typography** — avoid **“muted”** text so faint it fails AA; secondary but still functional copy (errors, brief legal notes) stays **AA** on its background.
 
+## Interactive state contrast (hover, focus, active) — mandatory
+
+**Every interactive state** on a control (`:hover`, `:focus-visible`, `:active`, `:disabled` where legible) must meet the same WCAG AA thresholds as the default state for **visible text and informative icons** against the control’s immediate background. Hover must be **perceptible** without breaking contrast.
+
+### Forbidden on buttons, links, and icon-only controls
+
+1. **`hover:opacity-*` / `active:opacity-*`** on filled controls — lowers foreground/background contrast and often makes hover invisible.
+2. **Low-opacity washes as the only hover affordance** — e.g. `hover:bg-[var(--color-primary-foreground)]/15` on saturated brand fills, or `text-white/50` hover on dark surfaces, without a verified ratio.
+3. **Hover styles that make labels or icons harder to read** than the default state.
+
+### Preferred patterns (align with **`01-design-system.mdc`**, **`16-admin-buttons-icons.mdc`**, atom `Button`)
+
+1. **Token-filled buttons** — `transition-colors` + `hover:bg-[var(--color-primary-dark)]` (or `secondary-dark`) while keeping `text-[var(--color-*-foreground)]`.
+2. **Ghost / outline on neutral surfaces** — `hover:bg-[var(--color-muted)]` with `text-[var(--color-foreground)]`, or a visible border shift.
+3. **Icon-only on saturated headers** — darken the control surface (`hover:bg-[var(--color-primary-dark)]`) and keep foreground on the verified pair; focus ring uses **foreground** on **fill** (`ring-[var(--color-primary-foreground)]`, `ring-offset-[var(--color-primary)]`).
+4. **Third-party widgets** (tours, charts) — override `:hover` / `:focus-visible` in token-aligned CSS; do not rely on library defaults.
+5. **Perceptible hover without hurting contrast** — pair token color shifts with **non-opacity** motion (`scale`, subtle `box-shadow`, or inset ring). Use `motion-reduce:` to disable transform when `prefers-reduced-motion` is set.
+
+Re-check contrast **per tenant theme** when touching brand tokens — `site_themes` overrides can change ratios.
+
 ## Non-text contrast (UI, focus, borders)
 
 1. **UI components and informational graphics** (input borders, checkboxes, dividers between controls, icons conveying action/state, chart segments carrying meaning): **≥ 3:1** versus adjacent colors, unless the change is purely decorative and another **accessible** signal exists (“Not color alone”).
@@ -86,7 +106,8 @@ These showed up on **public marketing landings** across tenants (Espacio Zenit, 
 
 ## Agent checklist
 
-- [ ] Do normal and large text meet **4.5:1** / **3:1** on their real backgrounds (including states)?
+- [ ] Do normal and large text meet **4.5:1** / **3:1** on their real backgrounds (**default, hover, focus, active**)?
+- [ ] Do button/link hovers use **token darkening** (not opacity-only) and stay **perceptible** on every tenant theme?
 - [ ] Do control borders, informative icons, and visible focus meet **≥ 3:1** where required?
 - [ ] Does **`<html lang>`** stay correct for locale routes (middleware header + root layout), not only an inner `lang` wrapper?
 - [ ] Do **links and icon controls** have a **discernible name** at every breakpoint where they are focusable (**`aria-label`** from dictionaries when text is hidden or icon-only)?

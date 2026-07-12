@@ -6,6 +6,7 @@ import { Plus, X } from "lucide-react";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
 import { createAcademicCohortAction } from "@/app/[locale]/dashboard/admin/academics/actions";
+import { useAdminTourSessionActive } from "@/lib/admin-tutorials/client/adminTourSession";
 
 export interface AcademicNewCohortModalProps {
   locale: string;
@@ -29,10 +30,19 @@ export function AcademicNewCohortModal({
   dict,
 }: AcademicNewCohortModalProps) {
   const router = useRouter();
+  const tourActive = useAdminTourSessionActive();
+  /** Keep stacked `show()` after Listo so tour teardown never promotes/closes the form. */
+  const [retainStackedAfterTour, setRetainStackedAfterTour] = useState(false);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [pending, start] = useTransition();
+
+  if (open && tourActive && !retainStackedAfterTour) {
+    setRetainStackedAfterTour(true);
+  } else if (!open && retainStackedAfterTour) {
+    setRetainStackedAfterTour(false);
+  }
 
   const submit = () => {
     setErr(null);
@@ -61,6 +71,7 @@ export function AcademicNewCohortModal({
       titleId="new-cohort-title"
       title={dict.title}
       disableClose={pending}
+      stackBelowTour={tourActive || retainStackedAfterTour}
     >
       <div className="space-y-3">
         <div>
@@ -69,6 +80,7 @@ export function AcademicNewCohortModal({
           </label>
           <input
             id="nc-name"
+            data-tour="academic-new-cohort-name"
             className="mt-1 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -94,7 +106,13 @@ export function AcademicNewCohortModal({
             {!pending ? <X className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {dict.cancel}
           </Button>
-          <Button type="button" isLoading={pending} disabled={pending || name.trim().length < 2} onClick={submit}>
+          <Button
+            type="button"
+            isLoading={pending}
+            disabled={pending || name.trim().length < 2}
+            onClick={submit}
+            data-tour="academic-new-cohort-submit"
+          >
             {!pending ? <Plus className="h-4 w-4 shrink-0" aria-hidden /> : null}
             {dict.submit}
           </Button>

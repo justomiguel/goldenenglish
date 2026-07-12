@@ -36,9 +36,14 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:coverage:full": "sh -c 'export VITEST_COVERAGE_FULL=1 && vitest run --coverage'",
+    "test:e2e": "PLAYWRIGHT_HTML_OPEN=never playwright test",
+    "test:e2e:tours": "PLAYWRIGHT_HTML_OPEN=never playwright test --project=chromium-admin-tours",
+    "test:e2e:precommit": "node scripts/run-e2e-precommit.mjs",
+    "e2e:stack:up": "node scripts/e2e-stack-up.mjs",
+    "e2e:stack:down": "node scripts/e2e-stack-down.mjs",
     "lighthouse:smoke": "bash scripts/lighthouse-smoke.sh",
     "lighthouse:a11y:tenants": "node scripts/a11y-lighthouse-tenants.mjs",
-    "precommit": "npm run clean:test-cache && npm run lint && npm run check:supabase-boundaries && node scripts/precommit-verify.mjs && npm run build && git add public/sw.js && npm run test:coverage",
+    "precommit": "npm run clean:test-cache && npm run lint && npm run check:supabase-boundaries && node scripts/precommit-verify.mjs && npm run build && git add public/sw.js && npm run test:coverage && npm run test:e2e:precommit",
     "prepare": "husky"
   },
   "dependencies": {
@@ -72,6 +77,8 @@
     "@tiptap/starter-kit": "^3.22.3",
     "@vercel/kv": "^3.0.0",
     "@xyflow/react": "^12.10.2",
+    "driver.js": "^1.6.0",
+    "exceljs": "^4.4.0",
     "fflate": "^0.8.2",
     "geoip-country": "^5.0.202604142355",
     "i18n-iso-countries": "^7.14.0",
@@ -98,6 +105,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.0",

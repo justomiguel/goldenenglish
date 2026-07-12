@@ -29,7 +29,14 @@ try {
  * Re-inline public Supabase vars so Edge proxy / Turbopack see them.
  * Values are loaded above from .env.local via loadEnvConfig.
  */
+/**
+ * Isolate E2E `next dev` cache from tenant `dev:*` (same repo, parallel ports).
+ * Playwright / `run-e2e-precommit.mjs` set `GE_DEV_TARGET=e2e`.
+ */
+const e2eIsolatedCache = (process.env.GE_DEV_TARGET ?? "").trim().toLowerCase() === "e2e";
+
 const nextConfig: NextConfig = {
+  ...(e2eIsolatedCache ? { distDir: ".next-e2e" } : {}),
   transpilePackages: [
     "@fullcalendar/core",
     "@fullcalendar/react",

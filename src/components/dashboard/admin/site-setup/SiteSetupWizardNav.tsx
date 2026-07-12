@@ -3,6 +3,7 @@
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type Btn = Dictionary["dashboard"]["siteSetup"]["buttons"];
 type Intro = Dictionary["dashboard"]["siteSetup"]["intro"];
@@ -31,7 +32,10 @@ export function SiteSetupWizardNav({
   const last = step >= totalSteps - 1;
 
   return (
-    <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-border)] pt-6">
+    <div
+      className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-border)] pt-6"
+      data-tour={ADMIN_TOUR_ANCHORS.siteSetupNav}
+    >
       <div>
         {step > 0 ? (
           <Button type="button" variant="ghost" size="md" onClick={onBack}>

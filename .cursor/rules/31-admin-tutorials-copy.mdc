@@ -1,0 +1,62 @@
+---
+description: Admin guided tutorials — explanatory copy, hierarchy context, icons, and i18n.
+globs:
+  - "src/lib/admin-tutorials/**"
+  - "src/components/dashboard/AdminHelp*.tsx"
+  - "src/dictionaries/en.json"
+  - "src/dictionaries/es.json"
+  - "src/dictionaries/pt.json"
+alwaysApply: false
+---
+
+# Admin guided tutorials — copy and presentation
+
+## Objective
+
+Driver.js tours in the admin help FAB must **teach**, not only point at controls. Staff should understand **why** a step exists and how it fits the academic model before acting.
+
+## Mandatory copy standards
+
+1. **Explain hierarchy and prerequisites** — When a tour touches nested entities (cohort → section → course), the **first step** (or intro popover) must state that the parent container must exist first. For this product, a **cohort is annual** (one per school year); **shifts** (morning, afternoon, etc.) belong in **sections**, not in separate cohorts. Example: sections and courses live **inside** the year’s cohort; create that cohort before adding sections.
+2. **Substantive step descriptions** — Each step `description` in `dashboard.adminHelpTours.*.steps` should be **2–4 sentences** for conceptual steps (intro, hub, detail) and **at least 1–2 sentences** for mechanical steps (click Next, fill a field). Say what the control does, what happens next, and any common mistake to avoid.
+3. **Catalog list blurbs** — `dashboard.adminHelpCatalog.<id>.description` should summarize the learning outcome (not only “guided walkthrough”).
+4. **i18n** — Add or change keys in **`en.json`**, **`es.json`**, and **`pt.json`** together (**`09-i18n-copy.mdc`**). No user-visible literals in tour runners or help components.
+5. **Duplicate-year guard** — Before opening the new-cohort modal, detect an existing cohort for the calendar year and show an **in-tour** Driver popover step with two footer actions (continue with existing vs create another). Copy lives in `dashboard.adminHelpTours.*.existingCohortPrompt` with `{{year}}` and `{{name}}` placeholders. Do not use a separate admin modal for this branch. Custom branch buttons must **not** use Driver’s `driver-popover-next-btn` / `driver-popover-footer-btn` classes — Driver.js delegates those clicks to `onNextClick` and will swallow the action.
+6. **Tour stacking** — While Driver.js is active, modals opened during the tour use `stackBelowTour` (`show()` + `ge-modal-stacked`) so the tour popover stays above native top-layer dialogs. Activate the tour session **before** opening the modal so the first paint uses `show()`, never `showModal()`. `Modal` must derive stacked presentation from props (no delayed state that briefly opens top-layer). When the tour ends (**Listo** / Done), promote to `showModal()` **without** firing `onOpenChange(false)` — suppress the synthetic `close` from remount so the create form stays open for the real submit. For **create-new** from the year branch, close the branch tour first, then `openNewCohortModalForTutorial()` (session + stacked), then the modal step tour.
+7. **Line breaks** — Use `\n\n` in dictionary descriptions for paragraphs; popover CSS uses `white-space: pre-line` on `.driver-popover-description`.
+
+## Icons
+
+1. **Tutorial list (React)** — Each `CATALOG` row declares an `icon` key; render a leading **Lucide** icon (`h-4 w-4`, `aria-hidden`) beside the title in `AdminHelpTutorialList` (**`16-admin-buttons-icons.mdc`**).
+2. **Tour step titles (Driver popover)** — Prefix titles with a **single Unicode symbol** in dictionaries (e.g. 📚, ➕) when it aids scanning; keep the rest of the title human-readable for screen readers.
+3. **Help panel chrome** — Prefer Lucide on headings/actions where space allows (e.g. `CircleHelp` in panel header).
+
+Do not add a second icon library for tutorials.
+
+## Architecture checklist (new tour)
+
+- [ ] `catalog.ts` — id, `catalogKey`, `icon` (task tutorials)
+- [ ] Pure step builder under `src/lib/admin-tutorials/`
+- [ ] Intro step when domain concepts need context (`anchor: null` welcome popover)
+- [ ] `adminHelpCatalog` + `adminHelpTours` keys in all locales
+- [ ] `startAdminTutorial` switch case
+- [ ] Vitest for step order / copy wiring
+- [ ] Update **`33-admin-tutorials-contract.mdc`** contracts (`listTourRuntimeChecks`, inventory) when anchors/routes change
+- [ ] Analytics unchanged or extended per **`08-analytics-observability.mdc`**
+
+## Screen explain tours (contextual FAB)
+
+- Always show **Explain this screen** first in the help panel (`AdminHelpExplainScreenBlock`).
+- Register routes in `screenCatalog.ts` (`resolveAdminScreenTour`).
+- **Admin home** (`admin-home`) is the **only** tour with scope `chrome-and-content` (sidebar + header + content).
+- All **future** screen tours must use scope `content-only` — do not re-highlight nav/chrome.
+- Copy under `dashboard.adminHelpExplainScreen` + `dashboard.adminHelpScreenTours.<id>`.
+- Runner: `startExplainScreenTour`; entity prefix `admin_screen_tour:*`.
+
+## Cross-rules
+
+- **`33-admin-tutorials-contract.mdc`** — UI change → tour update; Vitest inventory + Playwright `@admin-tours`
+- **`09-i18n-copy.mdc`** — dictionaries only for visible strings
+- **`26-accessibility-contrast.mdc`** — popover and FAB controls stay AA in all states
+- **`03-architecture.mdc`** — keep tour modules pure; Driver import only in `client/runDriverTour.ts`
+- **`10-engineering-governance.mdc`** — ADR when adding a new tour library or public contract

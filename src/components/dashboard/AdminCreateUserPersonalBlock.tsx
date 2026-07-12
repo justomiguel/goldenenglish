@@ -87,7 +87,7 @@ export function AdminCreateUserPersonalBlock({
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
-        <div>
+        <div data-tour="admin-create-user-last-name">
           <Label htmlFor="cu-ln">{labels.lastName}</Label>
           <Input
             id="cu-ln"
@@ -98,7 +98,7 @@ export function AdminCreateUserPersonalBlock({
             className="mt-1 w-full"
           />
         </div>
-        <div>
+        <div data-tour="admin-create-user-first-name">
           <Label htmlFor="cu-fn">{labels.firstName}</Label>
           <Input
             id="cu-fn"
@@ -112,23 +112,29 @@ export function AdminCreateUserPersonalBlock({
       </div>
 
       {showBirth ? (
-        <RegisterBirthDateDayPicker
-          locale={locale}
-          birthDateLegendRequired
-          labels={birthLabels}
-          value={birthDate}
-          onChange={onBirthDateChange}
-        />
+        <div data-tour="admin-create-user-birth">
+          <RegisterBirthDateDayPicker
+            locale={locale}
+            birthDateLegendRequired
+            labels={birthLabels}
+            value={birthDate}
+            onChange={onBirthDateChange}
+          />
+        </div>
       ) : null}
 
       {showMinorSyntheticHint ? (
-        <p className="text-xs text-[var(--color-muted-foreground)]" role="note">
+        <p
+          className="text-xs text-[var(--color-muted-foreground)]"
+          role="note"
+          data-tour="admin-create-user-minor-hint"
+        >
           {labels.createUserMinorSyntheticEmailHint}
         </p>
       ) : null}
 
       {showAdultStudentEmail || !isStudent ? (
-        <div>
+        <div data-tour="admin-create-user-email">
           <Label htmlFor="cu-email">{labels.email}</Label>
           <Input
             id="cu-email"
@@ -142,7 +148,7 @@ export function AdminCreateUserPersonalBlock({
         </div>
       ) : null}
 
-      <div>
+      <div data-tour="admin-create-user-password">
         <Label htmlFor="cu-pass">{labels.password}</Label>
         <Input
           id="cu-pass"
@@ -157,7 +163,7 @@ export function AdminCreateUserPersonalBlock({
           {labels.passwordHint}
         </p>
       </div>
-      <div>
+      <div data-tour="admin-create-user-role">
         <Label htmlFor="cu-role">{labels.role}</Label>
         <select
           id="cu-role"
@@ -180,7 +186,7 @@ export function AdminCreateUserPersonalBlock({
         <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.roleHint}</p>
       </div>
 
-      <div>
+      <div data-tour="admin-create-user-dni">
         <Label htmlFor="cu-dni" required={showMinor}>
           {labels.dni}
         </Label>
@@ -199,7 +205,7 @@ export function AdminCreateUserPersonalBlock({
       </div>
 
       {!showMinor ? (
-        <div>
+        <div data-tour="admin-create-user-phone">
           <Label htmlFor="cu-ph">{labels.phone}</Label>
           <Input
             id="cu-ph"

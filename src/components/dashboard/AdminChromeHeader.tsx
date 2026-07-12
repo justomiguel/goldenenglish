@@ -35,6 +35,7 @@ export function AdminChromeHeader({
 
   return (
     <header
+      data-tour="admin-chrome-header"
       className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-surface)]/95 shadow-[var(--shadow-soft)] backdrop-blur-md"
       aria-label={labels.ariaHeader}
     >
@@ -92,6 +93,7 @@ export function AdminChromeHeader({
           {teacherPortalAllowed ? (
             <Link
               href={teacherHref}
+              data-tour="admin-chrome-teacher-portal"
               aria-label={labels.openTeacherDashboardAria}
               title={labels.openTeacherDashboard}
               className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10 px-2.5 py-2 text-xs font-medium text-[var(--color-primary)] shadow-sm transition hover:bg-[var(--color-primary)]/15 sm:px-3 sm:text-sm"
@@ -102,6 +104,7 @@ export function AdminChromeHeader({
           ) : null}
           <Link
             href={`/${locale}`}
+            data-tour="admin-chrome-back-to-site"
             aria-label={labels.backToSite}
             title={labels.backToSite}
             className="inline-flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 py-2 text-xs font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] sm:min-w-0 sm:justify-start sm:px-3 sm:text-sm"
@@ -117,9 +120,14 @@ export function AdminChromeHeader({
             locale={locale}
             label={dict.nav.logout}
             title={labels.signOutHint}
+            tourAnchor="admin-chrome-sign-out"
             className="min-h-10 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 py-2 text-xs font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] sm:px-3 sm:text-sm"
           />
-          <LanguageSwitcher locale={locale} labels={dict.common.locale} />
+          <LanguageSwitcher
+            locale={locale}
+            labels={dict.common.locale}
+            tourAnchor="admin-chrome-locale"
+          />
         </div>
       </div>
     </header>

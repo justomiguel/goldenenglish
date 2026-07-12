@@ -8,6 +8,7 @@ import {
 import { AdminAuditLogScreen } from "@/components/organisms/AdminAuditLogScreen";
 import type { AuditDomain } from "@/lib/audit/types";
 import type { AuditSortDir, AuditSortKey } from "@/types/audit";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -75,7 +76,10 @@ export default async function AdminAuditPage({ params, searchParams }: PageProps
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
+      <h1
+        className="text-2xl font-bold text-[var(--color-secondary)]"
+        data-tour={ADMIN_TOUR_ANCHORS.auditTitle}
+      >
         {dict.admin.audit.listTitle}
       </h1>
       <p className="mt-2 max-w-2xl text-sm text-[var(--color-muted-foreground)]">

@@ -4,6 +4,7 @@ import { Wallet } from "lucide-react";
 import { AdminEventAttendeeAvatar } from "@/components/dashboard/admin/events/AdminEventAttendeeAvatar";
 import { AdminEventAttendeeRowActions } from "@/components/dashboard/admin/events/AdminEventAttendeeRowActions";
 import { AdminEventAttendeeExpandedDetails } from "@/components/dashboard/admin/events/AdminEventAttendeeExpandedDetails";
+import { AdminEventAttendeeCustomFieldMediaCell } from "@/components/dashboard/admin/events/AdminEventAttendeeCustomFieldMediaCell";
 import {
   AdminEventAttendeeNoPaymentBadge,
   AdminEventAttendeePresentationBadge,
@@ -14,16 +15,18 @@ import {
   formatAttendeePaymentStatusLabel,
   formatAttendeeStatus,
   formatAttendeeValue,
-  resolveAttendeeCustomFieldDisplayValue,
+  resolveAttendeeCustomField,
   ADMIN_EVENT_ATTENDEES_BASE_COLUMN_COUNT,
   type AdminEventAttendeeCustomFieldColumn,
   type AdminEventAttendeesPanelLabels,
 } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
 import {
   ADMIN_EVENT_ATTENDEES_TABLE_BODY_CELL,
+  ADMIN_EVENT_ATTENDEES_TABLE_CUSTOM_BODY_CELL,
   ADMIN_EVENT_ATTENDEES_TABLE_TEXT,
   ADMIN_EVENT_ATTENDEES_TABLE_TEXT_MONO,
   ADMIN_EVENT_ATTENDEES_TABLE_TEXT_PROMINENT,
+  adminEventAttendeesActionsBodyCellClass,
 } from "@/lib/dashboard/events/adminEventAttendeesTableClasses";
 import type { EventAttendeeCustomFieldValue } from "@/lib/dashboard/events/loadEventAttendeeCustomFieldValues";
 import type { EventAttendeeRow } from "@/lib/dashboard/events/loadEventAttendeesPaginated";
@@ -129,16 +132,20 @@ export function AdminEventAttendeeTableRow({
           )}
         </td>
         {customFieldColumns.map((column) => {
-          const value = resolveAttendeeCustomFieldDisplayValue(customFields, column.fieldKey);
+          const field = resolveAttendeeCustomField(customFields, column.fieldKey);
           return (
-            <td key={column.fieldKey} className={ADMIN_EVENT_ATTENDEES_TABLE_BODY_CELL}>
-              <span className={ADMIN_EVENT_ATTENDEES_TABLE_TEXT} title={value}>
-                {value}
-              </span>
+            <td key={column.fieldKey} className={ADMIN_EVENT_ATTENDEES_TABLE_CUSTOM_BODY_CELL}>
+              <AdminEventAttendeeCustomFieldMediaCell
+                field={field}
+                emptyLabel="—"
+                openFileLabel={labels.openCustomFile}
+                imageAltTemplate={labels.customFieldImageAlt}
+                size="sm"
+              />
             </td>
           );
         })}
-        <td className={`${ADMIN_EVENT_ATTENDEES_TABLE_BODY_CELL} text-right`}>
+        <td className={adminEventAttendeesActionsBodyCellClass(expanded)}>
           <AdminEventAttendeeRowActions
             locale={locale}
             eventId={eventId}
@@ -155,7 +162,10 @@ export function AdminEventAttendeeTableRow({
           className="border-b border-[var(--color-border)] bg-[var(--color-surface)] last:border-b-0"
           data-testid={`attendee-expanded-${row.id}`}
         >
-          <td colSpan={ADMIN_EVENT_ATTENDEES_BASE_COLUMN_COUNT + customFieldColumns.length} className="p-0">
+          <td
+            colSpan={ADMIN_EVENT_ATTENDEES_BASE_COLUMN_COUNT + customFieldColumns.length}
+            className="p-0"
+          >
             <AdminEventAttendeeExpandedDetails
               row={row}
               customFields={customFields}

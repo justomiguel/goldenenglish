@@ -11,6 +11,10 @@ alwaysApply: true
 
 - **Do not** run `git commit`, `git push`, or deployments from the agent **unless** the user **explicitly** asks for it in the message, to avoid accidental changes.
 
+## Manual QA
+
+- **Manual** browser walkthroughs, tenant smoke, and visual verification are **user-owned** — see **`32-manual-qa-user-owned.mdc`**. The agent runs Vitest and other automation; it does not proactively open the app in a browser to QA unless asked.
+
 ## Data and SQL schema
 
 - **Source of truth in Supabase:** incremental migrations under **`supabase/migrations/`** (numeric ordering / naming as agreed). Any table, column, index, **RLS** policy, or function that must exist in real environments enters through a reviewed migration.

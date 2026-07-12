@@ -14,15 +14,12 @@ interface PageProps {
 export default async function AdminUsersImportPage({ params }: PageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
+  const ss = dict.admin.users.spreadsheet;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
-        {dict.admin.import.title}
-      </h1>
-      <p className="mt-2 max-w-2xl text-sm text-[var(--color-muted-foreground)]">
-        {dict.admin.home.cards.import}
-      </p>
+      <h1 className="text-2xl font-bold text-[var(--color-secondary)]">{ss.importTitle}</h1>
+      <p className="mt-2 max-w-2xl text-sm text-[var(--color-muted-foreground)]">{ss.importLead}</p>
       <div className="mt-6">
         <AdminImportSurfaceGate
           locale={locale}

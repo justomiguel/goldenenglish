@@ -2,8 +2,9 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { buildEventAttendeeUploadPath } from "@/lib/events/buildEventAttendeeUploadPath";
+import { EVENT_UPLOADS_BUCKET } from "@/lib/events/eventUploadsBucket";
 
-export const EVENT_UPLOADS_BUCKET = "event-uploads";
+export { EVENT_UPLOADS_BUCKET } from "@/lib/events/eventUploadsBucket";
 
 export interface CreateEventUploadSignedUrlInput {
   eventId: string;
@@ -47,14 +48,5 @@ export async function createEventUploadSignedUrl(
   return { path, token: data.token };
 }
 
-export async function createEventUploadReadSignedUrl(path: string): Promise<string | null> {
-  const admin = createAdminClient();
-  const { data, error } = await admin.storage
-    .from(EVENT_UPLOADS_BUCKET)
-    .createSignedUrl(path, 300);
-  if (error || !data?.signedUrl) {
-    if (error) logSupabaseClientError("createEventUploadReadSignedUrl:storage", error, { path });
-    return null;
-  }
-  return data.signedUrl;
-}
+export { createEventUploadReadSignedUrl } from "@/lib/events/createEventUploadReadSignedUrl";
+

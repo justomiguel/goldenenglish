@@ -22,7 +22,9 @@ export async function loadAdminPortalReplyComposeContext(
 
   const { data: row, error } = await supabase
     .from("portal_messages")
-    .select("id, sender_id, recipient_id, external_contact_reply_email, body_html")
+    .select(
+      "id, sender_id, recipient_id, external_contact_reply_email, body_html, broadcast_batch_id",
+    )
     .eq("id", parsed.data)
     .maybeSingle();
 
@@ -42,5 +44,9 @@ export async function loadAdminPortalReplyComposeContext(
     return { kind: "external_email", sourceMessageId: row.id as string, visitorEmail };
   }
 
-  return { kind: "portal", recipientProfileId: cp };
+  return {
+    kind: "portal",
+    recipientProfileId: cp,
+    sourceMessageId: row.id as string,
+  };
 }

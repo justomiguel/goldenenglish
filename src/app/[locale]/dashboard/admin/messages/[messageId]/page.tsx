@@ -6,6 +6,7 @@ import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { redirect, notFound } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadAdminPortalMessageDetail } from "@/lib/dashboard/loadAdminPortalMessageDetail";
+import { markAdminPortalMessageRead } from "@/lib/messaging/markAdminPortalMessageAttention";
 import { AdminPortalMessageDetailView } from "@/components/dashboard/AdminPortalMessageDetailView";
 import { DeletePortalMessageButton } from "@/components/dashboard/DeletePortalMessageButton";
 
@@ -42,6 +43,8 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
 
   const detail = await loadAdminPortalMessageDetail(supabase, dict, messageId);
   if (!detail) notFound();
+
+  await markAdminPortalMessageRead(supabase, messageId);
 
   const listHref = `/${locale}/dashboard/admin/messages`;
   const replyHref = `/${locale}/dashboard/admin/messages/compose?replyTo=${detail.id}`;

@@ -7,6 +7,8 @@ export type UnderlineTabItem = {
   id: string;
   label: string;
   Icon?: LucideIcon;
+  /** Stable `data-tour` anchor for admin guided tutorials. */
+  tourId?: string;
   /** When true, tab is not selectable or keyboard-focusable except when already selected (caller should avoid). */
   disabled?: boolean;
   /** E.g. i18n reason shown as native tooltip when `disabled`. */
@@ -178,6 +180,7 @@ export function UnderlineTabBar({
               if (disabled) return;
               onChange(item.id);
             }}
+            {...(item.tourId ? { "data-tour": item.tourId } : {})}
             className={`relative flex items-center justify-center gap-2 ${rowFlex} ${pad} text-sm font-medium outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 ${
               isGrid ? `min-h-[44px] ${gridR} ${gridB} ${mobileR}` : "min-h-[44px]"
             } ${disabled ? "cursor-not-allowed opacity-55" : ""} ${

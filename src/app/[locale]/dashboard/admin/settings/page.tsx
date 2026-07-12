@@ -10,6 +10,7 @@ import {
   loadGoogleTranslateCredentials,
   maskGoogleApiKey,
 } from "@/lib/blog/integrations/google/loadGoogleTranslateCredentials";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -29,29 +30,38 @@ export default async function AdminSettingsPage({ params }: PageProps) {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-[var(--color-secondary)]">
+      <h1
+        className="mb-6 text-2xl font-bold text-[var(--color-secondary)]"
+        data-tour={ADMIN_TOUR_ANCHORS.settingsTitle}
+      >
         {dict.admin.settings.title}
       </h1>
       <p className="mb-6 max-w-2xl text-sm leading-relaxed text-[var(--color-muted-foreground)]">
         {dict.admin.settings.scopeLead}
       </p>
-      <InscriptionsSettingsForm
-        locale={locale}
-        initialEnabled={enabled}
-        labels={dict.admin.settings}
-      />
-      {classReminders ? (
-        <ClassRemindersAdminSettingsForm
+      <div data-tour={ADMIN_TOUR_ANCHORS.settingsInscriptions}>
+        <InscriptionsSettingsForm
           locale={locale}
-          initial={classReminders}
+          initialEnabled={enabled}
           labels={dict.admin.settings}
         />
+      </div>
+      {classReminders ? (
+        <div data-tour={ADMIN_TOUR_ANCHORS.settingsClassReminders}>
+          <ClassRemindersAdminSettingsForm
+            locale={locale}
+            initial={classReminders}
+            labels={dict.admin.settings}
+          />
+        </div>
       ) : null}
-      <GoogleTranslateSettingsForm
-        locale={locale}
-        labels={dict.admin.settings.blogTranslate}
-        initialMaskedKey={maskGoogleApiKey(googleCredentials.apiKey)}
-      />
+      <div data-tour={ADMIN_TOUR_ANCHORS.settingsBlogTranslate}>
+        <GoogleTranslateSettingsForm
+          locale={locale}
+          labels={dict.admin.settings.blogTranslate}
+          initialMaskedKey={maskGoogleApiKey(googleCredentials.apiKey)}
+        />
+      </div>
     </div>
   );
 }

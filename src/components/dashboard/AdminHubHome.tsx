@@ -56,16 +56,19 @@ export function AdminHubHome({ locale, dict, summary, birthdayRows, birthdaysDic
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
-        {dict.admin.home.title}
-      </h1>
-      <p className="mt-1 text-[var(--color-muted-foreground)]">
-        {dict.admin.home.lead}
-      </p>
+      <div data-tour="admin-hub-title">
+        <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
+          {dict.admin.home.title}
+        </h1>
+        <p className="mt-1 text-[var(--color-muted-foreground)]">
+          {dict.admin.home.lead}
+        </p>
+      </div>
 
       {summary.studentsWithoutSection > 0 ? (
         <Link
           href={`${base}/users`}
+          data-tour="admin-hub-students-without-section"
           className="mt-4 block rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-accent)]/10 px-4 py-3 text-sm text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-accent)]/16"
           aria-label={studentsNoSectionTitle}
           title={studentsNoSectionTitle}
@@ -82,13 +85,14 @@ export function AdminHubHome({ locale, dict, summary, birthdayRows, birthdaysDic
         </Link>
       ) : null}
 
-      <div className="mt-6 max-w-2xl">
+      <div className="mt-6 max-w-2xl" data-tour="admin-hub-birthdays">
         <UpcomingBirthdaysCard locale={locale} rows={birthdayRows} dict={birthdaysDict} />
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <AdminHubMetricCard
           href={`${base}/analytics`}
+          tourAnchor="admin-hub-traffic"
           icon={<Activity className="h-5 w-5" />}
           title={t.traffic.title}
           accentClass="bg-indigo-50 text-indigo-600"
@@ -119,6 +123,7 @@ export function AdminHubHome({ locale, dict, summary, birthdayRows, birthdaysDic
 
         <AdminHubMetricCard
           href={`${base}/users`}
+          tourAnchor="admin-hub-users"
           icon={<Users className="h-5 w-5" />}
           title={t.users.title}
           accentClass="bg-sky-50 text-sky-600"
@@ -142,6 +147,7 @@ export function AdminHubHome({ locale, dict, summary, birthdayRows, birthdaysDic
 
         <AdminHubMetricCard
           href={`${base}/payments`}
+          tourAnchor="admin-hub-payments"
           icon={<Wallet className="h-5 w-5" />}
           title={t.payments.title}
           hint={t.payments.cardTip}
@@ -169,6 +175,7 @@ export function AdminHubHome({ locale, dict, summary, birthdayRows, birthdaysDic
 
         <AdminHubMetricCard
           href={`${base}/registrations`}
+          tourAnchor="admin-hub-registrations"
           icon={<ClipboardList className="h-5 w-5" />}
           title={t.registrations.title}
           hint={t.registrations.cardTip}
@@ -204,6 +211,7 @@ export function AdminHubHome({ locale, dict, summary, birthdayRows, birthdaysDic
 
         <AdminHubMessagesCard
           href={`${base}/messages`}
+          tourAnchor="admin-hub-messages"
           labels={t.messages}
           cardTip={t.messages.cardTip}
           recentCount={summary.messages.recentCount}

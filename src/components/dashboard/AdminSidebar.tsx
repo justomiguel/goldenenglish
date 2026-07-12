@@ -26,7 +26,10 @@ export function AdminSidebar({
   teacherNav,
 }: AdminSidebarProps) {
   return (
-    <aside className="hidden w-56 shrink-0 md:block md:rounded-[var(--layout-border-radius)] md:border md:border-[var(--color-border)] md:bg-[var(--color-surface)] md:py-5 md:pl-2 md:pr-2 md:shadow-sm">
+    <aside
+      data-tour="admin-sidebar"
+      className="hidden w-56 shrink-0 md:block md:rounded-[var(--layout-border-radius)] md:border md:border-[var(--color-border)] md:bg-[var(--color-surface)] md:py-5 md:pl-2 md:pr-2 md:shadow-sm"
+    >
       <AdminSidebarNavContent
         locale={locale}
         dict={dict}

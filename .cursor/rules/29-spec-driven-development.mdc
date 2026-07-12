@@ -38,6 +38,11 @@ Writing or updating files under `docs/superpowers/specs/` is part of Gate 0 and 
 - “Too small for a spec”
 - Spec only in chat, never written to `docs/superpowers/specs/`
 - Implementing while “waiting” for approval
+- Skipping the approval marker (hooks will deny implementation edits)
+
+## Hook unlock
+
+After explicit user approval, write **`.cursor/sdd-gate0-approved`** (gitignored) pointing at the approved spec path. See **`20-agent-preflight.mdc`** (Hook enforcement). Without the marker, Cursor hooks deny `Write`/`StrReplace`/`Delete` outside specs/plans.
 
 ## Governance
 

@@ -35,6 +35,7 @@ describe("loadAdminPortalMessageDetail", () => {
         recipient_id: recipientId,
         body_html: "<p>Hello <strong>there</strong></p>",
         created_at: "2026-05-01T12:00:00.000Z",
+        broadcast_batch_id: null,
       },
       error: null,
     });
@@ -82,5 +83,66 @@ describe("loadAdminPortalMessageDetail", () => {
     expect(r!.previewSnippet).toContain("Hello");
     expect(r!.fromRoleLabel).toBe(dict.admin.messages.roleTeacher);
     expect(r!.toRoleLabel).toBe(dict.admin.messages.roleAdmin);
+    expect(r!.toName).toContain("Admin");
+    expect(r!.toName).not.toBe(dict.admin.messages.administrationPeerLabel);
+  });
+
+  it("labels student administration broadcast To as Administration", async () => {
+    const messageId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+    const senderId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+    const recipientId = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: {
+        id: messageId,
+        sender_id: senderId,
+        recipient_id: recipientId,
+        body_html: "<p>Need help</p>",
+        created_at: "2026-05-01T12:00:00.000Z",
+        broadcast_batch_id: "batch-xyz",
+      },
+      error: null,
+    });
+
+    const from = vi.fn().mockImplementation((table: string) => {
+      if (table === "portal_messages") {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({ maybeSingle }),
+          }),
+        };
+      }
+      if (table === "profiles") {
+        return {
+          select: vi.fn().mockReturnValue({
+            in: vi.fn().mockResolvedValue({
+              data: [
+                {
+                  id: senderId,
+                  first_name: "Sam",
+                  last_name: "Student",
+                  role: "student",
+                },
+                {
+                  id: recipientId,
+                  first_name: "Bob",
+                  last_name: "Admin",
+                  role: "admin",
+                },
+              ],
+              error: null,
+            }),
+          }),
+        };
+      }
+      return {};
+    });
+
+    const supabase = { from } as unknown as SupabaseClient;
+    const r = await loadAdminPortalMessageDetail(supabase, dict, messageId);
+
+    expect(r).not.toBeNull();
+    expect(r!.toName).toBe(dict.admin.messages.administrationPeerLabel);
+    expect(r!.fromRoleLabel).toBe(dict.admin.messages.roleStudent);
   });
 });

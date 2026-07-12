@@ -14,6 +14,7 @@ import { Label } from "@/components/atoms/Label";
 import { EmailTemplateEditor } from "./EmailTemplateEditor";
 import { EmailTemplatePreview } from "./EmailTemplatePreview";
 import { buildBrandForPreview, buildSampleVars, defaultsFor, type EmailTemplatesShellBrand, type EmailTemplatesShellEntry } from "./emailTemplateShellHelpers";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export type { EmailTemplatesShellBrand, EmailTemplatesShellEntry } from "./emailTemplateShellHelpers";
 
@@ -153,6 +154,7 @@ export function EmailTemplatesShell({
       <div className="space-y-4">
         <Label htmlFor="email-template-select">{labels.selectLabel}</Label>
         <select
+          data-tour={ADMIN_TOUR_ANCHORS.emailTemplatesSelect}
           id="email-template-select"
           value={`${selected.templateKey}::${selected.templateLocale}`}
           onChange={(e) => onSelectChange(e.target.value)}
@@ -172,24 +174,26 @@ export function EmailTemplatesShell({
           {selectedEntry.definition.description[templateAdminCopyLocale(selected.templateLocale)]}
         </p>
 
-        <EmailTemplateEditor
-          labels={labels}
-          definition={selectedEntry.definition}
-          locale={selected.templateLocale}
-          subject={draftSubject}
-          bodyHtml={draftBody}
-          onSubjectChange={(v) => {
-            setDraftSubject(v);
-            setSavedAt(null);
-            setErrorCode(null);
-          }}
-          onBodyChange={(v) => {
-            setDraftBody(v);
-            setSavedAt(null);
-            setErrorCode(null);
-          }}
-          disabled={pending}
-        />
+        <div data-tour={ADMIN_TOUR_ANCHORS.emailTemplatesEditor}>
+          <EmailTemplateEditor
+            labels={labels}
+            definition={selectedEntry.definition}
+            locale={selected.templateLocale}
+            subject={draftSubject}
+            bodyHtml={draftBody}
+            onSubjectChange={(v) => {
+              setDraftSubject(v);
+              setSavedAt(null);
+              setErrorCode(null);
+            }}
+            onBodyChange={(v) => {
+              setDraftBody(v);
+              setSavedAt(null);
+              setErrorCode(null);
+            }}
+            disabled={pending}
+          />
+        </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <Button
@@ -221,11 +225,13 @@ export function EmailTemplatesShell({
         </div>
       </div>
 
-      <EmailTemplatePreview
-        labels={labels}
-        subject={previewSubject}
-        html={previewHtml}
-      />
+      <div data-tour={ADMIN_TOUR_ANCHORS.emailTemplatesPreview}>
+        <EmailTemplatePreview
+          labels={labels}
+          subject={previewSubject}
+          html={previewHtml}
+        />
+      </div>
 
       <ConfirmActionModal
         open={resetOpen}
@@ -236,10 +242,7 @@ export function EmailTemplatesShell({
         confirmLabel={labels.resetTemplateModalConfirm}
         confirmVariant="destructive"
         busy={pending}
-        onConfirm={() => {
-          setResetOpen(false);
-          runResetTemplate();
-        }}
+        onConfirm={() => { setResetOpen(false); runResetTemplate(); }}
       />
     </section>
   );

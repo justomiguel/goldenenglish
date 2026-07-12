@@ -35,6 +35,7 @@ function segmentLabel(
     coupons: dict.coupons,
     promotions: dict.promotions,
     settings: dict.settings,
+    glossary: dict.glossary,
     new: dict.breadcrumbNew,
     import: dict.breadcrumbImport,
     billing: dict.breadcrumbBilling,

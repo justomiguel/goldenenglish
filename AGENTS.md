@@ -14,6 +14,7 @@ Workspace rules in **`.cursor/rules/`** override generic skill examples when the
 
 - Gate 0 / preflight: **`.cursor/rules/20-agent-preflight.mdc`** (tags **`PREFLIGHT`** / **`SPEC`** force the mode).
 - SDD cycle: **`.cursor/rules/29-spec-driven-development.mdc`** + skill **`spec-driven-development`**.
+- **Mechanical lock:** project hooks in **`.cursor/hooks.json`** deny `Write`/`StrReplace`/`Delete` until **`.cursor/sdd-gate0-approved`** (gitignored) points at an approved spec. After the user says go, create that marker before editing implementation files. Self-check: `node .cursor/hooks/sdd-gate0-self-check.mjs`.
 - Self-contained tests: **`.cursor/rules/30-harness-self-contained-tests.mdc`** + skill **`harness-self-contained-tests`**.
 - Plans: [`docs/superpowers/plans/`](docs/superpowers/plans/).
 - Nothing skips the written spec—even one-line changes use a **mini-spec** (Intent / Done when / Out of scope).
@@ -49,6 +50,8 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`21-migrations-production-no-data-destruction.mdc`** | Migraciones **sin** borrado destructivo de datos (`TRUNCATE`, `DROP TABLE`/columna con pérdida, `DELETE` masivo); producción y entornos reales se tratan como críticos; excepciones solo con proceso humano documentado. |
 | **`25-server-error-logging.mdc`** | Todo error servidor: **`[ge:server]`** (`serverActionLog.ts`) — `scope` estable, códigos/IDs, suficiente para Vercel/ops; prohibido swallow silencioso; sin PII/secrets. |
 | **`27-post-mutation-ui-refresh.mdc`** | Tras mutaciones visibles: **`revalidatePath`** (server) + **`router.refresh()`** (client/hooks); edit flows incluidos; hooks con refresh integrado. |
+| **`32-manual-qa-user-owned.mdc`** | QA manual en browser / tenant: lo hace el usuario; el agente no ofrece walkthroughs salvo pedido explícito; Vitest y automatización sí. |
+| **`34-precommit-e2e.mdc`** | Precommit fail-closed: `test:e2e:precommit` + `.env.local.e2e`; `SKIP_E2E=1` solo con aprobación explícita del usuario. |
 
 **Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`**, **`24-dashboard-list-filter-aggregates-rpc.mdc`** — agregados para filtros de listados en dashboard para **cualquier rol**, **`28-tenant-register-surface.mdc`** — `/register` con superficie dedicada por `SiteThemeKind`).
 

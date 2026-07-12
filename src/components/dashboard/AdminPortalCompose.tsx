@@ -53,7 +53,12 @@ export function AdminPortalCompose({
     if (!recipientId) return;
     setBusy(true);
     setMsg(null);
-    const res = await sendAdminMessage(locale, recipientId, body);
+    const res = await sendAdminMessage(
+      locale,
+      recipientId,
+      body,
+      replyBootstrap.kind === "portal" ? replyBootstrap.sourceMessageId : undefined,
+    );
     setBusy(false);
     if (res.ok) {
       if (successNavigateTo) {

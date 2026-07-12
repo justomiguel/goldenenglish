@@ -59,12 +59,15 @@ export function AdminCreateUserMinorGuardianPanel({
   const guardianSearchId = useId();
 
   return (
-    <fieldset className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/40 p-4">
+    <fieldset
+      data-tour="admin-create-user-guardian"
+      className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/40 p-4"
+    >
       <legend className="px-1 text-sm font-semibold text-[var(--color-foreground)]">
         {labels.createUserGuardianLegend}
       </legend>
       <p className="text-xs text-[var(--color-muted-foreground)]">{labels.createUserGuardianLead}</p>
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4" data-tour="admin-create-user-guardian-mode">
         <label className="inline-flex cursor-pointer items-center gap-2 text-sm">
           <input
             type="radio"
@@ -93,7 +96,7 @@ export function AdminCreateUserMinorGuardianPanel({
         </label>
       </div>
       {guardianMode === "existing" ? (
-        <div className="space-y-2">
+        <div className="space-y-2" data-tour="admin-create-user-guardian-search">
           <AdminStudentSearchCombobox
             id={guardianSearchId}
             labelText={labels.createUserGuardianSearchLabel}
@@ -111,7 +114,7 @@ export function AdminCreateUserMinorGuardianPanel({
           ) : null}
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2" data-tour="admin-create-user-guardian-new">
           <div className="sm:col-span-2">
             <Label htmlFor="cu-tdni">{labels.detailTutorCreateDni}</Label>
             <Input
@@ -169,14 +172,16 @@ export function AdminCreateUserMinorGuardianPanel({
           </div>
         </div>
       )}
-      <AdminUserDetailTutorRelationshipSelect
-        id="cu-guardian-rel"
-        value={relationship}
-        onChange={onRelationshipChange}
-        labels={labels}
-        labelOverride={labels.detailTutorCreateRelationship}
-        hintOverride={labels.detailTutorCreateRelationshipHint}
-      />
+      <div data-tour="admin-create-user-relationship">
+        <AdminUserDetailTutorRelationshipSelect
+          id="cu-guardian-rel"
+          value={relationship}
+          onChange={onRelationshipChange}
+          labels={labels}
+          labelOverride={labels.detailTutorCreateRelationship}
+          hintOverride={labels.detailTutorCreateRelationshipHint}
+        />
+      </div>
     </fieldset>
   );
 }

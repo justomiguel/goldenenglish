@@ -140,6 +140,8 @@ export function AdminEventDetailTabContent({
           sourceLabels: detail.attendeesSourceLabels,
           tutorSectionTitle: detail.attendeesTutorSectionTitle,
           customFieldsTitle: detail.attendeesCustomFieldsTitle,
+          openCustomFile: detail.attendeesOpenCustomFile,
+          customFieldImageAlt: detail.attendeesCustomFieldImageAlt,
           noPhone: detail.attendeesNoPhone,
           noBirthDate: detail.attendeesNoBirthDate,
           noPayment: detail.attendeesNoPayment,

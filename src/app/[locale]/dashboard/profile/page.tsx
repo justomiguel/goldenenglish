@@ -10,6 +10,8 @@ import { MyProfileSurfaceEntry } from "@/components/organisms/MyProfileSurfaceEn
 import { ProfileMissingScreen } from "@/components/organisms/ProfileMissingScreen";
 import type { TutorFinancialAccessRow } from "@/components/molecules/TutorFinancialAccessSection";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
+import { AdminHelpOnProfile } from "@/components/dashboard/AdminHelpOnProfile";
 
 export async function generateMetadata({
   params,
@@ -111,28 +113,33 @@ export default async function DashboardProfilePage({ params }: PageProps) {
     }));
   }
 
+  const isAdmin = await resolveIsAdminSession(supabase, user.id);
+
   return (
-    <MyProfileSurfaceEntry
-      backHref={backHref}
-      localeSwitcher={dict.common.locale}
-      locale={locale}
-      email={user.email ?? ""}
-      initial={{
-        firstName: profileSafe.first_name ?? "",
-        lastName: profileSafe.last_name ?? "",
-        phone: profileSafe.phone?.trim() ?? "",
-        dni: profileSafe.dni_or_passport ?? "",
-        birthDate,
-        homeAddressText: profileSafe.home_address_text?.trim() ?? "",
-        homePlaceId: profileSafe.home_place_id?.trim() ?? "",
-      }}
-      minorPersonalLocked={minorPersonalLocked}
-      avatarDisplayUrl={avatarDisplayUrl}
-      displayName={displayName}
-      labels={dict.dashboard.myProfile}
-      fileUploadProgress={dict.common.fileUpload}
-      classReminder={classReminder}
-      tutorFinancialAccess={tutorFinancialAccess}
-    />
+    <>
+      {isAdmin ? <AdminHelpOnProfile locale={locale} dict={dict} /> : null}
+      <MyProfileSurfaceEntry
+        backHref={backHref}
+        localeSwitcher={dict.common.locale}
+        locale={locale}
+        email={user.email ?? ""}
+        initial={{
+          firstName: profileSafe.first_name ?? "",
+          lastName: profileSafe.last_name ?? "",
+          phone: profileSafe.phone?.trim() ?? "",
+          dni: profileSafe.dni_or_passport ?? "",
+          birthDate,
+          homeAddressText: profileSafe.home_address_text?.trim() ?? "",
+          homePlaceId: profileSafe.home_place_id?.trim() ?? "",
+        }}
+        minorPersonalLocked={minorPersonalLocked}
+        avatarDisplayUrl={avatarDisplayUrl}
+        displayName={displayName}
+        labels={dict.dashboard.myProfile}
+        fileUploadProgress={dict.common.fileUpload}
+        classReminder={classReminder}
+        tutorFinancialAccess={tutorFinancialAccess}
+      />
+    </>
   );
 }

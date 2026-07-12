@@ -8,6 +8,7 @@ import { useAdminAuditLog } from "@/hooks/useAdminAuditLog";
 import type { AuditDomain } from "@/lib/audit/types";
 import type { AdminAuditRow, AuditSortDir, AuditSortKey } from "@/types/audit";
 import type { Dictionary } from "@/types/i18n";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type AuditLabels = Dictionary["admin"]["audit"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -53,30 +54,33 @@ export function AdminAuditLogScreen(props: AdminAuditLogScreenProps) {
 
   return (
     <div className="mt-6 space-y-4">
+      <div data-tour={ADMIN_TOUR_ANCHORS.auditTable}>
       <UniversalListView
         toolbar={
-          <AdminAuditToolbar
-            labels={props.labels}
-            query={u.searchQuery}
-            domain={u.domainFilter}
-            action={u.actionFilter}
-            resourceType={u.resourceTypeFilter}
-            isPending={u.isPending}
-            onQueryChange={u.setQuery}
-            onDomainChange={u.setDomain}
-            onActionChange={u.setAction}
-            onResourceTypeChange={u.setResourceType}
-            dateFrom={u.dateFrom}
-            dateTo={u.dateTo}
-            actorId={u.actorIdFilter}
-            onDateFromChange={u.setDateFrom}
-            onDateToChange={u.setDateTo}
-            onActorIdChange={u.setActorId}
-            onClearDateAndActor={u.clearExtraFilters}
-            canClearDateAndActor={Boolean(
-              u.dateFrom.trim() || u.dateTo.trim() || u.actorIdFilter.trim(),
-            )}
-          />
+          <div data-tour={ADMIN_TOUR_ANCHORS.auditToolbar}>
+            <AdminAuditToolbar
+              labels={props.labels}
+              query={u.searchQuery}
+              domain={u.domainFilter}
+              action={u.actionFilter}
+              resourceType={u.resourceTypeFilter}
+              isPending={u.isPending}
+              onQueryChange={u.setQuery}
+              onDomainChange={u.setDomain}
+              onActionChange={u.setAction}
+              onResourceTypeChange={u.setResourceType}
+              dateFrom={u.dateFrom}
+              dateTo={u.dateTo}
+              actorId={u.actorIdFilter}
+              onDateFromChange={u.setDateFrom}
+              onDateToChange={u.setDateTo}
+              onActorIdChange={u.setActorId}
+              onClearDateAndActor={u.clearExtraFilters}
+              canClearDateAndActor={Boolean(
+                u.dateFrom.trim() || u.dateTo.trim() || u.actorIdFilter.trim(),
+              )}
+            />
+          </div>
         }
         columns={[
           { id: "created_at", label: props.labels.colWhen, thClassName: hdr },
@@ -131,6 +135,7 @@ export function AdminAuditLogScreen(props: AdminAuditLogScreenProps) {
         labels={props.labels}
         onClose={() => u.setDetailsRow(null)}
       />
+      </div>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import type { Dictionary } from "@/types/i18n";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export function adminUserDetailDictError(dict: Dictionary, code: string): string {
-  const u = dict.admin.users as Record<string, string | undefined>;
+  const u = dict.admin.users as unknown as Record<string, string | undefined>;
   const key = `detailErr_${code}`;
   return u[key] ?? dict.admin.users.detailErrSave;
 }

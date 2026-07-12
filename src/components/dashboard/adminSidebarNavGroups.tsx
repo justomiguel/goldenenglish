@@ -11,6 +11,7 @@ import {
   Ticket,
   Users,
   Banknote,
+  BookOpen,
   BookOpenCheck,
   ClipboardList,
   Calendar,
@@ -28,6 +29,8 @@ export type AdminSidebarNavItem = {
   icon: ReactNode;
   badge?: number;
   tip?: string;
+  /** Stable Driver.js / help-tour anchor (`data-tour`). */
+  tourId?: string;
 };
 
 export type AdminSidebarNavGroup = {
@@ -97,6 +100,7 @@ export function buildAdminSidebarNavGroups(
           label: dict.users,
           icon: <Users className={ic} />,
           tip: dict.tipUsers,
+          tourId: "admin-nav-users",
         },
         {
           href: `${base}/registrations`,
@@ -132,6 +136,7 @@ export function buildAdminSidebarNavGroups(
           label: dict.academics,
           icon: <CalendarDays className={ic} />,
           tip: dict.tipAcademics,
+          tourId: "admin-nav-academic",
         },
         {
           href: `${base}/calendar`,
@@ -173,6 +178,17 @@ export function buildAdminSidebarNavGroups(
     {
       label: dict.groupComms,
       items: groupCommsItems,
+    },
+    {
+      label: dict.groupHelp,
+      items: [
+        {
+          href: `${base}/glossary`,
+          label: dict.glossary,
+          icon: <BookOpen className={ic} />,
+          tip: dict.tipGlossary,
+        },
+      ],
     },
     {
       label: null,

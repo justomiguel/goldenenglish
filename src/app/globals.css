@@ -420,3 +420,237 @@ body {
   font-size: 0.6875rem;
   line-height: 1.1rem;
 }
+
+/* Admin guided tours (Driver.js) — keep targets clear of sticky header / FABs */
+[data-tour] {
+  scroll-margin-top: 5.5rem;
+  scroll-margin-bottom: 6rem;
+}
+
+/* Admin guided tours (Driver.js) — token-aligned popover */
+.ge-admin-tour-popover.driver-popover {
+  background-color: var(--color-surface);
+  color: var(--color-foreground);
+  border: 1px solid var(--color-border);
+  border-radius: var(--layout-border-radius);
+  box-shadow: var(--shadow-card);
+}
+
+.ge-admin-tour-popover .driver-popover-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+.ge-admin-tour-popover .driver-popover-description {
+  font-size: 0.875rem;
+  color: var(--color-muted-foreground);
+  white-space: pre-line;
+  line-height: 1.5;
+}
+
+.ge-admin-tour-popover .driver-popover-next-btn,
+.ge-admin-tour-popover .driver-popover-done-btn {
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  border: none;
+  text-shadow: none;
+  transition: transform 200ms ease-out, background-color 200ms ease-out;
+}
+
+.ge-admin-tour-popover .driver-popover-next-btn:hover,
+.ge-admin-tour-popover .driver-popover-next-btn:focus-visible,
+.ge-admin-tour-popover .driver-popover-done-btn:hover,
+.ge-admin-tour-popover .driver-popover-done-btn:focus-visible {
+  background-color: var(--color-primary-dark);
+  color: var(--color-primary-foreground);
+  transform: scale(1.03);
+}
+
+.ge-admin-tour-popover .driver-popover-prev-btn {
+  background-color: transparent;
+  color: var(--color-foreground);
+  border: 1px solid var(--color-border);
+  text-shadow: none;
+  transition: transform 200ms ease-out, background-color 200ms ease-out, border-color 200ms ease-out;
+}
+
+.ge-admin-tour-popover .driver-popover-prev-btn:hover,
+.ge-admin-tour-popover .driver-popover-prev-btn:focus-visible {
+  background-color: var(--color-muted);
+  color: var(--color-foreground);
+  border-color: var(--color-border);
+  transform: scale(1.03);
+}
+
+.ge-admin-tour-popover .driver-popover-close-btn {
+  color: var(--color-muted-foreground);
+}
+
+.ge-admin-tour-popover .driver-popover-close-btn:hover,
+.ge-admin-tour-popover .driver-popover-close-btn:focus-visible {
+  color: var(--color-foreground);
+}
+
+/* Existing-cohort branch — wider popover, stacked footer actions */
+.ge-admin-tour-popover.ge-admin-tour-popover-branch.driver-popover {
+  min-width: min(36rem, calc(100vw - 2rem));
+  max-width: min(42rem, calc(100vw - 2rem));
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.ge-admin-tour-popover-branch .driver-popover-title {
+  font-size: 1.125rem;
+  line-height: 1.35;
+}
+
+.ge-admin-tour-popover-branch .driver-popover-description {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin-top: 0.75rem;
+}
+
+.ge-admin-tour-popover-branch-footer.driver-popover-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.875rem;
+  margin-top: 1.125rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.ge-admin-tour-popover-branch .driver-popover-progress-text {
+  align-self: flex-start;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-muted-foreground);
+  margin: 0 0 0.125rem;
+}
+
+.ge-admin-tour-popover-branch .driver-popover-navigation-btns {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.ge-admin-tour-popover-branch .driver-popover-prev-btn {
+  min-height: 2.75rem;
+  padding: 0.5rem 1.125rem;
+  flex: 0 0 auto;
+}
+
+.ge-admin-tour-popover-branch .ge-admin-tour-branch-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.ge-admin-tour-popover-branch .ge-admin-tour-branch-btn {
+  min-height: 2.75rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.35;
+  border-radius: var(--layout-border-radius);
+  cursor: pointer;
+  transition: transform 200ms ease-out, background-color 200ms ease-out, border-color 200ms ease-out;
+}
+
+.ge-admin-tour-popover-branch .ge-admin-tour-branch-btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  border: none;
+  text-shadow: none;
+}
+
+.ge-admin-tour-popover-branch .ge-admin-tour-branch-btn-primary:hover,
+.ge-admin-tour-popover-branch .ge-admin-tour-branch-btn-primary:focus-visible {
+  background-color: var(--color-primary-dark);
+  color: var(--color-primary-foreground);
+  transform: scale(1.03);
+}
+
+.ge-admin-tour-popover-branch .ge-admin-tour-branch-btn-secondary {
+  background-color: transparent;
+  color: var(--color-foreground);
+  border: 1px solid var(--color-border);
+  text-shadow: none;
+}
+
+.ge-admin-tour-popover-branch .ge-admin-tour-branch-btn-secondary:hover,
+.ge-admin-tour-popover-branch .ge-admin-tour-branch-btn-secondary:focus-visible {
+  background-color: var(--color-muted);
+  color: var(--color-foreground);
+  border-color: var(--color-border);
+  transform: scale(1.03);
+}
+
+@media (max-width: 40rem) {
+  .ge-admin-tour-popover.ge-admin-tour-popover-branch.driver-popover {
+    min-width: min(100%, calc(100vw - 1.5rem));
+    max-width: calc(100vw - 1.5rem);
+    padding: 1rem 1.125rem 1.25rem;
+  }
+
+  .ge-admin-tour-popover-branch .ge-admin-tour-branch-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .driver-overlay,
+  .driver-active-element,
+  .driver-popover {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .driver-fade .driver-overlay {
+    opacity: 1 !important;
+  }
+
+  .ge-admin-tour-popover .driver-popover-next-btn:hover,
+  .ge-admin-tour-popover .driver-popover-next-btn:focus-visible,
+  .ge-admin-tour-popover .driver-popover-done-btn:hover,
+  .ge-admin-tour-popover .driver-popover-done-btn:focus-visible,
+  .ge-admin-tour-popover .driver-popover-prev-btn:hover,
+  .ge-admin-tour-popover .driver-popover-prev-btn:focus-visible {
+    transform: none;
+  }
+}
+
+/* Tours must sit above stacked modals (non-top-layer dialogs during Driver.js) */
+body.driver-active svg.driver-overlay {
+  z-index: 2000000000 !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+body.driver-active .driver-popover,
+body.driver-active .ge-admin-tutorial-prompt {
+  z-index: 2000000001 !important;
+}
+
+/* show() has no ::backdrop — match system modal blur as a sibling layer under the dialog */
+.ge-modal-stacked-scrim {
+  backdrop-filter: blur(12px) saturate(1.5);
+  -webkit-backdrop-filter: blur(12px) saturate(1.5);
+  background: color-mix(in srgb, var(--color-background) 72%, transparent);
+}
+
+body.driver-active .ge-modal-stacked-scrim {
+  z-index: 40 !important;
+}
+
+body.driver-active dialog.ge-modal-stacked {
+  z-index: 50 !important;
+}

@@ -27,6 +27,7 @@ import {
   type AdminAnalyticsFunnelRow,
   type AdminAnalyticsGeoBarRow,
 } from "@/components/dashboard/AdminAnalyticsFunnelGeoCharts";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 const AdminAnalyticsGeoChoropleth = dynamic(
   () =>
@@ -76,19 +77,22 @@ export function AdminAnalyticsCharts({
 
   return (
     <div className="space-y-8">
-      <div>
+      <div data-tour={ADMIN_TOUR_ANCHORS.analyticsTitle}>
         <h1 className="text-2xl font-bold text-[var(--color-secondary)]">{labels.title}</h1>
         <p className="mt-2 text-[var(--color-muted-foreground)]">{labels.lead}</p>
       </div>
 
-      <AdminAnalyticsTrafficSection
-        locale={locale}
-        labels={labels}
-        summary={trafficSummary}
-        daily={trafficDaily}
-        breakdowns={trafficBreakdowns}
-      />
+      <div data-tour={ADMIN_TOUR_ANCHORS.analyticsTraffic}>
+        <AdminAnalyticsTrafficSection
+          locale={locale}
+          labels={labels}
+          summary={trafficSummary}
+          daily={trafficDaily}
+          breakdowns={trafficBreakdowns}
+        />
+      </div>
 
+      <div data-tour={ADMIN_TOUR_ANCHORS.analyticsCharts}>
       <section
         className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
         aria-labelledby="admin-analytics-world-map-title"
@@ -145,6 +149,7 @@ export function AdminAnalyticsCharts({
 
       <AdminAnalyticsHourlyChart rows={hourly} animate={animate} labels={labels} />
       <AdminAnalyticsFunnelGeoCharts funnel={funnel} geo={geo} animate={animate} labels={labels} />
+      </div>
     </div>
   );
 }

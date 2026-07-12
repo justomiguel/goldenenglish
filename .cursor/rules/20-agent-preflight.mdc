@@ -48,9 +48,26 @@ Then write or update:
 - **`990-tests-failure-confirmation.mdc`** still applies at commit/CI gates.
 - Tests for new/touched code → **`30-harness-self-contained-tests.mdc`** + **`02-testing-tdd.mdc`**.
 
+## Hook enforcement (mechanical)
+
+Advisory rules alone are not enough. Project hooks in **`.cursor/hooks.json`** block `Write` / `StrReplace` / `Delete` (and mutating shells) while Gate 0 is **locked**.
+
+**Always allowed (no marker):** `docs/superpowers/specs/**`, `docs/superpowers/plans/**`, and `.cursor/sdd-gate0-approved`.
+
+**Unlock after user approval:** write gitignored marker:
+
+```json
+{ "spec": "docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md", "approvedAt": "<ISO>" }
+```
+
+to **`.cursor/sdd-gate0-approved`**. The referenced spec file must exist. Escape hatch (ask user first): `SKIP_SDD=1`.
+
+**Self-check:** `node .cursor/hooks/sdd-gate0-self-check.mjs`
+
 ## Checklist
 
 - [ ] Spec path on disk (mini or full)?
 - [ ] User approved?
+- [ ] Approval marker written (`.cursor/sdd-gate0-approved`)?
 - [ ] Plan file or inline plan ready when scope > mini?
 - [ ] Only then implement (TDD).

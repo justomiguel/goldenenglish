@@ -28,9 +28,9 @@ describe("parseFinanceHubTab", () => {
     }
   });
 
-  it("maps legacy hub tab ids removed earlier to collections", () => {
-    expect(parseFinanceHubTab("payments")).toBe("collections");
-    expect(parseFinanceHubTab("receipts")).toBe("collections");
+  it("maps legacy payment/receipt queue tabs to inbox", () => {
+    expect(parseFinanceHubTab("payments")).toBe("inbox");
+    expect(parseFinanceHubTab("receipts")).toBe("inbox");
   });
 });
 
