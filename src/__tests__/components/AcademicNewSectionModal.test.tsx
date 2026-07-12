@@ -91,7 +91,7 @@ describe("AcademicNewSectionModal", () => {
       }),
     );
     expect(push).toHaveBeenCalledWith("/en/dashboard/admin/academic/cohort-1/section-1");
-    expect(refresh).toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
   });
 
   it("lets the user add and remove schedule rows", async () => {

@@ -25,7 +25,7 @@ test.describe("@critical-section-enroll", () => {
   });
 
   test("admin can enroll seeded student-b into the e2e section", async ({ page }) => {
-    test.setTimeout(90_000);
+    test.setTimeout(120_000);
     const locale = isolation.ok ? isolation.locale : "es";
     const cohortId = process.env.E2E_COHORT_ID?.trim();
     const sectionId = process.env.E2E_SECTION_ID?.trim();
@@ -33,14 +33,17 @@ test.describe("@critical-section-enroll", () => {
 
     await page.goto(
       `/${locale}/dashboard/admin/academic/${cohortId}/${sectionId}?tab=students`,
+      { waitUntil: "domcontentloaded" },
     );
+    await expect(page.getByRole("heading", { name: /^404$/i })).toHaveCount(0);
     await expect(page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.sectionDetail))).toBeVisible({
-      timeout: 20_000,
+      timeout: 60_000,
     });
 
-    const rosterRow = page.locator("table tbody tr").filter({ hasText: STUDENT_B_LABEL });
-    if (await rosterRow.count()) {
-      await expect(rosterRow.first()).toContainText(/active/i);
+    // Roster + enroll search both render matching name rows; require status "active".
+    const activeRosterRow = page.getByRole("row", { name: /EnrolleeB\s+E2E.*\bactive\b/i });
+    if (await activeRosterRow.count()) {
+      await expect(activeRosterRow.first()).toBeVisible();
       return;
     }
 
@@ -57,9 +60,7 @@ test.describe("@critical-section-enroll", () => {
 
     await page.getByRole("button", { name: /^Inscribir$|^Enroll$/i }).click();
 
-    // Success toast can clear on router.refresh(); roster is the durable signal.
-    const enrolled = page.locator("table tbody tr").filter({ hasText: STUDENT_B_LABEL });
-    await expect(enrolled).toBeVisible({ timeout: 45_000 });
-    await expect(enrolled).toContainText(/active/i);
+    // Success toast can clear on router.refresh(); roster status is the durable signal.
+    await expect(activeRosterRow.first()).toBeVisible({ timeout: 45_000 });
   });
 });

@@ -22,7 +22,7 @@ test.describe("@critical-create-section", () => {
   });
 
   test("admin can create a section on the seeded cohort", async ({ page }) => {
-    test.setTimeout(90_000);
+    test.setTimeout(120_000);
     const locale = isolation.ok ? isolation.locale : "es";
     const cohortId = process.env.E2E_COHORT_ID?.trim();
     test.skip(!cohortId, "E2E_COHORT_ID missing — re-run e2e:stack:up");
@@ -80,9 +80,10 @@ test.describe("@critical-create-section", () => {
       new RegExp(`/dashboard/admin/academic/${cohortId}/[0-9a-f-]{36}`, "i"),
       { timeout: 60_000 },
     );
+    // Section RSC is heavy on cold compile; wait for the tour anchor (do not force a second full navigation).
     await expect(page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.sectionDetail))).toBeVisible({
-      timeout: 20_000,
+      timeout: 60_000,
     });
-    await expect(page.getByText(sectionName).first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(sectionName).first()).toBeVisible({ timeout: 20_000 });
   });
 });

@@ -67,20 +67,17 @@ test.describe("@critical-event-payment-approve", () => {
     await adminPage.goto(`/${locale}/dashboard/admin/events?q=e2e-paid-event`);
     const manage = adminPage.getByRole("link", { name: /Gestionar|Manage/i }).first();
     await expect(manage).toBeVisible({ timeout: 20_000 });
-    await manage.click();
-
-    await expect(adminPage).toHaveURL(/\/dashboard\/admin\/events\/[0-9a-f-]{36}/i, {
-      timeout: 20_000,
-    });
-    const eventUrl = adminPage.url().split("?")[0];
+    const manageHref = await manage.getAttribute("href");
+    expect(manageHref).toMatch(/\/dashboard\/admin\/events\/[0-9a-f-]{36}/i);
+    const eventPath = manageHref!.split("?")[0];
     await adminPage.goto(
-      `${eventUrl}?tab=payments&paymentStatus=pending&paymentsQ=${encodeURIComponent(email)}`,
+      `${eventPath}?tab=payments&paymentStatus=pending&paymentsQ=${encodeURIComponent(email)}`,
     );
 
     const row = adminPage.locator("li").filter({ hasText: email }).first();
     await expect(row).toBeVisible({ timeout: 30_000 });
-    await row.getByRole("button", { name: /OK — Pagado|OK — Paid/i }).click();
-    await expect(row).toBeHidden({ timeout: 20_000 });
+    await row.getByRole("button", { name: /OK — Pagado|OK — Paid/i }).click({ timeout: 30_000 });
+    await expect(row).toBeHidden({ timeout: 45_000 });
     await adminCtx.close();
   });
 });

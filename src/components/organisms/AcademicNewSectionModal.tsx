@@ -102,8 +102,9 @@ export function AcademicNewSectionModal({
         return;
       }
       handleModalOpenChange(false);
+      // Navigate only — router.refresh() right after push races the soft navigation
+      // and can land on a not-found shell before the section RSC is ready.
       router.push(`/${locale}/dashboard/admin/academic/${cohortId}/${r.id}`);
-      router.refresh();
     });
   };
 

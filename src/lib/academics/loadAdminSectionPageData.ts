@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { logSupabaseClientError, logServerWarn } from "@/lib/logging/serverActionLog";
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
 import type { SectionScheduleSlot } from "@/types/academics";
 import { pgDateToInputValue } from "@/lib/academics/pgDateToInputValue";
@@ -81,7 +81,15 @@ export async function loadAdminSectionPageData(
     logSupabaseClientError("academicSectionPage:sectionSelect", sErr, { sectionId, cohortId });
     return null;
   }
-  if (!sec || (sec.cohort_id as string) !== cohortId) return null;
+  if (!sec || (sec.cohort_id as string) !== cohortId) {
+    logServerWarn("academicSectionPage:sectionMissing", {
+      sectionId,
+      cohortId,
+      foundCohortId: sec ? String((sec as { cohort_id?: string }).cohort_id ?? "") : null,
+      reason: !sec ? "missing_or_rls" : "cohort_mismatch",
+    });
+    return null;
+  }
 
   const secRow = sec as {
     id: string;
