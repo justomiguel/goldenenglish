@@ -8,6 +8,7 @@ import { StudentChromeHeader } from "@/components/dashboard/StudentChromeHeader"
 import { ParentSidebar } from "@/components/dashboard/ParentSidebar";
 import { ParentBreadcrumb } from "@/components/dashboard/ParentBreadcrumb";
 import { ParentPwaShell } from "@/components/pwa/organisms/ParentPwaShell";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 export interface ParentDashboardShellClientProps {
   locale: string;
@@ -60,6 +61,8 @@ function ParentDesktopShell({
         dict={dict}
         homeHref={base}
         labels={chrome}
+        headerTourAnchor={PARENT_TOUR_ANCHORS.chromeHeader}
+        signOutTourAnchor={PARENT_TOUR_ANCHORS.chromeSignOut}
       />
       <div className="mx-auto flex w-full max-w-[var(--layout-max-width)] flex-1 gap-0 md:gap-8 md:px-2 md:pb-8 md:pt-2">
         <ParentSidebar

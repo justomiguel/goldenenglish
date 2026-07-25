@@ -4,7 +4,8 @@ export type ContentActionFailureCode =
   | "persist_failed"
   | "forbidden"
   | "duplicate_title"
-  | "schema_not_ready";
+  | "schema_not_ready"
+  | "feature_disabled";
 
 export type ContentActionResult =
   | { ok: true; id: string }

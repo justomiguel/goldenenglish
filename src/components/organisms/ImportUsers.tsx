@@ -12,6 +12,7 @@ import {
   type DryRunImportUsersResult,
 } from "@/app/[locale]/dashboard/admin/users/importUsersActions";
 import { logClientException } from "@/lib/logging/clientLog";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { Dictionary } from "@/types/i18n";
 
 type SpreadsheetLabels = Dictionary["admin"]["users"]["spreadsheet"];
@@ -123,6 +124,7 @@ export function ImportUsers({ locale, labels }: ImportUsersProps) {
         onClick={() => fileRef.current?.click()}
         disabled={busy}
         aria-label={labels.chooseFileAria}
+        data-tour={ADMIN_TOUR_ANCHORS.usersImportChooseFile}
       >
         <FileUp className="h-4 w-4" aria-hidden />
         {busy ? labels.busyDryRun : labels.chooseFile}

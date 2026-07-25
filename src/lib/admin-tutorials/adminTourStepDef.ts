@@ -24,6 +24,12 @@ export type AdminTourStepDef = {
   studentBirthPathBranch?: boolean;
   /** On highlight: set the create-user role `<select>` value. */
   setCreateUserRole?: "student" | "teacher" | "admin";
+  /** On highlight: open section bulk scholarship modal (guide-only; never confirms). */
+  openBulkScholarshipModal?: boolean;
+  /** On highlight: switch section collections to the Scholarships tab. */
+  activateSectionCollectionsScholarshipsTab?: boolean;
+  /** On highlight: jump site setup wizard to Legal & billing (step 6). */
+  activateSiteSetupLegalBillingStep?: boolean;
   /** Skip this step when the anchor is missing from the DOM (e.g. conditional banner). */
   optional?: boolean;
 };

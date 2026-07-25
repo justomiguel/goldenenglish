@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CalendarCheck, Home, MessageCircle, Settings, TrendingUp, Wallet } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 export type ParentPwaTabId =
   | "home"
@@ -91,6 +92,7 @@ export function ParentPwaTabBar({
 
   return (
     <nav
+      data-tour={PARENT_TOUR_ANCHORS.tabBar}
       aria-label={dict.pwaTabBarAria}
       className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--color-border)] bg-[var(--color-surface)]/95 shadow-[0_-4px_24px_color-mix(in_oklch,var(--color-foreground)_8%,transparent)] backdrop-blur-md"
       style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom, 0px))" }}

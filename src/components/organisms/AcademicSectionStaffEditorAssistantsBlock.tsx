@@ -39,7 +39,6 @@ export interface AcademicSectionStaffEditorAssistantsBlockProps {
   msgAsst: string | null;
   dict: Pick<
     AcademicSectionStaffEditorDict,
-    | "assistantsTitle"
     | "assistantsHint"
     | "pickStaffAssistantLabel"
     | "addStaffAssistantSubmit"
@@ -109,8 +108,7 @@ export function AcademicSectionStaffEditorAssistantsBlock({
   };
 
   return (
-    <div className="mt-4 space-y-3 border-b border-[var(--color-border)] pb-4">
-      <p className="text-sm font-medium text-[var(--color-foreground)]">{dict.assistantsTitle}</p>
+    <div className="space-y-3">
       <p className="text-xs text-[var(--color-muted-foreground)]">{dict.assistantsHint}</p>
       <ul className="space-y-2">
         {assistantIds.map((id) => {

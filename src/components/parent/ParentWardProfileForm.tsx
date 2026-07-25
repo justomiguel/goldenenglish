@@ -10,6 +10,7 @@ import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import type { Dictionary } from "@/types/i18n";
 import { trackEvent } from "@/lib/analytics/trackClient";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 export interface ParentWardProfileFormProps {
   locale: string;
@@ -76,7 +77,10 @@ export function ParentWardProfileForm({
   const base = `/${locale}/dashboard/parent`;
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div
+      className="mx-auto max-w-lg space-y-6"
+      data-tour={PARENT_TOUR_ANCHORS.childDetailBody}
+    >
       <Link
         href={base}
         className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-primary)] underline"
@@ -84,13 +88,17 @@ export function ParentWardProfileForm({
         <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden />
         {labels.navHome}
       </Link>
-      <div>
+      <div data-tour={PARENT_TOUR_ANCHORS.childDetailTitle}>
         <h1 className="font-display text-3xl font-bold text-[var(--color-secondary)]">
           {labels.editChildTitle}
         </h1>
         <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{labels.editChildLead}</p>
       </div>
-      <form onSubmit={(e) => void onSubmit(e)} className="space-y-4">
+      <form
+        onSubmit={(e) => void onSubmit(e)}
+        className="space-y-4"
+        data-tour={PARENT_TOUR_ANCHORS.profileForm}
+      >
         <div>
           <Label htmlFor="ward-fn">{labels.wardFirstName}</Label>
           <Input

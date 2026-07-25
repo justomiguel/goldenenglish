@@ -209,4 +209,36 @@ describe("loadAdminPortalMessagesMailbox", () => {
     expect(inboxRows[0]?.isUnread).toBe(true);
     expect(inboxRows[1]?.needsReply).toBe(false);
   });
+
+  it("labels Sent contact-form email replies with the visitor as To", async () => {
+    const msgs = [
+      {
+        id: "sent-external",
+        sender_id: adminId,
+        recipient_id: PUBLIC_SITE_CONTACT_SENDER_PROFILE_ID,
+        body_html: "<p>Thanks for writing</p>",
+        created_at: "2026-07-12T15:00:00.000Z",
+        broadcast_batch_id: null,
+        read_at: "2026-07-12T15:00:00.000Z",
+        external_replied_at: null,
+        external_contact_display_name: "Visitor Name",
+        external_contact_reply_email: "visitor@example.com",
+      },
+    ];
+    const profiles = [
+      { id: adminId, first_name: "Ada", last_name: "Admin", role: "admin" },
+      {
+        id: PUBLIC_SITE_CONTACT_SENDER_PROFILE_ID,
+        first_name: "Site",
+        last_name: "contact form",
+        role: "site_contact",
+      },
+    ];
+    const supabase = mockMailboxSupabase(msgs, profiles);
+    const { sentRows } = await loadAdminPortalMessagesMailbox(supabase, adminId, dict);
+
+    expect(sentRows).toHaveLength(1);
+    expect(sentRows[0]?.toName).toBe("Visitor Name");
+    expect(sentRows[0]?.toName).not.toMatch(/contact form/i);
+  });
 });

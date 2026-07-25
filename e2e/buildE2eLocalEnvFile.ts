@@ -3,6 +3,8 @@
  * Pure — no fs / network. Used by `scripts/e2e-stack-up.mjs`.
  */
 
+import { E2E_TOUR_RECEIPT_FIXTURE } from "./tourReceiptFixture";
+
 export type E2eStackSeedCreds = {
   adminEmail: string;
   adminPassword: string;
@@ -14,6 +16,7 @@ export type E2eStackSeedCreds = {
   appPort?: number;
   cohortId?: string;
   sectionId?: string;
+  studentId?: string;
 };
 
 const DEFAULT_SEED: Required<
@@ -109,6 +112,8 @@ export function buildE2eLocalEnvFileContents(
     "",
     "E2E_STACK=isolated",
     "GE_DEV_TARGET=e2e",
+    "# Outbound mail: RecordingEmailProvider — never call Resend from the e2e Next process.",
+    "EMAIL_PROVIDER=recording",
     `E2E_ADMIN_EMAIL=${s.adminEmail}`,
     `E2E_ADMIN_PASSWORD=${s.adminPassword}`,
     `E2E_STUDENT_EMAIL=${s.studentEmail}`,
@@ -125,8 +130,13 @@ export function buildE2eLocalEnvFileContents(
   if (s.sectionId?.trim()) {
     lines.push(`E2E_SECTION_ID=${s.sectionId.trim()}`);
   }
+  if (s.studentId?.trim()) {
+    lines.push(`E2E_STUDENT_ID=${s.studentId.trim()}`);
+  }
+  lines.push(`E2E_RECEIPT_ID=${E2E_TOUR_RECEIPT_FIXTURE.receiptId}`);
   lines.push("");
   return lines.join("\n");
 }
 
 export { DEFAULT_SEED as E2E_LOCAL_DEFAULT_SEED };
+

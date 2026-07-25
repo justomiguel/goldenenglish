@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Reads __SUPABASE_STATUS_ENV (or stdin) and prints `.env.local.e2e` body.
- * Optional: __E2E_COHORT_ID / __E2E_SECTION_ID from stack-up after seed.
+ * Optional: __E2E_COHORT_ID / __E2E_SECTION_ID / __E2E_STUDENT_ID from stack-up after seed.
  */
 import {
   buildE2eLocalEnvFileContents,
@@ -29,5 +29,6 @@ process.stdout.write(
   buildE2eLocalEnvFileContents(parseStatusEnv(raw), {
     cohortId: process.env.__E2E_COHORT_ID?.trim() || undefined,
     sectionId: process.env.__E2E_SECTION_ID?.trim() || undefined,
+    studentId: process.env.__E2E_STUDENT_ID?.trim() || undefined,
   }),
 );

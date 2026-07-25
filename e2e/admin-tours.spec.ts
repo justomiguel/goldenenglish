@@ -14,6 +14,7 @@ const authReady = existsSync(paths.readyMarker);
 
 /**
  * L3: live routes on the isolated e2e stack only.
+ * Driven by `listTourRuntimeChecks()` — every screen + task tour must appear there (rule 33).
  * Precommit (E2E_REQUIRE=1) fails closed; without require, skips when not isolated.
  */
 test.describe("@admin-tours (isolated stack)", () => {
@@ -30,8 +31,21 @@ test.describe("@admin-tours (isolated stack)", () => {
     test(`${check.id} exposes expected data-tour anchors`, async ({ page }) => {
       const locale = isolation.ok ? isolation.locale : "es";
       const cohortId = process.env.E2E_COHORT_ID?.trim();
-      const path = check.pathFor(locale, { cohortId });
-      test.skip(path == null, `${check.id} needs E2E_COHORT_ID on the isolated seed`);
+      const sectionId = process.env.E2E_SECTION_ID?.trim();
+      const studentId = process.env.E2E_STUDENT_ID?.trim();
+      const eventId = process.env.E2E_EVENT_ID?.trim();
+      const receiptId = process.env.E2E_RECEIPT_ID?.trim();
+      const path = check.pathFor(locale, {
+        cohortId,
+        sectionId,
+        studentId,
+        eventId,
+        receiptId,
+      });
+      test.skip(
+        path == null,
+        `${check.id} needs E2E_COHORT_ID / E2E_SECTION_ID / E2E_STUDENT_ID / E2E_EVENT_ID / E2E_RECEIPT_ID on the isolated seed`,
+      );
 
       await page.goto(path!);
       const first = page.locator(adminTourSelector(check.anchors[0]!)).first();

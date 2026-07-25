@@ -2,8 +2,9 @@
 
 import { Archive, ArchiveRestore, Copy, Pencil, Trash2 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
-import type { SectionFeePlan, SectionFeePlanWithUsage } from "@/types/sectionFeePlan";
+import type { SectionFeePlanWithUsage } from "@/types/sectionFeePlan";
 import { Button } from "@/components/atoms/Button";
+import { formatSectionFeePlanLabel } from "@/lib/billing/formatSectionFeePlanLabel";
 
 type FeePlansDict = Dictionary["dashboard"]["academicSectionPage"]["feePlans"];
 
@@ -16,12 +17,6 @@ export interface AcademicSectionFeePlanRowProps {
   onArchive: (plan: SectionFeePlanWithUsage) => void;
   onRestore: (plan: SectionFeePlanWithUsage) => void;
   onDelete: (plan: SectionFeePlanWithUsage) => void;
-}
-
-export function formatSectionFeePlanLabel(p: SectionFeePlan, dict: FeePlansDict): string {
-  const eff = `${String(p.effectiveFromMonth).padStart(2, "0")}/${p.effectiveFromYear}`;
-  const amount = `${p.currency} ${p.monthlyFee.toFixed(2)}`;
-  return `${dict.effectiveFromShort} ${eff} · ${amount}`;
 }
 
 export function AcademicSectionFeePlanRow({

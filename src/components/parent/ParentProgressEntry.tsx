@@ -21,6 +21,7 @@ import type { StudentMiniTestAssessment } from "@/types/learningContent";
 import type { ParentLearningFeedbackRow } from "@/lib/learning-content/loadParentLearningFeedback";
 import type { StudentBadgeRowModel } from "@/components/student/StudentBadgesScreen";
 import type { Dictionary } from "@/types/i18n";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 export const PARENT_PROGRESS_TAB_TASKS = "tasks";
 export const PARENT_PROGRESS_TAB_ASSESSMENTS = "assessments";
@@ -90,8 +91,8 @@ export function ParentProgressEntry({
 
   return (
     <ParentRouteSurfaceGate>
-    <div className="space-y-4">
-      <header className="space-y-1">
+    <div className="space-y-4" data-tour={PARENT_TOUR_ANCHORS.progressBody}>
+      <header className="space-y-1" data-tour={PARENT_TOUR_ANCHORS.progressTitle}>
         <h1 className="font-display text-2xl font-bold text-[var(--color-secondary)] sm:text-3xl">
           {parentLabels.progressPageTitle}
         </h1>

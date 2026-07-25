@@ -56,8 +56,18 @@ export function AdminAcademicContentsScreen({
   const tab = activeTab;
 
   const tabItems: UnderlineTabItem[] = [
-    { id: "repository", label: labels.repositoryTitle, Icon: Library },
-    { id: "routes", label: labels.learningRoutesTitle, Icon: Route },
+    {
+      id: "repository",
+      label: labels.repositoryTitle,
+      Icon: Library,
+      tourId: ADMIN_TOUR_ANCHORS.contentsTabRepository,
+    },
+    {
+      id: "routes",
+      label: labels.learningRoutesTitle,
+      Icon: Route,
+      tourId: ADMIN_TOUR_ANCHORS.contentsTabRoutes,
+    },
   ];
 
   const onTabChange = (id: string) => {

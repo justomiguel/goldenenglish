@@ -21,13 +21,20 @@ const dict = {
   scheduleTitle: "Schedule",
   scheduleHint: "Edit weekly slots.",
   scheduleAddSlot: "Add slot",
-  scheduleRemoveSlot: "Remove slot",
   scheduleDayLabel: "Day",
   scheduleStartLabel: "Start",
   scheduleEndLabel: "End",
   scheduleInvalid: "Invalid schedule",
   saveSchedule: "Save schedule",
   saveScheduleError: "Could not save",
+  unsavedBadge: "Unsaved changes",
+  selectedBlockTitle: "Selected block",
+  editTimes: "Edit times",
+  deleteBlock: "Delete block",
+  closeInspectorAria: "Close block editor",
+  overlapError: "Overlaps",
+  createHint: "Hint",
+  gridAria: "Weekly class schedule",
   weekdays: {
     sun: "Sun",
     mon: "Mon",
@@ -53,7 +60,8 @@ describe("AcademicSectionScheduleEditor", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Remove slot" }));
+    await user.click(screen.getByRole("button", { name: "Mon 08:00–09:00" }));
+    await user.click(screen.getByRole("button", { name: "Delete block" }));
     await user.click(screen.getByRole("button", { name: "Save schedule" }));
 
     await waitFor(() =>

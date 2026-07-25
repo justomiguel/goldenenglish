@@ -41,7 +41,8 @@ Do not add a second icon library for tutorials.
 - [ ] `adminHelpCatalog` + `adminHelpTours` keys in all locales
 - [ ] `startAdminTutorial` switch case
 - [ ] Vitest for step order / copy wiring
-- [ ] Update **`33-admin-tutorials-contract.mdc`** contracts (`listTourRuntimeChecks`, inventory) when anchors/routes change
+- [ ] **`listTourRuntimeChecks` row** (`task:<id>` or `screen:<id>`) so L3 `@admin-tours` covers the tour — see **`33-admin-tutorials-contract.mdc`**
+- [ ] Update inventory / L1 contracts when anchors/routes change
 - [ ] Analytics unchanged or extended per **`08-analytics-observability.mdc`**
 
 ## Screen explain tours (contextual FAB)

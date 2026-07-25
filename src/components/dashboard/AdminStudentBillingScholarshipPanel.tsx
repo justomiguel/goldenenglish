@@ -7,14 +7,11 @@ import {
   deactivateStudentScholarship,
   updateStudentScholarship,
 } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/upsertStudentScholarship";
-import { Plus, Save, X } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
-import { Input } from "@/components/atoms/Input";
-import { Label } from "@/components/atoms/Label";
-import { ScholarshipDiscountFields } from "@/components/molecules/ScholarshipDiscountFields";
 import { AdminStudentBillingScholarshipActiveCard } from "@/components/dashboard/AdminStudentBillingScholarshipActiveCard";
+import { AdminStudentBillingScholarshipForm } from "@/components/dashboard/AdminStudentBillingScholarshipForm";
 import type { AdminBillingScholarship } from "@/types/adminStudentBilling";
 import type { Dictionary, Locale } from "@/types/i18n";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type BillingLabels = Dictionary["admin"]["billing"];
 
@@ -148,7 +145,10 @@ export function AdminStudentBillingScholarshipPanel({
   }
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <section
+      data-tour={ADMIN_TOUR_ANCHORS.scholarshipPanel}
+      className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+    >
       <div>
         <h2 className="font-semibold text-[var(--color-secondary)]">{labels.scholarshipTitle}</h2>
         {sectionName ? (
@@ -182,61 +182,31 @@ export function AdminStudentBillingScholarshipPanel({
       )}
 
       {readOnly ? null : (
-      <form onSubmit={saveScholarship} className="mt-4 grid gap-3 sm:grid-cols-2">
-        <div className="sm:col-span-2">
-          <ScholarshipDiscountFields
-            idPrefix="sch"
-            locale={locale}
-            currency={referenceMonthlyCurrency}
-            referenceMonthlyAmount={referenceMonthlyAmount}
-            labels={labels}
-            disabled={busy}
-            minPercent={0.5}
-            defaultPercent={editing ? String(editing.discount_percent) : ""}
-            onResolvedPercentChange={setResolvedPercent}
-          />
-        </div>
-        <div className="flex items-end gap-2">
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={schActive} onChange={(e) => setSchActive(e.target.checked)} />
-            {labels.scholarshipActive}
-          </label>
-        </div>
-        <div className="sm:col-span-2">
-          <Label htmlFor="sch-note">{labels.scholarshipNote}</Label>
-          <Input id="sch-note" value={note} onChange={(e) => setNote(e.target.value)} className="mt-1" />
-        </div>
-        <div>
-          <Label>{labels.validFrom}</Label>
-          <div className="mt-1 flex gap-2">
-            <Input type="number" value={vfM} onChange={(e) => setVfM(e.target.value)} aria-label={labels.scholarshipAriaMonthFrom} />
-            <Input type="number" value={vfY} onChange={(e) => setVfY(e.target.value)} aria-label={labels.scholarshipAriaYearFrom} />
-          </div>
-        </div>
-        <div>
-          <Label>{labels.validUntilOptional}</Label>
-          <div className="mt-1 flex gap-2">
-            <Input type="number" value={vuM} onChange={(e) => setVuM(e.target.value)} placeholder={labels.scholarshipPlaceholderMonth} aria-label={labels.scholarshipAriaMonthUntil} />
-            <Input type="number" value={vuY} onChange={(e) => setVuY(e.target.value)} placeholder={labels.scholarshipPlaceholderYear} aria-label={labels.scholarshipAriaYearUntil} />
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2 sm:col-span-2">
-          <Button type="submit" disabled={busy || !sectionId} isLoading={busy} className="min-h-[44px]">
-            {busy ? null : editing ? (
-              <Save className="h-4 w-4 shrink-0" aria-hidden />
-            ) : (
-              <Plus className="h-4 w-4 shrink-0" aria-hidden />
-            )}
-            {editing ? labels.updateScholarship : labels.addScholarship}
-          </Button>
-          {editing ? (
-            <Button type="button" variant="ghost" disabled={busy} onClick={resetForm} className="min-h-[44px]">
-              <X className="h-4 w-4 shrink-0" aria-hidden />
-              {labels.cancel}
-            </Button>
-          ) : null}
-        </div>
-      </form>
+        <AdminStudentBillingScholarshipForm
+          locale={locale}
+          sectionId={sectionId}
+          referenceMonthlyAmount={referenceMonthlyAmount}
+          referenceMonthlyCurrency={referenceMonthlyCurrency}
+          labels={labels}
+          busy={busy}
+          editing={editing}
+          resolvedPercent={resolvedPercent}
+          note={note}
+          vfY={vfY}
+          vfM={vfM}
+          vuY={vuY}
+          vuM={vuM}
+          schActive={schActive}
+          setResolvedPercent={setResolvedPercent}
+          setNote={setNote}
+          setVfY={setVfY}
+          setVfM={setVfM}
+          setVuY={setVuY}
+          setVuM={setVuM}
+          setSchActive={setSchActive}
+          onSubmit={saveScholarship}
+          onCancelEdit={resetForm}
+        />
       )}
     </section>
   );

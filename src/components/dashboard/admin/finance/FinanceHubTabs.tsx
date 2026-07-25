@@ -110,6 +110,14 @@ function buildHref(
   return `${baseHref}?${params.toString()}`;
 }
 
+const TAB_TOUR_ANCHORS: Record<FinanceHubTabId, string> = {
+  collections: ADMIN_TOUR_ANCHORS.financeTabCollections,
+  inbox: ADMIN_TOUR_ANCHORS.financeTabInbox,
+  events: ADMIN_TOUR_ANCHORS.financeTabEvents,
+  insights: ADMIN_TOUR_ANCHORS.financeTabInsights,
+  settings: ADMIN_TOUR_ANCHORS.financeTabSettings,
+};
+
 function tabClasses(isActive: boolean): string {
   const base =
     "group relative inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium outline-offset-2 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-primary)] sm:px-4 sm:py-3";
@@ -162,6 +170,7 @@ export function FinanceHubTabs({
                 aria-label={dict.tabs[tab]}
                 aria-current={isActive ? "page" : undefined}
                 className={tabClasses(isActive)}
+                data-tour={TAB_TOUR_ANCHORS[tab]}
               >
                 <Icon
                   className={`h-4 w-4 shrink-0 transition ${

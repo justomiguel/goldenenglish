@@ -14,6 +14,9 @@ export interface StudentChromeHeaderProps {
   homeHref?: string;
   labels?: Dictionary["dashboard"]["studentChrome"];
   mobileNav?: ReactNode;
+  /** Optional Driver.js anchors (e.g. parent portal tours). */
+  headerTourAnchor?: string;
+  signOutTourAnchor?: string;
 }
 
 export function StudentChromeHeader({
@@ -23,6 +26,8 @@ export function StudentChromeHeader({
   homeHref = `/${locale}/dashboard/student`,
   labels = dict.dashboard.studentChrome,
   mobileNav,
+  headerTourAnchor,
+  signOutTourAnchor,
 }: StudentChromeHeaderProps) {
   const tagline = locale === "es" ? brand.tagline : brand.taglineEn;
   const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
@@ -31,6 +36,7 @@ export function StudentChromeHeader({
     <header
       className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-surface)]/95 shadow-[var(--shadow-soft)] backdrop-blur-md"
       aria-label={labels.ariaHeader}
+      {...(headerTourAnchor ? { "data-tour": headerTourAnchor } : {})}
     >
       <div className="mx-auto flex max-w-[var(--layout-max-width)] items-center justify-between gap-3 px-4 py-3 md:px-6 md:py-3.5">
         <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -84,6 +90,7 @@ export function StudentChromeHeader({
             locale={locale}
             label={dict.nav.logout}
             title={labels.signOutHint}
+            tourAnchor={signOutTourAnchor}
             className="min-h-10 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 py-2 text-xs font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] sm:px-3 sm:text-sm"
           />
           <LanguageSwitcher locale={locale} labels={dict.common.locale} />

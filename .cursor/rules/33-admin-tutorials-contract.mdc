@@ -26,6 +26,8 @@ Copy / pedagogy: **`31-admin-tutorials-copy.mdc`**. Full-app E2E isolation: **`d
 | **L2** | Vitest RTL DOM (`tourAnchorDomPresence`) mounts shells with fixtures | No | Precommit |
 | **L3** | Playwright `@admin-tours` on **isolated** stack only (`E2E_STACK=isolated`) | E2E project only | **Precommit** (`test:e2e:precommit`, fail-closed) |
 
+**Mandatory:** every registered tour — every `AdminScreenTourId` (`listAdminScreenTourIds`) and every `AdminTutorialId` (`listAdminTutorials`) — **must** have a row in `listTourRuntimeChecks()` (`screen:<id>` / `task:<id>`). Playwright `@admin-tours` iterates that matrix; a new tour without a matrix row fails Vitest **and** leaves L3 uncovered. Required anchors = always-visible only (`requiredAnchorsFromContentOnlyDefs` / hand list for admin-home); skip `optional` steps.
+
 **Forbidden:** pointing Playwright at `dev:nago` / golden / prod or reusing real staff emails as the documented path.
 
 ## Source of truth
@@ -42,9 +44,9 @@ Copy / pedagogy: **`31-admin-tutorials-copy.mdc`**. Full-app E2E isolation: **`d
 
 1. Update step builders, runners, dictionaries (en/es/pt).
 2. Keep `ADMIN_TOUR_ANCHORS` ↔ JSX in sync (static literals or `ADMIN_TOUR_ANCHORS.key`).
-3. Update `listTourRuntimeChecks` when routes / always-visible anchors change.
+3. Update `listTourRuntimeChecks` when routes / always-visible anchors change — **new screen or task tour = new matrix row** (content-only screens usually inherit via `CONTENT_ONLY_SCREEN_TOUR_DEFS` + `requiredAnchorsFromContentOnlyDefs`).
 4. Keep L1+L2 green — never delete inventory/DOM coverage only to silence failures.
-5. If L3 covers the flow, update Playwright after the isolated stack is provisioned.
+5. L3 follows the matrix automatically on the isolated stack; if a new check needs env (e.g. `E2E_COHORT_ID`), document it like create-section.
 6. `REGRESSION CHECK` note in the affected tutorial test.
 
 ## What must break
@@ -60,6 +62,7 @@ Copy / pedagogy: **`31-admin-tutorials-copy.mdc`**. Full-app E2E isolation: **`d
 ## Agent checklist
 
 - [ ] Touched toured UI → tours + L1/L2 updated?
+- [ ] New tour → matrix row (`screen:` / `task:`) so Vitest coverage contract + `@admin-tours` pick it up?
 - [ ] No guidance to run E2E against tenant DBs?
 - [ ] L3 only with `E2E_STACK=isolated` + local BASE_URL?
 

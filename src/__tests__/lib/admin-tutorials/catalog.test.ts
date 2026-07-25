@@ -24,20 +24,35 @@ describe("admin-tutorials selectors", () => {
 });
 
 describe("admin-tutorials catalog", () => {
-  it("includes catalog tutorials with list icons", () => {
+  it("includes catalog tutorials with list icons and groups", () => {
     const rows = listAdminTutorials();
     expect(rows.map((t) => t.id)).toEqual([
       "create-cohort",
       "create-section",
+      "take-attendance",
+      "approve-payment",
+      "reject-payment",
+      "assign-scholarship-percent",
+      "assign-scholarship-full",
+      "enable-mercadopago",
+      "enable-flow",
+      "change-billing-currency",
+      "approve-event-payment",
+      "assign-section-scholarship-bulk",
+      "change-site-setup-currency",
       "create-student",
       "create-teacher",
       "create-admin",
+      "reset-user-password",
+      "import-users",
+      "create-event",
+      "create-blog-article",
+      "create-blog-article-as-teacher",
     ]);
     expect(rows[0]?.icon).toBe("layers");
-    expect(rows[1]?.icon).toBe("users");
-    expect(rows[2]?.icon).toBe("graduationCap");
-    expect(rows[3]?.icon).toBe("school");
-    expect(rows[4]?.icon).toBe("shield");
+    expect(rows[0]?.group).toBe("academic");
+    expect(rows.find((r) => r.id === "create-event")?.group).toBe("content");
+    expect(rows.find((r) => r.id === "enable-mercadopago")?.group).toBe("billing");
   });
 });
 

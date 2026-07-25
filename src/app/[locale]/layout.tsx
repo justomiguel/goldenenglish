@@ -10,6 +10,7 @@ import { taglineForLocale } from "@/lib/brand/taglineForLocale";
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { JsonLdOrganization } from "@/components/molecules/JsonLdOrganization";
 import { AnalyticsRoot } from "@/components/analytics/AnalyticsRoot";
+import { PwaInstallPromptHost } from "@/components/molecules/PwaInstallPromptHost";
 import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 
@@ -99,7 +100,8 @@ export default async function LocaleLayout({
   }
 
   const loc = locale as AppLocale;
-  const { brand, needsInitialSiteSetup } = await resolvePublicBrandWithSetup(loc);
+  const { brand, needsInitialSiteSetup, dict } =
+    await resolvePublicBrandWithSetup(loc);
 
   return (
     <div className="min-h-screen">
@@ -107,6 +109,9 @@ export default async function LocaleLayout({
         <JsonLdOrganization locale={locale} brand={brand} />
       )}
       <AnalyticsRoot>{children}</AnalyticsRoot>
+      {needsInitialSiteSetup ? null : (
+        <PwaInstallPromptHost copy={dict.pwa.install} />
+      )}
     </div>
   );
 }

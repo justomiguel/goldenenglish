@@ -7,6 +7,7 @@ import {
   AdminEventPaymentReviewRow,
   type AdminEventPaymentReviewRowLabels,
 } from "@/components/dashboard/admin/events/AdminEventPaymentReviewRow";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export interface AdminEventPaymentsPanelLabels {
   title: string;
@@ -80,7 +81,10 @@ export async function AdminEventPaymentsPanel({
   ] as const;
 
   return (
-    <section className="space-y-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <section
+      className="space-y-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      data-tour={ADMIN_TOUR_ANCHORS.eventPaymentsPanel}
+    >
       <div className="space-y-1">
         <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{labels.title}</h2>
         <p className="text-sm text-[var(--color-muted-foreground)]">{labels.lead}</p>
@@ -98,7 +102,7 @@ export async function AdminEventPaymentsPanel({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2" data-tour={ADMIN_TOUR_ANCHORS.eventPaymentsFilters}>
         {filters.map((filter) => {
           const active = statusFilter === filter.id;
           return (
@@ -142,7 +146,12 @@ export async function AdminEventPaymentsPanel({
       </form>
 
       {rowsWithReceipts.length === 0 ? (
-        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.empty}</p>
+        <p
+          className="text-sm text-[var(--color-muted-foreground)]"
+          data-tour={ADMIN_TOUR_ANCHORS.eventPaymentsEmpty}
+        >
+          {labels.empty}
+        </p>
       ) : (
         <ul className="space-y-3">
           {rowsWithReceipts.map(({ row, receiptPreviewUrl }) => (

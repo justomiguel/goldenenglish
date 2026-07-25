@@ -32,7 +32,7 @@ export function AcademicSectionStaffEditorLeadBlock({
   dict,
 }: AcademicSectionStaffEditorLeadBlockProps) {
   return (
-    <div className="mt-4 space-y-3 border-b border-[var(--color-border)] pb-4">
+    <div className="space-y-3">
       <Label htmlFor={`sec-staff-lead-${sectionId}`}>{dict.leadLabel}</Label>
       <select
         id={`sec-staff-lead-${sectionId}`}

@@ -124,7 +124,8 @@ function main() {
 
   const statusRawForDb = run("supabase", ["status", "-o", "env"], { capture: true }).stdout || "";
   const dbUrlLine = statusRawForDb.split("\n").find((l) => l.startsWith("DB_URL="));
-  const dbUrl = dbUrlLine?.slice("DB_URL=".length).trim();
+  // `supabase status -o env` quotes values (`DB_URL="postgresql://…"`); psql needs bare URI.
+  const dbUrl = dbUrlLine?.slice("DB_URL=".length).trim().replace(/^"|"$/g, "");
   if (!dbUrl) {
     console.error("Could not resolve DB_URL to seed admin");
     process.exit(1);
@@ -136,7 +137,7 @@ function main() {
       : "psql");
   run(psql, [dbUrl, "-v", "ON_ERROR_STOP=1", "-f", SEED_SQL]);
 
-  // Resolve fixture ids for Playwright (cohort / section).
+  // Resolve fixture ids for Playwright (cohort / section / student).
   const idsRaw =
     run(
       psql,
@@ -144,11 +145,21 @@ function main() {
         dbUrl,
         "-tA",
         "-c",
-        "SELECT c.id::text || '|' || COALESCE(s.id::text,'') FROM public.academic_cohorts c LEFT JOIN public.academic_sections s ON s.cohort_id = c.id AND s.name = 'E2E Section A' WHERE c.slug = 'e2e-cohort' LIMIT 1;",
+        "SELECT c.id::text || '|' || COALESCE(s.id::text,'') || '|' || COALESCE(p.id::text,'') FROM public.academic_cohorts c LEFT JOIN public.academic_sections s ON s.cohort_id = c.id AND s.name = 'E2E Section A' LEFT JOIN public.profiles p ON p.dni_or_passport = 'E2E-STU-01' WHERE c.slug = 'e2e-cohort' LIMIT 1;",
       ],
       { capture: true },
     ).stdout || "";
-  const [cohortId, sectionId] = idsRaw.trim().split("|");
+  const [cohortId, sectionId, studentId] = idsRaw.trim().split("|");
+
+  if (studentId?.trim()) {
+    run("npx", ["--yes", "tsx", path.join(ROOT, "scripts/e2e-upload-tour-receipt.mts")], {
+      env: {
+        ...process.env,
+        __SUPABASE_STATUS_ENV: statusRawForDb,
+        __E2E_STUDENT_ID: studentId.trim(),
+      },
+    });
+  }
 
   const statusRaw = run("supabase", ["status", "-o", "env"], { capture: true }).stdout || "";
   const write = run("npx", ["--yes", "tsx", WRITE_ENV], {
@@ -158,6 +169,7 @@ function main() {
       __SUPABASE_STATUS_ENV: statusRaw,
       __E2E_COHORT_ID: (cohortId || "").trim(),
       __E2E_SECTION_ID: (sectionId || "").trim(),
+      __E2E_STUDENT_ID: (studentId || "").trim(),
     },
   });
 
@@ -167,6 +179,8 @@ function main() {
   console.log("   Student: e2e-student@example.test");
   console.log("   Parent:  e2e-parent@example.test");
   if (cohortId?.trim()) console.log(`   Cohort:  ${cohortId.trim()}`);
+  if (studentId?.trim()) console.log(`   StudentId: ${studentId.trim()}`);
+  console.log(`   ReceiptId: ${"00000000-0000-4000-8000-e2e000000001"}`);
   console.log("   Next:    npm run test:e2e:precommit\n");
 }
 

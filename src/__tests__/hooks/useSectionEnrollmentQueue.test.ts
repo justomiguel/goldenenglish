@@ -126,7 +126,7 @@ describe("useSectionEnrollmentQueue", () => {
     act(() => result.current.runEnrollSingle(null));
     await waitFor(() => {
       expect(result.current.queue).toHaveLength(0);
-      expect(onOk).toHaveBeenCalled();
+      expect(onOk).toHaveBeenCalledWith({ remainingInQueue: 0 });
       expect(routerRefresh).toHaveBeenCalled();
     });
   });

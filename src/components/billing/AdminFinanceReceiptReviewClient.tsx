@@ -7,6 +7,7 @@ import {
 } from "@/app/[locale]/dashboard/admin/finance/receipts/actions";
 import type { BillingInvoiceRow, BillingRejectionReasonCode } from "@/types/billing";
 import type { Dictionary } from "@/types/i18n";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export interface AdminFinanceReceiptReviewClientProps {
   locale: string;
@@ -57,7 +58,10 @@ export function AdminFinanceReceiptReviewClient({
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <div className="min-h-[50vh] overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)]">
+      <div
+        className="min-h-[50vh] overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)]"
+        data-tour={ADMIN_TOUR_ANCHORS.financeReceiptDetailPreview}
+      >
         {isPdf ? (
           <iframe title={dict.openReview} src={signedUrl} className="h-[70vh] w-full" />
         ) : (
@@ -70,7 +74,10 @@ export function AdminFinanceReceiptReviewClient({
           />
         )}
       </div>
-      <div className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4">
+      <div
+        className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4"
+        data-tour={ADMIN_TOUR_ANCHORS.financeReceiptDetailActions}
+      >
         <div>
           <p className="text-xs font-semibold uppercase text-[var(--color-muted-foreground)]">
             {dict.adminColStudent}

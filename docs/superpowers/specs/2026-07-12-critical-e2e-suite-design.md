@@ -142,4 +142,7 @@ Password convention: same strength as admin (`E2eLocal!Stack1`) unless env overr
 
 - **Phase 2:** receipt upload → admin approve → paid — **done** (`critical-payments`; see also `2026-07-12-critical-e2e-phase2b3b-design.md`). Remaining: live MP/Flow.  
 - **Phase 3:** create-teacher + free event register — **done**. Remaining: paid event / transfer.  
-- **Phase 4:** import job; optional nightly gateway sandbox.
+- **Phase 4:** import job; optional nightly gateway sandbox — users import + paid event + parent payments **done** (`phase4a` / `phase4b`).  
+- **Phase 5a:** section enroll + event payment approve — **done**.  
+- **Phase 5b:** reject payment + ward email + create cohort — see `2026-07-12-critical-e2e-coverage-roadmap-design.md` / plan `2026-07-12-critical-e2e-phase5b.md`.  
+- **Phase 6+ / nightly:** attendance, messaging, CMS, live gateways — roadmap.

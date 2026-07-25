@@ -10,7 +10,7 @@
 //    Supabase Auth with the standard invalid_credentials message.
 
 /** @vitest-environment node */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { lookupEmailByDni } from "@/lib/auth/lookupEmailByDni";
 
@@ -49,6 +49,11 @@ function buildAdminMock(opts: {
 describe("lookupEmailByDni", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("MAIL_TENANT", "");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it("returns the real auth email when the DNI matches a profile", async () => {
@@ -66,7 +71,7 @@ describe("lookupEmailByDni", () => {
     expect(getUserById).toHaveBeenCalledWith("user-1");
   });
 
-  it("returns the parent synthetic address for parent profiles without auth email", async () => {
+  it("returns the legacy parent synthetic when MAIL_TENANT is unset (opacity)", async () => {
     const { admin } = buildAdminMock({
       profile: { id: "user-2", role: "parent" },
       authEmail: null,
@@ -75,6 +80,18 @@ describe("lookupEmailByDni", () => {
     const email = await lookupEmailByDni(admin, "ABC-123");
 
     expect(email).toBe("abc123@parents.goldenenglish.local");
+  });
+
+  it("returns parents.<MAIL_TENANT> for parent profiles without auth email", async () => {
+    vi.stubEnv("MAIL_TENANT", "alumnos.nago.cl");
+    const { admin } = buildAdminMock({
+      profile: { id: "user-2b", role: "parent" },
+      authEmail: null,
+    });
+
+    const email = await lookupEmailByDni(admin, "ABC-123");
+
+    expect(email).toBe("abc123@parents.alumnos.nago.cl");
   });
 
   it("returns the student synthetic address for student profiles without auth email", async () => {

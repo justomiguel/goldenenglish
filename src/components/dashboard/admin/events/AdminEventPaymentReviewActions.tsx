@@ -11,6 +11,7 @@ import {
 } from "@/app/[locale]/dashboard/admin/events/actions";
 import { Button } from "@/components/atoms/Button";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export interface AdminEventPaymentReviewActionsLabels {
   actionsTitle: string;
@@ -161,6 +162,7 @@ export function AdminEventPaymentReviewActions({
               disabled={busy}
               title={labels.approveTooltip}
               className="min-h-9 w-full"
+              data-tour={ADMIN_TOUR_ANCHORS.eventPaymentApprove}
               onClick={() => act("approve")}
             >
               <Check className="h-4 w-4 shrink-0" aria-hidden />

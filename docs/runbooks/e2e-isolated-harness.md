@@ -46,10 +46,26 @@ e2e-parent@example.test      / E2eLocal!Stack1   (parent, linked tutor)
 e2e-teacher@example.test     / E2eLocal!Stack1   (teacher of E2E Section A)
 ```
 
-Also seeded: current cohort `e2e-cohort`, section `E2E Section A` (Mon 10:00–11:00 schedule + fee plan), **due** monthly payment (no receipt), free `e2e-free-event`, paid `e2e-paid-event`, `inscriptions_enabled=true`.  
-`E2E_COHORT_ID` / `E2E_SECTION_ID` are written into `.env.local.e2e`.
+Also seeded: current cohort `e2e-cohort`, section `E2E Section A` (Mon 10:00–11:00 schedule + fee plan), **three** due monthly payments without receipt (current / parent-month / reject-month), free `e2e-free-event`, paid `e2e-paid-event`, a **pending billing receipt** for the finance receipt-detail tour (`E2E_RECEIPT_ID`), `inscriptions_enabled=true`.  
+`E2E_COHORT_ID` / `E2E_SECTION_ID` / `E2E_STUDENT_ID` / `E2E_RECEIPT_ID` are written into `.env.local.e2e`.
 
-Precommit Next uses **`distDir=.next-e2e`** (`GE_DEV_TARGET=e2e`) so it does not fight tenant `dev:*` over `.next`.
+`seed-admin.sql` restores fixture logins by **email or DNI** (ward-email E2E changes the student address; reseed must not insert a second auth user with the same `dni_or_passport`). Fixture students use an **adult** `birth_date` so `is_minor` stays false and `/dashboard/student/payments` remains reachable. Section A has `allow_advance_monthly_payment` so future due months (parent + reject) stay payable on the strip.
+
+### Outbound email (no real Resend)
+
+Isolated e2e **must not** call Resend. The Next process uses `RecordingEmailProvider` when `GE_DEV_TARGET=e2e` (and `.env.local.e2e` sets `EMAIL_PROVIDER=recording`). `test:e2e:precommit` also **unsets** `RESEND_API_KEY` / `RESEND_FROM_EMAIL` so tenant shell keys cannot leak.
+
+- Assert calls (optional): `GET /api/e2e/recorded-emails` → `{ ok, emails }` (404 outside recording mode).
+- Clear between specs: `DELETE /api/e2e/recorded-emails`.
+- ADR: `docs/adr/2026-07-12-e2e-recording-email-provider.md`.
+
+Precommit Next uses **`distDir=.next-e2e`** (`GE_DEV_TARGET=e2e`) so it does not fight tenant `dev:*` over `.next`. Warm suite budget is about **≤9–12 minutes** (cold first compile higher).
+
+Filter projects (args forwarded by `run-e2e-precommit.mjs`):
+
+```bash
+npm run test:e2e:precommit -- --project=setup --project=chromium-critical-payments
+```
 
 ### Playwright projects (precommit)
 
@@ -57,11 +73,15 @@ Precommit Next uses **`distDir=.next-e2e`** (`GE_DEV_TARGET=e2e`) so it does not
 |---------|------|--------|
 | setup | `auth.setup.ts` | Admin + student + parent storage |
 | chromium-admin-tours | `admin-tours.spec.ts` | Tour `data-tour` anchors |
+| chromium-parent-tours | `parent-tours.spec.ts` | Parent tour `data-tour` anchors |
 | chromium-critical-auth | `critical-auth.spec.ts` | Role redirects + authz |
 | chromium-critical-academic | `critical-academic.spec.ts` | Hub + cohort sections |
 | chromium-critical-registration | `critical-registration.spec.ts` | Public register → accept → login |
 | chromium-critical-payments | `critical-payments.spec.ts` | Upload receipt → admin approve → paid |
 | chromium-critical-parent-payments | `critical-parent-payments.spec.ts` | Parent receipt → approve |
+| chromium-critical-payment-reject | `critical-payment-reject.spec.ts` | Upload → admin reject → rejected |
+| chromium-critical-parent-ward-email | `critical-parent-ward-email.spec.ts` | Ward email + password step-up |
+| chromium-critical-create-cohort | `critical-create-cohort.spec.ts` | New cohort modal |
 | chromium-critical-create-user | `critical-create-user.spec.ts` | Create teacher |
 | chromium-critical-create-section | `critical-create-section.spec.ts` | New section modal |
 | chromium-critical-users-import | `critical-users-import.spec.ts` | ImportUsers CSV |

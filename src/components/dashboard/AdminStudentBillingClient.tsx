@@ -5,6 +5,7 @@ import { AdminAnnualSettlementPanel } from "@/components/dashboard/AdminAnnualSe
 import { AdminBillingSectionFeeSummary } from "@/components/dashboard/AdminBillingSectionFeeSummary";
 import { AdminRecordPaymentPanel } from "@/components/dashboard/AdminRecordPaymentPanel";
 import { DEFAULT_SECTION_FEE_PLAN_CURRENCY } from "@/types/sectionFeePlan";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { AdminStudentBillingTabsPanel } from "@/components/dashboard/AdminStudentBillingTabsPanel";
 import type { AdminBillingMonthState } from "@/lib/billing/buildAdminBillingMonthGrid";
 import { computeAdminStudentBillingMonthMatrix } from "@/lib/billing/computeAdminStudentBillingMonthMatrix";
@@ -94,7 +95,10 @@ export function AdminStudentBillingClient({
   return (
     <div className="space-y-4">
       <header className="space-y-0.5">
-        <h1 className="text-xl font-bold text-[var(--color-secondary)] md:text-2xl">
+        <h1
+          className="text-xl font-bold text-[var(--color-secondary)] md:text-2xl"
+          data-tour={ADMIN_TOUR_ANCHORS.userBillingTitle}
+        >
           {labels.title}
         </h1>
         <p className="text-sm text-[var(--color-muted-foreground)]">

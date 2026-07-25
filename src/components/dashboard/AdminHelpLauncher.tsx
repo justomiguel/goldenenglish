@@ -16,6 +16,7 @@ export interface AdminHelpLauncherProps {
   locale: string;
   launcherDict: Dictionary["dashboard"]["adminHelpLauncher"];
   catalogDict: Dictionary["dashboard"]["adminHelpCatalog"];
+  catalogGroupsDict: Dictionary["dashboard"]["adminHelpCatalogGroups"];
   toursDict: Dictionary["dashboard"]["adminHelpTours"];
   explainScreenDict: Dictionary["dashboard"]["adminHelpExplainScreen"];
   screenToursDict: Dictionary["dashboard"]["adminHelpScreenTours"];
@@ -25,6 +26,7 @@ export function AdminHelpLauncher({
   locale,
   launcherDict,
   catalogDict,
+  catalogGroupsDict,
   toursDict,
   explainScreenDict,
   screenToursDict,
@@ -133,6 +135,7 @@ export function AdminHelpLauncher({
             />
             <AdminHelpTutorialList
               dict={catalogDict}
+              groupsDict={catalogGroupsDict}
               onStart={startTutorial}
               busyId={busyId}
             />

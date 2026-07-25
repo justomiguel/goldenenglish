@@ -1,6 +1,7 @@
 import type { Dictionary } from "@/types/i18n";
 import { PwaGroupedSection } from "@/components/pwa/molecules/PwaGroupedSection";
 import { LanguageSwitcherPwaList } from "@/components/pwa/molecules/LanguageSwitcherPwaList";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 export interface ParentSettingsScreenProps {
   locale: string;
@@ -14,8 +15,8 @@ export function ParentSettingsScreen({
   localeSwitcher,
 }: ParentSettingsScreenProps) {
   return (
-    <div className="space-y-5">
-      <header>
+    <div className="space-y-5" data-tour={PARENT_TOUR_ANCHORS.settingsBody}>
+      <header data-tour={PARENT_TOUR_ANCHORS.settingsTitle}>
         <h1 className="font-display text-xl font-bold text-[var(--color-foreground)]">
           {labels.pageTitle}
         </h1>

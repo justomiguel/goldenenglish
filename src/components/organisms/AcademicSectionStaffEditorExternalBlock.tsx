@@ -19,7 +19,6 @@ export interface AcademicSectionStaffEditorExternalBlockProps {
   msgExt: string | null;
   dict: Pick<
     AcademicSectionStaffEditorDict,
-    | "externalTitle"
     | "externalHint"
     | "externalNameLabel"
     | "externalNamePlaceholder"
@@ -43,8 +42,7 @@ export function AcademicSectionStaffEditorExternalBlock({
   dict,
 }: AcademicSectionStaffEditorExternalBlockProps) {
   return (
-    <div className="mt-4 space-y-3">
-      <p className="text-sm font-medium text-[var(--color-foreground)]">{dict.externalTitle}</p>
+    <div className="space-y-3">
       <p className="text-xs text-[var(--color-muted-foreground)]">{dict.externalHint}</p>
       <ul className="space-y-2">
         {externalNames.map((name, i) => (

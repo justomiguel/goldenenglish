@@ -12,6 +12,7 @@ import {
   SectionLearningRouteSchema,
 } from "@/lib/learning-content/contentsActionsSchemas";
 import { saveLearningRouteGraph } from "@/lib/learning-content/saveLearningRouteGraph";
+import { loadSectionFeatureFlags } from "@/lib/academics/loadSectionFeatureFlags";
 import type {
   ContentActionFailureCode,
   ContentActionResult,
@@ -134,6 +135,8 @@ export async function saveSectionLearningRouteAction(raw: unknown): Promise<Cont
   if (!parsed.success) return { ok: false, code: "invalid_input" };
   try {
     const { supabase, user } = await assertAdmin();
+    const flags = await loadSectionFeatureFlags(supabase, parsed.data.sectionId);
+    if (!flags?.usesLearningRoute) return { ok: false, code: "feature_disabled" };
     const { data, error } = await supabase
       .from("section_learning_routes")
       .upsert(

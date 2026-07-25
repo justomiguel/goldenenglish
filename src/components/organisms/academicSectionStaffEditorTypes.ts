@@ -1,9 +1,14 @@
 export interface AcademicSectionStaffEditorDict {
   title: string;
+  manageBlockLead: string;
+  leadOpenButton: string;
+  leadModalTitle: string;
   leadLabel: string;
   leadSave: string;
   leadSaved: string;
   leadError: string;
+  assistantsOpenButton: string;
+  assistantsModalTitle: string;
   assistantsTitle: string;
   assistantsHint: string;
   pickStaffAssistantLabel: string;
@@ -19,6 +24,8 @@ export interface AcademicSectionStaffEditorDict {
   assistantBadgeTeacher: string;
   assistantBadgeStudent: string;
   assistantBadgePortalAssistant: string;
+  externalOpenButton: string;
+  externalModalTitle: string;
   externalTitle: string;
   externalHint: string;
   externalNameLabel: string;

@@ -18,6 +18,7 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { Modal } from "@/components/atoms/Modal";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type UserLabels = Dictionary["admin"]["users"];
 
@@ -100,7 +101,10 @@ export function AdminUserDetailPasswordSection({
   const readonlyPwd = mode === "auto" ? generated : manual;
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
+    <section
+      data-tour={ADMIN_TOUR_ANCHORS.userDetailPasswordSection}
+      className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]"
+    >
       <div className="flex items-center gap-2 border-b border-[var(--color-border)] pb-3">
         <KeyRound className="h-5 w-5 text-[var(--color-primary)]" aria-hidden />
         <h2 className="font-display text-lg font-semibold text-[var(--color-secondary)]">{labels.detailPasswordTitle}</h2>
@@ -144,7 +148,13 @@ export function AdminUserDetailPasswordSection({
             <Copy className="h-4 w-4 shrink-0" aria-hidden />
             {labels.detailPasswordCopy}
           </Button>
-          <Button type="button" variant="primary" size="sm" onClick={requestApply}>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            onClick={requestApply}
+            data-tour={ADMIN_TOUR_ANCHORS.userDetailPasswordApply}
+          >
             <KeyRound className="h-4 w-4 shrink-0" aria-hidden />
             {labels.detailPasswordApply}
           </Button>

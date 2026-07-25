@@ -2,12 +2,23 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   defaultEmail as studentSyntheticEmail,
 } from "@/lib/import/studentImportUtils";
-import { parentDefaultEmail } from "@/lib/import/parentDefaultEmail";
+import {
+  LEGACY_PARENT_SYNTHETIC_DOMAIN,
+  parentDefaultEmail,
+} from "@/lib/import/parentDefaultEmail";
 import {
   logServerActionInvariantViolation,
   logServerException,
   logSupabaseClientError,
 } from "@/lib/logging/serverActionLog";
+
+/** Opaque login fallback when MAIL_TENANT is unset (must never return null). */
+function parentSyntheticOrLegacy(dni: string): string {
+  const tenantAware = parentDefaultEmail(dni);
+  if (tenantAware) return tenantAware;
+  const safe = dni.replace(/[^\dA-Za-z]/g, "").toLowerCase() || "sin-doc";
+  return `${safe}@${LEGACY_PARENT_SYNTHETIC_DOMAIN}`;
+}
 
 /**
  * Resolve a DNI / passport into the email address Supabase Auth will accept
@@ -51,7 +62,7 @@ export async function lookupEmailByDni(
 
   const syntheticForRole =
     profile.role === "parent" || profile.role === "tutor"
-      ? parentDefaultEmail(dni)
+      ? parentSyntheticOrLegacy(dni)
       : studentSyntheticEmail(dni);
 
   try {

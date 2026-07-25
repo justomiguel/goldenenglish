@@ -2,7 +2,7 @@
 
 import "./vargasWizardDesignTokens.css";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Dictionary } from "@/types/i18n";
 import { SiteSetupWizardErrorAlert } from "@/components/dashboard/admin/site-setup/SiteSetupWizardErrorAlert";
 import { SiteSetupWizardStepPanels } from "@/components/dashboard/admin/site-setup/SiteSetupWizardStepPanels";
@@ -14,7 +14,7 @@ import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProg
 import { useSiteSetupWizardState } from "@/hooks/useSiteSetupWizardState";
 import { isValidBillingCurrency } from "@/lib/billing/billingCurrencyConstants";
 import type { SiteSetupCurrentValues } from "@/lib/site/loadSiteSetupCurrentValues";
-import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { ADMIN_TOUR_ANCHORS, ADMIN_TUTORIAL_ACTIVATE_SITE_SETUP_LEGAL_BILLING_STEP_EVENT } from "@/lib/admin-tutorials/selectors";
 
 type SiteSetupDict = Dictionary["dashboard"]["siteSetup"];
 
@@ -69,6 +69,19 @@ export function SiteSetupWizard({
     },
     [labels.errors],
   );
+
+  useEffect(() => {
+    const onLegalBilling = () => setStep(5);
+    window.addEventListener(
+      ADMIN_TUTORIAL_ACTIVATE_SITE_SETUP_LEGAL_BILLING_STEP_EVENT,
+      onLegalBilling,
+    );
+    return () =>
+      window.removeEventListener(
+        ADMIN_TUTORIAL_ACTIVATE_SITE_SETUP_LEGAL_BILLING_STEP_EVENT,
+        onLegalBilling,
+      );
+  }, []);
 
   const goNext = () => {
     setErrorKey(null);

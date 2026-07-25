@@ -97,6 +97,77 @@ const catalogDict = {
     title: "How do I create an admin?",
     description: "Admin walkthrough",
   },
+  "create-event": {
+    title: "How do I create an event?",
+    description: "Event walkthrough",
+  },
+  "approve-payment": {
+    title: "How do I approve a payment?",
+    description: "Approve walkthrough",
+  },
+  "reject-payment": {
+    title: "How do I reject a payment?",
+    description: "Reject walkthrough",
+  },
+  "take-attendance": {
+    title: "How do I take attendance?",
+    description: "Attendance walkthrough",
+  },
+  "assign-scholarship-percent": {
+    title: "How do I assign a partial scholarship?",
+    description: "Partial scholarship",
+  },
+  "assign-scholarship-full": {
+    title: "How do I assign a full scholarship?",
+    description: "Full scholarship",
+  },
+  "enable-mercadopago": {
+    title: "How do I enable Mercado Pago?",
+    description: "MP walkthrough",
+  },
+  "enable-flow": {
+    title: "How do I enable Flow Chile?",
+    description: "Flow walkthrough",
+  },
+  "change-billing-currency": {
+    title: "How do I change billing currency?",
+    description: "Currency walkthrough",
+  },
+  "approve-event-payment": {
+    title: "How do I approve an event payment?",
+    description: "Event payment walkthrough",
+  },
+  "assign-section-scholarship-bulk": {
+    title: "How do I assign bulk scholarships in a section?",
+    description: "Bulk scholarship walkthrough",
+  },
+  "change-site-setup-currency": {
+    title: "How do I set billing currency in Site setup?",
+    description: "Site setup currency walkthrough",
+  },
+  "create-blog-article": {
+    title: "How do I create a blog article?",
+    description: "Blog walkthrough",
+  },
+  "create-blog-article-as-teacher": {
+    title: "How do I submit a blog article for review (teacher)?",
+    description: "Teacher blog walkthrough",
+  },
+  "reset-user-password": {
+    title: "How do I reset a user password?",
+    description: "Password walkthrough",
+  },
+  "import-users": {
+    title: "How do I import users from a spreadsheet?",
+    description: "Import walkthrough",
+  },
+};
+
+const catalogGroupsDict = {
+  academic: "Academic",
+  billing: "Billing",
+  users: "Users",
+  content: "Content",
 };
 
 const toursDict = {
@@ -122,6 +193,7 @@ function renderLauncher() {
       locale="es"
       launcherDict={launcherDict}
       catalogDict={catalogDict}
+      catalogGroupsDict={catalogGroupsDict}
       toursDict={toursDict as never}
       explainScreenDict={explainScreenDict}
       screenToursDict={screenToursDict as never}

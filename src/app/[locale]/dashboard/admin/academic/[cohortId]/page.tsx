@@ -19,6 +19,7 @@ import {
 import { AdminRetentionTable } from "@/components/organisms/AdminRetentionTable";
 import { AcademicTransferInboxTable } from "@/components/organisms/AcademicTransferInboxTable";
 import type { AcademicTransferNotificationDict } from "@/app/[locale]/dashboard/admin/academic/transferActions";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 const COHORT_TABS: readonly AcademicCohortDetailTabId[] = [
   "overview",
@@ -119,7 +120,12 @@ export default async function AcademicCohortPage({ params, searchParams }: PageP
         >
           {d.backHub}
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-[var(--color-foreground)]">{cohort.name as string}</h1>
+        <h1
+          className="mt-2 text-2xl font-semibold text-[var(--color-foreground)]"
+          data-tour={ADMIN_TOUR_ANCHORS.cohortDetailTitle}
+        >
+          {cohort.name as string}
+        </h1>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {isCurrent ? (
             <span className="rounded-full border border-[var(--color-primary)]/35 bg-[var(--color-primary)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--color-primary)]">

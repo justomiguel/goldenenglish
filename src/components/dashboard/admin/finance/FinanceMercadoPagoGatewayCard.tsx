@@ -14,6 +14,7 @@ import {
   type MercadoPagoAdminRowSafe,
 } from "@/app/[locale]/dashboard/admin/finance/mercadoPagoGatewaySettingsActions";
 import type { PaymentGatewayCountryCode } from "@/types/paymentGateway";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type SettingsDict = Dictionary["admin"]["finance"]["settings"];
 
@@ -79,7 +80,14 @@ export function FinanceMercadoPagoGatewayCard({
 
   return (
     <>
-      <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+      <div
+        data-tour={
+          initial.countryCode === "AR"
+            ? ADMIN_TOUR_ANCHORS.financeSettingsMercadoPagoAr
+            : ADMIN_TOUR_ANCHORS.financeSettingsMercadoPagoCl
+        }
+        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5"
+      >
         <header className="mb-4 flex items-center gap-2">
           <CreditCard className="h-5 w-5 text-[var(--color-muted-foreground)]" aria-hidden />
           <h2 className="text-lg font-semibold text-[var(--color-foreground)]">
@@ -116,6 +124,7 @@ export function FinanceMercadoPagoGatewayCard({
             {dict.mpEnabled}
           </label>
 
+          <div data-tour={ADMIN_TOUR_ANCHORS.financeSettingsMercadoPagoCredentials} className="space-y-4">
           <div>
             <Label htmlFor={`mp-token-${initial.countryCode}`}>{dict.mpAccessToken}</Label>
             <Input
@@ -143,9 +152,17 @@ export function FinanceMercadoPagoGatewayCard({
               placeholder={dict.mpWebhookPlaceholder}
             />
           </div>
+          </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="button" onClick={handleSaveClick} disabled={isPending} isLoading={isPending} className="min-h-[44px]">
+            <Button
+              type="button"
+              onClick={handleSaveClick}
+              disabled={isPending}
+              isLoading={isPending}
+              className="min-h-[44px]"
+              data-tour={ADMIN_TOUR_ANCHORS.financeSettingsMercadoPagoSave}
+            >
               {!isPending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
               {dict.mpSave}
             </Button>

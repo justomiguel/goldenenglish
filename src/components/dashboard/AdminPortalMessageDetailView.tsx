@@ -1,3 +1,4 @@
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { Dictionary } from "@/types/i18n";
 import { ArrowRight, CalendarClock, ChevronDown, Inbox, User } from "lucide-react";
 
@@ -85,7 +86,10 @@ export function AdminPortalMessageDetailView({
           </div>
         </header>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch sm:gap-5">
+        <div
+          className="flex flex-col gap-4 sm:flex-row sm:items-stretch sm:gap-5"
+          data-tour={ADMIN_TOUR_ANCHORS.messagesDetailParticipants}
+        >
           <div className="min-w-0 flex-1">
             <ParticipantPanel kind="from" labels={labels} name={detail.fromName} roleLabel={detail.fromRoleLabel} />
           </div>
@@ -103,7 +107,11 @@ export function AdminPortalMessageDetailView({
           </div>
         </div>
 
-        <section aria-labelledby="admin-portal-msg-body-heading" className="space-y-5 pt-2 md:space-y-6 md:pt-4">
+        <section
+          aria-labelledby="admin-portal-msg-body-heading"
+          className="space-y-5 pt-2 md:space-y-6 md:pt-4"
+          data-tour={ADMIN_TOUR_ANCHORS.messagesDetailBody}
+        >
           <div className="flex items-start gap-4 px-1 md:gap-5 md:px-2">
             <span
               className="mt-2 h-11 w-0.5 shrink-0 rounded-full bg-[var(--color-primary)]/45 md:h-14 md:w-1"

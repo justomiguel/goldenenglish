@@ -58,15 +58,30 @@ export function AcademicCohortDetailShell({
 
   const items: UnderlineTabItem[] = useMemo(
     () => [
-      { id: "overview", label: labels.overview, Icon: LayoutDashboard },
+      {
+        id: "overview",
+        label: labels.overview,
+        Icon: LayoutDashboard,
+        tourId: ADMIN_TOUR_ANCHORS.cohortDetailTabOverview,
+      },
       {
         id: "sections",
         label: labels.sections,
         Icon: Layers,
         tourId: ADMIN_TOUR_ANCHORS.cohortSectionsTab,
       },
-      { id: "retention", label: labels.retention, Icon: TriangleAlert },
-      { id: "transfers", label: labels.transfers, Icon: Inbox },
+      {
+        id: "retention",
+        label: labels.retention,
+        Icon: TriangleAlert,
+        tourId: ADMIN_TOUR_ANCHORS.cohortDetailTabRetention,
+      },
+      {
+        id: "transfers",
+        label: labels.transfers,
+        Icon: Inbox,
+        tourId: ADMIN_TOUR_ANCHORS.cohortDetailTabTransfers,
+      },
     ],
     [labels.overview, labels.sections, labels.retention, labels.transfers],
   );
@@ -98,14 +113,16 @@ export function AcademicCohortDetailShell({
       className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]"
       data-tour="academic-cohort-detail"
     >
-      <UnderlineTabBar
-        idPrefix={idPrefix}
-        ariaLabel={labels.tablistAria}
-        items={items}
-        value={tab}
-        onChange={(id) => setTab(id as AcademicCohortDetailTabId)}
-        dense
-      />
+      <div data-tour={ADMIN_TOUR_ANCHORS.cohortDetailTabs}>
+        <UnderlineTabBar
+          idPrefix={idPrefix}
+          ariaLabel={labels.tablistAria}
+          items={items}
+          value={tab}
+          onChange={(id) => setTab(id as AcademicCohortDetailTabId)}
+          dense
+        />
+      </div>
       {ORDER.map((t) => {
         const selected = tab === t;
         return (

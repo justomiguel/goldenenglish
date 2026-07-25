@@ -55,7 +55,12 @@ export async function ensureParentProfileByTutorDni(
     return { ok: false, message: "tutor_dni_required" };
   }
   const { dni } = normalizeDni(raw);
-  const email = (input.tutorEmail?.trim() || parentDefaultEmail(dni)).toLowerCase();
+  const explicitEmail = input.tutorEmail?.trim();
+  const syntheticEmail = explicitEmail ? null : parentDefaultEmail(dni);
+  if (!explicitEmail && !syntheticEmail) {
+    return { ok: false, message: "tutor_mail_tenant_missing" };
+  }
+  const email = (explicitEmail || syntheticEmail!).toLowerCase();
   const meta = inviteMetaParent({
     first_name: input.tutorFirstName.trim(),
     last_name: input.tutorLastName.trim(),

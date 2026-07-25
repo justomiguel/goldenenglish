@@ -1,124 +1,115 @@
 import type { AdminTourAnchor } from "@/lib/admin-tutorials/selectors";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
-import { academicHubPath, academicCohortSectionsPath } from "@/lib/admin-tutorials/academicHubPath";
 import {
   adminHomePath,
   adminProfilePath,
   adminScreenPath,
+  blogArticleEditPath,
+  cohortDetailPath,
+  eventDetailPath,
+  financeCollectionsSectionPath,
+  financeReceiptDetailPath,
+  messageDetailPath,
+  sectionAttendanceScreenPath,
+  sectionDetailScreenPath,
+  userBillingPath,
+  userDetailPath,
 } from "@/lib/admin-tutorials/screenCatalog";
-import { createUserPath } from "@/lib/admin-tutorials/createUserPath";
+import {
+  CONTENT_ONLY_SCREEN_TOUR_DEFS,
+  type ContentOnlyScreenTourId,
+} from "@/lib/admin-tutorials/screenTourDefs";
+import { requiredAnchorsFromContentOnlyDefs } from "@/lib/admin-tutorials/requiredAnchorsFromContentOnlyDefs";
+import type {
+  TourRuntimeCheck,
+  TourRuntimeEnv,
+} from "@/lib/admin-tutorials/listTourRuntimeCheckTypes";
+import { listTourRuntimeTaskChecks } from "@/lib/admin-tutorials/listTourRuntimeTaskChecks";
 
-export type TourRuntimeEnv = {
-  /** Required for create-section smoke when set. */
-  cohortId?: string;
-};
+export type { TourRuntimeCheck, TourRuntimeEnv } from "@/lib/admin-tutorials/listTourRuntimeCheckTypes";
 
-export type TourRuntimeCheck = {
-  /** Stable id for failures (`screen:admin-home`, `task:create-cohort`, …). */
-  id: string;
-  /**
-   * Absolute path for the locale, or `null` when env is insufficient
-   * (caller should skip that check).
-   */
-  pathFor: (locale: string, env: TourRuntimeEnv) => string | null;
-  /** Anchors expected visible on that route without opening modals / creating data. */
-  anchors: readonly AdminTourAnchor[];
-};
+const ADMIN_HOME_RUNTIME_ANCHORS: readonly AdminTourAnchor[] = [
+  ADMIN_TOUR_ANCHORS.sidebar,
+  ADMIN_TOUR_ANCHORS.chromeHeader,
+  ADMIN_TOUR_ANCHORS.chromeBackToSite,
+  ADMIN_TOUR_ANCHORS.chromeSignOut,
+  ADMIN_TOUR_ANCHORS.chromeLocale,
+  ADMIN_TOUR_ANCHORS.hubTitle,
+  ADMIN_TOUR_ANCHORS.hubBirthdays,
+  ADMIN_TOUR_ANCHORS.hubTraffic,
+  ADMIN_TOUR_ANCHORS.hubUsers,
+  ADMIN_TOUR_ANCHORS.hubPayments,
+  ADMIN_TOUR_ANCHORS.hubRegistrations,
+  ADMIN_TOUR_ANCHORS.hubMessages,
+];
+
+function contentOnlyScreenCheck(id: ContentOnlyScreenTourId): TourRuntimeCheck {
+  return {
+    id: `screen:${id}`,
+    pathFor: (locale, env) => {
+      if (id === "admin-profile") return adminProfilePath(locale);
+      if (id === "admin-event-detail") {
+        if (!env.eventId) return null;
+        return eventDetailPath(locale, env.eventId);
+      }
+      if (id === "admin-message-detail") {
+        if (!env.messageId) return null;
+        return messageDetailPath(locale, env.messageId);
+      }
+      if (id === "admin-user-detail") {
+        if (!env.studentId) return null;
+        return userDetailPath(locale, env.studentId);
+      }
+      if (id === "admin-user-billing") {
+        if (!env.studentId) return null;
+        return userBillingPath(locale, env.studentId);
+      }
+      if (id === "admin-blog-edit") {
+        if (!env.blogArticleId) return null;
+        return blogArticleEditPath(locale, env.blogArticleId);
+      }
+      if (id === "admin-cohort-detail") {
+        if (!env.cohortId) return null;
+        return cohortDetailPath(locale, env.cohortId);
+      }
+      if (id === "admin-section-attendance") {
+        if (!env.cohortId || !env.sectionId) return null;
+        return sectionAttendanceScreenPath(locale, env.cohortId, env.sectionId);
+      }
+      if (id === "admin-section-detail") {
+        if (!env.cohortId || !env.sectionId) return null;
+        return sectionDetailScreenPath(locale, env.cohortId, env.sectionId);
+      }
+      if (id === "admin-finance-collections-section") {
+        if (!env.sectionId) return null;
+        return financeCollectionsSectionPath(locale, env.sectionId);
+      }
+      if (id === "admin-finance-receipt-detail") {
+        if (!env.receiptId) return null;
+        return financeReceiptDetailPath(locale, env.receiptId);
+      }
+      return adminScreenPath(locale, id);
+    },
+    anchors: requiredAnchorsFromContentOnlyDefs(CONTENT_ONLY_SCREEN_TOUR_DEFS[id]),
+  };
+}
 
 /**
  * Shared matrix for Vitest consistency checks and Playwright `@admin-tours` smokes.
- * Keep in sync when tour routes or always-visible anchors change (rule 33).
+ * Every AdminScreenTourId + AdminTutorialId must appear (rule 33).
  */
 export function listTourRuntimeChecks(): readonly TourRuntimeCheck[] {
+  const contentOnlyIds = Object.keys(
+    CONTENT_ONLY_SCREEN_TOUR_DEFS,
+  ) as ContentOnlyScreenTourId[];
+
   return [
     {
       id: "screen:admin-home",
       pathFor: (locale) => adminHomePath(locale),
-      anchors: [
-        ADMIN_TOUR_ANCHORS.sidebar,
-        ADMIN_TOUR_ANCHORS.chromeHeader,
-        ADMIN_TOUR_ANCHORS.chromeBackToSite,
-        ADMIN_TOUR_ANCHORS.chromeSignOut,
-        ADMIN_TOUR_ANCHORS.chromeLocale,
-        ADMIN_TOUR_ANCHORS.hubTitle,
-        ADMIN_TOUR_ANCHORS.hubBirthdays,
-        ADMIN_TOUR_ANCHORS.hubTraffic,
-        ADMIN_TOUR_ANCHORS.hubUsers,
-        ADMIN_TOUR_ANCHORS.hubPayments,
-        ADMIN_TOUR_ANCHORS.hubRegistrations,
-        ADMIN_TOUR_ANCHORS.hubMessages,
-      ],
+      anchors: ADMIN_HOME_RUNTIME_ANCHORS,
     },
-    {
-      id: "screen:admin-users",
-      pathFor: (locale) => adminScreenPath(locale, "admin-users"),
-      anchors: [
-        ADMIN_TOUR_ANCHORS.usersTitle,
-        ADMIN_TOUR_ANCHORS.usersToolbar,
-        ADMIN_TOUR_ANCHORS.usersTable,
-      ],
-    },
-    {
-      id: "screen:admin-glossary",
-      pathFor: (locale) => adminScreenPath(locale, "admin-glossary"),
-      anchors: [
-        ADMIN_TOUR_ANCHORS.glossaryTitle,
-        ADMIN_TOUR_ANCHORS.glossaryHierarchy,
-        ADMIN_TOUR_ANCHORS.glossaryGroups,
-      ],
-    },
-    {
-      id: "screen:admin-academic",
-      pathFor: (locale) => adminScreenPath(locale, "admin-academic"),
-      anchors: [
-        ADMIN_TOUR_ANCHORS.academicTitle,
-        ADMIN_TOUR_ANCHORS.newCohort,
-        ADMIN_TOUR_ANCHORS.academicBoardTabs,
-        ADMIN_TOUR_ANCHORS.academicCohortList,
-      ],
-    },
-    {
-      id: "screen:admin-profile",
-      pathFor: (locale) => adminProfilePath(locale),
-      anchors: [
-        ADMIN_TOUR_ANCHORS.profileHeader,
-        ADMIN_TOUR_ANCHORS.profileAvatar,
-        ADMIN_TOUR_ANCHORS.profilePersonalForm,
-      ],
-    },
-    {
-      id: "task:create-cohort",
-      pathFor: (locale) => academicHubPath(locale),
-      anchors: [ADMIN_TOUR_ANCHORS.newCohort, ADMIN_TOUR_ANCHORS.navAcademic],
-    },
-    {
-      id: "task:create-section",
-      pathFor: (locale, env) => {
-        if (!env.cohortId) return null;
-        return academicCohortSectionsPath(locale, env.cohortId);
-      },
-      anchors: [
-        ADMIN_TOUR_ANCHORS.cohortDetail,
-        ADMIN_TOUR_ANCHORS.cohortSectionsTab,
-        ADMIN_TOUR_ANCHORS.newSection,
-      ],
-    },
-    {
-      id: "task:create-user",
-      pathFor: (locale) => createUserPath(locale),
-      // Email/guardian are path-dependent (role + birth date); do not require them on load.
-      anchors: [
-        ADMIN_TOUR_ANCHORS.navUsers,
-        ADMIN_TOUR_ANCHORS.usersNavAdd,
-        ADMIN_TOUR_ANCHORS.createUserForm,
-        ADMIN_TOUR_ANCHORS.createUserRole,
-        ADMIN_TOUR_ANCHORS.createUserLastName,
-        ADMIN_TOUR_ANCHORS.createUserFirstName,
-        ADMIN_TOUR_ANCHORS.createUserDni,
-        ADMIN_TOUR_ANCHORS.createUserBirth,
-        ADMIN_TOUR_ANCHORS.createUserPassword,
-        ADMIN_TOUR_ANCHORS.createUserSubmit,
-      ],
-    },
+    ...contentOnlyIds.map(contentOnlyScreenCheck),
+    ...listTourRuntimeTaskChecks(),
   ];
 }

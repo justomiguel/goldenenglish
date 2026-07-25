@@ -27,6 +27,7 @@ type MsgRow = {
   read_at?: unknown;
   external_replied_at?: unknown;
   external_contact_display_name?: unknown;
+  external_contact_reply_email?: unknown;
 };
 
 function isAdminInboxSender(
@@ -63,6 +64,17 @@ function buildLatestStaffReplyByPeer(
   return latest;
 }
 
+function resolveVisitorContactLabel(m: MsgRow): string | null {
+  const visitor = resolveSiteContactVisitorDisplayName({
+    external_contact_display_name:
+      (m.external_contact_display_name as string | null | undefined) ?? null,
+    body_html: (m.body_html as string) ?? "",
+  });
+  if (visitor) return visitor;
+  const email = (m.external_contact_reply_email as string | null | undefined)?.trim();
+  return email || null;
+}
+
 function resolveFromName(
   m: MsgRow,
   dict: Dictionary,
@@ -70,14 +82,27 @@ function resolveFromName(
 ): string {
   const s = metaById.get(m.sender_id as string);
   if (s?.role === "site_contact") {
-    const visitor = resolveSiteContactVisitorDisplayName({
-      external_contact_display_name:
-        (m.external_contact_display_name as string | null | undefined) ?? null,
-      body_html: (m.body_html as string) ?? "",
-    });
-    if (visitor) return visitor;
+    return resolveVisitorContactLabel(m) ?? s.name ?? dict.common.emptyValue;
   }
   return s?.name ?? dict.common.emptyValue;
+}
+
+function resolveToName(
+  m: MsgRow,
+  dict: Dictionary,
+  metaById: Map<string, { name: string; role: string }>,
+  adminBound: boolean,
+): string {
+  if (adminBound) return dict.admin.messages.administrationPeerLabel;
+  const recipientId = m.recipient_id as string;
+  const r = metaById.get(recipientId);
+  if (
+    recipientId === PUBLIC_SITE_CONTACT_SENDER_PROFILE_ID ||
+    r?.role === "site_contact"
+  ) {
+    return resolveVisitorContactLabel(m) ?? r?.name ?? dict.common.emptyValue;
+  }
+  return r?.name ?? dict.common.emptyValue;
 }
 
 function buildRow(
@@ -105,9 +130,7 @@ function buildRow(
   return {
     id: m.id as string,
     fromName: resolveFromName(m, dict, metaById),
-    toName: adminBound
-      ? dict.admin.messages.administrationPeerLabel
-      : (r?.name ?? dict.common.emptyValue),
+    toName: resolveToName(m, dict, metaById, adminBound),
     fromRole: portalMessageRoleDisplay(dict, s?.role ?? ""),
     toRole: portalMessageRoleDisplay(dict, r?.role ?? ""),
     createdAt: m.created_at as string,
@@ -137,7 +160,7 @@ export async function loadAdminPortalMessagesMailbox(
   let query = supabase
     .from("portal_messages")
     .select(
-      "id, sender_id, recipient_id, body_html, created_at, broadcast_batch_id, read_at, external_replied_at, external_contact_display_name",
+      "id, sender_id, recipient_id, body_html, created_at, broadcast_batch_id, read_at, external_replied_at, external_contact_display_name, external_contact_reply_email",
     );
 
   const f = filters ?? {};

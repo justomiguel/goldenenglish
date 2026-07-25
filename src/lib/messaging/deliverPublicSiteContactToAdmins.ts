@@ -87,6 +87,7 @@ export async function deliverPublicSiteContactToAdmins(
         locale: input.locale,
         emailProvider,
         recipientRole: "admin",
+        source: "contact_form",
       });
     } catch (emailErr) {
       logServerException("deliverPublicSiteContactToAdmins:notifyEmail", emailErr, {

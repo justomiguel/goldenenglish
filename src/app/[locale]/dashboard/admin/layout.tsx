@@ -96,6 +96,7 @@ export default async function AdminSectionLayout({
               locale={locale}
               launcherDict={dict.dashboard.adminHelpLauncher}
               catalogDict={dict.dashboard.adminHelpCatalog}
+              catalogGroupsDict={dict.dashboard.adminHelpCatalogGroups}
               toursDict={dict.dashboard.adminHelpTours}
               explainScreenDict={dict.dashboard.adminHelpExplainScreen}
               screenToursDict={dict.dashboard.adminHelpScreenTours}

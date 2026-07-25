@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { enrichSectionStaffAssignedPeople } from "@/lib/academics/enrichSectionStaffAssignedPeople";
 import { SECTION_LEAD_TEACHER_ELIGIBLE_ROLES } from "@/lib/academics/sectionStaffEligibleRoles";
+import type { SectionStaffAssignedPerson } from "@/lib/academics/sectionStaffAssignedPerson";
 import {
   compareProfileSnakeByLastThenFirst,
   formatProfileSnakeSurnameFirst,
@@ -25,6 +27,8 @@ export async function loadAdminSectionTeachersAndAssistants(
   assistantPortalStaffOptions: SectionStaffPortalPickOption[];
   initialAssistants: SectionStaffProfileAssistant[];
   initialExternalAssistants: SectionStaffExternalOption[];
+  /** Lead + portal assistants with avatar / contact fields for the Teachers tab summary. */
+  assignedPeople: SectionStaffAssignedPerson[];
 }> {
   const [{ data: teacherRows }, { data: portalAssistantRows }] = await Promise.all([
     supabase
@@ -126,5 +130,16 @@ export async function loadAdminSectionTeachersAndAssistants(
         return { id: r.id, label: r.display_name };
       });
 
-  return { teachers, assistantPortalStaffOptions, initialAssistants, initialExternalAssistants };
+  const assignedPeople = await enrichSectionStaffAssignedPeople(supabase, {
+    leadTeacherId,
+    assistants: initialAssistants.map((a) => ({ id: a.id, role: a.role })),
+  });
+
+  return {
+    teachers,
+    assistantPortalStaffOptions,
+    initialAssistants,
+    initialExternalAssistants,
+    assignedPeople,
+  };
 }

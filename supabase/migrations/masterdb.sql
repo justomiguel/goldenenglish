@@ -15006,3 +15006,132 @@ ALTER TABLE public.portal_messages
 
 COMMENT ON COLUMN public.portal_messages.external_contact_display_name IS
   'Visitor full name from the public contact form; shown in admin inbox instead of the synthetic site_contact profile.';
+
+-- ========== 169_messaging_default_reply_template.sql ==========
+-- Institute-wide admin Messages default reply templates (es / en / pt).
+-- Placeholders: {{instituteName}}, {{phone}}. See spec 2026-07-12-admin-messages-default-reply-design.
+-- Idempotent: inserts the seed, or upgrades a legacy single-string row without wiping custom text.
+
+INSERT INTO public.site_settings (key, value, updated_at)
+VALUES (
+  'messaging_default_reply_template',
+  jsonb_build_object(
+    'templates',
+    jsonb_build_object(
+      'es',
+      'Gracias por comunicarte con {{instituteName}}. Nos estaremos comunicando contigo a la brevedad. Para urgencias llamar al {{phone}}.',
+      'en',
+      'Thanks for contacting {{instituteName}}. We will get back to you shortly. For emergencies call {{phone}}.',
+      'pt',
+      'Obrigado por entrar em contato com {{instituteName}}. Retornaremos em breve. Para urgências, ligue para {{phone}}.'
+    )
+  ),
+  now()
+)
+ON CONFLICT (key) DO UPDATE
+SET
+  value = jsonb_build_object(
+    'templates',
+    jsonb_build_object(
+      'es',
+      COALESCE(
+        NULLIF(
+          trim(
+            both
+            FROM COALESCE(
+              public.site_settings.value #>> '{templates,es}',
+              public.site_settings.value #>> '{es}',
+              public.site_settings.value #>> '{template}',
+              ''
+            )
+          ),
+          ''
+        ),
+        EXCLUDED.value #>> '{templates,es}'
+      ),
+      'en',
+      COALESCE(
+        NULLIF(
+          trim(
+            both
+            FROM COALESCE(
+              public.site_settings.value #>> '{templates,en}',
+              public.site_settings.value #>> '{en}',
+              public.site_settings.value #>> '{template}',
+              ''
+            )
+          ),
+          ''
+        ),
+        EXCLUDED.value #>> '{templates,en}'
+      ),
+      'pt',
+      COALESCE(
+        NULLIF(
+          trim(
+            both
+            FROM COALESCE(
+              public.site_settings.value #>> '{templates,pt}',
+              public.site_settings.value #>> '{pt}',
+              public.site_settings.value #>> '{template}',
+              ''
+            )
+          ),
+          ''
+        ),
+        EXCLUDED.value #>> '{templates,pt}'
+      )
+    )
+  ),
+  updated_at = now();
+
+-- ========== 170_mozarthitos_contact_email.sql ==========
+-- Mozarthitos — public contact email (and phone / Instagram) on the active theme row.
+-- Live drift: slug `mozarthitos` lacked contact.email so mail footers fell back to
+-- SYSTEM_PROPERTIES_DEFAULTS (Golden: crisins@hotmail.com). Correct value lived only
+-- on inactive slug `default`. See spec 2026-07-12-mozarthitos-contact-email-design.
+
+UPDATE public.site_themes
+SET
+  properties =
+    coalesce(properties, '{}'::jsonb)
+    || jsonb_build_object(
+      'contact.email', 'mozarthitos@gmail.com',
+      'contact.phone', '+56 9 5991 6314',
+      'social.instagram', 'https://www.instagram.com/mozarthitos/'
+    ),
+  updated_at = now()
+WHERE slug = 'mozarthitos';
+
+-- ========== 171_section_feature_flags_evaluations_learning_route.sql ==========
+-- Per-section feature flags: evaluations-to-pass and learning-route workspace.
+-- Defaults false (opt-in). Admin Configuration toggles control tab visibility and progress rules.
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS requires_evaluations_to_pass boolean NOT NULL DEFAULT false;
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS uses_learning_route boolean NOT NULL DEFAULT false;
+
+COMMENT ON COLUMN public.academic_sections.requires_evaluations_to_pass IS
+  'When true, section shows Assessments tab and evaluation-based pass/progress rules apply.';
+
+COMMENT ON COLUMN public.academic_sections.uses_learning_route IS
+  'When true, section shows Learning route tab and route/free-flow progress applies to learners.';
+
+
+-- ========== 171_section_feature_flags_evaluations_learning_route.sql ==========
+-- Per-section feature flags: evaluations-to-pass and learning-route workspace.
+-- Defaults false (opt-in). Admin Configuration toggles control tab visibility and progress rules.
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS requires_evaluations_to_pass boolean NOT NULL DEFAULT false;
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS uses_learning_route boolean NOT NULL DEFAULT false;
+
+COMMENT ON COLUMN public.academic_sections.requires_evaluations_to_pass IS
+  'When true, section shows Assessments tab and evaluation-based pass/progress rules apply.';
+
+COMMENT ON COLUMN public.academic_sections.uses_learning_route IS
+  'When true, section shows Learning route tab and route/free-flow progress applies to learners.';

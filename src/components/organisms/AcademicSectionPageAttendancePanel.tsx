@@ -1,6 +1,9 @@
+import { ClipboardList } from "lucide-react";
 import { SectionAttendanceMatrix } from "@/components/organisms/SectionAttendanceMatrix";
+import { AcademicSectionAreaBlock } from "@/components/molecules/AcademicSectionAreaBlock";
 import type { TeacherAttendanceMatrixPayload } from "@/types/teacherAttendanceMatrix";
 import type { Dictionary } from "@/types/i18n";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type TeacherAttendanceDict = Dictionary["dashboard"]["teacherSectionAttendance"];
 
@@ -9,6 +12,7 @@ export function AcademicSectionPageAttendancePanel({
   sectionId,
   todayIso,
   attendanceScheduleLine,
+  attendanceAreaLead,
   attendanceWindowOk,
   hasScheduleSlots,
   hasEligibleAttendanceDays,
@@ -20,6 +24,7 @@ export function AcademicSectionPageAttendancePanel({
   sectionId: string;
   todayIso: string;
   attendanceScheduleLine: string;
+  attendanceAreaLead: string;
   attendanceWindowOk: boolean;
   hasScheduleSlots: boolean;
   hasEligibleAttendanceDays: boolean;
@@ -28,35 +33,42 @@ export function AcademicSectionPageAttendancePanel({
   dTeacherAttendance: TeacherAttendanceDict;
 }) {
   return (
-    <>
-      {attendanceScheduleLine ? (
-        <p className="text-xs text-[var(--color-muted-foreground)]">{attendanceScheduleLine}</p>
-      ) : null}
-      {!attendanceWindowOk ? (
-        <p role="status" className="text-sm text-[var(--color-muted-foreground)]">
-          {dTeacherAttendance.noEligibleClassDates}
-        </p>
-      ) : !hasScheduleSlots ? (
-        <p role="status" className="text-sm text-[var(--color-muted-foreground)]">
-          {dTeacherAttendance.noScheduleSlots}
-        </p>
-      ) : !hasEligibleAttendanceDays ? (
-        <p role="status" className="text-sm text-[var(--color-muted-foreground)]">
-          {dTeacherAttendance.noEligibleClassDates}
-        </p>
-      ) : attendanceMatrix ? (
-        <SectionAttendanceMatrix
-          variant="admin"
-          locale={locale}
-          sectionId={sectionId}
-          todayIso={todayIso}
-          initialPayloadJson={JSON.stringify(attendanceMatrix)}
-          editableByDateJson={JSON.stringify(editableByDate)}
-          scheduleLine={attendanceScheduleLine}
-          matrixDict={dTeacherAttendance.matrix}
-          offlineHint={dTeacherAttendance.offlineHint}
-        />
-      ) : null}
-    </>
+    <div data-tour={ADMIN_TOUR_ANCHORS.sectionAttendanceRoot}>
+      <AcademicSectionAreaBlock
+        id="section-attendance-heading"
+        title={dTeacherAttendance.title}
+        lead={attendanceAreaLead}
+        icon={ClipboardList}
+      >
+        {attendanceScheduleLine ? (
+          <p className="text-xs text-[var(--color-muted-foreground)]">{attendanceScheduleLine}</p>
+        ) : null}
+        {!attendanceWindowOk ? (
+          <p role="status" className="text-sm text-[var(--color-muted-foreground)]">
+            {dTeacherAttendance.noEligibleClassDates}
+          </p>
+        ) : !hasScheduleSlots ? (
+          <p role="status" className="text-sm text-[var(--color-muted-foreground)]">
+            {dTeacherAttendance.noScheduleSlots}
+          </p>
+        ) : !hasEligibleAttendanceDays ? (
+          <p role="status" className="text-sm text-[var(--color-muted-foreground)]">
+            {dTeacherAttendance.noEligibleClassDates}
+          </p>
+        ) : attendanceMatrix ? (
+          <SectionAttendanceMatrix
+            variant="admin"
+            locale={locale}
+            sectionId={sectionId}
+            todayIso={todayIso}
+            initialPayloadJson={JSON.stringify(attendanceMatrix)}
+            editableByDateJson={JSON.stringify(editableByDate)}
+            scheduleLine={attendanceScheduleLine}
+            matrixDict={dTeacherAttendance.matrix}
+            offlineHint={dTeacherAttendance.offlineHint}
+          />
+        ) : null}
+      </AcademicSectionAreaBlock>
+    </div>
   );
 }

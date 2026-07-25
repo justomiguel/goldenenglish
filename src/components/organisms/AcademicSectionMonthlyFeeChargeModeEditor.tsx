@@ -16,6 +16,8 @@ export interface AcademicSectionMonthlyFeeChargeModeEditorProps {
   sectionId: string;
   initialMode: MonthlyFeeChargeMode;
   dict: Dict;
+  /** Nested under Fees panel blocks — lighter chrome, subsection heading. */
+  embedded?: boolean;
 }
 
 export function AcademicSectionMonthlyFeeChargeModeEditor({
@@ -23,6 +25,7 @@ export function AcademicSectionMonthlyFeeChargeModeEditor({
   sectionId,
   initialMode,
   dict,
+  embedded = false,
 }: AcademicSectionMonthlyFeeChargeModeEditorProps) {
   const router = useRouter();
   const [mode, setMode] = useState<MonthlyFeeChargeMode>(initialMode);
@@ -51,9 +54,22 @@ export function AcademicSectionMonthlyFeeChargeModeEditor({
     });
   };
 
+  const Heading = embedded ? "h3" : "h2";
+  const shell = embedded
+    ? "space-y-1"
+    : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4";
+
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
+    <section className={shell}>
+      <Heading
+        className={
+          embedded
+            ? "text-sm font-semibold text-[var(--color-foreground)]"
+            : "text-base font-semibold text-[var(--color-primary)]"
+        }
+      >
+        {dict.title}
+      </Heading>
       <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{dict.lead}</p>
 
       <form

@@ -5,6 +5,7 @@ import {
   parseStatusEnv,
   E2E_LOCAL_DEFAULT_SEED,
 } from "../../../e2e/buildE2eLocalEnvFile";
+import { E2E_TOUR_RECEIPT_FIXTURE } from "../../../e2e/tourReceiptFixture";
 
 describe("buildE2eLocalEnvFileContents", () => {
   it("maps supabase status -o env keys into e2e file body", () => {
@@ -20,13 +21,15 @@ DB_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
     expect(body).toContain("SUPABASE_SERVICE_ROLE_KEY=service-test");
     expect(body).toContain("DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres");
     expect(body).toContain("E2E_STACK=isolated");
+    expect(body).toContain("EMAIL_PROVIDER=recording");
+    expect(body).not.toMatch(/^RESEND_/m);
     expect(body).toContain(`E2E_ADMIN_EMAIL=${E2E_LOCAL_DEFAULT_SEED.adminEmail}`);
     expect(body).toContain(`E2E_STUDENT_EMAIL=${E2E_LOCAL_DEFAULT_SEED.studentEmail}`);
     expect(body).toContain("PLAYWRIGHT_BASE_URL=http://127.0.0.1:3100");
     expect(body).toContain("SKIP_INITIAL_SITE_SETUP=1");
   });
 
-  it("includes cohort and section ids when provided", () => {
+  it("includes cohort, section, and student ids when provided", () => {
     const status = parseStatusEnv(`
 API_URL=http://127.0.0.1:54321
 ANON_KEY=anon-test
@@ -35,9 +38,12 @@ SERVICE_ROLE_KEY=service-test
     const body = buildE2eLocalEnvFileContents(status, {
       cohortId: "cohort-uuid",
       sectionId: "section-uuid",
+      studentId: "student-uuid",
     });
     expect(body).toContain("E2E_COHORT_ID=cohort-uuid");
     expect(body).toContain("E2E_SECTION_ID=section-uuid");
+    expect(body).toContain("E2E_STUDENT_ID=student-uuid");
+    expect(body).toContain(`E2E_RECEIPT_ID=${E2E_TOUR_RECEIPT_FIXTURE.receiptId}`);
   });
 
   it("throws when required keys are missing", () => {

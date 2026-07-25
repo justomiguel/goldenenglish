@@ -44,11 +44,13 @@ export function AdminMessagesTabs({
         id: "inbox",
         label: labels.tabsInbox,
         Icon: Inbox,
+        tourId: ADMIN_TOUR_ANCHORS.messagesTabInbox,
       },
       {
         id: "sent",
         label: labels.tabsSent,
         Icon: SendHorizontal,
+        tourId: ADMIN_TOUR_ANCHORS.messagesTabSent,
       },
     ],
     [labels],

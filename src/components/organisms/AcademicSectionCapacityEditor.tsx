@@ -16,6 +16,7 @@ export interface AcademicSectionCapacityEditorProps {
   activeEnrollments: number;
   siteDefaultMax: number;
   dict: Dictionary["dashboard"]["academicSectionPage"]["capacity"];
+  embedded?: boolean;
 }
 
 export function AcademicSectionCapacityEditor({
@@ -25,6 +26,7 @@ export function AcademicSectionCapacityEditor({
   activeEnrollments,
   siteDefaultMax,
   dict,
+  embedded = false,
 }: AcademicSectionCapacityEditorProps) {
   const router = useRouter();
   const [maxStudents, setMaxStudents] = useState(String(initialMaxStudents));
@@ -61,9 +63,17 @@ export function AcademicSectionCapacityEditor({
   const hintDefault = dict.hintDefault.replace(/\{\{default\}\}/g, String(siteDefaultMax));
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
-      <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{hintActive}</p>
+    <div
+      className={
+        embedded
+          ? ""
+          : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      }
+    >
+      {!embedded ? (
+        <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
+      ) : null}
+      <p className={(embedded ? "" : "mt-1 ") + "text-xs text-[var(--color-muted-foreground)]"}>{hintActive}</p>
       <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{hintDefault}</p>
       <div className="mt-3 space-y-2">
         <Label htmlFor={`sec-cap-${sectionId}`}>{dict.label}</Label>
@@ -88,6 +98,6 @@ export function AcademicSectionCapacityEditor({
           </p>
         ) : null}
       </div>
-    </section>
+    </div>
   );
 }

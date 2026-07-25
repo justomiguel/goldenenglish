@@ -1,4 +1,23 @@
-import { GraduationCap, Layers, School, Shield, Users, type LucideIcon } from "lucide-react";
+import {
+  BadgeCheck,
+  BadgeX,
+  CalendarPlus,
+  ClipboardList,
+  Coins,
+  CreditCard,
+  Gift,
+  GraduationCap,
+  KeyRound,
+  Landmark,
+  Layers,
+  Newspaper,
+  Percent,
+  School,
+  Shield,
+  Upload,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import type { AdminTutorialIconId } from "@/lib/admin-tutorials/catalog";
 
 /** Lucide icons for admin help catalog rows (narrow imports per step). */
@@ -8,4 +27,16 @@ export const ADMIN_TUTORIAL_CATALOG_ICONS: Record<AdminTutorialIconId, LucideIco
   graduationCap: GraduationCap,
   school: School,
   shield: Shield,
+  calendarPlus: CalendarPlus,
+  badgeCheck: BadgeCheck,
+  badgeX: BadgeX,
+  clipboardList: ClipboardList,
+  percent: Percent,
+  gift: Gift,
+  creditCard: CreditCard,
+  landmark: Landmark,
+  coins: Coins,
+  newspaper: Newspaper,
+  keyRound: KeyRound,
+  upload: Upload,
 };

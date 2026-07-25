@@ -6,6 +6,7 @@ import type { MonthlyReceiptItem, EnrollmentReceiptItem, InvoiceReceiptItem } fr
 import { FinanceMonthlyReceiptsBulkSection } from "./FinanceMonthlyReceiptsBulkSection";
 import { FinanceEnrollmentReceiptsBulkSection } from "./FinanceEnrollmentReceiptsBulkSection";
 import { FinanceInvoiceReceiptsBulkSection } from "./FinanceInvoiceReceiptsBulkSection";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type InboxType = "monthly" | "enrollment" | "invoice";
 const TYPES: InboxType[] = ["monthly", "enrollment", "invoice"];
@@ -52,7 +53,7 @@ export function FinanceInboxClient({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-tour={ADMIN_TOUR_ANCHORS.financeInboxRoot}>
       <header className="space-y-1">
         <h2 className="font-display text-base font-semibold text-[var(--color-primary)]">
           {inboxDict.title}
@@ -64,6 +65,7 @@ export function FinanceInboxClient({
 
       <nav
         aria-label={inboxDict.title}
+        data-tour={ADMIN_TOUR_ANCHORS.financeInboxTypeNav}
         className="inline-flex rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-0.5"
       >
         {TYPES.map((t) => (

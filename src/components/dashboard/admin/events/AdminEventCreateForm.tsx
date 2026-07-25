@@ -10,6 +10,7 @@ import { Label } from "@/components/atoms/Label";
 import { createEventAction } from "@/app/[locale]/dashboard/admin/events/actions";
 import { AdminEventPricingFields } from "@/components/dashboard/admin/events/AdminEventPricingFields";
 import { EventDescriptionEditor } from "@/components/dashboard/admin/events/EventDescriptionEditor";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { isEventLocale } from "@/lib/events/domain";
 import type { Dictionary } from "@/types/i18n";
 
@@ -117,9 +118,13 @@ export function AdminEventCreateForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-6 space-y-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <form
+      onSubmit={onSubmit}
+      data-tour={ADMIN_TOUR_ANCHORS.eventCreateForm}
+      className="mt-6 space-y-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+    >
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="md:col-span-2">
+        <div className="md:col-span-2" data-tour={ADMIN_TOUR_ANCHORS.eventCreateTitle}>
           <Label htmlFor="event-title">{labels.titleLabel}</Label>
           <Input
             id="event-title"
@@ -141,7 +146,7 @@ export function AdminEventCreateForm({
             disabled={pending}
           />
         </div>
-        <div>
+        <div data-tour={ADMIN_TOUR_ANCHORS.eventCreateDate}>
           <Label htmlFor="event-date">{labels.eventDateLabel}</Label>
           <Input
             id="event-date"
@@ -176,26 +181,28 @@ export function AdminEventCreateForm({
             className="mt-1"
           />
         </div>
-        <AdminEventPricingFields
-          priceLocal={priceLocal}
-          priceNonLocal={priceNonLocal}
-          currency={currency}
-          bankTransferInstructions={bankTransferInstructions}
-          disabled={pending}
-          labels={{
-            priceLocalLabel: labels.priceLocalLabel,
-            priceNonLocalLabel: labels.priceNonLocalLabel,
-            priceHint: labels.priceHint,
-            currencyLabel: labels.currencyLabel,
-            currencyGatewayWarning: labels.currencyGatewayWarning,
-            bankTransferInstructionsLabel: labels.bankTransferInstructionsLabel,
-            bankTransferInstructionsHint: labels.bankTransferInstructionsHint,
-          }}
-          onPriceLocalChange={setPriceLocal}
-          onPriceNonLocalChange={setPriceNonLocal}
-          onCurrencyChange={setCurrency}
-          onBankTransferInstructionsChange={setBankTransferInstructions}
-        />
+        <div data-tour={ADMIN_TOUR_ANCHORS.eventCreatePricing}>
+          <AdminEventPricingFields
+            priceLocal={priceLocal}
+            priceNonLocal={priceNonLocal}
+            currency={currency}
+            bankTransferInstructions={bankTransferInstructions}
+            disabled={pending}
+            labels={{
+              priceLocalLabel: labels.priceLocalLabel,
+              priceNonLocalLabel: labels.priceNonLocalLabel,
+              priceHint: labels.priceHint,
+              currencyLabel: labels.currencyLabel,
+              currencyGatewayWarning: labels.currencyGatewayWarning,
+              bankTransferInstructionsLabel: labels.bankTransferInstructionsLabel,
+              bankTransferInstructionsHint: labels.bankTransferInstructionsHint,
+            }}
+            onPriceLocalChange={setPriceLocal}
+            onPriceNonLocalChange={setPriceNonLocal}
+            onCurrencyChange={setCurrency}
+            onBankTransferInstructionsChange={setBankTransferInstructions}
+          />
+        </div>
       </div>
 
       {uploadError ? (
@@ -210,7 +217,7 @@ export function AdminEventCreateForm({
         </p>
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3" data-tour={ADMIN_TOUR_ANCHORS.eventCreateSubmit}>
         <Button type="submit" isLoading={pending} disabled={pending}>
           {!pending ? <CalendarPlus className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {labels.submit}

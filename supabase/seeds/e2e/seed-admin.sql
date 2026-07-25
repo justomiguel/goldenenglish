@@ -28,7 +28,15 @@ DECLARE
     'dni_or_passport', p_dni
   );
 BEGIN
+  -- Prefer email match; if ward-email E2E (or similar) changed login, recover by DNI.
   SELECT id INTO v_user_id FROM auth.users WHERE lower(email) = lower(p_email) LIMIT 1;
+
+  IF v_user_id IS NULL AND p_dni IS NOT NULL AND length(trim(p_dni)) > 0 THEN
+    SELECT p.id INTO v_user_id
+    FROM public.profiles p
+    WHERE lower(trim(both FROM p.dni_or_passport)) = lower(trim(both FROM p_dni))
+    LIMIT 1;
+  END IF;
 
   IF v_user_id IS NOT NULL THEN
     UPDATE auth.users
@@ -36,6 +44,7 @@ BEGIN
       instance_id = v_instance,
       aud = 'authenticated',
       role = 'authenticated',
+      email = lower(p_email),
       encrypted_password = crypt(p_password, gen_salt('bf')),
       email_confirmed_at = COALESCE(email_confirmed_at, now()),
       confirmation_token = '',
@@ -59,7 +68,7 @@ BEGIN
       raw_app_meta_data, raw_user_meta_data, created_at, updated_at
     )
     VALUES (
-      v_user_id, v_instance, 'authenticated', 'authenticated', p_email,
+      v_user_id, v_instance, 'authenticated', 'authenticated', lower(p_email),
       crypt(p_password, gen_salt('bf')),
       now(), '', '', '', '', false, false,
       '{"provider":"email","providers":["email"]}'::jsonb,
@@ -83,16 +92,37 @@ BEGIN
       v_user_id::text,
       now(), now(), now()
     );
+  ELSE
+    UPDATE auth.identities
+    SET
+      identity_data = jsonb_set(
+        COALESCE(identity_data, '{}'::jsonb),
+        '{email}',
+        to_jsonb(lower(p_email))
+      ),
+      updated_at = now()
+    WHERE user_id = v_user_id AND provider = 'email';
   END IF;
 
-  INSERT INTO public.profiles (id, role, first_name, last_name, dni_or_passport)
-  VALUES (v_user_id, p_role, p_first, p_last, p_dni)
+  INSERT INTO public.profiles (id, role, first_name, last_name, dni_or_passport, phone, birth_date)
+  VALUES (
+    v_user_id,
+    p_role,
+    p_first,
+    p_last,
+    p_dni,
+    CASE WHEN p_role = 'student' THEN '+5491100000001' ELSE NULL END,
+    -- Adult DOB so canAccessPaymentsModule stays true (minors redirect off /payments).
+    CASE WHEN p_role = 'student' THEN DATE '2000-06-15' ELSE NULL END
+  )
   ON CONFLICT (id) DO UPDATE
   SET
     role = EXCLUDED.role,
     first_name = EXCLUDED.first_name,
     last_name = EXCLUDED.last_name,
     dni_or_passport = EXCLUDED.dni_or_passport,
+    phone = COALESCE(public.profiles.phone, EXCLUDED.phone),
+    birth_date = COALESCE(EXCLUDED.birth_date, public.profiles.birth_date),
     updated_at = now();
 
   RETURN v_user_id;
@@ -112,8 +142,18 @@ DECLARE
   v_year int := EXTRACT(YEAR FROM CURRENT_DATE)::int;
   v_month int := EXTRACT(MONTH FROM CURRENT_DATE)::int;
   v_parent_month int;
+  v_reject_month int;
+  v_tour_invoice uuid := '00000000-0000-4000-8000-e2e000000002'::uuid;
+  v_tour_receipt uuid := '00000000-0000-4000-8000-e2e000000001'::uuid;
+  v_tour_receipt_path text;
 BEGIN
   v_parent_month := CASE WHEN v_month < 12 THEN v_month + 1 ELSE v_month - 1 END;
+  -- Third due month for reject-receipt E2E (distinct from student + parent months).
+  v_reject_month := CASE
+    WHEN v_month <= 10 THEN v_month + 2
+    WHEN v_month = 11 THEN 9
+    ELSE 10
+  END;
   v_admin := public._e2e_upsert_user(
     'e2e-admin@example.test', v_pw, 'admin', 'E2E', 'Admin', 'E2E-ADM-01'
   );
@@ -164,7 +204,8 @@ BEGIN
   IF v_section IS NULL THEN
     INSERT INTO public.academic_sections (
       cohort_id, name, teacher_id, schedule_slots,
-      starts_on, ends_on, enrollment_fee_amount, monthly_fee_charge_mode
+      starts_on, ends_on, enrollment_fee_amount, monthly_fee_charge_mode,
+      allow_advance_monthly_payment
     )
     VALUES (
       v_cohort,
@@ -174,7 +215,8 @@ BEGIN
       make_date(v_year, 1, 1),
       make_date(v_year, 12, 31),
       0,
-      'full_month_fee'
+      'full_month_fee',
+      true
     )
     RETURNING id INTO v_section;
   ELSE
@@ -185,6 +227,9 @@ BEGIN
       starts_on = make_date(v_year, 1, 1),
       ends_on = make_date(v_year, 12, 31),
       schedule_slots = '[{"dayOfWeek":1,"startTime":"10:00","endTime":"11:00"}]'::jsonb,
+      -- Parent/reject E2E dues use future months; strip must allow advance pay.
+      allow_advance_monthly_payment = true,
+      monthly_fee_charge_mode = 'full_month_fee',
       updated_at = now()
     WHERE id = v_section;
   END IF;
@@ -301,6 +346,35 @@ BEGIN
     );
   END IF;
 
+  -- Third due month for admin reject-receipt E2E (after student + parent consume the first two).
+  IF EXISTS (
+    SELECT 1 FROM public.payments
+    WHERE student_id = v_student
+      AND section_id = v_section
+      AND month = v_reject_month
+      AND year = v_year
+  ) THEN
+    UPDATE public.payments
+    SET
+      status = 'pending',
+      amount = 100,
+      parent_id = v_parent,
+      receipt_url = NULL,
+      updated_at = now()
+    WHERE student_id = v_student
+      AND section_id = v_section
+      AND month = v_reject_month
+      AND year = v_year;
+  ELSE
+    INSERT INTO public.payments (
+      student_id, parent_id, section_id, month, year, amount, status, payment_kind, receipt_url
+    )
+    VALUES (
+      v_student, v_parent, v_section, v_reject_month, v_year, 100, 'pending', 'monthly',
+      NULL
+    );
+  END IF;
+
   -- Free published event for anonymous public register E2E.
   INSERT INTO public.events (
     slug, title, description, event_date, location, capacity,
@@ -400,6 +474,59 @@ BEGIN
     description = EXCLUDED.description,
     location = EXCLUDED.location,
     updated_at = now();
+
+  -- Admin tour L3: pending billing receipt (storage object uploaded in e2e-stack-up).
+  v_tour_receipt_path :=
+    v_student::text || '/' || v_tour_invoice::text || '/' || v_tour_receipt::text || '.png';
+
+  INSERT INTO public.billing_invoices (
+    id, student_id, amount, due_date, status, description
+  )
+  VALUES (
+    v_tour_invoice,
+    v_student,
+    100,
+    make_date(v_year, GREATEST(v_month, 1), 1),
+    'verifying',
+    'E2E tour receipt invoice'
+  )
+  ON CONFLICT (id) DO UPDATE
+  SET
+    student_id = EXCLUDED.student_id,
+    amount = 100,
+    status = 'verifying',
+    description = EXCLUDED.description,
+    updated_at = now();
+
+  DELETE FROM public.billing_receipts
+  WHERE invoice_id = v_tour_invoice
+    AND id IS DISTINCT FROM v_tour_receipt;
+
+  INSERT INTO public.billing_receipts (
+    id,
+    invoice_id,
+    uploaded_by,
+    receipt_storage_path,
+    amount_paid,
+    status
+  )
+  VALUES (
+    v_tour_receipt,
+    v_tour_invoice,
+    v_parent,
+    v_tour_receipt_path,
+    100,
+    'pending_approval'
+  )
+  ON CONFLICT (id) DO UPDATE
+  SET
+    invoice_id = EXCLUDED.invoice_id,
+    uploaded_by = EXCLUDED.uploaded_by,
+    receipt_storage_path = EXCLUDED.receipt_storage_path,
+    amount_paid = 100,
+    status = 'pending_approval',
+    rejection_reason_code = NULL,
+    rejection_detail = NULL;
 END $$;
 
 DROP FUNCTION IF EXISTS public._e2e_upsert_user(text, text, public.user_role, text, text, text);

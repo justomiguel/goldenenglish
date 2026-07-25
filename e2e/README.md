@@ -17,3 +17,5 @@ SKIP_E2E=1 npm run precommit
 ```
 
 Default local admin: `e2e-admin@example.test` / `E2eLocal!Stack1`.
+
+Outbound mail uses **`RecordingEmailProvider`** (no Resend). Optional assert: `GET /api/e2e/recorded-emails`.

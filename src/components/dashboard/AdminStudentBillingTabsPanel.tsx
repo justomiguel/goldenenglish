@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { GraduationCap, History, Receipt } from "lucide-react";
 import { AdminEnrollmentFeeExemption } from "@/components/dashboard/AdminEnrollmentFeeExemption";
 import { AdminStudentBillingPaymentsTable } from "@/components/dashboard/AdminStudentBillingPaymentsTable";
@@ -11,6 +11,7 @@ import {
   underlineTabId,
   type UnderlineTabItem,
 } from "@/components/molecules/UnderlineTabBar";
+import { ADMIN_TOUR_ANCHORS, ADMIN_TUTORIAL_ACTIVATE_SCHOLARSHIPS_TAB_EVENT } from "@/lib/admin-tutorials/selectors";
 import type {
   AdminBillingPaymentRow,
   AdminBillingScholarship,
@@ -49,10 +50,32 @@ export function AdminStudentBillingTabsPanel({
   const [scholarshipMsg, setScholarshipMsg] = useState<string | null>(null);
   const idPrefix = useId().replace(/:/g, "");
 
+  useEffect(() => {
+    const onScholarships = () => setActive("scholarships");
+    window.addEventListener(ADMIN_TUTORIAL_ACTIVATE_SCHOLARSHIPS_TAB_EVENT, onScholarships);
+    return () =>
+      window.removeEventListener(ADMIN_TUTORIAL_ACTIVATE_SCHOLARSHIPS_TAB_EVENT, onScholarships);
+  }, []);
+
   const items: readonly UnderlineTabItem[] = [
-    { id: "history", label: labels.tabHistory, Icon: History },
-    { id: "scholarships", label: labels.tabScholarships, Icon: GraduationCap },
-    { id: "enrollment", label: labels.tabEnrollment, Icon: Receipt },
+    {
+      id: "history",
+      label: labels.tabHistory,
+      Icon: History,
+      tourId: ADMIN_TOUR_ANCHORS.userBillingTabHistory,
+    },
+    {
+      id: "scholarships",
+      label: labels.tabScholarships,
+      Icon: GraduationCap,
+      tourId: ADMIN_TOUR_ANCHORS.scholarshipTab,
+    },
+    {
+      id: "enrollment",
+      label: labels.tabEnrollment,
+      Icon: Receipt,
+      tourId: ADMIN_TOUR_ANCHORS.userBillingTabEnrollment,
+    },
   ];
 
   const sectionId = selectedBenefit?.sectionId ?? null;
@@ -61,7 +84,7 @@ export function AdminStudentBillingTabsPanel({
   const referenceMonthlyCurrency = selectedBenefit?.sectionMonthlyFeeCurrency ?? null;
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-3" data-tour={ADMIN_TOUR_ANCHORS.userBillingTabs}>
       <p className="text-xs text-[var(--color-muted-foreground)]">{labels.billingTabsReadOnlyHint}</p>
       <UnderlineTabBar
         idPrefix={idPrefix}
@@ -71,6 +94,7 @@ export function AdminStudentBillingTabsPanel({
         onChange={(id) => setActive(id as BillingTabId)}
       />
 
+      <div data-tour={ADMIN_TOUR_ANCHORS.userBillingWorkspace}>
       <div
         role="tabpanel"
         id={underlinePanelId(idPrefix, "history")}
@@ -122,7 +146,7 @@ export function AdminStudentBillingTabsPanel({
               busy={scholarshipBusy}
               setBusy={setScholarshipBusy}
               setMsg={setScholarshipMsg}
-              readOnly
+              readOnly={false}
               allowRemove
             />
           </>
@@ -163,6 +187,7 @@ export function AdminStudentBillingTabsPanel({
             readOnly
           />
         ) : null}
+      </div>
       </div>
     </section>
   );

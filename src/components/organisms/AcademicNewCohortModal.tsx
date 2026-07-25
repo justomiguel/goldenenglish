@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
@@ -29,7 +28,6 @@ export function AcademicNewCohortModal({
   onOpenChange,
   dict,
 }: AcademicNewCohortModalProps) {
-  const router = useRouter();
   const tourActive = useAdminTourSessionActive();
   /** Keep stacked `show()` after Listo so tour teardown never promotes/closes the form. */
   const [retainStackedAfterTour, setRetainStackedAfterTour] = useState(false);
@@ -59,8 +57,9 @@ export function AcademicNewCohortModal({
       onOpenChange(false);
       setName("");
       setSlug("");
-      router.push(`/${locale}/dashboard/admin/academic/${r.id}`);
-      router.refresh();
+      // Hard navigate: soft push races `revalidateAcademicSurfaces` on the hub and can
+      // leave the user on /academic after a brief detail request (create-cohort E2E).
+      window.location.assign(`/${locale}/dashboard/admin/academic/${r.id}`);
     });
   };
 

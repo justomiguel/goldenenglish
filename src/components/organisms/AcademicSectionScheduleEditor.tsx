@@ -1,39 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { Save } from "lucide-react";
-import { Button } from "@/components/atoms/Button";
-import { SectionScheduleFields } from "@/components/molecules/SectionScheduleFields";
-import { updateAcademicSectionScheduleAction } from "@/app/[locale]/dashboard/admin/academic/sectionActions";
 import {
-  sectionScheduleDraftsToSlots,
-  sectionScheduleSlotsToDrafts,
-  type SectionScheduleSlotDraft,
-} from "@/lib/academics/sectionScheduleDrafts";
+  AcademicSectionWeekScheduleEditor,
+  type AcademicSectionWeekScheduleEditorDict,
+} from "@/components/organisms/AcademicSectionWeekScheduleEditor";
 import type { SectionScheduleSlot } from "@/types/academics";
 
-export interface AcademicSectionScheduleEditorDict {
-  scheduleTitle: string;
-  scheduleHint: string;
-  scheduleAddSlot: string;
-  scheduleRemoveSlot: string;
-  scheduleDayLabel: string;
-  scheduleStartLabel: string;
-  scheduleEndLabel: string;
-  scheduleInvalid: string;
-  saveSchedule: string;
-  saveScheduleError: string;
-  weekdays: {
-    sun: string;
-    mon: string;
-    tue: string;
-    wed: string;
-    thu: string;
-    fri: string;
-    sat: string;
-  };
-}
+export type AcademicSectionScheduleEditorDict = AcademicSectionWeekScheduleEditorDict;
 
 export interface AcademicSectionScheduleEditorProps {
   locale: string;
@@ -48,56 +21,12 @@ export function AcademicSectionScheduleEditor({
   initialSlots,
   dict,
 }: AcademicSectionScheduleEditorProps) {
-  const router = useRouter();
-  const [rows, setRows] = useState<SectionScheduleSlotDraft[]>(
-    sectionScheduleSlotsToDrafts(initialSlots),
-  );
-  const [err, setErr] = useState<string | null>(null);
-  const [pending, start] = useTransition();
-
-  const save = () => {
-    setErr(null);
-    const scheduleSlots = sectionScheduleDraftsToSlots(rows);
-    if (!scheduleSlots) {
-      setErr(dict.scheduleInvalid);
-      return;
-    }
-
-    start(async () => {
-      const result = await updateAcademicSectionScheduleAction({
-        locale,
-        sectionId,
-        scheduleSlots,
-      });
-      if (!result.ok) {
-        setErr(dict.saveScheduleError);
-        return;
-      }
-      router.refresh();
-    });
-  };
-
   return (
-    <section className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.scheduleTitle}</h2>
-      <SectionScheduleFields rows={rows} onChange={setRows} dict={dict} disabled={pending} />
-      {err ? (
-        <p className="text-sm text-[var(--color-error)]" role="alert">
-          {err}
-        </p>
-      ) : null}
-      <div className="flex justify-end">
-        <Button
-          type="button"
-          className="min-h-[44px]"
-          isLoading={pending}
-          disabled={pending}
-          onClick={save}
-        >
-          {!pending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
-          {dict.saveSchedule}
-        </Button>
-      </div>
-    </section>
+    <AcademicSectionWeekScheduleEditor
+      locale={locale}
+      sectionId={sectionId}
+      initialSlots={initialSlots}
+      dict={dict}
+    />
   );
 }

@@ -119,6 +119,10 @@ function main() {
   env.E2E_STACK = "isolated";
   env.GE_DEV_TARGET = "e2e";
   env.E2E_REQUIRE = "1";
+  // Fail-closed: never let shell/tenant RESEND_* leak into the e2e Next process.
+  env.EMAIL_PROVIDER = "recording";
+  delete env.RESEND_API_KEY;
+  delete env.RESEND_FROM_EMAIL;
   env.E2E_PORT = (env.E2E_PORT ?? String(E2E_DEFAULT_PORT)).trim() || String(E2E_DEFAULT_PORT);
   env.PLAYWRIGHT_BASE_URL =
     (env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${env.E2E_PORT}`).trim();
@@ -135,7 +139,8 @@ function main() {
   // Do not wipe tenant `.next` — parallel `dev:mozarthitos` / `dev:nago` keep their own cache.
   rmSync(path.join(ROOT, ".next-e2e"), { recursive: true, force: true });
 
-  const child = spawn("npx", ["playwright", "test"], {
+  const extraArgs = process.argv.slice(2);
+  const child = spawn("npx", ["playwright", "test", ...extraArgs], {
     cwd: ROOT,
     env,
     stdio: "inherit",

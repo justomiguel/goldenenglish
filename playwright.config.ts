@@ -46,6 +46,13 @@ export default defineConfig({
           timeout: 180_000,
           stdout: "pipe",
           stderr: "pipe",
+          env: {
+            ...process.env,
+            GE_DEV_TARGET: "e2e",
+            EMAIL_PROVIDER: "recording",
+            RESEND_API_KEY: "",
+            RESEND_FROM_EMAIL: "",
+          },
         },
       }
     : {}),
@@ -61,6 +68,15 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         storageState: paths.storageState,
+      },
+    },
+    {
+      name: "chromium-parent-tours",
+      dependencies: ["setup"],
+      testMatch: /parent-tours\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: paths.parentStorageState,
       },
     },
     {
@@ -136,6 +152,33 @@ export default defineConfig({
       name: "chromium-critical-parent-payments",
       dependencies: ["setup"],
       testMatch: /critical-parent-payments\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: paths.storageState,
+      },
+    },
+    {
+      name: "chromium-critical-payment-reject",
+      dependencies: ["setup"],
+      testMatch: /critical-payment-reject\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: paths.storageState,
+      },
+    },
+    {
+      name: "chromium-critical-parent-ward-email",
+      dependencies: ["setup"],
+      testMatch: /critical-parent-ward-email\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: paths.storageState,
+      },
+    },
+    {
+      name: "chromium-critical-create-cohort",
+      dependencies: ["setup"],
+      testMatch: /critical-create-cohort\.spec\.ts/,
       use: {
         ...devices["Desktop Chrome"],
         storageState: paths.storageState,

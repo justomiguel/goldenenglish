@@ -5,6 +5,8 @@ import type { EmailProvider } from "@/lib/email/emailProvider";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import type { Locale } from "@/types/i18n";
 import { pushAfterNotify } from "@/lib/push/pushAfterNotify";
+import { auditCommunicationsAction } from "@/lib/audit";
+import { logServerWarn } from "@/lib/logging/serverActionLog";
 
 async function authEmailForUserId(userId: string): Promise<string | null> {
   const admin = createAdminClient();
@@ -31,6 +33,35 @@ function originOrLocal(): string {
 
 function asLocale(value: string): Locale {
   return value === "en" ? "en" : "es";
+}
+
+function recordStaffNotifyFailure(input: {
+  reason: "no_email" | "send_failed";
+  recipientId: string;
+  recipientRole: string;
+  source?: string;
+  errorCode?: string;
+}): void {
+  const meta = {
+    reason: input.reason,
+    recipientId: input.recipientId,
+    recipientRole: input.recipientRole,
+    ...(input.source ? { source: input.source } : {}),
+    ...(input.errorCode ? { errorCode: input.errorCode } : {}),
+  };
+  logServerWarn(`notifyPortalRecipientForStaffMessage:${input.reason}`, meta);
+  void auditCommunicationsAction({
+    action: "notify_failed",
+    resourceType: "portal_message_notify",
+    resourceId: input.recipientId,
+    summary: "portal staff message notify failed",
+    metadata: {
+      reason: input.reason,
+      recipientRole: input.recipientRole,
+      ...(input.source ? { source: input.source } : {}),
+      ...(input.errorCode ? { errorCode: input.errorCode } : {}),
+    },
+  });
 }
 
 export async function notifyTeacherNewMessage(params: {
@@ -63,14 +94,24 @@ export async function notifyPortalRecipientForStaffMessage(params: {
   locale: string;
   emailProvider: EmailProvider;
   recipientRole: "teacher" | "admin" | "assistant";
+  /** Optional inbound channel tag for audit/log metadata (no PII). */
+  source?: string;
 }): Promise<void> {
   const to = await authEmailForUserId(params.recipientId);
-  if (!to) return;
+  if (!to) {
+    recordStaffNotifyFailure({
+      reason: "no_email",
+      recipientId: params.recipientId,
+      recipientRole: params.recipientRole,
+      source: params.source,
+    });
+    return;
+  }
   const dashboard =
     params.recipientRole === "admin" ? "dashboard/admin/messages" : "dashboard/teacher/messages";
   const href = `${originOrLocal()}/${params.locale}/${dashboard}`;
   const dict = await getDictionary(params.locale);
-  await sendBrandedEmail({
+  const result = await sendBrandedEmail({
     to,
     templateKey: "messaging.staff_portal_new",
     locale: asLocale(params.locale),
@@ -82,6 +123,15 @@ export async function notifyPortalRecipientForStaffMessage(params: {
       openLinkLabel: dict.emailMessaging.staffInboxOpenLink,
     },
   });
+  if (!result.ok) {
+    recordStaffNotifyFailure({
+      reason: "send_failed",
+      recipientId: params.recipientId,
+      recipientRole: params.recipientRole,
+      source: params.source,
+      errorCode: result.error,
+    });
+  }
 }
 
 export async function notifyPortalInboxForStudentOrParent(params: {

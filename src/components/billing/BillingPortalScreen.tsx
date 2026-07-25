@@ -6,6 +6,7 @@ import { BillingUploadReceiptForm } from "@/components/billing/BillingUploadRece
 import type { Dictionary } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { BillingInvoiceRow, BillingInvoiceStatus } from "@/types/billing";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 export interface BillingPortalScreenProps {
   locale: string;
@@ -73,9 +74,17 @@ export function BillingPortalScreen({
     );
   }
 
+  const billingTourBody =
+    viewer === "parent" ? PARENT_TOUR_ANCHORS.billingBody : undefined;
+  const billingTourTitle =
+    viewer === "parent" ? PARENT_TOUR_ANCHORS.billingTitle : undefined;
+
   return (
-    <div className="space-y-6">
-      <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm">
+    <div className="space-y-6" data-tour={billingTourBody}>
+      <div
+        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm"
+        data-tour={billingTourTitle}
+      >
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted-foreground)]">
           {dict.balancePending}
         </p>

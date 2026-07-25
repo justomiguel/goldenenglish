@@ -28,6 +28,8 @@ const labels = {
   sourceInternalAria: "Internal",
   replyToMessage: "Reply",
   replyToMessageTitle: "Reply title",
+  replyWithDefaultMessage: "Reply with default",
+  replyWithDefaultMessageTitle: "Reply with default title",
   deletePortalMessageTitle: "Delete title",
   deletePortalMessageAction: "Delete",
   deletePortalMessageConfirmTitle: "Confirm?",

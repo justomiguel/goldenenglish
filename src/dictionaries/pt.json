@@ -1045,6 +1045,20 @@
       "lead": "Os administradores podem enviar mensagens para qualquer pessoa – use Escrever mensagem (canto superior direito). Sua caixa de entrada lista e-mails de professores, administradores, alunos (quando eles escrevem sobre administração) e o formulário de contato do site. Alterne entre Recebido e Enviado para navegar pelas pastas. Os professores respondem aos alunos no espaço de trabalho do professor.",
       "writeMessageCta": "Escrever mensagem",
       "writeMessageCtaTitle": "Abra a tela de composição",
+      "editDefaultMessageCta": "Editar mensagem padrão",
+      "editDefaultMessageCtaTitle": "Editar o modelo de resposta padrão do instituto",
+      "editDefaultMessageModalTitle": "Mensagem de resposta padrão",
+      "editDefaultMessageModalLead": "Compartilhado por todos os admins. Edite espanhol, inglês e português. Use {{instituteName}} e {{phone}} — preenchidos com a marca ao responder com o padrão do idioma ativo do site.",
+      "editDefaultMessageFieldLabel": "Texto do modelo",
+      "editDefaultMessageSave": "Salvar mensagem padrão",
+      "editDefaultMessageCancel": "Cancelar",
+      "editDefaultMessageSaved": "Mensagem padrão salva",
+      "editDefaultMessageError": "Não foi possível salvar a mensagem padrão",
+      "editDefaultMessageErrorEmpty": "O modelo não pode ficar vazio",
+      "editDefaultMessageTabEs": "Espanhol",
+      "editDefaultMessageTabEn": "Inglês",
+      "editDefaultMessageTabPt": "Português",
+      "defaultReplyFactoryTemplate": "Obrigado por entrar em contato com {{instituteName}}. Retornaremos em breve. Para urgências, ligue para {{phone}}.",
       "composeBackToList": "Voltar à lista de mensagens",
       "composeBackToListTitle": "Voltar para caixa de entrada e pastas",
       "composePageTitle": "Escrever mensagem",
@@ -1114,6 +1128,8 @@
       "tipComposeSendExternal": "Envie um e-mail para o endereço do visitante armazenado com este envio de contato.",
       "replyToMessage": "Responder",
       "replyToMessageTitle": "Escreva uma resposta vinculada a esta mensagem",
+      "replyWithDefaultMessage": "Responder com padrão",
+      "replyWithDefaultMessageTitle": "Abrir a composição com a resposta padrão do instituto",
       "composeVisitorEmailLabel": "E-mail do visitante",
       "composeExternalReplySubject": "Re: Mensagem de {{brand}}",
       "composeExternalReplySent": "E-mail enviado",
@@ -2002,8 +2018,10 @@
       "createUserGuardianModeExisting": "Vincular o responsável existente",
       "createUserGuardianModeNew": "Criar novo guardião",
       "createUserGuardianSearchLabel": "Encontre o guardião",
-      "createUserGuardianSearchPlaceholder": "Digite nome, e-mail ou documento…",
-      "createUserGuardianSearchMinChars": "Digite pelo menos um caractere para pesquisar.",
+      "createUserGuardianSearchPlaceholder": "Nome, documento ou e-mail completo…",
+      "createUserGuardianSearchMinChars": "Pesquisa de prefixo no nome ou documento (basta uma letra). E-mail completo também funciona.",
+      "createUserGuardianSearchTooltip": "Pesquisa de prefixo no nome ou documento do responsável; um campo vazio carrega uma pequena lista alfabética. Um e-mail de login completo encontra essa conta.",
+      "createUserGuardianSearchResultsHeading": "Guardiões disponíveis para vincular",
       "createUserGuardianSelected": "Selecionado",
       "errCreateNotFound": "Essa solicitação de inscrição não foi encontrada.",
       "errDeleteForbidden": "Você não tem permissão para fazer isso.",
@@ -2214,13 +2232,13 @@
       "detailTutorOpenProfile": "Abrir perfil",
       "detailTutorSearchLabel": "Procurar guardião",
       "detailTutorSearchPlaceholder": "Nome dos pais ou responsáveis",
-      "detailTutorSearchTooltip": "Pesquisa de prefixo no nome do responsável ou documento de identificação; um campo vazio carrega uma pequena lista alfabética. Os guardiões já vinculados estão ocultos.",
+      "detailTutorSearchTooltip": "Pesquisa de prefixo no nome do responsável ou documento de identificação; um campo vazio carrega uma pequena lista alfabética. Um e-mail de login completo encontra essa conta. Os guardiões já vinculados estão ocultos.",
       "detailTutorSearchResultsHeading": "Guardiões disponíveis para link",
       "detailTutorQueueLegend": "Guardiões na sua lista (ainda não vinculados)",
       "detailTutorQueueReminder": "Toque em Link Guardian quando estiver pronto – você pode continuar adicionando a partir da pesquisa.",
       "detailTutorRemoveChipAria": "Remover da lista",
-      "detailTutorMinChars": "Pesquisa de prefixo no nome do responsável ou documento (basta uma letra).",
-      "detailTutorLinkHint": "Pesquise uma conta de pai ou responsável existente por nome ou documento de identificação e vincule-os. Para substituir um responsável vinculado, remova o link acima e pesquise novamente aqui.",
+      "detailTutorMinChars": "Pesquisa de prefixo no nome do responsável ou documento (basta uma letra). E-mail completo também funciona.",
+      "detailTutorLinkHint": "Pesquise uma conta de pai ou responsável existente por nome, documento ou e-mail de login completo e vincule-os. Para substituir um responsável vinculado, remova o link acima e pesquise novamente aqui.",
       "detailTutorLinkRelationshipLead": "Antes de vincular, escolha como cada responsável se relaciona com esse aluno.",
       "detailTutorUnlink": "Remover link",
       "detailTutorUnlinkConfirmTitle": "Remover link do responsável?",
@@ -4279,6 +4297,8 @@
       "title": "Rota de aprendizagem",
       "lead": "Ajuste a rota proposta, grave aulas ao vivo e marque a prontidão após as verificações.",
       "planTitle": "Rota",
+      "featuresDisabledTitle": "Recursos de aprendizagem desativados",
+      "featuresDisabledLead": "Um administrador não ativou rota de aprendizagem nem avaliações para esta turma. Peça para ativá-los em Configuração se precisar.",
       "freeFlowTitle": "Seção de fluxo livre",
       "freeFlowLead": "Esta seção não possui rota de aprendizagem atribuída. Você ainda pode gravar aulas ao vivo e tomar decisões de preparação.",
       "planNamePlaceholder": "Nome da rota",
@@ -4696,6 +4716,170 @@
           }
         }
       },
+      "adminUsersNew": {
+        "meta": {
+          "title": "Alta de usuário",
+          "description": "Crie uma conta do portal com função, dados de identidade e vínculo opcional com responsável."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "➕ Formulário de alta",
+            "description": "Esta página cria um perfil por vez — aluno, responsável, professor ou equipe.\n\nUse-a quando precisar de entrada cuidadosa ou vínculo com responsável; lotes vão em Importar."
+          },
+          "titleBlock": {
+            "title": "📋 Propósito da página",
+            "description": "O título e a introdução deixam claro que você registra uma identidade nova, não edita uma linha do diretório."
+          },
+          "form": {
+            "title": "📝 Formulário de conta",
+            "description": "Todos os campos obrigatórios ficam neste painel. O formulário valida no cliente e o servidor aplica as regras do instituto (funções, menores, duplicados)."
+          },
+          "role": {
+            "title": "🎭 Seletor de função",
+            "description": "Escolha quem é esta pessoa no produto. A função define blocos extras (data de nascimento para alunos, e-mail, painel de responsável para menores)."
+          },
+          "credentials": {
+            "title": "🔐 Credenciais de acesso",
+            "description": "Defina a senha do primeiro login. Para alunos menores, o e-mail pode ser sintético até vincular um responsável."
+          },
+          "guardian": {
+            "title": "👨‍👩‍👧 Vínculo com responsável (menores)",
+            "description": "Quando a data indica aluno menor, vincule um responsável existente ou cadastre um novo antes de salvar."
+          },
+          "submit": {
+            "title": "✅ Criar conta",
+            "description": "Envie só depois de revisar função e identidade. O sucesso leva ao diretório ou ao detalhe — este tour nunca salva por você."
+          },
+          "closing": {
+            "title": "✅ Próximos passos",
+            "description": "Muitas linhas? Vá a Importar usuários. Para ajustar alguém depois, abra o perfil na lista."
+          }
+        }
+      },
+      "adminUsersImport": {
+        "meta": {
+          "title": "Importar usuários",
+          "description": "Envie uma planilha para pré-visualizar linhas novas e duplicadas antes de aplicar."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📤 Importação em massa",
+            "description": "Importar usuários carrega muitas contas a partir de Excel ou CSV.\n\nSempre há uma pré-visualização a seco antes de gravar — duplicados são ignorados ou atualizados explicitamente."
+          },
+          "titleBlock": {
+            "title": "📋 Propósito da página",
+            "description": "O título e a introdução descrevem o formato esperado e o fluxo pré-visualização → confirmação."
+          },
+          "chooseFile": {
+            "title": "📁 Escolher planilha",
+            "description": "Selecione seu arquivo .xlsx ou .csv. O app interpreta no servidor e mostra totais de novas, duplicadas e inválidas — sem gravações silenciosas."
+          },
+          "closing": {
+            "title": "✅ Próximos passos",
+            "description": "Após a pré-visualização, confirme só se os números estiverem corretos. Para contas avulsas, use Alta de usuário."
+          }
+        }
+      },
+      "adminUserDetail": {
+        "meta": {
+          "title": "Perfil do usuário",
+          "description": "Ver e editar identidade, acadêmico, família, pagamentos e segurança de uma conta."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "👤 Ficha do usuário",
+            "description": "Esta página é a visão da equipe sobre uma conta do portal.\n\nAs abas agrupam resumo, acadêmico, família, atalhos de pagamento e segurança."
+          },
+          "titleBlock": {
+            "title": "📋 Cabeçalho de identidade",
+            "description": "Nome, badge de papel e e-mail confirmam quem você está editando. Avatares de alunos podem ser atualizados aqui quando sua função permite edição inline."
+          },
+          "tabsIntro": {
+            "title": "📑 Abas do perfil",
+            "description": "A barra sublinhada agrupa tudo o que a equipe pode alterar numa conta.\n\nClique numa aba para carregar o painel abaixo — badges marcam pagamentos pendentes ou itens acadêmicos que precisam de atenção."
+          },
+          "tabSummary": {
+            "title": "👤 Aba Resumo",
+            "description": "Campos de identidade: nome, contacto, papel e edições inline permitidas pelas suas permissões.\n\nComece aqui para confirmar a pessoa certa antes de mudar acadêmico ou segurança."
+          },
+          "tabAcademic": {
+            "title": "🎓 Aba Acadêmico",
+            "description": "Colocação na coorte, matrículas em seções e atalhos acadêmicos para alunos (e ferramentas relacionadas noutros papéis).\n\nUse ao mover alguém entre turmas ou rever em que seções está."
+          },
+          "tabPayments": {
+            "title": "💳 Aba Pagamentos",
+            "description": "Atalho só para alunos: contexto de cobrança, encargos pendentes e ligação à página completa de faturamento.\n\nOculta para outros papéis. Um badge mostra trabalho de pagamento em aberto."
+          },
+          "tabFamily": {
+            "title": "👨‍👩‍👧 Aba Família",
+            "description": "Vínculos tutor ↔ aluno para estudantes, ou pupilos ligados para contas de responsáveis.\n\nAdicione ou revise tutores aqui em vez de criar utilizadores duplicados."
+          },
+          "tabSecurity": {
+            "title": "🔒 Aba Segurança",
+            "description": "Redefinições de senha, alterações de e-mail de login e outros controlos sensíveis.\n\nPodem exigir verificação adicional e notificar o titular — trate edições como alto impacto."
+          },
+          "closing": {
+            "title": "✅ Edite com cuidado",
+            "description": "Mudanças de segurança e faturamento afetam login e cobranças ao vivo. Prefira a página de billing dedicada para bolsas e histórico de pagamentos."
+          }
+        }
+      },
+      "adminUserBilling": {
+        "meta": {
+          "title": "Faturamento do aluno",
+          "description": "Histórico de pagamentos, bolsas e taxas de matrícula para um aluno."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "💳 Espaço de faturamento",
+            "description": "Esta página concentra operações de mensalidade para um aluno.\n\nEscolha um benefício de seção, revise a grade mensal e use as abas para histórico, bolsas e matrícula."
+          },
+          "titleBlock": {
+            "title": "📋 Contexto de billing",
+            "description": "O título e a linha com o nome confirmam de quem é o ledger — distinto da aba Pagamentos mais leve do perfil."
+          },
+          "tabsIntro": {
+            "title": "📑 Abas de faturamento",
+            "description": "Três abas ficam sob a matriz mensal do benefício de seção escolhido.\n\nAlterne para ler histórico, gerir bolsas ou rever matrícula sem sair deste aluno."
+          },
+          "tabHistory": {
+            "title": "📜 Aba Histórico",
+            "description": "Livro só de leitura de pagamentos registados para este aluno na seção escolhida.\n\nUse para responder famílias ou verificar o que já foi marcado como pago — não para aplicar bolsas novas."
+          },
+          "tabScholarships": {
+            "title": "🎓 Aba Bolsas",
+            "description": "Lista bolsas ativas por percentagem ou valor fixo e permite remover as que devem terminar.\n\nAplique bolsas novas na matriz mensual acima; esta aba revisa e limpa benefícios existentes."
+          },
+          "tabEnrollment": {
+            "title": "📝 Aba Matrícula",
+            "description": "Estado da taxa de matrícula, isenções e contexto de comprovantes para a seção escolhida.\n\nCombine com a matriz quando a família paga matrícula separada da mensalidade."
+          },
+          "closing": {
+            "title": "✅ Mantenha ledgers precisos",
+            "description": "Registre pagamentos na grade mensual quando famílias pagam fora dos gateways. Use Bolsas para descontos antes de cobrar meses em atraso."
+          }
+        }
+      },
       "adminRegistrations": {
         "meta": {
           "title": "Inscrições",
@@ -4766,6 +4950,104 @@
           }
         }
       },
+      "adminEventsNew": {
+        "meta": {
+          "title": "Criar evento",
+          "description": "Defina agenda, vagas e preços antes de publicar."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "➕ Formulário de evento",
+            "description": "Esta página cria um único evento.\n\nConfigure data, local e vagas aqui — inscrição e pagamentos vêm depois de salvar."
+          },
+          "titleBlock": {
+            "title": "📋 Propósito da página",
+            "description": "O título deixa claro que você está criando um evento novo, não editando uma linha da lista."
+          },
+          "form": {
+            "title": "📝 Detalhes do evento",
+            "description": "Título e descrição aparecem na página pública ao publicar. Use texto claro para famílias que consultam o calendário."
+          },
+          "schedule": {
+            "title": "🗓 Agenda e local",
+            "description": "Data e local alimentam lembretes e checagens de vagas. Revise campos sensíveis a fuso horário antes de salvar."
+          },
+          "pricing": {
+            "title": "💳 Preços",
+            "description": "Preços local e não local opcionais mais moeda. Gateways podem depender das configurações de Finanças."
+          },
+          "submit": {
+            "title": "✅ Salvar evento",
+            "description": "Salvar cria o rascunho e abre o espaço de detalhe. Este tour nunca envia por você."
+          },
+          "closing": {
+            "title": "✅ Próximos passos",
+            "description": "Depois de salvar, use as abas do detalhe para publicar, gerenciar participantes e revisar pagamentos."
+          }
+        }
+      },
+      "adminEventDetail": {
+        "meta": {
+          "title": "Detalhe do evento",
+          "description": "Publicar, editar formulário, participantes, pagamentos e notificações de um evento."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📅 Espaço do evento",
+            "description": "Esta página é a sala de controle de um evento.\n\nAs abas separam resumo, formulário, participantes, pagamentos, lista de espera e notificações."
+          },
+          "titleBlock": {
+            "title": "📋 Identidade do evento",
+            "description": "O título mostra qual evento você gerencia, com status e visualizações para contexto rápido."
+          },
+          "tabsIntro": {
+            "title": "📑 Abas do evento",
+            "description": "Cada aba cobre uma parte: publicação, formulário, pessoas, dinheiro, lista de espera e e-mails.\n\nUse a barra para saltar tarefas sem perder o contexto do evento."
+          },
+          "tabSummary": {
+            "title": "📋 Aba Resumo",
+            "description": "Estado rascunho/publicado, preços, datas e título/descrição por idioma.\n\nPublique só quando o texto público e as datas estiverem finais; despublicar oculta o evento mantendo inscrições."
+          },
+          "tabForm": {
+            "title": "📝 Aba Formulário",
+            "description": "Campos integrados e personalizados que as famílias preenchem na inscrição pública.\n\nAjuste perguntas obrigatórias aqui antes de partilhar o link."
+          },
+          "tabAttendees": {
+            "title": "👥 Aba Participantes",
+            "description": "Pessoas inscritas e o estado de inscrição deste evento.\n\nUse para lotação, check-in e correções manuais de estado."
+          },
+          "tabPayments": {
+            "title": "💳 Aba Pagamentos",
+            "description": "Comprovantes de transferência e estados de pagamento ligados a inscrições.\n\nAprove ou rejeite provas antes de marcar participantes como pagos."
+          },
+          "tabWaitlist": {
+            "title": "⏳ Aba Lista de espera",
+            "description": "Pessoas à espera de vaga quando a capacidade está cheia.\n\nPromova manualmente quando abrir lugar — costuma reativar pagamento se necessário."
+          },
+          "tabNotifications": {
+            "title": "🔔 Aba Notificações",
+            "description": "E-mails de lembrete e decisão de pagamento a partir de modelos predefinidos.\n\nRevise o que o sistema envia para famílias não serem surpreendidas."
+          },
+          "publish": {
+            "title": "🚀 Controles de publicação",
+            "description": "Em Resumo, publicar torna o evento visível; despublicar oculta mantendo inscrições."
+          },
+          "closing": {
+            "title": "✅ Operar com confiança",
+            "description": "Publique só quando os dados estiverem prontos; depois monitore participantes e pagamentos nas abas dedicadas."
+          }
+        }
+      },
       "adminFinance": {
         "meta": {
           "title": "Finanças",
@@ -4785,21 +5067,119 @@
             "title": "📋 Cabeçalho do hub",
             "description": "Confirma que você está no espaço financeiro do instituto."
           },
-          "tabs": {
+          "tabsIntro": {
             "title": "📑 Abas financeiras",
-            "description": "Cobranças, Caixa de pagamentos, Eventos, Insights e Ajustes. Badges podem marcar trabalho pendente."
+            "description": "Cinco abas do hub separam saúde de cobranças, revisão de comprovantes, dinheiro de eventos, tendências e configuração.\n\nBadges na caixa marcam aprovações pendentes."
+          },
+          "tabCollections": {
+            "title": "📊 Aba Cobranças",
+            "description": "Saúde de cobrança por seção da coorte escolhida, com exportação e lembretes em lote.\n\nAbra uma linha de seção para entrar na matriz mensal e ajustes de faturamento."
+          },
+          "tabInbox": {
+            "title": "📥 Aba Caixa de pagamentos",
+            "description": "Aprove ou rejeite comprovantes enviados por famílias — mensalidades, matrícula e faturas numa fila.\n\nNão é a matriz de cobranças; é revisão de provas antes de marcar faturas pagas."
+          },
+          "tabEvents": {
+            "title": "🎟 Aba Eventos",
+            "description": "Revise pagamentos de eventos e comprovantes de transferência pendentes.\n\nUse quando workshops ou acampamentos cobram fora da faturação regular de seção."
+          },
+          "tabInsights": {
+            "title": "📈 Aba Insights",
+            "description": "Tendências de cobrança, métricas de processamento, projeções de fim de ano e alertas por seção.\n\nBom para revisões de direção — não para cliques diários de comprovantes."
+          },
+          "tabSettings": {
+            "title": "⚙️ Aba Ajustes",
+            "description": "Preferências institute-wide como moeda predefinida e opções de gateways.\n\nMudanças aqui afetam o checkout de todas as seções."
           },
           "cohortYear": {
             "title": "📆 Coorte e ano",
             "description": "Filtra cobranças e vistas relacionadas a um ano / coorte. Confira antes de agir sobre os números."
           },
-          "workspace": {
-            "title": "📐 Painel ativo",
-            "description": "A área principal mostra a aba escolhida — muitas vezes a matriz de cobranças ou a caixa de comprovantes."
-          },
           "closing": {
             "title": "✅ Fluxos de dinheiro",
             "description": "Revise a caixa, reconcilie cobranças e use Insights para tendências. Ajustes tem moeda e gateways."
+          }
+        }
+      },
+      "adminFinanceCollectionsSection": {
+        "meta": {
+          "title": "Cobranças da seção",
+          "description": "Matriz mensal, ajustes de faturamento, histórico, bolsas e matrícula de uma seção."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "💳 Cobranças da seção",
+            "description": "Este detalhe foca na matriz de mensalidades e ferramentas de faturamento de uma seção.\n\nAbra a partir da visão de cobranças no hub Financeiro."
+          },
+          "titleBlock": {
+            "title": "📋 Cabeçalho da seção",
+            "description": "Confirma nome da seção, cohorte e ano. O link voltar retorna à matriz do hub."
+          },
+          "tabsIntro": {
+            "title": "📑 Abas de cobrança da seção",
+            "description": "Cinco abas cobrem a matriz mensal mais configuração, histórico, bolsas e matrícula de uma seção.\n\nConfirme cabeçalho e filtro de ano antes de agir sobre dinheiro."
+          },
+          "tabMatrix": {
+            "title": "📊 Aba Matriz de cobranças",
+            "description": "Grelha alunos × meses com células pagas, abertas e em atraso de mensalidades.\n\nRegiste pagamentos manuais, envie lembretes e detete lacunas antes de escaladas familiares."
+          },
+          "tabSettings": {
+            "title": "⚙️ Aba Configuração",
+            "description": "Regras de cobrança que afetam checkout, comprovantes e rateio por matrículas mid-mês.\n\nErros aqui propagam-se a todas as famílias da turma."
+          },
+          "tabHistory": {
+            "title": "📜 Aba Histórico",
+            "description": "Lista paginada de pagamentos registados para esta seção em todos os alunos.\n\nAbra detalhe Flow quando precisar de dados de liquidação do gateway."
+          },
+          "tabScholarships": {
+            "title": "🎓 Aba Bolsas",
+            "description": "Ferramentas em lote e por aluno de bolsas limitadas a esta seção.\n\nAplique descontos antes de marcar meses pagos — remover bolsas também acontece aqui ou no billing do aluno."
+          },
+          "tabEnrollment": {
+            "title": "📝 Aba Matrícula",
+            "description": "Configuração e operações em lote da taxa de matrícula desta seção.\n\nCombine com a matriz quando famílias pagam matrícula separada de planos mensais."
+          },
+          "closing": {
+            "title": "✅ Concilie aqui",
+            "description": "Corrija células em atraso na matriz e use Histórico ou Bolsas quando famílias precisarem de ajustes."
+          }
+        }
+      },
+      "adminFinanceReceiptDetail": {
+        "meta": {
+          "title": "Revisão de comprovante",
+          "description": "Compare um comprovante de transferência com a fatura e aprove ou rejeite."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🧾 Revisão de comprovante",
+            "description": "A equipe verifica transferências antes de marcar uma fatura como paga.\n\nAbra em Financeiro → Caixa quando um comprovante aguarda aprovação."
+          },
+          "titleBlock": {
+            "title": "📋 Título da revisão",
+            "description": "Confirma que você está na visão dividida de um comprovante pendente."
+          },
+          "preview": {
+            "title": "🖼 Pré-visualização",
+            "description": "Imagem ou PDF enviado pela família. Revise valor, data e beneficiário antes de aprovar."
+          },
+          "actions": {
+            "title": "✅ Aprovar ou rejeitar",
+            "description": "Compare valores esperado e pago, depois aprove ou rejeite com um motivo visível para a família."
+          },
+          "closing": {
+            "title": "✅ Decida logo",
+            "description": "Comprovantes pendentes bloqueiam fluxos de pagamento. Volte à caixa ao terminar."
           }
         }
       },
@@ -4837,6 +5217,117 @@
           "closing": {
             "title": "✅ Montar o ano",
             "description": "Precisa de um guia passo a passo? Use os tutoriais de Nova coorte ou Nova seção neste painel."
+          }
+        }
+      },
+      "adminCohortDetail": {
+        "meta": {
+          "title": "Detalhe da coorte",
+          "description": "Visão geral, seções, retenção e inbox de transferências de um ano letivo."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🎓 Espaço da coorte",
+            "description": "Cada coorte agrupa seções de um ano letivo.\n\nUse abas para KPIs, turmas, riscos de retenção e pedidos de transferência."
+          },
+          "titleBlock": {
+            "title": "📋 Nome da coorte",
+            "description": "O título mostra qual ano você abriu. Badges marcam coorte atual ou arquivada."
+          },
+          "tabsIntro": {
+            "title": "📑 Abas da coorte",
+            "description": "Quatro abas mantêm operações anuais num só lugar: métricas, turmas, retenção e transferências.\n\nAlterne abas sem sair da coorte."
+          },
+          "tabOverview": {
+            "title": "📊 Aba Visão geral",
+            "description": "Arquive, restaure ou elimine a coorte e revise métricas como alunos ativos e número de seções.\n\nUse ações de ciclo de vida aqui ao encerrar um ano letivo — não a partir de seções isoladas."
+          },
+          "tabSections": {
+            "title": "📚 Aba Seções",
+            "description": "Cards de cada turma da coorte — adicione seções, abra detalhe e copie desenhos de anos anteriores.\n\nTurnos e horários ficam nas seções, não em coortes separadas."
+          },
+          "tabRetention": {
+            "title": "⚠️ Aba Retenção",
+            "description": "Alunos das seções desta coorte que precisam de acompanhamento por faltas ou médias baixas.\n\nCoordene contacto antes do problema se repetir em várias turmas."
+          },
+          "tabTransfers": {
+            "title": "🔁 Aba Transferências",
+            "description": "Pedidos pendentes de docentes para mover alunos entre seções (para ou desta coorte).\n\nAprove aqui em vez de apagar e rematricular manualmente — o histórico fica auditável."
+          },
+          "closing": {
+            "title": "✅ Manter ordem",
+            "description": "Arquive coortes ao encerrar o ano. Prefira transferências a matrículas manuais ao mover alunos."
+          }
+        }
+      },
+      "adminSectionAttendance": {
+        "meta": {
+          "title": "Frequência da seção",
+          "description": "Matriz para registrar presente, ausente ou atraso em cada dia de aula."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "✅ Matriz de frequência",
+            "description": "Esta página registra frequência de uma seção nos dias programados.\n\nCélulas atualizam registros usados em relatórios e no portal das famílias."
+          },
+          "titleBlock": {
+            "title": "📋 Contexto da seção",
+            "description": "O título confirma a ferramenta de frequência; o subtítulo nomeia a seção."
+          },
+          "workspace": {
+            "title": "📊 Área de frequência",
+            "description": "Com dias de aula elegíveis, a matriz carrega aqui. Vazios explicam horários faltantes ou datas fora do período."
+          },
+          "matrix": {
+            "title": "🗓 Grade e abas de vista",
+            "description": "Alterne mês e lista, depois toque células para o status. Datas futuras podem ficar somente leitura."
+          },
+          "closing": {
+            "title": "✅ Registrar em dia",
+            "description": "Registre frequência logo após a aula. Volte à seção pelo link acima."
+          }
+        }
+      },
+      "adminSectionDetail": {
+        "meta": {
+          "title": "Detalhe da seção",
+          "description": "Hub da seção com saúde e cartões de áreas: configuração, professores, percurso, taxas, frequência e alunos."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📚 Espaço da seção",
+            "description": "Cada seção é uma turma dentro de uma coorte anual — crie primeiro o ano e depois as seções para turnos e cursos.\n\nEsta página é a sala de controlo diária: saúde, horários, equipe, rota, avaliações, taxas, frequência e matrículas."
+          },
+          "titleBlock": {
+            "title": "📋 Cabeçalho",
+            "description": "Mostra nome, coorte, docente titular e badges de arquivo.\n\nAções de ciclo de vida à direita arquivam ou removem a seção quando já não deve receber alunos."
+          },
+          "hubAreas": {
+            "title": "🗂 Cartões de áreas",
+            "description": "Comece aqui — cada cartão abre um trabalho: configuração, professores, taxas, frequência, alunos e, se ativados, percurso ou avaliações.\n\nDentro de uma área, use Voltar para regressar aqui ou o seletor para saltar a outra área sem uma faixa longa de abas."
+          },
+          "hubOverview": {
+            "title": "📊 Pulso da seção",
+            "description": "Abaixo dos cartões: uma faixa curta de KPIs, chips de alerta quando preciso, e dois gráficos — composição de presença e dívida de pagamentos.\n\nUse esses sinais para decidir qual área abrir a seguir."
+          },
+          "closing": {
+            "title": "✅ Operação diária",
+            "description": "Trabalhe a partir do hub: configure datas e professores, matricule alunos, depois frequência e taxas.\n\nAbra Finanças → Cobranças quando precisar da matriz mensal de pagamentos desta seção."
           }
         }
       },
@@ -4892,13 +5383,17 @@
             "title": "📋 Título de conteúdos",
             "description": "Marca o espaço de conteúdos acadêmicos."
           },
-          "tabs": {
-            "title": "📑 Repositório / Rotas",
-            "description": "Alterne entre a biblioteca de modelos e os cards de rotas."
+          "tabsIntro": {
+            "title": "📑 Abas de conteúdos",
+            "description": "Duas abas separam itens reutilizáveis de rotas de aprendizagem ordenadas.\n\nCrie modelos primeiro e depois monte rotas que as seções possam adotar."
           },
-          "workspace": {
-            "title": "🗂️ Conteúdo da aba",
-            "description": "Busque e explore modelos, ou abra uma rota para editar a estrutura."
+          "tabRepository": {
+            "title": "📚 Aba Repositório",
+            "description": "Explore e crie materiais globais: texto, media, avaliações e modelos partilhados entre seções.\n\nNada aqui está ligado a uma turma em vivo até uma seção ou rota o referenciar."
+          },
+          "tabRoutes": {
+            "title": "🛤 Aba Rotas",
+            "description": "Cards de rotas globais — sequências ordenadas feitas com conteúdo do repositório.\n\nAs seções escolhem uma rota na aba Rota ou permanecem em modo livre."
           },
           "closing": {
             "title": "✅ Conteúdo vs seções",
@@ -5032,9 +5527,17 @@
             "title": "✍️ Escrever mensagem",
             "description": "Inicia uma mensagem de saída para destinatários escolhidos."
           },
-          "tabs": {
-            "title": "📑 Recebidas / Enviadas",
-            "description": "Alterne o sentido da caixa. Filtros podem restringir por participante."
+          "tabsIntro": {
+            "title": "📑 Abas da caixa",
+            "description": "Recebidas e Enviadas separam threads entrantes do correio que você autorou.\n\nFiltros acima restringem por participante depois de escolher a direção."
+          },
+          "tabInbox": {
+            "title": "📥 Aba Recebidas",
+            "description": "Threads onde docentes, equipe, alunos ou o formulário de contacto escreveram à administração.\n\nEsvazie esta fila com regularidade — o badge do menu reflete volume recente."
+          },
+          "tabSent": {
+            "title": "📤 Aba Enviadas",
+            "description": "Tudo o que esta conta admin enviou pelo fluxo de composição do portal.\n\nUse para confirmar que uma mensagem saiu ou reabrir um thread que iniciou."
           },
           "list": {
             "title": "📨 Lista de threads",
@@ -5043,6 +5546,80 @@
           "closing": {
             "title": "✅ Responder a tempo",
             "description": "Esvazie a caixa de entrada com regularidade — o badge do menu reflete volume recente."
+          }
+        }
+      },
+      "adminMessagesCompose": {
+        "meta": {
+          "title": "Redigir mensagem",
+          "description": "Escrever uma nova mensagem de saída ou responder a um thread recebido."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "✍️ Fluxo de redação",
+            "description": "Esta página envia uma única mensagem a um destinatário.\n\nUse para contato proativo ou respostas abertas da caixa de entrada — não campanhas em massa."
+          },
+          "titleBlock": {
+            "title": "📋 Propósito do compose",
+            "description": "O cabeçalho confirma que você está redigindo, não navegando a lista de mensagens."
+          },
+          "recipient": {
+            "title": "👤 Destinatário",
+            "description": "Busque e escolha o perfil que recebe a mensagem. Fluxos de resposta podem pré-preencher o remetente do thread aberto."
+          },
+          "body": {
+            "title": "📝 Corpo da mensagem",
+            "description": "Texto rico suporta links e formatação básica. Mantenha tom claro — famílias leem isso na caixa do portal."
+          },
+          "send": {
+            "title": "📤 Enviar",
+            "description": "Enviar entrega imediatamente na caixa do destinatário. Este tour nunca envia por você."
+          },
+          "closing": {
+            "title": "✅ Depois de enviar",
+            "description": "Envios bem-sucedidos voltam à lista ou mostram confirmação aqui. Continue em Enviadas se precisar do thread novamente."
+          }
+        }
+      },
+      "adminMessageDetail": {
+        "meta": {
+          "title": "Detalhe da mensagem",
+          "description": "Ler um thread, ver participantes e responder ou excluir."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📨 Thread da mensagem",
+            "description": "Esta página mostra uma mensagem com remetente, destinatário, corpo e ações de resposta.\n\nUse para entender o contexto antes de responder."
+          },
+          "titleBlock": {
+            "title": "📋 Cabeçalho do detalhe",
+            "description": "Confirma que você está lendo uma mensagem, não varrendo a caixa de entrada."
+          },
+          "participants": {
+            "title": "👥 De / Para",
+            "description": "Mostra quem enviou e quem recebeu, com badges de papel para contexto rápido."
+          },
+          "body": {
+            "title": "📄 Conteúdo da mensagem",
+            "description": "Corpo HTML completo como o destinatário viu. Corpos vazios mostram um placeholder."
+          },
+          "actions": {
+            "title": "↩️ Responder e excluir",
+            "description": "Responder abre o compose com o remetente pré-selecionado. Responder com modelo insere seu template do instituto. Excluir remove o thread da sua caixa."
+          },
+          "closing": {
+            "title": "✅ Responda com critério",
+            "description": "Prefira Responder com modelo para tom consistente em contatos do site; use Responder simples quando precisar de resposta personalizada."
           }
         }
       },
@@ -5113,6 +5690,88 @@
           "closing": {
             "title": "✅ Publicar com cuidado",
             "description": "Pré-visualize URLs públicas após publicar. Fixe só posts-chave."
+          }
+        }
+      },
+      "adminBlogNew": {
+        "meta": {
+          "title": "Novo artigo do blog",
+          "description": "Rascunhe um artigo multilíngue antes da revisão ou publicação."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "✍️ Editor de artigo novo",
+            "description": "Esta página cria um rascunho do blog.\n\nEscreva título, corpo e metadados por aba de idioma — nada fica público até publicar na lista ou após revisão."
+          },
+          "editor": {
+            "title": "📝 Área do editor",
+            "description": "Abas de idioma alternam qual tradução você edita. A dica abaixo das abas confirma o idioma ativo."
+          },
+          "titleField": {
+            "title": "📌 Título",
+            "description": "Manchete no blog público e nos cards do admin. Seja específico — famílias leem o título primeiro."
+          },
+          "body": {
+            "title": "📄 Corpo",
+            "description": "Texto rico, imagens e mídia do artigo. Use materiais abaixo do editor para arquivos para download."
+          },
+          "meta": {
+            "title": "🏷 Status e agendamento",
+            "description": "Status, tags, data agendada e fixar controlam a publicação. Rascunho é seguro enquanto você itera."
+          },
+          "save": {
+            "title": "💾 Salvar artigo",
+            "description": "Persiste o idioma ativo e metadados. Salvar não publica — mantém o rascunho no servidor."
+          },
+          "closing": {
+            "title": "✅ Próximos passos",
+            "description": "Após o primeiro save, use a lista do blog para enviar à revisão, publicar ou compartilhar prévias."
+          }
+        }
+      },
+      "adminBlogEdit": {
+        "meta": {
+          "title": "Editar artigo do blog",
+          "description": "Atualize texto, materiais e configurações de publicação de um artigo."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "✍️ Editor de artigo",
+            "description": "Você está editando um registro existente do blog.\n\nMudanças afetam a página pública quando publicado — confira as abas de idioma antes de salvar."
+          },
+          "editor": {
+            "title": "📝 Área do editor",
+            "description": "Mesmo layout de artigos novos: abas, campos, metadados e salvar. Botões de traduzir aparecem se o Google Translate estiver configurado."
+          },
+          "titleField": {
+            "title": "📌 Título",
+            "description": "Atualize a manchete do idioma ativo. Slugs e links compartilhados podem depender dos títulos salvos."
+          },
+          "body": {
+            "title": "📄 Corpo",
+            "description": "Revise conteúdo rico e anexos. Edições publicadas ficam visíveis após salvar."
+          },
+          "meta": {
+            "title": "🏷 Status e agendamento",
+            "description": "Alterne entre rascunho, revisão pendente, agendado, publicado ou arquivado. Fixe só posts-chave."
+          },
+          "save": {
+            "title": "💾 Salvar artigo",
+            "description": "Grava suas alterações do idioma ativo. Este tour nunca salva por você."
+          },
+          "closing": {
+            "title": "✅ Publicar com cuidado",
+            "description": "Use links de prévia antes de promover. Excluir aparece só para papéis autorizados."
           }
         }
       },
@@ -5318,6 +5977,39 @@
           }
         }
       },
+      "adminSettingsIntegrations": {
+        "meta": {
+          "title": "Integrações",
+          "description": "Chaves opcionais de terceiros, como Google Translate para o blog."
+        },
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🔌 Integrações",
+            "description": "Conecte serviços opcionais que estendem CMS/blog.\n\nAs mudanças são de todo o instituto — coordene antes de rotacionar chaves."
+          },
+          "titleBlock": {
+            "title": "📋 Título de integrações",
+            "description": "Confirma que você edita credenciais de integração, não os toggles gerais de Ajustes."
+          },
+          "form": {
+            "title": "🌐 Google Translate",
+            "description": "Cole a chave de API usada quando editores pedem tradução automática do blog. Valores mascarados mostram o que já está salvo."
+          },
+          "save": {
+            "title": "💾 Salvar credenciais",
+            "description": "Persista alterações após validar a chave com seu provedor. Se falhar, o segredo anterior permanece."
+          },
+          "closing": {
+            "title": "✅ Proteja segredos",
+            "description": "Trate chaves como senhas. Remova-as quando a integração for desativada."
+          }
+        }
+      },
       "adminProfile": {
         "meta": {
           "title": "Meu perfil",
@@ -5380,6 +6072,70 @@
       "create-admin": {
         "title": "Como crio um admin?",
         "description": "Percorra o formulário com função admin: acesso de staff, credenciais e submeter só no fim da guia."
+      },
+      "take-attendance": {
+        "title": "Como marco a assiduidade?",
+        "description": "Aprenda onde vive a assiduidade da turma, como funcionam as vistas dia/matriz e como marcar presença sem perder o contexto do horário."
+      },
+      "approve-payment": {
+        "title": "Como aprovo um pagamento?",
+        "description": "Percorra a caixa de finanças: encontre comprovativos pendentes, entenda separadores e ferramentas em massa, e veja onde está aprovar — sem confirmar uma aprovação real."
+      },
+      "reject-payment": {
+        "title": "Como rejeito um pagamento?",
+        "description": "Percorra a caixa para rejeitar: localize o comprovativo, abra rejeitar e saiba por que deve deixar um motivo claro — sem confirmar."
+      },
+      "assign-scholarship-percent": {
+        "title": "Como atribuo uma bolsa parcial?",
+        "description": "Abra o painel de bolsas do aluno e aprenda como uma percentagem reduz a mensalidade — só guia; não guarde até estar pronto."
+      },
+      "assign-scholarship-full": {
+        "title": "Como atribuo uma bolsa total?",
+        "description": "Aprenda como uma bolsa de 100% cobre a mensalidade no painel de cobrança — só guia; confirme você depois do tour."
+      },
+      "create-event": {
+        "title": "Como crio um evento?",
+        "description": "Aprenda o formulário de eventos públicos: título, data e preços — depois complete e envie você quando quiser publicar."
+      },
+      "enable-mercadopago": {
+        "title": "Como habilito o Mercado Pago?",
+        "description": "Abra Configurações financeiras e veja onde ficam as credenciais do Mercado Pago Chile/Argentina — só guia; não cole segredos durante o tour."
+      },
+      "enable-flow": {
+        "title": "Como habilito o Flow Chile?",
+        "description": "Percorra as configurações financeiras do Flow Chile e o salvamento — só guia; não envie chaves reais durante o tour."
+      },
+      "change-billing-currency": {
+        "title": "Como altero a moeda de cobrança?",
+        "description": "Saiba onde a moeda de cobrança do instituto é definida e por que isso afeta todas as mensalidades — só guia; salve você após o tour."
+      },
+      "approve-event-payment": {
+        "title": "Como aprovo um pagamento de evento?",
+        "description": "Abra a aba Pagamentos do evento, revise comprovantes pendentes e veja onde fica Aprovar — só guia; não confirme uma aprovação real durante o tour."
+      },
+      "assign-section-scholarship-bulk": {
+        "title": "Como atribuo bolsas em massa em uma seção?",
+        "description": "Percorra Finanças → Cobranças da seção: aba bolsas, ação em massa e campos do modal — só guia; não confirme aplicar em massa durante o tour."
+      },
+      "change-site-setup-currency": {
+        "title": "Como defino a moeda na Configuração do site?",
+        "description": "Conheça o passo Legal e cobrança do assistente de configuração — diferente de Ajustes financeiros; só guia; conclua o assistente você após o tour."
+      },
+      "create-blog-article": {
+        "title": "Como crio um artigo do blog?",
+        "description": "Abra o editor de blog do CMS: título, corpo, meta e salvar — sem publicar até você decidir após o tour."
+      },
+      "create-blog-article-as-teacher": {
+        "title": "Como envio um artigo para revisão (professor)?",
+        "description": "Mesmo editor com ênfase no status pending_review para rascunhos de professores — só guia; envie para revisão você após o tour."
+      },
+      "reset-user-password": {
+        "title": "Como redefino a senha de um usuário?",
+        "description": "Abra a aba Segurança do perfil e veja o reset de senha — só guia; não aplique uma senha durante o tour."
+      },
+      "import-users": {
+        "title": "Como importo usuários de uma planilha?",
+        "description": "Conheça Usuários → Importar: escolher arquivo e pré-visualização — o tour nunca inicia um job real de importação."
       }
     },
     "adminHelpTours": {
@@ -5634,6 +6390,502 @@
           "submitGuide": {
             "title": "✅ Criar — depois do tour",
             "description": "Submeter cria o admin a sério. Reveja função e e-mail, depois clique em Criar quando estiver pronto."
+          }
+        }
+      },
+      "createEvent": {
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📅 Criar um evento (só guia)",
+            "description": "Os eventos aparecem no calendário público e podem ter preços opcionais.\n\nEste percurso abre o formulário e explica os campos principais. Nada é guardado até clicar em Criar no fim do tour."
+          },
+          "createCta": {
+            "title": "➕ Novo evento",
+            "description": "Na lista de eventos, este controlo abre o formulário de criação.\n\nSe já estiver em /events/new, o tour vai direto ao formulário."
+          },
+          "form": {
+            "title": "📝 Formulário do evento",
+            "description": "Tudo o necessário para publicar está aqui: identidade, agenda e preços opcionais.\n\nUse títulos claros para as famílias no site público."
+          },
+          "titleField": {
+            "title": "✏️ Título",
+            "description": "Use um nome curto que as famílias reconheçam (oficina, recital, jornada aberta).\n\nEvite códigos internos no título público."
+          },
+          "dateField": {
+            "title": "📆 Data e hora",
+            "description": "Defina quando o evento ocorre. Horários errados confundem inscrições e o calendário.\n\nVerifique o fuso horário do instituto."
+          },
+          "pricing": {
+            "title": "💳 Preços (opcional)",
+            "description": "Eventos gratuitos deixam valores vazios. Eventos pagos precisam de preços claros antes de publicar.\n\nO gateway configura-se à parte em Finanças."
+          },
+          "submitGuide": {
+            "title": "✅ Criar — depois do tour",
+            "description": "Enviar publica o evento de verdade. Complete os campos, reveja a visibilidade e clique em Criar você quando estiver pronto.\n\nFechar o tour não descarta o que digitou."
+          }
+        }
+      },
+      "approvePayment": {
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "✅ Aprovar um pagamento (só guia)",
+            "description": "As famílias enviam comprovativos ou pagam online; a equipa confirma na caixa de finanças.\n\nEste percurso mostra onde está aprovar. Nunca clica Confirmar — aprovar altera o estado de cobrança."
+          },
+          "tabs": {
+            "title": "📑 Separadores de finanças",
+            "description": "Caixa de entrada é onde os comprovativos pendentes esperam. Outros separadores cobrem histórico, definições e relatórios.\n\nFique na Caixa para rever."
+          },
+          "inbox": {
+            "title": "📥 Caixa de pagamentos",
+            "description": "Este espaço lista comprovativos à espera de decisão.\n\nFiltros e chips restringem mensalidade, matrícula ou faturas."
+          },
+          "typeNav": {
+            "title": "🏷️ Tipos de comprovativo",
+            "description": "Alterne entre filas de mensalidade, matrícula e faturas para não misturar conceitos.\n\nOs contadores mostram o que ainda precisa de atenção."
+          },
+          "bulkToolbar": {
+            "title": "🧰 Ações em massa",
+            "description": "Com várias linhas selecionadas surgem ferramentas em lote.\n\nPrefira rever uma a uma até confiar na fila."
+          },
+          "action": {
+            "title": "✔️ Controlo aprovar",
+            "description": "Aprovar marca o comprovativo como aceite e atualiza a cobrança.\n\nO tour para antes de Confirmar — leia valor e aluno com cuidado."
+          },
+          "empty": {
+            "title": "📭 Caixa vazia",
+            "description": "Se não houver pendentes, este estado vazio é normal.\n\nVolte quando as famílias enviarem novos comprovativos."
+          }
+        }
+      },
+      "rejectPayment": {
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "❌ Rejeitar um pagamento (só guia)",
+            "description": "Rejeite quando o comprovativo é ilegível, duplicado ou não corresponde ao valor devido.\n\nEste percurso destaca rejeitar sem confirmar — deixe sempre um motivo claro para a família."
+          },
+          "tabs": {
+            "title": "📑 Separadores de finanças",
+            "description": "Use a Caixa para decidir. O histórico mostra resultados anteriores se precisar de contexto."
+          },
+          "inbox": {
+            "title": "📥 Caixa de pagamentos",
+            "description": "Encontre o comprovativo que não deve ser aceite.\n\nAbra a linha para inspecionar o ficheiro antes de rejeitar."
+          },
+          "typeNav": {
+            "title": "🏷️ Tipos de comprovativo",
+            "description": "Escolha a fila correta para rejeitar o tipo de cobrança adequado.\n\nMisturar tipos gera confusão no suporte."
+          },
+          "bulkToolbar": {
+            "title": "🧰 Ações em massa",
+            "description": "A rejeição em massa é poderosa — evite-a salvo se todas as linhas partilharem o mesmo problema."
+          },
+          "action": {
+            "title": "🚫 Controlo rejeitar",
+            "description": "Rejeitar abre uma confirmação onde deve explicar o motivo.\n\nO tour não confirma — escreva uma razão acionável para a família."
+          },
+          "empty": {
+            "title": "📭 Caixa vazia",
+            "description": "Sem comprovativos pendentes não há nada a rejeitar agora."
+          }
+        }
+      },
+      "takeAttendance": {
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📋 Marcar assiduidade",
+            "description": "A assiduidade pertence a uma turma concreta (secção), não a toda a coorte.\n\nMarca quem esteve presente nos dias de aula para relatórios e vistas familiares ficarem corretos."
+          },
+          "root": {
+            "title": "🏫 Espaço de assiduidade",
+            "description": "Este painel está limitado à turma aberta.\n\nSe chegou de outro sítio, abra Académico → coorte → turma → Assiduidade primeiro."
+          },
+          "viewTabs": {
+            "title": "👁️ Modos de vista",
+            "description": "Alterne entre vista dia e matriz quando ambas estiverem disponíveis.\n\nA matriz ajuda a ver padrões em várias sessões."
+          },
+          "matrix": {
+            "title": "▦ Grelha de assiduidade",
+            "description": "Cada célula é um aluno numa data de aula. Marque presente, ausente ou atrasado conforme as regras do instituto.\n\nAs alterações costumam gravar ao marcar — reveja antes de sair."
+          },
+          "tip": {
+            "title": "💡 Dica",
+            "description": "Marque a assiduidade logo após a aula.\n\nAs famílias podem ver sinais de assiduidade no calendário do portal."
+          }
+        }
+      },
+      "assignScholarshipPercent": {
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "٪ Bolsa parcial (só guia)",
+            "description": "Uma bolsa percentual reduz a mensalidade de um aluno sem alterar o preço base da turma.\n\nEste percurso mostra o painel de cobrança. Não guarde até querer aplicar o desconto."
+          },
+          "panel": {
+            "title": "🎓 Painel de bolsas",
+            "description": "Abra o separador Pagamentos / cobrança do aluno para chegar às bolsas.\n\nPromoções do instituto vivem à parte em Finanças."
+          },
+          "discountFields": {
+            "title": "✏️ Campos de percentagem",
+            "description": "Introduza uma percentagem entre 1 e 99 para uma bolsa parcial.\n\nDocumente o motivo em notas se o processo o exigir."
+          },
+          "saveGuide": {
+            "title": "💾 Guardar — depois do tour",
+            "description": "Guardar aplica a bolsa de verdade. Reveja a percentagem e guarde você quando estiver pronto.\n\nO tour nunca envia."
+          }
+        }
+      },
+      "assignScholarshipFull": {
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🎁 Bolsa total (só guia)",
+            "description": "Uma bolsa de 100% cobre a mensalidade enquanto o aluno tiver essa concessão.\n\nTrate isenções totais com cuidado — confirme elegibilidade antes de guardar."
+          },
+          "panel": {
+            "title": "🎓 Painel de bolsas",
+            "description": "O mesmo painel das bolsas parciais; escolha cobertura total ou 100%.\n\nA taxa de inscrição pode continuar a aplicar conforme as regras do instituto."
+          },
+          "discountFields": {
+            "title": "✏️ Cobertura total",
+            "description": "Defina o desconto em 100% (ou o controlo de bolsa total do formulário).\n\nVerifique a identidade do aluno antes de aplicar."
+          },
+          "saveGuide": {
+            "title": "💾 Guardar — depois do tour",
+            "description": "Guardar ativa a bolsa total. Termine a revisão e guarde você quando estiver pronto.\n\nFechar o tour não aplica alterações."
+          }
+        }
+      },
+      "enableMercadoPago": {
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "💳 Mercado Pago (só guia)",
+            "description": "Pagamentos com cartão online para Chile e Argentina ficam em Finanças → Configurações.\n\nEste tour nunca salva credenciais — cole as chaves só depois do tour."
+          },
+          "settingsRoot": {
+            "title": "⚙️ Configurações financeiras",
+            "description": "Cartões de gateway e moeda ficam nesta aba — não na caixa de entrada de pagamentos."
+          },
+          "card": {
+            "title": "🇨🇱 Mercado Pago Chile",
+            "description": "Chile e Argentina têm cartões próprios. Comece pelo país do seu instituto.\n\nO cartão da Argentina é similar mais abaixo."
+          },
+          "credentials": {
+            "title": "🔑 Access token e webhook",
+            "description": "Cole o Access Token e o segredo de webhook do painel Mercado Pago.\n\nNunca envie isso ao git nem compartilhe no chat."
+          },
+          "saveGuide": {
+            "title": "💾 Salvar — após o tour",
+            "description": "Salvar grava as credenciais de verdade. Termine o tour, confira as chaves e salve você.\n\nFechar o tour não escreve segredos."
+          }
+        }
+      },
+      "enableFlow": {
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🏦 Flow Chile (só guia)",
+            "description": "Flow é o gateway estilo transferência no Chile em Finanças → Configurações.\n\nO tour só explica campos — não envia chaves de API."
+          },
+          "settingsRoot": {
+            "title": "⚙️ Configurações financeiras",
+            "description": "Flow fica junto dos outros gateways na aba Configurações."
+          },
+          "card": {
+            "title": "🇨🇱 Cartão Flow Chile",
+            "description": "Ative ou atualize credenciais do Flow aqui. O status mostra se já há chaves guardadas."
+          },
+          "credentials": {
+            "title": "🔑 API key e segredo",
+            "description": "Informe API key e segredo do painel Flow.\n\nDeixe em branco se for rotacionar só um valor depois."
+          },
+          "saveGuide": {
+            "title": "💾 Salvar — após o tour",
+            "description": "Salvar ativa o Flow de verdade. Confirme as chaves fora do app e salve você quando estiver pronto."
+          }
+        }
+      },
+      "changeBillingCurrency": {
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "💱 Moeda de cobrança (só guia)",
+            "description": "A moeda do instituto rotula mensalidades, faturas e gateways.\n\nMudar é raro — o tour nunca salva."
+          },
+          "settingsRoot": {
+            "title": "⚙️ Configurações financeiras",
+            "description": "A moeda fica no topo de Configurações, acima dos gateways."
+          },
+          "currencySection": {
+            "title": "💰 Bloco de moeda",
+            "description": "Controla o código ISO padrão de matrículas e mensalidades."
+          },
+          "currencyField": {
+            "title": "✏️ Seletor de moeda",
+            "description": "Escolha um código padrão (CLP, ARS, USD, …) ou Outro para um ISO-4217 personalizado."
+          },
+          "warning": {
+            "title": "⚠️ Afeta a todos",
+            "description": "A mudança vale para todo o instituto. Coordene com finanças antes de salvar."
+          },
+          "saveGuide": {
+            "title": "💾 Salvar — após o tour",
+            "description": "Salvar grava a moeda de verdade. Confira o código e salve você quando estiver pronto."
+          }
+        }
+      },
+      "approveEventPayment": {
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🎟️ Aprovar pagamento de evento (só guia)",
+            "description": "Eventos pagos listam comprovantes na aba Pagamentos do detalhe.\n\nEste tour nunca clica em Aprovar em um pagamento pendente real."
+          },
+          "paymentsTab": {
+            "title": "💳 Aba Pagamentos",
+            "description": "Mude para Pagamentos para revisar inscrições, comprovantes e ações de aprovação."
+          },
+          "panel": {
+            "title": "📋 Painel de pagamentos",
+            "description": "Resumos, filtros e a lista de linhas de pagamento aparecem aqui."
+          },
+          "filters": {
+            "title": "🔎 Filtros de status",
+            "description": "Filtre pendentes, aprovados ou rejeitados antes de agir sobre um comprovante."
+          },
+          "approveGuide": {
+            "title": "✅ Controle Aprovar",
+            "description": "Linhas pendentes mostram Aprovar após notas opcionais. Confirme você só quando o comprovante for válido."
+          },
+          "empty": {
+            "title": "📭 Sem linhas",
+            "description": "Se nenhum pagamento corresponder ao filtro, a lista fica vazia — tente Todos ou Pendentes quando chegarem inscrições."
+          }
+        }
+      },
+      "assignSectionScholarshipBulk": {
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🎓 Bolsas em massa da seção (só guia)",
+            "description": "Cobranças da seção pode aplicar o mesmo percentual de desconto a muitos alunos.\n\nO tour abre o modal orientativamente mas nunca confirma aplicar em massa."
+          },
+          "collectionsRoot": {
+            "title": "📊 Cobranças da seção",
+            "description": "Finanças → Cobranças: matriz, ajustes, histórico, bolsas e matrículas."
+          },
+          "scholarshipsTab": {
+            "title": "🏷️ Aba Bolsas",
+            "description": "Aba opcional com bolsas ativas e outro acesso à atribuição em massa."
+          },
+          "bulkTrigger": {
+            "title": "➕ Bolsa em massa",
+            "description": "Na barra da matriz, abra atribuição em massa para percentual, meses e escopo."
+          },
+          "modalGuide": {
+            "title": "📝 Modal em massa",
+            "description": "Escolha desconto, período e todos/selecionados/pendentes. Confirme só após o tour quando os dados estiverem corretos."
+          }
+        }
+      },
+      "changeSiteSetupCurrency": {
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🏛️ Moeda na configuração do site (só guia)",
+            "description": "A configuração inicial define a moeda em Legal e cobrança — separado de editar em Ajustes financeiros.\n\nO tour nunca conclui o assistente por você."
+          },
+          "stepIndicator": {
+            "title": "📍 Progresso do assistente",
+            "description": "O indicador mostra onde você está nos oito passos de configuração."
+          },
+          "panel": {
+            "title": "📋 Painel do passo",
+            "description": "Cada passo coleta marca, contato ou padrões operacionais antes do go-live."
+          },
+          "currencyField": {
+            "title": "💱 Moeda de cobrança",
+            "description": "Escolha a moeda ISO para rótulos de mensalidade. Outros campos legais e de cobrança ficam neste passo."
+          },
+          "navGuide": {
+            "title": "➡️ Continuar assistente",
+            "description": "Use Voltar/Continuar entre passos. Finalize a configuração você quando tudo estiver correto."
+          }
+        }
+      },
+      "createBlogArticle": {
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📰 Novo artigo (só guia)",
+            "description": "Rascunhos do blog ficam em Conteúdo → Blog. Este tour abre o editor e explica os campos.\n\nNão publica — mantenha o status como rascunho até decidir."
+          },
+          "editor": {
+            "title": "📝 Editor do artigo",
+            "description": "Aqui você edita idiomas, título, corpo, materiais e meta de publicação."
+          },
+          "titleField": {
+            "title": "✏️ Título",
+            "description": "Escreva um título público claro para a aba de idioma ativa."
+          },
+          "body": {
+            "title": "📄 Corpo",
+            "description": "Texto rico do artigo. Uploads de mídia são reais mesmo antes de publicar."
+          },
+          "meta": {
+            "title": "🏷️ Status e meta",
+            "description": "Rascunho vs publicado, tags, agendamento e fixar. Prefira Rascunho enquanto aprende."
+          },
+          "saveGuide": {
+            "title": "💾 Salvar — após o tour",
+            "description": "Salvar persiste o rascunho. Publicar é outra escolha de status — complete os campos e salve você."
+          }
+        }
+      },
+      "createBlogArticleAsTeacher": {
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "✍️ Rascunho de professor (só guia)",
+            "description": "Professores usam o mesmo editor mas costumam definir pending_review para aprovação da equipe.\n\nO tour não envia para revisão."
+          },
+          "editor": {
+            "title": "📝 Editor do artigo",
+            "description": "Aqui você edita idiomas, título, corpo, materiais e meta de publicação."
+          },
+          "titleField": {
+            "title": "✏️ Título",
+            "description": "Escreva um título público claro para a aba de idioma ativa."
+          },
+          "body": {
+            "title": "📄 Corpo",
+            "description": "Texto rico do artigo. Mídias enviadas são reais mesmo antes de publicar."
+          },
+          "meta": {
+            "title": "🏷️ Tags e agendamento",
+            "description": "Tags, agendamento e fixar ficam junto ao status."
+          },
+          "reviewStatus": {
+            "title": "📮 Pendente de revisão",
+            "description": "Escolha pending_review quando um rascunho de professor precisa de aprovação admin antes de publicar."
+          },
+          "saveGuide": {
+            "title": "💾 Salvar — após o tour",
+            "description": "Salvar persiste o rascunho. Mude para pending_review e salve você quando o artigo estiver pronto."
+          }
+        }
+      },
+      "resetUserPassword": {
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🔑 Redefinir senha (só guia)",
+            "description": "Admins podem definir uma nova senha na aba Segurança do usuário.\n\nEste tour nunca aplica senha — confirme você depois se precisar."
+          },
+          "securityTab": {
+            "title": "🛡️ Aba Segurança",
+            "description": "Abra Segurança no dossiê para chegar a senha e ferramentas de documento."
+          },
+          "securityPanel": {
+            "title": "🔐 Painel de segurança",
+            "description": "As ferramentas de senha aparecem aqui se você puder editar o perfil."
+          },
+          "passwordSection": {
+            "title": "✏️ Controles de senha",
+            "description": "Escolha manual ou auto-gerar, copie com cuidado e aplique só após confirmar."
+          },
+          "applyGuide": {
+            "title": "✅ Aplicar — após o tour",
+            "description": "Aplicar abre uma confirmação. O tour para de propósito — não aplique em prática salvo se for intencional."
+          }
+        }
+      },
+      "importUsers": {
+        "doneBtn": "Concluir",
+        "nextBtn": "Próximo",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📥 Importar usuários (só guia)",
+            "description": "A carga em massa usa dry-run e depois um apply confirmado.\n\nEste tour nunca inicia um job de importação."
+          },
+          "titleBlock": {
+            "title": "👥 Tela de importação",
+            "description": "Usuários → Importar é para criar em massa com CSV/XLSX e atualizações opcionais."
+          },
+          "chooseFile": {
+            "title": "📂 Escolher arquivo",
+            "description": "Selecione a planilha para o dry-run. Linhas inválidas são reportadas antes de gravar."
+          },
+          "tip": {
+            "title": "💡 Após o tour",
+            "description": "Revise bem o modal de pré-visualização. Confirme o apply só se as contagens estiverem corretas — fechar o tour não importa."
           }
         }
       }
@@ -6058,10 +7310,15 @@
       },
       "staff": {
         "title": "Corpo docente",
+        "manageBlockLead": "Atribua ou altere o professor titular, assistentes do portal e colaboradores externos desta seção.",
+        "leadOpenButton": "Alterar professor líder",
+        "leadModalTitle": "Professor líder",
         "leadLabel": "Professor líder",
         "leadSave": "Salvar professor principal",
         "leadSaved": "Professor líder atualizado.",
         "leadError": "Não foi possível atualizar o professor principal. Tente novamente.",
+        "assistantsOpenButton": "Gerenciar assistentes",
+        "assistantsModalTitle": "Assistentes (acesso ao portal)",
         "assistantsTitle": "Assistentes (acesso ao portal)",
         "assistantsHint": "Professores, auxiliares de equipe ou alunos com login podem abrir esta seção no portal do professor (assiduidade, notas, escalação). Os alunos assistentes não podem sobrepor a programação desta seção com suas outras turmas ativas. Eles não são o “líder” público nos cartões de administração.",
         "pickStaffAssistantLabel": "Adicionar professor ou assistente pessoal",
@@ -6077,6 +7334,8 @@
         "assistantBadgeTeacher": "Professor",
         "assistantBadgeStudent": "Estudante",
         "assistantBadgePortalAssistant": "Assistente (funcionário)",
+        "externalOpenButton": "Gerenciar externos",
+        "externalModalTitle": "Assistentes externos (sem login)",
         "externalTitle": "Assistentes externos (sem login)",
         "externalHint": "Voluntários ou convidados sem conta — mostrados apenas para referência administrativa; eles não recebem acesso ao portal.",
         "externalNameLabel": "Nome",
@@ -6089,10 +7348,17 @@
       },
       "staffAssignedChips": {
         "heading": "Atribuído agora",
-        "leadBadge": "Liderar",
+        "leadBadge": "Líder",
         "assistantBadge": "Ass.",
+        "assistantBadgeTeacher": "Professor",
+        "assistantBadgeStudent": "Estudante",
+        "assistantBadgePortalAssistant": "Assistente (equipe)",
         "externalBadge": "Externo",
-        "empty": "Nenhum professor principal ou assistente foi designado ainda. Use o formulário abaixo para atribuí-los."
+        "empty": "Nenhum professor principal ou assistente foi designado ainda. Use os botões abaixo para atribuí-los.",
+        "openProfileAria": "Abrir perfil de {name}",
+        "phoneLabel": "Telefone",
+        "documentLabel": "Documento",
+        "emailLabel": "E-mail"
       },
       "health": {
         "title": "Saúde da seção",
@@ -6246,6 +7512,7 @@
       "learningRoute": {
         "title": "Rota de aprendizagem",
         "lead": "Escolha a rota de aprendizagem global que esta seção seguirá ou deixe-a fluir livremente.",
+        "summaryTitle": "Atribuição atual",
         "selectLabel": "Modo de rota",
         "freeFlowOption": "Sem rota – fluxo livre",
         "freeFlowHelp": "Os professores ainda podem gravar aulas ao vivo sem seguir uma rota predefinida.",
@@ -6256,6 +7523,9 @@
         "error": "Não foi possível salvar a seleção da rota de aprendizagem. Tente novamente."
       },
       "assessmentsPanel": {
+        "summaryTitle": "Visão geral das avaliações",
+        "summaryLearningLabel": "Avaliações de aprendizagem",
+        "summaryCohortLabel": "Exames de rubrica de coorte",
         "titleLearning": "Testes de rota e seção",
         "leadLearning": "Questionários, check-ins de entrada/saída e outras avaliações de aprendizagem registradas para esta seção, com quantas tentativas de alunos existem e um rápido instantâneo dos resultados.",
         "titleCohort": "Exames de rubrica de coorte",
@@ -6322,12 +7592,18 @@
           "manual_feedback": "Apenas comentários"
         }
       },
+      "studentsPanel": {
+        "summaryTitle": "Resumo de matrículas",
+        "summaryActiveLabel": "Matrículas ativas",
+        "rosterTitle": "Lista da seção",
+        "rosterLead": "Matricule alunos, gerencie transferências e revise a lista desta seção."
+      },
       "shellTabs": {
-        "tablistAria": "Área de trabalho da seção",
+        "tablistAria": "Áreas de trabalho da seção",
         "general": "Visão geral",
-        "generalLead": "Saúde da seção e números dos títulos abaixo. Arquivar e excluir fica no canto superior direito. Outras guias contêm datas, horários, professores, percurso, avaliações, taxas, frequência e alunos.",
+        "generalLead": "Saúde da seção e números principais abaixo. Arquivar e excluir ficam no canto superior direito. Abra um cartão para datas, horários, professores, percurso, avaliações, taxas, frequência ou alunos.",
         "configuration": "Configuração",
-        "configurationLead": "Datas das seções, capacidade, etiqueta da sala e horário semanal.",
+        "configurationLead": "Recursos de aprendizagem, datas, capacidade, sala e horário semanal.",
         "teachers": "Professores",
         "teachersLead": "Professor líder, assistentes do portal e assistentes externos para esta seção.",
         "learningRoute": "Rota de aprendizagem",
@@ -6339,10 +7615,22 @@
         "attendance": "Presença",
         "attendanceLead": "Revise e edite a matriz de frequência da seção sem sair do espaço de trabalho acadêmico.",
         "students": "Alunos",
-        "studentsLead": "Inscreva os alunos nesta seção, gerencie as transferências e revise a lista de turmas."
+        "studentsLead": "Inscreva os alunos nesta seção, gerencie as transferências e revise a lista de turmas.",
+        "hubAreasAria": "Áreas de trabalho da seção",
+        "backToSection": "Voltar à seção",
+        "areaSwitcherAria": "Trocar área da seção"
       },
       "scheduleTitle": "Agendar",
       "noSchedule": "Nenhum horário definido.",
+      "settingsSummary": {
+        "title": "Configurações da seção",
+        "lead": "Período, sala, capacidade e recursos desta seção.",
+        "groups": {
+          "class": { "title": "Aula" },
+          "capacity": { "title": "Capacidade e presença" },
+          "features": { "title": "Recursos" }
+        }
+      },
       "scheduleEditor": {
         "scheduleTitle": "Agendar",
         "scheduleHint": "Edite os intervalos semanais desta seção. Remova todas as linhas e salve se a seção não tiver mais um horário fixo.",
@@ -6354,6 +7642,14 @@
         "scheduleInvalid": "Revise as linhas da programação. Cada slot precisa de um dia da semana e um horário de término após o horário de início.",
         "saveSchedule": "Salvar programação",
         "saveScheduleError": "Não foi possível salvar a programação da seção.",
+        "unsavedBadge": "Alterações não salvas",
+        "selectedBlockTitle": "Bloco selecionado",
+        "editTimes": "Editar horários",
+        "deleteBlock": "Excluir bloco",
+        "closeInspectorAria": "Fechar editor do bloco",
+        "overlapError": "Este bloco se sobrepõe a outro no mesmo dia.",
+        "createHint": "Clique em um espaço vazio para adicionar um bloco. Arraste para mover. Arraste a borda inferior para redimensionar.",
+        "gridAria": "Horário semanal de aulas",
         "weekdays": {
           "sun": "Sol",
           "mon": "seg",
@@ -6369,7 +7665,9 @@
         "dropped": "Derrubado",
         "transferred": "Transferido"
       },
+      "enrollOpenButton": "Inscrever aluno",
       "enrollTitle": "Inscrever aluno",
+      "enrollModalLead": "Pesquise por nome ou documento, adicione um ou mais alunos à lista e depois verifique a programação ou matricule.",
       "studentSearchLabel": "Procurar",
       "studentSearchTooltip": "Pesquisa de prefixo em nome ou documento de identidade; um campo vazio carrega uma pequena lista.",
       "searchPlaceholder": "Digite para filtrar ou escolher na lista…",
@@ -6415,6 +7713,36 @@
         "save": "Salvar pagamentos antecipados",
         "saved": "Configuração atualizada.",
         "errorSave": "Não foi possível salvar. Tente novamente."
+      },
+      "feesPanel": {
+        "summary": {
+          "title": "Mensalidades atuais em resumo",
+          "monthlyPlanLabel": "Plano mensal",
+          "monthlyPlanEmpty": "Sem plano mensal ativo",
+          "enrollmentLabel": "Taxa de inscrição",
+          "enrollmentNone": "Nenhuma (0)",
+          "chargeBasisLabel": "Base de cobrança",
+          "advanceLabel": "Pagamentos antecipados",
+          "advanceYes": "Sim",
+          "advanceNo": "Não"
+        },
+        "amountsTitle": "Valores",
+        "amountsLead": "Planos de mensalidade e a taxa de inscrição única desta seção.",
+        "chargeRulesTitle": "Regras de cobrança",
+        "chargeRulesLead": "Como as mensalidades são calculadas e se meses futuros podem ser pagos antecipadamente."
+      },
+      "featureFlags": {
+        "title": "Recursos de aprendizagem",
+        "lead": "Ative ou desative se a seção usa avaliações para aprovação e se segue uma rota de aprendizagem. As alterações são salvas na hora; as abas aparecem quando ativadas.",
+        "evaluationsLabel": "Esta seção tem avaliações para aprovação",
+        "evaluationsHelp": "Mostra a aba Avaliações e aplica regras de progresso baseadas em avaliações.",
+        "learningRouteLabel": "Esta seção segue uma rota de aprendizagem",
+        "learningRouteHelp": "Mostra a aba Rota de aprendizagem para atribuir uma rota global ou manter fluxo livre.",
+        "save": "Salvar recursos de aprendizagem",
+        "saved": "Recursos de aprendizagem atualizados.",
+        "errorSave": "Não foi possível salvar. Tente novamente.",
+        "errorHasEvaluations": "Desative as avaliações somente depois de remover todas as avaliações da seção.",
+        "errorHasLearningRoute": "Desative a rota somente depois de limpar a rota atribuída (mudar para fluxo livre ou remover a atribuição)."
       }
     },
     "academicRequests": {
@@ -7686,6 +9014,594 @@
       "messagesError": "Não foi possível enviar resposta",
       "messagesYourReply": "Sua resposta",
       "messagesSenderFallback": "Professor"
+    },
+    "adminHelpCatalogGroups": {
+      "academic": "Académico",
+      "billing": "Cobrança",
+      "users": "Utilizadores",
+      "content": "Conteúdo"
+    },
+    "parentHelpLauncher": {
+      "fabAria": "Abrir ajuda familiar",
+      "fabTitle": "Ajuda",
+      "helpTitle": "Ajuda familiar",
+      "panelDesc": "Explique este ecrã ou escolha um guia passo a passo. Não há caixa de chat.",
+      "closePanel": "Fechar painel de ajuda"
+    },
+    "parentHelpExplainScreen": {
+      "sectionHeading": "Este ecrã",
+      "sectionAria": "Explicar este ecrã",
+      "startCta": "Explicar este ecrã",
+      "startCtaAria": "Explicar este ecrã: {{title}}",
+      "starting": "A iniciar…",
+      "unavailable": "Em breve haverá uma explicação guiada para este ecrã.",
+      "unavailableCtaAria": "Explicar este ecrã (ainda não disponível)"
+    },
+    "parentHelpCatalog": {
+      "startCta": "Iniciar tutorial",
+      "startCtaAria": "Iniciar tutorial: {{title}}",
+      "listAria": "Tutoriais disponíveis",
+      "empty": "Ainda não há tutoriais disponíveis.",
+      "sectionHeading": "Guias práticos",
+      "parent-pay-or-upload-receipt": {
+        "title": "Como pago ou envio um comprovativo?",
+        "description": "Encontre valores em dívida, inicie um pagamento online ou envie um comprovativo bancário em pagamentos."
+      },
+      "parent-view-child-progress": {
+        "title": "Como vejo o progresso do meu filho?",
+        "description": "Abra o progresso de aprendizagem da criança selecionada — tarefas, avaliações e estado num relance."
+      },
+      "parent-read-reply-messages": {
+        "title": "Como leio e respondo a mensagens?",
+        "description": "Abra a caixa familiar, leia mensagens do instituto e escreva uma resposta quando precisar de apoio."
+      },
+      "parent-manage-child-or-tutor-profile": {
+        "title": "Como gerencio os perfis?",
+        "description": "Abra o perfil do seu filho para atualizar contactos e email de acesso, com verificação extra ao alterar o email."
+      },
+      "parent-calendar-attendance": {
+        "title": "Como leio o calendário?",
+        "description": "Consulte horário e sinais de assiduidade dos seus filhos no calendário familiar."
+      },
+      "parent-badges-overview": {
+        "title": "O que significam as medalhas?",
+        "description": "Veja as medalhas conquistadas e entenda que conquistas representam para o seu filho."
+      },
+      "parent-settings-notifications": {
+        "title": "Como altero as notificações?",
+        "description": "Reveja preferências de lembretes e notificações para receber só o que precisa."
+      }
+    },
+    "parentHelpTours": {
+      "parent-pay-or-upload-receipt": {
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "💳 Pagar ou enviar comprovativo",
+            "description": "Use Pagamentos para ver o que está em dívida e como liquidar.\n\nPode pagar online se houver gateway, ou enviar um comprovativo de transferência para revisão da equipa."
+          },
+          "title": {
+            "title": "📋 Título de pagamentos",
+            "description": "Está na área de pagamentos familiar da criança ativa."
+          },
+          "body": {
+            "title": "🧾 Valores e ações",
+            "description": "Abra o valor ou a ação de comprovativo de que precisa.\n\nApós enviar, aguarde a aprovação da equipa antes de o saldo atualizar."
+          }
+        }
+      },
+      "parent-view-child-progress": {
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📈 Progresso de aprendizagem",
+            "description": "Progresso mostra como o seu filho avança em tarefas e avaliações.\n\nMude de criança no início se tiver mais do que uma."
+          },
+          "title": {
+            "title": "📋 Título de progresso",
+            "description": "Este ecrã resume o estado de aprendizagem da criança ativa."
+          },
+          "body": {
+            "title": "📚 Detalhe do progresso",
+            "description": "Abra tarefas ou avaliações daqui quando precisar de mais detalhe.\n\nOs estados atualizam quando o professor avalia."
+          }
+        }
+      },
+      "parent-read-reply-messages": {
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "💬 Mensagens familiares",
+            "description": "O instituto e os professores podem escrever-lhe aqui.\n\nLeia com atenção e responda quando precisar de esclarecimento ou apoio."
+          },
+          "title": {
+            "title": "📋 Título de mensagens",
+            "description": "Está na caixa familiar."
+          },
+          "feed": {
+            "title": "📨 Lista de mensagens",
+            "description": "Abra um fio para ler a conversa completa.\n\nO não lido costuma aparecer no topo."
+          },
+          "compose": {
+            "title": "✍️ Redigir",
+            "description": "Use redigir para escrever à administração.\n\nSeja claro no assunto e corpo para receber ajuda mais depressa."
+          }
+        }
+      },
+      "parent-manage-child-or-tutor-profile": {
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "👤 Editar perfil do aluno",
+            "description": "Abrimos o editor do perfil do aluno para atualizar nome, contacto e email de acesso.\n\nAlterar o email exige a sua palavra-passe por segurança."
+          },
+          "title": {
+            "title": "📋 Título do perfil",
+            "description": "Este ecrã é de um único aluno. Confirme que edita o filho certo antes de guardar."
+          },
+          "body": {
+            "title": "📝 Campos do perfil",
+            "description": "Atualize telefone, data de nascimento e email aqui.\n\nGuarde só quando terminar as alterações."
+          }
+        }
+      },
+      "parent-calendar-attendance": {
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📅 Calendário e assiduidade",
+            "description": "O calendário familiar mostra aulas e sinais úteis de assiduidade.\n\nUse-o para planear em torno do horário do seu filho."
+          },
+          "title": {
+            "title": "📋 Título do calendário",
+            "description": "Está na vista de calendário familiar."
+          },
+          "board": {
+            "title": "🗓️ Quadro do calendário",
+            "description": "Navegue os dias e abra entradas com horários de aula.\n\nAs marcas de assiduidade aparecem quando o instituto as regista."
+          }
+        }
+      },
+      "parent-badges-overview": {
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🏅 Medalhas",
+            "description": "As medalhas celebram marcos de aprendizagem do seu filho.\n\nSão motivacionais — não substituem as notas."
+          },
+          "title": {
+            "title": "📋 Título de medalhas",
+            "description": "Este ecrã lista medalhas da criança ativa."
+          },
+          "body": {
+            "title": "✨ Detalhe da medalha",
+            "description": "Abra uma medalha para ler o significado e quando foi conquistada."
+          }
+        }
+      },
+      "parent-settings-notifications": {
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🔔 Preferências de notificação",
+            "description": "Escolha que lembretes quer sobre aulas, pagamentos e mensagens.\n\nMenos ruído ajuda a notar o que importa."
+          },
+          "title": {
+            "title": "⚙️ Título de definições",
+            "description": "Os controlos de notificação vivem nas definições familiares."
+          },
+          "body": {
+            "title": "📬 Opções de lembrete",
+            "description": "Ative os canais que quiser e guarde ao terminar.\n\nPode alterá-los a qualquer momento."
+          }
+        }
+      }
+    },
+    "parentHelpScreenTours": {
+      "parentHome": {
+        "meta": {
+          "title": "Início familiar",
+          "description": "Resumo da navegação, ações do cabeçalho e estado dos seus filhos."
+        },
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🏠 O seu início familiar",
+            "description": "Este é o painel principal: um resumo do estado de cada filho e atalhos para calendário, progresso, pagamentos e mensagens.\n\nEste percurso também explica a barra lateral (computador) ou as separadores inferiores (telemóvel). Noutros ecrãs, “Explicar este ecrã” foca só o conteúdo."
+          },
+          "sidebar": {
+            "title": "📂 Menu lateral",
+            "description": "No computador, use o menu para ir a início, calendário, progresso, pagamentos, mensagens e definições.\n\nOs distintivos destacam o que precisa de atenção."
+          },
+          "tabBar": {
+            "title": "📱 Separadores inferiores",
+            "description": "No telemóvel ou app instalada, os separadores inferiores são a navegação principal.\n\nChegam aos mesmos destinos que o menu de computador."
+          },
+          "chromeHeader": {
+            "title": "⬆️ Barra superior",
+            "description": "O cabeçalho permanece visível ao deslocar e guarda perfil e terminar sessão."
+          },
+          "chromeProfile": {
+            "title": "👤 O seu perfil",
+            "description": "Abra o perfil do tutor para atualizar contactos usados pelo instituto."
+          },
+          "chromeSignOut": {
+            "title": "🚪 Terminar sessão",
+            "description": "Termina a sessão com segurança. Termine sempre a sessão em dispositivos partilhados."
+          },
+          "titleBlock": {
+            "title": "📋 Título do início",
+            "description": "O título apresenta este centro familiar. O que está abaixo é um resumo ao vivo dos seus filhos."
+          },
+          "childSwitcher": {
+            "title": "👶 Seletor de filho",
+            "description": "Se tiver mais do que um filho, escolha de quem vê os dados antes de abrir progresso ou pagamentos."
+          },
+          "statusPillars": {
+            "title": "📊 Cartões de estado",
+            "description": "Cartões rápidos resumem assiduidade, tarefas ou cobrança.\n\nAbra-os para aprofundar."
+          },
+          "inbox": {
+            "title": "📨 Caixa do início",
+            "description": "Mensagens recentes ou avisos de cobrança podem aparecer aqui para não perder o urgente."
+          },
+          "closing": {
+            "title": "✅ Pronto",
+            "description": "Use Ajuda quando quiser “Explicar este ecrã” ou um guia prático.\n\nComece pela área de que a sua família precisa hoje."
+          }
+        }
+      },
+      "parentCalendar": {
+        "meta": {
+          "title": "Calendário",
+          "description": "Horário de aulas e sinais de assiduidade."
+        },
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Calendário",
+            "description": "Horário de aulas e sinais de assiduidade.\n\nPara que serve este ecrã e como se encaixa no portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma que área familiar abriu."
+          },
+          "board": {
+            "title": "Quadro do calendário",
+            "description": "Navegue os dias e abra entradas de aula ou assiduidade."
+          },
+          "closing": {
+            "title": "Próximos passos",
+            "description": "Use Ajuda quando quiser, ou abra um guia prático para um objetivo concreto."
+          }
+        }
+      },
+      "parentProgress": {
+        "meta": {
+          "title": "Progresso",
+          "description": "Progresso de aprendizagem da criança ativa."
+        },
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Progresso",
+            "description": "Progresso de aprendizagem da criança ativa.\n\nPara que serve este ecrã e como se encaixa no portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma que área familiar abriu."
+          },
+          "body": {
+            "title": "Conteúdo principal",
+            "description": "Use esta zona para a informação e ações principais da página."
+          },
+          "closing": {
+            "title": "Próximos passos",
+            "description": "Use Ajuda quando quiser, ou abra um guia prático para um objetivo concreto."
+          }
+        }
+      },
+      "parentPayments": {
+        "meta": {
+          "title": "Pagamentos",
+          "description": "Valores em dívida e envio de comprovativos."
+        },
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Pagamentos",
+            "description": "Valores em dívida e envio de comprovativos.\n\nPara que serve este ecrã e como se encaixa no portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma que área familiar abriu."
+          },
+          "body": {
+            "title": "Conteúdo principal",
+            "description": "Use esta zona para a informação e ações principais da página."
+          },
+          "closing": {
+            "title": "Próximos passos",
+            "description": "Use Ajuda quando quiser, ou abra um guia prático para um objetivo concreto."
+          }
+        }
+      },
+      "parentMessages": {
+        "meta": {
+          "title": "Mensagens",
+          "description": "Caixa familiar e redação."
+        },
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Mensagens",
+            "description": "Caixa familiar e redação.\n\nPara que serve este ecrã e como se encaixa no portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma que área familiar abriu."
+          },
+          "feed": {
+            "title": "Lista de mensagens",
+            "description": "Abra um fio para ler a conversa completa."
+          },
+          "compose": {
+            "title": "Redigir",
+            "description": "Inicie uma mensagem à administração quando precisar de ajuda."
+          },
+          "closing": {
+            "title": "Próximos passos",
+            "description": "Use Ajuda quando quiser, ou abra um guia prático para um objetivo concreto."
+          }
+        }
+      },
+      "parentSettings": {
+        "meta": {
+          "title": "Definições",
+          "description": "Preferências e atalhos de perfil."
+        },
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Definições",
+            "description": "Preferências e atalhos de perfil.\n\nPara que serve este ecrã e como se encaixa no portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma que área familiar abriu."
+          },
+          "body": {
+            "title": "Conteúdo principal",
+            "description": "Use esta zona para a informação e ações principais da página."
+          },
+          "closing": {
+            "title": "Próximos passos",
+            "description": "Use Ajuda quando quiser, ou abra um guia prático para um objetivo concreto."
+          }
+        }
+      },
+      "parentProfile": {
+        "meta": {
+          "title": "O seu perfil",
+          "description": "Campos do perfil do tutor."
+        },
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 O seu perfil",
+            "description": "Campos do perfil do tutor.\n\nPara que serve este ecrã e como se encaixa no portal familiar."
+          },
+          "form": {
+            "title": "Formulário de perfil",
+            "description": "Edite os campos do tutor com cuidado e guarde quando estiver pronto."
+          },
+          "closing": {
+            "title": "Próximos passos",
+            "description": "Use Ajuda quando quiser, ou abra um guia prático para um objetivo concreto."
+          }
+        }
+      },
+      "parentBilling": {
+        "meta": {
+          "title": "Faturação",
+          "description": "Histórico e extratos."
+        },
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Faturação",
+            "description": "Histórico e extratos.\n\nPara que serve este ecrã e como se encaixa no portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma que área familiar abriu."
+          },
+          "body": {
+            "title": "Conteúdo principal",
+            "description": "Use esta zona para a informação e ações principais da página."
+          },
+          "closing": {
+            "title": "Próximos passos",
+            "description": "Use Ajuda quando quiser, ou abra um guia prático para um objetivo concreto."
+          }
+        }
+      },
+      "parentTasks": {
+        "meta": {
+          "title": "Tarefas",
+          "description": "Tarefas de aprendizagem da criança."
+        },
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Tarefas",
+            "description": "Tarefas de aprendizagem da criança.\n\nPara que serve este ecrã e como se encaixa no portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma que área familiar abriu."
+          },
+          "list": {
+            "title": "Lista de tarefas",
+            "description": "Abra uma tarefa para ver instruções e datas."
+          },
+          "closing": {
+            "title": "Próximos passos",
+            "description": "Use Ajuda quando quiser, ou abra um guia prático para um objetivo concreto."
+          }
+        }
+      },
+      "parentAssessments": {
+        "meta": {
+          "title": "Avaliações",
+          "description": "Testes e resultados."
+        },
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Avaliações",
+            "description": "Testes e resultados.\n\nPara que serve este ecrã e como se encaixa no portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma que área familiar abriu."
+          },
+          "body": {
+            "title": "Conteúdo principal",
+            "description": "Use esta zona para a informação e ações principais da página."
+          },
+          "closing": {
+            "title": "Próximos passos",
+            "description": "Use Ajuda quando quiser, ou abra um guia prático para um objetivo concreto."
+          }
+        }
+      },
+      "parentBadges": {
+        "meta": {
+          "title": "Medalhas",
+          "description": "Conquistas do seu filho."
+        },
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Medalhas",
+            "description": "Conquistas do seu filho.\n\nPara que serve este ecrã e como se encaixa no portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma que área familiar abriu."
+          },
+          "body": {
+            "title": "Conteúdo principal",
+            "description": "Use esta zona para a informação e ações principais da página."
+          },
+          "closing": {
+            "title": "Próximos passos",
+            "description": "Use Ajuda quando quiser, ou abra um guia prático para um objetivo concreto."
+          }
+        }
+      },
+      "parentChildDetail": {
+        "meta": {
+          "title": "Perfil do filho",
+          "description": "Detalhe de uma criança vinculada."
+        },
+        "doneBtn": "Concluído",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Perfil do filho",
+            "description": "Detalhe de uma criança vinculada.\n\nPara que serve este ecrã e como se encaixa no portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma que área familiar abriu."
+          },
+          "body": {
+            "title": "Conteúdo principal",
+            "description": "Use esta zona para a informação e ações principais da página."
+          },
+          "closing": {
+            "title": "Próximos passos",
+            "description": "Use Ajuda quando quiser, ou abra um guia prático para um objetivo concreto."
+          }
+        }
+      }
     }
   },
   "blog": {

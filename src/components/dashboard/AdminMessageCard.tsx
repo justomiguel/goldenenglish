@@ -1,7 +1,7 @@
 import type { Dictionary } from "@/types/i18n";
 import type { AdminPortalMessageRow } from "@/types/messaging";
 import Link from "next/link";
-import { Globe, MessageSquare, Reply } from "lucide-react";
+import { Globe, MessageSquare, Reply, ReplyAll } from "lucide-react";
 import { DeletePortalMessageButton } from "@/components/dashboard/DeletePortalMessageButton";
 import { AdminMessageReadToggleButton } from "@/components/dashboard/AdminMessageReadToggleButton";
 
@@ -51,6 +51,7 @@ export function AdminMessageCard({
     row.preview ? `${labels.preview}: ${row.preview}` : labels.detailEmptyBody,
   ].filter(Boolean);
   const replyHref = `/${locale}/dashboard/admin/messages/compose?replyTo=${row.id}`;
+  const replyWithDefaultHref = `${replyHref}&useDefault=1`;
 
   return (
     <article
@@ -151,6 +152,15 @@ export function AdminMessageCard({
         >
           <Reply className="h-4 w-4 shrink-0" aria-hidden />
           <span className="hidden sm:inline">{labels.replyToMessage}</span>
+        </Link>
+        <Link
+          href={replyWithDefaultHref}
+          className="inline-flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-muted)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+          title={labels.replyWithDefaultMessageTitle}
+          aria-label={labels.replyWithDefaultMessage}
+        >
+          <ReplyAll className="h-4 w-4 shrink-0" aria-hidden />
+          <span className="hidden lg:inline">{labels.replyWithDefaultMessage}</span>
         </Link>
         <DeletePortalMessageButton
           locale={locale}

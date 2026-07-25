@@ -23,6 +23,7 @@ import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { StudentMonthlyPaymentsView } from "@/types/studentMonthlyPayments";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 type ParentLabels = Dictionary["dashboard"]["parent"];
 type StudentLabels = Dictionary["dashboard"]["student"];
@@ -166,11 +167,16 @@ function ParentPaymentsBodyDesktop({
     );
 
   return (
-    <>
-      <h1 className="font-display text-2xl font-bold text-[var(--color-secondary)] sm:text-3xl">{title}</h1>
+    <div data-tour={PARENT_TOUR_ANCHORS.paymentsBody}>
+      <h1
+        data-tour={PARENT_TOUR_ANCHORS.paymentsTitle}
+        className="font-display text-2xl font-bold text-[var(--color-secondary)] sm:text-3xl"
+      >
+        {title}
+      </h1>
       <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{lead}</p>
       <ParentFinanceTabs labels={labels} payPanel={payPanel} feesPanel={feesPanel} />
-    </>
+    </div>
   );
 }
 

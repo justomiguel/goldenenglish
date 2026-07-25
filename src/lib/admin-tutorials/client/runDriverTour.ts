@@ -1,23 +1,13 @@
-import type { AdminTourStepDef } from "@/lib/admin-tutorials/adminTourStepDef";
-import {
-  adminTourSelector,
-  type AdminTourAnchor,
-} from "@/lib/admin-tutorials/selectors";
-import {
-  adminTourStepNeedsCustomNext,
-  openNewCohortModalForTutorial,
-  prepareAdminTourBeforeNext,
-} from "@/lib/admin-tutorials/client/prepareAdminTourStep";
 import {
   bindTourLayoutSync,
   waitForLayoutSettle,
 } from "@/lib/admin-tutorials/client/tourLayoutSync";
-import { applyCreateUserRole } from "@/lib/admin-tutorials/client/applyCreateUserRole";
 import { setAdminTourSessionActive } from "@/lib/admin-tutorials/client/adminTourSession";
 import {
   isBranchOrHandoffOutcome,
   renderAdminTourBranchFooter,
 } from "@/lib/admin-tutorials/client/runDriverTourBranchFooter";
+import { buildDriverTourSteps } from "@/lib/admin-tutorials/client/buildDriverTourSteps";
 import type {
   RunDriverTourOptions,
   RunDriverTourResult,
@@ -37,12 +27,6 @@ export function destroyActiveAdminTour(): void {
   activeDestroy = null;
 }
 
-function resolveAnchorElement(anchor: AdminTourAnchor): Element {
-  const el = document.querySelector(adminTourSelector(anchor));
-  if (!el) return document.body;
-  return el;
-}
-
 /** Runs a Driver.js tour. Dynamically imports the library. Resolves when destroyed. */
 export async function runDriverTour(options: RunDriverTourOptions): Promise<RunDriverTourResult> {
   destroyActiveAdminTour();
@@ -58,98 +42,16 @@ export async function runDriverTour(options: RunDriverTourOptions): Promise<RunD
     hasNextStep: () => boolean;
   } | null = null;
 
-  const driveSteps = options.steps.map((step, index) => {
-    const needsCustomNext = adminTourStepNeedsCustomNext(step);
-    const isBranch =
-      Boolean(step.existingCohortBranch) || Boolean(step.studentBirthPathBranch);
-    return {
-      element: step.anchor
-        ? () => resolveAnchorElement(step.anchor as AdminTourAnchor)
-        : undefined,
-      popover: {
-        title: step.title,
-        description: step.description,
-        side: "bottom" as const,
-        align: "start" as const,
-        ...(isBranch
-          ? {
-              popoverClass: "ge-admin-tour-popover ge-admin-tour-popover-branch",
-              showButtons: ["previous", "close"] as Array<"previous" | "close">,
-              onNextClick: () => {
-                /* branch step uses custom footer buttons */
-              },
-            }
-          : {}),
-        ...(step.handoffCreateSectionTour
-          ? {
-              popoverClass: "ge-admin-tour-popover ge-admin-tour-popover-branch",
-              showButtons: ["close"] as Array<"close">,
-              onNextClick: () => {
-                /* handoff step uses custom footer buttons */
-              },
-            }
-          : {}),
-        ...(needsCustomNext
-          ? {
-              onNextClick: (
-                _element: Element | undefined,
-                _s: unknown,
-                opts: {
-                  driver: {
-                    moveNext: () => void;
-                    refresh: () => void;
-                    destroy: () => void;
-                    isLastStep: () => boolean;
-                    moveTo: (i: number) => void;
-                  };
-                },
-              ) => {
-                void (async () => {
-                  const prep = await prepareAdminTourBeforeNext(
-                    step,
-                    options.hooks,
-                    () => refreshTour?.(),
-                  );
-                  if (prep === "abort") {
-                    opts.driver.destroy();
-                    return;
-                  }
-                  if (prep === "go-existing-cohort-branch") {
-                    opts.driver.moveNext();
-                    await waitForLayoutSettle(80);
-                    refreshTour?.();
-                    return;
-                  }
-                  if (prep === "end-pre-modal" || prep === "complete-phase") {
-                    outcome = "completed";
-                    opts.driver.destroy();
-                    return;
-                  }
-                  if (opts.driver.isLastStep()) {
-                    opts.driver.destroy();
-                    return;
-                  }
-                  opts.driver.moveTo(index + 1);
-                  await waitForLayoutSettle(80);
-                  refreshTour?.();
-                  await waitForLayoutSettle(160);
-                  refreshTour?.();
-                })();
-              },
-            }
-          : {}),
-      },
-      onHighlighted: () => {
-        void layoutSync?.alignToActiveElement();
-        if (step.openNewCohortModal) {
-          void openNewCohortModalForTutorial().then(() => refreshTour?.());
-        }
-        if (step.setCreateUserRole) {
-          applyCreateUserRole(step.setCreateUserRole);
-          refreshTour?.();
-        }
-      },
-    };
+  const driveSteps = buildDriverTourSteps({
+    steps: options.steps,
+    hooks: options.hooks,
+    refreshTour: () => refreshTour?.(),
+    setOutcome: (next) => {
+      outcome = next;
+    },
+    alignLayout: () => {
+      void layoutSync?.alignToActiveElement();
+    },
   });
 
   return new Promise<RunDriverTourResult>((resolve) => {

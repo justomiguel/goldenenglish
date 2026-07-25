@@ -3,6 +3,7 @@ import type { ParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePilla
 import type { Dictionary } from "@/types/i18n";
 import { ParentChildSwitcher } from "@/components/parent/ParentChildSwitcher";
 import { ParentHomeStatusGrid } from "@/components/parent/ParentHomeStatusGrid";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 export interface ParentHomeInboxProps {
   locale: string;
@@ -36,7 +37,7 @@ export function ParentHomeInbox({
 
   return (
     <div className="space-y-5">
-      <header>
+      <header data-tour={PARENT_TOUR_ANCHORS.homeTitle}>
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-secondary)]">
           {labels.kicker}
         </p>
@@ -46,21 +47,25 @@ export function ParentHomeInbox({
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{fullDateLine}</p>
       </header>
 
-      <ParentChildSwitcher
-        locale={locale}
-        summaries={summaries}
-        selectedStudentId={selected?.studentId}
-        ariaLabel={labels.selectChild}
-        dashboardBase={dashboardBase}
-      />
+      <div data-tour={PARENT_TOUR_ANCHORS.homeChildSwitcher}>
+        <ParentChildSwitcher
+          locale={locale}
+          summaries={summaries}
+          selectedStudentId={selected?.studentId}
+          ariaLabel={labels.selectChild}
+          dashboardBase={dashboardBase}
+        />
+      </div>
 
-      <ParentHomeStatusGrid
-        locale={locale}
-        pillars={pillars}
-        labels={inbox}
-        dashboardBase={dashboardBase}
-        includePayments={includePayments}
-      />
+      <div data-tour={PARENT_TOUR_ANCHORS.homeStatusPillars}>
+        <ParentHomeStatusGrid
+          locale={locale}
+          pillars={pillars}
+          labels={inbox}
+          dashboardBase={dashboardBase}
+          includePayments={includePayments}
+        />
+      </div>
     </div>
   );
 }

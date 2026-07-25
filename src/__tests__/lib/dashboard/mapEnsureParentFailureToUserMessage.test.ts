@@ -7,6 +7,12 @@ import { mapEnsureParentFailureToUserMessage } from "@/lib/dashboard/mapEnsurePa
 describe("mapEnsureParentFailureToUserMessage", () => {
   const U = dictEn.admin.users;
 
+  it("maps tutor_mail_tenant_missing to register mailTenantMissing copy", () => {
+    expect(mapEnsureParentFailureToUserMessage(dictEn, "tutor_mail_tenant_missing")).toBe(
+      dictEn.actionErrors.register.mailTenantMissing,
+    );
+  });
+
   it("maps tutor auth issue codes through guardian-scoped invite copy", () => {
     expect(mapEnsureParentFailureToUserMessage(dictEn, "tutor_auth_invalid_email")).toBe(
       U.inviteAuthGuardianInvalidEmail,

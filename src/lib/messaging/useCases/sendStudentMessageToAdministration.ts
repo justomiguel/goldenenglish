@@ -64,6 +64,7 @@ export async function sendStudentMessageToAdministrationUseCase(input: {
           locale: input.locale,
           emailProvider: input.emailProvider,
           recipientRole: "admin",
+          source: "student_admin",
         });
       } catch (emailErr) {
         logServerException("sendStudentMessageToAdministration:notifyAdmin", emailErr, {

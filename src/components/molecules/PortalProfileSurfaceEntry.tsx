@@ -8,6 +8,7 @@ import {
 } from "@/components/molecules/ProfileAvatarPanel";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 function PortalProfileSkeleton() {
   return (
@@ -38,7 +39,7 @@ export function PortalProfileSurfaceEntry({
   fileUploadProgress,
 }: PortalProfileSurfaceEntryProps) {
   const panel = (
-    <>
+    <div data-tour={PARENT_TOUR_ANCHORS.profileForm}>
       <h1 className="mb-2 font-display text-3xl font-bold text-[var(--color-secondary)]">{title}</h1>
       <p className="mb-8 text-[var(--color-muted-foreground)]">{lead}</p>
       <ProfileAvatarPanel
@@ -48,7 +49,7 @@ export function PortalProfileSurfaceEntry({
         labels={labels}
         fileUploadProgress={fileUploadProgress}
       />
-    </>
+    </div>
   );
 
   return (

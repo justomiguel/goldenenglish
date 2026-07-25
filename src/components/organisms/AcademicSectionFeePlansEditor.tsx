@@ -24,6 +24,7 @@ export interface AcademicSectionFeePlansEditorProps {
   /** System-wide billing currency from Finance > Settings. */
   systemCurrency: string;
   dict: FeePlansDict;
+  embedded?: boolean;
 }
 
 const valuesFromPlan = (p: SectionFeePlan, systemCurrency: string): SectionFeePlanFormValues => ({
@@ -56,9 +57,14 @@ export function AcademicSectionFeePlansEditor({
   initialPlans,
   systemCurrency,
   dict,
+  embedded = false,
 }: AcademicSectionFeePlansEditorProps) {
   const editor = useSectionFeePlansEditor({ locale, sectionId, initialPlans, dict });
   const [creating, setCreating] = useState<SectionFeePlanFormValues | null>(null);
+  const Heading = embedded ? "h3" : "h2";
+  const shell = embedded
+    ? "space-y-1"
+    : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4";
 
   const startEdit = (plan: SectionFeePlanWithUsage) => {
     editor.setEditingId(plan.id);
@@ -89,8 +95,16 @@ export function AcademicSectionFeePlansEditor({
   };
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
+    <section className={shell}>
+      <Heading
+        className={
+          embedded
+            ? "text-sm font-semibold text-[var(--color-foreground)]"
+            : "text-base font-semibold text-[var(--color-primary)]"
+        }
+      >
+        {dict.title}
+      </Heading>
       <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{dict.lead}</p>
 
       {editor.visiblePlans.length === 0 && !creating ? (

@@ -1,6 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { loadAdminSectionTeachersAndAssistants } from "@/lib/academics/loadAdminSectionTeachersAndAssistants";
+
+vi.mock("@/lib/academics/enrichSectionStaffAssignedPeople", () => ({
+  enrichSectionStaffAssignedPeople: vi.fn(async () => []),
+}));
 
 type ProfileRow = { id: string; first_name: string; last_name: string };
 

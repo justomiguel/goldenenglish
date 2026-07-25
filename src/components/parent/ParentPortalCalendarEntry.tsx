@@ -10,6 +10,7 @@ import type { AppSurface } from "@/hooks/useAppSurface";
 import { ParentAttendancePwaScreen } from "@/components/pwa/organisms/ParentAttendancePwaScreen";
 import type { ParentWardOption } from "@/components/parent/ParentWardPicker";
 import type { ParentHubModel } from "@/types/parentHub";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 type PortalCalDict = Dictionary["dashboard"]["portalCalendar"];
 
@@ -56,20 +57,25 @@ export function ParentPortalCalendarEntry({
   );
 
   const attendanceBody = (
-    <ParentAttendancePwaScreen
-      locale={locale}
-      model={attendance}
-      labels={attendanceLabels}
-      wardOptions={wardOptions}
-      selectedStudentId={selectedStudentId}
-      wardPickerLabel={resolvedWardPickerLabel}
-      wardPickerHint={resolvedWardPickerHint}
-      portalCalendarDict={dict}
-      scheduleDict={scheduleDict}
-      events={events}
-      feedUrl={feedUrl}
-      viewerId={viewerId}
-    />
+    <div data-tour={PARENT_TOUR_ANCHORS.calendarBoard}>
+      <div data-tour={PARENT_TOUR_ANCHORS.calendarTitle} className="sr-only">
+        {dict.title}
+      </div>
+      <ParentAttendancePwaScreen
+        locale={locale}
+        model={attendance}
+        labels={attendanceLabels}
+        wardOptions={wardOptions}
+        selectedStudentId={selectedStudentId}
+        wardPickerLabel={resolvedWardPickerLabel}
+        wardPickerHint={resolvedWardPickerHint}
+        portalCalendarDict={dict}
+        scheduleDict={scheduleDict}
+        events={events}
+        feedUrl={feedUrl}
+        viewerId={viewerId}
+      />
+    </div>
   );
 
   return (

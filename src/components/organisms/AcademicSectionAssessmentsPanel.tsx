@@ -1,6 +1,8 @@
-import { ClipboardCheck } from "lucide-react";
+import { BookOpen, ClipboardCheck } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminSectionAssessmentsPanelData } from "@/types/adminSectionAssessments";
+import { AcademicSectionAreaBlock } from "@/components/molecules/AcademicSectionAreaBlock";
+import { AcademicSectionAreaSummaryBand } from "@/components/molecules/AcademicSectionAreaSummaryBand";
 import { CohortAssessmentRowActions } from "@/components/molecules/CohortAssessmentRowActions";
 
 type PanelDict = Dictionary["dashboard"]["academicSectionPage"]["assessmentsPanel"];
@@ -46,15 +48,36 @@ export function AcademicSectionAssessmentsPanel({
   const dateFmt = new Intl.DateTimeFormat(locale === "es" ? "es" : "en", { dateStyle: "medium" });
   const nActive = data.activeEnrollmentCount;
   const rubricReturnTo = `/${locale}/dashboard/admin/academic/${cohortId}/${sectionId}?tab=evaluations`;
+
   return (
     <div className="space-y-8">
-      <section className="space-y-2" aria-labelledby="section-assessments-learning">
-        <div>
-          <h2 id="section-assessments-learning" className="text-base font-semibold text-[var(--color-foreground)]">
-            {d.titleLearning}
-          </h2>
-          <p className="text-sm text-[var(--color-muted-foreground)]">{d.leadLearning}</p>
+      <AcademicSectionAreaSummaryBand ariaLabel={d.summaryTitle}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
+              {d.summaryLearningLabel}
+            </p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-[var(--color-foreground)]">
+              {data.learning.length}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
+              {d.summaryCohortLabel}
+            </p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-[var(--color-foreground)]">
+              {data.cohort.length}
+            </p>
+          </div>
         </div>
+      </AcademicSectionAreaSummaryBand>
+
+      <AcademicSectionAreaBlock
+        id="section-assessments-learning"
+        title={d.titleLearning}
+        lead={d.leadLearning}
+        icon={BookOpen}
+      >
         {data.learning.length ? (
           <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
             <table className="w-full min-w-[52rem] text-left text-sm">
@@ -117,15 +140,14 @@ export function AcademicSectionAssessmentsPanel({
         ) : (
           <p className="text-sm text-[var(--color-muted-foreground)]">{d.emptyLearning}</p>
         )}
-      </section>
+      </AcademicSectionAreaBlock>
 
-      <section className="space-y-2" aria-labelledby="section-assessments-cohort">
-        <div>
-          <h2 id="section-assessments-cohort" className="text-base font-semibold text-[var(--color-foreground)]">
-            {d.titleCohort}
-          </h2>
-          <p className="text-sm text-[var(--color-muted-foreground)]">{d.leadCohort}</p>
-        </div>
+      <AcademicSectionAreaBlock
+        id="section-assessments-cohort"
+        title={d.titleCohort}
+        lead={d.leadCohort}
+        icon={ClipboardCheck}
+      >
         {data.cohort.length ? (
           <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
             <table className="w-full min-w-[40rem] text-left text-sm">
@@ -178,7 +200,7 @@ export function AcademicSectionAssessmentsPanel({
         ) : (
           <p className="text-sm text-[var(--color-muted-foreground)]">{d.emptyCohort}</p>
         )}
-      </section>
+      </AcademicSectionAreaBlock>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import type { Dictionary } from "@/types/i18n";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { BillingCurrencySelectField } from "@/components/molecules/BillingCurrencySelectField";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { SiteSetupOperationalValues } from "@/lib/site/loadSiteSetupCurrentValues";
 
 type L = Dictionary["dashboard"]["siteSetup"]["legalBilling"];
@@ -39,7 +40,7 @@ export function SiteSetupLegalBillingStep({
       </p>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="sm:col-span-2">
+        <div className="sm:col-span-2" data-tour={ADMIN_TOUR_ANCHORS.siteSetupBillingCurrency}>
           <BillingCurrencySelectField
             id="site-setup-billing-currency"
             value={operational.billingCurrency}

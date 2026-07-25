@@ -8,6 +8,7 @@ import { resolveBadgeTranslation, type BadgeCategory } from "@/lib/badges/badgeC
 import { studentBadgeCategory } from "@/lib/badges/badgeCategory";
 import { formatBadgeProgressDetail } from "@/lib/badges/formatBadgeProgressDetail";
 import { resolveBadgeAchievementVisual } from "@/lib/badges/resolveBadgeAchievementVisual";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 type BadgesDict = Dictionary["dashboard"]["student"]["badges"];
 type Defs = BadgesDict["definitions"];
@@ -66,9 +67,12 @@ export function ParentBadgesScreen({
   const hasCatalogRows = rows.length > 0;
 
   return (
-    <div className={embedded ? "space-y-3" : "space-y-6"}>
+    <div
+      className={embedded ? "space-y-3" : "space-y-6"}
+      data-tour={PARENT_TOUR_ANCHORS.badgesBody}
+    >
       {embedded ? null : (
-        <header className="space-y-1">
+        <header className="space-y-1" data-tour={PARENT_TOUR_ANCHORS.badgesTitle}>
           <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
             {parentLabels.badgesPageKicker}
           </p>

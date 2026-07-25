@@ -4,6 +4,7 @@ import { Save } from "lucide-react";
 import { BlogTranslateButton } from "@/components/dashboard/admin/cms/blog/BlogTranslateButton";
 import type { BlogLocale } from "@/lib/blog/domain";
 import type { Dictionary } from "@/types/i18n";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 interface BlogArticleEditorActionsBarProps {
   labels: Dictionary["admin"]["cms"]["blog"]["editor"];
@@ -33,6 +34,7 @@ export function BlogArticleEditorActionsBar({
           type="button"
           onClick={onSave}
           disabled={busy}
+          data-tour={ADMIN_TOUR_ANCHORS.blogEditorSave}
           className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-foreground)] disabled:opacity-70"
         >
           <Save aria-hidden className="h-4 w-4" />

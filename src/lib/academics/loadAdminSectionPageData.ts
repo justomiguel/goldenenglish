@@ -49,6 +49,10 @@ export interface AdminSectionPageData {
     allowAdvanceMonthlyPayment: boolean;
     minAttendancePercentOverride: number | null;
     siteDefaultMinAttendancePercent: number;
+    /** When true, Assessments tab and evaluation pass rules apply. */
+    requiresEvaluationsToPass: boolean;
+    /** When true, Learning route tab and route/free-flow progress apply. */
+    usesLearningRoute: boolean;
   };
   cohort: {
     name: string;
@@ -72,7 +76,7 @@ export async function loadAdminSectionPageData(
   const { data: sec, error: sErr } = await supabase
     .from("academic_sections")
     .select(
-      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, min_attendance_percent, academic_cohorts(name, archived_at)",
+      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, min_attendance_percent, requires_evaluations_to_pass, uses_learning_route, academic_cohorts(name, archived_at)",
     )
     .eq("id", sectionId)
     .maybeSingle();
@@ -106,6 +110,8 @@ export async function loadAdminSectionPageData(
     monthly_fee_charge_mode?: string | null;
     allow_advance_monthly_payment?: boolean | null;
     min_attendance_percent?: number | null;
+    requires_evaluations_to_pass?: boolean | null;
+    uses_learning_route?: boolean | null;
     academic_cohorts:
       | { name: string; archived_at?: string | null }
       | { name: string; archived_at?: string | null }[]
@@ -212,6 +218,8 @@ export async function loadAdminSectionPageData(
       allowAdvanceMonthlyPayment: secRow.allow_advance_monthly_payment === true,
       minAttendancePercentOverride,
       siteDefaultMinAttendancePercent,
+      requiresEvaluationsToPass: secRow.requires_evaluations_to_pass === true,
+      usesLearningRoute: secRow.uses_learning_route === true,
     },
     cohort: {
       name: cohortName,

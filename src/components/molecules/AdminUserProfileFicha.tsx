@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CreditCard, GraduationCap, ShieldCheck, UserRound, UsersRound } from "lucide-react";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
@@ -18,7 +17,12 @@ import {
   AdminUserSecurityPanel,
   AdminUserSummaryPanel,
 } from "@/components/molecules/AdminUserProfileTabPanels";
+import { buildAdminUserProfileTabs } from "@/components/molecules/buildAdminUserProfileTabs";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import {
+  ADMIN_TOUR_ANCHORS,
+  ADMIN_TUTORIAL_ACTIVATE_SECURITY_TAB_EVENT,
+} from "@/lib/admin-tutorials/selectors";
 
 type UserLabels = Dictionary["admin"]["users"];
 type BillingLabels = Dictionary["admin"]["billing"];
@@ -42,7 +46,8 @@ export function AdminUserProfileFicha({
   fileUploadProgress,
 }: AdminUserProfileFichaProps) {
   const editable = detail.viewerMayInlineEdit;
-  const displayName = formatProfileNameSurnameFirst(detail.firstName, detail.lastName) || detail.emailDisplay;
+  const displayName =
+    formatProfileNameSurnameFirst(detail.firstName, detail.lastName) || detail.emailDisplay;
   const [toast, setToast] = useState<{ text: string; ok: boolean } | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>("summary");
 
@@ -56,6 +61,13 @@ export function AdminUserProfileFicha({
     return () => window.clearTimeout(timeout);
   }, [toast]);
 
+  useEffect(() => {
+    const onSecurity = () => setActiveTab("security");
+    window.addEventListener(ADMIN_TUTORIAL_ACTIVATE_SECURITY_TAB_EVENT, onSecurity);
+    return () =>
+      window.removeEventListener(ADMIN_TUTORIAL_ACTIVATE_SECURITY_TAB_EVENT, onSecurity);
+  }, []);
+
   const roleOptions = useMemo(
     () => [
       { value: "admin", label: labels.roleOptionAdmin },
@@ -67,50 +79,17 @@ export function AdminUserProfileFicha({
     [labels],
   );
   const roleLabel = roleOptions.find((option) => option.value === detail.role)?.label ?? detail.role;
-  const pendingPayments = billing?.payments.filter((payment) => payment.status === "pending").length ?? 0;
+  const pendingPayments =
+    billing?.payments.filter((payment) => payment.status === "pending").length ?? 0;
   const paymentsDisabled =
     detail.role === "student" && !detail.currentCohortAssignment?.current;
-  const academicNeedsAttention =
-    detail.role === "student" && paymentsDisabled;
-  const tabs = [
-    { id: "summary" as const, label: labels.detailTabSummary, icon: <UserRound className="h-4 w-4" aria-hidden /> },
-    {
-      id: "academic" as const,
-      label: labels.detailTabAcademic,
-      icon: <GraduationCap className="h-4 w-4" aria-hidden />,
-      badge: academicNeedsAttention ? "!" : null,
-    },
-    ...(detail.role === "student"
-      ? [
-          {
-            id: "payments" as const,
-            label: labels.detailTabPayments,
-            icon: <CreditCard className="h-4 w-4" aria-hidden />,
-            badge: paymentsDisabled ? "!" : pendingPayments > 0 ? pendingPayments : null,
-            disabled: paymentsDisabled,
-            title: paymentsDisabled ? labels.detailPaymentsDisabledNoSection : undefined,
-          },
-          {
-            id: "family" as const,
-            label: labels.detailTabFamily,
-            icon: <UsersRound className="h-4 w-4" aria-hidden />,
-            badge: detail.tutorLinks.length > 0 ? detail.tutorLinks.length : null,
-          },
-        ]
-      : []),
-    ...(detail.role === "parent"
-      ? [
-          {
-            id: "family" as const,
-            label: labels.detailTabFamily,
-            icon: <UsersRound className="h-4 w-4" aria-hidden />,
-            badge:
-              detail.tutorLinkedStudents.length > 0 ? detail.tutorLinkedStudents.length : null,
-          },
-        ]
-      : []),
-    { id: "security" as const, label: labels.detailTabSecurity, icon: <ShieldCheck className="h-4 w-4" aria-hidden /> },
-  ];
+  const tabs = buildAdminUserProfileTabs({
+    labels,
+    detail,
+    pendingPayments,
+    paymentsDisabled,
+    academicNeedsAttention: detail.role === "student" && paymentsDisabled,
+  });
   const visibleActiveTab =
     activeTab === "payments" && paymentsDisabled ? "academic" : activeTab;
 
@@ -203,22 +182,24 @@ export function AdminUserProfileFicha({
           role="tablist"
           aria-label={labels.detailTitle}
           className="overflow-x-auto border-b border-[var(--color-border)] bg-[var(--color-muted)]/25"
+          data-tour={ADMIN_TOUR_ANCHORS.userDetailTabs}
         >
           <div className="flex min-w-max">
-          {tabs.map((tab) => (
-            <AdminUserProfileTabButton
-              key={tab.id}
-              active={visibleActiveTab === tab.id}
-              badge={tab.badge}
-              disabled={"disabled" in tab ? tab.disabled : false}
-              icon={tab.icon}
-              onClick={() => setActiveTab(tab.id)}
-              tabId={tab.id}
-              title={"title" in tab ? tab.title : undefined}
-            >
-              {tab.label}
-            </AdminUserProfileTabButton>
-          ))}
+            {tabs.map((tab) => (
+              <AdminUserProfileTabButton
+                key={tab.id}
+                active={visibleActiveTab === tab.id}
+                badge={tab.badge}
+                disabled={tab.disabled}
+                icon={tab.icon}
+                onClick={() => setActiveTab(tab.id)}
+                tabId={tab.id}
+                title={tab.title}
+                tourId={tab.tourId}
+              >
+                {tab.label}
+              </AdminUserProfileTabButton>
+            ))}
           </div>
         </div>
         <div
@@ -226,6 +207,11 @@ export function AdminUserProfileFicha({
           role="tabpanel"
           aria-labelledby={`student-dossier-tab-${visibleActiveTab}`}
           className="bg-[var(--color-background)] p-4 sm:p-5"
+          data-tour={
+            visibleActiveTab === "security"
+              ? ADMIN_TOUR_ANCHORS.userDetailSecurityPanel
+              : ADMIN_TOUR_ANCHORS.userDetailWorkspace
+          }
         >
           {panel}
         </div>

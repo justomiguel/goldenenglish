@@ -6,6 +6,7 @@ import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortal
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
 import { loadSectionLearningRouteWorkspace } from "@/lib/learning-content/loadLearningRouteWorkspace";
 import { loadTeacherAssessmentAttempts } from "@/lib/learning-content/loadTeacherAssessmentAttempts";
+import { loadSectionFeatureFlags } from "@/lib/academics/loadSectionFeatureFlags";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import {
   TeacherSectionContentsScreen,
@@ -44,7 +45,8 @@ export default async function TeacherSectionContentsPage({ params }: PageProps) 
   const canOpen = await userIsSectionTeacherOrAssistant(supabase, user.id, sectionId);
   if (!canOpen) notFound();
 
-  const [workspace, attempts, { data: enrollments }] = await Promise.all([
+  const [featureFlags, workspace, attempts, { data: enrollments }] = await Promise.all([
+    loadSectionFeatureFlags(supabase, sectionId),
     loadSectionLearningRouteWorkspace(supabase, sectionId),
     loadTeacherAssessmentAttempts(supabase, sectionId),
     supabase
@@ -68,6 +70,12 @@ export default async function TeacherSectionContentsPage({ params }: PageProps) 
       students={students}
       attempts={attempts}
       labels={dict.dashboard.teacherContent}
+      featureFlags={
+        featureFlags ?? {
+          requiresEvaluationsToPass: false,
+          usesLearningRoute: false,
+        }
+      }
     />
   );
 }

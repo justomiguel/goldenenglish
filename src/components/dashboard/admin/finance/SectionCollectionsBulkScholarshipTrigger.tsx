@@ -1,11 +1,15 @@
 "use client";
 
 import { GraduationCap } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { runBulkSectionScholarshipAction } from "@/app/[locale]/dashboard/admin/finance/collections/[sectionId]/runBulkSectionScholarshipAction";
 import { Button } from "@/components/atoms/Button";
 import type { Dictionary, Locale } from "@/types/i18n";
+import {
+  ADMIN_TOUR_ANCHORS,
+  ADMIN_TUTORIAL_OPEN_BULK_SCHOLARSHIP_MODAL_EVENT,
+} from "@/lib/admin-tutorials/selectors";
 import { SectionBulkScholarshipModal, type BulkScholarshipScope } from "./SectionBulkScholarshipModal";
 
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
@@ -39,6 +43,13 @@ export function SectionCollectionsBulkScholarshipTrigger({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener(ADMIN_TUTORIAL_OPEN_BULK_SCHOLARSHIP_MODAL_EVENT, onOpen);
+    return () =>
+      window.removeEventListener(ADMIN_TUTORIAL_OPEN_BULK_SCHOLARSHIP_MODAL_EVENT, onOpen);
+  }, []);
 
   const handleConfirm = useCallback(
     async (params: {
@@ -82,7 +93,13 @@ export function SectionCollectionsBulkScholarshipTrigger({
 
   return (
     <>
-      <Button type="button" size="sm" variant="ghost" onClick={() => setOpen(true)}>
+      <Button
+        type="button"
+        size="sm"
+        variant="ghost"
+        data-tour={ADMIN_TOUR_ANCHORS.sectionCollectionsBulkScholarshipTrigger}
+        onClick={() => setOpen(true)}
+      >
         <GraduationCap className="h-4 w-4" aria-hidden />
         {dict.bulkScholarship.title}
       </Button>

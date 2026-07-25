@@ -14,6 +14,7 @@ import { ParentHomeNewsFeed } from "@/components/pwa/molecules/ParentHomeNewsFee
 import { PushPermissionBanner } from "@/components/molecules/PushPermissionBanner";
 import type { ParentHomeNewsItem } from "@/lib/parent/loadParentHomeNewsFeed";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 export interface ParentHomePwaFocusProps {
   locale: string;
@@ -80,7 +81,7 @@ export function ParentHomePwaFocus({
 
   return (
     <div className="space-y-5">
-      <header>
+      <header data-tour={PARENT_TOUR_ANCHORS.homeTitle}>
         <h1 className="font-display text-xl font-bold text-[var(--color-foreground)]">{headline}</h1>
         {multipleChildren ? (
           <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{inbox.pwaFamilyContext}</p>
@@ -96,28 +97,34 @@ export function ParentHomePwaFocus({
         storageKey="ge_push_prompt_dismissed_parent"
       />
 
-      {multipleChildren ? null : (
-        <ParentChildSwitcher
+      <div data-tour={PARENT_TOUR_ANCHORS.homeChildSwitcher}>
+        {multipleChildren ? null : (
+          <ParentChildSwitcher
+            locale={locale}
+            summaries={summaries}
+            selectedStudentId={selected?.studentId}
+            ariaLabel={labels.selectChild}
+            dashboardBase={dashboardBase}
+          />
+        )}
+      </div>
+
+      <div data-tour={PARENT_TOUR_ANCHORS.homeStatusPillars}>
+        <ParentHomeStatusGrid
           locale={locale}
-          summaries={summaries}
-          selectedStudentId={selected?.studentId}
-          ariaLabel={labels.selectChild}
+          pillars={pillars}
+          labels={inbox}
+          variant="pwa"
+          attendanceChildRows={attendanceChildRows}
+          paymentChildRows={paymentChildRows}
           dashboardBase={dashboardBase}
+          includePayments={includePayments}
         />
-      )}
+      </div>
 
-      <ParentHomeStatusGrid
-        locale={locale}
-        pillars={pillars}
-        labels={inbox}
-        variant="pwa"
-        attendanceChildRows={attendanceChildRows}
-        paymentChildRows={paymentChildRows}
-        dashboardBase={dashboardBase}
-        includePayments={includePayments}
-      />
-
-      <ParentHomeNewsFeed locale={locale} items={newsItems} labels={inbox.newsFeed} />
+      <div data-tour={PARENT_TOUR_ANCHORS.homeInbox}>
+        <ParentHomeNewsFeed locale={locale} items={newsItems} labels={inbox.newsFeed} />
+      </div>
     </div>
   );
 }

@@ -15,6 +15,7 @@ import {
 } from "@/lib/academics/teacherSectionAttendanceCalendar";
 import { loadAdminSectionAttendanceMatrix } from "@/lib/academics/loadAdminSectionAttendanceMatrix";
 import { SectionAttendanceMatrix } from "@/components/organisms/SectionAttendanceMatrix";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 interface PageProps {
   params: Promise<{ locale: string; cohortId: string; sectionId: string }>;
@@ -84,11 +85,17 @@ export default async function AdminSectionAttendanceMatrixPage({ params }: PageP
         >
           {dAdmin.backSection}
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-[var(--color-foreground)]">{dAdmin.title}</h1>
+        <h1
+          className="mt-2 text-2xl font-semibold text-[var(--color-foreground)]"
+          data-tour={ADMIN_TOUR_ANCHORS.sectionAttendanceTitle}
+        >
+          {dAdmin.title}
+        </h1>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{sec.name as string}</p>
         <p className="mt-2 max-w-3xl text-sm text-[var(--color-muted-foreground)]">{dAdmin.lead}</p>
       </div>
 
+      <div data-tour={ADMIN_TOUR_ANCHORS.sectionAttendanceRoot} className="space-y-2">
       {!dateWindowOk ? (
         <>
           {scheduleLine ? (
@@ -136,6 +143,7 @@ export default async function AdminSectionAttendanceMatrixPage({ params }: PageP
           ) : null}
         </>
       )}
+      </div>
     </div>
   );
 }

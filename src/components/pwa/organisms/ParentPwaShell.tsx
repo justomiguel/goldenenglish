@@ -7,8 +7,8 @@ import { User } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
-import { PwaInstallPrompt } from "@/components/molecules/PwaInstallPrompt";
 import { ParentPwaTabBar } from "@/components/pwa/molecules/ParentPwaTabBar";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 interface ParentPwaShellProps {
   locale: string;
@@ -42,6 +42,7 @@ export function ParentPwaShell({
   return (
     <div className="flex min-h-dvh flex-col bg-[var(--color-muted)]">
       <header
+        data-tour={PARENT_TOUR_ANCHORS.chromeHeader}
         className="sticky top-0 z-40 border-b border-[var(--color-border)] bg-[var(--color-surface)]/95 backdrop-blur-md"
         style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top, 0px))" }}
         aria-label={chrome.ariaHeader}
@@ -71,6 +72,7 @@ export function ParentPwaShell({
               href={profileHref}
               aria-label={nav.myProfile}
               title={nav.tipMyProfile}
+              data-tour={PARENT_TOUR_ANCHORS.chromeProfile}
               className={headerActionClass}
             >
               <User className="h-5 w-5" aria-hidden />
@@ -80,6 +82,7 @@ export function ParentPwaShell({
               label={dict.nav.logout}
               title={chrome.signOutHint}
               iconOnly
+              tourAnchor={PARENT_TOUR_ANCHORS.chromeSignOut}
               className={headerActionClass}
             />
           </div>
@@ -90,9 +93,6 @@ export function ParentPwaShell({
         className="mx-auto w-full max-w-[var(--layout-max-width)] flex-1 px-4 py-4"
         style={{ paddingBottom: "calc(4.5rem + max(0.5rem, env(safe-area-inset-bottom, 0px)))" }}
       >
-        <div className="mb-4">
-          <PwaInstallPrompt copy={dict.pwa.install} />
-        </div>
         {children}
       </main>
 

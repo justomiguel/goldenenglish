@@ -65,7 +65,9 @@ export function AcademicEnrollPanel({ locale, dict, sections }: AcademicEnrollPa
     capacityOverride,
     errors: errors as unknown as Record<string, string>,
     copy,
-    onEnrollSuccess: () => router.refresh(),
+    onEnrollSuccess: () => {
+      router.refresh();
+    },
   });
 
   const sectionLabel = sections.find((s) => s.id === sectionId)?.label ?? "";

@@ -101,11 +101,13 @@ export function AdminCreateUserMinorGuardianPanel({
             id={guardianSearchId}
             labelText={labels.createUserGuardianSearchLabel}
             placeholder={labels.createUserGuardianSearchPlaceholder}
+            inputTitle={labels.createUserGuardianSearchTooltip}
             minCharsHint={labels.createUserGuardianSearchMinChars}
+            prefetchWhenEmptyOnFocus
             search={searchParents}
             onPick={onPickGuardian}
             resetKey={guardianSearchKey}
-            excludeIds={[]}
+            resultsListHeading={labels.createUserGuardianSearchResultsHeading}
           />
           {pickedGuardian ? (
             <p className="text-sm text-[var(--color-muted-foreground)]">

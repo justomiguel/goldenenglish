@@ -112,13 +112,12 @@ export function BlogAdminListShell({
 
       {errorMsg ? <p className="text-sm text-[var(--color-error)]">{errorMsg}</p> : null}
 
-      {rows.length === 0 ? (
-        <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] p-6 text-sm text-[var(--color-muted-foreground)]">
-          {labels.empty}
-        </p>
-      ) : null}
-
       <div className="grid gap-3" data-tour={ADMIN_TOUR_ANCHORS.blogArticleList}>
+        {rows.length === 0 ? (
+          <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] p-6 text-sm text-[var(--color-muted-foreground)]">
+            {labels.empty}
+          </p>
+        ) : null}
         {rows.map((row) => (
           <article
             key={row.id}
