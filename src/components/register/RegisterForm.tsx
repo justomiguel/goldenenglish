@@ -62,20 +62,23 @@ export function RegisterForm({
       tutor_phone: String(fd.get("tutor_phone") ?? ""),
       tutor_relationship: String(fd.get("tutor_relationship") ?? ""),
     };
-    const res = await submitPublicRegistration(locale, raw);
-    setBusy(false);
-    if (res.ok) {
-      formRef.current?.reset();
-      setBirthDate("");
-      setSuccessOpen(true);
-      return;
-    }
-    if (res.message === dict.closed) {
-      setMsgTone("muted");
-      setMsg(dict.closed);
-    } else {
-      setMsgTone("error");
-      setMsg(res.message?.trim() || dict.error);
+    try {
+      const res = await submitPublicRegistration(locale, raw);
+      if (res.ok) {
+        formRef.current?.reset();
+        setBirthDate("");
+        setSuccessOpen(true);
+        return;
+      }
+      if (res.message === dict.closed) {
+        setMsgTone("muted");
+        setMsg(dict.closed);
+      } else {
+        setMsgTone("error");
+        setMsg(res.message?.trim() || dict.error);
+      }
+    } finally {
+      setBusy(false);
     }
   }
 

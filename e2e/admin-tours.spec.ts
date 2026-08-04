@@ -7,6 +7,7 @@ import {
   e2eRequireFailureMessage,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -47,9 +48,10 @@ test.describe("@admin-tours (isolated stack)", () => {
         `${check.id} needs E2E_COHORT_ID / E2E_SECTION_ID / E2E_STUDENT_ID / E2E_EVENT_ID / E2E_RECEIPT_ID on the isolated seed`,
       );
 
-      await page.goto(path!);
+      test.setTimeout(120_000);
+      await gotoIsolated(page, path!);
       const first = page.locator(adminTourSelector(check.anchors[0]!)).first();
-      // Cold webpack compile on the first route can abort once; one reload recovers.
+      // Cold webpack compile can leave the first paint empty; one reload recovers.
       if (!(await first.isVisible().catch(() => false))) {
         await page.reload({ waitUntil: "domcontentloaded" });
       }
@@ -57,7 +59,7 @@ test.describe("@admin-tours (isolated stack)", () => {
         await expect(
           page.locator(adminTourSelector(anchor)).first(),
           `${check.id} missing [data-tour="${anchor}"] on ${path}`,
-        ).toBeVisible({ timeout: 15_000 });
+        ).toBeVisible({ timeout: 20_000 });
       }
     });
   }

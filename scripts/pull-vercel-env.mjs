@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Pull env desde Vercel (golden | mozarthitos | espaciozenit | nago): .vercel/project.json temporal.
+ * Pull env desde Vercel (ver `OUT_FILES`): .vercel/project.json temporal.
  * Sensitive en Production/Preview no es legible por CLI → KEY="".
  * https://vercel.com/docs/environment-variables/sensitive-environment-variables
  */
@@ -22,6 +22,7 @@ const OUT_FILES = {
   espaciozenit: path.join(ROOT, ".env.local.espaciozenit"),
   nago: path.join(ROOT, ".env.local.nago"),
   mimundo: path.join(ROOT, ".env.local.mimundo"),
+  liora: path.join(ROOT, ".env.local.liora"),
 };
 
 const VERCEL_DIR = path.join(ROOT, ".vercel");
@@ -120,7 +121,7 @@ function temporaryProjectLink(orgId, projectId, projectName) {
 }
 
 function usage() {
-  console.error(`pull-vercel-env: golden|mozarthitos|espaciozenit|nago|mimundo [--production|--preview|--development] [-y]
+  console.error(`pull-vercel-env: ${Object.keys(OUT_FILES).join("|")} [--production|--preview|--development] [-y]
 Sensitive en Prod/Preview → CLI deja ""; usar Development sin Sensitive o pegar desde dashboard.
 `);
 }

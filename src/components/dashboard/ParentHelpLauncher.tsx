@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CircleHelp } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { AdminHelpChatPanel } from "@/components/dashboard/AdminHelpChatPanel";
@@ -36,6 +36,10 @@ export function ParentHelpLauncher({
 }: ParentHelpLauncherProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const locationKey = searchParams.toString()
+    ? `${pathname}?${searchParams.toString()}`
+    : pathname;
   const surface = useAppSurface();
   const tourSurface = appSurfaceToParentTourSurface(surface);
   const alwaysVisible = surface !== "web-desktop";
@@ -48,7 +52,7 @@ export function ParentHelpLauncher({
   const [busyId, setBusyId] = useState<ParentTutorialId | null>(null);
   const [explainBusy, setExplainBusy] = useState(false);
 
-  const screenMatch = resolveParentScreenTour(pathname, locale);
+  const screenMatch = resolveParentScreenTour(locationKey, locale);
   const screenMeta = screenMatch
     ? screenToursDict[screenMatch.metaKey]?.meta
     : null;
@@ -89,7 +93,7 @@ export function ParentHelpLauncher({
       void startParentTutorial({
         id,
         locale,
-        pathname,
+        pathname: locationKey,
         surface: tourSurface,
         toursDict,
         push: (href) => router.push(href),
@@ -98,7 +102,7 @@ export function ParentHelpLauncher({
         setBusyId(null);
       });
     },
-    [locale, pathname, toursDict, router, handleOpenChange, tourSurface, defaultStudentId],
+    [locale, locationKey, toursDict, router, handleOpenChange, tourSurface, defaultStudentId],
   );
 
   const startExplain = useCallback(() => {
@@ -106,13 +110,13 @@ export function ParentHelpLauncher({
     setExplainBusy(true);
     void startExplainParentScreenTour({
       locale,
-      pathname,
+      pathname: locationKey,
       surface: tourSurface,
       screenToursDict,
     }).finally(() => {
       setExplainBusy(false);
     });
-  }, [locale, pathname, screenToursDict, handleOpenChange, tourSurface]);
+  }, [locale, locationKey, screenToursDict, handleOpenChange, tourSurface]);
 
   const fabPosition = alwaysVisible
     ? "pointer-events-none fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] right-4 z-40 flex flex-col items-end"

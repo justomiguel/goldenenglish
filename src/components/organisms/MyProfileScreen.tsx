@@ -16,6 +16,7 @@ import {
   type TutorFinancialAccessRow,
 } from "@/components/molecules/TutorFinancialAccessSection";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 export interface MyProfileScreenProps {
   locale: string;
@@ -87,13 +88,15 @@ export function MyProfileScreen({
   );
 
   return (
-    <div className="mx-auto w-full max-w-3xl md:max-w-[48rem]">
-      <div className="overflow-hidden rounded-xl border border-[color-mix(in_srgb,var(--color-accent)_24%,var(--color-border))] bg-[var(--color-surface)] shadow-[var(--shadow-card)] ring-1 ring-[color-mix(in_srgb,var(--color-accent)_22%,transparent)]">
-        <div
-          data-tour={ADMIN_TOUR_ANCHORS.profileHeader}
-          className="dashboard-profile-cover h-28 sm:h-32 md:h-36"
-          aria-hidden
-        />
+    <div
+      className="mx-auto w-full max-w-3xl md:max-w-[48rem]"
+      data-tour={PARENT_TOUR_ANCHORS.profileForm}
+    >
+      <div
+        data-tour={ADMIN_TOUR_ANCHORS.profileHeader}
+        className="overflow-hidden rounded-xl border border-[color-mix(in_srgb,var(--color-accent)_24%,var(--color-border))] bg-[var(--color-surface)] shadow-[var(--shadow-card)] ring-1 ring-[color-mix(in_srgb,var(--color-accent)_22%,transparent)]"
+      >
+        <div className="dashboard-profile-cover h-28 sm:h-32 md:h-36" aria-hidden />
 
         <div className="relative px-4 pb-8 pt-0 sm:px-8">
           <div data-tour={ADMIN_TOUR_ANCHORS.profileAvatar} className="-mt-[4.75rem] inline-block sm:-mt-20">

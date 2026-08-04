@@ -17,6 +17,7 @@ import { RegisterEspacioZenitSurface } from "@/components/organisms/RegisterEspa
 import { RegisterMiMundoSurface } from "@/components/organisms/RegisterMiMundoSurface";
 import { RegisterMozarthitosSurface } from "@/components/organisms/RegisterMozarthitosSurface";
 import { RegisterNagoSurface } from "@/components/organisms/RegisterNagoSurface";
+import { RegisterLioraSurface } from "@/components/organisms/RegisterLioraSurface";
 import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
 import { buildLandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
@@ -94,6 +95,10 @@ export default async function RegisterPage({ params }: PageProps) {
 
   if (templateKind === "mimundo") {
     return <RegisterMiMundoSurface {...shellProps} />;
+  }
+
+  if (templateKind === "liora") {
+    return <RegisterLioraSurface {...shellProps} />;
   }
 
   return (

@@ -83,76 +83,75 @@ export function AcademicSectionEnrollCard({
         <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
         {dict.enrollOpenButton}
       </Button>
-      {open ? (
-        <Modal
-          open={open}
-          onOpenChange={(next) => {
-            if (busy && !next) return;
-            setOpen(next);
-          }}
-          titleId="academic-section-enroll-modal-title"
-          title={dict.enrollTitle}
-          disableClose={busy}
-          dialogClassName="max-w-lg"
-        >
-          <div className="space-y-4">
-            <p className="text-sm text-[var(--color-muted-foreground)]">{dict.enrollModalLead}</p>
-            <StaffSearchComboboxWithChipQueue
-              id="academic-section-enroll-student"
-              labelText={dict.studentSearchLabel}
-              placeholder={dict.searchPlaceholder}
-              inputTitle={dict.studentSearchTooltip}
-              minCharsHint={dict.searchMin}
-              prefetchWhenEmptyOnFocus
+      {/* Keep Modal mounted (open prop only) — conditional mount races native <dialog> close in Next dev / Playwright. */}
+      <Modal
+        open={open}
+        onOpenChange={(next) => {
+          if (busy && !next) return;
+          setOpen(next);
+        }}
+        titleId="academic-section-enroll-modal-title"
+        title={dict.enrollTitle}
+        disableClose={busy}
+        dialogClassName="max-w-lg"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-[var(--color-muted-foreground)]">{dict.enrollModalLead}</p>
+          <StaffSearchComboboxWithChipQueue
+            id="academic-section-enroll-student"
+            labelText={dict.studentSearchLabel}
+            placeholder={dict.searchPlaceholder}
+            inputTitle={dict.studentSearchTooltip}
+            minCharsHint={dict.searchMin}
+            prefetchWhenEmptyOnFocus
+            disabled={busy}
+            search={searchAdminStudentsAction}
+            onPick={addPick}
+            resetKey={fieldResetKey}
+            selectedItems={queue}
+            onRemoveSelected={removeId}
+            queueLegend={dict.enrollQueueLegend}
+            queueReminder={dict.enrollQueueReminder}
+            removeChipAriaLabel={dict.removePickedStudentAria}
+            queueDisabled={busy}
+            resultsListHeading={dict.enrollSearchResultsHeading}
+          />
+          <label className="flex items-center gap-2 text-sm text-[var(--color-foreground)]">
+            <input
+              type="checkbox"
+              checked={capacityOverride}
+              onChange={(e) => setCapacityOverride(e.target.checked)}
               disabled={busy}
-              search={searchAdminStudentsAction}
-              onPick={addPick}
-              resetKey={fieldResetKey}
-              selectedItems={queue}
-              onRemoveSelected={removeId}
-              queueLegend={dict.enrollQueueLegend}
-              queueReminder={dict.enrollQueueReminder}
-              removeChipAriaLabel={dict.removePickedStudentAria}
-              queueDisabled={busy}
-              resultsListHeading={dict.enrollSearchResultsHeading}
             />
-            <label className="flex items-center gap-2 text-sm text-[var(--color-foreground)]">
-              <input
-                type="checkbox"
-                checked={capacityOverride}
-                onChange={(e) => setCapacityOverride(e.target.checked)}
-                disabled={busy}
-              />
-              {dict.capacityOverride}
-            </label>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                disabled={busy || queueLen === 0}
-                isLoading={previewPending}
-                onClick={runPreview}
-              >
-                {!previewPending ? <Eye className="h-4 w-4 shrink-0" aria-hidden /> : null}
-                {previewLabel}
-              </Button>
-              <Button
-                type="button"
-                disabled={busy || queueLen === 0}
-                isLoading={enrollPending}
-                onClick={() => runEnrollAll()}
-              >
-                {!enrollPending ? <UserPlus className="h-4 w-4 shrink-0" aria-hidden /> : null}
-                {enrollLabel}
-              </Button>
-            </div>
-            {warnParent ? (
-              <p className="text-sm font-medium text-[var(--color-error)]">{dict.parentPendingWarning}</p>
-            ) : null}
-            {msg ? <p className="text-sm text-[var(--color-foreground)]">{msg}</p> : null}
+            {dict.capacityOverride}
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={busy || queueLen === 0}
+              isLoading={previewPending}
+              onClick={runPreview}
+            >
+              {!previewPending ? <Eye className="h-4 w-4 shrink-0" aria-hidden /> : null}
+              {previewLabel}
+            </Button>
+            <Button
+              type="button"
+              disabled={busy || queueLen === 0}
+              isLoading={enrollPending}
+              onClick={() => runEnrollAll()}
+            >
+              {!enrollPending ? <UserPlus className="h-4 w-4 shrink-0" aria-hidden /> : null}
+              {enrollLabel}
+            </Button>
           </div>
-        </Modal>
-      ) : null}
+          {warnParent ? (
+            <p className="text-sm font-medium text-[var(--color-error)]">{dict.parentPendingWarning}</p>
+          ) : null}
+          {msg ? <p className="text-sm text-[var(--color-foreground)]">{msg}</p> : null}
+        </div>
+      </Modal>
       <ScheduleConflictResolutionModal
         open={modalOpen && Boolean(conflicts?.length) && queueLen === 1}
         onClose={() => setModalOpen(false)}

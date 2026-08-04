@@ -7,6 +7,7 @@ import {
   e2eRequireFailureMessage,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -36,7 +37,8 @@ test.describe("@parent-tours (isolated stack)", () => {
         `${check.id} needs E2E_STUDENT_ID on the isolated seed`,
       );
 
-      await page.goto(path!);
+      test.setTimeout(120_000);
+      await gotoIsolated(page, path!);
       const first = page.locator(parentTourSelector(check.anchors[0]!)).first();
       if (!(await first.isVisible().catch(() => false))) {
         await page.reload({ waitUntil: "domcontentloaded" });
@@ -45,7 +47,7 @@ test.describe("@parent-tours (isolated stack)", () => {
         await expect(
           page.locator(parentTourSelector(anchor)).first(),
           `${check.id} missing [data-tour="${anchor}"] on ${path}`,
-        ).toBeVisible({ timeout: 15_000 });
+        ).toBeVisible({ timeout: 20_000 });
       }
     });
   }

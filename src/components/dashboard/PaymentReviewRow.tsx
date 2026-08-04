@@ -30,16 +30,22 @@ export function PaymentReviewRow({
   const router = useRouter();
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function act(status: "approved" | "rejected") {
     setBusy(true);
-    await reviewPayment({
+    setError(null);
+    const result = await reviewPayment({
       paymentId,
       status,
       adminNotes: notes || undefined,
       locale,
     });
     setBusy(false);
+    if (!result.ok) {
+      setError(result.message ?? labels.bulkNothingProcessed);
+      return;
+    }
     router.refresh();
   }
 
@@ -106,6 +112,11 @@ export function PaymentReviewRow({
           >
             {labels.reject}
           </button>
+          {error ? (
+            <p className="text-xs text-[var(--color-error)]" role="alert">
+              {error}
+            </p>
+          ) : null}
         </div>
       </div>
     </div>

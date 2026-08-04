@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
@@ -30,7 +29,6 @@ export function AcademicNewSectionModal({
   defaultMaxStudents,
   dict,
 }: AcademicNewSectionModalProps) {
-  const router = useRouter();
   const tourActive = useAdminTourSessionActive();
   const [retainStackedAfterTour, setRetainStackedAfterTour] = useState(false);
   const [name, setName] = useState("");
@@ -102,9 +100,11 @@ export function AcademicNewSectionModal({
         return;
       }
       handleModalOpenChange(false);
-      // Navigate only — router.refresh() right after push races the soft navigation
-      // and can land on a not-found shell before the section RSC is ready.
-      router.push(`/${locale}/dashboard/admin/academic/${cohortId}/${r.id}`);
+      // Hard navigate: soft push races hub revalidation and can leave the user on the
+      // cohort page after create (create-section E2E) — same pattern as new cohort.
+      window.location.assign(
+        `/${locale}/dashboard/admin/academic/${cohortId}/${r.id}`,
+      );
     });
   };
 

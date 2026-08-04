@@ -48,12 +48,31 @@ function primaryAnchorFor(id: ParentTutorialId): string {
     case "parent-calendar-attendance":
       return parentTourSelector(PARENT_TOUR_ANCHORS.calendarTitle);
     case "parent-badges-overview":
-      return parentTourSelector(PARENT_TOUR_ANCHORS.badgesTitle);
+      return parentTourSelector(PARENT_TOUR_ANCHORS.badgesBody);
     default: {
       const _exhaustive: never = id;
       return _exhaustive;
     }
   }
+}
+
+/** True when we must router.push — compare path and required query keys (e.g. ?tab=). */
+export function parentTutorialNeedsNavigation(
+  currentHref: string,
+  target: string,
+): boolean {
+  const [curPathRaw, curQuery = ""] = currentHref.split("?", 2);
+  const [tgtPathRaw, tgtQuery = ""] = target.split("?", 2);
+  const curPath = (curPathRaw ?? "").replace(/\/$/, "") || "/";
+  const tgtPath = (tgtPathRaw ?? "").replace(/\/$/, "") || "/";
+  if (curPath !== tgtPath) return true;
+  if (!tgtQuery) return false;
+  const cur = new URLSearchParams(curQuery);
+  const tgt = new URLSearchParams(tgtQuery);
+  for (const [key, value] of tgt.entries()) {
+    if (cur.get(key) !== value) return true;
+  }
+  return false;
 }
 
 export async function startParentTutorial(
@@ -77,8 +96,7 @@ export async function startParentTutorial(
     input.defaultStudentId,
   );
   const target = parentTutorialTargetPath(input.id, input.locale, { studentId });
-  const targetPath = target.split("?")[0]!;
-  if (!input.pathname.startsWith(targetPath)) {
+  if (parentTutorialNeedsNavigation(input.pathname, target)) {
     input.push(target);
     const found = await waitForSelector(primaryAnchorFor(input.id), {
       timeoutMs: 8000,

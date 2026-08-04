@@ -48,6 +48,24 @@ describe("resolveParentScreenTour", () => {
     ).toBe("parent-billing");
   });
 
+  it("matches progress hub tabs for tasks/assessments/badges", () => {
+    expect(
+      resolveParentScreenTour(`/${locale}/dashboard/parent/progress?tab=tasks`, locale)?.id,
+    ).toBe("parent-tasks");
+    expect(
+      resolveParentScreenTour(
+        `/${locale}/dashboard/parent/progress?tab=assessments`,
+        locale,
+      )?.id,
+    ).toBe("parent-assessments");
+    expect(
+      resolveParentScreenTour(`/${locale}/dashboard/parent/progress?tab=badges`, locale)?.id,
+    ).toBe("parent-badges");
+    expect(
+      resolveParentScreenTour(`/${locale}/dashboard/parent/progress`, locale)?.id,
+    ).toBe("parent-progress");
+  });
+
   it("does not match nested payment returns or task detail", () => {
     expect(
       resolveParentScreenTour(

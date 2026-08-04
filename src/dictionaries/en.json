@@ -79,6 +79,9 @@
       },
       "mimundo": {
         "shareContext": "Reggio-inspired early childhood center in Resistencia, Chaco: love, play, and care from 45 days to 5 years old."
+      },
+      "liora": {
+        "shareContext": "Ballet for every age in Santiago: Pre Ballet, children's, youth, and adult classes across three metro-adjacent locations."
       }
     }
   },
@@ -963,8 +966,8 @@
       },
       "contact": {
         "title": "Come meet us",
-        "direccion": "French 535, Resistencia, Chaco",
-        "telefono": "+54 9 362 470-8145",
+        "direccion": "Av. Avalos 555, Resistencia, Chaco",
+        "telefono": "+54 9 362 459-1860",
         "email": "mimundojardin@gmail.com",
         "mapaAria": "View on Google Maps"
       },
@@ -973,6 +976,134 @@
         "siguenos": "Follow us"
       },
       "footerCta": "Reserve my spot"
+    },
+    "liora": {
+      "chrome": {
+        "openMenu": "Open menu",
+        "closeMenu": "Close menu",
+        "instagramAria": "Liora Studio on Instagram",
+        "whatsappAria": "Message us on WhatsApp"
+      },
+      "nav": {
+        "inicio": "Home",
+        "sobreNosotros": "About us",
+        "clases": "Classes",
+        "sedes": "Locations",
+        "horarios": "Schedule",
+        "galeria": "Gallery",
+        "eventos": "Events",
+        "contacto": "Contact"
+      },
+      "register": {
+        "shellTitle": "Book your trial class",
+        "shellLead": "Leave us your details and we'll confirm location, time and level for your first class."
+      },
+      "hero": {
+        "kicker": "Dance · Movement · Passion",
+        "title": "Ballet for every age",
+        "subtitle": "A place to learn, grow and enjoy dance in Santiago.",
+        "tagline": "Liora Studio is a ballet school with three locations in Santiago, for absolute beginners and for those coming back to dance.",
+        "ctaPrimary": "Trial class",
+        "ctaSecondary": "See schedule"
+      },
+      "sobreNosotros": {
+        "kicker": "Our studio",
+        "title": "A place to learn, grow and enjoy",
+        "bodyP1": "At Liora Studio we teach ballet with careful technique and a warm, personal approach. Every class is built around the age and level of the group, so nobody feels out of place on day one.",
+        "bodyP2": "We work on posture, coordination, musicality and expression. The goal isn't only better dancing: it's making the studio a place you want to come back to each week.",
+        "pilar1": {
+          "title": "Careful technique",
+          "body": "Age-appropriate progressions with individual corrections in every class."
+        },
+        "pilar2": {
+          "title": "Small groups",
+          "body": "Limited spots so we can follow each student's progress closely."
+        },
+        "pilar3": {
+          "title": "Annual showcases",
+          "body": "Stage moments to celebrate the process with family, without competitive pressure."
+        }
+      },
+      "clases": {
+        "kicker": "What we offer",
+        "sectionTitle": "Classes",
+        "lead": "Four levels organised by age and experience. Not sure where to start? Write to us and we'll guide you.",
+        "ageLabel": "Ages {ages}",
+        "preBallet": {
+          "title": "Pre Ballet",
+          "ages": "Ages 3 to 5",
+          "body": "A first approach to dance through play, music and motor skills, with a gentle introduction to the basic positions."
+        },
+        "infantil": {
+          "title": "Children's Ballet",
+          "ages": "Ages 6 to 9",
+          "body": "Barre and centre fundamentals, classical vocabulary and coordination, always with a playful approach."
+        },
+        "juvenil": {
+          "title": "Youth Ballet",
+          "ages": "Ages 10 to 14",
+          "body": "Deeper classical technique, strength, flexibility and longer sequences."
+        },
+        "adulto": {
+          "title": "Adult Ballet",
+          "ages": "Ages 15 and up",
+          "body": "For beginners and returning dancers. A pace that respects the body, focused on posture and enjoyment."
+        }
+      },
+      "sedes": {
+        "kicker": "Where we are",
+        "sectionTitle": "Our locations",
+        "lead": "Three locations across Santiago, all steps away from a metro station.",
+        "providencia": {
+          "name": "Providencia",
+          "metro": "Steps from Metro Parque Bustamante",
+          "body": "Our Providencia location, with Pre Ballet and Children's Ballet on Saturday afternoons."
+        },
+        "maipu": {
+          "name": "Maipú",
+          "metro": "Steps from Metro Plaza Maipú",
+          "body": "Our western location, with Adult Ballet on Saturday evenings for dancing after the week."
+        },
+        "sanMiguel": {
+          "name": "San Miguel",
+          "metro": "Steps from Metro San Miguel",
+          "body": "Our southern location, with children's and Pre Ballet classes on Saturday mornings."
+        }
+      },
+      "horarios": {
+        "kicker": "Plan your week",
+        "sectionTitle": "Schedule",
+        "lead": "Current blocks per location. Spots are confirmed at enrolment.",
+        "dayLabel": "Saturdays",
+        "note": "Looking for another day or time? Write to us and we'll share upcoming openings."
+      },
+      "galeria": {
+        "kicker": "In the studio",
+        "sectionTitle": "Gallery",
+        "verMas": "See more photos",
+        "carouselPrev": "Previous photo",
+        "carouselNext": "Next photo",
+        "carouselPosition": "Photo {current} of {total}",
+        "carouselLoading": "Loading photo",
+        "previewOpenAria": "Enlarge photo {n}"
+      },
+      "cta": {
+        "title": "Your first class is waiting",
+        "subtitle": "Tell us the age, the location that suits you and we'll arrange a trial class with no commitment.",
+        "button": "Write to us"
+      },
+      "footer": {
+        "enlacesTitle": "Links",
+        "sedesTitle": "Locations",
+        "contactoTitle": "Contact",
+        "siguenos": "Follow us",
+        "rightsLine": "All rights reserved."
+      },
+      "contact": {
+        "instagramUrl": "https://www.instagram.com/liorastudio/",
+        "whatsappUrl": "https://wa.me/56900000000"
+      },
+      "footerCta": "Ready to start dancing? Write to us and we'll arrange your trial class."
     }
   },
   "admin": {
@@ -1692,7 +1823,8 @@
               "mozarthitos": "Mozarthitos",
               "espaciozenit": "Espacio Zenit",
               "nago": "Capoeira Nago",
-              "mimundo": "Mi Mundo"
+              "mimundo": "Mi Mundo",
+              "liora": "Liora Studio"
             },
             "saveCta": "Apply style",
             "saveSuccess": "Style applied.",
@@ -7747,9 +7879,15 @@
         "title": "Section settings",
         "lead": "Period, room, capacity, and features for this section.",
         "groups": {
-          "class": { "title": "Class" },
-          "capacity": { "title": "Capacity & attendance" },
-          "features": { "title": "Features" }
+          "class": {
+            "title": "Class"
+          },
+          "capacity": {
+            "title": "Capacity & attendance"
+          },
+          "features": {
+            "title": "Features"
+          }
         }
       },
       "scheduleEditor": {

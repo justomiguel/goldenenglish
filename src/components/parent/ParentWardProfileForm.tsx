@@ -53,25 +53,28 @@ export function ParentWardProfileForm({
     setBusy(true);
     setErr(null);
     setMsg(null);
-    const res = await updateWardProfile({
-      locale,
-      studentId,
-      first_name: firstName,
-      last_name: lastName,
-      email: email.trim(),
-      phone,
-      birth_date: birth,
-      parentPassword: emailChanging ? parentPassword : undefined,
-    });
-    setBusy(false);
-    if (res.ok) {
-      setMsg(labels.wardSaved);
-      setParentPassword("");
-      trackEvent("action", "section:parent_ward_profile", { student_id: studentId });
-      router.refresh();
-      return;
+    try {
+      const res = await updateWardProfile({
+        locale,
+        studentId,
+        first_name: firstName,
+        last_name: lastName,
+        email: email.trim(),
+        phone,
+        birth_date: birth,
+        parentPassword: emailChanging ? parentPassword : undefined,
+      });
+      if (res.ok) {
+        setMsg(labels.wardSaved);
+        setParentPassword("");
+        trackEvent("action", "section:parent_ward_profile", { student_id: studentId });
+        router.refresh();
+        return;
+      }
+      setErr(res.message ?? labels.wardError);
+    } finally {
+      setBusy(false);
     }
-    setErr(res.message ?? labels.wardError);
   }
 
   const base = `/${locale}/dashboard/parent`;

@@ -5,6 +5,7 @@ import {
   e2eRequireFailureMessage,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -33,7 +34,7 @@ test.describe("@critical-parent-ward-email", () => {
       storageState: paths.parentStorageState,
     });
     const page = await parentCtx.newPage();
-    await page.goto(`/${locale}/dashboard/parent/children/${studentId}`);
+    await gotoIsolated(page, `/${locale}/dashboard/parent/children/${studentId}`);
     await expect(page.locator("#ward-em")).toBeVisible({ timeout: 20_000 });
 
     await page.locator("#ward-em").fill(newEmail);
@@ -52,11 +53,13 @@ test.describe("@critical-parent-ward-email", () => {
       }
     }
 
-    await page.getByRole("button", { name: /Guardar cambios|Save changes/i }).click();
-    // Prefer success; surface form error if step-up/validation fails.
-    const saved = page.getByText(/Guardado|Saved/i).first();
-    const formErr = page.getByText(/No se pudo|Could not|contraseña|password|inválid|invalid/i).first();
-    await expect(saved.or(formErr)).toBeVisible({ timeout: 30_000 });
+    const saveBtn = page.getByRole("button", { name: /Guardar cambios|Save changes/i });
+    await expect(saveBtn).toBeEnabled();
+    await saveBtn.click();
+    // Prefer success status; form errors use role="alert" (do not match password label copy).
+    const saved = page.getByRole("status").filter({ hasText: /Guardado|Saved/i });
+    const formErr = page.getByRole("alert");
+    await expect(saved.or(formErr)).toBeVisible({ timeout: 45_000 });
     await expect(saved).toBeVisible({ timeout: 5_000 });
     await expect(page.locator("#ward-em")).toHaveValue(newEmail);
     await parentCtx.close();

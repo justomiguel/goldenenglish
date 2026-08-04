@@ -14,6 +14,7 @@ import { PublicContactScreenClassic } from "@/components/organisms/PublicContact
 import { PublicContactScreenEspacioZenit } from "@/components/organisms/PublicContactScreenEspacioZenit";
 import { PublicContactScreenMozarthitos } from "@/components/organisms/PublicContactScreenMozarthitos";
 import { PublicContactScreenNago } from "@/components/organisms/PublicContactScreenNago";
+import { PublicContactScreenLiora } from "@/components/organisms/PublicContactScreenLiora";
 
 export const dynamic = "force-dynamic";
 
@@ -63,6 +64,9 @@ export default async function PublicContactPage({ params }: PageProps) {
   }
   if (templateKind === "nago") {
     return <PublicContactScreenNago locale={locale} dict={dict} brand={brand} />;
+  }
+  if (templateKind === "liora") {
+    return <PublicContactScreenLiora locale={locale} dict={dict} brand={brand} />;
   }
 
   return <PublicContactScreenClassic locale={locale} dict={dict} brand={brand} />;

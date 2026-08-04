@@ -6,6 +6,7 @@ import {
   e2eRequireFailureMessage,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -29,7 +30,7 @@ test.describe("@critical-event-payment-approve", () => {
 
     const anon = await browser.newContext();
     const page = await anon.newPage();
-    await page.goto(`/${locale}/events/e2e-paid-event/register`);
+    await gotoIsolated(page, `/${locale}/events/e2e-paid-event/register`);
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 20_000 });
     await expect(page.getByRole("heading", { name: /404/i })).toHaveCount(0);
 
@@ -64,20 +65,33 @@ test.describe("@critical-event-payment-approve", () => {
 
     const adminCtx = await browser.newContext({ storageState: paths.storageState });
     const adminPage = await adminCtx.newPage();
-    await adminPage.goto(`/${locale}/dashboard/admin/events?q=e2e-paid-event`);
+    await gotoIsolated(adminPage, `/${locale}/dashboard/admin/events?q=e2e-paid-event`);
     const manage = adminPage.getByRole("link", { name: /Gestionar|Manage/i }).first();
-    await expect(manage).toBeVisible({ timeout: 20_000 });
+    if (!(await manage.isVisible().catch(() => false))) {
+      await adminPage.reload({ waitUntil: "domcontentloaded" });
+    }
+    await expect(manage).toBeVisible({ timeout: 45_000 });
     const manageHref = await manage.getAttribute("href");
     expect(manageHref).toMatch(/\/dashboard\/admin\/events\/[0-9a-f-]{36}/i);
     const eventPath = manageHref!.split("?")[0];
-    await adminPage.goto(
+    await gotoIsolated(
+      adminPage,
       `${eventPath}?tab=payments&paymentStatus=pending&paymentsQ=${encodeURIComponent(email)}`,
     );
 
     const row = adminPage.locator("li").filter({ hasText: email }).first();
     await expect(row).toBeVisible({ timeout: 30_000 });
-    await row.getByRole("button", { name: /OK — Pagado|OK — Paid/i }).click({ timeout: 30_000 });
-    await expect(row).toBeHidden({ timeout: 45_000 });
+    await expect(row.getByText(/Pendiente|Pending/i)).toBeVisible();
+    const approveBtn = row
+      .getByRole("button", { name: /OK — Pagado|OK — Paid/i })
+      .or(row.locator(`[data-tour="admin-event-payment-approve"]`));
+    // Cold webpack: buttons paint before hydration; retry until pending clears.
+    await expect(async () => {
+      if (await row.getByText(/Pendiente|Pending/i).isVisible().catch(() => false)) {
+        await approveBtn.first().click({ timeout: 5_000 });
+      }
+      await expect(row.getByText(/Pendiente|Pending/i)).toBeHidden({ timeout: 12_000 });
+    }).toPass({ timeout: 60_000 });
     await adminCtx.close();
   });
 });

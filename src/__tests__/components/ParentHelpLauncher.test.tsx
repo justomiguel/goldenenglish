@@ -12,6 +12,7 @@ const startExplain = vi.fn().mockResolvedValue(undefined);
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push, refresh: vi.fn() }),
   usePathname: () => "/es/dashboard/parent",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/hooks/useAppSurface", () => ({

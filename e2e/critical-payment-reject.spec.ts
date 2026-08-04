@@ -6,7 +6,9 @@ import {
   e2eRequireFailureMessage,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 import { clickFirstPendingMonthlyDue } from "./helpers/clickFirstPendingMonthlyDue";
+import { reviewFinanceInboxMonthlyReceipt } from "./helpers/reviewFinanceInboxMonthlyReceipt";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -36,7 +38,7 @@ test.describe("@critical-payment-reject", () => {
       storageState: paths.studentStorageState,
     });
     const studentPage = await studentCtx.newPage();
-    await studentPage.goto(`/${locale}/dashboard/student/payments`);
+    await gotoIsolated(studentPage, `/${locale}/dashboard/student/payments`);
     await expect(studentPage.getByRole("heading").first()).toBeVisible({
       timeout: 20_000,
     });
@@ -54,22 +56,24 @@ test.describe("@critical-payment-reject", () => {
 
     const adminCtx = await browser.newContext({ storageState: paths.storageState });
     const adminPage = await adminCtx.newPage();
-    await adminPage.goto(`/${locale}/dashboard/admin/finance?tab=inbox`);
-    const row = adminPage.locator("li").filter({ hasText: /Student\s+E2E/i }).first();
-    await expect(row).toBeVisible({ timeout: 30_000 });
-    // Dict label is "Rechazado" / "Rejected" (admin.payments.reject).
-    await row.getByRole("button", { name: /Rechazado|Rejected/i }).click();
-    await expect(row).toBeHidden({ timeout: 20_000 });
+    await gotoIsolated(adminPage, `/${locale}/dashboard/admin/finance?tab=inbox`);
+    await reviewFinanceInboxMonthlyReceipt(adminPage, "reject");
     await adminCtx.close();
 
     const verifyCtx = await browser.newContext({
       storageState: paths.studentStorageState,
     });
     const verifyPage = await verifyCtx.newPage();
-    await verifyPage.goto(`/${locale}/dashboard/student/payments`);
-    await expect(
-      verifyPage.getByRole("button", { name: /Rechazado|Rejected/i }).first(),
-    ).toBeVisible({ timeout: 30_000 });
+    await gotoIsolated(verifyPage, `/${locale}/dashboard/student/payments`);
+    // Monthly cell aria/name includes "Comprobante rechazado" (may add "— volvé a subirlo").
+    await expect(async () => {
+      await verifyPage.reload({ waitUntil: "domcontentloaded" });
+      await expect(
+        verifyPage
+          .getByRole("button", { name: /Comprobante rechazado|Receipt rejected/i })
+          .first(),
+      ).toBeVisible({ timeout: 10_000 });
+    }).toPass({ timeout: 45_000 });
     await verifyCtx.close();
   });
 });

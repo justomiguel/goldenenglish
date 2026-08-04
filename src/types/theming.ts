@@ -57,6 +57,7 @@ export const SITE_THEME_KINDS = [
   "espaciozenit",
   "nago",
   "mimundo",
+  "liora",
 ] as const;
 
 export type SiteThemeKind = (typeof SITE_THEME_KINDS)[number];

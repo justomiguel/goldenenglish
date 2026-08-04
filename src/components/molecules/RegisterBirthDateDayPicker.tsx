@@ -2,7 +2,7 @@
 
 import { Calendar, ChevronDown } from "lucide-react";
 import { enUS, es } from "react-day-picker/locale";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 
 import { Label } from "@/components/atoms/Label";
 import { clampBirthCalendarViewMonth, startOfUtcMonth } from "@/lib/register/birthCalendarViewMonth";
@@ -85,16 +85,30 @@ export function RegisterBirthDateDayPicker({
     return clampBirthCalendarViewMonth(next, earliestMonthStart, latestMonthStart);
   })();
 
-  /** When the ISO value changes (picker or parent), drop explicit month navigation. */
-  const [userNavMonth, setUserNavMonth] = useState<Date | null>(null);
-  useEffect(() => {
-    queueMicrotask(() => setUserNavMonth(null));
-  }, [value]);
-
+  /**
+   * Free month navigation while picking. Keyed by committed ISO `value` so a
+   * day pick / parent reset automatically drops nav (no effect / no mount race).
+   */
+  const [viewNav, setViewNav] = useState<{ valueKey: string; month: Date } | null>(
+    null,
+  );
   const calendarMonth =
-    userNavMonth ?? desiredCalendarMonth;
+    viewNav && viewNav.valueKey === value ? viewNav.month : desiredCalendarMonth;
+  /** Same-tick year→month picks read the pending month before React re-renders. */
+  const pendingMonthRef = useRef<Date | null>(null);
 
   const [calendarOpen, setCalendarOpen] = useState(false);
+
+  const commitViewMonth = (next: Date, openCalendar: boolean) => {
+    const clamped = clampBirthCalendarViewMonth(
+      next,
+      earliestMonthStart,
+      latestMonthStart,
+    );
+    pendingMonthRef.current = clamped;
+    setViewNav({ valueKey: value, month: clamped });
+    if (openCalendar) setCalendarOpen(true);
+  };
 
   const longBirthLabel = useMemo(
     () => new Intl.DateTimeFormat(locale, { dateStyle: "long" }),
@@ -123,23 +137,19 @@ export function RegisterBirthDateDayPicker({
     viewYear === latestMonthStart.getFullYear() ? latestMonthStart.getMonth() : 11;
 
   const onPickYear = (nextYear: number) => {
-    const mi = calendarMonth.getMonth();
+    const base = pendingMonthRef.current ?? calendarMonth;
+    const mi = base.getMonth();
     const minMi =
       nextYear === earliestMonthStart.getFullYear() ? earliestMonthStart.getMonth() : 0;
     const maxMi =
       nextYear === latestMonthStart.getFullYear() ? latestMonthStart.getMonth() : 11;
     const clampedMi = Math.min(Math.max(mi, minMi), maxMi);
-    setUserNavMonth(
-      clampBirthCalendarViewMonth(new Date(nextYear, clampedMi, 1), earliestMonthStart, latestMonthStart),
-    );
-    setCalendarOpen(true);
+    commitViewMonth(new Date(nextYear, clampedMi, 1), true);
   };
 
   const onPickMonth = (monthIdx: number) => {
-    setUserNavMonth(
-      clampBirthCalendarViewMonth(new Date(viewYear, monthIdx, 1), earliestMonthStart, latestMonthStart),
-    );
-    setCalendarOpen(true);
+    const year = (pendingMonthRef.current ?? calendarMonth).getFullYear();
+    commitViewMonth(new Date(year, monthIdx, 1), true);
   };
 
   const footer: ReactNode = selected
@@ -215,16 +225,13 @@ export function RegisterBirthDateDayPicker({
               tzLocale={tzLocale}
               weekStartsOnValue={weekStartsOn(locale)}
               calendarMonth={calendarMonth}
-              onMonthChange={(nextMonth) =>
-                setUserNavMonth(
-                  clampBirthCalendarViewMonth(nextMonth, earliestMonthStart, latestMonthStart),
-                )
-              }
+              onMonthChange={(nextMonth) => commitViewMonth(nextMonth, false)}
               oldest={oldest}
               endMonthInclusive={new Date(y, m, 1)}
               todayCutoff={todayCutoff}
               selectedNullable={selected}
               onPickDay={(day) => {
+                pendingMonthRef.current = null;
                 onChange(day ? isoYmdFromLocalDate(day) : "");
                 if (day) setCalendarOpen(false);
               }}

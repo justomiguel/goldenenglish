@@ -27,5 +27,11 @@
     "projectId": "prj_kX9pL5R36um4HzNE3nZYzIbx8sua",
     "projectName": "mimundo",
     "envPullEnvironment": "production"
+  },
+  "liora": {
+    "orgId": "team_RhplHDHqMH5tDbU3eFO9WYxg",
+    "projectId": "prj_FlweUQ3tXW4ePHEcy8eJlOeZDbCp",
+    "projectName": "liorastudio",
+    "envPullEnvironment": "production"
   }
 }

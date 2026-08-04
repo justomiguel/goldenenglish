@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * Elige entorno local (golden | mozarthitos | espaciozenit | nago), copia el archivo prefijado a `.env.local`
+ * Elige entorno local (ver `TARGETS`), copia el archivo prefijado a `.env.local`
  * y ejecuta `next dev`. Next solo lee `.env.local`; así evitamos deps extra (dotenv-cli).
  *
- * Archivos (gitignored): `.env.local.golden`, `.env.local.mozarthitos`, `.env.local.espaciozenit`, `.env.local.nago`
+ * Archivos (gitignored): `.env.local.<target>`, uno por tenant.
  * Sin TTY (CI): usa `GE_DEV_TARGET=<target>` o `--target=…`.
  */
 import { spawn } from "node:child_process";
@@ -35,9 +35,18 @@ const TARGETS = {
     label: "mimundo — preview / deploy Jardín Materno Infantil Mi Mundo",
     file: path.join(ROOT, ".env.local.mimundo"),
   },
+  liora: {
+    label: "liora — preview / deploy Liora Studio (ballet)",
+    file: path.join(ROOT, ".env.local.liora"),
+  },
 };
 /** Targets que deben pinchar `SITE_BRAND_THEME_SLUG` al slug del tenant (ver .env.example). */
-const BRAND_THEME_TARGETS = new Set(["mozarthitos", "espaciozenit", "nago"]);
+const BRAND_THEME_TARGETS = new Set([
+  "mozarthitos",
+  "espaciozenit",
+  "nago",
+  "liora",
+]);
 
 const VALID_TARGETS = Object.keys(TARGETS);
 
@@ -59,11 +68,8 @@ function parseTarget(argv, envTarget) {
   if (VALID_TARGETS.includes(fromEnv)) return fromEnv;
 
   for (const a of argv) {
-    if (a === "--golden") return "golden";
-    if (a === "--mozarthitos") return "mozarthitos";
-    if (a === "--espaciozenit") return "espaciozenit";
-    if (a === "--nago") return "nago";
-    if (a === "--mimundo") return "mimundo";
+    const asFlag = a.startsWith("--") ? a.slice(2).toLowerCase() : "";
+    if (VALID_TARGETS.includes(asFlag)) return asFlag;
     const m = /^--target=(.+)$/.exec(a);
     if (m) {
       const t = m[1].trim().toLowerCase();
@@ -78,11 +84,7 @@ function parseTarget(argv, envTarget) {
 function filterNextArgv(argv) {
   return argv.filter(
     (a) =>
-      a !== "--golden" &&
-      a !== "--mozarthitos" &&
-      a !== "--espaciozenit" &&
-      a !== "--nago" &&
-      a !== "--mimundo" &&
+      !VALID_TARGETS.includes(a.startsWith("--") ? a.slice(2).toLowerCase() : "") &&
       !/^--target=/.test(a),
   );
 }
@@ -90,22 +92,20 @@ function filterNextArgv(argv) {
 function promptTarget() {
   return new Promise((resolve) => {
     const rl = createInterface({ input: process.stdin, output: process.stdout });
+    const choices = VALID_TARGETS.join(", ");
     console.log("");
     console.log("Entorno local (.env):");
-    console.log(`  [1] ${TARGETS.golden.label}`);
-    console.log(`  [2] ${TARGETS.mozarthitos.label}`);
-    console.log(`  [3] ${TARGETS.espaciozenit.label}`);
-    console.log(`  [4] ${TARGETS.nago.label}`);
-    console.log(`  [5] ${TARGETS.mimundo.label}`);
-    rl.question("Elegí 1, 2, 3, 4 o 5 [1]: ", (answer) => {
+    VALID_TARGETS.forEach((target, i) => {
+      console.log(`  [${i + 1}] ${TARGETS[target].label}`);
+    });
+    rl.question(`Elegí 1-${VALID_TARGETS.length} [1]: `, (answer) => {
       rl.close();
       const t = String(answer || "").trim();
-      if (t === "" || t === "1") return resolve("golden");
-      if (t === "2") return resolve("mozarthitos");
-      if (t === "3") return resolve("espaciozenit");
-      if (t === "4") return resolve("nago");
-      if (t === "5") return resolve("mimundo");
-      console.error("Opción inválida (usá 1, 2, 3, 4 o 5).");
+      if (t === "") return resolve(VALID_TARGETS[0]);
+      const index = Number.parseInt(t, 10);
+      const picked = VALID_TARGETS[index - 1];
+      if (picked) return resolve(picked);
+      console.error(`Opción inválida (usá 1-${VALID_TARGETS.length}: ${choices}).`);
       process.exit(1);
     });
   });

@@ -6,7 +6,9 @@ import {
   e2eRequireFailureMessage,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 import { clickFirstPendingMonthlyDue } from "./helpers/clickFirstPendingMonthlyDue";
+import { reviewFinanceInboxMonthlyReceipt } from "./helpers/reviewFinanceInboxMonthlyReceipt";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -32,7 +34,7 @@ test.describe("@critical-parent-payments", () => {
       storageState: paths.parentStorageState,
     });
     const parentPage = await parentCtx.newPage();
-    await parentPage.goto(`/${locale}/dashboard/parent/payments`);
+    await gotoIsolated(parentPage, `/${locale}/dashboard/parent/payments`);
     await expect(parentPage.getByRole("heading").first()).toBeVisible({ timeout: 20_000 });
     await expect(
       parentPage.getByText(/Cuotas|Monthly payments|Pagar y comprobantes|Pay & receipts/i).first(),
@@ -51,22 +53,20 @@ test.describe("@critical-parent-payments", () => {
 
     const adminCtx = await browser.newContext({ storageState: paths.storageState });
     const adminPage = await adminCtx.newPage();
-    await adminPage.goto(`/${locale}/dashboard/admin/finance?tab=inbox`);
-    const row = adminPage.locator("li").filter({ hasText: /Student\s+E2E/i }).first();
-    await expect(row).toBeVisible({ timeout: 30_000 });
-    await row.getByRole("button", { name: /OK — Pagado|OK — Paid/i }).click();
-    await expect(row).toBeHidden({ timeout: 20_000 });
+    await gotoIsolated(adminPage, `/${locale}/dashboard/admin/finance?tab=inbox`);
+    await reviewFinanceInboxMonthlyReceipt(adminPage, "approve");
     await adminCtx.close();
 
     const verifyCtx = await browser.newContext({
       storageState: paths.parentStorageState,
     });
     const verifyPage = await verifyCtx.newPage();
-    await verifyPage.goto(`/${locale}/dashboard/parent/payments`);
+    await gotoIsolated(verifyPage, `/${locale}/dashboard/parent/payments`);
+    // Do not treat "Ver comprobante" alone as settled — pending review also shows it.
     await expect(
       verifyPage
-        .getByRole("link", { name: /Ver comprobante|View receipt|Open receipt/i })
-        .or(verifyPage.getByText(/ya está saldado|already settled|Pagado|Paid/i))
+        .getByRole("button", { name: /Pagado|Paid|Cobrado|Approved/i })
+        .or(verifyPage.getByText(/ya está saldado|already settled/i))
         .first(),
     ).toBeVisible({ timeout: 30_000 });
     await verifyCtx.close();

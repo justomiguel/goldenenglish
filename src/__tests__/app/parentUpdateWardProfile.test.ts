@@ -197,8 +197,10 @@ describe("updateWardProfile — email-change hardening", () => {
       expect.objectContaining({ email: "new@example.com", email_confirm: true }),
     );
 
-    // Audit row goes to system_config_audit with stable shape.
-    expect(auditInsertMock).toHaveBeenCalledTimes(1);
+    // Audit + notify run fire-and-forget after the action returns.
+    await vi.waitFor(() => {
+      expect(auditInsertMock).toHaveBeenCalledTimes(1);
+    });
     const auditRow = auditInsertMock.mock.calls[0][0];
     expect(auditRow).toMatchObject({
       actor_id: PARENT_ID,
@@ -212,7 +214,9 @@ describe("updateWardProfile — email-change hardening", () => {
       parent_email: "parent@example.com",
     });
 
-    // Notifications: at least one to old, at least one to new.
+    await vi.waitFor(() => {
+      expect(sendBrandedEmailMock.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
     const recipients = sendBrandedEmailMock.mock.calls.map((c) => c[0].to);
     expect(recipients).toEqual(expect.arrayContaining(["old@example.com", "new@example.com"]));
     for (const call of sendBrandedEmailMock.mock.calls) {

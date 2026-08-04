@@ -18,6 +18,10 @@ import {
   NAGO_LANDING_COPY_KEYS_BY_SECTION,
   NAGO_MEDIA_SLOTS_BY_SECTION,
 } from "@/lib/cms/landingNagoCatalog";
+import {
+  LIORA_LANDING_COPY_KEYS_BY_SECTION,
+  LIORA_MEDIA_SLOTS_BY_SECTION,
+} from "@/lib/cms/landingLioraCatalog";
 import type { LandingSectionSlug, SiteThemeKind } from "@/types/theming";
 
 export function landingCopyKeysForTheme(
@@ -35,6 +39,9 @@ export function landingCopyKeysForTheme(
   }
   if (kind === "mimundo") {
     return MIMUNDO_LANDING_COPY_KEYS_BY_SECTION[section];
+  }
+  if (kind === "liora") {
+    return LIORA_LANDING_COPY_KEYS_BY_SECTION[section];
   }
   return LANDING_COPY_KEYS_BY_SECTION[section];
 }
@@ -54,6 +61,9 @@ export function landingMediaSlotsForTheme(
   }
   if (kind === "mimundo") {
     return MIMUNDO_MEDIA_SLOTS_BY_SECTION[section];
+  }
+  if (kind === "liora") {
+    return LIORA_MEDIA_SLOTS_BY_SECTION[section];
   }
   return LANDING_MEDIA_SLOTS_BY_SECTION[section];
 }

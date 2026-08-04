@@ -42,6 +42,7 @@ describe("type guards", () => {
     expect(isSiteThemeKind("espaciozenit")).toBe(true);
     expect(isSiteThemeKind("nago")).toBe(true);
     expect(isSiteThemeKind("mimundo")).toBe(true);
+    expect(isSiteThemeKind("liora")).toBe(true);
     expect(isSiteThemeKind("brutalist")).toBe(false);
   });
 });

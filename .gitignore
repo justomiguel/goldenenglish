@@ -50,6 +50,7 @@ yarn-error.log*
 .env.local.espaciozenit
 .env.local.nago
 .env.local.mimundo
+.env.local.liora
 .env.local.e2e
 
 # vercel

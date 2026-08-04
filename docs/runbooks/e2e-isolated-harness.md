@@ -59,7 +59,21 @@ Isolated e2e **must not** call Resend. The Next process uses `RecordingEmailProv
 - Clear between specs: `DELETE /api/e2e/recorded-emails`.
 - ADR: `docs/adr/2026-07-12-e2e-recording-email-provider.md`.
 
-Precommit Next uses **`distDir=.next-e2e`** (`GE_DEV_TARGET=e2e`) so it does not fight tenant `dev:*` over `.next`. Warm suite budget is about **≤9–12 minutes** (cold first compile higher).
+### How the gate runs (`run-e2e-precommit.mjs`)
+
+1. **Reseeds fixtures** (`seed-admin.sql`, ~1s). Specs mutate shared fixtures and do not
+   restore them — `critical-parent-ward-email` renames `e2e-student@example.test` — so
+   without this the *second* run in a row fails in `auth.setup.ts`. Escape: `E2E_SKIP_SEED=1`.
+2. **Builds `.next-e2e`** (`next build` with `GE_DEV_TARGET=e2e` → `distDir=.next-e2e`, so it
+   never fights tenant `dev:*` over `.next`). Skipped when `.next-e2e` is newer than every
+   build input (`src`, `public`, configs, `.env.local.e2e`). Escape: `E2E_SKIP_BUILD=1`.
+3. **Serves it with `next start`** — *not* `next dev`. Dev compiled routes on demand at
+   ~17s per first hit, which blew the 3-minute `auth.setup.ts` timeout and aborted
+   navigations with `ECONNRESET`; the whole suite was blocked behind setup.
+
+Warm budget: about **1.5–2 minutes** for 94 tests. A cold run adds the `next build` (~7 min).
+Serwist is disabled for e2e builds so they cannot rewrite the `public/sw.js` that precommit
+already staged.
 
 Filter projects (args forwarded by `run-e2e-precommit.mjs`):
 

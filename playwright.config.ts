@@ -39,11 +39,16 @@ export default defineConfig({
   },
   ...(requireGate
     ? {
+        /**
+         * Production server, not `next dev`: dev compiled routes on demand (~17s on first
+         * hit) which timed out `auth.setup.ts` and aborted navigations with ECONNRESET.
+         * `run-e2e-precommit.mjs` builds `.next-e2e` before Playwright starts.
+         */
         webServer: {
-          command: `NODE_OPTIONS='--max-http-header-size=65536' npx next dev --webpack -H 127.0.0.1 -p ${webServerPort}`,
+          command: `NODE_OPTIONS='--max-http-header-size=65536' npx next start -H 127.0.0.1 -p ${webServerPort}`,
           url: baseURL,
           reuseExistingServer: false,
-          timeout: 180_000,
+          timeout: 120_000,
           stdout: "pipe",
           stderr: "pipe",
           env: {

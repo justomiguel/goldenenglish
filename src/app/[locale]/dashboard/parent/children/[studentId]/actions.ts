@@ -134,7 +134,8 @@ export async function updateWardProfile(
       return { ok: false, message: L.wardError };
     }
 
-    await recordEmailChangeAuditAndNotify({
+    // Best-effort detective controls — do not block the client on notify/audit I/O.
+    void recordEmailChangeAuditAndNotify({
       studentId: parsed.data.studentId,
       parentId: user.id,
       parentEmail: (user.email ?? "").trim().toLowerCase(),

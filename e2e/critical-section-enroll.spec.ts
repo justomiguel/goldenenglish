@@ -6,6 +6,7 @@ import {
   e2eRequireFailureMessage,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -31,34 +32,47 @@ test.describe("@critical-section-enroll", () => {
     const sectionId = process.env.E2E_SECTION_ID?.trim();
     test.skip(!cohortId || !sectionId, "E2E_COHORT_ID / E2E_SECTION_ID missing — re-run e2e:stack:up");
 
-    await page.goto(
+    await gotoIsolated(
+      page,
       `/${locale}/dashboard/admin/academic/${cohortId}/${sectionId}?tab=students`,
-      { waitUntil: "domcontentloaded" },
     );
     await expect(page.getByRole("heading", { name: /^404$/i })).toHaveCount(0);
     await expect(page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.sectionDetail))).toBeVisible({
       timeout: 60_000,
     });
 
-    // Roster + enroll search both render matching name rows; require status "active".
+    // Roster may already include student-b from a prior pass; require status "active".
     const activeRosterRow = page.getByRole("row", { name: /EnrolleeB\s+E2E.*\bactive\b/i });
     if (await activeRosterRow.count()) {
       await expect(activeRosterRow.first()).toBeVisible();
       return;
     }
 
-    const search = page.locator("#academic-section-enroll-student");
+    // Enroll search lives in a CTA modal (not inline on the roster).
+    // Cold Next compile can leave the CTA pre-hydration; retry open until dialog sticks.
+    const openEnroll = page
+      .getByRole("region", { name: /Lista de la sección|Section roster|Section list/i })
+      .getByRole("button", { name: /Inscribir alumno|Enroll student|Inscrever aluno/i });
+    await expect(openEnroll).toBeVisible({ timeout: 15_000 });
+    const dialog = page.getByRole("dialog");
+    await expect(async () => {
+      if (await dialog.isVisible().catch(() => false)) return;
+      await openEnroll.click();
+      await expect(dialog).toBeVisible({ timeout: 3_000 });
+    }).toPass({ timeout: 30_000 });
+
+    const search = dialog.locator("#academic-section-enroll-student");
     await expect(search).toBeVisible({ timeout: 15_000 });
     await search.click();
     await search.fill("");
     await search.fill("EnrolleeB");
 
     // Combobox debounces ~280ms then calls searchAdminStudentsAction.
-    const pick = page.getByRole("button", { name: STUDENT_B_LABEL }).first();
+    const pick = dialog.getByRole("button", { name: STUDENT_B_LABEL }).first();
     await expect(pick).toBeVisible({ timeout: 30_000 });
     await pick.click();
 
-    await page.getByRole("button", { name: /^Inscribir$|^Enroll$/i }).click();
+    await dialog.getByRole("button", { name: /^Inscribir$|^Enroll$|^Inscrever$/i }).click();
 
     // Success toast can clear on router.refresh(); roster status is the durable signal.
     await expect(activeRosterRow.first()).toBeVisible({ timeout: 45_000 });

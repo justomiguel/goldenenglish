@@ -7,6 +7,7 @@ import {
   e2eRequireFailureMessage,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -24,7 +25,7 @@ test.describe("@critical-academic", () => {
 
   test("academic hub shows cohort board and new-cohort control", async ({ page }) => {
     const locale = isolation.ok ? isolation.locale : "es";
-    await page.goto(`/${locale}/dashboard/admin/academic`);
+    await gotoIsolated(page, `/${locale}/dashboard/admin/academic`);
     await expect(page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.academicTitle))).toBeVisible({
       timeout: 20_000,
     });
@@ -37,7 +38,7 @@ test.describe("@critical-academic", () => {
     const locale = isolation.ok ? isolation.locale : "es";
     const cohortId = process.env.E2E_COHORT_ID?.trim();
     test.skip(!cohortId, "E2E_COHORT_ID missing — re-run e2e:stack:up");
-    await page.goto(`/${locale}/dashboard/admin/academic/${cohortId}`);
+    await gotoIsolated(page, `/${locale}/dashboard/admin/academic/${cohortId}`);
     await expect(page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.cohortDetail))).toBeVisible({
       timeout: 20_000,
     });

@@ -5,6 +5,7 @@ import {
   e2eRequireFailureMessage,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -33,7 +34,7 @@ test.describe("@critical-users-import", () => {
       "",
     ].join("\n");
 
-    await page.goto(`/${locale}/dashboard/admin/users/import`);
+    await gotoIsolated(page, `/${locale}/dashboard/admin/users/import`);
     const fileInput = page.locator('input[type="file"]');
     await expect(fileInput).toBeAttached({ timeout: 20_000 });
     await expect(page.locator("button").filter({ hasText: /Elegir archivo Excel|Choose Excel/i })).toBeVisible();

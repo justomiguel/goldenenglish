@@ -4,6 +4,7 @@ import {
   e2eRequireFailureMessage,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 
 const isolation = resolveE2eIsolation();
 
@@ -20,7 +21,7 @@ test.describe("@critical-events", () => {
     const suffix = Date.now().toString(36);
     const email = `e2e-evt-${suffix}@example.test`;
 
-    await page.goto(`/${locale}/events/e2e-free-event/register`);
+    await gotoIsolated(page, `/${locale}/events/e2e-free-event/register`);
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 20_000 });
 
     await page.getByRole("textbox", { name: /Nombre|First name/i }).fill("E2E");

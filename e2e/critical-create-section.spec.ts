@@ -6,6 +6,7 @@ import {
   e2eRequireFailureMessage,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -30,7 +31,7 @@ test.describe("@critical-create-section", () => {
     const suffix = Date.now().toString(36);
     const sectionName = `E2E Sec ${suffix}`;
 
-    await page.goto(`/${locale}/dashboard/admin/academic/${cohortId}`);
+    await gotoIsolated(page, `/${locale}/dashboard/admin/academic/${cohortId}`);
     await expect(page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.cohortDetail))).toBeVisible({
       timeout: 20_000,
     });
@@ -40,7 +41,13 @@ test.describe("@critical-create-section", () => {
       await sectionsTab.first().click();
     }
 
-    await page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.newSection)).click();
+    const openSection = page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.newSection));
+    const dialog = page.getByRole("dialog");
+    await expect(async () => {
+      if (await dialog.isVisible().catch(() => false)) return;
+      await openSection.click();
+      await expect(dialog).toBeVisible({ timeout: 3_000 });
+    }).toPass({ timeout: 20_000 });
     await expect(page.locator("#ns-name")).toBeVisible({ timeout: 10_000 });
 
     await page.locator("#ns-name").fill(sectionName);
@@ -76,10 +83,10 @@ test.describe("@critical-create-section", () => {
 
     await page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.newSectionSubmit)).click();
 
-    await expect(page).toHaveURL(
-      new RegExp(`/dashboard/admin/academic/${cohortId}/[0-9a-f-]{36}`, "i"),
-      { timeout: 60_000 },
-    );
+    // Soft navigation after create can abort once under cold webpack; poll URL.
+    await expect
+      .poll(() => page.url(), { timeout: 90_000 })
+      .toMatch(new RegExp(`/dashboard/admin/academic/${cohortId}/[0-9a-f-]{36}`, "i"));
     // Section RSC is heavy on cold compile; wait for the tour anchor (do not force a second full navigation).
     await expect(page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.sectionDetail))).toBeVisible({
       timeout: 60_000,

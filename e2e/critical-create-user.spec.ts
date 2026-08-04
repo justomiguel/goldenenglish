@@ -7,6 +7,7 @@ import {
   e2eSharedPassword,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -33,7 +34,7 @@ test.describe("@critical-create-user", () => {
     const email = `e2e-new-teacher-${suffix}@example.test`;
     const password = e2eSharedPassword();
 
-    await page.goto(`/${locale}/dashboard/admin/users/new`);
+    await gotoIsolated(page, `/${locale}/dashboard/admin/users/new`);
     await expect(page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.createUserForm))).toBeVisible({
       timeout: 20_000,
     });

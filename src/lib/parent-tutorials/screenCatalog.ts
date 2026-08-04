@@ -111,6 +111,17 @@ export function parentScreenPath(
   if (id === "parent-billing") {
     return `${parentHomePath(locale)}/payments?tab=fees`;
   }
+  // Tasks / assessments / badges live as tabs on the Progress hub (legacy
+  // /tasks|/assessments|/badges routes only redirect).
+  if (id === "parent-tasks") {
+    return `${parentHomePath(locale)}/progress?tab=tasks`;
+  }
+  if (id === "parent-assessments") {
+    return `${parentHomePath(locale)}/progress?tab=assessments`;
+  }
+  if (id === "parent-badges") {
+    return `${parentHomePath(locale)}/progress?tab=badges`;
+  }
   const row = PARENT_CONTENT_ROUTES.find((r) => r.id === id);
   if (!row) throw new Error(`Unknown parent screen tour id: ${id}`);
   return `${parentHomePath(locale)}${row.parentSuffix}`;
@@ -144,6 +155,19 @@ export function resolveParentScreenTour(
     if (tab === "fees") {
       return { id: "parent-billing", scope: "content-only", metaKey: "parentBilling" };
     }
+  }
+  if (path === `${base}/progress`) {
+    const tab = new URLSearchParams(search).get("tab");
+    if (tab === "tasks") {
+      return { id: "parent-tasks", scope: "content-only", metaKey: "parentTasks" };
+    }
+    if (tab === "assessments") {
+      return { id: "parent-assessments", scope: "content-only", metaKey: "parentAssessments" };
+    }
+    if (tab === "badges") {
+      return { id: "parent-badges", scope: "content-only", metaKey: "parentBadges" };
+    }
+    return { id: "parent-progress", scope: "content-only", metaKey: "parentProgress" };
   }
   if (!path.startsWith(`${base}/`)) return null;
 

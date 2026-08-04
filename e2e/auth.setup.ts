@@ -7,6 +7,7 @@ import {
   e2eSharedPassword,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 
 const paths = e2eAuthPaths();
 
@@ -24,7 +25,7 @@ async function loginOnPage(
   let lastError: unknown;
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      await page.goto(`/${locale}/login`, { waitUntil: "domcontentloaded" });
+      await gotoIsolated(page, `/${locale}/login`);
       // Cold webpack compile can 500 once; reload recovers.
       if (!(await emailField.isVisible({ timeout: 15_000 }).catch(() => false))) {
         await page.reload({ waitUntil: "domcontentloaded" });

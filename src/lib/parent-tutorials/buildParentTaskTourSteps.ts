@@ -40,7 +40,7 @@ export function parentTutorialTargetPath(
     case "parent-calendar-attendance":
       return `${base}/calendar`;
     case "parent-badges-overview":
-      return `${base}/badges`;
+      return `${base}/progress?tab=badges`;
     case "parent-settings-notifications":
       return `${base}/settings`;
     default: {
@@ -118,7 +118,7 @@ export function buildParentTaskTourSteps(
     case "parent-badges-overview":
       return [
         intro,
-        region(PARENT_TOUR_ANCHORS.badgesTitle, stepCopy(s, "title")),
+        // Title header is omitted when badges render embedded in Progress hub.
         region(PARENT_TOUR_ANCHORS.badgesBody, stepCopy(s, "body")),
       ];
     case "parent-settings-notifications":

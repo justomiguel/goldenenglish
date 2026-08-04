@@ -5,6 +5,7 @@ import {
   e2eRequireFailureMessage,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 
 const isolation = resolveE2eIsolation();
 const receiptFixture = path.join(__dirname, "fixtures", "receipt-tiny.png");
@@ -25,7 +26,7 @@ test.describe("@critical-paid-event", () => {
     const suffix = Date.now().toString(36);
     const email = `e2e-paid-${suffix}@example.test`;
 
-    await page.goto(`/${locale}/events/e2e-paid-event/register`);
+    await gotoIsolated(page, `/${locale}/events/e2e-paid-event/register`);
     await expect(page.getByRole("heading").first()).toBeVisible({ timeout: 20_000 });
     await expect(page.getByRole("heading", { name: /404/i })).toHaveCount(0);
 

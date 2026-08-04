@@ -46,9 +46,10 @@ const SCREEN_RUNTIME_ANCHORS: Record<
   "parent-settings": [PARENT_TOUR_ANCHORS.settingsTitle],
   "parent-profile": [PARENT_TOUR_ANCHORS.profileForm],
   "parent-billing": [PARENT_TOUR_ANCHORS.billingBody],
-  "parent-tasks": [PARENT_TOUR_ANCHORS.tasksTitle],
-  "parent-assessments": [PARENT_TOUR_ANCHORS.assessmentsTitle],
-  "parent-badges": [PARENT_TOUR_ANCHORS.badgesTitle],
+  // Embedded Progress-hub panels omit *-title headers; assert body/list anchors.
+  "parent-tasks": [PARENT_TOUR_ANCHORS.tasksList],
+  "parent-assessments": [PARENT_TOUR_ANCHORS.assessmentsBody],
+  "parent-badges": [PARENT_TOUR_ANCHORS.badgesBody],
 };
 
 const TASK_RUNTIME_ANCHORS: Record<ParentTutorialId, readonly ParentTourAnchor[]> = {
@@ -60,7 +61,7 @@ const TASK_RUNTIME_ANCHORS: Record<ParentTutorialId, readonly ParentTourAnchor[]
     PARENT_TOUR_ANCHORS.profileForm,
   ],
   "parent-calendar-attendance": [PARENT_TOUR_ANCHORS.calendarBoard],
-  "parent-badges-overview": [PARENT_TOUR_ANCHORS.badgesTitle],
+  "parent-badges-overview": [PARENT_TOUR_ANCHORS.badgesBody],
   "parent-settings-notifications": [PARENT_TOUR_ANCHORS.settingsTitle],
 };
 

@@ -6,7 +6,9 @@ import {
   e2eRequireFailureMessage,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 import { clickFirstPendingMonthlyDue } from "./helpers/clickFirstPendingMonthlyDue";
+import { reviewFinanceInboxMonthlyReceipt } from "./helpers/reviewFinanceInboxMonthlyReceipt";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -32,7 +34,7 @@ test.describe("@critical-payments", () => {
       storageState: paths.studentStorageState,
     });
     const studentPage = await studentCtx.newPage();
-    await studentPage.goto(`/${locale}/dashboard/student/payments`);
+    await gotoIsolated(studentPage, `/${locale}/dashboard/student/payments`);
     await expect(studentPage.getByRole("heading").first()).toBeVisible({
       timeout: 20_000,
     });
@@ -50,23 +52,19 @@ test.describe("@critical-payments", () => {
 
     const adminCtx = await browser.newContext({ storageState: paths.storageState });
     const adminPage = await adminCtx.newPage();
-    await adminPage.goto(`/${locale}/dashboard/admin/finance?tab=inbox`);
-    const row = adminPage.locator("li").filter({ hasText: /Student\s+E2E/i }).first();
-    await expect(row).toBeVisible({ timeout: 30_000 });
-    await row.getByRole("button", { name: /OK — Pagado|OK — Paid/i }).click();
-    await expect(row).toBeHidden({ timeout: 20_000 });
+    await gotoIsolated(adminPage, `/${locale}/dashboard/admin/finance?tab=inbox`);
+    await reviewFinanceInboxMonthlyReceipt(adminPage, "approve");
     await adminCtx.close();
 
     const verifyCtx = await browser.newContext({
       storageState: paths.studentStorageState,
     });
     const verifyPage = await verifyCtx.newPage();
-    await verifyPage.goto(`/${locale}/dashboard/student/payments`);
-    // Approved month opens in focus with receipt link (grid may only list future dues).
+    await gotoIsolated(verifyPage, `/${locale}/dashboard/student/payments`);
     await expect(
       verifyPage
-        .getByRole("link", { name: /Ver comprobante|View receipt|Open receipt/i })
-        .or(verifyPage.getByText(/ya está saldado|already settled|Pagado|Paid/i))
+        .getByRole("button", { name: /Pagado|Paid|Cobrado|Approved/i })
+        .or(verifyPage.getByText(/ya está saldado|already settled/i))
         .first(),
     ).toBeVisible({ timeout: 30_000 });
     await verifyCtx.close();

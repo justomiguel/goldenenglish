@@ -50,6 +50,14 @@ describe("buildParentTaskTourSteps", () => {
     expect(parentTutorialTargetPath("parent-calendar-attendance", "es")).toBe(
       "/es/dashboard/parent/calendar",
     );
+    expect(parentTutorialTargetPath("parent-badges-overview", "es")).toBe(
+      "/es/dashboard/parent/progress?tab=badges",
+    );
+  });
+
+  it("badges overview spotlights embedded body (no title header on hub)", () => {
+    const steps = buildParentTaskTourSteps("parent-badges-overview", chrome);
+    expect(steps.map((s) => s.anchor)).toEqual([null, PARENT_TOUR_ANCHORS.badgesBody]);
   });
 
   it("routes manage profile task to child detail when student id is known", () => {

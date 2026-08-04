@@ -1,5 +1,5 @@
 /** @vitest-environment jsdom */
-// REGRESSION CHECK: Students-tab enroll must stay behind a CTA+modal so the roster stays scannable; opening must expose search + enroll actions without a permanent card above the table.
+// REGRESSION CHECK: Students-tab enroll must stay behind a CTA+modal so the roster stays scannable; Modal stays mounted (open prop) like create-section/cohort so native <dialog> does not lose open on mount races; opening must expose search + enroll actions.
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -84,7 +84,7 @@ describe("AcademicSectionEnrollCard", () => {
     );
 
     expect(screen.getByRole("button", { name: dict.enrollOpenButton })).toBeInTheDocument();
-    expect(screen.queryByTestId("enroll-search")).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: dict.enroll })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: dict.enrollOpenButton }));

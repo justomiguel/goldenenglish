@@ -6,23 +6,36 @@ import {
   e2eRequireFailureMessage,
   resolveE2eIsolation,
 } from "./env";
+import { gotoIsolated } from "./helpers/gotoIsolated";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
 const authReady = existsSync(paths.readyMarker);
 
 async function pickAdultBirthDate(page: import("@playwright/test").Page) {
-  await page.locator("#rg-birth-year").selectOption("1990");
-  await page.locator("#rg-birth-month").selectOption("5"); // June (0-based)
-  const dayTrigger = page.locator("#rg-birth-day-trigger");
-  if ((await dayTrigger.getAttribute("aria-expanded")) !== "true") {
-    await dayTrigger.click();
-  }
-  // DayPicker may animate adjacent months; pick by full date aria-label.
-  await page
+  // Controlled <select>s under React often ignore the first Playwright selectOption
+  // (DOM updates, onChange does not). Bounce values and assert the calendar grid
+  // (React view state), not only the select's DOM value.
+  await expect(async () => {
+    await page.locator("#rg-birth-year").selectOption("1991");
+    await page.locator("#rg-birth-year").selectOption("1990");
+    await page.locator("#rg-birth-month").selectOption("0");
+    await page.locator("#rg-birth-month").selectOption("5"); // June (0-based)
+    await expect(page.locator("#rg-birth-year")).toHaveValue("1990");
+    await expect(page.locator("#rg-birth-month")).toHaveValue("5");
+    await expect(
+      page.locator("#rg-birth-calendar-panel").getByRole("grid", {
+        name: /junio 1990|June 1990|junho 1990/i,
+      }),
+    ).toBeVisible();
+  }).toPass({ timeout: 30_000 });
+
+  // DayPicker aria-labels include weekday (e.g. "viernes, 15 de junio de 1990").
+  const dayBtn = page
     .locator("#rg-birth-calendar-panel")
-    .getByRole("button", { name: /15 de junio de 1990|June 15,? 1990|15 de junho de 1990/i })
-    .click();
+    .getByRole("button", { name: /15 de junio de 1990|June 15,? 1990|15 de junho de 1990/i });
+  await expect(dayBtn).toBeVisible({ timeout: 10_000 });
+  await dayBtn.click();
   await expect(page.locator('input[name="birth_date"]')).toHaveValue("1990-06-15");
 }
 
@@ -35,7 +48,7 @@ test.describe("@critical-registration", () => {
   });
 
   test("public register → admin accept → student can log in", async ({ browser }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(180_000);
     const locale = isolation.ok ? isolation.locale : "es";
     const suffix = Date.now().toString(36);
     const email = `e2e-reg-${suffix}@example.test`;
@@ -44,7 +57,7 @@ test.describe("@critical-registration", () => {
 
     const anon = await browser.newContext();
     const registerPage = await anon.newPage();
-    await registerPage.goto(`/${locale}/register`);
+    await gotoIsolated(registerPage, `/${locale}/register`);
     await expect(registerPage.locator("#rg-fn")).toBeVisible({ timeout: 20_000 });
     await registerPage.locator("#rg-fn").fill("E2E");
     await registerPage.locator("#rg-ln").fill(`Reg${suffix}`);
@@ -55,12 +68,15 @@ test.describe("@critical-registration", () => {
     await registerPage.locator("#rg-ph").fill("+5491112345678");
     await registerPage.locator("#rg-section").selectOption({ index: 1 });
     await registerPage.getByRole("button", { name: /enviar|submit|inscrib/i }).click();
-    await expect(registerPage.getByRole("dialog")).toBeVisible({ timeout: 30_000 });
+    const successDialog = registerPage.getByRole("dialog");
+    const formAlert = registerPage.getByRole("alert");
+    await expect(successDialog.or(formAlert)).toBeVisible({ timeout: 45_000 });
+    await expect(successDialog).toBeVisible({ timeout: 5_000 });
     await anon.close();
 
     const admin = await browser.newContext({ storageState: paths.storageState });
     const adminPage = await admin.newPage();
-    await adminPage.goto(`/${locale}/dashboard/admin/registrations`);
+    await gotoIsolated(adminPage, `/${locale}/dashboard/admin/registrations`);
     const row = adminPage.locator("tr, li, article").filter({ hasText: email }).first();
     await expect(row).toBeVisible({ timeout: 30_000 });
     await row.getByRole("button", { name: /Dar de alta|enroll as|accept/i }).click();
@@ -97,7 +113,7 @@ test.describe("@critical-registration", () => {
 
     const loginCtx = await browser.newContext();
     const loginPage = await loginCtx.newPage();
-    await loginPage.goto(`/${locale}/login`);
+    await gotoIsolated(loginPage, `/${locale}/login`);
     await loginPage.getByLabel(/email|correo/i).fill(email);
     await loginPage.locator('input[type="password"]').fill(loginPassword);
     await loginPage.getByRole("button", { name: /sign in|iniciar|entrar|login/i }).click();

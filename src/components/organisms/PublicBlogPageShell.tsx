@@ -14,6 +14,7 @@ import { PublicBlogScreenEspacioZenit } from "@/components/organisms/PublicBlogS
 import { PublicBlogScreenMozarthitos } from "@/components/organisms/PublicBlogScreenMozarthitos";
 import { PublicBlogScreenNago } from "@/components/organisms/PublicBlogScreenNago";
 import { PublicBlogScreenMiMundo } from "@/components/organisms/PublicBlogScreenMiMundo";
+import { PublicBlogScreenLiora } from "@/components/organisms/PublicBlogScreenLiora";
 import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 
@@ -50,7 +51,9 @@ export async function PublicBlogPageShell({ locale, children }: PublicBlogPageSh
   const eventsLabel =
     templateKind === "nago"
       ? marketingLandingCopy(dict, "nago", "nav.eventos")
-      : dict.events.public.title;
+      : templateKind === "liora"
+        ? marketingLandingCopy(dict, "liora", "nav.eventos")
+        : dict.events.public.title;
   const shellProps = {
     locale,
     dict,
@@ -73,6 +76,9 @@ export async function PublicBlogPageShell({ locale, children }: PublicBlogPageSh
   }
   if (templateKind === "mimundo") {
     return <PublicBlogScreenMiMundo {...shellProps} mediaMap={mediaMap} />;
+  }
+  if (templateKind === "liora") {
+    return <PublicBlogScreenLiora {...shellProps} />;
   }
 
   return <PublicBlogScreenClassic {...shellProps} />;

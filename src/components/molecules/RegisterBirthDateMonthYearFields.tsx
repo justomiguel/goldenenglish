@@ -44,6 +44,7 @@ export function RegisterBirthDateMonthYearFields({
           data-register-birth-month=""
           disabled={yearOptionsDisabled}
           onChange={(e) => onPickMonthIndex(Number(e.target.value))}
+          onInput={(e) => onPickMonthIndex(Number(e.currentTarget.value))}
         >
           {Array.from({ length: maxMonthIdx - minMonthIdx + 1 }, (_, i) => {
             const mi = minMonthIdx + i;
@@ -67,6 +68,7 @@ export function RegisterBirthDateMonthYearFields({
           data-register-birth-year=""
           disabled={yearOptionsDisabled}
           onChange={(e) => onPickYear(Number(e.target.value))}
+          onInput={(e) => onPickYear(Number(e.currentTarget.value))}
         >
           {yearOptionValuesDesc.map((yv) => (
             <option key={yv} value={yv}>
