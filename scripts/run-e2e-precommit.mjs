@@ -181,11 +181,136 @@ function reseedFixtures(env) {
   console.log("→ E2E precommit: fixtures reseeded");
 }
 
+/** Lo que este proceso levantó — y por lo tanto lo único que debe bajar. */
+const started = { colima: false, supabase: false };
+
+function run(cmd, args, opts = {}) {
+  return spawnSync(cmd, args, {
+    cwd: ROOT,
+    encoding: "utf8",
+    stdio: opts.quiet ? "pipe" : "inherit",
+    ...opts,
+  });
+}
+
+function dockerResponds() {
+  return run("docker", ["info"], { quiet: true }).status === 0;
+}
+
+function supabaseRunning() {
+  const r = run("docker", ["ps", "--format", "{{.Names}}"], { quiet: true });
+  return r.status === 0 && /supabase_db_/.test(r.stdout ?? "");
+}
+
+/** Versiones (`001`, `173`, …) de `supabase/migrations/NNN_*.sql`. `masterdb.sql` no cuenta. */
+function migrationVersionsOnDisk() {
+  const dir = path.join(ROOT, "supabase", "migrations");
+  const out = new Set();
+  for (const f of readdirSync(dir)) {
+    const m = /^(\d+)_.*\.sql$/.exec(f);
+    if (m) out.add(m[1]);
+  }
+  return out;
+}
+
+/** true si el disco tiene migraciones que la BD no aplicó (o no se puede saber). */
+function migrationsStale(psql, dbUrl) {
+  const r = run(psql, [dbUrl, "-tA", "-c", "select version from supabase_migrations.schema_migrations;"], {
+    quiet: true,
+  });
+  if (r.status !== 0) return true;
+  const applied = new Set(
+    (r.stdout ?? "")
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean),
+  );
+  for (const v of migrationVersionsOnDisk()) {
+    if (!applied.has(v)) return true;
+  }
+  return false;
+}
+
+function resolvePsql() {
+  return (
+    process.env.PSQL_PATH?.trim() ||
+    (existsSync("/opt/homebrew/opt/libpq/bin/psql")
+      ? "/opt/homebrew/opt/libpq/bin/psql"
+      : "psql")
+  );
+}
+
+/** `e2e:stack:up` completo: reset + seed + reescribe `.env.local.e2e`. Minutos, no segundos. */
+function fullStackUp(why) {
+  console.log(`→ E2E precommit: ${why} — corriendo e2e:stack:up completo`);
+  const r = run("npm", ["run", "e2e:stack:up"]);
+  if (r.status !== 0) {
+    fail("e2e:stack:up falló — revisá Docker/Colima y volvé a intentar.");
+  }
+}
+
+/**
+ * Levanta lo que falte para que el gate pueda correr solo.
+ * El volumen de Docker sobrevive a `supabase stop`, así que reiniciar (~78s) no necesita
+ * `db reset`; solo se paga el `e2e:stack:up` completo si falta el env o el esquema quedó viejo.
+ */
+function ensureStack() {
+  if (!dockerResponds()) {
+    console.log("→ E2E precommit: Docker no responde — colima start");
+    if (run("colima", ["start"]).status !== 0) {
+      fail("No pude arrancar Colima. Instalá/arrancá un runtime de Docker y reintentá.");
+    }
+    started.colima = true;
+    if (!dockerResponds()) {
+      fail("Colima arrancó pero Docker sigue sin responder.");
+    }
+  }
+
+  if (!supabaseRunning()) {
+    console.log("→ E2E precommit: Supabase local apagado — supabase start");
+    if (run("npx", ["supabase", "start"]).status !== 0) {
+      fail("`supabase start` falló — probá `npm run e2e:stack:up`.");
+    }
+    started.supabase = true;
+  }
+
+  if (!existsSync(E2E_ENV_FILE)) {
+    fullStackUp(`falta ${path.relative(ROOT, E2E_ENV_FILE)}`);
+    return;
+  }
+
+  const dbUrl = parseDotenvContents(readFileSync(E2E_ENV_FILE, "utf8")).DATABASE_URL?.trim();
+  if (!dbUrl || migrationsStale(resolvePsql(), dbUrl)) {
+    fullStackUp("la BD local tiene migraciones pendientes");
+  }
+}
+
+/** Baja solo lo que levantamos, para no matar un stack que el usuario dejó corriendo. */
+function teardownStack() {
+  if ((process.env.E2E_STACK_KEEP ?? "").trim() === "1") {
+    if (started.supabase || started.colima) {
+      console.log("→ E2E_STACK_KEEP=1 — dejo el stack arriba");
+    }
+    return;
+  }
+  if (started.supabase) {
+    console.log("→ E2E precommit: bajando Supabase local (lo levantó este gate)");
+    run("npm", ["run", "e2e:stack:down"], { quiet: true });
+    started.supabase = false;
+  }
+  if (started.colima) {
+    console.log("→ E2E precommit: deteniendo Colima (lo levantó este gate)");
+    run("colima", ["stop"], { quiet: true });
+    started.colima = false;
+  }
+}
+
 /** @param {string} msg */
 function fail(msg) {
   console.error(`\n❌ ${msg}\n`);
   console.error("  Docs: docs/runbooks/e2e-isolated-harness.md");
   console.error("  Escape (WIP only, ask user first): SKIP_E2E=1 npm run precommit\n");
+  teardownStack();
   process.exit(1);
 }
 
@@ -196,6 +321,9 @@ function main() {
     );
     process.exit(0);
   }
+
+  // El gate se administra su propio stack: levanta lo que falte y al final baja solo eso.
+  ensureStack();
 
   if (!existsSync(E2E_ENV_FILE)) {
     fail(
@@ -265,11 +393,20 @@ function main() {
   });
 
   child.on("exit", (code, signal) => {
+    teardownStack();
     if (signal) {
       process.kill(process.pid, signal);
       return;
     }
     process.exit(code ?? 1);
+  });
+}
+
+// Ctrl+C / kill durante los tests no debe dejar el stack colgado.
+for (const sig of ["SIGINT", "SIGTERM"]) {
+  process.on(sig, () => {
+    teardownStack();
+    process.exit(1);
   });
 }
 

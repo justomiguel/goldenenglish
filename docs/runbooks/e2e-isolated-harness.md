@@ -120,6 +120,24 @@ SKIP_E2E=1 npm run precommit
 
 Cursor rule: **`.cursor/rules/34-precommit-e2e.mdc`**.
 
+#### The gate manages its own stack
+
+You do not need to run `e2e:stack:up` by hand before committing. The gate brings up whatever
+is missing and then stops **only what it started** — a stack you left running is never killed.
+
+| Situation | What the gate does | Cost |
+|---|---|---|
+| Stack already up | Uses it, leaves it up | — |
+| Colima / Supabase down | `colima start` + `supabase start`, then stops both at the end | ~78 s |
+| Missing `.env.local.e2e`, or migrations pending | Full `e2e:stack:up` (reset + seed + rewrites the env) | minutes |
+
+Restarting does not need a `db reset`: the Docker volume keeps the schema and fixtures, so
+only a genuinely stale schema pays the expensive path. Whole-run cost measured from cold,
+everything off: **2m12s** (78 s of startup + 1.2 min of Playwright).
+
+Escapes: `E2E_STACK_KEEP=1` leaves the stack up when you are about to commit several times in
+a row; `E2E_SKIP_BUILD=1` reuses `.next-e2e`; `E2E_SKIP_SEED=1` skips the fixture reseed.
+
 ## Hard guards (`e2e/env.ts`)
 
 - `E2E_STACK=isolated`
@@ -135,4 +153,6 @@ Add specs under `e2e/`; they run automatically on precommit once the stack is up
 
 - Spec: `docs/superpowers/specs/2026-07-11-e2e-local-supabase-stack-design.md`
 - Spec: `docs/superpowers/specs/2026-07-11-precommit-e2e-gate-design.md`
+- Spec: `docs/superpowers/specs/2026-08-04-e2e-precommit-production-server.md`
+- Spec: `docs/superpowers/specs/2026-08-04-e2e-gate-manages-its-own-stack.md`
 - Rules: `33-admin-tutorials-contract.mdc`, `34-precommit-e2e.mdc`
