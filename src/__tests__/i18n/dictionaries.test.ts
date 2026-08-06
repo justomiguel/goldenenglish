@@ -109,6 +109,19 @@ describe("getDictionary", () => {
     expect(es.dashboard.academicSectionPage.health.title).toBeTruthy();
   });
 
+  it("gives studentNav every key parentNav has, in all locales", async () => {
+    for (const locale of ["es", "en", "pt"] as const) {
+      const d = await getDictionary(locale);
+      const parentKeys = Object.keys(d.dashboard.parentNav);
+      const studentNav = d.dashboard.studentNav as Record<string, string>;
+      const missing = parentKeys.filter((key) => !(key in studentNav));
+      expect(missing, `${locale} studentNav is missing keys`).toEqual([]);
+      for (const key of parentKeys) {
+        expect(studentNav[key], `${locale} studentNav.${key}`).toBeTruthy();
+      }
+    }
+  });
+
   it("falls back to default for unknown locale", async () => {
     const d = await getDictionary("xx");
     const fallback = await getDictionary(defaultLocale);
