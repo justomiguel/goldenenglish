@@ -7569,6 +7569,19 @@
         "success": "Room label updated.",
         "error": "Could not save. Try again."
       },
+      "nameEditor": {
+        "title": "Section name",
+        "lead": "Display name for this section in admin lists and the section page.",
+        "label": "Name",
+        "placeholder": "e.g. Morning A",
+        "save": "Save name",
+        "cancel": "Cancel",
+        "editNameAria": "Edit section name",
+        "success": "Section name updated.",
+        "error": "Could not save. Try again.",
+        "duplicate": "Another section in this cohort already uses that name.",
+        "tooShort": "Use at least 2 characters."
+      },
       "staff": {
         "title": "Teaching staff",
         "manageBlockLead": "Assign or change the lead teacher, portal assistants, and external helpers for this section.",

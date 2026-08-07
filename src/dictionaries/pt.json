@@ -7448,6 +7448,19 @@
         "success": "Rótulo do quarto atualizado.",
         "error": "Não foi possível salvar. Tente novamente."
       },
+      "nameEditor": {
+        "title": "Nome da seção",
+        "lead": "Nome de exibição desta seção nas listas admin e na página da seção.",
+        "label": "Nome",
+        "placeholder": "ex. Manhã A",
+        "save": "Salvar nome",
+        "cancel": "Cancelar",
+        "editNameAria": "Editar nome da seção",
+        "success": "Nome da seção atualizado.",
+        "error": "Não foi possível salvar. Tente novamente.",
+        "duplicate": "Outra seção deste cohort já usa esse nome.",
+        "tooShort": "Use pelo menos 2 caracteres."
+      },
       "staff": {
         "title": "Corpo docente",
         "manageBlockLead": "Atribua ou altere o professor titular, assistentes do portal e colaboradores externos desta seção.",

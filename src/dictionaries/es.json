@@ -7569,6 +7569,19 @@
         "success": "Aula actualizada.",
         "error": "No se pudo guardar. Intentá de nuevo."
       },
+      "nameEditor": {
+        "title": "Nombre de la sección",
+        "lead": "Nombre visible de esta sección en listas admin y en la página de la sección.",
+        "label": "Nombre",
+        "placeholder": "p. ej. Mañana A",
+        "save": "Guardar nombre",
+        "cancel": "Cancelar",
+        "editNameAria": "Editar nombre de la sección",
+        "success": "Nombre de la sección actualizado.",
+        "error": "No se pudo guardar. Intentá de nuevo.",
+        "duplicate": "Otra sección de este cohort ya usa ese nombre.",
+        "tooShort": "Usá al menos 2 caracteres."
+      },
       "staff": {
         "title": "Equipo docente",
         "manageBlockLead": "Asigná o cambiá el titular, ayudantes con acceso al portal y colaboradores externos de esta sección.",
