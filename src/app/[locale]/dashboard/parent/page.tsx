@@ -82,6 +82,8 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
     overdueByStudent: paymentOverdue.overdueByStudent,
     staffInboundCount: messageSignals.staffInboundCount,
     overdueInvoiceCount: paymentOverdue.overdueInvoiceCount,
+    lastPublishedGrade:
+      summaries.find((s) => s.studentId === selectedStudentId)?.lastPublishedGrade ?? null,
   });
 
   return (

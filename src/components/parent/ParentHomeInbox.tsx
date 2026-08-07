@@ -1,8 +1,11 @@
 import type { ParentChildSummary } from "@/lib/parent/loadParentChildrenSummaries";
 import type { ParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
+import type { ParentHomeNewsItem } from "@/lib/parent/loadParentHomeNewsFeed";
 import type { Dictionary } from "@/types/i18n";
 import { ParentChildSwitcher } from "@/components/parent/ParentChildSwitcher";
 import { ParentHomeStatusGrid } from "@/components/parent/ParentHomeStatusGrid";
+import { ParentHomeNewsFeed } from "@/components/pwa/molecules/ParentHomeNewsFeed";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 export interface ParentHomeInboxProps {
@@ -14,6 +17,7 @@ export interface ParentHomeInboxProps {
   selectedStudentId?: string;
   pillars: ParentHomePillarSnapshot;
   labels: Dictionary["dashboard"]["parent"];
+  newsItems: ParentHomeNewsItem[];
   dashboardBase?: string;
   includePayments?: boolean;
 }
@@ -27,6 +31,7 @@ export function ParentHomeInbox({
   selectedStudentId,
   pillars,
   labels,
+  newsItems = [],
   dashboardBase,
   includePayments = true,
 }: ParentHomeInboxProps) {
@@ -34,6 +39,10 @@ export function ParentHomeInbox({
   const headline = firstName ? `${greeting}, ${firstName}` : greeting;
   const selected =
     summaries.find((summary) => summary.studentId === selectedStudentId) ?? summaries[0];
+  const multipleChildren = summaries.length > 1;
+  const childName = selected
+    ? formatProfileNameSurnameFirst(selected.firstName, selected.lastName)
+    : null;
 
   return (
     <div className="space-y-5">
@@ -45,6 +54,13 @@ export function ParentHomeInbox({
           {headline}
         </h1>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{fullDateLine}</p>
+        {multipleChildren ? (
+          <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{inbox.pwaFamilyContext}</p>
+        ) : childName ? (
+          <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
+            {inbox.pwaChildContext.replace("{child}", childName)}
+          </p>
+        ) : null}
       </header>
 
       <div data-tour={PARENT_TOUR_ANCHORS.homeChildSwitcher}>
@@ -65,6 +81,10 @@ export function ParentHomeInbox({
           dashboardBase={dashboardBase}
           includePayments={includePayments}
         />
+      </div>
+
+      <div data-tour={PARENT_TOUR_ANCHORS.homeInbox}>
+        <ParentHomeNewsFeed locale={locale} items={newsItems} labels={inbox.newsFeed} />
       </div>
     </div>
   );

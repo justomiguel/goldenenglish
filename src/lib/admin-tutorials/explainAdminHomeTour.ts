@@ -97,11 +97,6 @@ export function buildExplainAdminHomeSteps(
 
   steps.push(
     {
-      anchor: ADMIN_TOUR_ANCHORS.hubBirthdays,
-      title: copy.birthdays.title,
-      description: copy.birthdays.description,
-    },
-    {
       anchor: ADMIN_TOUR_ANCHORS.hubTraffic,
       title: copy.traffic.title,
       description: copy.traffic.description,
@@ -125,6 +120,11 @@ export function buildExplainAdminHomeSteps(
       anchor: ADMIN_TOUR_ANCHORS.hubMessages,
       title: copy.messages.title,
       description: copy.messages.description,
+    },
+    {
+      anchor: ADMIN_TOUR_ANCHORS.hubBirthdays,
+      title: copy.birthdays.title,
+      description: copy.birthdays.description,
     },
     {
       anchor: null,

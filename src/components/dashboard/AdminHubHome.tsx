@@ -85,10 +85,6 @@ export function AdminHubHome({ locale, dict, summary, birthdayRows, birthdaysDic
         </Link>
       ) : null}
 
-      <div className="mt-6 max-w-2xl" data-tour="admin-hub-birthdays">
-        <UpcomingBirthdaysCard locale={locale} rows={birthdayRows} dict={birthdaysDict} />
-      </div>
-
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <AdminHubMetricCard
           href={`${base}/analytics`}
@@ -218,6 +214,10 @@ export function AdminHubHome({ locale, dict, summary, birthdayRows, birthdaysDic
           latestPreview={summary.messages.latestPreview}
           locale={locale}
         />
+      </div>
+
+      <div className="mt-6 max-w-2xl" data-tour="admin-hub-birthdays">
+        <UpcomingBirthdaysCard locale={locale} rows={birthdayRows} dict={birthdaysDict} />
       </div>
     </div>
   );

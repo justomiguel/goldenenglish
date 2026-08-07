@@ -45,12 +45,12 @@ describe("buildExplainAdminHomeSteps", () => {
       ADMIN_TOUR_ANCHORS.chromeLocale,
       ADMIN_TOUR_ANCHORS.hubTitle,
       ADMIN_TOUR_ANCHORS.hubStudentsWithoutSection,
-      ADMIN_TOUR_ANCHORS.hubBirthdays,
       ADMIN_TOUR_ANCHORS.hubTraffic,
       ADMIN_TOUR_ANCHORS.hubUsers,
       ADMIN_TOUR_ANCHORS.hubPayments,
       ADMIN_TOUR_ANCHORS.hubRegistrations,
       ADMIN_TOUR_ANCHORS.hubMessages,
+      ADMIN_TOUR_ANCHORS.hubBirthdays,
       null,
     ]);
     expect(steps[0]?.title).toBe("Intro");
