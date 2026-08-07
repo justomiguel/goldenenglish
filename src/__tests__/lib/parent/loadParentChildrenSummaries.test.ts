@@ -111,6 +111,7 @@ describe("loadParentChildrenSummaries", () => {
                     {
                       enrollment_id: "en1",
                       score: 9,
+                      teacher_feedback: "Excellent progress on speaking.",
                       cohort_assessments: {
                         name: "Unit 2",
                         max_score: 10,
@@ -153,11 +154,14 @@ describe("loadParentChildrenSummaries", () => {
     expect(r[0].nextExamAt).toBe("2026-08-01");
     expect(r[0].assignedTeacherId).toBeNull();
     expect(r[0].assignedTeacherName).toBeNull();
+    // The home Progress pillar promises "teacher comment included" from this flag alone,
+    // so it must reflect the *latest* published grade, not any graded row.
     expect(r[0].lastPublishedGrade).toEqual({
       score: 9,
       maxScore: 10,
       assessmentName: "Unit 2",
       assessmentOn: "2026-02-20",
+      hasTeacherFeedback: true,
     });
   });
 

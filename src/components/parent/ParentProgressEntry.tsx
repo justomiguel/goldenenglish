@@ -15,10 +15,10 @@ import { useAppSurface } from "@/hooks/useAppSurface";
 import { ParentTasksListScreen } from "@/components/parent/ParentTasksListScreen";
 import { ParentAssessmentsScreen } from "@/components/parent/ParentAssessmentsScreen";
 import { ParentBadgesScreen } from "@/components/parent/ParentBadgesScreen";
-import { ParentLearningFeedbackPanel } from "@/components/parent/ParentLearningFeedbackPanel";
+import { ParentFeedbackSurface } from "@/components/parent/ParentFeedbackSurface";
 import type { StudentLearningTaskRow } from "@/types/learningTasks";
 import type { StudentMiniTestAssessment } from "@/types/learningContent";
-import type { ParentLearningFeedbackRow } from "@/lib/learning-content/loadParentLearningFeedback";
+import type { ParentFeedbackTimeline } from "@/types/parentFeedback";
 import type { StudentBadgeRowModel } from "@/components/student/StudentBadgesScreen";
 import type { Dictionary } from "@/types/i18n";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
@@ -34,7 +34,7 @@ interface ParentProgressEntryProps {
   selectedStudentId: string | null;
   tasks: StudentLearningTaskRow[];
   assessments: StudentMiniTestAssessment[];
-  feedback: ParentLearningFeedbackRow[];
+  feedback: ParentFeedbackTimeline;
   badgeRows: StudentBadgeRowModel[];
   parentLabels: Dictionary["dashboard"]["parent"];
   studentLabels: Dictionary["dashboard"]["student"];
@@ -71,10 +71,19 @@ export function ParentProgressEntry({
     () => [
       { id: PARENT_PROGRESS_TAB_TASKS, label: navDict.tasks, Icon: BookOpenCheck },
       { id: PARENT_PROGRESS_TAB_ASSESSMENTS, label: navDict.assessments, Icon: ClipboardCheck },
-      { id: PARENT_PROGRESS_TAB_FEEDBACK, label: parentLabels.progressFeedbackTab, Icon: ScrollText },
+      {
+        id: PARENT_PROGRESS_TAB_FEEDBACK,
+        label: parentLabels.progressFeedbackTab,
+        Icon: ScrollText,
+        badgeCount: feedback.newCount,
+        badgeLabel: parentLabels.feedback.newTabAria.replace(
+          "{count}",
+          String(feedback.newCount),
+        ),
+      },
       { id: PARENT_PROGRESS_TAB_BADGES, label: navDict.badges, Icon: Award },
     ],
-    [navDict, parentLabels.progressFeedbackTab],
+    [navDict, parentLabels.progressFeedbackTab, parentLabels.feedback, feedback.newCount],
   );
 
   const panel = (id: string, content: ReactNode) => (
@@ -143,10 +152,10 @@ export function ParentProgressEntry({
       )}
       {panel(
         PARENT_PROGRESS_TAB_FEEDBACK,
-        <ParentLearningFeedbackPanel
-          rows={feedback}
-          labels={parentLabels}
-          selectedStudentId={selectedStudentId ?? undefined}
+        <ParentFeedbackSurface
+          locale={locale}
+          timeline={feedback}
+          copy={parentLabels.feedback}
         />,
       )}
       {panel(

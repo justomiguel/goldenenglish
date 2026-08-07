@@ -1,13 +1,16 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { User } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
+import { useAppSurface } from "@/hooks/useAppSurface";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
 import { ParentPwaTabBar } from "@/components/pwa/molecules/ParentPwaTabBar";
+import { PwaPullToRefresh } from "@/components/pwa/molecules/PwaPullToRefresh";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 interface ParentPwaShellProps {
@@ -38,6 +41,13 @@ export function ParentPwaShell({
   const nav = navDict ?? dict.dashboard.parentNav;
   const profileHref = `/${locale}/dashboard/profile`;
   const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
+  const router = useRouter();
+  // Only the installed app needs this: in a browser tab the platform already ships
+  // pull-to-refresh, and `overscroll-behavior-y: contain` only blocks it in standalone.
+  const isInstalledApp = useAppSurface() === "pwa-mobile";
+  const refresh = useCallback(() => {
+    router.refresh();
+  }, [router]);
 
   return (
     <div className="flex min-h-dvh flex-col bg-[var(--color-muted)]">
@@ -93,7 +103,13 @@ export function ParentPwaShell({
         className="mx-auto w-full max-w-[var(--layout-max-width)] flex-1 px-4 py-4"
         style={{ paddingBottom: "calc(4.5rem + max(0.5rem, env(safe-area-inset-bottom, 0px)))" }}
       >
-        {children}
+        <PwaPullToRefresh
+          onRefresh={refresh}
+          copy={dict.pwa.pullToRefresh}
+          enabled={isInstalledApp}
+        >
+          {children}
+        </PwaPullToRefresh>
       </main>
 
       <ParentPwaTabBar

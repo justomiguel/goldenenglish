@@ -55,6 +55,12 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
             url: `/${lang}/dashboard/parent/messages`,
             icons: [shortcutIcon],
           },
+          {
+            name: dict.pwa.shortcuts.parentProgress,
+            short_name: dict.pwa.shortcuts.parentProgressShort,
+            url: `/${lang}/dashboard/parent/progress`,
+            icons: [shortcutIcon],
+          },
         ]
       : undefined,
   };

@@ -21,6 +21,7 @@ export function resolveParentPwaTab(pathname: string, baseHref: string): ParentP
     pathname.startsWith(`${baseHref}/progress`) ||
     pathname.startsWith(`${baseHref}/tasks`) ||
     pathname.startsWith(`${baseHref}/assessments`) ||
+    pathname.startsWith(`${baseHref}/feedback`) ||
     pathname.startsWith(`${baseHref}/badges`)
   ) {
     return "progress";

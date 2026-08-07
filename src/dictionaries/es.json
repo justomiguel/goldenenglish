@@ -50,7 +50,15 @@
       "parentPayments": "Pagos (familia)",
       "parentPaymentsShort": "Pagos",
       "parentMessages": "Mensajes (familia)",
-      "parentMessagesShort": "Mensajes"
+      "parentMessagesShort": "Mensajes",
+      "parentProgress": "Progreso y comentarios del docente",
+      "parentProgressShort": "Progreso"
+    },
+    "pullToRefresh": {
+      "pull": "Deslizá para actualizar",
+      "release": "Soltá para actualizar",
+      "refreshing": "Actualizando…",
+      "done": "Todo al día"
     }
   },
   "greenfieldPublic": {
@@ -8955,10 +8963,24 @@
       "tasksTitle": "Tareas",
       "tasksLead": "Progreso de solo lectura de tus alumnos vinculados.",
       "tasksEmpty": "No encontramos tareas activas.",
-      "learningFeedbackTitle": "Feedback de aprendizaje",
-      "learningFeedbackLead": "Feedback de evaluaciones para el alumno seleccionado.",
-      "learningFeedbackEmpty": "Todavía no hay feedback de evaluaciones.",
-      "learningFeedbackScore": "Puntaje: {score}",
+      "feedback": {
+        "title": "Comentarios del docente",
+        "lead": "Lo que los docentes escribieron sobre el trabajo del alumno, de lo más reciente a lo más antiguo.",
+        "listAria": "Historial de comentarios del docente",
+        "empty": "Todavía no hay comentarios escritos.",
+        "emptyHint": "Los comentarios aparecen acá apenas un docente los publica. Las notas sin comentario quedan en la pestaña Mini-tests.",
+        "newBadge": "Nuevo",
+        "newSummaryOne": "1 comentario nuevo en los últimos {days} días",
+        "newSummaryMany": "{count} comentarios nuevos en los últimos {days} días",
+        "newTabAria": "{count} comentarios nuevos",
+        "sourceAssessment": "Examen",
+        "sourceLearning": "Mini-test",
+        "scoreLine": "{score} / {max}",
+        "scoreAria": "Puntaje {score} sobre {max}",
+        "teacherLine": "Por {teacher}",
+        "expand": "Leer el comentario completo",
+        "collapse": "Ocultar el comentario"
+      },
       "taskStatus": {
         "NOT_OPENED": "Sin abrir",
         "OPENED": "Abierta",
@@ -9097,6 +9119,7 @@
         "pillarPaymentsTitle": "Pagos",
         "pillarProgressTitle": "Progreso",
         "pillarProgressOkDetail": "{score} / {max} · {assessment}",
+        "pillarProgressFeedbackDetail": "{score} / {max} · {assessment} — incluye comentario del docente",
         "pillarProgressUnknownDetail": "Todavía no hay notas publicadas.",
         "statusOk": "Todo bien",
         "statusAttention": "Revisar",

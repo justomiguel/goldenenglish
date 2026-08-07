@@ -50,7 +50,15 @@
       "parentPayments": "Parent payments",
       "parentPaymentsShort": "Payments",
       "parentMessages": "Parent messages",
-      "parentMessagesShort": "Messages"
+      "parentMessagesShort": "Messages",
+      "parentProgress": "Progress and teacher feedback",
+      "parentProgressShort": "Progress"
+    },
+    "pullToRefresh": {
+      "pull": "Pull to refresh",
+      "release": "Release to refresh",
+      "refreshing": "Refreshing…",
+      "done": "Up to date"
     }
   },
   "greenfieldPublic": {
@@ -8955,10 +8963,24 @@
       "tasksTitle": "Learning tasks",
       "tasksLead": "Read-only progress for your linked students.",
       "tasksEmpty": "No active tasks found.",
-      "learningFeedbackTitle": "Learning feedback",
-      "learningFeedbackLead": "Read-only assessment feedback for the selected student.",
-      "learningFeedbackEmpty": "No assessment feedback yet.",
-      "learningFeedbackScore": "Score: {score}",
+      "feedback": {
+        "title": "Teacher feedback",
+        "lead": "What teachers wrote about your student's work, newest first.",
+        "listAria": "Teacher feedback timeline",
+        "empty": "No written feedback yet.",
+        "emptyHint": "Comments appear here as soon as a teacher publishes one. Scores without a comment stay in the Mini-tests tab.",
+        "newBadge": "New",
+        "newSummaryOne": "1 new comment in the last {days} days",
+        "newSummaryMany": "{count} new comments in the last {days} days",
+        "newTabAria": "{count} new comments",
+        "sourceAssessment": "Exam",
+        "sourceLearning": "Mini-test",
+        "scoreLine": "{score} / {max}",
+        "scoreAria": "Score {score} out of {max}",
+        "teacherLine": "By {teacher}",
+        "expand": "Read full comment",
+        "collapse": "Hide comment"
+      },
       "taskStatus": {
         "NOT_OPENED": "Not opened",
         "OPENED": "Opened",
@@ -9097,6 +9119,7 @@
         "pillarPaymentsTitle": "Payments",
         "pillarProgressTitle": "Progress",
         "pillarProgressOkDetail": "{score} / {max} · {assessment}",
+        "pillarProgressFeedbackDetail": "{score} / {max} · {assessment} — teacher comment included",
         "pillarProgressUnknownDetail": "No grades published yet.",
         "statusOk": "All good",
         "statusAttention": "Review",

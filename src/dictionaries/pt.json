@@ -50,7 +50,15 @@
       "parentPayments": "Pagamentos (família)",
       "parentPaymentsShort": "Pagamentos",
       "parentMessages": "Mensagens (família)",
-      "parentMessagesShort": "Mensagens"
+      "parentMessagesShort": "Mensagens",
+      "parentProgress": "Progresso e comentários do professor",
+      "parentProgressShort": "Progresso"
+    },
+    "pullToRefresh": {
+      "pull": "Puxe para atualizar",
+      "release": "Solte para atualizar",
+      "refreshing": "Atualizando…",
+      "done": "Tudo em dia"
     }
   },
   "greenfieldPublic": {
@@ -8833,10 +8841,24 @@
       "tasksTitle": "Tarefas de aprendizagem",
       "tasksLead": "Progresso somente leitura para seus alunos vinculados.",
       "tasksEmpty": "Nenhuma tarefa ativa encontrada.",
-      "learningFeedbackTitle": "Feedback de aprendizagem",
-      "learningFeedbackLead": "Feedback da avaliação somente leitura para o aluno selecionado.",
-      "learningFeedbackEmpty": "Nenhum feedback de avaliação ainda.",
-      "learningFeedbackScore": "Pontuação: {score}",
+      "feedback": {
+        "title": "Comentários do professor",
+        "lead": "O que os professores escreveram sobre o trabalho do aluno, do mais recente ao mais antigo.",
+        "listAria": "Histórico de comentários do professor",
+        "empty": "Ainda não há comentários escritos.",
+        "emptyHint": "Os comentários aparecem aqui assim que um professor os publica. Notas sem comentário ficam na aba Mini-tests.",
+        "newBadge": "Novo",
+        "newSummaryOne": "1 comentário novo nos últimos {days} dias",
+        "newSummaryMany": "{count} comentários novos nos últimos {days} dias",
+        "newTabAria": "{count} comentários novos",
+        "sourceAssessment": "Prova",
+        "sourceLearning": "Mini-test",
+        "scoreLine": "{score} / {max}",
+        "scoreAria": "Pontuação {score} de {max}",
+        "teacherLine": "Por {teacher}",
+        "expand": "Ler o comentário completo",
+        "collapse": "Ocultar o comentário"
+      },
       "taskStatus": {
         "NOT_OPENED": "Não aberto",
         "OPENED": "Aberto",
@@ -8975,6 +8997,7 @@
         "pillarPaymentsTitle": "Pagamentos",
         "pillarProgressTitle": "Progresso",
         "pillarProgressOkDetail": "{score} / {max} · {assessment}",
+        "pillarProgressFeedbackDetail": "{score} / {max} · {assessment} — inclui comentário do professor",
         "pillarProgressUnknownDetail": "Ainda não há notas publicadas.",
         "statusOk": "Tudo certo",
         "statusAttention": "Revisar",

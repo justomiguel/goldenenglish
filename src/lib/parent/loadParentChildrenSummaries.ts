@@ -6,6 +6,8 @@ export type ParentChildLastGrade = {
   maxScore: number;
   assessmentName: string;
   assessmentOn: string;
+  /** The teacher attached written feedback, readable in Progress → Feedback. */
+  hasTeacherFeedback: boolean;
 };
 
 export type ParentChildSummary = {

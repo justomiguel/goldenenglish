@@ -8,7 +8,7 @@ import { listTutorStudentsWithFinance } from "@/lib/auth/listTutorStudentsWithFi
 import { resolveSelectedWard } from "@/lib/parent/resolveSelectedWard";
 import { loadStudentLearningTasks } from "@/lib/learning-tasks/loadStudentLearningTasks";
 import { loadStudentMiniTests } from "@/lib/learning-content/loadStudentMiniTests";
-import { loadParentLearningFeedback } from "@/lib/learning-content/loadParentLearningFeedback";
+import { loadStudentFeedbackTimeline } from "@/lib/parent/loadStudentFeedbackTimeline";
 import { loadStudentBadgeDisplayRows } from "@/lib/badges/loadStudentBadgeDisplayRows";
 import { ParentProgressEntry } from "@/components/parent/ParentProgressEntry";
 
@@ -49,10 +49,15 @@ export default async function ParentProgressPage({ params, searchParams }: PageP
     displayName: s.displayName,
   }));
 
+  const selectedWard = students.find((s) => s.studentId === selectedStudentId);
+
   const [tasks, assessments, feedback, badgeRows] = await Promise.all([
     selectedStudentId ? loadStudentLearningTasks(supabase, selectedStudentId, 40) : Promise.resolve([]),
     selectedStudentId ? loadStudentMiniTests(supabase, selectedStudentId) : Promise.resolve([]),
-    loadParentLearningFeedback(supabase, user.id),
+    loadStudentFeedbackTimeline(supabase, {
+      studentId: selectedStudentId ?? "",
+      childLabel: selectedWard?.displayName ?? "",
+    }),
     selectedStudentId
       ? loadStudentBadgeDisplayRows(selectedStudentId, (token) => {
           const u = absoluteUrl(`/${locale}/b/${token}`);

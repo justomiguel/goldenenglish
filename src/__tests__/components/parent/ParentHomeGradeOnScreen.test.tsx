@@ -13,7 +13,10 @@ const GRADE = {
   maxScore: 20,
   assessmentName: "Mid-term",
   assessmentOn: "2026-07-15",
+  hasTeacherFeedback: false,
 };
+
+const GRADE_WITH_FEEDBACK = { ...GRADE, hasTeacherFeedback: true };
 
 const PILLARS_WITH_GRADE: ParentHomePillarSnapshot = {
   attendance: { level: "ok", monthPercent: 85 },
@@ -78,5 +81,60 @@ describe("ParentHomeStatusGrid — progress pillar (Test 2: grade reaches screen
     );
     // statusUnknown label from dict should appear for the progress card
     expect(screen.getAllByText(dictEn.dashboard.parent.homeInbox.statusUnknown).length).toBeGreaterThan(0);
+  });
+});
+
+// REGRESSION CHECK: `hasTeacherFeedback` rides along on the existing grade query, so the
+// pillar is the only place families learn a comment exists before opening Progress. Detail
+// copy and deep link must stay in sync — promising a comment while linking to the default
+// tab sends parents to the wrong place.
+describe("ParentHomeStatusGrid — progress pillar advertises teacher feedback", () => {
+  const pillarsWithFeedback: ParentHomePillarSnapshot = {
+    ...PILLARS_WITH_GRADE,
+    progress: { level: "ok", lastPublishedGrade: GRADE_WITH_FEEDBACK },
+  };
+
+  function progressLinkHref(pillars: ParentHomePillarSnapshot) {
+    render(
+      <ParentHomeStatusGrid
+        locale="en"
+        pillars={pillars}
+        labels={dictEn.dashboard.parent.homeInbox}
+      />,
+    );
+    return screen
+      .getAllByRole("link")
+      .find((link) => link.getAttribute("href")?.includes("/progress"))
+      ?.getAttribute("href");
+  }
+
+  it("mentions the teacher comment when the latest grade carries one", () => {
+    const { container } = render(
+      <ParentHomeStatusGrid
+        locale="en"
+        pillars={pillarsWithFeedback}
+        labels={dictEn.dashboard.parent.homeInbox}
+      />,
+    );
+    expect(container.textContent).toContain("teacher comment included");
+  });
+
+  it("deep links straight to the feedback tab in that case", () => {
+    expect(progressLinkHref(pillarsWithFeedback)).toContain("tab=feedback");
+  });
+
+  it("keeps the plain score detail and link when there is no comment", () => {
+    const { container } = render(
+      <ParentHomeStatusGrid
+        locale="en"
+        pillars={PILLARS_WITH_GRADE}
+        labels={dictEn.dashboard.parent.homeInbox}
+      />,
+    );
+    expect(container.textContent).not.toContain("teacher comment included");
+  });
+
+  it("does not deep link to feedback without a comment", () => {
+    expect(progressLinkHref(PILLARS_WITH_GRADE)).not.toContain("tab=feedback");
   });
 });

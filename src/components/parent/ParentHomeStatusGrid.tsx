@@ -72,7 +72,10 @@ export function ParentHomeStatusGrid({
 
   const progressDetail =
     progress.lastPublishedGrade != null
-      ? labels.pillarProgressOkDetail
+      ? (progress.lastPublishedGrade.hasTeacherFeedback
+          ? labels.pillarProgressFeedbackDetail
+          : labels.pillarProgressOkDetail
+        )
           .replace("{score}", String(progress.lastPublishedGrade.score))
           .replace("{max}", String(progress.lastPublishedGrade.maxScore))
           .replace("{assessment}", progress.lastPublishedGrade.assessmentName)
@@ -130,7 +133,11 @@ export function ParentHomeStatusGrid({
         ) : null}
         <li>
           <ParentHomeStatusCard
-            href={`${base}/progress`}
+            href={
+              progress.lastPublishedGrade?.hasTeacherFeedback
+                ? `${base}/progress?tab=feedback`
+                : `${base}/progress`
+            }
             title={labels.pillarProgressTitle}
             detail={progressDetail}
             statusLabel={statusLabel(progress.level, labels)}
