@@ -80,6 +80,7 @@ export default async function ParentProgressPage({ params, searchParams }: PageP
         studentLabels={dict.dashboard.student}
         badgesDict={dict.dashboard.student.badges}
         navDict={dict.dashboard.parentNav}
+        shellOwnsFocus
       />
     </Suspense>
   );

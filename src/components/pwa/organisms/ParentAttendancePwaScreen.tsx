@@ -31,6 +31,10 @@ export interface ParentAttendancePwaScreenProps {
   events: PortalCalendarEvent[];
   feedUrl: string | null;
   viewerId?: string;
+  /** When set, only this academic section is shown. */
+  selectedSectionId?: string | null;
+  /** When true, ward picker is omitted (shell owns focus). */
+  shellOwnsFocus?: boolean;
 }
 
 export function ParentAttendancePwaScreen({
@@ -46,6 +50,8 @@ export function ParentAttendancePwaScreen({
   events,
   feedUrl,
   viewerId,
+  selectedSectionId = null,
+  shellOwnsFocus = false,
 }: ParentAttendancePwaScreenProps) {
   const scheduleTitleId = useId();
   const [scheduleOpen, setScheduleOpen] = useState(false);
@@ -54,16 +60,19 @@ export function ParentAttendancePwaScreen({
   const basePath = `/${locale}/dashboard/parent/calendar`;
   const filteredSummaries = useMemo(
     () =>
-      model.sectionSummaries.filter(
-        (s) => !selectedStudentId || s.studentId === selectedStudentId,
-      ),
-    [model.sectionSummaries, selectedStudentId],
+      model.sectionSummaries.filter((s) => {
+        if (selectedStudentId && s.studentId !== selectedStudentId) return false;
+        if (selectedSectionId && s.sectionId !== selectedSectionId) return false;
+        return true;
+      }),
+    [model.sectionSummaries, selectedStudentId, selectedSectionId],
   );
 
   const marksBySection = useMemo(() => {
     const map = new Map<string, typeof model.marks>();
     for (const mark of model.marks) {
       if (selectedStudentId && mark.studentId !== selectedStudentId) continue;
+      if (selectedSectionId && mark.sectionId !== selectedSectionId) continue;
       const key = `${mark.studentId}:${mark.sectionId}`;
       const list = map.get(key) ?? [];
       list.push(mark);
@@ -74,7 +83,7 @@ export function ParentAttendancePwaScreen({
       map.set(key, list);
     }
     return map;
-  }, [model.marks, selectedStudentId]);
+  }, [model.marks, selectedStudentId, selectedSectionId]);
 
   return (
     <div className={isNarrowParent ? "space-y-5 pb-20" : "space-y-5"}>
@@ -94,15 +103,17 @@ export function ParentAttendancePwaScreen({
           ) : null}
         </div>
 
-        <ParentWardPicker
-          options={wardOptions}
-          selectedStudentId={selectedStudentId}
-          label={wardPickerLabel}
-          hint={wardPickerHint}
-          basePath={basePath}
-          variant={isNarrowParent ? "pwa" : "default"}
-          selectId="parent-attendance-ward-picker"
-        />
+        {!shellOwnsFocus ? (
+          <ParentWardPicker
+            options={wardOptions}
+            selectedStudentId={selectedStudentId}
+            label={wardPickerLabel}
+            hint={wardPickerHint}
+            basePath={basePath}
+            variant={isNarrowParent ? "pwa" : "default"}
+            selectId="parent-attendance-ward-picker"
+          />
+        ) : null}
       </header>
 
       {filteredSummaries.length === 0 ? (

@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { CalendarCheck, Home, MessageCircle, Settings, TrendingUp, Wallet } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
-import { withStudentIdHref } from "@/lib/parent/withStudentIdHref";
+import { withParentFocusHref } from "@/lib/parent/withParentFocusHref";
 
 export type ParentPwaTabId =
   | "home"
@@ -52,6 +52,7 @@ export function ParentPwaTabBar({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const studentId = searchParams.get("studentId");
+  const sectionId = searchParams.get("sectionId");
   const active = resolveParentPwaTab(pathname, baseHref);
 
   const tabs: { id: ParentPwaTabId; href: string; label: string; icon: React.ReactNode }[] = [
@@ -107,7 +108,7 @@ export function ParentPwaTabBar({
           return (
             <li key={tab.id} className="min-w-0 flex-1">
               <Link
-                href={withStudentIdHref(tab.href, studentId)}
+                href={withParentFocusHref(tab.href, { studentId, sectionId })}
                 aria-current={isActive ? "page" : undefined}
                 className={`flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-[var(--layout-border-radius)] px-1 py-1.5 text-[0.625rem] font-semibold leading-tight transition ${
                   isActive

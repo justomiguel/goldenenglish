@@ -8819,6 +8819,14 @@
       "title": "Painel familiar",
       "kicker": "Área familiar",
       "lead": "Crianças vinculadas à sua conta.",
+      "focus": {
+        "childLabel": "Filho/a",
+        "sectionLabel": "Turma",
+        "childSelectAria": "Selecionar filho/a",
+        "sectionSelectAria": "Selecionar turma",
+        "noActiveSection": "Sem turma ativa",
+        "focusBarAria": "Foco familiar"
+      },
       "childClassReminderTitle": "Lembretes de aula para este aluno",
       "childClassReminderHint": "Para menores de idade, os responsáveis ​​gerenciam os canais de notificação aqui.",
       "emptyValue": "-",

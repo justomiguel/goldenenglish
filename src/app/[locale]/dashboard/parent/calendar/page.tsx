@@ -8,14 +8,15 @@ import {
   type TutorStudentSummary,
 } from "@/lib/auth/listTutorStudentsWithFinance";
 import { loadParentFamilyHubModel } from "@/lib/parent/loadParentFamilyHubModel";
-import { resolveSelectedWard } from "@/lib/parent/resolveSelectedWard";
+import { loadParentFocusCatalog } from "@/lib/parent/loadParentFocusCatalog";
+import { resolveParentFocus } from "@/lib/parent/resolveParentFocus";
 import { ParentPortalCalendarEntry } from "@/components/parent/ParentPortalCalendarEntry";
 import { loadParentRecentAttendance } from "@/lib/parent/loadParentRecentAttendance";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ studentId?: string }>;
+  searchParams: Promise<{ studentId?: string; sectionId?: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps) {
@@ -40,7 +41,7 @@ export default async function ParentCalendarPage({ params, searchParams }: PageP
     locale,
     birthdayCopy: dict.dashboard.birthdays,
   });
-  const [hub, attendance, students] = await Promise.all([
+  const [hub, attendance, students, focusCatalog] = await Promise.all([
     loadParentFamilyHubModel(
       supabase,
       user.id,
@@ -49,15 +50,16 @@ export default async function ParentCalendarPage({ params, searchParams }: PageP
     ),
     loadParentRecentAttendance(supabase, user.id),
     listTutorStudentsWithFinance(supabase, user.id),
+    loadParentFocusCatalog(supabase, user.id),
   ]);
   const wardOptions = students.map((s: TutorStudentSummary) => ({
     studentId: s.studentId,
     displayName: s.displayName,
   }));
-  const selectedStudentId = resolveSelectedWard(
-    students,
-    typeof sp.studentId === "string" ? sp.studentId : undefined,
-  );
+  const focus = resolveParentFocus(focusCatalog, {
+    studentId: typeof sp.studentId === "string" ? sp.studentId : undefined,
+    sectionId: typeof sp.sectionId === "string" ? sp.sectionId : undefined,
+  });
   const origin = getPublicSiteUrl()?.origin ?? "";
   const feedUrl = payload.feedToken && origin ? `${origin}/api/calendar/feed/${payload.feedToken}.ics` : null;
 
@@ -70,7 +72,9 @@ export default async function ParentCalendarPage({ params, searchParams }: PageP
         wardPickerLabel={dict.dashboard.parent.wardPickerLabel}
         wardPickerHint={dict.dashboard.parent.wardPickerHint}
         wardOptions={wardOptions}
-        selectedStudentId={selectedStudentId}
+        selectedStudentId={focus.studentId}
+        selectedSectionId={focus.sectionId}
+        shellOwnsFocus
         events={payload.events}
         feedUrl={feedUrl}
         viewerId={user.id}

@@ -55,6 +55,8 @@ export interface ParentPaymentsEntryProps {
   feesPanel: ReactNode;
   initialFocus?: StudentPaymentsFocusKey | null;
   bankTransferInstructions?: string | null;
+  /** When true, student select is omitted (shell owns focus). */
+  shellOwnsFocus?: boolean;
 }
 
 function ParentPaymentsBodyDesktop({
@@ -77,6 +79,7 @@ function ParentPaymentsBodyDesktop({
   feesPanel,
   initialFocus = null,
   bankTransferInstructions = null,
+  shellOwnsFocus = false,
 }: ParentPaymentsEntryProps) {
   const router = useRouter();
 
@@ -98,26 +101,28 @@ function ParentPaymentsBodyDesktop({
       </section>
     ) : (
       <>
-        <div className="max-w-sm">
-          <Label htmlFor="tutor-payments-picker">{labels.paymentsPickerLabel}</Label>
-          <select
-            id="tutor-payments-picker"
-            name="studentId"
-            value={selectedStudentId ?? ""}
-            onChange={onChangeStudent}
-            className="mt-1 block min-h-[44px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-foreground)]"
-            aria-describedby="tutor-payments-picker-hint"
-          >
-            {options.map((option) => (
-              <option key={option.studentId} value={option.studentId}>
-                {option.displayName}
-              </option>
-            ))}
-          </select>
-          <p id="tutor-payments-picker-hint" className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-            {labels.paymentsPickerHint}
-          </p>
-        </div>
+        {!shellOwnsFocus ? (
+          <div className="max-w-sm">
+            <Label htmlFor="tutor-payments-picker">{labels.paymentsPickerLabel}</Label>
+            <select
+              id="tutor-payments-picker"
+              name="studentId"
+              value={selectedStudentId ?? ""}
+              onChange={onChangeStudent}
+              className="mt-1 block min-h-[44px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-foreground)]"
+              aria-describedby="tutor-payments-picker-hint"
+            >
+              {options.map((option) => (
+                <option key={option.studentId} value={option.studentId}>
+                  {option.displayName}
+                </option>
+              ))}
+            </select>
+            <p id="tutor-payments-picker-hint" className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+              {labels.paymentsPickerHint}
+            </p>
+          </div>
+        ) : null}
 
         {financialAccessRevoked ? (
           <section

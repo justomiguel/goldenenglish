@@ -8941,6 +8941,14 @@
       "title": "Panel familiar",
       "kicker": "Área familias",
       "lead": "Alumnos vinculados a tu cuenta.",
+      "focus": {
+        "childLabel": "Hijo/a",
+        "sectionLabel": "Clase",
+        "childSelectAria": "Elegí hijo/a",
+        "sectionSelectAria": "Elegí clase",
+        "noActiveSection": "Sin clase activa",
+        "focusBarAria": "Foco familiar"
+      },
       "childClassReminderTitle": "Recordatorios de clase para este alumno",
       "childClassReminderHint": "Para menores, el tutor gestiona los canales de aviso acá.",
       "emptyValue": "—",

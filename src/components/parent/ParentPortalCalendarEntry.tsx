@@ -28,6 +28,8 @@ export interface ParentPortalCalendarEntryProps {
   attendance: ParentRecentAttendanceModel;
   hub?: ParentHubModel | null;
   hubDict?: Dictionary["dashboard"]["parent"]["hub"];
+  selectedSectionId?: string | null;
+  shellOwnsFocus?: boolean;
 }
 
 export function ParentPortalCalendarEntry({
@@ -42,6 +44,8 @@ export function ParentPortalCalendarEntry({
   feedUrl,
   viewerId,
   attendance,
+  selectedSectionId = null,
+  shellOwnsFocus = false,
 }: ParentPortalCalendarEntryProps) {
   const resolvedWardPickerLabel = wardPickerLabel?.trim() || "Student";
   const resolvedWardPickerHint =
@@ -74,6 +78,8 @@ export function ParentPortalCalendarEntry({
         events={events}
         feedUrl={feedUrl}
         viewerId={viewerId}
+        selectedSectionId={selectedSectionId}
+        shellOwnsFocus={shellOwnsFocus}
       />
     </div>
   );

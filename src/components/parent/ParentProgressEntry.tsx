@@ -42,6 +42,8 @@ interface ParentProgressEntryProps {
   navDict: Dictionary["dashboard"]["parentNav"];
   /** Route base for ward picker URL updates (defaults to parent progress). */
   progressBasePath?: string;
+  /** When true, ward picker is omitted (shell owns student+section focus). */
+  shellOwnsFocus?: boolean;
 }
 
 export function ParentProgressEntry({
@@ -57,6 +59,7 @@ export function ParentProgressEntry({
   badgesDict,
   navDict,
   progressBasePath,
+  shellOwnsFocus = false,
 }: ParentProgressEntryProps) {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") ?? PARENT_PROGRESS_TAB_TASKS;
@@ -108,15 +111,17 @@ export function ParentProgressEntry({
         <p className="text-sm text-[var(--color-muted-foreground)]">{parentLabels.progressPageLead}</p>
       </header>
 
-      <ParentWardPicker
-        options={wardOptions}
-        selectedStudentId={selectedStudentId}
-        label={parentLabels.wardPickerLabel}
-        hint={parentLabels.wardPickerHint}
-        basePath={basePath}
-        variant={isNarrowParent ? "pwa" : "default"}
-        selectId="parent-progress-ward-picker"
-      />
+      {!shellOwnsFocus ? (
+        <ParentWardPicker
+          options={wardOptions}
+          selectedStudentId={selectedStudentId}
+          label={parentLabels.wardPickerLabel}
+          hint={parentLabels.wardPickerHint}
+          basePath={basePath}
+          variant={isNarrowParent ? "pwa" : "default"}
+          selectId="parent-progress-ward-picker"
+        />
+      ) : null}
 
       <UnderlineTabBar
         idPrefix={idPrefix}

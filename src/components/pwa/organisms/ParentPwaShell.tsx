@@ -3,12 +3,14 @@
 import { useCallback, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { User } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
+import type { ParentFocusCatalog } from "@/lib/parent/parentFocusTypes";
 import { useAppSurface } from "@/hooks/useAppSurface";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { ParentFocusSwitcher } from "@/components/parent/ParentFocusSwitcher";
 import { ParentPwaTabBar } from "@/components/pwa/molecules/ParentPwaTabBar";
 import { PwaPullToRefresh } from "@/components/pwa/molecules/PwaPullToRefresh";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
@@ -22,6 +24,7 @@ interface ParentPwaShellProps {
   includePayments?: boolean;
   chromeLabels?: Dictionary["dashboard"]["parentChrome"];
   navDict?: Dictionary["dashboard"]["parentNav"];
+  focusCatalog?: ParentFocusCatalog;
 }
 
 const headerActionClass =
@@ -36,18 +39,22 @@ export function ParentPwaShell({
   includePayments = true,
   chromeLabels,
   navDict,
+  focusCatalog,
 }: ParentPwaShellProps) {
   const chrome = chromeLabels ?? dict.dashboard.parentChrome;
   const nav = navDict ?? dict.dashboard.parentNav;
   const profileHref = `/${locale}/dashboard/profile`;
   const bypassLogoOptimizer = brand.logoPath.startsWith("/images/");
   const router = useRouter();
-  // Only the installed app needs this: in a browser tab the platform already ships
-  // pull-to-refresh, and `overscroll-behavior-y: contain` only blocks it in standalone.
+  const pathname = usePathname();
   const isInstalledApp = useAppSurface() === "pwa-mobile";
   const refresh = useCallback(() => {
     router.refresh();
   }, [router]);
+
+  const isHome =
+    pathname === baseHref || pathname === `${baseHref}/` || pathname === baseHref.replace(/\/$/, "");
+  const showStickyFocus = Boolean(focusCatalog && focusCatalog.students.length > 0 && !isHome);
 
   return (
     <div className="flex min-h-dvh flex-col bg-[var(--color-muted)]">
@@ -98,6 +105,14 @@ export function ParentPwaShell({
           </div>
         </div>
       </header>
+
+      {showStickyFocus && focusCatalog ? (
+        <ParentFocusSwitcher
+          catalog={focusCatalog}
+          labels={dict.dashboard.parent.focus}
+          variant="pwa-sticky"
+        />
+      ) : null}
 
       <main
         className="mx-auto w-full max-w-[var(--layout-max-width)] flex-1 px-4 py-4"

@@ -5,6 +5,7 @@ import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import type { ParentChildSummary } from "@/lib/parent/loadParentChildrenSummaries";
 import type { ParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
 import type { ParentHomeNewsItem } from "@/lib/parent/loadParentHomeNewsFeed";
+import type { ParentFocusCatalog } from "@/lib/parent/parentFocusTypes";
 import type { Dictionary } from "@/types/i18n";
 import { ParentHomeInbox } from "@/components/parent/ParentHomeInbox";
 import { ParentHomePwaFocus } from "@/components/parent/ParentHomePwaFocus";
@@ -38,6 +39,7 @@ export interface ParentDashboardEntryProps {
   newsItems: ParentHomeNewsItem[];
   dashboardBase?: string;
   includePayments?: boolean;
+  focusCatalog?: ParentFocusCatalog;
 }
 
 export function ParentDashboardEntry({
@@ -58,6 +60,7 @@ export function ParentDashboardEntry({
   newsItems,
   dashboardBase,
   includePayments = true,
+  focusCatalog,
 }: ParentDashboardEntryProps) {
   if (summaries.length === 0 && kids.length === 0) {
     return <p className="text-sm text-[var(--color-muted-foreground)]">{lead}</p>;
@@ -104,7 +107,7 @@ export function ParentDashboardEntry({
         <ParentHomeInbox {...shared} fullDateLine={fullDateLine} />
       }
       narrow={() => (
-        <ParentHomePwaFocus {...shared} />
+        <ParentHomePwaFocus {...shared} focusCatalog={focusCatalog} />
       )}
     />
   );

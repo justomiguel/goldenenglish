@@ -2,7 +2,6 @@ import type { ParentChildSummary } from "@/lib/parent/loadParentChildrenSummarie
 import type { ParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
 import type { ParentHomeNewsItem } from "@/lib/parent/loadParentHomeNewsFeed";
 import type { Dictionary } from "@/types/i18n";
-import { ParentChildSwitcher } from "@/components/parent/ParentChildSwitcher";
 import { ParentHomeStatusGrid } from "@/components/parent/ParentHomeStatusGrid";
 import { ParentHomeNewsFeed } from "@/components/pwa/molecules/ParentHomeNewsFeed";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
@@ -63,14 +62,8 @@ export function ParentHomeInbox({
         ) : null}
       </header>
 
-      <div data-tour={PARENT_TOUR_ANCHORS.homeChildSwitcher}>
-        <ParentChildSwitcher
-          locale={locale}
-          summaries={summaries}
-          selectedStudentId={selected?.studentId}
-          ariaLabel={labels.selectChild}
-          dashboardBase={dashboardBase}
-        />
+      <div data-tour={PARENT_TOUR_ANCHORS.homeChildSwitcher} className="sr-only" aria-hidden>
+        {/* Focus switcher lives in the desktop sidebar / PWA chrome. */}
       </div>
 
       <div data-tour={PARENT_TOUR_ANCHORS.homeStatusPillars}>

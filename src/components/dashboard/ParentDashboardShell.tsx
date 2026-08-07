@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
+import type { ParentFocusCatalog } from "@/lib/parent/parentFocusTypes";
 import { ParentDashboardShellClient } from "@/components/dashboard/ParentDashboardShellClient";
 
 export interface ParentDashboardShellProps {
@@ -14,6 +15,8 @@ export interface ParentDashboardShellProps {
   chromeLabels?: Dictionary["dashboard"]["parentChrome"];
   /** Override nav dict; defaults to parent nav. */
   navDict?: Dictionary["dashboard"]["parentNav"];
+  /** When set (parent layout), enables student+section focus chrome. */
+  focusCatalog?: ParentFocusCatalog;
 }
 
 export function ParentDashboardShell({
@@ -25,6 +28,7 @@ export function ParentDashboardShell({
   includePayments,
   chromeLabels,
   navDict,
+  focusCatalog,
 }: ParentDashboardShellProps) {
   return (
     <ParentDashboardShellClient
@@ -35,6 +39,7 @@ export function ParentDashboardShell({
       includePayments={includePayments}
       chromeLabels={chromeLabels}
       navDict={navDict}
+      focusCatalog={focusCatalog}
     >
       {children}
     </ParentDashboardShellClient>

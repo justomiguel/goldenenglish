@@ -8941,6 +8941,14 @@
       "title": "Family dashboard",
       "kicker": "Family area",
       "lead": "Children linked to your account.",
+      "focus": {
+        "childLabel": "Child",
+        "sectionLabel": "Class",
+        "childSelectAria": "Select child",
+        "sectionSelectAria": "Select class",
+        "noActiveSection": "No active class",
+        "focusBarAria": "Family focus"
+      },
       "childClassReminderTitle": "Class reminders for this student",
       "childClassReminderHint": "For minors, guardians manage notification channels here.",
       "emptyValue": "—",

@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { Dictionary } from "@/types/i18n";
+import type { ParentFocusCatalog } from "@/lib/parent/parentFocusTypes";
 import {
   buildParentSidebarNavGroups,
   type ParentSidebarNavGroup,
 } from "@/components/dashboard/parentSidebarNavGroups";
-import { withStudentIdHref } from "@/lib/parent/withStudentIdHref";
+import { withParentFocusHref } from "@/lib/parent/withParentFocusHref";
+import { ParentFocusSwitcher } from "@/components/parent/ParentFocusSwitcher";
 
 export interface ParentSidebarNavContentProps {
   locale: string;
@@ -17,6 +19,8 @@ export interface ParentSidebarNavContentProps {
   includePayments?: boolean;
   onNavigate?: () => void;
   variant?: "desktop" | "mobile";
+  focusCatalog?: ParentFocusCatalog;
+  focusLabels?: Dictionary["dashboard"]["parent"]["focus"];
 }
 
 function NavGroupBlock({
@@ -26,6 +30,7 @@ function NavGroupBlock({
   pathname,
   mobile,
   studentId,
+  sectionId,
   onNavigate,
 }: {
   group: ParentSidebarNavGroup;
@@ -34,6 +39,7 @@ function NavGroupBlock({
   pathname: string;
   mobile: boolean;
   studentId: string | null;
+  sectionId: string | null;
   onNavigate?: () => void;
 }) {
   return (
@@ -55,7 +61,7 @@ function NavGroupBlock({
       ) : null}
       <div className="space-y-0.5">
         {group.items.map(({ href, label, icon, tip }) => {
-          const resolvedHref = withStudentIdHref(href, studentId);
+          const resolvedHref = withParentFocusHref(href, { studentId, sectionId });
           const exact = href === base || href === profileHref;
           const active = exact
             ? pathname === href
@@ -96,15 +102,25 @@ export function ParentSidebarNavContent({
   includePayments = true,
   onNavigate,
   variant = "desktop",
+  focusCatalog,
+  focusLabels,
 }: ParentSidebarNavContentProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const studentId = searchParams.get("studentId");
+  const sectionId = searchParams.get("sectionId");
   const groups = buildParentSidebarNavGroups(baseHref, profileHref, dict, { includePayments });
   const mobile = variant === "mobile";
 
   return (
     <nav aria-label={dict.aria} className={mobile ? "space-y-4" : "space-y-5"}>
+      {variant === "desktop" && focusCatalog && focusLabels ? (
+        <ParentFocusSwitcher
+          catalog={focusCatalog}
+          labels={focusLabels}
+          variant="desktop-sidebar"
+        />
+      ) : null}
       {groups.map((group, gi) => (
         <NavGroupBlock
           key={gi}
@@ -114,6 +130,7 @@ export function ParentSidebarNavContent({
           pathname={pathname}
           mobile={mobile}
           studentId={studentId}
+          sectionId={sectionId}
           onNavigate={onNavigate}
         />
       ))}

@@ -8,11 +8,12 @@ import {
   buildParentHomeChildPaymentRows,
 } from "@/lib/parent/buildParentHomeChildPillarRows";
 import type { Dictionary } from "@/types/i18n";
-import { ParentChildSwitcher } from "@/components/parent/ParentChildSwitcher";
+import { ParentFocusSwitcher } from "@/components/parent/ParentFocusSwitcher";
 import { ParentHomeStatusGrid } from "@/components/parent/ParentHomeStatusGrid";
 import { ParentHomeNewsFeed } from "@/components/pwa/molecules/ParentHomeNewsFeed";
 import { PushPermissionBanner } from "@/components/molecules/PushPermissionBanner";
 import type { ParentHomeNewsItem } from "@/lib/parent/loadParentHomeNewsFeed";
+import type { ParentFocusCatalog } from "@/lib/parent/parentFocusTypes";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
@@ -29,6 +30,7 @@ export interface ParentHomePwaFocusProps {
   newsItems: ParentHomeNewsItem[];
   dashboardBase?: string;
   includePayments?: boolean;
+  focusCatalog?: ParentFocusCatalog;
 }
 
 export function ParentHomePwaFocus({
@@ -44,6 +46,7 @@ export function ParentHomePwaFocus({
   newsItems,
   dashboardBase,
   includePayments = true,
+  focusCatalog,
 }: ParentHomePwaFocusProps) {
   const inbox = labels.homeInbox;
   const multipleChildren = summaries.length > 1;
@@ -98,13 +101,13 @@ export function ParentHomePwaFocus({
       />
 
       <div data-tour={PARENT_TOUR_ANCHORS.homeChildSwitcher}>
-        <ParentChildSwitcher
-          locale={locale}
-          summaries={summaries}
-          selectedStudentId={selected?.studentId}
-          ariaLabel={labels.selectChild}
-          dashboardBase={dashboardBase}
-        />
+        {focusCatalog ? (
+          <ParentFocusSwitcher
+            catalog={focusCatalog}
+            labels={labels.focus}
+            variant="pwa-home"
+          />
+        ) : null}
       </div>
 
       <div data-tour={PARENT_TOUR_ANCHORS.homeStatusPillars}>

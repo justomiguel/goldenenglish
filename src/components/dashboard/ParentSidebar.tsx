@@ -1,4 +1,5 @@
 import type { Dictionary } from "@/types/i18n";
+import type { ParentFocusCatalog } from "@/lib/parent/parentFocusTypes";
 import { ParentSidebarNavContent } from "@/components/dashboard/ParentSidebarNavContent";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
@@ -8,9 +9,19 @@ export interface ParentSidebarProps {
   baseHref?: string;
   profileHref?: string;
   includePayments?: boolean;
+  focusCatalog?: ParentFocusCatalog;
+  focusLabels?: Dictionary["dashboard"]["parent"]["focus"];
 }
 
-export function ParentSidebar({ locale, dict, baseHref, profileHref, includePayments }: ParentSidebarProps) {
+export function ParentSidebar({
+  locale,
+  dict,
+  baseHref,
+  profileHref,
+  includePayments,
+  focusCatalog,
+  focusLabels,
+}: ParentSidebarProps) {
   return (
     <aside
       data-tour={PARENT_TOUR_ANCHORS.sidebar}
@@ -22,6 +33,8 @@ export function ParentSidebar({ locale, dict, baseHref, profileHref, includePaym
         baseHref={baseHref}
         profileHref={profileHref}
         includePayments={includePayments}
+        focusCatalog={focusCatalog}
+        focusLabels={focusLabels}
       />
     </aside>
   );

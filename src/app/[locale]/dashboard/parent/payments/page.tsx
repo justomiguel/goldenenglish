@@ -85,6 +85,7 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
         feesPanel={feesPanel}
         initialFocus={payload.initialFocus}
         bankTransferInstructions={payload.bankTransferInstructions}
+        shellOwnsFocus
       />
     </Suspense>
   );

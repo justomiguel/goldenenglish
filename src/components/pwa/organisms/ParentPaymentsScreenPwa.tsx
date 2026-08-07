@@ -37,6 +37,7 @@ export interface ParentPaymentsScreenPwaProps {
   fileUploadProgress: FileUploadProgressLabels;
   initialFocus?: StudentPaymentsFocusKey | null;
   bankTransferInstructions?: string | null;
+  shellOwnsFocus?: boolean;
 }
 
 export function ParentPaymentsScreenPwa({
@@ -58,6 +59,7 @@ export function ParentPaymentsScreenPwa({
   enabledOnlineGateways = [],
   initialFocus = null,
   bankTransferInstructions = null,
+  shellOwnsFocus = false,
 }: ParentPaymentsScreenPwaProps) {
   const router = useRouter();
   const pwaLabels = labels.paymentsPwa;
@@ -94,15 +96,17 @@ export function ParentPaymentsScreenPwa({
             isFamilySettled={familySummary.isFamilySettled}
           />
 
-          <ParentPaymentsStudentPicker
-            locale={locale}
-            pickerLabel={labels.paymentsPickerLabel}
-            options={options}
-            selectedStudentId={selectedStudentId}
-            familySummary={familySummary}
-            pwaLabels={pwaLabels}
-            onChange={onChangeStudent}
-          />
+          {!shellOwnsFocus ? (
+            <ParentPaymentsStudentPicker
+              locale={locale}
+              pickerLabel={labels.paymentsPickerLabel}
+              options={options}
+              selectedStudentId={selectedStudentId}
+              familySummary={familySummary}
+              pwaLabels={pwaLabels}
+              onChange={onChangeStudent}
+            />
+          ) : null}
 
           {financialAccessRevoked ? (
             <section

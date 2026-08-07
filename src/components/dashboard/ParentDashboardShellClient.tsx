@@ -3,6 +3,7 @@
 import { useSyncExternalStore, type ReactNode } from "react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
+import type { ParentFocusCatalog } from "@/lib/parent/parentFocusTypes";
 import { useAppSurface } from "@/hooks/useAppSurface";
 import { StudentChromeHeader } from "@/components/dashboard/StudentChromeHeader";
 import { ParentSidebar } from "@/components/dashboard/ParentSidebar";
@@ -23,6 +24,7 @@ export interface ParentDashboardShellClientProps {
   chromeLabels?: Dictionary["dashboard"]["parentChrome"];
   /** Override nav dict; defaults to parent nav. */
   navDict?: Dictionary["dashboard"]["parentNav"];
+  focusCatalog?: ParentFocusCatalog;
 }
 
 function subscribeReady(onStoreChange: () => void) {
@@ -47,6 +49,7 @@ function ParentDesktopShell({
   includePayments,
   chromeLabels,
   navDict,
+  focusCatalog,
 }: ParentDashboardShellClientProps) {
   const nav = navDict ?? dict.dashboard.parentNav;
   const chrome = chromeLabels ?? dict.dashboard.parentChrome;
@@ -71,6 +74,8 @@ function ParentDesktopShell({
           baseHref={base}
           profileHref={profileHref}
           includePayments={includePayments}
+          focusCatalog={focusCatalog}
+          focusLabels={dict.dashboard.parent.focus}
         />
         <div className="min-w-0 flex-1 px-4 py-6 md:rounded-[var(--layout-border-radius)] md:border md:border-[var(--color-border)] md:bg-[var(--color-background)] md:px-8 md:py-8 md:shadow-sm">
           <ParentBreadcrumb locale={locale} dict={nav} baseHref={base} />
@@ -86,6 +91,7 @@ export function ParentDashboardShellClient({
   includePayments = true,
   chromeLabels,
   navDict,
+  focusCatalog,
   ...props
 }: ParentDashboardShellClientProps) {
   const mounted = useSyncExternalStore(subscribeReady, snapshotMounted, snapshotNotMounted);
@@ -109,6 +115,7 @@ export function ParentDashboardShellClient({
         includePayments={includePayments}
         chromeLabels={chromeLabels}
         navDict={navDict}
+        focusCatalog={focusCatalog}
       />
     );
   }
@@ -122,6 +129,7 @@ export function ParentDashboardShellClient({
       includePayments={includePayments}
       chromeLabels={chromeLabels}
       navDict={navDict}
+      focusCatalog={focusCatalog}
     >
       {props.children}
     </ParentPwaShell>

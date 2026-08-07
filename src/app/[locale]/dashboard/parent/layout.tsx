@@ -4,8 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { ParentDashboardShell } from "@/components/dashboard/ParentDashboardShell";
-import { ParentHelpLauncher } from "@/components/dashboard/ParentHelpLauncher";
-import { loadParentChildrenSummaries } from "@/lib/parent/loadParentChildrenSummaries";
+import { loadParentFocusCatalog } from "@/lib/parent/loadParentFocusCatalog";
 
 interface LayoutProps {
   children: ReactNode;
@@ -32,20 +31,15 @@ export default async function ParentDashboardLayout({
     .single();
   if (profile?.role !== "parent") redirect(`/${locale}/dashboard`);
 
-  const summaries = await loadParentChildrenSummaries(supabase, user.id);
-  const defaultStudentId = summaries[0]?.studentId;
+  const focusCatalog = await loadParentFocusCatalog(supabase, user.id);
 
   return (
-    <ParentDashboardShell locale={locale} dict={dict} brand={brand}>
-      <ParentHelpLauncher
-        locale={locale}
-        launcherDict={dict.dashboard.parentHelpLauncher}
-        catalogDict={dict.dashboard.parentHelpCatalog}
-        toursDict={dict.dashboard.parentHelpTours}
-        explainScreenDict={dict.dashboard.parentHelpExplainScreen}
-        screenToursDict={dict.dashboard.parentHelpScreenTours}
-        defaultStudentId={defaultStudentId}
-      />
+    <ParentDashboardShell
+      locale={locale}
+      dict={dict}
+      brand={brand}
+      focusCatalog={focusCatalog}
+    >
       {children}
     </ParentDashboardShell>
   );

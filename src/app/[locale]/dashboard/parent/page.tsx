@@ -11,6 +11,8 @@ import { loadPortalCalendarPageData } from "@/lib/calendar/loadPortalCalendarPag
 import { loadParentHomeNewsFeed } from "@/lib/parent/loadParentHomeNewsFeed";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
 import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
+import { loadParentFocusCatalog } from "@/lib/parent/loadParentFocusCatalog";
+import { resolveParentFocus } from "@/lib/parent/resolveParentFocus";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -19,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ studentId?: string; child?: string }>;
+  searchParams: Promise<{ studentId?: string; child?: string; sectionId?: string }>;
 }
 
 export default async function ParentDashboardPage({ params, searchParams }: PageProps) {
@@ -32,7 +34,15 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const [{ data: profile }, summaries, hub, messageSignals, paymentOverdue, calendarPage] = await Promise.all([
+  const [
+    { data: profile },
+    summaries,
+    hub,
+    messageSignals,
+    paymentOverdue,
+    calendarPage,
+    focusCatalog,
+  ] = await Promise.all([
     supabase.from("profiles").select("first_name").eq("id", user.id).maybeSingle(),
     loadParentChildrenSummaries(supabase, user.id),
     loadParentFamilyHubModel(
@@ -44,6 +54,7 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
     loadParentHomeMessageSignals(supabase, user.id),
     loadParentHomePaymentOverdueSignals(supabase, user.id),
     loadPortalCalendarPageData(supabase, { role: "parent", userId: user.id }),
+    loadParentFocusCatalog(supabase, user.id),
   ]);
 
   const newsItems = await loadParentHomeNewsFeed(supabase, {
@@ -61,10 +72,11 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
     typeof sp.studentId === "string" ? sp.studentId
     : typeof sp.child === "string" ? sp.child
     : undefined;
-  const selectedStudentId =
-    rawParam && summaries.some((s) => s.studentId === rawParam)
-      ? rawParam
-      : summaries[0]?.studentId;
+  const focus = resolveParentFocus(focusCatalog, {
+    studentId: rawParam,
+    sectionId: typeof sp.sectionId === "string" ? sp.sectionId : undefined,
+  });
+  const selectedStudentId = focus.studentId ?? undefined;
 
   const payHref = `/${locale}/dashboard/parent/payments`;
   const { greeting, fullDateLine } = buildDashboardGreeting(locale, dict);
@@ -103,6 +115,7 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
       attendanceByStudent={attendanceByStudent}
       overdueByStudent={paymentOverdue.overdueByStudent}
       newsItems={newsItems}
+      focusCatalog={focusCatalog}
     />
   );
 }
