@@ -25,20 +25,52 @@ explain why users report getting lost.
 
 Order is driven by dependencies, not by severity alone.
 
-| # | Spec | Closes | Depends on |
-|---|------|--------|------------|
-| 1 | `2026-08-06-student-portal-own-chrome-design.md` | F03 | — |
-| 2 | Active-student persistence in the family portal | F01, F02 | 1 |
-| 3 | Contrast of the family mobile shell | F17 | — |
-| 4 | Page identity: title, heading, breadcrumb, menu names | F04, F05, F20 | — |
-| 5 | Admin menu grouping and naming | F06, F07, F14 | 4 |
-| 6 | Real URLs for section areas and family schedule | F08, F09, F10 | 4 |
-| 7 | Priority and density of the home screens | F11, F12, F13, F15, F18 | 6 |
-| 8 | Destructive-action weight and self-describing copy | F16, F19 | — |
+| # | Spec | Closes | Depends on | State |
+|---|------|--------|------------|-------|
+| 1 | `2026-08-06-student-portal-own-chrome-design.md` | F03 | — | Merged |
+| 2 | `2026-08-06-parent-active-student-persistence-design.md` | F01, F02 (behaviour) | 1 | Merged |
+| 3 | `2026-08-06-mimundo-contrast-design.md` | F17 | — | Merged |
+| 4 | `2026-08-06-page-titles-design.md` | F05 | — | Merged |
+| 4b | Page identity: heading and breadcrumb | F04 (non-admin), F20 | 4 | **Not started** |
+| 5 | `2026-08-06-admin-menu-design.md` | F06, F07, F14, F04 (admin) | 4 | Merged |
+| 6 | `2026-08-06-section-areas-and-schedule-naming-design.md` | F08, F10 | 4 | Merged |
+| 7 | `2026-08-06-home-screen-priority-design.md` | F11, F12, F15, F18 | 6 | Merged |
+| 8 | `2026-08-06-destructive-actions-design.md` | F16, F19 | — | Merged |
 
 Spec 1 precedes spec 2 because the student portal currently mounts the family shell.
 Separating the two portals first means the active-student work touches only the family
 portal, instead of a component shared by two audiences with different needs.
+
+### How this differs from the plan above it
+
+Two things changed once the code was read.
+
+**Spec 4 was split.** It was going to carry titles, headings and breadcrumbs together. Titles
+turned out to be a mechanical sweep of thirty-odd pages with almost no judgement in it,
+while headings and breadcrumbs need decisions about wording and about which back
+affordance to keep. Shipping them together would have buried the risky half inside a large,
+boring diff. Spec 4 is the sweep; spec 4b is the judgement, and is **still open**.
+
+**Spec 6 shrank, because two of its three findings were not real.** See the corrections
+below.
+
+## Corrections to the audit
+
+Three of the twenty findings did not survive contact with the code. They are recorded here
+so nobody re-opens them from the original report.
+
+| ID | Claim | What the code shows |
+|----|-------|---------------------|
+| F08 | The section areas have no URL | They do — `?tab=fees`, read by the server on a cold load, and already deep-linked from the rubric editor. The real defect was `router.replace`, which meant no history entry, so the back button could not step through them. Fixed in spec 6 |
+| F09 | The class schedule lives inside a modal | It does not. `AcademicSectionWeekScheduleEditor` is rendered inline in the section's configuration area. The only schedule-in-a-modal is the family read-only agenda, which is a reasonable use of one. **Closed as not reproducible** |
+| F10 | "Asistencias" points at `/calendar` and mostly shows the agenda | The page is primarily attendance — a card per section per child with marks and a monthly percentage — so the family label is accurate. Only the internal route segment is misnamed. But the same screen is labelled "Mi agenda" in the **student** portal, which the audit did not check. That was the real instance of this defect, and spec 6 fixed it |
+
+F17 was also misattributed: the audit read it as a component problem, and it was one value
+in one tenant's database row. Spec 3 has the detail.
+
+The lesson worth keeping: the audit was measured through a browser, so it was reliable about
+symptoms and unreliable about causes. Every finding in it deserves a code check before work
+starts.
 
 ## Finding inventory
 
@@ -106,6 +138,66 @@ page name. Only `/admin/academic`, `/admin/site-setup`, `/admin/glossary` and
    reason.
 3. This file records the closing state of each child spec.
 
+## Closing state
+
+Eight specs written and approved; seven implemented and merged. Every finding is accounted
+for below.
+
+| Finding | State |
+|---------|-------|
+| F01, F02 | Closed on behaviour by spec 2. The two pickers still look different; see the open item below |
+| F03 | Closed by spec 1 |
+| F04 | Admin half closed by spec 5. Parent, student and teacher halves open in spec 4b |
+| F05 | Closed by spec 4 for the parent, student, teacher and assistant portals; spec 5 covered the six admin pages it renamed. The remaining admin pages are the open item below |
+| F06, F07, F14 | Closed by spec 5 |
+| F08 | Reframed and closed by spec 6 |
+| F09 | Closed as not reproducible. See Corrections |
+| F10 | Reframed and closed by spec 6 |
+| F11, F12, F15, F18 | Closed by spec 7 |
+| F13 | Narrowed by spec 7: the grouping is by design, the missing `feedback` alias was the defect and is fixed |
+| F16, F19 | Closed by spec 8 |
+| F17 | Closed by spec 3, plus the `color.error` addendum found during spec 8 |
+| F20 | **Open.** Spec 4b |
+
+### Still open, and why
+
+**Spec 4b — headings and breadcrumbs (F04 non-admin, F20).** Not started, deliberately.
+The breadcrumb work needs a decision this programme could not make without looking at real
+screens: all five breadcrumb components return `null` when a path yields a single crumb, so
+on many pages the `ArrowLeft` link the audit called a redundant second way back is in fact
+the *only* way back. Removing it where a breadcrumb is genuinely present, and only there,
+needs eyes on each breakpoint. Research already done and worth reusing:
+
+- Five components — `AdminBreadcrumb`, `ParentBreadcrumb`, `StudentBreadcrumb`,
+  `TeacherBreadcrumb`, `AssistantBreadcrumb` — all skip UUID segments through the same
+  `UUID_RE`, so `/teacher/sections/<uuid>/attendance` never names the section.
+- `AdminBreadcrumb` falls back to the raw string for an unrecognised non-UUID segment; the
+  other four silently drop it. That inconsistency is cheap to fix and carries no visual risk.
+- `SectionAttendancePageBody` and `teacherAttendanceMatrixNav` are the two confirmed places
+  where a breadcrumb and a back arrow appear together. `ArrowLeft` appears in roughly forty
+  further files, almost all of them legitimate — galleries, wizards, hero navigation — so a
+  blanket sweep would be wrong.
+
+**Remaining admin tab titles.** Spec 4 deliberately skipped the admin portal so spec 5 could
+rename first. Spec 5 titled the six pages it renamed; about a dozen admin pages still fall
+back to the brand name alone. Mechanical, and `buildPageMetadata` is waiting for them.
+
+**The two family pickers still look different.** `ParentChildSwitcher` is a row of chips and
+`ParentWardPicker` is a select. Spec 2 unified what they do; spec 7 reworked the home around
+them without merging them. Half of F02's complaint therefore stands.
+
+**Mi Mundo inherits navy `color.primary.light` and `color.primary.dark`** because its seed
+never overrode them, so an olive brand renders navy hovers and gradients across forty-odd
+components. A real defect, out of scope for spec 3 because it is brand consistency rather
+than contrast and it changes the public landing pages.
+
+**A `color.error.dark` token** would let destructive labels be red and still legible on every
+tenant. Spec 8 had to use a border instead. Worth doing as a palette change with its own QA.
+
+**Confirmation flows are inconsistent** — modal with checkbox, `ConfirmActionModal`, a
+bespoke modal, and an in-page two-step toggle. Spec 8 unified how destructive buttons look,
+not how they behave.
+
 ## Out of scope
 
 - The teacher portal beyond its home screen, the assistant portal, gateway payment flows,
@@ -114,7 +206,10 @@ page name. Only `/admin/academic`, `/admin/site-setup`, `/admin/glossary` and
 - Rebuilding the design system (shared `Card`, `Select`, `Toast`, `EmptyState`
   primitives). Real gaps, but orthogonal to "users get lost" and large enough to need
   their own program.
-- Any Supabase migration. None of the eight specs requires a schema change.
+- Any Supabase schema change. Two data-only migrations were needed after all —
+  `174_site_theme_mimundo_contrast.sql` and `175_site_theme_mimundo_error_contrast.sql`,
+  both correcting one tenant's palette, following the precedent of
+  `124_site_themes_accessible_contrast.sql`. No table, column or policy changed.
 
 ## Follow-up to investigate separately
 
