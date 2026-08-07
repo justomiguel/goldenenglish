@@ -38,6 +38,28 @@ describe("AdminMobileDrawer", () => {
     document.body.style.overflow = "";
   });
 
+  it("portals the dialog to document.body so it escapes the header stacking context", async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <header className="sticky top-0 z-50 backdrop-blur-md">
+        <AdminMobileDrawer
+          locale="es"
+          dict={dictEn}
+          newRegistrationsCount={0}
+          recentInboundMessagesCount={0}
+        />
+      </header>,
+    );
+
+    await user.click(screen.getByRole("button", { name: dictEn.dashboard.adminNav.mobileOpen }));
+
+    const dialog = screen.getByRole("dialog", { name: dictEn.dashboard.adminNav.aria });
+    expect(dialog).toBeTruthy();
+    expect(document.body.contains(dialog)).toBe(true);
+    expect(container.contains(dialog)).toBe(false);
+    expect(dialog.parentElement).toBe(document.body);
+  });
+
   it("closes and unlocks body when viewport crosses md while open", async () => {
     const user = userEvent.setup();
     render(

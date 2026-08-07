@@ -1,7 +1,7 @@
 # Dashboard mobile drawer visible via body portal
 
 **Date:** 2026-08-07  
-**Status:** Approved (pending implement plan)  
+**Status:** Implemented  
 **Related:** `AdminMobileDrawer`, `TeacherMobileDrawer`, `AssistantMobileDrawer`,
 `StudentMobileDrawer`, `AdminChromeHeader`, `TeacherChromeHeader`,
 `StudentChromeHeader`, `ParentDashboardShellClient`, `ParentPwaShell`,
