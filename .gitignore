@@ -72,6 +72,9 @@ next-env.d.ts
 # Superpowers visual brainstorm companion (session mockups + port/token)
 .superpowers/
 
+# Local git worktrees (agent / feature isolation)
+.worktrees/
+
 # supabase CLI temp/cache
 supabase/.temp/
 
