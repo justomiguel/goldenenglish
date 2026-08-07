@@ -46,6 +46,7 @@ Opciones del script (`node scripts/a11y-lighthouse-tenants.mjs`):
 | `nago` | `/es` | Nago — landing full-bleed |
 | `espaciozenit` | `/es` | Espacio Zenit — landing full-bleed |
 | `mimundo` | `/es` | Jardín Materno Infantil Mi Mundo — landing full-bleed (PR 2026-05). **Pendiente** URL de producción; usar `http://localhost:3000/es` tras `npm run dev:mimundo` para verificación local. Añadir URL absoluta de preview Vercel cuando se provisione el proyecto. |
+| `liora` | `/es` | Liora Studio (ballet) — landing full-bleed. **Pendiente** proyecto Vercel: usar `http://localhost:3000/es` tras `npm run dev:liora` hasta tener URL de preview. |
 
 Para verificar `mimundo` localmente:
 ```bash

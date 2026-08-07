@@ -79,6 +79,9 @@
       },
       "mimundo": {
         "shareContext": "Jardim materno infantil inspirado em Reggio em Resistencia, Chaco: amor, brincadeira e acompanhamento dos 45 dias aos 5 anos."
+      },
+      "liora": {
+        "shareContext": "Balé para todas as idades em Santiago: Pré Balé, infantil, juvenil e adulto em três unidades próximas ao metrô."
       }
     }
   },
@@ -973,6 +976,134 @@
         "siguenos": "Siga-nos"
       },
       "footerCta": "Reservar minha vaga"
+    },
+    "liora": {
+      "chrome": {
+        "openMenu": "Abrir menu",
+        "closeMenu": "Fechar menu",
+        "instagramAria": "Liora Studio no Instagram",
+        "whatsappAria": "Fale com a gente pelo WhatsApp"
+      },
+      "nav": {
+        "inicio": "Início",
+        "sobreNosotros": "Sobre nós",
+        "clases": "Aulas",
+        "sedes": "Unidades",
+        "horarios": "Horários",
+        "galeria": "Galeria",
+        "eventos": "Eventos",
+        "contacto": "Contato"
+      },
+      "register": {
+        "shellTitle": "Reserve sua aula experimental",
+        "shellLead": "Deixe seus dados e confirmamos unidade, horário e nível para a sua primeira aula."
+      },
+      "hero": {
+        "kicker": "Dança · Movimento · Paixão",
+        "title": "Balé para todas as idades",
+        "subtitle": "Um espaço para aprender, crescer e aproveitar a dança em Santiago.",
+        "tagline": "O Liora Studio é uma escola de balé com três unidades em Santiago, para quem está começando e para quem volta a dançar.",
+        "ctaPrimary": "Aula experimental",
+        "ctaSecondary": "Ver horários"
+      },
+      "sobreNosotros": {
+        "kicker": "Nosso estúdio",
+        "title": "Um espaço para aprender, crescer e aproveitar",
+        "bodyP1": "No Liora Studio ensinamos balé com técnica cuidadosa e um atendimento próximo. Cada aula é montada conforme a idade e o nível do grupo, para que ninguém se sinta deslocado no primeiro dia.",
+        "bodyP2": "Trabalhamos postura, coordenação, musicalidade e expressão. O objetivo não é apenas dançar melhor: é que a dança se torne um lugar próprio ao qual dá vontade de voltar toda semana.",
+        "pilar1": {
+          "title": "Técnica cuidadosa",
+          "body": "Progressões adequadas a cada idade, com correção individual em todas as aulas."
+        },
+        "pilar2": {
+          "title": "Grupos reduzidos",
+          "body": "Vagas limitadas para acompanhar de perto a evolução de cada aluno."
+        },
+        "pilar3": {
+          "title": "Mostras anuais",
+          "body": "Momentos de palco para celebrar o processo em família, sem pressão competitiva."
+        }
+      },
+      "clases": {
+        "kicker": "Nossa proposta",
+        "sectionTitle": "Aulas",
+        "lead": "Quatro níveis organizados por idade e experiência. Não sabe por onde começar? Fale com a gente.",
+        "ageLabel": "{ages} anos",
+        "preBallet": {
+          "title": "Pré Balé",
+          "ages": "3 a 5 anos",
+          "body": "Primeiro contato com a dança por meio de brincadeira, música e motricidade, com introdução suave às posições básicas."
+        },
+        "infantil": {
+          "title": "Balé Infantil",
+          "ages": "6 a 9 anos",
+          "body": "Base técnica de barra e centro, vocabulário clássico e coordenação, sempre com abordagem lúdica."
+        },
+        "juvenil": {
+          "title": "Balé Juvenil",
+          "ages": "10 a 14 anos",
+          "body": "Aprofundamento da técnica clássica, força, flexibilidade e sequências mais longas."
+        },
+        "adulto": {
+          "title": "Balé Adulto",
+          "ages": "a partir de 15 anos",
+          "body": "Para iniciantes e para quem retoma. Ritmo que respeita o corpo, com foco em postura e prazer."
+        }
+      },
+      "sedes": {
+        "kicker": "Onde estamos",
+        "sectionTitle": "Nossas unidades",
+        "lead": "Três unidades em Santiago, todas a poucos passos do metrô.",
+        "providencia": {
+          "name": "Providencia",
+          "metro": "A poucos passos do Metro Parque Bustamante",
+          "body": "Nossa unidade em Providencia, com Pré Balé e Balé Infantil nas tardes de sábado."
+        },
+        "maipu": {
+          "name": "Maipú",
+          "metro": "A poucos passos do Metro Plaza Maipú",
+          "body": "Unidade da zona oeste, com Balé Adulto nas noites de sábado."
+        },
+        "sanMiguel": {
+          "name": "San Miguel",
+          "metro": "A poucos passos do Metro San Miguel",
+          "body": "Unidade da zona sul, com aulas infantis e de Pré Balé nas manhãs de sábado."
+        }
+      },
+      "horarios": {
+        "kicker": "Planeje sua semana",
+        "sectionTitle": "Horários",
+        "lead": "Estes são os blocos vigentes por unidade. As vagas são confirmadas na matrícula.",
+        "dayLabel": "Sábados",
+        "note": "Procura outro dia ou horário? Fale com a gente e contamos as próximas aberturas."
+      },
+      "galeria": {
+        "kicker": "No estúdio",
+        "sectionTitle": "Galeria",
+        "verMas": "Ver mais fotos",
+        "carouselPrev": "Foto anterior",
+        "carouselNext": "Próxima foto",
+        "carouselPosition": "Foto {current} de {total}",
+        "carouselLoading": "Carregando foto",
+        "previewOpenAria": "Ampliar foto {n}"
+      },
+      "cta": {
+        "title": "Sua primeira aula espera por você",
+        "subtitle": "Conte a idade e a unidade que combina com você e marcamos uma aula experimental sem compromisso.",
+        "button": "Fale com a gente"
+      },
+      "footer": {
+        "enlacesTitle": "Links",
+        "sedesTitle": "Unidades",
+        "contactoTitle": "Contato",
+        "siguenos": "Siga a gente",
+        "rightsLine": "Todos os direitos reservados."
+      },
+      "contact": {
+        "instagramUrl": "https://www.instagram.com/liorastudio/",
+        "whatsappUrl": "https://wa.me/56900000000"
+      },
+      "footerCta": "Quer começar a dançar? Fale com a gente e marcamos sua aula experimental."
     }
   },
   "admin": {
@@ -1644,7 +1775,8 @@
               "mozarthitos": "Mozarthitos",
               "espaciozenit": "Espaço Zenit",
               "nago": "Capoeira Nagô",
-              "mimundo": "Mi Mundo"
+              "mimundo": "Mi Mundo",
+              "liora": "Liora Studio"
             },
             "saveCta": "Aplicar estilo",
             "saveSuccess": "Estilo aplicado.",
@@ -6374,8 +6506,8 @@
           "paid": "Pago",
           "pending": "Em análise"
         }
-    }
-  },
+      }
+    },
     "teacher": {
       "title": "Área do professor",
       "lead": "Sinais de retenção, mensagens familiares, aulas de hoje (UTC) e médias publicadas para suas seções.",

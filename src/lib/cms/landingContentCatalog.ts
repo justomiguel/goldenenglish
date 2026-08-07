@@ -3,6 +3,7 @@ import { ESPACIO_ZENIT_EDITABLE_COPY_KEYS } from "@/lib/cms/landingEspacioZenitC
 import { MIMUNDO_EDITABLE_COPY_KEYS } from "@/lib/cms/landingMimundoCatalog";
 import { MOZARTHITOS_EDITABLE_COPY_KEYS } from "@/lib/cms/landingMozarthitosCatalog";
 import { NAGO_EDITABLE_COPY_KEYS } from "@/lib/cms/landingNagoCatalog";
+import { LIORA_EDITABLE_COPY_KEYS } from "@/lib/cms/landingLioraCatalog";
 
 /**
  * Closed catalog of editable landing copy per section.
@@ -82,6 +83,7 @@ const ALL_KEYS: ReadonlySet<string> = new Set([
   ...ESPACIO_ZENIT_EDITABLE_COPY_KEYS,
   ...NAGO_EDITABLE_COPY_KEYS,
   ...MIMUNDO_EDITABLE_COPY_KEYS,
+  ...LIORA_EDITABLE_COPY_KEYS,
 ]);
 
 /** Whether a dotted dict path under `landing.*` is editable from the CMS. */

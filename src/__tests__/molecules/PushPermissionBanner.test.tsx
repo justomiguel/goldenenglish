@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { PushPermissionBanner } from "@/components/molecules/PushPermissionBanner";
+import { installMemoryLocalStorage } from "@/__tests__/helpers/installMemoryLocalStorage";
 
 const subscribeToPush = vi.fn();
 
@@ -18,7 +19,7 @@ const copy = {
 describe("PushPermissionBanner", () => {
   beforeEach(() => {
     subscribeToPush.mockReset();
-    window.localStorage.clear();
+    installMemoryLocalStorage().clear();
     Object.defineProperty(window, "Notification", {
       configurable: true,
       value: {

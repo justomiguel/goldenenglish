@@ -30,6 +30,7 @@ const TENANTS = [
   { id: "mozarthitos", label: "mozarthitos", file: path.join(ROOT, ".env.local.mozarthitos") },
   { id: "espaciozenit", label: "Espacio Zenit", file: path.join(ROOT, ".env.local.espaciozenit") },
   { id: "nago", label: "Capoeira Nago", file: path.join(ROOT, ".env.local.nago") },
+  { id: "liora", label: "Liora Studio", file: path.join(ROOT, ".env.local.liora") },
 ];
 
 function postgresUriHostname(uri) {

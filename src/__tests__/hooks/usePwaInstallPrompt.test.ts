@@ -1,10 +1,11 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { usePwaInstallPrompt } from "@/hooks/usePwaInstallPrompt";
+import { installMemoryLocalStorage } from "@/__tests__/helpers/installMemoryLocalStorage";
 
 describe("usePwaInstallPrompt", () => {
   beforeEach(() => {
-    window.localStorage.clear();
+    installMemoryLocalStorage().clear();
     vi.stubGlobal(
       "matchMedia",
       vi.fn().mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() }),

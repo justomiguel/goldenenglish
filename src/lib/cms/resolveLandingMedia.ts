@@ -11,6 +11,7 @@ import { espaciozenitSectionImageSrc } from "@/lib/landing/espaciozenitLandingIm
 import { mozarthitosSectionImageSrc } from "@/lib/landing/mozarthitosLandingImages";
 import { nagoSectionImageSrc } from "@/lib/landing/nagoLandingImages";
 import { mimundoSectionImageSrc } from "@/lib/landing/mimundoLandingImages";
+import { lioraSectionImageSrc } from "@/lib/landing/lioraLandingImages";
 
 /**
  * Pure helpers for landing media overrides.
@@ -105,6 +106,9 @@ export function resolveLandingImageSrcForTheme(
   }
   if (kind === "mimundo") {
     return mimundoSectionImageSrc(section, filename);
+  }
+  if (kind === "liora") {
+    return lioraSectionImageSrc(section, filename);
   }
   return sectionImageSrc(section, filename);
 }

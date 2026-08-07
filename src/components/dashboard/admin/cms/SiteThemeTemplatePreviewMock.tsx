@@ -31,6 +31,7 @@ const KIND_HERO_ALIGNMENT: Record<SiteThemeKind, string> = {
   espaciozenit: "items-end text-left",
   nago: "items-center text-center",
   mimundo: "items-center text-center",
+  liora: "items-start text-left",
 };
 
 const KIND_HERO_PADDING: Record<SiteThemeKind, string> = {
@@ -41,6 +42,7 @@ const KIND_HERO_PADDING: Record<SiteThemeKind, string> = {
   espaciozenit: "px-4 py-6",
   nago: "px-4 py-6",
   mimundo: "px-4 py-6",
+  liora: "px-4 py-7",
 };
 
 const KIND_BODY_FONT: Record<SiteThemeKind, string> = {
@@ -51,6 +53,7 @@ const KIND_BODY_FONT: Record<SiteThemeKind, string> = {
   espaciozenit: "text-sm font-semibold leading-snug",
   nago: "text-sm font-semibold leading-snug",
   mimundo: "text-sm font-semibold leading-snug",
+  liora: "text-base font-light leading-snug tracking-[0.06em]",
 };
 
 const KIND_KICKER: Record<SiteThemeKind, string> = {
@@ -61,6 +64,7 @@ const KIND_KICKER: Record<SiteThemeKind, string> = {
   espaciozenit: "text-[10px] uppercase tracking-[0.2em]",
   nago: "text-[10px] uppercase tracking-[0.2em]",
   mimundo: "text-[10px] uppercase tracking-[0.2em]",
+  liora: "text-[10px] uppercase tracking-[0.4em]",
 };
 
 function Swatch({

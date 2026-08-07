@@ -15,6 +15,7 @@
 
 # next.js
 /.next/
+/.next-e2e/
 /out/
 
 # production
@@ -49,6 +50,7 @@ yarn-error.log*
 .env.local.espaciozenit
 .env.local.nago
 .env.local.mimundo
+.env.local.liora
 
 # vercel
 .vercel

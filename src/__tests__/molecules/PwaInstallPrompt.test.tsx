@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { PwaInstallPrompt } from "@/components/molecules/PwaInstallPrompt";
+import { installMemoryLocalStorage } from "@/__tests__/helpers/installMemoryLocalStorage";
 
 const copy = {
   title: "Install the app",
@@ -13,7 +14,7 @@ const copy = {
 
 describe("PwaInstallPrompt", () => {
   beforeEach(() => {
-    window.localStorage.clear();
+    installMemoryLocalStorage().clear();
   });
 
   it("shows install CTA after beforeinstallprompt", async () => {

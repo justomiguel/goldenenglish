@@ -1,0 +1,163 @@
+/**
+ * Liora Studio — paleta tomada del logo: crema cálido de fondo, marrón tinta del
+ * wordmark y rosa viejo de la cinta. `--liora-rose-deep` es la variante que pasa
+ * AA sobre blanco/crema; `--liora-rose` queda solo para trazos decorativos.
+ */
+.liora-landing {
+  --liora-cream: #faf5ef;
+  --liora-cream-deep: #f3e9e0;
+  --liora-blush: #f7e8e2;
+  --liora-sand: #ece0d5;
+  --liora-rose: #c08c7d;
+  --liora-rose-deep: #96594b;
+  --liora-rose-hover: #7f4a3e;
+  --liora-ink: #3f3733;
+  --liora-ink-soft: #6b5f58;
+  --liora-line: #e0d0c5;
+  --liora-footer: #332c29;
+}
+
+.liora-landing ::selection {
+  background: color-mix(in srgb, var(--liora-rose) 35%, transparent);
+  color: var(--liora-ink);
+}
+
+/* Hero: foto de estudio con velo crema para que el texto quede legible.
+   `background-image` lo inyecta el componente para que el slot 1 de `inicio`
+   sea editable desde el CMS. */
+.liora-hero {
+  position: relative;
+  min-height: 78vh;
+  background-color: var(--liora-cream-deep);
+  background-size: cover;
+  background-position: center 30%;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.liora-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      100deg,
+      rgb(63 55 51 / 0.78) 0%,
+      rgb(63 55 51 / 0.58) 42%,
+      rgb(63 55 51 / 0.28) 72%,
+      rgb(63 55 51 / 0.35) 100%
+    ),
+    radial-gradient(
+      ellipse 120% 90% at 30% 50%,
+      transparent 0%,
+      rgb(51 44 41 / 0.3) 100%
+    );
+}
+
+@media (max-width: 767px) {
+  .liora-hero {
+    background-position: center 25%;
+  }
+
+  .liora-hero-overlay {
+    background: linear-gradient(
+      180deg,
+      rgb(63 55 51 / 0.62) 0%,
+      rgb(63 55 51 / 0.55) 45%,
+      rgb(51 44 41 / 0.75) 100%
+    );
+  }
+}
+
+.liora-hero-content {
+  position: relative;
+  z-index: 3;
+}
+
+/* Filete decorativo con corazón, tomado del cierre del logo */
+.liora-flourish {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: var(--liora-rose);
+}
+
+.liora-flourish::before,
+.liora-flourish::after {
+  content: "";
+  display: block;
+  height: 1px;
+  width: clamp(2.5rem, 12vw, 6rem);
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.liora-kicker {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+}
+
+/* Bandas alternadas de sección */
+.liora-band-cream {
+  background-color: var(--liora-cream);
+}
+
+.liora-band-blush {
+  background-color: var(--liora-blush);
+}
+
+.liora-card {
+  background: #ffffff;
+  border: 1px solid var(--liora-line);
+  border-radius: 1rem;
+  box-shadow: 0 18px 40px -32px rgb(63 55 51 / 55%);
+}
+
+/* Marco ovalado tipo retrato para las fotos de clases y galería */
+.liora-arch {
+  border-radius: 999px 999px 1.25rem 1.25rem;
+  overflow: hidden;
+  border: 1px solid var(--liora-line);
+}
+
+.liora-gallery-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid var(--liora-line);
+  box-shadow: 0 14px 34px -26px rgb(63 55 51 / 60%);
+}
+
+/* Fila de horario: la franja de sede usa rosa suave como en el flyer */
+.liora-schedule-sede {
+  background: color-mix(in srgb, var(--liora-rose) 26%, #ffffff);
+  color: var(--liora-ink);
+}
+
+.liora-schedule-row:nth-child(odd) {
+  background: #ffffff;
+}
+
+.liora-schedule-row:nth-child(even) {
+  background: var(--liora-cream);
+}
+
+.liora-social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid rgb(255 255 255 / 30%);
+  color: #ffffff;
+  transition: background-color 0.2s ease;
+}
+
+.liora-social-icon:hover {
+  background: rgb(255 255 255 / 14%);
+}
