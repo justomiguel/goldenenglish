@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
@@ -12,9 +12,10 @@ import { loadParentLearningFeedback } from "@/lib/learning-content/loadParentLea
 import { loadStudentBadgeDisplayRows } from "@/lib/badges/loadStudentBadgeDisplayRows";
 import { ParentProgressEntry } from "@/components/parent/ParentProgressEntry";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.parentNav.progress);
+}
 
 interface PageProps {
   params: Promise<{ locale: string }>;

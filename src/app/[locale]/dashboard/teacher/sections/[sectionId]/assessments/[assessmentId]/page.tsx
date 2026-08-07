@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
@@ -18,13 +18,9 @@ interface PageProps {
   searchParams: Promise<{ returnTo?: string | string[] }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps) {
   const { locale } = await params;
-  const dict = await getDictionary(locale);
-  return {
-    title: dict.dashboard.teacherAssessmentMatrix.metaTitle,
-    robots: { index: false, follow: false },
-  };
+  return buildPageMetadata(locale, (d) => d.dashboard.teacherAssessmentMatrix.metaTitle);
 }
 
 export default async function TeacherAssessmentMatrixPage({ params, searchParams }: PageProps) {

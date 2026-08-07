@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
@@ -8,9 +8,10 @@ import { loadContentTemplateLibrary } from "@/lib/learning-tasks/loadContentTemp
 import { loadTeacherSectionLearningTasks } from "@/lib/learning-tasks/loadTeacherSectionLearningTasks";
 import { TeacherSectionLearningTasks } from "@/components/teacher/TeacherSectionLearningTasks";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; sectionId: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.teacherMySections.rosterLinkTasks);
+}
 
 interface PageProps {
   params: Promise<{ locale: string; sectionId: string }>;

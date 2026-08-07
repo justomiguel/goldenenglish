@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -8,9 +8,10 @@ import type { MessagingRecipient } from "@/types/messaging";
 import { TeacherMessagesEntry } from "@/components/teacher/TeacherMessagesEntry";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.teacherNav.messages);
+}
 
 interface PageProps {
   params: Promise<{ locale: string }>;

@@ -58,10 +58,11 @@ export async function generateMetadata({
   languageAlternates["x-default"] = `/${defaultLocale}`;
 
   return {
-    title: {
-      default: brand.name,
-      template: `%s | ${brand.name}`,
-    },
+    // Keep template so child pages inherit the format; omit default so the root
+    // layout's default is used as-is for pages that set no title of their own,
+    // preventing the "<brand> | <brand>" doubling. The TypeScript TemplateString
+    // type requires default or absolute, but Next.js runtime supports template-only.
+    title: { template: `%s | ${brand.name}` } as Metadata["title"],
     description,
     ...(needsInitialSiteSetup ? { icons: buildRootLayoutIcons(brand) } : {}),
     alternates: {

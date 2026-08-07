@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import { Suspense } from "react";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -12,9 +12,10 @@ import { startTutorFlowMonthlyPayment } from "@/app/[locale]/dashboard/parent/pa
 import { startTutorMercadoPagoMonthlyPayment } from "@/app/[locale]/dashboard/parent/payments/mercadoPagoMonthlyPaymentActions";
 import type { Locale } from "@/types/i18n";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.parentNav.payments);
+}
 
 interface PageProps {
   params: Promise<{ locale: string }>;

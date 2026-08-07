@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
@@ -7,9 +7,10 @@ import { loadTeacherDashboardModel } from "@/lib/teacher/loadTeacherDashboardMod
 import { loadDashboardBirthdaysCard } from "@/lib/birthdays/loadDashboardBirthdaysCard";
 import { TeacherDashboardHome } from "@/components/teacher/TeacherDashboardHome";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.teacherNav.home);
+}
 
 interface PageProps {
   params: Promise<{ locale: string }>;

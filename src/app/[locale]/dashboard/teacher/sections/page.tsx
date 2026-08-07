@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
@@ -13,13 +13,9 @@ interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps) {
   const { locale } = await params;
-  const dict = await getDictionary(locale);
-  return {
-    title: dict.dashboard.teacherMySections.metaTitle,
-    robots: { index: false, follow: false },
-  };
+  return buildPageMetadata(locale, (d) => d.dashboard.teacherMySections.metaTitle);
 }
 
 export default async function TeacherSectionsPage({ params }: PageProps) {

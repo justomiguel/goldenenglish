@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -7,9 +7,10 @@ import { ParentWardProfileSurfaceEntry } from "@/components/parent/ParentWardPro
 import { ParentWardProfileForm } from "@/components/parent/ParentWardProfileForm";
 import { ClassReminderPrefsSection } from "@/components/molecules/ClassReminderPrefsSection";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; studentId: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.parent.navEditChild);
+}
 
 interface PageProps {
   params: Promise<{ locale: string; studentId: string }>;

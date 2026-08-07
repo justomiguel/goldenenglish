@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadParentChildrenSummaries } from "@/lib/parent/loadParentChildrenSummaries";
@@ -11,9 +12,10 @@ import { loadParentHomeNewsFeed } from "@/lib/parent/loadParentHomeNewsFeed";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
 import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
 
-export const metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.parentNav.home);
+}
 
 interface PageProps {
   params: Promise<{ locale: string }>;
