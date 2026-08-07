@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { loadClassRemindersAdminPageModel } from "@/lib/settings/loadClassRemindersAdminPageModel";
@@ -11,13 +10,15 @@ import {
   maskGoogleApiKey,
 } from "@/lib/blog/integrations/google/loadGoogleTranslateCredentials";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
-
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.admin.settings.title);
 }
 
 export default async function AdminSettingsPage({ params }: PageProps) {

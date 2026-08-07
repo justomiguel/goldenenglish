@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -6,20 +5,15 @@ import { loadNeedsInitialSiteSetup } from "@/lib/site/loadNeedsInitialSiteSetup"
 import { loadSiteSetupCurrentValues } from "@/lib/site/loadSiteSetupCurrentValues";
 import { resolveFirstRunWizardThemeId } from "@/lib/site/resolveFirstRunWizardThemeId";
 import { SiteSetupWizard } from "@/components/dashboard/admin/site-setup/SiteSetupWizard";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps) {
   const { locale } = await params;
-  const dict = await getDictionary(locale);
-  return {
-    title: dict.dashboard.siteSetup.pageTitle,
-    robots: { index: false, follow: false },
-  };
+  return buildPageMetadata(locale, (d) => d.dashboard.siteSetup.pageTitle);
 }
 
 /**

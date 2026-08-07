@@ -1365,7 +1365,7 @@
       }
     },
     "home": {
-      "title": "Painel de administração",
+      "title": "Visão geral",
       "lead": "Aqui está o que precisa de sua atenção hoje.",
       "cards": {
         "import": "Integração de alunos em massa a partir de um arquivo CSV.",
@@ -1424,7 +1424,7 @@
       }
     },
     "settings": {
-      "title": "Configurações",
+      "title": "Configurações do instituto",
       "integrationsTitle": "Integrações",
       "scopeLead": "Essas configurações se aplicam a todo o instituto. O ensino diário (suas aulas, frequência e mensagens da aula) está no painel do professor.",
       "inscriptions": "Cadastros públicos",
@@ -1454,8 +1454,8 @@
       }
     },
     "cms": {
-      "navLabel": "Conteúdo e temas",
-      "hubTitle": "Gerenciamento de conteúdo do site",
+      "navLabel": "Site público",
+      "hubTitle": "Site público",
       "hubLead": "Gerencie os modelos de site público, tokens de design e cópia inicial.",
       "templatesNav": "Modelos",
       "templatesHubCta": "Abrir modelos",
@@ -1903,7 +1903,7 @@
       }
     },
     "analytics": {
-      "title": "Análise e uso",
+      "title": "Análise",
       "lead": "Eventos agregados (sem dados pessoais identificáveis ​​nos metadados). Fuso horário: Argentina. As ocorrências de tráfego público são registradas no servidor (middleware GET + User-Agent + edge country), portanto, crawlers sem JavaScript contam como bots onde o UA corresponde; usuários conectados também emitem eventos de produto separadamente.",
       "trafficTitle": "Tráfego (todas as visitas)",
       "trafficHint": "Últimos 30 dias: cada GET em um caminho de localidade registrado na borda (não no beacon do aplicativo). Bots do User-Agent; os convidados não têm sessão.",
@@ -2262,7 +2262,7 @@
       "detailAvatarErrSave": "Não foi possível salvar a foto do aluno. Tente novamente.",
       "detailSectionAssignTitle": "Seções da coorte atual",
       "detailSectionAssignLead": "Gerencie em quais seções do grupo atual este aluno está matriculado.",
-      "detailSectionAssignNoCurrent": "Nenhuma coorte atual está definida. Marque primeiro um grupo como atual no centro acadêmico.",
+      "detailSectionAssignNoCurrent": "Nenhuma coorte atual está definida. Marque primeiro um grupo como atual em Turmas e seções.",
       "detailSectionAssignNoSections": "A coorte atual ainda não possui seções ativas.",
       "detailSectionAssignNoAvailableSections": "Não há mais seções ativas disponíveis para este aluno.",
       "detailSectionAssignCurrent": "Seções atuais",
@@ -2282,7 +2282,7 @@
       "detailSectionAssignErrNotStudent": "Somente perfis de alunos podem ser atribuídos às seções.",
       "detailSectionAssignErrNoCurrent": "Nenhuma coorte atual está definida.",
       "detailSectionAssignErrSectionNotCurrent": "Essa seção não pertence à coorte atual.",
-      "detailSectionAssignErrMultipleCurrent": "Este aluno tem várias seções ativas no grupo atual. Resolva a duplicata do centro acadêmico antes de atribuir aqui.",
+      "detailSectionAssignErrMultipleCurrent": "Este aluno tem várias seções ativas no grupo atual. Resolva a duplicata de Turmas e seções antes de atribuir aqui.",
       "detailSectionAssignErrScheduleOverlap": "Este cronograma se sobrepõe a outra seção ativa para o aluno.",
       "detailSectionAssignErrCapacity": "A seção está cheia. Use a substituição de capacidade administrativa somente se autorizado.",
       "detailSectionAssignErrRpc": "Não foi possível salvar a atribuição da seção. Tente novamente.",
@@ -2722,7 +2722,7 @@
           "ratio": "Proporção de arrecadação"
         },
         "empty": {
-          "noCurrentCohort": "Nenhuma coorte atual está definida. Marcar um grupo como atual no centro acadêmico.",
+          "noCurrentCohort": "Nenhuma coorte atual está definida. Marcar um grupo como atual em Turmas e seções.",
           "noSections": "Esta coorte ainda não tem seções ativas.",
           "noStudentsAfterFilter": "Nenhum aluno corresponde ao filtro atual."
         },
@@ -2802,7 +2802,7 @@
         "overview": {
           "totalsTitle": "Totais da coorte",
           "sectionsTitle": "Seções",
-          "noCurrentCohort": "Nenhuma coorte atual está definida. Marcar um grupo como atual no centro acadêmico.",
+          "noCurrentCohort": "Nenhuma coorte atual está definida. Marcar um grupo como atual em Turmas e seções.",
           "noSections": "Esta coorte ainda não tem seções ativas.",
           "openTooltip": "Abra a seção para ver a matriz dos alunos e as ações em massa."
         },
@@ -3403,7 +3403,7 @@
       "previewSampleHint": "URL e data de amostra são ilustrativos; a mensagem de compartilhamento usa o URL {brand} real assim que o aluno ganha este selo."
     },
     "registrations": {
-      "title": "Registros na web",
+      "title": "Inscrições online",
       "lead": "Futuros alunos do formulário público.",
       "none": "Ainda não há inscrições",
       "filterLabel": "Procurar",
@@ -3934,20 +3934,20 @@
       "users": "Usuários",
       "payments": "Pagamentos",
       "financeReceipts": "Recibos de faturas",
-      "registrations": "Inscrições",
+      "registrations": "Inscrições online",
       "events": "Eventos",
       "messages": "Mensagens",
       "emailTemplates": "Modelos de e-mail",
       "coupons": "Cupons",
       "promotions": "Promoções",
-      "settings": "Configurações",
-      "academics": "Centro acadêmico",
+      "settings": "Configurações do instituto",
+      "academics": "Turmas e seções",
       "calendar": "Calendário mestre",
-      "contents": "Conteúdo",
+      "contents": "Conteúdo acadêmico",
       "transferInboxNav": "Caixa de entrada de transferência",
       "retention": "Alertas de retenção",
       "myProfile": "Meu perfil",
-      "cms": "Conteúdo e temas",
+      "cms": "Site público",
       "tipCms": "Gerenciar modelos de sites públicos e conteúdo de destino",
       "blog": "Blog",
       "tipBlog": "Escrever, revisar e publicar artigos do blog público.",
@@ -3956,7 +3956,9 @@
       "groupAcademic": "Acadêmico",
       "groupMarketing": "Marketing",
       "groupComms": "Comunicação",
-      "groupHelp": "Ajuda",
+      "groupHelp": "Ajuda e conta",
+      "groupSiteConfig": "Site e configurações",
+      "groupData": "Dados",
       "glossary": "Glossário de termos",
       "tipGlossary": "Definições de coorte, secção, promoção, encarregado/tutor e o resto do vocabulário do produto.",
       "navScopeInstitution": "Instituição (administração)",
@@ -3994,14 +3996,14 @@
       "tipMyProfile": "Seu perfil pessoal, senha e preferências.",
       "badges": "Emblemas",
       "tipBadges": "Gerencie o catálogo de conquistas dos alunos: títulos, imagens, critérios e status de pausa.",
-      "siteSetup": "Configuração do site",
+      "siteSetup": "Configuração inicial",
       "tipSiteSetup": "Abra novamente o assistente para atualizar marca, contato e parâmetros operacionais."
     },
     "siteSetup": {
       "metaTitle": "Configuração inicial do instituto",
       "firstRunPageTitle": "Instalação",
-      "pageTitle": "Configuração do instituto",
-      "pageLead": "Configure a identidade, logotipo, favicon e detalhes de contato do seu instituto. Eles são salvos no tema do site ativo; você pode editá-los a qualquer momento em Conteúdo e temas.",
+      "pageTitle": "Configuração inicial",
+      "pageLead": "Atualize a marca, informações de contato e padrões operacionais do instituto.",
       "bootstrap": {
         "metaTitle": "Criar conta de administrador",
         "pageTitle": "Conta de administrador",
@@ -6043,13 +6045,13 @@
           },
           "closing": {
             "title": "✅ Escolha um destino",
-            "description": "Use Site setup para o assistente de marca; CMS modelos para edições avançadas."
+            "description": "Use Configuração inicial para o assistente de marca; CMS modelos para edições avançadas."
           }
         }
       },
       "adminSiteSetup": {
         "meta": {
-          "title": "Configuração do site",
+          "title": "Configuração inicial",
           "description": "Assistente de marca e ajustes base do instituto."
         },
         "doneBtn": "Concluir",
@@ -6305,8 +6307,8 @@
             "description": "A coorte é o contentor principal da estrutura académica: representa o ano letivo (por exemplo «Coorte 2026»). Há uma só coorte por ano — não se criam coortes de turno da manhã ou da tarde; esses horários definem-se depois, nas secções dentro da coorte.\n\nDentro de cada coorte ficam as secções —turmas com horário, professor e inscrições— e, em cada secção, os cursos ou unidades do plano.\n\nNão pode criar secções ou cursos soltos sem uma coorte. Este percurso guia esse primeiro passo: definir o contentor anual antes de o preencher."
           },
           "navAcademic": {
-            "title": "📚 Academic hub",
-            "description": "O Academic hub é o centro académico: coortes, secções e inscrições num só lugar.\n\nClique em Seguinte para abri-lo. Se estava noutro ecrã do admin, o tutorial navega automaticamente para o hub."
+            "title": "📚 Turmas e seções",
+            "description": "Turmas e seções é o centro de controle acadêmico: coortes, seções e matrículas num só lugar.\n\nClique em Próximo para abri-lo. Se estava em outra tela do admin, o tutorial navega automaticamente para lá."
           },
           "newCohort": {
             "title": "➕ Nova coorte",
@@ -6334,7 +6336,7 @@
         "progressText": "{{current}} de {{total}}",
         "missingCohortNotice": {
           "title": "Crie primeiro uma coorte",
-          "description": "As secções vivem dentro de uma coorte (o contentor anual). Não encontrámos uma coorte vigente nem do ano em curso.\n\nUse o tutorial «Como crio uma coorte?» ou abra o Academic hub e crie a coorte do ano antes de adicionar secções.",
+          "description": "As secções vivem dentro de uma coorte (o contentor anual). Não encontrámos uma coorte vigente nem do ano em curso.\n\nUse o tutorial «Como crio uma coorte?» ou abra Turmas e seções e crie a coorte do ano antes de adicionar secções.",
           "dismiss": "Entendido"
         },
         "steps": {
@@ -7061,7 +7063,7 @@
         "current-cohort": {
           "title": "Coorte vigente",
           "aliases": "Também: coorte atual, coorte ativa",
-          "body": "A coorte marcada como o ano operativo do instituto neste momento. A inscrição pública, atribuir secções no detalhe do utilizador e várias vistas financeiras usam esta coorte como contexto predefinido.\n\nSó deve haver uma coorte vigente de cada vez. Marque-a no hub académico quando as famílias devem inscrever-se nesse ano."
+          "body": "A coorte marcada como o ano operativo do instituto neste momento. A inscrição pública, atribuir secções no detalhe do utilizador e várias vistas financeiras usam esta coorte como contexto predefinido.\n\nSó deve haver uma coorte vigente de cada vez. Marque-a em Turmas e seções quando as famílias devem inscrever-se nesse ano."
         },
         "section": {
           "title": "Secção",
@@ -7074,9 +7076,9 @@
           "body": "A unidade de ensino ou percurso de conteúdos dentro de uma secção — materiais, tarefas, mini testes ou atividades ordenadas que famílias e alunos veem no portal.\n\nNão é o mesmo que a secção: a secção é o grupo ativo; os cursos são o que esse grupo percorre. Podem seguir uma rota de aprendizagem ou ficar em modalidade livre."
         },
         "academic-hub": {
-          "title": "Hub académico",
-          "aliases": "Também: painel de coortes e secções, Academic hub",
-          "body": "O ponto de partida admin para coortes e secções: criar coortes, abrir uma para gerir secções, copiar desenhos de outro ano, marcar a coorte vigente e saltar para transferências ou retenção nesse contexto.\n\nSe não souber onde vive a estrutura académica, comece aqui."
+          "title": "Turmas e seções",
+          "aliases": "Também: painel de coortes e seções",
+          "body": "O ponto de partida admin para coortes e seções: criar coortes, abrir uma para gerir seções, copiar estruturas de outro ano, marcar a coorte vigente e saltar para transferências ou retenção nesse contexto.\n\nSe não souber onde fica a estrutura acadêmica, comece aqui."
         },
         "learning-route": {
           "title": "Rota de aprendizagem",
@@ -7234,8 +7236,8 @@
       }
     },
     "academicHub": {
-      "metaTitle": "Centro acadêmico",
-      "title": "Coortes e seções",
+      "metaTitle": "Turmas e seções",
+      "title": "Turmas e seções",
       "lead": "Revise coortes e abra uma para gerenciar seções, solicitações de transferência e alertas de retenção na mesma visualização.",
       "table": {
         "name": "Coorte",
@@ -7287,7 +7289,7 @@
     },
     "academicCohortPage": {
       "metaTitle": "Coorte",
-      "backHub": "← Centro acadêmico",
+      "backHub": "← Turmas e seções",
       "sectionsTitle": "Seções",
       "newSectionButton": "Nova seção",
       "newSectionModal": {
@@ -7895,7 +7897,7 @@
       "metaTitle": "Caixa de entrada de transferência",
       "title": "Solicitações de transferência",
       "lead": "Solicitações pendentes de professores. A aprovação executa a transação de inscrição e notifica as famílias quando configurada.",
-      "backHub": "← Centro acadêmico",
+      "backHub": "← Turmas e seções",
       "empty": "Não há solicitações pendentes.",
       "colStudent": "Estudante",
       "colFrom": "De",

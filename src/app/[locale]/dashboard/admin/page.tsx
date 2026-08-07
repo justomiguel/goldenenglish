@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -7,13 +6,15 @@ import { redirect } from "next/navigation";
 import { loadAdminHubSummary } from "@/lib/dashboard/loadAdminHubSummary";
 import { loadDashboardBirthdaysCard } from "@/lib/birthdays/loadDashboardBirthdaysCard";
 import { AdminHubHome } from "@/components/dashboard/AdminHubHome";
-
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 
 interface AdminHomeProps {
   params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: AdminHomeProps) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.admin.home.title);
 }
 
 export default async function AdminHomePage({ params }: AdminHomeProps) {

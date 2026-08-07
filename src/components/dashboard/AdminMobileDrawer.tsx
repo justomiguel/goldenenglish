@@ -4,10 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { ExternalLink, Menu, X } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
-import {
-  AdminSidebarNavContent,
-  type AdminTeacherNavLabels,
-} from "@/components/dashboard/AdminSidebarNavContent";
+import { AdminSidebarNavContent } from "@/components/dashboard/AdminSidebarNavContent";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
 
@@ -18,7 +15,6 @@ export interface AdminMobileDrawerProps {
   recentInboundMessagesCount: number;
   includeEmailTemplatesNav?: boolean;
   includeBlogNav?: boolean;
-  teacherNav?: AdminTeacherNavLabels;
 }
 
 export function AdminMobileDrawer({
@@ -28,7 +24,6 @@ export function AdminMobileDrawer({
   recentInboundMessagesCount,
   includeEmailTemplatesNav,
   includeBlogNav,
-  teacherNav,
 }: AdminMobileDrawerProps) {
   const navDict = dict.dashboard.adminNav;
   const chromeDict = dict.dashboard.adminChrome;
@@ -137,7 +132,6 @@ export function AdminMobileDrawer({
                 recentInboundMessagesCount={recentInboundMessagesCount}
                 includeEmailTemplatesNav={includeEmailTemplatesNav}
                 includeBlogNav={includeBlogNav}
-                teacherNav={teacherNav}
                 onNavigate={close}
                 variant="mobile"
               />

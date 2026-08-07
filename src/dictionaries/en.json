@@ -1365,7 +1365,7 @@
       }
     },
     "home": {
-      "title": "Admin dashboard",
+      "title": "Overview",
       "lead": "Here's what needs your attention today.",
       "cards": {
         "import": "Bulk student onboarding from a CSV file.",
@@ -1424,7 +1424,7 @@
       }
     },
     "settings": {
-      "title": "Settings",
+      "title": "Institute settings",
       "integrationsTitle": "Integrations",
       "scopeLead": "These settings apply to the whole institute. Day-to-day teaching (your classes, attendance, and class messaging) is in the teacher dashboard.",
       "inscriptions": "Public registrations",
@@ -1454,8 +1454,8 @@
       }
     },
     "cms": {
-      "navLabel": "Content & themes",
-      "hubTitle": "Site content management",
+      "navLabel": "Public site",
+      "hubTitle": "Public site",
       "hubLead": "Manage the public site templates, design tokens, and landing copy.",
       "templatesNav": "Templates",
       "templatesHubCta": "Open templates",
@@ -1903,7 +1903,7 @@
       }
     },
     "analytics": {
-      "title": "Analytics & usage",
+      "title": "Analytics",
       "lead": "Aggregated events (no identifiable personal data in metadata). Time zone: Argentina. Public traffic hits are logged on the server (middleware GET + User-Agent + edge country), so crawlers without JavaScript count as bots where the UA matches; signed-in users also emit product events separately.",
       "trafficTitle": "Traffic (all visits)",
       "trafficHint": "Last 30 days: each GET under a locale path recorded at the edge (not the in-app beacon). Bots from User-Agent; guests have no session.",
@@ -2262,7 +2262,7 @@
       "detailAvatarErrSave": "Could not save the student photo. Try again.",
       "detailSectionAssignTitle": "Current cohort sections",
       "detailSectionAssignLead": "Manage which sections of the current cohort this student is enrolled in.",
-      "detailSectionAssignNoCurrent": "No current cohort is set. Mark a cohort as current in the academic hub first.",
+      "detailSectionAssignNoCurrent": "No current cohort is set. Mark a cohort as current in Cohorts & sections first.",
       "detailSectionAssignNoSections": "The current cohort has no active sections yet.",
       "detailSectionAssignNoAvailableSections": "No more active sections are available for this student.",
       "detailSectionAssignCurrent": "Current sections",
@@ -2282,7 +2282,7 @@
       "detailSectionAssignErrNotStudent": "Only student profiles can be assigned to sections.",
       "detailSectionAssignErrNoCurrent": "No current cohort is set.",
       "detailSectionAssignErrSectionNotCurrent": "That section does not belong to the current cohort.",
-      "detailSectionAssignErrMultipleCurrent": "This student has multiple active sections in the current cohort. Resolve the duplicate from the academic hub before assigning here.",
+      "detailSectionAssignErrMultipleCurrent": "This student has multiple active sections in the current cohort. Resolve the duplicate from Cohorts & sections before assigning here.",
       "detailSectionAssignErrScheduleOverlap": "This schedule overlaps another active section for the student.",
       "detailSectionAssignErrCapacity": "The section is full. Use the admin capacity override only if authorized.",
       "detailSectionAssignErrRpc": "Could not save the section assignment. Try again.",
@@ -2729,7 +2729,7 @@
           "ratio": "Collection ratio"
         },
         "empty": {
-          "noCurrentCohort": "No current cohort is set. Mark a cohort as current in the academic hub.",
+          "noCurrentCohort": "No current cohort is set. Mark a cohort as current in Cohorts & sections.",
           "noSections": "This cohort has no active sections yet.",
           "noStudentsAfterFilter": "No students match the current filter."
         },
@@ -2809,7 +2809,7 @@
         "overview": {
           "totalsTitle": "Cohort totals",
           "sectionsTitle": "Sections",
-          "noCurrentCohort": "No current cohort is set. Mark a cohort as current in the academic hub.",
+          "noCurrentCohort": "No current cohort is set. Mark a cohort as current in Cohorts & sections.",
           "noSections": "This cohort has no active sections yet.",
           "openTooltip": "Open the section to see the student matrix and bulk actions."
         },
@@ -3410,7 +3410,7 @@
       "previewSampleHint": "Sample URL and date are illustrative; the share message uses the real {brand} URL once a student earns this badge."
     },
     "registrations": {
-      "title": "Web registrations",
+      "title": "Online registrations",
       "lead": "Prospective students from the public form.",
       "none": "No registrations yet",
       "filterLabel": "Search",
@@ -4055,20 +4055,20 @@
       "users": "Users",
       "payments": "Payments",
       "financeReceipts": "Invoice receipts",
-      "registrations": "Registrations",
+      "registrations": "Online registrations",
       "events": "Events",
       "messages": "Messages",
       "emailTemplates": "Email templates",
       "coupons": "Coupons",
       "promotions": "Promotions",
-      "settings": "Settings",
-      "academics": "Academic hub",
+      "settings": "Institute settings",
+      "academics": "Cohorts & sections",
       "calendar": "Master calendar",
-      "contents": "Contents",
+      "contents": "Academic contents",
       "transferInboxNav": "Transfer inbox",
       "retention": "Retention alerts",
       "myProfile": "My profile",
-      "cms": "Content & themes",
+      "cms": "Public site",
       "tipCms": "Manage public site templates and landing content",
       "blog": "Blog",
       "tipBlog": "Write, review, and publish public blog articles.",
@@ -4077,7 +4077,9 @@
       "groupAcademic": "Academic",
       "groupMarketing": "Marketing",
       "groupComms": "Communication",
-      "groupHelp": "Help",
+      "groupHelp": "Help & account",
+      "groupSiteConfig": "Site & settings",
+      "groupData": "Data",
       "glossary": "Terms glossary",
       "tipGlossary": "Definitions of cohort, section, promotion, guardian, and other product vocabulary.",
       "navScopeInstitution": "Institution (administration)",
@@ -4115,14 +4117,14 @@
       "tipMyProfile": "Your personal profile, password, and preferences.",
       "badges": "Badges",
       "tipBadges": "Manage the catalog of student achievements: titles, images, criteria and pause status.",
-      "siteSetup": "Site setup",
+      "siteSetup": "Initial setup",
       "tipSiteSetup": "Re-run the setup wizard to update branding, contact details, and operational defaults."
     },
     "siteSetup": {
       "metaTitle": "Initial institute setup",
       "firstRunPageTitle": "Installation",
-      "pageTitle": "Institute setup",
-      "pageLead": "Configure your institute identity, logo, favicon, and contact details. They are saved to the active site theme; you can edit them anytime under Content & themes.",
+      "pageTitle": "Initial setup",
+      "pageLead": "Update institute branding, contact details, and operational defaults.",
       "bootstrap": {
         "metaTitle": "Create administrator account",
         "pageTitle": "Administrator account",
@@ -4880,7 +4882,7 @@
           },
           "sidebar": {
             "title": "📂 Left menu",
-            "description": "Use the sidebar to reach every admin area: academic hub, users, registrations, payments, messages, CMS, settings, and more.\n\nGroups keep related tools together. Badges on some links (for example new registrations) highlight work that needs attention."
+            "description": "Use the sidebar to reach every admin area: cohorts & sections, users, registrations, payments, messages, public site, settings, and more.\n\nGroups keep related tools together. Badges on some links (for example new registrations) highlight work that needs attention."
           },
           "chromeHeader": {
             "title": "⬆️ Top bar",
@@ -5460,8 +5462,8 @@
             "description": "A cohort is the annual container for the school year. Sections (shifts, courses) live inside a cohort — create the year first, then add sections."
           },
           "titleBlock": {
-            "title": "📋 Academic hub",
-            "description": "This hub lists cohorts and lets you open the one you work on."
+            "title": "📋 Cohorts & sections",
+            "description": "This screen lists cohorts and lets you open the one you work on."
           },
           "newCohort": {
             "title": "➕ New cohort",
@@ -6164,13 +6166,13 @@
           },
           "closing": {
             "title": "✅ Pick a destination",
-            "description": "Use Site setup for wizard-style brand onboarding; use CMS templates for advanced edits."
+            "description": "Use Initial setup for wizard-style brand onboarding; use CMS templates for advanced edits."
           }
         }
       },
       "adminSiteSetup": {
         "meta": {
-          "title": "Site setup",
+          "title": "Initial setup",
           "description": "Guided wizard for institute branding and baseline settings."
         },
         "doneBtn": "Done",
@@ -6180,7 +6182,7 @@
         "progressText": "{{current}} of {{total}}",
         "steps": {
           "intro": {
-            "title": "🪄 Site setup wizard",
+            "title": "🪄 Initial setup wizard",
             "description": "Step-by-step branding and operational defaults. Complete steps in order; uploads show inline progress."
           },
           "stepIndicator": {
@@ -6379,8 +6381,8 @@
         "description": "Walk Finance → Collections for a section: scholarships tab, bulk discount trigger, and modal fields — guide only; never confirm bulk apply during the tour."
       },
       "change-site-setup-currency": {
-        "title": "How do I set billing currency in Site setup?",
-        "description": "Learn the Site setup wizard Legal & billing step where institute currency is chosen — different from Finance settings; guide only; finish the wizard yourself after the tour."
+        "title": "How do I set billing currency in Initial setup?",
+        "description": "Learn the Initial setup wizard Legal & billing step where institute currency is chosen — different from Finance settings; guide only; finish the wizard yourself after the tour."
       },
       "create-blog-article": {
         "title": "How do I create a blog article?",
@@ -6426,8 +6428,8 @@
             "description": "A cohort is the top-level container in your academic structure: it represents the school year (for example “Cohort 2026”). There is only one cohort per year — you do not create separate morning or afternoon cohorts; those schedules belong in sections inside the cohort.\n\nInside each cohort live sections —classes with a schedule, teacher, and enrollments— and within each section, the courses or units in the learning plan.\n\nYou cannot create standalone sections or courses without a cohort. This tour walks you through that first step: define the annual container before you fill it."
           },
           "navAcademic": {
-            "title": "📚 Academic hub",
-            "description": "Academic hub is your academic control center: cohorts, sections, and enrollments in one place.\n\nClick Next to open it. If you were on another admin screen, the tour navigates you to the hub automatically."
+            "title": "📚 Cohorts & sections",
+            "description": "Cohorts & sections is your academic control center: cohorts, sections, and enrollments in one place.\n\nClick Next to open it. If you were on another admin screen, the tour navigates you to the hub automatically."
           },
           "newCohort": {
             "title": "➕ New cohort",
@@ -6455,7 +6457,7 @@
         "progressText": "{{current}} of {{total}}",
         "missingCohortNotice": {
           "title": "Create a cohort first",
-          "description": "Sections live inside a cohort (the annual container). We could not find a current or active-year cohort.\n\nRun the “create a cohort” tutorial or open Academic hub and create the year’s cohort before adding sections.",
+          "description": "Sections live inside a cohort (the annual container). We could not find a current or active-year cohort.\n\nRun the “create a cohort” tutorial or open Cohorts & sections and create the year’s cohort before adding sections.",
           "dismiss": "Got it"
         },
         "steps": {
@@ -7005,12 +7007,12 @@
         "progressText": "{{current}} of {{total}}",
         "steps": {
           "intro": {
-            "title": "🏛️ Site setup currency (guide only)",
-            "description": "Greenfield Site setup sets institute currency on Legal & billing — separate from Finance settings edits.\n\nThe tour never finishes the wizard for you."
+            "title": "🏛️ Initial setup currency (guide only)",
+            "description": "Greenfield Initial setup sets institute currency on Legal & billing — separate from Finance settings edits.\n\nThe tour never finishes the wizard for you."
           },
           "stepIndicator": {
             "title": "📍 Wizard progress",
-            "description": "Step indicator shows where you are in the eight-step Site setup flow."
+            "description": "Step indicator shows where you are in the eight-step Initial setup flow."
           },
           "panel": {
             "title": "📋 Step panel",
@@ -7022,7 +7024,7 @@
           },
           "navGuide": {
             "title": "➡️ Continue wizard",
-            "description": "Use Back/Continue to move steps. Finish Site setup yourself when every field is correct."
+            "description": "Use Back/Continue to move steps. Finish Initial setup yourself when every field is correct."
           }
         }
       },
@@ -7182,7 +7184,7 @@
         "current-cohort": {
           "title": "Current cohort",
           "aliases": "Also: active cohort, “vigente”",
-          "body": "The cohort marked as the institute’s operating year right now. Public registration, assigning students to sections from user detail, and several finance views use this cohort as the default context.\n\nOnly one cohort should be current at a time. Mark it from the academic hub when families should enroll into that year."
+          "body": "The cohort marked as the institute’s operating year right now. Public registration, assigning students to sections from user detail, and several finance views use this cohort as the default context.\n\nOnly one cohort should be current at a time. Mark it from Cohorts & sections when families should enroll into that year."
         },
         "section": {
           "title": "Section",
@@ -7195,7 +7197,7 @@
           "body": "The teaching unit or content track inside a section — materials, tasks, mini-tests, or ordered activities families and students see in the portal.\n\nCourses are not the same as sections: the section is the live group; courses are what that group works through. They may follow a learning route or stay in free mode."
         },
         "academic-hub": {
-          "title": "Academic hub",
+          "title": "Cohorts & sections",
           "aliases": "Also: cohorts & sections panel",
           "body": "The admin home for cohorts and sections: create cohorts, open a cohort to manage its sections, copy section designs from a previous year, mark the current cohort, and jump to transfers or retention for that context.\n\nIf you are unsure where academic structure lives, start here."
         },
@@ -7227,7 +7229,7 @@
         "section-enrollment": {
           "title": "Section enrollment",
           "aliases": "Also: active seat in a class",
-          "body": "The link between a student and a section for the cohort cycle — who sits in which group, with start/end dates and status. Without enrollment, the student will not appear in that section’s attendance, grades, or billing.\n\nAssign from academic hub queues, user detail, imports, or approved transfers."
+          "body": "The link between a student and a section for the cohort cycle — who sits in which group, with start/end dates and status. Without enrollment, the student will not appear in that section’s attendance, grades, or billing.\n\nAssign from Cohorts & sections queues, user detail, imports, or approved transfers."
         },
         "promotion": {
           "title": "Promotion",
@@ -7355,7 +7357,7 @@
       }
     },
     "academicHub": {
-      "metaTitle": "Academic hub",
+      "metaTitle": "Cohorts & sections",
       "title": "Cohorts & sections",
       "lead": "Review cohorts and open one to manage sections, transfer requests, and retention alerts in the same view.",
       "table": {
@@ -7408,7 +7410,7 @@
     },
     "academicCohortPage": {
       "metaTitle": "Cohort",
-      "backHub": "← Academic hub",
+      "backHub": "← Cohorts & sections",
       "sectionsTitle": "Sections",
       "newSectionButton": "New section",
       "newSectionModal": {
@@ -8016,7 +8018,7 @@
       "metaTitle": "Transfer inbox",
       "title": "Transfer requests",
       "lead": "Pending requests from teachers. Approving runs the enrollment transaction and notifies families when configured.",
-      "backHub": "← Academic hub",
+      "backHub": "← Cohorts & sections",
       "empty": "No pending requests.",
       "colStudent": "Student",
       "colFrom": "From",

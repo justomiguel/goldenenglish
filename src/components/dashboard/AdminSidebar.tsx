@@ -1,10 +1,5 @@
 import type { Dictionary } from "@/types/i18n";
-import {
-  AdminSidebarNavContent,
-  type AdminTeacherNavLabels,
-} from "@/components/dashboard/AdminSidebarNavContent";
-
-export type { AdminTeacherNavLabels } from "@/components/dashboard/AdminSidebarNavContent";
+import { AdminSidebarNavContent } from "@/components/dashboard/AdminSidebarNavContent";
 
 export interface AdminSidebarProps {
   locale: string;
@@ -13,7 +8,6 @@ export interface AdminSidebarProps {
   recentInboundMessagesCount: number;
   includeEmailTemplatesNav?: boolean;
   includeBlogNav?: boolean;
-  teacherNav?: AdminTeacherNavLabels;
 }
 
 export function AdminSidebar({
@@ -23,7 +17,6 @@ export function AdminSidebar({
   recentInboundMessagesCount,
   includeEmailTemplatesNav,
   includeBlogNav,
-  teacherNav,
 }: AdminSidebarProps) {
   return (
     <aside
@@ -37,7 +30,6 @@ export function AdminSidebar({
         recentInboundMessagesCount={recentInboundMessagesCount}
         includeEmailTemplatesNav={includeEmailTemplatesNav}
         includeBlogNav={includeBlogNav}
-        teacherNav={teacherNav}
       />
     </aside>
   );

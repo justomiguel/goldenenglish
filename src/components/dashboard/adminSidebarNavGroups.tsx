@@ -118,17 +118,6 @@ export function buildAdminSidebarNavGroups(
       ],
     },
     {
-      label: null,
-      items: [
-        {
-          href: financeHref,
-          label: dict.finance,
-          icon: <Banknote className={ic} />,
-          tip: dict.tipFinance,
-        },
-      ],
-    },
-    {
       label: dict.groupAcademic,
       items: [
         {
@@ -159,8 +148,14 @@ export function buildAdminSidebarNavGroups(
       ],
     },
     {
-      label: dict.groupMarketing,
+      label: dict.groupFinance,
       items: [
+        {
+          href: financeHref,
+          label: dict.finance,
+          icon: <Banknote className={ic} />,
+          tip: dict.tipFinance,
+        },
         {
           href: `${base}/coupons`,
           label: dict.coupons,
@@ -180,31 +175,8 @@ export function buildAdminSidebarNavGroups(
       items: groupCommsItems,
     },
     {
-      label: dict.groupHelp,
+      label: dict.groupSiteConfig,
       items: [
-        {
-          href: `${base}/glossary`,
-          label: dict.glossary,
-          icon: <BookOpen className={ic} />,
-          tip: dict.tipGlossary,
-        },
-      ],
-    },
-    {
-      label: null,
-      items: [
-        {
-          href: `${base}/analytics`,
-          label: dict.analytics,
-          icon: <Activity className={ic} />,
-          tip: dict.tipAnalytics,
-        },
-        {
-          href: `${base}/audit`,
-          label: dict.audit,
-          icon: <ScrollText className={ic} />,
-          tip: dict.tipAudit,
-        },
         {
           href: `${base}/cms`,
           label: dict.cms,
@@ -222,6 +194,34 @@ export function buildAdminSidebarNavGroups(
           label: dict.settings,
           icon: <Settings className={ic} />,
           tip: dict.tipSettings,
+        },
+      ],
+    },
+    {
+      label: dict.groupData,
+      items: [
+        {
+          href: `${base}/analytics`,
+          label: dict.analytics,
+          icon: <Activity className={ic} />,
+          tip: dict.tipAnalytics,
+        },
+        {
+          href: `${base}/audit`,
+          label: dict.audit,
+          icon: <ScrollText className={ic} />,
+          tip: dict.tipAudit,
+        },
+      ],
+    },
+    {
+      label: dict.groupHelp,
+      items: [
+        {
+          href: `${base}/glossary`,
+          label: dict.glossary,
+          icon: <BookOpen className={ic} />,
+          tip: dict.tipGlossary,
         },
         {
           href: profileHref,

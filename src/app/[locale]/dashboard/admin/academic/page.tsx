@@ -1,22 +1,18 @@
-import type { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { AcademicHubToolbar } from "@/components/organisms/AcademicHubToolbar";
 import { AcademicHubCohortBoard } from "@/components/organisms/AcademicHubCohortBoard";
 import type { AcademicHubCohortSummary } from "@/components/molecules/AcademicHubCohortRow";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps) {
   const { locale } = await params;
-  const dict = await getDictionary(locale);
-  return {
-    title: dict.dashboard.academicHub.metaTitle,
-    robots: { index: false, follow: false },
-  };
+  return buildPageMetadata(locale, (d) => d.dashboard.academicHub.title);
 }
 
 export default async function AcademicHubPage({ params }: PageProps) {

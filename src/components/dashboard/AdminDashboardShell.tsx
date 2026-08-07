@@ -37,16 +37,6 @@ export function AdminDashboardShell({
   children,
 }: AdminDashboardShellProps) {
   const navDict = dict.dashboard.adminNav;
-  const teacherNav =
-    teacherPortalAllowed && !siteSetupRequired
-      ? {
-          href: `/${locale}/dashboard/teacher`,
-          hint: dict.dashboard.adminChrome.dualRoleNavHint,
-          cta: dict.dashboard.adminChrome.openTeacherDashboard,
-          ctaAria: dict.dashboard.adminChrome.openTeacherDashboardAria,
-          switchHint: navDict.workspaceSwitchHint,
-        }
-      : undefined;
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--color-muted)]">
@@ -65,7 +55,6 @@ export function AdminDashboardShell({
               recentInboundMessagesCount={recentInboundMessagesCount}
               includeEmailTemplatesNav={includeEmailTemplatesNav}
               includeBlogNav={includeBlogNav}
-              teacherNav={teacherNav}
             />
           )
         }
@@ -79,7 +68,6 @@ export function AdminDashboardShell({
             recentInboundMessagesCount={recentInboundMessagesCount}
             includeEmailTemplatesNav={includeEmailTemplatesNav}
             includeBlogNav={includeBlogNav}
-            teacherNav={teacherNav}
           />
         )}
         <div className="min-w-0 flex-1 px-4 py-6 md:rounded-[var(--layout-border-radius)] md:border md:border-[var(--color-border)] md:bg-[var(--color-background)] md:px-8 md:py-8 md:shadow-sm">
