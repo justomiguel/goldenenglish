@@ -176,6 +176,19 @@ TDD. Self-contained per `.cursor/rules/30-harness-self-contained-tests.mdc`.
   systemic fix and deserves its own spec.
 - Automated Lighthouse coverage, which the runbook already describes.
 
+## Addendum — `color.error`, found during spec 8
+
+Spec 8 gave destructive buttons a solid error fill with a white label, which put a pair
+this spec never measured on screen. Mi Mundo's seeded error `#E22E30` reaches **4.4995:1**
+against white: short of AA by five ten-thousandths, on a delete button's label.
+
+`175_site_theme_mimundo_error_contrast.sql` moves it to `#DE2B2D`, which reaches 4.68:1
+and is visually indistinguishable. As a border the token also improves, to 4.33:1 on the
+surface and 3.90:1 on the wash, both far past the 3:1 non-text threshold.
+
+It is recorded here rather than in spec 8 because the defect is in this tenant's palette,
+which is this spec's subject.
+
 ## Manual QA (Mi Mundo tenant, phone width)
 
 Owned by the user per `.cursor/rules/32-manual-qa-user-owned.mdc`.

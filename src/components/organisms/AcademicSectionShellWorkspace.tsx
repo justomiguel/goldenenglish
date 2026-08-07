@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useMemo, type ReactNode } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import {
   CircleDollarSign,
@@ -14,7 +14,10 @@ import {
 } from "lucide-react";
 import { AcademicSectionShellHub } from "@/components/organisms/AcademicSectionShellHub";
 import { AcademicSectionShellAreaChrome } from "@/components/molecules/AcademicSectionShellAreaChrome";
-import type { AcademicSectionShellAreaId } from "@/lib/academics/academicSectionShellTabOrder";
+import {
+  type AcademicSectionShellAreaId,
+  parseAcademicSectionShellTabParam,
+} from "@/lib/academics/academicSectionShellTabOrder";
 import {
   type AcademicSectionFeatureFlags,
   resolveAcademicSectionShellArea,
@@ -70,7 +73,8 @@ export interface AcademicSectionShellWorkspaceProps {
 export function AcademicSectionShellWorkspace({
   labels,
   featureFlags,
-  initialArea = null,
+  // initialArea is kept in the interface for the server's first-paint prop; the
+  // running area is derived from useSearchParams so the browser history works.
   hubOverview,
   configuration,
   teachers,
@@ -80,18 +84,21 @@ export function AcademicSectionShellWorkspace({
   attendance,
   students,
 }: AcademicSectionShellWorkspaceProps) {
-  const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const flags = featureFlags;
   const areas = useMemo(() => visibleAcademicSectionHubAreas(flags), [flags]);
-  const [area, setArea] = useState<AcademicSectionShellAreaId | null>(() =>
-    resolveAcademicSectionShellArea(initialArea ?? undefined, flags),
-  );
 
+  const tab = parseAcademicSectionShellTabParam(searchParams.get("tab") ?? undefined);
+  const area = resolveAcademicSectionShellArea(tab, flags);
+
+  // pushState lets Next.js update the URL without re-running the server route.
+  // useSearchParams picks up the change and re-renders this component — making
+  // back and forward work because the browser updating the URL is the same
+  // event as the component changing area.
   const navigate = (next: AcademicSectionShellAreaId | null) => {
-    setArea(next);
     const url = next ? `${pathname}?tab=${encodeURIComponent(next)}` : pathname;
-    router.replace(url);
+    window.history.pushState(null, "", url);
   };
 
   const cardLabels = useMemo(() => {

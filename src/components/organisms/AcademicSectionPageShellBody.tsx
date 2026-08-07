@@ -111,7 +111,7 @@ export function AcademicSectionPageShellBody({
       />
 
       <AcademicSectionShellWorkspace
-        key={`section-shell-${initialShellArea ?? "hub"}-${featureFlags.requiresEvaluationsToPass}-${featureFlags.usesLearningRoute}`}
+        key={`section-shell-${featureFlags.requiresEvaluationsToPass}-${featureFlags.usesLearningRoute}`}
         labels={shellTabLabels}
         initialArea={initialShellArea}
         featureFlags={featureFlags}

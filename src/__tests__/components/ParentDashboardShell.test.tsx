@@ -59,9 +59,12 @@ describe("ParentDashboardShell", () => {
     expect(
       screen.queryByText(dictEn.dashboard.parentNav.navScopeStudent),
     ).not.toBeInTheDocument();
+    // After spec 6 F10 fix, studentNav.calendar and parentNav.calendar share the
+    // label "Attendance" in English. The student calendar link is already verified
+    // above; assert exactly one such link exists (no extra parent-portal copy).
     expect(
-      screen.queryByRole("link", { name: dictEn.dashboard.parentNav.calendar }),
-    ).not.toBeInTheDocument();
+      screen.queryAllByRole("link", { name: dictEn.dashboard.parentNav.calendar }),
+    ).toHaveLength(1);
     expect(screen.queryByText(dictEn.dashboard.parentChrome.badge)).not.toBeInTheDocument();
   });
 });

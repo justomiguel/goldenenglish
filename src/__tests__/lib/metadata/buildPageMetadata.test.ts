@@ -52,9 +52,9 @@ describe("sample page title selectors", () => {
     expect(result.title).toBe("Progreso");
   });
 
-  it("student/calendar page title is 'Mi agenda'", async () => {
+  it("student/calendar page title is 'Asistencias' after spec 6 F10 fix", async () => {
     const result = await buildPageMetadata("es", (d) => d.dashboard.studentNav.calendar);
-    expect(result.title).toBe("Mi agenda");
+    expect(result.title).toBe("Asistencias");
   });
 
   it("teacher/sections page title is 'Mis clases'", async () => {
