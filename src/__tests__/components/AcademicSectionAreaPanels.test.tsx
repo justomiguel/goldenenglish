@@ -144,6 +144,16 @@ describe("AcademicSectionAssessmentsPanel", () => {
         sectionId="s1"
         canDeleteCohortAssessments={false}
         data={{ learning: [], cohort: [], activeEnrollmentCount: 3 }}
+        gradingPathDict={{
+          stepCreate: "Create",
+          stepStudent: "Student",
+          stepGrade: "Grade",
+          stepPublish: "Publish",
+          countsLine: "{published} published · {draft} draft · {pending} pending",
+          publishedNext: "Published · next {name}",
+          allPublished: "Done: all published",
+          stripAria: "Grading path",
+        }}
         dict={{
           summaryTitle: "Overview",
           summaryLearningLabel: "Learning",

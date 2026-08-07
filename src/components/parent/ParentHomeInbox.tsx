@@ -71,6 +71,7 @@ export function ParentHomeInbox({
           locale={locale}
           pillars={pillars}
           labels={inbox}
+          selectedStudentId={selected?.studentId ?? null}
           dashboardBase={dashboardBase}
           includePayments={includePayments}
         />

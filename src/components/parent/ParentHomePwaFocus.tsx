@@ -116,6 +116,7 @@ export function ParentHomePwaFocus({
           pillars={pillars}
           labels={inbox}
           variant="pwa"
+          selectedStudentId={selected?.studentId ?? null}
           attendanceChildRows={attendanceChildRows}
           paymentChildRows={paymentChildRows}
           dashboardBase={dashboardBase}

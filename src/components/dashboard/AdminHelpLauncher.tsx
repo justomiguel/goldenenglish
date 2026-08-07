@@ -11,6 +11,7 @@ import type { AdminTutorialId } from "@/lib/admin-tutorials/catalog";
 import { startAdminTutorial } from "@/lib/admin-tutorials/client/startAdminTutorial";
 import { startExplainScreenTour } from "@/lib/admin-tutorials/client/startExplainScreenTour";
 import { resolveAdminScreenTour } from "@/lib/admin-tutorials/screenCatalog";
+import { useAppSurface } from "@/hooks/useAppSurface";
 
 export interface AdminHelpLauncherProps {
   locale: string;
@@ -22,6 +23,7 @@ export interface AdminHelpLauncherProps {
   screenToursDict: Dictionary["dashboard"]["adminHelpScreenTours"];
 }
 
+/** Help FAB: admin + web-desktop only (never PWA / narrow). */
 export function AdminHelpLauncher({
   locale,
   launcherDict,
@@ -33,6 +35,7 @@ export function AdminHelpLauncher({
 }: AdminHelpLauncherProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const surface = useAppSurface();
   const idPrefix = useId().replace(/:/g, "");
   const panelId = `admin-help-chat-${idPrefix}`;
   const titleId = `${panelId}-title`;
@@ -109,10 +112,14 @@ export function AdminHelpLauncher({
     });
   }, [locale, pathname, screenToursDict, handleOpenChange]);
 
+  if (surface !== "web-desktop") {
+    return null;
+  }
+
   return (
     <div
       ref={rootRef}
-      className="pointer-events-none fixed bottom-5 right-5 z-40 hidden flex-col items-end md:bottom-8 md:right-8 md:flex"
+      className="pointer-events-none fixed bottom-5 right-5 z-40 flex flex-col items-end md:bottom-8 md:right-8"
     >
       {open ? (
         <div className="pointer-events-auto">

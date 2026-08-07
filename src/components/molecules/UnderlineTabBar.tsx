@@ -13,10 +13,6 @@ export type UnderlineTabItem = {
   disabled?: boolean;
   /** E.g. i18n reason shown as native tooltip when `disabled`. */
   title?: string;
-  /** Pending-items count rendered as a pill; ignored when `0` or absent. */
-  badgeCount?: number;
-  /** Required with `badgeCount`: i18n accessible name describing what the count means. */
-  badgeLabel?: string;
 };
 
 function wrapIndex(idx: number, len: number): number {
@@ -205,14 +201,6 @@ export function UnderlineTabBar({
             >
               {item.label}
             </span>
-            {item.badgeCount ? (
-              <span
-                className="inline-flex min-w-[1.25rem] shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] px-1.5 py-0.5 text-[0.625rem] font-bold leading-none text-[var(--color-primary-foreground)]"
-                aria-label={item.badgeLabel}
-              >
-                {item.badgeCount}
-              </span>
-            ) : null}
           </button>
         );
       })}

@@ -9,6 +9,12 @@ import { useAppSurface } from "@/hooks/useAppSurface";
 import { Button } from "@/components/atoms/Button";
 import { AssessmentGradingShell } from "@/components/molecules/AssessmentGradingShell";
 import { AssessmentGradingEditor } from "@/components/molecules/AssessmentGradingEditor";
+import { AssessmentGradingPathStrip } from "@/components/molecules/AssessmentGradingPathStrip";
+import {
+  countAssessmentRosterStatuses,
+  nextPendingEnrollmentId,
+  resolveAssessmentPathStep,
+} from "@/lib/academics/assessmentGradingPath";
 
 export interface AssessmentRosterGradingClientProps {
   locale: string;
@@ -39,12 +45,19 @@ export function AssessmentRosterGradingClient({
   const [openId, setOpenId] = useState<string | null>(null);
   const [statusByEnr, setStatusByEnr] = useState<Record<string, "draft" | "published">>({});
   const [saveBanner, setSaveBanner] = useState<string | null>(null);
+  const [justPublished, setJustPublished] = useState(false);
 
   useEffect(() => {
     if (!saveBanner) return;
     const t = window.setTimeout(() => setSaveBanner(null), 4500);
     return () => window.clearTimeout(t);
   }, [saveBanner]);
+
+  useEffect(() => {
+    if (!justPublished) return;
+    const t = window.setTimeout(() => setJustPublished(false), 600);
+    return () => window.clearTimeout(t);
+  }, [justPublished]);
 
   const serverRowFingerprint = (enrollmentId: string) => {
     const r = rows.find((x) => x.enrollmentId === enrollmentId);
@@ -63,10 +76,32 @@ export function AssessmentRosterGradingClient({
 
   const active = openId ? merged.find((r) => r.enrollmentId === openId) : null;
 
+  const currentStep = resolveAssessmentPathStep({
+    hasAssessment: true,
+    studentOpen: openId != null,
+    justPublished,
+  });
+
+  const counts = countAssessmentRosterStatuses(merged);
+  const countsText = dict.path.countsLine
+    .replace("{published}", String(counts.published))
+    .replace("{draft}", String(counts.draft))
+    .replace("{pending}", String(counts.pending));
+
   const lead = dict.assessmentLead
     .replace("{name}", assessmentName)
     .replace("{maxScore}", String(maxScore))
     .replace("{date}", assessmentDateLabel);
+
+  function openStudent(enrollmentId: string) {
+    setJustPublished(false);
+    setOpenId(enrollmentId);
+  }
+
+  function closeStudent() {
+    setJustPublished(false);
+    setOpenId(null);
+  }
 
   function statusDot(row: (typeof merged)[0]) {
     const st = row.gradeStatus;
@@ -99,6 +134,11 @@ export function AssessmentRosterGradingClient({
 
   return (
     <div className="space-y-4">
+      <AssessmentGradingPathStrip
+        currentStep={currentStep}
+        labels={dict.path}
+        countsText={countsText}
+      />
       <p className="text-sm text-[var(--color-muted-foreground)]">{lead}</p>
       <p className="text-xs text-[var(--color-muted-foreground)]">{dict.legend}</p>
       {saveBanner ? (
@@ -127,7 +167,7 @@ export function AssessmentRosterGradingClient({
                     variant="ghost"
                     className="min-h-[44px]"
                     aria-label={dict.evaluateAria.replace("{student}", row.studentLabel)}
-                    onClick={() => setOpenId(row.enrollmentId)}
+                    onClick={() => openStudent(row.enrollmentId)}
                   >
                     <ClipboardCheck className="h-4 w-4 shrink-0" aria-hidden />
                     {dict.evaluate}
@@ -143,10 +183,10 @@ export function AssessmentRosterGradingClient({
         narrow={narrow}
         open={openId != null}
         onOpenChange={(o) => {
-          if (!o) setOpenId(null);
+          if (!o) closeStudent();
         }}
         titleId={titleId}
-        title={assessmentName}
+        title={active ? `${active.studentLabel} · ${assessmentName}` : assessmentName}
         backdropCloseAria={dict.backdropCloseAria}
       >
         {active ? (
@@ -161,10 +201,31 @@ export function AssessmentRosterGradingClient({
               dimensions={dimensions}
               row={active}
               dict={dict}
-              onClose={() => setOpenId(null)}
+              onClose={closeStudent}
               onSaved={(enrollmentId, status) => {
+                const mergedWithUpdate = merged.map((row) =>
+                  row.enrollmentId === enrollmentId ? { ...row, gradeStatus: status } : row,
+                );
                 setStatusByEnr((m) => ({ ...m, [enrollmentId]: status }));
-                setSaveBanner(status === "published" ? dict.savedPublishedOk : dict.savedDraftOk);
+
+                if (status === "draft") {
+                  setJustPublished(false);
+                  setSaveBanner(dict.savedDraftOk);
+                  return;
+                }
+
+                const next = nextPendingEnrollmentId(mergedWithUpdate, enrollmentId);
+                if (next) {
+                  const nextRow = mergedWithUpdate.find((row) => row.enrollmentId === next);
+                  setJustPublished(true);
+                  setSaveBanner(dict.path.publishedNext.replace("{name}", nextRow?.studentLabel ?? ""));
+                  setOpenId(next);
+                  return;
+                }
+
+                setJustPublished(false);
+                setSaveBanner(dict.path.allPublished);
+                setOpenId(null);
               }}
             />
           </div>

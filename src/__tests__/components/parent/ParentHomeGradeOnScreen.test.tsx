@@ -2,11 +2,15 @@
 // Spec 7, Test 2: ParentHomeStatusGrid renders the progress pillar card.
 // - The last grade text is visible.
 // - The card links to /progress.
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, beforeEach } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
 import { ParentHomeStatusGrid } from "@/components/parent/ParentHomeStatusGrid";
 import { dictEn } from "@/test/dictEn";
+import { installMemoryLocalStorage } from "@/__tests__/helpers/installMemoryLocalStorage";
+import { progressSeenStorageKey } from "@/lib/parent/progressSeenStorage";
 import type { ParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
+
+const FEEDBACK_ITEM_KEY = "assessment:enr-1:asm-1";
 
 const GRADE = {
   score: 18,
@@ -14,9 +18,18 @@ const GRADE = {
   assessmentName: "Mid-term",
   assessmentOn: "2026-07-15",
   hasTeacherFeedback: false,
+  feedbackItemKey: null,
 };
 
-const GRADE_WITH_FEEDBACK = { ...GRADE, hasTeacherFeedback: true };
+const GRADE_WITH_FEEDBACK = {
+  ...GRADE,
+  hasTeacherFeedback: true,
+  feedbackItemKey: FEEDBACK_ITEM_KEY,
+};
+
+beforeEach(() => {
+  installMemoryLocalStorage();
+});
 
 const PILLARS_WITH_GRADE: ParentHomePillarSnapshot = {
   attendance: { level: "ok", monthPercent: 85 },
@@ -136,5 +149,74 @@ describe("ParentHomeStatusGrid — progress pillar advertises teacher feedback",
 
   it("does not deep link to feedback without a comment", () => {
     expect(progressLinkHref(PILLARS_WITH_GRADE)).not.toContain("tab=feedback");
+  });
+});
+
+// REGRESSION CHECK: the entry-point mark shares the Progress picker's per-device store, so opening
+// Feedback has to clear it here. A mark that survives reading is worse than no mark at all.
+describe("ParentHomeStatusGrid — progress pillar flags an unread comment", () => {
+  const inbox = dictEn.dashboard.parent.homeInbox;
+
+  const pillarsWithFeedback: ParentHomePillarSnapshot = {
+    ...PILLARS_WITH_GRADE,
+    progress: { level: "ok", lastPublishedGrade: GRADE_WITH_FEEDBACK },
+  };
+
+  function renderGrid(pillars: ParentHomePillarSnapshot, studentId: string | null = "stu-1") {
+    render(
+      <ParentHomeStatusGrid
+        locale="en"
+        pillars={pillars}
+        labels={inbox}
+        selectedStudentId={studentId}
+      />,
+    );
+  }
+
+  it("marks a comment this device has not opened yet", async () => {
+    renderGrid(pillarsWithFeedback);
+
+    await waitFor(() =>
+      expect(screen.getByLabelText(inbox.pillarProgressUnreadAria)).toBeInTheDocument(),
+    );
+  });
+
+  it("drops the mark once Progress recorded that comment as seen", async () => {
+    window.localStorage.setItem(
+      progressSeenStorageKey("stu-1"),
+      JSON.stringify({ feedback: [FEEDBACK_ITEM_KEY] }),
+    );
+    renderGrid(pillarsWithFeedback);
+
+    await waitFor(() => expect(screen.getByText("Mid-term", { exact: false })).toBeInTheDocument());
+    expect(screen.queryByLabelText(inbox.pillarProgressUnreadAria)).not.toBeInTheDocument();
+  });
+
+  it("says nothing when the grade came without a comment", async () => {
+    renderGrid(PILLARS_WITH_GRADE);
+
+    await waitFor(() => expect(screen.getByText("Mid-term", { exact: false })).toBeInTheDocument());
+    expect(screen.queryByLabelText(inbox.pillarProgressUnreadAria)).not.toBeInTheDocument();
+  });
+
+  it("says nothing when no grade is published", async () => {
+    renderGrid(PILLARS_NO_GRADE);
+
+    await waitFor(() =>
+      expect(screen.getAllByText(inbox.statusUnknown).length).toBeGreaterThan(0),
+    );
+    expect(screen.queryByLabelText(inbox.pillarProgressUnreadAria)).not.toBeInTheDocument();
+  });
+
+  it("keeps one child's reading history from clearing another's mark", async () => {
+    window.localStorage.setItem(
+      progressSeenStorageKey("stu-1"),
+      JSON.stringify({ feedback: [FEEDBACK_ITEM_KEY] }),
+    );
+    renderGrid(pillarsWithFeedback, "stu-2");
+
+    await waitFor(() =>
+      expect(screen.getByLabelText(inbox.pillarProgressUnreadAria)).toBeInTheDocument(),
+    );
   });
 });

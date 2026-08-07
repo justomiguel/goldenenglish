@@ -3,11 +3,13 @@ import { sectionAttendanceCyclePresentPct } from "@/lib/academics/sectionAttenda
 import { loadTeacherIdByStudentId } from "@/lib/messaging/loadParentLinkedTeacherIds";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { chunkedIn } from "@/lib/supabase/chunkedIn";
+import { parentFeedbackGradeItemKey } from "@/lib/parent/mapParentFeedbackRows";
 import type { ParentChildSummary } from "@/lib/parent/loadParentChildrenSummaries";
 
 type AssessmentMeta = { name: string; max_score: number | string; assessment_on: string };
 type GradeRow = {
   enrollment_id: string;
+  assessment_id: string;
   score: number | string;
   teacher_feedback: string | null;
   cohort_assessments: AssessmentMeta | AssessmentMeta[] | null;
@@ -77,7 +79,7 @@ export async function loadChildrenSummariesForStudentIds(
       const { data: gradeRowsRaw } = await supabase
         .from("enrollment_assessment_grades")
         .select(
-          "enrollment_id, score, teacher_feedback, cohort_assessments(name, max_score, assessment_on)",
+          "enrollment_id, assessment_id, score, teacher_feedback, cohort_assessments(name, max_score, assessment_on)",
         )
         .eq("status", "published")
         .in("enrollment_id", enrollmentIds);
@@ -94,12 +96,16 @@ export async function loadChildrenSummariesForStudentIds(
         const score = Number(bestRow.row.score);
         const maxScore = Number(bestRow.meta.max_score);
         if (Number.isFinite(score) && Number.isFinite(maxScore) && maxScore > 0) {
+          const hasTeacherFeedback = Boolean(bestRow.row.teacher_feedback?.trim());
           lastPublishedGrade = {
             score,
             maxScore,
             assessmentName: String(bestRow.meta.name),
             assessmentOn: String(bestRow.meta.assessment_on).slice(0, 10),
-            hasTeacherFeedback: Boolean(bestRow.row.teacher_feedback?.trim()),
+            hasTeacherFeedback,
+            feedbackItemKey: hasTeacherFeedback
+              ? parentFeedbackGradeItemKey(bestRow.row.enrollment_id, bestRow.row.assessment_id)
+              : null,
           };
         }
       }

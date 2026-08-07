@@ -14,6 +14,12 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/es/dashboard/admin",
 }));
 
+const useAppSurface = vi.fn(() => "web-desktop");
+
+vi.mock("@/hooks/useAppSurface", () => ({
+  useAppSurface: () => useAppSurface(),
+}));
+
 vi.mock("@/lib/admin-tutorials/client/startAdminTutorial", () => ({
   startAdminTutorial: (...args: unknown[]) => startTutorial(...args),
 }));
@@ -206,6 +212,13 @@ describe("AdminHelpLauncher", () => {
     push.mockClear();
     startTutorial.mockClear();
     startExplain.mockClear();
+    useAppSurface.mockReturnValue("web-desktop");
+  });
+
+  it("does not render on PWA / narrow surfaces", () => {
+    useAppSurface.mockReturnValue("pwa-mobile");
+    renderLauncher();
+    expect(screen.queryByRole("button", { name: launcherDict.fabAria })).toBeNull();
   });
 
   it("FAB opens panel with explain CTA and a Play per tutorial row", async () => {

@@ -28,6 +28,7 @@ export interface AcademicSectionPageShellBodyProps {
   healthSnapshot: AdminSectionHealthSnapshot;
   subdicts: ReturnType<typeof resolveAcademicSectionPageSubdicts>;
   pageDict: Dictionary["dashboard"]["academicSectionPage"];
+  gradingPathDict: Dictionary["dashboard"]["teacherAssessmentMatrix"]["path"];
   conflictDict: Dictionary["dashboard"]["academics"]["conflictModal"];
   errorsDict: Dictionary["dashboard"]["academics"]["errors"];
   data: AdminSectionPageData;
@@ -56,6 +57,7 @@ export function AcademicSectionPageShellBody({
   healthSnapshot,
   subdicts,
   pageDict: d,
+  gradingPathDict,
   conflictDict,
   errorsDict,
   data,
@@ -176,6 +178,7 @@ export function AcademicSectionPageShellBody({
               sectionId={sectionId}
               data={assessmentsData}
               dict={d.assessmentsPanel}
+              gradingPathDict={gradingPathDict}
               canDeleteCohortAssessments={canDeleteCohortAssessments}
             />
           ) : null

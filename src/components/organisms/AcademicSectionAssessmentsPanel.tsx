@@ -4,8 +4,10 @@ import type { AdminSectionAssessmentsPanelData } from "@/types/adminSectionAsses
 import { AcademicSectionAreaBlock } from "@/components/molecules/AcademicSectionAreaBlock";
 import { AcademicSectionAreaSummaryBand } from "@/components/molecules/AcademicSectionAreaSummaryBand";
 import { CohortAssessmentRowActions } from "@/components/molecules/CohortAssessmentRowActions";
+import { AssessmentGradingPathStrip } from "@/components/molecules/AssessmentGradingPathStrip";
 
 type PanelDict = Dictionary["dashboard"]["academicSectionPage"]["assessmentsPanel"];
+type GradingPathDict = Dictionary["dashboard"]["teacherAssessmentMatrix"]["path"];
 
 export interface AcademicSectionAssessmentsPanelProps {
   locale: string;
@@ -13,6 +15,7 @@ export interface AcademicSectionAssessmentsPanelProps {
   sectionId: string;
   data: AdminSectionAssessmentsPanelData;
   dict: PanelDict;
+  gradingPathDict: GradingPathDict;
   /** When true, staff may delete cohort exams (admin RLS). */
   canDeleteCohortAssessments: boolean;
 }
@@ -43,11 +46,13 @@ export function AcademicSectionAssessmentsPanel({
   sectionId,
   data,
   dict: d,
+  gradingPathDict,
   canDeleteCohortAssessments,
 }: AcademicSectionAssessmentsPanelProps) {
   const dateFmt = new Intl.DateTimeFormat(locale === "es" ? "es" : "en", { dateStyle: "medium" });
   const nActive = data.activeEnrollmentCount;
   const rubricReturnTo = `/${locale}/dashboard/admin/academic/${cohortId}/${sectionId}?tab=evaluations`;
+  const cohortPathStep = data.cohort.length === 0 ? 1 : 2;
 
   return (
     <div className="space-y-8">
@@ -148,6 +153,8 @@ export function AcademicSectionAssessmentsPanel({
         lead={d.leadCohort}
         icon={ClipboardCheck}
       >
+        <AssessmentGradingPathStrip currentStep={cohortPathStep} labels={gradingPathDict} countsText={null} />
+
         {data.cohort.length ? (
           <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
             <table className="w-full min-w-[40rem] text-left text-sm">

@@ -1,5 +1,10 @@
+"use client";
+
 import { ParentWardPicker, type ParentWardOption } from "@/components/parent/ParentWardPicker";
-import { BadgeAchievementCard } from "@/components/molecules/BadgeAchievementCard";
+import {
+  ParentBadgeAchievementsGrid,
+  type ParentBadgeAchievementItem,
+} from "@/components/parent/ParentBadgeAchievementsGrid";
 import { badgeCategoryLabel } from "@/lib/badges/badgeCategoryLabel";
 import type { StudentBadgeRowModel } from "@/types/studentBadges";
 import type { Dictionary } from "@/types/i18n";
@@ -66,6 +71,33 @@ export function ParentBadgesScreen({
   const basePath = `/${locale}/dashboard/parent/badges`;
   const hasCatalogRows = rows.length > 0;
 
+  const items: ParentBadgeAchievementItem[] = rows.map((row) => {
+    const { title, description, category } = resolveCopy(row, badgesDict.definitions, locale);
+    const visual = resolveBadgeAchievementVisual(category, row.badgeCode);
+    const progressDetail =
+      row.locked && row.progress
+        ? formatBadgeProgressDetail(locale as Locale, row.progress, {
+            progressFraction: badgesDict.progressFraction,
+            progressComplete: badgesDict.progressComplete,
+          })
+        : undefined;
+    return {
+      id: row.id,
+      visual,
+      categoryLabel: badgeCategoryLabel(category, badgesDict),
+      title,
+      description: description || undefined,
+      statusLine: row.locked
+        ? badgesDict.lockedStatus
+        : formatUnlocked(row.earnedAt ?? "", badgesDict.unlocked, locale),
+      imageUrl: row.catalog?.imageUrl ?? null,
+      locked: row.locked,
+      progress: row.progress,
+      progressDetail,
+      progressAriaLabel: badgesDict.progressAria.replace("{title}", title),
+    };
+  });
+
   return (
     <div
       className={embedded ? "space-y-3" : "space-y-6"}
@@ -101,43 +133,11 @@ export function ParentBadgesScreen({
           {parentLabels.badgesPageEmpty}
         </p>
       ) : (
-        <ul className="space-y-4" aria-label={parentLabels.badgesPageTitle}>
-          {rows.map((row) => {
-            const { title, description, category } = resolveCopy(
-              row,
-              badgesDict.definitions,
-              locale,
-            );
-            const visual = resolveBadgeAchievementVisual(category, row.badgeCode);
-            const progressDetail =
-              row.locked && row.progress
-                ? formatBadgeProgressDetail(locale as Locale, row.progress, {
-                    progressFraction: badgesDict.progressFraction,
-                    progressComplete: badgesDict.progressComplete,
-                  })
-                : undefined;
-            return (
-              <li key={row.id}>
-                <BadgeAchievementCard
-                  visual={visual}
-                  categoryLabel={badgeCategoryLabel(category, badgesDict)}
-                  title={title}
-                  description={description || undefined}
-                  statusLine={
-                    row.locked
-                      ? badgesDict.lockedStatus
-                      : formatUnlocked(row.earnedAt ?? "", badgesDict.unlocked, locale)
-                  }
-                  imageUrl={row.catalog?.imageUrl ?? null}
-                  locked={row.locked}
-                  progress={row.progress}
-                  progressDetail={progressDetail}
-                  progressAriaLabel={badgesDict.progressAria.replace("{title}", title)}
-                />
-              </li>
-            );
-          })}
-        </ul>
+        <ParentBadgeAchievementsGrid
+          items={items}
+          listAriaLabel={parentLabels.badgesPageTitle}
+          closeLabel={parentLabels.progressPicker.close}
+        />
       )}
     </div>
   );

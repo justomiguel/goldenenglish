@@ -84,4 +84,6 @@ export function revalidateTeacherGradePaths(p: TeacherAssessmentGradePayload, co
   revalidatePath(`/${p.locale}/dashboard/admin/academic/${cohortId}/${p.sectionId}`);
   revalidatePath(`/${p.locale}/dashboard/parent`);
   revalidatePath(`/${p.locale}/dashboard/student`);
+  revalidatePath(`/${p.locale}/dashboard/parent/progress`);
+  revalidatePath(`/${p.locale}/dashboard/student/progress`);
 }

@@ -36,6 +36,16 @@ export interface ParentFeedbackMappingContext {
   teacherNameById: Map<string, string>;
 }
 
+/**
+ * Identity of a cohort-grade comment in the timeline.
+ *
+ * The home screen builds the same key from its own grade query to tell whether this device has
+ * already opened that comment, so both callers must go through here or the mark would lie.
+ */
+export function parentFeedbackGradeItemKey(enrollmentId: string, assessmentId: string): string {
+  return `assessment:${enrollmentId}:${assessmentId}`;
+}
+
 function firstEmbedded<T>(raw: Embedded<T>): T | null {
   return Array.isArray(raw) ? (raw[0] ?? null) : raw;
 }
@@ -62,7 +72,7 @@ export function mapCohortGradeFeedbackRows(
     const teacherId = section?.teacherId ?? null;
     return [
       {
-        id: `assessment:${row.enrollment_id}:${row.assessment_id}`,
+        id: parentFeedbackGradeItemKey(row.enrollment_id, row.assessment_id),
         source: "assessment" as const,
         studentId: context.studentId,
         childLabel: context.childLabel,

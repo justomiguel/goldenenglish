@@ -4,12 +4,15 @@ import type { ParentHomeChildPillarRow } from "@/lib/parent/buildParentHomeChild
 import { aggregatePillarLevelFromChildRows } from "@/lib/parent/buildParentHomeChildPillarRows";
 import type { Dictionary } from "@/types/i18n";
 import { ParentHomeStatusCard } from "@/components/parent/ParentHomeStatusCard";
+import { ParentHomeFeedbackUnreadMark } from "@/components/parent/ParentHomeFeedbackUnreadMark";
 
 export interface ParentHomeStatusGridProps {
   locale: string;
   pillars: ParentHomePillarSnapshot;
   labels: Dictionary["dashboard"]["parent"]["homeInbox"];
   variant?: "default" | "pwa";
+  /** Whose Progress the pillar links to; scopes the per-device unread mark. */
+  selectedStudentId?: string | null;
   /** When set, attendance and payments cards list one row per linked child (PWA home). */
   attendanceChildRows?: ParentHomeChildPillarRow[];
   paymentChildRows?: ParentHomeChildPillarRow[];
@@ -30,6 +33,7 @@ export function ParentHomeStatusGrid({
   pillars,
   labels,
   variant = "default",
+  selectedStudentId = null,
   attendanceChildRows,
   paymentChildRows,
   dashboardBase,
@@ -144,6 +148,14 @@ export function ParentHomeStatusGrid({
             level={progress.level}
             icon={GraduationCap}
             variant={variant}
+            badge={
+              <ParentHomeFeedbackUnreadMark
+                studentId={selectedStudentId}
+                feedbackItemKey={progress.lastPublishedGrade?.feedbackItemKey ?? null}
+                label={labels.pillarProgressUnread}
+                ariaLabel={labels.pillarProgressUnreadAria}
+              />
+            }
           />
         </li>
       </ul>

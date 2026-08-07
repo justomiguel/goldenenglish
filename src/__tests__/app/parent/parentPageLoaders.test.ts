@@ -18,6 +18,7 @@ const EXPECTED_LOADERS = new Set([
   "loadParentHomePaymentOverdueSignals",
   "loadPortalCalendarPageData",
   "loadParentHomeNewsFeed",
+  "loadParentFocusCatalog",
 ]);
 
 describe("parent page — no new queries (Test 4)", () => {

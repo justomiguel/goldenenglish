@@ -8,6 +8,11 @@ export type ParentChildLastGrade = {
   assessmentOn: string;
   /** The teacher attached written feedback, readable in Progress → Feedback. */
   hasTeacherFeedback: boolean;
+  /**
+   * Identity of that comment in the feedback timeline, so the home can tell whether this device
+   * already opened it. Null when the grade came without a comment.
+   */
+  feedbackItemKey: string | null;
 };
 
 export type ParentChildSummary = {

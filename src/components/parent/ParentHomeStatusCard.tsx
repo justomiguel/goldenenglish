@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { ChevronRight } from "lucide-react";
 import type { ParentPillarLevel } from "@/lib/parent/buildParentHomePillarSnapshot";
@@ -17,6 +18,8 @@ export interface ParentHomeStatusCardProps {
   variant?: "default" | "pwa";
   childRows?: ParentHomeStatusCardChildRowsProps["rows"];
   childRowsAriaLabel?: string;
+  /** Attention mark shown next to the title, e.g. an unread pill. */
+  badge?: ReactNode;
 }
 
 function levelClasses(level: ParentPillarLevel): string {
@@ -45,6 +48,7 @@ export function ParentHomeStatusCard({
   variant = "default",
   childRows,
   childRowsAriaLabel,
+  badge,
 }: ParentHomeStatusCardProps) {
   const isPwa = variant === "pwa";
   const hasChildRows = childRows != null && childRows.length > 0;
@@ -63,7 +67,10 @@ export function ParentHomeStatusCard({
         <Icon className="h-5 w-5" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-sm font-semibold text-[var(--color-foreground)]">{title}</span>
+        <span className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-semibold text-[var(--color-foreground)]">{title}</span>
+          {badge}
+        </span>
         <span className={`mt-0.5 block text-xs font-semibold uppercase tracking-wide ${statusTone(level)}`}>
           {statusLabel}
         </span>

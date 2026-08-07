@@ -8,6 +8,7 @@ import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDispla
 import { loadStudentLearningTasks } from "@/lib/learning-tasks/loadStudentLearningTasks";
 import { loadStudentMiniTests } from "@/lib/learning-content/loadStudentMiniTests";
 import { loadStudentFeedbackTimeline } from "@/lib/parent/loadStudentFeedbackTimeline";
+import { loadStudentExamResults } from "@/lib/parent/loadStudentExamResults";
 import { loadStudentBadgeDisplayRows } from "@/lib/badges/loadStudentBadgeDisplayRows";
 import { ParentProgressEntry } from "@/components/parent/ParentProgressEntry";
 
@@ -48,7 +49,8 @@ export default async function StudentProgressPage({ params, searchParams }: Page
   const displayName = formatProfileNameSurnameFirst(profile.first_name, profile.last_name);
   const wardOptions = [{ studentId, displayName: displayName || studentId }];
 
-  const [tasks, assessments, feedback, badgeRows] = await Promise.all([
+  const [exams, tasks, assessments, feedback, badgeRows] = await Promise.all([
+    loadStudentExamResults(supabase, { studentId }),
     loadStudentLearningTasks(supabase, studentId, 40),
     loadStudentMiniTests(supabase, studentId),
     loadStudentFeedbackTimeline(supabase, {
@@ -67,6 +69,7 @@ export default async function StudentProgressPage({ params, searchParams }: Page
         locale={locale}
         wardOptions={wardOptions}
         selectedStudentId={studentId}
+        exams={exams}
         tasks={tasks}
         assessments={assessments}
         feedback={feedback}
@@ -74,7 +77,6 @@ export default async function StudentProgressPage({ params, searchParams }: Page
         parentLabels={dict.dashboard.parent}
         studentLabels={dict.dashboard.student}
         badgesDict={dict.dashboard.student.badges}
-        navDict={dict.dashboard.parentNav}
         progressBasePath={`/${locale}/dashboard/student/progress`}
       />
     </Suspense>

@@ -9,6 +9,7 @@ import { resolveSelectedWard } from "@/lib/parent/resolveSelectedWard";
 import { loadStudentLearningTasks } from "@/lib/learning-tasks/loadStudentLearningTasks";
 import { loadStudentMiniTests } from "@/lib/learning-content/loadStudentMiniTests";
 import { loadStudentFeedbackTimeline } from "@/lib/parent/loadStudentFeedbackTimeline";
+import { loadStudentExamResults } from "@/lib/parent/loadStudentExamResults";
 import { loadStudentBadgeDisplayRows } from "@/lib/badges/loadStudentBadgeDisplayRows";
 import { ParentProgressEntry } from "@/components/parent/ParentProgressEntry";
 
@@ -51,7 +52,10 @@ export default async function ParentProgressPage({ params, searchParams }: PageP
 
   const selectedWard = students.find((s) => s.studentId === selectedStudentId);
 
-  const [tasks, assessments, feedback, badgeRows] = await Promise.all([
+  const [exams, tasks, assessments, feedback, badgeRows] = await Promise.all([
+    selectedStudentId
+      ? loadStudentExamResults(supabase, { studentId: selectedStudentId })
+      : Promise.resolve([]),
     selectedStudentId ? loadStudentLearningTasks(supabase, selectedStudentId, 40) : Promise.resolve([]),
     selectedStudentId ? loadStudentMiniTests(supabase, selectedStudentId) : Promise.resolve([]),
     loadStudentFeedbackTimeline(supabase, {
@@ -72,6 +76,7 @@ export default async function ParentProgressPage({ params, searchParams }: PageP
         locale={locale}
         wardOptions={wardOptions}
         selectedStudentId={selectedStudentId}
+        exams={exams}
         tasks={tasks}
         assessments={assessments}
         feedback={feedback}
@@ -79,7 +84,6 @@ export default async function ParentProgressPage({ params, searchParams }: PageP
         parentLabels={dict.dashboard.parent}
         studentLabels={dict.dashboard.student}
         badgesDict={dict.dashboard.student.badges}
-        navDict={dict.dashboard.parentNav}
         shellOwnsFocus
       />
     </Suspense>

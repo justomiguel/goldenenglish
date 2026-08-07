@@ -101,6 +101,7 @@ describe("loadParentChildrenSummaries", () => {
                   data: [
                     {
                       enrollment_id: "en1",
+                      assessment_id: "asm-1",
                       score: 8,
                       cohort_assessments: {
                         name: "Unit 1",
@@ -110,6 +111,7 @@ describe("loadParentChildrenSummaries", () => {
                     },
                     {
                       enrollment_id: "en1",
+                      assessment_id: "asm-2",
                       score: 9,
                       teacher_feedback: "Excellent progress on speaking.",
                       cohort_assessments: {
@@ -162,6 +164,8 @@ describe("loadParentChildrenSummaries", () => {
       assessmentName: "Unit 2",
       assessmentOn: "2026-02-20",
       hasTeacherFeedback: true,
+      // Same identity the feedback timeline uses, so the home can tell read from unread.
+      feedbackItemKey: "assessment:en1:asm-2",
     });
   });
 

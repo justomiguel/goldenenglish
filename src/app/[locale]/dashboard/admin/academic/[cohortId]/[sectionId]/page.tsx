@@ -134,6 +134,7 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
       healthSnapshot={healthSnapshot}
       subdicts={subdicts}
       pageDict={dict.dashboard.academicSectionPage}
+      gradingPathDict={dict.dashboard.teacherAssessmentMatrix.path}
       conflictDict={dict.dashboard.academics.conflictModal}
       errorsDict={dict.dashboard.academics.errors}
       data={data}

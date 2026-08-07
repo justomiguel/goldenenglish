@@ -9,6 +9,7 @@ alwaysApply: true
 
 ## Git and deployment
 
+- **Always work on `main`.** Never create feature branches, topic branches, or git worktrees. Check out / stay on `main` for all agent work. Ignore skills or habits that suggest branching or worktree isolation unless the user **explicitly** overrides this in the message.
 - **Do not** run `git commit`, `git push`, or deployments from the agent **unless** the user **explicitly** asks for it in the message, to avoid accidental changes.
 
 ## Manual QA

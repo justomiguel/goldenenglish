@@ -1,7 +1,10 @@
 # Event ticket packages + registrations contact/tracking + student care notes
 
 - **Date:** 2026-08-07
-- **Status:** draft (awaiting user review)
+- **Status:** approved 2026-08-07 (user: "hagamoslo")
+- **Plans:** `docs/superpowers/plans/2026-08-07-registrations-contact-followup.md`,
+  `docs/superpowers/plans/2026-08-07-student-care-notes.md`,
+  `docs/superpowers/plans/2026-08-07-event-ticket-packages.md`
 - **Scope:** three independent features in one spec, at the user's explicit request:
   1. `/events/**` + `/dashboard/admin/events/**` — multi-package pricing and multi-ticket registration
   2. `/dashboard/admin/registrations/**` — contact data visible in the table + lead follow-up
@@ -93,7 +96,8 @@ sensitive fields.
 | D6 | Partial availability **rejects the whole registration** and reports remaining seats. Zero availability waitlists the whole group. | Never charge for an incomplete group; the existing waitlist behaviour is preserved at the boundary. |
 | D7 | Companions always give first and last name; DNI, birth date and email are per-event toggles; custom dynamic fields opt in via `collect_for_companions`. | Name is the minimum to identify a seat; anything more is the institute's call. |
 | D8 | Registrations table shows **two phone columns** (student, tutor); email and birth date move to the expandable panel, with a "minor" marker next to the name. | Fixed 100% width has no slack; the minor email is synthetic and unusable, and neither email nor birth date drives a row action. |
-| D9 | WhatsApp uses a per-institute default country code in `site_settings`; with no code configured the WhatsApp action is **hidden** and only "copy" is offered. | Fails closed — never opens a chat with a wrong number. |
+| D9 | WhatsApp normalizes numbers with **`libphonenumber-js`**, taking the default country from the institute's already-configured `contact.phone` (`site_themes.properties`, exposed as `brand.contactPhone`, mandatory in the site-setup wizard). Unparseable numbers hide the WhatsApp action and offer only "copy". **Revised during planning** — the original design added a `whatsapp_default_country_code` setting plus a screen to edit it. | The country code already exists per tenant, so the setting and its admin UI were pure duplication. Hand-rolling this is a known trap: `0362 15 470-8145` and `+54 9 362 470-8145` are the same Argentine number. Still fails closed. |
+| D9b | The retention table's WhatsApp link adopts the same normalizer in this change. | It currently sends `digitsOnly` output straight to `wa.me`, which is the same wrong-number bug; fixing it while already in that code is cheaper than a second pass. |
 | D10 | Registrations gain `contacted_at` / `contacted_by`. | "Contacted" without who and when cannot drive call distribution or show which lead went cold. |
 | D11 | Edit and accept gates widen from `'new'` only to `'new'` **or** `'contacted'` (row buttons **and** `registrationDraftAction`). | Otherwise the follow-up feature disables the primary workflow (§1.2). |
 | D12 | Care data lives as columns on `profiles`, protected by a column-privilege allowlist plus a CI guard test. | User's explicit choice after being shown the maintenance cost; the guard test converts the hazard into a caught error. |
@@ -107,7 +111,11 @@ Open questions: none blocking.
 
 ## 3. Proposed plan
 
-### 3.1 Migration 176 — event ticket packages
+**Migration numbering.** The three features ship as three independent plans in this order:
+registrations (`176`), student care (`177`), event packages (`178`, `179`). The section headings below
+keep the feature grouping; the numbers reflect that execution order.
+
+### 3.1 Migrations 178–179 — event ticket packages
 
 ```sql
 CREATE TABLE IF NOT EXISTS public.event_ticket_packages (
@@ -163,7 +171,7 @@ ALTER TABLE public.event_form_fields
 
 `COMMENT ON COLUMN` for each, per repo convention.
 
-### 3.2 Migration 177 — `enroll_event_attendee` with packages and companions
+### 3.2 Migration 179 — `enroll_event_attendee` with packages and companions
 
 `DROP FUNCTION` + `CREATE` (A1), adding `p_ticket_package_id UUID DEFAULT NULL` and
 `p_companions JSONB DEFAULT '[]'`. Inside the existing single transaction:
@@ -224,7 +232,7 @@ ALTER TABLE public.event_form_fields
   `useEventRegisterForm` / `useEventRegisterSubmit`; the displayed total is informational only.
 - Sold-out packages are disabled with a reason; the rejection from D6 surfaces the remaining count.
 
-### 3.5 Migration 178 — registrations contact tracking
+### 3.5 Migration 176 — registrations contact tracking
 
 ```sql
 ALTER TABLE public.registrations
@@ -234,8 +242,8 @@ ALTER TABLE public.registrations
 ```
 
 Plus a `registrations_admin_list_aggregates(p_query TEXT)` RPC returning counts per status under the
-active search (rule 24), and a `whatsapp_default_country_code` key in `site_settings` (nullable, no
-default → WhatsApp hidden until configured, D9).
+active search (rule 24). No WhatsApp setting is needed — the country comes from the institute's
+existing `contact.phone` (D9).
 
 ### 3.6 Registrations — server and UI
 
@@ -246,9 +254,14 @@ default → WhatsApp hidden until configured, D9).
   (rule 27).
 - **Widen the gates (D11):** `AdminRegistrationTableRow` edit/accept conditions and
   `registrationDraftAction`'s status check both accept `'new'` and `'contacted'`.
-- New pure `resolveRegistrationContact.ts`: effective student phone and tutor phone, minor flag from
-  `birth_date` + the existing `legalAgeMajority` prop, and a `buildWhatsAppLink` normalizer
-  (digits only; prepend the configured country code when absent; return `null` when unresolvable).
+- New pure `resolveRegistrationContact.ts`: effective student phone and tutor phone, plus the minor
+  flag from `birth_date` + the existing `legalAgeMajority` prop.
+- WhatsApp keeps the repo's existing link shape from the retention table
+  (`adminRetentionTableHelpers.ts` `buildWhatsappHref` — `https://wa.me/<digits>?text=<encoded
+  template>`, with the greeting coming from the dictionary so the admin does not retype it), but the
+  number resolution moves to a new shared `src/lib/whatsapp/resolveWhatsAppDigits.ts` built on
+  `libphonenumber-js`, with the default country parsed from `brand.contactPhone` (D9). The inline
+  `digitsOnly` in `buildAdminRetentionRows.ts` is replaced by it (D9b).
 - New `RegistrationContactCell` (phone text + WhatsApp + copy, Lucide icons per rule 16) and
   `AdminRegistrationExpandedDetails` (email, full tutor block, preferred section).
 - The column set `AdminRegistrationsTableDesktop` passes to `UniversalListView` becomes: expand toggle,
@@ -260,7 +273,7 @@ default → WhatsApp hidden until configured, D9).
 - PWA variant (`AdminRegistrationsScreen` mobile tree) gets the same phones, WhatsApp action and
   status chip — the phone must be usable on the device you call from.
 
-### 3.7 Migration 179 — student care notes
+### 3.7 Migration 177 — student care notes
 
 ```sql
 ALTER TABLE public.profiles
@@ -321,8 +334,12 @@ New keys in `en.json` + `es.json` + `pt.json`, identical shape (rule 09): `admin
 ### 3.10 Tests (TDD, self-contained per rule 30)
 
 - Pure: `resolveEventRegistrationTotal` (seat limits, totals), `resolveEventPriceTier` package paths,
-  `resolveEventPublicPriceDisplay` packages kind, `resolveRegistrationContact` +
-  `buildWhatsAppLink` (missing country code → `null`), care authorization predicate.
+  `resolveEventPublicPriceDisplay` packages kind, `resolveRegistrationContact`,
+  `resolveWhatsAppDigits` (already-international number kept, local Argentine number with trunk prefix
+  and `15` normalized to the same E.164 digits as its `+54 9` form, unparseable → `null`, institute
+  phone without a country → `null`), care authorization predicate.
+- `REGRESSION CHECK` on the retention table: `buildWhatsappHref` now resolves through the shared
+  normalizer (D9b), so its existing tests are updated to assert normalized digits rather than raw ones.
 - Boundary-mocked: `loadEventAttendeeGatewayContext` (amount = price × seats; **companion yields no
   context**), `loadEventTicketPackages`, `loadPaginatedRegistrations` status filter,
   `loadStudentCareNotes` (each allowed role, and denial for an unrelated teacher).
@@ -404,6 +421,8 @@ New keys in `en.json` + `es.json` + `pt.json`, identical shape (rule 09): `admin
 1. `event_orders` so one purchase can combine different packages, with the payment on the order.
 2. Per-package early-bird / date-based pricing windows.
 3. Automatic reminder to follow up leads contacted more than N days ago without acceptance.
-4. Structured care fields (allergies, medication, emergency contact) once the free-text notes show
+4. Counting registration WhatsApp contacts the way retention already counts them
+   (`enrollment_retention_flags.whatsapp_contact_count`, `recordRetentionWhatsappContactAction`).
+5. Structured care fields (allergies, medication, emergency contact) once the free-text notes show
    what the institutes actually record.
-5. A read-audit trail for care notes (who looked at a student's medical detail, not just who wrote it).
+6. A read-audit trail for care notes (who looked at a student's medical detail, not just who wrote it).

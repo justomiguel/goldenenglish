@@ -7,6 +7,7 @@ import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortal
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { CreateCohortAssessmentForm } from "@/components/molecules/CreateCohortAssessmentForm";
 import { CohortAssessmentRowActions } from "@/components/molecules/CohortAssessmentRowActions";
+import { AssessmentGradingPathStrip } from "@/components/molecules/AssessmentGradingPathStrip";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
 
 interface PageProps {
@@ -22,6 +23,7 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
   const { locale, sectionId } = await params;
   const dict = await getDictionary(locale);
   const d = dict.dashboard.teacherAssessmentList;
+  const pathDict = dict.dashboard.teacherAssessmentMatrix.path;
   const dAssessmentsPanel = dict.dashboard.academicSectionPage.assessmentsPanel;
   const supabase = await createClient();
   const {
@@ -74,6 +76,8 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{section.name as string}</p>
         <p className="mt-2 max-w-prose text-sm text-[var(--color-muted-foreground)]">{d.lead}</p>
       </div>
+
+      <AssessmentGradingPathStrip currentStep={rows.length === 0 ? 1 : 2} labels={pathDict} countsText={null} />
 
       {rows.length ? (
         <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
