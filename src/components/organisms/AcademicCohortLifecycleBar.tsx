@@ -135,7 +135,7 @@ export function AcademicCohortLifecycleBar({
         {!isArchived ? (
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
             size="sm"
             onClick={() => setDialog("archive")}
             disabled={isCurrent}
@@ -144,16 +144,15 @@ export function AcademicCohortLifecycleBar({
             {dict.archiveButton}
           </Button>
         ) : (
-          <Button type="button" variant="secondary" size="sm" onClick={() => setDialog("unarchive")}>
+          <Button type="button" variant="ghost" size="sm" onClick={() => setDialog("unarchive")}>
             <ArchiveRestore className="h-4 w-4 shrink-0" aria-hidden />
             {dict.unarchiveButton}
           </Button>
         )}
         <Button
           type="button"
-          variant="secondary"
+          variant="destructive"
           size="sm"
-          className="border border-[var(--color-error)] text-[var(--color-error)] hover:bg-[var(--color-muted)]"
           onClick={() => {
             setDeleteAck(false);
             setDialog("delete");
@@ -232,9 +231,8 @@ export function AcademicCohortLifecycleBar({
           </Button>
           <Button
             type="button"
-            variant="secondary"
+            variant="destructiveStrong"
             size="sm"
-            className="border border-[var(--color-error)] text-[var(--color-error)]"
             onClick={runDelete}
             isLoading={pending}
             disabled={!deleteAck}

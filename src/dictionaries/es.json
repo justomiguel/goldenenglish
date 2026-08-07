@@ -1173,7 +1173,7 @@
     },
     "messages": {
       "title": "Mensajes",
-      "lead": "Los administradores pueden escribir a cualquiera desde «Escribir mensaje» (arriba a la derecha). Tu bandeja muestra mensajes de docentes, administradores, alumnos que escriben a administración y el formulario web de contacto. Cambiá entre Recibidos y Enviados para revisar cada carpeta. Las respuestas a alumnos desde docencia siguen en el espacio docente.",
+      "lead": "Los administradores pueden escribir a cualquiera desde «Escribir mensaje». Tu bandeja muestra mensajes de docentes, administradores, alumnos que escriben a administración y el formulario web de contacto. Cambiá entre Recibidos y Enviados para revisar cada carpeta. Las respuestas a alumnos desde docencia siguen en el espacio docente.",
       "writeMessageCta": "Escribir mensaje",
       "writeMessageCtaTitle": "Abrir pantalla para redactar",
       "editDefaultMessageCta": "Editar mensaje por defecto",
@@ -1663,7 +1663,7 @@
           },
           "brandAssets": {
             "title": "Logo y favicon",
-            "lead": "Subí archivos igual que en el asistente inicial: los guardamos en el bucket de medios y actualizamos las rutas del tema. Podés afinar nombres y eslóganes en Identidad de marca más abajo.",
+            "lead": "Subí archivos igual que en el asistente inicial: los guardamos en el bucket de medios y actualizamos las rutas del tema. Podés afinar nombres y eslóganes en Identidad de marca.",
             "logoLabel": "Logo",
             "logoHint": "PNG, JPEG o WebP. Se usa en cabecera, landing y correos con marca.",
             "logoAltLabel": "Descripción del logo (accesibilidad)",
@@ -3934,7 +3934,7 @@
     "birthDatePickedAnnouncement": "Elegiste",
     "birthDateIncomplete": "Elegí mes y año y, en Día, elegí la fecha.",
     "birthDateHint": "La usamos para calcular la edad al dar de alta la cuenta.",
-    "studentEmailNotCollectedMinorLead": "No pedimos correo ni teléfono del alumno/a menor aquí; el centro asignará un correo en su dominio. Usá el teléfono del tutor que figura más abajo para el contacto.",
+    "studentEmailNotCollectedMinorLead": "No pedimos correo ni teléfono del alumno/a menor aquí; el centro asignará un correo en su dominio. Usá el teléfono del tutor para el contacto.",
     "tutorEmailSameAsStudent": "El correo del tutor debe ser distinto al correo del estudiante.",
     "tutorSectionTitle": "Datos del tutor o responsable",
     "tutorSectionLead": "Para menores de edad, completá estos datos obligatoriamente.",
@@ -4277,7 +4277,7 @@
     "adminContents": {
       "metaTitle": "Contenidos académicos",
       "title": "Contenidos académicos",
-      "lead": "Revisá el repositorio global más abajo o abrí Rutas de aprendizaje para ordenar contenidos hacia objetivos pedagógicos.",
+      "lead": "Revisá el repositorio global o abrí Rutas de aprendizaje para ordenar contenidos hacia objetivos pedagógicos.",
       "contentsTablistAria": "Alternar entre repositorio de contenidos y rutas de aprendizaje",
       "sectionModeTitle": "Rutas de aprendizaje",
       "sectionModeLead": "Creá rutas globales y ordená contenidos del repositorio como pasos.",
@@ -7862,7 +7862,7 @@
       "shellTabs": {
         "tablistAria": "Áreas de trabajo de la sección",
         "general": "Resumen",
-        "generalLead": "Salud de la sección y números clave abajo. Archivar y eliminar están arriba a la derecha. Abrí una tarjeta para fechas, horario, docentes, ruta, evaluaciones, cuotas, asistencia o alumnos.",
+        "generalLead": "Salud de la sección y números clave.",
         "configuration": "Configuración",
         "configurationLead": "Funciones de aprendizaje, periodo, cupo, aula o salón y franjas semanales.",
         "teachers": "Docentes",

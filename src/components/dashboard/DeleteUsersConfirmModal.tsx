@@ -119,7 +119,7 @@ export function DeleteUsersConfirmModal({
         </Button>
         <Button
           type="button"
-          className="!bg-[var(--color-error)] !text-white hover:!bg-[var(--color-error)]/90 focus-visible:ring-[var(--color-error)]"
+          variant="destructiveStrong"
           disabled={busy || confirmDisabled}
           isLoading={busy || previewResolving}
           onClick={onConfirm}

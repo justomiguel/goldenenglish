@@ -59,15 +59,15 @@ export function AdminEventAttendeeDeleteButton({
     <>
       <Button
         type="button"
-        variant="ghost"
+        variant="destructive"
         disabled={busy}
         onClick={() => setOpen(true)}
         title={labels.deleteTooltip}
         aria-label={labels.deleteTooltip}
         className={
           compact
-            ? "inline-flex h-9 min-h-9 w-9 min-w-9 items-center justify-center p-0 text-[var(--color-muted-foreground)] hover:border-[var(--color-error)] hover:bg-[color-mix(in_srgb,var(--color-error)_8%,var(--color-surface))] hover:text-[var(--color-error)]"
-            : "min-h-9 shrink-0 border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-error)] hover:border-[var(--color-error)] hover:bg-[color-mix(in_srgb,var(--color-error)_8%,var(--color-surface))]"
+            ? "inline-flex h-9 min-h-9 w-9 min-w-9 items-center justify-center p-0"
+            : "min-h-9 shrink-0"
         }
       >
         <Trash2 className="h-4 w-4" aria-hidden />
