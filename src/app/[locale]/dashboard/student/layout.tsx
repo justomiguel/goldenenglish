@@ -42,6 +42,8 @@ export default async function StudentDashboardLayout({
       brand={brand}
       baseHref={baseHref}
       includePayments={includePayments}
+      navDict={dict.dashboard.studentNav}
+      chromeLabels={dict.dashboard.studentChrome}
     >
       {children}
     </ParentDashboardShell>
