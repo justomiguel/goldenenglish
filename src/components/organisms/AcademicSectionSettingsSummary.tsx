@@ -2,6 +2,7 @@ import { Settings2 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminSectionPageData } from "@/lib/academics/loadAdminSectionPageData";
 import { AcademicSectionAreaBlock } from "@/components/molecules/AcademicSectionAreaBlock";
+import { AcademicSectionNameEditor } from "@/components/organisms/AcademicSectionNameEditor";
 import { AcademicSectionPeriodEditor } from "@/components/organisms/AcademicSectionPeriodEditor";
 import { AcademicSectionRoomLabelEditor } from "@/components/organisms/AcademicSectionRoomLabelEditor";
 import { AcademicSectionCapacityEditor } from "@/components/organisms/AcademicSectionCapacityEditor";
@@ -20,6 +21,7 @@ export interface AcademicSectionSettingsSummaryProps {
   capacityDict: PageDict["capacity"];
   minAttendanceDict: PageDict["minAttendance"];
   roomLabelDict: PageDict["roomLabel"];
+  nameEditorDict: PageDict["nameEditor"];
 }
 
 export function AcademicSectionSettingsSummary({
@@ -32,6 +34,7 @@ export function AcademicSectionSettingsSummary({
   capacityDict,
   minAttendanceDict,
   roomLabelDict,
+  nameEditorDict,
 }: AcademicSectionSettingsSummaryProps) {
   return (
     <AcademicSectionAreaBlock
@@ -44,6 +47,13 @@ export function AcademicSectionSettingsSummary({
         <div className="rounded-[var(--layout-border-radius)] bg-[var(--color-muted)]/40 p-4">
           <h3 className="text-sm font-semibold text-[var(--color-foreground)]">{dict.groups.class.title}</h3>
           <div className="mt-3 space-y-4">
+            <AcademicSectionNameEditor
+              variant="embedded"
+              locale={locale}
+              sectionId={sectionId}
+              initialName={section.name}
+              dict={nameEditorDict}
+            />
             <AcademicSectionPeriodEditor
               embedded
               locale={locale}

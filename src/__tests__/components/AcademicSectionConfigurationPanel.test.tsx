@@ -18,6 +18,9 @@ vi.mock("@/app/[locale]/dashboard/admin/academic/sectionActions", () => ({
 vi.mock("@/components/organisms/AcademicSectionFeatureFlagsEditor", () => ({
   AcademicSectionFeatureFlagsEditor: () => <div data-testid="feature-flags-editor" />,
 }));
+vi.mock("@/components/organisms/AcademicSectionNameEditor", () => ({
+  AcademicSectionNameEditor: () => <div data-testid="name-editor" />,
+}));
 vi.mock("@/components/organisms/AcademicSectionPeriodEditor", () => ({
   AcademicSectionPeriodEditor: () => <div data-testid="period-editor" />,
 }));
@@ -99,6 +102,7 @@ const emptyPeriod = {} as PageDict["period"];
 const emptyCapacity = {} as PageDict["capacity"];
 const emptyMinAttendance = {} as PageDict["minAttendance"];
 const emptyRoomLabel = {} as PageDict["roomLabel"];
+const emptyNameEditor = {} as PageDict["nameEditor"];
 
 describe("AcademicSectionConfigurationPanel", () => {
   it("renders the settings summary title and the week grid", () => {
@@ -114,6 +118,7 @@ describe("AcademicSectionConfigurationPanel", () => {
         capacityDict={emptyCapacity}
         minAttendanceDict={emptyMinAttendance}
         roomLabelDict={emptyRoomLabel}
+        nameEditorDict={emptyNameEditor}
         scheduleEditorDict={scheduleDict}
       />,
     );

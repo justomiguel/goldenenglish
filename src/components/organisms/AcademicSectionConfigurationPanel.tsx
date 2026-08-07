@@ -17,6 +17,7 @@ export interface AcademicSectionConfigurationPanelProps {
   capacityDict: PageDict["capacity"];
   minAttendanceDict: PageDict["minAttendance"];
   roomLabelDict: PageDict["roomLabel"];
+  nameEditorDict: PageDict["nameEditor"];
   scheduleEditorDict: PageDict["scheduleEditor"];
 }
 
@@ -31,6 +32,7 @@ export function AcademicSectionConfigurationPanel({
   capacityDict,
   minAttendanceDict,
   roomLabelDict,
+  nameEditorDict,
   scheduleEditorDict,
 }: AcademicSectionConfigurationPanelProps) {
   return (
@@ -45,6 +47,7 @@ export function AcademicSectionConfigurationPanel({
         capacityDict={capacityDict}
         minAttendanceDict={minAttendanceDict}
         roomLabelDict={roomLabelDict}
+        nameEditorDict={nameEditorDict}
       />
       <AcademicSectionScheduleEditor
         locale={locale}

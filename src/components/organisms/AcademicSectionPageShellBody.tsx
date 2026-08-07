@@ -76,6 +76,7 @@ export function AcademicSectionPageShellBody({
     capacityDict,
     minAttendanceDict,
     roomLabelDict,
+    nameEditorDict,
     lifecycleDict,
     staffDict,
     feePlansDict,
@@ -108,6 +109,7 @@ export function AcademicSectionPageShellBody({
         backCohortLabel={d.backCohort}
         sectionLead={d.sectionLead}
         lifecycleDict={lifecycleDict}
+        nameEditorDict={nameEditorDict}
       />
 
       <AcademicSectionShellWorkspace
@@ -135,6 +137,7 @@ export function AcademicSectionPageShellBody({
             capacityDict={capacityDict}
             minAttendanceDict={minAttendanceDict}
             roomLabelDict={roomLabelDict}
+            nameEditorDict={nameEditorDict}
             scheduleEditorDict={scheduleEditorDict}
           />
         }
