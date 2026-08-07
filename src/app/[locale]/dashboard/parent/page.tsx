@@ -17,7 +17,7 @@ export const metadata = {
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ child?: string }>;
+  searchParams: Promise<{ studentId?: string; child?: string }>;
 }
 
 export default async function ParentDashboardPage({ params, searchParams }: PageProps) {
@@ -55,10 +55,13 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
     last_name: s.lastName,
   }));
 
-  const childParam = typeof sp.child === "string" ? sp.child : undefined;
+  const rawParam =
+    typeof sp.studentId === "string" ? sp.studentId
+    : typeof sp.child === "string" ? sp.child
+    : undefined;
   const selectedStudentId =
-    childParam && summaries.some((s) => s.studentId === childParam)
-      ? childParam
+    rawParam && summaries.some((s) => s.studentId === rawParam)
+      ? rawParam
       : summaries[0]?.studentId;
 
   const payHref = `/${locale}/dashboard/parent/payments`;

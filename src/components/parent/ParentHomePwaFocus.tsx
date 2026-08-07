@@ -98,15 +98,13 @@ export function ParentHomePwaFocus({
       />
 
       <div data-tour={PARENT_TOUR_ANCHORS.homeChildSwitcher}>
-        {multipleChildren ? null : (
-          <ParentChildSwitcher
-            locale={locale}
-            summaries={summaries}
-            selectedStudentId={selected?.studentId}
-            ariaLabel={labels.selectChild}
-            dashboardBase={dashboardBase}
-          />
-        )}
+        <ParentChildSwitcher
+          locale={locale}
+          summaries={summaries}
+          selectedStudentId={selected?.studentId}
+          ariaLabel={labels.selectChild}
+          dashboardBase={dashboardBase}
+        />
       </div>
 
       <div data-tour={PARENT_TOUR_ANCHORS.homeStatusPillars}>

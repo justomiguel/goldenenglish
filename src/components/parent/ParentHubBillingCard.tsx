@@ -16,7 +16,7 @@ export interface ParentHubBillingCardProps {
 export function ParentHubBillingCard({ locale, studentId, pending, payHrefBase, dict }: ParentHubBillingCardProps) {
   const href =
     studentId != null
-      ? `${payHrefBase}?child=${encodeURIComponent(studentId)}`
+      ? `${payHrefBase}?studentId=${encodeURIComponent(studentId)}`
       : `/${locale}/dashboard/parent/payments`;
 
   return (

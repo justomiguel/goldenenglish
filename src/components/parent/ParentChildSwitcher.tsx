@@ -28,7 +28,7 @@ export function ParentChildSwitcher({
         return (
           <Link
             key={child.studentId}
-            href={`${base}?child=${encodeURIComponent(child.studentId)}`}
+            href={`${base}?studentId=${encodeURIComponent(child.studentId)}`}
             className={
               active
                 ? "shrink-0 rounded-full bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--color-primary-foreground)]"

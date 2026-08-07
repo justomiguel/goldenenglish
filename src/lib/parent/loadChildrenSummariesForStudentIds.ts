@@ -138,5 +138,11 @@ export async function loadChildrenSummariesForStudentIds(
     });
   }
 
+  out.sort((a, b) => {
+    const left = formatProfileNameSurnameFirst(a.firstName, a.lastName).toLocaleLowerCase();
+    const right = formatProfileNameSurnameFirst(b.firstName, b.lastName).toLocaleLowerCase();
+    return left.localeCompare(right);
+  });
+
   return out;
 }
