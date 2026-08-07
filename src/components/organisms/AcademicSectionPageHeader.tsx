@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { AcademicSectionLifecycleActions } from "@/components/organisms/AcademicSectionLifecycleActions";
 import { AcademicSectionLifecycleStatus } from "@/components/organisms/AcademicSectionLifecycleStatus";
+import { AcademicSectionNameEditor } from "@/components/organisms/AcademicSectionNameEditor";
 import type { Dictionary } from "@/types/i18n";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type LifecycleDict = Dictionary["dashboard"]["academicSectionPage"]["lifecycle"];
+type NameEditorDict = Dictionary["dashboard"]["academicSectionPage"]["nameEditor"];
 
 export function AcademicSectionPageHeader({
   locale,
@@ -17,6 +19,7 @@ export function AcademicSectionPageHeader({
   backCohortLabel,
   sectionLead,
   lifecycleDict,
+  nameEditorDict,
 }: {
   locale: string;
   cohortId: string;
@@ -28,6 +31,7 @@ export function AcademicSectionPageHeader({
   backCohortLabel: string;
   sectionLead: string;
   lifecycleDict: LifecycleDict;
+  nameEditorDict: NameEditorDict;
 }) {
   return (
     <div className="min-w-0 border-b border-[var(--color-border)] pb-4">
@@ -39,12 +43,13 @@ export function AcademicSectionPageHeader({
       </Link>
       <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1 space-y-1">
-          <h1
-            className="text-2xl font-semibold tracking-tight text-[var(--color-foreground)]"
-            data-tour={ADMIN_TOUR_ANCHORS.sectionDetailTitle}
-          >
-            {sectionName}
-          </h1>
+          <AcademicSectionNameEditor
+            variant="inline"
+            locale={locale}
+            sectionId={sectionId}
+            initialName={sectionName}
+            dict={nameEditorDict}
+          />
           <p className="text-sm font-medium text-[var(--color-primary)]">{cohortName}</p>
           <p className="text-sm text-[var(--color-muted-foreground)]">{sectionLead}</p>
           <AcademicSectionLifecycleStatus

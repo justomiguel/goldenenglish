@@ -14,6 +14,7 @@ export function resolveAcademicSectionPageSubdicts(
     capacityDict: d.capacity ?? dEn.capacity,
     minAttendanceDict: d.minAttendance ?? dEn.minAttendance,
     roomLabelDict: d.roomLabel ?? dEn.roomLabel,
+    nameEditorDict: d.nameEditor ?? dEn.nameEditor,
     lifecycleDict: d.lifecycle ?? dEn.lifecycle,
     staffDict: d.staff ?? dEn.staff,
     feePlansDict: d.feePlans ?? dEn.feePlans,
