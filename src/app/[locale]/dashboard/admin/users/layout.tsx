@@ -28,6 +28,7 @@ export default async function AdminUsersLayout({ children, params }: UsersLayout
             label: dict.admin.usersNav.add,
             hint: dict.admin.usersNav.tipAdd,
             icon: "userPlus",
+            tourId: "admin-users-nav-add",
           },
           {
             href: `${base}/import`,

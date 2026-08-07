@@ -1,20 +1,22 @@
-import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
 import { loadSectionLearningRouteWorkspace } from "@/lib/learning-content/loadLearningRouteWorkspace";
 import { loadTeacherAssessmentAttempts } from "@/lib/learning-content/loadTeacherAssessmentAttempts";
+import { loadSectionFeatureFlags } from "@/lib/academics/loadSectionFeatureFlags";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import {
   TeacherSectionContentsScreen,
   type TeacherContentStudent,
 } from "@/components/teacher/TeacherSectionContentsScreen";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; sectionId: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.teacherMySections.rosterLinkContents);
+}
 
 interface PageProps {
   params: Promise<{ locale: string; sectionId: string }>;
@@ -44,7 +46,8 @@ export default async function TeacherSectionContentsPage({ params }: PageProps) 
   const canOpen = await userIsSectionTeacherOrAssistant(supabase, user.id, sectionId);
   if (!canOpen) notFound();
 
-  const [workspace, attempts, { data: enrollments }] = await Promise.all([
+  const [featureFlags, workspace, attempts, { data: enrollments }] = await Promise.all([
+    loadSectionFeatureFlags(supabase, sectionId),
     loadSectionLearningRouteWorkspace(supabase, sectionId),
     loadTeacherAssessmentAttempts(supabase, sectionId),
     supabase
@@ -68,6 +71,12 @@ export default async function TeacherSectionContentsPage({ params }: PageProps) 
       students={students}
       attempts={attempts}
       labels={dict.dashboard.teacherContent}
+      featureFlags={
+        featureFlags ?? {
+          requiresEvaluationsToPass: false,
+          usesLearningRoute: false,
+        }
+      }
     />
   );
 }

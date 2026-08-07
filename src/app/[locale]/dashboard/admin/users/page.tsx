@@ -9,6 +9,7 @@ import {
 } from "@/lib/dashboard/loadPaginatedAdminUsers";
 import { loadAdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
 import type { SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -65,7 +66,10 @@ export default async function AdminUsersListPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
+      <h1
+        className="text-2xl font-bold text-[var(--color-secondary)]"
+        data-tour={ADMIN_TOUR_ANCHORS.usersTitle}
+      >
         {dict.admin.users.listTitle}
       </h1>
       <p className="mt-2 max-w-2xl text-sm text-[var(--color-muted-foreground)]">

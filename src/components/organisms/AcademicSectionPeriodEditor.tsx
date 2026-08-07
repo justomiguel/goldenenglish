@@ -14,6 +14,7 @@ export interface AcademicSectionPeriodEditorProps {
   initialStartsOn: string;
   initialEndsOn: string;
   dict: Dictionary["dashboard"]["academicSectionPage"]["period"];
+  embedded?: boolean;
 }
 
 export function AcademicSectionPeriodEditor({
@@ -22,6 +23,7 @@ export function AcademicSectionPeriodEditor({
   initialStartsOn,
   initialEndsOn,
   dict,
+  embedded = false,
 }: AcademicSectionPeriodEditorProps) {
   const router = useRouter();
   const [startsOn, setStartsOn] = useState(initialStartsOn);
@@ -60,9 +62,15 @@ export function AcademicSectionPeriodEditor({
 
   const dirty = startsOn !== initialStartsOn || endsOn !== initialEndsOn;
 
+  const containerClassName = embedded
+    ? ""
+    : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4";
+
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
+    <div className={containerClassName}>
+      {!embedded ? (
+        <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
+      ) : null}
       <div className="mt-3 space-y-3">
         <SectionPeriodFields
           idPrefix="sec-period"
@@ -85,6 +93,6 @@ export function AcademicSectionPeriodEditor({
           </p>
         ) : null}
       </div>
-    </section>
+    </div>
   );
 }

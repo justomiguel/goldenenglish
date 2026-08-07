@@ -51,6 +51,7 @@ yarn-error.log*
 .env.local.nago
 .env.local.mimundo
 .env.local.liora
+.env.local.e2e
 
 # vercel
 .vercel
@@ -65,8 +66,23 @@ next-env.d.ts
 # cursor IDE local debug logs
 .cursor/debug-*.log
 
+# SDD Gate 0 session unlock (do not commit — per-session / per-agent approval)
+.cursor/sdd-gate0-approved
+
+# Superpowers visual brainstorm companion (session mockups + port/token)
+.superpowers/
+
+# Local git worktrees (agent / feature isolation)
+.worktrees/
+
 # supabase CLI temp/cache
 supabase/.temp/
 
 # Single-file SQL bundle for SQL Editor (generated; do not commit)
 supabase/dist/*.sql
+
+# Playwright artifacts + auth storage (isolated e2e)
+/test-results/
+/playwright-report/
+/blob-report/
+/e2e/.auth/

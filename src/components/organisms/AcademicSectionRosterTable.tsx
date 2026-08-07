@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { AlertTriangle, ArrowRightLeft } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
@@ -36,6 +36,10 @@ export interface AcademicSectionRosterTableProps {
   errors: Dictionary["dashboard"]["academics"]["errors"];
   /** Student profile id → guardian has pending payments */
   debtByStudentId?: Record<string, boolean>;
+  /** Primary actions aligned with the roster title (e.g. enroll CTA). */
+  headerActions?: ReactNode;
+  /** When true, omits outer card chrome and duplicate title (used inside area block). */
+  embedded?: boolean;
 }
 
 export function AcademicSectionRosterTable({
@@ -47,6 +51,8 @@ export function AcademicSectionRosterTable({
   conflictDict,
   errors,
   debtByStudentId = {},
+  headerActions,
+  embedded = false,
 }: AcademicSectionRosterTableProps) {
   const [tab, setTab] = useState<SectionRosterTabKey>("active");
   const [rosterSortKey, setRosterSortKey] = useState<SectionRosterSortKey>("label");
@@ -87,9 +93,16 @@ export function AcademicSectionRosterTable({
     setRosterSortDir((d) => (d === "asc" ? "desc" : "asc"));
   };
 
-  return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.rosterTitle}</h2>
+  const tableBody = (
+    <>
+      {!embedded ? (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.rosterTitle}</h2>
+          {headerActions ? <div className="flex flex-wrap items-center gap-2">{headerActions}</div> : null}
+        </div>
+      ) : headerActions ? (
+        <div className="flex flex-wrap items-center justify-end gap-2">{headerActions}</div>
+      ) : null}
       <AcademicSectionRosterToolbar
         dict={dict}
         tab={tab}
@@ -208,6 +221,16 @@ export function AcademicSectionRosterTable({
         onConfirmDrop={confirmConflictMove}
         isPending={busy}
       />
+    </>
+  );
+
+  if (embedded) {
+    return tableBody;
+  }
+
+  return (
+    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+      {tableBody}
     </section>
   );
 }

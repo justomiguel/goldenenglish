@@ -12,6 +12,7 @@ import {
 import { TeacherAssessmentAttemptsPanel } from "@/components/teacher/TeacherAssessmentAttemptsPanel";
 import { ContentPlanHealthSummary } from "@/components/molecules/ContentPlanHealthSummary";
 import type { LearningRouteWorkspace } from "@/lib/learning-content/loadLearningRouteWorkspace";
+import type { AcademicSectionFeatureFlags } from "@/lib/academics/visibleAcademicSectionShellTabs";
 import type { Dictionary } from "@/types/i18n";
 import type { TeacherAssessmentAttemptReview } from "@/types/learningContent";
 
@@ -24,6 +25,7 @@ interface TeacherSectionContentsScreenProps {
   students: TeacherContentStudent[];
   attempts: TeacherAssessmentAttemptReview[];
   labels: Dictionary["dashboard"]["teacherContent"];
+  featureFlags: AcademicSectionFeatureFlags;
 }
 
 export function TeacherSectionContentsScreen({
@@ -33,25 +35,50 @@ export function TeacherSectionContentsScreen({
   students,
   attempts,
   labels,
+  featureFlags,
 }: TeacherSectionContentsScreenProps) {
+  const anyLearningFeature =
+    featureFlags.usesLearningRoute || featureFlags.requiresEvaluationsToPass;
+
+  if (!anyLearningFeature) {
+    return (
+      <div className="space-y-4">
+        <header>
+          <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">
+            {labels.featuresDisabledTitle}
+          </h1>
+          <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
+            {labels.featuresDisabledLead}
+          </p>
+        </header>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">{labels.title}</h1>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.lead}</p>
       </header>
-      {workspace.route ? <ContentPlanHealthSummary health={workspace.health} labels={labels} /> : null}
-      <TeacherRouteSummary workspace={workspace} labels={labels} />
-      <div className="grid gap-6 lg:grid-cols-2">
-        <LiveLessonForm locale={locale} sectionId={sectionId} workspace={workspace} labels={labels} />
-        <ReadinessForm locale={locale} sectionId={sectionId} students={students} labels={labels} />
-      </div>
-      <TeacherAssessmentAttemptsPanel
-        locale={locale}
-        sectionId={sectionId}
-        attempts={attempts}
-        labels={labels}
-      />
+      {featureFlags.usesLearningRoute ? (
+        <>
+          {workspace.route ? <ContentPlanHealthSummary health={workspace.health} labels={labels} /> : null}
+          <TeacherRouteSummary workspace={workspace} labels={labels} />
+          <div className="grid gap-6 lg:grid-cols-2">
+            <LiveLessonForm locale={locale} sectionId={sectionId} workspace={workspace} labels={labels} />
+            <ReadinessForm locale={locale} sectionId={sectionId} students={students} labels={labels} />
+          </div>
+        </>
+      ) : null}
+      {featureFlags.requiresEvaluationsToPass ? (
+        <TeacherAssessmentAttemptsPanel
+          locale={locale}
+          sectionId={sectionId}
+          attempts={attempts}
+          labels={labels}
+        />
+      ) : null}
     </div>
   );
 }

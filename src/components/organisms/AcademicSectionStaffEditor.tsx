@@ -2,14 +2,17 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { UserCog, UserPlus, UserRoundPlus } from "lucide-react";
 import {
   replaceAcademicSectionAssistantsAction,
   updateAcademicSectionTeacherAction,
 } from "@/app/[locale]/dashboard/admin/academic/sectionStaffActions";
 import { replaceAcademicSectionExternalAssistantsAction } from "@/app/[locale]/dashboard/admin/academic/sectionExternalAssistantsActions";
-import { AcademicSectionStaffEditorLeadBlock } from "@/components/organisms/AcademicSectionStaffEditorLeadBlock";
-import { AcademicSectionStaffEditorAssistantsBlock } from "@/components/organisms/AcademicSectionStaffEditorAssistantsBlock";
-import { AcademicSectionStaffEditorExternalBlock } from "@/components/organisms/AcademicSectionStaffEditorExternalBlock";
+import { Button } from "@/components/atoms/Button";
+import {
+  AcademicSectionStaffEditorModals,
+  type AcademicSectionStaffModalKind,
+} from "@/components/organisms/AcademicSectionStaffEditorModals";
 import type { AcademicSectionStaffEditorDict } from "@/components/organisms/academicSectionStaffEditorTypes";
 import type {
   SectionStaffPortalPickOption,
@@ -27,6 +30,8 @@ export interface AcademicSectionStaffEditorProps {
   initialAssistants: SectionStaffProfileAssistant[];
   initialExternalAssistants: { id: string; label: string }[];
   dict: AcademicSectionStaffEditorDict;
+  /** When true, omits outer card chrome and duplicate title (used inside area block). */
+  embedded?: boolean;
 }
 
 export function AcademicSectionStaffEditor({
@@ -38,8 +43,10 @@ export function AcademicSectionStaffEditor({
   initialAssistants,
   initialExternalAssistants,
   dict,
+  embedded = false,
 }: AcademicSectionStaffEditorProps) {
   const router = useRouter();
+  const [openModal, setOpenModal] = useState<AcademicSectionStaffModalKind | null>(null);
   const [teacherId, setTeacherId] = useState(initialTeacherId);
   const [assistantIds, setAssistantIds] = useState<string[]>(() => initialAssistants.map((a) => a.id));
   const [assistantExtras, setAssistantExtras] = useState<Record<string, { label: string; role: string }>>(() =>
@@ -60,21 +67,44 @@ export function AcademicSectionStaffEditor({
   const sortedAsst = [...assistantIds].sort();
   const sortedInitial = [...initialAssistants.map((a) => a.id)].sort();
   const dirtyAsst =
-    sortedAsst.length !== sortedInitial.length ||
-    sortedAsst.some((id, i) => id !== sortedInitial[i]);
-
+    sortedAsst.length !== sortedInitial.length || sortedAsst.some((id, i) => id !== sortedInitial[i]);
   const sortedExt = [...externalNames].map((s) => s.trim()).sort();
   const sortedInitialExt = [...initialExternalAssistants.map((e) => e.label.trim())].sort();
   const dirtyExt =
-    sortedExt.length !== sortedInitialExt.length ||
-    sortedExt.some((n, i) => n !== sortedInitialExt[i]);
+    sortedExt.length !== sortedInitialExt.length || sortedExt.some((n, i) => n !== sortedInitialExt[i]);
+
+  const closeModal = (which: AcademicSectionStaffModalKind) => {
+    if (which === "lead" && pendingLead) return;
+    if (which === "assistants" && pendingAsst) return;
+    if (which === "external" && pendingExt) return;
+    if (which === "lead") {
+      setTeacherId(initialTeacherId);
+      setMsgLead(null);
+    }
+    if (which === "assistants") {
+      setAssistantIds(initialAssistants.map((a) => a.id));
+      setAssistantExtras(
+        Object.fromEntries(initialAssistants.map((a) => [a.id, { label: a.label, role: a.role }])),
+      );
+      setMsgAsst(null);
+    }
+    if (which === "external") {
+      setExternalNames(initialExternalAssistants.map((e) => e.label));
+      setNewExternalName("");
+      setMsgExt(null);
+    }
+    setOpenModal(null);
+  };
 
   const saveLead = () => {
     setMsgLead(null);
     startLead(async () => {
       const r = await updateAcademicSectionTeacherAction({ locale, sectionId, teacherId });
       setMsgLead(r.ok ? dict.leadSaved : dict.leadError);
-      if (r.ok) router.refresh();
+      if (r.ok) {
+        router.refresh();
+        setOpenModal(null);
+      }
     });
   };
 
@@ -100,49 +130,58 @@ export function AcademicSectionStaffEditor({
         displayNames: externalNames,
       });
       setMsgExt(r.ok ? dict.externalSaved : dict.externalError);
-      if (r.ok) router.refresh();
+      if (r.ok) {
+        router.refresh();
+        setOpenModal(null);
+      }
     });
   };
 
-  return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
+  const body = (
+    <>
+      {!embedded ? (
+        <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
+      ) : null}
+      <div className={embedded ? "flex flex-wrap gap-2" : "mt-3 flex flex-wrap gap-2"}>
+        <Button type="button" variant="secondary" onClick={() => setOpenModal("lead")}>
+          <UserCog className="h-4 w-4 shrink-0" aria-hidden />
+          {dict.leadOpenButton}
+        </Button>
+        <Button type="button" variant="secondary" onClick={() => setOpenModal("assistants")}>
+          <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
+          {dict.assistantsOpenButton}
+        </Button>
+        <Button type="button" variant="secondary" onClick={() => setOpenModal("external")}>
+          <UserRoundPlus className="h-4 w-4 shrink-0" aria-hidden />
+          {dict.externalOpenButton}
+        </Button>
+      </div>
 
-      <AcademicSectionStaffEditorLeadBlock
+      <AcademicSectionStaffEditorModals
+        openModal={openModal}
+        onClose={closeModal}
         sectionId={sectionId}
         teachers={teachers}
+        assistantPortalStaffOptions={assistantPortalStaffOptions}
+        initialAssistants={initialAssistants}
         teacherId={teacherId}
         onTeacherChange={setTeacherId}
         pendingLead={pendingLead}
         dirtyLead={dirtyLead}
         onSaveLead={saveLead}
         msgLead={msgLead}
-        dict={dict}
-      />
-
-      <AcademicSectionStaffEditorAssistantsBlock
-        sectionId={sectionId}
-        teachers={teachers}
-        assistantPortalStaffOptions={assistantPortalStaffOptions}
-        initialAssistants={initialAssistants}
         assistantIds={assistantIds}
         assistantExtras={assistantExtras}
         onAssistantIdsChange={setAssistantIds}
         onAssistantExtrasChange={setAssistantExtras}
-        teacherId={teacherId}
         pendingAsst={pendingAsst}
         dirtyAsst={dirtyAsst}
         onSaveAssistants={saveAssistants}
         msgAsst={msgAsst}
-        dict={dict}
-      />
-
-      <AcademicSectionStaffEditorExternalBlock
-        sectionId={sectionId}
         externalNames={externalNames}
         newExternalName={newExternalName}
         onNewExternalNameChange={setNewExternalName}
-        onRemoveName={(name) => setExternalNames((prev) => prev.filter((x) => x !== name))}
+        onRemoveExternalName={(name) => setExternalNames((prev) => prev.filter((x) => x !== name))}
         onAddExternal={() => {
           const n = newExternalName.trim().slice(0, 200);
           if (!n || externalNames.includes(n)) return;
@@ -155,6 +194,16 @@ export function AcademicSectionStaffEditor({
         msgExt={msgExt}
         dict={dict}
       />
+    </>
+  );
+
+  if (embedded) {
+    return body;
+  }
+
+  return (
+    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+      {body}
     </section>
   );
 }

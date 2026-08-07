@@ -2,6 +2,7 @@
 
 import { CheckSquare, Square, Check, XCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export interface FinanceInboxBulkToolbarLabels {
   bulkSelectAllAria: string;
@@ -35,7 +36,10 @@ export function FinanceInboxBulkToolbar({
   onOpenDestructive,
 }: FinanceInboxBulkToolbarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/20 p-3">
+    <div
+      data-tour={ADMIN_TOUR_ANCHORS.financeInboxBulkToolbar}
+      className="flex flex-wrap items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/20 p-3"
+    >
       <button
         type="button"
         onClick={onToggleAll}
@@ -64,6 +68,7 @@ export function FinanceInboxBulkToolbar({
           className="min-h-[36px]"
           disabled={busy || selectedCount === 0}
           onClick={onApprove}
+          data-tour={ADMIN_TOUR_ANCHORS.financeInboxApprove}
         >
           <Check className="h-4 w-4" aria-hidden />
           {labels.bulkApproveSelected}
@@ -75,6 +80,7 @@ export function FinanceInboxBulkToolbar({
           className="min-h-[36px] border-[var(--color-error)] text-[var(--color-error)]"
           disabled={busy || selectedCount === 0}
           onClick={onOpenDestructive}
+          data-tour={ADMIN_TOUR_ANCHORS.financeInboxReject}
         >
           {destructiveIcon === "delete" ? (
             <Trash2 className="h-4 w-4" aria-hidden />

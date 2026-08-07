@@ -34,7 +34,8 @@ export function useSectionEnrollmentQueue(input: {
   capacityOverride: boolean;
   errors: Record<string, string>;
   copy: SectionEnrollmentQueueCopy;
-  onEnrollSuccess?: () => void;
+  /** Called after at least one successful enroll; `remainingInQueue` is post-update. */
+  onEnrollSuccess?: (result: { remainingInQueue: number }) => void;
 }) {
   const { locale, sectionId, capacityOverride, errors, copy, onEnrollSuccess } = input;
   const router = useRouter();
@@ -133,7 +134,7 @@ export function useSectionEnrollmentQueue(input: {
     setMsg(copy.successEnroll);
     setQueue([]);
     setFieldResetKey((k) => k + 1);
-    onEnrollSuccess?.();
+    onEnrollSuccess?.({ remainingInQueue: 0 });
     router.refresh();
   }, [copy.successEnroll, onEnrollSuccess, router]);
 
@@ -191,7 +192,7 @@ export function useSectionEnrollmentQueue(input: {
       setQueue(failed);
       setFieldResetKey((k) => k + 1);
       if (ok > 0) {
-        onEnrollSuccess?.();
+        onEnrollSuccess?.({ remainingInQueue: failed.length });
         router.refresh();
       }
       if (failed.length === 0) {

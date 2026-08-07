@@ -1,0 +1,34 @@
+---
+description: Precommit must run all Playwright E2E (fail-closed isolated stack); SKIP_E2E only with explicit user approval.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Precommit — Playwright E2E gate (fail-closed)
+
+## Objective
+
+**Every commit** (via Husky → `npm run precommit`) runs **all** Playwright E2E against the **isolated** stack only. Silent skip / tenant DBs (`nago`, `golden`, prod) are forbidden for this gate.
+
+## Mechanical gate
+
+1. `package.json` → `precommit` ends with `npm run test:e2e:precommit` → `scripts/run-e2e-precommit.mjs`.
+2. That script **requires** gitignored `.env.local.e2e` + seeded `E2E_ADMIN_*`, forces `E2E_STACK=isolated` / `GE_DEV_TARGET=e2e` / `E2E_REQUIRE=1`, starts Next on **:3100** (not tenant `:3000`).
+3. Prefer provisioning via **`npm run e2e:stack:up`** (Colima/Docker + local Supabase) — see `docs/runbooks/e2e-isolated-harness.md`.
+4. Missing env or failed isolation → **exit 1** (commit blocked).
+5. Docs: `docs/runbooks/e2e-isolated-harness.md`.
+
+## Agent rules
+
+1. **Do not** remove `test:e2e:precommit` from `precommit` without an approved SDD spec change.
+2. **Do not** point the gate at `dev:nago` / product `.env.local.*` tenants.
+3. **`SKIP_E2E=1`** — only when the **user explicitly** allows skipping E2E for a WIP commit. Never set it unilaterally to “make the gate green.”
+4. This gate is **automated** Playwright — it does **not** replace user-owned manual QA (**`32-manual-qa-user-owned.mdc`**).
+5. Tour **staleness** still uses Vitest L1+L2 on every precommit (**`33-admin-tutorials-contract.mdc`**); L3 is the live browser layer on top.
+
+## Checklist
+
+- [ ] `.env.local.e2e` provisioned before expecting green commits?
+- [ ] New `e2e/*.spec.ts` files picked up by `playwright test` (all projects)?
+- [ ] No `SKIP_E2E` without user ask?

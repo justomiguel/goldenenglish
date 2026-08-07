@@ -1,9 +1,7 @@
 import { normalizeDni } from "@/lib/import/studentImportUtils";
+import { isParentSyntheticEmail } from "@/lib/import/parentDefaultEmail";
 
-const SYNTHETIC_DOMAINS = [
-  "@students.goldenenglish.local",
-  "@parents.goldenenglish.local",
-] as const;
+const LEGACY_STUDENT_SYNTHETIC_SUFFIX = "@students.goldenenglish.local";
 
 export interface BuildResetByDniPlanInput {
   dni: string;
@@ -15,6 +13,12 @@ export interface ResetByDniPlan {
   hasRealEmail: boolean;
 }
 
+function isSyntheticAuthEmail(email: string): boolean {
+  const trimmed = email.trim().toLowerCase();
+  if (trimmed.endsWith(LEGACY_STUDENT_SYNTHETIC_SUFFIX)) return true;
+  return isParentSyntheticEmail(trimmed);
+}
+
 export function buildResetByDniPlan({
   dni,
   currentEmail,
@@ -24,10 +28,8 @@ export function buildResetByDniPlan({
   if (trimmed.length === 0) {
     return { generatedPassword: password, hasRealEmail: false };
   }
-  for (const suffix of SYNTHETIC_DOMAINS) {
-    if (trimmed.endsWith(suffix)) {
-      return { generatedPassword: password, hasRealEmail: false };
-    }
+  if (isSyntheticAuthEmail(trimmed)) {
+    return { generatedPassword: password, hasRealEmail: false };
   }
   return { generatedPassword: password, hasRealEmail: true };
 }

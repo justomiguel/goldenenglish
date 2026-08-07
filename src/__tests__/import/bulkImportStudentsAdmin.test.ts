@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+// REGRESSION CHECK: Tutor/parent create without email needs MAIL_TENANT → parents.<tenant>
+// (ensureParentProfileByTutorDni fail-closed); suite stubs tenant so import link paths stay covered.
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { bulkImportStudentsFromRowsAdmin } from "@/lib/import/bulkImportStudents";
 import type { CsvStudentRow } from "@/lib/import/studentRowSchema";
@@ -39,7 +41,12 @@ const listUsersEmpty = vi.fn().mockResolvedValue({
 describe("bulkImportStudentsFromRowsAdmin", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("MAIL_TENANT", "alumnos.test");
     listUsersEmpty.mockResolvedValue({ data: { users: [] }, error: null });
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it("returns auth error when student createUser fails", async () => {

@@ -17,6 +17,7 @@ import type { BlogArticleAdminShareLink } from "@/lib/blog/server/resolveBlogArt
 import type { AdminGlobalDraftMaterial } from "@/components/admin/AdminGlobalContentMaterialsPanel";
 import type { Dictionary } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 interface BlogArticleEditorProps {
   locale: string;
@@ -133,7 +134,7 @@ export function BlogArticleEditor({
   });
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-6" data-tour={ADMIN_TOUR_ANCHORS.blogEditorRoot}>
       <BlogArticleLocaleTabs
         value={editingLocale}
         onChange={switchEditingLocale}
@@ -164,22 +165,24 @@ export function BlogArticleEditor({
         onError={setMsg}
       />
 
-      <BlogArticleMetaForm
-        labels={{
-          status: labels.metaStatus,
-          tagsCsv: labels.metaTags,
-          scheduledFor: labels.metaScheduled,
-          pinned: labels.metaPinned,
-        }}
-        status={status}
-        tagsCsv={tagsCsv}
-        scheduledFor={scheduledFor}
-        isPinned={isPinned}
-        onStatusChange={setStatus}
-        onTagsCsvChange={setTagsCsv}
-        onScheduledForChange={setScheduledFor}
-        onPinnedChange={setIsPinned}
-      />
+      <div data-tour={ADMIN_TOUR_ANCHORS.blogEditorMeta}>
+        <BlogArticleMetaForm
+          labels={{
+            status: labels.metaStatus,
+            tagsCsv: labels.metaTags,
+            scheduledFor: labels.metaScheduled,
+            pinned: labels.metaPinned,
+          }}
+          status={status}
+          tagsCsv={tagsCsv}
+          scheduledFor={scheduledFor}
+          isPinned={isPinned}
+          onStatusChange={setStatus}
+          onTagsCsvChange={setTagsCsv}
+          onScheduledForChange={setScheduledFor}
+          onPinnedChange={setIsPinned}
+        />
+      </div>
 
       <BlogArticleEditorActionsBar
         labels={labels}

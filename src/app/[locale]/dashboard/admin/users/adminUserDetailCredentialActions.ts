@@ -98,7 +98,7 @@ export type ResetUserPasswordByDniResult =
  *    generated password is NEVER included in the payload.
  * 3. Notification: best-effort email to the account holder, but only when the
  *    address on file is real (synthetic `@students.goldenenglish.local` /
- *    `@parents.goldenenglish.local` addresses bounce — skipped).
+ *    `@parents.*` addresses bounce — skipped).
  *
  * Setting `app_metadata.must_change_password = true` makes the proxy / login
  * middleware redirect the next session to `/{locale}/reset-password`. Changing

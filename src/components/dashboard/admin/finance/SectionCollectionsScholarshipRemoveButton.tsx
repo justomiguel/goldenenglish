@@ -45,14 +45,14 @@ export function SectionCollectionsScholarshipRemoveButton({
   return (
     <Button
       type="button"
-      variant="ghost"
+      variant="destructive"
       size="sm"
       disabled={busy}
       isLoading={busy}
       onClick={() => void handleRemove()}
-      className="min-h-[36px] border border-[var(--color-error)] text-xs text-[var(--color-error)]"
+      className="min-h-[36px] text-xs"
     >
-      <Ban className="h-3.5 w-3.5 shrink-0 text-[var(--color-foreground)]" aria-hidden />
+      <Ban className="h-3.5 w-3.5 shrink-0" aria-hidden />
       {labels.removeScholarship}
     </Button>
   );

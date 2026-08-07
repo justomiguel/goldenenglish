@@ -1,4 +1,4 @@
-import { CalendarCheck, MessageSquare, Wallet } from "lucide-react";
+import { CalendarCheck, GraduationCap, MessageSquare, Wallet } from "lucide-react";
 import type { ParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePillarSnapshot";
 import type { ParentHomeChildPillarRow } from "@/lib/parent/buildParentHomeChildPillarRows";
 import { aggregatePillarLevelFromChildRows } from "@/lib/parent/buildParentHomeChildPillarRows";
@@ -36,7 +36,7 @@ export function ParentHomeStatusGrid({
   includePayments = true,
 }: ParentHomeStatusGridProps) {
   const base = dashboardBase ?? `/${locale}/dashboard/parent`;
-  const { attendance, messages, payments } = pillars;
+  const { attendance, messages, payments, progress } = pillars;
 
   const attendanceLevel = attendanceChildRows?.length
     ? aggregatePillarLevelFromChildRows(attendanceChildRows)
@@ -70,12 +70,28 @@ export function ParentHomeStatusGrid({
             )
       : labels.paymentsOkDetail;
 
+  const progressDetail =
+    progress.lastPublishedGrade != null
+      ? (progress.lastPublishedGrade.hasTeacherFeedback
+          ? labels.pillarProgressFeedbackDetail
+          : labels.pillarProgressOkDetail
+        )
+          .replace("{score}", String(progress.lastPublishedGrade.score))
+          .replace("{max}", String(progress.lastPublishedGrade.maxScore))
+          .replace("{assessment}", progress.lastPublishedGrade.assessmentName)
+      : labels.pillarProgressUnknownDetail;
+
+  const gridCols =
+    variant === "pwa"
+      ? "grid-cols-1"
+      : "grid-cols-1 md:grid-cols-2 xl:grid-cols-4";
+
   return (
     <section aria-label={labels.pillarsAria} className="space-y-3">
       {variant === "pwa" ? (
         <p className="text-sm text-[var(--color-muted-foreground)]">{labels.pwaPillarsLead}</p>
       ) : null}
-      <ul className={`grid gap-3 ${variant === "pwa" ? "grid-cols-1" : "sm:grid-cols-1"}`}>
+      <ul className={`grid gap-3 ${gridCols}`}>
         <li>
           <ParentHomeStatusCard
             href={`${base}/calendar`}
@@ -115,6 +131,21 @@ export function ParentHomeStatusGrid({
             />
           </li>
         ) : null}
+        <li>
+          <ParentHomeStatusCard
+            href={
+              progress.lastPublishedGrade?.hasTeacherFeedback
+                ? `${base}/progress?tab=feedback`
+                : `${base}/progress`
+            }
+            title={labels.pillarProgressTitle}
+            detail={progressDetail}
+            statusLabel={statusLabel(progress.level, labels)}
+            level={progress.level}
+            icon={GraduationCap}
+            variant={variant}
+          />
+        </li>
       </ul>
     </section>
   );

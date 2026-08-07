@@ -27,7 +27,7 @@ export function AdminEventAttendeeRowActions({
   const expandLabel = expanded ? labels.collapseRow : labels.expandRow;
 
   return (
-    <div className="flex flex-col items-stretch gap-1.5 sm:flex-row sm:items-center sm:justify-end">
+    <div className="flex flex-nowrap items-center justify-end gap-1.5">
       <Button
         type="button"
         variant="ghost"
@@ -40,7 +40,7 @@ export function AdminEventAttendeeRowActions({
         aria-expanded={expanded}
         aria-label={expandLabel}
         title={expandLabel}
-        className="min-h-9 shrink-0 border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-foreground)] hover:border-[color-mix(in_srgb,var(--color-primary)_35%,var(--color-border))] hover:bg-[color-mix(in_srgb,var(--color-primary)_8%,var(--color-surface))]"
+        className="min-h-9 shrink-0 whitespace-nowrap border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-foreground)] hover:border-[color-mix(in_srgb,var(--color-primary)_35%,var(--color-border))] hover:bg-[color-mix(in_srgb,var(--color-primary)_8%,var(--color-surface))]"
       >
         <ChevronDown
           className={`h-4 w-4 shrink-0 text-[var(--color-primary-dark)] transition-transform duration-200 ${

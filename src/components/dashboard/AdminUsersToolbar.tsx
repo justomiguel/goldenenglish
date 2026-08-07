@@ -10,6 +10,8 @@ import { ROLE_FILTER_ALL } from "@/lib/dashboard/adminUsersTableHelpers";
 import { adminUserRoleOptionLabel } from "@/lib/dashboard/adminUserRoleOptionLabel";
 import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
+import { AdminUsersExportTrigger } from "@/components/molecules/AdminUsersExportModal";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type UserLabels = Dictionary["admin"]["users"];
 
@@ -48,6 +50,7 @@ export interface AdminUsersToolbarProps {
   onToggleSelectAllFiltered: () => void;
   deleteDisabled: boolean;
   selectAllFilteredDisabled: boolean;
+  onExportUsers?: () => void;
 }
 
 export function AdminUsersToolbar({
@@ -65,6 +68,7 @@ export function AdminUsersToolbar({
   onToggleSelectAllFiltered,
   deleteDisabled,
   selectAllFilteredDisabled,
+  onExportUsers,
 }: AdminUsersToolbarProps) {
   const { localValue: localQuery, setLocalValue: setLocalQuery, flushNow } =
     useDebouncedSearch({ value: query, onDebouncedChange: onQueryChange });
@@ -75,7 +79,7 @@ export function AdminUsersToolbar({
   }
 
   return (
-    <>
+    <div data-tour={ADMIN_TOUR_ANCHORS.usersToolbar}>
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
         <form onSubmit={onSubmitFilter} className="min-w-[12rem] flex-1 space-y-1">
           <Label htmlFor="users-filter">{labels.filterLabel}</Label>
@@ -121,6 +125,9 @@ export function AdminUsersToolbar({
       </div>
 
       <div className="flex flex-wrap gap-2">
+        {onExportUsers && labels.spreadsheet ? (
+          <AdminUsersExportTrigger labels={labels.spreadsheet} onClick={onExportUsers} />
+        ) : null}
         <Button
           type="button"
           variant="secondary"
@@ -144,6 +151,6 @@ export function AdminUsersToolbar({
           {deleteSelectedButtonLabel(labels, selectedCount)}
         </Button>
       </div>
-    </>
+    </div>
   );
 }

@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { loadContentTemplateLibrary } from "@/lib/learning-tasks/loadContentTemplateLibrary";
 import { LearningTaskTemplateLibrary } from "@/components/teacher/LearningTaskTemplateLibrary";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.teacherNav.tasks);
+}
 
 interface PageProps {
   params: Promise<{ locale: string }>;

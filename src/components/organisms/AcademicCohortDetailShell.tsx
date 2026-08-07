@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import { Inbox, LayoutDashboard, Layers, TriangleAlert } from "lucide-react";
 import {
   UnderlineTabBar,
@@ -8,6 +8,10 @@ import {
   underlineTabId,
   type UnderlineTabItem,
 } from "@/components/molecules/UnderlineTabBar";
+import {
+  ADMIN_TOUR_ANCHORS,
+  ADMIN_TUTORIAL_ACTIVATE_COHORT_SECTIONS_TAB_EVENT,
+} from "@/lib/admin-tutorials/selectors";
 
 export type AcademicCohortDetailTabId = "overview" | "sections" | "retention" | "transfers";
 
@@ -44,12 +48,40 @@ export function AcademicCohortDetailShell({
   const idPrefix = useId().replace(/:/g, "");
   const [tab, setTab] = useState<AcademicCohortDetailTabId>(defaultTab);
 
+  useEffect(() => {
+    const onActivateSections = () => setTab("sections");
+    window.addEventListener(ADMIN_TUTORIAL_ACTIVATE_COHORT_SECTIONS_TAB_EVENT, onActivateSections);
+    return () => {
+      window.removeEventListener(ADMIN_TUTORIAL_ACTIVATE_COHORT_SECTIONS_TAB_EVENT, onActivateSections);
+    };
+  }, []);
+
   const items: UnderlineTabItem[] = useMemo(
     () => [
-      { id: "overview", label: labels.overview, Icon: LayoutDashboard },
-      { id: "sections", label: labels.sections, Icon: Layers },
-      { id: "retention", label: labels.retention, Icon: TriangleAlert },
-      { id: "transfers", label: labels.transfers, Icon: Inbox },
+      {
+        id: "overview",
+        label: labels.overview,
+        Icon: LayoutDashboard,
+        tourId: ADMIN_TOUR_ANCHORS.cohortDetailTabOverview,
+      },
+      {
+        id: "sections",
+        label: labels.sections,
+        Icon: Layers,
+        tourId: ADMIN_TOUR_ANCHORS.cohortSectionsTab,
+      },
+      {
+        id: "retention",
+        label: labels.retention,
+        Icon: TriangleAlert,
+        tourId: ADMIN_TOUR_ANCHORS.cohortDetailTabRetention,
+      },
+      {
+        id: "transfers",
+        label: labels.transfers,
+        Icon: Inbox,
+        tourId: ADMIN_TOUR_ANCHORS.cohortDetailTabTransfers,
+      },
     ],
     [labels.overview, labels.sections, labels.retention, labels.transfers],
   );
@@ -77,15 +109,20 @@ export function AcademicCohortDetailShell({
   };
 
   return (
-    <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
-      <UnderlineTabBar
-        idPrefix={idPrefix}
-        ariaLabel={labels.tablistAria}
-        items={items}
-        value={tab}
-        onChange={(id) => setTab(id as AcademicCohortDetailTabId)}
-        dense
-      />
+    <div
+      className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]"
+      data-tour="academic-cohort-detail"
+    >
+      <div data-tour={ADMIN_TOUR_ANCHORS.cohortDetailTabs}>
+        <UnderlineTabBar
+          idPrefix={idPrefix}
+          ariaLabel={labels.tablistAria}
+          items={items}
+          value={tab}
+          onChange={(id) => setTab(id as AcademicCohortDetailTabId)}
+          dense
+        />
+      </div>
       {ORDER.map((t) => {
         const selected = tab === t;
         return (

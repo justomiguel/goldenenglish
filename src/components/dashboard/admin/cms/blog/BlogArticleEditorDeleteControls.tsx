@@ -1,6 +1,7 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
+import { Button } from "@/components/atoms/Button";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 
 interface BlogArticleEditorDeleteControlsProps {
@@ -27,15 +28,17 @@ export function BlogArticleEditorDeleteControls({
   return (
     <>
       <div className="border-t border-[var(--color-border)] pt-4">
-        <button
+        <Button
           type="button"
+          variant="destructive"
+          size="md"
           disabled={busy}
-          className="inline-flex min-h-[44px] items-center gap-2 rounded-md border border-[var(--color-error)] px-4 py-2 text-sm font-semibold text-[var(--color-error)] disabled:opacity-70"
+          className="min-h-[44px]"
           onClick={() => onOpenChange(true)}
         >
           <Trash2 aria-hidden className="h-4 w-4" />
           {labels.delete}
-        </button>
+        </Button>
       </div>
       <ConfirmActionModal
         open={open}

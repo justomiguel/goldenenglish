@@ -10,6 +10,7 @@ import {
   underlineTabId,
   type UnderlineTabItem,
 } from "@/components/molecules/UnderlineTabBar";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export interface AcademicHubCohortBoardDict {
   currentTitle: string;
@@ -101,13 +102,15 @@ export function AcademicHubCohortBoard({
     <div className="space-y-4">
       {banner}
       <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
-        <UnderlineTabBar
-          idPrefix={idPrefix}
-          ariaLabel={boardDict.tabs.tablistAria}
-          items={tabItems}
-          value={tab}
-          onChange={(id) => setTab(id as HubTab)}
-        />
+        <div data-tour={ADMIN_TOUR_ANCHORS.academicBoardTabs}>
+          <UnderlineTabBar
+            idPrefix={idPrefix}
+            ariaLabel={boardDict.tabs.tablistAria}
+            items={tabItems}
+            value={tab}
+            onChange={(id) => setTab(id as HubTab)}
+          />
+        </div>
         {(["current", "active", "archived"] as const).map((t) => {
           const rows = lists[t];
           const selected = tab === t;
@@ -132,7 +135,10 @@ export function AcademicHubCohortBoard({
                     {empties[t]}
                   </p>
                 ) : (
-                  <div className="divide-y divide-[var(--color-border)] rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)]">
+                  <div
+                    className="divide-y divide-[var(--color-border)] rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)]"
+                    data-tour={ADMIN_TOUR_ANCHORS.academicCohortList}
+                  >
                     {rows.map((c) => (
                       <AcademicHubCohortRow
                         key={c.id}

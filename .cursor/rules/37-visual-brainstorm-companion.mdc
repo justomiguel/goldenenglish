@@ -1,0 +1,73 @@
+---
+description: How to launch the Superpowers visual brainstorm companion so it stays up and avoids HTTP 431 on localhost.
+alwaysApply: true
+---
+
+# Visual brainstorm companion (Superpowers) — launch config
+
+## When this applies
+
+After the user **approves** the visual companion during Superpowers brainstorming (`brainstorming` skill + `visual-companion.md`). Do **not** start it before that approval.
+
+## Mandatory launch (this machine / Cursor harness)
+
+Do **not** rely on default `start-server.sh` alone: detached/nohup processes get reaped (`ERR_CONNECTION_REFUSED`), and browsers often send a large `localhost` cookie jar → **HTTP 431** with Node’s default header limit.
+
+**Always** start Node **directly** as a **persistent background shell** (`block_until_ms: 0`), with:
+
+1. `NODE_OPTIONS=--max-http-header-size=262144`
+2. `BRAINSTORM_OWNER_PID` **unset** (empty) — so the owner-PID watchdog does not kill the server when the start script exits
+3. `--project-dir` equivalent via env pointing at this repo’s `.superpowers/brainstorm/` session
+4. Reuse port/token files so the same URL keeps working across restarts
+
+### Recipe
+
+```bash
+PROJECT="$(git rev-parse --show-toplevel)"   # goldenenglish repo root
+SESSION_DIR="$PROJECT/.superpowers/brainstorm/<session-id>"   # create or reuse
+mkdir -p "$SESSION_DIR/content" "$SESSION_DIR/state"
+SID="$(openssl rand -hex 24)"
+printf '%s\n' "$SID" > "$SESSION_DIR/state/server-instance-id"
+
+export NODE_OPTIONS="--max-http-header-size=262144"
+export BRAINSTORM_DIR="$SESSION_DIR"
+export BRAINSTORM_HOST="127.0.0.1"
+export BRAINSTORM_URL_HOST="localhost"
+export BRAINSTORM_PORT_FILE="$PROJECT/.superpowers/brainstorm/.last-port"
+export BRAINSTORM_TOKEN_FILE="$PROJECT/.superpowers/brainstorm/.last-token"
+unset BRAINSTORM_OWNER_PID
+
+# Resolve Superpowers brainstorm scripts (plugin cache path may vary by version)
+SCRIPT_DIR="$(dirname "$(find "$HOME/.claude/plugins/cache/superpowers-marketplace" -path '*/skills/brainstorming/scripts/server.cjs' 2>/dev/null | head -1)")"
+cd "$SCRIPT_DIR"
+node server.cjs "--brainstorm-server-id=$SID"
+```
+
+Run that `node` command in a **persistent** background shell (Cursor: `block_until_ms: 0`). Do not exit after printing JSON.
+
+After start: read `server-started` JSON from the process stdout / `$SESSION_DIR/state/server-info`, write HTML fragments into `$SESSION_DIR/content/`, share the full `url` (including `?key=`).
+
+### Health check
+
+```bash
+curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:<port>/?key=<token>"
+# expect 200; use GET not HEAD
+lsof -iTCP:<port> -sTCP:LISTEN
+```
+
+If down: restart with the **same** `BRAINSTORM_PORT_FILE` / `BRAINSTORM_TOKEN_FILE` (same URL reconnects).
+
+## User-facing recovery (431 / refused)
+
+- **431:** ask for a **private/incognito** window (bloated `localhost` cookies). Server already raises header limit; private window is the fallback.
+- **Connection refused:** server died — relaunch with the recipe above (not a one-shot `start-server.sh` without a persistent shell).
+
+## Content / git
+
+- Mockups live under `.superpowers/brainstorm/` (gitignored).
+- Prefer content **fragments** (no full HTML document) per `visual-companion.md`.
+- Never reuse content filenames; bump `*-v2.html` on iteration.
+
+## Still follow upstream skill
+
+Offer the companion JIT as its own message; use browser only for visual questions; push `waiting.html` when returning to terminal-only steps. This rule only **overrides the process launch** so the companion stays reachable in Cursor.

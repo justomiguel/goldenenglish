@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { loadStudentLearningTasks } from "@/lib/learning-tasks/loadStudentLearningTasks";
 import { StudentLearningTasksEntry } from "@/components/student/StudentLearningTasksEntry";
 import { StudentLearningTaskDetail } from "@/components/student/StudentLearningTaskDetail";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; taskInstanceId: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.studentNav.tasks);
+}
 
 interface PageProps {
   params: Promise<{ locale: string; taskInstanceId: string }>;

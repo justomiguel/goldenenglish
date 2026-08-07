@@ -5,7 +5,7 @@ import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 import { mockPathname } from "@/test/navigationMock";
 import { ParentDashboardShell } from "@/components/dashboard/ParentDashboardShell";
 import { buildParentSidebarNavGroups } from "@/components/dashboard/parentSidebarNavGroups";
-import { resolveParentPwaTab } from "@/components/pwa/molecules/ParentPwaTabBar";
+import { ParentPwaTabBar, resolveParentPwaTab } from "@/components/pwa/molecules/ParentPwaTabBar";
 
 describe("ParentDashboardShell", () => {
   beforeEach(() => {
@@ -30,6 +30,42 @@ describe("ParentDashboardShell", () => {
     expect(
       screen.queryByRole("link", { name: dictEn.dashboard.parentNav.tasks }),
     ).not.toBeInTheDocument();
+  });
+
+  it("renders student wording when given the student dictionaries", () => {
+    mockPathname.mockReturnValue("/en/dashboard/student");
+
+    render(
+      <ParentDashboardShell
+        locale="en"
+        dict={dictEn}
+        brand={mockBrandPublic}
+        baseHref="/en/dashboard/student"
+        navDict={dictEn.dashboard.studentNav}
+        chromeLabels={dictEn.dashboard.studentChrome}
+      >
+        <p>Student content</p>
+      </ParentDashboardShell>,
+    );
+
+    expect(
+      screen.getByRole("navigation", { name: dictEn.dashboard.studentNav.aria }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(dictEn.dashboard.studentChrome.badge)).toBeInTheDocument();
+    expect(screen.getByText(dictEn.dashboard.studentNav.navScopeStudent)).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: dictEn.dashboard.studentNav.calendar }),
+    ).toHaveAttribute("href", "/en/dashboard/student/calendar");
+    expect(
+      screen.queryByText(dictEn.dashboard.parentNav.navScopeStudent),
+    ).not.toBeInTheDocument();
+    // After spec 6 F10 fix, studentNav.calendar and parentNav.calendar share the
+    // label "Attendance" in English. The student calendar link is already verified
+    // above; assert exactly one such link exists (no extra parent-portal copy).
+    expect(
+      screen.queryAllByRole("link", { name: dictEn.dashboard.parentNav.calendar }),
+    ).toHaveLength(1);
+    expect(screen.queryByText(dictEn.dashboard.parentChrome.badge)).not.toBeInTheDocument();
   });
 });
 
@@ -75,5 +111,49 @@ describe("resolveParentPwaTab", () => {
   it("maps settings route to the settings tab", () => {
     const base = "/es/dashboard/parent";
     expect(resolveParentPwaTab(`${base}/settings`, base)).toBe("settings");
+  });
+});
+
+describe("ParentPwaTabBar with the student dictionary", () => {
+  it("labels every tab and names the landmark", () => {
+    mockPathname.mockReturnValue("/en/dashboard/student");
+
+    render(
+      <ParentPwaTabBar
+        locale="en"
+        dict={dictEn.dashboard.studentNav}
+        baseHref="/en/dashboard/student"
+      />,
+    );
+
+    const nav = screen.getByRole("navigation", {
+      name: dictEn.dashboard.studentNav.pwaTabBarAria,
+    });
+    expect(nav).toBeInTheDocument();
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(6);
+    for (const link of links) {
+      expect(link.textContent?.trim()).toBeTruthy();
+      expect(link.textContent).not.toContain("undefined");
+      expect(link.getAttribute("href")).toContain("/en/dashboard/student");
+    }
+  });
+
+  it("omits the payments tab for minors", () => {
+    mockPathname.mockReturnValue("/en/dashboard/student");
+
+    render(
+      <ParentPwaTabBar
+        locale="en"
+        dict={dictEn.dashboard.studentNav}
+        baseHref="/en/dashboard/student"
+        includePayments={false}
+      />,
+    );
+
+    expect(screen.getAllByRole("link")).toHaveLength(5);
+    expect(
+      screen.queryByRole("link", { name: dictEn.dashboard.studentNav.payments }),
+    ).not.toBeInTheDocument();
   });
 });

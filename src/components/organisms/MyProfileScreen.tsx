@@ -15,6 +15,8 @@ import {
   TutorFinancialAccessSection,
   type TutorFinancialAccessRow,
 } from "@/components/molecules/TutorFinancialAccessSection";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 export interface MyProfileScreenProps {
   locale: string;
@@ -86,12 +88,18 @@ export function MyProfileScreen({
   );
 
   return (
-    <div className="mx-auto w-full max-w-3xl md:max-w-[48rem]">
-      <div className="overflow-hidden rounded-xl border border-[color-mix(in_srgb,var(--color-accent)_24%,var(--color-border))] bg-[var(--color-surface)] shadow-[var(--shadow-card)] ring-1 ring-[color-mix(in_srgb,var(--color-accent)_22%,transparent)]">
+    <div
+      className="mx-auto w-full max-w-3xl md:max-w-[48rem]"
+      data-tour={PARENT_TOUR_ANCHORS.profileForm}
+    >
+      <div
+        data-tour={ADMIN_TOUR_ANCHORS.profileHeader}
+        className="overflow-hidden rounded-xl border border-[color-mix(in_srgb,var(--color-accent)_24%,var(--color-border))] bg-[var(--color-surface)] shadow-[var(--shadow-card)] ring-1 ring-[color-mix(in_srgb,var(--color-accent)_22%,transparent)]"
+      >
         <div className="dashboard-profile-cover h-28 sm:h-32 md:h-36" aria-hidden />
 
         <div className="relative px-4 pb-8 pt-0 sm:px-8">
-          <div className="-mt-[4.75rem] inline-block sm:-mt-20">
+          <div data-tour={ADMIN_TOUR_ANCHORS.profileAvatar} className="-mt-[4.75rem] inline-block sm:-mt-20">
             <ProfileAvatarChangeFab
               locale={locale}
               displayName={displayName}
@@ -130,13 +138,15 @@ export function MyProfileScreen({
           </div>
 
           <section className="mt-8 border-t border-[color-mix(in_srgb,var(--color-accent)_20%,var(--color-border))] pt-8">
-            <MyProfilePersonalForm
-              locale={locale}
-              minorPersonalLocked={minorPersonalLocked}
-              initial={initial}
-              labels={labels}
-              layout="inset"
-            />
+            <div data-tour={ADMIN_TOUR_ANCHORS.profilePersonalForm}>
+              <MyProfilePersonalForm
+                locale={locale}
+                minorPersonalLocked={minorPersonalLocked}
+                initial={initial}
+                labels={labels}
+                layout="inset"
+              />
+            </div>
             {classReminder ? (
               <ClassReminderPrefsSection
                 locale={locale}
@@ -152,7 +162,10 @@ export function MyProfileScreen({
                 labels={labels}
               />
             ) : null}
-            <div className="mt-8 border-t border-[color-mix(in_srgb,var(--color-accent)_20%,var(--color-border))] pt-6">
+            <div
+              data-tour={ADMIN_TOUR_ANCHORS.profilePassword}
+              className="mt-8 border-t border-[color-mix(in_srgb,var(--color-accent)_20%,var(--color-border))] pt-6"
+            >
               <p className="max-w-prose text-sm text-[var(--color-muted-foreground)]">{labels.passwordSectionLead}</p>
               <Button
                 type="button"

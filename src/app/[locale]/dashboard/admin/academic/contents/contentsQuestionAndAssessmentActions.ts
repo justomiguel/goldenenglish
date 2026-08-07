@@ -5,6 +5,7 @@ import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { logServerException } from "@/lib/logging/serverActionLog";
 import { auditLearningContentStaffAction } from "@/lib/learning-content/auditLearningContentStaffAction";
 import { AssessmentSchema, QuestionSchema } from "@/lib/learning-content/contentsActionsSchemas";
+import { loadSectionFeatureFlags } from "@/lib/academics/loadSectionFeatureFlags";
 import type { ContentActionResult } from "@/app/[locale]/dashboard/admin/academic/contents/contentsActionShared";
 
 export async function createQuestionBankItemAction(raw: unknown): Promise<ContentActionResult> {
@@ -47,6 +48,8 @@ export async function createLearningAssessmentAction(raw: unknown): Promise<Cont
   if (!parsed.success) return { ok: false, code: "invalid_input" };
   try {
     const { supabase, user } = await assertAdmin();
+    const flags = await loadSectionFeatureFlags(supabase, parsed.data.sectionId);
+    if (!flags?.requiresEvaluationsToPass) return { ok: false, code: "feature_disabled" };
     const { data, error } = await supabase
       .from("learning_assessments")
       .insert({

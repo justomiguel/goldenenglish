@@ -11708,13 +11708,13 @@ ALTER TYPE public.user_role ADD VALUE IF NOT EXISTS 'site_contact';
 -- System profile + auth user used as portal_messages.sender_id for public "contact us"
 -- form submissions (service-role inserts). Not for interactive login.
 -- Depends on 118_public_site_contact_sender.sql (user_role.site_contact committed).
+-- encrypted_password stays NULL: password sign-in must never succeed for this user.
 
 DO $$
 DECLARE
   v_id uuid := '6f0e8c8a-7b1d-4c2e-9f3a-8e5d2c1b0a99'::uuid;
   v_email text := 'site-contact-sender@internal.invalid';
   v_instance uuid := '00000000-0000-0000-0000-000000000000'::uuid;
-  v_password text := 'do-not-login-site-contact-sender-placeholder';
   v_meta jsonb := jsonb_build_object(
     'first_name', 'Site',
     'last_name', 'contact form',
@@ -11743,7 +11743,6 @@ BEGIN
     aud,
     role,
     email,
-    encrypted_password,
     email_confirmed_at,
     confirmation_token,
     recovery_token,
@@ -11762,7 +11761,6 @@ BEGIN
     'authenticated',
     'authenticated',
     v_email,
-    crypt(v_password, gen_salt('bf')),
     now(),
     '',
     '',
@@ -12340,9 +12338,9 @@ VALUES (
     'app.tagline.en',    'Welcome to a place where imagination becomes reality..',
     'app.tagline.pt',    'Bem-vindos a um lugar onde a imaginação se torna realidade..',
     'app.legal.registry','Jardín Materno Infantil Mi Mundo',
-    'app.logo.path',     '/images/mimundo/logo/logo.png',
+    'app.logo.path',     '/images/mimundo/logo/logo.jpg',
     'app.logo.alt',      'Jardín Materno Infantil Mi Mundo',
-    'app.favicon.path',  '/images/mimundo/logo/logo.png',
+    'app.favicon.path',  '/images/mimundo/logo/logo.jpg',
     -- Brand palette
     -- Primary: verde oscuro del logo — pasa AA como bg para texto blanco
     'color.primary',                '#557945',
@@ -12363,10 +12361,10 @@ VALUES (
     'color.muted',                  '#8D6E63',
     'color.muted.foreground',       '#5D4037',
     -- Contact info (placeholder until real data is provided)
-    'contact.phone',    '+54 9 362 470-8145',
-    'contact.whatsapp', 'https://wa.me/5493624708145',
-    'contact.email',    'mimundojardin@gmail.com',
-    'contact.address',  'French 535, Resistencia, Chaco',
+    'contact.phone',    '+54 11 4555-1234',
+    'contact.whatsapp', 'https://wa.me/541145551234',
+    'contact.email',    'hola@mimundo.com.ar',
+    'contact.address',  'Resistencia, Chaco',
     -- Social
     'social.instagram', 'https://www.instagram.com/mimundo.jardin/',
     'social.facebook',  'https://www.facebook.com/mimundojardin',
@@ -12401,48 +12399,6 @@ SET properties = properties
        )
 WHERE slug = 'mimundo'
   AND properties ->> 'app.logo.path' = '/images/mimundo/logo/logo.svg';
-
--- ========== 160_mimundo_tagline_imaginacion.sql ==========
-
--- Mi Mundo — hero tagline / app.tagline refresh (Resistencia tenant copy).
-
-UPDATE public.site_themes
-SET properties = properties
-  || jsonb_build_object(
-    'app.tagline',    'Bienvenidos a un lugar donde la imaginación se vuelve realidad..',
-    'app.tagline.en', 'Welcome to a place where imagination becomes reality..',
-    'app.tagline.pt', 'Bem-vindos a um lugar onde a imaginação se torna realidade..'
-  )
-WHERE slug = 'mimundo';
-
--- ========== 161_mimundo_resistencia_brand_identity.sql ==========
-
--- Mi Mundo — Resistencia location + materno infantil legal identity (brand layer).
-
-UPDATE public.site_themes
-SET
-  name = 'Jardín Materno Infantil Mi Mundo',
-  properties = properties
-    || jsonb_build_object(
-      'app.name',           'Jardín Materno Infantil Mi Mundo',
-      'app.legal.name',     'Jardín Materno Infantil Mi Mundo',
-      'app.legal.registry', 'Jardín Materno Infantil Mi Mundo',
-      'app.logo.alt',       'Jardín Materno Infantil Mi Mundo',
-      'contact.address',    'French 535, Resistencia, Chaco'
-    )
-WHERE slug = 'mimundo';
-
--- ========== 165_mimundo_logo_png_transparent.sql ==========
-
--- Mi Mundo — transparent PNG logo (replaces legacy logo.jpg path).
-
-UPDATE public.site_themes
-SET properties = properties
-  || jsonb_build_object(
-    'app.logo.path',    '/images/mimundo/logo/logo.png',
-    'app.favicon.path', '/images/mimundo/logo/logo.png'
-  )
-WHERE slug = 'mimundo';
 
 -- ========== 136_admin_users_directory_exclude_site_contact.sql ==========
 
@@ -14990,8 +14946,309 @@ GRANT EXECUTE ON FUNCTION public.payment_flow_reserve_commerce_ref_slot(UUID, UU
 
 COMMIT;
 
+-- ========== 160_mimundo_tagline_imaginacion.sql ==========
+
+-- Mi Mundo — hero tagline / app.tagline refresh (Resistencia tenant copy).
+
+UPDATE public.site_themes
+SET properties = properties
+  || jsonb_build_object(
+    'app.tagline',    'Bienvenidos a un lugar donde la imaginación se vuelve realidad..',
+    'app.tagline.en', 'Welcome to a place where imagination becomes reality..',
+    'app.tagline.pt', 'Bem-vindos a um lugar onde a imaginação se torna realidade..'
+  )
+WHERE slug = 'mimundo';
+
+-- ========== 161_mimundo_resistencia_brand_identity.sql ==========
+
+-- Mi Mundo — Resistencia location + materno infantil legal identity (brand layer).
+
+UPDATE public.site_themes
+SET
+  name = 'Jardín Materno Infantil Mi Mundo',
+  properties = properties
+    || jsonb_build_object(
+      'app.name',           'Jardín Materno Infantil Mi Mundo',
+      'app.legal.name',     'Jardín Materno Infantil Mi Mundo',
+      'app.legal.registry', 'Jardín Materno Infantil Mi Mundo',
+      'app.logo.alt',       'Jardín Materno Infantil Mi Mundo',
+      'contact.address',    'Resistencia, Chaco'
+    )
+WHERE slug = 'mimundo';
+
+-- ========== 162_mimundo_contact_phone_resistencia.sql ==========
+
+-- Mi Mundo — real contact phone (Resistencia, Chaco).
+
+UPDATE public.site_themes
+SET properties = properties
+  || jsonb_build_object(
+    'contact.phone',    '+54 9 362 470-8145',
+    'contact.whatsapp', 'https://wa.me/5493624708145'
+  )
+WHERE slug = 'mimundo';
+
+-- ========== 163_mimundo_contact_email.sql ==========
+
+-- Mi Mundo — public contact email.
+
+UPDATE public.site_themes
+SET properties = properties
+  || jsonb_build_object('contact.email', 'mimundojardin@gmail.com')
+WHERE slug = 'mimundo';
+
+-- ========== 164_mimundo_contact_address_french535.sql ==========
+
+-- Mi Mundo — street address (French 535, Resistencia).
+
+UPDATE public.site_themes
+SET properties = properties
+  || jsonb_build_object('contact.address', 'French 535, Resistencia, Chaco')
+WHERE slug = 'mimundo';
+
+-- ========== 165_mimundo_logo_png_transparent.sql ==========
+
+-- Mi Mundo — transparent PNG logo (replaces legacy logo.jpg path).
+
+UPDATE public.site_themes
+SET properties = properties
+  || jsonb_build_object(
+    'app.logo.path',    '/images/mimundo/logo/logo.png',
+    'app.favicon.path', '/images/mimundo/logo/logo.png'
+  )
+WHERE slug = 'mimundo';
+
+-- ========== 166_public_api_role_grants.sql ==========
+
+-- Ensure PostgREST API roles can reach public tables so RLS can apply.
+--
+-- Local `supabase db reset` runs app migrations as role `postgres`. That role's
+-- default privileges previously granted only DELETE/TRUNCATE/REFERENCES/TRIGGER
+-- (Dxtm) to anon/authenticated/service_role — not SELECT/INSERT/UPDATE — so
+-- every table looked "permission denied" under the API.
+--
+-- Idempotent. Safe on hosted tenants: grants align with Supabase norms; RLS unchanged.
+
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+  GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+  GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+  GRANT EXECUTE ON ROUTINES TO anon, authenticated, service_role;
+
+-- ========== 167_portal_messages_read_at.sql ==========
+
+-- Admin inbox attention: per-row read marker + external site-contact reply marker.
+-- Additive only; existing rows remain unread / unreplied (NULL).
+
+ALTER TABLE public.portal_messages
+  ADD COLUMN IF NOT EXISTS read_at TIMESTAMPTZ;
+
+ALTER TABLE public.portal_messages
+  ADD COLUMN IF NOT EXISTS external_replied_at TIMESTAMPTZ;
+
+COMMENT ON COLUMN public.portal_messages.read_at IS
+  'When the recipient (admin copy) opened or answered this inbox row.';
+
+COMMENT ON COLUMN public.portal_messages.external_replied_at IS
+  'When staff sent an email reply to a website contact submission (shared across broadcast batch).';
+
+CREATE INDEX IF NOT EXISTS portal_messages_recipient_unread_idx
+  ON public.portal_messages (recipient_id, created_at DESC)
+  WHERE read_at IS NULL;
+
+CREATE OR REPLACE FUNCTION public.portal_messages_attention_columns_only()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NEW.id IS DISTINCT FROM OLD.id
+     OR NEW.sender_id IS DISTINCT FROM OLD.sender_id
+     OR NEW.recipient_id IS DISTINCT FROM OLD.recipient_id
+     OR NEW.body_html IS DISTINCT FROM OLD.body_html
+     OR NEW.created_at IS DISTINCT FROM OLD.created_at
+     OR NEW.broadcast_batch_id IS DISTINCT FROM OLD.broadcast_batch_id
+     OR NEW.external_contact_reply_email IS DISTINCT FROM OLD.external_contact_reply_email
+  THEN
+    RAISE EXCEPTION 'portal_messages update limited to attention columns';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS portal_messages_attention_columns_only_trg ON public.portal_messages;
+CREATE TRIGGER portal_messages_attention_columns_only_trg
+  BEFORE UPDATE ON public.portal_messages
+  FOR EACH ROW
+  EXECUTE FUNCTION public.portal_messages_attention_columns_only();
+
+DROP POLICY IF EXISTS portal_messages_update_attention ON public.portal_messages;
+CREATE POLICY portal_messages_update_attention ON public.portal_messages
+  FOR UPDATE TO authenticated
+  USING (
+    recipient_id = auth.uid()
+    OR public.is_admin(auth.uid())
+  )
+  WITH CHECK (
+    recipient_id = auth.uid()
+    OR public.is_admin(auth.uid())
+  );
+
+-- ========== 168_portal_messages_external_contact_display_name.sql ==========
+
+-- Persist visitor display name for public contact form portal rows (list From column).
+-- Additive only; legacy rows keep NULL and fall back to HTML meta extract in app code.
+
+ALTER TABLE public.portal_messages
+  ADD COLUMN IF NOT EXISTS external_contact_display_name TEXT NULL;
+
+COMMENT ON COLUMN public.portal_messages.external_contact_display_name IS
+  'Visitor full name from the public contact form; shown in admin inbox instead of the synthetic site_contact profile.';
+
+-- Keep updates limited to attention columns; display name is immutable after insert (like reply email).
+CREATE OR REPLACE FUNCTION public.portal_messages_attention_columns_only()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF NEW.id IS DISTINCT FROM OLD.id
+     OR NEW.sender_id IS DISTINCT FROM OLD.sender_id
+     OR NEW.recipient_id IS DISTINCT FROM OLD.recipient_id
+     OR NEW.body_html IS DISTINCT FROM OLD.body_html
+     OR NEW.created_at IS DISTINCT FROM OLD.created_at
+     OR NEW.broadcast_batch_id IS DISTINCT FROM OLD.broadcast_batch_id
+     OR NEW.external_contact_reply_email IS DISTINCT FROM OLD.external_contact_reply_email
+     OR NEW.external_contact_display_name IS DISTINCT FROM OLD.external_contact_display_name
+  THEN
+    RAISE EXCEPTION 'portal_messages update limited to attention columns';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+-- ========== 169_messaging_default_reply_template.sql ==========
+
+-- Institute-wide admin Messages default reply templates (es / en / pt).
+-- Placeholders: {{instituteName}}, {{phone}}. See spec 2026-07-12-admin-messages-default-reply-design.
+-- Idempotent: inserts the seed, or upgrades a legacy single-string row without wiping custom text.
+
+INSERT INTO public.site_settings (key, value, updated_at)
+VALUES (
+  'messaging_default_reply_template',
+  jsonb_build_object(
+    'templates',
+    jsonb_build_object(
+      'es',
+      'Gracias por comunicarte con {{instituteName}}. Nos estaremos comunicando contigo a la brevedad. Para urgencias llamar al {{phone}}.',
+      'en',
+      'Thanks for contacting {{instituteName}}. We will get back to you shortly. For emergencies call {{phone}}.',
+      'pt',
+      'Obrigado por entrar em contato com {{instituteName}}. Retornaremos em breve. Para urgências, ligue para {{phone}}.'
+    )
+  ),
+  now()
+)
+ON CONFLICT (key) DO UPDATE
+SET
+  value = jsonb_build_object(
+    'templates',
+    jsonb_build_object(
+      'es',
+      COALESCE(
+        NULLIF(
+          trim(
+            both
+            FROM COALESCE(
+              public.site_settings.value #>> '{templates,es}',
+              public.site_settings.value #>> '{es}',
+              public.site_settings.value #>> '{template}',
+              ''
+            )
+          ),
+          ''
+        ),
+        EXCLUDED.value #>> '{templates,es}'
+      ),
+      'en',
+      COALESCE(
+        NULLIF(
+          trim(
+            both
+            FROM COALESCE(
+              public.site_settings.value #>> '{templates,en}',
+              public.site_settings.value #>> '{en}',
+              public.site_settings.value #>> '{template}',
+              ''
+            )
+          ),
+          ''
+        ),
+        EXCLUDED.value #>> '{templates,en}'
+      ),
+      'pt',
+      COALESCE(
+        NULLIF(
+          trim(
+            both
+            FROM COALESCE(
+              public.site_settings.value #>> '{templates,pt}',
+              public.site_settings.value #>> '{pt}',
+              public.site_settings.value #>> '{template}',
+              ''
+            )
+          ),
+          ''
+        ),
+        EXCLUDED.value #>> '{templates,pt}'
+      )
+    )
+  ),
+  updated_at = now();
+
+-- ========== 170_mozarthitos_contact_email.sql ==========
+
+-- Mozarthitos — public contact email (and phone / Instagram) on the active theme row.
+-- Live drift: slug `mozarthitos` lacked contact.email so mail footers fell back to
+-- SYSTEM_PROPERTIES_DEFAULTS (Golden: crisins@hotmail.com). Correct value lived only
+-- on inactive slug `default`. See spec 2026-07-12-mozarthitos-contact-email-design.
+
+UPDATE public.site_themes
+SET
+  properties =
+    coalesce(properties, '{}'::jsonb)
+    || jsonb_build_object(
+      'contact.email', 'mozarthitos@gmail.com',
+      'contact.phone', '+56 9 5991 6314',
+      'social.instagram', 'https://www.instagram.com/mozarthitos/'
+    ),
+  updated_at = now()
+WHERE slug = 'mozarthitos';
+
+-- ========== 171_section_feature_flags_evaluations_learning_route.sql ==========
+
+-- Per-section feature flags: evaluations-to-pass and learning-route workspace.
+-- Defaults false (opt-in). Admin Configuration toggles control tab visibility and progress rules.
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS requires_evaluations_to_pass boolean NOT NULL DEFAULT false;
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS uses_learning_route boolean NOT NULL DEFAULT false;
+
+COMMENT ON COLUMN public.academic_sections.requires_evaluations_to_pass IS
+  'When true, section shows Assessments tab and evaluation-based pass/progress rules apply.';
+
+COMMENT ON COLUMN public.academic_sections.uses_learning_route IS
+  'When true, section shows Learning route tab and route/free-flow progress applies to learners.';
 
 -- ========== 172_site_theme_kind_liora.sql ==========
+
 -- Guarantee `site_theme_kind` includes `liora` (Liora Studio — ballet).
 -- Idempotent: skips if label already exists.
 
@@ -15008,6 +15265,7 @@ BEGIN
 END $$;
 
 -- ========== 173_site_theme_liora_seed.sql ==========
+
 -- Runs after 172 commits so the 'liora' enum label is usable.
 -- Paleta tomada del logo: crema #FAF5EF, tinta marrón #3F3733, rosa viejo #C08C7D.
 -- `color.primary` usa la variante oscura del rosa (#96594B) porque es la única que

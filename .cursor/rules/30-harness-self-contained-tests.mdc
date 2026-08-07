@@ -1,0 +1,38 @@
+---
+description: Harness engineering — self-contained tests; each file owns mocks/fixtures; no order dependence.
+alwaysApply: true
+---
+
+# Self-contained tests (harness engineering)
+
+## Goal
+
+Every **new or touched** test file under `src/__tests__/` (or `*.test.ts(x)`) must be understandable and runnable **alone**.
+
+## Required
+
+1. **Local setup** — `vi.mock`, fixtures, factories, and `beforeEach`/`afterEach` live in the same file, or come from an **explicit** import of a pure helper.
+2. **No cross-file mutable state** — do not share module-level mutable data across test files.
+3. **Order independence** — `npx vitest run path/to/file.test.ts` must pass in isolation.
+4. **One primary subject** per file (one component, hook, or module).
+5. **Mock at boundaries** — Supabase, Resend, `next/navigation`, etc. (see **`02-testing-tdd.mdc`**).
+6. **Observable behavior** — Testing Library roles/labels; prefer dictionary keys / mocked dict over brittle DOM structure.
+
+## Allowed
+
+- Optional helpers under `src/__tests__/helpers/` with **no** product-domain global side effects.
+- Explicit imports of shared dict/fixtures.
+
+## Forbidden
+
+- Depending on another test file having run first.
+- Global `setupFiles` that mock product domains (neutral Vitest polyfills are OK).
+- Implicit fixtures via path magic.
+
+## Scope
+
+- Enforce on **new and touched** tests. Do not mass-rewrite legacy tests in unrelated PRs.
+
+## Skill
+
+Use `.agents/skills/harness-self-contained-tests/SKILL.md` when writing or editing tests.

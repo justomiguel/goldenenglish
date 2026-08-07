@@ -50,7 +50,15 @@
       "parentPayments": "Parent payments",
       "parentPaymentsShort": "Payments",
       "parentMessages": "Parent messages",
-      "parentMessagesShort": "Messages"
+      "parentMessagesShort": "Messages",
+      "parentProgress": "Progress and teacher feedback",
+      "parentProgressShort": "Progress"
+    },
+    "pullToRefresh": {
+      "pull": "Pull to refresh",
+      "release": "Release to refresh",
+      "refreshing": "Refreshing…",
+      "done": "Up to date"
     }
   },
   "greenfieldPublic": {
@@ -966,8 +974,8 @@
       },
       "contact": {
         "title": "Come meet us",
-        "direccion": "French 535, Resistencia, Chaco",
-        "telefono": "+54 9 362 470-8145",
+        "direccion": "Av. Avalos 555, Resistencia, Chaco",
+        "telefono": "+54 9 362 459-1860",
         "email": "mimundojardin@gmail.com",
         "mapaAria": "View on Google Maps"
       },
@@ -1173,9 +1181,23 @@
     },
     "messages": {
       "title": "Messages",
-      "lead": "Admins can message anyone — use Write message (top right). Your inbox lists mail from teachers, admins, students (when they write administration), and the website contact form. Switch between Received and Sent to browse folders. Teachers reply to students from the teacher workspace.",
+      "lead": "Admins can message anyone — use Write message. Your inbox lists mail from teachers, admins, students (when they write administration), and the website contact form. Switch between Received and Sent to browse folders. Teachers reply to students from the teacher workspace.",
       "writeMessageCta": "Write message",
       "writeMessageCtaTitle": "Open the compose screen",
+      "editDefaultMessageCta": "Edit default message",
+      "editDefaultMessageCtaTitle": "Edit the institute default reply template",
+      "editDefaultMessageModalTitle": "Default reply message",
+      "editDefaultMessageModalLead": "Shared by all admins. Edit Spanish, English, and Portuguese. Use {{instituteName}} and {{phone}} — they fill in from the current brand when you reply with the default for the active site language.",
+      "editDefaultMessageFieldLabel": "Template text",
+      "editDefaultMessageSave": "Save default message",
+      "editDefaultMessageCancel": "Cancel",
+      "editDefaultMessageSaved": "Default message saved",
+      "editDefaultMessageError": "Could not save the default message",
+      "editDefaultMessageErrorEmpty": "The template cannot be empty",
+      "editDefaultMessageTabEs": "Spanish",
+      "editDefaultMessageTabEn": "English",
+      "editDefaultMessageTabPt": "Portuguese",
+      "defaultReplyFactoryTemplate": "Thanks for contacting {{instituteName}}. We will get back to you shortly. For emergencies call {{phone}}.",
       "composeBackToList": "Back to message list",
       "composeBackToListTitle": "Return to inbox and folders",
       "composePageTitle": "Write message",
@@ -1245,12 +1267,46 @@
       "tipComposeSendExternal": "Send email to the visitor address stored with this contact submission.",
       "replyToMessage": "Reply",
       "replyToMessageTitle": "Compose a reply linked to this message",
+      "replyWithDefaultMessage": "Reply with default",
+      "replyWithDefaultMessageTitle": "Open compose with the institute default reply pre-filled",
       "composeVisitorEmailLabel": "Visitor email",
       "composeExternalReplySubject": "Re: Message from {{brand}}",
       "composeExternalReplySent": "Email sent",
       "composeExternalReplyEmailFailed": "Could not send the email.",
       "composeReplyInvalidTarget": "That message cannot be used as a reply target.",
-      "composeReplyMissingVisitorEmail": "No visitor email is stored for this contact submission."
+      "composeReplyMissingVisitorEmail": "No visitor email is stored for this contact submission.",
+      "administrationPeerLabel": "Administration",
+      "badgeUnread": "Unread",
+      "badgeNeedsReply": "Needs reply",
+      "markAsUnread": "Mark as unread",
+      "markAsUnreadTitle": "Mark this message as unread",
+      "markAsRead": "Mark as read",
+      "markAsReadTitle": "Mark this message as read",
+      "sourceContactFormAria": "Website contact form",
+      "sourceInternalAria": "Internal portal message",
+      "countsReceivedLabel": "Received",
+      "countsUnreadLabel": "Unread",
+      "countsNeedsReplyLabel": "Needs reply",
+      "countsSentLabel": "Sent",
+      "countsSummaryAria": "Message counts for this folder",
+      "bulkSelectAll": "Select all",
+      "bulkSelectAllTitle": "Select every message in this folder list",
+      "bulkClearSelection": "Clear selection",
+      "bulkClearSelectionTitle": "Clear the current selection",
+      "bulkSelectedCount": "{{count}} selected",
+      "bulkSelectRowAria": "Select message from {{from}}",
+      "bulkMarkRead": "Mark as read",
+      "bulkMarkReadTitle": "Mark selected messages as read",
+      "bulkMarkUnread": "Mark as unread",
+      "bulkMarkUnreadTitle": "Mark selected messages as unread",
+      "bulkDelete": "Delete",
+      "bulkDeleteTitle": "Delete selected messages",
+      "bulkDeleteConfirmTitle": "Delete selected messages?",
+      "bulkDeleteConfirmDescription": "This permanently removes {{count}} message(s) from the portal. Broadcast copies for other admins are not deleted.",
+      "bulkDeleteConfirm": "Delete permanently",
+      "bulkActionError": "Could not update the selected messages.",
+      "bulkDeleteNotFound": "Those messages no longer exist or you cannot delete them.",
+      "bulkTooMany": "Select at most 100 messages at a time."
     },
     "communications": {
       "templates": {
@@ -1317,7 +1373,7 @@
       }
     },
     "home": {
-      "title": "Admin dashboard",
+      "title": "Overview",
       "lead": "Here's what needs your attention today.",
       "cards": {
         "import": "Bulk student onboarding from a CSV file.",
@@ -1376,7 +1432,7 @@
       }
     },
     "settings": {
-      "title": "Settings",
+      "title": "Institute settings",
       "integrationsTitle": "Integrations",
       "scopeLead": "These settings apply to the whole institute. Day-to-day teaching (your classes, attendance, and class messaging) is in the teacher dashboard.",
       "inscriptions": "Public registrations",
@@ -1406,8 +1462,8 @@
       }
     },
     "cms": {
-      "navLabel": "Content & themes",
-      "hubTitle": "Site content management",
+      "navLabel": "Public site",
+      "hubTitle": "Public site",
       "hubLead": "Manage the public site templates, design tokens, and landing copy.",
       "templatesNav": "Templates",
       "templatesHubCta": "Open templates",
@@ -1615,7 +1671,7 @@
           },
           "brandAssets": {
             "title": "Logo & favicon",
-            "lead": "Upload files the same way as the first-run wizard: we store them in your media bucket and set theme paths for you. Fine-tune names and taglines in Brand identity below.",
+            "lead": "Upload files the same way as the first-run wizard: we store them in your media bucket and set theme paths for you. Fine-tune names and taglines in Brand identity.",
             "logoLabel": "Logo",
             "logoHint": "PNG, JPEG, or WebP. Used in the header, landing, and branded emails.",
             "logoAltLabel": "Logo description (accessibility)",
@@ -1855,7 +1911,7 @@
       }
     },
     "analytics": {
-      "title": "Analytics & usage",
+      "title": "Analytics",
       "lead": "Aggregated events (no identifiable personal data in metadata). Time zone: Argentina. Public traffic hits are logged on the server (middleware GET + User-Agent + edge country), so crawlers without JavaScript count as bots where the UA matches; signed-in users also emit product events separately.",
       "trafficTitle": "Traffic (all visits)",
       "trafficHint": "Last 30 days: each GET under a locale path recorded at the edge (not the in-app beacon). Bots from User-Agent; guests have no session.",
@@ -2102,8 +2158,10 @@
       "createUserGuardianModeExisting": "Link existing guardian",
       "createUserGuardianModeNew": "Create new guardian",
       "createUserGuardianSearchLabel": "Find guardian",
-      "createUserGuardianSearchPlaceholder": "Type name, email, or document…",
-      "createUserGuardianSearchMinChars": "Type at least one character to search.",
+      "createUserGuardianSearchPlaceholder": "Name, document, or full email…",
+      "createUserGuardianSearchMinChars": "Prefix search on guardian name or document (one letter is enough). Full email also works.",
+      "createUserGuardianSearchTooltip": "Prefix search on guardian name or ID document; an empty field loads a short alphabetical list. A full login email finds that guardian account.",
+      "createUserGuardianSearchResultsHeading": "Guardians available to link",
       "createUserGuardianSelected": "Selected",
       "errCreateNotFound": "That enrollment request was not found.",
       "errDeleteForbidden": "You are not allowed to do this.",
@@ -2212,7 +2270,7 @@
       "detailAvatarErrSave": "Could not save the student photo. Try again.",
       "detailSectionAssignTitle": "Current cohort sections",
       "detailSectionAssignLead": "Manage which sections of the current cohort this student is enrolled in.",
-      "detailSectionAssignNoCurrent": "No current cohort is set. Mark a cohort as current in the academic hub first.",
+      "detailSectionAssignNoCurrent": "No current cohort is set. Mark a cohort as current in Cohorts & sections first.",
       "detailSectionAssignNoSections": "The current cohort has no active sections yet.",
       "detailSectionAssignNoAvailableSections": "No more active sections are available for this student.",
       "detailSectionAssignCurrent": "Current sections",
@@ -2232,7 +2290,7 @@
       "detailSectionAssignErrNotStudent": "Only student profiles can be assigned to sections.",
       "detailSectionAssignErrNoCurrent": "No current cohort is set.",
       "detailSectionAssignErrSectionNotCurrent": "That section does not belong to the current cohort.",
-      "detailSectionAssignErrMultipleCurrent": "This student has multiple active sections in the current cohort. Resolve the duplicate from the academic hub before assigning here.",
+      "detailSectionAssignErrMultipleCurrent": "This student has multiple active sections in the current cohort. Resolve the duplicate from Cohorts & sections before assigning here.",
       "detailSectionAssignErrScheduleOverlap": "This schedule overlaps another active section for the student.",
       "detailSectionAssignErrCapacity": "The section is full. Use the admin capacity override only if authorized.",
       "detailSectionAssignErrRpc": "Could not save the section assignment. Try again.",
@@ -2314,13 +2372,13 @@
       "detailTutorOpenProfile": "Open profile",
       "detailTutorSearchLabel": "Search guardian",
       "detailTutorSearchPlaceholder": "Name of parent or guardian",
-      "detailTutorSearchTooltip": "Prefix search on guardian name or ID document; an empty field loads a short alphabetical list. Already linked guardians are hidden.",
+      "detailTutorSearchTooltip": "Prefix search on guardian name or ID document; an empty field loads a short alphabetical list. A full login email finds that account. Already linked guardians are hidden.",
       "detailTutorSearchResultsHeading": "Guardians available to link",
       "detailTutorQueueLegend": "Guardians on your list (not linked yet)",
       "detailTutorQueueReminder": "Tap Link guardian when ready — you can keep adding from search.",
       "detailTutorRemoveChipAria": "Remove from list",
-      "detailTutorMinChars": "Prefix search on guardian name or document (one letter is enough).",
-      "detailTutorLinkHint": "Search for an existing parent or guardian account by name or ID document, then link them. To replace a linked guardian, remove their link above and search again here.",
+      "detailTutorMinChars": "Prefix search on guardian name or document (one letter is enough). Full email also works.",
+      "detailTutorLinkHint": "Search for an existing parent or guardian account by name, ID document, or full login email, then link them. To replace a linked guardian, remove their link above and search again here.",
       "detailTutorLinkRelationshipLead": "Before linking, choose how each guardian relates to this student.",
       "detailTutorUnlink": "Remove link",
       "detailTutorUnlinkConfirmTitle": "Remove guardian link?",
@@ -2354,16 +2412,56 @@
       "detailTutorCreateErrAuth": "Guardian / tutor — Supabase Auth could not finish creating their login. Verify email and document fields, inspect Supabase Auth logs for this time, retry, or escalate with support using any incident reference shown.",
       "detailTutorCreateErrEmailParentDniMismatch": "That guardian email is already used by another guardian account with a different ID document. Try another email for this tutor or ask support to reconcile the accounts.",
       "detailTutorCreateErrEmailAdminDniMismatch": "That email belongs to an administrator account associated with a different ID document. Try another email or ask support to reconcile the accounts.",
-      "detailTutorCreateErrEmailNonParentRole": "That email is already used by a portal account that is not a guardian (student, teacher, or other role). Try a different email."
+      "detailTutorCreateErrEmailNonParentRole": "That email is already used by a portal account that is not a guardian (student, teacher, or other role). Try a different email.",
+      "spreadsheet": {
+        "exportTitle": "Export users",
+        "exportLead": "Download an Excel file with the shared account columns. Use the template to prepare a mass import, or export current data.",
+        "modeLabel": "What to export",
+        "modeTemplate": "Template only (headers)",
+        "modeData": "With user data",
+        "scopeLabel": "Which users (when exporting data and nothing is selected)",
+        "scopeFilter": "Current search and role filter",
+        "scopeAll": "All users",
+        "scopeSelectedHint": "Exporting {{count}} selected account(s).",
+        "download": "Download Excel",
+        "cancel": "Cancel",
+        "exportUsers": "Export users",
+        "exportUsersAria": "Export users to Excel",
+        "errorForbidden": "You are not allowed to do this.",
+        "errorExportFailed": "Could not export users. Try again.",
+        "errorTooManyRows": "Too many users to export at once. Narrow the filter or select fewer rows.",
+        "importTitle": "Import users",
+        "importLead": "Upload an Excel file that uses the same columns as Export users. New accounts use the institute default password. Confirm before anything is written.",
+        "chooseFile": "Choose Excel file",
+        "chooseFileAria": "Choose an Excel file to import users",
+        "previewTitle": "Import preview",
+        "previewBody": "New accounts: {{newCount}}. Duplicates: {{duplicateCount}}. Invalid rows: {{invalidCount}}.",
+        "updateDuplicatesLabel": "Duplicates",
+        "updateDuplicatesYes": "Update profile fields on duplicates (name, phone, birth date, ID). Role is not changed.",
+        "updateDuplicatesNo": "Leave duplicates unchanged",
+        "confirmApply": "OK — apply import",
+        "resultTitle": "Import result",
+        "resultBody": "Created: {{created}}. Updated: {{updated}}. Skipped duplicates: {{skipped}}. Failed: {{failed}}.",
+        "resultClose": "OK",
+        "errorNoFile": "Choose an Excel file to continue.",
+        "errorMissingHeaders": "The file is missing required columns: {{missing}}. Export a template and use those headers.",
+        "errorParseFailed": "Could not read that file. Use the exported Excel template format.",
+        "errorValidation": "Invalid import data.",
+        "errorApplyFailed": "Import could not be completed. Try again.",
+        "busyDryRun": "Checking file…",
+        "busyApply": "Applying import…"
+      },
+      "exportUsers": "Export users",
+      "exportUsersAria": "Export users to Excel"
     },
     "usersNav": {
       "aria": "Users subsection",
       "list": "List users",
       "add": "Add user",
-      "importCsv": "Import CSV",
+      "importCsv": "Import users",
       "tipList": "Browse and filter all portal accounts on this page.",
       "tipAdd": "Create a single new account with email, role, and optional password.",
-      "tipImport": "Upload a CSV to create or update many students at once in a background job."
+      "tipImport": "Upload an Excel file (same format as Export users) to create accounts in bulk."
     },
     "payments": {
       "title": "Payment review",
@@ -2639,7 +2737,7 @@
           "ratio": "Collection ratio"
         },
         "empty": {
-          "noCurrentCohort": "No current cohort is set. Mark a cohort as current in the academic hub.",
+          "noCurrentCohort": "No current cohort is set. Mark a cohort as current in Cohorts & sections.",
           "noSections": "This cohort has no active sections yet.",
           "noStudentsAfterFilter": "No students match the current filter."
         },
@@ -2719,7 +2817,7 @@
         "overview": {
           "totalsTitle": "Cohort totals",
           "sectionsTitle": "Sections",
-          "noCurrentCohort": "No current cohort is set. Mark a cohort as current in the academic hub.",
+          "noCurrentCohort": "No current cohort is set. Mark a cohort as current in Cohorts & sections.",
           "noSections": "This cohort has no active sections yet.",
           "openTooltip": "Open the section to see the student matrix and bulk actions."
         },
@@ -3320,7 +3418,7 @@
       "previewSampleHint": "Sample URL and date are illustrative; the share message uses the real {brand} URL once a student earns this badge."
     },
     "registrations": {
-      "title": "Web registrations",
+      "title": "Online registrations",
       "lead": "Prospective students from the public form.",
       "none": "No registrations yet",
       "filterLabel": "Search",
@@ -3434,6 +3532,8 @@
         "attendeesSearchButton": "Search",
         "attendeesTutorSectionTitle": "Guardian / tutor",
         "attendeesCustomFieldsTitle": "Additional form answers",
+        "attendeesOpenCustomFile": "Open uploaded file",
+        "attendeesCustomFieldImageAlt": "Uploaded image for {{label}}",
         "attendeesNoPhone": "Not provided",
         "attendeesNoBirthDate": "Not provided",
         "attendeesNoPayment": "No payment required",
@@ -3842,7 +3942,7 @@
     "birthDatePickedAnnouncement": "Selected",
     "birthDateIncomplete": "Choose month and year, then use Day and pick a date.",
     "birthDateHint": "We use it to calculate age when the account is created.",
-    "studentEmailNotCollectedMinorLead": "We don't collect the student's email or phone number for minors here. The school assigns email on its institute domain after you submit; use the guardian's phone below for contact.",
+    "studentEmailNotCollectedMinorLead": "We don't collect the student's email or phone number for minors here. The school assigns email on its institute domain after you submit; use the guardian's phone for contact.",
     "tutorEmailSameAsStudent": "The guardian's email must be different from the student's email.",
     "tutorSectionTitle": "Guardian / responsible adult",
     "tutorSectionLead": "Required for minors.",
@@ -3963,20 +4063,20 @@
       "users": "Users",
       "payments": "Payments",
       "financeReceipts": "Invoice receipts",
-      "registrations": "Registrations",
+      "registrations": "Online registrations",
       "events": "Events",
       "messages": "Messages",
       "emailTemplates": "Email templates",
       "coupons": "Coupons",
       "promotions": "Promotions",
-      "settings": "Settings",
-      "academics": "Academic hub",
+      "settings": "Institute settings",
+      "academics": "Cohorts & sections",
       "calendar": "Master calendar",
-      "contents": "Contents",
+      "contents": "Academic contents",
       "transferInboxNav": "Transfer inbox",
       "retention": "Retention alerts",
       "myProfile": "My profile",
-      "cms": "Content & themes",
+      "cms": "Public site",
       "tipCms": "Manage public site templates and landing content",
       "blog": "Blog",
       "tipBlog": "Write, review, and publish public blog articles.",
@@ -3985,6 +4085,11 @@
       "groupAcademic": "Academic",
       "groupMarketing": "Marketing",
       "groupComms": "Communication",
+      "groupHelp": "Help & account",
+      "groupSiteConfig": "Site & settings",
+      "groupData": "Data",
+      "glossary": "Terms glossary",
+      "tipGlossary": "Definitions of cohort, section, promotion, guardian, and other product vocabulary.",
       "navScopeInstitution": "Institution (administration)",
       "workspaceSwitchHint": "Switch workspace:",
       "breadcrumbAdmin": "Admin",
@@ -3998,7 +4103,7 @@
       "tipHome": "Overview of metrics, alerts, and shortcuts to the main admin areas.",
       "tipAnalytics": "Traffic, funnels, and product usage charts for the last weeks.",
       "tipAudit": "Review who changed academic, section, finance, and account data.",
-      "tipUsers": "Search, filter, and manage portal accounts, roles, and CSV import.",
+      "tipUsers": "Search, filter, and manage portal accounts, roles, and Excel import/export.",
       "tipPayments": "Approve or reject payment receipts uploaded by guardians.",
       "tipFinanceReceipts": "List and verify official invoice receipts for billing periods.",
       "financeCollections": "Collections",
@@ -4020,14 +4125,14 @@
       "tipMyProfile": "Your personal profile, password, and preferences.",
       "badges": "Badges",
       "tipBadges": "Manage the catalog of student achievements: titles, images, criteria and pause status.",
-      "siteSetup": "Site setup",
+      "siteSetup": "Initial setup",
       "tipSiteSetup": "Re-run the setup wizard to update branding, contact details, and operational defaults."
     },
     "siteSetup": {
       "metaTitle": "Initial institute setup",
       "firstRunPageTitle": "Installation",
-      "pageTitle": "Institute setup",
-      "pageLead": "Configure your institute identity, logo, favicon, and contact details. They are saved to the active site theme; you can edit them anytime under Content & themes.",
+      "pageTitle": "Initial setup",
+      "pageLead": "Update institute branding, contact details, and operational defaults.",
       "bootstrap": {
         "metaTitle": "Create administrator account",
         "pageTitle": "Administrator account",
@@ -4182,7 +4287,7 @@
     "adminContents": {
       "metaTitle": "Academic contents",
       "title": "Academic contents",
-      "lead": "Browse reusable global items in the repository below, or open Learning Routes to order repository content toward pedagogical goals.",
+      "lead": "Browse reusable global items in the repository, or open Learning Routes to order repository content toward pedagogical goals.",
       "contentsTablistAria": "Switch between content repository and learning routes",
       "sectionModeTitle": "Learning routes",
       "sectionModeLead": "Create global routes and order repository content as route steps.",
@@ -4455,6 +4560,8 @@
       "title": "Learning route",
       "lead": "Adjust the proposed route, record live classes, and mark readiness after checks.",
       "planTitle": "Route",
+      "featuresDisabledTitle": "Learning features off for this section",
+      "featuresDisabledLead": "An administrator has not enabled a learning route or assessments for this class. Ask staff to turn them on under Configuration if you need them.",
       "freeFlowTitle": "Free-flow section",
       "freeFlowLead": "This section has no assigned learning route. You can still record live classes and make readiness decisions.",
       "planNamePlaceholder": "Route name",
@@ -4496,37 +4603,45 @@
       "mobileOpen": "Open menu",
       "mobileClose": "Close menu",
       "home": "Overview",
-      "calendar": "My schedule",
+      "calendar": "Attendance",
+      "progress": "Progress",
       "tasks": "Tasks",
       "badges": "Achievements",
       "assessments": "Mini-tests",
       "payments": "Payments",
       "billing": "Fees",
       "messages": "Messages",
+      "settings": "Settings",
       "myProfile": "My profile",
       "navScopeStudent": "Student area",
       "groupLearning": "Learning",
       "groupFinance": "Finance",
       "groupComms": "Communication",
       "groupYou": "Account",
+      "pwaTabBarAria": "App navigation",
       "breadcrumbNavAria": "Breadcrumb",
       "breadcrumbStudent": "Student",
-      "breadcrumbCalendar": "Schedule",
+      "breadcrumbChild": "Student",
+      "breadcrumbCalendar": "Attendance",
+      "breadcrumbProgress": "Progress",
       "breadcrumbTasks": "Tasks",
       "breadcrumbBadges": "Achievements",
       "breadcrumbAssessments": "Mini-tests",
       "breadcrumbPayments": "Payments",
       "breadcrumbBilling": "Fees",
       "breadcrumbMessages": "Messages",
+      "breadcrumbSettings": "Settings",
       "breadcrumbProfile": "Profile",
       "tipHome": "Your student home with progress, attendance, and reminders.",
       "tipCalendar": "Your weekly class times, exams, and institute events.",
+      "tipProgress": "Your tasks, mini-tests, feedback, and achievements in one place.",
       "tipTasks": "Open active lessons and mark your work complete.",
       "tipBadges": "See milestones for tasks, attendance, and learning progress. Share a link with your family.",
       "tipAssessments": "Answer mini-tests and diagnostic checks from your sections.",
       "tipPayments": "Upload monthly receipts and review past submissions.",
       "tipBilling": "Open invoices, scholarships, and exemptions for your fees.",
       "tipMessages": "Message your assigned teacher.",
+      "tipSettings": "Language and app preferences.",
       "tipMyProfile": "Your personal profile, password, and preferences."
     },
     "parentChrome": {
@@ -4738,8 +4853,2413 @@
       "openProfile": "Open profile",
       "openUserList": "Browse all users",
       "triggerAria": "Open student search",
-      "fabTitle": "Search students (also Ctrl or ⌘ + K)",
+      "fabTitle": "Search students (Ctrl or ⌘ + K)",
       "fabAria": "Open student search"
+    },
+    "adminHelpLauncher": {
+      "fabAria": "Open tutorials",
+      "fabTitle": "Tutorials",
+      "helpTitle": "Tutorials",
+      "panelDesc": "Explain this screen or choose a guided tutorial. There is no chat message box.",
+      "closePanel": "Close tutorials panel"
+    },
+    "adminHelpExplainScreen": {
+      "sectionHeading": "This screen",
+      "sectionAria": "Explain this screen",
+      "startCta": "Explain this screen",
+      "startCtaAria": "Explain this screen: {{title}}",
+      "starting": "Starting…",
+      "unavailable": "A guided explanation for this screen is coming soon.",
+      "unavailableCtaAria": "Explain this screen (not available yet)"
+    },
+    "adminHelpScreenTours": {
+      "adminHome": {
+        "meta": {
+          "title": "Admin home",
+          "description": "Overview of the sidebar, top bar, and hub cards on your main dashboard."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🏠 Your admin home",
+            "description": "This is the main admin dashboard: a snapshot of institute activity and shortcuts into the areas you use most.\n\nThis walkthrough is the only one that also explains the left menu and the top bar. On other screens, “Explain this screen” focuses on the page content only."
+          },
+          "sidebar": {
+            "title": "📂 Left menu",
+            "description": "Use the sidebar to reach every admin area: cohorts & sections, users, registrations, payments, messages, public site, settings, and more.\n\nGroups keep related tools together. Badges on some links (for example new registrations) highlight work that needs attention."
+          },
+          "chromeHeader": {
+            "title": "⬆️ Top bar",
+            "description": "The sticky header stays visible while you scroll. On the left: brand and a shortcut back to admin home. On the right: the actions we will walk through next."
+          },
+          "chromeBackToSite": {
+            "title": "🌐 View website",
+            "description": "Opens the public site (landing and marketing pages) in this same browser tab.\n\nUse it to check what families see without signing out of the admin tools."
+          },
+          "chromeTeacherPortal": {
+            "title": "🎓 Teacher dashboard",
+            "description": "If your account also has teaching access, this shortcut opens the teacher workspace (sections, attendance, class tools).\n\nIf you do not see it, your admin profile is not linked to teaching access — that is normal for many staff accounts."
+          },
+          "chromeSignOut": {
+            "title": "🚪 Sign out",
+            "description": "Ends your session securely and returns you to the public site.\n\nAlways sign out on shared computers."
+          },
+          "chromeLocale": {
+            "title": "🗣️ Language",
+            "description": "Switches the admin interface language (Spanish, English, or Portuguese) while keeping you on the same page.\n\nIt changes labels and help text — not your institute’s public content language settings."
+          },
+          "titleBlock": {
+            "title": "📋 Hub title",
+            "description": "The page title and lead introduce this home view. Everything below is a live summary — not a separate settings page."
+          },
+          "studentsWithoutSection": {
+            "title": "⚠️ Students without a section",
+            "description": "When students are enrolled in the institute but not yet assigned to a class section, this banner appears with a count and a link to Users so you can fix it.\n\nIf you do not see it, every student currently has a section — that is normal."
+          },
+          "birthdays": {
+            "title": "🎂 Upcoming birthdays",
+            "description": "A friendly list of student birthdays coming up. Useful for classroom culture; it does not replace academic or billing workflows."
+          },
+          "traffic": {
+            "title": "📈 Site traffic",
+            "description": "Hits over the last 30 days, split between signed-in users and guests, plus a week-over-week trend.\n\nOpen the card to go to Analytics for deeper breakdowns."
+          },
+          "users": {
+            "title": "👥 Users",
+            "description": "Total profiles in the institute and a quick split by role. Open the card to manage students, parents, teachers, and staff."
+          },
+          "payments": {
+            "title": "💳 Payments",
+            "description": "Shows how many payments are waiting for review. When the count is zero, you are caught up.\n\nOpen the card to review receipts and pending items."
+          },
+          "registrations": {
+            "title": "📝 Registrations",
+            "description": "New public registration requests waiting for staff review, plus the overall total.\n\nOpen the card to process the queue."
+          },
+          "messages": {
+            "title": "💬 Messages",
+            "description": "Recent inbound messages and a short preview of the latest one. Open the card to read and reply in the messaging inbox."
+          },
+          "closing": {
+            "title": "✅ You are ready",
+            "description": "That is the admin home. Use the left menu for day-to-day work, and open this help button anytime.\n\nOn other admin screens you can ask to explain that section’s content, or start a how-to tutorial such as creating a cohort."
+          }
+        }
+      },
+      "adminUsers": {
+        "meta": {
+          "title": "Users",
+          "description": "Directory of portal accounts: search, filter by role, and manage people."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "👥 Users directory",
+            "description": "This screen lists every portal profile in your institute (students, parents, teachers, staff).\n\nUse it to find people, open a profile, or jump to create/import flows from the section tabs."
+          },
+          "subnav": {
+            "title": "📑 Section tabs",
+            "description": "Switch between the user list, add-user form, and CSV import without leaving Users."
+          },
+          "titleBlock": {
+            "title": "📋 Page purpose",
+            "description": "The title and lead remind you this is the live account directory for your project — not a separate CRM."
+          },
+          "toolbar": {
+            "title": "🔎 Search & role filters",
+            "description": "Search by email, name, phone, or ID. Role chips show counts and narrow the table so you can focus on one persona type."
+          },
+          "table": {
+            "title": "📄 Results table",
+            "description": "Each row is a profile you can open or act on. Sort and pagination keep large directories manageable — totals come from the server, not just the current page."
+          },
+          "closing": {
+            "title": "✅ Next steps",
+            "description": "Open a row for detail, or use Add user / Import when you need to create accounts. Help stays available on other admin screens."
+          }
+        }
+      },
+      "adminUsersNew": {
+        "meta": {
+          "title": "Add user",
+          "description": "Create a single portal account with role, identity fields, and optional guardian link."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "➕ Add user form",
+            "description": "This page creates one profile at a time — student, parent, teacher, or staff.\n\nUse it when you need careful data entry or guardian linking; bulk loads belong on Import."
+          },
+          "titleBlock": {
+            "title": "📋 Page purpose",
+            "description": "The heading and lead explain that you are registering a new portal identity, not editing an existing row from the directory."
+          },
+          "form": {
+            "title": "📝 Account form",
+            "description": "All required fields live in this panel. The form validates locally first, then the server enforces institute rules (roles, minors, duplicates)."
+          },
+          "role": {
+            "title": "🎭 Role selector",
+            "description": "Pick who this person is in the product. Role drives which extra blocks appear (birth date for students, email rules, guardian panel for minors)."
+          },
+          "credentials": {
+            "title": "🔐 Login credentials",
+            "description": "Set the password the person will use on first sign-in. For students who are minors, email may be synthetic until a guardian is linked."
+          },
+          "guardian": {
+            "title": "👨‍👩‍👧 Guardian link (minors)",
+            "description": "When the birth date marks a minor student, link an existing parent or capture a new guardian here before saving."
+          },
+          "submit": {
+            "title": "✅ Create account",
+            "description": "Submit only after reviewing role and identity. Success returns you to the user directory or detail — this tour never saves for you."
+          },
+          "closing": {
+            "title": "✅ Next steps",
+            "description": "Need many rows? Switch to Import users. To adjust someone later, open their profile from the Users list."
+          }
+        }
+      },
+      "adminUsersImport": {
+        "meta": {
+          "title": "Import users",
+          "description": "Upload a spreadsheet to preview new and duplicate rows before applying."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📤 Bulk import",
+            "description": "Import users loads many accounts from Excel or CSV.\n\nYou always get a dry-run preview before anything is written — duplicates can be skipped or updated explicitly."
+          },
+          "titleBlock": {
+            "title": "📋 Page purpose",
+            "description": "The title and lead describe the expected file shape and that import runs as a guided preview → confirm flow."
+          },
+          "chooseFile": {
+            "title": "📁 Choose spreadsheet",
+            "description": "Pick your .xlsx or .csv file here. The app parses it server-side and shows counts of new, duplicate, and invalid rows — no silent writes."
+          },
+          "closing": {
+            "title": "✅ Next steps",
+            "description": "After preview, confirm only when counts look right. For one-off accounts, use Add user instead."
+          }
+        }
+      },
+      "adminUserDetail": {
+        "meta": {
+          "title": "User profile",
+          "description": "View and edit identity, academic, family, payments, and security for one account."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "👤 User dossier",
+            "description": "This page is the staff view of one portal account.\n\nTabs group summary fields, academic placement, family links, billing shortcuts, and security tools."
+          },
+          "titleBlock": {
+            "title": "📋 Identity header",
+            "description": "Name, role badge, and email confirm which person you are editing. Student avatars can be updated here when your role allows inline edit."
+          },
+          "tabsIntro": {
+            "title": "📑 Profile tabs",
+            "description": "The underline bar groups everything staff can change about one account.\n\nClick a tab to load its panel below — badges flag pending payments or academic items that need attention."
+          },
+          "tabSummary": {
+            "title": "👤 Summary tab",
+            "description": "Core identity fields: name, contact data, role, and inline profile edits allowed for your permissions.\n\nStart here to confirm you opened the right person before changing academic or security settings."
+          },
+          "tabAcademic": {
+            "title": "🎓 Academic tab",
+            "description": "Cohort placement, section enrollments, and academic shortcuts for students (and related tools for other roles).\n\nUse it when moving someone between classes or reviewing which sections they belong to."
+          },
+          "tabPayments": {
+            "title": "💳 Payments tab",
+            "description": "Student-only shortcut to billing context: pending charges and a link to the full Student billing page.\n\nHidden for non-students. A badge shows open payment work."
+          },
+          "tabFamily": {
+            "title": "👨‍👩‍👧 Family tab",
+            "description": "Guardian ↔ student links for students, or linked wards for parent accounts.\n\nAdd or review tutors/guardians here instead of creating duplicate user records."
+          },
+          "tabSecurity": {
+            "title": "🔒 Security tab",
+            "description": "Password resets, login email changes, and other sensitive account controls.\n\nChanges may require step-up verification and notify the account holder — treat edits as high impact."
+          },
+          "closing": {
+            "title": "✅ Edit with care",
+            "description": "Security and billing changes affect live login and charges. Prefer the dedicated billing page for scholarships and payment history depth."
+          }
+        }
+      },
+      "adminUserBilling": {
+        "meta": {
+          "title": "Student billing",
+          "description": "Payment history, scholarships, and enrollment fee tools for one student."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "💳 Billing workspace",
+            "description": "This page concentrates tuition operations for a single student.\n\nPick a section benefit, review the month grid, then use tabs for history, scholarships, and enrollment fees."
+          },
+          "titleBlock": {
+            "title": "📋 Billing context",
+            "description": "The title and student name line confirm whose ledger you are viewing — distinct from the lighter Payments tab on the profile."
+          },
+          "tabsIntro": {
+            "title": "📑 Billing tabs",
+            "description": "Three tabs sit under the monthly matrix for the selected section benefit.\n\nSwitch tabs to read history, manage scholarships, or review enrollment-fee status without leaving this student."
+          },
+          "tabHistory": {
+            "title": "📜 Payment history tab",
+            "description": "Read-only ledger of recorded payments for this student in the chosen section.\n\nUse it to answer family questions or verify what was already marked paid — not to apply new scholarships."
+          },
+          "tabScholarships": {
+            "title": "🎓 Scholarships tab",
+            "description": "Lists active percentage or fixed-amount scholarships and lets you remove ones that should end.\n\nApply new scholarships from the monthly matrix above; this tab focuses on reviewing and clearing existing benefits."
+          },
+          "tabEnrollment": {
+            "title": "📝 Enrollment fee tab",
+            "description": "Enrollment charge status, exemptions, and receipt context for the selected section.\n\nPair with the matrix when a family pays enrollment separately from monthly tuition."
+          },
+          "closing": {
+            "title": "✅ Keep ledgers accurate",
+            "description": "Record payments from the month grid above when families pay outside gateways. Use Scholarships for discounts before chasing overdue months."
+          }
+        }
+      },
+      "adminRegistrations": {
+        "meta": {
+          "title": "Registrations",
+          "description": "Public web registration requests waiting for staff review."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📝 Web registrations",
+            "description": "Families submit interest from the public site. This queue is where staff accept, edit, or decline those requests before they become portal users."
+          },
+          "titleBlock": {
+            "title": "📋 What this list is",
+            "description": "The heading marks the registrations inbox — separate from the Users directory until someone is accepted."
+          },
+          "toolbar": {
+            "title": "🔎 Find a request",
+            "description": "Search and counters help you see how many requests match your filter versus the full queue."
+          },
+          "table": {
+            "title": "📄 Request rows",
+            "description": "Each row is one registration with status and actions (accept, edit, delete). Process new items promptly so families are not left waiting."
+          },
+          "closing": {
+            "title": "✅ Keep the queue clear",
+            "description": "After accept, the person usually appears under Users. Return here whenever the sidebar badge shows new items."
+          }
+        }
+      },
+      "adminEvents": {
+        "meta": {
+          "title": "Events",
+          "description": "Create and manage institute events, capacity, and attendees."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📅 Events list",
+            "description": "Events are public or internal activities with dates, capacity, and optional payments. This list is the starting point to create or manage them."
+          },
+          "titleBlock": {
+            "title": "📋 Events overview",
+            "description": "The title introduces the events workspace for your institute."
+          },
+          "kpis": {
+            "title": "📊 Quick counts",
+            "description": "Upcoming and waitlist counts give a snapshot before you open a specific event."
+          },
+          "createCta": {
+            "title": "➕ Create event",
+            "description": "Starts the create flow for a new event. Fill schedule and capacity carefully — attendees depend on those settings."
+          },
+          "table": {
+            "title": "📄 Event rows",
+            "description": "Open Manage on a row to edit details, attendees, and exports. Status and capacity columns help prioritize."
+          },
+          "closing": {
+            "title": "✅ Run an event well",
+            "description": "Create early, monitor capacity, and use attendee tools on the event detail page."
+          }
+        }
+      },
+      "adminEventsNew": {
+        "meta": {
+          "title": "Create event",
+          "description": "Define schedule, capacity, and pricing before publishing."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "➕ New event form",
+            "description": "This page creates a single event record.\n\nSet date, location, and capacity here — attendee registration and payments are configured after you save."
+          },
+          "titleBlock": {
+            "title": "📋 Page purpose",
+            "description": "The heading explains you are drafting a new event, not editing an existing row from the list."
+          },
+          "form": {
+            "title": "📝 Event details",
+            "description": "Title and description appear on the public event page when published. Keep wording clear for families scanning the calendar."
+          },
+          "schedule": {
+            "title": "🗓 Schedule & location",
+            "description": "Event date and venue drive reminders and capacity checks. Double-check timezone-sensitive fields before saving."
+          },
+          "pricing": {
+            "title": "💳 Pricing",
+            "description": "Optional local and non-local prices plus currency. Gateway availability may depend on finance settings configured elsewhere."
+          },
+          "submit": {
+            "title": "✅ Save event",
+            "description": "Saving creates the draft and opens the detail workspace. This tour never submits for you."
+          },
+          "closing": {
+            "title": "✅ Next steps",
+            "description": "After save, use the event detail tabs to publish, manage attendees, and review payments."
+          }
+        }
+      },
+      "adminEventDetail": {
+        "meta": {
+          "title": "Event detail",
+          "description": "Publish, edit form fields, attendees, payments, and notifications for one event."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📅 Event workspace",
+            "description": "This page is the control room for a single event.\n\nTabs separate summary edits, registration form, attendees, payments, waitlist, and notifications."
+          },
+          "titleBlock": {
+            "title": "📋 Event identity",
+            "description": "The title shows which event you are managing, with status and view count for quick context."
+          },
+          "tabsIntro": {
+            "title": "📑 Event tabs",
+            "description": "Each tab owns one slice of event operations — publishing, form fields, people, money, waitlist, and emails.\n\nUse the bar to jump tasks without losing event context."
+          },
+          "tabSummary": {
+            "title": "📋 Summary tab",
+            "description": "Draft/publish state, pricing, schedule, and localized title and description.\n\nPublish only when public copy and dates are final; unpublish hides the event while keeping registrations."
+          },
+          "tabForm": {
+            "title": "📝 Registration form tab",
+            "description": "Built-in and custom fields families fill on the public registration page.\n\nAdjust required questions here before sharing the event link."
+          },
+          "tabAttendees": {
+            "title": "👥 Attendees tab",
+            "description": "Registered participants and their enrollment status for this event.\n\nUse it for headcount, check-in prep, and manual status fixes."
+          },
+          "tabPayments": {
+            "title": "💳 Payments tab",
+            "description": "Transfer receipts and payment statuses tied to registrations.\n\nApprove or reject proofs before marking attendees as fully paid."
+          },
+          "tabWaitlist": {
+            "title": "⏳ Waitlist tab",
+            "description": "People waiting for a spot when capacity is full.\n\nPromote manually when seats open — promotion usually sends the family back through payment if required."
+          },
+          "tabNotifications": {
+            "title": "🔔 Notifications tab",
+            "description": "Reminder and payment-decision emails triggered from default templates.\n\nReview what the system sends so families are not surprised by automated messages."
+          },
+          "publish": {
+            "title": "🚀 Publish controls",
+            "description": "On the Summary tab, publish makes the event visible publicly; unpublish hides it while keeping registrations intact."
+          },
+          "closing": {
+            "title": "✅ Operate confidently",
+            "description": "Publish only when details are final, then monitor attendees and payments from the dedicated tabs."
+          }
+        }
+      },
+      "adminFinance": {
+        "meta": {
+          "title": "Finance",
+          "description": "Collections, payment inbox, event payments, insights, and finance settings."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "💳 Finance hub",
+            "description": "Finance brings tuition collections, receipt review, event payments, and trends into one tabbed hub.\n\nPick a tab for the job you need — do not confuse the payment inbox with the collections matrix."
+          },
+          "header": {
+            "title": "📋 Hub header",
+            "description": "Confirms you are in the institute finance workspace."
+          },
+          "tabsIntro": {
+            "title": "📑 Finance tabs",
+            "description": "Five hub tabs separate collections health, receipt review, event money, trends, and configuration.\n\nBadges on inbox-related tabs highlight pending approvals."
+          },
+          "tabCollections": {
+            "title": "📊 Collections tab",
+            "description": "Section-by-section collection health for the selected cohort, with export and bulk reminder tools.\n\nOpen a section row to drill into its monthly matrix and billing settings."
+          },
+          "tabInbox": {
+            "title": "📥 Payment inbox tab",
+            "description": "Approve or reject payment receipts uploaded by families — monthly tuition, enrollment fees, and invoice receipts in one queue.\n\nThis is not the collections matrix; it is proof review before invoices flip to paid."
+          },
+          "tabEvents": {
+            "title": "🎟 Events tab",
+            "description": "Review event payment statuses and pending event transfer receipts.\n\nUse when workshops or camps collect money outside regular section billing."
+          },
+          "tabInsights": {
+            "title": "📈 Insights tab",
+            "description": "Collection trends, receipt processing metrics, year-end projections, and section health alerts.\n\nGood for leadership reviews — not for day-to-day receipt clicks."
+          },
+          "tabSettings": {
+            "title": "⚙️ Settings tab",
+            "description": "Institute-wide finance preferences such as default currency and gateway-related options.\n\nChanges here affect every section’s checkout experience."
+          },
+          "cohortYear": {
+            "title": "📆 Cohort & year",
+            "description": "Filters collections and related views to a school year / cohort. Always check this before acting on numbers."
+          },
+          "closing": {
+            "title": "✅ Money workflows",
+            "description": "Review inbox items, reconcile collections, then use Insights for trends. Settings hold currency and gateway options."
+          }
+        }
+      },
+      "adminFinanceCollectionsSection": {
+        "meta": {
+          "title": "Section collections",
+          "description": "Monthly payment matrix, billing settings, history, scholarships, and enrollment fees for one section."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "💳 Section collections",
+            "description": "This drill-down focuses on one section's tuition matrix and related billing tools.\n\nUse it after picking a section from the Finance hub collections overview."
+          },
+          "titleBlock": {
+            "title": "📋 Section header",
+            "description": "Confirms the section name, cohort, and year filter. Use the back link to return to the hub matrix."
+          },
+          "tabsIntro": {
+            "title": "📑 Section billing tabs",
+            "description": "Five tabs cover the monthly matrix plus configuration, history, scholarships, and enrollment charges for one section.\n\nConfirm the section header and year filter before acting on money."
+          },
+          "tabMatrix": {
+            "title": "📊 Collections matrix tab",
+            "description": "Students × months grid showing paid, open, and overdue tuition cells for this section.\n\nRecord manual payments, send reminders, and spot gaps before families escalate."
+          },
+          "tabSettings": {
+            "title": "⚙️ Configuration tab",
+            "description": "Section billing rules that affect checkout, receipts, and proration for mid-month enrollments.\n\nMisconfigured settings here propagate to every family in the class."
+          },
+          "tabHistory": {
+            "title": "📜 Payment history tab",
+            "description": "Paginated list of payments recorded for this section across all students.\n\nOpen flow detail when you need gateway settlement data for support."
+          },
+          "tabScholarships": {
+            "title": "🎓 Scholarships tab",
+            "description": "Bulk and per-student scholarship tools scoped to this section.\n\nApply discounts before marking months paid — removing scholarships also happens here or from student billing."
+          },
+          "tabEnrollment": {
+            "title": "📝 Enrollment fees tab",
+            "description": "Enrollment charge configuration and bulk operations for this section’s intake fees.\n\nPair with the matrix when families pay enrollment separately from monthly plans."
+          },
+          "closing": {
+            "title": "✅ Reconcile here",
+            "description": "Fix overdue cells in the matrix, then use History or Scholarships when families need adjustments."
+          }
+        }
+      },
+      "adminFinanceReceiptDetail": {
+        "meta": {
+          "title": "Receipt review",
+          "description": "Compare a uploaded transfer receipt against the invoice and approve or reject."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🧾 Receipt review",
+            "description": "Staff verify bank-transfer proofs before marking an invoice paid.\n\nOpen this screen from Finance → Payment inbox when a receipt waits approval."
+          },
+          "titleBlock": {
+            "title": "📋 Review title",
+            "description": "Confirms you are in the split review layout for one pending receipt."
+          },
+          "preview": {
+            "title": "🖼 Receipt preview",
+            "description": "Image or PDF from the family upload. Zoom mentally on amount, date, and beneficiary before approving."
+          },
+          "actions": {
+            "title": "✅ Approve or reject",
+            "description": "Compare expected vs paid amounts, then approve or reject with a reason families will see."
+          },
+          "closing": {
+            "title": "✅ Decide promptly",
+            "description": "Pending receipts block enrollment flows. Return to the inbox after you finish."
+          }
+        }
+      },
+      "adminAcademic": {
+        "meta": {
+          "title": "Academics",
+          "description": "Annual cohorts and the sections inside them."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🏫 Cohorts & sections",
+            "description": "A cohort is the annual container for the school year. Sections (shifts, courses) live inside a cohort — create the year first, then add sections."
+          },
+          "titleBlock": {
+            "title": "📋 Cohorts & sections",
+            "description": "This screen lists cohorts and lets you open the one you work on."
+          },
+          "newCohort": {
+            "title": "➕ New cohort",
+            "description": "Creates another annual cohort. Prefer one cohort per calendar year unless you intentionally need another."
+          },
+          "boardTabs": {
+            "title": "📑 Current / Active / Archived",
+            "description": "Organize cohorts by status so the current year stays easy to find."
+          },
+          "cohortList": {
+            "title": "📚 Cohort rows",
+            "description": "Open a cohort to manage its sections. You can also mark which cohort is current for the institute."
+          },
+          "closing": {
+            "title": "✅ Build the year",
+            "description": "Need a guided create flow? Use the task tutorials for New cohort or New section from this help panel."
+          }
+        }
+      },
+      "adminCohortDetail": {
+        "meta": {
+          "title": "Cohort detail",
+          "description": "Overview, sections, retention, and transfer inbox for one academic year."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🎓 Cohort workspace",
+            "description": "Each cohort groups sections for one academic year.\n\nUse tabs to review KPIs, manage classes, follow retention risks, and handle transfer requests."
+          },
+          "titleBlock": {
+            "title": "📋 Cohort name",
+            "description": "The heading shows which year you opened. Badges mark current or archived cohorts."
+          },
+          "tabsIntro": {
+            "title": "📑 Cohort tabs",
+            "description": "Four tabs keep annual operations in one place: headline metrics, class list, retention risks, and transfer requests.\n\nSwitch tabs instead of leaving the cohort page."
+          },
+          "tabOverview": {
+            "title": "📊 Overview tab",
+            "description": "Archive, restore, or delete the cohort and review headline metrics such as active students and section count.\n\nUse lifecycle actions here when a school year ends — not from individual sections."
+          },
+          "tabSections": {
+            "title": "📚 Sections tab",
+            "description": "Cards for every class in this cohort — add sections, open section detail, and copy designs from prior years.\n\nShifts and timetables belong in sections, not in separate cohorts."
+          },
+          "tabRetention": {
+            "title": "⚠️ Retention tab",
+            "description": "Students across this cohort’s sections who need follow-up for absences or low averages.\n\nCoordinate outreach before problems compound across multiple classes."
+          },
+          "tabTransfers": {
+            "title": "🔁 Transfers tab",
+            "description": "Pending teacher requests to move students between sections (into or out of this cohort).\n\nApprove here instead of deleting and re-enrolling manually — history stays auditable."
+          },
+          "closing": {
+            "title": "✅ Keep structure tidy",
+            "description": "Archive cohorts when a year ends. Use transfers instead of manual enrollments when students move sections."
+          }
+        }
+      },
+      "adminSectionAttendance": {
+        "meta": {
+          "title": "Section attendance",
+          "description": "Matrix view to record present, absent, or late for each class day."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "✅ Attendance matrix",
+            "description": "This page records attendance for one section across scheduled class days.\n\nCells update student records used in reports and parent portals."
+          },
+          "titleBlock": {
+            "title": "📋 Section context",
+            "description": "The title confirms you are in the attendance tool; the subtitle names the section."
+          },
+          "workspace": {
+            "title": "📊 Attendance shell",
+            "description": "When the section has eligible class days, the matrix loads here. Empty states explain missing schedules or dates outside the term."
+          },
+          "matrix": {
+            "title": "🗓 Grid & view tabs",
+            "description": "Switch between month and list views, then tap cells to set status. Future dates may stay read-only until the class day."
+          },
+          "closing": {
+            "title": "✅ Record promptly",
+            "description": "Take attendance soon after class so families see accurate data. Use the section page link above to return to enrollments and settings."
+          }
+        }
+      },
+      "adminSectionDetail": {
+        "meta": {
+          "title": "Section detail",
+          "description": "Section hub with health overview and work-area cards for configuration, staff, route, fees, attendance, and roster."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📚 Section workspace",
+            "description": "Each section is one class inside an annual cohort — create the cohort year first, then add sections for shifts and courses.\n\nThis page is the daily control room: health, schedule, staff, learning path, assessments, fees, attendance, and enrollments."
+          },
+          "titleBlock": {
+            "title": "📋 Section header",
+            "description": "Shows section name, cohort, lead teacher summary, and archive badges.\n\nLifecycle actions on the right archive or remove the section when it should no longer accept students."
+          },
+          "hubAreas": {
+            "title": "🗂 Work area cards",
+            "description": "Start here — each card opens one job: configuration, teachers, fees, attendance, students, and optional learning route or assessments when enabled for the section.\n\nInside an area, use Back to return here or the switcher to jump to another area without scanning a long tab strip."
+          },
+          "hubOverview": {
+            "title": "📊 Section pulse",
+            "description": "Below the cards: a short KPI strip, alert chips when needed, and two charts — attendance mix and payment debt.\n\nUse these signals to decide which work area to open next."
+          },
+          "closing": {
+            "title": "✅ Daily operations",
+            "description": "Work from the hub: configure dates and teachers, enroll students, then attendance and fees.\n\nOpen Finance → Collections when you need the monthly payment matrix for this section."
+          }
+        }
+      },
+      "adminCalendar": {
+        "meta": {
+          "title": "Calendar",
+          "description": "School-wide schedule of classes, exams, and special events."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🗓️ Master calendar",
+            "description": "Shows institute schedule items across teachers and rooms — not only your personal agenda."
+          },
+          "titleBlock": {
+            "title": "📋 Schedule title",
+            "description": "Confirms you are on the admin master calendar view."
+          },
+          "filters": {
+            "title": "🎛️ Teacher & room filters",
+            "description": "Narrow the board when the full schedule is dense."
+          },
+          "schedule": {
+            "title": "📐 Week board",
+            "description": "Classes, exams, special events, and birthdays appear here with a legend. Use special-events management for one-off items when available."
+          },
+          "closing": {
+            "title": "✅ Stay oriented",
+            "description": "Filter first, then scan the board. Detail edits usually live on academic or events screens."
+          }
+        }
+      },
+      "adminContents": {
+        "meta": {
+          "title": "Academic contents",
+          "description": "Global content repository and learning routes."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📚 Contents hub",
+            "description": "Reusable learning materials and routes live here. Repository templates are shared; routes assemble a learning path."
+          },
+          "titleBlock": {
+            "title": "📋 Contents title",
+            "description": "Marks the academic contents workspace."
+          },
+          "tabsIntro": {
+            "title": "📑 Contents tabs",
+            "description": "Two tabs split reusable items from ordered learning paths.\n\nBuild templates first, then assemble routes that sections can adopt later."
+          },
+          "tabRepository": {
+            "title": "📚 Content repository tab",
+            "description": "Browse and create global learning materials: text, media, assessments, and templates shared across sections.\n\nNothing here is tied to a live class until a section or route references it."
+          },
+          "tabRoutes": {
+            "title": "🛤 Learning routes tab",
+            "description": "Cards for global routes — ordered sequences built from repository content.\n\nSections pick a route on their Learning route tab or stay in free-flow mode."
+          },
+          "closing": {
+            "title": "✅ Content vs sections",
+            "description": "Assigning materials to a live class section usually happens from the section tools after content exists here."
+          }
+        }
+      },
+      "adminBadges": {
+        "meta": {
+          "title": "Badges",
+          "description": "Achievement badges students can earn."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🏅 Badges catalog",
+            "description": "Define badge criteria (tasks, attendance, community, …) that motivate students."
+          },
+          "header": {
+            "title": "📋 Badges header",
+            "description": "Page title and context for the badges list."
+          },
+          "createCta": {
+            "title": "➕ Create badge",
+            "description": "Opens the form to add a new badge with image, code, and criteria."
+          },
+          "categoryTabs": {
+            "title": "📑 Categories",
+            "description": "Filter badges by category so large catalogs stay scannable."
+          },
+          "table": {
+            "title": "📄 Badge rows",
+            "description": "Edit, reorder, or deactivate badges from the table actions."
+          },
+          "closing": {
+            "title": "✅ Award thoughtfully",
+            "description": "Clear criteria prevent confusion. Keep inactive badges archived rather than deleting history carelessly."
+          }
+        }
+      },
+      "adminCoupons": {
+        "meta": {
+          "title": "Coupons",
+          "description": "Discount codes for registration or payments."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🎟️ Discount coupons",
+            "description": "Create codes with type, value, validity window, and max uses. Active toggles control whether families can redeem them."
+          },
+          "titleBlock": {
+            "title": "📋 Coupons page",
+            "description": "Create form and list share this screen."
+          },
+          "createForm": {
+            "title": "✍️ New coupon form",
+            "description": "Fill code, discount type/value, and dates before submitting. Avoid overlapping ambiguous codes."
+          },
+          "table": {
+            "title": "📄 Existing coupons",
+            "description": "Review uses and toggle active state. Deactivate instead of deleting when you need an audit trail."
+          },
+          "closing": {
+            "title": "✅ Share carefully",
+            "description": "Only publish codes when the campaign is ready — active coupons can be redeemed immediately."
+          }
+        }
+      },
+      "adminPromotions": {
+        "meta": {
+          "title": "Promotions",
+          "description": "Named promotions with discount rules and applicability."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🎁 Promotions",
+            "description": "Promotions are structured offers (often broader than a single coupon code) with applicability rules."
+          },
+          "titleBlock": {
+            "title": "📋 Promotions page",
+            "description": "Create and review promotions in one place."
+          },
+          "createForm": {
+            "title": "✍️ New promotion",
+            "description": "Name, discount, and who it applies to. Double-check dates and limits before saving."
+          },
+          "table": {
+            "title": "📄 Promotion list",
+            "description": "Track uses and status of each promotion from the table."
+          },
+          "closing": {
+            "title": "✅ Align with coupons",
+            "description": "Prefer one clear offer path for families so support is not confused between coupons and promotions."
+          }
+        }
+      },
+      "adminMessages": {
+        "meta": {
+          "title": "Messages",
+          "description": "Staff inbox for received and sent institute messages."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "💬 Messaging",
+            "description": "Read inbound family/staff messages and review what you sent. Compose opens a separate write flow."
+          },
+          "titleBlock": {
+            "title": "📋 Messages title",
+            "description": "You are in the admin messaging workspace."
+          },
+          "composeCta": {
+            "title": "✍️ Write message",
+            "description": "Starts a new outbound message to selected recipients."
+          },
+          "tabsIntro": {
+            "title": "📑 Mailbox tabs",
+            "description": "Received and Sent split inbound threads from outbound mail you authored.\n\nFilters above narrow by participant after you pick a direction."
+          },
+          "tabInbox": {
+            "title": "📥 Received tab",
+            "description": "Threads where teachers, staff, students, or the public contact form wrote to administration.\n\nClear this queue regularly — the sidebar badge tracks recent inbound volume."
+          },
+          "tabSent": {
+            "title": "📤 Sent tab",
+            "description": "Everything this admin account sent from the portal compose flow.\n\nUse it to confirm a message went out or to reopen a thread you started."
+          },
+          "list": {
+            "title": "📨 Thread list",
+            "description": "Open a thread to read and reply. Unread or recent items usually sort near the top."
+          },
+          "closing": {
+            "title": "✅ Stay responsive",
+            "description": "Clear the inbound queue regularly — the sidebar badge tracks recent inbound volume."
+          }
+        }
+      },
+      "adminMessagesCompose": {
+        "meta": {
+          "title": "Compose message",
+          "description": "Write a new outbound message or reply to an inbound thread."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "✍️ Compose flow",
+            "description": "This page sends a single message to one recipient.\n\nUse it for proactive outreach or replies opened from the inbox — not bulk campaigns."
+          },
+          "titleBlock": {
+            "title": "📋 Compose purpose",
+            "description": "The heading confirms you are drafting a message, not browsing the mailbox list."
+          },
+          "recipient": {
+            "title": "👤 Recipient",
+            "description": "Search and pick the profile who receives the message. Reply flows may pre-fill the sender from the thread you opened."
+          },
+          "body": {
+            "title": "📝 Message body",
+            "description": "Rich text supports links and basic formatting. Keep tone clear — families read this in their portal inbox."
+          },
+          "send": {
+            "title": "📤 Send",
+            "description": "Send delivers immediately to the recipient's inbox. This tour never submits for you."
+          },
+          "closing": {
+            "title": "✅ After sending",
+            "description": "Successful sends return to the list or show confirmation here. Follow up from Sent if you need the thread again."
+          }
+        }
+      },
+      "adminMessageDetail": {
+        "meta": {
+          "title": "Message detail",
+          "description": "Read one thread, see participants, and reply or delete."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📨 Message thread",
+            "description": "This page shows a single message with sender, recipient, body, and reply actions.\n\nUse it to understand context before responding."
+          },
+          "titleBlock": {
+            "title": "📋 Detail heading",
+            "description": "Confirms you are reading one message, not scanning the inbox list."
+          },
+          "participants": {
+            "title": "👥 From / To",
+            "description": "Shows who sent the message and who received it, with role badges for quick context."
+          },
+          "body": {
+            "title": "📄 Message content",
+            "description": "Full HTML body as the recipient saw it. Empty bodies show a placeholder instead of a blank panel."
+          },
+          "actions": {
+            "title": "↩️ Reply & delete",
+            "description": "Reply opens compose with the sender pre-selected. Reply with default inserts your institute template. Delete removes the thread from your mailbox."
+          },
+          "closing": {
+            "title": "✅ Respond thoughtfully",
+            "description": "Prefer Reply with default for consistent tone on site-contact threads; use plain Reply when you need a custom answer."
+          }
+        }
+      },
+      "adminEmailTemplates": {
+        "meta": {
+          "title": "Email templates",
+          "description": "Edit transactional email subject and HTML for allowed staff."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "✉️ Template editor",
+            "description": "Only platform mega-admins see this nav item. Changes affect emails the system sends — preview before saving."
+          },
+          "titleBlock": {
+            "title": "📋 Templates header",
+            "description": "Context for the email template workspace."
+          },
+          "select": {
+            "title": "📑 Template & locale",
+            "description": "Pick which template and language variant you are editing."
+          },
+          "editor": {
+            "title": "📝 Subject & body",
+            "description": "Edit subject and HTML carefully. Dangerous markup is sanitized on save."
+          },
+          "preview": {
+            "title": "👁️ Preview",
+            "description": "Check how the email will look before you commit changes."
+          },
+          "closing": {
+            "title": "✅ Save with intent",
+            "description": "Use Save when ready; Reset discards unsaved edits for the current selection."
+          }
+        }
+      },
+      "adminBlog": {
+        "meta": {
+          "title": "Blog",
+          "description": "Publish and manage public blog articles when blog is enabled."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📰 Blog articles",
+            "description": "Create drafts, submit for review, publish, pin, or archive articles that appear on the public site."
+          },
+          "titleBlock": {
+            "title": "📋 Blog list title",
+            "description": "You are in the blog CMS list."
+          },
+          "createCta": {
+            "title": "➕ New article",
+            "description": "Starts a new article draft."
+          },
+          "articleList": {
+            "title": "🃏 Article cards",
+            "description": "Status, views, and row actions (publish, pin, archive, delete, copy link) live on each card."
+          },
+          "closing": {
+            "title": "✅ Publish with care",
+            "description": "Preview public URLs after publish. Pin only cornerstone posts."
+          }
+        }
+      },
+      "adminBlogNew": {
+        "meta": {
+          "title": "New blog article",
+          "description": "Draft a multilingual article before review or publish."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "✍️ New article editor",
+            "description": "This page creates a blog draft.\n\nWrite title, body, and metadata per locale tab — nothing goes public until you publish from the list or after review."
+          },
+          "editor": {
+            "title": "📝 Editor workspace",
+            "description": "Locale tabs switch which translation you edit. The hint below the tabs confirms the active language."
+          },
+          "titleField": {
+            "title": "📌 Title",
+            "description": "Headline shown on the public blog and in admin cards. Keep it specific — families scan titles first."
+          },
+          "body": {
+            "title": "📄 Body",
+            "description": "Rich text, images, and embedded media for the article. Use materials below the editor when you need downloadable files."
+          },
+          "meta": {
+            "title": "🏷 Status & scheduling",
+            "description": "Status, tags, schedule date, and pin control publication behavior. Draft is safe while you iterate."
+          },
+          "save": {
+            "title": "💾 Save article",
+            "description": "Persists the current locale and metadata. Saving does not publish — it keeps your draft on the server."
+          },
+          "closing": {
+            "title": "✅ Next steps",
+            "description": "After the first save, use the blog list to submit for review, publish, or share preview links."
+          }
+        }
+      },
+      "adminBlogEdit": {
+        "meta": {
+          "title": "Edit blog article",
+          "description": "Update copy, materials, and publication settings for one article."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "✍️ Article editor",
+            "description": "You are editing an existing blog record.\n\nChanges affect the public page once published — check locale tabs before saving."
+          },
+          "editor": {
+            "title": "📝 Editor workspace",
+            "description": "Same layout as new articles: locale tabs, fields, metadata, and save. Translate buttons appear when Google Translate is configured."
+          },
+          "titleField": {
+            "title": "📌 Title",
+            "description": "Update the headline for the active locale. Slugs and share links may depend on saved titles."
+          },
+          "body": {
+            "title": "📄 Body",
+            "description": "Revise rich content and attachments. Published edits are visible to visitors after save."
+          },
+          "meta": {
+            "title": "🏷 Status & scheduling",
+            "description": "Move between draft, pending review, scheduled, published, or archived. Pin only cornerstone posts."
+          },
+          "save": {
+            "title": "💾 Save article",
+            "description": "Writes your edits for the active locale. This tour never saves for you."
+          },
+          "closing": {
+            "title": "✅ Publish with care",
+            "description": "Use share links to preview before promoting. Delete controls appear only for roles allowed to remove articles."
+          }
+        }
+      },
+      "adminGlossary": {
+        "meta": {
+          "title": "Glossary",
+          "description": "Shared vocabulary for cohorts, sections, finance, and more."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📖 Terms glossary",
+            "description": "Use this reference when onboarding staff or clarifying product language. It does not change data — it teaches the model."
+          },
+          "titleBlock": {
+            "title": "📋 Glossary title",
+            "description": "Marks the help glossary screen."
+          },
+          "hierarchy": {
+            "title": "🏗️ Entity hierarchy",
+            "description": "Cohort → section → … explains how academic containers nest. Read this before creating structure."
+          },
+          "groups": {
+            "title": "📚 Term groups",
+            "description": "Expand Academic, Finance, and other groups for definitions and cross-links."
+          },
+          "closing": {
+            "title": "✅ Share the language",
+            "description": "Point teammates here when a term is ambiguous — better than reinventing names."
+          }
+        }
+      },
+      "adminAnalytics": {
+        "meta": {
+          "title": "Analytics",
+          "description": "Traffic, geography, and usage charts for the institute site."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📈 Analytics & usage",
+            "description": "Explore how guests and signed-in users move through the site. Charts are observational — they do not change configuration."
+          },
+          "titleBlock": {
+            "title": "📋 Analytics title",
+            "description": "You are on the analytics dashboard."
+          },
+          "traffic": {
+            "title": "📊 Traffic summary",
+            "description": "High-level hit counts and trends. Start here before drilling into geography."
+          },
+          "charts": {
+            "title": "🗺️ Maps & breakdowns",
+            "description": "Geo maps, path breakdowns, hourly activity, and funnels live in this region. Scroll to compare views."
+          },
+          "closing": {
+            "title": "✅ Interpret carefully",
+            "description": "Spikes can be bots or campaigns. Pair charts with operational context before changing marketing or capacity."
+          }
+        }
+      },
+      "adminAudit": {
+        "meta": {
+          "title": "Audit trail",
+          "description": "Searchable log of staff and system configuration actions."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📜 Audit trail",
+            "description": "When something changed — who, what domain, which resource. Essential for support and compliance."
+          },
+          "titleBlock": {
+            "title": "📋 Audit title",
+            "description": "Marks the audit log screen."
+          },
+          "toolbar": {
+            "title": "🔎 Filters",
+            "description": "Narrow by domain, action, dates, actor, or free-text. Tight filters keep results useful."
+          },
+          "table": {
+            "title": "📄 Audit rows",
+            "description": "Each row is an event. Open details when you need the payload context."
+          },
+          "closing": {
+            "title": "✅ Investigate calmly",
+            "description": "Combine actor + time range filters before assuming a bug. Export needs are usually handled outside this view."
+          }
+        }
+      },
+      "adminCms": {
+        "meta": {
+          "title": "CMS",
+          "description": "Hub for site templates and blog (when enabled)."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🎨 Site content hub",
+            "description": "Jumping-off point for theme/templates CMS and blog management — not the academic contents library."
+          },
+          "titleBlock": {
+            "title": "📋 CMS title",
+            "description": "Confirms the site content management hub."
+          },
+          "templatesCard": {
+            "title": "🧩 Templates",
+            "description": "Open site templates to edit branding surfaces and page templates."
+          },
+          "blogCard": {
+            "title": "📰 Blog card",
+            "description": "When blog is enabled for the tenant, this card links to the article list."
+          },
+          "closing": {
+            "title": "✅ Pick a destination",
+            "description": "Use Initial setup for wizard-style brand onboarding; use CMS templates for advanced edits."
+          }
+        }
+      },
+      "adminSiteSetup": {
+        "meta": {
+          "title": "Initial setup",
+          "description": "Guided wizard for institute branding and baseline settings."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🪄 Initial setup wizard",
+            "description": "Step-by-step branding and operational defaults. Complete steps in order; uploads show inline progress."
+          },
+          "stepIndicator": {
+            "title": "📍 Step progress",
+            "description": "Shows which wizard step you are on (e.g. 3 of 8)."
+          },
+          "panel": {
+            "title": "📝 Step fields",
+            "description": "Fill the active step carefully — logos and colors feed the public brand layer."
+          },
+          "nav": {
+            "title": "⬅️➡️ Wizard navigation",
+            "description": "Back, Next, and Submit move through the wizard. Do not close mid-upload."
+          },
+          "closing": {
+            "title": "✅ Finish the wizard",
+            "description": "After submit, verify the public site reflects branding. Advanced tweaks may live under CMS."
+          }
+        }
+      },
+      "adminSettings": {
+        "meta": {
+          "title": "Settings",
+          "description": "Institute-wide toggles: registrations, reminders, integrations helpers."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "⚙️ Institute settings",
+            "description": "Operational switches that affect public registration, class reminders, and optional translation keys."
+          },
+          "titleBlock": {
+            "title": "📋 Settings title",
+            "description": "You are editing institute-scoped settings, not a single user profile."
+          },
+          "inscriptions": {
+            "title": "📝 Public registrations",
+            "description": "Enable or pause the public registration funnel when you are not accepting new interest forms."
+          },
+          "classReminders": {
+            "title": "⏰ Class reminders",
+            "description": "Configure automated reminders so students/families get timely class notices."
+          },
+          "blogTranslate": {
+            "title": "🌐 Translate helper",
+            "description": "Optional Google Translate API key for blog workflows when that integration is used."
+          },
+          "closing": {
+            "title": "✅ Change deliberately",
+            "description": "Settings are institute-wide. Confirm with your team before disabling registrations mid-campaign."
+          }
+        }
+      },
+      "adminSettingsIntegrations": {
+        "meta": {
+          "title": "Integrations",
+          "description": "Optional third-party keys such as Google Translate for blog workflows."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🔌 Integrations",
+            "description": "Connect optional services that extend CMS/blog features.\n\nChanges here are institute-wide — coordinate before rotating keys."
+          },
+          "titleBlock": {
+            "title": "📋 Integrations title",
+            "description": "Confirms you are editing integration credentials, not general registration toggles on the main Settings page."
+          },
+          "form": {
+            "title": "🌐 Google Translate",
+            "description": "Paste the API key used when editors request automatic blog translation. Masked values show what is already stored."
+          },
+          "save": {
+            "title": "💾 Save credentials",
+            "description": "Persist updates after validating the key with your provider. Failed saves keep the previous secret."
+          },
+          "closing": {
+            "title": "✅ Protect secrets",
+            "description": "Treat keys like passwords. Remove them when the integration is retired."
+          }
+        }
+      },
+      "adminProfile": {
+        "meta": {
+          "title": "My profile",
+          "description": "Your personal account details, avatar, and password."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "👤 Your profile",
+            "description": "Update how you appear in the institute and keep contact details accurate. This is your user record — not the Users directory for everyone else."
+          },
+          "header": {
+            "title": "📋 Profile header",
+            "description": "Title and navigation back to where you came from."
+          },
+          "avatar": {
+            "title": "🖼️ Avatar",
+            "description": "Change your photo. Uploads show progress while the image is prepared and saved."
+          },
+          "personalForm": {
+            "title": "✍️ Personal fields",
+            "description": "Name, phone, document, and address fields used across the product."
+          },
+          "password": {
+            "title": "🔐 Password",
+            "description": "Change your sign-in password from here when the control is available."
+          },
+          "closing": {
+            "title": "✅ Keep it current",
+            "description": "Accurate phone and name help colleagues reach you. Admin tools for other people stay under Users."
+          }
+        }
+      }
+    },
+    "adminHelpCatalog": {
+      "startCta": "Start tutorial",
+      "startCtaAria": "Start tutorial: {{title}}",
+      "listAria": "Available tutorials",
+      "empty": "No tutorials available yet.",
+      "create-cohort": {
+        "title": "How do I create a cohort?",
+        "description": "Learn that the cohort is the annual container (one per year) for sections and courses, then walk through creation to the detail page."
+      },
+      "create-section": {
+        "title": "How do I create a section?",
+        "description": "After the year’s cohort exists, learn how to add a class group with teacher, dates, and weekly schedule — then land on the section detail page."
+      },
+      "create-student": {
+        "title": "How do I create a student?",
+        "description": "Learn the create-user form for students: how birth date decides whether a tutor is required, then walk the form without saving until you are ready."
+      },
+      "create-teacher": {
+        "title": "How do I create a teacher?",
+        "description": "Walk the create-user form with the teacher role: name, login email, password, and what happens when you submit later."
+      },
+      "create-admin": {
+        "title": "How do I create an admin?",
+        "description": "Walk the create-user form with the admin role: staff access, credentials, and submitting only after the guided tour ends."
+      },
+      "take-attendance": {
+        "title": "How do I take attendance?",
+        "description": "Learn where section attendance lives, how the day/matrix views work, and how to mark presence without losing the weekly schedule context."
+      },
+      "approve-payment": {
+        "title": "How do I approve a payment?",
+        "description": "Walk the finance inbox: find pending receipts, understand tabs and bulk tools, and see where approve lives — without confirming a real approval."
+      },
+      "reject-payment": {
+        "title": "How do I reject a payment?",
+        "description": "Walk the finance inbox for a rejection path: locate the receipt, open reject, and learn why you must leave a clear reason — without confirming."
+      },
+      "assign-scholarship-percent": {
+        "title": "How do I assign a partial scholarship?",
+        "description": "Open a student’s billing scholarship panel and learn how percent discounts apply to monthly fees — guide only; do not save until you are ready."
+      },
+      "assign-scholarship-full": {
+        "title": "How do I assign a full scholarship?",
+        "description": "Learn how a 100% scholarship covers tuition for a student from the billing panel — guide only; confirm yourself after the tour ends."
+      },
+      "create-event": {
+        "title": "How do I create an event?",
+        "description": "Learn the public events form: title, date, and pricing — then finish filling and submit yourself when you are ready to publish."
+      },
+      "enable-mercadopago": {
+        "title": "How do I enable Mercado Pago?",
+        "description": "Open Finance settings and learn where Chile/Argentina Mercado Pago credentials live — guide only; never paste secrets during the tour."
+      },
+      "enable-flow": {
+        "title": "How do I enable Flow Chile?",
+        "description": "Walk Finance settings for Flow Chile credentials and save — guide only; do not submit real API keys during the tour."
+      },
+      "change-billing-currency": {
+        "title": "How do I change billing currency?",
+        "description": "Learn where institute billing currency is set and why changing it affects all fees — guide only; save yourself after the tour."
+      },
+      "approve-event-payment": {
+        "title": "How do I approve an event payment?",
+        "description": "Open an event’s Payments tab, review pending receipts, and learn where approve lives — guide only; never confirm a real approval during the tour."
+      },
+      "assign-section-scholarship-bulk": {
+        "title": "How do I assign bulk scholarships in a section?",
+        "description": "Walk Finance → Collections for a section: scholarships tab, bulk discount trigger, and modal fields — guide only; never confirm bulk apply during the tour."
+      },
+      "change-site-setup-currency": {
+        "title": "How do I set billing currency in Initial setup?",
+        "description": "Learn the Initial setup wizard Legal & billing step where institute currency is chosen — different from Finance settings; guide only; finish the wizard yourself after the tour."
+      },
+      "create-blog-article": {
+        "title": "How do I create a blog article?",
+        "description": "Open the CMS blog editor: title, body, meta, and save — without publishing until you decide after the tour."
+      },
+      "create-blog-article-as-teacher": {
+        "title": "How do I submit a blog article for review (teacher)?",
+        "description": "Same blog editor with emphasis on pending_review status for teacher-authored drafts — guide only; submit for review yourself after the tour."
+      },
+      "reset-user-password": {
+        "title": "How do I reset a user password?",
+        "description": "Open a user profile Security tab and learn password reset controls — guide only; do not apply a password during the tour."
+      },
+      "import-users": {
+        "title": "How do I import users from a spreadsheet?",
+        "description": "Learn the Users → Import screen: choose a file and dry-run preview — the tour never starts a real import job."
+      }
+    },
+    "adminHelpTours": {
+      "createCohort": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "existingCohortPrompt": {
+          "title": "Cohort {{year}} already exists",
+          "description": "There is only one cohort per school year. We found «{{name}}» for {{year}}.",
+          "body": "Do you want to continue with this cohort, or are you sure you want to create a new one for the same year?",
+          "useExisting": "Continue with current cohort",
+          "createNew": "Create a new cohort",
+          "cancel": "View existing cohort"
+        },
+        "handoffToCreateSection": {
+          "title": "📂 Cohort is ready",
+          "description": "You are on the current cohort page. From here you can add sections —groups with schedule, teacher, and enrollments— and, within each section, the courses in your learning plan.\n\nThe natural next step is to create your first section inside this cohort.",
+          "startSectionTour": "Continue with create sections",
+          "dismiss": "Not now"
+        },
+        "steps": {
+          "intro": {
+            "title": "🎯 Before you create sections or courses",
+            "description": "A cohort is the top-level container in your academic structure: it represents the school year (for example “Cohort 2026”). There is only one cohort per year — you do not create separate morning or afternoon cohorts; those schedules belong in sections inside the cohort.\n\nInside each cohort live sections —classes with a schedule, teacher, and enrollments— and within each section, the courses or units in the learning plan.\n\nYou cannot create standalone sections or courses without a cohort. This tour walks you through that first step: define the annual container before you fill it."
+          },
+          "navAcademic": {
+            "title": "📚 Cohorts & sections",
+            "description": "Cohorts & sections is your academic control center: cohorts, sections, and enrollments in one place.\n\nClick Next to open it. If you were on another admin screen, the tour navigates you to the hub automatically."
+          },
+          "newCohort": {
+            "title": "➕ New cohort",
+            "description": "This button opens the form to create the cohort for the year. Without that annual container there is nowhere to attach the sections you will offer families later.\n\nIf the current year’s cohort already exists, use it instead of creating another. Click Next and the tour will open the modal for you."
+          },
+          "nameField": {
+            "title": "✏️ Cohort name",
+            "description": "Use the school year as the main reference. Example: “Cohort 2026” or “2026”. You do not need to split by shift — morning and afternoon are set when you create sections inside this cohort.\n\nThe slug is optional; leave it blank and the system generates one. The name must be at least 2 characters."
+          },
+          "submit": {
+            "title": "✅ Create cohort",
+            "description": "When the name is clear and valid, confirm creation. The cohort is saved as an empty container — you will add sections from its detail page next.\n\nThe tour continues there to show you what comes after."
+          },
+          "detail": {
+            "title": "📂 Your cohort (container)",
+            "description": "Done! You are on the page for the cohort you just created. This is the year’s container where sections live (with their morning, afternoon, or other schedules) and, inside each section, courses.\n\nFrom here you can add sections, review enrollments, and run the cycle. Remember: one cohort per year — cohort first, then sections and courses inside it."
+          }
+        }
+      },
+      "createSection": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "missingCohortNotice": {
+          "title": "Create a cohort first",
+          "description": "Sections live inside a cohort (the annual container). We could not find a current or active-year cohort.\n\nRun the “create a cohort” tutorial or open Cohorts & sections and create the year’s cohort before adding sections.",
+          "dismiss": "Got it"
+        },
+        "steps": {
+          "intro": {
+            "title": "📋 Sections live inside the cohort",
+            "description": "A section is the concrete class group families enroll in: name, teacher, school-year dates, weekly schedule (morning, afternoon, etc.), and capacity.\n\nUnlike the cohort —one per year— you can have many sections in the same cohort. This tour assumes the year’s cohort already exists and walks you through adding your first or next section.\n\nYou will create a real section and end on its detail page."
+          },
+          "sectionsTab": {
+            "title": "📂 Sections tab",
+            "description": "Inside each cohort, the Sections tab lists every class group for that year and the button to add a new one.\n\nClick Next to focus this tab if it is not already selected."
+          },
+          "newSection": {
+            "title": "➕ New section",
+            "description": "Opens the form to define the class: teacher, dates, schedule slots, and optional capacity tweaks.\n\nClick Next and the tour opens the modal for you."
+          },
+          "basicsField": {
+            "title": "✏️ Name and teacher",
+            "description": "Give the section a clear name families will recognize (for example “Intermediate A — mornings”). Assign the lead teacher — required before saving.\n\nIf no teachers appear, add teacher profiles in Users first."
+          },
+          "periodField": {
+            "title": "📅 Section period",
+            "description": "Set when this section runs within the school year. Defaults usually match the institute calendar; adjust only if this group starts or ends on different dates.\n\nStudents outside this window should not remain enrolled without a deliberate change."
+          },
+          "scheduleField": {
+            "title": "🕐 Weekly schedule",
+            "description": "Add at least one weekly slot: weekday, start time, and end time. That is how morning vs afternoon (or Saturday) groups are distinguished — not by creating another cohort.\n\nUse “add slot” for multiple meetings per week. Invalid or overlapping rows block creation."
+          },
+          "submit": {
+            "title": "✅ Create section",
+            "description": "When name, teacher, dates, and schedule are valid, confirm creation. The section is saved under this cohort and you are taken to its detail page.\n\nThe tour finishes there with what you can do next."
+          },
+          "detail": {
+            "title": "🎓 Your new section",
+            "description": "You are on the section detail page: roster, attendance, learning route, fees, and staff live here.\n\nFrom the cohort’s Sections tab you can add more groups (other shifts or levels). Remember the order: cohort (year) → sections (classes) → courses inside each section."
+          }
+        }
+      },
+      "createStudent": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "birthDateBranch": {
+          "title": "🎂 Minor or adult student?",
+          "description": "Birth date drives the rest of the form.\n\nChoose a path below — the tour fills a sample birth date so you can see either the tutor/guardian block (minor) or the student email fields (adult). Nothing is saved until you click Create after the tour ends.",
+          "minorPath": "Show minor path (with tutor)",
+          "adultPath": "Show adult path (no tutor)"
+        },
+        "steps": {
+          "intro": {
+            "title": "👤 Create a student (guide only)",
+            "description": "This tour explains the Users → Add form for students. Nothing is saved until you click Create after the tour ends.\n\nKey rule: for students, birth date decides if a tutor is required. Minors need a guardian (existing parent or a new tutor profile). Adults need their own email."
+          },
+          "navUsers": {
+            "title": "👥 Users",
+            "description": "Open Users from the sidebar to manage profiles: students, teachers, admins, and more.\n\nClick Next — if you were elsewhere, the tour opens the create form for you."
+          },
+          "navAdd": {
+            "title": "➕ Add user",
+            "description": "Use Add (not Import CSV) when creating one person at a time. Import is for bulk CSV workflows.\n\nYou should now be on the create-user form."
+          },
+          "role": {
+            "title": "🎭 Role: Student",
+            "description": "Choose Student so the form shows birth date and, when needed, the tutor block. Other roles hide those student-only fields.\n\nThe tour selects Student for you when this step highlights."
+          },
+          "nameFields": {
+            "title": "✏️ Name",
+            "description": "Enter surname and given name as they should appear on lists and documents. Use the same order your institute expects on official records.\n\nYou can fill these after the tour; this step only shows where they live."
+          },
+          "dni": {
+            "title": "🪪 Document ID",
+            "description": "For minors, document ID is required so the profile can be linked and invited correctly. For adults it is optional but still useful for search and billing.\n\nDo not invent a fake ID during a practice pass unless you intend to save."
+          },
+          "birthDate": {
+            "title": "🎂 Birth date",
+            "description": "This control compares age to the institute’s majority setting. Under majority → tutor panel and synthetic login email hint. At or above majority → student email field, no tutor.\n\nOn the next step you choose which path to explore."
+          },
+          "minorHint": {
+            "title": "✉️ Minor login email",
+            "description": "Minors usually get a system-generated login email; you do not type a personal inbox here. The guardian’s contact is what staff use for family communication.\n\nDocument ID remains required for this path."
+          },
+          "guardianPanel": {
+            "title": "👨‍👩‍👧 Tutor / guardian",
+            "description": "Because this student is a minor, you must link a tutor before creating the profile. The panel appears only after birth date makes them under majority.\n\nYou can link an existing parent/guardian or create a new tutor in the same flow."
+          },
+          "guardianMode": {
+            "title": "🔗 Existing or new tutor",
+            "description": "Existing: search for a parent already in the system and pick them. New: fill tutor name, document, and optional email/phone to create and link them.\n\nSwitching modes clears the other side’s fields — choose deliberately."
+          },
+          "guardianExistingVsNew": {
+            "title": "🔎 Tutor details",
+            "description": "If you chose existing, use the search box (prefix match on name or document). If you chose new, complete the tutor fields shown here.\n\nEither way you still set the relationship on the next control."
+          },
+          "relationship": {
+            "title": "🤝 Relationship",
+            "description": "Say how the tutor relates to the student (mother, father, guardian, etc.). Required for a valid minor create.\n\nPick the code that matches your records — it appears on the student profile later."
+          },
+          "adultEmail": {
+            "title": "✉️ Student email",
+            "description": "Adult students sign in with their own email. Enter a real address you control if you will submit after the tour.\n\nNo tutor panel appears on this path."
+          },
+          "phone": {
+            "title": "📞 Phone (optional)",
+            "description": "Phone is optional for adult students. Add it when you have a reliable contact number for reminders and support."
+          },
+          "password": {
+            "title": "🔑 Password",
+            "description": "Optional initial password. If left blank, invite/reset flows can still grant access depending on institute settings.\n\nFollow your password policy before a real create."
+          },
+          "submitGuide": {
+            "title": "✅ Create — after the tour",
+            "description": "This button saves the user for real. The tutorial stops here on purpose: finish filling fields, review tutor/email rules, then click Create yourself when ready.\n\nClosing the tour does not discard what you typed in the form."
+          }
+        }
+      },
+      "createTeacher": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "👩‍🏫 Create a teacher (guide only)",
+            "description": "Teachers appear in section assignment and class tools. This tour walks the create-user form with role Teacher.\n\nNothing is saved until you click Create after the tour."
+          },
+          "navUsers": {
+            "title": "👥 Users",
+            "description": "Teachers are created under Users → Add, same form as other roles — only the role field changes the outcome.\n\nThe tour opens the form if needed."
+          },
+          "navAdd": {
+            "title": "➕ Add user",
+            "description": "Use Add for a single teacher profile. Prefer Import only for bulk CSV onboarding."
+          },
+          "role": {
+            "title": "🎭 Role: Teacher",
+            "description": "Select Teacher. Birth date and tutor blocks stay hidden — those are student-only.\n\nThe tour sets Teacher when this step highlights."
+          },
+          "nameFields": {
+            "title": "✏️ Name",
+            "description": "Enter the teacher’s surname and given name as staff should see them in section pickers and messages."
+          },
+          "email": {
+            "title": "✉️ Login email",
+            "description": "Teachers need a real email they can use to sign in. Use an address you control if you will create after the tour."
+          },
+          "password": {
+            "title": "🔑 Password",
+            "description": "Optional initial password. Respect institute password rules before a real create."
+          },
+          "submitGuide": {
+            "title": "✅ Create — after the tour",
+            "description": "Submit creates the teacher for real. Finish the form, then click Create yourself when ready. The tour does not save."
+          }
+        }
+      },
+      "createAdmin": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🛡️ Create an admin (guide only)",
+            "description": "Admins can reach staff tools across the institute. Only create admin accounts for trusted people.\n\nThis tour guides the form; it does not submit."
+          },
+          "navUsers": {
+            "title": "👥 Users",
+            "description": "Admin profiles are created from Users → Add with role Admin.\n\nThe tour navigates to the form if you started elsewhere."
+          },
+          "navAdd": {
+            "title": "➕ Add user",
+            "description": "Use Add for one admin at a time. Double-check role before you ever submit."
+          },
+          "role": {
+            "title": "🎭 Role: Admin",
+            "description": "Select Admin for full staff access. Prefer Teacher or other roles when admin privileges are not required.\n\nThe tour sets Admin on this step."
+          },
+          "nameFields": {
+            "title": "✏️ Name",
+            "description": "Use the person’s legal or preferred staff name so audit and messaging stay clear."
+          },
+          "email": {
+            "title": "✉️ Login email",
+            "description": "Admins sign in with email. Prefer an institute-managed address when possible."
+          },
+          "password": {
+            "title": "🔑 Password",
+            "description": "Optional initial password. Strong credentials matter more for admin accounts."
+          },
+          "submitGuide": {
+            "title": "✅ Create — after the tour",
+            "description": "Submit creates the admin for real. Review role and email carefully, then click Create yourself when ready."
+          }
+        }
+      },
+      "createEvent": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📅 Create an event (guide only)",
+            "description": "Events appear on the public calendar and can carry optional ticket pricing.\n\nThis tour opens the create form and explains the main fields. Nothing is saved until you click Create after the tour ends."
+          },
+          "createCta": {
+            "title": "➕ New event",
+            "description": "From the events list, this control opens the create form.\n\nIf you already landed on /events/new, the tour skips straight to the form."
+          },
+          "form": {
+            "title": "📝 Event form",
+            "description": "Everything needed to publish lives here: identity, schedule, and optional pricing.\n\nKeep titles clear for families browsing the public site."
+          },
+          "titleField": {
+            "title": "✏️ Title",
+            "description": "Use a short name families will recognize (workshop, recital, open house).\n\nAvoid internal codes in the public title."
+          },
+          "dateField": {
+            "title": "📆 Date and time",
+            "description": "Set when the event happens. Wrong times confuse registrations and calendar sync.\n\nDouble-check timezone expectations for your institute."
+          },
+          "pricing": {
+            "title": "💳 Pricing (optional)",
+            "description": "Free events leave amounts empty. Paid events need clear prices before you publish.\n\nGateway setup is separate under Finance settings."
+          },
+          "submitGuide": {
+            "title": "✅ Create — after the tour",
+            "description": "Submit publishes the event for real. Finish the fields, review visibility, then click Create yourself when ready.\n\nClosing the tour does not discard what you typed."
+          }
+        }
+      },
+      "approvePayment": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "✅ Approve a payment (guide only)",
+            "description": "Families upload receipts or pay online; staff confirm them in the finance inbox.\n\nThis tour shows where approval lives. It never clicks Confirm — approving is irreversible for billing state."
+          },
+          "tabs": {
+            "title": "📑 Finance tabs",
+            "description": "Inbox is where pending receipts wait. Other tabs cover history, settings, and reports.\n\nStay on Inbox for review work."
+          },
+          "inbox": {
+            "title": "📥 Payment inbox",
+            "description": "This workspace lists receipts waiting for a decision.\n\nFilters and type chips narrow monthly tuition, enrollment, or invoices."
+          },
+          "typeNav": {
+            "title": "🏷️ Receipt types",
+            "description": "Switch between monthly, enrollment, and invoice queues so you do not mix fee kinds.\n\nCounts help you see what still needs attention."
+          },
+          "bulkToolbar": {
+            "title": "🧰 Bulk actions",
+            "description": "When several rows are selected, bulk tools appear for batch review.\n\nPrefer single-row review until you trust the queue."
+          },
+          "action": {
+            "title": "✔️ Approve control",
+            "description": "Approve marks the receipt as accepted and updates billing.\n\nThe tour stops before Confirm — read amount and student carefully first."
+          },
+          "empty": {
+            "title": "📭 Empty inbox",
+            "description": "If nothing is pending, this empty state is normal.\n\nCome back when families upload new receipts."
+          }
+        }
+      },
+      "rejectPayment": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "❌ Reject a payment (guide only)",
+            "description": "Reject when a receipt is illegible, duplicated, or does not match the amount due.\n\nThis tour highlights reject without confirming — always leave a clear reason for the family."
+          },
+          "tabs": {
+            "title": "📑 Finance tabs",
+            "description": "Use Inbox for decisions. History shows past outcomes if you need context."
+          },
+          "inbox": {
+            "title": "📥 Payment inbox",
+            "description": "Find the receipt that should not be accepted.\n\nOpen the row to inspect the file before rejecting."
+          },
+          "typeNav": {
+            "title": "🏷️ Receipt types",
+            "description": "Pick the correct fee queue so you reject the right billing kind.\n\nMixing types creates support confusion."
+          },
+          "bulkToolbar": {
+            "title": "🧰 Bulk actions",
+            "description": "Bulk reject is powerful — avoid it unless every selected row shares the same problem."
+          },
+          "action": {
+            "title": "🚫 Reject control",
+            "description": "Reject opens a confirmation where you should explain why.\n\nThe tour does not confirm — write a reason the family can act on."
+          },
+          "empty": {
+            "title": "📭 Empty inbox",
+            "description": "No pending receipts means there is nothing to reject right now."
+          }
+        }
+      },
+      "takeAttendance": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📋 Take attendance",
+            "description": "Attendance belongs to a concrete section (class group), not the whole cohort.\n\nYou mark who was present for scheduled meeting days so reports and family views stay accurate."
+          },
+          "root": {
+            "title": "🏫 Attendance workspace",
+            "description": "This panel is scoped to the section you opened.\n\nIf you landed elsewhere, open Academic → cohort → section → Attendance first."
+          },
+          "viewTabs": {
+            "title": "👁️ View modes",
+            "description": "Switch between day and matrix views when both are available.\n\nMatrix is useful for spotting patterns across several sessions."
+          },
+          "matrix": {
+            "title": "▦ Attendance grid",
+            "description": "Each cell is a student on a meeting date. Mark present, absent, or late per your institute rules.\n\nChanges usually save as you go — check before leaving."
+          },
+          "tip": {
+            "title": "💡 Tip",
+            "description": "Take attendance soon after class so memories stay fresh.\n\nFamilies may see attendance signals in the parent portal calendar."
+          }
+        }
+      },
+      "assignScholarshipPercent": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "٪ Partial scholarship (guide only)",
+            "description": "A percent scholarship reduces monthly tuition for one student without changing the section’s base price.\n\nThis tour shows the billing panel. Do not save until you intend to apply the discount."
+          },
+          "panel": {
+            "title": "🎓 Scholarship panel",
+            "description": "Open the student’s Payments / billing tab to reach scholarships.\n\nInstitute-wide promotions are separate under Finance."
+          },
+          "discountFields": {
+            "title": "✏️ Percent fields",
+            "description": "Enter a percent between 1 and 99 for a partial grant.\n\nDocument why in notes if your process requires an audit trail."
+          },
+          "saveGuide": {
+            "title": "💾 Save — after the tour",
+            "description": "Save applies the scholarship for real. Review the percent, then save yourself when ready.\n\nThe tour never submits."
+          }
+        }
+      },
+      "assignScholarshipFull": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🎁 Full scholarship (guide only)",
+            "description": "A 100% scholarship covers monthly tuition for the student while they remain enrolled under this grant.\n\nTreat full waivers carefully — confirm eligibility before saving."
+          },
+          "panel": {
+            "title": "🎓 Scholarship panel",
+            "description": "Same billing panel as partial scholarships; choose the full-coverage option or 100%.\n\nEnrollment fees may still apply depending on institute rules."
+          },
+          "discountFields": {
+            "title": "✏️ Full coverage",
+            "description": "Set the discount to 100% (or the full-scholarship control your form exposes).\n\nDouble-check the student identity before applying."
+          },
+          "saveGuide": {
+            "title": "💾 Save — after the tour",
+            "description": "Saving activates the full scholarship. Finish review, then save yourself when ready.\n\nClosing the tour does not apply changes."
+          }
+        }
+      },
+      "enableMercadoPago": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "💳 Mercado Pago (guide only)",
+            "description": "Online card payments for Chile and Argentina are configured under Finance → Settings.\n\nThis tour never saves credentials — paste keys only when you are ready after the tour."
+          },
+          "settingsRoot": {
+            "title": "⚙️ Finance settings",
+            "description": "Gateway cards and billing currency live on this settings tab — not in the payment inbox."
+          },
+          "card": {
+            "title": "🇨🇱 Mercado Pago Chile",
+            "description": "Chile and Argentina each have their own Mercado Pago card. Start with the country that matches your institute.\n\nArgentina’s card is similar further down the page."
+          },
+          "credentials": {
+            "title": "🔑 Access token & webhook",
+            "description": "Paste the Access Token and webhook secret from your Mercado Pago dashboard.\n\nNever commit these to git or share them in chat."
+          },
+          "saveGuide": {
+            "title": "💾 Save — after the tour",
+            "description": "Save stores credentials for real. Finish the tour, verify the keys, then save yourself.\n\nClosing the tour does not write secrets."
+          }
+        }
+      },
+      "enableFlow": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🏦 Flow Chile (guide only)",
+            "description": "Flow is the Chile bank-transfer style gateway under Finance → Settings.\n\nThe tour explains fields only — it does not submit API keys."
+          },
+          "settingsRoot": {
+            "title": "⚙️ Finance settings",
+            "description": "Flow sits with other payment gateways on the Settings tab."
+          },
+          "card": {
+            "title": "🇨🇱 Flow Chile card",
+            "description": "Enable or update Flow credentials in this card. Status shows whether keys are already stored."
+          },
+          "credentials": {
+            "title": "🔑 API key & secret",
+            "description": "Enter API key and secret from Flow’s merchant panel.\n\nLeave blanks when you only want to rotate one value later."
+          },
+          "saveGuide": {
+            "title": "💾 Save — after the tour",
+            "description": "Saving activates Flow for real. Confirm keys offline, then save yourself when ready."
+          }
+        }
+      },
+      "changeBillingCurrency": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "💱 Billing currency (guide only)",
+            "description": "Institute-wide currency labels fees, invoices, and gateways.\n\nChanging it is rare — the tour never saves."
+          },
+          "settingsRoot": {
+            "title": "⚙️ Finance settings",
+            "description": "Currency lives at the top of Settings, above gateway cards."
+          },
+          "currencySection": {
+            "title": "💰 Currency block",
+            "description": "This section controls the default ISO currency for tuition and related fees."
+          },
+          "currencyField": {
+            "title": "✏️ Currency selector",
+            "description": "Pick a standard code (CLP, ARS, USD, …) or Other for a custom ISO-4217 value."
+          },
+          "warning": {
+            "title": "⚠️ Affects everyone",
+            "description": "A currency change applies institute-wide. Coordinate with finance before saving."
+          },
+          "saveGuide": {
+            "title": "💾 Save — after the tour",
+            "description": "Save writes the new currency for real. Double-check the code, then save yourself when ready."
+          }
+        }
+      },
+      "approveEventPayment": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🎟️ Event payment approval (guide only)",
+            "description": "Paid events list receipts on the event detail Payments tab.\n\nThis tour never clicks Approve on a real pending payment."
+          },
+          "paymentsTab": {
+            "title": "💳 Payments tab",
+            "description": "Switch to Payments to review registrations, receipts, and approval actions."
+          },
+          "panel": {
+            "title": "📋 Payments panel",
+            "description": "Summary counts, filters, and the list of payment rows appear here."
+          },
+          "filters": {
+            "title": "🔎 Status filters",
+            "description": "Filter pending, approved, or rejected rows before acting on a receipt."
+          },
+          "approveGuide": {
+            "title": "✅ Approve control",
+            "description": "Pending rows show Approve after optional notes. Confirm yourself only when the receipt is valid."
+          },
+          "empty": {
+            "title": "📭 No rows yet",
+            "description": "When no payments match the filter, the list is empty — try All or Pending when registrations arrive."
+          }
+        }
+      },
+      "assignSectionScholarshipBulk": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🎓 Bulk section scholarships (guide only)",
+            "description": "Section collections can apply the same discount percent to many students at once.\n\nThe tour opens the modal for orientation but never confirms bulk apply."
+          },
+          "collectionsRoot": {
+            "title": "📊 Section collections",
+            "description": "Finance → Collections for a section: matrix, settings, history, scholarships, and enrollment tabs."
+          },
+          "scholarshipsTab": {
+            "title": "🏷️ Scholarships tab",
+            "description": "Optional tab listing active scholarships and another entry point for bulk assign."
+          },
+          "bulkTrigger": {
+            "title": "➕ Bulk scholarship",
+            "description": "On the matrix tab toolbar, open bulk assign to set percent, months, and scope."
+          },
+          "modalGuide": {
+            "title": "📝 Bulk modal",
+            "description": "Choose discount, period, and all/selected/pending students. Confirm only after the tour when data is correct."
+          }
+        }
+      },
+      "changeSiteSetupCurrency": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🏛️ Initial setup currency (guide only)",
+            "description": "Greenfield Initial setup sets institute currency on Legal & billing — separate from Finance settings edits.\n\nThe tour never finishes the wizard for you."
+          },
+          "stepIndicator": {
+            "title": "📍 Wizard progress",
+            "description": "Step indicator shows where you are in the eight-step Initial setup flow."
+          },
+          "panel": {
+            "title": "📋 Step panel",
+            "description": "Each step collects branding, contact, or operational defaults before go-live."
+          },
+          "currencyField": {
+            "title": "💱 Billing currency",
+            "description": "Pick ISO currency for tuition labels institute-wide. Other legal and billing fields live on this step too."
+          },
+          "navGuide": {
+            "title": "➡️ Continue wizard",
+            "description": "Use Back/Continue to move steps. Finish Initial setup yourself when every field is correct."
+          }
+        }
+      },
+      "createBlogArticle": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📰 New blog article (guide only)",
+            "description": "CMS blog drafts live under Content → Blog. This tour opens the editor and explains fields.\n\nIt does not publish — keep status as draft until you are ready."
+          },
+          "editor": {
+            "title": "📝 Article editor",
+            "description": "Locales, title, body, materials, and publishing meta are edited here."
+          },
+          "titleField": {
+            "title": "✏️ Title",
+            "description": "Write a clear public title for the active locale tab."
+          },
+          "body": {
+            "title": "📄 Body",
+            "description": "Rich text for the article. Attach media carefully — uploads are real even before publish."
+          },
+          "meta": {
+            "title": "🏷️ Status & meta",
+            "description": "Draft vs published, tags, schedule, and pin. Prefer Draft while learning the editor."
+          },
+          "saveGuide": {
+            "title": "💾 Save — after the tour",
+            "description": "Save persists the draft. Publishing is a separate status choice — finish fields, then save yourself."
+          }
+        }
+      },
+      "createBlogArticleAsTeacher": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "✍️ Teacher blog draft (guide only)",
+            "description": "Teachers use the same CMS editor but often set status to pending_review for staff approval.\n\nThe tour does not submit for review."
+          },
+          "editor": {
+            "title": "📝 Article editor",
+            "description": "Locales, title, body, materials, and publishing meta are edited here."
+          },
+          "titleField": {
+            "title": "✏️ Title",
+            "description": "Write a clear public title for the active locale tab."
+          },
+          "body": {
+            "title": "📄 Body",
+            "description": "Rich text for the article. Attach media carefully — uploads are real even before publish."
+          },
+          "meta": {
+            "title": "🏷️ Tags & schedule",
+            "description": "Tags, schedule, and pin options sit alongside status."
+          },
+          "reviewStatus": {
+            "title": "📮 Pending review",
+            "description": "Choose pending_review when a teacher draft needs admin approval before publish."
+          },
+          "saveGuide": {
+            "title": "💾 Save — after the tour",
+            "description": "Save persists the draft. Move to pending_review and save yourself when the article is ready."
+          }
+        }
+      },
+      "resetUserPassword": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🔑 Reset password (guide only)",
+            "description": "Admins can set a new portal password from a user’s Security tab.\n\nThis tour never applies a password — confirm yourself after the tour if needed."
+          },
+          "securityTab": {
+            "title": "🛡️ Security tab",
+            "description": "Open Security on the user dossier to reach password and document-reset tools."
+          },
+          "securityPanel": {
+            "title": "🔐 Security panel",
+            "description": "Password tools appear here when you may edit the profile."
+          },
+          "passwordSection": {
+            "title": "✏️ Password controls",
+            "description": "Choose manual entry or auto-generate, copy safely, then apply only when confirmed."
+          },
+          "applyGuide": {
+            "title": "✅ Apply — after the tour",
+            "description": "Apply opens a confirmation. The tour stops here on purpose — never apply during a practice pass unless intentional."
+          }
+        }
+      },
+      "importUsers": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📥 Import users (guide only)",
+            "description": "Bulk onboarding uses a spreadsheet dry-run, then a confirmed apply.\n\nThis tour never starts an import job."
+          },
+          "titleBlock": {
+            "title": "👥 Import screen",
+            "description": "Users → Import is for CSV/XLSX bulk create and optional updates."
+          },
+          "chooseFile": {
+            "title": "📂 Choose file",
+            "description": "Select a spreadsheet to dry-run. Invalid rows are reported before anything is written."
+          },
+          "tip": {
+            "title": "💡 After the tour",
+            "description": "Review the preview modal carefully. Confirm apply only when counts look right — closing the tour does not import."
+          }
+        }
+      }
+    },
+    "adminGlossaryPage": {
+      "metaTitle": "Terms glossary",
+      "title": "Terms glossary",
+      "lead": "Quick reference for the vocabulary used across admin, finance, and academic screens. Expand any entry for a fuller explanation and related terms."
+    },
+    "adminHelpGlossary": {
+      "listAria": "Glossary of admin terms",
+      "relatedLabel": "See also:",
+      "hierarchyTitle": "How the pieces fit",
+      "hierarchyLead": "Most academic work follows this order. People and billing connect at the section level.",
+      "hierarchyStepsAria": "Academic hierarchy steps",
+      "hierarchySteps": [
+        "Cohort — one container per school year",
+        "Section — class group with schedule, teacher, and enrollments inside the cohort",
+        "Course — learning unit or material track inside a section"
+      ],
+      "groups": {
+        "structure": "Academic structure",
+        "people": "People and roles",
+        "billing": "Discounts and fees",
+        "operations": "Day-to-day operations"
+      },
+      "terms": {
+        "cohort": {
+          "title": "Cohort",
+          "aliases": "Also: school year, annual container",
+          "body": "The top-level academic container for one school year (for example “Cohort 2026”). There is typically one cohort per calendar year — morning and afternoon schedules are not separate cohorts; they live in sections inside the same cohort.\n\nYou create the cohort first, then add sections and courses inside it. Archived cohorts stay available for history and reports."
+        },
+        "current-cohort": {
+          "title": "Current cohort",
+          "aliases": "Also: active cohort, “vigente”",
+          "body": "The cohort marked as the institute’s operating year right now. Public registration, assigning students to sections from user detail, and several finance views use this cohort as the default context.\n\nOnly one cohort should be current at a time. Mark it from Cohorts & sections when families should enroll into that year."
+        },
+        "section": {
+          "title": "Section",
+          "aliases": "Also: class group, group",
+          "body": "A concrete class inside a cohort: name, weekly schedule, assigned teacher, capacity, and enrolled students. Shifts (morning, afternoon, Saturday, etc.) are defined here — not by creating another cohort.\n\nAttendance, grades, section messages, and monthly billing usually run at section level. A student can be enrolled in one or more sections depending on institute rules."
+        },
+        "course": {
+          "title": "Course",
+          "aliases": "Also: unit, learning content in a section",
+          "body": "The teaching unit or content track inside a section — materials, tasks, mini-tests, or ordered activities families and students see in the portal.\n\nCourses are not the same as sections: the section is the live group; courses are what that group works through. They may follow a learning route or stay in free mode."
+        },
+        "academic-hub": {
+          "title": "Cohorts & sections",
+          "aliases": "Also: cohorts & sections panel",
+          "body": "The admin home for cohorts and sections: create cohorts, open a cohort to manage its sections, copy section designs from a previous year, mark the current cohort, and jump to transfers or retention for that context.\n\nIf you are unsure where academic structure lives, start here."
+        },
+        "learning-route": {
+          "title": "Learning route",
+          "aliases": "Also: syllabus path, ordered curriculum",
+          "body": "A reusable ordered sequence of content from the repository. Sections can attach a route so students progress step by step, or remain in free mode without a fixed path.\n\nRoutes are defined globally under Contents; sections pick one when configuring the class."
+        },
+        "student": {
+          "title": "Student",
+          "aliases": "Also: learner, pupil",
+          "body": "The person who attends classes. Students have a portal login (email or institutional address for minors), profile data, section enrollments, grades, attendance, and billing rows.\n\nMinors are usually linked to a guardian account for payments and messages."
+        },
+        "guardian": {
+          "title": "Guardian / tutor",
+          "aliases": "Also: parent, apoderado, family account (role Tutores)",
+          "body": "The adult responsible for a student in the portal — often a parent or legal guardian. In the database the role is parent/Tutores, but staff and families may say tutor or apoderado.\n\nGuardians can pay fees, read messages, and manage linked children. Link them at registration, import, or from the student’s admin profile."
+        },
+        "teacher": {
+          "title": "Teacher",
+          "aliases": "Also: instructor, docente",
+          "body": "Staff who run sections: take attendance, publish grades, message their classes, and propose student transfers. Teachers see only their assigned sections in the teacher portal.\n\nAssign the teacher when creating or editing a section."
+        },
+        "enrollment-fee": {
+          "title": "Enrollment fee (matrícula)",
+          "aliases": "Distinct from monthly tuition",
+          "body": "The one-time or annual charge to confirm a seat, separate from recurring monthly fees. Promotions and coupons may apply to enrollment only, monthly fees only, or both — check each code’s scope.\n\nRecording enrollment as paid unlocks related billing rules in some flows."
+        },
+        "section-enrollment": {
+          "title": "Section enrollment",
+          "aliases": "Also: active seat in a class",
+          "body": "The link between a student and a section for the cohort cycle — who sits in which group, with start/end dates and status. Without enrollment, the student will not appear in that section’s attendance, grades, or billing.\n\nAssign from Cohorts & sections queues, user detail, imports, or approved transfers."
+        },
+        "promotion": {
+          "title": "Promotion",
+          "aliases": "Not the same as coupon",
+          "body": "An institute-defined discount code with rules: percent or fixed amount, enrollment vs monthly scope, optional month limits, stacking, expiry, and global use counts. Families or staff enter the code when paying.\n\nManaged under Finance → Promotions. Retiring a promotion stops new uses but keeps history."
+        },
+        "coupon": {
+          "title": "Coupon",
+          "aliases": "Also: discount coupon",
+          "body": "A simpler discount code with validity windows and usage limits, managed separately from promotions. Use coupons for short campaigns; use promotions when you need fine-grained rules (enrollment-only, stackable, monthly month caps).\n\nBoth reduce what families pay — they are different admin tools, not interchangeable labels."
+        },
+        "transfer": {
+          "title": "Transfer",
+          "aliases": "Also: section move, traslado",
+          "body": "Moving a student from one section to another (often within the same cohort). Teachers propose transfers from their portal; administrators approve and execute them from the transfer inbox or academic views.\n\nKeeps enrollment history auditable instead of deleting and re-adding manually."
+        },
+        "public-registration": {
+          "title": "Public registration",
+          "aliases": "Also: web signup request",
+          "body": "A family-submitted request from the public site before the account is fully provisioned. Admins review new registrations, create or link student and guardian accounts, and assign sections in the current cohort.\n\nToggle visibility of the public form in institute settings."
+        }
+      }
     },
     "adminRetention": {
       "metaTitle": "Retention alerts",
@@ -4845,7 +7365,7 @@
       }
     },
     "academicHub": {
-      "metaTitle": "Academic hub",
+      "metaTitle": "Cohorts & sections",
       "title": "Cohorts & sections",
       "lead": "Review cohorts and open one to manage sections, transfer requests, and retention alerts in the same view.",
       "table": {
@@ -4898,7 +7418,7 @@
     },
     "academicCohortPage": {
       "metaTitle": "Cohort",
-      "backHub": "← Academic hub",
+      "backHub": "← Cohorts & sections",
       "sectionsTitle": "Sections",
       "newSectionButton": "New section",
       "newSectionModal": {
@@ -5061,10 +7581,15 @@
       },
       "staff": {
         "title": "Teaching staff",
+        "manageBlockLead": "Assign or change the lead teacher, portal assistants, and external helpers for this section.",
+        "leadOpenButton": "Change lead teacher",
+        "leadModalTitle": "Lead teacher",
         "leadLabel": "Lead teacher",
         "leadSave": "Save lead teacher",
         "leadSaved": "Lead teacher updated.",
         "leadError": "Could not update the lead teacher. Try again.",
+        "assistantsOpenButton": "Manage assistants",
+        "assistantsModalTitle": "Assistants (portal access)",
         "assistantsTitle": "Assistants (portal access)",
         "assistantsHint": "Teachers, staff assistants, or students with a login can open this section in the teacher portal (attendance, grades, roster). Student assistants cannot overlap this section’s schedule with their other active classes. They are not the public “lead” on admin cards.",
         "pickStaffAssistantLabel": "Add teacher or staff assistant",
@@ -5080,6 +7605,8 @@
         "assistantBadgeTeacher": "Teacher",
         "assistantBadgeStudent": "Student",
         "assistantBadgePortalAssistant": "Assistant (staff)",
+        "externalOpenButton": "Manage external assistants",
+        "externalModalTitle": "External assistants (no login)",
         "externalTitle": "External assistants (no login)",
         "externalHint": "Volunteers or guests without an account — shown for admin reference only; they do not receive portal access.",
         "externalNameLabel": "Name",
@@ -5094,8 +7621,15 @@
         "heading": "Assigned now",
         "leadBadge": "Lead",
         "assistantBadge": "Asst.",
+        "assistantBadgeTeacher": "Teacher",
+        "assistantBadgeStudent": "Student",
+        "assistantBadgePortalAssistant": "Assistant (staff)",
         "externalBadge": "External",
-        "empty": "No lead teacher or assistants are assigned yet. Use the form below to assign them."
+        "empty": "No lead teacher or assistants are assigned yet. Use the buttons below to assign them.",
+        "openProfileAria": "Open profile for {name}",
+        "phoneLabel": "Phone",
+        "documentLabel": "Document",
+        "emailLabel": "Email"
       },
       "health": {
         "title": "Section health",
@@ -5249,6 +7783,7 @@
       "learningRoute": {
         "title": "Learning route",
         "lead": "Choose the global learning route this section will follow, or leave it as free flow.",
+        "summaryTitle": "Current assignment",
         "selectLabel": "Route mode",
         "freeFlowOption": "No route — free flow",
         "freeFlowHelp": "Teachers can still record live classes without following a predefined route.",
@@ -5259,6 +7794,9 @@
         "error": "Could not save the learning route selection. Try again."
       },
       "assessmentsPanel": {
+        "summaryTitle": "Assessments overview",
+        "summaryLearningLabel": "Learning assessments",
+        "summaryCohortLabel": "Cohort rubric exams",
         "titleLearning": "Route and section tests",
         "leadLearning": "Quizzes, entry/exit check-ins, and other learning assessments recorded for this section, with how many student attempts exist and a quick results snapshot.",
         "titleCohort": "Cohort rubric exams",
@@ -5325,12 +7863,21 @@
           "manual_feedback": "Feedback only"
         }
       },
+      "studentsPanel": {
+        "summaryTitle": "Enrollment snapshot",
+        "summaryActiveLabel": "Active enrollments",
+        "rosterTitle": "Section roster",
+        "rosterLead": "Enroll students, manage transfers, and review the class list for this section."
+      },
       "shellTabs": {
-        "tablistAria": "Section workspace",
+        "tablistAria": "Section work areas",
+        "hubAreasAria": "Section work areas",
+        "backToSection": "Back to section",
+        "areaSwitcherAria": "Switch section area",
         "general": "Overview",
-        "generalLead": "Section health and headline numbers below. Archive and delete sit at the top right. Other tabs hold dates, timetable, teachers, route, assessments, fees, attendance, and students.",
+        "generalLead": "Section health and headline numbers.",
         "configuration": "Configuration",
-        "configurationLead": "Section dates, capacity, room label, and weekly timetable.",
+        "configurationLead": "Learning features, section dates, capacity, room label, and weekly timetable.",
         "teachers": "Teachers",
         "teachersLead": "Lead teacher, portal assistants, and external assistants for this section.",
         "learningRoute": "Learning route",
@@ -5346,6 +7893,21 @@
       },
       "scheduleTitle": "Schedule",
       "noSchedule": "No schedule slots defined.",
+      "settingsSummary": {
+        "title": "Section settings",
+        "lead": "Period, room, capacity, and features for this section.",
+        "groups": {
+          "class": {
+            "title": "Class"
+          },
+          "capacity": {
+            "title": "Capacity & attendance"
+          },
+          "features": {
+            "title": "Features"
+          }
+        }
+      },
       "scheduleEditor": {
         "scheduleTitle": "Schedule",
         "scheduleHint": "Edit the weekly slots for this section. Remove every row and save if the section no longer has a fixed timetable.",
@@ -5357,6 +7919,14 @@
         "scheduleInvalid": "Review the schedule rows. Each slot needs a weekday and an end time after the start time.",
         "saveSchedule": "Save schedule",
         "saveScheduleError": "Could not save the section schedule.",
+        "unsavedBadge": "Unsaved changes",
+        "selectedBlockTitle": "Selected block",
+        "editTimes": "Edit times",
+        "deleteBlock": "Delete block",
+        "closeInspectorAria": "Close block editor",
+        "overlapError": "This block overlaps another on the same day.",
+        "createHint": "Click an empty slot to add a block. Drag to move. Drag the bottom edge to resize.",
+        "gridAria": "Weekly class schedule",
         "weekdays": {
           "sun": "Sun",
           "mon": "Mon",
@@ -5372,7 +7942,9 @@
         "dropped": "Dropped",
         "transferred": "Transferred"
       },
+      "enrollOpenButton": "Enroll student",
       "enrollTitle": "Enroll student",
+      "enrollModalLead": "Search by name or document, add one or more students to your list, then check the schedule or enroll.",
       "studentSearchLabel": "Search",
       "studentSearchTooltip": "Prefix search on name or ID document; an empty field loads a short list.",
       "searchPlaceholder": "Type to filter or pick from the list…",
@@ -5418,13 +7990,43 @@
         "save": "Save advance payment setting",
         "saved": "Advance payment setting updated.",
         "errorSave": "Could not save. Try again."
+      },
+      "feesPanel": {
+        "summary": {
+          "title": "Current fees at a glance",
+          "monthlyPlanLabel": "Monthly plan",
+          "monthlyPlanEmpty": "No active monthly plan",
+          "enrollmentLabel": "Enrollment fee",
+          "enrollmentNone": "None (0)",
+          "chargeBasisLabel": "Charge basis",
+          "advanceLabel": "Advance payments",
+          "advanceYes": "Yes",
+          "advanceNo": "No"
+        },
+        "amountsTitle": "Amounts",
+        "amountsLead": "Monthly fee plans and the one-time enrollment fee for this section.",
+        "chargeRulesTitle": "Charge rules",
+        "chargeRulesLead": "How monthly dues are calculated and whether future months can be paid early."
+      },
+      "featureFlags": {
+        "title": "Learning features",
+        "lead": "Toggle whether this section uses assessments to pass and whether it follows a learning route. Changes save immediately; tabs appear when enabled.",
+        "evaluationsLabel": "This section has evaluations required to pass",
+        "evaluationsHelp": "Shows the Assessments tab and applies evaluation-based progress rules for this class.",
+        "learningRouteLabel": "This section follows a learning route",
+        "learningRouteHelp": "Shows the Learning route tab so you can assign a global route or keep free-flow mode.",
+        "save": "Save learning features",
+        "saved": "Learning features updated.",
+        "errorSave": "Could not save. Try again.",
+        "errorHasEvaluations": "Turn off assessments only after removing all section assessments.",
+        "errorHasLearningRoute": "Turn off the learning route only after clearing the assigned route (switch to free flow or remove the assignment)."
       }
     },
     "academicRequests": {
       "metaTitle": "Transfer inbox",
       "title": "Transfer requests",
       "lead": "Pending requests from teachers. Approving runs the enrollment transaction and notifies families when configured.",
-      "backHub": "← Academic hub",
+      "backHub": "← Cohorts & sections",
       "empty": "No pending requests.",
       "colStudent": "Student",
       "colFrom": "From",
@@ -6361,10 +8963,24 @@
       "tasksTitle": "Learning tasks",
       "tasksLead": "Read-only progress for your linked students.",
       "tasksEmpty": "No active tasks found.",
-      "learningFeedbackTitle": "Learning feedback",
-      "learningFeedbackLead": "Read-only assessment feedback for the selected student.",
-      "learningFeedbackEmpty": "No assessment feedback yet.",
-      "learningFeedbackScore": "Score: {score}",
+      "feedback": {
+        "title": "Teacher feedback",
+        "lead": "What teachers wrote about your student's work, newest first.",
+        "listAria": "Teacher feedback timeline",
+        "empty": "No written feedback yet.",
+        "emptyHint": "Comments appear here as soon as a teacher publishes one. Scores without a comment stay in the Mini-tests tab.",
+        "newBadge": "New",
+        "newSummaryOne": "1 new comment in the last {days} days",
+        "newSummaryMany": "{count} new comments in the last {days} days",
+        "newTabAria": "{count} new comments",
+        "sourceAssessment": "Exam",
+        "sourceLearning": "Mini-test",
+        "scoreLine": "{score} / {max}",
+        "scoreAria": "Score {score} out of {max}",
+        "teacherLine": "By {teacher}",
+        "expand": "Read full comment",
+        "collapse": "Hide comment"
+      },
       "taskStatus": {
         "NOT_OPENED": "Not opened",
         "OPENED": "Opened",
@@ -6501,6 +9117,10 @@
         "pillarAttendanceTitle": "Attendance",
         "pillarMessagesTitle": "Messages",
         "pillarPaymentsTitle": "Payments",
+        "pillarProgressTitle": "Progress",
+        "pillarProgressOkDetail": "{score} / {max} · {assessment}",
+        "pillarProgressFeedbackDetail": "{score} / {max} · {assessment} — teacher comment included",
+        "pillarProgressUnknownDetail": "No grades published yet.",
         "statusOk": "All good",
         "statusAttention": "Review",
         "statusUnknown": "No data yet",
@@ -6690,6 +9310,594 @@
       "messagesError": "Could not send reply",
       "messagesYourReply": "Your reply",
       "messagesSenderFallback": "Teacher"
+    },
+    "adminHelpCatalogGroups": {
+      "academic": "Academic",
+      "billing": "Billing",
+      "users": "Users",
+      "content": "Content"
+    },
+    "parentHelpLauncher": {
+      "fabAria": "Open family help",
+      "fabTitle": "Help",
+      "helpTitle": "Family help",
+      "panelDesc": "Explain this screen or choose a guided how-to. There is no chat message box.",
+      "closePanel": "Close help panel"
+    },
+    "parentHelpExplainScreen": {
+      "sectionHeading": "This screen",
+      "sectionAria": "Explain this screen",
+      "startCta": "Explain this screen",
+      "startCtaAria": "Explain this screen: {{title}}",
+      "starting": "Starting…",
+      "unavailable": "A guided explanation for this screen is coming soon.",
+      "unavailableCtaAria": "Explain this screen (not available yet)"
+    },
+    "parentHelpCatalog": {
+      "startCta": "Start tutorial",
+      "startCtaAria": "Start tutorial: {{title}}",
+      "listAria": "Available tutorials",
+      "empty": "No tutorials available yet.",
+      "sectionHeading": "How-to guides",
+      "parent-pay-or-upload-receipt": {
+        "title": "How do I pay or upload a receipt?",
+        "description": "Find amounts due, start an online payment, or upload a bank receipt from the payments area."
+      },
+      "parent-view-child-progress": {
+        "title": "How do I see my child’s progress?",
+        "description": "Open learning progress for the selected child — tasks, assessments, and status at a glance."
+      },
+      "parent-read-reply-messages": {
+        "title": "How do I read and reply to messages?",
+        "description": "Open the family inbox, read institute messages, and compose a reply when you need support."
+      },
+      "parent-manage-child-or-tutor-profile": {
+        "title": "How do I manage profiles?",
+        "description": "Open your child's profile to update contact details and login email with step-up verification when needed."
+      },
+      "parent-calendar-attendance": {
+        "title": "How do I read the calendar?",
+        "description": "See class schedule and attendance signals for your children on the family calendar."
+      },
+      "parent-badges-overview": {
+        "title": "What do badges mean?",
+        "description": "Browse earned badges and understand what achievements they represent for your child."
+      },
+      "parent-settings-notifications": {
+        "title": "How do I change notification settings?",
+        "description": "Review reminder and notification preferences so you only get the alerts you need."
+      }
+    },
+    "parentHelpTours": {
+      "parent-pay-or-upload-receipt": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "💳 Pay or upload a receipt",
+            "description": "Use Payments to see what is due and how to settle it.\n\nYou can pay online when a gateway is enabled, or upload a bank transfer receipt for staff to review."
+          },
+          "title": {
+            "title": "📋 Payments title",
+            "description": "You are in the family payments area for the selected child context."
+          },
+          "body": {
+            "title": "🧾 Amounts and actions",
+            "description": "Open the amount or receipt action that matches what you need to pay.\n\nAfter uploading, wait for staff approval before the balance updates."
+          }
+        }
+      },
+      "parent-view-child-progress": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📈 Child learning progress",
+            "description": "Progress shows how your child is moving through tasks and assessments.\n\nSwitch child first on home if you have more than one ward."
+          },
+          "title": {
+            "title": "📋 Progress title",
+            "description": "This screen summarizes learning status for the active child."
+          },
+          "body": {
+            "title": "📚 Progress details",
+            "description": "Open tasks or assessments from here when you need more detail.\n\nStatuses update as teachers grade work."
+          }
+        }
+      },
+      "parent-read-reply-messages": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "💬 Family messages",
+            "description": "The institute and teachers may message you here.\n\nRead threads carefully and reply when you need clarification or support."
+          },
+          "title": {
+            "title": "📋 Messages title",
+            "description": "You are in the family inbox."
+          },
+          "feed": {
+            "title": "📨 Message list",
+            "description": "Open a thread to read the full conversation.\n\nUnread items usually appear near the top."
+          },
+          "compose": {
+            "title": "✍️ Compose",
+            "description": "Use compose when you need to write to administration.\n\nKeep subject and body clear so staff can help faster."
+          }
+        }
+      },
+      "parent-manage-child-or-tutor-profile": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "👤 Edit your child's profile",
+            "description": "We open the ward profile editor so you can update name, contact, and login email.\n\nChanging email requires your password for security."
+          },
+          "title": {
+            "title": "📋 Profile heading",
+            "description": "This screen is scoped to one child. Confirm you are editing the right student before saving."
+          },
+          "body": {
+            "title": "📝 Profile fields",
+            "description": "Update phone, birth date, and email here.\n\nSave only when your changes are complete."
+          }
+        }
+      },
+      "parent-calendar-attendance": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📅 Calendar and attendance",
+            "description": "The family calendar shows class meetings and helpful attendance signals.\n\nUse it to plan around your child’s schedule."
+          },
+          "title": {
+            "title": "📋 Calendar title",
+            "description": "You are on the family calendar view."
+          },
+          "board": {
+            "title": "🗓️ Calendar board",
+            "description": "Browse days and open entries for class times.\n\nAttendance marks appear when the institute records them."
+          }
+        }
+      },
+      "parent-badges-overview": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🏅 Badges",
+            "description": "Badges celebrate learning milestones your child earns.\n\nThey are motivational — not a substitute for grades."
+          },
+          "title": {
+            "title": "📋 Badges title",
+            "description": "This screen lists badges for the active child."
+          },
+          "body": {
+            "title": "✨ Badge details",
+            "description": "Open a badge to read what it means and when it was earned."
+          }
+        }
+      },
+      "parent-settings-notifications": {
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🔔 Notification preferences",
+            "description": "Choose which reminders you want about classes, payments, and messages.\n\nFewer noise alerts help you notice what matters."
+          },
+          "title": {
+            "title": "⚙️ Settings title",
+            "description": "Notification controls live in family settings."
+          },
+          "body": {
+            "title": "📬 Reminder options",
+            "description": "Toggle the channels you want and save when finished.\n\nYou can change these anytime."
+          }
+        }
+      }
+    },
+    "parentHelpScreenTours": {
+      "parentHome": {
+        "meta": {
+          "title": "Family home",
+          "description": "Overview of navigation, header actions, and home status for your children."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🏠 Your family home",
+            "description": "This is the main family dashboard: a snapshot of each child’s status and shortcuts into calendar, progress, payments, and messages.\n\nThis walkthrough also explains desktop sidebar or mobile tab bar. On other screens, “Explain this screen” focuses on page content only."
+          },
+          "sidebar": {
+            "title": "📂 Side menu",
+            "description": "On desktop, use the sidebar to reach home, calendar, progress, payments, messages, and settings.\n\nBadges highlight items that need attention."
+          },
+          "tabBar": {
+            "title": "📱 Bottom tabs",
+            "description": "On phone or installed app, the bottom tabs are your primary navigation.\n\nReach the same destinations as the desktop menu with large touch targets."
+          },
+          "chromeHeader": {
+            "title": "⬆️ Top bar",
+            "description": "The header stays visible while you scroll and holds profile and sign-out actions."
+          },
+          "chromeProfile": {
+            "title": "👤 Your profile",
+            "description": "Open your guardian profile to update contact details used by the institute."
+          },
+          "chromeSignOut": {
+            "title": "🚪 Sign out",
+            "description": "Ends your session securely. Always sign out on shared devices."
+          },
+          "titleBlock": {
+            "title": "📋 Home title",
+            "description": "The page title introduces this family hub. Everything below is a live summary for your children."
+          },
+          "childSwitcher": {
+            "title": "👶 Child switcher",
+            "description": "If you have more than one child, switch whose data you are viewing before opening progress or payments."
+          },
+          "statusPillars": {
+            "title": "📊 Status cards",
+            "description": "Quick cards summarize attendance, tasks, or billing signals.\n\nOpen a card to go deeper."
+          },
+          "inbox": {
+            "title": "📨 Home inbox",
+            "description": "Recent messages or billing prompts may appear here so you do not miss urgent items."
+          },
+          "closing": {
+            "title": "✅ You are set",
+            "description": "Use Help anytime for “Explain this screen” or a how-to tutorial.\n\nStart with the area your family needs most today."
+          }
+        }
+      },
+      "parentCalendar": {
+        "meta": {
+          "title": "Calendar",
+          "description": "Class schedule and attendance signals."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Calendar",
+            "description": "Class schedule and attendance signals.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "board": {
+            "title": "Calendar board",
+            "description": "Browse days and open class or attendance entries."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentProgress": {
+        "meta": {
+          "title": "Progress",
+          "description": "Learning progress for the active child."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Progress",
+            "description": "Learning progress for the active child.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "body": {
+            "title": "Main content",
+            "description": "Use this region for the primary information and actions on the page."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentPayments": {
+        "meta": {
+          "title": "Payments",
+          "description": "Amounts due and receipt uploads."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Payments",
+            "description": "Amounts due and receipt uploads.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "body": {
+            "title": "Main content",
+            "description": "Use this region for the primary information and actions on the page."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentMessages": {
+        "meta": {
+          "title": "Messages",
+          "description": "Family inbox and compose."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Messages",
+            "description": "Family inbox and compose.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "feed": {
+            "title": "Message list",
+            "description": "Open a thread to read the full conversation."
+          },
+          "compose": {
+            "title": "Compose",
+            "description": "Start a new message to administration when you need help."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentSettings": {
+        "meta": {
+          "title": "Settings",
+          "description": "Preferences and profile shortcuts."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Settings",
+            "description": "Preferences and profile shortcuts.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "body": {
+            "title": "Main content",
+            "description": "Use this region for the primary information and actions on the page."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentProfile": {
+        "meta": {
+          "title": "Your profile",
+          "description": "Guardian profile fields."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Your profile",
+            "description": "Guardian profile fields.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "form": {
+            "title": "Profile form",
+            "description": "Edit guardian fields carefully, then save when ready."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentBilling": {
+        "meta": {
+          "title": "Billing",
+          "description": "Billing history and statements."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Billing",
+            "description": "Billing history and statements.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "body": {
+            "title": "Main content",
+            "description": "Use this region for the primary information and actions on the page."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentTasks": {
+        "meta": {
+          "title": "Tasks",
+          "description": "Learning tasks assigned to your child."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Tasks",
+            "description": "Learning tasks assigned to your child.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "list": {
+            "title": "Task list",
+            "description": "Open a task for instructions and due dates."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentAssessments": {
+        "meta": {
+          "title": "Assessments",
+          "description": "Tests and assessment results."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Assessments",
+            "description": "Tests and assessment results.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "body": {
+            "title": "Main content",
+            "description": "Use this region for the primary information and actions on the page."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentBadges": {
+        "meta": {
+          "title": "Badges",
+          "description": "Achievements earned by your child."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Badges",
+            "description": "Achievements earned by your child.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "body": {
+            "title": "Main content",
+            "description": "Use this region for the primary information and actions on the page."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentChildDetail": {
+        "meta": {
+          "title": "Child profile",
+          "description": "Details for one linked child."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Child profile",
+            "description": "Details for one linked child.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "body": {
+            "title": "Main content",
+            "description": "Use this region for the primary information and actions on the page."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      }
     }
   },
   "blog": {

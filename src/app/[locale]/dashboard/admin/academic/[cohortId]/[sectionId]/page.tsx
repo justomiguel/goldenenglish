@@ -23,6 +23,7 @@ import {
 import { loadAdminSectionHealthSnapshot } from "@/lib/academics/loadAdminSectionHealthSnapshot";
 import { loadAdminSectionAssessmentsPanelData } from "@/lib/academics/loadAdminSectionAssessmentsPanelData";
 import { parseAcademicSectionShellTabParam } from "@/lib/academics/academicSectionShellTabOrder";
+import { resolveAcademicSectionShellArea } from "@/lib/academics/visibleAcademicSectionShellTabs";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import type { AdminSectionHealthLearningRoute } from "@/types/adminSectionHealth";
 
@@ -43,7 +44,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function AcademicSectionPage({ params, searchParams }: PageProps) {
   const { locale, cohortId, sectionId } = await params;
   const sp = await searchParams;
-  const defaultShellTab = parseAcademicSectionShellTabParam(sp.tab) ?? "general";
+  const requestedShellTab = parseAcademicSectionShellTabParam(sp.tab);
   const dict = await getDictionary(locale);
   const enDict = locale === "en" ? dict : await getDictionary("en");
   const subdicts = resolveAcademicSectionPageSubdicts(dict, enDict);
@@ -62,9 +63,10 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
   ]);
   if (!data) notFound();
   const { section, slots, rows, debtByStudentId, staff, feePlans } = data;
-  const leadTeacherLabel = staff.teachers.find((t) => t.id === section.teacherId)?.label ?? null;
-  const assistantChipLabels = staff.initialAssistants.map((a) => a.label);
-  const externalChipLabels = staff.initialExternalAssistants.map((e) => e.label);
+  const initialShellArea = resolveAcademicSectionShellArea(requestedShellTab, {
+    requiresEvaluationsToPass: section.requiresEvaluationsToPass,
+    usesLearningRoute: section.usesLearningRoute,
+  });
   const activeRows = rows.filter((r) => r.status === "active");
   const activeEnrollmentIds = activeRows.map((r) => r.enrollmentId);
   const activeStudentIds = [...new Set(activeRows.map((r) => r.studentId))];
@@ -86,10 +88,9 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
     learningRoute: learningRouteHealthBlock,
   });
 
-  const today = new Date();
-
   const instituteTz = getInstituteTimeZone();
   const todayIso = instituteCalendarDateIso(new Date(), instituteTz);
+  const [feesAsOfYear, feesAsOfMonth] = todayIso.split("-").map(Number);
   const attendanceEffMin = adminAttendanceMatrixEffMinIso(todayIso, section.startsOn);
   const attendanceColumnMax = adminAttendanceMatrixColumnMaxIso(todayIso, section.endsOn);
   const attendanceWindowOk = attendanceEffMin <= attendanceColumnMax;
@@ -114,6 +115,7 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
       sectionId={sectionId}
       todayIso={todayIso}
       attendanceScheduleLine={attendanceScheduleLine}
+      attendanceAreaLead={subdicts.shellTabLabels.attendanceLead}
       attendanceWindowOk={attendanceWindowOk}
       hasScheduleSlots={hasScheduleSlots}
       hasEligibleAttendanceDays={hasEligibleAttendanceDays}
@@ -138,11 +140,10 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
       routeOptions={routeOptions}
       learningRouteWorkspace={learningRouteWorkspace}
       systemCurrency={billingCurrency.currency}
-      leadTeacherLabel={leadTeacherLabel}
-      assistantChipLabels={assistantChipLabels}
-      externalChipLabels={externalChipLabels}
+      feesAsOfYear={feesAsOfYear}
+      feesAsOfMonth={feesAsOfMonth}
       assessmentsData={assessmentsData}
-      defaultShellTab={defaultShellTab}
+      initialShellArea={initialShellArea}
       canDeleteCohortAssessments={canDeleteCohortAssessments}
     />
   );

@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { redirect } from "next/navigation";
 import { BillingPortalEntry } from "@/components/billing/BillingPortalEntry";
 import type { BillingInvoiceRow } from "@/types/billing";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.studentNav.billing);
+}
 
 interface PageProps {
   params: Promise<{ locale: string }>;

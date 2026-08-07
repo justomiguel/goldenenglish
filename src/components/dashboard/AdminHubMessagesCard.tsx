@@ -21,6 +21,7 @@ interface AdminHubMessagesCardProps {
   latestPreview: LatestPreview | null;
   locale: string;
   cardTip?: string;
+  tourAnchor?: string;
 }
 
 export function AdminHubMessagesCard({
@@ -30,6 +31,7 @@ export function AdminHubMessagesCard({
   latestPreview,
   locale,
   cardTip,
+  tourAnchor,
 }: AdminHubMessagesCardProps) {
   const hasRecent = recentCount > 0;
   const timeStr = latestPreview
@@ -45,6 +47,7 @@ export function AdminHubMessagesCard({
     <Link
       href={href}
       title={cardTip}
+      {...(tourAnchor ? { "data-tour": tourAnchor } : {})}
       className={`group relative flex flex-col rounded-[var(--layout-border-radius)] border bg-[var(--color-background)] p-5 shadow-sm transition hover:shadow-md sm:col-span-2 lg:col-span-2 ${
         hasRecent
           ? "border-violet-300 ring-1 ring-violet-200"

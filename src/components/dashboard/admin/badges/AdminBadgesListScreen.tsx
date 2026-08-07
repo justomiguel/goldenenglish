@@ -21,6 +21,7 @@ import {
   adminBadgeCategoryLabel,
   adminBadgeCriteriaLabel,
 } from "@/components/dashboard/admin/badges/adminBadgeListCopy";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export type AdminBadgeRow = {
   id: string;
@@ -91,7 +92,10 @@ export function AdminBadgesListScreen({
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
+      <header
+        data-tour={ADMIN_TOUR_ANCHORS.badgesHeader}
+        className="flex flex-wrap items-center justify-between gap-3"
+      >
         <div className="space-y-1">
           <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
             {adminNav.breadcrumbAdmin}
@@ -101,6 +105,7 @@ export function AdminBadgesListScreen({
         </div>
         <Link
           href={`${baseHref}/new`}
+          data-tour={ADMIN_TOUR_ANCHORS.badgesCreateCta}
           className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] hover:bg-[var(--color-primary-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
         >
           <Plus className="h-4 w-4 shrink-0" aria-hidden />
@@ -117,16 +122,22 @@ export function AdminBadgesListScreen({
         </p>
       ) : (
         <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)]">
-          <UnderlineTabBar
-            idPrefix={idPrefix}
-            ariaLabel={labels.filterCategoryTablistAria}
-            items={tabItems}
-            value={categoryTab}
-            onChange={(id) => setCategoryTab(id as AdminBadgeCategoryFilterTabId)}
-            layout="gridTwoRow"
-          />
+          <div data-tour={ADMIN_TOUR_ANCHORS.badgesCategoryTabs}>
+            <UnderlineTabBar
+              idPrefix={idPrefix}
+              ariaLabel={labels.filterCategoryTablistAria}
+              items={tabItems}
+              value={categoryTab}
+              onChange={(id) => setCategoryTab(id as AdminBadgeCategoryFilterTabId)}
+              layout="gridTwoRow"
+            />
+          </div>
 
-          <section aria-label={filterRegionLabel} className="outline-none">
+          <section
+            aria-label={filterRegionLabel}
+            data-tour={ADMIN_TOUR_ANCHORS.badgesTable}
+            className="outline-none"
+          >
             {filteredRows.length === 0 ? (
               <p
                 className="px-4 py-6 text-center text-sm text-[var(--color-muted-foreground)]"

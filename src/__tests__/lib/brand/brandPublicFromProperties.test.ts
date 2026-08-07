@@ -55,4 +55,14 @@ describe("brandPublicFromProperties (pure)", () => {
     expect(brand.faviconPath).toBe("/favicon_io/favicon.ico");
     expect(brand.name).toBe("");
   });
+
+  // REGRESSION CHECK: email footers read brand.contactEmail; Mozarthitos must
+  // not surface Golden's crisins@hotmail.com when the theme override is present.
+  it("surfaces mozarthitos contact.email for mail / public brand", () => {
+    const brand = brandPublicFromProperties({
+      "app.name": "Mozarthitos",
+      "contact.email": "mozarthitos@gmail.com",
+    });
+    expect(brand.contactEmail).toBe("mozarthitos@gmail.com");
+  });
 });

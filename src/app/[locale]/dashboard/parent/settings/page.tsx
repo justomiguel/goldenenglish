@@ -1,11 +1,13 @@
 import { redirect } from "next/navigation";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { ParentSettingsEntry } from "@/components/parent/ParentSettingsEntry";
 
-export const metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.parentNav.settings);
+}
 
 interface PageProps {
   params: Promise<{ locale: string }>;

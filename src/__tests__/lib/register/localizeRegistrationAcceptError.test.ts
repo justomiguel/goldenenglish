@@ -20,6 +20,7 @@ describe("localizeRegistrationAcceptError", () => {
     ["auth_failed", U.inviteAuthUnexpected],
     ["password_policy", U.errCreatePassword],
     ["tutor_dni_required", R.errMinorRequiresTutorDni],
+    ["tutor_mail_tenant_missing", dictEn.actionErrors.register.mailTenantMissing],
     ["tutor_dni_in_use_by_student", R.errTutorDniInUseByStudent],
     ["enrollment_failed", R.errEnrollmentFailed],
     ["link_failed", R.errTutorLinkFailed],

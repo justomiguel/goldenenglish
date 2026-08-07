@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { AdminCreateUserForm } from "@/components/dashboard/AdminCreateUserForm";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -28,7 +29,12 @@ export default async function AdminUsersNewPage({ params }: PageProps) {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-[var(--color-secondary)]">{dict.admin.users.title}</h1>
+      <h1
+        className="text-2xl font-bold text-[var(--color-secondary)]"
+        data-tour={ADMIN_TOUR_ANCHORS.usersNewTitle}
+      >
+        {dict.admin.users.title}
+      </h1>
       <p className="mt-2 max-w-2xl text-sm text-[var(--color-muted-foreground)]">
         {dict.admin.users.lead}
       </p>

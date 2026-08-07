@@ -12,6 +12,8 @@ import { ClassReminderPrefsSection } from "@/components/molecules/ClassReminderP
 import { TutorFinancialAccessSection } from "@/components/molecules/TutorFinancialAccessSection";
 import { PwaGroupedSection } from "@/components/pwa/molecules/PwaGroupedSection";
 import type { MyProfileScreenProps } from "@/components/organisms/MyProfileScreen";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 export interface MyProfilePwaScreenProps extends MyProfileScreenProps {
   surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">;
@@ -61,8 +63,12 @@ export function MyProfilePwaScreen({
   );
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[var(--color-muted)]">
+    <div
+      className="flex min-h-dvh flex-col bg-[var(--color-muted)]"
+      data-tour={PARENT_TOUR_ANCHORS.profileForm}
+    >
       <header
+        data-tour={ADMIN_TOUR_ANCHORS.profileHeader}
         className="sticky top-0 z-40 border-b border-[var(--color-border)] bg-[var(--color-surface)]/95 backdrop-blur-md"
         style={{ paddingTop: standalone ? "max(0.35rem, env(safe-area-inset-top, 0px))" : "max(0.25rem, env(safe-area-inset-top, 0px))" }}
       >
@@ -86,13 +92,15 @@ export function MyProfilePwaScreen({
         aria-labelledby="dashboard-profile-pwa-title"
       >
         <section className="flex flex-col items-center bg-[var(--color-surface)] px-4 pb-6 pt-8 text-center">
-          <ProfileAvatarChangeFab
-            locale={locale}
-            displayName={displayName}
-            avatarDisplayUrl={avatarDisplayUrl}
-            labels={avatarFabLabels}
-            fileUploadProgress={fileUploadProgress}
-          />
+          <div data-tour={ADMIN_TOUR_ANCHORS.profileAvatar}>
+            <ProfileAvatarChangeFab
+              locale={locale}
+              displayName={displayName}
+              avatarDisplayUrl={avatarDisplayUrl}
+              labels={avatarFabLabels}
+              fileUploadProgress={fileUploadProgress}
+            />
+          </div>
           <h2 id="dashboard-profile-pwa-title" className="mt-5 font-display text-xl font-bold text-[var(--color-foreground)]">
             {displayName}
           </h2>
@@ -103,13 +111,15 @@ export function MyProfilePwaScreen({
           <p className="mt-3 max-w-sm text-xs leading-relaxed text-[var(--color-muted-foreground)]">{labels.lead}</p>
         </section>
 
-        <MyProfilePersonalForm
-          locale={locale}
-          minorPersonalLocked={minorPersonalLocked}
-          initial={initial}
-          labels={labels}
-          layout="pwa"
-        />
+        <div data-tour={ADMIN_TOUR_ANCHORS.profilePersonalForm}>
+          <MyProfilePersonalForm
+            locale={locale}
+            minorPersonalLocked={minorPersonalLocked}
+            initial={initial}
+            labels={labels}
+            layout="pwa"
+          />
+        </div>
 
         {classReminder ? (
           <PwaGroupedSection
@@ -143,19 +153,21 @@ export function MyProfilePwaScreen({
           </PwaGroupedSection>
         ) : null}
 
-        <PwaGroupedSection title={labels.passwordSectionTitle} footer={labels.passwordSectionLead} className="pt-1">
-          <button
-            type="button"
-            className="flex min-h-[52px] w-full items-center justify-between gap-3 px-4 py-3 text-left active:bg-[var(--color-muted)]/60"
-            onClick={() => setPasswordModalOpen(true)}
-          >
-            <span className="inline-flex items-center gap-2.5 text-sm font-semibold text-[var(--color-foreground)]">
-              <KeyRound className="h-4 w-4 shrink-0 text-[var(--color-primary)]" aria-hidden />
-              {labels.passwordModalTrigger}
-            </span>
-            <ChevronRight className="h-5 w-5 shrink-0 text-[var(--color-muted-foreground)]" aria-hidden />
-          </button>
-        </PwaGroupedSection>
+        <div data-tour={ADMIN_TOUR_ANCHORS.profilePassword}>
+          <PwaGroupedSection title={labels.passwordSectionTitle} footer={labels.passwordSectionLead} className="pt-1">
+            <button
+              type="button"
+              className="flex min-h-[52px] w-full items-center justify-between gap-3 px-4 py-3 text-left active:bg-[var(--color-muted)]/60"
+              onClick={() => setPasswordModalOpen(true)}
+            >
+              <span className="inline-flex items-center gap-2.5 text-sm font-semibold text-[var(--color-foreground)]">
+                <KeyRound className="h-4 w-4 shrink-0 text-[var(--color-primary)]" aria-hidden />
+                {labels.passwordModalTrigger}
+              </span>
+              <ChevronRight className="h-5 w-5 shrink-0 text-[var(--color-muted-foreground)]" aria-hidden />
+            </button>
+          </PwaGroupedSection>
+        </div>
       </div>
 
       <MyProfileChangePasswordModal

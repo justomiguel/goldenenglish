@@ -2,7 +2,7 @@
 
 import "./vargasWizardDesignTokens.css";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Dictionary } from "@/types/i18n";
 import { SiteSetupWizardErrorAlert } from "@/components/dashboard/admin/site-setup/SiteSetupWizardErrorAlert";
 import { SiteSetupWizardStepPanels } from "@/components/dashboard/admin/site-setup/SiteSetupWizardStepPanels";
@@ -14,6 +14,7 @@ import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProg
 import { useSiteSetupWizardState } from "@/hooks/useSiteSetupWizardState";
 import { isValidBillingCurrency } from "@/lib/billing/billingCurrencyConstants";
 import type { SiteSetupCurrentValues } from "@/lib/site/loadSiteSetupCurrentValues";
+import { ADMIN_TOUR_ANCHORS, ADMIN_TUTORIAL_ACTIVATE_SITE_SETUP_LEGAL_BILLING_STEP_EVENT } from "@/lib/admin-tutorials/selectors";
 
 type SiteSetupDict = Dictionary["dashboard"]["siteSetup"];
 
@@ -68,6 +69,19 @@ export function SiteSetupWizard({
     },
     [labels.errors],
   );
+
+  useEffect(() => {
+    const onLegalBilling = () => setStep(5);
+    window.addEventListener(
+      ADMIN_TUTORIAL_ACTIVATE_SITE_SETUP_LEGAL_BILLING_STEP_EVENT,
+      onLegalBilling,
+    );
+    return () =>
+      window.removeEventListener(
+        ADMIN_TUTORIAL_ACTIVATE_SITE_SETUP_LEGAL_BILLING_STEP_EVENT,
+        onLegalBilling,
+      );
+  }, []);
 
   const goNext = () => {
     setErrorKey(null);
@@ -173,7 +187,10 @@ export function SiteSetupWizard({
       data-ge-design-system="vargas-wizard"
       className="vw-wizard-shell mx-auto w-full max-w-2xl px-4 py-8 md:py-12"
     >
-      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
+      <p
+        className="mb-1 text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]"
+        data-tour={ADMIN_TOUR_ANCHORS.siteSetupStepIndicator}
+      >
         {stepLabel}
       </p>
       <h1 className="font-display text-2xl font-semibold text-[var(--color-primary)]">
@@ -203,18 +220,20 @@ export function SiteSetupWizard({
         </div>
       ) : null}
 
-      <SiteSetupWizardStepPanels
-        step={step}
-        totalSteps={STEPS}
-        labels={labels}
-        busy={busy}
-        state={state}
-        hasExistingLogo={hasExistingLogo}
-        hasExistingFavicon={hasExistingFavicon}
-        onBack={goBack}
-        onNext={goNext}
-        onFinish={finish}
-      />
+      <div data-tour={ADMIN_TOUR_ANCHORS.siteSetupPanel}>
+        <SiteSetupWizardStepPanels
+          step={step}
+          totalSteps={STEPS}
+          labels={labels}
+          busy={busy}
+          state={state}
+          hasExistingLogo={hasExistingLogo}
+          hasExistingFavicon={hasExistingFavicon}
+          onBack={goBack}
+          onNext={goNext}
+          onFinish={finish}
+        />
+      </div>
 
       <p
         className="mt-6 text-center text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--color-primary)]"

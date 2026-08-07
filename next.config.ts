@@ -6,11 +6,18 @@ import { readSupabasePublicEnv } from "./src/lib/supabase/publicEnv";
 /** Vercel sets commit SHA in CI; local builds use a stable revision to avoid sw.js churn per commit. */
 const swRevision = process.env.VERCEL_GIT_COMMIT_SHA?.trim() || "local-dev";
 
+/**
+ * Isolate E2E `next build` / `next start` from tenant builds (same repo, parallel ports).
+ * Playwright / `run-e2e-precommit.mjs` set `GE_DEV_TARGET=e2e`.
+ */
+const e2eIsolatedCache = (process.env.GE_DEV_TARGET ?? "").trim().toLowerCase() === "e2e";
+
 const withSerwist = withSerwistInit({
   swSrc: "src/sw.ts",
   swDest: "public/sw.js",
   additionalPrecacheEntries: [{ url: "/offline", revision: swRevision }],
-  disable: process.env.NODE_ENV === "development",
+  // E2E builds would rewrite the `public/sw.js` that precommit already staged.
+  disable: process.env.NODE_ENV === "development" || e2eIsolatedCache,
 });
 
 const projectDir = process.cwd();
@@ -30,6 +37,7 @@ try {
  * Values are loaded above from .env.local via loadEnvConfig.
  */
 const nextConfig: NextConfig = {
+  ...(e2eIsolatedCache ? { distDir: ".next-e2e" } : {}),
   transpilePackages: [
     "@fullcalendar/core",
     "@fullcalendar/react",

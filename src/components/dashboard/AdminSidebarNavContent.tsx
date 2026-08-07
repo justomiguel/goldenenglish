@@ -12,14 +12,6 @@ import { isAdminSidebarNavItemActive } from "@/lib/dashboard/adminSidebarNavActi
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export interface AdminTeacherNavLabels {
-  href: string;
-  hint: string;
-  cta: string;
-  ctaAria: string;
-  switchHint: string;
-}
-
 export interface AdminSidebarNavContentProps {
   locale: string;
   dict: Dictionary["dashboard"]["adminNav"];
@@ -29,7 +21,6 @@ export interface AdminSidebarNavContentProps {
   includeEmailTemplatesNav?: boolean;
   /** When true, includes Blog under CMS tools (tenant `blog_enabled`). */
   includeBlogNav?: boolean;
-  teacherNav?: AdminTeacherNavLabels;
   onNavigate?: () => void;
   variant?: "desktop" | "mobile";
 }
@@ -47,41 +38,6 @@ function financeHrefForPathname(base: string, pathname: string): string {
     cohort: cohortId,
   });
   return `${defaultHref}?${params.toString()}`;
-}
-
-function TeacherSwitchCard({
-  teacherNav,
-  mobile,
-  onNavigate,
-}: {
-  teacherNav: AdminTeacherNavLabels;
-  mobile: boolean;
-  onNavigate?: () => void;
-}) {
-  return (
-    <div
-      className={
-        mobile
-          ? "rounded-[var(--layout-border-radius)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 p-3 text-[var(--color-foreground)]"
-          : "mb-1 rounded-[var(--layout-border-radius)] border border-[var(--color-primary)]/25 bg-[var(--color-primary)]/5 p-3 text-[var(--color-foreground)]"
-      }
-    >
-      <p className="mb-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-[var(--color-muted-foreground)]">
-        {teacherNav.switchHint}
-      </p>
-      <p className="text-[0.75rem] leading-snug text-[var(--color-muted-foreground)]">
-        {teacherNav.hint}
-      </p>
-      <Link
-        href={teacherNav.href}
-        onClick={onNavigate}
-        aria-label={teacherNav.ctaAria}
-        className="mt-2 inline-flex min-h-10 w-full items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-primary)]/45 bg-[var(--color-background)] px-3 py-2 text-sm font-semibold text-[var(--color-primary)] shadow-sm transition hover:bg-[var(--color-muted)]"
-      >
-        {teacherNav.cta}
-      </Link>
-    </div>
-  );
 }
 
 function NavGroupBlock({
@@ -119,7 +75,7 @@ function NavGroupBlock({
         </h3>
       )}
       <div className="space-y-0.5">
-        {group.items.map(({ href, label, icon, badge, tip }) => {
+        {group.items.map(({ href, label, icon, badge, tip, tourId }) => {
           const active = isAdminSidebarNavItemActive(pathname, href, base, profileHref, allHrefs);
           return (
             <Link
@@ -127,6 +83,7 @@ function NavGroupBlock({
               href={href}
               onClick={onNavigate}
               title={tip}
+              {...(tourId ? { "data-tour": tourId } : {})}
               className={`flex items-center gap-2.5 rounded-[var(--layout-border-radius)] px-3 text-[0.8125rem] font-medium transition ${
                 active
                   ? `border-l-2 border-[var(--color-primary)] text-[var(--color-primary)] ${
@@ -161,7 +118,6 @@ export function AdminSidebarNavContent({
   recentInboundMessagesCount,
   includeEmailTemplatesNav = false,
   includeBlogNav = false,
-  teacherNav,
   onNavigate,
   variant = "desktop",
 }: AdminSidebarNavContentProps) {
@@ -181,9 +137,6 @@ export function AdminSidebarNavContent({
 
   return (
     <nav aria-label={dict.aria} className={mobile ? "space-y-4" : "space-y-5"}>
-      {teacherNav ? (
-        <TeacherSwitchCard teacherNav={teacherNav} mobile={mobile} onNavigate={onNavigate} />
-      ) : null}
       {groups.map((group, gi) => (
         <NavGroupBlock
           key={gi}

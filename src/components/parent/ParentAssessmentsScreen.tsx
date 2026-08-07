@@ -1,6 +1,7 @@
 import { ParentWardPicker, type ParentWardOption } from "@/components/parent/ParentWardPicker";
 import type { StudentMiniTestAssessment } from "@/types/learningContent";
 import type { Dictionary } from "@/types/i18n";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 interface ParentAssessmentsScreenProps {
   locale: string;
@@ -23,9 +24,12 @@ export function ParentAssessmentsScreen({
 }: ParentAssessmentsScreenProps) {
   const basePath = `/${locale}/dashboard/parent/assessments`;
   return (
-    <div className={embedded ? "space-y-3" : "space-y-6"}>
+    <div
+      className={embedded ? "space-y-3" : "space-y-6"}
+      data-tour={PARENT_TOUR_ANCHORS.assessmentsBody}
+    >
       {embedded ? null : (
-        <header className="space-y-1">
+        <header className="space-y-1" data-tour={PARENT_TOUR_ANCHORS.assessmentsTitle}>
           <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">
             {parentLabels.assessmentsPageTitle}
           </h1>

@@ -86,6 +86,7 @@ export async function sendParentMessageToAdministrationUseCase(input: {
           locale: input.locale,
           emailProvider: input.emailProvider,
           recipientRole: "admin",
+          source: "parent_admin",
         });
       } catch (emailErr) {
         logServerException("sendParentMessageToAdministration:notifyAdmin", emailErr, {

@@ -117,6 +117,8 @@ describe("admin narrow screens", () => {
 
   it("AdminImportScreenNarrow renders title", () => {
     render(<AdminImportScreenNarrow locale="en" dict={dictEn} surface="web-mobile" />);
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(dictEn.admin.import.title);
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      dictEn.admin.users.spreadsheet.importTitle,
+    );
   });
 });

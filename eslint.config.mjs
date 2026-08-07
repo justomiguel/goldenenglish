@@ -9,11 +9,15 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    // Isolated Playwright / e2e Next dist (same class of generated output as `.next`).
+    ".next-e2e/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
     "coverage/**",
     ".agents/**",
+    // Nested checkouts of this repo (agent / feature isolation); they lint themselves.
+    ".worktrees/**",
     "public/sw.js",
   ]),
 ]);

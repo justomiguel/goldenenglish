@@ -1,22 +1,18 @@
-import type { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { loadGlobalLearningRouteOptions } from "@/lib/learning-content/loadLearningRouteWorkspace";
 import { loadPaginatedContentTemplateLibrary } from "@/lib/learning-tasks/loadContentTemplateLibrary";
 import { AdminAcademicContentsScreen } from "@/components/admin/AdminAcademicContentsScreen";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ sectionId?: string; page?: string; q?: string; tab?: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps) {
   const { locale } = await params;
-  const dict = await getDictionary(locale);
-  return {
-    title: dict.dashboard.adminContents.metaTitle,
-    robots: { index: false, follow: false },
-  };
+  return buildPageMetadata(locale, (d) => d.dashboard.adminContents.title);
 }
 
 export default async function AdminAcademicContentsPage({ params, searchParams }: PageProps) {

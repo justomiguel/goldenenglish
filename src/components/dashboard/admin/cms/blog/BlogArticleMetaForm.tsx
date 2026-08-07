@@ -1,6 +1,7 @@
 "use client";
 
 import { Hash, CalendarDays, Pin } from "lucide-react";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 interface BlogArticleMetaFormProps {
   labels: {
@@ -30,6 +31,7 @@ export function BlogArticleMetaForm(props: BlogArticleMetaFormProps) {
         <select
           className="rounded-md border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2"
           value={props.status}
+          data-tour={ADMIN_TOUR_ANCHORS.blogEditorStatus}
           onChange={(event) => props.onStatusChange(event.target.value)}
         >
           <option value="draft">draft</option>

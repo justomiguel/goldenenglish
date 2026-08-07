@@ -3,14 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Send } from "lucide-react";
-import {
-  sendAdminMessage,
-  sendAdminSiteContactVisitorReply,
-} from "@/app/[locale]/dashboard/admin/messages/actions";
+import { sendAdminMessage } from "@/app/[locale]/dashboard/admin/messages/actions";
+import { sendAdminSiteContactVisitorReply } from "@/app/[locale]/dashboard/admin/messages/siteContactVisitorReplyActions";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { RecipientAutocomplete } from "@/components/molecules/RecipientAutocomplete";
 import { RichTextEditor } from "@/components/molecules/RichTextEditor";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { MessagingRecipient } from "@/types/messaging";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminPortalReplyBootstrap } from "@/types/adminPortalCompose";
@@ -22,6 +21,8 @@ interface AdminPortalComposeProps {
   /** When set, navigates here after a successful send instead of staying on the page. */
   successNavigateTo?: string;
   replyBootstrap: AdminPortalReplyBootstrap;
+  /** Prefilled RichTextEditor HTML (e.g. resolved default reply). */
+  initialBody?: string;
 }
 
 export function AdminPortalCompose({
@@ -30,12 +31,13 @@ export function AdminPortalCompose({
   labels,
   successNavigateTo,
   replyBootstrap,
+  initialBody = "<p></p>",
 }: AdminPortalComposeProps) {
   const router = useRouter();
   const initialRecipient =
     replyBootstrap.kind === "portal" ? replyBootstrap.recipientProfileId : "";
   const [recipientId, setRecipientId] = useState(initialRecipient);
-  const [body, setBody] = useState("<p></p>");
+  const [body, setBody] = useState(initialBody);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -53,7 +55,12 @@ export function AdminPortalCompose({
     if (!recipientId) return;
     setBusy(true);
     setMsg(null);
-    const res = await sendAdminMessage(locale, recipientId, body);
+    const res = await sendAdminMessage(
+      locale,
+      recipientId,
+      body,
+      replyBootstrap.kind === "portal" ? replyBootstrap.sourceMessageId : undefined,
+    );
     setBusy(false);
     if (res.ok) {
       if (successNavigateTo) {
@@ -106,12 +113,14 @@ export function AdminPortalCompose({
     <form
       onSubmit={isExternal ? onSubmitExternal : onSubmitPortal}
       className="space-y-3 overflow-visible rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      data-tour={ADMIN_TOUR_ANCHORS.messagesComposeForm}
     >
       {replyErrorBanner}
       <h2 className="text-lg font-semibold text-[var(--color-secondary)]">{labels.composeTitle}</h2>
       <label className="block text-sm font-medium text-[var(--color-foreground)]" htmlFor="admin-msg-to">
         {labels.composeTo}
       </label>
+      <div data-tour={ADMIN_TOUR_ANCHORS.messagesComposeRecipient}>
       {isExternal ? (
         <>
           <p className="text-xs text-[var(--color-muted-foreground)]">{labels.composeVisitorEmailLabel}</p>
@@ -138,6 +147,8 @@ export function AdminPortalCompose({
           inputTitle={labels.tipComposeRecipient}
         />
       )}
+      </div>
+      <div data-tour={ADMIN_TOUR_ANCHORS.messagesComposeBody}>
       <RichTextEditor
         value={body}
         onChange={setBody}
@@ -145,12 +156,14 @@ export function AdminPortalCompose({
         title={labels.tipComposeBody}
         aria-label={labels.composeAria}
       />
+      </div>
       <Button
         type="submit"
         disabled={busy || (!isExternal && !recipientId)}
         isLoading={busy}
         className="min-h-[44px]"
         title={isExternal ? labels.tipComposeSendExternal : labels.tipComposeSend}
+        data-tour={ADMIN_TOUR_ANCHORS.messagesComposeSend}
       >
         {busy ? null : <Send className="h-4 w-4 shrink-0" aria-hidden />}
         {labels.composeSend}

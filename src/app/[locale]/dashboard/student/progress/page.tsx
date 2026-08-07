@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
@@ -7,14 +7,14 @@ import { absoluteUrl } from "@/lib/site/publicUrl";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { loadStudentLearningTasks } from "@/lib/learning-tasks/loadStudentLearningTasks";
 import { loadStudentMiniTests } from "@/lib/learning-content/loadStudentMiniTests";
-import { loadStudentLearningFeedback } from "@/lib/learning-content/loadStudentLearningFeedback";
+import { loadStudentFeedbackTimeline } from "@/lib/parent/loadStudentFeedbackTimeline";
 import { loadStudentBadgeDisplayRows } from "@/lib/badges/loadStudentBadgeDisplayRows";
 import { ParentProgressEntry } from "@/components/parent/ParentProgressEntry";
-import type { ParentLearningFeedbackRow } from "@/lib/learning-content/loadParentLearningFeedback";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.studentNav.progress);
+}
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -48,21 +48,18 @@ export default async function StudentProgressPage({ params, searchParams }: Page
   const displayName = formatProfileNameSurnameFirst(profile.first_name, profile.last_name);
   const wardOptions = [{ studentId, displayName: displayName || studentId }];
 
-  const [tasks, assessments, rawFeedback, badgeRows] = await Promise.all([
+  const [tasks, assessments, feedback, badgeRows] = await Promise.all([
     loadStudentLearningTasks(supabase, studentId, 40),
     loadStudentMiniTests(supabase, studentId),
-    loadStudentLearningFeedback(supabase, studentId, 12),
+    loadStudentFeedbackTimeline(supabase, {
+      studentId,
+      childLabel: displayName || studentId,
+    }),
     loadStudentBadgeDisplayRows(studentId, (token) => {
       const u = absoluteUrl(`/${locale}/b/${token}`);
       return u ? u.toString() : "";
     }),
   ]);
-
-  const feedback: ParentLearningFeedbackRow[] = rawFeedback.map((row) => ({
-    ...row,
-    studentId,
-    childLabel: displayName || studentId,
-  }));
 
   return (
     <Suspense fallback={<ProgressFallback />}>

@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
@@ -8,13 +8,14 @@ import { listTutorStudentsWithFinance } from "@/lib/auth/listTutorStudentsWithFi
 import { resolveSelectedWard } from "@/lib/parent/resolveSelectedWard";
 import { loadStudentLearningTasks } from "@/lib/learning-tasks/loadStudentLearningTasks";
 import { loadStudentMiniTests } from "@/lib/learning-content/loadStudentMiniTests";
-import { loadParentLearningFeedback } from "@/lib/learning-content/loadParentLearningFeedback";
+import { loadStudentFeedbackTimeline } from "@/lib/parent/loadStudentFeedbackTimeline";
 import { loadStudentBadgeDisplayRows } from "@/lib/badges/loadStudentBadgeDisplayRows";
 import { ParentProgressEntry } from "@/components/parent/ParentProgressEntry";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.parentNav.progress);
+}
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -48,10 +49,15 @@ export default async function ParentProgressPage({ params, searchParams }: PageP
     displayName: s.displayName,
   }));
 
+  const selectedWard = students.find((s) => s.studentId === selectedStudentId);
+
   const [tasks, assessments, feedback, badgeRows] = await Promise.all([
     selectedStudentId ? loadStudentLearningTasks(supabase, selectedStudentId, 40) : Promise.resolve([]),
     selectedStudentId ? loadStudentMiniTests(supabase, selectedStudentId) : Promise.resolve([]),
-    loadParentLearningFeedback(supabase, user.id),
+    loadStudentFeedbackTimeline(supabase, {
+      studentId: selectedStudentId ?? "",
+      childLabel: selectedWard?.displayName ?? "",
+    }),
     selectedStudentId
       ? loadStudentBadgeDisplayRows(selectedStudentId, (token) => {
           const u = absoluteUrl(`/${locale}/b/${token}`);

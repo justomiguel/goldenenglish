@@ -63,6 +63,25 @@ describe("mergeProperties", () => {
     expect(out["color.secondary"]).toBe("#A31A22");
     expect(out["color.accent"]).toBeUndefined();
   });
+
+  // REGRESSION CHECK: Mozarthitos mail footers used Golden contact.email when the
+  // active theme row omitted the override (2026-07-12-mozarthitos-contact-email).
+  it("lets mozarthitos contact.email override Golden system default", () => {
+    const goldenDefaults = {
+      "contact.email": "crisins@hotmail.com",
+      "contact.phone": "+56 9 0000 0000",
+    };
+    const out = mergeProperties(goldenDefaults, {
+      "contact.email": "mozarthitos@gmail.com",
+      "contact.phone": "+56 9 5991 6314",
+      "social.instagram": "https://www.instagram.com/mozarthitos/",
+    });
+    expect(out["contact.email"]).toBe("mozarthitos@gmail.com");
+    expect(out["contact.phone"]).toBe("+56 9 5991 6314");
+    expect(out["social.instagram"]).toBe(
+      "https://www.instagram.com/mozarthitos/",
+    );
+  });
 });
 
 describe("sanitizeCssValue", () => {

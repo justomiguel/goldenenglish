@@ -1,6 +1,7 @@
 // REGRESSION CHECK: Parent/tutor Auth password must stay aligned with admin invite default (not DNI-derived).
 // REGRESSION CHECK: Failed Auth signup must classify error (not lump all tutor failures as duplicate email UX).
-import { describe, it, expect, vi, beforeEach } from "vitest";
+// REGRESSION CHECK: Empty tutor email requires MAIL_TENANT → parents.<MAIL_TENANT> (not goldenenglish hardcode).
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { logAuthAdminCreateUserFailure, logServerWarn } from "@/lib/logging/serverActionLog";
 import { ensureParentProfileByTutorDni } from "@/lib/register/ensureParentProfileByTutorDni";
 import { ADMIN_INVITE_DEFAULT_PASSWORD } from "@/lib/dashboard/adminInviteDefaultPassword";
@@ -17,10 +18,15 @@ vi.mock("@/lib/logging/serverActionLog", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.stubEnv("MAIL_TENANT", "alumnos.test");
+});
+
+afterEach(() => {
+  vi.unstubAllEnvs();
 });
 
 describe("ensureParentProfileByTutorDni", () => {
-  it("creates a new parent with ADMIN_INVITE_DEFAULT_PASSWORD", async () => {
+  it("creates a new parent with ADMIN_INVITE_DEFAULT_PASSWORD and tenant synthetic email", async () => {
     const createUser = vi.fn().mockResolvedValue({
       data: { user: { id: "new-parent-uuid" } },
       error: null,
@@ -46,9 +52,30 @@ describe("ensureParentProfileByTutorDni", () => {
     expect(r).toEqual({ ok: true, parentId: "new-parent-uuid", reuseKind: "created" });
     expect(createUser).toHaveBeenCalledWith(
       expect.objectContaining({
+        email: "12345678@parents.alumnos.test",
         password: ADMIN_INVITE_DEFAULT_PASSWORD,
       }),
     );
+  });
+
+  it("fails closed with tutor_mail_tenant_missing when synthetic email needed and MAIL_TENANT unset", async () => {
+    vi.stubEnv("MAIL_TENANT", "");
+    const createUser = vi.fn();
+    const admin = {
+      from: vi.fn(),
+      auth: { admin: { createUser } },
+    };
+
+    const r = await ensureParentProfileByTutorDni(admin as never, {
+      tutorDniRaw: "12.345.678",
+      tutorEmail: null,
+      tutorPhone: null,
+      tutorFirstName: "Ana",
+      tutorLastName: "Lopez",
+    });
+
+    expect(r).toEqual({ ok: false, message: "tutor_mail_tenant_missing" });
+    expect(createUser).not.toHaveBeenCalled();
   });
 
   it("maps duplicate email signup errors for tutor provisioning when Auth user cannot be found", async () => {

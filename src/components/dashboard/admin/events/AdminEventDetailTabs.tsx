@@ -9,6 +9,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export type EventAdminTab =
   | "summary"
@@ -64,6 +65,15 @@ const TAB_ICONS: Record<EventAdminTab, LucideIcon> = {
   notifications: Bell,
 };
 
+const TAB_TOUR_ANCHORS: Record<EventAdminTab, string> = {
+  summary: ADMIN_TOUR_ANCHORS.eventDetailTabSummary,
+  form: ADMIN_TOUR_ANCHORS.eventDetailTabForm,
+  attendees: ADMIN_TOUR_ANCHORS.eventDetailTabAttendees,
+  payments: ADMIN_TOUR_ANCHORS.eventPaymentsTab,
+  waitlist: ADMIN_TOUR_ANCHORS.eventDetailTabWaitlist,
+  notifications: ADMIN_TOUR_ANCHORS.eventDetailTabNotifications,
+};
+
 function buildHref(baseHref: string, tab: EventAdminTab): string {
   const params = new URLSearchParams();
   params.set("tab", tab);
@@ -110,6 +120,7 @@ export function AdminEventDetailTabs({
         <nav
           aria-label={labels.tabsAria}
           className="flex w-full overflow-x-auto border-b border-[var(--color-border)] bg-[var(--color-muted)]/15"
+          data-tour={ADMIN_TOUR_ANCHORS.eventDetailTabs}
         >
           {EVENT_ADMIN_TAB_ORDER.map((tab) => {
             const Icon = TAB_ICONS[tab];
@@ -124,6 +135,7 @@ export function AdminEventDetailTabs({
                 aria-label={labels.tabs[tab]}
                 aria-current={isActive ? "page" : undefined}
                 className={tabClasses(isActive)}
+                data-tour={TAB_TOUR_ANCHORS[tab]}
               >
                 <Icon
                   className={`h-4 w-4 shrink-0 transition ${
@@ -145,7 +157,7 @@ export function AdminEventDetailTabs({
           {labels.tabLeads[current]}
         </p>
       </div>
-      <div>{children}</div>
+      <div data-tour={ADMIN_TOUR_ANCHORS.eventDetailWorkspace}>{children}</div>
     </div>
   );
 }

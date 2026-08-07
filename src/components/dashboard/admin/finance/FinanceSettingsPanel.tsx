@@ -17,6 +17,7 @@ import {
 } from "@/lib/billing/billingCurrencyConstants";
 import type { FlowChileAdminRowSafe } from "@/app/[locale]/dashboard/admin/finance/flowGatewaySettingsActions";
 import type { MercadoPagoAdminRowSafe } from "@/app/[locale]/dashboard/admin/finance/mercadoPagoGatewaySettingsActions";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type SettingsDict = Dictionary["admin"]["finance"]["settings"];
 
@@ -80,8 +81,11 @@ export function FinanceSettingsPanel({
   };
 
   return (
-    <section className="space-y-6">
-      <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+    <section className="space-y-6" data-tour={ADMIN_TOUR_ANCHORS.financeSettingsRoot}>
+      <div
+        data-tour={ADMIN_TOUR_ANCHORS.financeSettingsCurrencySection}
+        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5"
+      >
         <header className="mb-4 flex items-center gap-2">
           <Settings className="h-5 w-5 text-[var(--color-muted-foreground)]" aria-hidden />
           <h2 className="text-lg font-semibold text-[var(--color-foreground)]">
@@ -93,20 +97,25 @@ export function FinanceSettingsPanel({
         </p>
 
         <div className="max-w-sm space-y-4">
-          <BillingCurrencySelectField
-            id="billing-currency"
-            value={currency}
-            onChange={(next) => {
-              setCurrency(next);
-              setSaveResult(null);
-            }}
-            label={dict.currencyLabel}
-            otherOptionLabel={dict.currencyOther}
-            otherInputAriaLabel={dict.currencyOtherAria}
-            disabled={isPending}
-          />
+          <div data-tour={ADMIN_TOUR_ANCHORS.financeSettingsCurrencyField}>
+            <BillingCurrencySelectField
+              id="billing-currency"
+              value={currency}
+              onChange={(next) => {
+                setCurrency(next);
+                setSaveResult(null);
+              }}
+              label={dict.currencyLabel}
+              otherOptionLabel={dict.currencyOther}
+              otherInputAriaLabel={dict.currencyOtherAria}
+              disabled={isPending}
+            />
+          </div>
 
-          <div className="flex items-center gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-warning)]/30 bg-[var(--color-warning)]/5 px-3 py-2 text-xs text-[var(--color-warning)]">
+          <div
+            data-tour={ADMIN_TOUR_ANCHORS.financeSettingsCurrencyWarning}
+            className="flex items-center gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-warning)]/30 bg-[var(--color-warning)]/5 px-3 py-2 text-xs text-[var(--color-warning)]"
+          >
             <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden />
             <span>{dict.warningAffectsAll}</span>
           </div>
@@ -118,6 +127,7 @@ export function FinanceSettingsPanel({
               disabled={isPending || !currencyValid || !hasCurrencyChanges}
               isLoading={isPending}
               className="min-h-[44px]"
+              data-tour={ADMIN_TOUR_ANCHORS.financeSettingsCurrencySave}
             >
               {!isPending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
               {dict.save}

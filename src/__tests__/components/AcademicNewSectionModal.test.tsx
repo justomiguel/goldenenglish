@@ -1,17 +1,20 @@
 /** @vitest-environment jsdom */
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AcademicNewSectionModal } from "@/components/organisms/AcademicNewSectionModal";
 
-const push = vi.fn();
-const refresh = vi.fn();
+const assign = vi.fn();
 const createAcademicSectionAction = vi.fn();
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/es",
-  useRouter: () => ({ push, refresh }),
 }));
+
+beforeEach(() => {
+  assign.mockReset();
+  vi.stubGlobal("location", { ...window.location, assign });
+});
 
 vi.mock("@/app/[locale]/dashboard/admin/academic/sectionActions", () => ({
   createAcademicSectionAction: (...args: unknown[]) => createAcademicSectionAction(...args),
@@ -90,8 +93,7 @@ describe("AcademicNewSectionModal", () => {
         scheduleSlots: [{ dayOfWeek: 1, startTime: "08:00", endTime: "09:00" }],
       }),
     );
-    expect(push).toHaveBeenCalledWith("/en/dashboard/admin/academic/cohort-1/section-1");
-    expect(refresh).toHaveBeenCalled();
+    expect(assign).toHaveBeenCalledWith("/en/dashboard/admin/academic/cohort-1/section-1");
   });
 
   it("lets the user add and remove schedule rows", async () => {

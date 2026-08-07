@@ -12,6 +12,8 @@ interface SignOutButtonProps {
   iconOnly?: boolean;
   /** Native tooltip (pointer users); keep copy in dictionaries. */
   title?: string;
+  /** Stable Driver.js / help-tour anchor. */
+  tourAnchor?: string;
 }
 
 export function SignOutButton({
@@ -20,6 +22,7 @@ export function SignOutButton({
   className = "",
   iconOnly = false,
   title,
+  tourAnchor,
 }: SignOutButtonProps) {
   const router = useRouter();
 
@@ -37,6 +40,7 @@ export function SignOutButton({
       className={`inline-flex items-center justify-center gap-2 ${className}`}
       aria-label={iconOnly ? label : undefined}
       title={title}
+      {...(tourAnchor ? { "data-tour": tourAnchor } : {})}
     >
       <LogOut
         className={iconOnly ? "h-5 w-5" : "h-4 w-4 opacity-90"}

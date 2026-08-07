@@ -16,7 +16,6 @@ import { StudentMyScheduleWeek } from "@/components/student/StudentMyScheduleWee
 import { StudentAcademicJourney } from "@/components/student/StudentAcademicJourney";
 import { StudentScheduleUpdateStrip } from "@/components/student/StudentScheduleUpdateStrip";
 import { PushPermissionBanner } from "@/components/molecules/PushPermissionBanner";
-import { PwaInstallPrompt } from "@/components/molecules/PwaInstallPrompt";
 import { StudentBillingStrip } from "@/components/student/StudentBillingStrip";
 import { StudentPublishedGradesSection } from "@/components/student/StudentPublishedGradesSection";
 import { StudentAttendanceDonut } from "@/components/student/StudentAttendanceDonut";
@@ -60,7 +59,6 @@ export interface StudentDashboardEntryProps {
   learningFeedback?: LearningFeedbackRow[];
   birthdays?: UpcomingBirthdayCardRow[];
   birthdaysDict?: Dictionary["dashboard"]["birthdays"];
-  pwaInstall?: Dictionary["pwa"]["install"];
 }
 
 export function StudentDashboardEntry({
@@ -80,7 +78,6 @@ export function StudentDashboardEntry({
   learningFeedback = [],
   birthdays = [],
   birthdaysDict,
-  pwaInstall,
 }: StudentDashboardEntryProps) {
   const hubDict = labels.hub;
   const body = (
@@ -139,7 +136,6 @@ export function StudentDashboardEntry({
         <PwaPageShell surface={surface}>
           <div className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
             <div className="mx-auto max-w-[var(--layout-max-width)] space-y-3 py-2">
-              {pwaInstall ? <PwaInstallPrompt copy={pwaInstall} /> : null}
               {body}
             </div>
           </div>

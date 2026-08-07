@@ -11,6 +11,8 @@ export function mapEnsureParentFailureToUserMessage(
   switch (code) {
     case "tutor_dni_required":
       return L.detailTutorCreateErrDniRequired;
+    case "tutor_mail_tenant_missing":
+      return dict.actionErrors.register.mailTenantMissing;
     case "tutor_dni_in_use_by_student":
       return L.detailTutorCreateErrDniStudent;
     case "tutor_auth_email_exists":

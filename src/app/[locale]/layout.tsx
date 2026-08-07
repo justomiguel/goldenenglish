@@ -10,6 +10,7 @@ import { taglineForLocale } from "@/lib/brand/taglineForLocale";
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { JsonLdOrganization } from "@/components/molecules/JsonLdOrganization";
 import { AnalyticsRoot } from "@/components/analytics/AnalyticsRoot";
+import { PwaInstallPromptHost } from "@/components/molecules/PwaInstallPromptHost";
 import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 
@@ -57,10 +58,11 @@ export async function generateMetadata({
   languageAlternates["x-default"] = `/${defaultLocale}`;
 
   return {
-    title: {
-      default: brand.name,
-      template: `%s | ${brand.name}`,
-    },
+    // Keep template so child pages inherit the format; omit default so the root
+    // layout's default is used as-is for pages that set no title of their own,
+    // preventing the "<brand> | <brand>" doubling. The TypeScript TemplateString
+    // type requires default or absolute, but Next.js runtime supports template-only.
+    title: { template: `%s | ${brand.name}` } as Metadata["title"],
     description,
     ...(needsInitialSiteSetup ? { icons: buildRootLayoutIcons(brand) } : {}),
     alternates: {
@@ -99,7 +101,8 @@ export default async function LocaleLayout({
   }
 
   const loc = locale as AppLocale;
-  const { brand, needsInitialSiteSetup } = await resolvePublicBrandWithSetup(loc);
+  const { brand, needsInitialSiteSetup, dict } =
+    await resolvePublicBrandWithSetup(loc);
 
   return (
     <div className="min-h-screen">
@@ -107,6 +110,9 @@ export default async function LocaleLayout({
         <JsonLdOrganization locale={locale} brand={brand} />
       )}
       <AnalyticsRoot>{children}</AnalyticsRoot>
+      {needsInitialSiteSetup ? null : (
+        <PwaInstallPromptHost copy={dict.pwa.install} />
+      )}
     </div>
   );
 }

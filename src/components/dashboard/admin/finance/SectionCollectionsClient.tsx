@@ -1,7 +1,7 @@
 "use client";
 
 import { GraduationCap, History, Receipt, Settings2, Table2 } from "lucide-react";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import {
   UnderlineTabBar,
   underlinePanelId,
@@ -11,6 +11,10 @@ import {
 import type { SectionCollectionsView } from "@/types/sectionCollections";
 import type { SectionCollectionsScholarshipListRow } from "@/types/sectionCollectionsTabs";
 import type { Dictionary } from "@/types/i18n";
+import {
+  ADMIN_TOUR_ANCHORS,
+  ADMIN_TUTORIAL_ACTIVATE_SECTION_COLLECTIONS_SCHOLARSHIPS_TAB_EVENT,
+} from "@/lib/admin-tutorials/selectors";
 import { SectionCollectionsMatrixWorkspace } from "./SectionCollectionsMatrixWorkspace";
 import { SectionCollectionsHistoryTab } from "./SectionCollectionsHistoryTab";
 import { SectionCollectionsScholarshipsTab } from "./SectionCollectionsScholarshipsTab";
@@ -46,23 +50,63 @@ export function SectionCollectionsClient({
   const t = dict.sectionTabs;
 
   const items: readonly UnderlineTabItem[] = [
-    { id: "matrix", label: t.matrix, Icon: Table2 },
-    { id: "settings", label: t.settings, Icon: Settings2 },
-    { id: "history", label: t.history, Icon: History },
-    { id: "scholarships", label: t.scholarships, Icon: GraduationCap },
-    { id: "enrollment", label: t.enrollment, Icon: Receipt },
+    {
+      id: "matrix",
+      label: t.matrix,
+      Icon: Table2,
+      tourId: ADMIN_TOUR_ANCHORS.sectionCollectionsTabMatrix,
+    },
+    {
+      id: "settings",
+      label: t.settings,
+      Icon: Settings2,
+      tourId: ADMIN_TOUR_ANCHORS.sectionCollectionsTabSettings,
+    },
+    {
+      id: "history",
+      label: t.history,
+      Icon: History,
+      tourId: ADMIN_TOUR_ANCHORS.sectionCollectionsTabHistory,
+    },
+    {
+      id: "scholarships",
+      label: t.scholarships,
+      Icon: GraduationCap,
+      tourId: ADMIN_TOUR_ANCHORS.sectionCollectionsScholarshipsTab,
+    },
+    {
+      id: "enrollment",
+      label: t.enrollment,
+      Icon: Receipt,
+      tourId: ADMIN_TOUR_ANCHORS.sectionCollectionsTabEnrollment,
+    },
   ];
 
+  useEffect(() => {
+    const onScholarships = () => setTab("scholarships");
+    window.addEventListener(
+      ADMIN_TUTORIAL_ACTIVATE_SECTION_COLLECTIONS_SCHOLARSHIPS_TAB_EVENT,
+      onScholarships,
+    );
+    return () =>
+      window.removeEventListener(
+        ADMIN_TUTORIAL_ACTIVATE_SECTION_COLLECTIONS_SCHOLARSHIPS_TAB_EVENT,
+        onScholarships,
+      );
+  }, []);
+
   return (
-    <div className="flex flex-col gap-4">
-      <UnderlineTabBar
-        idPrefix={idPrefix}
-        ariaLabel={t.aria}
-        items={items}
-        value={tab}
-        layout="gridTwoRow"
-        onChange={(id) => setTab(id as TabId)}
-      />
+    <div className="flex flex-col gap-4" data-tour={ADMIN_TOUR_ANCHORS.sectionCollectionsRoot}>
+      <div data-tour={ADMIN_TOUR_ANCHORS.sectionCollectionsTabs}>
+        <UnderlineTabBar
+          idPrefix={idPrefix}
+          ariaLabel={t.aria}
+          items={items}
+          value={tab}
+          layout="gridTwoRow"
+          onChange={(id) => setTab(id as TabId)}
+        />
+      </div>
 
       <div
         role="tabpanel"

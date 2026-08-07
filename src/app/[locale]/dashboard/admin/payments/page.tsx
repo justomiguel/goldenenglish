@@ -16,5 +16,5 @@ interface PageProps {
  */
 export default async function AdminPaymentsRedirect({ params }: PageProps) {
   const { locale } = await params;
-  permanentRedirect(`/${locale}/dashboard/admin/finance?tab=payments`);
+  permanentRedirect(`/${locale}/dashboard/admin/finance?tab=inbox`);
 }

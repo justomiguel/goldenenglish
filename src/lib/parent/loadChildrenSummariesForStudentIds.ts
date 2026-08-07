@@ -9,6 +9,7 @@ type AssessmentMeta = { name: string; max_score: number | string; assessment_on:
 type GradeRow = {
   enrollment_id: string;
   score: number | string;
+  teacher_feedback: string | null;
   cohort_assessments: AssessmentMeta | AssessmentMeta[] | null;
 };
 
@@ -76,7 +77,7 @@ export async function loadChildrenSummariesForStudentIds(
       const { data: gradeRowsRaw } = await supabase
         .from("enrollment_assessment_grades")
         .select(
-          "enrollment_id, score, cohort_assessments(name, max_score, assessment_on)",
+          "enrollment_id, score, teacher_feedback, cohort_assessments(name, max_score, assessment_on)",
         )
         .eq("status", "published")
         .in("enrollment_id", enrollmentIds);
@@ -98,6 +99,7 @@ export async function loadChildrenSummariesForStudentIds(
             maxScore,
             assessmentName: String(bestRow.meta.name),
             assessmentOn: String(bestRow.meta.assessment_on).slice(0, 10),
+            hasTeacherFeedback: Boolean(bestRow.row.teacher_feedback?.trim()),
           };
         }
       }
@@ -137,6 +139,12 @@ export async function loadChildrenSummariesForStudentIds(
       lastPublishedGrade,
     });
   }
+
+  out.sort((a, b) => {
+    const left = formatProfileNameSurnameFirst(a.firstName, a.lastName).toLocaleLowerCase();
+    const right = formatProfileNameSurnameFirst(b.firstName, b.lastName).toLocaleLowerCase();
+    return left.localeCompare(right);
+  });
 
   return out;
 }

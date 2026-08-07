@@ -9,6 +9,7 @@ import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { loadAdminEmailTemplates } from "@/lib/email/templates/loadAdminEmailTemplates";
 import { EmailTemplatesShell } from "@/components/dashboard/admin/communications/EmailTemplatesShell";
 import type { Locale } from "@/types/i18n";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -38,7 +39,7 @@ export default async function AdminCommunicationsTemplatesPage({ params }: PageP
 
   return (
     <div className="space-y-4">
-      <header className="space-y-1">
+      <header className="space-y-1" data-tour={ADMIN_TOUR_ANCHORS.emailTemplatesTitle}>
         <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
           {dict.admin.communications.templates.title}
         </h1>

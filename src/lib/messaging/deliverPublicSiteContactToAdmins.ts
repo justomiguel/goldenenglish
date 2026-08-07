@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { EmailProvider } from "@/lib/email/emailProvider";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
@@ -19,6 +20,8 @@ export type DeliverPublicSiteContactInput = {
   metaLines: { label: string; value: string }[];
   bodyPlain: string;
   senderDisplayName: string;
+  /** Visitor full name for admin inbox From (persisted on portal_messages). */
+  visitorDisplayName: string;
   /** Visitor email for admin reply-by-mail (persisted on portal_messages). */
   visitorReplyEmail: string;
   emailProvider?: EmailProvider;
@@ -59,6 +62,7 @@ export async function deliverPublicSiteContactToAdmins(
   });
 
   const preview = input.bodyPlain.trim().slice(0, 500);
+  const batchId = randomUUID();
 
   for (const recipientId of adminIds) {
     const { error: insErr } = await admin.from("portal_messages").insert({
@@ -66,6 +70,8 @@ export async function deliverPublicSiteContactToAdmins(
       recipient_id: recipientId,
       body_html: bodyHtml,
       external_contact_reply_email: input.visitorReplyEmail.trim(),
+      external_contact_display_name: input.visitorDisplayName.trim() || null,
+      broadcast_batch_id: batchId,
     });
     if (insErr) {
       logSupabaseClientError("deliverPublicSiteContactToAdmins:insert", insErr, {
@@ -81,6 +87,7 @@ export async function deliverPublicSiteContactToAdmins(
         locale: input.locale,
         emailProvider,
         recipientRole: "admin",
+        source: "contact_form",
       });
     } catch (emailErr) {
       logServerException("deliverPublicSiteContactToAdmins:notifyEmail", emailErr, {

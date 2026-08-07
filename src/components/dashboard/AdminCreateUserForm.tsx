@@ -46,6 +46,7 @@ export function AdminCreateUserForm({
     <>
       <form
         onSubmit={f.onSubmit}
+        data-tour="admin-create-user-form"
         className="max-w-xl space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6"
       >
         <AdminCreateUserPersonalBlock
@@ -111,7 +112,12 @@ export function AdminCreateUserForm({
           />
         ) : null}
 
-        <Button type="submit" disabled={f.busy || f.reuseConfirm !== null} isLoading={f.busy}>
+        <Button
+          type="submit"
+          data-tour="admin-create-user-submit"
+          disabled={f.busy || f.reuseConfirm !== null}
+          isLoading={f.busy}
+        >
           {f.busy ? null : <UserPlus className="h-4 w-4 shrink-0" aria-hidden />}
           {labels.submit}
         </Button>

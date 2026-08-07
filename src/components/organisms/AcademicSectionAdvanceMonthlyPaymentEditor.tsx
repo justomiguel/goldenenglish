@@ -15,6 +15,7 @@ export interface AcademicSectionAdvanceMonthlyPaymentEditorProps {
   sectionId: string;
   initialAllowAdvance: boolean;
   dict: Dict;
+  embedded?: boolean;
 }
 
 export function AcademicSectionAdvanceMonthlyPaymentEditor({
@@ -22,6 +23,7 @@ export function AcademicSectionAdvanceMonthlyPaymentEditor({
   sectionId,
   initialAllowAdvance,
   dict,
+  embedded = false,
 }: AcademicSectionAdvanceMonthlyPaymentEditorProps) {
   const router = useRouter();
   const [allowed, setAllowed] = useState(initialAllowAdvance);
@@ -50,9 +52,22 @@ export function AcademicSectionAdvanceMonthlyPaymentEditor({
     });
   };
 
+  const Heading = embedded ? "h3" : "h2";
+  const shell = embedded
+    ? "space-y-1"
+    : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4";
+
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
+    <section className={shell}>
+      <Heading
+        className={
+          embedded
+            ? "text-sm font-semibold text-[var(--color-foreground)]"
+            : "text-base font-semibold text-[var(--color-primary)]"
+        }
+      >
+        {dict.title}
+      </Heading>
       <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{dict.lead}</p>
 
       <form

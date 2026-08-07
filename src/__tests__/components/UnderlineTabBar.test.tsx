@@ -1,5 +1,5 @@
-// REGRESSION CHECK: UnderlineTabBar is shared; gridTwoRow is used for section
-// admin tabs. Tab order, keyboard, and ARIA must stay valid for one tablist.
+// REGRESSION CHECK: UnderlineTabBar is shared across admin/parent shells.
+// Tab order, keyboard, and ARIA must stay valid for one tablist.
 import { useState } from "react";
 import { describe, expect, it } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";

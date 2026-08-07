@@ -1,5 +1,11 @@
 /** @vitest-environment node */
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { logServerWarn } from "@/lib/logging/serverActionLog";
+import { auditCommunicationsAction } from "@/lib/audit";
+
+// REGRESSION CHECK: Changing notifyPortalRecipientForStaffMessage observability
+// must keep happy-path branded email sends and must not throw when notify fails
+// (inbox persist callers rely on silent soft-failure).
 
 const getUserById = vi.fn();
 
@@ -53,6 +59,16 @@ vi.mock("@/lib/push/pushAfterNotify", () => ({
   pushAfterNotify: (...args: unknown[]) => pushAfterNotify(...args),
 }));
 
+vi.mock("@/lib/logging/serverActionLog", () => ({
+  logServerWarn: vi.fn(),
+  logServerException: vi.fn(),
+  logSupabaseClientError: vi.fn(),
+}));
+
+vi.mock("@/lib/audit", () => ({
+  auditCommunicationsAction: vi.fn().mockResolvedValue({ ok: true }),
+}));
+
 describe("notifyMessagingEmails", () => {
   const sendEmail = vi.fn().mockResolvedValue({ ok: true });
 
@@ -60,6 +76,8 @@ describe("notifyMessagingEmails", () => {
     getUserById.mockReset();
     sendEmail.mockClear();
     pushAfterNotify.mockClear();
+    vi.mocked(logServerWarn).mockClear();
+    vi.mocked(auditCommunicationsAction).mockClear();
     getUserById.mockResolvedValue({
       data: { user: { email: "teacher@example.com" } },
       error: null,
@@ -170,8 +188,69 @@ describe("notifyMessagingEmails", () => {
       locale: "en",
       emailProvider: { sendEmail },
       recipientRole: "admin",
+      source: "contact_form",
     });
     expect(sendEmail).not.toHaveBeenCalled();
+    expect(logServerWarn).toHaveBeenCalledWith(
+      "notifyPortalRecipientForStaffMessage:no_email",
+      expect.objectContaining({
+        reason: "no_email",
+        recipientId: "u1",
+        recipientRole: "admin",
+        source: "contact_form",
+      }),
+    );
+    expect(auditCommunicationsAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: "notify_failed",
+        resourceType: "portal_message_notify",
+        resourceId: "u1",
+        metadata: expect.objectContaining({
+          reason: "no_email",
+          recipientRole: "admin",
+          source: "contact_form",
+        }),
+      }),
+    );
+  });
+
+  it("notifyPortalRecipientForStaffMessage logs and audits when sendBrandedEmail fails", async () => {
+    sendEmail.mockResolvedValueOnce({ ok: false, error: "resend_down" });
+    const { notifyPortalRecipientForStaffMessage } = await import(
+      "@/lib/messaging/notifyMessagingEmails"
+    );
+    await notifyPortalRecipientForStaffMessage({
+      recipientId: "u1",
+      senderName: "Sender",
+      messagePreview: "x",
+      locale: "en",
+      emailProvider: { sendEmail },
+      recipientRole: "admin",
+      source: "parent_admin",
+    });
+    expect(sendEmail).toHaveBeenCalled();
+    expect(logServerWarn).toHaveBeenCalledWith(
+      "notifyPortalRecipientForStaffMessage:send_failed",
+      expect.objectContaining({
+        reason: "send_failed",
+        recipientId: "u1",
+        errorCode: "resend_down",
+        source: "parent_admin",
+      }),
+    );
+    expect(auditCommunicationsAction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: "notify_failed",
+        resourceType: "portal_message_notify",
+        resourceId: "u1",
+        metadata: expect.objectContaining({
+          reason: "send_failed",
+          recipientRole: "admin",
+          source: "parent_admin",
+          errorCode: "resend_down",
+        }),
+      }),
+    );
   });
 
   it("notifyPortalInboxForStudentOrParent routes parent and student recipients to their inbox", async () => {

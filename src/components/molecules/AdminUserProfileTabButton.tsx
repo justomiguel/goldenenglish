@@ -16,6 +16,8 @@ export interface AdminUserProfileTabButtonProps {
   onClick: () => void;
   tabId: AdminUserProfileTabId;
   title?: string;
+  /** Optional Driver.js / L3 `data-tour` anchor. */
+  tourId?: string;
 }
 
 export function AdminUserProfileTabButton({
@@ -27,6 +29,7 @@ export function AdminUserProfileTabButton({
   onClick,
   tabId,
   title,
+  tourId,
 }: AdminUserProfileTabButtonProps) {
   return (
     <button
@@ -35,6 +38,7 @@ export function AdminUserProfileTabButton({
       type="button"
       disabled={disabled}
       title={title}
+      data-tour={tourId}
       onClick={onClick}
       className={`relative inline-flex min-h-[48px] items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-semibold transition-colors ${
         active

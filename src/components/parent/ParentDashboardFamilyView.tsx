@@ -12,9 +12,7 @@ import { ParentHubIcsDownload } from "@/components/parent/ParentHubIcsDownload";
 import { ParentChildLastGradeLine } from "@/components/parent/ParentChildLastGradeLine";
 import { ParentContactTeacherCta } from "@/components/parent/ParentContactTeacherCta";
 import { ParentLearningTasksPanel } from "@/components/parent/ParentLearningTasksPanel";
-import { ParentLearningFeedbackPanel } from "@/components/parent/ParentLearningFeedbackPanel";
 import type { ParentLearningTaskRow } from "@/types/learningTasks";
-import type { ParentLearningFeedbackRow } from "@/lib/learning-content/loadParentLearningFeedback";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export interface ParentDashboardFamilyViewProps {
@@ -26,7 +24,6 @@ export interface ParentDashboardFamilyViewProps {
   labels: Dictionary["dashboard"]["parent"];
   hub?: ParentHubModel | null;
   learningTasks?: ParentLearningTaskRow[];
-  learningFeedback?: ParentLearningFeedbackRow[];
 }
 
 export function ParentDashboardFamilyView({
@@ -38,7 +35,6 @@ export function ParentDashboardFamilyView({
   labels,
   hub = null,
   learningTasks = [],
-  learningFeedback = [],
 }: ParentDashboardFamilyViewProps) {
   const selected =
     summaries.find((s) => s.studentId === selectedStudentId) ?? summaries[0];
@@ -64,7 +60,7 @@ export function ParentDashboardFamilyView({
             return (
               <Link
                 key={s.studentId}
-                href={`/${locale}/dashboard/parent?child=${encodeURIComponent(s.studentId)}`}
+                href={`/${locale}/dashboard/parent?studentId=${encodeURIComponent(s.studentId)}`}
                 className={
                   active
                     ? "rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-3 py-2 text-sm font-semibold text-[var(--color-primary-foreground)]"
@@ -133,7 +129,7 @@ export function ParentDashboardFamilyView({
                 {labels.navEditChild}
               </Link>
               <Link
-                href={`${payHrefBase}?child=${encodeURIComponent(selected.studentId)}`}
+                href={`${payHrefBase}?studentId=${encodeURIComponent(selected.studentId)}`}
                 className="text-sm font-semibold text-[var(--color-primary)] underline"
               >
                 {navPay}
@@ -184,11 +180,6 @@ export function ParentDashboardFamilyView({
           <ParentLearningTasksPanel
             locale={locale}
             tasks={learningTasks}
-            labels={labels}
-            selectedStudentId={selected?.studentId}
-          />
-          <ParentLearningFeedbackPanel
-            rows={learningFeedback}
             labels={labels}
             selectedStudentId={selected?.studentId}
           />

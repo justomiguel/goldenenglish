@@ -45,9 +45,6 @@ export function ConfirmActionModal({
   const descId = useId();
   const hasBody = Boolean(description || body || formSlot);
 
-  const destructiveClass =
-    "!bg-[var(--color-error)] !text-white hover:!bg-[var(--color-error)]/90 focus-visible:ring-[var(--color-error)]";
-
   return (
     <Modal
       open={open}
@@ -80,8 +77,7 @@ export function ConfirmActionModal({
         {!confirmHidden ? (
           <Button
             type="button"
-            variant="primary"
-            className={confirmVariant === "destructive" ? destructiveClass : ""}
+            variant={confirmVariant === "destructive" ? "destructiveStrong" : "primary"}
             disabled={busy || confirmDisabled}
             isLoading={busy}
             onClick={onConfirm}

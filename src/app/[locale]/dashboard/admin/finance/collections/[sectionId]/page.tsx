@@ -9,6 +9,7 @@ import { loadAdminSectionCollectionsView } from "@/lib/billing/loadAdminSectionC
 import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
 import { loadSectionCollectionsScholarshipsList } from "@/lib/billing/loadSectionCollectionsScholarshipsList";
 import { SectionCollectionsClient } from "@/components/dashboard/admin/finance/SectionCollectionsClient";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -69,7 +70,10 @@ export default async function AdminCollectionsSectionPage({
           <ArrowLeft className="h-3 w-3" aria-hidden />
           {d.matrix.back}
         </Link>
-        <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-foreground)]">
+        <h1
+          className="text-2xl font-semibold tracking-tight text-[var(--color-foreground)]"
+          data-tour={ADMIN_TOUR_ANCHORS.sectionCollectionsTitle}
+        >
           {view.sectionName}
         </h1>
         <p className="text-sm text-[var(--color-muted-foreground)]">

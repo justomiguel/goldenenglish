@@ -12,6 +12,7 @@ import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import type { AdminCouponRow } from "@/components/dashboard/AdminCouponsEntry";
 import type { Dictionary } from "@/types/i18n";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 interface AdminCouponsClientProps {
   locale: string;
@@ -76,13 +77,16 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
 
   return (
     <div className="space-y-8">
-      <div>
+      <div data-tour={ADMIN_TOUR_ANCHORS.couponsTitle}>
         <h1 className="text-2xl font-bold text-[var(--color-secondary)]">{labels.title}</h1>
         <p className="mt-2 text-[var(--color-muted-foreground)]">{labels.lead}</p>
       </div>
       {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}
 
-      <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+      <section
+        data-tour={ADMIN_TOUR_ANCHORS.couponsCreateForm}
+        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      >
         <h2 className="font-semibold text-[var(--color-secondary)]">{labels.createTitle}</h2>
         <form onSubmit={onCreate} className="mt-4 grid gap-3 sm:grid-cols-2">
           <div>
@@ -172,7 +176,10 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
         </form>
       </section>
 
-      <section className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
+      <section
+        data-tour={ADMIN_TOUR_ANCHORS.couponsTable}
+        className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]"
+      >
         {initialRows.length === 0 ? (
           <p className="p-6 text-sm text-[var(--color-muted-foreground)]">{labels.none}</p>
         ) : (

@@ -18,6 +18,8 @@ interface AcademicSectionLearningRouteSelectorProps {
   routes: LearningRouteContentTemplateOption[];
   assignment: SectionLearningRouteAssignment | null;
   dict: Dictionary["dashboard"]["academicSectionPage"]["learningRoute"];
+  /** When true, omits outer card chrome and duplicate header (used inside area block). */
+  embedded?: boolean;
 }
 
 export function AcademicSectionLearningRouteSelector({
@@ -27,6 +29,7 @@ export function AcademicSectionLearningRouteSelector({
   routes,
   assignment,
   dict,
+  embedded = false,
 }: AcademicSectionLearningRouteSelectorProps) {
   const initialValue = assignment?.mode === "route" && assignment.learningRouteId
     ? assignment.learningRouteId
@@ -37,12 +40,14 @@ export function AcademicSectionLearningRouteSelector({
   const router = useRouter();
   const isFreeFlow = value === "free_flow";
 
-  return (
-    <section className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-card)]">
-      <header>
-        <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{dict.title}</h2>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{dict.lead}</p>
-      </header>
+  const form = (
+    <>
+      {!embedded ? (
+        <header>
+          <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{dict.title}</h2>
+          <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{dict.lead}</p>
+        </header>
+      ) : null}
       <label className="block text-sm font-medium text-[var(--color-foreground)]">
         {dict.selectLabel}
         <select
@@ -94,6 +99,16 @@ export function AcademicSectionLearningRouteSelector({
         <Save className="h-4 w-4 shrink-0" aria-hidden />
         {dict.save}
       </Button>
+    </>
+  );
+
+  if (embedded) {
+    return <div className="space-y-4">{form}</div>;
+  }
+
+  return (
+    <section className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-card)]">
+      {form}
     </section>
   );
 }

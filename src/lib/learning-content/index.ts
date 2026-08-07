@@ -2,8 +2,6 @@ export * from "@/lib/learning-content/auditLearningContentStaffAction";
 export * from "@/lib/learning-content/domain";
 export * from "@/lib/learning-content/loadContentSections";
 export * from "@/lib/learning-content/loadLearningRouteWorkspace";
-export * from "@/lib/learning-content/loadParentLearningFeedback";
-export * from "@/lib/learning-content/loadStudentLearningFeedback";
 export * from "@/lib/learning-content/loadStudentMiniTests";
 export * from "@/lib/learning-content/loadTeacherAssessmentAttempts";
 export * from "@/lib/learning-content/types";

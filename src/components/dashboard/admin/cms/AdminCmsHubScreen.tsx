@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Newspaper, Palette } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export interface AdminCmsHubScreenProps {
   locale: string;
@@ -13,13 +14,16 @@ export function AdminCmsHubScreen({ locale, dict, blogEnabled }: AdminCmsHubScre
 
   return (
     <div className="space-y-8">
-      <header className="space-y-2">
+      <header className="space-y-2" data-tour={ADMIN_TOUR_ANCHORS.cmsTitle}>
         <h1 className="text-2xl font-bold text-[var(--color-foreground)]">{dict.hubTitle}</h1>
         <p className="max-w-2xl text-sm text-[var(--color-muted-foreground)]">{dict.hubLead}</p>
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <article className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm">
+        <article
+          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm"
+          data-tour={ADMIN_TOUR_ANCHORS.cmsTemplatesCard}
+        >
           <div className="flex items-start gap-3">
             <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--layout-border-radius)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
               <Palette className="h-5 w-5" aria-hidden />
@@ -39,7 +43,10 @@ export function AdminCmsHubScreen({ locale, dict, blogEnabled }: AdminCmsHubScre
         </article>
 
         {blogEnabled ? (
-          <article className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm">
+          <article
+            className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm"
+            data-tour={ADMIN_TOUR_ANCHORS.cmsBlogCard}
+          >
             <div className="flex items-start gap-3">
               <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--layout-border-radius)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
                 <Newspaper className="h-5 w-5" aria-hidden />

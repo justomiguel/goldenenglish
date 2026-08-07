@@ -9,6 +9,7 @@ import {
   publishEventAction,
   unpublishEventAction,
 } from "@/app/[locale]/dashboard/admin/events/actions";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 interface AdminEventPublishBarProps {
   locale: string;
@@ -65,7 +66,10 @@ export function AdminEventPublishBar({
   }
 
   return (
-    <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <section
+      className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      data-tour={ADMIN_TOUR_ANCHORS.eventDetailPublish}
+    >
       {isPublished ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-[var(--color-muted-foreground)]">{labels.publishedHint}</p>

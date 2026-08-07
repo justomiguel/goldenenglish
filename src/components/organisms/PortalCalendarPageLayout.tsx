@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export interface PortalCalendarPageLayoutProps {
   variant: "desktop" | "narrow";
@@ -33,15 +34,21 @@ export function PortalCalendarPageLayout({
   return (
     <div className={outer}>
       <div className={`${card} p-5 sm:p-8`}>
-        <header className="mb-6 space-y-2 border-b border-[var(--color-border)] pb-6">
+        <header
+          data-tour={adminFilters ? ADMIN_TOUR_ANCHORS.calendarTitle : undefined}
+          className="mb-6 space-y-2 border-b border-[var(--color-border)] pb-6"
+        >
           <h1 className={titleClass}>{title}</h1>
           {lead ? <p className="text-sm text-[var(--color-muted-foreground)]">{lead}</p> : null}
         </header>
         <div className="space-y-6">
           <aside className="rounded-[var(--layout-border-radius)] bg-[var(--color-muted)]/30 p-3 sm:p-4">{toolbar}</aside>
-          {adminFilters}
+          {adminFilters ? (
+            <div data-tour={ADMIN_TOUR_ANCHORS.calendarFilters}>{adminFilters}</div>
+          ) : null}
           {adminSpecialLink}
           <div
+            data-tour={adminFilters ? ADMIN_TOUR_ANCHORS.calendarSchedule : undefined}
             className={
               variant === "narrow"
                 ? "flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-2"

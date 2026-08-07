@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import { withStudentIdHref } from "@/lib/parent/withStudentIdHref";
 
 export interface ParentBreadcrumbProps {
   locale: string;
@@ -39,6 +40,8 @@ export function ParentBreadcrumb({
   baseHref = `/${locale}/dashboard/parent`,
 }: ParentBreadcrumbProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const studentId = searchParams.get("studentId");
 
   if (!pathname.startsWith(baseHref) || pathname === baseHref) return null;
 
@@ -77,7 +80,7 @@ export function ParentBreadcrumb({
               </span>
             ) : (
               <Link
-                href={crumb.href}
+                href={withStudentIdHref(crumb.href, studentId)}
                 className="rounded-sm transition hover:text-[var(--color-foreground)] hover:underline"
               >
                 {crumb.label}

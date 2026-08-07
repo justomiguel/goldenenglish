@@ -28,6 +28,7 @@ import {
   pickFinanceHubCohort,
 } from "@/lib/dashboard/finance/loadFinanceHubPendingCounts";
 import type { Locale } from "@/types/i18n";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -129,7 +130,10 @@ export default async function AdminFinanceHubPage({
 
   return (
     <div className="space-y-5">
-      <header className="flex items-start gap-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm">
+      <header
+        className="flex items-start gap-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm"
+        data-tour={ADMIN_TOUR_ANCHORS.financeHeader}
+      >
         <span
           aria-hidden
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--layout-border-radius)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]"

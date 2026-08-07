@@ -35,6 +35,8 @@ export interface AdminEventAttendeesPanelLabels {
   sourceLabels: Record<string, string>;
   tutorSectionTitle: string;
   customFieldsTitle: string;
+  openCustomFile: string;
+  customFieldImageAlt: string;
   noPhone: string;
   noBirthDate: string;
   noPayment: string;
@@ -145,11 +147,18 @@ export interface AdminEventAttendeeCustomFieldColumn {
   label: string;
 }
 
+export function resolveAttendeeCustomField(
+  customFields: EventAttendeeCustomFieldValue[],
+  fieldKey: string,
+): EventAttendeeCustomFieldValue | null {
+  return customFields.find((field) => field.fieldKey === fieldKey) ?? null;
+}
+
 export function resolveAttendeeCustomFieldDisplayValue(
   customFields: EventAttendeeCustomFieldValue[],
   fieldKey: string,
 ): string {
-  const match = customFields.find((field) => field.fieldKey === fieldKey);
+  const match = resolveAttendeeCustomField(customFields, fieldKey);
   return match ? formatAttendeeCustomFieldValue(match) : "—";
 }
 

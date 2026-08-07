@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
 import { Modal } from "@/components/atoms/Modal";
 import { Button } from "@/components/atoms/Button";
@@ -10,6 +9,7 @@ import { SectionPeriodFields } from "@/components/molecules/SectionPeriodFields"
 import { NewSectionMaxStudentsFields } from "@/components/molecules/NewSectionMaxStudentsFields";
 import { NewSectionTeacherAndNameFields } from "@/components/molecules/NewSectionTeacherAndNameFields";
 import { createAcademicSectionAction } from "@/app/[locale]/dashboard/admin/academic/sectionActions";
+import { useAdminTourSessionActive } from "@/lib/admin-tutorials/client/adminTourSession";
 import {
   createEmptySectionScheduleSlotDraft,
   sectionScheduleDraftsToSlots,
@@ -29,7 +29,8 @@ export function AcademicNewSectionModal({
   defaultMaxStudents,
   dict,
 }: AcademicNewSectionModalProps) {
-  const router = useRouter();
+  const tourActive = useAdminTourSessionActive();
+  const [retainStackedAfterTour, setRetainStackedAfterTour] = useState(false);
   const [name, setName] = useState("");
   const [teacherId, setTeacherId] = useState("");
   const [startsOn, setStartsOn] = useState(() => defaultSectionPeriodInitial().startsOn);
@@ -42,6 +43,12 @@ export function AcademicNewSectionModal({
   const [err, setErr] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const [openSnapshot, setOpenSnapshot] = useState(open);
+
+  if (open && tourActive && !retainStackedAfterTour) {
+    setRetainStackedAfterTour(true);
+  } else if (!open && retainStackedAfterTour) {
+    setRetainStackedAfterTour(false);
+  }
 
   if (open && !openSnapshot) {
     setOpenSnapshot(true);
@@ -93,8 +100,11 @@ export function AcademicNewSectionModal({
         return;
       }
       handleModalOpenChange(false);
-      router.push(`/${locale}/dashboard/admin/academic/${cohortId}/${r.id}`);
-      router.refresh();
+      // Hard navigate: soft push races hub revalidation and can leave the user on the
+      // cohort page after create (create-section E2E) — same pattern as new cohort.
+      window.location.assign(
+        `/${locale}/dashboard/admin/academic/${cohortId}/${r.id}`,
+      );
     });
   };
 
@@ -131,23 +141,27 @@ export function AcademicNewSectionModal({
       titleId="new-section-title"
       title={dict.title}
       disableClose={pending}
+      stackBelowTour={tourActive || retainStackedAfterTour}
     >
       <div className="space-y-3">
         {teachers.length === 0 ? (
           <p className="text-sm text-[var(--color-muted-foreground)]">{dict.noTeachers}</p>
         ) : null}
 
-        <NewSectionTeacherAndNameFields
-          name={name}
-          onNameChange={setName}
-          teacherId={teacherId}
-          onTeacherIdChange={setTeacherId}
-          teachers={teachers}
-          dict={basicsDict}
-          disabled={pending}
-        />
+        <div data-tour="academic-new-section-basics">
+          <NewSectionTeacherAndNameFields
+            name={name}
+            onNameChange={setName}
+            teacherId={teacherId}
+            onTeacherIdChange={setTeacherId}
+            teachers={teachers}
+            dict={basicsDict}
+            disabled={pending}
+          />
+        </div>
 
-        <SectionPeriodFields
+        <div data-tour="academic-new-section-period">
+          <SectionPeriodFields
           idPrefix="ns-period"
           startsOn={startsOn}
           endsOn={endsOn}
@@ -158,6 +172,7 @@ export function AcademicNewSectionModal({
           dict={periodDict}
           disabled={pending}
         />
+        </div>
 
         <NewSectionMaxStudentsFields
           defaultMaxStudents={defaultMaxStudents}
@@ -173,7 +188,7 @@ export function AcademicNewSectionModal({
           disabled={pending}
         />
 
-        <div>
+        <div data-tour="academic-new-section-schedule">
           <p className="text-sm font-medium text-[var(--color-foreground)]">{dict.scheduleTitle}</p>
           <div className="mt-2">
             <SectionScheduleFields
@@ -200,6 +215,7 @@ export function AcademicNewSectionModal({
             type="button"
             isLoading={pending}
             disabled={pending || !canSubmit}
+            data-tour="academic-new-section-submit"
             onClick={submit}
           >
             {!pending ? <Plus className="h-4 w-4 shrink-0" aria-hidden /> : null}

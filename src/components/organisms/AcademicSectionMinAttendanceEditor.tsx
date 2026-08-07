@@ -16,6 +16,7 @@ export interface AcademicSectionMinAttendanceEditorProps {
   initialSectionOverride: number | null;
   siteDefaultMin: number;
   dict: Dictionary["dashboard"]["academicSectionPage"]["minAttendance"];
+  embedded?: boolean;
 }
 
 export function AcademicSectionMinAttendanceEditor({
@@ -24,6 +25,7 @@ export function AcademicSectionMinAttendanceEditor({
   initialSectionOverride,
   siteDefaultMin,
   dict,
+  embedded = false,
 }: AcademicSectionMinAttendanceEditorProps) {
   const router = useRouter();
   const [value, setValue] = useState(
@@ -81,9 +83,17 @@ export function AcademicSectionMinAttendanceEditor({
   const hintDefault = dict.hintDefault.replace(/\{\{default\}\}/g, String(siteDefaultMin));
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
-      <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{dict.lead}</p>
+    <div
+      className={
+        embedded
+          ? ""
+          : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      }
+    >
+      {!embedded ? (
+        <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
+      ) : null}
+      <p className={(embedded ? "" : "mt-1 ") + "text-xs text-[var(--color-muted-foreground)]"}>{dict.lead}</p>
       <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{hintDefault}</p>
       {usingSiteDefault ? (
         <p className="mt-1 text-xs font-medium text-[var(--color-foreground)]">{dict.usingSiteDefault}</p>
@@ -129,6 +139,6 @@ export function AcademicSectionMinAttendanceEditor({
           </p>
         ) : null}
       </div>
-    </section>
+    </div>
   );
 }

@@ -1,13 +1,22 @@
 import { describe, expect, it } from "vitest";
 import {
+  EMAIL_TEMPLATES_E2E_ADMIN_EMAIL,
   EMAIL_TEMPLATES_MEGA_ADMIN_EMAIL,
   isEmailTemplatesMegaAdmin,
 } from "@/lib/auth/emailTemplatesMegaAdmin";
+
+// REGRESSION CHECK: Allowlist must include isolated E2E admin or L3
+// screen:admin-email-templates redirects away and never mounts data-tour anchors.
 
 describe("isEmailTemplatesMegaAdmin", () => {
   it("matches allowlisted email case-insensitively with trim", () => {
     expect(isEmailTemplatesMegaAdmin(EMAIL_TEMPLATES_MEGA_ADMIN_EMAIL)).toBe(true);
     expect(isEmailTemplatesMegaAdmin("  JUSTOMIGUELVARGAS@gmail.com  ")).toBe(true);
+  });
+
+  it("matches isolated e2e harness admin email", () => {
+    expect(isEmailTemplatesMegaAdmin(EMAIL_TEMPLATES_E2E_ADMIN_EMAIL)).toBe(true);
+    expect(isEmailTemplatesMegaAdmin("  E2E-ADMIN@EXAMPLE.TEST  ")).toBe(true);
   });
 
   it("rejects other admins", () => {

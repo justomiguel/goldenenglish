@@ -14,6 +14,7 @@ export interface AcademicSectionRoomLabelEditorProps {
   sectionId: string;
   initialRoomLabel: string | null;
   dict: Dictionary["dashboard"]["academicSectionPage"]["roomLabel"];
+  embedded?: boolean;
 }
 
 export function AcademicSectionRoomLabelEditor({
@@ -21,6 +22,7 @@ export function AcademicSectionRoomLabelEditor({
   sectionId,
   initialRoomLabel,
   dict,
+  embedded = false,
 }: AcademicSectionRoomLabelEditorProps) {
   const router = useRouter();
   const [value, setValue] = useState(initialRoomLabel ?? "");
@@ -42,9 +44,17 @@ export function AcademicSectionRoomLabelEditor({
   };
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
-      <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{dict.lead}</p>
+    <div
+      className={
+        embedded
+          ? ""
+          : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      }
+    >
+      {!embedded ? (
+        <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.title}</h2>
+      ) : null}
+      <p className={(embedded ? "" : "mt-1 ") + "text-xs text-[var(--color-muted-foreground)]"}>{dict.lead}</p>
       <div className="mt-3 space-y-2">
         <Label htmlFor={`sec-room-${sectionId}`}>{dict.label}</Label>
         <Input
@@ -66,6 +76,6 @@ export function AcademicSectionRoomLabelEditor({
           </p>
         ) : null}
       </div>
-    </section>
+    </div>
   );
 }

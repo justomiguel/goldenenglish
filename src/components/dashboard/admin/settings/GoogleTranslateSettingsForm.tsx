@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Languages, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { setGoogleTranslateCredentialsAction } from "@/app/[locale]/dashboard/admin/settings/actions";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 interface GoogleTranslateSettingsFormProps {
   locale: string;
@@ -51,7 +52,10 @@ export function GoogleTranslateSettingsForm({
   }
 
   return (
-    <section className="mt-6 max-w-2xl rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6">
+    <section
+      className="mt-6 max-w-2xl rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6"
+      data-tour={ADMIN_TOUR_ANCHORS.settingsIntegrationsForm}
+    >
       <div className="flex items-center gap-2">
         <Languages aria-hidden className="h-4 w-4" />
         <h2 className="text-lg font-semibold text-[var(--color-secondary)]">{labels.title}</h2>
@@ -75,6 +79,7 @@ export function GoogleTranslateSettingsForm({
         className="mt-4 inline-flex items-center gap-2 rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-foreground)] disabled:opacity-70"
         onClick={onSave}
         disabled={saving}
+        data-tour={ADMIN_TOUR_ANCHORS.settingsIntegrationsSave}
       >
         <Save aria-hidden className="h-4 w-4" />
         {labels.save}

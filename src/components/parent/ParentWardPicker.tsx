@@ -46,7 +46,8 @@ export function ParentWardPicker({
 
   function onChange(event: ChangeEvent<HTMLSelectElement>) {
     const next = event.target.value;
-    const url = new URL(basePath, window.location.origin);
+    const url = new URL(window.location.href);
+    url.pathname = new URL(basePath, window.location.origin).pathname;
     if (next) url.searchParams.set(paramName, next);
     else url.searchParams.delete(paramName);
     router.push(`${url.pathname}?${url.searchParams.toString()}`);

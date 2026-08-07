@@ -1,9 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { buildEventAttendeesXlsxArtifact } from "@/lib/events/export/buildEventAttendeesXlsxArtifact";
 
+/** 1x1 PNG */
+const TINY_PNG = Uint8Array.from(
+  Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+    "base64",
+  ),
+);
+
 describe("buildEventAttendeesXlsxArtifact", () => {
-  it("returns an xlsx artifact with letterhead and table rows", () => {
-    const artifact = buildEventAttendeesXlsxArtifact({
+  it("returns an xlsx artifact with letterhead and table rows", async () => {
+    const artifact = await buildEventAttendeesXlsxArtifact({
       eventSlug: "workshop-may",
       brand: {
         instituteName: "Golden English",
@@ -29,8 +37,21 @@ describe("buildEventAttendeesXlsxArtifact", () => {
         sheetName: "Attendees",
       },
       table: {
-        headers: ["Name", "Email"],
-        rows: [["Ana García", "ana@example.com"]],
+        headers: ["Name", "Email", "Photo"],
+        rows: [
+          [
+            { text: "Ana García" },
+            { text: "ana@example.com" },
+            {
+              text: "face.png",
+              image: {
+                dataUrl: "data:image/png;base64,aaa",
+                bytes: TINY_PNG,
+                extension: "png",
+              },
+            },
+          ],
+        ],
       },
       attendeeCount: 1,
       exportedAtFormatted: "30/05/2026 10:00",

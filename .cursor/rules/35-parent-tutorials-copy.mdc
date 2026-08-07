@@ -1,0 +1,40 @@
+---
+description: Parent guided tutorials — explanatory copy, surface-aware steps, and i18n.
+globs:
+  - "src/lib/parent-tutorials/**"
+  - "src/components/dashboard/ParentHelp*.tsx"
+  - "src/components/parent/**"
+  - "src/components/pwa/**/Parent*"
+  - "src/dictionaries/en.json"
+  - "src/dictionaries/es.json"
+  - "src/dictionaries/pt.json"
+alwaysApply: false
+---
+
+# Parent guided tutorials — copy and presentation
+
+## Objective
+
+Driver.js tours in the parent Help FAB must **teach** family portal options on **desktop and mobile/PWA**.
+
+## Copy
+
+1. Substantive step descriptions (2–4 sentences conceptual; 1–2 mechanical).
+2. Keys in **en / es / pt** under `dashboard.parentHelp*` (`09-i18n-copy.mdc`).
+3. Home is the only `chrome-and-content` tour; other explains are `content-only`.
+4. Steps may declare `surfaces: desktop | mobile | both`; runner filters via `useAppSurface()`.
+
+## Architecture checklist (new tour)
+
+- [ ] Catalog / screen registry / selectors / step builder
+- [ ] Dictionary keys all locales
+- [ ] `listParentTourRuntimeChecks` row
+- [ ] Anchors on real UI (`PARENT_TOUR_ANCHORS`)
+- [ ] Analytics `parent_screen_tour:*` / `parent_tutorial:*`
+
+## Cross-rules
+
+- Spec: `docs/superpowers/specs/2026-07-12-parent-portal-guided-tours-design.md`
+- ADR: `docs/adr/2026-07-parent-help-driverjs-tutorials.md`
+- Staleness: `.cursor/rules/36-parent-tutorials-contract.mdc`
+- Admin sibling: `.cursor/rules/31-admin-tutorials-copy.mdc`

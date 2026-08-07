@@ -7,6 +7,8 @@ import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { AdminDashboardShell } from "@/components/dashboard/AdminDashboardShell";
 import { AdminCommandPalette } from "@/components/dashboard/AdminCommandPalette";
+import { AdminHelpLauncher } from "@/components/dashboard/AdminHelpLauncher";
+import { AdminTutorialMissingCohortHost } from "@/components/dashboard/AdminTutorialMissingCohortHost";
 import { loadNeedsInitialSiteSetup } from "@/lib/site/loadNeedsInitialSiteSetup";
 import { AdminInitialSiteSetupGate } from "@/components/dashboard/admin/site-setup/AdminInitialSiteSetupGate";
 import { isEmailTemplatesMegaAdmin } from "@/lib/auth/emailTemplatesMegaAdmin";
@@ -88,7 +90,19 @@ export default async function AdminSectionLayout({
         redirectLabel={dict.dashboard.siteSetup.gateRedirect}
       >
         {needsInitialSiteSetup ? null : (
-          <AdminCommandPalette locale={locale} dict={dict.dashboard.adminCommandPalette} />
+          <>
+            <AdminCommandPalette locale={locale} dict={dict.dashboard.adminCommandPalette} />
+            <AdminHelpLauncher
+              locale={locale}
+              launcherDict={dict.dashboard.adminHelpLauncher}
+              catalogDict={dict.dashboard.adminHelpCatalog}
+              catalogGroupsDict={dict.dashboard.adminHelpCatalogGroups}
+              toursDict={dict.dashboard.adminHelpTours}
+              explainScreenDict={dict.dashboard.adminHelpExplainScreen}
+              screenToursDict={dict.dashboard.adminHelpScreenTours}
+            />
+            <AdminTutorialMissingCohortHost />
+          </>
         )}
         {children}
       </AdminInitialSiteSetupGate>

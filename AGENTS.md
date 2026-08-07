@@ -8,13 +8,17 @@
 
 Workspace rules in **`.cursor/rules/`** override generic skill examples when they conflict (design system, security, PWA surfaces, testing/coverage, **analytics / eventos**, **copy / i18n**). **Nuevo tenant local/Vercel o plantilla `site_theme_kind`:** briefing obligatorio en [`docs/runbooks/add-new-tenant.md`](docs/runbooks/add-new-tenant.md), luego regla **`.cursor/rules/19-multi-tenant-local-vercel-targets.mdc`**. **Deploy Vercel (CLI, todos los proyectos):** [`scripts/README.md`](scripts/README.md#deploy-a-vercel-multi-tenant).
 
-## Workflow: preflight (acuerdo antes de implementar)
+## Workflow: Spec-Driven Development (SDD)
 
-Para alinear alcance y plan **antes** de que el agente cambie código, usar la regla **`.cursor/rules/20-agent-preflight.mdc`**.
+**From now on**, every repo change starts with a **written spec** (mini or full) under [`docs/superpowers/specs/`](docs/superpowers/specs/), then user approval, then plan (when needed), then TDD.
 
-- **Forzar siempre** ese modo: incluir **`PREFLIGHT`** en el mensaje.
-- **Saltear** (cambios triviales y bajo riesgo): pedir explícitamente implementar directo o “skip preflight”, salvo que el tema sea auth, datos, RLS, migración o contrato público (ver regla).
-- En tareas grandes, combinar con el **Plan** del producto (p. ej. planificación antes de ejecutar en Cursor) cuando esté disponible.
+- Gate 0 / preflight: **`.cursor/rules/20-agent-preflight.mdc`** (tags **`PREFLIGHT`** / **`SPEC`** force the mode).
+- SDD cycle: **`.cursor/rules/29-spec-driven-development.mdc`** + skill **`spec-driven-development`**.
+- **Mechanical lock:** project hooks in **`.cursor/hooks.json`** deny `Write`/`StrReplace`/`Delete` until **`.cursor/sdd-gate0-approved`** (gitignored) points at an approved spec. After the user says go, create that marker before editing implementation files. Self-check: `node .cursor/hooks/sdd-gate0-self-check.mjs`.
+- Self-contained tests: **`.cursor/rules/30-harness-self-contained-tests.mdc`** + skill **`harness-self-contained-tests`**.
+- Plans: [`docs/superpowers/plans/`](docs/superpowers/plans/).
+- Nothing skips the written spec—even one-line changes use a **mini-spec** (Intent / Done when / Out of scope).
+- Auth/data/public contracts still need ADRs when **`10-engineering-governance.mdc`** applies.
 
 ## Structured logging (ops / Vercel)
 
@@ -40,10 +44,14 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`17-trust-boundary-handlers.mdc`** | Bordes de confianza: secretos de cron solo por header (`verifyCronRequest`), `Cache-Control: private` en respuestas personalizadas, mutaciones cross-account con `createAdminClient` requieren re-auth + auditoría (`system_config_audit`) + notificación al titular, HTML editable persistido pasa por sanitizer del repo (`sanitizeMessageHtml`, `sanitizeEmailTemplateHtml`). Origen: auditoría OWASP de 2026-04. |
 | **`16-admin-buttons-icons.mdc`** | `Button` y enlaces CTA: icono Lucide leading + a11y; al tocar un control sin icono, añadirlo si el alcance lo permite. |
 | **`18-no-native-browser-dialogs.mdc`** | Sin `alert` / `confirm` / `prompt` en producto: `Modal` + DS, toasts/banners existentes, **11** para jobs largos; copy **09**. |
-| **`20-agent-preflight.mdc`** | Plan y acuerdo antes de implementar cuando aplica; marca **`PREFLIGHT`**; lectura read-only permitida para armar el plan. |
+| **`20-agent-preflight.mdc`** | SDD Gate 0 — written spec before edits; **`PREFLIGHT`** / **`SPEC`**. |
+| **`29-spec-driven-development.mdc`** | SDD: spec aprobado en `docs/superpowers/specs/` antes de implementar; mini-spec para cambios mínimos; plan + TDD después. |
+| **`30-harness-self-contained-tests.mdc`** | Tests autocontenidos: cada archivo bajo `src/__tests__/` corre solo; mocks locales; sin estado mutable entre archivos. |
 | **`21-migrations-production-no-data-destruction.mdc`** | Migraciones **sin** borrado destructivo de datos (`TRUNCATE`, `DROP TABLE`/columna con pérdida, `DELETE` masivo); producción y entornos reales se tratan como críticos; excepciones solo con proceso humano documentado. |
 | **`25-server-error-logging.mdc`** | Todo error servidor: **`[ge:server]`** (`serverActionLog.ts`) — `scope` estable, códigos/IDs, suficiente para Vercel/ops; prohibido swallow silencioso; sin PII/secrets. |
 | **`27-post-mutation-ui-refresh.mdc`** | Tras mutaciones visibles: **`revalidatePath`** (server) + **`router.refresh()`** (client/hooks); edit flows incluidos; hooks con refresh integrado. |
+| **`32-manual-qa-user-owned.mdc`** | QA manual en browser / tenant: lo hace el usuario; el agente no ofrece walkthroughs salvo pedido explícito; Vitest y automatización sí. |
+| **`34-precommit-e2e.mdc`** | Precommit fail-closed: `test:e2e:precommit` + `.env.local.e2e`; `SKIP_E2E=1` solo con aprobación explícita del usuario. |
 
 **Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`**, **`24-dashboard-list-filter-aggregates-rpc.mdc`** — agregados para filtros de listados en dashboard para **cualquier rol**, **`28-tenant-register-surface.mdc`** — `/register` con superficie dedicada por `SiteThemeKind`).
 
@@ -65,7 +73,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 
 ## When in doubt
 
-1. Alineación antes de codificar: **`.cursor/rules/20-agent-preflight.mdc`** (usar **`PREFLIGHT`** en el mensaje para forzar).
+1. Spec-Driven Development: **`.cursor/rules/29-spec-driven-development.mdc`** + Gate 0 **`20-agent-preflight.mdc`** (spec escrito y aprobado antes de editar; **`PREFLIGHT`** / **`SPEC`** fuerzan el modo).
 2. Read the relevant **`.cursor/rules/*.mdc`** file.
 3. Prefer **project conventions** over copy-pasting generic skill code.
 4. Nuevas features con impacto en producto o admin: **`.cursor/rules/08-analytics-observability.mdc`** (eventos y auditoría).

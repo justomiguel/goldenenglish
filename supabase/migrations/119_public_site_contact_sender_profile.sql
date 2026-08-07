@@ -1,13 +1,13 @@
 -- System profile + auth user used as portal_messages.sender_id for public "contact us"
 -- form submissions (service-role inserts). Not for interactive login.
 -- Depends on 118_public_site_contact_sender.sql (user_role.site_contact committed).
+-- encrypted_password stays NULL: password sign-in must never succeed for this user.
 
 DO $$
 DECLARE
   v_id uuid := '6f0e8c8a-7b1d-4c2e-9f3a-8e5d2c1b0a99'::uuid;
   v_email text := 'site-contact-sender@internal.invalid';
   v_instance uuid := '00000000-0000-0000-0000-000000000000'::uuid;
-  v_password text := 'do-not-login-site-contact-sender-placeholder';
   v_meta jsonb := jsonb_build_object(
     'first_name', 'Site',
     'last_name', 'contact form',
@@ -36,7 +36,6 @@ BEGIN
     aud,
     role,
     email,
-    encrypted_password,
     email_confirmed_at,
     confirmation_token,
     recovery_token,
@@ -55,7 +54,6 @@ BEGIN
     'authenticated',
     'authenticated',
     v_email,
-    crypt(v_password, gen_salt('bf')),
     now(),
     '',
     '',

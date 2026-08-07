@@ -9,6 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export type FinanceHubTabId =
   | "collections"
@@ -27,9 +28,11 @@ export const FINANCE_HUB_TAB_ORDER: readonly FinanceHubTabId[] = [
 
 export const DEFAULT_FINANCE_HUB_TAB: FinanceHubTabId = "collections";
 
-/** Legacy URLs used `tab=overview`; same hub view is now default `collections`. */
+/** Legacy URLs: overview → collections; payments/receipts → inbox. */
 const LEGACY_TAB_ALIASES: Readonly<Record<string, FinanceHubTabId>> = {
   overview: "collections",
+  payments: "inbox",
+  receipts: "inbox",
 };
 
 export function parseFinanceHubTab(raw: string | undefined): FinanceHubTabId {
@@ -107,6 +110,14 @@ function buildHref(
   return `${baseHref}?${params.toString()}`;
 }
 
+const TAB_TOUR_ANCHORS: Record<FinanceHubTabId, string> = {
+  collections: ADMIN_TOUR_ANCHORS.financeTabCollections,
+  inbox: ADMIN_TOUR_ANCHORS.financeTabInbox,
+  events: ADMIN_TOUR_ANCHORS.financeTabEvents,
+  insights: ADMIN_TOUR_ANCHORS.financeTabInsights,
+  settings: ADMIN_TOUR_ANCHORS.financeTabSettings,
+};
+
 function tabClasses(isActive: boolean): string {
   const base =
     "group relative inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium outline-offset-2 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-primary)] sm:px-4 sm:py-3";
@@ -136,11 +147,14 @@ export function FinanceHubTabs({
 }: FinanceHubTabsProps) {
   return (
     <div className="space-y-4">
-      {cohortSelector}
+      {cohortSelector ? (
+        <div data-tour={ADMIN_TOUR_ANCHORS.financeCohortYear}>{cohortSelector}</div>
+      ) : null}
       {kpiStrip}
       <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
         <nav
           aria-label={dict.title}
+          data-tour={ADMIN_TOUR_ANCHORS.financeTabs}
           className="flex w-full overflow-x-auto border-b border-[var(--color-border)]"
         >
           {FINANCE_HUB_TAB_ORDER.map((tab) => {
@@ -156,6 +170,7 @@ export function FinanceHubTabs({
                 aria-label={dict.tabs[tab]}
                 aria-current={isActive ? "page" : undefined}
                 className={tabClasses(isActive)}
+                data-tour={TAB_TOUR_ANCHORS[tab]}
               >
                 <Icon
                   className={`h-4 w-4 shrink-0 transition ${
@@ -179,7 +194,7 @@ export function FinanceHubTabs({
           {tooltipFor(current, dict)}
         </p>
       </div>
-      <div>{children}</div>
+      <div data-tour={ADMIN_TOUR_ANCHORS.financeWorkspace}>{children}</div>
     </div>
   );
 }

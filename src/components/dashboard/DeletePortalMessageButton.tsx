@@ -54,8 +54,8 @@ export function DeletePortalMessageButton({
     <>
       <Button
         type="button"
-        variant="secondary"
-        className="min-h-[44px] border-[var(--color-error)] text-[var(--color-error)] hover:bg-[var(--color-muted)]"
+        variant="destructive"
+        className="min-h-[44px]"
         title={labels.deletePortalMessageTitle}
         onClick={() => {
           setModalError(null);

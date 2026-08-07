@@ -37,6 +37,8 @@ export function localizeRegistrationAcceptError(
       return U.errCreatePassword;
     case "tutor_dni_required":
       return R.errMinorRequiresTutorDni;
+    case "tutor_mail_tenant_missing":
+      return dict.actionErrors.register.mailTenantMissing;
     case "tutor_dni_in_use_by_student":
       return R.errTutorDniInUseByStudent;
     case "enrollment_failed":

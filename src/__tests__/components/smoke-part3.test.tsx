@@ -158,23 +158,16 @@ describe("component smoke — dashboard & forms", () => {
     );
   });
 
-  it("AdminSidebarNavContent shows dual-role hint when teacherNav is set", () => {
+  it("AdminSidebarNavContent does not render dual-role hint (TeacherSwitchCard removed)", () => {
     render(
       <AdminSidebarNavContent
         locale="es"
         dict={dictEn.dashboard.adminNav}
         newRegistrationsCount={3}
         recentInboundMessagesCount={0}
-        teacherNav={{
-          href: "/es/dashboard/teacher",
-          hint: dictEn.dashboard.adminChrome.dualRoleNavHint,
-          cta: dictEn.dashboard.adminChrome.openTeacherDashboard,
-          ctaAria: dictEn.dashboard.adminChrome.openTeacherDashboardAria,
-          switchHint: dictEn.dashboard.adminNav.workspaceSwitchHint,
-        }}
       />,
     );
-    expect(screen.getByText(dictEn.dashboard.adminChrome.dualRoleNavHint)).toBeInTheDocument();
+    expect(screen.queryByText(dictEn.dashboard.adminChrome.dualRoleNavHint)).not.toBeInTheDocument();
   });
 
   it("AdminSidebarNavContent", () => {

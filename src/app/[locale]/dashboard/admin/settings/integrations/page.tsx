@@ -6,6 +6,7 @@ import {
   maskGoogleApiKey,
 } from "@/lib/blog/integrations/google/loadGoogleTranslateCredentials";
 import { GoogleTranslateSettingsForm } from "@/components/dashboard/admin/settings/GoogleTranslateSettingsForm";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -23,7 +24,10 @@ export default async function AdminSettingsIntegrationsPage({ params }: PageProp
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-[var(--color-secondary)]">
+      <h1
+        className="mb-6 text-2xl font-bold text-[var(--color-secondary)]"
+        data-tour={ADMIN_TOUR_ANCHORS.settingsIntegrationsTitle}
+      >
         {dict.admin.settings.integrationsTitle}
       </h1>
       <GoogleTranslateSettingsForm

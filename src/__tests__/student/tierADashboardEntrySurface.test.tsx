@@ -10,6 +10,7 @@ const samplePillars: ParentHomePillarSnapshot = {
   attendance: { level: "ok", monthPercent: null },
   messages: { level: "ok", staffInboundCount: 0 },
   payments: { level: "ok", hasOverdueMonthly: false, overdueInvoiceCount: 0 },
+  progress: { level: "unknown", lastPublishedGrade: null },
 };
 
 vi.mock("@/components/student/AttendancePlayboard", () => ({

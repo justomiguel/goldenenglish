@@ -4,6 +4,7 @@ import type { Dictionary } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { AdminUserAvatarUploadForm } from "@/components/molecules/AdminUserAvatarUploadForm";
 import { useAvatarUploadPreview } from "@/hooks/useAvatarUploadPreview";
 
@@ -57,7 +58,10 @@ export function AdminUserIdentityHero({
         <div className="min-w-0 space-y-4">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="break-words font-display text-2xl font-bold leading-tight text-[var(--color-secondary)]">
+              <h1
+                className="break-words font-display text-2xl font-bold leading-tight text-[var(--color-secondary)]"
+                data-tour={ADMIN_TOUR_ANCHORS.userDetailTitle}
+              >
                 {displayName}
               </h1>
               <span className="rounded-full border border-[color-mix(in_srgb,var(--color-accent)_30%,var(--color-border))] bg-[var(--color-background)] px-3 py-1 text-xs font-semibold text-[var(--color-primary)]">

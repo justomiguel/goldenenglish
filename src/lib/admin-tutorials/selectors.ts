@@ -1,0 +1,21 @@
+export {
+  ADMIN_TOUR_ANCHORS,
+  type AdminTourAnchor,
+} from "@/lib/admin-tutorials/adminTourAnchors";
+export {
+  ADMIN_TUTORIAL_OPEN_NEW_COHORT_EVENT,
+  ADMIN_TUTORIAL_ACTIVATE_COHORT_SECTIONS_TAB_EVENT,
+  ADMIN_TUTORIAL_OPEN_NEW_SECTION_EVENT,
+  ADMIN_TUTORIAL_ACTIVATE_SCHOLARSHIPS_TAB_EVENT,
+  ADMIN_TUTORIAL_ACTIVATE_SECURITY_TAB_EVENT,
+  ADMIN_TUTORIAL_APPLY_CREATE_USER_DEMO_EVENT,
+  ADMIN_TUTORIAL_ACTIVATE_SITE_SETUP_LEGAL_BILLING_STEP_EVENT,
+  ADMIN_TUTORIAL_ACTIVATE_SECTION_COLLECTIONS_SCHOLARSHIPS_TAB_EVENT,
+  ADMIN_TUTORIAL_OPEN_BULK_SCHOLARSHIP_MODAL_EVENT,
+} from "@/lib/admin-tutorials/adminTourEvents";
+
+import type { AdminTourAnchor } from "@/lib/admin-tutorials/adminTourAnchors";
+
+export function adminTourSelector(anchor: AdminTourAnchor): string {
+  return `[data-tour="${anchor}"]`;
+}

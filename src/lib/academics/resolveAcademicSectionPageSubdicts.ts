@@ -8,6 +8,7 @@ export function resolveAcademicSectionPageSubdicts(
   const dEn = enFallback.dashboard.academicSectionPage;
   return {
     shellTabLabels: d.shellTabs ?? dEn.shellTabs,
+    settingsSummaryDict: d.settingsSummary ?? dEn.settingsSummary,
     scheduleEditorDict: d.scheduleEditor ?? dEn.scheduleEditor,
     periodDict: d.period ?? dEn.period,
     capacityDict: d.capacity ?? dEn.capacity,
@@ -20,8 +21,11 @@ export function resolveAcademicSectionPageSubdicts(
     monthlyFeeChargeModeDict: d.monthlyFeeChargeMode ?? dEn.monthlyFeeChargeMode,
     allowAdvanceMonthlyPaymentDict:
       d.allowAdvanceMonthlyPayment ?? dEn.allowAdvanceMonthlyPayment,
+    feesPanelDict: d.feesPanel ?? dEn.feesPanel,
+    featureFlagsDict: d.featureFlags ?? dEn.featureFlags,
     learningRouteDict: d.learningRoute ?? dEn.learningRoute,
     staffAssignedChipsDict: d.staffAssignedChips ?? dEn.staffAssignedChips,
     healthDict: d.health ?? dEn.health,
+    studentsPanelDict: d.studentsPanel ?? dEn.studentsPanel,
   };
 }

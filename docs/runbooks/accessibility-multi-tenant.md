@@ -87,6 +87,51 @@ Cuando Lighthouse devuelve **número** (% accesibilidad/rendimiento) y es bajo s
 
 ---
 
+---
+
+## Cómo verificar la paleta de un tenant antes de mergear
+
+Al agregar o editar `site_themes.properties` para cualquier tenant, comprobá las
+combinaciones que las shells realmente componen con la utilidad `contrastRatio`:
+
+```ts
+import { contrastRatio } from "@/lib/theme/contrastRatio";
+
+// Ejemplo con la paleta de un tenant hipotético
+contrastRatio("#6D4C41", "#F2E9E1"); // foreground sobre el page wash
+contrastRatio("#5D4037", "#F2E9E1"); // muted-foreground sobre el page wash
+contrastRatio("#4E7040", "#F2E9E1"); // primary (links) sobre el page wash
+```
+
+**Pares mínimos a revisar** (por cada tenant que toque estos tokens):
+
+| Par | WCAG AA (texto normal) | WCAG AA (texto grande) |
+|-----|------------------------|------------------------|
+| `foreground` sobre `muted` (= page wash) | ≥ 4.5:1 | ≥ 3.0:1 |
+| `muted-foreground` sobre `muted` | ≥ 4.5:1 | — |
+| `primary` sobre `muted` | ≥ 4.5:1 | — |
+| `primary` sobre la barra de tabs (95 % `surface` + 5 % `muted`) | ≥ 4.5:1 | — |
+
+> **`color.muted` es fondo de página, no color decorativo.**
+> En `ParentPwaShell.tsx` es el `bg-` de toda la shell móvil.  Elegir un valor
+> oscuro o saturado (p. ej. un marrón de marca) hace fallar *todos* los pares de
+> texto de ese tenant.  Precedente: Mi Mundo (#8D6E63 → #F2E9E1, migración 174).
+
+Para la barra de tabs, componer primero en espacio sRGB antes de medir:
+
+```ts
+// surface al 95 % de opacidad sobre el wash
+const r = Math.round(0.95 * 0xFA + 0.05 * 0xF2); // canal R
+// … y así para G y B; luego contrastRatio con el resultado
+```
+
+La función `contrastRatio` acepta `#RRGGBB` en mayúsculas o minúsculas.
+Los resultados son reproducibles y auditables en código, a diferencia de
+haberlos calculado a mano (lo que permitió que Mi Mundo escapara a la
+migración 124).
+
+---
+
 ## Referencias internas
 
 - Smoke simple una URL: `npm run lighthouse:smoke` + [`scripts/lighthouse-smoke.sh`](../../scripts/lighthouse-smoke.sh)

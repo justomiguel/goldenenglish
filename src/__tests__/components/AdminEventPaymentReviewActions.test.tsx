@@ -60,11 +60,11 @@ describe("AdminEventPaymentReviewActions", () => {
     expect(screen.getByRole("region", { name: detail.attendeesColumns.actions })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: detail.attendeesColumns.actions })).toBeVisible();
 
-    const approveButton = screen.getByRole("button", { name: payments.approveTooltip });
-    expect(approveButton).toHaveTextContent(payments.approve);
+    const approveButton = screen.getByRole("button", { name: payments.approve });
+    expect(approveButton).toHaveAttribute("title", payments.approveTooltip);
 
-    const rejectButton = screen.getByRole("button", { name: payments.rejectTooltip });
-    expect(rejectButton).toHaveTextContent(payments.reject);
+    const rejectButton = screen.getByRole("button", { name: payments.reject });
+    expect(rejectButton).toHaveAttribute("title", payments.rejectTooltip);
   });
 
   it("shows delete action with visible label for rejected bank transfers", async () => {

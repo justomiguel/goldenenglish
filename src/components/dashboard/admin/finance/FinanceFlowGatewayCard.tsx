@@ -14,6 +14,7 @@ import {
   saveFlowChileGatewaySettings,
   type FlowChileAdminRowSafe,
 } from "@/app/[locale]/dashboard/admin/finance/flowGatewaySettingsActions";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type FlowDict = Dictionary["admin"]["finance"]["settings"];
 
@@ -92,7 +93,10 @@ export function FinanceFlowGatewayCard({ locale, initial, dict }: FinanceFlowGat
 
   return (
     <>
-      <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+      <div
+        data-tour={ADMIN_TOUR_ANCHORS.financeSettingsFlowCard}
+        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5"
+      >
         <header className="mb-4 flex items-center gap-2">
           <Landmark className="h-5 w-5 text-[var(--color-muted-foreground)]" aria-hidden />
           <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{dict.flowTitle}</h2>
@@ -136,6 +140,7 @@ export function FinanceFlowGatewayCard({ locale, initial, dict }: FinanceFlowGat
 
           <p className="text-xs text-[var(--color-muted-foreground)]">{dict.flowFieldsHint}</p>
 
+          <div data-tour={ADMIN_TOUR_ANCHORS.financeSettingsFlowCredentials} className="space-y-4">
           <div>
             <Label htmlFor="flow-api-key">{dict.flowApiKey}</Label>
             <Input
@@ -163,6 +168,7 @@ export function FinanceFlowGatewayCard({ locale, initial, dict }: FinanceFlowGat
               placeholder={dict.flowSecretPlaceholder}
             />
           </div>
+          </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <Button
@@ -171,6 +177,7 @@ export function FinanceFlowGatewayCard({ locale, initial, dict }: FinanceFlowGat
               disabled={isPending}
               isLoading={isPending}
               className="min-h-[44px]"
+              data-tour={ADMIN_TOUR_ANCHORS.financeSettingsFlowSave}
             >
               {!isPending ? <Save className="h-4 w-4 shrink-0" aria-hidden /> : null}
               {dict.flowSave}

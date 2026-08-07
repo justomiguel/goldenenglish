@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { receiptSignedUrlForAdmin } from "@/lib/payments/receiptSignedUrl";
 import { AdminFinanceReceiptReviewClient } from "@/components/billing/AdminFinanceReceiptReviewClient";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { BillingInvoiceRow } from "@/types/billing";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
@@ -66,7 +67,10 @@ export default async function AdminFinanceReceiptDetailPage({ params }: PageProp
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
+      <h1
+        className="text-2xl font-bold text-[var(--color-secondary)]"
+        data-tour={ADMIN_TOUR_ANCHORS.financeReceiptDetailTitle}
+      >
         {dict.dashboard.portalBilling.splitMetaTitle}
       </h1>
       <div className="mt-8">

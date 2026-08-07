@@ -6,6 +6,7 @@ import { Calendar, ChartNoAxesColumn, Settings2, Users } from "lucide-react";
 import type { AdminEventRow } from "@/lib/dashboard/events/loadPaginatedAdminEvents";
 import { TablePagination } from "@/components/molecules/TablePagination";
 import type { EventSortKey } from "@/lib/dashboard/events/loadPaginatedAdminEvents";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 interface AdminEventsScreenProps {
   locale: string;
@@ -69,19 +70,20 @@ export function AdminEventsScreen({
 
   return (
     <section className="mt-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between" data-tour={ADMIN_TOUR_ANCHORS.eventsKpis}>
         <p className="text-sm text-[var(--color-muted-foreground)]">
           {totalCount} {labels.countSuffix}
         </p>
         <Link
           href={`/${locale}/dashboard/admin/events/new`}
+          data-tour={ADMIN_TOUR_ANCHORS.eventsCreateCta}
           className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary)] px-3 py-2 text-sm font-medium text-[var(--color-primary-foreground)]"
         >
           <Calendar className="h-4 w-4" aria-hidden />
           {labels.create}
         </Link>
       </div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" data-tour={ADMIN_TOUR_ANCHORS.eventsTable}>
         <table className="min-w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--color-border)] text-left">

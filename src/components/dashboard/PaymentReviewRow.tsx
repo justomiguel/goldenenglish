@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { reviewPayment } from "@/app/[locale]/dashboard/admin/payments/actions";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { Dictionary } from "@/types/i18n";
 
 interface PaymentReviewRowProps {
@@ -29,16 +30,22 @@ export function PaymentReviewRow({
   const router = useRouter();
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function act(status: "approved" | "rejected") {
     setBusy(true);
-    await reviewPayment({
+    setError(null);
+    const result = await reviewPayment({
       paymentId,
       status,
       adminNotes: notes || undefined,
       locale,
     });
     setBusy(false);
+    if (!result.ok) {
+      setError(result.message ?? labels.bulkNothingProcessed);
+      return;
+    }
     router.refresh();
   }
 
@@ -90,6 +97,7 @@ export function PaymentReviewRow({
             disabled={busy}
             onClick={() => act("approved")}
             title={labels.approveTooltip}
+            data-tour={ADMIN_TOUR_ANCHORS.financeInboxApprove}
             className="rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-3 py-2 text-sm font-medium text-[var(--color-primary-foreground)]"
           >
             {labels.approve}
@@ -99,10 +107,16 @@ export function PaymentReviewRow({
             disabled={busy}
             onClick={() => act("rejected")}
             title={labels.rejectTooltip}
+            data-tour={ADMIN_TOUR_ANCHORS.financeInboxReject}
             className="rounded-[var(--layout-border-radius)] border-2 border-[var(--color-secondary)] px-3 py-2 text-sm font-medium text-[var(--color-secondary)]"
           >
             {labels.reject}
           </button>
+          {error ? (
+            <p className="text-xs text-[var(--color-error)]" role="alert">
+              {error}
+            </p>
+          ) : null}
         </div>
       </div>
     </div>

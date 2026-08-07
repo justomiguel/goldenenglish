@@ -56,6 +56,14 @@ describe("buildResetByDniPlan", () => {
     expect(plan.hasRealEmail).toBe(false);
   });
 
+  it("flags hasRealEmail=false for tenant parents.<MAIL_TENANT> synthetics", () => {
+    const plan = buildResetByDniPlan({
+      dni: "99999999",
+      currentEmail: "99999999@parents.alumnos.nago.cl",
+    });
+    expect(plan.hasRealEmail).toBe(false);
+  });
+
   it("flags hasRealEmail=false when currentEmail is null, undefined, or whitespace", () => {
     expect(
       buildResetByDniPlan({ dni: "12345678", currentEmail: null }).hasRealEmail,

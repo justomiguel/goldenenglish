@@ -1,0 +1,19 @@
+# Artefactos locales que `vercel deploy` NO debe subir.
+# La CLI ya ignora .git / node_modules / .next por defecto, pero no estos:
+# `.next-e2e` es un build de producción completo (~2 GB) del harness e2e, y sin
+# esta lista el upload se cuelga antes de crear el deployment.
+
+.next-e2e/
+coverage/
+test-results/
+playwright-report/
+blob-report/
+e2e/.auth/
+.lighthouse/
+supabase/dist/
+supabase/.temp/
+.venv-pt-translate/
+.superpowers/
+
+# Secretos locales por tenant (Vercel inyecta los suyos desde el proyecto).
+.env.local.*

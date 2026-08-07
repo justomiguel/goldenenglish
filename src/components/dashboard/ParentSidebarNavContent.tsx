@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import type { Dictionary } from "@/types/i18n";
 import {
   buildParentSidebarNavGroups,
   type ParentSidebarNavGroup,
 } from "@/components/dashboard/parentSidebarNavGroups";
+import { withStudentIdHref } from "@/lib/parent/withStudentIdHref";
 
 export interface ParentSidebarNavContentProps {
   locale: string;
@@ -24,6 +25,7 @@ function NavGroupBlock({
   profileHref,
   pathname,
   mobile,
+  studentId,
   onNavigate,
 }: {
   group: ParentSidebarNavGroup;
@@ -31,6 +33,7 @@ function NavGroupBlock({
   profileHref: string;
   pathname: string;
   mobile: boolean;
+  studentId: string | null;
   onNavigate?: () => void;
 }) {
   return (
@@ -52,6 +55,7 @@ function NavGroupBlock({
       ) : null}
       <div className="space-y-0.5">
         {group.items.map(({ href, label, icon, tip }) => {
+          const resolvedHref = withStudentIdHref(href, studentId);
           const exact = href === base || href === profileHref;
           const active = exact
             ? pathname === href
@@ -59,7 +63,7 @@ function NavGroupBlock({
           return (
             <Link
               key={href}
-              href={href}
+              href={resolvedHref}
               onClick={onNavigate}
               title={tip}
               className={`flex items-center gap-2.5 rounded-[var(--layout-border-radius)] px-3 text-[0.8125rem] font-medium transition ${
@@ -94,6 +98,8 @@ export function ParentSidebarNavContent({
   variant = "desktop",
 }: ParentSidebarNavContentProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const studentId = searchParams.get("studentId");
   const groups = buildParentSidebarNavGroups(baseHref, profileHref, dict, { includePayments });
   const mobile = variant === "mobile";
 
@@ -107,6 +113,7 @@ export function ParentSidebarNavContent({
           profileHref={profileHref}
           pathname={pathname}
           mobile={mobile}
+          studentId={studentId}
           onNavigate={onNavigate}
         />
       ))}

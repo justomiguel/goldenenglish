@@ -8,6 +8,7 @@ import type { ContentMaterialsPanelLabels } from "@/types/contentMaterialsPanelL
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 
 import type { MediaSyncToAllLocalesPayload } from "@/lib/learning-content/insertAcademicEditorMedia";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 interface BlogArticleLocaleFieldsProps {
   labels: Dictionary["admin"]["cms"]["blog"]["editor"];
@@ -48,7 +49,7 @@ export function BlogArticleLocaleFields({
 }: BlogArticleLocaleFieldsProps) {
   return (
     <div className="grid gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <label className="grid gap-1 text-sm">
+      <label className="grid gap-1 text-sm" data-tour={ADMIN_TOUR_ANCHORS.blogEditorTitle}>
         <span className="font-medium">{labels.title}</span>
         <input
           className="rounded-md border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2"
@@ -64,16 +65,18 @@ export function BlogArticleLocaleFields({
           onChange={(event) => onExcerptChange(event.target.value)}
         />
       </label>
-      <BlogArticleBodyEditor
-        bodyLabel={labels.body}
-        editorLabels={labels}
-        academicLabels={academicLabels}
-        articleId={articleId}
-        bodyHtml={bodyHtml}
-        onBodyHtmlChange={onBodyHtmlChange}
-        syncMediaToAllLocales={syncMediaToAllLocales}
-        onError={onError}
-      />
+      <div data-tour={ADMIN_TOUR_ANCHORS.blogEditorBody}>
+        <BlogArticleBodyEditor
+          bodyLabel={labels.body}
+          editorLabels={labels}
+          academicLabels={academicLabels}
+          articleId={articleId}
+          bodyHtml={bodyHtml}
+          onBodyHtmlChange={onBodyHtmlChange}
+          syncMediaToAllLocales={syncMediaToAllLocales}
+          onError={onError}
+        />
+      </div>
       <BlogArticleMaterialsSection
         articleId={articleId}
         labels={materialsLabels}

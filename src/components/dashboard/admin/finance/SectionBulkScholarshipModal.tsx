@@ -6,6 +6,7 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { ScholarshipDiscountFields } from "@/components/molecules/ScholarshipDiscountFields";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { Dictionary, Locale } from "@/types/i18n";
 
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
@@ -92,7 +93,10 @@ export function SectionBulkScholarshipModal({
 
   return (
     <Modal open={open} onOpenChange={(o) => !o && handleClose()} titleId="bulk-scholarship-modal-title" title={d.title}>
-      <div className="space-y-4">
+      <div
+        className="space-y-4"
+        data-tour={ADMIN_TOUR_ANCHORS.sectionCollectionsBulkScholarshipModal}
+      >
         <p className="text-sm text-[var(--color-muted-foreground)]">{d.lead}</p>
 
         <div className="space-y-3">

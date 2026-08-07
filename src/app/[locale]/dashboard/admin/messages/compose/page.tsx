@@ -9,6 +9,14 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { AdminPortalCompose } from "@/components/dashboard/AdminPortalCompose";
 import { loadAdminPortalMessageRecipients } from "@/lib/dashboard/loadAdminPortalMessageRecipients";
 import { loadAdminPortalReplyComposeContext } from "@/lib/dashboard/loadAdminPortalReplyComposeContext";
+import { loadMessagingDefaultReplyTemplate } from "@/lib/messaging/loadMessagingDefaultReplyTemplate";
+import {
+  MESSAGING_DEFAULT_REPLY_FACTORY_TEMPLATES,
+  pickMessagingDefaultReplyTemplate,
+} from "@/lib/messaging/messagingDefaultReplyConstants";
+import { resolveMessagingDefaultReplyTemplate } from "@/lib/messaging/resolveMessagingDefaultReplyTemplate";
+import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -16,7 +24,7 @@ export const metadata: Metadata = {
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ replyTo?: string }>;
+  searchParams: Promise<{ replyTo?: string; useDefault?: string }>;
 }
 
 export default async function AdminMessagesComposePage({ params, searchParams }: PageProps) {
@@ -37,7 +45,25 @@ export default async function AdminMessagesComposePage({ params, searchParams }:
   const recipients = await loadAdminPortalMessageRecipients(admin, user.id);
 
   const replyTo = typeof sp.replyTo === "string" ? sp.replyTo : undefined;
+  const useDefault = sp.useDefault === "1";
   const replyBootstrap = await loadAdminPortalReplyComposeContext(supabase, user.id, replyTo);
+
+  let initialBody = "<p></p>";
+  if (
+    useDefault &&
+    (replyBootstrap.kind === "portal" || replyBootstrap.kind === "external_email")
+  ) {
+    const [{ templates }, effective] = await Promise.all([
+      loadMessagingDefaultReplyTemplate(supabase, MESSAGING_DEFAULT_REPLY_FACTORY_TEMPLATES),
+      loadEffectiveProperties(),
+    ]);
+    const template = pickMessagingDefaultReplyTemplate(templates, locale);
+    initialBody = resolveMessagingDefaultReplyTemplate({
+      template,
+      instituteName: effective.properties["app.name"] ?? "",
+      phone: effective.properties["contact.phone"] ?? "",
+    });
+  }
 
   let composeLead = dict.admin.messages.composePageLead;
   if (replyBootstrap.kind === "portal") {
@@ -58,7 +84,10 @@ export default async function AdminMessagesComposePage({ params, searchParams }:
         <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
         {dict.admin.messages.composeBackToList}
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-[var(--color-secondary)]">
+      <h1
+        className="mt-4 text-2xl font-bold text-[var(--color-secondary)]"
+        data-tour={ADMIN_TOUR_ANCHORS.messagesComposeTitle}
+      >
         {dict.admin.messages.composePageTitle}
       </h1>
       <p className="mt-2 max-w-2xl text-[var(--color-muted-foreground)]">{composeLead}</p>
@@ -69,6 +98,7 @@ export default async function AdminMessagesComposePage({ params, searchParams }:
           labels={dict.admin.messages}
           successNavigateTo={listHref}
           replyBootstrap={replyBootstrap}
+          initialBody={initialBody}
         />
       </div>
     </div>

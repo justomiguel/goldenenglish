@@ -10,6 +10,7 @@ import { ParentMessagesPwaClient } from "@/components/pwa/organisms/ParentMessag
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
 import type { MessagingRecipient } from "@/types/messaging";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 type ParentLabels = Dictionary["dashboard"]["parent"];
 
@@ -50,10 +51,15 @@ export function ParentMessagesEntry(props: ParentMessagesEntryProps) {
   } = props;
 
   const desktop = (
-    <>
-      <h1 className="font-display text-2xl font-bold text-[var(--color-secondary)] sm:text-3xl">{title}</h1>
+    <div data-tour={PARENT_TOUR_ANCHORS.messagesFeed}>
+      <h1
+        data-tour={PARENT_TOUR_ANCHORS.messagesTitle}
+        className="font-display text-2xl font-bold text-[var(--color-secondary)] sm:text-3xl"
+      >
+        {title}
+      </h1>
       <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{lead}</p>
-      <div className="mt-6">
+      <div className="mt-6" data-tour={PARENT_TOUR_ANCHORS.messagesCompose}>
         <ParentMessagesClient
           locale={locale}
           initialLines={lines}
@@ -64,7 +70,7 @@ export function ParentMessagesEntry(props: ParentMessagesEntryProps) {
           defaultRecipientId={defaultRecipientId}
         />
       </div>
-    </>
+    </div>
   );
 
   return (

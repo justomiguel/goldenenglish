@@ -19,6 +19,7 @@ import {
 } from "@/components/molecules/TeacherAttendanceMatrixViewTabs";
 import { TeacherAttendanceMatrixTable } from "@/components/organisms/TeacherAttendanceMatrixTable";
 import { Button } from "@/components/atoms/Button";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export interface SectionAttendanceMatrixProps {
   variant: AttendanceMatrixAutosaveVariant;
@@ -152,8 +153,10 @@ export function SectionAttendanceMatrix({
   }
 
   return (
-    <div className="space-y-3 pb-16">
-      <TeacherAttendanceMatrixViewTabs view={viewMode} onViewChange={setViewMode} dict={matrixDict} />
+    <div className="space-y-3 pb-16" data-tour={ADMIN_TOUR_ANCHORS.sectionAttendanceMatrix}>
+      <div data-tour={ADMIN_TOUR_ANCHORS.sectionAttendanceViewTabs}>
+        <TeacherAttendanceMatrixViewTabs view={viewMode} onViewChange={setViewMode} dict={matrixDict} />
+      </div>
       {payload.classDaysTruncated ? (
         <p className="text-xs text-[var(--color-muted-foreground)]">
           {variant === "admin" ? matrixDict.datesTruncatedNewest : matrixDict.datesTruncatedNote}

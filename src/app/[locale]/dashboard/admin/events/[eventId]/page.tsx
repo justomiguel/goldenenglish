@@ -6,6 +6,7 @@ import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { AdminEventDetailTabs, parseEventAdminTab } from "@/components/dashboard/admin/events/AdminEventDetailTabs";
 import { AdminEventDetailTabContent } from "@/components/dashboard/admin/events/AdminEventDetailTabContent";
 import { loadAdminEventDetailPageModel } from "@/lib/dashboard/events/loadAdminEventDetailPageModel";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -57,7 +58,10 @@ export default async function AdminEventDetailPage({ params, searchParams }: Pag
         {detail.backToList}
       </Link>
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
+        <h1
+          className="text-2xl font-bold text-[var(--color-secondary)]"
+          data-tour={ADMIN_TOUR_ANCHORS.eventDetailTitle}
+        >
           {detail.titlePrefix} {model.event.title}
         </h1>
         <p className="text-sm text-[var(--color-muted-foreground)]">

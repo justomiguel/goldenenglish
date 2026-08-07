@@ -46,7 +46,7 @@ describe("AdminRegistrationAcceptModal", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it("calls onClose when dialog fires close", () => {
+  it("calls onClose when dialog Escape cancel then close", () => {
     const onClose = vi.fn();
     render(
       <AdminRegistrationAcceptModal
@@ -63,6 +63,8 @@ describe("AdminRegistrationAcceptModal", () => {
     );
     const dlg = document.querySelector("dialog");
     expect(dlg).toBeTruthy();
+    // Modal only propagates dismiss after user cancel (Escape), not spurious close.
+    dlg!.dispatchEvent(new Event("cancel", { cancelable: true }));
     dlg!.dispatchEvent(new Event("close"));
     expect(onClose).toHaveBeenCalled();
   });

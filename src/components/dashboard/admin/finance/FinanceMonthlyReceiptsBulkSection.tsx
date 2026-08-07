@@ -12,6 +12,7 @@ import {
   bulkDeletePendingMonthlyPayments,
   bulkReviewMonthlyPayments,
 } from "@/app/[locale]/dashboard/admin/payments/actions";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export interface FinanceMonthlyReceiptsBulkSectionProps {
   items: MonthlyReceiptItem[];
@@ -105,9 +106,31 @@ export function FinanceMonthlyReceiptsBulkSection({
 
   if (items.length === 0) {
     return (
-      <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-sm text-[var(--color-muted-foreground)]">
-        {inboxDict.empty}
-      </p>
+      <div className="space-y-3">
+        <FinanceInboxBulkToolbar
+          labels={{
+            bulkSelectAllAria: dict.bulkSelectAllAria,
+            bulkSelectAll: dict.bulkSelectAll,
+            bulkClearSelection: dict.bulkClearSelection,
+            bulkSelectedCount: dict.bulkSelectedCount,
+            bulkApproveSelected: dict.bulkApproveSelected,
+            bulkDestructiveSelected: dict.bulkDeleteSelected,
+          }}
+          destructiveIcon="delete"
+          allSelected={false}
+          selectedCount={0}
+          busy={false}
+          onToggleAll={() => undefined}
+          onApprove={() => undefined}
+          onOpenDestructive={() => undefined}
+        />
+        <p
+          data-tour={ADMIN_TOUR_ANCHORS.financeInboxEmpty}
+          className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-sm text-[var(--color-muted-foreground)]"
+        >
+          {inboxDict.empty}
+        </p>
+      </div>
     );
   }
 

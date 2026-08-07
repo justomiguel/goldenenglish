@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { buildPortalCalendarPagePayload } from "@/lib/calendar/buildPortalCalendarPagePayload";
@@ -18,14 +18,9 @@ interface PageProps {
   searchParams: Promise<{ studentId?: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps) {
   const { locale } = await params;
-  const dict = await getDictionary(locale);
-  const attendanceTitle = dict.dashboard.parent.attendancePwa.title;
-  return {
-    title: attendanceTitle,
-    robots: { index: false, follow: false },
-  };
+  return buildPageMetadata(locale, (d) => d.dashboard.parentNav.calendar);
 }
 
 export default async function ParentCalendarPage({ params, searchParams }: PageProps) {

@@ -2,29 +2,23 @@ import type { ReactNode } from "react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminSectionPageData } from "@/lib/academics/loadAdminSectionPageData";
 import { resolveAcademicSectionPageSubdicts } from "@/lib/academics/resolveAcademicSectionPageSubdicts";
-import { AcademicSectionStaffAssignedChips } from "@/components/molecules/AcademicSectionStaffAssignedChips";
-import { AcademicSectionScheduleEditor } from "@/components/organisms/AcademicSectionScheduleEditor";
 import { AcademicSectionEnrollCard } from "@/components/organisms/AcademicSectionEnrollCard";
 import { AcademicSectionRosterTable } from "@/components/organisms/AcademicSectionRosterTable";
 import { AcademicSectionPageHeader } from "@/components/organisms/AcademicSectionPageHeader";
-import { AcademicSectionPeriodEditor } from "@/components/organisms/AcademicSectionPeriodEditor";
-import { AcademicSectionStaffEditor } from "@/components/organisms/AcademicSectionStaffEditor";
-import { AcademicSectionShellTabs } from "@/components/organisms/AcademicSectionShellTabs";
-import { AcademicSectionCapacityEditor } from "@/components/organisms/AcademicSectionCapacityEditor";
-import { AcademicSectionMinAttendanceEditor } from "@/components/organisms/AcademicSectionMinAttendanceEditor";
-import { AcademicSectionRoomLabelEditor } from "@/components/organisms/AcademicSectionRoomLabelEditor";
-import { AcademicSectionFeePlansEditor } from "@/components/organisms/AcademicSectionFeePlansEditor";
-import { AcademicSectionEnrollmentFeeEditor } from "@/components/organisms/AcademicSectionEnrollmentFeeEditor";
-import { AcademicSectionMonthlyFeeChargeModeEditor } from "@/components/organisms/AcademicSectionMonthlyFeeChargeModeEditor";
-import { AcademicSectionAdvanceMonthlyPaymentEditor } from "@/components/organisms/AcademicSectionAdvanceMonthlyPaymentEditor";
-import { AcademicSectionLearningRouteSelector } from "@/components/organisms/AcademicSectionLearningRouteSelector";
+import { AcademicSectionShellWorkspace } from "@/components/organisms/AcademicSectionShellWorkspace";
+import { AcademicSectionConfigurationPanel } from "@/components/organisms/AcademicSectionConfigurationPanel";
+import { AcademicSectionFeesPanel } from "@/components/organisms/AcademicSectionFeesPanel";
+import { AcademicSectionTeachersPanel } from "@/components/organisms/AcademicSectionTeachersPanel";
+import { AcademicSectionLearningRoutePanel } from "@/components/organisms/AcademicSectionLearningRoutePanel";
+import { AcademicSectionStudentsPanel } from "@/components/organisms/AcademicSectionStudentsPanel";
 import { AcademicSectionHealthOverview } from "@/components/organisms/AcademicSectionHealthOverview";
 import type { AdminSectionHealthSnapshot } from "@/types/adminSectionHealth";
 import type { LearningRouteContentTemplateOption } from "@/types/learningContent";
 import type { LearningRouteWorkspace } from "@/lib/learning-content/loadLearningRouteWorkspace";
 import type { AdminSectionAssessmentsPanelData } from "@/types/adminSectionAssessments";
 import { AcademicSectionAssessmentsPanel } from "@/components/organisms/AcademicSectionAssessmentsPanel";
-import type { AcademicSectionShellTabId } from "@/lib/academics/academicSectionShellTabOrder";
+import type { AcademicSectionShellAreaId } from "@/lib/academics/academicSectionShellTabOrder";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export interface AcademicSectionPageShellBodyProps {
   locale: string;
@@ -41,13 +35,17 @@ export interface AcademicSectionPageShellBodyProps {
   learningRouteWorkspace: LearningRouteWorkspace;
   /** System-wide billing currency from Finance > Settings. */
   systemCurrency: string;
-  leadTeacherLabel: string | null;
-  assistantChipLabels: string[];
-  externalChipLabels: string[];
+  /** Institute calendar month used for “current” fee plan in the Fees summary. */
+  feesAsOfYear: number;
+  feesAsOfMonth: number;
   assessmentsData: AdminSectionAssessmentsPanelData;
-  /** When set, opens the tab (e.g. from `?tab=evaluations` in the section URL). */
-  defaultShellTab?: AcademicSectionShellTabId;
+  /** When set, opens that area (e.g. from `?tab=evaluations`); `null`/omit = hub. */
+  initialShellArea?: AcademicSectionShellAreaId | null;
   canDeleteCohortAssessments: boolean;
+}
+
+function countActiveEnrollments(rows: AdminSectionPageData["rows"]) {
+  return rows.filter((r) => r.status === "active" || r.status === "completed").length;
 }
 
 export function AcademicSectionPageShellBody({
@@ -64,15 +62,15 @@ export function AcademicSectionPageShellBody({
   routeOptions,
   learningRouteWorkspace,
   systemCurrency,
-  leadTeacherLabel,
-  assistantChipLabels,
-  externalChipLabels,
+  feesAsOfYear,
+  feesAsOfMonth,
   assessmentsData,
-  defaultShellTab,
+  initialShellArea = null,
   canDeleteCohortAssessments,
 }: AcademicSectionPageShellBodyProps) {
   const {
     shellTabLabels,
+    settingsSummaryDict,
     scheduleEditorDict,
     periodDict,
     capacityDict,
@@ -84,14 +82,21 @@ export function AcademicSectionPageShellBody({
     enrollmentFeeDict,
     monthlyFeeChargeModeDict,
     allowAdvanceMonthlyPaymentDict,
+    feesPanelDict,
+    featureFlagsDict,
     learningRouteDict,
     staffAssignedChipsDict,
     healthDict,
+    studentsPanelDict,
   } = subdicts;
   const { section, cohort, slots, rows, moveTargets, debtByStudentId, staff, feePlansWithUsage } = data;
+  const featureFlags = {
+    requiresEvaluationsToPass: section.requiresEvaluationsToPass,
+    usesLearningRoute: section.usesLearningRoute,
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-tour={ADMIN_TOUR_ANCHORS.sectionDetail}>
       <AcademicSectionPageHeader
         locale={locale}
         cohortId={cohortId}
@@ -105,128 +110,97 @@ export function AcademicSectionPageShellBody({
         lifecycleDict={lifecycleDict}
       />
 
-      <AcademicSectionShellTabs
+      <AcademicSectionShellWorkspace
+        key={`section-shell-${featureFlags.requiresEvaluationsToPass}-${featureFlags.usesLearningRoute}`}
         labels={shellTabLabels}
-        defaultTab={defaultShellTab}
-        general={<AcademicSectionHealthOverview locale={locale} snapshot={healthSnapshot} dict={healthDict} />}
+        initialArea={initialShellArea}
+        featureFlags={featureFlags}
+        hubOverview={
+          <AcademicSectionHealthOverview
+            locale={locale}
+            snapshot={healthSnapshot}
+            dict={healthDict}
+            featureFlags={featureFlags}
+          />
+        }
         configuration={
-          <>
-            <AcademicSectionPeriodEditor
-              locale={locale}
-              sectionId={sectionId}
-              initialStartsOn={section.startsOn}
-              initialEndsOn={section.endsOn}
-              dict={periodDict}
-            />
-            <AcademicSectionCapacityEditor
-              locale={locale}
-              sectionId={sectionId}
-              initialMaxStudents={section.effectiveMaxStudents}
-              activeEnrollments={section.activeEnrollmentCount}
-              siteDefaultMax={section.siteDefaultMax}
-              dict={capacityDict}
-            />
-            <AcademicSectionMinAttendanceEditor
-              locale={locale}
-              sectionId={sectionId}
-              initialSectionOverride={section.minAttendancePercentOverride}
-              siteDefaultMin={section.siteDefaultMinAttendancePercent}
-              dict={minAttendanceDict}
-            />
-            <AcademicSectionRoomLabelEditor
-              locale={locale}
-              sectionId={sectionId}
-              initialRoomLabel={section.roomLabel}
-              dict={roomLabelDict}
-            />
-            <AcademicSectionScheduleEditor
-              locale={locale}
-              sectionId={sectionId}
-              initialSlots={slots}
-              dict={scheduleEditorDict}
-            />
-          </>
+          <AcademicSectionConfigurationPanel
+            locale={locale}
+            sectionId={sectionId}
+            section={section}
+            slots={slots}
+            settingsSummaryDict={settingsSummaryDict}
+            featureFlagsDict={featureFlagsDict}
+            periodDict={periodDict}
+            capacityDict={capacityDict}
+            minAttendanceDict={minAttendanceDict}
+            roomLabelDict={roomLabelDict}
+            scheduleEditorDict={scheduleEditorDict}
+          />
         }
         teachers={
-          <>
-            <AcademicSectionStaffAssignedChips
-              leadTeacherLabel={leadTeacherLabel}
-              assistantLabels={assistantChipLabels}
-              externalLabels={externalChipLabels}
-              dict={staffAssignedChipsDict}
-            />
-            <AcademicSectionStaffEditor
-              locale={locale}
-              sectionId={sectionId}
-              teachers={staff.teachers}
-              assistantPortalStaffOptions={staff.assistantPortalStaffOptions}
-              initialTeacherId={section.teacherId}
-              initialAssistants={staff.initialAssistants}
-              initialExternalAssistants={staff.initialExternalAssistants}
-              dict={staffDict}
-            />
-          </>
+          <AcademicSectionTeachersPanel
+            locale={locale}
+            sectionId={sectionId}
+            teachers={staff.teachers}
+            assistantPortalStaffOptions={staff.assistantPortalStaffOptions}
+            initialTeacherId={section.teacherId}
+            initialAssistants={staff.initialAssistants}
+            initialExternalAssistants={staff.initialExternalAssistants}
+            staffDict={staffDict}
+            assignedListDict={staffAssignedChipsDict}
+            assignedPeople={staff.assignedPeople}
+            externalLabels={staff.initialExternalAssistants.map((e) => e.label)}
+          />
         }
         learningRoute={
-          <AcademicSectionLearningRouteSelector
-            locale={locale}
-            cohortId={cohortId}
-            sectionId={sectionId}
-            routes={routeOptions}
-            assignment={learningRouteWorkspace.assignment ?? null}
-            dict={learningRouteDict}
-          />
+          featureFlags.usesLearningRoute ? (
+            <AcademicSectionLearningRoutePanel
+              locale={locale}
+              cohortId={cohortId}
+              sectionId={sectionId}
+              routes={routeOptions}
+              assignment={learningRouteWorkspace.assignment ?? null}
+              dict={learningRouteDict}
+            />
+          ) : null
         }
         evaluations={
-          <AcademicSectionAssessmentsPanel
-            locale={locale}
-            cohortId={cohortId}
-            sectionId={sectionId}
-            data={assessmentsData}
-            dict={d.assessmentsPanel}
-            canDeleteCohortAssessments={canDeleteCohortAssessments}
-          />
+          featureFlags.requiresEvaluationsToPass ? (
+            <AcademicSectionAssessmentsPanel
+              locale={locale}
+              cohortId={cohortId}
+              sectionId={sectionId}
+              data={assessmentsData}
+              dict={d.assessmentsPanel}
+              canDeleteCohortAssessments={canDeleteCohortAssessments}
+            />
+          ) : null
         }
         fees={
-          <div className="space-y-4">
-            <AcademicSectionMonthlyFeeChargeModeEditor
-              locale={locale}
-              sectionId={sectionId}
-              initialMode={section.monthlyFeeChargeMode}
-              dict={monthlyFeeChargeModeDict}
-            />
-            <AcademicSectionAdvanceMonthlyPaymentEditor
-              locale={locale}
-              sectionId={sectionId}
-              initialAllowAdvance={section.allowAdvanceMonthlyPayment}
-              dict={allowAdvanceMonthlyPaymentDict}
-            />
-            <AcademicSectionFeePlansEditor
-              locale={locale}
-              sectionId={sectionId}
-              initialPlans={feePlansWithUsage}
-              systemCurrency={systemCurrency}
-              dict={feePlansDict}
-            />
-            <AcademicSectionEnrollmentFeeEditor
-              locale={locale}
-              sectionId={sectionId}
-              initialAmount={section.enrollmentFeeAmount}
-              dict={enrollmentFeeDict}
-            />
-          </div>
+          <AcademicSectionFeesPanel
+            dict={feesPanelDict}
+            locale={locale}
+            sectionId={sectionId}
+            asOfYear={feesAsOfYear}
+            asOfMonth={feesAsOfMonth}
+            feePlans={feePlansWithUsage}
+            feePlansDict={feePlansDict}
+            systemCurrency={systemCurrency}
+            enrollmentFeeAmount={section.enrollmentFeeAmount}
+            enrollmentFeeDict={enrollmentFeeDict}
+            chargeMode={section.monthlyFeeChargeMode}
+            monthlyFeeChargeModeDict={monthlyFeeChargeModeDict}
+            allowAdvance={section.allowAdvanceMonthlyPayment}
+            allowAdvanceMonthlyPaymentDict={allowAdvanceMonthlyPaymentDict}
+          />
         }
         attendance={attendancePanel}
         students={
-          <>
-            <AcademicSectionEnrollCard
-              locale={locale}
-              sectionId={sectionId}
-              sectionLabel={cohort.label}
-              dict={d}
-              conflictDict={conflictDict}
-              errors={errorsDict}
-            />
+          <AcademicSectionStudentsPanel
+            dict={studentsPanelDict}
+            activeEnrollmentCount={countActiveEnrollments(rows)}
+          >
             <AcademicSectionRosterTable
               locale={locale}
               sectionId={sectionId}
@@ -236,8 +210,19 @@ export function AcademicSectionPageShellBody({
               conflictDict={conflictDict}
               errors={errorsDict}
               debtByStudentId={debtByStudentId}
+              embedded
+              headerActions={
+                <AcademicSectionEnrollCard
+                  locale={locale}
+                  sectionId={sectionId}
+                  sectionLabel={cohort.label}
+                  dict={d}
+                  conflictDict={conflictDict}
+                  errors={errorsDict}
+                />
+              }
             />
-          </>
+          </AcademicSectionStudentsPanel>
         }
       />
     </div>

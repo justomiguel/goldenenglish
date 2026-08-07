@@ -9,6 +9,7 @@ import { EnrollmentFeeReceiptQueueRow } from "./EnrollmentFeeReceiptQueueRow";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { FinanceInboxBulkToolbar } from "./FinanceInboxBulkToolbar";
 import { bulkReviewEnrollmentFeeReceipts } from "@/app/[locale]/dashboard/admin/users/[userId]/billing/bulkReviewEnrollmentFeeReceiptsAction";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 function fmtCount(tpl: string, count: number) {
   const s = String(count);
@@ -105,9 +106,31 @@ export function FinanceEnrollmentReceiptsBulkSection({
 
   if (items.length === 0) {
     return (
-      <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-sm text-[var(--color-muted-foreground)]">
-        {inboxDict.empty}
-      </p>
+      <div className="space-y-3">
+        <FinanceInboxBulkToolbar
+          labels={{
+            bulkSelectAllAria: dict.bulkSelectAllAria,
+            bulkSelectAll: dict.bulkSelectAll,
+            bulkClearSelection: dict.bulkClearSelection,
+            bulkSelectedCount: dict.bulkSelectedCount,
+            bulkApproveSelected: dict.bulkApproveSelected,
+            bulkDestructiveSelected: dict.bulkRejectSelected,
+          }}
+          destructiveIcon="reject"
+          allSelected={false}
+          selectedCount={0}
+          busy={false}
+          onToggleAll={() => undefined}
+          onApprove={() => undefined}
+          onOpenDestructive={() => undefined}
+        />
+        <p
+          data-tour={ADMIN_TOUR_ANCHORS.financeInboxEmpty}
+          className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-sm text-[var(--color-muted-foreground)]"
+        >
+          {inboxDict.empty}
+        </p>
+      </div>
     );
   }
 

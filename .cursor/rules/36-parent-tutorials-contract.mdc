@@ -1,0 +1,46 @@
+---
+description: Parent tutorials contract — keep tours in sync with UI; Vitest L1+L2; Playwright on isolated E2E.
+globs:
+  - "src/lib/parent-tutorials/**"
+  - "src/components/dashboard/ParentHelp*.tsx"
+  - "src/components/parent/**"
+  - "src/components/pwa/**/Parent*"
+  - "e2e/**"
+alwaysApply: false
+---
+
+# Parent tutorials — contract & staleness
+
+## Objective
+
+Parent/tutor guided tours must stay aligned with the **real UI** on desktop and PWA. When a toured screen or control changes, **update the tour and contract tests in the same change**.
+
+## Layers
+
+| Layer | Mechanism | Gate |
+|-------|-----------|------|
+| **L1** | Vitest inventory + catalog/dict + `listParentTourRuntimeChecks` | Precommit |
+| **L2** | Vitest RTL DOM presence (surface fixtures) | Precommit |
+| **L3** | Playwright `@parent-tours` on **isolated** stack only | Precommit E2E |
+
+**Mandatory:** every `ParentScreenTourId` and `ParentTutorialId` has a matrix row (`screen:` / `task:`).
+
+**Forbidden:** pointing Playwright at tenant DBs.
+
+## Source of truth
+
+| Contract | Location |
+|----------|----------|
+| Anchor ids | `PARENT_TOUR_ANCHORS` in `selectors.ts` |
+| Runtime matrix | `listParentTourRuntimeChecks()` |
+| Spec | `docs/superpowers/specs/2026-07-12-parent-portal-guided-tours-design.md` |
+
+## Agent checklist
+
+- [ ] Touched toured UI → tours + L1/L2 updated?
+- [ ] New tour → matrix row?
+- [ ] Surface-tagged chrome steps still filter correctly?
+
+## Cross-rules
+
+- **`35-parent-tutorials-copy.mdc`**, **`33-admin-tutorials-contract.mdc`** (pattern sibling), **`05-pwa-mobile-native.mdc`**

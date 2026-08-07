@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadParentChildrenSummaries } from "@/lib/parent/loadParentChildrenSummaries";
@@ -11,13 +12,14 @@ import { loadParentHomeNewsFeed } from "@/lib/parent/loadParentHomeNewsFeed";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
 import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
 
-export const metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return buildPageMetadata(locale, (d) => d.dashboard.parentNav.home);
+}
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ child?: string }>;
+  searchParams: Promise<{ studentId?: string; child?: string }>;
 }
 
 export default async function ParentDashboardPage({ params, searchParams }: PageProps) {
@@ -55,10 +57,13 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
     last_name: s.lastName,
   }));
 
-  const childParam = typeof sp.child === "string" ? sp.child : undefined;
+  const rawParam =
+    typeof sp.studentId === "string" ? sp.studentId
+    : typeof sp.child === "string" ? sp.child
+    : undefined;
   const selectedStudentId =
-    childParam && summaries.some((s) => s.studentId === childParam)
-      ? childParam
+    rawParam && summaries.some((s) => s.studentId === rawParam)
+      ? rawParam
       : summaries[0]?.studentId;
 
   const payHref = `/${locale}/dashboard/parent/payments`;
@@ -77,6 +82,8 @@ export default async function ParentDashboardPage({ params, searchParams }: Page
     overdueByStudent: paymentOverdue.overdueByStudent,
     staffInboundCount: messageSignals.staffInboundCount,
     overdueInvoiceCount: paymentOverdue.overdueInvoiceCount,
+    lastPublishedGrade:
+      summaries.find((s) => s.studentId === selectedStudentId)?.lastPublishedGrade ?? null,
   });
 
   return (

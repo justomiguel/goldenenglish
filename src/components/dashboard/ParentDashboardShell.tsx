@@ -10,6 +10,10 @@ export interface ParentDashboardShellProps {
   children: ReactNode;
   baseHref?: string;
   includePayments?: boolean;
+  /** Override chrome labels; defaults to parent chrome. */
+  chromeLabels?: Dictionary["dashboard"]["parentChrome"];
+  /** Override nav dict; defaults to parent nav. */
+  navDict?: Dictionary["dashboard"]["parentNav"];
 }
 
 export function ParentDashboardShell({
@@ -19,6 +23,8 @@ export function ParentDashboardShell({
   children,
   baseHref,
   includePayments,
+  chromeLabels,
+  navDict,
 }: ParentDashboardShellProps) {
   return (
     <ParentDashboardShellClient
@@ -27,6 +33,8 @@ export function ParentDashboardShell({
       brand={brand}
       baseHref={baseHref}
       includePayments={includePayments}
+      chromeLabels={chromeLabels}
+      navDict={navDict}
     >
       {children}
     </ParentDashboardShellClient>

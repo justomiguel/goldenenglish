@@ -11,6 +11,7 @@ import {
 } from "@/app/[locale]/dashboard/admin/events/actions";
 import { Button } from "@/components/atoms/Button";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export interface AdminEventPaymentReviewActionsLabels {
   actionsTitle: string;
@@ -159,10 +160,10 @@ export function AdminEventPaymentReviewActions({
               type="button"
               size="sm"
               disabled={busy}
-              onClick={() => act("approve")}
-              aria-label={labels.approveTooltip}
               title={labels.approveTooltip}
               className="min-h-9 w-full"
+              data-tour={ADMIN_TOUR_ANCHORS.eventPaymentApprove}
+              onClick={() => act("approve")}
             >
               <Check className="h-4 w-4 shrink-0" aria-hidden />
               {labels.approve}
@@ -172,10 +173,9 @@ export function AdminEventPaymentReviewActions({
               variant="ghost"
               size="sm"
               disabled={busy}
-              onClick={() => act("reject")}
-              aria-label={labels.rejectTooltip}
               title={labels.rejectTooltip}
               className="min-h-9 w-full border border-[var(--color-error)] bg-[var(--color-background)] text-[var(--color-error)] hover:border-[var(--color-error)] hover:bg-[color-mix(in_srgb,var(--color-error)_8%,var(--color-surface))]"
+              onClick={() => act("reject")}
             >
               <X className="h-4 w-4 shrink-0" aria-hidden />
               {labels.reject}

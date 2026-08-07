@@ -13,6 +13,7 @@ import {
   loadEventFormFieldColumnsForExport,
 } from "@/lib/dashboard/events/loadEventAttendeesForExport";
 import { buildEventAttendeesExportTable } from "@/lib/events/export/buildEventAttendeesExportTable";
+import { enrichEventAttendeesExportTableImages } from "@/lib/events/export/enrichEventAttendeesExportTableImages";
 import { buildEventAttendeesXlsxArtifact } from "@/lib/events/export/buildEventAttendeesXlsxArtifact";
 import { buildEventAttendeesPdfArtifact } from "@/lib/events/export/buildEventAttendeesPdfArtifact";
 import { resolveEventCoverImageUrl } from "@/lib/rich-content/resolvePublicContentCoverUrl";
@@ -130,13 +131,14 @@ export async function exportEventAttendeesAction(input: {
     ]);
 
     const columnLabels = columnLabelsFromDict(dict);
-    const table = buildEventAttendeesExportTable({
+    const tableDraft = buildEventAttendeesExportTable({
       attendees,
       customColumns,
       customFieldValues,
       locale,
       labels: columnLabels,
     });
+    const table = await enrichEventAttendeesExportTableImages(admin, tableDraft);
 
     const exportedAt = new Date();
     const exportedAtFormatted = exportedAt.toLocaleString(locale);
@@ -171,7 +173,7 @@ export async function exportEventAttendeesAction(input: {
 
     const artifact =
       format === "xlsx"
-        ? buildEventAttendeesXlsxArtifact(artifactInput)
+        ? await buildEventAttendeesXlsxArtifact(artifactInput)
         : await buildEventAttendeesPdfArtifact(artifactInput);
 
     await recordSystemAudit({

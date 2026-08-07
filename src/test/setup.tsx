@@ -6,6 +6,7 @@ import {
   mockPush,
   mockRefresh,
   mockReplace,
+  mockSearchParams,
 } from "@/test/navigationMock";
 
 if (typeof window !== "undefined") {
@@ -87,7 +88,7 @@ vi.mock("next/navigation", () => ({
     prefetch: vi.fn(),
     refresh: mockRefresh,
   }),
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => mockSearchParams(),
 }));
 
 beforeEach(() => {
@@ -96,4 +97,6 @@ beforeEach(() => {
   mockPush.mockClear();
   mockReplace.mockClear();
   mockRefresh.mockClear();
+  mockSearchParams.mockReset();
+  mockSearchParams.mockReturnValue(new URLSearchParams());
 });

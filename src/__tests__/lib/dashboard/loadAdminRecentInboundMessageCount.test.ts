@@ -2,32 +2,28 @@ import { describe, expect, it, vi } from "vitest";
 import { loadAdminRecentInboundMessageCount } from "@/lib/dashboard/loadAdminRecentInboundMessageCount";
 
 describe("loadAdminRecentInboundMessageCount", () => {
-  it("returns PostgREST count when query succeeds", async () => {
-    const chain = {
-      eq: vi.fn().mockReturnThis(),
-      gte: vi.fn().mockResolvedValue({ count: 12, error: null }),
-    };
+  it("returns total inbound count for the recipient without a date window", async () => {
+    const eq = vi.fn().mockResolvedValue({ count: 27, error: null });
+    const select = vi.fn(() => ({ eq }));
     const supabase = {
-      from: vi.fn(() => ({
-        select: vi.fn(() => chain),
-      })),
+      from: vi.fn(() => ({ select })),
     };
-    await expect(loadAdminRecentInboundMessageCount(supabase as never, "uid-1")).resolves.toBe(12);
+
+    await expect(loadAdminRecentInboundMessageCount(supabase as never, "uid-1")).resolves.toBe(27);
     expect(supabase.from).toHaveBeenCalledWith("portal_messages");
-    expect(chain.eq).toHaveBeenCalledWith("recipient_id", "uid-1");
+    expect(select).toHaveBeenCalledWith("id", { head: true, count: "exact" });
+    expect(eq).toHaveBeenCalledWith("recipient_id", "uid-1");
+    expect(eq.mock.calls.some((c) => String(c[0]).includes("created_at"))).toBe(false);
   });
 
   it("returns 0 when Supabase returns an error", async () => {
-    const chain = {
-      eq: vi.fn().mockReturnThis(),
-      gte: vi.fn().mockResolvedValue({
-        count: null,
-        error: { message: "boom", code: "PGRST301", details: "", hint: "" },
-      }),
-    };
+    const eq = vi.fn().mockResolvedValue({
+      count: null,
+      error: { message: "boom", code: "PGRST301", details: "", hint: "" },
+    });
     const supabase = {
       from: vi.fn(() => ({
-        select: vi.fn(() => chain),
+        select: vi.fn(() => ({ eq })),
       })),
     };
     await expect(loadAdminRecentInboundMessageCount(supabase as never, "uid-2")).resolves.toBe(0);

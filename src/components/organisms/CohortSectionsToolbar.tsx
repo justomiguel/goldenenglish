@@ -1,7 +1,7 @@
 "use client";
 
 import { Copy, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { AcademicRolloverWizard } from "@/components/organisms/AcademicRolloverWizard";
 import {
@@ -13,6 +13,7 @@ import {
   type AcademicCopySectionsModalDict,
 } from "@/components/organisms/AcademicCopySectionsModal";
 import type { AcademicRolloverWizardProps } from "@/components/organisms/AcademicRolloverWizard";
+import { ADMIN_TUTORIAL_OPEN_NEW_SECTION_EVENT } from "@/lib/admin-tutorials/selectors";
 
 export interface CohortSectionsToolbarProps {
   locale: string;
@@ -50,6 +51,12 @@ export function CohortSectionsToolbar({
     copySectionsModalDict &&
     copySectionsSourceOptions.length > 0;
 
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener(ADMIN_TUTORIAL_OPEN_NEW_SECTION_EVENT, onOpen);
+    return () => window.removeEventListener(ADMIN_TUTORIAL_OPEN_NEW_SECTION_EVENT, onOpen);
+  }, []);
+
   return (
     <>
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
@@ -57,6 +64,7 @@ export function CohortSectionsToolbar({
           type="button"
           className="min-h-[44px]"
           title={newSectionButtonTip}
+          data-tour="academic-new-section"
           onClick={() => setOpen(true)}
         >
           <Plus className="h-4 w-4 shrink-0" aria-hidden />

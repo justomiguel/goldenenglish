@@ -66,7 +66,7 @@ describe("surface gates — narrow tree", () => {
     expect(document.querySelector("main")).toBeTruthy();
   });
 
-  it("AdminImportSurfaceGate mounts ImportStudents narrow", async () => {
+  it("AdminImportSurfaceGate mounts ImportUsers narrow", async () => {
     render(
       <AdminImportSurfaceGate locale="en" desktop={<div>d</div>} dict={dictEn} />,
     );
@@ -74,7 +74,9 @@ describe("surface gates — narrow tree", () => {
       await Promise.resolve();
     });
     expect(
-      screen.getByRole("button", { name: dictEn.admin.import.chooseFile }),
+      screen.getByRole("button", {
+        name: dictEn.admin.users.spreadsheet.chooseFileAria,
+      }),
     ).toBeInTheDocument();
   });
 });

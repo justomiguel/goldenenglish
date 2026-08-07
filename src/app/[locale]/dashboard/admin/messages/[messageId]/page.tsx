@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Reply } from "lucide-react";
+import { ArrowLeft, Reply, ReplyAll } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { redirect, notFound } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadAdminPortalMessageDetail } from "@/lib/dashboard/loadAdminPortalMessageDetail";
+import { markAdminPortalMessageRead } from "@/lib/messaging/markAdminPortalMessageAttention";
 import { AdminPortalMessageDetailView } from "@/components/dashboard/AdminPortalMessageDetailView";
 import { DeletePortalMessageButton } from "@/components/dashboard/DeletePortalMessageButton";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -43,8 +45,11 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
   const detail = await loadAdminPortalMessageDetail(supabase, dict, messageId);
   if (!detail) notFound();
 
+  await markAdminPortalMessageRead(supabase, messageId);
+
   const listHref = `/${locale}/dashboard/admin/messages`;
   const replyHref = `/${locale}/dashboard/admin/messages/compose?replyTo=${detail.id}`;
+  const replyWithDefaultHref = `${replyHref}&useDefault=1`;
 
   return (
     <div className="mx-auto max-w-4xl pb-10">
@@ -56,13 +61,19 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
         <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
         {dict.admin.messages.composeBackToList}
       </Link>
-      <h1 className="mt-5 text-2xl font-bold tracking-tight text-[var(--color-secondary)] md:text-3xl">
+      <h1
+        className="mt-5 text-2xl font-bold tracking-tight text-[var(--color-secondary)] md:text-3xl"
+        data-tour={ADMIN_TOUR_ANCHORS.messagesDetailTitle}
+      >
         {dict.admin.messages.detailHeading}
       </h1>
       <div className="mt-7 md:mt-9">
         <AdminPortalMessageDetailView locale={locale} labels={dict.admin.messages} detail={detail} />
       </div>
-      <div className="mt-8 flex flex-wrap items-center justify-end gap-3 border-t border-[var(--color-border)]/80 pt-7">
+      <div
+        className="mt-8 flex flex-wrap items-center justify-end gap-3 border-t border-[var(--color-border)]/80 pt-7"
+        data-tour={ADMIN_TOUR_ANCHORS.messagesDetailActions}
+      >
         <Link
           href={replyHref}
           className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-muted)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
@@ -70,6 +81,14 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
         >
           <Reply className="h-4 w-4 shrink-0" aria-hidden />
           {dict.admin.messages.replyToMessage}
+        </Link>
+        <Link
+          href={replyWithDefaultHref}
+          className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-muted)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+          title={dict.admin.messages.replyWithDefaultMessageTitle}
+        >
+          <ReplyAll className="h-4 w-4 shrink-0" aria-hidden />
+          {dict.admin.messages.replyWithDefaultMessage}
         </Link>
         <DeletePortalMessageButton
           locale={locale}

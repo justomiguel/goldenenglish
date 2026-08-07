@@ -71,6 +71,12 @@ describe("getDictionary", () => {
     expect(en.dashboard.academicSectionPage.period.save).toBeTruthy();
     expect(es.dashboard.academicSectionPage.period.save).toBeTruthy();
     expect(en.dashboard.academicSectionPage.staff.leadSave).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.staff.leadOpenButton).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.staff.assistantsOpenButton).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.staff.externalOpenButton).toBeTruthy();
+    expect(es.dashboard.academicSectionPage.staff.leadOpenButton).toBeTruthy();
+    expect(es.dashboard.academicSectionPage.staff.assistantsOpenButton).toBeTruthy();
+    expect(es.dashboard.academicSectionPage.staff.externalOpenButton).toBeTruthy();
     expect(es.dashboard.academicSectionPage.staff.assistantsSave).toBeTruthy();
     expect(en.dashboard.academicSectionPage.staff.pickStaffAssistantLabel).toBeTruthy();
     expect(en.dashboard.academicSectionPage.capacity.save).toBeTruthy();
@@ -96,8 +102,24 @@ describe("getDictionary", () => {
     expect(es.dashboard.academicSectionPage.shellTabs.teachers).toBeTruthy();
     expect(en.dashboard.academicSectionPage.staffAssignedChips.heading).toBeTruthy();
     expect(es.dashboard.academicSectionPage.staffAssignedChips.heading).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.staffAssignedChips.openProfileAria).toContain("{name}");
+    expect(es.dashboard.academicSectionPage.staffAssignedChips.emailLabel).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.staffAssignedChips.assistantBadgeTeacher).toBeTruthy();
     expect(en.dashboard.academicSectionPage.health.title).toBeTruthy();
     expect(es.dashboard.academicSectionPage.health.title).toBeTruthy();
+  });
+
+  it("gives studentNav every key parentNav has, in all locales", async () => {
+    for (const locale of ["es", "en", "pt"] as const) {
+      const d = await getDictionary(locale);
+      const parentKeys = Object.keys(d.dashboard.parentNav);
+      const studentNav = d.dashboard.studentNav as Record<string, string>;
+      const missing = parentKeys.filter((key) => !(key in studentNav));
+      expect(missing, `${locale} studentNav is missing keys`).toEqual([]);
+      for (const key of parentKeys) {
+        expect(studentNav[key], `${locale} studentNav.${key}`).toBeTruthy();
+      }
+    }
   });
 
   it("falls back to default for unknown locale", async () => {

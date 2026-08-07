@@ -55,9 +55,22 @@ export interface EventAttendeesExportCustomColumn {
   label: string;
 }
 
+export interface EventAttendeesExportImagePayload {
+  dataUrl: string;
+  bytes: Uint8Array;
+  extension: "jpeg" | "png" | "gif" | "webp";
+}
+
+export interface EventAttendeesExportCell {
+  text: string;
+  /** Storage path pending download during export enrichment. */
+  imagePath?: string;
+  image?: EventAttendeesExportImagePayload;
+}
+
 export interface EventAttendeesExportTable {
   headers: string[];
-  rows: string[][];
+  rows: EventAttendeesExportCell[][];
 }
 
 export interface EventAttendeesExportArtifact {
