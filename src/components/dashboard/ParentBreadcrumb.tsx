@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
-import { withStudentIdHref } from "@/lib/parent/withStudentIdHref";
+import { withParentFocusHref } from "@/lib/parent/withParentFocusHref";
 
 export interface ParentBreadcrumbProps {
   locale: string;
@@ -42,6 +42,7 @@ export function ParentBreadcrumb({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const studentId = searchParams.get("studentId");
+  const sectionId = searchParams.get("sectionId");
 
   if (!pathname.startsWith(baseHref) || pathname === baseHref) return null;
 
@@ -80,7 +81,7 @@ export function ParentBreadcrumb({
               </span>
             ) : (
               <Link
-                href={withStudentIdHref(crumb.href, studentId)}
+                href={withParentFocusHref(crumb.href, { studentId, sectionId })}
                 className="rounded-sm transition hover:text-[var(--color-foreground)] hover:underline"
               >
                 {crumb.label}
