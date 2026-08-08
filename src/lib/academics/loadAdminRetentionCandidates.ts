@@ -1,10 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   buildAdminRetentionRows,
-  digitsOnly,
   type RawEnrollmentRow,
 } from "@/lib/academics/buildAdminRetentionRows";
 import { batchAuthEmailsForUserIds } from "@/lib/auth/batchAuthEmailsForUserIds";
+import { getBrandForRequest } from "@/lib/brand/server";
+import {
+  resolveWhatsAppCountry,
+  resolveWhatsAppDigits,
+} from "@/lib/whatsapp/resolveWhatsAppDigits";
 import type {
   AdminRetentionCandidate,
   LoadAdminRetentionOptions,
@@ -87,10 +91,12 @@ export async function loadAdminRetentionCandidates(
     ? await supabase.from("profiles").select("id, first_name, last_name, phone").in("id", tutorIds)
     : { data: [] as { id: string; first_name: string; last_name: string; phone: string | null }[] };
 
+  const instituteCountry = resolveWhatsAppCountry((await getBrandForRequest()).contactPhone);
+
   const profileById = new Map(
     (tutorProfiles ?? []).map((p) => {
       const phoneTrim = (p.phone ?? "").trim();
-      const phoneDigits = digitsOnly(p.phone);
+      const phoneDigits = resolveWhatsAppDigits(p.phone, instituteCountry);
       return [
         p.id as string,
         {
@@ -143,6 +149,7 @@ export async function loadAdminRetentionCandidates(
     profileById,
     attByEnrollment,
     emailByUserId,
+    instituteCountry,
   });
 
   out.sort((a, b) => {

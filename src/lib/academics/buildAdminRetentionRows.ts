@@ -1,13 +1,9 @@
+import type { CountryCode } from "libphonenumber-js";
 import { countTrailingAbsences } from "@/lib/academics/sectionAttendanceRetention";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { resolveWhatsAppDigits } from "@/lib/whatsapp/resolveWhatsAppDigits";
 import type { AdminRetentionCandidate } from "@/types/adminRetention";
 import type { SectionAttendanceStatusDb } from "@/types/sectionAcademics";
-
-function digitsOnly(phone: string | null | undefined): string | null {
-  if (!phone) return null;
-  const d = phone.replace(/\D/g, "");
-  return d.length >= 8 ? d : null;
-}
 
 export type RawEnrollmentRow = {
   id: string;
@@ -32,14 +28,24 @@ type BuildContext = {
   >;
   attByEnrollment: Map<string, { attended_on: string; status: SectionAttendanceStatusDb }[]>;
   emailByUserId: Map<string, string | null>;
+  /** Default country for phones typed without one; null hides the WhatsApp action. */
+  instituteCountry: CountryCode | null;
 };
 
 /**
  * Construye filas de candidatos a retención a partir de matrículas crudas y mapas auxiliares.
  */
 export function buildAdminRetentionRows(ctx: BuildContext): AdminRetentionCandidate[] {
-  const { raw, avgMap, countsByEnrollment, tutorsByStudent, profileById, attByEnrollment, emailByUserId } =
-    ctx;
+  const {
+    raw,
+    avgMap,
+    countsByEnrollment,
+    tutorsByStudent,
+    profileById,
+    attByEnrollment,
+    emailByUserId,
+    instituteCountry,
+  } = ctx;
 
   const out: AdminRetentionCandidate[] = [];
 
@@ -94,7 +100,7 @@ export function buildAdminRetentionRows(ctx: BuildContext): AdminRetentionCandid
       }
     } else if (studentIsAdult) {
       isSelfContact = true;
-      const d = digitsOnly(p?.phone);
+      const d = resolveWhatsAppDigits(p?.phone, instituteCountry);
       if (d) {
         guardianPhoneDigits = d;
         const phoneTrim = (p?.phone ?? "").trim();
@@ -134,5 +140,3 @@ export function buildAdminRetentionRows(ctx: BuildContext): AdminRetentionCandid
   out.sort((a, b) => a.studentLabel.localeCompare(b.studentLabel, undefined, { sensitivity: "base" }));
   return out;
 }
-
-export { digitsOnly };
