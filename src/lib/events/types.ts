@@ -40,6 +40,19 @@ export interface EventRegistrationBasePayload {
   birthDate?: string;
 }
 
+/**
+ * One extra seat on a purchase. Name is always required; the rest are per-event
+ * toggles (D7), so they are absent unless the event asked for them.
+ */
+export interface EventCompanionPayload {
+  firstName: string;
+  lastName: string;
+  dniOrPassport?: string;
+  email?: string;
+  birthDate?: string;
+  fieldValues?: EventFieldPayloadEntry[];
+}
+
 export interface EventTutorPayload {
   tutorId?: string;
   tutorFirstName?: string;

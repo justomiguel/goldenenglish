@@ -17,7 +17,9 @@ import {
   AdminUserSecurityPanel,
   AdminUserSummaryPanel,
 } from "@/components/molecules/AdminUserProfileTabPanels";
+import { AdminUserCarePanel } from "@/components/molecules/AdminUserCarePanel";
 import { buildAdminUserProfileTabs } from "@/components/molecules/buildAdminUserProfileTabs";
+import type { StudentCareNotes } from "@/lib/students/care/loadStudentCareNotes";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import {
   ADMIN_TOUR_ANCHORS,
@@ -35,6 +37,8 @@ export interface AdminUserProfileFichaProps {
   detail: AdminUserDetailVM;
   billing: AdminStudentBillingTabData | null;
   fileUploadProgress: FileUploadProgressLabels;
+  /** `null` when the student has no care tab or the viewer may not read it. */
+  care?: StudentCareNotes | null;
 }
 
 export function AdminUserProfileFicha({
@@ -44,6 +48,7 @@ export function AdminUserProfileFicha({
   detail,
   billing,
   fileUploadProgress,
+  care = null,
 }: AdminUserProfileFichaProps) {
   const editable = detail.viewerMayInlineEdit;
   const displayName =
@@ -137,6 +142,18 @@ export function AdminUserProfileFicha({
           labels={labels}
           billingLabels={billingLabels}
           editable={editable}
+          onFeedback={onFeedback}
+        />
+      );
+    }
+    if (visibleActiveTab === "care") {
+      return (
+        <AdminUserCarePanel
+          locale={locale}
+          userId={detail.userId}
+          labels={labels}
+          editable={editable}
+          care={care}
           onFeedback={onFeedback}
         />
       );

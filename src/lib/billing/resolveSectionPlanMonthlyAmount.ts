@@ -23,8 +23,10 @@ import {
 import {
   loadAnnualSettlementsForEnrollment,
   loadScholarshipRowsForEnrollment,
+  loadSectionBillingContext,
   parseUtcDate,
 } from "@/lib/billing/resolveSectionPlanMonthlyAmountSupport";
+import { sectionIsClassPackBilled } from "@/lib/billing/sectionBillingMode";
 
 /** Matches `buildStudentMonthlyPaymentsRow` / admin Cobranzas matrices. */
 export type ResolveSectionPlanBillingScope = "operational-window" | "plan-year";
@@ -51,7 +53,13 @@ export type SectionPlanAmountResult =
       proration: { numerator: number; denominator: number; full: boolean };
     }
   | { code: "no_plan" }
-  | { code: "out_of_period" };
+  | { code: "out_of_period" }
+  /**
+   * La sección se cobra por bolsa de clases prepagas (`student_class_packs`), no por cuota mensual.
+   * Nunca hay un monto mensual que resolver: los llamadores deben tratar este código explícitamente en
+   * vez de asumir que cualquier resultado que no sea `no_plan` / `out_of_period` es cobrable.
+   */
+  | { code: "class_pack_section" };
 
 export async function isStudentActivelyEnrolledInSection(
   supabase: SupabaseClient,
@@ -89,6 +97,11 @@ export async function resolveSectionPlanMonthlyAmount(
 ): Promise<SectionPlanAmountResult> {
   const billingScope: ResolveSectionPlanBillingScope =
     options?.billingScope ?? "operational-window";
+
+  // Antes que cualquier rama monetaria, y antes de `no_plan`: una sección por paquete no tiene plan de
+  // cuotas, y devolver `no_plan` haría parecer un error de configuración lo que es otro producto.
+  const sec = await loadSectionBillingContext(supabase, sectionId);
+  if (sectionIsClassPackBilled(sec?.billing_mode)) return { code: "class_pack_section" };
 
   const { data: planRows } = await supabase
     .from("section_fee_plans")
@@ -148,19 +161,6 @@ export async function resolveSectionPlanMonthlyAmount(
     };
   }
 
-  const { data: secRow } = await supabase
-    .from("academic_sections")
-    .select("starts_on, ends_on, schedule_slots, monthly_fee_charge_mode")
-    .eq("id", sectionId)
-    .maybeSingle();
-  const sec = secRow as
-    | {
-        starts_on: string | null;
-        ends_on: string | null;
-        schedule_slots: unknown;
-        monthly_fee_charge_mode?: string | null;
-      }
-    | null;
   const monthlyFeeChargeMode = parseMonthlyFeeChargeMode(sec?.monthly_fee_charge_mode);
   const sectionFrom = parseUtcDate(sec?.starts_on ?? null);
   const sectionUntil = parseUtcDate(sec?.ends_on ?? null);

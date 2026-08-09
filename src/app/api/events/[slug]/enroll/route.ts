@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { loadEventForPublicLanding } from "@/lib/dashboard/events/loadEventForPublicLanding";
 import { validateEventAttendeePayload } from "@/lib/events/validateEventAttendeePayload";
 import { enrollEventAttendeeServer } from "@/lib/events/server/enrollEventAttendeeServer";
+import { validateEventPurchasePayload } from "@/lib/events/validateEventPurchasePayload";
 import { logServerException } from "@/lib/logging/serverActionLog";
 
 export const runtime = "nodejs";
@@ -73,6 +74,8 @@ export async function POST(
           }>;
           isLocalResident?: boolean;
           paymentMethod?: string;
+          ticketPackageId?: string;
+          companions?: unknown;
         }
       | null;
 
@@ -104,6 +107,23 @@ export async function POST(
       collectBirthDate: event.collectBirthDate,
     });
 
+    // Rejected here as well as in the RPC: the buyer gets a code the form can
+    // turn into a sentence instead of a raw database result_code.
+    const purchase = validateEventPurchasePayload(
+      {
+        activePackageIds: event.packages.map((p) => p.id),
+        allowMultipleTickets: event.allowMultipleTickets,
+        maxTicketsPerRegistration: event.maxTicketsPerRegistration,
+        companionCollectDni: event.companionCollectDni,
+        companionCollectBirthDate: event.companionCollectBirthDate,
+        companionCollectEmail: event.companionCollectEmail,
+      },
+      { ticketPackageId: body.ticketPackageId, companions: body.companions },
+    );
+    if (!purchase.ok) {
+      return NextResponse.json({ ok: false, code: purchase.code }, { status: 400 });
+    }
+
     const result = await enrollEventAttendeeServer({
       eventId: event.id,
       userId: user?.id ?? null,
@@ -117,6 +137,8 @@ export async function POST(
       isLocalResident: body.isLocalResident ?? true,
       tutor: validated.tutor,
       fieldValues: validated.fieldValues,
+      ticketPackageId: purchase.ticketPackageId,
+      companions: purchase.companions,
     });
 
     return NextResponse.json({ ok: true, result }, {

@@ -51,6 +51,12 @@ const REG_TUTOR_EMPTY = {
   tutor_relationship: null as string | null,
 };
 
+const REG_CONTACT_PROPS = {
+  statusCounts: { total: 1, new: 1, contacted: 0 },
+  instituteName: "Test Institute",
+  instituteCountry: null,
+};
+
 const registrationAcceptUserLabels = {
   password: dictEn.admin.users.password,
   passwordHint: dictEn.admin.users.passwordHint,
@@ -235,10 +241,13 @@ describe("dashboard coverage", () => {
         labels={R}
         tableLabels={dictEn.admin.table}
         userLabels={registrationAcceptUserLabels}
+        {...REG_CONTACT_PROPS}
       />,
     );
-    expect(screen.getByText("raw@x.co")).toBeInTheDocument();
     expect(screen.getByText("B1")).toBeInTheDocument();
+    // The email moved into the expandable panel to make room for the two phones.
+    fireEvent.click(screen.getByRole("button", { name: R.expandRow }));
+    expect(screen.getByText("raw@x.co")).toBeInTheDocument();
   });
 
   it("AdminRegistrationsList shows contacted status and delete error toast", async () => {
@@ -265,9 +274,10 @@ describe("dashboard coverage", () => {
         labels={R}
         tableLabels={dictEn.admin.table}
         userLabels={registrationAcceptUserLabels}
+        {...REG_CONTACT_PROPS}
       />,
     );
-    expect(screen.getByText("c@x.co")).toBeInTheDocument();
+    expect(screen.getByText(R.contacted)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: R.delete }));
     fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: R.confirmDelete }));
     await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent(/db/));
@@ -297,6 +307,7 @@ describe("dashboard coverage", () => {
         labels={R}
         tableLabels={dictEn.admin.table}
         userLabels={registrationAcceptUserLabels}
+        {...REG_CONTACT_PROPS}
       />,
     );
     fireEvent.click(screen.getAllByRole("button", { name: R.delete })[0]);
@@ -338,6 +349,7 @@ describe("dashboard coverage", () => {
         labels={R}
         tableLabels={dictEn.admin.table}
         userLabels={registrationAcceptUserLabels}
+        {...REG_CONTACT_PROPS}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: R.accept }));
@@ -355,6 +367,7 @@ describe("dashboard coverage", () => {
         labels={R}
         tableLabels={dictEn.admin.table}
         userLabels={registrationAcceptUserLabels}
+        {...REG_CONTACT_PROPS}
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: R.accept }));

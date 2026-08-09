@@ -4,6 +4,7 @@ import { LogIn } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import type { Dictionary } from "@/types/i18n";
+import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import { resolveLandingImageSrcForTheme } from "@/lib/cms/resolveLandingMedia";
 import { RegisterForm } from "@/components/register/RegisterForm";
 import { MozarthitosReveal } from "@/components/molecules/MozarthitosReveal";
@@ -16,6 +17,7 @@ export interface RegisterMozarthitosSurfaceProps {
   brand: BrandPublic;
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
+  enrollmentLink?: SectionEnrollmentLinkContext;
   mediaMap?: LandingMediaMap;
 }
 
@@ -26,6 +28,7 @@ export function RegisterMozarthitosSurface({
   legalAgeMajority,
   sectionOptions,
   mediaMap,
+  enrollmentLink,
 }: RegisterMozarthitosSurfaceProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveLandingImageSrcForTheme(
@@ -114,6 +117,7 @@ export function RegisterMozarthitosSurface({
               dict={dict.register}
               legalAgeMajority={legalAgeMajority}
               sectionOptions={sectionOptions}
+              enrollmentLink={enrollmentLink}
             />
           </div>
           <p className="mt-8 flex justify-center lg:justify-start">

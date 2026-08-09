@@ -14,10 +14,40 @@ const DEFS: Record<ParentContentOnlyScreenTourId, readonly ParentContentOnlyStep
     { key: "board", anchor: PARENT_TOUR_ANCHORS.calendarBoard, optional: true },
     { key: "closing", anchor: null },
   ],
-  "parent-progress": [
+  "parent-child": [
     { key: "intro", anchor: null },
-    { key: "title", anchor: PARENT_TOUR_ANCHORS.progressTitle, optional: true },
-    { key: "body", anchor: PARENT_TOUR_ANCHORS.progressBody, optional: true },
+    { key: "title", anchor: PARENT_TOUR_ANCHORS.childTitle, optional: true },
+    { key: "body", anchor: PARENT_TOUR_ANCHORS.childBody, optional: true },
+    { key: "closing", anchor: null },
+  ],
+  "parent-attendance": [
+    { key: "intro", anchor: null },
+    { key: "title", anchor: PARENT_TOUR_ANCHORS.attendanceTitle, optional: true },
+    { key: "body", anchor: PARENT_TOUR_ANCHORS.attendanceBody, optional: true },
+    { key: "closing", anchor: null },
+  ],
+  "parent-grades": [
+    { key: "intro", anchor: null },
+    { key: "title", anchor: PARENT_TOUR_ANCHORS.gradesTitle, optional: true },
+    { key: "body", anchor: PARENT_TOUR_ANCHORS.gradesBody, optional: true },
+    { key: "closing", anchor: null },
+  ],
+  "parent-tasks": [
+    { key: "intro", anchor: null },
+    { key: "title", anchor: PARENT_TOUR_ANCHORS.tasksTitle, optional: true },
+    { key: "list", anchor: PARENT_TOUR_ANCHORS.tasksList, optional: true },
+    { key: "closing", anchor: null },
+  ],
+  "parent-feedback": [
+    { key: "intro", anchor: null },
+    { key: "title", anchor: PARENT_TOUR_ANCHORS.feedbackTitle, optional: true },
+    { key: "body", anchor: PARENT_TOUR_ANCHORS.feedbackBody, optional: true },
+    { key: "closing", anchor: null },
+  ],
+  "parent-badges": [
+    { key: "intro", anchor: null },
+    { key: "title", anchor: PARENT_TOUR_ANCHORS.badgesTitle, optional: true },
+    { key: "body", anchor: PARENT_TOUR_ANCHORS.badgesBody, optional: true },
     { key: "closing", anchor: null },
   ],
   "parent-payments": [
@@ -33,10 +63,10 @@ const DEFS: Record<ParentContentOnlyScreenTourId, readonly ParentContentOnlyStep
     { key: "compose", anchor: PARENT_TOUR_ANCHORS.messagesCompose, optional: true },
     { key: "closing", anchor: null },
   ],
-  "parent-settings": [
+  "parent-account": [
     { key: "intro", anchor: null },
-    { key: "title", anchor: PARENT_TOUR_ANCHORS.settingsTitle, optional: true },
-    { key: "body", anchor: PARENT_TOUR_ANCHORS.settingsBody, optional: true },
+    { key: "title", anchor: PARENT_TOUR_ANCHORS.accountTitle, optional: true },
+    { key: "body", anchor: PARENT_TOUR_ANCHORS.accountBody, optional: true },
     { key: "closing", anchor: null },
   ],
   "parent-profile": [
@@ -48,24 +78,6 @@ const DEFS: Record<ParentContentOnlyScreenTourId, readonly ParentContentOnlyStep
     { key: "intro", anchor: null },
     { key: "title", anchor: PARENT_TOUR_ANCHORS.billingTitle, optional: true },
     { key: "body", anchor: PARENT_TOUR_ANCHORS.billingBody, optional: true },
-    { key: "closing", anchor: null },
-  ],
-  "parent-tasks": [
-    { key: "intro", anchor: null },
-    { key: "title", anchor: PARENT_TOUR_ANCHORS.tasksTitle, optional: true },
-    { key: "list", anchor: PARENT_TOUR_ANCHORS.tasksList, optional: true },
-    { key: "closing", anchor: null },
-  ],
-  "parent-assessments": [
-    { key: "intro", anchor: null },
-    { key: "title", anchor: PARENT_TOUR_ANCHORS.assessmentsTitle, optional: true },
-    { key: "body", anchor: PARENT_TOUR_ANCHORS.assessmentsBody, optional: true },
-    { key: "closing", anchor: null },
-  ],
-  "parent-badges": [
-    { key: "intro", anchor: null },
-    { key: "title", anchor: PARENT_TOUR_ANCHORS.badgesTitle, optional: true },
-    { key: "body", anchor: PARENT_TOUR_ANCHORS.badgesBody, optional: true },
     { key: "closing", anchor: null },
   ],
   "parent-child-detail": [

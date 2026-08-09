@@ -112,6 +112,7 @@ export function TeacherSectionRoster({
             <TeacherRosterStudentRow
               key={r.enrollmentId}
               label={r.label}
+              hasCareNotes={r.hasCareNotes}
               avatarDisplayUrl={r.avatarDisplayUrl}
               statusLabel={r.status}
               showActions={tab === "active"}

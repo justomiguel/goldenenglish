@@ -10,6 +10,7 @@ import type {
   RegistrationSortDir,
   RegistrationSortKey,
 } from "@/lib/dashboard/adminRegistrationsSort";
+import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -56,10 +57,14 @@ export interface AdminRegistrationsPwaListProps {
   sortDir: RegistrationSortDir;
   onToggleSort: (key: RegistrationSortKey) => void;
   statusLabel: (status: string) => string;
+  contactFor: (row: AdminRegistrationRow) => RegistrationContactView;
+  instituteName: string;
   busyId: string | null;
   onAccept: (row: AdminRegistrationRow) => void;
   onEdit: (row: AdminRegistrationRow) => void;
   onDelete: (row: AdminRegistrationRow) => void;
+  onMarkContacted: (row: AdminRegistrationRow) => void;
+  onRevertToNew: (row: AdminRegistrationRow) => void;
   emptyMessage: string;
   pagination: {
     page: number;
@@ -80,10 +85,14 @@ export function AdminRegistrationsPwaList({
   sortDir,
   onToggleSort,
   statusLabel,
+  contactFor,
+  instituteName,
   busyId,
   onAccept,
   onEdit,
   onDelete,
+  onMarkContacted,
+  onRevertToNew,
   emptyMessage,
   pagination,
 }: AdminRegistrationsPwaListProps) {
@@ -141,9 +150,13 @@ export function AdminRegistrationsPwaList({
             busy={busyId === r.id}
             labels={labels}
             statusLabel={statusLabel}
+            contact={contactFor(r)}
+            instituteName={instituteName}
             onAccept={onAccept}
             onEdit={onEdit}
             onDelete={onDelete}
+            onMarkContacted={onMarkContacted}
+            onRevertToNew={onRevertToNew}
           />
         ))}
       </ul>

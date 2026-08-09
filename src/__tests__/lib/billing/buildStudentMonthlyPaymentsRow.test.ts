@@ -255,6 +255,32 @@ describe("buildStudentMonthlyPaymentsRow", () => {
     expect(may.proration).toEqual({ numerator: 1, denominator: 1 });
   });
 
+  // REGRESSION CHECK: switching an existing section to class-pack billing leaves its old
+  // `section_fee_plans` rows in place. Without this guard the grid keeps rendering `due` cells with
+  // amounts for a section that is no longer charged monthly — phantom debt shown to admin and family.
+  it("charges nothing when the section is billed by class packs, even with fee plans still on file", () => {
+    const row = buildStudentMonthlyPaymentsRow(
+      baseInput({ sectionBillingMode: "class_pack" }),
+    );
+
+    expect(row.hasActivePlan).toBe(false);
+    expect(row.cells.every((cell) => cell.status === "no-plan")).toBe(true);
+    expect(row.cells.every((cell) => cell.expectedAmount === null)).toBe(true);
+    expect(row.cells.every((cell) => cell.originalExpectedAmount === null)).toBe(true);
+    // Spec D12: matrícula is a one-time per-section charge, orthogonal to how classes are priced.
+    expect(row.enrollmentFeeAmount).toBe(150);
+  });
+
+  it("keeps billing monthly when the mode is absent or unrecognised, so no section silently stops being charged", () => {
+    for (const mode of [undefined, null, "", "section_monthly_fee", "gibberish"]) {
+      const row = buildStudentMonthlyPaymentsRow(
+        baseInput({ sectionBillingMode: mode as never }),
+      );
+      expect(row.cells[4].status).toBe("due");
+      expect(row.cells[4].expectedAmount).toBe(100);
+    }
+  });
+
   it("can bill the full fee-plan year for admin collection matrices", () => {
     const row = buildStudentMonthlyPaymentsRow(
       baseInput({

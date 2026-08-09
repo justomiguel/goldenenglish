@@ -7,7 +7,8 @@ const REGISTRATION_COLUMNS = [
   "id", "first_name", "last_name", "dni", "email", "phone",
   "birth_date", "level_interest", "status", "created_at",
   "tutor_name", "tutor_dni", "tutor_email", "tutor_phone",
-  "tutor_relationship",
+  "tutor_relationship", "preferred_section_id",
+  "contacted_at", "contacted_by", "source_section_link_id",
 ].join(", ");
 
 const SORT_COLUMN_MAP: Record<RegistrationSortKey, string> = {
@@ -33,6 +34,8 @@ export interface PaginatedRegistrationsParams {
   q?: string;
   sort?: RegistrationSortKey;
   dir?: "asc" | "desc";
+  /** Follow-up status filter; omitted means every pending lead. */
+  status?: "new" | "contacted";
 }
 
 /** Row shape for `registrations` select used in this loader (PostgREST typing can surface `GenericStringError` on `.data`). */
@@ -52,6 +55,10 @@ type RegistrationSelectRow = {
   tutor_email: string | null;
   tutor_phone: string | null;
   tutor_relationship: string | null;
+  preferred_section_id: string | null;
+  contacted_at: string | null;
+  contacted_by: string | null;
+  source_section_link_id: string | null;
 };
 
 function buildSearchFilter(q: string): string {
@@ -95,6 +102,11 @@ export async function loadPaginatedRegistrations(
     countQuery = countQuery.or(filter);
   }
 
+  if (params.status) {
+    dataQuery = dataQuery.eq("status", params.status);
+    countQuery = countQuery.eq("status", params.status);
+  }
+
   dataQuery = dataQuery
     .order(sortCol, { ascending })
     .range(from, to);
@@ -134,6 +146,12 @@ export async function loadPaginatedRegistrations(
     tutor_phone: r.tutor_phone != null ? String(r.tutor_phone) : null,
     tutor_relationship:
       r.tutor_relationship != null ? String(r.tutor_relationship) : null,
+    preferred_section_id:
+      r.preferred_section_id != null ? String(r.preferred_section_id) : null,
+    contacted_at: r.contacted_at != null ? String(r.contacted_at) : null,
+    contacted_by: r.contacted_by != null ? String(r.contacted_by) : null,
+    sourceSectionLinkId:
+      r.source_section_link_id != null ? String(r.source_section_link_id) : null,
   }));
 
   return {

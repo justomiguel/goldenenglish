@@ -52,6 +52,28 @@ describe("sectionScheduleSlots", () => {
     ).toEqual([{ dayOfWeek: 0, startTime: "16:00", endTime: "18:00" }]);
   });
 
+  it("parseSectionScheduleSlots drops rows with a missing day or a blank time and ignores non-arrays", () => {
+    expect(parseSectionScheduleSlots(null)).toEqual([]);
+    expect(parseSectionScheduleSlots("nope")).toEqual([]);
+    expect(
+      parseSectionScheduleSlots([
+        { dayOfWeek: 2, startTime: "", endTime: "19:00" },
+        { startTime: "18:00", endTime: "19:00" },
+        { dayOfWeek: 2, startTime: "18:00", endTime: "19:00" },
+      ]),
+    ).toEqual([{ dayOfWeek: 2, startTime: "18:00", endTime: "19:00" }]);
+  });
+
+  it("parseSectionScheduleSlots sorts surviving rows by weekday then start time", () => {
+    expect(
+      parseSectionScheduleSlots([
+        { dayOfWeek: 3, startTime: "09:00", endTime: "10:00" },
+        { dayOfWeek: 1, startTime: "18:00", endTime: "19:00" },
+        { dayOfWeek: 1, startTime: "08:00", endTime: "09:00" },
+      ]).map((s) => `${s.dayOfWeek}@${s.startTime}`),
+    ).toEqual(["1@08:00", "1@18:00", "3@09:00"]);
+  });
+
   it("normalizeSectionScheduleSlots returns null when not every row parses", () => {
     expect(
       normalizeSectionScheduleSlots([

@@ -7,8 +7,13 @@ import { AdminRegistrationEditModal } from "@/components/dashboard/AdminRegistra
 import { RegistrationListToolbar } from "@/components/molecules/RegistrationListToolbar";
 import { AdminRegistrationsPwaList } from "@/components/pwa/molecules/AdminRegistrationsPwaList";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
-import { useAdminRegistrationsList } from "@/hooks/useAdminRegistrationsList";
+import {
+  useAdminRegistrationsList,
+  type RegistrationStatusFilter,
+} from "@/hooks/useAdminRegistrationsList";
 import type { AppSurface } from "@/hooks/useAppSurface";
+import { resolveRegistrationContact } from "@/lib/register/resolveRegistrationContact";
+import type { CountryCode } from "libphonenumber-js";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
@@ -26,7 +31,11 @@ interface AdminRegistrationsScreenNarrowProps {
   searchQuery: string;
   sortKey: RegistrationSortKey;
   sortDir: RegistrationSortDir;
+  statusFilter?: RegistrationStatusFilter;
+  statusCounts: { total: number; new: number; contacted: number };
   legalAgeMajority: number;
+  instituteName: string;
+  instituteCountry: CountryCode | null;
   labels: RegLabels;
   tableLabels: TableLabels;
   userLabels: RegistrationAcceptUserLabels;
@@ -44,7 +53,11 @@ export function AdminRegistrationsScreenNarrow({
   searchQuery,
   sortKey,
   sortDir,
+  statusFilter,
+  statusCounts,
   legalAgeMajority,
+  instituteName,
+  instituteCountry,
   labels,
   tableLabels,
   userLabels,
@@ -61,6 +74,7 @@ export function AdminRegistrationsScreenNarrow({
     searchQuery,
     sortKey,
     sortDir,
+    statusFilter,
     labels,
   });
 
@@ -85,6 +99,10 @@ export function AdminRegistrationsScreenNarrow({
                 onQueryChange={u.setFilterQueryAndResetPage}
                 totalCount={totalCount}
                 filteredCount={totalCount}
+                statusFilter={statusFilter}
+                statusCounts={statusCounts}
+                onStatusFilterChange={u.setStatusFilter}
+                locale={locale}
               />
             }
             labels={labels}
@@ -96,10 +114,16 @@ export function AdminRegistrationsScreenNarrow({
             sortDir={u.sortDir}
             onToggleSort={(key: RegistrationSortKey) => u.toggleSort(key)}
             statusLabel={u.statusLabel}
+            contactFor={(row) =>
+              resolveRegistrationContact(row, { legalAgeMajority, country: instituteCountry })
+            }
+            instituteName={instituteName}
             busyId={u.busyId}
             onAccept={u.setAcceptRow}
             onEdit={u.setEditRow}
             onDelete={u.setDeleteRow}
+            onMarkContacted={u.onMarkContacted}
+            onRevertToNew={u.onRevertToNew}
             emptyMessage={u.emptyMessage}
             pagination={{
               page: u.page,

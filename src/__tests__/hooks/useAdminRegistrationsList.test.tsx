@@ -36,6 +36,10 @@ function makeRow(over: Partial<AdminRegistrationRow> = {}): AdminRegistrationRow
     tutor_email: null,
     tutor_phone: null,
     tutor_relationship: null,
+    preferred_section_id: null,
+    contacted_at: null,
+    contacted_by: null,
+    sourceSectionLinkId: null,
     ...over,
   };
 }

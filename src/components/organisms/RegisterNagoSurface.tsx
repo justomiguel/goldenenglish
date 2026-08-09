@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LogIn } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
+import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { RegisterForm } from "@/components/register/RegisterForm";
 import { NagoRegisterHeader } from "@/components/molecules/NagoRegisterHeader";
@@ -13,6 +14,7 @@ export interface RegisterNagoSurfaceProps {
   brand: BrandPublic;
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
+  enrollmentLink?: SectionEnrollmentLinkContext;
 }
 
 export function RegisterNagoSurface({
@@ -21,6 +23,7 @@ export function RegisterNagoSurface({
   brand,
   legalAgeMajority,
   sectionOptions,
+  enrollmentLink,
 }: RegisterNagoSurfaceProps) {
   const prefix = `/${locale}`;
   const nago = dict.landing.nago;
@@ -71,6 +74,7 @@ export function RegisterNagoSurface({
               dict={dict.register}
               legalAgeMajority={legalAgeMajority}
               sectionOptions={sectionOptions}
+              enrollmentLink={enrollmentLink}
             />
           </div>
           <p className="mt-8 flex justify-center lg:justify-start">

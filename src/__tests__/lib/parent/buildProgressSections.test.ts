@@ -104,6 +104,63 @@ const EMPTY_INPUT = {
   badgeRows: [],
 };
 
+// REGRESSION CHECK: a read that failed must not be filtered out as "empty". Under RLS a tutor's
+// exams and feedback reads can time out, and hiding those sections told families their child had
+// nothing loaded. A failed section stays, flagged, so the screen can offer a retry instead.
+describe("buildProgressSections — a failed read is not an empty one", () => {
+  it("keeps a section whose load failed even with nothing in it", () => {
+    const sections = buildProgressSections({
+      ...EMPTY_INPUT,
+      failedSections: [PROGRESS_SECTION_EXAMS],
+    });
+
+    expect(sections.map((section) => section.id)).toEqual([PROGRESS_SECTION_EXAMS]);
+    expect(sections[0]!.failed).toBe(true);
+    expect(sections[0]!.count).toBe(0);
+  });
+
+  it("flags a failed section that did return partial content", () => {
+    const sections = buildProgressSections({
+      ...EMPTY_INPUT,
+      exams: [exam()],
+      failedSections: [PROGRESS_SECTION_EXAMS],
+    });
+
+    expect(sections[0]!.failed).toBe(true);
+    expect(sections[0]!.count).toBe(1);
+  });
+
+  it("leaves healthy sections unflagged", () => {
+    const sections = buildProgressSections({
+      ...EMPTY_INPUT,
+      exams: [exam()],
+      feedback: timeline(["f1"]),
+      failedSections: [PROGRESS_SECTION_FEEDBACK],
+    });
+
+    const byId = Object.fromEntries(sections.map((section) => [section.id, section]));
+    expect(byId[PROGRESS_SECTION_EXAMS]!.failed).toBeFalsy();
+    expect(byId[PROGRESS_SECTION_FEEDBACK]!.failed).toBe(true);
+  });
+
+  it("keeps the canonical order when a failed empty section joins", () => {
+    const sections = buildProgressSections({
+      ...EMPTY_INPUT,
+      badgeRows: [badge()],
+      failedSections: [PROGRESS_SECTION_EXAMS],
+    });
+
+    expect(sections.map((section) => section.id)).toEqual([
+      PROGRESS_SECTION_EXAMS,
+      PROGRESS_SECTION_BADGES,
+    ]);
+  });
+
+  it("behaves exactly as before when nothing failed", () => {
+    expect(buildProgressSections({ ...EMPTY_INPUT, failedSections: [] })).toEqual([]);
+  });
+});
+
 describe("buildProgressSections", () => {
   it("returns no sections when every dataset is empty", () => {
     expect(buildProgressSections(EMPTY_INPUT)).toEqual([]);

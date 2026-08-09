@@ -7,6 +7,8 @@ import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { TeacherSectionRoster } from "@/components/organisms/TeacherSectionRoster";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { loadTeacherSectionDetailModel } from "@/lib/academics/loadTeacherSectionDetailModel";
+import { loadSectionEnrollmentLinkState } from "@/lib/academics/sectionEnrollmentLinkAdmin";
+import { SectionEnrollmentLinkPanel } from "@/components/molecules/SectionEnrollmentLinkPanel";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
 
 interface PageProps {
@@ -64,6 +66,11 @@ export default async function TeacherSectionDetailPage({ params }: PageProps) {
     attendanceStatusLabels: d.attendanceStatus,
   });
 
+  const enrollmentLinkState = await loadSectionEnrollmentLinkState(
+    supabase,
+    sectionId,
+  );
+
   return (
     <div className="space-y-6">
       <div>
@@ -103,6 +110,13 @@ export default async function TeacherSectionDetailPage({ params }: PageProps) {
           {d.rosterLinkContents}
         </Link>
       </div>
+      <SectionEnrollmentLinkPanel
+        locale={locale}
+        sectionId={sectionId}
+        state={enrollmentLinkState}
+        labels={dict.dashboard.sectionEnrollmentLink}
+        canRevoke
+      />
       <TeacherSectionRoster
         locale={locale}
         sectionId={sectionId}

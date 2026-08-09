@@ -10,8 +10,7 @@ const copy = {
   sidebar: { title: "Sidebar", description: "Nav" },
   tabBar: { title: "Tabs", description: "Mobile nav" },
   chromeHeader: { title: "Header", description: "Chrome" },
-  chromeProfile: { title: "Profile", description: "Profile btn" },
-  chromeSignOut: { title: "Sign out", description: "Logout" },
+  chromeProfile: { title: "Account", description: "Account menu" },
   titleBlock: { title: "Home", description: "Title" },
   childSwitcher: { title: "Children", description: "Switcher" },
   statusPillars: { title: "Status", description: "Pillars" },
@@ -32,19 +31,26 @@ describe("buildExplainParentHomeSteps", () => {
     );
     const anchors = steps.map((s) => s.anchor);
     expect(anchors[0]).toBeNull();
-    expect(anchors).toContain(PARENT_TOUR_ANCHORS.sidebar);
+    expect(anchors).toContain(PARENT_TOUR_ANCHORS.portalTopNav);
     expect(anchors).not.toContain(PARENT_TOUR_ANCHORS.tabBar);
     expect(anchors).toContain(PARENT_TOUR_ANCHORS.homeTitle);
     expect(anchors[anchors.length - 1]).toBeNull();
   });
 
-  it("includes mobile tab bar instead of sidebar", () => {
+  it("includes mobile tab bar instead of the top nav", () => {
     const steps = filterStepsForSurface(
       buildExplainParentHomeSteps(copy),
       "mobile",
     );
     const anchors = steps.map((s) => s.anchor);
     expect(anchors).toContain(PARENT_TOUR_ANCHORS.tabBar);
-    expect(anchors).not.toContain(PARENT_TOUR_ANCHORS.sidebar);
+    expect(anchors).not.toContain(PARENT_TOUR_ANCHORS.portalTopNav);
+  });
+
+  it("teaches the account menu instead of a standalone sign-out control", () => {
+    const anchors = buildExplainParentHomeSteps(copy).map((s) => s.anchor);
+    expect(anchors).toContain(PARENT_TOUR_ANCHORS.portalAccount);
+    expect(anchors).not.toContain(PARENT_TOUR_ANCHORS.chromeSignOut);
+    expect(anchors).not.toContain(PARENT_TOUR_ANCHORS.chromeProfile);
   });
 });

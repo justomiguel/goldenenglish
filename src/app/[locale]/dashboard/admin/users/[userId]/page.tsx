@@ -6,6 +6,7 @@ import { loadAdminUserDetail } from "@/lib/dashboard/loadAdminUserDetail";
 import { loadAdminStudentBillingTabData } from "@/lib/dashboard/loadAdminStudentBillingTabData";
 import { createClient } from "@/lib/supabase/server";
 import { AdminUserDetailEntry } from "@/components/dashboard/AdminUserDetailEntry";
+import { loadStudentCareNotes } from "@/lib/students/care/loadStudentCareNotes";
 import type { Locale } from "@/types/i18n";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
@@ -55,6 +56,14 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
     ? await loadAdminStudentBillingTabData(supabase, userId)
     : null;
 
+  // The note text never rides along with the rest of the detail: it comes from
+  // the one authorized door, and stays null when the viewer is not entitled.
+  let care = null;
+  if (detail.role === "student" && sessionUser?.id) {
+    const result = await loadStudentCareNotes(sessionUser.id, userId);
+    care = result.ok ? result.notes : null;
+  }
+
   return (
     <AdminUserDetailEntry
       locale={locale as Locale}
@@ -63,6 +72,7 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
       detail={detail}
       billing={billing}
       fileUploadProgress={dict.common.fileUpload}
+      care={care}
     />
   );
 }

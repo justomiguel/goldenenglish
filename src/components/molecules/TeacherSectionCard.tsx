@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import type { Dictionary } from "@/types/i18n";
 
 export interface TeacherSectionCardProps {
@@ -11,6 +12,7 @@ export interface TeacherSectionCardProps {
   /** When the viewer is an assistant (not `teacher_id`), show a small badge. */
   accessRole?: "lead" | "assistant";
   dict: Dictionary["dashboard"]["teacherMySections"];
+  copyLinkSlot?: ReactNode;
 }
 
 export function TeacherSectionCard({
@@ -22,6 +24,7 @@ export function TeacherSectionCard({
   activeStudentCount,
   accessRole = "lead",
   dict,
+  copyLinkSlot,
 }: TeacherSectionCardProps) {
   const baseHref = `/${locale}/dashboard/teacher/sections/${sectionId}`;
   const schedule = scheduleSummary || dict.scheduleEmpty;
@@ -65,6 +68,7 @@ export function TeacherSectionCard({
         >
           {dict.openAssessments}
         </Link>
+        {copyLinkSlot}
       </div>
     </article>
   );

@@ -33,22 +33,25 @@ export function usePwaInstallPrompt() {
 
   useEffect(() => {
     if (typeof window === "undefined" || isStandalone()) return;
+    // Dismissing hides the floating banner, not the capability: the account sheet
+    // still offers the install action afterwards.
+    let dismissed = false;
     try {
-      if (window.localStorage.getItem(STORAGE_KEY) === "1") return;
+      dismissed = window.localStorage.getItem(STORAGE_KEY) === "1";
     } catch {
       logClientWarn("usePwaInstallPrompt:read_dismissed");
     }
     if (isIosSafari()) {
       queueMicrotask(() => {
         setIosHint(true);
-        setVisible(true);
+        if (!dismissed) setVisible(true);
       });
       return;
     }
     const onBip = (event: Event) => {
       event.preventDefault();
       setDeferred(event as BeforeInstallPromptEvent);
-      setVisible(true);
+      if (!dismissed) setVisible(true);
     };
     window.addEventListener("beforeinstallprompt", onBip);
     return () => window.removeEventListener("beforeinstallprompt", onBip);
@@ -77,5 +80,8 @@ export function usePwaInstallPrompt() {
     }
   }, [deferred, dismiss]);
 
-  return { visible, iosHint, busy, deferred, dismiss, install };
+  /** A real install prompt is available; iOS Safari only ever gets the hint banner. */
+  const installable = deferred !== null;
+
+  return { visible, iosHint, busy, deferred, installable, dismiss, install };
 }

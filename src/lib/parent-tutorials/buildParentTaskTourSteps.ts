@@ -29,20 +29,21 @@ export function parentTutorialTargetPath(
     case "parent-pay-or-upload-receipt":
       return `${base}/payments`;
     case "parent-view-child-progress":
-      return `${base}/progress`;
+      return `${base}/child`;
     case "parent-read-reply-messages":
       return `${base}/messages`;
     case "parent-manage-child-or-tutor-profile":
       if (env.studentId) {
         return parentChildDetailPath(locale, env.studentId);
       }
-      return `${base}/settings`;
+      return `${base}/child/edit`;
     case "parent-calendar-attendance":
-      return `${base}/calendar`;
+      return `${base}/child/attendance`;
     case "parent-badges-overview":
-      return `${base}/progress?tab=badges`;
+      return `${base}/child/badges`;
     case "parent-settings-notifications":
-      return `${base}/settings`;
+      // Notification channels are per-child, so this guide goes to the child's own form.
+      return `${base}/child/edit`;
     default: {
       const _exhaustive: never = id;
       return _exhaustive;
@@ -93,8 +94,8 @@ export function buildParentTaskTourSteps(
     case "parent-view-child-progress":
       return [
         intro,
-        region(PARENT_TOUR_ANCHORS.progressTitle, stepCopy(s, "title")),
-        region(PARENT_TOUR_ANCHORS.progressBody, stepCopy(s, "body")),
+        region(PARENT_TOUR_ANCHORS.childTitle, stepCopy(s, "title")),
+        region(PARENT_TOUR_ANCHORS.childBody, stepCopy(s, "body")),
       ];
     case "parent-read-reply-messages":
       return [
@@ -112,20 +113,20 @@ export function buildParentTaskTourSteps(
     case "parent-calendar-attendance":
       return [
         intro,
-        region(PARENT_TOUR_ANCHORS.calendarTitle, stepCopy(s, "title")),
-        region(PARENT_TOUR_ANCHORS.calendarBoard, stepCopy(s, "board")),
+        region(PARENT_TOUR_ANCHORS.attendanceTitle, stepCopy(s, "title")),
+        region(PARENT_TOUR_ANCHORS.attendanceBody, stepCopy(s, "board")),
       ];
     case "parent-badges-overview":
       return [
         intro,
-        // Title header is omitted when badges render embedded in Progress hub.
+        region(PARENT_TOUR_ANCHORS.badgesTitle, stepCopy(s, "title")),
         region(PARENT_TOUR_ANCHORS.badgesBody, stepCopy(s, "body")),
       ];
     case "parent-settings-notifications":
       return [
         intro,
-        region(PARENT_TOUR_ANCHORS.settingsTitle, stepCopy(s, "title")),
-        region(PARENT_TOUR_ANCHORS.settingsBody, stepCopy(s, "body")),
+        region(PARENT_TOUR_ANCHORS.childDetailTitle, stepCopy(s, "title")),
+        region(PARENT_TOUR_ANCHORS.childDetailBody, stepCopy(s, "body")),
       ];
     default: {
       const _exhaustive: never = id;

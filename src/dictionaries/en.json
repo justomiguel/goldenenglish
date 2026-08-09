@@ -222,6 +222,7 @@
       "notEnrolledInSection": "The student is not actively enrolled in that section.",
       "noPlan": "No fee plan is configured for that period in this section.",
       "outOfPeriod": "That month is outside the valid billing period for the section.",
+      "classPackSection": "This section charges per class, not a monthly fee. Manage its class packs from the class packs area.",
       "exemptOrZero": "This period has no amount due (exempt or free).",
       "alreadyApproved": "That period is already recorded as paid.",
       "cannotOverrideExempt": "This period is marked exempt. Remove the exemption first.",
@@ -2207,8 +2208,23 @@
       "detailTabAcademic": "Academic",
       "detailTabPayments": "Payments",
       "detailTabFamily": "Family",
+      "detailTabCare": "Care",
       "detailTabSecurity": "Security",
       "detailTabAlert": "Needs attention",
+      "detailCardCare": "Care information",
+      "detailCareLead": "Visible only to administration, the student's guardian, and the teachers of their groups.",
+      "detailFieldCareHealth": "Health condition",
+      "detailFieldCareDiet": "Diet",
+      "detailFieldCareSupport": "Special care",
+      "detailCareHealthHint": "Allergies, medication, what to do in an emergency.",
+      "detailCareDietHint": "Foods they cannot eat or that they need.",
+      "detailCareSupportHint": "Support or adjustments they need in class.",
+      "detailCareEmpty": "No information recorded.",
+      "detailCareUpdatedBy": "Updated by {name} on {date}",
+      "detailCareSaved": "Care information saved",
+      "detailErrCareSave": "Care information could not be saved",
+      "detailCareBadge": "Needs special care",
+      "detailCareForbidden": "You do not have permission to view this information.",
       "detailPaymentsDisabledNoSection": "Assign the student to a current cohort section before managing payments.",
       "detailFamilyEmpty": "No family links are recorded for this student.",
       "detailTutorFamilyTitle": "Family",
@@ -3480,7 +3496,7 @@
       "errSaveFailed": "The enrollment could not be finalized. Try again or contact support.",
       "errTutorLinkFailed": "The student account was created but the guardian could not be linked. Support may need to fix the link.",
       "editTitle": "Edit request",
-      "editLead": "Editing is only available while the status is \"New\".",
+      "editLead": "You can edit while the request is still pending, whether it is new or already contacted.",
       "editFirstName": "First name",
       "editLastName": "Last name",
       "editTutorPhone": "Tutor phone",
@@ -3496,7 +3512,34 @@
       "sectionPickerLead": "Choose a section from the current cohort",
       "skipSectionEnrollment": "Skip for now",
       "sectionEnrollError": "Could not enroll student in section",
-      "enrollSuccess": "Student enrolled in section"
+      "enrollSuccess": "Student enrolled in section",
+      "phoneStudent": "Student phone",
+      "phoneTutor": "Guardian phone",
+      "contactCopy": "Copy number",
+      "contactCopied": "Number copied",
+      "contactWhatsApp": "Open WhatsApp",
+      "contactWhatsAppUnavailable": "Cannot open in WhatsApp",
+      "contactWhatsAppUnavailableTip": "This number is not in a format WhatsApp accepts. Copy it and dial manually.",
+      "whatsAppMessage": "Hello {name}, we are writing from {institute} about your enrolment enquiry.",
+      "minorMarker": "Minor",
+      "viaSectionLink": "via enrollment link",
+      "expandRow": "Show details",
+      "collapseRow": "Hide details",
+      "detailsTitle": "Enquiry details",
+      "preferredSection": "Preferred group",
+      "markContacted": "Mark contacted",
+      "markContactedTip": "Record that you already reached this family",
+      "revertToNew": "Mark as pending",
+      "revertToNewTip": "Send this lead back to the pending queue",
+      "contactedOn": "Contacted on {date}",
+      "statusFilterAll": "All ({{count}})",
+      "statusFilterNew": "Pending ({{count}})",
+      "statusFilterContacted": "Contacted ({{count}})",
+      "statusChangeSuccess": "Follow-up status updated",
+      "statusChangeError": "Could not update the follow-up status",
+      "exportButton": "Export",
+      "exportTip": "Download the filtered list as a spreadsheet",
+      "exportError": "Could not build the spreadsheet"
     },
     "events": {
       "lead": "Manage upcoming public events, attendees, and payments.",
@@ -3631,7 +3674,8 @@
           "attendees": "Attendees",
           "payments": "Payments",
           "waitlist": "Waitlist",
-          "notifications": "Notifications"
+          "notifications": "Notifications",
+          "packages": "Packages"
         },
         "tabLeads": {
           "summary": "Publish settings, pricing, and localized title and description.",
@@ -3639,7 +3683,8 @@
           "attendees": "Registered participants and their enrollment status.",
           "payments": "Transfer receipts and payment statuses linked to registrations.",
           "waitlist": "Review and manually promote attendees when spots open up.",
-          "notifications": "Reminder and payment decision emails sent from default templates."
+          "notifications": "Reminder and payment decision emails sent from default templates.",
+          "packages": "Price, capacity and benefits for each ticket type."
         },
         "archive": "Archive",
         "draftHint": "This event is a draft and is not visible on the public events page. Publish it when you are ready.",
@@ -3688,7 +3733,8 @@
         "bankTransferInstructionsHint": "Optional: leave empty to use the details configured under Finance → Settings.",
         "save": "Save prices",
         "savedOk": "Prices updated.",
-        "errorSave": "We could not save prices."
+        "errorSave": "We could not save prices.",
+        "disabledByPackages": "This event sells packages, so the price comes from each package and these values don't apply. Archive every package to go back to residency pricing."
       },
       "i18n": {
         "sectionTitle": "Event translations",
@@ -3791,6 +3837,48 @@
           "file": "File",
           "image": "Image"
         }
+      },
+      "packages": {
+        "sectionTitle": "Ticket packages",
+        "lead": "When an event sells packages, each one has its own price and benefits, and replaces the residency prices.",
+        "empty": "No packages yet. Without packages, this event charges the residency prices.",
+        "addTitle": "New package",
+        "editTitle": "Edit package",
+        "nameLabel": "Package name",
+        "namePlaceholder": "VIP, General, Student…",
+        "priceLabel": "Price per ticket",
+        "priceHint": "Enter 0 if this package is free.",
+        "capacityLabel": "Package capacity",
+        "capacityHint": "Optional. Leave it empty to use the event's overall capacity.",
+        "benefitsLabel": "Benefits",
+        "benefitsHint": "Shown on the public page, in this order.",
+        "benefitAdd": "Add benefit",
+        "benefitRemove": "Remove benefit",
+        "benefitPlaceholder": "e.g. Dinner included",
+        "seatsSold": "{{sold}} of {{capacity}} sold",
+        "seatsSoldNoCapacity": "{{sold}} sold",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "archive": "Archive",
+        "archiveConfirm": "Archive this package? It stops being sold, but registrations that already bought it stay as they are.",
+        "save": "Save package",
+        "savedOk": "Package saved.",
+        "archivedOk": "Package archived.",
+        "errorSave": "We couldn't save the package."
+      },
+      "multiTicket": {
+        "title": "Multiple tickets per registration",
+        "lead": "Let one person buy tickets for companions in the same registration. The payment stays with the main attendee, for the full amount.",
+        "checkboxLabel": "Allow buying multiple tickets",
+        "maxLabel": "Maximum tickets per registration",
+        "maxHint": "Includes the main attendee's ticket.",
+        "companionsTitle": "Details for each companion",
+        "companionsLead": "First and last name are always asked. Choose what else you need.",
+        "companionDni": "Ask for ID number",
+        "companionBirthDate": "Ask for date of birth",
+        "companionEmail": "Ask for email",
+        "savedOk": "Settings saved.",
+        "errorSave": "We couldn't save the settings."
       }
     }
   },
@@ -3851,6 +3939,16 @@
         "failureTitle": "We couldn't process your payment",
         "failureBody": "The payment didn't go through. You can try again from the registration page.",
         "dismiss": "Dismiss"
+      },
+      "packages": {
+        "title": "Tickets",
+        "lead": "Choose your ticket type.",
+        "benefitsTitle": "Includes",
+        "seatsLeft": "{{count}} seats left",
+        "soldOut": "Sold out",
+        "free": "Free",
+        "choose": "Choose",
+        "selected": "Chosen"
       }
     },
     "register": {
@@ -3921,6 +4019,28 @@
         "uploadFailed": "We could not upload one of your files. Try again.",
         "fileInputAriaLabel": "Select file",
         "imageInputAriaLabel": "Select image"
+      },
+      "companions": {
+        "title": "Companions",
+        "quantityLabel": "Number of tickets",
+        "quantityHint": "Includes yours.",
+        "holderTitle": "Your ticket",
+        "companionTitle": "Companion {{number}}",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "dni": "ID number",
+        "birthDate": "Date of birth",
+        "email": "Email",
+        "totalLabel": "Total to pay",
+        "totalHint": "{{seats}} tickets × {{unit}}"
+      },
+      "errors": {
+        "insufficientSeats": "Only {{count}} seats left. Lower the number of tickets.",
+        "tooManyTickets": "The maximum is {{max}} tickets per registration.",
+        "soldOut": "This event is sold out.",
+        "packageSoldOut": "This package is sold out. Choose another one.",
+        "packageUnavailable": "That package is no longer available.",
+        "companionMissingName": "Enter the first and last name of every companion."
       }
     }
   },
@@ -3955,6 +4075,27 @@
     "sectionPlaceholder": "Choose a section…",
     "sectionUndecidedOption": "I'm not sure — please help me choose",
     "sectionUndecidedHint": "If you pick this, staff will suggest the best section when they contact you. You can still submit when no sections are listed yet.",
+    "sectionLink": {
+      "heading": "You are signing up for",
+      "scheduleLabel": "Schedule",
+      "scheduleEmpty": "Schedule to be confirmed",
+      "weekdays": {
+        "sun": "Sun",
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat"
+      },
+      "seatsRemainingOne": "1 seat left",
+      "seatsRemainingMany": "{count} seats left",
+      "waitingListNotice": "This group is full. You can still send your details and we will contact you if a seat opens up.",
+      "unavailableTitle": "This link is no longer available",
+      "unavailableInvalid": "The link is not valid. Please ask the school for a new one.",
+      "unavailableClosed": "Sign-ups through this link are closed. Please contact the school.",
+      "backHome": "Go to the home page"
+    },
     "noSectionsAvailable": "No sections are listed yet — you can still submit and request help choosing.",
     "invalidSectionOption": "That section is not available. Refresh the page and choose again.",
     "submit": "Send request",
@@ -4604,6 +4745,7 @@
       "mobileClose": "Close menu",
       "home": "Overview",
       "calendar": "Attendance",
+      "course": "My course",
       "progress": "Progress",
       "tasks": "Tasks",
       "badges": "Achievements",
@@ -4643,6 +4785,18 @@
       "tipMessages": "Message your assigned teacher.",
       "tipSettings": "Language and app preferences.",
       "tipMyProfile": "Your personal profile, password, and preferences."
+    },
+    "portal": {
+      "tabBarAria": "App navigation",
+      "topNavAria": "Main navigation",
+      "accountOpen": "Open account menu",
+      "accountHeading": "Account",
+      "accountClose": "Close",
+      "accountLanguage": "Language",
+      "accountInstall": "Install the app",
+      "accountChildDetails": "Student details",
+      "subjectChildLabel": "Student",
+      "subjectSectionLabel": "Class"
     },
     "parentChrome": {
       "ariaHeader": "Family dashboard",
@@ -7990,6 +8144,7 @@
       "successMove": "Student moved.",
       "genericError": "Something went wrong. Try again.",
       "debtBadge": "Guardian has pending payments",
+      "careBadge": "Needs special care",
       "rosterTableSort": {
         "sortAsc": "ascending order",
         "sortDesc": "descending order",
@@ -8113,6 +8268,7 @@
       "emptyTab": "No students in this view.",
       "noTransferTargets": "No eligible sections for this suggestion.",
       "pendingRequestBadge": "Request in review",
+      "careBadge": "Needs special care",
       "targetFullLabel": "full",
       "targetCapacityHint": "Some destinations are at capacity; you can still suggest one—an admin may override.",
       "targetCapacityOk": "Destinations show capacity in the list when relevant.",
@@ -8164,6 +8320,26 @@
       "taskAssignDue": "Due date",
       "taskAssignButton": "Assign"
     },
+    "sectionEnrollmentLink": {
+      "title": "Invite families",
+      "lead": "Share this link so families enter their own details. Every sign-up lands in the registrations inbox for review.",
+      "generate": "Create enrollment link",
+      "urlLabel": "Enrollment link",
+      "copy": "Copy",
+      "copied": "Link copied",
+      "share": "Share",
+      "leadCount": "{count} families have signed up through this link",
+      "leadCountNone": "No family has used this link yet",
+      "inactiveNotice": "This link is deactivated. Families who open it see a closed message.",
+      "activate": "Reactivate link",
+      "deactivate": "Deactivate link",
+      "rotate": "Generate a new link",
+      "rotateConfirmTitle": "Generate a new link?",
+      "rotateConfirmBody": "The current link stops working immediately. Families who already have it will need the new one.",
+      "rotateConfirm": "Generate new link",
+      "cancel": "Cancel",
+      "error": "The action could not be completed. Please try again."
+    },
     "teacherSectionAttendance": {
       "metaTitle": "Attendance",
       "title": "Attendance",
@@ -8179,6 +8355,7 @@
         "empty": "No class days or students yet to display.",
         "colStudent": "Student",
         "cellAria": "Attendance for {student} on {date}",
+        "careBadge": "Needs special care",
         "excusedLetter": "J",
         "cellDisabledNotEnrolledOnDate": "This student wasn't enrolled in this section on this date (joined later, transferred, or dropped). Attendance shouldn't be recorded for that day.",
         "cellDisabledInactive": "This student is no longer active in the section.",
@@ -9119,6 +9296,49 @@
         "ctaPay": "Make a payment"
       },
       "selectChild": "Choose student",
+      "childScreen": {
+        "navLabel": "My child",
+        "backToChild": "Back to My child",
+        "pageLead": "How {name} is doing in {section}.",
+        "noChild": "No student is linked to your account yet.",
+        "teacherLine": "Teacher: {teacher}",
+        "noTeacher": "No teacher assigned",
+        "metricAttendance": "Attendance",
+        "metricAverage": "Average",
+        "metricPendingTasks": "Pending tasks",
+        "metricEmpty": "No data",
+        "seeAll": "See all",
+        "sectionAttendance": "Attendance",
+        "sectionGrades": "Grades",
+        "sectionFeedback": "Teacher feedback",
+        "sectionTasks": "Tasks",
+        "sectionBadges": "Achievements",
+        "emptyAttendance": "No classes recorded yet.",
+        "emptyGrades": "No grades published yet.",
+        "emptyFeedback": "The teacher has not left feedback yet.",
+        "emptyTasks": "No tasks assigned.",
+        "emptyBadges": "No achievements yet.",
+        "unreadDot": "Unseen updates",
+        "attendanceTitle": "Attendance",
+        "attendanceLead": "Class history and this month's percentage.",
+        "gradesTitle": "Grades",
+        "gradesLead": "Course assessments and mini-tests.",
+        "gradesExamsHeading": "Assessments",
+        "gradesAssessmentsHeading": "Mini-tests",
+        "tasksTitle": "Tasks",
+        "tasksLead": "What the teacher assigned and its status.",
+        "feedbackTitle": "Teacher feedback",
+        "feedbackLead": "Comments on your child's work.",
+        "badgesTitle": "Achievements",
+        "badgesLead": "Badges your child earned.",
+        "editTitle": "Student details",
+        "editLead": "Student contact details and class reminders."
+      },
+      "account": {
+        "pageTitle": "Account",
+        "pageLead": "Your profile, language, and session.",
+        "languageHint": "The language applies to the whole portal."
+      },
       "attendancePwa": {
         "title": "Attendance",
         "lead": "Latest marks by section for your linked students.",
@@ -9235,7 +9455,12 @@
         "badgesOne": "1 achievement",
         "badgesMany": "{count} achievements",
         "emptyTitle": "Nothing to show yet",
-        "emptyBody": "Exams, tasks, teacher feedback, and achievements appear here as soon as the school publishes them."
+        "emptyBody": "Exams, tasks, teacher feedback, and achievements appear here as soon as the school publishes them.",
+        "loadFailedCount": "Could not load",
+        "loadFailedTitle": "We could not load this section",
+        "loadFailedBody": "Something went wrong reading this data, so we cannot tell you what is in here. It does not mean there is nothing.",
+        "loadFailedRetry": "Try again",
+        "loadFailedBanner": "Some data could not be loaded, so this screen may be incomplete."
       },
       "financeTabPay": "Pay & receipts",
       "financeTabFees": "Invoices & fees",
@@ -9276,6 +9501,12 @@
       "wardPhone": "Phone",
       "wardEmail": "Login email",
       "wardBirthDate": "Date of birth",
+      "wardCareTitle": "Care information",
+      "wardCareLead": "Tell us if the student needs any special care. Administration and the teachers of their groups can see it.",
+      "wardCareHealth": "Health condition",
+      "wardCareDiet": "Diet",
+      "wardCareSupport": "Special care",
+      "wardCareSaved": "Care information saved",
       "saveWard": "Save changes",
       "wardSaved": "Saved",
       "wardError": "Could not save",
@@ -9320,6 +9551,42 @@
           "paid": "Paid",
           "pending": "Pending review"
         }
+      },
+      "today": {
+        "allClearTitle": "Nothing needs you",
+        "allClearBody": "When something needs your attention, it shows up here.",
+        "seeAll": "See all",
+        "seeLess": "See less",
+        "failureTitle": "We could not read {source}",
+        "failureBody": "The query did not come back, so this part may be incomplete.",
+        "failureRetry": "Try again",
+        "sourcePayments": "payments",
+        "sourceMessages": "messages",
+        "sourceTasks": "tasks",
+        "sourceAttendance": "attendance",
+        "paymentOverdueTitle": "You have an overdue fee",
+        "paymentOverdueTitleMany": "You have {count} overdue fees",
+        "paymentOverdueCta": "Go to payments",
+        "unreadMessagesTitle": "You have an unread message",
+        "unreadMessagesTitleMany": "You have {count} unread messages",
+        "unreadMessagesCta": "Open messages",
+        "taskDueSoonTitle": "Due soon: {detail}",
+        "taskDueSoonTitleMany": "{count} tasks are due in the next 48 hours",
+        "taskDueSoonCta": "View tasks",
+        "absenceTitle": "Missed a {detail} class",
+        "absenceTitleMany": "Missed {count} classes in the last two weeks",
+        "absenceCta": "View attendance",
+        "paymentPendingTitle": "There is a fee pending",
+        "paymentPendingCta": "Go to payments",
+        "enablePushTitle": "Turn on alerts",
+        "enablePushBody": "We will tell you about fees, messages and absences without you opening the app.",
+        "enablePushCta": "Turn on",
+        "enablePushDenied": "Your browser blocked alerts. Allow them in its settings.",
+        "childPulseTitle": "How your child is doing",
+        "childPulseCta": "See all",
+        "nextClassTitle": "Next class",
+        "nextClassCta": "View agenda",
+        "nextClassEmpty": "No schedule loaded yet."
       }
     },
     "teacher": {
@@ -9609,11 +9876,11 @@
         "steps": {
           "intro": {
             "title": "🏠 Your family home",
-            "description": "This is the main family dashboard: a snapshot of each child’s status and shortcuts into calendar, progress, payments, and messages.\n\nThis walkthrough also explains desktop sidebar or mobile tab bar. On other screens, “Explain this screen” focuses on page content only."
+            "description": "This is the main family dashboard: a snapshot of each child’s status and shortcuts into calendar, progress, payments, and messages.\n\nThis walkthrough also explains the desktop top menu or the mobile tab bar. On other screens, “Explain this screen” focuses on page content only."
           },
           "sidebar": {
-            "title": "📂 Side menu",
-            "description": "On desktop, use the sidebar to reach home, calendar, progress, payments, messages, and settings.\n\nBadges highlight items that need attention."
+            "title": "📂 Top menu",
+            "description": "On desktop, the top menu takes you to home, attendance, progress, payments, and messages.\n\nThe current section stays highlighted."
           },
           "tabBar": {
             "title": "📱 Bottom tabs",
@@ -9621,15 +9888,11 @@
           },
           "chromeHeader": {
             "title": "⬆️ Top bar",
-            "description": "The header stays visible while you scroll and holds profile and sign-out actions."
+            "description": "The header stays visible while you scroll and holds the account menu."
           },
           "chromeProfile": {
-            "title": "👤 Your profile",
-            "description": "Open your guardian profile to update contact details used by the institute."
-          },
-          "chromeSignOut": {
-            "title": "🚪 Sign out",
-            "description": "Ends your session securely. Always sign out on shared devices."
+            "title": "👤 Account menu",
+            "description": "Your profile, student details, language, and sign out all live here."
           },
           "titleBlock": {
             "title": "📋 Home title",
@@ -9637,15 +9900,15 @@
           },
           "childSwitcher": {
             "title": "👶 Child switcher",
-            "description": "If you have more than one child, switch whose data you are viewing before opening progress or payments."
+            "description": "With more than one child, pick whose data you are seeing from the header. With one child it does not appear."
           },
           "statusPillars": {
-            "title": "📊 Status cards",
-            "description": "Quick cards summarize attendance, tasks, or billing signals.\n\nOpen a card to go deeper."
+            "title": "🔔 What needs you",
+            "description": "Overdue fees, unread messages, tasks about to close and absences show up here, most urgent first.\n\nIf nothing is here, nothing needs you."
           },
           "inbox": {
-            "title": "📨 Home inbox",
-            "description": "Recent messages or billing prompts may appear here so you do not miss urgent items."
+            "title": "📚 Your child and the agenda",
+            "description": "A summary of how your child is doing, the class schedule, and news from the institute."
           },
           "closing": {
             "title": "✅ You are set",
@@ -9682,10 +9945,10 @@
           }
         }
       },
-      "parentProgress": {
+      "parentChild": {
         "meta": {
-          "title": "Progress",
-          "description": "Learning progress for the active child."
+          "title": "My child",
+          "description": "How your child is doing: attendance, grades, feedback, tasks and achievements."
         },
         "doneBtn": "Done",
         "nextBtn": "Next",
@@ -9694,8 +9957,153 @@
         "progressText": "{{current}} of {{total}}",
         "steps": {
           "intro": {
-            "title": "📍 Progress",
-            "description": "Learning progress for the active child.\n\nWhat this screen is for and how it fits the family portal."
+            "title": "📍 My child",
+            "description": "How your child is doing: attendance, grades, feedback, tasks and achievements.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "body": {
+            "title": "Main content",
+            "description": "Use this region for the primary information and actions on the page."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentAttendance": {
+        "meta": {
+          "title": "Attendance",
+          "description": "Class history and this month's percentage."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Attendance",
+            "description": "Class history and this month's percentage.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "body": {
+            "title": "Calendar board",
+            "description": "Browse days and open class or attendance entries."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentGrades": {
+        "meta": {
+          "title": "Grades",
+          "description": "Your child's course assessments and mini-tests."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Grades",
+            "description": "Your child's course assessments and mini-tests.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "body": {
+            "title": "Main content",
+            "description": "Use this region for the primary information and actions on the page."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentTasks": {
+        "meta": {
+          "title": "Tasks",
+          "description": "Learning tasks assigned to your child."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Tasks",
+            "description": "Learning tasks assigned to your child.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "list": {
+            "title": "Task list",
+            "description": "Open a task for instructions and due dates."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentFeedback": {
+        "meta": {
+          "title": "Teacher feedback",
+          "description": "The teacher's comments on your child's work."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Teacher feedback",
+            "description": "The teacher's comments on your child's work.\n\nWhat this screen is for and how it fits the family portal."
+          },
+          "title": {
+            "title": "Title",
+            "description": "Confirms which family area you opened."
+          },
+          "body": {
+            "title": "Calendar board",
+            "description": "Browse days and open class or attendance entries."
+          },
+          "closing": {
+            "title": "Next steps",
+            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
+          }
+        }
+      },
+      "parentBadges": {
+        "meta": {
+          "title": "Badges",
+          "description": "Achievements earned by your child."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Badges",
+            "description": "Achievements earned by your child.\n\nWhat this screen is for and how it fits the family portal."
           },
           "title": {
             "title": "Title",
@@ -9773,10 +10181,10 @@
           }
         }
       },
-      "parentSettings": {
+      "parentAccount": {
         "meta": {
-          "title": "Settings",
-          "description": "Preferences and profile shortcuts."
+          "title": "Account",
+          "description": "Your profile, language, and session."
         },
         "doneBtn": "Done",
         "nextBtn": "Next",
@@ -9785,8 +10193,8 @@
         "progressText": "{{current}} of {{total}}",
         "steps": {
           "intro": {
-            "title": "📍 Settings",
-            "description": "Preferences and profile shortcuts.\n\nWhat this screen is for and how it fits the family portal."
+            "title": "📍 Account",
+            "description": "Your profile, language, and session.\n\nWhat this screen is for and how it fits the family portal."
           },
           "title": {
             "title": "Title",
@@ -9841,93 +10249,6 @@
           "intro": {
             "title": "📍 Billing",
             "description": "Billing history and statements.\n\nWhat this screen is for and how it fits the family portal."
-          },
-          "title": {
-            "title": "Title",
-            "description": "Confirms which family area you opened."
-          },
-          "body": {
-            "title": "Main content",
-            "description": "Use this region for the primary information and actions on the page."
-          },
-          "closing": {
-            "title": "Next steps",
-            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
-          }
-        }
-      },
-      "parentTasks": {
-        "meta": {
-          "title": "Tasks",
-          "description": "Learning tasks assigned to your child."
-        },
-        "doneBtn": "Done",
-        "nextBtn": "Next",
-        "prevBtn": "Back",
-        "closeBtn": "Close",
-        "progressText": "{{current}} of {{total}}",
-        "steps": {
-          "intro": {
-            "title": "📍 Tasks",
-            "description": "Learning tasks assigned to your child.\n\nWhat this screen is for and how it fits the family portal."
-          },
-          "title": {
-            "title": "Title",
-            "description": "Confirms which family area you opened."
-          },
-          "list": {
-            "title": "Task list",
-            "description": "Open a task for instructions and due dates."
-          },
-          "closing": {
-            "title": "Next steps",
-            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
-          }
-        }
-      },
-      "parentAssessments": {
-        "meta": {
-          "title": "Assessments",
-          "description": "Tests and assessment results."
-        },
-        "doneBtn": "Done",
-        "nextBtn": "Next",
-        "prevBtn": "Back",
-        "closeBtn": "Close",
-        "progressText": "{{current}} of {{total}}",
-        "steps": {
-          "intro": {
-            "title": "📍 Assessments",
-            "description": "Tests and assessment results.\n\nWhat this screen is for and how it fits the family portal."
-          },
-          "title": {
-            "title": "Title",
-            "description": "Confirms which family area you opened."
-          },
-          "body": {
-            "title": "Main content",
-            "description": "Use this region for the primary information and actions on the page."
-          },
-          "closing": {
-            "title": "Next steps",
-            "description": "Use Help again anytime, or open a how-to tutorial for a specific goal."
-          }
-        }
-      },
-      "parentBadges": {
-        "meta": {
-          "title": "Badges",
-          "description": "Achievements earned by your child."
-        },
-        "doneBtn": "Done",
-        "nextBtn": "Next",
-        "prevBtn": "Back",
-        "closeBtn": "Close",
-        "progressText": "{{current}} of {{total}}",
-        "steps": {
-          "intro": {
-            "title": "📍 Badges",
-            "description": "Achievements earned by your child.\n\nWhat this screen is for and how it fits the family portal."
           },
           "title": {
             "title": "Title",

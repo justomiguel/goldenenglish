@@ -2,6 +2,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { mapLearningTaskAssetRows, type RawLearningTaskAsset } from "@/lib/learning-tasks/mapAssetRows";
 import type { StudentLearningTaskRow } from "@/types/learningTasks";
 import type { TaskProgressStatus } from "@/lib/learning-tasks/types";
+import { noteReadFailure, type LoadErrorReporter } from "@/lib/logging/noteReadFailure";
+
+const SCOPE = "loadStudentLearningTasks";
 
 type ProgressQueryRow = {
   id: string;
@@ -36,8 +39,9 @@ export async function loadStudentLearningTasks(
   supabase: SupabaseClient,
   studentId: string,
   limit = 20,
+  onLoadError?: LoadErrorReporter,
 ): Promise<StudentLearningTaskRow[]> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("student_task_progress")
     .select(
       "id, status, opened_at, completed_at, task_instances(id, title, body_html, start_at, due_at, academic_sections(name))",
@@ -45,16 +49,18 @@ export async function loadStudentLearningTasks(
     .eq("student_id", studentId)
     .order("updated_at", { ascending: false })
     .limit(limit);
+  noteReadFailure(`${SCOPE}:progress`, error, { studentId }, onLoadError);
 
   const rows = (data ?? []) as ProgressQueryRow[];
   const taskIds = rows.map((row) => first(row.task_instances)?.id).filter((id): id is string => Boolean(id));
   const assetsByTask = new Map<string, RawLearningTaskAsset[]>();
   if (taskIds.length > 0) {
-    const { data: assets } = await supabase
+    const { data: assets, error: assetsError } = await supabase
       .from("task_instance_assets")
       .select("id, task_instance_id, kind, label, storage_path, mime_type, byte_size, embed_provider, embed_url")
       .in("task_instance_id", taskIds)
       .order("sort_order", { ascending: true });
+    noteReadFailure(`${SCOPE}:assets`, assetsError, { studentId }, onLoadError);
     for (const asset of assets ?? []) {
       const taskId = asset.task_instance_id as string;
       const next = assetsByTask.get(taskId) ?? [];

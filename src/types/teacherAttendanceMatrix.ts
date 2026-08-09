@@ -7,6 +7,8 @@ export type TeacherAttendanceMatrixRow = {
   enrollmentStatus: string;
   createdAt: string;
   updatedAt: string;
+  /** Marker only: this student has care notes. The text is never loaded here. */
+  hasCareNotes: boolean;
 };
 
 /** enrollmentId -> dateIso -> status from DB, or null when no row (empty cell). */

@@ -4,7 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
-import { ParentDashboardShell } from "@/components/dashboard/ParentDashboardShell";
+import { PortalShell } from "@/components/portal/PortalShell";
+import { buildStudentShellConfig } from "@/lib/portal/buildStudentShellConfig";
 
 interface LayoutProps {
   children: ReactNode;
@@ -32,20 +33,16 @@ export default async function StudentDashboardLayout({
   if (profile?.role !== "student") redirect(`/${locale}/dashboard`);
 
   const perms = await getProfilePermissions(supabase, user.id);
-  const includePayments = perms?.canAccessPaymentsModule ?? false;
-  const baseHref = `/${locale}/dashboard/student`;
+  const config = buildStudentShellConfig({
+    locale,
+    baseHref: `/${locale}/dashboard/student`,
+    dict,
+    includePayments: perms?.canAccessPaymentsModule ?? false,
+  });
 
   return (
-    <ParentDashboardShell
-      locale={locale}
-      dict={dict}
-      brand={brand}
-      baseHref={baseHref}
-      includePayments={includePayments}
-      navDict={dict.dashboard.studentNav}
-      chromeLabels={dict.dashboard.studentChrome}
-    >
+    <PortalShell locale={locale} dict={dict} brand={brand} config={config}>
       {children}
-    </ParentDashboardShell>
+    </PortalShell>
   );
 }

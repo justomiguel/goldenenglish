@@ -31,6 +31,7 @@ export interface PortalCalendarEntryProps {
   };
   /** Admin-only: manage institute special calendar rows. */
   adminSpecialEventsHref?: string | null;
+  tourAnchors?: { title?: string; schedule?: string };
 }
 
 export function PortalCalendarEntry({
@@ -42,6 +43,7 @@ export function PortalCalendarEntry({
   viewerId,
   admin,
   adminSpecialEventsHref,
+  tourAnchors,
 }: PortalCalendarEntryProps) {
   const toolbar = useMemo(
     () => <PortalCalendarAssistPanel dict={dict} feedUrl={feedUrl} />,
@@ -90,6 +92,7 @@ export function PortalCalendarEntry({
       toolbar={toolbar}
       adminFilters={adminFiltersEl}
       adminSpecialLink={adminLinkEl}
+      tourAnchors={tourAnchors}
       schedule={
         <PortalCalendarScheduleBoard
           locale={locale}
@@ -112,6 +115,7 @@ export function PortalCalendarEntry({
       toolbar={toolbar}
       adminFilters={adminFiltersEl}
       adminSpecialLink={adminLinkEl}
+      tourAnchors={tourAnchors}
       schedule={
         <PortalCalendarScheduleBoard
           locale={locale}

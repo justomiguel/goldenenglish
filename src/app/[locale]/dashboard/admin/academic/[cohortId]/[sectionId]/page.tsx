@@ -24,6 +24,8 @@ import { loadAdminSectionHealthSnapshot } from "@/lib/academics/loadAdminSection
 import { loadAdminSectionAssessmentsPanelData } from "@/lib/academics/loadAdminSectionAssessmentsPanelData";
 import { parseAcademicSectionShellTabParam } from "@/lib/academics/academicSectionShellTabOrder";
 import { resolveAcademicSectionShellArea } from "@/lib/academics/visibleAcademicSectionShellTabs";
+import { loadSectionEnrollmentLinkState } from "@/lib/academics/sectionEnrollmentLinkAdmin";
+import { SectionEnrollmentLinkPanel } from "@/components/molecules/SectionEnrollmentLinkPanel";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import type { AdminSectionHealthLearningRoute } from "@/types/adminSectionHealth";
 
@@ -62,7 +64,7 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
     loadBillingCurrencySetting(supabase),
   ]);
   if (!data) notFound();
-  const { section, slots, rows, debtByStudentId, staff, feePlans } = data;
+  const { section, slots, rows, debtByStudentId } = data;
   const initialShellArea = resolveAcademicSectionShellArea(requestedShellTab, {
     requiresEvaluationsToPass: section.requiresEvaluationsToPass,
     usesLearningRoute: section.usesLearningRoute,
@@ -101,10 +103,12 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
   const attendanceScheduleLine = attendanceScheduleSummary
     ? `${dTeacherAttendance.scheduleSummaryLead} ${attendanceScheduleSummary}`
     : "";
-  const [attendanceMatrix, healthSnapshot, assessmentsData] = await Promise.all([
+  const [attendanceMatrix, healthSnapshot, assessmentsData, enrollmentLinkState] =
+    await Promise.all([
     hasEligibleAttendanceDays ? loadAdminSectionAttendanceMatrix(supabase, sectionId) : Promise.resolve(null),
     healthSnapshotPromise,
     loadAdminSectionAssessmentsPanelData(supabase, sectionId, section.cohortId, activeEnrollmentIds),
+    loadSectionEnrollmentLinkState(supabase, sectionId),
   ]);
   const editableByDate = Object.fromEntries(
     (attendanceMatrix?.classDays ?? []).map((day) => [day, day <= todayIso]),
@@ -146,6 +150,15 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
       assessmentsData={assessmentsData}
       initialShellArea={initialShellArea}
       canDeleteCohortAssessments={canDeleteCohortAssessments}
+      enrollmentLinkPanel={
+        <SectionEnrollmentLinkPanel
+          locale={locale}
+          sectionId={sectionId}
+          state={enrollmentLinkState}
+          labels={dict.dashboard.sectionEnrollmentLink}
+          canRevoke
+        />
+      }
     />
   );
 }

@@ -1,14 +1,13 @@
 import { redirect } from "next/navigation";
+import { parentRedirectPath } from "@/lib/parent/parentLegacyRedirect";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ studentId?: string }>;
+  searchParams: Promise<{ studentId?: string; sectionId?: string }>;
 }
 
 export default async function ParentAssessmentsRedirectPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
   const sp = await searchParams;
-  const query = new URLSearchParams({ tab: "assessments" });
-  if (typeof sp.studentId === "string") query.set("studentId", sp.studentId);
-  redirect(`/${locale}/dashboard/parent/progress?${query.toString()}`);
+  redirect(parentRedirectPath(locale, "/child/grades", sp));
 }

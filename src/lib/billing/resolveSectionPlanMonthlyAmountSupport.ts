@@ -10,6 +10,31 @@ export function parseUtcDate(iso: string | null | undefined): Date | null {
   return new Date(Date.UTC(y, m - 1, d));
 }
 
+export interface SectionBillingContextRow {
+  starts_on: string | null;
+  ends_on: string | null;
+  schedule_slots: unknown;
+  monthly_fee_charge_mode?: string | null;
+  billing_mode?: string | null;
+}
+
+/**
+ * Carga de una sola vez lo que el cálculo del monto necesita de la sección, incluido `billing_mode`.
+ * Se lee al principio para poder cortar antes de cualquier rama monetaria cuando la sección no se cobra
+ * por mes.
+ */
+export async function loadSectionBillingContext(
+  supabase: SupabaseClient,
+  sectionId: string,
+): Promise<SectionBillingContextRow | null> {
+  const { data } = await supabase
+    .from("academic_sections")
+    .select("starts_on, ends_on, schedule_slots, monthly_fee_charge_mode, billing_mode")
+    .eq("id", sectionId)
+    .maybeSingle();
+  return (data as SectionBillingContextRow | null) ?? null;
+}
+
 export async function loadAnnualSettlementsForEnrollment(
   supabase: SupabaseClient,
   enrollmentId: string,

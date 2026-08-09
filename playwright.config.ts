@@ -198,6 +198,39 @@ export default defineConfig({
         storageState: paths.storageState,
       },
     },
+    /**
+     * No `setup` dependency and no storageState on purpose: the whole point is what an
+     * unauthenticated caller can reach, so borrowing a session would defeat the test.
+     */
+    {
+      name: "chromium-critical-section-enrollment-link-privileges",
+      testMatch: /critical-section-enrollment-link-privileges\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "chromium-section-enrollment-link",
+      dependencies: ["setup"],
+      testMatch: /section-enrollment-link\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: paths.storageState,
+      },
+    },
+    /** Unauthenticated by design too: it measures what the anon key alone can reach. */
+    {
+      name: "chromium-critical-anon-privilege-hardening",
+      testMatch: /critical-anon-privilege-hardening\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "chromium-critical-student-care",
+      dependencies: ["setup"],
+      testMatch: /critical-student-care\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: paths.storageState,
+      },
+    },
     {
       name: "chromium-critical-event-payment-approve",
       dependencies: ["setup"],

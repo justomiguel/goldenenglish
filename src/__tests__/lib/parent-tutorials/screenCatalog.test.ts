@@ -21,18 +21,11 @@ describe("resolveParentScreenTour", () => {
   it("matches top-level and secondary hubs as content-only", () => {
     const cases: Array<[string, string]> = [
       [`/${locale}/dashboard/parent/calendar`, "parent-calendar"],
-      [`/${locale}/dashboard/parent/progress`, "parent-progress"],
+      [`/${locale}/dashboard/parent/child`, "parent-child"],
       [`/${locale}/dashboard/parent/payments`, "parent-payments"],
       [`/${locale}/dashboard/parent/messages`, "parent-messages"],
-      [`/${locale}/dashboard/parent/settings`, "parent-settings"],
+      [`/${locale}/dashboard/parent/account`, "parent-account"],
       [`/${locale}/dashboard/parent/billing`, "parent-billing"],
-      [`/${locale}/dashboard/parent/tasks`, "parent-tasks"],
-      [`/${locale}/dashboard/parent/assessments`, "parent-assessments"],
-      [`/${locale}/dashboard/parent/badges`, "parent-badges"],
-      [
-        `/${locale}/dashboard/parent/children/abc-uuid`,
-        "parent-child-detail",
-      ],
       [`/${locale}/dashboard/profile`, "parent-profile"],
     ];
     for (const [path, id] of cases) {
@@ -48,22 +41,34 @@ describe("resolveParentScreenTour", () => {
     ).toBe("parent-billing");
   });
 
-  it("matches progress hub tabs for tasks/assessments/badges", () => {
+  it("gives each child section its own tour instead of a tab on a hub", () => {
+    const cases: Array<[string, string]> = [
+      [`/${locale}/dashboard/parent/child/attendance`, "parent-attendance"],
+      [`/${locale}/dashboard/parent/child/grades`, "parent-grades"],
+      [`/${locale}/dashboard/parent/child/tasks`, "parent-tasks"],
+      [`/${locale}/dashboard/parent/child/feedback`, "parent-feedback"],
+      [`/${locale}/dashboard/parent/child/badges`, "parent-badges"],
+      [`/${locale}/dashboard/parent/child/edit`, "parent-child-detail"],
+    ];
+    for (const [path, id] of cases) {
+      const match = resolveParentScreenTour(path, locale);
+      expect(match?.id, path).toBe(id);
+      expect(match?.scope, path).toBe("content-only");
+    }
+  });
+
+  it("keeps the child screen's own tour when a section is not the exact path", () => {
     expect(
-      resolveParentScreenTour(`/${locale}/dashboard/parent/progress?tab=tasks`, locale)?.id,
-    ).toBe("parent-tasks");
+      resolveParentScreenTour(`/${locale}/dashboard/parent/child?studentId=abc`, locale)?.id,
+    ).toBe("parent-child");
     expect(
-      resolveParentScreenTour(
-        `/${locale}/dashboard/parent/progress?tab=assessments`,
-        locale,
-      )?.id,
-    ).toBe("parent-assessments");
-    expect(
-      resolveParentScreenTour(`/${locale}/dashboard/parent/progress?tab=badges`, locale)?.id,
-    ).toBe("parent-badges");
-    expect(
-      resolveParentScreenTour(`/${locale}/dashboard/parent/progress`, locale)?.id,
-    ).toBe("parent-progress");
+      resolveParentScreenTour(`/${locale}/dashboard/parent/child/unknown`, locale),
+    ).toBeNull();
+  });
+
+  it("no longer resolves the retired progress and settings screens", () => {
+    expect(resolveParentScreenTour(`/${locale}/dashboard/parent/progress`, locale)).toBeNull();
+    expect(resolveParentScreenTour(`/${locale}/dashboard/parent/settings`, locale)).toBeNull();
   });
 
   it("does not match nested payment returns or task detail", () => {

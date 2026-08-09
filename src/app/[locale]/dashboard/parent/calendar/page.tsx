@@ -3,20 +3,12 @@ import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { buildPortalCalendarPagePayload } from "@/lib/calendar/buildPortalCalendarPagePayload";
-import {
-  listTutorStudentsWithFinance,
-  type TutorStudentSummary,
-} from "@/lib/auth/listTutorStudentsWithFinance";
-import { loadParentFamilyHubModel } from "@/lib/parent/loadParentFamilyHubModel";
-import { loadParentFocusCatalog } from "@/lib/parent/loadParentFocusCatalog";
-import { resolveParentFocus } from "@/lib/parent/resolveParentFocus";
-import { ParentPortalCalendarEntry } from "@/components/parent/ParentPortalCalendarEntry";
-import { loadParentRecentAttendance } from "@/lib/parent/loadParentRecentAttendance";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { PortalCalendarEntry } from "@/components/organisms/PortalCalendarEntry";
+import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ studentId?: string; sectionId?: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps) {
@@ -24,9 +16,12 @@ export async function generateMetadata({ params }: PageProps) {
   return buildPageMetadata(locale, (d) => d.dashboard.parentNav.calendar);
 }
 
-export default async function ParentCalendarPage({ params, searchParams }: PageProps) {
+/**
+ * The agenda only. Attendance history moved to `/parent/child/attendance`, which is
+ * what lets the child screen own "how is my child doing?" without swallowing the agenda.
+ */
+export default async function ParentCalendarPage({ params }: PageProps) {
   const { locale } = await params;
-  const sp = await searchParams;
   const dict = await getDictionary(locale);
   const supabase = await createClient();
   const {
@@ -34,54 +29,26 @@ export default async function ParentCalendarPage({ params, searchParams }: PageP
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login?next=/${locale}/dashboard/parent/calendar`);
 
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (profile?.role !== "parent") redirect(`/${locale}/dashboard`);
-
   const payload = await buildPortalCalendarPagePayload(supabase, user.id, "parent", {
     locale,
     birthdayCopy: dict.dashboard.birthdays,
   });
-  const [hub, attendance, students, focusCatalog] = await Promise.all([
-    loadParentFamilyHubModel(
-      supabase,
-      user.id,
-      locale,
-      dict.dashboard.parent.hub.icsEventTitle,
-    ),
-    loadParentRecentAttendance(supabase, user.id),
-    listTutorStudentsWithFinance(supabase, user.id),
-    loadParentFocusCatalog(supabase, user.id),
-  ]);
-  const wardOptions = students.map((s: TutorStudentSummary) => ({
-    studentId: s.studentId,
-    displayName: s.displayName,
-  }));
-  const focus = resolveParentFocus(focusCatalog, {
-    studentId: typeof sp.studentId === "string" ? sp.studentId : undefined,
-    sectionId: typeof sp.sectionId === "string" ? sp.sectionId : undefined,
-  });
+
   const origin = getPublicSiteUrl()?.origin ?? "";
-  const feedUrl = payload.feedToken && origin ? `${origin}/api/calendar/feed/${payload.feedToken}.ics` : null;
+  const feedUrl =
+    payload.feedToken && origin ? `${origin}/api/calendar/feed/${payload.feedToken}.ics` : null;
 
   return (
-    <>
-      <ParentPortalCalendarEntry
-        locale={locale}
-        dict={dict.dashboard.portalCalendar}
-        attendanceLabels={dict.dashboard.parent.attendancePwa}
-        wardPickerLabel={dict.dashboard.parent.wardPickerLabel}
-        wardPickerHint={dict.dashboard.parent.wardPickerHint}
-        wardOptions={wardOptions}
-        selectedStudentId={focus.studentId}
-        selectedSectionId={focus.sectionId}
-        shellOwnsFocus
-        events={payload.events}
-        feedUrl={feedUrl}
-        viewerId={user.id}
-        attendance={attendance}
-        hub={hub}
-        hubDict={dict.dashboard.parent.hub}
-      />
-    </>
+    <PortalCalendarEntry
+      locale={locale}
+      dict={dict.dashboard.portalCalendar}
+      events={payload.events}
+      feedUrl={feedUrl}
+      viewerId={user.id}
+      tourAnchors={{
+        title: PARENT_TOUR_ANCHORS.calendarTitle,
+        schedule: PARENT_TOUR_ANCHORS.calendarBoard,
+      }}
+    />
   );
 }

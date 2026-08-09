@@ -6,6 +6,7 @@ import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels"
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { AdminUserProfileFicha } from "@/components/molecules/AdminUserProfileFicha";
+import type { StudentCareNotes } from "@/lib/students/care/loadStudentCareNotes";
 
 type UserLabels = Dictionary["admin"]["users"];
 type BillingLabels = Dictionary["admin"]["billing"];
@@ -17,6 +18,7 @@ export interface AdminUserDetailPanelProps {
   billingLabels: BillingLabels;
   billing: AdminStudentBillingTabData | null;
   fileUploadProgress: FileUploadProgressLabels;
+  care?: StudentCareNotes | null;
 }
 
 export function AdminUserDetailPanel({
@@ -26,6 +28,7 @@ export function AdminUserDetailPanel({
   billingLabels,
   billing,
   fileUploadProgress,
+  care = null,
 }: AdminUserDetailPanelProps) {
   return (
     <AdminUserProfileFicha
@@ -35,6 +38,7 @@ export function AdminUserDetailPanel({
       detail={detail}
       billing={billing}
       fileUploadProgress={fileUploadProgress}
+      care={care}
     />
   );
 }

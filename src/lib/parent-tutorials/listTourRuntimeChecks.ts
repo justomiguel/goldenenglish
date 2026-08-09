@@ -31,7 +31,7 @@ export type ParentTourRuntimeCheck = {
 };
 
 const PARENT_HOME_RUNTIME_ANCHORS: readonly ParentTourAnchor[] = [
-  PARENT_TOUR_ANCHORS.sidebar,
+  PARENT_TOUR_ANCHORS.portalTopNav,
   PARENT_TOUR_ANCHORS.homeTitle,
 ];
 
@@ -40,29 +40,31 @@ const SCREEN_RUNTIME_ANCHORS: Record<
   readonly ParentTourAnchor[]
 > = {
   "parent-calendar": [PARENT_TOUR_ANCHORS.calendarBoard],
-  "parent-progress": [PARENT_TOUR_ANCHORS.progressTitle],
+  "parent-child": [PARENT_TOUR_ANCHORS.childTitle],
+  "parent-attendance": [PARENT_TOUR_ANCHORS.attendanceTitle],
+  "parent-grades": [PARENT_TOUR_ANCHORS.gradesTitle],
+  "parent-tasks": [PARENT_TOUR_ANCHORS.tasksTitle],
+  "parent-feedback": [PARENT_TOUR_ANCHORS.feedbackTitle],
+  "parent-badges": [PARENT_TOUR_ANCHORS.badgesTitle],
   "parent-payments": [PARENT_TOUR_ANCHORS.paymentsTitle],
   "parent-messages": [PARENT_TOUR_ANCHORS.messagesTitle],
-  "parent-settings": [PARENT_TOUR_ANCHORS.settingsTitle],
+  "parent-account": [PARENT_TOUR_ANCHORS.accountTitle],
   "parent-profile": [PARENT_TOUR_ANCHORS.profileForm],
   "parent-billing": [PARENT_TOUR_ANCHORS.billingBody],
-  // Embedded Progress-hub panels omit *-title headers; assert body/list anchors.
-  "parent-tasks": [PARENT_TOUR_ANCHORS.tasksList],
-  "parent-assessments": [PARENT_TOUR_ANCHORS.assessmentsBody],
-  "parent-badges": [PARENT_TOUR_ANCHORS.badgesBody],
 };
 
 const TASK_RUNTIME_ANCHORS: Record<ParentTutorialId, readonly ParentTourAnchor[]> = {
   "parent-pay-or-upload-receipt": [PARENT_TOUR_ANCHORS.paymentsTitle],
-  "parent-view-child-progress": [PARENT_TOUR_ANCHORS.progressTitle],
+  "parent-view-child-progress": [PARENT_TOUR_ANCHORS.childTitle],
   "parent-read-reply-messages": [PARENT_TOUR_ANCHORS.messagesTitle],
   "parent-manage-child-or-tutor-profile": [
     PARENT_TOUR_ANCHORS.childDetailTitle,
     PARENT_TOUR_ANCHORS.profileForm,
   ],
-  "parent-calendar-attendance": [PARENT_TOUR_ANCHORS.calendarBoard],
-  "parent-badges-overview": [PARENT_TOUR_ANCHORS.badgesBody],
-  "parent-settings-notifications": [PARENT_TOUR_ANCHORS.settingsTitle],
+  "parent-calendar-attendance": [PARENT_TOUR_ANCHORS.attendanceTitle],
+  "parent-badges-overview": [PARENT_TOUR_ANCHORS.badgesTitle],
+  // Class reminders live on the child's own screen, which is where this guide lands.
+  "parent-settings-notifications": [PARENT_TOUR_ANCHORS.childDetailTitle],
 };
 
 function screenRuntimeCheck(id: ParentScreenTourId): ParentTourRuntimeCheck {

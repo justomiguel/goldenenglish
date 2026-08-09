@@ -177,6 +177,37 @@ describe("acceptRegistration", () => {
     expect(r).toEqual({ ok: false, message: R.alreadyProcessed });
   });
 
+  // REGRESSION CHECK: marking a lead contacted must not strand it. Before the
+  // follow-up flow existed the gate only accepted 'new'.
+  it("still accepts a lead that was already marked contacted", async () => {
+    mockAssertAdmin.mockResolvedValue({});
+    mockCreateUser.mockResolvedValue({ ok: true, userId: "stu-contacted" });
+    const updateEq = vi.fn().mockResolvedValue({ error: null });
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "courses") return mockCoursesTable(COURSE_ID);
+      if (table === "enrollments") return mockEnrollmentsTable();
+      if (table === "tutor_student_rel") {
+        return { upsert: () => Promise.resolve({ error: null }) };
+      }
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: () =>
+              Promise.resolve({
+                data: { ...regNew, status: "contacted", birth_date: "1990-01-01" },
+                error: null,
+              }),
+          }),
+        }),
+        update: () => ({ eq: updateEq }),
+      };
+    });
+
+    const r = await acceptRegistration("es", { registration_id: regNew.id });
+
+    expect(r).toEqual({ ok: true, studentId: "stu-contacted" });
+  });
+
   it("returns birth_date_required when birth missing", async () => {
     mockAssertAdmin.mockResolvedValue({});
     mockFrom.mockReturnValue({

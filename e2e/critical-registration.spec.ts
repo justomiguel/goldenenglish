@@ -77,9 +77,25 @@ test.describe("@critical-registration", () => {
     const admin = await browser.newContext({ storageState: paths.storageState });
     const adminPage = await admin.newPage();
     await gotoIsolated(adminPage, `/${locale}/dashboard/admin/registrations`);
-    const row = adminPage.locator("tr, li, article").filter({ hasText: email }).first();
+    // The list identifies a lead by name and document; the email now lives in the
+    // expandable panel, so filtering the row by email would never match.
+    const row = adminPage.locator("tr, li, article").filter({ hasText: dni }).first();
     await expect(row).toBeVisible({ timeout: 30_000 });
-    await row.getByRole("button", { name: /Dar de alta|enroll as|accept/i }).click();
+
+    // The phone the family typed has to be readable without opening any modal.
+    await expect(row).toContainText("+5491112345678");
+
+    // Follow-up: mark contacted, then accept. A contacted lead must stay acceptable.
+    await row.getByRole("button", { name: /Marcar contactado|Mark contacted|Marcar contatado/i }).click();
+    const contactedRow = adminPage.locator("tr, li, article").filter({ hasText: dni }).first();
+    // The control flips to "mark pending" only once the server actually saved the
+    // new status, so this is a real round-trip and not just optimistic UI.
+    await expect(
+      contactedRow.getByRole("button", {
+        name: /Marcar pendiente|Mark as pending|Marcar pendente/i,
+      }),
+    ).toBeVisible({ timeout: 30_000 });
+    await contactedRow.getByRole("button", { name: /Dar de alta|enroll as|accept/i }).click();
     const dialog = adminPage.getByRole("dialog");
     await expect(dialog).toBeVisible({ timeout: 15_000 });
     await dialog.getByRole("button", { name: /Dar de alta|enroll as|accept/i }).click();

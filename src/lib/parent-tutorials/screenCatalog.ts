@@ -6,15 +6,17 @@
 export type ParentScreenTourId =
   | "parent-home"
   | "parent-calendar"
-  | "parent-progress"
+  | "parent-child"
+  | "parent-attendance"
+  | "parent-grades"
+  | "parent-tasks"
+  | "parent-feedback"
+  | "parent-badges"
   | "parent-payments"
   | "parent-messages"
-  | "parent-settings"
+  | "parent-account"
   | "parent-profile"
   | "parent-billing"
-  | "parent-tasks"
-  | "parent-assessments"
-  | "parent-badges"
   | "parent-child-detail";
 
 export type ParentScreenTourScope = "chrome-and-content" | "content-only";
@@ -23,15 +25,17 @@ export type ParentScreenTourScope = "chrome-and-content" | "content-only";
 export type ParentScreenTourMetaKey =
   | "parentHome"
   | "parentCalendar"
-  | "parentProgress"
+  | "parentChild"
+  | "parentAttendance"
+  | "parentGrades"
+  | "parentTasks"
+  | "parentFeedback"
+  | "parentBadges"
   | "parentPayments"
   | "parentMessages"
-  | "parentSettings"
+  | "parentAccount"
   | "parentProfile"
   | "parentBilling"
-  | "parentTasks"
-  | "parentAssessments"
-  | "parentBadges"
   | "parentChildDetail";
 
 export type ParentScreenTourMatch = {
@@ -54,28 +58,30 @@ export function parentProfilePath(locale: string): string {
 }
 
 type ContentRoute = {
-  /** Path under `/{locale}/dashboard/parent` (leading slash). Longer first. */
+  /** Path under `/{locale}/dashboard/parent` (leading slash). */
   parentSuffix: string;
-  id: Exclude<ParentScreenTourId, "parent-home" | "parent-profile" | "parent-child-detail">;
-  metaKey: Exclude<
-    ParentScreenTourMetaKey,
-    "parentHome" | "parentProfile" | "parentChildDetail"
-  >;
+  id: Exclude<ParentScreenTourId, "parent-home" | "parent-profile">;
+  metaKey: Exclude<ParentScreenTourMetaKey, "parentHome" | "parentProfile">;
 };
 
+/**
+ * One row per real route. The child sections are nested paths, so the resolver
+ * matches on exact equality and never inherits a parent's tour.
+ */
 const PARENT_CONTENT_ROUTES: readonly ContentRoute[] = [
-  { parentSuffix: "/assessments", id: "parent-assessments", metaKey: "parentAssessments" },
   { parentSuffix: "/calendar", id: "parent-calendar", metaKey: "parentCalendar" },
-  { parentSuffix: "/progress", id: "parent-progress", metaKey: "parentProgress" },
+  { parentSuffix: "/child", id: "parent-child", metaKey: "parentChild" },
+  { parentSuffix: "/child/attendance", id: "parent-attendance", metaKey: "parentAttendance" },
+  { parentSuffix: "/child/grades", id: "parent-grades", metaKey: "parentGrades" },
+  { parentSuffix: "/child/tasks", id: "parent-tasks", metaKey: "parentTasks" },
+  { parentSuffix: "/child/feedback", id: "parent-feedback", metaKey: "parentFeedback" },
+  { parentSuffix: "/child/badges", id: "parent-badges", metaKey: "parentBadges" },
+  { parentSuffix: "/child/edit", id: "parent-child-detail", metaKey: "parentChildDetail" },
   { parentSuffix: "/payments", id: "parent-payments", metaKey: "parentPayments" },
   { parentSuffix: "/messages", id: "parent-messages", metaKey: "parentMessages" },
-  { parentSuffix: "/settings", id: "parent-settings", metaKey: "parentSettings" },
+  { parentSuffix: "/account", id: "parent-account", metaKey: "parentAccount" },
   { parentSuffix: "/billing", id: "parent-billing", metaKey: "parentBilling" },
-  { parentSuffix: "/tasks", id: "parent-tasks", metaKey: "parentTasks" },
-  { parentSuffix: "/badges", id: "parent-badges", metaKey: "parentBadges" },
 ];
-
-const CHILD_DETAIL_RE = /^\/[^/]+\/dashboard\/parent\/children\/[^/]+$/;
 
 function parsePathAndQuery(pathname: string): { path: string; search: string } {
   const [pathPart, queryPart] = pathname.split("?", 2);
@@ -86,43 +92,29 @@ function parsePathAndQuery(pathname: string): { path: string; search: string } {
 }
 
 export function parentChildDetailPath(locale: string, studentId: string): string {
-  return `${parentHomePath(locale)}/children/${studentId}`;
+  return `${parentHomePath(locale)}/child/edit?studentId=${studentId}`;
 }
 
-/** Prefer child-detail URL segment; else first linked ward from layout. */
+/** Prefer the `?studentId` the URL is focused on; else the first linked ward. */
 export function resolveParentTutorialStudentId(
   pathname: string,
   locale: string,
   fallbackStudentId?: string,
 ): string | undefined {
-  const path = stripTrailingSlash(pathname.split("?")[0] ?? pathname);
-  const prefix = `${parentHomePath(locale)}/children/`;
-  if (path.startsWith(prefix)) {
-    const segment = path.slice(prefix.length).split("/")[0];
-    if (segment) return segment;
-  }
+  const [, search] = pathname.split("?", 2);
+  const fromQuery = new URLSearchParams(search ?? "").get("studentId");
+  if (fromQuery) return fromQuery;
   return fallbackStudentId;
 }
 
 export function parentScreenPath(
   locale: string,
-  id: Exclude<ParentScreenTourId, "parent-home" | "parent-profile" | "parent-child-detail">,
+  id: Exclude<ParentScreenTourId, "parent-home" | "parent-profile">,
 ): string {
   if (id === "parent-billing") {
     return `${parentHomePath(locale)}/payments?tab=fees`;
   }
-  // Tasks / assessments / badges live as tabs on the Progress hub (legacy
-  // /tasks|/assessments|/badges routes only redirect).
-  if (id === "parent-tasks") {
-    return `${parentHomePath(locale)}/progress?tab=tasks`;
-  }
-  if (id === "parent-assessments") {
-    return `${parentHomePath(locale)}/progress?tab=assessments`;
-  }
-  if (id === "parent-badges") {
-    return `${parentHomePath(locale)}/progress?tab=badges`;
-  }
-  const row = PARENT_CONTENT_ROUTES.find((r) => r.id === id);
+  const row = PARENT_CONTENT_ROUTES.find((route) => route.id === id);
   if (!row) throw new Error(`Unknown parent screen tour id: ${id}`);
   return `${parentHomePath(locale)}${row.parentSuffix}`;
 }
@@ -138,42 +130,18 @@ export function resolveParentScreenTour(
   if (path === parentProfilePath(locale)) {
     return { id: "parent-profile", scope: "content-only", metaKey: "parentProfile" };
   }
-  if (CHILD_DETAIL_RE.test(path)) {
-    return {
-      id: "parent-child-detail",
-      scope: "content-only",
-      metaKey: "parentChildDetail",
-    };
-  }
 
   const base = parentHomePath(locale);
-  if (path === `${base}/billing`) {
-    return { id: "parent-billing", scope: "content-only", metaKey: "parentBilling" };
-  }
   if (path === `${base}/payments`) {
     const tab = new URLSearchParams(search).get("tab");
     if (tab === "fees") {
       return { id: "parent-billing", scope: "content-only", metaKey: "parentBilling" };
     }
   }
-  if (path === `${base}/progress`) {
-    const tab = new URLSearchParams(search).get("tab");
-    if (tab === "tasks") {
-      return { id: "parent-tasks", scope: "content-only", metaKey: "parentTasks" };
-    }
-    if (tab === "assessments") {
-      return { id: "parent-assessments", scope: "content-only", metaKey: "parentAssessments" };
-    }
-    if (tab === "badges") {
-      return { id: "parent-badges", scope: "content-only", metaKey: "parentBadges" };
-    }
-    return { id: "parent-progress", scope: "content-only", metaKey: "parentProgress" };
-  }
   if (!path.startsWith(`${base}/`)) return null;
 
   for (const route of PARENT_CONTENT_ROUTES) {
-    const full = `${base}${route.parentSuffix}`;
-    if (path === full) {
+    if (path === `${base}${route.parentSuffix}`) {
       return { id: route.id, scope: "content-only", metaKey: route.metaKey };
     }
   }
@@ -184,15 +152,17 @@ export function listParentScreenTourIds(): ParentScreenTourId[] {
   return [
     "parent-home",
     "parent-calendar",
-    "parent-progress",
+    "parent-child",
+    "parent-attendance",
+    "parent-grades",
+    "parent-tasks",
+    "parent-feedback",
+    "parent-badges",
     "parent-payments",
     "parent-messages",
-    "parent-settings",
+    "parent-account",
     "parent-profile",
     "parent-billing",
-    "parent-tasks",
-    "parent-assessments",
-    "parent-badges",
     "parent-child-detail",
   ];
 }
@@ -201,15 +171,17 @@ export function listParentScreenTourMetaKeys(): ParentScreenTourMetaKey[] {
   return [
     "parentHome",
     "parentCalendar",
-    "parentProgress",
+    "parentChild",
+    "parentAttendance",
+    "parentGrades",
+    "parentTasks",
+    "parentFeedback",
+    "parentBadges",
     "parentPayments",
     "parentMessages",
-    "parentSettings",
+    "parentAccount",
     "parentProfile",
     "parentBilling",
-    "parentTasks",
-    "parentAssessments",
-    "parentBadges",
     "parentChildDetail",
   ];
 }

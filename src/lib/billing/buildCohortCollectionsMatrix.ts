@@ -30,6 +30,12 @@ function normalizeEnrollmentReceiptStatus(
 export interface BuildCohortCollectionsMatrixOptions {
   todayYear: number;
   todayMonth: number;
+  /**
+   * `academic_sections.billing_mode` crudo por sección. Llega por acá y no en el payload del RPC
+   * `admin_cohort_collections_bulk` para no tener que versionar el RPC: el loader lo resuelve aparte y una
+   * entrada ausente significa cobro mensual, que es el comportamiento actual.
+   */
+  billingModeBySectionId?: ReadonlyMap<string, string | null>;
 }
 
 function studentDisplayName(p: CohortCollectionsBulkProfileRaw): string {
@@ -186,6 +192,7 @@ export function buildCohortCollectionsMatrix(
         scheduleSlots: parseSectionScheduleSlots(
           sectionRow.schedule_slots ?? [],
         ),
+        sectionBillingMode: opts.billingModeBySectionId?.get(sectionRow.id) ?? null,
       });
 
       return { view, archivedAt: sectionRow.archived_at };

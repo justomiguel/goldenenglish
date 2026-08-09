@@ -14,6 +14,13 @@ export {
   archiveEventFormFieldAction,
 } from "@/app/[locale]/dashboard/admin/events/eventFormFieldActions";
 
+export {
+  addEventTicketPackageAction,
+  updateEventTicketPackageAction,
+  moveEventTicketPackageAction,
+  archiveEventTicketPackageAction,
+} from "@/app/[locale]/dashboard/admin/events/eventTicketPackageActions";
+
 export { updateEventCollectBirthDateAction } from "@/app/[locale]/dashboard/admin/events/eventRegistrationSettingsActions";
 
 export {

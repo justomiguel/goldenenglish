@@ -9,6 +9,8 @@ export type MonthlySlotValidationReason =
   | "forbidden"
   | "no_plan"
   | "out_of_period"
+  /** La sección se cobra por bolsa de clases prepagas: no hay cuota mensual que cobrar. */
+  | "class_pack_section"
   | "month_exempt"
   | "future_month_not_allowed";
 
@@ -45,8 +47,10 @@ export async function validateStudentSectionMonthlySlot(
     year,
     month,
   );
-  if (plan.code === "no_plan") return { ok: false, reason: "no_plan" };
-  if (plan.code === "out_of_period") return { ok: false, reason: "out_of_period" };
+  // Exhaustivo a propósito: `plan.code` cuando no es "ok" es asignable a
+  // `MonthlySlotValidationReason`, así que un código nuevo en `SectionPlanAmountResult` rompe la
+  // compilación acá hasta que se lo trate, en vez de pasar como cobrable.
+  if (plan.code !== "ok") return { ok: false, reason: plan.code };
   if (plan.amount <= 0) return { ok: false, reason: "month_exempt" };
 
   const now = new Date();

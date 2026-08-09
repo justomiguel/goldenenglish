@@ -12,7 +12,6 @@ export type ExplainParentHomeTourCopy = {
   tabBar: ExplainParentHomeStepCopy;
   chromeHeader: ExplainParentHomeStepCopy;
   chromeProfile: ExplainParentHomeStepCopy;
-  chromeSignOut: ExplainParentHomeStepCopy;
   titleBlock: ExplainParentHomeStepCopy;
   childSwitcher: ExplainParentHomeStepCopy;
   statusPillars: ExplainParentHomeStepCopy;
@@ -37,7 +36,7 @@ export function buildExplainParentHomeSteps(
       surfaces: ["both"],
     },
     {
-      anchor: PARENT_TOUR_ANCHORS.sidebar,
+      anchor: PARENT_TOUR_ANCHORS.portalTopNav,
       title: copy.sidebar.title,
       description: copy.sidebar.description,
       surfaces: ["desktop"],
@@ -56,16 +55,9 @@ export function buildExplainParentHomeSteps(
       optional: true,
     },
     {
-      anchor: PARENT_TOUR_ANCHORS.chromeProfile,
+      anchor: PARENT_TOUR_ANCHORS.portalAccount,
       title: copy.chromeProfile.title,
       description: copy.chromeProfile.description,
-      surfaces: ["both"],
-      optional: true,
-    },
-    {
-      anchor: PARENT_TOUR_ANCHORS.chromeSignOut,
-      title: copy.chromeSignOut.title,
-      description: copy.chromeSignOut.description,
       surfaces: ["both"],
       optional: true,
     },
@@ -77,7 +69,9 @@ export function buildExplainParentHomeSteps(
       optional: true,
     },
     {
-      anchor: PARENT_TOUR_ANCHORS.homeChildSwitcher,
+      // Only rendered for families with more than one child; the step is optional so it
+      // skips itself for everyone else.
+      anchor: PARENT_TOUR_ANCHORS.portalSubjectChips,
       title: copy.childSwitcher.title,
       description: copy.childSwitcher.description,
       surfaces: ["both"],

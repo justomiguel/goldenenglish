@@ -63,6 +63,13 @@ export interface BuildStudentMonthlyPaymentsRowInput {
    */
   monthlyFeeChargeMode?: MonthlyFeeChargeMode;
   allowAdvanceMonthlyPayment?: boolean;
+  /**
+   * `academic_sections.billing_mode`. Raw on purpose: callers pass the DB value straight through and the
+   * strict parser decides. `class_pack` means no month of this section is charged as a monthly fee, even if
+   * stale `section_fee_plans` rows survive from when the section was billed monthly.
+   * Absent or unrecognised = monthly fee, so no section silently stops being charged.
+   */
+  sectionBillingMode?: string | null;
 }
 
 export function parseUtcDate(iso: string | null): Date | null {

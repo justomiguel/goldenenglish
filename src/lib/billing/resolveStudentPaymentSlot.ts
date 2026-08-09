@@ -44,6 +44,8 @@ export type StudentPaymentSlotResult =
         | "forbidden"
         | "no_plan"
         | "out_of_period"
+        /** La sección se cobra por bolsa de clases prepagas: no hay cuota mensual que cobrar. */
+        | "class_pack_section"
         | "month_exempt"
         | "slot_not_found"
         | "already_processed"

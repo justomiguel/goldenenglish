@@ -63,6 +63,11 @@ export type AdminStudentBillingSectionBenefit = {
   enrollmentFeeReceiptStatus: "pending" | "approved" | "rejected" | null;
   /** Plans for this section (aligned with Cobranzas matrix). */
   feePlans: SectionFeePlan[];
+  /**
+   * `academic_sections.billing_mode` crudo. `class_pack` ⇒ la sección no cobra cuota mensual y sus
+   * `feePlans` no deben resolverse, aunque hayan quedado de cuando sí la cobraba.
+   */
+  sectionBillingMode?: string | null;
   scheduleSlots: SectionScheduleSlot[];
   cohortName: string;
   /** Annual deals that replace % scholarship for covered months. */

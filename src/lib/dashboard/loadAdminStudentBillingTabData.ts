@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { receiptSignedUrlForAdmin } from "@/lib/payments/receiptSignedUrl";
 import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
+import { loadSectionBillingModes } from "@/lib/billing/loadSectionBillingModes";
+import { sectionIsClassPackBilled } from "@/lib/billing/sectionBillingMode";
 import type {
   AdminBillingAnnualSettlement,
   AdminBillingScholarship,
@@ -156,6 +158,7 @@ export async function loadAdminStudentBillingTabData(
       plansBySectionId.set(p.sectionId, arr);
     }
   }
+  const billingModeBySectionId = await loadSectionBillingModes(supabase, uniqueSectionIds);
   const refNow = new Date();
   const refYear = refNow.getFullYear();
   const refMonth = refNow.getMonth() + 1;
@@ -163,7 +166,12 @@ export async function loadAdminStudentBillingTabData(
   const sectionBenefits: AdminStudentBillingSectionBenefit[] = enrollmentRowsWithUrls.map((row) => {
     const meta = sectionEnrollmentMeta(row);
     const plans = plansBySectionId.get(row.section_id) ?? [];
-    const eff = resolveEffectiveSectionFeePlan(plans, refYear, refMonth);
+    const billingMode = billingModeBySectionId.get(row.section_id) ?? null;
+    // Una sección por paquete no tiene cuota mensual: publicar una acá la mostraría como el monto
+    // vigente del alumno.
+    const eff = sectionIsClassPackBilled(billingMode)
+      ? null
+      : resolveEffectiveSectionFeePlan(plans, refYear, refMonth);
     const slotsAndCohort = sectionScheduleSlotsAndCohort(row);
     return {
       enrollmentId: row.id,
@@ -180,6 +188,7 @@ export async function loadAdminStudentBillingTabData(
       enrollmentFeeReceiptSignedUrl: row.receiptSignedUrl,
       enrollmentFeeReceiptStatus: row.receiptStatus,
       feePlans: plans,
+      sectionBillingMode: billingMode,
       scheduleSlots: slotsAndCohort.scheduleSlots,
       cohortName: slotsAndCohort.cohortName,
       annualSettlements: settlementsByEnrollment.get(row.id) ?? [],

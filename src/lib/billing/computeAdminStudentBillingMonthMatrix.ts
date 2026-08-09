@@ -55,6 +55,7 @@ export function computeAdminStudentBillingMonthMatrix({
     sectionEndsOn: benefit.sectionEndsOn,
     enrollmentCreatedAt: benefit.enrollmentCreatedAt,
     feePlans: benefit.feePlans,
+    sectionBillingMode: benefit.sectionBillingMode ?? null,
     scheduleSlots: benefit.scheduleSlots,
     sectionEnrollmentFeeAmount: benefit.sectionEnrollmentFeeAmount,
     enrollmentFeeExempt: benefit.enrollmentFeeExempt,

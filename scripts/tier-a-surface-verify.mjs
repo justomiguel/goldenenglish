@@ -120,6 +120,9 @@ const TIER_A_PARENT_HUB_REDIRECT_PAGES = new Set([
   "src/app/[locale]/dashboard/parent/assessments/page.tsx",
   "src/app/[locale]/dashboard/parent/billing/page.tsx",
   "src/app/[locale]/dashboard/parent/feedback/page.tsx",
+  "src/app/[locale]/dashboard/parent/progress/page.tsx",
+  "src/app/[locale]/dashboard/parent/settings/page.tsx",
+  "src/app/[locale]/dashboard/parent/children/[studentId]/page.tsx",
 ]);
 
 /** Student hub redirects — no UI; progress tab page owns SurfaceMountGate. */

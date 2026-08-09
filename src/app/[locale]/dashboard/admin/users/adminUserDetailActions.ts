@@ -15,6 +15,7 @@ import {
   type CreateAdminParentAndLinkStudentActionResult,
 } from "@/app/[locale]/dashboard/admin/users/adminUserDetailTutorCreateActions";
 import { uploadAdminStudentAvatarAction as uploadAdminStudentAvatarImpl } from "@/app/[locale]/dashboard/admin/users/adminUserDetailAvatarActions";
+import { saveStudentCareNotesAction as saveStudentCareNotesImpl } from "@/app/[locale]/dashboard/admin/users/saveStudentCareNotesAction";
 import type { AdminParentSearchHit } from "@/types/adminUsers";
 
 export type { CreateAdminParentAndLinkStudentActionResult };
@@ -65,4 +66,10 @@ export async function uploadAdminStudentAvatarAction(
   formData: FormData,
 ): Promise<{ ok: boolean; message: string }> {
   return uploadAdminStudentAvatarImpl(formData);
+}
+
+export async function saveStudentCareNotesAction(
+  raw: unknown,
+): Promise<{ ok: boolean; message?: string }> {
+  return saveStudentCareNotesImpl(raw);
 }

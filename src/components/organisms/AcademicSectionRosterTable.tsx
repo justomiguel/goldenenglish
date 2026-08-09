@@ -10,6 +10,7 @@ import {
   type SectionRosterTabKey,
 } from "@/components/organisms/AcademicSectionRosterToolbar";
 import { SortableColumnHeader } from "@/components/molecules/SortableColumnHeader";
+import { StudentCareBadge } from "@/components/molecules/StudentCareBadge";
 import type { UniversalSortDir } from "@/types/universalListView";
 import {
   sortSectionRosterRows,
@@ -163,6 +164,7 @@ export function AcademicSectionRosterTable({
                             <AlertTriangle className="h-3.5 w-3.5" aria-hidden />
                           </span>
                         ) : null}
+                        {r.hasCareNotes ? <StudentCareBadge label={dict.careBadge} /> : null}
                       </span>
                     </td>
                   <td className="py-2 pr-3 text-[var(--color-muted-foreground)]">{r.status}</td>

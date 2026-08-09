@@ -1,12 +1,14 @@
 "use client";
 
-import { Pencil, Trash2, UserPlus } from "lucide-react";
+import { ChevronDown, ChevronRight, Pencil, Trash2, UserPlus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { RegistrationContactCell } from "@/components/dashboard/RegistrationContactCell";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
-import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
+import { registrationIsActionable } from "@/lib/register/registrationIsActionable";
+import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -16,9 +18,15 @@ export interface AdminRegistrationTableRowProps {
   busy: boolean;
   labels: RegLabels;
   statusLabel: (status: string) => string;
+  contact: RegistrationContactView;
+  instituteName: string;
+  expanded: boolean;
+  onToggleExpanded: (id: string) => void;
   onAccept: (row: AdminRegistrationRow) => void;
   onEdit: (row: AdminRegistrationRow) => void;
   onDelete: (row: AdminRegistrationRow) => void;
+  onMarkContacted: (row: AdminRegistrationRow) => void;
+  onRevertToNew: (row: AdminRegistrationRow) => void;
 }
 
 export function AdminRegistrationTableRow({
@@ -26,30 +34,87 @@ export function AdminRegistrationTableRow({
   r,
   busy,
   labels,
+  statusLabel,
+  contact,
+  instituteName,
+  expanded,
+  onToggleExpanded,
   onAccept,
   onEdit,
   onDelete,
+  onMarkContacted,
+  onRevertToNew,
 }: AdminRegistrationTableRowProps) {
-  const canAccept = r.status === "new";
+  const canAccept = registrationIsActionable(r.status);
+  const isPending = r.status === "new";
+
   return (
     <tr className="border-t border-[var(--color-border)]">
+      <td className="px-2 py-2 align-top">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          aria-expanded={expanded}
+          aria-label={expanded ? labels.collapseRow : labels.expandRow}
+          title={expanded ? labels.collapseRow : labels.expandRow}
+          className="h-8 w-8 shrink-0 p-0"
+          onClick={() => onToggleExpanded(r.id)}
+        >
+          {expanded ? (
+            <ChevronDown className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+          ) : (
+            <ChevronRight className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+          )}
+        </Button>
+      </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top font-medium">
         {formatProfileNameSurnameFirst(r.first_name, r.last_name)}
+        {contact.isMinor ? (
+          <span className="ml-2 whitespace-nowrap rounded-full border border-[var(--color-border)] px-2 py-0.5 text-xs font-normal text-[var(--color-muted-foreground)]">
+            {labels.minorMarker}
+          </span>
+        ) : null}
       </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top">{r.dni}</td>
-      <td className="min-w-0 max-w-0 break-all px-3 py-2 align-top">{r.email}</td>
+      <td className="min-w-0 max-w-0 px-3 py-2 align-top">
+        <RegistrationContactCell
+          entry={contact.student}
+          contactName={r.first_name}
+          instituteName={instituteName}
+          labels={labels}
+        />
+      </td>
+      <td className="min-w-0 max-w-0 px-3 py-2 align-top">
+        <RegistrationContactCell
+          entry={contact.tutor}
+          contactName={r.tutor_name ?? r.first_name}
+          instituteName={instituteName}
+          labels={labels}
+        />
+      </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top">
         {formatRegistrationLevelInterestDisplay(labels, r.level_interest)}
+        {r.sourceSectionLinkId ? (
+          <span className="ml-2 inline-flex items-center rounded-full bg-[var(--color-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-muted-foreground)]">
+            {labels.viaSectionLink}
+          </span>
+        ) : null}
+      </td>
+      <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top">
+        <span className="block">{statusLabel(r.status)}</span>
+        <button
+          type="button"
+          className="mt-1 text-xs underline decoration-dotted underline-offset-2 hover:no-underline disabled:opacity-50"
+          title={isPending ? labels.markContactedTip : labels.revertToNewTip}
+          disabled={busy}
+          onClick={() => (isPending ? onMarkContacted(r) : onRevertToNew(r))}
+        >
+          {isPending ? labels.markContacted : labels.revertToNew}
+        </button>
       </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top text-[var(--color-muted-foreground)]">
-        {formatCivilIsoDateForDisplay(locale, r.birth_date, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        }) ?? labels.emptyValue}
-      </td>
-      <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top text-[var(--color-muted-foreground)]">
-        {r.created_at ? new Date(r.created_at).toLocaleString() : labels.emptyValue}
+        {r.created_at ? new Date(r.created_at).toLocaleString(locale) : labels.emptyValue}
       </td>
       <td className="min-w-0 px-3 py-2 align-top">
         <div className="flex items-center justify-end gap-2">

@@ -10,6 +10,7 @@ import { loadStudentMiniTests } from "@/lib/learning-content/loadStudentMiniTest
 import { loadStudentFeedbackTimeline } from "@/lib/parent/loadStudentFeedbackTimeline";
 import { loadStudentExamResults } from "@/lib/parent/loadStudentExamResults";
 import { loadStudentBadgeDisplayRows } from "@/lib/badges/loadStudentBadgeDisplayRows";
+import { createProgressFailureTracker } from "@/lib/parent/progressFailureTracker";
 import { ParentProgressEntry } from "@/components/parent/ParentProgressEntry";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -49,18 +50,30 @@ export default async function StudentProgressPage({ params, searchParams }: Page
   const displayName = formatProfileNameSurnameFirst(profile.first_name, profile.last_name);
   const wardOptions = [{ studentId, displayName: displayName || studentId }];
 
+  // A read that fails must reach the screen: Progress hides empty sections, so a swallowed error
+  // would tell the family their child has nothing.
+  const failures = createProgressFailureTracker();
+
   const [exams, tasks, assessments, feedback, badgeRows] = await Promise.all([
-    loadStudentExamResults(supabase, { studentId }),
-    loadStudentLearningTasks(supabase, studentId, 40),
-    loadStudentMiniTests(supabase, studentId),
+    loadStudentExamResults(supabase, {
+      studentId,
+      onLoadError: failures.reporterFor("exams"),
+    }),
+    loadStudentLearningTasks(supabase, studentId, 40, failures.reporterFor("tasks")),
+    loadStudentMiniTests(supabase, studentId, failures.reporterFor("assessments")),
     loadStudentFeedbackTimeline(supabase, {
       studentId,
       childLabel: displayName || studentId,
+      onLoadError: failures.reporterFor("feedback"),
     }),
-    loadStudentBadgeDisplayRows(studentId, (token) => {
-      const u = absoluteUrl(`/${locale}/b/${token}`);
-      return u ? u.toString() : "";
-    }),
+    loadStudentBadgeDisplayRows(
+      studentId,
+      (token) => {
+        const u = absoluteUrl(`/${locale}/b/${token}`);
+        return u ? u.toString() : "";
+      },
+      failures.reporterFor("badges"),
+    ),
   ]);
 
   return (
@@ -74,6 +87,7 @@ export default async function StudentProgressPage({ params, searchParams }: Page
         assessments={assessments}
         feedback={feedback}
         badgeRows={badgeRows}
+        failedSections={failures.failedSections()}
         parentLabels={dict.dashboard.parent}
         studentLabels={dict.dashboard.student}
         badgesDict={dict.dashboard.student.badges}

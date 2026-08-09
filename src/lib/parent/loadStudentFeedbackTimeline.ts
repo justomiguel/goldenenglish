@@ -13,7 +13,7 @@ import {
   type LearningAttemptFeedbackRow,
 } from "@/lib/parent/mapParentFeedbackRows";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
-import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { noteReadFailure, type LoadErrorReporter } from "@/lib/logging/noteReadFailure";
 
 const SCOPE = "loadStudentFeedbackTimeline";
 
@@ -21,18 +21,24 @@ const EMPTY_TIMELINE: ParentFeedbackTimeline = { items: [], newCount: 0 };
 
 export interface LoadStudentFeedbackTimelineParams {
   studentId: string;
+  /** Told when a read came back short, so the screen can say so instead of showing an empty list. */
+  onLoadError?: LoadErrorReporter;
   /** Surname-first display name, shown when several wards share one timeline view. */
   childLabel: string;
   limit?: number;
   now?: Date;
 }
 
-async function loadSectionContext(supabase: SupabaseClient, studentId: string) {
+async function loadSectionContext(
+  supabase: SupabaseClient,
+  studentId: string,
+  onLoadError: LoadErrorReporter | undefined,
+) {
   const { data: enrollments, error } = await supabase
     .from("section_enrollments")
     .select("id, section_id")
     .eq("student_id", studentId);
-  logSupabaseClientError(`${SCOPE}:enrollments`, error, { studentId });
+  noteReadFailure(`${SCOPE}:enrollments`, error, { studentId }, onLoadError);
 
   const rows = (enrollments ?? []) as { id: string; section_id: string | null }[];
   const sectionIds = [...new Set(rows.map((row) => row.section_id).filter(Boolean) as string[])];
@@ -43,7 +49,7 @@ async function loadSectionContext(supabase: SupabaseClient, studentId: string) {
       .from("academic_sections")
       .select("id, name, teacher_id")
       .in("id", sectionIds);
-    logSupabaseClientError(`${SCOPE}:sections`, sectionsError, { studentId });
+    noteReadFailure(`${SCOPE}:sections`, sectionsError, { studentId }, onLoadError);
     for (const section of (sections ?? []) as {
       id: string;
       name: string | null;
@@ -72,6 +78,7 @@ async function loadSectionContext(supabase: SupabaseClient, studentId: string) {
 async function loadTeacherNames(
   supabase: SupabaseClient,
   teacherIds: string[],
+  onLoadError: LoadErrorReporter | undefined,
 ): Promise<Map<string, string>> {
   const names = new Map<string, string>();
   if (!teacherIds.length) return names;
@@ -79,7 +86,7 @@ async function loadTeacherNames(
     .from("profiles")
     .select("id, first_name, last_name")
     .in("id", teacherIds);
-  logSupabaseClientError(`${SCOPE}:teacherProfiles`, error);
+  noteReadFailure(`${SCOPE}:teacherProfiles`, error, undefined, onLoadError);
   for (const profile of (data ?? []) as {
     id: string;
     first_name: string | null;
@@ -99,7 +106,7 @@ async function loadTeacherNames(
  */
 export async function loadStudentFeedbackTimeline(
   supabase: SupabaseClient,
-  { studentId, childLabel, limit = PARENT_FEEDBACK_DEFAULT_LIMIT, now = new Date() }:
+  { studentId, childLabel, limit = PARENT_FEEDBACK_DEFAULT_LIMIT, now = new Date(), onLoadError }:
     LoadStudentFeedbackTimelineParams,
 ): Promise<ParentFeedbackTimeline> {
   if (!studentId) return EMPTY_TIMELINE;
@@ -107,6 +114,7 @@ export async function loadStudentFeedbackTimeline(
   const { enrollmentIds, sectionById, sectionByEnrollmentId } = await loadSectionContext(
     supabase,
     studentId,
+    onLoadError,
   );
 
   const [gradeResult, attemptResult] = await Promise.all([
@@ -133,8 +141,8 @@ export async function loadStudentFeedbackTimeline(
       .limit(limit),
   ]);
 
-  logSupabaseClientError(`${SCOPE}:grades`, gradeResult.error, { studentId });
-  logSupabaseClientError(`${SCOPE}:attempts`, attemptResult.error, { studentId });
+  noteReadFailure(`${SCOPE}:grades`, gradeResult.error, { studentId }, onLoadError);
+  noteReadFailure(`${SCOPE}:attempts`, attemptResult.error, { studentId }, onLoadError);
 
   const gradeRows = (gradeResult.data ?? []) as CohortGradeFeedbackRow[];
   const attemptRows = (attemptResult.data ?? []) as LearningAttemptFeedbackRow[];
@@ -142,6 +150,7 @@ export async function loadStudentFeedbackTimeline(
   const teacherNameById = await loadTeacherNames(
     supabase,
     collectFeedbackTeacherIds({ gradeRows, attemptRows, sectionByEnrollmentId, sectionById }),
+    onLoadError,
   );
 
   const context = {

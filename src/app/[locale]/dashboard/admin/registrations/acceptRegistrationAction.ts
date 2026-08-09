@@ -16,6 +16,7 @@ import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { insertEnrollmentIfMissing } from "@/lib/import/bulkImportEnrollment";
 import { resolveCourseIdForRegistrationAccept } from "@/lib/register/resolveCourseIdForRegistrationAccept";
 import { isRegistrationUndecidedStored } from "@/lib/register/registrationSectionConstants";
+import { registrationIsActionable } from "@/lib/register/registrationIsActionable";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { localizeRegistrationAcceptError } from "@/lib/register/localizeRegistrationAcceptError";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
@@ -70,7 +71,7 @@ export async function acceptRegistration(
   if (!reg) {
     return { ok: false, message: localizeRegistrationAcceptError(dict, "not_found") };
   }
-  if (reg.status !== "new") {
+  if (!registrationIsActionable(reg.status ?? "")) {
     return { ok: false, message: localizeRegistrationAcceptError(dict, "already_processed") };
   }
 

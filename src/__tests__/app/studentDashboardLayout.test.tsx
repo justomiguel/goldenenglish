@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import type { ReactElement } from "react";
+import type { PortalShellConfig } from "@/lib/portal/portalShellTypes";
 import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
@@ -39,16 +40,22 @@ vi.mock("@/lib/supabase/server", () => ({
 import StudentDashboardLayout from "@/app/[locale]/dashboard/student/layout";
 
 describe("StudentDashboardLayout", () => {
-  it("passes the student nav and chrome dictionaries to the shell", async () => {
+  it("drives the portal shell with the student's own config", async () => {
     const element = (await StudentDashboardLayout({
       children: <p>Student content</p>,
       params: Promise.resolve({ locale: "en" }),
-    })) as ReactElement<Record<string, unknown>>;
+    })) as ReactElement<{ config: PortalShellConfig }>;
 
     expect(redirectMock).not.toHaveBeenCalled();
-    expect(element.props.navDict).toBe(dictEn.dashboard.studentNav);
-    expect(element.props.chromeLabels).toBe(dictEn.dashboard.studentChrome);
-    expect(element.props.baseHref).toBe("/en/dashboard/student");
-    expect(element.props.includePayments).toBe(true);
+    const { config } = element.props;
+    expect(config.baseHref).toBe("/en/dashboard/student");
+    expect(config.brandBadge).toBe(dictEn.dashboard.studentChrome.badge);
+    expect(config.destinations.map((d) => d.id)).toEqual([
+      "home",
+      "course",
+      "payments",
+      "messages",
+    ]);
+    expect(config.subjectGroups).toEqual([]);
   });
 });

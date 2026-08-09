@@ -222,6 +222,7 @@
       "notEnrolledInSection": "El alumno no está inscripto activamente en esa sección.",
       "noPlan": "No hay plan de arancel para ese mes en la sección.",
       "outOfPeriod": "Ese mes queda fuera del período de facturación de la sección.",
+      "classPackSection": "Esta sección cobra por clase, no una cuota mensual. Gestioná sus paquetes de clases desde el área de paquetes.",
       "exemptOrZero": "Ese período no tiene monto a pagar (exento o cero).",
       "alreadyApproved": "Ese período ya figura como pagado.",
       "cannotOverrideExempt": "Ese período está exento. Quitá la exención primero.",
@@ -2207,8 +2208,23 @@
       "detailTabAcademic": "Académico",
       "detailTabPayments": "Pagos",
       "detailTabFamily": "Familia",
+      "detailTabCare": "Cuidados",
       "detailTabSecurity": "Seguridad",
       "detailTabAlert": "Requiere atención",
+      "detailCardCare": "Información de cuidado",
+      "detailCareLead": "Solo la ve la administración, el tutor del alumno y los docentes de sus grupos.",
+      "detailFieldCareHealth": "Condición de salud",
+      "detailFieldCareDiet": "Alimentación",
+      "detailFieldCareSupport": "Trato especial",
+      "detailCareHealthHint": "Alergias, medicación, qué hacer en una urgencia.",
+      "detailCareDietHint": "Alimentos que no puede comer o que necesita.",
+      "detailCareSupportHint": "Apoyos o adaptaciones que necesita en clase.",
+      "detailCareEmpty": "Sin información cargada.",
+      "detailCareUpdatedBy": "Actualizado por {name} el {date}",
+      "detailCareSaved": "Información de cuidado guardada",
+      "detailErrCareSave": "No se pudo guardar la información de cuidado",
+      "detailCareBadge": "Requiere atención especial",
+      "detailCareForbidden": "No tenés permiso para ver esta información.",
       "detailPaymentsDisabledNoSection": "Asigná el alumno a una sección de la cohorte vigente antes de gestionar pagos.",
       "detailFamilyEmpty": "No hay vínculos familiares registrados para este alumno.",
       "detailTutorFamilyTitle": "Familia",
@@ -3480,7 +3496,7 @@
       "errSaveFailed": "No se pudo finalizar la inscripción. Reintentá o contactá soporte.",
       "errTutorLinkFailed": "Se creó la cuenta del alumno pero no se pudo vincular al tutor. Puede hacer falta que soporte corrija el vínculo.",
       "editTitle": "Editar solicitud",
-      "editLead": "Solo se puede editar mientras el estado es «Nuevo».",
+      "editLead": "Podés editar mientras la solicitud siga pendiente, esté nueva o ya contactada.",
       "editFirstName": "Nombre",
       "editLastName": "Apellido",
       "editTutorPhone": "Teléfono del tutor",
@@ -3496,7 +3512,34 @@
       "sectionPickerLead": "Elegí una sección del ciclo vigente",
       "skipSectionEnrollment": "Omitir por ahora",
       "sectionEnrollError": "No se pudo inscribir al alumno en la sección",
-      "enrollSuccess": "Alumno inscripto en la sección"
+      "enrollSuccess": "Alumno inscripto en la sección",
+      "phoneStudent": "Teléfono del alumno",
+      "phoneTutor": "Teléfono del tutor",
+      "contactCopy": "Copiar número",
+      "contactCopied": "Número copiado",
+      "contactWhatsApp": "Abrir WhatsApp",
+      "contactWhatsAppUnavailable": "No se puede abrir en WhatsApp",
+      "contactWhatsAppUnavailableTip": "Este número no tiene un formato que WhatsApp acepte. Copialo y llamá a mano.",
+      "whatsAppMessage": "Hola {name}, te escribimos de {institute} por tu consulta de inscripción.",
+      "minorMarker": "Menor",
+      "viaSectionLink": "vía enlace",
+      "expandRow": "Ver detalle",
+      "collapseRow": "Ocultar detalle",
+      "detailsTitle": "Detalle de la consulta",
+      "preferredSection": "Grupo preferido",
+      "markContacted": "Marcar contactado",
+      "markContactedTip": "Registrar que ya te comunicaste con esta familia",
+      "revertToNew": "Marcar pendiente",
+      "revertToNewTip": "Devolver esta inscripción a la cola de pendientes",
+      "contactedOn": "Contactado el {date}",
+      "statusFilterAll": "Todas ({{count}})",
+      "statusFilterNew": "Pendientes ({{count}})",
+      "statusFilterContacted": "Contactadas ({{count}})",
+      "statusChangeSuccess": "Estado de seguimiento actualizado",
+      "statusChangeError": "No se pudo actualizar el estado de seguimiento",
+      "exportButton": "Exportar",
+      "exportTip": "Descargar el listado filtrado como planilla",
+      "exportError": "No se pudo generar la planilla"
     },
     "events": {
       "lead": "Gestioná próximos eventos públicos, asistentes y pagos.",
@@ -3631,7 +3674,8 @@
           "attendees": "Asistentes",
           "payments": "Pagos",
           "waitlist": "Lista de espera",
-          "notifications": "Notificaciones"
+          "notifications": "Notificaciones",
+          "packages": "Paquetes"
         },
         "tabLeads": {
           "summary": "Publicación, precios y título y descripción por idioma.",
@@ -3639,7 +3683,8 @@
           "attendees": "Personas inscriptas y su estado de inscripción.",
           "payments": "Comprobantes de transferencia y estados de pago vinculados a inscripciones.",
           "waitlist": "Revisá y promové manualmente cuando se liberen cupos.",
-          "notifications": "Recordatorios y correos de decisión de pago con plantillas por defecto."
+          "notifications": "Recordatorios y correos de decisión de pago con plantillas por defecto.",
+          "packages": "Precios, cupos y beneficios de cada tipo de entrada."
         },
         "archive": "Archivar",
         "draftHint": "Este evento está en borrador y no aparece en la página pública de eventos. Publícalo cuando esté listo.",
@@ -3688,7 +3733,8 @@
         "bankTransferInstructionsHint": "Opcional: si lo dejás vacío se usan los datos configurados en Finanzas → Configuración.",
         "save": "Guardar precios",
         "savedOk": "Precios actualizados.",
-        "errorSave": "No pudimos guardar los precios."
+        "errorSave": "No pudimos guardar los precios.",
+        "disabledByPackages": "Este evento vende paquetes, así que el precio sale de cada paquete y estos valores no se aplican. Archivá todos los paquetes para volver a cobrar por residencia."
       },
       "i18n": {
         "sectionTitle": "Traducciones del evento",
@@ -3791,6 +3837,48 @@
           "file": "Archivo",
           "image": "Imagen"
         }
+      },
+      "packages": {
+        "sectionTitle": "Paquetes de entradas",
+        "lead": "Si el evento vende paquetes, cada uno tiene su precio y sus beneficios, y reemplaza a los precios por residencia.",
+        "empty": "Todavía no hay paquetes. Sin paquetes, el evento cobra según los precios por residencia.",
+        "addTitle": "Nuevo paquete",
+        "editTitle": "Editar paquete",
+        "nameLabel": "Nombre del paquete",
+        "namePlaceholder": "VIP, General, Estudiante…",
+        "priceLabel": "Precio por entrada",
+        "priceHint": "Poné 0 si este paquete es gratuito.",
+        "capacityLabel": "Cupo del paquete",
+        "capacityHint": "Opcional. Dejalo vacío y usa el cupo general del evento.",
+        "benefitsLabel": "Beneficios",
+        "benefitsHint": "Se muestran en la página pública, en este orden.",
+        "benefitAdd": "Agregar beneficio",
+        "benefitRemove": "Quitar beneficio",
+        "benefitPlaceholder": "Ej.: Cena incluida",
+        "seatsSold": "{{sold}} de {{capacity}} vendidas",
+        "seatsSoldNoCapacity": "{{sold}} vendidas",
+        "moveUp": "Subir",
+        "moveDown": "Bajar",
+        "archive": "Archivar",
+        "archiveConfirm": "¿Archivar este paquete? Deja de venderse, pero las inscripciones que ya lo compraron no cambian.",
+        "save": "Guardar paquete",
+        "savedOk": "Paquete guardado.",
+        "archivedOk": "Paquete archivado.",
+        "errorSave": "No pudimos guardar el paquete."
+      },
+      "multiTicket": {
+        "title": "Varias entradas por inscripción",
+        "lead": "Permití que una persona compre entradas para acompañantes en la misma inscripción. El pago sale a nombre del titular por el total.",
+        "checkboxLabel": "Permitir comprar varias entradas",
+        "maxLabel": "Máximo de entradas por inscripción",
+        "maxHint": "Incluye la entrada del titular.",
+        "companionsTitle": "Datos de cada acompañante",
+        "companionsLead": "El nombre y el apellido se piden siempre. Elegí qué más necesitás.",
+        "companionDni": "Pedir documento",
+        "companionBirthDate": "Pedir fecha de nacimiento",
+        "companionEmail": "Pedir email",
+        "savedOk": "Configuración guardada.",
+        "errorSave": "No pudimos guardar la configuración."
       }
     }
   },
@@ -3851,6 +3939,16 @@
         "failureTitle": "No pudimos procesar tu pago",
         "failureBody": "El pago no se completó. Podés volver a intentarlo desde la inscripción.",
         "dismiss": "Cerrar"
+      },
+      "packages": {
+        "title": "Entradas",
+        "lead": "Elegí el tipo de entrada.",
+        "benefitsTitle": "Incluye",
+        "seatsLeft": "Quedan {{count}} lugares",
+        "soldOut": "Agotado",
+        "free": "Gratis",
+        "choose": "Elegir",
+        "selected": "Elegida"
       }
     },
     "register": {
@@ -3921,6 +4019,28 @@
         "uploadFailed": "No pudimos subir uno de tus archivos. Intentá nuevamente.",
         "fileInputAriaLabel": "Seleccionar archivo",
         "imageInputAriaLabel": "Seleccionar imagen"
+      },
+      "companions": {
+        "title": "Acompañantes",
+        "quantityLabel": "Cantidad de entradas",
+        "quantityHint": "Incluye la tuya.",
+        "holderTitle": "Tu entrada",
+        "companionTitle": "Acompañante {{number}}",
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "dni": "Documento",
+        "birthDate": "Fecha de nacimiento",
+        "email": "Email",
+        "totalLabel": "Total a pagar",
+        "totalHint": "{{seats}} entradas × {{unit}}"
+      },
+      "errors": {
+        "insufficientSeats": "Quedan solo {{count}} lugares. Bajá la cantidad de entradas.",
+        "tooManyTickets": "El máximo es {{max}} entradas por inscripción.",
+        "soldOut": "Este evento se agotó.",
+        "packageSoldOut": "Este paquete se agotó. Elegí otro.",
+        "packageUnavailable": "Ese paquete ya no está disponible.",
+        "companionMissingName": "Completá el nombre y el apellido de cada acompañante."
       }
     }
   },
@@ -3955,6 +4075,27 @@
     "sectionPlaceholder": "Elegí una sección…",
     "sectionUndecidedOption": "No estoy seguro/a — ayudenme a elegir",
     "sectionUndecidedHint": "Si elegís esto, el equipo te sugerirá la mejor sección al contactarte. Podés enviar igual si todavía no figuran secciones en la lista.",
+    "sectionLink": {
+      "heading": "Te estás inscribiendo en",
+      "scheduleLabel": "Horario",
+      "scheduleEmpty": "Horario a confirmar",
+      "weekdays": {
+        "sun": "Dom",
+        "mon": "Lun",
+        "tue": "Mar",
+        "wed": "Mié",
+        "thu": "Jue",
+        "fri": "Vie",
+        "sat": "Sáb"
+      },
+      "seatsRemainingOne": "Queda 1 cupo",
+      "seatsRemainingMany": "Quedan {count} cupos",
+      "waitingListNotice": "Este grupo está completo. Podés enviar tus datos igual y te contactamos si se libera un cupo.",
+      "unavailableTitle": "Este enlace ya no está disponible",
+      "unavailableInvalid": "El enlace no es válido. Pedile uno nuevo al instituto.",
+      "unavailableClosed": "Las inscripciones por este enlace están cerradas. Contactá al instituto.",
+      "backHome": "Ir al inicio"
+    },
     "noSectionsAvailable": "Todavía no hay secciones cargadas — podés enviar la solicitud y pedir ayuda para elegir.",
     "invalidSectionOption": "Esa sección no está disponible. Actualizá la página y elegí de nuevo.",
     "submit": "Enviar solicitud",
@@ -4604,6 +4745,7 @@
       "mobileClose": "Cerrar menú",
       "home": "Inicio",
       "calendar": "Asistencias",
+      "course": "Mi curso",
       "progress": "Progreso",
       "tasks": "Tareas",
       "badges": "Logros",
@@ -4643,6 +4785,18 @@
       "tipMessages": "Escribile a tu docente asignado.",
       "tipSettings": "Idioma y preferencias de la app.",
       "tipMyProfile": "Tu perfil personal, contraseña y preferencias."
+    },
+    "portal": {
+      "tabBarAria": "Navegación de la app",
+      "topNavAria": "Navegación principal",
+      "accountOpen": "Abrir menú de cuenta",
+      "accountHeading": "Cuenta",
+      "accountClose": "Cerrar",
+      "accountLanguage": "Idioma",
+      "accountInstall": "Instalar la app",
+      "accountChildDetails": "Datos del alumno",
+      "subjectChildLabel": "Alumno",
+      "subjectSectionLabel": "Clase"
     },
     "parentChrome": {
       "ariaHeader": "Panel familiar",
@@ -7990,6 +8144,7 @@
       "successMove": "Alumno movido.",
       "genericError": "Algo salió mal. Intente de nuevo.",
       "debtBadge": "El tutor tiene pagos pendientes",
+      "careBadge": "Requiere atención especial",
       "rosterTableSort": {
         "sortAsc": "orden ascendente",
         "sortDesc": "orden descendente",
@@ -8113,6 +8268,7 @@
       "emptyTab": "No hay alumnos en esta vista.",
       "noTransferTargets": "No hay secciones disponibles para esta sugerencia.",
       "pendingRequestBadge": "Solicitud en revisión",
+      "careBadge": "Requiere atención especial",
       "targetFullLabel": "completa",
       "targetCapacityHint": "Algunos destinos están al límite; aún puede sugerirlos: un administrador puede autorizar excepción.",
       "targetCapacityOk": "Los destinos muestran capacidad en la lista cuando aplica.",
@@ -8164,6 +8320,26 @@
       "taskAssignDue": "Fecha de entrega",
       "taskAssignButton": "Asignar"
     },
+    "sectionEnrollmentLink": {
+      "title": "Invitar familias",
+      "lead": "Compartí este link para que las familias carguen sus propios datos. Cada inscripción llega a la bandeja de inscripciones para revisión.",
+      "generate": "Crear link de inscripción",
+      "urlLabel": "Link de inscripción",
+      "copy": "Copiar",
+      "copied": "Link copiado",
+      "share": "Compartir",
+      "leadCount": "{count} familias se inscribieron por este link",
+      "leadCountNone": "Todavía ninguna familia usó este link",
+      "inactiveNotice": "Este link está desactivado. Las familias que lo abran ven un mensaje de cerrado.",
+      "activate": "Reactivar link",
+      "deactivate": "Desactivar link",
+      "rotate": "Generar un link nuevo",
+      "rotateConfirmTitle": "¿Generar un link nuevo?",
+      "rotateConfirmBody": "El link actual deja de funcionar de inmediato. Las familias que ya lo tengan van a necesitar el nuevo.",
+      "rotateConfirm": "Generar link nuevo",
+      "cancel": "Cancelar",
+      "error": "No se pudo completar la acción. Intentá de nuevo."
+    },
     "teacherSectionAttendance": {
       "metaTitle": "Asistencia",
       "title": "Asistencia",
@@ -8179,6 +8355,7 @@
         "empty": "Aún no hay días de clase ni alumnos para mostrar.",
         "colStudent": "Alumno",
         "cellAria": "Asistencia de {student} el {date}",
+        "careBadge": "Requiere atención especial",
         "excusedLetter": "J",
         "cellDisabledNotEnrolledOnDate": "Este alumno no estaba inscripto en esta sección en esa fecha (alta posterior, transferencia o baja). No corresponde marcar asistencia ese día.",
         "cellDisabledInactive": "Este alumno ya no está activo en la sección.",
@@ -9119,6 +9296,49 @@
         "ctaPay": "Ir a pagos"
       },
       "selectChild": "Elegir alumno",
+      "childScreen": {
+        "navLabel": "Mi hijo",
+        "backToChild": "Volver a Mi hijo",
+        "pageLead": "Cómo viene {name} en {section}.",
+        "noChild": "Todavía no hay ningún alumno vinculado a tu cuenta.",
+        "teacherLine": "Docente: {teacher}",
+        "noTeacher": "Docente sin asignar",
+        "metricAttendance": "Asistencia",
+        "metricAverage": "Promedio",
+        "metricPendingTasks": "Tareas pendientes",
+        "metricEmpty": "Sin datos",
+        "seeAll": "Ver todo",
+        "sectionAttendance": "Asistencia",
+        "sectionGrades": "Notas",
+        "sectionFeedback": "Comentarios del docente",
+        "sectionTasks": "Tareas",
+        "sectionBadges": "Logros",
+        "emptyAttendance": "Todavía no hay clases registradas.",
+        "emptyGrades": "Todavía no hay notas publicadas.",
+        "emptyFeedback": "El docente todavía no dejó comentarios.",
+        "emptyTasks": "No hay tareas asignadas.",
+        "emptyBadges": "Todavía no hay logros.",
+        "unreadDot": "Novedades sin ver",
+        "attendanceTitle": "Asistencia",
+        "attendanceLead": "Historial de clases y porcentaje del mes.",
+        "gradesTitle": "Notas",
+        "gradesLead": "Evaluaciones del curso y mini-tests.",
+        "gradesExamsHeading": "Evaluaciones",
+        "gradesAssessmentsHeading": "Mini-tests",
+        "tasksTitle": "Tareas",
+        "tasksLead": "Lo que el docente asignó y su estado.",
+        "feedbackTitle": "Comentarios del docente",
+        "feedbackLead": "Devoluciones sobre el trabajo de tu hijo.",
+        "badgesTitle": "Logros",
+        "badgesLead": "Insignias que ganó tu hijo.",
+        "editTitle": "Datos del alumno",
+        "editLead": "Contacto del alumno y avisos de clase."
+      },
+      "account": {
+        "pageTitle": "Cuenta",
+        "pageLead": "Tu perfil, el idioma y la sesión.",
+        "languageHint": "El idioma se aplica a todo el portal."
+      },
       "attendancePwa": {
         "title": "Asistencias",
         "lead": "Últimas marcas por sección para tus alumnos vinculados.",
@@ -9235,7 +9455,12 @@
         "badgesOne": "1 logro",
         "badgesMany": "{count} logros",
         "emptyTitle": "Todavía no hay nada para mostrar",
-        "emptyBody": "Las evaluaciones, tareas, comentarios del docente y logros aparecen acá apenas el instituto los publica."
+        "emptyBody": "Las evaluaciones, tareas, comentarios del docente y logros aparecen acá apenas el instituto los publica.",
+        "loadFailedCount": "No se pudo cargar",
+        "loadFailedTitle": "No pudimos cargar esta sección",
+        "loadFailedBody": "Hubo un problema al leer estos datos, así que no podemos decirte qué hay acá. No significa que no haya nada.",
+        "loadFailedRetry": "Reintentar",
+        "loadFailedBanner": "Algunos datos no se pudieron cargar, así que esta pantalla puede estar incompleta."
       },
       "financeTabPay": "Pagar y comprobantes",
       "financeTabFees": "Facturas y cuotas",
@@ -9276,6 +9501,12 @@
       "wardPhone": "Teléfono",
       "wardEmail": "Correo de acceso (login)",
       "wardBirthDate": "Fecha de nacimiento",
+      "wardCareTitle": "Información de cuidado",
+      "wardCareLead": "Contanos si el alumno necesita alguna atención especial. Lo ven la administración y los docentes de sus grupos.",
+      "wardCareHealth": "Condición de salud",
+      "wardCareDiet": "Alimentación",
+      "wardCareSupport": "Trato especial",
+      "wardCareSaved": "Información de cuidado guardada",
       "saveWard": "Guardar cambios",
       "wardSaved": "Guardado",
       "wardError": "No se pudo guardar",
@@ -9320,6 +9551,42 @@
           "paid": "Pagado",
           "pending": "En revisión"
         }
+      },
+      "today": {
+        "allClearTitle": "No hay nada pendiente",
+        "allClearBody": "Cuando algo necesite tu atención, va a aparecer acá.",
+        "seeAll": "Ver todo",
+        "seeLess": "Ver menos",
+        "failureTitle": "No pudimos leer {source}",
+        "failureBody": "La consulta no respondió, así que esta parte puede estar incompleta.",
+        "failureRetry": "Reintentar",
+        "sourcePayments": "los pagos",
+        "sourceMessages": "los mensajes",
+        "sourceTasks": "las tareas",
+        "sourceAttendance": "la asistencia",
+        "paymentOverdueTitle": "Tenés una cuota vencida",
+        "paymentOverdueTitleMany": "Tenés {count} cuotas vencidas",
+        "paymentOverdueCta": "Ir a pagos",
+        "unreadMessagesTitle": "Tenés un mensaje sin leer",
+        "unreadMessagesTitleMany": "Tenés {count} mensajes sin leer",
+        "unreadMessagesCta": "Abrir mensajes",
+        "taskDueSoonTitle": "Vence pronto: {detail}",
+        "taskDueSoonTitleMany": "{count} tareas vencen en las próximas 48 horas",
+        "taskDueSoonCta": "Ver tareas",
+        "absenceTitle": "Faltó a una clase de {detail}",
+        "absenceTitleMany": "Faltó a {count} clases en las últimas dos semanas",
+        "absenceCta": "Ver asistencia",
+        "paymentPendingTitle": "Hay una cuota pendiente",
+        "paymentPendingCta": "Ir a pagos",
+        "enablePushTitle": "Activá los avisos",
+        "enablePushBody": "Te avisamos de cuotas, mensajes y faltas sin que tengas que entrar.",
+        "enablePushCta": "Activar",
+        "enablePushDenied": "El navegador bloqueó los avisos. Habilitalos desde su configuración.",
+        "childPulseTitle": "Cómo va tu hijo",
+        "childPulseCta": "Ver todo",
+        "nextClassTitle": "Próxima clase",
+        "nextClassCta": "Ver agenda",
+        "nextClassEmpty": "Todavía no hay horario cargado."
       }
     },
     "teacher": {
@@ -9609,11 +9876,11 @@
         "steps": {
           "intro": {
             "title": "🏠 Tu inicio familiar",
-            "description": "Este es el panel principal: un resumen del estado de cada hijo y atajos a calendario, progreso, pagos y mensajes.\n\nEste recorrido también explica el menú lateral (escritorio) o la barra de pestañas (móvil). En otras pantallas, “Explicar esta pantalla” se centra solo en el contenido."
+            "description": "Este es el panel principal: un resumen del estado de cada hijo y atajos a calendario, progreso, pagos y mensajes.\n\nEste recorrido también explica el menú superior (escritorio) o la barra de pestañas (móvil). En otras pantallas, “Explicar esta pantalla” se centra solo en el contenido."
           },
           "sidebar": {
-            "title": "📂 Menú lateral",
-            "description": "En escritorio, usa el menú para ir a inicio, calendario, progreso, pagos, mensajes y ajustes.\n\nLas insignias destacan lo que necesita atención."
+            "title": "📂 Menú superior",
+            "description": "En escritorio, el menú superior te lleva a inicio, asistencias, progreso, pagos y mensajes.\n\nLa sección actual queda resaltada."
           },
           "tabBar": {
             "title": "📱 Pestañas inferiores",
@@ -9621,15 +9888,11 @@
           },
           "chromeHeader": {
             "title": "⬆️ Barra superior",
-            "description": "El encabezado permanece visible al desplazarte y guarda perfil y cierre de sesión."
+            "description": "El encabezado permanece visible al desplazarte y guarda el menú de cuenta."
           },
           "chromeProfile": {
-            "title": "👤 Tu perfil",
-            "description": "Abre el perfil del tutor para actualizar datos de contacto del instituto."
-          },
-          "chromeSignOut": {
-            "title": "🚪 Cerrar sesión",
-            "description": "Termina tu sesión con seguridad. Cierra sesión siempre en equipos compartidos."
+            "title": "👤 Menú de cuenta",
+            "description": "Tu perfil, los datos del alumno, el idioma y el cierre de sesión están acá."
           },
           "titleBlock": {
             "title": "📋 Título de inicio",
@@ -9637,15 +9900,15 @@
           },
           "childSwitcher": {
             "title": "👶 Selector de hijo",
-            "description": "Si tienes más de un hijo, elige de quién ves los datos antes de abrir progreso o pagos."
+            "description": "Si tenés más de un hijo, elegí en la cabecera de quién estás viendo los datos. Con un solo hijo no aparece."
           },
           "statusPillars": {
-            "title": "📊 Tarjetas de estado",
-            "description": "Tarjetas rápidas resumen asistencia, tareas o cobros.\n\nÁbrelas para profundizar."
+            "title": "🔔 Lo que requiere tu atención",
+            "description": "Cuotas vencidas, mensajes sin leer, tareas por vencer y faltas aparecen acá, primero lo más urgente.\n\nSi no hay nada, es que no hay nada."
           },
           "inbox": {
-            "title": "📨 Bandeja del inicio",
-            "description": "Mensajes recientes o avisos de cobro pueden aparecer aquí para no perder lo urgente."
+            "title": "📚 Tu hijo y la agenda",
+            "description": "Un resumen de cómo va tu hijo, el horario de clase y las novedades del instituto."
           },
           "closing": {
             "title": "✅ Listo",
@@ -9682,10 +9945,10 @@
           }
         }
       },
-      "parentProgress": {
+      "parentChild": {
         "meta": {
-          "title": "Progreso",
-          "description": "Progreso de aprendizaje del niño activo."
+          "title": "Mi hijo",
+          "description": "Cómo viene tu hijo: asistencia, notas, comentarios, tareas y logros."
         },
         "doneBtn": "Listo",
         "nextBtn": "Siguiente",
@@ -9694,8 +9957,153 @@
         "progressText": "{{current}} de {{total}}",
         "steps": {
           "intro": {
-            "title": "📍 Progreso",
-            "description": "Progreso de aprendizaje del niño activo.\n\nPara qué sirve esta pantalla y cómo encaja en el portal familiar."
+            "title": "📍 Mi hijo",
+            "description": "Cómo viene tu hijo: asistencia, notas, comentarios, tareas y logros.\n\nPara qué sirve esta pantalla y cómo encaja en el portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma qué área familiar abriste."
+          },
+          "body": {
+            "title": "Contenido principal",
+            "description": "Usa esta zona para la información y acciones principales de la página."
+          },
+          "closing": {
+            "title": "Siguientes pasos",
+            "description": "Usa Ayuda cuando quieras, o abre una guía práctica para un objetivo concreto."
+          }
+        }
+      },
+      "parentAttendance": {
+        "meta": {
+          "title": "Asistencia",
+          "description": "Historial de clases y porcentaje del mes."
+        },
+        "doneBtn": "Listo",
+        "nextBtn": "Siguiente",
+        "prevBtn": "Atrás",
+        "closeBtn": "Cerrar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Asistencia",
+            "description": "Historial de clases y porcentaje del mes.\n\nPara qué sirve esta pantalla y cómo encaja en el portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma qué área familiar abriste."
+          },
+          "body": {
+            "title": "Tablero del calendario",
+            "description": "Navega los días y abre entradas de clase o asistencia."
+          },
+          "closing": {
+            "title": "Siguientes pasos",
+            "description": "Usa Ayuda cuando quieras, o abre una guía práctica para un objetivo concreto."
+          }
+        }
+      },
+      "parentGrades": {
+        "meta": {
+          "title": "Notas",
+          "description": "Evaluaciones del curso y mini-tests de tu hijo."
+        },
+        "doneBtn": "Listo",
+        "nextBtn": "Siguiente",
+        "prevBtn": "Atrás",
+        "closeBtn": "Cerrar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Notas",
+            "description": "Evaluaciones del curso y mini-tests de tu hijo.\n\nPara qué sirve esta pantalla y cómo encaja en el portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma qué área familiar abriste."
+          },
+          "body": {
+            "title": "Contenido principal",
+            "description": "Usa esta zona para la información y acciones principales de la página."
+          },
+          "closing": {
+            "title": "Siguientes pasos",
+            "description": "Usa Ayuda cuando quieras, o abre una guía práctica para un objetivo concreto."
+          }
+        }
+      },
+      "parentTasks": {
+        "meta": {
+          "title": "Tareas",
+          "description": "Tareas de aprendizaje del niño."
+        },
+        "doneBtn": "Listo",
+        "nextBtn": "Siguiente",
+        "prevBtn": "Atrás",
+        "closeBtn": "Cerrar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Tareas",
+            "description": "Tareas de aprendizaje del niño.\n\nPara qué sirve esta pantalla y cómo encaja en el portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma qué área familiar abriste."
+          },
+          "list": {
+            "title": "Lista de tareas",
+            "description": "Abre una tarea para ver instrucciones y fechas."
+          },
+          "closing": {
+            "title": "Siguientes pasos",
+            "description": "Usa Ayuda cuando quieras, o abre una guía práctica para un objetivo concreto."
+          }
+        }
+      },
+      "parentFeedback": {
+        "meta": {
+          "title": "Comentarios del docente",
+          "description": "Devoluciones del docente sobre el trabajo de tu hijo."
+        },
+        "doneBtn": "Listo",
+        "nextBtn": "Siguiente",
+        "prevBtn": "Atrás",
+        "closeBtn": "Cerrar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Comentarios del docente",
+            "description": "Devoluciones del docente sobre el trabajo de tu hijo.\n\nPara qué sirve esta pantalla y cómo encaja en el portal familiar."
+          },
+          "title": {
+            "title": "Título",
+            "description": "Confirma qué área familiar abriste."
+          },
+          "body": {
+            "title": "Tablero del calendario",
+            "description": "Navega los días y abre entradas de clase o asistencia."
+          },
+          "closing": {
+            "title": "Siguientes pasos",
+            "description": "Usa Ayuda cuando quieras, o abre una guía práctica para un objetivo concreto."
+          }
+        }
+      },
+      "parentBadges": {
+        "meta": {
+          "title": "Insignias",
+          "description": "Logros obtenidos por tu hijo."
+        },
+        "doneBtn": "Listo",
+        "nextBtn": "Siguiente",
+        "prevBtn": "Atrás",
+        "closeBtn": "Cerrar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "📍 Insignias",
+            "description": "Logros obtenidos por tu hijo.\n\nPara qué sirve esta pantalla y cómo encaja en el portal familiar."
           },
           "title": {
             "title": "Título",
@@ -9773,10 +10181,10 @@
           }
         }
       },
-      "parentSettings": {
+      "parentAccount": {
         "meta": {
-          "title": "Ajustes",
-          "description": "Preferencias y atajos de perfil."
+          "title": "Cuenta",
+          "description": "Tu perfil, el idioma y la sesión."
         },
         "doneBtn": "Listo",
         "nextBtn": "Siguiente",
@@ -9785,8 +10193,8 @@
         "progressText": "{{current}} de {{total}}",
         "steps": {
           "intro": {
-            "title": "📍 Ajustes",
-            "description": "Preferencias y atajos de perfil.\n\nPara qué sirve esta pantalla y cómo encaja en el portal familiar."
+            "title": "📍 Cuenta",
+            "description": "Tu perfil, el idioma y la sesión.\n\nPara qué sirve esta pantalla y cómo encaja en el portal familiar."
           },
           "title": {
             "title": "Título",
@@ -9841,93 +10249,6 @@
           "intro": {
             "title": "📍 Facturación",
             "description": "Historial y estados de cuenta.\n\nPara qué sirve esta pantalla y cómo encaja en el portal familiar."
-          },
-          "title": {
-            "title": "Título",
-            "description": "Confirma qué área familiar abriste."
-          },
-          "body": {
-            "title": "Contenido principal",
-            "description": "Usa esta zona para la información y acciones principales de la página."
-          },
-          "closing": {
-            "title": "Siguientes pasos",
-            "description": "Usa Ayuda cuando quieras, o abre una guía práctica para un objetivo concreto."
-          }
-        }
-      },
-      "parentTasks": {
-        "meta": {
-          "title": "Tareas",
-          "description": "Tareas de aprendizaje del niño."
-        },
-        "doneBtn": "Listo",
-        "nextBtn": "Siguiente",
-        "prevBtn": "Atrás",
-        "closeBtn": "Cerrar",
-        "progressText": "{{current}} de {{total}}",
-        "steps": {
-          "intro": {
-            "title": "📍 Tareas",
-            "description": "Tareas de aprendizaje del niño.\n\nPara qué sirve esta pantalla y cómo encaja en el portal familiar."
-          },
-          "title": {
-            "title": "Título",
-            "description": "Confirma qué área familiar abriste."
-          },
-          "list": {
-            "title": "Lista de tareas",
-            "description": "Abre una tarea para ver instrucciones y fechas."
-          },
-          "closing": {
-            "title": "Siguientes pasos",
-            "description": "Usa Ayuda cuando quieras, o abre una guía práctica para un objetivo concreto."
-          }
-        }
-      },
-      "parentAssessments": {
-        "meta": {
-          "title": "Evaluaciones",
-          "description": "Pruebas y resultados."
-        },
-        "doneBtn": "Listo",
-        "nextBtn": "Siguiente",
-        "prevBtn": "Atrás",
-        "closeBtn": "Cerrar",
-        "progressText": "{{current}} de {{total}}",
-        "steps": {
-          "intro": {
-            "title": "📍 Evaluaciones",
-            "description": "Pruebas y resultados.\n\nPara qué sirve esta pantalla y cómo encaja en el portal familiar."
-          },
-          "title": {
-            "title": "Título",
-            "description": "Confirma qué área familiar abriste."
-          },
-          "body": {
-            "title": "Contenido principal",
-            "description": "Usa esta zona para la información y acciones principales de la página."
-          },
-          "closing": {
-            "title": "Siguientes pasos",
-            "description": "Usa Ayuda cuando quieras, o abre una guía práctica para un objetivo concreto."
-          }
-        }
-      },
-      "parentBadges": {
-        "meta": {
-          "title": "Insignias",
-          "description": "Logros obtenidos por tu hijo."
-        },
-        "doneBtn": "Listo",
-        "nextBtn": "Siguiente",
-        "prevBtn": "Atrás",
-        "closeBtn": "Cerrar",
-        "progressText": "{{current}} de {{total}}",
-        "steps": {
-          "intro": {
-            "title": "📍 Insignias",
-            "description": "Logros obtenidos por tu hijo.\n\nPara qué sirve esta pantalla y cómo encaja en el portal familiar."
           },
           "title": {
             "title": "Título",

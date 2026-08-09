@@ -5,15 +5,32 @@ import {
   resolveEventNonLocalPrice,
 } from "@/lib/events/resolveEventPriceTier";
 
+export interface EventPublicPackageDisplay {
+  id: string;
+  name: string;
+  price: number;
+  benefits: string[];
+  /** Null when the package has no capacity of its own. */
+  remainingSeats: number | null;
+}
+
 export type EventPublicPriceDisplay =
   | { kind: "free" }
   | { kind: "single"; amount: number; currency: string }
-  | { kind: "tiered"; localAmount: number; nonLocalAmount: number; currency: string };
+  | { kind: "tiered"; localAmount: number; nonLocalAmount: number; currency: string }
+  | { kind: "packages"; currency: string; packages: EventPublicPackageDisplay[] };
 
 export function resolveEventPublicPriceDisplay(
   source: EventPriceSource,
   currency: string,
+  activePackages: EventPublicPackageDisplay[] = [],
 ): EventPublicPriceDisplay {
+  // Package mode wins outright: in it the residency tiers no longer decide the
+  // amount, so showing them alongside would be showing a price nobody pays (D1).
+  if (activePackages.length > 0) {
+    return { kind: "packages", currency, packages: activePackages };
+  }
+
   const local = resolveEventLocalPrice(source);
   const nonLocal = resolveEventNonLocalPrice(source);
 

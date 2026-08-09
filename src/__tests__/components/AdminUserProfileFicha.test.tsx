@@ -17,6 +17,10 @@ vi.mock("@/components/molecules/AdminUserProfileTabPanels", () => ({
   AdminUserSecurityPanel: () => <div>Security panel</div>,
 }));
 
+vi.mock("@/components/molecules/AdminUserCarePanel", () => ({
+  AdminUserCarePanel: () => <div>Care panel</div>,
+}));
+
 function makeStudentDetail(
   assigned: boolean,
 ): AdminUserDetailVM {
@@ -56,7 +60,17 @@ function makeStudentDetail(
       hasMultipleCurrentAssignments: false,
     },
     familyHomeAddressPeerIds: [],
+    hasCareNotes: false,
     viewerMayInlineEdit: true,
+  };
+}
+
+function makeParentDetail(): AdminUserDetailVM {
+  return {
+    ...makeStudentDetail(false),
+    userId: "00000000-0000-4000-8000-000000000002",
+    role: "parent",
+    currentCohortAssignment: null,
   };
 }
 
@@ -107,5 +121,55 @@ describe("AdminUserProfileFicha", () => {
         name: dictEn.admin.users.detailTabPayments,
       }),
     ).toBeEnabled();
+  });
+
+  it("offers the care tab on a student file", () => {
+    render(
+      <AdminUserProfileFicha
+        locale="en"
+        labels={dictEn.admin.users}
+        billingLabels={dictEn.admin.billing}
+        detail={makeStudentDetail(true)}
+        billing={billing}
+      />,
+    );
+
+    expect(
+      screen.getByRole("tab", { name: new RegExp(dictEn.admin.users.detailTabCare) }),
+    ).toBeEnabled();
+  });
+
+  it("marks the care tab when the student has notes, without saying what they are", () => {
+    render(
+      <AdminUserProfileFicha
+        locale="en"
+        labels={dictEn.admin.users}
+        billingLabels={dictEn.admin.billing}
+        detail={{ ...makeStudentDetail(true), hasCareNotes: true }}
+        billing={billing}
+      />,
+    );
+
+    expect(
+      screen.getByRole("tab", { name: `${dictEn.admin.users.detailTabCare} !` }),
+    ).toBeInTheDocument();
+  });
+
+  it("does not offer the care tab on a guardian file", () => {
+    // `family` renders for parents too, so the care tab has to be added inside
+    // the student-only block or guardians get a tab about themselves.
+    render(
+      <AdminUserProfileFicha
+        locale="en"
+        labels={dictEn.admin.users}
+        billingLabels={dictEn.admin.billing}
+        detail={makeParentDetail()}
+        billing={null}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("tab", { name: new RegExp(dictEn.admin.users.detailTabCare) }),
+    ).not.toBeInTheDocument();
   });
 });

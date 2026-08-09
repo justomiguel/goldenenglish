@@ -18,6 +18,7 @@ import {
   parseMonthlyFeeChargeMode,
   type MonthlyFeeChargeMode,
 } from "@/lib/billing/monthlyFeeChargeMode";
+import { loadSectionBillingModes } from "@/lib/billing/loadSectionBillingModes";
 
 interface LoadOptions {
   todayYear: number;
@@ -182,6 +183,7 @@ export async function loadStudentMonthlyPaymentsView(
   );
 
   const sectionIds = [...new Set(sections.map((s) => s.sectionId))];
+  const billingModeBySection = await loadSectionBillingModes(supabase, sectionIds);
 
   let plansBySection = new Map<string, SectionFeePlan[]>();
   if (sectionIds.length > 0) {
@@ -234,6 +236,7 @@ export async function loadStudentMonthlyPaymentsView(
       lastEnrollmentPaidAt: s.lastEnrollmentPaidAt,
       monthlyFeeChargeMode: s.monthlyFeeChargeMode,
       allowAdvanceMonthlyPayment: s.allowAdvanceMonthlyPayment,
+      sectionBillingMode: billingModeBySection.get(s.sectionId) ?? null,
     }),
   );
 

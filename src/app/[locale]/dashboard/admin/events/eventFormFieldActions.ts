@@ -1,27 +1,14 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import {
-  adminEventsPath,
   requireAdminEventActor,
+  revalidateEventFormSurfaces,
   type EventMutationResult,
 } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
-
-async function revalidateEventFormSurfaces(locale: string, eventId: string): Promise<void> {
-  revalidatePath(adminEventsPath(locale), "page");
-  revalidatePath(`${adminEventsPath(locale)}/${eventId}`, "page");
-  const admin = createAdminClient();
-  const { data: slugRow } = await admin.from("events").select("slug").eq("id", eventId).maybeSingle();
-  if (slugRow?.slug) {
-    const slug = String(slugRow.slug);
-    revalidatePath(`/${locale}/events/${slug}`, "page");
-    revalidatePath(`/${locale}/events/${slug}/register`, "page");
-  }
-}
 
 export async function addEventFormFieldAction(input: {
   locale: string;

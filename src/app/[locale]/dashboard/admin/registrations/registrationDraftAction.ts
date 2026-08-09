@@ -8,6 +8,10 @@ import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { cefrLevelEnum } from "@/lib/import/studentRowSchema";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import {
+  REGISTRATION_PENDING_STATUSES,
+  registrationIsActionable,
+} from "@/lib/register/registrationIsActionable";
 
 const idZ = z.string().uuid();
 
@@ -97,13 +101,15 @@ export async function updateRegistrationDraft(
     return { ok: false, message: reg.notFound };
   }
   if (!row) return { ok: false, message: reg.notFound };
-  if (row.status !== "new") return { ok: false, message: regUi.alreadyProcessed };
+  if (!registrationIsActionable(row.status ?? "")) {
+    return { ok: false, message: regUi.alreadyProcessed };
+  }
 
   const { error } = await admin
     .from("registrations")
     .update(patch)
     .eq("id", registration_id)
-    .eq("status", "new");
+    .in("status", [...REGISTRATION_PENDING_STATUSES]);
 
   if (error) {
     logSupabaseClientError("updateRegistrationDraft:update", error, { registrationId: registration_id });

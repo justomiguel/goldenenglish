@@ -7,7 +7,7 @@ import { ParentWardProfileForm } from "@/components/parent/ParentWardProfileForm
 
 const updateWardProfile = vi.fn();
 
-vi.mock("@/app/[locale]/dashboard/parent/children/[studentId]/actions", () => ({
+vi.mock("@/app/[locale]/dashboard/parent/child/edit/actions", () => ({
   updateWardProfile: (...args: unknown[]) => updateWardProfile(...args),
 }));
 
@@ -130,5 +130,76 @@ describe("ParentWardProfileForm", () => {
     expect(screen.getByLabelText(labels.wardEmail)).toHaveValue("g@h.co");
     expect(screen.getByLabelText(labels.wardPhone)).toHaveValue("555");
     expect(screen.getByLabelText(labels.wardBirthDate)).toHaveValue("2011-06-07");
+  });
+
+  describe("care notes", () => {
+    const care = { healthNote: "Mild asthma", dietNote: null, supportNote: null };
+
+    it("shows the care fields with what is already recorded", () => {
+      render(
+        <ParentWardProfileForm
+          locale="en"
+          studentId="s1"
+          initial={initial}
+          care={care}
+          labels={labels}
+        />,
+      );
+
+      expect(screen.getByLabelText(labels.wardCareHealth)).toHaveValue("Mild asthma");
+      expect(screen.getByLabelText(labels.wardCareDiet)).toHaveValue("");
+      expect(screen.getByText(labels.wardCareLead)).toBeInTheDocument();
+    });
+
+    it("hides them from a tutor who may not read them", () => {
+      render(
+        <ParentWardProfileForm
+          locale="en"
+          studentId="s1"
+          initial={initial}
+          care={null}
+          labels={labels}
+        />,
+      );
+
+      expect(screen.queryByLabelText(labels.wardCareHealth)).not.toBeInTheDocument();
+    });
+
+    it("sends the care notes along with the rest", async () => {
+      const user = userEvent.setup();
+      updateWardProfile.mockResolvedValue({ ok: true });
+      render(
+        <ParentWardProfileForm
+          locale="en"
+          studentId="s1"
+          initial={initial}
+          care={care}
+          labels={labels}
+        />,
+      );
+
+      await user.type(screen.getByLabelText(labels.wardCareDiet), "No gluten");
+      await user.click(screen.getByRole("button", { name: labels.saveWard }));
+
+      expect(updateWardProfile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          care_health_note: "Mild asthma",
+          care_diet_note: "No gluten",
+          care_support_note: "",
+        }),
+      );
+    });
+
+    it("omits the care keys entirely when the fields are not shown", async () => {
+      const user = userEvent.setup();
+      updateWardProfile.mockResolvedValue({ ok: true });
+      render(<ParentWardProfileForm locale="en" studentId="s1" initial={initial} labels={labels} />);
+
+      await user.click(screen.getByRole("button", { name: labels.saveWard }));
+
+      // Sending empty strings here would wipe notes the tutor never saw.
+      const payload = updateWardProfile.mock.calls[0]![0] as Record<string, unknown>;
+      expect(payload).not.toHaveProperty("care_health_note");
+    });
   });
 });

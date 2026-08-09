@@ -43,6 +43,7 @@ export interface AcademicSectionPageShellBodyProps {
   /** When set, opens that area (e.g. from `?tab=evaluations`); `null`/omit = hub. */
   initialShellArea?: AcademicSectionShellAreaId | null;
   canDeleteCohortAssessments: boolean;
+  enrollmentLinkPanel?: ReactNode;
 }
 
 function countActiveEnrollments(rows: AdminSectionPageData["rows"]) {
@@ -69,6 +70,7 @@ export function AcademicSectionPageShellBody({
   assessmentsData,
   initialShellArea = null,
   canDeleteCohortAssessments,
+  enrollmentLinkPanel,
 }: AcademicSectionPageShellBodyProps) {
   const {
     shellTabLabels,
@@ -113,6 +115,8 @@ export function AcademicSectionPageShellBody({
         lifecycleDict={lifecycleDict}
         nameEditorDict={nameEditorDict}
       />
+
+      {enrollmentLinkPanel}
 
       <AcademicSectionShellWorkspace
         key={`section-shell-${featureFlags.requiresEvaluationsToPass}-${featureFlags.usesLearningRoute}`}

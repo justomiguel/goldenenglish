@@ -61,6 +61,11 @@ export function PublicEventPriceDisplay({
     );
   }
 
+  // Package pricing is a comparison between several cards, which does not fit in
+  // the meta row this component lives in. Surfaces in package mode render
+  // PublicEventPackageCards as their own block instead.
+  if (price.kind === "packages") return null;
+
   const localFormatted = formatEventMoneyAmount(price.localAmount, price.currency, locale);
   const nonLocalFormatted = formatEventMoneyAmount(price.nonLocalAmount, price.currency, locale);
 

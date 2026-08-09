@@ -8,6 +8,10 @@ import {
   resolveEventNonLocalPrice,
 } from "@/lib/events/resolveEventPriceTier";
 import { loadEventTranslations } from "@/lib/events/server/loadEventTranslations";
+import {
+  loadEventTicketPackages,
+  loadEventTicketPackageSeatsSold,
+} from "@/lib/events/server/loadEventTicketPackages";
 
 export interface PublicEventDetail {
   id: string;
@@ -28,6 +32,22 @@ export interface PublicEventDetail {
   bankTransferInstructions: string | null;
   collectBirthDate: boolean;
   fields: EventFormFieldDefinition[];
+  allowMultipleTickets: boolean;
+  maxTicketsPerRegistration: number | null;
+  companionCollectDni: boolean;
+  companionCollectBirthDate: boolean;
+  companionCollectEmail: boolean;
+  /** Non-archived packages. A non-empty list means the event is in package mode. */
+  packages: PublicEventPackage[];
+}
+
+export interface PublicEventPackage {
+  id: string;
+  name: string;
+  price: number;
+  benefits: string[];
+  /** Null when the package has no capacity of its own. */
+  remainingSeats: number | null;
 }
 
 export async function loadEventForPublicLanding(
@@ -38,7 +58,7 @@ export async function loadEventForPublicLanding(
   const { data: eventRow } = await supabase
     .from("events")
     .select(
-      "id, slug, title, description, view_count, event_date, location, price, price_local, price_non_local, currency, capacity, default_locale, bank_transfer_instructions, collect_birth_date",
+      "id, slug, title, description, view_count, event_date, location, price, price_local, price_non_local, currency, capacity, default_locale, bank_transfer_instructions, collect_birth_date, allow_multiple_tickets, max_tickets_per_registration, companion_collect_dni, companion_collect_birth_date, companion_collect_email",
     )
     .eq("slug", slug)
     .eq("status", "published")
@@ -95,6 +115,20 @@ export async function loadEventForPublicLanding(
   const priceLocal = resolveEventLocalPrice(priceSource);
   const priceNonLocal = resolveEventNonLocalPrice(priceSource);
 
+  const [packageRows, seatsSold] = await Promise.all([
+    loadEventTicketPackages(supabase, String(eventRow.id)),
+    loadEventTicketPackageSeatsSold(supabase, String(eventRow.id)),
+  ]);
+
+  const packages: PublicEventPackage[] = packageRows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    price: row.price,
+    benefits: row.benefits,
+    remainingSeats:
+      row.capacity == null ? null : Math.max(0, row.capacity - (seatsSold.get(row.id) ?? 0)),
+  }));
+
   return {
     id: String(eventRow.id),
     slug: String(eventRow.slug),
@@ -117,5 +151,14 @@ export async function loadEventForPublicLanding(
         : String(eventRow.bank_transfer_instructions),
     collectBirthDate: Boolean(eventRow.collect_birth_date),
     fields,
+    allowMultipleTickets: Boolean(eventRow.allow_multiple_tickets),
+    maxTicketsPerRegistration:
+      eventRow.max_tickets_per_registration == null
+        ? null
+        : Number(eventRow.max_tickets_per_registration),
+    companionCollectDni: Boolean(eventRow.companion_collect_dni),
+    companionCollectBirthDate: Boolean(eventRow.companion_collect_birth_date),
+    companionCollectEmail: Boolean(eventRow.companion_collect_email),
+    packages,
   };
 }

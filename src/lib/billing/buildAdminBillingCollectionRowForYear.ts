@@ -64,6 +64,8 @@ export interface BuildAdminBillingCollectionRowForYearInput {
   calendarTodayMonth: number;
   /** Matrix: months where an annual settlement replaces % scholarship in displayed math. */
   annualSettlementCoverage?: ReadonlySet<number> | null;
+  /** `academic_sections.billing_mode` crudo. `class_pack` ⇒ ningún mes se cobra como cuota. */
+  sectionBillingMode?: string | null;
 }
 
 /**
@@ -96,5 +98,6 @@ export function buildAdminBillingCollectionRowForYear(
     enrollmentFeeReceiptSignedUrl: input.enrollmentFeeReceiptSignedUrl,
     lastEnrollmentPaidAt: input.lastEnrollmentPaidAt,
     annualSettlementCoverage: input.annualSettlementCoverage ?? null,
+    sectionBillingMode: input.sectionBillingMode ?? null,
   });
 }

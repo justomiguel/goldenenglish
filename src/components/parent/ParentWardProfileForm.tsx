@@ -4,10 +4,11 @@ import { type FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, Save } from "lucide-react";
-import { updateWardProfile } from "@/app/[locale]/dashboard/parent/children/[studentId]/actions";
+import { updateWardProfile } from "@/app/[locale]/dashboard/parent/child/edit/actions";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
+import { ParentWardCareNotesFields } from "@/components/parent/ParentWardCareNotesFields";
 import type { Dictionary } from "@/types/i18n";
 import { trackEvent } from "@/lib/analytics/trackClient";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
@@ -22,6 +23,12 @@ export interface ParentWardProfileFormProps {
     phone: string | null;
     birth_date: string | null;
   };
+  /** Omitted when the tutor may not read the ward's care notes. */
+  care?: {
+    healthNote: string | null;
+    dietNote: string | null;
+    supportNote: string | null;
+  } | null;
   labels: Dictionary["dashboard"]["parent"];
 }
 
@@ -29,6 +36,7 @@ export function ParentWardProfileForm({
   locale,
   studentId,
   initial,
+  care = null,
   labels,
 }: ParentWardProfileFormProps) {
   const [firstName, setFirstName] = useState(initial.first_name);
@@ -39,6 +47,9 @@ export function ParentWardProfileForm({
     initial.birth_date ? String(initial.birth_date).slice(0, 10) : "",
   );
   const [parentPassword, setParentPassword] = useState("");
+  const [careHealth, setCareHealth] = useState(care?.healthNote ?? "");
+  const [careDiet, setCareDiet] = useState(care?.dietNote ?? "");
+  const [careSupport, setCareSupport] = useState(care?.supportNote ?? "");
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -63,6 +74,15 @@ export function ParentWardProfileForm({
         phone,
         birth_date: birth,
         parentPassword: emailChanging ? parentPassword : undefined,
+        // Only sent when the fields are on screen; the action treats absent as
+        // "leave the care notes alone".
+        ...(care
+          ? {
+              care_health_note: careHealth,
+              care_diet_note: careDiet,
+              care_support_note: careSupport,
+            }
+          : {}),
       });
       if (res.ok) {
         setMsg(labels.wardSaved);
@@ -172,6 +192,17 @@ export function ParentWardProfileForm({
             className="mt-1 w-full"
           />
         </div>
+        {care ? (
+          <ParentWardCareNotesFields
+            labels={labels}
+            careHealth={careHealth}
+            careDiet={careDiet}
+            careSupport={careSupport}
+            onCareHealthChange={setCareHealth}
+            onCareDietChange={setCareDiet}
+            onCareSupportChange={setCareSupport}
+          />
+        ) : null}
         {err ? (
           <p className="text-sm text-[var(--color-error)]" role="alert">
             {err}

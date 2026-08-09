@@ -3,8 +3,10 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getBrandForRequest } from "@/lib/brand/server";
-import { ParentDashboardShell } from "@/components/dashboard/ParentDashboardShell";
+import { PortalShell } from "@/components/portal/PortalShell";
+import { buildParentShellConfig } from "@/lib/portal/buildParentShellConfig";
 import { loadParentFocusCatalog } from "@/lib/parent/loadParentFocusCatalog";
+import { resolveParentFocus } from "@/lib/parent/resolveParentFocus";
 
 interface LayoutProps {
   children: ReactNode;
@@ -32,15 +34,26 @@ export default async function ParentDashboardLayout({
   if (profile?.role !== "parent") redirect(`/${locale}/dashboard`);
 
   const focusCatalog = await loadParentFocusCatalog(supabase, user.id);
+  // Layouts cannot read `searchParams`; the shell only needs a default, and the
+  // chips reconcile against the URL on the client.
+  const defaultFocus = resolveParentFocus(focusCatalog, {
+    studentId: null,
+    sectionId: null,
+  });
+
+  const config = buildParentShellConfig({
+    locale,
+    baseHref: `/${locale}/dashboard/parent`,
+    dict,
+    includePayments: true,
+    focusCatalog,
+    activeStudentId: defaultFocus.studentId,
+    activeSectionId: defaultFocus.sectionId,
+  });
 
   return (
-    <ParentDashboardShell
-      locale={locale}
-      dict={dict}
-      brand={brand}
-      focusCatalog={focusCatalog}
-    >
+    <PortalShell locale={locale} dict={dict} brand={brand} config={config}>
       {children}
-    </ParentDashboardShell>
+    </PortalShell>
   );
 }

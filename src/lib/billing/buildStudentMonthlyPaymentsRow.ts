@@ -18,6 +18,7 @@ import {
   type BuildStudentMonthlyPaymentsRowInput,
 } from "@/lib/billing/studentMonthlyPaymentsRowModel";
 import { parseMonthlyFeeChargeMode } from "@/lib/billing/monthlyFeeChargeMode";
+import { sectionIsClassPackBilled } from "@/lib/billing/sectionBillingMode";
 
 export type { StudentMonthlyPaymentRecord, BuildStudentMonthlyPaymentsRowInput };
 
@@ -55,8 +56,13 @@ export function buildStudentMonthlyPaymentsRow(
     billingScope = "operational-window",
     annualSettlementCoverage = null,
     monthlyFeeChargeMode: monthlyFeeChargeModeInput,
+    sectionBillingMode,
   } = input;
   const monthlyFeeChargeMode = parseMonthlyFeeChargeMode(monthlyFeeChargeModeInput);
+  // A class-pack section has no monthly fee at all, so its fee plans are ignored rather than resolved:
+  // switching a section to packs does not delete the old `section_fee_plans` rows, and honouring them here
+  // would keep showing months as `due` with an amount nobody can legitimately be charged.
+  const billsMonthlyFee = !sectionIsClassPackBilled(sectionBillingMode);
   const cells: StudentMonthlyPaymentCell[] = [];
   const year = todayYear;
   const paymentByMonth = new Map<number, StudentMonthlyPaymentRecord>();
@@ -71,7 +77,7 @@ export function buildStudentMonthlyPaymentsRow(
   const enrolmentFrom = parseUtcDate(studentEnrolledAt);
 
   for (let m = 1; m <= 12; m++) {
-    const plan = resolveEffectiveSectionFeePlan(plans, year, m);
+    const plan = billsMonthlyFee ? resolveEffectiveSectionFeePlan(plans, year, m) : null;
     const monthRange = monthBounds(year, m);
     const sectionInMonth = sectionRange ? intersectDateRange(sectionRange, monthRange) : null;
     const totalClasses = sectionInMonth
@@ -178,7 +184,9 @@ export function buildStudentMonthlyPaymentsRow(
       isCurrent: m === todayMonth && year === todayYear,
     });
   }
-  const currentPlan = resolveEffectiveSectionFeePlan(plans, todayYear, todayMonth);
+  const currentPlan = billsMonthlyFee
+    ? resolveEffectiveSectionFeePlan(plans, todayYear, todayMonth)
+    : null;
   const enrollmentFeeAmount = Number.isFinite(sectionEnrollmentFeeAmount)
     ? Math.max(0, sectionEnrollmentFeeAmount)
     : 0;

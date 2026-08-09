@@ -6,6 +6,7 @@ import type { SectionAttendanceStatusDb } from "@/types/sectionAcademics";
 import type { TeacherAttendanceMatrixCells, TeacherAttendanceMatrixRow } from "@/types/teacherAttendanceMatrix";
 import { cyclePatAdmin, cyclePatTeacher } from "@/lib/academics/attendanceMatrixCellCycle";
 import type { AttendanceMatrixAutosaveVariant } from "@/hooks/useAttendanceMatrixAutosave";
+import { StudentCareBadge } from "@/components/molecules/StudentCareBadge";
 
 const STATUS_SURFACE: Record<"present" | "absent" | "late", string> = {
   present: "bg-[var(--color-success)]/90 text-[var(--color-primary-foreground)] border-[var(--color-success)]",
@@ -47,7 +48,10 @@ export function TeacherAttendanceMatrixGridRow({
         scope="row"
         className="sticky left-0 z-[1] bg-[var(--color-surface)] px-2 py-2 text-left text-xs font-medium text-[var(--color-foreground)]"
       >
-        {row.studentLabel}
+        <span className="inline-flex items-center gap-1.5">
+          {row.studentLabel}
+          {row.hasCareNotes ? <StudentCareBadge label={dict.careBadge} /> : null}
+        </span>
       </th>
       {classDays.map((d) => {
         const navigable = Object.prototype.hasOwnProperty.call(cells[row.enrollmentId] ?? {}, d);

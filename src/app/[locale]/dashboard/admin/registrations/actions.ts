@@ -8,3 +8,7 @@ export {
   type RegistrationDraftInput,
   type RegistrationDraftPayload,
 } from "./registrationDraftAction";
+export {
+  markRegistrationContacted,
+  revertRegistrationToNew,
+} from "./registrationStatusAction";

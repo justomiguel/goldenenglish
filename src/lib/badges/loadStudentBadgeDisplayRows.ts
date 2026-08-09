@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { noteReadFailure, type LoadErrorReporter } from "@/lib/logging/noteReadFailure";
 import { loadActiveBadgeCatalog } from "@/lib/badges/loadBadgeCatalog";
 import { loadStudentBadgeEvaluationData } from "@/lib/badges/loadStudentBadgeEvaluationData";
 import {
@@ -14,6 +14,7 @@ import type { StudentBadgeRowModel } from "@/types/studentBadges";
 export async function loadStudentBadgeDisplayRows(
   studentId: string,
   shareUrlForToken: (token: string) => string,
+  onLoadError?: LoadErrorReporter,
 ): Promise<StudentBadgeRowModel[]> {
   const admin = createAdminClient();
   const [grantsRes, catalog, ctx] = await Promise.all([
@@ -26,9 +27,12 @@ export async function loadStudentBadgeDisplayRows(
     loadStudentBadgeEvaluationData(studentId),
   ]);
 
-  if (grantsRes.error) {
-    logSupabaseClientError("loadStudentBadgeDisplayRows:grants", grantsRes.error, { studentId });
-  }
+  noteReadFailure(
+    "loadStudentBadgeDisplayRows:grants",
+    grantsRes.error,
+    { studentId },
+    onLoadError,
+  );
 
   const grants = (grantsRes.data ?? []) as BadgeGrantRow[];
 

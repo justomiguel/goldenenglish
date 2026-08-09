@@ -7,6 +7,10 @@ export interface AdminEventsListAggregates {
   totalUpcoming: number;
   totalAttendees: number;
   totalWaitlist: number;
+  /** People who signed up. A multi-ticket purchase counts once. */
+  totalRegistrations: number;
+  /** Seats taken. A multi-ticket purchase counts once per ticket. */
+  totalSeats: number;
 }
 
 const EMPTY: AdminEventsListAggregates = {
@@ -15,6 +19,8 @@ const EMPTY: AdminEventsListAggregates = {
   totalUpcoming: 0,
   totalAttendees: 0,
   totalWaitlist: 0,
+  totalRegistrations: 0,
+  totalSeats: 0,
 };
 
 export async function loadAdminEventsListAggregates(
@@ -38,5 +44,7 @@ export async function loadAdminEventsListAggregates(
     totalUpcoming: Number(row.total_upcoming ?? 0),
     totalAttendees: Number(row.total_attendees ?? 0),
     totalWaitlist: Number(row.total_waitlist ?? 0),
+    totalRegistrations: Number(row.total_registrations ?? 0),
+    totalSeats: Number(row.total_seats ?? 0),
   };
 }

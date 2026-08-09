@@ -8,6 +8,7 @@ import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels"
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { AdminUserDetailPanel } from "@/components/dashboard/AdminUserDetailPanel";
+import type { StudentCareNotes } from "@/lib/students/care/loadStudentCareNotes";
 
 type UserLabels = Dictionary["admin"]["users"];
 type BillingLabels = Dictionary["admin"]["billing"];
@@ -19,6 +20,7 @@ export interface AdminUserDetailDesktopProps {
   detail: AdminUserDetailVM;
   billing: AdminStudentBillingTabData | null;
   fileUploadProgress: FileUploadProgressLabels;
+  care?: StudentCareNotes | null;
 }
 
 export function AdminUserDetailDesktop({
@@ -28,6 +30,7 @@ export function AdminUserDetailDesktop({
   detail,
   billing,
   fileUploadProgress,
+  care = null,
 }: AdminUserDetailDesktopProps) {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -47,6 +50,7 @@ export function AdminUserDetailDesktop({
         billingLabels={billingLabels}
         billing={billing}
         fileUploadProgress={fileUploadProgress}
+        care={care}
       />
     </div>
   );

@@ -44,6 +44,17 @@ describe("validateStudentSectionMonthlySlot", () => {
     expect(r).toEqual({ ok: false, reason: "out_of_period" });
   });
 
+  // REGRESSION CHECK: this file now relies on `plan.code !== "ok"` forwarding the code as the reason.
+  // A class-pack section must never reach the advance-window check or produce a charge, because its
+  // money lives in `student_class_packs`, not in `payments`.
+  it("refuses a section billed by class packs instead of charging a monthly fee", async () => {
+    mockEnrolled.mockResolvedValue(true);
+    mockPlan.mockResolvedValue({ code: "class_pack_section" });
+    const r = await validateStudentSectionMonthlySlot(supabase, input);
+    expect(r).toEqual({ ok: false, reason: "class_pack_section" });
+    expect(mockAdvance).not.toHaveBeenCalled();
+  });
+
   it("returns month_exempt when the effective amount is zero", async () => {
     mockEnrolled.mockResolvedValue(true);
     mockPlan.mockResolvedValue({ code: "ok", amount: 0, currency: "CLP" });

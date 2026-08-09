@@ -20,6 +20,7 @@ import {
   type StudentPromotionDbRow,
 } from "@/lib/billing/loadAdminSectionCollectionsViewQueries";
 import { activePromotionLabel } from "@/lib/billing/studentPromotionStatus";
+import { loadSectionBillingModes } from "@/lib/billing/loadSectionBillingModes";
 import type { EnrollmentFeeReceiptStatus } from "@/types/studentMonthlyPayments";
 
 function normalizeEnrollmentReceiptStatus(
@@ -47,10 +48,12 @@ export async function loadAdminSectionCollectionsView(
   const meta = await loadSectionMeta(supabase, sectionId);
   if (!meta) return null;
 
-  const [enrollments, plans] = await Promise.all([
+  const [enrollments, plans, billingModes] = await Promise.all([
     loadActiveEnrollments(supabase, sectionId),
     loadActivePlans(supabase, sectionId),
+    loadSectionBillingModes(supabase, [sectionId]),
   ]);
+  const sectionBillingMode = billingModes.get(sectionId) ?? null;
   const studentIds = enrollments.map((e) => e.student_id);
   const enrolledAtByStudent = new Map<string, string | null>();
   const enrollmentByStudent = new Map<string, (typeof enrollments)[number]>();
@@ -75,6 +78,7 @@ export async function loadAdminSectionCollectionsView(
       sectionEnrollmentFeeAmount: meta.enrollmentFeeAmount,
       monthlyFeeChargeMode: meta.monthlyFeeChargeMode,
       allowAdvanceMonthlyPayment: meta.allowAdvanceMonthlyPayment,
+      sectionBillingMode,
     });
   }
 
@@ -188,6 +192,7 @@ export async function loadAdminSectionCollectionsView(
     scheduleSlots: meta.scheduleSlots,
     sectionEnrollmentFeeAmount: meta.enrollmentFeeAmount,
     monthlyFeeChargeMode: meta.monthlyFeeChargeMode,
+    sectionBillingMode,
   });
 }
 

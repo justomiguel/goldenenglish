@@ -79,17 +79,17 @@ describe("startParentTutorial", () => {
     expect(runParentDriverTour).not.toHaveBeenCalled();
   });
 
-  it("navigates to progress?tab=badges when the tab differs", async () => {
+  it("navigates to the badges route when standing on a sibling child section", async () => {
     const push = vi.fn();
     await startParentTutorial({
       id: "parent-badges-overview",
       locale: "es",
-      pathname: "/es/dashboard/parent/progress?tab=tasks",
+      pathname: "/es/dashboard/parent/child/tasks",
       surface: "desktop",
       toursDict: toursDict(["parent-badges-overview"]),
       push,
     });
-    expect(push).toHaveBeenCalledWith("/es/dashboard/parent/progress?tab=badges");
+    expect(push).toHaveBeenCalledWith("/es/dashboard/parent/child/badges");
     expect(waitForSelector).toHaveBeenCalled();
     expect(runParentDriverTour).toHaveBeenCalled();
     expect(trackEvent).toHaveBeenCalledWith(
@@ -104,7 +104,7 @@ describe("startParentTutorial", () => {
     await startParentTutorial({
       id: "parent-settings-notifications",
       locale: "es",
-      pathname: "/es/dashboard/parent/settings",
+      pathname: "/es/dashboard/parent/child/edit",
       surface: "desktop",
       toursDict: toursDict(["parent-settings-notifications"]),
       push,
@@ -125,7 +125,7 @@ describe("startParentTutorial", () => {
       toursDict: toursDict(["parent-view-child-progress"]),
       push,
     });
-    expect(push).toHaveBeenCalledWith("/es/dashboard/parent/progress");
+    expect(push).toHaveBeenCalledWith("/es/dashboard/parent/child");
     expect(logClientWarn).toHaveBeenCalledWith(
       "parent.tutorials.task",
       expect.objectContaining({ reason: "anchor_timeout" }),
@@ -159,7 +159,7 @@ describe("startParentTutorial", () => {
       push,
       defaultStudentId: "stu-1",
     });
-    expect(push).toHaveBeenCalledWith("/es/dashboard/parent/children/stu-1");
+    expect(push).toHaveBeenCalledWith("/es/dashboard/parent/child/edit?studentId=stu-1");
   });
 
   it("fires complete/skip analytics from driver callbacks", async () => {

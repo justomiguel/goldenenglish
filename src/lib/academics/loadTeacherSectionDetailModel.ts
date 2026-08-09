@@ -54,11 +54,18 @@ export async function loadTeacherSectionDetailModel(
 
   const { data: enrollments } = await supabase
     .from("section_enrollments")
-    .select("id, status, student_id, profiles!student_id(first_name,last_name,avatar_url)")
+    .select(
+      "id, status, student_id, profiles!student_id(first_name,last_name,avatar_url,has_care_notes)",
+    )
     .eq("section_id", sectionId)
     .order("created_at", { ascending: false });
 
-  type ProfileJoin = { first_name: string; last_name: string; avatar_url: string | null };
+  type ProfileJoin = {
+    first_name: string;
+    last_name: string;
+    avatar_url: string | null;
+    has_care_notes?: boolean | null;
+  };
   const rawList =
     (enrollments ?? []).map((raw) => {
       const r = raw as {
@@ -76,6 +83,7 @@ export async function loadTeacherSectionDetailModel(
         label,
         status: r.status,
         avatarRaw: p?.avatar_url?.trim() ? p.avatar_url.trim() : null,
+        hasCareNotes: p?.has_care_notes === true,
         _p: p,
       };
     }) ?? [];
@@ -102,6 +110,7 @@ export async function loadTeacherSectionDetailModel(
     label: r.label,
     status: r.status,
     avatarDisplayUrl: r.avatarRaw ? (resolvedMap.get(r.avatarRaw) ?? null) : null,
+    hasCareNotes: r.hasCareNotes,
   }));
 
   const { data: pendingRows } = await supabase

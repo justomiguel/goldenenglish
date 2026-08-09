@@ -61,7 +61,6 @@ function toHomeCopy(entry: ScreenTourDictEntry): ExplainParentHomeTourCopy {
     tabBar: s.tabBar,
     chromeHeader: s.chromeHeader,
     chromeProfile: s.chromeProfile,
-    chromeSignOut: s.chromeSignOut,
     titleBlock: s.titleBlock,
     childSwitcher: s.childSwitcher,
     statusPillars: s.statusPillars,

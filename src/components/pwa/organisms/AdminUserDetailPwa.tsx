@@ -10,6 +10,7 @@ import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import { AdminUserDetailPanel } from "@/components/dashboard/AdminUserDetailPanel";
+import type { StudentCareNotes } from "@/lib/students/care/loadStudentCareNotes";
 
 type UserLabels = Dictionary["admin"]["users"];
 type BillingLabels = Dictionary["admin"]["billing"];
@@ -22,6 +23,7 @@ export interface AdminUserDetailPwaProps {
   detail: AdminUserDetailVM;
   billing: AdminStudentBillingTabData | null;
   fileUploadProgress: FileUploadProgressLabels;
+  care?: StudentCareNotes | null;
 }
 
 export function AdminUserDetailPwa({
@@ -32,6 +34,7 @@ export function AdminUserDetailPwa({
   detail,
   billing,
   fileUploadProgress,
+  care = null,
 }: AdminUserDetailPwaProps) {
   return (
     <PwaPageShell surface={surface}>
@@ -53,6 +56,7 @@ export function AdminUserDetailPwa({
             billingLabels={billingLabels}
             billing={billing}
             fileUploadProgress={fileUploadProgress}
+            care={care}
           />
         </div>
       </div>

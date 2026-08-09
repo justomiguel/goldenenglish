@@ -22,6 +22,8 @@ export type ProgressSection = {
   count: number;
   /** One stable key per item; drives the unread comparison against what this device has seen. */
   itemKeys: string[];
+  /** The read behind this section came back short, so an empty list means "unknown", not "nothing". */
+  failed?: boolean;
 };
 
 export type BuildProgressSectionsInput = {
@@ -30,6 +32,8 @@ export type BuildProgressSectionsInput = {
   assessments: StudentMiniTestAssessment[];
   feedback: ParentFeedbackTimeline;
   badgeRows: StudentBadgeRowModel[];
+  /** Sections whose server read failed; they stay offered so the family can retry them. */
+  failedSections?: ProgressSectionId[];
 };
 
 /**
@@ -63,7 +67,11 @@ export function buildProgressSections(input: BuildProgressSectionsInput): Progre
     earnedBadgesSection(input.badgeRows),
   ];
 
-  return candidates.filter((section) => section.count > 0);
+  const failed = new Set(input.failedSections ?? []);
+
+  return candidates
+    .map((section) => (failed.has(section.id) ? { ...section, failed: true } : section))
+    .filter((section) => section.count > 0 || section.failed);
 }
 
 /** Locked catalog rows ship with every response, so only earned grants count as content. */

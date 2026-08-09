@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { TeacherSectionCard } from "@/components/molecules/TeacherSectionCard";
+import { SectionEnrollmentLinkCopyButton } from "@/components/molecules/SectionEnrollmentLinkCopyButton";
+import { clientAbsoluteUrl } from "@/lib/client/publicUrl";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { formatAcademicScheduleSummary } from "@/lib/academics/formatAcademicScheduleSummary";
 import { loadTeacherSectionIdsForUser } from "@/lib/academics/loadTeacherSectionIdsForUser";
@@ -83,6 +85,17 @@ export default async function TeacherSectionsPage({ params }: PageProps) {
     }
   }
 
+  const linkLabels = dict.dashboard.sectionEnrollmentLink;
+  const enrollmentLinksBySection = new Map<string, { token: string; is_active: boolean }>();
+  const { data: linkRows } = await supabase.rpc("section_enrollment_links_for_staff");
+  for (const row of linkRows ?? []) {
+    const sectionId = String((row as { section_id: string }).section_id);
+    enrollmentLinksBySection.set(sectionId, {
+      token: String((row as { token: string }).token),
+      is_active: (row as { is_active: boolean }).is_active === true,
+    });
+  }
+
   return (
     <div className="space-y-6">
       <header>
@@ -93,7 +106,13 @@ export default async function TeacherSectionsPage({ params }: PageProps) {
         <p className="text-sm text-[var(--color-muted-foreground)]">{d.noSections}</p>
       ) : (
         <ul className="grid list-none grid-cols-1 gap-4 sm:grid-cols-2">
-          {sectionList.map((s) => (
+          {sectionList.map((s) => {
+            const link = enrollmentLinksBySection.get(s.id);
+            const copyUrl =
+              link?.is_active && link.token
+                ? clientAbsoluteUrl(`/${locale}/i/${link.token}`)
+                : null;
+            return (
             <li key={s.id}>
               <TeacherSectionCard
                 locale={locale}
@@ -104,9 +123,18 @@ export default async function TeacherSectionsPage({ params }: PageProps) {
                 activeStudentCount={activeBySection.get(s.id) ?? 0}
                 accessRole={s.accessRole}
                 dict={d}
+                copyLinkSlot={
+                  copyUrl ? (
+                    <SectionEnrollmentLinkCopyButton
+                      url={copyUrl}
+                      labels={{ copy: linkLabels.copy, copied: linkLabels.copied }}
+                    />
+                  ) : null
+                }
               />
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </div>

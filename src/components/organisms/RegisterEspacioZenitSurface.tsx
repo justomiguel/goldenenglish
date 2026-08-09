@@ -4,6 +4,7 @@ import { LogIn } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import type { Dictionary } from "@/types/i18n";
+import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { resolveEspacioZenitHeaderLogo } from "@/lib/landing/resolveEspacioZenitHeaderLogo";
 import { RegisterForm } from "@/components/register/RegisterForm";
@@ -16,6 +17,7 @@ export interface RegisterEspacioZenitSurfaceProps {
   brand: BrandPublic;
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
+  enrollmentLink?: SectionEnrollmentLinkContext;
   mediaMap?: LandingMediaMap;
 }
 
@@ -26,6 +28,7 @@ export function RegisterEspacioZenitSurface({
   legalAgeMajority,
   sectionOptions,
   mediaMap,
+  enrollmentLink,
 }: RegisterEspacioZenitSurfaceProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveEspacioZenitHeaderLogo(brand, mediaMap);
@@ -87,6 +90,7 @@ export function RegisterEspacioZenitSurface({
               dict={dict.register}
               legalAgeMajority={legalAgeMajority}
               sectionOptions={sectionOptions}
+              enrollmentLink={enrollmentLink}
             />
           </div>
 

@@ -1,38 +1,22 @@
 "use client";
 
+import { Fragment } from "react";
 import { AdminRegistrationAcceptModal } from "@/components/dashboard/AdminRegistrationAcceptModal";
-import type { RegistrationAcceptUserLabels } from "@/components/dashboard/AdminRegistrationAcceptForm";
 import { AdminRegistrationDeleteModal } from "@/components/dashboard/AdminRegistrationDeleteModal";
 import { AdminRegistrationEditModal } from "@/components/dashboard/AdminRegistrationEditModal";
+import { AdminRegistrationExpandedDetails } from "@/components/dashboard/AdminRegistrationExpandedDetails";
 import { AdminRegistrationTableRow } from "@/components/dashboard/AdminRegistrationTableRow";
 import { RegistrationListToolbar } from "@/components/molecules/RegistrationListToolbar";
 import { UniversalListView } from "@/components/organisms/UniversalListView";
 import { useAdminRegistrationsList } from "@/hooks/useAdminRegistrationsList";
+import { resolveRegistrationContact } from "@/lib/register/resolveRegistrationContact";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
-import type { Dictionary } from "@/types/i18n";
-import type { AdminRegistrationRow } from "@/types/adminRegistration";
-import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
-import type { RegistrationSortKey, RegistrationSortDir } from "@/lib/dashboard/adminRegistrationsSort";
+import type { AdminRegistrationsTableDesktopProps } from "./AdminRegistrationsTableDesktop.types";
 
-type RegLabels = Dictionary["admin"]["registrations"];
-type TableLabels = Dictionary["admin"]["table"];
-
-interface AdminRegistrationsTableDesktopProps {
-  locale: string;
-  rows: AdminRegistrationRow[];
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  searchQuery: string;
-  sortKey: RegistrationSortKey;
-  sortDir: RegistrationSortDir;
-  legalAgeMajority: number;
-  labels: RegLabels;
-  tableLabels: TableLabels;
-  userLabels: RegistrationAcceptUserLabels;
-  currentCohortSections?: CurrentCohortSection[];
-  currentCohortName?: string;
-}
+export type {
+  AdminRegistrationsTableDesktopProps,
+  RegistrationStatusCounts,
+} from "./AdminRegistrationsTableDesktop.types";
 
 export function AdminRegistrationsTableDesktop({
   locale,
@@ -43,7 +27,11 @@ export function AdminRegistrationsTableDesktop({
   searchQuery,
   sortKey,
   sortDir,
+  statusFilter,
+  statusCounts,
   legalAgeMajority,
+  instituteName,
+  instituteCountry,
   labels,
   tableLabels,
   userLabels,
@@ -59,10 +47,13 @@ export function AdminRegistrationsTableDesktop({
     searchQuery,
     sortKey,
     sortDir,
+    statusFilter,
     labels,
   });
   const hdr =
     "px-3 py-2 text-xs uppercase text-[var(--color-muted-foreground)]";
+  const sectionNameById = new Map((currentCohortSections ?? []).map((s) => [s.id, s.name]));
+  const COLUMN_COUNT = 9;
 
   return (
     <div className="mt-8 space-y-4">
@@ -84,18 +75,21 @@ export function AdminRegistrationsTableDesktop({
             onQueryChange={u.setFilterQueryAndResetPage}
             totalCount={totalCount}
             filteredCount={totalCount}
+            statusFilter={statusFilter}
+            statusCounts={statusCounts}
+            onStatusFilterChange={u.setStatusFilter}
+            locale={locale}
           />
         }
+        leadingHeader={<th scope="col" className="w-10 px-2 py-2" aria-hidden />}
         columns={[
           { id: "name", label: labels.name, thClassName: hdr },
           { id: "dni", label: labels.dni, thClassName: hdr },
-          { id: "email", label: labels.email, thClassName: hdr },
+          // Phones live on the row but have no server sort, so the header stays inert.
+          { id: "phoneStudent", label: labels.phoneStudent, thClassName: hdr, sortable: false },
+          { id: "phoneTutor", label: labels.phoneTutor, thClassName: hdr, sortable: false },
           { id: "level", label: labels.level, thClassName: hdr },
-          {
-            id: "birth",
-            label: labels.birthDate,
-            thClassName: `${hdr} min-w-0`,
-          },
+          { id: "status", label: labels.status, thClassName: hdr },
           { id: "received", label: labels.received, thClassName: hdr },
         ]}
         sortKey={u.sortKey}
@@ -138,29 +132,57 @@ export function AdminRegistrationsTableDesktop({
         tableOverflow="hidden"
         colgroup={
           <colgroup>
+            <col style={{ width: "4%" }} />
             <col style={{ width: "15%" }} />
+            <col style={{ width: "9%" }} />
+            <col style={{ width: "15%" }} />
+            <col style={{ width: "15%" }} />
+            <col style={{ width: "8%" }} />
             <col style={{ width: "10%" }} />
-            <col style={{ width: "24%" }} />
-            <col style={{ width: "10%" }} />
-            <col style={{ width: "11%" }} />
-            <col style={{ width: "14%" }} />
-            <col style={{ width: "16%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
           </colgroup>
         }
       >
-        {u.pageRows.map((r) => (
-          <AdminRegistrationTableRow
-            key={r.id}
-            locale={locale}
-            r={r}
-            busy={u.busyId === r.id}
-            labels={labels}
-            statusLabel={u.statusLabel}
-            onAccept={u.setAcceptRow}
-            onEdit={u.setEditRow}
-            onDelete={u.setDeleteRow}
-          />
-        ))}
+        {u.pageRows.map((r) => {
+          const contact = resolveRegistrationContact(r, {
+            legalAgeMajority,
+            country: instituteCountry,
+          });
+          return (
+            <Fragment key={r.id}>
+              <AdminRegistrationTableRow
+                locale={locale}
+                r={r}
+                busy={u.busyId === r.id}
+                labels={labels}
+                statusLabel={u.statusLabel}
+                contact={contact}
+                instituteName={instituteName}
+                expanded={u.expandedId === r.id}
+                onToggleExpanded={u.toggleExpanded}
+                onAccept={u.setAcceptRow}
+                onEdit={u.setEditRow}
+                onDelete={u.setDeleteRow}
+                onMarkContacted={u.onMarkContacted}
+                onRevertToNew={u.onRevertToNew}
+              />
+              {u.expandedId === r.id ? (
+                <AdminRegistrationExpandedDetails
+                  row={r}
+                  colSpan={COLUMN_COUNT}
+                  locale={locale}
+                  labels={labels}
+                  sectionName={
+                    r.preferred_section_id
+                      ? (sectionNameById.get(r.preferred_section_id) ?? null)
+                      : null
+                  }
+                />
+              ) : null}
+            </Fragment>
+          );
+        })}
       </UniversalListView>
 
       <AdminRegistrationDeleteModal

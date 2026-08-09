@@ -5,7 +5,7 @@ import {
   type ExamAssessmentInput,
   type ExamPublishedGrade,
 } from "@/lib/parent/buildStudentExamResults";
-import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { noteReadFailure, type LoadErrorReporter } from "@/lib/logging/noteReadFailure";
 
 const SCOPE = "loadStudentExamResults";
 
@@ -17,6 +17,8 @@ const MAX_GRADES = 100;
 export interface LoadStudentExamResultsParams {
   studentId: string;
   now?: Date;
+  /** Told when a read came back short, so the screen can say so instead of showing an empty list. */
+  onLoadError?: LoadErrorReporter;
 }
 
 function toNumber(value: unknown): number | null {
@@ -34,7 +36,7 @@ function toNumber(value: unknown): number | null {
  */
 export async function loadStudentExamResults(
   supabase: SupabaseClient,
-  { studentId, now = new Date() }: LoadStudentExamResultsParams,
+  { studentId, now = new Date(), onLoadError }: LoadStudentExamResultsParams,
 ): Promise<StudentExamResult[]> {
   if (!studentId) return [];
 
@@ -44,7 +46,7 @@ export async function loadStudentExamResults(
     .eq("student_id", studentId)
     .eq("status", "active")
     .limit(MAX_ENROLLMENTS);
-  logSupabaseClientError(`${SCOPE}:enrollments`, enrollmentsError, { studentId });
+  noteReadFailure(`${SCOPE}:enrollments`, enrollmentsError, { studentId }, onLoadError);
 
   const enrollments = (enrollmentRows ?? []) as { id: string; section_id: string | null }[];
   const enrollmentIds = enrollments.map((row) => row.id);
@@ -56,7 +58,7 @@ export async function loadStudentExamResults(
     .select("id, name, cohort_id")
     .in("id", sectionIds)
     .limit(MAX_SECTIONS);
-  logSupabaseClientError(`${SCOPE}:sections`, sectionsError, { studentId });
+  noteReadFailure(`${SCOPE}:sections`, sectionsError, { studentId }, onLoadError);
 
   const sectionNameByCohortId = new Map<string, string>();
   for (const section of (sectionRows ?? []) as {
@@ -79,7 +81,7 @@ export async function loadStudentExamResults(
     .in("cohort_id", cohortIds)
     .order("assessment_on", { ascending: false })
     .limit(MAX_ASSESSMENTS);
-  logSupabaseClientError(`${SCOPE}:assessments`, assessmentsError, { studentId });
+  noteReadFailure(`${SCOPE}:assessments`, assessmentsError, { studentId }, onLoadError);
 
   const assessments: ExamAssessmentInput[] = (
     (assessmentRows ?? []) as {
@@ -105,7 +107,7 @@ export async function loadStudentExamResults(
       .eq("status", "published")
       .in("enrollment_id", enrollmentIds)
       .limit(MAX_GRADES);
-    logSupabaseClientError(`${SCOPE}:grades`, gradesError, { studentId });
+    noteReadFailure(`${SCOPE}:grades`, gradesError, { studentId }, onLoadError);
 
     for (const row of (gradeRows ?? []) as {
       assessment_id: string;

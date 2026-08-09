@@ -46,18 +46,37 @@ describe("buildParentTaskTourSteps", () => {
     ]);
   });
 
-  it("resolves target paths under parent dashboard", () => {
+  it("resolves target paths under the child route tree", () => {
     expect(parentTutorialTargetPath("parent-calendar-attendance", "es")).toBe(
-      "/es/dashboard/parent/calendar",
+      "/es/dashboard/parent/child/attendance",
     );
     expect(parentTutorialTargetPath("parent-badges-overview", "es")).toBe(
-      "/es/dashboard/parent/progress?tab=badges",
+      "/es/dashboard/parent/child/badges",
+    );
+    expect(parentTutorialTargetPath("parent-view-child-progress", "es")).toBe(
+      "/es/dashboard/parent/child",
     );
   });
 
-  it("badges overview spotlights embedded body (no title header on hub)", () => {
+  it("badges overview spotlights its own title now that it is a route", () => {
     const steps = buildParentTaskTourSteps("parent-badges-overview", chrome);
-    expect(steps.map((s) => s.anchor)).toEqual([null, PARENT_TOUR_ANCHORS.badgesBody]);
+    expect(steps.map((s) => s.anchor)).toEqual([
+      null,
+      PARENT_TOUR_ANCHORS.badgesTitle,
+      PARENT_TOUR_ANCHORS.badgesBody,
+    ]);
+  });
+
+  it("sends the notifications guide to the child form, where the channels live", () => {
+    const steps = buildParentTaskTourSteps("parent-settings-notifications", chrome);
+    expect(steps.map((s) => s.anchor)).toEqual([
+      null,
+      PARENT_TOUR_ANCHORS.childDetailTitle,
+      PARENT_TOUR_ANCHORS.childDetailBody,
+    ]);
+    expect(parentTutorialTargetPath("parent-settings-notifications", "es")).toBe(
+      "/es/dashboard/parent/child/edit",
+    );
   });
 
   it("routes manage profile task to child detail when student id is known", () => {
@@ -69,7 +88,7 @@ describe("buildParentTaskTourSteps", () => {
       PARENT_TOUR_ANCHORS.profileForm,
     ]);
     expect(parentTutorialTargetPath("parent-manage-child-or-tutor-profile", "es", { studentId })).toBe(
-      `/es/dashboard/parent/children/${studentId}`,
+      `/es/dashboard/parent/child/edit?studentId=${studentId}`,
     );
   });
 });

@@ -99,7 +99,7 @@ export async function loadAdminUserDetail(
   const { data: profile, error: pErr } = await admin
     .from("profiles")
     .select(
-      "first_name, last_name, role, phone, dni_or_passport, home_address_text, home_place_id, birth_date, age_years, assigned_teacher_id, avatar_url, created_at, is_minor",
+      "first_name, last_name, role, phone, dni_or_passport, home_address_text, home_place_id, birth_date, age_years, assigned_teacher_id, avatar_url, created_at, is_minor, has_care_notes",
     )
     .eq("id", userId)
     .single();
@@ -183,6 +183,7 @@ export async function loadAdminUserDetail(
     tutorFamilyScholarshipSections,
     currentCohortAssignment,
     familyHomeAddressPeerIds,
+    hasCareNotes: (profile as { has_care_notes?: boolean | null }).has_care_notes === true,
     viewerMayInlineEdit,
   };
 }

@@ -6,6 +6,7 @@ import {
 } from "@/lib/billing/buildCohortCollectionsMatrix";
 import { buildCohortCollectionsMatrixFromViews } from "@/lib/billing/buildCohortCollectionsMatrixFromViews";
 import { loadAdminSectionCollectionsView } from "@/lib/billing/loadAdminSectionCollectionsView";
+import { loadSectionBillingModes } from "@/lib/billing/loadSectionBillingModes";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import type {
   CohortCollectionsBulkRaw,
@@ -113,5 +114,9 @@ export async function loadAdminCohortCollectionsBulk(
   if (!rpcHasSectionBenefits) {
     return loadFallbackMatrix(supabase, cohortId, opts);
   }
-  return buildCohortCollectionsMatrix(raw, opts);
+  const billingModeBySectionId = await loadSectionBillingModes(
+    supabase,
+    raw.sections.map((section) => section.id),
+  );
+  return buildCohortCollectionsMatrix(raw, { ...opts, billingModeBySectionId });
 }

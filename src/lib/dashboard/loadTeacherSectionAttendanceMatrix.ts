@@ -13,6 +13,12 @@ import {
   formatProfileSnakeSurnameFirst,
 } from "@/lib/profile/formatProfileDisplayName";
 
+type ProfileJoin = {
+  first_name: string;
+  last_name: string;
+  has_care_notes?: boolean | null;
+};
+
 export type TeacherAttendanceClassDayListMode = "asc" | "newest_capped";
 
 /** `enrollment`: hide cells outside enrollment lifecycle. `all`: admin — every class day column is editable. */
@@ -62,7 +68,9 @@ export async function loadTeacherSectionAttendanceMatrix(
 
   const { data: enrollments } = await supabase
     .from("section_enrollments")
-    .select("id, status, student_id, created_at, updated_at, profiles!student_id(first_name,last_name)")
+    .select(
+      "id, status, student_id, created_at, updated_at, profiles!student_id(first_name,last_name,has_care_notes)",
+    )
     .eq("section_id", sectionId)
     .order("created_at", { ascending: true });
 
@@ -72,7 +80,7 @@ export async function loadTeacherSectionAttendanceMatrix(
     student_id: string;
     created_at: string;
     updated_at: string;
-    profiles: { first_name: string; last_name: string } | { first_name: string; last_name: string }[] | null;
+    profiles: ProfileJoin | ProfileJoin[] | null;
   }[];
 
   const sortedRaw = [...raw].sort((a, b) => {
@@ -94,6 +102,7 @@ export async function loadTeacherSectionAttendanceMatrix(
       enrollmentStatus: String(r.status ?? ""),
       createdAt: String(r.created_at ?? ""),
       updatedAt: String(r.updated_at ?? ""),
+      hasCareNotes: p?.has_care_notes === true,
     };
   });
 

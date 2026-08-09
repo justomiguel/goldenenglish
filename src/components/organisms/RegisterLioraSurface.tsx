@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LogIn } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
+import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { RegisterForm } from "@/components/register/RegisterForm";
 import { LioraRegisterHeader } from "@/components/molecules/LioraRegisterHeader";
@@ -14,6 +15,7 @@ export interface RegisterLioraSurfaceProps {
   brand: BrandPublic;
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
+  enrollmentLink?: SectionEnrollmentLinkContext;
 }
 
 export function RegisterLioraSurface({
@@ -22,6 +24,7 @@ export function RegisterLioraSurface({
   brand,
   legalAgeMajority,
   sectionOptions,
+  enrollmentLink,
 }: RegisterLioraSurfaceProps) {
   const prefix = `/${locale}`;
   const t = (path: string) => marketingLandingCopy(dict, "liora", path);
@@ -80,6 +83,7 @@ export function RegisterLioraSurface({
               dict={dict.register}
               legalAgeMajority={legalAgeMajority}
               sectionOptions={sectionOptions}
+              enrollmentLink={enrollmentLink}
             />
           </div>
           <p className="mt-8 flex justify-center lg:justify-start">

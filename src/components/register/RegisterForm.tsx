@@ -2,16 +2,20 @@
 
 import { UserPlus } from "lucide-react";
 import { type FormEvent, useRef, useState } from "react";
+import { submitSectionLinkRegistration } from "@/app/[locale]/i/[token]/actions";
 import { submitPublicRegistration } from "@/app/[locale]/register/actions";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { RegisterBirthDateDayPicker } from "@/components/molecules/RegisterBirthDateDayPicker";
 import { RegisterSuccessDialog } from "@/components/molecules/RegisterSuccessDialog";
+import { RegisterTutorFieldset } from "@/components/register/RegisterTutorFieldset";
+import { SectionEnrollmentLinkCard } from "@/components/register/SectionEnrollmentLinkCard";
 import { REGISTER_NATIVE_SELECT_CN } from "@/components/register/registerFormNativeSelectCn";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
 import type { PublicRegistrationInput } from "@/lib/register/publicRegistrationSchema";
 import { REGISTRATION_UNDECIDED_FORM_VALUE } from "@/lib/register/registrationSectionConstants";
+import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import type { Dictionary } from "@/types/i18n";
 
 interface RegisterFormProps {
@@ -19,6 +23,11 @@ interface RegisterFormProps {
   dict: Dictionary["register"];
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
+  /**
+   * Present only on `/[locale]/i/[token]`. Fixes the section, hides the picker and
+   * routes the submit through the token-scoped action. Absent on `/register`.
+   */
+  enrollmentLink?: SectionEnrollmentLinkContext;
 }
 
 export function RegisterForm({
@@ -26,6 +35,7 @@ export function RegisterForm({
   dict,
   legalAgeMajority,
   sectionOptions,
+  enrollmentLink,
 }: RegisterFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -63,7 +73,9 @@ export function RegisterForm({
       tutor_relationship: String(fd.get("tutor_relationship") ?? ""),
     };
     try {
-      const res = await submitPublicRegistration(locale, raw);
+      const res = enrollmentLink
+        ? await submitSectionLinkRegistration(locale, enrollmentLink.token, raw)
+        : await submitPublicRegistration(locale, raw);
       if (res.ok) {
         formRef.current?.reset();
         setBirthDate("");
@@ -147,65 +159,55 @@ export function RegisterForm({
             <input type="hidden" name="phone" value="" readOnly aria-hidden />
           </>
         )}
-        {showTutor ? (
-          <fieldset className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/40 p-4">
-            <legend className="px-1 text-sm font-semibold text-[var(--color-foreground)]">
-              {dict.tutorSectionTitle}
-            </legend>
-            <p className="text-xs text-[var(--color-muted-foreground)]">{dict.tutorSectionLead}</p>
+        {showTutor ? <RegisterTutorFieldset dict={dict} required={showTutor} /> : null}
+        {enrollmentLink ? (
+          <>
+            <input
+              type="hidden"
+              name="preferred_section_id"
+              value={enrollmentLink.sectionId}
+              readOnly
+              aria-hidden
+            />
+            <SectionEnrollmentLinkCard
+              link={enrollmentLink}
+              labels={dict.sectionLink}
+            />
+          </>
+        ) : (
+          <>
+            {sectionOptions.length === 0 ? (
+              <p className="text-sm text-[var(--color-muted-foreground)]" role="status">
+                {dict.noSectionsAvailable}
+              </p>
+            ) : null}
             <div>
-              <Label htmlFor="rg-tn" required>{dict.tutorName}</Label>
-              <Input id="rg-tn" name="tutor_name" required={showTutor} className="mt-1 w-full" />
+              <Label htmlFor="rg-section" required>{dict.level}</Label>
+              <select
+                id="rg-section"
+                name="preferred_section_id"
+                required
+                className={`mt-1 ${REGISTER_NATIVE_SELECT_CN}`}
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  {dict.sectionPlaceholder}
+                </option>
+                <option value={REGISTRATION_UNDECIDED_FORM_VALUE}>
+                  {dict.sectionUndecidedOption}
+                </option>
+                {sectionOptions.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
+                {dict.sectionUndecidedHint}
+              </p>
             </div>
-            <div>
-              <Label htmlFor="rg-td" required>{dict.tutorDni}</Label>
-              <Input id="rg-td" name="tutor_dni" required={showTutor} className="mt-1 w-full" />
-              <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{dict.documentIdFormatHint}</p>
-            </div>
-            <div>
-              <Label htmlFor="rg-te" required>{dict.tutorEmail}</Label>
-              <Input id="rg-te" name="tutor_email" type="email" required={showTutor} className="mt-1 w-full" />
-            </div>
-            <div>
-              <Label htmlFor="rg-tp" required>{dict.tutorPhone}</Label>
-              <Input id="rg-tp" name="tutor_phone" required={showTutor} className="mt-1 w-full" />
-            </div>
-            <div>
-              <Label htmlFor="rg-tr" required>{dict.tutorRelationship}</Label>
-              <Input id="rg-tr" name="tutor_relationship" required={showTutor} className="mt-1 w-full" />
-            </div>
-          </fieldset>
-        ) : null}
-        {sectionOptions.length === 0 ? (
-          <p className="text-sm text-[var(--color-muted-foreground)]" role="status">
-            {dict.noSectionsAvailable}
-          </p>
-        ) : null}
-        <div>
-          <Label htmlFor="rg-section" required>{dict.level}</Label>
-          <select
-            id="rg-section"
-            name="preferred_section_id"
-            required
-            className={`mt-1 ${REGISTER_NATIVE_SELECT_CN}`}
-            defaultValue=""
-          >
-            <option value="" disabled>
-              {dict.sectionPlaceholder}
-            </option>
-            <option value={REGISTRATION_UNDECIDED_FORM_VALUE}>
-              {dict.sectionUndecidedOption}
-            </option>
-            {sectionOptions.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-            {dict.sectionUndecidedHint}
-          </p>
-        </div>
+          </>
+        )}
         <Button type="submit" disabled={busy} isLoading={busy}>
           {!busy ? <UserPlus className="h-4 w-4 shrink-0" aria-hidden /> : null}
           {dict.submit}

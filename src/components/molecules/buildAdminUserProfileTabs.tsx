@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { CreditCard, GraduationCap, ShieldCheck, UserRound, UsersRound } from "lucide-react";
+import { CreditCard, GraduationCap, HeartPulse, ShieldCheck, UserRound, UsersRound } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminUserProfileTabId } from "@/components/molecules/AdminUserProfileTabButton";
@@ -58,6 +58,12 @@ export function buildAdminUserProfileTabs(input: {
         icon: <UsersRound className="h-4 w-4" aria-hidden />,
         badge: detail.tutorLinks.length > 0 ? detail.tutorLinks.length : null,
         tourId: ADMIN_TOUR_ANCHORS.userDetailTabFamily,
+      },
+      {
+        id: "care",
+        label: labels.detailTabCare,
+        icon: <HeartPulse className="h-4 w-4" aria-hidden />,
+        badge: detail.hasCareNotes ? "!" : null,
       },
     );
   }

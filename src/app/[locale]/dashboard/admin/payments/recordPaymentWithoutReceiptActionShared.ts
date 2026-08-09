@@ -41,6 +41,8 @@ export function messageForRecordPaymentCode(
       return d.noPlan;
     case "out_of_period":
       return d.outOfPeriod;
+    case "class_pack_section":
+      return d.classPackSection;
     case "exempt_or_zero":
       return d.exemptOrZero;
     case "already_approved":

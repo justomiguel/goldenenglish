@@ -58,6 +58,8 @@ export type AdminUserDetailVM = {
   currentCohortAssignment: AdminStudentCurrentCohortAssignment | null;
   /** Other profiles in the same tutor↔student household (for optional bulk home address). */
   familyHomeAddressPeerIds: string[];
+  /** Derived marker only: the note text lives behind `loadStudentCareNotes`. */
+  hasCareNotes: boolean;
   /** Only `profiles.role === 'admin'` may edit inline fields and passwords (server + UI). */
   viewerMayInlineEdit: boolean;
 };

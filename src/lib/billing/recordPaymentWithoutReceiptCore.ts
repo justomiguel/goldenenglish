@@ -11,6 +11,8 @@ export type RecordPaymentWithoutReceiptErrorCode =
   | "not_enrolled"
   | "no_plan"
   | "out_of_period"
+  /** La sección se cobra por bolsa de clases prepagas: no hay cuota mensual que registrar. */
+  | "class_pack_section"
   | "exempt_or_zero"
   | "already_approved"
   | "cannot_override_exempt"
@@ -72,9 +74,9 @@ export async function recordOnePaymentWithoutReceipt(
     m,
     { billingScope: "plan-year" },
   );
-  if (plan.code === "no_plan") return { success: false, code: "no_plan", month: m };
-  if (plan.code === "out_of_period")
-    return { success: false, code: "out_of_period", month: m };
+  // Exhaustivo: un código nuevo en `SectionPlanAmountResult` rompe la compilación acá hasta que se lo
+  // trate, en vez de convertirse en un pago aprobado con un monto que nadie resolvió.
+  if (plan.code !== "ok") return { success: false, code: plan.code, month: m };
   if (plan.amount <= 0) return { success: false, code: "exempt_or_zero", month: m };
 
   const { data: secRow } = await supabase

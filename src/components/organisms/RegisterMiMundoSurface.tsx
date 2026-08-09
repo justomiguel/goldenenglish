@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Heart, LogIn, Sparkles, Sprout } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
+import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { resolveMiMundoRegisterDict } from "@/lib/register/resolveMiMundoRegisterDict";
 import { RegisterForm } from "@/components/register/RegisterForm";
@@ -18,6 +19,7 @@ export interface RegisterMiMundoSurfaceProps {
   brand: BrandPublic;
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
+  enrollmentLink?: SectionEnrollmentLinkContext;
 }
 
 /**
@@ -35,6 +37,7 @@ export function RegisterMiMundoSurface({
   brand,
   legalAgeMajority,
   sectionOptions,
+  enrollmentLink,
 }: RegisterMiMundoSurfaceProps) {
   const prefix = `/${locale}`;
   const t = (path: string) => marketingLandingCopy(dict, "mm", path);
@@ -186,6 +189,7 @@ export function RegisterMiMundoSurface({
                 dict={registerDict}
                 legalAgeMajority={legalAgeMajority}
                 sectionOptions={sectionOptions}
+                enrollmentLink={enrollmentLink}
               />
             </div>
 

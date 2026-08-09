@@ -7,6 +7,7 @@ import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { AdminUserAvatarUploadForm } from "@/components/molecules/AdminUserAvatarUploadForm";
 import { useAvatarUploadPreview } from "@/hooks/useAvatarUploadPreview";
+import { StudentCareBadge } from "@/components/molecules/StudentCareBadge";
 
 type UserLabels = Dictionary["admin"]["users"];
 
@@ -67,6 +68,7 @@ export function AdminUserIdentityHero({
               <span className="rounded-full border border-[color-mix(in_srgb,var(--color-accent)_30%,var(--color-border))] bg-[var(--color-background)] px-3 py-1 text-xs font-semibold text-[var(--color-primary)]">
                 {roleLabel}
               </span>
+              {detail.hasCareNotes ? <StudentCareBadge label={labels.detailCareBadge} /> : null}
             </div>
             <p className="mt-1 break-all text-sm text-[var(--color-muted-foreground)]">{detail.emailDisplay}</p>
           </div>

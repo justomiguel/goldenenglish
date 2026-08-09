@@ -28,12 +28,16 @@ export function buildProgressPickerOptions(params: {
 
   return sections.map((section) => {
     const label = progressSectionLabel(section.id, copy);
-    const unreadCount = unreadBySection[section.id] ?? 0;
+    // A failed read knows no count, and "0 exams" would be a lie the family cannot see through.
+    const unreadCount = section.failed ? 0 : (unreadBySection[section.id] ?? 0);
     return {
       id: section.id,
       label,
       Icon: SECTION_ICONS[section.id],
-      countLabel: formatProgressSectionCount(section.id, section.count, copy),
+      countLabel: section.failed
+        ? copy.loadFailedCount
+        : formatProgressSectionCount(section.id, section.count, copy),
+      failed: Boolean(section.failed),
       unreadCount,
       unreadLabel: formatProgressUnread(unreadCount, copy),
       unreadAria: formatProgressUnreadAria(unreadCount, label, copy),

@@ -15,8 +15,8 @@ export function ParentSettingsScreen({
   localeSwitcher,
 }: ParentSettingsScreenProps) {
   return (
-    <div className="space-y-5" data-tour={PARENT_TOUR_ANCHORS.settingsBody}>
-      <header data-tour={PARENT_TOUR_ANCHORS.settingsTitle}>
+    <div className="space-y-5" data-tour={PARENT_TOUR_ANCHORS.accountBody}>
+      <header data-tour={PARENT_TOUR_ANCHORS.accountTitle}>
         <h1 className="font-display text-xl font-bold text-[var(--color-foreground)]">
           {labels.pageTitle}
         </h1>

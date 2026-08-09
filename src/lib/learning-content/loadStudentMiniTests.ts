@@ -1,5 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { StudentMiniTestAssessment } from "@/types/learningContent";
+import { noteReadFailure, type LoadErrorReporter } from "@/lib/logging/noteReadFailure";
+
+const SCOPE = "loadStudentMiniTests";
 
 type EnrollmentRow = { section_id: string; academic_sections: { name: string } | { name: string }[] | null };
 type AssessmentRow = {
@@ -19,13 +22,15 @@ function first<T>(raw: T | T[] | null): T | null {
 export async function loadStudentMiniTests(
   supabase: SupabaseClient,
   studentId: string,
+  onLoadError?: LoadErrorReporter,
 ): Promise<StudentMiniTestAssessment[]> {
-  const { data: enrollments } = await supabase
+  const { data: enrollments, error: enrollmentsError } = await supabase
     .from("section_enrollments")
     .select("section_id, academic_sections(name)")
     .eq("student_id", studentId)
     .eq("status", "active")
     .limit(20);
+  noteReadFailure(`${SCOPE}:enrollments`, enrollmentsError, { studentId }, onLoadError);
   const enrollmentRows = (enrollments ?? []) as EnrollmentRow[];
   const sectionIds = [...new Set(enrollmentRows.map((row) => row.section_id))];
   if (sectionIds.length === 0) return [];
@@ -33,18 +38,19 @@ export async function loadStudentMiniTests(
   const sectionNameById = new Map(
     enrollmentRows.map((row) => [row.section_id, first(row.academic_sections)?.name ?? ""]),
   );
-  const { data: assessments } = await supabase
+  const { data: assessments, error: assessmentsError } = await supabase
     .from("learning_assessments")
     .select("id, title, assessment_kind, grading_mode, section_id")
     .in("section_id", sectionIds)
     .in("assessment_kind", ["entry", "exit", "mini_test", "diagnostic"])
     .order("updated_at", { ascending: false })
     .limit(40);
+  noteReadFailure(`${SCOPE}:assessments`, assessmentsError, { studentId }, onLoadError);
   const assessmentRows = (assessments ?? []) as AssessmentRow[];
   if (assessmentRows.length === 0) return [];
 
   const assessmentIds = assessmentRows.map((assessment) => assessment.id);
-  const [{ data: links }, { data: attempts }] = await Promise.all([
+  const [linksResult, attemptsResult] = await Promise.all([
     supabase
       .from("learning_assessment_questions")
       .select("assessment_id, question_id, sort_order")
@@ -59,16 +65,21 @@ export async function loadStudentMiniTests(
       .order("updated_at", { ascending: false })
       .limit(80),
   ]);
+  noteReadFailure(`${SCOPE}:questionLinks`, linksResult.error, { studentId }, onLoadError);
+  noteReadFailure(`${SCOPE}:attempts`, attemptsResult.error, { studentId }, onLoadError);
+  const links = linksResult.data;
+  const attempts = attemptsResult.data;
   const linkRows = (links ?? []) as LinkRow[];
   const questionIds = [...new Set(linkRows.map((row) => row.question_id))];
   if (questionIds.length === 0) return [];
 
-  const { data: questions } = await supabase
+  const { data: questions, error: questionsError } = await supabase
     .from("question_bank_items")
     .select("id, prompt, question_type")
     .in("id", questionIds)
     .eq("question_type", "true_false")
     .limit(200);
+  noteReadFailure(`${SCOPE}:questions`, questionsError, { studentId }, onLoadError);
   const questionById = new Map(((questions ?? []) as QuestionRow[]).map((row) => [row.id, row]));
   const latestAttemptByAssessment = new Map(
     ((attempts ?? []) as { assessment_id: string; status: string }[]).map((row) => [row.assessment_id, row.status]),

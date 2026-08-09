@@ -1,72 +1,22 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logSupabaseClientError, logServerWarn } from "@/lib/logging/serverActionLog";
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
-import type { SectionScheduleSlot } from "@/types/academics";
 import { pgDateToInputValue } from "@/lib/academics/pgDateToInputValue";
 import { buildAdminSectionMoveTargets } from "@/lib/academics/buildAdminSectionMoveTargets";
 import { loadAdminSectionTeachersAndAssistants } from "@/lib/academics/loadAdminSectionTeachersAndAssistants";
 import { loadParentPaymentPendingMap } from "@/lib/academics/parentPaymentPending";
 import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionMaxStudents";
 import { loadAcademicsSectionDefaults } from "@/lib/academics/loadAcademicsSectionDefaults";
-import { mapSectionFeePlanRow, type SectionFeePlan, type SectionFeePlanRowDb } from "@/types/sectionFeePlan";
+import { mapSectionFeePlanRow, type SectionFeePlanRowDb } from "@/types/sectionFeePlan";
 import { attachSectionFeePlansUsage, type SectionFeePlanPaymentRef } from "@/lib/billing/computeSectionFeePlansUsage";
-import {
-  parseMonthlyFeeChargeMode,
-  type MonthlyFeeChargeMode,
-} from "@/lib/billing/monthlyFeeChargeMode";
+import { parseMonthlyFeeChargeMode } from "@/lib/billing/monthlyFeeChargeMode";
 import {
   compareProfileSnakeByLastThenFirst,
   formatProfileSnakeSurnameFirst,
 } from "@/lib/profile/formatProfileDisplayName";
+import type { AdminSectionPageData, AdminSectionRosterRow } from "./loadAdminSectionPageData.types";
 
-export interface AdminSectionRosterRow {
-  enrollmentId: string;
-  studentId: string;
-  label: string;
-  status: string;
-}
-
-export interface AdminSectionPageData {
-  section: {
-    id: string;
-    name: string;
-    cohortId: string;
-    teacherId: string;
-    archivedAt: string | null;
-    startsOn: string;
-    endsOn: string;
-    roomLabel: string | null;
-    effectiveMaxStudents: number;
-    siteDefaultMax: number;
-    activeEnrollmentCount: number;
-    /**
-     * Monto de matrícula a nivel de sección (>=0). 0 = no cobra matrícula.
-     * Moneda se reusa del plan vigente.
-     */
-    enrollmentFeeAmount: number;
-    /** Student/parent billing: class prorate vs full month fee. */
-    monthlyFeeChargeMode: MonthlyFeeChargeMode;
-    allowAdvanceMonthlyPayment: boolean;
-    minAttendancePercentOverride: number | null;
-    siteDefaultMinAttendancePercent: number;
-    /** When true, Assessments tab and evaluation pass rules apply. */
-    requiresEvaluationsToPass: boolean;
-    /** When true, Learning route tab and route/free-flow progress apply. */
-    usesLearningRoute: boolean;
-  };
-  cohort: {
-    name: string;
-    archivedAt: string | null;
-    label: string;
-  };
-  slots: SectionScheduleSlot[];
-  rows: AdminSectionRosterRow[];
-  debtByStudentId: Record<string, boolean>;
-  staff: Awaited<ReturnType<typeof loadAdminSectionTeachersAndAssistants>>;
-  feePlans: SectionFeePlan[];
-  feePlansWithUsage: ReturnType<typeof attachSectionFeePlansUsage>;
-  moveTargets: { id: string; label: string }[];
-}
+export type { AdminSectionPageData, AdminSectionRosterRow } from "./loadAdminSectionPageData.types";
 
 export async function loadAdminSectionPageData(
   supabase: SupabaseClient,
@@ -133,15 +83,20 @@ export async function loadAdminSectionPageData(
 
   const { data: enrollments } = await supabase
     .from("section_enrollments")
-    .select("id, status, student_id, profiles!student_id(first_name,last_name)")
+    .select("id, status, student_id, profiles!student_id(first_name,last_name,has_care_notes)")
     .eq("section_id", sectionId)
     .order("created_at", { ascending: false });
 
+  type RosterProfileJoin = {
+    first_name: string;
+    last_name: string;
+    has_care_notes?: boolean | null;
+  };
   const rawEnrollments = (enrollments ?? []) as {
     id: string;
     status: string;
     student_id: string;
-    profiles: { first_name: string; last_name: string } | { first_name: string; last_name: string }[] | null;
+    profiles: RosterProfileJoin | RosterProfileJoin[] | null;
   }[];
   const sortedEnrollments = [...rawEnrollments].sort((a, b) => {
     const pa = (Array.isArray(a.profiles) ? a.profiles[0] : a.profiles) ?? null;
@@ -155,7 +110,13 @@ export async function loadAdminSectionPageData(
     const pRaw = r.profiles;
     const p = Array.isArray(pRaw) ? (pRaw[0] ?? null) : pRaw;
     const label = p ? formatProfileSnakeSurnameFirst(p, r.student_id) : r.student_id;
-    return { enrollmentId: r.id, studentId: r.student_id, label, status: r.status };
+    return {
+      enrollmentId: r.id,
+      studentId: r.student_id,
+      label,
+      status: r.status,
+      hasCareNotes: p?.has_care_notes === true,
+    };
   });
   const activeEnrollmentCount = rows.filter((r) => r.status === "active").length;
 

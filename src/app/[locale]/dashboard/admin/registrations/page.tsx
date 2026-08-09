@@ -11,6 +11,9 @@ import {
   type PaginatedRegistrationsParams,
 } from "@/lib/dashboard/loadPaginatedRegistrations";
 import type { RegistrationSortKey } from "@/lib/dashboard/adminRegistrationsSort";
+import { loadRegistrationStatusCounts } from "@/lib/dashboard/loadRegistrationStatusCounts";
+import { getBrandForRequest } from "@/lib/brand/server";
+import { resolveWhatsAppCountry } from "@/lib/whatsapp/resolveWhatsAppDigits";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 
@@ -35,12 +38,14 @@ function parseSearchParams(raw: Record<string, string | string[] | undefined>): 
     ? (raw.sort as RegistrationSortKey)
     : "received";
   const dir = raw.dir === "asc" ? "asc" : "desc";
+  const status = raw.status === "new" || raw.status === "contacted" ? raw.status : undefined;
 
   return {
     page: Math.max(1, parseInt(pageStr, 10) || 1),
     q,
     sort,
     dir,
+    status,
   };
 }
 
@@ -52,10 +57,12 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
 
   const supabase = await createClient();
 
-  const [result, legalAgeMajority, cohort] = await Promise.all([
+  const [result, legalAgeMajority, cohort, statusCounts, brand] = await Promise.all([
     loadPaginatedRegistrations(supabase, paginationParams),
     Promise.resolve(getLegalAgeMajorityFromSystem()),
     loadCurrentCohort(supabase),
+    loadRegistrationStatusCounts(supabase, paginationParams.q ?? ""),
+    getBrandForRequest(),
   ]);
 
   const cohortSections = cohort
@@ -82,7 +89,11 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
         searchQuery={paginationParams.q ?? ""}
         sortKey={paginationParams.sort ?? "received"}
         sortDir={paginationParams.dir ?? "desc"}
+        statusFilter={paginationParams.status}
+        statusCounts={statusCounts}
         legalAgeMajority={legalAgeMajority}
+        instituteName={brand.name}
+        instituteCountry={resolveWhatsAppCountry(brand.contactPhone)}
         labels={dict.admin.registrations}
         tableLabels={dict.admin.table}
         userLabels={{

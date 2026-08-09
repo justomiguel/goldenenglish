@@ -2,11 +2,14 @@
 
 import { Pencil, Trash2, UserPlus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { RegistrationContactCell } from "@/components/dashboard/RegistrationContactCell";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
+import { registrationIsActionable } from "@/lib/register/registrationIsActionable";
+import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -16,9 +19,13 @@ export interface AdminRegistrationPwaCardProps {
   busy: boolean;
   labels: RegLabels;
   statusLabel: (status: string) => string;
+  contact: RegistrationContactView;
+  instituteName: string;
   onAccept: (row: AdminRegistrationRow) => void;
   onEdit: (row: AdminRegistrationRow) => void;
   onDelete: (row: AdminRegistrationRow) => void;
+  onMarkContacted: (row: AdminRegistrationRow) => void;
+  onRevertToNew: (row: AdminRegistrationRow) => void;
 }
 
 export function AdminRegistrationPwaCard({
@@ -27,11 +34,16 @@ export function AdminRegistrationPwaCard({
   busy,
   labels,
   statusLabel,
+  contact,
+  instituteName,
   onAccept,
   onEdit,
   onDelete,
+  onMarkContacted,
+  onRevertToNew,
 }: AdminRegistrationPwaCardProps) {
-  const canAccept = r.status === "new";
+  const canAccept = registrationIsActionable(r.status);
+  const isPending = r.status === "new";
   const birthDisplay =
     formatCivilIsoDateForDisplay(locale, r.birth_date, {
       year: "numeric",
@@ -50,7 +62,37 @@ export function AdminRegistrationPwaCard({
       <div className="space-y-2">
         <p className="break-words font-medium text-[var(--color-foreground)]">
           {formatProfileNameSurnameFirst(r.first_name, r.last_name)}
+          {contact.isMinor ? (
+            <span className="ml-2 whitespace-nowrap rounded-full border border-[var(--color-border)] px-2 py-0.5 text-xs font-normal text-[var(--color-muted-foreground)]">
+              {labels.minorMarker}
+            </span>
+          ) : null}
         </p>
+
+        <div className="grid gap-2 text-sm sm:grid-cols-2">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-[var(--color-muted-foreground)]">
+              {labels.phoneStudent}
+            </p>
+            <RegistrationContactCell
+              entry={contact.student}
+              contactName={r.first_name}
+              instituteName={instituteName}
+              labels={labels}
+            />
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-wide text-[var(--color-muted-foreground)]">
+              {labels.phoneTutor}
+            </p>
+            <RegistrationContactCell
+              entry={contact.tutor}
+              contactName={r.tutor_name ?? r.first_name}
+              instituteName={instituteName}
+              labels={labels}
+            />
+          </div>
+        </div>
         <dl className="grid gap-1 text-sm text-[var(--color-muted-foreground)]">
           <div className="flex flex-wrap gap-x-2 gap-y-0.5">
             <dt className="sr-only">{labels.email}</dt>
@@ -89,6 +131,15 @@ export function AdminRegistrationPwaCard({
             </span>
           </div>
         </dl>
+        <button
+          type="button"
+          className="min-h-[44px] text-sm underline decoration-dotted underline-offset-2 disabled:opacity-50"
+          title={isPending ? labels.markContactedTip : labels.revertToNewTip}
+          disabled={busy}
+          onClick={() => (isPending ? onMarkContacted(r) : onRevertToNew(r))}
+        >
+          {isPending ? labels.markContacted : labels.revertToNew}
+        </button>
         <div
           className={
             canAccept

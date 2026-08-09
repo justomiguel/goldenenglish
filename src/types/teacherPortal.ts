@@ -4,6 +4,8 @@ export type TeacherRosterRow = {
   label: string;
   status: string;
   avatarDisplayUrl: string | null;
+  /** Marker only: this student has care notes. The text is never loaded here. */
+  hasCareNotes: boolean;
 };
 
 export type TeacherTransferTargetOption = {

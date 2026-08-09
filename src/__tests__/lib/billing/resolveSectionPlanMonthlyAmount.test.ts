@@ -86,7 +86,46 @@ describe("resolveSectionPlanMonthlyAmount", () => {
       expect(r.amount).toBe(90000);
       expect(r.currency).toBe("CLP");
     }
-    expect(supabase.from).not.toHaveBeenCalledWith("academic_sections");
+    // REGRESSION CHECK: this used to assert that plan-year never reads `academic_sections`. It does
+    // now, and it must: the section's `billing_mode` decides whether there is a monthly amount at all,
+    // and a class-pack section must produce no amount in the admin matrices either. The plan-year
+    // scope still ignores `schedule_slots` — that is what the amount assertions above pin down.
+    expect(supabase.from).toHaveBeenCalledWith("academic_sections");
+  });
+
+  it("refuses a class-pack section in plan-year scope, so admin matrices show no monthly amount", async () => {
+    const supabase = createBillingSupabaseMock({
+      ...sectionRowEmptySchedule,
+      billing_mode: "class_pack",
+    });
+
+    const r = await resolveSectionPlanMonthlyAmount(supabase, STUDENT_ID, SECTION_ID, 2026, 2, {
+      billingScope: "plan-year",
+    });
+    expect(r.code).toBe("class_pack_section");
+    // Short-circuits before the fee plan lookup: a class-pack section has no plan, and reporting
+    // `no_plan` would make another billing product look like a misconfigured section.
+    expect(supabase.from).not.toHaveBeenCalledWith("section_fee_plans");
+  });
+
+  it("refuses a class-pack section in operational-window scope", async () => {
+    const supabase = createBillingSupabaseMock({
+      ...sectionRowEmptySchedule,
+      billing_mode: "class_pack",
+    });
+
+    const r = await resolveSectionPlanMonthlyAmount(supabase, STUDENT_ID, SECTION_ID, 2026, 2);
+    expect(r.code).toBe("class_pack_section");
+  });
+
+  it("bills normally when billing_mode is absent or unrecognised, so no section silently stops being charged", async () => {
+    const supabase = createBillingSupabaseMock({
+      ...sectionRowEmptySchedule,
+      billing_mode: "nonsense",
+    });
+
+    const r = await resolveSectionPlanMonthlyAmount(supabase, STUDENT_ID, SECTION_ID, 2026, 2);
+    expect(r.code).toBe("ok");
   });
 
   it("operational-window: uses full-month fee like student strip when section overlaps month but class count is 0", async () => {

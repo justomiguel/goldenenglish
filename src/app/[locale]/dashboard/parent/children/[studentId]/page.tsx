@@ -1,88 +1,14 @@
-import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { getDictionary } from "@/lib/i18n/dictionaries";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { ParentWardProfileSurfaceEntry } from "@/components/parent/ParentWardProfileSurfaceEntry";
-import { ParentWardProfileForm } from "@/components/parent/ParentWardProfileForm";
-import { ClassReminderPrefsSection } from "@/components/molecules/ClassReminderPrefsSection";
-
-export async function generateMetadata({ params }: { params: Promise<{ locale: string; studentId: string }> }) {
-  const { locale } = await params;
-  return buildPageMetadata(locale, (d) => d.dashboard.parent.navEditChild);
-}
+import { parentRedirectPath } from "@/lib/parent/parentLegacyRedirect";
 
 interface PageProps {
   params: Promise<{ locale: string; studentId: string }>;
+  searchParams: Promise<{ sectionId?: string }>;
 }
 
-export default async function ParentChildEditPage({ params }: PageProps) {
+/** The ward form moved to `/parent/child/edit`, where the child comes from `?studentId`. */
+export default async function ParentChildEditRedirectPage({ params, searchParams }: PageProps) {
   const { locale, studentId } = await params;
-  const dict = await getDictionary(locale);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    redirect(`/${locale}/login?next=/${locale}/dashboard/parent/children/${studentId}`);
-  }
-
-  const { data: me } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (me?.role !== "parent") redirect(`/${locale}/dashboard`);
-
-  const { data: link } = await supabase
-    .from("tutor_student_rel")
-    .select("student_id")
-    .eq("tutor_id", user.id)
-    .eq("student_id", studentId)
-    .maybeSingle();
-  if (!link) redirect(`/${locale}/dashboard/parent`);
-
-  const { data: ward } = await supabase
-    .from("profiles")
-    .select("first_name, last_name, phone, birth_date")
-    .eq("id", studentId)
-    .single();
-
-  if (!ward) redirect(`/${locale}/dashboard/parent`);
-
-  const admin = createAdminClient();
-  const { data: authRow } = await admin.auth.admin.getUserById(studentId);
-  const wardEmail = authRow?.user?.email?.trim() ?? "";
-
-  const { data: crPref } = await supabase
-    .from("class_reminder_channel_prefs")
-    .select("*")
-    .eq("student_id", studentId)
-    .maybeSingle();
-
-  const p = dict.dashboard.parent;
-
-  return (
-    <ParentWardProfileSurfaceEntry>
-      <ParentWardProfileForm
-        locale={locale}
-        studentId={studentId}
-        initial={{
-          first_name: String(ward.first_name ?? ""),
-          last_name: String(ward.last_name ?? ""),
-          email: wardEmail,
-          phone: ward.phone != null ? String(ward.phone) : null,
-          birth_date: ward.birth_date != null ? String(ward.birth_date) : null,
-        }}
-        labels={p}
-      />
-      <div className="mx-auto max-w-3xl px-4 pb-8 md:max-w-[48rem] md:px-6">
-        <h2 className="mt-8 text-lg font-semibold text-[var(--color-secondary)]">{p.childClassReminderTitle}</h2>
-        <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{p.childClassReminderHint}</p>
-        <ClassReminderPrefsSection
-          locale={locale}
-          studentId={studentId}
-          initial={crPref as Record<string, unknown> | null}
-          labels={dict.dashboard.student}
-          omitHeader
-        />
-      </div>
-    </ParentWardProfileSurfaceEntry>
-  );
+  const sp = await searchParams;
+  redirect(parentRedirectPath(locale, "/child/edit", { studentId, sectionId: sp.sectionId }));
 }

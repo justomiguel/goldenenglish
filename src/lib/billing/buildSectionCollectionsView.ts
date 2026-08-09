@@ -28,6 +28,7 @@ import {
   type MonthlyFeeChargeMode,
 } from "@/lib/billing/monthlyFeeChargeMode";
 import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
+import { sectionIsClassPackBilled } from "@/lib/billing/sectionBillingMode";
 
 export interface SectionCollectionsStudentInput {
   studentId: string;
@@ -66,6 +67,8 @@ export interface BuildSectionCollectionsViewInput {
   /** Alumno/apoderado: prorrateo por clases vs cuota mensual completa. */
   monthlyFeeChargeMode?: MonthlyFeeChargeMode;
   allowAdvanceMonthlyPayment?: boolean;
+  /** `academic_sections.billing_mode` crudo. `class_pack` ⇒ ningún mes se cobra como cuota. */
+  sectionBillingMode?: string | null;
 }
 
 function enrollmentFeeAmount(input: BuildSectionCollectionsViewInput): number {
@@ -103,11 +106,11 @@ export function buildSectionCollectionsView(
 ): SectionCollectionsView {
   const enrollmentFee = enrollmentFeeAmount(input);
   const monthlyFeeChargeMode = parseMonthlyFeeChargeMode(input.monthlyFeeChargeMode);
-  const referencePlan = resolveEffectiveSectionFeePlan(
-    input.plans,
-    input.todayYear,
-    input.todayMonth,
-  );
+  // Misma razón que en `buildStudentMonthlyPaymentsRow`: los planes viejos sobreviven al cambio de modo,
+  // y publicar uno como "cuota de referencia" de la sección mostraría un monto que ya no se cobra.
+  const referencePlan = sectionIsClassPackBilled(input.sectionBillingMode)
+    ? null
+    : resolveEffectiveSectionFeePlan(input.plans, input.todayYear, input.todayMonth);
   const studentRows: SectionCollectionsStudentRow[] = input.students.map((s) => {
     const studentEnrollmentFee = s.enrollmentFeeExempt ? 0 : enrollmentFee;
     const row: StudentMonthlyPaymentSectionRow = buildStudentMonthlyPaymentsRow({
@@ -131,6 +134,7 @@ export function buildSectionCollectionsView(
       enrollmentFeeReceiptSignedUrl: s.enrollmentFeeReceiptSignedUrl ?? null,
       lastEnrollmentPaidAt: s.lastEnrollmentPaidAt ?? null,
       billingScope: "plan-year",
+      sectionBillingMode: input.sectionBillingMode ?? null,
     });
     const agg = aggregateCells(row.cells, input.todayYear, input.todayMonth);
     const isEnrollmentFeeOverdue =

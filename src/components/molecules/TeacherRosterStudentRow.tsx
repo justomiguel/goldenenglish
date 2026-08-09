@@ -4,9 +4,11 @@ import { GraduationCap, MapPin } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
 import { Button } from "@/components/atoms/Button";
+import { StudentCareBadge } from "@/components/molecules/StudentCareBadge";
 
 export interface TeacherRosterStudentRowProps {
   label: string;
+  hasCareNotes?: boolean;
   avatarDisplayUrl: string | null;
   statusLabel: string;
   showActions: boolean;
@@ -20,6 +22,7 @@ export interface TeacherRosterStudentRowProps {
 
 export function TeacherRosterStudentRow({
   label,
+  hasCareNotes = false,
   avatarDisplayUrl,
   statusLabel,
   showActions,
@@ -40,7 +43,10 @@ export function TeacherRosterStudentRow({
         >
           <ProfileAvatar url={avatarDisplayUrl} displayName={label} size="sm" />
           <span className="min-w-0 flex-1">
-            <span className="block truncate font-medium text-[var(--color-foreground)]">{label}</span>
+            <span className="flex min-w-0 items-center gap-1.5">
+              <span className="truncate font-medium text-[var(--color-foreground)]">{label}</span>
+              {hasCareNotes ? <StudentCareBadge label={dict.careBadge} /> : null}
+            </span>
             {hasPendingTransfer ? (
               <span className="mt-0.5 inline-block rounded-full bg-[var(--color-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-foreground)]">
                 {dict.pendingRequestBadge}

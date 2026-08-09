@@ -11,10 +11,13 @@ import { ParentBadgesScreen } from "@/components/parent/ParentBadgesScreen";
 import { ParentFeedbackSurface } from "@/components/parent/ParentFeedbackSurface";
 import { StudentExamResultsSurface } from "@/components/parent/StudentExamResultsSurface";
 import { ProgressSectionPicker } from "@/components/parent/ProgressSectionPicker";
+import { ProgressSectionLoadFailed } from "@/components/parent/ProgressSectionLoadFailed";
+import { ParentProgressEmptyState } from "@/components/parent/ParentProgressEmptyState";
 import { buildProgressPickerOptions } from "@/components/parent/buildProgressPickerOptions";
+import { sectionsForProgressPicker } from "@/components/parent/sectionsForProgressPicker";
 import {
   buildProgressSections,
-  type ProgressSection,
+  type ProgressSectionId,
 } from "@/lib/parent/buildProgressSections";
 import {
   isProgressSectionId,
@@ -30,16 +33,6 @@ import type { StudentBadgeRowModel } from "@/components/student/StudentBadgesScr
 import type { Dictionary } from "@/types/i18n";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
 
-/** Keep a deep-linked empty section in the picker so the trigger matches the mounted panel. */
-function sectionsForPicker(
-  sections: ProgressSection[],
-  requested: string | null,
-): ProgressSection[] {
-  if (!isProgressSectionId(requested)) return sections;
-  if (sections.some((section) => section.id === requested)) return sections;
-  return [...sections, { id: requested, count: 0, itemKeys: [] }];
-}
-
 interface ParentProgressEntryProps {
   locale: string;
   wardOptions: ParentWardOption[];
@@ -49,6 +42,8 @@ interface ParentProgressEntryProps {
   assessments: StudentMiniTestAssessment[];
   feedback: ParentFeedbackTimeline;
   badgeRows: StudentBadgeRowModel[];
+  /** Sections whose server read failed; offered with a retry rather than hidden as empty. */
+  failedSections?: ProgressSectionId[];
   parentLabels: Dictionary["dashboard"]["parent"];
   studentLabels: Dictionary["dashboard"]["student"];
   badgesDict: Dictionary["dashboard"]["student"]["badges"];
@@ -67,6 +62,7 @@ export function ParentProgressEntry({
   assessments,
   feedback,
   badgeRows,
+  failedSections,
   parentLabels,
   studentLabels,
   badgesDict,
@@ -80,10 +76,22 @@ export function ParentProgressEntry({
   const isNarrowParent = surface === "web-mobile" || surface === "pwa-mobile";
   const pickerCopy = parentLabels.progressPicker;
 
+  const failedKey = (failedSections ?? []).join(",");
   const sections = useMemo(
-    () => buildProgressSections({ exams, tasks, assessments, feedback, badgeRows }),
-    [exams, tasks, assessments, feedback, badgeRows],
+    () =>
+      buildProgressSections({
+        exams,
+        tasks,
+        assessments,
+        feedback,
+        badgeRows,
+        failedSections,
+      }),
+    // `failedSections` is a fresh array on every server render; its content is what matters.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [exams, tasks, assessments, feedback, badgeRows, failedKey],
   );
+  const hasFailure = sections.some((section) => section.failed);
 
   // Picker choice is scoped to the current `?tab=` value so tour deep links win on navigation
   // without syncing URL → state inside an effect.
@@ -97,7 +105,7 @@ export function ParentProgressEntry({
       : requestedFromUrl;
 
   const activeSectionId = resolveActiveProgressSection(requested, sections);
-  const pickerSections = sectionsForPicker(sections, requested);
+  const pickerSections = sectionsForProgressPicker(sections, requested);
 
   const { unreadBySection } = useProgressSectionsUnread({
     studentId: selectedStudentId,
@@ -153,15 +161,22 @@ export function ParentProgressEntry({
     ),
   };
 
-  const activePanel = activeSectionId ? panels[activeSectionId] : null;
+  const activeFailed = sections.some(
+    (section) => section.id === activeSectionId && section.failed,
+  );
+  const activePanel = activeFailed ? (
+    <ProgressSectionLoadFailed copy={pickerCopy} />
+  ) : activeSectionId ? (
+    panels[activeSectionId]
+  ) : null;
   const activeLabel = isProgressSectionId(activeSectionId)
     ? progressSectionLabel(activeSectionId, pickerCopy)
     : "";
 
   return (
     <ParentRouteSurfaceGate>
-      <div className="space-y-4" data-tour={PARENT_TOUR_ANCHORS.progressBody}>
-        <header className="space-y-1" data-tour={PARENT_TOUR_ANCHORS.progressTitle}>
+      <div className="space-y-4" data-tour={PARENT_TOUR_ANCHORS.childBody}>
+        <header className="space-y-1" data-tour={PARENT_TOUR_ANCHORS.childTitle}>
           <h1 className="font-display text-2xl font-bold text-[var(--color-secondary)] sm:text-3xl">
             {parentLabels.progressPageTitle}
           </h1>
@@ -171,6 +186,15 @@ export function ParentProgressEntry({
             </p>
           )}
         </header>
+
+        {hasFailure ? (
+          <p
+            role="status"
+            className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/40 px-3 py-2 text-sm text-[var(--color-muted-foreground)]"
+          >
+            {pickerCopy.loadFailedBanner}
+          </p>
+        ) : null}
 
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
           {shellOwnsFocus ? null : (
@@ -205,24 +229,9 @@ export function ParentProgressEntry({
             {activePanel}
           </section>
         ) : (
-          <ProgressEmptyState copy={pickerCopy} />
+          <ParentProgressEmptyState copy={pickerCopy} />
         )}
       </div>
     </ParentRouteSurfaceGate>
-  );
-}
-
-function ProgressEmptyState({
-  copy,
-}: {
-  copy: Dictionary["dashboard"]["parent"]["progressPicker"];
-}) {
-  return (
-    <div className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-10 text-center">
-      <p className="text-base font-semibold text-[var(--color-foreground)]">{copy.emptyTitle}</p>
-      <p className="mx-auto mt-2 max-w-md text-sm text-[var(--color-muted-foreground)]">
-        {copy.emptyBody}
-      </p>
-    </div>
   );
 }

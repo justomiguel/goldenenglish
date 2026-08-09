@@ -12,6 +12,8 @@ export interface PortalCalendarPageLayoutProps {
   adminFilters?: ReactNode;
   adminSpecialLink?: ReactNode;
   schedule: ReactNode;
+  /** Tour anchors for the portal that owns this route; admin ones are the default. */
+  tourAnchors?: { title?: string; schedule?: string };
 }
 
 export function PortalCalendarPageLayout({
@@ -22,7 +24,12 @@ export function PortalCalendarPageLayout({
   adminFilters,
   adminSpecialLink,
   schedule,
+  tourAnchors,
 }: PortalCalendarPageLayoutProps) {
+  const titleAnchor =
+    tourAnchors?.title ?? (adminFilters ? ADMIN_TOUR_ANCHORS.calendarTitle : undefined);
+  const scheduleAnchor =
+    tourAnchors?.schedule ?? (adminFilters ? ADMIN_TOUR_ANCHORS.calendarSchedule : undefined);
   const outer = variant === "desktop" ? "mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8" : "space-y-5";
   const card =
     "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]";
@@ -35,7 +42,7 @@ export function PortalCalendarPageLayout({
     <div className={outer}>
       <div className={`${card} p-5 sm:p-8`}>
         <header
-          data-tour={adminFilters ? ADMIN_TOUR_ANCHORS.calendarTitle : undefined}
+          data-tour={titleAnchor}
           className="mb-6 space-y-2 border-b border-[var(--color-border)] pb-6"
         >
           <h1 className={titleClass}>{title}</h1>
@@ -48,7 +55,7 @@ export function PortalCalendarPageLayout({
           ) : null}
           {adminSpecialLink}
           <div
-            data-tour={adminFilters ? ADMIN_TOUR_ANCHORS.calendarSchedule : undefined}
+            data-tour={scheduleAnchor}
             className={
               variant === "narrow"
                 ? "flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-2"

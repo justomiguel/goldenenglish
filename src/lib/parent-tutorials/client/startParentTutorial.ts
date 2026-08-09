@@ -38,17 +38,17 @@ function primaryAnchorFor(id: ParentTutorialId): string {
     case "parent-pay-or-upload-receipt":
       return parentTourSelector(PARENT_TOUR_ANCHORS.paymentsTitle);
     case "parent-view-child-progress":
-      return parentTourSelector(PARENT_TOUR_ANCHORS.progressTitle);
+      return parentTourSelector(PARENT_TOUR_ANCHORS.childTitle);
     case "parent-read-reply-messages":
       return parentTourSelector(PARENT_TOUR_ANCHORS.messagesTitle);
     case "parent-manage-child-or-tutor-profile":
       return parentTourSelector(PARENT_TOUR_ANCHORS.childDetailTitle);
     case "parent-settings-notifications":
-      return parentTourSelector(PARENT_TOUR_ANCHORS.settingsTitle);
+      return parentTourSelector(PARENT_TOUR_ANCHORS.childDetailTitle);
     case "parent-calendar-attendance":
-      return parentTourSelector(PARENT_TOUR_ANCHORS.calendarTitle);
+      return parentTourSelector(PARENT_TOUR_ANCHORS.attendanceTitle);
     case "parent-badges-overview":
-      return parentTourSelector(PARENT_TOUR_ANCHORS.badgesBody);
+      return parentTourSelector(PARENT_TOUR_ANCHORS.badgesTitle);
     default: {
       const _exhaustive: never = id;
       return _exhaustive;

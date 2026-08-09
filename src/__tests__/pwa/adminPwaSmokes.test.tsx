@@ -23,6 +23,10 @@ const regRow: AdminRegistrationRow = {
   tutor_email: null,
   tutor_phone: null,
   tutor_relationship: null,
+  preferred_section_id: null,
+  contacted_at: null,
+  contacted_by: null,
+  sourceSectionLinkId: null,
 };
 
 const userRow: AdminUserRow = {
@@ -45,9 +49,13 @@ describe("admin PWA smoke", () => {
         busy={false}
         labels={dictEn.admin.registrations}
         statusLabel={(s) => s}
+        contact={{ isMinor: false, student: null, tutor: null }}
+        instituteName="Test Institute"
         onAccept={() => {}}
         onEdit={() => {}}
         onDelete={() => {}}
+        onMarkContacted={() => {}}
+        onRevertToNew={() => {}}
       />,
     );
     expect(screen.getByText("B A")).toBeInTheDocument();
@@ -66,10 +74,14 @@ describe("admin PWA smoke", () => {
         sortDir="asc"
         onToggleSort={() => {}}
         statusLabel={(s) => s}
+        contactFor={() => ({ isMinor: false, student: null, tutor: null })}
+        instituteName="Test Institute"
         busyId={null}
         onAccept={() => {}}
         onEdit={() => {}}
         onDelete={() => {}}
+        onMarkContacted={() => {}}
+        onRevertToNew={() => {}}
         emptyMessage="none"
         pagination={{
           page: 1,
@@ -95,10 +107,14 @@ describe("admin PWA smoke", () => {
         sortDir="asc"
         onToggleSort={() => {}}
         statusLabel={(s) => s}
+        contactFor={() => ({ isMinor: false, student: null, tutor: null })}
+        instituteName="Test Institute"
         busyId={null}
         onAccept={() => {}}
         onEdit={() => {}}
         onDelete={() => {}}
+        onMarkContacted={() => {}}
+        onRevertToNew={() => {}}
         emptyMessage="none"
         pagination={{
           page: 1,

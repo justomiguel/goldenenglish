@@ -8,6 +8,7 @@ import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { useAppSurface } from "@/hooks/useAppSurface";
 import { AdminUserDetailDesktop } from "@/components/desktop/organisms/AdminUserDetailDesktop";
 import { AdminUserDetailPwa } from "@/components/pwa/organisms/AdminUserDetailPwa";
+import type { StudentCareNotes } from "@/lib/students/care/loadStudentCareNotes";
 
 type UserLabels = Dictionary["admin"]["users"];
 type BillingLabels = Dictionary["admin"]["billing"];
@@ -19,6 +20,7 @@ export interface AdminUserDetailEntryProps {
   detail: AdminUserDetailVM;
   billing: AdminStudentBillingTabData | null;
   fileUploadProgress: FileUploadProgressLabels;
+  care?: StudentCareNotes | null;
 }
 
 export function AdminUserDetailEntry({
@@ -28,6 +30,7 @@ export function AdminUserDetailEntry({
   detail,
   billing,
   fileUploadProgress,
+  care = null,
 }: AdminUserDetailEntryProps) {
   const surface = useAppSurface();
 
@@ -40,6 +43,7 @@ export function AdminUserDetailEntry({
         detail={detail}
         billing={billing}
         fileUploadProgress={fileUploadProgress}
+        care={care}
       />
     );
   }
@@ -53,6 +57,7 @@ export function AdminUserDetailEntry({
       detail={detail}
       billing={billing}
       fileUploadProgress={fileUploadProgress}
+      care={care}
     />
   );
 }

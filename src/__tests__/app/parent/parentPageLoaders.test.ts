@@ -12,10 +12,11 @@ const PAGE_PATH = join(
 );
 
 const EXPECTED_LOADERS = new Set([
-  "loadParentChildrenSummaries",
   "loadParentFamilyHubModel",
   "loadParentHomeMessageSignals",
   "loadParentHomePaymentOverdueSignals",
+  "loadParentRecentAttendance",
+  "loadStudentLearningTasks",
   "loadPortalCalendarPageData",
   "loadParentHomeNewsFeed",
   "loadParentFocusCatalog",

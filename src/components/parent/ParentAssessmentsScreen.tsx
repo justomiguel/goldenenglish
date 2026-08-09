@@ -26,10 +26,10 @@ export function ParentAssessmentsScreen({
   return (
     <div
       className={embedded ? "space-y-3" : "space-y-6"}
-      data-tour={PARENT_TOUR_ANCHORS.assessmentsBody}
+      data-tour={PARENT_TOUR_ANCHORS.gradesBody}
     >
       {embedded ? null : (
-        <header className="space-y-1" data-tour={PARENT_TOUR_ANCHORS.assessmentsTitle}>
+        <header className="space-y-1" data-tour={PARENT_TOUR_ANCHORS.gradesTitle}>
           <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">
             {parentLabels.assessmentsPageTitle}
           </h1>

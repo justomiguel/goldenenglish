@@ -1,32 +1,14 @@
 import { redirect } from "next/navigation";
-import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
-import { createClient } from "@/lib/supabase/server";
-import { getDictionary } from "@/lib/i18n/dictionaries";
-import { ParentSettingsEntry } from "@/components/parent/ParentSettingsEntry";
-
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  return buildPageMetadata(locale, (d) => d.dashboard.parentNav.settings);
-}
+import { parentRedirectPath } from "@/lib/parent/parentLegacyRedirect";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ studentId?: string; sectionId?: string }>;
 }
 
-export default async function ParentSettingsPage({ params }: PageProps) {
+/** Settings held a single language switcher; it lives in the account sheet now. */
+export default async function ParentSettingsRedirectPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
-  const dict = await getDictionary(locale);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect(`/${locale}/login`);
-
-  return (
-    <ParentSettingsEntry
-      locale={locale}
-      labels={dict.dashboard.parent.settings}
-      localeSwitcher={dict.common.locale}
-    />
-  );
+  const sp = await searchParams;
+  redirect(parentRedirectPath(locale, "/account", sp));
 }

@@ -34,25 +34,25 @@ describe("listParentTourRuntimeChecks", () => {
     expect(billing?.pathFor("es", {})).toBe("/es/dashboard/parent/payments?tab=fees");
   });
 
-  it("maps tasks/assessments/badges smokes to progress hub tabs with body anchors", () => {
-    const tasks = listParentTourRuntimeChecks().find((r) => r.id === "screen:parent-tasks");
-    const assessments = listParentTourRuntimeChecks().find(
-      (r) => r.id === "screen:parent-assessments",
-    );
-    const badges = listParentTourRuntimeChecks().find((r) => r.id === "screen:parent-badges");
-    const badgesTask = listParentTourRuntimeChecks().find(
-      (r) => r.id === "task:parent-badges-overview",
-    );
-    expect(tasks?.pathFor("es", {})).toBe("/es/dashboard/parent/progress?tab=tasks");
-    expect(assessments?.pathFor("es", {})).toBe(
-      "/es/dashboard/parent/progress?tab=assessments",
-    );
-    expect(badges?.pathFor("es", {})).toBe("/es/dashboard/parent/progress?tab=badges");
-    expect(badgesTask?.pathFor("es", {})).toBe("/es/dashboard/parent/progress?tab=badges");
-    expect(tasks?.anchors).toEqual(["parent-tasks-list"]);
-    expect(assessments?.anchors).toEqual(["parent-assessments-body"]);
-    expect(badges?.anchors).toEqual(["parent-badges-body"]);
-    expect(badgesTask?.anchors).toEqual(["parent-badges-body"]);
+  it("maps every child section smoke to its own route and title anchor", () => {
+    const rowFor = (id: string) => listParentTourRuntimeChecks().find((r) => r.id === id);
+    const cases: Array<[string, string, string]> = [
+      ["screen:parent-attendance", "/es/dashboard/parent/child/attendance", "parent-attendance-title"],
+      ["screen:parent-grades", "/es/dashboard/parent/child/grades", "parent-grades-title"],
+      ["screen:parent-tasks", "/es/dashboard/parent/child/tasks", "parent-tasks-title"],
+      ["screen:parent-feedback", "/es/dashboard/parent/child/feedback", "parent-feedback-title"],
+      ["screen:parent-badges", "/es/dashboard/parent/child/badges", "parent-badges-title"],
+      ["screen:parent-child", "/es/dashboard/parent/child", "parent-child-title"],
+    ];
+    for (const [id, path, anchor] of cases) {
+      const row = rowFor(id);
+      expect(row?.pathFor("es", {}), id).toBe(path);
+      expect(row?.anchors, id).toEqual([anchor]);
+    }
+
+    const badgesTask = rowFor("task:parent-badges-overview");
+    expect(badgesTask?.pathFor("es", {})).toBe("/es/dashboard/parent/child/badges");
+    expect(badgesTask?.anchors).toEqual(["parent-badges-title"]);
   });
 
   it("task paths match parentTutorialTargetPath", () => {
@@ -71,7 +71,7 @@ describe("listParentTourRuntimeChecks", () => {
     );
     expect(row?.pathFor("es", {})).toBeNull();
     expect(row?.pathFor("es", { studentId: "00000000-0000-4000-8000-000000000001" })).toBe(
-      "/es/dashboard/parent/children/00000000-0000-4000-8000-000000000001",
+      "/es/dashboard/parent/child/edit?studentId=00000000-0000-4000-8000-000000000001",
     );
   });
 
