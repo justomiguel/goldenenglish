@@ -21,6 +21,23 @@ Violating the letter is violating the spirit. Do not “code first and document 
 
 Writing or updating files under `docs/superpowers/specs/` is part of Gate 0 and is allowed before user approval; all other implementation edits wait for approval.
 
+## Commit policy — specs with implementation
+
+- **Do not** commit specs (or plans) alone ahead of the feature.
+- Keep `docs/superpowers/specs/**` and `docs/superpowers/plans/**` **uncommitted** until the implementation is ready to commit.
+- When the user asks to commit, include **spec + plan + implementation** (and related tests/migrations) in the **same** commit (or the same final commit batch the user requested).
+- Exception: docs-only chores the user explicitly asks to commit without product code (e.g. fixing a typo in an already-shipped spec).
+
+```text
+# ❌ BAD — commit the design first, implement later
+git commit -m "docs: spec foo"
+# ... implement ...
+git commit -m "feat: foo"
+
+# ✅ GOOD — one final commit with both
+git commit -m "feat: foo (spec + implementation)"
+```
+
 ## Skills
 
 - **REQUIRED:** `.agents/skills/spec-driven-development/SKILL.md` when starting features/bugs/refactors.

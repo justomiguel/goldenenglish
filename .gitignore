@@ -77,6 +77,8 @@ next-env.d.ts
 
 # supabase CLI temp/cache
 supabase/.temp/
+# One-shot concatenated migration dumps (never numbered migrations)
+supabase/migrations/_tmp_*.sql
 
 # Single-file SQL bundle for SQL Editor (generated; do not commit)
 supabase/dist/*.sql
