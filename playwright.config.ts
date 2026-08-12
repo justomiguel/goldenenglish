@@ -264,5 +264,14 @@ export default defineConfig({
         storageState: paths.storageState,
       },
     },
+    {
+      name: "chromium-critical-event-attendee-remove",
+      dependencies: ["setup"],
+      testMatch: /critical-event-attendee-remove\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: paths.storageState,
+      },
+    },
   ],
 });
