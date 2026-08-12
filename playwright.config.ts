@@ -204,6 +204,15 @@ export default defineConfig({
         storageState: paths.storageState,
       },
     },
+    {
+      name: "chromium-critical-attendance",
+      dependencies: ["setup"],
+      testMatch: /critical-attendance\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: paths.storageState,
+      },
+    },
     /**
      * No `setup` dependency and no storageState on purpose: the whole point is what an
      * unauthenticated caller can reach, so borrowing a session would defeat the test.
