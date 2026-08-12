@@ -91,6 +91,12 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
     {
+      name: "chromium-critical-teacher-auth",
+      dependencies: ["setup"],
+      testMatch: /critical-teacher-auth\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
       name: "chromium-critical-academic",
       dependencies: ["setup"],
       testMatch: /critical-academic\.spec\.ts/,
