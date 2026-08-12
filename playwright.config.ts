@@ -307,5 +307,24 @@ export default defineConfig({
       testMatch: /critical-forgot-password\.spec\.ts/,
       use: { ...devices["Desktop Chrome"] },
     },
+    {
+      name: "chromium-critical-collections-bulk",
+      dependencies: ["setup"],
+      testMatch: /critical-collections-bulk\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: paths.storageState,
+      },
+    },
+    /**
+     * Role hubs + shell deep links only — each test opens its own storage context
+     * (parent / student / teacher). No project-level storageState.
+     */
+    {
+      name: "chromium-portal-smoke-hubs",
+      dependencies: ["setup"],
+      testMatch: /portal-smoke-hubs\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
   ],
 });
