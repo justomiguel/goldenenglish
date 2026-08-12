@@ -100,6 +100,7 @@ export function e2eAuthPaths() {
     storageState: join(dir, "admin.json"),
     studentStorageState: join(dir, "student.json"),
     parentStorageState: join(dir, "parent.json"),
+    teacherStorageState: join(dir, "teacher.json"),
     readyMarker: join(dir, "ready"),
   };
 }

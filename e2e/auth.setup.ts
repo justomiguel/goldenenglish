@@ -62,7 +62,12 @@ setup("authenticate roles on isolated e2e stack", async ({ browser }) => {
 
   const isolation = resolveE2eIsolation();
   if (!isolation.ok) {
-    for (const p of [paths.storageState, paths.studentStorageState, paths.parentStorageState]) {
+    for (const p of [
+      paths.storageState,
+      paths.studentStorageState,
+      paths.parentStorageState,
+      paths.teacherStorageState,
+    ]) {
       mkdirSync(dirname(p), { recursive: true });
       writeFileSync(p, JSON.stringify({ cookies: [], origins: [] }));
     }
@@ -93,6 +98,14 @@ setup("authenticate roles on isolated e2e stack", async ({ browser }) => {
   await loginOnPage(parentPage, locale, parentEmail, password);
   await parentCtx.storageState({ path: paths.parentStorageState });
   await parentCtx.close();
+
+  const teacherEmail = (process.env.E2E_TEACHER_EMAIL ?? "e2e-teacher@example.test").trim();
+
+  const teacherCtx = await browser.newContext();
+  const teacherPage = await teacherCtx.newPage();
+  await loginOnPage(teacherPage, locale, teacherEmail, password);
+  await teacherCtx.storageState({ path: paths.teacherStorageState });
+  await teacherCtx.close();
 
   writeFileSync(paths.readyMarker, "1");
 });

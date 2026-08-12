@@ -143,6 +143,7 @@ DECLARE
   v_month int := EXTRACT(MONTH FROM CURRENT_DATE)::int;
   v_parent_month int;
   v_reject_month int;
+  v_record_month int;
   v_tour_invoice uuid := '00000000-0000-4000-8000-e2e000000002'::uuid;
   v_tour_receipt uuid := '00000000-0000-4000-8000-e2e000000001'::uuid;
   v_tour_receipt_path text;
@@ -153,6 +154,12 @@ BEGIN
     WHEN v_month <= 10 THEN v_month + 2
     WHEN v_month = 11 THEN 9
     ELSE 10
+  END;
+  v_record_month := CASE
+    WHEN v_month <= 9 THEN v_month + 3
+    WHEN v_month = 10 THEN 8
+    WHEN v_month = 11 THEN 7
+    ELSE 6
   END;
   v_admin := public._e2e_upsert_user(
     'e2e-admin@example.test', v_pw, 'admin', 'E2E', 'Admin', 'E2E-ADM-01'
@@ -371,6 +378,35 @@ BEGIN
     )
     VALUES (
       v_student, v_parent, v_section, v_reject_month, v_year, 100, 'pending', 'monthly',
+      NULL
+    );
+  END IF;
+
+  -- Fourth due month for admin record-payment-without-receipt E2E.
+  IF EXISTS (
+    SELECT 1 FROM public.payments
+    WHERE student_id = v_student
+      AND section_id = v_section
+      AND month = v_record_month
+      AND year = v_year
+  ) THEN
+    UPDATE public.payments
+    SET
+      status = 'pending',
+      amount = 100,
+      parent_id = v_parent,
+      receipt_url = NULL,
+      updated_at = now()
+    WHERE student_id = v_student
+      AND section_id = v_section
+      AND month = v_record_month
+      AND year = v_year;
+  ELSE
+    INSERT INTO public.payments (
+      student_id, parent_id, section_id, month, year, amount, status, payment_kind, receipt_url
+    )
+    VALUES (
+      v_student, v_parent, v_section, v_record_month, v_year, 100, 'pending', 'monthly',
       NULL
     );
   END IF;
