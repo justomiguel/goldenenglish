@@ -273,5 +273,23 @@ export default defineConfig({
         storageState: paths.storageState,
       },
     },
+    {
+      name: "chromium-critical-record-payment",
+      dependencies: ["setup"],
+      testMatch: /critical-record-payment\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: paths.storageState,
+      },
+    },
+    {
+      name: "chromium-critical-scholarship",
+      dependencies: ["setup"],
+      testMatch: /critical-scholarship\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: paths.storageState,
+      },
+    },
   ],
 });
