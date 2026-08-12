@@ -24,10 +24,13 @@ async function cycleCellUntilPresent(cell: Locator) {
   await expect(cell).toHaveText("P", { timeout: 5_000 });
 }
 
-/** Autosave POST that includes at least one `present` mark (debounced batch). */
-function waitPresentAutosave(page: Page) {
+/**
+ * Autosave POST that successfully saves `present` for the given cell key
+ * (`enrollmentId|attendedOn`, matches `data-att-cell`).
+ */
+function waitPresentAutosave(page: Page, cellKey: string) {
   return page.waitForResponse(
-    (r) => {
+    async (r) => {
       if (
         !r.url().includes("/api/admin/attendance/cells") ||
         r.request().method() !== "POST" ||
@@ -37,9 +40,24 @@ function waitPresentAutosave(page: Page) {
       }
       try {
         const body = r.request().postDataJSON() as {
-          cells?: Array<{ status?: string }>;
+          cells?: Array<{
+            enrollmentId?: string;
+            attendedOn?: string;
+            status?: string;
+          }>;
         } | null;
-        return Boolean(body?.cells?.some((c) => c.status === "present"));
+        const matchesCell = Boolean(
+          body?.cells?.some(
+            (c) =>
+              c.status === "present" &&
+              c.enrollmentId &&
+              c.attendedOn &&
+              `${c.enrollmentId}|${c.attendedOn}` === cellKey,
+          ),
+        );
+        if (!matchesCell) return false;
+        const json = (await r.json()) as { ok?: boolean };
+        return json.ok === true;
       } catch {
         return false;
       }
@@ -81,12 +99,14 @@ test.describe("@critical-attendance", () => {
       .first();
     await expect(cell).toBeVisible({ timeout: 60_000 });
     const cellKey = await cell.getAttribute("data-att-cell");
-    expect(cellKey).toBeTruthy();
+    if (!cellKey) throw new Error("missing data-att-cell on editable attendance cell");
 
     // Matrix autosaves (~550ms debounce) — there is no Guardar asistencia floating CTA.
-    const saveDone = waitPresentAutosave(page);
+    const saveDone = waitPresentAutosave(page, cellKey);
     if ((await cell.innerText()).trim() === "P") {
       await cell.click();
+      // Avoid stale-P race: cycleCellUntilPresent must not return on pre-click text.
+      await expect(cell).not.toHaveText("P", { timeout: 5_000 });
     }
     await cycleCellUntilPresent(cell);
     await saveDone;
