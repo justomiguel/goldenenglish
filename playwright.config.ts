@@ -205,6 +205,15 @@ export default defineConfig({
       },
     },
     {
+      name: "chromium-critical-section-unenroll",
+      dependencies: ["setup"],
+      testMatch: /critical-section-unenroll\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: paths.storageState,
+      },
+    },
+    {
       name: "chromium-critical-attendance",
       dependencies: ["setup"],
       testMatch: /critical-attendance\.spec\.ts/,
