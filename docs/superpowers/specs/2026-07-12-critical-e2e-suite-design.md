@@ -1,11 +1,13 @@
 # Critical E2E suite — design
 
 **Date:** 2026-07-12  
-**Status:** Approved — implement full critical suite (all phases in this effort; ship incrementally green)  
+**Status:** Shipped through Phase 6 — Phase 7 (nightly) still open  
 **Related:**
 - `docs/runbooks/e2e-isolated-harness.md`
 - `docs/superpowers/specs/2026-07-11-e2e-local-supabase-stack-design.md`
 - `docs/superpowers/specs/2026-07-11-precommit-e2e-gate-design.md`
+- `docs/superpowers/specs/2026-07-12-critical-e2e-coverage-roadmap-design.md`
+- `docs/superpowers/specs/2026-08-12-critical-e2e-phase6-full-coverage-design.md`
 - Rule `.cursor/rules/34-precommit-e2e.mdc`
 
 ## Intent
@@ -140,9 +142,10 @@ Password convention: same strength as admin (`E2eLocal!Stack1`) unless env overr
 
 ## Follow-ups
 
-- **Phase 2:** receipt upload → admin approve → paid — **done** (`critical-payments`; see also `2026-07-12-critical-e2e-phase2b3b-design.md`). Remaining: live MP/Flow.  
-- **Phase 3:** create-teacher + free event register — **done**. Remaining: paid event / transfer.  
+- **Phase 2:** receipt upload → admin approve → paid — **done** (`critical-payments`; see also `2026-07-12-critical-e2e-phase2b3b-design.md`). Remaining: live MP/Flow → Phase 7.  
+- **Phase 3:** create-teacher + free event register — **done**. Remaining: paid event / transfer → Phase 4.  
 - **Phase 4:** import job; optional nightly gateway sandbox — users import + paid event + parent payments **done** (`phase4a` / `phase4b`).  
 - **Phase 5a:** section enroll + event payment approve — **done**.  
-- **Phase 5b:** reject payment + ward email + create cohort — see `2026-07-12-critical-e2e-coverage-roadmap-design.md` / plan `2026-07-12-critical-e2e-phase5b.md`.  
-- **Phase 6+ / nightly:** attendance, messaging, CMS, live gateways — roadmap.
+- **Phase 5b:** reject payment + ward email + create cohort — **done**.  
+- **Phase 6:** teacher auth, attendance, unenroll, event attendee remove, record-payment, scholarship, messaging, collections-bulk, forgot-password, portal smokes — **done** (`2026-08-12-critical-e2e-phase6-full-coverage-design.md`).  
+- **Phase 7 (nightly / open):** live MP/Flow sandbox, CMS / site-setup, coupons/promotions, multi-locale, assistant fixture — do **not** block default precommit.

@@ -47,10 +47,21 @@ test.describe("@critical-create-user", () => {
     await page.locator(tourInput(ADMIN_TOUR_ANCHORS.createUserPassword)).fill(password);
     await page.locator(adminTourSelector(ADMIN_TOUR_ANCHORS.createUserSubmit)).click();
 
-    await expect(
-      page.getByText(new RegExp(email.replace(".", "\\."), "i")).or(
-        page.getByText(/creado|created|éxito|success/i),
-      ).first(),
-    ).toBeVisible({ timeout: 60_000 });
+    // Create sets "Usuario creado" then soft-pushes the list — nav can stall, and when it
+    // lands RSC may be stale. Always hard-goto the list after success, then flush the
+    // debounced email filter (Enter) so the row is not buried under leftover teachers.
+    const listUrl = new RegExp(`/${locale}/dashboard/admin/users/?$`);
+    await Promise.race([
+      page.getByText(/Usuario creado|User created/i).waitFor({ state: "visible", timeout: 60_000 }),
+      page.waitForURL(listUrl, { timeout: 60_000 }),
+    ]);
+    await gotoIsolated(page, `/${locale}/dashboard/admin/users`);
+    await expect(page).toHaveURL(listUrl, { timeout: 20_000 });
+    const filter = page.locator("#users-filter");
+    await filter.fill(email);
+    await filter.press("Enter");
+    await expect(page.getByRole("cell", { name: email, exact: true })).toBeVisible({
+      timeout: 20_000,
+    });
   });
 });

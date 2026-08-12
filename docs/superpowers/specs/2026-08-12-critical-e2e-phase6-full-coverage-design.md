@@ -3,7 +3,7 @@
 **Date:** 2026-08-12  
 **Parent:** [critical-e2e-suite-design.md](./2026-07-12-critical-e2e-suite-design.md)  
 **Roadmap:** [critical-e2e-coverage-roadmap-design.md](./2026-07-12-critical-e2e-coverage-roadmap-design.md)  
-**Status:** Approved (user — sections 1–3 “me cierra”; full P0+P1+portal smokes on precommit)  
+**Status:** Shipped  
 **Related:** `docs/runbooks/e2e-isolated-harness.md`, rule `.cursor/rules/34-precommit-e2e.mdc`
 
 ## Intent
@@ -14,10 +14,10 @@ Close the remaining high-value **browser journey** gaps after Phase 5b and post-
 
 | Layer | Notes |
 |-------|--------|
-| Precommit Playwright | ~21 spec files / ~94 tests; warm ~1.5–2 min (+ cold `next build` ~7 min) |
-| Strong | Auth roles, register→accept, invite link, payments approve/reject, parent payments/ward email, cohort/section/enroll, events free/paid/approve, users import, student care, anon privilege |
-| Weak | Teacher role (seeded, no storage), attendance mutation, unenroll, event attendee remove, record-without-receipt, messaging, collections bulk, forgot-password, scholarship assign, portal deep smokes |
-| Nightly (not started) | Live MP/Flow, CMS publish, coupons, multi-locale, assistant |
+| Precommit Playwright | Full Phase 6 suite on default gate; warm budget **≤15 min** (measured ~**2.0 min** / 114 tests); cold `next build` ~7 min |
+| Strong | Auth roles (incl. teacher storage), register→accept, invite link, payments approve/reject/record, scholarship, parent payments/ward email, cohort/section/enroll/unenroll, attendance, events free/paid/approve/remove, messaging, collections bulk preview, forgot-password, portal hub smokes, users import, student care, anon privilege |
+| Weak | (none for Phase 6 scope — remaining gaps are Phase 7 nightly) |
+| Nightly (Phase 7 — open) | Live MP/Flow, CMS publish, coupons, multi-locale, assistant |
 
 ## Approaches (delivery)
 
@@ -98,11 +98,11 @@ Wire via separate npm script / `E2E_SUITE=full`; **do not** block default precom
 
 ## Definition of done
 
-1. All ten precommit specs above green via `npm run test:e2e:precommit` (or documented `E2E_SUITE=extended` split if budget forces it).
-2. Teacher `storageState` + seed due-month (if needed) idempotent.
-3. Projects wired in `playwright.config.ts`.
-4. Runbook project table + parent suite Follow-ups updated; roadmap Phase 6 marked shipped when done.
-5. Phase 7 listed only (not implemented in the same effort unless user asks).
+1. All ten precommit specs above green via `npm run test:e2e:precommit` (or documented `E2E_SUITE=extended` split if budget forces it). ✅
+2. Teacher `storageState` + seed due-month (if needed) idempotent. ✅
+3. Projects wired in `playwright.config.ts`. ✅
+4. Runbook project table + parent suite Follow-ups updated; roadmap Phase 6 marked shipped when done. ✅
+5. Phase 7 listed only (not implemented in the same effort unless user asks). ✅
 
 ## Implementation waves (for the plan)
 
