@@ -54,12 +54,19 @@ test.describe("@critical-scholarship", () => {
       timeout: 20_000,
     });
 
-    const billingCell = page.getByRole("button", {
-      name: new RegExp(`^${monthRe}\\s*·`, "i"),
+    // Prefer the planned scholarship month when it is still open with no prior
+    // scholarship. Fall back to any plain Vencido cell (name ends with Vencido —
+    // skip months that already show "75% beca" / "100% beca" etc.).
+    const plannedCell = page.getByRole("button", {
+      name: new RegExp(`^${monthRe}\\s*·\\s*Vencido$`, "i"),
     });
+    const openCell = page.getByRole("button", { name: /·\s*Vencido$/i });
+    const billingCell =
+      (await plannedCell.count()) > 0 ? plannedCell.first() : openCell.first();
 
     if ((await billingCell.count()) > 0) {
-      await billingCell.first().click();
+      const cellName = (await billingCell.getAttribute("aria-label")) ?? (await billingCell.innerText());
+      await billingCell.click();
       await page
         .getByRole("button", {
           name: /Aplicar beca|Apply scholarship|Add scholarship/i,
@@ -68,11 +75,13 @@ test.describe("@critical-scholarship", () => {
 
       const percentInput = page.locator("#record-payment-scholarship-pct");
       await expect(percentInput).toBeVisible({ timeout: 10_000 });
+      await percentInput.fill("");
       await percentInput.fill("25");
+      await expect(percentInput).toHaveValue("25");
 
-      await page
-        .getByRole("button", { name: /Confirmar|Confirm/i })
-        .click();
+      await page.getByRole("button", { name: /Confirmar|Confirm/i }).click();
+      // Stash for clearer failure messages if the badge assert fails later.
+      test.info().annotations.push({ type: "scholarship-cell", description: cellName });
     } else {
       // Fallback: scholarship tab (task:assign-scholarship-percent anchors).
       await page
@@ -85,6 +94,7 @@ test.describe("@critical-scholarship", () => {
       const percentInput = page.locator("#sch-pct");
       await expect(percentInput).toBeVisible({ timeout: 10_000 });
       await percentInput.fill("25");
+      await expect(percentInput).toHaveValue("25");
 
       await page
         .locator(adminTourSelector(ADMIN_TOUR_ANCHORS.scholarshipSave))
@@ -94,13 +104,8 @@ test.describe("@critical-scholarship", () => {
     await expect(async () => {
       await page.reload({ waitUntil: "domcontentloaded" });
       const badge = page
-        .getByText(/25\s*%/)
-        .or(page.getByText(/25%.*(?:beca|descuento|discount|scholarship)/i))
-        .or(
-          page.getByRole("button", {
-            name: /25\s*%/,
-          }),
-        )
+        .getByRole("button", { name: /25\s*%/ })
+        .or(page.getByText(/\b25\s*%/))
         .first();
       await expect(badge).toBeVisible({ timeout: 10_000 });
     }).toPass({ timeout: 45_000 });

@@ -291,5 +291,21 @@ export default defineConfig({
         storageState: paths.storageState,
       },
     },
+    {
+      name: "chromium-critical-messaging",
+      dependencies: ["setup"],
+      testMatch: /critical-messaging\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    /**
+     * Late among student-touching projects. Uses a throwaway user created in-spec
+     * (never mutates e2e-student@example.test / student storage).
+     */
+    {
+      name: "chromium-critical-forgot-password",
+      dependencies: ["setup"],
+      testMatch: /critical-forgot-password\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
   ],
 });
