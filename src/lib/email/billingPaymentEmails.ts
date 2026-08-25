@@ -123,11 +123,12 @@ export async function notifyOverdueBalance(opts: {
   amount: number;
   currency: string;
   year: number;
-}): Promise<void> {
+}): Promise<{ outcome: "ok" | "disabled" }> {
   const toList = await collectRecipientEmailsForStudent(opts.studentId);
-  if (toList.length === 0) return;
+  if (toList.length === 0) return { outcome: "ok" };
   const amountLabel = formatMoneyLabel(opts.amount, opts.currency, opts.locale);
   const periodContext = String(opts.year);
+  let disabled = false;
   for (const to of toList) {
     const r = await sendBrandedEmail({
       to,
@@ -139,10 +140,15 @@ export async function notifyOverdueBalance(opts: {
         periodContext,
       },
     });
+    if (r.ok && "skipped" in r && r.skipped) {
+      disabled = true;
+      continue;
+    }
     if (!r.ok) {
       logServerException("notifyOverdueBalance:send", new Error(r.error), {
         studentId: opts.studentId,
       });
     }
   }
+  return { outcome: disabled ? "disabled" : "ok" };
 }

@@ -108,6 +108,10 @@ export async function sendRetentionContactEmailAction(input: unknown): Promise<
     },
   });
 
+  if (send.ok && "skipped" in send && send.skipped) {
+    return { ok: false, code: "DISABLED" };
+  }
+
   if (!send.ok) {
     logServerActionInvariantViolation(S, "branded_email_rejected", {
       error: send.error,

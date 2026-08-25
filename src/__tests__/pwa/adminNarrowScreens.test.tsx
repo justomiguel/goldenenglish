@@ -41,6 +41,8 @@ const regRow: AdminRegistrationRow = {
   tutor_phone: null,
   tutor_relationship: null,
   preferred_section_id: null,
+  additionalSectionIds: [],
+  existingStudentId: null,
   contacted_at: null,
   contacted_by: null,
   sourceSectionLinkId: null,

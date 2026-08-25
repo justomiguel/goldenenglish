@@ -4,6 +4,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { redirect } from "next/navigation";
 import { loadAdminHubSummary } from "@/lib/dashboard/loadAdminHubSummary";
+import { loadAdminFirstClassChecklist } from "@/lib/dashboard/loadAdminFirstClassChecklist";
 import { loadDashboardBirthdaysCard } from "@/lib/birthdays/loadDashboardBirthdaysCard";
 import { AdminHubHome } from "@/components/dashboard/AdminHubHome";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
@@ -31,10 +32,20 @@ export default async function AdminHomePage({ params }: AdminHomeProps) {
   if (!isAdmin) redirect(`/${locale}`);
 
   const adminClient = createAdminClient();
-  const [summary, birthdayRows] = await Promise.all([
+  const [summary, birthdayRows, checklist] = await Promise.all([
     loadAdminHubSummary(supabase, adminClient, user.id),
     loadDashboardBirthdaysCard(supabase, user.id),
+    loadAdminFirstClassChecklist(supabase, locale),
   ]);
 
-  return <AdminHubHome locale={locale} dict={dict} summary={summary} birthdayRows={birthdayRows} birthdaysDict={dict.dashboard.birthdays} />;
+  return (
+    <AdminHubHome
+      locale={locale}
+      dict={dict}
+      summary={summary}
+      birthdayRows={birthdayRows}
+      birthdaysDict={dict.dashboard.birthdays}
+      checklist={checklist}
+    />
+  );
 }

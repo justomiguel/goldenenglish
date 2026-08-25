@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { Input } from "@/components/atoms/Input";
 import type { Dictionary } from "@/types/i18n";
 
 export type RouteCheckpointDraft = {
@@ -95,7 +96,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 function NumberField({ label, value, onChange }: { label: string; value: number | null; onChange: (value: number | null) => void }) {
   return (
     <Field label={label}>
-      <input type="number" value={value ?? ""} onChange={(event) => onChange(event.target.value === "" ? null : Number(event.target.value))} className="w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm" />
+      <Input type="number" value={value ?? ""} onChange={(event) => onChange(event.target.value === "" ? null : Number(event.target.value))} className="w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm" />
     </Field>
   );
 }

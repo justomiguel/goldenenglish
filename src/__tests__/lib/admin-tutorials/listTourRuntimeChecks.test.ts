@@ -229,5 +229,6 @@ describe("listTourRuntimeChecks", () => {
     for (const anchor of check?.anchors ?? []) {
       expect(stepAnchors.has(anchor), anchor).toBe(true);
     }
+    expect(check?.anchors).not.toContain(ADMIN_TOUR_ANCHORS.chromeLocale);
   });
 });

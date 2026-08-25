@@ -39,7 +39,7 @@ export function AdminDashboardShell({
   const navDict = dict.dashboard.adminNav;
 
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--color-muted)]">
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-[var(--color-muted)]">
       <AdminChromeHeader
         locale={locale}
         brand={brand}

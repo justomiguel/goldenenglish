@@ -75,6 +75,9 @@ describe("buildExplainAdminHomeSteps", () => {
     expect(
       steps.find((s) => s.anchor === ADMIN_TOUR_ANCHORS.chromeTeacherPortal)?.optional,
     ).toBe(true);
+    expect(
+      steps.find((s) => s.anchor === ADMIN_TOUR_ANCHORS.chromeLocale)?.optional,
+    ).toBe(true);
   });
 });
 

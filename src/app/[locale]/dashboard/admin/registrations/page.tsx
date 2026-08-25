@@ -12,6 +12,8 @@ import {
 } from "@/lib/dashboard/loadPaginatedRegistrations";
 import type { RegistrationSortKey } from "@/lib/dashboard/adminRegistrationsSort";
 import { loadRegistrationStatusCounts } from "@/lib/dashboard/loadRegistrationStatusCounts";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { resolveExistingStudentIdsForLeads } from "@/lib/register/resolveExistingStudentIdsForLeads";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { resolveWhatsAppCountry } from "@/lib/whatsapp/resolveWhatsAppDigits";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
@@ -64,6 +66,14 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
     loadRegistrationStatusCounts(supabase, paginationParams.q ?? ""),
     getBrandForRequest(),
   ]);
+  const existingByLead = await resolveExistingStudentIdsForLeads(
+    createAdminClient(),
+    result.rows,
+  );
+  const rows = result.rows.map((row) => ({
+    ...row,
+    existingStudentId: existingByLead.get(row.id) ?? null,
+  }));
 
   const cohortSections = cohort
     ? await loadCurrentCohortSections(supabase)
@@ -82,7 +92,7 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
       </p>
       <AdminRegistrationsScreen
         locale={locale}
-        rows={result.rows}
+        rows={rows}
         totalCount={result.totalCount}
         page={result.page}
         pageSize={result.pageSize}

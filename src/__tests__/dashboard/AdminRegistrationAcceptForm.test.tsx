@@ -30,6 +30,12 @@ const row = {
   tutor_email: null,
   tutor_phone: null,
   tutor_relationship: null,
+  preferred_section_id: null,
+  additionalSectionIds: [],
+  existingStudentId: null,
+  contacted_at: null,
+  contacted_by: null,
+  sourceSectionLinkId: null,
 };
 
 describe("AdminRegistrationAcceptForm", () => {
@@ -38,7 +44,7 @@ describe("AdminRegistrationAcceptForm", () => {
   });
 
   it("submits and calls onSuccess (password derived from DNI on server)", async () => {
-    acceptRegistration.mockResolvedValue({ ok: true });
+    acceptRegistration.mockResolvedValue({ ok: true, studentId: "stu-1", pendingSectionIds: [] });
     const onClose = vi.fn();
     const onSuccess = vi.fn();
     const onBusy = vi.fn();
@@ -62,6 +68,120 @@ describe("AdminRegistrationAcceptForm", () => {
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
     await waitFor(() => expect(acceptRegistration).toHaveBeenCalled());
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+  });
+
+  it("closes after accept when the requested section enrolled automatically", async () => {
+    acceptRegistration.mockResolvedValue({ ok: true, studentId: "stu-1", pendingSectionIds: [] });
+    const onClose = vi.fn();
+    const onSuccess = vi.fn();
+    render(
+      <AdminRegistrationAcceptForm
+        locale="es"
+        row={{
+          ...row,
+          preferred_section_id: "11111111-1111-4111-8111-111111111111",
+        }}
+        legalAgeMajority={18}
+        busy={false}
+        onBusy={vi.fn()}
+        onClose={onClose}
+        onSuccess={onSuccess}
+        labels={dictEn.admin.registrations}
+        userLabels={userLabels}
+        currentCohortSections={[
+          {
+            id: "11111111-1111-4111-8111-111111111111",
+            name: "A1 morning",
+            teacherName: "Ana",
+            activeCount: 2,
+            maxStudents: 12,
+          },
+        ]}
+        currentCohortName="2026"
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
+    await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+    expect(onClose).toHaveBeenCalled();
+    expect(
+      screen.queryByRole("button", { name: dictEn.admin.registrations.skipSectionEnrollment }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("asks for a section when the lead did not request one", async () => {
+    acceptRegistration.mockResolvedValue({ ok: true, studentId: "stu-1", pendingSectionIds: [] });
+    const onSuccess = vi.fn();
+    render(
+      <AdminRegistrationAcceptForm
+        locale="es"
+        row={row}
+        legalAgeMajority={18}
+        busy={false}
+        onBusy={vi.fn()}
+        onClose={vi.fn()}
+        onSuccess={onSuccess}
+        labels={dictEn.admin.registrations}
+        userLabels={userLabels}
+        currentCohortSections={[
+          {
+            id: "11111111-1111-4111-8111-111111111111",
+            name: "A1 morning",
+            teacherName: "Ana",
+            activeCount: 2,
+            maxStudents: 12,
+          },
+        ]}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: dictEn.admin.registrations.skipSectionEnrollment }),
+      ).toBeInTheDocument();
+    });
+    expect(onSuccess).not.toHaveBeenCalled();
+  });
+
+  it("shows the picker only for leftover sections after accept", async () => {
+    acceptRegistration.mockResolvedValue({
+      ok: true,
+      studentId: "stu-1",
+      pendingSectionIds: ["11111111-1111-4111-8111-111111111111"],
+    });
+    render(
+      <AdminRegistrationAcceptForm
+        locale="es"
+        row={{
+          ...row,
+          preferred_section_id: "11111111-1111-4111-8111-111111111111",
+        }}
+        legalAgeMajority={18}
+        busy={false}
+        onBusy={vi.fn()}
+        onClose={vi.fn()}
+        onSuccess={vi.fn()}
+        labels={dictEn.admin.registrations}
+        userLabels={userLabels}
+        currentCohortSections={[
+          {
+            id: "11111111-1111-4111-8111-111111111111",
+            name: "A1 morning",
+            teacherName: "Ana",
+            activeCount: 12,
+            maxStudents: 12,
+          },
+        ]}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        dictEn.admin.registrations.acceptPendingSections,
+      );
+    });
+    expect(
+      screen.getByRole("button", { name: dictEn.admin.registrations.skipSectionEnrollment }),
+    ).toBeInTheDocument();
   });
 
   it("shows generic error when accept fails without message", async () => {

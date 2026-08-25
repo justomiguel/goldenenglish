@@ -69,6 +69,13 @@ describe("coverage gap closure", () => {
     expect(screen.getByAltText(mockBrandPublic.name)).toBeInTheDocument();
   });
 
+  it("LoginHeroPanel keeps wordmark logos from being squashed into a square", () => {
+    render(<LoginHeroPanel brand={mockBrandPublic} locale="es" />);
+    const logo = screen.getByAltText(mockBrandPublic.logoAlt || mockBrandPublic.name);
+    expect(logo.className).toContain("object-contain");
+    expect(logo.className).toContain("w-auto");
+  });
+
   it("LandingFooterPwa shows social and email links", () => {
     render(
       <LandingFooterPwa

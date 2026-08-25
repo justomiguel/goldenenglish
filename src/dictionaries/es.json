@@ -1430,6 +1430,23 @@
           "cta": "Ver usuarios",
           "linkAria": "{{count}} alumnos necesitan sección. Abrir listado de usuarios."
         }
+      },
+      "firstClassChecklist": {
+        "title": "Lista para la primera clase",
+        "lead": "Completá estos pasos para poder dar clase y cobrar.",
+        "progress": "{{done}} de {{total}}",
+        "goDoIt": "Ir a hacerlo",
+        "goDoItAria": "Ir a hacerlo: {{item}}",
+        "items": {
+          "createStudent": "Crear un alumno",
+          "createTeacher": "Crear un profesor",
+          "createCohortAndSection": "Crear una cohorte y una sección",
+          "assignTeacher": "Asignar el profesor a la sección",
+          "enrollStudent": "Inscribir el alumno en la sección",
+          "setSchedule": "Definir el horario de la sección",
+          "setFees": "Definir los aranceles de la sección",
+          "setPaymentMethod": "Configurar un medio de cobro"
+        }
       }
     },
     "settings": {
@@ -1441,6 +1458,17 @@
       "inscriptionsToggleTooltip": "Activá o desactivá el formulario de inscripción visible en el sitio público.",
       "saved": "Guardado",
       "error": "No se pudo guardar",
+      "emailSendsTitle": "Envíos de email",
+      "emailSendsHint": "Activá o desactivá cada correo automático. El texto a la derecha es el valor de hoy.",
+      "emailSendsTodayOn": "Hoy: se está enviando",
+      "emailSendsTodayOff": "Hoy: no se envía",
+      "emailSendsGroupAutomated": "Automáticos",
+      "emailSendsGroupBilling": "Facturación",
+      "emailSendsGroupAcademics": "Académico",
+      "emailSendsGroupMessaging": "Mensajería",
+      "emailSendsGroupOther": "Otros avisos",
+      "emailSendsLabelInactivity": "Recordatorios de no ingreso",
+      "emailSendsLabelClassReminder": "Recordatorios de clase",
       "classRemindersTitle": "Recordatorios de clase (automáticos)",
       "classRemindersHint": "El cron envía con el service role. WhatsApp requiere variables de entorno Meta y plantilla aprobada; el email usa Resend.",
       "classRemindersEnabled": "Activar recordatorios de clase",
@@ -3523,6 +3551,11 @@
       "whatsAppMessage": "Hola {name}, te escribimos de {institute} por tu consulta de inscripción.",
       "minorMarker": "Menor",
       "viaSectionLink": "vía enlace",
+      "existingStudentBadge": "Alumno existente",
+      "requestedSections": "Secciones pedidas",
+      "existingStudentFicha": "Abrir ficha del alumno",
+      "acceptExistingLead": "Este documento coincide con un alumno existente. Al aceptar se suman las secciones pedidas sin crear otra ficha.",
+      "acceptPendingSections": "Algunas secciones pedidas no se pudieron asignar solas. Podés asignarlas a continuación.",
       "expandRow": "Ver detalle",
       "collapseRow": "Ocultar detalle",
       "detailsTitle": "Detalle de la consulta",
@@ -4046,7 +4079,18 @@
   },
   "register": {
     "title": "Solicitud de inscripción",
-    "lead": "Contanos sobre vos. Te contactamos a la brevedad.",
+    "lead": "Estos datos son del alumno. Si es menor de edad y todavía no está en el instituto, después pedimos los del padre o tutor.",
+    "studentSectionTitle": "Datos del alumno",
+    "continue": "Continuar",
+    "lookupFailed": "No pudimos verificar el documento. Intentá de nuevo.",
+    "existingFoundTitle": "Ya hay un alumno con este documento",
+    "existingFoundLead": "¿Es {firstName} {lastName}?",
+    "existingYes": "Sí, es este alumno",
+    "existingNo": "No, no es este alumno",
+    "existingRejected": "Revisá el documento o contactá al instituto. No podemos crear otra ficha con el mismo documento.",
+    "sectionsTitle": "Secciones",
+    "sectionsHint": "Podés elegir más de una.",
+    "sectionsAlsoJoin": "También puede sumarse a…",
     "firstName": "Nombre",
     "lastName": "Apellido",
     "dni": "DNI / RUT / pasaporte",
@@ -4064,6 +4108,7 @@
     "birthDateHint": "La usamos para calcular la edad al dar de alta la cuenta.",
     "studentEmailNotCollectedMinorLead": "No pedimos correo ni teléfono del alumno/a menor aquí; el centro asignará un correo en su dominio. Usá el teléfono del tutor para el contacto.",
     "tutorEmailSameAsStudent": "El correo del tutor debe ser distinto al correo del estudiante.",
+    "documentInUse": "Este documento ya pertenece a otra cuenta. Contactá al instituto.",
     "tutorSectionTitle": "Datos del tutor o responsable",
     "tutorSectionLead": "Para menores de edad, completá estos datos obligatoriamente.",
     "tutorName": "Nombre del tutor",
@@ -6388,6 +6433,10 @@
             "title": "📝 Inscripciones públicas",
             "description": "Activá o pausá el embudo de inscripción pública cuando no aceptás formularios nuevos."
           },
+          "emailSends": {
+            "title": "✉️ Envíos de email",
+            "description": "Activá o desactivá cada correo del producto. El texto a la derecha muestra si se está enviando hoy."
+          },
           "classReminders": {
             "title": "⏰ Recordatorios de clase",
             "description": "Configurá recordatorios automáticos para avisos de clase a tiempo."
@@ -7446,6 +7495,7 @@
       "contactEmailFailForbidden": "No se puede enviar: la sesión de admin no es válida. Iniciá sesión de nuevo.",
       "contactEmailFailNoPermission": "No se puede enviar: no tenés acceso de administración.",
       "contactEmailFailParse": "Datos no válidos. Actualizá la página e intentá de nuevo.",
+      "contactEmailFailDisabled": "Este email está desactivado en Configuración.",
       "contactNoPhone": "Sin teléfono del tutor",
       "contactNoEmail": "Sin email del tutor",
       "emailIntro": "Nos contactamos por las señales tempranas de retención de esta matrícula. Resumimos a continuación para coordinar los próximos pasos.",

@@ -5,6 +5,7 @@ import { Button } from "@/components/atoms/Button";
 import { RegistrationContactCell } from "@/components/dashboard/RegistrationContactCell";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
+import { RegistrationExistingStudentBadge } from "@/components/dashboard/RegistrationExistingStudentBadge";
 import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
@@ -62,6 +63,7 @@ export function AdminRegistrationPwaCard({
       <div className="space-y-2">
         <p className="break-words font-medium text-[var(--color-foreground)]">
           {formatProfileNameSurnameFirst(r.first_name, r.last_name)}
+          {r.existingStudentId ? <RegistrationExistingStudentBadge labels={labels} /> : null}
           {contact.isMinor ? (
             <span className="ml-2 whitespace-nowrap rounded-full border border-[var(--color-border)] px-2 py-0.5 text-xs font-normal text-[var(--color-muted-foreground)]">
               {labels.minorMarker}

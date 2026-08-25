@@ -10,6 +10,7 @@ import {
 } from "@/app/[locale]/dashboard/teacher/sections/assessmentGradeActions";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { Input } from "@/components/atoms/Input";
 
 function CreateSubmit({ label, pendingLabel }: { label: string; pendingLabel: string }) {
   const { pending } = useFormStatus();
@@ -107,7 +108,7 @@ export function CreateCohortAssessmentForm({ locale, sectionId, defaultDate, dic
           <label className="text-sm font-medium text-[var(--color-foreground)]" htmlFor="new-asmt-max">
             {dict.maxScoreLabel}
           </label>
-          <input
+          <Input
             id="new-asmt-max"
             type="number"
             min={1}

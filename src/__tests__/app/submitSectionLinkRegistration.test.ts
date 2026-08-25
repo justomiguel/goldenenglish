@@ -15,6 +15,14 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({ from, rpc }),
 }));
 
+vi.mock("@/lib/supabase/admin", () => ({
+  createAdminClient: () => ({}),
+}));
+
+vi.mock("@/lib/register/resolveExistingStudentByDni", () => ({
+  resolveExistingStudentByDni: async () => ({ kind: "none" }),
+}));
+
 vi.mock("@/lib/brand/legalAge", () => ({
   getLegalAgeMajorityFromSystem: () => 18,
 }));
@@ -30,6 +38,7 @@ vi.mock("@/lib/i18n/dictionaries", () => ({
       validationError: "validación",
       invalidSectionOption: "sección inválida",
       tutorEmailSameAsStudent: "igual",
+      documentInUse: "documento en uso",
       sectionLink: { unavailableClosed: "cerrado" },
     },
     actionErrors: {

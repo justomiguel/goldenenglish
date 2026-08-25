@@ -5,9 +5,14 @@ import { REGISTRATION_UNDECIDED_FORM_VALUE } from "@/lib/register/registrationSe
 import { mockPush } from "@/test/navigationMock";
 
 const submitPublicRegistration = vi.hoisted(() => vi.fn());
+const lookupRegistrationStudentAction = vi.hoisted(() => vi.fn());
 
 vi.mock("@/app/[locale]/register/actions", () => ({
   submitPublicRegistration,
+}));
+
+vi.mock("@/app/[locale]/register/lookupRegistrationStudentAction", () => ({
+  lookupRegistrationStudentAction,
 }));
 
 import { RegisterForm } from "@/components/register/RegisterForm";
@@ -18,6 +23,8 @@ const SECTION_OPTIONS = [{ id: SECTION_ID, label: "2026 — B1 Morning" }];
 describe("RegisterForm", () => {
   beforeEach(() => {
     submitPublicRegistration.mockReset();
+    lookupRegistrationStudentAction.mockReset();
+    lookupRegistrationStudentAction.mockResolvedValue({ ok: true, found: false });
   });
 
   /** react-day-picker: month option values are 0–11 (en/locale-independent). */
@@ -51,23 +58,42 @@ describe("RegisterForm", () => {
     fireEvent.click(btn);
   }
 
-  function fillAndSubmit() {
+  function fillStudentFields(first = "A", last = "B") {
     const r = dictEn.register;
     fireEvent.change(screen.getByLabelText(r.firstName), {
-      target: { value: "A" },
+      target: { value: first },
     });
-    fireEvent.change(screen.getByLabelText(r.lastName), { target: { value: "B" } });
+    fireEvent.change(screen.getByLabelText(r.lastName), { target: { value: last } });
     fireEvent.change(screen.getByLabelText(r.dni), { target: { value: "12345678" } });
+  }
+
+  async function continueToDetails() {
+    const r = dictEn.register;
+    fireEvent.click(screen.getByRole("button", { name: r.continue }));
+    await waitFor(() => {
+      expect(lookupRegistrationStudentAction).toHaveBeenCalled();
+    });
+  }
+
+  function chooseSection() {
+    fireEvent.click(screen.getByRole("checkbox", { name: SECTION_OPTIONS[0].label }));
+  }
+
+  async function fillAndSubmit() {
+    const r = dictEn.register;
+    fillStudentFields();
+    pickRegisterBirthIso("2000-06-15");
+    await continueToDetails();
+    await waitFor(() => {
+      expect(screen.getByLabelText(r.email)).toBeInTheDocument();
+    });
     fireEvent.change(screen.getByLabelText(r.email), {
       target: { value: "a@b.co" },
     });
     fireEvent.change(screen.getByLabelText(r.phone), {
       target: { value: "+100" },
     });
-    pickRegisterBirthIso("2000-06-15");
-    fireEvent.change(screen.getByLabelText(r.level), {
-      target: { value: SECTION_ID },
-    });
+    chooseSection();
     fireEvent.click(screen.getByRole("button", { name: r.submit }));
   }
 
@@ -81,7 +107,7 @@ describe("RegisterForm", () => {
         sectionOptions={SECTION_OPTIONS}
       />,
     );
-    fillAndSubmit();
+    await fillAndSubmit();
     await waitFor(() => {
       expect(screen.getByText(dictEn.register.successTitle)).toBeInTheDocument();
     });
@@ -112,7 +138,7 @@ describe("RegisterForm", () => {
         sectionOptions={SECTION_OPTIONS}
       />,
     );
-    fillAndSubmit();
+    await fillAndSubmit();
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(dictEn.register.closed);
     });
@@ -131,7 +157,7 @@ describe("RegisterForm", () => {
         sectionOptions={SECTION_OPTIONS}
       />,
     );
-    fillAndSubmit();
+    await fillAndSubmit();
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(dictEn.register.validationError);
     });
@@ -147,13 +173,13 @@ describe("RegisterForm", () => {
         sectionOptions={SECTION_OPTIONS}
       />,
     );
-    fillAndSubmit();
+    await fillAndSubmit();
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(dictEn.register.error);
     });
   });
 
-  it("shows tutor fields when birth date indicates minor", () => {
+  it("shows tutor fields when a new minor continues", async () => {
     render(
       <RegisterForm
         locale="es"
@@ -162,7 +188,13 @@ describe("RegisterForm", () => {
         sectionOptions={SECTION_OPTIONS}
       />,
     );
+    fillStudentFields("Ch", "Lo");
     pickRegisterBirthIso("2015-01-01");
+    expect(screen.queryByText(dictEn.register.tutorSectionTitle)).not.toBeInTheDocument();
+    await continueToDetails();
+    await waitFor(() => {
+      expect(screen.getByText(dictEn.register.tutorSectionTitle)).toBeInTheDocument();
+    });
     expect(screen.queryByLabelText(dictEn.register.email)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(dictEn.register.phone)).not.toBeInTheDocument();
     expect(
@@ -182,14 +214,12 @@ describe("RegisterForm", () => {
       />,
     );
     const r = dictEn.register;
-    fireEvent.change(screen.getByLabelText(r.firstName), {
-      target: { value: "Ch" },
-    });
-    fireEvent.change(screen.getByLabelText(r.lastName), {
-      target: { value: "Lo" },
-    });
-    fireEvent.change(screen.getByLabelText(r.dni), { target: { value: "12345678" } });
+    fillStudentFields("Ch", "Lo");
     pickRegisterBirthIso("2015-01-01");
+    await continueToDetails();
+    await waitFor(() => {
+      expect(screen.getByLabelText(r.tutorName)).toBeInTheDocument();
+    });
     expect(screen.queryByLabelText(r.email)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(r.phone)).not.toBeInTheDocument();
     fireEvent.change(screen.getByLabelText(r.tutorName), {
@@ -205,9 +235,7 @@ describe("RegisterForm", () => {
     fireEvent.change(screen.getByLabelText(r.tutorRelationship), {
       target: { value: "Madre" },
     });
-    fireEvent.change(screen.getByLabelText(r.level), {
-      target: { value: SECTION_ID },
-    });
+    chooseSection();
     fireEvent.click(screen.getByRole("button", { name: r.submit }));
     await waitFor(() => {
       expect(screen.getByText(dictEn.register.successTitle)).toBeInTheDocument();
@@ -235,21 +263,19 @@ describe("RegisterForm", () => {
       />,
     );
     const r = dictEn.register;
-    fireEvent.change(screen.getByLabelText(r.firstName), {
-      target: { value: "A" },
+    fillStudentFields();
+    pickRegisterBirthIso("2000-06-15");
+    await continueToDetails();
+    await waitFor(() => {
+      expect(screen.getByLabelText(r.email)).toBeInTheDocument();
     });
-    fireEvent.change(screen.getByLabelText(r.lastName), { target: { value: "B" } });
-    fireEvent.change(screen.getByLabelText(r.dni), { target: { value: "12345678" } });
     fireEvent.change(screen.getByLabelText(r.email), {
       target: { value: "a@b.co" },
     });
     fireEvent.change(screen.getByLabelText(r.phone), {
       target: { value: "+100" },
     });
-    pickRegisterBirthIso("2000-06-15");
-    fireEvent.change(screen.getByLabelText(r.level), {
-      target: { value: REGISTRATION_UNDECIDED_FORM_VALUE },
-    });
+    fireEvent.click(screen.getByRole("checkbox", { name: r.sectionUndecidedOption }));
     fireEvent.click(screen.getByRole("button", { name: r.submit }));
     await waitFor(() => {
       expect(screen.getByText(dictEn.register.successTitle)).toBeInTheDocument();
@@ -270,11 +296,123 @@ describe("RegisterForm", () => {
         sectionOptions={SECTION_OPTIONS}
       />,
     );
-    fillAndSubmit();
+    await fillAndSubmit();
     await waitFor(() => {
       expect(screen.getByText(dictEn.register.successTitle)).toBeInTheDocument();
     });
     fireEvent.click(screen.getByText(dictEn.register.backHome));
     expect(mockPush).toHaveBeenCalledWith("/es");
+  });
+
+  it("keeps tutor and submit off the student step", () => {
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={SECTION_OPTIONS}
+      />,
+    );
+    expect(screen.getByRole("button", { name: dictEn.register.continue })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: dictEn.register.submit })).not.toBeInTheDocument();
+    expect(screen.queryByText(dictEn.register.tutorSectionTitle)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(dictEn.register.email)).not.toBeInTheDocument();
+  });
+
+  it("asks to confirm the stored name when the document matches", async () => {
+    lookupRegistrationStudentAction.mockResolvedValue({
+      ok: true,
+      found: true,
+      firstName: "Lucía",
+      lastName: "Sosa",
+    });
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={SECTION_OPTIONS}
+      />,
+    );
+    fillStudentFields();
+    pickRegisterBirthIso("2000-06-15");
+    await continueToDetails();
+    await waitFor(() => {
+      expect(screen.getByText(dictEn.register.existingFoundTitle)).toBeInTheDocument();
+    });
+    expect(screen.getByText(dictEn.register.existingFoundTitle)).toBeInTheDocument();
+    expect(screen.getByText("Is this Lucía Sosa?")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: dictEn.register.submit })).not.toBeInTheDocument();
+  });
+
+  it("hides tutor after confirming an existing student", async () => {
+    lookupRegistrationStudentAction.mockResolvedValue({
+      ok: true,
+      found: true,
+      firstName: "Lucía",
+      lastName: "Sosa",
+    });
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={SECTION_OPTIONS}
+      />,
+    );
+    fillStudentFields();
+    pickRegisterBirthIso("2015-01-01");
+    await continueToDetails();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: dictEn.register.existingYes })).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole("button", { name: dictEn.register.existingYes }));
+    expect(screen.queryByText(dictEn.register.tutorSectionTitle)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: dictEn.register.submit })).toBeInTheDocument();
+  });
+
+  it("does not submit when the match is rejected", async () => {
+    lookupRegistrationStudentAction.mockResolvedValue({
+      ok: true,
+      found: true,
+      firstName: "Lucía",
+      lastName: "Sosa",
+    });
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={SECTION_OPTIONS}
+      />,
+    );
+    fillStudentFields();
+    pickRegisterBirthIso("2000-06-15");
+    await continueToDetails();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: dictEn.register.existingNo })).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole("button", { name: dictEn.register.existingNo }));
+    expect(screen.getByRole("alert")).toHaveTextContent(dictEn.register.existingRejected);
+    expect(submitPublicRegistration).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: dictEn.register.submit })).not.toBeInTheDocument();
+  });
+
+  it("stays on the student step when lookup fails", async () => {
+    lookupRegistrationStudentAction.mockResolvedValue({ ok: false });
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={SECTION_OPTIONS}
+      />,
+    );
+    fillStudentFields();
+    pickRegisterBirthIso("2000-06-15");
+    await continueToDetails();
+    expect(screen.getByRole("alert")).toHaveTextContent(dictEn.register.lookupFailed);
+    expect(screen.queryByLabelText(dictEn.register.email)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: dictEn.register.continue })).toBeInTheDocument();
   });
 });

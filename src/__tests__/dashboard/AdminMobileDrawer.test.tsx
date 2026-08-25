@@ -84,4 +84,21 @@ describe("AdminMobileDrawer", () => {
     expect(document.body.style.overflow).toBe("");
     expect(screen.queryByRole("dialog", { name: dictEn.dashboard.adminNav.aria })).toBeNull();
   });
+
+  it("does not show the language switcher or view-site control", async () => {
+    const user = userEvent.setup();
+    render(
+      <AdminMobileDrawer
+        locale="es"
+        dict={dictEn}
+        newRegistrationsCount={0}
+        recentInboundMessagesCount={0}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: dictEn.dashboard.adminNav.mobileOpen }));
+
+    expect(screen.queryByRole("link", { name: dictEn.dashboard.adminChrome.backToSite })).toBeNull();
+    expect(screen.queryByRole("navigation", { name: dictEn.common.locale.label })).toBeNull();
+  });
 });

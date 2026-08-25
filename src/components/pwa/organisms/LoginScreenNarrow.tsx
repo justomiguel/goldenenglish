@@ -72,10 +72,10 @@ export function LoginScreenNarrow({
             <Image
               src={brand.logoPath}
               alt={brand.logoAlt || brand.name}
-              width={64}
-              height={64}
+              width={360}
+              height={108}
               unoptimized={bypassLogoOptimizer}
-              className="block h-14 w-14 rounded-[var(--layout-border-radius)]"
+              className="block h-12 w-auto max-w-[10rem] object-contain"
               priority
             />
           </div>

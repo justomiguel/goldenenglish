@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { AdminCreateUserForm } from "@/components/dashboard/AdminCreateUserForm";
+import { parseAdminCreateUserRoleQuery } from "@/lib/dashboard/parseAdminCreateUserRoleQuery";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 export const metadata: Metadata = {
@@ -10,10 +11,12 @@ export const metadata: Metadata = {
 
 interface PageProps {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ role?: string }>;
 }
 
-export default async function AdminUsersNewPage({ params }: PageProps) {
+export default async function AdminUsersNewPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
+  const { role: roleQuery } = await searchParams;
   const dict = await getDictionary(locale);
   const legalAgeMajority = getLegalAgeMajorityFromSystem();
   const birthLabels = {
@@ -45,6 +48,7 @@ export default async function AdminUsersNewPage({ params }: PageProps) {
           labels={dict.admin.users}
           birthLabels={birthLabels}
           birthDateIncompleteMessage={dict.register.birthDateIncomplete}
+          initialRole={parseAdminCreateUserRoleQuery(roleQuery)}
         />
       </div>
     </div>

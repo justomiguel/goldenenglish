@@ -9,6 +9,7 @@ import { AdminRegistrationTableRow } from "@/components/dashboard/AdminRegistrat
 import { RegistrationListToolbar } from "@/components/molecules/RegistrationListToolbar";
 import { UniversalListView } from "@/components/organisms/UniversalListView";
 import { useAdminRegistrationsList } from "@/hooks/useAdminRegistrationsList";
+import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistrationSectionIds";
 import { resolveRegistrationContact } from "@/lib/register/resolveRegistrationContact";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { AdminRegistrationsTableDesktopProps } from "./AdminRegistrationsTableDesktop.types";
@@ -178,6 +179,9 @@ export function AdminRegistrationsTableDesktop({
                       ? (sectionNameById.get(r.preferred_section_id) ?? null)
                       : null
                   }
+                  requestedSectionNames={requestedRegistrationSectionIds(r).map(
+                    (id) => sectionNameById.get(id) ?? id,
+                  )}
                 />
               ) : null}
             </Fragment>

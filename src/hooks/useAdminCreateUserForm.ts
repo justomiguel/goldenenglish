@@ -19,14 +19,15 @@ export function useAdminCreateUserForm(opts: {
   legalAgeMajority: number;
   labels: Dictionary["admin"]["users"];
   birthDateIncompleteMessage: string;
+  initialRole?: AdminCreateUserRoleOption;
 }) {
-  const { locale, legalAgeMajority, labels, birthDateIncompleteMessage } = opts;
+  const { locale, legalAgeMajority, labels, birthDateIncompleteMessage, initialRole } = opts;
   const router = useRouter();
   const passwordHintId = useId();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<AdminCreateUserRoleOption>("student");
+  const [role, setRole] = useState<AdminCreateUserRoleOption>(initialRole ?? "student");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [dni, setDni] = useState("");

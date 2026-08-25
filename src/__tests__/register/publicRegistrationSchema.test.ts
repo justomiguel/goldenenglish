@@ -174,6 +174,37 @@ describe("buildPublicRegistrationSchema", () => {
     }
   });
 
+  it("accepts additional section ids", () => {
+    const r = schema.safeParse({
+      ...base,
+      birth_date: "2000-06-15",
+      additional_section_ids: [SECTION_ID],
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("rejects invalid additional section ids", () => {
+    const r = schema.safeParse({
+      ...base,
+      birth_date: "2000-06-15",
+      additional_section_ids: ["not-a-uuid"],
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("relaxes guardian contact when matching an existing student", () => {
+    const relaxed = buildPublicRegistrationSchema(18, {
+      requireNewStudentContact: false,
+    });
+    const r = relaxed.safeParse({
+      ...base,
+      email: "",
+      phone: "",
+      birth_date: "2015-01-01",
+    });
+    expect(r.success).toBe(true);
+  });
+
   it("rejects invalid section id", () => {
     const noSection = schema.safeParse({
       ...base,

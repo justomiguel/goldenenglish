@@ -24,6 +24,8 @@ const row: AdminRegistrationRow = {
   tutor_phone: "+54 9 362 470-8145",
   tutor_relationship: "Madre",
   preferred_section_id: "sec-1",
+  additionalSectionIds: [],
+  existingStudentId: null,
   contacted_at: "2026-08-05T13:00:00.000Z",
   contacted_by: "admin-1",
   sourceSectionLinkId: null,

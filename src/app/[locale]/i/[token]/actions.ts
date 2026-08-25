@@ -15,6 +15,9 @@ import { randomLowercaseAlphaString } from "@/lib/server/randomLowercaseAlphaStr
 import { isSectionEnrollmentLinkToken } from "@/lib/register/sectionEnrollmentLink";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import type { RegisterActionState } from "@/app/[locale]/register/actions";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { parseRequestedSectionIds } from "@/lib/register/parseRequestedSectionIds";
+import { resolveExistingStudentByDni } from "@/lib/register/resolveExistingStudentByDni";
 
 type ResolvedRow = {
   section_id?: string | null;
@@ -41,22 +44,17 @@ export async function submitSectionLinkRegistration(
     return { ok: false, message: reg.sectionLink.unavailableClosed };
   }
 
-  const parsed = buildPublicRegistrationSchema(
-    getLegalAgeMajorityFromSystem(),
-  ).safeParse(raw);
+  const legal = getLegalAgeMajorityFromSystem();
+  const parsed = buildPublicRegistrationSchema(legal, {
+    requireNewStudentContact: false,
+  }).safeParse(raw);
   if (!parsed.success) {
     return { ok: false, message: reg.validationError };
   }
 
   const d = parsed.data;
-  const legal = getLegalAgeMajorityFromSystem();
   const age = fullYearsFromIsoDate(d.birth_date);
   const tutorMail = (d.tutor_email ?? "").trim().toLowerCase();
-
-  const tenantDomain = age < legal ? getRegistrationMailTenantDomain() : null;
-  if (age < legal && !tenantDomain) {
-    return { ok: false, message: dict.actionErrors.register.mailTenantMissing };
-  }
 
   const supabase = await createClient();
 
@@ -82,12 +80,57 @@ export async function submitSectionLinkRegistration(
     .filter((part) => String(part ?? "").trim() !== "")
     .join(" — ");
 
+  const extraCandidates = (d.additional_section_ids ?? []).filter((id) => id !== sectionId);
+  const validExtras: string[] = [];
+  for (const id of extraCandidates) {
+    const { data: extraLabel, error: extraErr } = await supabase.rpc(
+      "registration_public_section_label",
+      { p_section_id: id },
+    );
+    if (!extraErr && extraLabel != null && String(extraLabel).trim() !== "") {
+      if (!validExtras.includes(id)) validExtras.push(id);
+    }
+  }
+  const parsedSections = parseRequestedSectionIds({
+    selectedIds: extraCandidates,
+    sectionOptionsOrder: validExtras,
+    lockedPreferredId: sectionId,
+    allowUndecided: false,
+  });
+  if (!parsedSections.ok) {
+    return { ok: false, message: reg.validationError };
+  }
+
+  const identity = await resolveExistingStudentByDni(createAdminClient(), d.dni);
+  if (identity.kind === "occupied") {
+    return { ok: false, message: reg.documentInUse };
+  }
+  const existingStudent = identity.kind === "student";
+  if (existingStudent && !identity.email) {
+    return { ok: false, message: reg.documentInUse };
+  }
+  if (!existingStudent) {
+    const contact = buildPublicRegistrationSchema(legal).safeParse(raw);
+    if (!contact.success) {
+      return { ok: false, message: reg.validationError };
+    }
+  }
+
+  const tenantDomain = !existingStudent && age < legal
+    ? getRegistrationMailTenantDomain()
+    : null;
+  if (!existingStudent && age < legal && !tenantDomain) {
+    return { ok: false, message: dict.actionErrors.register.mailTenantMissing };
+  }
+
   const maxMinorEmailAttempts = 16;
-  const maxAttempts = age < legal ? maxMinorEmailAttempts : 1;
+  const maxAttempts = existingStudent ? 1 : age < legal ? maxMinorEmailAttempts : 1;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     let resolvedEmail: string;
-    if (age < legal) {
+    if (existingStudent) {
+      resolvedEmail = identity.email;
+    } else if (age < legal) {
       /** No options on the first attempt, so the address matches the public form's. */
       const coreSuffix =
         attempt === 0
@@ -104,7 +147,7 @@ export async function submitSectionLinkRegistration(
       resolvedEmail = d.email.trim().toLowerCase();
     }
 
-    if (age < legal && tutorMail && tutorMail === resolvedEmail) {
+    if (!existingStudent && age < legal && tutorMail && tutorMail === resolvedEmail) {
       return { ok: false, message: reg.tutorEmailSameAsStudent };
     }
 
@@ -113,17 +156,18 @@ export async function submitSectionLinkRegistration(
       last_name: d.last_name,
       dni: d.dni,
       email: resolvedEmail,
-      phone: age < legal ? null : d.phone.trim(),
+      phone: existingStudent || age < legal ? null : d.phone.trim(),
       birth_date: d.birth_date,
       preferred_section_id: sectionId,
+      additional_section_ids: parsedSections.additionalSectionIds,
       source_section_link_id: sectionId,
       level_interest: sectionLabel || null,
       status: "new",
-      tutor_name: d.tutor_name?.trim() || null,
-      tutor_dni: d.tutor_dni?.trim() || null,
-      tutor_phone: d.tutor_phone?.trim() || null,
-      tutor_email: d.tutor_email?.trim() || null,
-      tutor_relationship: d.tutor_relationship?.trim() || null,
+      tutor_name: existingStudent ? null : d.tutor_name?.trim() || null,
+      tutor_dni: existingStudent ? null : d.tutor_dni?.trim() || null,
+      tutor_phone: existingStudent ? null : d.tutor_phone?.trim() || null,
+      tutor_email: existingStudent ? null : d.tutor_email?.trim() || null,
+      tutor_relationship: existingStudent ? null : d.tutor_relationship?.trim() || null,
     });
 
     if (!error) {

@@ -17,6 +17,14 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: () => mockCreateClient(),
 }));
 
+vi.mock("@/lib/supabase/admin", () => ({
+  createAdminClient: () => ({}),
+}));
+
+vi.mock("@/lib/register/resolveExistingStudentByDni", () => ({
+  resolveExistingStudentByDni: async () => ({ kind: "none" }),
+}));
+
 const SECTION_ID = "00000000-0000-4000-8000-000000000001";
 
 const valid = {
@@ -74,6 +82,7 @@ describe("submitPublicRegistration", () => {
 
   it("returns validation when body invalid", async () => {
     mockGetInscriptionsEnabled.mockResolvedValue(true);
+    mockCreateClient.mockResolvedValue(mockClientWithRpcAndInsert({ error: null }));
     const r = await submitPublicRegistration("es", {
       ...valid,
       email: "bad",
@@ -135,6 +144,7 @@ describe("submitPublicRegistration", () => {
 
   it("returns validation when minor payload includes student email", async () => {
     mockGetInscriptionsEnabled.mockResolvedValue(true);
+    mockCreateClient.mockResolvedValue(mockClientWithRpcAndInsert({ error: null }));
     vi.stubEnv("MAIL_TENANT", "alumnos.test");
     const r = await submitPublicRegistration("es", {
       ...minorNoStudentEmailPayload,
@@ -145,6 +155,13 @@ describe("submitPublicRegistration", () => {
 
   it("returns mail tenant missing when minor and MAIL_TENANT unset", async () => {
     mockGetInscriptionsEnabled.mockResolvedValue(true);
+    mockCreateClient.mockResolvedValue({
+      rpc: vi.fn().mockResolvedValue({
+        data: "Cohort — Section A",
+        error: null,
+      }),
+      from: () => ({ insert: vi.fn() }),
+    });
     const r = await submitPublicRegistration("es", minorNoStudentEmailPayload);
     expect(r).toEqual({
       ok: false,

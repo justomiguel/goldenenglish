@@ -27,7 +27,36 @@ function makeSupabase() {
       return chain;
     }),
     order: vi.fn(() => chain),
-    range: vi.fn(() => Promise.resolve({ data: [], error: null, count: 0 })),
+    range: vi.fn(() =>
+      Promise.resolve({
+        data: [
+          {
+            id: "lead-1",
+            first_name: "A",
+            last_name: "B",
+            dni: "1",
+            email: "a@x.co",
+            phone: null,
+            birth_date: null,
+            level_interest: null,
+            status: "new",
+            created_at: null,
+            tutor_name: null,
+            tutor_dni: null,
+            tutor_email: null,
+            tutor_phone: null,
+            tutor_relationship: null,
+            preferred_section_id: "11111111-1111-4111-8111-111111111111",
+            additional_section_ids: ["22222222-2222-4222-8222-222222222222"],
+            contacted_at: null,
+            contacted_by: null,
+            source_section_link_id: null,
+          },
+        ],
+        error: null,
+        count: 1,
+      }),
+    ),
     then: (resolve: (v: unknown) => unknown) =>
       resolve({ data: [], error: null, count: 0 }),
   };
@@ -46,6 +75,7 @@ describe("loadPaginatedRegistrations", () => {
 
     const selected = String(calls.select[0]?.[0] ?? "");
     expect(selected).toContain("preferred_section_id");
+    expect(selected).toContain("additional_section_ids");
     expect(selected).toContain("contacted_at");
     expect(selected).toContain("contacted_by");
   });
@@ -81,5 +111,28 @@ describe("loadPaginatedRegistrations", () => {
     await loadPaginatedRegistrations(supabase, { q: "50%" });
 
     expect(String(calls.or[0]?.[0] ?? "")).toContain("50\\%");
+  });
+
+  it("maps additional section ids onto the row model", async () => {
+    const { supabase } = makeSupabase();
+    const result = await loadPaginatedRegistrations(supabase, {});
+    expect(result.rows[0]?.additionalSectionIds).toEqual([
+      "22222222-2222-4222-8222-222222222222",
+    ]);
+    expect(result.rows[0]?.existingStudentId).toBeNull();
+  });
+
+  it("filters preferred or additional section ids together", async () => {
+    const { supabase, calls } = makeSupabase();
+    const sectionId = "11111111-1111-4111-8111-111111111111";
+
+    await loadPaginatedRegistrations(supabase, { sectionId });
+
+    expect(String(calls.or[0]?.[0] ?? "")).toContain(
+      `preferred_section_id.eq.${sectionId}`,
+    );
+    expect(String(calls.or[0]?.[0] ?? "")).toContain(
+      `additional_section_ids.cs.{${sectionId}}`,
+    );
   });
 });

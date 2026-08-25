@@ -78,6 +78,7 @@ export function buildExplainAdminHomeSteps(
       anchor: ADMIN_TOUR_ANCHORS.chromeLocale,
       title: copy.chromeLocale.title,
       description: copy.chromeLocale.description,
+      optional: true,
     },
     {
       anchor: ADMIN_TOUR_ANCHORS.hubTitle,

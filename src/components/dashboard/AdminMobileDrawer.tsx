@@ -1,11 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { ExternalLink, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { AdminSidebarNavContent } from "@/components/dashboard/AdminSidebarNavContent";
 import { DashboardMobileDrawerPortal } from "@/components/dashboard/DashboardMobileDrawerPortal";
-import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
 import { useDashboardMobileDrawer } from "@/hooks/useDashboardMobileDrawer";
 
@@ -63,32 +61,15 @@ export function AdminMobileDrawer({
           </div>
 
           <div className="mt-5 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <Link
-                href={`/${locale}`}
-                onClick={close}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
-              >
-                <ExternalLink className="h-4 w-4" aria-hidden />
-                <span>{chromeDict.backToSite}</span>
-              </Link>
-              <SignOutButton
-                locale={locale}
-                label={dict.nav.logout}
-                title={chromeDict.signOutHint}
-                className="min-h-11 flex-1 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
-              />
-            </div>
-            <div className="mt-3 flex justify-center">
-              <LanguageSwitcher
-                locale={locale}
-                labels={dict.common.locale}
-                variant="compact"
-              />
-            </div>
+            <SignOutButton
+              locale={locale}
+              label={dict.nav.logout}
+              title={chromeDict.signOutHint}
+              className="min-h-11 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
+            />
           </div>
 
-          <div className="mt-5 flex-1">
+          <div className="mt-5 min-h-0 flex-1 overflow-y-auto">
             <AdminSidebarNavContent
               locale={locale}
               dict={navDict}

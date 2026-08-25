@@ -33,7 +33,6 @@ const ADMIN_HOME_RUNTIME_ANCHORS: readonly AdminTourAnchor[] = [
   ADMIN_TOUR_ANCHORS.chromeHeader,
   ADMIN_TOUR_ANCHORS.chromeBackToSite,
   ADMIN_TOUR_ANCHORS.chromeSignOut,
-  ADMIN_TOUR_ANCHORS.chromeLocale,
   ADMIN_TOUR_ANCHORS.hubTitle,
   ADMIN_TOUR_ANCHORS.hubBirthdays,
   ADMIN_TOUR_ANCHORS.hubTraffic,

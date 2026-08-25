@@ -6,6 +6,8 @@ import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { loadEmailTemplate } from "@/lib/email/templates/loadEmailTemplate";
 import { wrapEmailHtml } from "@/lib/email/templates/wrapEmailHtml";
 import { logServerException } from "@/lib/logging/serverActionLog";
+import { isProductEmailEnabled } from "@/lib/email/emailSendsEnabled";
+import { loadEmailSendGate, type EmailSendGate } from "@/lib/email/loadEmailSendGate";
 import type { Locale } from "@/types/i18n";
 import type { EmailTemplateKey } from "@/types/emailTemplates";
 
@@ -16,10 +18,13 @@ export interface SendBrandedEmailInput {
   vars?: Record<string, string>;
   /** Opcional: usar otro provider (tests). */
   emailProvider?: EmailProvider;
+  /** Opcional: omitir la lectura de `site_settings` (tests). */
+  emailSendGate?: EmailSendGate;
 }
 
 export type SendBrandedEmailResult =
   | { ok: true; fromOverride: boolean }
+  | { ok: true; skipped: true }
   | { ok: false; error: string };
 
 /**
@@ -36,6 +41,17 @@ export type SendBrandedEmailResult =
 export async function sendBrandedEmail(
   input: SendBrandedEmailInput,
 ): Promise<SendBrandedEmailResult> {
+  const gate = input.emailSendGate ?? (await loadEmailSendGate());
+  if (
+    !isProductEmailEnabled({
+      map: gate.map,
+      classRemindersEnabled: gate.classRemindersEnabled,
+      templateKey: input.templateKey,
+    })
+  ) {
+    return { ok: true, skipped: true };
+  }
+
   const resolved = await loadEmailTemplate({
     key: input.templateKey,
     locale: input.locale,

@@ -4,7 +4,10 @@ import { UserPlus } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import type { Dictionary } from "@/types/i18n";
 import { AdminCreateUserMinorGuardianPanel } from "@/components/dashboard/AdminCreateUserMinorGuardianPanel";
-import { AdminCreateUserPersonalBlock } from "@/components/dashboard/AdminCreateUserPersonalBlock";
+import {
+  AdminCreateUserPersonalBlock,
+  type AdminCreateUserRoleOption,
+} from "@/components/dashboard/AdminCreateUserPersonalBlock";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { useAdminCreateUserForm } from "@/hooks/useAdminCreateUserForm";
 
@@ -26,6 +29,7 @@ interface AdminCreateUserFormProps {
   labels: Dictionary["admin"]["users"];
   birthLabels: BirthLabels;
   birthDateIncompleteMessage: string;
+  initialRole?: AdminCreateUserRoleOption;
 }
 
 export function AdminCreateUserForm({
@@ -34,12 +38,14 @@ export function AdminCreateUserForm({
   labels,
   birthLabels,
   birthDateIncompleteMessage,
+  initialRole,
 }: AdminCreateUserFormProps) {
   const f = useAdminCreateUserForm({
     locale,
     legalAgeMajority,
     labels,
     birthDateIncompleteMessage,
+    initialRole,
   });
 
   return (

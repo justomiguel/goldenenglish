@@ -20,7 +20,7 @@ interface StudentPaymentFormProps {
 
 export function StudentPaymentForm({ locale, labels, fileUploadProgress }: StudentPaymentFormProps) {
   const [month, setMonth] = useState(1);
-  const [year, setYear] = useState(2026);
+  const [year, setYear] = useState("2026");
   const [amount, setAmount] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -75,7 +75,7 @@ export function StudentPaymentForm({ locale, labels, fileUploadProgress }: Stude
             name="year"
             type="number"
             value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
+            onChange={(e) => setYear(e.target.value)}
             className="mt-1 w-full"
             required
           />

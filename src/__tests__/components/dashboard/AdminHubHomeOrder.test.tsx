@@ -56,4 +56,26 @@ describe("AdminHubHome — admin order (Test 5)", () => {
     );
     expect(container.querySelector('[data-tour="admin-hub-birthdays"]')).not.toBeNull();
   });
+
+  it("stacks hub cards in one column until lg instead of squeezing two at sm", () => {
+    const { container } = render(
+      <AdminHubHome
+        locale="en"
+        dict={dictEn}
+        summary={SUMMARY}
+        birthdayRows={[]}
+        birthdaysDict={dictEn.dashboard.birthdays}
+      />,
+    );
+
+    const traffic = container.querySelector('[data-tour="admin-hub-traffic"]');
+    const grid = traffic?.parentElement;
+    const tokens = (grid?.className ?? "").split(/\s+/);
+
+    expect(grid, "metrics grid must wrap the hub cards").toBeTruthy();
+    expect(tokens).toContain("grid-cols-1");
+    expect(tokens).not.toContain("sm:grid-cols-2");
+    expect(tokens).toContain("lg:grid-cols-2");
+    expect(tokens).toContain("xl:grid-cols-3");
+  });
 });

@@ -52,6 +52,7 @@ vi.mock("@/lib/site/publicUrl", () => ({
 }));
 
 const sendEmail = vi.fn();
+const OPEN_GATE = { map: {}, classRemindersEnabled: true } as const;
 
 describe("sendBrandedEmail", () => {
   beforeEach(() => {
@@ -67,6 +68,7 @@ describe("sendBrandedEmail", () => {
       templateKey: "messaging.teacher_new",
       locale: "es",
       emailProvider: { sendEmail },
+      emailSendGate: OPEN_GATE,
       vars: { senderName: "Ann", messagePreview: "Hi", href: "https://x.test" },
     });
     expect(r.ok).toBe(true);
@@ -98,6 +100,7 @@ describe("sendBrandedEmail", () => {
       templateKey: "messaging.teacher_new",
       locale: "es",
       emailProvider: { sendEmail },
+      emailSendGate: OPEN_GATE,
     });
     expect(r.ok && r.fromOverride).toBe(true);
     const call = sendEmail.mock.calls[0][0] as { subject: string; html: string };
@@ -112,6 +115,7 @@ describe("sendBrandedEmail", () => {
       templateKey: "does.not.exist",
       locale: "es",
       emailProvider: { sendEmail },
+      emailSendGate: OPEN_GATE,
     });
     expect(r).toEqual({ ok: false, error: "unknown_template_key" });
     expect(sendEmail).not.toHaveBeenCalled();
@@ -125,8 +129,35 @@ describe("sendBrandedEmail", () => {
       templateKey: "messaging.teacher_new",
       locale: "es",
       emailProvider: { sendEmail },
+      emailSendGate: OPEN_GATE,
       vars: { senderName: "x", messagePreview: "x", href: "x" },
     });
     expect(r).toEqual({ ok: false, error: "rate_limited" });
+  });
+
+  it("skips the provider when the product email is disabled", async () => {
+    const { sendBrandedEmail } = await import("@/lib/email/templates/sendBrandedEmail");
+    const r = await sendBrandedEmail({
+      to: "user@example.com",
+      templateKey: "churn.inactivity",
+      locale: "es",
+      emailProvider: { sendEmail },
+      emailSendGate: { map: { "churn.inactivity": false }, classRemindersEnabled: true },
+    });
+    expect(r).toEqual({ ok: true, skipped: true });
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("skips class-reminder email when the class-reminders site flag is off", async () => {
+    const { sendBrandedEmail } = await import("@/lib/email/templates/sendBrandedEmail");
+    const r = await sendBrandedEmail({
+      to: "user@example.com",
+      templateKey: "notifications.class_reminder_prep",
+      locale: "es",
+      emailProvider: { sendEmail },
+      emailSendGate: { map: {}, classRemindersEnabled: false },
+    });
+    expect(r).toEqual({ ok: true, skipped: true });
+    expect(sendEmail).not.toHaveBeenCalled();
   });
 });

@@ -15,6 +15,8 @@ export interface AdminRegistrationRow {
   tutor_phone: string | null;
   tutor_relationship: string | null;
   preferred_section_id: string | null;
+  additionalSectionIds: string[];
+  existingStudentId: string | null;
   /** Follow-up stamp; null while the lead is still new. */
   contacted_at: string | null;
   contacted_by: string | null;

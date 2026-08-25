@@ -4,6 +4,8 @@ import { sendStudentChurnAlert } from "@/lib/email/churnInactivityEmail";
 import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { verifyCronRequest } from "@/lib/auth/verifyCronRequest";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { loadEmailSendGate } from "@/lib/email/loadEmailSendGate";
+import { isProductEmailEnabled } from "@/lib/email/emailSendsEnabled";
 
 export const runtime = "nodejs";
 
@@ -20,6 +22,17 @@ export async function GET(request: Request) {
   } catch (err) {
     logServerException("api/cron/churn-inactivity:createAdminClient", err);
     return NextResponse.json({ ok: false, message: "no_admin_client" }, { status: 500 });
+  }
+
+  const gate = await loadEmailSendGate();
+  if (
+    !isProductEmailEnabled({
+      map: gate.map,
+      classRemindersEnabled: gate.classRemindersEnabled,
+      templateKey: "churn.inactivity",
+    })
+  ) {
+    return NextResponse.json({ ok: true, notified: 0 });
   }
 
   const BATCH_LIMIT = 100;

@@ -27,10 +27,10 @@ export function LoginHeroPanel({ brand, locale }: LoginHeroPanelProps) {
             <Image
               src={brand.logoPath}
               alt={brand.logoAlt || brand.name}
-              width={96}
-              height={96}
+              width={360}
+              height={108}
               unoptimized={bypassLogoOptimizer}
-              className="block h-20 w-20 rounded-[var(--layout-border-radius)] lg:h-24 lg:w-24"
+              className="block h-20 w-auto max-w-[16rem] object-contain lg:h-24 lg:max-w-[20rem]"
               priority
             />
           </div>

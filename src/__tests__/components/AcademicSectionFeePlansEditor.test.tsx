@@ -201,6 +201,24 @@ describe("AcademicSectionFeePlansEditor", () => {
     expect(screen.getByText(/This plan already has student payments/)).toBeInTheDocument();
   });
 
+  it("lets the user clear a lone 0 in the new monthly fee field", async () => {
+    const user = userEvent.setup();
+    render(
+      <AcademicSectionFeePlansEditor
+        locale="en"
+        sectionId="sec"
+        initialPlans={[]}
+        systemCurrency="USD"
+        dict={dict}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Add fee plan" }));
+    const fee = screen.getByLabelText("Monthly fee");
+    expect(fee).toHaveValue(0);
+    await user.clear(fee);
+    expect(fee).toHaveValue(null);
+  });
+
   it("offers Duplicate as new version on in-use plans and prefills the create form", async () => {
     const user = userEvent.setup();
     render(

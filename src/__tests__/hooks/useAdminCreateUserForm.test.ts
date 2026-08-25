@@ -50,6 +50,14 @@ describe("useAdminCreateUserForm", () => {
     expect(searchParentsActionMock).toHaveBeenCalledWith("mar");
   });
 
+  it("starts with the requested role when initialRole is passed", () => {
+    const { result } = renderHook(() =>
+      useAdminCreateUserForm({ ...opts, initialRole: "teacher" }),
+    );
+    expect(result.current.role).toBe("teacher");
+    expect(result.current.isStudent).toBe(false);
+  });
+
   it("treats under-age birth date as minor student", () => {
     const { result } = renderHook(() => useAdminCreateUserForm(opts));
 

@@ -24,6 +24,7 @@ interface LandingMimundoSectionsProps {
   brand: BrandPublic;
   locale: string;
   mediaMap?: LandingMediaMap;
+  blogEnabled?: boolean;
 }
 
 export function LandingMimundoSections({
@@ -31,6 +32,7 @@ export function LandingMimundoSections({
   brand,
   locale,
   mediaMap,
+  blogEnabled = false,
 }: LandingMimundoSectionsProps) {
   const t = (path: string) => marketingLandingCopy(dict, "mm", path);
 
@@ -164,6 +166,24 @@ export function LandingMimundoSections({
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link
+                  href={`/${locale}/events`}
+                  className="mm-link-bounce text-white/80 underline decoration-white/30 underline-offset-2 hover:text-white"
+                >
+                  {dict.events.public.title}
+                </Link>
+              </li>
+              {blogEnabled ? (
+                <li>
+                  <Link
+                    href={`/${locale}/blog`}
+                    className="mm-link-bounce text-white/80 underline decoration-white/30 underline-offset-2 hover:text-white"
+                  >
+                    {dict.blog.list.title}
+                  </Link>
+                </li>
+              ) : null}
             </ul>
           </div>
           <div>

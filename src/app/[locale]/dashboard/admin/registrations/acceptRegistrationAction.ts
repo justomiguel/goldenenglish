@@ -1,18 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
-import { createDashboardUser } from "@/app/[locale]/dashboard/admin/users/actions";
+import { revalidateAcademicSurfaces } from "@/app/[locale]/dashboard/admin/academic/revalidatePaths";
 import { normalizeDni } from "@/lib/import/studentImportUtils";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
-import { splitTutorDisplayName } from "@/lib/register/tutorDisplayNameParts";
-import {
-  ensureParentProfileByTutorDni,
-  upsertTutorStudentLink,
-} from "@/lib/register/ensureParentProfileByTutorDni";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
+import { createAcceptedStudentWithOptionalTutor } from "@/lib/register/createAcceptedStudentWithOptionalTutor";
 import { insertEnrollmentIfMissing } from "@/lib/import/bulkImportEnrollment";
 import { resolveCourseIdForRegistrationAccept } from "@/lib/register/resolveCourseIdForRegistrationAccept";
 import { isRegistrationUndecidedStored } from "@/lib/register/registrationSectionConstants";
@@ -25,17 +22,21 @@ import {
   failAfterStudentCreated,
   type AcceptRegistrationInput,
 } from "@/lib/register/acceptRegistrationHelpers";
+import { resolveExistingStudentByDni } from "@/lib/register/resolveExistingStudentByDni";
+import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistrationSectionIds";
+import { enrollRequestedSectionsOnAccept } from "@/lib/register/enrollRequestedSectionsOnAccept";
 
 export type AcceptRegistrationResult =
-  | { ok: true; studentId: string }
+  | { ok: true; studentId: string; pendingSectionIds: string[] }
   | { ok: false; message: string };
 
 export async function acceptRegistration(
   locale: string,
   raw: AcceptRegistrationInput,
 ): Promise<AcceptRegistrationResult> {
+  let session: SupabaseClient;
   try {
-    await assertAdmin();
+    ({ supabase: session } = await assertAdmin());
   } catch {
     logServerAuthzDenied("acceptRegistration");
     return {
@@ -57,7 +58,7 @@ export async function acceptRegistration(
   const { data: reg, error: fetchErr } = await admin
     .from("registrations")
     .select(
-      "id,status,first_name,last_name,dni,email,phone,birth_date,level_interest,preferred_section_id,tutor_name,tutor_dni,tutor_email,tutor_phone,tutor_relationship",
+      "id,status,first_name,last_name,dni,email,phone,birth_date,level_interest,preferred_section_id,additional_section_ids,tutor_name,tutor_dni,tutor_email,tutor_phone,tutor_relationship",
     )
     .eq("id", parsed.data.registration_id)
     .maybeSingle();
@@ -99,7 +100,13 @@ export async function acceptRegistration(
   const tutorDni = reg.tutor_dni != null ? String(reg.tutor_dni).trim() : "";
   const tutorNameRaw = reg.tutor_name != null ? String(reg.tutor_name) : "";
 
-  if (isMinor) {
+  const identity = await resolveExistingStudentByDni(admin, String(reg.dni));
+  if (identity.kind === "occupied") {
+    return { ok: false, message: dict.register.documentInUse };
+  }
+  const reuseStudent = identity.kind === "student";
+
+  if (isMinor && !reuseStudent) {
     if (!tutorDni) {
       return {
         ok: false,
@@ -129,75 +136,43 @@ export async function acceptRegistration(
   });
   const skipCourseEnrollment = !courseId;
 
-  const createRes = await createDashboardUser({
-    email: String(reg.email),
-    password: pwd,
-    role: "student",
-    first_name: String(reg.first_name),
-    last_name: String(reg.last_name),
-    dni_or_passport: String(reg.dni),
-    phone,
-    birth_date: birth,
-    locale,
-    provisioning_route: "registration_accept",
-  });
-
-  if (!createRes.ok) {
-    const msg =
-      "message" in createRes && createRes.message != null
-        ? createRes.message
-        : localizeRegistrationAcceptError(dict, "save_failed");
-    return { ok: false, message: msg };
-  }
-  const studentId = createRes.userId;
-  if (!studentId) {
-    return { ok: false, message: localizeRegistrationAcceptError(dict, "no_user_returned") };
-  }
-
-  if (isMinor) {
-    const { firstName: tf, lastName: tl } = splitTutorDisplayName(tutorNameRaw, {
-      defaultFirstName: dict.admin.registrations.tutorAccountDefaultFirst,
-      emptyLastName: dict.admin.registrations.emptyValue,
-    });
-    const parentRes = await ensureParentProfileByTutorDni(admin, {
-      tutorDniRaw: tutorDni,
+  let studentId: string;
+  if (reuseStudent) {
+    studentId = identity.studentId;
+  } else {
+    const created = await createAcceptedStudentWithOptionalTutor({
+      admin,
+      dict,
+      locale,
+      registrationId: String(reg.id),
+      email: String(reg.email),
+      password: pwd,
+      firstName: String(reg.first_name),
+      lastName: String(reg.last_name),
+      dni: String(reg.dni),
+      phone,
+      birth,
+      isMinor,
+      tutorDni,
+      tutorNameRaw,
       tutorEmail: reg.tutor_email != null ? String(reg.tutor_email) : null,
       tutorPhone: reg.tutor_phone != null ? String(reg.tutor_phone) : null,
-      tutorFirstName: tf,
-      tutorLastName: tl,
+      tutorRelationship:
+        reg.tutor_relationship != null ? String(reg.tutor_relationship) : null,
     });
-    if (!parentRes.ok) {
-      return failAfterStudentCreated(
-        admin,
-        String(reg.id),
-        studentId,
-        parentRes.message,
-        dict,
-        parentRes.incidentRef,
-      );
-    }
-    const rel =
-      reg.tutor_relationship != null ? String(reg.tutor_relationship) : null;
-    const linkRes = await upsertTutorStudentLink(
-      admin,
-      parentRes.parentId,
-      studentId,
-      rel,
-    );
-    if (!linkRes.ok) {
-      return failAfterStudentCreated(
-        admin,
-        String(reg.id),
-        studentId,
-        linkRes.message ?? "link_failed",
-        dict,
-      );
-    }
+    if (!created.ok) return created;
+    studentId = created.studentId;
   }
 
   if (courseId) {
     const enrollRes = await insertEnrollmentIfMissing(admin, studentId, courseId);
     if (!enrollRes.ok) {
+      if (reuseStudent) {
+        return {
+          ok: false,
+          message: localizeRegistrationAcceptError(dict, enrollRes.message ?? "enrollment_failed"),
+        };
+      }
       return failAfterStudentCreated(
         admin,
         String(reg.id),
@@ -208,12 +183,28 @@ export async function acceptRegistration(
     }
   }
 
+  const additionalSectionIds = Array.isArray(reg.additional_section_ids)
+    ? (reg.additional_section_ids as string[]).map(String)
+    : [];
+  const pendingSectionIds = await enrollRequestedSectionsOnAccept(
+    session,
+    studentId,
+    requestedRegistrationSectionIds({
+      preferred_section_id:
+        reg.preferred_section_id != null ? String(reg.preferred_section_id) : null,
+      additionalSectionIds,
+    }),
+  );
+
   const { error: upErr } = await admin
     .from("registrations")
     .update({ status: "enrolled" })
     .eq("id", reg.id);
 
   if (upErr) {
+    if (reuseStudent) {
+      return { ok: false, message: localizeRegistrationAcceptError(dict, "save_failed") };
+    }
     return failAfterStudentCreated(admin, String(reg.id), studentId, "save_failed", dict);
   }
 
@@ -236,5 +227,6 @@ export async function acceptRegistration(
 
   revalidatePath(`/${locale}/dashboard/admin/registrations`, "page");
   revalidatePath(`/${locale}/dashboard/admin`, "page");
-  return { ok: true, studentId };
+  revalidateAcademicSurfaces(locale);
+  return { ok: true, studentId, pendingSectionIds };
 }

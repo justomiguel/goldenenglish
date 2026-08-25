@@ -7,30 +7,13 @@ import {
   resolveE2eIsolation,
 } from "./env";
 import { gotoIsolated } from "./helpers/gotoIsolated";
+import { continueRegisterAfterStudent, pickRegisterBirthIso } from "./helpers/registerForm";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
 const authReady = existsSync(paths.readyMarker);
 const L = es.dashboard.sectionEnrollmentLink;
 const SL = es.register.sectionLink;
-
-async function pickAdultBirthDate(page: import("@playwright/test").Page) {
-  await expect(async () => {
-    await page.locator("#rg-birth-year").selectOption("1991");
-    await page.locator("#rg-birth-year").selectOption("1990");
-    await page.locator("#rg-birth-month").selectOption("0");
-    await page.locator("#rg-birth-month").selectOption("5");
-    await expect(page.locator("#rg-birth-year")).toHaveValue("1990");
-    await expect(page.locator("#rg-birth-month")).toHaveValue("5");
-  }).toPass({ timeout: 30_000 });
-
-  const dayBtn = page
-    .locator("#rg-birth-calendar-panel")
-    .getByRole("button", { name: /15 de junio de 1990|June 15,? 1990|15 de junho de 1990/i });
-  await expect(dayBtn).toBeVisible({ timeout: 10_000 });
-  await dayBtn.click();
-  await expect(page.locator('input[name="birth_date"]')).toHaveValue("1990-06-15");
-}
 
 test.describe("@critical-section-enrollment-link", () => {
   test.beforeEach(() => {
@@ -92,8 +75,10 @@ test.describe("@critical-section-enrollment-link", () => {
     const suffix = Date.now().toString(36);
     await familyPage.locator("#rg-fn").fill("E2E");
     await familyPage.locator("#rg-ln").fill(`Link${suffix}`);
-    await pickAdultBirthDate(familyPage);
+    await pickRegisterBirthIso(familyPage, "1990-06-15");
     await familyPage.locator("#rg-dni").fill(`E2EL${suffix}`.slice(0, 12));
+    await continueRegisterAfterStudent(familyPage);
+    await expect(familyPage.locator("#rg-em")).toBeVisible({ timeout: 20_000 });
     await familyPage.locator("#rg-em").fill(`e2e-link-${suffix}@example.test`);
     await familyPage.locator("#rg-ph").fill("+5491112345678");
     await familyPage.getByRole("button", { name: /enviar|submit|inscrib/i }).click();

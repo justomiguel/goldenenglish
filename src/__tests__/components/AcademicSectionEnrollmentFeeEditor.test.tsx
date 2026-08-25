@@ -65,6 +65,22 @@ describe("AcademicSectionEnrollmentFeeEditor", () => {
     expect(screen.getByText(dict.zeroMeans)).toBeInTheDocument();
   });
 
+  it("lets the user clear a lone 0 so they can type a new amount", () => {
+    render(
+      <AcademicSectionEnrollmentFeeEditor
+        locale="en"
+        sectionId={SECTION}
+        initialAmount={0}
+        dict={dict}
+      />,
+    );
+    const input = screen.getByLabelText(dict.amount);
+    fireEvent.change(input, { target: { value: "" } });
+    expect(input).toHaveValue(null);
+    expect(screen.getByRole("button", { name: dict.save })).toBeDisabled();
+    expect(screen.queryByText(dict.zeroMeans)).not.toBeInTheDocument();
+  });
+
   it("disables the submit while pristine and enables it when the amount changes", () => {
     render(
       <AcademicSectionEnrollmentFeeEditor

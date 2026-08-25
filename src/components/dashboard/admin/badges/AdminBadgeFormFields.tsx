@@ -6,6 +6,7 @@ import {
   type BadgeCategory,
   type BadgeCriteriaType,
 } from "@/lib/badges/badgeCatalog";
+import { Input } from "@/components/atoms/Input";
 import type { Dictionary } from "@/types/i18n";
 
 export type AdminBadgesDict = Dictionary["admin"]["badges"];
@@ -30,10 +31,10 @@ interface MetaFieldsProps {
   setCategory: (v: BadgeCategory) => void;
   criteriaType: BadgeCriteriaType;
   setCriteriaType: (v: BadgeCriteriaType) => void;
-  criteriaThreshold: number;
-  setCriteriaThreshold: (v: number) => void;
-  sortOrder: number;
-  setSortOrder: (v: number) => void;
+  criteriaThreshold: string;
+  setCriteriaThreshold: (v: string) => void;
+  sortOrder: string;
+  setSortOrder: (v: string) => void;
 }
 
 export function AdminBadgeMetaFields(props: MetaFieldsProps) {
@@ -74,14 +75,14 @@ export function AdminBadgeMetaFields(props: MetaFieldsProps) {
         <label className="text-sm font-medium" htmlFor="badge-sort">
           {labels.formSortOrder}
         </label>
-        <input
+        <Input
           id="badge-sort"
           className={inputCls}
           type="number"
           min={0}
           max={10000}
           value={sortOrder}
-          onChange={(e) => setSortOrder(Number(e.target.value))}
+          onChange={(e) => setSortOrder(e.target.value)}
           required
         />
         <p className="text-xs text-[var(--color-muted-foreground)]">{labels.tipSortOrder}</p>
@@ -125,14 +126,14 @@ export function AdminBadgeMetaFields(props: MetaFieldsProps) {
         <label className="text-sm font-medium" htmlFor="badge-threshold">
           {labels.formThreshold}
         </label>
-        <input
+        <Input
           id="badge-threshold"
           className={inputCls}
           type="number"
           min={0}
           max={10000}
           value={criteriaThreshold}
-          onChange={(e) => setCriteriaThreshold(Number(e.target.value))}
+          onChange={(e) => setCriteriaThreshold(e.target.value)}
           required
         />
         <p className="text-xs text-[var(--color-muted-foreground)]">{labels.tipThreshold}</p>

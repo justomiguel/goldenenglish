@@ -81,7 +81,7 @@ export async function sendOverdueBalanceRemindersAction(
       continue;
     }
     try {
-      await notifyOverdueBalance({
+      const result = await notifyOverdueBalance({
         studentId: id,
         locale: locale as Locale,
         sectionName: view.sectionName,
@@ -89,7 +89,8 @@ export async function sendOverdueBalanceRemindersAction(
         currency: currencyForStudent(stu),
         year: view.year,
       });
-      sent += 1;
+      if (result.outcome === "disabled") skipped += 1;
+      else sent += 1;
     } catch {
       skipped += 1;
     }

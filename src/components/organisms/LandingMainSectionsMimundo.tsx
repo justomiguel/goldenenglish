@@ -36,12 +36,7 @@ export function LandingMainSectionsMimundo({
           sessionEmail={sessionEmail}
           socialFacebook={brand.socialFacebook}
           socialInstagram={brand.socialInstagram}
-          showBlogLink={blogEnabled}
-          blogLabel={blogEnabled ? dict.blog.list.title : undefined}
-          showEventsLink
-          eventsLabel={dict.events.public.title}
           labels={{
-            inicio: t("nav.inicio"),
             institucional: t("nav.institucional"),
             colonia: t("nav.colonia"),
             propuesta: t("nav.propuesta"),
@@ -59,6 +54,7 @@ export function LandingMainSectionsMimundo({
           brand={brand}
           locale={locale}
           mediaMap={mediaMap}
+          blogEnabled={blogEnabled}
         />
       </main>
     </MiMundoFontRoot>

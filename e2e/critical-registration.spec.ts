@@ -7,37 +7,15 @@ import {
   resolveE2eIsolation,
 } from "./env";
 import { gotoIsolated } from "./helpers/gotoIsolated";
+import {
+  chooseRegisterSectionByName,
+  continueRegisterAfterStudent,
+  pickRegisterBirthIso,
+} from "./helpers/registerForm";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
 const authReady = existsSync(paths.readyMarker);
-
-async function pickAdultBirthDate(page: import("@playwright/test").Page) {
-  // Controlled <select>s under React often ignore the first Playwright selectOption
-  // (DOM updates, onChange does not). Bounce values and assert the calendar grid
-  // (React view state), not only the select's DOM value.
-  await expect(async () => {
-    await page.locator("#rg-birth-year").selectOption("1991");
-    await page.locator("#rg-birth-year").selectOption("1990");
-    await page.locator("#rg-birth-month").selectOption("0");
-    await page.locator("#rg-birth-month").selectOption("5"); // June (0-based)
-    await expect(page.locator("#rg-birth-year")).toHaveValue("1990");
-    await expect(page.locator("#rg-birth-month")).toHaveValue("5");
-    await expect(
-      page.locator("#rg-birth-calendar-panel").getByRole("grid", {
-        name: /junio 1990|June 1990|junho 1990/i,
-      }),
-    ).toBeVisible();
-  }).toPass({ timeout: 30_000 });
-
-  // DayPicker aria-labels include weekday (e.g. "viernes, 15 de junio de 1990").
-  const dayBtn = page
-    .locator("#rg-birth-calendar-panel")
-    .getByRole("button", { name: /15 de junio de 1990|June 15,? 1990|15 de junho de 1990/i });
-  await expect(dayBtn).toBeVisible({ timeout: 10_000 });
-  await dayBtn.click();
-  await expect(page.locator('input[name="birth_date"]')).toHaveValue("1990-06-15");
-}
 
 test.describe("@critical-registration", () => {
   test.beforeEach(() => {
@@ -61,12 +39,13 @@ test.describe("@critical-registration", () => {
     await expect(registerPage.locator("#rg-fn")).toBeVisible({ timeout: 20_000 });
     await registerPage.locator("#rg-fn").fill("E2E");
     await registerPage.locator("#rg-ln").fill(`Reg${suffix}`);
-    await pickAdultBirthDate(registerPage);
-    await expect(registerPage.locator("#rg-em")).toBeVisible();
+    await pickRegisterBirthIso(registerPage, "1990-06-15");
     await registerPage.locator("#rg-dni").fill(dni);
+    await continueRegisterAfterStudent(registerPage);
+    await expect(registerPage.locator("#rg-em")).toBeVisible({ timeout: 20_000 });
     await registerPage.locator("#rg-em").fill(email);
     await registerPage.locator("#rg-ph").fill("+5491112345678");
-    await registerPage.locator("#rg-section").selectOption({ index: 1 });
+    await chooseRegisterSectionByName(registerPage, /E2E Section A/i);
     await registerPage.getByRole("button", { name: /enviar|submit|inscrib/i }).click();
     const successDialog = registerPage.getByRole("dialog");
     const formAlert = registerPage.getByRole("alert");

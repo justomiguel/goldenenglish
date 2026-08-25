@@ -28,14 +28,15 @@ export function AcademicSectionEnrollmentFeeEditor({
   embedded = false,
 }: AcademicSectionEnrollmentFeeEditorProps) {
   const router = useRouter();
-  const [amount, setAmount] = useState<number>(
-    Number.isFinite(initialAmount) && initialAmount >= 0 ? initialAmount : 0,
+  const [amountRaw, setAmountRaw] = useState(() =>
+    Number.isFinite(initialAmount) && initialAmount >= 0 ? String(initialAmount) : "0",
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [okMessage, setOkMessage] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
-  const dirty = amount !== initialAmount;
+  const amount = amountRaw.trim() === "" ? Number.NaN : Number(amountRaw);
+  const dirty = amountRaw.trim() === "" || amount !== initialAmount;
   const valid = Number.isFinite(amount) && amount >= 0;
 
   const handleSubmit = () => {
@@ -93,8 +94,8 @@ export function AcademicSectionEnrollmentFeeEditor({
             inputMode="decimal"
             min={0}
             step="0.01"
-            value={amount}
-            onChange={(e) => setAmount(Number(e.target.value))}
+            value={amountRaw}
+            onChange={(e) => setAmountRaw(e.target.value)}
             disabled={pending}
             required
           />

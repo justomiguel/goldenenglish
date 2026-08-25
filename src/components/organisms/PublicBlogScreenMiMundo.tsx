@@ -23,9 +23,6 @@ export function PublicBlogScreenMiMundo({
   dict,
   brand,
   sessionEmail,
-  blogEnabled,
-  blogLabel,
-  eventsLabel,
   children,
 }: PublicBlogScreenMiMundoProps) {
   return (
@@ -38,12 +35,7 @@ export function PublicBlogScreenMiMundo({
         sessionEmail={sessionEmail}
         socialFacebook={brand.socialFacebook}
         socialInstagram={brand.socialInstagram}
-        showBlogLink={blogEnabled}
-        blogLabel={blogEnabled ? blogLabel : undefined}
-        showEventsLink
-        eventsLabel={eventsLabel}
         labels={{
-          inicio: marketingLandingCopy(dict, "mm", "nav.inicio"),
           institucional: marketingLandingCopy(dict, "mm", "nav.institucional"),
           colonia: marketingLandingCopy(dict, "mm", "nav.colonia"),
           propuesta: marketingLandingCopy(dict, "mm", "nav.propuesta"),

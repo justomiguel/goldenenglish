@@ -6,6 +6,7 @@ import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 interface AdminChromeHeaderProps {
   locale: string;
@@ -58,15 +59,15 @@ export function AdminChromeHeader({
               />
             </div>
             <div className="min-w-0 flex-1 text-left">
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <span className="font-display text-base font-semibold tracking-tight text-[var(--color-primary)] md:text-xl">
+              <div className="flex min-w-0 items-center gap-x-2">
+                <span className="font-display truncate text-base font-semibold tracking-tight text-[var(--color-primary)] md:text-xl">
                   {brand.name}
                 </span>
-                <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/70 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-[var(--color-muted-foreground)] md:text-[0.65rem]">
+                <span className="hidden shrink-0 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/70 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-[var(--color-muted-foreground)] sm:inline md:text-[0.65rem]">
                   {labels.badge}
                 </span>
                 {teacherPortalAllowed ? (
-                  <span className="rounded-full border border-[var(--color-primary)]/35 bg-[var(--color-primary)]/10 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-[var(--color-primary)] md:text-[0.65rem]">
+                  <span className="hidden shrink-0 rounded-full border border-[var(--color-primary)]/35 bg-[var(--color-primary)]/10 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-[var(--color-primary)] md:inline md:text-[0.65rem]">
                     {teachingBadgeLabel}
                   </span>
                 ) : null}
@@ -88,6 +89,19 @@ export function AdminChromeHeader({
             <GraduationCap className="h-5 w-5" aria-hidden strokeWidth={2} />
           </Link>
         ) : null}
+
+        <Link
+          href={`/${locale}`}
+          aria-label={labels.backToSite}
+          title={labels.backToSite}
+          className="inline-flex shrink-0 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-2 text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] md:hidden"
+        >
+          <ExternalLink
+            className="h-5 w-5 text-[var(--color-muted-foreground)]"
+            aria-hidden
+            strokeWidth={2}
+          />
+        </Link>
 
         <div className="hidden shrink-0 items-center gap-2 sm:gap-3 md:flex">
           {teacherPortalAllowed ? (
@@ -126,7 +140,7 @@ export function AdminChromeHeader({
           <LanguageSwitcher
             locale={locale}
             labels={dict.common.locale}
-            tourAnchor="admin-chrome-locale"
+            tourAnchor={ADMIN_TOUR_ANCHORS.chromeLocale}
           />
         </div>
       </div>

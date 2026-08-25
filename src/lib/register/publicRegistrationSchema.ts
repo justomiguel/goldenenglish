@@ -15,7 +15,11 @@ function isReasonableBirthDate(s: string): boolean {
   return bd >= oldest;
 }
 
-export function buildPublicRegistrationSchema(legalAgeMajority: number) {
+export function buildPublicRegistrationSchema(
+  legalAgeMajority: number,
+  options?: { requireNewStudentContact?: boolean },
+) {
+  const requireNewStudentContact = options?.requireNewStudentContact !== false;
   return z
     .object({
       first_name: z.string().trim().min(1).max(120),
@@ -37,8 +41,10 @@ export function buildPublicRegistrationSchema(legalAgeMajority: number) {
       tutor_email: z.string().trim().max(254).optional(),
       tutor_phone: z.string().trim().max(40).optional(),
       tutor_relationship: z.string().trim().max(80).optional(),
+      additional_section_ids: z.array(z.string().uuid()).max(40).optional(),
     })
     .superRefine((data, ctx) => {
+      if (!requireNewStudentContact) return;
       const age = fullYearsFromIsoDate(data.birth_date);
       const rawEmail = data.email.trim();
 

@@ -22,6 +22,7 @@ DB_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
     expect(body).toContain("DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres");
     expect(body).toContain("E2E_STACK=isolated");
     expect(body).toContain("EMAIL_PROVIDER=recording");
+    expect(body).toContain("MAIL_TENANT=alumnos.e2e.test");
     expect(body).not.toMatch(/^RESEND_/m);
     expect(body).toContain(`E2E_ADMIN_EMAIL=${E2E_LOCAL_DEFAULT_SEED.adminEmail}`);
     expect(body).toContain(`E2E_STUDENT_EMAIL=${E2E_LOCAL_DEFAULT_SEED.studentEmail}`);

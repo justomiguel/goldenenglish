@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 
 const submitPublicRegistration = vi.fn();
 const submitSectionLinkRegistration = vi.fn();
+const lookupRegistrationStudentAction = vi.fn();
 
 vi.mock("@/app/[locale]/register/actions", () => ({
   submitPublicRegistration: (...args: unknown[]) => submitPublicRegistration(...args),
@@ -12,6 +13,11 @@ vi.mock("@/app/[locale]/register/actions", () => ({
 vi.mock("@/app/[locale]/i/[token]/actions", () => ({
   submitSectionLinkRegistration: (...args: unknown[]) =>
     submitSectionLinkRegistration(...args),
+}));
+
+vi.mock("@/app/[locale]/register/lookupRegistrationStudentAction", () => ({
+  lookupRegistrationStudentAction: (...args: unknown[]) =>
+    lookupRegistrationStudentAction(...args),
 }));
 
 vi.mock("@/components/molecules/RegisterSuccessDialog", () => ({
@@ -35,6 +41,17 @@ const dict = {
   lastName: "Apellido",
   dni: "DNI",
   documentIdFormatHint: "hint",
+  studentSectionTitle: "Datos del alumno",
+  continue: "Continuar",
+  lookupFailed: "lookup fail",
+  existingFoundTitle: "encontrado",
+  existingFoundLead: "¿Es {firstName} {lastName}?",
+  existingYes: "Sí",
+  existingNo: "No",
+  existingRejected: "rechazado",
+  sectionsTitle: "Secciones",
+  sectionsHint: "varias",
+  sectionsAlsoJoin: "también",
   email: "Email",
   phone: "Teléfono",
   birthDateIncomplete: "incompleta",
@@ -100,14 +117,17 @@ describe("RegisterForm in enrollment-link mode", () => {
     vi.resetModules();
     submitPublicRegistration.mockReset();
     submitSectionLinkRegistration.mockReset();
+    lookupRegistrationStudentAction.mockReset();
     submitPublicRegistration.mockResolvedValue({ ok: true });
     submitSectionLinkRegistration.mockResolvedValue({ ok: true });
+    lookupRegistrationStudentAction.mockResolvedValue({ ok: true, found: false });
   });
 
-  it("keeps the section select when there is no link", async () => {
+  it("keeps the public form free of the enrollment card when there is no link", async () => {
     await renderForm({ sectionOptions: [{ id: link.sectionId, label: "Ciclo — B" }] });
-    expect(screen.getByLabelText(/Sección/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Continuar" })).toBeInTheDocument();
     expect(screen.queryByText("Te estás inscribiendo en")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Enviar" })).not.toBeInTheDocument();
   });
 
   it("replaces the select with the fixed card when a link is given", async () => {
@@ -126,9 +146,11 @@ describe("RegisterForm in enrollment-link mode", () => {
     await user.type(screen.getByLabelText("Nombre"), "Ana");
     await user.type(screen.getByLabelText("Apellido"), "Pérez");
     await user.type(screen.getByLabelText("DNI"), "12345678");
+    await user.click(screen.getByText("set-birth-date"));
+    await user.click(screen.getByRole("button", { name: "Continuar" }));
+    expect(await screen.findByLabelText("Email")).toBeInTheDocument();
     await user.type(screen.getByLabelText("Email"), "ana@example.com");
     await user.type(screen.getByLabelText("Teléfono"), "3624000000");
-    await user.click(screen.getByText("set-birth-date"));
     await user.click(screen.getByRole("button", { name: "Enviar" }));
 
     expect(submitPublicRegistration).not.toHaveBeenCalled();
@@ -151,10 +173,12 @@ describe("RegisterForm in enrollment-link mode", () => {
     await user.type(screen.getByLabelText("Nombre"), "Ana");
     await user.type(screen.getByLabelText("Apellido"), "Pérez");
     await user.type(screen.getByLabelText("DNI"), "12345678");
+    await user.click(screen.getByText("set-birth-date"));
+    await user.click(screen.getByRole("button", { name: "Continuar" }));
+    expect(await screen.findByLabelText("Email")).toBeInTheDocument();
     await user.type(screen.getByLabelText("Email"), "ana@example.com");
     await user.type(screen.getByLabelText("Teléfono"), "3624000000");
-    await user.click(screen.getByText("set-birth-date"));
-    await user.selectOptions(screen.getByRole("combobox"), link.sectionId);
+    await user.click(screen.getByRole("checkbox", { name: "Ciclo — B" }));
     await user.click(screen.getByRole("button", { name: "Enviar" }));
 
     expect(submitSectionLinkRegistration).not.toHaveBeenCalled();

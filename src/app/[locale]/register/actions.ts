@@ -17,6 +17,9 @@ import {
   REGISTRATION_LEVEL_INTEREST_UNDECIDED,
   REGISTRATION_UNDECIDED_FORM_VALUE,
 } from "@/lib/register/registrationSectionConstants";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { parseRequestedSectionIds } from "@/lib/register/parseRequestedSectionIds";
+import { resolveExistingStudentByDni } from "@/lib/register/resolveExistingStudentByDni";
 
 export type RegisterActionState = { ok: boolean; message?: string };
 
@@ -31,39 +34,55 @@ export async function submitPublicRegistration(
     return { ok: false, message: reg.closed };
   }
 
-  const parsed = buildPublicRegistrationSchema(
-    getLegalAgeMajorityFromSystem(),
-  ).safeParse(raw);
+  const legal = getLegalAgeMajorityFromSystem();
+  const parsed = buildPublicRegistrationSchema(legal, {
+    requireNewStudentContact: false,
+  }).safeParse(raw);
   if (!parsed.success) {
     return { ok: false, message: reg.validationError };
   }
 
   const d = parsed.data;
-  const legal = getLegalAgeMajorityFromSystem();
   const age = fullYearsFromIsoDate(d.birth_date);
   const tutorMail = (d.tutor_email ?? "").trim().toLowerCase();
 
-  const tenantDomain = age < legal ? getRegistrationMailTenantDomain() : null;
-  if (age < legal && !tenantDomain) {
-    return {
-      ok: false,
-      message: dict.actionErrors.register.mailTenantMissing,
-    };
-  }
-
   const supabase = await createClient();
 
-  const isUndecided = d.preferred_section_id === REGISTRATION_UNDECIDED_FORM_VALUE;
-  let sectionLabelForRow: string | null = null;
-  let preferredSectionId: string | null = null;
+  const candidateIds = [
+    d.preferred_section_id,
+    ...(d.additional_section_ids ?? []),
+  ].filter((id) => id && id !== REGISTRATION_UNDECIDED_FORM_VALUE);
 
-  if (isUndecided) {
-    sectionLabelForRow = REGISTRATION_LEVEL_INTEREST_UNDECIDED;
-    preferredSectionId = null;
-  } else {
+  const validPublicIds: string[] = [];
+  for (const id of candidateIds) {
     const { data: sectionLabel, error: sectionRpcErr } = await supabase.rpc(
       "registration_public_section_label",
-      { p_section_id: d.preferred_section_id },
+      { p_section_id: id },
+    );
+    if (!sectionRpcErr && sectionLabel != null && String(sectionLabel).trim() !== "") {
+      if (!validPublicIds.includes(id)) validPublicIds.push(id);
+    }
+  }
+
+  const parsedSections = parseRequestedSectionIds({
+    selectedIds: [d.preferred_section_id, ...(d.additional_section_ids ?? [])],
+    sectionOptionsOrder: validPublicIds,
+    allowUndecided: true,
+  });
+  if (!parsedSections.ok) {
+    return { ok: false, message: reg.validationError };
+  }
+
+  let sectionLabelForRow: string | null = null;
+  const preferredSectionId = parsedSections.preferredSectionId;
+  const additionalSectionIds = parsedSections.additionalSectionIds;
+
+  if (parsedSections.undecided) {
+    sectionLabelForRow = REGISTRATION_LEVEL_INTEREST_UNDECIDED;
+  } else if (preferredSectionId) {
+    const { data: sectionLabel, error: sectionRpcErr } = await supabase.rpc(
+      "registration_public_section_label",
+      { p_section_id: preferredSectionId },
     );
     if (
       sectionRpcErr ||
@@ -73,15 +92,43 @@ export async function submitPublicRegistration(
       return { ok: false, message: reg.invalidSectionOption };
     }
     sectionLabelForRow = String(sectionLabel);
-    preferredSectionId = d.preferred_section_id;
+  } else if (candidateIds.length > 0) {
+    return { ok: false, message: reg.invalidSectionOption };
+  }
+
+  const identity = await resolveExistingStudentByDni(createAdminClient(), d.dni);
+  if (identity.kind === "occupied") {
+    return { ok: false, message: reg.documentInUse };
+  }
+  const existingStudent = identity.kind === "student";
+  if (existingStudent && !identity.email) {
+    return { ok: false, message: reg.documentInUse };
+  }
+  if (!existingStudent) {
+    const contact = buildPublicRegistrationSchema(legal).safeParse(raw);
+    if (!contact.success) {
+      return { ok: false, message: reg.validationError };
+    }
+  }
+
+  const tenantDomain = !existingStudent && age < legal
+    ? getRegistrationMailTenantDomain()
+    : null;
+  if (!existingStudent && age < legal && !tenantDomain) {
+    return {
+      ok: false,
+      message: dict.actionErrors.register.mailTenantMissing,
+    };
   }
 
   const maxMinorEmailAttempts = 16;
-  const maxAttempts = age < legal ? maxMinorEmailAttempts : 1;
+  const maxAttempts = existingStudent ? 1 : age < legal ? maxMinorEmailAttempts : 1;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     let resolvedEmail: string;
-    if (age < legal) {
+    if (existingStudent) {
+      resolvedEmail = identity.email;
+    } else if (age < legal) {
       if (attempt === 0) {
         resolvedEmail = composeSyntheticMinorStudentEmail(
           d.first_name,
@@ -103,7 +150,7 @@ export async function submitPublicRegistration(
       resolvedEmail = d.email.trim().toLowerCase();
     }
 
-    if (age < legal && tutorMail && tutorMail === resolvedEmail) {
+    if (!existingStudent && age < legal && tutorMail && tutorMail === resolvedEmail) {
       return {
         ok: false,
         message: reg.tutorEmailSameAsStudent,
@@ -115,16 +162,17 @@ export async function submitPublicRegistration(
       last_name: d.last_name,
       dni: d.dni,
       email: resolvedEmail,
-      phone: age < legal ? null : d.phone.trim(),
+      phone: existingStudent || age < legal ? null : d.phone.trim(),
       birth_date: d.birth_date,
       preferred_section_id: preferredSectionId,
+      additional_section_ids: additionalSectionIds,
       level_interest: sectionLabelForRow,
       status: "new",
-      tutor_name: d.tutor_name?.trim() || null,
-      tutor_dni: d.tutor_dni?.trim() || null,
-      tutor_phone: d.tutor_phone?.trim() || null,
-      tutor_email: d.tutor_email?.trim() || null,
-      tutor_relationship: d.tutor_relationship?.trim() || null,
+      tutor_name: existingStudent ? null : d.tutor_name?.trim() || null,
+      tutor_dni: existingStudent ? null : d.tutor_dni?.trim() || null,
+      tutor_phone: existingStudent ? null : d.tutor_phone?.trim() || null,
+      tutor_email: existingStudent ? null : d.tutor_email?.trim() || null,
+      tutor_relationship: existingStudent ? null : d.tutor_relationship?.trim() || null,
     });
 
     if (!error) {

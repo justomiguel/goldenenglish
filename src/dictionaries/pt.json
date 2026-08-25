@@ -1430,6 +1430,23 @@
           "cta": "Ver usuários",
           "linkAria": "{{count}} alunos precisam de uma seção atribuída. Abra a lista de usuários."
         }
+      },
+      "firstClassChecklist": {
+        "title": "Pronta para a primeira aula",
+        "lead": "Conclua estes passos para dar aula e cobrar.",
+        "progress": "{{done}} de {{total}}",
+        "goDoIt": "Ir fazer",
+        "goDoItAria": "Ir fazer: {{item}}",
+        "items": {
+          "createStudent": "Criar um aluno",
+          "createTeacher": "Criar um professor",
+          "createCohortAndSection": "Criar uma coorte e uma seção",
+          "assignTeacher": "Atribuir o professor à seção",
+          "enrollStudent": "Inscrever o aluno na seção",
+          "setSchedule": "Definir o horário da seção",
+          "setFees": "Definir as taxas da seção",
+          "setPaymentMethod": "Configurar uma forma de pagamento"
+        }
       }
     },
     "settings": {
@@ -1441,6 +1458,17 @@
       "inscriptionsToggleTooltip": "Ative ou desative o formulário de inscrição pública para famílias que visitam o site.",
       "saved": "Salvo",
       "error": "Não foi possível salvar",
+      "emailSendsTitle": "Envios de e-mail",
+      "emailSendsHint": "Ative ou desative cada e-mail automático. O texto à direita é o valor de hoje.",
+      "emailSendsTodayOn": "Hoje: está a ser enviado",
+      "emailSendsTodayOff": "Hoje: não se envia",
+      "emailSendsGroupAutomated": "Automáticos",
+      "emailSendsGroupBilling": "Faturação",
+      "emailSendsGroupAcademics": "Académico",
+      "emailSendsGroupMessaging": "Mensagens",
+      "emailSendsGroupOther": "Outros avisos",
+      "emailSendsLabelInactivity": "Lembretes de não entrada",
+      "emailSendsLabelClassReminder": "Lembretes de aula",
       "classRemindersTitle": "Lembretes de aula (automatizados)",
       "classRemindersHint": "Cron despacha usando a função de serviço. O WhatsApp requer meta templates env vars; e-mail usa Reenviar.",
       "classRemindersEnabled": "Ativar lembretes de aula",
@@ -3516,6 +3544,11 @@
       "whatsAppMessage": "Olá {name}, somos do {institute} e escrevemos sobre sua consulta de matrícula.",
       "minorMarker": "Menor",
       "viaSectionLink": "via link de inscrição",
+      "existingStudentBadge": "Aluno existente",
+      "requestedSections": "Seções solicitadas",
+      "existingStudentFicha": "Abrir ficha do aluno",
+      "acceptExistingLead": "Este documento corresponde a um aluno existente. Ao aceitar, as seções solicitadas serão adicionadas sem criar outra ficha.",
+      "acceptPendingSections": "Algumas seções solicitadas não puderam ser atribuídas automaticamente. Você pode atribuí-las em seguida.",
       "expandRow": "Ver detalhes",
       "collapseRow": "Ocultar detalhes",
       "detailsTitle": "Detalhes da consulta",
@@ -3848,7 +3881,18 @@
   },
   "register": {
     "title": "Solicitação de inscrição",
-    "lead": "Conte-nos sobre você. Nossa equipe entrará em contato com você.",
+    "lead": "Estes dados são do aluno. Se for menor de idade e ainda não estiver no instituto, pediremos os do responsável em seguida.",
+    "studentSectionTitle": "Dados do aluno",
+    "continue": "Continuar",
+    "lookupFailed": "Não foi possível verificar o documento. Tente novamente.",
+    "existingFoundTitle": "Já existe um aluno com este documento",
+    "existingFoundLead": "É {firstName} {lastName}?",
+    "existingYes": "Sim, é este aluno",
+    "existingNo": "Não, não é este aluno",
+    "existingRejected": "Confira o documento ou entre em contato com o instituto. Não podemos criar outro cadastro com o mesmo documento.",
+    "sectionsTitle": "Seções",
+    "sectionsHint": "Você pode escolher mais de uma.",
+    "sectionsAlsoJoin": "Também pode participar de…",
     "firstName": "Primeiro nome",
     "lastName": "Sobrenome",
     "dni": "ID / RUT / passaporte",
@@ -3866,6 +3910,7 @@
     "birthDateHint": "Nós o usamos para calcular a idade quando a conta é criada.",
     "studentEmailNotCollectedMinorLead": "Não coletamos aqui o e-mail ou telefone do aluno para menores. A escola atribui e-mail ao domínio do instituto após o envio; utilize o telefone do responsável para contato.",
     "tutorEmailSameAsStudent": "O e-mail do responsável deverá ser diferente do e-mail do aluno.",
+    "documentInUse": "Este documento já pertence a outra conta. Entre em contato com o instituto.",
     "tutorSectionTitle": "Tutor/adulto responsável",
     "tutorSectionLead": "Obrigatório para menores.",
     "tutorName": "Nome do guardião",
@@ -6190,6 +6235,10 @@
             "title": "📝 Inscrições públicas",
             "description": "Ative ou pause o funil de inscrição pública quando não aceitar novos formulários."
           },
+          "emailSends": {
+            "title": "✉️ Envios de e-mail",
+            "description": "Ative ou desative cada e-mail do produto. O texto à direita mostra se está a ser enviado hoje."
+          },
           "classReminders": {
             "title": "⏰ Lembretes de aula",
             "description": "Configure lembretes automáticos para avisos de aula a tempo."
@@ -7248,6 +7297,7 @@
       "contactEmailFailForbidden": "Não é possível enviar: sua sessão de administrador não é válida. Faça login novamente.",
       "contactEmailFailNoPermission": "Não é possível enviar: você não tem acesso de administrador.",
       "contactEmailFailParse": "Dados de formulário inválidos. Atualize a página e tente novamente.",
+      "contactEmailFailDisabled": "Este e-mail está desativado em Definições.",
       "contactNoPhone": "Sem telefone do guardião",
       "contactNoEmail": "Nenhum e-mail do responsável",
       "emailIntro": "Estamos entrando em contato sobre sinais de retenção antecipada para esta inscrição. Abaixo está um resumo para que possamos coordenar os próximos passos juntos.",

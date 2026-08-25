@@ -114,6 +114,7 @@ export function buildE2eLocalEnvFileContents(
     "GE_DEV_TARGET=e2e",
     "# Outbound mail: RecordingEmailProvider — never call Resend from the e2e Next process.",
     "EMAIL_PROVIDER=recording",
+    "MAIL_TENANT=alumnos.e2e.test",
     `E2E_ADMIN_EMAIL=${s.adminEmail}`,
     `E2E_ADMIN_PASSWORD=${s.adminPassword}`,
     `E2E_STUDENT_EMAIL=${s.studentEmail}`,

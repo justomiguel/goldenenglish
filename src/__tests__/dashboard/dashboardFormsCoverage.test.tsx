@@ -70,7 +70,11 @@ describe("dashboard coverage", () => {
     setInscriptionsEnabled.mockResolvedValue({ ok: true });
     reviewPayment.mockResolvedValue({ ok: true });
     deleteRegistration.mockResolvedValue({ ok: true });
-    acceptRegistration.mockResolvedValue({ ok: true });
+    acceptRegistration.mockResolvedValue({
+      ok: true,
+      studentId: "accepted-student",
+      pendingSectionIds: [],
+    });
     // JSDOM omits reload; PaymentReviewRow calls it after review.
     Object.defineProperty(window, "location", {
       configurable: true,

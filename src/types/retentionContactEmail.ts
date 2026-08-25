@@ -5,4 +5,5 @@ export type SendRetentionContactEmailCode =
   | "NO_LINK"
   | "NO_EMAIL"
   | "EMAIL_FAILED"
+  | "DISABLED"
   | "SEND";

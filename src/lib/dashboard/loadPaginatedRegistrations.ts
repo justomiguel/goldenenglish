@@ -7,7 +7,7 @@ const REGISTRATION_COLUMNS = [
   "id", "first_name", "last_name", "dni", "email", "phone",
   "birth_date", "level_interest", "status", "created_at",
   "tutor_name", "tutor_dni", "tutor_email", "tutor_phone",
-  "tutor_relationship", "preferred_section_id",
+  "tutor_relationship", "preferred_section_id", "additional_section_ids",
   "contacted_at", "contacted_by", "source_section_link_id",
 ].join(", ");
 
@@ -36,6 +36,8 @@ export interface PaginatedRegistrationsParams {
   dir?: "asc" | "desc";
   /** Follow-up status filter; omitted means every pending lead. */
   status?: "new" | "contacted";
+  /** Match preferred or additional requested sections. */
+  sectionId?: string;
 }
 
 /** Row shape for `registrations` select used in this loader (PostgREST typing can surface `GenericStringError` on `.data`). */
@@ -56,6 +58,7 @@ type RegistrationSelectRow = {
   tutor_phone: string | null;
   tutor_relationship: string | null;
   preferred_section_id: string | null;
+  additional_section_ids: string[] | null;
   contacted_at: string | null;
   contacted_by: string | null;
   source_section_link_id: string | null;
@@ -107,6 +110,14 @@ export async function loadPaginatedRegistrations(
     countQuery = countQuery.eq("status", params.status);
   }
 
+  const sectionId = params.sectionId?.trim() ?? "";
+  if (sectionId) {
+    const sectionFilter =
+      `preferred_section_id.eq.${sectionId},additional_section_ids.cs.{${sectionId}}`;
+    dataQuery = dataQuery.or(sectionFilter);
+    countQuery = countQuery.or(sectionFilter);
+  }
+
   dataQuery = dataQuery
     .order(sortCol, { ascending })
     .range(from, to);
@@ -148,6 +159,10 @@ export async function loadPaginatedRegistrations(
       r.tutor_relationship != null ? String(r.tutor_relationship) : null,
     preferred_section_id:
       r.preferred_section_id != null ? String(r.preferred_section_id) : null,
+    additionalSectionIds: Array.isArray(r.additional_section_ids)
+      ? r.additional_section_ids.map(String).filter(Boolean)
+      : [],
+    existingStudentId: null,
     contacted_at: r.contacted_at != null ? String(r.contacted_at) : null,
     contacted_by: r.contacted_by != null ? String(r.contacted_by) : null,
     sourceSectionLinkId:

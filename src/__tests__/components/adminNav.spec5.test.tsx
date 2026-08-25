@@ -297,6 +297,31 @@ describe("6 – data-tour anchors survive", () => {
     const el = container.querySelector('[data-tour="admin-chrome-teacher-portal"]');
     expect(el).not.toBeNull();
   });
+
+  it("AdminChromeHeader keeps view-site and the language switcher", () => {
+    const brand = {
+      name: "Test",
+      tagline: "t",
+      taglineEn: "t",
+      logoPath: "/logo.png",
+      logoAlt: "logo",
+    };
+    render(
+      <AdminChromeHeader
+        locale="en"
+        brand={brand as never}
+        dict={dictEn}
+        adminProfileRole="admin"
+        teacherPortalAllowed={false}
+      />,
+    );
+    expect(
+      screen.getByRole("navigation", { name: dictEn.common.locale.label }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("link", { name: dictEn.dashboard.adminChrome.backToSite }).length,
+    ).toBeGreaterThanOrEqual(1);
+  });
 });
 
 // ─── Test 7: Locale parity ───────────────────────────────────────────────────

@@ -65,10 +65,10 @@ export function AdminBadgeFormScreen(props: AdminBadgeFormScreenProps) {
   const [criteriaType, setCriteriaType] = useState<BadgeCriteriaType>(
     initial?.criteriaType ?? "tasks_completed",
   );
-  const [criteriaThreshold, setCriteriaThreshold] = useState<number>(
-    initial?.criteriaThreshold ?? 1,
+  const [criteriaThreshold, setCriteriaThreshold] = useState(
+    String(initial?.criteriaThreshold ?? 1),
   );
-  const [sortOrder, setSortOrder] = useState<number>(initial?.sortOrder ?? 100);
+  const [sortOrder, setSortOrder] = useState(String(initial?.sortOrder ?? 100));
   const [titleEn, setTitleEn] = useState(initial?.titleEn ?? "");
   const [descriptionEn, setDescriptionEn] = useState(initial?.descriptionEn ?? "");
   const [titleEs, setTitleEs] = useState(initial?.titleEs ?? "");
@@ -83,6 +83,12 @@ export function AdminBadgeFormScreen(props: AdminBadgeFormScreenProps) {
         en: { title: titleEn.trim(), description: descriptionEn.trim() },
         es: { title: titleEs.trim(), description: descriptionEs.trim() },
       };
+      const threshold = Number(criteriaThreshold);
+      const order = Number(sortOrder);
+      if (!Number.isFinite(threshold) || !Number.isFinite(order)) {
+        setError(labels.genericError);
+        return;
+      }
       const result =
         mode === "create"
           ? await createBadgeAction({
@@ -90,8 +96,8 @@ export function AdminBadgeFormScreen(props: AdminBadgeFormScreenProps) {
               code: code.trim(),
               category,
               criteriaType,
-              criteriaThreshold,
-              sortOrder,
+              criteriaThreshold: threshold,
+              sortOrder: order,
               translations,
             })
           : await updateBadgeAction({
@@ -99,8 +105,8 @@ export function AdminBadgeFormScreen(props: AdminBadgeFormScreenProps) {
               badgeId: initial!.id,
               category,
               criteriaType,
-              criteriaThreshold,
-              sortOrder,
+              criteriaThreshold: threshold,
+              sortOrder: order,
               translations,
             });
       if (!result.ok) {

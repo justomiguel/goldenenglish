@@ -6,6 +6,7 @@ import { RegistrationContactCell } from "@/components/dashboard/RegistrationCont
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
+import { RegistrationExistingStudentBadge } from "@/components/dashboard/RegistrationExistingStudentBadge";
 import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
 import { registrationIsActionable } from "@/lib/register/registrationIsActionable";
 import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
@@ -70,6 +71,7 @@ export function AdminRegistrationTableRow({
       </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top font-medium">
         {formatProfileNameSurnameFirst(r.first_name, r.last_name)}
+        {r.existingStudentId ? <RegistrationExistingStudentBadge labels={labels} /> : null}
         {contact.isMinor ? (
           <span className="ml-2 whitespace-nowrap rounded-full border border-[var(--color-border)] px-2 py-0.5 text-xs font-normal text-[var(--color-muted-foreground)]">
             {labels.minorMarker}

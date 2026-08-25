@@ -11,6 +11,7 @@ import { buildLandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import { loadSectionEnrollmentLink } from "@/lib/register/loadSectionEnrollmentLink";
+import { loadRegistrationSectionOptions } from "@/lib/register/loadRegistrationSectionOptions";
 import { RegisterSurfaceByTemplate } from "@/components/organisms/RegisterSurfaceByTemplate";
 import { SectionEnrollmentLinkUnavailable } from "@/components/register/SectionEnrollmentLinkUnavailable";
 
@@ -28,13 +29,15 @@ export default async function SectionEnrollmentLinkPage({ params }: PageProps) {
   const { locale, token } = await params;
   const loc = locale as AppLocale;
 
-  const [baseDict, brand, snapshot, legalAgeMajority, link] = await Promise.all([
-    getDictionary(locale),
-    resolvePublicBrand(loc),
-    loadActiveTheme(),
-    getLegalAgeMajorityFromSystem(),
-    loadSectionEnrollmentLink(token),
-  ]);
+  const [baseDict, brand, snapshot, legalAgeMajority, link, sectionOptions] =
+    await Promise.all([
+      getDictionary(locale),
+      resolvePublicBrand(loc),
+      loadActiveTheme(),
+      getLegalAgeMajorityFromSystem(),
+      loadSectionEnrollmentLink(token),
+      loadRegistrationSectionOptions(),
+    ]);
 
   const dict = applyLandingContentOverrides(baseDict, snapshot?.theme.content, loc);
 
@@ -59,7 +62,7 @@ export default async function SectionEnrollmentLinkPage({ params }: PageProps) {
       dict={dict}
       brand={brand}
       legalAgeMajority={legalAgeMajority}
-      sectionOptions={[]}
+      sectionOptions={sectionOptions}
       enrollmentLink={link}
     />
   );

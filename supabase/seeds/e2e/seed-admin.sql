@@ -241,10 +241,53 @@ BEGIN
     WHERE id = v_section;
   END IF;
 
+  IF NOT EXISTS (
+    SELECT 1 FROM public.academic_sections
+    WHERE cohort_id = v_cohort AND name = 'E2E Section B'
+  ) THEN
+    INSERT INTO public.academic_sections (
+      cohort_id, name, teacher_id, schedule_slots,
+      starts_on, ends_on, enrollment_fee_amount, monthly_fee_charge_mode,
+      allow_advance_monthly_payment
+    )
+    VALUES (
+      v_cohort,
+      'E2E Section B',
+      v_teacher,
+      '[{"dayOfWeek":2,"startTime":"10:00","endTime":"11:00"}]'::jsonb,
+      make_date(v_year, 1, 1),
+      make_date(v_year, 12, 31),
+      0,
+      'full_month_fee',
+      true
+    );
+  ELSE
+    UPDATE public.academic_sections
+    SET
+      teacher_id = v_teacher,
+      archived_at = NULL,
+      starts_on = make_date(v_year, 1, 1),
+      ends_on = make_date(v_year, 12, 31),
+      schedule_slots = '[{"dayOfWeek":2,"startTime":"10:00","endTime":"11:00"}]'::jsonb,
+      allow_advance_monthly_payment = true,
+      monthly_fee_charge_mode = 'full_month_fee',
+      updated_at = now()
+    WHERE cohort_id = v_cohort AND name = 'E2E Section B';
+  END IF;
+
   INSERT INTO public.section_fee_plans (
     section_id, effective_from_year, effective_from_month, monthly_fee, currency
   )
   VALUES (v_section, v_year, 1, 100, 'USD')
+  ON CONFLICT (section_id, effective_from_year, effective_from_month) DO UPDATE
+  SET monthly_fee = 100, archived_at = NULL, updated_at = now();
+
+  INSERT INTO public.section_fee_plans (
+    section_id, effective_from_year, effective_from_month, monthly_fee, currency
+  )
+  SELECT s.id, v_year, 1, 100, 'USD'
+  FROM public.academic_sections s
+  WHERE s.cohort_id = v_cohort AND s.name = 'E2E Section B'
   ON CONFLICT (section_id, effective_from_year, effective_from_month) DO UPDATE
   SET monthly_fee = 100, archived_at = NULL, updated_at = now();
 
@@ -510,6 +553,19 @@ BEGIN
     description = EXCLUDED.description,
     location = EXCLUDED.location,
     updated_at = now();
+
+  -- Repeated isolated precommit runs fill e2e-paid-event (capacity 50). A full
+  -- event waitlists new transfers, skips the receipt upload, and leaves
+  -- critical-event-payment-approve with no payment row to approve.
+  DELETE FROM public.event_attendees
+  WHERE event_id IN (
+    SELECT id FROM public.events WHERE slug IN ('e2e-paid-event', 'e2e-free-event')
+  )
+    AND primary_attendee_id IS NOT NULL;
+  DELETE FROM public.event_attendees
+  WHERE event_id IN (
+    SELECT id FROM public.events WHERE slug IN ('e2e-paid-event', 'e2e-free-event')
+  );
 
   -- Admin tour L3: pending billing receipt (storage object uploaded in e2e-stack-up).
   v_tour_receipt_path :=

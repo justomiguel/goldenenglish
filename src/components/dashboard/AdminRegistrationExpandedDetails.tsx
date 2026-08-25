@@ -13,6 +13,7 @@ export interface AdminRegistrationExpandedDetailsProps {
   locale: string;
   labels: RegLabels;
   sectionName: string | null;
+  requestedSectionNames?: string[];
 }
 
 function Field({ label, value }: { label: string; value: string }) {
@@ -32,6 +33,7 @@ export function AdminRegistrationExpandedDetails({
   locale,
   labels,
   sectionName,
+  requestedSectionNames = [],
 }: AdminRegistrationExpandedDetailsProps) {
   const empty = labels.emptyValue;
   const birth =
@@ -53,7 +55,14 @@ export function AdminRegistrationExpandedDetails({
         <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
           <Field label={labels.email} value={row.email || empty} />
           <Field label={labels.birthDate} value={birth} />
-          <Field label={labels.preferredSection} value={sectionName ?? empty} />
+          <Field
+            label={labels.preferredSection}
+            value={
+              requestedSectionNames.length > 0
+                ? requestedSectionNames.join(" · ")
+                : (sectionName ?? empty)
+            }
+          />
           <Field label={labels.tutorOnRequestName} value={row.tutor_name ?? empty} />
           <Field
             label={labels.tutorOnRequestRelationship}

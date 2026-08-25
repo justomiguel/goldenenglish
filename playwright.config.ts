@@ -55,6 +55,7 @@ export default defineConfig({
             ...process.env,
             GE_DEV_TARGET: "e2e",
             EMAIL_PROVIDER: "recording",
+            MAIL_TENANT: process.env.MAIL_TENANT?.trim() || "alumnos.e2e.test",
             RESEND_API_KEY: "",
             RESEND_FROM_EMAIL: "",
           },
@@ -108,7 +109,7 @@ export default defineConfig({
     {
       name: "chromium-critical-registration",
       dependencies: ["setup"],
-      testMatch: /critical-registration\.spec\.ts/,
+      testMatch: /critical-registration.*\.spec\.ts/,
       use: { ...devices["Desktop Chrome"] },
     },
     {

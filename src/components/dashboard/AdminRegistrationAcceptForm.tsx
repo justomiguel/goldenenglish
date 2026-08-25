@@ -79,9 +79,19 @@ export function AdminRegistrationAcceptForm({
     });
     onBusy(null);
     if (res.ok) {
-      if (hasSections) {
+      const hadRequestedSections =
+        Boolean(row.preferred_section_id?.trim()) ||
+        (row.additionalSectionIds ?? []).length > 0;
+      const pendingSectionIds = res.pendingSectionIds ?? [];
+      const needsPicker =
+        hasSections &&
+        (pendingSectionIds.length > 0 || !hadRequestedSections);
+      if (needsPicker) {
         setAcceptedStudentId(res.studentId);
         setStep("section");
+        if (pendingSectionIds.length > 0) {
+          setFormError(labels.acceptPendingSections);
+        }
       } else {
         onClose();
         onSuccess();

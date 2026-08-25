@@ -14,6 +14,8 @@ import type { UpcomingBirthdayCardRow } from "@/lib/birthdays/mapBirthdayRowsToD
 import { UpcomingBirthdaysCard } from "@/components/molecules/UpcomingBirthdaysCard";
 import { AdminHubMetricCard } from "@/components/dashboard/AdminHubMetricCard";
 import { AdminHubMessagesCard } from "@/components/dashboard/AdminHubMessagesCard";
+import { AdminFirstClassChecklistCard } from "@/components/dashboard/AdminFirstClassChecklistCard";
+import type { AdminFirstClassChecklist } from "@/lib/dashboard/evaluateAdminFirstClassChecklist";
 
 interface AdminHubHomeProps {
   locale: string;
@@ -21,9 +23,10 @@ interface AdminHubHomeProps {
   summary: AdminHubSummary;
   birthdayRows: UpcomingBirthdayCardRow[];
   birthdaysDict: Dictionary["dashboard"]["birthdays"];
+  checklist?: AdminFirstClassChecklist | null;
 }
 
-export function AdminHubHome({ locale, dict, summary, birthdayRows, birthdaysDict }: AdminHubHomeProps) {
+export function AdminHubHome({ locale, dict, summary, birthdayRows, birthdaysDict, checklist }: AdminHubHomeProps) {
   const base = `/${locale}/dashboard/admin`;
   const t = dict.admin.home.summary;
   const studentsNoSectionTitle = t.studentsWithoutSection.linkAria.replace(
@@ -65,6 +68,15 @@ export function AdminHubHome({ locale, dict, summary, birthdayRows, birthdaysDic
         </p>
       </div>
 
+      {checklist && !checklist.allDone ? (
+        <div className="mt-6">
+          <AdminFirstClassChecklistCard
+            labels={dict.admin.home.firstClassChecklist}
+            checklist={checklist}
+          />
+        </div>
+      ) : null}
+
       {summary.studentsWithoutSection > 0 ? (
         <Link
           href={`${base}/users`}
@@ -85,7 +97,7 @@ export function AdminHubHome({ locale, dict, summary, birthdayRows, birthdaysDic
         </Link>
       ) : null}
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
         <AdminHubMetricCard
           href={`${base}/analytics`}
           tourAnchor="admin-hub-traffic"
@@ -100,7 +112,7 @@ export function AdminHubHome({ locale, dict, summary, birthdayRows, birthdaysDic
           <p className="mt-0.5 text-xs text-[var(--color-muted-foreground)]">
             {t.traffic.hits30d}
           </p>
-          <div className="mt-2 flex items-center gap-3 text-xs">
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
             <span className="text-[var(--color-muted-foreground)]">
               {t.traffic.authenticated}: {summary.traffic.authenticatedHits.toLocaleString()}
             </span>

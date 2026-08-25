@@ -43,23 +43,26 @@ export function AcademicSectionFeePlanForm({
   footerExtra,
   idPrefix,
 }: AcademicSectionFeePlanFormProps) {
-  const [values, setValues] = useState<Omit<SectionFeePlanFormValues, "currency">>({
-    effectiveFromYear: initialValues.effectiveFromYear,
-    effectiveFromMonth: initialValues.effectiveFromMonth,
-    monthlyFee: initialValues.monthlyFee,
-  });
-
-  const update = <K extends keyof Omit<SectionFeePlanFormValues, "currency">>(
-    key: K,
-    value: Omit<SectionFeePlanFormValues, "currency">[K],
-  ) => setValues((prev) => ({ ...prev, [key]: value }));
+  const [effectiveFromMonth, setEffectiveFromMonth] = useState(initialValues.effectiveFromMonth);
+  const [effectiveFromYearRaw, setEffectiveFromYearRaw] = useState(
+    String(initialValues.effectiveFromYear),
+  );
+  const [monthlyFeeRaw, setMonthlyFeeRaw] = useState(String(initialValues.monthlyFee));
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
         if (busy) return;
-        void onSubmit({ ...values, currency: systemCurrency });
+        const effectiveFromYear = Number(effectiveFromYearRaw);
+        const monthlyFee = Number(monthlyFeeRaw);
+        if (!Number.isFinite(effectiveFromYear) || !Number.isFinite(monthlyFee)) return;
+        void onSubmit({
+          effectiveFromMonth,
+          effectiveFromYear,
+          monthlyFee,
+          currency: systemCurrency,
+        });
       }}
       className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4"
     >
@@ -68,8 +71,8 @@ export function AcademicSectionFeePlanForm({
           <Label htmlFor={`${idPrefix}-eff-month`}>{dict.effectiveFromMonth}</Label>
           <select
             id={`${idPrefix}-eff-month`}
-            value={values.effectiveFromMonth}
-            onChange={(e) => update("effectiveFromMonth", Number(e.target.value))}
+            value={effectiveFromMonth}
+            onChange={(e) => setEffectiveFromMonth(Number(e.target.value))}
             className="mt-1 min-h-[44px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2"
             disabled={busy}
           >
@@ -87,8 +90,8 @@ export function AcademicSectionFeePlanForm({
             type="number"
             min={2000}
             max={2100}
-            value={values.effectiveFromYear}
-            onChange={(e) => update("effectiveFromYear", Number(e.target.value))}
+            value={effectiveFromYearRaw}
+            onChange={(e) => setEffectiveFromYearRaw(e.target.value)}
             disabled={busy}
             required
           />
@@ -100,8 +103,8 @@ export function AcademicSectionFeePlanForm({
             type="number"
             min={0}
             step="0.01"
-            value={values.monthlyFee}
-            onChange={(e) => update("monthlyFee", Number(e.target.value))}
+            value={monthlyFeeRaw}
+            onChange={(e) => setMonthlyFeeRaw(e.target.value)}
             disabled={busy}
             required
           />

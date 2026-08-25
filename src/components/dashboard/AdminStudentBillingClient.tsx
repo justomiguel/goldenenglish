@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Input } from "@/components/atoms/Input";
 import { AdminAnnualSettlementPanel } from "@/components/dashboard/AdminAnnualSettlementPanel";
 import { AdminBillingSectionFeeSummary } from "@/components/dashboard/AdminBillingSectionFeeSummary";
 import { AdminRecordPaymentPanel } from "@/components/dashboard/AdminRecordPaymentPanel";
@@ -47,6 +48,7 @@ export function AdminStudentBillingClient({
   defaultYear,
 }: AdminStudentBillingClientProps) {
   const [billingYear, setBillingYear] = useState(defaultYear);
+  const [billingYearRaw, setBillingYearRaw] = useState(String(defaultYear));
   const [selectedSectionId, setSelectedSectionId] = useState(
     sectionBenefits[0]?.sectionId ?? "",
   );
@@ -157,13 +159,20 @@ export function AdminStudentBillingClient({
             >
               {labels.periodYear}
             </label>
-            <input
+            <Input
               id="billing-year-select"
               type="number"
               min={2000}
               max={2100}
-              value={billingYear}
-              onChange={(event) => setBillingYear(Number(event.target.value))}
+              value={billingYearRaw}
+              onChange={(event) => {
+                const raw = event.target.value;
+                setBillingYearRaw(raw);
+                const next = Number(raw);
+                if (Number.isInteger(next) && next >= 2000 && next <= 2100) {
+                  setBillingYear(next);
+                }
+              }}
               className="mt-1 min-h-[44px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-sm text-[var(--color-foreground)]"
             />
           </div>

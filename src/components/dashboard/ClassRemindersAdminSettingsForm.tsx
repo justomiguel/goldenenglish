@@ -22,7 +22,6 @@ export function ClassRemindersAdminSettingsForm({
   initial,
   labels,
 }: ClassRemindersAdminSettingsFormProps) {
-  const [enabled, setEnabled] = useState(initial.remindersEnabled);
   const [prep, setPrep] = useState(String(initial.prepOffsetMinutes));
   const [urgent, setUrgent] = useState(String(initial.urgentOffsetMinutes));
   const [tz, setTz] = useState(initial.instituteTimeZone);
@@ -38,7 +37,7 @@ export function ClassRemindersAdminSettingsForm({
     setBusy(true);
     const res = await setClassRemindersGlobalsAction({
       locale,
-      enabled,
+      enabled: initial.remindersEnabled,
       prepMinutes: Number(prep),
       urgentMinutes: Number(urgent),
       instituteTz: tz,
@@ -57,15 +56,6 @@ export function ClassRemindersAdminSettingsForm({
     >
       <h2 className="text-lg font-semibold text-[var(--color-secondary)]">{labels.classRemindersTitle}</h2>
       <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{labels.classRemindersHint}</p>
-      <label className="mt-6 flex cursor-pointer items-center gap-3">
-        <input
-          type="checkbox"
-          className="h-5 w-5 rounded border-[var(--color-border)]"
-          checked={enabled}
-          onChange={(e) => setEnabled(e.target.checked)}
-        />
-        <span className="font-medium text-[var(--color-foreground)]">{labels.classRemindersEnabled}</span>
-      </label>
       <div className="mt-4">
         <Label htmlFor="cr-prep">{labels.classRemindersPrepMinutes}</Label>
         <Input

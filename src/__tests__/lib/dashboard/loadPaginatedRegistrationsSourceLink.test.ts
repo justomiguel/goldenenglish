@@ -15,6 +15,11 @@ describe("loadPaginatedRegistrations column list", () => {
     expect(source).toContain("source_section_link_id");
   });
 
+  it("selects additional requested sections", () => {
+    expect(source).toContain("additional_section_ids");
+    expect(source).toContain("additionalSectionIds");
+  });
+
   it("maps it onto the row model", () => {
     expect(source).toContain("sourceSectionLinkId");
   });

@@ -57,6 +57,8 @@ export function mapRetentionSendEmailErrorMessage(
       return dict.contactEmailFailForbidden;
     case "PARSE":
       return dict.contactEmailFailParse;
+    case "DISABLED":
+      return dict.contactEmailFailDisabled;
     case "EMAIL_FAILED":
     case "SEND":
     default:

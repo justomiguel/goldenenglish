@@ -96,4 +96,23 @@ describe("LandingMimundoSections — smoke", () => {
     render(<LandingMimundoSections {...defaultProps} />);
     expect(screen.getByTestId("mm-lang-switcher")).toBeInTheDocument();
   });
+
+  it("keeps Events in the footer after they left the header", () => {
+    render(<LandingMimundoSections {...defaultProps} />);
+    expect(
+      screen.getByRole("link", { name: dictEn.events.public.title }),
+    ).toHaveAttribute("href", "/en/events");
+  });
+
+  it("shows Blog in the footer only when the blog is enabled", () => {
+    const { rerender } = render(<LandingMimundoSections {...defaultProps} />);
+    expect(
+      screen.queryByRole("link", { name: dictEn.blog.list.title }),
+    ).toBeNull();
+
+    rerender(<LandingMimundoSections {...defaultProps} blogEnabled />);
+    expect(
+      screen.getByRole("link", { name: dictEn.blog.list.title }),
+    ).toHaveAttribute("href", "/en/blog");
+  });
 });

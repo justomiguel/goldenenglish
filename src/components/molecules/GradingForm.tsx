@@ -6,6 +6,7 @@ import type { Dictionary } from "@/types/i18n";
 import { suggestedScoreForGrading } from "@/lib/academics/rubricSuggestedScoreFromDimensions";
 import { QuickFeedbackChips } from "@/components/molecules/QuickFeedbackChips";
 import { Button } from "@/components/atoms/Button";
+import { Input } from "@/components/atoms/Input";
 
 export interface GradingFormProps {
   maxScore: number;
@@ -124,7 +125,7 @@ export function GradingForm({
               </span>
             ) : null}
           </label>
-          <input
+          <Input
             id="grade-score-override"
             type="number"
             min={0}

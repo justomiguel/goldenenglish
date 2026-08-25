@@ -27,6 +27,16 @@ vi.mock("@/app/[locale]/dashboard/admin/users/actions", () => ({
   createDashboardUser: (...args: unknown[]) => mockCreateUser(...args),
 }));
 
+const mockResolveExisting = vi.fn();
+vi.mock("@/lib/register/resolveExistingStudentByDni", () => ({
+  resolveExistingStudentByDni: (...args: unknown[]) => mockResolveExisting(...args),
+}));
+
+const mockEnrollRequested = vi.fn();
+vi.mock("@/lib/register/enrollRequestedSectionsOnAccept", () => ({
+  enrollRequestedSectionsOnAccept: (...args: unknown[]) => mockEnrollRequested(...args),
+}));
+
 const mockAuthCreateUser = vi.fn();
 const mockDeleteUser = vi.fn();
 const mockFrom = vi.fn();
@@ -140,6 +150,12 @@ describe("acceptRegistration", () => {
     vi.clearAllMocks();
     mockAuthCreateUser.mockReset();
     mockDeleteUser.mockReset().mockResolvedValue({ data: {}, error: null });
+    mockResolveExisting.mockResolvedValue({ kind: "none" });
+    mockEnrollRequested.mockResolvedValue([]);
+    mockAssertAdmin.mockResolvedValue({
+      supabase: { kind: "admin-session" },
+      user: { id: "admin-1" },
+    });
   });
 
   it("returns Forbidden when not admin", async () => {
@@ -151,7 +167,6 @@ describe("acceptRegistration", () => {
   });
 
   it("returns Not found when row missing", async () => {
-    mockAssertAdmin.mockResolvedValue({});
     mockFrom.mockReturnValue({
       select: () => ({
         eq: () => ({
@@ -164,7 +179,6 @@ describe("acceptRegistration", () => {
   });
 
   it("returns already_processed when status is not new", async () => {
-    mockAssertAdmin.mockResolvedValue({});
     mockFrom.mockReturnValue({
       select: () => ({
         eq: () => ({
@@ -180,7 +194,6 @@ describe("acceptRegistration", () => {
   // REGRESSION CHECK: marking a lead contacted must not strand it. Before the
   // follow-up flow existed the gate only accepted 'new'.
   it("still accepts a lead that was already marked contacted", async () => {
-    mockAssertAdmin.mockResolvedValue({});
     mockCreateUser.mockResolvedValue({ ok: true, userId: "stu-contacted" });
     const updateEq = vi.fn().mockResolvedValue({ error: null });
     mockFrom.mockImplementation((table: string) => {
@@ -205,11 +218,10 @@ describe("acceptRegistration", () => {
 
     const r = await acceptRegistration("es", { registration_id: regNew.id });
 
-    expect(r).toEqual({ ok: true, studentId: "stu-contacted" });
+    expect(r).toEqual({ ok: true, studentId: "stu-contacted", pendingSectionIds: [] });
   });
 
   it("returns birth_date_required when birth missing", async () => {
-    mockAssertAdmin.mockResolvedValue({});
     mockFrom.mockReturnValue({
       select: () => ({
         eq: () => ({
@@ -226,7 +238,6 @@ describe("acceptRegistration", () => {
   });
 
   it("returns minor_requires_tutor_dni when minor without tutor dni", async () => {
-    mockAssertAdmin.mockResolvedValue({});
     mockFrom.mockReturnValue({
       select: () => ({
         eq: () => ({
@@ -250,7 +261,6 @@ describe("acceptRegistration", () => {
   });
 
   it("creates student without course when no course matches level (legacy)", async () => {
-    mockAssertAdmin.mockResolvedValue({});
     mockCreateUser.mockResolvedValue({ ok: true, userId: "stu-legacy" });
     const enrollmentsFrom = mockEnrollmentsTable();
     const updateEq = vi.fn().mockResolvedValue({ error: null });
@@ -276,13 +286,12 @@ describe("acceptRegistration", () => {
       };
     });
     const r = await acceptRegistration("es", { registration_id: regNew.id });
-    expect(r).toEqual({ ok: true, studentId: "stu-legacy" });
+    expect(r).toEqual({ ok: true, studentId: "stu-legacy", pendingSectionIds: [] });
     expect(mockCreateUser).toHaveBeenCalled();
     expect(enrollmentsFrom.insert).not.toHaveBeenCalled();
   });
 
   it("uses registration birth_date when accept payload omits birth_date", async () => {
-    mockAssertAdmin.mockResolvedValue({});
     mockCreateUser.mockResolvedValue({ ok: true, userId: "stu-1" });
     const updateEq = vi.fn().mockResolvedValue({ error: null });
     mockFrom.mockImplementation((table: string) => {
@@ -314,7 +323,6 @@ describe("acceptRegistration", () => {
   });
 
   it("creates student without course enrollment when request was section-undecided", async () => {
-    mockAssertAdmin.mockResolvedValue({});
     mockCreateUser.mockResolvedValue({ ok: true, userId: "stu-u" });
     const enrollmentsFrom = mockEnrollmentsTable();
     const updateEq = vi.fn().mockResolvedValue({ error: null });
@@ -353,7 +361,6 @@ describe("acceptRegistration", () => {
   });
 
   it("creates student only for adult birth year", async () => {
-    mockAssertAdmin.mockResolvedValue({});
     mockCreateUser.mockResolvedValue({ ok: true, userId: "stu-adult" });
     const updateEq = vi.fn().mockResolvedValue({ error: null });
     mockFrom.mockImplementation((table: string) => {
@@ -388,7 +395,6 @@ describe("acceptRegistration", () => {
   });
 
   it("creates parent and link for minor with tutor data", async () => {
-    mockAssertAdmin.mockResolvedValue({});
     mockCreateUser.mockResolvedValueOnce({ ok: true, userId: "stu-min" });
     mockAuthCreateUser.mockResolvedValue({
       data: { user: { id: "par-1" } },
@@ -440,7 +446,6 @@ describe("acceptRegistration", () => {
   });
 
   it("calls deleteUser when enrollment insert fails", async () => {
-    mockAssertAdmin.mockResolvedValue({});
     mockCreateUser.mockResolvedValue({ ok: true, userId: "stu-x" });
     const updateEq = vi.fn().mockResolvedValue({ error: null });
     const enroll = mockEnrollmentsTable({ insertError: { message: "db" } });
@@ -472,7 +477,6 @@ describe("acceptRegistration", () => {
   });
 
   it("returns rollback_failed when enrollment fails and delete fails", async () => {
-    mockAssertAdmin.mockResolvedValue({});
     mockCreateUser.mockResolvedValue({ ok: true, userId: "stu-y" });
     mockDeleteUser.mockResolvedValue({ data: null, error: { message: "nope" } });
     const enroll = mockEnrollmentsTable({ insertError: { message: "db" } });
@@ -502,7 +506,6 @@ describe("acceptRegistration", () => {
   });
 
   it("forwards createDashboardUser failure", async () => {
-    mockAssertAdmin.mockResolvedValue({});
     mockCreateUser.mockResolvedValue({ ok: false, message: U.errCreateAuth });
     mockFrom.mockImplementation((table: string) => {
       if (table === "courses") return mockCoursesTable(COURSE_ID);
@@ -520,5 +523,135 @@ describe("acceptRegistration", () => {
     });
     const r = await acceptRegistration("es", { registration_id: regNew.id });
     expect(r).toEqual({ ok: false, message: U.errCreateAuth });
+  });
+
+  it("reuses an existing student and does not create another account", async () => {
+    mockResolveExisting.mockResolvedValue({
+      kind: "student",
+      studentId: "existing-stu",
+      email: "old@test.com",
+    });
+    mockEnrollRequested.mockResolvedValue([]);
+    const updateEq = vi.fn().mockResolvedValue({ error: null });
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "courses") return mockCoursesTable(COURSE_ID);
+      if (table === "enrollments") return mockEnrollmentsTable();
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: () =>
+              Promise.resolve({
+                data: {
+                  ...regNew,
+                  birth_date: "2015-06-01",
+                  preferred_section_id: "11111111-1111-4111-8111-111111111111",
+                  additional_section_ids: ["22222222-2222-4222-8222-222222222222"],
+                },
+                error: null,
+              }),
+          }),
+        }),
+        update: () => ({ eq: updateEq }),
+      };
+    });
+    const r = await acceptRegistration("es", { registration_id: regNew.id });
+    expect(r).toEqual({
+      ok: true,
+      studentId: "existing-stu",
+      pendingSectionIds: [],
+    });
+    expect(mockCreateUser).not.toHaveBeenCalled();
+    expect(mockEnrollRequested).toHaveBeenCalledWith(
+      expect.anything(),
+      "existing-stu",
+      [
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+      ],
+    );
+    expect(updateEq).toHaveBeenCalled();
+  });
+
+  it("commits section enrollments with the admin session, not the service-role client", async () => {
+    const sessionClient = { kind: "admin-session" };
+    mockAssertAdmin.mockResolvedValue({
+      supabase: sessionClient,
+      user: { id: "admin-1" },
+    });
+    mockResolveExisting.mockResolvedValue({
+      kind: "student",
+      studentId: "existing-stu",
+      email: "old@test.com",
+    });
+    mockEnrollRequested.mockResolvedValue([]);
+    const updateEq = vi.fn().mockResolvedValue({ error: null });
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "courses") return mockCoursesTable(COURSE_ID);
+      if (table === "enrollments") return mockEnrollmentsTable();
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: () =>
+              Promise.resolve({
+                data: {
+                  ...regNew,
+                  birth_date: "1995-04-01",
+                  preferred_section_id: "11111111-1111-4111-8111-111111111111",
+                },
+                error: null,
+              }),
+          }),
+        }),
+        update: () => ({ eq: updateEq }),
+      };
+    });
+
+    const r = await acceptRegistration("es", { registration_id: regNew.id });
+
+    expect(r).toEqual({
+      ok: true,
+      studentId: "existing-stu",
+      pendingSectionIds: [],
+    });
+    expect(mockEnrollRequested).toHaveBeenCalledWith(
+      sessionClient,
+      "existing-stu",
+      ["11111111-1111-4111-8111-111111111111"],
+    );
+  });
+
+  it("keeps the lead enrolled when a requested section is at capacity", async () => {
+    mockResolveExisting.mockResolvedValue({
+      kind: "student",
+      studentId: "existing-stu",
+      email: "old@test.com",
+    });
+    const pendingId = "33333333-3333-4333-8333-333333333333";
+    mockEnrollRequested.mockResolvedValue([pendingId]);
+    const updateEq = vi.fn().mockResolvedValue({ error: null });
+    mockFrom.mockImplementation((table: string) => {
+      if (table === "courses") return mockCoursesTable(null);
+      if (table === "enrollments") return mockEnrollmentsTable();
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: () =>
+              Promise.resolve({
+                data: { ...regNew, birth_date: "1995-04-01" },
+                error: null,
+              }),
+          }),
+        }),
+        update: () => ({ eq: updateEq }),
+      };
+    });
+    const r = await acceptRegistration("es", { registration_id: regNew.id });
+    expect(r).toEqual({
+      ok: true,
+      studentId: "existing-stu",
+      pendingSectionIds: [pendingId],
+    });
+    expect(updateEq).toHaveBeenCalled();
+    expect(mockCreateUser).not.toHaveBeenCalled();
   });
 });

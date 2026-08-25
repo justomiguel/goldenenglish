@@ -51,6 +51,22 @@ describe("LoginScreenNarrow", () => {
     expect(container.querySelector("main")?.className).toContain("pb-[max(1rem");
   });
 
+  it("keeps wordmark logos from being squashed into a square", () => {
+    render(
+      <LoginScreenNarrow
+        brand={mockBrandPublic}
+        dict={dictEn}
+        locale="es"
+        surface="web-mobile"
+      />,
+    );
+    const logo = screen.getByAltText(
+      mockBrandPublic.logoAlt || mockBrandPublic.name,
+    );
+    expect(logo.className).toContain("object-contain");
+    expect(logo.className).toContain("w-auto");
+  });
+
   it("renders the single identifier input (email or DNI) on the PWA surface", () => {
     render(
       <LoginScreenNarrow

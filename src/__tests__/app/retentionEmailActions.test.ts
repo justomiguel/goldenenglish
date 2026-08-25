@@ -294,4 +294,12 @@ describe("sendRetentionContactEmailAction", () => {
     });
     expect(userRpc).not.toHaveBeenCalled();
   });
+
+  it("returns DISABLED when the branded email is turned off", async () => {
+    sendBrandedEmail.mockResolvedValueOnce({ ok: true, skipped: true });
+    const res = await sendRetentionContactEmailAction(baseInput);
+    expect(res).toEqual({ ok: false, code: "DISABLED" });
+    expect(recordSystemAudit).not.toHaveBeenCalled();
+    expect(userRpc).not.toHaveBeenCalled();
+  });
 });

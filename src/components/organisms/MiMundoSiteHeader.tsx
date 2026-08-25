@@ -33,12 +33,7 @@ export interface MiMundoSiteHeaderProps {
   sessionEmail: string | null;
   socialFacebook?: string;
   socialInstagram?: string;
-  showBlogLink?: boolean;
-  blogLabel?: string;
-  showEventsLink?: boolean;
-  eventsLabel?: string;
   labels: {
-    inicio: string;
     institucional: string;
     colonia: string;
     propuesta: string;
@@ -62,10 +57,6 @@ export function MiMundoSiteHeader({
   sessionEmail,
   socialFacebook,
   socialInstagram,
-  showBlogLink = false,
-  blogLabel,
-  showEventsLink = false,
-  eventsLabel,
   labels,
 }: MiMundoSiteHeaderProps) {
   const [open, setOpen] = useState(false);
@@ -85,17 +76,10 @@ export function MiMundoSiteHeader({
   }, []);
 
   const links = [
-    { href: `${prefix}#top`, label: labels.inicio },
     { href: `${prefix}#institucional`, label: labels.institucional },
     { href: `${prefix}#colonia`, label: labels.colonia },
     { href: `${prefix}#propuesta`, label: labels.propuesta },
     { href: `${prefix}#salas`, label: labels.salas },
-    ...(showEventsLink && eventsLabel
-      ? [{ href: `${prefix}/events`, label: eventsLabel }]
-      : []),
-    ...(showBlogLink && blogLabel
-      ? [{ href: `${prefix}/blog`, label: blogLabel }]
-      : []),
     { href: `${prefix}#galeria`, label: labels.galeria },
     { href: `${prefix}#contacto`, label: labels.contacto },
   ];
@@ -117,7 +101,7 @@ export function MiMundoSiteHeader({
             height={108}
             decoding="async"
             fetchPriority="high"
-            className="h-16 w-auto max-w-[210px] object-contain sm:h-[4.25rem] sm:max-w-[260px] md:h-[5.25rem] md:max-w-[300px] lg:h-[5.75rem] lg:max-w-[360px]"
+            className="h-12 w-auto max-w-[9.5rem] object-contain sm:h-16 sm:max-w-[210px] md:h-[5.25rem] md:max-w-[300px] lg:h-[5.75rem] lg:max-w-[360px]"
           />
         </Link>
         <nav className="hidden items-center lg:flex" aria-label={dict.nav.sectionsAria}>
@@ -154,13 +138,13 @@ export function MiMundoSiteHeader({
             {sessionEmail ? (
               <>
                 <Link href={`/${locale}/dashboard`}
-                  className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full border border-[var(--mm-green)]/40 bg-white px-3 py-2 text-xs font-semibold text-[var(--mm-green)] shadow-sm transition hover:bg-[var(--mm-green)]/8 sm:px-3.5"
+                  className="hidden min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full border border-[var(--mm-green)]/40 bg-white px-3 py-2 text-xs font-semibold text-[var(--mm-green)] shadow-sm transition hover:bg-[var(--mm-green)]/8 md:inline-flex sm:px-3.5"
                   aria-label={dict.nav.administration} title={dict.nav.administration}>
                   <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden strokeWidth={stroke} />
                   <span className="hidden md:inline">{dict.nav.administration}</span>
                 </Link>
                 <SignOutButton locale={locale} label={dict.nav.logout} iconOnly title={dict.nav.logout}
-                  className="inline-flex min-h-[44px] min-w-[44px] rounded-full border border-[var(--mm-green)]/40 bg-white text-[var(--mm-green)] shadow-sm transition hover:bg-[var(--mm-green)]/8" />
+                  className="hidden min-h-[44px] min-w-[44px] rounded-full border border-[var(--mm-green)]/40 bg-white text-[var(--mm-green)] shadow-sm transition hover:bg-[var(--mm-green)]/8 md:inline-flex" />
               </>
             ) : (
               <>

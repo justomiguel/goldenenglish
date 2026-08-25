@@ -7,8 +7,8 @@ import {
 import { resolvePublicBrand } from "@/lib/brand/resolvePublicBrand";
 import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
-import { createClient } from "@/lib/supabase/server";
 import { RegisterSurfaceByTemplate } from "@/components/organisms/RegisterSurfaceByTemplate";
+import { loadRegistrationSectionOptions } from "@/lib/register/loadRegistrationSectionOptions";
 import { applyLandingContentOverrides } from "@/lib/cms/applyLandingContentOverrides";
 import { buildLandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
@@ -46,16 +46,7 @@ export default async function RegisterPage({ params }: PageProps) {
     loc,
   );
 
-  const supabase = await createClient();
-  const { data: sectionOpts } = await supabase.rpc(
-    "list_registration_section_options",
-  );
-  const sectionOptions = (sectionOpts ?? []).map(
-    (row: { id: string; label: string }) => ({
-      id: String(row.id),
-      label: String(row.label),
-    }),
-  );
+  const sectionOptions = await loadRegistrationSectionOptions();
 
   const mediaMap: LandingMediaMap | undefined = snapshot
     ? buildLandingMediaMap(

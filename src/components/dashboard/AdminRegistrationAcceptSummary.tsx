@@ -1,8 +1,10 @@
+import Link from "next/link";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { Dictionary } from "@/types/i18n";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { formatRegistrationLevelInterestForAdmin } from "@/lib/register/formatRegistrationLevelInterestForAdmin";
 import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
+import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistrationSectionIds";
 
 export interface AdminRegistrationAcceptSummaryProps {
   locale: string;
@@ -44,6 +46,25 @@ export function AdminRegistrationAcceptSummary({
             {formatRegistrationLevelInterestForAdmin(row.level_interest, labels)}
           </dd>
         </div>
+        {requestedRegistrationSectionIds(row).length > 1 ? (
+          <div>
+            <dt className="text-[var(--color-muted-foreground)]">{labels.requestedSections}</dt>
+            <dd>{requestedRegistrationSectionIds(row).length}</dd>
+          </div>
+        ) : null}
+        {row.existingStudentId ? (
+          <div>
+            <dt className="text-[var(--color-muted-foreground)]">{labels.existingStudentBadge}</dt>
+            <dd>
+              <Link
+                href={`/${locale}/dashboard/admin/users/${row.existingStudentId}`}
+                className="underline underline-offset-2"
+              >
+                {labels.existingStudentFicha}
+              </Link>
+            </dd>
+          </div>
+        ) : null}
         {hasBirth ? (
           <div>
             <dt className="text-[var(--color-muted-foreground)]">{labels.birthDate}</dt>
@@ -57,6 +78,12 @@ export function AdminRegistrationAcceptSummary({
           </div>
         ) : null}
       </dl>
+
+      {row.existingStudentId ? (
+        <p className="mt-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/30 px-3 py-2 text-xs text-[var(--color-foreground)]">
+          {labels.acceptExistingLead}
+        </p>
+      ) : null}
 
       {treatsAsMinor ? (
         <p className="mt-3 rounded-[var(--layout-border-radius)] border border-[var(--color-accent)]/40 bg-[var(--color-accent)]/10 px-3 py-2 text-xs text-[var(--color-foreground)]">
