@@ -32,10 +32,10 @@ export function AdminUserIdentityHero({
   const canChangeStudentAvatar = detail.role === "student" && detail.viewerMayInlineEdit;
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]">
       <div className="grid gap-5 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
         <div className="relative w-fit">
-          <div className="inline-flex rounded-full bg-[var(--color-surface)] p-1 shadow-[var(--shadow-card)] ring-1 ring-[var(--color-border)]">
+          <div className="inline-flex rounded-full bg-[var(--color-background)] p-1 shadow-[var(--shadow-soft)] ring-1 ring-[var(--color-border)]">
             <ProfileAvatar
               key={resolvedAvatarUrl ?? "none"}
               url={resolvedAvatarUrl}
@@ -60,12 +60,12 @@ export function AdminUserIdentityHero({
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1
-                className="break-words font-display text-2xl font-bold leading-tight text-[var(--color-secondary)]"
+                className="break-words font-display text-2xl font-bold leading-tight text-[var(--color-primary)]"
                 data-tour={ADMIN_TOUR_ANCHORS.userDetailTitle}
               >
                 {displayName}
               </h1>
-              <span className="rounded-full border border-[color-mix(in_srgb,var(--color-accent)_30%,var(--color-border))] bg-[var(--color-background)] px-3 py-1 text-xs font-semibold text-[var(--color-primary)]">
+              <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-800">
                 {roleLabel}
               </span>
               {detail.hasCareNotes ? <StudentCareBadge label={labels.detailCareBadge} /> : null}
@@ -73,13 +73,13 @@ export function AdminUserIdentityHero({
             <p className="mt-1 break-all text-sm text-[var(--color-muted-foreground)]">{detail.emailDisplay}</p>
           </div>
           <dl className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3">
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3">
               <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
                 {labels.detailIdentityRoleLabel}
               </dt>
               <dd className="mt-1 text-sm font-semibold text-[var(--color-foreground)]">{roleLabel}</dd>
             </div>
-            <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3">
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3">
               <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
                 {labels.detailFieldDni}
               </dt>
@@ -87,7 +87,7 @@ export function AdminUserIdentityHero({
                 {detail.dniOrPassport || labels.detailNoValue}
               </dd>
             </div>
-            <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3">
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3">
               <dt className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
                 {labels.detailIdentitySinceLabel}
               </dt>

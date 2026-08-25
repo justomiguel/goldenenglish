@@ -6,6 +6,8 @@ import { loadPaginatedAdminEvents, type EventSortKey } from "@/lib/dashboard/eve
 import { loadAdminEventsListAggregates } from "@/lib/dashboard/events/loadAdminEventsListAggregates";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
+import { AdminEventsStatsRow } from "@/components/dashboard/AdminEventsStatsRow";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -38,20 +40,24 @@ export default async function AdminEventsPage({ params, searchParams }: PageProp
 
   return (
     <div>
-      <h1
-        data-tour={ADMIN_TOUR_ANCHORS.eventsTitle}
-        className="text-2xl font-bold text-[var(--color-secondary)]"
-      >
-        {dict.dashboard.adminNav.events}
-      </h1>
-      <p className="mt-2 text-[var(--color-muted-foreground)]">
-        {dict.admin.events.lead}
-      </p>
-      <div
-        data-tour={ADMIN_TOUR_ANCHORS.eventsKpis}
-        className="mt-3 text-sm text-[var(--color-muted-foreground)]"
-      >
-        {dict.admin.events.kpis.upcoming}: {counts.totalUpcoming} · {dict.admin.events.kpis.waitlist}: {counts.totalWaitlist}
+      <AdminPageHeader
+        title={dict.dashboard.adminNav.events}
+        lead={dict.admin.events.lead}
+        iconId="events"
+        tourAnchor={ADMIN_TOUR_ANCHORS.eventsTitle}
+      />
+      <div data-tour={ADMIN_TOUR_ANCHORS.eventsKpis}>
+        <AdminEventsStatsRow
+          locale={locale}
+          totalLabel={dict.dashboard.adminNav.events}
+          totalHint={dict.admin.events.list.countSuffix}
+          upcomingLabel={dict.admin.events.kpis.upcoming}
+          waitlistLabel={dict.admin.events.kpis.waitlist}
+          shareOfTotal={dict.admin.home.peopleStats.shareOfTotal}
+          total={counts.totalEvents}
+          upcoming={counts.totalUpcoming}
+          waitlist={counts.totalWaitlist}
+        />
       </div>
       <AdminEventsScreen
         locale={locale}

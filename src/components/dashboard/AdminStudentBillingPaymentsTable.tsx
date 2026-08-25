@@ -42,7 +42,7 @@ export function AdminStudentBillingPaymentsTable({
 }: AdminStudentBillingPaymentsTableProps) {
   return (
     <section>
-      <h2 className="font-semibold text-[var(--color-secondary)]">{labels.paymentsTitle}</h2>
+      <h2 className="font-semibold text-[var(--color-muted-foreground)]">{labels.paymentsTitle}</h2>
       <div className="mt-4 overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">

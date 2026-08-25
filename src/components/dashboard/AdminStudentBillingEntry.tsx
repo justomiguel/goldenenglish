@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
+import { AdminBackLink } from "@/components/dashboard/AdminBackLink";
 import { AdminStudentBillingClient } from "@/components/dashboard/AdminStudentBillingClient";
 import type { Locale } from "@/types/i18n";
 import type { AppSurface } from "@/hooks/useAppSurface";
@@ -50,13 +49,7 @@ export function AdminStudentBillingEntry({
 
   const inner = (
     <>
-      <Link
-        href={backHref}
-        className="inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-[var(--color-secondary)] hover:underline"
-      >
-        <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
-        {usersLabels.detailBack}
-      </Link>
+      <AdminBackLink href={backHref}>{usersLabels.detailBack}</AdminBackLink>
       <AdminStudentBillingClient
         locale={locale}
         studentId={studentId}

@@ -65,7 +65,7 @@ export function AcademicSectionNameEditor({
     return (
       <div className="flex min-w-0 items-center gap-2">
         <h1
-          className="truncate text-2xl font-semibold tracking-tight text-[var(--color-foreground)]"
+          className="truncate font-display text-3xl font-bold tracking-tight text-[var(--color-primary)]"
           data-tour={ADMIN_TOUR_ANCHORS.sectionDetailTitle}
         >
           {initialName}

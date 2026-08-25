@@ -91,7 +91,7 @@ export function LongJobActivityModal({
               {runningAriaLabel ? <span className="sr-only">{runningAriaLabel}</span> : null}
             </div>
           ) : null}
-          <p className="font-display text-2xl font-bold leading-tight text-[var(--color-secondary)] md:text-3xl">
+          <p className="font-display text-2xl font-bold leading-tight text-[var(--color-primary)] md:text-3xl">
             {primaryLine}
           </p>
           {secondaryLine ? (

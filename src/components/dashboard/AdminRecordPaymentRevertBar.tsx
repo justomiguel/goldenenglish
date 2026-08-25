@@ -27,9 +27,9 @@ export function AdminRecordPaymentRevertBar({
   );
 
   return (
-    <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 p-4 shadow-sm">
+    <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="font-semibold text-[var(--color-secondary)]">{heading}</h3>
+        <h3 className="font-semibold text-[var(--color-primary)]">{heading}</h3>
         <button
           type="button"
           onClick={onClear}
@@ -48,7 +48,7 @@ export function AdminRecordPaymentRevertBar({
       <div className="mt-3 flex flex-wrap gap-2">
         <Button
           type="button"
-          variant="secondary"
+          variant="ghost"
           size="sm"
           className="min-h-[40px] gap-2"
           disabled={busy}

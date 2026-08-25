@@ -190,8 +190,8 @@ export function ImportStudents({ locale, labels, emptyLogPlaceholder }: ImportSt
   const inlineProgress = jobModalOpen && logModalLive ? null : (liveLine ?? phaseLine);
 
   return (
-    <div className="max-w-xl space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6">
-      <h2 className="text-lg font-semibold text-[var(--color-secondary)]">{labels.title}</h2>
+    <div className="max-w-xl space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-6 shadow-[var(--shadow-soft)]">
+      <h2 className="text-lg font-semibold text-[var(--color-primary)]">{labels.title}</h2>
       <p className="text-sm text-[var(--color-muted-foreground)]">{labels.hint}</p>
       <input
         ref={fileRef}

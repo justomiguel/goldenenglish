@@ -46,7 +46,7 @@ export function PortalSpecialEventsTable({ locale, dict, rows }: PortalSpecialEv
   }
 
   return (
-    <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div className="overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
       <table className="min-w-full text-left text-sm">
         <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
           <tr>
@@ -78,8 +78,8 @@ export function PortalSpecialEventsTable({ locale, dict, rows }: PortalSpecialEv
                     </Link>
                     <Button
                       type="button"
-                      variant="secondary"
-                      className="text-xs"
+                      variant="ghost"
+                      className="border border-[var(--color-error)] text-xs text-[var(--color-error)]"
                       disabled={pending}
                       isLoading={pending && deleteId === r.id}
                       onClick={() => setDeleteId(r.id)}

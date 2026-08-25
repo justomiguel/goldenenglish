@@ -6,6 +6,8 @@ import { TeacherSidebar } from "@/components/dashboard/TeacherSidebar";
 import { TeacherMobileDrawer } from "@/components/dashboard/TeacherMobileDrawer";
 import { TeacherBreadcrumb } from "@/components/dashboard/TeacherBreadcrumb";
 import type { AdminWorkspaceNavLabels } from "@/components/dashboard/TeacherSidebarNavContent";
+import type { ViewAsSubject } from "@/lib/dashboard/viewAsTypes";
+import { ViewAsBanner } from "@/components/dashboard/ViewAsBanner";
 
 export interface TeacherDashboardShellProps {
   locale: string;
@@ -13,6 +15,10 @@ export interface TeacherDashboardShellProps {
   brand: BrandPublic;
   adminNav?: AdminWorkspaceNavLabels;
   includeBlogNav?: boolean;
+  profileDisplayName?: string;
+  profileRoleLabel?: string;
+  profileAvatarUrl?: string | null;
+  viewAs?: ViewAsSubject | null;
   children: ReactNode;
 }
 
@@ -22,24 +28,56 @@ export function TeacherDashboardShell({
   brand,
   adminNav,
   includeBlogNav = false,
+  profileDisplayName = "",
+  profileRoleLabel = "",
+  profileAvatarUrl = null,
+  viewAs = null,
   children,
 }: TeacherDashboardShellProps) {
   const navDict = dict.dashboard.teacherNav;
 
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--color-muted)]">
-      <TeacherChromeHeader
+    <div className="flex h-dvh max-h-dvh overflow-hidden bg-[var(--color-muted)]">
+      <TeacherSidebar
         locale={locale}
+        dict={navDict}
+        fullDict={dict}
         brand={brand}
-        dict={dict}
-        showAdminWorkspace={Boolean(adminNav)}
-        mobileNav={
-          <TeacherMobileDrawer locale={locale} dict={dict} adminNav={adminNav} includeBlogNav={includeBlogNav} />
-        }
+        adminNav={adminNav}
+        includeBlogNav={includeBlogNav && !viewAs}
+        profileDisplayName={profileDisplayName}
+        profileRoleLabel={profileRoleLabel}
+        profileAvatarUrl={profileAvatarUrl}
+        hideSignOut={Boolean(viewAs)}
       />
-      <div className="mx-auto flex w-full max-w-[var(--layout-max-width)] flex-1 gap-0 md:gap-8 md:px-2 md:pb-8 md:pt-2">
-        <TeacherSidebar locale={locale} dict={navDict} adminNav={adminNav} includeBlogNav={includeBlogNav} />
-        <div className="min-w-0 flex-1 px-4 py-6 md:rounded-[var(--layout-border-radius)] md:border md:border-[var(--color-border)] md:bg-[var(--color-background)] md:px-8 md:py-8 md:shadow-sm">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <TeacherChromeHeader
+          locale={locale}
+          brand={brand}
+          dict={dict}
+          compactBrand
+          showAdminWorkspace={Boolean(adminNav) || Boolean(viewAs)}
+          viewAs={viewAs}
+          mobileNav={
+            <TeacherMobileDrawer
+              locale={locale}
+              dict={dict}
+              brand={brand}
+              adminNav={adminNav}
+              includeBlogNav={includeBlogNav && !viewAs}
+              profileDisplayName={profileDisplayName}
+              profileRoleLabel={profileRoleLabel}
+              profileAvatarUrl={profileAvatarUrl}
+              hideSignOut={Boolean(viewAs)}
+            />
+          }
+        />
+        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-8">
+          {viewAs ? (
+            <div className="mb-4">
+              <ViewAsBanner locale={locale} dict={dict} viewAs={viewAs} />
+            </div>
+          ) : null}
           <TeacherBreadcrumb locale={locale} dict={navDict} />
           {children}
         </div>

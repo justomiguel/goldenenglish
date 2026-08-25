@@ -59,7 +59,7 @@ export function AdminBillingSectionFeeSummary({
           <Receipt className="h-4 w-4 shrink-0 text-[var(--color-primary)]" aria-hidden />
           {labels.enrollmentLabel}
         </p>
-        <p className="mt-1 font-display text-2xl font-bold tabular-nums tracking-tight text-[var(--color-secondary)]">
+        <p className="mt-1 font-display text-2xl font-bold tabular-nums tracking-tight text-[var(--color-primary)]">
           {enrollmentDisplay}
         </p>
       </div>
@@ -68,7 +68,7 @@ export function AdminBillingSectionFeeSummary({
           <Wallet className="h-4 w-4 shrink-0 text-[var(--color-success)]" aria-hidden />
           {labels.monthlyLabel}
         </p>
-        <p className="mt-1 font-display text-2xl font-bold tabular-nums tracking-tight text-[var(--color-secondary)]">
+        <p className="mt-1 font-display text-2xl font-bold tabular-nums tracking-tight text-[var(--color-primary)]">
           {monthlyDisplay}
         </p>
       </div>

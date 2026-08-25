@@ -1,4 +1,5 @@
 import type { Dictionary } from "@/types/i18n";
+import { Button } from "@/components/atoms/Button";
 import { AdminBillingMatrixLegendModal } from "@/components/dashboard/AdminBillingMatrixLegendModal";
 import { SectionCollectionsExportButtons } from "./SectionCollectionsExportButtons";
 import { SectionCollectionsBulkScholarshipTrigger } from "./SectionCollectionsBulkScholarshipTrigger";
@@ -53,7 +54,7 @@ export function SectionCollectionsMatrixToolbar({
   const setScholarNotice = onBulkScholarshipNotice ?? (() => {});
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 shadow-[var(--shadow-soft)]">
       <div className="flex flex-col gap-2">
         {overdueNotice || cellActionNotice ? (
           <p className="text-sm text-[var(--color-muted-foreground)]" role="status">
@@ -73,14 +74,16 @@ export function SectionCollectionsMatrixToolbar({
             referenceMonthlyCurrency={referenceMonthlyCurrency}
             onNotice={setScholarNotice}
           />
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={onSelectOverdue}
             disabled={overdueIds.length === 0}
-            className="inline-flex min-h-[36px] items-center gap-1 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-muted)]/40 disabled:cursor-not-allowed disabled:opacity-60"
+            className="min-h-[36px]"
           >
             {dict.matrix.selectOverdue}
-          </button>
+          </Button>
           {selectionCount > 0 ? (
             <SectionCollectionsStudentActionBar
               selectionCount={selectionCount}

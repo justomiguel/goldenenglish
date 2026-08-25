@@ -31,6 +31,7 @@ interface AdminUsersScreenNarrowProps {
   labels: UserLabels;
   tableLabels: TableLabels;
   surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">;
+  lockRole?: string;
 }
 
 export function AdminUsersScreenNarrow({
@@ -48,6 +49,7 @@ export function AdminUsersScreenNarrow({
   labels,
   tableLabels,
   surface,
+  lockRole,
 }: AdminUsersScreenNarrowProps) {
   const [exportOpen, setExportOpen] = useState(false);
   const u = useAdminUsersTable({
@@ -87,6 +89,7 @@ export function AdminUsersScreenNarrow({
                 deleteDisabled={u.deleteDisabled}
                 selectAllFilteredDisabled={u.selectAllFilteredDisabled}
                 onExportUsers={() => setExportOpen(true)}
+                lockRole={lockRole}
               />
             }
             labels={labels}

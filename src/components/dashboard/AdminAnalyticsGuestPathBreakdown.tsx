@@ -24,7 +24,7 @@ export function AdminAnalyticsGuestPathBreakdown({ locale, labels, rows }: Admin
 
   return (
     <section
-      className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]"
       aria-labelledby="admin-analytics-guest-path-title"
     >
       <h2

@@ -7,6 +7,11 @@ import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortal
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { TeacherDashboardShell } from "@/components/dashboard/TeacherDashboardShell";
 import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
+import { formatProfileSnakeGivenFirst } from "@/lib/profile/formatProfileDisplayName";
+import { adminUserRoleOptionLabel } from "@/lib/dashboard/adminUserRoleOptionLabel";
+import { resolveAvatarDisplayUrl } from "@/lib/dashboard/resolveAvatarUrl";
+import { getDashboardActor, syncViewAsCookie } from "@/lib/dashboard/getDashboardActor";
+import { viewAsPortalRedirect } from "@/lib/dashboard/viewAsLayout";
 
 interface LayoutProps {
   children: ReactNode;
@@ -23,18 +28,31 @@ export default async function TeacherDashboardLayout({ children, params }: Layou
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login?next=/${locale}/dashboard/teacher`);
 
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (profile?.role === "assistant") {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, first_name, last_name, avatar_url")
+    .eq("id", user.id)
+    .maybeSingle();
+  const actor = await getDashboardActor();
+  if (actor) await syncViewAsCookie(actor);
+
+  if (!actor?.viewAs && profile?.role === "assistant") {
     redirect(`/${locale}/dashboard/assistant`);
   }
 
   const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
-  if (!allowed) redirect(`/${locale}/dashboard`);
-
   const [isAdmin, blogEnabled] = await Promise.all([
     resolveIsAdminSession(supabase, user.id),
     loadBlogEnabled(),
   ]);
+  const redirectTo = actor
+    ? viewAsPortalRedirect(locale, actor, "teacher", {
+        sessionProfileRole: profile?.role ?? null,
+        teacherPortalAllowed: allowed,
+        assistantPortalAllowed: false,
+      })
+    : `/${locale}/dashboard`;
+  if (redirectTo) redirect(redirectTo);
   const navDict = dict.dashboard.teacherNav;
   const chromeDict = dict.dashboard.teacherChrome;
   const adminNav = isAdmin
@@ -47,6 +65,20 @@ export default async function TeacherDashboardLayout({ children, params }: Layou
       }
     : undefined;
 
+  const profileDisplayName = actor?.viewAs?.displayName
+    ?? formatProfileSnakeGivenFirst(
+    {
+      first_name: profile?.first_name,
+      last_name: profile?.last_name,
+    },
+    "",
+  );
+  const profileRoleLabel = adminUserRoleOptionLabel(
+    dict.admin.users,
+    actor?.viewAs?.role ?? profile?.role ?? "teacher",
+  );
+  const profileAvatarUrl = await resolveAvatarDisplayUrl(supabase, profile?.avatar_url);
+
   return (
     <TeacherDashboardShell
       locale={locale}
@@ -54,6 +86,10 @@ export default async function TeacherDashboardLayout({ children, params }: Layou
       brand={brand}
       adminNav={adminNav}
       includeBlogNav={blogEnabled}
+      profileDisplayName={profileDisplayName}
+      profileRoleLabel={profileRoleLabel}
+      profileAvatarUrl={profileAvatarUrl}
+      viewAs={actor?.viewAs ?? null}
     >
       {children}
     </TeacherDashboardShell>

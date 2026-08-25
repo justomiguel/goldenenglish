@@ -62,7 +62,7 @@ export function CohortCollectionsMatrixSectionGroup({
   return (
     <section
       aria-labelledby={`section-${view.sectionId}-title`}
-      className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3"
+      className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-[var(--shadow-soft)]"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-start gap-2">
@@ -171,9 +171,9 @@ export function CohortCollectionsMatrixSectionGroup({
           id={matrixPanelId}
           role="region"
           aria-label={view.sectionName}
-          className="mt-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-2 shadow-[inset_0_1px_0_0_var(--color-border)]"
+          className="mt-3 rounded-2xl border border-[var(--color-border)] p-2"
         >
-          <div className="overflow-x-auto rounded-[var(--layout-border-radius)] bg-[var(--color-surface)]">
+          <div className="overflow-x-auto rounded-2xl">
             <CohortCollectionsMatrixSectionTable
               view={view}
               monthShort={monthShort}

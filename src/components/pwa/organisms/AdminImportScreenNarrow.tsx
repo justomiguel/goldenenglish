@@ -4,6 +4,7 @@ import type { Dictionary } from "@/types/i18n";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import { ImportUsers } from "@/components/organisms/ImportUsers";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface AdminImportScreenNarrowProps {
   locale: string;
@@ -30,10 +31,11 @@ export function AdminImportScreenNarrow({
     <PwaPageShell surface={surface}>
       <main className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
         <div className="mx-auto max-w-[var(--layout-max-width)] py-4">
-          <h1 className="mb-4 text-xl font-bold text-[var(--color-secondary)]">
-            {dict.admin.users.spreadsheet.importTitle}
-          </h1>
-          {form}
+          <AdminPageHeader
+            title={dict.admin.users.spreadsheet.importTitle}
+            iconId="students"
+          />
+          <div className="mt-4">{form}</div>
         </div>
       </main>
     </PwaPageShell>

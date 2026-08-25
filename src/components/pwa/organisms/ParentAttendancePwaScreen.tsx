@@ -6,6 +6,7 @@ import type { PortalCalendarEvent } from "@/types/portalCalendar";
 import type { Dictionary } from "@/types/i18n";
 import type { ParentRecentAttendanceModel } from "@/lib/parent/loadParentRecentAttendance";
 import { Button } from "@/components/atoms/Button";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import { Modal } from "@/components/atoms/Modal";
 import { ParentWardPicker, type ParentWardOption } from "@/components/parent/ParentWardPicker";
 import { useAppSurface } from "@/hooks/useAppSurface";
@@ -88,20 +89,20 @@ export function ParentAttendancePwaScreen({
   return (
     <div className={isNarrowParent ? "space-y-5 pb-20" : "space-y-5"}>
       <header className="space-y-3">
-        <div className={isNarrowParent ? "min-w-0" : "flex flex-wrap items-start justify-between gap-3"}>
-          <div className="min-w-0">
-            <h1 className="font-display text-xl font-bold text-[var(--color-foreground)]">
-              {labels.title}
-            </h1>
-            <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.lead}</p>
-          </div>
-          {!isNarrowParent ? (
-            <Button type="button" variant="secondary" onClick={() => setScheduleOpen(true)}>
-              <CalendarDays className="h-4 w-4 shrink-0" aria-hidden />
-              {labels.openSchedule}
-            </Button>
-          ) : null}
-        </div>
+        <AdminPageHeader
+          title={labels.title}
+          lead={labels.lead}
+          iconId="calendar"
+          artFamily="parent"
+          actions={
+            !isNarrowParent ? (
+              <Button type="button" variant="secondary" onClick={() => setScheduleOpen(true)}>
+                <CalendarDays className="h-4 w-4 shrink-0" aria-hidden />
+                {labels.openSchedule}
+              </Button>
+            ) : undefined
+          }
+        />
 
         {!shellOwnsFocus ? (
           <ParentWardPicker

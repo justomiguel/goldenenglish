@@ -10,6 +10,8 @@ import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortal
 import { formatAcademicScheduleSummary } from "@/lib/academics/formatAcademicScheduleSummary";
 import { loadTeacherSectionIdsForUser } from "@/lib/academics/loadTeacherSectionIdsForUser";
 import { chunkedIn } from "@/lib/supabase/chunkedIn";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
+import { getDashboardActor } from "@/lib/dashboard/getDashboardActor";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -30,14 +32,16 @@ export default async function TeacherSectionsPage({ params }: PageProps) {
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
+  const actor = await getDashboardActor();
+  const viewerId = actor?.viewerId ?? user.id;
   const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
-  if (!allowed) {
+  if (!allowed && !actor?.viewAs) {
     const isAdmin = await resolveIsAdminSession(supabase, user.id);
     if (isAdmin) redirect(`/${locale}/dashboard/admin/academic`);
     redirect(`/${locale}/dashboard`);
   }
 
-  const mySectionIds = await loadTeacherSectionIdsForUser(supabase, user.id);
+  const mySectionIds = await loadTeacherSectionIdsForUser(supabase, viewerId);
   const sections =
     mySectionIds.length === 0
       ? []
@@ -66,7 +70,7 @@ export default async function TeacherSectionsPage({ params }: PageProps) {
       cohortId: r.cohort_id,
       cohortName,
       scheduleSlots: r.schedule_slots,
-      accessRole: r.teacher_id === user.id ? ("lead" as const) : ("assistant" as const),
+      accessRole: r.teacher_id === viewerId ? ("lead" as const) : ("assistant" as const),
     };
   });
 
@@ -98,10 +102,7 @@ export default async function TeacherSectionsPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">{d.title}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{d.lead}</p>
-      </header>
+      <AdminPageHeader title={d.title} lead={d.lead} iconId="academic" />
       {sectionList.length === 0 ? (
         <p className="text-sm text-[var(--color-muted-foreground)]">{d.noSections}</p>
       ) : (

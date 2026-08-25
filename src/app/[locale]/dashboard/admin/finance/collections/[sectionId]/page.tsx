@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
@@ -10,6 +8,8 @@ import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySet
 import { loadSectionCollectionsScholarshipsList } from "@/lib/billing/loadSectionCollectionsScholarshipsList";
 import { SectionCollectionsClient } from "@/components/dashboard/admin/finance/SectionCollectionsClient";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminBackLink } from "@/components/dashboard/AdminBackLink";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -62,24 +62,15 @@ export default async function AdminCollectionsSectionPage({
 
   return (
     <div className="space-y-5">
-      <header className="flex flex-col gap-2 border-b border-[var(--color-border)] pb-5">
-        <Link
-          href={overviewHref}
-          className="inline-flex w-fit items-center gap-1 text-xs font-medium text-[var(--color-primary)] hover:underline"
-        >
-          <ArrowLeft className="h-3 w-3" aria-hidden />
-          {d.matrix.back}
-        </Link>
-        <h1
-          className="text-2xl font-semibold tracking-tight text-[var(--color-foreground)]"
-          data-tour={ADMIN_TOUR_ANCHORS.sectionCollectionsTitle}
-        >
-          {view.sectionName}
-        </h1>
-        <p className="text-sm text-[var(--color-muted-foreground)]">
-          {view.cohortName} · {year}
-        </p>
-      </header>
+      <div className="space-y-2">
+        <AdminBackLink href={overviewHref}>{d.matrix.back}</AdminBackLink>
+        <AdminPageHeader
+          title={view.sectionName}
+          lead={`${view.cohortName} · ${year}`}
+          iconId="finance"
+          tourAnchor={ADMIN_TOUR_ANCHORS.sectionCollectionsTitle}
+        />
+      </div>
       <SectionCollectionsClient
         view={view}
         sectionScholarships={sectionScholarships}

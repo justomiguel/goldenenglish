@@ -154,7 +154,7 @@ export async function FinancePaymentsPanel({
   return (
     <div className="space-y-8">
       {allEmpty ? (
-        <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-sm text-[var(--color-muted-foreground)]">
+        <p className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-8 text-center text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
           {dict.none}
         </p>
       ) : null}

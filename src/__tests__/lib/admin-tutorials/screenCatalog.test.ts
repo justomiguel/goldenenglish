@@ -186,6 +186,9 @@ describe("admin-tutorials screenCatalog", () => {
 
   it("resolves every sidebar content route via adminScreenPath", () => {
     const ids = [
+      "admin-students",
+      "admin-teachers",
+      "admin-institute",
       "admin-users",
       "admin-registrations",
       "admin-events",

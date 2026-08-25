@@ -1,11 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
+import { assertNotViewAs } from "@/lib/dashboard/assertNotViewAs";
 
 const FORBIDDEN = "TEACHER_SESSION_FORBIDDEN";
 const UNAUTH = "TEACHER_SESSION_UNAUTHORIZED";
 
 /** Session may be teacher, dedicated assistant role, or a student with at least one section assistantship. */
 export async function assertTeacher() {
+  const viewAsGate = await assertNotViewAs();
+  if (!viewAsGate.ok) throw new Error(FORBIDDEN);
+
   const supabase = await createClient();
   const {
     data: { user },

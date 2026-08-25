@@ -84,8 +84,8 @@ export function AdminPromotionsForm({ locale, labels }: AdminPromotionsFormProps
   }
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <h2 className="font-semibold text-[var(--color-secondary)]">{labels.createTitle}</h2>
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)] md:p-6">
+      <h2 className="font-semibold text-[var(--color-primary)]">{labels.createTitle}</h2>
       <form onSubmit={onCreate} className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
           <Label htmlFor="pr-code">{labels.createCode}</Label>

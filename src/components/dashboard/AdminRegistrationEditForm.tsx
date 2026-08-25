@@ -156,7 +156,7 @@ export function AdminRegistrationEditForm({
         <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.editLevelHint}</p>
       </div>
       <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/20 p-3">
-        <p className="text-sm font-semibold text-[var(--color-secondary)]">{labels.tutorOnRequestTitle}</p>
+        <p className="text-sm font-semibold text-[var(--color-primary)]">{labels.tutorOnRequestTitle}</p>
         <div className="mt-2 grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <Label htmlFor="ed-tn">{labels.tutorOnRequestName}</Label>

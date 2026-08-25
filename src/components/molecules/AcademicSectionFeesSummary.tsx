@@ -103,7 +103,7 @@ export function AcademicSectionFeesSummary({
   return (
     <section
       aria-label={dict.title}
-      className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]"
+      className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]"
     >
       <div className="flex items-center gap-3">
         <span

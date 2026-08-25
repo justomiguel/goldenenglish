@@ -126,7 +126,7 @@ export function AdminEventPaymentReviewActions({
   return (
     <section
       aria-label={labels.actionsTitle}
-      className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-3"
+      className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3"
     >
       <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-muted-foreground)]">
         {labels.actionsTitle}

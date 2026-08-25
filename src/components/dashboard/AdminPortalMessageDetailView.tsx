@@ -38,7 +38,7 @@ function ParticipantPanel(props: {
   const heading = props.kind === "from" ? props.labels.colFrom : props.labels.colTo;
 
   return (
-    <div className="relative min-w-0 rounded-[var(--layout-border-radius)] border border-[var(--color-border)]/80 bg-[var(--color-muted)]/15 p-4 md:p-5">
+    <div className="relative min-w-0 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 md:p-5">
       <div className="flex items-start gap-3">
         <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[calc(var(--layout-border-radius)-2px)] bg-[var(--color-surface)] shadow-sm ring-1 ring-[var(--color-border)]/60">
           {icon}
@@ -67,7 +67,7 @@ export function AdminPortalMessageDetailView({
   const hasBody = Boolean(detail.bodyHtmlDisplay.trim());
 
   return (
-    <article className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-md ring-1 ring-[var(--color-border)]/30">
+    <article className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
       <div className="h-1 bg-[var(--color-primary)]/55" aria-hidden />
 
       <div className="space-y-8 p-6 md:p-8">
@@ -120,7 +120,7 @@ export function AdminPortalMessageDetailView({
             <div className="min-w-0 flex-1 space-y-2 border-b border-[var(--color-border)]/50 pb-5 md:pb-6">
               <h2
                 id="admin-portal-msg-body-heading"
-                className="text-base font-semibold leading-snug text-[var(--color-secondary)] md:text-lg"
+                className="text-base font-semibold leading-snug text-[var(--color-primary)] md:text-lg"
               >
                 {labels.detailBodyLabel}
               </h2>
@@ -128,7 +128,7 @@ export function AdminPortalMessageDetailView({
             </div>
           </div>
 
-          <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)]/85 bg-[var(--color-surface)] px-6 py-8 shadow-sm ring-1 ring-[var(--color-border)]/20 md:px-10 md:py-11">
+          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-6 py-8 md:px-10 md:py-11">
             {hasBody ? (
               <div
                 className="prose prose-sm max-w-none text-[var(--color-foreground)] md:prose-base [&_h1]:mt-8 [&_h1]:text-[var(--color-secondary)] [&_h2]:mt-8 [&_h2]:text-[var(--color-secondary)] [&_h3]:mt-6 [&_h3]:text-[var(--color-secondary)] [&_h1:first-child]:mt-0 [&_h2:first-child]:mt-0 [&_h3:first-child]:mt-0 [&_iframe]:aspect-video [&_iframe]:h-auto [&_iframe]:min-h-0 [&_iframe]:w-full [&_iframe]:max-w-full [&_img]:rounded-[calc(var(--layout-border-radius)-4px)] [&_img]:max-w-full [&_li]:my-1 [&_ol]:my-4 [&_p:empty]:hidden [&_p]:my-0 [&_p]:leading-relaxed [&_p+p]:mt-5 [&_table]:my-6 [&_table]:max-w-full [&_table]:text-sm [&_ul]:my-4 [&_a]:text-[var(--color-primary)] [&_blockquote]:my-6 [&_blockquote]:border-[var(--color-primary)]/35 [&_hr]:my-10 [&_hr]:border-[var(--color-border)]"

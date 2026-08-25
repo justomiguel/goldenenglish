@@ -31,22 +31,22 @@ export function SortableColumnHeader({
 
   if (!sortable) {
     return (
-      <span className="font-semibold text-[var(--color-secondary)]">{label}</span>
+      <span className="font-semibold text-[var(--color-muted-foreground)]">{label}</span>
     );
   }
 
   return (
     <button
       type="button"
-      className="flex min-h-[44px] w-full min-w-0 items-center justify-start gap-1.5 text-left font-semibold text-[var(--color-secondary)] hover:underline"
+      className="flex min-h-[44px] w-full min-w-0 items-center justify-start gap-1.5 text-left font-semibold text-[var(--color-muted-foreground)] hover:text-[var(--color-primary)] hover:underline"
       onClick={() => onToggleSort(columnId)}
     >
       <span className="min-w-0 break-words">{label}</span>
       {active ? (
         sortDir === "asc" ? (
-          <ArrowUp className="h-4 w-4 shrink-0 text-[var(--color-secondary)]" aria-hidden />
+          <ArrowUp className="h-4 w-4 shrink-0 text-[var(--color-primary)]" aria-hidden />
         ) : (
-          <ArrowDown className="h-4 w-4 shrink-0 text-[var(--color-secondary)]" aria-hidden />
+          <ArrowDown className="h-4 w-4 shrink-0 text-[var(--color-primary)]" aria-hidden />
         )
       ) : (
         <span className="inline-block w-4 shrink-0" aria-hidden />

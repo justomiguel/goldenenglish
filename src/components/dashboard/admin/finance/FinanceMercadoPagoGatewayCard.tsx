@@ -86,11 +86,11 @@ export function FinanceMercadoPagoGatewayCard({
             ? ADMIN_TOUR_ANCHORS.financeSettingsMercadoPagoAr
             : ADMIN_TOUR_ANCHORS.financeSettingsMercadoPagoCl
         }
-        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5"
+        className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]"
       >
         <header className="mb-4 flex items-center gap-2">
           <CreditCard className="h-5 w-5 text-[var(--color-muted-foreground)]" aria-hidden />
-          <h2 className="text-lg font-semibold text-[var(--color-foreground)]">
+          <h2 className="text-lg font-semibold text-[var(--color-primary)]">
             {countryTitle(dict, initial.countryCode)}
           </h2>
         </header>
@@ -188,7 +188,7 @@ export function FinanceMercadoPagoGatewayCard({
               <p className="pt-2 text-xs text-[var(--color-muted-foreground)]">{dict.flowDangerHint}</p>
               <Button
                 type="button"
-                variant="secondary"
+                variant="ghost"
                 className="min-h-[44px]"
                 disabled={isPending}
                 onClick={() => setRemoveOpen(true)}

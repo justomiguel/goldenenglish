@@ -24,6 +24,7 @@ import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { clientAbsoluteUrl } from "@/lib/client/publicUrl";
 import type { BlogArticleListItem } from "@/lib/blog/server";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface BlogAdminListShellProps {
   locale: string;
@@ -98,30 +99,34 @@ export function BlogAdminListShell({
 
   return (
     <section className="space-y-4">
-      <header className="flex items-center justify-between gap-3" data-tour={ADMIN_TOUR_ANCHORS.blogTitle}>
-        <h1 className="text-2xl font-bold text-[var(--color-secondary)]">{labels.title}</h1>
-        <Link
-          href={`/${locale}/dashboard/admin/cms/blog/new`}
-          data-tour={ADMIN_TOUR_ANCHORS.blogCreateCta}
-          className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary)] px-3 py-2 text-sm font-semibold text-[var(--color-primary-foreground)]"
-        >
-          <Plus aria-hidden className="h-4 w-4" />
-          {labels.create}
-        </Link>
-      </header>
+      <AdminPageHeader
+        title={labels.title}
+        iconId="blog"
+        tourAnchor={ADMIN_TOUR_ANCHORS.blogTitle}
+        actions={
+          <Link
+            href={`/${locale}/dashboard/admin/cms/blog/new`}
+            data-tour={ADMIN_TOUR_ANCHORS.blogCreateCta}
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-foreground)]"
+          >
+            <Plus aria-hidden className="h-4 w-4" />
+            {labels.create}
+          </Link>
+        }
+      />
 
       {errorMsg ? <p className="text-sm text-[var(--color-error)]">{errorMsg}</p> : null}
 
       <div className="grid gap-3" data-tour={ADMIN_TOUR_ANCHORS.blogArticleList}>
         {rows.length === 0 ? (
-          <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] p-6 text-sm text-[var(--color-muted-foreground)]">
+          <p className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-6 text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
             {labels.empty}
           </p>
         ) : null}
         {rows.map((row) => (
           <article
             key={row.id}
-            className="grid gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+            className="grid gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]"
           >
             <div className="flex items-center justify-between gap-4">
               <div>
@@ -146,7 +151,7 @@ export function BlogAdminListShell({
               <button
                 type="button"
                 disabled={busy}
-                className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] px-2 py-1 text-xs font-medium disabled:opacity-70"
+                className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] px-2 py-1 text-xs font-medium disabled:opacity-70"
                 onClick={() =>
                   void runAction(() => publishBlogArticleAdminAction(locale, row.id))
                 }
@@ -157,7 +162,7 @@ export function BlogAdminListShell({
               <button
                 type="button"
                 disabled={busy}
-                className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] px-2 py-1 text-xs font-medium disabled:opacity-70"
+                className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] px-2 py-1 text-xs font-medium disabled:opacity-70"
                 onClick={() =>
                   void runAction(() => submitBlogForReviewAdminAction(locale, row.id))
                 }
@@ -178,7 +183,7 @@ export function BlogAdminListShell({
               <button
                 type="button"
                 disabled={busy}
-                className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] px-2 py-1 text-xs font-medium disabled:opacity-70"
+                className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] px-2 py-1 text-xs font-medium disabled:opacity-70"
                 onClick={() => void runAction(() => archiveBlogArticleAdminAction(locale, row.id))}
               >
                 <Archive aria-hidden className="h-3.5 w-3.5" />
@@ -198,7 +203,7 @@ export function BlogAdminListShell({
               <button
                 type="button"
                 disabled={busy}
-                className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] px-2 py-1 text-xs font-medium disabled:opacity-70"
+                className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] px-2 py-1 text-xs font-medium disabled:opacity-70"
                 onClick={() =>
                   void runAction(() => pinBlogArticleAdminAction(locale, row.id, !row.isPinned))
                 }

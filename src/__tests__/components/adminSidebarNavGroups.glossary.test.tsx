@@ -7,11 +7,9 @@ describe("buildAdminSidebarNavGroups — glossary", () => {
   const profile = "/en/dashboard/profile";
   const badgesZero = { newRegistrations: 0, recentInboundMessages: 0 };
 
-  it("includes glossary under the Help group", () => {
+  it("does not put glossary on the daily list", () => {
     const groups = buildAdminSidebarNavGroups(base, profile, dictEn.dashboard.adminNav, badgesZero);
-    const helpGroup = groups.find((g) => g.label === dictEn.dashboard.adminNav.groupHelp);
-    expect(helpGroup).toBeDefined();
-    const glossaryItem = helpGroup?.items.find((i) => i.href === `${base}/glossary`);
-    expect(glossaryItem?.label).toBe(dictEn.dashboard.adminNav.glossary);
+    const hrefs = groups.flatMap((g) => g.items.map((i) => i.href));
+    expect(hrefs).not.toContain(`${base}/glossary`);
   });
 });

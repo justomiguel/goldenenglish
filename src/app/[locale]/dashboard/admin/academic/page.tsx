@@ -5,6 +5,7 @@ import { AcademicHubCohortBoard } from "@/components/organisms/AcademicHubCohort
 import type { AcademicHubCohortSummary } from "@/components/molecules/AcademicHubCohortRow";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -48,16 +49,13 @@ export default async function AcademicHubPage({ params }: PageProps) {
 
   return (
     <div className="space-y-8">
-      <header
-        className="flex flex-col gap-4 border-b border-[var(--color-border)] pb-6 sm:flex-row sm:items-start sm:justify-between"
-        data-tour={ADMIN_TOUR_ANCHORS.academicTitle}
-      >
-        <div className="min-w-0 space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-foreground)]">{d.title}</h1>
-          <p className="max-w-2xl text-sm leading-relaxed text-[var(--color-muted-foreground)]">{d.lead}</p>
-        </div>
-        <AcademicHubToolbar locale={locale} dict={d.toolbar} />
-      </header>
+      <AdminPageHeader
+        title={d.title}
+        lead={d.lead}
+        iconId="academic"
+        tourAnchor={ADMIN_TOUR_ANCHORS.academicTitle}
+        actions={<AcademicHubToolbar locale={locale} dict={d.toolbar} />}
+      />
 
       <AcademicHubCohortBoard
         locale={locale}

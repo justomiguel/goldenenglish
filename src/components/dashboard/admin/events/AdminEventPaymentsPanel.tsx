@@ -82,7 +82,7 @@ export async function AdminEventPaymentsPanel({
 
   return (
     <section
-      className="space-y-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]"
       data-tour={ADMIN_TOUR_ANCHORS.eventPaymentsPanel}
     >
       <div className="space-y-1">

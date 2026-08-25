@@ -36,7 +36,7 @@ function KpiBlock({ label, value, hint, emphasis = "default" }: KpiBlockProps) {
           ? "text-[var(--color-success)]"
           : "text-[var(--color-foreground)]";
   return (
-    <div className="flex flex-col gap-1 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5">
+    <div className="flex flex-col gap-1 rounded-2xl border border-[var(--color-border)] px-3 py-2.5">
       <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
         {label}
       </span>
@@ -67,7 +67,7 @@ export function SectionCollectionsKpisCard({
   return (
     <section
       aria-label={dict.title}
-      className="flex flex-col gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4"
+      className="flex flex-col gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]"
     >
       <header className="flex items-center justify-between gap-3">
         <h2 className="font-display text-base font-semibold text-[var(--color-primary)]">

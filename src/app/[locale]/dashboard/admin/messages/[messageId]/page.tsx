@@ -10,6 +10,7 @@ import { markAdminPortalMessageRead } from "@/lib/messaging/markAdminPortalMessa
 import { AdminPortalMessageDetailView } from "@/components/dashboard/AdminPortalMessageDetailView";
 import { DeletePortalMessageButton } from "@/components/dashboard/DeletePortalMessageButton";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -61,12 +62,13 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
         <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
         {dict.admin.messages.composeBackToList}
       </Link>
-      <h1
-        className="mt-5 text-2xl font-bold tracking-tight text-[var(--color-secondary)] md:text-3xl"
-        data-tour={ADMIN_TOUR_ANCHORS.messagesDetailTitle}
-      >
-        {dict.admin.messages.detailHeading}
-      </h1>
+      <div className="mt-5">
+        <AdminPageHeader
+          title={dict.admin.messages.detailHeading}
+          iconId="messages"
+          tourAnchor={ADMIN_TOUR_ANCHORS.messagesDetailTitle}
+        />
+      </div>
       <div className="mt-7 md:mt-9">
         <AdminPortalMessageDetailView locale={locale} labels={dict.admin.messages} detail={detail} />
       </div>
@@ -76,7 +78,7 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
       >
         <Link
           href={replyHref}
-          className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-muted)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+          className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
           title={dict.admin.messages.replyToMessageTitle}
         >
           <Reply className="h-4 w-4 shrink-0" aria-hidden />
@@ -84,7 +86,7 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
         </Link>
         <Link
           href={replyWithDefaultHref}
-          className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-muted)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+          className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
           title={dict.admin.messages.replyWithDefaultMessageTitle}
         >
           <ReplyAll className="h-4 w-4 shrink-0" aria-hidden />

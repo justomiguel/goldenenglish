@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import type { AppSurface } from "@/hooks/useAppSurface";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 function FlowReturnSkeleton() {
   return (
@@ -52,13 +53,13 @@ export function PaymentsFlowReturnSurfaceEntry({
 
   const desktopBody = (
     <div className="mx-auto max-w-[var(--layout-max-width)] px-3 py-8">
+      <AdminPageHeader title={title} lead={lead} iconId="finance" />
       <div
-        className={`rounded-[var(--layout-border-radius)] border p-5 shadow-[var(--shadow-card)] ${panel}`}
+        className={`mt-6 rounded-[var(--layout-border-radius)] border p-5 shadow-[var(--shadow-card)] ${panel}`}
         role="status"
         aria-live="polite"
       >
-        <h1 className="font-display text-2xl font-bold text-[var(--color-secondary)]">{title}</h1>
-        <p className="mt-3 text-sm text-[var(--color-muted-foreground)]">{lead}</p>
+        <p className="text-sm text-[var(--color-muted-foreground)]">{lead}</p>
       </div>
       {belowStatusContent ? <div className="mt-6">{belowStatusContent}</div> : null}
       <Link
@@ -73,12 +74,12 @@ export function PaymentsFlowReturnSurfaceEntry({
 
   const narrowMobileBody = (
     <div className="mx-auto max-w-[var(--layout-max-width)] space-y-4 px-3 py-8">
+      <AdminPageHeader title={title} lead={lead} iconId="finance" />
       <div
         className={`rounded-[var(--layout-border-radius)] border p-5 shadow-[var(--shadow-card)] ${panel}`}
         role="status"
         aria-live="polite"
       >
-        <h1 className="font-display text-2xl font-bold text-[var(--color-secondary)]">{title}</h1>
         <p className="text-sm text-[var(--color-muted-foreground)]">{lead}</p>
       </div>
       {belowStatusContent}

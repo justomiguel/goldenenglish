@@ -5,6 +5,9 @@
 
 export type AdminScreenTourId =
   | "admin-home"
+  | "admin-students"
+  | "admin-teachers"
+  | "admin-institute"
   | "admin-users"
   | "admin-users-new"
   | "admin-users-import"
@@ -47,6 +50,9 @@ export type AdminScreenTourScope = "chrome-and-content" | "content-only";
 /** Dictionary key under dashboard.adminHelpScreenTours.<metaKey> */
 export type AdminScreenTourMetaKey =
   | "adminHome"
+  | "adminStudents"
+  | "adminTeachers"
+  | "adminInstitute"
   | "adminUsers"
   | "adminUsersNew"
   | "adminUsersImport"

@@ -19,8 +19,8 @@ type RoleOption = { value: string; label: string };
 
 function CardShell({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-[calc(var(--layout-border-radius)*1.2)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
-      <h2 className="border-b border-[var(--color-border)] pb-3 font-display text-lg font-semibold text-[var(--color-secondary)]">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]">
+      <h2 className="border-b border-[var(--color-border)] pb-3 font-display text-lg font-semibold text-[var(--color-primary)]">
         {title}
       </h2>
       <dl className="mt-4">{children}</dl>

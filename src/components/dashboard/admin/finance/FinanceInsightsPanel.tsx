@@ -25,7 +25,7 @@ export async function FinanceInsightsPanel({
 }: FinanceInsightsPanelProps) {
   if (!matrix || !cohortId) {
     return (
-      <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-muted-foreground)]">
+      <p className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-6 text-center text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
         {dict.collections.errors.loadFailed}
       </p>
     );

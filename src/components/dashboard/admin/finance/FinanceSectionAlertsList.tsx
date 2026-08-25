@@ -79,7 +79,7 @@ function AlertGroup({
         {sections.map((sec) => (
           <li
             key={sec.sectionId}
-            className={`rounded-[var(--layout-border-radius)] border border-[var(--color-border)] ${borderColor} border-l-4 bg-[var(--color-surface)] px-4 py-3`}
+            className={`rounded-2xl border border-[var(--color-border)] ${borderColor} border-l-4 bg-[var(--color-background)] px-4 py-3 shadow-[var(--shadow-soft)]`}
           >
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-[var(--color-foreground)]">

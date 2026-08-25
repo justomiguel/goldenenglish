@@ -31,7 +31,7 @@ export function FinanceReceiptProcessingCard({
 }: FinanceReceiptProcessingCardProps) {
   if (!stats || stats.totalResolved === 0) {
     return (
-      <section className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-muted-foreground)]">
+      <section className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-6 text-center text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
         {labels.noData}
       </section>
     );
@@ -47,7 +47,7 @@ export function FinanceReceiptProcessingCard({
 
   return (
     <section className="space-y-5">
-      <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
         <h3 className="font-semibold text-[var(--color-primary)]">
           {labels.title}
         </h3>
@@ -153,7 +153,7 @@ export function FinanceReceiptProcessingCard({
       </div>
 
       {stats.totalPending > 0 && (
-        <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
           <p className="mb-3 text-xs font-medium uppercase tracking-wider text-[var(--color-muted-foreground)]">
             {labels.pendingCount}
           </p>

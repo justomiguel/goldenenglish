@@ -48,7 +48,7 @@ export function AdminUserDetailTutorFamilyLinkStudentsPanel({
         aria-labelledby="admin-tutor-family-link-panel-title"
       >
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--color-border)]/80 pb-3">
-          <h3 id="admin-tutor-family-link-panel-title" className="text-sm font-semibold text-[var(--color-secondary)]">
+          <h3 id="admin-tutor-family-link-panel-title" className="text-sm font-semibold text-[var(--color-primary)]">
             {labels.detailTutorFamilyLinkStudentsPanelTitle}
           </h3>
           {hasLinkedStudents ? (

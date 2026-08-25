@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink, GraduationCap } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
-import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
-import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminAttentionBell } from "@/components/dashboard/AdminAttentionBell";
+import { StaffWorkspaceSwitch } from "@/components/dashboard/StaffWorkspaceSwitch";
 
 interface AdminChromeHeaderProps {
   locale: string;
@@ -15,6 +15,10 @@ interface AdminChromeHeaderProps {
   adminProfileRole: string;
   teacherPortalAllowed: boolean;
   mobileNav?: ReactNode;
+  /** Hide the logo block when the brand already lives in the sidebar. */
+  compactBrand?: boolean;
+  newRegistrationsCount?: number;
+  recentInboundMessagesCount?: number;
 }
 
 export function AdminChromeHeader({
@@ -24,6 +28,9 @@ export function AdminChromeHeader({
   adminProfileRole,
   teacherPortalAllowed,
   mobileNav,
+  compactBrand = false,
+  newRegistrationsCount = 0,
+  recentInboundMessagesCount = 0,
 }: AdminChromeHeaderProps) {
   const tagline = locale === "es" ? brand.tagline : brand.taglineEn;
   const labels = dict.dashboard.adminChrome;
@@ -32,7 +39,6 @@ export function AdminChromeHeader({
   const teachingBadgeLabel = isTeacherProfile
     ? labels.teacherBadge
     : labels.teachingAccessBadge;
-  const teacherHref = `/${locale}/dashboard/teacher`;
 
   return (
     <header
@@ -40,9 +46,23 @@ export function AdminChromeHeader({
       className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-surface)]/95 shadow-[var(--shadow-soft)] backdrop-blur-md"
       aria-label={labels.ariaHeader}
     >
-      <div className="mx-auto flex max-w-[var(--layout-max-width)] items-center justify-between gap-3 px-4 py-3 md:px-6 md:py-3.5">
+      <div className="flex items-center justify-between gap-4 px-4 py-4 md:px-8">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           {mobileNav}
+          {compactBrand ? (
+            <div className="min-w-0">
+              <StaffWorkspaceSwitch
+                locale={locale}
+                dict={dict}
+                activeRole="admin"
+                viewAs={null}
+              />
+              <p className="mt-1.5 hidden min-w-0 truncate text-xs text-[var(--color-muted-foreground)] sm:block">
+                {tagline}
+              </p>
+            </div>
+          ) : null}
+          {!compactBrand ? (
           <Link
             href={`/${locale}/dashboard/admin`}
             className="group flex min-w-0 flex-1 items-center gap-3 rounded-[var(--layout-border-radius)] outline-none ring-[var(--color-primary)] transition hover:opacity-95 focus-visible:ring-2 focus-visible:ring-offset-2"
@@ -59,15 +79,15 @@ export function AdminChromeHeader({
               />
             </div>
             <div className="min-w-0 flex-1 text-left">
-              <div className="flex min-w-0 items-center gap-x-2">
-                <span className="font-display truncate text-base font-semibold tracking-tight text-[var(--color-primary)] md:text-xl">
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <span className="font-display text-base font-semibold tracking-tight text-[var(--color-primary)] md:text-xl">
                   {brand.name}
                 </span>
-                <span className="hidden shrink-0 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/70 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-[var(--color-muted-foreground)] sm:inline md:text-[0.65rem]">
+                <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/70 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-[var(--color-muted-foreground)] md:text-[0.65rem]">
                   {labels.badge}
                 </span>
                 {teacherPortalAllowed ? (
-                  <span className="hidden shrink-0 rounded-full border border-[var(--color-primary)]/35 bg-[var(--color-primary)]/10 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-[var(--color-primary)] md:inline md:text-[0.65rem]">
+                  <span className="rounded-full border border-[var(--color-primary)]/35 bg-[var(--color-primary)]/10 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-[var(--color-primary)] md:text-[0.65rem]">
                     {teachingBadgeLabel}
                   </span>
                 ) : null}
@@ -77,54 +97,27 @@ export function AdminChromeHeader({
               </p>
             </div>
           </Link>
+          ) : null}
+          {!compactBrand ? (
+            <StaffWorkspaceSwitch
+              locale={locale}
+              dict={dict}
+              activeRole="admin"
+              viewAs={null}
+            />
+          ) : null}
         </div>
 
-        {teacherPortalAllowed ? (
-          <Link
-            href={teacherHref}
-            aria-label={labels.openTeacherDashboardAria}
-            title={labels.openTeacherDashboard}
-            className="inline-flex shrink-0 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10 p-2 text-[var(--color-primary)] shadow-sm transition hover:bg-[var(--color-primary)]/15 md:hidden"
-          >
-            <GraduationCap className="h-5 w-5" aria-hidden strokeWidth={2} />
-          </Link>
-        ) : null}
-
-        <Link
-          href={`/${locale}`}
-          aria-label={labels.backToSite}
-          title={labels.backToSite}
-          className="inline-flex shrink-0 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-2 text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] md:hidden"
-        >
-          <ExternalLink
-            className="h-5 w-5 text-[var(--color-muted-foreground)]"
-            aria-hidden
-            strokeWidth={2}
-          />
-        </Link>
-
-        <div className="hidden shrink-0 items-center gap-2 sm:gap-3 md:flex">
-          {teacherPortalAllowed ? (
-            <Link
-              href={teacherHref}
-              data-tour="admin-chrome-teacher-portal"
-              aria-label={labels.openTeacherDashboardAria}
-              title={labels.openTeacherDashboard}
-              className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10 px-2.5 py-2 text-xs font-medium text-[var(--color-primary)] shadow-sm transition hover:bg-[var(--color-primary)]/15 sm:px-3 sm:text-sm"
-            >
-              <GraduationCap className="h-3.5 w-3.5 shrink-0" aria-hidden strokeWidth={2} />
-              <span className="hidden sm:inline">{labels.openTeacherDashboard}</span>
-            </Link>
-          ) : null}
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <Link
             href={`/${locale}`}
             data-tour="admin-chrome-back-to-site"
             aria-label={labels.backToSite}
             title={labels.backToSite}
-            className="inline-flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 py-2 text-xs font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] sm:min-w-0 sm:justify-start sm:px-3 sm:text-sm"
+            className="inline-flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 py-2 text-xs font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] sm:min-w-0 sm:justify-start sm:px-3 sm:text-sm"
           >
             <ExternalLink
-              className="h-3.5 w-3.5 shrink-0 text-[var(--color-muted-foreground)] sm:mt-px"
+              className="h-4 w-4 shrink-0 text-[var(--color-muted-foreground)]"
               aria-hidden
               strokeWidth={2}
             />
@@ -135,12 +128,16 @@ export function AdminChromeHeader({
             label={dict.nav.logout}
             title={labels.signOutHint}
             tourAnchor="admin-chrome-sign-out"
-            className="min-h-10 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 py-2 text-xs font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] sm:px-3 sm:text-sm"
+            className="min-h-10 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 py-2 text-xs font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] sm:px-3 sm:text-sm"
           />
-          <LanguageSwitcher
+          <AdminAttentionBell
             locale={locale}
-            labels={dict.common.locale}
-            tourAnchor={ADMIN_TOUR_ANCHORS.chromeLocale}
+            messagesCount={recentInboundMessagesCount}
+            registrationsCount={newRegistrationsCount}
+            messagesLabel={labels.bellMessages}
+            registrationsLabel={labels.bellRegistrations}
+            emptyLabel={labels.bellEmpty}
+            ariaLabel={labels.bellAria}
           />
         </div>
       </div>

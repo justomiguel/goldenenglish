@@ -1,5 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import {
+  mapAdminTrafficDailyStacked,
+  trafficWeekOverWeekFromDaily,
+  type AdminTrafficDailyRow,
+} from "@/lib/dashboard/mapAdminTrafficDailyStacked";
 
 export interface AdminHubSummary {
   traffic: {
@@ -7,6 +12,7 @@ export interface AdminHubSummary {
     authenticatedHits: number;
     guestHits: number;
   };
+  trafficDaily: AdminTrafficDailyRow[];
   trafficWeekOverWeek: {
     thisWeek: number;
     lastWeek: number;
@@ -47,7 +53,7 @@ export async function loadAdminHubSummary(
 ): Promise<AdminHubSummary> {
   const [
     trafficResult,
-    weeklyResult,
+    dailyResult,
     profileCountsResult,
     paymentsResult,
     registrationsNewResult,
@@ -55,7 +61,7 @@ export async function loadAdminHubSummary(
     messagesResult,
   ] = await Promise.all([
     supabase.rpc("admin_traffic_summary", { p_days: 30 }),
-    loadWeekOverWeek(supabase),
+    supabase.rpc("admin_traffic_daily_stacked", { p_days: 30 }),
     adminClient.rpc("admin_hub_profile_counts"),
     supabase
       .from("payments")
@@ -72,6 +78,7 @@ export async function loadAdminHubSummary(
   ]);
 
   const tRow = Array.isArray(trafficResult.data) ? trafficResult.data[0] : null;
+  const trafficDaily = mapAdminTrafficDailyStacked(dailyResult.data);
 
   const pc: ProfileCountsRpc = profileCountsResult.data ?? {
     total: 0,
@@ -85,7 +92,8 @@ export async function loadAdminHubSummary(
       authenticatedHits: Number(tRow?.authenticated_hits ?? 0),
       guestHits: Number(tRow?.guest_hits ?? 0),
     },
-    trafficWeekOverWeek: weeklyResult,
+    trafficDaily,
+    trafficWeekOverWeek: trafficWeekOverWeekFromDaily(trafficDaily),
     users: {
       total: pc.total,
       byRole: pc.by_role.map((r) => ({ role: r.role, count: r.count })),
@@ -100,38 +108,6 @@ export async function loadAdminHubSummary(
     studentsWithoutSection: pc.students_without_section,
     messages: messagesResult,
   };
-}
-
-async function loadWeekOverWeek(supabase: SupabaseClient) {
-  const { data } = await supabase.rpc("admin_traffic_daily_stacked", { p_days: 14 });
-  const rows = (Array.isArray(data) ? data : []) as {
-    day: string;
-    authenticated_hits: number | string;
-    guest_hits: number | string;
-    bot_hits: number | string;
-  }[];
-
-  const now = new Date();
-  const sevenDaysAgo = new Date(now);
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const fourteenDaysAgo = new Date(now);
-  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-
-  let thisWeek = 0;
-  let lastWeek = 0;
-  for (const r of rows) {
-    const d = new Date(r.day);
-    const total =
-      Number(r.authenticated_hits ?? 0) +
-      Number(r.guest_hits ?? 0) +
-      Number(r.bot_hits ?? 0);
-    if (d >= sevenDaysAgo) {
-      thisWeek += total;
-    } else if (d >= fourteenDaysAgo) {
-      lastWeek += total;
-    }
-  }
-  return { thisWeek, lastWeek };
 }
 
 function stripHtml(html: string, max = 100): string {

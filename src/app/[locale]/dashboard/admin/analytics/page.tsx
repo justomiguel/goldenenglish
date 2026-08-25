@@ -157,9 +157,6 @@ export default async function AdminAnalyticsPage({ params }: PageProps) {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-[var(--color-secondary)]">
-        {dict.admin.analytics.title}
-      </h1>
       <AdminAnalyticsEntry
         locale={locale}
         labels={dict.admin.analytics}

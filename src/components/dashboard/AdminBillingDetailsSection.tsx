@@ -15,10 +15,10 @@ export function AdminBillingDetailsSection({
   children,
 }: AdminBillingDetailsSectionProps) {
   return (
-    <details className="group rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)]">
+    <details className="group rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
       <summary className="flex min-h-[52px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
         <span>
-          <span className="block text-sm font-semibold text-[var(--color-secondary)]">
+          <span className="block text-sm font-semibold text-[var(--color-primary)]">
             {title}
           </span>
           <span className="block text-xs text-[var(--color-muted-foreground)]">

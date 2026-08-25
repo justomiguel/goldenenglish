@@ -122,7 +122,7 @@ export function FinanceInvoiceReceiptsBulkSection({
         />
         <p
           data-tour={ADMIN_TOUR_ANCHORS.financeInboxEmpty}
-          className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-sm text-[var(--color-muted-foreground)]"
+          className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-8 text-center text-sm text-[var(--color-muted-foreground)]"
         >
           {inboxDict.empty}
         </p>
@@ -164,7 +164,7 @@ export function FinanceInvoiceReceiptsBulkSection({
           return (
             <div
               key={r.receiptId}
-              className="flex flex-wrap items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3"
+              className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-[var(--shadow-soft)]"
             >
               <input
                 type="checkbox"

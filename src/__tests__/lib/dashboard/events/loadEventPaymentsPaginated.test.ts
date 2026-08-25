@@ -75,4 +75,31 @@ describe("loadEventPaymentsPaginated", () => {
     });
     expect(result.statusCounts).toEqual({ pending: 1, approved: 0, rejected: 0 });
   });
+
+  it("quotes attendee ilike values so an email with dots is one PostgREST operand", async () => {
+    const dataQuery = queryResult({ data: [], error: null });
+    const countQuery = queryResult({ count: 0, error: null });
+    const pendingQuery = queryResult({ count: 0, error: null });
+    const approvedQuery = queryResult({ count: 0, error: null });
+    const rejectedQuery = queryResult({ count: 0, error: null });
+
+    const from = vi
+      .fn()
+      .mockReturnValueOnce({ select: vi.fn(() => dataQuery) })
+      .mockReturnValueOnce({ select: vi.fn(() => countQuery) })
+      .mockReturnValueOnce({ select: vi.fn(() => pendingQuery) })
+      .mockReturnValueOnce({ select: vi.fn(() => approvedQuery) })
+      .mockReturnValueOnce({ select: vi.fn(() => rejectedQuery) });
+
+    await loadEventPaymentsPaginated({ from } as never, {
+      eventId: "evt-1",
+      q: "e2e-paid-appr-x@example.test",
+      status: "pending",
+    });
+
+    expect(dataQuery.or).toHaveBeenCalled();
+    const filter = String(dataQuery.or.mock.calls[0]?.[0]);
+    expect(filter).toContain('email.ilike."%e2e-paid-appr-x@example.test%"');
+    expect(dataQuery.or.mock.calls[0]?.[1]).toEqual({ referencedTable: "event_attendees" });
+  });
 });

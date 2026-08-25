@@ -17,6 +17,7 @@ import {
 import { resolveMessagingDefaultReplyTemplate } from "@/lib/messaging/resolveMessagingDefaultReplyTemplate";
 import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -84,14 +85,15 @@ export default async function AdminMessagesComposePage({ params, searchParams }:
         <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
         {dict.admin.messages.composeBackToList}
       </Link>
-      <h1
-        className="mt-4 text-2xl font-bold text-[var(--color-secondary)]"
-        data-tour={ADMIN_TOUR_ANCHORS.messagesComposeTitle}
-      >
-        {dict.admin.messages.composePageTitle}
-      </h1>
-      <p className="mt-2 max-w-2xl text-[var(--color-muted-foreground)]">{composeLead}</p>
-      <div className="mt-8 max-w-3xl">
+      <div className="mt-4">
+        <AdminPageHeader
+          title={dict.admin.messages.composePageTitle}
+          lead={composeLead}
+          iconId="messages"
+          tourAnchor={ADMIN_TOUR_ANCHORS.messagesComposeTitle}
+        />
+      </div>
+      <div className="mt-6 max-w-3xl">
         <AdminPortalCompose
           locale={locale}
           recipients={recipients}

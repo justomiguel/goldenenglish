@@ -121,7 +121,7 @@ export function AdminEventAttendeeExpandedDetails({
         </AttendeeDetailSection>
       ) : null}
 
-      <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)]/80 px-4 py-3">
+      <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3">
         <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-primary)_12%,var(--color-surface))] text-[var(--color-primary-dark)]">
           <Wallet className="h-4 w-4" aria-hidden />
         </span>
@@ -158,7 +158,7 @@ function AttendeeDetailSection({
   children: ReactNode;
 }) {
   return (
-    <section className="mt-4 overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-background)]/90">
+    <section className="mt-4 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)]">
       <div className="flex items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-muted)]/25 px-4 py-2.5">
         <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-primary)_12%,var(--color-surface))] text-[var(--color-primary-dark)]">
           <Icon className="h-4 w-4" aria-hidden />
@@ -182,7 +182,7 @@ function AttendeeDetailCard({
   href?: string;
 }) {
   return (
-    <div className="flex gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)]/90 p-3 shadow-sm">
+    <div className="flex gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3">
       <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-primary)_12%,var(--color-surface))] text-[var(--color-primary-dark)]">
         <Icon className="h-4 w-4" aria-hidden />
       </span>
@@ -207,7 +207,7 @@ function AttendeeDetailCard({
 
 function AttendeeDetailStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="min-w-0 rounded-lg border border-[var(--color-border)]/70 bg-[var(--color-surface)] px-3 py-2.5">
+    <div className="min-w-0 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2.5">
       <dt className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--color-muted-foreground)]">
         {label}
       </dt>

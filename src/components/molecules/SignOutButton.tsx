@@ -14,6 +14,8 @@ interface SignOutButtonProps {
   title?: string;
   /** Stable Driver.js / help-tour anchor. */
   tourAnchor?: string;
+  /** Override Lucide size; staff rail uses the same `h-6 w-6` as nav icons. */
+  iconClassName?: string;
 }
 
 export function SignOutButton({
@@ -23,6 +25,7 @@ export function SignOutButton({
   iconOnly = false,
   title,
   tourAnchor,
+  iconClassName,
 }: SignOutButtonProps) {
   const router = useRouter();
 
@@ -43,7 +46,9 @@ export function SignOutButton({
       {...(tourAnchor ? { "data-tour": tourAnchor } : {})}
     >
       <LogOut
-        className={iconOnly ? "h-5 w-5" : "h-4 w-4 opacity-90"}
+        className={
+          iconClassName ?? (iconOnly ? "h-5 w-5" : "h-4 w-4 shrink-0 opacity-90")
+        }
         aria-hidden
         strokeWidth={1.75}
       />

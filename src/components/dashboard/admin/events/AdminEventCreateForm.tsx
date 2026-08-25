@@ -121,7 +121,7 @@ export function AdminEventCreateForm({
     <form
       onSubmit={onSubmit}
       data-tour={ADMIN_TOUR_ANCHORS.eventCreateForm}
-      className="mt-6 space-y-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      className="mt-6 space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]"
     >
       <div className="grid gap-4 md:grid-cols-2">
         <div className="md:col-span-2" data-tour={ADMIN_TOUR_ANCHORS.eventCreateTitle}>

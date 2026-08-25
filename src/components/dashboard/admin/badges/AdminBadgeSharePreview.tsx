@@ -63,7 +63,7 @@ export function AdminBadgeSharePreview(props: AdminBadgeSharePreviewProps) {
   const heroImage = imageUrl ?? brand.logoUrl;
 
   return (
-    <section className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <section className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-[var(--color-foreground)]">

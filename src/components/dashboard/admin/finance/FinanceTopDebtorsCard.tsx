@@ -55,7 +55,7 @@ export function FinanceTopDebtorsCard({
   const top = flattenDebtors(sections);
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <h3 className="mb-3 font-display text-sm font-semibold text-[var(--color-primary)]">
         {dict.title}
       </h3>

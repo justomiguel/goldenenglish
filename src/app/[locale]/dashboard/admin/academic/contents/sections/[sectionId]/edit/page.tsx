@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { AdminLearningRoutePlanner } from "@/components/admin/AdminLearningRoutePlanner";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -40,8 +41,9 @@ export default async function EditSectionContentPage({ params, searchParams }: P
           <ArrowLeft className="h-4 w-4" aria-hidden />
           {labels.backToRepository}
         </Link>
-        <h1 className="mt-3 text-2xl font-semibold text-[var(--color-foreground)]">{labels.learningRoutesTitle}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.learningRoutesLead}</p>
+        <div className="mt-3">
+          <AdminPageHeader title={labels.learningRoutesTitle} lead={labels.learningRoutesLead} iconId="contents" />
+        </div>
       </header>
       <AdminLearningRoutePlanner
         locale={locale}

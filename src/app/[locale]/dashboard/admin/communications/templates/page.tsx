@@ -10,6 +10,7 @@ import { loadAdminEmailTemplates } from "@/lib/email/templates/loadAdminEmailTem
 import { EmailTemplatesShell } from "@/components/dashboard/admin/communications/EmailTemplatesShell";
 import type { Locale } from "@/types/i18n";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -39,14 +40,12 @@ export default async function AdminCommunicationsTemplatesPage({ params }: PageP
 
   return (
     <div className="space-y-4">
-      <header className="space-y-1" data-tour={ADMIN_TOUR_ANCHORS.emailTemplatesTitle}>
-        <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
-          {dict.admin.communications.templates.title}
-        </h1>
-        <p className="max-w-2xl text-sm text-[var(--color-muted-foreground)]">
-          {dict.admin.communications.templates.lead}
-        </p>
-      </header>
+      <AdminPageHeader
+        title={dict.admin.communications.templates.title}
+        lead={dict.admin.communications.templates.lead}
+        iconId="emailTemplates"
+        tourAnchor={ADMIN_TOUR_ANCHORS.emailTemplatesTitle}
+      />
 
       <EmailTemplatesShell
         locale={locale as Locale}

@@ -133,11 +133,11 @@ export function AdminUserDetailTutorFamilyCard({
   const rowBusyGlobal = busy || unlinkBusy;
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-border)] pb-3">
         <div className="flex items-center gap-2">
           <Users className="h-5 w-5 text-[var(--color-primary)]" aria-hidden />
-          <h2 className="font-display text-lg font-semibold text-[var(--color-secondary)]">
+          <h2 className="font-display text-lg font-semibold text-[var(--color-primary)]">
             {labels.detailTutorFamilyTitle}
           </h2>
         </div>

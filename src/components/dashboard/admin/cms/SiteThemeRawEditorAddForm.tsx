@@ -73,10 +73,10 @@ export function SiteThemeRawEditorAddForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-3 rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      className="flex flex-col gap-3 rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-4"
     >
       <div className="space-y-1">
-        <h3 className="text-sm font-semibold text-[var(--color-secondary)]">
+        <h3 className="text-sm font-semibold text-[var(--color-primary)]">
           {labels.addTitle}
         </h3>
         <p className="text-xs text-[var(--color-muted-foreground)]">

@@ -50,7 +50,7 @@ export function PaymentReviewRow({
   }
 
   return (
-    <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4">
+    <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0 text-sm">
           <p className="font-semibold text-[var(--color-foreground)]">{studentLabel}</p>
@@ -108,7 +108,7 @@ export function PaymentReviewRow({
             onClick={() => act("rejected")}
             title={labels.rejectTooltip}
             data-tour={ADMIN_TOUR_ANCHORS.financeInboxReject}
-            className="rounded-[var(--layout-border-radius)] border-2 border-[var(--color-secondary)] px-3 py-2 text-sm font-medium text-[var(--color-secondary)]"
+            className="rounded-xl border-2 border-[var(--color-error)] px-3 py-2 text-sm font-medium text-[var(--color-error)]"
           >
             {labels.reject}
           </button>

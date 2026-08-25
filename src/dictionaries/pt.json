@@ -1376,6 +1376,26 @@
     "home": {
       "title": "Visão geral",
       "lead": "Aqui está o que precisa de sua atenção hoje.",
+      "greeting": "Olá",
+      "greetingNamed": "Olá, {{name}}",
+      "boost": {
+        "title": "Impulsione seu instituto",
+        "lead": "Atalhos para o que não é de todo dia.",
+        "event": "Criar evento",
+        "promotion": "Nova promoção",
+        "blog": "Publicar no blog",
+        "toolsCta": "Ver ferramentas"
+      },
+      "peopleStats": {
+        "totalTeachers": "Total de professores",
+        "totalStudents": "Total de alunos",
+        "totalAccounts": "Total de contas",
+        "activeInInstitute": "Ativos no instituto",
+        "shareOfTotal": "{{pct}}% do total",
+        "withPhone": "Com telefone cadastrado",
+        "newThisMonth": "Novos neste mês",
+        "last30Days": "Últimos 30 dias"
+      },
       "cards": {
         "import": "Integração de alunos em massa a partir de um arquivo CSV.",
         "users": "Crie contas, atribua funções e importe CSV em massa (guia Importar CSV).",
@@ -1458,17 +1478,6 @@
       "inscriptionsToggleTooltip": "Ative ou desative o formulário de inscrição pública para famílias que visitam o site.",
       "saved": "Salvo",
       "error": "Não foi possível salvar",
-      "emailSendsTitle": "Envios de e-mail",
-      "emailSendsHint": "Ative ou desative cada e-mail automático. O texto à direita é o valor de hoje.",
-      "emailSendsTodayOn": "Hoje: está a ser enviado",
-      "emailSendsTodayOff": "Hoje: não se envia",
-      "emailSendsGroupAutomated": "Automáticos",
-      "emailSendsGroupBilling": "Faturação",
-      "emailSendsGroupAcademics": "Académico",
-      "emailSendsGroupMessaging": "Mensagens",
-      "emailSendsGroupOther": "Outros avisos",
-      "emailSendsLabelInactivity": "Lembretes de não entrada",
-      "emailSendsLabelClassReminder": "Lembretes de aula",
       "classRemindersTitle": "Lembretes de aula (automatizados)",
       "classRemindersHint": "Cron despacha usando a função de serviço. O WhatsApp requer meta templates env vars; e-mail usa Reenviar.",
       "classRemindersEnabled": "Ativar lembretes de aula",
@@ -1488,7 +1497,18 @@
         "error": "Não foi possível salvar a key",
         "keyMaskedPrefix": "Key configurada:",
         "keyNotConfigured": "Nenhuma key configurada"
-      }
+      },
+      "emailSendsTitle": "Envios de e-mail",
+      "emailSendsHint": "Ative ou desative cada e-mail automático. O texto à direita é o valor de hoje.",
+      "emailSendsTodayOn": "Hoje: está a ser enviado",
+      "emailSendsTodayOff": "Hoje: não se envia",
+      "emailSendsGroupAutomated": "Automáticos",
+      "emailSendsGroupBilling": "Faturação",
+      "emailSendsGroupAcademics": "Académico",
+      "emailSendsGroupMessaging": "Mensagens",
+      "emailSendsGroupOther": "Outros avisos",
+      "emailSendsLabelInactivity": "Lembretes de não entrada",
+      "emailSendsLabelClassReminder": "Lembretes de aula"
     },
     "cms": {
       "navLabel": "Site público",
@@ -2089,7 +2109,9 @@
       "roleOptionAssistant": "Assistentes (funcionários)",
       "countTotal": "Total: {{count}}",
       "countFiltered": "Após filtro: {{count}}",
+      "countShowing": "Mostrando: {{from}}–{{to}}",
       "countSelected": "Selecionado: {{count}}",
+      "filtersCta": "Filtros",
       "sortNeutral": "nenhuma classificação nesta coluna",
       "sortAsc": "ordem crescente",
       "sortDesc": "ordem decrescente",
@@ -2102,7 +2124,11 @@
       "noSectionBadge": "Nenhuma seção",
       "noSectionBadgeAria": "O aluno não tem inscrição na seção ativa",
       "colActions": "Ações",
+      "viewOne": "Ver",
+      "editOne": "Editar",
       "deleteOne": "Excluir",
+      "tipViewOne": "Ver a ficha desta conta.",
+      "tipEditOne": "Editar a ficha desta conta.",
       "deleteSelected": "Excluir selecionado",
       "deleteSelectedWithCount": "Excluir selecionado ({{count}})",
       "selectAllFiltered": "Selecionar tudo",
@@ -3544,11 +3570,6 @@
       "whatsAppMessage": "Olá {name}, somos do {institute} e escrevemos sobre sua consulta de matrícula.",
       "minorMarker": "Menor",
       "viaSectionLink": "via link de inscrição",
-      "existingStudentBadge": "Aluno existente",
-      "requestedSections": "Seções solicitadas",
-      "existingStudentFicha": "Abrir ficha do aluno",
-      "acceptExistingLead": "Este documento corresponde a um aluno existente. Ao aceitar, as seções solicitadas serão adicionadas sem criar outra ficha.",
-      "acceptPendingSections": "Algumas seções solicitadas não puderam ser atribuídas automaticamente. Você pode atribuí-las em seguida.",
       "expandRow": "Ver detalhes",
       "collapseRow": "Ocultar detalhes",
       "detailsTitle": "Detalhes da consulta",
@@ -3565,7 +3586,20 @@
       "statusChangeError": "Não foi possível atualizar o status de acompanhamento",
       "exportButton": "Exportar",
       "exportTip": "Baixar a lista filtrada como planilha",
-      "exportError": "Não foi possível gerar a planilha"
+      "exportError": "Não foi possível gerar a planilha",
+      "stats": {
+        "total": "Total de solicitações",
+        "totalHint": "Recebidas pelo formulário público",
+        "pending": "Pendentes",
+        "contacted": "Contactadas",
+        "enrolled": "Inscritas",
+        "shareOfTotal": "{{pct}}% do total"
+      },
+      "existingStudentBadge": "Aluno existente",
+      "requestedSections": "Seções solicitadas",
+      "existingStudentFicha": "Abrir ficha do aluno",
+      "acceptExistingLead": "Este documento corresponde a um aluno existente. Ao aceitar, as seções solicitadas serão adicionadas sem criar outra ficha.",
+      "acceptPendingSections": "Algumas seções solicitadas não puderam ser atribuídas automaticamente. Você pode atribuí-las em seguida."
     },
     "events": {
       "lead": "Gerencie próximos eventos públicos, participantes e pagamentos.",
@@ -3882,17 +3916,6 @@
   "register": {
     "title": "Solicitação de inscrição",
     "lead": "Estes dados são do aluno. Se for menor de idade e ainda não estiver no instituto, pediremos os do responsável em seguida.",
-    "studentSectionTitle": "Dados do aluno",
-    "continue": "Continuar",
-    "lookupFailed": "Não foi possível verificar o documento. Tente novamente.",
-    "existingFoundTitle": "Já existe um aluno com este documento",
-    "existingFoundLead": "É {firstName} {lastName}?",
-    "existingYes": "Sim, é este aluno",
-    "existingNo": "Não, não é este aluno",
-    "existingRejected": "Confira o documento ou entre em contato com o instituto. Não podemos criar outro cadastro com o mesmo documento.",
-    "sectionsTitle": "Seções",
-    "sectionsHint": "Você pode escolher mais de uma.",
-    "sectionsAlsoJoin": "Também pode participar de…",
     "firstName": "Primeiro nome",
     "lastName": "Sobrenome",
     "dni": "ID / RUT / passaporte",
@@ -3910,7 +3933,6 @@
     "birthDateHint": "Nós o usamos para calcular a idade quando a conta é criada.",
     "studentEmailNotCollectedMinorLead": "Não coletamos aqui o e-mail ou telefone do aluno para menores. A escola atribui e-mail ao domínio do instituto após o envio; utilize o telefone do responsável para contato.",
     "tutorEmailSameAsStudent": "O e-mail do responsável deverá ser diferente do e-mail do aluno.",
-    "documentInUse": "Este documento já pertence a outra conta. Entre em contato com o instituto.",
     "tutorSectionTitle": "Tutor/adulto responsável",
     "tutorSectionLead": "Obrigatório para menores.",
     "tutorName": "Nome do guardião",
@@ -3952,7 +3974,19 @@
     "anotherRequest": "Enviar outra solicitação",
     "closed": "As inscrições estão encerradas no momento.",
     "validationError": "Verifique os campos do formulário e tente novamente.",
-    "error": "Algo deu errado. Tente novamente."
+    "error": "Algo deu errado. Tente novamente.",
+    "studentSectionTitle": "Dados do aluno",
+    "continue": "Continuar",
+    "lookupFailed": "Não foi possível verificar o documento. Tente novamente.",
+    "existingFoundTitle": "Já existe um aluno com este documento",
+    "existingFoundLead": "É {firstName} {lastName}?",
+    "existingYes": "Sim, é este aluno",
+    "existingNo": "Não, não é este aluno",
+    "existingRejected": "Confira o documento ou entre em contato com o instituto. Não podemos criar outro cadastro com o mesmo documento.",
+    "sectionsTitle": "Seções",
+    "sectionsHint": "Você pode escolher mais de uma.",
+    "sectionsAlsoJoin": "Também pode participar de…",
+    "documentInUse": "Este documento já pertence a outra conta. Entre em contato com o instituto."
   },
   "publicContact": {
     "metaTitle": "Contato",
@@ -3994,7 +4028,24 @@
       "openTeacherDashboardAria": "Abra o espaço de trabalho do professor para suas aulas, frequência e notas",
       "dualRoleNavHint": "Esta barra lateral é apenas para administração institucional. Para suas próprias seções, frequência e notas, use o painel do professor.",
       "backToSite": "Ver site",
-      "signOutHint": "Saia e retorne ao login do site público quando precisar trocar de conta."
+      "signOutHint": "Saia e retorne ao login do site público quando precisar trocar de conta.",
+      "workspaceAdmin": "Admin",
+      "workspaceTeacher": "Área docente",
+      "bellAria": "Avisos",
+      "bellEmpty": "Nada pendente.",
+      "bellMessages": "Mensagens recentes",
+      "bellRegistrations": "Inscrições novas"
+    },
+    "viewAs": {
+      "ariaSelector": "Papel do espaço de trabalho",
+      "banner": "Vendo como {{name}} · {{role}} · Somente leitura",
+      "backToAdmin": "Voltar ao admin",
+      "ownTeacher": "Minha área docente",
+      "searchPlaceholder": "Busque por nome, e-mail ou documento",
+      "searchEmpty": "Nenhuma conta corresponde.",
+      "searchHint": "Escolha alguém para abrir o portal.",
+      "ended": "A pré-visualização terminou.",
+      "readOnlyError": "Esta pré-visualização é somente leitura."
     },
     "teacherChrome": {
       "ariaHeader": "Painel do professor",
@@ -4020,6 +4071,7 @@
       "cardTitle": "Próximos aniversários",
       "cardLead": "Alunos em seus grupos (esta semana e na próxima, calendário do instituto).",
       "empty": "Nenhum aniversário nas próximas duas semanas.",
+      "noSection": "Sem seção",
       "todayBadge": "Hoje",
       "todayCelebrate": "Comemore com seu grupo – deseje-lhes um ótimo aniversário!",
       "calendarEventTitle": "Aniversário",
@@ -4049,6 +4101,10 @@
       "audit": "Trilha de auditoria",
       "import": "Importar CSV",
       "users": "Usuários",
+      "students": "Alunos",
+      "teachers": "Professores",
+      "institute": "Instituto",
+      "allAccounts": "Todas as contas",
       "payments": "Pagamentos",
       "financeReceipts": "Recibos de faturas",
       "registrations": "Inscrições online",
@@ -4092,6 +4148,10 @@
       "tipAnalytics": "Gráficos de tráfego, funis e uso de produtos das últimas semanas.",
       "tipAudit": "Revise quem alterou dados acadêmicos, de seção, financeiros e de conta.",
       "tipUsers": "Pesquisar, filtrar e gerir contas, funções e importação/exportação Excel.",
+      "tipStudents": "Administre e organize os alunos do seu instituto.",
+      "tipTeachers": "Administre e organize a equipe docente do seu instituto.",
+      "tipInstitute": "Calendário, eventos, site, análise e o resto da configuração.",
+      "tipAllAccounts": "Todas as contas: responsáveis, admins e assistentes, além de alunos e professores.",
       "tipPayments": "Aprove ou rejeite recibos de pagamento enviados pelos responsáveis.",
       "tipFinanceReceipts": "Liste e verifique os recebimentos de faturas oficiais para períodos de faturamento.",
       "financeCollections": "Coleções",
@@ -4114,7 +4174,14 @@
       "badges": "Emblemas",
       "tipBadges": "Gerencie o catálogo de conquistas dos alunos: títulos, imagens, critérios e status de pausa.",
       "siteSetup": "Configuração inicial",
-      "tipSiteSetup": "Abra novamente o assistente para atualizar marca, contato e parâmetros operacionais."
+      "tipSiteSetup": "Abra novamente o assistente para atualizar marca, contato e parâmetros operacionais.",
+      "instituteHub": {
+        "academic": "Acadêmico",
+        "growth": "Crescimento",
+        "site": "Site",
+        "dataHelp": "Dados e ajuda"
+      },
+      "profileMenuAria": "Menu da sua conta"
     },
     "siteSetup": {
       "metaTitle": "Configuração inicial do instituto",
@@ -4948,6 +5015,22 @@
           "closing": {
             "title": "✅ Pronto",
             "description": "Esse é o início da administração. Use o menu esquerdo no dia a dia e abra este botão de ajuda quando precisar.\n\nEm outras telas você pode pedir para explicar o conteúdo daquela seção, ou iniciar um tutorial de como fazer algo (por exemplo criar uma coorte)."
+          },
+          "chromeBell": {
+            "title": "🔔 Avisos",
+            "description": "O sino lista mensagens recentes e inscrições novas. Sem badge, não há nada esperando."
+          },
+          "navInstitute": {
+            "title": "🏛️ Instituto",
+            "description": "Calendário, eventos, site, análise e o resto da configuração ficam aqui. Não estão na lista diária."
+          },
+          "hubBoost": {
+            "title": "🚀 Impulsione seu instituto",
+            "description": "Atalhos para criar um evento, uma promoção ou publicar no blog. Não é o trabalho de toda manhã."
+          },
+          "sidebarProfile": {
+            "title": "👤 Sua conta",
+            "description": "No rodapé do menu: seu nome, perfil, idioma e sair."
           }
         }
       },
@@ -6235,10 +6318,6 @@
             "title": "📝 Inscrições públicas",
             "description": "Ative ou pause o funil de inscrição pública quando não aceitar novos formulários."
           },
-          "emailSends": {
-            "title": "✉️ Envios de e-mail",
-            "description": "Ative ou desative cada e-mail do produto. O texto à direita mostra se está a ser enviado hoje."
-          },
           "classReminders": {
             "title": "⏰ Lembretes de aula",
             "description": "Configure lembretes automáticos para avisos de aula a tempo."
@@ -6250,6 +6329,10 @@
           "closing": {
             "title": "✅ Mudar de propósito",
             "description": "Os ajustes são de todo o instituto. Confirme com a equipe antes de cortar inscrições em campanha."
+          },
+          "emailSends": {
+            "title": "✉️ Envios de e-mail",
+            "description": "Ative ou desative cada e-mail do produto. O texto à direita mostra se está a ser enviado hoje."
           }
         }
       },
@@ -6320,6 +6403,105 @@
           "closing": {
             "title": "✅ Manter atualizado",
             "description": "Telefone e nome em dia ajudam a contatar você. Gerenciar outros continua em Usuários."
+          }
+        }
+      },
+      "adminStudents": {
+        "meta": {
+          "title": "Alunos",
+          "description": "Lista de alunos: pesquisar, abrir fichas e atribuir turma."
+        },
+        "doneBtn": "Pronto",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🎓 Alunos",
+            "description": "Esta lista mostra só contas de aluno. Responsáveis aparecem no perfil do estudante."
+          },
+          "subnav": {
+            "title": "📑 Lista, alta e importação",
+            "description": "Alterne entre a lista, a alta de um aluno e a importação CSV."
+          },
+          "titleBlock": {
+            "title": "📋 Propósito",
+            "description": "O título lembra que este diretório está filtrado para alunos."
+          },
+          "toolbar": {
+            "title": "🔎 Pesquisa",
+            "description": "Pesquise por e-mail, nome, telefone ou documento. O filtro de função não aparece: já está fixo em aluno."
+          },
+          "table": {
+            "title": "📄 Resultados",
+            "description": "Cada linha é um aluno. Abra a ficha para turma, família e pagamentos."
+          },
+          "closing": {
+            "title": "✅ Próximos passos",
+            "description": "Use Alta para um aluno ou Importar CSV. Professores e outras contas têm outras portas."
+          }
+        }
+      },
+      "adminTeachers": {
+        "meta": {
+          "title": "Professores",
+          "description": "Professores do instituto."
+        },
+        "doneBtn": "Pronto",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "👨‍🏫 Professores",
+            "description": "Esta lista mostra só contas de professor."
+          },
+          "subnav": {
+            "title": "📑 Lista e alta",
+            "description": "Alterne entre a lista e a alta de um professor."
+          },
+          "titleBlock": {
+            "title": "📋 Propósito",
+            "description": "O título lembra que este diretório está filtrado para professores."
+          },
+          "toolbar": {
+            "title": "🔎 Pesquisa",
+            "description": "Pesquise por e-mail, nome ou documento. A função já está fixa em professor."
+          },
+          "table": {
+            "title": "📄 Resultados",
+            "description": "Cada linha é um professor. Abra a ficha para turmas e contato."
+          },
+          "closing": {
+            "title": "✅ Próximos passos",
+            "description": "Use Alta para um professor. Alunos e outras contas têm outras portas."
+          }
+        }
+      },
+      "adminInstitute": {
+        "meta": {
+          "title": "Instituto",
+          "description": "Porta para calendário, site, análise e o resto da configuração."
+        },
+        "doneBtn": "Pronto",
+        "nextBtn": "Seguinte",
+        "prevBtn": "Voltar",
+        "closeBtn": "Fechar",
+        "progressText": "{{current}} de {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🏛️ Instituto",
+            "description": "Tudo o que não é o trabalho da manhã fica agrupado aqui. A lista diária permanece curta."
+          },
+          "hub": {
+            "title": "📂 Grupos",
+            "description": "Acadêmico, Crescimento, Site, Dados e ajuda. Blog e modelos de e-mail aparecem só se estiverem ativos."
+          },
+          "closing": {
+            "title": "✅ Próximos passos",
+            "description": "Abra uma linha. Nessa tela o rastro diz Instituto → a página."
           }
         }
       }
@@ -7297,14 +7479,14 @@
       "contactEmailFailForbidden": "Não é possível enviar: sua sessão de administrador não é válida. Faça login novamente.",
       "contactEmailFailNoPermission": "Não é possível enviar: você não tem acesso de administrador.",
       "contactEmailFailParse": "Dados de formulário inválidos. Atualize a página e tente novamente.",
-      "contactEmailFailDisabled": "Este e-mail está desativado em Definições.",
       "contactNoPhone": "Sem telefone do guardião",
       "contactNoEmail": "Nenhum e-mail do responsável",
       "emailIntro": "Estamos entrando em contato sobre sinais de retenção antecipada para esta inscrição. Abaixo está um resumo para que possamos coordenar os próximos passos juntos.",
       "empty": "Nenhum aluno atende aos critérios de alerta no momento.",
       "outreachInAppWhatsapp": "<p>Entramos em contato com você da escola devido a problemas de frequência ou nota de <strong>{student}</strong> ({section}). Esta mensagem é para informar que a equipe abriu uma conversa no WhatsApp com você para acompanhamento.</p>",
       "outreachInAppEmail": "<p>Entramos em contato com você da escola devido a problemas de frequência ou nota de <strong>{student}</strong> ({section}). Esta mensagem serve para informar que um e-mail de acompanhamento de retenção foi enviado para sua conta.</p>",
-      "whatsappMessage": "Olá, aqui é {institute}. Estamos acompanhando {student} ({section}). Sinais: {signals}. Poderíamos coordenar?"
+      "whatsappMessage": "Olá, aqui é {institute}. Estamos acompanhando {student} ({section}). Sinais: {signals}. Poderíamos coordenar?",
+      "contactEmailFailDisabled": "Este e-mail está desativado em Definições."
     },
     "academics": {
       "metaTitle": "Acadêmicos e seções",

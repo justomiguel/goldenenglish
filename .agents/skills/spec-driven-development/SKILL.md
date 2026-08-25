@@ -27,6 +27,7 @@ Writing or updating files under `docs/superpowers/specs/` is allowed before appr
 4. On approval, write `.cursor/sdd-gate0-approved` with `{ "spec": "docs/superpowers/specs/....md", "approvedAt": "<ISO>" }`.
 5. If scope >1 file or behavior: write plan via writing-plans to `docs/superpowers/plans/`.
 6. Implement with skill `tdd` + rule `30` for tests.
+7. When implementation is done, commit spec + plan + implementation together (rule **`37`**). Do not leave it staged. If other WIP is in the tree, ask — never stash.
 
 ## Mini-spec template
 

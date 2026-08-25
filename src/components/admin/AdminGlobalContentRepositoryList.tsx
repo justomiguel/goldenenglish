@@ -135,7 +135,7 @@ export function AdminGlobalContentRepositoryList({
           <ul className="space-y-2">
             {contents.map((item) => (
               <li key={item.id}>
-                <article className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3 transition">
+                <article className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-[var(--shadow-soft)] transition">
                   <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
                     <div className="min-w-0 flex-1">
                       <span className="block font-semibold text-[var(--color-foreground)]">{item.title}</span>
@@ -157,16 +157,16 @@ export function AdminGlobalContentRepositoryList({
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Link
                       href={`/${locale}/dashboard/admin/academic/contents/global/${item.id}`}
-                      className="inline-flex items-center justify-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-secondary)] px-3 py-1.5 text-sm font-medium text-[var(--color-secondary-foreground)] transition-colors hover:bg-[var(--color-secondary-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-secondary)] focus-visible:ring-offset-2"
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-3 py-1.5 text-sm font-medium text-[var(--color-primary-foreground)] transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
                     >
                       <Eye className="h-4 w-4 shrink-0" aria-hidden />
                       {labels.view}
                     </Link>
-                    <Button type="button" variant="secondary" size="sm" disabled={isPending} onClick={() => openArchive(item)}>
+                    <Button type="button" variant="ghost" size="sm" disabled={isPending} onClick={() => openArchive(item)}>
                       <Archive className="h-4 w-4 shrink-0" aria-hidden />
                       {labels.archive}
                     </Button>
-                    <Button type="button" variant="secondary" size="sm" disabled={isPending} onClick={() => openDelete(item)}>
+                    <Button type="button" variant="ghost" size="sm" disabled={isPending} onClick={() => openDelete(item)}>
                       <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
                       {labels.delete}
                     </Button>

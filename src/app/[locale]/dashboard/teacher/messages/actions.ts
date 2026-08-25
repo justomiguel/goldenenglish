@@ -15,6 +15,7 @@ import { recordUserEventServer } from "@/lib/analytics/server/recordUserEvent";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { mapMessagingUseCaseCode } from "@/lib/messaging/mapMessagingUseCaseCode";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { viewAsBlockedActionError } from "@/lib/dashboard/assertNotViewAs";
 
 const replySchema = z.string().min(1).max(80000);
 
@@ -23,6 +24,8 @@ export async function replyToStudentMessage(
   messageId: string,
   replyHtml: string,
 ): Promise<{ ok: boolean; message?: string }> {
+  const blocked = await viewAsBlockedActionError(locale);
+  if (blocked) return { ok: false, message: blocked };
   const dict = await getDictionary(locale);
   const msg = dict.actionErrors.messaging;
   const senderFb = dict.dashboard.teacher.messagesSenderFallback;
@@ -83,6 +86,8 @@ export async function sendTeacherMessage(
   recipientId: string,
   bodyHtml: string,
 ): Promise<{ ok: boolean; message?: string }> {
+  const blocked = await viewAsBlockedActionError(locale);
+  if (blocked) return { ok: false, message: blocked };
   const dict = await getDictionary(locale);
   const msg = dict.actionErrors.messaging;
   const senderFb = dict.dashboard.teacher.messagesSenderFallback;

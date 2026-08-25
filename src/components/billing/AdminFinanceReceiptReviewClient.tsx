@@ -59,7 +59,7 @@ export function AdminFinanceReceiptReviewClient({
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <div
-        className="min-h-[50vh] overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)]"
+        className="min-h-[50vh] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]"
         data-tour={ADMIN_TOUR_ANCHORS.financeReceiptDetailPreview}
       >
         {isPdf ? (
@@ -75,7 +75,7 @@ export function AdminFinanceReceiptReviewClient({
         )}
       </div>
       <div
-        className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4"
+        className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]"
         data-tour={ADMIN_TOUR_ANCHORS.financeReceiptDetailActions}
       >
         <div>
@@ -126,13 +126,13 @@ export function AdminFinanceReceiptReviewClient({
             type="button"
             disabled={busy}
             title={dict.tipRejectReceipt}
-            className="w-full rounded-[var(--layout-border-radius)] border-2 border-[var(--color-error)] bg-[var(--color-surface)] px-4 py-3 text-sm font-semibold text-[var(--color-error)] disabled:opacity-50"
+            className="w-full rounded-2xl border-2 border-[var(--color-error)] px-4 py-3 text-sm font-semibold text-[var(--color-error)] disabled:opacity-50"
             onClick={() => setRejectOpen(true)}
           >
             {dict.rejectCta}
           </button>
         ) : (
-          <div className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-error)] bg-[var(--color-surface)] p-3">
+          <div className="space-y-3 rounded-2xl border border-[var(--color-error)] p-3">
             <p className="text-sm font-semibold text-[var(--color-foreground)]">{dict.rejectTitle}</p>
             <label className="block text-sm text-[var(--color-foreground)]">
               <span className="sr-only">{dict.rejectTitle}</span>

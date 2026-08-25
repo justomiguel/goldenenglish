@@ -14,6 +14,7 @@ import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { StudentMonthlyPaymentsView } from "@/types/studentMonthlyPayments";
 import type { TutorLinkedStudentOption } from "@/components/parent/ParentPaymentsEntry";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 type ParentLabels = Dictionary["dashboard"]["parent"];
 type StudentLabels = Dictionary["dashboard"]["student"];
@@ -74,10 +75,7 @@ export function ParentPaymentsScreenPwa({
 
   return (
     <div className="space-y-4">
-      <header>
-        <h1 className="font-display text-2xl font-bold text-[var(--color-secondary)]">{title}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{lead}</p>
-      </header>
+      <AdminPageHeader title={title} lead={lead} iconId="finance" artFamily="parent" />
 
       {options.length === 0 ? (
         <section

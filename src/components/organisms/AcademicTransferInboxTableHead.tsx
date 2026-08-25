@@ -94,7 +94,7 @@ export function AcademicTransferInboxTableHead({
           />
         </th>
         <th className="px-3 py-2" scope="col">
-          <span className="font-semibold text-[var(--color-secondary)]">{dict.colActions}</span>
+          <span className="font-semibold text-[var(--color-muted-foreground)]">{dict.colActions}</span>
         </th>
       </tr>
     </thead>

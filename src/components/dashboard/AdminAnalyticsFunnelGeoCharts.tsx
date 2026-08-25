@@ -33,7 +33,7 @@ export function AdminAnalyticsFunnelGeoCharts({
 }: AdminAnalyticsFunnelGeoChartsProps) {
   return (
     <>
-      <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+      <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
         <h2 className="font-semibold text-[var(--color-primary)]">{labels.chartFunnel}</h2>
         <p className="text-sm text-[var(--color-muted-foreground)]">{labels.chartFunnelHint}</p>
         <RechartsSizedFrame height={288} className="mt-4 w-full min-w-0">
@@ -59,7 +59,7 @@ export function AdminAnalyticsFunnelGeoCharts({
         </RechartsSizedFrame>
       </section>
 
-      <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+      <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
         <h2 className="font-semibold text-[var(--color-primary)]">{labels.chartGeo}</h2>
         <p className="text-sm text-[var(--color-muted-foreground)]">{labels.chartGeoHint}</p>
         <RechartsSizedFrame height={288} className="mt-4 w-full min-w-0">

@@ -16,6 +16,11 @@ export const ADMIN_TOUR_ANCHORS = {
   sectionDetailTabs: "admin-section-detail-tabs",
   /** Explain-screen: admin chrome / hub */
   sidebar: "admin-sidebar",
+  navInstitute: "admin-nav-institute",
+  hubBoost: "admin-hub-boost",
+  chromeBell: "admin-chrome-bell",
+  sidebarProfile: "admin-sidebar-profile",
+  instituteHub: "admin-institute-hub",
   chromeHeader: "admin-chrome-header",
   hubTitle: "admin-hub-title",
   hubStudentsWithoutSection: "admin-hub-students-without-section",

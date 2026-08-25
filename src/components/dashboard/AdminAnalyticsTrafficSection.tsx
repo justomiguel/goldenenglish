@@ -131,7 +131,7 @@ export function AdminAnalyticsTrafficSection({
   };
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <h2 className="font-semibold text-[var(--color-primary)]">{labels.trafficTitle}</h2>
       <p className="text-sm text-[var(--color-muted-foreground)]">{labels.trafficHint}</p>
       <p className="mt-2 text-xs text-[var(--color-muted-foreground)]">{labels.trafficCardsHint}</p>

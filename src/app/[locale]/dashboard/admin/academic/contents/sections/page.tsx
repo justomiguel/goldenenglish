@@ -5,6 +5,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { loadGlobalLearningRouteOptions } from "@/lib/learning-content/loadLearningRouteWorkspace";
 import { AdminLearningRoutesGrid } from "@/components/admin/AdminLearningRoutesGrid";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -36,8 +37,9 @@ export default async function SectionContentPickerPage({ params }: PageProps) {
           <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
           {labels.backToRepository}
         </Link>
-        <h1 className="mt-3 text-2xl font-semibold text-[var(--color-foreground)]">{labels.learningRoutesTitle}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.learningRoutesLead}</p>
+        <div className="mt-3">
+          <AdminPageHeader title={labels.learningRoutesTitle} lead={labels.learningRoutesLead} iconId="contents" />
+        </div>
       </header>
       <AdminLearningRoutesGrid locale={locale} routes={routes} labels={labels} />
     </main>

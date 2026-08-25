@@ -29,7 +29,7 @@ export function CollectionsActionBar({
   if (selectionCount === 0) return null;
 
   return (
-    <div className="sticky bottom-0 z-10 flex flex-wrap items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 shadow-lg">
+    <div className="sticky bottom-0 z-10 flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-2.5 shadow-[var(--shadow-soft)]">
       <span className="text-sm text-[var(--color-muted-foreground)]">
         {matrixDict.selectionCount.replace("{count}", String(selectionCount))}
       </span>
@@ -48,7 +48,7 @@ export function CollectionsActionBar({
       <Button
         type="button"
         size="md"
-        variant="secondary"
+        variant="ghost"
         isLoading={overdueBusy}
         onClick={onRemindOverdue}
       >

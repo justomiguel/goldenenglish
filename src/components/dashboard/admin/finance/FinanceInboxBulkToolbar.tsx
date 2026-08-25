@@ -38,7 +38,7 @@ export function FinanceInboxBulkToolbar({
   return (
     <div
       data-tour={ADMIN_TOUR_ANCHORS.financeInboxBulkToolbar}
-      className="flex flex-wrap items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/20 p-3"
+      className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-[var(--shadow-soft)]"
     >
       <button
         type="button"
@@ -75,9 +75,9 @@ export function FinanceInboxBulkToolbar({
         </Button>
         <Button
           type="button"
-          variant="secondary"
+          variant="ghost"
           size="sm"
-          className="min-h-[36px] border-[var(--color-error)] text-[var(--color-error)]"
+          className="min-h-[36px] border border-[var(--color-error)] text-[var(--color-error)]"
           disabled={busy || selectedCount === 0}
           onClick={onOpenDestructive}
           data-tour={ADMIN_TOUR_ANCHORS.financeInboxReject}

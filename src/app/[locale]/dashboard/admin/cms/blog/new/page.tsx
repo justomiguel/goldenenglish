@@ -39,6 +39,7 @@ export default async function AdminBlogNewPage({ params }: PageProps) {
   return (
     <BlogArticleEditor
       locale={locale}
+      pageTitle={dict.admin.cms.blog.list.create}
       labels={dict.admin.cms.blog.editor}
       academicLabels={dict.dashboard.adminContents}
       fileUploadProgress={dict.common.fileUpload}

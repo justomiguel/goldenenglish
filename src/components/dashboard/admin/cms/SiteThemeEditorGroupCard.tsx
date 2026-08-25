@@ -37,9 +37,9 @@ export function SiteThemeEditorGroupCard({
   disabled,
 }: SiteThemeEditorGroupCardProps) {
   return (
-    <section className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-soft)]">
+    <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <header className="space-y-1">
-        <h2 className="text-base font-semibold text-[var(--color-secondary)]">
+        <h2 className="text-base font-semibold text-[var(--color-primary)]">
           {labels.title}
         </h2>
         <p className="text-xs text-[var(--color-muted-foreground)]">

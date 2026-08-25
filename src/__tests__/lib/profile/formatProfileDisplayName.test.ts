@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   compareProfileNamesByLastThenFirst,
   compareProfileSnakeByLastThenFirst,
+  formatProfileNameGivenFirst,
   formatProfileNameSurnameFirst,
+  formatProfileSnakeGivenFirst,
   formatProfileSnakeSurnameFirst,
 } from "@/lib/profile/formatProfileDisplayName";
 
@@ -25,6 +27,22 @@ describe("formatProfileNameSurnameFirst", () => {
 describe("formatProfileSnakeSurnameFirst", () => {
   it("maps snake_case fields", () => {
     expect(formatProfileSnakeSurnameFirst({ first_name: "A", last_name: "Z" })).toBe("Z A");
+  });
+});
+
+describe("formatProfileNameGivenFirst", () => {
+  it("orders given name then surname", () => {
+    expect(formatProfileNameGivenFirst("María", "García López")).toBe("María García López");
+  });
+
+  it("uses fallback when both empty", () => {
+    expect(formatProfileNameGivenFirst("", "", "—")).toBe("—");
+  });
+});
+
+describe("formatProfileSnakeGivenFirst", () => {
+  it("maps snake_case fields", () => {
+    expect(formatProfileSnakeGivenFirst({ first_name: "A", last_name: "Z" })).toBe("A Z");
   });
 });
 

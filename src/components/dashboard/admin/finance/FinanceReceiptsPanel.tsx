@@ -131,7 +131,7 @@ export async function FinanceReceiptsPanel({
           </p>
         </header>
         {efRowsWithUrls.length === 0 ? (
-          <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-muted-foreground)]">
+          <p className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-6 text-center text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
             {enrollmentFeeQueueDict.empty}
           </p>
         ) : (
@@ -169,7 +169,7 @@ export async function FinanceReceiptsPanel({
           </p>
         </header>
         {list.length === 0 ? (
-          <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-muted-foreground)]">
+          <p className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-6 text-center text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
             {dict.adminEmpty}
           </p>
         ) : (
@@ -180,7 +180,7 @@ export async function FinanceReceiptsPanel({
               return (
                 <li
                   key={r.id as string}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3 shadow-[var(--shadow-soft)]"
                 >
                   <div>
                     <p className="font-medium text-[var(--color-foreground)]">

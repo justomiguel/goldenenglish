@@ -74,7 +74,7 @@ export function TutorFinancialAccessSection({
         <>
           <h2
             id="tutor-access-section-title"
-            className="font-display text-lg font-semibold text-[var(--color-secondary)]"
+            className="font-display text-lg font-semibold text-[var(--color-primary)]"
           >
             {labels.tutorAccessSectionTitle}
           </h2>

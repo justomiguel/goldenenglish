@@ -110,7 +110,7 @@ export function AcademicCohortDetailShell({
 
   return (
     <div
-      className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]"
+      className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]"
       data-tour="academic-cohort-detail"
     >
       <div data-tour={ADMIN_TOUR_ANCHORS.cohortDetailTabs}>

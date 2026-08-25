@@ -7,6 +7,7 @@ import {
   type BillingPortalScreenProps,
 } from "@/components/billing/BillingPortalScreen";
 import type { AppSurface } from "@/hooks/useAppSurface";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 function BillingSkeleton() {
   return <div className="animate-pulse h-32 rounded bg-[var(--color-muted)]" aria-hidden />;
@@ -20,8 +21,7 @@ export interface BillingPortalEntryProps extends BillingPortalScreenProps {
 export function BillingPortalEntry({ title, lead, ...screen }: BillingPortalEntryProps) {
   const body = (
     <>
-      <h1 className="text-2xl font-bold text-[var(--color-secondary)]">{title}</h1>
-      <p className="mt-2 max-w-2xl text-[var(--color-muted-foreground)]">{lead}</p>
+      <AdminPageHeader title={title} lead={lead} iconId="finance" artFamily="student" />
       <div className="mt-8">
         <BillingPortalScreen {...screen} />
       </div>

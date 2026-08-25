@@ -40,10 +40,10 @@ export function FinanceEventsBankTransferCard({
   };
 
   return (
-    <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+    <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]">
       <header className="mb-4 flex items-center gap-2">
         <Landmark className="h-5 w-5 text-[var(--color-muted-foreground)]" aria-hidden />
-        <h2 className="text-lg font-semibold text-[var(--color-foreground)]">
+        <h2 className="text-lg font-semibold text-[var(--color-primary)]">
           {dict.eventsBankTransferTitle}
         </h2>
       </header>

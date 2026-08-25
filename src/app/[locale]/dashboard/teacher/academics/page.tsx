@@ -6,6 +6,7 @@ import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortal
 import { TeacherAcademicsPanel } from "@/components/organisms/TeacherAcademicsPanel";
 import { loadTeacherSectionIdsForUser } from "@/lib/academics/loadTeacherSectionIdsForUser";
 import { chunkedIn } from "@/lib/supabase/chunkedIn";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -55,14 +56,11 @@ export default async function TeacherAcademicsPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">
-          {dict.dashboard.teacherAcademics.title}
-        </h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
-          {dict.dashboard.teacherAcademics.lead}
-        </p>
-      </header>
+      <AdminPageHeader
+        title={dict.dashboard.teacherAcademics.title}
+        lead={dict.dashboard.teacherAcademics.lead}
+        iconId="academic"
+      />
       <TeacherAcademicsPanel locale={locale} dict={dict} sections={rows} />
     </div>
   );

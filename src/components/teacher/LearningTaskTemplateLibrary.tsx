@@ -8,6 +8,7 @@ import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { RichTextEditor } from "@/components/molecules/RichTextEditor";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import {
   addTemplateEmbedAction,
   saveContentTemplateAction,
@@ -114,9 +115,13 @@ export function LearningTaskTemplateLibrary({
 
   return (
     <div className="space-y-6">
+      <AdminPageHeader
+        title={labels.taskLibraryTitle}
+        lead={labels.taskLibraryLead}
+        iconId="contents"
+        artFamily="teachers"
+      />
       <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-card)]">
-        <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">{labels.taskLibraryTitle}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.taskLibraryLead}</p>
         <div className="mt-4 space-y-4">
           <div>
             <Label htmlFor="learning-template-title" required>

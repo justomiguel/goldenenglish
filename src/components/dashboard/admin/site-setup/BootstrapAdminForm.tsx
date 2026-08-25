@@ -6,9 +6,9 @@ import {
   Hash,
   Mail,
   Phone,
-  Shield,
   UserPlus,
 } from "lucide-react";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -101,18 +101,11 @@ export function BootstrapAdminForm({
 
   return (
     <div className="mx-auto max-w-md px-4 py-10 md:py-16">
-      <div className="mb-8 text-center">
-        <Shield
-          className="mx-auto mb-3 h-12 w-12 text-[var(--color-primary)]"
-          aria-hidden
-        />
-        <h1 className="font-display text-2xl font-semibold text-[var(--color-primary)]">
-          {b.pageTitle}
-        </h1>
-        <p className="mt-2 text-sm leading-relaxed text-[var(--color-muted-foreground)]">
-          {b.pageLead}
-        </p>
-      </div>
+      <AdminPageHeader
+        title={b.pageTitle}
+        lead={b.pageLead}
+        iconId="siteSetup"
+      />
 
       {message ? (
         <p
@@ -123,7 +116,7 @@ export function BootstrapAdminForm({
         </p>
       ) : null}
 
-      <div className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
+      <div className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-6 shadow-[var(--shadow-soft)]">
         <div>
           <Label htmlFor="boot-email">{b.email}</Label>
           <Input

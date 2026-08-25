@@ -9,6 +9,7 @@ import {
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 function PortalProfileSkeleton() {
   return (
@@ -40,15 +41,16 @@ export function PortalProfileSurfaceEntry({
 }: PortalProfileSurfaceEntryProps) {
   const panel = (
     <div data-tour={PARENT_TOUR_ANCHORS.profileForm}>
-      <h1 className="mb-2 font-display text-3xl font-bold text-[var(--color-secondary)]">{title}</h1>
-      <p className="mb-8 text-[var(--color-muted-foreground)]">{lead}</p>
-      <ProfileAvatarPanel
-        locale={locale}
-        avatarDisplayUrl={avatarDisplayUrl}
-        displayName={displayName}
-        labels={labels}
-        fileUploadProgress={fileUploadProgress}
-      />
+      <AdminPageHeader title={title} lead={lead} iconId="settings" />
+      <div className="mt-8">
+        <ProfileAvatarPanel
+          locale={locale}
+          avatarDisplayUrl={avatarDisplayUrl}
+          displayName={displayName}
+          labels={labels}
+          fileUploadProgress={fileUploadProgress}
+        />
+      </div>
     </div>
   );
 

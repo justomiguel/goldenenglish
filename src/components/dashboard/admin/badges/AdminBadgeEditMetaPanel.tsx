@@ -32,7 +32,7 @@ export function AdminBadgeEditMetaPanel(props: AdminBadgeEditMetaPanelProps) {
     onTogglePause,
   } = props;
   return (
-    <section className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <div className="flex items-start gap-3">
         <div
           className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--color-muted)]"

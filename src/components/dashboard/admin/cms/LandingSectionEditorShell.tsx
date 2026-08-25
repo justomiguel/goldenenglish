@@ -18,6 +18,7 @@ import type { LandingOverrideLocale } from "@/lib/cms/landingContentCatalog";
 import type { Dictionary } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { SiteThemeRow } from "@/types/theming";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { LandingThemeContentPersistAlerts } from "./LandingThemeContentPersistAlerts";
 import { LandingBlocksPanel } from "./LandingBlocksPanel";
@@ -117,14 +118,11 @@ export function LandingSectionEditorShell({
         {labels.backToOverview}
       </Link>
 
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
-          {labels.sections[section.section]}
-        </h1>
-        <p className="max-w-2xl text-sm text-[var(--color-muted-foreground)]">
-          {labels.overviewLead}
-        </p>
-      </header>
+      <AdminPageHeader
+        title={labels.sections[section.section]}
+        lead={labels.overviewLead}
+        iconId="cms"
+      />
 
       <LandingThemeContentPersistAlerts
         labels={labels}

@@ -64,7 +64,7 @@ export function AcademicHubCohortBoard({
 
   if (!hasAnyCohort) {
     return (
-      <div className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-muted)]/20 px-4 py-12 text-center text-sm text-[var(--color-muted-foreground)]">
+      <div className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] px-4 py-12 text-center text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
         {boardDict.emptyAll}
       </div>
     );
@@ -73,7 +73,7 @@ export function AcademicHubCohortBoard({
   const banner: ReactNode =
     current ? null : (
       <p
-        className="mb-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-accent)]/10 px-4 py-3 text-sm text-[var(--color-foreground)]"
+        className="mb-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-primary)]/8 px-4 py-3 text-sm text-[var(--color-foreground)]"
         role="status"
       >
         {boardDict.noCurrentBanner}
@@ -101,7 +101,7 @@ export function AcademicHubCohortBoard({
   return (
     <div className="space-y-4">
       {banner}
-      <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
+      <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
         <div data-tour={ADMIN_TOUR_ANCHORS.academicBoardTabs}>
           <UnderlineTabBar
             idPrefix={idPrefix}
@@ -131,12 +131,12 @@ export function AcademicHubCohortBoard({
                   <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{lead}</p>
                 </div>
                 {rows.length === 0 ? (
-                  <p className="rounded-[var(--layout-border-radius)] bg-[var(--color-muted)]/25 px-3 py-4 text-sm text-[var(--color-muted-foreground)]">
+                  <p className="rounded-2xl bg-[var(--color-muted)]/25 px-3 py-4 text-sm text-[var(--color-muted-foreground)]">
                     {empties[t]}
                   </p>
                 ) : (
                   <div
-                    className="divide-y divide-[var(--color-border)] rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)]"
+                    className="divide-y divide-[var(--color-border)] rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)]"
                     data-tour={ADMIN_TOUR_ANCHORS.academicCohortList}
                   >
                     {rows.map((c) => (

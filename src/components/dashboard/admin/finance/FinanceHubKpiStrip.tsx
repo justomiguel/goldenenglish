@@ -28,11 +28,11 @@ interface TileProps {
 
 function Tile({ label, value, hint, accent }: TileProps) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2">
+    <div className="flex flex-col gap-0.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-3 shadow-[var(--shadow-soft)]">
       <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
         {label}
       </span>
-      <span className={`text-sm font-semibold tabular-nums ${accent ?? "text-[var(--color-foreground)]"}`}>
+      <span className={`text-base font-semibold tabular-nums ${accent ?? "text-[var(--color-primary)]"}`}>
         {value}
       </span>
       {hint ? (

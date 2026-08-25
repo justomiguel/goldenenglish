@@ -147,10 +147,10 @@ export function AdminStudentBillingScholarshipPanel({
   return (
     <section
       data-tour={ADMIN_TOUR_ANCHORS.scholarshipPanel}
-      className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]"
     >
       <div>
-        <h2 className="font-semibold text-[var(--color-secondary)]">{labels.scholarshipTitle}</h2>
+        <h2 className="font-semibold text-[var(--color-primary)]">{labels.scholarshipTitle}</h2>
         {sectionName ? (
           <p className="mt-0.5 text-xs font-medium text-[var(--color-muted-foreground)]">
             {labels.panelAppliesTo.replace("{section}", sectionName)}

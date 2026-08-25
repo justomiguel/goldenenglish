@@ -34,7 +34,7 @@ export function RegisterClassicSurface({
 
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:items-start lg:gap-12 xl:gap-16">
         <header className="text-center lg:col-span-2">
-          <h1 className="font-display text-3xl font-bold text-[var(--color-secondary)] md:text-4xl">
+          <h1 className="font-display text-3xl font-bold text-[var(--color-primary)] md:text-4xl">
             {dict.register.title}
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-[var(--color-muted-foreground)] md:text-lg">

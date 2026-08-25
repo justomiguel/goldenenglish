@@ -10,6 +10,7 @@ import type { AdminHubSummary } from "@/lib/dashboard/loadAdminHubSummary";
 
 const SUMMARY: AdminHubSummary = {
   traffic: { totalHits: 120, authenticatedHits: 80, guestHits: 40 },
+  trafficDaily: [],
   trafficWeekOverWeek: { thisWeek: 60, lastWeek: 50 },
   users: { total: 42, byRole: [{ role: "student", count: 30 }] },
   payments: { pendingCount: 3 },
@@ -44,6 +45,21 @@ describe("AdminHubHome — admin order (Test 5)", () => {
     expect(birthdaysIsAfterPayments, "birthdays must come AFTER payments in DOM").toBe(true);
   });
 
+  it("metric cards use a raised 3d relief", () => {
+    const { container } = render(
+      <AdminHubHome
+        locale="en"
+        dict={dictEn}
+        summary={SUMMARY}
+        birthdayRows={[]}
+        birthdaysDict={dictEn.dashboard.birthdays}
+      />,
+    );
+    const traffic = container.querySelector('[data-tour="admin-hub-traffic"]');
+    expect(traffic?.className).toContain("inset_0_1px_0");
+    expect(traffic?.className).toContain("hover:-translate-y-1");
+  });
+
   it("the birthdays data-tour anchor is still present after reordering", () => {
     const { container } = render(
       <AdminHubHome
@@ -57,7 +73,23 @@ describe("AdminHubHome — admin order (Test 5)", () => {
     expect(container.querySelector('[data-tour="admin-hub-birthdays"]')).not.toBeNull();
   });
 
-  it("stacks hub cards in one column until lg instead of squeezing two at sm", () => {
+  it("sizes the birthdays tour anchor to its content so Playwright can see it", () => {
+    const { container } = render(
+      <AdminHubHome
+        locale="en"
+        dict={dictEn}
+        summary={SUMMARY}
+        birthdayRows={[]}
+        birthdaysDict={dictEn.dashboard.birthdays}
+      />,
+    );
+    const birthdays = container.querySelector('[data-tour="admin-hub-birthdays"]');
+    const tokens = (birthdays?.className ?? "").split(/\s+/);
+    expect(tokens).not.toContain("min-h-0");
+    expect(tokens).not.toContain("flex-1");
+  });
+
+  it("stacks hub cards in one column until lg instead of squeezing them into the viewport", () => {
     const { container } = render(
       <AdminHubHome
         locale="en"
@@ -69,13 +101,19 @@ describe("AdminHubHome — admin order (Test 5)", () => {
     );
 
     const traffic = container.querySelector('[data-tour="admin-hub-traffic"]');
-    const grid = traffic?.parentElement;
-    const tokens = (grid?.className ?? "").split(/\s+/);
+    const leftCol = traffic?.parentElement;
+    const opsGrid = leftCol?.parentElement;
+    const metricsRow = leftCol?.querySelector(":scope > .grid");
+    const peopleCol = container.querySelector('[data-tour="admin-hub-users"]')?.parentElement;
+    const tokens = (el: Element | null | undefined) => (el?.className ?? "").split(/\s+/);
 
-    expect(grid, "metrics grid must wrap the hub cards").toBeTruthy();
-    expect(tokens).toContain("grid-cols-1");
-    expect(tokens).not.toContain("sm:grid-cols-2");
-    expect(tokens).toContain("lg:grid-cols-2");
-    expect(tokens).toContain("xl:grid-cols-3");
+    expect(opsGrid, "ops grid must wrap traffic + people").toBeTruthy();
+    expect(tokens(opsGrid)).not.toContain("flex-1");
+    expect(tokens(opsGrid)).not.toContain("min-h-0");
+    expect(opsGrid?.className).toContain("lg:flex-1");
+    expect(tokens(leftCol)).not.toContain("min-h-0");
+    expect(tokens(peopleCol)).not.toContain("min-h-0");
+    expect(tokens(metricsRow)).not.toContain("sm:grid-cols-3");
+    expect(metricsRow?.className).toContain("lg:grid-cols-3");
   });
 });

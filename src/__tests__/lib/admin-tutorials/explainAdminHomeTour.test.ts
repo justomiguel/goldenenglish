@@ -16,6 +16,10 @@ const copy: ExplainAdminHomeTourCopy = {
   chromeTeacherPortal: { title: "Teacher", description: "teach" },
   chromeSignOut: { title: "Sign out", description: "out" },
   chromeLocale: { title: "Locale", description: "lang" },
+  chromeBell: { title: "Bell", description: "bell" },
+  navInstitute: { title: "Institute", description: "inst" },
+  hubBoost: { title: "Boost", description: "boost" },
+  sidebarProfile: { title: "Profile", description: "prof" },
   titleBlock: { title: "Title", description: "t" },
   studentsWithoutSection: { title: "Banner", description: "b" },
   birthdays: { title: "Birthdays", description: "bd" },
@@ -38,9 +42,11 @@ describe("buildExplainAdminHomeSteps", () => {
     expect(steps.map((s) => s.anchor)).toEqual([
       null,
       ADMIN_TOUR_ANCHORS.sidebar,
+      ADMIN_TOUR_ANCHORS.navInstitute,
       ADMIN_TOUR_ANCHORS.chromeHeader,
       ADMIN_TOUR_ANCHORS.chromeBackToSite,
       ADMIN_TOUR_ANCHORS.chromeTeacherPortal,
+      ADMIN_TOUR_ANCHORS.chromeBell,
       ADMIN_TOUR_ANCHORS.chromeSignOut,
       ADMIN_TOUR_ANCHORS.chromeLocale,
       ADMIN_TOUR_ANCHORS.hubTitle,
@@ -50,7 +56,9 @@ describe("buildExplainAdminHomeSteps", () => {
       ADMIN_TOUR_ANCHORS.hubPayments,
       ADMIN_TOUR_ANCHORS.hubRegistrations,
       ADMIN_TOUR_ANCHORS.hubMessages,
+      ADMIN_TOUR_ANCHORS.hubBoost,
       ADMIN_TOUR_ANCHORS.hubBirthdays,
+      ADMIN_TOUR_ANCHORS.sidebarProfile,
       null,
     ]);
     expect(steps[0]?.title).toBe("Intro");

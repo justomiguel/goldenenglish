@@ -56,7 +56,7 @@ export function AcademicSectionShellHub({
             key={area}
             type="button"
             onClick={() => onOpenArea(area)}
-            className="flex min-h-[44px] flex-col items-start gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-left shadow-[var(--shadow-card)] transition-colors hover:bg-[var(--color-muted)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+            className="flex min-h-[44px] flex-col items-start gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 text-left shadow-[var(--shadow-soft)] transition-colors hover:bg-[var(--color-muted)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
           >
             <span className="inline-flex items-center gap-2.5 text-sm font-semibold text-[var(--color-foreground)]">
               <Icon className="h-8 w-8 shrink-0 text-[var(--color-primary)]" aria-hidden />

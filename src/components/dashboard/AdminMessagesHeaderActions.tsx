@@ -29,8 +29,8 @@ export function AdminMessagesHeaderActions({
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Button
           type="button"
-          variant="secondary"
-          className="min-h-[44px]"
+          variant="ghost"
+          className="min-h-[44px] rounded-xl border border-[var(--color-border)] px-4"
           title={labels.editDefaultMessageCtaTitle}
           onClick={() => setEditOpen(true)}
         >
@@ -40,7 +40,7 @@ export function AdminMessagesHeaderActions({
         <Link
           href={composeHref}
           data-tour={ADMIN_TOUR_ANCHORS.messagesComposeCta}
-          className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] shadow-sm transition-colors hover:bg-[var(--color-primary-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+          className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] shadow-sm transition-colors hover:bg-[var(--color-primary-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
           title={labels.writeMessageCtaTitle}
         >
           <PenLine className="h-4 w-4 shrink-0" aria-hidden />

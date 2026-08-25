@@ -29,9 +29,9 @@ export function AdminRecordPaymentActionBar({
   );
 
   return (
-    <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/[0.04] p-4 shadow-sm">
+    <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="font-semibold text-[var(--color-secondary)]">{heading}</h3>
+        <h3 className="font-semibold text-[var(--color-primary)]">{heading}</h3>
         <button
           type="button"
           onClick={onClear}
@@ -62,7 +62,7 @@ export function AdminRecordPaymentActionBar({
 
         <Button
           type="button"
-          variant="secondary"
+          variant="ghost"
           size="sm"
           className="min-h-[40px] gap-2"
           disabled={busy}
@@ -74,7 +74,7 @@ export function AdminRecordPaymentActionBar({
 
         <Button
           type="button"
-          variant="secondary"
+          variant="ghost"
           size="sm"
           className="min-h-[40px] gap-2"
           disabled={busy}

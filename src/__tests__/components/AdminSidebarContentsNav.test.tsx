@@ -1,4 +1,4 @@
-// REGRESSION CHECK: academic content planning must be discoverable from Admin > Academic.
+// Contents now lives in Instituto, not the daily academic list.
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { dictEn } from "@/test/dictEn";
@@ -13,8 +13,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 describe("AdminSidebar contents navigation", () => {
-  it("shows Contents under the admin academic navigation", () => {
-    navState.pathname = "/en/dashboard/admin/academic/contents";
+  it("does not list Contents on the daily rail", () => {
     render(
       <AdminSidebarNavContent
         locale="en"
@@ -24,26 +23,10 @@ describe("AdminSidebar contents navigation", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: dictEn.dashboard.adminNav.contents })).toHaveAttribute(
+    expect(screen.queryByRole("link", { name: dictEn.dashboard.adminNav.contents })).toBeNull();
+    expect(screen.getByRole("link", { name: dictEn.dashboard.adminNav.institute })).toHaveAttribute(
       "href",
-      "/en/dashboard/admin/academic/contents",
+      "/en/dashboard/admin/institute",
     );
-  });
-
-  it("does not mark Hub académico active when only Contents subtree matches", () => {
-    navState.pathname = "/en/dashboard/admin/academic/contents/global/new";
-    render(
-      <AdminSidebarNavContent
-        locale="en"
-        dict={dictEn.dashboard.adminNav}
-        newRegistrationsCount={0}
-        recentInboundMessagesCount={0}
-      />,
-    );
-
-    const academics = screen.getByRole("link", { name: dictEn.dashboard.adminNav.academics });
-    const contents = screen.getByRole("link", { name: dictEn.dashboard.adminNav.contents });
-    expect(academics.className).not.toContain("border-[var(--color-primary)]");
-    expect(contents.className).toContain("border-[var(--color-primary)]");
   });
 });

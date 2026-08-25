@@ -10,6 +10,9 @@ import {
 } from "@/lib/admin-tutorials/screenCatalog";
 
 const ID_TO_META: Record<Exclude<AdminScreenTourId, "admin-home">, AdminScreenTourMetaKey> = {
+  "admin-students": "adminStudents",
+  "admin-teachers": "adminTeachers",
+  "admin-institute": "adminInstitute",
   "admin-users": "adminUsers",
   "admin-users-new": "adminUsersNew",
   "admin-users-import": "adminUsersImport",

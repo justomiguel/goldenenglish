@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 export interface HeroVisualEditorShellTopProps {
   backHref: string;
@@ -26,10 +27,7 @@ export function HeroVisualEditorShellTop({
         {backLabel}
       </Link>
 
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold text-[var(--color-secondary)]">{title}</h1>
-        <p className="max-w-2xl text-sm text-[var(--color-muted-foreground)]">{lead}</p>
-      </header>
+      <AdminPageHeader title={title} lead={lead} iconId="cms" />
     </>
   );
 }

@@ -82,7 +82,7 @@ export function UniversalListView({
     <div className="space-y-4">
       {toolbar}
       <div
-        className={`rounded-[var(--layout-border-radius)] border border-[var(--color-border)] ${
+        className={`rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)] ${
           tableOverflow === "hidden" ? "overflow-x-hidden" : "overflow-x-auto"
         }`}
       >

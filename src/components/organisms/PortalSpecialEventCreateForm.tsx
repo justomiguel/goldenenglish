@@ -74,7 +74,7 @@ export function PortalSpecialEventCreateForm({ locale, dict, scopeOptions }: Por
   };
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <h2 className="text-base font-semibold text-[var(--color-primary)]">{dict.createTitle}</h2>
       <div className="mt-3 @container grid gap-3 @sm:grid-cols-2">
         <PortalSpecialEventScopeFields

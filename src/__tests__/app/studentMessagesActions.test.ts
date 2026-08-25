@@ -37,6 +37,10 @@ vi.mock("@/lib/email/getEmailProvider", () => ({
 vi.mock("@/lib/analytics/server/recordUserEvent", () => ({
   recordUserEventServer: vi.fn(() => Promise.resolve({ ok: true })),
 }));
+vi.mock("@/lib/dashboard/assertNotViewAs", () => ({
+  viewAsBlockedActionError: vi.fn(async () => null),
+  assertNotViewAs: vi.fn(async () => ({ ok: true })),
+}));
 
 describe("sendStudentMessage", () => {
   beforeEach(() => {

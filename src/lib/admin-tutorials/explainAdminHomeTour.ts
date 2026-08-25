@@ -14,6 +14,10 @@ export type ExplainAdminHomeTourCopy = {
   chromeTeacherPortal: ExplainAdminHomeStepCopy;
   chromeSignOut: ExplainAdminHomeStepCopy;
   chromeLocale: ExplainAdminHomeStepCopy;
+  chromeBell: ExplainAdminHomeStepCopy;
+  navInstitute: ExplainAdminHomeStepCopy;
+  hubBoost: ExplainAdminHomeStepCopy;
+  sidebarProfile: ExplainAdminHomeStepCopy;
   titleBlock: ExplainAdminHomeStepCopy;
   studentsWithoutSection: ExplainAdminHomeStepCopy;
   birthdays: ExplainAdminHomeStepCopy;
@@ -54,6 +58,12 @@ export function buildExplainAdminHomeSteps(
       description: copy.sidebar.description,
     },
     {
+      anchor: ADMIN_TOUR_ANCHORS.navInstitute,
+      title: copy.navInstitute.title,
+      description: copy.navInstitute.description,
+      optional: true,
+    },
+    {
       anchor: ADMIN_TOUR_ANCHORS.chromeHeader,
       title: copy.chromeHeader.title,
       description: copy.chromeHeader.description,
@@ -67,6 +77,12 @@ export function buildExplainAdminHomeSteps(
       anchor: ADMIN_TOUR_ANCHORS.chromeTeacherPortal,
       title: copy.chromeTeacherPortal.title,
       description: copy.chromeTeacherPortal.description,
+      optional: true,
+    },
+    {
+      anchor: ADMIN_TOUR_ANCHORS.chromeBell,
+      title: copy.chromeBell.title,
+      description: copy.chromeBell.description,
       optional: true,
     },
     {
@@ -123,9 +139,21 @@ export function buildExplainAdminHomeSteps(
       description: copy.messages.description,
     },
     {
+      anchor: ADMIN_TOUR_ANCHORS.hubBoost,
+      title: copy.hubBoost.title,
+      description: copy.hubBoost.description,
+      optional: true,
+    },
+    {
       anchor: ADMIN_TOUR_ANCHORS.hubBirthdays,
       title: copy.birthdays.title,
       description: copy.birthdays.description,
+    },
+    {
+      anchor: ADMIN_TOUR_ANCHORS.sidebarProfile,
+      title: copy.sidebarProfile.title,
+      description: copy.sidebarProfile.description,
+      optional: true,
     },
     {
       anchor: null,

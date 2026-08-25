@@ -16,7 +16,7 @@ export function AdminRecordPaymentPanelHeader({
   return (
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div>
-        <h2 className="font-display font-semibold text-[var(--color-secondary)]">
+        <h2 className="font-display font-semibold text-[var(--color-primary)]">
           {labels.recordPaymentMatrixTitle}
         </h2>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">

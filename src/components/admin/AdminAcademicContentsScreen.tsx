@@ -8,6 +8,7 @@ import {
   type GlobalContentRepositoryPagination,
 } from "@/components/admin/AdminGlobalContentRepository";
 import { AdminLearningRoutesGrid } from "@/components/admin/AdminLearningRoutesGrid";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import {
   UnderlineTabBar,
   underlinePanelId,
@@ -77,15 +78,14 @@ export function AdminAcademicContentsScreen({
 
   return (
     <div className="space-y-6">
-      <header
-        data-tour={ADMIN_TOUR_ANCHORS.contentsTitle}
-        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5"
-      >
-        <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">{labels.title}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.lead}</p>
-      </header>
+      <AdminPageHeader
+        title={labels.title}
+        lead={labels.lead}
+        iconId="contents"
+        tourAnchor={ADMIN_TOUR_ANCHORS.contentsTitle}
+      />
 
-      <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
+      <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
         <div data-tour={ADMIN_TOUR_ANCHORS.contentsTabs}>
           <UnderlineTabBar
             idPrefix={idPrefix}

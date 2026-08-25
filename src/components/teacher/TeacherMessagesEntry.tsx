@@ -9,6 +9,7 @@ import {
 import type { MessagingRecipient } from "@/components/teacher/TeacherPortalCompose";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 type TeacherLabels = Dictionary["dashboard"]["teacher"];
 
@@ -40,8 +41,7 @@ export function TeacherMessagesEntry({
 }: TeacherMessagesEntryProps) {
   const body = (
     <>
-      <h1 className="font-display text-3xl font-bold text-[var(--color-secondary)]">{title}</h1>
-      <p className="mt-2 text-[var(--color-muted-foreground)]">{lead}</p>
+      <AdminPageHeader title={title} lead={lead} iconId="messages" artFamily="teachers" />
       <TeacherMessagesClient
         locale={locale}
         feedRows={feedRows}

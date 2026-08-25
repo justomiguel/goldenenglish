@@ -28,7 +28,7 @@ interface AdminAnalyticsHourlyChartProps {
 export function AdminAnalyticsHourlyChart({ rows, animate, labels }: AdminAnalyticsHourlyChartProps) {
   const heatData = pivotAdminAnalyticsHourly(rows);
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <h2 className="font-semibold text-[var(--color-primary)]">{labels.chartHourly}</h2>
       <p className="text-sm text-[var(--color-muted-foreground)]">{labels.chartHourlyHint}</p>
       <RechartsSizedFrame height={320} className="mt-4 w-full min-w-0">

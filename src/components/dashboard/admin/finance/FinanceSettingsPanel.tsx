@@ -84,11 +84,11 @@ export function FinanceSettingsPanel({
     <section className="space-y-6" data-tour={ADMIN_TOUR_ANCHORS.financeSettingsRoot}>
       <div
         data-tour={ADMIN_TOUR_ANCHORS.financeSettingsCurrencySection}
-        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5"
+        className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]"
       >
         <header className="mb-4 flex items-center gap-2">
           <Settings className="h-5 w-5 text-[var(--color-muted-foreground)]" aria-hidden />
-          <h2 className="text-lg font-semibold text-[var(--color-foreground)]">
+          <h2 className="text-lg font-semibold text-[var(--color-primary)]">
             {dict.title}
           </h2>
         </header>
@@ -141,9 +141,9 @@ export function FinanceSettingsPanel({
         </div>
       </div>
 
-      <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]">
         <header className="mb-4">
-          <h2 className="text-lg font-semibold text-[var(--color-foreground)]">
+          <h2 className="text-lg font-semibold text-[var(--color-primary)]">
             {dict.bankTransferInstructionsTitle}
           </h2>
           <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">

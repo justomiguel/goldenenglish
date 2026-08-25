@@ -3,6 +3,7 @@
 import "./vargasWizardDesignTokens.css";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import type { Dictionary } from "@/types/i18n";
 import { SiteSetupWizardErrorAlert } from "@/components/dashboard/admin/site-setup/SiteSetupWizardErrorAlert";
 import { SiteSetupWizardStepPanels } from "@/components/dashboard/admin/site-setup/SiteSetupWizardStepPanels";
@@ -193,12 +194,11 @@ export function SiteSetupWizard({
       >
         {stepLabel}
       </p>
-      <h1 className="font-display text-2xl font-semibold text-[var(--color-primary)]">
-        {labels.pageTitle}
-      </h1>
-      <p className="mt-2 text-sm leading-relaxed text-[var(--color-muted-foreground)]">
-        {labels.pageLead}
-      </p>
+      <AdminPageHeader
+        title={labels.pageTitle}
+        lead={labels.pageLead}
+        iconId="siteSetup"
+      />
 
       {errorMessage ? (
         <SiteSetupWizardErrorAlert message={errorMessage} />

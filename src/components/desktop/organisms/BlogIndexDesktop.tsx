@@ -13,7 +13,7 @@ interface BlogIndexDesktopProps {
 export function BlogIndexDesktop({ locale, rows, labels }: BlogIndexDesktopProps) {
   return (
     <section className="space-y-4">
-      <h1 className="text-3xl font-bold text-[var(--color-secondary)]">{labels.title}</h1>
+      <h1 className="text-3xl font-bold text-[var(--color-primary)]">{labels.title}</h1>
       {rows.length === 0 ? (
         <p className="text-sm text-[var(--color-muted-foreground)]">{labels.empty}</p>
       ) : null}

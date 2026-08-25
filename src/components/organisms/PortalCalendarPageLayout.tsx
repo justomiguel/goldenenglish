@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 export interface PortalCalendarPageLayoutProps {
   variant: "desktop" | "narrow";
@@ -30,42 +31,54 @@ export function PortalCalendarPageLayout({
     tourAnchors?.title ?? (adminFilters ? ADMIN_TOUR_ANCHORS.calendarTitle : undefined);
   const scheduleAnchor =
     tourAnchors?.schedule ?? (adminFilters ? ADMIN_TOUR_ANCHORS.calendarSchedule : undefined);
-  const outer = variant === "desktop" ? "mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8" : "space-y-5";
+  const isAdmin = Boolean(adminFilters);
+  const outer = isAdmin
+    ? "space-y-6"
+    : variant === "desktop"
+      ? "mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8"
+      : "space-y-5";
   const card =
-    "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]";
-  const titleClass =
-    variant === "desktop"
-      ? "font-display text-2xl font-bold text-[var(--color-secondary)]"
-      : "font-display text-xl font-bold text-[var(--color-secondary)]";
+    "rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]";
+  const body = (
+    <div className="space-y-6">
+      <aside className="rounded-2xl bg-[var(--color-muted)]/30 p-3 sm:p-4">{toolbar}</aside>
+      {adminFilters ? (
+        <div data-tour={ADMIN_TOUR_ANCHORS.calendarFilters}>{adminFilters}</div>
+      ) : null}
+      {adminSpecialLink}
+      <div
+        data-tour={scheduleAnchor}
+        className={
+          variant === "narrow"
+            ? "flex min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-2"
+            : "min-h-[min(28rem,70dvh)] min-w-0 overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-2 sm:p-4"
+        }
+      >
+        {schedule}
+      </div>
+    </div>
+  );
+
+  if (isAdmin) {
+    return (
+      <div className={outer}>
+        <div data-tour={titleAnchor}>
+          <AdminPageHeader title={title} lead={lead ?? undefined} iconId="calendar" />
+        </div>
+        <div className={`${card} p-5 sm:p-6`}>{body}</div>
+      </div>
+    );
+  }
 
   return (
     <div className={outer}>
-      <div className={`${card} p-5 sm:p-8`}>
-        <header
-          data-tour={titleAnchor}
-          className="mb-6 space-y-2 border-b border-[var(--color-border)] pb-6"
-        >
-          <h1 className={titleClass}>{title}</h1>
-          {lead ? <p className="text-sm text-[var(--color-muted-foreground)]">{lead}</p> : null}
-        </header>
-        <div className="space-y-6">
-          <aside className="rounded-[var(--layout-border-radius)] bg-[var(--color-muted)]/30 p-3 sm:p-4">{toolbar}</aside>
-          {adminFilters ? (
-            <div data-tour={ADMIN_TOUR_ANCHORS.calendarFilters}>{adminFilters}</div>
-          ) : null}
-          {adminSpecialLink}
-          <div
-            data-tour={scheduleAnchor}
-            className={
-              variant === "narrow"
-                ? "flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-2"
-                : "min-h-[min(28rem,70dvh)] min-w-0 overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-2 sm:p-4"
-            }
-          >
-            {schedule}
-          </div>
-        </div>
-      </div>
+      <AdminPageHeader
+        title={title}
+        lead={lead ?? undefined}
+        iconId="calendar"
+        tourAnchor={titleAnchor}
+      />
+      <div className={`${card} mt-6 p-5 sm:p-8`}>{body}</div>
     </div>
   );
 }

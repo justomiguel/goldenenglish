@@ -89,10 +89,10 @@ export function SiteThemeTemplatePreviewCard({
   const archived = Boolean(row.archivedAt);
   const isSystemDefault = row.isSystemDefault;
   const wrapperClass = [
-    "flex flex-col gap-4 rounded-[var(--layout-border-radius)] border bg-[var(--color-surface)] p-4 transition",
+    "flex flex-col gap-4 rounded-2xl border bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)] transition",
     isActive
-      ? "border-2 border-[var(--color-primary)] shadow-[var(--shadow-card)] ring-2 ring-[var(--color-primary)]/15"
-      : "border-[var(--color-border)] hover:border-[var(--color-primary)]/40 hover:shadow-[var(--shadow-soft)]",
+      ? "border-2 border-[var(--color-primary)] ring-2 ring-[var(--color-primary)]/15"
+      : "border-[var(--color-border)] hover:border-[var(--color-primary)]/40",
     archived ? "opacity-70" : "",
   ].join(" ");
 

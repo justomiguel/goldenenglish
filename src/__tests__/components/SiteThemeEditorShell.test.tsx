@@ -91,11 +91,15 @@ describe("SiteThemeEditorShell", () => {
         groups={groups}
       />,
     );
-    expect(
-      screen.getByRole("heading", {
-        name: labels.title.replace("{{name}}", theme.name),
-      }),
-    ).toBeInTheDocument();
+    const heading = screen.getByRole("heading", {
+      name: labels.title.replace("{{name}}", theme.name),
+    });
+    expect(heading).toBeInTheDocument();
+    const banner = heading.closest("header");
+    expect(banner).toBeTruthy();
+    expect(screen.getAllByRole("banner")).toContain(banner);
+    expect(heading.className).toContain("--color-primary");
+    expect(banner?.className).toContain("rounded-3xl");
     expect(screen.getByText(labels.groups.color.title)).toBeInTheDocument();
     expect(screen.getByText(labels.groups.app.title)).toBeInTheDocument();
   });

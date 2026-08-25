@@ -6,7 +6,7 @@ export interface ProfileAvatarProps {
   url: string | null;
   /** Used for the image alt when a custom avatar exists. */
   displayName: string;
-  size: "sm" | "lg" | "xl";
+  size: "sm" | "md" | "lg" | "xl";
   className?: string;
 }
 
@@ -38,7 +38,7 @@ function DefaultProfileAvatarIcon() {
 }
 
 export function ProfileAvatar({ url, displayName, size, className = "" }: ProfileAvatarProps) {
-  const dim = size === "xl" ? 152 : size === "lg" ? 128 : 40;
+  const dim = size === "xl" ? 152 : size === "lg" ? 128 : size === "md" ? 56 : 40;
 
   if (url) {
     const bypassOptimizer = url.startsWith("blob:") || url.startsWith("data:");
@@ -53,7 +53,7 @@ export function ProfileAvatar({ url, displayName, size, className = "" }: Profil
           width={dim}
           height={dim}
           unoptimized={bypassOptimizer}
-          sizes={size === "xl" ? "152px" : size === "lg" ? "128px" : "40px"}
+          sizes={size === "xl" ? "152px" : size === "lg" ? "128px" : size === "md" ? "56px" : "40px"}
           className="h-full w-full object-cover"
         />
       </span>

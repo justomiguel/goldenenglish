@@ -6,6 +6,8 @@ export type UpcomingBirthdayCardRow = {
   displayName: string;
   celebrationIso: string;
   isToday: boolean;
+  avatarUrl: string | null;
+  sectionLabel: string | null;
 };
 
 export function mapBirthdayRowsToDashboardCard(rows: PortalBirthdayRpcRow[]): UpcomingBirthdayCardRow[] {
@@ -17,5 +19,22 @@ export function mapBirthdayRowsToDashboardCard(rows: PortalBirthdayRpcRow[]): Up
     }),
     celebrationIso: String(r.celebration_date).slice(0, 10),
     isToday: Boolean(r.is_celebration_today),
+    avatarUrl: null,
+    sectionLabel: null,
   }));
+}
+
+export function mergeBirthdayCardDetails(
+  rows: UpcomingBirthdayCardRow[],
+  details: Map<string, { avatarUrl: string | null; sectionLabel: string | null }>,
+): UpcomingBirthdayCardRow[] {
+  return rows.map((row) => {
+    const extra = details.get(row.studentId);
+    if (!extra) return row;
+    return {
+      ...row,
+      avatarUrl: extra.avatarUrl,
+      sectionLabel: extra.sectionLabel,
+    };
+  });
 }

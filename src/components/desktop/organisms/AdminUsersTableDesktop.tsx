@@ -29,6 +29,7 @@ interface AdminUsersTableDesktopProps {
   currentUserId: string;
   labels: UserLabels;
   tableLabels: TableLabels;
+  lockRole?: string;
 }
 
 export function AdminUsersTableDesktop({
@@ -45,6 +46,7 @@ export function AdminUsersTableDesktop({
   currentUserId,
   labels,
   tableLabels,
+  lockRole,
 }: AdminUsersTableDesktopProps) {
   const [exportOpen, setExportOpen] = useState(false);
   const u = useAdminUsersTable({
@@ -77,12 +79,15 @@ export function AdminUsersTableDesktop({
             totalCount={totalCount}
             filteredCount={totalCount}
             selectedCount={u.selectedDeletable.length}
+            page={page}
+            pageSize={pageSize}
             onDeleteSelected={u.onDeleteSelected}
             allVisibleSelected={u.allVisibleSelected}
             onToggleSelectAllFiltered={u.toggleSelectAllVisible}
             deleteDisabled={u.deleteDisabled}
             selectAllFilteredDisabled={u.selectAllFilteredDisabled}
             onExportUsers={() => setExportOpen(true)}
+            lockRole={lockRole}
           />
         }
         labels={labels}

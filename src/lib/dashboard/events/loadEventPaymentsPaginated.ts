@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
+import { quotePostgrestFilterValue } from "@/lib/supabase/quotePostgrestFilterValue";
 
 export interface EventPaymentAttendeeSummary {
   id: string;
@@ -77,7 +78,9 @@ export async function loadEventPaymentsPaginated(
   }
 
   if (q) {
-    const pattern = `%${q.replace(/%/g, "\\%").replace(/_/g, "\\_")}%`;
+    const pattern = quotePostgrestFilterValue(
+      `%${q.replace(/%/g, "\\%").replace(/_/g, "\\_")}%`,
+    );
     const filter = [
       `first_name.ilike.${pattern}`,
       `last_name.ilike.${pattern}`,

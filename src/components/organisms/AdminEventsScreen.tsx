@@ -69,15 +69,15 @@ export function AdminEventsScreen({
   };
 
   return (
-    <section className="mt-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <div className="mb-4 flex items-center justify-between" data-tour={ADMIN_TOUR_ANCHORS.eventsKpis}>
+    <section className="mt-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)] md:p-6">
+      <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-[var(--color-muted-foreground)]">
           {totalCount} {labels.countSuffix}
         </p>
         <Link
           href={`/${locale}/dashboard/admin/events/new`}
           data-tour={ADMIN_TOUR_ANCHORS.eventsCreateCta}
-          className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary)] px-3 py-2 text-sm font-medium text-[var(--color-primary-foreground)]"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)]"
         >
           <Calendar className="h-4 w-4" aria-hidden />
           {labels.create}
@@ -105,7 +105,7 @@ export function AdminEventsScreen({
               </th>
               <th className="px-3 py-2">{labels.views}</th>
               <th className="px-3 py-2">{labels.price}</th>
-              <th className="px-3 py-2">{labels.actions}</th>
+              <th className="px-3 py-2 font-semibold text-[var(--color-muted-foreground)]">{labels.actions}</th>
             </tr>
           </thead>
           <tbody>
@@ -113,7 +113,11 @@ export function AdminEventsScreen({
               <tr key={row.id} className="border-b border-[var(--color-border)]">
                 <td className="px-3 py-2">{row.title}</td>
                 <td className="px-3 py-2">{new Date(row.eventDate).toLocaleString()}</td>
-                <td className="px-3 py-2 capitalize">{row.status}</td>
+                <td className="px-3 py-2">
+                  <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-semibold capitalize text-sky-800">
+                    {row.status}
+                  </span>
+                </td>
                 <td className="px-3 py-2">
                   <span className="inline-flex items-center gap-1">
                     <Users className="h-3.5 w-3.5" aria-hidden />
@@ -132,7 +136,7 @@ export function AdminEventsScreen({
                 <td className="px-3 py-2 text-right">
                   <Link
                     href={`/${locale}/dashboard/admin/events/${row.id}`}
-                    className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] transition-colors hover:border-[color-mix(in_srgb,var(--color-primary)_35%,var(--color-border))] hover:bg-[color-mix(in_srgb,var(--color-primary)_8%,var(--color-surface))]"
+                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-3 py-1.5 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)]"
                   >
                     <Settings2 className="h-4 w-4 shrink-0 text-[var(--color-primary-dark)]" aria-hidden />
                     {labels.manage}

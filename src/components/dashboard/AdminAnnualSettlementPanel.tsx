@@ -114,9 +114,9 @@ export function AdminAnnualSettlementPanel({
   };
 
   return (
-    <section className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 md:p-4">
+    <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-[var(--shadow-soft)] md:p-4">
       <div>
-        <h2 className="text-base font-semibold text-[var(--color-secondary)]">{labels.title}</h2>
+        <h2 className="text-base font-semibold text-[var(--color-primary)]">{labels.title}</h2>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.lead}</p>
       </div>
 

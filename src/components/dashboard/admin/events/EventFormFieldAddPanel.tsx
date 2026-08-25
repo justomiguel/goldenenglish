@@ -146,7 +146,7 @@ export function EventFormFieldAddPanel({
   return (
     <form
       onSubmit={onSubmit}
-      className="space-y-3 rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      className="space-y-3 rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-4"
     >
       <h3 className="text-sm font-semibold text-[var(--color-foreground)]">{labels.title}</h3>
       <div className="grid gap-3 md:grid-cols-2">

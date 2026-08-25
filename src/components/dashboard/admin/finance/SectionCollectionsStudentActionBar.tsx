@@ -46,7 +46,7 @@ export function SectionCollectionsStudentActionBar({
       <Button
         type="button"
         size="md"
-        variant="secondary"
+        variant="ghost"
         isLoading={overdueBusy}
         onClick={onSendOverdueReminders}
       >

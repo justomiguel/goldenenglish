@@ -163,7 +163,7 @@ export function AdminUsersExportTrigger({
   onClick: () => void;
 }) {
   return (
-    <Button type="button" variant="secondary" onClick={onClick} aria-label={labels.exportUsersAria}>
+    <Button type="button" variant="primary" onClick={onClick} aria-label={labels.exportUsersAria} className="rounded-xl">
       <Download className="h-4 w-4" aria-hidden />
       {labels.exportUsers}
     </Button>

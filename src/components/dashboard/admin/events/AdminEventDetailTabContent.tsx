@@ -180,7 +180,7 @@ export function AdminEventDetailTabContent({
 
   if (tab === "waitlist" || tab === "notifications") {
     return (
-      <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-sm text-[var(--color-muted-foreground)]">
+      <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
         {tab === "waitlist" ? detail.waitlistLead : detail.notificationsLead}
       </section>
     );

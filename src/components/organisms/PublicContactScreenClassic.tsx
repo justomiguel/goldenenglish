@@ -26,7 +26,7 @@ export function PublicContactScreenClassic({ locale, dict, brand }: PublicContac
 
       <div className="mx-auto max-w-2xl pt-10">
         <header className="text-center">
-          <h1 className="font-display text-3xl font-bold text-[var(--color-secondary)] md:text-4xl">
+          <h1 className="font-display text-3xl font-bold text-[var(--color-primary)] md:text-4xl">
             {pc.title}
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-[var(--color-muted-foreground)] md:text-lg">

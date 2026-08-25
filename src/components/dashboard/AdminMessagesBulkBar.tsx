@@ -61,7 +61,7 @@ export function AdminMessagesBulkBar({
       className={[
         "mt-4 space-y-2",
         hasSelection
-          ? "sticky top-0 z-20 -mx-1 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-3 shadow-sm"
+          ? "sticky top-0 z-20 -mx-1 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-3 shadow-[var(--shadow-soft)]"
           : "",
       ]
         .filter(Boolean)
@@ -74,8 +74,8 @@ export function AdminMessagesBulkBar({
       <div className="flex flex-wrap items-center gap-2">
         <Button
           type="button"
-          variant="secondary"
-          className="min-h-9"
+          variant="ghost"
+          className="min-h-9 rounded-xl border border-[var(--color-primary)]/25 bg-[color-mix(in_srgb,var(--color-primary)_6%,white)] text-[var(--color-primary)]"
           disabled={busy || visibleCount === 0}
           onClick={allVisibleSelected ? onClear : onSelectAll}
           title={
@@ -103,7 +103,7 @@ export function AdminMessagesBulkBar({
                 <Button
                   type="button"
                   variant="primary"
-                  className="min-h-9"
+                  className="min-h-9 rounded-xl"
                   disabled={busy}
                   onClick={() => void onMarkRead()}
                   title={labels.bulkMarkReadTitle}
@@ -113,8 +113,8 @@ export function AdminMessagesBulkBar({
                 </Button>
                 <Button
                   type="button"
-                  variant="secondary"
-                  className="min-h-9"
+                  variant="ghost"
+                  className="min-h-9 rounded-xl border border-[var(--color-border)]"
                   disabled={busy}
                   onClick={() => void onMarkUnread()}
                   title={labels.bulkMarkUnreadTitle}
@@ -126,8 +126,8 @@ export function AdminMessagesBulkBar({
             ) : null}
             <Button
               type="button"
-              variant="secondary"
-              className="min-h-9 border-[var(--color-error)] text-[var(--color-error)] hover:bg-[var(--color-muted)]"
+              variant="destructive"
+              className="min-h-9 rounded-xl bg-[color-mix(in_srgb,var(--color-error)_8%,white)]"
               disabled={busy}
               onClick={() => setConfirmDelete(true)}
               title={labels.bulkDeleteTitle}
@@ -137,8 +137,8 @@ export function AdminMessagesBulkBar({
             </Button>
             <Button
               type="button"
-              variant="secondary"
-              className="min-h-9"
+              variant="ghost"
+              className="min-h-9 rounded-xl border border-[var(--color-border)]"
               disabled={busy}
               onClick={onClear}
               title={labels.bulkClearSelectionTitle}

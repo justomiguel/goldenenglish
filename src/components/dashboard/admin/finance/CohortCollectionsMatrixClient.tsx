@@ -85,7 +85,7 @@ export function CohortCollectionsMatrixClient({
     <div className="space-y-4">
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="flex flex-wrap items-end gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3"
+        className="flex flex-wrap items-end gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-[var(--shadow-soft)]"
       >
         <label className="flex flex-col gap-1 text-xs">
           <span className="font-medium text-[var(--color-foreground)]">
@@ -216,7 +216,7 @@ function HealthChip({
 
 function EmptyBlock({ label }: { label: string }) {
   return (
-    <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-muted-foreground)]">
+    <p className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-6 text-center text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
       {label}
     </p>
   );

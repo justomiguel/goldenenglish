@@ -112,11 +112,11 @@ export function AdminPortalCompose({
   return (
     <form
       onSubmit={isExternal ? onSubmitExternal : onSubmitPortal}
-      className="space-y-3 overflow-visible rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+      className="space-y-3 overflow-visible rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)] md:p-6"
       data-tour={ADMIN_TOUR_ANCHORS.messagesComposeForm}
     >
       {replyErrorBanner}
-      <h2 className="text-lg font-semibold text-[var(--color-secondary)]">{labels.composeTitle}</h2>
+      <h2 className="font-display text-lg font-semibold text-[var(--color-primary)]">{labels.composeTitle}</h2>
       <label className="block text-sm font-medium text-[var(--color-foreground)]" htmlFor="admin-msg-to">
         {labels.composeTo}
       </label>

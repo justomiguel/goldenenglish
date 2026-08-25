@@ -3,6 +3,27 @@ import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 /** Content-only defs for users, registrations, events, finance, messages. */
 export const SCREEN_TOUR_DEFS_PEOPLE_FINANCE = {
+  "admin-students": [
+    { key: "intro", anchor: null },
+    { key: "subnav", anchor: ADMIN_TOUR_ANCHORS.usersSubnav, optional: true },
+    { key: "titleBlock", anchor: ADMIN_TOUR_ANCHORS.usersTitle },
+    { key: "toolbar", anchor: ADMIN_TOUR_ANCHORS.usersToolbar },
+    { key: "table", anchor: ADMIN_TOUR_ANCHORS.usersTable },
+    { key: "closing", anchor: null },
+  ],
+  "admin-teachers": [
+    { key: "intro", anchor: null },
+    { key: "subnav", anchor: ADMIN_TOUR_ANCHORS.usersSubnav, optional: true },
+    { key: "titleBlock", anchor: ADMIN_TOUR_ANCHORS.usersTitle },
+    { key: "toolbar", anchor: ADMIN_TOUR_ANCHORS.usersToolbar },
+    { key: "table", anchor: ADMIN_TOUR_ANCHORS.usersTable },
+    { key: "closing", anchor: null },
+  ],
+  "admin-institute": [
+    { key: "intro", anchor: null },
+    { key: "hub", anchor: ADMIN_TOUR_ANCHORS.instituteHub },
+    { key: "closing", anchor: null },
+  ],
   "admin-users": [
     { key: "intro", anchor: null },
     { key: "subnav", anchor: ADMIN_TOUR_ANCHORS.usersSubnav, optional: true },

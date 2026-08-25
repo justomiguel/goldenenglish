@@ -151,7 +151,7 @@ export function FinanceHubTabs({
         <div data-tour={ADMIN_TOUR_ANCHORS.financeCohortYear}>{cohortSelector}</div>
       ) : null}
       {kpiStrip}
-      <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
         <nav
           aria-label={dict.title}
           data-tour={ADMIN_TOUR_ANCHORS.financeTabs}

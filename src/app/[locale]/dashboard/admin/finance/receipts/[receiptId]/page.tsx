@@ -7,6 +7,7 @@ import { AdminFinanceReceiptReviewClient } from "@/components/billing/AdminFinan
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { BillingInvoiceRow } from "@/types/billing";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -67,12 +68,11 @@ export default async function AdminFinanceReceiptDetailPage({ params }: PageProp
 
   return (
     <div>
-      <h1
-        className="text-2xl font-bold text-[var(--color-secondary)]"
-        data-tour={ADMIN_TOUR_ANCHORS.financeReceiptDetailTitle}
-      >
-        {dict.dashboard.portalBilling.splitMetaTitle}
-      </h1>
+      <AdminPageHeader
+        title={dict.dashboard.portalBilling.splitMetaTitle}
+        iconId="finance"
+        tourAnchor={ADMIN_TOUR_ANCHORS.financeReceiptDetailTitle}
+      />
       <div className="mt-8">
         <AdminFinanceReceiptReviewClient
           locale={locale}

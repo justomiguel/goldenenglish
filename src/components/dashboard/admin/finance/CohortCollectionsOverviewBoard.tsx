@@ -52,7 +52,7 @@ function SectionCard({
     <Link
       href={href}
       title={dict.overview.openTooltip}
-      className="group flex flex-col gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition hover:border-[var(--color-primary)] hover:shadow-[var(--shadow-card)]"
+      className="group flex flex-col gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)] transition hover:border-[var(--color-primary)]"
     >
       <header className="flex items-start justify-between gap-2">
         <h3 className="font-display text-sm font-semibold text-[var(--color-primary)] group-hover:underline">
@@ -124,7 +124,7 @@ export function CohortCollectionsOverviewBoard({
 }: CohortCollectionsOverviewBoardProps) {
   if (overview.sections.length === 0) {
     return (
-      <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-muted-foreground)]">
+      <p className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-6 text-center text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
         {dict.overview.noSections}
       </p>
     );

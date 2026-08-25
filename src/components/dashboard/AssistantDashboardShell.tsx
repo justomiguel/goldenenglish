@@ -1,38 +1,77 @@
 import type { ReactNode } from "react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
-import { TeacherChromeHeader } from "@/components/dashboard/TeacherChromeHeader";
-import { AssistantSidebar } from "@/components/dashboard/AssistantSidebar";
-import { AssistantMobileDrawer } from "@/components/dashboard/AssistantMobileDrawer";
 import { AssistantBreadcrumb } from "@/components/dashboard/AssistantBreadcrumb";
+import { WorkplaceShell } from "@/components/dashboard/WorkplaceShell";
+import type { WorkplaceNavGroup } from "@/lib/dashboard/workplaceNav";
+import type { ViewAsSubject } from "@/lib/dashboard/viewAsTypes";
+import { StaffWorkspaceSwitch } from "@/components/dashboard/StaffWorkspaceSwitch";
+import { ViewAsBanner } from "@/components/dashboard/ViewAsBanner";
 
 export interface AssistantDashboardShellProps {
   locale: string;
   dict: Dictionary;
   brand: BrandPublic;
+  profileDisplayName?: string;
+  profileAvatarUrl?: string | null;
+  viewAs?: ViewAsSubject | null;
   children: ReactNode;
 }
 
-export function AssistantDashboardShell({ locale, dict, brand, children }: AssistantDashboardShellProps) {
+export function AssistantDashboardShell({
+  locale,
+  dict,
+  brand,
+  profileDisplayName = "",
+  profileAvatarUrl = null,
+  viewAs = null,
+  children,
+}: AssistantDashboardShellProps) {
   const navDict = dict.dashboard.assistantNav;
+  const chrome = dict.dashboard.assistantChrome;
+  const base = `/${locale}/dashboard/assistant`;
+  const navGroups: WorkplaceNavGroup[] = [
+    {
+      label: navDict.groupWorkspace,
+      items: [
+        {
+          href: base,
+          label: navDict.home,
+          iconId: "academic",
+          tip: navDict.tipHome,
+          matchPrefixes: [`${base}/sections`],
+        },
+      ],
+    },
+  ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--color-muted)]">
-      <TeacherChromeHeader
-        locale={locale}
-        brand={brand}
-        dict={dict}
-        dashboardHomeHref={`/${locale}/dashboard/assistant`}
-        chromeLabels={dict.dashboard.assistantChrome}
-        mobileNav={<AssistantMobileDrawer locale={locale} dict={dict} />}
-      />
-      <div className="mx-auto flex w-full max-w-[var(--layout-max-width)] flex-1 gap-0 md:gap-8 md:px-2 md:pb-8 md:pt-2">
-        <AssistantSidebar locale={locale} dict={navDict} />
-        <div className="min-w-0 flex-1 px-4 py-6 md:rounded-[var(--layout-border-radius)] md:border md:border-[var(--color-border)] md:bg-[var(--color-background)] md:px-8 md:py-8 md:shadow-sm">
-          <AssistantBreadcrumb locale={locale} dict={navDict} />
-          {children}
-        </div>
-      </div>
-    </div>
+    <WorkplaceShell
+      locale={locale}
+      dict={dict}
+      brand={brand}
+      homeHref={base}
+      roleBadge={chrome.badge}
+      navAria={navDict.aria}
+      mobileOpen={navDict.mobileOpen}
+      mobileClose={navDict.mobileClose}
+      backToSite={chrome.backToSite}
+      signOutTitle={chrome.signOutHint}
+      headerAria={chrome.ariaHeader}
+      navGroups={navGroups}
+      profileDisplayName={profileDisplayName}
+      profileRoleLabel={chrome.badge}
+      profileAvatarUrl={profileAvatarUrl}
+      hideSignOut={Boolean(viewAs)}
+      workspaceSwitch={
+        viewAs ? (
+          <StaffWorkspaceSwitch locale={locale} dict={dict} activeRole="assistant" viewAs={viewAs} />
+        ) : null
+      }
+      viewAsBanner={viewAs ? <ViewAsBanner locale={locale} dict={dict} viewAs={viewAs} /> : null}
+    >
+      <AssistantBreadcrumb locale={locale} dict={navDict} />
+      {children}
+    </WorkplaceShell>
   );
 }

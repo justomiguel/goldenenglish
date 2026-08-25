@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Banknote } from "lucide-react";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
@@ -130,25 +130,12 @@ export default async function AdminFinanceHubPage({
 
   return (
     <div className="space-y-5">
-      <header
-        className="flex items-start gap-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm"
-        data-tour={ADMIN_TOUR_ANCHORS.financeHeader}
-      >
-        <span
-          aria-hidden
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--layout-border-radius)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
-        >
-          <Banknote className="h-5 w-5" />
-        </span>
-        <div className="space-y-1">
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-[var(--color-foreground)]">
-            {financeDict.hub.title}
-          </h1>
-          <p className="max-w-2xl text-sm leading-relaxed text-[var(--color-muted-foreground)]">
-            {financeDict.hub.lead}
-          </p>
-        </div>
-      </header>
+      <AdminPageHeader
+        title={financeDict.hub.title}
+        lead={financeDict.hub.lead}
+        iconId="finance"
+        tourAnchor={ADMIN_TOUR_ANCHORS.financeHeader}
+      />
 
       <FinanceHubTabs
         current={tab}
@@ -170,7 +157,7 @@ export default async function AdminFinanceHubPage({
           />
         ) : null}
         {tab === "collections" && !matrix && cohort ? (
-          <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-muted-foreground)]">
+          <p className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-6 text-center text-sm text-[var(--color-muted-foreground)]">
             {financeDict.collections.errors.loadFailed}
           </p>
         ) : null}

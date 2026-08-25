@@ -9,11 +9,9 @@ import {
   type UnderlineTabItem,
 } from "@/components/molecules/UnderlineTabBar";
 import { AdminMessagesInbox } from "@/components/dashboard/AdminMessagesInbox";
-import { AdminMessagesFolderCounts } from "@/components/dashboard/AdminMessagesFolderCounts";
 import { AdminMessagesBulkBar } from "@/components/dashboard/AdminMessagesBulkBar";
 import { useAdminMessagesBulkSelection } from "@/hooks/useAdminMessagesBulkSelection";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
-import { summarizeAdminPortalMailboxCounts } from "@/lib/messaging/adminPortalMessageSource";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminPortalMessageRow } from "@/types/messaging";
 
@@ -58,7 +56,6 @@ export function AdminMessagesTabs({
 
   const hint = tab === "inbox" ? labels.tabInboxDescription : labels.tabSentDescription;
   const activeRows = tab === "inbox" ? inboxRows : sentRows;
-  const counts = summarizeAdminPortalMailboxCounts(activeRows);
   const visibleIds = useMemo(() => activeRows.map((r) => r.id), [activeRows]);
 
   const bulk = useAdminMessagesBulkSelection({
@@ -94,7 +91,7 @@ export function AdminMessagesTabs({
   );
 
   return (
-    <section className="mt-8 min-w-0 overflow-x-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
+    <section className="mt-6 min-w-0 overflow-x-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
       <div
         data-tour={ADMIN_TOUR_ANCHORS.messagesTabs}
         className="bg-[var(--color-muted)]/30 px-2 pt-2 md:px-4 md:pt-3"
@@ -115,12 +112,6 @@ export function AdminMessagesTabs({
         <p className="text-sm leading-snug text-[var(--color-muted-foreground)]" aria-live="polite">
           {hint}
         </p>
-        <AdminMessagesFolderCounts
-          locale={locale}
-          labels={labels}
-          folder={tab}
-          counts={counts}
-        />
         <AdminMessagesBulkBar
           labels={labels}
           selectedCount={bulk.selectedCount}

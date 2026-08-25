@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Eye, Pencil, Trash2 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUserRow, SortDir, SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
 import { Button } from "@/components/atoms/Button";
@@ -117,7 +117,7 @@ export function AdminUsersPwaList({
             <button
               key={key}
               type="button"
-              className="flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-left text-sm font-medium text-[var(--color-secondary)] active:bg-[var(--color-muted)]"
+              className="flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-left text-sm font-medium text-[var(--color-primary)] active:bg-[var(--color-muted)]"
               onClick={() => onToggleSort(key)}
               aria-pressed={active}
               title={sortHint(key)}
@@ -145,7 +145,7 @@ export function AdminUsersPwaList({
           return (
             <li
               key={r.id}
-              className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-sm"
+              className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-[var(--shadow-soft)]"
             >
               <div className="flex gap-3">
                 <input
@@ -175,7 +175,7 @@ export function AdminUsersPwaList({
                       <span>{formatProfileNameSurnameFirst(r.firstName, r.lastName)}</span>
                       {r.missingSection ? (
                         <span
-                          className="inline-flex shrink-0 rounded-full border border-[var(--color-accent)]/50 bg-[var(--color-accent)]/10 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-[var(--color-secondary)]"
+                          className="inline-flex shrink-0 rounded-full bg-sky-100 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-sky-800"
                           title={labels.noSectionBadgeAria}
                         >
                           {labels.noSectionBadge}
@@ -188,18 +188,36 @@ export function AdminUsersPwaList({
                     <span className="text-[var(--color-muted-foreground)]">{r.phone}</span>
                   </div>
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="min-h-[44px] min-w-[44px] shrink-0 gap-0 p-2 text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
-                  disabled={isSelf || busy}
-                  title={isSelf ? labels.selfProtected : labels.tipDeleteOneRow}
-                  onClick={() => onRequestDeleteOne(r.id)}
-                  aria-label={`${labels.deleteOne}: ${r.email}`}
-                >
-                  <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
-                </Button>
+                <div className="flex shrink-0 items-center gap-0.5">
+                  <Link
+                    href={`/${locale}/dashboard/admin/users/${r.id}`}
+                    title={labels.tipViewOne}
+                    aria-label={`${labels.viewOne}: ${r.email}`}
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-[var(--color-primary)] hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)]"
+                  >
+                    <Eye className="h-4 w-4" aria-hidden />
+                  </Link>
+                  <Link
+                    href={`/${locale}/dashboard/admin/users/${r.id}`}
+                    title={labels.tipEditOne}
+                    aria-label={`${labels.editOne}: ${r.email}`}
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+                  >
+                    <Pencil className="h-4 w-4" aria-hidden />
+                  </Link>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="min-h-[44px] min-w-[44px] shrink-0 gap-0 p-2 text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
+                    disabled={isSelf || busy}
+                    title={isSelf ? labels.selfProtected : labels.tipDeleteOneRow}
+                    onClick={() => onRequestDeleteOne(r.id)}
+                    aria-label={`${labels.deleteOne}: ${r.email}`}
+                  >
+                    <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
+                  </Button>
+                </div>
               </div>
             </li>
           );

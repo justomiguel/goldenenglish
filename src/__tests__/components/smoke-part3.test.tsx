@@ -73,6 +73,13 @@ vi.mock("recharts", () => {
   };
 });
 
+vi.mock("@/lib/dashboard/viewAsActions", () => ({
+  clearViewAsAction: vi.fn(async () => ({ href: "/en/dashboard/admin" })),
+  openOwnTeacherAction: vi.fn(async () => ({ href: "/en/dashboard/teacher" })),
+  searchViewAsPeopleAction: vi.fn(async () => ({ rows: [] })),
+  startViewAsAction: vi.fn(async () => ({ href: "/en/dashboard/student", started: true })),
+}));
+
 import { AdminDashboardShell } from "@/components/dashboard/AdminDashboardShell";
 import { AdminChromeHeader } from "@/components/dashboard/AdminChromeHeader";
 import { AdminSidebar } from "@/components/dashboard/AdminSidebar";
@@ -131,7 +138,7 @@ describe("component smoke — dashboard & forms", () => {
     );
   });
 
-  it("AdminChromeHeader links to teacher dashboard when teacher portal is allowed", () => {
+  it("AdminChromeHeader shows the workspace role selector", () => {
     render(
       <AdminChromeHeader
         locale="es"
@@ -141,10 +148,9 @@ describe("component smoke — dashboard & forms", () => {
         teacherPortalAllowed
       />,
     );
-    const teacherLinks = screen.getAllByRole("link", {
-      name: dictEn.dashboard.adminChrome.openTeacherDashboardAria,
-    });
-    expect(teacherLinks.length).toBeGreaterThanOrEqual(1);
+    expect(
+      screen.getByRole("button", { name: dictEn.dashboard.viewAs.ariaSelector }),
+    ).toBeInTheDocument();
   });
 
   it("AdminSidebar", () => {
@@ -152,8 +158,13 @@ describe("component smoke — dashboard & forms", () => {
       <AdminSidebar
         locale="es"
         dict={dictEn.dashboard.adminNav}
+        fullDict={dictEn}
+        brand={mockBrandPublic}
         newRegistrationsCount={1}
         recentInboundMessagesCount={0}
+        profileDisplayName="Test"
+        profileRoleLabel="Admin"
+        profileAvatarUrl={null}
       />,
     );
   });
@@ -179,7 +190,7 @@ describe("component smoke — dashboard & forms", () => {
         recentInboundMessagesCount={0}
       />,
     );
-    expect(screen.getByText(dictEn.dashboard.adminNav.groupPeople)).toBeInTheDocument();
+    expect(screen.getByText(dictEn.dashboard.adminNav.students)).toBeInTheDocument();
   });
 
   it("AdminMobileDrawer", () => {

@@ -137,7 +137,7 @@ export function AcademicSectionShellWorkspace({
           cardLabels={cardLabels}
           onOpenArea={(id) => navigate(id)}
         />
-        <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)] px-4 py-4 sm:px-5 sm:py-5">
+        <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-4 shadow-[var(--shadow-soft)] sm:px-5 sm:py-5">
           {hubOverview}
         </div>
       </div>
@@ -146,7 +146,7 @@ export function AcademicSectionShellWorkspace({
 
   const Icon = AREA_ICONS[area];
   return (
-    <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
+    <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
       <AcademicSectionShellAreaChrome
         backLabel={labels.backToSection}
         title={labels[area]}

@@ -46,7 +46,7 @@ export function AdminHelpGlossaryPanel({ dict, layout = "compact" }: AdminHelpGl
       <section
         data-tour={isPage ? ADMIN_TOUR_ANCHORS.glossaryHierarchy : undefined}
         aria-labelledby="admin-glossary-hierarchy-title"
-        className="rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/30 px-3 py-2.5"
+        className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2.5 shadow-[var(--shadow-soft)]"
       >
         <h3
           id="admin-glossary-hierarchy-title"
@@ -98,7 +98,7 @@ export function AdminHelpGlossaryPanel({ dict, layout = "compact" }: AdminHelpGl
                   const related = entry.related ?? [];
                   return (
                     <li key={entry.id}>
-                      <details className="group rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+                      <details className="group rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
                         <summary
                           id={termDomId(entry.id)}
                           className="flex cursor-pointer list-none items-start gap-2 rounded-xl px-3 py-2.5 transition-colors hover:bg-[var(--color-muted)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 [&::-webkit-details-marker]:hidden"

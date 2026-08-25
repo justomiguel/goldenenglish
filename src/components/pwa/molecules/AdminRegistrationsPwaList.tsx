@@ -120,7 +120,11 @@ export function AdminRegistrationsPwaList({
             <button
               key={key}
               type="button"
-              className="flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-left text-sm font-medium text-[var(--color-secondary)] active:bg-[var(--color-muted)]"
+              className={`flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-xl border px-3 text-left text-sm font-medium active:bg-[var(--color-muted)] ${
+                active
+                  ? "border-[var(--color-primary)]/25 bg-[color-mix(in_srgb,var(--color-primary)_8%,white)] text-[var(--color-primary)]"
+                  : "border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)]"
+              }`}
               onClick={() => onToggleSort(key)}
               aria-pressed={active}
               title={sortHint(key)}

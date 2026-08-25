@@ -35,7 +35,7 @@ The agent focuses on **automated** gates: Vitest, typecheck, lint, and scripted 
 
 - **`02-testing-tdd.mdc`** — automated behavioral tests remain mandatory where applicable.
 - **`06-seo-performance.mdc`** — Lighthouse smokes are **user-run** unless the user asks the agent to run `lighthouse:smoke` / tenant manifests.
-- **`foundation-rules.mdc`** — same posture as “no commit unless asked”: no unsolicited manual QA sessions.
+- **`foundation-rules.mdc`** — no unsolicited manual QA sessions (same as no unsolicited push/deploy).
 
 ## Agent checklist
 

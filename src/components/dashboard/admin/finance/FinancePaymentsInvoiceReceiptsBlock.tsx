@@ -38,7 +38,7 @@ export function FinancePaymentsInvoiceReceiptsBlock({
           return (
             <li
               key={r.id as string}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3 shadow-[var(--shadow-soft)]"
             >
               <div>
                 <p className="font-medium text-[var(--color-foreground)]">

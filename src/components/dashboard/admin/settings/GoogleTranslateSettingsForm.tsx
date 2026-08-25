@@ -53,12 +53,12 @@ export function GoogleTranslateSettingsForm({
 
   return (
     <section
-      className="mt-6 max-w-2xl rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6"
+      className="mt-6 max-w-2xl rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-6 shadow-[var(--shadow-soft)]"
       data-tour={ADMIN_TOUR_ANCHORS.settingsIntegrationsForm}
     >
       <div className="flex items-center gap-2">
         <Languages aria-hidden className="h-4 w-4" />
-        <h2 className="text-lg font-semibold text-[var(--color-secondary)]">{labels.title}</h2>
+        <h2 className="text-lg font-semibold text-[var(--color-primary)]">{labels.title}</h2>
       </div>
       <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{labels.hint}</p>
       <p className="mt-3 text-xs text-[var(--color-muted-foreground)]">

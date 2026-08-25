@@ -1376,6 +1376,26 @@
     "home": {
       "title": "Overview",
       "lead": "Here's what needs your attention today.",
+      "greeting": "Hi",
+      "greetingNamed": "Hi, {{name}}",
+      "boost": {
+        "title": "Grow your institute",
+        "lead": "Shortcuts for work that is not every morning.",
+        "event": "Create event",
+        "promotion": "New promotion",
+        "blog": "Publish to the blog",
+        "toolsCta": "See tools"
+      },
+      "peopleStats": {
+        "totalTeachers": "Total teachers",
+        "totalStudents": "Total students",
+        "totalAccounts": "Total accounts",
+        "activeInInstitute": "Active at the institute",
+        "shareOfTotal": "{{pct}}% of the total",
+        "withPhone": "With a registered phone",
+        "newThisMonth": "New this month",
+        "last30Days": "Last 30 days"
+      },
       "cards": {
         "import": "Bulk student onboarding from a CSV file.",
         "users": "Create accounts, assign roles, and bulk CSV import (Import CSV tab).",
@@ -1458,17 +1478,6 @@
       "inscriptionsToggleTooltip": "Turn the public enrollment form on or off for families visiting the website.",
       "saved": "Saved",
       "error": "Could not save",
-      "emailSendsTitle": "Email sends",
-      "emailSendsHint": "Turn each automatic email on or off. The text on the right is today’s value.",
-      "emailSendsTodayOn": "Today: sending",
-      "emailSendsTodayOff": "Today: not sending",
-      "emailSendsGroupAutomated": "Automated",
-      "emailSendsGroupBilling": "Billing",
-      "emailSendsGroupAcademics": "Academics",
-      "emailSendsGroupMessaging": "Messaging",
-      "emailSendsGroupOther": "Other notices",
-      "emailSendsLabelInactivity": "No-login reminders",
-      "emailSendsLabelClassReminder": "Class reminders",
       "classRemindersTitle": "Class reminders (automated)",
       "classRemindersHint": "Cron dispatches using the service role. WhatsApp requires Meta template env vars; email uses Resend.",
       "classRemindersEnabled": "Enable class reminders",
@@ -1488,7 +1497,18 @@
         "error": "Could not save the key",
         "keyMaskedPrefix": "Configured key:",
         "keyNotConfigured": "No key configured"
-      }
+      },
+      "emailSendsTitle": "Email sends",
+      "emailSendsHint": "Turn each automatic email on or off. The text on the right is today’s value.",
+      "emailSendsTodayOn": "Today: sending",
+      "emailSendsTodayOff": "Today: not sending",
+      "emailSendsGroupAutomated": "Automated",
+      "emailSendsGroupBilling": "Billing",
+      "emailSendsGroupAcademics": "Academics",
+      "emailSendsGroupMessaging": "Messaging",
+      "emailSendsGroupOther": "Other notices",
+      "emailSendsLabelInactivity": "No-login reminders",
+      "emailSendsLabelClassReminder": "Class reminders"
     },
     "cms": {
       "navLabel": "Public site",
@@ -2089,7 +2109,9 @@
       "roleOptionAssistant": "Assistants (staff)",
       "countTotal": "Total: {{count}}",
       "countFiltered": "After filter: {{count}}",
+      "countShowing": "Showing: {{from}}–{{to}}",
       "countSelected": "Selected: {{count}}",
+      "filtersCta": "Filters",
       "sortNeutral": "no sort on this column",
       "sortAsc": "ascending order",
       "sortDesc": "descending order",
@@ -2102,7 +2124,11 @@
       "noSectionBadge": "No section",
       "noSectionBadgeAria": "Student has no active section enrollment",
       "colActions": "Actions",
+      "viewOne": "View",
+      "editOne": "Edit",
       "deleteOne": "Delete",
+      "tipViewOne": "Open this account’s profile.",
+      "tipEditOne": "Edit this account’s profile.",
       "deleteSelected": "Delete selected",
       "deleteSelectedWithCount": "Delete selected ({{count}})",
       "selectAllFiltered": "Select all",
@@ -3551,11 +3577,6 @@
       "whatsAppMessage": "Hello {name}, we are writing from {institute} about your enrolment enquiry.",
       "minorMarker": "Minor",
       "viaSectionLink": "via enrollment link",
-      "existingStudentBadge": "Existing student",
-      "requestedSections": "Requested sections",
-      "existingStudentFicha": "Open student record",
-      "acceptExistingLead": "This document matches an existing student. Accepting will add the requested sections without creating another account.",
-      "acceptPendingSections": "Some requested sections could not be assigned automatically. You can assign them next.",
       "expandRow": "Show details",
       "collapseRow": "Hide details",
       "detailsTitle": "Enquiry details",
@@ -3572,7 +3593,20 @@
       "statusChangeError": "Could not update the follow-up status",
       "exportButton": "Export",
       "exportTip": "Download the filtered list as a spreadsheet",
-      "exportError": "Could not build the spreadsheet"
+      "exportError": "Could not build the spreadsheet",
+      "stats": {
+        "total": "Total requests",
+        "totalHint": "Received from the public form",
+        "pending": "Pending",
+        "contacted": "Contacted",
+        "enrolled": "Enrolled",
+        "shareOfTotal": "{{pct}}% of the total"
+      },
+      "existingStudentBadge": "Existing student",
+      "requestedSections": "Requested sections",
+      "existingStudentFicha": "Open student record",
+      "acceptExistingLead": "This document matches an existing student. Accepting will add the requested sections without creating another account.",
+      "acceptPendingSections": "Some requested sections could not be assigned automatically. You can assign them next."
     },
     "events": {
       "lead": "Manage upcoming public events, attendees, and payments.",
@@ -4080,17 +4114,6 @@
   "register": {
     "title": "Enrollment request",
     "lead": "These details are the student's. If they are under the legal age and are not already on file, we will ask for the parent or guardian next.",
-    "studentSectionTitle": "Student details",
-    "continue": "Continue",
-    "lookupFailed": "We could not verify the document. Try again.",
-    "existingFoundTitle": "We already have a student with this document",
-    "existingFoundLead": "Is this {firstName} {lastName}?",
-    "existingYes": "Yes, this is the student",
-    "existingNo": "No, this is not the student",
-    "existingRejected": "Check the document or contact the institute. We cannot create another record with the same document.",
-    "sectionsTitle": "Sections",
-    "sectionsHint": "You can choose more than one.",
-    "sectionsAlsoJoin": "They can also join…",
     "firstName": "First name",
     "lastName": "Last name",
     "dni": "ID / RUT / passport",
@@ -4108,7 +4131,6 @@
     "birthDateHint": "We use it to calculate age when the account is created.",
     "studentEmailNotCollectedMinorLead": "We don't collect the student's email or phone number for minors here. The school assigns email on its institute domain after you submit; use the guardian's phone for contact.",
     "tutorEmailSameAsStudent": "The guardian's email must be different from the student's email.",
-    "documentInUse": "This document already belongs to another account. Contact the institute.",
     "tutorSectionTitle": "Guardian / responsible adult",
     "tutorSectionLead": "Required for minors.",
     "tutorName": "Guardian name",
@@ -4150,7 +4172,19 @@
     "anotherRequest": "Send another request",
     "closed": "Enrollment is closed at the moment.",
     "validationError": "Check the form fields and try again.",
-    "error": "Something went wrong. Try again."
+    "error": "Something went wrong. Try again.",
+    "studentSectionTitle": "Student details",
+    "continue": "Continue",
+    "lookupFailed": "We could not verify the document. Try again.",
+    "existingFoundTitle": "We already have a student with this document",
+    "existingFoundLead": "Is this {firstName} {lastName}?",
+    "existingYes": "Yes, this is the student",
+    "existingNo": "No, this is not the student",
+    "existingRejected": "Check the document or contact the institute. We cannot create another record with the same document.",
+    "sectionsTitle": "Sections",
+    "sectionsHint": "You can choose more than one.",
+    "sectionsAlsoJoin": "They can also join…",
+    "documentInUse": "This document already belongs to another account. Contact the institute."
   },
   "publicContact": {
     "metaTitle": "Contact",
@@ -4192,7 +4226,24 @@
       "openTeacherDashboardAria": "Open the teacher workspace for your classes, attendance, and grading",
       "dualRoleNavHint": "This sidebar is institutional administration only. For your own sections, attendance, and grading, use the teacher dashboard.",
       "backToSite": "View website",
-      "signOutHint": "Sign out and return to the public site login when you need to switch accounts."
+      "signOutHint": "Sign out and return to the public site login when you need to switch accounts.",
+      "workspaceAdmin": "Admin",
+      "workspaceTeacher": "Teaching area",
+      "bellAria": "Alerts",
+      "bellEmpty": "Nothing waiting.",
+      "bellMessages": "Recent messages",
+      "bellRegistrations": "New registrations"
+    },
+    "viewAs": {
+      "ariaSelector": "Workspace role",
+      "banner": "Viewing as {{name}} · {{role}} · Read only",
+      "backToAdmin": "Back to admin",
+      "ownTeacher": "My teaching area",
+      "searchPlaceholder": "Search by name, email, or document",
+      "searchEmpty": "No accounts match.",
+      "searchHint": "Choose someone to open their portal.",
+      "ended": "Preview ended.",
+      "readOnlyError": "This preview is read-only."
     },
     "teacherChrome": {
       "ariaHeader": "Teacher dashboard",
@@ -4218,6 +4269,7 @@
       "cardTitle": "Upcoming birthdays",
       "cardLead": "Students in your groups (this week and next, institute calendar).",
       "empty": "No birthdays in the next two weeks.",
+      "noSection": "No section",
       "todayBadge": "Today",
       "todayCelebrate": "Celebrate with your group — wish them a great birthday!",
       "calendarEventTitle": "Birthday",
@@ -4247,6 +4299,10 @@
       "audit": "Audit trail",
       "import": "Import CSV",
       "users": "Users",
+      "students": "Students",
+      "teachers": "Teachers",
+      "institute": "Institute",
+      "allAccounts": "All accounts",
       "payments": "Payments",
       "financeReceipts": "Invoice receipts",
       "registrations": "Online registrations",
@@ -4290,6 +4346,10 @@
       "tipAnalytics": "Traffic, funnels, and product usage charts for the last weeks.",
       "tipAudit": "Review who changed academic, section, finance, and account data.",
       "tipUsers": "Search, filter, and manage portal accounts, roles, and Excel import/export.",
+      "tipStudents": "Manage and organize the students at your institute.",
+      "tipTeachers": "Manage and organize your institute’s teaching team.",
+      "tipInstitute": "Calendar, events, site, analytics, and the rest of setup.",
+      "tipAllAccounts": "Every account: parents, admins and assistants, plus students and teachers.",
       "tipPayments": "Approve or reject payment receipts uploaded by guardians.",
       "tipFinanceReceipts": "List and verify official invoice receipts for billing periods.",
       "financeCollections": "Collections",
@@ -4312,7 +4372,14 @@
       "badges": "Badges",
       "tipBadges": "Manage the catalog of student achievements: titles, images, criteria and pause status.",
       "siteSetup": "Initial setup",
-      "tipSiteSetup": "Re-run the setup wizard to update branding, contact details, and operational defaults."
+      "tipSiteSetup": "Re-run the setup wizard to update branding, contact details, and operational defaults.",
+      "instituteHub": {
+        "academic": "Academic",
+        "growth": "Growth",
+        "site": "Site",
+        "dataHelp": "Data and help"
+      },
+      "profileMenuAria": "Your account menu"
     },
     "siteSetup": {
       "metaTitle": "Initial institute setup",
@@ -5146,6 +5213,22 @@
           "closing": {
             "title": "✅ You are ready",
             "description": "That is the admin home. Use the left menu for day-to-day work, and open this help button anytime.\n\nOn other admin screens you can ask to explain that section’s content, or start a how-to tutorial such as creating a cohort."
+          },
+          "chromeBell": {
+            "title": "🔔 Alerts",
+            "description": "The bell lists recent messages and new web registrations. No badge means nothing is waiting."
+          },
+          "navInstitute": {
+            "title": "🏛️ Institute",
+            "description": "Calendar, events, site, analytics and the rest of setup live here. They are not on the daily list."
+          },
+          "hubBoost": {
+            "title": "🚀 Grow your institute",
+            "description": "Shortcuts to create an event, a promotion, or publish to the blog. Not morning work."
+          },
+          "sidebarProfile": {
+            "title": "👤 Your account",
+            "description": "At the bottom of the rail: your name, profile, language, and sign out."
           }
         }
       },
@@ -6433,10 +6516,6 @@
             "title": "📝 Public registrations",
             "description": "Enable or pause the public registration funnel when you are not accepting new interest forms."
           },
-          "emailSends": {
-            "title": "✉️ Email sends",
-            "description": "Turn each product email on or off. The text on the right shows whether it is sending today."
-          },
           "classReminders": {
             "title": "⏰ Class reminders",
             "description": "Configure automated reminders so students/families get timely class notices."
@@ -6448,6 +6527,10 @@
           "closing": {
             "title": "✅ Change deliberately",
             "description": "Settings are institute-wide. Confirm with your team before disabling registrations mid-campaign."
+          },
+          "emailSends": {
+            "title": "✉️ Email sends",
+            "description": "Turn each product email on or off. The text on the right shows whether it is sending today."
           }
         }
       },
@@ -6518,6 +6601,105 @@
           "closing": {
             "title": "✅ Keep it current",
             "description": "Accurate phone and name help colleagues reach you. Admin tools for other people stay under Users."
+          }
+        }
+      },
+      "adminStudents": {
+        "meta": {
+          "title": "Students",
+          "description": "Student list: search, open profiles, and assign a section."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🎓 Students",
+            "description": "This list shows student accounts only. Parents appear on the student profile."
+          },
+          "subnav": {
+            "title": "📑 List, add, and import",
+            "description": "Switch between the list, adding a student, and CSV import."
+          },
+          "titleBlock": {
+            "title": "📋 Purpose",
+            "description": "The heading reminds you this directory is locked to students."
+          },
+          "toolbar": {
+            "title": "🔎 Search",
+            "description": "Search by email, name, phone or ID. The role filter is hidden: it is already locked to student."
+          },
+          "table": {
+            "title": "📄 Results",
+            "description": "Each row is a student. Open the profile for section, family and payments."
+          },
+          "closing": {
+            "title": "✅ Next steps",
+            "description": "Use Add for one student or Import CSV. Teachers and other roles have other doors."
+          }
+        }
+      },
+      "adminTeachers": {
+        "meta": {
+          "title": "Teachers",
+          "description": "Teachers at the institute."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "👨‍🏫 Teachers",
+            "description": "This list shows teacher accounts only."
+          },
+          "subnav": {
+            "title": "📑 List and add",
+            "description": "Switch between the list and adding a teacher."
+          },
+          "titleBlock": {
+            "title": "📋 Purpose",
+            "description": "The heading reminds you this directory is locked to teachers."
+          },
+          "toolbar": {
+            "title": "🔎 Search",
+            "description": "Search by email, name or ID. The role is already locked to teacher."
+          },
+          "table": {
+            "title": "📄 Results",
+            "description": "Each row is a teacher. Open the profile for sections and contact details."
+          },
+          "closing": {
+            "title": "✅ Next steps",
+            "description": "Use Add for a teacher. Students and other roles have other doors."
+          }
+        }
+      },
+      "adminInstitute": {
+        "meta": {
+          "title": "Institute",
+          "description": "Door to calendar, site, analytics and the rest of setup."
+        },
+        "doneBtn": "Done",
+        "nextBtn": "Next",
+        "prevBtn": "Back",
+        "closeBtn": "Close",
+        "progressText": "{{current}} of {{total}}",
+        "steps": {
+          "intro": {
+            "title": "🏛️ Institute",
+            "description": "Everything that is not morning work is grouped here. The daily menu stays short."
+          },
+          "hub": {
+            "title": "📂 Groups",
+            "description": "Academic, Growth, Site, Data and help. Blog and email templates appear only when enabled."
+          },
+          "closing": {
+            "title": "✅ Next steps",
+            "description": "Open a row. That screen shows Institute → the page."
           }
         }
       }
@@ -7495,14 +7677,14 @@
       "contactEmailFailForbidden": "Cannot send: your admin session is not valid. Sign in again.",
       "contactEmailFailNoPermission": "Cannot send: you do not have admin access.",
       "contactEmailFailParse": "Invalid form data. Refresh the page and try again.",
-      "contactEmailFailDisabled": "This email is turned off in Settings.",
       "contactNoPhone": "No guardian phone",
       "contactNoEmail": "No guardian email",
       "emailIntro": "We are reaching out regarding early retention signals for this enrollment. Below is a summary so we can coordinate next steps together.",
       "empty": "No students match the alert criteria right now.",
       "outreachInAppWhatsapp": "<p>We are contacting you from the school because of attendance or grade concerns for <strong>{student}</strong> ({section}). This message is to let you know that staff have opened a WhatsApp conversation with you to follow up.</p>",
       "outreachInAppEmail": "<p>We are contacting you from the school because of attendance or grade concerns for <strong>{student}</strong> ({section}). This message is to let you know that a retention follow-up email was sent to your account.</p>",
-      "whatsappMessage": "Hello, this is {institute}. We are following up on {student} ({section}). Signals: {signals}. Could we coordinate?"
+      "whatsappMessage": "Hello, this is {institute}. We are following up on {student} ({section}). Signals: {signals}. Could we coordinate?",
+      "contactEmailFailDisabled": "This email is turned off in Settings."
     },
     "academics": {
       "metaTitle": "Academics & sections",

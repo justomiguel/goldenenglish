@@ -25,6 +25,7 @@ export interface AdminUsersScreenProps {
   currentUserId: string;
   labels: UserLabels;
   tableLabels: TableLabels;
+  lockRole?: string;
 }
 
 export function AdminUsersScreen(props: AdminUsersScreenProps) {

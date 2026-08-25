@@ -57,7 +57,7 @@ export function CohortCollectionsTotalsStrip({
   return (
     <section
       aria-labelledby="cohort-totals"
-      className="grid grid-cols-2 gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 sm:grid-cols-4"
+      className="grid grid-cols-2 gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)] sm:grid-cols-4"
     >
       <h2 id="cohort-totals" className="sr-only">
         {overviewDict.totals.title}

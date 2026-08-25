@@ -20,7 +20,7 @@ export function AcademicSectionAreaBlock({
   return (
     <section
       aria-labelledby={id}
-      className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]"
+      className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]"
     >
       <AcademicSectionAreaBlockHeader id={id} title={title} lead={lead} icon={icon} />
       <div className="space-y-5">{children}</div>

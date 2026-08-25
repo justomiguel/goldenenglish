@@ -80,7 +80,7 @@ export function MyProfilePwaScreen({
             <ChevronLeft className="h-6 w-6 shrink-0" aria-hidden strokeWidth={2.25} />
             <span className="sr-only">{labels.backToDashboard}</span>
           </Link>
-          <h1 className="truncate text-center font-display text-base font-bold text-[var(--color-foreground)]">
+          <h1 className="truncate text-center font-display text-base font-bold text-[var(--color-primary)]">
             {labels.title}
           </h1>
           <div className="min-w-[44px]" aria-hidden />

@@ -13,6 +13,7 @@ import { Label } from "@/components/atoms/Label";
 import type { AdminCouponRow } from "@/components/dashboard/AdminCouponsEntry";
 import type { Dictionary } from "@/types/i18n";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface AdminCouponsClientProps {
   locale: string;
@@ -77,17 +78,19 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
 
   return (
     <div className="space-y-8">
-      <div data-tour={ADMIN_TOUR_ANCHORS.couponsTitle}>
-        <h1 className="text-2xl font-bold text-[var(--color-secondary)]">{labels.title}</h1>
-        <p className="mt-2 text-[var(--color-muted-foreground)]">{labels.lead}</p>
-      </div>
+      <AdminPageHeader
+        title={labels.title}
+        lead={labels.lead}
+        iconId="coupons"
+        tourAnchor={ADMIN_TOUR_ANCHORS.couponsTitle}
+      />
       {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}
 
       <section
         data-tour={ADMIN_TOUR_ANCHORS.couponsCreateForm}
-        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+        className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)] md:p-6"
       >
-        <h2 className="font-semibold text-[var(--color-secondary)]">{labels.createTitle}</h2>
+        <h2 className="font-semibold text-[var(--color-primary)]">{labels.createTitle}</h2>
         <form onSubmit={onCreate} className="mt-4 grid gap-3 sm:grid-cols-2">
           <div>
             <Label htmlFor="cp-code">{labels.createCode}</Label>
@@ -178,7 +181,7 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
 
       <section
         data-tour={ADMIN_TOUR_ANCHORS.couponsTable}
-        className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]"
+        className="overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]"
       >
         {initialRows.length === 0 ? (
           <p className="p-6 text-sm text-[var(--color-muted-foreground)]">{labels.none}</p>

@@ -22,7 +22,7 @@ interface BlogArticleMetaFormProps {
 
 export function BlogArticleMetaForm(props: BlogArticleMetaFormProps) {
   return (
-    <div className="grid gap-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <div className="grid gap-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <label className="grid gap-1 text-sm">
         <span className="inline-flex items-center gap-2 font-medium">
           <Hash aria-hidden className="h-4 w-4" />

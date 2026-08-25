@@ -33,8 +33,8 @@ export function InscriptionsSettingsForm({
   }
 
   return (
-    <div className="max-w-lg rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-6">
-      <h2 className="text-lg font-semibold text-[var(--color-secondary)]">
+    <div className="max-w-lg rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-6 shadow-[var(--shadow-soft)]">
+      <h2 className="text-lg font-semibold text-[var(--color-primary)]">
         {labels.title}
       </h2>
       <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">

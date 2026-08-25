@@ -10,6 +10,7 @@ import { loadTeacherSectionDetailModel } from "@/lib/academics/loadTeacherSectio
 import { loadSectionEnrollmentLinkState } from "@/lib/academics/sectionEnrollmentLinkAdmin";
 import { SectionEnrollmentLinkPanel } from "@/components/molecules/SectionEnrollmentLinkPanel";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface PageProps {
   params: Promise<{ locale: string; sectionId: string }>;
@@ -80,8 +81,9 @@ export default async function TeacherSectionDetailPage({ params }: PageProps) {
         >
           {d.rosterBack}
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-[var(--color-foreground)]">{sec.name}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{cohortName}</p>
+        <div className="mt-2">
+          <AdminPageHeader title={sec.name} lead={cohortName} iconId="academic" />
+        </div>
       </div>
       <h2 className="text-lg font-semibold text-[var(--color-primary)]">{d.rosterTitle}</h2>
       <div className="flex flex-wrap gap-2">

@@ -124,7 +124,7 @@ export function AdminEnrollmentFeeExemption({
 
   const shellClass = embeddedInModal
     ? "space-y-4"
-    : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4";
+    : "rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]";
   const ShellTag = embeddedInModal ? "div" : "section";
 
   return (
@@ -133,7 +133,7 @@ export function AdminEnrollmentFeeExemption({
         <>
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
-              <h2 className="font-semibold text-[var(--color-secondary)]">{labels.enrollmentFeeTitle}</h2>
+              <h2 className="font-semibold text-[var(--color-primary)]">{labels.enrollmentFeeTitle}</h2>
               {sectionName ? (
                 <p className="mt-1 text-sm font-medium text-[var(--color-foreground)]">
                   {labels.enrollmentSection.replace("{section}", sectionName)}

@@ -1,11 +1,9 @@
 "use client";
 
-import type { FormEvent } from "react";
-import { ListChecks, Trash2 } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import { ListChecks, Search, SlidersHorizontal, Trash2 } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
-import { Input } from "@/components/atoms/Input";
-import { Label } from "@/components/atoms/Label";
 import { ROLE_FILTER_ALL } from "@/lib/dashboard/adminUsersTableHelpers";
 import { adminUserRoleOptionLabel } from "@/lib/dashboard/adminUserRoleOptionLabel";
 import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
@@ -38,19 +36,21 @@ export interface AdminUsersToolbarProps {
   labels: UserLabels;
   query: string;
   onQueryChange: (v: string) => void;
-  /** From Postgres RPC `admin_users_list_role_counts`; drives parenthesized totals in role options. */
   roleCounts: AdminUsersListRoleCounts;
   roleFilter: string;
   onRoleFilterChange: (v: string) => void;
   totalCount: number;
   filteredCount: number;
   selectedCount: number;
+  page?: number;
+  pageSize?: number;
   onDeleteSelected: () => void;
   allVisibleSelected: boolean;
   onToggleSelectAllFiltered: () => void;
   deleteDisabled: boolean;
   selectAllFilteredDisabled: boolean;
   onExportUsers?: () => void;
+  lockRole?: string;
 }
 
 export function AdminUsersToolbar({
@@ -61,46 +61,77 @@ export function AdminUsersToolbar({
   roleFilter,
   onRoleFilterChange,
   totalCount,
-  filteredCount,
   selectedCount,
+  page = 1,
+  pageSize = 10,
   onDeleteSelected,
   allVisibleSelected,
   onToggleSelectAllFiltered,
   deleteDisabled,
   selectAllFilteredDisabled,
   onExportUsers,
+  lockRole,
 }: AdminUsersToolbarProps) {
   const { localValue: localQuery, setLocalValue: setLocalQuery, flushNow } =
     useDebouncedSearch({ value: query, onDebouncedChange: onQueryChange });
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   function onSubmitFilter(e: FormEvent) {
     e.preventDefault();
     flushNow();
   }
 
+  const from = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
+  const to = Math.min(page * pageSize, totalCount);
+  const showing = labels.countShowing
+    .replace("{{from}}", String(from))
+    .replace("{{to}}", String(to));
+
   return (
-    <div data-tour={ADMIN_TOUR_ANCHORS.usersToolbar}>
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
-        <form onSubmit={onSubmitFilter} className="min-w-[12rem] flex-1 space-y-1">
-          <Label htmlFor="users-filter">{labels.filterLabel}</Label>
-          <Input
+    <div data-tour={ADMIN_TOUR_ANCHORS.usersToolbar} className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <form onSubmit={onSubmitFilter} className="relative min-w-0 flex-1">
+          <label htmlFor="users-filter" className="sr-only">
+            {labels.filterLabel}
+          </label>
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-foreground)]"
+            aria-hidden
+          />
+          <input
             id="users-filter"
             value={localQuery}
             onChange={(e) => setLocalQuery(e.target.value)}
             placeholder={labels.filterPlaceholder}
             title={labels.filterTooltip}
-            className="w-full"
             autoComplete="off"
+            className="min-h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] py-2 pl-10 pr-3 text-sm outline-none ring-[var(--color-primary)] placeholder:text-[var(--color-muted-foreground)] focus-visible:ring-2"
           />
         </form>
-        <div className="min-w-[10rem] space-y-1">
-          <Label htmlFor="users-role-filter">{labels.roleFilterLabel}</Label>
+        {lockRole ? null : (
+          <Button
+            type="button"
+            variant="ghost"
+            className="min-h-11 rounded-xl border border-[var(--color-border)] px-4"
+            onClick={() => setFiltersOpen((open) => !open)}
+          >
+            <SlidersHorizontal className="h-4 w-4 shrink-0" aria-hidden />
+            {labels.filtersCta}
+          </Button>
+        )}
+      </div>
+
+      {!lockRole && filtersOpen ? (
+        <div className="max-w-xs">
+          <label htmlFor="users-role-filter" className="sr-only">
+            {labels.roleFilterLabel}
+          </label>
           <select
             id="users-role-filter"
             value={roleFilter}
             onChange={(e) => onRoleFilterChange(e.target.value)}
             title={labels.roleFilterTooltip}
-            className="min-h-[44px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
+            className="min-h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
           >
             <option value={ROLE_FILTER_ALL}>
               {tpl(labels.roleFilterAllWithCount, roleCounts.total)}
@@ -116,40 +147,45 @@ export function AdminUsersToolbar({
             ))}
           </select>
         </div>
-      </div>
+      ) : null}
 
-      <div className="flex flex-wrap gap-3 text-sm text-[var(--color-muted-foreground)]">
-        <span>{tpl(labels.countTotal, totalCount)}</span>
-        <span>{tpl(labels.countFiltered, filteredCount)}</span>
-        <span>{tpl(labels.countSelected, selectedCount)}</span>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {onExportUsers && labels.spreadsheet ? (
-          <AdminUsersExportTrigger labels={labels.spreadsheet} onClick={onExportUsers} />
-        ) : null}
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          disabled={selectAllFilteredDisabled}
-          onClick={onToggleSelectAllFiltered}
-          title={labels.selectAllFilteredTooltip}
-        >
-          <ListChecks className="h-3.5 w-3.5 shrink-0" aria-hidden />
-          {allVisibleSelected ? labels.deselectAllFiltered : labels.selectAllFiltered}
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          disabled={deleteDisabled}
-          onClick={onDeleteSelected}
-          title={labels.deleteSelectedTooltip}
-        >
-          <Trash2 className="h-3.5 w-3.5 shrink-0" aria-hidden />
-          {deleteSelectedButtonLabel(labels, selectedCount)}
-        </Button>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <p className="text-sm text-[var(--color-muted-foreground)]">
+          {tpl(labels.countTotal, totalCount)}
+          <span aria-hidden> • </span>
+          {showing}
+          <span aria-hidden> • </span>
+          {tpl(labels.countSelected, selectedCount)}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {onExportUsers && labels.spreadsheet ? (
+            <AdminUsersExportTrigger labels={labels.spreadsheet} onClick={onExportUsers} />
+          ) : null}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={selectAllFilteredDisabled}
+            onClick={onToggleSelectAllFiltered}
+            title={labels.selectAllFilteredTooltip}
+            className="rounded-xl border border-[var(--color-primary)]/25 bg-[color-mix(in_srgb,var(--color-primary)_6%,white)] text-[var(--color-primary)]"
+          >
+            <ListChecks className="h-3.5 w-3.5 shrink-0" aria-hidden />
+            {allVisibleSelected ? labels.deselectAllFiltered : labels.selectAllFiltered}
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            disabled={deleteDisabled}
+            onClick={onDeleteSelected}
+            title={labels.deleteSelectedTooltip}
+            className="rounded-xl bg-[color-mix(in_srgb,var(--color-error)_8%,white)]"
+          >
+            <Trash2 className="h-3.5 w-3.5 shrink-0" aria-hidden />
+            {deleteSelectedButtonLabel(labels, selectedCount)}
+          </Button>
+        </div>
       </div>
     </div>
   );

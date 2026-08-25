@@ -31,6 +31,9 @@ export type ContentRoute = {
 
 /** Exact admin suffixes — order matters: more specific before parents. */
 export const ADMIN_CONTENT_ROUTES: readonly ContentRoute[] = [
+  { adminSuffix: "/students", id: "admin-students", metaKey: "adminStudents" },
+  { adminSuffix: "/teachers", id: "admin-teachers", metaKey: "adminTeachers" },
+  { adminSuffix: "/institute", id: "admin-institute", metaKey: "adminInstitute" },
   { adminSuffix: "/users/import", id: "admin-users-import", metaKey: "adminUsersImport" },
   { adminSuffix: "/users/new", id: "admin-users-new", metaKey: "adminUsersNew" },
   { adminSuffix: "/events/new", id: "admin-events-new", metaKey: "adminEventsNew" },

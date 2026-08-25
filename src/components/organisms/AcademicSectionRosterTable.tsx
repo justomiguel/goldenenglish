@@ -138,7 +138,7 @@ export function AcademicSectionRosterTable({
                 />
               </th>
               <th className="py-2" scope="col">
-                <span className="font-semibold text-[var(--color-secondary)]">{dict.colActions}</span>
+                <span className="font-semibold text-[var(--color-muted-foreground)]">{dict.colActions}</span>
               </th>
             </tr>
           </thead>
@@ -231,7 +231,7 @@ export function AcademicSectionRosterTable({
   }
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       {tableBody}
     </section>
   );

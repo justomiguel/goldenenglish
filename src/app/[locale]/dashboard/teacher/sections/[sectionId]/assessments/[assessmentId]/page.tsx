@@ -12,6 +12,7 @@ import { AssessmentRosterGradingClient } from "@/components/organisms/Assessment
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
 import { parseSafeLocaleDashboardPath } from "@/lib/navigation/parseSafeLocaleDashboardPath";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface PageProps {
   params: Promise<{ locale: string; sectionId: string; assessmentId: string }>;
@@ -130,8 +131,9 @@ export default async function TeacherAssessmentMatrixPage({ params, searchParams
         >
           {backLabel}
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-[var(--color-foreground)]">{d.title}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{section.name as string}</p>
+        <div className="mt-2">
+          <AdminPageHeader title={d.title} lead={section.name as string} iconId="academic" />
+        </div>
       </div>
 
       <AssessmentRosterGradingClient

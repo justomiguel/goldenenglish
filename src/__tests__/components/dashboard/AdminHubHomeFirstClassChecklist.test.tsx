@@ -7,6 +7,7 @@ import { evaluateAdminFirstClassChecklist } from "@/lib/dashboard/evaluateAdminF
 
 const SUMMARY: AdminHubSummary = {
   traffic: { totalHits: 0, authenticatedHits: 0, guestHits: 0 },
+  trafficDaily: [],
   trafficWeekOverWeek: { thisWeek: 0, lastWeek: 0 },
   users: { total: 0, byRole: [] },
   payments: { pendingCount: 0 },

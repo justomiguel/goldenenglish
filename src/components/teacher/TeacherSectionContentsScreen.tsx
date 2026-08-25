@@ -15,6 +15,7 @@ import type { LearningRouteWorkspace } from "@/lib/learning-content/loadLearning
 import type { AcademicSectionFeatureFlags } from "@/lib/academics/visibleAcademicSectionShellTabs";
 import type { Dictionary } from "@/types/i18n";
 import type { TeacherAssessmentAttemptReview } from "@/types/learningContent";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 export type TeacherContentStudent = { id: string; label: string };
 
@@ -43,24 +44,24 @@ export function TeacherSectionContentsScreen({
   if (!anyLearningFeature) {
     return (
       <div className="space-y-4">
-        <header>
-          <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">
-            {labels.featuresDisabledTitle}
-          </h1>
-          <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
-            {labels.featuresDisabledLead}
-          </p>
-        </header>
+        <AdminPageHeader
+          title={labels.featuresDisabledTitle}
+          lead={labels.featuresDisabledLead}
+          iconId="contents"
+          artFamily="teachers"
+        />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">{labels.title}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.lead}</p>
-      </header>
+      <AdminPageHeader
+        title={labels.title}
+        lead={labels.lead}
+        iconId="contents"
+        artFamily="teachers"
+      />
       {featureFlags.usesLearningRoute ? (
         <>
           {workspace.route ? <ContentPlanHealthSummary health={workspace.health} labels={labels} /> : null}

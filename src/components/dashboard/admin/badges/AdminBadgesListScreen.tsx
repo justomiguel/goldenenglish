@@ -22,6 +22,7 @@ import {
   adminBadgeCriteriaLabel,
 } from "@/components/dashboard/admin/badges/adminBadgeListCopy";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 export type AdminBadgeRow = {
   id: string;
@@ -50,8 +51,7 @@ export function AdminBadgesListScreen({
   locale,
   rows,
   labels,
-  adminNav,
-}: AdminBadgesListScreenProps) {
+  adminNav: _adminNav,}: AdminBadgesListScreenProps) {
   const idPrefix = useId().replace(/:/g, "");
   const [categoryTab, setCategoryTab] = useState<AdminBadgeCategoryFilterTabId>("all");
 
@@ -92,36 +92,32 @@ export function AdminBadgesListScreen({
 
   return (
     <div className="space-y-6">
-      <header
-        data-tour={ADMIN_TOUR_ANCHORS.badgesHeader}
-        className="flex flex-wrap items-center justify-between gap-3"
-      >
-        <div className="space-y-1">
-          <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
-            {adminNav.breadcrumbAdmin}
-          </p>
-          <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">{labels.title}</h1>
-          <p className="text-sm text-[var(--color-muted-foreground)]">{labels.lead}</p>
-        </div>
-        <Link
-          href={`${baseHref}/new`}
-          data-tour={ADMIN_TOUR_ANCHORS.badgesCreateCta}
-          className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] hover:bg-[var(--color-primary-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
-        >
-          <Plus className="h-4 w-4 shrink-0" aria-hidden />
-          {labels.createCta}
-        </Link>
-      </header>
+      <AdminPageHeader
+        title={labels.title}
+        lead={labels.lead}
+        iconId="badges"
+        tourAnchor={ADMIN_TOUR_ANCHORS.badgesHeader}
+        actions={
+          <Link
+            href={`${baseHref}/new`}
+            data-tour={ADMIN_TOUR_ANCHORS.badgesCreateCta}
+            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] hover:bg-[var(--color-primary-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+          >
+            <Plus className="h-4 w-4 shrink-0" aria-hidden />
+            {labels.createCta}
+          </Link>
+        }
+      />
 
       {rows.length === 0 ? (
         <p
-          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-6 text-center text-sm text-[var(--color-muted-foreground)]"
+          className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-6 text-center text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]"
           role="status"
         >
           {labels.empty}
         </p>
       ) : (
-        <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)]">
+        <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
           <div data-tour={ADMIN_TOUR_ANCHORS.badgesCategoryTabs}>
             <UnderlineTabBar
               idPrefix={idPrefix}
@@ -216,7 +212,7 @@ export function AdminBadgesListScreen({
                         <td className="p-3 text-right">
                           <Link
                             href={`${baseHref}/${row.id}`}
-                            className="inline-flex min-h-[36px] items-center justify-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-transparent px-3 py-1.5 text-xs font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+                            className="inline-flex min-h-[36px] items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-transparent px-3 py-1.5 text-xs font-medium text-[var(--color-primary)] hover:bg-[var(--color-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
                           >
                             <Pencil className="h-3.5 w-3.5 shrink-0" aria-hidden />
                             {labels.editCta}

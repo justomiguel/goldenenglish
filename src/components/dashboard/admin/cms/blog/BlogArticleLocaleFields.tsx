@@ -48,7 +48,7 @@ export function BlogArticleLocaleFields({
   onError,
 }: BlogArticleLocaleFieldsProps) {
   return (
-    <div className="grid gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <div className="grid gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <label className="grid gap-1 text-sm" data-tour={ADMIN_TOUR_ANCHORS.blogEditorTitle}>
         <span className="font-medium">{labels.title}</span>
         <input

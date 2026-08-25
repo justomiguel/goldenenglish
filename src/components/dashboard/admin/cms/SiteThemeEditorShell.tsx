@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { RotateCcw, Save } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import type { TokenGroup } from "@/lib/cms/groupThemeTokens";
 import { filterBrandAssetKeysFromGroups } from "@/lib/cms/filterBrandAssetKeysFromGroups";
@@ -142,39 +143,36 @@ export function SiteThemeEditorShell({
         label={labels.backToTemplates}
       />
 
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
-            {labels.title.replace("{{name}}", theme.name)}
-          </h1>
-          <p className="max-w-2xl text-sm text-[var(--color-muted-foreground)]">
-            {theme.isActive ? labels.activeNotice : labels.draftNotice}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setResetAllOpen(true)}
-            disabled={pending}
-          >
-            <RotateCcw className="h-4 w-4 shrink-0" aria-hidden />
-            {labels.resetAllCta}
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleSave}
-            disabled={pending || !isDirty}
-            isLoading={pending}
-          >
-            {!pending ? (
-              <Save className="h-4 w-4 shrink-0" aria-hidden />
-            ) : null}
-            {labels.saveCta}
-          </Button>
-        </div>
-      </header>
+      <AdminPageHeader
+        title={labels.title.replace("{{name}}", theme.name)}
+        lead={theme.isActive ? labels.activeNotice : labels.draftNotice}
+        iconId="cms"
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setResetAllOpen(true)}
+              disabled={pending}
+            >
+              <RotateCcw className="h-4 w-4 shrink-0" aria-hidden />
+              {labels.resetAllCta}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleSave}
+              disabled={pending || !isDirty}
+              isLoading={pending}
+            >
+              {!pending ? (
+                <Save className="h-4 w-4 shrink-0" aria-hidden />
+              ) : null}
+              {labels.saveCta}
+            </Button>
+          </div>
+        }
+      />
 
       {errorCode ? (
         <p

@@ -9,6 +9,8 @@ import { StaffAssistantSectionCard } from "@/components/molecules/StaffAssistant
 import { UpcomingBirthdaysCard } from "@/components/molecules/UpcomingBirthdaysCard";
 import { resolveStaffAssistantPortal } from "@/lib/dashboard/resolveStaffAssistantPortal";
 import { loadDashboardBirthdaysCard } from "@/lib/birthdays/loadDashboardBirthdaysCard";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
+import { getDashboardActor } from "@/lib/dashboard/getDashboardActor";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -30,13 +32,15 @@ export default async function AssistantDashboardHomePage({ params }: PageProps) 
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
+  const actor = await getDashboardActor();
+  const viewerId = actor?.viewerId ?? user.id;
   const roleOk = await resolveStaffAssistantPortal(supabase, user.id);
-  if (!roleOk) redirect(`/${locale}/dashboard`);
+  if (!roleOk && !actor?.viewAs) redirect(`/${locale}/dashboard`);
 
   const { allowed } = await resolveTeacherPortalAccess(supabase, user.id);
-  if (!allowed) redirect(`/${locale}/dashboard`);
+  if (!allowed && !actor?.viewAs) redirect(`/${locale}/dashboard`);
 
-  const mySectionIds = await loadTeacherSectionIdsForUser(supabase, user.id);
+  const mySectionIds = await loadTeacherSectionIdsForUser(supabase, viewerId);
   const sections =
     mySectionIds.length === 0
       ? []
@@ -64,7 +68,7 @@ export default async function AssistantDashboardHomePage({ params }: PageProps) 
       name: r.name,
       cohortName,
       scheduleSlots: r.schedule_slots,
-      accessRole: r.teacher_id === user.id ? ("lead" as const) : ("assistant" as const),
+      accessRole: r.teacher_id === viewerId ? ("lead" as const) : ("assistant" as const),
     };
   });
 
@@ -83,14 +87,11 @@ export default async function AssistantDashboardHomePage({ params }: PageProps) 
     }
   }
 
-  const birthdayRows = await loadDashboardBirthdaysCard(supabase, user.id);
+  const birthdayRows = await loadDashboardBirthdaysCard(supabase, viewerId);
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">{dDash.title}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{dDash.lead}</p>
-      </header>
+      <AdminPageHeader title={dDash.title} lead={dDash.lead} iconId="academic" />
       <UpcomingBirthdaysCard locale={locale} rows={birthdayRows} dict={dict.dashboard.birthdays} />
       {sectionList.length === 0 ? (
         <p className="text-sm text-[var(--color-muted-foreground)]">{dDash.noSections}</p>

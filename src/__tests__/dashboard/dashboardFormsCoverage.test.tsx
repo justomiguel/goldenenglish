@@ -26,6 +26,7 @@ vi.mock("@/app/[locale]/dashboard/admin/payments/actions", () => ({
   reviewPayment,
 }));
 
+import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 import { AdminSidebar } from "@/components/dashboard/AdminSidebar";
 import { AdminCreateUserForm } from "@/components/dashboard/AdminCreateUserForm";
 import { InscriptionsSettingsForm } from "@/components/dashboard/InscriptionsSettingsForm";
@@ -82,18 +83,25 @@ describe("dashboard coverage", () => {
     });
   });
 
-  it("AdminSidebar renders grouped navigation with badge", () => {
+  it("AdminSidebar renders daily navigation with badge", () => {
     render(
       <AdminSidebar
         locale="es"
         dict={dictEn.dashboard.adminNav}
+        fullDict={dictEn}
+        brand={mockBrandPublic}
         newRegistrationsCount={100}
         recentInboundMessagesCount={0}
+        profileDisplayName="Ada"
+        profileRoleLabel="Admin"
+        profileAvatarUrl={null}
       />,
     );
     expect(screen.getByRole("navigation", { name: dictEn.dashboard.adminNav.aria })).toBeInTheDocument();
     expect(screen.getByText("99+")).toBeInTheDocument();
-    expect(screen.getByText(dictEn.dashboard.adminNav.groupPeople)).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: dictEn.dashboard.adminNav.students }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: dictEn.dashboard.adminNav.finance }),
     ).toBeInTheDocument();

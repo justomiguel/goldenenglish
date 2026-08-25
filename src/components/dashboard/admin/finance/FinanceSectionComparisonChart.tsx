@@ -48,7 +48,7 @@ export function FinanceSectionComparisonChart({
   const chartHeight = Math.max(200, ranked.length * 40 + 60);
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <h3 className="font-semibold text-[var(--color-primary)]">
         {labels.title}
       </h3>

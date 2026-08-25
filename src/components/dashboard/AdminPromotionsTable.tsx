@@ -65,7 +65,7 @@ export function AdminPromotionsTable({ locale, rows, labels }: AdminPromotionsTa
   }
 
   return (
-    <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
+    <div className="overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
       {msg ? <p className="p-2 text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}
       <table className="w-full min-w-[900px] text-left text-sm">
         <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
@@ -111,7 +111,7 @@ export function AdminPromotionsTable({ locale, rows, labels }: AdminPromotionsTa
               <td className="px-3 py-2">
                 <button
                   type="button"
-                  className="text-sm text-[var(--color-secondary)] underline"
+                  className="text-sm text-[var(--color-error)] underline"
                   disabled={busy}
                   title={labels.tipRetire}
                   onClick={() => setRetireTargetId(r.id)}

@@ -39,6 +39,7 @@ import type { AdminHubSummary } from "@/lib/dashboard/loadAdminHubSummary";
 
 const adminHubSummaryStub: AdminHubSummary = {
   traffic: { totalHits: 0, authenticatedHits: 0, guestHits: 0 },
+  trafficDaily: [],
   trafficWeekOverWeek: { thisWeek: 0, lastWeek: 0 },
   users: { total: 0, byRole: [] },
   payments: { pendingCount: 0 },
@@ -143,10 +144,10 @@ describe("component smoke — landing & gates", () => {
 
   it("AdminHubHome", () => {
     render(<AdminHubHome locale="es" dict={dictEn} summary={adminHubSummaryStub} birthdayRows={[]} birthdaysDict={dictEn.dashboard.birthdays} />);
-    expect(screen.getByText(dictEn.admin.home.title)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: new RegExp(dictEn.dashboard.adminNav.users) })).toHaveAttribute(
+    expect(screen.getByText(dictEn.admin.home.greeting)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: new RegExp(dictEn.admin.home.summary.users.title) })).toHaveAttribute(
       "href",
-      "/es/dashboard/admin/users",
+      "/es/dashboard/admin/students",
     );
   });
 
@@ -164,7 +165,7 @@ describe("component smoke — landing & gates", () => {
       screen.getByRole("link", {
         name: dictEn.admin.home.summary.studentsWithoutSection.linkAria.replace("{{count}}", "2"),
       }),
-    ).toHaveAttribute("href", "/es/dashboard/admin/users");
+    ).toHaveAttribute("href", "/es/dashboard/admin/students");
   });
 
   it("LandingFooter", () => {

@@ -86,6 +86,7 @@ export default async function AdminBlogEditPage({ params }: PageProps) {
   return (
     <BlogArticleEditor
       locale={locale}
+      pageTitle={dict.admin.cms.blog.list.title}
       articleId={id}
       canDelete={canDeleteArticle(role)}
       labels={dict.admin.cms.blog.editor}

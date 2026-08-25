@@ -3,6 +3,7 @@ import { ArrowLeft, ListChecks } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { PreparedTeacherSectionAttendancePage } from "@/lib/academics/prepareTeacherSectionAttendancePage";
 import { SectionAttendanceMatrix } from "@/components/organisms/SectionAttendanceMatrix";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import {
   TeacherAttendanceScopeLinks,
   type TeacherAttendanceScope,
@@ -46,8 +47,9 @@ export function SectionAttendancePageBody({
           <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
           {backLabel}
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-[var(--color-foreground)]">{d.title}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{sectionName}</p>
+        <div className="mt-2">
+          <AdminPageHeader title={d.title} lead={sectionName} iconId="academic" />
+        </div>
       </div>
 
       {prep.canShowMatrixShell ? (

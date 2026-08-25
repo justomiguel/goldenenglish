@@ -37,7 +37,7 @@ export function AdminEventAttendeesPanel({
   const baseHref = `/${locale}/dashboard/admin/events/${eventId}`;
 
   return (
-    <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-3">
           <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{labels.title}</h2>

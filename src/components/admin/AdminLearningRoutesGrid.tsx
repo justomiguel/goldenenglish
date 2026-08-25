@@ -26,7 +26,7 @@ export function AdminLearningRoutesGrid({ locale, routes, labels }: AdminLearnin
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         <Link
           href={`/${locale}/dashboard/admin/academic/contents/sections/new/edit`}
-          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-card)] transition hover:-translate-y-0.5 hover:bg-[var(--color-muted)]"
+          className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)] transition hover:-translate-y-0.5 hover:bg-[var(--color-muted)]"
         >
           <span className="inline-flex items-center gap-2 font-semibold text-[var(--color-foreground)]">
             <Globe2 className="h-4 w-4 shrink-0" aria-hidden />
@@ -37,7 +37,7 @@ export function AdminLearningRoutesGrid({ locale, routes, labels }: AdminLearnin
         {routes.map((route) => (
           <article
             key={route.id}
-            className="relative rounded-[var(--layout-border-radius)] border border-[var(--color-primary)] bg-[var(--color-muted)] p-4 pr-24 shadow-[var(--shadow-card)] transition hover:-translate-y-0.5"
+            className="relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 pr-24 shadow-[var(--shadow-soft)] transition hover:-translate-y-0.5"
           >
             <Link
               href={`/${locale}/dashboard/admin/academic/contents/sections/${route.id}/edit`}

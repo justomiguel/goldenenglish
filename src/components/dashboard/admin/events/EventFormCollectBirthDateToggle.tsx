@@ -39,7 +39,7 @@ export function EventFormCollectBirthDateToggle({
   }
 
   return (
-    <section className="space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <div className="inline-flex items-start gap-2">
         <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-muted-foreground)]" aria-hidden />
         <div>

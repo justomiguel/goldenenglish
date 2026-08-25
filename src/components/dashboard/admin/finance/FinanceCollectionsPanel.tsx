@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { Button } from "@/components/atoms/Button";
 import type { Dictionary } from "@/types/i18n";
 import { loadAdminCohortCollectionsOverview } from "@/lib/billing/loadAdminCohortCollectionsOverview";
 import { CohortCollectionsOverviewBoard } from "@/components/dashboard/admin/finance/CohortCollectionsOverviewBoard";
@@ -82,7 +83,7 @@ export async function FinanceCollectionsPanel({
       </header>
       <form
         method="get"
-        className="flex flex-wrap items-end gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3"
+        className="flex flex-wrap items-end gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-[var(--shadow-soft)]"
       >
         <input type="hidden" name="tab" value="collections" />
         <label className="flex flex-col gap-1 text-xs">
@@ -114,16 +115,17 @@ export async function FinanceCollectionsPanel({
             className="w-24 rounded border border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-1 text-sm text-[var(--color-foreground)]"
           />
         </label>
-        <button
+        <Button
           type="submit"
-          className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] transition hover:bg-[var(--color-muted)]/40"
+          variant="ghost"
+          size="sm"
         >
           {navDict.financeCollections}
-        </button>
+        </Button>
       </form>
 
       {!cohort ? (
-        <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-muted-foreground)]">
+        <p className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-6 text-center text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
           {dict.overview.noCurrentCohort}
         </p>
       ) : overview ? (
@@ -151,7 +153,7 @@ export async function FinanceCollectionsPanel({
           </section>
         </>
       ) : (
-        <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-center text-sm text-[var(--color-muted-foreground)]">
+        <p className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-6 text-center text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
           {dict.errors.loadFailed}
         </p>
       )}

@@ -116,7 +116,7 @@ export function AdminEventDetailTabs({
 }: AdminEventDetailTabsProps) {
   return (
     <div className="space-y-4">
-      <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
         <nav
           aria-label={labels.tabsAria}
           className="flex w-full overflow-x-auto border-b border-[var(--color-border)] bg-[var(--color-muted)]/15"

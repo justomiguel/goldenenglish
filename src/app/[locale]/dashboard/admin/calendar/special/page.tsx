@@ -8,6 +8,7 @@ import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { loadAdminSpecialEventScopeOptions } from "@/lib/calendar/loadAdminSpecialEventScopeOptions";
 import { PortalSpecialEventCreateForm } from "@/components/organisms/PortalSpecialEventCreateForm";
 import { PortalSpecialEventsTable, type SpecialEventListRow } from "@/components/organisms/PortalSpecialEventsTable";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -54,10 +55,7 @@ export default async function AdminSpecialCalendarEventsPage({ params }: PagePro
       >
         {d.specialAdmin.backToCalendar}
       </Link>
-      <div>
-        <h1 className="font-display text-2xl font-bold text-[var(--color-secondary)]">{d.specialAdmin.title}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{d.specialAdmin.lead}</p>
-      </div>
+      <AdminPageHeader title={d.specialAdmin.title} lead={d.specialAdmin.lead} iconId="calendar" />
       <PortalSpecialEventCreateForm locale={locale} dict={d.specialAdmin} scopeOptions={scopeOptions} />
       <div>
         <h2 className="mb-2 text-base font-semibold text-[var(--color-primary)]">{d.specialAdmin.tableTitle}</h2>

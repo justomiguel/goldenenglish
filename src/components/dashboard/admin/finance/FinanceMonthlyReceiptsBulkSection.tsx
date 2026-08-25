@@ -126,7 +126,7 @@ export function FinanceMonthlyReceiptsBulkSection({
         />
         <p
           data-tour={ADMIN_TOUR_ANCHORS.financeInboxEmpty}
-          className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center text-sm text-[var(--color-muted-foreground)]"
+          className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] p-8 text-center text-sm text-[var(--color-muted-foreground)]"
         >
           {inboxDict.empty}
         </p>

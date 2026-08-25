@@ -28,6 +28,7 @@ import {
   type AdminAnalyticsGeoBarRow,
 } from "@/components/dashboard/AdminAnalyticsFunnelGeoCharts";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 const AdminAnalyticsGeoChoropleth = dynamic(
   () =>
@@ -77,10 +78,12 @@ export function AdminAnalyticsCharts({
 
   return (
     <div className="space-y-8">
-      <div data-tour={ADMIN_TOUR_ANCHORS.analyticsTitle}>
-        <h1 className="text-2xl font-bold text-[var(--color-secondary)]">{labels.title}</h1>
-        <p className="mt-2 text-[var(--color-muted-foreground)]">{labels.lead}</p>
-      </div>
+      <AdminPageHeader
+        title={labels.title}
+        lead={labels.lead}
+        iconId="analytics"
+        tourAnchor={ADMIN_TOUR_ANCHORS.analyticsTitle}
+      />
 
       <div data-tour={ADMIN_TOUR_ANCHORS.analyticsTraffic}>
         <AdminAnalyticsTrafficSection
@@ -94,7 +97,7 @@ export function AdminAnalyticsCharts({
 
       <div data-tour={ADMIN_TOUR_ANCHORS.analyticsCharts}>
       <section
-        className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+        className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]"
         aria-labelledby="admin-analytics-world-map-title"
       >
         <h2

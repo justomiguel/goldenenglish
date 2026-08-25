@@ -34,6 +34,27 @@ export function formatProfileSnakeSurnameFirst(
   return formatProfileNameSurnameFirst(row.first_name, row.last_name, fallback);
 }
 
+/** Visible identity: given name first, then surname(s). */
+export function formatProfileNameGivenFirst(
+  firstName?: string | null,
+  lastName?: string | null,
+  fallback = "",
+): string {
+  const f = String(firstName ?? "").trim();
+  const l = String(lastName ?? "").trim();
+  if (!f && !l) return fallback;
+  if (!f) return l;
+  if (!l) return f;
+  return `${f} ${l}`;
+}
+
+export function formatProfileSnakeGivenFirst(
+  row: ProfileNameSnake,
+  fallback = "",
+): string {
+  return formatProfileNameGivenFirst(row.first_name, row.last_name, fallback);
+}
+
 export function compareProfileNamesByLastThenFirst(a: ProfileNameParts, b: ProfileNameParts): number {
   const ln = String(a.lastName ?? "")
     .trim()

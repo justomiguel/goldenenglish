@@ -8,6 +8,13 @@ import {
   type AdminSidebarNavGroup,
 } from "@/components/dashboard/adminSidebarNavGroups";
 import { isAdminSidebarNavItemActive } from "@/lib/dashboard/adminSidebarNavActive";
+import { useAdminPersonRecordRole } from "@/hooks/useAdminPersonRecordRole";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { adminSurfaceIcon } from "@/lib/dashboard/adminSurfaceIcon";
+
+void ADMIN_TOUR_ANCHORS.navUsers;
+void ADMIN_TOUR_ANCHORS.navAcademic;
+void ADMIN_TOUR_ANCHORS.navInstitute;
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -23,6 +30,7 @@ export interface AdminSidebarNavContentProps {
   includeBlogNav?: boolean;
   onNavigate?: () => void;
   variant?: "desktop" | "mobile";
+  tone?: "light" | "dark";
 }
 
 function financeHrefForPathname(base: string, pathname: string): string {
@@ -47,6 +55,8 @@ function NavGroupBlock({
   pathname,
   allHrefs,
   mobile,
+  tone,
+  personRecordRole,
   onNavigate,
 }: {
   group: AdminSidebarNavGroup;
@@ -55,6 +65,8 @@ function NavGroupBlock({
   pathname: string;
   allHrefs: readonly string[];
   mobile: boolean;
+  tone: "light" | "dark";
+  personRecordRole: string | null;
   onNavigate?: () => void;
 }) {
   return (
@@ -65,18 +77,16 @@ function NavGroupBlock({
           : undefined
       }
     >
-      {group.label && (
-        <h3
-          className={`mb-1.5 px-3 text-[0.65rem] font-semibold uppercase tracking-widest text-[var(--color-muted-foreground)] ${
-            mobile ? "pt-1" : ""
-          }`}
-        >
-          {group.label}
-        </h3>
-      )}
       <div className="space-y-0.5">
-        {group.items.map(({ href, label, icon, badge, tip, tourId }) => {
-          const active = isAdminSidebarNavItemActive(pathname, href, base, profileHref, allHrefs);
+        {group.items.map(({ href, label, iconId, badge, tip, tourId }) => {
+          const active = isAdminSidebarNavItemActive(
+            pathname,
+            href,
+            base,
+            profileHref,
+            allHrefs,
+            { personRecordRole },
+          );
           return (
             <Link
               key={href}
@@ -84,19 +94,31 @@ function NavGroupBlock({
               onClick={onNavigate}
               title={tip}
               {...(tourId ? { "data-tour": tourId } : {})}
-              className={`flex items-center gap-2.5 rounded-[var(--layout-border-radius)] px-3 text-[0.8125rem] font-medium transition ${
-                active
-                  ? `border-l-2 border-[var(--color-primary)] text-[var(--color-primary)] ${
-                      mobile
-                        ? "bg-[var(--color-primary)]/10 py-3 pl-[0.625rem]"
-                        : "bg-[var(--color-primary)]/8 py-2 pl-[0.625rem]"
-                    }`
-                  : `border-l-2 border-transparent text-[var(--color-foreground)]/80 hover:text-[var(--color-foreground)] ${
-                      mobile ? "py-3 hover:bg-[var(--color-muted)]/80" : "py-2 hover:bg-[var(--color-muted)]"
-                    }`
+              className={`flex items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition ${
+                tone === "dark"
+                  ? active
+                    ? `bg-white/15 text-white ${mobile ? "py-3" : "py-2.5"}`
+                    : `text-white/70 hover:bg-white/8 hover:text-white ${mobile ? "py-3" : "py-2.5"}`
+                  : active
+                    ? `bg-[color-mix(in_srgb,var(--color-primary)_12%,white)] text-[var(--color-primary)] ${
+                        mobile ? "py-3" : "py-2.5"
+                      }`
+                    : `text-[var(--color-foreground)]/80 hover:bg-[var(--color-muted)] hover:text-[var(--color-foreground)] ${
+                        mobile ? "py-3" : "py-2.5"
+                      }`
               }`}
             >
-              {icon}
+              {active ? (
+                <span
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                    tone === "dark" ? "bg-white/15" : "bg-white shadow-sm"
+                  }`}
+                >
+                  {adminSurfaceIcon(iconId, "h-6 w-6")}
+                </span>
+              ) : (
+                adminSurfaceIcon(iconId, "h-6 w-6")
+              )}
               <span className="flex-1 truncate">{label}</span>
               {badge && badge > 0 ? (
                 <span className="rounded-full bg-[var(--color-accent)] px-1.5 py-0.5 text-[0.6rem] font-bold leading-none text-[var(--color-accent-foreground)]">
@@ -120,10 +142,12 @@ export function AdminSidebarNavContent({
   includeBlogNav = false,
   onNavigate,
   variant = "desktop",
+  tone = "light",
 }: AdminSidebarNavContentProps) {
   const pathname = usePathname();
   const base = `/${locale}/dashboard/admin`;
   const profileHref = `/${locale}/dashboard/profile`;
+  const personRecordRole = useAdminPersonRecordRole(pathname, base);
   const groups = buildAdminSidebarNavGroups(base, profileHref, dict, {
     newRegistrations: newRegistrationsCount,
     recentInboundMessages: recentInboundMessagesCount,
@@ -146,6 +170,8 @@ export function AdminSidebarNavContent({
           pathname={pathname}
           allHrefs={allHrefs}
           mobile={mobile}
+          tone={tone}
+          personRecordRole={personRecordRole}
           onNavigate={onNavigate}
         />
       ))}

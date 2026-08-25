@@ -1,0 +1,38 @@
+---
+description: Commit finished work immediately; never stash or set aside mixed WIP without asking.
+alwaysApply: true
+---
+
+# Commit finished work — ask when mixed
+
+**Incident this prevents:** an agent stashed the admin reskin to land an unrelated Mimundo commit, promised to restore it, and never did. Implementation sat uncommitted until the user noticed.
+
+## When a task is done
+
+- **Commit** spec + plan + implementation (and tests/migrations) in the same commit. Do **not** leave it staged “until they ask.”
+- **Push / deploy** only if the user asked (`subí`, `push`, `deploy`) or you asked and they said yes.
+
+## Never without asking and waiting for an answer
+
+- `git stash` (any form, including `--include-untracked` / `--keep-index`)
+- `git restore` / discard / clean of files the user or another session owns
+- Setting aside “unrelated” WIP so a hook can pass
+- Bundling two features into one commit, or dropping one of them, without asking
+
+If the tree already has other staged or unstaged work that is **not** this task, stop:
+
+> Hay otro WIP en el árbol (`<files>`). ¿Lo meto en este commit, lo dejo intacto, o commiteamos por separado?
+
+Do not stash, restore, or commit that WIP until they answer.
+
+## End of turn
+
+If product files are still modified or staged: **commit them or ask**. Do not end a turn with silent staged WIP.
+
+## Still ask (do not decide alone)
+
+- `SKIP_E2E=1`
+- Tests failing at the commit gate — **`990-tests-failure-confirmation.mdc`**
+- Push/deploy if they did not ask
+
+Superpowers “commit the spec now” **loses** to this rule and to **`29-spec-driven-development.mdc`** (spec-only drafts stay uncommitted until implementation is ready; then commit together).

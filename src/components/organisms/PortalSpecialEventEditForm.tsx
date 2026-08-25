@@ -92,7 +92,7 @@ export function PortalSpecialEventEditForm({
   };
 
   return (
-    <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <div className="@container grid gap-3 @sm:grid-cols-2">
         <PortalSpecialEventScopeFields
           dict={dict}

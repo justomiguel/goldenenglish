@@ -15,6 +15,9 @@ import { isEmailTemplatesMegaAdmin } from "@/lib/auth/emailTemplatesMegaAdmin";
 import { loadAdminRecentInboundMessageCount } from "@/lib/dashboard/loadAdminRecentInboundMessageCount";
 import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { formatProfileSnakeGivenFirst } from "@/lib/profile/formatProfileDisplayName";
+import { adminUserRoleOptionLabel } from "@/lib/dashboard/adminUserRoleOptionLabel";
+import { resolveAvatarDisplayUrl } from "@/lib/dashboard/resolveAvatarUrl";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -43,10 +46,19 @@ export default async function AdminSectionLayout({
 
   const { data: adminProfile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, first_name, last_name, avatar_url")
     .eq("id", user.id)
     .maybeSingle();
   const adminProfileRole = adminProfile?.role ?? "unknown";
+  const profileDisplayName = formatProfileSnakeGivenFirst(
+    {
+      first_name: adminProfile?.first_name,
+      last_name: adminProfile?.last_name,
+    },
+    "",
+  );
+  const profileRoleLabel = adminUserRoleOptionLabel(dict.admin.users, adminProfileRole);
+  const profileAvatarUrl = await resolveAvatarDisplayUrl(supabase, adminProfile?.avatar_url);
 
   const { allowed: teacherPortalAllowed } = await resolveTeacherPortalAccess(supabase, user.id);
 
@@ -83,6 +95,9 @@ export default async function AdminSectionLayout({
       includeEmailTemplatesNav={isEmailTemplatesMegaAdmin(user.email)}
       includeBlogNav={blogEnabled && !needsInitialSiteSetup}
       siteSetupRequired={needsInitialSiteSetup}
+      profileDisplayName={profileDisplayName}
+      profileRoleLabel={profileRoleLabel}
+      profileAvatarUrl={profileAvatarUrl}
     >
       <AdminInitialSiteSetupGate
         locale={locale}

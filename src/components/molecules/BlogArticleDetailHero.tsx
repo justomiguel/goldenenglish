@@ -84,7 +84,7 @@ export function BlogArticleDetailHero({
           </div>
         )}
 
-        <h1 className="mt-3 max-w-3xl text-balance text-2xl font-bold leading-tight tracking-tight text-[var(--color-secondary)] md:text-4xl lg:text-[2.75rem] lg:leading-[1.15]">
+        <h1 className="mt-3 max-w-3xl text-balance text-2xl font-bold leading-tight tracking-tight text-[var(--color-primary)] md:text-4xl lg:text-[2.75rem] lg:leading-[1.15]">
           {title}
         </h1>
       </div>

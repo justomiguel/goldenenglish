@@ -10,6 +10,7 @@ import { assignTemplateToSectionAction } from "@/app/[locale]/dashboard/teacher/
 import type { ContentTemplateLibraryRow } from "@/lib/learning-tasks/loadContentTemplateLibrary";
 import type { TeacherLearningTaskRow } from "@/types/learningTasks";
 import type { Dictionary } from "@/types/i18n";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface TeacherSectionLearningTasksProps {
   locale: string;
@@ -47,10 +48,14 @@ export function TeacherSectionLearningTasks({
 
   return (
     <div className="space-y-6">
+      <AdminPageHeader
+        title={labels.tasksTitle}
+        lead={labels.tasksLead}
+        iconId="academic"
+        artFamily="teachers"
+      />
       <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-card)]">
-        <h1 className="text-2xl font-semibold text-[var(--color-foreground)]">{labels.tasksTitle}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.tasksLead}</p>
-        <div className="mt-4 grid gap-3 md:grid-cols-4">
+        <div className="grid gap-3 md:grid-cols-4">
           <label className="block text-sm font-medium text-[var(--color-foreground)]">
             {labels.taskAssignTitle}
             <select

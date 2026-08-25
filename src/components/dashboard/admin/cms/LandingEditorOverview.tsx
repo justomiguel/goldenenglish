@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import type { LandingEditorOverviewItem } from "@/lib/cms/buildLandingEditorViewModel";
 import type { Dictionary } from "@/types/i18n";
 import type { SiteThemeRow } from "@/types/theming";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import { LandingTemplateKindPicker } from "./LandingTemplateKindPicker";
 
 type Labels = Dictionary["admin"]["cms"]["templates"]["landing"];
@@ -36,14 +37,11 @@ export function LandingEditorOverview({
         {labels.backToTemplates}
       </Link>
 
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold text-[var(--color-secondary)]">
-          {labels.overviewTitle.replace("{{name}}", theme.name)}
-        </h1>
-        <p className="max-w-2xl text-sm text-[var(--color-muted-foreground)]">
-          {labels.overviewLead}
-        </p>
-      </header>
+      <AdminPageHeader
+        title={labels.overviewTitle.replace("{{name}}", theme.name)}
+        lead={labels.overviewLead}
+        iconId="cms"
+      />
 
       <LandingTemplateKindPicker
         locale={locale}
@@ -82,7 +80,7 @@ export function LandingEditorOverview({
             <li key={item.section}>
               <Link
                 href={`/${locale}/dashboard/admin/cms/templates/${theme.id}/landing/${item.section}`}
-                className="flex h-full flex-col justify-between rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition-colors hover:border-[var(--color-primary)]"
+                className="flex h-full flex-col justify-between rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)] transition-colors hover:border-[var(--color-primary)]"
               >
                 <div className="space-y-2">
                   <h2 className="text-base font-semibold text-[var(--color-foreground)]">

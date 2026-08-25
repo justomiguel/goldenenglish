@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import { BlogArticleLocaleTabs } from "@/components/dashboard/admin/cms/blog/BlogArticleLocaleTabs";
 import { BlogArticleLocaleFields } from "@/components/dashboard/admin/cms/blog/BlogArticleLocaleFields";
 import { BlogArticleMetaForm } from "@/components/dashboard/admin/cms/blog/BlogArticleMetaForm";
@@ -21,6 +22,7 @@ import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 interface BlogArticleEditorProps {
   locale: string;
+  pageTitle: string;
   articleId?: string;
   canDelete?: boolean;
   labels: Dictionary["admin"]["cms"]["blog"]["editor"];
@@ -50,6 +52,7 @@ interface BlogArticleEditorProps {
 
 export function BlogArticleEditor({
   locale,
+  pageTitle,
   articleId,
   canDelete = false,
   labels,
@@ -134,7 +137,12 @@ export function BlogArticleEditor({
   });
 
   return (
-    <div className="grid gap-6" data-tour={ADMIN_TOUR_ANCHORS.blogEditorRoot}>
+    <div className="grid gap-6">
+      <AdminPageHeader
+        title={pageTitle}
+        iconId="blog"
+        tourAnchor={ADMIN_TOUR_ANCHORS.blogEditorRoot}
+      />
       <BlogArticleLocaleTabs
         value={editingLocale}
         onChange={switchEditingLocale}

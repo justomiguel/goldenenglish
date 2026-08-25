@@ -53,7 +53,7 @@ export function EnrollmentFeeReceiptQueueRow({
 
   if (done) {
     return (
-      <div className="flex items-center gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-muted-foreground)]">
+      <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3 text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
         {done === "approved" ? (
           <CheckCircle className="h-4 w-4 shrink-0 text-[var(--color-success)]" aria-hidden />
         ) : (
@@ -71,7 +71,7 @@ export function EnrollmentFeeReceiptQueueRow({
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3 shadow-[var(--shadow-soft)]">
       <div className="min-w-0 space-y-0.5">
         <p className="truncate font-medium text-[var(--color-foreground)]">{studentName}</p>
         <p className="truncate text-sm text-[var(--color-muted-foreground)]">
@@ -108,7 +108,8 @@ export function EnrollmentFeeReceiptQueueRow({
         ) : null}
         <Button
           size="sm"
-          variant="secondary"
+          variant="ghost"
+          className="border border-[var(--color-error)] text-[var(--color-error)]"
           onClick={() => handleDecision("rejected")}
           disabled={busy !== null}
           aria-label={dict.reject}

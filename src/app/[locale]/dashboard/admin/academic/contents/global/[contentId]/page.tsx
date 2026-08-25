@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminGlobalContentReadOnly } from "@/components/admin/AdminGlobalContentReadOnly";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 import { loadContentTemplateById } from "@/lib/learning-tasks/loadContentTemplateLibrary";
 import { createClient } from "@/lib/supabase/server";
 
@@ -33,8 +34,9 @@ export default async function ViewGlobalContentPage({ params }: PageProps) {
         <Link href={`/${locale}/dashboard/admin/academic/contents`} className="text-sm font-medium text-[var(--color-primary)]">
           {labels.backToRepository}
         </Link>
-        <h1 className="mt-3 text-2xl font-semibold text-[var(--color-foreground)]">{labels.globalViewTitle}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.globalViewLead}</p>
+        <div className="mt-3">
+          <AdminPageHeader title={labels.globalViewTitle} lead={labels.globalViewLead} iconId="contents" />
+        </div>
       </header>
       <AdminGlobalContentReadOnly locale={locale} content={content} labels={labels} />
     </main>

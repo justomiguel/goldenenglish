@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AdminGlobalContentBuilder } from "@/components/admin/AdminGlobalContentBuilder";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -27,8 +28,9 @@ export default async function NewGlobalContentPage({ params }: PageProps) {
         <Link href={`/${locale}/dashboard/admin/academic/contents`} className="text-sm font-medium text-[var(--color-primary)]">
           {labels.backToRepository}
         </Link>
-        <h1 className="mt-3 text-2xl font-semibold text-[var(--color-foreground)]">{labels.globalCreateTitle}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.globalFullPageLead}</p>
+        <div className="mt-3">
+          <AdminPageHeader title={labels.globalCreateTitle} lead={labels.globalFullPageLead} iconId="contents" />
+        </div>
       </header>
       <AdminGlobalContentBuilder locale={locale} labels={labels} editingContent={null} fileUploadProgress={dict.common.fileUpload} />
     </main>

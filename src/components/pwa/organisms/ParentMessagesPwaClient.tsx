@@ -11,6 +11,7 @@ import {
 } from "@/components/parent/ParentMessagesFeed";
 import type { Dictionary } from "@/types/i18n";
 import type { MessagingRecipient } from "@/types/messaging";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 export interface ParentMessagesPwaClientProps {
   locale: string;
@@ -43,10 +44,7 @@ export function ParentMessagesPwaClient({
 
   return (
     <div className="space-y-4 pb-6">
-      <header>
-        <h1 className="font-display text-xl font-bold text-[var(--color-secondary)]">{title}</h1>
-        <p className="mt-1 text-sm leading-snug text-[var(--color-muted-foreground)]">{lead}</p>
-      </header>
+      <AdminPageHeader title={title} lead={lead} iconId="messages" artFamily="parent" />
 
       <ParentMessagesFeed rows={initialLines} labels={labels} />
 

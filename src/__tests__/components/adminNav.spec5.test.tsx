@@ -30,6 +30,13 @@ vi.mock("next/image", () => ({
   default: ({ alt }: { alt?: string }) => <img alt={alt ?? ""} />,
 }));
 
+vi.mock("@/lib/dashboard/viewAsActions", () => ({
+  clearViewAsAction: vi.fn(async () => ({ href: "/en/dashboard/admin" })),
+  openOwnTeacherAction: vi.fn(async () => ({ href: "/en/dashboard/teacher" })),
+  searchViewAsPeopleAction: vi.fn(async () => ({ rows: [] })),
+  startViewAsAction: vi.fn(async () => ({ href: "/en/dashboard/student", started: true })),
+}));
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const BASE = "/es/dashboard/admin";
@@ -71,28 +78,16 @@ function allItemLabels(dict: typeof en["dashboard"]["adminNav"]): string[] {
   return groups.flatMap((g) => g.items.map((i) => i.label));
 }
 
-// Expected canonical set of hrefs (19 items, constant across refactoring).
-function canonicalHrefs(base: string, profileHref: string): Set<string> {
+function canonicalDailyHrefs(base: string): Set<string> {
   return new Set([
     base,
-    `${base}/users`,
+    `${base}/students`,
+    `${base}/teachers`,
     `${base}/registrations`,
-    `${base}/events`,
     `${base}/academic`,
-    `${base}/calendar`,
-    `${base}/academic/contents`,
-    `${base}/badges`,
     `${base}/finance`,
-    `${base}/coupons`,
-    `${base}/promotions`,
     `${base}/messages`,
-    `${base}/analytics`,
-    `${base}/audit`,
-    `${base}/cms`,
-    `${base}/site-setup`,
-    `${base}/settings`,
-    `${base}/glossary`,
-    profileHref,
+    `${base}/institute`,
   ]);
 }
 
@@ -142,12 +137,11 @@ describe("2 – No near-duplicate item labels (F07 invariant)", () => {
 
 // ─── Test 3: Every destination survives ──────────────────────────────────────
 
-describe("3 – Every destination survives regrouping", () => {
-  it("the set of hrefs is exactly the canonical 19 items", () => {
+describe("3 – Daily list is the eight operations destinations", () => {
+  it("the set of hrefs is exactly the daily eight", () => {
     const groups = buildAdminSidebarNavGroups(BASE, PROFILE, en.dashboard.adminNav as never, BADGES_ZERO);
     const actual = new Set(groups.flatMap((g) => g.items.map((i) => i.href)));
-    const expected = canonicalHrefs(BASE, PROFILE);
-    expect(actual).toEqual(expected);
+    expect(actual).toEqual(canonicalDailyHrefs(BASE));
   });
 });
 
@@ -211,7 +205,7 @@ describe("5 – Teacher card gone from sidebar; header link survives", () => {
     expect(teacherLinks).toHaveLength(0);
   });
 
-  it("AdminChromeHeader renders teacher portal link for desktop when teacherPortalAllowed", () => {
+  it("AdminChromeHeader renders the workspace role selector", () => {
     const brand = {
       name: "Test",
       tagline: "tagline",
@@ -228,33 +222,9 @@ describe("5 – Teacher card gone from sidebar; header link survives", () => {
         teacherPortalAllowed={true}
       />,
     );
-    const teacherLinks = screen.getAllByRole("link").filter(
-      (l) => l.getAttribute("href") === teacherHref,
-    );
-    expect(teacherLinks.length).toBeGreaterThanOrEqual(1);
-  });
-
-  it("AdminChromeHeader does not render teacher portal link when teacherPortalAllowed is false", () => {
-    const brand = {
-      name: "Test",
-      tagline: "tagline",
-      taglineEn: "tagline",
-      logoPath: "/logo.png",
-      logoAlt: "logo",
-    };
-    render(
-      <AdminChromeHeader
-        locale="en"
-        brand={brand as never}
-        dict={dictEn}
-        adminProfileRole="admin"
-        teacherPortalAllowed={false}
-      />,
-    );
-    const teacherLinks = screen.queryAllByRole("link").filter(
-      (l) => l.getAttribute("href") === teacherHref,
-    );
-    expect(teacherLinks).toHaveLength(0);
+    expect(
+      screen.getByRole("button", { name: dictEn.dashboard.viewAs.ariaSelector }),
+    ).toBeTruthy();
   });
 });
 
@@ -265,7 +235,7 @@ describe("6 – data-tour anchors survive", () => {
     const groups = buildAdminSidebarNavGroups(BASE, PROFILE, en.dashboard.adminNav as never, BADGES_ZERO);
     const usersItem = groups
       .flatMap((g) => g.items)
-      .find((i) => i.href === `${BASE}/users`);
+      .find((i) => i.href === `${BASE}/students`);
     expect(usersItem?.tourId).toBe("admin-nav-users");
   });
 
@@ -296,31 +266,6 @@ describe("6 – data-tour anchors survive", () => {
     );
     const el = container.querySelector('[data-tour="admin-chrome-teacher-portal"]');
     expect(el).not.toBeNull();
-  });
-
-  it("AdminChromeHeader keeps view-site and the language switcher", () => {
-    const brand = {
-      name: "Test",
-      tagline: "t",
-      taglineEn: "t",
-      logoPath: "/logo.png",
-      logoAlt: "logo",
-    };
-    render(
-      <AdminChromeHeader
-        locale="en"
-        brand={brand as never}
-        dict={dictEn}
-        adminProfileRole="admin"
-        teacherPortalAllowed={false}
-      />,
-    );
-    expect(
-      screen.getByRole("navigation", { name: dictEn.common.locale.label }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getAllByRole("link", { name: dictEn.dashboard.adminChrome.backToSite }).length,
-    ).toBeGreaterThanOrEqual(1);
   });
 });
 

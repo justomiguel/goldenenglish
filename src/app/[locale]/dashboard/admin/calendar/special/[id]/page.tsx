@@ -9,6 +9,7 @@ import { specialEventEditInitialFromRow } from "@/lib/calendar/specialEventEditI
 import { loadAdminSpecialEventScopeOptions } from "@/lib/calendar/loadAdminSpecialEventScopeOptions";
 import { PortalSpecialEventEditForm } from "@/components/organisms/PortalSpecialEventEditForm";
 import type { PortalSpecialCalendarEventRow } from "@/lib/calendar/portalSpecialCalendarEventRow";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface PageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -60,7 +61,7 @@ export default async function AdminSpecialCalendarEventEditPage({ params }: Page
       >
         {d.specialEdit.backToList}
       </Link>
-      <h1 className="font-display text-2xl font-bold text-[var(--color-secondary)]">{d.specialEdit.title}</h1>
+      <AdminPageHeader title={d.specialEdit.title} iconId="calendar" />
       <PortalSpecialEventEditForm
         locale={locale}
         eventId={id}

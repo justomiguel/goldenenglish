@@ -16,6 +16,7 @@ import {
 import { loadAdminSectionAttendanceMatrix } from "@/lib/academics/loadAdminSectionAttendanceMatrix";
 import { SectionAttendanceMatrix } from "@/components/organisms/SectionAttendanceMatrix";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface PageProps {
   params: Promise<{ locale: string; cohortId: string; sectionId: string }>;
@@ -85,14 +86,14 @@ export default async function AdminSectionAttendanceMatrixPage({ params }: PageP
         >
           {dAdmin.backSection}
         </Link>
-        <h1
-          className="mt-2 text-2xl font-semibold text-[var(--color-foreground)]"
-          data-tour={ADMIN_TOUR_ANCHORS.sectionAttendanceTitle}
-        >
-          {dAdmin.title}
-        </h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{sec.name as string}</p>
-        <p className="mt-2 max-w-3xl text-sm text-[var(--color-muted-foreground)]">{dAdmin.lead}</p>
+        <div className="mt-2">
+          <AdminPageHeader
+            title={dAdmin.title}
+            lead={`${sec.name as string}. ${dAdmin.lead}`}
+            iconId="academic"
+            tourAnchor={ADMIN_TOUR_ANCHORS.sectionAttendanceTitle}
+          />
+        </div>
       </div>
 
       <div data-tour={ADMIN_TOUR_ANCHORS.sectionAttendanceRoot} className="space-y-2">

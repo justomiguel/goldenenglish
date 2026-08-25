@@ -9,6 +9,7 @@ import { CreateCohortAssessmentForm } from "@/components/molecules/CreateCohortA
 import { CohortAssessmentRowActions } from "@/components/molecules/CohortAssessmentRowActions";
 import { AssessmentGradingPathStrip } from "@/components/molecules/AssessmentGradingPathStrip";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface PageProps {
   params: Promise<{ locale: string; sectionId: string }>;
@@ -72,9 +73,13 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
         >
           {d.backToSection}
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-[var(--color-foreground)]">{d.title}</h1>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{section.name as string}</p>
-        <p className="mt-2 max-w-prose text-sm text-[var(--color-muted-foreground)]">{d.lead}</p>
+        <div className="mt-2">
+          <AdminPageHeader
+            title={d.title}
+            lead={`${section.name as string}. ${d.lead}`}
+            iconId="academic"
+          />
+        </div>
       </div>
 
       <AssessmentGradingPathStrip currentStep={rows.length === 0 ? 1 : 2} labels={pathDict} countsText={null} />

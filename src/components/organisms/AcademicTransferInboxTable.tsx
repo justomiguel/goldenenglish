@@ -167,7 +167,7 @@ export function AcademicTransferInboxTable({
         </div>
       ) : null}
       {bulkMsg ? <p className="text-sm text-[var(--color-muted-foreground)]">{bulkMsg}</p> : null}
-      <div className="overflow-x-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)]">
+      <div className="overflow-x-hidden rounded-2xl border border-[var(--color-border)]">
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
             <AcademicTransferInboxTableHead

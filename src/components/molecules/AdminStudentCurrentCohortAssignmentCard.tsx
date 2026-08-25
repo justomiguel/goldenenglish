@@ -129,13 +129,13 @@ export function AdminStudentCurrentCohortAssignmentCard({
   };
 
   return (
-    <section className="rounded-[calc(var(--layout-border-radius)*1.35)] border border-[color-mix(in_srgb,var(--color-primary)_22%,var(--color-border))] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-card)]">
+    <section className="rounded-2xl border border-[color-mix(in_srgb,var(--color-primary)_22%,var(--color-border))] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-accent)]">
             {assignment.cohortName ?? labels.detailSectionAssignTitle}
           </p>
-          <h2 className="mt-1 font-display text-xl font-semibold text-[var(--color-secondary)]">
+          <h2 className="mt-1 font-display text-xl font-semibold text-[var(--color-primary)]">
             {labels.detailSectionAssignTitle}
           </h2>
         </div>

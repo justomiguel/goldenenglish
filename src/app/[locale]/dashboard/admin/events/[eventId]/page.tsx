@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { AdminEventDetailTabs, parseEventAdminTab } from "@/components/dashboard/admin/events/AdminEventDetailTabs";
 import { AdminEventDetailTabContent } from "@/components/dashboard/admin/events/AdminEventDetailTabContent";
 import { loadAdminEventDetailPageModel } from "@/lib/dashboard/events/loadAdminEventDetailPageModel";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminBackLink } from "@/components/dashboard/AdminBackLink";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -50,26 +50,15 @@ export default async function AdminEventDetailPage({ params, searchParams }: Pag
 
   return (
     <div className="space-y-4">
-      <Link
-        href={`/${locale}/dashboard/admin/events`}
-        className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-muted-foreground)] transition hover:text-[var(--color-foreground)]"
-      >
-        <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
+      <AdminBackLink href={`/${locale}/dashboard/admin/events`}>
         {detail.backToList}
-      </Link>
-      <header className="space-y-1">
-        <h1
-          className="text-2xl font-bold text-[var(--color-secondary)]"
-          data-tour={ADMIN_TOUR_ANCHORS.eventDetailTitle}
-        >
-          {detail.titlePrefix} {model.event.title}
-        </h1>
-        <p className="text-sm text-[var(--color-muted-foreground)]">
-          {detail.eventDate}: {new Date(String(model.event.event_date)).toLocaleString(locale)} ·{" "}
-          {detail.status}: <span className="capitalize">{String(model.event.status)}</span> ·{" "}
-          {detail.viewCount}: {Number(model.event.view_count ?? 0).toLocaleString(locale)}
-        </p>
-      </header>
+      </AdminBackLink>
+      <AdminPageHeader
+        title={`${detail.titlePrefix} ${model.event.title}`}
+        lead={`${detail.eventDate}: ${new Date(String(model.event.event_date)).toLocaleString(locale)} · ${detail.status}: ${String(model.event.status)} · ${detail.viewCount}: ${Number(model.event.view_count ?? 0).toLocaleString(locale)}`}
+        iconId="events"
+        tourAnchor={ADMIN_TOUR_ANCHORS.eventDetailTitle}
+      />
 
       <AdminEventDetailTabs
         current={tab}

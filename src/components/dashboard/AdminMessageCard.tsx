@@ -56,7 +56,7 @@ export function AdminMessageCard({
   return (
     <article
       className={[
-        "flex flex-col gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-3 transition-colors sm:flex-row sm:items-center sm:gap-3",
+        "flex flex-col gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-3 transition-colors sm:flex-row sm:items-center sm:gap-3",
         accent,
         "hover:border-[var(--color-border)] hover:bg-[var(--color-muted)]/20",
       ].join(" ")}
@@ -104,16 +104,16 @@ export function AdminMessageCard({
           </span>
           <p className="min-w-0 truncate text-sm text-[var(--color-muted-foreground)]">{row.toName}</p>
           {row.isUnread ? (
-            <span className="rounded border border-[var(--color-primary)]/50 bg-[var(--color-surface)] px-1.5 py-0.5 text-[0.65rem] font-semibold text-[var(--color-primary)]">
+            <span className="rounded-full bg-[color-mix(in_srgb,var(--color-primary)_10%,white)] px-2 py-0.5 text-[0.65rem] font-semibold text-[var(--color-primary)]">
               {labels.badgeUnread}
             </span>
           ) : null}
           {row.needsReply ? (
-            <span className="rounded border border-[var(--color-border)] bg-[var(--color-muted)]/40 px-1.5 py-0.5 text-[0.65rem] font-semibold text-[var(--color-foreground)]">
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[0.65rem] font-semibold text-amber-800">
               {labels.badgeNeedsReply}
             </span>
           ) : null}
-          <span className="rounded bg-[var(--color-muted)]/60 px-1.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
+          <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-0.5 text-[0.65rem] font-semibold capitalize text-sky-800">
             {row.fromRole}
           </span>
           <time
@@ -146,7 +146,7 @@ export function AdminMessageCard({
         ) : null}
         <Link
           href={replyHref}
-          className="inline-flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-muted)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+          className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
           title={labels.replyToMessageTitle}
           aria-label={labels.replyToMessage}
         >
@@ -155,7 +155,7 @@ export function AdminMessageCard({
         </Link>
         <Link
           href={replyWithDefaultHref}
-          className="inline-flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-muted)]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+          className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl px-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
           title={labels.replyWithDefaultMessageTitle}
           aria-label={labels.replyWithDefaultMessage}
         >

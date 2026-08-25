@@ -53,8 +53,8 @@ export function EmailTemplateEditor({
       />
 
       {definition.placeholders.length > 0 ? (
-        <details className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-xs">
-          <summary className="cursor-pointer font-semibold text-[var(--color-secondary)]">
+        <details className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3 text-xs shadow-[var(--shadow-soft)]">
+          <summary className="cursor-pointer font-semibold text-[var(--color-primary)]">
             {labels.placeholdersTitle} ({definition.placeholders.length})
           </summary>
           <ul className="mt-2 space-y-1">

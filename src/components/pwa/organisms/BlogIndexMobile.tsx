@@ -13,7 +13,7 @@ interface BlogIndexMobileProps {
 export function BlogIndexMobile({ locale, rows, labels }: BlogIndexMobileProps) {
   return (
     <section className="space-y-3 px-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
-      <h1 className="text-2xl font-bold text-[var(--color-secondary)]">{labels.title}</h1>
+      <h1 className="text-2xl font-bold text-[var(--color-primary)]">{labels.title}</h1>
       {rows.length === 0 ? (
         <p className="text-sm text-[var(--color-muted-foreground)]">{labels.empty}</p>
       ) : null}

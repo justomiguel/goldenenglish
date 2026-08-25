@@ -33,7 +33,7 @@ export function SectionCollectionsCellActionBar({
   const isRevert = selectionMode === "revert";
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 px-3 py-2">
+    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 shadow-[var(--shadow-soft)]">
       <span className="text-sm font-medium text-[var(--color-foreground)]">
         {dict.cellActions.selectedCount
           .replace("{cells}", String(cellCount))
@@ -56,7 +56,7 @@ export function SectionCollectionsCellActionBar({
           <Button
             type="button"
             size="sm"
-            variant="secondary"
+            variant="ghost"
             isLoading={busy}
             onClick={() => onAction("revert")}
           >
@@ -78,7 +78,7 @@ export function SectionCollectionsCellActionBar({
             <Button
               type="button"
               size="sm"
-              variant="secondary"
+              variant="ghost"
               isLoading={busy}
               onClick={() => onAction("scholarship")}
             >

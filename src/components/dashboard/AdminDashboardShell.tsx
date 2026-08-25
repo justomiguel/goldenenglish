@@ -1,10 +1,11 @@
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { AdminChromeHeader } from "@/components/dashboard/AdminChromeHeader";
 import { AdminSidebar } from "@/components/dashboard/AdminSidebar";
 import { AdminMobileDrawer } from "@/components/dashboard/AdminMobileDrawer";
-import { AdminBreadcrumb } from "@/components/dashboard/AdminBreadcrumb";
+import { AdminInstituteTrail } from "@/components/dashboard/AdminInstituteTrail";
+import { ViewAsEndedNotice } from "@/components/dashboard/ViewAsEndedNotice";
 
 interface AdminDashboardShellProps {
   locale: string;
@@ -20,6 +21,9 @@ interface AdminDashboardShellProps {
   includeBlogNav?: boolean;
   /** When true, sidebar/breadcrumb hidden (initial site setup wizard). */
   siteSetupRequired?: boolean;
+  profileDisplayName?: string;
+  profileRoleLabel?: string;
+  profileAvatarUrl?: string | null;
   children: ReactNode;
 }
 
@@ -34,46 +38,64 @@ export function AdminDashboardShell({
   includeEmailTemplatesNav = false,
   includeBlogNav = false,
   siteSetupRequired = false,
+  profileDisplayName = "",
+  profileRoleLabel = "",
+  profileAvatarUrl = null,
   children,
 }: AdminDashboardShellProps) {
   const navDict = dict.dashboard.adminNav;
 
   return (
-    <div className="flex min-h-screen flex-col overflow-x-hidden bg-[var(--color-muted)]">
-      <AdminChromeHeader
-        locale={locale}
-        brand={brand}
-        dict={dict}
-        adminProfileRole={adminProfileRole}
-        teacherPortalAllowed={siteSetupRequired ? false : teacherPortalAllowed}
-        mobileNav={
-          siteSetupRequired ? undefined : (
-            <AdminMobileDrawer
-              locale={locale}
-              dict={dict}
-              newRegistrationsCount={newRegistrationsCount}
-              recentInboundMessagesCount={recentInboundMessagesCount}
-              includeEmailTemplatesNav={includeEmailTemplatesNav}
-              includeBlogNav={includeBlogNav}
-            />
-          )
-        }
-      />
-      <div className="mx-auto flex w-full max-w-[var(--layout-max-width)] flex-1 gap-0 md:gap-8 md:px-2 md:pb-8 md:pt-2">
-        {siteSetupRequired ? null : (
-          <AdminSidebar
-            locale={locale}
-            dict={navDict}
-            newRegistrationsCount={newRegistrationsCount}
-            recentInboundMessagesCount={recentInboundMessagesCount}
-            includeEmailTemplatesNav={includeEmailTemplatesNav}
-            includeBlogNav={includeBlogNav}
-          />
-        )}
-        <div className="min-w-0 flex-1 px-4 py-6 md:rounded-[var(--layout-border-radius)] md:border md:border-[var(--color-border)] md:bg-[var(--color-background)] md:px-8 md:py-8 md:shadow-sm">
+    <div className="flex h-dvh max-h-dvh overflow-hidden bg-[var(--color-muted)]">
+      {siteSetupRequired ? null : (
+        <AdminSidebar
+          locale={locale}
+          dict={navDict}
+          fullDict={dict}
+          brand={brand}
+          newRegistrationsCount={newRegistrationsCount}
+          recentInboundMessagesCount={recentInboundMessagesCount}
+          includeEmailTemplatesNav={includeEmailTemplatesNav}
+          includeBlogNav={includeBlogNav}
+          profileDisplayName={profileDisplayName}
+          profileRoleLabel={profileRoleLabel}
+          profileAvatarUrl={profileAvatarUrl}
+        />
+      )}
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <AdminChromeHeader
+          locale={locale}
+          brand={brand}
+          dict={dict}
+          adminProfileRole={adminProfileRole}
+          teacherPortalAllowed={siteSetupRequired ? false : teacherPortalAllowed}
+          compactBrand
+          newRegistrationsCount={newRegistrationsCount}
+          recentInboundMessagesCount={recentInboundMessagesCount}
+          mobileNav={
+            siteSetupRequired ? undefined : (
+              <AdminMobileDrawer
+                locale={locale}
+                dict={dict}
+                brand={brand}
+                newRegistrationsCount={newRegistrationsCount}
+                recentInboundMessagesCount={recentInboundMessagesCount}
+                includeEmailTemplatesNav={includeEmailTemplatesNav}
+                includeBlogNav={includeBlogNav}
+                profileDisplayName={profileDisplayName}
+                profileRoleLabel={profileRoleLabel}
+                profileAvatarUrl={profileAvatarUrl}
+              />
+            )
+          }
+        />
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto px-4 py-5 md:px-8 md:py-5">
           {siteSetupRequired ? null : (
-            <AdminBreadcrumb locale={locale} dict={navDict} />
+            <AdminInstituteTrail locale={locale} dict={navDict} />
           )}
+          <Suspense fallback={null}>
+            <ViewAsEndedNotice dict={dict} />
+          </Suspense>
           {children}
         </div>
       </div>

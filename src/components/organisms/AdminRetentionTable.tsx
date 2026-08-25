@@ -119,7 +119,7 @@ export function AdminRetentionTable({
           {mailStatus.text}
         </p>
       ) : null}
-      <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)]">
+      <div className="overflow-x-auto rounded-2xl border border-[var(--color-border)]">
         <table className="min-w-full text-left text-sm">
         <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40 text-xs uppercase text-[var(--color-muted-foreground)]">
           <tr>

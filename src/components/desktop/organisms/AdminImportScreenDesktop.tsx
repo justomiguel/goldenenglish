@@ -1,5 +1,6 @@
 import type { Dictionary } from "@/types/i18n";
 import { ImportUsers } from "@/components/organisms/ImportUsers";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface AdminImportScreenDesktopProps {
   locale: string;
@@ -22,10 +23,11 @@ export function AdminImportScreenDesktop({
   return (
     <main className="min-h-screen bg-[var(--color-muted)] px-4 py-10">
       <div className="mx-auto max-w-[var(--layout-max-width)] py-6">
-        <h1 className="mb-6 text-2xl font-bold text-[var(--color-secondary)]">
-          {dict.admin.users.spreadsheet.importTitle}
-        </h1>
-        {form}
+        <AdminPageHeader
+          title={dict.admin.users.spreadsheet.importTitle}
+          iconId="students"
+        />
+        <div className="mt-6">{form}</div>
       </div>
     </main>
   );

@@ -13,6 +13,9 @@ import { loadAdminPortalMessageRecipients } from "@/lib/dashboard/loadAdminPorta
 import { loadMessagingDefaultReplyTemplate } from "@/lib/messaging/loadMessagingDefaultReplyTemplate";
 import { MESSAGING_DEFAULT_REPLY_FACTORY_TEMPLATES } from "@/lib/messaging/messagingDefaultReplyConstants";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
+import { AdminMessagesFolderCounts } from "@/components/dashboard/AdminMessagesFolderCounts";
+import { summarizeAdminPortalMailboxCounts } from "@/lib/messaging/adminPortalMessageSource";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -66,23 +69,32 @@ export default async function AdminMessagesPage({ params, searchParams }: PagePr
 
   const filtersActive = Boolean(participantId || contactFormOnly);
   const emptyListLabel = filtersActive ? dict.admin.messages.emptyFiltered : undefined;
+  const inboxCounts = summarizeAdminPortalMailboxCounts(inboxRows);
 
   return (
     <div>
-      <header className="flex flex-col gap-4" data-tour={ADMIN_TOUR_ANCHORS.messagesTitle}>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <h1 className="min-w-0 text-2xl font-bold text-[var(--color-secondary)]">
-            {dict.admin.messages.title}
-          </h1>
+      <AdminPageHeader
+        title={dict.dashboard.adminNav.messages}
+        lead={dict.dashboard.adminNav.tipMessages}
+        iconId="messages"
+        tourAnchor={ADMIN_TOUR_ANCHORS.messagesTitle}
+        actions={
           <AdminMessagesHeaderActions
             locale={locale}
             composeHref={composeHref}
             initialTemplates={defaultReply.templates}
             labels={dict.admin.messages}
           />
-        </div>
-        <p className="w-full max-w-none text-[var(--color-muted-foreground)]">{dict.admin.messages.lead}</p>
-      </header>
+        }
+      />
+
+      <AdminMessagesFolderCounts
+        locale={locale}
+        labels={dict.admin.messages}
+        shareOfTotal={dict.admin.home.peopleStats.shareOfTotal}
+        inbox={inboxCounts}
+        sentTotal={sentRows.length}
+      />
 
       <AdminPortalMessagesFilters
         key={`${participantId ?? "none"}-${contactFormOnly ? "1" : "0"}`}

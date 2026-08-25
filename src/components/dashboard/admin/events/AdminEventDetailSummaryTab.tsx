@@ -46,7 +46,7 @@ export function AdminEventDetailSummaryTab({
           publishedHint: detail.publishedHint,
         }}
       />
-      <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+      <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
         <h3 className="mb-3 text-sm font-semibold text-[var(--color-foreground)]">{schedule.sectionTitle}</h3>
         <AdminEventSummaryScheduleForm
           locale={locale}
@@ -76,7 +76,7 @@ export function AdminEventDetailSummaryTab({
           }}
         />
       </section>
-      <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+      <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
         <h3 className="mb-3 text-sm font-semibold text-[var(--color-foreground)]">{pricing.sectionTitle}</h3>
         <AdminEventSummaryPricingForm
           locale={locale}

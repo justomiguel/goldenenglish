@@ -204,7 +204,7 @@ export function SiteThemeTemplatesShell({
       />
 
       {visibleRows.length === 0 ? (
-        <p className="rounded-[var(--layout-border-radius)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-8 text-center text-sm text-[var(--color-muted-foreground)]">
+        <p className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-background)] px-4 py-8 text-center text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
           {labels.emptyState}
         </p>
       ) : null}

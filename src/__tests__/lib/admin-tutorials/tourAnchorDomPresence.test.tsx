@@ -39,6 +39,13 @@ vi.mock("next/image", () => ({
   default: (props: { alt?: string }) => <img alt={props.alt ?? ""} />,
 }));
 
+vi.mock("@/lib/dashboard/viewAsActions", () => ({
+  clearViewAsAction: vi.fn(async () => ({ href: "/en/dashboard/admin" })),
+  openOwnTeacherAction: vi.fn(async () => ({ href: "/en/dashboard/teacher" })),
+  searchViewAsPeopleAction: vi.fn(async () => ({ rows: [] })),
+  startViewAsAction: vi.fn(async () => ({ href: "/en/dashboard/student", started: true })),
+}));
+
 vi.mock("@/app/[locale]/dashboard/admin/academics/actions", () => ({
   createAcademicCohortAction: vi.fn(),
 }));
@@ -166,6 +173,7 @@ const brand: BrandPublic = {
 
 const summary: AdminHubSummary = {
   traffic: { totalHits: 1, authenticatedHits: 1, guestHits: 0 },
+  trafficDaily: [],
   trafficWeekOverWeek: { thisWeek: 1, lastWeek: 1 },
   users: { total: 1, byRole: [{ role: "student", count: 1 }] },
   payments: { pendingCount: 0 },
@@ -249,8 +257,13 @@ describe("tourAnchorDomPresence (L2 isolated)", () => {
         <AdminSidebar
           locale="en"
           dict={dictEn.dashboard.adminNav}
+          fullDict={dictEn}
+          brand={brand}
           newRegistrationsCount={0}
           recentInboundMessagesCount={0}
+          profileDisplayName="Test"
+          profileRoleLabel="Admin"
+          profileAvatarUrl={null}
         />
         <AdminChromeHeader
           locale="en"
@@ -277,8 +290,13 @@ describe("tourAnchorDomPresence (L2 isolated)", () => {
         <AdminSidebar
           locale="en"
           dict={dictEn.dashboard.adminNav}
+          fullDict={dictEn}
+          brand={brand}
           newRegistrationsCount={0}
           recentInboundMessagesCount={0}
+          profileDisplayName="Test"
+          profileRoleLabel="Admin"
+          profileAvatarUrl={null}
         />
         <AcademicHubToolbar locale="en" dict={academicDict} />
       </>,
@@ -332,8 +350,13 @@ describe("tourAnchorDomPresence (L2 isolated)", () => {
         <AdminSidebar
           locale="en"
           dict={dictEn.dashboard.adminNav}
+          fullDict={dictEn}
+          brand={brand}
           newRegistrationsCount={0}
           recentInboundMessagesCount={0}
+          profileDisplayName="Test"
+          profileRoleLabel="Admin"
+          profileAvatarUrl={null}
         />
         <AdminSectionSubnav
           ariaLabel={dictEn.admin.usersNav.aria}
@@ -579,6 +602,7 @@ describe("tourAnchorDomPresence (L2 isolated)", () => {
 
   const blogEditorFixture = {
     locale: "en",
+    pageTitle: dictEn.admin.cms.blog.list.create,
     labels: dictEn.admin.cms.blog.editor,
     academicLabels: dictEn.dashboard.adminContents,
     fileUploadProgress: dictEn.common.fileUpload,

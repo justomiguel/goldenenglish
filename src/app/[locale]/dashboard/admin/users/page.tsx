@@ -10,6 +10,9 @@ import {
 import { loadAdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
 import type { SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
+import { AdminPeopleStatsRow } from "@/components/dashboard/AdminPeopleStatsRow";
+import { loadAdminPeoplePageStats } from "@/lib/dashboard/loadAdminPeoplePageStats";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -59,22 +62,31 @@ export default async function AdminUsersListPage({
   const currentUserId = user?.id ?? "";
 
   const admin = createAdminClient();
-  const [result, roleCounts] = await Promise.all([
+  const [result, roleCounts, peopleStats] = await Promise.all([
     loadPaginatedAdminUsers(admin, dict.common.emptyValue, paginationParams),
     loadAdminUsersListRoleCounts(admin),
+    loadAdminPeoplePageStats(admin, "all"),
   ]);
 
   return (
     <div>
-      <h1
-        className="text-2xl font-bold text-[var(--color-secondary)]"
-        data-tour={ADMIN_TOUR_ANCHORS.usersTitle}
-      >
-        {dict.admin.users.listTitle}
-      </h1>
-      <p className="mt-2 max-w-2xl text-sm text-[var(--color-muted-foreground)]">
-        {dict.admin.users.listLead}
-      </p>
+      <AdminPageHeader
+        title={dict.admin.users.listTitle}
+        lead={dict.admin.users.listLead}
+        iconId="allAccounts"
+        tourAnchor={ADMIN_TOUR_ANCHORS.usersTitle}
+      />
+      <AdminPeopleStatsRow
+        locale={locale}
+        labels={dict.admin.home.peopleStats}
+        totalLabel={dict.admin.home.peopleStats.totalAccounts}
+        roleLabel={dict.admin.users.listTitle}
+        iconId="allAccounts"
+        total={peopleStats.total}
+        allAccounts={peopleStats.allAccounts}
+        withPhone={peopleStats.withPhone}
+        newLast30Days={peopleStats.newLast30Days}
+      />
       <div className="mt-6">
         <AdminUsersScreen
           rows={result.rows}

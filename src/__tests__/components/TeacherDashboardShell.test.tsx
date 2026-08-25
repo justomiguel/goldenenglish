@@ -38,7 +38,7 @@ describe("TeacherDashboardShell", () => {
       </TeacherDashboardShell>,
     );
     expect(
-      screen.getAllByRole("link", { name: dictEn.dashboard.teacherChrome.openAdminDashboardAria }).length,
-    ).toBeGreaterThanOrEqual(1);
+      screen.getByRole("button", { name: dictEn.dashboard.viewAs.ariaSelector }),
+    ).toBeInTheDocument();
   });
 });

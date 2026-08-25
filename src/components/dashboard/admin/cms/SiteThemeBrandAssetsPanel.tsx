@@ -73,9 +73,9 @@ export function SiteThemeBrandAssetsPanel({
   }
 
   return (
-    <section className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-soft)]">
+    <section className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <div>
-        <h2 className="text-lg font-semibold text-[var(--color-secondary)]">
+        <h2 className="text-lg font-semibold text-[var(--color-primary)]">
           {labels.title}
         </h2>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">

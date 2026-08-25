@@ -81,8 +81,8 @@ export function AdminPortalMessagesFilters({
     <div className="mt-6">
       <Button
         type="button"
-        variant="secondary"
-        className="min-h-[44px] gap-2"
+        variant="ghost"
+        className="min-h-[44px] gap-2 rounded-xl border border-[var(--color-border)] px-4"
         aria-expanded={filtersOpen}
         aria-controls={panelId}
         title={filtersOpen ? labels.filterToggleCollapseTitle : labels.filterToggleExpandTitle}
@@ -109,7 +109,7 @@ export function AdminPortalMessagesFilters({
         hidden={!filtersOpen}
         aria-label={labels.filterSectionAria}
         aria-busy={isPending}
-        className="mt-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 p-4 md:p-5"
+        className="mt-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)] md:p-5"
       >
         <div className="grid gap-4 md:grid-cols-2 md:items-end md:gap-6">
           <div className="min-w-0 space-y-2">
@@ -171,8 +171,8 @@ export function AdminPortalMessagesFilters({
           <div className="mt-4 flex justify-end">
             <Button
               type="button"
-              variant="secondary"
-              className="min-h-[44px]"
+              variant="ghost"
+              className="min-h-[44px] rounded-xl border border-[var(--color-border)]"
               disabled={isPending}
               title={labels.filterClearTitle}
               onClick={clearFilters}

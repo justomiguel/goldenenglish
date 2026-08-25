@@ -23,9 +23,9 @@ Writing or updating files under `docs/superpowers/specs/` is part of Gate 0 and 
 
 ## Commit policy — specs with implementation
 
-- **Do not** commit specs (or plans) alone ahead of the feature.
-- Keep `docs/superpowers/specs/**` and `docs/superpowers/plans/**` **uncommitted** until the implementation is ready to commit.
-- When the user asks to commit, include **spec + plan + implementation** (and related tests/migrations) in the **same** commit (or the same final commit batch the user requested).
+- **Do not** commit specs (or plans) alone while waiting for approval (they stay drafts on disk).
+- When implementation is **done**, commit **spec + plan + implementation** (and tests/migrations) in the **same** commit. Do not wait for “commiteá” and do not leave that work staged.
+- If the working tree has **other** WIP, ask before touching it — **`37-commit-finished-work-ask-when-mixed.mdc`**. Never stash to “unmix” a commit.
 - Exception: docs-only chores the user explicitly asks to commit without product code (e.g. fixing a typo in an already-shipped spec).
 
 ```text

@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Download } from "lucide-react";
+import { Download, Search } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
-import { Input } from "@/components/atoms/Input";
-import { Label } from "@/components/atoms/Label";
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import { exportRegistrationsAction } from "@/app/[locale]/dashboard/admin/registrations/exportRegistrationsAction";
 import { downloadBase64 } from "@/lib/download/downloadBase64";
@@ -76,21 +74,27 @@ export function RegistrationListToolbar({
   }
 
   return (
-    <div data-tour={ADMIN_TOUR_ANCHORS.registrationsToolbar}>
-      <form onSubmit={onSubmitFilter} className="space-y-1">
-        <Label htmlFor="registrations-filter">{labels.filterLabel}</Label>
-        <Input
+    <div data-tour={ADMIN_TOUR_ANCHORS.registrationsToolbar} className="space-y-4">
+      <form onSubmit={onSubmitFilter} className="relative min-w-0">
+        <label htmlFor="registrations-filter" className="sr-only">
+          {labels.filterLabel}
+        </label>
+        <Search
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-foreground)]"
+          aria-hidden
+        />
+        <input
           id="registrations-filter"
           value={localValue}
           onChange={(e) => setLocalValue(e.target.value)}
           placeholder={labels.filterPlaceholder}
           title={labels.filterTooltip}
-          className="w-full max-w-xl"
           autoComplete="off"
+          className="min-h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] py-2 pl-10 pr-3 text-sm outline-none ring-[var(--color-primary)] placeholder:text-[var(--color-muted-foreground)] focus-visible:ring-2"
         />
       </form>
       {statusCounts && onStatusFilterChange ? (
-        <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label={labels.status}>
+        <div className="flex flex-wrap gap-2" role="group" aria-label={labels.status}>
           {(
             [
               { value: undefined, label: labels.statusFilterAll, count: statusCounts.total },
@@ -115,8 +119,8 @@ export function RegistrationListToolbar({
                 onClick={() => onStatusFilterChange(chip.value)}
                 className={`rounded-full border px-3 py-1 text-sm ${
                   active
-                    ? "border-[var(--color-secondary)] bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)]"
-                    : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+                    ? "border-[var(--color-primary)]/25 bg-[color-mix(in_srgb,var(--color-primary)_8%,white)] font-semibold text-[var(--color-primary)]"
+                    : "border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
                 }`}
               >
                 {tpl(chip.label, chip.count)}
@@ -125,20 +129,22 @@ export function RegistrationListToolbar({
           })}
         </div>
       ) : null}
-      <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-[var(--color-muted-foreground)]">
-        <span>{tpl(labels.countTotal, totalCount)}</span>
-        <span>{tpl(labels.countAfterFilter, filteredCount)}</span>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <p className="text-sm text-[var(--color-muted-foreground)]">
+          {tpl(labels.countTotal, totalCount)}
+          <span aria-hidden> • </span>
+          {tpl(labels.countAfterFilter, filteredCount)}
+        </p>
         {locale ? (
           <Button
             type="button"
-            variant="ghost"
-            size="sm"
+            variant="primary"
             title={labels.exportTip}
             disabled={exporting}
-            className="border border-[var(--color-border)] bg-[var(--color-surface)]"
+            className="rounded-xl"
             onClick={onExport}
           >
-            <Download className="mr-1 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+            <Download className="h-4 w-4 shrink-0" aria-hidden />
             {labels.exportButton}
           </Button>
         ) : null}
