@@ -13,6 +13,11 @@ describe("e2e seed-admin fixture events", () => {
     expect(sql).toContain("E2E Section B");
   });
 
+  it("clears leftover scholarships so a 25% assign is visible after reseed", () => {
+    expect(sql).toMatch(/DELETE FROM public\.section_enrollment_scholarships/);
+    expect(sql).toMatch(/v_student_b/);
+  });
+
   it("clears leftover attendees on fixture events so paid capacity stays open", () => {
     expect(sql).toMatch(/DELETE FROM public\.event_attendees/);
     expect(sql).toMatch(/e2e-paid-event/);

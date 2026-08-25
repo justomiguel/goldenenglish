@@ -41,7 +41,9 @@ export async function loadCurrentCohortSections(
 
   const { data: sections } = await supabase
     .from("academic_sections")
-    .select("id, name, max_students, profiles(first_name, last_name)")
+    .select(
+      "id, name, max_students, profiles!academic_sections_teacher_id_fkey(first_name, last_name)",
+    )
     .eq("cohort_id", cohort.id)
     .is("archived_at", null)
     .order("name", { ascending: true });

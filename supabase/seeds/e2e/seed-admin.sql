@@ -317,6 +317,15 @@ BEGIN
   ON CONFLICT (tutor_id, student_id) DO UPDATE
   SET financial_access_revoked_at = NULL;
 
+  -- Prior suite runs leave stacked scholarships; percents sum and cap at 100%,
+  -- which hides a fresh 25% assignment on the billing matrix.
+  DELETE FROM public.section_enrollment_scholarships
+  WHERE student_id IN (v_student, v_student_b)
+     OR section_id = v_section;
+  DELETE FROM public.section_enrollment_annual_settlements
+  WHERE student_id IN (v_student, v_student_b)
+     OR section_id = v_section;
+
   -- Fee plan so student monthly grid shows a payable "due" cell.
   IF NOT EXISTS (
     SELECT 1 FROM public.section_fee_plans

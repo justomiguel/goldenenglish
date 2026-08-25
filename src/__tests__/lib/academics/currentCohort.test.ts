@@ -1,8 +1,15 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, it, expect, vi } from "vitest";
 import {
   loadCurrentCohort,
   loadCurrentCohortSections,
 } from "@/lib/academics/currentCohort";
+
+const currentCohortSource = readFileSync(
+  resolve(process.cwd(), "src/lib/academics/currentCohort.ts"),
+  "utf-8",
+);
 
 function mockSupabase(data: unknown, error: unknown = null) {
   const terminal = { maybeSingle: vi.fn().mockResolvedValue({ data, error }) };
@@ -145,5 +152,15 @@ describe("loadCurrentCohortSections", () => {
     expect(r[1]).toMatchObject({ id: "s2", teacherName: "Hopper Grace", activeCount: 1 });
     expect(r[1].maxStudents).toBeGreaterThan(0);
     expect(r[2]).toMatchObject({ id: "s3", teacherName: "—", activeCount: 0, maxStudents: 8 });
+  });
+
+  it("disambiguates the teacher profile embed (assistants also join profiles)", () => {
+    // Bare profiles(...) is PGRST201 once academic_section_assistants exists.
+    expect(currentCohortSource).toContain(
+      "profiles!academic_sections_teacher_id_fkey(first_name, last_name)",
+    );
+    expect(currentCohortSource).not.toMatch(
+      /select\([^)]*profiles\(first_name/,
+    );
   });
 });
