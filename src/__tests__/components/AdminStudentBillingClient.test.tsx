@@ -84,7 +84,59 @@ function renderBillingClient(
   );
 }
 
+const billedSectionWithScholarship = (
+  discountPercent: number,
+): AdminStudentBillingTabData["sectionBenefits"][number] => ({
+  ...billing.sectionBenefits[1]!,
+  sectionId: "00000000-0000-4000-8000-000000000002",
+  sectionName: "Section B",
+  sectionMonthlyFeeAmount: 120,
+  sectionMonthlyFeeCurrency: "USD",
+  enrollmentCreatedAt: "2026-01-01T00:00:00Z",
+  feePlans: [
+    {
+      id: "plan-b",
+      sectionId: "00000000-0000-4000-8000-000000000002",
+      effectiveFromYear: 2026,
+      effectiveFromMonth: 1,
+      monthlyFee: 120,
+      currency: "USD",
+      archivedAt: null,
+    },
+  ],
+  scholarships: [
+    {
+      id: "00000000-0000-4000-8000-000000000010",
+      discount_percent: discountPercent,
+      note: null,
+      valid_from_year: 2026,
+      valid_from_month: 1,
+      valid_until_year: 2026,
+      valid_until_month: 12,
+      is_active: true,
+    },
+  ],
+});
+
 describe("AdminStudentBillingClient", () => {
+  it("strikes the list monthly fee and shows the scholarship average", () => {
+    renderBillingClient({
+      sectionBenefits: [billedSectionWithScholarship(50)],
+    });
+
+    expect(screen.getByRole("deletion")).toHaveTextContent("$120");
+    expect(screen.getByText("$60")).toBeInTheDocument();
+  });
+
+  it("shows a $0 monthly fee when every billable month is a 100% scholarship", () => {
+    renderBillingClient({
+      sectionBenefits: [billedSectionWithScholarship(100)],
+    });
+
+    expect(screen.getByRole("deletion")).toHaveTextContent("$120");
+    expect(screen.getByText("$0")).toBeInTheDocument();
+  });
+
   it("renders the section selector, monthly matrix and tabs without redundant toolbar buttons", () => {
     renderBillingClient();
 

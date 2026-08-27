@@ -10,6 +10,7 @@ import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { AdminStudentBillingTabsPanel } from "@/components/dashboard/AdminStudentBillingTabsPanel";
 import type { AdminBillingMonthState } from "@/lib/billing/buildAdminBillingMonthGrid";
 import { computeAdminStudentBillingMonthMatrix } from "@/lib/billing/computeAdminStudentBillingMonthMatrix";
+import { discountedAverageMonthlyFeeFromCells } from "@/lib/billing/discountedAverageMonthlyFeeFromCells";
 import { enrollmentFeeMatrixVisualFromAdminBillingBenefit } from "@/lib/billing/enrollmentFeeMatrixVisual";
 import type {
   AdminBillingPaymentRow,
@@ -142,6 +143,7 @@ export function AdminStudentBillingClient({
                   }
                   monthlyAmount={selectedBenefit.sectionMonthlyFeeAmount}
                   monthlyCurrency={selectedBenefit.sectionMonthlyFeeCurrency}
+                  effectiveMonthlyAmount={discountedAverageMonthlyFeeFromCells(collectionCells)}
                   labels={{
                     enrollmentLabel: labels.billingFeeSummaryEnrollmentLabel,
                     monthlyLabel: labels.billingFeeSummaryMonthlyLabel,

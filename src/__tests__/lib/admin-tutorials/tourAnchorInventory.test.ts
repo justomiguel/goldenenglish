@@ -31,20 +31,29 @@ function readUiHaystack(): string {
 }
 
 describe("tourAnchorInventory", () => {
-  it("every ADMIN_TOUR_ANCHORS value appears in UI (literal or ADMIN_TOUR_ANCHORS.key)", () => {
-    const haystack = readUiHaystack();
-    const declared = Object.values(ADMIN_TOUR_ANCHORS);
-    const keyByValue = new Map(
-      (Object.entries(ADMIN_TOUR_ANCHORS) as [string, string][]).map(([k, v]) => [v, k]),
-    );
-    const missing = findMissingDeclaredAnchors(declared, haystack, keyByValue);
-    expect(missing, `Missing UI literals for: ${missing.join(", ")}`).toEqual([]);
-  });
+  // Full src/components + src/app scan; 15s flakes under coverage/precommit load.
+  it(
+    "every ADMIN_TOUR_ANCHORS value appears in UI (literal or ADMIN_TOUR_ANCHORS.key)",
+    () => {
+      const haystack = readUiHaystack();
+      const declared = Object.values(ADMIN_TOUR_ANCHORS);
+      const keyByValue = new Map(
+        (Object.entries(ADMIN_TOUR_ANCHORS) as [string, string][]).map(([k, v]) => [v, k]),
+      );
+      const missing = findMissingDeclaredAnchors(declared, haystack, keyByValue);
+      expect(missing, `Missing UI literals for: ${missing.join(", ")}`).toEqual([]);
+    },
+    60_000,
+  );
 
-  it("rejects orphan data-tour / tourAnchor / tourId literals not in ADMIN_TOUR_ANCHORS", () => {
-    const haystack = readUiHaystack();
-    const declared = new Set(Object.values(ADMIN_TOUR_ANCHORS));
-    const orphans = findOrphanTourAnchors(declared, haystack);
-    expect(orphans, `Orphan tour anchors: ${orphans.join(", ")}`).toEqual([]);
-  });
+  it(
+    "rejects orphan data-tour / tourAnchor / tourId literals not in ADMIN_TOUR_ANCHORS",
+    () => {
+      const haystack = readUiHaystack();
+      const declared = new Set(Object.values(ADMIN_TOUR_ANCHORS));
+      const orphans = findOrphanTourAnchors(declared, haystack);
+      expect(orphans, `Orphan tour anchors: ${orphans.join(", ")}`).toEqual([]);
+    },
+    60_000,
+  );
 });

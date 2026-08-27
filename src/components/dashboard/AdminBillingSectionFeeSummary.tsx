@@ -23,6 +23,8 @@ export interface AdminBillingSectionFeeSummaryProps {
   enrollmentCurrency: string;
   monthlyAmount: number | null;
   monthlyCurrency: string | null;
+  /** Average billed monthly amount after scholarships/exemptions, when it differs from list. */
+  effectiveMonthlyAmount?: number | null;
   labels: {
     enrollmentLabel: string;
     monthlyLabel: string;
@@ -37,6 +39,7 @@ export function AdminBillingSectionFeeSummary({
   enrollmentCurrency,
   monthlyAmount,
   monthlyCurrency,
+  effectiveMonthlyAmount = null,
   labels,
 }: AdminBillingSectionFeeSummaryProps) {
   const enrollCur = enrollmentCurrency || DEFAULT_SECTION_FEE_PLAN_CURRENCY;
@@ -44,13 +47,25 @@ export function AdminBillingSectionFeeSummary({
     enrollmentAmount > 0 ? formatMoney(locale, enrollmentAmount, enrollCur) : labels.enrollmentNotCharged;
 
   const monthlyCur = monthlyCurrency ?? DEFAULT_SECTION_FEE_PLAN_CURRENCY;
-  const monthlyDisplay =
+  const hasListMonthly =
     monthlyAmount != null &&
     Number.isFinite(monthlyAmount) &&
     monthlyAmount >= 0 &&
-    monthlyCurrency
+    Boolean(monthlyCurrency);
+  const monthlyDisplay =
+    hasListMonthly && monthlyAmount != null
       ? formatMoney(locale, monthlyAmount, monthlyCur)
       : labels.monthlyUnavailable;
+  const hasEffectiveMonthly =
+    hasListMonthly &&
+    effectiveMonthlyAmount != null &&
+    Number.isFinite(effectiveMonthlyAmount) &&
+    effectiveMonthlyAmount >= 0 &&
+    Math.round(effectiveMonthlyAmount * 100) !== Math.round((monthlyAmount ?? 0) * 100);
+  const effectiveDisplay =
+    hasEffectiveMonthly && effectiveMonthlyAmount != null
+      ? formatMoney(locale, effectiveMonthlyAmount, monthlyCur)
+      : null;
 
   return (
     <div className="grid gap-3 sm:grid-cols-2">
@@ -69,7 +84,16 @@ export function AdminBillingSectionFeeSummary({
           {labels.monthlyLabel}
         </p>
         <p className="mt-1 font-display text-2xl font-bold tabular-nums tracking-tight text-[var(--color-primary)]">
-          {monthlyDisplay}
+          {hasEffectiveMonthly && effectiveDisplay ? (
+            <span className="inline-flex flex-wrap items-baseline gap-x-2 gap-y-0">
+              <del className="text-lg font-semibold text-[var(--color-muted-foreground)]">
+                {monthlyDisplay}
+              </del>
+              <span>{effectiveDisplay}</span>
+            </span>
+          ) : (
+            monthlyDisplay
+          )}
         </p>
       </div>
     </div>
