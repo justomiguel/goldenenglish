@@ -5,6 +5,7 @@ import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import type { PublicEventDetail } from "@/lib/dashboard/events/loadEventForPublicLanding";
 import type { EventRegistrationPaymentMethod } from "@/lib/events/resolveEventRegistrationPaymentMethods";
 import type { PublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
+import { publicEventRegisterSkeletonClass } from "@/lib/events/publicEventSurfaceClasses";
 import { EventRegisterDesktop } from "@/components/desktop/organisms/EventRegisterDesktop";
 import { EventRegisterPwa } from "@/components/pwa/organisms/EventRegisterPwa";
 import { EventRegisterForm } from "@/components/organisms/EventRegisterForm";
@@ -24,10 +25,7 @@ export function EventRegisterSurfaceEntry({
   surfaceVariant = "default",
   labels,
 }: EventRegisterSurfaceEntryProps) {
-  const skeletonClass =
-    surfaceVariant === "espaciozenit"
-      ? "h-48 animate-pulse rounded-[22px] bg-[rgb(0_174_239_/8%)]"
-      : "h-48 animate-pulse rounded bg-[var(--color-muted)]";
+  const skeletonClass = publicEventRegisterSkeletonClass(surfaceVariant);
 
   return (
     <SurfaceMountGate

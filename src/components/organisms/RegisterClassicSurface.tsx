@@ -14,6 +14,7 @@ export interface RegisterClassicSurfaceProps {
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
+  extrasPack?: "nago" | null;
 }
 
 export function RegisterClassicSurface({
@@ -23,6 +24,7 @@ export function RegisterClassicSurface({
   legalAgeMajority,
   sectionOptions,
   enrollmentLink,
+  extrasPack = null,
 }: RegisterClassicSurfaceProps) {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[var(--color-muted)] px-4 py-10 md:py-14">
@@ -51,6 +53,7 @@ export function RegisterClassicSurface({
             legalAgeMajority={legalAgeMajority}
             sectionOptions={sectionOptions}
             enrollmentLink={enrollmentLink}
+            extrasPack={extrasPack}
           />
           <p className="mt-8 text-center text-sm lg:text-left">
             <Link

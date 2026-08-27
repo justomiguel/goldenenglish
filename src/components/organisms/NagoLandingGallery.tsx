@@ -8,6 +8,7 @@ import { Modal } from "@/components/atoms/Modal";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { NAGO_GALLERY_URLS } from "@/lib/landing/nagoGalleryImages";
+import { NagoReveal } from "@/components/organisms/NagoReveal";
 
 export interface NagoLandingGalleryProps {
   dict: Dictionary;
@@ -70,37 +71,44 @@ export function NagoLandingGallery({ dict }: NagoLandingGalleryProps) {
   return (
     <section
       id="galeria"
-      className="nago-section-beige scroll-mt-24 px-[max(1.5rem,env(safe-area-inset-left))] py-16 pe-[max(1.5rem,env(safe-area-inset-right))] md:py-20"
+      className="scroll-mt-24 bg-[var(--nago-bg)] px-[max(1.5rem,env(safe-area-inset-left))] py-16 pe-[max(1.5rem,env(safe-area-inset-right))] md:py-20"
     >
-      <h2 className="text-center font-[family-name:var(--font-nago-display)] text-3xl font-bold uppercase text-[var(--nago-green)] md:text-4xl">
-        {t("sectionTitle")}
-      </h2>
+      <NagoReveal>
+        <h2 className="text-center font-[family-name:var(--font-nago-display)] text-3xl font-semibold uppercase tracking-[0.18em] text-[var(--nago-heading-solid)] md:text-4xl">
+          {t("sectionTitle")}
+        </h2>
+      </NagoReveal>
       <div className="mx-auto mt-12 grid max-w-5xl gap-6 sm:grid-cols-3 md:gap-8">
         {preview.map((src, i) => (
-          <button
+          <NagoReveal
             key={src}
-            type="button"
-            className="nago-gallery-frame group relative aspect-[4/3] w-full cursor-pointer overflow-hidden border-0 bg-transparent p-0 text-left shadow-md ring-0 transition-[box-shadow,transform] hover:brightness-[1.02] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--nago-green)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--nago-beige)] active:scale-[0.99]"
-            onClick={() => openCarouselAt(i)}
-            aria-label={t("previewOpenAria").replace("{n}", String(i + 1))}
+            variant="media"
+            delay={i < 3 ? ((i + 1) as 1 | 2 | 3) : undefined}
           >
-            <Image
-              src={src}
-              alt=""
-              width={400}
-              height={300}
-              className="h-full w-full object-cover"
-              sizes="(max-width:640px) 100vw, 33vw"
-              priority={i === 0}
-            />
-          </button>
+            <button
+              type="button"
+              className="nago-gallery-frame group relative aspect-[3/4] w-full cursor-pointer overflow-hidden border-0 bg-transparent p-0 text-left ring-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--nago-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--nago-bg)]"
+              onClick={() => openCarouselAt(i)}
+              aria-label={t("previewOpenAria").replace("{n}", String(i + 1))}
+            >
+              <Image
+                src={src}
+                alt=""
+                width={400}
+                height={300}
+                className="h-full w-full object-cover"
+                sizes="(max-width:640px) 100vw, 33vw"
+                priority={i === 0}
+              />
+            </button>
+          </NagoReveal>
         ))}
       </div>
       <div className="mt-12 flex justify-center">
         <Button
           type="button"
           variant="secondary"
-          className="min-h-[44px] gap-2 rounded-full bg-[var(--nago-blue)] px-8 py-3 text-sm font-bold uppercase tracking-wide text-[var(--nago-heading-solid)] shadow-md transition-colors hover:bg-[var(--nago-blue-hover)]"
+          className="nago-btn nago-btn-solid min-h-[44px] gap-2 px-8 py-3"
           onClick={openCarousel}
         >
           <Images className="h-4 w-4 shrink-0" aria-hidden />
@@ -130,7 +138,7 @@ export function NagoLandingGallery({ dict }: NagoLandingGalleryProps) {
                 aria-live="polite"
               >
                 <Loader2
-                  className="h-10 w-10 shrink-0 animate-spin text-[var(--nago-green)]"
+                  className="h-10 w-10 shrink-0 animate-spin text-[var(--nago-gold)]"
                   aria-hidden
                   strokeWidth={2}
                 />

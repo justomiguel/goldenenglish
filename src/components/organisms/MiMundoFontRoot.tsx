@@ -8,6 +8,7 @@ const mmDisplay = Fraunces({
   variable: "--font-mm-display",
   display: "swap",
   adjustFontFallback: true,
+  preload: true,
 });
 
 const mmBody = Nunito({
@@ -16,6 +17,7 @@ const mmBody = Nunito({
   variable: "--font-mm-body",
   display: "swap",
   adjustFontFallback: true,
+  preload: false,
 });
 
 const mmAccent = Caveat({
@@ -23,6 +25,7 @@ const mmAccent = Caveat({
   subsets: ["latin", "latin-ext"],
   variable: "--font-mm-accent",
   display: "swap",
+  preload: false,
 });
 
 export interface MiMundoFontRootProps {

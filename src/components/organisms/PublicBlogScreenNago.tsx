@@ -29,7 +29,7 @@ export function PublicBlogScreenNago({
 }: PublicBlogScreenNagoProps) {
   return (
     <NagoFontRoot>
-      <main className="relative min-h-screen overflow-x-hidden bg-white">
+      <main className="relative min-h-screen overflow-x-hidden bg-[var(--nago-bg)]">
         <NagoSiteHeader
           locale={locale}
           logoSrc={brand.logoPath}
@@ -51,7 +51,11 @@ export function PublicBlogScreenNago({
             closeMenu: marketingLandingCopy(dict, "nago", "chrome.closeMenu"),
           }}
         />
-        <div className="mx-auto w-full max-w-6xl px-4 py-6">{children}</div>
+        <div className="mx-auto w-full max-w-6xl px-4 py-6">
+          <div className="nago-public-sheet rounded-2xl border border-[var(--nago-gold)]/20 bg-[var(--nago-bg-2)] p-4 md:p-6">
+            {children}
+          </div>
+        </div>
         <PublicContentLanguageFooter
           locale={locale}
           labels={dict.common.locale}

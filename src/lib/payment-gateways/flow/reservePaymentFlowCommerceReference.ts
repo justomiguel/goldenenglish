@@ -60,3 +60,21 @@ export async function reservePaymentFlowCommerceReferenceForSlot(
 
   return { ok: true, commerceRef: data.trim() };
 }
+
+export async function reservePaymentFlowCommerceReferenceForBundle(
+  admin: SupabaseClient,
+  bundleId: string,
+): Promise<{ ok: true; commerceRef: string } | { ok: false }> {
+  const { data, error } = await admin.rpc("payment_flow_reserve_commerce_ref_bundle", {
+    p_bundle_id: bundleId,
+  });
+
+  if (error || typeof data !== "string" || data.trim().length < 12) {
+    logSupabaseClientError("reservePaymentFlowCommerceReferenceForBundle:rpc", error ?? {}, {
+      bundle_id: bundleId,
+    });
+    return { ok: false };
+  }
+
+  return { ok: true, commerceRef: data.trim() };
+}

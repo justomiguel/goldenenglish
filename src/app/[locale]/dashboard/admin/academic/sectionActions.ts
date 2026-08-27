@@ -35,7 +35,9 @@ export async function createAcademicSectionAction(input: {
   endsOn: string;
   scheduleSlots: SectionScheduleSlot[];
   maxStudents?: number | null;
-}): Promise<{ ok: true; id: string } | { ok: false }> {
+  imageBase64?: string;
+  imageMime?: string;
+}): Promise<{ ok: true; id: string; imageSaved: boolean } | { ok: false }> {
   const cohortId = uuid.safeParse(input.cohortId.trim());
   const teacherId = uuid.safeParse(input.teacherId.trim());
   const scheduleSlots = normalizeSectionScheduleSlots(input.scheduleSlots);
@@ -134,10 +136,30 @@ export async function createAcademicSectionAction(input: {
       },
     });
 
+    let imageSaved = false;
+    const mime = input.imageMime?.trim() ?? "";
+    const raw = input.imageBase64?.trim() ?? "";
+    if (raw && mime) {
+      const { persistSectionReferenceImage, decodeSectionImageBase64 } = await import(
+        "@/lib/register/persistSectionReferenceImage"
+      );
+      const { createAdminClient } = await import("@/lib/supabase/admin");
+      const bytes = decodeSectionImageBase64(raw);
+      if (bytes) {
+        const persisted = await persistSectionReferenceImage({
+          admin: createAdminClient() as never,
+          sectionId: row.id as string,
+          bytes,
+          mime,
+        });
+        imageSaved = persisted.ok;
+      }
+    }
+
     revalidateAcademicSurfaces(input.locale);
     revalidatePath(`/${input.locale}/dashboard/admin/academic/${cohortId.data}`, "page");
     revalidatePath(`/${input.locale}/dashboard/admin/academic/${cohortId.data}/${row.id}`, "page");
-    return { ok: true, id: row.id as string };
+    return { ok: true, id: row.id as string, imageSaved };
   } catch (err) {
     logServerActionException(S.createSection, err, {
       cohortId: input.cohortId.trim(),

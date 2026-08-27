@@ -72,6 +72,7 @@ async function renderPanel(
     <SectionEnrollmentLinkPanel
       locale="es"
       sectionId={SECTION}
+      sectionName="Kids A1"
       state={state}
       labels={labels}
       canRevoke={canRevoke}
@@ -112,7 +113,7 @@ describe("SectionEnrollmentLinkPanel", () => {
   it("shows the absolute url once a link exists", async () => {
     await renderPanel({ token: TOKEN, active: true, leadCount: 0 });
     const field = screen.getByLabelText(labels.urlLabel) as HTMLInputElement;
-    expect(field.value).toContain(`/es/i/${TOKEN}`);
+    expect(field.value).toContain(`/es/i/kids-a1/${TOKEN}`);
     expect(field).toHaveAttribute("readonly");
   });
 
@@ -121,7 +122,7 @@ describe("SectionEnrollmentLinkPanel", () => {
     await renderPanel({ token: TOKEN, active: true, leadCount: 0 });
     const url = (screen.getByLabelText(labels.urlLabel) as HTMLInputElement).value;
     await user.click(screen.getByRole("button", { name: labels.copy }));
-    expect(url).toContain(`/es/i/${TOKEN}`);
+    expect(url).toContain(`/es/i/kids-a1/${TOKEN}`);
     expect(await screen.findByText(labels.copied)).toBeInTheDocument();
   });
 

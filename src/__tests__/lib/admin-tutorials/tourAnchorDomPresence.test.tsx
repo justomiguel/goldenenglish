@@ -199,6 +199,12 @@ const academicDict = {
 const sectionModalDict = {
   title: "t",
   nameLabel: "n",
+  photoLabel: "ph",
+  photoHint: "phh",
+  photoInvalid: "phi",
+  uploadProgressReading: "upr",
+  uploadProgressSending: "ups",
+  photoSaveFailed: "psf",
   teacherLabel: "te",
   teacherPlaceholder: "p",
   maxStudentsLabel: "m",

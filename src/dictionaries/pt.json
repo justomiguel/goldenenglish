@@ -157,7 +157,8 @@
       "enrollmentAlreadyApproved": "Esta taxa de inscrição já foi confirmada.",
       "enrollmentNotFound": "Matrícula ativa não encontrada para este aluno e seção.",
       "enrollmentFeeExempt": "Este aluno está isento da taxa de matrícula.",
-      "futureMonthNotAllowed": "Esta seção ainda não permite pagar esse mês futuro."
+      "futureMonthNotAllowed": "Esta seção ainda não permite pagar esse mês futuro.",
+      "staleSnapshot": "Os valores mudaram. Volte e revise de novo."
     },
     "admin": {
       "invalidData": "Dados inválidos.",
@@ -728,7 +729,7 @@
         "shellLead": "Compartilhe seus detalhes. Nossa equipe confirma a adequação do grupo e responde como treinar conosco com segurança."
       },
       "hero": {
-        "title": "Somos Capoeira Nagô",
+        "title": "Somos Nagô",
         "subtitle": "Tradição que move, cultura que vive",
         "tagline": "A capoeira é mais que uma arte marcial: é música, dança, tradição e comunidade."
       },
@@ -3554,6 +3555,23 @@
       "editInvalid": "Verifique os dados (e-mails e datas).",
       "editLevelPlaceholder": "A1",
       "emptyValue": "-",
+      "nagoExtrasTitle": "Ficha Nagô",
+      "nagoNationality": "Nacionalidade",
+      "nagoAddress": "Endereço",
+      "nagoCommune": "Comuna",
+      "nagoSchool": "Colégio",
+      "nagoInsurance": "Convênio de saúde",
+      "nagoBloodType": "Tipo sanguíneo",
+      "nagoAllergies": "Alergias",
+      "nagoCondition": "Condição de saúde",
+      "nagoHealthCenter": "Centro de saúde",
+      "nagoEmergencyName": "Contato de emergência",
+      "nagoEmergencyRelationship": "Parentesco de emergência",
+      "nagoEmergencyPhone": "Telefone de emergência",
+      "nagoProtocolVersion": "Versão do protocolo",
+      "nagoSignerName": "Signatário",
+      "nagoSignerDni": "Documento do signatário",
+      "nagoAcceptedAt": "Aceito em",
       "tutorAccountDefaultFirst": "Tutor",
       "sectionPickerTitle": "Atribuir a uma seção",
       "sectionPickerLead": "Escolha uma seção da coorte atual",
@@ -3986,7 +4004,96 @@
     "sectionsTitle": "Seções",
     "sectionsHint": "Você pode escolher mais de uma.",
     "sectionsAlsoJoin": "Também pode participar de…",
-    "documentInUse": "Este documento já pertence a outra conta. Entre em contato com o instituto."
+    "documentInUse": "Este documento já pertence a outra conta. Entre em contato com o instituto.",
+    "nagoPack": {
+      "stepTitle": "Ficha Nagô",
+      "studentExtraTitle": "Dados do estudante",
+      "nationality": "Nacionalidade",
+      "address": "Endereço",
+      "commune": "Comuna",
+      "school": "Colégio",
+      "healthTitle": "Informações de saúde e emergência",
+      "healthInsurance": "Convênio de saúde",
+      "healthInsuranceFonasa": "Fonasa",
+      "healthInsuranceIsapre": "Isapre",
+      "healthInsuranceOther": "Outro",
+      "healthInsuranceOtherSpecify": "Especifique o convênio",
+      "bloodType": "Tipo sanguíneo (se souber)",
+      "bloodTypeUnknown": "Não sei",
+      "hasAllergies": "Apresenta alguma alergia?",
+      "hasMedicalCondition": "Existe alguma doença, lesão, condição de saúde ou antecedente relevante?",
+      "yes": "Sim",
+      "no": "Não",
+      "specify": "Especifique",
+      "preferredHealthCenter": "Centro de saúde de preferência em caso de emergência",
+      "emergencyTitle": "Contato de emergência",
+      "emergencyName": "Nome e sobrenome",
+      "emergencyRelationship": "Parentesco",
+      "emergencyPhone": "Telefone",
+      "useTutorData": "Usar os dados do responsável",
+      "careInsurance": "Convênio",
+      "careBloodType": "Tipo sanguíneo",
+      "careCondition": "Condição",
+      "careHealthCenter": "Centro de saúde",
+      "careAllergies": "Alergias",
+      "careNone": "Não"
+    },
+    "nagoProtocol": {
+      "title": "Protocolo de ingresso e funcionamento",
+      "acceptLabel": "Declaro ter lido e compreendido o Protocolo de Ingresso e Funcionamento da Capoeira Nagô e aceito as suas normas e condições.",
+      "signerName": "Nome do signatário",
+      "signerDni": "RUT / DNI / passaporte do signatário",
+      "sections": {
+        "inscription": {
+          "title": "1. Inscrição e aceitação do protocolo",
+          "body": "Todo aluno novo deve preencher a ficha de inscrição e matrícula. A inscrição implica o conhecimento e a aceitação deste protocolo pelo aluno ou, no caso de menores, pelo responsável. As informações devem ser verdadeiras e mantidas atualizadas. Qualquer mudança relevante deve ser informada à Escola. A Escola pode atualizar este protocolo, informando alunos e responsáveis em tempo hábil."
+        },
+        "tuition": {
+          "title": "2. Mensalidade e forma de pagamento",
+          "body": "A mensalidade deve ser paga nos primeiros 5 dias corridos de cada mês. O pagamento em dia mantém a vaga e permite o planejamento do programa. Atrasos reiterados podem implicar suspensão temporária das aulas ou perda da vaga no horário atribuído. A mensalidade corresponde ao direito de frequentar as aulas do mês, não ao número exato de presenças."
+        },
+        "attendance": {
+          "title": "3. Assiduidade e reposição de aulas",
+          "body": "O aluno pode repor uma aula somente se avisar com pelo menos 24 horas de antecedência e houver vaga em outro horário. Sem o aviso de 24 horas, a aula é considerada realizada e não reponível. Se o professor suspender uma aula, a Escola deve oferecer uma alternativa (outra aula, oficina especial ou outra modalidade combinada). Se não for possível uma reposição direta, a Escola avaliará uma solução adequada."
+        },
+        "freeze": {
+          "title": "4. Congelamento de continuidade — pausa temporária",
+          "body": "O aluno pode congelar temporariamente a continuidade em casos como férias, doença ou força maior. Deve avisar antes do início do período. O congelamento não é retroativo. A mensalidade não congela automaticamente sem aviso prévio. O congelamento permite manter a vaga e retomar as aulas sem nova inscrição, segundo as condições da Escola."
+        },
+        "events": {
+          "title": "5. Eventos, rodas e atividades especiais",
+          "body": "A Escola organizará atividades ao longo do ano que podem incluir rodas, oficinas, campeonatos, encontros com outros grupos, atividades culturais e eventos especiais. A participação é altamente recomendada, pois faz parte do aprendizado e do desenvolvimento do aluno na capoeira. Alguns eventos podem ter custos associados, informados com antecedência."
+        },
+        "conduct": {
+          "title": "6. Comportamento e convivência",
+          "body": "Espera-se de todos os alunos respeito a professores, colegas, responsáveis e ao espaço; pontualidade; linguagem adequada; boa disposição nas atividades; e cuidado com materiais e instalações. Não serão toleradas faltas graves de respeito, agressões fora do contexto da prática, assédio, intimidação, discriminação ou atitudes que prejudiquem o ambiente do grupo."
+        },
+        "health": {
+          "title": "7. Saúde e responsabilidade",
+          "body": "O aluno ou o responsável deve informar qualquer antecedente de saúde relevante para a prática da capoeira, incluindo lesões, alergias, restrições físicas ou condições que possam exigir atenção especial. Os alunos devem seguir as indicações de segurança do professor. A Escola não se responsabiliza por consequências do ocultamento de informação relevante ou do descumprimento deliberado das instruções de segurança."
+        },
+        "communication": {
+          "title": "8. Comunicação oficial",
+          "body": "Toda comunicação relevante sobre pagamentos, ausências, congelamentos, atividades, eventos ou consultas deve ser feita pelos canais oficiais da Escola. Os dados de contato devem ser mantidos atualizados. A comunicação clara e oportuna é responsabilidade compartilhada entre a Escola, o aluno e o responsável."
+        },
+        "termination": {
+          "title": "9. Suspensão ou término da relação",
+          "body": "A Escola pode suspender ou encerrar a continuidade de um aluno em caso de descumprimento reiterado do protocolo, faltas graves às normas de convivência, condutas que comprometam a segurança ou o bem-estar de outras pessoas, ou descumprimentos reiterados das obrigações assumidas com a Escola. O aluno ou o responsável pode deixar a Escola informando com antecedência razoável."
+        },
+        "attire": {
+          "title": "10. Vestimenta e itens pessoais",
+          "body": "A vestimenta oficial das aulas é camiseta da Capoeira Nagô e calça branca da Capoeira Nagô. Enquanto o aluno novo não tiver a vestimenta oficial, pode usar roupa esportiva confortável que permita mobilidade e segurança. Não será permitida roupa ou acessórios que limitem o movimento ou provoquem acidentes. Cada aluno deve trazer garrafa de água e toalha pessoais. A Escola não é obrigada a fornecer esses itens."
+        },
+        "hygiene": {
+          "title": "11. Higiene e cuidado do espaço",
+          "body": "Espera-se que os alunos mantenham higiene pessoal adequada, usem roupa limpa em cada aula, cuidem e mantenham organizado o espaço de prática, e cuidem dos equipamentos. O descumprimento reiterado pode ser tratado diretamente com o aluno ou, no caso de menores, com o responsável."
+        },
+        "declaration": {
+          "title": "Declaração e aceitação",
+          "body": "Declaro que as informações desta Ficha de Inscrição e Matrícula são verdadeiras e corretas. Se represento um menor, autorizo a inscrição e a participação nas aulas regulares da Capoeira Nagô Chile e comprometo-me a informar qualquer mudança relevante, especialmente as relacionadas à saúde e à segurança."
+        }
+      }
+    }
   },
   "publicContact": {
     "metaTitle": "Contato",
@@ -7612,6 +7719,12 @@
       "newSectionModal": {
         "title": "Criar seção",
         "nameLabel": "Nome da seção",
+        "photoLabel": "Foto da seção",
+        "photoHint": "Opcional. Usada ao compartilhar o link de inscrição e na ficha da seção.",
+        "photoInvalid": "Use uma imagem JPG, PNG ou WebP de até 2 MB.",
+        "uploadProgressReading": "Preparando foto…",
+        "uploadProgressSending": "Criando seção…",
+        "photoSaveFailed": "A seção foi criada, mas a foto não foi salva. Você pode carregá-la na ficha.",
         "teacherLabel": "Professor",
         "scheduleTitle": "Agendar",
         "scheduleHint": "Adicione pelo menos um espaço semanal para esta seção.",
@@ -7779,6 +7892,16 @@
         "error": "Não foi possível salvar. Tente novamente.",
         "duplicate": "Outra seção deste cohort já usa esse nome.",
         "tooShort": "Use pelo menos 2 caracteres."
+      },
+      "referenceImage": {
+        "label": "Foto da seção",
+        "empty": "Ainda não há foto. O link de inscrição usa uma imagem genérica ao compartilhar.",
+        "replace": "Trocar foto",
+        "remove": "Remover foto",
+        "invalid": "Use uma imagem JPG, PNG ou WebP de até 2 MB.",
+        "error": "Não foi possível salvar a foto.",
+        "uploadProgressReading": "Preparando foto…",
+        "uploadProgressSending": "Salvando foto…"
       },
       "staff": {
         "title": "Corpo docente",
@@ -9179,6 +9302,19 @@
       "paymentsNoLinkedStudents": "Nenhum aluno está vinculado à sua conta ainda.",
       "paymentsAccessRevokedTitle": "Este aluno gerencia seus próprios pagamentos",
       "paymentsAccessRevokedBody": "Eles revogaram seu acesso às informações financeiras deles. Peça-lhes para restaurá-lo do perfil se você precisar fazer upload de um recibo.",
+      "paymentsReview": {
+        "title": "Revisar pagamento",
+        "lead": "Confira o que vai pagar de {student} em {period}. Você pode voltar sem pagar.",
+        "back": "Voltar aos pagamentos",
+        "scopeLegend": "O que você quer pagar?",
+        "scopeThis": "Só esta turma: {section}",
+        "scopeAll": "Todas as turmas que podem ser pagas neste mês",
+        "lineScholarship": "Bolsa {percent}%",
+        "total": "Total",
+        "continuePay": "Continuar para pagar",
+        "emptyOrigin": "Esta turma não tem um valor para pagar neste mês.",
+        "periodLabel": "{month} {year}"
+      },
       "child": "Estudante",
       "month": "Mês",
       "year": "Ano",
@@ -9552,8 +9688,8 @@
       "wardPasswordRequired": "Digite sua senha atual para alterar o e-mail de login do aluno.",
       "wardPasswordInvalid": "Essa senha não corresponde à sua conta.",
       "paymentsPwa": {
-        "familyTotalLabel": "Saldo familiar pendente",
-        "familyTotalHint": "Valor consolidado pendente para {year} (mensalidades, faturas, matrícula).",
+        "familyTotalLabel": "Mensalidades em atraso",
+        "familyTotalHint": "Total de mensalidades vencidas ou do mês que ainda não foram pagas.",
         "settledBanner": "Em dia em {year}",
         "breakdownTitle": "Por aluno",
         "breakdownAria": "Valores pendentes por aluno vinculado",

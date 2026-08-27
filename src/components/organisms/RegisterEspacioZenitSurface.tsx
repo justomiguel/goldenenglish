@@ -18,6 +18,7 @@ export interface RegisterEspacioZenitSurfaceProps {
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
+  extrasPack?: "nago" | null;
   mediaMap?: LandingMediaMap;
 }
 
@@ -29,6 +30,7 @@ export function RegisterEspacioZenitSurface({
   sectionOptions,
   mediaMap,
   enrollmentLink,
+  extrasPack = null,
 }: RegisterEspacioZenitSurfaceProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveEspacioZenitHeaderLogo(brand, mediaMap);
@@ -91,6 +93,7 @@ export function RegisterEspacioZenitSurface({
               legalAgeMajority={legalAgeMajority}
               sectionOptions={sectionOptions}
               enrollmentLink={enrollmentLink}
+              extrasPack={extrasPack}
             />
           </div>
 

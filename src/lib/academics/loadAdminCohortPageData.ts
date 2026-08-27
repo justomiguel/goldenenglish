@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getDefaultSectionMaxStudents } from "@/lib/academics/getDefaultSectionMaxStudents";
 import { SECTION_LEAD_TEACHER_ELIGIBLE_ROLES } from "@/lib/academics/sectionStaffEligibleRoles";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
 
 export interface AdminCohortSectionRow {
   id: string;
@@ -11,6 +12,7 @@ export interface AdminCohortSectionRow {
   max: number;
   archivedAt: string | null;
   periodLine?: string;
+  referenceImageUrl: string | null;
 }
 
 export interface AdminCohortMoveTarget {
@@ -37,7 +39,7 @@ async function loadSectionRows(
 ): Promise<AdminCohortSectionRow[]> {
   const { data: sections } = await supabase
     .from("academic_sections")
-    .select("id, name, max_students, teacher_id, archived_at, starts_on, ends_on")
+    .select("id, name, max_students, teacher_id, archived_at, starts_on, ends_on, reference_image_path")
     .eq("cohort_id", cohortId)
     .order("name");
   const dateFmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
@@ -65,6 +67,9 @@ async function loadSectionRows(
         max,
         archivedAt: (s as { archived_at?: string | null }).archived_at ?? null,
         periodLine,
+        referenceImageUrl: sectionReferenceImagePublicUrl(
+          (s as { reference_image_path?: string | null }).reference_image_path,
+        ),
       };
     }),
   );

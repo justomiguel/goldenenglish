@@ -16,7 +16,7 @@ export function LandingNagoFooter({ dict, brand, locale, t }: LandingNagoFooterP
       <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-3 md:gap-12">
         <div className="flex flex-col items-start gap-4">
           {brand.logoPath ? (
-            <div className="inline-flex rounded-[var(--layout-border-radius)] bg-white px-3 py-2 shadow-sm">
+            <div className="inline-flex">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={brand.logoPath}
@@ -25,39 +25,39 @@ export function LandingNagoFooter({ dict, brand, locale, t }: LandingNagoFooterP
               />
             </div>
           ) : null}
-          <p className="text-sm leading-relaxed text-neutral-200">{t("hero.tagline")}</p>
+          <p className="text-sm leading-relaxed text-[var(--nago-ink-muted)]">{t("hero.tagline")}</p>
         </div>
 
         <div>
-          <p className="font-bold uppercase tracking-wide">{t("footer.enlacesTitle")}</p>
+          <p className="font-semibold uppercase tracking-[0.16em] text-[var(--nago-gold)]">{t("footer.enlacesTitle")}</p>
           <ul className="mt-4 space-y-2 text-sm">
             <li>
-              <Link href={`/${locale}#top`} className="text-white/90 underline decoration-white/40 underline-offset-2 hover:text-white">
+              <Link href={`/${locale}#top`} className="text-[var(--nago-ink)]/90 underline decoration-[var(--nago-gold)]/40 underline-offset-2 hover:text-[var(--nago-gold)]">
                 {t("nav.inicio")}
               </Link>
             </li>
             <li>
-              <Link href={`/${locale}#sobre`} className="text-white/90 underline decoration-white/40 underline-offset-2 hover:text-white">
+              <Link href={`/${locale}#sobre`} className="text-[var(--nago-ink)]/90 underline decoration-[var(--nago-gold)]/40 underline-offset-2 hover:text-[var(--nago-gold)]">
                 {t("nav.sobreNosotros")}
               </Link>
             </li>
             <li>
-              <Link href={`/${locale}#principios`} className="text-white/90 underline decoration-white/40 underline-offset-2 hover:text-white">
+              <Link href={`/${locale}#principios`} className="text-[var(--nago-ink)]/90 underline decoration-[var(--nago-gold)]/40 underline-offset-2 hover:text-[var(--nago-gold)]">
                 {t("nav.clases")}
               </Link>
             </li>
             <li>
-              <Link href={`/${locale}#galeria`} className="text-white/90 underline decoration-white/40 underline-offset-2 hover:text-white">
+              <Link href={`/${locale}#galeria`} className="text-[var(--nago-ink)]/90 underline decoration-[var(--nago-gold)]/40 underline-offset-2 hover:text-[var(--nago-gold)]">
                 {t("nav.galeria")}
               </Link>
             </li>
             <li>
-              <Link href={`/${locale}/events`} className="text-white/90 underline decoration-white/40 underline-offset-2 hover:text-white">
+              <Link href={`/${locale}/events`} className="text-[var(--nago-ink)]/90 underline decoration-[var(--nago-gold)]/40 underline-offset-2 hover:text-[var(--nago-gold)]">
                 {t("nav.eventos")}
               </Link>
             </li>
             <li>
-              <Link href={`/${locale}#contacto`} className="text-white/90 underline decoration-white/40 underline-offset-2 hover:text-white">
+              <Link href={`/${locale}#contacto`} className="text-[var(--nago-ink)]/90 underline decoration-[var(--nago-gold)]/40 underline-offset-2 hover:text-[var(--nago-gold)]">
                 {t("nav.contacto")}
               </Link>
             </li>
@@ -65,7 +65,7 @@ export function LandingNagoFooter({ dict, brand, locale, t }: LandingNagoFooterP
         </div>
 
         <div>
-          <p className="font-bold uppercase tracking-wide">{t("footer.siguenos")}</p>
+          <p className="font-semibold uppercase tracking-[0.16em] text-[var(--nago-gold)]">{t("footer.siguenos")}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {t("contact.facebookUrl").trim() ? (
               <a href={t("contact.facebookUrl")} className="nago-social-icon" target="_blank" rel="noopener noreferrer" aria-label="Facebook">

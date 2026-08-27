@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { permanentRedirect } from "next/navigation";
 import {
   getDictionary,
   type AppLocale,
@@ -12,21 +13,39 @@ import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublicUrl";
 import { loadSectionEnrollmentLink } from "@/lib/register/loadSectionEnrollmentLink";
 import { loadRegistrationSectionOptions } from "@/lib/register/loadRegistrationSectionOptions";
+import { buildSectionEnrollmentLinkPath } from "@/lib/register/sectionEnrollmentLinkPath";
+import { buildSectionEnrollmentLinkPageMetadata } from "@/lib/register/buildSectionEnrollmentLinkPageMetadata";
 import { RegisterSurfaceByTemplate } from "@/components/organisms/RegisterSurfaceByTemplate";
 import { SectionEnrollmentLinkUnavailable } from "@/components/register/SectionEnrollmentLinkUnavailable";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
-
-export const dynamic = "force-dynamic";
-
-interface PageProps {
-  params: Promise<{ locale: string; token: string }>;
+export async function sectionEnrollmentLinkGenerateMetadata(
+  locale: string,
+  token: string,
+): Promise<Metadata> {
+  const loc = locale as AppLocale;
+  const [dict, brand, link] = await Promise.all([
+    getDictionary(locale),
+    resolvePublicBrand(loc),
+    loadSectionEnrollmentLink(token),
+  ]);
+  return buildSectionEnrollmentLinkPageMetadata({
+    locale,
+    brandName: brand.name,
+    weekdays: dict.register.sectionLink.weekdays,
+    unavailableTitle: dict.register.sectionLink.unavailableTitle,
+    link,
+  });
 }
 
-export default async function SectionEnrollmentLinkPage({ params }: PageProps) {
-  const { locale, token } = await params;
+export async function SectionEnrollmentLinkRoute({
+  locale,
+  token,
+  incomingSlug,
+}: {
+  locale: string;
+  token: string;
+  incomingSlug?: string | null;
+}) {
   const loc = locale as AppLocale;
 
   const [baseDict, brand, snapshot, legalAgeMajority, link, sectionOptions] =
@@ -40,6 +59,15 @@ export default async function SectionEnrollmentLinkPage({ params }: PageProps) {
     ]);
 
   const dict = applyLandingContentOverrides(baseDict, snapshot?.theme.content, loc);
+
+  if (link) {
+    const canonical = buildSectionEnrollmentLinkPath(locale, link.sectionName, token);
+    const current =
+      incomingSlug == null || incomingSlug === ""
+        ? `/${locale}/i/${token}`
+        : `/${locale}/i/${incomingSlug}/${token}`;
+    if (current !== canonical) permanentRedirect(canonical);
+  }
 
   if (!link) {
     return (

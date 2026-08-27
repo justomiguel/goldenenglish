@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormEvent, useRef, useState } from "react";
-import { submitSectionLinkRegistration } from "@/app/[locale]/i/[token]/actions";
+import { submitSectionLinkRegistration } from "@/app/[locale]/i/actions";
 import { submitPublicRegistration } from "@/app/[locale]/register/actions";
 import { lookupRegistrationStudentAction } from "@/app/[locale]/register/lookupRegistrationStudentAction";
 import { Button } from "@/components/atoms/Button";
@@ -14,8 +14,13 @@ import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
 import type { PublicRegistrationInput } from "@/lib/register/publicRegistrationSchema";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import type { Dictionary } from "@/types/i18n";
+import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
+import { RegisterNagoExtras } from "@/components/register/RegisterNagoExtras";
+import { collectRegisterExtrasPrefill } from "@/lib/register/packs/nago/collectRegisterExtrasPrefill";
+import { readNagoExtrasFromFormData } from "@/lib/register/packs/nago/readNagoExtrasFromFormData";
 
-type RegisterStep = "student" | "confirm" | "details";
+
+type RegisterStep = "student" | "confirm" | "details" | "extras";
 
 interface RegisterFormProps {
   locale: string;
@@ -23,6 +28,7 @@ interface RegisterFormProps {
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
+  extrasPack?: RegistrationExtrasPackId | null;
 }
 
 export function RegisterForm({
@@ -31,6 +37,7 @@ export function RegisterForm({
   legalAgeMajority,
   sectionOptions,
   enrollmentLink,
+  extrasPack = null,
 }: RegisterFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [step, setStep] = useState<RegisterStep>("student");
@@ -42,10 +49,15 @@ export function RegisterForm({
   const [existingMatch, setExistingMatch] = useState<{ firstName: string; lastName: string } | null>(null);
   const [existingConfirmed, setExistingConfirmed] = useState(false);
   const [selectedSectionIds, setSelectedSectionIds] = useState<string[]>([]);
+  const [tutorPrefill, setTutorPrefill] = useState<
+    ReturnType<typeof collectRegisterExtrasPrefill>["tutorPrefill"] | null
+  >(null);
+  const [signerPrefill, setSignerPrefill] = useState({ name: "", dni: "" });
 
   const isMinor = birthDate.length === 10 && fullYearsFromIsoDate(birthDate) < legalAgeMajority;
-  const showTutor = step === "details" && !existingConfirmed && isMinor;
-  const showAdultContact = step === "details" && !existingConfirmed && !isMinor;
+  const onLaterStep = step === "details" || step === "extras";
+  const showTutor = onLaterStep && !existingConfirmed && isMinor;
+  const showAdultContact = onLaterStep && !existingConfirmed && !isMinor;
 
   function resetOutcome() {
     setSuccessOpen(false);
@@ -54,6 +66,8 @@ export function RegisterForm({
     setExistingMatch(null);
     setExistingConfirmed(false);
     setSelectedSectionIds([]);
+    setTutorPrefill(null);
+    setSignerPrefill({ name: "", dni: "" });
   }
 
   async function onContinue() {
@@ -91,7 +105,7 @@ export function RegisterForm({
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (step !== "details") return;
+    if (step !== "details" && step !== "extras") return;
     if (birthDate.length !== 10) {
       setMsgTone("error");
       setMsg(dict.birthDateIncomplete);
@@ -115,6 +129,7 @@ export function RegisterForm({
       tutor_email: String(fd.get("tutor_email") ?? ""),
       tutor_phone: String(fd.get("tutor_phone") ?? ""),
       tutor_relationship: String(fd.get("tutor_relationship") ?? ""),
+      tenant_extras: extrasPack === "nago" ? readNagoExtrasFromFormData(fd) : undefined,
     };
     try {
       const res = enrollmentLink
@@ -185,7 +200,7 @@ export function RegisterForm({
             }}
           />
         ) : null}
-        {step === "details" ? (
+        {step === "details" || step === "extras" ? (
           <RegisterFormContactAndSections
             dict={dict}
             busy={busy}
@@ -195,6 +210,29 @@ export function RegisterForm({
             selectedSectionIds={selectedSectionIds}
             onSelectedSectionIdsChange={setSelectedSectionIds}
             enrollmentLink={enrollmentLink}
+            hidden={step === "extras"}
+            submitType={extrasPack === "nago" && step === "details" ? "button" : "submit"}
+            onContinue={() => {
+              const form = formRef.current;
+              if (!form?.reportValidity()) return;
+              const prefill = collectRegisterExtrasPrefill(form, {
+                isMinor,
+                existingConfirmed,
+              });
+              setTutorPrefill(prefill.tutorPrefill);
+              setSignerPrefill(prefill.signerPrefill);
+              setStep("extras");
+            }}
+          />
+        ) : null}
+        {step === "extras" && extrasPack === "nago" ? (
+          <RegisterNagoExtras
+            dict={dict}
+            isMinor={isMinor}
+            busy={busy}
+            showUseTutor={Boolean(showTutor && tutorPrefill?.name)}
+            tutorPrefill={tutorPrefill}
+            signerPrefill={signerPrefill}
           />
         ) : null}
         {msg ? (

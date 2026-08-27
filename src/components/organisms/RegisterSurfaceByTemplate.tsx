@@ -8,6 +8,7 @@ import { RegisterLioraSurface } from "@/components/organisms/RegisterLioraSurfac
 import { RegisterMiMundoSurface } from "@/components/organisms/RegisterMiMundoSurface";
 import { RegisterMozarthitosSurface } from "@/components/organisms/RegisterMozarthitosSurface";
 import { RegisterNagoSurface } from "@/components/organisms/RegisterNagoSurface";
+import { extrasPackForTemplateKind } from "@/lib/register/packs/extrasPackForTemplateKind";
 
 interface RegisterSurfaceByTemplateProps {
   templateKind: string;
@@ -30,20 +31,22 @@ export function RegisterSurfaceByTemplate({
   mediaMap,
   ...shellProps
 }: RegisterSurfaceByTemplateProps) {
+  const extrasPack = extrasPackForTemplateKind(templateKind);
+  const withPack = { ...shellProps, extrasPack };
   if (templateKind === "espaciozenit") {
-    return <RegisterEspacioZenitSurface {...shellProps} mediaMap={mediaMap} />;
+    return <RegisterEspacioZenitSurface {...withPack} mediaMap={mediaMap} />;
   }
   if (templateKind === "mozarthitos") {
-    return <RegisterMozarthitosSurface {...shellProps} mediaMap={mediaMap} />;
+    return <RegisterMozarthitosSurface {...withPack} mediaMap={mediaMap} />;
   }
   if (templateKind === "nago") {
-    return <RegisterNagoSurface {...shellProps} />;
+    return <RegisterNagoSurface {...withPack} />;
   }
   if (templateKind === "mimundo") {
-    return <RegisterMiMundoSurface {...shellProps} />;
+    return <RegisterMiMundoSurface {...withPack} />;
   }
   if (templateKind === "liora") {
-    return <RegisterLioraSurface {...shellProps} />;
+    return <RegisterLioraSurface {...withPack} />;
   }
-  return <RegisterClassicSurface {...shellProps} />;
+  return <RegisterClassicSurface {...withPack} />;
 }

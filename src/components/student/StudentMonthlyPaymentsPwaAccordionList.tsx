@@ -52,6 +52,8 @@ export interface StudentMonthlyPaymentsPwaAccordionListProps {
   enabledOnlineGateways: PaymentGatewayProvider[];
   tutorPaymentMethodTabs: boolean;
   bankTransferInstructions?: string | null;
+  parentReviewHref?: (sectionId: string, month: number, year: number) => string;
+  parentReviewCtaLabel?: string;
 }
 
 export function StudentMonthlyPaymentsPwaAccordionList({
@@ -78,6 +80,8 @@ export function StudentMonthlyPaymentsPwaAccordionList({
   enabledOnlineGateways,
   tutorPaymentMethodTabs,
   bankTransferInstructions = null,
+  parentReviewHref,
+  parentReviewCtaLabel,
 }: StudentMonthlyPaymentsPwaAccordionListProps) {
   const router = useRouter();
   const filterOpts = { hideNonBillableMonths, hideSettledMonths };
@@ -142,6 +146,8 @@ export function StudentMonthlyPaymentsPwaAccordionList({
             tutorPaymentMethodTabs={tutorPaymentMethodTabs}
             bankTransferInstructions={bankTransferInstructions}
             onSubmitted={() => router.refresh()}
+            parentReviewHref={parentReviewHref}
+            parentReviewCtaLabel={parentReviewCtaLabel}
           />
         );
       })}

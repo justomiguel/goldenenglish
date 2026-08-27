@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SectionCapacityBar } from "@/components/molecules/SectionCapacityBar";
+import { SectionReferenceThumb } from "@/components/molecules/SectionReferenceThumb";
 
 export interface AdminSectionCardProps {
   href: string;
@@ -11,6 +12,7 @@ export interface AdminSectionCardProps {
   archivedLabel?: string;
   /** Preformatted section date range (locale-aware), shown under the title. */
   periodLine?: string;
+  imageUrl?: string | null;
 }
 
 export function AdminSectionCard({
@@ -21,10 +23,12 @@ export function AdminSectionCard({
   capacityLabel,
   archivedLabel,
   periodLine,
+  imageUrl,
 }: AdminSectionCardProps) {
   return (
     <article className="flex flex-col gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm">
       <div className="flex flex-wrap items-center gap-2">
+        <SectionReferenceThumb src={imageUrl} alt={name} size="sm" />
         <Link href={href} className="text-base font-semibold text-[var(--color-primary)] hover:underline">
           {name}
         </Link>

@@ -10,6 +10,7 @@ import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatReg
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
 import { registrationIsActionable } from "@/lib/register/registrationIsActionable";
+import { AdminRegistrationNagoExtras } from "@/components/dashboard/AdminRegistrationNagoExtras";
 import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
 
 type RegLabels = Dictionary["admin"]["registrations"];
@@ -133,6 +134,11 @@ export function AdminRegistrationPwaCard({
             </span>
           </div>
         </dl>
+        <AdminRegistrationNagoExtras
+          tenantExtras={r.tenantExtras}
+          locale={locale}
+          labels={labels}
+        />
         <button
           type="button"
           className="min-h-[44px] text-sm underline decoration-dotted underline-offset-2 disabled:opacity-50"

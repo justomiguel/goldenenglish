@@ -53,6 +53,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 | **`32-manual-qa-user-owned.mdc`** | QA manual en browser / tenant: lo hace el usuario; el agente no ofrece walkthroughs salvo pedido explícito; Vitest y automatización sí. |
 | **`34-precommit-e2e.mdc`** | Precommit fail-closed: `test:e2e:precommit` + `.env.local.e2e`; `SKIP_E2E=1` solo con aprobación explícita del usuario. |
 | **`37-commit-finished-work-ask-when-mixed.mdc`** | Al terminar una tarea, commitear. Nunca stash ni apartar WIP ajeno sin preguntar. Push solo si lo piden. |
+| **`38-trunk-based-development.mdc`** | Trunk-based: solo `main`. Sin feature branches, worktrees ni stashes de aislamiento. |
 
 **Reglas con `globs` (aplican al tocar esas rutas):** otras bajo **`.cursor/rules/`** según `globs` / `alwaysApply` de cada archivo (p. ej. **`23-image-loading-ux.mdc`**, **`24-dashboard-list-filter-aggregates-rpc.mdc`** — agregados para filtros de listados en dashboard para **cualquier rol**, **`28-tenant-register-surface.mdc`** — `/register` con superficie dedicada por `SiteThemeKind`).
 

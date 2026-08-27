@@ -29,8 +29,11 @@ const minor: AdminRegistrationRow = {
   sourceSectionLinkId: null,
 };
 
-function build(rows: AdminRegistrationRow[]) {
-  return buildRegistrationsExportTable(rows, labels, { locale: "en" });
+function build(rows: AdminRegistrationRow[], kind = "classic") {
+  return buildRegistrationsExportTable(rows, labels, {
+    locale: "en",
+    activeTemplateKind: kind,
+  });
 }
 
 describe("buildRegistrationsExportTable", () => {
@@ -67,5 +70,13 @@ describe("buildRegistrationsExportTable", () => {
     const table = build([{ ...minor, status: "legacy_import" }]);
 
     expect(table.rows[0]).toContain("legacy_import");
+  });
+
+  it("keeps the classic header set when the theme is not Nagô", () => {
+    const classic = build([minor], "classic");
+    const nago = build([minor], "nago");
+    expect(nago.headers.length).toBeGreaterThan(classic.headers.length);
+    expect(classic.headers).not.toContain(labels.nagoNationality);
+    expect(nago.headers).toContain(labels.nagoNationality);
   });
 });

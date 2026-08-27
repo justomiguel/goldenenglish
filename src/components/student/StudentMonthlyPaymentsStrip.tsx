@@ -57,6 +57,8 @@ export interface StudentMonthlyPaymentsStripProps {
     | "detailPanelTitle"
     | "enrollmentFeeChipLabel"
   >;
+  parentReviewHref?: (sectionId: string, month: number, year: number) => string;
+  parentReviewCtaLabel?: string;
 }
 
 export function StudentMonthlyPaymentsStrip({
@@ -80,6 +82,8 @@ export function StudentMonthlyPaymentsStrip({
   gridLegendLabels,
   pwaSectionLabels,
   bankTransferInstructions = null,
+  parentReviewHref,
+  parentReviewCtaLabel,
 }: StudentMonthlyPaymentsStripProps) {
   const router = useRouter();
   const sortedRows = useMemo(
@@ -143,6 +147,8 @@ export function StudentMonthlyPaymentsStrip({
         enabledOnlineGateways={enabledOnlineGateways}
         tutorPaymentMethodTabs={tutorPaymentMethodTabs}
         bankTransferInstructions={bankTransferInstructions}
+        parentReviewHref={parentReviewHref}
+        parentReviewCtaLabel={parentReviewCtaLabel}
       />
     );
   }
@@ -190,6 +196,8 @@ export function StudentMonthlyPaymentsStrip({
             tutorPaymentMethodTabs={tutorPaymentMethodTabs}
             bankTransferInstructions={bankTransferInstructions}
             onSubmitted={() => router.refresh()}
+            parentReviewHref={parentReviewHref}
+            parentReviewCtaLabel={parentReviewCtaLabel}
           />
         );
       })}

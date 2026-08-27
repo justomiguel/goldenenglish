@@ -15,6 +15,7 @@ import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels"
 import type { StudentMonthlyPaymentsView } from "@/types/studentMonthlyPayments";
 import type { TutorLinkedStudentOption } from "@/components/parent/ParentPaymentsEntry";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
+import { withParentFocusHref } from "@/lib/parent/withParentFocusHref";
 
 type ParentLabels = Dictionary["dashboard"]["parent"];
 type StudentLabels = Dictionary["dashboard"]["student"];
@@ -39,6 +40,7 @@ export interface ParentPaymentsScreenPwaProps {
   initialFocus?: StudentPaymentsFocusKey | null;
   bankTransferInstructions?: string | null;
   shellOwnsFocus?: boolean;
+  enableParentReview?: boolean;
 }
 
 export function ParentPaymentsScreenPwa({
@@ -61,6 +63,7 @@ export function ParentPaymentsScreenPwa({
   initialFocus = null,
   bankTransferInstructions = null,
   shellOwnsFocus = false,
+  enableParentReview = false,
 }: ParentPaymentsScreenPwaProps) {
   const router = useRouter();
   const pwaLabels = labels.paymentsPwa;
@@ -89,9 +92,7 @@ export function ParentPaymentsScreenPwa({
           <ParentPaymentsFamilyHero
             locale={locale}
             labels={pwaLabels}
-            year={familySummary.year}
-            familyTotalPending={familySummary.familyTotalPending}
-            isFamilySettled={familySummary.isFamilySettled}
+            unpaidFeesTotal={familySummary.unpaidFeesTotal}
           />
 
           {!shellOwnsFocus ? (
@@ -147,6 +148,18 @@ export function ParentPaymentsScreenPwa({
                 enrollmentFeeChipLabel: pwaLabels.enrollmentFeeChipLabel,
                 detailPanelTitle: pwaLabels.detailPanelTitle,
               }}
+              parentReviewHref={
+                enableParentReview
+                  ? (sectionId, month, year) =>
+                      withParentFocusHref(
+                        `/${locale}/dashboard/parent/payments/review?studentId=${selectedStudentId}&sectionId=${sectionId}&month=${month}&year=${year}`,
+                        { studentId: selectedStudentId, sectionId },
+                      )
+                  : undefined
+              }
+              parentReviewCtaLabel={
+                enableParentReview ? labels.paymentsReview.continuePay : undefined
+              }
             />
           ) : null}
         </>

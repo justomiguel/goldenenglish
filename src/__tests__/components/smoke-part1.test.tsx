@@ -59,7 +59,6 @@ describe("component smoke — landing & gates", () => {
   it("LandingSurfaceGate", () => {
     render(
       <LandingSurfaceGate
-        desktop={<div>d</div>}
         main={<div>m</div>}
         brand={mockBrandPublic}
         dict={dictEn}

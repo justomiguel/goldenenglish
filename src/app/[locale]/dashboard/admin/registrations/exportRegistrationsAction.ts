@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { loadPaginatedRegistrations } from "@/lib/dashboard/loadPaginatedRegistrations";
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { buildRegistrationsExportTable } from "@/lib/register/buildRegistrationsExportTable";
 import { logServerAuthzDenied, logServerException } from "@/lib/logging/serverActionLog";
 import type { Locale } from "@/types/i18n";
@@ -51,8 +52,16 @@ export async function exportRegistrationsAction(input: {
       status: parsed.data.status,
     });
 
+    let activeTemplateKind = "classic";
+    try {
+      const snapshot = await loadActiveTheme();
+      activeTemplateKind = snapshot?.theme.templateKind ?? "classic";
+    } catch {
+      activeTemplateKind = "classic";
+    }
     const table = buildRegistrationsExportTable(result.rows, labels, {
       locale: parsed.data.locale,
+      activeTemplateKind,
     });
 
     const workbook = new ExcelJS.Workbook();

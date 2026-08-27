@@ -77,21 +77,6 @@
   }
 }
 
-/* Faint photo texture (10% opacity) as background flavour, never affecting contrast */
-.mm-hero-bg::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-image: url("/images/mimundo/inicio/hero-bg.jpg");
-  background-size: cover;
-  background-position: center 30%;
-  opacity: 0.12;
-  filter: blur(2px) saturate(0.7);
-  mix-blend-mode: overlay;
-  pointer-events: none;
-}
-
 /* Hand-drawn dotted ground line at the bottom of the hero */
 .mm-hero-bg::after {
   content: "";

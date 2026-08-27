@@ -6,7 +6,10 @@ import { useEffect, useRef } from "react";
 import { Sparkles } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
-import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
+import {
+  resolveLandingImageSrcForTheme,
+  type LandingMediaMap,
+} from "@/lib/cms/resolveLandingMedia";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { MiMundoHero } from "@/components/organisms/MiMundoHero";
@@ -66,6 +69,12 @@ export function LandingMimundoSections({
         locale={locale}
         logoPath={brand.logoPath}
         logoAlt={brand.logoAlt}
+        backdropSrc={resolveLandingImageSrcForTheme(
+          "mimundo",
+          "inicio",
+          "hero-bg.jpg",
+          mediaMap,
+        )}
       />
 
       {/* Hand-drawn wavy divider hero → cream (sits at top of next section, paints cream curve over hero) */}

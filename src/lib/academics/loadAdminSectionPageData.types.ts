@@ -40,6 +40,7 @@ export interface AdminSectionPageData {
     requiresEvaluationsToPass: boolean;
     /** When true, Learning route tab and route/free-flow progress apply. */
     usesLearningRoute: boolean;
+    referenceImageUrl: string | null;
   };
   cohort: {
     name: string;

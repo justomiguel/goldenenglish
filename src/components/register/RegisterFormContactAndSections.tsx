@@ -17,6 +17,9 @@ interface RegisterFormContactAndSectionsProps {
   selectedSectionIds: string[];
   onSelectedSectionIdsChange: (next: string[]) => void;
   enrollmentLink?: SectionEnrollmentLinkContext;
+  hidden?: boolean;
+  submitType?: "submit" | "button";
+  onContinue?: () => void;
 }
 
 export function RegisterFormContactAndSections({
@@ -28,9 +31,12 @@ export function RegisterFormContactAndSections({
   selectedSectionIds,
   onSelectedSectionIdsChange,
   enrollmentLink,
+  hidden = false,
+  submitType = "submit",
+  onContinue,
 }: RegisterFormContactAndSectionsProps) {
   return (
-    <>
+    <div className={hidden ? "hidden" : undefined}>
       {showTutor ? (
         <p className="text-xs text-[var(--color-muted-foreground)]" role="note">
           {dict.studentEmailNotCollectedMinorLead}
@@ -64,10 +70,17 @@ export function RegisterFormContactAndSections({
         onChange={onSelectedSectionIdsChange}
         lockedPreferredId={enrollmentLink?.sectionId ?? null}
       />
-      <Button type="submit" disabled={busy} isLoading={busy}>
-        {!busy ? <UserPlus className="h-4 w-4 shrink-0" aria-hidden /> : null}
-        {dict.submit}
-      </Button>
-    </>
+      {hidden ? null : (
+        <Button
+          type={submitType}
+          disabled={busy}
+          isLoading={busy}
+          onClick={submitType === "button" ? onContinue : undefined}
+        >
+          {!busy ? <UserPlus className="h-4 w-4 shrink-0" aria-hidden /> : null}
+          {submitType === "button" ? dict.continue : dict.submit}
+        </Button>
+      )}
+    </div>
   );
 }

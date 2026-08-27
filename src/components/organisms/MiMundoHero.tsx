@@ -6,6 +6,7 @@ import type { CSSProperties } from "react";
 import { Sparkles } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
+import { LandingHeroPhoto } from "@/components/molecules/LandingHeroPhoto";
 import { MiMundoButterflyTrails } from "@/components/molecules/MiMundoButterflyTrails";
 
 interface MiMundoHeroProps {
@@ -13,6 +14,7 @@ interface MiMundoHeroProps {
   locale: string;
   logoPath: string;
   logoAlt: string;
+  backdropSrc?: string;
 }
 
 /** Confetti seeds: deterministic, hand-tuned for an airy/balanced spread. */
@@ -28,7 +30,13 @@ const CONFETTI = [
   { left: "92%", color: "var(--mm-blue)", dur: 10, delay: -5, x: "30px", shape: "tri" },
 ] as const;
 
-export function MiMundoHero({ dict, locale, logoPath, logoAlt }: MiMundoHeroProps) {
+export function MiMundoHero({
+  dict,
+  locale,
+  logoPath,
+  logoAlt,
+  backdropSrc = "/images/mimundo/inicio/hero-bg.jpg",
+}: MiMundoHeroProps) {
   const t = (path: string) => marketingLandingCopy(dict, "mm", path);
   const tagline = t("hero.kicker");
   const title = t("hero.title");
@@ -39,6 +47,19 @@ export function MiMundoHero({ dict, locale, logoPath, logoAlt }: MiMundoHeroProp
       className="mm-hero-bg relative isolate overflow-hidden"
       aria-labelledby="mm-hero-title"
     >
+      <div
+        className="pointer-events-none absolute inset-0 z-0 opacity-[0.12] blur-[2px] saturate-[0.7] mix-blend-overlay"
+        aria-hidden
+      >
+        <LandingHeroPhoto
+          src={backdropSrc}
+          alt=""
+          sizes="100vw"
+          priority
+          className="object-cover object-[center_30%]"
+        />
+      </div>
+
       {/* Watercolor green blob, echoes the logo's tree */}
       <div
         className="mm-hero-blob absolute -left-[12%] top-[2%] h-[70%] w-[70%] md:h-[80%] md:w-[55%]"
@@ -196,7 +217,6 @@ export function MiMundoHero({ dict, locale, logoPath, logoAlt }: MiMundoHeroProp
                 alt={logoAlt}
                 width={360}
                 height={360}
-                priority
                 className="mm-logo-halo-img"
               />
             </div>

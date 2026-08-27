@@ -1,3 +1,28 @@
+import {
+  createEmptySectionScheduleSlotDraft,
+  type SectionScheduleSlotDraft,
+} from "@/lib/academics/sectionScheduleDrafts";
+
+export function emptyNewSectionFormState(): {
+  name: string;
+  teacherId: string;
+  customizeMax: boolean;
+  maxRaw: string;
+  scheduleRows: SectionScheduleSlotDraft[];
+  photo: File | null;
+  photoInvalid: boolean;
+} {
+  return {
+    name: "",
+    teacherId: "",
+    customizeMax: false,
+    maxRaw: "",
+    scheduleRows: [createEmptySectionScheduleSlotDraft()],
+    photo: null,
+    photoInvalid: false,
+  };
+}
+
 /** Default section period when opening the new-section modal (today until staff adjusts). */
 export function defaultSectionPeriodInitial(): { startsOn: string; endsOn: string } {
   const today = new Date().toISOString().slice(0, 10);

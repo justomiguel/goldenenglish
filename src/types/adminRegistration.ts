@@ -21,4 +21,5 @@ export interface AdminRegistrationRow {
   contacted_at: string | null;
   contacted_by: string | null;
   sourceSectionLinkId: string | null;
+  tenantExtras?: unknown;
 }

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { submitPublicRegistration } from "@/app/[locale]/register/actions";
 import { REGISTRATION_UNDECIDED_FORM_VALUE } from "@/lib/register/registrationSectionConstants";
 import esDict from "@/dictionaries/es.json";
+import { validNagoExtras } from "@/__tests__/lib/register/packs/nagoExtrasFixture";
 
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
@@ -23,6 +24,11 @@ vi.mock("@/lib/supabase/admin", () => ({
 
 vi.mock("@/lib/register/resolveExistingStudentByDni", () => ({
   resolveExistingStudentByDni: async () => ({ kind: "none" }),
+}));
+
+const mockStampExtras = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/register/packs/resolveAndStampTenantExtras", () => ({
+  resolveAndStampTenantExtras: (input: unknown) => mockStampExtras(input),
 }));
 
 const SECTION_ID = "00000000-0000-4000-8000-000000000001";
@@ -68,6 +74,7 @@ describe("submitPublicRegistration", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubEnv("MAIL_TENANT", "");
+    mockStampExtras.mockResolvedValue({ ok: true, extras: {} });
   });
 
   afterEach(() => {
@@ -186,6 +193,48 @@ describe("submitPublicRegistration", () => {
       expect.objectContaining({
         email: "juanperez-12345k@alumnos.test",
       }),
+    );
+  });
+
+  it("rejects extras when the tenant pack stamp fails", async () => {
+    mockGetInscriptionsEnabled.mockResolvedValue(true);
+    const insert = vi.fn();
+    mockCreateClient.mockResolvedValue({
+      rpc: vi.fn().mockResolvedValue({ data: "Cohort — Section A", error: null }),
+      from: () => ({ insert }),
+    });
+    mockStampExtras.mockResolvedValue({ ok: false });
+    const r = await submitPublicRegistration("es", {
+      ...valid,
+      tenant_extras: validNagoExtras(),
+    });
+    expect(r).toEqual({ ok: false, message: esDict.register.validationError });
+    expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("persists stamped Nagô extras on insert", async () => {
+    mockGetInscriptionsEnabled.mockResolvedValue(true);
+    const extras = validNagoExtras({
+      protocol: {
+        version: "2026-08",
+        acceptedAt: "2026-08-26T15:00:00.000Z",
+        signerName: "Ada Lovelace",
+        signerDni: "123",
+      },
+    });
+    mockStampExtras.mockResolvedValue({ ok: true, extras });
+    const insert = vi.fn().mockResolvedValue({ error: null });
+    mockCreateClient.mockResolvedValue({
+      rpc: vi.fn().mockResolvedValue({ data: "Cohort — Section A", error: null }),
+      from: () => ({ insert }),
+    });
+    const r = await submitPublicRegistration("es", {
+      ...valid,
+      tenant_extras: validNagoExtras(),
+    });
+    expect(r).toEqual({ ok: true });
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({ tenant_extras: extras }),
     );
   });
 });

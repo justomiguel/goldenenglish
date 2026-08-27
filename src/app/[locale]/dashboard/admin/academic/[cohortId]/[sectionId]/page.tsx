@@ -154,6 +154,7 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
         <SectionEnrollmentLinkPanel
           locale={locale}
           sectionId={sectionId}
+          sectionName={section.name}
           state={enrollmentLinkState}
           labels={dict.dashboard.sectionEnrollmentLink}
           canRevoke

@@ -10,7 +10,7 @@ vi.mock("@/app/[locale]/register/actions", () => ({
   submitPublicRegistration: (...args: unknown[]) => submitPublicRegistration(...args),
 }));
 
-vi.mock("@/app/[locale]/i/[token]/actions", () => ({
+vi.mock("@/app/[locale]/i/actions", () => ({
   submitSectionLinkRegistration: (...args: unknown[]) =>
     submitSectionLinkRegistration(...args),
 }));
@@ -103,6 +103,7 @@ const link = {
   cohortName: "Ciclo 2026",
   scheduleSlots: [{ dayOfWeek: 1, startTime: "18:00", endTime: "19:30" }],
   seatsRemaining: 5,
+  referenceImagePath: null,
 };
 
 async function renderForm(props: Record<string, unknown>) {

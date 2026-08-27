@@ -1,6 +1,7 @@
 /** @vitest-environment node */
 import { describe, expect, it } from "vitest";
 import {
+  buildTuitionBundleGatewayReference,
   buildTuitionGatewayReference,
   parseMonthlyGatewayReference,
 } from "@/lib/billing/parseMonthlyGatewayReference";
@@ -112,5 +113,18 @@ describe("parseMonthlyGatewayReference", () => {
   it("rejects non-uuid, non-slot strings", () => {
     expect(parseMonthlyGatewayReference("pay-1")).toBeNull();
     expect(parseMonthlyGatewayReference("12345")).toBeNull();
+  });
+
+  it("round-trips a tuition bundle reference", () => {
+    const raw = buildTuitionBundleGatewayReference(PAY_UUID);
+    expect(raw).toBe(`tuition-bundle:${PAY_UUID}`);
+    expect(parseMonthlyGatewayReference(raw)).toEqual({
+      kind: "bundle",
+      bundleId: PAY_UUID,
+    });
+  });
+
+  it("rejects a tuition-bundle reference that is not a uuid", () => {
+    expect(parseMonthlyGatewayReference("tuition-bundle:not-a-uuid")).toBeNull();
   });
 });

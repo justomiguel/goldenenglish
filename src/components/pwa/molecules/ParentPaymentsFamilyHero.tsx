@@ -8,9 +8,7 @@ type Labels = Dictionary["dashboard"]["parent"]["paymentsPwa"];
 export interface ParentPaymentsFamilyHeroProps {
   locale: Locale;
   labels: Labels;
-  year: number;
-  familyTotalPending: number;
-  isFamilySettled: boolean;
+  unpaidFeesTotal: number;
 }
 
 function formatMoney(locale: Locale, amount: number): string {
@@ -23,23 +21,9 @@ function formatMoney(locale: Locale, amount: number): string {
 export function ParentPaymentsFamilyHero({
   locale,
   labels,
-  year,
-  familyTotalPending,
-  isFamilySettled,
+  unpaidFeesTotal,
 }: ParentPaymentsFamilyHeroProps) {
-  if (isFamilySettled) {
-    return (
-      <section
-        className="rounded-[var(--layout-border-radius)] border border-[var(--color-success)]/40 bg-[var(--color-success)]/10 px-4 py-3"
-        role="status"
-        aria-live="polite"
-      >
-        <p className="text-sm font-medium text-[var(--color-success)]">
-          {labels.settledBanner.replace("{year}", String(year))}
-        </p>
-      </section>
-    );
-  }
+  if (unpaidFeesTotal <= 0) return null;
 
   return (
     <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 p-4 shadow-[var(--shadow-card)]">
@@ -50,11 +34,9 @@ export function ParentPaymentsFamilyHero({
             {labels.familyTotalLabel}
           </p>
           <p className="mt-1 font-display text-3xl font-bold text-[var(--color-primary)]">
-            ${formatMoney(locale, familyTotalPending)}
+            ${formatMoney(locale, unpaidFeesTotal)}
           </p>
-          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
-            {labels.familyTotalHint.replace("{year}", String(year))}
-          </p>
+          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.familyTotalHint}</p>
         </div>
       </div>
     </section>

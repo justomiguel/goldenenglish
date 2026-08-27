@@ -23,6 +23,12 @@ vi.mock("@/app/[locale]/dashboard/admin/academic/sectionActions", () => ({
 const dict = {
   title: "Create section",
   nameLabel: "Section name",
+  photoLabel: "Section photo",
+  photoHint: "Optional photo",
+  photoInvalid: "Invalid photo",
+  uploadProgressReading: "Reading",
+  uploadProgressSending: "Sending",
+  photoSaveFailed: "Photo failed",
   teacherLabel: "Teacher",
   teacherPlaceholder: "Select a teacher",
   maxStudentsLabel: "Maximum students",

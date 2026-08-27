@@ -36,7 +36,6 @@ describe("surface gates — narrow tree", () => {
   it("LandingSurfaceGate mounts PWA shell on web-mobile", async () => {
     render(
       <LandingSurfaceGate
-        desktop={<div>d</div>}
         main={<main data-testid="main">m</main>}
         brand={mockBrandPublic}
         dict={dictEn}

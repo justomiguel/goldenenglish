@@ -8,6 +8,7 @@ export interface SectionEnrollmentLinkContext {
   cohortName: string;
   scheduleSlots: SectionScheduleSlot[];
   seatsRemaining: number | null;
+  referenceImagePath: string | null;
 }
 
 const UUID_RE =

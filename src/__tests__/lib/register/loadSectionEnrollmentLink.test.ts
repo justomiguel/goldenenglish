@@ -44,6 +44,7 @@ describe("loadSectionEnrollmentLink", () => {
           cohort_name: "Ciclo 2026",
           schedule_slots: [{ dayOfWeek: 1, startTime: "18:00:00", endTime: "19:30:00" }],
           seats_remaining: 4,
+          reference_image_path: "sec/1.jpg",
         },
       ],
       error: null,
@@ -56,6 +57,7 @@ describe("loadSectionEnrollmentLink", () => {
       cohortName: "Ciclo 2026",
       scheduleSlots: [{ dayOfWeek: 1, startTime: "18:00", endTime: "19:30" }],
       seatsRemaining: 4,
+      referenceImagePath: "sec/1.jpg",
     });
     expect(rpc).toHaveBeenCalledWith("resolve_section_enrollment_link", {
       p_token: VALID,

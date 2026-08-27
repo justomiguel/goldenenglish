@@ -3,63 +3,17 @@
 import { ChevronDown } from "lucide-react";
 import { StudentMonthlyPaymentCell } from "@/components/student/StudentMonthlyPaymentCell";
 import { StudentMonthlyEnrollmentFeeCell } from "@/components/pwa/molecules/StudentMonthlyEnrollmentFeeCell";
-import {
-  StudentMonthlyPaymentFocus,
-  type SubmitMonthlyReceiptAction,
-  type StartOnlineMonthlyPaymentClientAction,
-} from "@/components/student/StudentMonthlyPaymentFocus";
-import type { PaymentGatewayProvider } from "@/types/paymentGateway";
-import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
+import { StudentMonthlyPaymentFocus } from "@/components/student/StudentMonthlyPaymentFocus";
 import { MonthlyPaymentsSectionEnrollmentDetail } from "@/components/pwa/molecules/MonthlyPaymentsSectionEnrollmentDetail";
-import type { Dictionary, Locale } from "@/types/i18n";
-import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
-import type { StudentMonthlyPaymentSectionRow } from "@/types/studentMonthlyPayments";
 import { MonthlyPaymentsPwaNestedDetail } from "@/components/pwa/molecules/MonthlyPaymentsPwaNestedDetail";
+import { ParentMonthlyPayReviewCta } from "@/components/parent/ParentMonthlyPayReviewCta";
 import {
   resolveEnrollmentFeeChipStatus,
   sectionShowsEnrollmentFeeChip,
 } from "@/lib/billing/resolveEnrollmentFeeChipStatus";
+import type { MonthlyPaymentsSectionAccordionProps } from "@/components/pwa/molecules/MonthlyPaymentsSectionAccordion.types";
 
-type GridLegend = Dictionary["dashboard"]["student"]["paymentsPwa"]["legend"];
-type MonthlyLabels = Dictionary["dashboard"]["student"]["monthly"];
-type PaymentLabels = Dictionary["dashboard"]["student"];
-
-export interface MonthlyPaymentsSectionAccordionProps {
-  locale: Locale;
-  studentId: string;
-  row: StudentMonthlyPaymentSectionRow;
-  sectionSettled: boolean;
-  isExpanded: boolean;
-  onExpandedChange: (expanded: boolean) => void;
-  expandLabel: string;
-  collapseLabel: string;
-  visibleCells: StudentMonthlyPaymentSectionRow["cells"];
-  monthLabels: string[];
-  labels: MonthlyLabels;
-  paymentLabels: PaymentLabels;
-  gridLegendLabels: GridLegend;
-  monthsToPayTitle: string;
-  monthDetailHint: string;
-  detailPanelTitle: string;
-  enrollmentFeeChipLabel: string;
-  stripAria: string;
-  isFocusedSection: boolean;
-  isEnrollmentFocus: boolean;
-  focusMonth: number | null;
-  onFocusMonth: (month: number) => void;
-  onFocusEnrollment: () => void;
-  focusedCell: StudentMonthlyPaymentSectionRow["cells"][number] | null;
-  submitAction: SubmitMonthlyReceiptAction;
-  submitEnrollmentFeeReceiptAction: SubmitEnrollmentFeeReceiptAction;
-  receiptExpectedUsesFullMonth: boolean;
-  fileUploadProgress: FileUploadProgressLabels;
-  startFlowMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
-  startMercadoPagoMonthlyPaymentAction?: StartOnlineMonthlyPaymentClientAction;
-  enabledOnlineGateways: PaymentGatewayProvider[];
-  tutorPaymentMethodTabs: boolean;
-  onSubmitted: () => void;
-  bankTransferInstructions?: string | null;
-}
+export type { MonthlyPaymentsSectionAccordionProps };
 
 export function MonthlyPaymentsSectionAccordion({
   locale,
@@ -96,6 +50,8 @@ export function MonthlyPaymentsSectionAccordion({
   tutorPaymentMethodTabs,
   onSubmitted,
   bankTransferInstructions = null,
+  parentReviewHref,
+  parentReviewCtaLabel,
 }: MonthlyPaymentsSectionAccordionProps) {
   const panelId = `payments-section-panel-${row.sectionId}`;
   const toggleAria = isExpanded ? collapseLabel : expandLabel;
@@ -213,8 +169,16 @@ export function MonthlyPaymentsSectionAccordion({
                 paymentMethodTabLayout={tutorPaymentMethodTabs}
                 pwaNestedHierarchy
                 bankTransferInstructions={bankTransferInstructions}
-                onSubmitted={onSubmitted}
+                onSubmitted={onSubmitted} hidePayMethods={Boolean(parentReviewHref)}
               />
+              {parentReviewHref &&
+              parentReviewCtaLabel &&
+              (focusedCell.status === "due" || focusedCell.status === "rejected") ? (
+                <ParentMonthlyPayReviewCta
+                  href={parentReviewHref(row.sectionId, focusedCell.month, focusedCell.year)}
+                  label={parentReviewCtaLabel}
+                />
+              ) : null}
             </MonthlyPaymentsPwaNestedDetail>
           ) : null}
 

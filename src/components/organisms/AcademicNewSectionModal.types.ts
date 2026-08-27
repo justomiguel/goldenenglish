@@ -1,6 +1,12 @@
 export interface AcademicNewSectionModalDict {
   title: string;
   nameLabel: string;
+  photoLabel: string;
+  photoHint: string;
+  photoInvalid: string;
+  uploadProgressReading: string;
+  uploadProgressSending: string;
+  photoSaveFailed: string;
   teacherLabel: string;
   teacherPlaceholder: string;
   maxStudentsLabel: string;

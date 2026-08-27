@@ -16,6 +16,7 @@ export interface RegisterLioraSurfaceProps {
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
+  extrasPack?: "nago" | null;
 }
 
 export function RegisterLioraSurface({
@@ -25,6 +26,7 @@ export function RegisterLioraSurface({
   legalAgeMajority,
   sectionOptions,
   enrollmentLink,
+  extrasPack = null,
 }: RegisterLioraSurfaceProps) {
   const prefix = `/${locale}`;
   const t = (path: string) => marketingLandingCopy(dict, "liora", path);
@@ -84,6 +86,7 @@ export function RegisterLioraSurface({
               legalAgeMajority={legalAgeMajority}
               sectionOptions={sectionOptions}
               enrollmentLink={enrollmentLink}
+              extrasPack={extrasPack}
             />
           </div>
           <p className="mt-8 flex justify-center lg:justify-start">

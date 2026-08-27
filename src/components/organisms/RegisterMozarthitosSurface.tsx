@@ -18,6 +18,7 @@ export interface RegisterMozarthitosSurfaceProps {
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
+  extrasPack?: "nago" | null;
   mediaMap?: LandingMediaMap;
 }
 
@@ -29,6 +30,7 @@ export function RegisterMozarthitosSurface({
   sectionOptions,
   mediaMap,
   enrollmentLink,
+  extrasPack = null,
 }: RegisterMozarthitosSurfaceProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveLandingImageSrcForTheme(
@@ -118,6 +120,7 @@ export function RegisterMozarthitosSurface({
               legalAgeMajority={legalAgeMajority}
               sectionOptions={sectionOptions}
               enrollmentLink={enrollmentLink}
+              extrasPack={extrasPack}
             />
           </div>
           <p className="mt-8 flex justify-center lg:justify-start">

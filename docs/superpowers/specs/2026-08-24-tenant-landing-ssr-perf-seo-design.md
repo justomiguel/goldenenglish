@@ -1,7 +1,7 @@
 # Tenant landing SSR, fonts, and home title
 
 **Date:** 2026-08-24
-**Status:** Draft — waiting for approval
+**Status:** Approved
 **Kind:** Design spec. Implementation plan after approval.
 **Program:** Sprint 1 of the tenant performance / SEO audit (canvas `tenant-perf-seo-audit`).
 
@@ -10,6 +10,17 @@
 - `.cursor/rules/06-seo-performance.mdc` — public routes must ship title, LCP, no harsh CLS.
 - [`2026-08-06-page-titles-design.md`](2026-08-06-page-titles-design.md) — locale layout dropped `title.default` to avoid `<brand> | <brand>`; the **home** page never set a title of its own, so `/[locale]` emits no `<title>`.
 - Audit measurements 2026-08-24: homes 540–615 KB HTML, 0 `<title>` / 0 `<h1>` / 0 `<img>` in the first HTML, ~23 font preloads, `x-vercel-cache: MISS`.
+- **Core Web Vitals lab (Lighthouse 12, mobile, 2026-08-25)** — this sprint exists to move these numbers, not only HTML shape:
+
+  | Tenant | Perf | LCP | FCP | TBT (INP proxy) | CLS |
+  |--------|------|-----|-----|-----------------|-----|
+  | Golden | 65 | 9.7 s | 2.5 s | 140 ms | 0 |
+  | Espacio Zenit | 60 | 10.4 s | 2.5 s | 210 ms | 0 |
+  | Mi Mundo | 61 | 13.3 s | 2.4 s | 213 ms | 0 |
+  | Mozarthitos | 69 | 13.4 s | 2.0 s | 20 ms | 0 |
+  | Liora | 61 | 14.1 s | 3.4 s | 80 ms | 0 |
+
+  LCP breakdown (Zenit / Golden / Mozarthitos): **Load Delay 76–87%**. The hero image is not requested until after `SurfaceMountGate` hydrates. CLS already Good. INP field not available (PSI 429). Nago: no public origin, skip lab.
 
 **Governing rules:** `03-architecture.mdc` (250-line ceiling), `06-seo-performance.mdc`, `09-i18n-copy.mdc` (no new user-facing copy unless a title string is missing — home uses `brand.name`), `30-harness-self-contained-tests.mdc`, `32-manual-qa-user-owned.mdc`.
 
@@ -26,6 +37,7 @@ Crawlers and first paint of every tenant **home** (`/[locale]`) see real marketi
 3. `[locale]/page.tsx` loads the landing sections module with a **dynamic `import()`** keyed on `templateKind`, so unused `*FontRoot` modules are not in the home module graph.
 4. Home `generateMetadata` sets `title: { absolute: brand.name }` so the tab is the brand once (not empty, not `Brand | Brand`). Description stays inherited from the locale layout.
 5. Existing gate / smoke tests updated; new unit tests are self-contained and pass alone.
+6. **CWV gate (lab, same Lighthouse 12 mobile recipe as the baseline):** after the change is on a reachable URL (preview or prod), re-run the five homes. **Must:** LCP Load Delay is no longer the majority of LCP (baseline 76–87%). **Must:** LCP numeric is below the Poor floor of **4.0 s** on every measured home (baseline 9.7–14.1 s). **Target:** LCP Good (< 2.5 s). CLS must stay Good (0 / < 0.1). TBT must not regress past 200 ms on tenants that were already Good. Record the new table in the audit canvas or the plan’s verification notes. Nago stays skipped until it has a public origin.
 
 ## Out of scope
 
@@ -114,6 +126,7 @@ No robots/canonical change in this spec.
 3. **`buildHomePageMetadata`** — `title.absolute === brand.name`; no `|` in the absolute string.
 4. Update `surfaceGatesNarrow.test.tsx` and `smoke-part1` to the new props (no `desktop` prop).
 5. Greenfield gate: SSR shows `main`, not skeleton.
+6. **CWV verification (not Vitest):** `npx lighthouse@12 <url>/es --form-factor=mobile --screenEmulation.mobile --only-categories=performance`. Compare LCP, LCP breakdown (Load Delay %), TBT, CLS to the baseline table above.
 
 Harness: each new/touched test file runnable alone (`npx vitest run <file>`).
 
@@ -138,4 +151,5 @@ Do in Vercel / DNS after or beside the code drop:
 
 - Spec approved + plan on disk + TDD green for the files above.
 - `npx vitest run` on each touched test file passes in isolation.
+- Lighthouse mobile re-run on the five baseline homes meets Done when §6 (LCP < 4 s; Load Delay no longer the majority).
 - No change to dashboard gates, sitemap, robots, or env files in this PR.

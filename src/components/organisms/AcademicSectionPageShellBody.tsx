@@ -81,6 +81,7 @@ export function AcademicSectionPageShellBody({
     minAttendanceDict,
     roomLabelDict,
     nameEditorDict,
+    referenceImageDict,
     lifecycleDict,
     staffDict,
     feePlansDict,
@@ -114,6 +115,7 @@ export function AcademicSectionPageShellBody({
         sectionLead={d.sectionLead}
         lifecycleDict={lifecycleDict}
         nameEditorDict={nameEditorDict}
+        imageUrl={section.referenceImageUrl}
       />
 
       {enrollmentLinkPanel}
@@ -144,6 +146,7 @@ export function AcademicSectionPageShellBody({
             minAttendanceDict={minAttendanceDict}
             roomLabelDict={roomLabelDict}
             nameEditorDict={nameEditorDict}
+            referenceImageDict={referenceImageDict}
             scheduleEditorDict={scheduleEditorDict}
           />
         }

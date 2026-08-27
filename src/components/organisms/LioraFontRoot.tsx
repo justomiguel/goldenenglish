@@ -8,6 +8,7 @@ const lioraDisplay = Cormorant_Garamond({
   variable: "--font-liora-display",
   display: "swap",
   adjustFontFallback: true,
+  preload: true,
 });
 
 const lioraBody = Jost({
@@ -15,6 +16,7 @@ const lioraBody = Jost({
   subsets: ["latin", "latin-ext"],
   variable: "--font-liora-body",
   display: "swap",
+  preload: false,
 });
 
 export interface LioraFontRootProps {

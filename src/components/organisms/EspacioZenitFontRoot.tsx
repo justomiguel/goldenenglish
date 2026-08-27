@@ -13,18 +13,21 @@ const ezHeroBrush = localFont({
   src: "../../../public/fonts/FAST BLAZE.otf",
   variable: "--font-ez-fast-blaze",
   display: "swap",
+  preload: true,
 });
 
 const ezDisciplineHiphop = localFont({
   src: "../../../public/fonts/Rusted Vibe.otf",
   variable: "--font-ez-rusted-vibe",
   display: "swap",
+  preload: false,
 });
 
 const ezDisciplineBallet = localFont({
   src: "../../../public/fonts/Ballet.otf",
   variable: "--font-ez-ballet-display",
   display: "swap",
+  preload: false,
 });
 
 const ezBrush = Pacifico({
@@ -33,6 +36,7 @@ const ezBrush = Pacifico({
   variable: "--font-ez-brush",
   display: "swap",
   adjustFontFallback: true,
+  preload: false,
 });
 
 const ezSerif = Cormorant_Garamond({
@@ -41,6 +45,7 @@ const ezSerif = Cormorant_Garamond({
   variable: "--font-ez-serif",
   display: "swap",
   adjustFontFallback: true,
+  preload: false,
 });
 
 const ezDisplay = Bebas_Neue({
@@ -48,6 +53,7 @@ const ezDisplay = Bebas_Neue({
   subsets: ["latin", "latin-ext"],
   variable: "--font-ez-display",
   display: "swap",
+  preload: false,
 });
 
 const ezBody = Plus_Jakarta_Sans({
@@ -55,6 +61,7 @@ const ezBody = Plus_Jakarta_Sans({
   subsets: ["latin", "latin-ext"],
   variable: "--font-ez-body",
   display: "swap",
+  preload: false,
 });
 
 export interface EspacioZenitFontRootProps {

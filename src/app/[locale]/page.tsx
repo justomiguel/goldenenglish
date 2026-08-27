@@ -1,18 +1,10 @@
+import type { Metadata } from "next";
 import { type AppLocale } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { resolvePublicBrandWithSetup } from "@/lib/brand/resolvePublicBrand";
 import { LandingSurfaceGate } from "@/components/organisms/LandingSurfaceGate";
 import { LandingGreenfieldSurfaceGate } from "@/components/organisms/LandingGreenfieldSurfaceGate";
 import { LandingGreenfieldPendingMain } from "@/components/organisms/LandingGreenfieldPendingMain";
-import { LandingScreenDesktop } from "@/components/desktop/organisms/LandingScreenDesktop";
-import { LandingMainSections } from "@/components/organisms/LandingMainSections";
-import { LandingMainSectionsEditorial } from "@/components/organisms/LandingMainSectionsEditorial";
-import { LandingMainSectionsMinimal } from "@/components/organisms/LandingMainSectionsMinimal";
-import { LandingMainSectionsMozarthitos } from "@/components/organisms/LandingMainSectionsMozarthitos";
-import { LandingMainSectionsEspacioZenit } from "@/components/organisms/LandingMainSectionsEspacioZenit";
-import { LandingMainSectionsNago } from "@/components/organisms/LandingMainSectionsNago";
-import { LandingMainSectionsMimundo } from "@/components/organisms/LandingMainSectionsMimundo";
-import { LandingMainSectionsLiora } from "@/components/organisms/LandingMainSectionsLiora";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import type { MarketingLandingBrand } from "@/lib/landing/mzLandingCopy";
 import {
@@ -25,12 +17,33 @@ import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublic
 import { groupBlocksBySection } from "@/lib/cms/landingBlocksCatalog";
 import { loadFirstRunWizardMode } from "@/lib/site/loadFirstRunWizardMode";
 import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
+import { loadLandingMainSections } from "@/lib/landing/loadLandingMainSections";
+import { buildHomePageMetadata } from "@/lib/metadata/buildHomePageMetadata";
+import type { SiteThemeKind } from "@/types/theming";
 
 /** Session must reflect cookies each request (avoid stale static HTML). */
 export const dynamic = "force-dynamic";
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;
+}
+
+const MARKETING_FOOTER_BRAND: Partial<
+  Record<SiteThemeKind, MarketingLandingBrand>
+> = {
+  mozarthitos: "mz",
+  espaciozenit: "ez",
+  nago: "nago",
+  mimundo: "mm",
+  liora: "liora",
+};
+
+export async function generateMetadata({
+  params,
+}: HomePageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const { brand } = await resolvePublicBrandWithSetup(locale as AppLocale);
+  return buildHomePageMetadata(brand.name);
 }
 
 export default async function HomePage({ params }: HomePageProps) {
@@ -59,7 +72,10 @@ export default async function HomePage({ params }: HomePageProps) {
     );
   }
 
-  const [activeTheme, blogEnabled] = await Promise.all([loadActiveTheme(), loadBlogEnabled()]);
+  const [activeTheme, blogEnabled] = await Promise.all([
+    loadActiveTheme(),
+    loadBlogEnabled(),
+  ]);
 
   const dict = applyLandingContentOverrides(
     baseDict,
@@ -74,79 +90,35 @@ export default async function HomePage({ params }: HomePageProps) {
     : undefined;
   const templateKind = activeTheme?.theme.templateKind ?? "classic";
   const marketingShell = isMarketingFullBleedLandingKind(templateKind);
-  const suppressMarketingShellFooter =
-    marketingLandingSuppressesShellFooter(templateKind);
-  const marketingFooterBrand: MarketingLandingBrand | undefined =
-    templateKind === "mozarthitos"
-      ? "mz"
-      : templateKind === "espaciozenit"
-        ? "ez"
-        : templateKind === "nago"
-          ? "nago"
-          : templateKind === "mimundo"
-            ? "mm"
-            : templateKind === "liora"
-              ? "liora"
-              : undefined;
+  const LandingSections = await loadLandingMainSections(templateKind);
 
-  const landingContentProps = {
-    dict,
-    brand,
-    locale,
-    mediaMap,
-    blocksBySection,
-    blogEnabled,
-  };
-  const marketingTenantProps = {
-    ...landingContentProps,
-    sessionEmail,
-  };
-
-  const main =
-    templateKind === "editorial" ? (
-      <LandingMainSectionsEditorial {...landingContentProps} />
-    ) : templateKind === "minimal" ? (
-      <LandingMainSectionsMinimal {...landingContentProps} />
-    ) : templateKind === "mozarthitos" ? (
-      <LandingMainSectionsMozarthitos {...marketingTenantProps} />
-    ) : templateKind === "espaciozenit" ? (
-      <LandingMainSectionsEspacioZenit {...marketingTenantProps} />
-    ) : templateKind === "nago" ? (
-      <LandingMainSectionsNago {...marketingTenantProps} />
-    ) : templateKind === "mimundo" ? (
-      <LandingMainSectionsMimundo {...marketingTenantProps} />
-    ) : templateKind === "liora" ? (
-      <LandingMainSectionsLiora {...marketingTenantProps} />
-    ) : (
-      <LandingMainSections {...landingContentProps} />
-    );
+  const main = (
+    <LandingSections
+      dict={dict}
+      brand={brand}
+      locale={locale}
+      mediaMap={mediaMap}
+      blocksBySection={blocksBySection}
+      blogEnabled={blogEnabled}
+      sessionEmail={sessionEmail}
+    />
+  );
 
   return (
     <LandingSurfaceGate
-      desktop={
-        <LandingScreenDesktop
-          brand={brand}
-          dict={dict}
-          locale={locale}
-          sessionEmail={sessionEmail}
-          blogEnabled={blogEnabled}
-          suppressHeader={marketingShell}
-          suppressMarketingShellFooter={suppressMarketingShellFooter}
-          marketingFullBleedShell={marketingShell}
-          marketingLandingFooterBrand={marketingFooterBrand}
-        >
-          {main}
-        </LandingScreenDesktop>
-      }
       main={main}
       brand={brand}
       dict={dict}
       locale={locale}
       sessionEmail={sessionEmail}
+      blogEnabled={blogEnabled}
+      suppressHeader={marketingShell}
       suppressPwaHeader={marketingShell}
-      suppressMarketingShellFooter={suppressMarketingShellFooter}
+      suppressMarketingShellFooter={marketingLandingSuppressesShellFooter(
+        templateKind,
+      )}
       marketingFullBleedShell={marketingShell}
-      marketingLandingFooterBrand={marketingFooterBrand}
+      marketingLandingFooterBrand={MARKETING_FOOTER_BRAND[templateKind]}
     />
   );
 }

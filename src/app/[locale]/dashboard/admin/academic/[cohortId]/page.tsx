@@ -208,6 +208,7 @@ export default async function AcademicCohortPage({ params, searchParams }: PageP
                     capacityLabel={d.capacityLabel}
                     archivedLabel={row.archivedAt ? d.sectionArchivedBadge : undefined}
                     periodLine={row.periodLine}
+                    imageUrl={row.referenceImageUrl}
                   />
                 ))}
               </div>

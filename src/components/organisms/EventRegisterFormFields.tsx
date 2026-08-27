@@ -9,6 +9,7 @@ import { EventRegisterCustomFileField } from "@/components/molecules/EventRegist
 import type { EventRegisterCustomFileFieldLabels } from "@/components/molecules/EventRegisterCustomFileField";
 import type { PublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
 import {
+  publicEventRegisterControlClass,
   publicEventRegisterFieldClass,
   publicEventRegisterLabelClass,
   publicEventRegisterTypography,
@@ -76,14 +77,8 @@ export function EventRegisterFormFields({
   const groupId = useId();
   const typography = publicEventRegisterTypography(surfaceVariant);
   const fieldClass = publicEventRegisterFieldClass(surfaceVariant);
-  const selectClass =
-    surfaceVariant === "espaciozenit"
-      ? `w-full rounded-xl border px-3 py-2 text-sm ${fieldClass}`
-      : "w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm";
-  const textareaClass =
-    surfaceVariant === "espaciozenit"
-      ? `w-full rounded-xl border px-3 py-2 text-sm ${fieldClass}`
-      : "w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm";
+  const selectClass = publicEventRegisterControlClass(surfaceVariant);
+  const textareaClass = publicEventRegisterControlClass(surfaceVariant);
 
   return (
     <div className="space-y-3">

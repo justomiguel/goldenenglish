@@ -23,6 +23,11 @@ vi.mock("@/lib/register/resolveExistingStudentByDni", () => ({
   resolveExistingStudentByDni: async () => ({ kind: "none" }),
 }));
 
+const mockStampExtras = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/register/packs/resolveAndStampTenantExtras", () => ({
+  resolveAndStampTenantExtras: (input: unknown) => mockStampExtras(input),
+}));
+
 vi.mock("@/lib/brand/legalAge", () => ({
   getLegalAgeMajorityFromSystem: () => 18,
 }));
@@ -79,7 +84,7 @@ const minor = {
 
 async function submit(token: string, raw: Record<string, unknown>) {
   const { submitSectionLinkRegistration } = await import(
-    "@/app/[locale]/i/[token]/actions"
+    "@/app/[locale]/i/actions"
   );
   return submitSectionLinkRegistration("es", token, raw as never);
 }
@@ -115,6 +120,7 @@ describe("submitSectionLinkRegistration", () => {
     revalidatePath.mockReset();
     insert.mockResolvedValue({ error: null });
     resolvesTo(SECTION);
+    mockStampExtras.mockResolvedValue({ ok: true, extras: {} });
   });
 
   it("rejects a malformed token without touching the database", async () => {
@@ -222,5 +228,20 @@ describe("submitSectionLinkRegistration", () => {
     const res = await submit(TOKEN, { ...minor, tutor_email: synthetic });
     expect(res.ok).toBe(false);
     expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("rejects extras when the tenant pack stamp fails", async () => {
+    mockStampExtras.mockResolvedValue({ ok: false });
+    const res = await submit(TOKEN, { ...adult, tenant_extras: { pack: "nago" } });
+    expect(res).toMatchObject({ ok: false, message: "validación" });
+    expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("persists stamped extras on the section-link insert", async () => {
+    const extras = { pack: "nago", schemaVersion: 1 };
+    mockStampExtras.mockResolvedValue({ ok: true, extras });
+    const res = await submit(TOKEN, { ...adult, tenant_extras: extras });
+    expect(res.ok).toBe(true);
+    expect(insert.mock.calls[0][0].tenant_extras).toEqual(extras);
   });
 });

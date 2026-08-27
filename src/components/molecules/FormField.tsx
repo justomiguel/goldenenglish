@@ -4,6 +4,7 @@ import { Input } from "@/components/atoms/Input";
 
 import type { PublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
 import {
+  publicEventHintClass,
   publicEventRegisterFieldClass,
   publicEventRegisterLabelClass,
 } from "@/lib/events/publicEventSurfaceClasses";
@@ -28,7 +29,6 @@ export function FormField({
 }: FormFieldProps) {
   const id = useId();
   const errorId = `${id}-error`;
-  const isEspacioZenit = surfaceVariant === "espaciozenit";
 
   return (
     <div className="space-y-1.5">
@@ -50,7 +50,7 @@ export function FormField({
         </p>
       ) : null}
       {hint && !error ? (
-        <p className={isEspacioZenit ? "text-sm text-neutral-400" : "text-sm text-[var(--color-muted-foreground)]"}>
+        <p className={publicEventHintClass(surfaceVariant)}>
           {hint}
         </p>
       ) : null}

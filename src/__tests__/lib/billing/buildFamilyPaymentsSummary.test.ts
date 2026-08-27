@@ -92,9 +92,145 @@ describe("buildFamilyPaymentsSummary", () => {
     ]);
 
     expect(summary.familyTotalPending).toBe(50);
+    expect(summary.unpaidFeesTotal).toBe(50);
     expect(summary.isFamilySettled).toBe(false);
     expect(summary.children[0]?.subtotal).toBe(50);
     expect(summary.children[1]?.subtotal).toBe(0);
+  });
+
+  it("sums overdue and current-month unpaid tuition, ignoring paid and future months", () => {
+    const summary = buildFamilyPaymentsSummary([
+      {
+        studentId: "a",
+        displayName: "Ana",
+        financialAccessActive: true,
+        monthlyView: baseView({
+          rows: [
+            {
+              sectionId: "s1",
+              sectionName: "A1",
+              cohortName: "C",
+              hasActivePlan: true,
+              enrollmentFeeAmount: 0,
+              enrollmentFeeExempt: false,
+              enrollmentFeeExemptReason: null,
+              enrollmentFeeCurrency: null,
+              cells: [
+                cell(3, "due", 80),
+                cell(5, "due", 120),
+                cell(6, "due", 90),
+              ],
+              currentPlan: null,
+              enrollmentId: null,
+              enrollmentFeeReceiptStatus: null,
+              enrollmentFeeReceiptSignedUrl: null,
+              lastEnrollmentPaidAt: null,
+              allowAdvanceMonthlyPayment: false,
+            },
+          ],
+        }),
+        invoices: [],
+      },
+      {
+        studentId: "b",
+        displayName: "Ben",
+        financialAccessActive: true,
+        monthlyView: baseView({
+          rows: [
+            {
+              sectionId: "s2",
+              sectionName: "B1",
+              cohortName: "C",
+              hasActivePlan: true,
+              enrollmentFeeAmount: 0,
+              enrollmentFeeExempt: false,
+              enrollmentFeeExemptReason: null,
+              enrollmentFeeCurrency: null,
+              cells: [cell(5, "approved", 200)],
+              currentPlan: null,
+              enrollmentId: null,
+              enrollmentFeeReceiptStatus: null,
+              enrollmentFeeReceiptSignedUrl: null,
+              lastEnrollmentPaidAt: null,
+              allowAdvanceMonthlyPayment: false,
+            },
+          ],
+        }),
+        invoices: [],
+      },
+    ]);
+
+    expect(summary.unpaidFeesTotal).toBe(200);
+    expect(summary.month).toBe(5);
+  });
+
+  it("includes overdue months even when the current month is paid or under review", () => {
+    const summary = buildFamilyPaymentsSummary([
+      {
+        studentId: "a",
+        displayName: "Ana",
+        financialAccessActive: true,
+        monthlyView: baseView({
+          rows: [
+            {
+              sectionId: "s1",
+              sectionName: "A1",
+              cohortName: "C",
+              hasActivePlan: true,
+              enrollmentFeeAmount: 0,
+              enrollmentFeeExempt: false,
+              enrollmentFeeExemptReason: null,
+              enrollmentFeeCurrency: null,
+              cells: [cell(5, "pending", 150), cell(3, "due", 80)],
+              currentPlan: null,
+              enrollmentId: null,
+              enrollmentFeeReceiptStatus: null,
+              enrollmentFeeReceiptSignedUrl: null,
+              lastEnrollmentPaidAt: null,
+              allowAdvanceMonthlyPayment: false,
+            },
+          ],
+        }),
+        invoices: [],
+      },
+    ]);
+
+    expect(summary.unpaidFeesTotal).toBe(80);
+    expect(summary.familyTotalPending).toBeGreaterThan(0);
+  });
+
+  it("hides unpaid total when every due-through-today month is already paid", () => {
+    const summary = buildFamilyPaymentsSummary([
+      {
+        studentId: "a",
+        displayName: "Ana",
+        financialAccessActive: true,
+        monthlyView: baseView({
+          rows: [
+            {
+              sectionId: "s1",
+              sectionName: "A1",
+              cohortName: "C",
+              hasActivePlan: true,
+              enrollmentFeeAmount: 0,
+              enrollmentFeeExempt: false,
+              enrollmentFeeExemptReason: null,
+              enrollmentFeeCurrency: null,
+              cells: [cell(5, "approved", 120), cell(6, "due", 90)],
+              currentPlan: null,
+              enrollmentId: null,
+              enrollmentFeeReceiptStatus: null,
+              enrollmentFeeReceiptSignedUrl: null,
+              lastEnrollmentPaidAt: null,
+              allowAdvanceMonthlyPayment: false,
+            },
+          ],
+        }),
+        invoices: [],
+      },
+    ]);
+
+    expect(summary.unpaidFeesTotal).toBe(0);
   });
 
   it("does not double-count enrollment when an open enrollment invoice exists", () => {

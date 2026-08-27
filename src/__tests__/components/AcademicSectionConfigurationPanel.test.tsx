@@ -33,6 +33,9 @@ vi.mock("@/components/organisms/AcademicSectionMinAttendanceEditor", () => ({
 vi.mock("@/components/organisms/AcademicSectionRoomLabelEditor", () => ({
   AcademicSectionRoomLabelEditor: () => <div data-testid="room-label-editor" />,
 }));
+vi.mock("@/components/organisms/AcademicSectionReferenceImageEditor", () => ({
+  AcademicSectionReferenceImageEditor: () => <div data-testid="reference-image-editor" />,
+}));
 
 type PageDict = Dictionary["dashboard"]["academicSectionPage"];
 
@@ -95,6 +98,7 @@ const sectionStub: AdminSectionPageData["section"] = {
   siteDefaultMinAttendancePercent: 75,
   requiresEvaluationsToPass: false,
   usesLearningRoute: false,
+  referenceImageUrl: null,
 };
 
 const emptyFeatureFlags = {} as PageDict["featureFlags"];
@@ -103,6 +107,7 @@ const emptyCapacity = {} as PageDict["capacity"];
 const emptyMinAttendance = {} as PageDict["minAttendance"];
 const emptyRoomLabel = {} as PageDict["roomLabel"];
 const emptyNameEditor = {} as PageDict["nameEditor"];
+const emptyReferenceImage = {} as PageDict["referenceImage"];
 
 describe("AcademicSectionConfigurationPanel", () => {
   it("renders the settings summary title and the week grid", () => {
@@ -119,6 +124,7 @@ describe("AcademicSectionConfigurationPanel", () => {
         minAttendanceDict={emptyMinAttendance}
         roomLabelDict={emptyRoomLabel}
         nameEditorDict={emptyNameEditor}
+        referenceImageDict={emptyReferenceImage}
         scheduleEditorDict={scheduleDict}
       />,
     );

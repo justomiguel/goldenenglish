@@ -13,6 +13,7 @@ import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
 import { sanitizeAnalyticsMetadata } from "@/lib/analytics/sanitizeMetadata";
 import { parseMonthlyGatewayReference } from "@/lib/billing/parseMonthlyGatewayReference";
 import { finalizeMercadoPagoMonthlySlot } from "@/lib/billing/finalizeMercadoPagoMonthlySlot";
+import { finalizeMercadoPagoMonthlyBundle } from "@/lib/billing/finalizeMercadoPagoMonthlyBundle";
 
 const MP_APPROVED = "approved";
 
@@ -71,6 +72,14 @@ export async function finalizeMercadoPagoPayment(input: {
   const ref = parseMonthlyGatewayReference(externalRef);
   if (!ref) {
     return { ok: true, skipped: "payment_not_found" };
+  }
+
+  if (ref.kind === "bundle") {
+    return finalizeMercadoPagoMonthlyBundle({
+      admin: input.admin,
+      bundleId: ref.bundleId,
+      snapshot,
+    });
   }
 
   // Deferred creation: a `tuition:` slot reference has no pre-existing row.

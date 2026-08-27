@@ -32,7 +32,10 @@ export interface FamilyPaymentChildSummary {
 
 export interface FamilyPaymentsSummary {
   year: number;
+  month: number;
   familyTotalPending: number;
+  /** Overdue + current-month tuition still due or rejected. Future months excluded. */
+  unpaidFeesTotal: number;
   isFamilySettled: boolean;
   children: FamilyPaymentChildSummary[];
 }
@@ -146,6 +149,20 @@ function monthlyLinesFromView(view: StudentMonthlyPaymentsView): FamilyPaymentLi
   return lines;
 }
 
+function unpaidFeesThroughCurrentMonth(view: StudentMonthlyPaymentsView): number {
+  const todayIdx = periodIndex(view.todayYear, view.todayMonth);
+  let total = 0;
+  for (const row of view.rows) {
+    for (const cell of row.cells) {
+      if (periodIndex(cell.year, cell.month) > todayIdx) continue;
+      if (cell.status !== "due" && cell.status !== "rejected") continue;
+      const expected = cell.expectedAmount ?? 0;
+      if (expected > 0) total += expected;
+    }
+  }
+  return round2(total);
+}
+
 function invoiceLines(invoices: BillingInvoiceRow[]): FamilyPaymentLine[] {
   return invoices
     .filter((i) => OPEN_INVOICE_STATUSES.includes(i.status))
@@ -167,9 +184,9 @@ function invoiceLines(invoices: BillingInvoiceRow[]): FamilyPaymentLine[] {
 export function buildFamilyPaymentsSummary(
   childrenInput: FamilyPaymentsChildInput[],
 ): FamilyPaymentsSummary {
-  const year =
-    childrenInput.find((c) => c.monthlyView)?.monthlyView?.todayYear ??
-    new Date().getFullYear();
+  const firstView = childrenInput.find((c) => c.monthlyView)?.monthlyView;
+  const year = firstView?.todayYear ?? new Date().getFullYear();
+  const month = firstView?.todayMonth ?? new Date().getMonth() + 1;
 
   const children: FamilyPaymentChildSummary[] = childrenInput.map((child) => {
     if (!child.financialAccessActive || !child.monthlyView) {
@@ -205,9 +222,18 @@ export function buildFamilyPaymentsSummary(
       .reduce((a, c) => a + c.subtotal, 0),
   );
 
+  let unpaidFeesTotal = 0;
+  for (const child of childrenInput) {
+    if (!child.financialAccessActive || !child.monthlyView) continue;
+    unpaidFeesTotal += unpaidFeesThroughCurrentMonth(child.monthlyView);
+  }
+  unpaidFeesTotal = round2(unpaidFeesTotal);
+
   return {
     year,
+    month,
     familyTotalPending,
+    unpaidFeesTotal,
     isFamilySettled: familyTotalPending <= 0,
     children,
   };

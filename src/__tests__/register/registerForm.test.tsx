@@ -371,6 +371,36 @@ describe("RegisterForm", () => {
     expect(screen.getByRole("button", { name: dictEn.register.submit })).toBeInTheDocument();
   });
 
+  it("still reaches Nagô extras after confirming an existing student", async () => {
+    lookupRegistrationStudentAction.mockResolvedValue({
+      ok: true,
+      found: true,
+      firstName: "Lucía",
+      lastName: "Sosa",
+    });
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={SECTION_OPTIONS}
+        extrasPack="nago"
+      />,
+    );
+    fillStudentFields();
+    pickRegisterBirthIso("2015-01-01");
+    await continueToDetails();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: dictEn.register.existingYes })).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole("button", { name: dictEn.register.existingYes }));
+    const continues = screen.getAllByRole("button", { name: dictEn.register.continue });
+    fireEvent.click(continues[continues.length - 1]);
+    await waitFor(() => {
+      expect(screen.getByText(dictEn.register.nagoPack.stepTitle)).toBeInTheDocument();
+    });
+  });
+
   it("does not submit when the match is rejected", async () => {
     lookupRegistrationStudentAction.mockResolvedValue({
       ok: true,
@@ -414,5 +444,56 @@ describe("RegisterForm", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(dictEn.register.lookupFailed);
     expect(screen.queryByLabelText(dictEn.register.email)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: dictEn.register.continue })).toBeInTheDocument();
+  });
+
+  it("does not show the Nagô extras step without a pack", async () => {
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={SECTION_OPTIONS}
+      />,
+    );
+    fillStudentFields();
+    pickRegisterBirthIso("2000-06-15");
+    await continueToDetails();
+    await waitFor(() => {
+      expect(screen.getByLabelText(dictEn.register.email)).toBeInTheDocument();
+    });
+    expect(screen.queryByText(dictEn.register.nagoPack.stepTitle)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: dictEn.register.submit })).toBeInTheDocument();
+  });
+
+  it("opens the Nagô extras step after details Continue", async () => {
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={SECTION_OPTIONS}
+        extrasPack="nago"
+      />,
+    );
+    fillStudentFields();
+    pickRegisterBirthIso("2000-06-15");
+    await continueToDetails();
+    await waitFor(() => {
+      expect(screen.getByLabelText(dictEn.register.email)).toBeInTheDocument();
+    });
+    fireEvent.change(screen.getByLabelText(dictEn.register.email), {
+      target: { value: "a@b.co" },
+    });
+    fireEvent.change(screen.getByLabelText(dictEn.register.phone), {
+      target: { value: "+100" },
+    });
+    chooseSection();
+    const continues = screen.getAllByRole("button", { name: dictEn.register.continue });
+    fireEvent.click(continues[continues.length - 1]);
+    await waitFor(() => {
+      expect(screen.getByText(dictEn.register.nagoPack.stepTitle)).toBeInTheDocument();
+    });
+    expect(submitPublicRegistration).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: dictEn.register.submit })).toBeInTheDocument();
   });
 });

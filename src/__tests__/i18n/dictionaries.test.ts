@@ -65,6 +65,18 @@ describe("getDictionary", () => {
     expect(es.dashboard.academicHub.table.openCohortTitle).toBeTruthy();
   });
 
+  it("includes section photo copy in en, es, and pt", async () => {
+    const en = await getDictionary("en");
+    const es = await getDictionary("es");
+    const pt = await getDictionary("pt");
+    expect(en.dashboard.academicCohortPage.newSectionModal.photoLabel).toBeTruthy();
+    expect(es.dashboard.academicCohortPage.newSectionModal.photoLabel).toBeTruthy();
+    expect(pt.dashboard.academicCohortPage.newSectionModal.photoLabel).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.referenceImage.replace).toBeTruthy();
+    expect(es.dashboard.academicSectionPage.referenceImage.remove).toBeTruthy();
+    expect(pt.dashboard.academicSectionPage.referenceImage.empty).toBeTruthy();
+  });
+
   it("includes academic section shell tabs copy in en and es", async () => {
     const en = await getDictionary("en");
     const es = await getDictionary("es");
@@ -120,6 +132,21 @@ describe("getDictionary", () => {
         expect(studentNav[key], `${locale} studentNav.${key}`).toBeTruthy();
       }
     }
+  });
+
+  it("includes Nagô extras and protocol copy in en, es, and pt", async () => {
+    const en = await getDictionary("en");
+    const es = await getDictionary("es");
+    const pt = await getDictionary("pt");
+    expect(en.register.nagoPack.stepTitle).toBeTruthy();
+    expect(es.register.nagoPack.stepTitle).toBeTruthy();
+    expect(pt.register.nagoPack.stepTitle).toBeTruthy();
+    expect(en.register.nagoProtocol.sections.declaration.title).toBeTruthy();
+    expect(es.register.nagoProtocol.sections.declaration.title).toBeTruthy();
+    expect(pt.register.nagoProtocol.sections.declaration.title).toBeTruthy();
+    expect(en.admin.registrations.nagoExtrasTitle).toBeTruthy();
+    expect(es.admin.registrations.nagoExtrasTitle).toBeTruthy();
+    expect(pt.admin.registrations.nagoExtrasTitle).toBeTruthy();
   });
 
   it("falls back to default for unknown locale", async () => {

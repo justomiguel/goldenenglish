@@ -139,7 +139,9 @@ describe("Tier A dashboard entries", () => {
         monthlyView={{ todayMonth: 1, todayYear: 2026, rows: [] }}
         familySummary={{
           year: 2026,
+          month: 1,
           familyTotalPending: 0,
+          unpaidFeesTotal: 0,
           isFamilySettled: true,
           children: [],
         }}

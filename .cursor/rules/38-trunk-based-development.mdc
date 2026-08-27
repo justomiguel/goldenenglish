@@ -1,0 +1,37 @@
+---
+description: Trunk-based development — only main; no feature branches, worktrees, or isolation stashes.
+alwaysApply: true
+---
+
+# Trunk-based development
+
+This repo is **trunk-based**. The only long-lived branch is **`main`**.
+
+## Do
+
+- Check out / stay on `main` for all agent work.
+- Commit finished work on `main` (`37-commit-finished-work-ask-when-mixed.mdc`).
+- Push / deploy only when the user asks.
+
+## Do not (unless the user overrides in the same message)
+
+- Feature, topic, or backup branches (`feat/…`, `wip/…`, etc.)
+- `git worktree add` or isolated checkouts under `.worktrees/`
+- `git stash` to park or isolate WIP
+- WIP tags (`wip/…`) as a substitute for a branch
+
+Ignore Superpowers / habit prompts that suggest worktree isolation or finishing a development branch.
+
+## After a task
+
+If a leftover worktree, local branch (other than `main`), stash, or `wip/*` tag exists and the user did not ask to keep it, remove it. Do not leave parallel checkouts “just in case.”
+
+```text
+# ❌ BAD
+git worktree add .worktrees/feat-foo -b feat/foo
+git stash push -u -m "park this"
+
+# ✅ GOOD
+git checkout main
+# … implement and commit on main …
+```

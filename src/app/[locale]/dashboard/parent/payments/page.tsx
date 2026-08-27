@@ -86,6 +86,7 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
         initialFocus={payload.initialFocus}
         bankTransferInstructions={payload.bankTransferInstructions}
         shellOwnsFocus
+        enableParentReview
       />
     </Suspense>
   );

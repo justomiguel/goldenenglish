@@ -157,7 +157,8 @@
       "enrollmentAlreadyApproved": "This enrollment fee has already been confirmed.",
       "enrollmentNotFound": "Active enrollment not found for this student and section.",
       "enrollmentFeeExempt": "This student is exempt from the enrollment fee.",
-      "futureMonthNotAllowed": "This section does not allow paying that future month yet."
+      "futureMonthNotAllowed": "This section does not allow paying that future month yet.",
+      "staleSnapshot": "The amounts changed. Go back and review again."
     },
     "admin": {
       "invalidData": "Invalid data.",
@@ -728,7 +729,7 @@
         "shellLead": "Share your details. Our team confirms group fit and replies with how to train with us safely."
       },
       "hero": {
-        "title": "We are Capoeira Nago",
+        "title": "We are Nago",
         "subtitle": "Tradition that moves, culture that lives",
         "tagline": "Capoeira is more than a martial art: it's music, dance, tradition, and community."
       },
@@ -3561,6 +3562,23 @@
       "editInvalid": "Check the data (emails and dates).",
       "editLevelPlaceholder": "A1",
       "emptyValue": "—",
+      "nagoExtrasTitle": "Nagô form",
+      "nagoNationality": "Nationality",
+      "nagoAddress": "Address",
+      "nagoCommune": "Commune",
+      "nagoSchool": "School",
+      "nagoInsurance": "Health insurance",
+      "nagoBloodType": "Blood type",
+      "nagoAllergies": "Allergies",
+      "nagoCondition": "Health condition",
+      "nagoHealthCenter": "Preferred clinic",
+      "nagoEmergencyName": "Emergency contact",
+      "nagoEmergencyRelationship": "Emergency relationship",
+      "nagoEmergencyPhone": "Emergency phone",
+      "nagoProtocolVersion": "Protocol version",
+      "nagoSignerName": "Signer",
+      "nagoSignerDni": "Signer document",
+      "nagoAcceptedAt": "Accepted on",
       "tutorAccountDefaultFirst": "Tutor",
       "sectionPickerTitle": "Assign to a section",
       "sectionPickerLead": "Choose a section from the current cohort",
@@ -4184,7 +4202,96 @@
     "sectionsTitle": "Sections",
     "sectionsHint": "You can choose more than one.",
     "sectionsAlsoJoin": "They can also join…",
-    "documentInUse": "This document already belongs to another account. Contact the institute."
+    "documentInUse": "This document already belongs to another account. Contact the institute.",
+    "nagoPack": {
+      "stepTitle": "Nagô enrollment form",
+      "studentExtraTitle": "Student details",
+      "nationality": "Nationality",
+      "address": "Address",
+      "commune": "Commune",
+      "school": "School",
+      "healthTitle": "Health and emergency information",
+      "healthInsurance": "Health insurance",
+      "healthInsuranceFonasa": "Fonasa",
+      "healthInsuranceIsapre": "Isapre",
+      "healthInsuranceOther": "Other",
+      "healthInsuranceOtherSpecify": "Specify insurance",
+      "bloodType": "Blood type (if known)",
+      "bloodTypeUnknown": "I don't know",
+      "hasAllergies": "Does the student have any allergies?",
+      "hasMedicalCondition": "Is there any illness, injury, health condition or relevant history we should know?",
+      "yes": "Yes",
+      "no": "No",
+      "specify": "Specify",
+      "preferredHealthCenter": "Preferred clinic or hospital in an emergency",
+      "emergencyTitle": "Emergency contact",
+      "emergencyName": "Full name",
+      "emergencyRelationship": "Relationship",
+      "emergencyPhone": "Phone",
+      "useTutorData": "Use the guardian's details",
+      "careInsurance": "Insurance",
+      "careBloodType": "Blood type",
+      "careCondition": "Condition",
+      "careHealthCenter": "Clinic",
+      "careAllergies": "Allergies",
+      "careNone": "No"
+    },
+    "nagoProtocol": {
+      "title": "Admission and operating protocol",
+      "acceptLabel": "I have read and understood the Capoeira Nagô Admission and Operating Protocol and I accept its rules and conditions.",
+      "signerName": "Signer's name",
+      "signerDni": "Signer's RUT / DNI / passport",
+      "sections": {
+        "inscription": {
+          "title": "1. Enrollment and acceptance of the protocol",
+          "body": "Every new student must complete the enrollment and registration form. Enrollment means the student — or, for minors, their guardian — knows and accepts this protocol. Information must be true and kept up to date. Any relevant change must be reported to the School. The School may update this protocol and will inform students and guardians in due time."
+        },
+        "tuition": {
+          "title": "2. Monthly fee and payment",
+          "body": "The monthly fee is due within the first 5 calendar days of each month. Timely payment keeps the place in class and supports planning. Repeated late payment may lead to temporary suspension from class or loss of the assigned slot. The fee is the right to attend that month's classes, not a count of classes actually attended."
+        },
+        "attendance": {
+          "title": "3. Attendance and make-up classes",
+          "body": "A student may make up a class only with at least 24 hours' notice and if another slot is available. Without 24 hours' notice the class counts as taken and is not make-up eligible. If the teacher cancels a class, the School will offer an alternative (another class, a special workshop, or another agreed format). If a direct make-up is not possible, the School will assess a suitable solution."
+        },
+        "freeze": {
+          "title": "4. Freezing continuity — temporary pause",
+          "body": "A student may temporarily freeze continuity for holidays, illness, or force majeure. Notice must be given before the pause starts. Freezes are not retroactive. The monthly fee is not frozen automatically without prior notice. A freeze keeps the place so the student can return without a new enrollment, subject to the School's conditions."
+        },
+        "events": {
+          "title": "5. Events, rodas and special activities",
+          "body": "The School will organize activities during the year that may include rodas, workshops, championships, meetings with other groups, cultural activities and special events. Participation is strongly encouraged: these activities are part of learning and development in capoeira. Some events may have extra costs, announced in advance."
+        },
+        "conduct": {
+          "title": "6. Conduct and coexistence",
+          "body": "Students are expected to respect teachers, classmates, guardians and the space; be on time; use appropriate language; take part in good faith; and care for materials and facilities. Serious disrespect, aggression outside the practice, harassment, intimidation, discrimination or behavior that harms the group will not be tolerated."
+        },
+        "health": {
+          "title": "7. Health and responsibility",
+          "body": "The student or guardian must report any health information relevant to practicing capoeira, including injuries, allergies, physical restrictions or conditions that may need special attention. Students must follow the teacher's safety instructions. The School is not responsible for consequences of withheld relevant information or deliberate disregard of safety instructions."
+        },
+        "communication": {
+          "title": "8. Official communication",
+          "body": "All relevant communication about payments, absences, freezes, activities, events or questions must go through the School's official channels. Contact details must be kept up to date. Clear, timely communication is a shared responsibility of the School, the student and the guardian."
+        },
+        "termination": {
+          "title": "9. Suspension or end of the relationship",
+          "body": "The School may suspend or end a student's continuity for repeated protocol breaches, serious coexistence violations, conduct that puts others at risk, or repeated failure to meet obligations to the School. The student or guardian may leave the School with reasonable notice."
+        },
+        "attire": {
+          "title": "10. Clothing and personal items",
+          "body": "Official class wear is a Capoeira Nagô T-shirt and white Capoeira Nagô trousers. Until a new student has the official uniform, comfortable sportswear that allows safe movement is fine. Clothing or accessories that restrict movement or cause accidents are not allowed. Each student must bring a personal water bottle and towel. The School is not required to provide these."
+        },
+        "hygiene": {
+          "title": "11. Hygiene and care of the space",
+          "body": "Students are expected to keep good personal hygiene, wear clean clothes to each class, keep the practice space tidy, and care for equipment. Repeated failure may be addressed with the student or, for minors, with their guardian."
+        },
+        "declaration": {
+          "title": "Declaration and acceptance",
+          "body": "I declare that the information on this Enrollment and Registration Form is true and correct. If I represent a minor, I authorize their enrollment and participation in regular Capoeira Nagô Chile classes and I commit to report any relevant change, especially those related to health and safety."
+        }
+      }
+    }
   },
   "publicContact": {
     "metaTitle": "Contact",
@@ -7810,6 +7917,12 @@
       "newSectionModal": {
         "title": "Create section",
         "nameLabel": "Section name",
+        "photoLabel": "Section photo",
+        "photoHint": "Optional. Used when sharing the enrollment link and on the section page.",
+        "photoInvalid": "Use a JPG, PNG, or WebP image up to 2 MB.",
+        "uploadProgressReading": "Preparing photo…",
+        "uploadProgressSending": "Creating section…",
+        "photoSaveFailed": "The section was created, but the photo did not save. You can add it on the section page.",
         "teacherLabel": "Teacher",
         "scheduleTitle": "Schedule",
         "scheduleHint": "Add at least one weekly slot for this section.",
@@ -7977,6 +8090,16 @@
         "error": "Could not save. Try again.",
         "duplicate": "Another section in this cohort already uses that name.",
         "tooShort": "Use at least 2 characters."
+      },
+      "referenceImage": {
+        "label": "Section photo",
+        "empty": "No photo yet. The enrollment link uses a generic image when shared.",
+        "replace": "Change photo",
+        "remove": "Remove photo",
+        "invalid": "Use a JPG, PNG, or WebP image up to 2 MB.",
+        "error": "Could not save the photo.",
+        "uploadProgressReading": "Preparing photo…",
+        "uploadProgressSending": "Saving photo…"
       },
       "staff": {
         "title": "Teaching staff",
@@ -9378,6 +9501,19 @@
       "paymentsNoLinkedStudents": "No students are linked to your account yet.",
       "paymentsAccessRevokedTitle": "This student manages their own payments",
       "paymentsAccessRevokedBody": "They have revoked your access to their financial information. Ask them to restore it from their profile if you need to upload a receipt.",
+      "paymentsReview": {
+        "title": "Review payment",
+        "lead": "Check what you will pay for {student} in {period}. You can go back without paying.",
+        "back": "Back to payments",
+        "scopeLegend": "What do you want to pay?",
+        "scopeThis": "Only this class: {section}",
+        "scopeAll": "Every class that can be paid this month",
+        "lineScholarship": "{percent}% scholarship",
+        "total": "Total",
+        "continuePay": "Continue to pay",
+        "emptyOrigin": "This class does not have an amount to pay this month.",
+        "periodLabel": "{month} {year}"
+      },
       "child": "Student",
       "month": "Month",
       "year": "Year",
@@ -9751,8 +9887,8 @@
       "wardPasswordRequired": "Enter your current password to change the student's login email.",
       "wardPasswordInvalid": "That password does not match your account.",
       "paymentsPwa": {
-        "familyTotalLabel": "Family balance due",
-        "familyTotalHint": "Consolidated pending amount for {year} (monthly fees, invoices, enrollment).",
+        "familyTotalLabel": "Unpaid fees",
+        "familyTotalHint": "Total of overdue and current-month fees that are still unpaid.",
         "settledBanner": "All set for {year}",
         "breakdownTitle": "By student",
         "breakdownAria": "Pending amounts by linked student",

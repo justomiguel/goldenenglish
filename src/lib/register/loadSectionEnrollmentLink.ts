@@ -11,6 +11,7 @@ type ResolvedRow = {
   cohort_name?: string | null;
   schedule_slots?: unknown;
   seats_remaining?: number | null;
+  reference_image_path?: string | null;
 };
 
 /**
@@ -41,5 +42,9 @@ export async function loadSectionEnrollmentLink(
     cohortName: row.cohort_name ? String(row.cohort_name) : "",
     scheduleSlots: parseSectionScheduleSlots(row.schedule_slots),
     seatsRemaining: typeof seats === "number" ? seats : null,
+    referenceImagePath:
+      typeof row.reference_image_path === "string" && row.reference_image_path.trim()
+        ? row.reference_image_path.trim()
+        : null,
   };
 }

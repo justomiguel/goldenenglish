@@ -63,9 +63,11 @@ describe("LandingLioraSections", () => {
 
   it("falls back to the bundled hero photo when no media override exists", () => {
     const { container } = render(<LandingLioraSections {...defaultProps} />);
-
     const hero = container.querySelector(".liora-hero") as HTMLElement;
-    expect(hero.style.backgroundImage).toContain("/images/liora/inicio/1.jpg");
+    expect(hero.style.backgroundImage).toBe("");
+    expect(
+      container.querySelector('img[src="/images/liora/inicio/1.jpg"]'),
+    ).toBeTruthy();
   });
 
   it("uses the CMS override for the hero background when present", () => {
@@ -76,9 +78,9 @@ describe("LandingLioraSections", () => {
         mediaMap={new Map([["inicio::1", override]])}
       />,
     );
-
     const hero = container.querySelector(".liora-hero") as HTMLElement;
-    expect(hero.style.backgroundImage).toContain(override);
+    expect(hero.style.backgroundImage).toBe("");
+    expect(container.querySelector(`img[src="${override}"]`)).toBeTruthy();
   });
 
   it("delegates gallery, contact panel and footer to their own organisms", () => {

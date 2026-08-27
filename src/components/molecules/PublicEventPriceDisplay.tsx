@@ -4,6 +4,7 @@ import {
   resolveEventPublicPriceDisplay,
 } from "@/lib/events/resolveEventPublicPriceDisplay";
 import type { PublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
+import { publicEventPriceChrome } from "@/lib/events/publicEventSurfaceClasses";
 
 interface PublicEventPriceDisplayProps {
   source: EventPriceSource;
@@ -28,22 +29,11 @@ export function PublicEventPriceDisplay({
   surfaceVariant = "default",
 }: PublicEventPriceDisplayProps) {
   const price = resolveEventPublicPriceDisplay(source, currency);
-  const isEspacioZenit = surfaceVariant === "espaciozenit";
-  const featuredClass = isEspacioZenit
-    ? "text-2xl font-semibold tracking-tight text-[var(--ez-cyan-soft)]"
-    : "text-2xl font-semibold tracking-tight text-[var(--color-secondary)]";
-  const compactClass = isEspacioZenit
-    ? "text-sm font-semibold text-neutral-100"
-    : "text-sm font-semibold text-[var(--color-foreground)]";
-  const labelClass = isEspacioZenit
-    ? "text-xs font-medium uppercase tracking-wide text-neutral-400"
-    : "text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]";
-  const amountClass =
-    variant === "featured"
-      ? isEspacioZenit
-        ? "text-lg font-semibold text-white"
-        : "text-lg font-semibold text-[var(--color-foreground)]"
-      : compactClass;
+  const chrome = publicEventPriceChrome(surfaceVariant);
+  const featuredClass = chrome.featured;
+  const compactClass = chrome.compact;
+  const labelClass = chrome.label;
+  const amountClass = variant === "featured" ? chrome.featuredAmount : compactClass;
 
   if (price.kind === "free") {
     return (

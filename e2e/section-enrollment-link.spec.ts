@@ -7,7 +7,11 @@ import {
   resolveE2eIsolation,
 } from "./env";
 import { gotoIsolated } from "./helpers/gotoIsolated";
-import { continueRegisterAfterStudent, pickRegisterBirthIso } from "./helpers/registerForm";
+import {
+  continueRegisterAfterStudent,
+  pickRegisterBirthIso,
+  submitRegisterAfterDetails,
+} from "./helpers/registerForm";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -52,8 +56,8 @@ test.describe("@critical-section-enrollment-link", () => {
     }
 
     const inviteUrl = await urlField.inputValue();
-    expect(inviteUrl).toMatch(new RegExp(`/${locale}/i/[0-9a-f-]{36}`, "i"));
-    const token = inviteUrl.split("/i/")[1]?.split(/[?#]/)[0];
+    expect(inviteUrl).toMatch(new RegExp(`/${locale}/i/[a-z0-9-]+/[0-9a-f-]{36}`, "i"));
+    const token = inviteUrl.split("/").filter(Boolean).pop();
     expect(token).toBeTruthy();
 
     // Ensure the link is active before the family opens it.
@@ -65,7 +69,7 @@ test.describe("@critical-section-enrollment-link", () => {
 
     const family = await browser.newContext();
     const familyPage = await family.newPage();
-    await familyPage.goto(inviteUrl, { waitUntil: "domcontentloaded" });
+    await familyPage.goto(`/${locale}/i/${token}`, { waitUntil: "domcontentloaded" });
     await expect(
       familyPage.getByRole("group", { name: SL.heading }),
     ).toBeVisible({ timeout: 45_000 });
@@ -81,7 +85,7 @@ test.describe("@critical-section-enrollment-link", () => {
     await expect(familyPage.locator("#rg-em")).toBeVisible({ timeout: 20_000 });
     await familyPage.locator("#rg-em").fill(`e2e-link-${suffix}@example.test`);
     await familyPage.locator("#rg-ph").fill("+5491112345678");
-    await familyPage.getByRole("button", { name: /enviar|submit|inscrib/i }).click();
+    await submitRegisterAfterDetails(familyPage);
     await expect(familyPage.getByRole("dialog")).toBeVisible({ timeout: 45_000 });
     await family.close();
 

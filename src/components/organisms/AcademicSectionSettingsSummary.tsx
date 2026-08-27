@@ -8,6 +8,7 @@ import { AcademicSectionRoomLabelEditor } from "@/components/organisms/AcademicS
 import { AcademicSectionCapacityEditor } from "@/components/organisms/AcademicSectionCapacityEditor";
 import { AcademicSectionMinAttendanceEditor } from "@/components/organisms/AcademicSectionMinAttendanceEditor";
 import { AcademicSectionFeatureFlagsEditor } from "@/components/organisms/AcademicSectionFeatureFlagsEditor";
+import { AcademicSectionReferenceImageEditor } from "@/components/organisms/AcademicSectionReferenceImageEditor";
 
 type PageDict = Dictionary["dashboard"]["academicSectionPage"];
 
@@ -22,6 +23,7 @@ export interface AcademicSectionSettingsSummaryProps {
   minAttendanceDict: PageDict["minAttendance"];
   roomLabelDict: PageDict["roomLabel"];
   nameEditorDict: PageDict["nameEditor"];
+  referenceImageDict: PageDict["referenceImage"];
 }
 
 export function AcademicSectionSettingsSummary({
@@ -35,6 +37,7 @@ export function AcademicSectionSettingsSummary({
   minAttendanceDict,
   roomLabelDict,
   nameEditorDict,
+  referenceImageDict,
 }: AcademicSectionSettingsSummaryProps) {
   return (
     <AcademicSectionAreaBlock
@@ -53,6 +56,12 @@ export function AcademicSectionSettingsSummary({
               sectionId={sectionId}
               initialName={section.name}
               dict={nameEditorDict}
+            />
+            <AcademicSectionReferenceImageEditor
+              locale={locale}
+              sectionId={sectionId}
+              imageUrl={section.referenceImageUrl}
+              dict={referenceImageDict}
             />
             <AcademicSectionPeriodEditor
               embedded

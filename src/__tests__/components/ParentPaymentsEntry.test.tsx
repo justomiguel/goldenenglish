@@ -54,7 +54,9 @@ const feesPanel = <div data-testid="fees-panel" />;
 
 const emptyFamilySummary = {
   year: 2026,
+  month: 1,
   familyTotalPending: 0,
+  unpaidFeesTotal: 0,
   isFamilySettled: true,
   children: [],
 };
@@ -104,7 +106,9 @@ describe("ParentPaymentsEntry", () => {
         monthlyView={{ todayMonth: 1, todayYear: 2026, rows: [] }}
         familySummary={{
           year: 2026,
+          month: 1,
           familyTotalPending: 500,
+          unpaidFeesTotal: 300,
           isFamilySettled: false,
           children: [
             {
@@ -149,6 +153,7 @@ describe("ParentPaymentsEntry", () => {
       expect.objectContaining({
         receiptExpectedUsesFullMonth: true,
         tutorPaymentMethodTabs: true,
+        parentReviewHref: undefined,
       }),
     );
   });

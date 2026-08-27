@@ -11,6 +11,7 @@ import {
   chooseRegisterSectionByName,
   continueRegisterAfterStudent,
   pickRegisterBirthIso,
+  submitRegisterAfterDetails,
 } from "./helpers/registerForm";
 
 const paths = e2eAuthPaths();
@@ -52,7 +53,7 @@ test.describe("@critical-registration", () => {
     await page.locator("#rg-tr").fill("Madre");
     await chooseRegisterSectionByName(page, /E2E Section A/i);
     await chooseRegisterSectionByName(page, /E2E Section B/i);
-    await page.getByRole("button", { name: R.submit }).click();
+    await submitRegisterAfterDetails(page);
     const successDialog = page.getByRole("dialog");
     const formAlert = page.getByRole("alert");
     await expect(successDialog.or(formAlert)).toBeVisible({ timeout: 45_000 });
@@ -117,7 +118,7 @@ test.describe("@critical-registration", () => {
     await familyPage.getByRole("button", { name: R.existingYes }).click();
     await expect(familyPage.getByText(R.tutorSectionTitle)).toHaveCount(0);
     await chooseRegisterSectionByName(familyPage, /E2E Section B/i);
-    await familyPage.getByRole("button", { name: R.submit }).click();
+    await submitRegisterAfterDetails(familyPage);
     await expect(familyPage.getByRole("dialog")).toBeVisible({ timeout: 45_000 });
     await family.close();
 

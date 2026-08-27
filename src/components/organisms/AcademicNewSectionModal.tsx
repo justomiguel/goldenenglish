@@ -8,14 +8,16 @@ import { SectionScheduleFields } from "@/components/molecules/SectionScheduleFie
 import { SectionPeriodFields } from "@/components/molecules/SectionPeriodFields";
 import { NewSectionMaxStudentsFields } from "@/components/molecules/NewSectionMaxStudentsFields";
 import { NewSectionTeacherAndNameFields } from "@/components/molecules/NewSectionTeacherAndNameFields";
-import { createAcademicSectionAction } from "@/app/[locale]/dashboard/admin/academic/sectionActions";
+import { NewSectionPhotoFields } from "@/components/molecules/NewSectionPhotoFields";
+import { submitNewAcademicSection } from "@/lib/academics/submitNewAcademicSection";
+import { isAllowedSectionImageUpload } from "@/lib/register/sectionReferenceImage";
 import { useAdminTourSessionActive } from "@/lib/admin-tutorials/client/adminTourSession";
+import { sectionScheduleDraftsToSlots } from "@/lib/academics/sectionScheduleDrafts";
 import {
-  createEmptySectionScheduleSlotDraft,
-  sectionScheduleDraftsToSlots,
-  type SectionScheduleSlotDraft,
-} from "@/lib/academics/sectionScheduleDrafts";
-import { defaultSectionPeriodInitial, parseCustomMaxStudents } from "@/lib/academics/newSectionModalHelpers";
+  defaultSectionPeriodInitial,
+  emptyNewSectionFormState,
+  parseCustomMaxStudents,
+} from "@/lib/academics/newSectionModalHelpers";
 import type { AcademicNewSectionModalProps } from "./AcademicNewSectionModal.types";
 
 export type { AcademicNewSectionModalDict, AcademicNewSectionModalProps } from "./AcademicNewSectionModal.types";
@@ -31,15 +33,18 @@ export function AcademicNewSectionModal({
 }: AcademicNewSectionModalProps) {
   const tourActive = useAdminTourSessionActive();
   const [retainStackedAfterTour, setRetainStackedAfterTour] = useState(false);
-  const [name, setName] = useState("");
-  const [teacherId, setTeacherId] = useState("");
+  const empty = emptyNewSectionFormState();
+  const [name, setName] = useState(empty.name);
+  const [teacherId, setTeacherId] = useState(empty.teacherId);
   const [startsOn, setStartsOn] = useState(() => defaultSectionPeriodInitial().startsOn);
   const [endsOn, setEndsOn] = useState(() => defaultSectionPeriodInitial().endsOn);
-  const [customizeMax, setCustomizeMax] = useState(false);
-  const [maxRaw, setMaxRaw] = useState("");
-  const [scheduleRows, setScheduleRows] = useState<SectionScheduleSlotDraft[]>([
-    createEmptySectionScheduleSlotDraft(),
-  ]);
+  const [customizeMax, setCustomizeMax] = useState(empty.customizeMax);
+  const [maxRaw, setMaxRaw] = useState(empty.maxRaw);
+  const [scheduleRows, setScheduleRows] = useState(empty.scheduleRows);
+  const [photo, setPhoto] = useState<File | null>(empty.photo);
+  const [photoInvalid, setPhotoInvalid] = useState(empty.photoInvalid);
+  const [photoPhase, setPhotoPhase] = useState<"idle" | "reading" | "sending">("idle");
+  const [photoPct, setPhotoPct] = useState(0);
   const [err, setErr] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const [openSnapshot, setOpenSnapshot] = useState(open);
@@ -61,11 +66,15 @@ export function AcademicNewSectionModal({
 
   const handleModalOpenChange = (next: boolean) => {
     if (!next) {
-      setName("");
-      setTeacherId("");
-      setCustomizeMax(false);
-      setMaxRaw("");
-      setScheduleRows([createEmptySectionScheduleSlotDraft()]);
+      const reset = emptyNewSectionFormState();
+      setName(reset.name);
+      setTeacherId(reset.teacherId);
+      setCustomizeMax(reset.customizeMax);
+      setMaxRaw(reset.maxRaw);
+      setScheduleRows(reset.scheduleRows);
+      setPhoto(reset.photo);
+      setPhotoInvalid(reset.photoInvalid);
+      setPhotoPhase("idle");
       setErr(null);
     }
     onOpenChange(next);
@@ -84,8 +93,12 @@ export function AcademicNewSectionModal({
       setErr(dict.scheduleInvalid);
       return;
     }
+    if (photo && !isAllowedSectionImageUpload(photo.type, photo.size)) {
+      setErr(dict.photoInvalid);
+      return;
+    }
     start(async () => {
-      const r = await createAcademicSectionAction({
+      const r = await submitNewAcademicSection({
         locale,
         cohortId,
         name,
@@ -94,45 +107,24 @@ export function AcademicNewSectionModal({
         endsOn,
         maxStudents,
         scheduleSlots,
+        photo,
+        onReadProgress: setPhotoPct,
+        onPhase: setPhotoPhase,
       });
       if (!r.ok) {
         setErr(dict.error);
         return;
       }
+      if (photo && !r.imageSaved) {
+        setErr(dict.photoSaveFailed);
+      }
       handleModalOpenChange(false);
-      // Hard navigate: soft push races hub revalidation and can leave the user on the
-      // cohort page after create (create-section E2E) — same pattern as new cohort.
-      window.location.assign(
-        `/${locale}/dashboard/admin/academic/${cohortId}/${r.id}`,
-      );
+      window.location.assign(`/${locale}/dashboard/admin/academic/${cohortId}/${r.id}`);
     });
   };
 
-  const periodDict = {
-    startsLabel: dict.sectionPeriodStartsLabel,
-    endsLabel: dict.sectionPeriodEndsLabel,
-  };
-
-  const basicsDict = {
-    nameLabel: dict.nameLabel,
-    teacherLabel: dict.teacherLabel,
-    teacherPlaceholder: dict.teacherPlaceholder,
-  };
-
-  const maxDict = {
-    maxStudentsLabel: dict.maxStudentsLabel,
-    maxStudentsDefaultHint: dict.maxStudentsDefaultHint,
-    maxStudentsCustomize: dict.maxStudentsCustomize,
-    maxStudentsCustomLabel: dict.maxStudentsCustomLabel,
-    maxStudentsCustomHint: dict.maxStudentsCustomHint,
-  };
-
   const canSubmit =
-    name.trim().length >= 2 &&
-    teacherId.length > 0 &&
-    teachers.length > 0 &&
-    startsOn.length > 0 &&
-    endsOn.length > 0;
+    name.trim().length >= 2 && teacherId.length > 0 && teachers.length > 0 && startsOn && endsOn;
 
   return (
     <Modal
@@ -155,8 +147,20 @@ export function AcademicNewSectionModal({
             teacherId={teacherId}
             onTeacherIdChange={setTeacherId}
             teachers={teachers}
-            dict={basicsDict}
+            dict={dict}
             disabled={pending}
+          />
+          <NewSectionPhotoFields
+            file={photo}
+            invalid={photoInvalid}
+            disabled={pending}
+            phase={photoPhase}
+            pct={photoPct}
+            dict={dict}
+            onFileChange={(next, bad) => {
+              setPhoto(next);
+              setPhotoInvalid(bad);
+            }}
           />
         </div>
 
@@ -169,7 +173,10 @@ export function AcademicNewSectionModal({
             setStartsOn(s);
             setEndsOn(e);
           }}
-          dict={periodDict}
+          dict={{
+            startsLabel: dict.sectionPeriodStartsLabel,
+            endsLabel: dict.sectionPeriodEndsLabel,
+          }}
           disabled={pending}
         />
         </div>
@@ -184,7 +191,7 @@ export function AcademicNewSectionModal({
           }}
           maxRaw={maxRaw}
           onMaxRawChange={setMaxRaw}
-          dict={maxDict}
+          dict={dict}
           disabled={pending}
         />
 

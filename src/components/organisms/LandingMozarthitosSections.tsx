@@ -10,6 +10,7 @@ import {
   marketingLandingCopy,
   marketingLandingParagraphs,
 } from "@/lib/landing/mzLandingCopy";
+import { LandingHeroPhoto } from "@/components/molecules/LandingHeroPhoto";
 import { MozarthitosReveal } from "@/components/molecules/MozarthitosReveal";
 import { MozarthitosBioTabs } from "@/components/organisms/MozarthitosBioTabs";
 import { LandingMozarthitosLowerSections } from "@/components/organisms/LandingMozarthitosLowerSections";
@@ -44,6 +45,15 @@ export function LandingMozarthitosSections({
         className="relative isolate z-[2] min-h-[min(100dvh,920px)] overflow-hidden text-white mz-hero-surface sm:min-h-[78vh] md:min-h-[88vh]"
         aria-labelledby="mz-hero-title"
       >
+        <div className="absolute inset-0 -z-[1]" aria-hidden>
+          <LandingHeroPhoto
+            src={img("inicio", "banner.jpg")}
+            alt=""
+            sizes="100vw"
+            priority
+            className="object-cover object-center"
+          />
+        </div>
         <div className="relative z-[1] mx-auto flex max-w-6xl min-h-[min(72dvh,820px)] flex-col justify-center px-[max(1rem,env(safe-area-inset-left))] pb-[max(5rem,env(safe-area-inset-bottom))] pe-[max(1rem,env(safe-area-inset-right))] pt-[max(5rem,env(safe-area-inset-top)+3.25rem)] sm:min-h-[min(74vh,860px)] sm:pb-24 sm:pt-24 md:min-h-[min(78vh,900px)] md:pb-32 md:pt-28 lg:px-6">
           <div className="mz-hero-unified-shell relative w-full">
             <div
@@ -64,7 +74,6 @@ export function LandingMozarthitosSections({
                     height={520}
                     className="aspect-square w-full rounded-[22px] object-cover sm:rounded-[24px] md:h-[min(34vw,340px)] md:w-[min(34vw,340px)] md:rounded-[28px]"
                     sizes="(max-width: 768px) min(288px, 100vw), (max-width: 1280px) 34vw, 340px"
-                    priority
                   />
                 </div>
               </MozarthitosReveal>

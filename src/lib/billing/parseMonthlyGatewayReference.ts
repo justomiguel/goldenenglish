@@ -9,6 +9,7 @@
  */
 
 const TUITION_PREFIX = "tuition:";
+const TUITION_BUNDLE_PREFIX = "tuition-bundle:";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -24,7 +25,13 @@ export interface MonthlyPaymentSlotRef {
 
 export type MonthlyGatewayReference =
   | { kind: "slot"; slot: MonthlyPaymentSlotRef }
-  | { kind: "payment"; paymentId: string };
+  | { kind: "payment"; paymentId: string }
+  | { kind: "bundle"; bundleId: string };
+
+/** Builds the deferred-creation reference that links a checkout to a multi-section bundle. */
+export function buildTuitionBundleGatewayReference(bundleId: string): string {
+  return `${TUITION_BUNDLE_PREFIX}${bundleId}`;
+}
 
 /** Builds the deferred-creation reference that links a checkout to a billing slot. */
 export function buildTuitionGatewayReference(slot: MonthlyPaymentSlotRef): string {
@@ -46,6 +53,12 @@ export function parseMonthlyGatewayReference(
 ): MonthlyGatewayReference | null {
   const value = (raw ?? "").trim();
   if (!value) return null;
+
+  if (value.startsWith(TUITION_BUNDLE_PREFIX)) {
+    const bundleId = value.slice(TUITION_BUNDLE_PREFIX.length).trim();
+    if (!UUID_RE.test(bundleId)) return null;
+    return { kind: "bundle", bundleId };
+  }
 
   if (value.startsWith(TUITION_PREFIX)) {
     const parts = value.slice(TUITION_PREFIX.length).split(":");

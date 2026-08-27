@@ -12,6 +12,7 @@ import { LandingLioraHorariosSection } from "@/components/organisms/LandingLiora
 import { LioraLandingGallery } from "@/components/organisms/LioraLandingGallery";
 import { LioraLandingContactPanel } from "@/components/organisms/LioraLandingContactPanel";
 import { LandingLioraFooter } from "@/components/organisms/LandingLioraFooter";
+import { LandingHeroPhoto } from "@/components/molecules/LandingHeroPhoto";
 
 interface LandingLioraSectionsProps {
   dict: Dictionary;
@@ -44,8 +45,16 @@ export function LandingLioraSections({
       <section
         className="liora-hero relative isolate"
         aria-labelledby="liora-hero-title"
-        style={{ backgroundImage: `url("${img("inicio", "1.jpg")}")` }}
       >
+        <div className="absolute inset-0" aria-hidden>
+          <LandingHeroPhoto
+            src={img("inicio", "1.jpg")}
+            alt=""
+            sizes="100vw"
+            priority
+            className="object-cover object-[center_30%]"
+          />
+        </div>
         <div className="liora-hero-overlay" aria-hidden />
         <div className="liora-hero-content mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-center px-[max(1.5rem,env(safe-area-inset-left))] py-20 pe-[max(1.5rem,env(safe-area-inset-right))]">
           <p className="liora-kicker text-[var(--liora-blush)]">

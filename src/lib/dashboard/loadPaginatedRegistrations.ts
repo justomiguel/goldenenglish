@@ -8,7 +8,7 @@ const REGISTRATION_COLUMNS = [
   "birth_date", "level_interest", "status", "created_at",
   "tutor_name", "tutor_dni", "tutor_email", "tutor_phone",
   "tutor_relationship", "preferred_section_id", "additional_section_ids",
-  "contacted_at", "contacted_by", "source_section_link_id",
+  "contacted_at", "contacted_by", "source_section_link_id", "tenant_extras",
 ].join(", ");
 
 const SORT_COLUMN_MAP: Record<RegistrationSortKey, string> = {
@@ -62,6 +62,7 @@ type RegistrationSelectRow = {
   contacted_at: string | null;
   contacted_by: string | null;
   source_section_link_id: string | null;
+  tenant_extras?: unknown;
 };
 
 function buildSearchFilter(q: string): string {
@@ -167,6 +168,7 @@ export async function loadPaginatedRegistrations(
     contacted_by: r.contacted_by != null ? String(r.contacted_by) : null,
     sourceSectionLinkId:
       r.source_section_link_id != null ? String(r.source_section_link_id) : null,
+    tenantExtras: r.tenant_extras ?? {},
   }));
 
   return {

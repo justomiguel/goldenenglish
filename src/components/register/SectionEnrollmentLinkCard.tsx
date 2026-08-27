@@ -1,4 +1,6 @@
 import { CalendarDays } from "lucide-react";
+import { SectionReferenceThumb } from "@/components/molecules/SectionReferenceThumb";
+import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
 import { sectionScheduleWeekdayKey } from "@/lib/academics/sectionScheduleWeekdayKey";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import type { Dictionary } from "@/types/i18n";
@@ -25,9 +27,16 @@ export function SectionEnrollmentLinkCard({
       <legend className="px-1 text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
         {labels.heading}
       </legend>
-      <h2 className="mt-1 text-base font-semibold text-[var(--color-foreground)]">
-        {link.sectionName}
-      </h2>
+      <div className="mt-1 flex items-start gap-3">
+        <SectionReferenceThumb
+          src={sectionReferenceImagePublicUrl(link.referenceImagePath)}
+          alt={link.sectionName}
+          size="md"
+        />
+        <h2 className="text-base font-semibold text-[var(--color-foreground)]">
+          {link.sectionName}
+        </h2>
+      </div>
       {link.cohortName ? (
         <p className="text-sm text-[var(--color-muted-foreground)]">{link.cohortName}</p>
       ) : null}

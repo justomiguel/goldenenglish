@@ -22,16 +22,12 @@
   color: var(--liora-ink);
 }
 
-/* Hero: foto de estudio con velo crema para que el texto quede legible.
-   `background-image` lo inyecta el componente para que el slot 1 de `inicio`
-   sea editable desde el CMS. */
+/* Hero: foto de estudio (LandingHeroPhoto) con velo para que el texto quede
+   legible. El color de fondo cubre el hueco mientras carga la imagen. */
 .liora-hero {
   position: relative;
   min-height: 78vh;
   background-color: var(--liora-cream-deep);
-  background-size: cover;
-  background-position: center 30%;
-  background-repeat: no-repeat;
   overflow: hidden;
 }
 
@@ -56,10 +52,6 @@
 }
 
 @media (max-width: 767px) {
-  .liora-hero {
-    background-position: center 25%;
-  }
-
   .liora-hero-overlay {
     background: linear-gradient(
       180deg,

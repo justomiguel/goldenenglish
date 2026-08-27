@@ -20,6 +20,7 @@ import {
 import { createAdminClient } from "@/lib/supabase/admin";
 import { parseRequestedSectionIds } from "@/lib/register/parseRequestedSectionIds";
 import { resolveExistingStudentByDni } from "@/lib/register/resolveExistingStudentByDni";
+import { resolveAndStampTenantExtras } from "@/lib/register/packs/resolveAndStampTenantExtras";
 
 export type RegisterActionState = { ok: boolean; message?: string };
 
@@ -121,6 +122,15 @@ export async function submitPublicRegistration(
     };
   }
 
+  const stamped = await resolveAndStampTenantExtras({
+    raw: d.tenant_extras,
+    isMinor: age < legal,
+    nowIso: new Date().toISOString(),
+  });
+  if (!stamped.ok) {
+    return { ok: false, message: reg.validationError };
+  }
+
   const maxMinorEmailAttempts = 16;
   const maxAttempts = existingStudent ? 1 : age < legal ? maxMinorEmailAttempts : 1;
 
@@ -173,6 +183,7 @@ export async function submitPublicRegistration(
       tutor_phone: existingStudent ? null : d.tutor_phone?.trim() || null,
       tutor_email: existingStudent ? null : d.tutor_email?.trim() || null,
       tutor_relationship: existingStudent ? null : d.tutor_relationship?.trim() || null,
+      tenant_extras: stamped.extras,
     });
 
     if (!error) {

@@ -42,6 +42,7 @@ export function buildPublicRegistrationSchema(
       tutor_phone: z.string().trim().max(40).optional(),
       tutor_relationship: z.string().trim().max(80).optional(),
       additional_section_ids: z.array(z.string().uuid()).max(40).optional(),
+      tenant_extras: z.unknown().optional(),
     })
     .superRefine((data, ctx) => {
       if (!requireNewStudentContact) return;

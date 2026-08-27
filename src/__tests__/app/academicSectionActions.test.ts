@@ -90,7 +90,7 @@ describe("academic section actions", () => {
       ],
     });
 
-    expect(result).toEqual({ ok: true, id: "section-1" });
+    expect(result).toEqual({ ok: true, id: "section-1", imageSaved: false });
     expect(insert).toHaveBeenCalledWith(
       expect.objectContaining({
         starts_on: "2026-01-15",
@@ -147,7 +147,7 @@ describe("academic section actions", () => {
       scheduleSlots: [{ dayOfWeek: 2, startTime: "10:00", endTime: "11:00" }],
     });
 
-    expect(result).toEqual({ ok: true, id: "section-2" });
+    expect(result).toEqual({ ok: true, id: "section-2", imageSaved: false });
     expect(insert).toHaveBeenCalledWith(
       expect.objectContaining({ teacher_id: "00000000-0000-4000-8000-000000000010" }),
     );

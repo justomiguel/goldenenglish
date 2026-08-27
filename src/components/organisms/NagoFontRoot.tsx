@@ -1,20 +1,22 @@
 import type { ReactNode } from "react";
-import { Bebas_Neue, DM_Sans } from "next/font/google";
+import { Cinzel, Outfit } from "next/font/google";
 import "@/styles/nagoLanding.css";
 
-const nagoDisplay = Bebas_Neue({
-  weight: "400",
+const nagoDisplay = Cinzel({
+  weight: ["400", "600", "700"],
   subsets: ["latin", "latin-ext"],
   variable: "--font-nago-display",
   display: "swap",
   adjustFontFallback: true,
+  preload: true,
 });
 
-const nagoBody = DM_Sans({
-  weight: ["400", "500", "600", "700"],
+const nagoBody = Outfit({
+  weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin", "latin-ext"],
   variable: "--font-nago-body",
   display: "swap",
+  preload: false,
 });
 
 export interface NagoFontRootProps {
@@ -26,8 +28,9 @@ export function NagoFontRoot({ className = "", children }: NagoFontRootProps) {
   const vars = `${nagoDisplay.variable} ${nagoBody.variable}`;
   return (
     <div
-      className={`nago-landing ${vars} bg-[var(--color-background)] font-[family-name:var(--font-nago-body)] text-[var(--nago-ink)] antialiased ${className}`.trim()}
+      className={`nago-landing ${vars} bg-[var(--nago-bg)] font-[family-name:var(--font-nago-body)] text-[var(--nago-ink)] antialiased ${className}`.trim()}
     >
+      <div className="nago-grain" aria-hidden />
       {children}
     </div>
   );

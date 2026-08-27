@@ -5,13 +5,12 @@ import { useRouter } from "next/navigation";
 import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import { StudentMonthlyPaymentFocusAmounts } from "@/components/student/StudentMonthlyPaymentFocusAmounts";
-import { StudentMonthlyPaymentReceiptUploadForm } from "@/components/student/StudentMonthlyPaymentReceiptUploadForm";
 import type {
   StudentMonthlyPaymentCell,
   StudentMonthlyPaymentSectionRow,
 } from "@/types/studentMonthlyPayments";
 import { StudentMonthlyPaymentFocusApprovedNotice } from "@/components/student/StudentMonthlyPaymentFocusApprovedNotice";
-import { StudentMonthlyTutorPaymentMethodTabs } from "@/components/student/StudentMonthlyTutorPaymentMethodTabs";
+import { StudentMonthlyPaymentFocusPayMethods } from "@/components/student/StudentMonthlyPaymentFocusPayMethods";
 import { isAdvanceMonthlyPaymentAllowedForCell } from "@/lib/billing/assertAdvanceMonthlyPaymentAllowed";
 import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 import { deriveMonthlyPaymentFocusState } from "@/lib/student/monthlyPaymentFocusDerived";
@@ -48,6 +47,7 @@ export interface StudentMonthlyPaymentFocusProps {
   embeddedInSectionCard?: boolean;
   pwaNestedHierarchy?: boolean;
   bankTransferInstructions?: string | null;
+  hidePayMethods?: boolean;
 }
 
 export function StudentMonthlyPaymentFocus({
@@ -69,6 +69,7 @@ export function StudentMonthlyPaymentFocus({
   embeddedInSectionCard = false,
   pwaNestedHierarchy = false,
   bankTransferInstructions = null,
+  hidePayMethods = false,
 }: StudentMonthlyPaymentFocusProps) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -202,9 +203,8 @@ export function StudentMonthlyPaymentFocus({
         </p>
       ) : null}
 
-      {canUploadEffective && paymentMethodTabLayout ? (
-        <StudentMonthlyTutorPaymentMethodTabs
-          key={`${section.sectionId}-${cell.year}-${cell.month}`}
+      {canUploadEffective && !hidePayMethods ? (
+        <StudentMonthlyPaymentFocusPayMethods
           locale={locale}
           studentId={studentId}
           section={section}
@@ -218,29 +218,10 @@ export function StudentMonthlyPaymentFocus({
           busy={busy}
           onlineBusy={onlineBusy}
           feedbackMessage={msg}
+          paymentMethodTabLayout={paymentMethodTabLayout}
+          embeddedInSectionCard={embeddedInSectionCard}
+          bankTransferInstructions={bankTransferInstructions}
           onSubmitReceipt={onSubmit}
-          onOnlinePay={onOnlinePay}
-          compactTopSpacing={embeddedInSectionCard}
-          bankTransferInstructions={bankTransferInstructions}
-        />
-      ) : canUploadEffective ? (
-        <StudentMonthlyPaymentReceiptUploadForm
-          locale={locale}
-          studentId={studentId}
-          sectionId={section.sectionId}
-          month={cell.month}
-          year={cell.year}
-          expected={expected}
-          monthlyLabels={labels}
-          paymentLabels={paymentLabels}
-          fileUploadProgress={fileUploadProgress}
-          busy={busy}
-          onlineBusy={onlineBusy}
-          showOnlinePay={showOnlinePayEffective}
-          enabledOnlineGateways={derived.enabledOnlineGateways}
-          feedbackMessage={msg}
-          bankTransferInstructions={bankTransferInstructions}
-          onSubmit={onSubmit}
           onOnlinePay={onOnlinePay}
         />
       ) : null}

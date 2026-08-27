@@ -17,6 +17,7 @@ import {
 import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 import type { SubmitEnrollmentFeeReceiptAction } from "@/components/molecules/StudentEnrollmentFeeUpload";
 import { ParentFinanceTabs } from "@/components/parent/ParentFinanceTabs";
+import { ParentPaymentsFamilyHero } from "@/components/pwa/molecules/ParentPaymentsFamilyHero";
 import type { FamilyPaymentsSummary } from "@/lib/billing/buildFamilyPaymentsSummary";
 import type { StudentPaymentsFocusKey } from "@/lib/billing/findStudentPaymentsInitialFocus";
 import type { AppSurface } from "@/hooks/useAppSurface";
@@ -24,6 +25,7 @@ import type { Dictionary, Locale } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { StudentMonthlyPaymentsView } from "@/types/studentMonthlyPayments";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
+import { withParentFocusHref } from "@/lib/parent/withParentFocusHref";
 
 type ParentLabels = Dictionary["dashboard"]["parent"];
 type StudentLabels = Dictionary["dashboard"]["student"];
@@ -57,6 +59,8 @@ export interface ParentPaymentsEntryProps {
   bankTransferInstructions?: string | null;
   /** When true, student select is omitted (shell owns focus). */
   shellOwnsFocus?: boolean;
+  /** Parent portal only: month focus goes to the review screen instead of inline pay. */
+  enableParentReview?: boolean;
 }
 
 function ParentPaymentsBodyDesktop({
@@ -66,6 +70,7 @@ function ParentPaymentsBodyDesktop({
   options,
   selectedStudentId,
   monthlyView,
+  familySummary,
   payments,
   financialAccessRevoked,
   labels,
@@ -80,6 +85,7 @@ function ParentPaymentsBodyDesktop({
   initialFocus = null,
   bankTransferInstructions = null,
   shellOwnsFocus = false,
+  enableParentReview = false,
 }: ParentPaymentsEntryProps) {
   const router = useRouter();
 
@@ -161,6 +167,18 @@ function ParentPaymentsBodyDesktop({
                 initialFocus={initialFocus}
                 hideNonBillableMonths
                 hideSettledMonths
+                parentReviewHref={
+                  enableParentReview
+                    ? (sectionId, month, year) =>
+                        withParentFocusHref(
+                          `/${locale}/dashboard/parent/payments/review?studentId=${selectedStudentId}&sectionId=${sectionId}&month=${month}&year=${year}`,
+                          { studentId: selectedStudentId, sectionId },
+                        )
+                    : undefined
+                }
+                parentReviewCtaLabel={
+                  enableParentReview ? labels.paymentsReview.continuePay : undefined
+                }
               />
             }
             history={<StudentPaymentsHistory rows={payments} labels={studentLabels} locale={locale} />}
@@ -180,6 +198,15 @@ function ParentPaymentsBodyDesktop({
         {title}
       </h1>
       <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">{lead}</p>
+      {options.length > 0 && familySummary.unpaidFeesTotal > 0 ? (
+        <div className="mt-4">
+          <ParentPaymentsFamilyHero
+            locale={locale}
+            labels={labels.paymentsPwa}
+            unpaidFeesTotal={familySummary.unpaidFeesTotal}
+          />
+        </div>
+      ) : null}
       <ParentFinanceTabs labels={labels} payPanel={payPanel} feesPanel={feesPanel} />
     </div>
   );

@@ -8,6 +8,7 @@ import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { Modal } from "@/components/atoms/Modal";
 import { clientAbsoluteUrl } from "@/lib/client/publicUrl";
+import { buildSectionEnrollmentLinkPath } from "@/lib/register/sectionEnrollmentLinkPath";
 import type { SectionEnrollmentLinkState } from "@/lib/academics/sectionEnrollmentLinkAdmin";
 import {
   generateSectionEnrollmentLinkAction,
@@ -19,6 +20,7 @@ import type { Dictionary } from "@/types/i18n";
 interface SectionEnrollmentLinkPanelProps {
   locale: string;
   sectionId: string;
+  sectionName: string;
   state: SectionEnrollmentLinkState;
   labels: Dictionary["dashboard"]["sectionEnrollmentLink"];
   /** Admins and the section's own teacher may revoke; read-only viewers may not. */
@@ -28,6 +30,7 @@ interface SectionEnrollmentLinkPanelProps {
 export function SectionEnrollmentLinkPanel({
   locale,
   sectionId,
+  sectionName,
   state,
   labels,
   canRevoke,
@@ -39,7 +42,7 @@ export function SectionEnrollmentLinkPanel({
   const [rotateOpen, setRotateOpen] = useState(false);
 
   const url = state.token
-    ? clientAbsoluteUrl(`/${locale}/i/${state.token}`)
+    ? clientAbsoluteUrl(buildSectionEnrollmentLinkPath(locale, sectionName, state.token))
     : null;
 
   function run(action: () => Promise<{ ok: boolean }>) {
@@ -71,7 +74,7 @@ export function SectionEnrollmentLinkPanel({
       return;
     }
     try {
-      await navigator.share({ title: labels.title, url });
+      await navigator.share({ title: sectionName, url });
     } catch {
       // A cancelled share sheet is not an error worth reporting.
     }

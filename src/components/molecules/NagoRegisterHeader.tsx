@@ -22,7 +22,7 @@ export function NagoRegisterHeader({
 
   return (
     <header
-      className="sticky top-0 z-50 border-b border-[var(--nago-green-light)]/35 bg-white/96 shadow-sm backdrop-blur-md"
+      className="sticky top-0 z-50 border-b border-[var(--nago-gold)]/25 bg-black"
       style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
     >
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-[max(1rem,env(safe-area-inset-left))] py-3 pe-[max(1rem,env(safe-area-inset-right))]">
@@ -42,11 +42,11 @@ export function NagoRegisterHeader({
           <LanguageSwitcher
             locale={locale}
             labels={dict.common.locale}
-            variant="compact"
+            variant="compactDark"
           />
           <Link
             href={homeHref}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[var(--nago-green)]/45 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-[var(--nago-green)] transition-colors hover:bg-[var(--nago-green)]/10 sm:text-[13px]"
+            className="nago-btn px-3 py-2 text-xs sm:text-[13px]"
           >
             <ArrowLeft className="h-4 w-4 shrink-0 opacity-95" aria-hidden strokeWidth={stroke} />
             {dict.nav.home}

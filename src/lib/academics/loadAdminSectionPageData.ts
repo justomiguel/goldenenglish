@@ -15,6 +15,7 @@ import {
   formatProfileSnakeSurnameFirst,
 } from "@/lib/profile/formatProfileDisplayName";
 import type { AdminSectionPageData, AdminSectionRosterRow } from "./loadAdminSectionPageData.types";
+import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
 
 export type { AdminSectionPageData, AdminSectionRosterRow } from "./loadAdminSectionPageData.types";
 
@@ -26,7 +27,7 @@ export async function loadAdminSectionPageData(
   const { data: sec, error: sErr } = await supabase
     .from("academic_sections")
     .select(
-      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, min_attendance_percent, requires_evaluations_to_pass, uses_learning_route, academic_cohorts(name, archived_at)",
+      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, min_attendance_percent, requires_evaluations_to_pass, uses_learning_route, reference_image_path, academic_cohorts(name, archived_at)",
     )
     .eq("id", sectionId)
     .maybeSingle();
@@ -62,6 +63,7 @@ export async function loadAdminSectionPageData(
     min_attendance_percent?: number | null;
     requires_evaluations_to_pass?: boolean | null;
     uses_learning_route?: boolean | null;
+    reference_image_path?: string | null;
     academic_cohorts:
       | { name: string; archived_at?: string | null }
       | { name: string; archived_at?: string | null }[]
@@ -181,6 +183,7 @@ export async function loadAdminSectionPageData(
       siteDefaultMinAttendancePercent,
       requiresEvaluationsToPass: secRow.requires_evaluations_to_pass === true,
       usesLearningRoute: secRow.uses_learning_route === true,
+      referenceImageUrl: sectionReferenceImagePublicUrl(secRow.reference_image_path),
     },
     cohort: {
       name: cohortName,

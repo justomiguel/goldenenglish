@@ -25,6 +25,10 @@ import {
 import { resolveExistingStudentByDni } from "@/lib/register/resolveExistingStudentByDni";
 import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistrationSectionIds";
 import { enrollRequestedSectionsOnAccept } from "@/lib/register/enrollRequestedSectionsOnAccept";
+import {
+  applyNagoExtrasOnAccept,
+  nagoCareLabelsFromRegisterDict,
+} from "@/lib/register/packs/nago/applyNagoExtrasOnAccept";
 
 export type AcceptRegistrationResult =
   | { ok: true; studentId: string; pendingSectionIds: string[] }
@@ -58,7 +62,7 @@ export async function acceptRegistration(
   const { data: reg, error: fetchErr } = await admin
     .from("registrations")
     .select(
-      "id,status,first_name,last_name,dni,email,phone,birth_date,level_interest,preferred_section_id,additional_section_ids,tutor_name,tutor_dni,tutor_email,tutor_phone,tutor_relationship",
+      "id,status,first_name,last_name,dni,email,phone,birth_date,level_interest,preferred_section_id,additional_section_ids,tutor_name,tutor_dni,tutor_email,tutor_phone,tutor_relationship,tenant_extras",
     )
     .eq("id", parsed.data.registration_id)
     .maybeSingle();
@@ -195,6 +199,17 @@ export async function acceptRegistration(
       additionalSectionIds,
     }),
   );
+
+  try {
+    await applyNagoExtrasOnAccept({
+      admin,
+      studentId,
+      tenantExtras: (reg as { tenant_extras?: unknown }).tenant_extras,
+      labels: nagoCareLabelsFromRegisterDict(dict.register.nagoPack),
+    });
+  } catch {
+    /* extras mapping must not roll back accept */
+  }
 
   const { error: upErr } = await admin
     .from("registrations")

@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { dictEn } from "@/test/dictEn";
 import { AdminRegistrationExpandedDetails } from "@/components/dashboard/AdminRegistrationExpandedDetails";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
+import { validNagoExtras } from "@/__tests__/lib/register/packs/nagoExtrasFixture";
 
 const labels = dictEn.admin.registrations;
 
@@ -111,5 +112,32 @@ describe("AdminRegistrationExpandedDetails", () => {
     );
 
     expect(container.querySelector("td")).toHaveAttribute("colspan", "9");
+  });
+
+  it("hides the Nagô block when extras are empty", () => {
+    renderInTable(
+      <AdminRegistrationExpandedDetails
+        row={{ ...row, tenantExtras: {} }}
+        colSpan={9}
+        locale="en"
+        labels={labels}
+        sectionName={null}
+      />,
+    );
+    expect(screen.queryByText(labels.nagoExtrasTitle)).not.toBeInTheDocument();
+  });
+
+  it("shows Nagô address when extras parse", () => {
+    renderInTable(
+      <AdminRegistrationExpandedDetails
+        row={{ ...row, tenantExtras: validNagoExtras() }}
+        colSpan={9}
+        locale="en"
+        labels={labels}
+        sectionName={null}
+      />,
+    );
+    expect(screen.getByText(labels.nagoExtrasTitle)).toBeInTheDocument();
+    expect(screen.getByText("Av. Principal 100")).toBeInTheDocument();
   });
 });

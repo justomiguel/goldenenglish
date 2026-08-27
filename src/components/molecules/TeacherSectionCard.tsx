@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Dictionary } from "@/types/i18n";
+import { SectionReferenceThumb } from "@/components/molecules/SectionReferenceThumb";
 
 export interface TeacherSectionCardProps {
   locale: string;
@@ -13,6 +14,7 @@ export interface TeacherSectionCardProps {
   accessRole?: "lead" | "assistant";
   dict: Dictionary["dashboard"]["teacherMySections"];
   copyLinkSlot?: ReactNode;
+  imageUrl?: string | null;
 }
 
 export function TeacherSectionCard({
@@ -25,6 +27,7 @@ export function TeacherSectionCard({
   accessRole = "lead",
   dict,
   copyLinkSlot,
+  imageUrl,
 }: TeacherSectionCardProps) {
   const baseHref = `/${locale}/dashboard/teacher/sections/${sectionId}`;
   const schedule = scheduleSummary || dict.scheduleEmpty;
@@ -32,6 +35,7 @@ export function TeacherSectionCard({
   return (
     <article className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-card)]">
       <div className="flex flex-wrap items-center gap-2">
+        <SectionReferenceThumb src={imageUrl} alt={name} size="sm" />
         <Link
           href={baseHref}
           className="text-lg font-semibold text-[var(--color-foreground)] underline-offset-2 hover:text-[var(--color-primary)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"

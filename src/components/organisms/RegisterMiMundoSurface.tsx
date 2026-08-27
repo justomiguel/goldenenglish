@@ -20,6 +20,7 @@ export interface RegisterMiMundoSurfaceProps {
   legalAgeMajority: number;
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
+  extrasPack?: "nago" | null;
 }
 
 /**
@@ -38,6 +39,7 @@ export function RegisterMiMundoSurface({
   legalAgeMajority,
   sectionOptions,
   enrollmentLink,
+  extrasPack = null,
 }: RegisterMiMundoSurfaceProps) {
   const prefix = `/${locale}`;
   const t = (path: string) => marketingLandingCopy(dict, "mm", path);
@@ -190,6 +192,7 @@ export function RegisterMiMundoSurface({
                 legalAgeMajority={legalAgeMajority}
                 sectionOptions={sectionOptions}
                 enrollmentLink={enrollmentLink}
+                extrasPack={extrasPack}
               />
             </div>
 

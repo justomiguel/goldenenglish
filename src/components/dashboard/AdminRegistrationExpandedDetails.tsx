@@ -3,6 +3,7 @@
 import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
+import { AdminRegistrationNagoExtras } from "@/components/dashboard/AdminRegistrationNagoExtras";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -75,6 +76,11 @@ export function AdminRegistrationExpandedDetails({
         {contactedOn ? (
           <p className="mt-3 text-xs text-[var(--color-muted-foreground)]">{contactedOn}</p>
         ) : null}
+        <AdminRegistrationNagoExtras
+          tenantExtras={row.tenantExtras}
+          locale={locale}
+          labels={labels}
+        />
       </td>
     </tr>
   );

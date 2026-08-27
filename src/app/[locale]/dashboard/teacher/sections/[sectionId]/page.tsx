@@ -11,6 +11,8 @@ import { loadSectionEnrollmentLinkState } from "@/lib/academics/sectionEnrollmen
 import { SectionEnrollmentLinkPanel } from "@/components/molecules/SectionEnrollmentLinkPanel";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
+import { SectionReferenceThumb } from "@/components/molecules/SectionReferenceThumb";
+import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
 
 interface PageProps {
   params: Promise<{ locale: string; sectionId: string }>;
@@ -40,7 +42,7 @@ export default async function TeacherSectionDetailPage({ params }: PageProps) {
 
   const { data: section, error: secErr } = await supabase
     .from("academic_sections")
-    .select("id, name, cohort_id, teacher_id, academic_cohorts(name)")
+    .select("id, name, cohort_id, teacher_id, reference_image_path, academic_cohorts(name)")
     .eq("id", sectionId)
     .maybeSingle();
 
@@ -54,6 +56,7 @@ export default async function TeacherSectionDetailPage({ params }: PageProps) {
     id: string;
     name: string;
     cohort_id: string;
+    reference_image_path?: string | null;
     academic_cohorts: { name: string } | { name: string }[] | null;
   };
   const c = sec.academic_cohorts;
@@ -81,8 +84,15 @@ export default async function TeacherSectionDetailPage({ params }: PageProps) {
         >
           {d.rosterBack}
         </Link>
-        <div className="mt-2">
-          <AdminPageHeader title={sec.name} lead={cohortName} iconId="academic" />
+        <div className="mt-2 flex items-start gap-3">
+          <SectionReferenceThumb
+            src={sectionReferenceImagePublicUrl(sec.reference_image_path)}
+            alt={sec.name}
+            size="md"
+          />
+          <div className="min-w-0 flex-1">
+            <AdminPageHeader title={sec.name} lead={cohortName} iconId="academic" />
+          </div>
         </div>
       </div>
       <h2 className="text-lg font-semibold text-[var(--color-primary)]">{d.rosterTitle}</h2>
@@ -115,6 +125,7 @@ export default async function TeacherSectionDetailPage({ params }: PageProps) {
       <SectionEnrollmentLinkPanel
         locale={locale}
         sectionId={sectionId}
+        sectionName={sec.name}
         state={enrollmentLinkState}
         labels={dict.dashboard.sectionEnrollmentLink}
         canRevoke

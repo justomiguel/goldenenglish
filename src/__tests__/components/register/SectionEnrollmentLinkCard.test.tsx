@@ -35,6 +35,7 @@ function makeLink(
     cohortName: "Ciclo 2026",
     scheduleSlots: [{ dayOfWeek: 1, startTime: "18:00", endTime: "19:30" }],
     seatsRemaining: 3,
+    referenceImagePath: null,
     ...overrides,
   };
 }
@@ -105,6 +106,20 @@ describe("SectionEnrollmentLinkCard", () => {
     );
     expect(screen.queryByText(/cupo/)).not.toBeInTheDocument();
     expect(screen.queryByText(labels.waitingListNotice)).not.toBeInTheDocument();
+  });
+
+  it("shows the section photo when a path is present", () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://proj.supabase.co";
+    render(
+      <SectionEnrollmentLinkCard
+        link={makeLink({ referenceImagePath: "sec/1.jpg" })}
+        labels={labels}
+      />,
+    );
+    expect(screen.getByRole("img", { name: "Sección B" })).toHaveAttribute(
+      "src",
+      "https://proj.supabase.co/storage/v1/object/public/section-images/sec/1.jpg",
+    );
   });
 
   it("warns about the waiting list when the section is full", () => {

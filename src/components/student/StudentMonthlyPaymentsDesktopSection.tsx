@@ -19,6 +19,7 @@ import type {
   StudentMonthlyPaymentSectionRow,
 } from "@/types/studentMonthlyPayments";
 import { studentMonthlyEnrollmentFeeDisplay } from "@/lib/student/studentMonthlyPaymentsStripHelpers";
+import { ParentMonthlyPayReviewCta } from "@/components/parent/ParentMonthlyPayReviewCta";
 
 type GridLegend = Dictionary["dashboard"]["student"]["paymentsPwa"]["legend"];
 
@@ -47,6 +48,8 @@ export interface StudentMonthlyPaymentsDesktopSectionProps {
   tutorPaymentMethodTabs: boolean;
   onSubmitted: () => void;
   bankTransferInstructions?: string | null;
+  parentReviewHref?: (sectionId: string, month: number, year: number) => string;
+  parentReviewCtaLabel?: string;
 }
 
 export function StudentMonthlyPaymentsDesktopSection({
@@ -74,6 +77,8 @@ export function StudentMonthlyPaymentsDesktopSection({
   tutorPaymentMethodTabs,
   onSubmitted,
   bankTransferInstructions = null,
+  parentReviewHref,
+  parentReviewCtaLabel,
 }: StudentMonthlyPaymentsDesktopSectionProps) {
   return (
     <div
@@ -167,6 +172,17 @@ export function StudentMonthlyPaymentsDesktopSection({
           embeddedInSectionCard
           bankTransferInstructions={bankTransferInstructions}
           onSubmitted={onSubmitted}
+          hidePayMethods={Boolean(parentReviewHref)}
+        />
+      ) : null}
+      {isFocusedSection &&
+      focusedCell &&
+      parentReviewHref &&
+      parentReviewCtaLabel &&
+      (focusedCell.status === "due" || focusedCell.status === "rejected") ? (
+        <ParentMonthlyPayReviewCta
+          href={parentReviewHref(row.sectionId, focusedCell.month, focusedCell.year)}
+          label={parentReviewCtaLabel}
         />
       ) : null}
       {row.enrollmentFeeExempt ? (

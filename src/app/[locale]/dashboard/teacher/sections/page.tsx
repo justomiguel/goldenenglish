@@ -6,6 +6,8 @@ import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { TeacherSectionCard } from "@/components/molecules/TeacherSectionCard";
 import { SectionEnrollmentLinkCopyButton } from "@/components/molecules/SectionEnrollmentLinkCopyButton";
 import { clientAbsoluteUrl } from "@/lib/client/publicUrl";
+import { buildSectionEnrollmentLinkPath } from "@/lib/register/sectionEnrollmentLinkPath";
+import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { formatAcademicScheduleSummary } from "@/lib/academics/formatAcademicScheduleSummary";
 import { loadTeacherSectionIdsForUser } from "@/lib/academics/loadTeacherSectionIdsForUser";
@@ -51,13 +53,14 @@ export default async function TeacherSectionsPage({ params }: PageProps) {
           cohort_id: string;
           teacher_id: string;
           schedule_slots: unknown;
+          reference_image_path?: string | null;
           academic_cohorts: { name: string } | { name: string }[] | null;
         }>(
           supabase,
           "academic_sections",
           "id",
           mySectionIds,
-          "id, name, cohort_id, teacher_id, schedule_slots, academic_cohorts(name)",
+          "id, name, cohort_id, teacher_id, schedule_slots, reference_image_path, academic_cohorts(name)",
         );
   sections.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -70,6 +73,7 @@ export default async function TeacherSectionsPage({ params }: PageProps) {
       cohortId: r.cohort_id,
       cohortName,
       scheduleSlots: r.schedule_slots,
+      imageUrl: sectionReferenceImagePublicUrl(r.reference_image_path),
       accessRole: r.teacher_id === viewerId ? ("lead" as const) : ("assistant" as const),
     };
   });
@@ -111,7 +115,9 @@ export default async function TeacherSectionsPage({ params }: PageProps) {
             const link = enrollmentLinksBySection.get(s.id);
             const copyUrl =
               link?.is_active && link.token
-                ? clientAbsoluteUrl(`/${locale}/i/${link.token}`)
+                ? clientAbsoluteUrl(
+                    buildSectionEnrollmentLinkPath(locale, s.name, link.token),
+                  )
                 : null;
             return (
             <li key={s.id}>
@@ -123,6 +129,7 @@ export default async function TeacherSectionsPage({ params }: PageProps) {
                 scheduleSummary={formatAcademicScheduleSummary(s.scheduleSlots, locale)}
                 activeStudentCount={activeBySection.get(s.id) ?? 0}
                 accessRole={s.accessRole}
+                imageUrl={s.imageUrl}
                 dict={d}
                 copyLinkSlot={
                   copyUrl ? (

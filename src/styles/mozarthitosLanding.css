@@ -116,10 +116,6 @@
  */
 .mz-landing .mz-hero-surface {
   background-color: #152030;
-  background-image: url("/images/mozarthitos/inicio/banner.jpg");
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
 }
 
 .mz-landing .mz-hero-surface::before {

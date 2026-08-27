@@ -22,6 +22,7 @@ type CheckoutRefRow = {
   parent_id: string | null;
   year: number | null;
   month: number | null;
+  bundle_id: string | null;
 };
 
 const UUID_RE =
@@ -43,6 +44,8 @@ export type FlowFinalizeLookupResult = {
     | undefined;
   /** Deferred creation: the not-yet-materialized tuition slot the ref points at. */
   slot?: MonthlyPaymentSlotRef;
+  /** Deferred multi-section checkout. */
+  bundleId?: string;
   error: unknown | null;
   skipReason?: "invalid_commerce_order";
 };
@@ -68,7 +71,7 @@ export async function lookupPaymentRowForFlowFinalize(
   } else {
     const { data: link, error: linkErr } = await admin
       .from("payment_flow_checkout_refs")
-      .select("payment_id, student_id, section_id, parent_id, year, month")
+      .select("payment_id, student_id, section_id, parent_id, year, month, bundle_id")
       .eq("commerce_ref", commerceOrder)
       .maybeSingle();
 
@@ -77,6 +80,9 @@ export async function lookupPaymentRowForFlowFinalize(
     }
 
     const ref = (link as CheckoutRefRow | null) ?? null;
+    if (ref?.bundle_id && typeof ref.bundle_id === "string") {
+      return { payRow: undefined, error: null, bundleId: ref.bundle_id };
+    }
     if (ref?.payment_id && typeof ref.payment_id === "string") {
       paymentId = ref.payment_id;
     } else if (

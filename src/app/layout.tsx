@@ -17,6 +17,7 @@ const dmSans = DM_Sans({
   variable: "--font-sans",
   display: "swap",
   adjustFontFallback: true,
+  preload: false,
 });
 
 const fraunces = Fraunces({
@@ -24,6 +25,7 @@ const fraunces = Fraunces({
   variable: "--font-display",
   display: "swap",
   adjustFontFallback: true,
+  preload: false,
 });
 
 const metadataBase =

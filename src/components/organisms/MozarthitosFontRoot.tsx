@@ -7,6 +7,7 @@ const mzDisplay = Baloo_2({
   subsets: ["latin", "latin-ext"],
   variable: "--font-mz-display",
   display: "swap",
+  preload: true,
 });
 
 const mzBody = DM_Sans({
@@ -14,6 +15,7 @@ const mzBody = DM_Sans({
   subsets: ["latin", "latin-ext"],
   variable: "--font-mz-body",
   display: "swap",
+  preload: false,
 });
 
 export interface MozarthitosFontRootProps {

@@ -41,6 +41,10 @@ test.describe("@critical-parent-payments", () => {
     ).toBeVisible({ timeout: 15_000 });
 
     await clickFirstPendingMonthlyDue(parentPage);
+    await parentPage
+      .getByRole("link", { name: /Continuar para pagar|Continue to pay/i })
+      .click();
+    await expect(parentPage).toHaveURL(/\/dashboard\/parent\/payments\/review/);
 
     await parentPage.locator('input[name="receipt"]').setInputFiles(receiptFixture);
     await parentPage

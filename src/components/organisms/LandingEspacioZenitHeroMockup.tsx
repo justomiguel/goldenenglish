@@ -31,11 +31,8 @@ export function LandingEspacioZenitHeroMockup({
   return (
     <section
       className="ez-mock-hero relative isolate z-[2] overflow-hidden bg-black pb-14 pt-8 text-white md:pb-20 md:pt-12"
-      aria-labelledby="ez-mock-hero-visually-hidden-title"
+      aria-labelledby="ez-mock-hero-title"
     >
-      <span id="ez-mock-hero-visually-hidden-title" className="sr-only">
-        {marketingLandingCopy(dict, brand, "hero.tagline")}
-      </span>
       <div className="pointer-events-none absolute inset-0 ez-mock-hero-texture" aria-hidden />
       <div className="pointer-events-none absolute inset-0 ez-mock-hero-scribbles opacity-[0.12]" aria-hidden />
 
@@ -64,9 +61,12 @@ export function LandingEspacioZenitHeroMockup({
         <div className="flex flex-col items-center text-center">
           <MozarthitosReveal preset="heroTitle" eager className="w-full">
             <div className="space-y-1 md:space-y-2">
-              <p className="ez-mock-brush ez-mock-hero-brush ez-mock-brush--white text-[clamp(2.75rem,8vw,4.75rem)] leading-[0.95]">
+              <h1
+                id="ez-mock-hero-title"
+                className="ez-mock-brush ez-mock-hero-brush ez-mock-brush--white text-[clamp(2.75rem,8vw,4.75rem)] leading-[0.95]"
+              >
                 {marketingLandingCopy(dict, brand, "hero.brushLine1")}
-              </p>
+              </h1>
               <p className="ez-mock-brush ez-mock-hero-brush ez-mock-brush--cyan text-[clamp(2.35rem,7vw,4rem)] leading-[0.98]">
                 {marketingLandingCopy(dict, brand, "hero.brushLine2")}
               </p>
@@ -122,7 +122,6 @@ export function LandingEspacioZenitHeroMockup({
                 height={1536}
                 className="h-auto w-full object-contain object-bottom"
                 sizes="(max-width: 1023px) min(500px, 94vw), (max-width: 1280px) 38vw, 450px"
-                priority
               />
             </div>
           </div>

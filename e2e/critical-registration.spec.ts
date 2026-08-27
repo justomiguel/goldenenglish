@@ -11,6 +11,7 @@ import {
   chooseRegisterSectionByName,
   continueRegisterAfterStudent,
   pickRegisterBirthIso,
+  submitRegisterAfterDetails,
 } from "./helpers/registerForm";
 
 const paths = e2eAuthPaths();
@@ -46,7 +47,7 @@ test.describe("@critical-registration", () => {
     await registerPage.locator("#rg-em").fill(email);
     await registerPage.locator("#rg-ph").fill("+5491112345678");
     await chooseRegisterSectionByName(registerPage, /E2E Section A/i);
-    await registerPage.getByRole("button", { name: /enviar|submit|inscrib/i }).click();
+    await submitRegisterAfterDetails(registerPage);
     const successDialog = registerPage.getByRole("dialog");
     const formAlert = registerPage.getByRole("alert");
     await expect(successDialog.or(formAlert)).toBeVisible({ timeout: 45_000 });
