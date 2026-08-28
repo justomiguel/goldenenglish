@@ -1,41 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import {
   AdminGlobalContentMaterialsPanel,
   type AdminGlobalDraftMaterial,
 } from "@/components/admin/AdminGlobalContentMaterialsPanel";
-import { performBlogMediaFileUpload } from "@/components/dashboard/admin/cms/blog/performBlogMediaFileUpload";
 import { cleanupBlogMediaPendingUploadAction } from "@/app/[locale]/dashboard/admin/cms/blog/actions";
-import { validateLearningTaskFile } from "@/lib/learning-tasks/assets";
+import type { UploadedBlogMediaRef } from "@/components/dashboard/admin/cms/blog/performBlogMediaFileUpload";
 import type { ContentMaterialsPanelLabels } from "@/types/contentMaterialsPanelLabels";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 
 interface BlogArticleMaterialsSectionProps {
-  articleId?: string;
   labels: ContentMaterialsPanelLabels;
   fileUploadProgress: FileUploadProgressLabels;
-  fileErrorLabel: string;
   materials: AdminGlobalDraftMaterial[];
+  isUploading: boolean;
   onMaterialsChange: (materials: AdminGlobalDraftMaterial[]) => void;
+  onUploadFiles: (
+    files: File[],
+  ) => Promise<Array<{ file: File; uploaded: UploadedBlogMediaRef } | null>>;
   /** When set, new materials are appended to every locale (not only the active tab). */
   syncMaterialToAllLocales?: (material: AdminGlobalDraftMaterial) => void;
-  onError?: (message: string | null) => void;
 }
 
 export function BlogArticleMaterialsSection({
-  articleId,
   labels,
   fileUploadProgress,
-  fileErrorLabel,
   materials,
+  isUploading,
   syncMaterialToAllLocales,
   onMaterialsChange,
-  onError,
+  onUploadFiles,
 }: BlogArticleMaterialsSectionProps) {
   const [materialLabel, setMaterialLabel] = useState("");
   const [embedUrl, setEmbedUrl] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
+  const [open, setOpen] = useState(() => materials.length > 0);
+  const panelId = useId();
 
   const pushMaterial = (item: AdminGlobalDraftMaterial) => {
     if (syncMaterialToAllLocales) {
@@ -60,38 +61,25 @@ export function BlogArticleMaterialsSection({
   const addFiles = async (files: File[]) => {
     if (files.length === 0) return;
     const labelBase = materialLabel.trim();
-    setIsUploading(true);
-    onError?.(null);
-    try {
-      for (const file of files) {
-        const validation = validateLearningTaskFile(file);
-        if (!validation.ok) {
-          onError?.(fileErrorLabel);
-          continue;
-        }
-        const label =
-          files.length > 1 && labelBase
-            ? `${labelBase} (${file.name})`
-            : labelBase || file.name.replace(/\.[^.]+$/, "");
-        const uploaded = await performBlogMediaFileUpload(file, articleId);
-        if (!uploaded) {
-          onError?.(fileErrorLabel);
-          break;
-        }
-        pushMaterial({
-          id: crypto.randomUUID(),
-          kind: "file",
-          storagePath: uploaded.storagePath,
-          label,
-          filename: file.name,
-          contentType: file.type,
-          byteSize: file.size,
-        });
-      }
-    } finally {
-      setIsUploading(false);
-      setMaterialLabel("");
+    const results = await onUploadFiles(files);
+    for (const result of results) {
+      if (!result) continue;
+      const { file, uploaded } = result;
+      const label =
+        files.length > 1 && labelBase
+          ? `${labelBase} (${file.name})`
+          : labelBase || file.name.replace(/\.[^.]+$/, "");
+      pushMaterial({
+        id: crypto.randomUUID(),
+        kind: "file",
+        storagePath: uploaded.storagePath,
+        label,
+        filename: file.name,
+        contentType: file.type,
+        byteSize: file.size,
+      });
     }
+    setMaterialLabel("");
   };
 
   const removeMaterial = (material: AdminGlobalDraftMaterial) => {
@@ -109,22 +97,48 @@ export function BlogArticleMaterialsSection({
     onMaterialsChange(next);
   };
 
+  const toggleLabel =
+    materials.length > 0
+      ? `${labels.draftMaterialsTitle} (${materials.length})`
+      : labels.draftMaterialsTitle;
+
   return (
-    <AdminGlobalContentMaterialsPanel
-      labels={labels}
-      fileInputId="blog-article-materials-file"
-      materials={materials}
-      materialLabel={materialLabel}
-      embedUrl={embedUrl}
-      isUploading={isUploading}
-      fileUploadProgress={fileUploadProgress}
-      onMaterialLabelChange={setMaterialLabel}
-      onEmbedUrlChange={setEmbedUrl}
-      onAddEmbed={addEmbed}
-      onAddFiles={(files) => void addFiles(files)}
-      onReorderMaterials={onMaterialsChange}
-      onMoveMaterial={moveMaterial}
-      onRemoveMaterial={removeMaterial}
-    />
+    <div>
+      <button
+        type="button"
+        className="flex w-full items-center justify-between gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-left text-sm font-semibold text-[var(--color-foreground)] shadow-[var(--shadow-soft)]"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span>{toggleLabel}</span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-[var(--color-muted-foreground)] transition ${open ? "rotate-180" : ""}`}
+          aria-hidden
+        />
+      </button>
+      {open ? (
+        <div id={panelId} className="mt-3 space-y-3">
+          <AdminGlobalContentMaterialsPanel
+            labels={labels}
+            fileInputId="blog-article-materials-file"
+            materials={materials}
+            materialLabel={materialLabel}
+            embedUrl={embedUrl}
+            isUploading={isUploading}
+            showInlineUploadProgress={false}
+            hideHeading
+            fileUploadProgress={fileUploadProgress}
+            onMaterialLabelChange={setMaterialLabel}
+            onEmbedUrlChange={setEmbedUrl}
+            onAddEmbed={addEmbed}
+            onAddFiles={(files) => void addFiles(files)}
+            onReorderMaterials={onMaterialsChange}
+            onMoveMaterial={moveMaterial}
+            onRemoveMaterial={removeMaterial}
+          />
+        </div>
+      ) : null}
+    </div>
   );
 }

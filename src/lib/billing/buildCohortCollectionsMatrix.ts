@@ -17,6 +17,10 @@ import type {
   CohortCollectionsMatrixSection,
 } from "@/types/cohortCollectionsMatrix";
 import { activePromotionLabel } from "@/lib/billing/studentPromotionStatus";
+import {
+  parseOptionalFeeAmount,
+  resolveEffectiveEnrollmentFeeAmount,
+} from "@/lib/billing/resolveCohortFeeDefaults";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import type { EnrollmentFeeReceiptStatus } from "@/types/studentMonthlyPayments";
 
@@ -36,6 +40,8 @@ export interface BuildCohortCollectionsMatrixOptions {
    * entrada ausente significa cobro mensual, que es el comportamiento actual.
    */
   billingModeBySectionId?: ReadonlyMap<string, string | null>;
+  cohortDefaultEnrollmentFeeAmount?: number | null;
+  cohortDefaultMonthlyFee?: number | null;
 }
 
 function studentDisplayName(p: CohortCollectionsBulkProfileRaw): string {
@@ -170,12 +176,10 @@ export function buildCohortCollectionsMatrix(
         };
       });
 
-      const enrollmentFeeAmount = (() => {
-        const raw = sectionRow.enrollment_fee_amount;
-        if (raw == null) return 0;
-        const n = Number(raw);
-        return Number.isFinite(n) && n > 0 ? n : 0;
-      })();
+      const enrollmentFeeAmount = resolveEffectiveEnrollmentFeeAmount(
+        parseOptionalFeeAmount(sectionRow.enrollment_fee_amount),
+        opts.cohortDefaultEnrollmentFeeAmount ?? null,
+      );
 
       const view = buildSectionCollectionsView({
         sectionId: sectionRow.id,
@@ -193,6 +197,7 @@ export function buildCohortCollectionsMatrix(
           sectionRow.schedule_slots ?? [],
         ),
         sectionBillingMode: opts.billingModeBySectionId?.get(sectionRow.id) ?? null,
+        cohortDefaultMonthlyFee: opts.cohortDefaultMonthlyFee ?? null,
       });
 
       return { view, archivedAt: sectionRow.archived_at };

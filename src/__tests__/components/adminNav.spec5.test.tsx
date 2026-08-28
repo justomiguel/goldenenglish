@@ -83,10 +83,12 @@ function canonicalDailyHrefs(base: string): Set<string> {
     base,
     `${base}/students`,
     `${base}/teachers`,
+    `${base}/users`,
     `${base}/registrations`,
     `${base}/academic`,
     `${base}/finance`,
     `${base}/messages`,
+    `${base}/events`,
     `${base}/institute`,
   ]);
 }
@@ -137,8 +139,8 @@ describe("2 – No near-duplicate item labels (F07 invariant)", () => {
 
 // ─── Test 3: Every destination survives ──────────────────────────────────────
 
-describe("3 – Daily list is the eight operations destinations", () => {
-  it("the set of hrefs is exactly the daily eight", () => {
+describe("3 – Daily list is the operations destinations", () => {
+  it("the set of hrefs is exactly the daily destinations", () => {
     const groups = buildAdminSidebarNavGroups(BASE, PROFILE, en.dashboard.adminNav as never, BADGES_ZERO);
     const actual = new Set(groups.flatMap((g) => g.items.map((i) => i.href)));
     expect(actual).toEqual(canonicalDailyHrefs(BASE));

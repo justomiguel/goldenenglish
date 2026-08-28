@@ -24,7 +24,15 @@ export async function continueRegisterAfterStudent(page: Page) {
 }
 
 export async function chooseRegisterSectionByName(page: Page, name: string | RegExp) {
-  await page.getByRole("checkbox", { name }).check();
+  const extra = page.locator("#rg-section-extra");
+  const primary = page.locator("#rg-section");
+  const target = (await extra.isVisible().catch(() => false)) ? extra : primary;
+  const option = target.locator("option").filter({ hasText: name }).first();
+  const value = await option.getAttribute("value");
+  if (!value) {
+    throw new Error(`section option not found: ${name}`);
+  }
+  await target.selectOption(value);
 }
 
 const SUBMIT_NAME = /enviar solicitud|send request|enviar|submit|inscrib/i;

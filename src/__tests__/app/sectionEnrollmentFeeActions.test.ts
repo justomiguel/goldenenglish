@@ -139,6 +139,18 @@ describe("setSectionEnrollmentFeeAmountAction", () => {
     expect(recordSystemAudit).not.toHaveBeenCalled();
   });
 
+  it("accepts null so the section inherits the cohort default", async () => {
+    const { from, update } = buildSupabase();
+    mockAssertAdmin.mockResolvedValue({ supabase: { from } });
+    const res = await setSectionEnrollmentFeeAmountAction({
+      locale: "en",
+      sectionId: SEC,
+      enrollmentFeeAmount: null,
+    });
+    expect(res).toEqual({ ok: true });
+    expect(update).toHaveBeenCalledWith({ enrollment_fee_amount: null });
+  });
+
   it("accepts 0 as a valid amount (section does not charge enrollment)", async () => {
     const { from, update } = buildSupabase();
     mockAssertAdmin.mockResolvedValue({ supabase: { from } });

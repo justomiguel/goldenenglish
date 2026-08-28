@@ -29,6 +29,8 @@ import {
   IMPORT_ROW_PROFILE_UPDATE_FAILED,
   IMPORT_ROW_SUCCESS,
 } from "@/lib/import/importResultMessageCodes";
+import { notifyAdminCreatedStudentWelcome } from "@/lib/email/notifyAdminCreatedStudentWelcome";
+import { defaultLocale } from "@/lib/i18n/dictionaries";
 
 export type ImportRowOutcome =
   | {
@@ -190,6 +192,15 @@ export async function processBulkImportStudentRow(
 
   const parentId = await ensureParentUserId(admin, row, tutorDefaults);
   if (parentId) await linkParentStudent(admin, parentId, studentId);
+
+  if (createdUsers === 1) {
+    void notifyAdminCreatedStudentWelcome({
+      studentId,
+      locale: defaultLocale,
+      studentFirstName: row.first_name,
+      studentLastName: row.last_name,
+    });
+  }
 
   let enrolled = 0;
   if (courseId && enrollmentToAdd) {

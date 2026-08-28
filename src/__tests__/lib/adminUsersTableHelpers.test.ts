@@ -1,8 +1,11 @@
 import { describe, it, expect } from "vitest";
 import {
+  EMPTY_ADMIN_STUDENT_DIRECTORY_FIELDS,
   ROLE_FILTER_ALL,
   applyUserRowToggle,
   filterAdminUsers,
+  isAdminStudentsDirectory,
+  isAdminTeachersDirectory,
   sortAdminUsers,
   type AdminUserRow,
 } from "@/lib/dashboard/adminUsersTableHelpers";
@@ -17,6 +20,7 @@ const rows: AdminUserRow[] = [
     phone: "+1",
     avatarDisplayUrl: null,
     missingSection: false,
+    ...EMPTY_ADMIN_STUDENT_DIRECTORY_FIELDS,
   },
   {
     id: "b",
@@ -27,8 +31,25 @@ const rows: AdminUserRow[] = [
     phone: "+2",
     avatarDisplayUrl: null,
     missingSection: false,
+    ...EMPTY_ADMIN_STUDENT_DIRECTORY_FIELDS,
   },
 ];
+
+describe("isAdminTeachersDirectory", () => {
+  it("is true only for the locked teachers list", () => {
+    expect(isAdminTeachersDirectory("teacher")).toBe(true);
+    expect(isAdminTeachersDirectory("student")).toBe(false);
+    expect(isAdminTeachersDirectory()).toBe(false);
+  });
+});
+
+describe("isAdminStudentsDirectory", () => {
+  it("is true only for the locked students list", () => {
+    expect(isAdminStudentsDirectory("student")).toBe(true);
+    expect(isAdminStudentsDirectory("teacher")).toBe(false);
+    expect(isAdminStudentsDirectory()).toBe(false);
+  });
+});
 
 describe("filterAdminUsers", () => {
   it("filters by text across columns", () => {
@@ -51,6 +72,19 @@ describe("filterAdminUsers", () => {
     const r = filterAdminUsers(withFlag, "no-section", ROLE_FILTER_ALL);
     expect(r).toHaveLength(1);
     expect(r[0].id).toBe("a");
+  });
+
+  it("finds students by section or parent name", () => {
+    const withFamily: AdminUserRow[] = [
+      {
+        ...rows[0],
+        sections: [{ id: "sec-1", name: "A1 Morning", cohortId: "coh-1", discountPercent: null }],
+        parents: [{ id: "p1", firstName: "Carlos", lastName: "Tutor" }],
+      },
+      rows[1],
+    ];
+    expect(filterAdminUsers(withFamily, "morning", ROLE_FILTER_ALL)[0]?.id).toBe("a");
+    expect(filterAdminUsers(withFamily, "tutor carlos", ROLE_FILTER_ALL)[0]?.id).toBe("a");
   });
 });
 

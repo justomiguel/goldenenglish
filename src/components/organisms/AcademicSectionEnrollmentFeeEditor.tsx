@@ -15,7 +15,8 @@ type EnrollmentDict =
 export interface AcademicSectionEnrollmentFeeEditorProps {
   locale: string;
   sectionId: string;
-  initialAmount: number;
+  initialAmount: number | null;
+  cohortDefaultAmount?: number | null;
   dict: EnrollmentDict;
   embedded?: boolean;
 }
@@ -24,20 +25,22 @@ export function AcademicSectionEnrollmentFeeEditor({
   locale,
   sectionId,
   initialAmount,
+  cohortDefaultAmount = null,
   dict,
   embedded = false,
 }: AcademicSectionEnrollmentFeeEditorProps) {
   const router = useRouter();
   const [amountRaw, setAmountRaw] = useState(() =>
-    Number.isFinite(initialAmount) && initialAmount >= 0 ? String(initialAmount) : "0",
+    initialAmount == null ? "" : String(initialAmount),
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [okMessage, setOkMessage] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
-  const amount = amountRaw.trim() === "" ? Number.NaN : Number(amountRaw);
-  const dirty = amountRaw.trim() === "" || amount !== initialAmount;
-  const valid = Number.isFinite(amount) && amount >= 0;
+  const trimmed = amountRaw.trim();
+  const amount = trimmed === "" ? null : Number(amountRaw);
+  const dirty = amount !== initialAmount;
+  const valid = amount == null || (Number.isFinite(amount) && amount >= 0);
 
   const handleSubmit = () => {
     if (!valid || !dirty || pending) return;
@@ -97,7 +100,6 @@ export function AcademicSectionEnrollmentFeeEditor({
             value={amountRaw}
             onChange={(e) => setAmountRaw(e.target.value)}
             disabled={pending}
-            required
           />
         </div>
 
@@ -114,6 +116,12 @@ export function AcademicSectionEnrollmentFeeEditor({
           {amount === 0 ? (
             <span className="text-xs text-[var(--color-muted-foreground)]">
               {dict.zeroMeans}
+            </span>
+          ) : amount == null ? (
+            <span className="text-xs text-[var(--color-muted-foreground)]">
+              {cohortDefaultAmount != null
+                ? dict.inheritHint.replace("{amount}", String(cohortDefaultAmount))
+                : dict.inheritEmpty}
             </span>
           ) : null}
         </div>

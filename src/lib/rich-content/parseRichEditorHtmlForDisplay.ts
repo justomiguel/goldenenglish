@@ -23,6 +23,8 @@ const YOUTUBE_BLOCK =
   /(?:<div\s+data-youtube-video=""[^>]*>\s*)?<iframe\b[^>]*\bsrc="([^"]+)"[^>]*>\s*<\/iframe>\s*(?:<\/div>)?/i;
 const AUDIO_IN_PARAGRAPH = /^<audio\b[^>]*\bsrc="([^"]+)"[^>]*>\s*<\/audio>$/i;
 const VIDEO_IN_PARAGRAPH = /^<video\b[^>]*\bsrc="([^"]+)"[^>]*>\s*<\/video>$/i;
+const BARE_AUDIO = /<audio\b[^>]*\bsrc="([^"]+)"[^>]*>\s*<\/audio>/i;
+const BARE_VIDEO = /<video\b[^>]*\bsrc="([^"]+)"[^>]*>\s*<\/video>/i;
 const ANCHOR_ONLY_IN_PARAGRAPH = /^<a\s+([^>]*?)>([\s\S]*?)<\/a>$/i;
 
 function findEarliestFileLinkBlock(
@@ -108,13 +110,11 @@ function findEarliestVideoBlock(
 
 function findEarliestMediaMatch(html: string, from: number): MediaMatch | null {
   const slice = html.slice(from);
-  let best: MediaMatch | null = null;
+  const hits: Array<{ index: number; length: number; segment: MediaMatch["segment"] }> = [];
 
   const consider = (index: number, length: number, segment: MediaMatch["segment"]) => {
     if (index < 0) return;
-    if (!best || index < best.index) {
-      best = { index: from + index, length, segment };
-    }
+    hits.push({ index, length, segment });
   };
 
   const youtube = slice.match(YOUTUBE_BLOCK);
@@ -132,12 +132,24 @@ function findEarliestMediaMatch(html: string, from: number): MediaMatch | null {
     consider(video.index, video.length, video.segment);
   }
 
+  const bareAudio = slice.match(BARE_AUDIO);
+  if (bareAudio?.index != null) {
+    consider(bareAudio.index, bareAudio[0].length, { kind: "audio", src: bareAudio[1] });
+  }
+
+  const bareVideo = slice.match(BARE_VIDEO);
+  if (bareVideo?.index != null) {
+    consider(bareVideo.index, bareVideo[0].length, { kind: "video", src: bareVideo[1] });
+  }
+
   const file = findEarliestFileLinkBlock(slice);
   if (file) {
     consider(file.index, file.length, file.segment);
   }
 
-  return best;
+  if (hits.length === 0) return null;
+  const best = hits.reduce((a, b) => (a.index <= b.index ? a : b));
+  return { index: from + best.index, length: best.length, segment: best.segment };
 }
 
 /** Splits editor HTML into prose chunks and styled media blocks (SSR-safe). */

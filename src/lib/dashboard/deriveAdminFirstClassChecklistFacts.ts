@@ -1,4 +1,9 @@
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
+import {
+  parseOptionalFeeAmount,
+  resolveEffectiveEnrollmentFeeAmount,
+} from "@/lib/billing/resolveCohortFeeDefaults";
+import { sectionIsClassPackBilled } from "@/lib/billing/sectionBillingMode";
 import type {
   AdminFirstClassChecklistContext,
   AdminFirstClassChecklistFacts,
@@ -12,6 +17,8 @@ export type AdminFirstClassChecklistSectionRaw = {
   scheduleSlots: unknown;
   enrollmentFeeAmount: number | string | null;
   billingMode: string | null;
+  cohortDefaultEnrollmentFeeAmount?: number | string | null;
+  cohortDefaultMonthlyFee?: number | string | null;
 };
 
 export type AdminFirstClassChecklistRaw = {
@@ -36,8 +43,18 @@ export function sectionHasFees(
   section: AdminFirstClassChecklistSectionRaw,
   extras: Pick<AdminFirstClassChecklistRaw, "hasMonthlyFeePlan" | "hasClassPackPrice">,
 ): boolean {
-  if (hasPositiveAmount(section.enrollmentFeeAmount)) return true;
+  const effectiveEnrollment = resolveEffectiveEnrollmentFeeAmount(
+    parseOptionalFeeAmount(section.enrollmentFeeAmount),
+    parseOptionalFeeAmount(section.cohortDefaultEnrollmentFeeAmount ?? null),
+  );
+  if (effectiveEnrollment > 0) return true;
   if (extras.hasMonthlyFeePlan) return true;
+  if (
+    !sectionIsClassPackBilled(section.billingMode) &&
+    hasPositiveAmount(section.cohortDefaultMonthlyFee ?? null)
+  ) {
+    return true;
+  }
   return section.billingMode === "class_pack" && extras.hasClassPackPrice;
 }
 

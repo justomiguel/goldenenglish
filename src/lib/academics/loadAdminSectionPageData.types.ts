@@ -27,10 +27,14 @@ export interface AdminSectionPageData {
     siteDefaultMax: number;
     activeEnrollmentCount: number;
     /**
-     * Monto de matrícula a nivel de sección (>=0). 0 = no cobra matrícula.
-     * Moneda se reusa del plan vigente.
+     * Monto de matrícula efectivo (sección o default de cohorte). 0 = no cobra.
      */
     enrollmentFeeAmount: number;
+    /** Stored section amount. `null` inherits the cohort default. */
+    storedEnrollmentFeeAmount: number | null;
+    cohortDefaultEnrollmentFeeAmount: number | null;
+    cohortDefaultMonthlyFee: number | null;
+    billingMode: string | null;
     /** Student/parent billing: class prorate vs full month fee. */
     monthlyFeeChargeMode: MonthlyFeeChargeMode;
     allowAdvanceMonthlyPayment: boolean;

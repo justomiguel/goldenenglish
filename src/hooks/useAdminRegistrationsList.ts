@@ -7,12 +7,14 @@ import {
   markRegistrationContacted,
   revertRegistrationToNew,
 } from "@/app/[locale]/dashboard/admin/registrations/actions";
+import { startRegistrationEnrollmentFeeFlowAction } from "@/app/[locale]/dashboard/admin/registrations/registrationIntakeActions";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type {
   RegistrationSortDir,
   RegistrationSortKey,
 } from "@/lib/dashboard/adminRegistrationsSort";
+import type { RegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -28,6 +30,7 @@ export interface UseAdminRegistrationsListParams {
   sortKey: RegistrationSortKey;
   sortDir: RegistrationSortDir;
   statusFilter?: RegistrationStatusFilter;
+  inboxFilter?: RegistrationInboxFilter;
   labels: RegLabels;
 }
 
@@ -41,6 +44,7 @@ export function useAdminRegistrationsList({
   sortKey,
   sortDir,
   statusFilter,
+  inboxFilter,
   labels,
 }: UseAdminRegistrationsListParams) {
   const router = useRouter();
@@ -95,6 +99,16 @@ export function useAdminRegistrationsList({
 
   const setStatusFilter = useCallback(
     (next: RegistrationStatusFilter) => pushParams({ status: next, page: undefined }),
+    [pushParams],
+  );
+
+  const setInboxFilter = useCallback(
+    (next: RegistrationInboxFilter) =>
+      pushParams({
+        inbox: next === "urgent" ? undefined : next,
+        status: undefined,
+        page: undefined,
+      }),
     [pushParams],
   );
 
@@ -160,6 +174,27 @@ export function useAdminRegistrationsList({
     return runStatusChange(row, revertRegistrationToNew);
   }
 
+  async function onStartEnrollmentFee(row: AdminRegistrationRow) {
+    setBusyId(row.id);
+    setToast(null);
+    const res = await startRegistrationEnrollmentFeeFlowAction({
+      locale,
+      registrationId: row.id,
+    });
+    setBusyId(null);
+    if (res.ok) {
+      setToast(labels.startEnrollmentFeeFlowSuccess);
+      refreshList();
+      return;
+    }
+    setToast(
+      res.code === "section_full"
+        ? labels.intake.sectionFullError
+        : labels.startEnrollmentFeeFlowError,
+    );
+    refreshList();
+  }
+
   return {
     busyId,
     setBusyId,
@@ -189,9 +224,12 @@ export function useAdminRegistrationsList({
     isPending,
     statusFilter,
     setStatusFilter,
+    inboxFilter,
+    setInboxFilter,
     expandedId,
     toggleExpanded,
     onMarkContacted,
     onRevertToNew,
+    onStartEnrollmentFee,
   };
 }

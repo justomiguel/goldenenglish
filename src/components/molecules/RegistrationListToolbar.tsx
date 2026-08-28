@@ -9,6 +9,8 @@ import { exportRegistrationsAction } from "@/app/[locale]/dashboard/admin/regist
 import { downloadBase64 } from "@/lib/download/downloadBase64";
 import { logClientException } from "@/lib/logging/clientLog";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import type { RegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
+import type { RegistrationInboxCounts } from "@/lib/register/countRegistrationInboxFilters";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -27,6 +29,9 @@ export interface RegistrationListToolbarProps {
   statusFilter?: RegistrationStatusFilterValue;
   statusCounts?: { total: number; new: number; contacted: number };
   onStatusFilterChange?: (next: RegistrationStatusFilterValue) => void;
+  inboxFilter?: RegistrationInboxFilter;
+  inboxCounts?: RegistrationInboxCounts;
+  onInboxFilterChange?: (next: RegistrationInboxFilter) => void;
   locale?: string;
 }
 
@@ -39,6 +44,9 @@ export function RegistrationListToolbar({
   statusFilter,
   statusCounts,
   onStatusFilterChange,
+  inboxFilter,
+  inboxCounts,
+  onInboxFilterChange,
   locale,
 }: RegistrationListToolbarProps) {
   const { localValue, setLocalValue, flushNow } = useDebouncedSearch({
@@ -59,7 +67,12 @@ export function RegistrationListToolbar({
     setExportError(null);
     try {
       // The export mirrors the active filters, so the file matches the screen.
-      const res = await exportRegistrationsAction({ locale, q: query, status: statusFilter });
+      const res = await exportRegistrationsAction({
+        locale,
+        q: query,
+        status: statusFilter,
+        inbox: inboxFilter,
+      });
       if (!res.ok) {
         setExportError(res.message);
         return;
@@ -93,7 +106,37 @@ export function RegistrationListToolbar({
           className="min-h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] py-2 pl-10 pr-3 text-sm outline-none ring-[var(--color-primary)] placeholder:text-[var(--color-muted-foreground)] focus-visible:ring-2"
         />
       </form>
-      {statusCounts && onStatusFilterChange ? (
+      {inboxCounts && onInboxFilterChange ? (
+        <div className="flex flex-wrap gap-2" role="group" aria-label={labels.status}>
+          {(
+            [
+              { value: "urgent" as const, label: labels.intake.filterUrgent, count: inboxCounts.urgent },
+              { value: "awaiting_fee" as const, label: labels.intake.filterAwaiting, count: inboxCounts.awaiting_fee },
+              { value: "receipt_pending" as const, label: labels.intake.filterReceipt, count: inboxCounts.receipt_pending },
+              { value: "needs_section" as const, label: labels.intake.filterNeedsSection, count: inboxCounts.needs_section },
+              { value: "section_full" as const, label: labels.intake.filterSectionFull, count: inboxCounts.section_full },
+              { value: "contacted" as const, label: labels.intake.filterContacted, count: inboxCounts.contacted },
+            ] satisfies { value: RegistrationInboxFilter; label: string; count: number }[]
+          ).map((chip) => {
+            const active = (inboxFilter ?? "urgent") === chip.value;
+            return (
+              <button
+                key={chip.value}
+                type="button"
+                aria-pressed={active}
+                onClick={() => onInboxFilterChange(chip.value)}
+                className={`rounded-full border px-3 py-1 text-sm ${
+                  active
+                    ? "border-[var(--color-primary)]/25 bg-[color-mix(in_srgb,var(--color-primary)_8%,white)] font-semibold text-[var(--color-primary)]"
+                    : "border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+                }`}
+              >
+                {tpl(chip.label, chip.count)}
+              </button>
+            );
+          })}
+        </div>
+      ) : statusCounts && onStatusFilterChange ? (
         <div className="flex flex-wrap gap-2" role="group" aria-label={labels.status}>
           {(
             [

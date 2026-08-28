@@ -3,6 +3,10 @@ import { receiptSignedUrlForAdmin } from "@/lib/payments/receiptSignedUrl";
 import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
 import { loadSectionBillingModes } from "@/lib/billing/loadSectionBillingModes";
 import { sectionIsClassPackBilled } from "@/lib/billing/sectionBillingMode";
+import {
+  parseOptionalFeeAmount,
+  resolveEffectiveMonthlyFee,
+} from "@/lib/billing/resolveCohortFeeDefaults";
 import type {
   AdminBillingAnnualSettlement,
   AdminBillingScholarship,
@@ -46,7 +50,7 @@ export async function loadAdminStudentBillingTabData(
     supabase
       .from("section_enrollments")
       .select(
-        "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, academic_sections(name, enrollment_fee_amount, starts_on, ends_on, schedule_slots, academic_cohorts(name))",
+        "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, academic_sections(name, enrollment_fee_amount, starts_on, ends_on, schedule_slots, academic_cohorts(name, default_enrollment_fee_amount, default_monthly_fee))",
       )
       .eq("student_id", studentId)
       .eq("status", "active"),
@@ -167,19 +171,34 @@ export async function loadAdminStudentBillingTabData(
     const meta = sectionEnrollmentMeta(row);
     const plans = plansBySectionId.get(row.section_id) ?? [];
     const billingMode = billingModeBySectionId.get(row.section_id) ?? null;
-    // Una sección por paquete no tiene cuota mensual: publicar una acá la mostraría como el monto
-    // vigente del alumno.
-    const eff = sectionIsClassPackBilled(billingMode)
+    const sectionPlan = sectionIsClassPackBilled(billingMode)
       ? null
       : resolveEffectiveSectionFeePlan(plans, refYear, refMonth);
+    const sec = Array.isArray(row.academic_sections)
+      ? row.academic_sections[0]
+      : row.academic_sections;
+    const cohort = sec
+      ? Array.isArray(sec.academic_cohorts)
+        ? sec.academic_cohorts[0]
+        : sec.academic_cohorts
+      : null;
+    const monthly = resolveEffectiveMonthlyFee({
+      billingMode,
+      sectionPlan: sectionPlan
+        ? { monthlyFee: sectionPlan.monthlyFee, currency: sectionPlan.currency }
+        : null,
+      cohortDefaultMonthlyFee: parseOptionalFeeAmount(cohort?.default_monthly_fee),
+    });
     const slotsAndCohort = sectionScheduleSlotsAndCohort(row);
     return {
       enrollmentId: row.id,
       sectionId: row.section_id,
       sectionName: sectionNameFromEnrollment(row),
       ...meta,
-      sectionMonthlyFeeAmount: eff?.monthlyFee ?? null,
-      sectionMonthlyFeeCurrency: eff?.currency ?? null,
+      sectionMonthlyFeeAmount:
+        monthly.kind === "section" || monthly.kind === "cohort" ? monthly.monthlyFee : null,
+      sectionMonthlyFeeCurrency:
+        monthly.kind === "section" || monthly.kind === "cohort" ? monthly.currency : null,
       enrollmentCreatedAt: row.created_at ?? null,
       enrollmentFeeExempt: Boolean(row.enrollment_fee_exempt),
       enrollmentExemptReason: row.enrollment_exempt_reason,

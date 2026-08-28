@@ -18,6 +18,7 @@ export type AdminSidebarNavBadges = {
 
 export type BuildAdminDailyNavItemsOptions = {
   financeHref?: string;
+  includeBlogNav?: boolean;
 };
 
 export function buildAdminDailyNavItems(
@@ -27,6 +28,14 @@ export function buildAdminDailyNavItems(
   options: BuildAdminDailyNavItemsOptions = {},
 ): AdminSidebarNavItem[] {
   const financeHref = options.financeHref ?? `${base}/finance`;
+  const blogItem: AdminSidebarNavItem | null = options.includeBlogNav
+    ? {
+        href: `${base}/cms/blog`,
+        label: dict.blog,
+        iconId: "blog",
+        tip: dict.tipBlog,
+      }
+    : null;
   return [
     { href: base, label: dict.home, iconId: "home", tip: dict.tipHome },
     {
@@ -41,6 +50,12 @@ export function buildAdminDailyNavItems(
       label: dict.teachers,
       iconId: "teachers",
       tip: dict.tipTeachers,
+    },
+    {
+      href: `${base}/users`,
+      label: dict.users,
+      iconId: "allAccounts",
+      tip: dict.tipUsers,
     },
     {
       href: `${base}/registrations`,
@@ -69,6 +84,13 @@ export function buildAdminDailyNavItems(
       badge: badges.recentInboundMessages,
       tip: dict.tipMessages,
     },
+    {
+      href: `${base}/events`,
+      label: dict.events,
+      iconId: "events",
+      tip: dict.tipEvents,
+    },
+    ...(blogItem ? [blogItem] : []),
     {
       href: `${base}/institute`,
       label: dict.institute,

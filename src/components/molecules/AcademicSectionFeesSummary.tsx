@@ -18,6 +18,7 @@ export interface AcademicSectionFeesSummaryDict {
   monthlyPlanEmpty: string;
   enrollmentLabel: string;
   enrollmentNone: string;
+  fromCohortDefault: string;
   chargeBasisLabel: string;
   advanceLabel: string;
   advanceYes: string;
@@ -29,6 +30,9 @@ export interface AcademicSectionFeesSummaryProps {
   feePlansDict: FeePlansDict;
   currentPlan: SectionFeePlan | null;
   enrollmentFeeAmount: number;
+  enrollmentInherited?: boolean;
+  monthlyInherited?: boolean;
+  inheritLabel?: string;
   systemCurrency: string;
   chargeModeLabel: string;
   allowAdvance: boolean;
@@ -88,16 +92,20 @@ export function AcademicSectionFeesSummary({
   feePlansDict,
   currentPlan,
   enrollmentFeeAmount,
+  enrollmentInherited = false,
+  monthlyInherited = false,
+  inheritLabel,
   systemCurrency,
   chargeModeLabel,
   allowAdvance,
 }: AcademicSectionFeesSummaryProps) {
+  const inheritSuffix = inheritLabel ? ` · ${inheritLabel}` : "";
   const planLine = currentPlan
-    ? formatSectionFeePlanLabel(currentPlan, feePlansDict)
+    ? `${formatSectionFeePlanLabel(currentPlan, feePlansDict)}${monthlyInherited ? inheritSuffix : ""}`
     : dict.monthlyPlanEmpty;
   const enrollmentLine =
     enrollmentFeeAmount > 0
-      ? `${systemCurrency} ${enrollmentFeeAmount.toFixed(2)}`
+      ? `${systemCurrency} ${enrollmentFeeAmount.toFixed(2)}${enrollmentInherited ? inheritSuffix : ""}`
       : dict.enrollmentNone;
 
   return (

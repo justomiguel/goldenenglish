@@ -27,6 +27,8 @@ describe("emailTemplateRegistry", () => {
       "churn.inactivity",
       "notifications.class_reminder_prep",
       "notifications.ward_email_changed",
+      "notifications.admin_student_welcome",
+      "notifications.admin_tutor_welcome",
     ]) {
       expect(keys).toContain(key);
     }

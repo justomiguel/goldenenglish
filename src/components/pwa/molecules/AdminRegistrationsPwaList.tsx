@@ -11,6 +11,7 @@ import type {
   RegistrationSortKey,
 } from "@/lib/dashboard/adminRegistrationsSort";
 import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
+import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -65,6 +66,10 @@ export interface AdminRegistrationsPwaListProps {
   onDelete: (row: AdminRegistrationRow) => void;
   onMarkContacted: (row: AdminRegistrationRow) => void;
   onRevertToNew: (row: AdminRegistrationRow) => void;
+  onStartEnrollmentFee: (row: AdminRegistrationRow) => void;
+  currentCohortSections?: CurrentCohortSection[];
+  onBusy?: (id: string | null) => void;
+  onIntakeDone?: () => void;
   emptyMessage: string;
   pagination: {
     page: number;
@@ -93,6 +98,10 @@ export function AdminRegistrationsPwaList({
   onDelete,
   onMarkContacted,
   onRevertToNew,
+  onStartEnrollmentFee,
+  currentCohortSections,
+  onBusy,
+  onIntakeDone,
   emptyMessage,
   pagination,
 }: AdminRegistrationsPwaListProps) {
@@ -161,6 +170,10 @@ export function AdminRegistrationsPwaList({
             onDelete={onDelete}
             onMarkContacted={onMarkContacted}
             onRevertToNew={onRevertToNew}
+            onStartEnrollmentFee={onStartEnrollmentFee}
+            currentCohortSections={currentCohortSections}
+            onBusy={onBusy}
+            onIntakeDone={onIntakeDone}
           />
         ))}
       </ul>

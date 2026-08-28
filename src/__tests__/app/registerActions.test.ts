@@ -22,6 +22,10 @@ vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => ({}),
 }));
 
+vi.mock("@/lib/email/templates/sendBrandedEmail", () => ({
+  sendBrandedEmail: async () => ({ ok: true, fromOverride: false }),
+}));
+
 vi.mock("@/lib/register/resolveExistingStudentByDni", () => ({
   resolveExistingStudentByDni: async () => ({ kind: "none" }),
 }));
@@ -60,9 +64,11 @@ const minorNoStudentEmailPayload = {
 
 function mockClientWithRpcAndInsert(insertResult: { error: unknown }) {
   return {
-    rpc: vi.fn().mockResolvedValue({
-      data: "Cohort — Section A",
-      error: null,
+    rpc: vi.fn().mockImplementation((fn: string) => {
+      if (fn === "registration_public_section_has_open_seat") {
+        return Promise.resolve({ data: true, error: null });
+      }
+      return Promise.resolve({ data: "Cohort — Section A", error: null });
     }),
     from: () => ({
       insert: vi.fn().mockResolvedValue(insertResult),
@@ -180,13 +186,9 @@ describe("submitPublicRegistration", () => {
     vi.stubEnv("MAIL_TENANT", "alumnos.test");
     mockGetInscriptionsEnabled.mockResolvedValue(true);
     const insert = vi.fn().mockResolvedValue({ error: null });
-    mockCreateClient.mockResolvedValue({
-      rpc: vi.fn().mockResolvedValue({
-        data: "Cohort — Section A",
-        error: null,
-      }),
-      from: () => ({ insert }),
-    });
+    const client = mockClientWithRpcAndInsert({ error: null });
+    client.from = () => ({ insert });
+    mockCreateClient.mockResolvedValue(client);
     const r = await submitPublicRegistration("es", minorNoStudentEmailPayload);
     expect(r).toEqual({ ok: true });
     expect(insert).toHaveBeenCalledWith(
@@ -224,10 +226,9 @@ describe("submitPublicRegistration", () => {
     });
     mockStampExtras.mockResolvedValue({ ok: true, extras });
     const insert = vi.fn().mockResolvedValue({ error: null });
-    mockCreateClient.mockResolvedValue({
-      rpc: vi.fn().mockResolvedValue({ data: "Cohort — Section A", error: null }),
-      from: () => ({ insert }),
-    });
+    const client = mockClientWithRpcAndInsert({ error: null });
+    client.from = () => ({ insert });
+    mockCreateClient.mockResolvedValue(client);
     const r = await submitPublicRegistration("es", {
       ...valid,
       tenant_extras: validNagoExtras(),

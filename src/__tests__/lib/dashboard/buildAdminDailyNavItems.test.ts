@@ -17,15 +17,33 @@ function hrefs(opts?: Parameters<typeof buildAdminDailyNavItems>[3]) {
 }
 
 describe("buildAdminDailyNavItems", () => {
-  it("returns the eight daily hrefs in spec order", () => {
+  it("returns the daily hrefs in spec order", () => {
     expect(hrefs()).toEqual([
       BASE,
       `${BASE}/students`,
       `${BASE}/teachers`,
+      `${BASE}/users`,
       `${BASE}/registrations`,
       `${BASE}/academic`,
       `${BASE}/finance`,
       `${BASE}/messages`,
+      `${BASE}/events`,
+      `${BASE}/institute`,
+    ]);
+  });
+
+  it("lists blog after events when includeBlogNav", () => {
+    expect(hrefs({ includeBlogNav: true })).toEqual([
+      BASE,
+      `${BASE}/students`,
+      `${BASE}/teachers`,
+      `${BASE}/users`,
+      `${BASE}/registrations`,
+      `${BASE}/academic`,
+      `${BASE}/finance`,
+      `${BASE}/messages`,
+      `${BASE}/events`,
+      `${BASE}/cms/blog`,
       `${BASE}/institute`,
     ]);
   });
@@ -48,12 +66,9 @@ describe("buildAdminDailyNavItems", () => {
     expect(items.find((i) => i.href.endsWith("/academic"))?.tourId).toBe("admin-nav-academic");
   });
 
-  it("does not list former sidebar destinations", () => {
-    const set = new Set(hrefs());
-    expect(set.has(`${BASE}/users`)).toBe(false);
-    expect(set.has(`${BASE}/events`)).toBe(false);
+  it("does not list glossary or email templates on the daily rail", () => {
+    const set = new Set(hrefs({ includeBlogNav: true }));
     expect(set.has(`${BASE}/glossary`)).toBe(false);
-    expect(set.has(`${BASE}/cms/blog`)).toBe(false);
     expect(set.has(`${BASE}/communications/templates`)).toBe(false);
   });
 
@@ -66,10 +81,12 @@ describe("buildAdminDailyNavItems", () => {
       "home",
       "students",
       "teachers",
+      "allAccounts",
       "registrations",
       "academic",
       "finance",
       "messages",
+      "events",
       "institute",
     ]);
   });

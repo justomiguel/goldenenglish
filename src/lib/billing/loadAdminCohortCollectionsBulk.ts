@@ -7,6 +7,7 @@ import {
 import { buildCohortCollectionsMatrixFromViews } from "@/lib/billing/buildCohortCollectionsMatrixFromViews";
 import { loadAdminSectionCollectionsView } from "@/lib/billing/loadAdminSectionCollectionsView";
 import { loadSectionBillingModes } from "@/lib/billing/loadSectionBillingModes";
+import { parseOptionalFeeAmount } from "@/lib/billing/resolveCohortFeeDefaults";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import type {
   CohortCollectionsBulkRaw,
@@ -18,6 +19,8 @@ const MAX_SECTIONS_PER_COHORT_MATRIX = 80;
 interface CohortRow {
   id: string;
   name: string;
+  default_enrollment_fee_amount?: number | string | null;
+  default_monthly_fee?: number | string | null;
 }
 
 interface SectionRow {
@@ -33,7 +36,7 @@ async function loadFallbackMatrix(
 ): Promise<CohortCollectionsMatrix | null> {
   const { data: cohortData, error: cohortError } = await supabase
     .from("academic_cohorts")
-    .select("id, name")
+    .select("id, name, default_enrollment_fee_amount, default_monthly_fee")
     .eq("id", cohortId)
     .maybeSingle();
   if (cohortError || !cohortData) {
@@ -118,5 +121,21 @@ export async function loadAdminCohortCollectionsBulk(
     supabase,
     raw.sections.map((section) => section.id),
   );
-  return buildCohortCollectionsMatrix(raw, { ...opts, billingModeBySectionId });
+  const { data: cohortFees } = await supabase
+    .from("academic_cohorts")
+    .select("default_enrollment_fee_amount, default_monthly_fee")
+    .eq("id", cohortId)
+    .maybeSingle();
+  const feeRow = cohortFees as {
+    default_enrollment_fee_amount?: number | string | null;
+    default_monthly_fee?: number | string | null;
+  } | null;
+  return buildCohortCollectionsMatrix(raw, {
+    ...opts,
+    billingModeBySectionId,
+    cohortDefaultEnrollmentFeeAmount: parseOptionalFeeAmount(
+      feeRow?.default_enrollment_fee_amount,
+    ),
+    cohortDefaultMonthlyFee: parseOptionalFeeAmount(feeRow?.default_monthly_fee),
+  });
 }

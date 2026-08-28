@@ -10,6 +10,8 @@ import type { RegistrationAcceptUserLabels } from "@/components/dashboard/AdminR
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import type { RegistrationSortKey, RegistrationSortDir } from "@/lib/dashboard/adminRegistrationsSort";
 import type { RegistrationStatusFilter } from "@/hooks/useAdminRegistrationsList";
+import type { RegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
+import type { RegistrationInboxCounts } from "@/lib/register/countRegistrationInboxFilters";
 import type { CountryCode } from "libphonenumber-js";
 
 export interface AdminRegistrationsScreenProps {
@@ -23,6 +25,8 @@ export interface AdminRegistrationsScreenProps {
   sortDir: RegistrationSortDir;
   statusFilter?: RegistrationStatusFilter;
   statusCounts: { total: number; new: number; contacted: number };
+  inboxFilter?: RegistrationInboxFilter;
+  inboxCounts?: RegistrationInboxCounts;
   legalAgeMajority: number;
   instituteName: string;
   /** Default country for phones typed without a prefix; null hides WhatsApp. */

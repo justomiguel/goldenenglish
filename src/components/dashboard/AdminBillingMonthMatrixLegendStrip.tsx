@@ -1,6 +1,9 @@
 import { Check, CircleDot, Clock, FileText, X } from "lucide-react";
 import type { ReactNode } from "react";
-import { sectionCollectionsMonthCellClasses } from "@/lib/billing/sectionCollectionsMonthCellClasses";
+import {
+  SECTION_COLLECTIONS_SCHOLARSHIP_PERCENT_CLASSES,
+  sectionCollectionsMonthCellClasses,
+} from "@/lib/billing/sectionCollectionsMonthCellClasses";
 import { SECTION_COLLECTIONS_MONTH_STATUS_ICONS } from "@/lib/billing/sectionCollectionsMonthStatusIcons";
 
 const IconNoPlan = SECTION_COLLECTIONS_MONTH_STATUS_ICONS["no-plan"];
@@ -20,6 +23,8 @@ export interface AdminBillingMonthMatrixLegendStripProps {
     statusOutOfPeriod: string;
     scholarshipSample: string;
   };
+  /** Only when some month in the view differs from the row-level scholarship chip. */
+  includeScholarshipSample?: boolean;
 }
 
 /**
@@ -28,6 +33,7 @@ export interface AdminBillingMonthMatrixLegendStripProps {
 export function AdminBillingMonthMatrixLegendStrip({
   labelledById,
   labels,
+  includeScholarshipSample = false,
 }: AdminBillingMonthMatrixLegendStripProps) {
   const items: {
     key: string;
@@ -83,18 +89,22 @@ export function AdminBillingMonthMatrixLegendStrip({
       label: labels.statusOutOfPeriod,
       inner: <IconOutOfPeriod className="h-3.5 w-3.5" aria-hidden />,
     },
-    {
+  ];
+  if (includeScholarshipSample) {
+    items.push({
       key: "sch",
-      classes: sectionCollectionsMonthCellClasses("approved", false, true),
+      classes: sectionCollectionsMonthCellClasses("due", false, true),
       label: labels.scholarshipSample,
       inner: (
         <>
-          <span className="leading-none">50%</span>
-          <Check className="mt-0.5 h-2.5 w-2.5" aria-hidden />
+          <span className={`leading-none ${SECTION_COLLECTIONS_SCHOLARSHIP_PERCENT_CLASSES}`}>
+            50%
+          </span>
+          <CircleDot className="mt-0.5 h-2.5 w-2.5" aria-hidden />
         </>
       ),
-    },
-  ];
+    });
+  }
 
   return (
     <ul

@@ -24,9 +24,14 @@ export interface AdminBillingMatrixLegendModalLabels {
 
 interface AdminBillingMatrixLegendModalProps {
   labels: AdminBillingMatrixLegendModalLabels;
+  /** Show the violet % sample only when some month is a one-off scholarship. */
+  showScholarshipSample?: boolean;
 }
 
-export function AdminBillingMatrixLegendModal({ labels }: AdminBillingMatrixLegendModalProps) {
+export function AdminBillingMatrixLegendModal({
+  labels,
+  showScholarshipSample = false,
+}: AdminBillingMatrixLegendModalProps) {
   const [open, setOpen] = useState(false);
   const titleId = useId();
   const legendParagraphId = useId();
@@ -61,6 +66,7 @@ export function AdminBillingMatrixLegendModal({ labels }: AdminBillingMatrixLege
         </p>
         <AdminBillingMonthMatrixLegendStrip
           labelledById={legendParagraphId}
+          includeScholarshipSample={showScholarshipSample}
           labels={{
             statusPaid: labels.statusPaid,
             statusPending: labels.statusPending,

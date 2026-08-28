@@ -15,6 +15,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "coverage/**",
+    "test-results/**",
     ".agents/**",
     // Nested checkouts of this repo (agent / feature isolation); they lint themselves.
     ".worktrees/**",

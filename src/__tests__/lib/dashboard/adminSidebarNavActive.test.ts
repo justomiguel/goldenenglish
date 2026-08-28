@@ -10,15 +10,19 @@ const contents = `${base}/academic/contents`;
 
 const students = `${base}/students`;
 const teachers = `${base}/teachers`;
+const users = `${base}/users`;
 const institute = `${base}/institute`;
 const dailyHrefs = [
   base,
   students,
   teachers,
+  users,
   `${base}/registrations`,
   academicHub,
   `${base}/finance`,
   `${base}/messages`,
+  `${base}/events`,
+  `${base}/cms/blog`,
   institute,
 ] as const;
 
@@ -46,9 +50,18 @@ describe("adminSidebarNavActive", () => {
     expect(isAdminSidebarNavItemActive(`${base}/students`, students, base, profile, dailyHrefs)).toBe(true);
   });
 
-  it("highlights Instituto on /events", () => {
-    expect(isAdminSidebarNavItemActive(`${base}/events`, institute, base, profile, dailyHrefs)).toBe(true);
-    expect(isAdminSidebarNavItemActive(`${base}/events`, academicHub, base, profile, dailyHrefs)).toBe(false);
+  it("highlights Eventos on /events, not Instituto", () => {
+    const events = `${base}/events`;
+    expect(isAdminSidebarNavItemActive(events, events, base, profile, dailyHrefs)).toBe(true);
+    expect(isAdminSidebarNavItemActive(events, institute, base, profile, dailyHrefs)).toBe(false);
+    expect(isAdminSidebarNavItemActive(events, academicHub, base, profile, dailyHrefs)).toBe(false);
+  });
+
+  it("highlights Blog on /cms/blog, not Instituto", () => {
+    const blog = `${base}/cms/blog`;
+    expect(isAdminSidebarNavItemActive(blog, blog, base, profile, dailyHrefs)).toBe(true);
+    expect(isAdminSidebarNavItemActive(`${blog}/new`, blog, base, profile, dailyHrefs)).toBe(true);
+    expect(isAdminSidebarNavItemActive(blog, institute, base, profile, dailyHrefs)).toBe(false);
   });
 
   it("highlights Alumnos on a student person record", () => {
@@ -65,17 +78,27 @@ describe("adminSidebarNavActive", () => {
     ).toBe(false);
   });
 
-  it("highlights Instituto on a parent person record", () => {
+  it("highlights Usuarios on a parent person record", () => {
     const pathname = `${base}/users/82f70fa1-a723-4406-bc61-42278abba648`;
+    expect(
+      isAdminSidebarNavItemActive(pathname, users, base, profile, dailyHrefs, {
+        personRecordRole: "parent",
+      }),
+    ).toBe(true);
     expect(
       isAdminSidebarNavItemActive(pathname, institute, base, profile, dailyHrefs, {
         personRecordRole: "parent",
       }),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       isAdminSidebarNavItemActive(pathname, students, base, profile, dailyHrefs, {
         personRecordRole: "parent",
       }),
     ).toBe(false);
+  });
+
+  it("highlights Usuarios on the all-accounts list", () => {
+    expect(isAdminSidebarNavItemActive(users, users, base, profile, dailyHrefs)).toBe(true);
+    expect(isAdminSidebarNavItemActive(users, institute, base, profile, dailyHrefs)).toBe(false);
   });
 });

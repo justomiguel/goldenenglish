@@ -33,6 +33,9 @@ const rows = [
     phone: "+1",
     avatarDisplayUrl: null,
     missingSection: false,
+    sections: [],
+    parents: [],
+    monthlyDue: [],
   },
   {
     id: "22222222-2222-2222-2222-222222222222",
@@ -43,6 +46,9 @@ const rows = [
     phone: "+2",
     avatarDisplayUrl: null,
     missingSection: false,
+    sections: [],
+    parents: [],
+    monthlyDue: [],
   },
 ];
 

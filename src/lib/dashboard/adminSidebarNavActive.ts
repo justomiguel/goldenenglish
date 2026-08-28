@@ -44,7 +44,7 @@ export function isAdminSidebarNavItemActive(
     const role = extras.personRecordRole;
     if (role === "student") return hrefPath === `${base}/students`;
     if (role === "teacher") return hrefPath === `${base}/teachers`;
-    return hrefPath === `${base}/institute`;
+    return hrefPath === `${base}/users`;
   }
 
   if (isAdminInstituteChildPath(pathname, base)) {

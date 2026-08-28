@@ -16,6 +16,10 @@ import {
 } from "@/lib/profile/formatProfileDisplayName";
 import type { AdminSectionPageData, AdminSectionRosterRow } from "./loadAdminSectionPageData.types";
 import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
+import {
+  parseOptionalFeeAmount,
+  resolveEffectiveEnrollmentFeeAmount,
+} from "@/lib/billing/resolveCohortFeeDefaults";
 
 export type { AdminSectionPageData, AdminSectionRosterRow } from "./loadAdminSectionPageData.types";
 
@@ -27,7 +31,7 @@ export async function loadAdminSectionPageData(
   const { data: sec, error: sErr } = await supabase
     .from("academic_sections")
     .select(
-      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, min_attendance_percent, requires_evaluations_to_pass, uses_learning_route, reference_image_path, academic_cohorts(name, archived_at)",
+      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, min_attendance_percent, requires_evaluations_to_pass, uses_learning_route, reference_image_path, billing_mode, academic_cohorts(name, archived_at, default_enrollment_fee_amount, default_monthly_fee)",
     )
     .eq("id", sectionId)
     .maybeSingle();
@@ -63,10 +67,21 @@ export async function loadAdminSectionPageData(
     min_attendance_percent?: number | null;
     requires_evaluations_to_pass?: boolean | null;
     uses_learning_route?: boolean | null;
+    billing_mode?: string | null;
     reference_image_path?: string | null;
     academic_cohorts:
-      | { name: string; archived_at?: string | null }
-      | { name: string; archived_at?: string | null }[]
+      | {
+          name: string;
+          archived_at?: string | null;
+          default_enrollment_fee_amount?: number | string | null;
+          default_monthly_fee?: number | string | null;
+        }
+      | {
+          name: string;
+          archived_at?: string | null;
+          default_enrollment_fee_amount?: number | string | null;
+          default_monthly_fee?: number | string | null;
+        }[]
       | null;
   };
   const cohortRaw = secRow.academic_cohorts;
@@ -154,10 +169,15 @@ export async function loadAdminSectionPageData(
     .limit(2000);
   const moveTargets = buildAdminSectionMoveTargets(allSections, sectionId);
 
-  const rawEnrollmentFee =
-    secRow.enrollment_fee_amount == null ? 0 : Number(secRow.enrollment_fee_amount);
-  const enrollmentFeeAmount =
-    Number.isFinite(rawEnrollmentFee) && rawEnrollmentFee >= 0 ? rawEnrollmentFee : 0;
+  const storedEnrollmentFeeAmount = parseOptionalFeeAmount(secRow.enrollment_fee_amount);
+  const cohortDefaultEnrollmentFeeAmount = parseOptionalFeeAmount(
+    cohortSingle?.default_enrollment_fee_amount,
+  );
+  const cohortDefaultMonthlyFee = parseOptionalFeeAmount(cohortSingle?.default_monthly_fee);
+  const enrollmentFeeAmount = resolveEffectiveEnrollmentFeeAmount(
+    storedEnrollmentFeeAmount,
+    cohortDefaultEnrollmentFeeAmount,
+  );
   const monthlyFeeChargeMode = parseMonthlyFeeChargeMode(secRow.monthly_fee_charge_mode);
   const rawMinAtt = secRow.min_attendance_percent;
   const minAttendancePercentOverride =
@@ -177,6 +197,10 @@ export async function loadAdminSectionPageData(
       siteDefaultMax,
       activeEnrollmentCount,
       enrollmentFeeAmount,
+      storedEnrollmentFeeAmount,
+      cohortDefaultEnrollmentFeeAmount,
+      cohortDefaultMonthlyFee,
+      billingMode: secRow.billing_mode ?? null,
       monthlyFeeChargeMode,
       allowAdvanceMonthlyPayment: secRow.allow_advance_monthly_payment === true,
       minAttendancePercentOverride,

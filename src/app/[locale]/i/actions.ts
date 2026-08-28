@@ -19,6 +19,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { parseRequestedSectionIds } from "@/lib/register/parseRequestedSectionIds";
 import { resolveExistingStudentByDni } from "@/lib/register/resolveExistingStudentByDni";
 import { resolveAndStampTenantExtras } from "@/lib/register/packs/resolveAndStampTenantExtras";
+import {
+  notifyPublicRegistrationReceived,
+  quotePublicRegistrationFee,
+} from "@/lib/register/completePublicRegistrationSubmit";
 
 type ResolvedRow = {
   section_id?: string | null;
@@ -133,6 +137,16 @@ export async function submitSectionLinkRegistration(
     return { ok: false, message: reg.validationError };
   }
 
+  const quote = await quotePublicRegistrationFee({
+    supabase,
+    admin: createAdminClient(),
+    sectionIds: [sectionId, ...parsedSections.additionalSectionIds],
+    nowIso: new Date().toISOString(),
+  });
+  if (!quote.ok) {
+    return { ok: false, message: reg.sectionFilledUp };
+  }
+
   const maxMinorEmailAttempts = 16;
   const maxAttempts = existingStudent ? 1 : age < legal ? maxMinorEmailAttempts : 1;
 
@@ -179,10 +193,28 @@ export async function submitSectionLinkRegistration(
       tutor_email: existingStudent ? null : d.tutor_email?.trim() || null,
       tutor_relationship: existingStudent ? null : d.tutor_relationship?.trim() || null,
       tenant_extras: stamped.extras,
+      pay_token: quote.fields.pay_token,
+      fee_snapshot: quote.fields.fee_snapshot,
+      intake_state: quote.fields.intake_state,
+      fee_captured: quote.fields.fee_captured,
     });
 
     if (!error) {
       revalidatePath(`/${locale}/dashboard/admin/registrations`, "page");
+      void notifyPublicRegistrationReceived({
+        locale,
+        dict,
+        isMinor: age < legal,
+        studentFirstName: d.first_name,
+        studentLastName: d.last_name,
+        studentEmail: resolvedEmail,
+        tutorName: existingStudent ? null : d.tutor_name?.trim() || null,
+        tutorEmail: existingStudent ? null : d.tutor_email?.trim() || null,
+        sectionLabel: sectionLabel || null,
+        payToken: quote.fields.pay_token,
+        snapshotTotal: quote.fields.fee_snapshot.total,
+        snapshotCurrency: quote.fields.fee_snapshot.currency,
+      });
       return { ok: true };
     }
 

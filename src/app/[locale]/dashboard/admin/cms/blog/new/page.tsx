@@ -8,7 +8,7 @@ import {
 } from "@/lib/dashboard/adminSessionErrors";
 import { BlogArticleEditor } from "@/components/dashboard/admin/cms/blog/BlogArticleEditor";
 import { loadGoogleTranslateCredentials } from "@/lib/blog/integrations/google/loadGoogleTranslateCredentials";
-import { BLOG_LOCALES, type BlogLocale } from "@/lib/blog/domain";
+import { blogEditorNativeLocale } from "@/lib/blog/blogEditorNativeLocale";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -32,9 +32,6 @@ export default async function AdminBlogNewPage({ params }: PageProps) {
 
   const dict = await getDictionary(locale);
   const credentials = await loadGoogleTranslateCredentials(supabase);
-  const startLocale = (BLOG_LOCALES.includes(locale as BlogLocale)
-    ? locale
-    : "es") as BlogLocale;
 
   return (
     <BlogArticleEditor
@@ -44,7 +41,7 @@ export default async function AdminBlogNewPage({ params }: PageProps) {
       academicLabels={dict.dashboard.adminContents}
       fileUploadProgress={dict.common.fileUpload}
       initial={{
-        defaultLocale: startLocale,
+        defaultLocale: blogEditorNativeLocale(),
         status: "draft",
         tags: [],
         scheduledFor: "",

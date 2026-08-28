@@ -1,3 +1,5 @@
+import type { RegistrationIntakeState } from "@/lib/register/registrationIntake";
+
 export interface AdminRegistrationRow {
   id: string;
   first_name: string;
@@ -22,4 +24,11 @@ export interface AdminRegistrationRow {
   contacted_by: string | null;
   sourceSectionLinkId: string | null;
   tenantExtras?: unknown;
+  intakeState?: RegistrationIntakeState;
+  snapshotTotal?: number;
+  snapshotCurrency?: string;
+  feeCaptured?: boolean;
+  enrollmentFeeReceiptPath?: string | null;
+  /** Live: a requested section no longer has an open seat. */
+  requestedSectionFull?: boolean;
 }

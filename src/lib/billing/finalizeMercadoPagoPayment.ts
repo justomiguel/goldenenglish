@@ -82,7 +82,6 @@ export async function finalizeMercadoPagoPayment(input: {
     });
   }
 
-  // Deferred creation: a `tuition:` slot reference has no pre-existing row.
   if (ref.kind === "slot") {
     return finalizeMercadoPagoMonthlySlot({
       admin: input.admin,
@@ -90,6 +89,7 @@ export async function finalizeMercadoPagoPayment(input: {
       snapshot,
     });
   }
+  if (ref.kind === "enrollment") return { ok: true, skipped: "enrollment_ref" };
 
   const payRow = await loadPaymentByExternalReference(input.admin, ref.paymentId);
   if (!payRow) {

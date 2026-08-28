@@ -114,6 +114,7 @@ export function AdminUsersScreenNarrow({
               totalCount: u.totalCount,
               onPageChange: u.setPage,
             }}
+            lockRole={lockRole}
           />
 
           <DeleteUsersConfirmModal

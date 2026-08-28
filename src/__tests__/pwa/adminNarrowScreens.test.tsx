@@ -57,6 +57,9 @@ const userRow: AdminUserRow = {
   phone: "+1",
   avatarDisplayUrl: null,
   missingSection: false,
+  sections: [],
+  parents: [],
+  monthlyDue: [],
 };
 
 describe("admin narrow screens", () => {

@@ -2,6 +2,17 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
 import type { RegistrationSortKey } from "@/lib/dashboard/adminRegistrationsSort";
+import { mapInboxLeadFields } from "@/lib/register/countRegistrationInboxFilters";
+import {
+  parseRegistrationInboxFilter,
+  registrationInboxOrFilter,
+  type RegistrationInboxFilter,
+} from "@/lib/register/registrationInboxFilter";
+import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistrationSectionIds";
+import {
+  collectClosedRequestedSectionIds,
+  markRegistrationRowsClosedSections,
+} from "@/lib/register/markRegistrationRowsClosedSections";
 
 const REGISTRATION_COLUMNS = [
   "id", "first_name", "last_name", "dni", "email", "phone",
@@ -9,6 +20,7 @@ const REGISTRATION_COLUMNS = [
   "tutor_name", "tutor_dni", "tutor_email", "tutor_phone",
   "tutor_relationship", "preferred_section_id", "additional_section_ids",
   "contacted_at", "contacted_by", "source_section_link_id", "tenant_extras",
+  "intake_state", "fee_snapshot", "fee_captured", "enrollment_fee_receipt_path",
 ].join(", ");
 
 const SORT_COLUMN_MAP: Record<RegistrationSortKey, string> = {
@@ -34,8 +46,9 @@ export interface PaginatedRegistrationsParams {
   q?: string;
   sort?: RegistrationSortKey;
   dir?: "asc" | "desc";
-  /** Follow-up status filter; omitted means every pending lead. */
+  /** Follow-up status filter; omitted means the default urgent inbox. */
   status?: "new" | "contacted";
+  inbox?: RegistrationInboxFilter;
   /** Match preferred or additional requested sections. */
   sectionId?: string;
 }
@@ -63,6 +76,10 @@ type RegistrationSelectRow = {
   contacted_by: string | null;
   source_section_link_id: string | null;
   tenant_extras?: unknown;
+  intake_state?: unknown;
+  fee_snapshot?: unknown;
+  fee_captured?: unknown;
+  enrollment_fee_receipt_path?: unknown;
 };
 
 function buildSearchFilter(q: string): string {
@@ -106,9 +123,16 @@ export async function loadPaginatedRegistrations(
     countQuery = countQuery.or(filter);
   }
 
-  if (params.status) {
-    dataQuery = dataQuery.eq("status", params.status);
-    countQuery = countQuery.eq("status", params.status);
+  const inbox = params.inbox ?? parseRegistrationInboxFilter(undefined, params.status);
+  if (inbox === "contacted") {
+    dataQuery = dataQuery.eq("status", "contacted");
+    countQuery = countQuery.eq("status", "contacted");
+  } else {
+    const orFilter = registrationInboxOrFilter(inbox);
+    if (orFilter) {
+      dataQuery = dataQuery.or(orFilter);
+      countQuery = countQuery.or(orFilter);
+    }
   }
 
   const sectionId = params.sectionId?.trim() ?? "";
@@ -169,10 +193,15 @@ export async function loadPaginatedRegistrations(
     sourceSectionLinkId:
       r.source_section_link_id != null ? String(r.source_section_link_id) : null,
     tenantExtras: r.tenant_extras ?? {},
+    ...mapInboxLeadFields(r),
   }));
+  const closedIds = await collectClosedRequestedSectionIds(
+    supabase,
+    rows.flatMap((r) => requestedRegistrationSectionIds(r)),
+  );
 
   return {
-    rows,
+    rows: markRegistrationRowsClosedSections(rows, closedIds),
     totalCount: countResult.count ?? 0,
     page,
     pageSize,

@@ -18,6 +18,10 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock("@/lib/email/notifyAdminCreatedStudentWelcome", () => ({
+  notifyAdminCreatedStudentWelcome: vi.fn().mockResolvedValue(undefined),
+}));
+
 import { bulkImportStudentsFromRows } from "@/app/[locale]/dashboard/admin/import/actions";
 import {
   ADMIN_SESSION_FORBIDDEN,

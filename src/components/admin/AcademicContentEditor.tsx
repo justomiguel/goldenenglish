@@ -7,6 +7,10 @@ import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import { isValidYoutubeUrl } from "@tiptap/extension-youtube";
 import { AcademicYoutube } from "@/components/admin/academicEditorYoutubeExtension";
+import {
+  AcademicFileAudio,
+  AcademicFileVideo,
+} from "@/components/admin/academicEditorFileMediaExtensions";
 import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
 import Highlight from "@tiptap/extension-highlight";
@@ -14,6 +18,7 @@ import { TableKit } from "@tiptap/extension-table";
 import { PromptStringModal } from "@/components/molecules/PromptStringModal";
 import { AcademicContentEditorToolbar } from "@/components/admin/AcademicContentEditorToolbar";
 import { tiptapAcademicLinkShouldAutoLink } from "@/lib/learning-content/tiptapAcademicLinkShouldAutoLink";
+import { academicEditorHtmlShouldReplace } from "@/lib/learning-content/academicEditorHtmlShouldReplace";
 import { logClientException } from "@/lib/logging/clientLog";
 import { BlogAttachChooserModal } from "@/components/dashboard/admin/cms/blog/BlogAttachChooserModal";
 import { useAcademicEditorMediaInsert } from "@/hooks/useAcademicEditorMediaInsert";
@@ -27,6 +32,9 @@ interface AcademicContentEditorProps {
   value: string;
   onChange: (html: string) => void;
   onImageUpload: (file: File) => Promise<{ src: string; alt: string } | null>;
+  onImagesUpload?: (
+    files: File[],
+  ) => Promise<Array<{ src: string; alt: string } | null>>;
   labels: Labels;
   disabled?: boolean;
   mediaAttach?: BlogEditorMediaAttachConfig;
@@ -43,6 +51,7 @@ export function AcademicContentEditor({
   value,
   onChange,
   onImageUpload,
+  onImagesUpload,
   labels,
   disabled,
   mediaAttach,
@@ -78,6 +87,8 @@ export function AcademicContentEditor({
         },
       }),
       AcademicYoutube,
+      AcademicFileVideo.configure({ removeLabel: labels.remove }),
+      AcademicFileAudio.configure({ removeLabel: labels.remove }),
       Placeholder.configure({ placeholder: labels.editorPlaceholder }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Highlight,
@@ -89,7 +100,7 @@ export function AcademicContentEditor({
     editorProps: {
       attributes: {
         class:
-          "ge-academic-editor min-h-[10rem] rounded-b-[var(--layout-border-radius)] border border-t-0 border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3 text-sm leading-6 text-[var(--color-foreground)] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-primary)] [&_[data-resize-container]]:max-w-full [&_a]:cursor-pointer [&_a]:text-[var(--color-primary)] [&_a]:underline [&_a]:underline-offset-2 [&_a]:decoration-from-font [&_a]:visited:text-[var(--color-primary)] [&_img]:my-3 [&_img]:max-w-full [&_img]:rounded-[var(--layout-border-radius)] [&_iframe]:my-3 [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-[var(--layout-border-radius)] [&_table]:my-3 [&_table]:w-full [&_td]:border [&_td]:border-[var(--color-border)] [&_td]:p-2 [&_th]:border [&_th]:border-[var(--color-border)] [&_th]:p-2",
+          "ge-academic-editor min-h-[10rem] rounded-b-[var(--layout-border-radius)] border border-t-0 border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3 text-sm leading-6 text-[var(--color-foreground)] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-primary)] [&_[data-resize-container]]:max-w-full [&_a]:cursor-pointer [&_a]:text-[var(--color-primary)] [&_a]:underline [&_a]:underline-offset-2 [&_a]:decoration-from-font [&_a]:visited:text-[var(--color-primary)] [&_img]:my-3 [&_img]:max-w-full [&_img]:rounded-[var(--layout-border-radius)] [&_[data-academic-file-media]]:my-3 [&_[data-academic-file-media]]:cursor-grab [&_video]:aspect-video [&_video]:w-full [&_video]:rounded-[var(--layout-border-radius)] [&_audio]:w-full [&_iframe]:my-3 [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:rounded-[var(--layout-border-radius)] [&_table]:my-3 [&_table]:w-full [&_td]:border [&_td]:border-[var(--color-border)] [&_td]:p-2 [&_th]:border [&_th]:border-[var(--color-border)] [&_th]:p-2",
         "aria-labelledby": toolbarId,
       },
     },
@@ -99,6 +110,7 @@ export function AcademicContentEditor({
   const { addImage, addMediaFile, insertYoutubeFromUrl } = useAcademicEditorMediaInsert({
     editor,
     onImageUpload,
+    onImagesUpload,
     mediaAttach,
     syncMediaToAllLocales,
   });
@@ -117,12 +129,11 @@ export function AcademicContentEditor({
     } catch {
       return;
     }
-    if (next !== current) {
+    if (next !== current && academicEditorHtmlShouldReplace(current, next)) {
       try {
         editor.commands.setContent(next, { emitUpdate: false });
       } catch (err) {
         logClientException("AcademicContentEditor.setContent", err);
-        editor.commands.setContent("<p></p>", { emitUpdate: false });
       }
     }
   }, [editor, value]);

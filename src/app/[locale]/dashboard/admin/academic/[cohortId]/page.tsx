@@ -9,9 +9,13 @@ import { loadAdminCohortPageData } from "@/lib/academics/loadAdminCohortPageData
 import { loadAdminRetentionCandidates } from "@/lib/academics/loadAdminRetentionCandidates";
 import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
 import { loadAdminTransferInboxRows } from "@/lib/academics/loadAdminTransferInboxRows";
-import { AdminSectionCard } from "@/components/molecules/AdminSectionCard";
-import { CohortSectionsToolbar } from "@/components/organisms/CohortSectionsToolbar";
-import { AcademicCohortLifecycleBar } from "@/components/organisms/AcademicCohortLifecycleBar";
+import { AcademicCohortOverviewTab } from "@/components/organisms/AcademicCohortOverviewTab";
+import { AcademicCohortPageSections } from "@/components/organisms/AcademicCohortPageSections";
+import { parseOptionalFeeAmount } from "@/lib/billing/resolveCohortFeeDefaults";
+import {
+  canCohortSaveOnceForAll,
+  cohortEnrollmentFeeModeFromRow,
+} from "@/lib/academics/cohortEnrollmentFeeModeProps";
 import {
   AcademicCohortDetailShell,
   type AcademicCohortDetailTabId,
@@ -55,13 +59,20 @@ export default async function AcademicCohortPage({ params, searchParams }: PageP
 
   const { data: cohort, error: cErr } = await supabase
     .from("academic_cohorts")
-    .select("id, name, is_current, archived_at")
+    .select("id, name, is_current, archived_at, default_enrollment_fee_amount, default_monthly_fee, enrollment_fee_mode")
     .eq("id", cohortId)
     .maybeSingle();
 
   if (cErr || !cohort) notFound();
 
-  const data = await loadAdminCohortPageData(supabase, cohortId, locale);
+  const [data, feeSectionsResult] = await Promise.all([
+    loadAdminCohortPageData(supabase, cohortId, locale),
+    supabase
+      .from("academic_sections")
+      .select("enrollment_fee_amount")
+      .eq("cohort_id", cohortId)
+      .is("archived_at", null),
+  ]);
   const {
     sectionRows,
     distinctActiveStudents,
@@ -102,6 +113,23 @@ export default async function AcademicCohortPage({ params, searchParams }: PageP
   } catch {
     /* admin layout should prevent; leave empty */
   }
+
+  const initialEnrollment = parseOptionalFeeAmount(
+    (cohort as { default_enrollment_fee_amount?: unknown }).default_enrollment_fee_amount,
+  );
+  const initialMonthly = parseOptionalFeeAmount(
+    (cohort as { default_monthly_fee?: unknown }).default_monthly_fee,
+  );
+  const initialMode = cohortEnrollmentFeeModeFromRow(
+    (cohort as { enrollment_fee_mode?: string }).enrollment_fee_mode,
+  );
+  const canUseOnceForAll = canCohortSaveOnceForAll({
+    sectionEnrollmentAmounts: (feeSectionsResult.data ?? []).map(
+      (row) => (row as { enrollment_fee_amount?: unknown }).enrollment_fee_amount,
+    ),
+    cohortDefault: (cohort as { default_enrollment_fee_amount?: unknown })
+      .default_enrollment_fee_amount,
+  });
 
   const brand = await getBrandForRequest();
   const tn = dict.dashboard.academics.transferNotifications;
@@ -146,74 +174,32 @@ export default async function AcademicCohortPage({ params, searchParams }: PageP
         defaultTab={defaultTab}
         labels={d.shellTabs}
         overview={
-          <div className="space-y-4">
-            <AcademicCohortLifecycleBar
-              locale={locale}
-              cohortId={cohortId}
-              cohortArchivedAt={cohortArchivedAt}
-              isCurrent={isCurrent}
-              dict={d.lifecycle}
-            />
-            <section className="grid gap-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-4 sm:grid-cols-2">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
-                  {d.kpiStudents}
-                </p>
-                <p className="mt-1 text-2xl font-semibold text-[var(--color-foreground)]">{distinctActiveStudents}</p>
-              </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted-foreground)]">
-                  {d.kpiSections}
-                </p>
-                <p className="mt-1 text-2xl font-semibold text-[var(--color-foreground)]">{sectionRows.length}</p>
-              </div>
-            </section>
-          </div>
+          <AcademicCohortOverviewTab
+            locale={locale}
+            cohortId={cohortId}
+            cohortArchivedAt={cohortArchivedAt}
+            isCurrent={isCurrent}
+            distinctActiveStudents={distinctActiveStudents}
+            sectionCount={sectionRows.length}
+            initialEnrollment={initialEnrollment}
+            initialMonthly={initialMonthly}
+            initialMode={initialMode}
+            canUseOnceForAll={canUseOnceForAll}
+            dict={d}
+          />
         }
         sections={
-          <section className="space-y-3">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <h2 className="text-lg font-semibold text-[var(--color-primary)]">{d.sectionsTitle}</h2>
-              <CohortSectionsToolbar
-                locale={locale}
-                cohortId={cohortId}
-                newSectionButton={d.newSectionButton}
-                newSectionButtonTip={d.newSectionButtonTip}
-                newSectionModalDict={d.newSectionModal}
-                defaultSectionMaxStudents={defMax}
-                teachers={teachers}
-                copySectionsButton={d.copySectionsButton}
-                copySectionsButtonTip={d.copySectionsButtonTip}
-                copySectionsModalDict={d.copySectionsModal}
-                copySectionsSourceOptions={copySourceOptions}
-                rollover={{
-                  dict: d.rollover,
-                  sourceSectionOptions,
-                  targetSectionOptions: targetOptions,
-                }}
-              />
-            </div>
-
-            {sectionRows.length === 0 ? (
-              <p className="text-sm text-[var(--color-muted-foreground)]">{d.noSections}</p>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {sectionRows.map((row) => (
-                  <AdminSectionCard
-                    key={row.id}
-                    href={`/${locale}/dashboard/admin/academic/${cohortId}/${row.id}`}
-                    name={row.name}
-                    activeCount={row.active}
-                    maxStudents={row.max}
-                    capacityLabel={d.capacityLabel}
-                    archivedLabel={row.archivedAt ? d.sectionArchivedBadge : undefined}
-                    periodLine={row.periodLine}
-                    imageUrl={row.referenceImageUrl}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
+          <AcademicCohortPageSections
+            locale={locale}
+            cohortId={cohortId}
+            dict={d}
+            sectionRows={sectionRows}
+            defaultSectionMaxStudents={defMax}
+            teachers={teachers}
+            copySourceOptions={copySourceOptions}
+            sourceSectionOptions={sourceSectionOptions}
+            targetOptions={targetOptions}
+          />
         }
         retention={
           <AdminRetentionTable

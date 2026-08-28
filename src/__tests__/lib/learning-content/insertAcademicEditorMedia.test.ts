@@ -13,8 +13,16 @@ function mockEditor() {
   };
   const commands = {
     setYoutubeVideo: vi.fn(),
+    setImage: vi.fn(),
+    insertContent: vi.fn(),
   };
-  return { chain: () => chain, commands, _chain: chain };
+  return {
+    chain: () => chain,
+    commands,
+    isEditable: true,
+    setEditable: vi.fn(),
+    _chain: chain,
+  };
 }
 
 describe("insertUploadedMediaInEditor", () => {
@@ -26,11 +34,26 @@ describe("insertUploadedMediaInEditor", () => {
       contentType: "image/jpeg",
     });
 
-    expect(editor._chain.setImage).toHaveBeenCalledWith({
+    expect(editor.commands.setImage).toHaveBeenCalledWith({
       src: "https://cdn.example/a.jpg",
       alt: "Photo",
     });
     expect(html).toContain("https://cdn.example/a.jpg");
+  });
+
+  it("inserts video as a block node plus a trailing paragraph", () => {
+    const editor = mockEditor();
+    insertUploadedMediaInEditor(editor as never, {
+      url: "https://cdn.example/clip.mp4",
+      label: "Clip",
+      contentType: "video/mp4",
+    });
+
+    expect(editor.commands.insertContent).toHaveBeenNthCalledWith(1, {
+      type: "academicFileVideo",
+      attrs: { src: "https://cdn.example/clip.mp4" },
+    });
+    expect(editor.commands.insertContent).toHaveBeenNthCalledWith(2, { type: "paragraph" });
   });
 
   it("inserts non-image media as HTML content", () => {
@@ -41,8 +64,8 @@ describe("insertUploadedMediaInEditor", () => {
       contentType: "application/pdf",
     });
 
-    expect(editor._chain.insertContent).toHaveBeenCalled();
-    expect(editor._chain.setImage).not.toHaveBeenCalled();
+    expect(editor.commands.insertContent).toHaveBeenCalled();
+    expect(editor.commands.setImage).not.toHaveBeenCalled();
   });
 });
 

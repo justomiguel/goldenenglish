@@ -12,6 +12,8 @@ import {
 } from "@/components/molecules/AcademicSectionFeesSummary";
 import { resolveSectionFeesSummaryPlan } from "@/lib/billing/resolveSectionFeesSummaryPlan";
 import type { MonthlyFeeChargeMode } from "@/lib/billing/monthlyFeeChargeMode";
+import { resolveEffectiveMonthlyFee } from "@/lib/billing/resolveCohortFeeDefaults";
+import { DEFAULT_SECTION_FEE_PLAN_CURRENCY } from "@/types/sectionFeePlan";
 
 type FeePlansDict = Dictionary["dashboard"]["academicSectionPage"]["feePlans"];
 type EnrollmentDict = Dictionary["dashboard"]["academicSectionPage"]["enrollmentFee"];
@@ -36,6 +38,10 @@ export interface AcademicSectionFeesPanelProps {
   feePlansDict: FeePlansDict;
   systemCurrency: string;
   enrollmentFeeAmount: number;
+  storedEnrollmentFeeAmount: number | null;
+  cohortDefaultEnrollmentFeeAmount: number | null;
+  cohortDefaultMonthlyFee: number | null;
+  billingMode?: string | null;
   enrollmentFeeDict: EnrollmentDict;
   chargeMode: MonthlyFeeChargeMode;
   monthlyFeeChargeModeDict: ChargeModeDict;
@@ -57,13 +63,38 @@ export function AcademicSectionFeesPanel({
   feePlansDict,
   systemCurrency,
   enrollmentFeeAmount,
+  storedEnrollmentFeeAmount,
+  cohortDefaultEnrollmentFeeAmount,
+  cohortDefaultMonthlyFee,
+  billingMode = null,
   enrollmentFeeDict,
   chargeMode,
   monthlyFeeChargeModeDict,
   allowAdvance,
   allowAdvanceMonthlyPaymentDict,
 }: AcademicSectionFeesPanelProps) {
-  const currentPlan = resolveSectionFeesSummaryPlan(feePlans, asOfYear, asOfMonth);
+  const sectionPlan = resolveSectionFeesSummaryPlan(feePlans, asOfYear, asOfMonth);
+  const monthly = resolveEffectiveMonthlyFee({
+    billingMode,
+    sectionPlan: sectionPlan
+      ? { monthlyFee: sectionPlan.monthlyFee, currency: sectionPlan.currency }
+      : null,
+    cohortDefaultMonthlyFee,
+  });
+  const currentPlan =
+    monthly.kind === "section"
+      ? sectionPlan
+      : monthly.kind === "cohort"
+        ? {
+            id: "cohort-default",
+            sectionId,
+            effectiveFromYear: 2000,
+            effectiveFromMonth: 1,
+            monthlyFee: monthly.monthlyFee,
+            currency: monthly.currency || systemCurrency || DEFAULT_SECTION_FEE_PLAN_CURRENCY,
+            archivedAt: null,
+          }
+        : null;
 
   return (
     <div className="space-y-8">
@@ -72,6 +103,9 @@ export function AcademicSectionFeesPanel({
         feePlansDict={feePlansDict}
         currentPlan={currentPlan}
         enrollmentFeeAmount={enrollmentFeeAmount}
+        enrollmentInherited={storedEnrollmentFeeAmount == null && enrollmentFeeAmount > 0}
+        monthlyInherited={monthly.kind === "cohort"}
+        inheritLabel={dict.summary.fromCohortDefault}
         systemCurrency={systemCurrency}
         chargeModeLabel={chargeModeLabel(chargeMode, monthlyFeeChargeModeDict)}
         allowAdvance={allowAdvance}
@@ -94,7 +128,8 @@ export function AcademicSectionFeesPanel({
         <AcademicSectionEnrollmentFeeEditor
           locale={locale}
           sectionId={sectionId}
-          initialAmount={enrollmentFeeAmount}
+          initialAmount={storedEnrollmentFeeAmount}
+          cohortDefaultAmount={cohortDefaultEnrollmentFeeAmount}
           dict={enrollmentFeeDict}
           embedded
         />

@@ -121,7 +121,17 @@ describe("loadAdminCohortCollectionsBulk", () => {
       plans: [],
     };
     const rpc = vi.fn().mockResolvedValue({ data: raw, error: null });
-    const supabase = { rpc } as never;
+    const supabase = {
+      rpc,
+      from: vi.fn(() => ({
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: { default_enrollment_fee_amount: null, default_monthly_fee: null },
+          error: null,
+        }),
+      })),
+    } as never;
     const res = await loadAdminCohortCollectionsBulk(supabase, "cohort-1", {
       todayYear: 2026,
       todayMonth: 6,

@@ -42,5 +42,7 @@ describe("SectionCollectionsMonthCell", () => {
 
     expect(screen.getByText("50%")).toBeInTheDocument();
     expect(screen.getByLabelText(/Ana Student · May · Due · 50%/)).toBeInTheDocument();
+    expect(screen.getByRole("button").className).not.toContain("--color-success");
+    expect(screen.getByRole("button").className).toContain("#6d28d9");
   });
 });

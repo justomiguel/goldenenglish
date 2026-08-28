@@ -70,6 +70,8 @@ export interface BuildStudentMonthlyPaymentsRowInput {
    * Absent or unrecognised = monthly fee, so no section silently stops being charged.
    */
   sectionBillingMode?: string | null;
+  /** Live cohort default used when no section plan is in effect for a month. */
+  cohortDefaultMonthlyFee?: number | null;
 }
 
 export function parseUtcDate(iso: string | null): Date | null {

@@ -13,6 +13,17 @@ function isInlineImageInsert(insertHtml: string): boolean {
   return /^<p>\s*<img[\s/>]/i.test(insertHtml.trim());
 }
 
+function mediaInsertUrl(insertHtml: string): string | null {
+  const match = insertHtml.match(/\b(?:src|href)="([^"]+)"/i);
+  if (!match) return null;
+  return match[1].replace(/&amp;/g, "&").replace(/&quot;/g, '"');
+}
+
+function bodyAlreadyHasMediaInsert(bodyHtml: string, insertHtml: string): boolean {
+  const url = mediaInsertUrl(insertHtml);
+  return Boolean(url && bodyHtml.includes(url));
+}
+
 /** Inserts a media snippet at the same top-level block anchor across locale HTML copies. */
 export function insertRichEditorMediaAtBlockIndex(
   bodyHtml: string,
@@ -20,6 +31,7 @@ export function insertRichEditorMediaAtBlockIndex(
   insertHtml: string,
 ): string {
   const trimmed = bodyHtml.trim();
+  if (bodyAlreadyHasMediaInsert(trimmed, insertHtml)) return trimmed;
   if (!trimmed || trimmed === "<p></p>") return insertHtml;
 
   const root = parseRoot(trimmed);

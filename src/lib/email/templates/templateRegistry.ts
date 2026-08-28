@@ -19,10 +19,13 @@ import {
   transferApprovedTemplate,
 } from "@/lib/email/templates/registryAcademics";
 import {
+  adminStudentWelcomeTemplate,
+  adminTutorWelcomeTemplate,
   churnInactivityTemplate,
   classReminderPrepTemplate,
   wardEmailChangedTemplate,
 } from "@/lib/email/templates/registryNotifications";
+import { REGISTRATION_EMAIL_TEMPLATES } from "@/lib/email/templates/registryRegistration";
 
 /**
  * Catálogo cerrado de plantillas de email del producto. Es la fuente de verdad
@@ -46,6 +49,9 @@ const REGISTRY: ReadonlyArray<EmailTemplateDefinition> = [
   churnInactivityTemplate,
   classReminderPrepTemplate,
   wardEmailChangedTemplate,
+  adminStudentWelcomeTemplate,
+  adminTutorWelcomeTemplate,
+  ...REGISTRATION_EMAIL_TEMPLATES,
 ];
 
 const REGISTRY_BY_KEY = new Map<EmailTemplateKey, EmailTemplateDefinition>(

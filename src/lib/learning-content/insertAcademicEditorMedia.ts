@@ -27,12 +27,26 @@ export function buildUploadedMediaInsertHtml(uploaded: UploadedEditorMedia): str
 /** Inserts uploaded media at the editor caret (single-locale editors). */
 export function insertUploadedMediaInEditor(editor: Editor, uploaded: UploadedEditorMedia): string {
   const html = buildUploadedMediaInsertHtml(uploaded);
-  if (uploaded.contentType.startsWith("image/")) {
-    editor.chain().focus().setImage({ src: uploaded.url, alt: uploaded.label }).run();
+  const wasEditable = editor.isEditable;
+  if (!wasEditable) editor.setEditable(true);
+  try {
+    if (uploaded.contentType.startsWith("image/")) {
+      editor.commands.setImage({ src: uploaded.url, alt: uploaded.label });
+      return html;
+    }
+    if (uploaded.contentType.startsWith("video/") || uploaded.contentType.startsWith("audio/")) {
+      const type = uploaded.contentType.startsWith("video/")
+        ? "academicFileVideo"
+        : "academicFileAudio";
+      editor.commands.insertContent({ type, attrs: { src: uploaded.url } });
+      editor.commands.insertContent({ type: "paragraph" });
+      return html;
+    }
+    editor.commands.insertContent(html);
     return html;
+  } finally {
+    if (!wasEditable) editor.setEditable(false);
   }
-  editor.chain().focus().insertContent(html).run();
-  return html;
 }
 
 /** Inserts a YouTube embed at the caret (single-locale editors). */

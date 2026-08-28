@@ -15,4 +15,8 @@ describe("lockedRoleUsersParams", () => {
   it("forces teacher", () => {
     expect(lockedRoleUsersParams("teacher", { role: "admin" }).role).toBe("teacher");
   });
+
+  it("keeps students list sorted by name", () => {
+    expect(lockedRoleUsersParams("student", { sort: "email" }).sort).toBe("name");
+  });
 });

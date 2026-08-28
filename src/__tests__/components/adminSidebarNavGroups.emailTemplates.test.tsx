@@ -15,11 +15,18 @@ describe("buildAdminSidebarNavGroups — email templates and blog stay off the d
     expect(hrefs).not.toContain(`${base}/communications/templates`);
   });
 
-  it("does not list blog even when includeBlogNav", () => {
+  it("lists blog when includeBlogNav", () => {
     const groups = buildAdminSidebarNavGroups(base, profile, dictEn.dashboard.adminNav, badgesZero, {
       includeBlogNav: true,
     });
     const hrefs = groups.flatMap((g) => g.items.map((i) => i.href));
+    expect(hrefs).toContain(`${base}/cms/blog`);
+  });
+
+  it("omits blog when includeBlogNav is off", () => {
+    const groups = buildAdminSidebarNavGroups(base, profile, dictEn.dashboard.adminNav, badgesZero);
+    const hrefs = groups.flatMap((g) => g.items.map((i) => i.href));
     expect(hrefs).not.toContain(`${base}/cms/blog`);
+    expect(hrefs).toContain(`${base}/events`);
   });
 });

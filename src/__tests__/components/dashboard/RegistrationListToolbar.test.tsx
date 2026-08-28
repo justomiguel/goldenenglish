@@ -16,9 +16,16 @@ describe("RegistrationListToolbar", () => {
         onQueryChange={() => {}}
         totalCount={4}
         filteredCount={4}
-        statusFilter="new"
-        statusCounts={{ total: 4, new: 2, contacted: 1 }}
-        onStatusFilterChange={() => {}}
+        inboxFilter="urgent"
+        inboxCounts={{
+          urgent: 2,
+          awaiting_fee: 1,
+          receipt_pending: 0,
+          needs_section: 0,
+          section_full: 0,
+          contacted: 1,
+        }}
+        onInboxFilterChange={() => {}}
         locale="en"
       />,
     );
@@ -33,9 +40,9 @@ describe("RegistrationListToolbar", () => {
     expect(exportBtn.className).toContain("--color-primary");
     expect(exportBtn.className).not.toContain("--color-secondary");
 
-    const pending = screen.getByRole("button", { name: /Pending/ });
-    expect(pending).toHaveAttribute("aria-pressed", "true");
-    expect(pending.className).toContain("--color-primary");
-    expect(pending.className).not.toContain("--color-secondary");
+    const actions = screen.getByRole("button", { name: /Actions/ });
+    expect(actions).toHaveAttribute("aria-pressed", "true");
+    expect(actions.className).toContain("--color-primary");
+    expect(actions.className).not.toContain("--color-secondary");
   });
 });

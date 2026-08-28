@@ -11,6 +11,10 @@ import {
   IMPORT_ROW_UNKNOWN,
 } from "@/lib/import/importResultMessageCodes";
 
+vi.mock("@/lib/email/notifyAdminCreatedStudentWelcome", () => ({
+  notifyAdminCreatedStudentWelcome: vi.fn().mockResolvedValue(undefined),
+}));
+
 function baseRow(over: Partial<CsvStudentRow> = {}): CsvStudentRow {
   return {
     first_name: "Ada",

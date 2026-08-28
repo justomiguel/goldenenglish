@@ -7,6 +7,7 @@ import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { AdminBackLink } from "@/components/dashboard/AdminBackLink";
 import { AdminUserDetailPanel } from "@/components/dashboard/AdminUserDetailPanel";
+import { adminPersonRecordListHref } from "@/lib/dashboard/adminPersonRecordListHref";
 import type { StudentCareNotes } from "@/lib/students/care/loadStudentCareNotes";
 
 type UserLabels = Dictionary["admin"]["users"];
@@ -33,7 +34,10 @@ export function AdminUserDetailDesktop({
 }: AdminUserDetailDesktopProps) {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <AdminBackLink href={`/${locale}/dashboard/admin/users`} title={labels.tipDetailBack}>
+      <AdminBackLink
+        href={adminPersonRecordListHref(locale, detail.role)}
+        title={labels.tipDetailBack}
+      >
         {labels.detailBack}
       </AdminBackLink>
       <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailLead}</p>

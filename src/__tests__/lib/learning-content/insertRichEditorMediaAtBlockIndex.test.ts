@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyMediaInsertToAllLocaleBodies,
   applyMediaInsertToOtherEventDescriptions,
   applyMediaInsertToOtherLocaleBodies,
   insertRichEditorMediaAtBlockIndex,
@@ -26,6 +27,33 @@ describe("insertRichEditorMediaAtBlockIndex", () => {
   it("returns insert html when body is empty", () => {
     expect(insertRichEditorMediaAtBlockIndex("", 0, "<p>new</p>")).toBe("<p>new</p>");
     expect(insertRichEditorMediaAtBlockIndex("<p></p>", 0, "<p>new</p>")).toBe("<p>new</p>");
+  });
+
+  it("does not insert again when the media url is already in the body", () => {
+    const snippet = '<p><video controls preload="metadata" src="https://cdn.example/clip.mp4"></video></p>';
+    const body = `<p>Intro</p>${snippet}`;
+    expect(insertRichEditorMediaAtBlockIndex(body, 0, snippet)).toBe(body);
+  });
+});
+
+describe("applyMediaInsertToAllLocaleBodies", () => {
+  it("inserts into every locale including the active one", () => {
+    const map = {
+      es: { bodyHtml: "<p>es</p>" },
+      en: { bodyHtml: "<p>en</p>" },
+      pt: { bodyHtml: "<p>pt</p>" },
+    };
+
+    const next = applyMediaInsertToAllLocaleBodies(
+      map,
+      ["es", "en", "pt"],
+      0,
+      '<p><video controls preload="metadata" src="https://cdn.example/clip.mp4"></video></p>',
+    );
+
+    expect(next.es.bodyHtml).toContain("clip.mp4");
+    expect(next.en.bodyHtml).toContain("clip.mp4");
+    expect(next.pt.bodyHtml).toContain("clip.mp4");
   });
 });
 

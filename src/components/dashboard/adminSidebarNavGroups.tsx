@@ -30,6 +30,7 @@ export function buildAdminSidebarNavGroups(
       label: dict.navScopeInstitution,
       items: buildAdminDailyNavItems(base, dict, badges, {
         financeHref: options.financeHref,
+        includeBlogNav: options.includeBlogNav,
       }),
     },
   ];

@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
-import { BlogArticleLocaleTabs } from "@/components/dashboard/admin/cms/blog/BlogArticleLocaleTabs";
 import { BlogArticleLocaleFields } from "@/components/dashboard/admin/cms/blog/BlogArticleLocaleFields";
 import { BlogArticleMetaForm } from "@/components/dashboard/admin/cms/blog/BlogArticleMetaForm";
 import { BlogArticleEditorActionsBar } from "@/components/dashboard/admin/cms/blog/BlogArticleEditorActionsBar";
@@ -10,10 +9,9 @@ import { BlogArticleAdminShareLinks } from "@/components/dashboard/admin/cms/blo
 import { BlogArticleEditorDeleteControls } from "@/components/dashboard/admin/cms/blog/BlogArticleEditorDeleteControls";
 import { useBlogArticleEditorLocales } from "@/hooks/useBlogArticleEditorLocales";
 import { useBlogArticleEditorActions } from "@/hooks/useBlogArticleEditorActions";
-import { otherBlogLocales } from "@/lib/blog/blogEditorTranslationDraft";
 import { draftMaterialsToBlogAttachments } from "@/lib/blog/mapDraftMaterials";
 import { pickBlogMaterialsPanelLabels } from "@/lib/blog/pickBlogMaterialsPanelLabels";
-import { BLOG_LOCALES, type BlogLocale } from "@/lib/blog/domain";
+import type { BlogLocale } from "@/lib/blog/domain";
 import type { BlogArticleAdminShareLink } from "@/lib/blog/server/resolveBlogArticleAdminShareLinks";
 import type { AdminGlobalDraftMaterial } from "@/components/admin/AdminGlobalContentMaterialsPanel";
 import type { Dictionary } from "@/types/i18n";
@@ -61,13 +59,8 @@ export function BlogArticleEditor({
   initialShareLinks = [],
   initial,
 }: BlogArticleEditorProps) {
-  const startLocale = BLOG_LOCALES.includes(locale as BlogLocale)
-    ? (locale as BlogLocale)
-    : initial.defaultLocale;
-
   const {
     editingLocale,
-    switchEditingLocale,
     title,
     setTitle,
     excerpt,
@@ -80,9 +73,8 @@ export function BlogArticleEditor({
     appendMaterialToAllLocales,
     applyTranslatedLocale,
     savableTranslations,
-    localeHasContent,
   } = useBlogArticleEditorLocales({
-    startLocale,
+    startLocale: initial.defaultLocale,
     seed: initial.translationsByLocale,
   });
 
@@ -105,8 +97,6 @@ export function BlogArticleEditor({
     [academicLabels, labels.materials],
   );
 
-  const translateTargets = otherBlogLocales(editingLocale);
-
   const {
     msg,
     setMsg,
@@ -114,7 +104,8 @@ export function BlogArticleEditor({
     shareLinks,
     deleteOpen,
     setDeleteOpen,
-    onSave,
+    onSaveDraft,
+    onPublish,
     onTranslateWithGoogle,
     onConfirmDelete,
   } = useBlogArticleEditorActions({
@@ -122,7 +113,6 @@ export function BlogArticleEditor({
     articleId,
     labels,
     initial,
-    status,
     tags,
     isPinned,
     scheduledFor,
@@ -134,6 +124,7 @@ export function BlogArticleEditor({
     applyTranslatedLocale,
     draftMaterialsToBlogAttachments,
     initialShareLinks,
+    onStatusSaved: setStatus,
   });
 
   return (
@@ -143,17 +134,6 @@ export function BlogArticleEditor({
         iconId="blog"
         tourAnchor={ADMIN_TOUR_ANCHORS.blogEditorRoot}
       />
-      <BlogArticleLocaleTabs
-        value={editingLocale}
-        onChange={switchEditingLocale}
-        ariaLabel={labels.localeTabsAria}
-        tabLabels={labels.localeTabs}
-        localeHasContent={localeHasContent}
-      />
-      <p className="text-sm text-[var(--color-muted-foreground)]">
-        {labels.editingLocaleHint.replace("{locale}", labels.localeTabs[editingLocale])}
-      </p>
-
       <BlogArticleLocaleFields
         labels={labels}
         academicLabels={academicLabels}
@@ -194,12 +174,13 @@ export function BlogArticleEditor({
 
       <BlogArticleEditorActionsBar
         labels={labels}
-        translateTargets={translateTargets}
+        translateTargets={[]}
         busy={busy}
         articleId={articleId}
         hasGoogleKey={initial.hasGoogleKey}
         msg={msg}
-        onSave={() => void onSave()}
+        onSave={() => void onSaveDraft()}
+        onPublish={() => void onPublish()}
         onTranslate={(targetLocale) => void onTranslateWithGoogle(targetLocale)}
       />
 

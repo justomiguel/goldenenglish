@@ -9,13 +9,8 @@ import {
 } from "@/types/sectionFeePlan";
 import { fallbackFullMonthProration } from "@/lib/billing/studentMonthlyPaymentsRowModel";
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
-import {
-  countSectionMonthlyClasses,
-  intersectDateRange,
-  monthBounds,
-} from "@/lib/billing/countSectionMonthlyClasses";
-import { prorateMonthlyFee } from "@/lib/billing/prorateMonthlyFee";
 import { parseMonthlyFeeChargeMode } from "@/lib/billing/monthlyFeeChargeMode";
+import { resolveOperationalWindowMonthlyAmount } from "@/lib/billing/resolveSectionPlanMonthlyAmountOperational";
 import {
   periodInAnnualSettlementCoverage,
   type AnnualSettlementCoverageRow,
@@ -27,6 +22,10 @@ import {
   parseUtcDate,
 } from "@/lib/billing/resolveSectionPlanMonthlyAmountSupport";
 import { sectionIsClassPackBilled } from "@/lib/billing/sectionBillingMode";
+import {
+  parseOptionalFeeAmount,
+  resolveEffectiveMonthlyFee,
+} from "@/lib/billing/resolveCohortFeeDefaults";
 
 /** Matches `buildStudentMonthlyPaymentsRow` / admin Cobranzas matrices. */
 export type ResolveSectionPlanBillingScope = "operational-window" | "plan-year";
@@ -111,8 +110,22 @@ export async function resolveSectionPlanMonthlyAmount(
     .is("archived_at", null)
     .eq("section_id", sectionId);
   const plans = ((planRows ?? []) as SectionFeePlanRowDb[]).map(mapSectionFeePlanRow);
-  const plan = resolveEffectiveSectionFeePlan(plans, year, month);
-  if (!plan) return { code: "no_plan" };
+  const sectionPlan = resolveEffectiveSectionFeePlan(plans, year, month);
+  const cohortRel = sec?.academic_cohorts;
+  const cohort = Array.isArray(cohortRel) ? cohortRel[0] : cohortRel;
+  const monthly = resolveEffectiveMonthlyFee({
+    billingMode: sec?.billing_mode,
+    sectionPlan: sectionPlan
+      ? { monthlyFee: sectionPlan.monthlyFee, currency: sectionPlan.currency }
+      : null,
+    cohortDefaultMonthlyFee: parseOptionalFeeAmount(cohort?.default_monthly_fee),
+  });
+  if (monthly.kind === "class_pack") return { code: "class_pack_section" };
+  if (monthly.kind === "none") return { code: "no_plan" };
+  const plan = {
+    monthlyFee: monthly.monthlyFee,
+    currency: monthly.currency,
+  };
 
   const { data: enrolment } = await supabase
     .from("section_enrollments")
@@ -161,55 +174,6 @@ export async function resolveSectionPlanMonthlyAmount(
     };
   }
 
-  const monthlyFeeChargeMode = parseMonthlyFeeChargeMode(sec?.monthly_fee_charge_mode);
-  const sectionFrom = parseUtcDate(sec?.starts_on ?? null);
-  const sectionUntil = parseUtcDate(sec?.ends_on ?? null);
-  const sectionRange =
-    sectionFrom && sectionUntil && sectionFrom.getTime() <= sectionUntil.getTime()
-      ? { from: sectionFrom, until: sectionUntil }
-      : null;
-  const scheduleSlots = parseSectionScheduleSlots(sec?.schedule_slots ?? []);
-
-  const enrolledAt = parseUtcDate(enrollmentRow?.created_at ?? null);
-
-  const monthRange = monthBounds(year, month);
-  const sectionInMonth = sectionRange ? intersectDateRange(sectionRange, monthRange) : null;
-  const totalClasses = sectionInMonth
-    ? countSectionMonthlyClasses({
-        scheduleSlots,
-        from: sectionInMonth.from,
-        until: sectionInMonth.until,
-      })
-    : 0;
-  const studentRange = enrolledAt && sectionInMonth
-    ? intersectDateRange(sectionInMonth, { from: enrolledAt, until: monthRange.until })
-    : sectionInMonth;
-  const availableClasses = studentRange
-    ? countSectionMonthlyClasses({
-        scheduleSlots,
-        from: studentRange.from,
-        until: studentRange.until,
-      })
-    : 0;
-
-  /** Same branch order as {@link buildStudentMonthlyPaymentsRow} so Flow/receipt flows match student/tutor strips. */
-  const prorated =
-    monthlyFeeChargeMode === "full_month_fee"
-      ? sectionInMonth && studentRange
-        ? fallbackFullMonthProration(plan.monthlyFee)
-        : ({ code: "out_of_period" as const })
-      : totalClasses > 0 && availableClasses > 0
-        ? prorateMonthlyFee({
-            monthlyFee: plan.monthlyFee,
-            totalClassesInMonth: totalClasses,
-            availableClassesForStudent: availableClasses,
-          })
-        : sectionInMonth && studentRange
-          ? fallbackFullMonthProration(plan.monthlyFee)
-          : ({ code: "out_of_period" as const });
-
-  if (prorated.code !== "ok") return { code: "out_of_period" };
-
   const scholarships =
     options?.ignoreScholarships || annualSuppressesScholarship
       ? []
@@ -218,20 +182,16 @@ export async function resolveSectionPlanMonthlyAmount(
           enrollmentRow?.id ?? null,
         );
 
-  const adjusted = effectiveAmountAfterScholarship(
-    prorated.amount,
+  return resolveOperationalWindowMonthlyAmount({
+    monthlyFee: plan.monthlyFee,
+    currency: plan.currency,
+    monthlyFeeChargeMode: parseMonthlyFeeChargeMode(sec?.monthly_fee_charge_mode),
+    sectionFrom: parseUtcDate(sec?.starts_on ?? null),
+    sectionUntil: parseUtcDate(sec?.ends_on ?? null),
+    scheduleSlots: parseSectionScheduleSlots(sec?.schedule_slots ?? []),
+    enrolledAt: parseUtcDate(enrollmentRow?.created_at ?? null),
     year,
     month,
     scholarships,
-  );
-  return {
-    code: "ok",
-    amount: adjusted ?? prorated.amount,
-    currency: plan.currency,
-    proration: {
-      numerator: prorated.numerator,
-      denominator: prorated.denominator,
-      full: prorated.full,
-    },
-  };
+  });
 }

@@ -1,4 +1,5 @@
 import type { Dictionary } from "@/types/i18n";
+import { resolveMatrixScholarshipMarks } from "@/lib/billing/resolveMatrixScholarshipMarks";
 import type { SectionCollectionsStudentRow } from "@/types/sectionCollections";
 
 type BenefitLabels = Dictionary["admin"]["finance"]["collections"]["benefits"];
@@ -23,14 +24,20 @@ export interface SectionCollectionsStudentBenefitsProps {
   student: SectionCollectionsStudentRow;
   labels: BenefitLabels;
   locale: string;
+  year: number;
 }
 
 export function SectionCollectionsStudentBenefits({
   student,
   labels,
   locale,
+  year,
 }: SectionCollectionsStudentBenefitsProps) {
-  const discount = student.activeScholarshipDiscountPercent;
+  const discount = resolveMatrixScholarshipMarks({
+    scholarships: student.scholarships,
+    year,
+    cells: student.row.cells,
+  }).chipPercent;
   const promo = student.activePromotionLabel;
   const enrollmentFee = student.enrollmentFee ?? {
     exempt: false,

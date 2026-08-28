@@ -25,6 +25,11 @@ vi.mock("@/lib/dashboard/linkGuardianAfterMinorStudentCreate", () => ({
   linkGuardianAfterMinorStudentCreate: vi.fn().mockResolvedValue({ kind: "ok" }),
 }));
 
+const mockNotifyWelcome = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+vi.mock("@/lib/email/notifyAdminCreatedStudentWelcome", () => ({
+  notifyAdminCreatedStudentWelcome: (...args: unknown[]) => mockNotifyWelcome(...args),
+}));
+
 const mockCreateUser = vi.fn();
 const mockListUsers = vi.fn();
 const mockUpdateUserById = vi.fn();
@@ -223,6 +228,32 @@ describe("createDashboardUser", () => {
     const r = await createDashboardUser(validPayload);
     expect(r).toEqual({ ok: true, userId: "x" });
     expect(mockRevalidatePath).toHaveBeenCalledWith("/es/dashboard/admin/users", "page");
+    expect(mockCreateUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        app_metadata: { must_change_password: true },
+      }),
+    );
+    expect(mockNotifyWelcome).toHaveBeenCalledWith(
+      expect.objectContaining({
+        studentId: "x",
+        studentFirstName: "A",
+        studentLastName: "B",
+      }),
+    );
+  });
+
+  it("does not send the admin-create welcome when provisioning comes from registration accept", async () => {
+    mockAssertAdmin.mockResolvedValue(adminCtx);
+    mockCreateUser.mockResolvedValue({
+      data: { user: { id: "from-matricula" } },
+      error: null,
+    });
+    const r = await createDashboardUser({
+      ...validPayload,
+      provisioning_route: "registration_accept",
+    });
+    expect(r).toEqual({ ok: true, userId: "from-matricula" });
+    expect(mockNotifyWelcome).not.toHaveBeenCalled();
   });
 
   it("passes optional birth_date in user_metadata", async () => {
@@ -258,9 +289,12 @@ describe("createDashboardUser", () => {
       phone: "",
     });
     expect(r.ok).toBe(true);
+    expect(mockNotifyWelcome).not.toHaveBeenCalled();
     const call = mockCreateUser.mock.calls[0][0] as {
       user_metadata: Record<string, string>;
+      app_metadata?: { must_change_password?: boolean };
     };
+    expect(call.app_metadata?.must_change_password).toBeUndefined();
     expect(call.user_metadata.dni_or_passport).toBeUndefined();
     expect(call.user_metadata.phone).toBeUndefined();
     expect(mockProfilesUpsert).toHaveBeenCalledWith(
@@ -333,6 +367,13 @@ describe("createDashboardUser", () => {
 
     expect(r).toEqual({ ok: true, userId: "new-student" });
     expect(mockCreateUser).toHaveBeenCalledTimes(2);
+    const minorCreate = mockCreateUser.mock.calls[0][0] as {
+      app_metadata?: { must_change_password?: boolean };
+    };
+    expect(minorCreate.app_metadata?.must_change_password).toBeUndefined();
+    expect(mockNotifyWelcome).toHaveBeenCalledWith(
+      expect.objectContaining({ studentId: "new-student" }),
+    );
     const first = mockCreateUser.mock.calls[0][0] as { email: string };
     const second = mockCreateUser.mock.calls[1][0] as { email: string };
     expect(first.email).toBe("anagarcia-123456789@alumnos.test");

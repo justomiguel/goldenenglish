@@ -1,6 +1,6 @@
 "use client";
 
-import { Save } from "lucide-react";
+import { Globe, Save } from "lucide-react";
 import { BlogTranslateButton } from "@/components/dashboard/admin/cms/blog/BlogTranslateButton";
 import type { BlogLocale } from "@/lib/blog/domain";
 import type { Dictionary } from "@/types/i18n";
@@ -14,6 +14,7 @@ interface BlogArticleEditorActionsBarProps {
   hasGoogleKey: boolean;
   msg: string | null;
   onSave: () => void;
+  onPublish: () => void;
   onTranslate: (targetLocale: BlogLocale) => void;
 }
 
@@ -25,6 +26,7 @@ export function BlogArticleEditorActionsBar({
   hasGoogleKey,
   msg,
   onSave,
+  onPublish,
   onTranslate,
 }: BlogArticleEditorActionsBarProps) {
   return (
@@ -35,10 +37,19 @@ export function BlogArticleEditorActionsBar({
           onClick={onSave}
           disabled={busy}
           data-tour={ADMIN_TOUR_ANCHORS.blogEditorSave}
-          className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-foreground)] disabled:opacity-70"
+          className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-semibold text-[var(--color-foreground)] disabled:opacity-70"
         >
           <Save aria-hidden className="h-4 w-4" />
           {labels.save}
+        </button>
+        <button
+          type="button"
+          onClick={onPublish}
+          disabled={busy}
+          className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-foreground)] disabled:opacity-70"
+        >
+          <Globe aria-hidden className="h-4 w-4" />
+          {labels.publish}
         </button>
         {translateTargets.map((targetLocale) => (
           <BlogTranslateButton
@@ -50,7 +61,7 @@ export function BlogArticleEditorActionsBar({
           />
         ))}
       </div>
-      {!hasGoogleKey ? (
+      {translateTargets.length > 0 && !hasGoogleKey ? (
         <p className="text-xs text-[var(--color-muted-foreground)]">{labels.translateManualHint}</p>
       ) : null}
       {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}

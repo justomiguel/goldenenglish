@@ -7,7 +7,7 @@ import type {
   SectionCollectionsStudentRow,
 } from "@/types/sectionCollections";
 import type { Dictionary } from "@/types/i18n";
-import { effectiveScholarshipPercentForPeriod } from "@/lib/billing/scholarshipPeriod";
+import { resolveMatrixScholarshipMarks } from "@/lib/billing/resolveMatrixScholarshipMarks";
 import { isSectionCollectionsEnrollmentFeeMatrixCellSelectable } from "@/lib/billing/sectionCollectionsEnrollmentFeeMatrixCell";
 import { SECTION_COLLECTIONS_ENROLLMENT_FEE_CELL_MONTH } from "@/lib/billing/sectionCollectionsEnrollmentFeeCellMonth";
 import { SectionCollectionsEnrollmentFeeCell } from "./SectionCollectionsEnrollmentFeeCell";
@@ -17,15 +17,6 @@ import { SectionCollectionsStudentBenefits } from "./SectionCollectionsStudentBe
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
 
 const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
-
-function scholarshipDiscountForPeriod(
-  student: SectionCollectionsStudentRow,
-  year: number,
-  month: number,
-): number | null {
-  const percent = effectiveScholarshipPercentForPeriod(student.scholarships, year, month);
-  return percent > 0 ? percent : null;
-}
 
 export interface SectionCollectionsMatrixStudentRowProps {
   student: SectionCollectionsStudentRow;
@@ -62,6 +53,11 @@ export function SectionCollectionsMatrixStudentRow({
   const cells = MONTHS.map((m) =>
     student.row.cells.find((c) => c.month === m && c.year === view.year),
   );
+  const scholarshipMarks = resolveMatrixScholarshipMarks({
+    scholarships: student.scholarships,
+    year: view.year,
+    cells: student.row.cells,
+  });
 
   const enrollmentMatrixSelectable =
     cellSelectable &&
@@ -113,6 +109,7 @@ export function SectionCollectionsMatrixStudentRow({
           student={student}
           labels={dict.benefits}
           locale={locale}
+          year={view.year}
         />
       </td>
       {showEnrollmentFeeColumn ? (
@@ -142,11 +139,7 @@ export function SectionCollectionsMatrixStudentRow({
               monthLabel={dict.monthShort[idx]!}
               todayMonth={view.todayMonth}
               year={view.year}
-              scholarshipDiscountPercent={scholarshipDiscountForPeriod(
-                student,
-                cell.year,
-                cell.month,
-              )}
+              scholarshipDiscountPercent={scholarshipMarks.percentByMonth[cell.month - 1]}
               ariaPrefix={student.studentName}
               locale={locale}
               labels={dict.monthCell}

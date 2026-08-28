@@ -1,4 +1,5 @@
 import {
+  SECTION_COLLECTIONS_SCHOLARSHIP_PERCENT_CLASSES,
   sectionCollectionsMatrixChipHoverFrame,
   sectionCollectionsMonthCellClasses,
 } from "@/lib/billing/sectionCollectionsMonthCellClasses";
@@ -114,7 +115,9 @@ export function SectionCollectionsMonthCell({
       >
         {hasScholarshipDiscount ? (
           <>
-            <span>{scholarshipDiscountPercent}%</span>
+            <span className={SECTION_COLLECTIONS_SCHOLARSHIP_PERCENT_CLASSES}>
+              {scholarshipDiscountPercent}%
+            </span>
             <Icon className="mt-0.5 h-2.5 w-2.5" aria-hidden />
           </>
         ) : (

@@ -1,4 +1,8 @@
 import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
+import {
+  parseOptionalFeeAmount,
+  resolveEffectiveEnrollmentFeeAmount,
+} from "@/lib/billing/resolveCohortFeeDefaults";
 import type { SectionScheduleSlot } from "@/types/academics";
 import type { AdminBillingScholarship } from "@/types/adminStudentBilling";
 
@@ -8,7 +12,18 @@ export type AcademicSectionNested = {
   starts_on?: string | null;
   ends_on?: string | null;
   schedule_slots?: unknown;
-  academic_cohorts?: { name?: string | null } | { name?: string | null }[] | null;
+  academic_cohorts?:
+    | {
+        name?: string | null;
+        default_enrollment_fee_amount?: number | string | null;
+        default_monthly_fee?: number | string | null;
+      }
+    | {
+        name?: string | null;
+        default_enrollment_fee_amount?: number | string | null;
+        default_monthly_fee?: number | string | null;
+      }[]
+    | null;
 };
 
 export type EnrollmentBenefitRow = {
@@ -71,8 +86,15 @@ export function sectionEnrollmentMeta(row: EnrollmentBenefitRow): {
     sec && typeof sec === "object" && "enrollment_fee_amount" in sec
       ? (sec as { enrollment_fee_amount?: unknown }).enrollment_fee_amount
       : null;
-  const n = rawAmt == null ? 0 : Number(rawAmt);
-  const sectionEnrollmentFeeAmount = Number.isFinite(n) && n >= 0 ? n : 0;
+  const cohort = sec
+    ? Array.isArray(sec.academic_cohorts)
+      ? sec.academic_cohorts[0]
+      : sec.academic_cohorts
+    : null;
+  const sectionEnrollmentFeeAmount = resolveEffectiveEnrollmentFeeAmount(
+    parseOptionalFeeAmount(rawAmt),
+    parseOptionalFeeAmount(cohort?.default_enrollment_fee_amount),
+  );
   const startsRaw =
     sec && typeof sec === "object" && "starts_on" in sec
       ? (sec as { starts_on?: string | null }).starts_on

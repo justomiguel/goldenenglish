@@ -53,6 +53,10 @@ interface AdminGlobalContentMaterialsPanelProps {
   onReorderMaterials: (materials: AdminGlobalDraftMaterial[]) => void;
   onMoveMaterial: (index: number, direction: -1 | 1) => void;
   onRemoveMaterial: (material: AdminGlobalDraftMaterial) => void;
+  /** When false, the parent owns progress UI (e.g. blocking modal). Input still disables. */
+  showInlineUploadProgress?: boolean;
+  /** When true, the parent already rendered the section title (e.g. a disclosure button). */
+  hideHeading?: boolean;
 }
 
 export function AdminGlobalContentMaterialsPanel({
@@ -70,6 +74,8 @@ export function AdminGlobalContentMaterialsPanel({
   onReorderMaterials,
   onMoveMaterial,
   onRemoveMaterial,
+  showInlineUploadProgress = true,
+  hideHeading = false,
 }: AdminGlobalContentMaterialsPanelProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -87,8 +93,12 @@ export function AdminGlobalContentMaterialsPanel({
   return (
     <>
       <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
-        <h3 className="text-base font-semibold text-[var(--color-foreground)]">{labels.draftMaterialsTitle}</h3>
-        <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{labels.draftMaterialsLead}</p>
+        {hideHeading ? null : (
+          <h3 className="text-base font-semibold text-[var(--color-foreground)]">{labels.draftMaterialsTitle}</h3>
+        )}
+        <p className={hideHeading ? "text-sm text-[var(--color-muted-foreground)]" : "mt-1 text-sm text-[var(--color-muted-foreground)]"}>
+          {labels.draftMaterialsLead}
+        </p>
         <div className="mt-3 grid gap-2 lg:grid-cols-[1fr_1fr_auto]">
           <Input value={materialLabel} onChange={(e) => onMaterialLabelChange(e.target.value)} placeholder={labels.materialLabelPlaceholder} />
           <Input value={embedUrl} onChange={(e) => onEmbedUrlChange(e.target.value)} placeholder={labels.embedUrlPlaceholder} />
@@ -115,7 +125,7 @@ export function AdminGlobalContentMaterialsPanel({
           </div>
           <span className="self-center text-xs text-[var(--color-muted-foreground)]">{labels.builderFileHint}</span>
         </div>
-        {isUploading ? (
+        {isUploading && showInlineUploadProgress ? (
           <InlineUploadProgressBar
             label={fileUploadProgress.progressSending}
             indeterminate

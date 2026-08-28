@@ -166,19 +166,16 @@ export function AdminHubHomeOpsGrid({
                 <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
                   {t.registrations.newCount}
                 </p>
-                <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
-                  {t.registrations.total}: {summary.registrations.totalCount}
-                </p>
               </>
             ) : (
               <>
-                <p className="text-4xl font-bold text-[var(--color-foreground)]">
-                  {summary.registrations.totalCount}
-                </p>
-                <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{t.registrations.total}</p>
+                <p className="text-4xl font-bold text-[var(--color-foreground)]">0</p>
                 <p className="mt-1 text-sm font-medium text-emerald-600">{t.registrations.noNew}</p>
               </>
             )}
+            <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
+              {t.registrations.awaitingFee}: {summary.registrations.awaitingFeeCount}
+            </p>
           </AdminHubMetricCard>
 
           <AdminHubMessagesCard

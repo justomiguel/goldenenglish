@@ -45,4 +45,24 @@ describe("loadAdminStudentBillingTabDataMappers", () => {
     expect(sectionEnrollmentMeta(row).sectionEnrollmentFeeAmount).toBe(100);
     expect(sectionScheduleSlotsAndCohort(row).cohortName).toBe("C1");
   });
+
+  it("inherits a cohort enrollment default when the section amount is null", () => {
+    const row: EnrollmentBenefitRow = {
+      id: "e1",
+      section_id: "sec",
+      created_at: null,
+      enrollment_fee_exempt: false,
+      enrollment_exempt_reason: null,
+      last_enrollment_paid_at: null,
+      academic_sections: {
+        name: "S1",
+        enrollment_fee_amount: null,
+        starts_on: "2026-01-15",
+        ends_on: "2026-12-20",
+        schedule_slots: [],
+        academic_cohorts: { name: "C1", default_enrollment_fee_amount: 200 },
+      },
+    };
+    expect(sectionEnrollmentMeta(row).sectionEnrollmentFeeAmount).toBe(200);
+  });
 });

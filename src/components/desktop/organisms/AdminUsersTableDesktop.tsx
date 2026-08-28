@@ -113,6 +113,7 @@ export function AdminUsersTableDesktop({
           totalCount: u.totalCount,
           onPageChange: u.setPage,
         }}
+        lockRole={lockRole}
       />
       </div>
 

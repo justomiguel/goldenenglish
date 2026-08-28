@@ -5,6 +5,7 @@ import { AdminBillingMatrixLegendModal } from "@/components/dashboard/AdminBilli
 import type { Dictionary } from "@/types/i18n";
 import type { CohortCollectionsMatrix } from "@/types/cohortCollectionsMatrix";
 import type { SectionCollectionsHealth } from "@/types/sectionCollections";
+import { sectionCollectionsHasParticularScholarshipMonth } from "@/lib/billing/resolveMatrixScholarshipMarks";
 import { financeCollectionsMatrixLegendLabels } from "./collectionsMatrixLegendLabels";
 import { CohortCollectionsMatrixSectionGroup } from "./CohortCollectionsMatrixSectionGroup";
 import { CohortCollectionsTotalsStrip } from "./CohortCollectionsTotalsStrip";
@@ -150,6 +151,9 @@ export function CohortCollectionsMatrixClient({
         <div className="ml-auto flex items-end pb-0.5">
           <AdminBillingMatrixLegendModal
             labels={financeCollectionsMatrixLegendLabels(collectionsDict)}
+            showScholarshipSample={filteredSections.some((s) =>
+              sectionCollectionsHasParticularScholarshipMonth(s.view.students, s.view.year),
+            )}
           />
         </div>
       </form>

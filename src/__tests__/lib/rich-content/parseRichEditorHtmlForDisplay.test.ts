@@ -85,6 +85,22 @@ describe("parseRichEditorHtmlForDisplay", () => {
     ]);
   });
 
+  it("extracts bare video and audio tags emitted as editor blocks", () => {
+    const html = [
+      "<p>Intro</p>",
+      '<video controls="true" preload="metadata" src="https://cdn.example/clip.mp4"></video>',
+      "<p>Medio</p>",
+      '<audio controls="true" preload="metadata" src="https://cdn.example/a.mp3"></audio>',
+    ].join("");
+
+    expect(parseRichEditorHtmlForDisplay(html)).toEqual([
+      { kind: "html", html: "<p>Intro</p>" },
+      { kind: "video", src: "https://cdn.example/clip.mp4" },
+      { kind: "html", html: "<p>Medio</p>" },
+      { kind: "audio", src: "https://cdn.example/a.mp3" },
+    ]);
+  });
+
   it("returns prose-only html unchanged as a single segment", () => {
     expect(parseRichEditorHtmlForDisplay("<p>Solo texto</p>")).toEqual([
       { kind: "html", html: "<p>Solo texto</p>" },

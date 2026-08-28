@@ -11,6 +11,7 @@ import { createIncidentSupportRef } from "@/lib/server/createIncidentSupportRef"
 import { normalizeDni } from "@/lib/import/studentImportUtils";
 import { parentDefaultEmail } from "@/lib/import/parentDefaultEmail";
 import { resolveTutorParentAuthEmailConflict } from "@/lib/register/resolveTutorParentAuthEmailConflict";
+import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
 
 function inviteMetaParent(fields: Record<string, string>): Record<string, string> {
   return { ...fields, provisioning_source: "admin_invite", role: "parent" };
@@ -98,6 +99,7 @@ export async function ensureParentProfileByTutorDni(
     password: ADMIN_INVITE_DEFAULT_PASSWORD,
     email_confirm: true,
     user_metadata: meta,
+    ...(isDeliverableAuthEmail(email) ? { app_metadata: { must_change_password: true } } : {}),
   });
   if (error) {
     const issue = resolveAuthAdminInviteCreateUserIssue(error);

@@ -19,7 +19,7 @@ const inputSchema = z.object({
    * Monto de matrícula >= 0. La moneda se reusa del plan vigente, por lo que
    * no se almacena aquí (ver ADR `2026-04-section-enrollment-fee.md`).
    */
-  enrollmentFeeAmount: z.coerce.number().finite().min(0),
+  enrollmentFeeAmount: z.union([z.null(), z.coerce.number().finite().min(0)]),
 });
 
 export type SetSectionEnrollmentFeeCode = "PARSE" | "FORBIDDEN" | "SAVE";
@@ -29,7 +29,7 @@ const S = "setSectionEnrollmentFeeAmountAction" as const;
 export async function setSectionEnrollmentFeeAmountAction(input: {
   locale: string;
   sectionId: string;
-  enrollmentFeeAmount: number;
+  enrollmentFeeAmount: number | null;
 }): Promise<{ ok: true } | { ok: false; code: SetSectionEnrollmentFeeCode }> {
   const parsed = inputSchema.safeParse(input);
   if (!parsed.success) return { ok: false, code: "PARSE" };

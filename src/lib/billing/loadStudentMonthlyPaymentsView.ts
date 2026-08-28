@@ -9,41 +9,17 @@ import type {
   StudentMonthlyPaymentSectionRow,
 } from "@/types/studentMonthlyPayments";
 import { buildStudentMonthlyPaymentsRow } from "@/lib/billing/buildStudentMonthlyPaymentsRow";
-import { studentReceiptSignedUrl } from "@/lib/payments/studentReceiptSignedUrl";
 import { loadStudentYearSectionPaymentsMap } from "@/lib/billing/loadStudentYearSectionPaymentsMap";
 import { type ScholarshipRow } from "@/lib/billing/scholarshipPeriod";
-import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
-import type { SectionScheduleSlot } from "@/types/academics";
-import {
-  parseMonthlyFeeChargeMode,
-  type MonthlyFeeChargeMode,
-} from "@/lib/billing/monthlyFeeChargeMode";
 import { loadSectionBillingModes } from "@/lib/billing/loadSectionBillingModes";
+import {
+  mapEnrollmentRowToSectionMeta,
+  type EnrollmentRow,
+} from "@/lib/billing/loadStudentMonthlyPaymentsViewSupport";
 
 interface LoadOptions {
   todayYear: number;
   todayMonth: number;
-}
-
-interface SectionMeta {
-  enrollmentId: string;
-  sectionId: string;
-  sectionName: string;
-  cohortName: string;
-  startsOn: string;
-  endsOn: string;
-  monthlyFeeChargeMode: MonthlyFeeChargeMode;
-  allowAdvanceMonthlyPayment: boolean;
-  scheduleSlots: SectionScheduleSlot[];
-  enrolledAt: string | null;
-  enrollmentFeeAmount: number;
-  enrollmentFeeExempt: boolean;
-  enrollmentFeeExemptReason: string | null;
-  enrollmentFeeReceiptUrl: string | null;
-  enrollmentFeeReceiptStatus: "pending" | "approved" | "rejected" | null;
-  enrollmentFeeReceiptSignedUrl: string | null;
-  lastEnrollmentPaidAt: string | null;
-  scholarships: ScholarshipRow[];
 }
 
 /**
@@ -59,7 +35,7 @@ export async function loadStudentMonthlyPaymentsView(
   const activeEnrollmentResult = await supabase
     .from("section_enrollments")
     .select(
-      "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, enrollment_fee_receipt_url, enrollment_fee_receipt_status, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(name))",
+      "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, enrollment_fee_receipt_url, enrollment_fee_receipt_status, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(name, default_enrollment_fee_amount, default_monthly_fee))",
     )
     .eq("student_id", studentId)
     .eq("status", "active");
@@ -68,38 +44,12 @@ export async function loadStudentMonthlyPaymentsView(
       ? await supabase
           .from("section_enrollments")
           .select(
-            "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(name))",
+            "id, section_id, created_at, enrollment_fee_exempt, enrollment_exempt_reason, last_enrollment_paid_at, academic_sections(id, name, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(name, default_enrollment_fee_amount, default_monthly_fee))",
           )
           .eq("student_id", studentId)
           .eq("status", "active")
       : null;
   const enrollments = fallbackEnrollmentResult?.data ?? activeEnrollmentResult.data;
-
-  type EnrollmentRow = {
-    id: string;
-    section_id: string;
-    created_at: string | null;
-    academic_sections:
-      | EnrollmentSectionRow
-      | EnrollmentSectionRow[]
-      | null;
-    enrollment_fee_exempt?: boolean | null;
-    enrollment_exempt_reason?: string | null;
-    enrollment_fee_receipt_url?: string | null;
-    enrollment_fee_receipt_status?: string | null;
-    last_enrollment_paid_at?: string | null;
-  };
-  type EnrollmentSectionRow = {
-    id: string;
-    name: string;
-    starts_on: string | null;
-    ends_on: string | null;
-    schedule_slots: unknown;
-    enrollment_fee_amount: number | string | null;
-    monthly_fee_charge_mode?: string | null;
-    allow_advance_monthly_payment?: boolean | null;
-    academic_cohorts: { name: string } | { name: string }[] | null;
-  };
 
   const enrollmentRows = (enrollments ?? []) as EnrollmentRow[];
   const enrollmentIds = enrollmentRows.map((row) => row.id);
@@ -138,48 +88,15 @@ export async function loadStudentMonthlyPaymentsView(
     scholarshipsByEnrollment.set(row.enrollment_id, list);
   }
 
-  const sections: SectionMeta[] = await Promise.all(
-    enrollmentRows.map(async (row) => {
-      const sec = Array.isArray(row.academic_sections)
-        ? row.academic_sections[0]
-        : row.academic_sections;
-      const cohort = sec
-        ? Array.isArray(sec.academic_cohorts)
-          ? sec.academic_cohorts[0]
-          : sec.academic_cohorts
-        : null;
-      const rawEnrollment = sec?.enrollment_fee_amount == null ? 0 : Number(sec.enrollment_fee_amount);
-      const receiptUrl = row.enrollment_fee_receipt_url ?? null;
-      const receiptSignedUrl = receiptUrl
-        ? await studentReceiptSignedUrl(supabase, studentId, receiptUrl)
-        : null;
-      const rawStatus = row.enrollment_fee_receipt_status ?? null;
-      const receiptStatus =
-        rawStatus === "pending" || rawStatus === "approved" || rawStatus === "rejected"
-          ? rawStatus
-          : null;
-      return {
-        enrollmentId: row.id,
-        sectionId: row.section_id,
-        sectionName: sec?.name ?? "",
-        cohortName: cohort?.name ?? "",
-        startsOn: sec?.starts_on ?? "",
-        endsOn: sec?.ends_on ?? "",
-        monthlyFeeChargeMode: parseMonthlyFeeChargeMode(sec?.monthly_fee_charge_mode),
-        allowAdvanceMonthlyPayment: sec?.allow_advance_monthly_payment === true,
-        scheduleSlots: parseSectionScheduleSlots(sec?.schedule_slots ?? []),
-        enrolledAt: row.created_at ?? null,
-        enrollmentFeeAmount:
-          Number.isFinite(rawEnrollment) && rawEnrollment >= 0 ? rawEnrollment : 0,
-        enrollmentFeeExempt: Boolean(row.enrollment_fee_exempt),
-        enrollmentFeeExemptReason: row.enrollment_exempt_reason ?? null,
-        enrollmentFeeReceiptUrl: receiptUrl,
-        enrollmentFeeReceiptStatus: receiptStatus,
-        scholarships: scholarshipsByEnrollment.get(row.id) ?? [],
-        enrollmentFeeReceiptSignedUrl: receiptSignedUrl,
-        lastEnrollmentPaidAt: row.last_enrollment_paid_at ?? null,
-      };
-    }),
+  const sections = await Promise.all(
+    enrollmentRows.map((row) =>
+      mapEnrollmentRowToSectionMeta(
+        supabase,
+        studentId,
+        row,
+        scholarshipsByEnrollment.get(row.id) ?? [],
+      ),
+    ),
   );
 
   const sectionIds = [...new Set(sections.map((s) => s.sectionId))];
@@ -237,6 +154,7 @@ export async function loadStudentMonthlyPaymentsView(
       monthlyFeeChargeMode: s.monthlyFeeChargeMode,
       allowAdvanceMonthlyPayment: s.allowAdvanceMonthlyPayment,
       sectionBillingMode: billingModeBySection.get(s.sectionId) ?? null,
+      cohortDefaultMonthlyFee: s.cohortDefaultMonthlyFee,
     }),
   );
 

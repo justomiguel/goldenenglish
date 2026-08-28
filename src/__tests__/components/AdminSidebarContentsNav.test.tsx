@@ -29,4 +29,34 @@ describe("AdminSidebar contents navigation", () => {
       "/en/dashboard/admin/institute",
     );
   });
+
+  it("lists Events always and Blog when includeBlogNav", () => {
+    const { rerender } = render(
+      <AdminSidebarNavContent
+        locale="en"
+        dict={dictEn.dashboard.adminNav}
+        newRegistrationsCount={0}
+        recentInboundMessagesCount={0}
+      />,
+    );
+    expect(screen.getByRole("link", { name: dictEn.dashboard.adminNav.events })).toHaveAttribute(
+      "href",
+      "/en/dashboard/admin/events",
+    );
+    expect(screen.queryByRole("link", { name: dictEn.dashboard.adminNav.blog })).toBeNull();
+
+    rerender(
+      <AdminSidebarNavContent
+        locale="en"
+        dict={dictEn.dashboard.adminNav}
+        newRegistrationsCount={0}
+        recentInboundMessagesCount={0}
+        includeBlogNav
+      />,
+    );
+    expect(screen.getByRole("link", { name: dictEn.dashboard.adminNav.blog })).toHaveAttribute(
+      "href",
+      "/en/dashboard/admin/cms/blog",
+    );
+  });
 });

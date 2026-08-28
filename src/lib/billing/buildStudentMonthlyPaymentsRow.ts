@@ -19,6 +19,7 @@ import {
 } from "@/lib/billing/studentMonthlyPaymentsRowModel";
 import { parseMonthlyFeeChargeMode } from "@/lib/billing/monthlyFeeChargeMode";
 import { sectionIsClassPackBilled } from "@/lib/billing/sectionBillingMode";
+import { resolveEffectiveMonthlyFee } from "@/lib/billing/resolveCohortFeeDefaults";
 
 export type { StudentMonthlyPaymentRecord, BuildStudentMonthlyPaymentsRowInput };
 
@@ -57,6 +58,7 @@ export function buildStudentMonthlyPaymentsRow(
     annualSettlementCoverage = null,
     monthlyFeeChargeMode: monthlyFeeChargeModeInput,
     sectionBillingMode,
+    cohortDefaultMonthlyFee = null,
   } = input;
   const monthlyFeeChargeMode = parseMonthlyFeeChargeMode(monthlyFeeChargeModeInput);
   // A class-pack section has no monthly fee at all, so its fee plans are ignored rather than resolved:
@@ -77,7 +79,18 @@ export function buildStudentMonthlyPaymentsRow(
   const enrolmentFrom = parseUtcDate(studentEnrolledAt);
 
   for (let m = 1; m <= 12; m++) {
-    const plan = billsMonthlyFee ? resolveEffectiveSectionFeePlan(plans, year, m) : null;
+    const sectionPlan = billsMonthlyFee ? resolveEffectiveSectionFeePlan(plans, year, m) : null;
+    const monthly = resolveEffectiveMonthlyFee({
+      billingMode: sectionBillingMode,
+      sectionPlan: sectionPlan
+        ? { monthlyFee: sectionPlan.monthlyFee, currency: sectionPlan.currency }
+        : null,
+      cohortDefaultMonthlyFee,
+    });
+    const plan =
+      monthly.kind === "section" || monthly.kind === "cohort"
+        ? { monthlyFee: monthly.monthlyFee, currency: monthly.currency }
+        : null;
     const monthRange = monthBounds(year, m);
     const sectionInMonth = sectionRange ? intersectDateRange(sectionRange, monthRange) : null;
     const totalClasses = sectionInMonth
@@ -184,9 +197,30 @@ export function buildStudentMonthlyPaymentsRow(
       isCurrent: m === todayMonth && year === todayYear,
     });
   }
-  const currentPlan = billsMonthlyFee
+  const currentSectionPlan = billsMonthlyFee
     ? resolveEffectiveSectionFeePlan(plans, todayYear, todayMonth)
     : null;
+  const currentMonthly = resolveEffectiveMonthlyFee({
+    billingMode: sectionBillingMode,
+    sectionPlan: currentSectionPlan
+      ? { monthlyFee: currentSectionPlan.monthlyFee, currency: currentSectionPlan.currency }
+      : null,
+    cohortDefaultMonthlyFee,
+  });
+  const currentPlan =
+    currentMonthly.kind === "section" || currentMonthly.kind === "cohort"
+      ? {
+          ...(currentSectionPlan ?? {
+            id: "cohort-default",
+            sectionId: input.sectionId,
+            effectiveFromYear: 2000,
+            effectiveFromMonth: 1,
+            archivedAt: null,
+          }),
+          monthlyFee: currentMonthly.monthlyFee,
+          currency: currentMonthly.currency,
+        }
+      : null;
   const enrollmentFeeAmount = Number.isFinite(sectionEnrollmentFeeAmount)
     ? Math.max(0, sectionEnrollmentFeeAmount)
     : 0;

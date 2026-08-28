@@ -76,7 +76,9 @@ describe("RegisterForm", () => {
   }
 
   function chooseSection() {
-    fireEvent.click(screen.getByRole("checkbox", { name: SECTION_OPTIONS[0].label }));
+    fireEvent.change(screen.getByRole("combobox", { name: dictEn.register.level }), {
+      target: { value: SECTION_ID },
+    });
   }
 
   async function fillAndSubmit() {
@@ -275,7 +277,9 @@ describe("RegisterForm", () => {
     fireEvent.change(screen.getByLabelText(r.phone), {
       target: { value: "+100" },
     });
-    fireEvent.click(screen.getByRole("checkbox", { name: r.sectionUndecidedOption }));
+    fireEvent.change(screen.getByRole("combobox", { name: r.level }), {
+      target: { value: REGISTRATION_UNDECIDED_FORM_VALUE },
+    });
     fireEvent.click(screen.getByRole("button", { name: r.submit }));
     await waitFor(() => {
       expect(screen.getByText(dictEn.register.successTitle)).toBeInTheDocument();

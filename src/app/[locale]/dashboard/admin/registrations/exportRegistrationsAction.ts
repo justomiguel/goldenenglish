@@ -19,6 +19,9 @@ const inputZ = z.object({
   locale: z.string().min(2).max(8),
   q: z.string().max(200).optional(),
   status: z.enum(["new", "contacted"]).optional(),
+  inbox: z
+    .enum(["urgent", "awaiting_fee", "receipt_pending", "needs_section", "section_full", "contacted"])
+    .optional(),
 });
 
 export type ExportRegistrationsResult =
@@ -29,6 +32,13 @@ export async function exportRegistrationsAction(input: {
   locale: string;
   q?: string;
   status?: "new" | "contacted";
+  inbox?:
+    | "urgent"
+    | "awaiting_fee"
+    | "receipt_pending"
+    | "needs_section"
+    | "section_full"
+    | "contacted";
 }): Promise<ExportRegistrationsResult> {
   const parsed = inputZ.safeParse(input);
   if (!parsed.success) return { ok: false, message: "validation" };
@@ -50,6 +60,7 @@ export async function exportRegistrationsAction(input: {
       pageSize: EXPORT_MAX_ROWS,
       q: parsed.data.q,
       status: parsed.data.status,
+      inbox: parsed.data.inbox,
     });
 
     let activeTemplateKind = "classic";

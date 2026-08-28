@@ -120,6 +120,35 @@ describe("deriveAdminFirstClassChecklistFacts", () => {
     expect(packWithPrice.hasSectionFees).toBe(true);
   });
 
+  it("treats a stored-null enrollment plus a cohort default as configured fees", () => {
+    const inherited = deriveAdminFirstClassChecklistFacts({
+      ...EMPTY_RAW,
+      sections: [
+        {
+          teacherId: null,
+          scheduleSlots: [],
+          enrollmentFeeAmount: null,
+          billingMode: "section_monthly_fee",
+          cohortDefaultEnrollmentFeeAmount: 200,
+        },
+      ],
+    });
+    const storedZero = deriveAdminFirstClassChecklistFacts({
+      ...EMPTY_RAW,
+      sections: [
+        {
+          teacherId: null,
+          scheduleSlots: [],
+          enrollmentFeeAmount: 0,
+          billingMode: "section_monthly_fee",
+          cohortDefaultEnrollmentFeeAmount: 200,
+        },
+      ],
+    });
+    expect(inherited.hasSectionFees).toBe(true);
+    expect(storedZero.hasSectionFees).toBe(false);
+  });
+
   it("treats bank transfer copy or an enabled gateway as a payment method", () => {
     const blankTransfer = deriveAdminFirstClassChecklistFacts({
       ...EMPTY_RAW,

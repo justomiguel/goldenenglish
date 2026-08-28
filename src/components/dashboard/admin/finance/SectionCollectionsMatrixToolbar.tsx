@@ -28,6 +28,7 @@ export interface SectionCollectionsMatrixToolbarProps {
   onOpenMessageModal: () => void;
   onSendOverdueReminders: () => void;
   onBulkScholarshipNotice?: (msg: string | null) => void;
+  showScholarshipLegendSample?: boolean;
 }
 
 export function SectionCollectionsMatrixToolbar({
@@ -50,6 +51,7 @@ export function SectionCollectionsMatrixToolbar({
   onOpenMessageModal,
   onSendOverdueReminders,
   onBulkScholarshipNotice,
+  showScholarshipLegendSample = false,
 }: SectionCollectionsMatrixToolbarProps) {
   const setScholarNotice = onBulkScholarshipNotice ?? (() => {});
 
@@ -97,7 +99,10 @@ export function SectionCollectionsMatrixToolbar({
         </div>
       </div>
       <div className="flex shrink-0 flex-wrap items-center gap-2">
-        <AdminBillingMatrixLegendModal labels={financeCollectionsMatrixLegendLabels(dict)} />
+        <AdminBillingMatrixLegendModal
+          labels={financeCollectionsMatrixLegendLabels(dict)}
+          showScholarshipSample={showScholarshipLegendSample}
+        />
         <SectionCollectionsExportButtons locale={locale} sectionId={sectionId} year={year} dict={dict} />
       </div>
     </div>

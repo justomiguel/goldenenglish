@@ -10,6 +10,7 @@
 
 const TUITION_PREFIX = "tuition:";
 const TUITION_BUNDLE_PREFIX = "tuition-bundle:";
+const ENROLLMENT_PREFIX = "enrollment:";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -26,7 +27,13 @@ export interface MonthlyPaymentSlotRef {
 export type MonthlyGatewayReference =
   | { kind: "slot"; slot: MonthlyPaymentSlotRef }
   | { kind: "payment"; paymentId: string }
-  | { kind: "bundle"; bundleId: string };
+  | { kind: "bundle"; bundleId: string }
+  | { kind: "enrollment"; registrationId: string };
+
+/** Builds the deferred-creation reference that links a checkout to a pre-inscription lead. */
+export function buildEnrollmentGatewayReference(registrationId: string): string {
+  return `${ENROLLMENT_PREFIX}${registrationId}`;
+}
 
 /** Builds the deferred-creation reference that links a checkout to a multi-section bundle. */
 export function buildTuitionBundleGatewayReference(bundleId: string): string {
@@ -53,6 +60,12 @@ export function parseMonthlyGatewayReference(
 ): MonthlyGatewayReference | null {
   const value = (raw ?? "").trim();
   if (!value) return null;
+
+  if (value.startsWith(ENROLLMENT_PREFIX)) {
+    const registrationId = value.slice(ENROLLMENT_PREFIX.length).trim();
+    if (!UUID_RE.test(registrationId)) return null;
+    return { kind: "enrollment", registrationId };
+  }
 
   if (value.startsWith(TUITION_BUNDLE_PREFIX)) {
     const bundleId = value.slice(TUITION_BUNDLE_PREFIX.length).trim();

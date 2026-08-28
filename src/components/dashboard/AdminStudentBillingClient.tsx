@@ -1,16 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Input } from "@/components/atoms/Input";
 import { AdminAnnualSettlementPanel } from "@/components/dashboard/AdminAnnualSettlementPanel";
-import { AdminBillingSectionFeeSummary } from "@/components/dashboard/AdminBillingSectionFeeSummary";
+import { AdminStudentPersonMonthlyDue } from "@/components/dashboard/AdminStudentPersonMonthlyDue";
 import { AdminRecordPaymentPanel } from "@/components/dashboard/AdminRecordPaymentPanel";
-import { DEFAULT_SECTION_FEE_PLAN_CURRENCY } from "@/types/sectionFeePlan";
+import { AdminStudentBillingPeriodControls } from "@/components/dashboard/AdminStudentBillingPeriodControls";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { AdminStudentBillingTabsPanel } from "@/components/dashboard/AdminStudentBillingTabsPanel";
 import type { AdminBillingMonthState } from "@/lib/billing/buildAdminBillingMonthGrid";
 import { computeAdminStudentBillingMonthMatrix } from "@/lib/billing/computeAdminStudentBillingMonthMatrix";
 import { discountedAverageMonthlyFeeFromCells } from "@/lib/billing/discountedAverageMonthlyFeeFromCells";
+import {
+  monthlyDueLinesFromSectionBenefits,
+  sumDiscountedMonthlyDue,
+} from "@/lib/billing/sumDiscountedMonthlyDue";
 import { enrollmentFeeMatrixVisualFromAdminBillingBenefit } from "@/lib/billing/enrollmentFeeMatrixVisual";
 import type {
   AdminBillingPaymentRow,
@@ -82,6 +85,14 @@ export function AdminStudentBillingClient({
       calendarTodayMonth: todayYm.month,
     });
   }, [billingYear, payments, selectedBenefit, selectedScholarships, todayYm.month, todayYm.year]);
+  const personMonthlyDue = useMemo(
+    () =>
+      sumDiscountedMonthlyDue(
+        monthlyDueLinesFromSectionBenefits(sectionBenefits, todayYm.year, todayYm.month),
+      ),
+    [sectionBenefits, todayYm.month, todayYm.year],
+  );
+
   const paidMonths = monthStates.filter((s) => s.status === "paid").length;
   const selectableMonths = monthStates.filter((s) => s.selectable).length;
 
@@ -110,81 +121,34 @@ export function AdminStudentBillingClient({
       </header>
 
       <section className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 md:p-4">
-        <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_140px_auto] md:items-start">
-          {sectionBenefits.length > 0 ? (
-            <div className="min-w-0 space-y-3">
-              <div>
-                <label
-                  htmlFor="billing-section-select"
-                  className="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted-foreground)]"
-                >
-                  {labels.sectionBenefitSelect}
-                </label>
-                <select
-                  id="billing-section-select"
-                  value={selectedSectionId}
-                  disabled={sectionBenefits.length === 1}
-                  onChange={(event) => setSelectedSectionId(event.target.value)}
-                  className="mt-1 min-h-[44px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-sm text-[var(--color-foreground)] disabled:opacity-70"
-                >
-                  {sectionBenefits.map((section) => (
-                    <option key={section.sectionId} value={section.sectionId}>
-                      {section.sectionName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {selectedBenefit ? (
-                <AdminBillingSectionFeeSummary
-                  locale={locale}
-                  enrollmentAmount={selectedBenefit.sectionEnrollmentFeeAmount}
-                  enrollmentCurrency={
-                    selectedBenefit.sectionMonthlyFeeCurrency ?? DEFAULT_SECTION_FEE_PLAN_CURRENCY
-                  }
-                  monthlyAmount={selectedBenefit.sectionMonthlyFeeAmount}
-                  monthlyCurrency={selectedBenefit.sectionMonthlyFeeCurrency}
-                  effectiveMonthlyAmount={discountedAverageMonthlyFeeFromCells(collectionCells)}
-                  labels={{
-                    enrollmentLabel: labels.billingFeeSummaryEnrollmentLabel,
-                    monthlyLabel: labels.billingFeeSummaryMonthlyLabel,
-                    monthlyUnavailable: labels.billingFeeSummaryMonthlyUnavailable,
-                    enrollmentNotCharged: labels.billingFeeSummaryEnrollmentNotCharged,
-                  }}
-                />
-              ) : null}
-            </div>
-          ) : null}
-          <div>
-            <label
-              htmlFor="billing-year-select"
-              className="text-xs font-semibold uppercase tracking-wide text-[var(--color-muted-foreground)]"
-            >
-              {labels.periodYear}
-            </label>
-            <Input
-              id="billing-year-select"
-              type="number"
-              min={2000}
-              max={2100}
-              value={billingYearRaw}
-              onChange={(event) => {
-                const raw = event.target.value;
-                setBillingYearRaw(raw);
-                const next = Number(raw);
-                if (Number.isInteger(next) && next >= 2000 && next <= 2100) {
-                  setBillingYear(next);
-                }
-              }}
-              className="mt-1 min-h-[44px] w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-sm text-[var(--color-foreground)]"
-            />
-          </div>
-          <p className="rounded-[var(--layout-border-radius)] bg-[var(--color-muted)]/35 px-3 py-2 text-sm font-semibold text-[var(--color-secondary)]">
-            {labels.billingMonthSummary
-              .replace("{paid}", String(paidMonths))
-              .replace("{total}", String(monthStates.length))
-              .replace("{open}", String(selectableMonths))}
-          </p>
-        </div>
+        {sectionBenefits.length > 0 ? (
+          <AdminStudentPersonMonthlyDue
+            locale={locale}
+            totals={personMonthlyDue}
+            label={labels.billingPersonMonthlyTotalLabel}
+            unavailable={labels.billingPersonMonthlyTotalUnavailable}
+          />
+        ) : null}
+        <AdminStudentBillingPeriodControls
+          locale={locale}
+          labels={labels}
+          sectionBenefits={sectionBenefits}
+          selectedSectionId={selectedSectionId}
+          onSelectSection={setSelectedSectionId}
+          selectedBenefit={selectedBenefit}
+          effectiveMonthlyAmount={discountedAverageMonthlyFeeFromCells(collectionCells)}
+          billingYearRaw={billingYearRaw}
+          onBillingYearRawChange={(raw) => {
+            setBillingYearRaw(raw);
+            const next = Number(raw);
+            if (Number.isInteger(next) && next >= 2000 && next <= 2100) {
+              setBillingYear(next);
+            }
+          }}
+          paidMonths={paidMonths}
+          monthCount={monthStates.length}
+          selectableMonths={selectableMonths}
+        />
 
         {selectedBenefit ? (
           <AdminRecordPaymentPanel

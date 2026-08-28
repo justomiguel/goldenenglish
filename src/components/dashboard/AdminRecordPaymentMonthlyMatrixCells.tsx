@@ -3,11 +3,67 @@
 import { FileText } from "lucide-react";
 import { resolveAdminBillingMonthChipVisual } from "@/lib/billing/adminBillingMonthCollectionVisual";
 import type { AdminBillingMonthState } from "@/lib/billing/buildAdminBillingMonthGrid";
-import { sectionCollectionsMonthCellClasses } from "@/lib/billing/sectionCollectionsMonthCellClasses";
+import { resolveMatrixScholarshipMarksFromPercents } from "@/lib/billing/resolveMatrixScholarshipMarks";
+import {
+  SECTION_COLLECTIONS_SCHOLARSHIP_PERCENT_CLASSES,
+  sectionCollectionsMonthCellClasses,
+} from "@/lib/billing/sectionCollectionsMonthCellClasses";
 import { SECTION_COLLECTIONS_MONTH_STATUS_ICONS } from "@/lib/billing/sectionCollectionsMonthStatusIcons";
 import type { StudentMonthlyPaymentCell } from "@/types/studentMonthlyPayments";
 
 const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
+
+function fallbackMonthState(month: number): AdminBillingMonthState {
+  return {
+    month,
+    status: "unpaid",
+    paymentId: null,
+    recordedAmount: null,
+    scholarshipPercent: null,
+    selectable: true,
+    revertSelectable: false,
+    legacyFallback: false,
+  };
+}
+
+export function recordPaymentMatrixScholarshipMarks(
+  monthStates: AdminBillingMonthState[],
+  collectionCells: StudentMonthlyPaymentCell[] | null | undefined,
+  viewYear: number,
+  todayYear: number,
+  todayMonth: number,
+) {
+  const stateByMonth = new Map(monthStates.map((s) => [s.month, s]));
+  const rawByMonth = MONTHS.map((m) => {
+    const state = stateByMonth.get(m) ?? fallbackMonthState(m);
+    const coll = collectionCells?.[m - 1];
+    const vis = resolveAdminBillingMonthChipVisual(
+      state,
+      coll,
+      viewYear,
+      todayYear,
+      todayMonth,
+    );
+    if (!vis.hasScholarshipDiscount) return null;
+    const pct =
+      coll?.scholarshipDiscountPercent != null
+        ? coll.scholarshipDiscountPercent
+        : state.scholarshipPercent;
+    return pct != null && pct > 0 ? pct : null;
+  });
+  const cells = MONTHS.map((m) => {
+    const state = stateByMonth.get(m) ?? fallbackMonthState(m);
+    const vis = resolveAdminBillingMonthChipVisual(
+      state,
+      collectionCells?.[m - 1],
+      viewYear,
+      todayYear,
+      todayMonth,
+    );
+    return { month: m, year: viewYear, status: vis.status };
+  });
+  return resolveMatrixScholarshipMarksFromPercents(rawByMonth, cells, viewYear);
+}
 
 export interface AdminRecordPaymentMonthlyMatrixCellsLabels {
   statusPaid: string;
@@ -50,27 +106,27 @@ export function AdminRecordPaymentMonthlyMatrixCells({
   disabled,
 }: AdminRecordPaymentMonthlyMatrixCellsProps) {
   const stateByMonth = new Map(monthStates.map((s) => [s.month, s]));
+  const scholarshipMarks = recordPaymentMatrixScholarshipMarks(
+    monthStates,
+    collectionCells,
+    viewYear,
+    todayYear,
+    todayMonth,
+  );
 
   return (
     <>
       {MONTHS.map((m) => {
         const on = selectedMonths.has(m);
-        const state = stateByMonth.get(m) ?? {
-          month: m,
-          status: "unpaid" as const,
-          paymentId: null,
-          recordedAmount: null,
-          scholarshipPercent: null,
-          selectable: true,
-          revertSelectable: false,
-          legacyFallback: false,
-        };
+        const state = stateByMonth.get(m) ?? fallbackMonthState(m);
         const coll = collectionCells?.[m - 1];
         const vis = resolveAdminBillingMonthChipVisual(state, coll, viewYear, todayYear, todayMonth);
+        const scholarshipPct = scholarshipMarks.percentByMonth[m - 1];
+        const showScholarshipMark = scholarshipPct != null;
         const cellClass = sectionCollectionsMonthCellClasses(
           vis.status,
           vis.isOverdue,
-          vis.hasScholarshipDiscount,
+          showScholarshipMark,
         );
         const statusText = monthGridStatusLine(state, vis, labels);
         const receiptTrimmed =
@@ -80,10 +136,6 @@ export function AdminRecordPaymentMonthlyMatrixCells({
         const showViewReceipt = receiptTrimmed.length > 0;
         const Icon = SECTION_COLLECTIONS_MONTH_STATUS_ICONS[vis.status];
         const disabledMonth = disabled || (!state.selectable && !state.revertSelectable);
-        const scholarshipPct =
-          vis.hasScholarshipDiscount && coll?.scholarshipDiscountPercent != null
-            ? coll.scholarshipDiscountPercent
-            : state.scholarshipPercent;
         const aria = [
           monthShort[m - 1] ?? `M${m}`,
           statusText,
@@ -120,9 +172,11 @@ export function AdminRecordPaymentMonthlyMatrixCells({
               aria-label={aria}
               title={aria}
             >
-              {vis.hasScholarshipDiscount && scholarshipPct != null ? (
+              {showScholarshipMark ? (
                 <>
-                  <span className="leading-none">
+                  <span
+                    className={`leading-none ${SECTION_COLLECTIONS_SCHOLARSHIP_PERCENT_CLASSES}`}
+                  >
                     {String(scholarshipPct).replace(/\.0+$/, "")}%
                   </span>
                   <Icon className="mt-0.5 h-2.5 w-2.5" aria-hidden />

@@ -4,7 +4,7 @@ import { useBlogArticleEditorLocales } from "@/hooks/useBlogArticleEditorLocales
 import { BLOG_LOCALES } from "@/lib/blog/domain";
 
 describe("useBlogArticleEditorLocales", () => {
-  it("syncMediaToAllLocales inserts inline media into sibling locales only", () => {
+  it("syncMediaToAllLocales inserts media only into the native editing locale", () => {
     const { result } = renderHook(() =>
       useBlogArticleEditorLocales({
         startLocale: "es",
@@ -16,20 +16,21 @@ describe("useBlogArticleEditorLocales", () => {
       }),
     );
 
-    const insertHtml = '<p><img src="https://cdn.example/photo.jpg" alt="Photo" /></p>';
+    const insertHtml =
+      '<p><video controls preload="metadata" src="https://cdn.example/clip.mp4"></video></p>';
 
     act(() => {
       result.current.syncMediaToAllLocales({ insertHtml, blockIndex: 0 });
     });
 
-    expect(result.current.bodyHtml).not.toContain("photo.jpg");
+    expect(result.current.bodyHtml).toContain("clip.mp4");
 
     for (const locale of BLOG_LOCALES) {
       if (locale === "es") continue;
       act(() => {
         result.current.switchEditingLocale(locale);
       });
-      expect(result.current.bodyHtml).toContain("photo.jpg");
+      expect(result.current.bodyHtml).not.toContain("clip.mp4");
     }
   });
 });

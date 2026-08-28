@@ -12,6 +12,8 @@ import {
 } from "@/lib/dashboard/loadPaginatedRegistrations";
 import type { RegistrationSortKey } from "@/lib/dashboard/adminRegistrationsSort";
 import { loadRegistrationStatusCounts } from "@/lib/dashboard/loadRegistrationStatusCounts";
+import { loadRegistrationInboxCounts } from "@/lib/dashboard/loadRegistrationInboxCounts";
+import { parseRegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveExistingStudentIdsForLeads } from "@/lib/register/resolveExistingStudentIdsForLeads";
 import { getBrandForRequest } from "@/lib/brand/server";
@@ -41,6 +43,7 @@ function parseSearchParams(raw: Record<string, string | string[] | undefined>): 
     : "received";
   const dir = raw.dir === "asc" ? "asc" : "desc";
   const status = raw.status === "new" || raw.status === "contacted" ? raw.status : undefined;
+  const inboxRaw = typeof raw.inbox === "string" ? raw.inbox : undefined;
 
   return {
     page: Math.max(1, parseInt(pageStr, 10) || 1),
@@ -48,6 +51,7 @@ function parseSearchParams(raw: Record<string, string | string[] | undefined>): 
     sort,
     dir,
     status,
+    inbox: parseRegistrationInboxFilter(inboxRaw, status),
   };
 }
 
@@ -59,11 +63,12 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
 
   const supabase = await createClient();
 
-  const [result, legalAgeMajority, cohort, statusCounts, brand] = await Promise.all([
+  const [result, legalAgeMajority, cohort, statusCounts, inboxCounts, brand] = await Promise.all([
     loadPaginatedRegistrations(supabase, paginationParams),
     Promise.resolve(getLegalAgeMajorityFromSystem()),
     loadCurrentCohort(supabase),
     loadRegistrationStatusCounts(supabase, paginationParams.q ?? ""),
+    loadRegistrationInboxCounts(supabase),
     getBrandForRequest(),
   ]);
   const existingByLead = await resolveExistingStudentIdsForLeads(
@@ -101,6 +106,8 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
         sortDir={paginationParams.dir ?? "desc"}
         statusFilter={paginationParams.status}
         statusCounts={statusCounts}
+        inboxFilter={paginationParams.inbox}
+        inboxCounts={inboxCounts}
         legalAgeMajority={legalAgeMajority}
         instituteName={brand.name}
         instituteCountry={resolveWhatsAppCountry(brand.contactPhone)}

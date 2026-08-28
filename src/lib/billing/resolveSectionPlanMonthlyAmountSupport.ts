@@ -16,6 +16,10 @@ export interface SectionBillingContextRow {
   schedule_slots: unknown;
   monthly_fee_charge_mode?: string | null;
   billing_mode?: string | null;
+  academic_cohorts?:
+    | { default_monthly_fee?: number | string | null }
+    | { default_monthly_fee?: number | string | null }[]
+    | null;
 }
 
 /**
@@ -29,7 +33,7 @@ export async function loadSectionBillingContext(
 ): Promise<SectionBillingContextRow | null> {
   const { data } = await supabase
     .from("academic_sections")
-    .select("starts_on, ends_on, schedule_slots, monthly_fee_charge_mode, billing_mode")
+    .select("starts_on, ends_on, schedule_slots, monthly_fee_charge_mode, billing_mode, academic_cohorts(default_monthly_fee)")
     .eq("id", sectionId)
     .maybeSingle();
   return (data as SectionBillingContextRow | null) ?? null;

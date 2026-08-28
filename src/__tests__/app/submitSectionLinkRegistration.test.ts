@@ -19,6 +19,10 @@ vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => ({}),
 }));
 
+vi.mock("@/lib/email/templates/sendBrandedEmail", () => ({
+  sendBrandedEmail: async () => ({ ok: true, fromOverride: false }),
+}));
+
 vi.mock("@/lib/register/resolveExistingStudentByDni", () => ({
   resolveExistingStudentByDni: async () => ({ kind: "none" }),
 }));
@@ -42,6 +46,10 @@ vi.mock("@/lib/i18n/dictionaries", () => ({
       closed: "cerrado",
       validationError: "validación",
       invalidSectionOption: "sección inválida",
+      sectionFilledUp: "se llenó",
+      enrollmentPayCta: "Pagar",
+      enrollmentPayNoFee: "confirmamos",
+      enrollmentPayUndecidedSection: "sin horario",
       tutorEmailSameAsStudent: "igual",
       documentInUse: "documento en uso",
       sectionLink: { unavailableClosed: "cerrado" },
@@ -106,6 +114,9 @@ function resolvesTo(sectionId: string | null) {
           : [],
         error: null,
       });
+    }
+    if (fn === "registration_public_section_has_open_seat") {
+      return Promise.resolve({ data: true, error: null });
     }
     return Promise.resolve({ data: null, error: null });
   });

@@ -119,6 +119,7 @@ export async function copyCohortSectionStructureAction(input: {
           max_students: r.max_students,
           starts_on,
           ends_on,
+          enrollment_fee_amount: null,
         })
         .select("id")
         .single();

@@ -1,19 +1,24 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Link from "next/link";
-import { ArrowDown, ArrowUp, Eye, Pencil, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
-import type { AdminUserRow, SortDir, SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
-import { Button } from "@/components/atoms/Button";
-import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
+import {
+  isAdminStudentsDirectory,
+  isAdminTeachersDirectory,
+  type AdminUserRow,
+  type SortDir,
+  type SortKey,
+} from "@/lib/dashboard/adminUsersTableHelpers";
+import { AdminUsersPwaListItem } from "@/components/pwa/molecules/AdminUsersPwaListItem";
 import { TablePagination } from "@/components/molecules/TablePagination";
-import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 type UserLabels = Dictionary["admin"]["users"];
 type TableLabels = Dictionary["admin"]["table"];
 
-const SORT_KEYS: SortKey[] = ["email", "name", "role", "phone"];
+const DIRECTORY_SORT_KEYS: SortKey[] = ["email", "name", "role", "phone"];
+const STUDENT_SORT_KEYS: SortKey[] = ["name"];
+const TEACHER_SORT_KEYS: SortKey[] = ["email", "name", "phone"];
 
 function colLabel(labels: UserLabels, key: SortKey): string {
   switch (key) {
@@ -55,6 +60,7 @@ export interface AdminUsersPwaListProps {
     totalCount: number;
     onPageChange: (page: number) => void;
   };
+  lockRole?: string;
 }
 
 export function AdminUsersPwaList({
@@ -77,7 +83,16 @@ export function AdminUsersPwaList({
   onRequestDeleteOne,
   emptyMessage,
   pagination,
+  lockRole,
 }: AdminUsersPwaListProps) {
+  const studentsDirectory = isAdminStudentsDirectory(lockRole);
+  const teachersDirectory = isAdminTeachersDirectory(lockRole);
+  const sortKeys = studentsDirectory
+    ? STUDENT_SORT_KEYS
+    : teachersDirectory
+      ? TEACHER_SORT_KEYS
+      : DIRECTORY_SORT_KEYS;
+  const emptyValue = "—";
   const sortHint = (key: SortKey) => {
     if (sortKey !== key) return labels.sortNeutral;
     return sortDir === "asc" ? labels.sortAsc : labels.sortDesc;
@@ -111,7 +126,7 @@ export function AdminUsersPwaList({
       </div>
 
       <div className="flex flex-wrap gap-2" role="group">
-        {SORT_KEYS.map((key) => {
+        {sortKeys.map((key) => {
           const active = sortKey === key;
           return (
             <button
@@ -139,89 +154,22 @@ export function AdminUsersPwaList({
       </div>
 
       <ul className="space-y-2">
-        {rows.map((r) => {
-          const isSelf = r.id === currentUserId;
-          const checked = selectedIds.has(r.id);
-          return (
-            <li
-              key={r.id}
-              className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-[var(--shadow-soft)]"
-            >
-              <div className="flex gap-3">
-                <input
-                  type="checkbox"
-                  className="mt-1 h-4 w-4 shrink-0 rounded border-[var(--color-border)]"
-                  checked={checked}
-                  disabled={isSelf}
-                  onChange={() => onToggleRow(r.id)}
-                  aria-label={`${labels.selectRow} ${r.email}`}
-                  title={isSelf ? labels.selfProtected : labels.tipSelectRow}
-                />
-                <div className="min-w-0 flex-1 space-y-1">
-                  <p className="break-all font-medium text-[var(--color-foreground)]">
-                    {r.email}
-                  </p>
-                  <Link
-                    href={`/${locale}/dashboard/admin/users/${r.id}`}
-                    title={labels.tipOpenUserProfile}
-                    className="flex items-start gap-2 text-sm text-[var(--color-muted-foreground)] active:opacity-80"
-                  >
-                    <ProfileAvatar
-                      url={r.avatarDisplayUrl}
-                      displayName={formatProfileNameSurnameFirst(r.firstName, r.lastName)}
-                      size="sm"
-                    />
-                    <span className="flex min-w-0 flex-wrap items-center gap-1.5 break-words font-medium text-[var(--color-foreground)]">
-                      <span>{formatProfileNameSurnameFirst(r.firstName, r.lastName)}</span>
-                      {r.missingSection ? (
-                        <span
-                          className="inline-flex shrink-0 rounded-full bg-sky-100 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-sky-800"
-                          title={labels.noSectionBadgeAria}
-                        >
-                          {labels.noSectionBadge}
-                        </span>
-                      ) : null}
-                    </span>
-                  </Link>
-                  <div className="flex flex-wrap gap-2 text-sm">
-                    <span className="capitalize text-[var(--color-foreground)]">{r.role}</span>
-                    <span className="text-[var(--color-muted-foreground)]">{r.phone}</span>
-                  </div>
-                </div>
-                <div className="flex shrink-0 items-center gap-0.5">
-                  <Link
-                    href={`/${locale}/dashboard/admin/users/${r.id}`}
-                    title={labels.tipViewOne}
-                    aria-label={`${labels.viewOne}: ${r.email}`}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-[var(--color-primary)] hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)]"
-                  >
-                    <Eye className="h-4 w-4" aria-hidden />
-                  </Link>
-                  <Link
-                    href={`/${locale}/dashboard/admin/users/${r.id}`}
-                    title={labels.tipEditOne}
-                    aria-label={`${labels.editOne}: ${r.email}`}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
-                  >
-                    <Pencil className="h-4 w-4" aria-hidden />
-                  </Link>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="min-h-[44px] min-w-[44px] shrink-0 gap-0 p-2 text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
-                    disabled={isSelf || busy}
-                    title={isSelf ? labels.selfProtected : labels.tipDeleteOneRow}
-                    onClick={() => onRequestDeleteOne(r.id)}
-                    aria-label={`${labels.deleteOne}: ${r.email}`}
-                  >
-                    <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
-                  </Button>
-                </div>
-              </div>
-            </li>
-          );
-        })}
+        {rows.map((r) => (
+          <AdminUsersPwaListItem
+            key={r.id}
+            locale={locale}
+            labels={labels}
+            row={r}
+            currentUserId={currentUserId}
+            selected={selectedIds.has(r.id)}
+            busy={busy}
+            studentsDirectory={studentsDirectory}
+            teachersDirectory={teachersDirectory}
+            emptyValue={emptyValue}
+            onToggleRow={onToggleRow}
+            onRequestDeleteOne={onRequestDeleteOne}
+          />
+        ))}
       </ul>
 
       <div className="overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)]">

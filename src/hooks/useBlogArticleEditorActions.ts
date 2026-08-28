@@ -30,7 +30,6 @@ interface UseBlogArticleEditorActionsInput {
     defaultLocale: BlogLocale;
     hasGoogleKey: boolean;
   };
-  status: string;
   tags: string[];
   isPinned: boolean;
   scheduledFor: string;
@@ -45,6 +44,7 @@ interface UseBlogArticleEditorActionsInput {
   ) => void;
   draftMaterialsToBlogAttachments: (materials: AdminGlobalDraftMaterial[]) => BlogAttachment[];
   initialShareLinks: BlogArticleAdminShareLink[];
+  onStatusSaved?: (status: "draft" | "published") => void;
 }
 
 export function useBlogArticleEditorActions(input: UseBlogArticleEditorActionsInput) {
@@ -54,7 +54,7 @@ export function useBlogArticleEditorActions(input: UseBlogArticleEditorActionsIn
   const [shareLinks, setShareLinks] = useState(input.initialShareLinks);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  async function onSave() {
+  async function persist(nextStatus: "draft" | "published") {
     if (input.savableTranslations.length === 0) {
       setMsg(input.labels.saveNeedOneLocale);
       return;
@@ -66,7 +66,7 @@ export function useBlogArticleEditorActions(input: UseBlogArticleEditorActionsIn
       articleId: input.articleId,
       payload: {
         defaultLocale: input.initial.defaultLocale,
-        status: input.status,
+        status: nextStatus,
         tags: input.tags,
         commentsEnabled: true,
         isPinned: input.isPinned,
@@ -86,7 +86,8 @@ export function useBlogArticleEditorActions(input: UseBlogArticleEditorActionsIn
       setMsg(input.labels.saveError);
       return;
     }
-    setMsg(input.labels.saveSuccess);
+    input.onStatusSaved?.(nextStatus);
+    setMsg(nextStatus === "published" ? input.labels.publishSuccess : input.labels.saveSuccess);
     if (result.shareLinks?.length) {
       setShareLinks(result.shareLinks);
     }
@@ -96,6 +97,14 @@ export function useBlogArticleEditorActions(input: UseBlogArticleEditorActionsIn
       return;
     }
     router.refresh();
+  }
+
+  async function onSaveDraft() {
+    await persist("draft");
+  }
+
+  async function onPublish() {
+    await persist("published");
   }
 
   async function onTranslateWithGoogle(targetLocale: BlogLocale) {
@@ -149,7 +158,8 @@ export function useBlogArticleEditorActions(input: UseBlogArticleEditorActionsIn
     shareLinks,
     deleteOpen,
     setDeleteOpen,
-    onSave,
+    onSaveDraft,
+    onPublish,
     onTranslateWithGoogle,
     onConfirmDelete,
   };

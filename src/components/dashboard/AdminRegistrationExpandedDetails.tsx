@@ -4,6 +4,8 @@ import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate"
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import { AdminRegistrationNagoExtras } from "@/components/dashboard/AdminRegistrationNagoExtras";
+import { AdminRegistrationIntakeActions } from "@/components/dashboard/AdminRegistrationIntakeActions";
+import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 
@@ -15,6 +17,10 @@ export interface AdminRegistrationExpandedDetailsProps {
   labels: RegLabels;
   sectionName: string | null;
   requestedSectionNames?: string[];
+  currentCohortSections?: CurrentCohortSection[];
+  busy?: boolean;
+  onBusy?: (id: string | null) => void;
+  onIntakeDone?: () => void;
 }
 
 function Field({ label, value }: { label: string; value: string }) {
@@ -35,6 +41,10 @@ export function AdminRegistrationExpandedDetails({
   labels,
   sectionName,
   requestedSectionNames = [],
+  currentCohortSections,
+  busy,
+  onBusy,
+  onIntakeDone,
 }: AdminRegistrationExpandedDetailsProps) {
   const empty = labels.emptyValue;
   const birth =
@@ -81,6 +91,17 @@ export function AdminRegistrationExpandedDetails({
           locale={locale}
           labels={labels}
         />
+        {onBusy && onIntakeDone ? (
+          <AdminRegistrationIntakeActions
+            locale={locale}
+            row={row}
+            labels={labels.intake}
+            sections={currentCohortSections ?? []}
+            busy={busy === true}
+            onBusy={onBusy}
+            onDone={onIntakeDone}
+          />
+        ) : null}
       </td>
     </tr>
   );

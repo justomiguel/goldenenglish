@@ -11,7 +11,8 @@ import { ADMIN_INVITE_DEFAULT_PASSWORD } from "@/lib/dashboard/adminInviteDefaul
 import { localizeCreateDashboardUserError } from "@/lib/dashboard/localizeCreateDashboardUser";
 import { upsertAdminInvitedProfile } from "@/lib/dashboard/upsertAdminInvitedProfile";
 import { resolveDashboardInviteSignupAttemptSubjectLog } from "@/lib/logging/authInviteAttemptLogMeta";
-import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { logServerException, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { notifyAdminCreatedStudentWelcome } from "@/lib/email/notifyAdminCreatedStudentWelcome";
 import type { AppLocale } from "@/lib/i18n/dictionaries";
 import type { Dictionary } from "@/types/i18n";
 
@@ -43,6 +44,27 @@ export async function runCreateDashboardUserInviteOrchestration(params: {
   const finalPassword = pwd.length >= 6 ? pwd : ADMIN_INVITE_DEFAULT_PASSWORD;
 
   const admin = createAdminClient();
+
+  async function finishCreatedStudent(
+    result: CreateDashboardUserResult,
+  ): Promise<CreateDashboardUserResult> {
+    if (!result.ok || inviteProfile.role !== "student") return result;
+    if (parsed.provisioning_route === "registration_accept") return result;
+    try {
+      await notifyAdminCreatedStudentWelcome({
+        studentId: result.userId,
+        locale: appLocale,
+        studentFirstName: parsed.first_name,
+        studentLastName: parsed.last_name,
+        isMinor: creatingMinorStudent,
+        studentEmailHint: creatingMinorStudent ? null : effectiveEmail,
+        tutorEmailHints: creatingMinorStudent ? [parsed.tutor_email] : [],
+      });
+    } catch (err) {
+      logServerException("createDashboardUser:welcomeEmail", err, { userId: result.userId });
+    }
+    return result;
+  }
 
   async function afterProfileOk(uid: string): Promise<CreateDashboardUserResult> {
     if (!minorLinkInput) {
@@ -90,7 +112,7 @@ export async function runCreateDashboardUserInviteOrchestration(params: {
   });
 
   if (authOutcome.outcome === "done") {
-    return authOutcome.result;
+    return finishCreatedStudent(authOutcome.result);
   }
 
   const uid = authOutcome.userId;
@@ -124,5 +146,6 @@ export async function runCreateDashboardUserInviteOrchestration(params: {
     },
     metadata: { provisioning_source: "admin_invite" },
   });
-  return afterProfileOk(uid);
+  return finishCreatedStudent(await afterProfileOk(uid));
 }
+

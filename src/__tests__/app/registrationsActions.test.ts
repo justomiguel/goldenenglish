@@ -27,6 +27,13 @@ vi.mock("@/app/[locale]/dashboard/admin/users/actions", () => ({
   createDashboardUser: (...args: unknown[]) => mockCreateUser(...args),
 }));
 
+const mockNotifyRegistrationWelcome = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+vi.mock("@/lib/email/registrationIntakeEmails", () => ({
+  notifyRegistrationWelcome: (...args: unknown[]) => mockNotifyRegistrationWelcome(...args),
+  notifyRegistrationReceived: vi.fn(),
+  sendRegistrationAdminEmails: vi.fn(),
+}));
+
 const mockResolveExisting = vi.fn();
 vi.mock("@/lib/register/resolveExistingStudentByDni", () => ({
   resolveExistingStudentByDni: (...args: unknown[]) => mockResolveExisting(...args),
@@ -152,6 +159,7 @@ describe("acceptRegistration", () => {
     mockDeleteUser.mockReset().mockResolvedValue({ data: {}, error: null });
     mockResolveExisting.mockResolvedValue({ kind: "none" });
     mockEnrollRequested.mockResolvedValue([]);
+    mockNotifyRegistrationWelcome.mockResolvedValue(undefined);
     mockAssertAdmin.mockResolvedValue({
       supabase: { kind: "admin-session" },
       user: { id: "admin-1" },
@@ -219,6 +227,14 @@ describe("acceptRegistration", () => {
     const r = await acceptRegistration("es", { registration_id: regNew.id });
 
     expect(r).toEqual({ ok: true, studentId: "stu-contacted", pendingSectionIds: [] });
+    expect(mockNotifyRegistrationWelcome).toHaveBeenCalledTimes(1);
+    expect(mockNotifyRegistrationWelcome).toHaveBeenCalledWith(
+      expect.objectContaining({
+        isMinor: false,
+        studentEmail: "a@test.com",
+        studentName: "A B",
+      }),
+    );
   });
 
   it("returns birth_date_required when birth missing", async () => {

@@ -69,6 +69,8 @@ export interface BuildSectionCollectionsViewInput {
   allowAdvanceMonthlyPayment?: boolean;
   /** `academic_sections.billing_mode` crudo. `class_pack` ⇒ ningún mes se cobra como cuota. */
   sectionBillingMode?: string | null;
+  /** Live cohort default when the section has no plan in effect. */
+  cohortDefaultMonthlyFee?: number | null;
 }
 
 function enrollmentFeeAmount(input: BuildSectionCollectionsViewInput): number {
@@ -135,6 +137,7 @@ export function buildSectionCollectionsView(
       lastEnrollmentPaidAt: s.lastEnrollmentPaidAt ?? null,
       billingScope: "plan-year",
       sectionBillingMode: input.sectionBillingMode ?? null,
+      cohortDefaultMonthlyFee: input.cohortDefaultMonthlyFee ?? null,
     });
     const agg = aggregateCells(row.cells, input.todayYear, input.todayMonth);
     const isEnrollmentFeeOverdue =

@@ -4,6 +4,7 @@ import { loadPaymentGatewayEncryptionKeyRaw32 } from "@/lib/payment-gateways/loa
 import { loadFlowChileCredentialsPlain, flowChileApiBase } from "@/lib/payment-gateways/flow/loadFlowChileCredentialsPlain";
 import { logServerException } from "@/lib/logging/serverActionLog";
 import { finalizeEventPaymentFromFlowGateway } from "@/lib/events/server/finalizeEventPaymentFromFlowGateway";
+import { finalizeEnrollmentPaymentFromFlowGateway } from "@/lib/register/finalizeEnrollmentPaymentFromFlowGateway";
 
 export async function POST(req: Request): Promise<Response> {
   try {
@@ -40,13 +41,21 @@ export async function POST(req: Request): Promise<Response> {
             secretKey: creds.secretKey,
             token,
           })
-        : await finalizeMonthlyPaymentFromFlowGateway({
-            admin,
-            apiBaseUrl: base,
-            apiKey: creds.apiKey,
-            secretKey: creds.secretKey,
-            token,
-          });
+        : purpose === "enrollment"
+          ? await finalizeEnrollmentPaymentFromFlowGateway({
+              admin,
+              apiBaseUrl: base,
+              apiKey: creds.apiKey,
+              secretKey: creds.secretKey,
+              token,
+            })
+          : await finalizeMonthlyPaymentFromFlowGateway({
+              admin,
+              apiBaseUrl: base,
+              apiKey: creds.apiKey,
+              secretKey: creds.secretKey,
+              token,
+            });
 
     if (!result.ok) {
       logServerException("flowConfirm:finalize_failed", new Error("finalize_failed"));

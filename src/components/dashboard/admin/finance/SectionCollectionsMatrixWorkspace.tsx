@@ -6,6 +6,7 @@ import { sendOverdueBalanceRemindersAction } from "@/app/[locale]/dashboard/admi
 import type { SectionCollectionsView } from "@/types/sectionCollections";
 import type { Dictionary, Locale } from "@/types/i18n";
 import { useSectionCollectionsCellSelection } from "@/hooks/useSectionCollectionsCellSelection";
+import { sectionCollectionsHasParticularScholarshipMonth } from "@/lib/billing/resolveMatrixScholarshipMarks";
 import { runSectionCellBulkAction } from "@/lib/billing/runSectionCellBulkAction";
 import { SECTION_COLLECTIONS_ENROLLMENT_FEE_CELL_MONTH } from "@/lib/billing/sectionCollectionsEnrollmentFeeCellMonth";
 import { SectionCollectionsKpisCard } from "./SectionCollectionsKpisCard";
@@ -179,6 +180,10 @@ export function SectionCollectionsMatrixWorkspace({
         onOpenMessageModal={() => setModalOpen(true)}
         onSendOverdueReminders={handleSendOverdueReminders}
         onBulkScholarshipNotice={onBulkScholarshipNotice}
+        showScholarshipLegendSample={sectionCollectionsHasParticularScholarshipMonth(
+          view.students,
+          view.year,
+        )}
       />
 
       {cellSelection.selectionCount > 0 ? (

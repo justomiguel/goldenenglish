@@ -3,7 +3,10 @@
 import { CheckSquare, X } from "lucide-react";
 import { useId, useMemo, useState } from "react";
 import { AdminBillingMatrixLegendModal } from "@/components/dashboard/AdminBillingMatrixLegendModal";
-import { AdminRecordPaymentMonthlyMatrixCells } from "@/components/dashboard/AdminRecordPaymentMonthlyMatrixCells";
+import {
+  AdminRecordPaymentMonthlyMatrixCells,
+  recordPaymentMatrixScholarshipMarks,
+} from "@/components/dashboard/AdminRecordPaymentMonthlyMatrixCells";
 import {
   EnrollmentMonthZeroColumn,
   type EnrollmentMonthZeroColumnLabels,
@@ -150,7 +153,18 @@ export function AdminRecordPaymentMonthGrid({
             {labels.countSelected.replace("{count}", String(n))}
           </span>
         </div>
-        <AdminBillingMatrixLegendModal labels={legendModalLabels} />
+        <AdminBillingMatrixLegendModal
+          labels={legendModalLabels}
+          showScholarshipSample={
+            recordPaymentMatrixScholarshipMarks(
+              monthStates,
+              collectionCells,
+              viewYear,
+              today.year,
+              today.month,
+            ).hasParticularMonthMark
+          }
+        />
       </div>
       <div
         className="overflow-x-auto pb-1"

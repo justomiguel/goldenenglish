@@ -201,6 +201,10 @@ export function AcademicSectionPageShellBody({
             feePlansDict={feePlansDict}
             systemCurrency={systemCurrency}
             enrollmentFeeAmount={section.enrollmentFeeAmount}
+            storedEnrollmentFeeAmount={section.storedEnrollmentFeeAmount}
+            cohortDefaultEnrollmentFeeAmount={section.cohortDefaultEnrollmentFeeAmount}
+            cohortDefaultMonthlyFee={section.cohortDefaultMonthlyFee}
+            billingMode={section.billingMode}
             enrollmentFeeDict={enrollmentFeeDict}
             chargeMode={section.monthlyFeeChargeMode}
             monthlyFeeChargeModeDict={monthlyFeeChargeModeDict}

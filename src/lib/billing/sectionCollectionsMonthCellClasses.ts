@@ -5,31 +5,55 @@ export const sectionCollectionsMatrixChipHoverFrame =
   "rounded-[var(--layout-border-radius)] border border-transparent p-0.5 transition-colors hover:border-[var(--color-primary)]/35 hover:bg-[var(--color-muted)]/20";
 
 /**
+ * Scholarship is a discount attribute, not a payment status. Violet stays off
+ * the collected/overdue/pending palette so staff do not read "beca" as "pagado".
+ * Inset shadow (not `ring`) so it does not collide with the selection ring.
+ */
+export const SECTION_COLLECTIONS_SCHOLARSHIP_MARK_CLASSES =
+  "shadow-[inset_0_0_0_2px_#6d28d9]";
+
+/** Percent label inside a month chip — same violet as the scholarship inset. */
+export const SECTION_COLLECTIONS_SCHOLARSHIP_PERCENT_CLASSES = "text-[#6d28d9]";
+
+/**
  * Must stay in lockstep with `SectionCollectionsMonthCell` in finance — same
  * color tokens the staff already reads in the cohort/section collection matrix.
+ * Fill/border follow payment status; scholarship only adds the violet inset.
  */
 export function sectionCollectionsMonthCellClasses(
   status: StudentMonthlyPaymentCell["status"],
   isOverdue: boolean,
   hasScholarshipDiscount: boolean,
 ): string {
-  if (hasScholarshipDiscount) {
-    return "border-[var(--color-success)] bg-[var(--color-success)]/20 text-[var(--color-success)] shadow-[inset_0_0_0_1px_var(--color-success)]";
-  }
+  let statusClasses: string;
   switch (status) {
     case "approved":
-      return "border-[var(--color-success)] bg-[var(--color-success)]/15 text-[var(--color-success)]";
+      statusClasses =
+        "border-[var(--color-success)] bg-[var(--color-success)]/15 text-[var(--color-success)]";
+      break;
     case "pending":
-      return "border-[var(--color-warning)] bg-[var(--color-warning)]/20 text-[var(--color-foreground)]";
+      statusClasses =
+        "border-[var(--color-warning)] bg-[var(--color-warning)]/20 text-[var(--color-foreground)]";
+      break;
     case "rejected":
-      return "border-[var(--color-error)] bg-[var(--color-surface)] text-[var(--color-error)]";
+      statusClasses =
+        "border-[var(--color-error)] bg-[var(--color-surface)] text-[var(--color-error)]";
+      break;
     case "exempt":
-      return "border-[var(--color-info)] bg-[var(--color-info)]/15 text-[var(--color-info)]";
+      statusClasses =
+        "border-[var(--color-info)] bg-[var(--color-info)]/15 text-[var(--color-info)]";
+      break;
     case "due":
-      return isOverdue
+      statusClasses = isOverdue
         ? "border-[var(--color-error)] bg-[var(--color-error)]/10 text-[var(--color-error)]"
         : "border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)]";
+      break;
     default:
-      return "border-[var(--color-border)] bg-[var(--color-muted)] text-[var(--color-muted-foreground)]";
+      statusClasses =
+        "border-[var(--color-border)] bg-[var(--color-muted)] text-[var(--color-muted-foreground)]";
   }
+  if (hasScholarshipDiscount) {
+    return `${statusClasses} ${SECTION_COLLECTIONS_SCHOLARSHIP_MARK_CLASSES}`;
+  }
+  return statusClasses;
 }

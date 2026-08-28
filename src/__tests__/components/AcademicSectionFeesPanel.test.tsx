@@ -36,6 +36,7 @@ const feesPanelDict = {
     monthlyPlanEmpty: "No active monthly plan",
     enrollmentLabel: "Enrollment fee",
     enrollmentNone: "None (0)",
+    fromCohortDefault: "Cohort default",
     chargeBasisLabel: "Charge basis",
     advanceLabel: "Advance payments",
     advanceYes: "Yes",
@@ -83,6 +84,9 @@ describe("AcademicSectionFeesPanel", () => {
         feePlansDict={{ title: "Monthly fee plans", effectiveFromShort: "From" } as never}
         systemCurrency="CLP"
         enrollmentFeeAmount={50}
+        storedEnrollmentFeeAmount={50}
+        cohortDefaultEnrollmentFeeAmount={null}
+        cohortDefaultMonthlyFee={null}
         enrollmentFeeDict={enrollmentFeeDict as never}
         chargeMode="prorate_by_classes"
         monthlyFeeChargeModeDict={monthlyFeeChargeModeDict as never}

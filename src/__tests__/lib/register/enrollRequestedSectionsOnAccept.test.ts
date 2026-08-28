@@ -41,4 +41,30 @@ describe("enrollRequestedSectionsOnAccept", () => {
       }),
     );
   });
+
+  it("inserts the enrollment when the caller is the service-role client", async () => {
+    buildPreview.mockResolvedValue({ ok: true });
+    const inserted: Record<string, unknown>[] = [];
+    const admin = {
+      from: (table: string) => {
+        if (table !== "section_enrollments") return {};
+        return {
+          insert: (row: Record<string, unknown>) => {
+            inserted.push(row);
+            return Promise.resolve({ error: null });
+          },
+        };
+      },
+    };
+    const pending = await enrollRequestedSectionsOnAccept(admin as never, "stu", [A], {
+      serviceRole: true,
+    });
+    expect(pending).toEqual([]);
+    expect(commitRpc).not.toHaveBeenCalled();
+    expect(inserted[0]).toMatchObject({
+      section_id: A,
+      student_id: "stu",
+      status: "active",
+    });
+  });
 });

@@ -12,6 +12,7 @@ import {
   assertNoOverlappingSettlement,
   loadEnrollmentForSettlement,
   preflightSettlementPaymentsNotBlocked,
+  resolveSettlementEnrollmentFeeAmount,
 } from "@/lib/billing/annualTuitionSettlementSupport";
 
 export type { AnnualTuitionSettlementApplyResult, AnnualTuitionSettlementErrorCode } from "@/lib/billing/annualTuitionSettlementTypes";
@@ -35,7 +36,7 @@ export async function applyAnnualTuitionSettlement(
     return { ok: false, code: "overlap" };
   }
 
-  const feeListRaw = Number(enr.academic_sections?.enrollment_fee_amount ?? 0);
+  const feeListRaw = resolveSettlementEnrollmentFeeAmount(enr);
   const enrollmentFeeList =
     input.includesEnrollmentFee && !enr.enrollment_fee_exempt ? Math.max(0, feeListRaw) : 0;
 

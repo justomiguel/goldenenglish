@@ -12,6 +12,11 @@ import {
   ADMIN_USERS_DIRECTORY_EXCLUDED_PROFILE_IDS,
   ADMIN_USERS_DIRECTORY_EXCLUDED_ROLE,
 } from "@/lib/dashboard/adminUsersDirectoryExclusions";
+import {
+  emptyAdminStudentDirectoryExtras,
+  loadAdminStudentDirectoryExtras,
+} from "@/lib/dashboard/loadAdminStudentDirectoryExtras";
+import { loadAdminTeacherDirectorySections } from "@/lib/dashboard/loadAdminTeacherDirectorySections";
 
 const PROFILE_COLUMNS = "id, role, first_name, last_name, phone, avatar_url";
 
@@ -97,17 +102,31 @@ export async function loadPaginatedAdminUsers(
   const profiles = (dataResult.data ?? []) as Array<Record<string, unknown>>;
   const profileIds = profiles.map((p: Record<string, unknown>) => p.id as string);
 
+  const loadStudentExtras = roleFilter === "student";
+  const loadTeacherSections = roleFilter === "teacher";
   const emailById = new Map<string, string>();
-  await Promise.all(
-    profileIds.map(async (id) => {
-      const { data } = await adminClient.auth.admin.getUserById(id);
-      if (data?.user?.email) {
-        emailById.set(id, data.user.email);
-      }
-    }),
-  );
+  if (!loadStudentExtras) {
+    await Promise.all(
+      profileIds.map(async (id) => {
+        const { data } = await adminClient.auth.admin.getUserById(id);
+        if (data?.user?.email) {
+          emailById.set(id, data.user.email);
+        }
+      }),
+    );
+  }
 
-  const sectionSet = await loadActiveEnrollmentSet(adminClient, profileIds);
+  const [sectionSet, extras, teacherSections] = await Promise.all([
+    loadStudentExtras || loadTeacherSections
+      ? Promise.resolve(new Set<string>())
+      : loadActiveEnrollmentSet(adminClient, profileIds),
+    loadStudentExtras
+      ? loadAdminStudentDirectoryExtras(adminClient, profileIds)
+      : Promise.resolve(emptyAdminStudentDirectoryExtras()),
+    loadTeacherSections
+      ? loadAdminTeacherDirectorySections(adminClient, profileIds)
+      : Promise.resolve(new Map()),
+  ]);
 
   const rows: AdminUserRow[] = await Promise.all(
     profiles.map(async (p: Record<string, unknown>) => {
@@ -117,6 +136,9 @@ export async function loadPaginatedAdminUsers(
         adminClient,
         p.avatar_url as string | null,
       );
+      const sections = loadTeacherSections
+        ? (teacherSections.get(id) ?? [])
+        : (extras.sectionsByStudent.get(id) ?? []);
       return {
         id,
         email: emailById.get(id) ?? emptyValue,
@@ -126,7 +148,11 @@ export async function loadPaginatedAdminUsers(
         phone: (p.phone as string)?.trim() || emptyValue,
         avatarDisplayUrl,
         missingSection:
-          role.toLowerCase() === "student" && !sectionSet.has(id),
+          role.toLowerCase() === "student" &&
+          (loadStudentExtras ? sections.length === 0 : !sectionSet.has(id)),
+        sections,
+        parents: extras.parentsByStudent.get(id) ?? [],
+        monthlyDue: extras.monthlyDueByStudent.get(id) ?? [],
       };
     }),
   );
@@ -156,3 +182,4 @@ async function loadActiveEnrollmentSet(
     (data ?? []).map((r) => String((r as { student_id: string }).student_id)),
   );
 }
+

@@ -101,6 +101,7 @@ export async function createAcademicSectionAction(input: {
         max_students: maxStudents,
         allow_advance_monthly_payment: true,
         monthly_fee_charge_mode: "full_month_fee",
+        enrollment_fee_amount: null,
       })
       .select("id")
       .single();

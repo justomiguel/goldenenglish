@@ -7,6 +7,7 @@ import type { AppSurface } from "@/hooks/useAppSurface";
 import type { AdminUserDetailVM } from "@/lib/dashboard/adminUserDetailVM";
 import type { AdminStudentBillingTabData } from "@/types/adminStudentBilling";
 import { AdminBackLink } from "@/components/dashboard/AdminBackLink";
+import { adminPersonRecordListHref } from "@/lib/dashboard/adminPersonRecordListHref";
 import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import { AdminUserDetailPanel } from "@/components/dashboard/AdminUserDetailPanel";
 import type { StudentCareNotes } from "@/lib/students/care/loadStudentCareNotes";
@@ -39,7 +40,10 @@ export function AdminUserDetailPwa({
     <PwaPageShell surface={surface}>
       <div className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
         <div className="mx-auto max-w-[var(--layout-max-width)] space-y-4 py-2">
-          <AdminBackLink href={`/${locale}/dashboard/admin/users`} title={labels.tipDetailBack}>
+          <AdminBackLink
+            href={adminPersonRecordListHref(locale, detail.role)}
+            title={labels.tipDetailBack}
+          >
             {labels.detailBack}
           </AdminBackLink>
           <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailLead}</p>

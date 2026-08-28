@@ -179,7 +179,7 @@ describe("RegisterForm in enrollment-link mode", () => {
     expect(await screen.findByLabelText("Email")).toBeInTheDocument();
     await user.type(screen.getByLabelText("Email"), "ana@example.com");
     await user.type(screen.getByLabelText("Teléfono"), "3624000000");
-    await user.click(screen.getByRole("checkbox", { name: "Ciclo — B" }));
+    await user.selectOptions(screen.getByRole("combobox", { name: "Sección" }), link.sectionId);
     await user.click(screen.getByRole("button", { name: "Enviar" }));
 
     expect(submitSectionLinkRegistration).not.toHaveBeenCalled();

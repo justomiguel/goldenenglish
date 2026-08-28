@@ -40,6 +40,9 @@ const userRow: AdminUserRow = {
   phone: "+1",
   avatarDisplayUrl: null,
   missingSection: false,
+  sections: [],
+  parents: [],
+  monthlyDue: [],
 };
 
 describe("admin PWA smoke", () => {
@@ -58,6 +61,7 @@ describe("admin PWA smoke", () => {
         onDelete={() => {}}
         onMarkContacted={() => {}}
         onRevertToNew={() => {}}
+        onStartEnrollmentFee={() => {}}
       />,
     );
     expect(screen.getByText("B A")).toBeInTheDocument();
@@ -84,6 +88,7 @@ describe("admin PWA smoke", () => {
         onDelete={() => {}}
         onMarkContacted={() => {}}
         onRevertToNew={() => {}}
+        onStartEnrollmentFee={() => {}}
         emptyMessage="none"
         pagination={{
           page: 1,
@@ -117,6 +122,7 @@ describe("admin PWA smoke", () => {
         onDelete={() => {}}
         onMarkContacted={() => {}}
         onRevertToNew={() => {}}
+        onStartEnrollmentFee={() => {}}
         emptyMessage="none"
         pagination={{
           page: 1,

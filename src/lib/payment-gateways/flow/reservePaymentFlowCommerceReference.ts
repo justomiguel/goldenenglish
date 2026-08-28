@@ -78,3 +78,22 @@ export async function reservePaymentFlowCommerceReferenceForBundle(
 
   return { ok: true, commerceRef: data.trim() };
 }
+
+/** Reserves a MAT-yyyy-serial Flow commerceOrder mapped to a pre-inscription lead. */
+export async function reservePaymentFlowCommerceReferenceForEnrollment(
+  admin: SupabaseClient,
+  registrationId: string,
+): Promise<{ ok: true; commerceRef: string } | { ok: false }> {
+  const { data, error } = await admin.rpc("payment_flow_reserve_commerce_ref_enrollment", {
+    p_registration_id: registrationId,
+  });
+
+  if (error || typeof data !== "string" || data.trim().length < 12) {
+    logSupabaseClientError("reservePaymentFlowCommerceReferenceForEnrollment:rpc", error ?? {}, {
+      registration_id: registrationId,
+    });
+    return { ok: false };
+  }
+
+  return { ok: true, commerceRef: data.trim() };
+}

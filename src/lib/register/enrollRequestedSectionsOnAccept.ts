@@ -13,6 +13,7 @@ export async function enrollRequestedSectionsOnAccept(
   admin: SupabaseClient,
   studentId: string,
   sectionIds: string[],
+  options?: { serviceRole?: boolean },
 ): Promise<string[]> {
   const pending: string[] = [];
   const seen = new Set<string>();
@@ -30,6 +31,16 @@ export async function enrollRequestedSectionsOnAccept(
     if (!preview.ok) {
       if (preview.code === "ALREADY_ACTIVE") continue;
       pending.push(sectionId);
+      continue;
+    }
+
+    if (options?.serviceRole) {
+      const { error } = await admin.from("section_enrollments").insert({
+        section_id: sectionId,
+        student_id: studentId,
+        status: "active",
+      });
+      if (error) pending.push(sectionId);
       continue;
     }
 

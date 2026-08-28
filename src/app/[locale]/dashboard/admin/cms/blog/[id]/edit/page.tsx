@@ -12,6 +12,7 @@ import { blogAttachmentsToDraftMaterials } from "@/lib/blog/mapDraftMaterials";
 import { parseBlogAttachmentsFromDb } from "@/lib/blog/attachments";
 import { canDeleteArticle } from "@/lib/blog/permissions";
 import { resolveBlogArticleAdminShareLinks } from "@/lib/blog/server/resolveBlogArticleAdminShareLinks";
+import { blogEditorNativeLocale } from "@/lib/blog/blogEditorNativeLocale";
 import { BLOG_LOCALES, type BlogLocale } from "@/lib/blog/domain";
 
 export const metadata: Metadata = {
@@ -37,7 +38,7 @@ export default async function AdminBlogEditPage({ params }: PageProps) {
 
   const { data: article } = await supabase
     .from("blog_articles")
-    .select("id, status, tags, is_pinned, scheduled_for, default_locale")
+    .select("id, status, tags, is_pinned, scheduled_for")
     .eq("id", id)
     .maybeSingle();
   if (!article) redirect(`/${locale}/dashboard/admin/cms/blog`);
@@ -71,7 +72,7 @@ export default async function AdminBlogEditPage({ params }: PageProps) {
 
   const dict = await getDictionary(locale);
   const credentials = await loadGoogleTranslateCredentials(supabase);
-  const defaultLocale = (article.default_locale as BlogLocale) ?? "es";
+  const defaultLocale = blogEditorNativeLocale();
 
   const slugsByLocale = Object.fromEntries(
     (translationRows ?? []).map((row) => [row.locale as BlogLocale, row.slug]),

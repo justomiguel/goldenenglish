@@ -78,6 +78,7 @@ export async function loadAdminSectionCollectionsView(
       sectionEnrollmentFeeAmount: meta.enrollmentFeeAmount,
       monthlyFeeChargeMode: meta.monthlyFeeChargeMode,
       allowAdvanceMonthlyPayment: meta.allowAdvanceMonthlyPayment,
+      cohortDefaultMonthlyFee: meta.cohortDefaultMonthlyFee,
       sectionBillingMode,
     });
   }
@@ -193,6 +194,7 @@ export async function loadAdminSectionCollectionsView(
     sectionEnrollmentFeeAmount: meta.enrollmentFeeAmount,
     monthlyFeeChargeMode: meta.monthlyFeeChargeMode,
     sectionBillingMode,
+    cohortDefaultMonthlyFee: meta.cohortDefaultMonthlyFee,
   });
 }
 

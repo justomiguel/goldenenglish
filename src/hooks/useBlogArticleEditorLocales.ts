@@ -8,7 +8,7 @@ import {
   type BlogEditorTranslationDraft,
 } from "@/lib/blog/blogEditorTranslationDraft";
 import type { AdminGlobalDraftMaterial } from "@/components/admin/AdminGlobalContentMaterialsPanel";
-import { applyMediaInsertToOtherLocaleBodies } from "@/lib/learning-content/insertRichEditorMediaAtBlockIndex";
+import { applyMediaInsertToAllLocaleBodies } from "@/lib/learning-content/insertRichEditorMediaAtBlockIndex";
 import type { MediaSyncToAllLocalesPayload } from "@/lib/learning-content/insertAcademicEditorMedia";
 import { BLOG_LOCALES, type BlogLocale } from "@/lib/blog/domain";
 
@@ -58,30 +58,24 @@ export function useBlogArticleEditorLocales({
   const syncMediaToAllLocales = useCallback(
     ({ insertHtml, blockIndex }: MediaSyncToAllLocalesPayload) => {
       setTranslationsMap((prev) =>
-        applyMediaInsertToOtherLocaleBodies(
-          prev,
-          BLOG_LOCALES,
-          editingLocale,
-          blockIndex,
-          insertHtml,
-        ),
+        applyMediaInsertToAllLocaleBodies(prev, [editingLocale], blockIndex, insertHtml),
       );
     },
     [editingLocale],
   );
 
-  const appendMaterialToAllLocales = useCallback((material: AdminGlobalDraftMaterial) => {
-    setTranslationsMap((prev) => {
-      const next = { ...prev };
-      for (const locale of BLOG_LOCALES) {
-        next[locale] = {
-          ...next[locale],
-          materials: [...next[locale].materials, { ...material, id: crypto.randomUUID() }],
-        };
-      }
-      return next;
-    });
-  }, []);
+  const appendMaterialToAllLocales = useCallback(
+    (material: AdminGlobalDraftMaterial) => {
+      setTranslationsMap((prev) => ({
+        ...prev,
+        [editingLocale]: {
+          ...prev[editingLocale],
+          materials: [...prev[editingLocale].materials, { ...material, id: crypto.randomUUID() }],
+        },
+      }));
+    },
+    [editingLocale],
+  );
 
   const switchEditingLocale = useCallback((nextLocale: BlogLocale) => {
     setEditingLocale(nextLocale);
@@ -105,8 +99,9 @@ export function useBlogArticleEditorLocales({
   );
 
   const savableTranslations = useMemo(
-    () => buildSavableBlogTranslations(translationsMap),
-    [translationsMap],
+    () =>
+      buildSavableBlogTranslations(translationsMap).filter((row) => row.locale === editingLocale),
+    [translationsMap, editingLocale],
   );
 
   const localeHasContent = useMemo(

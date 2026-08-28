@@ -17,6 +17,7 @@ import {
   MessageCircle,
   Newspaper,
   Percent,
+  Presentation,
   Rocket,
   ScrollText,
   Settings,
@@ -55,7 +56,7 @@ export type AdminSurfaceIconId = (typeof ADMIN_SURFACE_ICON_IDS)[number];
 const ICONS: Record<AdminSurfaceIconId, typeof Home> = {
   home: Home,
   students: GraduationCap,
-  teachers: Users,
+  teachers: Presentation,
   registrations: ClipboardList,
   academic: CalendarDays,
   finance: Banknote,

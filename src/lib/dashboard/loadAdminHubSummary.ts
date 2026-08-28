@@ -1,5 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { countRegistrationInboxBuckets } from "@/lib/register/countRegistrationInboxBuckets";
+import {
+  parseRegistrationIntakeState,
+  snapshotTotalFromUnknown,
+} from "@/lib/register/registrationIntake";
 import {
   mapAdminTrafficDailyStacked,
   trafficWeekOverWeekFromDaily,
@@ -26,6 +31,7 @@ export interface AdminHubSummary {
   };
   registrations: {
     newCount: number;
+    awaitingFeeCount: number;
     totalCount: number;
   };
   studentsWithoutSection: number;
@@ -56,8 +62,7 @@ export async function loadAdminHubSummary(
     dailyResult,
     profileCountsResult,
     paymentsResult,
-    registrationsNewResult,
-    registrationsTotalResult,
+    registrationsInboxResult,
     messagesResult,
   ] = await Promise.all([
     supabase.rpc("admin_traffic_summary", { p_days: 30 }),
@@ -69,11 +74,8 @@ export async function loadAdminHubSummary(
       .eq("status", "pending"),
     supabase
       .from("registrations")
-      .select("id", { head: true, count: "exact" })
-      .eq("status", "new"),
-    supabase
-      .from("registrations")
-      .select("id", { head: true, count: "exact" }),
+      .select("status, intake_state, fee_snapshot")
+      .neq("status", "enrolled"),
     loadMessagesSummary(supabase, adminUserId),
   ]);
 
@@ -101,12 +103,32 @@ export async function loadAdminHubSummary(
     payments: {
       pendingCount: paymentsResult.count ?? 0,
     },
-    registrations: {
-      newCount: registrationsNewResult.count ?? 0,
-      totalCount: registrationsTotalResult.count ?? 0,
-    },
+    registrations: countHubRegistrationBuckets(registrationsInboxResult.data),
     studentsWithoutSection: pc.students_without_section,
     messages: messagesResult,
+  };
+}
+
+function countHubRegistrationBuckets(raw: unknown): AdminHubSummary["registrations"] {
+  const rows = Array.isArray(raw)
+    ? raw.map((row) => {
+        const typed = row as {
+          status?: unknown;
+          intake_state?: unknown;
+          fee_snapshot?: unknown;
+        };
+        return {
+          status: String(typed.status ?? ""),
+          intakeState: parseRegistrationIntakeState(typed.intake_state),
+          snapshotTotal: snapshotTotalFromUnknown(typed.fee_snapshot),
+        };
+      })
+    : [];
+  const { urgentCount, awaitingFeeCount } = countRegistrationInboxBuckets(rows);
+  return {
+    newCount: urgentCount,
+    awaitingFeeCount,
+    totalCount: urgentCount + awaitingFeeCount,
   };
 }
 

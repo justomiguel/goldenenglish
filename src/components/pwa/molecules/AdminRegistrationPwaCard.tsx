@@ -9,7 +9,10 @@ import { RegistrationExistingStudentBadge } from "@/components/dashboard/Registr
 import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
-import { registrationIsActionable } from "@/lib/register/registrationIsActionable";
+import { canStartRegistrationEnrollmentFeeFlow } from "@/lib/register/canStartRegistrationEnrollmentFeeFlow";
+import { registrationInboxPrimaryKind } from "@/lib/register/registrationInboxPrimaryKind";
+import { AdminRegistrationIntakeActions } from "@/components/dashboard/AdminRegistrationIntakeActions";
+import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import { AdminRegistrationNagoExtras } from "@/components/dashboard/AdminRegistrationNagoExtras";
 import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
 
@@ -28,6 +31,10 @@ export interface AdminRegistrationPwaCardProps {
   onDelete: (row: AdminRegistrationRow) => void;
   onMarkContacted: (row: AdminRegistrationRow) => void;
   onRevertToNew: (row: AdminRegistrationRow) => void;
+  onStartEnrollmentFee: (row: AdminRegistrationRow) => void;
+  currentCohortSections?: CurrentCohortSection[];
+  onBusy?: (id: string | null) => void;
+  onIntakeDone?: () => void;
 }
 
 export function AdminRegistrationPwaCard({
@@ -43,8 +50,13 @@ export function AdminRegistrationPwaCard({
   onDelete,
   onMarkContacted,
   onRevertToNew,
+  onStartEnrollmentFee,
+  currentCohortSections,
+  onBusy,
+  onIntakeDone,
 }: AdminRegistrationPwaCardProps) {
-  const canAccept = registrationIsActionable(r.status);
+  const canAccept = registrationInboxPrimaryKind(r) === "accept";
+  const canStartFee = canStartRegistrationEnrollmentFeeFlow(r);
   const isPending = r.status === "new";
   const birthDisplay =
     formatCivilIsoDateForDisplay(locale, r.birth_date, {
@@ -60,7 +72,14 @@ export function AdminRegistrationPwaCard({
     "min-h-[44px] border-2 border-[var(--color-error)] bg-[var(--color-surface)] p-0 text-[var(--color-error)] shadow-sm hover:bg-[color-mix(in_srgb,var(--color-error)_10%,var(--color-surface))] hover:text-[var(--color-error)] focus-visible:ring-2 focus-visible:ring-[var(--color-error)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-background)]";
 
   return (
-    <li className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-sm">
+    <li
+      className={
+        r.requestedSectionFull
+          ? "rounded-[var(--layout-border-radius)] border border-[var(--color-error)] bg-[color-mix(in_srgb,var(--color-error)_12%,var(--color-background))] p-3 shadow-sm"
+          : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-3 shadow-sm"
+      }
+      aria-label={r.requestedSectionFull ? labels.requestedSectionFullAria : undefined}
+    >
       <div className="space-y-2">
         <p className="break-words font-medium text-[var(--color-foreground)]">
           {formatProfileNameSurnameFirst(r.first_name, r.last_name)}
@@ -139,6 +158,17 @@ export function AdminRegistrationPwaCard({
           locale={locale}
           labels={labels}
         />
+        {onBusy && onIntakeDone ? (
+          <AdminRegistrationIntakeActions
+            locale={locale}
+            row={r}
+            labels={labels.intake}
+            sections={currentCohortSections ?? []}
+            busy={busy}
+            onBusy={onBusy}
+            onDone={onIntakeDone}
+          />
+        ) : null}
         <button
           type="button"
           className="min-h-[44px] text-sm underline decoration-dotted underline-offset-2 disabled:opacity-50"
@@ -148,6 +178,19 @@ export function AdminRegistrationPwaCard({
         >
           {isPending ? labels.markContacted : labels.revertToNew}
         </button>
+        {canStartFee ? (
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            className="min-h-[44px] w-full"
+            title={labels.startEnrollmentFeeFlowTip}
+            disabled={busy}
+            onClick={() => onStartEnrollmentFee(r)}
+          >
+            {labels.startEnrollmentFeeFlow}
+          </Button>
+        ) : null}
         <div
           className={
             canAccept

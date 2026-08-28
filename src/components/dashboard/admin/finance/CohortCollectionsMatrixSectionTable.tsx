@@ -2,10 +2,8 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { SectionCollectionsStudentRow, SectionCollectionsView } from "@/types/sectionCollections";
-import {
-  formatCohortCollectionsMoney,
-  scholarshipDiscountForCohortMatrixPeriod,
-} from "@/lib/dashboard/cohortCollectionsMatrixSectionHelpers";
+import { resolveMatrixScholarshipMarks } from "@/lib/billing/resolveMatrixScholarshipMarks";
+import { formatCohortCollectionsMoney } from "@/lib/dashboard/cohortCollectionsMatrixSectionHelpers";
 import { SectionCollectionsEnrollmentFeeCell } from "./SectionCollectionsEnrollmentFeeCell";
 import { SectionCollectionsMonthCell } from "./SectionCollectionsMonthCell";
 import { SectionCollectionsStudentBenefits } from "./SectionCollectionsStudentBenefits";
@@ -68,7 +66,13 @@ export function CohortCollectionsMatrixSectionTable({
         </tr>
       </thead>
       <tbody>
-        {visibleRows.map((s) => (
+        {visibleRows.map((s) => {
+          const scholarshipMarks = resolveMatrixScholarshipMarks({
+            scholarships: s.scholarships,
+            year: view.year,
+            cells: s.row.cells,
+          });
+          return (
             <tr key={s.studentId} className="border-t border-[var(--color-border)]/60">
               <th
                 scope="row"
@@ -98,6 +102,7 @@ export function CohortCollectionsMatrixSectionTable({
                   student={s}
                   labels={collectionsDict.benefits}
                   locale={locale}
+                  year={view.year}
                 />
               </th>
               {showEnrollmentFeeColumn ? (
@@ -119,11 +124,9 @@ export function CohortCollectionsMatrixSectionTable({
                     monthLabel={monthShort[cell.month - 1] ?? String(cell.month)}
                     todayMonth={view.todayMonth}
                     year={view.year}
-                    scholarshipDiscountPercent={scholarshipDiscountForCohortMatrixPeriod(
-                      s,
-                      cell.year,
-                      cell.month,
-                    )}
+                    scholarshipDiscountPercent={
+                      scholarshipMarks.percentByMonth[cell.month - 1]
+                    }
                     ariaPrefix={s.studentName}
                     locale={locale}
                     labels={collectionsDict.monthCell}
@@ -141,7 +144,8 @@ export function CohortCollectionsMatrixSectionTable({
                 {formatCohortCollectionsMoney(s.overdue, locale, currency)}
               </td>
             </tr>
-        ))}
+          );
+        })}
       </tbody>
     </table>
   );

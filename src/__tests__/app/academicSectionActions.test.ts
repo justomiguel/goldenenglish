@@ -97,6 +97,7 @@ describe("academic section actions", () => {
         ends_on: "2026-06-30",
         allow_advance_monthly_payment: true,
         monthly_fee_charge_mode: "full_month_fee",
+        enrollment_fee_amount: null,
         schedule_slots: [
           { dayOfWeek: 1, startTime: "08:00", endTime: "09:00" },
           { dayOfWeek: 4, startTime: "18:00", endTime: "19:00" },

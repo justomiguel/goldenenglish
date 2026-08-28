@@ -177,7 +177,7 @@ const summary: AdminHubSummary = {
   trafficWeekOverWeek: { thisWeek: 1, lastWeek: 1 },
   users: { total: 1, byRole: [{ role: "student", count: 1 }] },
   payments: { pendingCount: 0 },
-  registrations: { newCount: 0, totalCount: 0 },
+  registrations: { newCount: 0, awaitingFeeCount: 0, totalCount: 0 },
   studentsWithoutSection: 0,
   messages: { recentCount: 0, latestPreview: null },
 };

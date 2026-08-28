@@ -123,6 +123,9 @@ export async function runCreateDashboardUserInviteAuthAttempts(
       password: finalPassword,
       email_confirm: true,
       user_metadata: meta,
+      ...(inviteProfile.role === "student" && !creatingMinorStudent
+        ? { app_metadata: { must_change_password: true } }
+        : {}),
     });
 
     if (!error && created?.user) {

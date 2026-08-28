@@ -15,13 +15,30 @@ import {
 type UseAcademicEditorMediaInsertArgs = {
   editor: Editor | null;
   onImageUpload: (file: File) => Promise<{ src: string; alt: string } | null>;
+  onImagesUpload?: (
+    files: File[],
+  ) => Promise<Array<{ src: string; alt: string } | null>>;
   mediaAttach?: BlogEditorMediaAttachConfig;
   syncMediaToAllLocales?: (payload: MediaSyncToAllLocalesPayload) => void;
 };
 
+function insertUploaded(
+  editor: Editor,
+  uploadedMedia: { url: string; label: string; contentType: string },
+  syncMediaToAllLocales: ((payload: MediaSyncToAllLocalesPayload) => void) | undefined,
+  blockIndex: number,
+) {
+  const insertHtml = buildUploadedMediaInsertHtml(uploadedMedia);
+  insertUploadedMediaInEditor(editor, uploadedMedia);
+  if (syncMediaToAllLocales) {
+    syncMediaToAllLocales({ insertHtml, blockIndex });
+  }
+}
+
 export function useAcademicEditorMediaInsert({
   editor,
   onImageUpload,
+  onImagesUpload,
   mediaAttach,
   syncMediaToAllLocales,
 }: UseAcademicEditorMediaInsertArgs) {
@@ -34,23 +51,41 @@ export function useAcademicEditorMediaInsert({
     input.onchange = async () => {
       const blockIndex = getTopLevelBlockIndex(editor);
       const files = input.files ? Array.from(input.files) : [];
+      if (onImagesUpload) {
+        const uploadedList = await onImagesUpload(files);
+        uploadedList.forEach((uploaded, index) => {
+          const file = files[index];
+          if (!uploaded || !file) return;
+          insertUploaded(
+            editor,
+            {
+              url: uploaded.src,
+              label: uploaded.alt,
+              contentType: file.type || "image/jpeg",
+            },
+            syncMediaToAllLocales,
+            blockIndex,
+          );
+        });
+        return;
+      }
       for (const file of files) {
         const uploaded = await onImageUpload(file);
         if (!uploaded) continue;
-        const uploadedMedia = {
-          url: uploaded.src,
-          label: uploaded.alt,
-          contentType: file.type || "image/jpeg",
-        };
-        const insertHtml = buildUploadedMediaInsertHtml(uploadedMedia);
-        insertUploadedMediaInEditor(editor, uploadedMedia);
-        if (syncMediaToAllLocales) {
-          syncMediaToAllLocales({ insertHtml, blockIndex });
-        }
+        insertUploaded(
+          editor,
+          {
+            url: uploaded.src,
+            label: uploaded.alt,
+            contentType: file.type || "image/jpeg",
+          },
+          syncMediaToAllLocales,
+          blockIndex,
+        );
       }
     };
     input.click();
-  }, [editor, onImageUpload, syncMediaToAllLocales]);
+  }, [editor, onImageUpload, onImagesUpload, syncMediaToAllLocales]);
 
   const addMediaFile = useCallback(async () => {
     if (!editor || !mediaAttach) return;
@@ -62,20 +97,28 @@ export function useAcademicEditorMediaInsert({
     input.onchange = async () => {
       const blockIndex = getTopLevelBlockIndex(editor);
       const files = input.files ? Array.from(input.files) : [];
-      for (const file of files) {
-        const uploaded = await mediaAttach.onMediaFileUpload(file);
-        if (!uploaded) continue;
-        const uploadedMedia = {
-          url: uploaded.src,
-          label: uploaded.label,
-          contentType: uploaded.contentType,
-        };
-        const insertHtml = buildUploadedMediaInsertHtml(uploadedMedia);
-        insertUploadedMediaInEditor(editor, uploadedMedia);
-        if (syncMediaToAllLocales) {
-          syncMediaToAllLocales({ insertHtml, blockIndex });
+      const uploadedList = mediaAttach.onMediaFilesUpload
+        ? await mediaAttach.onMediaFilesUpload(files)
+        : [];
+      if (!mediaAttach.onMediaFilesUpload) {
+        for (const file of files) {
+          uploadedList.push(await mediaAttach.onMediaFileUpload(file));
         }
       }
+      uploadedList.forEach((uploaded, index) => {
+        const file = files[index];
+        if (!uploaded || !file) return;
+        insertUploaded(
+          editor,
+          {
+            url: uploaded.src,
+            label: uploaded.label,
+            contentType: uploaded.contentType,
+          },
+          syncMediaToAllLocales,
+          blockIndex,
+        );
+      });
     };
     input.click();
   }, [editor, mediaAttach, syncMediaToAllLocales]);

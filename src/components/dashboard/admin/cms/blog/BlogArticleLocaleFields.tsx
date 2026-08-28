@@ -2,7 +2,9 @@
 
 import { BlogArticleBodyEditor } from "@/components/dashboard/admin/cms/blog/BlogArticleBodyEditor";
 import { BlogArticleMaterialsSection } from "@/components/dashboard/admin/cms/blog/BlogArticleMaterialsSection";
+import { BlockingFileUploadModal } from "@/components/molecules/BlockingFileUploadModal";
 import type { AdminGlobalDraftMaterial } from "@/components/admin/AdminGlobalContentMaterialsPanel";
+import { useBlogArticleMediaUpload } from "@/hooks/useBlogArticleMediaUpload";
 import type { Dictionary } from "@/types/i18n";
 import type { ContentMaterialsPanelLabels } from "@/types/contentMaterialsPanelLabels";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
@@ -47,6 +49,21 @@ export function BlogArticleLocaleFields({
   syncMaterialToAllLocales,
   onError,
 }: BlogArticleLocaleFieldsProps) {
+  const { isUploading, snapshot, uploadOne, uploadMany } = useBlogArticleMediaUpload({
+    articleId,
+    fileErrorLabel: labels.fileError,
+    onError,
+  });
+
+  const fileIndex =
+    snapshot && snapshot.total > 1
+      ? fileUploadProgress.fileIndex
+          .replaceAll("{current}", String(snapshot.current))
+          .replaceAll("{total}", String(snapshot.total))
+      : null;
+  const uploading = snapshot?.phase === "uploading";
+  const percent = snapshot?.percent ?? null;
+
   return (
     <div className="grid gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
       <label className="grid gap-1 text-sm" data-tour={ADMIN_TOUR_ANCHORS.blogEditorTitle}>
@@ -70,23 +87,38 @@ export function BlogArticleLocaleFields({
           bodyLabel={labels.body}
           editorLabels={labels}
           academicLabels={academicLabels}
-          articleId={articleId}
           bodyHtml={bodyHtml}
           onBodyHtmlChange={onBodyHtmlChange}
+          onUploadFile={uploadOne}
+          onUploadFiles={uploadMany}
           syncMediaToAllLocales={syncMediaToAllLocales}
-          onError={onError}
         />
       </div>
       <BlogArticleMaterialsSection
-        articleId={articleId}
         labels={materialsLabels}
         fileUploadProgress={fileUploadProgress}
-        fileErrorLabel={labels.fileError}
         materials={materials}
+        isUploading={isUploading}
         syncMaterialToAllLocales={syncMaterialToAllLocales}
         onMaterialsChange={onMaterialsChange}
-        onError={onError}
+        onUploadFiles={uploadMany}
       />
+      {snapshot ? (
+        <BlockingFileUploadModal
+          open
+          title={fileUploadProgress.modalTitle}
+          filename={snapshot.filename}
+          fileIndex={fileIndex}
+          phaseLabel={
+            uploading
+              ? fileUploadProgress.progressSending
+              : fileUploadProgress.progressReading
+          }
+          percent={percent}
+          indeterminate={percent === null}
+          runningAriaLabel={fileUploadProgress.loadingAria}
+        />
+      ) : null}
     </div>
   );
 }

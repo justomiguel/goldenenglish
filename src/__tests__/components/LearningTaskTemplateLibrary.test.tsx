@@ -52,7 +52,13 @@ describe("LearningTaskTemplateLibrary", () => {
         locale="en"
         labels={labels}
         templates={[{ id: "template-1", title: "Lesson", updatedAt: "2026-04-20T00:00:00Z", assetCount: 0 }]}
-        fileUploadProgress={{ progressReading: "Reading…", progressSending: "Sending…" }}
+        fileUploadProgress={{
+          progressReading: "Reading…",
+          progressSending: "Sending…",
+          modalTitle: "Uploading file",
+          fileIndex: "{current} of {total}",
+          loadingAria: "Loading",
+        }}
       />,
     );
 

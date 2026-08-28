@@ -29,6 +29,8 @@ const dict = {
   saved: "Enrollment fee updated.",
   errorSave: "Could not save the enrollment fee.",
   zeroMeans: "0 means this section does not charge an enrollment fee.",
+  inheritHint: "Empty uses the cohort default ({amount}).",
+  inheritEmpty: "Leave empty to inherit the cohort default.",
 };
 
 const SECTION = "00000000-0000-4000-8000-000000000010";
@@ -77,8 +79,31 @@ describe("AcademicSectionEnrollmentFeeEditor", () => {
     const input = screen.getByLabelText(dict.amount);
     fireEvent.change(input, { target: { value: "" } });
     expect(input).toHaveValue(null);
-    expect(screen.getByRole("button", { name: dict.save })).toBeDisabled();
+    expect(screen.getByRole("button", { name: dict.save })).not.toBeDisabled();
     expect(screen.queryByText(dict.zeroMeans)).not.toBeInTheDocument();
+    expect(screen.getByText(dict.inheritEmpty)).toBeInTheDocument();
+  });
+
+  it("submits null when the field is cleared so the section inherits", async () => {
+    setActionMock.mockResolvedValue({ ok: true });
+    render(
+      <AcademicSectionEnrollmentFeeEditor
+        locale="en"
+        sectionId={SECTION}
+        initialAmount={80}
+        cohortDefaultAmount={200}
+        dict={dict}
+      />,
+    );
+    fireEvent.change(screen.getByLabelText(dict.amount), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: dict.save }));
+    await waitFor(() => {
+      expect(setActionMock).toHaveBeenCalledWith({
+        locale: "en",
+        sectionId: SECTION,
+        enrollmentFeeAmount: null,
+      });
+    });
   });
 
   it("disables the submit while pristine and enables it when the amount changes", () => {

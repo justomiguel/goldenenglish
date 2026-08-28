@@ -3,7 +3,6 @@ const UUID_RE =
 
 const INSTITUTE_PREFIXES = [
   "/calendar",
-  "/events",
   "/academic/contents",
   "/badges",
   "/coupons",
@@ -15,7 +14,6 @@ const INSTITUTE_PREFIXES = [
   "/audit",
   "/glossary",
   "/communications/templates",
-  "/users",
 ] as const;
 
 export function adminUserDetailId(pathname: string, base: string): string | null {
@@ -28,6 +26,8 @@ export function adminUserDetailId(pathname: string, base: string): string | null
 
 export function isAdminInstituteChildPath(pathname: string, base: string): boolean {
   if (adminUserDetailId(pathname, base)) return false;
+  const blog = `${base}/cms/blog`;
+  if (pathname === blog || pathname.startsWith(`${blog}/`)) return false;
   for (const suffix of INSTITUTE_PREFIXES) {
     const full = `${base}${suffix}`;
     if (pathname === full || pathname.startsWith(`${full}/`)) return true;

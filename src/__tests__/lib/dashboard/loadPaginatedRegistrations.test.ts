@@ -62,7 +62,10 @@ function makeSupabase() {
   };
 
   return {
-    supabase: { from: vi.fn(() => chain) } as never,
+    supabase: {
+      from: vi.fn(() => chain),
+      rpc: vi.fn().mockResolvedValue({ data: true, error: null }),
+    } as never,
     calls,
   };
 }
@@ -88,21 +91,31 @@ describe("loadPaginatedRegistrations", () => {
     expect(calls.eq).toContainEqual(["status", "contacted"]);
   });
 
-  it("applies the status filter to the count query too, so paging stays honest", async () => {
+  it("applies the contacted filter to the count query too, so paging stays honest", async () => {
     const { supabase, calls } = makeSupabase();
 
-    await loadPaginatedRegistrations(supabase, { status: "new" });
+    await loadPaginatedRegistrations(supabase, { status: "contacted" });
 
     const statusFilters = calls.eq.filter((c) => c[0] === "status");
     expect(statusFilters).toHaveLength(2);
   });
 
-  it("does not filter by status when none is requested", async () => {
+  it("defaults to the urgent inbox without a status equality", async () => {
     const { supabase, calls } = makeSupabase();
 
     await loadPaginatedRegistrations(supabase, {});
 
     expect(calls.eq.filter((c) => c[0] === "status")).toHaveLength(0);
+    expect(String(calls.or[0]?.[0] ?? "")).toContain("receipt_pending");
+  });
+
+  it("selects intake columns for the inbox actions", async () => {
+    const { supabase, calls } = makeSupabase();
+    await loadPaginatedRegistrations(supabase, {});
+    const selected = String(calls.select[0]?.[0] ?? "");
+    expect(selected).toContain("intake_state");
+    expect(selected).toContain("fee_snapshot");
+    expect(selected).toContain("enrollment_fee_receipt_path");
   });
 
   it("escapes wildcards in the search so a literal percent is not a wildcard", async () => {
@@ -120,6 +133,7 @@ describe("loadPaginatedRegistrations", () => {
       "22222222-2222-4222-8222-222222222222",
     ]);
     expect(result.rows[0]?.existingStudentId).toBeNull();
+    expect(result.rows[0]?.requestedSectionFull).toBe(false);
   });
 
   it("filters preferred or additional section ids together", async () => {
@@ -128,11 +142,10 @@ describe("loadPaginatedRegistrations", () => {
 
     await loadPaginatedRegistrations(supabase, { sectionId });
 
-    expect(String(calls.or[0]?.[0] ?? "")).toContain(
-      `preferred_section_id.eq.${sectionId}`,
+    const sectionOr = calls.or.map((c) => String(c[0] ?? "")).find((s) =>
+      s.includes("preferred_section_id"),
     );
-    expect(String(calls.or[0]?.[0] ?? "")).toContain(
-      `additional_section_ids.cs.{${sectionId}}`,
-    );
+    expect(sectionOr).toContain(`preferred_section_id.eq.${sectionId}`);
+    expect(sectionOr).toContain(`additional_section_ids.cs.{${sectionId}}`);
   });
 });

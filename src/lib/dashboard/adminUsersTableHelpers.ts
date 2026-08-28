@@ -2,6 +2,11 @@ import {
   compareProfileNamesByLastThenFirst,
   formatProfileNameSurnameFirst,
 } from "@/lib/profile/formatProfileDisplayName";
+import type { MonthlyDueTotal } from "@/lib/billing/sumDiscountedMonthlyDue";
+import type {
+  AdminStudentDirectoryParent,
+  AdminStudentDirectorySection,
+} from "@/lib/dashboard/loadAdminStudentDirectoryExtras";
 
 export type AdminUserRow = {
   id: string;
@@ -14,12 +19,37 @@ export type AdminUserRow = {
   avatarDisplayUrl: string | null;
   /** Student with no active `section_enrollment` (non-students: always false). */
   missingSection: boolean;
+  /** Active section enrollments (students) or lead/assistant assignments (teachers). */
+  sections: AdminStudentDirectorySection[];
+  /** Linked tutors/guardians — populated on the students directory. */
+  parents: AdminStudentDirectoryParent[];
+  /** Current-month due across active sections after scholarships. */
+  monthlyDue: MonthlyDueTotal[];
 };
 
 export type SortKey = "email" | "name" | "role" | "phone";
 export type SortDir = "asc" | "desc";
 
 export const ROLE_FILTER_ALL = "all" as const;
+
+export const EMPTY_ADMIN_STUDENT_DIRECTORY_FIELDS = {
+  sections: [] as AdminStudentDirectorySection[],
+  parents: [] as AdminStudentDirectoryParent[],
+  monthlyDue: [] as MonthlyDueTotal[],
+};
+
+export function isAdminStudentsDirectory(lockRole?: string): boolean {
+  return lockRole === "student";
+}
+
+export function isAdminTeachersDirectory(lockRole?: string): boolean {
+  return lockRole === "teacher";
+}
+
+export function adminUserRowAriaName(row: AdminUserRow): string {
+  const name = formatProfileNameSurnameFirst(row.firstName, row.lastName);
+  return name || row.email;
+}
 
 export function filterAdminUsers(
   rows: AdminUserRow[],
@@ -48,6 +78,15 @@ export function filterAdminUsers(
       row.role,
       row.phone,
       sectionSearch,
+      ...row.sections.flatMap((s) => [
+        s.name,
+        s.discountPercent != null ? `${s.discountPercent}%` : "",
+      ]),
+      ...row.parents.flatMap((p) => [
+        p.firstName,
+        p.lastName,
+        formatProfileNameSurnameFirst(p.firstName, p.lastName),
+      ]),
     ]
       .join(" ")
       .toLowerCase();

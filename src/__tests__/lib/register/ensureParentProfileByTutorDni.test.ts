@@ -56,6 +56,7 @@ describe("ensureParentProfileByTutorDni", () => {
         password: ADMIN_INVITE_DEFAULT_PASSWORD,
       }),
     );
+    expect(createUser.mock.calls[0][0].app_metadata).toBeUndefined();
   });
 
   it("fails closed with tutor_mail_tenant_missing when synthetic email needed and MAIL_TENANT unset", async () => {

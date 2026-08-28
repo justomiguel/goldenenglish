@@ -74,6 +74,78 @@ export const wardEmailChangedTemplate: EmailTemplateDefinition = {
   }),
 };
 
+const portalLinkStyle = "color:#103A5C;text-decoration:underline;font-weight:600;";
+
+export const adminStudentWelcomeTemplate: EmailTemplateDefinition = {
+  key: "notifications.admin_student_welcome",
+  category: "notifications",
+  label: {
+    es: "Alta admin: bienvenida al alumno",
+    en: "Admin create: student welcome",
+  },
+  description: {
+    es: "Cuando el admin da de alta a un alumno mayor con email real: bienvenida, acceso al portal y pedido de cambiar la contraseña.",
+    en: "When staff creates an adult student with a real email: welcome, portal access, and a password-change request.",
+  },
+  placeholders: [
+    { name: "greetingName", description: "Nombre del alumno", sample: "Luis" },
+    { name: "studentName", description: "Nombre completo del alumno", sample: "Luis Pérez" },
+    { name: "portalUrl", description: "URL de ingreso al portal", sample: "https://example.com/es/login" },
+  ],
+  defaults: withPtFallback({
+    es: {
+      subject: "Bienvenido al portal",
+      bodyHtml: `<p style="margin:0 0 12px;">Hola {{greetingName}},</p>
+<p style="margin:0 0 12px;">Ya estás inscripto. Podés entrar al portal con tu usuario.</p>
+<p style="margin:0 0 12px;">Por seguridad, debés cambiar la contraseña en el primer ingreso.</p>
+<p style="margin:0;"><a href="{{portalUrl}}" style="${portalLinkStyle}">Entrar al portal</a></p>`,
+    },
+    en: {
+      subject: "Welcome to the portal",
+      bodyHtml: `<p style="margin:0 0 12px;">Hi {{greetingName}},</p>
+<p style="margin:0 0 12px;">You are enrolled. You can sign in to the portal with your account.</p>
+<p style="margin:0 0 12px;">For security, please change your password the first time you sign in.</p>
+<p style="margin:0;"><a href="{{portalUrl}}" style="${portalLinkStyle}">Open the portal</a></p>`,
+    },
+  }),
+};
+
+export const adminTutorWelcomeTemplate: EmailTemplateDefinition = {
+  key: "notifications.admin_tutor_welcome",
+  category: "notifications",
+  label: {
+    es: "Alta admin: bienvenida al tutor",
+    en: "Admin create: guardian welcome",
+  },
+  description: {
+    es: "Cuando el admin da de alta a un menor: el tutor recibe la bienvenida, el acceso al portal familiar y el pedido de cambiar su contraseña. El alumno no se invita.",
+    en: "When staff creates a minor: the guardian gets the welcome, family-portal access, and a password-change request. The child is not invited.",
+  },
+  placeholders: [
+    { name: "greetingName", description: "Nombre del alumno (contexto)", sample: "Ana" },
+    { name: "studentName", description: "Nombre completo del alumno", sample: "Ana García" },
+    { name: "portalUrl", description: "URL de ingreso al portal", sample: "https://example.com/es/login" },
+  ],
+  defaults: withPtFallback({
+    es: {
+      subject: "Bienvenida: {{studentName}} ya está inscripto",
+      bodyHtml: `<p style="margin:0 0 12px;">Hola,</p>
+<p style="margin:0 0 12px;"><strong>{{studentName}}</strong> ya está inscripto en el instituto.</p>
+<p style="margin:0 0 12px;">Como tutor podés entrar al portal familiar para ver su información.</p>
+<p style="margin:0 0 12px;">Por seguridad, debés cambiar tu contraseña en el primer ingreso.</p>
+<p style="margin:0;"><a href="{{portalUrl}}" style="${portalLinkStyle}">Entrar al portal</a></p>`,
+    },
+    en: {
+      subject: "Welcome: {{studentName}} is enrolled",
+      bodyHtml: `<p style="margin:0 0 12px;">Hi,</p>
+<p style="margin:0 0 12px;"><strong>{{studentName}}</strong> is now enrolled at the institute.</p>
+<p style="margin:0 0 12px;">As their guardian you can sign in to the family portal to follow their progress.</p>
+<p style="margin:0 0 12px;">For security, please change your password the first time you sign in.</p>
+<p style="margin:0;"><a href="{{portalUrl}}" style="${portalLinkStyle}">Open the portal</a></p>`,
+    },
+  }),
+};
+
 export const classReminderPrepTemplate: EmailTemplateDefinition = {
   key: "notifications.class_reminder_prep",
   category: "notifications",

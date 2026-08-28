@@ -30,6 +30,8 @@ export function AdminRegistrationsTableDesktop({
   sortDir,
   statusFilter,
   statusCounts,
+  inboxFilter,
+  inboxCounts,
   legalAgeMajority,
   instituteName,
   instituteCountry,
@@ -49,6 +51,7 @@ export function AdminRegistrationsTableDesktop({
     sortKey,
     sortDir,
     statusFilter,
+    inboxFilter,
     labels,
   });
   const hdr =
@@ -79,6 +82,9 @@ export function AdminRegistrationsTableDesktop({
             statusFilter={statusFilter}
             statusCounts={statusCounts}
             onStatusFilterChange={u.setStatusFilter}
+            inboxFilter={inboxFilter}
+            inboxCounts={inboxCounts}
+            onInboxFilterChange={u.setInboxFilter}
             locale={locale}
           />
         }
@@ -167,6 +173,7 @@ export function AdminRegistrationsTableDesktop({
                 onDelete={u.setDeleteRow}
                 onMarkContacted={u.onMarkContacted}
                 onRevertToNew={u.onRevertToNew}
+                onStartEnrollmentFee={u.onStartEnrollmentFee}
               />
               {u.expandedId === r.id ? (
                 <AdminRegistrationExpandedDetails
@@ -182,6 +189,13 @@ export function AdminRegistrationsTableDesktop({
                   requestedSectionNames={requestedRegistrationSectionIds(r).map(
                     (id) => sectionNameById.get(id) ?? id,
                   )}
+                  currentCohortSections={currentCohortSections}
+                  busy={u.busyId === r.id}
+                  onBusy={u.setBusyId}
+                  onIntakeDone={() => {
+                    u.setToast(labels.acceptSuccess);
+                    u.refreshList();
+                  }}
                 />
               ) : null}
             </Fragment>

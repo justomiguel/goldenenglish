@@ -28,5 +28,10 @@ export function lockedRoleUsersParams(
   lockedRole: "student" | "teacher",
   raw: Record<string, string | string[] | undefined>,
 ): PaginatedAdminUsersParams {
-  return { ...parseAdminUsersSearchParams(raw), role: lockedRole };
+  const parsed = parseAdminUsersSearchParams(raw);
+  return {
+    ...parsed,
+    role: lockedRole,
+    sort: lockedRole === "student" ? "name" : parsed.sort,
+  };
 }

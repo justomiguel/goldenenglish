@@ -4,14 +4,41 @@ import {
   annualSettlementRangesOverlap,
   type AnnualSettlementCoverageRow,
 } from "@/lib/billing/annualSettlementPeriod";
+import {
+  parseOptionalFeeAmount,
+  resolveEffectiveEnrollmentFeeAmount,
+} from "@/lib/billing/resolveCohortFeeDefaults";
+
+type SettlementCohortRel =
+  | { default_enrollment_fee_amount?: string | number | null }
+  | { default_enrollment_fee_amount?: string | number | null }[]
+  | null;
 
 export type SettlementEnrollmentRow = {
   id: string;
   student_id: string;
   section_id: string;
   enrollment_fee_exempt: boolean;
-  academic_sections: { enrollment_fee_amount: string | number | null } | null;
+  academic_sections: {
+    enrollment_fee_amount: string | number | null;
+    academic_cohorts?: SettlementCohortRel;
+  } | null;
 };
+
+export function resolveSettlementEnrollmentFeeAmount(
+  enr: SettlementEnrollmentRow,
+): number {
+  const sec = enr.academic_sections;
+  const cohort = sec
+    ? Array.isArray(sec.academic_cohorts)
+      ? sec.academic_cohorts[0]
+      : sec.academic_cohorts
+    : null;
+  return resolveEffectiveEnrollmentFeeAmount(
+    parseOptionalFeeAmount(sec?.enrollment_fee_amount),
+    parseOptionalFeeAmount(cohort?.default_enrollment_fee_amount),
+  );
+}
 
 export async function loadEnrollmentForSettlement(
   supabase: SupabaseClient,
@@ -20,7 +47,7 @@ export async function loadEnrollmentForSettlement(
   const { data, error } = await supabase
     .from("section_enrollments")
     .select(
-      "id, student_id, section_id, enrollment_fee_exempt, academic_sections ( enrollment_fee_amount )",
+      "id, student_id, section_id, enrollment_fee_exempt, academic_sections ( enrollment_fee_amount, academic_cohorts ( default_enrollment_fee_amount ) )",
     )
     .eq("id", enrollmentId)
     .eq("status", "active")

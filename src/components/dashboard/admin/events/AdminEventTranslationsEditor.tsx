@@ -12,7 +12,7 @@ import {
 } from "@/components/molecules/UnderlineTabBar";
 import { EventDescriptionEditor } from "@/components/dashboard/admin/events/EventDescriptionEditor";
 import { EVENT_LOCALES, type EventLocale, type EventTranslationRow } from "@/lib/events/domain";
-import { applyMediaInsertToOtherEventDescriptions } from "@/lib/learning-content/insertRichEditorMediaAtBlockIndex";
+import { applyMediaInsertToAllEventDescriptions } from "@/lib/learning-content/insertRichEditorMediaAtBlockIndex";
 import type { MediaSyncToAllLocalesPayload } from "@/lib/learning-content/insertAcademicEditorMedia";
 import { mergeEventTranslations } from "@/lib/events/server/loadEventTranslations";
 import {
@@ -87,13 +87,7 @@ export function AdminEventTranslationsEditor({
 
   function syncMediaToAllLocales({ insertHtml, blockIndex }: MediaSyncToAllLocalesPayload) {
     setDraft((prev) =>
-      applyMediaInsertToOtherEventDescriptions(
-        prev,
-        EVENT_LOCALES,
-        activeLocale,
-        blockIndex,
-        insertHtml,
-      ),
+      applyMediaInsertToAllEventDescriptions(prev, EVENT_LOCALES, blockIndex, insertHtml),
     );
   }
 

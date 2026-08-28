@@ -15,6 +15,10 @@ import {
   parseMonthlyFeeChargeMode,
   type MonthlyFeeChargeMode,
 } from "@/lib/billing/monthlyFeeChargeMode";
+import {
+  parseOptionalFeeAmount,
+  resolveEffectiveEnrollmentFeeAmount,
+} from "@/lib/billing/resolveCohortFeeDefaults";
 
 export interface SectionMeta {
   id: string;
@@ -28,6 +32,7 @@ export interface SectionMeta {
   enrollmentFeeAmount: number;
   monthlyFeeChargeMode: MonthlyFeeChargeMode;
   allowAdvanceMonthlyPayment: boolean;
+  cohortDefaultMonthlyFee: number | null;
 }
 
 export interface EnrollmentRow {
@@ -92,7 +97,7 @@ export async function loadSectionMeta(
   const { data } = await supabase
     .from("academic_sections")
     .select(
-      "id, name, archived_at, cohort_id, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(id, name)",
+      "id, name, archived_at, cohort_id, starts_on, ends_on, schedule_slots, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, academic_cohorts(id, name, default_enrollment_fee_amount, default_monthly_fee)",
     )
     .eq("id", sectionId)
     .maybeSingle();
@@ -109,16 +114,24 @@ export async function loadSectionMeta(
     monthly_fee_charge_mode?: string | null;
     allow_advance_monthly_payment?: boolean | null;
     academic_cohorts:
-      | { id: string; name: string }
-      | { id: string; name: string }[]
+      | {
+          id: string;
+          name: string;
+          default_enrollment_fee_amount?: number | string | null;
+          default_monthly_fee?: number | string | null;
+        }
+      | {
+          id: string;
+          name: string;
+          default_enrollment_fee_amount?: number | string | null;
+          default_monthly_fee?: number | string | null;
+        }[]
       | null;
   };
   const row = data as Row;
   const cohort = Array.isArray(row.academic_cohorts)
     ? row.academic_cohorts[0]
     : row.academic_cohorts;
-  const rawEnrollment =
-    row.enrollment_fee_amount == null ? 0 : Number(row.enrollment_fee_amount);
   return {
     id: row.id,
     name: row.name,
@@ -128,10 +141,13 @@ export async function loadSectionMeta(
     startsOn: row.starts_on ?? "",
     endsOn: row.ends_on ?? "",
     scheduleSlots: parseSectionScheduleSlots(row.schedule_slots ?? []),
-    enrollmentFeeAmount:
-      Number.isFinite(rawEnrollment) && rawEnrollment >= 0 ? rawEnrollment : 0,
+    enrollmentFeeAmount: resolveEffectiveEnrollmentFeeAmount(
+      parseOptionalFeeAmount(row.enrollment_fee_amount),
+      parseOptionalFeeAmount(cohort?.default_enrollment_fee_amount),
+    ),
     monthlyFeeChargeMode: parseMonthlyFeeChargeMode(row.monthly_fee_charge_mode),
     allowAdvanceMonthlyPayment: row.allow_advance_monthly_payment === true,
+    cohortDefaultMonthlyFee: parseOptionalFeeAmount(cohort?.default_monthly_fee),
   };
 }
 

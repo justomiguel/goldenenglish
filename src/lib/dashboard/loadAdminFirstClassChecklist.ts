@@ -77,7 +77,7 @@ async function loadAdminFirstClassChecklistUnsafe(
       .limit(1),
     supabase
       .from("academic_sections")
-      .select("id, cohort_id, teacher_id, schedule_slots, enrollment_fee_amount, billing_mode")
+      .select("id, cohort_id, teacher_id, schedule_slots, enrollment_fee_amount, billing_mode, academic_cohorts(default_enrollment_fee_amount, default_monthly_fee)")
       .is("archived_at", null)
       .order("created_at", { ascending: true }),
     countExact(
@@ -114,6 +114,24 @@ async function loadAdminFirstClassChecklistUnsafe(
     scheduleSlots: row.schedule_slots,
     enrollmentFeeAmount: row.enrollment_fee_amount as number | string | null,
     billingMode: row.billing_mode == null ? null : String(row.billing_mode),
+    cohortDefaultEnrollmentFeeAmount: (() => {
+      const c = row.academic_cohorts as
+        | { default_enrollment_fee_amount?: number | string | null }
+        | { default_enrollment_fee_amount?: number | string | null }[]
+        | null
+        | undefined;
+      const one = Array.isArray(c) ? c[0] : c;
+      return one?.default_enrollment_fee_amount ?? null;
+    })(),
+    cohortDefaultMonthlyFee: (() => {
+      const c = row.academic_cohorts as
+        | { default_monthly_fee?: number | string | null }
+        | { default_monthly_fee?: number | string | null }[]
+        | null
+        | undefined;
+      const one = Array.isArray(c) ? c[0] : c;
+      return one?.default_monthly_fee ?? null;
+    })(),
   }));
   const extras = {
     hasMonthlyFeePlan: monthlyPlanCount > 0,

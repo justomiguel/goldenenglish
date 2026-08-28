@@ -18,6 +18,8 @@ import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import type { RegistrationSortKey, RegistrationSortDir } from "@/lib/dashboard/adminRegistrationsSort";
+import type { RegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
+import type { RegistrationInboxCounts } from "@/lib/register/countRegistrationInboxFilters";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -33,6 +35,8 @@ interface AdminRegistrationsScreenNarrowProps {
   sortDir: RegistrationSortDir;
   statusFilter?: RegistrationStatusFilter;
   statusCounts: { total: number; new: number; contacted: number };
+  inboxFilter?: RegistrationInboxFilter;
+  inboxCounts?: RegistrationInboxCounts;
   legalAgeMajority: number;
   instituteName: string;
   instituteCountry: CountryCode | null;
@@ -55,6 +59,8 @@ export function AdminRegistrationsScreenNarrow({
   sortDir,
   statusFilter,
   statusCounts,
+  inboxFilter,
+  inboxCounts,
   legalAgeMajority,
   instituteName,
   instituteCountry,
@@ -75,6 +81,7 @@ export function AdminRegistrationsScreenNarrow({
     sortKey,
     sortDir,
     statusFilter,
+    inboxFilter,
     labels,
   });
 
@@ -102,6 +109,9 @@ export function AdminRegistrationsScreenNarrow({
                 statusFilter={statusFilter}
                 statusCounts={statusCounts}
                 onStatusFilterChange={u.setStatusFilter}
+                inboxFilter={inboxFilter}
+                inboxCounts={inboxCounts}
+                onInboxFilterChange={u.setInboxFilter}
                 locale={locale}
               />
             }
@@ -124,6 +134,13 @@ export function AdminRegistrationsScreenNarrow({
             onDelete={u.setDeleteRow}
             onMarkContacted={u.onMarkContacted}
             onRevertToNew={u.onRevertToNew}
+            onStartEnrollmentFee={u.onStartEnrollmentFee}
+            currentCohortSections={currentCohortSections}
+            onBusy={u.setBusyId}
+            onIntakeDone={() => {
+              u.setToast(labels.acceptSuccess);
+              u.refreshList();
+            }}
             emptyMessage={u.emptyMessage}
             pagination={{
               page: u.page,

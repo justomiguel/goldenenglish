@@ -1,5 +1,7 @@
 import type { RegistrationAcceptUserLabels } from "@/components/dashboard/AdminRegistrationAcceptForm";
 import type { RegistrationStatusFilter } from "@/hooks/useAdminRegistrationsList";
+import type { RegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
+import type { RegistrationInboxCounts } from "@/lib/register/countRegistrationInboxFilters";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import type { RegistrationSortKey, RegistrationSortDir } from "@/lib/dashboard/adminRegistrationsSort";
 import type { Dictionary } from "@/types/i18n";
@@ -26,6 +28,8 @@ export interface AdminRegistrationsTableDesktopProps {
   sortDir: RegistrationSortDir;
   statusFilter?: RegistrationStatusFilter;
   statusCounts: RegistrationStatusCounts;
+  inboxFilter?: RegistrationInboxFilter;
+  inboxCounts?: RegistrationInboxCounts;
   legalAgeMajority: number;
   instituteName: string;
   /** Default country for phones typed without a prefix; null hides WhatsApp. */

@@ -125,7 +125,10 @@ describe("AdminStudentBillingClient", () => {
     });
 
     expect(screen.getByRole("deletion")).toHaveTextContent("$120");
-    expect(screen.getByText("$60")).toBeInTheDocument();
+    expect(
+      screen.getByRole("region", { name: dictEn.admin.billing.billingPersonMonthlyTotalLabel }),
+    ).toHaveTextContent("$60");
+    expect(screen.getAllByText("$60").length).toBeGreaterThanOrEqual(1);
   });
 
   it("shows a $0 monthly fee when every billable month is a 100% scholarship", () => {
@@ -134,7 +137,29 @@ describe("AdminStudentBillingClient", () => {
     });
 
     expect(screen.getByRole("deletion")).toHaveTextContent("$120");
-    expect(screen.getByText("$0")).toBeInTheDocument();
+    expect(
+      screen.getByRole("region", { name: dictEn.admin.billing.billingPersonMonthlyTotalLabel }),
+    ).toHaveTextContent("$0");
+  });
+
+  it("shows the person monthly total above the section picker", () => {
+    renderBillingClient({
+      sectionBenefits: [
+        billedSectionWithScholarship(50),
+        {
+          ...billedSectionWithScholarship(0),
+          enrollmentId: "enr-3",
+          sectionId: "00000000-0000-4000-8000-000000000003",
+          sectionName: "Section C",
+          sectionMonthlyFeeAmount: 80,
+          scholarships: [],
+        },
+      ],
+    });
+
+    expect(
+      screen.getByRole("region", { name: dictEn.admin.billing.billingPersonMonthlyTotalLabel }),
+    ).toHaveTextContent("$140");
   });
 
   it("renders the section selector, monthly matrix and tabs without redundant toolbar buttons", () => {

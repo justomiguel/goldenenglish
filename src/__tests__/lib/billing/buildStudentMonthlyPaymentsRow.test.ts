@@ -258,6 +258,28 @@ describe("buildStudentMonthlyPaymentsRow", () => {
   // REGRESSION CHECK: switching an existing section to class-pack billing leaves its old
   // `section_fee_plans` rows in place. Without this guard the grid keeps rendering `due` cells with
   // amounts for a section that is no longer charged monthly — phantom debt shown to admin and family.
+  it("uses the cohort monthly default when the section has no plan", () => {
+    const row = buildStudentMonthlyPaymentsRow(
+      baseInput({ plans: [], cohortDefaultMonthlyFee: 80 }),
+    );
+    expect(row.hasActivePlan).toBe(true);
+    expect(row.cells[4].status).toBe("due");
+    expect(row.cells[4].expectedAmount).toBe(80);
+    expect(row.cells[4].currency).toBe("USD");
+  });
+
+  it("ignores a cohort monthly default when the section is billed by class packs", () => {
+    const row = buildStudentMonthlyPaymentsRow(
+      baseInput({
+        plans: [],
+        sectionBillingMode: "class_pack",
+        cohortDefaultMonthlyFee: 80,
+      }),
+    );
+    expect(row.hasActivePlan).toBe(false);
+    expect(row.cells.every((cell) => cell.status === "no-plan")).toBe(true);
+  });
+
   it("charges nothing when the section is billed by class packs, even with fee plans still on file", () => {
     const row = buildStudentMonthlyPaymentsRow(
       baseInput({ sectionBillingMode: "class_pack" }),
