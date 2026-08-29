@@ -31,7 +31,7 @@ export async function loadAdminSectionPageData(
   const { data: sec, error: sErr } = await supabase
     .from("academic_sections")
     .select(
-      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, min_attendance_percent, requires_evaluations_to_pass, uses_learning_route, reference_image_path, billing_mode, academic_cohorts(name, archived_at, default_enrollment_fee_amount, default_monthly_fee)",
+      "id, name, cohort_id, teacher_id, schedule_slots, max_students, archived_at, starts_on, ends_on, room_label, enrollment_fee_amount, monthly_fee_charge_mode, allow_advance_monthly_payment, min_attendance_percent, requires_evaluations_to_pass, uses_learning_route, reference_image_path, billing_mode, offers_trial, trial_fee_amount, academic_cohorts(name, archived_at, default_enrollment_fee_amount, default_monthly_fee, offers_trial, trial_fee_amount)",
     )
     .eq("id", sectionId)
     .maybeSingle();
@@ -62,6 +62,8 @@ export async function loadAdminSectionPageData(
     starts_on: string;
     ends_on: string;
     enrollment_fee_amount?: number | string | null;
+    offers_trial?: boolean | null;
+    trial_fee_amount?: number | string | null;
     monthly_fee_charge_mode?: string | null;
     allow_advance_monthly_payment?: boolean | null;
     min_attendance_percent?: number | null;
@@ -75,12 +77,16 @@ export async function loadAdminSectionPageData(
           archived_at?: string | null;
           default_enrollment_fee_amount?: number | string | null;
           default_monthly_fee?: number | string | null;
+          offers_trial?: boolean | null;
+          trial_fee_amount?: number | string | null;
         }
       | {
           name: string;
           archived_at?: string | null;
           default_enrollment_fee_amount?: number | string | null;
           default_monthly_fee?: number | string | null;
+          offers_trial?: boolean | null;
+          trial_fee_amount?: number | string | null;
         }[]
       | null;
   };
@@ -200,6 +206,11 @@ export async function loadAdminSectionPageData(
       storedEnrollmentFeeAmount,
       cohortDefaultEnrollmentFeeAmount,
       cohortDefaultMonthlyFee,
+      storedOffersTrial:
+        secRow.offers_trial == null ? null : secRow.offers_trial === true,
+      storedTrialFeeAmount: parseOptionalFeeAmount(secRow.trial_fee_amount),
+      cohortOffersTrial: cohortSingle?.offers_trial === true,
+      cohortTrialFeeAmount: parseOptionalFeeAmount(cohortSingle?.trial_fee_amount) ?? 0,
       billingMode: secRow.billing_mode ?? null,
       monthlyFeeChargeMode,
       allowAdvanceMonthlyPayment: secRow.allow_advance_monthly_payment === true,

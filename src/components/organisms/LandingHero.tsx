@@ -3,6 +3,8 @@ import type { Dictionary } from "@/types/i18n";
 import type { BrandPublic } from "@/lib/brand/server";
 import { taglineForLocale } from "@/lib/brand/taglineForLocale";
 import { LandingHeroInscriptionCta } from "@/components/molecules/LandingHeroInscriptionCta";
+import { landingRegisterCtasFromDict } from "@/lib/settings/landingRegisterCtasFromDict";
+import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 import { LandingTiltedPhoto } from "@/components/molecules/LandingTiltedPhoto";
 import {
   INICIO_IMAGES,
@@ -17,6 +19,8 @@ interface LandingHeroProps {
   brand: BrandPublic;
   locale: string;
   mediaMap?: LandingMediaMap;
+  publicCtaMode?: PublicCtaMode;
+  inscriptionsEnabled?: boolean;
 }
 
 export function LandingHero({
@@ -24,6 +28,8 @@ export function LandingHero({
   brand,
   locale,
   mediaMap,
+  publicCtaMode,
+  inscriptionsEnabled,
 }: LandingHeroProps) {
   const heroTagline = taglineForLocale(brand, locale);
   const shots = dict.landing.collage.alts;
@@ -74,10 +80,18 @@ export function LandingHero({
               </span>
             </h1>
             <div className="animate-fade-up animate-delay-3 mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-5 lg:justify-start">
-              <LandingHeroInscriptionCta
-                href={`/${locale}/register`}
-                label={dict.landing.hero.ctaReserveSpot}
-              />
+              {landingRegisterCtasFromDict({
+                locale,
+                dict,
+                publicCtaMode,
+                inscriptionsEnabled,
+              }).map((cta) => (
+                <LandingHeroInscriptionCta
+                  key={cta.intent}
+                  href={cta.href}
+                  label={cta.label}
+                />
+              ))}
               {brand.socialWhatsapp ? (
                 <a
                   href={brand.socialWhatsapp}

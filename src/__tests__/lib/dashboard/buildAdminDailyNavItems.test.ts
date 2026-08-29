@@ -21,6 +21,7 @@ describe("buildAdminDailyNavItems", () => {
     expect(hrefs()).toEqual([
       BASE,
       `${BASE}/students`,
+      `${BASE}/parents`,
       `${BASE}/teachers`,
       `${BASE}/users`,
       `${BASE}/registrations`,
@@ -36,6 +37,7 @@ describe("buildAdminDailyNavItems", () => {
     expect(hrefs({ includeBlogNav: true })).toEqual([
       BASE,
       `${BASE}/students`,
+      `${BASE}/parents`,
       `${BASE}/teachers`,
       `${BASE}/users`,
       `${BASE}/registrations`,
@@ -80,6 +82,7 @@ describe("buildAdminDailyNavItems", () => {
     expect(items.map((i) => i.iconId)).toEqual([
       "home",
       "students",
+      "parents",
       "teachers",
       "allAccounts",
       "registrations",

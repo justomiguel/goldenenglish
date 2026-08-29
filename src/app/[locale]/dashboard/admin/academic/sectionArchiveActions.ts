@@ -10,6 +10,8 @@ import {
   logSupabaseClientError,
 } from "@/lib/logging/serverActionLog";
 import { cancelReminderJobsForSectionId } from "@/lib/notifications/cancelReminderJobsAdmin";
+import { loadSectionDeleteEnrollmentPreview } from "@/lib/academics/loadSectionDeleteEnrollmentPreview";
+import type { SectionDeleteEnrollmentPreview } from "@/lib/academics/mapSectionDeleteEnrollmentPreview";
 
 const uuid = z.string().uuid();
 
@@ -17,7 +19,28 @@ const S = {
   archive: "archiveAcademicSectionAction",
   unarchive: "unarchiveAcademicSectionAction",
   deleteSection: "deleteAcademicSectionAction",
+  previewDelete: "previewAcademicSectionDeleteAction",
 } as const;
+
+export async function previewAcademicSectionDeleteAction(input: {
+  sectionId: string;
+}): Promise<
+  | { ok: true; enrollments: SectionDeleteEnrollmentPreview[] }
+  | { ok: false; code: "parse" | "save" }
+> {
+  const sectionId = uuid.safeParse(input.sectionId.trim());
+  if (!sectionId.success) return { ok: false, code: "parse" };
+
+  try {
+    const { supabase } = await assertAdmin();
+    const preview = await loadSectionDeleteEnrollmentPreview(supabase, sectionId.data);
+    if (!preview.ok) return { ok: false, code: "save" };
+    return preview;
+  } catch (err) {
+    logServerActionException(S.previewDelete, err, { sectionId: input.sectionId.trim() || undefined });
+    return { ok: false, code: "save" };
+  }
+}
 
 export async function archiveAcademicSectionAction(input: {
   locale: string;
@@ -137,6 +160,7 @@ export async function unarchiveAcademicSectionAction(input: {
 export async function deleteAcademicSectionAction(input: {
   locale: string;
   sectionId: string;
+  force?: boolean;
 }): Promise<
   { ok: true; cohortId: string } | { ok: false; code: "parse" | "enrollments_exist" | "save" }
 > {
@@ -167,7 +191,23 @@ export async function deleteAcademicSectionAction(input: {
       logSupabaseClientError(S.deleteSection, cErr, { sectionId: sectionId.data, step: "count_enrollments" });
       return { ok: false, code: "save" };
     }
-    if ((count ?? 0) > 0) return { ok: false, code: "enrollments_exist" };
+    if ((count ?? 0) > 0 && !input.force) return { ok: false, code: "enrollments_exist" };
+
+    if ((count ?? 0) > 0) {
+      const { error: eDelErr } = await supabase
+        .from("section_enrollments")
+        .delete()
+        .eq("section_id", sectionId.data);
+      if (eDelErr) {
+        logSupabaseClientError(S.deleteSection, eDelErr, {
+          sectionId: sectionId.data,
+          step: "delete_enrollments",
+        });
+        return { ok: false, code: "save" };
+      }
+    }
+
+    await cancelReminderJobsForSectionId(sectionId.data, S.deleteSection);
 
     const { error: dErr } = await supabase.from("academic_sections").delete().eq("id", sectionId.data);
 

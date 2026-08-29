@@ -10,8 +10,16 @@ import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersLis
 import { useDebouncedSearch } from "@/hooks/useDebouncedSearch";
 import { AdminUsersExportTrigger } from "@/components/molecules/AdminUsersExportModal";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import {
+  AdminParentsToolbarFields,
+  type AdminParentsToolbarChrome,
+} from "@/components/dashboard/AdminParentsToolbarFields";
+import { AdminDirectoryFilterPanel } from "@/components/dashboard/AdminDirectoryFilterPanel";
+import type { AdminDirectoryFilterPanelProps } from "@/components/dashboard/AdminDirectoryFilterPanel";
 
 type UserLabels = Dictionary["admin"]["users"];
+
+export type { AdminParentsToolbarChrome };
 
 const ROLES = ["admin", "teacher", "student", "parent", "assistant"] as const;
 
@@ -51,6 +59,11 @@ export interface AdminUsersToolbarProps {
   selectAllFilteredDisabled: boolean;
   onExportUsers?: () => void;
   lockRole?: string;
+  parentsChrome?: AdminParentsToolbarChrome;
+  directoryFilters?: Omit<AdminDirectoryFilterPanelProps, "onChange" | "onClear"> & {
+    onChange: AdminDirectoryFilterPanelProps["onChange"];
+    onClear: AdminDirectoryFilterPanelProps["onClear"];
+  };
 }
 
 export function AdminUsersToolbar({
@@ -71,6 +84,8 @@ export function AdminUsersToolbar({
   selectAllFilteredDisabled,
   onExportUsers,
   lockRole,
+  parentsChrome,
+  directoryFilters,
 }: AdminUsersToolbarProps) {
   const { localValue: localQuery, setLocalValue: setLocalQuery, flushNow } =
     useDebouncedSearch({ value: query, onDebouncedChange: onQueryChange });
@@ -120,6 +135,10 @@ export function AdminUsersToolbar({
           </Button>
         )}
       </div>
+
+      {directoryFilters ? <AdminDirectoryFilterPanel {...directoryFilters} /> : null}
+
+      {parentsChrome ? <AdminParentsToolbarFields chrome={parentsChrome} totalCount={totalCount} /> : null}
 
       {!lockRole && filtersOpen ? (
         <div className="max-w-xs">

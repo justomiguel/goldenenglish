@@ -7,6 +7,7 @@ import { logServerException, logServerWarn } from "@/lib/logging/serverActionLog
 import type { PaymentGatewayCountryCode } from "@/types/paymentGateway";
 import { finalizeEventPaymentFromMercadoPago } from "@/lib/events/server/finalizeEventPaymentFromMercadoPago";
 import { finalizeEnrollmentPaymentFromMercadoPago } from "@/lib/register/finalizeEnrollmentPaymentFromMercadoPago";
+import { finalizeTrialPaymentFromMercadoPago } from "@/lib/register/finalizeTrialPaymentFromMercadoPago";
 
 function parseCountry(raw: string | null): PaymentGatewayCountryCode | null {
   const c = raw?.trim().toUpperCase();
@@ -95,6 +96,12 @@ export async function POST(req: Request): Promise<Response> {
               accessToken: creds.accessToken,
               mpPaymentId: resolvedDataId,
             })
+          : purpose === "trial" || purpose === "join"
+            ? await finalizeTrialPaymentFromMercadoPago({
+                admin,
+                accessToken: creds.accessToken,
+                mpPaymentId: resolvedDataId,
+              })
           : await finalizeMercadoPagoPayment({
               admin,
               accessToken: creds.accessToken,

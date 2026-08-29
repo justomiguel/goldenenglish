@@ -23,11 +23,13 @@ import {
   Settings,
   Ticket,
   Users,
+  UsersRound,
 } from "lucide-react";
 
 export const ADMIN_SURFACE_ICON_IDS = [
   "home",
   "students",
+  "parents",
   "teachers",
   "registrations",
   "academic",
@@ -56,6 +58,7 @@ export type AdminSurfaceIconId = (typeof ADMIN_SURFACE_ICON_IDS)[number];
 const ICONS: Record<AdminSurfaceIconId, typeof Home> = {
   home: Home,
   students: GraduationCap,
+  parents: UsersRound,
   teachers: Presentation,
   registrations: ClipboardList,
   academic: CalendarDays,

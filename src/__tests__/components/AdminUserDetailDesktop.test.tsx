@@ -68,11 +68,11 @@ describe("AdminUserDetailDesktop", () => {
     );
   });
 
-  it("goes back to Usuarios from a parent profile", () => {
+  it("goes back to Padres from a parent profile", () => {
     renderDetail("parent");
     expect(screen.getByRole("link", { name: dictEn.admin.users.detailBack })).toHaveAttribute(
       "href",
-      "/es/dashboard/admin/users",
+      "/es/dashboard/admin/parents",
     );
   });
 });

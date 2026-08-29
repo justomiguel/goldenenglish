@@ -2,7 +2,8 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AdminUsersScreen } from "@/components/organisms/AdminUsersScreen";
-import { loadPaginatedAdminUsers } from "@/lib/dashboard/loadPaginatedAdminUsers";
+import { loadAdminLockedRoleDirectory } from "@/lib/dashboard/loadAdminLockedRoleDirectory";
+import { parseAdminDirectoryFilters } from "@/lib/dashboard/adminDirectoryFilters";
 import { loadAdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
 import { lockedRoleUsersParams } from "@/lib/dashboard/lockedRoleUsersParams";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
@@ -35,10 +36,11 @@ export default async function AdminTeachersPage({ params, searchParams }: PagePr
 
   const admin = createAdminClient();
   const [result, roleCounts, peopleStats] = await Promise.all([
-    loadPaginatedAdminUsers(admin, dict.common.emptyValue, paginationParams),
+    loadAdminLockedRoleDirectory(admin, dict.common.emptyValue, paginationParams),
     loadAdminUsersListRoleCounts(admin),
     loadAdminPeoplePageStats(admin, "teacher"),
   ]);
+  const directoryValues = parseAdminDirectoryFilters("teacher", rawSp);
 
   return (
     <div>
@@ -75,6 +77,13 @@ export default async function AdminTeachersPage({ params, searchParams }: PagePr
           labels={dict.admin.users}
           tableLabels={dict.admin.table}
           lockRole="teacher"
+          directoryFilters={{
+            role: "teacher",
+            labels: dict.admin.directoryFilters,
+            values: directoryValues,
+            facets: result.facets,
+            sectionOptions: result.sectionOptions,
+          }}
         />
       </div>
     </div>

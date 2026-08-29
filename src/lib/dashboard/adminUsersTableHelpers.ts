@@ -23,11 +23,15 @@ export type AdminUserRow = {
   sections: AdminStudentDirectorySection[];
   /** Linked tutors/guardians — populated on the students directory. */
   parents: AdminStudentDirectoryParent[];
+  /** Linked students — populated on the parents directory. */
+  children: AdminStudentDirectoryParent[];
   /** Current-month due across active sections after scholarships. */
   monthlyDue: MonthlyDueTotal[];
+  lastSessionStartAt: string | null;
+  emailDeliverable: boolean;
 };
 
-export type SortKey = "email" | "name" | "role" | "phone";
+export type SortKey = "email" | "name" | "role" | "phone" | "lastAccess";
 export type SortDir = "asc" | "desc";
 
 export const ROLE_FILTER_ALL = "all" as const;
@@ -35,7 +39,10 @@ export const ROLE_FILTER_ALL = "all" as const;
 export const EMPTY_ADMIN_STUDENT_DIRECTORY_FIELDS = {
   sections: [] as AdminStudentDirectorySection[],
   parents: [] as AdminStudentDirectoryParent[],
+  children: [] as AdminStudentDirectoryParent[],
   monthlyDue: [] as MonthlyDueTotal[],
+  lastSessionStartAt: null as string | null,
+  emailDeliverable: false,
 };
 
 export function isAdminStudentsDirectory(lockRole?: string): boolean {
@@ -44,6 +51,10 @@ export function isAdminStudentsDirectory(lockRole?: string): boolean {
 
 export function isAdminTeachersDirectory(lockRole?: string): boolean {
   return lockRole === "teacher";
+}
+
+export function isAdminParentsDirectory(lockRole?: string): boolean {
+  return lockRole === "parent";
 }
 
 export function adminUserRowAriaName(row: AdminUserRow): string {
@@ -120,6 +131,11 @@ export function sortAdminUsers(
         { firstName: a.firstName, lastName: a.lastName },
         { firstName: b.firstName, lastName: b.lastName },
       ) * mult;
+    }
+    if (key === "lastAccess") {
+      const va = a.lastSessionStartAt ?? "";
+      const vb = b.lastSessionStartAt ?? "";
+      return va.localeCompare(vb) * mult;
     }
     const va = a[key as keyof Pick<AdminUserRow, "email" | "role" | "phone">];
     const vb = b[key as keyof Pick<AdminUserRow, "email" | "role" | "phone">];

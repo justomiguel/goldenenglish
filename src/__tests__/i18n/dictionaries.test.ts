@@ -52,6 +52,9 @@ describe("getDictionary", () => {
     expect(es.dashboard.academicCohortPage.shellTabs.sections).toBeTruthy();
     expect(en.dashboard.academicSectionPage.lifecycle.deleteButton).toBeTruthy();
     expect(es.dashboard.academicSectionPage.lifecycle.deleteButton).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.lifecycle.modalDeleteBodyWithEnrollments).toBeTruthy();
+    expect(es.dashboard.academicSectionPage.lifecycle.deleteConfirmCheckboxWithEnrollments).toBeTruthy();
+    expect(en.dashboard.academicSectionPage.lifecycle.enrollmentStatus.active).toBeTruthy();
   });
 
   it("includes academic hub board and open cohort title in en and es", async () => {
@@ -132,6 +135,30 @@ describe("getDictionary", () => {
         expect(studentNav[key], `${locale} studentNav.${key}`).toBeTruthy();
       }
     }
+  });
+
+  it("includes directory filter copy in en, es, and pt", async () => {
+    const en = await getDictionary("en");
+    const es = await getDictionary("es");
+    const pt = await getDictionary("pt");
+    expect(en.admin.directoryFilters.toggle).toBeTruthy();
+    expect(es.admin.directoryFilters.clear).toBeTruthy();
+    expect(pt.admin.directoryFilters.optionWithCount).toContain("{{count}}");
+  });
+
+  it("includes public CTA and trial-class copy in en, es, and pt", async () => {
+    const en = await getDictionary("en");
+    const es = await getDictionary("es");
+    const pt = await getDictionary("pt");
+    expect(en.landing.hero.ctaTrialClass).toBeTruthy();
+    expect(es.landing.hero.ctaTrialClass).toBeTruthy();
+    expect(pt.landing.hero.ctaTrialClass).toBeTruthy();
+    expect(en.admin.settings.publicCtaBoth).toBeTruthy();
+    expect(es.admin.settings.publicCtaBoth).toBeTruthy();
+    expect(pt.admin.settings.publicCtaBoth).toBeTruthy();
+    expect(en.register.trial.shellTitle).toBeTruthy();
+    expect(es.register.trial.shellTitle).toBeTruthy();
+    expect(pt.register.trial.shellTitle).toBeTruthy();
   });
 
   it("includes Nagô extras and protocol copy in en, es, and pt", async () => {

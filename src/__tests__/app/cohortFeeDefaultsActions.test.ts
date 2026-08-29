@@ -153,4 +153,25 @@ describe("updateAcademicCohortFeeDefaultsAction", () => {
     );
     expect(revalidateAcademicSurfaces).toHaveBeenCalledWith("en");
   });
+
+  it("saves trial offer fields when provided", async () => {
+    const { from, update } = buildSupabase();
+    mockAssertAdmin.mockResolvedValue({ supabase: { from } });
+    const res = await updateAcademicCohortFeeDefaultsAction({
+      locale: "en",
+      cohortId: COH,
+      defaultEnrollmentFeeAmount: null,
+      defaultMonthlyFee: null,
+      offersTrial: true,
+      trialFeeAmount: 0,
+    });
+    expect(res).toEqual({ ok: true });
+    expect(update).toHaveBeenCalledWith({
+      default_enrollment_fee_amount: null,
+      default_monthly_fee: null,
+      enrollment_fee_mode: "per_section",
+      offers_trial: true,
+      trial_fee_amount: 0,
+    });
+  });
 });

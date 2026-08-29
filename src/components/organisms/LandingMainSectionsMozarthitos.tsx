@@ -6,6 +6,7 @@ import { MozarthitosSiteHeader } from "@/components/organisms/MozarthitosSiteHea
 import { LandingMozarthitosSections } from "@/components/organisms/LandingMozarthitosSections";
 import { MozarthitosFontRoot } from "@/components/organisms/MozarthitosFontRoot";
 import { mzLandingCopy } from "@/lib/landing/mzLandingCopy";
+import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 interface LandingMainSectionsMozarthitosProps {
   dict: Dictionary;
@@ -14,6 +15,8 @@ interface LandingMainSectionsMozarthitosProps {
   sessionEmail: string | null;
   mediaMap?: LandingMediaMap;
   blogEnabled?: boolean;
+  publicCtaMode?: PublicCtaMode;
+  inscriptionsEnabled?: boolean;
 }
 
 export function LandingMainSectionsMozarthitos({
@@ -23,6 +26,8 @@ export function LandingMainSectionsMozarthitos({
   sessionEmail,
   mediaMap,
   blogEnabled = false,
+  publicCtaMode,
+  inscriptionsEnabled,
 }: LandingMainSectionsMozarthitosProps) {
   const logoSrc = resolveLandingImageSrcForTheme(
     "mozarthitos",
@@ -56,7 +61,13 @@ export function LandingMainSectionsMozarthitos({
             closeMenu: mzLandingCopy(dict, "chrome.closeMenu"),
           }}
         />
-        <LandingMozarthitosSections dict={dict} locale={locale} mediaMap={mediaMap} />
+        <LandingMozarthitosSections
+          dict={dict}
+          locale={locale}
+          mediaMap={mediaMap}
+          publicCtaMode={publicCtaMode}
+          inscriptionsEnabled={inscriptionsEnabled}
+        />
       </main>
     </MozarthitosFontRoot>
   );

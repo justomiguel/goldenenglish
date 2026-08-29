@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { SectionCapacityBar } from "@/components/molecules/SectionCapacityBar";
 import { SectionReferenceThumb } from "@/components/molecules/SectionReferenceThumb";
@@ -13,6 +14,8 @@ export interface AdminSectionCardProps {
   /** Preformatted section date range (locale-aware), shown under the title. */
   periodLine?: string;
   imageUrl?: string | null;
+  /** Optional card-level actions (e.g. delete) that stay outside the title link. */
+  actions?: ReactNode;
 }
 
 export function AdminSectionCard({
@@ -24,19 +27,23 @@ export function AdminSectionCard({
   archivedLabel,
   periodLine,
   imageUrl,
+  actions,
 }: AdminSectionCardProps) {
   return (
     <article className="flex flex-col gap-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm">
-      <div className="flex flex-wrap items-center gap-2">
-        <SectionReferenceThumb src={imageUrl} alt={name} size="sm" />
-        <Link href={href} className="text-base font-semibold text-[var(--color-primary)] hover:underline">
-          {name}
-        </Link>
-        {archivedLabel ? (
-          <span className="rounded-full bg-[var(--color-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-muted-foreground)]">
-            {archivedLabel}
-          </span>
-        ) : null}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <SectionReferenceThumb src={imageUrl} alt={name} size="sm" />
+          <Link href={href} className="text-base font-semibold text-[var(--color-primary)] hover:underline">
+            {name}
+          </Link>
+          {archivedLabel ? (
+            <span className="rounded-full bg-[var(--color-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-muted-foreground)]">
+              {archivedLabel}
+            </span>
+          ) : null}
+        </div>
+        {actions ? <div className="shrink-0">{actions}</div> : null}
       </div>
       {periodLine ? (
         <p className="text-xs text-[var(--color-muted-foreground)]">{periodLine}</p>

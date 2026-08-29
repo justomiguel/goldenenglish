@@ -1,5 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AdminUserRow, SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
+import type { AdminDirectoryFilters } from "@/lib/dashboard/adminDirectoryFilters";
+import {
+  isLockedDirectoryRole,
+  loadAdminLockedRoleDirectory,
+} from "@/lib/dashboard/loadAdminLockedRoleDirectory";
 import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
 import { ROLE_FILTER_ALL } from "@/lib/dashboard/adminUsersTableHelpers";
 import { resolveAvatarUrlForAdmin } from "@/lib/dashboard/resolveAvatarUrl";
@@ -16,15 +21,22 @@ import {
   emptyAdminStudentDirectoryExtras,
   loadAdminStudentDirectoryExtras,
 } from "@/lib/dashboard/loadAdminStudentDirectoryExtras";
+import {
+  emptyAdminParentDirectoryExtras,
+  loadAdminParentDirectoryExtras,
+} from "@/lib/dashboard/loadAdminParentDirectoryExtras";
+import { loadParentIdsForActiveSection } from "@/lib/dashboard/loadParentIdsForActiveSection";
 import { loadAdminTeacherDirectorySections } from "@/lib/dashboard/loadAdminTeacherDirectorySections";
+import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
 
-const PROFILE_COLUMNS = "id, role, first_name, last_name, phone, avatar_url";
+const PROFILE_COLUMNS = "id, role, first_name, last_name, phone, avatar_url, last_session_start_at";
 
 const SORT_COLUMN_MAP: Record<SortKey, string> = {
   email: "last_name",
   name: "last_name",
   role: "role",
   phone: "phone",
+  lastAccess: "last_session_start_at",
 };
 
 export interface PaginatedAdminUsersResult {
@@ -34,13 +46,15 @@ export interface PaginatedAdminUsersResult {
   pageSize: number;
 }
 
-export interface PaginatedAdminUsersParams {
+export interface PaginatedAdminUsersParams extends AdminDirectoryFilters {
   page?: number;
   pageSize?: number;
   q?: string;
   role?: string;
   sort?: SortKey;
   dir?: "asc" | "desc";
+  /** When true, load the locked-role directory (in-memory facets + relation filters). */
+  lockedDirectory?: boolean;
 }
 
 export async function loadPaginatedAdminUsers(
@@ -48,6 +62,16 @@ export async function loadPaginatedAdminUsers(
   emptyValue: string,
   params: PaginatedAdminUsersParams = {},
 ): Promise<PaginatedAdminUsersResult> {
+  if (params.lockedDirectory && isLockedDirectoryRole(params.role)) {
+    const loaded = await loadAdminLockedRoleDirectory(adminClient, emptyValue, params);
+    return {
+      rows: loaded.rows,
+      totalCount: loaded.totalCount,
+      page: loaded.page,
+      pageSize: loaded.pageSize,
+    };
+  }
+
   const page = Math.max(1, params.page ?? 1);
   const pageSize = params.pageSize ?? DEFAULT_TABLE_PAGE_SIZE;
   const sortCol = SORT_COLUMN_MAP[params.sort ?? "name"] ?? "last_name";
@@ -84,6 +108,24 @@ export async function loadPaginatedAdminUsers(
     countQuery = countQuery.eq("role", roleFilter);
   }
 
+  if (roleFilter === "parent") {
+    if (params.access === "never") {
+      dataQuery = dataQuery.is("last_session_start_at", null);
+      countQuery = countQuery.is("last_session_start_at", null);
+    } else if (params.access === "entered") {
+      dataQuery = dataQuery.not("last_session_start_at", "is", null);
+      countQuery = countQuery.not("last_session_start_at", "is", null);
+    }
+    if (params.section) {
+      const parentIds = await loadParentIdsForActiveSection(adminClient, params.section);
+      if (parentIds.length === 0) {
+        return { rows: [], totalCount: 0, page, pageSize };
+      }
+      dataQuery = dataQuery.in("id", parentIds);
+      countQuery = countQuery.in("id", parentIds);
+    }
+  }
+
   if (qRaw) {
     const filter = buildAdminUsersProfileOrFilter(qRaw, emailMatchUserId);
     dataQuery = dataQuery.or(filter);
@@ -104,6 +146,7 @@ export async function loadPaginatedAdminUsers(
 
   const loadStudentExtras = roleFilter === "student";
   const loadTeacherSections = roleFilter === "teacher";
+  const loadParentExtras = roleFilter === "parent";
   const emailById = new Map<string, string>();
   if (!loadStudentExtras) {
     await Promise.all(
@@ -116,8 +159,8 @@ export async function loadPaginatedAdminUsers(
     );
   }
 
-  const [sectionSet, extras, teacherSections] = await Promise.all([
-    loadStudentExtras || loadTeacherSections
+  const [sectionSet, extras, teacherSections, parentExtras] = await Promise.all([
+    loadStudentExtras || loadTeacherSections || loadParentExtras
       ? Promise.resolve(new Set<string>())
       : loadActiveEnrollmentSet(adminClient, profileIds),
     loadStudentExtras
@@ -126,6 +169,9 @@ export async function loadPaginatedAdminUsers(
     loadTeacherSections
       ? loadAdminTeacherDirectorySections(adminClient, profileIds)
       : Promise.resolve(new Map()),
+    loadParentExtras
+      ? loadAdminParentDirectoryExtras(adminClient, profileIds)
+      : Promise.resolve(emptyAdminParentDirectoryExtras()),
   ]);
 
   const rows: AdminUserRow[] = await Promise.all(
@@ -136,12 +182,15 @@ export async function loadPaginatedAdminUsers(
         adminClient,
         p.avatar_url as string | null,
       );
+      const rawEmail = emailById.get(id) ?? "";
       const sections = loadTeacherSections
         ? (teacherSections.get(id) ?? [])
-        : (extras.sectionsByStudent.get(id) ?? []);
+        : loadParentExtras
+          ? (parentExtras.sectionsByParent.get(id) ?? [])
+          : (extras.sectionsByStudent.get(id) ?? []);
       return {
         id,
-        email: emailById.get(id) ?? emptyValue,
+        email: rawEmail || emptyValue,
         firstName: (p.first_name as string) ?? emptyValue,
         lastName: (p.last_name as string) ?? emptyValue,
         role,
@@ -152,7 +201,10 @@ export async function loadPaginatedAdminUsers(
           (loadStudentExtras ? sections.length === 0 : !sectionSet.has(id)),
         sections,
         parents: extras.parentsByStudent.get(id) ?? [],
+        children: parentExtras.childrenByParent.get(id) ?? [],
         monthlyDue: extras.monthlyDueByStudent.get(id) ?? [],
+        lastSessionStartAt: (p.last_session_start_at as string | null) ?? null,
+        emailDeliverable: isDeliverableAuthEmail(rawEmail),
       };
     }),
   );

@@ -18,6 +18,8 @@ import { groupBlocksBySection } from "@/lib/cms/landingBlocksCatalog";
 import { loadFirstRunWizardMode } from "@/lib/site/loadFirstRunWizardMode";
 import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
 import { loadLandingMainSections } from "@/lib/landing/loadLandingMainSections";
+import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
+import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
 import { buildHomePageMetadata } from "@/lib/metadata/buildHomePageMetadata";
 import type { SiteThemeKind } from "@/types/theming";
 
@@ -72,10 +74,13 @@ export default async function HomePage({ params }: HomePageProps) {
     );
   }
 
-  const [activeTheme, blogEnabled] = await Promise.all([
-    loadActiveTheme(),
-    loadBlogEnabled(),
-  ]);
+  const [activeTheme, blogEnabled, publicCtaMode, inscriptionsEnabled] =
+    await Promise.all([
+      loadActiveTheme(),
+      loadBlogEnabled(),
+      getPublicCtaMode(),
+      getInscriptionsEnabled(),
+    ]);
 
   const dict = applyLandingContentOverrides(
     baseDict,
@@ -101,6 +106,8 @@ export default async function HomePage({ params }: HomePageProps) {
       blocksBySection={blocksBySection}
       blogEnabled={blogEnabled}
       sessionEmail={sessionEmail}
+      publicCtaMode={publicCtaMode}
+      inscriptionsEnabled={inscriptionsEnabled}
     />
   );
 

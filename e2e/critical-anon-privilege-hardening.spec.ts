@@ -100,6 +100,7 @@ test.describe("@critical-anon-privilege-hardening", () => {
           phone: "+56900000000",
           birth_date: "1990-01-01",
           preferred_section_id: null,
+          pay_token: `e2e-${sentinel}-${Date.now().toString(16)}`,
           level_interest: "e2e-probe",
           status: "new",
           tutor_name: null,

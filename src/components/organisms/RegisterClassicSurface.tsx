@@ -6,6 +6,7 @@ import { RegisterCollage } from "@/components/molecules/RegisterCollage";
 import { RegisterSiteHeader } from "@/components/molecules/RegisterSiteHeader";
 import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
+import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 export interface RegisterClassicSurfaceProps {
   locale: string;
@@ -15,6 +16,7 @@ export interface RegisterClassicSurfaceProps {
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
   extrasPack?: "nago" | null;
+  intent?: RegisterIntent;
 }
 
 export function RegisterClassicSurface({
@@ -25,6 +27,7 @@ export function RegisterClassicSurface({
   sectionOptions,
   enrollmentLink,
   extrasPack = null,
+  intent = "reserve",
 }: RegisterClassicSurfaceProps) {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[var(--color-muted)] px-4 py-10 md:py-14">
@@ -37,7 +40,7 @@ export function RegisterClassicSurface({
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:items-start lg:gap-12 xl:gap-16">
         <header className="text-center lg:col-span-2">
           <h1 className="font-display text-3xl font-bold text-[var(--color-primary)] md:text-4xl">
-            {dict.register.title}
+            {intent === "trial" ? dict.register.trial.shellTitle : dict.register.title}
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-[var(--color-muted-foreground)] md:text-lg">
             {dict.register.lead}
@@ -54,6 +57,7 @@ export function RegisterClassicSurface({
             sectionOptions={sectionOptions}
             enrollmentLink={enrollmentLink}
             extrasPack={extrasPack}
+            intent={intent}
           />
           <p className="mt-8 text-center text-sm lg:text-left">
             <Link

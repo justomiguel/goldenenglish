@@ -7,6 +7,10 @@ import {
   switchRegistrationPaySectionAction,
   uploadRegistrationEnrollmentReceiptAction,
 } from "@/app/[locale]/matricula/matriculaPayActions";
+import {
+  startTrialFeeFlowAction,
+  startTrialFeeMercadoPagoAction,
+} from "@/app/[locale]/clase-prueba/trialFeePayActions";
 import { EVENT_TRANSFER_RECEIPT_ACCEPT } from "@/lib/events/eventTransferReceiptLimits";
 import type { RegistrationPublicPayMethod } from "@/lib/register/resolveRegistrationPublicPayMethods";
 
@@ -34,6 +38,7 @@ export function RegistrationMatriculaPayActions({
   showPay,
   showSwitch,
   labels,
+  variant = "enrollment",
 }: {
   locale: string;
   token: string;
@@ -44,6 +49,7 @@ export function RegistrationMatriculaPayActions({
   showPay: boolean;
   showSwitch: boolean;
   labels: RegistrationMatriculaPayActionLabels;
+  variant?: "enrollment" | "trial";
 }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState("");
@@ -64,7 +70,13 @@ export function RegistrationMatriculaPayActions({
           type="button"
           className={btnClass}
           disabled={pending}
-          onClick={() => run(() => startRegistrationEnrollmentFlowAction(locale, token))}
+          onClick={() =>
+            run(() =>
+              variant === "trial"
+                ? startTrialFeeFlowAction(locale, token)
+                : startRegistrationEnrollmentFlowAction(locale, token),
+            )
+          }
         >
           {labels.flow}
         </button>
@@ -75,13 +87,17 @@ export function RegistrationMatriculaPayActions({
           className={`${btnClass} ml-2`}
           disabled={pending}
           onClick={() =>
-            run(() => startRegistrationEnrollmentMercadoPagoAction(locale, token))
+            run(() =>
+              variant === "trial"
+                ? startTrialFeeMercadoPagoAction(locale, token)
+                : startRegistrationEnrollmentMercadoPagoAction(locale, token),
+            )
           }
         >
           {labels.mercadoPago}
         </button>
       ) : null}
-      {showPay && methods.includes("transfer") && transferInstructions ? (
+      {showPay && variant !== "trial" && methods.includes("transfer") && transferInstructions ? (
         <form
           className="space-y-3 rounded-lg border border-[var(--color-border)] p-4"
           onSubmit={(event) => {

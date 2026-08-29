@@ -8,6 +8,7 @@ import { RegisterForm } from "@/components/register/RegisterForm";
 import { LioraRegisterHeader } from "@/components/molecules/LioraRegisterHeader";
 import { LioraFontRoot } from "@/components/organisms/LioraFontRoot";
 import { LIORA_SEDE_KEYS } from "@/lib/landing/lioraSchedule";
+import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 export interface RegisterLioraSurfaceProps {
   locale: string;
@@ -17,6 +18,7 @@ export interface RegisterLioraSurfaceProps {
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
   extrasPack?: "nago" | null;
+  intent?: RegisterIntent;
 }
 
 export function RegisterLioraSurface({
@@ -27,6 +29,7 @@ export function RegisterLioraSurface({
   sectionOptions,
   enrollmentLink,
   extrasPack = null,
+  intent = "reserve",
 }: RegisterLioraSurfaceProps) {
   const prefix = `/${locale}`;
   const t = (path: string) => marketingLandingCopy(dict, "liora", path);
@@ -73,7 +76,7 @@ export function RegisterLioraSurface({
         <div className="w-full min-w-0">
           <header className="mb-8 text-center lg:mb-10 lg:text-left">
             <h1 className="font-[family-name:var(--font-liora-display)] text-3xl font-light tracking-[0.08em] text-[var(--liora-ink)] md:text-4xl">
-              {liora.register.shellTitle}
+              {intent === "trial" ? dict.register.trial.shellTitle : liora.register.shellTitle}
             </h1>
             <p className="mx-auto mt-4 max-w-xl leading-relaxed text-[var(--liora-ink-soft)] md:text-lg lg:mx-0">
               {liora.register.shellLead}
@@ -87,6 +90,7 @@ export function RegisterLioraSurface({
               sectionOptions={sectionOptions}
               enrollmentLink={enrollmentLink}
               extrasPack={extrasPack}
+              intent={intent}
             />
           </div>
           <p className="mt-8 flex justify-center lg:justify-start">

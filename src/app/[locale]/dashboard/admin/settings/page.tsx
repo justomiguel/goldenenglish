@@ -1,5 +1,7 @@
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
+import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
+import { PublicCtaModeSettingsForm } from "@/components/dashboard/PublicCtaModeSettingsForm";
 import { loadClassRemindersAdminPageModel } from "@/lib/settings/loadClassRemindersAdminPageModel";
 import { loadEmailSendsAdminPageModel } from "@/lib/settings/loadEmailSendsAdminPageModel";
 import { InscriptionsSettingsForm } from "@/components/dashboard/InscriptionsSettingsForm";
@@ -28,6 +30,7 @@ export default async function AdminSettingsPage({ params }: PageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
   const enabled = await getInscriptionsEnabled();
+  const publicCtaMode = await getPublicCtaMode();
   const emailSends = await loadEmailSendsAdminPageModel(locale as Locale, {
     inactivity: dict.admin.settings.emailSendsLabelInactivity,
     classReminder: dict.admin.settings.emailSendsLabelClassReminder,
@@ -51,6 +54,11 @@ export default async function AdminSettingsPage({ params }: PageProps) {
         <InscriptionsSettingsForm
           locale={locale}
           initialEnabled={enabled}
+          labels={dict.admin.settings}
+        />
+        <PublicCtaModeSettingsForm
+          locale={locale}
+          initialMode={publicCtaMode}
           labels={dict.admin.settings}
         />
       </div>

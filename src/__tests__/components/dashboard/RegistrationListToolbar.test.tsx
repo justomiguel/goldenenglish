@@ -24,6 +24,7 @@ describe("RegistrationListToolbar", () => {
           needs_section: 0,
           section_full: 0,
           contacted: 1,
+          trial: 0,
         }}
         onInboxFilterChange={() => {}}
         locale="en"

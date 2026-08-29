@@ -29,6 +29,7 @@ export async function acceptRegistrationLead(input: {
   paidCapture?: boolean;
   enrollServiceRole?: boolean;
   waiveReason?: string;
+  skipFamilyWelcome?: boolean;
 }): Promise<AcceptRegistrationLeadResult> {
   const { admin, dict } = input;
   const { data: reg, error: fetchErr } = await admin
@@ -161,5 +162,6 @@ export async function acceptRegistrationLead(input: {
     paidCapture: input.paidCapture,
     enrollServiceRole: input.enrollServiceRole,
     waiveReason: input.waiveReason,
+    skipFamilyWelcome: input.skipFamilyWelcome,
   });
 }

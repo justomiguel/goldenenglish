@@ -5,6 +5,7 @@ import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import { AdminRegistrationNagoExtras } from "@/components/dashboard/AdminRegistrationNagoExtras";
 import { AdminRegistrationIntakeActions } from "@/components/dashboard/AdminRegistrationIntakeActions";
+import { AdminRegistrationTrialSeats } from "@/components/dashboard/AdminRegistrationTrialSeats";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 
 type RegLabels = Dictionary["admin"]["registrations"];
@@ -90,6 +91,12 @@ export function AdminRegistrationExpandedDetails({
           tenantExtras={row.tenantExtras}
           locale={locale}
           labels={labels}
+        />
+        <AdminRegistrationTrialSeats
+          locale={locale}
+          row={row}
+          labels={labels.trialSeats}
+          onDone={onIntakeDone}
         />
         {onBusy && onIntakeDone ? (
           <AdminRegistrationIntakeActions

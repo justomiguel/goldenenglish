@@ -119,6 +119,11 @@ export function AdminRegistrationTableRow({
       </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top">
         {formatRegistrationLevelInterestDisplay(labels, r.level_interest)}
+        {r.intent === "trial" ? (
+          <span className="ml-2 inline-flex items-center rounded-full bg-[var(--color-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-muted-foreground)]">
+            {labels.trialClassBadge}
+          </span>
+        ) : null}
         {r.sourceSectionLinkId ? (
           <span className="ml-2 inline-flex items-center rounded-full bg-[var(--color-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-muted-foreground)]">
             {labels.viaSectionLink}

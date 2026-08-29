@@ -3,6 +3,7 @@
 import type { ReactNode, RefObject } from "react";
 import type { Dictionary } from "@/types/i18n";
 import {
+  isAdminParentsDirectory,
   isAdminStudentsDirectory,
   isAdminTeachersDirectory,
   type AdminUserRow,
@@ -70,6 +71,7 @@ export function AdminUsersDataTable({
 }: AdminUsersDataTableProps) {
   const studentsDirectory = isAdminStudentsDirectory(lockRole);
   const teachersDirectory = isAdminTeachersDirectory(lockRole);
+  const parentsDirectory = isAdminParentsDirectory(lockRole);
   const emptyValue = "—";
   const colHead = "min-w-0 px-2 py-3 align-top";
   const columns = studentsDirectory
@@ -79,6 +81,14 @@ export function AdminUsersDataTable({
         { id: "monthlyDue", label: labels.colMonthlyDue, sortable: false, thClassName: colHead },
         { id: "parent", label: labels.colParent, sortable: false, thClassName: colHead },
       ]
+    : parentsDirectory
+      ? [
+          { id: "name", label: labels.colName, thClassName: colHead },
+          { id: "email", label: labels.colEmail, thClassName: colHead },
+          { id: "children", label: labels.colChildren, sortable: false, thClassName: colHead },
+          { id: "sections", label: labels.colSections, sortable: false, thClassName: colHead },
+          { id: "lastAccess", label: labels.colLastAccess, thClassName: colHead },
+        ]
     : teachersDirectory
       ? [
           { id: "email", label: labels.colEmail, thClassName: colHead },
@@ -153,6 +163,7 @@ export function AdminUsersDataTable({
           busy={busy}
           studentsDirectory={studentsDirectory}
           teachersDirectory={teachersDirectory}
+          parentsDirectory={parentsDirectory}
           emptyValue={emptyValue}
           onToggleRow={onToggleRow}
           onRequestDeleteOne={onRequestDeleteOne}

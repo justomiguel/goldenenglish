@@ -1,5 +1,16 @@
 import type { RegistrationIntakeState } from "@/lib/register/registrationIntake";
 
+export type AdminRegistrationTrialSeatStatus = "booked" | "attended" | "absent" | "released";
+
+export interface AdminRegistrationTrialSeat {
+  id: string;
+  sectionId: string;
+  scheduledOn: string;
+  startTime: string;
+  endTime: string;
+  status: AdminRegistrationTrialSeatStatus;
+}
+
 export interface AdminRegistrationRow {
   id: string;
   first_name: string;
@@ -23,6 +34,11 @@ export interface AdminRegistrationRow {
   contacted_at: string | null;
   contacted_by: string | null;
   sourceSectionLinkId: string | null;
+  intent?: "reserve" | "trial";
+  trialSeats?: AdminRegistrationTrialSeat[];
+  trialConvertToken?: string | null;
+  trialConvertExpiresAt?: string | null;
+  trialRefundDueAmount?: number;
   tenantExtras?: unknown;
   intakeState?: RegistrationIntakeState;
   snapshotTotal?: number;
@@ -31,4 +47,6 @@ export interface AdminRegistrationRow {
   enrollmentFeeReceiptPath?: string | null;
   /** Live: a requested section no longer has an open seat. */
   requestedSectionFull?: boolean;
+  /** Live or snapshot: requested sections charge a matrícula. */
+  chargesEnrollmentFee?: boolean;
 }

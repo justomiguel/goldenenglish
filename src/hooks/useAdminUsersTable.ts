@@ -192,6 +192,8 @@ export function useAdminUsersTable({
       del.setConfirmIds(selectedDeletable.map((r) => r.id)),
     deleteOutcomeMessage,
     clearDeleteOutcomeMessage: () => setDeleteOutcomeMessage(null),
+    replaceParams: pushParams,
+    selectedIdsList: [...selectedIds],
     deleteDisabled: selectedDeletable.length === 0 || busy,
     selectAllFilteredDisabled: deletableVisible.length === 0 || busy,
     tpl,

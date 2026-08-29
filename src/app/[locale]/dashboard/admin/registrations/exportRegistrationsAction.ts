@@ -7,6 +7,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { loadPaginatedRegistrations } from "@/lib/dashboard/loadPaginatedRegistrations";
+import {
+  REGISTRATION_INBOX_FILTERS,
+  type RegistrationInboxFilter,
+} from "@/lib/register/registrationInboxFilter";
 import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { buildRegistrationsExportTable } from "@/lib/register/buildRegistrationsExportTable";
 import { logServerAuthzDenied, logServerException } from "@/lib/logging/serverActionLog";
@@ -19,9 +23,7 @@ const inputZ = z.object({
   locale: z.string().min(2).max(8),
   q: z.string().max(200).optional(),
   status: z.enum(["new", "contacted"]).optional(),
-  inbox: z
-    .enum(["urgent", "awaiting_fee", "receipt_pending", "needs_section", "section_full", "contacted"])
-    .optional(),
+  inbox: z.enum(REGISTRATION_INBOX_FILTERS).optional(),
 });
 
 export type ExportRegistrationsResult =
@@ -32,13 +34,7 @@ export async function exportRegistrationsAction(input: {
   locale: string;
   q?: string;
   status?: "new" | "contacted";
-  inbox?:
-    | "urgent"
-    | "awaiting_fee"
-    | "receipt_pending"
-    | "needs_section"
-    | "section_full"
-    | "contacted";
+  inbox?: RegistrationInboxFilter;
 }): Promise<ExportRegistrationsResult> {
   const parsed = inputZ.safeParse(input);
   if (!parsed.success) return { ok: false, message: "validation" };

@@ -24,6 +24,16 @@ describe("buildPublicRegistrationSchema", () => {
     expect(r.success).toBe(true);
   });
 
+  it("accepts an explicit trial intent", () => {
+    const r = schema.safeParse({
+      ...base,
+      birth_date: "2000-06-15",
+      intent: "trial",
+    });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.intent).toBe("trial");
+  });
+
   it("accepts undecided section choice", () => {
     const r = schema.safeParse({
       ...base,

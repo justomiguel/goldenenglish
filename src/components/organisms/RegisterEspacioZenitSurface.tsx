@@ -10,6 +10,7 @@ import { resolveEspacioZenitHeaderLogo } from "@/lib/landing/resolveEspacioZenit
 import { RegisterForm } from "@/components/register/RegisterForm";
 import { EspacioZenitRegisterHeader } from "@/components/molecules/EspacioZenitRegisterHeader";
 import { EspacioZenitFontRoot } from "@/components/organisms/EspacioZenitFontRoot";
+import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 export interface RegisterEspacioZenitSurfaceProps {
   locale: string;
@@ -20,6 +21,7 @@ export interface RegisterEspacioZenitSurfaceProps {
   enrollmentLink?: SectionEnrollmentLinkContext;
   extrasPack?: "nago" | null;
   mediaMap?: LandingMediaMap;
+  intent?: RegisterIntent;
 }
 
 export function RegisterEspacioZenitSurface({
@@ -31,6 +33,7 @@ export function RegisterEspacioZenitSurface({
   mediaMap,
   enrollmentLink,
   extrasPack = null,
+  intent = "reserve",
 }: RegisterEspacioZenitSurfaceProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveEspacioZenitHeaderLogo(brand, mediaMap);
@@ -79,7 +82,7 @@ export function RegisterEspacioZenitSurface({
         <div className="w-full min-w-0">
           <div className="mb-8 lg:mb-10">
             <h1 className="text-center text-3xl font-bold uppercase leading-tight tracking-[0.12em] text-white md:text-4xl lg:text-left">
-              {ez.register.shellTitle}
+              {intent === "trial" ? dict.register.trial.shellTitle : ez.register.shellTitle}
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-center text-sm leading-relaxed text-white/75 md:text-base lg:mx-0 lg:text-left">
               {ez.register.shellLead}
@@ -94,6 +97,7 @@ export function RegisterEspacioZenitSurface({
               sectionOptions={sectionOptions}
               enrollmentLink={enrollmentLink}
               extrasPack={extrasPack}
+              intent={intent}
             />
           </div>
 

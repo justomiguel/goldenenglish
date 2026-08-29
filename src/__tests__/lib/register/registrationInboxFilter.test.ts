@@ -28,4 +28,9 @@ describe("registrationInboxOrFilter", () => {
   it("includes corrupt none+total in awaiting_fee", () => {
     expect(registrationInboxOrFilter("awaiting_fee")).toContain("fee_snapshot->>total.gt.0");
   });
+
+  it("filters trial leads by intent", () => {
+    expect(parseRegistrationInboxFilter("trial")).toBe("trial");
+    expect(registrationInboxOrFilter("trial")).toBe("intent.eq.trial");
+  });
 });

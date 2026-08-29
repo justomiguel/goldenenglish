@@ -11,6 +11,8 @@
 const TUITION_PREFIX = "tuition:";
 const TUITION_BUNDLE_PREFIX = "tuition-bundle:";
 const ENROLLMENT_PREFIX = "enrollment:";
+const TRIAL_PREFIX = "trial:";
+const JOIN_PREFIX = "join:";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -28,11 +30,21 @@ export type MonthlyGatewayReference =
   | { kind: "slot"; slot: MonthlyPaymentSlotRef }
   | { kind: "payment"; paymentId: string }
   | { kind: "bundle"; bundleId: string }
-  | { kind: "enrollment"; registrationId: string };
+  | { kind: "enrollment"; registrationId: string }
+  | { kind: "trial"; registrationId: string }
+  | { kind: "join"; registrationId: string };
 
 /** Builds the deferred-creation reference that links a checkout to a pre-inscription lead. */
 export function buildEnrollmentGatewayReference(registrationId: string): string {
   return `${ENROLLMENT_PREFIX}${registrationId}`;
+}
+
+export function buildTrialFeeGatewayReference(registrationId: string): string {
+  return `${TRIAL_PREFIX}${registrationId}`;
+}
+
+export function buildJoinGatewayReference(registrationId: string): string {
+  return `${JOIN_PREFIX}${registrationId}`;
 }
 
 /** Builds the deferred-creation reference that links a checkout to a multi-section bundle. */
@@ -65,6 +77,18 @@ export function parseMonthlyGatewayReference(
     const registrationId = value.slice(ENROLLMENT_PREFIX.length).trim();
     if (!UUID_RE.test(registrationId)) return null;
     return { kind: "enrollment", registrationId };
+  }
+
+  if (value.startsWith(TRIAL_PREFIX)) {
+    const registrationId = value.slice(TRIAL_PREFIX.length).trim();
+    if (!UUID_RE.test(registrationId)) return null;
+    return { kind: "trial", registrationId };
+  }
+
+  if (value.startsWith(JOIN_PREFIX)) {
+    const registrationId = value.slice(JOIN_PREFIX.length).trim();
+    if (!UUID_RE.test(registrationId)) return null;
+    return { kind: "join", registrationId };
   }
 
   if (value.startsWith(TUITION_BUNDLE_PREFIX)) {

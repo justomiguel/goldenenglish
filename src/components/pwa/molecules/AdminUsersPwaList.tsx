@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import {
+  isAdminParentsDirectory,
   isAdminStudentsDirectory,
   isAdminTeachersDirectory,
   type AdminUserRow,
@@ -19,6 +20,7 @@ type TableLabels = Dictionary["admin"]["table"];
 const DIRECTORY_SORT_KEYS: SortKey[] = ["email", "name", "role", "phone"];
 const STUDENT_SORT_KEYS: SortKey[] = ["name"];
 const TEACHER_SORT_KEYS: SortKey[] = ["email", "name", "phone"];
+const PARENT_SORT_KEYS: SortKey[] = ["name", "email", "lastAccess"];
 
 function colLabel(labels: UserLabels, key: SortKey): string {
   switch (key) {
@@ -30,6 +32,8 @@ function colLabel(labels: UserLabels, key: SortKey): string {
       return labels.colRole;
     case "phone":
       return labels.colPhone;
+    case "lastAccess":
+      return labels.colLastAccess;
     default:
       return key;
   }
@@ -87,11 +91,14 @@ export function AdminUsersPwaList({
 }: AdminUsersPwaListProps) {
   const studentsDirectory = isAdminStudentsDirectory(lockRole);
   const teachersDirectory = isAdminTeachersDirectory(lockRole);
+  const parentsDirectory = isAdminParentsDirectory(lockRole);
   const sortKeys = studentsDirectory
     ? STUDENT_SORT_KEYS
-    : teachersDirectory
-      ? TEACHER_SORT_KEYS
-      : DIRECTORY_SORT_KEYS;
+    : parentsDirectory
+      ? PARENT_SORT_KEYS
+      : teachersDirectory
+        ? TEACHER_SORT_KEYS
+        : DIRECTORY_SORT_KEYS;
   const emptyValue = "—";
   const sortHint = (key: SortKey) => {
     if (sortKey !== key) return labels.sortNeutral;
@@ -165,6 +172,7 @@ export function AdminUsersPwaList({
             busy={busy}
             studentsDirectory={studentsDirectory}
             teachersDirectory={teachersDirectory}
+            parentsDirectory={parentsDirectory}
             emptyValue={emptyValue}
             onToggleRow={onToggleRow}
             onRequestDeleteOne={onRequestDeleteOne}

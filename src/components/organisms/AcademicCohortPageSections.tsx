@@ -1,9 +1,11 @@
 import { AdminSectionCard } from "@/components/molecules/AdminSectionCard";
+import { CohortSectionDeleteButton } from "@/components/molecules/CohortSectionDeleteButton";
 import { CohortSectionsToolbar } from "@/components/organisms/CohortSectionsToolbar";
 import type {
   AdminCohortMoveTarget,
   AdminCohortSectionRow,
 } from "@/lib/academics/loadAdminCohortPageData";
+import type { AcademicSectionLifecycleDict } from "@/types/academicSectionLifecycle";
 import type { Dictionary } from "@/types/i18n";
 
 type CohortPageDict = Dictionary["dashboard"]["academicCohortPage"];
@@ -12,6 +14,7 @@ export function AcademicCohortPageSections(props: {
   locale: string;
   cohortId: string;
   dict: CohortPageDict;
+  sectionLifecycleDict: AcademicSectionLifecycleDict;
   sectionRows: AdminCohortSectionRow[];
   defaultSectionMaxStudents: number;
   teachers: Array<{ id: string; label: string }>;
@@ -59,6 +62,14 @@ export function AcademicCohortPageSections(props: {
               archivedLabel={row.archivedAt ? d.sectionArchivedBadge : undefined}
               periodLine={row.periodLine}
               imageUrl={row.referenceImageUrl}
+              actions={
+                <CohortSectionDeleteButton
+                  locale={locale}
+                  sectionId={row.id}
+                  sectionName={row.name}
+                  dict={props.sectionLifecycleDict}
+                />
+              }
             />
           ))}
         </div>

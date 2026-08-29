@@ -3,6 +3,8 @@ import { SectionAttendanceMatrix } from "@/components/organisms/SectionAttendanc
 import { AcademicSectionAreaBlock } from "@/components/molecules/AcademicSectionAreaBlock";
 import type { TeacherAttendanceMatrixPayload } from "@/types/teacherAttendanceMatrix";
 import type { Dictionary } from "@/types/i18n";
+import type { TrialVisitorRow } from "@/lib/register/loadTrialVisitorsForSection";
+import { TrialClassVisitorsPanel } from "@/components/organisms/TrialClassVisitorsPanel";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type TeacherAttendanceDict = Dictionary["dashboard"]["teacherSectionAttendance"];
@@ -19,6 +21,7 @@ export function AcademicSectionPageAttendancePanel({
   attendanceMatrix,
   editableByDate,
   dTeacherAttendance,
+  trialVisitors = [],
 }: {
   locale: string;
   sectionId: string;
@@ -31,6 +34,7 @@ export function AcademicSectionPageAttendancePanel({
   attendanceMatrix: TeacherAttendanceMatrixPayload | null;
   editableByDate: Record<string, boolean>;
   dTeacherAttendance: TeacherAttendanceDict;
+  trialVisitors?: TrialVisitorRow[];
 }) {
   return (
     <div data-tour={ADMIN_TOUR_ANCHORS.sectionAttendanceRoot}>
@@ -68,6 +72,12 @@ export function AcademicSectionPageAttendancePanel({
             offlineHint={dTeacherAttendance.offlineHint}
           />
         ) : null}
+        <TrialClassVisitorsPanel
+          locale={locale}
+          sectionId={sectionId}
+          visitors={trialVisitors}
+          labels={dTeacherAttendance.trialVisitors}
+        />
       </AcademicSectionAreaBlock>
     </div>
   );

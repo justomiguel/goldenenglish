@@ -7,6 +7,7 @@ import type {
   LandingSectionSlug,
   SiteThemeKind,
 } from "@/types/theming";
+import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 export interface LandingMainSectionHostProps {
   dict: Dictionary;
@@ -18,6 +19,8 @@ export interface LandingMainSectionHostProps {
     Record<LandingSectionSlug, ReadonlyArray<LandingBlock>>
   >;
   blogEnabled?: boolean;
+  publicCtaMode?: PublicCtaMode;
+  inscriptionsEnabled?: boolean;
 }
 
 type LandingMainSectionComponent = ComponentType<LandingMainSectionHostProps>;

@@ -7,6 +7,7 @@ import { prepareTeacherSectionAttendancePage } from "@/lib/academics/prepareTeac
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
 import { resolveStaffAssistantPortal } from "@/lib/dashboard/resolveStaffAssistantPortal";
 import { SectionAttendancePageBody } from "@/components/organisms/SectionAttendancePageBody";
+import { loadTrialVisitorsForSection } from "@/lib/register/loadTrialVisitorsForSection";
 import type { TeacherAttendanceScope } from "@/components/molecules/TeacherAttendanceScopeLinks";
 
 interface PageProps {
@@ -53,14 +54,17 @@ export default async function AssistantSectionAttendancePage({ params, searchPar
     (await userIsSectionTeacherOrAssistant(supabase, user.id, sectionId));
   if (!canOpen) notFound();
 
-  const prep = await prepareTeacherSectionAttendancePage({
-    supabase,
-    sectionId,
-    scope,
-    locale,
-    scheduleSummaryLead: d.scheduleSummaryLead,
-    section: section as { starts_on?: string | null; ends_on?: string | null; schedule_slots?: unknown },
-  });
+  const [prep, trialVisitors] = await Promise.all([
+    prepareTeacherSectionAttendancePage({
+      supabase,
+      sectionId,
+      scope,
+      locale,
+      scheduleSummaryLead: d.scheduleSummaryLead,
+      section: section as { starts_on?: string | null; ends_on?: string | null; schedule_slots?: unknown },
+    }),
+    loadTrialVisitorsForSection(supabase, sectionId),
+  ]);
 
   const assistantBase = `/${locale}/dashboard/assistant`;
   const buildScopeHref = (s: TeacherAttendanceScope) => {
@@ -79,6 +83,7 @@ export default async function AssistantSectionAttendancePage({ params, searchPar
       backHref={assistantBase}
       backLabel={dAssist.backToAssistantHome}
       buildScopeHref={buildScopeHref}
+      trialVisitors={trialVisitors}
     />
   );
 }

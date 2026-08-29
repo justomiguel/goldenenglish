@@ -13,6 +13,7 @@ vi.mock("@/app/[locale]/dashboard/admin/academic/sectionArchiveActions", () => (
   archiveAcademicSectionAction: vi.fn(),
   unarchiveAcademicSectionAction: vi.fn(),
   deleteAcademicSectionAction: vi.fn(),
+  previewAcademicSectionDeleteAction: vi.fn(),
 }));
 
 const dict = {
@@ -27,9 +28,20 @@ const dict = {
   modalUnarchiveBody: "Unarchive body",
   modalDeleteTitle: "Delete?",
   modalDeleteBody: "Delete body",
+  modalDeleteBodyWithEnrollments: "People are enrolled",
+  enrollmentsListHeading: "Enrolled people",
+  loadingEnrollments: "Loading enrollments",
   deleteConfirmCheckbox: "I understand",
+  deleteConfirmCheckboxWithEnrollments: "I understand they are enrolled",
+  deleteButtonAria: "Delete section {name}",
   confirm: "Confirm",
   cancel: "Cancel",
+  enrollmentStatus: {
+    active: "Active",
+    dropped: "Dropped",
+    transferred: "Transferred",
+    completed: "Completed",
+  },
   errors: {
     active_enrollments: "Has enrollments",
     cohort_archived: "Cohort archived",
@@ -42,6 +54,10 @@ const dict = {
 describe("AcademicSectionLifecycleActions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(sectionArchiveActions.previewAcademicSectionDeleteAction).mockResolvedValue({
+      ok: true,
+      enrollments: [],
+    });
   });
 
   it("shows archive and delete when the section is active", () => {
@@ -80,6 +96,10 @@ describe("AcademicSectionLifecycleActions", () => {
 describe("AcademicSectionLifecycleActions – spec-8 variant contracts", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(sectionArchiveActions.previewAcademicSectionDeleteAction).mockResolvedValue({
+      ok: true,
+      enrollments: [],
+    });
   });
 
   it("archive button uses ghost variant (not loud)", () => {
@@ -195,6 +215,6 @@ describe("AcademicSectionLifecycleActions – spec-8 variant contracts", () => {
     const confirmBtn = screen.getByRole("button", { name: dict.confirm });
     await user.click(confirmBtn);
 
-    expect(mockDelete).toHaveBeenCalledWith({ locale: "en", sectionId: "sec-1" });
+    expect(mockDelete).toHaveBeenCalledWith({ locale: "en", sectionId: "sec-1", force: false });
   });
 });

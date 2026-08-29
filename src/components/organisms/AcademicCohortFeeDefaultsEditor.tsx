@@ -20,6 +20,8 @@ export interface AcademicCohortFeeDefaultsEditorProps {
   initialMonthly: number | null;
   initialMode?: "per_section" | "once_for_all";
   canUseOnceForAll?: boolean;
+  initialOffersTrial?: boolean;
+  initialTrialFeeAmount?: number;
   dict: FeeDefaultsDict;
 }
 
@@ -35,23 +37,33 @@ export function AcademicCohortFeeDefaultsEditor({
   initialMonthly,
   initialMode = "per_section",
   canUseOnceForAll = true,
+  initialOffersTrial = false,
+  initialTrialFeeAmount = 0,
   dict,
 }: AcademicCohortFeeDefaultsEditorProps) {
   const router = useRouter();
   const [enrollmentRaw, setEnrollmentRaw] = useState(() => amountToRaw(initialEnrollment));
   const [monthlyRaw, setMonthlyRaw] = useState(() => amountToRaw(initialMonthly));
   const [mode, setMode] = useState<"per_section" | "once_for_all">(initialMode);
+  const [offersTrial, setOffersTrial] = useState(initialOffersTrial);
+  const [trialFeeRaw, setTrialFeeRaw] = useState(() => String(initialTrialFeeAmount));
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [okMessage, setOkMessage] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
   const enrollment = parseOptionalFeeAmount(enrollmentRaw);
   const monthly = parseOptionalFeeAmount(monthlyRaw);
+  const trialFee = parseOptionalFeeAmount(trialFeeRaw) ?? 0;
   const enrollmentValid = enrollmentRaw.trim() === "" || enrollment != null;
   const monthlyValid = monthlyRaw.trim() === "" || monthly != null;
+  const trialValid = trialFeeRaw.trim() !== "" && Number.isFinite(trialFee) && trialFee >= 0;
   const dirty =
-    enrollment !== initialEnrollment || monthly !== initialMonthly || mode !== initialMode;
-  const valid = enrollmentValid && monthlyValid;
+    enrollment !== initialEnrollment ||
+    monthly !== initialMonthly ||
+    mode !== initialMode ||
+    offersTrial !== initialOffersTrial ||
+    trialFee !== initialTrialFeeAmount;
+  const valid = enrollmentValid && monthlyValid && trialValid;
 
   const handleSubmit = () => {
     if (!valid || !dirty || pending || archived) return;
@@ -64,6 +76,8 @@ export function AcademicCohortFeeDefaultsEditor({
         defaultEnrollmentFeeAmount: enrollment,
         defaultMonthlyFee: monthly,
         enrollmentFeeMode: mode,
+        offersTrial,
+        trialFeeAmount: trialFee,
       });
       if (!res.ok) {
         setErrorMessage(
@@ -147,6 +161,30 @@ export function AcademicCohortFeeDefaultsEditor({
             <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{dict.modeOnceDisabled}</p>
           ) : null}
         </fieldset>
+        <label className="flex items-center gap-2 text-sm sm:col-span-2">
+          <input
+            type="checkbox"
+            checked={offersTrial}
+            onChange={(e) => setOffersTrial(e.target.checked)}
+            disabled={pending || archived}
+          />
+          {dict.offersTrialLabel}
+        </label>
+        <div className="sm:col-span-2">
+          <Label htmlFor={`cohort-trial-fee-${cohortId}`}>{dict.trialFeeLabel}</Label>
+          <Input
+            id={`cohort-trial-fee-${cohortId}`}
+            className="mt-1"
+            type="number"
+            inputMode="decimal"
+            min={0}
+            step="0.01"
+            value={trialFeeRaw}
+            onChange={(e) => setTrialFeeRaw(e.target.value)}
+            disabled={pending || archived || !offersTrial}
+          />
+          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{dict.trialFeeHint}</p>
+        </div>
         <p className="text-xs text-[var(--color-muted-foreground)] sm:col-span-2">{dict.emptyHint}</p>
         <div className="flex items-center gap-2 sm:col-span-2">
           <Button

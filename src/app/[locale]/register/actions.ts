@@ -25,6 +25,7 @@ import {
   notifyPublicRegistrationReceived,
   quotePublicRegistrationFee,
 } from "@/lib/register/completePublicRegistrationSubmit";
+import { completeTrialRegistrationSubmit } from "@/lib/register/completeTrialRegistrationSubmit";
 
 export type RegisterActionState = { ok: boolean; message?: string };
 
@@ -133,6 +134,15 @@ export async function submitPublicRegistration(
   });
   if (!stamped.ok) {
     return { ok: false, message: reg.validationError };
+  }
+
+  if (d.intent === "trial") {
+    const trial = await completeTrialRegistrationSubmit({
+      locale, dict, supabase, admin: createAdminClient(), parsed: d,
+      identity, extras: stamped.extras, age, legal,
+    });
+    if (trial.ok) revalidatePath(`/${locale}/dashboard/admin/registrations`, "page");
+    return trial;
   }
 
   const quote = await quotePublicRegistrationFee({

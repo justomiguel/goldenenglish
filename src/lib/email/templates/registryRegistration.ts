@@ -6,6 +6,10 @@ import {
   adminReceiptPendingTemplate,
   adminReceivedTemplate,
 } from "@/lib/email/templates/registryRegistrationAdmin";
+import {
+  REGISTRATION_TRIAL_EMAIL_KEYS,
+  REGISTRATION_TRIAL_EMAIL_TEMPLATES,
+} from "@/lib/email/templates/registryRegistrationTrial";
 
 const FAMILY_PLACEHOLDERS = [
   { name: "greetingName", description: "Nombre del destinatario", sample: "María" },
@@ -25,6 +29,7 @@ export const REGISTRATION_EMAIL_KEYS = [
   "registration.welcome",
   "registration.receipt_rejected",
   "registration.section_full",
+  ...REGISTRATION_TRIAL_EMAIL_KEYS,
 ] as const;
 
 export const receivedTemplate: EmailTemplateDefinition = {
@@ -151,4 +156,5 @@ export const REGISTRATION_EMAIL_TEMPLATES: ReadonlyArray<EmailTemplateDefinition
   welcomeTemplate,
   receiptRejectedTemplate,
   sectionFullTemplate,
+  ...REGISTRATION_TRIAL_EMAIL_TEMPLATES,
 ];

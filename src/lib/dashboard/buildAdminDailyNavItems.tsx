@@ -46,6 +46,12 @@ export function buildAdminDailyNavItems(
       tourId: ADMIN_TOUR_ANCHORS.navUsers,
     },
     {
+      href: `${base}/parents`,
+      label: dict.parents,
+      iconId: "parents",
+      tip: dict.tipParents,
+    },
+    {
       href: `${base}/teachers`,
       label: dict.teachers,
       iconId: "teachers",

@@ -6,7 +6,10 @@ import { AdminRegistrationsScreenNarrow } from "@/components/pwa/organisms/Admin
 import { AdminUsersScreenNarrow } from "@/components/pwa/organisms/AdminUsersScreenNarrow";
 import { AdminImportScreenNarrow } from "@/components/pwa/organisms/AdminImportScreenNarrow";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
-import type { AdminUserRow } from "@/lib/dashboard/adminUsersTableHelpers";
+import {
+  EMPTY_ADMIN_STUDENT_DIRECTORY_FIELDS,
+  type AdminUserRow,
+} from "@/lib/dashboard/adminUsersTableHelpers";
 
 const refresh = vi.fn();
 
@@ -57,9 +60,7 @@ const userRow: AdminUserRow = {
   phone: "+1",
   avatarDisplayUrl: null,
   missingSection: false,
-  sections: [],
-  parents: [],
-  monthlyDue: [],
+  ...EMPTY_ADMIN_STUDENT_DIRECTORY_FIELDS,
 };
 
 describe("admin narrow screens", () => {

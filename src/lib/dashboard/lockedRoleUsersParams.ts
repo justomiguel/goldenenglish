@@ -1,7 +1,8 @@
 import type { PaginatedAdminUsersParams } from "@/lib/dashboard/loadPaginatedAdminUsers";
 import type { SortKey } from "@/lib/dashboard/adminUsersTableHelpers";
+import { parseAdminDirectoryFilters } from "@/lib/dashboard/adminDirectoryFilters";
 
-const VALID_SORT_KEYS: SortKey[] = ["email", "name", "role", "phone"];
+const VALID_SORT_KEYS: SortKey[] = ["email", "name", "role", "phone", "lastAccess"];
 
 export function parseAdminUsersSearchParams(
   raw: Record<string, string | string[] | undefined>,
@@ -25,13 +26,16 @@ export function parseAdminUsersSearchParams(
 }
 
 export function lockedRoleUsersParams(
-  lockedRole: "student" | "teacher",
+  lockedRole: "student" | "teacher" | "parent",
   raw: Record<string, string | string[] | undefined>,
 ): PaginatedAdminUsersParams {
   const parsed = parseAdminUsersSearchParams(raw);
+  const filters = parseAdminDirectoryFilters(lockedRole, raw);
   return {
     ...parsed,
     role: lockedRole,
     sort: lockedRole === "student" ? "name" : parsed.sort,
+    lockedDirectory: true,
+    ...filters,
   };
 }

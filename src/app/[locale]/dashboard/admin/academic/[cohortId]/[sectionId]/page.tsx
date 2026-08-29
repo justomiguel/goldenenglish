@@ -25,6 +25,7 @@ import { loadAdminSectionAssessmentsPanelData } from "@/lib/academics/loadAdminS
 import { parseAcademicSectionShellTabParam } from "@/lib/academics/academicSectionShellTabOrder";
 import { resolveAcademicSectionShellArea } from "@/lib/academics/visibleAcademicSectionShellTabs";
 import { loadSectionEnrollmentLinkState } from "@/lib/academics/sectionEnrollmentLinkAdmin";
+import { loadTrialVisitorsForSection } from "@/lib/register/loadTrialVisitorsForSection";
 import { SectionEnrollmentLinkPanel } from "@/components/molecules/SectionEnrollmentLinkPanel";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import type { AdminSectionHealthLearningRoute } from "@/types/adminSectionHealth";
@@ -103,12 +104,13 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
   const attendanceScheduleLine = attendanceScheduleSummary
     ? `${dTeacherAttendance.scheduleSummaryLead} ${attendanceScheduleSummary}`
     : "";
-  const [attendanceMatrix, healthSnapshot, assessmentsData, enrollmentLinkState] =
+  const [attendanceMatrix, healthSnapshot, assessmentsData, enrollmentLinkState, trialVisitors] =
     await Promise.all([
     hasEligibleAttendanceDays ? loadAdminSectionAttendanceMatrix(supabase, sectionId) : Promise.resolve(null),
     healthSnapshotPromise,
     loadAdminSectionAssessmentsPanelData(supabase, sectionId, section.cohortId, activeEnrollmentIds),
     loadSectionEnrollmentLinkState(supabase, sectionId),
+    loadTrialVisitorsForSection(supabase, sectionId),
   ]);
   const editableByDate = Object.fromEntries(
     (attendanceMatrix?.classDays ?? []).map((day) => [day, day <= todayIso]),
@@ -126,6 +128,7 @@ export default async function AcademicSectionPage({ params, searchParams }: Page
       attendanceMatrix={attendanceMatrix}
       editableByDate={editableByDate}
       dTeacherAttendance={dTeacherAttendance}
+      trialVisitors={trialVisitors}
     />
   );
 

@@ -13,12 +13,16 @@ import { LioraLandingGallery } from "@/components/organisms/LioraLandingGallery"
 import { LioraLandingContactPanel } from "@/components/organisms/LioraLandingContactPanel";
 import { LandingLioraFooter } from "@/components/organisms/LandingLioraFooter";
 import { LandingHeroPhoto } from "@/components/molecules/LandingHeroPhoto";
+import { landingRegisterCtasFromDict } from "@/lib/settings/landingRegisterCtasFromDict";
+import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 interface LandingLioraSectionsProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
   mediaMap?: LandingMediaMap;
+  publicCtaMode?: PublicCtaMode;
+  inscriptionsEnabled?: boolean;
 }
 
 const PILLARS = [
@@ -32,6 +36,8 @@ export function LandingLioraSections({
   brand,
   locale,
   mediaMap,
+  publicCtaMode,
+  inscriptionsEnabled,
 }: LandingLioraSectionsProps) {
   const t = (path: string) => marketingLandingCopy(dict, "liora", path);
   const img = (
@@ -70,13 +76,21 @@ export function LandingLioraSections({
             {t("hero.subtitle")}
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
-            <Link
-              href={`/${locale}/register`}
-              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full bg-[var(--liora-cream)] px-8 py-3 text-xs font-medium uppercase tracking-[0.22em] text-[var(--liora-ink)] transition hover:bg-white"
-            >
-              <UserPlus className="h-4 w-4 shrink-0" aria-hidden strokeWidth={1.5} />
-              {t("hero.ctaPrimary")}
-            </Link>
+            {landingRegisterCtasFromDict({
+              locale,
+              dict,
+              publicCtaMode,
+              inscriptionsEnabled,
+            }).map((cta) => (
+              <Link
+                key={cta.intent}
+                href={cta.href}
+                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full bg-[var(--liora-cream)] px-8 py-3 text-xs font-medium uppercase tracking-[0.22em] text-[var(--liora-ink)] transition hover:bg-white"
+              >
+                <UserPlus className="h-4 w-4 shrink-0" aria-hidden strokeWidth={1.5} />
+                {cta.label}
+              </Link>
+            ))}
             <Link
               href={`/${locale}#horarios`}
               className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full border border-white/70 px-8 py-3 text-xs font-medium uppercase tracking-[0.22em] text-white transition hover:bg-white/12"

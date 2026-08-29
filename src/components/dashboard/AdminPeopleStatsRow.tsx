@@ -12,6 +12,7 @@ export function AdminPeopleStatsRow({
   allAccounts,
   withPhone,
   newLast30Days,
+  phoneLabel,
 }: {
   locale: string;
   labels: Dictionary["admin"]["home"]["peopleStats"];
@@ -22,6 +23,7 @@ export function AdminPeopleStatsRow({
   allAccounts: number;
   withPhone: number;
   newLast30Days: number;
+  phoneLabel?: string;
 }) {
   const share = peopleSharePercent(total, allAccounts);
   const phoneShare = peopleSharePercent(withPhone, total);
@@ -47,7 +49,7 @@ export function AdminPeopleStatsRow({
       <AdminStatCard
         icon={<Phone className={ic} strokeWidth={1.5} aria-hidden />}
         iconClass="bg-amber-100 text-amber-700"
-        label={labels.withPhone}
+        label={phoneLabel ?? labels.withPhone}
         value={fmt(withPhone)}
         hint={labels.shareOfTotal.replace("{{pct}}", phoneShare.toLocaleString(locale, { maximumFractionDigits: 1 }))}
       />

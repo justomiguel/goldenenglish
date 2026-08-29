@@ -15,11 +15,15 @@ export function canStartRegistrationEnrollmentFeeFlow(row: {
   additionalSectionIds?: string[] | null;
   requestedSectionFull?: boolean;
   feeCaptured?: boolean;
+  chargesEnrollmentFee?: boolean;
+  snapshotTotal?: number;
   intakeState?: RegistrationIntakeState;
 }): boolean {
   if (!registrationIsActionable(row.status)) return false;
   if (row.requestedSectionFull) return false;
   if (row.feeCaptured) return false;
+  const hasFee = row.chargesEnrollmentFee === true || (row.snapshotTotal ?? 0) > 0;
+  if (!hasFee) return false;
   if (requestedRegistrationSectionIds(row).length === 0) return false;
   const intake = row.intakeState ?? "none";
   return !BLOCKED_INTAKE.has(intake);

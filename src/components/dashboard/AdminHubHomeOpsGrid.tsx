@@ -59,8 +59,8 @@ export function AdminHubHomeOpsGrid({
         : "text-[var(--color-muted-foreground)]";
 
   return (
-    <div className="grid gap-5 lg:min-h-0 lg:flex-1 lg:grid-cols-12">
-      <div className="flex flex-col gap-5 lg:col-span-8 lg:min-h-0">
+    <div className="grid gap-5 lg:flex-1 lg:grid-cols-12">
+      <div className="flex flex-col gap-5 lg:col-span-8">
         <AdminHubMetricCard
           href={`${base}/analytics`}
           tourAnchor="admin-hub-traffic"
@@ -69,7 +69,7 @@ export function AdminHubHomeOpsGrid({
           accentClass={metricIcon}
           hint={t.traffic.cardTip}
           rangeLabel={t.traffic.hits30d}
-          className="p-6"
+          className="shrink-0 p-6"
         >
           <div className="space-y-4">
             <AdminHubTrafficChart
@@ -105,7 +105,7 @@ export function AdminHubHomeOpsGrid({
           </div>
         </AdminHubMetricCard>
 
-        <div className="grid shrink-0 grid-cols-1 items-start gap-5 lg:grid-cols-3">
+        <div className="grid shrink-0 grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-5 [&>*]:h-full [&>*]:min-w-0">
           <AdminHubMetricCard
             href={`${base}/payments`}
             tourAnchor="admin-hub-payments"

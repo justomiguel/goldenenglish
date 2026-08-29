@@ -57,6 +57,7 @@ export async function startAdminRegistrationEnrollmentFeeFlow(input: {
     sectionIds,
     nowIso: new Date().toISOString(),
   });
+  if (!(quoted.fee_snapshot.total > 0)) return { ok: false, code: "no_fee" };
   const { error: upErr } = await input.admin
     .from("registrations")
     .update({

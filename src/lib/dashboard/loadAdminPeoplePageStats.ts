@@ -1,13 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
-export type AdminPeoplePageRole = "teacher" | "student" | "all";
+export type AdminPeoplePageRole = "teacher" | "student" | "all" | "parent";
 
 export type AdminPeoplePageStats = {
   total: number;
   allAccounts: number;
   withPhone: number;
   newLast30Days: number;
+  neverEntered: number;
 };
 
 function countOrZero(count: number | null): number {
@@ -24,6 +25,7 @@ type CountQuery = {
   not: (col: string, op: string, val: null) => CountQuery;
   neq: (col: string, val: string) => CountQuery;
   gte: (col: string, val: string) => CountQuery;
+  is: (col: string, val: null) => CountQuery;
 };
 
 type CountResult = {
@@ -51,22 +53,25 @@ export async function loadAdminPeoplePageStats(
   since.setUTCDate(since.getUTCDate() - 30);
   const sinceIso = since.toISOString();
 
-  const [totalRes, phoneRes, newRes, allRes] = await Promise.all([
+  const [totalRes, phoneRes, newRes, allRes, neverRes] = await Promise.all([
     applyRole(profilesHeadCount(adminClient), role),
     applyRole(profilesHeadCount(adminClient).not("phone", "is", null).neq("phone", ""), role),
     applyRole(profilesHeadCount(adminClient).gte("created_at", sinceIso), role),
     applyRole(profilesHeadCount(adminClient), "all"),
+    applyRole(profilesHeadCount(adminClient).is("last_session_start_at", null), role),
   ]);
 
   if (totalRes.error) logSupabaseClientError("loadAdminPeoplePageStats:total", totalRes.error, { role });
   if (phoneRes.error) logSupabaseClientError("loadAdminPeoplePageStats:phone", phoneRes.error, { role });
   if (newRes.error) logSupabaseClientError("loadAdminPeoplePageStats:new", newRes.error, { role });
   if (allRes.error) logSupabaseClientError("loadAdminPeoplePageStats:all", allRes.error, { role });
+  if (neverRes.error) logSupabaseClientError("loadAdminPeoplePageStats:never", neverRes.error, { role });
 
   return {
     total: countOrZero(totalRes.count),
     allAccounts: countOrZero(allRes.count),
     withPhone: countOrZero(phoneRes.count),
     newLast30Days: countOrZero(newRes.count),
+    neverEntered: countOrZero(neverRes.count),
   };
 }

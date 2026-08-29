@@ -10,6 +10,7 @@ import { RegisterForm } from "@/components/register/RegisterForm";
 import { MozarthitosReveal } from "@/components/molecules/MozarthitosReveal";
 import { MozarthitosRegisterHeader } from "@/components/molecules/MozarthitosRegisterHeader";
 import { MozarthitosFontRoot } from "@/components/organisms/MozarthitosFontRoot";
+import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 export interface RegisterMozarthitosSurfaceProps {
   locale: string;
@@ -20,6 +21,7 @@ export interface RegisterMozarthitosSurfaceProps {
   enrollmentLink?: SectionEnrollmentLinkContext;
   extrasPack?: "nago" | null;
   mediaMap?: LandingMediaMap;
+  intent?: RegisterIntent;
 }
 
 export function RegisterMozarthitosSurface({
@@ -31,6 +33,7 @@ export function RegisterMozarthitosSurface({
   mediaMap,
   enrollmentLink,
   extrasPack = null,
+  intent = "reserve",
 }: RegisterMozarthitosSurfaceProps) {
   const prefix = `/${locale}`;
   const logoSrc = resolveLandingImageSrcForTheme(
@@ -107,7 +110,7 @@ export function RegisterMozarthitosSurface({
         <div className="w-full min-w-0">
           <header className="mb-8 text-center lg:mb-10 lg:text-left">
             <h1 className="text-3xl font-bold text-[var(--mz-ink-on-white)] md:text-4xl">
-              {mz.register.shellTitle}
+              {intent === "trial" ? dict.register.trial.shellTitle : mz.register.shellTitle}
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-[var(--mz-ink-on-white)]/85 md:text-lg lg:mx-0">
               {mz.register.shellLead}
@@ -121,6 +124,7 @@ export function RegisterMozarthitosSurface({
               sectionOptions={sectionOptions}
               enrollmentLink={enrollmentLink}
               extrasPack={extrasPack}
+              intent={intent}
             />
           </div>
           <p className="mt-8 flex justify-center lg:justify-start">

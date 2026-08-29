@@ -33,6 +33,7 @@ export type RegistrationMatriculaPayUi = {
   whatsappUrl: string;
   contactEmail: string;
   actionLabels: RegistrationMatriculaPayActionLabels;
+  variant?: "enrollment" | "trial";
 };
 
 function Shell({
@@ -163,8 +164,9 @@ export function RegistrationMatriculaPayScreen({
           transferInstructions={payUi.transferInstructions}
           alternatives={payUi.alternatives}
           showPay={showPay}
-          showSwitch={showSwitch}
+          showSwitch={showSwitch && payUi.variant !== "trial"}
           labels={payUi.actionLabels}
+          variant={payUi.variant}
         />
       ) : null}
       {showContact && payUi ? (

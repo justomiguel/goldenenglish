@@ -4,20 +4,25 @@ import { UserPlus } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { EZ_OFERTA_ENROLLMENT_SRC } from "@/lib/landing/espacioZenitLandingMedia";
+import { landingRegisterCtasFromDict } from "@/lib/settings/landingRegisterCtasFromDict";
+import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 export interface LandingEspacioZenitEnrollmentBannerProps {
   dict: Dictionary;
   locale: string;
   studioPhotoSrc?: string;
+  publicCtaMode?: PublicCtaMode;
+  inscriptionsEnabled?: boolean;
 }
 
 export function LandingEspacioZenitEnrollmentBanner({
   dict,
   locale,
   studioPhotoSrc,
+  publicCtaMode,
+  inscriptionsEnabled,
 }: LandingEspacioZenitEnrollmentBannerProps) {
   const brand = "ez" as const;
-  const prefix = `/${locale}`;
   const photoSrc = studioPhotoSrc ?? EZ_OFERTA_ENROLLMENT_SRC;
   const photoAlt = marketingLandingCopy(dict, brand, "placeholders.groupPhoto");
 
@@ -35,13 +40,23 @@ export function LandingEspacioZenitEnrollmentBanner({
           >
             {marketingLandingCopy(dict, brand, "enrollment.title")}
           </h2>
-          <Link
-            href={`${prefix}/register`}
-            className="inline-flex min-h-[48px] w-fit items-center justify-center gap-2 rounded-xl bg-[var(--ez-cyan)] px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-black shadow-[0_12px_36px_rgb(0_174_239_/30%)] transition hover:bg-[var(--ez-cyan-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d3d47]"
-          >
-            <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
-            {marketingLandingCopy(dict, brand, "enrollment.cta")}
-          </Link>
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            {landingRegisterCtasFromDict({
+              locale,
+              dict,
+              publicCtaMode,
+              inscriptionsEnabled,
+            }).map((cta) => (
+              <Link
+                key={cta.intent}
+                href={cta.href}
+                className="inline-flex min-h-[48px] w-fit items-center justify-center gap-2 rounded-xl bg-[var(--ez-cyan)] px-6 py-3 text-sm font-bold uppercase tracking-[0.12em] text-black shadow-[0_12px_36px_rgb(0_174_239_/30%)] transition hover:bg-[var(--ez-cyan-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d3d47]"
+              >
+                <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
+                {cta.label}
+              </Link>
+            ))}
+          </div>
         </div>
         <div className="relative min-h-[240px] lg:min-h-[320px] lg:rounded-r-[28px]">
           <Image

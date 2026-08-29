@@ -34,6 +34,10 @@ export interface AdminSectionPageData {
     storedEnrollmentFeeAmount: number | null;
     cohortDefaultEnrollmentFeeAmount: number | null;
     cohortDefaultMonthlyFee: number | null;
+    storedOffersTrial: boolean | null;
+    storedTrialFeeAmount: number | null;
+    cohortOffersTrial: boolean;
+    cohortTrialFeeAmount: number;
     billingMode: string | null;
     /** Student/parent billing: class prorate vs full month fee. */
     monthlyFeeChargeMode: MonthlyFeeChargeMode;

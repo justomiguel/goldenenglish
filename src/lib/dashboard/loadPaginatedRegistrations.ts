@@ -13,6 +13,11 @@ import {
   collectClosedRequestedSectionIds,
   markRegistrationRowsClosedSections,
 } from "@/lib/register/markRegistrationRowsClosedSections";
+import {
+  collectSectionsChargingEnrollmentFee,
+  markRegistrationRowsEnrollmentFee,
+} from "@/lib/register/markRegistrationRowsEnrollmentFee";
+import { attachTrialSeatsToRegistrationRows } from "@/lib/register/attachTrialSeatsToRegistrationRows";
 
 const REGISTRATION_COLUMNS = [
   "id", "first_name", "last_name", "dni", "email", "phone",
@@ -21,6 +26,7 @@ const REGISTRATION_COLUMNS = [
   "tutor_relationship", "preferred_section_id", "additional_section_ids",
   "contacted_at", "contacted_by", "source_section_link_id", "tenant_extras",
   "intake_state", "fee_snapshot", "fee_captured", "enrollment_fee_receipt_path",
+  "intent", "trial_convert_token", "trial_convert_expires_at", "trial_refund_due_amount",
 ].join(", ");
 
 const SORT_COLUMN_MAP: Record<RegistrationSortKey, string> = {
@@ -80,6 +86,10 @@ type RegistrationSelectRow = {
   fee_snapshot?: unknown;
   fee_captured?: unknown;
   enrollment_fee_receipt_path?: unknown;
+  intent?: string | null;
+  trial_convert_token?: string | null;
+  trial_convert_expires_at?: string | null;
+  trial_refund_due_amount?: unknown;
 };
 
 function buildSearchFilter(q: string): string {
@@ -193,15 +203,25 @@ export async function loadPaginatedRegistrations(
     sourceSectionLinkId:
       r.source_section_link_id != null ? String(r.source_section_link_id) : null,
     tenantExtras: r.tenant_extras ?? {},
+    intent: r.intent === "trial" ? "trial" : "reserve",
+    trialConvertToken: r.trial_convert_token != null ? String(r.trial_convert_token) : null,
+    trialConvertExpiresAt:
+      r.trial_convert_expires_at != null ? String(r.trial_convert_expires_at) : null,
+    trialRefundDueAmount: Number(r.trial_refund_due_amount ?? 0) || 0,
     ...mapInboxLeadFields(r),
   }));
-  const closedIds = await collectClosedRequestedSectionIds(
-    supabase,
-    rows.flatMap((r) => requestedRegistrationSectionIds(r)),
-  );
+  const requestedIds = rows.flatMap((r) => requestedRegistrationSectionIds(r));
+  const [closedIds, chargingIds, withSeats] = await Promise.all([
+    collectClosedRequestedSectionIds(supabase, requestedIds),
+    collectSectionsChargingEnrollmentFee(supabase, requestedIds),
+    attachTrialSeatsToRegistrationRows(supabase, rows),
+  ]);
 
   return {
-    rows: markRegistrationRowsClosedSections(rows, closedIds),
+    rows: markRegistrationRowsEnrollmentFee(
+      markRegistrationRowsClosedSections(withSeats, closedIds),
+      chargingIds,
+    ),
     totalCount: countResult.count ?? 0,
     page,
     pageSize,

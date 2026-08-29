@@ -5,6 +5,7 @@ import { loadFlowChileCredentialsPlain, flowChileApiBase } from "@/lib/payment-g
 import { logServerException } from "@/lib/logging/serverActionLog";
 import { finalizeEventPaymentFromFlowGateway } from "@/lib/events/server/finalizeEventPaymentFromFlowGateway";
 import { finalizeEnrollmentPaymentFromFlowGateway } from "@/lib/register/finalizeEnrollmentPaymentFromFlowGateway";
+import { finalizeTrialPaymentFromFlowGateway } from "@/lib/register/finalizeTrialPaymentFromFlowGateway";
 
 export async function POST(req: Request): Promise<Response> {
   try {
@@ -49,6 +50,15 @@ export async function POST(req: Request): Promise<Response> {
               secretKey: creds.secretKey,
               token,
             })
+          : purpose === "trial" || purpose === "join"
+            ? await finalizeTrialPaymentFromFlowGateway({
+                admin,
+                apiBaseUrl: base,
+                apiKey: creds.apiKey,
+                secretKey: creds.secretKey,
+                token,
+                purpose,
+              })
           : await finalizeMonthlyPaymentFromFlowGateway({
               admin,
               apiBaseUrl: base,

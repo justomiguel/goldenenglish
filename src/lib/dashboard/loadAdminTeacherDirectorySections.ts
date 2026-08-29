@@ -38,6 +38,12 @@ function addSection(
   byTeacher.set(teacherId, inner);
 }
 
+function pushId(byTeacher: Map<string, string[]>, teacherId: string, sectionId: string) {
+  const list = byTeacher.get(teacherId) ?? [];
+  if (!list.includes(sectionId)) list.push(sectionId);
+  byTeacher.set(teacherId, list);
+}
+
 function toSortedLists(
   byTeacher: Map<string, Map<string, SectionMeta>>,
 ): Map<string, AdminStudentDirectorySection[]> {
@@ -56,12 +62,30 @@ function toSortedLists(
   return out;
 }
 
+export type AdminTeacherDirectoryLoad = {
+  sections: Map<string, AdminStudentDirectorySection[]>;
+  leadIds: Map<string, string[]>;
+  assistantIds: Map<string, string[]>;
+};
+
 export async function loadAdminTeacherDirectorySections(
   admin: SupabaseClient,
   teacherIds: string[],
 ): Promise<Map<string, AdminStudentDirectorySection[]>> {
+  return (await loadAdminTeacherDirectoryWithRoles(admin, teacherIds)).sections;
+}
+
+export async function loadAdminTeacherDirectoryWithRoles(
+  admin: SupabaseClient,
+  teacherIds: string[],
+): Promise<AdminTeacherDirectoryLoad> {
+  const empty: AdminTeacherDirectoryLoad = {
+    sections: new Map(),
+    leadIds: new Map(),
+    assistantIds: new Map(),
+  };
   const ids = teacherIds.filter((id) => id.trim().length > 0);
-  if (ids.length === 0) return new Map();
+  if (ids.length === 0) return empty;
 
   const [leadResult, assistantResult] = await Promise.all([
     admin
@@ -87,11 +111,16 @@ export async function loadAdminTeacherDirectorySections(
   }
 
   const byTeacher = new Map<string, Map<string, SectionMeta>>();
+  const leadIds = new Map<string, string[]>();
+  const assistantIds = new Map<string, string[]>();
   for (const raw of (leadResult.data ?? []) as LeadRow[]) {
-    addSection(byTeacher, String(raw.teacher_id), String(raw.id), {
+    const teacherId = String(raw.teacher_id);
+    const sectionId = String(raw.id);
+    addSection(byTeacher, teacherId, sectionId, {
       name: sectionLabel(raw.id, raw.name),
       cohortId: raw.cohort_id?.trim() || null,
     });
+    pushId(leadIds, teacherId, sectionId);
   }
 
   const assistants = (assistantResult.data ?? []) as AssistantRow[];
@@ -125,7 +154,8 @@ export async function loadAdminTeacherDirectorySections(
     const meta = metaBySectionId.get(sectionId);
     if (!meta) continue;
     addSection(byTeacher, teacherId, sectionId, meta);
+    pushId(assistantIds, teacherId, sectionId);
   }
 
-  return toSortedLists(byTeacher);
+  return { sections: toSortedLists(byTeacher), leadIds, assistantIds };
 }

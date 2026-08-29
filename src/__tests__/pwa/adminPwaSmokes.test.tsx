@@ -5,7 +5,10 @@ import { AdminRegistrationPwaCard } from "@/components/pwa/molecules/AdminRegist
 import { AdminRegistrationsPwaList } from "@/components/pwa/molecules/AdminRegistrationsPwaList";
 import { AdminUsersPwaList } from "@/components/pwa/molecules/AdminUsersPwaList";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
-import type { AdminUserRow } from "@/lib/dashboard/adminUsersTableHelpers";
+import {
+  EMPTY_ADMIN_STUDENT_DIRECTORY_FIELDS,
+  type AdminUserRow,
+} from "@/lib/dashboard/adminUsersTableHelpers";
 
 const regRow: AdminRegistrationRow = {
   id: "1",
@@ -40,9 +43,7 @@ const userRow: AdminUserRow = {
   phone: "+1",
   avatarDisplayUrl: null,
   missingSection: false,
-  sections: [],
-  parents: [],
-  monthlyDue: [],
+  ...EMPTY_ADMIN_STUDENT_DIRECTORY_FIELDS,
 };
 
 describe("admin PWA smoke", () => {

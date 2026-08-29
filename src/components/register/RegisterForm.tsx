@@ -11,14 +11,13 @@ import { RegisterStudentFieldset } from "@/components/register/RegisterStudentFi
 import { RegisterSuccessDialog } from "@/components/molecules/RegisterSuccessDialog";
 import { SectionEnrollmentLinkCard } from "@/components/register/SectionEnrollmentLinkCard";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
-import type { PublicRegistrationInput } from "@/lib/register/publicRegistrationSchema";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import type { Dictionary } from "@/types/i18n";
 import type { RegistrationExtrasPackId } from "@/lib/register/packs/extrasPackForTemplateKind";
+import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import { RegisterNagoExtras } from "@/components/register/RegisterNagoExtras";
 import { collectRegisterExtrasPrefill } from "@/lib/register/packs/nago/collectRegisterExtrasPrefill";
-import { readNagoExtrasFromFormData } from "@/lib/register/packs/nago/readNagoExtrasFromFormData";
-
+import { publicRegistrationInputFromFormData } from "@/lib/register/publicRegistrationInputFromFormData";
 
 type RegisterStep = "student" | "confirm" | "details" | "extras";
 
@@ -29,6 +28,7 @@ interface RegisterFormProps {
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
   extrasPack?: RegistrationExtrasPackId | null;
+  intent?: RegisterIntent;
 }
 
 export function RegisterForm({
@@ -38,6 +38,7 @@ export function RegisterForm({
   sectionOptions,
   enrollmentLink,
   extrasPack = null,
+  intent = "reserve",
 }: RegisterFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [step, setStep] = useState<RegisterStep>("student");
@@ -54,6 +55,7 @@ export function RegisterForm({
   >(null);
   const [signerPrefill, setSignerPrefill] = useState({ name: "", dni: "" });
 
+  const formDict = intent === "trial" ? { ...dict, submit: dict.trial.submit } : dict;
   const isMinor = birthDate.length === 10 && fullYearsFromIsoDate(birthDate) < legalAgeMajority;
   const onLaterStep = step === "details" || step === "extras";
   const showTutor = onLaterStep && !existingConfirmed && isMinor;
@@ -114,23 +116,11 @@ export function RegisterForm({
     setBusy(true);
     setMsg(null);
     setMsgTone("error");
-    const fd = new FormData(e.currentTarget);
-    const raw: PublicRegistrationInput = {
-      first_name: String(fd.get("first_name") ?? ""),
-      last_name: String(fd.get("last_name") ?? ""),
-      dni: String(fd.get("dni") ?? ""),
-      email: String(fd.get("email") ?? ""),
-      phone: String(fd.get("phone") ?? ""),
-      birth_date: String(fd.get("birth_date") ?? ""),
-      preferred_section_id: String(fd.get("preferred_section_id") ?? ""),
-      additional_section_ids: fd.getAll("additional_section_ids").map(String).filter(Boolean),
-      tutor_name: String(fd.get("tutor_name") ?? ""),
-      tutor_dni: String(fd.get("tutor_dni") ?? ""),
-      tutor_email: String(fd.get("tutor_email") ?? ""),
-      tutor_phone: String(fd.get("tutor_phone") ?? ""),
-      tutor_relationship: String(fd.get("tutor_relationship") ?? ""),
-      tenant_extras: extrasPack === "nago" ? readNagoExtrasFromFormData(fd) : undefined,
-    };
+    const raw = publicRegistrationInputFromFormData(
+      new FormData(e.currentTarget),
+      extrasPack,
+      intent,
+    );
     try {
       const res = enrollmentLink
         ? await submitSectionLinkRegistration(locale, enrollmentLink.token, raw)
@@ -164,11 +154,12 @@ export function RegisterForm({
       <form
         ref={formRef}
         onSubmit={onSubmit}
-        className="w-full max-w-lg space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-card)] ring-1 ring-[var(--color-primary)]/[0.06]"
+        className="w-full max-w-2xl space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-card)] ring-1 ring-[var(--color-primary)]/[0.06]"
       >
+        <input type="hidden" name="intent" value={intent} />
         <RegisterStudentFieldset
           locale={locale}
-          dict={dict}
+          dict={formDict}
           birthDate={birthDate}
           onBirthDateChange={setBirthDate}
           readOnly={step !== "student"}
@@ -202,7 +193,7 @@ export function RegisterForm({
         ) : null}
         {step === "details" || step === "extras" ? (
           <RegisterFormContactAndSections
-            dict={dict}
+            dict={formDict}
             busy={busy}
             showTutor={showTutor}
             showAdultContact={showAdultContact}
@@ -210,6 +201,7 @@ export function RegisterForm({
             selectedSectionIds={selectedSectionIds}
             onSelectedSectionIdsChange={setSelectedSectionIds}
             enrollmentLink={enrollmentLink}
+            intent={intent}
             hidden={step === "extras"}
             submitType={extrasPack === "nago" && step === "details" ? "button" : "submit"}
             onContinue={() => {

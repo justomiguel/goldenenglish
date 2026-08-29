@@ -10,8 +10,11 @@ describe("adminPersonRecordListHref", () => {
     expect(adminPersonRecordListHref("es", "teacher")).toBe("/es/dashboard/admin/teachers");
   });
 
-  it("returns Usuarios for parents and other roles", () => {
-    expect(adminPersonRecordListHref("en", "parent")).toBe("/en/dashboard/admin/users");
+  it("returns Padres for a parent profile", () => {
+    expect(adminPersonRecordListHref("en", "parent")).toBe("/en/dashboard/admin/parents");
+  });
+
+  it("returns Usuarios for other roles", () => {
     expect(adminPersonRecordListHref("en", "admin")).toBe("/en/dashboard/admin/users");
   });
 });

@@ -9,6 +9,7 @@ import { RegisterMiMundoSurface } from "@/components/organisms/RegisterMiMundoSu
 import { RegisterMozarthitosSurface } from "@/components/organisms/RegisterMozarthitosSurface";
 import { RegisterNagoSurface } from "@/components/organisms/RegisterNagoSurface";
 import { extrasPackForTemplateKind } from "@/lib/register/packs/extrasPackForTemplateKind";
+import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 interface RegisterSurfaceByTemplateProps {
   templateKind: string;
@@ -19,6 +20,7 @@ interface RegisterSurfaceByTemplateProps {
   sectionOptions: { id: string; label: string }[];
   mediaMap?: LandingMediaMap;
   enrollmentLink?: SectionEnrollmentLinkContext;
+  intent?: RegisterIntent;
 }
 
 /**

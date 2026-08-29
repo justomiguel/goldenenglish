@@ -30,6 +30,8 @@ const inputSchema = z.object({
   defaultEnrollmentFeeAmount: optionalAmount,
   defaultMonthlyFee: optionalAmount,
   enrollmentFeeMode: z.enum(["per_section", "once_for_all"]).optional(),
+  offersTrial: z.boolean().optional(),
+  trialFeeAmount: z.coerce.number().finite().min(0).optional(),
 });
 
 export type UpdateCohortFeeDefaultsCode = "PARSE" | "ARCHIVED" | "SAVE" | "ONCE_FOR_ALL";
@@ -42,6 +44,8 @@ export async function updateAcademicCohortFeeDefaultsAction(input: {
   defaultEnrollmentFeeAmount: number | null;
   defaultMonthlyFee: number | null;
   enrollmentFeeMode?: "per_section" | "once_for_all";
+  offersTrial?: boolean;
+  trialFeeAmount?: number;
 }): Promise<{ ok: true } | { ok: false; code: UpdateCohortFeeDefaultsCode }> {
   const parsed = inputSchema.safeParse(input);
   if (!parsed.success) return { ok: false, code: "PARSE" };
@@ -65,6 +69,8 @@ export async function updateAcademicCohortFeeDefaultsAction(input: {
     }
 
     const mode = data.enrollmentFeeMode ?? "per_section";
+    const offersTrial = data.offersTrial;
+    const trialFeeAmount = data.trialFeeAmount;
     if (mode === "once_for_all") {
       const { data: sections } = await supabase
         .from("academic_sections")
@@ -80,13 +86,23 @@ export async function updateAcademicCohortFeeDefaultsAction(input: {
       if (!canCohortUseOnceForAll(amounts)) return { ok: false, code: "ONCE_FOR_ALL" };
     }
 
+    const patch: {
+      default_enrollment_fee_amount: number | null;
+      default_monthly_fee: number | null;
+      enrollment_fee_mode: "per_section" | "once_for_all";
+      offers_trial?: boolean;
+      trial_fee_amount?: number;
+    } = {
+      default_enrollment_fee_amount: enrollment,
+      default_monthly_fee: monthly,
+      enrollment_fee_mode: mode,
+    };
+    if (offersTrial !== undefined) patch.offers_trial = offersTrial;
+    if (trialFeeAmount !== undefined) patch.trial_fee_amount = trialFeeAmount;
+
     const { error: upErr } = await supabase
       .from("academic_cohorts")
-      .update({
-        default_enrollment_fee_amount: enrollment,
-        default_monthly_fee: monthly,
-        enrollment_fee_mode: mode,
-      })
+      .update(patch)
       .eq("id", data.cohortId);
     if (upErr) {
       logSupabaseClientError(`${S}:update`, upErr, { cohortId: data.cohortId });
@@ -101,6 +117,8 @@ export async function updateAcademicCohortFeeDefaultsAction(input: {
         default_enrollment_fee_amount: enrollment,
         default_monthly_fee: monthly,
         enrollment_fee_mode: mode,
+        ...(offersTrial !== undefined ? { offers_trial: offersTrial } : {}),
+        ...(trialFeeAmount !== undefined ? { trial_fee_amount: trialFeeAmount } : {}),
       },
     });
 

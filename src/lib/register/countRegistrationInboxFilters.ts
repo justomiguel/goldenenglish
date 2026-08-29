@@ -14,6 +14,7 @@ export type RegistrationInboxCounts = {
   needs_section: number;
   section_full: number;
   contacted: number;
+  trial: number;
 };
 
 export function emptyRegistrationInboxCounts(): RegistrationInboxCounts {
@@ -24,6 +25,7 @@ export function emptyRegistrationInboxCounts(): RegistrationInboxCounts {
     needs_section: 0,
     section_full: 0,
     contacted: 0,
+    trial: 0,
   };
 }
 
@@ -32,6 +34,7 @@ export function countRegistrationInboxFilters(
     status: string;
     intake_state?: unknown;
     fee_snapshot?: unknown;
+    intent?: unknown;
   }>,
 ): RegistrationInboxCounts {
   const counts = emptyRegistrationInboxCounts();
@@ -45,6 +48,7 @@ export function countRegistrationInboxFilters(
     if (intakeState === "needs_section") counts.needs_section += 1;
     if (intakeState === "section_full") counts.section_full += 1;
     if (row.status === "contacted") counts.contacted += 1;
+    if (row.intent === "trial") counts.trial += 1;
   }
   return counts;
 }

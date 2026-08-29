@@ -59,7 +59,7 @@ export default async function AcademicCohortPage({ params, searchParams }: PageP
 
   const { data: cohort, error: cErr } = await supabase
     .from("academic_cohorts")
-    .select("id, name, is_current, archived_at, default_enrollment_fee_amount, default_monthly_fee, enrollment_fee_mode")
+    .select("id, name, is_current, archived_at, default_enrollment_fee_amount, default_monthly_fee, enrollment_fee_mode, offers_trial, trial_fee_amount")
     .eq("id", cohortId)
     .maybeSingle();
 
@@ -130,6 +130,10 @@ export default async function AcademicCohortPage({ params, searchParams }: PageP
     cohortDefault: (cohort as { default_enrollment_fee_amount?: unknown })
       .default_enrollment_fee_amount,
   });
+  const initialOffersTrial = (cohort as { offers_trial?: boolean }).offers_trial === true;
+  const initialTrialFeeAmount = parseOptionalFeeAmount(
+    (cohort as { trial_fee_amount?: unknown }).trial_fee_amount,
+  ) ?? 0;
 
   const brand = await getBrandForRequest();
   const tn = dict.dashboard.academics.transferNotifications;
@@ -185,6 +189,8 @@ export default async function AcademicCohortPage({ params, searchParams }: PageP
             initialMonthly={initialMonthly}
             initialMode={initialMode}
             canUseOnceForAll={canUseOnceForAll}
+            initialOffersTrial={initialOffersTrial}
+            initialTrialFeeAmount={initialTrialFeeAmount}
             dict={d}
           />
         }
@@ -193,6 +199,7 @@ export default async function AcademicCohortPage({ params, searchParams }: PageP
             locale={locale}
             cohortId={cohortId}
             dict={d}
+            sectionLifecycleDict={dict.dashboard.academicSectionPage.lifecycle}
             sectionRows={sectionRows}
             defaultSectionMaxStudents={defMax}
             teachers={teachers}

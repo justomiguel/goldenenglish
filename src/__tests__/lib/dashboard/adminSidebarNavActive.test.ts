@@ -9,12 +9,14 @@ const academicHub = `${base}/academic`;
 const contents = `${base}/academic/contents`;
 
 const students = `${base}/students`;
+const parents = `${base}/parents`;
 const teachers = `${base}/teachers`;
 const users = `${base}/users`;
 const institute = `${base}/institute`;
 const dailyHrefs = [
   base,
   students,
+  parents,
   teachers,
   users,
   `${base}/registrations`,
@@ -78,15 +80,15 @@ describe("adminSidebarNavActive", () => {
     ).toBe(false);
   });
 
-  it("highlights Usuarios on a parent person record", () => {
+  it("highlights Padres on a parent person record", () => {
     const pathname = `${base}/users/82f70fa1-a723-4406-bc61-42278abba648`;
     expect(
-      isAdminSidebarNavItemActive(pathname, users, base, profile, dailyHrefs, {
+      isAdminSidebarNavItemActive(pathname, parents, base, profile, dailyHrefs, {
         personRecordRole: "parent",
       }),
     ).toBe(true);
     expect(
-      isAdminSidebarNavItemActive(pathname, institute, base, profile, dailyHrefs, {
+      isAdminSidebarNavItemActive(pathname, users, base, profile, dailyHrefs, {
         personRecordRole: "parent",
       }),
     ).toBe(false);

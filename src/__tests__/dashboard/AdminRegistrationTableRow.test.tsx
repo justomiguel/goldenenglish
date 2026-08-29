@@ -36,6 +36,8 @@ function row(overrides: Partial<AdminRegistrationRow> = {}): AdminRegistrationRo
     contacted_by: null,
     sourceSectionLinkId: null,
     requestedSectionFull: false,
+    chargesEnrollmentFee: true,
+    snapshotTotal: 80,
     ...overrides,
   };
 }
@@ -70,6 +72,18 @@ describe("AdminRegistrationTableRow", () => {
   it("shows the start-fee-flow button only when the requested section still has a seat", () => {
     renderRow(row());
     expect(screen.getByRole("button", { name: labels.startEnrollmentFeeFlow })).toBeInTheDocument();
+  });
+
+  it("shows the trial-class badge on trial leads", () => {
+    renderRow(row({ intent: "trial", chargesEnrollmentFee: false, snapshotTotal: 0 }));
+    expect(screen.getByText(labels.trialClassBadge)).toBeInTheDocument();
+  });
+
+  it("hides the start-fee-flow button when the lead has no matrícula to collect", () => {
+    renderRow(row({ chargesEnrollmentFee: false, snapshotTotal: 0 }));
+    expect(
+      screen.queryByRole("button", { name: labels.startEnrollmentFeeFlow }),
+    ).not.toBeInTheDocument();
   });
 
   it("marks a full-section lead in red and hides the start-fee-flow button", () => {

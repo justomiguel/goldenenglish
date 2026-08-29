@@ -4,6 +4,7 @@ import {
   ROLE_FILTER_ALL,
   applyUserRowToggle,
   filterAdminUsers,
+  isAdminParentsDirectory,
   isAdminStudentsDirectory,
   isAdminTeachersDirectory,
   sortAdminUsers,
@@ -40,6 +41,13 @@ describe("isAdminTeachersDirectory", () => {
     expect(isAdminTeachersDirectory("teacher")).toBe(true);
     expect(isAdminTeachersDirectory("student")).toBe(false);
     expect(isAdminTeachersDirectory()).toBe(false);
+  });
+});
+
+describe("isAdminParentsDirectory", () => {
+  it("is true only for the locked parents list", () => {
+    expect(isAdminParentsDirectory("parent")).toBe(true);
+    expect(isAdminParentsDirectory("student")).toBe(false);
   });
 });
 

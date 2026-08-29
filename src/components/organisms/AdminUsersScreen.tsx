@@ -7,9 +7,24 @@ import { AdminUsersScreenNarrow } from "@/components/pwa/organisms/AdminUsersScr
 import type { Dictionary } from "@/types/i18n";
 import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersListRoleCounts";
 import type { AdminUserRow, SortKey, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
+import type { AdminDirectoryFilters, AdminDirectoryRole } from "@/lib/dashboard/adminDirectoryFilters";
+import type { AdminDirectoryFacets } from "@/lib/dashboard/countAdminDirectoryFacets";
 
 type UserLabels = Dictionary["admin"]["users"];
 type TableLabels = Dictionary["admin"]["table"];
+
+export type AdminParentsDirectoryChrome = {
+  labels: Dictionary["admin"]["parents"];
+  onInvite: (selectedIds: string[]) => Promise<void>;
+};
+
+export type AdminDirectoryFiltersChrome = {
+  role: AdminDirectoryRole;
+  labels: Dictionary["admin"]["directoryFilters"];
+  values: AdminDirectoryFilters;
+  facets: AdminDirectoryFacets;
+  sectionOptions: { id: string; name: string }[];
+};
 
 export interface AdminUsersScreenProps {
   rows: AdminUserRow[];
@@ -26,6 +41,8 @@ export interface AdminUsersScreenProps {
   labels: UserLabels;
   tableLabels: TableLabels;
   lockRole?: string;
+  parentsDirectory?: AdminParentsDirectoryChrome;
+  directoryFilters?: AdminDirectoryFiltersChrome;
 }
 
 export function AdminUsersScreen(props: AdminUsersScreenProps) {

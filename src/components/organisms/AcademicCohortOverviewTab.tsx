@@ -15,6 +15,8 @@ export function AcademicCohortOverviewTab(props: {
   initialMonthly: number | null;
   initialMode?: "per_section" | "once_for_all";
   canUseOnceForAll?: boolean;
+  initialOffersTrial?: boolean;
+  initialTrialFeeAmount?: number;
   dict: CohortPageDict;
 }) {
   const { dict: d } = props;
@@ -53,6 +55,8 @@ export function AcademicCohortOverviewTab(props: {
         initialMonthly={props.initialMonthly}
         initialMode={props.initialMode}
         canUseOnceForAll={props.canUseOnceForAll}
+        initialOffersTrial={props.initialOffersTrial}
+        initialTrialFeeAmount={props.initialTrialFeeAmount}
         dict={d.feeDefaults}
       />
     </div>

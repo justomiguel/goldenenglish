@@ -99,6 +99,10 @@ export async function runCreateDashboardUserInviteOrchestration(params: {
     effectivePhone,
     minorSyntheticEmailSource,
     creatingMinorStudent,
+    requirePasswordChange:
+      inviteProfile.role === "student" &&
+      !creatingMinorStudent &&
+      parsed.provisioning_route !== "registration_accept",
     finalPassword,
     meta,
     signupAttemptSubject,

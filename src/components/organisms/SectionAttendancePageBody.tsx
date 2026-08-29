@@ -8,6 +8,8 @@ import {
   TeacherAttendanceScopeLinks,
   type TeacherAttendanceScope,
 } from "@/components/molecules/TeacherAttendanceScopeLinks";
+import { TrialClassVisitorsPanel } from "@/components/organisms/TrialClassVisitorsPanel";
+import type { TrialVisitorRow } from "@/lib/register/loadTrialVisitorsForSection";
 
 export interface SectionAttendancePageBodyProps {
   locale: string;
@@ -19,6 +21,7 @@ export interface SectionAttendancePageBodyProps {
   backHref: string;
   backLabel: string;
   buildScopeHref: (s: TeacherAttendanceScope) => string;
+  trialVisitors?: TrialVisitorRow[];
 }
 
 export function SectionAttendancePageBody({
@@ -31,6 +34,7 @@ export function SectionAttendancePageBody({
   backHref,
   backLabel,
   buildScopeHref,
+  trialVisitors = [],
 }: SectionAttendancePageBodyProps) {
   const fullCourseHref = buildScopeHref("full");
   const scheduleLineNode = prep.scheduleLine ? (
@@ -115,6 +119,12 @@ export function SectionAttendancePageBody({
           ) : null}
         </>
       )}
+      <TrialClassVisitorsPanel
+        locale={locale}
+        sectionId={sectionId}
+        visitors={trialVisitors}
+        labels={d.trialVisitors}
+      />
     </div>
   );
 }

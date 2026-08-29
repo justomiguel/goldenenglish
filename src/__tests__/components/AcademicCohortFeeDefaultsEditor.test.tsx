@@ -30,6 +30,9 @@ const dict = {
   modeOnceForAll: "Once for the whole cohort",
   modeOnceDisabled: "Once for all is unavailable.",
   errorOnceForAll: "Cannot save once for all.",
+  offersTrialLabel: "Offer a trial class",
+  trialFeeLabel: "Trial class fee",
+  trialFeeHint: "0 means the trial class is free.",
 };
 
 const COH = "00000000-0000-4000-8000-000000000020";
@@ -62,6 +65,8 @@ describe("AcademicCohortFeeDefaultsEditor", () => {
         defaultEnrollmentFeeAmount: 80,
         defaultMonthlyFee: 120,
         enrollmentFeeMode: "per_section",
+        offersTrial: false,
+        trialFeeAmount: 0,
       });
     });
     expect(refreshMock).toHaveBeenCalled();

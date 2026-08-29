@@ -51,6 +51,25 @@ describe("landing marketing branches", () => {
     );
   });
 
+  it("LandingHero shows reserve and trial CTAs when mode is both", () => {
+    render(
+      <LandingHero
+        dict={dictEn}
+        brand={{ ...mockBrandPublic, socialWhatsapp: "" }}
+        locale="es"
+        publicCtaMode="both"
+      />,
+    );
+    expect(screen.getByRole("link", { name: dictEn.landing.hero.ctaReserveSpot })).toHaveAttribute(
+      "href",
+      "/es/register",
+    );
+    expect(screen.getByRole("link", { name: dictEn.landing.hero.ctaTrialClass })).toHaveAttribute(
+      "href",
+      "/es/register?intent=trial",
+    );
+  });
+
   it("LandingStory uses empty alts fallback", () => {
     const dict: Dictionary = {
       ...dictEn,

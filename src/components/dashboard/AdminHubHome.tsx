@@ -37,7 +37,7 @@ export function AdminHubHome({
   );
 
   return (
-    <div className="flex flex-col gap-5 lg:min-h-0 lg:flex-1">
+    <div className="flex flex-col gap-5 lg:flex-1">
       <div data-tour="admin-hub-title" className="shrink-0">
         <h1 className="font-display text-3xl font-bold tracking-tight text-[var(--color-primary)] md:text-[2.5rem]">
           {greetingName

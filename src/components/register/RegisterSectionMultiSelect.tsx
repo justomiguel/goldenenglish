@@ -11,6 +11,7 @@ interface RegisterSectionMultiSelectProps {
   selectedIds: string[];
   onChange: (next: string[]) => void;
   lockedPreferredId?: string | null;
+  embedded?: boolean;
 }
 
 export function RegisterSectionMultiSelect({
@@ -19,6 +20,7 @@ export function RegisterSectionMultiSelect({
   selectedIds,
   onChange,
   lockedPreferredId = null,
+  embedded = false,
 }: RegisterSectionMultiSelectProps) {
   const order = sectionOptions.map((o) => o.id);
   const extras = lockedPreferredId
@@ -67,12 +69,16 @@ export function RegisterSectionMultiSelect({
 
   return (
     <fieldset className="space-y-2">
-      <legend className="text-sm font-semibold text-[var(--color-foreground)]">
-        {dict.sectionsTitle}
-      </legend>
-      <p className="text-xs text-[var(--color-muted-foreground)]">
-        {lockedPreferredId ? dict.sectionsAlsoJoin : dict.sectionsHint}
-      </p>
+      {embedded ? null : (
+        <>
+          <legend className="text-sm font-semibold text-[var(--color-foreground)]">
+            {dict.sectionsTitle}
+          </legend>
+          <p className="text-xs text-[var(--color-muted-foreground)]">
+            {lockedPreferredId ? dict.sectionsAlsoJoin : dict.sectionsHint}
+          </p>
+        </>
+      )}
       <input
         type="hidden"
         name="preferred_section_id"

@@ -27,6 +27,23 @@ function makeSupabase() {
       return chain;
     }),
     order: vi.fn(() => chain),
+    in: vi.fn(() =>
+      Promise.resolve({
+        data: [
+          {
+            id: "11111111-1111-4111-8111-111111111111",
+            enrollment_fee_amount: 80,
+            academic_cohorts: { default_enrollment_fee_amount: null },
+          },
+          {
+            id: "22222222-2222-4222-8222-222222222222",
+            enrollment_fee_amount: 0,
+            academic_cohorts: { default_enrollment_fee_amount: null },
+          },
+        ],
+        error: null,
+      }),
+    ),
     range: vi.fn(() =>
       Promise.resolve({
         data: [
@@ -116,6 +133,7 @@ describe("loadPaginatedRegistrations", () => {
     expect(selected).toContain("intake_state");
     expect(selected).toContain("fee_snapshot");
     expect(selected).toContain("enrollment_fee_receipt_path");
+    expect(selected).toContain("intent");
   });
 
   it("escapes wildcards in the search so a literal percent is not a wildcard", async () => {
@@ -134,6 +152,7 @@ describe("loadPaginatedRegistrations", () => {
     ]);
     expect(result.rows[0]?.existingStudentId).toBeNull();
     expect(result.rows[0]?.requestedSectionFull).toBe(false);
+    expect(result.rows[0]?.chargesEnrollmentFee).toBe(true);
   });
 
   it("filters preferred or additional section ids together", async () => {

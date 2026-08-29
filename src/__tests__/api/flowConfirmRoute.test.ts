@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mockFinalizeMonthly = vi.fn();
 const mockFinalizeEvent = vi.fn();
 const mockFinalizeEnrollment = vi.fn();
+const mockFinalizeTrial = vi.fn();
 const mockLoadCreds = vi.fn();
 const mockAdmin = vi.fn();
 
@@ -18,6 +19,10 @@ vi.mock("@/lib/events/server/finalizeEventPaymentFromFlowGateway", () => ({
 vi.mock("@/lib/register/finalizeEnrollmentPaymentFromFlowGateway", () => ({
   finalizeEnrollmentPaymentFromFlowGateway: (...args: unknown[]) =>
     mockFinalizeEnrollment(...args),
+}));
+
+vi.mock("@/lib/register/finalizeTrialPaymentFromFlowGateway", () => ({
+  finalizeTrialPaymentFromFlowGateway: (...args: unknown[]) => mockFinalizeTrial(...args),
 }));
 
 vi.mock("@/lib/payment-gateways/loadPaymentGatewayEncryptionKey", () => ({
@@ -52,6 +57,7 @@ describe("POST /api/payments/flow/confirm", () => {
     mockFinalizeMonthly.mockResolvedValue({ ok: true });
     mockFinalizeEvent.mockResolvedValue({ ok: true });
     mockFinalizeEnrollment.mockResolvedValue({ ok: true });
+    mockFinalizeTrial.mockResolvedValue({ ok: true });
   });
 
   it("routes to monthly finalizer by default", async () => {
@@ -92,5 +98,18 @@ describe("POST /api/payments/flow/confirm", () => {
     expect(mockFinalizeEnrollment).toHaveBeenCalled();
     expect(mockFinalizeMonthly).not.toHaveBeenCalled();
     expect(mockFinalizeEvent).not.toHaveBeenCalled();
+  });
+
+  it("routes to trial finalizer when purpose=trial", async () => {
+    const res = await POST(
+      new Request("https://example.com/api/payments/flow/confirm?purpose=trial", {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ token: "tok-trial" }).toString(),
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(mockFinalizeTrial).toHaveBeenCalled();
+    expect(mockFinalizeEnrollment).not.toHaveBeenCalled();
   });
 });

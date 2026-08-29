@@ -38,6 +38,8 @@ export class RecordingEmailProvider implements EmailProvider {
       to: input.to,
       subject: input.subject,
       html: input.html,
+      ...(input.cc?.length ? { cc: input.cc } : {}),
+      ...(input.bcc?.length ? { bcc: input.bcc } : {}),
     });
     return { ok: true };
   }

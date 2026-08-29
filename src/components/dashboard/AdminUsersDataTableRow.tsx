@@ -13,6 +13,7 @@ import {
   AdminStudentSectionsList,
 } from "@/components/molecules/AdminStudentDirectoryCells";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { formatParentLastAccess } from "@/lib/parents/formatParentLastAccess";
 
 type UserLabels = Dictionary["admin"]["users"];
 
@@ -25,6 +26,7 @@ export function AdminUsersDataTableRow(props: {
   busy: boolean;
   studentsDirectory: boolean;
   teachersDirectory: boolean;
+  parentsDirectory?: boolean;
   emptyValue: string;
   onToggleRow: (id: string) => void;
   onRequestDeleteOne: (id: string) => void;
@@ -45,7 +47,7 @@ export function AdminUsersDataTableRow(props: {
           title={isSelf ? labels.selfProtected : labels.tipSelectRow}
         />
       </td>
-      {props.studentsDirectory ? null : (
+      {props.studentsDirectory || props.parentsDirectory ? null : (
         <td className="min-w-0 max-w-0 break-words px-2 py-2 align-top">
           <Link
             href={`/${locale}/dashboard/admin/users/${r.id}`}
@@ -99,6 +101,36 @@ export function AdminUsersDataTableRow(props: {
               labels={labels}
               emptyValue={props.emptyValue}
             />
+          </td>
+        </>
+      ) : props.parentsDirectory ? (
+        <>
+          <td className="min-w-0 max-w-0 break-words px-2 py-2 align-top">
+            {r.emailDeliverable ? r.email : labels.noDeliverableEmail}
+          </td>
+          <td className="min-w-0 break-words px-2 py-2 align-top">
+            {r.children.length === 0
+              ? props.emptyValue
+              : r.children.map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`/${locale}/dashboard/admin/users/${c.id}`}
+                    className="mr-2 text-[var(--color-primary)] hover:underline"
+                  >
+                    {formatProfileNameSurnameFirst(c.firstName, c.lastName)}
+                  </Link>
+                ))}
+          </td>
+          <td className="min-w-0 break-words px-2 py-2 align-top">
+            <AdminStudentSectionsList
+              row={r}
+              locale={locale}
+              labels={labels}
+              emptyValue={props.emptyValue}
+            />
+          </td>
+          <td className="min-w-0 break-words px-2 py-2 align-top text-[var(--color-foreground)]">
+            {formatParentLastAccess(r.lastSessionStartAt, locale, labels.lastAccessNever)}
           </td>
         </>
       ) : props.teachersDirectory ? (

@@ -8,6 +8,7 @@ import { LandingEspacioZenitHeroMockup } from "@/components/organisms/LandingEsp
 import { LandingEspacioZenitPillarsBar } from "@/components/organisms/LandingEspacioZenitPillarsBar";
 import { EspacioZenitLandingGallery } from "@/components/organisms/EspacioZenitLandingGallery";
 import { EZ_OFERTA_ENROLLMENT_SRC } from "@/lib/landing/espacioZenitLandingMedia";
+import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 export interface LandingEspacioZenitSectionsProps {
   dict: Dictionary;
@@ -17,6 +18,8 @@ export interface LandingEspacioZenitSectionsProps {
   logoSrc: string;
   logoAlt: string;
   brand: BrandPublic;
+  publicCtaMode?: PublicCtaMode;
+  inscriptionsEnabled?: boolean;
 }
 
 export function LandingEspacioZenitSections({
@@ -27,6 +30,8 @@ export function LandingEspacioZenitSections({
   logoSrc,
   logoAlt,
   brand,
+  publicCtaMode,
+  inscriptionsEnabled,
 }: LandingEspacioZenitSectionsProps) {
   const enrollmentPhoto = mediaMap?.get("oferta::1") ?? EZ_OFERTA_ENROLLMENT_SRC;
 
@@ -37,6 +42,8 @@ export function LandingEspacioZenitSections({
         locale={locale}
         logoSrc={logoSrc}
         logoAlt={logoAlt}
+        publicCtaMode={publicCtaMode}
+        inscriptionsEnabled={inscriptionsEnabled}
       />
       <LandingEspacioZenitDisciplinasSection dict={dict} locale={locale} />
       <LandingEspacioZenitPillarsBar dict={dict} />
@@ -44,6 +51,8 @@ export function LandingEspacioZenitSections({
         dict={dict}
         locale={locale}
         studioPhotoSrc={enrollmentPhoto}
+        publicCtaMode={publicCtaMode}
+        inscriptionsEnabled={inscriptionsEnabled}
       />
       <EspacioZenitLandingGallery dict={dict} />
       <LandingEspacioZenitFooter

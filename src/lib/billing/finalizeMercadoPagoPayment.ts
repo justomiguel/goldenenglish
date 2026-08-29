@@ -89,7 +89,7 @@ export async function finalizeMercadoPagoPayment(input: {
       snapshot,
     });
   }
-  if (ref.kind === "enrollment") return { ok: true, skipped: "enrollment_ref" };
+  if (ref.kind !== "payment") return { ok: true, skipped: `${ref.kind}_ref` };
 
   const payRow = await loadPaymentByExternalReference(input.admin, ref.paymentId);
   if (!payRow) {

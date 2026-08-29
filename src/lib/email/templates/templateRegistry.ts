@@ -21,6 +21,7 @@ import {
 import {
   adminStudentWelcomeTemplate,
   adminTutorWelcomeTemplate,
+  parentPlatformInviteTemplate,
   churnInactivityTemplate,
   classReminderPrepTemplate,
   wardEmailChangedTemplate,
@@ -51,6 +52,7 @@ const REGISTRY: ReadonlyArray<EmailTemplateDefinition> = [
   wardEmailChangedTemplate,
   adminStudentWelcomeTemplate,
   adminTutorWelcomeTemplate,
+  parentPlatformInviteTemplate,
   ...REGISTRATION_EMAIL_TEMPLATES,
 ];
 

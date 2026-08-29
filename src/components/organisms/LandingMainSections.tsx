@@ -9,6 +9,7 @@ import { LandingLevels } from "@/components/organisms/LandingLevels";
 import { LandingCertifications } from "@/components/organisms/LandingCertifications";
 import { LandingContactBand } from "@/components/organisms/LandingContactBand";
 import { LandingBlocksRenderer } from "@/components/organisms/LandingBlocksRenderer";
+import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 /** Order: hero → story → modalities (publics + cards) → levels → certifications. */
 interface LandingMainSectionsProps {
@@ -19,6 +20,8 @@ interface LandingMainSectionsProps {
   blocksBySection?: Readonly<
     Record<LandingSectionSlug, ReadonlyArray<LandingBlock>>
   >;
+  publicCtaMode?: PublicCtaMode;
+  inscriptionsEnabled?: boolean;
 }
 
 function blocksFor(
@@ -34,6 +37,8 @@ export function LandingMainSections({
   locale,
   mediaMap,
   blocksBySection,
+  publicCtaMode,
+  inscriptionsEnabled,
 }: LandingMainSectionsProps) {
   return (
     <main>
@@ -42,6 +47,8 @@ export function LandingMainSections({
         brand={brand}
         locale={locale}
         mediaMap={mediaMap}
+        publicCtaMode={publicCtaMode}
+        inscriptionsEnabled={inscriptionsEnabled}
       />
       <LandingBlocksRenderer
         section="inicio"

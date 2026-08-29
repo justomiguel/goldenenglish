@@ -8,8 +8,8 @@ import { Modal } from "@/components/atoms/Modal";
 import {
   archiveAcademicSectionAction,
   unarchiveAcademicSectionAction,
-  deleteAcademicSectionAction,
 } from "@/app/[locale]/dashboard/admin/academic/sectionArchiveActions";
+import { AcademicSectionDeleteDialog } from "@/components/organisms/AcademicSectionDeleteDialog";
 import type { AcademicSectionLifecycleDict } from "@/types/academicSectionLifecycle";
 
 type DialogMode = "archive" | "unarchive" | "delete" | null;
@@ -32,7 +32,6 @@ export function AcademicSectionLifecycleActions({
   const router = useRouter();
   const [pending, start] = useTransition();
   const [dialog, setDialog] = useState<DialogMode>(null);
-  const [deleteAck, setDeleteAck] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isSectionArchived = sectionArchivedAt != null;
@@ -40,7 +39,6 @@ export function AcademicSectionLifecycleActions({
 
   function closeAll() {
     setDialog(null);
-    setDeleteAck(false);
     setError(null);
   }
 
@@ -73,20 +71,6 @@ export function AcademicSectionLifecycleActions({
     });
   }
 
-  function runDelete() {
-    setError(null);
-    start(async () => {
-      const r = await deleteAcademicSectionAction({ locale, sectionId });
-      if (!r.ok) {
-        const code = r.code === "enrollments_exist" ? "enrollments_exist" : r.code === "parse" ? "parse" : "save";
-        setError(dict.errors[code]);
-        return;
-      }
-      closeAll();
-      router.push(`/${locale}/dashboard/admin/academic/${r.cohortId}`);
-      router.refresh();
-    });
-  }
 
   return (
     <>
@@ -112,10 +96,7 @@ export function AcademicSectionLifecycleActions({
           type="button"
           variant="destructive"
           size="sm"
-          onClick={() => {
-            setDeleteAck(false);
-            setDialog("delete");
-          }}
+          onClick={() => setDialog("delete")}
         >
           <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
           {dict.deleteButton}
@@ -164,42 +145,20 @@ export function AcademicSectionLifecycleActions({
         </div>
       </Modal>
 
-      <Modal
+      <AcademicSectionDeleteDialog
         open={dialog === "delete"}
-        onOpenChange={(o) => !o && closeAll()}
-        titleId="sec-lifecycle-del"
-        title={dict.modalDeleteTitle}
-        disableClose={pending}
-      >
-        <p className="text-sm text-[var(--color-muted-foreground)]">{dict.modalDeleteBody}</p>
-        <label className="flex cursor-pointer items-start gap-2 text-sm text-[var(--color-foreground)]">
-          <input
-            type="checkbox"
-            className="mt-1 h-4 w-4 rounded border-[var(--color-border)]"
-            checked={deleteAck}
-            onChange={(e) => setDeleteAck(e.target.checked)}
-          />
-          <span>{dict.deleteConfirmCheckbox}</span>
-        </label>
-        {error ? <p className="text-sm text-[var(--color-error)]">{error}</p> : null}
-        <div className="flex flex-wrap justify-end gap-2">
-          <Button type="button" variant="ghost" size="sm" onClick={closeAll} disabled={pending}>
-            <X className="h-4 w-4 shrink-0" aria-hidden />
-            {dict.cancel}
-          </Button>
-          <Button
-            type="button"
-            variant="destructiveStrong"
-            size="sm"
-            onClick={runDelete}
-            isLoading={pending}
-            disabled={!deleteAck}
-          >
-            <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
-            {dict.confirm}
-          </Button>
-        </div>
-      </Modal>
+        onOpenChange={(o) => {
+          if (!o) closeAll();
+        }}
+        locale={locale}
+        sectionId={sectionId}
+        dict={dict}
+        onDeleted={(cohortId) => {
+          closeAll();
+          router.push(`/${locale}/dashboard/admin/academic/${cohortId}`);
+          router.refresh();
+        }}
+      />
     </>
   );
 }

@@ -18,6 +18,7 @@ export type AdminPageHeaderArtFamily = (typeof ADMIN_PAGE_HEADER_ART_FAMILIES)[n
 const FAMILY_BY_ICON: Record<AdminSurfaceIconId, AdminPageHeaderArtFamily> = {
   home: "institute",
   students: "students",
+  parents: "parent",
   teachers: "teachers",
   registrations: "registrations",
   academic: "academic",

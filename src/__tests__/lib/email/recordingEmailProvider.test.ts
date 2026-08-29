@@ -26,6 +26,24 @@ describe("RecordingEmailProvider", () => {
     expect(getRecordedEmails()).toEqual([input]);
   });
 
+  it("records cc and bcc when provided", async () => {
+    const provider = new RecordingEmailProvider();
+    await provider.sendEmail({
+      to: "from@x.test",
+      cc: ["a@x.test"],
+      bcc: ["b@x.test"],
+      subject: "Hi",
+      html: "<p>x</p>",
+    });
+    expect(getRecordedEmails()[0]).toEqual({
+      to: "from@x.test",
+      cc: ["a@x.test"],
+      bcc: ["b@x.test"],
+      subject: "Hi",
+      html: "<p>x</p>",
+    });
+  });
+
   it("appends multiple sends and clearRecordedEmails empties the store", async () => {
     const provider = new RecordingEmailProvider();
     await provider.sendEmail({ to: "a@x.test", subject: "1", html: "<p>1</p>" });

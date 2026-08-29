@@ -5,6 +5,7 @@ export const REGISTRATION_INBOX_FILTERS = [
   "needs_section",
   "section_full",
   "contacted",
+  "trial",
 ] as const;
 
 export type RegistrationInboxFilter = (typeof REGISTRATION_INBOX_FILTERS)[number];
@@ -34,5 +35,6 @@ export function registrationInboxOrFilter(filter: RegistrationInboxFilter): stri
   if (filter === "receipt_pending" || filter === "needs_section" || filter === "section_full") {
     return `intake_state.eq.${filter}`;
   }
+  if (filter === "trial") return "intent.eq.trial";
   return null;
 }

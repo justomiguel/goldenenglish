@@ -5,6 +5,7 @@ import { LioraSiteHeader } from "@/components/organisms/LioraSiteHeader";
 import { LandingLioraSections } from "@/components/organisms/LandingLioraSections";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { LioraFontRoot } from "@/components/organisms/LioraFontRoot";
+import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 interface LandingMainSectionsLioraProps {
   dict: Dictionary;
@@ -13,6 +14,8 @@ interface LandingMainSectionsLioraProps {
   sessionEmail: string | null;
   mediaMap?: LandingMediaMap;
   blogEnabled?: boolean;
+  publicCtaMode?: PublicCtaMode;
+  inscriptionsEnabled?: boolean;
 }
 
 export function LandingMainSectionsLiora({
@@ -22,6 +25,8 @@ export function LandingMainSectionsLiora({
   sessionEmail,
   mediaMap,
   blogEnabled = false,
+  publicCtaMode,
+  inscriptionsEnabled,
 }: LandingMainSectionsLioraProps) {
   return (
     <LioraFontRoot>
@@ -56,6 +61,8 @@ export function LandingMainSectionsLiora({
           brand={brand}
           locale={locale}
           mediaMap={mediaMap}
+          publicCtaMode={publicCtaMode}
+          inscriptionsEnabled={inscriptionsEnabled}
         />
       </main>
     </LioraFontRoot>

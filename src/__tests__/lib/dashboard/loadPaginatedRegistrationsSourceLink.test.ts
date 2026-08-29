@@ -24,6 +24,10 @@ describe("loadPaginatedRegistrations column list", () => {
     expect(source).toContain("sourceSectionLinkId");
   });
 
+  it("selects registration intent for the trial badge", () => {
+    expect(source).toContain("intent");
+  });
+
   it("still avoids select all", () => {
     expect(source).not.toMatch(/select\(\s*["'`]\*/);
   });

@@ -91,6 +91,25 @@ describe("startAdminRegistrationEnrollmentFeeFlow", () => {
     expect(mocks.notify).toHaveBeenCalled();
   });
 
+  it("does not start the flow when the quote has no matrícula", async () => {
+    mocks.quote.mockResolvedValue({
+      pay_token: "tok-1",
+      fee_snapshot: { total: 0, currency: "CLP", lines: [] },
+      intake_state: "none",
+      fee_captured: false,
+    });
+    let updated: Record<string, unknown> | undefined;
+    const result = await startAdminRegistrationEnrollmentFeeFlow({
+      admin: admin({ lead, onUpdate: (v) => { updated = v; } }) as never,
+      locale: "en",
+      dict: dictEn,
+      registrationId: REG_ID,
+    });
+    expect(result).toEqual({ ok: false, code: "no_fee" });
+    expect(updated).toBeUndefined();
+    expect(mocks.notify).not.toHaveBeenCalled();
+  });
+
   it("marks the lead section_full and does not email when the section has no seat", async () => {
     let updated: Record<string, unknown> | undefined;
     const result = await startAdminRegistrationEnrollmentFeeFlow({

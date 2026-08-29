@@ -31,15 +31,17 @@ const defaultProps = {
 
 describe("LandingLioraSections", () => {
   it("renders the hero with the studio headline and both CTAs", () => {
-    render(<LandingLioraSections {...defaultProps} />);
+    render(<LandingLioraSections {...defaultProps} publicCtaMode="both" />);
 
     expect(
       screen.getByRole("heading", { level: 1, name: t("hero.title") }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: t("hero.ctaPrimary") })).toHaveAttribute(
-      "href",
-      "/es/register",
-    );
+    expect(
+      screen.getByRole("link", { name: dict.landing.hero.ctaReserveSpot }),
+    ).toHaveAttribute("href", "/es/register");
+    expect(
+      screen.getByRole("link", { name: dict.landing.hero.ctaTrialClass }),
+    ).toHaveAttribute("href", "/es/register?intent=trial");
     expect(
       screen.getByRole("link", { name: t("hero.ctaSecondary") }),
     ).toHaveAttribute("href", "/es#horarios");

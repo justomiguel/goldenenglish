@@ -67,7 +67,6 @@ export function AdminRegistrationPwaCard({
   const receivedDisplay = r.created_at
     ? new Date(r.created_at).toLocaleString(locale)
     : labels.emptyValue;
-
   const deleteBtnClass =
     "min-h-[44px] border-2 border-[var(--color-error)] bg-[var(--color-surface)] p-0 text-[var(--color-error)] shadow-sm hover:bg-[color-mix(in_srgb,var(--color-error)_10%,var(--color-surface))] hover:text-[var(--color-error)] focus-visible:ring-2 focus-visible:ring-[var(--color-error)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-background)]";
 
@@ -90,7 +89,6 @@ export function AdminRegistrationPwaCard({
             </span>
           ) : null}
         </p>
-
         <div className="grid gap-2 text-sm sm:grid-cols-2">
           <div>
             <p className="text-xs uppercase tracking-wide text-[var(--color-muted-foreground)]">
@@ -128,6 +126,7 @@ export function AdminRegistrationPwaCard({
             <span>
               <span className="text-[var(--color-foreground)]">{labels.level}: </span>
               {formatRegistrationLevelInterestDisplay(labels, r.level_interest)}
+              {r.intent === "trial" ? ` ${labels.trialClassBadge}` : ""}
             </span>
           </div>
           <div className="flex flex-wrap gap-x-3">

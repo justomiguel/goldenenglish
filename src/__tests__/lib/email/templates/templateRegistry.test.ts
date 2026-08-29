@@ -29,6 +29,10 @@ describe("emailTemplateRegistry", () => {
       "notifications.ward_email_changed",
       "notifications.admin_student_welcome",
       "notifications.admin_tutor_welcome",
+      "notifications.parent_platform_invite",
+      "registration.trial_invite",
+      "registration.trial_missed",
+      "registration.admin_trial_attendance_due",
     ]) {
       expect(keys).toContain(key);
     }

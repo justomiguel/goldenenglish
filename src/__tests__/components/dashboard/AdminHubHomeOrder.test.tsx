@@ -89,7 +89,7 @@ describe("AdminHubHome — admin order (Test 5)", () => {
     expect(tokens).not.toContain("flex-1");
   });
 
-  it("stacks hub cards in one column until lg instead of squeezing them into the viewport", () => {
+  it("lets hub action cards wrap and grow without clipping their content", () => {
     const { container } = render(
       <AdminHubHome
         locale="en"
@@ -110,10 +110,16 @@ describe("AdminHubHome — admin order (Test 5)", () => {
     expect(opsGrid, "ops grid must wrap traffic + people").toBeTruthy();
     expect(tokens(opsGrid)).not.toContain("flex-1");
     expect(tokens(opsGrid)).not.toContain("min-h-0");
+    expect(tokens(opsGrid)).not.toContain("lg:min-h-0");
     expect(opsGrid?.className).toContain("lg:flex-1");
     expect(tokens(leftCol)).not.toContain("min-h-0");
+    expect(tokens(leftCol)).not.toContain("lg:min-h-0");
     expect(tokens(peopleCol)).not.toContain("min-h-0");
+    expect(tokens(peopleCol)).not.toContain("lg:min-h-0");
     expect(tokens(metricsRow)).not.toContain("sm:grid-cols-3");
-    expect(metricsRow?.className).toContain("lg:grid-cols-3");
+    expect(tokens(metricsRow)).not.toContain("lg:grid-cols-3");
+    expect(metricsRow?.className).toContain("auto-fit");
+    expect(metricsRow?.className).toContain("minmax");
+    expect(tokens(traffic)).toContain("shrink-0");
   });
 });

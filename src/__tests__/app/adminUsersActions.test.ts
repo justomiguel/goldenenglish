@@ -254,6 +254,10 @@ describe("createDashboardUser", () => {
     });
     expect(r).toEqual({ ok: true, userId: "from-matricula" });
     expect(mockNotifyWelcome).not.toHaveBeenCalled();
+    const acceptCreate = mockCreateUser.mock.calls[0][0] as {
+      app_metadata?: { must_change_password?: boolean };
+    };
+    expect(acceptCreate.app_metadata?.must_change_password).toBeUndefined();
   });
 
   it("passes optional birth_date in user_metadata", async () => {

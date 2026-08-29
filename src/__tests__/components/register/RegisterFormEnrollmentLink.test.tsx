@@ -72,6 +72,14 @@ const dict = {
   submit: "Enviar",
   closed: "cerrado",
   error: "error",
+  trial: { shellTitle: "Prueba", submit: "Agendar" },
+  picker: {
+    viewCalendar: "Calendario",
+    viewCombo: "Lista",
+    calendarAria: "Horarios",
+    slotFull: "Completo",
+    noTrialSections: "sin prueba",
+  },
   sectionLink: {
     heading: "Te estás inscribiendo en",
     scheduleLabel: "Horario",

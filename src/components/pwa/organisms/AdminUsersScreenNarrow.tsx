@@ -12,6 +12,16 @@ import { AdminUsersPwaList } from "@/components/pwa/molecules/AdminUsersPwaList"
 import { DeleteUsersConfirmModal } from "@/components/dashboard/DeleteUsersConfirmModal";
 import { InfoNoticeModal } from "@/components/molecules/InfoNoticeModal";
 import { AdminUsersExportModal } from "@/components/molecules/AdminUsersExportModal";
+import type {
+  AdminDirectoryFiltersChrome,
+  AdminParentsDirectoryChrome,
+} from "@/components/organisms/AdminUsersScreen";
+import {
+  bindDirectoryFilterChange,
+  bindDirectoryFilterClear,
+  parentComposeFilterQuery,
+} from "@/lib/dashboard/adminDirectoryToolbarBind";
+import { useRouter } from "next/navigation";
 
 type UserLabels = Dictionary["admin"]["users"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -32,6 +42,8 @@ interface AdminUsersScreenNarrowProps {
   tableLabels: TableLabels;
   surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">;
   lockRole?: string;
+  parentsDirectory?: AdminParentsDirectoryChrome;
+  directoryFilters?: AdminDirectoryFiltersChrome;
 }
 
 export function AdminUsersScreenNarrow({
@@ -50,8 +62,11 @@ export function AdminUsersScreenNarrow({
   tableLabels,
   surface,
   lockRole,
+  parentsDirectory,
+  directoryFilters,
 }: AdminUsersScreenNarrowProps) {
   const [exportOpen, setExportOpen] = useState(false);
+  const router = useRouter();
   const u = useAdminUsersTable({
     rows,
     totalCount,
@@ -90,6 +105,32 @@ export function AdminUsersScreenNarrow({
                 selectAllFilteredDisabled={u.selectAllFilteredDisabled}
                 onExportUsers={() => setExportOpen(true)}
                 lockRole={lockRole}
+                directoryFilters={
+                  directoryFilters
+                    ? {
+                        ...directoryFilters,
+                        onChange: bindDirectoryFilterChange(u.replaceParams),
+                        onClear: bindDirectoryFilterClear(u.replaceParams),
+                      }
+                    : undefined
+                }
+                parentsChrome={
+                  parentsDirectory
+                    ? {
+                        labels: parentsDirectory.labels,
+                        onInvite: () => {
+                          void parentsDirectory.onInvite(u.selectedIdsList);
+                        },
+                        onCompose: () => {
+                          const ids = u.selectedIdsList;
+                          const qs = ids.length
+                            ? `ids=${ids.join(",")}`
+                            : parentComposeFilterQuery(u.query, directoryFilters?.values ?? {});
+                          router.push(`/${locale}/dashboard/admin/parents/compose?${qs}`);
+                        },
+                      }
+                    : undefined
+                }
               />
             }
             labels={labels}

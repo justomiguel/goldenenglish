@@ -146,6 +146,44 @@ export const adminTutorWelcomeTemplate: EmailTemplateDefinition = {
   }),
 };
 
+export const parentPlatformInviteTemplate: EmailTemplateDefinition = {
+  key: "notifications.parent_platform_invite",
+  category: "notifications",
+  label: {
+    es: "Padres: invitación al portal",
+    en: "Parents: platform invite",
+  },
+  description: {
+    es: "Bienvenida al tutor con link para crear o resetear su contraseña. Se manda desde el listado de padres.",
+    en: "Guardian welcome with a link to set or reset their password. Sent from the parents directory.",
+  },
+  placeholders: [
+    { name: "nombre", description: "Nombre del tutor", sample: "Ana" },
+    { name: "apellido", description: "Apellido del tutor", sample: "García" },
+    { name: "greetingName", description: "Nombre de saludo", sample: "Ana" },
+    { name: "portalUrl", description: "URL de ingreso al portal", sample: "https://example.com/es/login" },
+    { name: "resetUrl", description: "Link para crear o resetear la contraseña", sample: "https://example.com/es/reset-password" },
+  ],
+  defaults: withPtFallback({
+    es: {
+      subject: "Bienvenida al portal, {{nombre}}",
+      bodyHtml: `<p style="margin:0 0 12px;">Hola {{nombre}} {{apellido}},</p>
+<p style="margin:0 0 12px;">Ya tenés una cuenta en el portal familiar del instituto.</p>
+<p style="margin:0 0 12px;">Usá este link para crear o resetear tu contraseña y entrar:</p>
+<p style="margin:0 0 12px;"><a href="{{resetUrl}}" style="${portalLinkStyle}">Crear o resetear contraseña</a></p>
+<p style="margin:0;"><a href="{{portalUrl}}" style="${portalLinkStyle}">Entrar al portal</a></p>`,
+    },
+    en: {
+      subject: "Welcome to the portal, {{nombre}}",
+      bodyHtml: `<p style="margin:0 0 12px;">Hi {{nombre}} {{apellido}},</p>
+<p style="margin:0 0 12px;">You have a family portal account at the institute.</p>
+<p style="margin:0 0 12px;">Use this link to set or reset your password and sign in:</p>
+<p style="margin:0 0 12px;"><a href="{{resetUrl}}" style="${portalLinkStyle}">Set or reset password</a></p>
+<p style="margin:0;"><a href="{{portalUrl}}" style="${portalLinkStyle}">Open the portal</a></p>`,
+    },
+  }),
+};
+
 export const classReminderPrepTemplate: EmailTemplateDefinition = {
   key: "notifications.class_reminder_prep",
   category: "notifications",

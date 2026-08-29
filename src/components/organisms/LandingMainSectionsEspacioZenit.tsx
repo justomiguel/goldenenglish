@@ -5,6 +5,7 @@ import { resolveEspacioZenitHeaderLogo } from "@/lib/landing/resolveEspacioZenit
 import { EspacioZenitSiteHeader } from "@/components/organisms/EspacioZenitSiteHeader";
 import { LandingEspacioZenitSections } from "@/components/organisms/LandingEspacioZenitSections";
 import { EspacioZenitFontRoot } from "@/components/organisms/EspacioZenitFontRoot";
+import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 interface LandingMainSectionsEspacioZenitProps {
   dict: Dictionary;
@@ -13,6 +14,8 @@ interface LandingMainSectionsEspacioZenitProps {
   sessionEmail: string | null;
   mediaMap?: LandingMediaMap;
   blogEnabled?: boolean;
+  publicCtaMode?: PublicCtaMode;
+  inscriptionsEnabled?: boolean;
 }
 
 export function LandingMainSectionsEspacioZenit({
@@ -22,6 +25,8 @@ export function LandingMainSectionsEspacioZenit({
   sessionEmail,
   mediaMap,
   blogEnabled = false,
+  publicCtaMode,
+  inscriptionsEnabled,
 }: LandingMainSectionsEspacioZenitProps) {
   const logoSrc = resolveEspacioZenitHeaderLogo(brand, mediaMap);
 
@@ -48,6 +53,8 @@ export function LandingMainSectionsEspacioZenit({
           logoSrc={logoSrc}
           logoAlt={brand.logoAlt}
           brand={brand}
+          publicCtaMode={publicCtaMode}
+          inscriptionsEnabled={inscriptionsEnabled}
         />
       </main>
     </EspacioZenitFontRoot>

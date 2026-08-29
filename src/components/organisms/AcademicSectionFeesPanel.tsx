@@ -3,6 +3,7 @@ import type { Dictionary } from "@/types/i18n";
 import type { SectionFeePlanWithUsage } from "@/types/sectionFeePlan";
 import { AcademicSectionAdvanceMonthlyPaymentEditor } from "@/components/organisms/AcademicSectionAdvanceMonthlyPaymentEditor";
 import { AcademicSectionEnrollmentFeeEditor } from "@/components/organisms/AcademicSectionEnrollmentFeeEditor";
+import { AcademicSectionTrialOfferEditor } from "@/components/organisms/AcademicSectionTrialOfferEditor";
 import { AcademicSectionFeePlansEditor } from "@/components/organisms/AcademicSectionFeePlansEditor";
 import { AcademicSectionMonthlyFeeChargeModeEditor } from "@/components/organisms/AcademicSectionMonthlyFeeChargeModeEditor";
 import { AcademicSectionAreaBlock } from "@/components/molecules/AcademicSectionAreaBlock";
@@ -17,6 +18,7 @@ import { DEFAULT_SECTION_FEE_PLAN_CURRENCY } from "@/types/sectionFeePlan";
 
 type FeePlansDict = Dictionary["dashboard"]["academicSectionPage"]["feePlans"];
 type EnrollmentDict = Dictionary["dashboard"]["academicSectionPage"]["enrollmentFee"];
+type TrialOfferDict = Dictionary["dashboard"]["academicSectionPage"]["trialOffer"];
 type ChargeModeDict = Dictionary["dashboard"]["academicSectionPage"]["monthlyFeeChargeMode"];
 type AdvanceDict = Dictionary["dashboard"]["academicSectionPage"]["allowAdvanceMonthlyPayment"];
 
@@ -43,6 +45,11 @@ export interface AcademicSectionFeesPanelProps {
   cohortDefaultMonthlyFee: number | null;
   billingMode?: string | null;
   enrollmentFeeDict: EnrollmentDict;
+  trialOfferDict: TrialOfferDict;
+  storedOffersTrial: boolean | null;
+  storedTrialFeeAmount: number | null;
+  cohortOffersTrial: boolean;
+  cohortTrialFeeAmount: number;
   chargeMode: MonthlyFeeChargeMode;
   monthlyFeeChargeModeDict: ChargeModeDict;
   allowAdvance: boolean;
@@ -68,6 +75,11 @@ export function AcademicSectionFeesPanel({
   cohortDefaultMonthlyFee,
   billingMode = null,
   enrollmentFeeDict,
+  trialOfferDict,
+  storedOffersTrial,
+  storedTrialFeeAmount,
+  cohortOffersTrial,
+  cohortTrialFeeAmount,
   chargeMode,
   monthlyFeeChargeModeDict,
   allowAdvance,
@@ -131,6 +143,16 @@ export function AcademicSectionFeesPanel({
           initialAmount={storedEnrollmentFeeAmount}
           cohortDefaultAmount={cohortDefaultEnrollmentFeeAmount}
           dict={enrollmentFeeDict}
+          embedded
+        />
+        <AcademicSectionTrialOfferEditor
+          locale={locale}
+          sectionId={sectionId}
+          initialOffersTrial={storedOffersTrial}
+          initialTrialFeeAmount={storedTrialFeeAmount}
+          cohortOffersTrial={cohortOffersTrial}
+          cohortTrialFeeAmount={cohortTrialFeeAmount}
+          dict={trialOfferDict}
           embedded
         />
       </AcademicSectionAreaBlock>

@@ -2,6 +2,8 @@ export type SendEmailInput = {
   to: string;
   subject: string;
   html: string;
+  cc?: string[];
+  bcc?: string[];
 };
 
 export type SendEmailResult =

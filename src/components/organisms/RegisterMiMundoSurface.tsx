@@ -12,6 +12,7 @@ import { MiMundoFontRoot } from "@/components/organisms/MiMundoFontRoot";
 import { MiMundoFloatingDoodles } from "@/components/molecules/MiMundoFloatingDoodles";
 import { MiMundoCursorTrail } from "@/components/molecules/MiMundoCursorTrail";
 import { MiMundoButterflyTrails } from "@/components/molecules/MiMundoButterflyTrails";
+import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 export interface RegisterMiMundoSurfaceProps {
   locale: string;
@@ -21,6 +22,7 @@ export interface RegisterMiMundoSurfaceProps {
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
   extrasPack?: "nago" | null;
+  intent?: RegisterIntent;
 }
 
 /**
@@ -40,6 +42,7 @@ export function RegisterMiMundoSurface({
   sectionOptions,
   enrollmentLink,
   extrasPack = null,
+  intent = "reserve",
 }: RegisterMiMundoSurfaceProps) {
   const prefix = `/${locale}`;
   const t = (path: string) => marketingLandingCopy(dict, "mm", path);
@@ -47,7 +50,8 @@ export function RegisterMiMundoSurface({
   const figureKicker = t("register.figureKicker");
   const figureTitle = t("register.figureTitle");
   const figureLead = t("register.figureLead");
-  const shellTitle = t("register.shellTitle");
+  const shellTitle =
+    intent === "trial" ? dict.register.trial.shellTitle : t("register.shellTitle");
   const shellLead = t("register.shellLead");
   const ctaCallout = t("register.ctaCallout");
   const loginCta = t("register.loginCta");
@@ -193,6 +197,7 @@ export function RegisterMiMundoSurface({
                 sectionOptions={sectionOptions}
                 enrollmentLink={enrollmentLink}
                 extrasPack={extrasPack}
+                intent={intent}
               />
             </div>
 

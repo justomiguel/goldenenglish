@@ -38,6 +38,7 @@ export async function finalizeAcceptedRegistrationLead(input: {
   paidCapture?: boolean;
   enrollServiceRole?: boolean;
   waiveReason?: string;
+  skipFamilyWelcome?: boolean;
 }): Promise<
   { ok: true; studentId: string; pendingSectionIds: string[] } | { ok: false; message: string }
 > {
@@ -134,6 +135,10 @@ export async function finalizeAcceptedRegistrationLead(input: {
     fallback: undecided,
   });
   const studentName = `${String(reg.first_name)} ${String(reg.last_name)}`.trim();
+  if (input.skipFamilyWelcome) {
+    return { ok: true, studentId, pendingSectionIds };
+  }
+
   try {
     await notifyRegistrationWelcome({
       locale: input.locale,

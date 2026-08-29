@@ -34,7 +34,7 @@ export function AdminHubHomePeopleColumn({
 }) {
   const t = dict.admin.home.summary;
   return (
-    <div className="flex flex-col gap-5 lg:col-span-4 lg:min-h-0">
+    <div className="flex flex-col gap-5 lg:col-span-4">
       <AdminHubMetricCard
         href={`${base}/students`}
         tourAnchor="admin-hub-users"

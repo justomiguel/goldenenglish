@@ -5,12 +5,16 @@ import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { EspacioZenitHeroSplash } from "@/components/molecules/EspacioZenitHeroSplash";
 import { MozarthitosReveal } from "@/components/molecules/MozarthitosReveal";
+import { landingRegisterCtasFromDict } from "@/lib/settings/landingRegisterCtasFromDict";
+import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 export interface LandingEspacioZenitHeroMockupProps {
   dict: Dictionary;
   locale: string;
   logoSrc: string;
   logoAlt: string;
+  publicCtaMode?: PublicCtaMode;
+  inscriptionsEnabled?: boolean;
 }
 
 export function LandingEspacioZenitHeroMockup({
@@ -18,9 +22,10 @@ export function LandingEspacioZenitHeroMockup({
   locale,
   logoSrc,
   logoAlt,
+  publicCtaMode,
+  inscriptionsEnabled,
 }: LandingEspacioZenitHeroMockupProps) {
   const brand = "ez" as const;
-  const prefix = `/${locale}`;
   const heroLeftFigureSrc = "/images/espaciozenit/landing/1.png";
   const heroRightFigureSrc = "/images/espaciozenit/landing/2.png";
   const heroFigureAlt = marketingLandingCopy(dict, brand, "placeholders.heroFigure");
@@ -96,13 +101,23 @@ export function LandingEspacioZenitHeroMockup({
                 {marketingLandingCopy(dict, brand, "hero.introBody")}
               </p>
               <div className="mx-auto h-1 max-w-[min(100%,240px)] rounded-full bg-[var(--ez-cyan)] opacity-90 ez-mock-brush-rule" />
-              <Link
-                href={`${prefix}/register`}
-                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/35 bg-white/10 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:bg-white/18 md:text-sm"
-              >
-                <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
-                {dict.landing.hero.ctaReserveSpot}
-              </Link>
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                {landingRegisterCtasFromDict({
+                  locale,
+                  dict,
+                  publicCtaMode,
+                  inscriptionsEnabled,
+                }).map((cta) => (
+                  <Link
+                    key={cta.intent}
+                    href={cta.href}
+                    className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/35 bg-white/10 px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:bg-white/18 md:text-sm"
+                  >
+                    <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
+                    {cta.label}
+                  </Link>
+                ))}
+              </div>
             </div>
           </MozarthitosReveal>
         </div>

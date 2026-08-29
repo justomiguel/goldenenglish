@@ -13,7 +13,7 @@ export async function loadRegistrationInboxCounts(
 ): Promise<RegistrationInboxCounts> {
   const { data, error } = await supabase
     .from("registrations")
-    .select("status, intake_state, fee_snapshot")
+    .select("status, intake_state, fee_snapshot, intent")
     .neq("status", "enrolled");
   if (error) {
     logSupabaseClientError("loadRegistrationInboxCounts", error);

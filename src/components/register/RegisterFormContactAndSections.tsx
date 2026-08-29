@@ -3,6 +3,9 @@ import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import { RegisterSectionMultiSelect } from "@/components/register/RegisterSectionMultiSelect";
+import { RegisterSectionPicker } from "@/components/register/RegisterSectionPicker";
+import type { RegistrationSectionPickerOption } from "@/lib/register/registrationSectionPicker";
+import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import { RegisterTutorFieldset } from "@/components/register/RegisterTutorFieldset";
 import { SectionEnrollmentLinkCard } from "@/components/register/SectionEnrollmentLinkCard";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
@@ -13,10 +16,11 @@ interface RegisterFormContactAndSectionsProps {
   busy: boolean;
   showTutor: boolean;
   showAdultContact: boolean;
-  sectionOptions: { id: string; label: string }[];
+  sectionOptions: Array<{ id: string; label: string } & Partial<RegistrationSectionPickerOption>>;
   selectedSectionIds: string[];
   onSelectedSectionIdsChange: (next: string[]) => void;
   enrollmentLink?: SectionEnrollmentLinkContext;
+  intent?: RegisterIntent;
   hidden?: boolean;
   submitType?: "submit" | "button";
   onContinue?: () => void;
@@ -31,6 +35,7 @@ export function RegisterFormContactAndSections({
   selectedSectionIds,
   onSelectedSectionIdsChange,
   enrollmentLink,
+  intent = "reserve",
   hidden = false,
   submitType = "submit",
   onContinue,
@@ -63,13 +68,23 @@ export function RegisterFormContactAndSections({
       {enrollmentLink ? (
         <SectionEnrollmentLinkCard link={enrollmentLink} labels={dict.sectionLink} />
       ) : null}
-      <RegisterSectionMultiSelect
-        dict={dict}
-        sectionOptions={sectionOptions}
-        selectedIds={selectedSectionIds}
-        onChange={onSelectedSectionIdsChange}
-        lockedPreferredId={enrollmentLink?.sectionId ?? null}
-      />
+      {enrollmentLink ? (
+        <RegisterSectionMultiSelect
+          dict={dict}
+          sectionOptions={sectionOptions}
+          selectedIds={selectedSectionIds}
+          onChange={onSelectedSectionIdsChange}
+          lockedPreferredId={enrollmentLink.sectionId}
+        />
+      ) : (
+        <RegisterSectionPicker
+          dict={dict}
+          options={sectionOptions}
+          intent={intent}
+          selectedIds={selectedSectionIds}
+          onChange={onSelectedSectionIdsChange}
+        />
+      )}
       {hidden ? null : (
         <Button
           type={submitType}

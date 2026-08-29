@@ -16,6 +16,11 @@ vi.mock("@/components/organisms/AcademicSectionEnrollmentFeeEditor", () => ({
     <h3>{dict.title}</h3>
   ),
 }));
+vi.mock("@/components/organisms/AcademicSectionTrialOfferEditor", () => ({
+  AcademicSectionTrialOfferEditor: ({ dict }: { dict: { title: string } }) => (
+    <h3>{dict.title}</h3>
+  ),
+}));
 vi.mock("@/components/organisms/AcademicSectionMonthlyFeeChargeModeEditor", () => ({
   AcademicSectionMonthlyFeeChargeModeEditor: ({ dict }: { dict: { title: string } }) => (
     <h3>{dict.title}</h3>
@@ -49,6 +54,7 @@ const feesPanelDict = {
 };
 
 const enrollmentFeeDict = { title: "Section enrollment fee" };
+const trialOfferDict = { title: "Trial class" };
 const monthlyFeeChargeModeDict = {
   title: "Monthly fee charge basis",
   optionProrate: "Prorate by scheduled classes",
@@ -88,6 +94,11 @@ describe("AcademicSectionFeesPanel", () => {
         cohortDefaultEnrollmentFeeAmount={null}
         cohortDefaultMonthlyFee={null}
         enrollmentFeeDict={enrollmentFeeDict as never}
+        trialOfferDict={trialOfferDict as never}
+        storedOffersTrial={null}
+        storedTrialFeeAmount={null}
+        cohortOffersTrial={false}
+        cohortTrialFeeAmount={0}
         chargeMode="prorate_by_classes"
         monthlyFeeChargeModeDict={monthlyFeeChargeModeDict as never}
         allowAdvance={false}
@@ -109,6 +120,7 @@ describe("AcademicSectionFeesPanel", () => {
 
     expect(screen.getByRole("heading", { name: "Monthly fee plans" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: enrollmentFeeDict.title })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: trialOfferDict.title })).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: monthlyFeeChargeModeDict.title }),
     ).toBeInTheDocument();

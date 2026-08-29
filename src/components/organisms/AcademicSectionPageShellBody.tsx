@@ -49,7 +49,6 @@ export interface AcademicSectionPageShellBodyProps {
 function countActiveEnrollments(rows: AdminSectionPageData["rows"]) {
   return rows.filter((r) => r.status === "active" || r.status === "completed").length;
 }
-
 export function AcademicSectionPageShellBody({
   locale,
   cohortId,
@@ -86,6 +85,7 @@ export function AcademicSectionPageShellBody({
     staffDict,
     feePlansDict,
     enrollmentFeeDict,
+    trialOfferDict,
     monthlyFeeChargeModeDict,
     allowAdvanceMonthlyPaymentDict,
     feesPanelDict,
@@ -96,11 +96,7 @@ export function AcademicSectionPageShellBody({
     studentsPanelDict,
   } = subdicts;
   const { section, cohort, slots, rows, moveTargets, debtByStudentId, staff, feePlansWithUsage } = data;
-  const featureFlags = {
-    requiresEvaluationsToPass: section.requiresEvaluationsToPass,
-    usesLearningRoute: section.usesLearningRoute,
-  };
-
+  const featureFlags = { requiresEvaluationsToPass: section.requiresEvaluationsToPass, usesLearningRoute: section.usesLearningRoute };
   return (
     <div className="space-y-6" data-tour={ADMIN_TOUR_ANCHORS.sectionDetail}>
       <AcademicSectionPageHeader
@@ -206,6 +202,11 @@ export function AcademicSectionPageShellBody({
             cohortDefaultMonthlyFee={section.cohortDefaultMonthlyFee}
             billingMode={section.billingMode}
             enrollmentFeeDict={enrollmentFeeDict}
+            trialOfferDict={trialOfferDict}
+            storedOffersTrial={section.storedOffersTrial}
+            storedTrialFeeAmount={section.storedTrialFeeAmount}
+            cohortOffersTrial={section.cohortOffersTrial}
+            cohortTrialFeeAmount={section.cohortTrialFeeAmount}
             chargeMode={section.monthlyFeeChargeMode}
             monthlyFeeChargeModeDict={monthlyFeeChargeModeDict}
             allowAdvance={section.allowAdvanceMonthlyPayment}

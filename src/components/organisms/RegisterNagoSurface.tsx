@@ -7,6 +7,7 @@ import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { RegisterForm } from "@/components/register/RegisterForm";
 import { NagoRegisterHeader } from "@/components/molecules/NagoRegisterHeader";
 import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
+import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
 export interface RegisterNagoSurfaceProps {
   locale: string;
@@ -16,6 +17,7 @@ export interface RegisterNagoSurfaceProps {
   sectionOptions: { id: string; label: string }[];
   enrollmentLink?: SectionEnrollmentLinkContext;
   extrasPack?: "nago" | null;
+  intent?: RegisterIntent;
 }
 
 export function RegisterNagoSurface({
@@ -26,6 +28,7 @@ export function RegisterNagoSurface({
   sectionOptions,
   enrollmentLink,
   extrasPack = null,
+  intent = "reserve",
 }: RegisterNagoSurfaceProps) {
   const prefix = `/${locale}`;
   const nago = dict.landing.nago;
@@ -64,7 +67,7 @@ export function RegisterNagoSurface({
         <div className="w-full min-w-0">
           <header className="mb-8 text-center lg:mb-10 lg:text-left">
             <h1 className="font-[family-name:var(--font-nago-display)] text-3xl font-semibold uppercase tracking-wide text-[var(--nago-heading-solid)] md:text-4xl">
-              {nago.register.shellTitle}
+              {intent === "trial" ? dict.register.trial.shellTitle : nago.register.shellTitle}
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-[var(--nago-ink-muted)] md:text-lg lg:mx-0">
               {nago.register.shellLead}
@@ -79,6 +82,7 @@ export function RegisterNagoSurface({
                 sectionOptions={sectionOptions}
                 enrollmentLink={enrollmentLink}
                 extrasPack={extrasPack}
+                intent={intent}
               />
             </div>
           </div>

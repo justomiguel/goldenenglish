@@ -2,6 +2,8 @@
 import { describe, expect, it } from "vitest";
 import {
   buildEnrollmentGatewayReference,
+  buildJoinGatewayReference,
+  buildTrialFeeGatewayReference,
   buildTuitionBundleGatewayReference,
   buildTuitionGatewayReference,
   parseMonthlyGatewayReference,
@@ -140,5 +142,16 @@ describe("parseMonthlyGatewayReference", () => {
 
   it("rejects an enrollment reference that is not a uuid", () => {
     expect(parseMonthlyGatewayReference("enrollment:not-a-uuid")).toBeNull();
+  });
+
+  it("round-trips trial and join references", () => {
+    expect(parseMonthlyGatewayReference(buildTrialFeeGatewayReference(PAY_UUID))).toEqual({
+      kind: "trial",
+      registrationId: PAY_UUID,
+    });
+    expect(parseMonthlyGatewayReference(buildJoinGatewayReference(PAY_UUID))).toEqual({
+      kind: "join",
+      registrationId: PAY_UUID,
+    });
   });
 });

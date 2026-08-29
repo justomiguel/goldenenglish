@@ -24,6 +24,10 @@ export async function continueRegisterAfterStudent(page: Page) {
 }
 
 export async function chooseRegisterSectionByName(page: Page, name: string | RegExp) {
+  const comboView = page.getByRole("button", { name: /^(lista|list)$/i });
+  if (await comboView.isVisible().catch(() => false)) {
+    await comboView.click();
+  }
   const extra = page.locator("#rg-section-extra");
   const primary = page.locator("#rg-section");
   const target = (await extra.isVisible().catch(() => false)) ? extra : primary;

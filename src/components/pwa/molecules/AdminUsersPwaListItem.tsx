@@ -13,6 +13,7 @@ import {
   AdminStudentSectionsList,
 } from "@/components/molecules/AdminStudentDirectoryCells";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
+import { formatParentLastAccess } from "@/lib/parents/formatParentLastAccess";
 
 type UserLabels = Dictionary["admin"]["users"];
 
@@ -25,6 +26,7 @@ export function AdminUsersPwaListItem(props: {
   busy: boolean;
   studentsDirectory: boolean;
   teachersDirectory: boolean;
+  parentsDirectory?: boolean;
   emptyValue: string;
   onToggleRow: (id: string) => void;
   onRequestDeleteOne: (id: string) => void;
@@ -45,7 +47,7 @@ export function AdminUsersPwaListItem(props: {
           title={isSelf ? labels.selfProtected : labels.tipSelectRow}
         />
         <div className="min-w-0 flex-1 space-y-1">
-          {props.studentsDirectory ? null : (
+          {props.studentsDirectory || props.parentsDirectory ? null : (
             <p className="break-all font-medium text-[var(--color-foreground)]">{r.email}</p>
           )}
           <Link
@@ -88,6 +90,23 @@ export function AdminUsersPwaListItem(props: {
               <div>
                 <span className="text-[var(--color-muted-foreground)]">{labels.colParent}: </span>
                 <AdminStudentParentsList
+                  row={r}
+                  locale={locale}
+                  labels={labels}
+                  emptyValue={props.emptyValue}
+                />
+              </div>
+            </div>
+          ) : props.parentsDirectory ? (
+            <div className="space-y-1 text-sm">
+              <p>{r.emailDeliverable ? r.email : labels.noDeliverableEmail}</p>
+              <p>
+                <span className="text-[var(--color-muted-foreground)]">{labels.colLastAccess}: </span>
+                {formatParentLastAccess(r.lastSessionStartAt, locale, labels.lastAccessNever)}
+              </p>
+              <div>
+                <span className="text-[var(--color-muted-foreground)]">{labels.colSections}: </span>
+                <AdminStudentSectionsList
                   row={r}
                   locale={locale}
                   labels={labels}

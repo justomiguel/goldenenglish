@@ -11,6 +11,16 @@ import { DeleteUsersConfirmModal } from "@/components/dashboard/DeleteUsersConfi
 import { InfoNoticeModal } from "@/components/molecules/InfoNoticeModal";
 import { AdminUsersExportModal } from "@/components/molecules/AdminUsersExportModal";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import type {
+  AdminDirectoryFiltersChrome,
+  AdminParentsDirectoryChrome,
+} from "@/components/organisms/AdminUsersScreen";
+import {
+  bindDirectoryFilterChange,
+  bindDirectoryFilterClear,
+  parentComposeFilterQuery,
+} from "@/lib/dashboard/adminDirectoryToolbarBind";
+import { useRouter } from "next/navigation";
 
 type UserLabels = Dictionary["admin"]["users"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -30,6 +40,8 @@ interface AdminUsersTableDesktopProps {
   labels: UserLabels;
   tableLabels: TableLabels;
   lockRole?: string;
+  parentsDirectory?: AdminParentsDirectoryChrome;
+  directoryFilters?: AdminDirectoryFiltersChrome;
 }
 
 export function AdminUsersTableDesktop({
@@ -47,8 +59,11 @@ export function AdminUsersTableDesktop({
   labels,
   tableLabels,
   lockRole,
+  parentsDirectory,
+  directoryFilters,
 }: AdminUsersTableDesktopProps) {
   const [exportOpen, setExportOpen] = useState(false);
+  const router = useRouter();
   const u = useAdminUsersTable({
     rows,
     totalCount,
@@ -88,6 +103,32 @@ export function AdminUsersTableDesktop({
             selectAllFilteredDisabled={u.selectAllFilteredDisabled}
             onExportUsers={() => setExportOpen(true)}
             lockRole={lockRole}
+            directoryFilters={
+              directoryFilters
+                ? {
+                    ...directoryFilters,
+                    onChange: bindDirectoryFilterChange(u.replaceParams),
+                    onClear: bindDirectoryFilterClear(u.replaceParams),
+                  }
+                : undefined
+            }
+            parentsChrome={
+              parentsDirectory
+                ? {
+                    labels: parentsDirectory.labels,
+                    onInvite: () => {
+                      void parentsDirectory.onInvite(u.selectedIdsList);
+                    },
+                    onCompose: () => {
+                      const ids = u.selectedIdsList;
+                      const qs = ids.length
+                        ? `ids=${ids.join(",")}`
+                        : parentComposeFilterQuery(u.query, directoryFilters?.values ?? {});
+                      router.push(`/${locale}/dashboard/admin/parents/compose?${qs}`);
+                    },
+                  }
+                : undefined
+            }
           />
         }
         labels={labels}

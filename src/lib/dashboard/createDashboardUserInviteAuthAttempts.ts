@@ -36,6 +36,7 @@ export type InviteAuthAttemptsArgs = {
   effectivePhone: string | null;
   minorSyntheticEmailSource: MinorSyntheticEmailSource | null | undefined;
   creatingMinorStudent: boolean;
+  requirePasswordChange: boolean;
   finalPassword: string;
   meta: Record<string, string>;
   signupAttemptSubject: ReturnType<typeof resolveDashboardInviteSignupAttemptSubjectLog>;
@@ -86,6 +87,7 @@ export async function runCreateDashboardUserInviteAuthAttempts(
     effectivePhone,
     minorSyntheticEmailSource,
     creatingMinorStudent,
+    requirePasswordChange,
     finalPassword,
     meta,
     signupAttemptSubject,
@@ -123,9 +125,7 @@ export async function runCreateDashboardUserInviteAuthAttempts(
       password: finalPassword,
       email_confirm: true,
       user_metadata: meta,
-      ...(inviteProfile.role === "student" && !creatingMinorStudent
-        ? { app_metadata: { must_change_password: true } }
-        : {}),
+      ...(requirePasswordChange ? { app_metadata: { must_change_password: true } } : {}),
     });
 
     if (!error && created?.user) {

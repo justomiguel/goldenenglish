@@ -127,4 +127,39 @@ describe("AdminUsersDataTable", () => {
     expect(screen.queryByText("+3")).not.toBeInTheDocument();
     expect(screen.queryByText("student")).not.toBeInTheDocument();
   });
+
+  it("shows last access and children on the parents directory", () => {
+    renderTable({
+      lockRole: "parent",
+      listEmpty: false,
+      rows: [
+        {
+          id: "55555555-5555-5555-5555-555555555555",
+          email: "ana@x.co",
+          firstName: "Ana",
+          lastName: "Padre",
+          role: "parent",
+          phone: "+5",
+          avatarDisplayUrl: null,
+          missingSection: false,
+          ...EMPTY_ADMIN_STUDENT_DIRECTORY_FIELDS,
+          emailDeliverable: true,
+          lastSessionStartAt: null,
+          children: [{ id: "66666666-6666-6666-6666-666666666666", firstName: "Lina", lastName: "Alumno" }],
+          sections: [{ id: "sec-3", name: "A1 Morning", cohortId: "coh-1", discountPercent: null }],
+        },
+      ],
+      pagination: {
+        page: 1,
+        pageSize: 25,
+        totalCount: 1,
+        onPageChange: vi.fn(),
+      },
+    });
+    expect(screen.getByText(dictEn.admin.users.colLastAccess)).toBeInTheDocument();
+    expect(screen.getByText(dictEn.admin.users.lastAccessNever)).toBeInTheDocument();
+    expect(screen.getByText(dictEn.admin.users.colChildren)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Alumno Lina" })).toBeInTheDocument();
+    expect(screen.queryByText(dictEn.admin.users.colRole)).not.toBeInTheDocument();
+  });
 });
