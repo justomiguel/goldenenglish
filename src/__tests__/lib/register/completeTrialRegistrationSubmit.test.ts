@@ -33,6 +33,7 @@ const parsed = {
   preferred_section_id: SECTION,
   additional_section_ids: [],
   intent: "trial" as const,
+  privacy_accepted: true as const,
 };
 
 function buildClients(opts: {
@@ -203,6 +204,8 @@ describe("completeTrialRegistrationSubmit", () => {
         status: "new",
         preferred_section_id: SECTION,
         trial_fee_snapshot: expect.objectContaining({ kind: "trial_fee", total: 0 }),
+        privacy_accepted_at: "2026-08-24T12:00:00.000Z",
+        privacy_policy_version: "2026-08-29",
       }),
     );
     expect(seatsInsert).toHaveBeenCalledWith([

@@ -6,8 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { resolveTeacherPortalAccess } from "@/lib/academics/resolveTeacherPortalAccess";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { CreateCohortAssessmentForm } from "@/components/molecules/CreateCohortAssessmentForm";
-import { CohortAssessmentRowActions } from "@/components/molecules/CohortAssessmentRowActions";
 import { AssessmentGradingPathStrip } from "@/components/molecules/AssessmentGradingPathStrip";
+import { TeacherSectionAssessmentsTable } from "./TeacherSectionAssessmentsTable";
 import { userIsSectionTeacherOrAssistant } from "@/lib/academics/userIsSectionTeacherOrAssistant";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
@@ -62,7 +62,6 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
   }[];
 
   const todayIso = new Date().toISOString().slice(0, 10);
-  const dateFmt = new Intl.DateTimeFormat(locale === "es" ? "es" : "en", { dateStyle: "medium" });
 
   return (
     <div className="space-y-6">
@@ -85,48 +84,18 @@ export default async function TeacherSectionAssessmentsPage({ params }: PageProp
       <AssessmentGradingPathStrip currentStep={rows.length === 0 ? 1 : 2} labels={pathDict} countsText={null} />
 
       {rows.length ? (
-        <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
-          <table className="min-w-full text-left text-sm">
-            <thead className="bg-[var(--color-muted)]/40">
-              <tr>
-                <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.tableName}</th>
-                <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.tableDate}</th>
-                <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.tableMax}</th>
-                <th className="px-3 py-2 text-right font-medium text-[var(--color-foreground)]">
-                  {dAssessmentsPanel.colActions}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((a) => (
-                <tr key={a.id} className="border-t border-[var(--color-border)]">
-                  <td className="px-3 py-2 text-[var(--color-foreground)]">{a.name}</td>
-                  <td className="px-3 py-2 text-[var(--color-muted-foreground)]">
-                    {dateFmt.format(new Date(`${a.assessment_on}T12:00:00`))}
-                  </td>
-                  <td className="px-3 py-2 text-[var(--color-muted-foreground)]">{String(a.max_score)}</td>
-                  <td className="px-3 py-2 text-right align-top">
-                    <CohortAssessmentRowActions
-                      locale={locale}
-                      cohortId={cohortId}
-                      sectionId={sectionId}
-                      row={{
-                        id: a.id,
-                        name: a.name,
-                        assessmentOn: a.assessment_on,
-                        maxScore: Number(a.max_score) || 0,
-                        createdAt: a.created_at,
-                      }}
-                      rubricReturnTo={null}
-                      canDelete={isAdmin}
-                      dict={dAssessmentsPanel}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <TeacherSectionAssessmentsTable
+          locale={locale}
+          cohortId={cohortId}
+          sectionId={sectionId}
+          rows={rows}
+          canDelete={isAdmin}
+          tableName={d.tableName}
+          tableDate={d.tableDate}
+          tableMax={d.tableMax}
+          colActions={dAssessmentsPanel.colActions}
+          dict={dAssessmentsPanel}
+        />
       ) : (
         <p className="text-sm text-[var(--color-muted-foreground)]">{d.empty}</p>
       )}

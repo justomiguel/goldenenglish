@@ -717,48 +717,229 @@
       "chrome": {
         "openMenu": "Abrir menú",
         "closeMenu": "Cerrar menú",
-        "facebookAria": "Capoeira Nago en Facebook",
-        "instagramAria": "Capoeira Nago en Instagram"
+        "facebookAria": "Capoeira Nagô en Facebook",
+        "instagramAria": "Capoeira Nagô en Instagram",
+        "youtubeAria": "Capoeira Nagô en YouTube",
+        "whatsappAria": "Escribir por WhatsApp",
+        "soundOn": "Activar sonido",
+        "soundOff": "Silenciar",
+        "backToTop": "Volver arriba"
       },
       "nav": {
         "inicio": "Inicio",
-        "sobreNosotros": "Sobre nosotros",
+        "sobreNosotros": "Nagô",
         "clases": "Clases",
+        "horarios": "Horarios",
+        "nago": "Nagô",
         "galeria": "Galería",
         "eventos": "Eventos",
-        "contacto": "Contacto"
+        "contacto": "Contacto",
+        "agendaCta": "Agenda tu clase"
       },
       "register": {
-        "shellTitle": "Sumate a la roda — Capoeira Nago",
+        "shellTitle": "Sumate a la roda — Capoeira Nagô",
         "shellLead": "Dejanos tus datos. El equipo confirma el grupo indicado y te responde con cómo arrancar seguro."
       },
       "hero": {
-        "title": "Somos Nago",
-        "subtitle": "Tradición que se mueve, cultura que se vive",
-        "tagline": "Capoeira es más que un arte marcial: es música, danza, tradición y comunidad."
+        "title": "Capoeira que",
+        "titleAccent": "transforma.",
+        "subtitle": "Más confianza. Más disciplina.",
+        "subtitleTrail": "Una mejor versión de ti.",
+        "tagline": "Raíces brasileñas. Historia construida en Chile.",
+        "ctaPrimary": "Agenda tu clase",
+        "ctaSecondary": "Conoce Nagô",
+        "discover": "Descubre",
+        "slidePrev": "Foto anterior",
+        "slideNext": "Foto siguiente",
+        "slideGoTo": "Ir a la foto {n}"
       },
-      "sobreNosotros": {
-        "title": "Sobre Nosotros",
-        "bodyP1": "Capoeira Nago nació con el propósito de difundir la capoeira como herramienta de transformación personal y social.",
-        "bodyP2": "A través de la enseñanza, los eventos y las presentaciones, mantenemos viva la tradición y el espíritu de la capoeira."
-      },
-      "principios": {
-        "sectionTitle": "Nuestros Principios",
-        "respeto": {
-          "title": "Respeto",
-          "body": "Valoramos a cada persona y su camino."
+      "pilares": {
+        "deporte": {
+          "title": "Deporte",
+          "body": "Fuerza, coordinación, agilidad y condición física."
         },
         "disciplina": {
           "title": "Disciplina",
-          "body": "Mejorar tu constante nos hace mejores."
+          "body": "Constancia y enfoque para evolucionar dentro y fuera del entrenamiento."
         },
-        "union": {
-          "title": "Unión",
-          "body": "Somos una familia dentro y fuera de la roda."
+        "confianza": {
+          "title": "Confianza",
+          "body": "Fortalecemos la autoestima para enfrentar nuevos desafíos."
         },
         "cultura": {
           "title": "Cultura",
-          "body": "Honramos nuestras raíces brasileñas."
+          "body": "Música, historia y tradición que mantienen vivas nuestras raíces."
+        },
+        "superacion": {
+          "title": "Superación",
+          "body": "Cada entrenamiento es una oportunidad para llegar más lejos."
+        }
+      },
+      "programas": {
+        "kicker": "Programas",
+        "sectionTitle": "Entrena con nosotros",
+        "lead": "Encuentra tu camino. No necesitas experiencia previa.",
+        "ctaHorarios": "Ver horarios",
+        "verClases": "Ver clases",
+        "noExperience": "No necesitas experiencia previa.",
+        "ninos": {
+          "title": "Niños",
+          "ages": "4–12 años",
+          "body": "Juego, coordinación y confianza desde la primera clase."
+        },
+        "jovenes": {
+          "title": "Jóvenes",
+          "ages": "13–17 años",
+          "body": "Energía, disciplina y un grupo que empuja hacia adelante."
+        },
+        "adultos": {
+          "title": "Adultos",
+          "ages": "+18 años",
+          "body": "Condición física, enfoque y una comunidad que sostiene el hábito."
+        },
+        "mayores": {
+          "title": "Adultos mayores",
+          "ages": "+55 años",
+          "body": "Movilidad, ritmo y bienestar en un entrenamiento cuidado."
+        }
+      },
+      "experiencia": {
+        "title": "Más que un entrenamiento, una forma de vida.",
+        "body": "Capoeira Nagô nació con el propósito de utilizar la Capoeira como herramienta de desarrollo físico, personal, cultural y social.",
+        "deporte": "Deporte",
+        "movimiento": "Movimiento",
+        "disciplina": "Disciplina",
+        "musica": "Música",
+        "cultura": "Cultura",
+        "desarrollo": "Desarrollo personal"
+      },
+      "mestre": {
+        "kicker": "Liderazgo y experiencia",
+        "title": "Mestre Fagulha",
+        "body": "Formación brasileña y más de dos décadas construyendo Capoeira en Chile: Santiago, regiones, eventos e intercambios.",
+        "cta": "Conoce más sobre su historia",
+        "years": "20+",
+        "yearsLabel": "Años de experiencia",
+        "students": "Miles",
+        "studentsLabel": "Alumnos formados",
+        "events": "Nacional e internacional",
+        "eventsLabel": "Eventos y competencias",
+        "chile": "Santiago y regiones",
+        "chileLabel": "Presencia en Chile"
+      },
+      "accion": {
+        "sectionTitle": "Nagô en acción"
+      },
+      "testimonios": {
+        "sectionTitle": "Lo que se vive en Nagô",
+        "t1": {
+          "quote": "Llegué sin saber nada. A las pocas semanas ya me sentía parte de algo más grande.",
+          "role": "Alumno adulto"
+        },
+        "t2": {
+          "quote": "Mi hijo ganó seguridad y un grupo que lo cuida. Eso no se improvisa.",
+          "role": "Apoderada"
+        },
+        "t3": {
+          "quote": "Es deporte, música y carácter. Entreno para ser mejor, no solo más fuerte.",
+          "role": "Alumna joven"
+        }
+      },
+      "eventosHome": {
+        "sectionTitle": "Más allá del entrenamiento",
+        "lead": "Campeonatos, rodas, workshops e intercambios.",
+        "viewAll": "Ver todos los eventos",
+        "e1": {
+          "date": "25",
+          "month": "Jul",
+          "title": "Winter Open",
+          "place": "Santiago, Chile"
+        },
+        "e2": {
+          "date": "16",
+          "month": "Ago",
+          "title": "Roda especial",
+          "place": "Academia Nagô"
+        },
+        "e3": {
+          "date": "12",
+          "month": "Oct",
+          "title": "Intercambio Brasil",
+          "place": "Santiago · Brasil"
+        }
+      },
+      "horarios": {
+        "sectionTitle": "Horarios",
+        "lead": "Clases de capoeira en Ñuñoa. Capoeira Nagô Chile – Mestre Fagulha.",
+        "venue": "Tegualda 1571, Ñuñoa",
+        "note": "No necesitas experiencia. Reserva por WhatsApp con nombre, RUT y teléfono.",
+        "cta": "Consultar mi horario",
+        "pricesTitle": "Valores mensuales",
+        "timesOne": "1 vez por semana",
+        "timesMany": "{n} veces por semana",
+        "trialKicker": "Clase de prueba",
+        "trial": "Se descuenta de la mensualidad si te inscribes.",
+        "familyKicker": "Familia",
+        "family": "Descuentos para grupo familiar.",
+        "baby": {
+          "title": "Baby",
+          "ages": "2–3 años",
+          "slots": "Mar y jue 16:30–17:20 · Sáb 10:00–10:50"
+        },
+        "kids47": {
+          "title": "Kids",
+          "ages": "4–7 años",
+          "slots": "Lun y mié 16:30 · Mar, jue y vie 17:30 · Sáb 11:00"
+        },
+        "kids810": {
+          "title": "Kids",
+          "ages": "8–10 años",
+          "slots": "Lun y mié 17:30 · Sáb 13:00"
+        },
+        "teens": {
+          "title": "Teens",
+          "ages": "+13 años",
+          "slots": "Jue y vie 18:30"
+        },
+        "mixta": {
+          "title": "Capoeira mixta",
+          "ages": "Desde los 12 años · jóvenes y adultos",
+          "slots": "Mar y jue 18:30"
+        },
+        "adultos": {
+          "title": "Adultos",
+          "ages": "Adultos",
+          "slots": "Mar y jue 20:30"
+        },
+        "mayores": {
+          "title": "Personas mayores",
+          "ages": "60+",
+          "slots": "Sábado 09:00",
+          "note": "Desde los 55 años se acepta previa evaluación."
+        }
+      },
+      "sobreNosotros": {
+        "title": "Vive la experiencia Nagô",
+        "bodyP1": "Capoeira Nagô nació con el propósito de utilizar la Capoeira como herramienta de desarrollo físico, personal, cultural y social.",
+        "bodyP2": "Raíces brasileñas. Historia construida en Chile. Identidad Nagô."
+      },
+      "principios": {
+        "sectionTitle": "Pilares Nagô",
+        "respeto": {
+          "title": "Deporte",
+          "body": "Fuerza, coordinación, agilidad y condición física."
+        },
+        "disciplina": {
+          "title": "Disciplina",
+          "body": "Constancia y enfoque para evolucionar dentro y fuera del entrenamiento."
+        },
+        "union": {
+          "title": "Confianza",
+          "body": "Fortalecemos la autoestima para enfrentar nuevos desafíos."
+        },
+        "cultura": {
+          "title": "Cultura",
+          "body": "Música, historia y tradición que mantienen vivas nuestras raíces."
         }
       },
       "galeria": {
@@ -768,24 +949,42 @@
         "carouselNext": "Foto siguiente",
         "carouselPosition": "Foto {current} de {total}",
         "carouselLoading": "Cargando foto",
-        "previewOpenAria": "Ampliar foto {n}"
+        "previewOpenAria": "Ampliar foto {n}",
+        "lightboxClose": "Cerrar"
+      },
+      "lead": {
+        "name": "Nombre",
+        "whatsapp": "WhatsApp",
+        "age": "Edad / rango",
+        "program": "Programa de interés",
+        "message": "Mensaje",
+        "email": "Email",
+        "submit": "Enviar",
+        "ageChild": "4–12",
+        "ageTeen": "13–17",
+        "ageAdult": "18–54",
+        "ageSenior": "55+"
       },
       "cta": {
-        "title": "Ven y sé parte de nuestra roda",
-        "subtitle": "No necesitas experiencia, solo ganas de aprender y compartir.",
-        "button": "Contáctanos"
+        "title": "Tu primer paso empieza aquí.",
+        "subtitle": "No necesitas experiencia. Solo las ganas de comenzar.",
+        "button": "Agenda tu clase",
+        "whatsapp": "Hablar por WhatsApp"
       },
       "footer": {
         "enlacesTitle": "Enlaces",
         "siguenos": "Síguenos",
-        "rightsLine": "Todos los derechos reservados."
+        "rightsLine": "Todos los derechos reservados.",
+        "location": "Tegualda 1571, Ñuñoa",
+        "horarios": "Horarios",
+        "ubicacion": "Ubicación"
       },
       "contact": {
         "title": "Contacto",
-        "phoneDisplay": "+56 9 0000 0000",
+        "phoneDisplay": "+56 9 9063 9071",
         "instagramUrl": "https://www.instagram.com/capoeiranago/",
         "facebookUrl": "https://www.facebook.com/capoeiranago/",
-        "whatsappUrl": "https://wa.me/56900000000",
+        "whatsappUrl": "https://wa.me/56990639071",
         "youtubeUrl": "https://www.youtube.com/@capoeiranago"
       },
       "footerCta": "¿Querés sumarte a la capoeira? Escribinos y empezá tu camino."
@@ -1521,7 +1720,11 @@
       "emailSendsGroupMessaging": "Mensajería",
       "emailSendsGroupOther": "Otros avisos",
       "emailSendsLabelInactivity": "Recordatorios de no ingreso",
-      "emailSendsLabelClassReminder": "Recordatorios de clase"
+      "emailSendsLabelClassReminder": "Recordatorios de clase",
+      "emailDeliveryFailureTitle": "No se pudo enviar un correo",
+      "emailDeliveryFailureLead": "Avisá a tu webmaster: el instituto no está pudiendo mandar emails (por ejemplo avisos de inscripción o de pago).",
+      "emailDeliveryFailureDismiss": "Entendido",
+      "emailDeliveryFailureSettings": "Revisar envíos de email"
     },
     "cms": {
       "navLabel": "Sitio público",
@@ -2139,6 +2342,16 @@
       "colDiscount": "Descuento",
       "colSections": "Secciones",
       "colMonthlyDue": "Mensual",
+      "colEnrollmentFee": "Matrícula",
+      "colLastEnrollment": "Última inscripción",
+      "billingMarkYes": "Sí",
+      "billingMarkNo": "No",
+      "monthlyStatusYesAria": "Al día con la cuota",
+      "monthlyStatusNoAria": "Cuota vencida",
+      "monthlyStatusNaAria": "Sin cuota mensual",
+      "enrollmentFeeYesAria": "Matrícula paga",
+      "enrollmentFeeNoAria": "Matrícula impaga",
+      "enrollmentFeeNaAria": "Sin matrícula",
       "colParent": "Tutor",
       "colChildren": "Hijos",
       "colLastAccess": "Último acceso",
@@ -2464,7 +2677,7 @@
       "detailDniResetErrSave": "No se pudo restablecer la contraseña. Probá de nuevo.",
       "detailDniResetToastOk": "Contraseña restablecida y mostrada.",
       "detailTutorTitle": "Tutores",
-      "detailTutorLead": "Cuentas de padre, madre o tutor vinculadas a este alumno.",
+      "detailTutorLead": "Cuentas de padre, madre o tutor vinculadas a este alumno. Cada tutor entra al mismo portal familiar.",
       "detailTutorCurrent": "Tutores vinculados",
       "detailTutorOpenProfile": "Abrir ficha",
       "detailTutorSearchLabel": "Buscar tutor",
@@ -2475,7 +2688,7 @@
       "detailTutorQueueReminder": "Tocá Vincular tutor cuando esté listo — podés seguir agregando desde la búsqueda.",
       "detailTutorRemoveChipAria": "Quitar de la lista",
       "detailTutorMinChars": "Prefijo en nombre o documento del tutor (con una letra alcanza). También podés usar el correo completo.",
-      "detailTutorLinkHint": "Buscá una cuenta existente de padre o tutor por nombre, documento o correo de acceso completo y vinculala. Para reemplazar a un tutor ya vinculado, quitá el vínculo arriba y volvé a buscar aquí.",
+      "detailTutorLinkHint": "Buscá una cuenta existente de padre o tutor por nombre, documento o correo de acceso completo y vinculala. Podés sumar más de un tutor: todos ven el mismo portal familiar.",
       "detailTutorLinkRelationshipLead": "Antes de vincular, elegí cómo se relaciona cada tutor con este alumno.",
       "detailTutorUnlink": "Quitar vínculo",
       "detailTutorUnlinkConfirmTitle": "¿Quitar vínculo con el tutor?",
@@ -2486,6 +2699,9 @@
       "detailTutorSave": "Vincular tutor",
       "detailTutorMissingWarning": "Este alumno no tiene tutor vinculado. Agregá uno abajo (recomendado para menores).",
       "detailTutorPickFirst": "Agregá al menos un tutor desde la búsqueda a la lista y vinculá.",
+      "detailTutorAddOpen": "Agregar tutor",
+      "detailTutorHideAddPanel": "Ocultar",
+      "detailTutorAddPanelTitle": "Agregar otro tutor",
       "detailTutorCreateIntro": "Si el tutor todavía no tiene cuenta, creala con su documento (mismas reglas que el import CSV).",
       "detailTutorCreateOpen": "Crear tutor y vincular",
       "detailTutorCreateTitle": "Cuenta nueva de tutor",
@@ -3653,6 +3869,20 @@
       "statusUnknown": "Estado desconocido",
       "deleteError": "No se pudo eliminar",
       "acceptError": "No se pudo crear el usuario",
+      "joinBilling": {
+        "legend": "Cuota al ingresar",
+        "current": "Al día (matrícula si hay + mes de ingreso pagados)",
+        "behind": "No al día (el mes de ingreso queda adeudado)",
+        "scholarship": "Entra con beca",
+        "percent": "Porcentaje de beca",
+        "scopeJoinMonth": "Solo este mes",
+        "scopeRestOfCycle": "Resto del ciclo",
+        "previewExempt": "exento",
+        "previewPaid": "pagado",
+        "previewDue": "adeudado",
+        "previewScholarship": "beca",
+        "required": "Marcá si entra al día, no al día o con beca."
+      },
       "acceptSuccess": "Cuenta de alumno creada",
       "deleteSuccess": "Solicitud eliminada",
       "alreadyProcessed": "Esta solicitud ya fue gestionada",
@@ -3715,6 +3945,8 @@
       "revertToNew": "Marcar pendiente",
       "revertToNewTip": "Devolver esta inscripción a la cola de pendientes",
       "contactedOn": "Contactado el {date}",
+      "privacyAcceptedOn": "Aceptó privacidad y términos el {date}",
+      "privacyPolicyVersion": "Versión {version}",
       "statusFilterAll": "Todas ({{count}})",
       "statusFilterNew": "Pendientes ({{count}})",
       "statusFilterContacted": "Contactadas ({{count}})",
@@ -4391,6 +4623,7 @@
       "convertAmount": "Monto a pagar",
       "convertEnrollment": "Matrícula",
       "convertMonth": "Cuota de este mes",
+      "convertEnrollmentAndMonth": "Matrícula + cuota de este mes",
       "convertFree": "Confirmar y sumarse",
       "convertError": "No pudimos completar eso. Probá de nuevo o escribinos.",
       "convertNonePayable": "Sin cupo",
@@ -4405,7 +4638,12 @@
       "viewCombo": "Lista",
       "calendarAria": "Horarios de la semana",
       "slotFull": "Completo",
-      "noTrialSections": "Todavía no hay horarios de clase de prueba. Igual podés enviar tus datos."
+      "noTrialSections": "Todavía no hay horarios de clase de prueba. Igual podés enviar tus datos.",
+      "selectedAria": "Horarios elegidos"
+    },
+    "privacyConsent": {
+      "label": "Acepto los {privacyLink} para esta preinscripción. El instituto no comparte estos datos fuera de la gestión de la clase.",
+      "link": "términos y el uso de datos"
     },
     "submit": "Enviar solicitud",
     "successTitle": "Solicitud enviada",
@@ -4548,6 +4786,58 @@
       "noStaff": "Ahora no pudimos avisar al equipo. Probá más tarde u otro canal de contacto."
     }
   },
+  "privacy": {
+    "metaTitle": "Privacidad y términos",
+    "metaDescription": "Cómo el instituto cuida los datos de las familias en la preinscripción y la clase de prueba.",
+    "title": "Privacidad y términos",
+    "lead": "En {{brand}} cuidamos los datos de tu familia. No los vendemos, no los publicamos y no los usamos para nada que no sea gestionar la clase.",
+    "footerLink": "Privacidad y términos",
+    "backHome": "Volver al inicio",
+    "controller": {
+      "registryLabel": "Identificación",
+      "emailLabel": "Correo",
+      "phoneLabel": "Teléfono",
+      "addressLabel": "Domicilio"
+    },
+    "sections": {
+      "promise": {
+        "title": "Nuestra promesa",
+        "body": "Los datos que nos das en la preinscripción quedan en el instituto. Solo el personal autorizado —administración, docentes y quienes coordinan horarios— puede verlos. No armamos listas para terceros ni publicamos documentos o fotos de alumnos sin que lo pidas."
+      },
+      "controller": {
+        "title": "Quién es responsable",
+        "body": "{{brand}} es el responsable de estos datos. Si querés verlos, corregirlos o pedir que los borremos, usá estos contactos del instituto."
+      },
+      "what": {
+        "title": "Qué datos pedimos",
+        "body": "Del alumno: nombre, documento y fecha de nacimiento. Si es menor, también nombre, documento, correo y teléfono del padre, madre o tutor. Elegís un horario o una clase de prueba. Pedimos solo lo necesario para reservar el cupo y contactarte."
+      },
+      "why": {
+        "title": "Para qué los usamos",
+        "body": "Para reservar el cupo o agendar la clase de prueba, armar la ficha y avisarte por correo o WhatsApp. No usamos estos datos para publicidad de otras empresas."
+      },
+      "who": {
+        "title": "Quién los ve",
+        "body": "Solo personas del instituto que necesitan esos datos para dar la clase o coordinar con la familia. La ficha del alumno —incluido el documento y la fecha de nacimiento de un menor— se queda en nuestro sistema. No la enviamos a empresas de afuera."
+      },
+      "security": {
+        "title": "Cómo los cuidamos",
+        "body": "El sitio usa conexión cifrada (HTTPS). El acceso está limitado por cuenta y rol: un docente no ve lo mismo que administración. No exponemos documentos en páginas públicas."
+      },
+      "retention": {
+        "title": "Cuánto tiempo los guardamos",
+        "body": "Si no se confirma la inscripción, podemos archivar o borrar la solicitud cuando ya no haga falta contactarte. Si se suma al instituto, los datos quedan mientras dure ese vínculo y el tiempo que pida la ley (por ejemplo, comprobantes)."
+      },
+      "rights": {
+        "title": "Tus derechos",
+        "body": "Podés pedir ver, corregir o borrar los datos de tu familia por el correo o el teléfono del responsable, más arriba. Si el alumno es menor, lo pide el padre, madre o tutor."
+      },
+      "terms": {
+        "title": "Condiciones de la preinscripción",
+        "body": "Los datos tienen que ser verdaderos. Enviar el formulario no garantiza el cupo hasta que el instituto lo confirme. Si el alumno es menor, quien envía es el padre, madre o tutor. Si el instituto tiene un protocolo propio, ese texto se acepta aparte cuando corresponda."
+      }
+    }
+  },
   "dashboard": {
     "adminChrome": {
       "ariaHeader": "Panel de administración",
@@ -4663,6 +4953,8 @@
       "groupHelp": "Ayuda y cuenta",
       "groupSiteConfig": "Sitio y configuración",
       "groupData": "Datos",
+      "changelog": "Novedades del sistema",
+      "tipChangelog": "Lo que se fue agregando al producto. No es la auditoría de quién cambió un alumno o un pago.",
       "glossary": "Glosario de términos",
       "tipGlossary": "Definiciones de cohorte, sección, promoción, apoderado/tutor y el resto del vocabulario del producto.",
       "navScopeInstitution": "Institución (administración)",
@@ -7878,6 +8170,24 @@
             "description": "Revisa bien el modal de vista previa. Confirma apply solo si los conteos son correctos — cerrar el tour no importa."
           }
         }
+      }
+    },
+    "adminChangelogPage": {
+      "metaTitle": "Novedades del sistema",
+      "title": "Novedades del sistema",
+      "lead": "Historial de lo que se fue agregando al producto. No reemplaza la auditoría: acá no figura quién editó un alumno o un pago.",
+      "listAria": "Historial de novedades del producto",
+      "areas": {
+        "academic": "Académico",
+        "finance": "Finanzas",
+        "registrations": "Inscripciones",
+        "parent": "Familias",
+        "portal": "Portal",
+        "events": "Eventos",
+        "cms": "Sitio",
+        "admin": "Admin",
+        "communications": "Comunicación",
+        "site": "Marca"
       }
     },
     "adminGlossaryPage": {

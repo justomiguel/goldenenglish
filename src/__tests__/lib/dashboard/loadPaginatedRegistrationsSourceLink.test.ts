@@ -28,6 +28,11 @@ describe("loadPaginatedRegistrations column list", () => {
     expect(source).toContain("intent");
   });
 
+  it("selects the public privacy acceptance stamp", () => {
+    expect(source).toContain("privacy_accepted_at");
+    expect(source).toContain("privacy_policy_version");
+  });
+
   it("still avoids select all", () => {
     expect(source).not.toMatch(/select\(\s*["'`]\*/);
   });

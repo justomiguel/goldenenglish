@@ -140,4 +140,39 @@ describe("AdminRegistrationExpandedDetails", () => {
     expect(screen.getByText(labels.nagoExtrasTitle)).toBeInTheDocument();
     expect(screen.getByText("Av. Principal 100")).toBeInTheDocument();
   });
+
+  it("shows the privacy acceptance stamp when the public form recorded one", () => {
+    renderInTable(
+      <AdminRegistrationExpandedDetails
+        row={{
+          ...row,
+          privacy_accepted_at: "2026-08-29T16:00:00.000Z",
+          privacy_policy_version: "2026-08-29",
+        }}
+        colSpan={9}
+        locale="en"
+        labels={labels}
+        sectionName={null}
+      />,
+    );
+
+    const stamp = new Date("2026-08-29T16:00:00.000Z").toLocaleString("en");
+    expect(screen.getByText(labels.privacyAcceptedOn.replace("{date}", stamp))).toBeInTheDocument();
+    expect(screen.getByText(labels.privacyPolicyVersion.replace("{version}", "2026-08-29"))).toBeInTheDocument();
+  });
+
+  it("hides the privacy stamp when the lead has no public acceptance", () => {
+    renderInTable(
+      <AdminRegistrationExpandedDetails
+        row={row}
+        colSpan={9}
+        locale="en"
+        labels={labels}
+        sectionName={null}
+      />,
+    );
+
+    expect(screen.queryByText(/privacyPolicyVersion/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(labels.privacyPolicyVersion.replace("{version}", "2026-08-29"))).not.toBeInTheDocument();
+  });
 });

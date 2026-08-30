@@ -331,3 +331,13 @@
     transform: none;
   }
 }
+
+/* Shared public pages (privacy) — deep red and ink on white, not yellow/pink text. */
+.mz-public-sheet {
+  --color-heading: var(--mz-header-red-deep);
+  --color-primary: var(--mz-header-red-deep);
+  --color-foreground: #2a2a2a;
+  --color-muted-foreground: var(--mz-ink-on-white);
+  --color-background: var(--mz-white);
+  color: var(--mz-ink-on-white);
+}

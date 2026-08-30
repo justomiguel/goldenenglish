@@ -37,11 +37,11 @@ export type IntakeLeadRow = {
 };
 
 export async function requireRegistrationIntakeAdmin(): Promise<
-  { ok: true; session: SupabaseClient } | { ok: false; code: "forbidden" }
+  { ok: true; session: SupabaseClient; userId: string } | { ok: false; code: "forbidden" }
 > {
   try {
-    const { supabase } = await assertAdmin();
-    return { ok: true, session: supabase };
+    const { supabase, user } = await assertAdmin();
+    return { ok: true, session: supabase, userId: user.id };
   } catch {
     logServerAuthzDenied("registrationIntakeActions");
     return { ok: false, code: "forbidden" };

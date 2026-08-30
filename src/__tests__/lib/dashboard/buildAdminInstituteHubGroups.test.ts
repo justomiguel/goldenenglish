@@ -39,6 +39,7 @@ describe("buildAdminInstituteHubGroups", () => {
     expect(rowsFor("dataHelp")).toEqual([
       `${BASE}/analytics`,
       `${BASE}/audit`,
+      `${BASE}/changelog`,
       `${BASE}/glossary`,
     ]);
   });

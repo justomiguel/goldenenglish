@@ -26,7 +26,7 @@ describe("planTrialConvertQuote", () => {
     expect(quote.total).toBe(20000);
   });
 
-  it("uses enrollment when any payable section still charges matrícula", () => {
+  it("adds matrícula and join-month tuition when both are due", () => {
     const quote = planTrialConvertQuote({
       selectedSectionIds: [A],
       seats: [{ sectionId: A, status: "attended", hasOpenSeat: true }],
@@ -38,8 +38,29 @@ describe("planTrialConvertQuote", () => {
     });
     expect(quote).toMatchObject({
       ok: true,
-      kind: "enrollment",
-      total: 80000,
+      kind: "enrollment_and_month",
+      enrollmentDue: 80000,
+      monthDue: 20000,
+      total: 100000,
+    });
+  });
+
+  it("keeps first_month when matrícula is already paid", () => {
+    const quote = planTrialConvertQuote({
+      selectedSectionIds: [A],
+      seats: [{ sectionId: A, status: "attended", hasOpenSeat: true }],
+      enrollmentAmounts: { [A]: 80000 },
+      monthlyAmounts: { [A]: 20000 },
+      alreadyPaidEnrollmentIds: [A],
+      alreadyPaidMonthIds: [],
+      currency: "CLP",
+    });
+    expect(quote).toMatchObject({
+      ok: true,
+      kind: "first_month",
+      enrollmentDue: 0,
+      monthDue: 20000,
+      total: 20000,
     });
   });
 
@@ -53,6 +74,12 @@ describe("planTrialConvertQuote", () => {
       alreadyPaidMonthIds: [A],
       currency: "CLP",
     });
-    expect(quote).toMatchObject({ ok: true, kind: "first_month", total: 0 });
+    expect(quote).toMatchObject({
+      ok: true,
+      kind: "first_month",
+      enrollmentDue: 0,
+      monthDue: 0,
+      total: 0,
+    });
   });
 });

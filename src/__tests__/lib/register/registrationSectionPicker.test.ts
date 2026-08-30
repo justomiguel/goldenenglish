@@ -4,7 +4,9 @@ import {
   assignRegisterPickerOverlapColumns,
   comboOptionsForRegisterPicker,
   flattenRegisterPickerCells,
+  formatRegisterPickerSelectionChip,
   mapRegistrationSectionPickerRows,
+  registerPickerSectionShortName,
   resolveRegisterPickerWeekWindowMinutes,
   type RegisterPickerCell,
   type RegistrationSectionPickerOption,
@@ -103,6 +105,74 @@ describe("assignRegisterPickerOverlapColumns", () => {
     const cols = [...layout.values()].map((v) => v.col);
     expect(new Set(cols).size).toBe(2);
     expect([...layout.values()].every((v) => v.colCount === 2)).toBe(true);
+  });
+});
+
+describe("registerPickerSectionShortName", () => {
+  it("drops the cohort prefix from picker labels", () => {
+    expect(registerPickerSectionShortName("2026 — Ballet Básico Adulto")).toBe(
+      "Ballet Básico Adulto",
+    );
+  });
+
+  it("keeps a label that has no cohort prefix", () => {
+    expect(registerPickerSectionShortName("Yoga mañana")).toBe("Yoga mañana");
+  });
+});
+
+describe("formatRegisterPickerSelectionChip", () => {
+  const weekdays = {
+    sun: "Sun",
+    mon: "Mon",
+    tue: "Tue",
+    wed: "Wed",
+    thu: "Thu",
+    fri: "Fri",
+    sat: "Sat",
+  };
+
+  it("joins the short section name with weekday and hours", () => {
+    expect(
+      formatRegisterPickerSelectionChip(
+        [
+          {
+            sectionId: A,
+            label: "2026 — Ballet Básico Adulto",
+            dayOfWeek: 5,
+            startTime: "19:00",
+            endTime: "20:15",
+            disabled: false,
+          },
+        ],
+        weekdays,
+      ),
+    ).toBe("Ballet Básico Adulto · Fri 19:00–20:15");
+  });
+
+  it("lists every slot of a multi-day section", () => {
+    expect(
+      formatRegisterPickerSelectionChip(
+        [
+          {
+            sectionId: A,
+            label: "2026 — Ballet",
+            dayOfWeek: 3,
+            startTime: "18:30",
+            endTime: "20:00",
+            disabled: false,
+          },
+          {
+            sectionId: A,
+            label: "2026 — Ballet",
+            dayOfWeek: 1,
+            startTime: "18:30",
+            endTime: "19:30",
+            disabled: false,
+          },
+        ],
+        weekdays,
+      ),
+    ).toBe("Ballet · Mon 18:30–19:30 · Wed 18:30–20:00");
   });
 });
 

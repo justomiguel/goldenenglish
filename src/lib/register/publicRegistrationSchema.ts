@@ -44,6 +44,7 @@ export function buildPublicRegistrationSchema(
       additional_section_ids: z.array(z.string().uuid()).max(40).optional(),
       tenant_extras: z.unknown().optional(),
       intent: z.enum(["reserve", "trial"]).optional(),
+      privacy_accepted: z.literal(true),
     })
     .superRefine((data, ctx) => {
       if (!requireNewStudentContact) return;
@@ -145,3 +146,8 @@ export function buildPublicRegistrationSchema(
 export type PublicRegistrationInput = z.infer<
   ReturnType<typeof buildPublicRegistrationSchema>
 >;
+
+/** Form-mapped payload before Zod (privacy checkbox may be unchecked). */
+export type PublicRegistrationFormDraft = Omit<PublicRegistrationInput, "privacy_accepted"> & {
+  privacy_accepted: boolean;
+};

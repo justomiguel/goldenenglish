@@ -1,5 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { EmailProvider } from "@/lib/email/emailProvider";
+import { sendWrappedHtmlEmail } from "@/lib/email/templates/sendWrappedHtmlEmail";
+import type { Locale } from "@/types/i18n";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { sanitizeMessageHtml } from "@/lib/messaging/sanitizeMessageHtml";
 import { stripHtmlToText } from "@/lib/messaging/stripHtml";
@@ -25,6 +27,7 @@ export async function sendParentBulkCommunication(input: {
   subject: string;
   html: string;
   fromAddress: string;
+  locale: Locale;
   emailProvider: EmailProvider;
 }): Promise<ParentBulkSendResult> {
   const safeHtml = sanitizeMessageHtml(input.html);
@@ -68,7 +71,15 @@ export async function sendParentBulkCommunication(input: {
   for (let i = 0; i < plan.emails.length; i += EMAIL_CHUNK) {
     const chunk = plan.emails.slice(i, i + EMAIL_CHUNK);
     for (const mail of chunk) {
-      const r = await input.emailProvider.sendEmail(mail);
+      const r = await sendWrappedHtmlEmail({
+        to: mail.to,
+        subject: mail.subject,
+        bodyHtml: mail.html,
+        locale: input.locale,
+        emailProvider: input.emailProvider,
+        cc: mail.cc,
+        bcc: mail.bcc,
+      });
       if (r.ok) emailed += 1;
       else failed += 1;
     }

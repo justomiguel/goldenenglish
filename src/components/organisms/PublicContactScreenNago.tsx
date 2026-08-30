@@ -6,6 +6,7 @@ import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { PublicContactForm } from "@/components/molecules/PublicContactForm";
 import { NagoRegisterHeader } from "@/components/molecules/NagoRegisterHeader";
 import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
+import { resolveNagoLogo } from "@/lib/landing/nagoLogo";
 
 export interface PublicContactScreenNagoProps {
   locale: string;
@@ -15,7 +16,7 @@ export interface PublicContactScreenNagoProps {
 
 export function PublicContactScreenNago({ locale, dict, brand }: PublicContactScreenNagoProps) {
   const prefix = `/${locale}`;
-  const logoSrc = brand.logoPath.trim();
+  const logoSrc = resolveNagoLogo(brand);
   const pc = dict.publicContact;
 
   return (
@@ -46,7 +47,7 @@ export function PublicContactScreenNago({ locale, dict, brand }: PublicContactSc
             </p>
           </header>
           <div className="flex justify-center lg:justify-start">
-            <div className="w-full max-w-lg rounded-2xl border border-[var(--nago-gold)]/30 bg-[var(--color-surface)] p-6 md:p-8">
+            <div className="nago-public-sheet w-full max-w-lg rounded-2xl border border-[var(--nago-gold)]/30 p-6 md:p-8">
               <PublicContactForm locale={locale} labels={pc} />
             </div>
           </div>

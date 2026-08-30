@@ -1,0 +1,49 @@
+---
+description: Before every product commit, add a What's-new entry in the admin changelog catalog.
+alwaysApply: true
+---
+
+# Commit gate — write the product changelog first
+
+Admin **Instituto → Novedades del sistema** is fed by `src/lib/product-changelog/catalog.ts`. Staff only see what we write there.
+
+## Before `git commit`
+
+1. Ask: will a parent, student, teacher, or admin **notice** this after deploy?
+2. If **yes**, add a new object at the **top** of `PRODUCT_CHANGELOG_ENTRIES` **before** creating the commit. Include that file in the **same** commit.
+3. If **no**, skip the entry (see below). Do not invent filler.
+
+Do **not** run `git commit` for product-visible work while the catalog still lacks this change.
+
+## Entry shape
+
+- `id`: kebab-case, unique, stable (`trial-classes`, not `update-2`).
+- `date`: commit day `YYYY-MM-DD`.
+- `area`: one of `PRODUCT_CHANGELOG_AREAS`.
+- `title` / `summary`: `t(es, en, pt)` — staff-facing, one sentence each, no commit hashes or file lists.
+
+```ts
+// ✅ GOOD — prepended, three locales, what staff can now do
+{
+  id: "section-share-photo",
+  date: "2026-08-29",
+  area: "academic",
+  title: t("Foto para compartir la sección", "Section share photo", "Foto para partilhar a turma"),
+  summary: t(
+    "Cada sección puede tener una foto para el link de inscripción.",
+    "Each section can have a photo on its enrollment link.",
+    "Cada turma pode ter uma foto no link de inscrição.",
+  ),
+}
+
+// ❌ BAD — committing a feature with no catalog row
+git commit -m "feat: section share photo"
+```
+
+## Skip (no entry)
+
+Docs/specs/plans, Cursor rules, tests-only, lint/deps/chore, refactors with **no** staff/family/student-visible change.
+
+## Still do
+
+Commit finished work per **`37-commit-finished-work-ask-when-mixed.mdc`**. This rule only adds the changelog step; it does not delay the commit.

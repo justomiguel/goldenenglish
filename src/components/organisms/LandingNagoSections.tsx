@@ -1,16 +1,22 @@
-import Image from "next/image";
 import Link from "next/link";
-import { UserPlus } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
-import { resolveLandingImageSrcForTheme } from "@/lib/cms/resolveLandingMedia";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
+import { NAGO_HERO_SLIDES, NAGO_TEMPLATE } from "@/lib/landing/nagoTemplateImages";
 import { NagoLandingGallery } from "@/components/organisms/NagoLandingGallery";
-import { NagoLandingContactPanel } from "@/components/organisms/NagoLandingContactPanel";
 import { LandingNagoFooter } from "@/components/organisms/LandingNagoFooter";
-import { NagoReveal } from "@/components/organisms/NagoReveal";
 import { NagoHeroMotion } from "@/components/organisms/NagoHeroMotion";
+import { LandingNagoPillars } from "@/components/organisms/LandingNagoPillars";
+import { LandingNagoPrograms } from "@/components/organisms/LandingNagoPrograms";
+import { LandingNagoExperience } from "@/components/organisms/LandingNagoExperience";
+import { LandingNagoMestre } from "@/components/organisms/LandingNagoMestre";
+import { LandingNagoHorarios } from "@/components/organisms/LandingNagoHorarios";
+import { LandingNagoAccion } from "@/components/organisms/LandingNagoAccion";
+import { LandingNagoEvents } from "@/components/organisms/LandingNagoEvents";
+import { LandingNagoTestimonials } from "@/components/organisms/LandingNagoTestimonials";
+import { LandingNagoConvert } from "@/components/organisms/LandingNagoConvert";
+import { NagoLandingLeadForm } from "@/components/organisms/NagoLandingLeadForm";
 
 interface LandingNagoSectionsProps {
   dict: Dictionary;
@@ -23,115 +29,58 @@ export function LandingNagoSections({
   dict,
   brand,
   locale,
-  mediaMap,
 }: LandingNagoSectionsProps) {
   const t = (path: string) => marketingLandingCopy(dict, "nago", path);
-  const img = (section: "inicio" | "historia" | "modalidades" | "oferta", file: string) =>
-    resolveLandingImageSrcForTheme("nago", section, file, mediaMap);
-
-  const principles = ["respeto", "disciplina", "union", "cultura"] as const;
 
   return (
     <>
-      <NagoHeroMotion photoSrc={img("inicio", "hero-chile.png")}>
-        <p className="nago-hero-kicker">{brand.name}</p>
+      <NagoHeroMotion
+        photoSrc={NAGO_TEMPLATE.hero}
+        photoSrcs={NAGO_HERO_SLIDES}
+        slidePrevLabel={t("hero.slidePrev")}
+        slideNextLabel={t("hero.slideNext")}
+        slideGoToLabel={t("hero.slideGoTo")}
+        discover={
+          <a href={`/${locale}#clases`} className="nago-hero-discover">
+            <span>{t("hero.discover")}</span>
+            <span className="nago-hero-discover-arrow" aria-hidden />
+          </a>
+        }
+      >
         <h1
           id="nago-hero-title"
-          className="nago-hero-title max-w-4xl text-balance font-[family-name:var(--font-nago-display)] text-5xl font-semibold uppercase leading-[0.95] tracking-[0.12em] sm:text-6xl md:text-7xl lg:text-8xl"
+          className="nago-hero-title nago-display max-w-4xl text-5xl leading-[0.9] sm:text-6xl md:text-7xl lg:text-8xl"
         >
-          {t("hero.title")}
+          {t("hero.title")}{" "}
+          <span className="nago-hero-title-accent">{t("hero.titleAccent")}</span>
         </h1>
         <div className="nago-hero-rule" aria-hidden />
-        <p className="nago-hero-subtitle mt-2 max-w-xl text-lg font-medium leading-snug tracking-[0.18em] uppercase md:text-xl">
+        <p className="nago-hero-subtitle mt-1 max-w-xl text-sm font-medium uppercase sm:text-base md:text-lg">
           {t("hero.subtitle")}
+          <span className="mt-1 block">{t("hero.subtitleTrail")}</span>
         </p>
-        <Link href={`/${locale}/register`} className="nago-btn mt-10">
-          <UserPlus className="h-4 w-4 shrink-0" aria-hidden strokeWidth={2} />
-          {dict.landing.hero.ctaReserveSpot}
-        </Link>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <Link href={`/${locale}/register`} className="nago-btn nago-btn-solid">
+            {t("hero.ctaPrimary")}
+          </Link>
+          <Link href={`/${locale}#nago`} className="nago-btn">
+            {t("hero.ctaSecondary")}
+          </Link>
+        </div>
       </NagoHeroMotion>
 
-      <section className="nago-offer" aria-label={t("hero.tagline")}>
-        <div className="nago-offer-ken" aria-hidden />
-        <NagoReveal>
-          <h2 className="nago-offer-title font-[family-name:var(--font-nago-display)] text-2xl font-semibold tracking-wide md:text-4xl">
-            {t("hero.tagline")}
-          </h2>
-        </NagoReveal>
-      </section>
-
-      <section
-        id="sobre"
-        className="nago-section-beige scroll-mt-24 px-[max(1.5rem,env(safe-area-inset-left))] py-16 pe-[max(1.5rem,env(safe-area-inset-right))] md:py-20"
-      >
-        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-2 md:items-center md:gap-16">
-          <NagoReveal>
-            <h2 className="font-[family-name:var(--font-nago-display)] text-3xl font-semibold uppercase tracking-[0.08em] text-[var(--nago-heading-solid)] md:text-4xl">
-              {t("sobreNosotros.title")}
-            </h2>
-            <div className="nago-rule-soft mt-4 h-0.5 w-12 bg-[var(--nago-green)]" aria-hidden />
-            <p className="mt-5 text-pretty leading-relaxed text-[var(--nago-ink-muted)]">
-              {t("sobreNosotros.bodyP1")}
-            </p>
-            <p className="mt-4 text-pretty leading-relaxed text-[var(--nago-ink-muted)]">
-              {t("sobreNosotros.bodyP2")}
-            </p>
-          </NagoReveal>
-          <NagoReveal delay={2} variant="media" className="rounded-2xl">
-            <Image
-              src={img("historia", "1.png")}
-              alt=""
-              width={720}
-              height={540}
-              className="h-full w-full object-cover"
-            />
-          </NagoReveal>
-        </div>
-      </section>
-
-      <section
-        id="principios"
-        className="scroll-mt-24 bg-[var(--nago-bg)] px-[max(1.5rem,env(safe-area-inset-left))] py-16 pe-[max(1.5rem,env(safe-area-inset-right))] md:py-20"
-      >
-        <NagoReveal>
-          <h2 className="text-center font-[family-name:var(--font-nago-display)] text-3xl font-semibold uppercase tracking-[0.18em] text-[var(--nago-heading-solid)] md:text-4xl">
-            {t("principios.sectionTitle")}
-          </h2>
-        </NagoReveal>
-        <div className="mx-auto mt-12 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-          {principles.map((key, i) => (
-            <NagoReveal
-              key={key}
-              as="article"
-              delay={i < 3 ? ((i + 1) as 1 | 2 | 3) : undefined}
-              className="nago-principle-item"
-            >
-              <h3 className="font-[family-name:var(--font-nago-display)] text-sm font-semibold uppercase tracking-[0.2em] text-[var(--nago-gold)]">
-                {t(`principios.${key}.title`)}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--nago-ink-muted)]">
-                {t(`principios.${key}.body`)}
-              </p>
-            </NagoReveal>
-          ))}
-        </div>
-      </section>
-
+      <LandingNagoPillars dict={dict} />
+      <LandingNagoPrograms dict={dict} locale={locale} />
+      <LandingNagoExperience dict={dict} />
+      <LandingNagoMestre dict={dict} locale={locale} />
+      <LandingNagoHorarios dict={dict} locale={locale} />
+      <LandingNagoAccion dict={dict} />
+      <LandingNagoEvents dict={dict} locale={locale} />
       <NagoLandingGallery dict={dict} />
-
-      <section
-        id="cta"
-        className="scroll-mt-24 bg-[var(--nago-bg-2)] px-[max(1.5rem,env(safe-area-inset-left))] py-14 pb-[max(3rem,env(safe-area-inset-bottom))] pe-[max(1.5rem,env(safe-area-inset-right))] text-center md:py-16 md:pb-[max(4rem,env(safe-area-inset-bottom))]"
-      >
-        <NagoReveal>
-          <h2 className="font-[family-name:var(--font-nago-display)] text-2xl font-semibold uppercase tracking-[0.14em] text-[var(--nago-heading-solid)] md:text-3xl lg:text-4xl">
-            {t("cta.title")}
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm text-[var(--nago-ink-muted)] md:text-base">
-            {t("cta.subtitle")}
-          </p>
-        </NagoReveal>
-        <NagoLandingContactPanel dict={dict} locale={locale} />
+      <LandingNagoTestimonials dict={dict} />
+      <LandingNagoConvert dict={dict} locale={locale} />
+      <section className="bg-[var(--nago-bg)] px-[max(1.25rem,env(safe-area-inset-left))] py-14 pe-[max(1.25rem,env(safe-area-inset-right))]">
+        <NagoLandingLeadForm dict={dict} locale={locale} />
       </section>
       <LandingNagoFooter dict={dict} brand={brand} locale={locale} t={t} />
     </>

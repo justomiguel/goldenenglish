@@ -1,5 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { AlertTriangle, CalendarClock, ClipboardList, Inbox, MessageSquare, BarChart3 } from "lucide-react";
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import { UpcomingBirthdaysCard } from "@/components/molecules/UpcomingBirthdaysCard";
 import { DashboardGreetingHero } from "@/components/molecules/DashboardGreetingHero";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
@@ -28,6 +33,15 @@ export function TeacherDashboardHome({
   const h = dict.dashboard.teacher.home;
   const base = `/${locale}/dashboard/teacher`;
   const { greeting, fullDateLine } = buildDashboardGreeting(locale, dict);
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    model.sectionGrades,
+    {
+      section: (row) => row.label,
+      avg: (row) => row.avgScore,
+    },
+    "section",
+  );
 
   return (
     <div className="space-y-8">
@@ -127,13 +141,13 @@ export function TeacherDashboardHome({
             <table className="min-w-full text-left text-sm">
               <thead className="bg-[color-mix(in_oklch,var(--color-muted)_60%,transparent)]">
                 <tr>
-                  <th className="px-3 py-2 font-semibold text-[var(--color-foreground)]">{h.gradesColSection}</th>
-                  <th className="px-3 py-2 font-semibold text-[var(--color-foreground)]">{h.gradesColAvg}</th>
+                  <SortableTh columnId="section" label={h.gradesColSection} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 font-semibold text-[var(--color-foreground)]" />
+                  <SortableTh columnId="avg" label={h.gradesColAvg} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 font-semibold text-[var(--color-foreground)]" />
                   <th className="px-3 py-2 font-semibold text-[var(--color-foreground)]">{h.gradesColLink}</th>
                 </tr>
               </thead>
               <tbody>
-                {model.sectionGrades.map((row) => {
+                {sortedRows.map((row) => {
                   const tone = teacherSectionAvgTone(row.avgScore);
                   return (
                     <tr key={row.sectionId} className="border-t border-[var(--color-border)]">

@@ -80,6 +80,7 @@ export async function applyTrialConvertGatewayCapture(input: {
     paidCapture: expected > 0,
     enrollServiceRole: true,
     skipFamilyWelcome: true,
+    joinDisposition: { kind: "current" },
   });
   if (!accepted.ok) return { ok: false };
 

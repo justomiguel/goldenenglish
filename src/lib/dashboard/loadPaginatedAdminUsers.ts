@@ -37,6 +37,12 @@ const SORT_COLUMN_MAP: Record<SortKey, string> = {
   role: "role",
   phone: "phone",
   lastAccess: "last_session_start_at",
+  sections: "last_name",
+  monthlyDue: "last_name",
+  parent: "last_name",
+  children: "last_name",
+  lastEnrollment: "last_name",
+  enrollmentFee: "last_name",
 };
 
 export interface PaginatedAdminUsersResult {
@@ -203,6 +209,9 @@ export async function loadPaginatedAdminUsers(
         parents: extras.parentsByStudent.get(id) ?? [],
         children: parentExtras.childrenByParent.get(id) ?? [],
         monthlyDue: extras.monthlyDueByStudent.get(id) ?? [],
+        monthlyStatus: extras.billingFlagsByStudent.get(id)?.monthlyStatus ?? "na",
+        enrollmentFeeStatus: extras.billingFlagsByStudent.get(id)?.enrollmentFeeStatus ?? "na",
+        lastEnrollmentAt: extras.billingFlagsByStudent.get(id)?.lastEnrollmentAt ?? null,
         lastSessionStartAt: (p.last_session_start_at as string | null) ?? null,
         emailDeliverable: isDeliverableAuthEmail(rawEmail),
       };

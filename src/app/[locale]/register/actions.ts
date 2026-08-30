@@ -5,7 +5,7 @@ import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { createClient } from "@/lib/supabase/server";
 import {
   buildPublicRegistrationSchema,
-  type PublicRegistrationInput,
+  type PublicRegistrationFormDraft,
 } from "@/lib/register/publicRegistrationSchema";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -26,12 +26,13 @@ import {
   quotePublicRegistrationFee,
 } from "@/lib/register/completePublicRegistrationSubmit";
 import { completeTrialRegistrationSubmit } from "@/lib/register/completeTrialRegistrationSubmit";
+import { privacyAcceptanceStamp } from "@/lib/privacy/privacyAcceptanceStamp";
 
 export type RegisterActionState = { ok: boolean; message?: string };
 
 export async function submitPublicRegistration(
   locale: string,
-  raw: PublicRegistrationInput,
+  raw: PublicRegistrationFormDraft,
 ): Promise<RegisterActionState> {
   const dict = await getDictionary(locale);
   const reg = dict.register;
@@ -214,6 +215,7 @@ export async function submitPublicRegistration(
       fee_snapshot: quote.fields.fee_snapshot,
       intake_state: quote.fields.intake_state,
       fee_captured: quote.fields.fee_captured,
+      ...privacyAcceptanceStamp(),
     });
 
     if (!error) {

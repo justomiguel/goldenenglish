@@ -4,7 +4,7 @@ import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { createClient } from "@/lib/supabase/server";
 
 /** Public marketing + auth entry; admin/dashboard excluded (noindex elsewhere). */
-const INDEXED_PATHS = ["", "/login", "/contact", "/blog", "/events"] as const;
+const INDEXED_PATHS = ["", "/login", "/contact", "/privacidad", "/blog", "/events"] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getPublicSiteUrl();

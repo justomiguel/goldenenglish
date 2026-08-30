@@ -93,6 +93,16 @@ export function logServerWarn(scope: string, meta?: Record<string, unknown>): vo
   console.warn(PREFIX, scope, meta);
 }
 
+/** Breadcrumb operativo (envío aceptado, conteos). Sin PII. */
+export function logServerInfo(scope: string, meta?: Record<string, unknown>): void {
+  console.info(PREFIX, scope, meta);
+}
+
+/** Fallo operativo con meta plana (sin wrappear en Error). Sin PII. */
+export function logServerError(scope: string, meta?: Record<string, unknown>): void {
+  console.error(PREFIX, scope, meta);
+}
+
 type AuthAdminErrLike = {
   message?: string | null;
   code?: string | null;

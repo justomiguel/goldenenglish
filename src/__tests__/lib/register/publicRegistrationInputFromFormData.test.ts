@@ -37,7 +37,26 @@ describe("publicRegistrationInputFromFormData", () => {
       additional_section_ids: ["sec-2"],
       intent: "trial",
       tenant_extras: undefined,
+      privacy_accepted: false,
     });
+  });
+
+  it("reads privacy acceptance from the checkbox", () => {
+    const raw = publicRegistrationInputFromFormData(
+      fd({
+        first_name: "Ada",
+        last_name: "Lovelace",
+        dni: "1",
+        email: "ada@test.com",
+        phone: "+1",
+        birth_date: "2000-01-01",
+        preferred_section_id: "sec-1",
+        privacy_accepted: "yes",
+      }),
+      null,
+      "reserve",
+    );
+    expect(raw.privacy_accepted).toBe(true);
   });
 
   it("stamps nago extras when the pack is nago", () => {

@@ -17,6 +17,13 @@ describe("nagoLanding.css", () => {
     expect(css).toMatch(/pointer-events:\s*none/);
   });
 
+  it("keeps public bands and program cards on the dark graphite palette", () => {
+    expect(css).not.toMatch(/\.nago-band-light\s*\{\s*background:\s*#f6f3ec/);
+    expect(css).not.toMatch(/\.nago-band-sand\s*\{\s*background:\s*#ebe6dc/);
+    expect(css).not.toMatch(/\.nago-program-card\s*\{[^}]*background:\s*#fff/);
+    expect(css).toMatch(/\.nago-landing[\s\S]*color-scheme:\s*dark/);
+  });
+
   it("does not paint the Chile hero as a CSS background", () => {
     expect(css).not.toContain("/images/nago/inicio/hero-chile.png");
     expect(css).not.toContain("/images/nago/inicio/hero-bg.png");

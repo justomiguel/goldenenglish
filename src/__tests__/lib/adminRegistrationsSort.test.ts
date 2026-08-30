@@ -81,6 +81,13 @@ describe("sortRegistrationRows", () => {
     expect(sortRegistrationRows([late, early], "birth", "asc")[0]?.id).toBe("e");
   });
 
+  it("sorts by student and tutor phones", () => {
+    const student = base({ id: "s", phone: "+10", tutor_phone: "+90" });
+    const tutor = base({ id: "t", phone: "+20", tutor_phone: "+80" });
+    expect(sortRegistrationRows([tutor, student], "phoneStudent", "asc")[0]?.id).toBe("s");
+    expect(sortRegistrationRows([student, tutor], "phoneTutor", "asc")[0]?.id).toBe("t");
+  });
+
   it("sorts by status", () => {
     const n = base({ id: "n", status: "new" });
     const e = base({ id: "e", status: "enrolled" });

@@ -31,5 +31,6 @@ describe("RegisterNagoSurface", () => {
       dictEn.landing.nago.register.shellTitle,
     );
     expect(screen.getByTestId("register-form-stub")).toBeInTheDocument();
+    expect(screen.getByTestId("register-form-stub").parentElement).toHaveClass("nago-public-sheet");
   });
 });

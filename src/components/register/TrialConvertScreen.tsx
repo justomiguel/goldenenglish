@@ -30,7 +30,7 @@ export function TrialConvertScreen({
   seats: TrialConvertSeatView[];
   quoteTotal: number;
   quoteCurrency: string;
-  quoteKind: "enrollment" | "first_month";
+  quoteKind: "enrollment" | "first_month" | "enrollment_and_month";
   methods: RegistrationPublicPayMethod[];
   labels: {
     title: string;
@@ -41,6 +41,7 @@ export function TrialConvertScreen({
     amount: string;
     enrollmentKind: string;
     monthKind: string;
+    bothKind: string;
     joinFree: string;
     flow: string;
     mercadoPago: string;
@@ -99,7 +100,13 @@ export function TrialConvertScreen({
       </fieldset>
       {amount ? (
         <p className="mt-6 text-lg font-medium">
-          {labels.amount}: {amount} ({quoteKind === "enrollment" ? labels.enrollmentKind : labels.monthKind})
+          {labels.amount}: {amount} ({
+            quoteKind === "enrollment_and_month"
+              ? labels.bothKind
+              : quoteKind === "enrollment"
+                ? labels.enrollmentKind
+                : labels.monthKind
+          })
         </p>
       ) : null}
       <div className="mt-6 flex flex-wrap gap-2">

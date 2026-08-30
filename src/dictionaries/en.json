@@ -717,48 +717,229 @@
       "chrome": {
         "openMenu": "Open menu",
         "closeMenu": "Close menu",
-        "facebookAria": "Capoeira Nago on Facebook",
-        "instagramAria": "Capoeira Nago on Instagram"
+        "facebookAria": "Capoeira Nagô on Facebook",
+        "instagramAria": "Capoeira Nagô on Instagram",
+        "youtubeAria": "Capoeira Nagô on YouTube",
+        "whatsappAria": "Message on WhatsApp",
+        "soundOn": "Turn sound on",
+        "soundOff": "Mute",
+        "backToTop": "Back to top"
       },
       "nav": {
         "inicio": "Home",
-        "sobreNosotros": "About us",
+        "sobreNosotros": "Nagô",
         "clases": "Classes",
+        "horarios": "Schedule",
+        "nago": "Nagô",
         "galeria": "Gallery",
         "eventos": "Events",
-        "contacto": "Contact"
+        "contacto": "Contact",
+        "agendaCta": "Book a class"
       },
       "register": {
-        "shellTitle": "Join the roda — Capoeira Nago",
+        "shellTitle": "Join the roda — Capoeira Nagô",
         "shellLead": "Share your details. Our team confirms group fit and replies with how to train with us safely."
       },
       "hero": {
-        "title": "We are Nago",
-        "subtitle": "Tradition that moves, culture that lives",
-        "tagline": "Capoeira is more than a martial art: it's music, dance, tradition, and community."
+        "title": "Capoeira that",
+        "titleAccent": "transforms.",
+        "subtitle": "More confidence. More discipline.",
+        "subtitleTrail": "A better version of you.",
+        "tagline": "Brazilian roots. A story built in Chile.",
+        "ctaPrimary": "Book a class",
+        "ctaSecondary": "Discover Nagô",
+        "discover": "Discover",
+        "slidePrev": "Previous photo",
+        "slideNext": "Next photo",
+        "slideGoTo": "Go to photo {n}"
       },
-      "sobreNosotros": {
-        "title": "About Us",
-        "bodyP1": "Capoeira Nago was born with the purpose of spreading capoeira as a tool for personal and social transformation.",
-        "bodyP2": "Through teaching, events, and performances, we keep the tradition and spirit of capoeira alive."
-      },
-      "principios": {
-        "sectionTitle": "Our Principles",
-        "respeto": {
-          "title": "Respect",
-          "body": "We value each person and their journey."
+      "pilares": {
+        "deporte": {
+          "title": "Sport",
+          "body": "Strength, coordination, agility, and fitness."
         },
         "disciplina": {
           "title": "Discipline",
-          "body": "Constant improvement makes us better."
+          "body": "Consistency and focus to grow in training and beyond."
         },
-        "union": {
-          "title": "Union",
-          "body": "We are a family inside and outside the roda."
+        "confianza": {
+          "title": "Confidence",
+          "body": "We build self-esteem to face new challenges."
         },
         "cultura": {
           "title": "Culture",
-          "body": "We honor our Brazilian roots."
+          "body": "Music, history, and tradition that keep our roots alive."
+        },
+        "superacion": {
+          "title": "Growth",
+          "body": "Every class is a chance to go further."
+        }
+      },
+      "programas": {
+        "kicker": "Programs",
+        "sectionTitle": "Train with us",
+        "lead": "Find your path. No previous experience needed.",
+        "ctaHorarios": "See schedule",
+        "verClases": "See classes",
+        "noExperience": "No previous experience needed.",
+        "ninos": {
+          "title": "Kids",
+          "ages": "Ages 4–12",
+          "body": "Play, coordination, and confidence from the first class."
+        },
+        "jovenes": {
+          "title": "Youth",
+          "ages": "Ages 13–17",
+          "body": "Energy, discipline, and a group that pushes you forward."
+        },
+        "adultos": {
+          "title": "Adults",
+          "ages": "Ages 18+",
+          "body": "Fitness, focus, and a community that keeps the habit."
+        },
+        "mayores": {
+          "title": "Older adults",
+          "ages": "Ages 55+",
+          "body": "Mobility, rhythm, and wellbeing in a careful class."
+        }
+      },
+      "experiencia": {
+        "title": "More than training. A way of life.",
+        "body": "Capoeira Nagô was born to use Capoeira as a tool for physical, personal, cultural, and social development.",
+        "deporte": "Sport",
+        "movimiento": "Movement",
+        "disciplina": "Discipline",
+        "musica": "Music",
+        "cultura": "Culture",
+        "desarrollo": "Personal growth"
+      },
+      "mestre": {
+        "kicker": "Leadership and experience",
+        "title": "Mestre Fagulha",
+        "body": "Brazilian training and more than two decades building Capoeira in Chile: Santiago, the regions, events, and exchanges.",
+        "cta": "Learn more about his story",
+        "years": "20+",
+        "yearsLabel": "Years of experience",
+        "students": "Thousands",
+        "studentsLabel": "Students trained",
+        "events": "National and international",
+        "eventsLabel": "Events and competitions",
+        "chile": "Santiago and regions",
+        "chileLabel": "Presence in Chile"
+      },
+      "accion": {
+        "sectionTitle": "Nagô in action"
+      },
+      "testimonios": {
+        "sectionTitle": "Life at Nagô",
+        "t1": {
+          "quote": "I arrived knowing nothing. Within weeks I felt part of something larger.",
+          "role": "Adult student"
+        },
+        "t2": {
+          "quote": "My son gained confidence and a group that looks after him. That is not improvised.",
+          "role": "Parent"
+        },
+        "t3": {
+          "quote": "It is sport, music, and character. I train to become better, not just stronger.",
+          "role": "Youth student"
+        }
+      },
+      "eventosHome": {
+        "sectionTitle": "Beyond the class",
+        "lead": "Championships, rodas, workshops, and exchanges.",
+        "viewAll": "See all events",
+        "e1": {
+          "date": "25",
+          "month": "Jul",
+          "title": "Winter Open",
+          "place": "Santiago, Chile"
+        },
+        "e2": {
+          "date": "16",
+          "month": "Aug",
+          "title": "Special roda",
+          "place": "Nagô academy"
+        },
+        "e3": {
+          "date": "12",
+          "month": "Oct",
+          "title": "Brazil exchange",
+          "place": "Santiago · Brazil"
+        }
+      },
+      "horarios": {
+        "sectionTitle": "Schedule",
+        "lead": "Capoeira classes in Ñuñoa. Capoeira Nagô Chile – Mestre Fagulha.",
+        "venue": "Tegualda 1571, Ñuñoa",
+        "note": "No experience needed. Reserve on WhatsApp with your name, RUT, and phone number.",
+        "cta": "Ask for my schedule",
+        "pricesTitle": "Monthly fees",
+        "timesOne": "1 class per week",
+        "timesMany": "{n} classes per week",
+        "trialKicker": "Trial class",
+        "trial": "Credited toward the monthly fee if you enroll.",
+        "familyKicker": "Family",
+        "family": "Family group discounts available.",
+        "baby": {
+          "title": "Baby",
+          "ages": "Ages 2–3",
+          "slots": "Tue & Thu 16:30–17:20 · Sat 10:00–10:50"
+        },
+        "kids47": {
+          "title": "Kids",
+          "ages": "Ages 4–7",
+          "slots": "Mon & Wed 16:30 · Tue, Thu & Fri 17:30 · Sat 11:00"
+        },
+        "kids810": {
+          "title": "Kids",
+          "ages": "Ages 8–10",
+          "slots": "Mon & Wed 17:30 · Sat 13:00"
+        },
+        "teens": {
+          "title": "Teens",
+          "ages": "Ages 13+",
+          "slots": "Thu & Fri 18:30"
+        },
+        "mixta": {
+          "title": "Mixed capoeira",
+          "ages": "From age 12 · youth and adults",
+          "slots": "Tue & Thu 18:30"
+        },
+        "adultos": {
+          "title": "Adults",
+          "ages": "Adults",
+          "slots": "Tue & Thu 20:30"
+        },
+        "mayores": {
+          "title": "Seniors",
+          "ages": "60+",
+          "slots": "Saturday 09:00",
+          "note": "From age 55 we accept students after an evaluation."
+        }
+      },
+      "sobreNosotros": {
+        "title": "Live the Nagô experience",
+        "bodyP1": "Capoeira Nagô was born to use Capoeira as a tool for physical, personal, cultural, and social development.",
+        "bodyP2": "Brazilian roots. A story built in Chile. Nagô identity."
+      },
+      "principios": {
+        "sectionTitle": "Nagô pillars",
+        "respeto": {
+          "title": "Sport",
+          "body": "Strength, coordination, agility, and fitness."
+        },
+        "disciplina": {
+          "title": "Discipline",
+          "body": "Consistency and focus to grow in training and beyond."
+        },
+        "union": {
+          "title": "Confidence",
+          "body": "We build self-esteem to face new challenges."
+        },
+        "cultura": {
+          "title": "Culture",
+          "body": "Music, history, and tradition that keep our roots alive."
         }
       },
       "galeria": {
@@ -768,24 +949,42 @@
         "carouselNext": "Next photo",
         "carouselPosition": "Photo {current} of {total}",
         "carouselLoading": "Loading photo",
-        "previewOpenAria": "Open photo {n} larger"
+        "previewOpenAria": "Open photo {n} larger",
+        "lightboxClose": "Close"
+      },
+      "lead": {
+        "name": "Name",
+        "whatsapp": "WhatsApp",
+        "age": "Age / range",
+        "program": "Program of interest",
+        "message": "Message",
+        "email": "Email",
+        "submit": "Send",
+        "ageChild": "4–12",
+        "ageTeen": "13–17",
+        "ageAdult": "18–54",
+        "ageSenior": "55+"
       },
       "cta": {
-        "title": "Join our roda",
-        "subtitle": "No experience needed, just a desire to learn and share.",
-        "button": "Contact us"
+        "title": "Your first step starts here.",
+        "subtitle": "You don't need experience. Just the will to begin.",
+        "button": "Book a class",
+        "whatsapp": "Talk on WhatsApp"
       },
       "footer": {
         "enlacesTitle": "Links",
         "siguenos": "Follow us",
-        "rightsLine": "All rights reserved."
+        "rightsLine": "All rights reserved.",
+        "location": "Tegualda 1571, Ñuñoa",
+        "horarios": "Schedule",
+        "ubicacion": "Location"
       },
       "contact": {
         "title": "Contact",
-        "phoneDisplay": "+56 9 0000 0000",
+        "phoneDisplay": "+56 9 9063 9071",
         "instagramUrl": "https://www.instagram.com/capoeiranago/",
         "facebookUrl": "https://www.facebook.com/capoeiranago/",
-        "whatsappUrl": "https://wa.me/56900000000",
+        "whatsappUrl": "https://wa.me/56990639071",
         "youtubeUrl": "https://www.youtube.com/@capoeiranago"
       },
       "footerCta": "Want to join capoeira? Message us and start your journey."
@@ -1521,7 +1720,11 @@
       "emailSendsGroupMessaging": "Messaging",
       "emailSendsGroupOther": "Other notices",
       "emailSendsLabelInactivity": "No-login reminders",
-      "emailSendsLabelClassReminder": "Class reminders"
+      "emailSendsLabelClassReminder": "Class reminders",
+      "emailDeliveryFailureTitle": "An email could not be sent",
+      "emailDeliveryFailureLead": "Tell your webmaster: the institute cannot send email right now (for example registration or payment notices).",
+      "emailDeliveryFailureDismiss": "Got it",
+      "emailDeliveryFailureSettings": "Review email sends"
     },
     "cms": {
       "navLabel": "Public site",
@@ -2139,6 +2342,16 @@
       "colDiscount": "Discount",
       "colSections": "Sections",
       "colMonthlyDue": "Monthly",
+      "colEnrollmentFee": "Enrollment fee",
+      "colLastEnrollment": "Last enrollment",
+      "billingMarkYes": "Yes",
+      "billingMarkNo": "No",
+      "monthlyStatusYesAria": "Current on monthly fees",
+      "monthlyStatusNoAria": "Overdue monthly fees",
+      "monthlyStatusNaAria": "No monthly fee",
+      "enrollmentFeeYesAria": "Enrollment fee paid",
+      "enrollmentFeeNoAria": "Enrollment fee unpaid",
+      "enrollmentFeeNaAria": "No enrollment fee",
       "colParent": "Parent",
       "colChildren": "Children",
       "colLastAccess": "Last access",
@@ -2464,7 +2677,7 @@
       "detailDniResetErrSave": "Could not reset the password. Try again.",
       "detailDniResetToastOk": "Password reset and revealed.",
       "detailTutorTitle": "Guardians",
-      "detailTutorLead": "Linked parent or guardian accounts for this student.",
+      "detailTutorLead": "Linked parent or guardian accounts for this student. Every linked guardian sees the same family portal.",
       "detailTutorCurrent": "Linked guardians",
       "detailTutorOpenProfile": "Open profile",
       "detailTutorSearchLabel": "Search guardian",
@@ -2475,7 +2688,7 @@
       "detailTutorQueueReminder": "Tap Link guardian when ready — you can keep adding from search.",
       "detailTutorRemoveChipAria": "Remove from list",
       "detailTutorMinChars": "Prefix search on guardian name or document (one letter is enough). Full email also works.",
-      "detailTutorLinkHint": "Search for an existing parent or guardian account by name, ID document, or full login email, then link them. To replace a linked guardian, remove their link above and search again here.",
+      "detailTutorLinkHint": "Search for an existing parent or guardian account by name, ID document, or full login email, then link them. You can add more than one guardian: they all see the same family portal.",
       "detailTutorLinkRelationshipLead": "Before linking, choose how each guardian relates to this student.",
       "detailTutorUnlink": "Remove link",
       "detailTutorUnlinkConfirmTitle": "Remove guardian link?",
@@ -2486,6 +2699,9 @@
       "detailTutorSave": "Link guardian",
       "detailTutorMissingWarning": "This student has no guardian linked yet. Add one below (recommended for minors).",
       "detailTutorPickFirst": "Add at least one guardian from search to the list, then link.",
+      "detailTutorAddOpen": "Add tutor",
+      "detailTutorHideAddPanel": "Hide",
+      "detailTutorAddPanelTitle": "Add another tutor",
       "detailTutorCreateIntro": "If the guardian does not have an account yet, create one with their ID document (same rules as CSV import).",
       "detailTutorCreateOpen": "Create guardian and link",
       "detailTutorCreateTitle": "New guardian account",
@@ -3653,6 +3869,20 @@
       "statusUnknown": "Unknown status",
       "deleteError": "Could not delete",
       "acceptError": "Could not create user",
+      "joinBilling": {
+        "legend": "Tuition when they join",
+        "current": "Current (enrollment fee if any + join-month tuition paid)",
+        "behind": "Not current (join month stays owed)",
+        "scholarship": "Joining with a scholarship",
+        "percent": "Scholarship percent",
+        "scopeJoinMonth": "This month only",
+        "scopeRestOfCycle": "Rest of the cycle",
+        "previewExempt": "exempt",
+        "previewPaid": "paid",
+        "previewDue": "owed",
+        "previewScholarship": "scholarship",
+        "required": "Choose whether they join current, behind, or with a scholarship."
+      },
       "acceptSuccess": "Student account created",
       "deleteSuccess": "Request removed",
       "alreadyProcessed": "This request was already handled",
@@ -3715,6 +3945,8 @@
       "revertToNew": "Mark as pending",
       "revertToNewTip": "Send this lead back to the pending queue",
       "contactedOn": "Contacted on {date}",
+      "privacyAcceptedOn": "Accepted privacy and terms on {date}",
+      "privacyPolicyVersion": "Version {version}",
       "statusFilterAll": "All ({{count}})",
       "statusFilterNew": "Pending ({{count}})",
       "statusFilterContacted": "Contacted ({{count}})",
@@ -4391,6 +4623,7 @@
       "convertAmount": "Amount due",
       "convertEnrollment": "Enrollment fee",
       "convertMonth": "This month’s tuition",
+      "convertEnrollmentAndMonth": "Enrollment fee + this month’s tuition",
       "convertFree": "Confirm and join",
       "convertError": "We could not complete that. Try again or write to the institute.",
       "convertNonePayable": "No seat left",
@@ -4405,7 +4638,12 @@
       "viewCombo": "List",
       "calendarAria": "Weekly class schedule",
       "slotFull": "Full",
-      "noTrialSections": "No trial-class schedules are listed yet. You can still send your details."
+      "noTrialSections": "No trial-class schedules are listed yet. You can still send your details.",
+      "selectedAria": "Selected class times"
+    },
+    "privacyConsent": {
+      "label": "I accept the {privacyLink} for this pre-enrollment. The institute does not share these details outside class management.",
+      "link": "terms and data use"
     },
     "submit": "Send request",
     "successTitle": "Request sent",
@@ -4548,6 +4786,58 @@
       "noStaff": "We could not reach the team right now. Please try again later or use another contact channel."
     }
   },
+  "privacy": {
+    "metaTitle": "Privacy and terms",
+    "metaDescription": "How the institute looks after family data when you reserve a place or book a trial class.",
+    "title": "Privacy and terms",
+    "lead": "At {{brand}} we look after your family's data. We do not sell it, publish it, or use it for anything other than running the class.",
+    "footerLink": "Privacy and terms",
+    "backHome": "Back to home",
+    "controller": {
+      "registryLabel": "Registration / ID",
+      "emailLabel": "Email",
+      "phoneLabel": "Phone",
+      "addressLabel": "Address"
+    },
+    "sections": {
+      "promise": {
+        "title": "Our promise",
+        "body": "The details you give us at pre-enrollment stay at the institute. Only authorized staff — administration, teachers, and people who coordinate schedules — can see them. We do not build lists for third parties or publish student documents or photos unless you ask us to."
+      },
+      "controller": {
+        "title": "Who is responsible",
+        "body": "{{brand}} is responsible for this data. To see, correct, or ask us to delete it, use the institute contacts below."
+      },
+      "what": {
+        "title": "What we ask for",
+        "body": "For the student: name, ID document, and date of birth. If they are a minor, we also ask for the parent or guardian's name, ID, email, and phone. You choose a schedule or a trial class. We only ask for what we need to hold the place and reach you."
+      },
+      "why": {
+        "title": "Why we use it",
+        "body": "To reserve the place or book the trial class, build the student record, and write to you by email or WhatsApp. We do not use this data for other companies' advertising."
+      },
+      "who": {
+        "title": "Who can see it",
+        "body": "Only institute staff who need it to teach the class or coordinate with the family. The student's record — including a minor's ID document and date of birth — stays in our system. We do not send that file to outside companies."
+      },
+      "security": {
+        "title": "How we protect it",
+        "body": "The site uses an encrypted connection (HTTPS). Access is limited by account and role: a teacher does not see the same things as administration. We do not expose documents on public pages."
+      },
+      "retention": {
+        "title": "How long we keep it",
+        "body": "If enrollment is not confirmed, we may archive or delete the request when we no longer need to reach you. If they join the institute, we keep the record for as long as that relationship lasts and as long as the law requires (for example, receipts)."
+      },
+      "rights": {
+        "title": "Your rights",
+        "body": "You can ask to see, correct, or delete your family's data using the responsible party's email or phone above. If the student is a minor, the parent or guardian makes the request."
+      },
+      "terms": {
+        "title": "Pre-enrollment conditions",
+        "body": "The details must be true. Sending the form does not guarantee a place until the institute confirms it. If the student is a minor, the parent or guardian is the one submitting. If the institute has its own protocol, that text is accepted separately when it applies."
+      }
+    }
+  },
   "dashboard": {
     "adminChrome": {
       "ariaHeader": "Administration panel",
@@ -4663,6 +4953,8 @@
       "groupHelp": "Help & account",
       "groupSiteConfig": "Site & settings",
       "groupData": "Data",
+      "changelog": "What's new",
+      "tipChangelog": "Features added to the product over time. Not the operational audit of who changed a student or a payment.",
       "glossary": "Terms glossary",
       "tipGlossary": "Definitions of cohort, section, promotion, guardian, and other product vocabulary.",
       "navScopeInstitution": "Institution (administration)",
@@ -7878,6 +8170,24 @@
             "description": "Review the preview modal carefully. Confirm apply only when counts look right — closing the tour does not import."
           }
         }
+      }
+    },
+    "adminChangelogPage": {
+      "metaTitle": "What's new",
+      "title": "What's new",
+      "lead": "History of features added to the product. This is not the audit log: it does not show who edited a student or a payment.",
+      "listAria": "Product changelog",
+      "areas": {
+        "academic": "Academic",
+        "finance": "Finance",
+        "registrations": "Registrations",
+        "parent": "Families",
+        "portal": "Portal",
+        "events": "Events",
+        "cms": "Site",
+        "admin": "Admin",
+        "communications": "Communications",
+        "site": "Brand"
       }
     },
     "adminGlossaryPage": {

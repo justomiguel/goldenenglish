@@ -17,6 +17,10 @@ import {
   revalidateRegistrationInbox,
 } from "@/lib/register/registrationIntakeActionSupport";
 import { startAdminRegistrationEnrollmentFeeFlow } from "@/lib/register/startAdminRegistrationEnrollmentFeeFlow";
+import {
+  parseJoinDispositionInput,
+  type JoinBillingDisposition,
+} from "@/lib/billing/joinBillingDispositionSchema";
 
 export type IntakeActionResult = { ok: true } | { ok: false; code: string };
 
@@ -24,9 +28,12 @@ export async function waiveRegistrationFeeAction(input: {
   locale: string;
   registrationId: string;
   reason: string;
+  joinDisposition: JoinBillingDisposition;
 }): Promise<IntakeActionResult> {
   const reason = parseRegistrationWaiveReason(input.reason);
   if (!reason) return { ok: false, code: "reason_required" };
+  const disposition = parseJoinDispositionInput(input.joinDisposition);
+  if (!disposition) return { ok: false, code: "validation" };
   const auth = await requireRegistrationIntakeAdmin();
   if (!auth.ok) return auth;
   const admin = createAdminClient();
@@ -40,6 +47,8 @@ export async function waiveRegistrationFeeAction(input: {
     dict,
     registrationId: input.registrationId,
     waiveReason: reason,
+    joinDisposition: disposition,
+    actorId: auth.userId,
   });
   if (!result.ok) return { ok: false, code: "accept_failed" };
   revalidateRegistrationInbox(input.locale);
@@ -49,7 +58,10 @@ export async function waiveRegistrationFeeAction(input: {
 export async function approveRegistrationReceiptAction(input: {
   locale: string;
   registrationId: string;
+  joinDisposition: JoinBillingDisposition;
 }): Promise<IntakeActionResult> {
+  const disposition = parseJoinDispositionInput(input.joinDisposition);
+  if (!disposition) return { ok: false, code: "validation" };
   const auth = await requireRegistrationIntakeAdmin();
   if (!auth.ok) return auth;
   const admin = createAdminClient();
@@ -65,6 +77,8 @@ export async function approveRegistrationReceiptAction(input: {
     dict,
     registrationId: input.registrationId,
     paidCapture: true,
+    joinDisposition: disposition,
+    actorId: auth.userId,
   });
   if (!result.ok) return { ok: false, code: "accept_failed" };
   void recordSystemAudit({
@@ -112,6 +126,7 @@ export async function assignRegistrationSectionAction(input: {
   locale: string;
   registrationId: string;
   sectionId: string;
+  joinDisposition: JoinBillingDisposition;
 }): Promise<IntakeActionResult> {
   const auth = await requireRegistrationIntakeAdmin();
   if (!auth.ok) return auth;
@@ -148,6 +163,8 @@ export async function assignRegistrationSectionAction(input: {
     payload: { section_id: input.sectionId },
   });
   if (lead.fee_captured) {
+    const disposition = parseJoinDispositionInput(input.joinDisposition);
+    if (!disposition) return { ok: false, code: "validation" };
     const dict = await getDictionary(input.locale);
     const result = await acceptRegistrationLead({
       admin,
@@ -156,6 +173,8 @@ export async function assignRegistrationSectionAction(input: {
       dict,
       registrationId: input.registrationId,
       paidCapture: true,
+      joinDisposition: disposition,
+      actorId: auth.userId,
     });
     if (!result.ok) return { ok: false, code: "accept_failed" };
   }

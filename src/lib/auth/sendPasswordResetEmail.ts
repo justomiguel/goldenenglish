@@ -1,12 +1,8 @@
 import type { BrandPublic } from "@/lib/brand/server";
 import type { EmailProvider, SendEmailResult } from "@/lib/email/emailProvider";
-import { getDictionary } from "@/lib/i18n/dictionaries";
-import { fillTemplate } from "@/lib/i18n/fillTemplate";
+import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
+import type { Locale } from "@/types/i18n";
 
-/**
- * Escape user-provided values before interpolating into the email HTML so a
- * crafted address cannot inject markup or break attributes.
- */
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -14,6 +10,11 @@ function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function asLocale(value: string): Locale {
+  if (value === "en" || value === "pt") return value;
+  return "es";
 }
 
 export interface SendPasswordResetEmailParams {
@@ -25,21 +26,20 @@ export interface SendPasswordResetEmailParams {
   emailProvider: EmailProvider;
 }
 
-/**
- * Compose and dispatch the password reset email. Brand and copy come from the
- * project sources of truth (`SYSTEM_PROPERTIES_DEFAULTS` + dictionaries) so a rebrand
- * or translation change reaches users without code changes here.
- */
 export async function sendPasswordResetEmail(
   params: SendPasswordResetEmailParams,
 ): Promise<SendEmailResult> {
-  const dict = await getDictionary(params.locale);
-  const t = dict.emailPasswordReset;
-  const subject = fillTemplate(t.subject, { brandName: params.brand.name });
-  const html = fillTemplate(t.html, {
-    brandName: escapeHtml(params.brand.name),
-    email: escapeHtml(params.to),
-    href: escapeHtml(params.resetLink),
+  const r = await sendBrandedEmail({
+    to: params.to,
+    templateKey: "notifications.password_reset",
+    locale: asLocale(params.locale),
+    emailProvider: params.emailProvider,
+    vars: {
+      brandName: escapeHtml(params.brand.name),
+      email: escapeHtml(params.to),
+      href: escapeHtml(params.resetLink),
+    },
   });
-  return params.emailProvider.sendEmail({ to: params.to, subject, html });
+  if (!r.ok) return { ok: false, error: r.error };
+  return { ok: true };
 }

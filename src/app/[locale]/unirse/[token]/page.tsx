@@ -95,6 +95,7 @@ export default async function TrialConvertPage({
         amount: labels.convertAmount,
         enrollmentKind: labels.convertEnrollment,
         monthKind: labels.convertMonth,
+        bothKind: labels.convertEnrollmentAndMonth,
         joinFree: labels.convertFree,
         flow: dict.register.enrollmentPayFlow,
         mercadoPago: dict.register.enrollmentPayMercadoPago,

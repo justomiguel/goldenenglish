@@ -26,6 +26,7 @@ export function LandingLioraFooter({
     { href: `/${locale}#galeria`, label: t("nav.galeria") },
     { href: `/${locale}/events`, label: t("nav.eventos") },
     { href: `/${locale}#contacto`, label: t("nav.contacto") },
+    { href: `/${locale}/privacidad`, label: dict.privacy.footerLink },
   ];
   // Site setup (`social.*`, `contact.*`) manda; el diccionario queda como
   // respaldo para deploys sin tema cargado.

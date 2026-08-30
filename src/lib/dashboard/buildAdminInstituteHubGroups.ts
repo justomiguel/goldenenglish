@@ -42,6 +42,7 @@ export function buildAdminInstituteHubGroups(
   const dataHelp: AdminInstituteHubRow[] = [
     { href: `${base}/analytics`, label: dict.analytics, tip: dict.tipAnalytics, iconId: "analytics" },
     { href: `${base}/audit`, label: dict.audit, tip: dict.tipAudit, iconId: "audit" },
+    { href: `${base}/changelog`, label: dict.changelog, tip: dict.tipChangelog, iconId: "changelog" },
     { href: `${base}/glossary`, label: dict.glossary, tip: dict.tipGlossary, iconId: "glossary" },
   ];
   if (options.includeEmailTemplatesNav) {

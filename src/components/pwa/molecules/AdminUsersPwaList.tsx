@@ -18,9 +18,25 @@ type UserLabels = Dictionary["admin"]["users"];
 type TableLabels = Dictionary["admin"]["table"];
 
 const DIRECTORY_SORT_KEYS: SortKey[] = ["email", "name", "role", "phone"];
-const STUDENT_SORT_KEYS: SortKey[] = ["name"];
-const TEACHER_SORT_KEYS: SortKey[] = ["email", "name", "phone"];
-const PARENT_SORT_KEYS: SortKey[] = ["name", "email", "lastAccess"];
+const STUDENT_SORT_KEYS: SortKey[] = [
+  "name",
+  "sections",
+  "monthlyDue",
+  "enrollmentFee",
+  "lastEnrollment",
+  "parent",
+];
+const TEACHER_SORT_KEYS: SortKey[] = ["email", "name", "sections", "phone"];
+const PARENT_SORT_KEYS: SortKey[] = [
+  "name",
+  "email",
+  "children",
+  "sections",
+  "monthlyDue",
+  "enrollmentFee",
+  "lastEnrollment",
+  "lastAccess",
+];
 
 function colLabel(labels: UserLabels, key: SortKey): string {
   switch (key) {
@@ -34,6 +50,18 @@ function colLabel(labels: UserLabels, key: SortKey): string {
       return labels.colPhone;
     case "lastAccess":
       return labels.colLastAccess;
+    case "sections":
+      return labels.colSections;
+    case "monthlyDue":
+      return labels.colMonthlyDue;
+    case "enrollmentFee":
+      return labels.colEnrollmentFee;
+    case "lastEnrollment":
+      return labels.colLastEnrollment;
+    case "parent":
+      return labels.colParent;
+    case "children":
+      return labels.colChildren;
     default:
       return key;
   }

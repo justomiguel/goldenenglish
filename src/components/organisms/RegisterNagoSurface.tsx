@@ -8,6 +8,7 @@ import { RegisterForm } from "@/components/register/RegisterForm";
 import { NagoRegisterHeader } from "@/components/molecules/NagoRegisterHeader";
 import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
+import { resolveNagoLogo } from "@/lib/landing/nagoLogo";
 
 export interface RegisterNagoSurfaceProps {
   locale: string;
@@ -32,7 +33,7 @@ export function RegisterNagoSurface({
 }: RegisterNagoSurfaceProps) {
   const prefix = `/${locale}`;
   const nago = dict.landing.nago;
-  const logoSrc = brand.logoPath.trim();
+  const logoSrc = resolveNagoLogo(brand);
 
   return (
     <NagoFontRoot className="relative min-h-screen pb-16">
@@ -74,7 +75,7 @@ export function RegisterNagoSurface({
             </p>
           </header>
           <div className="flex justify-center lg:justify-start">
-            <div className="w-full max-w-lg rounded-2xl border border-[var(--nago-gold)]/30 bg-[var(--color-surface)] p-6 md:p-8">
+            <div className="nago-public-sheet w-full max-w-lg rounded-2xl border border-[var(--nago-gold)]/30 p-6 md:p-8">
               <RegisterForm
                 locale={locale}
                 dict={dict.register}

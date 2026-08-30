@@ -27,6 +27,11 @@ import {
   wardEmailChangedTemplate,
 } from "@/lib/email/templates/registryNotifications";
 import { REGISTRATION_EMAIL_TEMPLATES } from "@/lib/email/templates/registryRegistration";
+import { EVENTS_EMAIL_TEMPLATES } from "@/lib/email/templates/registryEvents";
+import {
+  adminPasswordResetNoticeTemplate,
+  passwordResetTemplate,
+} from "@/lib/email/templates/registryAuth";
 
 /**
  * Catálogo cerrado de plantillas de email del producto. Es la fuente de verdad
@@ -53,7 +58,10 @@ const REGISTRY: ReadonlyArray<EmailTemplateDefinition> = [
   adminStudentWelcomeTemplate,
   adminTutorWelcomeTemplate,
   parentPlatformInviteTemplate,
+  passwordResetTemplate,
+  adminPasswordResetNoticeTemplate,
   ...REGISTRATION_EMAIL_TEMPLATES,
+  ...EVENTS_EMAIL_TEMPLATES,
 ];
 
 const REGISTRY_BY_KEY = new Map<EmailTemplateKey, EmailTemplateDefinition>(

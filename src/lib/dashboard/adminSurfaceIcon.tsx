@@ -17,6 +17,7 @@ import {
   MessageCircle,
   Newspaper,
   Percent,
+  Sparkles,
   Presentation,
   Rocket,
   ScrollText,
@@ -49,6 +50,7 @@ export const ADMIN_SURFACE_ICON_IDS = [
   "allAccounts",
   "analytics",
   "audit",
+  "changelog",
   "glossary",
   "emailTemplates",
 ] as const;
@@ -78,6 +80,7 @@ const ICONS: Record<AdminSurfaceIconId, typeof Home> = {
   allAccounts: Users,
   analytics: Activity,
   audit: ScrollText,
+  changelog: Sparkles,
   glossary: BookMarked,
   emailTemplates: Mails,
 };

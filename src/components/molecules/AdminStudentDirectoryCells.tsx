@@ -6,6 +6,11 @@ import {
   type AdminStudentDirectorySection,
 } from "@/lib/dashboard/loadAdminStudentDirectoryExtras";
 import { formatMonthlyDueTotals } from "@/lib/billing/sumDiscountedMonthlyDue";
+import { DirectoryBillingMark } from "@/components/molecules/DirectoryBillingMark";
+import {
+  formatDirectoryLastEnrollment,
+  type DirectoryBillingMark as BillingMark,
+} from "@/lib/dashboard/directoryBillingStatus";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 type UserLabels = Dictionary["admin"]["users"];
@@ -89,18 +94,86 @@ export function AdminStudentSectionsList({
 export function AdminStudentMonthlyDueCell({
   row,
   locale,
+  labels,
   emptyValue,
 }: {
   row: AdminUserRow;
   locale: string;
+  labels: UserLabels;
   emptyValue: string;
 }) {
   const formatted = formatMonthlyDueTotals(row.monthlyDue, locale);
-  if (!formatted) {
-    return <span className="text-[var(--color-muted-foreground)]">{emptyValue}</span>;
-  }
   return (
-    <span className="font-semibold tabular-nums text-[var(--color-foreground)]">{formatted}</span>
+    <span className="flex flex-wrap items-center gap-1.5">
+      {formatted ? (
+        <span className="font-semibold tabular-nums text-[var(--color-foreground)]">{formatted}</span>
+      ) : (
+        <span className="text-[var(--color-muted-foreground)]">{emptyValue}</span>
+      )}
+      <DirectoryBillingMark
+        status={row.monthlyStatus}
+        yesLabel={labels.billingMarkYes}
+        noLabel={labels.billingMarkNo}
+        yesTitle={labels.monthlyStatusYesAria}
+        noTitle={labels.monthlyStatusNoAria}
+        naTitle={labels.monthlyStatusNaAria}
+      />
+    </span>
+  );
+}
+
+export function AdminDirectoryMonthlyStatusCell({
+  status,
+  labels,
+}: {
+  status: BillingMark;
+  labels: UserLabels;
+}) {
+  return (
+    <DirectoryBillingMark
+      status={status}
+      yesLabel={labels.billingMarkYes}
+      noLabel={labels.billingMarkNo}
+      yesTitle={labels.monthlyStatusYesAria}
+      noTitle={labels.monthlyStatusNoAria}
+      naTitle={labels.monthlyStatusNaAria}
+    />
+  );
+}
+
+export function AdminDirectoryEnrollmentFeeCell({
+  status,
+  labels,
+}: {
+  status: BillingMark;
+  labels: UserLabels;
+}) {
+  return (
+    <DirectoryBillingMark
+      status={status}
+      yesLabel={labels.billingMarkYes}
+      noLabel={labels.billingMarkNo}
+      yesTitle={labels.enrollmentFeeYesAria}
+      noTitle={labels.enrollmentFeeNoAria}
+      naTitle={labels.enrollmentFeeNaAria}
+    />
+  );
+}
+
+export function AdminDirectoryLastEnrollmentCell({
+  iso,
+  locale,
+  emptyValue,
+}: {
+  iso: string | null;
+  locale: string;
+  emptyValue: string;
+}) {
+  const label = formatDirectoryLastEnrollment(iso, locale, emptyValue);
+  return (
+    <span className={iso ? "text-[var(--color-foreground)]" : "text-[var(--color-muted-foreground)]"}>
+      {label}
+    </span>
   );
 }
 

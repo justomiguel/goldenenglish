@@ -6,6 +6,7 @@ import { AdminSidebar } from "@/components/dashboard/AdminSidebar";
 import { AdminMobileDrawer } from "@/components/dashboard/AdminMobileDrawer";
 import { AdminInstituteTrail } from "@/components/dashboard/AdminInstituteTrail";
 import { ViewAsEndedNotice } from "@/components/dashboard/ViewAsEndedNotice";
+import { AdminEmailSendFailureBanner } from "@/components/dashboard/AdminEmailSendFailureBanner";
 
 interface AdminDashboardShellProps {
   locale: string;
@@ -24,6 +25,8 @@ interface AdminDashboardShellProps {
   profileDisplayName?: string;
   profileRoleLabel?: string;
   profileAvatarUrl?: string | null;
+  /** Last outbound email failed — show webmaster banner. */
+  emailSendFailure?: boolean;
   children: ReactNode;
 }
 
@@ -41,6 +44,7 @@ export function AdminDashboardShell({
   profileDisplayName = "",
   profileRoleLabel = "",
   profileAvatarUrl = null,
+  emailSendFailure = false,
   children,
 }: AdminDashboardShellProps) {
   const navDict = dict.dashboard.adminNav;
@@ -96,6 +100,9 @@ export function AdminDashboardShell({
           <Suspense fallback={null}>
             <ViewAsEndedNotice dict={dict} />
           </Suspense>
+          {emailSendFailure && !siteSetupRequired ? (
+            <AdminEmailSendFailureBanner locale={locale} labels={dict.admin.settings} />
+          ) : null}
           {children}
         </div>
       </div>

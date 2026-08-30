@@ -7,6 +7,8 @@ import type { AdminEventRow } from "@/lib/dashboard/events/loadPaginatedAdminEve
 import { TablePagination } from "@/components/molecules/TablePagination";
 import type { EventSortKey } from "@/lib/dashboard/events/loadPaginatedAdminEvents";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 
 interface AdminEventsScreenProps {
   locale: string;
@@ -67,6 +69,11 @@ export function AdminEventsScreen({
     params.set("page", "1");
     return `${pathname}?${params.toString()}`;
   };
+  const sortLabels = tableSortLabels(locale);
+  const onToggleSort = (key: string) => {
+    router.push(sortHref(key as EventSortKey));
+  };
+  const headClass = "px-3 py-2";
 
   return (
     <section className="mt-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)] md:p-6">
@@ -87,24 +94,60 @@ export function AdminEventsScreen({
         <table className="min-w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--color-border)] text-left">
-              <th className="px-3 py-2">
-                <Link href={sortHref("title")} className="hover:underline">
-                  {labels.title}
-                </Link>
-              </th>
-              <th className="px-3 py-2">
-                <Link href={sortHref("event_date")} className="hover:underline">
-                  {labels.date}
-                </Link>
-              </th>
-              <th className="px-3 py-2">{labels.status}</th>
-              <th className="px-3 py-2">
-                <Link href={sortHref("attendees_count")} className="hover:underline">
-                  {labels.capacity}
-                </Link>
-              </th>
-              <th className="px-3 py-2">{labels.views}</th>
-              <th className="px-3 py-2">{labels.price}</th>
+              <SortableTh
+                columnId="title"
+                label={labels.title}
+                sortKey={sort}
+                sortDir={dir}
+                onToggleSort={onToggleSort}
+                sortLabels={sortLabels}
+                className={headClass}
+              />
+              <SortableTh
+                columnId="event_date"
+                label={labels.date}
+                sortKey={sort}
+                sortDir={dir}
+                onToggleSort={onToggleSort}
+                sortLabels={sortLabels}
+                className={headClass}
+              />
+              <SortableTh
+                columnId="status"
+                label={labels.status}
+                sortKey={sort}
+                sortDir={dir}
+                onToggleSort={onToggleSort}
+                sortLabels={sortLabels}
+                className={headClass}
+              />
+              <SortableTh
+                columnId="attendees_count"
+                label={labels.capacity}
+                sortKey={sort}
+                sortDir={dir}
+                onToggleSort={onToggleSort}
+                sortLabels={sortLabels}
+                className={headClass}
+              />
+              <SortableTh
+                columnId="views"
+                label={labels.views}
+                sortKey={sort}
+                sortDir={dir}
+                onToggleSort={onToggleSort}
+                sortLabels={sortLabels}
+                className={headClass}
+              />
+              <SortableTh
+                columnId="price"
+                label={labels.price}
+                sortKey={sort}
+                sortDir={dir}
+                onToggleSort={onToggleSort}
+                sortLabels={sortLabels}
+                className={headClass}
+              />
               <th className="px-3 py-2 font-semibold text-[var(--color-muted-foreground)]">{labels.actions}</th>
             </tr>
           </thead>

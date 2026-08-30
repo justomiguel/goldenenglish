@@ -96,6 +96,7 @@ describe("RegisterForm", () => {
       target: { value: "+100" },
     });
     chooseSection();
+    fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: r.submit }));
   }
 
@@ -123,7 +124,30 @@ describe("RegisterForm", () => {
         phone: "+100",
         birth_date: "2000-06-15",
         preferred_section_id: SECTION_ID,
+        privacy_accepted: true,
       }),
+    );
+  });
+
+  it("leaves the privacy checkbox unchecked until the parent ticks it", async () => {
+    render(
+      <RegisterForm
+        locale="es"
+        dict={dictEn.register}
+        legalAgeMajority={18}
+        sectionOptions={SECTION_OPTIONS}
+      />,
+    );
+    fillStudentFields();
+    pickRegisterBirthIso("2000-06-15");
+    await continueToDetails();
+    await waitFor(() => {
+      expect(screen.getByRole("checkbox")).toBeInTheDocument();
+    });
+    expect(screen.getByRole("checkbox")).not.toBeChecked();
+    expect(screen.getByRole("link", { name: dictEn.register.privacyConsent.link })).toHaveAttribute(
+      "href",
+      "/es/privacidad",
     );
   });
 
@@ -238,6 +262,7 @@ describe("RegisterForm", () => {
       target: { value: "Madre" },
     });
     chooseSection();
+    fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: r.submit }));
     await waitFor(() => {
       expect(screen.getByText(dictEn.register.successTitle)).toBeInTheDocument();
@@ -280,6 +305,7 @@ describe("RegisterForm", () => {
     fireEvent.change(screen.getByRole("combobox", { name: r.level }), {
       target: { value: REGISTRATION_UNDECIDED_FORM_VALUE },
     });
+    fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: r.submit }));
     await waitFor(() => {
       expect(screen.getByText(dictEn.register.successTitle)).toBeInTheDocument();
@@ -398,6 +424,7 @@ describe("RegisterForm", () => {
       expect(screen.getByRole("button", { name: dictEn.register.existingYes })).toBeInTheDocument();
     });
     fireEvent.click(screen.getByRole("button", { name: dictEn.register.existingYes }));
+    fireEvent.click(screen.getByRole("checkbox"));
     const continues = screen.getAllByRole("button", { name: dictEn.register.continue });
     fireEvent.click(continues[continues.length - 1]);
     await waitFor(() => {
@@ -492,6 +519,7 @@ describe("RegisterForm", () => {
       target: { value: "+100" },
     });
     chooseSection();
+    fireEvent.click(screen.getByRole("checkbox"));
     const continues = screen.getAllByRole("button", { name: dictEn.register.continue });
     fireEvent.click(continues[continues.length - 1]);
     await waitFor(() => {

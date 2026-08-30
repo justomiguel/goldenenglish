@@ -82,12 +82,14 @@ export function AdminAnalyticsTrafficBreakdownPanel({
             className="grid gap-4 p-4 lg:grid-cols-2"
           >
             <TrafficBreakdownPathsTable
+              locale={locale}
               labels={labels}
               kind={k}
               rows={data.paths}
               nf={nf}
             />
             <TrafficBreakdownAgentsTable
+              locale={locale}
               labels={labels}
               kind={k}
               rows={data.agents}

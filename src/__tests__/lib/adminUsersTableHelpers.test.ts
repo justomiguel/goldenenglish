@@ -122,4 +122,60 @@ describe("sortAdminUsers", () => {
     const r = sortAdminUsers(rows, "name", "desc");
     expect(r.map((x) => x.id)).toEqual(["a", "b"]);
   });
+
+  it("sorts by sections, parent, and monthly due", () => {
+    const withExtras: AdminUserRow[] = [
+      {
+        ...rows[0],
+        sections: [{ id: "z", name: "Zeta", cohortId: null, discountPercent: null }],
+        parents: [{ id: "p2", firstName: "Zoe", lastName: "Tutor" }],
+        monthlyDue: [{ amount: 40, currency: "CLP" }],
+      },
+      {
+        ...rows[1],
+        sections: [{ id: "a", name: "Alfa", cohortId: null, discountPercent: null }],
+        parents: [{ id: "p1", firstName: "Ana", lastName: "Tutor" }],
+        monthlyDue: [{ amount: 10, currency: "CLP" }],
+      },
+    ];
+    expect(sortAdminUsers(withExtras, "sections", "asc")[0]?.id).toBe("b");
+    expect(sortAdminUsers(withExtras, "parent", "asc")[0]?.id).toBe("b");
+    expect(sortAdminUsers(withExtras, "monthlyDue", "asc")[0]?.id).toBe("b");
+  });
+
+  it("sorts by last enrollment and keeps empty dates last in both directions", () => {
+    const withDates: AdminUserRow[] = [
+      { ...rows[0], lastEnrollmentAt: "2026-01-01T00:00:00.000Z" },
+      { ...rows[1], lastEnrollmentAt: "2026-08-01T00:00:00.000Z" },
+      {
+        ...rows[0],
+        id: "c",
+        email: "c@x.com",
+        lastEnrollmentAt: null,
+      },
+    ];
+    expect(sortAdminUsers(withDates, "lastEnrollment", "asc").map((x) => x.id)).toEqual([
+      "a",
+      "b",
+      "c",
+    ]);
+    expect(sortAdminUsers(withDates, "lastEnrollment", "desc").map((x) => x.id)).toEqual([
+      "b",
+      "a",
+      "c",
+    ]);
+  });
+
+  it("sorts matrícula no before na before yes", () => {
+    const withMarks: AdminUserRow[] = [
+      { ...rows[0], enrollmentFeeStatus: "yes" },
+      { ...rows[1], enrollmentFeeStatus: "no" },
+      { ...rows[0], id: "c", email: "c@x.com", enrollmentFeeStatus: "na" },
+    ];
+    expect(sortAdminUsers(withMarks, "enrollmentFee", "asc").map((x) => x.id)).toEqual([
+      "b",
+      "c",
+      "a",
+    ]);
+  });
 });

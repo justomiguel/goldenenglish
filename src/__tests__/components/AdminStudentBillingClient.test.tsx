@@ -235,7 +235,7 @@ describe("AdminStudentBillingClient", () => {
     const historyPanel = screen.getByRole("tabpanel", { hidden: false });
     expect(
       within(historyPanel).getByRole("columnheader", {
-        name: dictEn.admin.billing.colScholarship,
+        name: new RegExp(dictEn.admin.billing.colScholarship),
       }),
     ).toBeInTheDocument();
     expect(within(historyPanel).getByText("50% discount")).toBeInTheDocument();

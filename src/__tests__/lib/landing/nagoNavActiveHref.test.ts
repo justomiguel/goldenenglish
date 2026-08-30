@@ -20,9 +20,9 @@ describe("resolveNagoNavActiveHref", () => {
       resolveNagoNavActiveHref({
         locale: "es",
         pathname: "/es",
-        intersectingIds: ["sobre", "principios"],
+        intersectingIds: ["clases", "nago"],
       }),
-    ).toBe("/es#principios");
+    ).toBe("/es#nago");
   });
 
   it("falls back to #top on the landing when nothing is intersecting", () => {

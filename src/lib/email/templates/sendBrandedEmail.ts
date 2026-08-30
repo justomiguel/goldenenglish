@@ -5,7 +5,11 @@ import { getBrandForRequest } from "@/lib/brand/server";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { loadEmailTemplate } from "@/lib/email/templates/loadEmailTemplate";
 import { wrapEmailHtml } from "@/lib/email/templates/wrapEmailHtml";
-import { logServerException } from "@/lib/logging/serverActionLog";
+import { logEmailSendOutcome } from "@/lib/logging/emailSendLogMeta";
+import {
+  clearEmailSendStaffNotice,
+  recordEmailSendStaffNotice,
+} from "@/lib/email/emailSendStaffNotice";
 import { isProductEmailEnabled } from "@/lib/email/emailSendsEnabled";
 import { loadEmailSendGate, type EmailSendGate } from "@/lib/email/loadEmailSendGate";
 import type { Locale } from "@/types/i18n";
@@ -49,6 +53,14 @@ export async function sendBrandedEmail(
       templateKey: input.templateKey,
     })
   ) {
+    logEmailSendOutcome({
+      outcome: "skipped",
+      reason: "gate_disabled",
+      to: input.to,
+      templateKey: input.templateKey,
+      locale: input.locale,
+      vars: input.vars,
+    });
     return { ok: true, skipped: true };
   }
 
@@ -58,7 +70,19 @@ export async function sendBrandedEmail(
     vars: input.vars,
   });
   if (!resolved) {
-    logServerException("sendBrandedEmail:unknownKey", new Error(input.templateKey));
+    logEmailSendOutcome({
+      outcome: "failed",
+      reason: "unknown_template_key",
+      error: "unknown_template_key",
+      to: input.to,
+      templateKey: input.templateKey,
+      locale: input.locale,
+      vars: input.vars,
+    });
+    await recordEmailSendStaffNotice({
+      templateKey: input.templateKey,
+      reason: "unknown_template_key",
+    });
     return { ok: false, error: "unknown_template_key" };
   }
 
@@ -77,6 +101,30 @@ export async function sendBrandedEmail(
     subject: resolved.subject,
     html,
   });
-  if (!r.ok) return { ok: false, error: r.error };
+  if (!r.ok) {
+    logEmailSendOutcome({
+      outcome: "failed",
+      reason: "provider_error",
+      error: r.error,
+      to: input.to,
+      templateKey: input.templateKey,
+      locale: input.locale,
+      vars: input.vars,
+    });
+    await recordEmailSendStaffNotice({
+      templateKey: input.templateKey,
+      reason: "provider_error",
+    });
+    return { ok: false, error: r.error };
+  }
+  logEmailSendOutcome({
+    outcome: "sent",
+    to: input.to,
+    templateKey: input.templateKey,
+    locale: input.locale,
+    vars: input.vars,
+    fromOverride: resolved.fromOverride,
+  });
+  await clearEmailSendStaffNotice();
   return { ok: true, fromOverride: resolved.fromOverride };
 }

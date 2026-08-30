@@ -1,5 +1,8 @@
 "use client";
 
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import type { Dictionary } from "@/types/i18n";
 
 export type TrafficGeoPathRow = { country: string; pathname: string; cnt: number };
@@ -22,6 +25,17 @@ interface AdminAnalyticsGeoPathBreakdownProps {
 
 export function AdminAnalyticsGeoPathBreakdown({ locale, labels, rows }: AdminAnalyticsGeoPathBreakdownProps) {
   const nf = new Intl.NumberFormat(locale === "es" ? "es-AR" : "en-US", { maximumFractionDigits: 0 });
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    rows,
+    {
+      country: (r) => r.country,
+      path: (r) => r.pathname,
+      hits: (r) => r.cnt,
+    },
+    "hits",
+    "desc",
+  );
 
   return (
     <section
@@ -39,15 +53,9 @@ export function AdminAnalyticsGeoPathBreakdown({ locale, labels, rows }: AdminAn
         <table className="w-full min-w-[28rem] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-[var(--color-border)] text-[var(--color-muted-foreground)]">
-              <th scope="col" className="py-2 pr-3 font-medium">
-                {labels.trafficGeoPathColCountry}
-              </th>
-              <th scope="col" className="py-2 pr-3 font-medium">
-                {labels.trafficGeoPathColPath}
-              </th>
-              <th scope="col" className="py-2 text-end font-medium">
-                {labels.trafficGeoPathColHits}
-              </th>
+              <SortableTh columnId="country" label={labels.trafficGeoPathColCountry} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-2 pr-3 font-medium" />
+              <SortableTh columnId="path" label={labels.trafficGeoPathColPath} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-2 pr-3 font-medium" />
+              <SortableTh columnId="hits" label={labels.trafficGeoPathColHits} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-2 text-end font-medium" />
             </tr>
           </thead>
           <tbody>
@@ -58,7 +66,7 @@ export function AdminAnalyticsGeoPathBreakdown({ locale, labels, rows }: AdminAn
                 </td>
               </tr>
             ) : (
-              rows.map((r, i) => (
+              sortedRows.map((r, i) => (
                 <tr key={`${r.country}:${r.pathname}:${i}`} className="border-b border-[var(--color-border)]/60">
                   <td className="max-w-[6rem] truncate py-2 pr-3 font-mono text-xs" title={r.country}>
                     {r.country}

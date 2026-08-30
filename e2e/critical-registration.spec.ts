@@ -13,6 +13,7 @@ import {
   pickRegisterBirthIso,
   submitRegisterAfterDetails,
 } from "./helpers/registerForm";
+import { chooseJoinBillingCurrent } from "./helpers/acceptRegistration";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -78,6 +79,7 @@ test.describe("@critical-registration", () => {
     await contactedRow.getByRole("button", { name: /Dar de alta|enroll as|accept/i }).click();
     const dialog = adminPage.getByRole("dialog");
     await expect(dialog).toBeVisible({ timeout: 15_000 });
+    await chooseJoinBillingCurrent(dialog);
     await dialog.getByRole("button", { name: /Dar de alta|enroll as|accept/i }).click();
     // Accept may close the modal (no section step) or show the section picker.
     const skipSection = dialog.getByRole("button", {

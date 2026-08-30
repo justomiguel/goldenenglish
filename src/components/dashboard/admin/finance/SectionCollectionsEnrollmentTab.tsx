@@ -7,6 +7,9 @@ import { useRouter } from "next/navigation";
 import { bulkSectionEnrollmentExemptionAction } from "@/app/[locale]/dashboard/admin/finance/collections/[sectionId]/bulkSectionEnrollmentExemptionAction";
 import { Button } from "@/components/atoms/Button";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
 import type { SectionCollectionsView } from "@/types/sectionCollections";
@@ -37,6 +40,16 @@ export function SectionCollectionsEnrollmentTab({
 
   const ids = useMemo(() => view.students.map((s) => s.studentId), [view.students]);
   const allSelected = ids.length > 0 && ids.every((id) => selected.has(id));
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    view.students,
+    {
+      studentName: (s) => s.studentName,
+      exempt: (s) => (s.enrollmentFee.exempt ? 1 : 0),
+      reason: (s) => s.enrollmentFee.exemptReason ?? "",
+    },
+    "studentName",
+  );
 
   function toggleAll() {
     setSelected(allSelected ? new Set() : new Set(ids));
@@ -117,14 +130,14 @@ export function SectionCollectionsEnrollmentTab({
           <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
             <tr>
               <th className="w-10 px-2 py-2" aria-label={t.enrollmentSelectAll} />
-              <th className="px-3 py-2">{dict.matrix.studentColumn}</th>
-              <th className="px-3 py-2">{t.enrollmentColExempt}</th>
-              <th className="px-3 py-2">{t.enrollmentColReason}</th>
+              <SortableTh columnId="studentName" label={dict.matrix.studentColumn} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+              <SortableTh columnId="exempt" label={t.enrollmentColExempt} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+              <SortableTh columnId="reason" label={t.enrollmentColReason} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
               <th className="px-3 py-2">{t.enrollmentOpenBilling}</th>
             </tr>
           </thead>
           <tbody>
-            {view.students.map((s) => (
+            {sortedRows.map((s) => (
               <tr key={s.studentId} className="border-b border-[var(--color-border)] last:border-0">
                 <td className="px-2 py-2">
                   <input

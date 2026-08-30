@@ -5,7 +5,10 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { getSectionCollectionsPaymentHistoryAction } from "@/app/[locale]/dashboard/admin/finance/collections/[sectionId]/getSectionCollectionsPaymentHistoryAction";
 import { Button } from "@/components/atoms/Button";
+import { SortableTh } from "@/components/molecules/SortableTh";
 import { FlowPaymentDetailModal } from "@/components/dashboard/admin/finance/FlowPaymentDetailModal";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import type { SectionCollectionsPaymentHistoryRow } from "@/types/sectionCollectionsTabs";
 import type { Dictionary, Locale } from "@/types/i18n";
 
@@ -73,6 +76,19 @@ export function SectionCollectionsHistoryTab({
       ),
     [locale],
   );
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    rows,
+    {
+      student: (r) => r.studentDisplayName,
+      period: (r) => r.year * 100 + r.month,
+      amount: (r) => r.amount,
+      status: (r) => r.status,
+      receipt: (r) => r.receiptSignedUrl ?? "",
+      updated_at: (r) => r.updated_at,
+    },
+    "student",
+  );
 
   if (error) {
     return (
@@ -102,12 +118,12 @@ export function SectionCollectionsHistoryTab({
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
             <tr>
-              <th className="px-3 py-2">{t.historyColStudent}</th>
-              <th className="px-3 py-2">{billingLabels.colPeriod}</th>
-              <th className="px-3 py-2">{billingLabels.colAmount}</th>
-              <th className="px-3 py-2">{billingLabels.colStatus}</th>
-              <th className="px-3 py-2">{billingLabels.colReceipt}</th>
-              <th className="px-3 py-2">{t.historyColUpdated}</th>
+              <SortableTh columnId="student" label={t.historyColStudent} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+              <SortableTh columnId="period" label={billingLabels.colPeriod} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+              <SortableTh columnId="amount" label={billingLabels.colAmount} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+              <SortableTh columnId="status" label={billingLabels.colStatus} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+              <SortableTh columnId="receipt" label={billingLabels.colReceipt} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+              <SortableTh columnId="updated_at" label={t.historyColUpdated} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
               <th className="px-3 py-2 text-right" />
             </tr>
           </thead>
@@ -119,7 +135,7 @@ export function SectionCollectionsHistoryTab({
                 </td>
               </tr>
             ) : (
-              rows.map((r) => {
+              sortedRows.map((r) => {
                 const periodLabel = formatPeriod(r.month, r.year);
                 return (
                   <tr key={r.id} className="border-b border-[var(--color-border)] last:border-0">

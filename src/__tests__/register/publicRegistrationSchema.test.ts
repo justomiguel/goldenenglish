@@ -11,6 +11,7 @@ const base = {
   email: "a@b.com",
   phone: "+549",
   preferred_section_id: SECTION_ID,
+  privacy_accepted: true,
 };
 
 describe("buildPublicRegistrationSchema", () => {
@@ -213,6 +214,26 @@ describe("buildPublicRegistrationSchema", () => {
       birth_date: "2015-01-01",
     });
     expect(r.success).toBe(true);
+  });
+
+  it("rejects when privacy is not accepted", () => {
+    const missing = schema.safeParse({
+      first_name: "Ana",
+      last_name: "López",
+      dni: "123",
+      email: "a@b.com",
+      phone: "+549",
+      preferred_section_id: SECTION_ID,
+      birth_date: "2000-06-15",
+    });
+    expect(missing.success).toBe(false);
+
+    const denied = schema.safeParse({
+      ...base,
+      birth_date: "2000-06-15",
+      privacy_accepted: false,
+    });
+    expect(denied.success).toBe(false);
   });
 
   it("rejects invalid section id", () => {

@@ -1,5 +1,8 @@
 "use client";
 
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import type {
   AdminBillingPaymentRow,
   AdminBillingScholarship,
@@ -10,6 +13,7 @@ import type { Dictionary } from "@/types/i18n";
 type BillingLabels = Dictionary["admin"]["billing"];
 
 export interface AdminStudentBillingPaymentsTableProps {
+  locale?: string;
   payments: AdminBillingPaymentRow[];
   scholarships: AdminBillingScholarship[];
   labels: BillingLabels;
@@ -33,6 +37,7 @@ function scholarshipDiscountForPeriod(
 }
 
 export function AdminStudentBillingPaymentsTable({
+  locale = "es",
   payments,
   scholarships,
   labels,
@@ -40,6 +45,19 @@ export function AdminStudentBillingPaymentsTable({
   readOnly = false,
   onToggleExempt,
 }: AdminStudentBillingPaymentsTableProps) {
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    payments,
+    {
+      period: (r) => r.year * 100 + r.month,
+      amount: (r) => r.amount,
+      scholarship: (r) => scholarshipDiscountForPeriod(scholarships, r.year, r.month) ?? 0,
+      status: (r) => r.status,
+      receipt: (r) => r.receiptSignedUrl ?? "",
+    },
+    "period",
+  );
+
   return (
     <section>
       <h2 className="font-semibold text-[var(--color-muted-foreground)]">{labels.paymentsTitle}</h2>
@@ -47,16 +65,16 @@ export function AdminStudentBillingPaymentsTable({
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
             <tr>
-              <th className="px-3 py-2">{labels.colPeriod}</th>
-              <th className="px-3 py-2">{labels.colAmount}</th>
-              <th className="px-3 py-2">{labels.colScholarship}</th>
-              <th className="px-3 py-2">{labels.colStatus}</th>
-              <th className="px-3 py-2">{labels.colReceipt}</th>
+              <SortableTh columnId="period" label={labels.colPeriod} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+              <SortableTh columnId="amount" label={labels.colAmount} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+              <SortableTh columnId="scholarship" label={labels.colScholarship} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+              <SortableTh columnId="status" label={labels.colStatus} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+              <SortableTh columnId="receipt" label={labels.colReceipt} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
               <th className="px-3 py-2">{labels.colActions}</th>
             </tr>
           </thead>
           <tbody>
-            {payments.map((r) => {
+            {sortedRows.map((r) => {
               const discountPercent = scholarshipDiscountForPeriod(
                 scholarships,
                 r.year,

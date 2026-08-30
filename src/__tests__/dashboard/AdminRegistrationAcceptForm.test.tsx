@@ -65,6 +65,7 @@ describe("AdminRegistrationAcceptForm", () => {
     expect(screen.getByRole("note")).toHaveTextContent(
       dictEn.admin.registrations.acceptExplainerAccounts,
     );
+    fireEvent.click(screen.getByRole("radio", { name: dictEn.admin.registrations.joinBilling.current }));
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
     await waitFor(() => expect(acceptRegistration).toHaveBeenCalled());
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
@@ -100,6 +101,7 @@ describe("AdminRegistrationAcceptForm", () => {
         currentCohortName="2026"
       />,
     );
+    fireEvent.click(screen.getByRole("radio", { name: dictEn.admin.registrations.joinBilling.current }));
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
     expect(onClose).toHaveBeenCalled();
@@ -133,6 +135,7 @@ describe("AdminRegistrationAcceptForm", () => {
         ]}
       />,
     );
+    fireEvent.click(screen.getByRole("radio", { name: dictEn.admin.registrations.joinBilling.current }));
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
     await waitFor(() => {
       expect(
@@ -173,6 +176,7 @@ describe("AdminRegistrationAcceptForm", () => {
         ]}
       />,
     );
+    fireEvent.click(screen.getByRole("radio", { name: dictEn.admin.registrations.joinBilling.current }));
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(
@@ -199,6 +203,7 @@ describe("AdminRegistrationAcceptForm", () => {
         userLabels={userLabels}
       />,
     );
+    fireEvent.click(screen.getByRole("radio", { name: dictEn.admin.registrations.joinBilling.current }));
     fireEvent.click(screen.getByRole("button", { name: dictEn.admin.registrations.accept }));
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(

@@ -1,9 +1,35 @@
+/** @vitest-environment node */
 import { describe, expect, it, vi } from "vitest";
 import { sendParentBulkCommunication } from "@/lib/messaging/useCases/sendParentBulkCommunication";
 import { RecordingEmailProvider, clearRecordedEmails, getRecordedEmails } from "@/lib/email/recordingEmailProvider";
 
+vi.mock("@/lib/brand/server", () => ({
+  getBrandForRequest: vi.fn(() =>
+    Promise.resolve({
+      name: "Test Institute",
+      legalName: "Test Institute LLC",
+      logoPath: "/images/logo.png",
+      logoAlt: "Logo",
+      contactEmail: "hi@test.example",
+      contactPhone: "",
+      contactAddress: "",
+      socialFacebook: "",
+      socialInstagram: "",
+      socialWhatsapp: "",
+      tagline: "",
+      taglineEn: "",
+      legalRegistry: "",
+      faviconPath: "",
+    }),
+  ),
+}));
+
+vi.mock("@/lib/site/publicUrl", () => ({
+  getPublicSiteUrl: () => new URL("https://app.test.example"),
+}));
+
 describe("sendParentBulkCommunication", () => {
-  it("inserts one portal row per parent and one cc email without notify helpers", async () => {
+  it("inserts one portal row per parent and one wrapped cc email", async () => {
     clearRecordedEmails();
     const insert = vi.fn().mockResolvedValue({ error: null });
     const supabase = { from: vi.fn(() => ({ insert })) };
@@ -19,6 +45,7 @@ describe("sendParentBulkCommunication", () => {
       subject: "Aviso",
       html: "<p>Hola</p>",
       fromAddress: "from@x.test",
+      locale: "es",
       emailProvider: provider,
     });
     expect(insert).toHaveBeenCalledTimes(2);
@@ -29,14 +56,16 @@ describe("sendParentBulkCommunication", () => {
       failed: 0,
       persistFailed: 0,
     });
-    expect(getRecordedEmails()).toEqual([
-      {
-        to: "from@x.test",
-        cc: ["ana@x.test"],
-        subject: "Aviso",
-        html: "<p>Hola</p>",
-      },
-    ]);
+    const recorded = getRecordedEmails();
+    expect(recorded).toHaveLength(1);
+    expect(recorded[0]).toMatchObject({
+      to: "from@x.test",
+      cc: ["ana@x.test"],
+      subject: "Aviso",
+    });
+    expect(recorded[0]?.html).toContain("<p>Hola</p>");
+    expect(recorded[0]?.html).toContain("Test Institute");
+    expect(recorded[0]?.html).toContain("<!DOCTYPE html>");
   });
 
   it("personalizes individual mail, skips empty bodies, and counts persist/email failures", async () => {
@@ -66,6 +95,7 @@ describe("sendParentBulkCommunication", () => {
       subject: "Hola {{firstName}}",
       html: "<p>Hola {{firstName}}</p>",
       fromAddress: "from@x.test",
+      locale: "es",
       emailProvider: provider as never,
     });
     expect(result.persistFailed).toBeGreaterThan(0);
@@ -79,6 +109,7 @@ describe("sendParentBulkCommunication", () => {
       subject: "X",
       html: "<p></p>",
       fromAddress: "from@x.test",
+      locale: "es",
       emailProvider: provider as never,
     });
     expect(empty.persistFailed).toBe(1);

@@ -7,7 +7,7 @@ const CANDIDATES: Record<SharePreviewBundleKey, readonly string[]> = {
   golden: ["/images/golden/logo/1.png", "/images/golden/logo/1.avif"],
   mozarthitos: ["/images/mozarthitos/logo/1.png"],
   espaciozenit: ["/images/espaciozenit/logo/1.png"],
-  nago: ["/images/nago/inicio/1.png", "/images/nago/logo/logo.png"],
+  nago: ["/images/nago/logo/logo.png", "/images/nago/inicio/1.png"],
   mimundo: ["/images/mimundo/logo/logo.png"],
   liora: ["/images/liora/logo/logo.png"],
 };

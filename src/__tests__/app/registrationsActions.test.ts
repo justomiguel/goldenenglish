@@ -44,6 +44,10 @@ vi.mock("@/lib/register/enrollRequestedSectionsOnAccept", () => ({
   enrollRequestedSectionsOnAccept: (...args: unknown[]) => mockEnrollRequested(...args),
 }));
 
+vi.mock("@/lib/billing/runJoinBillingDisposition", () => ({
+  runJoinBillingDisposition: vi.fn().mockResolvedValue({ ok: true }),
+}));
+
 const mockAuthCreateUser = vi.fn();
 const mockDeleteUser = vi.fn();
 const mockFrom = vi.fn();
@@ -166,10 +170,18 @@ describe("acceptRegistration", () => {
     });
   });
 
+  it("rejects accept without an explicit join disposition", async () => {
+    const r = await acceptRegistration("es", {
+      registration_id: regNew.id,
+    } as never);
+    expect(r).toEqual({ ok: false, message: U.errCreateInvalid });
+  });
+
   it("returns Forbidden when not admin", async () => {
     mockAssertAdmin.mockRejectedValue(new Error("no"));
     const r = await acceptRegistration("es", {
       registration_id: regNew.id,
+      join_disposition: { kind: "current" },
     });
     expect(r).toEqual({ ok: false, message: U.errCreateForbidden });
   });
@@ -182,7 +194,7 @@ describe("acceptRegistration", () => {
         }),
       }),
     });
-    const r = await acceptRegistration("es", { registration_id: regNew.id });
+    const r = await acceptRegistration("es", { registration_id: regNew.id, join_disposition: { kind: "current" } });
     expect(r).toEqual({ ok: false, message: U.errCreateNotFound });
   });
 
@@ -195,7 +207,7 @@ describe("acceptRegistration", () => {
         }),
       }),
     });
-    const r = await acceptRegistration("es", { registration_id: regNew.id });
+    const r = await acceptRegistration("es", { registration_id: regNew.id, join_disposition: { kind: "current" } });
     expect(r).toEqual({ ok: false, message: R.alreadyProcessed });
   });
 
@@ -224,7 +236,7 @@ describe("acceptRegistration", () => {
       };
     });
 
-    const r = await acceptRegistration("es", { registration_id: regNew.id });
+    const r = await acceptRegistration("es", { registration_id: regNew.id, join_disposition: { kind: "current" } });
 
     expect(r).toEqual({ ok: true, studentId: "stu-contacted", pendingSectionIds: [] });
     expect(mockNotifyRegistrationWelcome).toHaveBeenCalledTimes(1);
@@ -249,7 +261,7 @@ describe("acceptRegistration", () => {
         }),
       }),
     });
-    const r = await acceptRegistration("es", { registration_id: regNew.id });
+    const r = await acceptRegistration("es", { registration_id: regNew.id, join_disposition: { kind: "current" } });
     expect(r).toEqual({ ok: false, message: R.errBirthDateRequired });
   });
 
@@ -271,6 +283,7 @@ describe("acceptRegistration", () => {
     });
     const r = await acceptRegistration("es", {
       registration_id: regNew.id,
+      join_disposition: { kind: "current" },
       birth_date: "2018-01-01",
     });
     expect(r).toEqual({ ok: false, message: R.errMinorRequiresTutorDni });
@@ -301,7 +314,7 @@ describe("acceptRegistration", () => {
         }),
       };
     });
-    const r = await acceptRegistration("es", { registration_id: regNew.id });
+    const r = await acceptRegistration("es", { registration_id: regNew.id, join_disposition: { kind: "current" } });
     expect(r).toEqual({ ok: true, studentId: "stu-legacy", pendingSectionIds: [] });
     expect(mockCreateUser).toHaveBeenCalled();
     expect(enrollmentsFrom.insert).not.toHaveBeenCalled();
@@ -331,7 +344,7 @@ describe("acceptRegistration", () => {
         }),
       };
     });
-    const r = await acceptRegistration("es", { registration_id: regNew.id });
+    const r = await acceptRegistration("es", { registration_id: regNew.id, join_disposition: { kind: "current" } });
     expect(r.ok).toBe(true);
     expect(mockCreateUser).toHaveBeenCalledWith(
       expect.objectContaining({ birth_date: "2008-03-15", locale: "es" }),
@@ -370,6 +383,7 @@ describe("acceptRegistration", () => {
     });
     const r = await acceptRegistration("es", {
       registration_id: regNew.id,
+      join_disposition: { kind: "current" },
       birth_date: "1995-04-01",
     });
     expect(r.ok).toBe(true);
@@ -402,6 +416,7 @@ describe("acceptRegistration", () => {
     });
     const r = await acceptRegistration("es", {
       registration_id: regNew.id,
+      join_disposition: { kind: "current" },
       password: "",
       birth_date: "1995-04-01",
     });
@@ -453,6 +468,7 @@ describe("acceptRegistration", () => {
     });
     const r = await acceptRegistration("es", {
       registration_id: regNew.id,
+      join_disposition: { kind: "current" },
       birth_date: "2015-06-01",
     });
     expect(r.ok).toBe(true);
@@ -486,7 +502,7 @@ describe("acceptRegistration", () => {
         }),
       };
     });
-    const r = await acceptRegistration("es", { registration_id: regNew.id });
+    const r = await acceptRegistration("es", { registration_id: regNew.id, join_disposition: { kind: "current" } });
     expect(r).toEqual({ ok: false, message: R.errEnrollmentFailed });
     expect(mockDeleteUser).toHaveBeenCalledWith("stu-x");
     expect(updateEq).not.toHaveBeenCalled();
@@ -517,7 +533,7 @@ describe("acceptRegistration", () => {
         }),
       };
     });
-    const r = await acceptRegistration("es", { registration_id: regNew.id });
+    const r = await acceptRegistration("es", { registration_id: regNew.id, join_disposition: { kind: "current" } });
     expect(r).toEqual({ ok: false, message: R.errRollbackFailed });
   });
 
@@ -537,7 +553,7 @@ describe("acceptRegistration", () => {
         }),
       };
     });
-    const r = await acceptRegistration("es", { registration_id: regNew.id });
+    const r = await acceptRegistration("es", { registration_id: regNew.id, join_disposition: { kind: "current" } });
     expect(r).toEqual({ ok: false, message: U.errCreateAuth });
   });
 
@@ -570,7 +586,7 @@ describe("acceptRegistration", () => {
         update: () => ({ eq: updateEq }),
       };
     });
-    const r = await acceptRegistration("es", { registration_id: regNew.id });
+    const r = await acceptRegistration("es", { registration_id: regNew.id, join_disposition: { kind: "current" } });
     expect(r).toEqual({
       ok: true,
       studentId: "existing-stu",
@@ -622,7 +638,7 @@ describe("acceptRegistration", () => {
       };
     });
 
-    const r = await acceptRegistration("es", { registration_id: regNew.id });
+    const r = await acceptRegistration("es", { registration_id: regNew.id, join_disposition: { kind: "current" } });
 
     expect(r).toEqual({
       ok: true,
@@ -661,7 +677,7 @@ describe("acceptRegistration", () => {
         update: () => ({ eq: updateEq }),
       };
     });
-    const r = await acceptRegistration("es", { registration_id: regNew.id });
+    const r = await acceptRegistration("es", { registration_id: regNew.id, join_disposition: { kind: "current" } });
     expect(r).toEqual({
       ok: true,
       studentId: "existing-stu",

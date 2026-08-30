@@ -15,6 +15,8 @@ export function NagoSiteHeaderMobileNav({
   activeHref,
   dict,
   sessionEmail,
+  agendaHref,
+  agendaLabel,
 }: {
   locale: string;
   open: boolean;
@@ -23,11 +25,13 @@ export function NagoSiteHeaderMobileNav({
   activeHref: string;
   dict: Dictionary;
   sessionEmail: string | null;
+  agendaHref: string;
+  agendaLabel: string;
 }) {
   return (
     <div
       id="nago-mobile-nav"
-      className={`nago-mobile-drawer lg:hidden${open ? " is-open" : ""}`}
+      className={`nago-mobile-drawer md:hidden${open ? " is-open" : ""}`}
       aria-hidden={!open}
     >
       <div className="nago-mobile-drawer-inner border-t border-[var(--nago-gold)]/20 bg-black px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
@@ -53,11 +57,19 @@ export function NagoSiteHeaderMobileNav({
           role="group"
           aria-label={dict.nav.accountAria}
         >
+          <Link
+            href={agendaHref}
+            className="nago-btn nago-btn-solid w-full"
+            onClick={onClose}
+            tabIndex={open ? undefined : -1}
+          >
+            {agendaLabel}
+          </Link>
           {sessionEmail ? (
             <>
               <Link
                 href={`/${locale}/dashboard`}
-                className="nago-btn nago-btn-solid w-full"
+                className="nago-btn w-full"
                 onClick={onClose}
                 tabIndex={open ? undefined : -1}
               >
@@ -69,7 +81,7 @@ export function NagoSiteHeaderMobileNav({
           ) : (
             <Link
               href={`/${locale}/login`}
-              className="nago-btn nago-btn-solid w-full"
+              className="nago-btn w-full"
               onClick={onClose}
               tabIndex={open ? undefined : -1}
             >

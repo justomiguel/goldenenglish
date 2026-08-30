@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
+import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
@@ -69,8 +70,13 @@ export async function inviteParentsAction(
       if (!tpl) return null;
       return { subject: tpl.subject, bodyHtml: tpl.bodyHtml };
     },
-    sendInviteEmail: async (to, subject, html) => {
-      const r = await getEmailProvider().sendEmail({ to, subject, html });
+    sendInviteEmail: async (to, vars) => {
+      const r = await sendBrandedEmail({
+        to,
+        templateKey: "notifications.parent_platform_invite",
+        locale: loc,
+        vars,
+      });
       return { ok: r.ok };
     },
   });
@@ -117,6 +123,7 @@ export async function sendParentBulkMailAction(
     subject,
     html: safeHtml,
     fromAddress,
+    locale: asLocale(locale),
     emailProvider: getEmailProvider(),
   });
   void recordSystemAudit({

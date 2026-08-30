@@ -154,7 +154,10 @@ export function LandingEspacioZenitFooter({
       </div>
       <p className="mx-auto mt-6 max-w-6xl border-t border-white/10 pt-8 text-center text-[11px] text-neutral-400">
         © {new Date().getFullYear()} {brand.legalName || brand.name}.{" "}
-        {marketingLandingCopy(dict, "ez", "footer.rightsLine")}
+        {marketingLandingCopy(dict, "ez", "footer.rightsLine")}{" "}
+        <Link href={`/${locale}/privacidad`} className="underline decoration-white/30 underline-offset-2 hover:text-white">
+          {dict.privacy.footerLink}
+        </Link>
       </p>
     </footer>
   );

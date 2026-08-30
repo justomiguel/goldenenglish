@@ -47,10 +47,11 @@ describe("app/sitemap", () => {
     mockCreateClient.mockReturnValue({ from });
 
     const entries = await sitemap();
-    expect(entries).toHaveLength(locales.length * 5);
+    expect(entries).toHaveLength(locales.length * 6);
     expect(entries[0]?.url).toContain("/");
     expect(entries.some((e) => e.url.includes("/login"))).toBe(true);
     expect(entries.some((e) => e.url.includes("/contact"))).toBe(true);
+    expect(entries.some((e) => e.url.includes("/privacidad"))).toBe(true);
     expect(entries.some((e) => e.url.includes("/blog"))).toBe(true);
     expect(entries.some((e) => e.url.includes("/events"))).toBe(true);
   });

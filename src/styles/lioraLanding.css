@@ -153,3 +153,14 @@
 .liora-social-icon:hover {
   background: rgb(255 255 255 / 14%);
 }
+
+/* Shared public pages (privacy) — rose-deep passes AA on cream. */
+.liora-public-sheet {
+  --color-heading: var(--liora-ink);
+  --color-primary: var(--liora-rose-deep);
+  --color-foreground: var(--liora-ink);
+  --color-muted-foreground: var(--liora-ink-soft);
+  --color-background: var(--liora-cream);
+  --color-border: var(--liora-line);
+  color: var(--liora-ink);
+}

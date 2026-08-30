@@ -23,7 +23,17 @@ interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-const VALID_SORT_KEYS: SortKey[] = ["email", "name", "role", "phone"];
+const VALID_SORT_KEYS: SortKey[] = [
+  "email",
+  "name",
+  "role",
+  "phone",
+  "lastAccess",
+  "sections",
+  "monthlyDue",
+  "parent",
+  "children",
+];
 
 function parseSearchParams(
   raw: Record<string, string | string[] | undefined>,

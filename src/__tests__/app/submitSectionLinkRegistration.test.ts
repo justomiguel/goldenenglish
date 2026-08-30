@@ -73,6 +73,7 @@ const adult = {
   phone: "3624000000",
   birth_date: "1990-05-04",
   preferred_section_id: SECTION,
+  privacy_accepted: true,
 };
 
 const minor = {
@@ -88,6 +89,7 @@ const minor = {
   tutor_email: "marta@example.com",
   tutor_phone: "3624111111",
   tutor_relationship: "madre",
+  privacy_accepted: true,
 };
 
 async function submit(token: string, raw: Record<string, unknown>) {
@@ -164,6 +166,8 @@ describe("submitSectionLinkRegistration", () => {
       preferred_section_id: SECTION,
       source_section_link_id: SECTION,
       level_interest: "Ciclo 2026 — Sección B",
+      privacy_accepted_at: expect.any(String),
+      privacy_policy_version: "2026-08-29",
     });
   });
 

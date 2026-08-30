@@ -51,4 +51,19 @@ describe("NagoHeroMotion", () => {
     expect(Number(lockup.style.opacity)).toBeLessThan(1);
     expect(lockup.style.transform).toContain("32px");
   });
+
+  it("renders rotation dots when several photos are passed", () => {
+    const { container } = render(
+      <NagoHeroMotion
+        photoSrc="/a.png"
+        photoSrcs={["/a.png", "/b.png", "/c.png"]}
+        slideGoToLabel="Go to photo {n}"
+      >
+        <h1 id="nago-hero-title">Nagô</h1>
+      </NagoHeroMotion>,
+    );
+    expect(container.querySelectorAll(".nago-hero-dot")).toHaveLength(3);
+    expect(container.querySelectorAll(".nago-hero-slide")).toHaveLength(3);
+    expect(container.querySelector(".nago-hero-slide.is-active")).toBeTruthy();
+  });
 });

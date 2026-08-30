@@ -29,7 +29,7 @@ const DOMAINS: Array<AuditDomain | "all"> = [
   "communications",
   "system",
 ];
-const SORT_KEYS: AuditSortKey[] = ["created_at", "actor", "domain", "action", "resource"];
+const SORT_KEYS: AuditSortKey[] = ["created_at", "actor", "domain", "action", "resource", "summary"];
 
 /**
  * URL query keys (stable):

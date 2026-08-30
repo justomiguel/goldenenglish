@@ -1,14 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { X } from "lucide-react";
 import { RegisterSectionMultiSelect } from "@/components/register/RegisterSectionMultiSelect";
 import { RegisterSectionWeekCalendar } from "@/components/register/RegisterSectionWeekCalendar";
 import {
   comboOptionsForRegisterPicker,
   flattenRegisterPickerCells,
+  formatRegisterPickerSelectionChip,
   normalizeRegisterPickerOptions,
   type RegistrationSectionPickerOption,
 } from "@/lib/register/registrationSectionPicker";
+import {
+  registerPickerSectionToneIndex,
+  registerPickerSectionToneStyle,
+} from "@/lib/register/registerPickerSectionTone";
 import { REGISTRATION_UNDECIDED_FORM_VALUE } from "@/lib/register/registrationSectionConstants";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import type { Dictionary } from "@/types/i18n";
@@ -45,6 +51,17 @@ export function RegisterSectionPicker({
     () => comboOptionsForRegisterPicker(normalized, intent),
     [normalized, intent],
   );
+  const sectionIds = useMemo(() => cells.map((cell) => cell.sectionId), [cells]);
+  const selectedChips = useMemo(() => {
+    const weekdays = dict.sectionLink.weekdays;
+    return selectedIds
+      .filter((id) => id !== REGISTRATION_UNDECIDED_FORM_VALUE)
+      .flatMap((id) => {
+        const sectionCells = cells.filter((cell) => cell.sectionId === id);
+        if (sectionCells.length === 0) return [];
+        return [{ id, text: formatRegisterPickerSelectionChip(sectionCells, weekdays) }];
+      });
+  }, [cells, dict.sectionLink.weekdays, selectedIds]);
 
   function toggleSection(sectionId: string) {
     const withoutUndecided = selectedIds.filter((id) => id !== REGISTRATION_UNDECIDED_FORM_VALUE);
@@ -56,7 +73,7 @@ export function RegisterSectionPicker({
   }
 
   return (
-    <fieldset className="space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 p-4">
+    <fieldset className="min-w-0 space-y-3 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/15 p-4">
       <legend className="px-1 text-sm font-semibold text-[var(--color-foreground)]">
         {dict.sectionsTitle}
       </legend>
@@ -97,12 +114,44 @@ export function RegisterSectionPicker({
             {dict.picker.noTrialSections}
           </p>
         ) : (
-          <RegisterSectionWeekCalendar
-            dict={dict}
-            cells={cells}
-            selectedIds={selectedIds}
-            onToggleSection={toggleSection}
-          />
+          <>
+            {selectedChips.length > 0 ? (
+              <ul
+                data-testid="register-week-selected"
+                className="flex flex-wrap gap-2"
+                aria-label={dict.picker.selectedAria}
+              >
+                {selectedChips.map((chip) => {
+                  const tone = registerPickerSectionToneStyle(chip.id, "strong", sectionIds);
+                  return (
+                  <li
+                    key={chip.id}
+                    data-section-tone={String(registerPickerSectionToneIndex(chip.id, sectionIds))}
+                    className="inline-flex max-w-full items-center gap-1 rounded-full border px-2.5 py-1 text-sm"
+                    style={tone}
+                  >
+                    <span className="truncate">{chip.text}</span>
+                    <button
+                      type="button"
+                      className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full hover:bg-black/10"
+                      style={{ color: tone.color }}
+                      aria-label={dict.sectionsRemove.replace("{label}", chip.text)}
+                      onClick={() => toggleSection(chip.id)}
+                    >
+                      <X className="h-3.5 w-3.5" aria-hidden />
+                    </button>
+                  </li>
+                  );
+                })}
+              </ul>
+            ) : null}
+            <RegisterSectionWeekCalendar
+              dict={dict}
+              cells={cells}
+              selectedIds={selectedIds}
+              onToggleSection={toggleSection}
+            />
+          </>
         )
       ) : null}
       <div className={view === "combo" ? undefined : "hidden"}>

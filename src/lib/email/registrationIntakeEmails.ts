@@ -1,9 +1,15 @@
 import "server-only";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import { buildRegistrationPayBlock } from "@/lib/register/buildRegistrationPayBlock";
-import { logServerException } from "@/lib/logging/serverActionLog";
+import {
+  logServerException,
+  logServerInfo,
+  logServerWarn,
+  logSupabaseClientError,
+} from "@/lib/logging/serverActionLog";
 import { PUBLIC_SITE_CONTACT_SENDER_PROFILE_ID } from "@/lib/site/publicSiteContactSenderId";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { batchAuthEmailsForUserIds } from "@/lib/auth/batchAuthEmailsForUserIds";
 import { resolveRegistrationFamilyEmail } from "@/lib/register/resolveRegistrationFamilyEmail";
 import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
 import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
@@ -118,19 +124,39 @@ export async function sendRegistrationAdminEmails(input: {
     const admin = createAdminClient();
     const { data, error } = await admin
       .from("profiles")
-      .select("id, email")
+      .select("id")
       .eq("role", "admin")
       .limit(200);
     if (error) {
-      logServerException("sendRegistrationAdminEmails:list", error);
+      logSupabaseClientError("sendRegistrationAdminEmails:list", error, {
+        templateKey: input.templateKey,
+        locale: input.locale,
+      });
       return;
     }
+    const adminIds = [...new Set((data ?? []).map((row) => String(row.id ?? "")))]
+      .filter((id) => id && id !== PUBLIC_SITE_CONTACT_SENDER_PROFILE_ID);
+    const byId = await batchAuthEmailsForUserIds(adminIds);
     const emails = [...new Set(
-      (data ?? [])
-        .filter((row) => row.id !== PUBLIC_SITE_CONTACT_SENDER_PROFILE_ID)
-        .map((row) => String(row.email ?? "").trim().toLowerCase())
-        .filter(Boolean),
+      adminIds
+        .map((id) => (byId.get(id) ?? "").trim().toLowerCase())
+        .filter((email) => isDeliverableAuthEmail(email)),
     )];
+    logServerInfo("sendRegistrationAdminEmails:list", {
+      templateKey: input.templateKey,
+      locale: input.locale,
+      adminIds: adminIds.length,
+      authEmails: byId.size,
+      deliverable: emails.length,
+    });
+    if (emails.length === 0) {
+      logServerWarn("sendRegistrationAdminEmails:list", {
+        reason: "no_deliverable_admins",
+        templateKey: input.templateKey,
+        adminIds: adminIds.length,
+        authEmails: byId.size,
+      });
+    }
     for (const to of emails) {
       const sent = await sendBrandedEmail({
         to,
@@ -139,7 +165,9 @@ export async function sendRegistrationAdminEmails(input: {
         vars: input.vars,
       });
       if (!sent.ok) {
-        logServerException("sendRegistrationAdminEmails:send", new Error(sent.error), { to });
+        logServerException("sendRegistrationAdminEmails:send", new Error(sent.error), {
+          templateKey: input.templateKey,
+        });
       }
     }
   } catch (err) {

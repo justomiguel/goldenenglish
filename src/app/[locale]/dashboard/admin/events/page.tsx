@@ -25,7 +25,7 @@ export default async function AdminEventsPage({ params, searchParams }: PageProp
   const sp = await searchParams;
   const page = Math.max(1, Number.parseInt(String(sp.page ?? "1"), 10) || 1);
   const q = String(sp.q ?? "");
-  const sort = (["title", "event_date", "attendees_count"] as const).includes(
+  const sort = (["title", "event_date", "attendees_count", "status", "views", "price"] as const).includes(
     String(sp.sort ?? "event_date") as EventSortKey,
   )
     ? (String(sp.sort ?? "event_date") as EventSortKey)

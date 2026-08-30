@@ -1458,3 +1458,13 @@
   }
 }
 
+/* Shared public pages (privacy) — green-dark / ink, never yellow or pink text. */
+.mimundo-public-sheet {
+  --color-heading: var(--mm-green-dark);
+  --color-primary: var(--mm-green-dark);
+  --color-foreground: var(--mm-ink-deep);
+  --color-muted-foreground: var(--mm-ink);
+  --color-background: var(--mm-cream);
+  color: var(--mm-ink-deep);
+}
+

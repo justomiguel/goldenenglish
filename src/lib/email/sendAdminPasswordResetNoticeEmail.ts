@@ -1,7 +1,7 @@
 import type { BrandPublic } from "@/lib/brand/server";
 import type { EmailProvider, SendEmailResult } from "@/lib/email/emailProvider";
-import { getDictionary } from "@/lib/i18n/dictionaries";
-import { fillTemplate } from "@/lib/i18n/fillTemplate";
+import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
+import type { Locale } from "@/types/i18n";
 
 function escapeHtml(s: string): string {
   return s
@@ -12,6 +12,11 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
+function asLocale(value: string): Locale {
+  if (value === "en" || value === "pt") return value;
+  return "es";
+}
+
 export interface SendAdminPasswordResetNoticeEmailParams {
   to: string;
   brand: BrandPublic;
@@ -19,22 +24,20 @@ export interface SendAdminPasswordResetNoticeEmailParams {
   emailProvider: EmailProvider;
 }
 
-/**
- * Notify the account holder that a staff member used the admin "reset by DNI"
- * flow on their account. Sent only when `to` is a real (non-synthetic) address
- * — synthetic mailboxes (`@students.goldenenglish.local`, etc.) are skipped
- * upstream because they would bounce.
- */
 export async function sendAdminPasswordResetNoticeEmail(
   params: SendAdminPasswordResetNoticeEmailParams,
 ): Promise<SendEmailResult> {
-  const dict = await getDictionary(params.locale);
-  const t = dict.emailAdminPasswordResetNotice;
-  const subject = fillTemplate(t.subject, { brandName: params.brand.name });
-  const html = fillTemplate(t.html, {
-    brandName: escapeHtml(params.brand.name),
-    email: escapeHtml(params.to),
-    contactEmail: escapeHtml(params.brand.contactEmail || ""),
+  const r = await sendBrandedEmail({
+    to: params.to,
+    templateKey: "notifications.admin_password_reset",
+    locale: asLocale(params.locale),
+    emailProvider: params.emailProvider,
+    vars: {
+      brandName: escapeHtml(params.brand.name),
+      email: escapeHtml(params.to),
+      contactEmail: escapeHtml(params.brand.contactEmail || ""),
+    },
   });
-  return params.emailProvider.sendEmail({ to: params.to, subject, html });
+  if (!r.ok) return { ok: false, error: r.error };
+  return { ok: true };
 }

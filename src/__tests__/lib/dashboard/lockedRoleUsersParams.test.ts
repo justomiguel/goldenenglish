@@ -58,7 +58,14 @@ describe("lockedRoleUsersParams", () => {
     });
   });
 
-  it("keeps students list sorted by name", () => {
-    expect(lockedRoleUsersParams("student", { sort: "email" }).sort).toBe("name");
+  it("accepts student directory column sort keys", () => {
+    expect(lockedRoleUsersParams("student", { sort: "sections" }).sort).toBe("sections");
+    expect(lockedRoleUsersParams("student", { sort: "email" }).sort).toBe("email");
+    expect(lockedRoleUsersParams("student", { sort: "lastEnrollment" }).sort).toBe(
+      "lastEnrollment",
+    );
+    expect(lockedRoleUsersParams("parent", { sort: "enrollmentFee" }).sort).toBe(
+      "enrollmentFee",
+    );
   });
 });

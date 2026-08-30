@@ -10,6 +10,9 @@ import type { PreviewSectionEnrollmentResult } from "@/types/academics";
 import { revalidateAcademicSurfaces } from "@/app/[locale]/dashboard/admin/academic/revalidatePaths";
 import { logServerException } from "@/lib/logging/serverActionLog";
 import { cancelReminderJobsForEnrollmentId } from "@/lib/notifications/cancelReminderJobsAdmin";
+import { parseJoinDispositionInput } from "@/lib/billing/joinBillingDispositionSchema";
+import { runJoinBillingDisposition } from "@/lib/billing/runJoinBillingDisposition";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const uuid = z.string().uuid();
 
@@ -43,9 +46,10 @@ export async function enrollStudentInSectionAction(input: {
   dropSectionEnrollmentId?: string | null;
   dropNextStatus?: "dropped" | "transferred";
   allowCapacityOverride?: boolean;
+  joinDisposition?: unknown;
 }): Promise<{ ok: true; enrollmentId: string } | { ok: false; code: string }> {
   try {
-    const { supabase } = await assertAdmin();
+    const { supabase, user } = await assertAdmin();
     const studentId = uuid.safeParse(input.studentId);
     const sectionId = uuid.safeParse(input.sectionId);
     if (!studentId.success || !sectionId.success) return { ok: false, code: "PARSE" };
@@ -81,6 +85,19 @@ export async function enrollStudentInSectionAction(input: {
       allowCapacityOverride: Boolean(input.allowCapacityOverride),
     });
     if (!r.ok) return r;
+
+    if (!dropId) {
+      const disposition =
+        parseJoinDispositionInput(input.joinDisposition) ?? { kind: "behind" };
+      const seeded = await runJoinBillingDisposition({
+        admin: createAdminClient(),
+        studentId: studentId.data,
+        sectionIds: [sectionId.data],
+        disposition,
+        actorId: user.id,
+      });
+      if (!seeded.ok) return { ok: false, code: "JOIN_BILLING" };
+    }
 
     if (dropId) {
       await cancelReminderJobsForEnrollmentId(dropId, "enrollStudentInSectionAction");

@@ -49,4 +49,7 @@ export interface AdminRegistrationRow {
   requestedSectionFull?: boolean;
   /** Live or snapshot: requested sections charge a matrícula. */
   chargesEnrollmentFee?: boolean;
+  /** Public form tick; null for admin-created leads. */
+  privacy_accepted_at?: string | null;
+  privacy_policy_version?: string | null;
 }

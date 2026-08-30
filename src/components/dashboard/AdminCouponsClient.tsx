@@ -2,11 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import {
   createDiscountCoupon,
   toggleDiscountCoupon,
 } from "@/app/[locale]/dashboard/admin/coupons/actions";
-import { Plus, Power } from "lucide-react";
+import { Plus } from "lucide-react";
+import { AdminCouponsTable } from "@/components/dashboard/AdminCouponsTable";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Label } from "@/components/atoms/Label";
@@ -25,6 +28,20 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
   const router = useRouter();
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    initialRows,
+    {
+      code: (r) => r.code,
+      type: (r) => r.discount_type,
+      value: (r) => r.discount_value,
+      validFrom: (r) => r.valid_from,
+      validUntil: (r) => r.valid_until ?? "",
+      uses: (r) => r.uses_count,
+      active: (r) => (r.is_active ? 1 : 0),
+    },
+    "code",
+  );
 
   const [code, setCode] = useState("");
   const [dtype, setDtype] = useState<"percent" | "fixed_amount">("percent");
@@ -179,62 +196,16 @@ export function AdminCouponsClient({ locale, initialRows, labels }: AdminCoupons
         </form>
       </section>
 
-      <section
-        data-tour={ADMIN_TOUR_ANCHORS.couponsTable}
-        className="overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]"
-      >
-        {initialRows.length === 0 ? (
-          <p className="p-6 text-sm text-[var(--color-muted-foreground)]">{labels.none}</p>
-        ) : (
-          <table className="w-full min-w-[720px] text-left text-sm">
-            <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
-              <tr>
-                <th className="px-3 py-2">{labels.colCode}</th>
-                <th className="px-3 py-2">{labels.colType}</th>
-                <th className="px-3 py-2">{labels.colValue}</th>
-                <th className="px-3 py-2">{labels.colValidFrom}</th>
-                <th className="px-3 py-2">{labels.colValidUntil}</th>
-                <th className="px-3 py-2">{labels.colUses}</th>
-                <th className="px-3 py-2">{labels.colActive}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {initialRows.map((r) => (
-                <tr key={r.id} className="border-b border-[var(--color-border)] last:border-0">
-                  <td className="px-3 py-2 font-mono text-xs">{r.code}</td>
-                  <td className="px-3 py-2">
-                    {r.discount_type === "percent" ? labels.typePercent : labels.typeFixed}
-                  </td>
-                  <td className="px-3 py-2">{r.discount_value}</td>
-                  <td className="px-3 py-2 text-[var(--color-muted-foreground)]">
-                    {new Date(r.valid_from).toLocaleString()}
-                  </td>
-                  <td className="px-3 py-2 text-[var(--color-muted-foreground)]">
-                    {r.valid_until ? new Date(r.valid_until).toLocaleString() : labels.eternal}
-                  </td>
-                  <td className="px-3 py-2">
-                    {r.max_uses != null ? `${r.uses_count}/${r.max_uses}` : `${r.uses_count} (${labels.unlimited})`}
-                  </td>
-                  <td className="px-3 py-2">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="min-h-[36px] px-2 text-sm text-[var(--color-primary)] underline"
-                      disabled={busy}
-                      title={labels.tipToggleRow}
-                      onClick={() => void toggle(r.id, !r.is_active)}
-                    >
-                      <Power className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                      {r.is_active ? labels.toggleOff : labels.toggleOn}
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+      <AdminCouponsTable
+        rows={sortedRows}
+        labels={labels}
+        sortKey={sortKey}
+        sortDir={sortDir}
+        onToggleSort={onToggleSort}
+        sortLabels={sortLabels}
+        busy={busy}
+        onToggle={(id, next) => void toggle(id, next)}
+      />
     </div>
   );
 }

@@ -7,6 +7,11 @@ import type {
   AdminStudentDirectoryParent,
   AdminStudentDirectorySection,
 } from "@/lib/dashboard/loadAdminStudentDirectoryExtras";
+import {
+  directoryBillingMarkSortRank,
+  type DirectoryBillingMark,
+} from "@/lib/dashboard/directoryBillingStatus";
+import { compareSortValues } from "@/lib/sort/compareSortValues";
 
 export type AdminUserRow = {
   id: string;
@@ -27,12 +32,44 @@ export type AdminUserRow = {
   children: AdminStudentDirectoryParent[];
   /** Current-month due across active sections after scholarships. */
   monthlyDue: MonthlyDueTotal[];
+  /** Monthly cuota current / overdue / not applicable. */
+  monthlyStatus: DirectoryBillingMark;
+  /** Charged enrollment fees paid / unpaid / not charged. */
+  enrollmentFeeStatus: DirectoryBillingMark;
+  /** Latest active `section_enrollments.created_at` (parent: max of children). */
+  lastEnrollmentAt: string | null;
   lastSessionStartAt: string | null;
   emailDeliverable: boolean;
 };
 
-export type SortKey = "email" | "name" | "role" | "phone" | "lastAccess";
+export type SortKey =
+  | "email"
+  | "name"
+  | "role"
+  | "phone"
+  | "lastAccess"
+  | "sections"
+  | "monthlyDue"
+  | "parent"
+  | "children"
+  | "lastEnrollment"
+  | "enrollmentFee";
 export type SortDir = "asc" | "desc";
+
+function sectionsSortValue(row: AdminUserRow): string {
+  if (row.missingSection) return "";
+  return row.sections.map((section) => section.name).join("\0");
+}
+
+function peopleSortValue(people: { firstName: string; lastName: string }[]): string {
+  return people
+    .map((person) => formatProfileNameSurnameFirst(person.firstName, person.lastName))
+    .join("\0");
+}
+
+function monthlyDueSortValue(row: AdminUserRow): number {
+  return row.monthlyDue.reduce((sum, line) => sum + line.amount, 0);
+}
 
 export const ROLE_FILTER_ALL = "all" as const;
 
@@ -41,6 +78,9 @@ export const EMPTY_ADMIN_STUDENT_DIRECTORY_FIELDS = {
   parents: [] as AdminStudentDirectoryParent[],
   children: [] as AdminStudentDirectoryParent[],
   monthlyDue: [] as MonthlyDueTotal[],
+  monthlyStatus: "na" as DirectoryBillingMark,
+  enrollmentFeeStatus: "na" as DirectoryBillingMark,
+  lastEnrollmentAt: null as string | null,
   lastSessionStartAt: null as string | null,
   emailDeliverable: false,
 };
@@ -136,6 +176,41 @@ export function sortAdminUsers(
       const va = a.lastSessionStartAt ?? "";
       const vb = b.lastSessionStartAt ?? "";
       return va.localeCompare(vb) * mult;
+    }
+    if (key === "sections") {
+      return (
+        sectionsSortValue(a).localeCompare(sectionsSortValue(b), undefined, {
+          sensitivity: "base",
+          numeric: true,
+        }) * mult
+      );
+    }
+    if (key === "parent") {
+      return (
+        peopleSortValue(a.parents).localeCompare(peopleSortValue(b.parents), undefined, {
+          sensitivity: "base",
+        }) * mult
+      );
+    }
+    if (key === "children") {
+      return (
+        peopleSortValue(a.children).localeCompare(peopleSortValue(b.children), undefined, {
+          sensitivity: "base",
+        }) * mult
+      );
+    }
+    if (key === "monthlyDue") {
+      return (monthlyDueSortValue(a) - monthlyDueSortValue(b)) * mult;
+    }
+    if (key === "lastEnrollment") {
+      return compareSortValues(a.lastEnrollmentAt, b.lastEnrollmentAt, dir);
+    }
+    if (key === "enrollmentFee") {
+      return compareSortValues(
+        directoryBillingMarkSortRank(a.enrollmentFeeStatus),
+        directoryBillingMarkSortRank(b.enrollmentFeeStatus),
+        dir,
+      );
     }
     const va = a[key as keyof Pick<AdminUserRow, "email" | "role" | "phone">];
     const vb = b[key as keyof Pick<AdminUserRow, "email" | "role" | "phone">];

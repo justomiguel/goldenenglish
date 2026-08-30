@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/react";
 
 vi.mock("next/font/google", () => ({
-  Cinzel: () => ({ variable: "--font-nago-display" }),
+  Oswald: () => ({ variable: "--font-nago-display" }),
   Outfit: () => ({ variable: "--font-nago-body" }),
 }));
 

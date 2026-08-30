@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 const VALID_SORT_KEYS: RegistrationSortKey[] = [
-  "name", "dni", "email", "level", "birth", "status", "received",
+  "name", "dni", "email", "phoneStudent", "phoneTutor", "level", "birth", "status", "received",
 ];
 
 function parseSearchParams(raw: Record<string, string | string[] | undefined>): PaginatedRegistrationsParams {

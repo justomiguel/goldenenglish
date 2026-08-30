@@ -8,6 +8,8 @@ export type RegistrationSortKey =
   | "name"
   | "dni"
   | "email"
+  | "phoneStudent"
+  | "phoneTutor"
   | "level"
   | "birth"
   | "status"
@@ -69,6 +71,14 @@ export function sortRegistrationRows(
       case "email":
         va = a.email;
         vb = b.email;
+        break;
+      case "phoneStudent":
+        va = a.phone ?? "";
+        vb = b.phone ?? "";
+        break;
+      case "phoneTutor":
+        va = a.tutor_phone ?? "";
+        vb = b.tutor_phone ?? "";
         break;
       case "level":
         va = a.level_interest ?? "";

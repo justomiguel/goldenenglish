@@ -12,6 +12,7 @@ import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { failAfterStudentCreated } from "@/lib/register/acceptRegistrationHelpers";
 import { resolveExistingStudentByDni } from "@/lib/register/resolveExistingStudentByDni";
 import { finalizeAcceptedRegistrationLead } from "@/lib/register/finalizeAcceptedRegistrationLead";
+import type { JoinBillingDisposition } from "@/lib/billing/joinBillingDispositionSchema";
 import type { Dictionary } from "@/types/i18n";
 
 export type AcceptRegistrationLeadResult =
@@ -30,6 +31,8 @@ export async function acceptRegistrationLead(input: {
   enrollServiceRole?: boolean;
   waiveReason?: string;
   skipFamilyWelcome?: boolean;
+  joinDisposition?: JoinBillingDisposition;
+  actorId?: string;
 }): Promise<AcceptRegistrationLeadResult> {
   const { admin, dict } = input;
   const { data: reg, error: fetchErr } = await admin
@@ -163,5 +166,7 @@ export async function acceptRegistrationLead(input: {
     enrollServiceRole: input.enrollServiceRole,
     waiveReason: input.waiveReason,
     skipFamilyWelcome: input.skipFamilyWelcome,
+    joinDisposition: input.joinDisposition ?? { kind: "behind" },
+    actorId: input.actorId ?? studentId,
   });
 }

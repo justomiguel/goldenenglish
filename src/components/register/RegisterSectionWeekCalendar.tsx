@@ -5,9 +5,14 @@ import { listSectionScheduleHourTicks } from "@/lib/academics/sectionScheduleHou
 import { sectionScheduleWeekdayKey } from "@/lib/academics/sectionScheduleWeekdayKey";
 import {
   assignRegisterPickerOverlapColumns,
+  registerPickerSectionShortName,
   resolveRegisterPickerWeekWindowMinutes,
   type RegisterPickerCell,
 } from "@/lib/register/registrationSectionPicker";
+import {
+  registerPickerSectionToneIndex,
+  registerPickerSectionToneStyle,
+} from "@/lib/register/registerPickerSectionTone";
 import type { Dictionary } from "@/types/i18n";
 
 /** Taller than the admin editor so public slots stay readable as form chips. */
@@ -39,18 +44,22 @@ export function RegisterSectionWeekCalendar({
   const heightPx = Math.max(1, (windowMinutes.end - windowMinutes.start) * PX_PER_MINUTE);
   const hourTicks = listSectionScheduleHourTicks(windowMinutes.start, windowMinutes.end);
   const byDay = cellsByDay(cells);
+  const sectionIds = cells.map((cell) => cell.sectionId);
 
   return (
     <div
       role="grid"
       aria-label={dict.picker.calendarAria}
       data-testid="register-week-calendar"
-      className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/25"
+      className="w-full min-w-0 max-w-full overflow-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/25"
     >
       <div className="min-w-[40rem] p-3">
         <div className="grid grid-cols-[2.75rem_minmax(0,1fr)] gap-x-1.5">
-          <div aria-hidden />
-          <div className="grid grid-cols-7 border-b border-[var(--color-border)] pb-2">
+          <div
+            aria-hidden
+            className="sticky top-0 z-[3] bg-[var(--color-muted)]/90"
+          />
+          <div className="sticky top-0 z-[3] grid grid-cols-7 border-b border-[var(--color-border)] bg-[var(--color-muted)]/90 pb-2 backdrop-blur-sm">
             {SECTION_WEEK_UI_DAY_ORDER.map((dayOfWeek) => (
               <div
                 key={dayOfWeek}
@@ -62,7 +71,7 @@ export function RegisterSectionWeekCalendar({
           </div>
 
           <div
-            className="relative"
+            className="relative sticky left-0 z-[2] bg-[var(--color-muted)]/90"
             style={{ height: heightPx }}
             data-testid="register-week-time-gutter"
           >
@@ -105,7 +114,15 @@ export function RegisterSectionWeekCalendar({
                     `${cell.sectionId}-${cell.dayOfWeek}-${cell.startTime}-${cell.endTime}`,
                   ) ?? { col: 0, colCount: 1 };
                   const widthPct = 100 / layout.colCount;
-                  const label = `${cell.label} ${cell.startTime}–${cell.endTime}`;
+                  const shortName = registerPickerSectionShortName(cell.label);
+                  const label = `${shortName} ${cell.startTime}–${cell.endTime}`;
+                  const tone = cell.disabled
+                    ? null
+                    : registerPickerSectionToneStyle(
+                        cell.sectionId,
+                        selected ? "strong" : "soft",
+                        sectionIds,
+                      );
                   return (
                     <button
                       key={`${cell.sectionId}-${cell.dayOfWeek}-${cell.startTime}`}
@@ -113,25 +130,26 @@ export function RegisterSectionWeekCalendar({
                       disabled={cell.disabled}
                       aria-pressed={selected}
                       aria-label={cell.disabled ? `${label} (${dict.picker.slotFull})` : label}
+                      data-section-tone={
+                        cell.disabled
+                          ? undefined
+                          : String(registerPickerSectionToneIndex(cell.sectionId, sectionIds))
+                      }
                       onClick={() => onToggleSection(cell.sectionId)}
                       className={`absolute z-[2] overflow-hidden rounded-[calc(var(--layout-border-radius)-2px)] border px-1 py-1 text-left text-[11px] leading-tight ${
                         cell.disabled
                           ? "cursor-not-allowed border-[var(--color-border)] text-[var(--color-muted-foreground)] opacity-60"
-                          : selected
-                            ? "border-[var(--color-primary)] bg-[var(--color-primary)]/15 text-[var(--color-primary)]"
-                            : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-foreground)] shadow-sm"
+                          : "shadow-sm"
                       }`}
                       style={{
                         top: topPx,
                         height,
                         left: `calc(${layout.col * widthPct}% + 2px)`,
                         width: `calc(${widthPct}% - 4px)`,
+                        ...tone,
                       }}
                     >
-                      <span className="block truncate font-medium">{cell.label}</span>
-                      <span className="block tabular-nums">
-                        {cell.startTime}–{cell.endTime}
-                      </span>
+                      <span className="block truncate font-medium">{shortName}</span>
                       {cell.disabled ? (
                         <span className="mt-0.5 block">{dict.picker.slotFull}</span>
                       ) : null}

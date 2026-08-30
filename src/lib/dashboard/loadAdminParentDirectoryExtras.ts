@@ -1,10 +1,22 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  rollupParentBillingFlags,
+  type DirectoryStudentBillingFlags,
+} from "@/lib/dashboard/directoryBillingStatus";
 import type { AdminStudentDirectoryParent, AdminStudentDirectorySection } from "@/lib/dashboard/loadAdminStudentDirectoryExtras";
+import { loadDirectoryStudentBillingFlags } from "@/lib/dashboard/loadDirectoryStudentBillingFlags";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+
+const EMPTY_BILLING_FLAGS: DirectoryStudentBillingFlags = {
+  monthlyStatus: "na",
+  enrollmentFeeStatus: "na",
+  lastEnrollmentAt: null,
+};
 
 export type AdminParentDirectoryExtras = {
   childrenByParent: Map<string, AdminStudentDirectoryParent[]>;
   sectionsByParent: Map<string, AdminStudentDirectorySection[]>;
+  billingFlagsByParent: Map<string, DirectoryStudentBillingFlags>;
 };
 
 type RelRow = { tutor_id: string; student_id: string };
@@ -17,7 +29,7 @@ type EnrollmentRow = {
 };
 
 export function emptyAdminParentDirectoryExtras(): AdminParentDirectoryExtras {
-  return { childrenByParent: new Map(), sectionsByParent: new Map() };
+  return { childrenByParent: new Map(), sectionsByParent: new Map(), billingFlagsByParent: new Map() };
 }
 
 export async function loadAdminParentDirectoryExtras(
@@ -42,15 +54,16 @@ export async function loadAdminParentDirectoryExtras(
   const childrenByParent = new Map<string, AdminStudentDirectoryParent[]>();
   const sectionsByParent = new Map<string, AdminStudentDirectorySection[]>();
 
-  if (studentIds.length === 0) return { childrenByParent, sectionsByParent };
+  if (studentIds.length === 0) return { childrenByParent, sectionsByParent, billingFlagsByParent: new Map() };
 
-  const [profileResult, enrollResult] = await Promise.all([
+  const [profileResult, enrollResult, childFlags] = await Promise.all([
     admin.from("profiles").select("id, first_name, last_name").in("id", studentIds),
     admin
       .from("section_enrollments")
       .select("student_id, section_id, academic_sections(name, cohort_id)")
       .in("student_id", studentIds)
       .eq("status", "active"),
+    loadDirectoryStudentBillingFlags(admin, studentIds),
   ]);
   if (profileResult.error) {
     logSupabaseClientError("loadAdminParentDirectoryExtras:student_profiles", profileResult.error, {
@@ -115,5 +128,13 @@ export async function loadAdminParentDirectoryExtras(
     sectionsByParent.set(parentId, sections);
   }
 
-  return { childrenByParent, sectionsByParent };
+  const billingFlagsByParent = new Map<string, DirectoryStudentBillingFlags>();
+  for (const [parentId, children] of childrenByParent) {
+    billingFlagsByParent.set(
+      parentId,
+      rollupParentBillingFlags(children.map((child) => childFlags.get(child.id) ?? EMPTY_BILLING_FLAGS)),
+    );
+  }
+
+  return { childrenByParent, sectionsByParent, billingFlagsByParent };
 }

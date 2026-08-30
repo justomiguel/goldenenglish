@@ -23,6 +23,9 @@ import {
 } from "@/components/dashboard/admin/badges/adminBadgeListCopy";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 
 export type AdminBadgeRow = {
   id: string;
@@ -83,6 +86,21 @@ export function AdminBadgesListScreen({
     if (categoryTab === "all") return rows;
     return rows.filter((r) => r.category === categoryTab);
   }, [rows, categoryTab]);
+
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    filteredRows,
+    {
+      image: (r) => r.imageUrl ?? "",
+      code: (r) => r.code,
+      title: (r) => r.titleEn,
+      category: (r) => r.category,
+      criteria: (r) => r.criteriaType,
+      threshold: (r) => r.criteriaThreshold,
+      status: (r) => (r.isActive ? 1 : 0),
+    },
+    "code",
+  );
 
   const baseHref = `/${locale}/dashboard/admin/badges`;
   const filterRegionLabel =
@@ -146,34 +164,20 @@ export function AdminBadgesListScreen({
                 <table className="w-full text-sm">
                   <thead className="bg-[var(--color-muted)] text-left">
                     <tr>
-                      <th scope="col" className="p-3 font-medium">
-                        {labels.colImage}
-                      </th>
-                      <th scope="col" className="p-3 font-medium">
-                        {labels.colCode}
-                      </th>
-                      <th scope="col" className="p-3 font-medium">
-                        {labels.colTitle}
-                      </th>
-                      <th scope="col" className="p-3 font-medium">
-                        {labels.colCategory}
-                      </th>
-                      <th scope="col" className="p-3 font-medium">
-                        {labels.colCriteria}
-                      </th>
-                      <th scope="col" className="p-3 font-medium">
-                        {labels.colThreshold}
-                      </th>
-                      <th scope="col" className="p-3 font-medium">
-                        {labels.colStatus}
-                      </th>
+                      <SortableTh columnId="image" label={labels.colImage} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="p-3 font-medium" />
+                      <SortableTh columnId="code" label={labels.colCode} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="p-3 font-medium" />
+                      <SortableTh columnId="title" label={labels.colTitle} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="p-3 font-medium" />
+                      <SortableTh columnId="category" label={labels.colCategory} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="p-3 font-medium" />
+                      <SortableTh columnId="criteria" label={labels.colCriteria} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="p-3 font-medium" />
+                      <SortableTh columnId="threshold" label={labels.colThreshold} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="p-3 font-medium" />
+                      <SortableTh columnId="status" label={labels.colStatus} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="p-3 font-medium" />
                       <th scope="col" className="p-3 font-medium">
                         <span className="sr-only">{labels.colActions}</span>
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredRows.map((row) => (
+                    {sortedRows.map((row) => (
                       <tr key={row.id} className="border-t border-[var(--color-border)]">
                         <td className="p-3">
                           {row.imageUrl ? (

@@ -8,6 +8,9 @@ import {
 import { Button } from "@/components/atoms/Button";
 import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
 import {
+  AdminDirectoryEnrollmentFeeCell,
+  AdminDirectoryLastEnrollmentCell,
+  AdminDirectoryMonthlyStatusCell,
   AdminStudentMonthlyDueCell,
   AdminStudentParentsList,
   AdminStudentSectionsList,
@@ -85,7 +88,24 @@ export function AdminUsersPwaListItem(props: {
               </div>
               <div>
                 <span className="text-[var(--color-muted-foreground)]">{labels.colMonthlyDue}: </span>
-                <AdminStudentMonthlyDueCell row={r} locale={locale} emptyValue={props.emptyValue} />
+                <AdminStudentMonthlyDueCell
+                  row={r}
+                  locale={locale}
+                  labels={labels}
+                  emptyValue={props.emptyValue}
+                />
+              </div>
+              <div>
+                <span className="text-[var(--color-muted-foreground)]">{labels.colEnrollmentFee}: </span>
+                <AdminDirectoryEnrollmentFeeCell status={r.enrollmentFeeStatus} labels={labels} />
+              </div>
+              <div>
+                <span className="text-[var(--color-muted-foreground)]">{labels.colLastEnrollment}: </span>
+                <AdminDirectoryLastEnrollmentCell
+                  iso={r.lastEnrollmentAt}
+                  locale={locale}
+                  emptyValue={props.emptyValue}
+                />
               </div>
               <div>
                 <span className="text-[var(--color-muted-foreground)]">{labels.colParent}: </span>
@@ -104,6 +124,22 @@ export function AdminUsersPwaListItem(props: {
                 <span className="text-[var(--color-muted-foreground)]">{labels.colLastAccess}: </span>
                 {formatParentLastAccess(r.lastSessionStartAt, locale, labels.lastAccessNever)}
               </p>
+              <div>
+                <span className="text-[var(--color-muted-foreground)]">{labels.colMonthlyDue}: </span>
+                <AdminDirectoryMonthlyStatusCell status={r.monthlyStatus} labels={labels} />
+              </div>
+              <div>
+                <span className="text-[var(--color-muted-foreground)]">{labels.colEnrollmentFee}: </span>
+                <AdminDirectoryEnrollmentFeeCell status={r.enrollmentFeeStatus} labels={labels} />
+              </div>
+              <div>
+                <span className="text-[var(--color-muted-foreground)]">{labels.colLastEnrollment}: </span>
+                <AdminDirectoryLastEnrollmentCell
+                  iso={r.lastEnrollmentAt}
+                  locale={locale}
+                  emptyValue={props.emptyValue}
+                />
+              </div>
               <div>
                 <span className="text-[var(--color-muted-foreground)]">{labels.colSections}: </span>
                 <AdminStudentSectionsList

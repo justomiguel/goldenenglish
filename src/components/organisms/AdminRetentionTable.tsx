@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mail, MessageCircle } from "lucide-react";
+import { AdminRetentionContactCell } from "@/components/organisms/AdminRetentionContactCell";
 import { AdminRetentionReasonsList } from "@/components/molecules/AdminRetentionReasonsList";
 import { AdminRetentionTablePagination } from "@/components/molecules/AdminRetentionTablePagination";
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import type { AdminRetentionCandidate } from "@/lib/academics/loadAdminRetentionCandidates";
 import {
   buildEmailTooltip,
@@ -96,14 +99,25 @@ export function AdminRetentionTable({
     })();
   };
 
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    rows,
+    {
+      student: (row) => row.studentLabel,
+      section: (row) => row.sectionName,
+      absences: (row) => row.trailingAbsences,
+      average: (row) => row.avgScore ?? null,
+      reasons: (row) => row.reasons.join(" "),
+      whatsapp: (row) => row.retentionWhatsappCount,
+      email: (row) => row.retentionEmailCount,
+    },
+    "absences",
+    "desc",
+  );
+
   if (rows.length === 0) {
     return <p className="text-sm text-[var(--color-muted-foreground)]">{dict.empty}</p>;
   }
-
-  const iconShell =
-    "inline-flex min-h-9 min-w-9 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] transition-colors";
-  const iconActive = `${iconShell} bg-[var(--color-surface)] text-[var(--color-foreground)] hover:bg-[var(--color-muted)]`;
-  const iconDisabled = `${iconShell} cursor-not-allowed opacity-50`;
 
   return (
     <div className="space-y-3">
@@ -123,22 +137,18 @@ export function AdminRetentionTable({
         <table className="min-w-full text-left text-sm">
         <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40 text-xs uppercase text-[var(--color-muted-foreground)]">
           <tr>
-            <th className="px-3 py-2">{dict.colStudent}</th>
-            <th className="px-3 py-2">{dict.colSection}</th>
-            <th className="px-3 py-2">{dict.colAbsences}</th>
-            <th className="px-3 py-2">{dict.colAverage}</th>
-            <th className="px-3 py-2">{dict.colReasons}</th>
-            <th className="px-3 py-2 text-center tabular-nums" scope="col">
-              {dict.colWhatsappCount}
-            </th>
-            <th className="px-3 py-2 text-center tabular-nums" scope="col">
-              {dict.colEmailCount}
-            </th>
+            <SortableTh columnId="student" label={dict.colStudent} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+            <SortableTh columnId="section" label={dict.colSection} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+            <SortableTh columnId="absences" label={dict.colAbsences} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+            <SortableTh columnId="average" label={dict.colAverage} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+            <SortableTh columnId="reasons" label={dict.colReasons} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+            <SortableTh columnId="whatsapp" label={dict.colWhatsappCount} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 text-center tabular-nums" />
+            <SortableTh columnId="email" label={dict.colEmailCount} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 text-center tabular-nums" />
             <th className="px-3 py-2">{dict.colContact}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-[var(--color-border)]">
-          {rows.map((row) => {
+          {sortedRows.map((row) => {
             const wa = buildWhatsappHref(row, brandAppName, dict);
             const phoneForTip = row.guardianPhoneDisplay ?? row.guardianPhoneDigits ?? "";
             const waTemplate = row.isSelfContact ? dict.tipContactWhatsappSelf : dict.tipContactWhatsapp;
@@ -161,65 +171,17 @@ export function AdminRetentionTable({
                   {row.retentionEmailCount}
                 </td>
                 <td className="px-3 py-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {wa && phoneForTip ? (
-                      <button
-                        type="button"
-                        title={waTip}
-                        className={`${iconActive} text-emerald-600 disabled:pointer-events-none disabled:opacity-50`}
-                        aria-label={waTip}
-                        aria-busy={waPendingEnrollmentId === row.enrollmentId}
-                        disabled={waPendingEnrollmentId === row.enrollmentId}
-                        onClick={() => openWhatsapp(row, wa)}
-                      >
-                        {waPendingEnrollmentId === row.enrollmentId ? (
-                          <span
-                            className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-                            aria-hidden
-                          />
-                        ) : (
-                          <MessageCircle className="h-5 w-5" aria-hidden />
-                        )}
-                      </button>
-                    ) : (
-                      <span
-                        className={iconDisabled}
-                        title={dict.contactNoPhone}
-                        aria-label={dict.contactNoPhone}
-                      >
-                        <MessageCircle className="h-5 w-5 text-[var(--color-muted-foreground)]" aria-hidden />
-                      </span>
-                    )}
-
-                    {row.mailUserId && row.guardianEmail ? (
-                      <button
-                        type="button"
-                        disabled={pendingEnrollmentId === row.enrollmentId}
-                        className={`${iconActive} h-9 min-w-9 shrink-0 p-0 text-[var(--color-primary)] disabled:pointer-events-none disabled:opacity-50`}
-                        title={mailTip}
-                        aria-label={mailTip}
-                        aria-busy={pendingEnrollmentId === row.enrollmentId}
-                        onClick={() => handleSendMail(row)}
-                      >
-                        {pendingEnrollmentId === row.enrollmentId ? (
-                          <span
-                            className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-                            aria-hidden
-                          />
-                        ) : (
-                          <Mail className="h-5 w-5" aria-hidden />
-                        )}
-                      </button>
-                    ) : (
-                      <span
-                        className={iconDisabled}
-                        title={dict.contactNoEmail}
-                        aria-label={dict.contactNoEmail}
-                      >
-                        <Mail className="h-5 w-5 text-[var(--color-muted-foreground)]" aria-hidden />
-                      </span>
-                    )}
-                  </div>
+                  <AdminRetentionContactCell
+                    row={row}
+                    wa={wa}
+                    waTip={waTip}
+                    mailTip={mailTip}
+                    dict={dict}
+                    pendingMailId={pendingEnrollmentId}
+                    pendingWaId={waPendingEnrollmentId}
+                    onWhatsapp={openWhatsapp}
+                    onMail={handleSendMail}
+                  />
                 </td>
               </tr>
             );

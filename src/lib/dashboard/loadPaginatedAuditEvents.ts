@@ -27,6 +27,7 @@ const SORT_COLUMN_MAP: Record<AuditSortKey, string> = {
   domain: "domain",
   action: "action",
   resource: "resource_type",
+  summary: "summary",
 };
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;

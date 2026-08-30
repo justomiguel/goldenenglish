@@ -4,7 +4,9 @@ import type { LandingMediaMap } from "@/lib/cms/resolveLandingMedia";
 import { NagoSiteHeader } from "@/components/organisms/NagoSiteHeader";
 import { LandingNagoSections } from "@/components/organisms/LandingNagoSections";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
+import { nagoSiteHeaderLabels } from "@/lib/landing/nagoSiteHeaderLabels";
 import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
+import { resolveNagoLogo } from "@/lib/landing/nagoLogo";
 
 interface LandingMainSectionsNagoProps {
   dict: Dictionary;
@@ -23,7 +25,7 @@ export function LandingMainSectionsNago({
   mediaMap,
   blogEnabled = false,
 }: LandingMainSectionsNagoProps) {
-  const logoSrc = brand.logoPath;
+  const logoSrc = resolveNagoLogo(brand);
 
   return (
     <NagoFontRoot>
@@ -34,20 +36,12 @@ export function LandingMainSectionsNago({
           logoAlt={brand.logoAlt}
           dict={dict}
           sessionEmail={sessionEmail}
+          overlayHero
           showBlogLink={blogEnabled}
           blogLabel={blogEnabled ? dict.blog.list.title : undefined}
           showEventsLink
           eventsLabel={marketingLandingCopy(dict, "nago", "nav.eventos")}
-          labels={{
-            inicio: marketingLandingCopy(dict, "nago", "nav.inicio"),
-            sobreNosotros: marketingLandingCopy(dict, "nago", "nav.sobreNosotros"),
-            clases: marketingLandingCopy(dict, "nago", "nav.clases"),
-            galeria: marketingLandingCopy(dict, "nago", "nav.galeria"),
-            eventos: marketingLandingCopy(dict, "nago", "nav.eventos"),
-            contacto: marketingLandingCopy(dict, "nago", "nav.contacto"),
-            openMenu: marketingLandingCopy(dict, "nago", "chrome.openMenu"),
-            closeMenu: marketingLandingCopy(dict, "nago", "chrome.closeMenu"),
-          }}
+          labels={nagoSiteHeaderLabels(dict)}
         />
         <LandingNagoSections
           dict={dict}

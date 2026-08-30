@@ -38,6 +38,7 @@ const FAMILY_BY_ICON: Record<AdminSurfaceIconId, AdminPageHeaderArtFamily> = {
   settings: "institute",
   analytics: "institute",
   audit: "institute",
+  changelog: "institute",
   allAccounts: "students",
   emailTemplates: "messages",
 };

@@ -45,6 +45,7 @@ const valid = {
   phone: "+100",
   birth_date: "2000-05-01",
   preferred_section_id: SECTION_ID,
+  privacy_accepted: true,
 };
 
 const minorNoStudentEmailPayload = {
@@ -60,6 +61,7 @@ const minorNoStudentEmailPayload = {
   tutor_email: "tutor@example.com",
   tutor_phone: "+200",
   tutor_relationship: "Madre",
+  privacy_accepted: true,
 };
 
 function mockClientWithRpcAndInsert(insertResult: { error: unknown }) {
@@ -85,12 +87,23 @@ describe("submitPublicRegistration", () => {
 
   afterEach(() => {
     vi.unstubAllEnvs();
+    vi.useRealTimers();
   });
 
   it("returns closed when inscriptions disabled", async () => {
     mockGetInscriptionsEnabled.mockResolvedValue(false);
     const r = await submitPublicRegistration("es", valid);
     expect(r).toEqual({ ok: false, message: esDict.register.closed });
+  });
+
+  it("returns validation when privacy is not accepted", async () => {
+    mockGetInscriptionsEnabled.mockResolvedValue(true);
+    mockCreateClient.mockResolvedValue(mockClientWithRpcAndInsert({ error: null }));
+    const r = await submitPublicRegistration("es", {
+      ...valid,
+      privacy_accepted: false,
+    });
+    expect(r).toEqual({ ok: false, message: esDict.register.validationError });
   });
 
   it("returns validation when body invalid", async () => {
@@ -212,6 +225,25 @@ describe("submitPublicRegistration", () => {
     });
     expect(r).toEqual({ ok: false, message: esDict.register.validationError });
     expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("stamps privacy acceptance on a public reserve insert", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-29T16:00:00.000Z"));
+    mockGetInscriptionsEnabled.mockResolvedValue(true);
+    const insert = vi.fn().mockResolvedValue({ error: null });
+    const client = mockClientWithRpcAndInsert({ error: null });
+    client.from = () => ({ insert });
+    mockCreateClient.mockResolvedValue(client);
+    const r = await submitPublicRegistration("es", valid);
+    expect(r).toEqual({ ok: true });
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        privacy_accepted_at: "2026-08-29T16:00:00.000Z",
+        privacy_policy_version: "2026-08-29",
+      }),
+    );
+    vi.useRealTimers();
   });
 
   it("persists stamped Nagô extras on insert", async () => {

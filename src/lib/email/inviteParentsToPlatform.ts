@@ -26,7 +26,16 @@ export async function inviteParentsToPlatform(input: {
     portalUrl: string;
     resetUrl: string;
   }) => Promise<{ subject: string; bodyHtml: string } | null>;
-  sendInviteEmail: (to: string, subject: string, html: string) => Promise<{ ok: boolean }>;
+  sendInviteEmail: (
+    to: string,
+    vars: {
+      nombre: string;
+      apellido: string;
+      greetingName: string;
+      portalUrl: string;
+      resetUrl: string;
+    },
+  ) => Promise<{ ok: boolean }>;
 }): Promise<InviteParentsResult> {
   let portalOk = 0;
   let emailed = 0;
@@ -37,13 +46,14 @@ export async function inviteParentsToPlatform(input: {
   for (const parent of input.parents) {
     const authEmail = parent.authEmail?.trim() || parent.email;
     const resetUrl = authEmail ? ((await input.generateRecoveryLink(authEmail)) ?? "") : "";
-    const rendered = await input.renderInvite({
+    const inviteVars = {
       nombre: parent.firstName,
       apellido: parent.lastName,
       greetingName: parent.firstName || parent.lastName,
       portalUrl: input.portalUrl,
       resetUrl,
-    });
+    };
+    const rendered = await input.renderInvite(inviteVars);
     const bodyHtml = sanitizeMessageHtml(rendered?.bodyHtml ?? `<p><a href="${input.portalUrl}">portal</a></p>`);
     const { error } = await input.supabase.from("portal_messages").insert({
       sender_id: input.senderId,
@@ -64,7 +74,7 @@ export async function inviteParentsToPlatform(input: {
       skippedSynthetic += 1;
       continue;
     }
-    const sent = await input.sendInviteEmail(parent.email, rendered.subject, bodyHtml);
+    const sent = await input.sendInviteEmail(parent.email, inviteVars);
     if (sent.ok) emailed += 1;
     else failed += 1;
   }

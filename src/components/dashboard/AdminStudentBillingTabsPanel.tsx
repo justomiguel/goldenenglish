@@ -109,6 +109,7 @@ export function AdminStudentBillingTabsPanel({
             </p>
           ) : (
             <AdminStudentBillingPaymentsTable
+              locale={locale}
               payments={visiblePayments}
               scholarships={selectedScholarships}
               labels={labels}

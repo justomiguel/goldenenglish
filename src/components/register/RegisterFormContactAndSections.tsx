@@ -6,12 +6,14 @@ import { RegisterSectionMultiSelect } from "@/components/register/RegisterSectio
 import { RegisterSectionPicker } from "@/components/register/RegisterSectionPicker";
 import type { RegistrationSectionPickerOption } from "@/lib/register/registrationSectionPicker";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
+import { RegisterPrivacyConsent } from "@/components/register/RegisterPrivacyConsent";
 import { RegisterTutorFieldset } from "@/components/register/RegisterTutorFieldset";
 import { SectionEnrollmentLinkCard } from "@/components/register/SectionEnrollmentLinkCard";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import type { Dictionary } from "@/types/i18n";
 
 interface RegisterFormContactAndSectionsProps {
+  locale: string;
   dict: Dictionary["register"];
   busy: boolean;
   showTutor: boolean;
@@ -27,6 +29,7 @@ interface RegisterFormContactAndSectionsProps {
 }
 
 export function RegisterFormContactAndSections({
+  locale,
   dict,
   busy,
   showTutor,
@@ -85,6 +88,11 @@ export function RegisterFormContactAndSections({
           onChange={onSelectedSectionIdsChange}
         />
       )}
+      <RegisterPrivacyConsent
+        locale={locale}
+        label={dict.privacyConsent.label}
+        linkLabel={dict.privacyConsent.link}
+      />
       {hidden ? null : (
         <Button
           type={submitType}

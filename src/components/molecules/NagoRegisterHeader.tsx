@@ -23,19 +23,19 @@ export function NagoRegisterHeader({
   return (
     <header
       className="sticky top-0 z-50 border-b border-[var(--nago-gold)]/25 bg-black"
-      style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
+      style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top))" }}
     >
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-[max(1rem,env(safe-area-inset-left))] py-3 pe-[max(1rem,env(safe-area-inset-right))]">
-        <Link href={homeHref} className="min-w-0 shrink-0">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-[max(1rem,env(safe-area-inset-left))] pt-1 pb-0 pe-[max(1rem,env(safe-area-inset-right))]">
+        <Link href={homeHref} className="min-w-0 shrink-0 leading-none">
           {/* eslint-disable-next-line @next/next/no-img-element -- Storage URLs + local */}
           <img
             src={logoSrc}
             alt={logoAlt}
-            width={360}
-            height={108}
+            width={918}
+            height={554}
             decoding="async"
             fetchPriority="high"
-            className="h-16 w-auto max-h-[4.75rem] max-w-[260px] object-contain sm:h-[5rem] md:max-w-[300px]"
+            className="nago-logo-knockout block h-[4.5rem] w-auto max-w-[14rem] object-contain object-left sm:h-[5.25rem] sm:max-w-[17rem]"
           />
         </Link>
         <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">

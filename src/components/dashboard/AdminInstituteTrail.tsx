@@ -20,6 +20,7 @@ function pageLabel(pathname: string, base: string, dict: Dictionary["dashboard"]
     ["/promotions", dict.promotions],
     ["/analytics", dict.analytics],
     ["/audit", dict.audit],
+    ["/changelog", dict.changelog],
     ["/glossary", dict.glossary],
     ["/settings", dict.settings],
     ["/cms", dict.cms],

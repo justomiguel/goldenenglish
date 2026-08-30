@@ -87,6 +87,21 @@ export function AdminRegistrationExpandedDetails({
         {contactedOn ? (
           <p className="mt-3 text-xs text-[var(--color-muted-foreground)]">{contactedOn}</p>
         ) : null}
+        {row.privacy_accepted_at ? (
+          <div className="mt-2 text-xs text-[var(--color-muted-foreground)]">
+            <p>
+              {labels.privacyAcceptedOn.replaceAll(
+                "{date}",
+                new Date(row.privacy_accepted_at).toLocaleString(locale),
+              )}
+            </p>
+            {row.privacy_policy_version ? (
+              <p>
+                {labels.privacyPolicyVersion.replaceAll("{version}", row.privacy_policy_version)}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
         <AdminRegistrationNagoExtras
           tenantExtras={row.tenantExtras}
           locale={locale}
@@ -103,6 +118,7 @@ export function AdminRegistrationExpandedDetails({
             locale={locale}
             row={row}
             labels={labels.intake}
+            joinBilling={labels.joinBilling}
             sections={currentCohortSections ?? []}
             busy={busy === true}
             onBusy={onBusy}

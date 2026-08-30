@@ -5,7 +5,7 @@ import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
 import { createClient } from "@/lib/supabase/server";
 import {
   buildPublicRegistrationSchema,
-  type PublicRegistrationInput,
+  type PublicRegistrationFormDraft,
 } from "@/lib/register/publicRegistrationSchema";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
@@ -23,6 +23,7 @@ import {
   notifyPublicRegistrationReceived,
   quotePublicRegistrationFee,
 } from "@/lib/register/completePublicRegistrationSubmit";
+import { privacyAcceptanceStamp } from "@/lib/privacy/privacyAcceptanceStamp";
 
 type ResolvedRow = {
   section_id?: string | null;
@@ -40,7 +41,7 @@ type ResolvedRow = {
 export async function submitSectionLinkRegistration(
   locale: string,
   token: string,
-  raw: PublicRegistrationInput,
+  raw: PublicRegistrationFormDraft,
 ): Promise<RegisterActionState> {
   const dict = await getDictionary(locale);
   const reg = dict.register;
@@ -197,6 +198,7 @@ export async function submitSectionLinkRegistration(
       fee_snapshot: quote.fields.fee_snapshot,
       intake_state: quote.fields.intake_state,
       fee_captured: quote.fields.fee_captured,
+      ...privacyAcceptanceStamp(),
     });
 
     if (!error) {

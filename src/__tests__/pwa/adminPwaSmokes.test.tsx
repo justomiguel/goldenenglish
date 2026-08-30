@@ -199,4 +199,40 @@ describe("admin PWA smoke", () => {
     );
     expect(screen.getByText("u@x.co")).toBeInTheDocument();
   });
+
+  it("AdminUsersPwaList student directory exposes enrollment sort keys", () => {
+    render(
+      <AdminUsersPwaList
+        locale="es"
+        toolbar={<span>t</span>}
+        labels={dictEn.admin.users}
+        tableLabels={dictEn.admin.table}
+        listEmpty={false}
+        rows={[{ ...userRow, monthlyStatus: "yes", enrollmentFeeStatus: "no" }]}
+        currentUserId="other"
+        sortKey="lastEnrollment"
+        sortDir="desc"
+        onToggleSort={() => {}}
+        selectedIds={new Set()}
+        onToggleRow={() => {}}
+        allVisibleSelected={false}
+        onToggleSelectAllVisible={() => {}}
+        deletableVisibleCount={1}
+        busy={false}
+        onRequestDeleteOne={() => {}}
+        emptyMessage="empty"
+        pagination={{
+          page: 1,
+          pageSize: 10,
+          totalCount: 1,
+          onPageChange: () => {},
+        }}
+        lockRole="student"
+      />,
+    );
+    expect(screen.getByText(dictEn.admin.users.colEnrollmentFee)).toBeInTheDocument();
+    expect(screen.getByText(dictEn.admin.users.colLastEnrollment)).toBeInTheDocument();
+    expect(screen.getByTitle(dictEn.admin.users.monthlyStatusYesAria)).toBeInTheDocument();
+    expect(screen.getByTitle(dictEn.admin.users.enrollmentFeeNoAria)).toBeInTheDocument();
+  });
 });

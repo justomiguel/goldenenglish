@@ -23,8 +23,11 @@ export async function acceptRegistration(
   raw: AcceptRegistrationInput,
 ): Promise<AcceptRegistrationResult> {
   let session: SupabaseClient;
+  let actorId: string | undefined;
   try {
-    ({ supabase: session } = await assertAdmin());
+    const auth = await assertAdmin();
+    session = auth.supabase;
+    actorId = auth.user.id;
   } catch {
     logServerAuthzDenied("acceptRegistration");
     return {
@@ -50,6 +53,8 @@ export async function acceptRegistration(
     registrationId: parsed.data.registration_id,
     password: parsed.data.password,
     birthDate: parsed.data.birth_date,
+    joinDisposition: parsed.data.join_disposition,
+    actorId,
   });
   if (!result.ok) return result;
 

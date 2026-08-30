@@ -14,6 +14,7 @@ import { AdminInitialSiteSetupGate } from "@/components/dashboard/admin/site-set
 import { isEmailTemplatesMegaAdmin } from "@/lib/auth/emailTemplatesMegaAdmin";
 import { loadAdminRecentInboundMessageCount } from "@/lib/dashboard/loadAdminRecentInboundMessageCount";
 import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
+import { loadEmailSendStaffNotice } from "@/lib/email/emailSendStaffNotice";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { formatProfileSnakeGivenFirst } from "@/lib/profile/formatProfileDisplayName";
 import { adminUserRoleOptionLabel } from "@/lib/dashboard/adminUserRoleOptionLabel";
@@ -74,9 +75,10 @@ export default async function AdminSectionLayout({
     logSupabaseClientError("adminLayout.registrationsNewCount", registrationsResult.error, {});
   }
 
-  const [needsInitialSiteSetup, blogEnabled] = await Promise.all([
+  const [needsInitialSiteSetup, blogEnabled, emailSendFailure] = await Promise.all([
     loadNeedsInitialSiteSetup(supabase),
     loadBlogEnabled(),
+    loadEmailSendStaffNotice(supabase),
   ]);
 
   const brand = needsInitialSiteSetup
@@ -98,6 +100,7 @@ export default async function AdminSectionLayout({
       profileDisplayName={profileDisplayName}
       profileRoleLabel={profileRoleLabel}
       profileAvatarUrl={profileAvatarUrl}
+      emailSendFailure={Boolean(emailSendFailure)}
     >
       <AdminInitialSiteSetupGate
         locale={locale}

@@ -4,19 +4,29 @@ export type TrialConvertSeat = {
   hasOpenSeat: boolean;
 };
 
+export type TrialConvertQuoteKind = "enrollment" | "first_month" | "enrollment_and_month";
+
 export type TrialConvertQuote =
   | { ok: false; code: "no_section" }
   | {
       ok: true;
-      kind: "enrollment" | "first_month";
+      kind: TrialConvertQuoteKind;
       payableSectionIds: string[];
       droppedSectionIds: string[];
+      enrollmentDue: number;
+      monthDue: number;
       total: number;
       currency: string;
     };
 
 function isPayable(seat: TrialConvertSeat): boolean {
   return seat.hasOpenSeat || seat.status === "attended";
+}
+
+function quoteKind(enrollmentDue: number, monthDue: number): TrialConvertQuoteKind {
+  if (enrollmentDue > 0 && monthDue > 0) return "enrollment_and_month";
+  if (enrollmentDue > 0) return "enrollment";
+  return "first_month";
 }
 
 export function planTrialConvertQuote(input: {
@@ -49,26 +59,18 @@ export function planTrialConvertQuote(input: {
     if (paidEnroll.has(id)) return sum;
     return sum + Math.max(0, Number(input.enrollmentAmounts[id] ?? 0) || 0);
   }, 0);
-  if (enrollmentDue > 0) {
-    return {
-      ok: true,
-      kind: "enrollment",
-      payableSectionIds,
-      droppedSectionIds,
-      total: enrollmentDue,
-      currency: input.currency,
-    };
-  }
   const monthDue = payableSectionIds.reduce((sum, id) => {
     if (paidMonth.has(id)) return sum;
     return sum + Math.max(0, Number(input.monthlyAmounts[id] ?? 0) || 0);
   }, 0);
   return {
     ok: true,
-    kind: "first_month",
+    kind: quoteKind(enrollmentDue, monthDue),
     payableSectionIds,
     droppedSectionIds,
-    total: monthDue,
+    enrollmentDue,
+    monthDue,
+    total: enrollmentDue + monthDue,
     currency: input.currency,
   };
 }

@@ -154,7 +154,7 @@ export function RegisterForm({
       <form
         ref={formRef}
         onSubmit={onSubmit}
-        className="w-full max-w-2xl space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-card)] ring-1 ring-[var(--color-primary)]/[0.06]"
+        className="w-full min-w-0 max-w-2xl space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-card)] ring-1 ring-[var(--color-primary)]/[0.06]"
       >
         <input type="hidden" name="intent" value={intent} />
         <RegisterStudentFieldset
@@ -193,6 +193,7 @@ export function RegisterForm({
         ) : null}
         {step === "details" || step === "extras" ? (
           <RegisterFormContactAndSections
+            locale={locale}
             dict={formDict}
             busy={busy}
             showTutor={showTutor}

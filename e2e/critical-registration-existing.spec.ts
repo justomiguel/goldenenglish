@@ -13,6 +13,7 @@ import {
   pickRegisterBirthIso,
   submitRegisterAfterDetails,
 } from "./helpers/registerForm";
+import { chooseJoinBillingCurrent } from "./helpers/acceptRegistration";
 
 const paths = e2eAuthPaths();
 const isolation = resolveE2eIsolation();
@@ -130,6 +131,7 @@ test.describe("@critical-registration", () => {
     const dialog = staffPage.getByRole("dialog");
     await expect(dialog).toBeVisible({ timeout: 15_000 });
     await expect(dialog.getByText(A.acceptExistingLead)).toBeVisible();
+    await chooseJoinBillingCurrent(dialog);
     await dialog.getByRole("button", { name: /Dar de alta|enroll as|accept/i }).click();
     const skipSection = dialog.getByRole("button", {
       name: /Omitir por ahora|omit|skip|después|later/i,

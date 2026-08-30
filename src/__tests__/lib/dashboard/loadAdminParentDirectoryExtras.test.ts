@@ -6,6 +6,7 @@ function thenable(data: unknown) {
     select: vi.fn().mockReturnThis(),
     in: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
+    is: vi.fn().mockReturnThis(),
     then: (resolve: (value: unknown) => void) => resolve({ data, error: null }),
   };
 }
@@ -17,6 +18,7 @@ describe("loadAdminParentDirectoryExtras", () => {
     expect(from).not.toHaveBeenCalled();
     expect(extras.childrenByParent.size).toBe(0);
     expect(extras.sectionsByParent.size).toBe(0);
+    expect(extras.billingFlagsByParent.size).toBe(0);
   });
 
   it("groups children and distinct active sections by parent", async () => {
@@ -53,5 +55,10 @@ describe("loadAdminParentDirectoryExtras", () => {
     expect(extras.sectionsByParent.get(parentId)).toEqual([
       { id: "sec-1", name: "A1 Morning", cohortId: "coh-1", discountPercent: null },
     ]);
+    expect(extras.billingFlagsByParent.get(parentId)).toEqual({
+      monthlyStatus: "na",
+      enrollmentFeeStatus: "na",
+      lastEnrollmentAt: null,
+    });
   });
 });

@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Dictionary } from "@/types/i18n";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
+import { joinBillingDispositionSchema } from "@/lib/billing/joinBillingDispositionSchema";
 import { compensateDeleteStudentAuthUser } from "@/lib/register/compensateStudentAuthUser";
 import { localizeRegistrationAcceptError } from "@/lib/register/localizeRegistrationAcceptError";
 
@@ -17,6 +18,7 @@ export const acceptRegistrationSchema = z.object({
     .optional()
     .transform((s) => (s === "" || s == null ? undefined : s))
     .pipe(z.union([z.undefined(), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)])),
+  join_disposition: joinBillingDispositionSchema,
 });
 
 export type AcceptRegistrationInput = z.infer<typeof acceptRegistrationSchema>;

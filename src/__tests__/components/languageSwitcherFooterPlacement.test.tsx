@@ -46,11 +46,13 @@ const mzLabels = {
 
 const nagoLabels = {
   inicio: "Inicio",
-  sobreNosotros: "Sobre",
   clases: "Clases",
+  horarios: "Horarios",
+  nago: "Nagô",
   galeria: "Galería",
   eventos: "Eventos",
   contacto: "Contacto",
+  agendaCta: "Agenda tu clase",
   openMenu: "Abrir menú",
   closeMenu: "Cerrar menú",
 };

@@ -69,6 +69,10 @@ const dict = {
   sectionUndecidedOption: "No sé",
   sectionUndecidedHint: "pista",
   noSectionsAvailable: "sin secciones",
+  privacyConsent: {
+    label: "Acepto los {privacyLink} para esta preinscripción.",
+    link: "términos y el uso de datos",
+  },
   submit: "Enviar",
   closed: "cerrado",
   error: "error",
@@ -160,6 +164,7 @@ describe("RegisterForm in enrollment-link mode", () => {
     expect(await screen.findByLabelText("Email")).toBeInTheDocument();
     await user.type(screen.getByLabelText("Email"), "ana@example.com");
     await user.type(screen.getByLabelText("Teléfono"), "3624000000");
+    await user.click(screen.getByRole("checkbox"));
     await user.click(screen.getByRole("button", { name: "Enviar" }));
 
     expect(submitPublicRegistration).not.toHaveBeenCalled();
@@ -188,6 +193,7 @@ describe("RegisterForm in enrollment-link mode", () => {
     await user.type(screen.getByLabelText("Email"), "ana@example.com");
     await user.type(screen.getByLabelText("Teléfono"), "3624000000");
     await user.selectOptions(screen.getByRole("combobox", { name: "Sección" }), link.sectionId);
+    await user.click(screen.getByRole("checkbox"));
     await user.click(screen.getByRole("button", { name: "Enviar" }));
 
     expect(submitSectionLinkRegistration).not.toHaveBeenCalled();

@@ -9,6 +9,7 @@ alwaysApply: true
 
 ## When a task is done
 
+- **Changelog first** if staff/families/students will notice the change — **`39-commit-product-changelog.mdc`**. Then commit.
 - **Commit** spec + plan + implementation (and tests/migrations) in the same commit. Do **not** leave it staged “until they ask.”
 - **Push / deploy** only if the user asked (`subí`, `push`, `deploy`) or you asked and they said yes.
 

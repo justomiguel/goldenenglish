@@ -77,23 +77,28 @@ export function AdminUsersDataTable({
   const columns = studentsDirectory
     ? [
         { id: "name", label: labels.colName, thClassName: colHead },
-        { id: "sections", label: labels.colSections, sortable: false, thClassName: colHead },
-        { id: "monthlyDue", label: labels.colMonthlyDue, sortable: false, thClassName: colHead },
-        { id: "parent", label: labels.colParent, sortable: false, thClassName: colHead },
+        { id: "sections", label: labels.colSections, thClassName: colHead },
+        { id: "monthlyDue", label: labels.colMonthlyDue, thClassName: colHead },
+        { id: "enrollmentFee", label: labels.colEnrollmentFee, thClassName: colHead },
+        { id: "lastEnrollment", label: labels.colLastEnrollment, thClassName: colHead },
+        { id: "parent", label: labels.colParent, thClassName: colHead },
       ]
     : parentsDirectory
       ? [
           { id: "name", label: labels.colName, thClassName: colHead },
           { id: "email", label: labels.colEmail, thClassName: colHead },
-          { id: "children", label: labels.colChildren, sortable: false, thClassName: colHead },
-          { id: "sections", label: labels.colSections, sortable: false, thClassName: colHead },
+          { id: "children", label: labels.colChildren, thClassName: colHead },
+          { id: "sections", label: labels.colSections, thClassName: colHead },
+          { id: "monthlyDue", label: labels.colMonthlyDue, thClassName: colHead },
+          { id: "enrollmentFee", label: labels.colEnrollmentFee, thClassName: colHead },
+          { id: "lastEnrollment", label: labels.colLastEnrollment, thClassName: colHead },
           { id: "lastAccess", label: labels.colLastAccess, thClassName: colHead },
         ]
     : teachersDirectory
       ? [
           { id: "email", label: labels.colEmail, thClassName: colHead },
           { id: "name", label: labels.colName, thClassName: colHead },
-          { id: "sections", label: labels.colSections, sortable: false, thClassName: colHead },
+          { id: "sections", label: labels.colSections, thClassName: colHead },
           { id: "phone", label: labels.colPhone, thClassName: colHead },
         ]
       : [

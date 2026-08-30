@@ -1,17 +1,33 @@
 "use client";
 
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import type { ParentHubLogisticsRow } from "@/types/parentHub";
 import type { Dictionary } from "@/types/i18n";
 
 type HubDict = Dictionary["dashboard"]["parent"]["hub"];
 
 export interface ParentHubLogisticsTableProps {
+  locale?: string;
   rows: ParentHubLogisticsRow[];
   scheduleOverlap: boolean;
   dict: HubDict;
 }
 
-export function ParentHubLogisticsTable({ rows, scheduleOverlap, dict }: ParentHubLogisticsTableProps) {
+export function ParentHubLogisticsTable({ locale = "es", rows, scheduleOverlap, dict }: ParentHubLogisticsTableProps) {
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    rows,
+    {
+      child: (r) => r.childLabel,
+      class: (r) => r.classLabel,
+      schedule: (r) => r.scheduleHuman,
+      status: (r) => (r.active ? 1 : 0),
+    },
+    "child",
+  );
+
   if (rows.length === 0) {
     return (
       <section className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-4">
@@ -34,14 +50,14 @@ export function ParentHubLogisticsTable({ rows, scheduleOverlap, dict }: ParentH
         <table className="min-w-full border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-[var(--color-border)] text-[var(--color-muted-foreground)]">
-              <th className="py-2 pr-4 font-medium">{dict.colChild}</th>
-              <th className="py-2 pr-4 font-medium">{dict.colClass}</th>
-              <th className="py-2 pr-4 font-medium">{dict.colSchedule}</th>
-              <th className="py-2 font-medium">{dict.colStatus}</th>
+              <SortableTh columnId="child" label={dict.colChild} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-2 pr-4 font-medium" />
+              <SortableTh columnId="class" label={dict.colClass} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-2 pr-4 font-medium" />
+              <SortableTh columnId="schedule" label={dict.colSchedule} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-2 pr-4 font-medium" />
+              <SortableTh columnId="status" label={dict.colStatus} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-2 font-medium" />
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
+            {sortedRows.map((r) => (
               <tr key={`${r.studentId}-${r.classLabel}`} className="border-b border-[var(--color-border)] last:border-0">
                 <td className="py-2 pr-4 align-top text-[var(--color-foreground)]">{r.childLabel}</td>
                 <td className="py-2 pr-4 align-top text-[var(--color-foreground)]">{r.classLabel}</td>

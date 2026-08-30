@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
-import { Cinzel, Outfit } from "next/font/google";
+import { Oswald, Outfit } from "next/font/google";
 import "@/styles/nagoLanding.css";
+import { NagoSoundRoot } from "@/components/organisms/NagoSoundRoot";
 
-const nagoDisplay = Cinzel({
-  weight: ["400", "600", "700"],
+const nagoDisplay = Oswald({
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin", "latin-ext"],
   variable: "--font-nago-display",
   display: "swap",
@@ -31,7 +32,7 @@ export function NagoFontRoot({ className = "", children }: NagoFontRootProps) {
       className={`nago-landing ${vars} bg-[var(--nago-bg)] font-[family-name:var(--font-nago-body)] text-[var(--nago-ink)] antialiased ${className}`.trim()}
     >
       <div className="nago-grain" aria-hidden />
-      {children}
+      <NagoSoundRoot>{children}</NagoSoundRoot>
     </div>
   );
 }

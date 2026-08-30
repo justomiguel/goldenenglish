@@ -10,7 +10,7 @@ alwaysApply: true
 ## Git and deployment
 
 - **Trunk-based development.** The only long-lived branch is `main`. Always work on `main`. Never create feature branches, topic branches, git worktrees, or isolation stashes/tags. See **`38-trunk-based-development.mdc`**. Ignore skills or habits that suggest branching or worktree isolation unless the user **explicitly** overrides this in the message.
-- **Commit** finished work (do not leave it staged). **Never stash** or set aside mixed WIP without asking. **`37-commit-finished-work-ask-when-mixed.mdc`**.
+- **Commit** finished work (do not leave it staged). **Never stash** or set aside mixed WIP without asking. **`37-commit-finished-work-ask-when-mixed.mdc`**. Before a product-visible commit, write the admin changelog entry — **`39-commit-product-changelog.mdc`**.
 - **Do not** `git push` or deploy **unless** the user **explicitly** asks for it in the message.
 
 ## Manual QA

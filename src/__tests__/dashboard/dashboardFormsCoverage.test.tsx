@@ -328,6 +328,7 @@ describe("dashboard coverage", () => {
     await waitFor(() => expect(deleteRegistration).toHaveBeenCalledWith("es", rowNew.id));
     fireEvent.click(screen.getByRole("button", { name: R.accept }));
     const accDlg = await screen.findByRole("dialog");
+    fireEvent.click(within(accDlg).getByRole("radio", { name: R.joinBilling.current }));
     fireEvent.click(within(accDlg).getByRole("button", { name: R.accept }));
     await waitFor(() =>
       expect(acceptRegistration).toHaveBeenCalledWith(
@@ -366,6 +367,7 @@ describe("dashboard coverage", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: R.accept }));
     const dlg = await screen.findByRole("dialog");
+    fireEvent.click(within(dlg).getByRole("radio", { name: R.joinBilling.current }));
     fireEvent.click(within(dlg).getByRole("button", { name: R.accept }));
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(R.alreadyProcessed));
     unmount();
@@ -384,6 +386,7 @@ describe("dashboard coverage", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: R.accept }));
     const dlg2 = await screen.findByRole("dialog");
+    fireEvent.click(within(dlg2).getByRole("radio", { name: R.joinBilling.current }));
     fireEvent.click(within(dlg2).getByRole("button", { name: R.accept }));
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(/nope/));
   });

@@ -162,6 +162,7 @@ export function AdminRegistrationPwaCard({
             locale={locale}
             row={r}
             labels={labels.intake}
+            joinBilling={labels.joinBilling}
             sections={currentCohortSections ?? []}
             busy={busy}
             onBusy={onBusy}

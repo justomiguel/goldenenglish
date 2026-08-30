@@ -274,3 +274,14 @@
 .ez-landing.mz-landing .mz-hero-surface {
   background-color: var(--ez-black);
 }
+
+/* Shared public pages (privacy) — cyan-soft and white on black. */
+.ez-public-sheet {
+  --color-heading: #ffffff;
+  --color-primary: var(--ez-cyan-soft);
+  --color-foreground: #ffffff;
+  --color-muted-foreground: rgb(255 255 255 / 0.78);
+  --color-background: #070b12;
+  --color-border: rgb(0 174 239 / 0.35);
+  color: #ffffff;
+}

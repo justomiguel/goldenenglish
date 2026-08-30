@@ -61,6 +61,8 @@ vi.mock("@/lib/push/pushAfterNotify", () => ({
 
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logServerWarn: vi.fn(),
+  logServerInfo: vi.fn(),
+  logServerError: vi.fn(),
   logServerException: vi.fn(),
   logSupabaseClientError: vi.fn(),
 }));

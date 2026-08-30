@@ -66,8 +66,16 @@ async function fillNagoRegisterExtrasIfPresent(page: Page) {
   }
 }
 
+async function acceptRegisterPrivacyIfPresent(page: Page) {
+  const box = page.locator('input[name="privacy_accepted"]');
+  if (await box.isVisible().catch(() => false)) {
+    await box.check();
+  }
+}
+
 /** Details CTA is Submit on classic tenants, Continue + extras on Nagô. */
 export async function submitRegisterAfterDetails(page: Page) {
+  await acceptRegisterPrivacyIfPresent(page);
   const submit = page.getByRole("button", { name: SUBMIT_NAME });
   if (!(await submit.isVisible().catch(() => false))) {
     await page.getByRole("button", { name: /continuar|continue/i }).click();

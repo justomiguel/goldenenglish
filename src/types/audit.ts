@@ -1,6 +1,6 @@
 import type { AuditDomain, AuditJsonObject } from "@/lib/audit/types";
 
-export type AuditSortKey = "created_at" | "actor" | "domain" | "action" | "resource";
+export type AuditSortKey = "created_at" | "actor" | "domain" | "action" | "resource" | "summary";
 export type AuditSortDir = "asc" | "desc";
 
 export interface AdminAuditRow {

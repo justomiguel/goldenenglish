@@ -21,6 +21,8 @@ Analytics/audit trails (**08**) complement—but **never replace**—support-gra
 | Expected authorization/session denials | `logServerAuthzDenied` | `assertAdmin` etc.—**warn**, not noisy error severity. |
 | Auth admin collisions / constrained contexts | `logAuthAdminCreateUserFailure` | Follow inline helper allowances (email collisions only where documented). |
 | Known operational rejects (business 422…) | `logServerWarn` *(or contextual Supabase/logServer helpers)* | Must still include stable **`scope` + codes**. |
+| Operational breadcrumbs (accepted email send, recipient counts) | `logServerInfo` | Same prefix; **no** mailboxes or var values. |
+| Structured failure without an `Error` object | `logServerError` | Flat `meta` (e.g. `[ge:server] sendBrandedEmail`). |
 
 Read module header comments inside `serverActionLog.ts` before spawning parallel helpers.
 

@@ -5,6 +5,7 @@ import { RegisterForm } from "@/components/register/RegisterForm";
 import { RegisterCollage } from "@/components/molecules/RegisterCollage";
 import { RegisterSiteHeader } from "@/components/molecules/RegisterSiteHeader";
 import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
+import { PublicPrivacyFooterLink } from "@/components/molecules/PublicPrivacyFooterLink";
 import type { SectionEnrollmentLinkContext } from "@/lib/register/sectionEnrollmentLink";
 import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 
@@ -69,7 +70,17 @@ export function RegisterClassicSurface({
           </p>
         </div>
       </div>
-      <PublicContentLanguageFooter locale={locale} labels={dict.common.locale} />
+      <PublicContentLanguageFooter
+        locale={locale}
+        labels={dict.common.locale}
+        extra={
+          <PublicPrivacyFooterLink
+            locale={locale}
+            label={dict.privacy.footerLink}
+            className="text-sm text-[var(--color-muted-foreground)] underline decoration-current/30 underline-offset-2 hover:text-[var(--color-foreground)]"
+          />
+        }
+      />
     </div>
   );
 }

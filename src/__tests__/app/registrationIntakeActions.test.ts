@@ -98,6 +98,7 @@ describe("waiveRegistrationFeeAction", () => {
       locale: "es",
       registrationId: REG_ID,
       reason: "  ",
+      joinDisposition: { kind: "behind" },
     });
     expect(r).toEqual({ ok: false, code: "reason_required" });
     expect(mocks.accept).not.toHaveBeenCalled();
@@ -109,6 +110,7 @@ describe("waiveRegistrationFeeAction", () => {
       locale: "es",
       registrationId: REG_ID,
       reason: "beca",
+      joinDisposition: { kind: "behind" },
     });
     expect(r).toEqual({ ok: true });
     expect(mocks.accept).toHaveBeenCalledWith(
@@ -149,6 +151,7 @@ describe("assignRegistrationSectionAction", () => {
       locale: "es",
       registrationId: REG_ID,
       sectionId: SEC_ID,
+      joinDisposition: { kind: "behind" },
     });
     expect(r).toEqual({ ok: false, code: "section_full" });
     expect(mocks.accept).not.toHaveBeenCalled();

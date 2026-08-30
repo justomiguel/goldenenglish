@@ -13,6 +13,8 @@ import { Label } from "@/components/atoms/Label";
 import { AdminRegistrationAcceptSectionPicker } from "@/components/dashboard/AdminRegistrationAcceptSectionPicker";
 import { AdminRegistrationAcceptExplainer } from "@/components/dashboard/AdminRegistrationAcceptExplainer";
 import { AdminRegistrationAcceptSummary } from "@/components/dashboard/AdminRegistrationAcceptSummary";
+import { AdminRegistrationJoinBillingFields } from "@/components/dashboard/AdminRegistrationJoinBillingFields";
+import type { JoinBillingDisposition } from "@/lib/billing/joinBillingDispositionSchema";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { Dictionary } from "@/types/i18n";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
@@ -53,6 +55,7 @@ export function AdminRegistrationAcceptForm({
     row.birth_date && /^\d{4}-\d{2}-\d{2}/.test(row.birth_date),
   );
   const [birth, setBirth] = useState("");
+  const [joinDisposition, setJoinDisposition] = useState<JoinBillingDisposition | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [step, setStep] = useState<"accept" | "section">("accept");
   const [acceptedStudentId, setAcceptedStudentId] = useState<string | null>(null);
@@ -71,11 +74,16 @@ export function AdminRegistrationAcceptForm({
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!joinDisposition) {
+      setFormError(labels.joinBilling.required);
+      return;
+    }
     onBusy(row.id);
     setFormError(null);
     const res: AcceptRegistrationResult = await acceptRegistration(locale, {
       registration_id: row.id,
       birth_date: birth.trim() || undefined,
+      join_disposition: joinDisposition,
     });
     onBusy(null);
     if (res.ok) {
@@ -109,6 +117,7 @@ export function AdminRegistrationAcceptForm({
       locale,
       studentId: acceptedStudentId,
       sectionId,
+      joinDisposition,
     });
     onBusy(null);
     if (res.ok) {
@@ -173,6 +182,14 @@ export function AdminRegistrationAcceptForm({
             </p>
           </div>
         ) : null}
+
+        <AdminRegistrationJoinBillingFields
+          locale={locale}
+          namePrefix={`join-${row.id}`}
+          value={joinDisposition}
+          onChange={setJoinDisposition}
+          labels={labels.joinBilling}
+        />
 
         {formError ? (
           <p className="text-sm text-[var(--color-error)]" role="alert">

@@ -5,6 +5,9 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Dictionary } from "@/types/i18n";
 import { Button } from "@/components/atoms/Button";
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import { approveSectionTransferRequestAction } from "@/app/[locale]/dashboard/admin/academics/actions";
 import type { AcademicTransferNotificationDict } from "@/app/[locale]/dashboard/admin/academic/transferActions";
 
@@ -32,6 +35,16 @@ export function AcademicPendingTransfers({
   const d = dict.dashboard.academics.pendingTransfers;
   const router = useRouter();
   const [pending, start] = useTransition();
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    rows,
+    {
+      studentId: (r) => r.studentId,
+      fromSectionId: (r) => r.fromSectionId,
+      toSectionId: (r) => r.toSectionId,
+    },
+    "studentId",
+  );
 
   if (rows.length === 0) {
     return <p className="text-sm text-[var(--color-muted-foreground)]">{d.empty}</p>;
@@ -42,14 +55,14 @@ export function AcademicPendingTransfers({
       <table className="min-w-full text-left text-sm">
         <thead className="bg-[var(--color-muted)]/50 text-xs uppercase text-[var(--color-muted-foreground)]">
           <tr>
-            <th className="px-3 py-2">{d.colStudent}</th>
-            <th className="px-3 py-2">{d.colFrom}</th>
-            <th className="px-3 py-2">{d.colTo}</th>
+            <SortableTh columnId="studentId" label={d.colStudent} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+            <SortableTh columnId="fromSectionId" label={d.colFrom} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+            <SortableTh columnId="toSectionId" label={d.colTo} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
             <th className="px-3 py-2">{d.colAction}</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
+          {sortedRows.map((r) => (
             <tr key={r.id} className="border-t border-[var(--color-border)]">
               <td className="px-3 py-2 font-mono text-xs">{r.studentId}</td>
               <td className="px-3 py-2 font-mono text-xs">{r.fromSectionId}</td>

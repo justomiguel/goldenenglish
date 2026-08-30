@@ -27,12 +27,15 @@ const REGISTRATION_COLUMNS = [
   "contacted_at", "contacted_by", "source_section_link_id", "tenant_extras",
   "intake_state", "fee_snapshot", "fee_captured", "enrollment_fee_receipt_path",
   "intent", "trial_convert_token", "trial_convert_expires_at", "trial_refund_due_amount",
+  "privacy_accepted_at", "privacy_policy_version",
 ].join(", ");
 
 const SORT_COLUMN_MAP: Record<RegistrationSortKey, string> = {
   name: "last_name",
   dni: "dni",
   email: "email",
+  phoneStudent: "phone",
+  phoneTutor: "tutor_phone",
   level: "level_interest",
   birth: "birth_date",
   status: "status",
@@ -90,6 +93,8 @@ type RegistrationSelectRow = {
   trial_convert_token?: string | null;
   trial_convert_expires_at?: string | null;
   trial_refund_due_amount?: unknown;
+  privacy_accepted_at?: string | null;
+  privacy_policy_version?: string | null;
 };
 
 function buildSearchFilter(q: string): string {
@@ -208,6 +213,9 @@ export async function loadPaginatedRegistrations(
     trialConvertExpiresAt:
       r.trial_convert_expires_at != null ? String(r.trial_convert_expires_at) : null,
     trialRefundDueAmount: Number(r.trial_refund_due_amount ?? 0) || 0,
+    privacy_accepted_at: r.privacy_accepted_at != null ? String(r.privacy_accepted_at) : null,
+    privacy_policy_version:
+      r.privacy_policy_version != null ? String(r.privacy_policy_version) : null,
     ...mapInboxLeadFields(r),
   }));
   const requestedIds = rows.flatMap((r) => requestedRegistrationSectionIds(r));

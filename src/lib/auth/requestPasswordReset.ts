@@ -41,7 +41,7 @@ export interface RequestPasswordResetParams {
  *     itself — that is the whole point of `generateLink` vs the deprecated
  *     auto-mail path).
  *  2. Deliver the link via our `EmailProvider` (Resend in production), with
- *     branded HTML pulled from the dictionary.
+ *     branded HTML from the email template registry.
  *
  * The function deliberately returns `{ ok: true }` even when the email is not
  * registered: leaking existence would let an attacker enumerate users (OWASP

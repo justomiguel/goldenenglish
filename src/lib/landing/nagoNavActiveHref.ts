@@ -1,4 +1,11 @@
-const LANDING_SECTION_IDS = ["top", "sobre", "principios", "galeria", "contacto"] as const;
+const LANDING_SECTION_IDS = [
+  "top",
+  "clases",
+  "horarios",
+  "nago",
+  "galeria",
+  "contacto",
+] as const;
 
 export type NagoNavSectionId = (typeof LANDING_SECTION_IDS)[number];
 

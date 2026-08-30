@@ -68,6 +68,8 @@ function makeSupabase() {
             contacted_at: null,
             contacted_by: null,
             source_section_link_id: null,
+            privacy_accepted_at: "2026-08-29T16:00:00.000Z",
+            privacy_policy_version: "2026-08-29",
           },
         ],
         error: null,
@@ -153,6 +155,8 @@ describe("loadPaginatedRegistrations", () => {
     expect(result.rows[0]?.existingStudentId).toBeNull();
     expect(result.rows[0]?.requestedSectionFull).toBe(false);
     expect(result.rows[0]?.chargesEnrollmentFee).toBe(true);
+    expect(result.rows[0]?.privacy_accepted_at).toBe("2026-08-29T16:00:00.000Z");
+    expect(result.rows[0]?.privacy_policy_version).toBe("2026-08-29");
   });
 
   it("filters preferred or additional section ids together", async () => {

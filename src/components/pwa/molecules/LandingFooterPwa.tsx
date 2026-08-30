@@ -102,6 +102,9 @@ export function LandingFooterPwa({
             />
             {dict.publicContact.footerCta}
           </Link>
+          <Link href={`/${locale}/privacidad`} className={secondaryBtnClass}>
+            {dict.privacy.footerLink}
+          </Link>
           {brand.socialInstagram ? (
             <a
               href={brand.socialInstagram}

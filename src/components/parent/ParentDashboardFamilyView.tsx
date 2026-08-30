@@ -161,6 +161,7 @@ export function ParentDashboardFamilyView({
       {hub ? (
         <div className="space-y-6 border-t border-[var(--color-border)] pt-6">
           <ParentHubLogisticsTable
+            locale={locale}
             rows={hub.logisticsRows}
             scheduleOverlap={hub.scheduleOverlap}
             dict={labels.hub}

@@ -1,29 +1,82 @@
 /**
- * Capoeira Nagô — Academia: negro cinematográfico, oro champagne, verde bosque
- * solo como susurro. Lectura C sobre foto: contorno oro + sombra negra.
+ * Capoeira Nagô — graphite, gold, discreet Brasil × Chile.
+ * Athletic editorial. No flyer type, no metallic chrome, no giant flags.
  */
 .nago-landing {
   --nago-bg: #070707;
-  --nago-bg-2: #111111;
+  --nago-bg-2: #101010;
   --nago-gold: #c9a227;
   --nago-gold-soft: #e0c56a;
   --nago-green: #1f6b3a;
   --nago-green-light: #2d8a4c;
+  --nago-chile-blue: #1d4e89;
+  --nago-chile-red: #9b1d2e;
   --nago-blue: #c9a227;
   --nago-blue-hover: #e0c56a;
   --nago-blue-soft: #e0c56a;
   --nago-ink: #f3eee4;
-  --nago-ink-muted: #b7afa2;
+  --nago-ink-muted: #c9c2b6;
   --nago-footer: #000000;
   --nago-beige: #111111;
   --nago-heading-solid: #fff8e7;
+  --nago-ink-on-light: #141414;
+  --nago-ink-muted-on-light: #5c564c;
+  --nago-field: #161616;
+  --nago-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --nago-header-h: 4rem;
+  --color-foreground: var(--nago-ink);
+  --color-muted-foreground: var(--nago-ink-muted);
+  --color-surface: #141414;
+  --color-background: var(--nago-bg);
+  --color-muted: #1c1c1c;
+  --color-heading: var(--nago-heading-solid);
+  --color-primary: var(--nago-gold);
+  --color-primary-foreground: #111111;
+  --color-primary-dark: var(--nago-gold-soft);
+  --color-secondary: #1a1a1a;
+  --color-secondary-foreground: var(--nago-heading-solid);
+  --color-secondary-dark: #242424;
+  --color-border: rgb(201 162 39 / 0.32);
+  --color-accent: var(--nago-gold-soft);
+  --rdp-accent-color: var(--nago-gold);
+  --rdp-background-color: #141414;
+  --rdp-accent-background-color: color-mix(in srgb, var(--nago-gold) 18%, #141414);
+  color-scheme: dark;
   background-color: var(--nago-bg);
   color: var(--nago-ink);
   position: relative;
 }
 
+@media (min-width: 640px) {
+  .nago-landing {
+    --nago-header-h: 4.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .nago-landing {
+    --nago-header-h: 4.5rem;
+  }
+}
+
 html:has(.nago-landing) {
   scroll-behavior: smooth;
+  background-color: #070707;
+  color-scheme: dark;
+  --color-foreground: #f3eee4;
+  --color-muted-foreground: #c9c2b6;
+  --color-surface: #141414;
+  --color-background: #070707;
+  --color-muted: #1c1c1c;
+  --color-heading: #fff8e7;
+  --color-primary: #c9a227;
+  --color-primary-foreground: #111111;
+  --color-primary-dark: #e0c56a;
+  --color-secondary: #1a1a1a;
+  --color-secondary-foreground: #fff8e7;
+  --color-secondary-dark: #242424;
+  --color-border: rgb(201 162 39 / 0.32);
+  --color-accent: #e0c56a;
 }
 
 .nago-grain {
@@ -31,7 +84,7 @@ html:has(.nago-landing) {
   inset: 0;
   z-index: 70;
   pointer-events: none;
-  opacity: 0.04;
+  opacity: 0.035;
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='nagoGrain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23nagoGrain)'/%3E%3C/svg%3E");
   background-repeat: repeat;
@@ -39,13 +92,38 @@ html:has(.nago-landing) {
 }
 
 .nago-public-sheet {
-  --color-foreground: var(--nago-ink);
-  --color-muted-foreground: var(--nago-ink-muted);
-  --color-surface: var(--nago-bg-2);
-  --color-secondary: var(--nago-heading-solid);
-  --color-primary: var(--nago-gold);
-  --color-border: rgb(201 162 39 / 0.28);
+  background: var(--color-surface);
   color: var(--nago-ink);
+}
+
+.nago-landing input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+.nago-landing select,
+.nago-landing textarea {
+  background-color: var(--nago-field);
+  color: var(--nago-ink);
+  border-color: rgb(201 162 39 / 0.38);
+  color-scheme: dark;
+}
+
+.nago-landing input::placeholder,
+.nago-landing textarea::placeholder {
+  color: var(--nago-ink-muted);
+  opacity: 1;
+}
+
+.nago-landing input:-webkit-autofill,
+.nago-landing input:-webkit-autofill:hover,
+.nago-landing input:-webkit-autofill:focus,
+.nago-landing textarea:-webkit-autofill,
+.nago-landing select:-webkit-autofill {
+  -webkit-text-fill-color: var(--nago-ink);
+  caret-color: var(--nago-ink);
+  box-shadow: 0 0 0 1000px var(--nago-field) inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+.nago-logo-knockout {
+  background: transparent;
 }
 
 @keyframes nago-kenburns {
@@ -53,7 +131,7 @@ html:has(.nago-landing) {
     transform: scale(1);
   }
   to {
-    transform: scale(1.18);
+    transform: scale(1.12);
   }
 }
 
@@ -69,7 +147,7 @@ html:has(.nago-landing) {
 @keyframes nago-fade-in-up {
   from {
     opacity: 0;
-    transform: translate3d(0, 28px, 0);
+    transform: translate3d(0, 22px, 0);
   }
   to {
     opacity: 1;
@@ -86,16 +164,25 @@ html:has(.nago-landing) {
   }
 }
 
+@keyframes nago-line-draw {
+  from {
+    stroke-dashoffset: 120;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 .nago-hero-bg {
   position: relative;
-  min-height: 88vh;
+  min-height: 100svh;
   overflow: hidden;
   background-color: var(--nago-bg);
 }
 
 .nago-hero-parallax {
   position: absolute;
-  inset: -14% 0;
+  inset: -12% 0;
   will-change: transform;
 }
 
@@ -103,8 +190,81 @@ html:has(.nago-landing) {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  animation: nago-kenburns 22s linear infinite alternate;
+  animation: nago-kenburns 28s linear infinite alternate;
   transform-origin: center center;
+}
+
+.nago-hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.9s var(--nago-ease);
+}
+
+.nago-hero-slide.is-active {
+  opacity: 1;
+  z-index: 1;
+}
+
+.nago-hero-carousel {
+  position: absolute;
+  right: max(1.25rem, env(safe-area-inset-right));
+  bottom: 3.6rem;
+  left: max(1.25rem, env(safe-area-inset-left));
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.nago-hero-dots {
+  display: flex;
+  gap: 0.45rem;
+  pointer-events: auto;
+}
+
+.nago-hero-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.38);
+}
+
+.nago-hero-dot.is-active {
+  background: var(--nago-gold);
+}
+
+.nago-hero-arrow {
+  display: none;
+  min-height: 44px;
+  min-width: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: rgb(255 255 255 / 0.7);
+  font-size: 1.6rem;
+  line-height: 1;
+  pointer-events: auto;
+}
+
+@media (min-width: 768px) {
+  .nago-hero-carousel {
+    justify-content: space-between;
+  }
+
+  .nago-hero-arrow {
+    display: inline-flex;
+  }
+
+  .nago-hero-dots {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
 }
 
 .nago-hero-overlay {
@@ -113,8 +273,8 @@ html:has(.nago-landing) {
   z-index: 1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 58% 48% at 50% 46%, rgb(0 0 0 / 0.42) 0%, rgb(0 0 0 / 0.14) 68%, rgb(0 0 0 / 0.5) 100%),
-    linear-gradient(180deg, rgb(0 0 0 / 0.42) 0%, rgb(0 0 0 / 0.1) 40%, rgb(0 0 0 / 0.62) 100%);
+    linear-gradient(90deg, rgb(0 0 0 / 0.72) 0%, rgb(0 0 0 / 0.38) 48%, rgb(0 0 0 / 0.28) 100%),
+    linear-gradient(180deg, rgb(0 0 0 / 0.42) 0%, rgb(0 0 0 / 0.12) 42%, rgb(0 0 0 / 0.7) 100%);
 }
 
 .nago-hero-text-veil {
@@ -129,118 +289,89 @@ html:has(.nago-landing) {
 
 .nago-hero-lockup {
   display: flex;
-  min-height: 88vh;
+  min-height: 100svh;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  align-items: flex-start;
+  justify-content: flex-end;
+  text-align: left;
+  padding-top: var(--nago-header-h);
+  padding-bottom: 5.5rem;
 }
 
 .nago-hero-lockup > *:not(.nago-hero-rule) {
   opacity: 0;
-  animation: nago-fade-in-up 0.95s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: nago-fade-in-up 0.85s var(--nago-ease) both;
 }
 
 .nago-hero-lockup > *:nth-child(1) {
-  animation-delay: 0.12s;
+  animation-delay: 0.1s;
 }
 
 .nago-hero-lockup > *:nth-child(2) {
-  animation-delay: 0.28s;
+  animation-delay: 0.22s;
 }
 
 .nago-hero-lockup > *:nth-child(3) {
-  animation-delay: 0.42s;
+  animation-delay: 0.34s;
 }
 
 .nago-hero-lockup > *:nth-child(4) {
-  animation-delay: 0.56s;
+  animation-delay: 0.46s;
 }
 
 .nago-hero-lockup > *:nth-child(5) {
-  animation-delay: 0.7s;
+  animation-delay: 0.58s;
 }
 
-.nago-hero-kicker {
-  margin-bottom: 0.85rem;
-  font-size: 0.75rem;
-  letter-spacing: 0.46em;
-  text-transform: uppercase;
-  color: var(--nago-gold-soft);
-  text-shadow:
-    0 1px 3px rgb(0 0 0 / 0.95),
-    0 6px 18px rgb(0 0 0 / 0.7);
-}
-
-.nago-hero-rule {
-  width: 4.5rem;
-  height: 1px;
-  margin: 1.1rem auto;
-  background: var(--nago-gold);
-  transform-origin: center;
-  animation:
-    nago-fade-in 0.4s ease 0.42s both,
-    nago-rule-draw 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.42s both;
-}
-
-.nago-type-c,
 .nago-hero-title {
-  color: #fff8e7;
-  -webkit-text-stroke: 1.5px var(--nago-gold);
-  paint-order: stroke fill;
-  text-shadow:
-    0 0 0 #000,
-    0 2px 0 rgb(0 0 0 / 0.9),
-    0 6px 18px rgb(0 0 0 / 0.75);
+  color: #fff;
+  letter-spacing: -0.03em;
+  text-shadow: 0 8px 28px rgb(0 0 0 / 0.45);
+}
+
+.nago-hero-title-accent {
+  color: var(--nago-gold);
 }
 
 .nago-hero-subtitle {
   color: #fff;
-  text-shadow:
-    0 1px 3px rgb(0 0 0 / 0.95),
-    0 6px 18px rgb(0 0 0 / 0.7);
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 12px rgb(0 0 0 / 0.55);
 }
 
-.nago-offer {
-  position: relative;
-  display: grid;
-  min-height: 16rem;
-  place-items: center;
-  overflow: hidden;
-  padding: 3rem 1.25rem;
-  text-align: center;
+.nago-hero-rule {
+  width: 3.25rem;
+  height: 1px;
+  margin: 1.1rem 0;
+  background: var(--nago-gold);
+  transform-origin: left;
+  animation:
+    nago-fade-in 0.35s ease 0.34s both,
+    nago-rule-draw 0.7s var(--nago-ease) 0.34s both;
 }
 
-.nago-offer-ken {
+.nago-hero-discover {
   position: absolute;
-  inset: 0;
-  background-image: url("/images/nago/galeria/Screenshot%202026-05-09%20at%2011.45.57.png");
-  background-size: cover;
-  background-position: center 20%;
-  animation: nago-kenburns 26s linear infinite alternate;
+  bottom: 1.4rem;
+  left: 50%;
+  z-index: 6;
+  display: flex;
+  transform: translateX(-50%);
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  color: rgb(255 255 255 / 0.7);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
 }
 
-.nago-offer-ken::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgb(0 0 0 / 0.68), rgb(0 0 0 / 0.74));
-}
-
-.nago-offer-title {
-  position: relative;
-  z-index: 2;
-  max-width: 51rem;
-  color: #fff8e7;
-  -webkit-text-stroke: 0.8px var(--nago-gold);
-  paint-order: stroke fill;
-  text-shadow:
-    0 2px 0 rgb(0 0 0 / 0.9),
-    0 6px 18px rgb(0 0 0 / 0.75);
-}
-
-.nago-section-beige {
-  background-color: var(--nago-beige);
+.nago-hero-discover-arrow {
+  width: 1px;
+  height: 1.35rem;
+  background: var(--nago-gold);
+  animation: nago-fade-in-up 1.4s var(--nago-ease) infinite;
 }
 
 .nago-btn {
@@ -251,22 +382,27 @@ html:has(.nago-landing) {
   gap: 0.5rem;
   border-radius: 999px;
   border: 1px solid var(--nago-gold);
-  padding: 0.75rem 2rem;
-  font-size: 0.75rem;
+  padding: 0.75rem 1.65rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--nago-gold);
   background: transparent;
   transition:
-    background-color 0.35s ease,
-    color 0.35s ease,
-    border-color 0.35s ease;
+    background-color 0.28s var(--nago-ease),
+    color 0.28s var(--nago-ease),
+    border-color 0.28s var(--nago-ease),
+    transform 0.28s var(--nago-ease);
 }
 
 .nago-btn:hover {
   background: var(--nago-gold);
   color: #111;
+}
+
+.nago-btn:active {
+  transform: scale(0.98);
 }
 
 .nago-btn-solid {
@@ -279,20 +415,36 @@ html:has(.nago-landing) {
   border-color: var(--nago-gold-soft);
 }
 
-.nago-site-header {
-  background: rgb(0 0 0 / 0.28);
-  border-bottom-color: transparent;
-  backdrop-filter: blur(0);
-  transition:
-    background-color 0.45s ease,
-    border-color 0.45s ease,
-    backdrop-filter 0.45s ease;
+.nago-btn-dark {
+  background: rgb(0 0 0 / 0.45);
+  border-color: rgb(201 162 39 / 0.45);
+  color: #fff;
 }
 
-.nago-site-header.is-scrolled {
-  background: #000;
-  border-bottom-color: rgb(201 162 39 / 0.25);
-  backdrop-filter: blur(12px);
+.nago-btn-dark:hover {
+  background: rgb(201 162 39 / 0.16);
+  color: var(--nago-gold-soft);
+}
+
+.nago-site-header {
+  background: #0a0a0a;
+  border-bottom: 0;
+  line-height: 0;
+  box-shadow: 0 1px 0 rgb(201 162 39 / 0.12);
+}
+
+.nago-site-header.is-overlay {
+  background: rgb(8 8 8 / 0.62);
+  box-shadow: none;
+}
+
+.nago-site-header.is-overlay.is-scrolled {
+  background: rgb(8 8 8 / 0.88);
+  box-shadow: 0 1px 0 rgb(201 162 39 / 0.12);
+}
+
+.nago-site-header.is-overlay .nago-site-header-spacer {
+  display: none;
 }
 
 .nago-nav-link {
@@ -302,14 +454,14 @@ html:has(.nago-landing) {
 .nago-nav-link::after {
   content: "";
   position: absolute;
-  right: 0.75rem;
-  bottom: 0.55rem;
-  left: 0.75rem;
+  right: 0.55rem;
+  bottom: 0.45rem;
+  left: 0.55rem;
   height: 1px;
   background: var(--nago-gold);
   transform: scaleX(0);
   transform-origin: center;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.32s var(--nago-ease);
 }
 
 .nago-nav-link:hover::after,
@@ -322,16 +474,41 @@ html:has(.nago-landing) {
   color: var(--nago-gold);
 }
 
+.nago-sound-toggle {
+  display: inline-flex;
+  min-height: 44px;
+  min-width: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: rgb(255 255 255 / 0.72);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.nago-sound-toggle[aria-pressed="true"] {
+  color: var(--nago-gold);
+}
+
 .nago-mobile-drawer {
+  position: absolute;
+  inset-inline: 0;
+  top: 100%;
   display: grid;
   grid-template-rows: 0fr;
+  height: 0;
+  overflow: hidden;
   opacity: 0;
   pointer-events: none;
   transform: translate3d(0, -0.6rem, 0);
   transition:
-    grid-template-rows 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    grid-template-rows 0.38s var(--nago-ease),
+    height 0.38s var(--nago-ease),
     opacity 0.28s ease,
-    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    transform 0.38s var(--nago-ease);
 }
 
 .nago-mobile-drawer-inner {
@@ -340,6 +517,7 @@ html:has(.nago-landing) {
 }
 
 .nago-mobile-drawer.is-open {
+  height: auto;
   opacity: 1;
   pointer-events: auto;
   transform: none;
@@ -348,11 +526,11 @@ html:has(.nago-landing) {
 
 .nago-reveal {
   opacity: 0;
-  transform: translate3d(0, 28px, 0);
+  transform: translate3d(0, 22px, 0);
 }
 
 .nago-reveal.is-in {
-  animation: nago-fade-in-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: nago-fade-in-up 0.8s var(--nago-ease) both;
 }
 
 .nago-reveal-media {
@@ -362,11 +540,11 @@ html:has(.nago-landing) {
 }
 
 .nago-reveal-media > * {
-  transform: scale(1.08);
-  clip-path: inset(10% 0 10% 0);
+  transform: scale(1.06);
+  clip-path: inset(8% 0 8% 0);
   transition:
-    transform 1.15s cubic-bezier(0.22, 1, 0.36, 1),
-    clip-path 1.15s cubic-bezier(0.22, 1, 0.36, 1);
+    transform 1.05s var(--nago-ease),
+    clip-path 1.05s var(--nago-ease);
 }
 
 .nago-reveal-media.is-in > * {
@@ -380,51 +558,339 @@ html:has(.nago-landing) {
 }
 
 .nago-reveal.is-in .nago-rule-soft {
-  animation: nago-rule-draw 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+  animation: nago-rule-draw 0.7s var(--nago-ease) 0.12s both;
 }
 
 .nago-reveal.d1.is-in {
-  animation-delay: 0.12s;
+  animation-delay: 0.1s;
 }
 
 .nago-reveal.d2.is-in {
-  animation-delay: 0.24s;
+  animation-delay: 0.2s;
 }
 
 .nago-reveal.d3.is-in {
-  animation-delay: 0.36s;
+  animation-delay: 0.3s;
 }
 
-.nago-principle-icon {
-  display: none;
+.nago-display {
+  font-family: var(--font-nago-display), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
 }
 
-.nago-principle-item {
-  border-top: 1px solid rgb(201 162 39 / 0.28);
-  padding-top: 1.35rem;
-  text-align: center;
+.nago-section {
+  padding-block: 4rem;
 }
 
-.nago-gallery-frame {
-  position: relative;
+.nago-horario-list {
+  display: grid;
+  border-block: 1px solid rgb(201 162 39 / 0.2);
+}
+
+.nago-horario-row {
+  display: grid;
+  gap: 0.75rem 1.5rem;
+  padding-block: 1.15rem;
+  border-bottom: 1px solid rgb(201 162 39 / 0.2);
+}
+
+.nago-horario-row:last-child {
+  border-bottom: 0;
+}
+
+.nago-horario-title {
+  font-family: var(--font-nago-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nago-heading-solid);
+}
+
+.nago-horario-ages {
+  margin-top: 0.2rem;
+  font-size: 0.8125rem;
+  color: var(--nago-ink-muted);
+}
+
+.nago-horario-slots {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--nago-ink);
+}
+
+.nago-horario-extra {
+  margin-top: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--nago-gold-soft);
+}
+
+.nago-horario-fees {
+  padding-top: 0.25rem;
+}
+
+.nago-horario-fees-title {
+  font-family: var(--font-nago-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nago-gold-soft);
+}
+
+.nago-fee-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.nago-fee-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 5.5rem;
+  padding: 0.85rem 0.9rem 0.95rem;
+  border: 1px solid rgb(201 162 39 / 0.28);
+  background: #141414;
+}
+
+.nago-fee-card[data-featured="true"] {
+  border-color: rgb(201 162 39 / 0.55);
+  background: color-mix(in srgb, var(--nago-gold) 10%, #141414);
+}
+
+.nago-fee-times {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nago-gold-soft);
+}
+
+.nago-fee-amount {
+  font-family: var(--font-nago-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.45rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--nago-heading-solid);
+  line-height: 1.1;
+}
+
+.nago-fee-aside {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+}
+
+.nago-fee-note {
+  padding: 0.95rem 1rem;
+  border: 1px solid rgb(201 162 39 / 0.22);
+  background: #121212;
+}
+
+.nago-fee-note-kicker {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nago-gold-soft);
+}
+
+.nago-fee-note p + p {
+  margin-top: 0.35rem;
+}
+
+@media (min-width: 768px) {
+  .nago-fee-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .nago-fee-aside {
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: stretch;
+  }
+}
+
+@media (min-width: 768px) {
+  .nago-horario-row {
+    grid-template-columns: minmax(11rem, 16rem) 1fr;
+    align-items: start;
+  }
+}
+
+.nago-pillars {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.nago-pillar-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--nago-gold);
+}
+
+.nago-pillar-icon path,
+.nago-pillar-icon circle {
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+}
+
+.nago-reveal.is-in .nago-pillar-icon path,
+.nago-reveal.is-in .nago-pillar-icon circle {
+  animation: nago-line-draw 0.85s var(--nago-ease) both;
+}
+
+.nago-program-card {
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  border-radius: 14px;
+  background: #141414;
+  color: var(--nago-ink);
+  border: 1px solid rgb(201 162 39 / 0.2);
 }
 
-.nago-gallery-frame img {
-  transition: transform 8s linear;
+.nago-program-card-media {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
 }
 
-.nago-gallery-frame:hover img {
-  transform: scale(1.08);
+.nago-program-card-media img {
+  transition: transform 0.7s var(--nago-ease);
+}
+
+.nago-program-card:hover .nago-program-card-media img {
+  transform: scale(1.05);
+}
+
+.nago-program-card-bar {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 3.4rem;
+  padding: 0.55rem 0.85rem;
+  color: #fff;
+}
+
+.nago-program-card-bar[data-tone="ninos"] {
+  background: var(--nago-green);
+}
+
+.nago-program-card-bar[data-tone="jovenes"] {
+  background: var(--nago-chile-blue);
+}
+
+.nago-program-card-bar[data-tone="adultos"] {
+  background: var(--nago-chile-red);
+}
+
+.nago-program-card-bar[data-tone="mayores"] {
+  background: var(--nago-gold);
+  color: #141414;
+}
+
+.nago-program-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 0.9rem 0.9rem 1rem;
+}
+
+.nago-experience-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.nago-stat {
+  border-top: 1px solid rgb(201 162 39 / 0.28);
+  padding-top: 0.9rem;
+}
+
+.nago-masonry {
+  columns: 1;
+  column-gap: 0.7rem;
+}
+
+.nago-masonry-item {
+  break-inside: avoid;
+  margin-bottom: 0.7rem;
+}
+
+.nago-masonry-item img {
+  transition: transform 0.55s var(--nago-ease);
+}
+
+.nago-masonry-item:hover img {
+  transform: scale(1.03);
+}
+
+.nago-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 0.92);
+  padding: 1.25rem;
+}
+
+.nago-band-light {
+  background: #0c0c0c;
+}
+
+.nago-band-sand {
+  background: var(--nago-bg-2);
+}
+
+.nago-event-card {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 1rem;
+  align-items: center;
+  border-top: 1px solid rgb(201 162 39 / 0.2);
+  padding-block: 1.1rem;
+}
+
+.nago-event-photo {
+  position: relative;
+  display: block;
+  min-height: 15rem;
+  overflow: hidden;
+}
+
+.nago-event-photo-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(0 0 0 / 0.08) 20%, rgb(0 0 0 / 0.78) 100%);
+}
+
+.nago-event-date {
+  min-width: 3.4rem;
+  color: var(--nago-gold);
+  line-height: 1;
+}
+
+.nago-convert {
+  position: relative;
+  min-height: 28rem;
+  overflow: hidden;
+}
+
+.nago-convert-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(0 0 0 / 0.35), rgb(0 0 0 / 0.72));
 }
 
 .nago-social-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 50%;
   border: 1px solid var(--nago-gold);
   background: transparent;
@@ -439,6 +905,55 @@ html:has(.nago-landing) {
   color: #111;
 }
 
+.nago-lead {
+  --color-foreground: var(--nago-ink);
+  --color-muted-foreground: var(--nago-ink-muted);
+  --color-background: #0c0c0c;
+  --color-border: rgb(201 162 39 / 0.28);
+  --color-primary: var(--nago-gold);
+}
+
+.nago-br-dot {
+  display: inline-block;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--nago-green-light), #f1d34a);
+}
+
+.nago-cl-dot {
+  display: inline-block;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--nago-chile-blue), var(--nago-chile-red));
+}
+
+@media (min-width: 640px) {
+  .nago-masonry {
+    columns: 2;
+  }
+
+  .nago-pillars {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .nago-pillars {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .nago-masonry {
+    columns: 3;
+  }
+
+  .nago-section {
+    padding-block: 5.5rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html:has(.nago-landing) {
     scroll-behavior: auto;
@@ -446,19 +961,23 @@ html:has(.nago-landing) {
 
   .nago-hero-parallax,
   .nago-hero-ken,
-  .nago-offer-ken,
+  .nago-hero-slide,
   .nago-hero-lockup,
   .nago-hero-lockup > *,
   .nago-hero-rule,
+  .nago-hero-discover-arrow,
   .nago-reveal,
   .nago-reveal.is-in,
   .nago-reveal.is-in .nago-rule-soft,
   .nago-btn,
   .nago-nav-link::after,
   .nago-mobile-drawer,
-  .nago-gallery-frame img,
+  .nago-program-card img,
+  .nago-masonry-item img,
   .nago-reveal-media > *,
-  .nago-site-header {
+  .nago-site-header,
+  .nago-pillar-icon path,
+  .nago-pillar-icon circle {
     animation: none !important;
     transition: none !important;
   }
@@ -473,5 +992,10 @@ html:has(.nago-landing) {
   .nago-reveal-media > * {
     clip-path: none;
     transform: none;
+  }
+
+  .nago-pillar-icon path,
+  .nago-pillar-icon circle {
+    stroke-dashoffset: 0;
   }
 }

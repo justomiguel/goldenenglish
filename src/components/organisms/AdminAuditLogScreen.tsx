@@ -88,7 +88,7 @@ export function AdminAuditLogScreen(props: AdminAuditLogScreenProps) {
           { id: "domain", label: props.labels.colDomain, thClassName: hdr },
           { id: "action", label: props.labels.colAction, thClassName: hdr },
           { id: "resource", label: props.labels.colResource, thClassName: hdr },
-          { id: "summary", label: props.labels.colSummary, thClassName: hdr, sortable: false },
+          { id: "summary", label: props.labels.colSummary, thClassName: hdr },
         ]}
         sortKey={u.sortKey}
         sortDir={u.sortDir}

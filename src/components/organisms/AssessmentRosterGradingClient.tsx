@@ -7,7 +7,10 @@ import type { AssessmentMatrixRosterRow } from "@/types/assessmentGrades";
 import type { RubricDimensionDef } from "@/types/rubricDimensions";
 import { useAppSurface } from "@/hooks/useAppSurface";
 import { Button } from "@/components/atoms/Button";
+import { SortableTh } from "@/components/molecules/SortableTh";
 import { AssessmentGradingShell } from "@/components/molecules/AssessmentGradingShell";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import { AssessmentGradingEditor } from "@/components/molecules/AssessmentGradingEditor";
 import { AssessmentGradingPathStrip } from "@/components/molecules/AssessmentGradingPathStrip";
 import {
@@ -72,6 +75,15 @@ export function AssessmentRosterGradingClient({
         gradeStatus: statusByEnr[r.enrollmentId] ?? r.gradeStatus,
       })),
     [rows, statusByEnr],
+  );
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    merged,
+    {
+      student: (r) => r.studentLabel,
+      status: (r) => r.gradeStatus ?? "",
+    },
+    "student",
   );
 
   const active = openId ? merged.find((r) => r.enrollmentId === openId) : null;
@@ -151,13 +163,13 @@ export function AssessmentRosterGradingClient({
         <table className="min-w-full text-left text-sm">
           <thead className="bg-[var(--color-muted)]/40">
             <tr>
-              <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{dict.studentColumn}</th>
-              <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{dict.statusColumn}</th>
+              <SortableTh columnId="student" label={dict.studentColumn} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 font-medium text-[var(--color-foreground)]" />
+              <SortableTh columnId="status" label={dict.statusColumn} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 font-medium text-[var(--color-foreground)]" />
               <th className="px-3 py-2 font-medium text-[var(--color-foreground)]" />
             </tr>
           </thead>
           <tbody>
-            {merged.map((row) => (
+            {sortedRows.map((row) => (
               <tr key={row.enrollmentId} className="border-t border-[var(--color-border)]">
                 <td className="px-3 py-2 text-[var(--color-foreground)]">{row.studentLabel}</td>
                 <td className="px-3 py-2">{statusDot(row)}</td>

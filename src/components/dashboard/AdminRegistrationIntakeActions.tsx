@@ -16,6 +16,8 @@ import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { Dictionary } from "@/types/i18n";
+import { AdminRegistrationJoinBillingFields } from "@/components/dashboard/AdminRegistrationJoinBillingFields";
+import type { JoinBillingDisposition } from "@/lib/billing/joinBillingDispositionSchema";
 
 type IntakeLabels = Dictionary["admin"]["registrations"]["intake"];
 
@@ -23,6 +25,7 @@ export function AdminRegistrationIntakeActions({
   locale,
   row,
   labels,
+  joinBilling,
   sections,
   busy,
   onBusy,
@@ -31,6 +34,7 @@ export function AdminRegistrationIntakeActions({
   locale: string;
   row: AdminRegistrationRow;
   labels: IntakeLabels;
+  joinBilling: Dictionary["admin"]["registrations"]["joinBilling"];
   sections: CurrentCohortSection[];
   busy: boolean;
   onBusy: (id: string | null) => void;
@@ -40,6 +44,7 @@ export function AdminRegistrationIntakeActions({
   const [reason, setReason] = useState("");
   const [note, setNote] = useState("");
   const [sectionId, setSectionId] = useState(row.preferred_section_id ?? "");
+  const [joinDisposition, setJoinDisposition] = useState<JoinBillingDisposition | null>(null);
   const [error, setError] = useState<string | null>(null);
   if (!kind || kind === "accept") return null;
 
@@ -52,6 +57,12 @@ export function AdminRegistrationIntakeActions({
         : row.intakeState === "section_full"
           ? labels.sectionFull
           : labels.needsSection;
+
+  function requireDisposition(): JoinBillingDisposition | null {
+    if (joinDisposition) return joinDisposition;
+    setError(joinBilling.required);
+    return null;
+  }
 
   async function run(fn: () => Promise<{ ok: boolean; code?: string }>) {
     onBusy(row.id);
@@ -68,6 +79,13 @@ export function AdminRegistrationIntakeActions({
   return (
     <div className="mt-3 space-y-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] p-3">
       <p className="text-sm font-medium text-[var(--color-foreground)]">{legend}</p>
+      <AdminRegistrationJoinBillingFields
+        locale={locale}
+        namePrefix={`intake-join-${row.id}`}
+        value={joinDisposition}
+        onChange={setJoinDisposition}
+        labels={joinBilling}
+      />
       {kind === "waive" ? (
         <>
           <Label htmlFor={`waive-${row.id}`}>{labels.waiveReason}</Label>
@@ -81,15 +99,18 @@ export function AdminRegistrationIntakeActions({
             type="button"
             size="sm"
             disabled={busy || !reason.trim()}
-            onClick={() =>
+            onClick={() => {
+              const disposition = requireDisposition();
+              if (!disposition) return;
               run(() =>
                 waiveRegistrationFeeAction({
                   locale,
                   registrationId: row.id,
                   reason,
+                  joinDisposition: disposition,
                 }),
-              )
-            }
+              );
+            }}
           >
             {labels.waive}
           </Button>
@@ -113,11 +134,17 @@ export function AdminRegistrationIntakeActions({
             type="button"
             size="sm"
             disabled={busy}
-            onClick={() =>
+            onClick={() => {
+              const disposition = requireDisposition();
+              if (!disposition) return;
               run(() =>
-                approveRegistrationReceiptAction({ locale, registrationId: row.id }),
-              )
-            }
+                approveRegistrationReceiptAction({
+                  locale,
+                  registrationId: row.id,
+                  joinDisposition: disposition,
+                }),
+              );
+            }}
           >
             {labels.approveReceipt}
           </Button>
@@ -172,15 +199,18 @@ export function AdminRegistrationIntakeActions({
             type="button"
             size="sm"
             disabled={busy || !sectionId}
-            onClick={() =>
+            onClick={() => {
+              const disposition = requireDisposition();
+              if (!disposition) return;
               run(() =>
                 assignRegistrationSectionAction({
                   locale,
                   registrationId: row.id,
                   sectionId,
+                  joinDisposition: disposition,
                 }),
-              )
-            }
+              );
+            }}
           >
             {labels.assignSection}
           </Button>

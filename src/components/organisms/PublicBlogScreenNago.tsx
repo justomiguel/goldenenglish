@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
-import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { NagoSiteHeader } from "@/components/organisms/NagoSiteHeader";
 import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
 import { PublicContentLanguageFooter } from "@/components/molecules/PublicContentLanguageFooter";
+import { nagoSiteHeaderLabels } from "@/lib/landing/nagoSiteHeaderLabels";
+import { resolveNagoLogo } from "@/lib/landing/nagoLogo";
 
 export interface PublicBlogScreenNagoProps {
   locale: string;
@@ -32,7 +33,7 @@ export function PublicBlogScreenNago({
       <main className="relative min-h-screen overflow-x-hidden bg-[var(--nago-bg)]">
         <NagoSiteHeader
           locale={locale}
-          logoSrc={brand.logoPath}
+          logoSrc={resolveNagoLogo(brand)}
           logoAlt={brand.logoAlt}
           dict={dict}
           sessionEmail={sessionEmail}
@@ -40,16 +41,7 @@ export function PublicBlogScreenNago({
           blogLabel={blogEnabled ? blogLabel : undefined}
           showEventsLink
           eventsLabel={eventsLabel}
-          labels={{
-            inicio: marketingLandingCopy(dict, "nago", "nav.inicio"),
-            sobreNosotros: marketingLandingCopy(dict, "nago", "nav.sobreNosotros"),
-            clases: marketingLandingCopy(dict, "nago", "nav.clases"),
-            galeria: marketingLandingCopy(dict, "nago", "nav.galeria"),
-            eventos: marketingLandingCopy(dict, "nago", "nav.eventos"),
-            contacto: marketingLandingCopy(dict, "nago", "nav.contacto"),
-            openMenu: marketingLandingCopy(dict, "nago", "chrome.openMenu"),
-            closeMenu: marketingLandingCopy(dict, "nago", "chrome.closeMenu"),
-          }}
+          labels={nagoSiteHeaderLabels(dict)}
         />
         <div className="mx-auto w-full max-w-6xl px-4 py-6">
           <div className="nago-public-sheet rounded-2xl border border-[var(--nago-gold)]/20 bg-[var(--nago-bg-2)] p-4 md:p-6">

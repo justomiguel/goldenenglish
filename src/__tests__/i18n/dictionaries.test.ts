@@ -161,6 +161,27 @@ describe("getDictionary", () => {
     expect(pt.register.trial.shellTitle).toBeTruthy();
   });
 
+  it("includes privacy page and consent copy in en, es, and pt", async () => {
+    const en = await getDictionary("en");
+    const es = await getDictionary("es");
+    const pt = await getDictionary("pt");
+    expect(en.privacy.sections.who.body).toBeTruthy();
+    expect(es.privacy.sections.who.body).toBeTruthy();
+    expect(pt.privacy.sections.who.body).toBeTruthy();
+    expect(en.privacy.sections.controller.body).toContain("{{brand}}");
+    expect(es.privacy.controller.emailLabel).toBeTruthy();
+    expect(pt.privacy.sections.retention.title).toBeTruthy();
+    expect(en.register.privacyConsent.label).toContain("{privacyLink}");
+    expect(es.register.privacyConsent.link).toBeTruthy();
+    expect(pt.register.privacyConsent.link).toBeTruthy();
+    expect(en.admin.registrations.privacyAcceptedOn).toContain("{date}");
+    expect(es.admin.registrations.privacyAcceptedOn).toContain("{date}");
+    expect(pt.admin.registrations.privacyAcceptedOn).toContain("{date}");
+    expect(en.admin.registrations.privacyPolicyVersion).toContain("{version}");
+    expect(es.admin.registrations.privacyPolicyVersion).toContain("{version}");
+    expect(pt.admin.registrations.privacyPolicyVersion).toContain("{version}");
+  });
+
   it("includes Nagô extras and protocol copy in en, es, and pt", async () => {
     const en = await getDictionary("en");
     const es = await getDictionary("es");

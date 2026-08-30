@@ -70,6 +70,9 @@ export function LandingFooter({
             <MessageSquare className="h-3.5 w-3.5 opacity-90" aria-hidden strokeWidth={stroke} />
             {dict.publicContact.footerCta}
           </Link>
+          <Link href={`/${locale}/privacidad`} className={linkClass}>
+            {dict.privacy.footerLink}
+          </Link>
           {brand.socialInstagram ? (
             <a
               href={brand.socialInstagram}

@@ -19,6 +19,7 @@ describe("loadAdminStudentDirectoryExtras", () => {
     expect(extras.sectionsByStudent.size).toBe(0);
     expect(extras.parentsByStudent.size).toBe(0);
     expect(extras.monthlyDueByStudent.size).toBe(0);
+    expect(extras.billingFlagsByStudent.size).toBe(0);
   });
 
   it("groups sections, unique percents, and parent names by student", async () => {
@@ -96,5 +97,10 @@ describe("loadAdminStudentDirectoryExtras", () => {
       { id: parentId, firstName: "Ana", lastName: "Padre" },
     ]);
     expect(extras.monthlyDueByStudent.get(studentId)).toEqual([{ amount: 170, currency: "USD" }]);
+    expect(extras.billingFlagsByStudent.get(studentId)).toEqual({
+      monthlyStatus: "na",
+      enrollmentFeeStatus: "na",
+      lastEnrollmentAt: null,
+    });
   });
 });

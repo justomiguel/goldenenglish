@@ -93,8 +93,8 @@ export function AdminRegistrationsTableDesktop({
           { id: "name", label: labels.name, thClassName: hdr },
           { id: "dni", label: labels.dni, thClassName: hdr },
           // Phones live on the row but have no server sort, so the header stays inert.
-          { id: "phoneStudent", label: labels.phoneStudent, thClassName: hdr, sortable: false },
-          { id: "phoneTutor", label: labels.phoneTutor, thClassName: hdr, sortable: false },
+          { id: "phoneStudent", label: labels.phoneStudent, thClassName: hdr },
+          { id: "phoneTutor", label: labels.phoneTutor, thClassName: hdr },
           { id: "level", label: labels.level, thClassName: hdr },
           { id: "status", label: labels.status, thClassName: hdr },
           { id: "received", label: labels.received, thClassName: hdr },

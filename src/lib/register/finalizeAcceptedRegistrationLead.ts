@@ -11,6 +11,8 @@ import {
 import { registrationWelcomeSectionLabel } from "@/lib/register/registrationWelcomeSectionLabel";
 import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistrationSectionIds";
 import { resolveAcceptLeadWrite } from "@/lib/register/resolveAcceptLeadWrite";
+import { runJoinBillingDisposition } from "@/lib/billing/runJoinBillingDisposition";
+import type { JoinBillingDisposition } from "@/lib/billing/joinBillingDispositionSchema";
 import type { Dictionary } from "@/types/i18n";
 
 export async function finalizeAcceptedRegistrationLead(input: {
@@ -39,6 +41,8 @@ export async function finalizeAcceptedRegistrationLead(input: {
   enrollServiceRole?: boolean;
   waiveReason?: string;
   skipFamilyWelcome?: boolean;
+  joinDisposition: JoinBillingDisposition;
+  actorId: string;
 }): Promise<
   { ok: true; studentId: string; pendingSectionIds: string[] } | { ok: false; message: string }
 > {
@@ -76,6 +80,18 @@ export async function finalizeAcceptedRegistrationLead(input: {
     studentId,
   });
   const committed = requestedIds.filter((id) => !pendingSectionIds.includes(id));
+  if (committed.length > 0) {
+    const seeded = await runJoinBillingDisposition({
+      admin,
+      studentId,
+      sectionIds: committed,
+      disposition: input.joinDisposition,
+      actorId: input.actorId,
+    });
+    if (!seeded.ok) {
+      return { ok: false, message: localizeRegistrationAcceptError(dict, "save_failed") };
+    }
+  }
   if (input.paidCapture && committed.length > 0) {
     await admin
       .from("section_enrollments")

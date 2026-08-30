@@ -8,6 +8,9 @@ import type { Dictionary } from "@/types/i18n";
 import type { PortalSpecialEventTypeSlug } from "@/types/portalSpecialCalendar";
 import { Button } from "@/components/atoms/Button";
 import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import { deletePortalSpecialCalendarEventAction } from "@/app/[locale]/dashboard/admin/calendar/specialEventsActions";
 import { cordobaHmFromUtcMs, cordobaIsoDateFromUtcMs } from "@/lib/calendar/cordobaFormatFromUtc";
 
@@ -32,6 +35,16 @@ export function PortalSpecialEventsTable({ locale, dict, rows }: PortalSpecialEv
   const router = useRouter();
   const [pending, start] = useTransition();
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    rows,
+    {
+      title: (r) => r.title,
+      type: (r) => r.event_type,
+      when: (r) => r.starts_at,
+    },
+    "title",
+  );
 
   const runRemove = (id: string) => {
     start(async () => {
@@ -50,14 +63,14 @@ export function PortalSpecialEventsTable({ locale, dict, rows }: PortalSpecialEv
       <table className="min-w-full text-left text-sm">
         <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
           <tr>
-            <th className="px-3 py-2 font-semibold text-[var(--color-primary)]">{dict.colTitle}</th>
-            <th className="px-3 py-2 font-semibold text-[var(--color-primary)]">{dict.colType}</th>
-            <th className="px-3 py-2 font-semibold text-[var(--color-primary)]">{dict.colWhen}</th>
+            <SortableTh columnId="title" label={dict.colTitle} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 font-semibold text-[var(--color-primary)]" />
+            <SortableTh columnId="type" label={dict.colType} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 font-semibold text-[var(--color-primary)]" />
+            <SortableTh columnId="when" label={dict.colWhen} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 font-semibold text-[var(--color-primary)]" />
             <th className="px-3 py-2 font-semibold text-[var(--color-primary)]">{dict.colActions}</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => {
+          {sortedRows.map((r) => {
             const s = new Date(r.starts_at).getTime();
             const when = r.all_day
               ? cordobaIsoDateFromUtcMs(s)

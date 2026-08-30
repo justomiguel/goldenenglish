@@ -20,6 +20,8 @@ const SORT_KEYS: RegistrationSortKey[] = [
   "name",
   "dni",
   "email",
+  "phoneStudent",
+  "phoneTutor",
   "level",
   "birth",
   "status",
@@ -34,6 +36,10 @@ function colLabel(labels: RegLabels, key: RegistrationSortKey): string {
       return labels.dni;
     case "email":
       return labels.email;
+    case "phoneStudent":
+      return labels.phoneStudent;
+    case "phoneTutor":
+      return labels.phoneTutor;
     case "level":
       return labels.level;
     case "birth":

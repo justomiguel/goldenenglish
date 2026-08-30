@@ -3,6 +3,8 @@ import type { RegisterIntent } from "@/lib/settings/resolveRegisterIntent";
 import { parseSectionScheduleSlots, timeToMinutes } from "@/lib/academics/sectionScheduleSlots";
 import { snapMinutesToStep } from "@/lib/academics/sectionScheduleTimeSnap";
 import { SECTION_WEEK_SCHEDULE_STEP_MINUTES } from "@/lib/academics/sectionScheduleWeekWindow";
+import { SECTION_WEEK_UI_DAY_ORDER } from "@/lib/academics/sectionScheduleWeekColumns";
+import { sectionScheduleWeekdayKey } from "@/lib/academics/sectionScheduleWeekdayKey";
 
 export type RegistrationSectionPickerOption = {
   id: string;
@@ -23,6 +25,42 @@ export type RegisterPickerCell = {
 
 const PICKER_WINDOW_PAD_MINUTES = 30;
 const PICKER_MIN_WINDOW_MINUTES = 4 * 60;
+const COHORT_LABEL_SEP = " — ";
+
+/** Visible calendar title: section name only (RPC labels are `cohort — section`). */
+export function registerPickerSectionShortName(label: string): string {
+  const i = label.indexOf(COHORT_LABEL_SEP);
+  if (i < 0) return label.trim();
+  return label.slice(i + COHORT_LABEL_SEP.length).trim() || label.trim();
+}
+
+export function formatRegisterPickerSelectionChip(
+  cells: RegisterPickerCell[],
+  weekdays: {
+    sun: string;
+    mon: string;
+    tue: string;
+    wed: string;
+    thu: string;
+    fri: string;
+    sat: string;
+  },
+): string {
+  const first = cells[0];
+  if (!first) return "";
+  const slots = [...cells].sort((a, b) => {
+    const byDay =
+      SECTION_WEEK_UI_DAY_ORDER.indexOf(a.dayOfWeek) -
+      SECTION_WEEK_UI_DAY_ORDER.indexOf(b.dayOfWeek);
+    if (byDay !== 0) return byDay;
+    return timeToMinutes(a.startTime) - timeToMinutes(b.startTime);
+  });
+  const hours = slots.map(
+    (cell) =>
+      `${weekdays[sectionScheduleWeekdayKey(cell.dayOfWeek)]} ${cell.startTime}–${cell.endTime}`,
+  );
+  return [registerPickerSectionShortName(first.label), ...hours].join(" · ");
+}
 
 export function resolveRegisterPickerWeekWindowMinutes(
   cells: Array<{ startTime: string; endTime: string }>,

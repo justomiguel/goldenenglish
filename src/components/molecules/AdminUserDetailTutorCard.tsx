@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Save, UserPlus, Users } from "lucide-react";
+import { UserPlus, Users } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { TutorStudentRelationshipCode } from "@/lib/register/tutorStudentRelationship";
 import type { AdminUserTutorLinkVM } from "@/lib/dashboard/adminUserDetailVM";
@@ -12,14 +12,10 @@ import {
   upsertAdminStudentTutorLinkAction,
 } from "@/app/[locale]/dashboard/admin/users/adminUserDetailActions";
 import type { AdminStudentSearchHitLike } from "@/components/molecules/AdminStudentSearchCombobox";
-import { StaffSearchComboboxWithChipQueue } from "@/components/molecules/StaffSearchComboboxWithChipQueue";
-import { AdminUserDetailTutorCreateModal } from "@/components/molecules/AdminUserDetailTutorCreateModal";
-import {
-  AdminUserDetailTutorRelationshipSelect,
-  formatAdminTutorRelationshipLabel,
-} from "@/components/molecules/AdminUserDetailTutorRelationshipSelect";
+import { AdminUserDetailTutorAddPanel } from "@/components/molecules/AdminUserDetailTutorAddPanel";
+import { AdminUserDetailTutorDialogs } from "@/components/molecules/AdminUserDetailTutorDialogs";
+import { formatAdminTutorRelationshipLabel } from "@/components/molecules/AdminUserDetailTutorRelationshipSelect";
 import { AdminUserDetailTutorLinkedRow } from "@/components/molecules/AdminUserDetailTutorLinkedRow";
-import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import { Button } from "@/components/atoms/Button";
 
 type UserLabels = Dictionary["admin"]["users"];
@@ -51,6 +47,13 @@ export function AdminUserDetailTutorCard({
   const [createOpen, setCreateOpen] = useState(false);
   const [unlinkTarget, setUnlinkTarget] = useState<AdminUserTutorLinkVM | null>(null);
   const [unlinkBusy, setUnlinkBusy] = useState(false);
+  const [addPanelOpen, setAddPanelOpen] = useState(() => tutorLinks.length === 0);
+
+  useEffect(() => {
+    if (tutorLinks.length === 0) {
+      setAddPanelOpen(true);
+    }
+  }, [studentId, tutorLinks.length]);
 
   const search = useCallback((q: string) => searchAdminParentsForDetailAction(q), []);
 
@@ -124,9 +127,23 @@ export function AdminUserDetailTutorCard({
 
   return (
     <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)]">
-      <div className="flex items-center gap-2 border-b border-[var(--color-border)] pb-3">
-        <Users className="h-5 w-5 text-[var(--color-primary)]" aria-hidden />
-        <h2 className="font-display text-lg font-semibold text-[var(--color-primary)]">{labels.detailTutorTitle}</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-border)] pb-3">
+        <div className="flex items-center gap-2">
+          <Users className="h-5 w-5 text-[var(--color-primary)]" aria-hidden />
+          <h2 className="font-display text-lg font-semibold text-[var(--color-primary)]">{labels.detailTutorTitle}</h2>
+        </div>
+        {showLinkUi ? (
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            disabled={rowBusyGlobal}
+            onClick={() => setAddPanelOpen(true)}
+          >
+            <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
+            {labels.detailTutorAddOpen}
+          </Button>
+        ) : null}
       </div>
       <p className="mt-3 text-sm text-[var(--color-muted-foreground)]">{labels.detailTutorLead}</p>
       <div className="mt-4">
@@ -157,80 +174,39 @@ export function AdminUserDetailTutorCard({
           {labels.detailTutorMissingWarning}
         </p>
       ) : null}
-      {showLinkUi && tutorLinks.length === 0 ? (
-        <div className="mt-5 space-y-4 border-t border-[var(--color-border)] pt-4">
-          <div className="space-y-3">
-            <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailTutorLinkHint}</p>
-            <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailTutorLinkRelationshipLead}</p>
-            <AdminUserDetailTutorRelationshipSelect
-              value={relationship}
-              onChange={setRelationship}
-              labels={labels}
-              disabled={busy}
-            />
-            <StaffSearchComboboxWithChipQueue
-              id="admin-user-tutor-search"
-              labelText={labels.detailTutorSearchLabel}
-              placeholder={labels.detailTutorSearchPlaceholder}
-              inputTitle={labels.detailTutorSearchTooltip}
-              minCharsHint={labels.detailTutorMinChars}
-              prefetchWhenEmptyOnFocus
-              search={search}
-              onPick={addPick}
-              resetKey={fieldResetKey}
-              persistentExcludeIds={linkedTutorIds}
-              selectedItems={queue}
-              onRemoveSelected={removeFromQueue}
-              queueLegend={labels.detailTutorQueueLegend}
-              queueReminder={labels.detailTutorQueueReminder}
-              removeChipAriaLabel={labels.detailTutorRemoveChipAria}
-              queueDisabled={busy}
-              resultsListHeading={labels.detailTutorSearchResultsHeading}
-            />
-            <Button type="button" variant="primary" size="sm" isLoading={busy} onClick={() => void save()}>
-              {!busy ? (
-                <Save className="h-4 w-4 shrink-0" aria-hidden />
-              ) : null}
-              {labels.detailTutorSave}
-            </Button>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm text-[var(--color-muted-foreground)]">{labels.detailTutorCreateIntro}</p>
-            <Button type="button" variant="secondary" size="sm" onClick={() => setCreateOpen(true)}>
-              <UserPlus className="h-4 w-4 shrink-0" aria-hidden />
-              {labels.detailTutorCreateOpen}
-            </Button>
-          </div>
-        </div>
+      {showLinkUi && (tutorLinks.length === 0 || addPanelOpen) ? (
+        <AdminUserDetailTutorAddPanel
+          labels={labels}
+          hasTutors={tutorLinks.length > 0}
+          rowBusy={rowBusyGlobal}
+          busy={busy}
+          relationship={relationship}
+          onRelationshipChange={setRelationship}
+          search={search}
+          onPick={addPick}
+          fieldResetKey={fieldResetKey}
+          linkedTutorIds={linkedTutorIds}
+          queue={queue}
+          onRemoveFromQueue={removeFromQueue}
+          onSave={() => void save()}
+          onHide={() => setAddPanelOpen(false)}
+          onOpenCreate={() => setCreateOpen(true)}
+        />
       ) : null}
-      <AdminUserDetailTutorCreateModal
-        open={createOpen}
-        onOpenChange={setCreateOpen}
+      <AdminUserDetailTutorDialogs
         locale={locale}
         studentId={studentId}
+        isMinor={isMinor}
+        tutorCount={tutorLinks.length}
         labels={labels}
         onFeedback={onFeedback}
+        createOpen={createOpen}
+        onCreateOpenChange={setCreateOpen}
+        unlinkTarget={unlinkTarget}
+        onUnlinkTargetChange={setUnlinkTarget}
+        unlinkBusy={unlinkBusy}
+        onConfirmUnlink={() => void confirmUnlink()}
         onLinked={() => router.refresh()}
-      />
-      <ConfirmActionModal
-        open={unlinkTarget !== null}
-        onOpenChange={(open) => {
-          if (!open) setUnlinkTarget(null);
-        }}
-        title={labels.detailTutorUnlinkConfirmTitle}
-        description={labels.detailTutorUnlinkConfirmDescription}
-        formSlot={
-          isMinor && tutorLinks.length === 1 ? (
-            <p className="text-sm font-medium text-[var(--color-error)]">{labels.detailTutorUnlinkLastMinorWarning}</p>
-          ) : null
-        }
-        body={unlinkTarget ? `${unlinkTarget.displayName} — ${unlinkTarget.emailDisplay}` : undefined}
-        cancelLabel={labels.detailTutorCreateCancel}
-        confirmLabel={labels.detailTutorUnlink}
-        confirmVariant="destructive"
-        busy={unlinkBusy}
-        disableClose={unlinkBusy}
-        onConfirm={() => void confirmUnlink()}
       />
     </section>
   );

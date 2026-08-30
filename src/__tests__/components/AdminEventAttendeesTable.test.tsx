@@ -103,7 +103,7 @@ describe("AdminEventAttendeesTable", () => {
       />,
     );
 
-    expect(screen.getByRole("columnheader", { name: "School" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: /School/ })).toBeInTheDocument();
     expect(screen.getByText("Colegio Norte")).toBeInTheDocument();
 
     expect(screen.queryByTestId("attendee-expanded-attendee-1")).not.toBeInTheDocument();

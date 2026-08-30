@@ -1,12 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
 
-export type EventSortKey = "title" | "event_date" | "attendees_count";
+export type EventSortKey = "title" | "event_date" | "attendees_count" | "status" | "views" | "price";
 
 const SORT_COLUMN_MAP: Record<EventSortKey, string> = {
   title: "title",
   event_date: "event_date",
   attendees_count: "event_date",
+  status: "status",
+  views: "view_count",
+  price: "price",
 };
 
 export interface AdminEventRow {

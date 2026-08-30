@@ -19,6 +19,7 @@ import { intakeStateForSnapshotTotal } from "@/lib/register/registrationIntake";
 import { notifyTrialRegistrationReceived } from "@/lib/register/notifyTrialRegistrationReceived";
 import { composeSyntheticMinorStudentEmail } from "@/lib/register/composeSyntheticMinorStudentEmail";
 import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
+import { privacyAcceptanceStamp } from "@/lib/privacy/privacyAcceptanceStamp";
 
 export async function completeTrialRegistrationSubmit(input: {
   locale: string;
@@ -145,6 +146,7 @@ export async function completeTrialRegistrationSubmit(input: {
       trial_fee_snapshot: trialSnapshot,
       intake_state: intakeStateForSnapshotTotal(feeSnapshot.total),
       fee_captured: false,
+      ...privacyAcceptanceStamp(now),
     })
     .select("id")
     .single();

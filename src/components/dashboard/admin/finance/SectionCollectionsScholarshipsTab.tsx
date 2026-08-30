@@ -2,6 +2,9 @@
 
 import { GraduationCap } from "lucide-react";
 import { useState } from "react";
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import type { SectionCollectionsScholarshipListRow } from "@/types/sectionCollectionsTabs";
 import type { SectionCollectionsView } from "@/types/sectionCollections";
 import type { Dictionary, Locale } from "@/types/i18n";
@@ -31,6 +34,25 @@ export function SectionCollectionsScholarshipsTab({
 }: SectionCollectionsScholarshipsTabProps) {
   const t = dict.sectionTabs;
   const [notice, setNotice] = useState<string | null>(null);
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    scholarships,
+    {
+      studentDisplayName: (row) => row.studentDisplayName,
+      discount_percent: (row) => row.scholarship.discount_percent,
+      period: (row) => {
+        const s = row.scholarship;
+        const from = formatPeriod(s.valid_from_month, s.valid_from_year);
+        const until =
+          s.valid_until_year != null && s.valid_until_month != null
+            ? formatPeriod(s.valid_until_month, s.valid_until_year)
+            : billingLabels.scholarshipCurrentNoEnd;
+        return `${billingLabels.scholarshipCurrentFrom} ${from} · ${billingLabels.scholarshipCurrentUntil} ${until}`;
+      },
+      note: (row) => row.scholarship.note ?? "",
+    },
+    "studentDisplayName",
+  );
 
   return (
     <div className="space-y-4">
@@ -65,15 +87,15 @@ export function SectionCollectionsScholarshipsTab({
           <table className="w-full min-w-[560px] text-left text-sm">
             <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
               <tr>
-                <th className="px-3 py-2">{t.scholarshipsColStudent}</th>
-                <th className="px-3 py-2">{t.scholarshipsColDiscount}</th>
-                <th className="px-3 py-2">{t.scholarshipsColPeriod}</th>
-                <th className="px-3 py-2">{billingLabels.scholarshipCurrentNote}</th>
+                <SortableTh columnId="studentDisplayName" label={t.scholarshipsColStudent} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+                <SortableTh columnId="discount_percent" label={t.scholarshipsColDiscount} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+                <SortableTh columnId="period" label={t.scholarshipsColPeriod} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
+                <SortableTh columnId="note" label={billingLabels.scholarshipCurrentNote} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />
                 <th className="px-3 py-2">{t.scholarshipsColActions}</th>
               </tr>
             </thead>
             <tbody>
-              {scholarships.map((row) => {
+              {sortedRows.map((row) => {
                 const s = row.scholarship;
                 const from = formatPeriod(s.valid_from_month, s.valid_from_year);
                 const until =

@@ -12,6 +12,54 @@ import {
 } from "@/lib/auth/requestPasswordReset";
 import type { BrandPublic } from "@/lib/brand/server";
 
+vi.mock("@/lib/brand/server", () => ({
+  getBrandForRequest: vi.fn(() =>
+    Promise.resolve({
+      name: "Golden English",
+      legalName: "Golden English SRL",
+      logoPath: "/images/logo.png",
+      logoAlt: "Logo",
+      contactEmail: "info@example.com",
+      contactPhone: "",
+      contactAddress: "",
+      socialFacebook: "",
+      socialInstagram: "",
+      socialWhatsapp: "",
+      tagline: "",
+      taglineEn: "",
+      legalRegistry: "",
+      faviconPath: "",
+    }),
+  ),
+}));
+
+vi.mock("@/lib/site/publicUrl", () => ({
+  getPublicSiteUrl: () => new URL("https://app.test.example"),
+}));
+
+vi.mock("@/lib/email/loadEmailSendGate", () => ({
+  loadEmailSendGate: vi.fn(async () => ({ map: {}, classRemindersEnabled: true })),
+}));
+
+vi.mock("@/lib/email/emailSendStaffNotice", () => ({
+  recordEmailSendStaffNotice: vi.fn(),
+  clearEmailSendStaffNotice: vi.fn(),
+}));
+
+vi.mock("@/lib/supabase/admin", () => ({
+  createAdminClient: () => ({
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          eq: () => ({
+            maybeSingle: async () => ({ data: null, error: null }),
+          }),
+        }),
+      }),
+    }),
+  }),
+}));
+
 const brand: BrandPublic = {
   name: "Golden English",
   legalName: "Golden English SRL",

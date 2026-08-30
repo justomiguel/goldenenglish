@@ -183,6 +183,14 @@ export function LandingMimundoSections({
                   {dict.events.public.title}
                 </Link>
               </li>
+              <li>
+                <Link
+                  href={`/${locale}/privacidad`}
+                  className="mm-link-bounce text-white/80 underline decoration-white/30 underline-offset-2 hover:text-white"
+                >
+                  {dict.privacy.footerLink}
+                </Link>
+              </li>
               {blogEnabled ? (
                 <li>
                   <Link

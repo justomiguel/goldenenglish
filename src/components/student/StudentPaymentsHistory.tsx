@@ -1,6 +1,9 @@
 "use client";
 
 import { Download } from "lucide-react";
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import type { Dictionary, Locale } from "@/types/i18n";
 
 export type StudentPaymentRow = {
@@ -33,6 +36,19 @@ function statusLabel(
 }
 
 export function StudentPaymentsHistory({ rows, labels, locale }: StudentPaymentsHistoryProps) {
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    rows,
+    {
+      month: (r) => r.month,
+      year: (r) => r.year,
+      amount: (r) => r.displayAmount,
+      status: (r) => r.status,
+      submitted: (r) => r.updated_at,
+    },
+    "year",
+  );
+
   if (rows.length === 0) return null;
   const receiptDownloadLabel = labels.monthly.receipt.downloadPdf;
 
@@ -41,26 +57,16 @@ export function StudentPaymentsHistory({ rows, labels, locale }: StudentPayments
       <table className="w-full min-w-[520px] text-left text-sm">
         <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/50">
           <tr>
-            <th className="px-4 py-3 font-semibold text-[var(--color-foreground)]">
-              {labels.paymentMonth}
-            </th>
-            <th className="px-4 py-3 font-semibold text-[var(--color-foreground)]">
-              {labels.paymentYear}
-            </th>
-            <th className="px-4 py-3 font-semibold text-[var(--color-foreground)]">
-              {labels.paymentAmount}
-            </th>
-            <th className="px-4 py-3 font-semibold text-[var(--color-foreground)]">
-              {labels.paymentStatus}
-            </th>
-            <th className="px-4 py-3 font-semibold text-[var(--color-foreground)]">
-              {labels.paymentSubmitted}
-            </th>
+            <SortableTh columnId="month" label={labels.paymentMonth} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-4 py-3 font-semibold text-[var(--color-foreground)]" />
+            <SortableTh columnId="year" label={labels.paymentYear} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-4 py-3 font-semibold text-[var(--color-foreground)]" />
+            <SortableTh columnId="amount" label={labels.paymentAmount} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-4 py-3 font-semibold text-[var(--color-foreground)]" />
+            <SortableTh columnId="status" label={labels.paymentStatus} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-4 py-3 font-semibold text-[var(--color-foreground)]" />
+            <SortableTh columnId="submitted" label={labels.paymentSubmitted} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-4 py-3 font-semibold text-[var(--color-foreground)]" />
             <th className="px-4 py-3 font-semibold text-[var(--color-foreground)]" />
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => {
+          {sortedRows.map((r) => {
             const showScholarship =
               r.status === "pending" &&
               r.amount != null &&

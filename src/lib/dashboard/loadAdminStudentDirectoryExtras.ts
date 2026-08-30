@@ -7,6 +7,8 @@ import {
   type MonthlyDueLine,
   type MonthlyDueTotal,
 } from "@/lib/billing/sumDiscountedMonthlyDue";
+import type { DirectoryStudentBillingFlags } from "@/lib/dashboard/directoryBillingStatus";
+import { loadDirectoryStudentBillingFlags } from "@/lib/dashboard/loadDirectoryStudentBillingFlags";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { mapSectionFeePlanRow, type SectionFeePlan, type SectionFeePlanRowDb } from "@/types/sectionFeePlan";
 
@@ -27,6 +29,7 @@ export type AdminStudentDirectoryExtras = {
   sectionsByStudent: Map<string, AdminStudentDirectorySection[]>;
   parentsByStudent: Map<string, AdminStudentDirectoryParent[]>;
   monthlyDueByStudent: Map<string, MonthlyDueTotal[]>;
+  billingFlagsByStudent: Map<string, DirectoryStudentBillingFlags>;
 };
 
 type SectionJoin = {
@@ -62,6 +65,7 @@ export function emptyAdminStudentDirectoryExtras(): AdminStudentDirectoryExtras 
     sectionsByStudent: new Map(),
     parentsByStudent: new Map(),
     monthlyDueByStudent: new Map(),
+    billingFlagsByStudent: new Map(),
   };
 }
 
@@ -102,7 +106,7 @@ export async function loadAdminStudentDirectoryExtras(
   const ids = studentIds.filter((id) => id.trim().length > 0);
   if (ids.length === 0) return emptyAdminStudentDirectoryExtras();
 
-  const [enrollResult, scholarshipResult, relResult] = await Promise.all([
+  const [enrollResult, scholarshipResult, relResult, billingFlagsByStudent] = await Promise.all([
     admin
       .from("section_enrollments")
       .select("student_id, section_id, academic_sections(name, cohort_id)")
@@ -114,6 +118,7 @@ export async function loadAdminStudentDirectoryExtras(
       .in("student_id", ids)
       .eq("is_active", true),
     admin.from("tutor_student_rel").select("student_id, tutor_id").in("student_id", ids),
+    loadDirectoryStudentBillingFlags(admin, ids, refDate),
   ]);
 
   if (enrollResult.error) {
@@ -238,5 +243,5 @@ export async function loadAdminStudentDirectoryExtras(
     }
   }
 
-  return { sectionsByStudent, parentsByStudent, monthlyDueByStudent };
+  return { sectionsByStudent, parentsByStudent, monthlyDueByStudent, billingFlagsByStudent };
 }

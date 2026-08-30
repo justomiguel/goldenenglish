@@ -1,3 +1,5 @@
+"use client";
+
 import { BookOpen, ClipboardCheck } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminSectionAssessmentsPanelData } from "@/types/adminSectionAssessments";
@@ -5,6 +7,9 @@ import { AcademicSectionAreaBlock } from "@/components/molecules/AcademicSection
 import { AcademicSectionAreaSummaryBand } from "@/components/molecules/AcademicSectionAreaSummaryBand";
 import { CohortAssessmentRowActions } from "@/components/molecules/CohortAssessmentRowActions";
 import { AssessmentGradingPathStrip } from "@/components/molecules/AssessmentGradingPathStrip";
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 
 type PanelDict = Dictionary["dashboard"]["academicSectionPage"]["assessmentsPanel"];
 type GradingPathDict = Dictionary["dashboard"]["teacherAssessmentMatrix"]["path"];
@@ -53,6 +58,41 @@ export function AcademicSectionAssessmentsPanel({
   const nActive = data.activeEnrollmentCount;
   const rubricReturnTo = `/${locale}/dashboard/admin/academic/${cohortId}/${sectionId}?tab=evaluations`;
   const cohortPathStep = data.cohort.length === 0 ? 1 : 2;
+  const sortLabels = tableSortLabels(locale);
+  const {
+    sortKey: learningSortKey,
+    sortDir: learningSortDir,
+    onToggleSort: onToggleLearningSort,
+    sortedRows: sortedLearning,
+  } = useClientTableSort(
+    data.learning,
+    {
+      title: (row) => row.title,
+      kind: (row) => labelKind(row.assessmentKind, d),
+      mode: (row) => labelGrading(row.gradingMode, d),
+      passing: (row) => row.passingScore,
+      attempts: (row) => row.attemptCount,
+      reviewed: (row) => row.reviewedCount,
+      avg: (row) => row.avgScore,
+      passed: (row) => row.passedCount,
+    },
+    "title",
+  );
+  const {
+    sortKey: cohortSortKey,
+    sortDir: cohortSortDir,
+    onToggleSort: onToggleCohortSort,
+    sortedRows: sortedCohort,
+  } = useClientTableSort(
+    data.cohort,
+    {
+      name: (row) => row.name,
+      date: (row) => row.assessmentOn,
+      max: (row) => row.maxScore,
+      published: (row) => row.publishedInSection,
+    },
+    "name",
+  );
 
   return (
     <div className="space-y-8">
@@ -91,24 +131,18 @@ export function AcademicSectionAssessmentsPanel({
               </caption>
               <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
                 <tr>
-                  <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.colTitle}</th>
-                  <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.colKind}</th>
-                  <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.colMode}</th>
-                  <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.colPassing}</th>
-                  <th className="px-3 py-2 text-right font-medium text-[var(--color-foreground)]">
-                    {d.colAttempts}
-                  </th>
-                  <th className="px-3 py-2 text-right font-medium text-[var(--color-foreground)]">
-                    {d.colReviewed}
-                  </th>
-                  <th className="px-3 py-2 text-right font-medium text-[var(--color-foreground)]">{d.colAvg}</th>
-                  <th className="px-3 py-2 text-right font-medium text-[var(--color-foreground)]">
-                    {d.colPassed}
-                  </th>
+                  <SortableTh columnId="title" label={d.colTitle} sortKey={learningSortKey} sortDir={learningSortDir} onToggleSort={onToggleLearningSort} sortLabels={sortLabels} className="px-3 py-2 font-medium text-[var(--color-foreground)]" />
+                  <SortableTh columnId="kind" label={d.colKind} sortKey={learningSortKey} sortDir={learningSortDir} onToggleSort={onToggleLearningSort} sortLabels={sortLabels} className="px-3 py-2 font-medium text-[var(--color-foreground)]" />
+                  <SortableTh columnId="mode" label={d.colMode} sortKey={learningSortKey} sortDir={learningSortDir} onToggleSort={onToggleLearningSort} sortLabels={sortLabels} className="px-3 py-2 font-medium text-[var(--color-foreground)]" />
+                  <SortableTh columnId="passing" label={d.colPassing} sortKey={learningSortKey} sortDir={learningSortDir} onToggleSort={onToggleLearningSort} sortLabels={sortLabels} className="px-3 py-2 font-medium text-[var(--color-foreground)]" />
+                  <SortableTh columnId="attempts" label={d.colAttempts} sortKey={learningSortKey} sortDir={learningSortDir} onToggleSort={onToggleLearningSort} sortLabels={sortLabels} className="px-3 py-2 text-right font-medium text-[var(--color-foreground)]" />
+                  <SortableTh columnId="reviewed" label={d.colReviewed} sortKey={learningSortKey} sortDir={learningSortDir} onToggleSort={onToggleLearningSort} sortLabels={sortLabels} className="px-3 py-2 text-right font-medium text-[var(--color-foreground)]" />
+                  <SortableTh columnId="avg" label={d.colAvg} sortKey={learningSortKey} sortDir={learningSortDir} onToggleSort={onToggleLearningSort} sortLabels={sortLabels} className="px-3 py-2 text-right font-medium text-[var(--color-foreground)]" />
+                  <SortableTh columnId="passed" label={d.colPassed} sortKey={learningSortKey} sortDir={learningSortDir} onToggleSort={onToggleLearningSort} sortLabels={sortLabels} className="px-3 py-2 text-right font-medium text-[var(--color-foreground)]" />
                 </tr>
               </thead>
               <tbody>
-                {data.learning.map((row) => (
+                {sortedLearning.map((row) => (
                   <tr key={row.id} className="border-t border-[var(--color-border)]">
                     <td className="px-3 py-2 align-top text-[var(--color-foreground)]">
                       <span className="inline-flex items-center gap-2">
@@ -163,15 +197,15 @@ export function AcademicSectionAssessmentsPanel({
               </caption>
               <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
                 <tr>
-                  <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.colCohortName}</th>
-                  <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.colDate}</th>
-                  <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.colMax}</th>
-                  <th className="px-3 py-2 font-medium text-[var(--color-foreground)]">{d.colPublished}</th>
+                  <SortableTh columnId="name" label={d.colCohortName} sortKey={cohortSortKey} sortDir={cohortSortDir} onToggleSort={onToggleCohortSort} sortLabels={sortLabels} className="px-3 py-2 font-medium text-[var(--color-foreground)]" />
+                  <SortableTh columnId="date" label={d.colDate} sortKey={cohortSortKey} sortDir={cohortSortDir} onToggleSort={onToggleCohortSort} sortLabels={sortLabels} className="px-3 py-2 font-medium text-[var(--color-foreground)]" />
+                  <SortableTh columnId="max" label={d.colMax} sortKey={cohortSortKey} sortDir={cohortSortDir} onToggleSort={onToggleCohortSort} sortLabels={sortLabels} className="px-3 py-2 font-medium text-[var(--color-foreground)]" />
+                  <SortableTh columnId="published" label={d.colPublished} sortKey={cohortSortKey} sortDir={cohortSortDir} onToggleSort={onToggleCohortSort} sortLabels={sortLabels} className="px-3 py-2 font-medium text-[var(--color-foreground)]" />
                   <th className="px-3 py-2 text-right font-medium text-[var(--color-foreground)]">{d.colActions}</th>
                 </tr>
               </thead>
               <tbody>
-                {data.cohort.map((row) => {
+                {sortedCohort.map((row) => {
                   const pub = `${row.publishedInSection} / ${nActive}`;
                   return (
                     <tr key={row.id} className="border-t border-[var(--color-border)]">

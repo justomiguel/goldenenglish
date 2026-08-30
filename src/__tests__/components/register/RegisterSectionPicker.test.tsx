@@ -84,6 +84,113 @@ describe("RegisterSectionPicker", () => {
     expect(screen.getByTestId("register-week-day-0")).toBeInTheDocument();
   });
 
+  it("keeps the week calendar inside a bounded scrollport so the form does not overflow", () => {
+    render(
+      <RegisterSectionPicker
+        dict={dictEn.register}
+        options={options}
+        intent="reserve"
+        selectedIds={[]}
+        onChange={vi.fn()}
+        initialView="calendar"
+      />,
+    );
+    const calendar = screen.getByTestId("register-week-calendar");
+    expect(calendar).toHaveClass("min-w-0", "max-w-full", "overflow-auto");
+    const fieldset = calendar.closest("fieldset");
+    expect(fieldset).toHaveClass("min-w-0");
+  });
+
+  it("shows only the section name on calendar cells and a detail chip when selected", () => {
+    const onChange = vi.fn();
+    const { rerender } = render(
+      <RegisterSectionPicker
+        dict={dictEn.register}
+        options={[
+          {
+            id: A,
+            label: "2026 — Ballet Básico Adulto",
+            hasOpenSeat: true,
+            offersTrial: true,
+            slots: [{ dayOfWeek: 5, startTime: "19:00", endTime: "20:15" }],
+          },
+        ]}
+        intent="reserve"
+        selectedIds={[]}
+        onChange={onChange}
+        initialView="calendar"
+      />,
+    );
+    const cell = screen.getByRole("button", { name: /Ballet Básico Adulto 19:00/ });
+    expect(cell).toHaveTextContent("Ballet Básico Adulto");
+    expect(cell).not.toHaveTextContent("2026");
+    expect(cell).not.toHaveTextContent("19:00");
+    expect(screen.queryByTestId("register-week-selected")).not.toBeInTheDocument();
+
+    fireEvent.click(cell);
+    expect(onChange).toHaveBeenCalledWith([A]);
+
+    rerender(
+      <RegisterSectionPicker
+        dict={dictEn.register}
+        options={[
+          {
+            id: A,
+            label: "2026 — Ballet Básico Adulto",
+            hasOpenSeat: true,
+            offersTrial: true,
+            slots: [{ dayOfWeek: 5, startTime: "19:00", endTime: "20:15" }],
+          },
+        ]}
+        intent="reserve"
+        selectedIds={[A]}
+        onChange={onChange}
+        initialView="calendar"
+      />,
+    );
+    const chipList = screen.getByTestId("register-week-selected");
+    expect(chipList).toHaveTextContent("Ballet Básico Adulto");
+    expect(chipList).toHaveTextContent("Fri 19:00–20:15");
+    fireEvent.click(screen.getByRole("button", { name: /Remove Ballet Básico Adulto/ }));
+    expect(onChange).toHaveBeenCalledWith([]);
+  });
+
+  it("paints the selected chip with the same section tone as the calendar cell", () => {
+    render(
+      <RegisterSectionPicker
+        dict={dictEn.register}
+        options={[
+          {
+            id: A,
+            label: "2026 — Ballet Básico Adulto",
+            hasOpenSeat: true,
+            offersTrial: true,
+            slots: [{ dayOfWeek: 5, startTime: "19:00", endTime: "20:15" }],
+          },
+          {
+            id: B,
+            label: "2026 — HHK inicial",
+            hasOpenSeat: true,
+            offersTrial: true,
+            slots: [{ dayOfWeek: 6, startTime: "10:00", endTime: "11:00" }],
+          },
+        ]}
+        intent="reserve"
+        selectedIds={[A, B]}
+        onChange={vi.fn()}
+        initialView="calendar"
+      />,
+    );
+    const balletCell = screen.getByRole("button", { name: /Ballet Básico Adulto 19:00/ });
+    const hhkCell = screen.getByRole("button", { name: /HHK inicial 10:00/ });
+    const chips = screen.getByTestId("register-week-selected").querySelectorAll("li");
+    expect(balletCell).toHaveAttribute("data-section-tone", chips[0]?.getAttribute("data-section-tone"));
+    expect(hhkCell).toHaveAttribute("data-section-tone", chips[1]?.getAttribute("data-section-tone"));
+    expect(balletCell.getAttribute("data-section-tone")).not.toBe(hhkCell.getAttribute("data-section-tone"));
+    expect(balletCell).toHaveStyle({ color: chips[0]?.style.color });
+    expect(hhkCell).toHaveStyle({ color: chips[1]?.style.color });
+  });
+
   it("toggles a calendar cell into the selected section ids", () => {
     const onChange = vi.fn();
     render(

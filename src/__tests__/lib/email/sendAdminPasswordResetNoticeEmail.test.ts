@@ -1,7 +1,12 @@
 /** @vitest-environment node */
-import { describe, it, expect, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { sendAdminPasswordResetNoticeEmail } from "@/lib/email/sendAdminPasswordResetNoticeEmail";
+import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import type { BrandPublic } from "@/lib/brand/server";
+
+vi.mock("@/lib/email/templates/sendBrandedEmail", () => ({
+  sendBrandedEmail: vi.fn(),
+}));
 
 const brand: BrandPublic = {
   name: "Golden English",
@@ -21,61 +26,39 @@ const brand: BrandPublic = {
   socialWhatsapp: "",
 };
 
+const sendBranded = vi.mocked(sendBrandedEmail);
+
 describe("sendAdminPasswordResetNoticeEmail", () => {
-  it("calls the provider with subject + html that include brand and contact email", async () => {
-    const sendEmail = vi.fn().mockResolvedValue({ ok: true });
+  const sendEmail = vi.fn();
+
+  beforeEach(() => {
+    sendBranded.mockReset();
+    sendBranded.mockResolvedValue({ ok: true, fromOverride: false });
+  });
+
+  it("sends the admin-reset registry template with brand and contact", async () => {
     const result = await sendAdminPasswordResetNoticeEmail({
       to: "user@example.com",
       brand,
       locale: "es",
       emailProvider: { sendEmail },
     });
-
-    expect(result.ok).toBe(true);
-    expect(sendEmail).toHaveBeenCalledTimes(1);
-    const call = sendEmail.mock.calls[0][0] as {
-      to: string;
-      subject: string;
-      html: string;
-    };
-    expect(call.to).toBe("user@example.com");
-    expect(call.subject).toContain("Golden English");
-    expect(call.html).toContain("user@example.com");
-    expect(call.html).toContain("info@example.com");
-  });
-
-  it("uses the English template when locale is en", async () => {
-    const sendEmail = vi.fn().mockResolvedValue({ ok: true });
-    await sendAdminPasswordResetNoticeEmail({
-      to: "u@e.com",
-      brand,
-      locale: "en",
+    expect(result).toEqual({ ok: true });
+    expect(sendBranded).toHaveBeenCalledWith({
+      to: "user@example.com",
+      templateKey: "notifications.admin_password_reset",
+      locale: "es",
       emailProvider: { sendEmail },
+      vars: {
+        brandName: "Golden English",
+        email: "user@example.com",
+        contactEmail: "info@example.com",
+      },
     });
-    const call = sendEmail.mock.calls[0][0] as {
-      subject: string;
-      html: string;
-    };
-    expect(call.subject.toLowerCase()).toContain("password");
-    expect(call.html.toLowerCase()).toMatch(/administrator|admin/);
   });
 
-  it("escapes HTML in the recipient address (no markup injection)", async () => {
-    const sendEmail = vi.fn().mockResolvedValue({ ok: true });
-    await sendAdminPasswordResetNoticeEmail({
-      to: '"><script>x</script>@evil.com',
-      brand,
-      locale: "en",
-      emailProvider: { sendEmail },
-    });
-    const html = sendEmail.mock.calls[0][0].html as string;
-    expect(html).not.toContain("<script>x</script>");
-    expect(html).toContain("&lt;script&gt;");
-    expect(html).toContain("&quot;");
-  });
-
-  it("forwards a non-ok result from the provider", async () => {
-    const sendEmail = vi.fn().mockResolvedValue({ ok: false, error: "boom" });
+  it("maps en locale and forwards a provider failure", async () => {
+    sendBranded.mockResolvedValue({ ok: false, error: "boom" });
     const result = await sendAdminPasswordResetNoticeEmail({
       to: "u@e.com",
       brand,
@@ -83,5 +66,18 @@ describe("sendAdminPasswordResetNoticeEmail", () => {
       emailProvider: { sendEmail },
     });
     expect(result).toEqual({ ok: false, error: "boom" });
+    expect(sendBranded.mock.calls[0]?.[0]).toMatchObject({ locale: "en" });
+  });
+
+  it("escapes HTML in the recipient address before fill", async () => {
+    await sendAdminPasswordResetNoticeEmail({
+      to: '"><script>x</script>@evil.com',
+      brand,
+      locale: "en",
+      emailProvider: { sendEmail },
+    });
+    const vars = sendBranded.mock.calls[0]?.[0]?.vars as Record<string, string>;
+    expect(vars.email).not.toContain("<script>x</script>");
+    expect(vars.email).toContain("&lt;script&gt;");
   });
 });

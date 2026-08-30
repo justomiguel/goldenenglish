@@ -12,6 +12,7 @@ const INSTITUTE_PREFIXES = [
   "/settings",
   "/analytics",
   "/audit",
+  "/changelog",
   "/glossary",
   "/communications/templates",
 ] as const;

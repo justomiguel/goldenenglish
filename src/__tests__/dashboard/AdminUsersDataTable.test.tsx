@@ -97,6 +97,9 @@ describe("AdminUsersDataTable", () => {
             { id: "sec-2", name: "B1 Evening", cohortId: "coh-1", discountPercent: 25 },
           ],
           monthlyDue: [{ amount: 90, currency: "USD" }],
+          monthlyStatus: "yes",
+          enrollmentFeeStatus: "no",
+          lastEnrollmentAt: "2026-03-15T00:00:00.000Z",
           parents: [{ id: "44444444-4444-4444-4444-444444444444", firstName: "Ana", lastName: "Padre" }],
         },
       ],
@@ -111,6 +114,10 @@ describe("AdminUsersDataTable", () => {
     expect(screen.queryByText(dictEn.admin.users.colDiscount)).not.toBeInTheDocument();
     expect(screen.getByText(dictEn.admin.users.colMonthlyDue)).toBeInTheDocument();
     expect(screen.getByText("$90")).toBeInTheDocument();
+    expect(screen.getByText(dictEn.admin.users.colEnrollmentFee)).toBeInTheDocument();
+    expect(screen.getByText(dictEn.admin.users.colLastEnrollment)).toBeInTheDocument();
+    expect(screen.getByTitle(dictEn.admin.users.monthlyStatusYesAria)).toBeInTheDocument();
+    expect(screen.getByTitle(dictEn.admin.users.enrollmentFeeNoAria)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /B1 Evening/ })).toHaveAttribute(
       "href",
       "/en/dashboard/admin/academic/coh-1/sec-2",
@@ -145,6 +152,9 @@ describe("AdminUsersDataTable", () => {
           ...EMPTY_ADMIN_STUDENT_DIRECTORY_FIELDS,
           emailDeliverable: true,
           lastSessionStartAt: null,
+          monthlyStatus: "no",
+          enrollmentFeeStatus: "yes",
+          lastEnrollmentAt: "2026-04-01T00:00:00.000Z",
           children: [{ id: "66666666-6666-6666-6666-666666666666", firstName: "Lina", lastName: "Alumno" }],
           sections: [{ id: "sec-3", name: "A1 Morning", cohortId: "coh-1", discountPercent: null }],
         },
@@ -158,6 +168,11 @@ describe("AdminUsersDataTable", () => {
     });
     expect(screen.getByText(dictEn.admin.users.colLastAccess)).toBeInTheDocument();
     expect(screen.getByText(dictEn.admin.users.lastAccessNever)).toBeInTheDocument();
+    expect(screen.getByText(dictEn.admin.users.colMonthlyDue)).toBeInTheDocument();
+    expect(screen.getByText(dictEn.admin.users.colEnrollmentFee)).toBeInTheDocument();
+    expect(screen.getByText(dictEn.admin.users.colLastEnrollment)).toBeInTheDocument();
+    expect(screen.getByTitle(dictEn.admin.users.monthlyStatusNoAria)).toBeInTheDocument();
+    expect(screen.getByTitle(dictEn.admin.users.enrollmentFeeYesAria)).toBeInTheDocument();
     expect(screen.getByText(dictEn.admin.users.colChildren)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Alumno Lina" })).toBeInTheDocument();
     expect(screen.queryByText(dictEn.admin.users.colRole)).not.toBeInTheDocument();

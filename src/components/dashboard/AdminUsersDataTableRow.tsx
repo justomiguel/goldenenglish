@@ -8,6 +8,9 @@ import {
 import { Button } from "@/components/atoms/Button";
 import { ProfileAvatar } from "@/components/atoms/ProfileAvatar";
 import {
+  AdminDirectoryEnrollmentFeeCell,
+  AdminDirectoryLastEnrollmentCell,
+  AdminDirectoryMonthlyStatusCell,
   AdminStudentMonthlyDueCell,
   AdminStudentParentsList,
   AdminStudentSectionsList,
@@ -92,7 +95,22 @@ export function AdminUsersDataTableRow(props: {
             />
           </td>
           <td className="min-w-0 break-words px-2 py-2 align-top">
-            <AdminStudentMonthlyDueCell row={r} locale={locale} emptyValue={props.emptyValue} />
+            <AdminStudentMonthlyDueCell
+              row={r}
+              locale={locale}
+              labels={labels}
+              emptyValue={props.emptyValue}
+            />
+          </td>
+          <td className="min-w-0 break-words px-2 py-2 align-top">
+            <AdminDirectoryEnrollmentFeeCell status={r.enrollmentFeeStatus} labels={labels} />
+          </td>
+          <td className="min-w-0 break-words px-2 py-2 align-top">
+            <AdminDirectoryLastEnrollmentCell
+              iso={r.lastEnrollmentAt}
+              locale={locale}
+              emptyValue={props.emptyValue}
+            />
           </td>
           <td className="min-w-0 break-words px-2 py-2 align-top">
             <AdminStudentParentsList
@@ -126,6 +144,19 @@ export function AdminUsersDataTableRow(props: {
               row={r}
               locale={locale}
               labels={labels}
+              emptyValue={props.emptyValue}
+            />
+          </td>
+          <td className="min-w-0 break-words px-2 py-2 align-top">
+            <AdminDirectoryMonthlyStatusCell status={r.monthlyStatus} labels={labels} />
+          </td>
+          <td className="min-w-0 break-words px-2 py-2 align-top">
+            <AdminDirectoryEnrollmentFeeCell status={r.enrollmentFeeStatus} labels={labels} />
+          </td>
+          <td className="min-w-0 break-words px-2 py-2 align-top">
+            <AdminDirectoryLastEnrollmentCell
+              iso={r.lastEnrollmentAt}
+              locale={locale}
               emptyValue={props.emptyValue}
             />
           </td>

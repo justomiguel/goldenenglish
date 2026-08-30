@@ -79,6 +79,8 @@ export async function startTrialConvertAction(input: {
         total: quote.total,
         currency: quote.currency,
         sectionIds: quote.payableSectionIds,
+        enrollmentDue: quote.enrollmentDue,
+        monthDue: quote.monthDue,
       },
     })
     .eq("id", lead.id);

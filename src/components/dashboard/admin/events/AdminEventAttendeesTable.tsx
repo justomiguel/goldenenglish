@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Users } from "lucide-react";
 import { AdminEventAttendeeTableRow } from "@/components/dashboard/admin/events/AdminEventAttendeeTableRow";
 import type { AdminEventAttendeeCustomFieldColumn } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
 import type { AdminEventAttendeesPanelLabels } from "@/components/dashboard/admin/events/AdminEventAttendeesPanelParts";
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import {
   ADMIN_EVENT_ATTENDEES_TABLE_ACTIONS_HEAD_CELL,
   ADMIN_EVENT_ATTENDEES_TABLE_CUSTOM_HEAD_CELL,
@@ -13,6 +16,7 @@ import {
 import { canDeleteEventAttendee } from "@/lib/events/canDeleteEventAttendee";
 import type { EventAttendeeCustomFieldValuesMap } from "@/lib/dashboard/events/loadEventAttendeeCustomFieldValues";
 import type { EventAttendeeRow } from "@/lib/dashboard/events/loadEventAttendeesPaginated";
+import type { SortableValue } from "@/lib/sort/compareSortValues";
 
 interface AdminEventAttendeesTableProps {
   locale: string;
@@ -32,6 +36,29 @@ export function AdminEventAttendeesTable({
   labels,
 }: AdminEventAttendeesTableProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const sortLabels = tableSortLabels(locale);
+  const getters = useMemo(() => {
+    const record: Record<string, (row: EventAttendeeRow) => SortableValue> = {
+      name: (row) => `${row.lastName} ${row.firstName}`,
+      dni: (row) => row.dniOrPassport,
+      email: (row) => row.email,
+      phone: (row) => row.phone ?? "",
+      status: (row) => row.status,
+      payment: (row) => row.payment?.status ?? "",
+    };
+    for (const column of customFieldColumns) {
+      record[`custom:${column.fieldKey}`] = (row) => {
+        const fields = customFieldValues[row.id] ?? [];
+        return fields.find((field) => field.fieldKey === column.fieldKey)?.displayValue ?? "";
+      };
+    }
+    return record;
+  }, [customFieldColumns, customFieldValues]);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    rows,
+    getters,
+    "name",
+  );
 
   function toggleRow(rowId: string) {
     setExpandedId((current) => (current === rowId ? null : rowId));
@@ -56,28 +83,23 @@ export function AdminEventAttendeesTable({
             <th scope="col" className={`${ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL} w-12`}>
               <span className="sr-only">{labels.columns.name}</span>
             </th>
-            <th scope="col" className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL}>
-              {labels.columns.name}
-            </th>
-            <th scope="col" className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL}>
-              {labels.columns.dni}
-            </th>
-            <th scope="col" className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL}>
-              {labels.columns.email}
-            </th>
-            <th scope="col" className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL}>
-              {labels.columns.phone}
-            </th>
-            <th scope="col" className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL}>
-              {labels.columns.status}
-            </th>
-            <th scope="col" className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL}>
-              {labels.columns.payment}
-            </th>
+            <SortableTh columnId="name" label={labels.columns.name} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL} />
+            <SortableTh columnId="dni" label={labels.columns.dni} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL} />
+            <SortableTh columnId="email" label={labels.columns.email} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL} />
+            <SortableTh columnId="phone" label={labels.columns.phone} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL} />
+            <SortableTh columnId="status" label={labels.columns.status} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL} />
+            <SortableTh columnId="payment" label={labels.columns.payment} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className={ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL} />
             {customFieldColumns.map((column) => (
-              <th key={column.fieldKey} scope="col" className={ADMIN_EVENT_ATTENDEES_TABLE_CUSTOM_HEAD_CELL}>
-                {column.label}
-              </th>
+              <SortableTh
+                key={column.fieldKey}
+                columnId={`custom:${column.fieldKey}`}
+                label={column.label}
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onToggleSort={onToggleSort}
+                sortLabels={sortLabels}
+                className={ADMIN_EVENT_ATTENDEES_TABLE_CUSTOM_HEAD_CELL}
+              />
             ))}
             <th scope="col" className={ADMIN_EVENT_ATTENDEES_TABLE_ACTIONS_HEAD_CELL}>
               {labels.columns.actions}
@@ -85,7 +107,7 @@ export function AdminEventAttendeesTable({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
+          {sortedRows.map((row) => (
             <AdminEventAttendeeTableRow
               key={row.id}
               row={row}

@@ -1,11 +1,15 @@
 "use client";
 
 import { ExternalLink } from "lucide-react";
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import type { Dictionary } from "@/types/i18n";
 import type { TrafficVisitorKind } from "@/lib/dashboard/loadAdminTrafficKindBreakdowns";
 import { parseTrafficUserAgent } from "@/lib/analytics/parseUserAgent";
 
 interface TrafficBreakdownAgentsTableProps {
+  locale?: string;
   labels: Dictionary["admin"]["analytics"];
   kind: TrafficVisitorKind;
   rows: { user_agent: string; cnt: number }[];
@@ -44,11 +48,22 @@ function localizeSecondary(
  * vendor page when known. Bots tab uses different headers/empty copy.
  */
 export function TrafficBreakdownAgentsTable({
+  locale = "es",
   labels,
   kind,
   rows,
   nf,
 }: TrafficBreakdownAgentsTableProps) {
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    rows,
+    {
+      agent: (r) => parseTrafficUserAgent(r.user_agent).label,
+      hits: (r) => r.cnt,
+    },
+    "hits",
+    "desc",
+  );
   const isBots = kind === "bot";
   return (
     <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
@@ -62,12 +77,8 @@ export function TrafficBreakdownAgentsTable({
         <table className="w-full min-w-[18rem] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-[var(--color-border)] text-[var(--color-muted-foreground)]">
-              <th scope="col" className="py-1.5 pr-3 font-medium">
-                {labels.trafficBreakdownColAgent}
-              </th>
-              <th scope="col" className="py-1.5 text-end font-medium">
-                {labels.trafficBreakdownColHits}
-              </th>
+              <SortableTh columnId="agent" label={labels.trafficBreakdownColAgent} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-1.5 pr-3 font-medium" />
+              <SortableTh columnId="hits" label={labels.trafficBreakdownColHits} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-1.5 text-end font-medium" />
             </tr>
           </thead>
           <tbody>
@@ -80,7 +91,7 @@ export function TrafficBreakdownAgentsTable({
                 </td>
               </tr>
             ) : (
-              rows.map((r, i) => {
+              sortedRows.map((r, i) => {
                 const parsed = parseTrafficUserAgent(r.user_agent);
                 const secondary = localizeSecondary(parsed.secondary, labels);
                 const vendorBits: string[] = [];

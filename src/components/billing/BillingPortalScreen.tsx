@@ -2,7 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { Modal } from "@/components/atoms/Modal";
+import { SortableTh } from "@/components/molecules/SortableTh";
 import { BillingUploadReceiptForm } from "@/components/billing/BillingUploadReceiptForm";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import type { Dictionary } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { BillingInvoiceRow, BillingInvoiceStatus } from "@/types/billing";
@@ -59,6 +62,17 @@ export function BillingPortalScreen({
   invoices,
 }: BillingPortalScreenProps) {
   const [active, setActive] = useState<BillingInvoiceRow | null>(null);
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    invoices,
+    {
+      description: (inv) => inv.description,
+      due: (inv) => inv.due_date,
+      amount: (inv) => Number(inv.amount),
+      status: (inv) => inv.status,
+    },
+    "due",
+  );
 
   const summary = useMemo(() => {
     const open = invoices.filter((i) =>
@@ -100,17 +114,17 @@ export function BillingPortalScreen({
           <table className="min-w-full text-left text-sm">
             <thead className="bg-[var(--color-muted)] text-[var(--color-foreground)]">
               <tr>
-                <th className="px-3 py-2 font-semibold">{dict.colDescription}</th>
-                <th className="px-3 py-2 font-semibold">{dict.colDue}</th>
-                <th className="px-3 py-2 font-semibold">{dict.colAmount}</th>
-                <th className="px-3 py-2 font-semibold">{dict.colStatus}</th>
+                <SortableTh columnId="description" label={dict.colDescription} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 font-semibold" />
+                <SortableTh columnId="due" label={dict.colDue} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 font-semibold" />
+                <SortableTh columnId="amount" label={dict.colAmount} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 font-semibold" />
+                <SortableTh columnId="status" label={dict.colStatus} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 font-semibold" />
                 <th className="px-3 py-2 font-semibold" aria-label={dict.informPay}>
                   <span className="sr-only">{dict.informPay}</span>
                 </th>
               </tr>
             </thead>
             <tbody>
-              {invoices.map((inv) => (
+              {sortedRows.map((inv) => (
                 <tr
                   key={inv.id}
                   className="border-t border-[var(--color-border)] text-[var(--color-foreground)]"

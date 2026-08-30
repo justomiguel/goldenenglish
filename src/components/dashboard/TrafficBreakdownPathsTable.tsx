@@ -1,11 +1,15 @@
 "use client";
 
 import { AlertTriangle } from "lucide-react";
+import { SortableTh } from "@/components/molecules/SortableTh";
+import { useClientTableSort } from "@/hooks/useClientTableSort";
+import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 import type { Dictionary } from "@/types/i18n";
 import type { TrafficVisitorKind } from "@/lib/dashboard/loadAdminTrafficKindBreakdowns";
 import { isProtectedTrafficPath } from "@/lib/analytics/protectedTrafficPath";
 
 interface TrafficBreakdownPathsTableProps {
+  locale?: string;
   labels: Dictionary["admin"]["analytics"];
   kind: TrafficVisitorKind;
   rows: { pathname: string; cnt: number }[];
@@ -18,11 +22,22 @@ interface TrafficBreakdownPathsTableProps {
  * `bot` traffic, hits on protected URLs are expected.
  */
 export function TrafficBreakdownPathsTable({
+  locale = "es",
   labels,
   kind,
   rows,
   nf,
 }: TrafficBreakdownPathsTableProps) {
+  const sortLabels = tableSortLabels(locale);
+  const { sortKey, sortDir, onToggleSort, sortedRows } = useClientTableSort(
+    rows,
+    {
+      path: (r) => r.pathname,
+      hits: (r) => r.cnt,
+    },
+    "hits",
+    "desc",
+  );
   const showGuestWarning = kind === "guest";
   const protectedCount = showGuestWarning
     ? rows.filter((r) => isProtectedTrafficPath(r.pathname)).length
@@ -49,12 +64,8 @@ export function TrafficBreakdownPathsTable({
         <table className="w-full min-w-[18rem] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-[var(--color-border)] text-[var(--color-muted-foreground)]">
-              <th scope="col" className="py-1.5 pr-3 font-medium">
-                {labels.trafficBreakdownColPath}
-              </th>
-              <th scope="col" className="py-1.5 text-end font-medium">
-                {labels.trafficBreakdownColHits}
-              </th>
+              <SortableTh columnId="path" label={labels.trafficBreakdownColPath} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-1.5 pr-3 font-medium" />
+              <SortableTh columnId="hits" label={labels.trafficBreakdownColHits} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-1.5 text-end font-medium" />
             </tr>
           </thead>
           <tbody>
@@ -65,7 +76,7 @@ export function TrafficBreakdownPathsTable({
                 </td>
               </tr>
             ) : (
-              rows.map((r, i) => {
+              sortedRows.map((r, i) => {
                 const protectedPath = showGuestWarning && isProtectedTrafficPath(r.pathname);
                 return (
                   <tr

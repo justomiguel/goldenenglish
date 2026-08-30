@@ -174,6 +174,10 @@ describe("4 – Menu label matches page heading for renamed routes", () => {
   it("ES: /admin/analytics — adminNav.analytics === admin.analytics.title", () => {
     expect(es.dashboard.adminNav.analytics).toBe(es.admin.analytics.title);
   });
+
+  it("ES: /admin/changelog — adminNav.changelog === adminChangelogPage.title", () => {
+    expect(es.dashboard.adminNav.changelog).toBe(es.dashboard.adminChangelogPage.title);
+  });
 });
 
 // ─── Test 5: Teacher card gone, header link not ───────────────────────────────
