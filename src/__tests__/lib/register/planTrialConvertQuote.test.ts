@@ -64,6 +64,29 @@ describe("planTrialConvertQuote", () => {
     });
   });
 
+  it("subtracts a captured trial fee from enrollment then the first month", () => {
+    const quote = planTrialConvertQuote({
+      selectedSectionIds: [A],
+      seats: [{ sectionId: A, status: "attended", hasOpenSeat: true }],
+      enrollmentAmounts: { [A]: 10000 },
+      monthlyAmounts: { [A]: 40000 },
+      alreadyPaidEnrollmentIds: [],
+      alreadyPaidMonthIds: [],
+      currency: "CLP",
+      trialPaid: 15000,
+      trialAlreadyCredited: 0,
+      creditEnabled: true,
+    });
+    expect(quote).toMatchObject({
+      ok: true,
+      kind: "first_month",
+      enrollmentDue: 0,
+      monthDue: 35000,
+      trialCreditApplied: 15000,
+      total: 35000,
+    });
+  });
+
   it("skips enrollment and month lines the student already paid", () => {
     const quote = planTrialConvertQuote({
       selectedSectionIds: [A],

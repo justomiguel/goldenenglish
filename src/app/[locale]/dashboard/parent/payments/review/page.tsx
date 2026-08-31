@@ -4,6 +4,9 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { loadParentPaymentsPagePayload } from "@/lib/billing/loadParentPaymentsPagePayload";
 import { listPayableParentMonthSections } from "@/lib/billing/listPayableParentMonthSections";
+import { loadFamilyBillingPolicy } from "@/lib/billing/loadFamilyBillingPolicy";
+import { loadStudentPaidTrialCredit } from "@/lib/billing/loadStudentPaidTrialCredit";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { withParentFocusHref } from "@/lib/parent/withParentFocusHref";
 import { ParentMonthlyPaymentReviewScreen } from "@/components/parent/ParentMonthlyPaymentReviewScreen";
 import { submitTutorMonthlyReviewReceipt } from "@/app/[locale]/dashboard/parent/payments/reviewActions";
@@ -58,6 +61,19 @@ export default async function ParentPaymentsReviewPage({ params, searchParams }:
   }
 
   const origin = payload.monthlyView.rows.find((r) => r.sectionId === sectionId);
+  const admin = createAdminClient();
+  const { data: studentProfile } = await admin
+    .from("profiles")
+    .select("dni_or_passport")
+    .eq("id", studentId)
+    .maybeSingle();
+  const [policy, trialCredit] = await Promise.all([
+    loadFamilyBillingPolicy(supabase),
+    loadStudentPaidTrialCredit(admin, {
+      studentId,
+      dni: studentProfile?.dni_or_passport == null ? null : String(studentProfile.dni_or_passport),
+    }),
+  ]);
   const scope: ParentMonthlyPayScope = sp.scope === "all" ? "all" : "current";
   const currentLines = listPayableParentMonthSections({
     view: payload.monthlyView,
@@ -93,6 +109,11 @@ export default async function ParentPaymentsReviewPage({ params, searchParams }:
       month={month}
       year={year}
       scope={scope}
+      allowPartialPayments={policy.allowParentPartialSectionPayments}
+      trialCreditAvailable={
+        trialCredit ? Math.max(0, trialCredit.trialPaid - trialCredit.alreadyCredited) : 0
+      }
+      creditEnabled={policy.creditPaidTrialOnEnroll}
       studentName={studentName}
       currentLines={currentLines}
       allLines={allLines}

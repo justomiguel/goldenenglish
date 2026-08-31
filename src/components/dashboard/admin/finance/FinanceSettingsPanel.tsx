@@ -9,6 +9,8 @@ import { setBillingCurrencyAction, setBankTransferInstructionsAction } from "@/a
 import { FinanceFlowGatewayCard } from "@/components/dashboard/admin/finance/FinanceFlowGatewayCard";
 import { FinanceMercadoPagoGatewayCard } from "@/components/dashboard/admin/finance/FinanceMercadoPagoGatewayCard";
 import { FinanceEventsBankTransferCard } from "@/components/dashboard/admin/finance/FinanceEventsBankTransferCard";
+import { FinanceFamilyBillingPolicyCard } from "@/components/dashboard/admin/finance/FinanceFamilyBillingPolicyCard";
+import type { FamilyBillingPolicy } from "@/lib/billing/familyBillingPolicy";
 import { BillingCurrencySelectField } from "@/components/molecules/BillingCurrencySelectField";
 import { Label } from "@/components/atoms/Label";
 import {
@@ -25,6 +27,7 @@ export interface FinanceSettingsPanelProps {
   currentCurrency: string;
   currentBankTransferInstructions: string | null;
   eventsBankTransferEnabled: boolean;
+  familyBillingPolicy: FamilyBillingPolicy;
   locale: string;
   dict: SettingsDict;
   flowGatewayInitial: FlowChileAdminRowSafe;
@@ -35,6 +38,7 @@ export function FinanceSettingsPanel({
   currentCurrency,
   currentBankTransferInstructions,
   eventsBankTransferEnabled,
+  familyBillingPolicy,
   locale,
   dict,
   flowGatewayInitial,
@@ -193,6 +197,13 @@ export function FinanceSettingsPanel({
           </div>
         </div>
       </div>
+
+      <FinanceFamilyBillingPolicyCard
+        key={`family-billing-${familyBillingPolicy.creditPaidTrialOnEnroll}-${familyBillingPolicy.allowParentPartialSectionPayments}`}
+        locale={locale}
+        initial={familyBillingPolicy}
+        dict={dict}
+      />
 
       <FinanceEventsBankTransferCard
         key={`events-bank-transfer-${eventsBankTransferEnabled}`}

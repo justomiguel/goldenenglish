@@ -37,5 +37,8 @@ describe("RegisterMozarthitosSurface", () => {
       dictEn.landing.mz.register.shellTitle,
     );
     expect(screen.getByTestId("register-form-stub")).toBeInTheDocument();
+    const sheet = screen.getByTestId("register-form-stub").parentElement;
+    expect(sheet).toHaveClass("mz-public-sheet", "w-full");
+    expect(sheet).not.toHaveClass("max-w-lg");
   });
 });

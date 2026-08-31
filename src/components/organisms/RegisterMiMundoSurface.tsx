@@ -104,13 +104,14 @@ export function RegisterMiMundoSurface({
           <MiMundoButterflyTrails layer="back" />
         </div>
 
-        <div className="mx-auto grid w-full max-w-5xl gap-10 px-[max(1rem,env(safe-area-inset-left))] pb-16 pt-8 pe-[max(1rem,env(safe-area-inset-right))] md:gap-12 md:pb-20 md:pt-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start lg:gap-14">
-          {/* Figure column — paper card with brush-stroke title + mascot + bullets */}
-          <aside className="mm-fade-in-up mm-visible flex w-full justify-self-center lg:max-w-none lg:justify-self-start">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-[max(1rem,env(safe-area-inset-left))] pb-16 pt-8 pe-[max(1rem,env(safe-area-inset-right))] md:gap-12 md:pb-20 md:pt-12">
+          {/* Figure — paper card with brush-stroke title + mascot + bullets */}
+          <aside className="mm-fade-in-up mm-visible flex w-full">
             <section
               aria-labelledby="mm-register-figure-heading"
-              className="mm-register-figure relative w-full overflow-hidden rounded-[28px] border-2 border-[var(--mm-green)]/35 bg-[var(--mm-paper)] px-6 py-7 shadow-[0_22px_50px_rgb(0_0_0_/12%)] sm:px-7 sm:py-8"
+              className="mm-register-figure relative grid w-full overflow-hidden rounded-[28px] border-2 border-[var(--mm-green)]/35 bg-[var(--mm-paper)] px-6 py-7 shadow-[0_22px_50px_rgb(0_0_0_/12%)] sm:px-7 sm:py-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-8"
             >
+              <div>
               <p className="mm-kicker-pill mm-hero-reveal mm-hero-reveal-1 relative inline-block">
                 {figureKicker}
               </p>
@@ -127,27 +128,9 @@ export function RegisterMiMundoSurface({
                 ))}
               </h2>
 
-              <p className="mm-hero-reveal mm-hero-reveal-3 mt-5 max-w-md text-base leading-relaxed text-[var(--mm-ink)] sm:text-[1.05rem]">
+              <p className="mm-hero-reveal mm-hero-reveal-3 mt-5 max-w-2xl text-base leading-relaxed text-[var(--mm-ink)] sm:text-[1.05rem]">
                 {figureLead}
               </p>
-
-              {/* Mascot — uses the bob idle animation from the landing */}
-              <div className="relative mt-7 flex items-end justify-center">
-                <div
-                  className="mm-section-blob mm-section-blob--green absolute inset-x-10 -bottom-2 -top-2 -z-[1]"
-                  aria-hidden
-                />
-                <div className="mm-mascot-bob relative h-44 w-44 sm:h-52 sm:w-52">
-                  <Image
-                    src={mascotSrc}
-                    alt=""
-                    fill
-                    className="object-contain"
-                    sizes="(max-width: 640px) 176px, 208px"
-                    priority
-                  />
-                </div>
-              </div>
 
               <ul className="mt-7 space-y-3 text-sm font-semibold text-[var(--mm-ink-deep)] sm:text-base">
                 <li className="mm-hero-reveal mm-hero-reveal-4 flex items-start gap-3">
@@ -169,16 +152,34 @@ export function RegisterMiMundoSurface({
                   <span>{bulletCare}</span>
                 </li>
               </ul>
+              </div>
+
+              <div className="relative mt-7 flex items-end justify-center md:mt-0">
+                <div
+                  className="mm-section-blob mm-section-blob--green absolute inset-x-10 -bottom-2 -top-2 -z-[1]"
+                  aria-hidden
+                />
+                <div className="mm-mascot-bob relative h-36 w-36 sm:h-44 sm:w-44">
+                  <Image
+                    src={mascotSrc}
+                    alt=""
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 640px) 144px, 176px"
+                    priority
+                  />
+                </div>
+              </div>
             </section>
           </aside>
 
           {/* Form column — header + paper card with the actual form */}
           <div className="mm-fade-in-up mm-visible w-full min-w-0">
-            <header className="mb-7 text-center lg:text-left">
+            <header className="mb-7 text-center md:text-left">
               <h1 className="mm-hero-reveal mm-hero-reveal-1 font-[family-name:var(--font-mm-display)] text-3xl font-bold leading-tight text-[var(--mm-ink-deep)] md:text-4xl">
                 {shellTitle}
               </h1>
-              <p className="mm-hero-reveal mm-hero-reveal-2 mx-auto mt-3 max-w-xl text-[var(--mm-ink)] md:text-lg lg:mx-0">
+              <p className="mm-hero-reveal mm-hero-reveal-2 mx-auto mt-3 max-w-2xl text-[var(--mm-ink)] md:mx-0 md:text-lg">
                 {shellLead}
               </p>
               <span
@@ -189,7 +190,7 @@ export function RegisterMiMundoSurface({
               </span>
             </header>
 
-            <div className="mm-register-form-wrap mm-hero-reveal mm-hero-reveal-4 relative flex justify-center lg:justify-start">
+            <div className="mm-register-form-wrap mimundo-public-sheet mm-hero-reveal mm-hero-reveal-4 relative w-full">
               <RegisterForm
                 locale={locale}
                 dict={registerDict}
@@ -201,7 +202,7 @@ export function RegisterMiMundoSurface({
               />
             </div>
 
-            <p className="mm-hero-reveal mm-hero-reveal-5 mt-8 flex justify-center lg:justify-start">
+            <p className="mm-hero-reveal mm-hero-reveal-5 mt-8 flex justify-center md:justify-start">
               <Link
                 href={`${prefix}/login`}
                 className="inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-[var(--mm-blue-dark)] underline decoration-[var(--mm-blue-dark)]/30 underline-offset-[0.35em] transition hover:decoration-[var(--mm-blue-dark)]"

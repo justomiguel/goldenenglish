@@ -38,8 +38,8 @@ export function RegisterClassicSurface({
       />
       <RegisterSiteHeader brand={brand} locale={locale} dict={dict} />
 
-      <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:items-start lg:gap-12 xl:gap-16">
-        <header className="text-center lg:col-span-2">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
+        <header className="text-center">
           <h1 className="font-display text-3xl font-bold text-[var(--color-primary)] md:text-4xl">
             {intent === "trial" ? dict.register.trial.shellTitle : dict.register.title}
           </h1>
@@ -50,7 +50,7 @@ export function RegisterClassicSurface({
 
         <RegisterCollage alts={dict.landing.collage.alts} />
 
-        <div className="w-full max-w-lg justify-self-center lg:max-w-none lg:justify-self-stretch">
+        <div className="w-full min-w-0">
           <RegisterForm
             locale={locale}
             dict={dict.register}
@@ -60,7 +60,7 @@ export function RegisterClassicSurface({
             extrasPack={extrasPack}
             intent={intent}
           />
-          <p className="mt-8 text-center text-sm lg:text-left">
+          <p className="mt-8 text-center text-sm md:text-left">
             <Link
               href={`/${locale}/login`}
               className="text-[var(--color-primary)] underline decoration-[var(--color-primary)]/35 underline-offset-2 transition hover:decoration-[var(--color-primary)]"

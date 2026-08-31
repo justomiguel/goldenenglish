@@ -5,6 +5,8 @@ import { acceptRegistrationLead } from "@/lib/register/acceptRegistrationLead";
 import { notifyTrialConvertMails } from "@/lib/register/notifyTrialConvertMails";
 import { resolveExistingStudentByDni } from "@/lib/register/resolveExistingStudentByDni";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { recordTrialCreditApplied } from "@/lib/billing/recordTrialCreditApplied";
+import { grantConvertClassPack } from "@/lib/register/grantConvertClassPack";
 
 export async function applyTrialConvertGatewayCapture(input: {
   admin: SupabaseClient;
@@ -43,6 +45,10 @@ export async function applyTrialConvertGatewayCapture(input: {
     total?: unknown;
     currency?: unknown;
     sectionIds?: unknown;
+    trialCreditApplied?: unknown;
+    classPack?: unknown;
+    periodYear?: unknown;
+    periodMonth?: unknown;
   };
   const expected = Number(snapshot.total ?? 0);
   const currency = String(snapshot.currency ?? input.gatewayCurrency).toUpperCase();
@@ -98,6 +104,25 @@ export async function applyTrialConvertGatewayCapture(input: {
       .from("registration_trial_seats")
       .update({ status: "released" })
       .in("id", releaseIds);
+  }
+
+  const trialCreditApplied = Number(snapshot.trialCreditApplied ?? 0) || 0;
+  if (trialCreditApplied > 0) {
+    await recordTrialCreditApplied({
+      admin: input.admin,
+      registrationId: input.registrationId,
+      applied: trialCreditApplied,
+    });
+  }
+  const pack = snapshot.classPack;
+  if (accepted.studentId && pack && typeof pack === "object") {
+    await grantConvertClassPack({
+      admin: input.admin,
+      studentId: accepted.studentId,
+      classPack: pack as { amount?: unknown; currency?: unknown; classCount?: unknown; priceId?: unknown },
+      year: Number(snapshot.periodYear ?? 0),
+      month: Number(snapshot.periodMonth ?? 0),
+    });
   }
 
   void notifyTrialConvertMails({

@@ -7,6 +7,8 @@ import {
 } from "@/lib/i18n/dictionaries";
 import { resolvePublicBrand } from "@/lib/brand/resolvePublicBrand";
 import { ForgotPasswordScreenGate } from "@/components/organisms/ForgotPasswordScreenGate";
+import { PublicTenantChrome } from "@/components/organisms/PublicTenantChrome";
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 
 interface ForgotPasswordPageProps {
   params: Promise<{ locale: string }>;
@@ -38,6 +40,11 @@ export default async function ForgotPasswordPage({
   const { locale } = await params;
   const dict = await getDictionary(locale);
   const brand = await resolvePublicBrand(locale as AppLocale);
+  const snapshot = await loadActiveTheme();
 
-  return <ForgotPasswordScreenGate brand={brand} dict={dict} locale={locale} />;
+  return (
+    <PublicTenantChrome templateKind={snapshot?.theme.templateKind ?? "classic"}>
+      <ForgotPasswordScreenGate brand={brand} dict={dict} locale={locale} />
+    </PublicTenantChrome>
+  );
 }

@@ -7,6 +7,7 @@ import { useResetPassword } from "@/hooks/useResetPassword";
 import { FormField } from "@/components/molecules/FormField";
 import { Button } from "@/components/atoms/Button";
 import type { Dictionary } from "@/types/i18n";
+import { AUTH_FIELD_CLASS } from "@/lib/auth/authFieldClass";
 
 interface ResetPasswordFormProps {
   labels: Dictionary["resetPassword"];
@@ -157,7 +158,7 @@ export function ResetPasswordForm({ labels, locale }: ResetPasswordFormProps) {
           onChange={(e) => setPassword(e.target.value)}
           required
           autoComplete="new-password"
-          className="border-[var(--color-border)] bg-[var(--color-surface)] py-2.5 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.75)]"
+          className={AUTH_FIELD_CLASS}
           footer={
             <div className="flex justify-end pt-1">
               <button
@@ -181,7 +182,7 @@ export function ResetPasswordForm({ labels, locale }: ResetPasswordFormProps) {
           onChange={(e) => setConfirm(e.target.value)}
           required
           autoComplete="new-password"
-          className="border-[var(--color-border)] bg-[var(--color-surface)] py-2.5 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.75)]"
+          className={AUTH_FIELD_CLASS}
         />
       </div>
 

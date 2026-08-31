@@ -25,7 +25,7 @@ export function LandingNagoMestre({
   return (
     <section className="nago-section nago-band-sand scroll-mt-24 px-[max(1.25rem,env(safe-area-inset-left))] pe-[max(1.25rem,env(safe-area-inset-right))]">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2 lg:items-center">
-        <NagoReveal variant="media">
+        <NagoReveal variant="media" drift={-24} className="nago-mestre-pin">
           <div className="relative aspect-[3/4] overflow-hidden md:aspect-[4/5]">
             <Image
               src={NAGO_TEMPLATE.mestre}
@@ -36,7 +36,7 @@ export function LandingNagoMestre({
             />
           </div>
         </NagoReveal>
-        <NagoReveal>
+        <NagoReveal variant="mask">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--nago-gold)]">
             {t("mestre.kicker")}
           </p>

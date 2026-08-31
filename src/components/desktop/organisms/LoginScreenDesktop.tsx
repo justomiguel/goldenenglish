@@ -26,7 +26,7 @@ export function LoginScreenDesktop({
   return (
     <main className="grid min-h-screen grid-cols-1 bg-[var(--color-background)] md:grid-cols-2">
       <aside
-        className="relative isolate flex min-h-[38vh] flex-col justify-center overflow-hidden bg-[var(--color-primary-dark)] px-8 py-12 text-[var(--color-primary-foreground)] sm:min-h-[40vh] md:min-h-screen md:px-12 md:py-16 lg:px-16"
+        className="relative isolate flex min-h-[38vh] flex-col justify-center overflow-hidden bg-[var(--color-hero-bg,var(--color-primary-dark))] px-8 py-12 text-[var(--color-hero-fg,var(--color-primary-foreground))] sm:min-h-[40vh] md:min-h-screen md:px-12 md:py-16 lg:px-16"
         aria-label={brand.name}
       >
         <div

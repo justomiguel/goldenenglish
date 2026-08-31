@@ -56,7 +56,7 @@ export function PublicContactScreenMozarthitos({
             </p>
           </header>
           <div className="flex justify-center lg:justify-start">
-            <div className="w-full max-w-lg rounded-[26px] border-2 border-[color-mix(in_srgb,var(--mz-yellow)_45%,transparent)] bg-[color-mix(in_srgb,var(--mz-white)_96%,white)] p-6 shadow-[0_22px_50px_rgb(0_0_0_/8%)] md:p-8">
+            <div className="mz-public-sheet w-full max-w-lg rounded-[26px] border-2 border-[color-mix(in_srgb,var(--mz-header-red-deep)_22%,transparent)] p-6 shadow-[0_22px_50px_rgb(0_0_0_/8%)] md:p-8">
               <PublicContactForm locale={locale} labels={pc} />
             </div>
           </div>

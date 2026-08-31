@@ -48,5 +48,30 @@ describe("NagoReveal", () => {
       </NagoReveal>,
     );
     expect(container.firstElementChild).toHaveClass("nago-reveal-media");
+    expect(container.querySelector(".nago-reveal-media-frame")).toBeTruthy();
+  });
+
+  it("slides in from the side and exposes a drift layer", () => {
+    const { container } = render(
+      <NagoReveal from="left" drift={18}>
+        <p>Nagô</p>
+      </NagoReveal>,
+    );
+    expect(container.firstElementChild).toHaveClass("nago-reveal-from-left");
+    const drift = container.querySelector("[data-nago-drift]") as HTMLElement;
+    expect(drift).toHaveAttribute("data-nago-drift", "18");
+    expect(drift).toHaveClass("nago-scroll-drift");
+  });
+
+  it("masks a line and ignores from and drift", () => {
+    const { container } = render(
+      <NagoReveal variant="mask" from="left" drift={18}>
+        <h2>Horarios</h2>
+      </NagoReveal>,
+    );
+    expect(container.firstElementChild).toHaveClass("nago-reveal-mask");
+    expect(container.firstElementChild).not.toHaveClass("nago-reveal-from-left");
+    expect(container.querySelector("[data-nago-drift]")).toBeNull();
+    expect(container.querySelector(".nago-reveal-mask-inner")).toBeTruthy();
   });
 });

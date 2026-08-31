@@ -7,6 +7,8 @@ import {
 } from "@/lib/i18n/dictionaries";
 import { resolvePublicBrand } from "@/lib/brand/resolvePublicBrand";
 import { ResetPasswordScreenGate } from "@/components/organisms/ResetPasswordScreenGate";
+import { PublicTenantChrome } from "@/components/organisms/PublicTenantChrome";
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 
 interface ResetPasswordPageProps {
   params: Promise<{ locale: string }>;
@@ -38,6 +40,11 @@ export default async function ResetPasswordPage({
   const { locale } = await params;
   const dict = await getDictionary(locale);
   const brand = await resolvePublicBrand(locale as AppLocale);
+  const snapshot = await loadActiveTheme();
 
-  return <ResetPasswordScreenGate brand={brand} dict={dict} locale={locale} />;
+  return (
+    <PublicTenantChrome templateKind={snapshot?.theme.templateKind ?? "classic"}>
+      <ResetPasswordScreenGate brand={brand} dict={dict} locale={locale} />
+    </PublicTenantChrome>
+  );
 }

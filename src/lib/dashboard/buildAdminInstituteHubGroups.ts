@@ -73,6 +73,12 @@ export function buildAdminInstituteHubGroups(
         { href: `${base}/cms`, label: dict.cms, tip: dict.tipCms, iconId: "cms" },
         { href: `${base}/site-setup`, label: dict.siteSetup, tip: dict.tipSiteSetup, iconId: "siteSetup" },
         { href: `${base}/settings`, label: dict.settings, tip: dict.tipSettings, iconId: "settings" },
+        {
+          href: `${base}/settings/questionnaires`,
+          label: dict.questionnaires,
+          tip: dict.tipQuestionnaires,
+          iconId: "questionnaires",
+        },
         { href: `${base}/users`, label: dict.allAccounts, tip: dict.tipAllAccounts, iconId: "allAccounts" },
       ],
     },

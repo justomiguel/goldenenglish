@@ -24,7 +24,9 @@ export async function continueRegisterAfterStudent(page: Page) {
 }
 
 export async function chooseRegisterSectionByName(page: Page, name: string | RegExp) {
-  const comboView = page.getByRole("button", { name: /^(lista|list)$/i });
+  const comboView = page.getByRole("button", {
+    name: /clases en lista|classes in list|aulas em lista|^(lista|list)$/i,
+  });
   if (await comboView.isVisible().catch(() => false)) {
     await comboView.click();
   }

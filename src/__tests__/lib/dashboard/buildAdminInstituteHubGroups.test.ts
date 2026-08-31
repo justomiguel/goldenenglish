@@ -56,6 +56,7 @@ describe("buildAdminInstituteHubGroups", () => {
       `${BASE}/cms`,
       `${BASE}/site-setup`,
       `${BASE}/settings`,
+      `${BASE}/settings/questionnaires`,
       `${BASE}/users`,
     ]);
   });

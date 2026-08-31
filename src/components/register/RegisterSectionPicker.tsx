@@ -22,8 +22,7 @@ import type { Dictionary } from "@/types/i18n";
 export type RegisterPickerView = "calendar" | "combo";
 
 function defaultPickerView(): RegisterPickerView {
-  if (typeof window === "undefined") return "combo";
-  return window.matchMedia("(min-width: 768px)").matches ? "calendar" : "combo";
+  return "combo";
 }
 
 export function RegisterSectionPicker({
@@ -86,18 +85,6 @@ export function RegisterSectionPicker({
         <button
           type="button"
           className={`min-h-11 rounded-[calc(var(--layout-border-radius)-2px)] px-3 text-sm ${
-            view === "calendar"
-              ? "bg-[var(--color-primary)]/10 font-medium text-[var(--color-primary)]"
-              : "text-[var(--color-muted-foreground)]"
-          }`}
-          aria-pressed={view === "calendar"}
-          onClick={() => setView("calendar")}
-        >
-          {dict.picker.viewCalendar}
-        </button>
-        <button
-          type="button"
-          className={`min-h-11 rounded-[calc(var(--layout-border-radius)-2px)] px-3 text-sm ${
             view === "combo"
               ? "bg-[var(--color-primary)]/10 font-medium text-[var(--color-primary)]"
               : "text-[var(--color-muted-foreground)]"
@@ -106,6 +93,18 @@ export function RegisterSectionPicker({
           onClick={() => setView("combo")}
         >
           {dict.picker.viewCombo}
+        </button>
+        <button
+          type="button"
+          className={`min-h-11 rounded-[calc(var(--layout-border-radius)-2px)] px-3 text-sm ${
+            view === "calendar"
+              ? "bg-[var(--color-primary)]/10 font-medium text-[var(--color-primary)]"
+              : "text-[var(--color-muted-foreground)]"
+          }`}
+          aria-pressed={view === "calendar"}
+          onClick={() => setView("calendar")}
+        >
+          {dict.picker.viewCalendar}
         </button>
       </div>
       {view === "calendar" ? (

@@ -27,7 +27,7 @@ export function LandingNagoPrograms({
       className="nago-section nago-band-light scroll-mt-24 px-[max(1.25rem,env(safe-area-inset-left))] pe-[max(1.25rem,env(safe-area-inset-right))]"
     >
       <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.7fr)] lg:items-end">
-        <NagoReveal>
+        <NagoReveal variant="mask">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--nago-gold)]">
             {t("programas.kicker")}
           </p>
@@ -48,6 +48,8 @@ export function LandingNagoPrograms({
             <NagoReveal
               key={key}
               variant="media"
+              from={i % 2 === 0 ? "left" : "right"}
+              drift={i % 2 === 0 ? 20 : -16}
               delay={i < 3 ? ((i + 1) as 1 | 2 | 3) : undefined}
             >
               <Link

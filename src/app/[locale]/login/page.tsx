@@ -12,6 +12,8 @@ import { loadFirstRunWizardMode } from "@/lib/site/loadFirstRunWizardMode";
 import { createClient } from "@/lib/supabase/server";
 import { LoginScreenDesktop } from "@/components/desktop/organisms/LoginScreenDesktop";
 import { LoginScreenGate } from "@/components/organisms/LoginScreenGate";
+import { PublicTenantChrome } from "@/components/organisms/PublicTenantChrome";
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 
 interface LoginPageProps {
   params: Promise<{ locale: string }>;
@@ -76,23 +78,26 @@ export default async function LoginPage({
 
   const firstRunSetupHref =
     wizardMode !== "closed" ? `/${locale}/setup/first-run` : null;
+  const snapshot = await loadActiveTheme();
 
   return (
-    <LoginScreenGate
-      brand={brand}
-      dict={dict}
-      locale={locale}
-      nextPath={nextPath}
-      firstRunSetupHref={firstRunSetupHref}
-      desktop={
-        <LoginScreenDesktop
-          brand={brand}
-          dict={dict}
-          locale={locale}
-          nextPath={nextPath}
-          firstRunSetupHref={firstRunSetupHref}
-        />
-      }
-    />
+    <PublicTenantChrome templateKind={snapshot?.theme.templateKind ?? "classic"}>
+      <LoginScreenGate
+        brand={brand}
+        dict={dict}
+        locale={locale}
+        nextPath={nextPath}
+        firstRunSetupHref={firstRunSetupHref}
+        desktop={
+          <LoginScreenDesktop
+            brand={brand}
+            dict={dict}
+            locale={locale}
+            nextPath={nextPath}
+            firstRunSetupHref={firstRunSetupHref}
+          />
+        }
+      />
+    </PublicTenantChrome>
   );
 }

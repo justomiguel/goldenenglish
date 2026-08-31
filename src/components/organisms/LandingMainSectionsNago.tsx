@@ -7,6 +7,8 @@ import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { nagoSiteHeaderLabels } from "@/lib/landing/nagoSiteHeaderLabels";
 import { NagoFontRoot } from "@/components/organisms/NagoFontRoot";
 import { resolveNagoLogo } from "@/lib/landing/nagoLogo";
+import { nagoLandingRegisterCtas } from "@/lib/landing/nagoLandingRegisterCtas";
+import type { PublicCtaMode } from "@/lib/settings/parsePublicCtaMode";
 
 interface LandingMainSectionsNagoProps {
   dict: Dictionary;
@@ -15,6 +17,8 @@ interface LandingMainSectionsNagoProps {
   sessionEmail: string | null;
   mediaMap?: LandingMediaMap;
   blogEnabled?: boolean;
+  publicCtaMode?: PublicCtaMode;
+  inscriptionsEnabled?: boolean;
 }
 
 export function LandingMainSectionsNago({
@@ -24,30 +28,40 @@ export function LandingMainSectionsNago({
   sessionEmail,
   mediaMap,
   blogEnabled = false,
+  publicCtaMode,
+  inscriptionsEnabled,
 }: LandingMainSectionsNagoProps) {
   const logoSrc = resolveNagoLogo(brand);
+  const registerCtas = nagoLandingRegisterCtas({
+    locale,
+    dict,
+    publicCtaMode,
+    inscriptionsEnabled,
+  });
 
   return (
     <NagoFontRoot>
+      <NagoSiteHeader
+        locale={locale}
+        logoSrc={logoSrc}
+        logoAlt={brand.logoAlt}
+        dict={dict}
+        sessionEmail={sessionEmail}
+        overlayHero
+        showBlogLink={blogEnabled}
+        blogLabel={blogEnabled ? dict.blog.list.title : undefined}
+        showEventsLink
+        eventsLabel={marketingLandingCopy(dict, "nago", "nav.eventos")}
+        labels={nagoSiteHeaderLabels(dict)}
+        registerCtas={registerCtas}
+      />
       <main className="relative overflow-x-hidden">
-        <NagoSiteHeader
-          locale={locale}
-          logoSrc={logoSrc}
-          logoAlt={brand.logoAlt}
-          dict={dict}
-          sessionEmail={sessionEmail}
-          overlayHero
-          showBlogLink={blogEnabled}
-          blogLabel={blogEnabled ? dict.blog.list.title : undefined}
-          showEventsLink
-          eventsLabel={marketingLandingCopy(dict, "nago", "nav.eventos")}
-          labels={nagoSiteHeaderLabels(dict)}
-        />
         <LandingNagoSections
           dict={dict}
           brand={brand}
           locale={locale}
           mediaMap={mediaMap}
+          registerCtas={registerCtas}
         />
       </main>
     </NagoFontRoot>

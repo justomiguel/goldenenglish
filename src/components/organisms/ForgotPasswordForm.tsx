@@ -7,6 +7,7 @@ import { FormField } from "@/components/molecules/FormField";
 import { Button } from "@/components/atoms/Button";
 import { fillTemplate } from "@/lib/i18n/fillTemplate";
 import type { Dictionary } from "@/types/i18n";
+import { AUTH_FIELD_CLASS } from "@/lib/auth/authFieldClass";
 
 interface ForgotPasswordFormProps {
   labels: Dictionary["forgotPassword"];
@@ -104,7 +105,7 @@ export function ForgotPasswordForm({ labels, locale }: ForgotPasswordFormProps) 
         onChange={(e) => setEmail(e.target.value)}
         required
         autoComplete="email"
-        className="border-[var(--color-border)] bg-[var(--color-surface)] py-2.5 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.75)]"
+        className={AUTH_FIELD_CLASS}
       />
 
       <Button

@@ -36,6 +36,7 @@ const FAMILY_BY_ICON: Record<AdminSurfaceIconId, AdminPageHeaderArtFamily> = {
   cms: "institute",
   siteSetup: "institute",
   settings: "institute",
+  questionnaires: "institute",
   analytics: "institute",
   audit: "institute",
   changelog: "institute",

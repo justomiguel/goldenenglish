@@ -52,6 +52,9 @@ describe("RegisterMiMundoSurface", () => {
     );
 
     expect(screen.getByTestId("register-form-stub")).toBeInTheDocument();
+    const sheet = screen.getByTestId("register-form-stub").parentElement;
+    expect(sheet).toHaveClass("mimundo-public-sheet", "w-full");
+    expect(sheet).not.toHaveClass("max-w-lg");
     expect(screen.getByTestId("mm-font-root")).toBeInTheDocument();
     expect(screen.getByTestId("mm-register-header")).toBeInTheDocument();
     expect(screen.getByTestId("mm-doodles")).toBeInTheDocument();

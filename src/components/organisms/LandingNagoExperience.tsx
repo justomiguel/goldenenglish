@@ -37,7 +37,7 @@ export function LandingNagoExperience({ dict }: { dict: Dictionary }) {
       className="nago-section scroll-mt-24 bg-[var(--nago-bg-2)] px-[max(1.25rem,env(safe-area-inset-left))] pe-[max(1.25rem,env(safe-area-inset-right))]"
     >
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.15fr)_minmax(0,0.42fr)] lg:items-center">
-        <NagoReveal>
+        <NagoReveal variant="mask">
           <h2 className="nago-display max-w-xl text-3xl leading-[1.05] text-[var(--nago-heading-solid)] md:text-5xl">
             {t("experiencia.title")}
           </h2>
@@ -57,7 +57,7 @@ export function LandingNagoExperience({ dict }: { dict: Dictionary }) {
             ))}
           </ul>
         </NagoReveal>
-        <NagoReveal variant="media">
+        <NagoReveal variant="media" drift={26}>
           <div className="relative aspect-[4/5] min-h-[16rem] overflow-hidden sm:min-h-[22rem]">
             <Image
               src={NAGO_TEMPLATE.expMain}
@@ -73,6 +73,8 @@ export function LandingNagoExperience({ dict }: { dict: Dictionary }) {
             <NagoReveal
               key={src}
               variant="media"
+              from={i % 2 === 0 ? "right" : "left"}
+              drift={i % 2 === 0 ? 18 : -14}
               delay={i < 3 ? ((i + 1) as 1 | 2 | 3) : undefined}
             >
               <div className="relative aspect-[4/3] overflow-hidden lg:aspect-[5/4]">

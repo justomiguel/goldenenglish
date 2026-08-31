@@ -31,6 +31,17 @@
     inset 0 -6px 0 rgb(0 0 0 / 0.06);
   --mm-ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --mm-ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --color-heading: var(--mm-green-dark);
+  --color-primary: var(--mm-green-dark);
+  --color-primary-foreground: #fff8ec;
+  --color-primary-dark: #2f4627;
+  --color-foreground: var(--mm-ink-deep);
+  --color-muted-foreground: var(--mm-ink);
+  --color-surface: var(--mm-paper);
+  --color-background: var(--mm-cream);
+  --color-border: color-mix(in srgb, var(--mm-green-dark) 28%, var(--mm-cream));
+  --color-hero-bg: var(--mm-green-dark);
+  --color-hero-fg: #fff8ec;
 }
 
 /* ─── Hero canvas — flat watercolor (no risky photo contrast) ────── */

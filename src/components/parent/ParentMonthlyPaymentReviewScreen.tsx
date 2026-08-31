@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { formatStudentMonthlyPaymentAmount } from "@/components/student/studentMonthlyPaymentFocusFormatAmount";
 import { ParentMonthlyPaymentReviewPay } from "@/components/parent/ParentMonthlyPaymentReviewPay";
 import { monthlyStripMonthLabels } from "@/lib/student/studentMonthlyPaymentsStripState";
+import { applyTrialCreditToPayableLines } from "@/lib/billing/applyTrialCreditToPayableLines";
+import { resolveParentMonthlyPayScope } from "@/lib/billing/resolveParentMonthlyPayScope";
 import type { PayableParentMonthLine } from "@/lib/billing/listPayableParentMonthSections";
 import type { ParentMonthlyPayScope } from "@/lib/billing/listPayableParentMonthSections";
 import type {
@@ -23,6 +25,9 @@ export interface ParentMonthlyPaymentReviewScreenProps {
   month: number;
   year: number;
   scope: ParentMonthlyPayScope;
+  allowPartialPayments?: boolean;
+  trialCreditAvailable?: number;
+  creditEnabled?: boolean;
   studentName: string;
   currentLines: PayableParentMonthLine[];
   allLines: PayableParentMonthLine[];
@@ -46,6 +51,9 @@ export function ParentMonthlyPaymentReviewScreen({
   month,
   year,
   scope,
+  allowPartialPayments = true,
+  trialCreditAvailable = 0,
+  creditEnabled = true,
   studentName,
   currentLines,
   allLines,
@@ -63,10 +71,20 @@ export function ParentMonthlyPaymentReviewScreen({
   const router = useRouter();
   const monthLabel = monthlyStripMonthLabels(locale)[month - 1] ?? String(month);
   const period = labels.periodLabel.replace("{month}", monthLabel).replace("{year}", String(year));
-  const showScope = allLines.length >= 2;
-  const lines = scope === "all" && showScope ? allLines : currentLines;
-  const total = lines.reduce((sum, line) => sum + line.amount, 0);
-  const currency = lines[0]?.currency ?? null;
+  const showScope = allLines.length >= 2 && allowPartialPayments;
+  const effectiveScope = resolveParentMonthlyPayScope({
+    requested: scope,
+    allowPartial: allowPartialPayments,
+    payableSectionCount: allLines.length,
+  });
+  const rawLines = effectiveScope === "all" && allLines.length >= 2 ? allLines : currentLines;
+  const credited = applyTrialCreditToPayableLines({
+    lines: rawLines,
+    creditAvailable: trialCreditAvailable,
+    enabled: creditEnabled,
+  });
+  const total = credited.total;
+  const currency = rawLines[0]?.currency ?? null;
 
   function hrefForScope(next: ParentMonthlyPayScope): string {
     const url = new URL(reviewHrefBase, "https://local.invalid");
@@ -119,14 +137,14 @@ export function ParentMonthlyPaymentReviewScreen({
         </fieldset>
       ) : null}
 
-      {lines.length === 0 ? (
+      {rawLines.length === 0 ? (
         <p className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)] px-3 py-2 text-sm text-[var(--color-muted-foreground)]">
           {labels.emptyOrigin}
         </p>
       ) : (
         <>
           <ul className="space-y-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-            {lines.map((line) => (
+            {rawLines.map((line) => (
               <li key={line.sectionId} className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
                 <span>
                   {line.sectionName}
@@ -144,6 +162,14 @@ export function ParentMonthlyPaymentReviewScreen({
                 </span>
               </li>
             ))}
+            {credited.creditApplied > 0 ? (
+              <li className="flex items-baseline justify-between text-sm text-[var(--color-muted-foreground)]">
+                <span>{labels.lineTrialCredit}</span>
+                <span>
+                  −{formatStudentMonthlyPaymentAmount(locale, credited.creditApplied, currency)}
+                </span>
+              </li>
+            ) : null}
             <li className="flex items-baseline justify-between border-t border-[var(--color-border)] pt-2 text-sm font-semibold">
               <span>{labels.total}</span>
               <span>{formatStudentMonthlyPaymentAmount(locale, total, currency)}</span>
@@ -155,8 +181,11 @@ export function ParentMonthlyPaymentReviewScreen({
             originSectionId={originSectionId}
             month={month}
             year={year}
-            scope={showScope && scope === "all" ? "all" : "current"}
+            scope={effectiveScope}
             total={total}
+            confirmTrialCreditLabel={
+              total === 0 && credited.creditApplied > 0 ? labels.confirmTrialCredit : undefined
+            }
             studentLabels={studentLabels}
             fileUploadProgress={fileUploadProgress}
             bankTransferInstructions={bankTransferInstructions}

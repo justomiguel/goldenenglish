@@ -23,7 +23,7 @@ export function LioraLandingContactPanel({
       <p className="text-center text-sm text-[var(--liora-ink-soft)] md:text-base">
         {pc.lead}
       </p>
-      <div className="liora-card mt-6 p-6 text-[var(--liora-ink)] md:mt-8 md:p-8">
+      <div className="liora-public-sheet liora-card mt-6 p-6 text-[var(--liora-ink)] md:mt-8 md:p-8">
         <PublicContactForm locale={locale} labels={pc} embedded />
       </div>
     </div>

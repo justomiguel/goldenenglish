@@ -17,7 +17,7 @@ export function LandingNagoAccion({ dict }: { dict: Dictionary }) {
   return (
     <section className="px-[max(1.25rem,env(safe-area-inset-left))] pe-[max(1.25rem,env(safe-area-inset-right))] pb-4 pt-10">
       <div className="mx-auto max-w-7xl">
-        <NagoReveal>
+        <NagoReveal variant="mask">
           <h2 className="nago-display text-2xl text-[var(--nago-heading-solid)] md:text-3xl">
             {t("accion.sectionTitle")}
           </h2>
@@ -27,6 +27,8 @@ export function LandingNagoAccion({ dict }: { dict: Dictionary }) {
             <NagoReveal
               key={src}
               variant="media"
+              from={i % 2 === 0 ? "left" : "right"}
+              drift={i % 2 === 0 ? 16 : -18}
               delay={i < 3 ? ((i + 1) as 1 | 2 | 3) : undefined}
             >
               <div className="relative aspect-[16/10] overflow-hidden">

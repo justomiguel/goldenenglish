@@ -56,6 +56,34 @@ describe("ParentMonthlyPaymentReviewScreen", () => {
     );
   });
 
+  it("hides scope radios when the institute forbids partial section payments", () => {
+    render(
+      <ParentMonthlyPaymentReviewScreen
+        {...baseProps}
+        scope="current"
+        allowPartialPayments={false}
+        currentLines={[line("sec-a", "Piano", 120)]}
+        allLines={[line("sec-a", "Piano", 120), line("sec-b", "Violin", 90)]}
+      />,
+    );
+    expect(screen.queryByRole("radiogroup")).not.toBeInTheDocument();
+    expect(screen.getByText("Violin")).toBeInTheDocument();
+  });
+
+  it("shows a trial credit line and the reduced total", () => {
+    render(
+      <ParentMonthlyPaymentReviewScreen
+        {...baseProps}
+        scope="current"
+        trialCreditAvailable={15}
+        creditEnabled
+        currentLines={[line("sec-a", "Piano", 120)]}
+        allLines={[line("sec-a", "Piano", 120)]}
+      />,
+    );
+    expect(screen.getByText(review.lineTrialCredit)).toBeInTheDocument();
+  });
+
   it("shows scope radios and the all-scope total when two sections are payable", () => {
     render(
       <ParentMonthlyPaymentReviewScreen

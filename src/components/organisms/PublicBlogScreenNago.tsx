@@ -30,19 +30,19 @@ export function PublicBlogScreenNago({
 }: PublicBlogScreenNagoProps) {
   return (
     <NagoFontRoot>
+      <NagoSiteHeader
+        locale={locale}
+        logoSrc={resolveNagoLogo(brand)}
+        logoAlt={brand.logoAlt}
+        dict={dict}
+        sessionEmail={sessionEmail}
+        showBlogLink={blogEnabled}
+        blogLabel={blogEnabled ? blogLabel : undefined}
+        showEventsLink
+        eventsLabel={eventsLabel}
+        labels={nagoSiteHeaderLabels(dict)}
+      />
       <main className="relative min-h-screen overflow-x-hidden bg-[var(--nago-bg)]">
-        <NagoSiteHeader
-          locale={locale}
-          logoSrc={resolveNagoLogo(brand)}
-          logoAlt={brand.logoAlt}
-          dict={dict}
-          sessionEmail={sessionEmail}
-          showBlogLink={blogEnabled}
-          blogLabel={blogEnabled ? blogLabel : undefined}
-          showEventsLink
-          eventsLabel={eventsLabel}
-          labels={nagoSiteHeaderLabels(dict)}
-        />
         <div className="mx-auto w-full max-w-6xl px-4 py-6">
           <div className="nago-public-sheet rounded-2xl border border-[var(--nago-gold)]/20 bg-[var(--nago-bg-2)] p-4 md:p-6">
             {children}

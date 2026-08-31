@@ -4,6 +4,8 @@ import Link from "next/link";
 import { LayoutDashboard, LogIn } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
+import { NagoRegisterCtaButtons } from "@/components/molecules/NagoRegisterCtaButtons";
+import type { PublicRegisterCtaItem } from "@/lib/settings/publicRegisterCtaItems";
 
 const stroke = 1.75;
 
@@ -17,6 +19,7 @@ export function NagoSiteHeaderMobileNav({
   sessionEmail,
   agendaHref,
   agendaLabel,
+  registerCtas = [],
 }: {
   locale: string;
   open: boolean;
@@ -27,6 +30,7 @@ export function NagoSiteHeaderMobileNav({
   sessionEmail: string | null;
   agendaHref: string;
   agendaLabel: string;
+  registerCtas?: PublicRegisterCtaItem[];
 }) {
   return (
     <div
@@ -57,14 +61,23 @@ export function NagoSiteHeaderMobileNav({
           role="group"
           aria-label={dict.nav.accountAria}
         >
-          <Link
-            href={agendaHref}
-            className="nago-btn nago-btn-solid w-full"
-            onClick={onClose}
-            tabIndex={open ? undefined : -1}
-          >
-            {agendaLabel}
-          </Link>
+          {registerCtas.length > 0 ? (
+            <NagoRegisterCtaButtons
+              items={registerCtas}
+              className="flex flex-col gap-2"
+              onItemClick={onClose}
+              tabIndex={open ? undefined : -1}
+            />
+          ) : (
+            <Link
+              href={agendaHref}
+              className="nago-btn nago-btn-solid w-full"
+              onClick={onClose}
+              tabIndex={open ? undefined : -1}
+            >
+              {agendaLabel}
+            </Link>
+          )}
           {sessionEmail ? (
             <>
               <Link

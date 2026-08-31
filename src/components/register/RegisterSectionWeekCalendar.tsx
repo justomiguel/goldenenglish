@@ -15,8 +15,8 @@ import {
 } from "@/lib/register/registerPickerSectionTone";
 import type { Dictionary } from "@/types/i18n";
 
-/** Taller than the admin editor so public slots stay readable as form chips. */
-const PX_PER_MINUTE = 0.85;
+/** Compact public timetable — stays readable without dominating the form. */
+const PX_PER_MINUTE = 0.55;
 
 function cellsByDay(cells: RegisterPickerCell[]): Map<number, RegisterPickerCell[]> {
   const map = new Map<number, RegisterPickerCell[]>();
@@ -53,7 +53,7 @@ export function RegisterSectionWeekCalendar({
       data-testid="register-week-calendar"
       className="w-full min-w-0 max-w-full overflow-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/25"
     >
-      <div className="min-w-[40rem] p-3">
+      <div className="w-full min-w-[28rem] p-2">
         <div className="grid grid-cols-[2.75rem_minmax(0,1fr)] gap-x-1.5">
           <div
             aria-hidden
@@ -109,7 +109,7 @@ export function RegisterSectionWeekCalendar({
                   const start = timeToMinutes(cell.startTime);
                   const end = timeToMinutes(cell.endTime);
                   const topPx = (start - windowMinutes.start) * PX_PER_MINUTE;
-                  const height = Math.max(36, (end - start) * PX_PER_MINUTE);
+                  const height = Math.max(28, (end - start) * PX_PER_MINUTE);
                   const layout = overlap.get(
                     `${cell.sectionId}-${cell.dayOfWeek}-${cell.startTime}-${cell.endTime}`,
                   ) ?? { col: 0, colCount: 1 };

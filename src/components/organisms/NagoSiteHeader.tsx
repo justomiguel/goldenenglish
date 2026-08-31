@@ -9,6 +9,9 @@ import { NagoSiteHeaderMobileNav } from "@/components/organisms/NagoSiteHeaderMo
 import { useNagoSiteHeaderChrome } from "@/components/organisms/useNagoSiteHeaderChrome";
 import { NagoSoundToggle } from "@/components/organisms/NagoSoundToggle";
 import type { NagoSiteHeaderLabels } from "@/lib/landing/nagoSiteHeaderLabels";
+import { nagoLandingRegisterCtas } from "@/lib/landing/nagoLandingRegisterCtas";
+import { NagoRegisterCtaButtons } from "@/components/molecules/NagoRegisterCtaButtons";
+import type { PublicRegisterCtaItem } from "@/lib/settings/publicRegisterCtaItems";
 
 export interface NagoSiteHeaderProps {
   locale: string;
@@ -22,6 +25,7 @@ export interface NagoSiteHeaderProps {
   eventsLabel?: string;
   overlayHero?: boolean;
   labels: NagoSiteHeaderLabels;
+  registerCtas?: PublicRegisterCtaItem[];
 }
 
 const stroke = 1.75;
@@ -38,6 +42,7 @@ export function NagoSiteHeader({
   eventsLabel,
   overlayHero = false,
   labels,
+  registerCtas,
 }: NagoSiteHeaderProps) {
   const [open, setOpen] = useState(false);
   const { barRef, spacerPx, scrolled, activeHref } = useNagoSiteHeaderChrome(
@@ -45,6 +50,9 @@ export function NagoSiteHeader({
     overlayHero,
   );
   const prefix = `/${locale}`;
+  const ctas =
+    registerCtas ??
+    nagoLandingRegisterCtas({ locale, dict, publicCtaMode: "both" });
   const links = [
     { href: `${prefix}#top`, label: labels.inicio },
     { href: `${prefix}#clases`, label: labels.clases },
@@ -64,7 +72,7 @@ export function NagoSiteHeader({
     <>
       <header
         id="top"
-        className={`nago-site-header fixed inset-x-0 top-0 z-[80]${scrolled ? " is-scrolled" : ""}${overlayHero ? " is-overlay" : ""}`}
+        className={`nago-site-header fixed inset-x-0 top-0${scrolled ? " is-scrolled" : ""}${overlayHero ? " is-overlay" : ""}`}
       >
         <div
           ref={barRef}
@@ -100,13 +108,21 @@ export function NagoSiteHeader({
           </nav>
           <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
             <NagoSoundToggle dict={dict} />
-            <Link
-              href={`/${locale}/register`}
-              className="nago-btn hidden px-3 py-2 text-[10px] sm:inline-flex lg:px-4"
-            >
-              <CalendarDays className="h-3.5 w-3.5 shrink-0" aria-hidden strokeWidth={stroke} />
-              {labels.agendaCta}
-            </Link>
+            {ctas.length > 0 ? (
+              <NagoRegisterCtaButtons
+                items={ctas}
+                compact
+                className="hidden items-center gap-1.5 sm:flex"
+              />
+            ) : (
+              <Link
+                href={`/${locale}/register`}
+                className="nago-btn hidden px-3 py-2 text-[10px] sm:inline-flex lg:px-4"
+              >
+                <CalendarDays className="h-3.5 w-3.5 shrink-0" aria-hidden strokeWidth={stroke} />
+                {labels.agendaCta}
+              </Link>
+            )}
             <nav
               aria-label={dict.nav.accountAria}
               className="flex shrink-0 items-center gap-1"
@@ -167,6 +183,7 @@ export function NagoSiteHeader({
           activeHref={activeHref}
           dict={dict}
           sessionEmail={sessionEmail}
+          registerCtas={ctas}
           agendaHref={`/${locale}/register`}
           agendaLabel={labels.agendaCta}
         />

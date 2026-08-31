@@ -48,7 +48,6 @@ export function RegisterBirthDateCalendarGrid({
 
   return (
     <DayPicker
-      className="w-full"
       lang={locale}
       mode="single"
       captionLayout="label"

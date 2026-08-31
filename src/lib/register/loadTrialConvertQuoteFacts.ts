@@ -7,6 +7,12 @@ import {
 import { resolveEffectiveSectionFeePlan } from "@/lib/billing/resolveEffectiveSectionFeePlan";
 import { mapSectionFeePlanRow, type SectionFeePlanRowDb } from "@/types/sectionFeePlan";
 import { requestedSectionsHaveOpenSeats } from "@/lib/register/requestedSectionsHaveOpenSeats";
+import {
+  firstClassPackTuition,
+  type FirstClassPackTuition,
+} from "@/lib/billing/firstClassPackTuition";
+import { sectionIsClassPackBilled } from "@/lib/billing/sectionBillingMode";
+import { mapClassPackPriceRow, type ClassPackPriceRowDb } from "@/types/classPack";
 import { resolveExistingStudentByDni } from "@/lib/register/resolveExistingStudentByDni";
 import { getInstituteTimeZone } from "@/lib/datetime/instituteTimeZone";
 import { instituteCalendarPartsInTimeZone } from "@/lib/datetime/instituteCalendarMonthRange";
@@ -21,12 +27,17 @@ export async function loadTrialConvertQuoteFacts(
   alreadyPaidMonthIds: string[];
   currency: string;
   openBySectionId: Record<string, boolean>;
+  classPack: FirstClassPackTuition | null;
+  periodYear: number;
+  periodMonth: number;
 }> {
   const ids = [...new Set(input.sectionIds.filter(Boolean))];
   const enrollmentAmounts: Record<string, number> = {};
   const monthlyAmounts: Record<string, number> = {};
   const openBySectionId: Record<string, boolean> = {};
   let currency = "USD";
+  const now = input.now ?? new Date();
+  const { y, m } = instituteCalendarPartsInTimeZone(now, getInstituteTimeZone());
   if (ids.length === 0) {
     return {
       enrollmentAmounts,
@@ -35,25 +46,34 @@ export async function loadTrialConvertQuoteFacts(
       alreadyPaidMonthIds: [],
       currency,
       openBySectionId,
+      classPack: null,
+      periodYear: y,
+      periodMonth: m,
     };
   }
 
-  const { data: sections } = await admin
-    .from("academic_sections")
-    .select(
-      "id, enrollment_fee_amount, billing_mode, academic_cohorts(default_enrollment_fee_amount, default_monthly_fee)",
-    )
-    .in("id", ids);
-  const { data: plans } = await admin
-    .from("section_fee_plans")
-    .select(
-      "id, section_id, effective_from_year, effective_from_month, monthly_fee, currency, archived_at",
-    )
-    .is("archived_at", null)
-    .in("section_id", ids);
+  const [{ data: sections }, { data: plans }, { data: packRows }] = await Promise.all([
+    admin
+      .from("academic_sections")
+      .select(
+        "id, enrollment_fee_amount, billing_mode, academic_cohorts(default_enrollment_fee_amount, default_monthly_fee)",
+      )
+      .in("id", ids),
+    admin
+      .from("section_fee_plans")
+      .select(
+        "id, section_id, effective_from_year, effective_from_month, monthly_fee, currency, archived_at",
+      )
+      .is("archived_at", null)
+      .in("section_id", ids),
+    admin
+      .from("class_pack_prices")
+      .select(
+        "id, effective_from_year, effective_from_month, class_count, amount, currency, archived_at",
+      )
+      .is("archived_at", null),
+  ]);
 
-  const now = input.now ?? new Date();
-  const { y, m } = instituteCalendarPartsInTimeZone(now, getInstituteTimeZone());
   const plansBySection = new Map<string, SectionFeePlanRowDb[]>();
   for (const row of (plans ?? []) as SectionFeePlanRowDb[]) {
     const list = plansBySection.get(row.section_id) ?? [];
@@ -88,6 +108,20 @@ export async function loadTrialConvertQuoteFacts(
     openBySectionId[id] = await requestedSectionsHaveOpenSeats(admin, [id]);
   }
 
+  const classPackIds = (sections ?? [])
+    .map((raw) => raw as Record<string, unknown>)
+    .filter((row) => sectionIsClassPackBilled(row.billing_mode))
+    .map((row) => String(row.id));
+  const classPack = firstClassPackTuition(
+    ((packRows ?? []) as ClassPackPriceRowDb[]).map(mapClassPackPriceRow),
+    y,
+    m,
+  );
+  if (classPack && classPackIds[0] && monthlyAmounts[classPackIds[0]] === 0) {
+    monthlyAmounts[classPackIds[0]] = classPack.amount;
+    currency = classPack.currency;
+  }
+
   const identity = await resolveExistingStudentByDni(admin, input.dni);
   const alreadyPaidEnrollmentIds: string[] = [];
   const alreadyPaidMonthIds: string[] = [];
@@ -114,6 +148,19 @@ export async function loadTrialConvertQuoteFacts(
     for (const row of pays ?? []) {
       alreadyPaidMonthIds.push(String(row.section_id));
     }
+    if (classPack && classPackIds.length > 0) {
+      const { data: packs } = await admin
+        .from("student_class_packs")
+        .select("id")
+        .eq("student_id", identity.studentId)
+        .eq("year", y)
+        .eq("month", m)
+        .in("status", ["approved", "exempt"])
+        .limit(1);
+      if ((packs ?? []).length > 0) {
+        for (const id of classPackIds) alreadyPaidMonthIds.push(id);
+      }
+    }
   }
 
   return {
@@ -123,5 +170,13 @@ export async function loadTrialConvertQuoteFacts(
     alreadyPaidMonthIds,
     currency,
     openBySectionId,
+    classPack:
+      classPack &&
+      classPackIds.length > 0 &&
+      !classPackIds.some((id) => alreadyPaidMonthIds.includes(id))
+        ? classPack
+        : null,
+    periodYear: y,
+    periodMonth: m,
   };
 }

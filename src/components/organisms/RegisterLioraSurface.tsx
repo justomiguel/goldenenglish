@@ -43,22 +43,22 @@ export function RegisterLioraSurface({
         logoAlt={brand.logoAlt || brand.name}
         dict={dict}
       />
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 pt-10 md:pt-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start lg:gap-12">
-        <aside className="hidden lg:block lg:pt-2">
-          <div className="liora-card p-8">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 pt-10 md:gap-10 md:pt-14">
+        <aside>
+          <div className="liora-card p-6 md:p-8">
             <p className="liora-kicker text-[var(--liora-rose-deep)]">
               {t("hero.kicker")}
             </p>
-            <h2 className="mt-4 font-[family-name:var(--font-liora-display)] text-4xl font-light leading-tight tracking-[0.08em] text-[var(--liora-ink)]">
+            <h2 className="mt-4 font-[family-name:var(--font-liora-display)] text-3xl font-light leading-tight tracking-[0.08em] text-[var(--liora-ink)] md:text-4xl">
               {t("hero.title")}
             </h2>
-            <p className="mt-4 text-lg font-light text-[var(--liora-rose-deep)]">
+            <p className="mt-3 text-lg font-light text-[var(--liora-rose-deep)]">
               {t("hero.subtitle")}
             </p>
-            <p className="mt-6 text-sm leading-relaxed text-[var(--liora-ink-soft)]">
+            <p className="mt-4 max-w-3xl text-sm leading-relaxed text-[var(--liora-ink-soft)]">
               {t("sobreNosotros.bodyP1")}
             </p>
-            <ul className="mt-7 space-y-3 border-t border-[var(--liora-line)] pt-6 text-sm">
+            <ul className="mt-6 grid gap-3 border-t border-[var(--liora-line)] pt-5 text-sm sm:grid-cols-2 lg:grid-cols-3">
               {LIORA_SEDE_KEYS.map((sedeKey) => (
                 <li key={sedeKey}>
                   <span className="block font-medium tracking-wide text-[var(--liora-ink)]">
@@ -74,15 +74,15 @@ export function RegisterLioraSurface({
         </aside>
 
         <div className="w-full min-w-0">
-          <header className="mb-8 text-center lg:mb-10 lg:text-left">
+          <header className="mb-6 text-center md:mb-8 md:text-left">
             <h1 className="font-[family-name:var(--font-liora-display)] text-3xl font-light tracking-[0.08em] text-[var(--liora-ink)] md:text-4xl">
               {intent === "trial" ? dict.register.trial.shellTitle : liora.register.shellTitle}
             </h1>
-            <p className="mx-auto mt-4 max-w-xl leading-relaxed text-[var(--liora-ink-soft)] md:text-lg lg:mx-0">
+            <p className="mx-auto mt-4 max-w-2xl leading-relaxed text-[var(--liora-ink-soft)] md:mx-0 md:text-lg">
               {liora.register.shellLead}
             </p>
           </header>
-          <div className="flex justify-center lg:justify-start">
+          <div className="liora-public-sheet liora-card w-full p-1">
             <RegisterForm
               locale={locale}
               dict={dict.register}
@@ -93,7 +93,7 @@ export function RegisterLioraSurface({
               intent={intent}
             />
           </div>
-          <p className="mt-8 flex justify-center lg:justify-start">
+          <p className="mt-8 flex justify-center md:justify-start">
             <Link
               href={`${prefix}/login`}
               className="inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-[var(--liora-rose-deep)] underline decoration-[var(--liora-rose-deep)]/35 underline-offset-[0.35em] transition hover:decoration-[var(--liora-rose-deep)]"

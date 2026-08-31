@@ -31,6 +31,24 @@ const options = [
 ];
 
 describe("RegisterSectionPicker", () => {
+  it("defaults to the list combo instead of the week calendar", () => {
+    render(
+      <RegisterSectionPicker
+        dict={dictEn.register}
+        options={options}
+        intent="reserve"
+        selectedIds={[]}
+        onChange={vi.fn()}
+      />,
+    );
+    expect(screen.getByLabelText(dictEn.register.level)).toBeInTheDocument();
+    expect(screen.queryByTestId("register-week-calendar")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: dictEn.register.picker.viewCombo })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
   it("defaults to combo on a narrow viewport and omits full sections", () => {
     const onChange = vi.fn();
     render(

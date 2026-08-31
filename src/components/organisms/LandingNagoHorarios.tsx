@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Dictionary } from "@/types/i18n";
 import { marketingLandingCopy } from "@/lib/landing/mzLandingCopy";
 import { NagoReveal } from "@/components/organisms/NagoReveal";
+import { NagoRegisterCtaButtons } from "@/components/molecules/NagoRegisterCtaButtons";
+import type { PublicRegisterCtaItem } from "@/lib/settings/publicRegisterCtaItems";
 
 const GROUPS = [
   "baby",
@@ -25,9 +27,11 @@ export function formatNagoClp(amount: number, locale: string): string {
 export function LandingNagoHorarios({
   dict,
   locale,
+  registerCtas = [],
 }: {
   dict: Dictionary;
   locale: string;
+  registerCtas?: PublicRegisterCtaItem[];
 }) {
   const t = (path: string) => marketingLandingCopy(dict, "nago", path);
 
@@ -37,7 +41,7 @@ export function LandingNagoHorarios({
       className="nago-section scroll-mt-24 bg-[var(--nago-bg-2)] px-[max(1.25rem,env(safe-area-inset-left))] pe-[max(1.25rem,env(safe-area-inset-right))]"
     >
       <div className="mx-auto max-w-7xl">
-        <NagoReveal>
+        <NagoReveal variant="mask">
           <h2 className="nago-display text-4xl text-[var(--nago-heading-solid)] md:text-5xl">
             {t("horarios.sectionTitle")}
           </h2>
@@ -47,70 +51,79 @@ export function LandingNagoHorarios({
             {t("horarios.venue")}
           </p>
         </NagoReveal>
-        <div className="nago-horario-list mt-10">
-          {GROUPS.map((key, i) => (
-            <NagoReveal
-              key={key}
-              delay={i < 3 ? ((i + 1) as 1 | 2 | 3) : undefined}
-              className="nago-horario-row"
-            >
-              <div className="min-w-0">
-                <p className="nago-horario-title">{t(`horarios.${key}.title`)}</p>
-                <p className="nago-horario-ages">{t(`horarios.${key}.ages`)}</p>
+        <div className="nago-horario-board mt-10">
+          <div className="nago-horario-list">
+            {GROUPS.map((key, i) => (
+              <NagoReveal
+                key={key}
+                from={i % 2 === 0 ? "left" : "right"}
+                delay={i < 3 ? ((i + 1) as 1 | 2 | 3) : undefined}
+                className="nago-horario-row"
+              >
+                <div className="min-w-0">
+                  <p className="nago-horario-title">{t(`horarios.${key}.title`)}</p>
+                  <p className="nago-horario-ages">{t(`horarios.${key}.ages`)}</p>
+                </div>
+                <div className="nago-horario-slots">
+                  <p>{t(`horarios.${key}.slots`)}</p>
+                  {key === "mayores" ? (
+                    <p className="nago-horario-extra">{t("horarios.mayores.note")}</p>
+                  ) : null}
+                </div>
+              </NagoReveal>
+            ))}
+          </div>
+          <NagoReveal>
+            <div className="nago-horario-fees">
+              <p className="nago-horario-fees-title">{t("horarios.pricesTitle")}</p>
+              <div className="nago-fee-grid">
+                {WEEKLY_FEES.map((amount, index) => {
+                  const times = index + 1;
+                  const label =
+                    times === 1
+                      ? t("horarios.timesOne")
+                      : t("horarios.timesMany").replace("{n}", String(times));
+                  return (
+                    <div
+                      key={amount}
+                      className="nago-fee-card"
+                      data-featured={times === 2 ? "true" : undefined}
+                    >
+                      <p className="nago-fee-times">{label}</p>
+                      <p className="nago-fee-amount">{formatNagoClp(amount, locale)}</p>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="nago-horario-slots">
-                <p>{t(`horarios.${key}.slots`)}</p>
-                {key === "mayores" ? (
-                  <p className="nago-horario-extra">{t("horarios.mayores.note")}</p>
-                ) : null}
+              <div className="nago-fee-aside">
+                <div className="nago-fee-note">
+                  <p className="nago-fee-note-kicker">{t("horarios.trialKicker")}</p>
+                  <p className="mt-2 text-lg font-semibold text-[var(--nago-heading-solid)]">
+                    {formatNagoClp(15_000, locale)}
+                  </p>
+                  <p className="text-sm leading-relaxed text-[var(--nago-ink-muted)]">
+                    {t("horarios.trial")}
+                  </p>
+                </div>
+                <div className="nago-fee-note">
+                  <p className="nago-fee-note-kicker">{t("horarios.familyKicker")}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--nago-ink-muted)]">
+                    {t("horarios.family")}
+                  </p>
+                </div>
               </div>
-            </NagoReveal>
-          ))}
+            </div>
+          </NagoReveal>
         </div>
         <NagoReveal>
-          <div className="nago-horario-fees mt-10">
-            <p className="nago-horario-fees-title">{t("horarios.pricesTitle")}</p>
-            <div className="nago-fee-grid">
-              {WEEKLY_FEES.map((amount, index) => {
-                const times = index + 1;
-                const label =
-                  times === 1
-                    ? t("horarios.timesOne")
-                    : t("horarios.timesMany").replace("{n}", String(times));
-                return (
-                  <div
-                    key={amount}
-                    className="nago-fee-card"
-                    data-featured={times === 2 ? "true" : undefined}
-                  >
-                    <p className="nago-fee-times">{label}</p>
-                    <p className="nago-fee-amount">{formatNagoClp(amount, locale)}</p>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="nago-fee-aside">
-              <div className="nago-fee-note">
-                <p className="nago-fee-note-kicker">{t("horarios.trialKicker")}</p>
-                <p className="mt-2 text-lg font-semibold text-[var(--nago-heading-solid)]">
-                  {formatNagoClp(15_000, locale)}
-                </p>
-                <p className="text-sm leading-relaxed text-[var(--nago-ink-muted)]">
-                  {t("horarios.trial")}
-                </p>
-              </div>
-              <div className="nago-fee-note">
-                <p className="nago-fee-note-kicker">{t("horarios.familyKicker")}</p>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--nago-ink-muted)]">
-                  {t("horarios.family")}
-                </p>
-              </div>
-            </div>
-          </div>
           <p className="mt-6 text-sm text-[var(--nago-ink-muted)]">{t("horarios.note")}</p>
-          <Link href={`/${locale}/register`} className="nago-btn nago-btn-solid mt-6">
-            {t("horarios.cta")}
-          </Link>
+          {registerCtas.length > 0 ? (
+            <NagoRegisterCtaButtons items={registerCtas} className="mt-6 flex flex-col gap-3 sm:flex-row" />
+          ) : (
+            <Link href={`/${locale}/register`} className="nago-btn nago-btn-solid mt-6">
+              {t("horarios.cta")}
+            </Link>
+          )}
         </NagoReveal>
       </div>
     </section>

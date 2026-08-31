@@ -20,6 +20,8 @@ import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
 import { loadLandingMainSections } from "@/lib/landing/loadLandingMainSections";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
+import { loadLandingQuestionnaires } from "@/lib/questionnaires/loadLandingQuestionnaires";
+import { LandingQuestionnairesSection } from "@/components/organisms/LandingQuestionnairesSection";
 import { buildHomePageMetadata } from "@/lib/metadata/buildHomePageMetadata";
 import type { SiteThemeKind } from "@/types/theming";
 
@@ -74,12 +76,13 @@ export default async function HomePage({ params }: HomePageProps) {
     );
   }
 
-  const [activeTheme, blogEnabled, publicCtaMode, inscriptionsEnabled] =
+  const [activeTheme, blogEnabled, publicCtaMode, inscriptionsEnabled, landingQuestionnaires] =
     await Promise.all([
       loadActiveTheme(),
       loadBlogEnabled(),
       getPublicCtaMode(),
       getInscriptionsEnabled(),
+      loadLandingQuestionnaires(supabase, locale),
     ]);
 
   const dict = applyLandingContentOverrides(
@@ -98,17 +101,24 @@ export default async function HomePage({ params }: HomePageProps) {
   const LandingSections = await loadLandingMainSections(templateKind);
 
   const main = (
-    <LandingSections
-      dict={dict}
-      brand={brand}
-      locale={locale}
-      mediaMap={mediaMap}
-      blocksBySection={blocksBySection}
-      blogEnabled={blogEnabled}
-      sessionEmail={sessionEmail}
-      publicCtaMode={publicCtaMode}
-      inscriptionsEnabled={inscriptionsEnabled}
-    />
+    <>
+      <LandingSections
+        dict={dict}
+        brand={brand}
+        locale={locale}
+        mediaMap={mediaMap}
+        blocksBySection={blocksBySection}
+        blogEnabled={blogEnabled}
+        sessionEmail={sessionEmail}
+        publicCtaMode={publicCtaMode}
+        inscriptionsEnabled={inscriptionsEnabled}
+      />
+      <LandingQuestionnairesSection
+        locale={locale}
+        items={landingQuestionnaires}
+        labels={dict.landing.questionnaires}
+      />
+    </>
   );
 
   return (

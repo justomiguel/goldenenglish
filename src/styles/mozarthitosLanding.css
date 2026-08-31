@@ -25,6 +25,20 @@
   font-family: var(--font-mz-body), ui-sans-serif, system-ui, sans-serif;
 }
 
+.mz-landing:not(.ez-landing) {
+  --color-heading: var(--mz-header-red-deep);
+  --color-primary: var(--mz-header-red-deep);
+  --color-primary-foreground: #ffffff;
+  --color-primary-dark: var(--mz-header-red);
+  --color-foreground: #2a2a2a;
+  --color-muted-foreground: var(--mz-ink-on-white);
+  --color-surface: #fff8f2;
+  --color-background: var(--mz-white);
+  --color-border: color-mix(in srgb, var(--mz-header-red-deep) 22%, #fff8f2);
+  --color-hero-bg: var(--mz-header-red);
+  --color-hero-fg: #ffffff;
+}
+
 .mz-landing h1,
 .mz-landing h2,
 .mz-landing h3 {

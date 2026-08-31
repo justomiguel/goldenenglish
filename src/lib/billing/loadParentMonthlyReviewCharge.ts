@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { listPayableParentMonthSections } from "@/lib/billing/listPayableParentMonthSections";
-import { assertParentMonthlyReviewSnapshot } from "@/lib/billing/assertParentMonthlyReviewSnapshot";
+import { computeParentMonthlyReviewCharge } from "@/lib/billing/computeParentMonthlyReviewCharge";
+import { loadFamilyBillingPolicy } from "@/lib/billing/loadFamilyBillingPolicy";
+import { loadStudentPaidTrialCredit } from "@/lib/billing/loadStudentPaidTrialCredit";
 import { loadStudentMonthlyPaymentsView } from "@/lib/billing/loadStudentMonthlyPaymentsView";
 import type { ParentMonthlyPayScope } from "@/lib/billing/listPayableParentMonthSections";
 import type { PayableParentMonthLine } from "@/lib/billing/listPayableParentMonthSections";
@@ -17,6 +18,8 @@ export type ParentMonthlyReviewCharge =
       lines: PayableParentMonthLine[];
       total: number;
       currency: string;
+      trialCreditApplied: number;
+      trialCreditRegistrationId: string | null;
     };
 
 export function parseParentMonthlyReviewForm(formData: FormData): {
@@ -37,48 +40,55 @@ export function parseParentMonthlyReviewForm(formData: FormData): {
   if (!studentId || !originSectionId || !Number.isFinite(month) || !Number.isFinite(year)) {
     return null;
   }
-  if (!Number.isFinite(amount) || amount <= 0) return null;
+  if (!Number.isFinite(amount) || amount < 0) return null;
   return { studentId, originSectionId, month, year, amount, scope };
 }
 
 export async function loadParentMonthlyReviewCharge(
   supabase: SupabaseClient,
   parsed: NonNullable<ReturnType<typeof parseParentMonthlyReviewForm>>,
+  options?: { admin?: SupabaseClient },
 ): Promise<ParentMonthlyReviewCharge> {
+  const settingsClient = options?.admin ?? supabase;
   const today = new Date();
   const monthlyView = await loadStudentMonthlyPaymentsView(supabase, parsed.studentId, [], {
     todayYear: today.getFullYear(),
     todayMonth: today.getMonth() + 1,
   });
-  const payable = listPayableParentMonthSections({
+  const { data: profile } = await settingsClient
+    .from("profiles")
+    .select("dni_or_passport")
+    .eq("id", parsed.studentId)
+    .maybeSingle();
+  const [policy, trialCredit] = await Promise.all([
+    loadFamilyBillingPolicy(settingsClient),
+    loadStudentPaidTrialCredit(settingsClient, {
+      studentId: parsed.studentId,
+      dni: profile?.dni_or_passport == null ? null : String(profile.dni_or_passport),
+    }),
+  ]);
+  const computed = computeParentMonthlyReviewCharge({
     view: monthlyView,
     originSectionId: parsed.originSectionId,
     month: parsed.month,
     year: parsed.year,
-    scope: parsed.scope,
-    useFullMonthAmount: true,
+    requestedScope: parsed.scope,
+    submittedTotal: parsed.amount,
+    policy,
+    trialCredit,
   });
-  if (payable.lines.length === 0 || !payable.currency) {
-    return { ok: false, reason: "stale" };
-  }
-  if (
-    !assertParentMonthlyReviewSnapshot({
-      computedTotal: payable.total,
-      submittedTotal: parsed.amount,
-      currency: payable.currency,
-    })
-  ) {
-    return { ok: false, reason: "stale" };
-  }
+  if (!computed.ok) return computed;
   return {
     ok: true,
     studentId: parsed.studentId,
     originSectionId: parsed.originSectionId,
     month: parsed.month,
     year: parsed.year,
-    scope: parsed.scope,
-    lines: payable.lines,
-    total: payable.total,
-    currency: payable.currency,
+    scope: computed.scope,
+    lines: computed.lines,
+    total: computed.total,
+    currency: computed.currency,
+    trialCreditApplied: computed.trialCreditApplied,
+    trialCreditRegistrationId: computed.trialCreditRegistrationId,
   };
 }

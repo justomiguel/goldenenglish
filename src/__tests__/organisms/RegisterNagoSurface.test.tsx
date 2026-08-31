@@ -30,7 +30,14 @@ describe("RegisterNagoSurface", () => {
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       dictEn.landing.nago.register.shellTitle,
     );
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
+      dictEn.landing.nago.hero.title,
+    );
     expect(screen.getByTestId("register-form-stub")).toBeInTheDocument();
-    expect(screen.getByTestId("register-form-stub").parentElement).toHaveClass("nago-public-sheet");
+    const sheet = screen.getByTestId("register-form-stub").parentElement;
+    expect(sheet).toHaveClass("nago-public-sheet", "w-full");
+    expect(sheet).not.toHaveClass("max-w-lg");
+    expect(sheet?.parentElement?.parentElement).toHaveClass("flex-col");
+    expect(sheet?.parentElement?.parentElement).not.toHaveClass("lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]");
   });
 });

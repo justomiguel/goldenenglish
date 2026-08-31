@@ -83,6 +83,8 @@ describe("RegisterBirthDateDayPicker", () => {
     const trigger = screen.getByRole("button", { name: new RegExp(labels.birthDay, "i") });
     await user.click(trigger);
     expect(trigger).toHaveAttribute("aria-expanded", "true");
+    const panel = document.getElementById("rg-birth-calendar-panel");
+    expect(panel).toHaveClass("w-fit");
     await user.click(trigger);
     expect(trigger).toHaveAttribute("aria-expanded", "false");
   });

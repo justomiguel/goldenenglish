@@ -11,6 +11,7 @@ describe("LandingNagoHorarios", () => {
     render(<LandingNagoHorarios dict={dictEn} locale="en" />);
 
     expect(screen.getByRole("heading", { name: dictEn.landing.nago.horarios.sectionTitle })).toBeTruthy();
+    expect(document.querySelector(".nago-horario-board")).toBeTruthy();
     expect(screen.getByText(dictEn.landing.nago.horarios.venue)).toBeTruthy();
     expect(screen.getByText(dictEn.landing.nago.horarios.baby.slots)).toBeTruthy();
     expect(screen.getByText(dictEn.landing.nago.horarios.kids47.slots)).toBeTruthy();

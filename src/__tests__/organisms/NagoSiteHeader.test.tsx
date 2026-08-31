@@ -41,8 +41,9 @@ describe("NagoSiteHeader", () => {
   it("stays pinned to the viewport while sections scroll", () => {
     const { container } = renderHeader();
     const header = container.querySelector("header");
-    expect(header).toHaveClass("fixed", "top-0");
+    expect(header).toHaveClass("fixed", "top-0", "nago-site-header");
     expect(header).not.toHaveClass("sticky");
+    expect(header?.className).not.toMatch(/\bz-\[/);
     expect(container.querySelector(".nago-site-header-spacer")).toBeTruthy();
   });
 
@@ -63,6 +64,16 @@ describe("NagoSiteHeader", () => {
     await user.click(screen.getByRole("button", { name: labels.openMenu }));
     expect(drawer).toHaveClass("is-open");
     expect(drawer).toHaveAttribute("aria-hidden", "false");
+  });
+
+  it("offers reserve and trial class links", () => {
+    renderHeader();
+    expect(
+      screen.getByRole("link", { name: dictEn.landing.nago.hero.ctaReserve }),
+    ).toHaveAttribute("href", "/es/register");
+    expect(
+      screen.getByRole("link", { name: dictEn.landing.nago.hero.ctaTrial }),
+    ).toHaveAttribute("href", "/es/register?intent=trial");
   });
 
   it("marks Eventos as the current page on the events route", async () => {

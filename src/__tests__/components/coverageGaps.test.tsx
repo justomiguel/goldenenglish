@@ -74,6 +74,8 @@ describe("coverage gap closure", () => {
     const logo = screen.getByAltText(mockBrandPublic.logoAlt || mockBrandPublic.name);
     expect(logo.className).toContain("object-contain");
     expect(logo.className).toContain("w-auto");
+    expect(logo.parentElement?.className).toContain("color-surface");
+    expect(logo.parentElement?.className).not.toMatch(/\bbg-white\b/);
   });
 
   it("LandingFooterPwa shows social and email links", () => {

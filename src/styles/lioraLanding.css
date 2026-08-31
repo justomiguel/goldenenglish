@@ -15,6 +15,18 @@
   --liora-ink-soft: #6b5f58;
   --liora-line: #e0d0c5;
   --liora-footer: #332c29;
+  --color-heading: var(--liora-ink);
+  --color-primary: var(--liora-rose-deep);
+  --color-primary-foreground: var(--liora-cream);
+  --color-primary-dark: var(--liora-rose-hover);
+  --color-foreground: var(--liora-ink);
+  --color-muted-foreground: var(--liora-ink-soft);
+  --color-surface: var(--liora-cream-deep);
+  --color-background: var(--liora-cream);
+  --color-border: var(--liora-line);
+  --color-muted: var(--liora-sand);
+  --color-hero-bg: var(--liora-footer);
+  --color-hero-fg: var(--liora-cream);
 }
 
 .liora-landing ::selection {
@@ -103,7 +115,7 @@
 }
 
 .liora-card {
-  background: #ffffff;
+  background: var(--color-surface);
   border: 1px solid var(--liora-line);
   border-radius: 1rem;
   box-shadow: 0 18px 40px -32px rgb(63 55 51 / 55%);

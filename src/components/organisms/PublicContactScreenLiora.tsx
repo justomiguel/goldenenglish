@@ -67,7 +67,7 @@ export function PublicContactScreenLiora({
             </p>
           </header>
           <div className="flex justify-center lg:justify-start">
-            <div className="liora-card w-full max-w-lg p-6 md:p-8">
+            <div className="liora-public-sheet liora-card w-full max-w-lg p-6 md:p-8">
               <PublicContactForm locale={locale} labels={pc} />
             </div>
           </div>

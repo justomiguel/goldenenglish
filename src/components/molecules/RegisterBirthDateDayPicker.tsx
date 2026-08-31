@@ -217,7 +217,7 @@ export function RegisterBirthDateDayPicker({
         <div
           id="rg-birth-calendar-panel"
           hidden={!calendarOpen}
-          className="flex min-h-0 w-full justify-center rounded-[var(--layout-border-radius)] bg-[var(--color-muted)]/35 px-2 py-2 sm:px-3"
+          className="flex w-fit max-w-full rounded-[var(--layout-border-radius)] bg-[var(--color-muted)]/35 px-2 py-1.5"
         >
           {calendarOpen ? (
             <RegisterBirthDateCalendarGrid

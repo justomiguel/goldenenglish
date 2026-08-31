@@ -17,23 +17,30 @@ import { LandingNagoEvents } from "@/components/organisms/LandingNagoEvents";
 import { LandingNagoTestimonials } from "@/components/organisms/LandingNagoTestimonials";
 import { LandingNagoConvert } from "@/components/organisms/LandingNagoConvert";
 import { NagoLandingLeadForm } from "@/components/organisms/NagoLandingLeadForm";
+import { NagoReveal } from "@/components/organisms/NagoReveal";
+import { NagoScrollRoot } from "@/components/organisms/NagoScrollRoot";
+import { NagoSplitWords } from "@/components/organisms/NagoSplitWords";
+import { NagoRegisterCtaButtons } from "@/components/molecules/NagoRegisterCtaButtons";
+import type { PublicRegisterCtaItem } from "@/lib/settings/publicRegisterCtaItems";
 
 interface LandingNagoSectionsProps {
   dict: Dictionary;
   brand: BrandPublic;
   locale: string;
   mediaMap?: LandingMediaMap;
+  registerCtas?: PublicRegisterCtaItem[];
 }
 
 export function LandingNagoSections({
   dict,
   brand,
   locale,
+  registerCtas = [],
 }: LandingNagoSectionsProps) {
   const t = (path: string) => marketingLandingCopy(dict, "nago", path);
 
   return (
-    <>
+    <NagoScrollRoot>
       <NagoHeroMotion
         photoSrc={NAGO_TEMPLATE.hero}
         photoSrcs={NAGO_HERO_SLIDES}
@@ -47,22 +54,27 @@ export function LandingNagoSections({
           </a>
         }
       >
-        <h1
+        <NagoSplitWords
           id="nago-hero-title"
           className="nago-hero-title nago-display max-w-4xl text-5xl leading-[0.9] sm:text-6xl md:text-7xl lg:text-8xl"
-        >
-          {t("hero.title")}{" "}
-          <span className="nago-hero-title-accent">{t("hero.titleAccent")}</span>
-        </h1>
+          parts={[
+            { text: t("hero.title") },
+            { text: t("hero.titleAccent"), accent: true },
+          ]}
+        />
         <div className="nago-hero-rule" aria-hidden />
         <p className="nago-hero-subtitle mt-1 max-w-xl text-sm font-medium uppercase sm:text-base md:text-lg">
           {t("hero.subtitle")}
           <span className="mt-1 block">{t("hero.subtitleTrail")}</span>
         </p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Link href={`/${locale}/register`} className="nago-btn nago-btn-solid">
-            {t("hero.ctaPrimary")}
-          </Link>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          {registerCtas.length > 0 ? (
+            <NagoRegisterCtaButtons items={registerCtas} className="flex flex-col gap-3 sm:flex-row" />
+          ) : (
+            <Link href={`/${locale}/register`} className="nago-btn nago-btn-solid">
+              {t("hero.ctaPrimary")}
+            </Link>
+          )}
           <Link href={`/${locale}#nago`} className="nago-btn">
             {t("hero.ctaSecondary")}
           </Link>
@@ -73,16 +85,18 @@ export function LandingNagoSections({
       <LandingNagoPrograms dict={dict} locale={locale} />
       <LandingNagoExperience dict={dict} />
       <LandingNagoMestre dict={dict} locale={locale} />
-      <LandingNagoHorarios dict={dict} locale={locale} />
+      <LandingNagoHorarios dict={dict} locale={locale} registerCtas={registerCtas} />
       <LandingNagoAccion dict={dict} />
       <LandingNagoEvents dict={dict} locale={locale} />
       <NagoLandingGallery dict={dict} />
       <LandingNagoTestimonials dict={dict} />
-      <LandingNagoConvert dict={dict} locale={locale} />
+      <LandingNagoConvert dict={dict} locale={locale} registerCtas={registerCtas} />
       <section className="bg-[var(--nago-bg)] px-[max(1.25rem,env(safe-area-inset-left))] py-14 pe-[max(1.25rem,env(safe-area-inset-right))]">
-        <NagoLandingLeadForm dict={dict} locale={locale} />
+        <NagoReveal>
+          <NagoLandingLeadForm dict={dict} locale={locale} />
+        </NagoReveal>
       </section>
       <LandingNagoFooter dict={dict} brand={brand} locale={locale} t={t} />
-    </>
+    </NagoScrollRoot>
   );
 }

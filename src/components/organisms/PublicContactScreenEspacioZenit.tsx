@@ -71,7 +71,7 @@ export function PublicContactScreenEspacioZenit({
             </p>
           </header>
           <div className="flex justify-center lg:justify-start">
-            <div className="w-full max-w-lg rounded-[22px] border border-[rgb(0_174_239_/35%)] bg-[#070b12]/80 p-6 shadow-[0_28px_70px_rgb(0_0_0_/40%)] backdrop-blur-sm md:p-8">
+            <div className="ez-public-sheet w-full max-w-lg rounded-[22px] border border-[rgb(0_174_239_/35%)] bg-[#070b12]/80 p-6 shadow-[0_28px_70px_rgb(0_0_0_/40%)] backdrop-blur-sm md:p-8">
               <PublicContactForm locale={locale} labels={pc} />
             </div>
           </div>

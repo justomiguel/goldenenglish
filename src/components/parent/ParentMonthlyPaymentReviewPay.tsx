@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/atoms/Button";
 import { StudentMonthlyPaymentReceiptUploadForm } from "@/components/student/StudentMonthlyPaymentReceiptUploadForm";
 import type {
   SubmitMonthlyReceiptAction,
@@ -20,6 +21,7 @@ export interface ParentMonthlyPaymentReviewPayProps {
   year: number;
   scope: ParentMonthlyPayScope;
   total: number;
+  confirmTrialCreditLabel?: string;
   studentLabels: Dictionary["dashboard"]["student"];
   fileUploadProgress: FileUploadProgressLabels;
   bankTransferInstructions: string | null;
@@ -37,6 +39,7 @@ export function ParentMonthlyPaymentReviewPay({
   year,
   scope,
   total,
+  confirmTrialCreditLabel,
   studentLabels,
   fileUploadProgress,
   bankTransferInstructions,
@@ -87,6 +90,23 @@ export function ParentMonthlyPaymentReviewPay({
     }
     setOnlineBusy(false);
     setMsg(res.message);
+  }
+
+  if (total === 0 && confirmTrialCreditLabel) {
+    return (
+      <div className="space-y-3">
+        <Button
+          type="button"
+          disabled={busy}
+          isLoading={busy}
+          className="min-h-[44px]"
+          onClick={() => onSubmit(withReviewFields(new FormData()))}
+        >
+          {confirmTrialCreditLabel}
+        </Button>
+        {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}
+      </div>
+    );
   }
 
   return (

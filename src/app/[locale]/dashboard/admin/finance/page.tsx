@@ -20,6 +20,11 @@ import { loadAdminCohortCollectionsBulk } from "@/lib/billing/loadAdminCohortCol
 import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
 import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTransferInstructionsSetting";
 import { loadEventsBankTransferEnabledSetting } from "@/lib/events/server/loadEventsBankTransferEnabledSetting";
+import { loadFamilyBillingPolicy } from "@/lib/billing/loadFamilyBillingPolicy";
+import {
+  ALLOW_PARENT_PARTIAL_SECTION_PAYMENTS_DEFAULT,
+  CREDIT_PAID_TRIAL_ON_ENROLL_DEFAULT,
+} from "@/lib/billing/familyBillingPolicy";
 import { loadEventPaymentsForFinanceKpis } from "@/lib/billing/financeSources/loadEventPaymentsForFinanceKpis";
 import { FinanceEventsPaymentsPanel } from "@/components/dashboard/admin/finance/FinanceEventsPaymentsPanel";
 import {
@@ -117,7 +122,11 @@ export default async function AdminFinanceHubPage({
     { countryCode: "CL" as const, environment: "sandbox" as const, enabled: false, hasCredentials: false },
     { countryCode: "AR" as const, environment: "sandbox" as const, enabled: false, hasCredentials: false },
   ];
-  const [flowGatewayInitial, mercadoPagoGatewayInitial, eventsBankTransferEnabled] =
+  const familyBillingDefault = {
+    creditPaidTrialOnEnroll: CREDIT_PAID_TRIAL_ON_ENROLL_DEFAULT,
+    allowParentPartialSectionPayments: ALLOW_PARENT_PARTIAL_SECTION_PAYMENTS_DEFAULT,
+  };
+  const [flowGatewayInitial, mercadoPagoGatewayInitial, eventsBankTransferEnabled, familyBillingPolicy] =
     tab === "settings"
       ? await Promise.all([
           loadFlowChileGatewayAdminRow().then((row) => row ?? flowGatewayDefault),
@@ -125,8 +134,9 @@ export default async function AdminFinanceHubPage({
             rows.length > 0 ? rows : mercadoPagoGatewayDefault,
           ),
           loadEventsBankTransferEnabledSetting(supabase).then((s) => s.enabled),
+          loadFamilyBillingPolicy(supabase),
         ])
-      : [flowGatewayDefault, mercadoPagoGatewayDefault, true];
+      : [flowGatewayDefault, mercadoPagoGatewayDefault, true, familyBillingDefault];
 
   return (
     <div className="space-y-5">
@@ -191,6 +201,7 @@ export default async function AdminFinanceHubPage({
             currentCurrency={billingCurrency.currency}
             currentBankTransferInstructions={bankTransferInstructions.instructions}
             eventsBankTransferEnabled={eventsBankTransferEnabled}
+            familyBillingPolicy={familyBillingPolicy}
             locale={locale}
             dict={financeDict.settings}
             flowGatewayInitial={flowGatewayInitial}

@@ -61,14 +61,19 @@ export function NagoLandingGallery({ dict }: NagoLandingGalleryProps) {
       id="galeria"
       className="nago-section scroll-mt-24 px-[max(1.25rem,env(safe-area-inset-left))] pe-[max(1.25rem,env(safe-area-inset-right))]"
     >
-      <NagoReveal>
+      <NagoReveal variant="mask">
         <h2 className="nago-display text-center text-4xl text-[var(--nago-heading-solid)] md:text-5xl">
           {t("sectionTitle")}
         </h2>
       </NagoReveal>
       <div className="nago-masonry mx-auto mt-10 max-w-7xl">
         {images.map((src, i) => (
-          <div key={src} className="nago-masonry-item">
+          <NagoReveal
+            key={src}
+            variant="media"
+            className="nago-masonry-item"
+            delay={i < 6 ? (((i % 3) + 1) as 1 | 2 | 3) : undefined}
+          >
             <button
               type="button"
               className="relative block w-full overflow-hidden border-0 bg-transparent p-0"
@@ -84,7 +89,7 @@ export function NagoLandingGallery({ dict }: NagoLandingGalleryProps) {
                 sizes="(max-width:640px) 100vw, 33vw"
               />
             </button>
-          </div>
+          </NagoReveal>
         ))}
       </div>
 

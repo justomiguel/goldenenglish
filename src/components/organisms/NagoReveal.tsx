@@ -7,7 +7,9 @@ export interface NagoRevealProps {
   className?: string;
   delay?: 1 | 2 | 3;
   as?: "div" | "article";
-  variant?: "block" | "media";
+  variant?: "block" | "media" | "mask";
+  from?: "up" | "left" | "right";
+  drift?: number;
 }
 
 export function NagoReveal({
@@ -16,6 +18,8 @@ export function NagoReveal({
   delay,
   as: Tag = "div",
   variant = "block",
+  from = "up",
+  drift,
 }: NagoRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [on, setOn] = useState(() => typeof IntersectionObserver === "undefined");
@@ -36,19 +40,37 @@ export function NagoReveal({
     return () => io.disconnect();
   }, []);
 
-  const revealClass = `nago-reveal${variant === "media" ? " nago-reveal-media" : ""}${on ? " is-in" : ""}${delay ? ` d${delay}` : ""}${className ? ` ${className}` : ""}`;
+  const fromClass = variant !== "mask" && from !== "up" ? ` nago-reveal-from-${from}` : "";
+  const variantClass =
+    variant === "media" ? " nago-reveal-media" : variant === "mask" ? " nago-reveal-mask" : "";
+  const revealClass = `nago-reveal${variantClass}${fromClass}${on ? " is-in" : ""}${delay ? ` d${delay}` : ""}${className ? ` ${className}` : ""}`;
+
+  let body: ReactNode = children;
+  if (variant !== "mask" && drift != null && drift !== 0) {
+    body = (
+      <div className="nago-scroll-drift" data-nago-drift={drift}>
+        {children}
+      </div>
+    );
+  }
+  if (variant === "media") {
+    body = <div className="nago-reveal-media-frame">{body}</div>;
+  }
+  if (variant === "mask") {
+    body = <div className="nago-reveal-mask-inner">{body}</div>;
+  }
 
   if (Tag === "article") {
     return (
       <article ref={ref} className={revealClass}>
-        {children}
+        {body}
       </article>
     );
   }
 
   return (
     <div ref={ref} className={revealClass}>
-      {children}
+      {body}
     </div>
   );
 }

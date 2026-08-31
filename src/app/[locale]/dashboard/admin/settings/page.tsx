@@ -8,6 +8,7 @@ import { InscriptionsSettingsForm } from "@/components/dashboard/InscriptionsSet
 import { EmailSendsAdminSettingsForm } from "@/components/dashboard/EmailSendsAdminSettingsForm";
 import { ClassRemindersAdminSettingsForm } from "@/components/dashboard/ClassRemindersAdminSettingsForm";
 import { GoogleTranslateSettingsForm } from "@/components/dashboard/admin/settings/GoogleTranslateSettingsForm";
+import { QuestionnairesSettingsCard } from "@/components/dashboard/admin/settings/QuestionnairesSettingsCard";
 import type { Locale } from "@/types/i18n";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -80,6 +81,7 @@ export default async function AdminSettingsPage({ params }: PageProps) {
           />
         </div>
       ) : null}
+      <QuestionnairesSettingsCard locale={locale} labels={dict.admin.settings} />
       <div data-tour={ADMIN_TOUR_ANCHORS.settingsBlogTranslate}>
         <GoogleTranslateSettingsForm
           locale={locale}

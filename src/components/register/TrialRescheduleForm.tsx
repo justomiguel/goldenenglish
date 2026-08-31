@@ -24,7 +24,7 @@ export function TrialRescheduleForm({
   const [done, setDone] = useState(false);
 
   return (
-    <section className="mx-auto max-w-2xl space-y-4 px-4 py-10">
+    <section className="mx-auto w-full max-w-6xl space-y-4 px-4 py-10">
       <h1 className="text-2xl font-semibold">{dict.trial.rescheduleTitle}</h1>
       <p className="text-sm text-[var(--color-muted-foreground)]">{dict.trial.rescheduleLead}</p>
       {done ? (

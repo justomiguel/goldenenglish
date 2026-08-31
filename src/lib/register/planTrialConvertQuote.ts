@@ -1,3 +1,5 @@
+import { applyPaidTrialCredit } from "@/lib/billing/applyPaidTrialCredit";
+
 export type TrialConvertSeat = {
   sectionId: string;
   status: "booked" | "attended" | "absent" | "released";
@@ -15,6 +17,7 @@ export type TrialConvertQuote =
       droppedSectionIds: string[];
       enrollmentDue: number;
       monthDue: number;
+      trialCreditApplied: number;
       total: number;
       currency: string;
     };
@@ -37,6 +40,9 @@ export function planTrialConvertQuote(input: {
   alreadyPaidEnrollmentIds: string[];
   alreadyPaidMonthIds: string[];
   currency: string;
+  trialPaid?: number;
+  trialAlreadyCredited?: number;
+  creditEnabled?: boolean;
 }): TrialConvertQuote {
   const selected = [...new Set(input.selectedSectionIds.filter(Boolean))];
   if (selected.length === 0) return { ok: false, code: "no_section" };
@@ -63,14 +69,22 @@ export function planTrialConvertQuote(input: {
     if (paidMonth.has(id)) return sum;
     return sum + Math.max(0, Number(input.monthlyAmounts[id] ?? 0) || 0);
   }, 0);
+  const credited = applyPaidTrialCredit({
+    enrollmentDue,
+    tuitionDue: monthDue,
+    trialPaid: input.trialPaid ?? 0,
+    alreadyCredited: input.trialAlreadyCredited ?? 0,
+    enabled: input.creditEnabled === true,
+  });
   return {
     ok: true,
-    kind: quoteKind(enrollmentDue, monthDue),
+    kind: quoteKind(credited.enrollmentDue, credited.tuitionDue),
     payableSectionIds,
     droppedSectionIds,
-    enrollmentDue,
-    monthDue,
-    total: enrollmentDue + monthDue,
+    enrollmentDue: credited.enrollmentDue,
+    monthDue: credited.tuitionDue,
+    trialCreditApplied: credited.creditApplied,
+    total: credited.total,
     currency: input.currency,
   };
 }

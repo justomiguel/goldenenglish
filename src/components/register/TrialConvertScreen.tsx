@@ -21,6 +21,9 @@ export function TrialConvertScreen({
   quoteTotal,
   quoteCurrency,
   quoteKind,
+  enrollmentDue,
+  monthDue,
+  trialCreditApplied,
   methods,
   labels,
 }: {
@@ -31,6 +34,9 @@ export function TrialConvertScreen({
   quoteTotal: number;
   quoteCurrency: string;
   quoteKind: "enrollment" | "first_month" | "enrollment_and_month";
+  enrollmentDue: number;
+  monthDue: number;
+  trialCreditApplied: number;
   methods: RegistrationPublicPayMethod[];
   labels: {
     title: string;
@@ -42,6 +48,7 @@ export function TrialConvertScreen({
     enrollmentKind: string;
     monthKind: string;
     bothKind: string;
+    trialCredit: string;
     joinFree: string;
     flow: string;
     mercadoPago: string;
@@ -98,16 +105,39 @@ export function TrialConvertScreen({
           </label>
         ))}
       </fieldset>
-      {amount ? (
-        <p className="mt-6 text-lg font-medium">
-          {labels.amount}: {amount} ({
-            quoteKind === "enrollment_and_month"
-              ? labels.bothKind
-              : quoteKind === "enrollment"
-                ? labels.enrollmentKind
-                : labels.monthKind
-          })
-        </p>
+      {amount || trialCreditApplied > 0 ? (
+        <div className="mt-6 space-y-1 text-sm">
+          {enrollmentDue > 0 ? (
+            <p>
+              {labels.enrollmentKind}: {formatMoneyLabel(enrollmentDue, quoteCurrency, locale)}
+            </p>
+          ) : null}
+          {monthDue > 0 ? (
+            <p>
+              {labels.monthKind}: {formatMoneyLabel(monthDue, quoteCurrency, locale)}
+            </p>
+          ) : null}
+          {trialCreditApplied > 0 ? (
+            <p className="text-[var(--color-muted-foreground)]">
+              {labels.trialCredit.replace(
+                "{amount}",
+                formatMoneyLabel(trialCreditApplied, quoteCurrency, locale),
+              )}
+            </p>
+          ) : null}
+          <p className="text-lg font-medium">
+            {labels.amount}: {amount ?? formatMoneyLabel(0, quoteCurrency, locale)}
+            {quoteTotal > 0
+              ? ` (${
+                  quoteKind === "enrollment_and_month"
+                    ? labels.bothKind
+                    : quoteKind === "enrollment"
+                      ? labels.enrollmentKind
+                      : labels.monthKind
+                })`
+              : ""}
+          </p>
+        </div>
       ) : null}
       <div className="mt-6 flex flex-wrap gap-2">
         {quoteTotal <= 0 ? (

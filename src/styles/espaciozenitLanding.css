@@ -27,7 +27,47 @@
   --mz-ink-on-white: var(--ez-ink);
   --mz-white: #ffffff;
 
+  --color-heading: #ffffff;
+  --color-primary: var(--ez-cyan-soft);
+  --color-primary-foreground: #041018;
+  --color-primary-dark: var(--ez-cyan);
+  --color-foreground: #ffffff;
+  --color-muted-foreground: rgb(255 255 255 / 0.78);
+  --color-surface: #070b12;
+  --color-background: #000000;
+  --color-border: rgb(0 174 239 / 0.35);
+  --color-muted: #0b1220;
+  --color-hero-bg: #000000;
+  --color-hero-fg: #ffffff;
+  color-scheme: dark;
+
   font-family: var(--font-ez-body), ui-sans-serif, system-ui, sans-serif;
+}
+
+html:has(.ez-landing) {
+  background-color: #000000;
+  color-scheme: dark;
+  --color-heading: #ffffff;
+  --color-primary: #4dd8ff;
+  --color-primary-foreground: #041018;
+  --color-primary-dark: #00aeef;
+  --color-foreground: #ffffff;
+  --color-muted-foreground: rgb(255 255 255 / 0.78);
+  --color-surface: #070b12;
+  --color-background: #000000;
+  --color-border: rgb(0 174 239 / 0.35);
+  --color-muted: #0b1220;
+  --color-hero-bg: #000000;
+  --color-hero-fg: #ffffff;
+}
+
+.ez-landing.mz-landing input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+.ez-landing.mz-landing select,
+.ez-landing.mz-landing textarea {
+  background-color: #0b1220;
+  color: #ffffff;
+  border-color: rgb(0 174 239 / 0.45);
+  color-scheme: dark;
 }
 
 .ez-landing.mz-landing h1,

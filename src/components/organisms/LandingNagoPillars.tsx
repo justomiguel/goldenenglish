@@ -27,6 +27,7 @@ export function LandingNagoPillars({ dict }: { dict: Dictionary }) {
           <NagoReveal
             key={key}
             as="article"
+            from={i % 2 === 0 ? "left" : "right"}
             delay={i < 3 ? ((i + 1) as 1 | 2 | 3) : undefined}
           >
             <Icon className="nago-pillar-icon" />

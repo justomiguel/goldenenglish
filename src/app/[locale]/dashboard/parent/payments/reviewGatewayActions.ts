@@ -22,6 +22,7 @@ import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySet
 import { messageForFlowMonthlySlotFailure } from "@/lib/payments/messageForFlowMonthlySlotFailure";
 import { messageForMercadoPagoMonthlyCoreFailure } from "@/lib/payments/messageForMercadoPagoMonthlyCoreFailure";
 import { logServerException } from "@/lib/logging/serverActionLog";
+import { maybeRecordReviewTrialCredit } from "@/lib/billing/maybeRecordReviewTrialCredit";
 import type { Locale } from "@/types/i18n";
 
 async function authorizeReviewCheckout(formData: FormData) {
@@ -43,12 +44,27 @@ async function authorizeReviewCheckout(formData: FormData) {
   if (!link.linked) return { ok: false as const, message: pe.studentNotLinked };
   if (!link.financialAccessActive) return { ok: false as const, message: pe.forbidden };
 
-  const charge = await loadParentMonthlyReviewCharge(supabase, parsed);
+  const charge = await loadParentMonthlyReviewCharge(supabase, parsed, {
+    admin: createAdminClient(),
+  });
   if (!charge.ok) {
     return { ok: false as const, message: charge.reason === "stale" ? pe.staleSnapshot : pe.invalidForm };
   }
 
   return { ok: true as const, pe, localeRaw, parsed, supabase, user, charge };
+}
+
+async function recordCreditAfterCheckout(auth: {
+  charge: {
+    trialCreditRegistrationId: string | null;
+    trialCreditApplied: number;
+  };
+}) {
+  await maybeRecordReviewTrialCredit({
+    admin: createAdminClient(),
+    registrationId: auth.charge.trialCreditRegistrationId,
+    applied: auth.charge.trialCreditApplied,
+  });
 }
 
 export async function startTutorFlowMonthlyReviewPayment(formData: FormData) {
@@ -58,7 +74,9 @@ export async function startTutorFlowMonthlyReviewPayment(formData: FormData) {
     const line = auth.charge.lines[0]!;
     formData.set("sectionId", line.sectionId);
     formData.set("amount", String(line.amount));
-    return startTutorFlowMonthlyPayment(formData);
+    const single = await startTutorFlowMonthlyPayment(formData);
+    if (single.ok) await recordCreditAfterCheckout(auth);
+    return single;
   }
 
   let rawKey;
@@ -121,6 +139,7 @@ export async function startTutorFlowMonthlyReviewPayment(formData: FormData) {
     }
     return { ok: false as const, message: monthly.flowErrorProvider };
   }
+  await recordCreditAfterCheckout(auth);
   return { ok: true as const, redirectUrl: core.redirectUrl };
 }
 
@@ -131,7 +150,9 @@ export async function startTutorMercadoPagoMonthlyReviewPayment(formData: FormDa
     const line = auth.charge.lines[0]!;
     formData.set("sectionId", line.sectionId);
     formData.set("amount", String(line.amount));
-    return startTutorMercadoPagoMonthlyPayment(formData);
+    const single = await startTutorMercadoPagoMonthlyPayment(formData);
+    if (single.ok) await recordCreditAfterCheckout(auth);
+    return single;
   }
 
   let rawKey;
@@ -175,5 +196,6 @@ export async function startTutorMercadoPagoMonthlyReviewPayment(formData: FormDa
       message: messageForMercadoPagoMonthlyCoreFailure(auth.pe, monthly, core),
     };
   }
+  await recordCreditAfterCheckout(auth);
   return { ok: true as const, redirectUrl: core.redirectUrl };
 }

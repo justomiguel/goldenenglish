@@ -8,6 +8,8 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadPaymentGatewayEncryptionKeyRaw32 } from "@/lib/payment-gateways/loadPaymentGatewayEncryptionKey";
 import { planTrialConvertQuote } from "@/lib/register/planTrialConvertQuote";
 import { loadTrialConvertQuoteFacts } from "@/lib/register/loadTrialConvertQuoteFacts";
+import { loadFamilyBillingPolicy } from "@/lib/billing/loadFamilyBillingPolicy";
+import { trialConvertCreditInput } from "@/lib/register/trialConvertCreditInput";
 import { startTrialLeadGatewayCore } from "@/lib/register/startTrialLeadGatewayCore";
 import { applyTrialConvertGatewayCapture } from "@/lib/register/applyTrialConvertGatewayCapture";
 import { familyEmailForTrialLead } from "@/lib/register/notifyTrialSeatMails";
@@ -35,7 +37,7 @@ export async function startTrialConvertAction(input: {
   const { data: lead, error } = await admin
     .from("registrations")
     .select(
-      "id, dni, intent, status, trial_convert_expires_at, email, tutor_email, tutor_name, first_name, last_name, birth_date",
+      "id, dni, intent, status, trial_convert_expires_at, trial_fee_captured, trial_fee_snapshot, email, tutor_email, tutor_name, first_name, last_name, birth_date",
     )
     .eq("trial_convert_token", parsed.data.token)
     .eq("intent", "trial")
@@ -56,6 +58,7 @@ export async function startTrialConvertAction(input: {
     dni: String(lead.dni),
     sectionIds: parsed.data.sectionIds,
   });
+  const policy = await loadFamilyBillingPolicy(admin);
   const quote = planTrialConvertQuote({
     selectedSectionIds: parsed.data.sectionIds,
     seats: (seats ?? []).map((row) => ({
@@ -68,6 +71,7 @@ export async function startTrialConvertAction(input: {
     alreadyPaidEnrollmentIds: facts.alreadyPaidEnrollmentIds,
     alreadyPaidMonthIds: facts.alreadyPaidMonthIds,
     currency: facts.currency,
+    ...trialConvertCreditInput(lead, policy.creditPaidTrialOnEnroll),
   });
   if (!quote.ok) return { ok: false, code: quote.code };
 
@@ -81,6 +85,10 @@ export async function startTrialConvertAction(input: {
         sectionIds: quote.payableSectionIds,
         enrollmentDue: quote.enrollmentDue,
         monthDue: quote.monthDue,
+        trialCreditApplied: quote.trialCreditApplied,
+        classPack: facts.classPack,
+        periodYear: facts.periodYear,
+        periodMonth: facts.periodMonth,
       },
     })
     .eq("id", lead.id);

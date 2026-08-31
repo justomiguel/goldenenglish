@@ -153,6 +153,12 @@ describe("getDictionary", () => {
     expect(en.landing.hero.ctaTrialClass).toBeTruthy();
     expect(es.landing.hero.ctaTrialClass).toBeTruthy();
     expect(pt.landing.hero.ctaTrialClass).toBeTruthy();
+    expect(en.landing.nago.hero.ctaReserve).toBeTruthy();
+    expect(es.landing.nago.hero.ctaReserve).toBeTruthy();
+    expect(pt.landing.nago.hero.ctaReserve).toBeTruthy();
+    expect(en.landing.nago.hero.ctaTrial).toBeTruthy();
+    expect(es.landing.nago.hero.ctaTrial).toBeTruthy();
+    expect(pt.landing.nago.hero.ctaTrial).toBeTruthy();
     expect(en.admin.settings.publicCtaBoth).toBeTruthy();
     expect(es.admin.settings.publicCtaBoth).toBeTruthy();
     expect(pt.admin.settings.publicCtaBoth).toBeTruthy();

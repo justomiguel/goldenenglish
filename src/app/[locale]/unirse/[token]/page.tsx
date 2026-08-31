@@ -6,6 +6,8 @@ import { loadBankTransferInstructionsSetting } from "@/lib/billing/loadBankTrans
 import { resolveRegistrationPublicPayMethods } from "@/lib/register/resolveRegistrationPublicPayMethods";
 import { planTrialConvertQuote } from "@/lib/register/planTrialConvertQuote";
 import { loadTrialConvertQuoteFacts } from "@/lib/register/loadTrialConvertQuoteFacts";
+import { loadFamilyBillingPolicy } from "@/lib/billing/loadFamilyBillingPolicy";
+import { trialConvertCreditInput } from "@/lib/register/trialConvertCreditInput";
 import {
   TrialConvertExpiredScreen,
   TrialConvertScreen,
@@ -40,13 +42,14 @@ export default async function TrialConvertPage({
   const admin = createAdminClient();
   const { data: lead } = await admin
     .from("registrations")
-    .select("dni")
+    .select("dni, trial_fee_captured, trial_fee_snapshot")
     .eq("trial_convert_token", token)
     .maybeSingle();
   const facts = await loadTrialConvertQuoteFacts(admin, {
     dni: String(lead?.dni ?? ""),
     sectionIds,
   });
+  const policy = await loadFamilyBillingPolicy(admin);
   const quote = planTrialConvertQuote({
     selectedSectionIds: sectionIds,
     seats: seats.map((seat) => ({
@@ -59,6 +62,7 @@ export default async function TrialConvertPage({
     alreadyPaidEnrollmentIds: facts.alreadyPaidEnrollmentIds,
     alreadyPaidMonthIds: facts.alreadyPaidMonthIds,
     currency: facts.currency,
+    ...trialConvertCreditInput(lead ?? {}, policy.creditPaidTrialOnEnroll),
   });
   const [gateways, transfer] = await Promise.all([
     loadEnabledGatewaysForBillingCurrency(admin, facts.currency),
@@ -85,6 +89,9 @@ export default async function TrialConvertPage({
       quoteTotal={quote.ok ? quote.total : 0}
       quoteCurrency={quote.ok ? quote.currency : facts.currency}
       quoteKind={quote.ok ? quote.kind : "first_month"}
+      enrollmentDue={quote.ok ? quote.enrollmentDue : 0}
+      monthDue={quote.ok ? quote.monthDue : 0}
+      trialCreditApplied={quote.ok ? quote.trialCreditApplied : 0}
       methods={methods}
       labels={{
         title: labels.convertTitle,
@@ -96,6 +103,7 @@ export default async function TrialConvertPage({
         enrollmentKind: labels.convertEnrollment,
         monthKind: labels.convertMonth,
         bothKind: labels.convertEnrollmentAndMonth,
+        trialCredit: labels.convertTrialCredit,
         joinFree: labels.convertFree,
         flow: dict.register.enrollmentPayFlow,
         mercadoPago: dict.register.enrollmentPayMercadoPago,

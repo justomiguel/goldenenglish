@@ -31,5 +31,8 @@ describe("RegisterLioraSurface", () => {
       dictEn.landing.liora.register.shellTitle,
     );
     expect(screen.getByTestId("register-form-stub")).toBeInTheDocument();
+    const sheet = screen.getByTestId("register-form-stub").parentElement;
+    expect(sheet).toHaveClass("liora-public-sheet", "w-full");
+    expect(sheet).not.toHaveClass("max-w-lg");
   });
 });

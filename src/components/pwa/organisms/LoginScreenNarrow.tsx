@@ -57,7 +57,7 @@ export function LoginScreenNarrow({
       </header>
 
       <section
-        className="relative isolate mx-4 mt-4 overflow-hidden rounded-2xl bg-[var(--color-primary-dark)] px-5 py-6 text-[var(--color-primary-foreground)]"
+        className="relative isolate mx-4 mt-4 overflow-hidden rounded-2xl bg-[var(--color-hero-bg,var(--color-primary-dark))] px-5 py-6 text-[var(--color-hero-fg,var(--color-primary-foreground))]"
         aria-label={brand.name}
       >
         <div
@@ -68,7 +68,7 @@ export function LoginScreenNarrow({
           href={homeHref}
           className="relative flex items-center gap-4 rounded-[var(--layout-border-radius)] outline-none ring-offset-2 ring-offset-[var(--color-primary-dark)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
         >
-          <div className="shrink-0 rounded-[var(--layout-border-radius)] bg-white p-1.5 ring-1 ring-[var(--color-border)]">
+          <div className="shrink-0 rounded-[var(--layout-border-radius)] bg-[var(--color-surface)] p-1.5 ring-1 ring-[var(--color-border)]">
             <Image
               src={brand.logoPath}
               alt={brand.logoAlt || brand.name}

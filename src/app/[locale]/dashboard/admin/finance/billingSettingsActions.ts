@@ -9,6 +9,11 @@ import { updateBillingCurrencySetting } from "@/lib/billing/updateBillingCurrenc
 import { updateBankTransferInstructionsSetting } from "@/lib/billing/updateBankTransferInstructionsSetting";
 import { updateEventsBankTransferEnabledSetting } from "@/lib/events/server/updateEventsBankTransferEnabledSetting";
 import { EVENTS_BANK_TRANSFER_ENABLED_KEY } from "@/lib/events/eventsBankTransferSetting";
+import { updateFamilyBillingPolicy } from "@/lib/billing/updateFamilyBillingPolicy";
+import {
+  ALLOW_PARENT_PARTIAL_SECTION_PAYMENTS_KEY,
+  CREDIT_PAID_TRIAL_ON_ENROLL_KEY,
+} from "@/lib/billing/familyBillingPolicy";
 
 export interface SetBillingCurrencyResult {
   ok: boolean;
@@ -130,5 +135,52 @@ export async function setEventsBankTransferEnabledAction(
 
   revalidatePath(`/${locale}/dashboard/admin/finance`, "layout");
   revalidatePath(`/${locale}/events`, "layout");
+  return { ok: true };
+}
+
+export interface SetFamilyBillingPolicyResult {
+  ok: boolean;
+  error?: "unauthorized" | "db_error";
+}
+
+export async function setFamilyBillingPolicyAction(
+  locale: string,
+  input: {
+    creditPaidTrialOnEnroll: boolean;
+    allowParentPartialSectionPayments: boolean;
+  },
+): Promise<SetFamilyBillingPolicyResult> {
+  try {
+    await assertAdmin();
+  } catch {
+    logServerAuthzDenied("setFamilyBillingPolicyAction");
+    return { ok: false, error: "unauthorized" };
+  }
+
+  const supabase = await createClient();
+  const result = await updateFamilyBillingPolicy(supabase, input);
+
+  if (!result.ok) {
+    logSupabaseClientError(
+      "setFamilyBillingPolicyAction",
+      { message: result.error ?? "unknown" },
+      { key: CREDIT_PAID_TRIAL_ON_ENROLL_KEY },
+    );
+    return { ok: false, error: "db_error" };
+  }
+
+  void recordSystemAudit({
+    action: "family_billing_policy_update",
+    resourceType: "site_settings",
+    resourceId: CREDIT_PAID_TRIAL_ON_ENROLL_KEY,
+    payload: {
+      [CREDIT_PAID_TRIAL_ON_ENROLL_KEY]: input.creditPaidTrialOnEnroll,
+      [ALLOW_PARENT_PARTIAL_SECTION_PAYMENTS_KEY]: input.allowParentPartialSectionPayments,
+    },
+  });
+
+  revalidatePath(`/${locale}/dashboard/admin/finance`, "layout");
+  revalidatePath(`/${locale}/dashboard/parent/payments`, "layout");
+  revalidatePath(`/${locale}/unirse`, "layout");
   return { ok: true };
 }

@@ -22,17 +22,19 @@ const nagoBody = Outfit({
 
 export interface NagoFontRootProps {
   className?: string;
+  /** Berimbau context. Off on login/auth so the sheet is tokens-only. */
+  sound?: boolean;
   children: ReactNode;
 }
 
-export function NagoFontRoot({ className = "", children }: NagoFontRootProps) {
+export function NagoFontRoot({ className = "", sound = true, children }: NagoFontRootProps) {
   const vars = `${nagoDisplay.variable} ${nagoBody.variable}`;
   return (
     <div
       className={`nago-landing ${vars} bg-[var(--nago-bg)] font-[family-name:var(--font-nago-body)] text-[var(--nago-ink)] antialiased ${className}`.trim()}
     >
       <div className="nago-grain" aria-hidden />
-      <NagoSoundRoot>{children}</NagoSoundRoot>
+      {sound ? <NagoSoundRoot>{children}</NagoSoundRoot> : children}
     </div>
   );
 }

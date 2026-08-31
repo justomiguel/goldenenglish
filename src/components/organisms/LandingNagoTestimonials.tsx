@@ -10,7 +10,7 @@ export function LandingNagoTestimonials({ dict }: { dict: Dictionary }) {
   return (
     <section className="nago-section bg-[var(--nago-bg-2)] px-[max(1.25rem,env(safe-area-inset-left))] pe-[max(1.25rem,env(safe-area-inset-right))]">
       <div className="mx-auto max-w-7xl">
-        <NagoReveal>
+        <NagoReveal variant="mask">
           <h2 className="nago-display text-3xl text-[var(--nago-heading-solid)] md:text-4xl">
             {t("testimonios.sectionTitle")}
           </h2>
@@ -20,6 +20,7 @@ export function LandingNagoTestimonials({ dict }: { dict: Dictionary }) {
             <NagoReveal
               key={key}
               as="article"
+              from={i === 1 ? "up" : i === 0 ? "left" : "right"}
               delay={i < 3 ? ((i + 1) as 1 | 2 | 3) : undefined}
               className="border-t border-[var(--nago-gold)]/25 pt-5"
             >

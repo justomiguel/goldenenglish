@@ -136,7 +136,7 @@ export function LandingEspacioZenitFooter({
           {dict.publicContact.title}
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-center text-sm text-white/78">{dict.publicContact.lead}</p>
-        <div className="mt-8 rounded-[var(--layout-border-radius)] border border-white/22 bg-[var(--color-surface)] p-6 text-[var(--color-foreground)] shadow-[0_12px_40px_rgb(0_0_0_/45%)] md:p-8">
+        <div className="ez-public-sheet mt-8 rounded-[var(--layout-border-radius)] border border-[rgb(0_174_239_/35%)] p-6 text-[var(--color-foreground)] shadow-[0_12px_40px_rgb(0_0_0_/45%)] md:p-8">
           <PublicContactForm locale={locale} labels={dict.publicContact} embedded />
         </div>
       </div>

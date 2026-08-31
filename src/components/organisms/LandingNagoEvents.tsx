@@ -23,7 +23,7 @@ export function LandingNagoEvents({
   return (
     <section className="nago-section px-[max(1.25rem,env(safe-area-inset-left))] pe-[max(1.25rem,env(safe-area-inset-right))]">
       <div className="mx-auto max-w-7xl">
-        <NagoReveal>
+        <NagoReveal variant="mask">
           <h2 className="nago-display text-4xl text-[var(--nago-heading-solid)] md:text-5xl">
             {t("eventosHome.sectionTitle")}
           </h2>
@@ -31,7 +31,12 @@ export function LandingNagoEvents({
         </NagoReveal>
         <div className="mt-8 grid gap-3 md:grid-cols-3">
           {EVENTS.map(({ key, src }, i) => (
-            <NagoReveal key={key} delay={i < 3 ? ((i + 1) as 1 | 2 | 3) : undefined}>
+            <NagoReveal
+              key={key}
+              from={i === 1 ? "up" : i === 0 ? "left" : "right"}
+              drift={i === 1 ? 12 : i === 0 ? 20 : -18}
+              delay={i < 3 ? ((i + 1) as 1 | 2 | 3) : undefined}
+            >
               <Link href={`/${locale}/events`} className="nago-event-photo group">
                 <Image src={src} alt="" fill sizes="(max-width:768px) 100vw, 33vw" className="object-cover" />
                 <div className="nago-event-photo-veil" aria-hidden />

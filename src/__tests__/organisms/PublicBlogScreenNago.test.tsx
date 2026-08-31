@@ -37,5 +37,15 @@ describe("PublicBlogScreenNago", () => {
     expect(sheet).toBeTruthy();
     expect(sheet?.className).not.toContain("color-surface");
     expect(sheet?.className).toContain("nago-bg-2");
+
+    const header = container.querySelector(".nago-site-header");
+    const main = container.querySelector("main");
+    expect(main?.contains(header)).toBe(false);
+    expect(
+      header &&
+        main &&
+        (header.compareDocumentPosition(main) & Node.DOCUMENT_POSITION_FOLLOWING) !==
+          0,
+    ).toBe(true);
   });
 });

@@ -72,7 +72,7 @@ export function LandingMozarthitosContactSection({
           </div>
         </MozarthitosReveal>
         <MozarthitosReveal preset="contactColRight">
-          <div className="rounded-[28px] bg-white/[0.97] p-6 text-[var(--color-foreground)] shadow-[0_18px_50px_rgb(0_0_0_/28%)] sm:p-8">
+          <div className="mz-public-sheet rounded-[28px] p-6 text-[var(--color-foreground)] shadow-[0_18px_50px_rgb(0_0_0_/28%)] sm:p-8">
             <PublicContactForm locale={locale} labels={dict.publicContact} embedded />
           </div>
           <div className="mz-contact-hint-card mt-6 p-5 text-sm leading-relaxed text-white sm:p-7 md:p-9 md:text-base">

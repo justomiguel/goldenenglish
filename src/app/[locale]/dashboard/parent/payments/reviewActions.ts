@@ -11,6 +11,9 @@ import {
 } from "@/lib/billing/loadParentMonthlyReviewCharge";
 import { notifyPaymentReceiptPending } from "@/lib/email/billingPaymentEmails";
 import { logServerException } from "@/lib/logging/serverActionLog";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { maybeRecordReviewTrialCredit } from "@/lib/billing/maybeRecordReviewTrialCredit";
+import { settleParentMonthlyReviewByTrialCredit } from "@/lib/billing/settleParentMonthlyReviewByTrialCredit";
 import { defaultLocale } from "@/lib/i18n/dictionaries";
 import type { Locale } from "@/types/i18n";
 
@@ -32,12 +35,6 @@ export async function submitTutorMonthlyReviewReceipt(
   const parsed = parseParentMonthlyReviewForm(formData);
   const file = formData.get("receipt");
   if (!parsed) return { ok: false, message: pe.invalidForm };
-  if (!(file instanceof File) || file.size === 0) return { ok: false, message: pe.receiptRequired };
-  if (file.size > MAX_BYTES) return { ok: false, message: pe.fileTooLarge };
-  const mime = file.type || "application/octet-stream";
-  if (!mime.startsWith("image/") && mime !== "application/pdf") {
-    return { ok: false, message: pe.mimeInvalid };
-  }
 
   const supabase = await createClient();
   const {
@@ -52,9 +49,34 @@ export async function submitTutorMonthlyReviewReceipt(
   if (!link.linked) return { ok: false, message: pe.studentNotLinked };
   if (!link.financialAccessActive) return { ok: false, message: pe.forbidden };
 
-  const charge = await loadParentMonthlyReviewCharge(supabase, parsed);
+  const admin = createAdminClient();
+  const charge = await loadParentMonthlyReviewCharge(supabase, parsed, { admin });
   if (!charge.ok) {
     return { ok: false, message: charge.reason === "stale" ? pe.staleSnapshot : pe.invalidForm };
+  }
+
+  if (charge.total === 0) {
+    const settled = await settleParentMonthlyReviewByTrialCredit({
+      admin,
+      studentId: charge.studentId,
+      month: charge.month,
+      year: charge.year,
+      lines: charge.lines,
+      trialCreditApplied: charge.trialCreditApplied,
+      trialCreditRegistrationId: charge.trialCreditRegistrationId,
+      actorId: user.id,
+    });
+    if (!settled.ok) return { ok: false, message: pe.uploadFailed };
+    revalidatePath(`/${locale}/dashboard/parent/payments`);
+    revalidatePath(`/${locale}/dashboard/student/payments`);
+    return { ok: true };
+  }
+
+  if (!(file instanceof File) || file.size === 0) return { ok: false, message: pe.receiptRequired };
+  if (file.size > MAX_BYTES) return { ok: false, message: pe.fileTooLarge };
+  const mime = file.type || "application/octet-stream";
+  if (!mime.startsWith("image/") && mime !== "application/pdf") {
+    return { ok: false, message: pe.mimeInvalid };
   }
 
   const buf = Buffer.from(await file.arrayBuffer());
@@ -110,6 +132,12 @@ export async function submitTutorMonthlyReviewReceipt(
       });
     });
   }
+
+  await maybeRecordReviewTrialCredit({
+    admin,
+    registrationId: charge.trialCreditRegistrationId,
+    applied: charge.trialCreditApplied,
+  });
 
   revalidatePath(`/${locale}/dashboard/parent/payments`);
   revalidatePath(`/${locale}/dashboard/student/payments`);

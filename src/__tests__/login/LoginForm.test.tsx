@@ -163,6 +163,15 @@ describe("LoginForm", () => {
     expect(mockHandleSubmit).toHaveBeenCalled();
   });
 
+  it("does not paint a hard white inset on fields so dark tenants stay dark", () => {
+    const { container } = render(<LoginForm labels={labels} locale="en" />);
+    const fields = container.querySelectorAll("input");
+    expect(fields.length).toBeGreaterThan(0);
+    for (const field of fields) {
+      expect(field.className).not.toMatch(/255_255_255_\/_0\.75/);
+    }
+  });
+
   it("disables button when loading", () => {
     defaultHookReturn.isLoading = true;
 

@@ -4,6 +4,7 @@ import type { Dictionary } from "@/types/i18n";
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher";
 import { BrandFacebookIcon, BrandInstagramIcon } from "@/components/atoms/BrandSocialIcons";
 import { resolveNagoLogo } from "@/lib/landing/nagoLogo";
+import { NagoReveal } from "@/components/organisms/NagoReveal";
 
 interface LandingNagoFooterProps {
   dict: Dictionary;
@@ -27,25 +28,28 @@ export function LandingNagoFooter({ dict, brand, locale, t }: LandingNagoFooterP
   return (
     <footer className="bg-[var(--nago-footer)] px-[max(1.25rem,env(safe-area-inset-left))] py-12 pb-[max(2rem,env(safe-area-inset-bottom))] pe-[max(1.25rem,env(safe-area-inset-right))] text-white">
       <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.1fr_1fr_1fr] md:items-start">
-        <div className="flex flex-col items-start gap-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={resolveNagoLogo(brand)}
-            alt={brand.logoAlt}
-            className="nago-logo-knockout block h-24 w-auto max-w-[16rem] object-contain object-left sm:h-28 sm:max-w-[20rem]"
-          />
-          <p className="nago-display text-lg text-[var(--nago-heading-solid)]">Capoeira Nagô</p>
-          <p className="flex items-center gap-2 text-sm text-[var(--nago-ink-muted)]">
-            <span className="nago-br-dot" aria-hidden />
-            {t("footer.location")}
-            <span className="nago-cl-dot" aria-hidden />
-          </p>
-        </div>
+        <NagoReveal>
+          <div className="flex flex-col items-start gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={resolveNagoLogo(brand)}
+              alt={brand.logoAlt}
+              className="nago-logo-knockout block h-24 w-auto max-w-[16rem] object-contain object-left sm:h-28 sm:max-w-[20rem]"
+            />
+            <p className="nago-display text-lg text-[var(--nago-heading-solid)]">Capoeira Nagô</p>
+            <p className="flex items-center gap-2 text-sm text-[var(--nago-ink-muted)]">
+              <span className="nago-br-dot" aria-hidden />
+              {t("footer.location")}
+              <span className="nago-cl-dot" aria-hidden />
+            </p>
+          </div>
+        </NagoReveal>
 
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--nago-gold)]">
-            {t("footer.enlacesTitle")}
-          </p>
+        <NagoReveal>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--nago-gold)]">
+              {t("footer.enlacesTitle")}
+            </p>
           <ul className="mt-4 space-y-2 text-sm">
             <li>
               <Link href={`/${locale}#top`} className="hover:text-[var(--nago-gold)]">
@@ -88,12 +92,14 @@ export function LandingNagoFooter({ dict, brand, locale, t }: LandingNagoFooterP
               </Link>
             </li>
           </ul>
-        </div>
+          </div>
+        </NagoReveal>
 
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--nago-gold)]">
-            {t("footer.siguenos")}
-          </p>
+        <NagoReveal>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--nago-gold)]">
+              {t("footer.siguenos")}
+            </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {t("contact.instagramUrl").trim() ? (
               <a
@@ -141,7 +147,8 @@ export function LandingNagoFooter({ dict, brand, locale, t }: LandingNagoFooterP
             ) : null}
           </div>
           <p className="mt-5 text-sm text-[var(--nago-ink-muted)]">{t("contact.phoneDisplay")}</p>
-        </div>
+          </div>
+        </NagoReveal>
       </div>
 
       <div className="mx-auto mt-10 flex max-w-7xl flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6">
