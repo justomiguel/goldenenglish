@@ -18,6 +18,7 @@ export type RegistrationMatriculaPayPageData = {
   context: RegistrationPayContext;
   sectionIsFull: boolean;
   sectionLabel: string;
+  proposedSectionLabel: string;
   methods: RegistrationPublicPayMethod[];
   transferInstructions: string | null;
   alternatives: { id: string; label: string }[];
@@ -33,8 +34,22 @@ export async function loadRegistrationMatriculaPayPage(
     p_token: token,
   });
   if (error) return null;
-  const context = parseRegistrationPayContext(data);
+  let context = parseRegistrationPayContext(data);
   if (!context) return null;
+
+  const admin = createAdminClient();
+  if (context.intakeState === "offer_pending" && context.proposedSectionId) {
+    const proposedOpen = await requestedSectionsHaveOpenSeats(supabase, [
+      context.proposedSectionId,
+    ]);
+    if (!proposedOpen) {
+      await admin.from("registrations").update({
+        intake_state: "section_full",
+        proposed_section_id: null,
+      }).eq("pay_token", token);
+      context = { ...context, intakeState: "section_full", proposedSectionId: null };
+    }
+  }
 
   const requested = requestedSectionIdsFromPayContext(context);
   const [seatsOpen, options, brand] = await Promise.all([
@@ -52,7 +67,14 @@ export async function loadRegistrationMatriculaPayPage(
     sectionLabel = label ? String(label) : "";
   }
 
-  const admin = createAdminClient();
+  let proposedSectionLabel = "";
+  if (context.proposedSectionId) {
+    const { data: label } = await supabase.rpc("registration_public_section_label", {
+      p_section_id: context.proposedSectionId,
+    });
+    proposedSectionLabel = label ? String(label) : "";
+  }
+
   if (sectionIsFull && !context.feeCaptured && context.intakeState === "awaiting_fee") {
     await admin
       .from("registrations")
@@ -68,13 +90,15 @@ export async function loadRegistrationMatriculaPayPage(
     transferInstructions: transfer.instructions,
   });
 
-  const requestedSet = new Set(requested);
-  const alternatives = options.filter((row) => !requestedSet.has(row.id));
+  const hide = new Set(requested);
+  if (context.proposedSectionId) hide.add(context.proposedSectionId);
+  const alternatives = options.filter((row) => !hide.has(row.id));
 
   return {
     context,
     sectionIsFull,
     sectionLabel,
+    proposedSectionLabel,
     methods,
     transferInstructions: transfer.instructions,
     alternatives,

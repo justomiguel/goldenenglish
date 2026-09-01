@@ -24,7 +24,20 @@ export async function switchRegistrationPaySectionCore(input: {
   if (!sectionId) return { ok: false, code: "section_full" };
 
   const open = await requestedSectionsHaveOpenSeats(input.admin, [sectionId]);
-  if (!open) return { ok: false, code: "section_full" };
+  if (!open) {
+    if (
+      lead.intakeState === "offer_pending" &&
+      lead.proposedSectionId &&
+      lead.proposedSectionId === sectionId
+    ) {
+      const { error } = await input.admin
+        .from("registrations")
+        .update({ intake_state: "section_full", proposed_section_id: null })
+        .eq("id", lead.id);
+      if (error) return { ok: false, code: "update_failed" };
+    }
+    return { ok: false, code: "section_full" };
+  }
 
   const quoted = await buildRegistrationEnrollmentFeeInsertFields({
     admin: input.admin,
@@ -40,6 +53,7 @@ export async function switchRegistrationPaySectionCore(input: {
       additional_section_ids: additional,
       fee_snapshot: quoted.fee_snapshot,
       intake_state: quoted.intake_state,
+      proposed_section_id: null,
     })
     .eq("id", lead.id);
   if (error) {

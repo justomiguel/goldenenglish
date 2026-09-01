@@ -66,6 +66,7 @@ export async function loadRegistrationTrialFeePayPage(
     },
     sectionIsFull: requested.length > 0 && !seatsOpen,
     sectionLabel,
+    proposedSectionLabel: "",
     methods: resolveRegistrationPublicPayMethods({
       enabledGateways: gateways.map((row) => row.provider),
       transferInstructions: transfer.instructions,

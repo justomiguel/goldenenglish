@@ -55,4 +55,28 @@ describe("registrationPayPageKind", () => {
   it("returns pay when matrícula is due and the seat is open", () => {
     expect(registrationPayPageKind(base)).toBe("pay");
   });
+
+  it("returns offer while a proposal is live even if the original section is full", () => {
+    expect(
+      registrationPayPageKind({
+        ...base,
+        intakeState: "offer_pending",
+        sectionIsFull: true,
+        hasProposed: true,
+        proposedIsFull: false,
+      }),
+    ).toBe("offer");
+  });
+
+  it("returns section_full when the proposal itself has no seat", () => {
+    expect(
+      registrationPayPageKind({
+        ...base,
+        intakeState: "offer_pending",
+        sectionIsFull: true,
+        hasProposed: true,
+        proposedIsFull: true,
+      }),
+    ).toBe("section_full");
+  });
 });

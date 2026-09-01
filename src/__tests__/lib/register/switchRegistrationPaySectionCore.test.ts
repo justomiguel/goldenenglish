@@ -15,6 +15,7 @@ function lead(overrides: Record<string, unknown> = {}) {
     fee_snapshot: { total: 80, currency: "CLP", mode: "per_section" },
     preferred_section_id: "sec-full",
     additional_section_ids: [],
+    proposed_section_id: null,
     ...overrides,
   };
 }
@@ -24,19 +25,22 @@ function mockAdmin(opts: {
   seatOpen?: boolean;
   sectionRows?: unknown[];
 } = {}) {
-  const updated: { values?: Record<string, unknown> } = {};
+  const updated: { values?: Record<string, unknown>; selectColumns?: string } = {};
   const admin = {
     from: (table: string) => {
       if (table === "registrations") {
         return {
-          select: () => ({
-            eq: () => ({
-              maybeSingle: async () => ({
-                data: opts.row === undefined ? lead() : opts.row,
-                error: null,
+          select: (columns: string) => {
+            updated.selectColumns = columns;
+            return {
+              eq: () => ({
+                maybeSingle: async () => ({
+                  data: opts.row === undefined ? lead() : opts.row,
+                  error: null,
+                }),
               }),
-            }),
-          }),
+            };
+          },
           update: (values: Record<string, unknown>) => {
             updated.values = values;
             return {
@@ -137,5 +141,45 @@ describe("switchRegistrationPaySectionCore", () => {
       nowIso: "2026-08-28T12:00:00.000Z",
     });
     expect(result).toEqual({ ok: false, code: "section_full" });
+  });
+
+  it("clears proposed_section_id and rebuilds the join package", async () => {
+    const admin = mockAdmin({
+      row: lead({
+        intake_state: "offer_pending",
+        preferred_section_id: "sec-full",
+        proposed_section_id: "sec-open",
+      }),
+    });
+    // extend mockAdmin select to return proposed_section_id
+    const result = await switchRegistrationPaySectionCore({
+      admin, payToken: "tok", sectionId: NEW_SEC, nowIso: "2026-09-01T12:00:00.000Z",
+    });
+    expect(result.ok).toBe(true);
+    expect(admin.updated.values).toMatchObject({
+      preferred_section_id: NEW_SEC,
+      proposed_section_id: null,
+      intake_state: "awaiting_fee",
+    });
+    expect(admin.updated.selectColumns).toMatch(/proposed_section_id/);
+  });
+
+  it("persists section_full and clears the proposal when the offered section filled", async () => {
+    const admin = mockAdmin({
+      seatOpen: false,
+      row: lead({
+        intake_state: "offer_pending",
+        preferred_section_id: "sec-full",
+        proposed_section_id: NEW_SEC,
+      }),
+    });
+    const result = await switchRegistrationPaySectionCore({
+      admin, payToken: "tok", sectionId: NEW_SEC, nowIso: "2026-09-01T12:00:00.000Z",
+    });
+    expect(result).toEqual({ ok: false, code: "section_full" });
+    expect(admin.updated.values).toEqual({
+      intake_state: "section_full",
+      proposed_section_id: null,
+    });
   });
 });

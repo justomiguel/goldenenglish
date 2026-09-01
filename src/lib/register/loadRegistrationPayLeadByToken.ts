@@ -10,6 +10,7 @@ export type RegistrationPayLead = {
   snapshotTotal: number;
   snapshotCurrency: string;
   preferredSectionId: string | null;
+  proposedSectionId: string | null;
   additionalSectionIds: string[];
   isMinor: boolean;
   studentEmail: string | null;
@@ -44,7 +45,7 @@ export async function loadRegistrationPayLeadByToken(
   const { data, error } = await admin
     .from("registrations")
     .select(
-      "id, status, intake_state, fee_captured, fee_snapshot, preferred_section_id, additional_section_ids, is_minor, student_email, tutor_email, first_name, last_name, tutor_name",
+      "id, status, intake_state, fee_captured, fee_snapshot, preferred_section_id, proposed_section_id, additional_section_ids, is_minor, student_email, tutor_email, first_name, last_name, tutor_name",
     )
     .eq("pay_token", payToken)
     .maybeSingle();
@@ -62,6 +63,8 @@ export async function loadRegistrationPayLeadByToken(
     snapshotCurrency: String(snapshot.currency ?? "USD"),
     preferredSectionId:
       row.preferred_section_id == null ? null : String(row.preferred_section_id),
+    proposedSectionId:
+      row.proposed_section_id == null ? null : String(row.proposed_section_id),
     additionalSectionIds: Array.isArray(extra)
       ? extra.map((id) => String(id)).filter(Boolean)
       : [],

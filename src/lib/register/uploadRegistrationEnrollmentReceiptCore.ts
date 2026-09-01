@@ -55,6 +55,7 @@ export async function uploadRegistrationEnrollmentReceiptCore(input: {
   const lead = await loadRegistrationPayLeadByToken(input.admin, input.payToken);
   if (!lead) return { ok: false, code: "not_found" };
   if (lead.status === "enrolled") return { ok: false, code: "enrolled" };
+  if (lead.intakeState === "offer_pending") return { ok: false, code: "section_full" };
   if (lead.feeCaptured) return { ok: false, code: "already_captured" };
   if (!(lead.snapshotTotal > 0)) return { ok: false, code: "no_amount" };
 
