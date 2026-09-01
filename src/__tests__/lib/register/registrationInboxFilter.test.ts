@@ -33,4 +33,15 @@ describe("registrationInboxOrFilter", () => {
     expect(parseRegistrationInboxFilter("trial")).toBe("trial");
     expect(registrationInboxOrFilter("trial")).toBe("intent.eq.trial");
   });
+
+  it("filters offer_pending by intake_state", () => {
+    expect(parseRegistrationInboxFilter("offer_pending")).toBe("offer_pending");
+    expect(registrationInboxOrFilter("offer_pending")).toBe(
+      "intake_state.eq.offer_pending",
+    );
+  });
+
+  it("keeps offer_pending out of the urgent or-filter", () => {
+    expect(registrationInboxOrFilter("urgent")).not.toContain("offer_pending");
+  });
 });

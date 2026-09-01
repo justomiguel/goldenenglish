@@ -38,4 +38,12 @@ describe("countRegistrationInboxFilters", () => {
     );
     expect(mapInboxLeadFields({ enrollment_fee_receipt_path: "   " }).enrollmentFeeReceiptPath).toBeNull();
   });
+
+  it("counts offer_pending without marking it urgent", () => {
+    const counts = countRegistrationInboxFilters([
+      { status: "new", intake_state: "offer_pending" },
+    ]);
+    expect(counts.offer_pending).toBe(1);
+    expect(counts.urgent).toBe(0);
+  });
 });

@@ -23,6 +23,7 @@ describe("RegistrationListToolbar", () => {
           receipt_pending: 0,
           needs_section: 0,
           section_full: 0,
+          offer_pending: 0,
           contacted: 1,
           trial: 0,
         }}

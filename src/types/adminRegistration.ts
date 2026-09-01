@@ -45,6 +45,7 @@ export interface AdminRegistrationRow {
   snapshotCurrency?: string;
   feeCaptured?: boolean;
   enrollmentFeeReceiptPath?: string | null;
+  proposedSectionId?: string | null;
   /** Live: a requested section no longer has an open seat. */
   requestedSectionFull?: boolean;
   /** Live or snapshot: requested sections charge a matrícula. */

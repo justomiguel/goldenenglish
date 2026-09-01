@@ -26,6 +26,7 @@ const REGISTRATION_COLUMNS = [
   "tutor_relationship", "preferred_section_id", "additional_section_ids",
   "contacted_at", "contacted_by", "source_section_link_id", "tenant_extras",
   "intake_state", "fee_snapshot", "fee_captured", "enrollment_fee_receipt_path",
+  "proposed_section_id",
   "intent", "trial_convert_token", "trial_convert_expires_at", "trial_refund_due_amount",
   "privacy_accepted_at", "privacy_policy_version",
 ].join(", ");
@@ -89,6 +90,7 @@ type RegistrationSelectRow = {
   fee_snapshot?: unknown;
   fee_captured?: unknown;
   enrollment_fee_receipt_path?: unknown;
+  proposed_section_id?: string | null;
   intent?: string | null;
   trial_convert_token?: string | null;
   trial_convert_expires_at?: string | null;
@@ -216,6 +218,8 @@ export async function loadPaginatedRegistrations(
     privacy_accepted_at: r.privacy_accepted_at != null ? String(r.privacy_accepted_at) : null,
     privacy_policy_version:
       r.privacy_policy_version != null ? String(r.privacy_policy_version) : null,
+    proposedSectionId:
+      r.proposed_section_id != null ? String(r.proposed_section_id) : null,
     ...mapInboxLeadFields(r),
   }));
   const requestedIds = rows.flatMap((r) => requestedRegistrationSectionIds(r));

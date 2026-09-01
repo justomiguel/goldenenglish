@@ -115,6 +115,7 @@ export function RegistrationListToolbar({
               { value: "receipt_pending" as const, label: labels.intake.filterReceipt, count: inboxCounts.receipt_pending },
               { value: "needs_section" as const, label: labels.intake.filterNeedsSection, count: inboxCounts.needs_section },
               { value: "section_full" as const, label: labels.intake.filterSectionFull, count: inboxCounts.section_full },
+              { value: "offer_pending" as const, label: labels.intake.filterOfferPending, count: inboxCounts.offer_pending },
               { value: "contacted" as const, label: labels.intake.filterContacted, count: inboxCounts.contacted },
               { value: "trial" as const, label: labels.intake.filterTrial, count: inboxCounts.trial },
             ] satisfies { value: RegistrationInboxFilter; label: string; count: number }[]

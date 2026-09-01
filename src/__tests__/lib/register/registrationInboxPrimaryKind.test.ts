@@ -37,5 +37,12 @@ describe("registrationInboxPrimaryKind", () => {
         snapshotTotal: 0,
       }),
     ).toBe("assign");
+    expect(
+      registrationInboxPrimaryKind({
+        status: "new",
+        intakeState: "offer_pending",
+        snapshotTotal: 80,
+      }),
+    ).toBe("assign");
   });
 });

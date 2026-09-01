@@ -18,6 +18,12 @@ export function registrationInboxPrimaryKind(row: {
     return "waive";
   }
   if (intakeState === "receipt_pending") return "receipt";
-  if (intakeState === "needs_section" || intakeState === "section_full") return "assign";
+  if (
+    intakeState === "needs_section" ||
+    intakeState === "section_full" ||
+    intakeState === "offer_pending"
+  ) {
+    return "assign";
+  }
   return "accept";
 }

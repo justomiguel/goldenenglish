@@ -32,6 +32,7 @@ export type IntakeLeadRow = {
   last_name: string;
   pay_token: string | null;
   preferred_section_id: string | null;
+  proposed_section_id: string | null;
   additional_section_ids?: string[] | null;
   birth_date?: string | null;
 };
@@ -55,7 +56,7 @@ export async function loadRegistrationIntakeLead(
   const { data, error } = await admin
     .from("registrations")
     .select(
-      "id,status,intake_state,fee_snapshot,fee_captured,enrollment_fee_receipt_path,email,tutor_email,first_name,last_name,pay_token,preferred_section_id,additional_section_ids,birth_date",
+      "id,status,intake_state,fee_snapshot,fee_captured,enrollment_fee_receipt_path,email,tutor_email,first_name,last_name,pay_token,preferred_section_id,proposed_section_id,additional_section_ids,birth_date",
     )
     .eq("id", id)
     .maybeSingle();

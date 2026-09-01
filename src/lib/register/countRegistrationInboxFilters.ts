@@ -13,6 +13,7 @@ export type RegistrationInboxCounts = {
   receipt_pending: number;
   needs_section: number;
   section_full: number;
+  offer_pending: number;
   contacted: number;
   trial: number;
 };
@@ -24,6 +25,7 @@ export function emptyRegistrationInboxCounts(): RegistrationInboxCounts {
     receipt_pending: 0,
     needs_section: 0,
     section_full: 0,
+    offer_pending: 0,
     contacted: 0,
     trial: 0,
   };
@@ -47,6 +49,7 @@ export function countRegistrationInboxFilters(
     if (intakeState === "receipt_pending") counts.receipt_pending += 1;
     if (intakeState === "needs_section") counts.needs_section += 1;
     if (intakeState === "section_full") counts.section_full += 1;
+    if (intakeState === "offer_pending") counts.offer_pending += 1;
     if (row.status === "contacted") counts.contacted += 1;
     if (row.intent === "trial") counts.trial += 1;
   }

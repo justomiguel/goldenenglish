@@ -4,6 +4,7 @@ export const REGISTRATION_INBOX_FILTERS = [
   "receipt_pending",
   "needs_section",
   "section_full",
+  "offer_pending",
   "contacted",
   "trial",
 ] as const;
@@ -32,7 +33,12 @@ export function registrationInboxOrFilter(filter: RegistrationInboxFilter): stri
   if (filter === "awaiting_fee") {
     return "intake_state.eq.awaiting_fee,and(intake_state.eq.none,fee_snapshot->>total.gt.0)";
   }
-  if (filter === "receipt_pending" || filter === "needs_section" || filter === "section_full") {
+  if (
+    filter === "receipt_pending" ||
+    filter === "needs_section" ||
+    filter === "section_full" ||
+    filter === "offer_pending"
+  ) {
     return `intake_state.eq.${filter}`;
   }
   if (filter === "trial") return "intent.eq.trial";
