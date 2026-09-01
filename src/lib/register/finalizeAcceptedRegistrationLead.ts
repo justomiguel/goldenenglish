@@ -73,12 +73,15 @@ export async function finalizeAcceptedRegistrationLead(input: {
     /* extras mapping must not roll back accept */
   }
 
-  const write = resolveAcceptLeadWrite({
-    requestedCount: requestedIds.length,
-    pendingCount: pendingSectionIds.length,
-    paidCapture: input.paidCapture === true,
-    studentId,
-  });
+  const write = {
+    ...resolveAcceptLeadWrite({
+      requestedCount: requestedIds.length,
+      pendingCount: pendingSectionIds.length,
+      paidCapture: input.paidCapture === true,
+      studentId,
+    }),
+    proposed_section_id: null,
+  };
   const committed = requestedIds.filter((id) => !pendingSectionIds.includes(id));
   if (committed.length > 0) {
     const seeded = await runJoinBillingDisposition({

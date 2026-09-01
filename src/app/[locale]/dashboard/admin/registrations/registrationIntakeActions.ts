@@ -148,6 +148,7 @@ export async function assignRegistrationSectionAction(input: {
       additional_section_ids: additional,
       fee_snapshot: quoted.fee_snapshot,
       intake_state: lead.fee_captured ? "needs_section" : quoted.intake_state,
+      proposed_section_id: null,
     })
     .eq("id", input.registrationId);
   if (error) {

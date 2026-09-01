@@ -35,6 +35,13 @@ vi.mock("@/lib/analytics/server/recordSystemAudit", () => ({
 vi.mock("@/app/[locale]/dashboard/admin/academic/revalidatePaths", () => ({
   revalidateAcademicSurfaces: vi.fn(),
 }));
+vi.mock("@/lib/register/buildRegistrationEnrollmentFeeInsertFields", () => ({
+  buildRegistrationEnrollmentFeeInsertFields: vi.fn(async () => ({
+    fee_snapshot: { total: 10, currency: "CLP" },
+    intake_state: "awaiting_fee",
+    pay_token: "tok",
+  })),
+}));
 
 import {
   approveRegistrationReceiptAction,
@@ -155,5 +162,23 @@ describe("assignRegistrationSectionAction", () => {
     });
     expect(r).toEqual({ ok: false, code: "section_full" });
     expect(mocks.accept).not.toHaveBeenCalled();
+  });
+
+  it("clears proposed_section_id when assigning during offer_pending", async () => {
+    let updated: Record<string, unknown> | undefined;
+    mocks.createAdmin.mockReturnValue(
+      adminFrom(lead({ intake_state: "offer_pending", fee_captured: false }), (v) => {
+        updated = v;
+      }),
+    );
+    const r = await assignRegistrationSectionAction({
+      locale: "es",
+      registrationId: REG_ID,
+      sectionId: SEC_ID,
+      joinDisposition: { kind: "behind" },
+    });
+    expect(r).toEqual({ ok: true });
+    expect(updated?.proposed_section_id).toBe(null);
+    expect(updated?.preferred_section_id).toBe(SEC_ID);
   });
 });

@@ -12,11 +12,12 @@ import {
   waiveRegistrationFeeAction,
 } from "@/app/[locale]/dashboard/admin/registrations/registrationIntakeActions";
 import { registrationInboxPrimaryKind } from "@/lib/register/registrationInboxPrimaryKind";
-import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
+import { formatRegistrationIntakeLabel } from "@/lib/register/formatRegistrationIntakeLabel";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type { Dictionary } from "@/types/i18n";
 import { AdminRegistrationJoinBillingFields } from "@/components/dashboard/AdminRegistrationJoinBillingFields";
+import { AdminRegistrationProposeSchedule } from "@/components/dashboard/AdminRegistrationProposeSchedule";
 import type { JoinBillingDisposition } from "@/lib/billing/joinBillingDispositionSchema";
 
 type IntakeLabels = Dictionary["admin"]["registrations"]["intake"];
@@ -46,17 +47,29 @@ export function AdminRegistrationIntakeActions({
   const [sectionId, setSectionId] = useState(row.preferred_section_id ?? "");
   const [joinDisposition, setJoinDisposition] = useState<JoinBillingDisposition | null>(null);
   const [error, setError] = useState<string | null>(null);
-  if (!kind || kind === "accept") return null;
+  const propose = (
+    <AdminRegistrationProposeSchedule
+      locale={locale}
+      row={row}
+      labels={labels}
+      sections={sections}
+      busy={busy}
+      onBusy={onBusy}
+      onDone={onDone}
+    />
+  );
+  if (!kind || kind === "accept") return propose;
 
-  const amount = formatMoneyLabel(row.snapshotTotal ?? 0, row.snapshotCurrency ?? "CLP", locale);
   const legend =
-    kind === "waive"
-      ? labels.awaitingFee.replace("{{amount}}", amount)
-      : kind === "receipt"
-        ? labels.receiptPending
-        : row.intakeState === "section_full"
-          ? labels.sectionFull
-          : labels.needsSection;
+    formatRegistrationIntakeLabel({
+      intakeState: row.intakeState,
+      requestedSectionFull: row.requestedSectionFull,
+      proposedSectionName: sections.find((s) => s.id === row.proposedSectionId)?.name,
+      snapshotTotal: row.snapshotTotal,
+      snapshotCurrency: row.snapshotCurrency,
+      locale,
+      labels,
+    }) ?? labels.needsSection;
 
   function requireDisposition(): JoinBillingDisposition | null {
     if (joinDisposition) return joinDisposition;
@@ -216,6 +229,7 @@ export function AdminRegistrationIntakeActions({
           </Button>
         </>
       ) : null}
+      {propose}
       {error ? (
         <p className="text-sm text-[var(--color-error)]" role="alert">
           {error}
