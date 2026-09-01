@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
+import { fillTemplate } from "@/lib/i18n/fillTemplate";
 import type { RegistrationPayContext } from "@/lib/register/parseRegistrationPayContext";
 import { registrationPayPageKind } from "@/lib/register/registrationPayPageKind";
 import {
@@ -23,7 +24,16 @@ export type RegistrationMatriculaPayLabels = {
   contact: string;
   whatsapp: string;
   noAlternatives: string;
+  offerLead?: string;
+  offerAccept?: string;
+  offerGone?: string;
 };
+
+function OfferLeadText({ text }: { text: string }) {
+  const parts = text.split("**");
+  if (parts.length < 2) return text;
+  return parts.map((part, i) => (i % 2 === 1 ? <strong key={i}>{part}</strong> : part));
+}
 
 export type RegistrationMatriculaPayUi = {
   token: string;
@@ -87,6 +97,7 @@ export function RegistrationMatriculaPayScreen({
   locale,
   studentName,
   sectionLabel,
+  proposedSectionLabel = "",
   context,
   sectionIsFull,
   labels,
@@ -95,24 +106,31 @@ export function RegistrationMatriculaPayScreen({
   locale: string;
   studentName: string;
   sectionLabel: string;
+  proposedSectionLabel?: string;
   context: RegistrationPayContext;
   sectionIsFull: boolean;
   labels: RegistrationMatriculaPayLabels;
   payUi?: RegistrationMatriculaPayUi;
 }) {
+  const hasProposed = Boolean(context.proposedSectionId);
   const kind = registrationPayPageKind({
     status: context.status,
     intakeState: context.intakeState,
     feeCaptured: context.feeCaptured,
     snapshotTotal: context.snapshotTotal,
     sectionIsFull,
+    hasProposed,
+    proposedIsFull: !hasProposed && context.intakeState === "offer_pending",
   });
   const amount =
     context.snapshotTotal > 0
       ? formatMoneyLabel(context.snapshotTotal, context.snapshotCurrency, locale)
       : null;
   const showSwitch =
-    kind === "section_full" || kind === "captured_full" || kind === "no_fee";
+    kind === "section_full" ||
+    kind === "captured_full" ||
+    kind === "no_fee" ||
+    kind === "offer";
   const showPay = kind === "pay";
   const showContact =
     (showPay && (!payUi || payUi.methods.length === 0)) ||
@@ -126,27 +144,38 @@ export function RegistrationMatriculaPayScreen({
     );
   }
 
+  const proposed = proposedSectionLabel || sectionLabel;
   const leadCopy =
-    kind === "needs_section"
-      ? labels.needsSection
-      : kind === "receipt_pending"
-        ? labels.receiptPending
-        : kind === "captured"
-          ? labels.captured
-          : kind === "captured_full"
-            ? labels.capturedFull
-            : kind === "section_full"
-              ? labels.full
-              : kind === "no_fee"
-                ? labels.noFee
-                : labels.lead;
+    kind === "offer" && labels.offerLead
+      ? fillTemplate(labels.offerLead, {
+          original: sectionLabel,
+          proposed,
+          schedule: proposed,
+        })
+      : kind === "needs_section"
+        ? labels.needsSection
+        : kind === "receipt_pending"
+          ? labels.receiptPending
+          : kind === "captured"
+            ? labels.captured
+            : kind === "captured_full"
+              ? labels.capturedFull
+              : kind === "section_full"
+                ? labels.offerGone && context.intakeState === "offer_pending"
+                  ? labels.offerGone
+                  : labels.full
+                : kind === "no_fee"
+                  ? labels.noFee
+                  : labels.lead;
 
   return (
     <Shell title={labels.title}>
       <p className="mt-3">
         {studentName} · {sectionLabel}
       </p>
-      <p className="mt-3 text-[var(--color-muted-foreground)]">{leadCopy}</p>
+      <p className="mt-3 text-[var(--color-muted-foreground)]">
+        {kind === "offer" ? <OfferLeadText text={leadCopy} /> : leadCopy}
+      </p>
       {kind === "pay" && amount ? (
         <p className="mt-6 text-lg font-medium">
           {labels.amount}: {amount}
@@ -165,7 +194,11 @@ export function RegistrationMatriculaPayScreen({
           alternatives={payUi.alternatives}
           showPay={showPay}
           showSwitch={showSwitch && payUi.variant !== "trial"}
-          labels={payUi.actionLabels}
+          proposedSectionId={kind === "offer" ? context.proposedSectionId : null}
+          labels={{
+            ...payUi.actionLabels,
+            acceptOffer: payUi.actionLabels.acceptOffer ?? labels.offerAccept,
+          }}
           variant={payUi.variant}
         />
       ) : null}

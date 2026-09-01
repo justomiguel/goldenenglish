@@ -118,4 +118,51 @@ describe("RegistrationMatriculaPayScreen", () => {
     expect(screen.getByText("Banco Estado 123")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Enviar comprobante" })).toBeInTheDocument();
   });
+
+  it("shows the offer and hides pay methods until they accept", () => {
+    render(
+      <RegistrationMatriculaPayScreen
+        locale="es"
+        studentName="Ana Pérez"
+        sectionLabel="A2 Mañana"
+        proposedSectionLabel="B1 Tarde"
+        context={{
+          ...base,
+          intakeState: "offer_pending",
+          preferredSectionId: "sec-1",
+          proposedSectionId: "sec-2",
+        }}
+        sectionIsFull={true}
+        labels={{
+          ...labels,
+          offerLead: "El horario de {{original}} se llenó. Te proponemos {{proposed}}.",
+          offerAccept: "Aceptar este horario",
+          offerGone: "esa propuesta también se llenó",
+        }}
+        payUi={{
+          token: "tok",
+          methods: ["flow"],
+          transferInstructions: null,
+          alternatives: [{ id: "sec-3", label: "C1 Noche" }],
+          whatsappUrl: "",
+          contactEmail: "",
+          actionLabels: {
+            flow: "Flow",
+            mercadoPago: "MP",
+            transfer: "T",
+            transferHint: "",
+            uploadButton: "Enviar",
+            pickSection: "Elegí",
+            error: "Error",
+            receiptOk: "Ok",
+            acceptOffer: "Aceptar este horario",
+          },
+        }}
+      />,
+    );
+    expect(screen.getByText(/Te proponemos B1 Tarde/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Aceptar este horario" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Flow" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "C1 Noche" })).toBeInTheDocument();
+  });
 });

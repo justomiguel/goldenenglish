@@ -23,6 +23,7 @@ export type RegistrationMatriculaPayActionLabels = {
   pickSection: string;
   error: string;
   receiptOk: string;
+  acceptOffer?: string;
 };
 
 const btnClass =
@@ -37,6 +38,7 @@ export function RegistrationMatriculaPayActions({
   alternatives,
   showPay,
   showSwitch,
+  proposedSectionId,
   labels,
   variant = "enrollment",
 }: {
@@ -48,6 +50,7 @@ export function RegistrationMatriculaPayActions({
   alternatives: { id: string; label: string }[];
   showPay: boolean;
   showSwitch: boolean;
+  proposedSectionId?: string | null;
   labels: RegistrationMatriculaPayActionLabels;
   variant?: "enrollment" | "trial";
 }) {
@@ -131,6 +134,18 @@ export function RegistrationMatriculaPayActions({
           </button>
           {receiptOk ? <p className="text-sm">{labels.receiptOk}</p> : null}
         </form>
+      ) : null}
+      {showSwitch && proposedSectionId && labels.acceptOffer ? (
+        <button
+          type="button"
+          className={btnClass}
+          disabled={pending}
+          onClick={() =>
+            run(() => switchRegistrationPaySectionAction(locale, token, proposedSectionId))
+          }
+        >
+          {labels.acceptOffer}
+        </button>
       ) : null}
       {showSwitch && alternatives.length > 0 ? (
         <div className="space-y-2">

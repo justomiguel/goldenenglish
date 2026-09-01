@@ -23,6 +23,7 @@ export default async function MatriculaPayPage({
       locale={locale}
       studentName={studentName}
       sectionLabel={page.sectionLabel || r.enrollmentPayUndecidedSection}
+      proposedSectionLabel={page.proposedSectionLabel}
       context={page.context}
       sectionIsFull={page.sectionIsFull}
       labels={{
@@ -40,6 +41,9 @@ export default async function MatriculaPayPage({
         contact: r.enrollmentPayContact,
         whatsapp: r.enrollmentPayWhatsapp,
         noAlternatives: r.enrollmentPayNoAlternatives,
+        offerLead: r.enrollmentPayOfferLead,
+        offerAccept: r.enrollmentPayOfferAccept,
+        offerGone: r.enrollmentPayOfferGone,
       }}
       payUi={{
         token,
@@ -57,6 +61,7 @@ export default async function MatriculaPayPage({
           pickSection: r.enrollmentPayPickSection,
           error: r.enrollmentPayError,
           receiptOk: r.enrollmentPayReceiptOk,
+          acceptOffer: r.enrollmentPayOfferAccept,
         },
       }}
     />
