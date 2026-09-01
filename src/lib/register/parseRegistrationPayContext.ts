@@ -6,7 +6,9 @@ export type RegistrationPayContext = {
   feeCaptured: boolean;
   snapshotTotal: number;
   snapshotCurrency: string;
+  feeSnapshot?: unknown;
   preferredSectionId: string | null;
+  proposedSectionId: string | null;
   additionalSectionIds: string[];
 };
 
@@ -27,8 +29,11 @@ export function parseRegistrationPayContext(raw: unknown): RegistrationPayContex
     feeCaptured: r.fee_captured === true,
     snapshotTotal: Number.isFinite(total) ? total : 0,
     snapshotCurrency: String(snapshot.currency ?? "USD"),
+    feeSnapshot: r.fee_snapshot ?? {},
     preferredSectionId:
       r.preferred_section_id == null ? null : String(r.preferred_section_id),
+    proposedSectionId:
+      r.proposed_section_id == null ? null : String(r.proposed_section_id),
     additionalSectionIds: Array.isArray(r.additional_section_ids)
       ? r.additional_section_ids.map((id) => String(id)).filter(Boolean)
       : [],

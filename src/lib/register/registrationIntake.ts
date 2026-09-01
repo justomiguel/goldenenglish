@@ -3,7 +3,8 @@ export type RegistrationIntakeState =
   | "awaiting_fee"
   | "receipt_pending"
   | "needs_section"
-  | "section_full";
+  | "section_full"
+  | "offer_pending";
 
 export const REGISTRATION_INTAKE_STATES: readonly RegistrationIntakeState[] = [
   "none",
@@ -11,6 +12,7 @@ export const REGISTRATION_INTAKE_STATES: readonly RegistrationIntakeState[] = [
   "receipt_pending",
   "needs_section",
   "section_full",
+  "offer_pending",
 ];
 
 const STAFF_URGENT: readonly RegistrationIntakeState[] = [

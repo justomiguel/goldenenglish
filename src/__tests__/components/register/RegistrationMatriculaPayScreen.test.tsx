@@ -36,6 +36,7 @@ const base: RegistrationPayContext = {
   snapshotTotal: 80,
   snapshotCurrency: "CLP",
   preferredSectionId: "sec-1",
+  proposedSectionId: null,
   additionalSectionIds: [],
 };
 

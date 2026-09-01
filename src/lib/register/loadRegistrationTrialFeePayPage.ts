@@ -61,6 +61,7 @@ export async function loadRegistrationTrialFeePayPage(
       snapshotTotal: Number(snapshot.total ?? 0) || 0,
       snapshotCurrency: String(snapshot.currency ?? "USD"),
       preferredSectionId,
+      proposedSectionId: null,
       additionalSectionIds,
     },
     sectionIsFull: requested.length > 0 && !seatsOpen,

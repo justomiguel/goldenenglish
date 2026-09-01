@@ -64,6 +64,14 @@ describe("canStartRegistrationEnrollmentFeeFlow", () => {
     expect(
       canStartRegistrationEnrollmentFeeFlow(row({ intakeState: "section_full" })),
     ).toBe(false);
+    expect(
+      canStartRegistrationEnrollmentFeeFlow(row({ intakeState: "offer_pending" })),
+    ).toBe(false);
     expect(canStartRegistrationEnrollmentFeeFlow(row({ status: "enrolled" }))).toBe(false);
   });
+
+  it("is false for a trial lead so the row shows the join-pay action instead", () => {
+    expect(canStartRegistrationEnrollmentFeeFlow(row({ intent: "trial" }))).toBe(false);
+  });
 });
+

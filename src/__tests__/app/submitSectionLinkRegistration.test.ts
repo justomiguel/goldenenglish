@@ -57,6 +57,7 @@ vi.mock("@/lib/i18n/dictionaries", () => ({
     actionErrors: {
       register: { insertFailed: "insert falló", mailTenantMissing: "sin tenant" },
     },
+    admin: { registrations: { intake: { enrollmentKind: "Matrícula" } } },
   }),
 }));
 

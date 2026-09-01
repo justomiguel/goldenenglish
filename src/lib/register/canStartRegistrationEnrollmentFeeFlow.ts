@@ -7,10 +7,12 @@ const BLOCKED_INTAKE: ReadonlySet<RegistrationIntakeState> = new Set([
   "receipt_pending",
   "needs_section",
   "section_full",
+  "offer_pending",
 ]);
 
 export function canStartRegistrationEnrollmentFeeFlow(row: {
   status: string;
+  intent?: "reserve" | "trial";
   preferred_section_id: string | null;
   additionalSectionIds?: string[] | null;
   requestedSectionFull?: boolean;
@@ -19,6 +21,7 @@ export function canStartRegistrationEnrollmentFeeFlow(row: {
   snapshotTotal?: number;
   intakeState?: RegistrationIntakeState;
 }): boolean {
+  if (row.intent === "trial") return false;
   if (!registrationIsActionable(row.status)) return false;
   if (row.requestedSectionFull) return false;
   if (row.feeCaptured) return false;

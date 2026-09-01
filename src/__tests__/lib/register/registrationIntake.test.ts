@@ -74,6 +74,16 @@ describe("isRegistrationStaffUrgent", () => {
       }),
     ).toBe(false);
   });
+
+  it("does not count offer_pending as staff-urgent", () => {
+    expect(
+      isRegistrationStaffUrgent({
+        status: "new",
+        intakeState: "offer_pending",
+        snapshotTotal: 80,
+      }),
+    ).toBe(false);
+  });
 });
 
 describe("isRegistrationAwaitingFee", () => {
