@@ -4697,6 +4697,7 @@
     "invalidSectionOption": "That section is not available. Refresh the page and choose again.",
     "sectionFilledUp": "That schedule just filled up. Refresh and pick a section with an open seat.",
     "enrollmentPayCta": "Pay enrollment fee",
+    "enrollmentPayCtaOffer": "View the offer",
     "enrollmentPayNoFee": "The institute will confirm the place.",
     "enrollmentPayUndecidedSection": "schedule to be assigned",
     "enrollmentPayTitle": "We received your pre-registration",

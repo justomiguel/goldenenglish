@@ -22,4 +22,12 @@ describe("registration email registry", () => {
     expect(received?.defaults.es.bodyHtml).toContain("{{payBlock}}");
     expect(received?.defaults.es.bodyHtml).toMatch(/cupos se pueden acabar/i);
   });
+
+  it("registers schedule_offer with proposedSectionName and payBlock", () => {
+    expect(REGISTRATION_EMAIL_KEYS).toContain("registration.schedule_offer");
+    const def = listEmailTemplateDefinitions().find((d) => d.key === "registration.schedule_offer");
+    expect(def?.defaults.es.bodyHtml).toContain("{{proposedSectionName}}");
+    expect(def?.defaults.es.bodyHtml).toContain("{{payBlock}}");
+  });
 });
+

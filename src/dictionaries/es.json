@@ -4697,6 +4697,7 @@
     "invalidSectionOption": "Esa sección no está disponible. Actualizá la página y elegí de nuevo.",
     "sectionFilledUp": "Ese horario se llenó. Actualizá la página y elegí una sección con cupo.",
     "enrollmentPayCta": "Pagar matrícula",
+    "enrollmentPayCtaOffer": "Ver la propuesta",
     "enrollmentPayNoFee": "El instituto te va a confirmar el lugar.",
     "enrollmentPayUndecidedSection": "horario por asignar",
     "enrollmentPayTitle": "Recibimos tu preinscripción",

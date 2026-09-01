@@ -29,6 +29,7 @@ export const REGISTRATION_EMAIL_KEYS = [
   "registration.welcome",
   "registration.receipt_rejected",
   "registration.section_full",
+  "registration.schedule_offer",
   ...REGISTRATION_TRIAL_EMAIL_KEYS,
 ] as const;
 
@@ -147,6 +148,36 @@ export const sectionFullTemplate: EmailTemplateDefinition = {
   }),
 };
 
+export const scheduleOfferTemplate: EmailTemplateDefinition = {
+  key: "registration.schedule_offer",
+  category: "notifications",
+  label: { es: "Inscripción: propuesta de horario", en: "Registration: schedule offer" },
+  description: {
+    es: "El admin propone otro horario con cupo. El mismo link de pago muestra la oferta.",
+    en: "Admin proposes another open schedule. Same pay link shows the offer.",
+  },
+  placeholders: [
+    ...FAMILY_PLACEHOLDERS,
+    { name: "proposedSectionName", description: "Sección propuesta", sample: "A2 Tarde" },
+  ],
+  defaults: withPtFallback({
+    es: {
+      subject: "Te proponemos un horario para {{studentName}}",
+      bodyHtml: `<p style="margin:0 0 12px;">Hola {{greetingName}},</p>
+<p style="margin:0 0 12px;">El horario de <strong>{{sectionName}}</strong> se llenó antes de confirmar el lugar de {{studentName}}.</p>
+<p style="margin:0 0 12px;">Te proponemos <strong>{{proposedSectionName}}</strong> ({{scheduleLabel}}).</p>
+{{payBlock}}`,
+    },
+    en: {
+      subject: "We have a schedule for {{studentName}}",
+      bodyHtml: `<p style="margin:0 0 12px;">Hi {{greetingName}},</p>
+<p style="margin:0 0 12px;"><strong>{{sectionName}}</strong> filled up before we could confirm a seat for {{studentName}}.</p>
+<p style="margin:0 0 12px;">We propose <strong>{{proposedSectionName}}</strong> ({{scheduleLabel}}).</p>
+{{payBlock}}`,
+    },
+  }),
+};
+
 export const REGISTRATION_EMAIL_TEMPLATES: ReadonlyArray<EmailTemplateDefinition> = [
   receivedTemplate,
   adminReceivedTemplate,
@@ -156,5 +187,7 @@ export const REGISTRATION_EMAIL_TEMPLATES: ReadonlyArray<EmailTemplateDefinition
   welcomeTemplate,
   receiptRejectedTemplate,
   sectionFullTemplate,
+  scheduleOfferTemplate,
   ...REGISTRATION_TRIAL_EMAIL_TEMPLATES,
 ];
+
