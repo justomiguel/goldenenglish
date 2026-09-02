@@ -257,7 +257,7 @@ BEGIN
       '[{"dayOfWeek":2,"startTime":"10:00","endTime":"11:00"}]'::jsonb,
       make_date(v_year, 1, 1),
       make_date(v_year, 12, 31),
-      0,
+      15000,
       'full_month_fee',
       true
     );
@@ -271,9 +271,33 @@ BEGIN
       schedule_slots = '[{"dayOfWeek":2,"startTime":"10:00","endTime":"11:00"}]'::jsonb,
       allow_advance_monthly_payment = true,
       monthly_fee_charge_mode = 'full_month_fee',
+      enrollment_fee_amount = 15000,
       updated_at = now()
     WHERE cohort_id = v_cohort AND name = 'E2E Section B';
   END IF;
+
+  INSERT INTO public.academic_sections (
+    cohort_id, name, teacher_id, schedule_slots,
+    starts_on, ends_on, enrollment_fee_amount, monthly_fee_charge_mode,
+    allow_advance_monthly_payment, max_students
+  )
+  SELECT
+    v_cohort, 'E2E Section Tiny', v_teacher,
+    '[{"dayOfWeek":3,"startTime":"10:00","endTime":"11:00"}]'::jsonb,
+    make_date(v_year, 1, 1), make_date(v_year, 12, 31),
+    15000, 'full_month_fee', true, 1
+  WHERE NOT EXISTS (
+    SELECT 1 FROM public.academic_sections
+    WHERE cohort_id = v_cohort AND name = 'E2E Section Tiny'
+  );
+
+  UPDATE public.academic_sections
+  SET max_students = 1, enrollment_fee_amount = 15000, archived_at = NULL
+  WHERE cohort_id = v_cohort AND name = 'E2E Section Tiny';
+
+  UPDATE public.academic_sections
+  SET enrollment_fee_amount = 15000, max_students = NULL
+  WHERE cohort_id = v_cohort AND name = 'E2E Section B';
 
   INSERT INTO public.section_fee_plans (
     section_id, effective_from_year, effective_from_month, monthly_fee, currency
@@ -287,7 +311,7 @@ BEGIN
   )
   SELECT s.id, v_year, 1, 100, 'USD'
   FROM public.academic_sections s
-  WHERE s.cohort_id = v_cohort AND s.name = 'E2E Section B'
+  WHERE s.cohort_id = v_cohort AND s.name IN ('E2E Section B', 'E2E Section Tiny')
   ON CONFLICT (section_id, effective_from_year, effective_from_month) DO UPDATE
   SET monthly_fee = 100, archived_at = NULL, updated_at = now();
 
@@ -309,7 +333,6 @@ BEGIN
   UPDATE public.section_enrollments
   SET status = 'dropped', updated_at = now()
   WHERE student_id = v_student_b
-    AND section_id = v_section
     AND status = 'active';
 
   INSERT INTO public.tutor_student_rel (tutor_id, student_id, relationship, linked_by)

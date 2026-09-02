@@ -46,7 +46,7 @@ e2e-parent@example.test      / E2eLocal!Stack1   (parent, linked tutor)
 e2e-teacher@example.test     / E2eLocal!Stack1   (teacher of E2E Section A)
 ```
 
-Also seeded: current cohort `e2e-cohort`, section `E2E Section A` (Mon 10:00–11:00 schedule + fee plan), **four** due monthly payments without receipt (current / parent-month / reject-month / record-month for admin record-payment-without-receipt), free `e2e-free-event`, paid `e2e-paid-event`, a **pending billing receipt** for the finance receipt-detail tour (`E2E_RECEIPT_ID`), `inscriptions_enabled=true`.  
+Also seeded: current cohort `e2e-cohort`, section `E2E Section A` (Mon 10:00–11:00 schedule + fee plan, **$0 enrollment / unlimited cupo** — do not change), `E2E Section B` (Tue 10:00–11:00, enrollment fee **15000**, unlimited cupo — open alternative for schedule-offer), `E2E Section Tiny` (Wed 10:00–11:00, `max_students=1`, enrollment fee **15000** — fill via enroll `e2e-student-b`), **four** due monthly payments without receipt (current / parent-month / reject-month / record-month for admin record-payment-without-receipt), free `e2e-free-event`, paid `e2e-paid-event`, a **pending billing receipt** for the finance receipt-detail tour (`E2E_RECEIPT_ID`), `inscriptions_enabled=true`.  
 `E2E_COHORT_ID` / `E2E_SECTION_ID` / `E2E_STUDENT_ID` / `E2E_RECEIPT_ID` are written into `.env.local.e2e`.
 
 `auth.setup.ts` writes storage for admin, student, parent, and teacher → `e2e/.auth/{admin,student,parent,teacher}.json` (paths from `e2eAuthPaths()`).
