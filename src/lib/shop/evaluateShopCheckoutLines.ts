@@ -35,22 +35,26 @@ export function evaluateShopCheckoutLines(
   | { ok: true; items: ShopOrderItemSnapshot[]; total: number }
   | { ok: false; code: ShopCheckoutFailCode } {
   if (lines.length === 0) return { ok: false, code: "empty_cart" };
-  const byId = new Map(variants.map((row) => [row.id, row]));
-  const items: ShopOrderItemSnapshot[] = [];
+  const qtyByVariant = new Map<string, number>();
   for (const line of lines) {
     if (line.quantity < 1) return { ok: false, code: "empty_cart" };
-    const row = byId.get(line.variantId);
+    qtyByVariant.set(line.variantId, (qtyByVariant.get(line.variantId) ?? 0) + line.quantity);
+  }
+  const byId = new Map(variants.map((row) => [row.id, row]));
+  const items: ShopOrderItemSnapshot[] = [];
+  for (const [variantId, quantity] of qtyByVariant) {
+    const row = byId.get(variantId);
     const product = row ? productOf(row) : null;
     if (!row || !row.active || !product?.active) {
       return { ok: false, code: "inactive_variant" };
     }
-    if (line.quantity > Number(row.stock)) {
+    if (quantity > Number(row.stock)) {
       return { ok: false, code: "insufficient_stock" };
     }
     const unitPrice = Number(row.price);
     items.push({
       variant_id: row.id,
-      quantity: line.quantity,
+      quantity,
       unit_price: unitPrice,
       title: product.title,
       size: row.size,

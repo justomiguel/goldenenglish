@@ -31,6 +31,15 @@ describe("207_tenant_merch_shop.sql", () => {
     expect(sql).toMatch(/shop_order_id IS NOT NULL/);
   });
 
+  it("uniques shop_order_items on (order_id, variant_id)", () => {
+    expect(sql).toMatch(/UNIQUE\s*\(\s*order_id\s*,\s*variant_id\s*\)/);
+  });
+
+  it("decrements stock from SUM(quantity) per variant, not per item row", () => {
+    expect(sql).toMatch(/SUM\s*\(\s*(?:i\.)?quantity\s*\)/);
+    expect(sql).toMatch(/GROUP BY\s+(?:i\.)?variant_id/);
+  });
+
   it("revokes SECURITY DEFINER execute from anon and authenticated", () => {
     expect(sql).toMatch(
       /REVOKE ALL ON FUNCTION public\.shop_mark_paid_and_decrement_stock\(UUID\) FROM anon, authenticated;/,

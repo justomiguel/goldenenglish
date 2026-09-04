@@ -221,6 +221,24 @@ describe("startShopCheckout", () => {
     expect(admin.insertOrder).not.toHaveBeenCalled();
   });
 
+  it("rejects two lines of the same variant whose quantities sum over stock", async () => {
+    const admin = mockAdmin({
+      variants: [{ ...variantRow, stock: 5 }],
+    });
+    const result = await startShopCheckout({
+      ...baseInput,
+      lines: [
+        { variantId: VARIANT_ID, quantity: 3 },
+        { variantId: VARIANT_ID, quantity: 3 },
+      ],
+      admin: admin as never,
+      buyerRole: "parent",
+      gateway: "flow",
+    });
+    expect(result).toEqual({ ok: false, code: "insufficient_stock" });
+    expect(admin.insertOrder).not.toHaveBeenCalled();
+  });
+
   it("inserts pending_payment plus item snapshots from current variant rows", async () => {
     const admin = mockAdmin();
     const result = await startShopCheckout({

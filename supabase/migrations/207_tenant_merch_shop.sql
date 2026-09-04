@@ -117,7 +117,8 @@ CREATE TABLE IF NOT EXISTS public.shop_order_items (
   sku TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   CONSTRAINT shop_order_items_quantity_chk CHECK (quantity >= 1),
-  CONSTRAINT shop_order_items_unit_price_chk CHECK (unit_price > 0)
+  CONSTRAINT shop_order_items_unit_price_chk CHECK (unit_price > 0),
+  CONSTRAINT shop_order_items_order_variant_key UNIQUE (order_id, variant_id)
 );
 
 CREATE INDEX IF NOT EXISTS shop_order_items_order_idx
@@ -305,19 +306,27 @@ BEGIN
 
   IF EXISTS (
     SELECT 1
-    FROM public.shop_order_items i
-    INNER JOIN public.shop_product_variants v ON v.id = i.variant_id
-    WHERE i.order_id = p_order_id
-      AND v.stock < i.quantity
+    FROM (
+      SELECT i.variant_id, SUM(i.quantity) AS qty
+      FROM public.shop_order_items i
+      WHERE i.order_id = p_order_id
+      GROUP BY i.variant_id
+    ) needed
+    INNER JOIN public.shop_product_variants v ON v.id = needed.variant_id
+    WHERE v.stock < needed.qty
   ) THEN
     RETURN 'insufficient_stock';
   END IF;
 
   UPDATE public.shop_product_variants v
-  SET stock = v.stock - i.quantity
-  FROM public.shop_order_items i
-  WHERE i.order_id = p_order_id
-    AND v.id = i.variant_id;
+  SET stock = v.stock - needed.qty
+  FROM (
+    SELECT i.variant_id, SUM(i.quantity) AS qty
+    FROM public.shop_order_items i
+    WHERE i.order_id = p_order_id
+    GROUP BY i.variant_id
+  ) needed
+  WHERE v.id = needed.variant_id;
 
   UPDATE public.shop_orders
   SET
