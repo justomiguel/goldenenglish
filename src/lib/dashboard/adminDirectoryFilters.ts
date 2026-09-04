@@ -5,6 +5,7 @@ export type DirectoryAccessFilter = "never" | "entered";
 export type DirectoryCreatedFilter = "last30" | "older";
 export type DirectoryTeachingRoleFilter = "lead" | "assistant";
 export type DirectoryEmailFilter = "deliverable" | "none";
+export type DirectoryMonthlyStatusFilter = "current" | "behind" | "na";
 
 export type AdminDirectoryFilters = {
   section?: string;
@@ -16,6 +17,7 @@ export type AdminDirectoryFilters = {
   parentLink?: DirectoryBinaryFilter;
   scholarship?: DirectoryBinaryFilter;
   due?: DirectoryBinaryFilter;
+  monthlyStatus?: DirectoryMonthlyStatusFilter;
   email?: DirectoryEmailFilter;
   children?: DirectoryBinaryFilter;
 };
@@ -33,6 +35,7 @@ export type AdminDirectoryCandidate = {
   hasParentLink: boolean;
   hasScholarship: boolean;
   hasDue: boolean;
+  monthlyStatus: "yes" | "no" | "na";
   emailDeliverable: boolean;
   hasChildren: boolean;
 };
@@ -46,6 +49,7 @@ const STUDENT_KEYS = [
   "parentLink",
   "scholarship",
   "due",
+  "monthlyStatus",
 ] as const satisfies readonly AdminDirectoryFilterKey[];
 
 const TEACHER_KEYS = [
@@ -64,6 +68,7 @@ const PARENT_KEYS = [
   "created",
   "email",
   "children",
+  "monthlyStatus",
 ] as const satisfies readonly AdminDirectoryFilterKey[];
 
 const KEYS_BY_ROLE: Record<AdminDirectoryRole, readonly AdminDirectoryFilterKey[]> = {
@@ -98,6 +103,10 @@ function parseTeachingRole(raw: string): DirectoryTeachingRoleFilter | undefined
 
 function parseEmail(raw: string): DirectoryEmailFilter | undefined {
   return raw === "deliverable" || raw === "none" ? raw : undefined;
+}
+
+function parseMonthlyStatus(raw: string): DirectoryMonthlyStatusFilter | undefined {
+  return raw === "current" || raw === "behind" || raw === "na" ? raw : undefined;
 }
 
 export function parseAdminDirectoryFilters(
@@ -140,6 +149,10 @@ export function parseAdminDirectoryFilters(
     const due = parseBinary(asString(raw.due));
     if (due) out.due = due;
   }
+  if (allowed.has("monthlyStatus")) {
+    const monthlyStatus = parseMonthlyStatus(asString(raw.monthlyStatus));
+    if (monthlyStatus) out.monthlyStatus = monthlyStatus;
+  }
   if (allowed.has("email")) {
     const email = parseEmail(asString(raw.email));
     if (email) out.email = email;
@@ -174,6 +187,7 @@ export function clearedDirectoryFilterParams(): Record<AdminDirectoryFilterKey, 
     parentLink: undefined,
     scholarship: undefined,
     due: undefined,
+    monthlyStatus: undefined,
     email: undefined,
     children: undefined,
   };
@@ -189,6 +203,7 @@ export const ADMIN_DIRECTORY_FILTER_PARAM_KEYS = [
   "parentLink",
   "scholarship",
   "due",
+  "monthlyStatus",
   "email",
   "children",
 ] as const satisfies readonly AdminDirectoryFilterKey[];

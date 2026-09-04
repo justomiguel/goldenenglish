@@ -8,12 +8,10 @@ import {
   revertRegistrationToNew,
 } from "@/app/[locale]/dashboard/admin/registrations/actions";
 import { startRegistrationEnrollmentFeeFlowAction } from "@/app/[locale]/dashboard/admin/registrations/registrationIntakeActions";
+import { startAdminRegistrationJoinCharge } from "@/lib/register/startAdminRegistrationJoinCharge";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
-import type {
-  RegistrationSortDir,
-  RegistrationSortKey,
-} from "@/lib/dashboard/adminRegistrationsSort";
+import type { RegistrationSortDir, RegistrationSortKey } from "@/lib/dashboard/adminRegistrationsSort";
 import type { RegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
 
 type RegLabels = Dictionary["admin"]["registrations"];
@@ -112,7 +110,6 @@ export function useAdminRegistrationsList({
     [pushParams],
   );
 
-  /** Only one row open at a time, so the table never turns into a wall of panels. */
   const toggleExpanded = useCallback((id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
   }, []);
@@ -195,6 +192,20 @@ export function useAdminRegistrationsList({
     refreshList();
   }
 
+  async function onStartJoinCharge(row: AdminRegistrationRow) {
+    setBusyId(row.id);
+    setToast(null);
+    const res = await startAdminRegistrationJoinCharge({
+      locale,
+      registrationId: row.id,
+      trialConvertToken: row.trialConvertToken,
+      trialConvertExpiresAt: row.trialConvertExpiresAt,
+    });
+    setBusyId(null);
+    setToast(res.ok ? labels.startJoinChargeSuccess : labels.startJoinChargeError);
+    if (res.ok) refreshList();
+  }
+
   return {
     busyId,
     setBusyId,
@@ -231,5 +242,6 @@ export function useAdminRegistrationsList({
     onMarkContacted,
     onRevertToNew,
     onStartEnrollmentFee,
+    onStartJoinCharge,
   };
 }

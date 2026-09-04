@@ -1,7 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { mercadoPagoGetPayment } from "@/lib/payment-gateways/mercadopago/mercadoPagoGetPayment";
 import { parseShopOrderGatewayReference } from "@/lib/shop/buildShopOrderGatewayReference";
-import { markShopOrderPaid, type MarkShopOrderPaidResult } from "@/lib/shop/markShopOrderPaid";
+import {
+  markShopOrderPaid,
+  type MarkShopOrderPaidResult,
+  type ShopMarkPaidAdmin,
+} from "@/lib/shop/markShopOrderPaid";
 
 export async function finalizeShopOrderFromMercadoPago(input: {
   admin: SupabaseClient;
@@ -20,5 +24,5 @@ export async function finalizeShopOrderFromMercadoPago(input: {
   const orderId = parseShopOrderGatewayReference(fetched.data.external_reference);
   if (!orderId) return { ok: true, skipped: "not_found" };
 
-  return markShopOrderPaid({ admin: input.admin, orderId });
+  return markShopOrderPaid({ admin: input.admin as unknown as ShopMarkPaidAdmin, orderId });
 }

@@ -14,7 +14,7 @@ import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMail
 import { randomLowercaseAlphaString } from "@/lib/server/randomLowercaseAlphaString";
 import { isSectionEnrollmentLinkToken } from "@/lib/register/sectionEnrollmentLink";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
-import type { RegisterActionState } from "@/app/[locale]/register/actions";
+import type { RegisterActionState } from "@/lib/register/registerActionState";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { parseRequestedSectionIds } from "@/lib/register/parseRequestedSectionIds";
 import { resolveExistingStudentByDni } from "@/lib/register/resolveExistingStudentByDni";
@@ -143,6 +143,7 @@ export async function submitSectionLinkRegistration(
     admin: createAdminClient(),
     sectionIds: [sectionId, ...parsedSections.additionalSectionIds],
     nowIso: new Date().toISOString(),
+    dni: d.dni,
   });
   if (!quote.ok) {
     return { ok: false, message: reg.sectionFilledUp };
@@ -216,6 +217,7 @@ export async function submitSectionLinkRegistration(
         payToken: quote.fields.pay_token,
         snapshotTotal: quote.fields.fee_snapshot.total,
         snapshotCurrency: quote.fields.fee_snapshot.currency,
+        feeSnapshot: quote.fields.fee_snapshot,
       });
       return { ok: true };
     }

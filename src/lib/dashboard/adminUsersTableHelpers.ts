@@ -53,7 +53,8 @@ export type SortKey =
   | "parent"
   | "children"
   | "lastEnrollment"
-  | "enrollmentFee";
+  | "enrollmentFee"
+  | "monthlyStatus";
 export type SortDir = "asc" | "desc";
 
 function sectionsSortValue(row: AdminUserRow): string {
@@ -209,6 +210,13 @@ export function sortAdminUsers(
       return compareSortValues(
         directoryBillingMarkSortRank(a.enrollmentFeeStatus),
         directoryBillingMarkSortRank(b.enrollmentFeeStatus),
+        dir,
+      );
+    }
+    if (key === "monthlyStatus") {
+      return compareSortValues(
+        directoryBillingMarkSortRank(a.monthlyStatus),
+        directoryBillingMarkSortRank(b.monthlyStatus),
         dir,
       );
     }

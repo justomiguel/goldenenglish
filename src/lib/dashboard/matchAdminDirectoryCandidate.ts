@@ -57,6 +57,7 @@ export function matchAdminDirectoryCandidate(
   const parentLink = omit === "parentLink" ? undefined : filters.parentLink;
   const scholarship = omit === "scholarship" ? undefined : filters.scholarship;
   const due = omit === "due" ? undefined : filters.due;
+  const monthlyStatus = omit === "monthlyStatus" ? undefined : filters.monthlyStatus;
   const email = omit === "email" ? undefined : filters.email;
   const children = omit === "children" ? undefined : filters.children;
 
@@ -69,6 +70,9 @@ export function matchAdminDirectoryCandidate(
   if (!matchBinary(candidate.hasParentLink, parentLink)) return false;
   if (!matchBinary(candidate.hasScholarship, scholarship)) return false;
   if (!matchBinary(candidate.hasDue, due)) return false;
+  if (monthlyStatus === "current" && candidate.monthlyStatus !== "yes") return false;
+  if (monthlyStatus === "behind" && candidate.monthlyStatus !== "no") return false;
+  if (monthlyStatus === "na" && candidate.monthlyStatus !== "na") return false;
   if (email === "deliverable" && !candidate.emailDeliverable) return false;
   if (email === "none" && candidate.emailDeliverable) return false;
   if (!matchBinary(candidate.hasChildren, children)) return false;

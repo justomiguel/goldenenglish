@@ -60,6 +60,42 @@ describe("sendWrappedHtmlEmail", () => {
     expect(call.html).toContain("<!DOCTYPE html>");
   });
 
+  it("does not send when the recipient is an auto-provisioned tenant mailbox", async () => {
+    const { sendWrappedHtmlEmail } = await import(
+      "@/lib/email/templates/sendWrappedHtmlEmail"
+    );
+    const r = await sendWrappedHtmlEmail({
+      to: "sofiahaighr-279666747@espaciozenit.cl",
+      subject: "Aviso",
+      bodyHtml: "<p>Hola</p>",
+      locale: "es",
+      emailProvider: { sendEmail },
+    });
+    expect(r).toEqual({ ok: true });
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("strips auto-provisioned addresses from cc and bcc", async () => {
+    const { sendWrappedHtmlEmail } = await import(
+      "@/lib/email/templates/sendWrappedHtmlEmail"
+    );
+    const r = await sendWrappedHtmlEmail({
+      to: "from@example.com",
+      subject: "CC",
+      bodyHtml: "<p>x</p>",
+      locale: "en",
+      cc: ["ana@example.com", "sofiahaighr-279666747@espaciozenit.cl"],
+      bcc: ["123@parents.alumnos.nago.cl", "mia@example.com"],
+      emailProvider: { sendEmail },
+    });
+    expect(r).toEqual({ ok: true });
+    expect(sendEmail.mock.calls[0][0]).toMatchObject({
+      to: "from@example.com",
+      cc: ["ana@example.com"],
+      bcc: ["mia@example.com"],
+    });
+  });
+
   it("forwards cc and a provider failure", async () => {
     sendEmail.mockResolvedValue({ ok: false, error: "boom" });
     const { sendWrappedHtmlEmail } = await import(

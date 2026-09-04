@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
 import { fillTemplate } from "@/lib/i18n/fillTemplate";
+import { formatJoinPackageBreakdown } from "@/lib/register/formatJoinPackageCopy";
+import { parseJoinPackageSnapshot } from "@/lib/register/parseJoinPackageSnapshot";
 import type { RegistrationPayContext } from "@/lib/register/parseRegistrationPayContext";
 import { registrationPayPageKind } from "@/lib/register/registrationPayPageKind";
 import {
@@ -15,6 +17,7 @@ export type RegistrationMatriculaPayLabels = {
   full: string;
   alreadyIn: string;
   amount: string;
+  enrollmentKind: string;
   noFee: string;
   needsSection: string;
   receiptPending: string;
@@ -178,7 +181,10 @@ export function RegistrationMatriculaPayScreen({
       </p>
       {kind === "pay" && amount ? (
         <p className="mt-6 text-lg font-medium">
-          {labels.amount}: {amount}
+          {formatJoinPackageBreakdown(parseJoinPackageSnapshot(context.feeSnapshot), locale, {
+            enrollment: labels.enrollmentKind,
+          }) || labels.amount}
+          : {amount}
         </p>
       ) : null}
       {showSwitch && payUi && payUi.alternatives.length === 0 ? (

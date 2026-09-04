@@ -4,6 +4,7 @@ import { getEmailProvider } from "@/lib/email/getEmailProvider";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { wrapEmailHtml } from "@/lib/email/templates/wrapEmailHtml";
+import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
 import type { Locale } from "@/types/i18n";
 
 export type SendWrappedHtmlEmailInput = {
@@ -28,12 +29,17 @@ export async function sendWrappedHtmlEmail(
     locale: input.locale,
     bodyHtml: input.bodyHtml,
   });
+  if (!isDeliverableAuthEmail(input.to)) {
+    return { ok: true };
+  }
+  const cc = input.cc?.filter((email) => isDeliverableAuthEmail(email));
+  const bcc = input.bcc?.filter((email) => isDeliverableAuthEmail(email));
   const provider = input.emailProvider ?? getEmailProvider();
   return provider.sendEmail({
     to: input.to,
     subject: input.subject,
     html,
-    ...(input.cc?.length ? { cc: input.cc } : {}),
-    ...(input.bcc?.length ? { bcc: input.bcc } : {}),
+    ...(cc?.length ? { cc } : {}),
+    ...(bcc?.length ? { bcc } : {}),
   });
 }

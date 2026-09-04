@@ -23,6 +23,7 @@ describe("buildAdminDirectoryCandidates", () => {
       ]),
       parentsByStudent: new Map([["s1", [{ id: "p1" }]]]),
       monthlyDueByStudent: new Map([["s1", [{ amount: 10 }]]]),
+      monthlyStatusByPerson: new Map([["s1", "no"]]),
     });
     expect(row).toMatchObject({
       id: "s1",
@@ -32,6 +33,7 @@ describe("buildAdminDirectoryCandidates", () => {
       hasParentLink: true,
       hasScholarship: true,
       hasDue: true,
+      monthlyStatus: "no",
     });
   });
 

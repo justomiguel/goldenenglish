@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
 import { logServerException } from "@/lib/logging/serverActionLog";
 
 /**
@@ -18,7 +19,9 @@ export async function collectRecipientEmailsForStudent(
   const emails = new Set<string>();
 
   const { data: studentUser } = await admin.auth.admin.getUserById(studentId);
-  if (studentUser.user?.email) emails.add(studentUser.user.email);
+  if (studentUser.user?.email && isDeliverableAuthEmail(studentUser.user.email)) {
+    emails.add(studentUser.user.email);
+  }
 
   const { data: links } = await admin
     .from("tutor_student_rel")
@@ -28,7 +31,9 @@ export async function collectRecipientEmailsForStudent(
   for (const row of links ?? []) {
     const pid = row.tutor_id as string;
     const { data: pu } = await admin.auth.admin.getUserById(pid);
-    if (pu.user?.email) emails.add(pu.user.email);
+    if (pu.user?.email && isDeliverableAuthEmail(pu.user.email)) {
+      emails.add(pu.user.email);
+    }
   }
 
   return [...emails];

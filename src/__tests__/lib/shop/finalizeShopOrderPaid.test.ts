@@ -42,6 +42,15 @@ describe("markShopOrderPaid", () => {
     expect(mocks.notify).not.toHaveBeenCalled();
   });
 
+  it("returns false when the RPC errors or data is unexpected", async () => {
+    const rpcError = vi.fn().mockResolvedValue({ data: null, error: { message: "rpc" } });
+    expect(await markShopOrderPaid({ admin: { rpc: rpcError }, orderId: "o" })).toEqual({
+      ok: false,
+    });
+    const rpcOdd = vi.fn().mockResolvedValue({ data: "nope", error: null });
+    expect(await markShopOrderPaid({ admin: { rpc: rpcOdd }, orderId: "o" })).toEqual({ ok: false });
+  });
+
   it("insufficient stock does not throw as success", async () => {
     const rpc = vi.fn().mockResolvedValue({ data: "insufficient_stock", error: null });
     const r = await markShopOrderPaid({ admin: { rpc }, orderId: "o" });
@@ -121,6 +130,37 @@ describe("finalizeShopOrderFromFlowGateway", () => {
     vi.clearAllMocks();
   });
 
+  it("fails when Flow status cannot be fetched", async () => {
+    mocks.flowStatus.mockResolvedValue({ ok: false });
+    const { admin, rpc } = shopAdmin({ shopOrderId: ORDER_ID });
+    const result = await finalizeShopOrderFromFlowGateway({
+      admin,
+      apiBaseUrl: "https://flow.test",
+      apiKey: "k",
+      secretKey: "s",
+      token: "tok",
+    });
+    expect(result).toEqual({ ok: false });
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it("skips when the commerce ref has no shop order", async () => {
+    mocks.flowStatus.mockResolvedValue({
+      ok: true,
+      data: { status: 2, commerceOrder: "MERCH-2026-00000001" },
+    });
+    const { admin, rpc } = shopAdmin({ shopOrderId: null });
+    const result = await finalizeShopOrderFromFlowGateway({
+      admin,
+      apiBaseUrl: "https://flow.test",
+      apiKey: "k",
+      secretKey: "s",
+      token: "tok",
+    });
+    expect(result).toEqual({ ok: true, skipped: "not_found" });
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
   it("skips when Flow has not captured the payment", async () => {
     mocks.flowStatus.mockResolvedValue({
       ok: true,
@@ -161,6 +201,33 @@ describe("finalizeShopOrderFromFlowGateway", () => {
 describe("finalizeShopOrderFromMercadoPago", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("fails when Mercado Pago cannot be fetched", async () => {
+    mocks.mpGet.mockResolvedValue({ ok: false });
+    const { admin, rpc } = shopAdmin();
+    const result = await finalizeShopOrderFromMercadoPago({
+      admin,
+      accessToken: "tok",
+      mpPaymentId: "1",
+    });
+    expect(result).toEqual({ ok: false });
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it("skips when the external reference is not a shop order", async () => {
+    mocks.mpGet.mockResolvedValue({
+      ok: true,
+      data: { status: "approved", external_reference: "enrollment:nope" },
+    });
+    const { admin, rpc } = shopAdmin();
+    const result = await finalizeShopOrderFromMercadoPago({
+      admin,
+      accessToken: "tok",
+      mpPaymentId: "1",
+    });
+    expect(result).toEqual({ ok: true, skipped: "not_found" });
+    expect(rpc).not.toHaveBeenCalled();
   });
 
   it("skips when Mercado Pago has not approved the payment", async () => {

@@ -43,6 +43,7 @@ const SORT_COLUMN_MAP: Record<SortKey, string> = {
   children: "last_name",
   lastEnrollment: "last_name",
   enrollmentFee: "last_name",
+  monthlyStatus: "last_name",
 };
 
 export interface PaginatedAdminUsersResult {

@@ -15,6 +15,13 @@ vi.mock("@/hooks/useAppSurface", () => ({
   useAppSurface: () => mockUseAppSurface(),
 }));
 
+vi.mock("@/lib/dashboard/viewAsActions", () => ({
+  clearViewAsAction: vi.fn(async () => ({ href: "/en/dashboard/admin" })),
+  openOwnTeacherAction: vi.fn(async () => ({ href: "/en/dashboard/teacher" })),
+  searchViewAsPeopleAction: vi.fn(async () => ({ rows: [] })),
+  startViewAsAction: vi.fn(async () => ({ href: "/en/dashboard/student", started: true })),
+}));
+
 import { PortalShell } from "@/components/portal/PortalShell";
 
 const BASE = "/en/dashboard/parent";
@@ -129,5 +136,21 @@ describe("PortalShell", () => {
     renderShell();
     expect(anchor(PARENT_TOUR_ANCHORS.portalTopNav)).not.toBeNull();
     expect(anchor(PARENT_TOUR_ANCHORS.chromeHeader)).not.toBeNull();
+  });
+
+  it("shows the view-as banner when an admin is previewing a parent", () => {
+    render(
+      <PortalShell
+        locale="en"
+        brand={BRAND}
+        dict={dictEn}
+        config={config()}
+        viewAs={{ id: "par-1", displayName: "Lucía Gómez", role: "parent" }}
+      >
+        <p>Contenido</p>
+      </PortalShell>,
+    );
+    expect(screen.getByText(/Viewing as Lucía Gómez/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: dictEn.dashboard.viewAs.backToAdmin })).toBeInTheDocument();
   });
 });

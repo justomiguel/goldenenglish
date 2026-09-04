@@ -57,7 +57,7 @@ export function AdminRegistrationsTableDesktop({
   const hdr =
     "px-3 py-2 text-xs uppercase text-[var(--color-muted-foreground)]";
   const sectionNameById = new Map((currentCohortSections ?? []).map((s) => [s.id, s.name]));
-  const COLUMN_COUNT = 9;
+  const COLUMN_COUNT = 10;
 
   return (
     <div className="mt-8 space-y-4">
@@ -91,6 +91,7 @@ export function AdminRegistrationsTableDesktop({
         leadingHeader={<th scope="col" className="w-10 px-2 py-2" aria-hidden />}
         columns={[
           { id: "name", label: labels.name, thClassName: hdr },
+          { id: "intent", label: labels.intentColumn, thClassName: hdr, sortable: false },
           { id: "dni", label: labels.dni, thClassName: hdr },
           // Phones live on the row but have no server sort, so the header stays inert.
           { id: "phoneStudent", label: labels.phoneStudent, thClassName: hdr },
@@ -139,15 +140,16 @@ export function AdminRegistrationsTableDesktop({
         tableOverflow="hidden"
         colgroup={
           <colgroup>
-            <col style={{ width: "4%" }} />
-            <col style={{ width: "15%" }} />
-            <col style={{ width: "9%" }} />
-            <col style={{ width: "15%" }} />
-            <col style={{ width: "15%" }} />
-            <col style={{ width: "8%" }} />
+            <col style={{ width: "3%" }} />
+            <col style={{ width: "13%" }} />
             <col style={{ width: "10%" }} />
+            <col style={{ width: "8%" }} />
             <col style={{ width: "12%" }} />
             <col style={{ width: "12%" }} />
+            <col style={{ width: "7%" }} />
+            <col style={{ width: "9%" }} />
+            <col style={{ width: "11%" }} />
+            <col style={{ width: "15%" }} />
           </colgroup>
         }
       >
@@ -174,6 +176,7 @@ export function AdminRegistrationsTableDesktop({
                 onMarkContacted={u.onMarkContacted}
                 onRevertToNew={u.onRevertToNew}
                 onStartEnrollmentFee={u.onStartEnrollmentFee}
+                onStartJoinCharge={u.onStartJoinCharge}
               />
               {u.expandedId === r.id ? (
                 <AdminRegistrationExpandedDetails

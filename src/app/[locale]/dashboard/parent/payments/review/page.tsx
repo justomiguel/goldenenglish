@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { requirePortalPageActor } from "@/lib/dashboard/requirePortalPageActor";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { loadParentPaymentsPagePayload } from "@/lib/billing/loadParentPaymentsPagePayload";
 import { listPayableParentMonthSections } from "@/lib/billing/listPayableParentMonthSections";
@@ -37,14 +37,7 @@ export default async function ParentPaymentsReviewPage({ params, searchParams }:
   const { locale } = await params;
   const sp = await searchParams;
   const dict = await getDictionary(locale);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect(`/${locale}/login`);
-
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (profile?.role !== "parent") redirect(`/${locale}/dashboard`);
+  const { supabase, viewerId } = await requirePortalPageActor(locale, "parent");
 
   const studentId = typeof sp.studentId === "string" ? sp.studentId : "";
   const sectionId = typeof sp.sectionId === "string" ? sp.sectionId : "";
@@ -55,7 +48,7 @@ export default async function ParentPaymentsReviewPage({ params, searchParams }:
     redirect(paymentsHref);
   }
 
-  const payload = await loadParentPaymentsPagePayload(supabase, user.id, studentId);
+  const payload = await loadParentPaymentsPagePayload(supabase, viewerId, studentId);
   if (!payload.monthlyView || payload.accessRevoked || payload.selectedStudentId !== studentId) {
     redirect(withParentFocusHref(paymentsHref, { studentId, sectionId }));
   }

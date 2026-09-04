@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { EmailProvider } from "@/lib/email/emailProvider";
@@ -12,7 +13,7 @@ async function authEmailForUserId(userId: string): Promise<string | null> {
   const admin = createAdminClient();
   const { data, error } = await admin.auth.admin.getUserById(userId);
   if (error || !data.user?.email) return null;
-  return data.user.email;
+  return isDeliverableAuthEmail(data.user.email) ? data.user.email : null;
 }
 
 function escapeHtml(s: string): string {

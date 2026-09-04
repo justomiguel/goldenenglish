@@ -3,6 +3,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { requireShopPortal } from "@/lib/shop/requireShopPortal";
 import { loadBuyerShopOrders, loadTutorShopChildren } from "@/lib/shop/loadFamilyShopOrders";
 import { FamilyShopOrdersScreen } from "@/components/shop/FamilyShopOrdersScreen";
+import { FamilyShopSurfaceEntry } from "@/components/shop/FamilyShopSurfaceEntry";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -22,13 +23,15 @@ export default async function ParentShopOrdersPage({ params }: PageProps) {
     loadTutorShopChildren(supabase, user.id),
   ]);
   return (
-    <FamilyShopOrdersScreen
-      locale={locale}
-      role="parent"
-      rows={rows}
-      assignOptions={assignOptions}
-      family={dict.shop.family}
-      order={dict.shop.order}
-    />
+    <FamilyShopSurfaceEntry>
+      <FamilyShopOrdersScreen
+        locale={locale}
+        role="parent"
+        rows={rows}
+        assignOptions={assignOptions}
+        family={dict.shop.family}
+        order={dict.shop.order}
+      />
+    </FamilyShopSurfaceEntry>
   );
 }

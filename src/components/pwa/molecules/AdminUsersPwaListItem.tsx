@@ -96,6 +96,10 @@ export function AdminUsersPwaListItem(props: {
                 />
               </div>
               <div>
+                <span className="text-[var(--color-muted-foreground)]">{labels.colMonthlyStatus}: </span>
+                <AdminDirectoryMonthlyStatusCell status={r.monthlyStatus} labels={labels} />
+              </div>
+              <div>
                 <span className="text-[var(--color-muted-foreground)]">{labels.colEnrollmentFee}: </span>
                 <AdminDirectoryEnrollmentFeeCell status={r.enrollmentFeeStatus} labels={labels} />
               </div>
@@ -125,7 +129,7 @@ export function AdminUsersPwaListItem(props: {
                 {formatParentLastAccess(r.lastSessionStartAt, locale, labels.lastAccessNever)}
               </p>
               <div>
-                <span className="text-[var(--color-muted-foreground)]">{labels.colMonthlyDue}: </span>
+                <span className="text-[var(--color-muted-foreground)]">{labels.colMonthlyStatus}: </span>
                 <AdminDirectoryMonthlyStatusCell status={r.monthlyStatus} labels={labels} />
               </div>
               <div>

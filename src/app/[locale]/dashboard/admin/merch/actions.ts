@@ -1,5 +1,3 @@
-"use server";
-
 export {
   createShopProduct,
   updateShopProduct,

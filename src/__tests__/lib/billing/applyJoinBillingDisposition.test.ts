@@ -102,6 +102,21 @@ describe("applyJoinBillingDisposition", () => {
     expect(port.stampedPaid).toBe(true);
   });
 
+  it("approves the frozen snapshot month instead of calendar now", async () => {
+    const port = memoryPort();
+    const result = await applyJoinBillingDisposition(port, {
+      studentId: STUDENT,
+      sectionIds: [SECTION],
+      disposition: { kind: "current" },
+      actorId: "admin-1",
+      now,
+      joinMonths: { [SECTION]: { year: 2026, month: 9 } },
+    });
+    expect(result).toEqual({ ok: true });
+    expect(port.approved).toEqual([{ year: 2026, month: 9 }]);
+    expect(port.exempts.map((r) => r.month)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+  });
+
   it("leaves the join month owed for behind and does not stamp matrícula", async () => {
     const port = memoryPort();
     const result = await applyJoinBillingDisposition(port, {

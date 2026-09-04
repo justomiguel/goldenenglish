@@ -65,6 +65,7 @@ export type ApplyJoinBillingDispositionInput = {
   disposition: JoinBillingDisposition;
   actorId: string;
   now?: Date;
+  joinMonths?: Record<string, { year: number; month: number }>;
 };
 
 function hasPayment(rows: JoinPaymentRow[], year: number, month: number): boolean {
@@ -82,14 +83,21 @@ export async function applyJoinBillingDisposition(
   input: ApplyJoinBillingDispositionInput,
 ): Promise<{ ok: true } | { ok: false; code: "seed_failed" }> {
   const now = input.now ?? new Date();
-  const joinYear = now.getFullYear();
-  const joinMonth = now.getMonth() + 1;
+  const fallbackYear = now.getFullYear();
+  const fallbackMonth = now.getMonth() + 1;
   const uniqueIds = [...new Set(input.sectionIds.filter(Boolean))];
   if (uniqueIds.length === 0) return { ok: true };
   const facts = await port.loadSectionFacts(input.studentId, uniqueIds);
   if (facts.length === 0) return { ok: false, code: "seed_failed" };
   for (const section of facts) {
-    const seeded = await seedOneSection(port, input, section, joinYear, joinMonth);
+    const frozen = input.joinMonths?.[section.sectionId];
+    const seeded = await seedOneSection(
+      port,
+      input,
+      section,
+      frozen?.year ?? fallbackYear,
+      frozen?.month ?? fallbackMonth,
+    );
     if (!seeded.ok) return seeded;
   }
   return { ok: true };

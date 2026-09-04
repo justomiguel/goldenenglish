@@ -135,6 +135,7 @@ export function AdminRegistrationsScreenNarrow({
             onMarkContacted={u.onMarkContacted}
             onRevertToNew={u.onRevertToNew}
             onStartEnrollmentFee={u.onStartEnrollmentFee}
+            onStartJoinCharge={u.onStartJoinCharge}
             currentCohortSections={currentCohortSections}
             onBusy={u.setBusyId}
             onIntakeDone={() => {

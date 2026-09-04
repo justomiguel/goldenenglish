@@ -27,9 +27,7 @@ import {
 } from "@/lib/register/completePublicRegistrationSubmit";
 import { completeTrialRegistrationSubmit } from "@/lib/register/completeTrialRegistrationSubmit";
 import { privacyAcceptanceStamp } from "@/lib/privacy/privacyAcceptanceStamp";
-
-export type RegisterActionState = { ok: boolean; message?: string };
-
+import type { RegisterActionState } from "@/lib/register/registerActionState";
 export async function submitPublicRegistration(
   locale: string,
   raw: PublicRegistrationFormDraft,
@@ -153,6 +151,7 @@ export async function submitPublicRegistration(
       (id): id is string => Boolean(id),
     ),
     nowIso: new Date().toISOString(),
+    dni: d.dni,
   });
   if (!quote.ok) {
     return { ok: false, message: reg.sectionFilledUp };
@@ -233,6 +232,7 @@ export async function submitPublicRegistration(
         payToken: quote.fields.pay_token,
         snapshotTotal: quote.fields.fee_snapshot.total,
         snapshotCurrency: quote.fields.fee_snapshot.currency,
+        feeSnapshot: quote.fields.fee_snapshot,
       });
       return { ok: true };
     }

@@ -13,11 +13,11 @@ export type ShopMarkPaidAdmin = {
   rpc: (
     fn: string,
     args: { p_order_id: string },
-  ) => Promise<{ data: unknown; error: RpcError }>;
+  ) => PromiseLike<{ data: unknown; error: RpcError }>;
   from?: (table: string) => {
     select: (cols: string) => {
       eq: (col: string, val: string) => {
-        maybeSingle: () => Promise<{ data: unknown; error: unknown }>;
+        maybeSingle: () => PromiseLike<{ data: unknown; error: unknown }>;
       };
     };
   };

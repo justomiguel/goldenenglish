@@ -99,6 +99,7 @@ export async function startAdminRegistrationEnrollmentFeeFlow(input: {
     payToken: quoted.pay_token,
     snapshotTotal: quoted.fee_snapshot.total,
     snapshotCurrency: quoted.fee_snapshot.currency,
+    feeSnapshot: quoted.fee_snapshot,
   });
   void recordSystemAudit({
     action: "registration_enrollment_fee_flow_started",

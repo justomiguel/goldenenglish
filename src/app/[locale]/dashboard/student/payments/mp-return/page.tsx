@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { requirePortalPageActor } from "@/lib/dashboard/requirePortalPageActor";
 import { PaymentsFlowReturnSurfaceEntry } from "@/components/organisms/PaymentsFlowReturnSurfaceEntry";
 import { resolveMercadoPagoMonthlyPaymentReturnPage } from "@/lib/billing/resolveMercadoPagoMonthlyPaymentReturnPage";
 import { formatMercadoPagoReturnPageCopy } from "@/lib/student/formatMercadoPagoReturnPageCopy";
@@ -24,18 +23,7 @@ export default async function StudentPaymentsMpReturnPage({ params, searchParams
   const { locale } = await params;
   const sp = await searchParams;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect(`/${locale}/login`);
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-  if (profile?.role !== "student") redirect(`/${locale}/dashboard`);
+  const { supabase } = await requirePortalPageActor(locale, "student");
 
   const localeTyped = locale as Locale;
   const dict = await getDictionary(localeTyped);

@@ -67,6 +67,7 @@ export function AdminRegistrationIntakeActions({
       proposedSectionName: sections.find((s) => s.id === row.proposedSectionId)?.name,
       snapshotTotal: row.snapshotTotal,
       snapshotCurrency: row.snapshotCurrency,
+      feeSnapshot: row.feeSnapshot,
       locale,
       labels,
     }) ?? labels.needsSection;

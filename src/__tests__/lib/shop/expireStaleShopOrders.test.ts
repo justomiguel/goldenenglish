@@ -19,6 +19,10 @@ describe("isShopOrderExpired", () => {
     expect(isShopOrderExpired(new Date(NOW.getTime() - MS_24H - 1), NOW)).toBe(true);
     expect(isShopOrderExpired("2026-09-03T14:59:59.000Z", NOW)).toBe(true);
   });
+
+  it("is false when createdAt is not a real date", () => {
+    expect(isShopOrderExpired("not-a-date", NOW)).toBe(false);
+  });
 });
 
 describe("expireStaleShopOrders", () => {
@@ -39,5 +43,16 @@ describe("expireStaleShopOrders", () => {
     );
     expect(eq).toHaveBeenCalledWith("status", "pending_payment");
     expect(lt).toHaveBeenCalledWith("created_at", new Date(NOW.getTime() - MS_24H).toISOString());
+  });
+
+  it("logs when the expire update fails", async () => {
+    const update = vi.fn().mockReturnThis();
+    const eq = vi.fn().mockReturnThis();
+    const lt = vi.fn().mockResolvedValue({ error: { message: "boom", code: "xx" } });
+    const from = vi.fn(() => ({ update, eq, lt }));
+
+    await expireStaleShopOrders({ admin: { from }, now: NOW });
+
+    expect(lt).toHaveBeenCalled();
   });
 });

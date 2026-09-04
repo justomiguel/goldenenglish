@@ -1,13 +1,12 @@
-import { redirect } from "next/navigation";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { createClient } from "@/lib/supabase/server";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { buildPortalCalendarPagePayload } from "@/lib/calendar/buildPortalCalendarPagePayload";
 import { loadFamilyHubModelForStudentIds } from "@/lib/parent/loadFamilyHubModelForStudentIds";
 import { loadRecentAttendanceForStudentIds } from "@/lib/parent/loadRecentAttendanceForStudentIds";
 import { ParentPortalCalendarEntry } from "@/components/parent/ParentPortalCalendarEntry";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { requirePortalPageActor } from "@/lib/dashboard/requirePortalPageActor";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -21,20 +20,23 @@ export async function generateMetadata({ params }: PageProps) {
 export default async function StudentCalendarPage({ params }: PageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect(`/${locale}/login?next=/${locale}/dashboard/student/calendar`);
+  const { supabase, viewerId } = await requirePortalPageActor(
+    locale,
+    "student",
+    `/${locale}/dashboard/student/calendar`,
+  );
 
-  const { data: profile } = await supabase.from("profiles").select("role, first_name, last_name").eq("id", user.id).maybeSingle();
-  if (profile?.role !== "student") redirect(`/${locale}/dashboard`);
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("first_name, last_name")
+    .eq("id", viewerId)
+    .maybeSingle();
 
-  const studentId = user.id;
-  const displayName = formatProfileNameSurnameFirst(profile.first_name, profile.last_name);
+  const studentId = viewerId;
+  const displayName = formatProfileNameSurnameFirst(profile?.first_name, profile?.last_name);
   const wardOptions = [{ studentId, displayName: displayName || studentId }];
 
-  const payload = await buildPortalCalendarPagePayload(supabase, user.id, "student", {
+  const payload = await buildPortalCalendarPagePayload(supabase, viewerId, "student", {
     locale,
     birthdayCopy: dict.dashboard.birthdays,
   });
@@ -62,7 +64,7 @@ export default async function StudentCalendarPage({ params }: PageProps) {
       selectedStudentId={studentId}
       events={payload.events}
       feedUrl={feedUrl}
-      viewerId={user.id}
+      viewerId={viewerId}
       attendance={attendance}
       hub={hub}
       hubDict={dict.dashboard.parent.hub}

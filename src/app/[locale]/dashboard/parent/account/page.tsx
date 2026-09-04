@@ -7,6 +7,7 @@ import { resolveParentFocus } from "@/lib/parent/resolveParentFocus";
 import { buildParentShellConfig } from "@/lib/portal/buildParentShellConfig";
 import { ParentAccountScreen } from "@/components/parent/ParentAccountScreen";
 import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
+import { getDashboardActor } from "@/lib/dashboard/getDashboardActor";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -32,8 +33,10 @@ export default async function ParentAccountPage({ params, searchParams }: PagePr
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login?next=/${locale}/dashboard/parent/account`);
 
+  const actor = await getDashboardActor();
+  const viewerId = actor?.viewerId ?? user.id;
   const [focusCatalog, includeShopNav] = await Promise.all([
-    loadParentFocusCatalog(supabase, user.id),
+    loadParentFocusCatalog(supabase, viewerId),
     loadMerchEnabled(),
   ]);
   const focus = resolveParentFocus(focusCatalog, {

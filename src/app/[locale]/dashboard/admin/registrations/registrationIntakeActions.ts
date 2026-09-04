@@ -17,6 +17,7 @@ import {
   revalidateRegistrationInbox,
 } from "@/lib/register/registrationIntakeActionSupport";
 import { startAdminRegistrationEnrollmentFeeFlow } from "@/lib/register/startAdminRegistrationEnrollmentFeeFlow";
+import { notifyPublicRegistrationReceived } from "@/lib/register/completePublicRegistrationSubmit";
 import {
   parseJoinDispositionInput,
   type JoinBillingDisposition,
@@ -178,6 +179,23 @@ export async function assignRegistrationSectionAction(input: {
       actorId: auth.userId,
     });
     if (!result.ok) return { ok: false, code: "accept_failed" };
+  } else if (quoted.fee_snapshot.total > 0 && quoted.pay_token) {
+    const dict = await getDictionary(input.locale);
+    await notifyPublicRegistrationReceived({
+      locale: input.locale,
+      dict,
+      isMinor: false,
+      studentFirstName: lead.first_name,
+      studentLastName: lead.last_name,
+      studentEmail: lead.email ?? "",
+      tutorName: null,
+      tutorEmail: lead.tutor_email,
+      sectionLabel: null,
+      payToken: lead.pay_token ?? quoted.pay_token,
+      snapshotTotal: quoted.fee_snapshot.total,
+      snapshotCurrency: quoted.fee_snapshot.currency,
+      feeSnapshot: quoted.fee_snapshot,
+    });
   }
   revalidateRegistrationInbox(input.locale);
   return { ok: true };

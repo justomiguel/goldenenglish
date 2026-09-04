@@ -18,6 +18,7 @@ export type AdminDirectoryFacets = {
   parentLink: DirectoryBinaryFacet;
   scholarship: DirectoryBinaryFacet;
   due: DirectoryBinaryFacet;
+  monthlyStatus: { all: number; current: number; behind: number; na: number };
   email: { all: number; deliverable: number; none: number };
   children: DirectoryBinaryFacet;
 };
@@ -68,6 +69,7 @@ export function countAdminDirectoryFacets(
   const createdBase = withoutKey(filters, "created");
   const teachingBase = withoutKey(filters, "teachingRole");
   const emailBase = withoutKey(filters, "email");
+  const monthlyBase = withoutKey(filters, "monthlyStatus");
   return {
     section,
     sectionAll: countWith(candidates, sectionBase, now),
@@ -91,6 +93,12 @@ export function countAdminDirectoryFacets(
     parentLink: binaryFacet(candidates, filters, "parentLink", now),
     scholarship: binaryFacet(candidates, filters, "scholarship", now),
     due: binaryFacet(candidates, filters, "due", now),
+    monthlyStatus: {
+      all: countWith(candidates, monthlyBase, now),
+      current: countWith(candidates, { ...monthlyBase, monthlyStatus: "current" }, now),
+      behind: countWith(candidates, { ...monthlyBase, monthlyStatus: "behind" }, now),
+      na: countWith(candidates, { ...monthlyBase, monthlyStatus: "na" }, now),
+    },
     email: {
       all: countWith(candidates, emailBase, now),
       deliverable: countWith(candidates, { ...emailBase, email: "deliverable" }, now),

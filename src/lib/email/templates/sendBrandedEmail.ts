@@ -11,6 +11,7 @@ import {
   recordEmailSendStaffNotice,
 } from "@/lib/email/emailSendStaffNotice";
 import { isProductEmailEnabled } from "@/lib/email/emailSendsEnabled";
+import { isDeliverableAuthEmail } from "@/lib/auth/isSyntheticAuthEmail";
 import { loadEmailSendGate, type EmailSendGate } from "@/lib/email/loadEmailSendGate";
 import type { Locale } from "@/types/i18n";
 import type { EmailTemplateKey } from "@/types/emailTemplates";
@@ -45,6 +46,18 @@ export type SendBrandedEmailResult =
 export async function sendBrandedEmail(
   input: SendBrandedEmailInput,
 ): Promise<SendBrandedEmailResult> {
+  if (!isDeliverableAuthEmail(input.to)) {
+    logEmailSendOutcome({
+      outcome: "skipped",
+      reason: "synthetic_mailbox",
+      to: input.to,
+      templateKey: input.templateKey,
+      locale: input.locale,
+      vars: input.vars,
+    });
+    return { ok: true, skipped: true };
+  }
+
   const gate = input.emailSendGate ?? (await loadEmailSendGate());
   if (
     !isProductEmailEnabled({

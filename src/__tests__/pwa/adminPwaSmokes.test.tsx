@@ -63,6 +63,7 @@ describe("admin PWA smoke", () => {
         onMarkContacted={() => {}}
         onRevertToNew={() => {}}
         onStartEnrollmentFee={() => {}}
+        onStartJoinCharge={() => {}}
       />,
     );
     expect(screen.getByText("B A")).toBeInTheDocument();
@@ -90,6 +91,7 @@ describe("admin PWA smoke", () => {
         onMarkContacted={() => {}}
         onRevertToNew={() => {}}
         onStartEnrollmentFee={() => {}}
+        onStartJoinCharge={() => {}}
         emptyMessage="none"
         pagination={{
           page: 1,
@@ -124,6 +126,7 @@ describe("admin PWA smoke", () => {
         onMarkContacted={() => {}}
         onRevertToNew={() => {}}
         onStartEnrollmentFee={() => {}}
+        onStartJoinCharge={() => {}}
         emptyMessage="none"
         pagination={{
           page: 1,
@@ -232,6 +235,7 @@ describe("admin PWA smoke", () => {
     );
     expect(screen.getByText(dictEn.admin.users.colEnrollmentFee)).toBeInTheDocument();
     expect(screen.getByText(dictEn.admin.users.colLastEnrollment)).toBeInTheDocument();
+    expect(screen.getByText(dictEn.admin.users.colMonthlyStatus)).toBeInTheDocument();
     expect(screen.getByTitle(dictEn.admin.users.monthlyStatusYesAria)).toBeInTheDocument();
     expect(screen.getByTitle(dictEn.admin.users.enrollmentFeeNoAria)).toBeInTheDocument();
   });

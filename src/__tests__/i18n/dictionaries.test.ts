@@ -201,6 +201,9 @@ describe("getDictionary", () => {
     expect(en.admin.registrations.nagoExtrasTitle).toBeTruthy();
     expect(es.admin.registrations.nagoExtrasTitle).toBeTruthy();
     expect(pt.admin.registrations.nagoExtrasTitle).toBeTruthy();
+    expect(en.admin.registrations.intentReserve).toBeTruthy();
+    expect(es.admin.registrations.intentTrial).toBeTruthy();
+    expect(pt.admin.registrations.startJoinCharge).toBeTruthy();
   });
 
   it("includes public shop catalog and order copy in en, es, and pt", async () => {

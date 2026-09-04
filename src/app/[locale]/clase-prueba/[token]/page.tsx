@@ -31,6 +31,7 @@ export default async function TrialFeePayPage({
         full: r.trial.payFull,
         alreadyIn: r.trial.payAlreadyIn,
         amount: r.trial.payAmount,
+        enrollmentKind: dict.admin.registrations.intake.enrollmentKind,
         noFee: r.trial.noFeeNote,
         needsSection: r.trial.needsSection,
         receiptPending: r.trial.payReceiptPending,

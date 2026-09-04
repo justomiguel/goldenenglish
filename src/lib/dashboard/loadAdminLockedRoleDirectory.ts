@@ -149,6 +149,11 @@ export async function loadAdminLockedRoleDirectory(
         ? parentExtras.sectionsByParent
         : studentExtras.sectionsByStudent;
 
+  const billingFlagsByPerson =
+    role === "parent" ? parentExtras.billingFlagsByParent : studentExtras.billingFlagsByStudent;
+  const monthlyStatusByPerson = new Map(
+    [...billingFlagsByPerson].map(([id, flags]) => [id, flags.monthlyStatus]),
+  );
   const candidates = buildAdminDirectoryCandidates({
     profiles,
     sectionsByPerson,
@@ -156,13 +161,12 @@ export async function loadAdminLockedRoleDirectory(
     assistantIdsByTeacher: teacherBundle.assistantIds,
     parentsByStudent: studentExtras.parentsByStudent,
     monthlyDueByStudent: studentExtras.monthlyDueByStudent,
+    monthlyStatusByPerson,
     childrenByParent: parentExtras.childrenByParent,
     emailDeliverableById: deliverable,
   });
   const matched = filterAdminDirectoryCandidates(candidates, filters);
   const matchedIds = new Set(matched.map((c) => c.id));
-  const billingFlagsByPerson =
-    role === "parent" ? parentExtras.billingFlagsByParent : studentExtras.billingFlagsByStudent;
   const sortExtras = {
     sectionsByPerson,
     parentsByStudent: studentExtras.parentsByStudent,

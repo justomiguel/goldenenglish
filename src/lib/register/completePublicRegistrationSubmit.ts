@@ -1,6 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
 import { notifyRegistrationReceived } from "@/lib/email/registrationIntakeEmails";
+import {
+  formatJoinPackageBreakdown,
+  resolveJoinPackagePayCta,
+} from "@/lib/register/formatJoinPackageCopy";
+import { parseJoinPackageSnapshot } from "@/lib/register/parseJoinPackageSnapshot";
 import { buildRegistrationEnrollmentFeeInsertFields } from "@/lib/register/buildRegistrationEnrollmentFeeInsertFields";
 import { requestedSectionsHaveOpenSeats } from "@/lib/register/requestedSectionsHaveOpenSeats";
 import { resolveRegistrationFamilyEmail } from "@/lib/register/resolveRegistrationFamilyEmail";
@@ -21,6 +26,7 @@ export async function quotePublicRegistrationFee(input: {
   admin: SupabaseClient;
   sectionIds: string[];
   nowIso: string;
+  dni?: string | null;
 }): Promise<
   | { ok: false; reason: "section_full" }
   | { ok: true; fields: Awaited<ReturnType<typeof buildRegistrationEnrollmentFeeInsertFields>> }
@@ -31,6 +37,7 @@ export async function quotePublicRegistrationFee(input: {
     admin: input.admin,
     sectionIds: input.sectionIds,
     nowIso: input.nowIso,
+    dni: input.dni,
   });
   return { ok: true, fields };
 }
@@ -48,6 +55,7 @@ export async function notifyPublicRegistrationReceived(input: {
   payToken: string;
   snapshotTotal: number;
   snapshotCurrency: string;
+  feeSnapshot?: unknown;
 }): Promise<void> {
   const locale = input.locale as Locale;
   const domain = getRegistrationMailTenantDomain();
@@ -64,10 +72,15 @@ export async function notifyPublicRegistrationReceived(input: {
   const studentName = `${input.studentFirstName} ${input.studentLastName}`.trim();
   const sectionName =
     input.sectionLabel?.trim() || input.dict.register.enrollmentPayUndecidedSection;
-  const amountLabel =
+  const parsed = parseJoinPackageSnapshot(input.feeSnapshot);
+  const breakdown = formatJoinPackageBreakdown(parsed, locale, {
+    enrollment: input.dict.admin.registrations.intake.enrollmentKind,
+  });
+  const money =
     input.snapshotTotal > 0
       ? formatMoneyLabel(input.snapshotTotal, input.snapshotCurrency, locale)
       : "";
+  const amountLabel = [breakdown, money].filter(Boolean).join(" ");
   await notifyRegistrationReceived({
     locale,
     familyEmail,
@@ -77,7 +90,11 @@ export async function notifyPublicRegistrationReceived(input: {
     scheduleLabel: sectionName,
     amountLabel,
     payUrl,
-    payCta: input.dict.register.enrollmentPayCta,
+    payCta: resolveJoinPackagePayCta(parsed, locale, {
+      both: input.dict.register.enrollmentPayCta,
+      month: input.dict.register.enrollmentPayCtaMonth,
+      enrollment: input.dict.register.enrollmentPayCtaEnrollment,
+    }),
     noFeeNote: input.dict.register.enrollmentPayNoFee,
     adminVars: {
       studentName,

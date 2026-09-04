@@ -103,6 +103,9 @@ export function AdminUsersDataTableRow(props: {
             />
           </td>
           <td className="min-w-0 break-words px-2 py-2 align-top">
+            <AdminDirectoryMonthlyStatusCell status={r.monthlyStatus} labels={labels} />
+          </td>
+          <td className="min-w-0 break-words px-2 py-2 align-top">
             <AdminDirectoryEnrollmentFeeCell status={r.enrollmentFeeStatus} labels={labels} />
           </td>
           <td className="min-w-0 break-words px-2 py-2 align-top">

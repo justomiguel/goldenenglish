@@ -55,4 +55,47 @@ describe("AdminDirectoryFilterPanel", () => {
     await user.click(screen.getByRole("button", { name: labels.clear }));
     expect(onClear).toHaveBeenCalledTimes(1);
   });
+
+  it("exposes monthly status on student and parent, not teacher", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <AdminDirectoryFilterPanel
+        role="student"
+        labels={labels}
+        values={{}}
+        facets={emptyAdminDirectoryFacets()}
+        sectionOptions={[]}
+        onChange={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: labels.toggle }));
+    expect(screen.getByLabelText(labels.monthlyStatus)).toBeInTheDocument();
+
+    rerender(
+      <AdminDirectoryFilterPanel
+        role="parent"
+        labels={labels}
+        values={{}}
+        facets={emptyAdminDirectoryFacets()}
+        sectionOptions={[]}
+        onChange={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+    expect(screen.getByLabelText(labels.monthlyStatus)).toBeInTheDocument();
+
+    rerender(
+      <AdminDirectoryFilterPanel
+        role="teacher"
+        labels={labels}
+        values={{}}
+        facets={emptyAdminDirectoryFacets()}
+        sectionOptions={[]}
+        onChange={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+    expect(screen.queryByLabelText(labels.monthlyStatus)).not.toBeInTheDocument();
+  });
 });

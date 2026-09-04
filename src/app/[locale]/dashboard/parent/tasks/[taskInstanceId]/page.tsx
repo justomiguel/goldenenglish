@@ -6,6 +6,7 @@ import { resolveTutorStudentLink } from "@/lib/auth/resolveTutorStudentLink";
 import { loadStudentLearningTasks } from "@/lib/learning-tasks/loadStudentLearningTasks";
 import { StudentLearningTasksEntry } from "@/components/student/StudentLearningTasksEntry";
 import { ParentTaskDetailScreen } from "@/components/parent/ParentTaskDetailScreen";
+import { getDashboardActor } from "@/lib/dashboard/getDashboardActor";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; taskInstanceId: string }> }) {
   const { locale } = await params;
@@ -30,7 +31,9 @@ export default async function ParentTaskDetailPage({ params, searchParams }: Pag
   const studentId = typeof sp.studentId === "string" ? sp.studentId : null;
   if (!studentId) notFound();
 
-  const link = await resolveTutorStudentLink(supabase, user.id, studentId);
+  const actor = await getDashboardActor();
+  const viewerId = actor?.viewerId ?? user.id;
+  const link = await resolveTutorStudentLink(supabase, viewerId, studentId);
   if (!link.linked) notFound();
 
   const tasks = await loadStudentLearningTasks(supabase, studentId, 80);

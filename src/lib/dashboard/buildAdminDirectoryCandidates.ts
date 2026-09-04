@@ -16,6 +16,7 @@ export type BuildAdminDirectoryCandidatesInput = {
   assistantIdsByTeacher?: Map<string, string[]>;
   parentsByStudent?: Map<string, DirectoryFactPerson[]>;
   monthlyDueByStudent?: Map<string, DirectoryFactDue[]>;
+  monthlyStatusByPerson?: Map<string, "yes" | "no" | "na">;
   childrenByParent?: Map<string, DirectoryFactPerson[]>;
   emailDeliverableById?: Map<string, boolean>;
 };
@@ -37,6 +38,7 @@ export function buildAdminDirectoryCandidates(
       hasParentLink: (input.parentsByStudent?.get(profile.id) ?? []).length > 0,
       hasScholarship: sections.some((section) => (section.discountPercent ?? 0) > 0),
       hasDue: dues.some((due) => due.amount > 0),
+      monthlyStatus: input.monthlyStatusByPerson?.get(profile.id) ?? "na",
       emailDeliverable: input.emailDeliverableById?.get(profile.id) ?? false,
       hasChildren: (input.childrenByParent?.get(profile.id) ?? []).length > 0,
     };

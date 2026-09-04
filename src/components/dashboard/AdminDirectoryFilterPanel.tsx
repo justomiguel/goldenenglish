@@ -92,6 +92,20 @@ function comboOptions(
       { value: "none", label: optionLabel(labels.optionWithCount, labels.emailNone, facets.email.none) },
     ];
   }
+  if (key === "monthlyStatus") {
+    return [
+      { value: "", label: optionLabel(labels.optionWithCount, labels.monthlyStatusAll, facets.monthlyStatus.all) },
+      {
+        value: "current",
+        label: optionLabel(labels.optionWithCount, labels.monthlyStatusCurrent, facets.monthlyStatus.current),
+      },
+      {
+        value: "behind",
+        label: optionLabel(labels.optionWithCount, labels.monthlyStatusBehind, facets.monthlyStatus.behind),
+      },
+      { value: "na", label: optionLabel(labels.optionWithCount, labels.monthlyStatusNa, facets.monthlyStatus.na) },
+    ];
+  }
   const binary: Record<
     Extract<AdminDirectoryFilterKey, "phone" | "enrollment" | "parentLink" | "scholarship" | "due" | "children">,
     [string, string, string, { all: number; with: number; without: number }]
@@ -118,6 +132,7 @@ function comboTitle(key: AdminDirectoryFilterKey, labels: Labels): string {
     parentLink: labels.parentLink,
     scholarship: labels.scholarship,
     due: labels.due,
+    monthlyStatus: labels.monthlyStatus,
     email: labels.email,
     children: labels.children,
   };

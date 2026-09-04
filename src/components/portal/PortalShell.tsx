@@ -18,6 +18,9 @@ import { PortalAccountSheet } from "@/components/portal/PortalAccountSheet";
 import { PortalSubjectChips } from "@/components/portal/PortalSubjectChips";
 import { PortalTabBar } from "@/components/portal/PortalTabBar";
 import { PortalTopNav } from "@/components/portal/PortalTopNav";
+import { StaffWorkspaceSwitch } from "@/components/dashboard/StaffWorkspaceSwitch";
+import { ViewAsBanner } from "@/components/dashboard/ViewAsBanner";
+import type { ViewAsSubject } from "@/lib/dashboard/viewAsTypes";
 
 export interface PortalShellProps {
   locale: string;
@@ -25,6 +28,7 @@ export interface PortalShellProps {
   dict: Dictionary;
   config: PortalShellConfig;
   children: ReactNode;
+  viewAs?: ViewAsSubject | null;
 }
 
 function subscribeReady(onStoreChange: () => void) {
@@ -64,7 +68,7 @@ function PortalBrand({ brand, href, badge }: { brand: BrandPublic; href: string;
   );
 }
 
-export function PortalShell({ locale, brand, dict, config, children }: PortalShellProps) {
+export function PortalShell({ locale, brand, dict, config, children, viewAs = null }: PortalShellProps) {
   const mounted = useSyncExternalStore(subscribeReady, snapshotMounted, snapshotNotMounted);
   const surface = useAppSurface();
   const router = useRouter();
@@ -81,17 +85,23 @@ export function PortalShell({ locale, brand, dict, config, children }: PortalShe
   }
 
   const account = (
-    <PortalAccountSheet
-      locale={locale}
-      items={config.accountItems}
-      heading={config.accountHeading}
-      openLabel={config.accountOpenLabel}
-      closeLabel={config.accountCloseLabel}
-      localeLabels={dict.common.locale}
-      triggerTourAnchor={config.tourAnchors.account}
-      signOutTourAnchor={config.tourAnchors.signOut}
-    />
+    <div className="flex min-w-0 items-center gap-2">
+      {viewAs ? (
+        <StaffWorkspaceSwitch locale={locale} dict={dict} activeRole={viewAs.role} viewAs={viewAs} />
+      ) : null}
+      <PortalAccountSheet
+        locale={locale}
+        items={config.accountItems}
+        heading={config.accountHeading}
+        openLabel={config.accountOpenLabel}
+        closeLabel={config.accountCloseLabel}
+        localeLabels={dict.common.locale}
+        triggerTourAnchor={config.tourAnchors.account}
+        signOutTourAnchor={config.tourAnchors.signOut}
+      />
+    </div>
   );
+  const banner = viewAs ? <ViewAsBanner locale={locale} dict={dict} viewAs={viewAs} /> : null;
 
   const chips = (
     <PortalSubjectChips
@@ -124,6 +134,10 @@ export function PortalShell({ locale, brand, dict, config, children }: PortalShe
           </div>
         </header>
 
+        {banner ? (
+          <div className="mx-auto w-full max-w-[var(--layout-max-width)] px-6 pt-4">{banner}</div>
+        ) : null}
+
         {chips}
 
         <main className="mx-auto w-full max-w-[var(--layout-max-width)] flex-1 px-6 py-6">
@@ -148,6 +162,10 @@ export function PortalShell({ locale, brand, dict, config, children }: PortalShe
           {account}
         </div>
       </header>
+
+      {banner ? (
+        <div className="mx-auto w-full max-w-[var(--layout-max-width)] px-4 pt-3">{banner}</div>
+      ) : null}
 
       {chips}
 

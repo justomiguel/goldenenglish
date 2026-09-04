@@ -16,6 +16,7 @@ const labels = {
   full: "Ese horario se llenó",
   alreadyIn: "Ya estás inscripto",
   amount: "Matrícula",
+  enrollmentKind: "Matrícula",
   noFee: "te va a confirmar",
   needsSection: "asignamos horario",
   receiptPending: "estamos revisando el comprobante",

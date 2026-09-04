@@ -1,7 +1,5 @@
 import { Suspense } from "react";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { ParentPaymentsEntry } from "@/components/parent/ParentPaymentsEntry";
 import { BillingPortalScreen } from "@/components/billing/BillingPortalScreen";
@@ -11,6 +9,7 @@ import { submitTutorEnrollmentFeeReceipt } from "@/app/[locale]/dashboard/parent
 import { startTutorFlowMonthlyPayment } from "@/app/[locale]/dashboard/parent/payments/flowMonthlyPaymentActions";
 import { startTutorMercadoPagoMonthlyPayment } from "@/app/[locale]/dashboard/parent/payments/mercadoPagoMonthlyPaymentActions";
 import type { Locale } from "@/types/i18n";
+import { requirePortalPageActor } from "@/lib/dashboard/requirePortalPageActor";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -26,22 +25,11 @@ export default async function ParentPaymentsPage({ params, searchParams }: PageP
   const { locale } = await params;
   const { studentId: requestedStudentId } = await searchParams;
   const dict = await getDictionary(locale);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect(`/${locale}/login`);
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (profile?.role !== "parent") redirect(`/${locale}/dashboard`);
+  const { supabase, viewerId } = await requirePortalPageActor(locale, "parent");
 
   const payload = await loadParentPaymentsPagePayload(
     supabase,
-    user.id,
+    viewerId,
     requestedStudentId ?? null,
   );
 

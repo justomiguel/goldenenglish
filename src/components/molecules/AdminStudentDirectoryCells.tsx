@@ -94,7 +94,6 @@ export function AdminStudentSectionsList({
 export function AdminStudentMonthlyDueCell({
   row,
   locale,
-  labels,
   emptyValue,
 }: {
   row: AdminUserRow;
@@ -103,22 +102,11 @@ export function AdminStudentMonthlyDueCell({
   emptyValue: string;
 }) {
   const formatted = formatMonthlyDueTotals(row.monthlyDue, locale);
+  if (!formatted) {
+    return <span className="text-[var(--color-muted-foreground)]">{emptyValue}</span>;
+  }
   return (
-    <span className="flex flex-wrap items-center gap-1.5">
-      {formatted ? (
-        <span className="font-semibold tabular-nums text-[var(--color-foreground)]">{formatted}</span>
-      ) : (
-        <span className="text-[var(--color-muted-foreground)]">{emptyValue}</span>
-      )}
-      <DirectoryBillingMark
-        status={row.monthlyStatus}
-        yesLabel={labels.billingMarkYes}
-        noLabel={labels.billingMarkNo}
-        yesTitle={labels.monthlyStatusYesAria}
-        noTitle={labels.monthlyStatusNoAria}
-        naTitle={labels.monthlyStatusNaAria}
-      />
-    </span>
+    <span className="font-semibold tabular-nums text-[var(--color-foreground)]">{formatted}</span>
   );
 }
 

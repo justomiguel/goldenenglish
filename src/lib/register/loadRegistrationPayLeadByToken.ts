@@ -1,4 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getLegalAgeMajorityFromSystem } from "@/lib/brand/legalAge";
+import { fullYearsFromIsoDate } from "@/lib/register/ageFromBirthDate";
 import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
 import { resolveRegistrationFamilyEmail } from "@/lib/register/resolveRegistrationFamilyEmail";
 
@@ -45,7 +47,7 @@ export async function loadRegistrationPayLeadByToken(
   const { data, error } = await admin
     .from("registrations")
     .select(
-      "id, status, intake_state, fee_captured, fee_snapshot, preferred_section_id, proposed_section_id, additional_section_ids, is_minor, student_email, tutor_email, first_name, last_name, tutor_name",
+      "id, status, intake_state, fee_captured, fee_snapshot, preferred_section_id, proposed_section_id, additional_section_ids, email, birth_date, tutor_email, first_name, last_name, tutor_name",
     )
     .eq("pay_token", payToken)
     .maybeSingle();
@@ -54,6 +56,10 @@ export async function loadRegistrationPayLeadByToken(
   const snapshot = (row.fee_snapshot ?? {}) as { total?: unknown; currency?: unknown };
   const total = Number(snapshot.total ?? 0);
   const extra = row.additional_section_ids;
+  const birth = row.birth_date != null ? String(row.birth_date).slice(0, 10) : "";
+  const isMinor =
+    /^\d{4}-\d{2}-\d{2}$/.test(birth) &&
+    fullYearsFromIsoDate(birth) < getLegalAgeMajorityFromSystem();
   return {
     id: String(row.id),
     status: String(row.status ?? "new"),
@@ -68,8 +74,8 @@ export async function loadRegistrationPayLeadByToken(
     additionalSectionIds: Array.isArray(extra)
       ? extra.map((id) => String(id)).filter(Boolean)
       : [],
-    isMinor: row.is_minor === true,
-    studentEmail: row.student_email == null ? null : String(row.student_email),
+    isMinor,
+    studentEmail: row.email == null ? null : String(row.email),
     tutorEmail: row.tutor_email == null ? null : String(row.tutor_email),
     firstName: String(row.first_name ?? "").trim(),
     lastName: String(row.last_name ?? "").trim(),

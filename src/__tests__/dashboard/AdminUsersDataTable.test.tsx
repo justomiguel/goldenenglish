@@ -113,6 +113,7 @@ describe("AdminUsersDataTable", () => {
 
     expect(screen.queryByText(dictEn.admin.users.colDiscount)).not.toBeInTheDocument();
     expect(screen.getByText(dictEn.admin.users.colMonthlyDue)).toBeInTheDocument();
+    expect(screen.getByText(dictEn.admin.users.colMonthlyStatus)).toBeInTheDocument();
     expect(screen.getByText("$90")).toBeInTheDocument();
     expect(screen.getByText(dictEn.admin.users.colEnrollmentFee)).toBeInTheDocument();
     expect(screen.getByText(dictEn.admin.users.colLastEnrollment)).toBeInTheDocument();
@@ -168,7 +169,8 @@ describe("AdminUsersDataTable", () => {
     });
     expect(screen.getByText(dictEn.admin.users.colLastAccess)).toBeInTheDocument();
     expect(screen.getByText(dictEn.admin.users.lastAccessNever)).toBeInTheDocument();
-    expect(screen.getByText(dictEn.admin.users.colMonthlyDue)).toBeInTheDocument();
+    expect(screen.getByText(dictEn.admin.users.colMonthlyStatus)).toBeInTheDocument();
+    expect(screen.queryByText(dictEn.admin.users.colMonthlyDue)).not.toBeInTheDocument();
     expect(screen.getByText(dictEn.admin.users.colEnrollmentFee)).toBeInTheDocument();
     expect(screen.getByText(dictEn.admin.users.colLastEnrollment)).toBeInTheDocument();
     expect(screen.getByTitle(dictEn.admin.users.monthlyStatusNoAria)).toBeInTheDocument();

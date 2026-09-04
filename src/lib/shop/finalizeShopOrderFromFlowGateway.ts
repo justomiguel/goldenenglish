@@ -1,7 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { flowFetchPaymentStatus } from "@/lib/payment-gateways/flow/flowFetchPaymentStatus";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
-import { markShopOrderPaid, type MarkShopOrderPaidResult } from "@/lib/shop/markShopOrderPaid";
+import {
+  markShopOrderPaid,
+  type MarkShopOrderPaidResult,
+  type ShopMarkPaidAdmin,
+} from "@/lib/shop/markShopOrderPaid";
 
 const FLOW_PAID_STATUS = 2;
 
@@ -39,5 +43,5 @@ export async function finalizeShopOrderFromFlowGateway(input: {
       : "";
   if (!orderId) return { ok: true, skipped: "not_found" };
 
-  return markShopOrderPaid({ admin: input.admin, orderId });
+  return markShopOrderPaid({ admin: input.admin as unknown as ShopMarkPaidAdmin, orderId });
 }

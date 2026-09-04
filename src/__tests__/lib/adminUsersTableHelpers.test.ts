@@ -178,4 +178,17 @@ describe("sortAdminUsers", () => {
       "a",
     ]);
   });
+
+  it("sorts monthly status no before na before yes", () => {
+    const withMarks: AdminUserRow[] = [
+      { ...rows[0], monthlyStatus: "yes" },
+      { ...rows[1], monthlyStatus: "no" },
+      { ...rows[0], id: "c", email: "c@x.com", monthlyStatus: "na" },
+    ];
+    expect(sortAdminUsers(withMarks, "monthlyStatus", "asc").map((x) => x.id)).toEqual([
+      "b",
+      "c",
+      "a",
+    ]);
+  });
 });

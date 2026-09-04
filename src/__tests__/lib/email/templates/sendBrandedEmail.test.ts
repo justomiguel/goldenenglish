@@ -242,6 +242,20 @@ describe("sendBrandedEmail", () => {
     error.mockRestore();
   });
 
+  it("skips the provider when the recipient is an auto-provisioned tenant mailbox", async () => {
+    const { sendBrandedEmail } = await import("@/lib/email/templates/sendBrandedEmail");
+    const r = await sendBrandedEmail({
+      to: "sofiahaighr-279666747@espaciozenit.cl",
+      templateKey: "messaging.teacher_new",
+      locale: "es",
+      emailProvider: { sendEmail },
+      emailSendGate: OPEN_GATE,
+      vars: { senderName: "Ann", messagePreview: "Hi", href: "https://x.test" },
+    });
+    expect(r).toEqual({ ok: true, skipped: true });
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
   it("skips class-reminder email when the class-reminders site flag is off", async () => {
     const { sendBrandedEmail } = await import("@/lib/email/templates/sendBrandedEmail");
     const r = await sendBrandedEmail({

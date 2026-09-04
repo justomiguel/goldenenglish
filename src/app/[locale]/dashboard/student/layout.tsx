@@ -7,6 +7,8 @@ import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
 import { PortalShell } from "@/components/portal/PortalShell";
 import { buildStudentShellConfig } from "@/lib/portal/buildStudentShellConfig";
 import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
+import { getDashboardActor, syncViewAsCookie } from "@/lib/dashboard/getDashboardActor";
+import { filterAccountItemsForViewAs, viewAsPortalRedirect } from "@/lib/dashboard/viewAsLayout";
 
 interface LayoutProps {
   children: ReactNode;
@@ -30,11 +32,21 @@ export default async function StudentDashboardLayout({
     .from("profiles")
     .select("role")
     .eq("id", user.id)
-    .single();
-  if (profile?.role !== "student") redirect(`/${locale}/dashboard`);
+    .maybeSingle();
+  const actor = await getDashboardActor();
+  if (actor) await syncViewAsCookie(actor);
+  const redirectTo = actor
+    ? viewAsPortalRedirect(locale, actor, "student", {
+        sessionProfileRole: profile?.role ?? null,
+        teacherPortalAllowed: false,
+        assistantPortalAllowed: false,
+      })
+    : `/${locale}/dashboard`;
+  if (redirectTo) redirect(redirectTo);
 
+  const viewerId = actor?.viewerId ?? user.id;
   const [perms, includeShopNav] = await Promise.all([
-    getProfilePermissions(supabase, user.id),
+    getProfilePermissions(supabase, viewerId),
     loadMerchEnabled(),
   ]);
   const config = buildStudentShellConfig({
@@ -46,7 +58,16 @@ export default async function StudentDashboardLayout({
   });
 
   return (
-    <PortalShell locale={locale} dict={dict} brand={brand} config={config}>
+    <PortalShell
+      locale={locale}
+      dict={dict}
+      brand={brand}
+      config={{
+        ...config,
+        accountItems: filterAccountItemsForViewAs(config.accountItems, actor?.viewAs ?? null),
+      }}
+      viewAs={actor?.viewAs ?? null}
+    >
       {children}
     </PortalShell>
   );

@@ -6,6 +6,7 @@ import { buildPortalCalendarPagePayload } from "@/lib/calendar/buildPortalCalend
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { PortalCalendarEntry } from "@/components/organisms/PortalCalendarEntry";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
+import { getDashboardActor } from "@/lib/dashboard/getDashboardActor";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -29,7 +30,9 @@ export default async function ParentCalendarPage({ params }: PageProps) {
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login?next=/${locale}/dashboard/parent/calendar`);
 
-  const payload = await buildPortalCalendarPagePayload(supabase, user.id, "parent", {
+  const actor = await getDashboardActor();
+  const viewerId = actor?.viewerId ?? user.id;
+  const payload = await buildPortalCalendarPagePayload(supabase, viewerId, "parent", {
     locale,
     birthdayCopy: dict.dashboard.birthdays,
   });
@@ -44,7 +47,7 @@ export default async function ParentCalendarPage({ params }: PageProps) {
       dict={dict.dashboard.portalCalendar}
       events={payload.events}
       feedUrl={feedUrl}
-      viewerId={user.id}
+      viewerId={viewerId}
       tourAnchors={{
         title: PARENT_TOUR_ANCHORS.calendarTitle,
         schedule: PARENT_TOUR_ANCHORS.calendarBoard,

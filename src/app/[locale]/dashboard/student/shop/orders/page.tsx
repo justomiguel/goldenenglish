@@ -3,6 +3,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { requireShopPortal } from "@/lib/shop/requireShopPortal";
 import { loadAssignedShopOrders } from "@/lib/shop/loadFamilyShopOrders";
 import { FamilyShopOrdersScreen } from "@/components/shop/FamilyShopOrdersScreen";
+import { FamilyShopSurfaceEntry } from "@/components/shop/FamilyShopSurfaceEntry";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -19,13 +20,15 @@ export default async function StudentShopOrdersPage({ params }: PageProps) {
   const { dict, supabase, user } = await requireShopPortal(locale, "student");
   const rows = await loadAssignedShopOrders(supabase, user.id);
   return (
-    <FamilyShopOrdersScreen
-      locale={locale}
-      role="student"
-      rows={rows}
-      assignOptions={[]}
-      family={dict.shop.family}
-      order={dict.shop.order}
-    />
+    <FamilyShopSurfaceEntry>
+      <FamilyShopOrdersScreen
+        locale={locale}
+        role="student"
+        rows={rows}
+        assignOptions={[]}
+        family={dict.shop.family}
+        order={dict.shop.order}
+      />
+    </FamilyShopSurfaceEntry>
   );
 }

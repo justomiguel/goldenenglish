@@ -1,8 +1,6 @@
 import { Suspense } from "react";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
-import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { createClient } from "@/lib/supabase/server";
 import { absoluteUrl } from "@/lib/site/publicUrl";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { loadStudentLearningTasks } from "@/lib/learning-tasks/loadStudentLearningTasks";
@@ -12,6 +10,7 @@ import { loadStudentExamResults } from "@/lib/parent/loadStudentExamResults";
 import { loadStudentBadgeDisplayRows } from "@/lib/badges/loadStudentBadgeDisplayRows";
 import { createProgressFailureTracker } from "@/lib/parent/progressFailureTracker";
 import { ParentProgressEntry } from "@/components/parent/ParentProgressEntry";
+import { requirePortalPageActor } from "@/lib/dashboard/requirePortalPageActor";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -33,21 +32,20 @@ export default async function StudentProgressPage({ params, searchParams }: Page
   const { locale } = await params;
   await searchParams;
   const dict = await getDictionary(locale);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect(`/${locale}/login?next=/${locale}/dashboard/student/progress`);
+  const { supabase, viewerId } = await requirePortalPageActor(
+    locale,
+    "student",
+    `/${locale}/dashboard/student/progress`,
+  );
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, first_name, last_name")
-    .eq("id", user.id)
+    .select("first_name, last_name")
+    .eq("id", viewerId)
     .maybeSingle();
-  if (profile?.role !== "student") redirect(`/${locale}/dashboard`);
 
-  const studentId = user.id;
-  const displayName = formatProfileNameSurnameFirst(profile.first_name, profile.last_name);
+  const studentId = viewerId;
+  const displayName = formatProfileNameSurnameFirst(profile?.first_name, profile?.last_name);
   const wardOptions = [{ studentId, displayName: displayName || studentId }];
 
   // A read that fails must reach the screen: Progress hides empty sections, so a swallowed error

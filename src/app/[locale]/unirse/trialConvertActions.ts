@@ -79,7 +79,8 @@ export async function startTrialConvertAction(input: {
     .from("registrations")
     .update({
       fee_snapshot: {
-        kind: quote.kind,
+        kind: "join_package",
+        convertKind: quote.kind,
         total: quote.total,
         currency: quote.currency,
         sectionIds: quote.payableSectionIds,
@@ -89,6 +90,19 @@ export async function startTrialConvertAction(input: {
         classPack: facts.classPack,
         periodYear: facts.periodYear,
         periodMonth: facts.periodMonth,
+        tuition: quote.payableSectionIds
+          .map((id) => {
+            const ym = facts.tuitionMonths[id];
+            if (!ym) return null;
+            return {
+              sectionId: id,
+              sectionName: "",
+              year: ym.year,
+              month: ym.month,
+              amount: facts.monthlyAmounts[id] ?? 0,
+            };
+          })
+          .filter(Boolean),
       },
     })
     .eq("id", lead.id);

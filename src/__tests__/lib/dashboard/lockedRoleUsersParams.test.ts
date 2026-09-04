@@ -67,5 +67,18 @@ describe("lockedRoleUsersParams", () => {
     expect(lockedRoleUsersParams("parent", { sort: "enrollmentFee" }).sort).toBe(
       "enrollmentFee",
     );
+    expect(lockedRoleUsersParams("student", { sort: "monthlyStatus" }).sort).toBe(
+      "monthlyStatus",
+    );
+  });
+
+  it("keeps monthly status filter on student and parent lists", () => {
+    expect(lockedRoleUsersParams("student", { monthlyStatus: "behind" }).monthlyStatus).toBe(
+      "behind",
+    );
+    expect(lockedRoleUsersParams("parent", { monthlyStatus: "current" }).monthlyStatus).toBe(
+      "current",
+    );
+    expect(lockedRoleUsersParams("teacher", { monthlyStatus: "behind" }).monthlyStatus).toBeUndefined();
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { RotateCcw, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -31,12 +31,6 @@ export function AdminMerchVariantRowEditor({
   const [stock, setStock] = useState(String(variant.stock));
   const [price, setPrice] = useState(String(variant.price));
   const [active, setActive] = useState(variant.active);
-
-  useEffect(() => {
-    setStock(String(variant.stock));
-    setPrice(String(variant.price));
-    setActive(variant.active);
-  }, [variant.stock, variant.price, variant.active]);
 
   function payload(nextActive: boolean): AdminMerchVariantUpsertInput {
     return {

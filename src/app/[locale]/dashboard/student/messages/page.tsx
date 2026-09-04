@@ -1,7 +1,6 @@
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { requirePortalPageActor } from "@/lib/dashboard/requirePortalPageActor";
 import { resolveTeacherIdForStudent } from "@/lib/messaging/resolveTeacherId";
 import { StudentMessagesEntry } from "@/components/student/StudentMessagesEntry";
 import { formatProfileSnakeSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
@@ -22,33 +21,22 @@ interface PageProps {
 export default async function StudentMessagesPage({ params }: PageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect(`/${locale}/login`);
+  const { supabase, viewerId } = await requirePortalPageActor(locale, "student");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-  if (profile?.role !== "student") redirect(`/${locale}/dashboard`);
-
-  const teacherForCompose = await resolveTeacherIdForStudent(supabase, user.id);
+  const teacherForCompose = await resolveTeacherIdForStudent(supabase, viewerId);
   const teacherComposeAvailable = Boolean(teacherForCompose);
   const administrationComposeAvailable = (await countProfilesWithRole("admin")) > 0;
 
   const { data: raw } = await supabase
     .from("portal_messages")
     .select("id, sender_id, recipient_id, body_html, created_at, broadcast_batch_id")
-    .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
+    .or(`sender_id.eq.${viewerId},recipient_id.eq.${viewerId}`)
     .order("created_at", { ascending: true });
 
   const peerIds = new Set<string>();
   for (const m of raw ?? []) {
     const other =
-      (m.sender_id as string) === user.id ? (m.recipient_id as string) : (m.sender_id as string);
+      (m.sender_id as string) === viewerId ? (m.recipient_id as string) : (m.sender_id as string);
     peerIds.add(other);
   }
   const idList = [...peerIds];
@@ -82,7 +70,7 @@ export default async function StudentMessagesPage({ params }: PageProps) {
   const adminRecipientIds = await loadAdminProfileIds();
 
   const lines = buildStudentPortalMessageLines({
-    userId: user.id,
+    userId: viewerId,
     sortedAsc,
     peerById,
     adminRecipientIds,

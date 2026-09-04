@@ -42,7 +42,7 @@ function row(overrides: Partial<AdminRegistrationRow> = {}): AdminRegistrationRo
   };
 }
 
-function renderRow(r: AdminRegistrationRow, onStart = vi.fn()) {
+function renderRow(r: AdminRegistrationRow, onStart = vi.fn(), onJoin = vi.fn()) {
   return render(
     <table>
       <tbody>
@@ -62,6 +62,7 @@ function renderRow(r: AdminRegistrationRow, onStart = vi.fn()) {
           onMarkContacted={vi.fn()}
           onRevertToNew={vi.fn()}
           onStartEnrollmentFee={onStart}
+          onStartJoinCharge={onJoin}
         />
       </tbody>
     </table>,
@@ -74,9 +75,25 @@ describe("AdminRegistrationTableRow", () => {
     expect(screen.getByRole("button", { name: labels.startEnrollmentFeeFlow })).toBeInTheDocument();
   });
 
-  it("shows the trial-class badge on trial leads", () => {
-    renderRow(row({ intent: "trial", chargesEnrollmentFee: false, snapshotTotal: 0 }));
-    expect(screen.getByText(labels.trialClassBadge)).toBeInTheDocument();
+  it("shows a type column for pre-enrollment and the matrícula start action", () => {
+    renderRow(row());
+    expect(screen.getByText(labels.intentReserve)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: labels.startEnrollmentFeeFlow })).toBeInTheDocument();
+  });
+
+  it("shows trial type and the join-pay action instead of the matrícula-only button", () => {
+    renderRow(
+      row({
+        intent: "trial",
+        chargesEnrollmentFee: true,
+        snapshotTotal: 80,
+      }),
+    );
+    expect(screen.getByText(labels.intentTrial)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: labels.startJoinCharge })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: labels.startEnrollmentFeeFlow }),
+    ).not.toBeInTheDocument();
   });
 
   it("hides the start-fee-flow button when the lead has no matrícula to collect", () => {

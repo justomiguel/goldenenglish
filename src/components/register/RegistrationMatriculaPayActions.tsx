@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   startRegistrationEnrollmentFlowAction,
   startRegistrationEnrollmentMercadoPagoAction,
@@ -54,6 +55,7 @@ export function RegistrationMatriculaPayActions({
   labels: RegistrationMatriculaPayActionLabels;
   variant?: "enrollment" | "trial";
 }) {
+  const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState("");
   const [receiptOk, setReceiptOk] = useState(false);
@@ -62,7 +64,11 @@ export function RegistrationMatriculaPayActions({
     setError("");
     start(async () => {
       const result = await action();
-      if (!result.ok) setError(labels.error);
+      if (!result.ok) {
+        setError(labels.error);
+        return;
+      }
+      await router.refresh();
     });
   }
 

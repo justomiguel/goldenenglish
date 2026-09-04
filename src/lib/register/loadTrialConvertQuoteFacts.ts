@@ -16,6 +16,9 @@ import { mapClassPackPriceRow, type ClassPackPriceRowDb } from "@/types/classPac
 import { resolveExistingStudentByDni } from "@/lib/register/resolveExistingStudentByDni";
 import { getInstituteTimeZone } from "@/lib/datetime/instituteTimeZone";
 import { instituteCalendarPartsInTimeZone } from "@/lib/datetime/instituteCalendarMonthRange";
+import { parseSectionScheduleSlots } from "@/lib/academics/sectionScheduleSlots";
+import { pickJoinPackageMonth } from "@/lib/register/pickJoinPackageMonth";
+import { sectionHasRemainingClassThisMonth } from "@/lib/register/sectionHasRemainingClassThisMonth";
 
 export async function loadTrialConvertQuoteFacts(
   admin: SupabaseClient,
@@ -30,10 +33,12 @@ export async function loadTrialConvertQuoteFacts(
   classPack: FirstClassPackTuition | null;
   periodYear: number;
   periodMonth: number;
+  tuitionMonths: Record<string, { year: number; month: number }>;
 }> {
   const ids = [...new Set(input.sectionIds.filter(Boolean))];
   const enrollmentAmounts: Record<string, number> = {};
   const monthlyAmounts: Record<string, number> = {};
+  const tuitionMonths: Record<string, { year: number; month: number }> = {};
   const openBySectionId: Record<string, boolean> = {};
   let currency = "USD";
   const now = input.now ?? new Date();
@@ -49,6 +54,7 @@ export async function loadTrialConvertQuoteFacts(
       classPack: null,
       periodYear: y,
       periodMonth: m,
+      tuitionMonths: {},
     };
   }
 
@@ -56,7 +62,7 @@ export async function loadTrialConvertQuoteFacts(
     admin
       .from("academic_sections")
       .select(
-        "id, enrollment_fee_amount, billing_mode, academic_cohorts(default_enrollment_fee_amount, default_monthly_fee)",
+        "id, enrollment_fee_amount, billing_mode, starts_on, ends_on, schedule_slots, academic_cohorts(default_enrollment_fee_amount, default_monthly_fee)",
       )
       .in("id", ids),
     admin
@@ -92,7 +98,27 @@ export async function loadTrialConvertQuoteFacts(
       parseOptionalFeeAmount(cohortObj.default_enrollment_fee_amount),
     );
     const mapped = (plansBySection.get(id) ?? []).map(mapSectionFeePlanRow);
-    const sectionPlan = resolveEffectiveSectionFeePlan(mapped, y, m);
+    const startsOn = row.starts_on != null ? String(row.starts_on).slice(0, 10) : null;
+    const endsOn = row.ends_on != null ? String(row.ends_on).slice(0, 10) : null;
+    const picked = sectionIsClassPackBilled(row.billing_mode)
+      ? { year: y, month: m }
+      : pickJoinPackageMonth({
+          hasRemainingClassThisMonth: sectionHasRemainingClassThisMonth({
+            slots: parseSectionScheduleSlots(row.schedule_slots),
+            startsOn,
+            endsOn,
+            now,
+            timeZone: getInstituteTimeZone(),
+          }),
+          sectionStartsOn: startsOn,
+          sectionEndsOn: endsOn,
+          now,
+          timeZone: getInstituteTimeZone(),
+        });
+    if (picked) tuitionMonths[id] = picked;
+    const planYear = picked?.year ?? y;
+    const planMonth = picked?.month ?? m;
+    const sectionPlan = resolveEffectiveSectionFeePlan(mapped, planYear, planMonth);
     const monthly = resolveEffectiveMonthlyFee({
       billingMode: typeof row.billing_mode === "string" ? row.billing_mode : null,
       sectionPlan: sectionPlan
@@ -101,7 +127,11 @@ export async function loadTrialConvertQuoteFacts(
       cohortDefaultMonthlyFee: parseOptionalFeeAmount(cohortObj.default_monthly_fee),
     });
     monthlyAmounts[id] =
-      monthly.kind === "section" || monthly.kind === "cohort" ? monthly.monthlyFee : 0;
+      !picked && !sectionIsClassPackBilled(row.billing_mode)
+        ? 0
+        : monthly.kind === "section" || monthly.kind === "cohort"
+          ? monthly.monthlyFee
+          : 0;
     if ((monthly.kind === "section" || monthly.kind === "cohort") && monthly.currency) {
       currency = monthly.currency;
     }
@@ -139,14 +169,16 @@ export async function loadTrialConvertQuoteFacts(
     }
     const { data: pays } = await admin
       .from("payments")
-      .select("section_id, status")
+      .select("section_id, year, month, status")
       .eq("student_id", identity.studentId)
-      .eq("year", y)
-      .eq("month", m)
       .in("section_id", ids)
       .eq("status", "approved");
     for (const row of pays ?? []) {
-      alreadyPaidMonthIds.push(String(row.section_id));
+      const id = String(row.section_id);
+      const due = tuitionMonths[id] ?? { year: y, month: m };
+      if (Number(row.year) === due.year && Number(row.month) === due.month) {
+        alreadyPaidMonthIds.push(id);
+      }
     }
     if (classPack && classPackIds.length > 0) {
       const { data: packs } = await admin
@@ -178,5 +210,6 @@ export async function loadTrialConvertQuoteFacts(
         : null,
     periodYear: y,
     periodMonth: m,
+    tuitionMonths,
   };
 }

@@ -13,6 +13,7 @@ describe("parseAdminDirectoryFilters", () => {
         parentLink: "without",
         scholarship: "with",
         due: "without",
+        monthlyStatus: "behind",
         teachingRole: "lead",
         email: "none",
         children: "with",
@@ -27,6 +28,7 @@ describe("parseAdminDirectoryFilters", () => {
       parentLink: "without",
       scholarship: "with",
       due: "without",
+      monthlyStatus: "behind",
     });
   });
 
@@ -46,11 +48,13 @@ describe("parseAdminDirectoryFilters", () => {
         children: "without",
         access: "entered",
         due: "with",
+        monthlyStatus: "current",
       }),
     ).toEqual({
       email: "deliverable",
       children: "without",
       access: "entered",
+      monthlyStatus: "current",
     });
   });
 });

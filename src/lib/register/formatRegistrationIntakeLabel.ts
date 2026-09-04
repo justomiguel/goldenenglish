@@ -1,4 +1,6 @@
 import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
+import { formatJoinPackageBreakdown } from "@/lib/register/formatJoinPackageCopy";
+import { parseJoinPackageSnapshot } from "@/lib/register/parseJoinPackageSnapshot";
 import type { RegistrationIntakeState } from "@/lib/register/registrationIntake";
 
 export function formatRegistrationIntakeLabel(input: {
@@ -15,8 +17,8 @@ export function formatRegistrationIntakeLabel(input: {
     needsSection: string;
     sectionFull: string;
     offerPending: string;
-    readyToEnrol?: string;
-    enrollmentKind?: string;
+    readyToEnrol: string;
+    enrollmentKind: string;
   };
 }): string | null {
   if (input.intakeState === "offer_pending") {
@@ -31,14 +33,20 @@ export function formatRegistrationIntakeLabel(input: {
   if (input.intakeState === "receipt_pending") return input.labels.receiptPending;
   if (input.intakeState === "needs_section") return input.labels.needsSection;
   if (input.intakeState === "awaiting_fee") {
+    const parsed = parseJoinPackageSnapshot(input.feeSnapshot);
+    const breakdown = formatJoinPackageBreakdown(parsed, input.locale, {
+      enrollment: input.labels.enrollmentKind,
+    });
     const amount = formatMoneyLabel(
-      input.snapshotTotal ?? 0,
-      input.snapshotCurrency ?? "CLP",
+      input.snapshotTotal ?? parsed.total,
+      input.snapshotCurrency ?? parsed.currency,
       input.locale,
     );
-    return input.labels.awaitingFee.replace("{{amount}}", amount);
+    return input.labels.awaitingFee
+      .replace("{{breakdown}}", breakdown)
+      .replace("{{amount}}", amount);
   }
-  if (input.intakeState === "none" && !(input.snapshotTotal ?? 0) && input.labels.readyToEnrol) {
+  if (input.intakeState === "none" && !(input.snapshotTotal ?? 0)) {
     return input.labels.readyToEnrol;
   }
   return null;

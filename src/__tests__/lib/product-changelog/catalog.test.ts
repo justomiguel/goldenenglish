@@ -35,6 +35,7 @@ describe("product changelog catalog", () => {
     const ids = new Set(listProductChangelogEntries().map((e) => e.id));
     expect(ids.has("nago-nunoa-dark-landing")).toBe(true);
     expect(ids.has("directory-quota-enrollment-status")).toBe(true);
+    expect(ids.has("directory-monthly-status-column-filter")).toBe(true);
     expect(ids.has("join-payment-disposition")).toBe(true);
     expect(ids.has("trial-classes")).toBe(true);
     expect(ids.has("enrollment-fee-checkout")).toBe(true);

@@ -15,6 +15,7 @@ function candidate(partial: Partial<AdminDirectoryCandidate> & { id: string }): 
     hasParentLink: false,
     hasScholarship: false,
     hasDue: false,
+    monthlyStatus: "na",
     emailDeliverable: false,
     hasChildren: false,
     ...partial,
@@ -88,5 +89,22 @@ describe("filterAdminDirectoryCandidates", () => {
     );
     expect(withAccess.map((r) => r.id)).toEqual(["a"]);
     expect(omitAccess.map((r) => r.id)).toEqual(["a", "b"]);
+  });
+
+  it("filters by monthly current vs behind and excludes na from both", () => {
+    const rows = [
+      candidate({ id: "ok", monthlyStatus: "yes" }),
+      candidate({ id: "late", monthlyStatus: "no" }),
+      candidate({ id: "none", monthlyStatus: "na" }),
+    ];
+    expect(
+      filterAdminDirectoryCandidates(rows, { monthlyStatus: "current" }, { now }).map((r) => r.id),
+    ).toEqual(["ok"]);
+    expect(
+      filterAdminDirectoryCandidates(rows, { monthlyStatus: "behind" }, { now }).map((r) => r.id),
+    ).toEqual(["late"]);
+    expect(
+      filterAdminDirectoryCandidates(rows, { monthlyStatus: "na" }, { now }).map((r) => r.id),
+    ).toEqual(["none"]);
   });
 });

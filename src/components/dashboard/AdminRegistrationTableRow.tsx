@@ -8,8 +8,10 @@ import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import { RegistrationExistingStudentBadge } from "@/components/dashboard/RegistrationExistingStudentBadge";
 import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
-import { canStartRegistrationEnrollmentFeeFlow } from "@/lib/register/canStartRegistrationEnrollmentFeeFlow";
+import { AdminRegistrationChargeActions } from "@/components/dashboard/AdminRegistrationChargeActions";
+import { formatRegistrationIntakeLabel } from "@/lib/register/formatRegistrationIntakeLabel";
 import { registrationInboxPrimaryKind } from "@/lib/register/registrationInboxPrimaryKind";
+import { registrationIntentLabel } from "@/lib/register/registrationIntentLabel";
 import type { RegistrationContactView } from "@/lib/register/resolveRegistrationContact";
 
 type RegLabels = Dictionary["admin"]["registrations"];
@@ -30,6 +32,7 @@ export interface AdminRegistrationTableRowProps {
   onMarkContacted: (row: AdminRegistrationRow) => void;
   onRevertToNew: (row: AdminRegistrationRow) => void;
   onStartEnrollmentFee: (row: AdminRegistrationRow) => void;
+  onStartJoinCharge: (row: AdminRegistrationRow) => void;
 }
 
 export function AdminRegistrationTableRow({
@@ -48,21 +51,19 @@ export function AdminRegistrationTableRow({
   onMarkContacted,
   onRevertToNew,
   onStartEnrollmentFee,
+  onStartJoinCharge,
 }: AdminRegistrationTableRowProps) {
   const canAccept = registrationInboxPrimaryKind(r) === "accept";
-  const canStartFee = canStartRegistrationEnrollmentFeeFlow(r);
   const isPending = r.status === "new";
-  const intakeLabel = r.requestedSectionFull
-    ? labels.intake.sectionFull
-    : r.intakeState === "receipt_pending"
-      ? labels.intake.receiptPending
-      : r.intakeState === "needs_section"
-        ? labels.intake.needsSection
-        : r.intakeState === "section_full"
-          ? labels.intake.sectionFull
-          : r.intakeState === "awaiting_fee"
-            ? labels.intake.awaitingFee.replace("{{amount}}", "")
-            : null;
+  const intakeLabel = formatRegistrationIntakeLabel({
+    intakeState: r.intakeState,
+    requestedSectionFull: r.requestedSectionFull,
+    snapshotTotal: r.snapshotTotal,
+    snapshotCurrency: r.snapshotCurrency,
+    feeSnapshot: r.feeSnapshot,
+    locale,
+    labels: labels.intake,
+  });
 
   return (
     <tr
@@ -100,6 +101,9 @@ export function AdminRegistrationTableRow({
           </span>
         ) : null}
       </td>
+      <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top">
+        {registrationIntentLabel(labels, r.intent)}
+      </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top">{r.dni}</td>
       <td className="min-w-0 max-w-0 px-3 py-2 align-top">
         <RegistrationContactCell
@@ -119,11 +123,6 @@ export function AdminRegistrationTableRow({
       </td>
       <td className="min-w-0 max-w-0 break-words px-3 py-2 align-top">
         {formatRegistrationLevelInterestDisplay(labels, r.level_interest)}
-        {r.intent === "trial" ? (
-          <span className="ml-2 inline-flex items-center rounded-full bg-[var(--color-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-muted-foreground)]">
-            {labels.trialClassBadge}
-          </span>
-        ) : null}
         {r.sourceSectionLinkId ? (
           <span className="ml-2 inline-flex items-center rounded-full bg-[var(--color-muted)] px-2 py-0.5 text-xs font-medium text-[var(--color-muted-foreground)]">
             {labels.viaSectionLink}
@@ -152,19 +151,14 @@ export function AdminRegistrationTableRow({
       </td>
       <td className="min-w-0 px-3 py-2 align-top">
         <div className="flex flex-wrap items-center justify-end gap-2">
-          {canStartFee ? (
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              title={labels.startEnrollmentFeeFlowTip}
-              className="min-h-9 max-w-full whitespace-normal text-left"
-              disabled={busy}
-              onClick={() => onStartEnrollmentFee(r)}
-            >
-              {labels.startEnrollmentFeeFlow}
-            </Button>
-          ) : null}
+          <AdminRegistrationChargeActions
+            row={r}
+            labels={labels}
+            busy={busy}
+            buttonClassName="min-h-9 max-w-full whitespace-normal text-left"
+            onStartEnrollmentFee={onStartEnrollmentFee}
+            onStartJoinCharge={onStartJoinCharge}
+          />
           {canAccept ? (
             <>
               <Button

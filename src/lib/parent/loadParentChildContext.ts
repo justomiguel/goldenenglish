@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { getDashboardActor } from "@/lib/dashboard/getDashboardActor";
 import { loadParentFocusCatalog } from "@/lib/parent/loadParentFocusCatalog";
 import { resolveParentFocus } from "@/lib/parent/resolveParentFocus";
 import type { ParentFocusCatalog, ResolvedParentFocus } from "@/lib/parent/parentFocusTypes";
@@ -32,11 +33,13 @@ export async function loadParentChildContext(
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login?next=/${locale}/dashboard/parent${routePath}`);
 
-  const focusCatalog = await loadParentFocusCatalog(supabase, user.id);
+  const actor = await getDashboardActor();
+  const viewerId = actor?.viewerId ?? user.id;
+  const focusCatalog = await loadParentFocusCatalog(supabase, viewerId);
   const focus = resolveParentFocus(focusCatalog, {
     studentId: typeof sp.studentId === "string" ? sp.studentId : null,
     sectionId: typeof sp.sectionId === "string" ? sp.sectionId : null,
   });
 
-  return { supabase, userId: user.id, focusCatalog, focus };
+  return { supabase, userId: viewerId, focusCatalog, focus };
 }

@@ -93,6 +93,21 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
     ),
   },
   {
+    id: "directory-monthly-status-column-filter",
+    date: "2026-08-31",
+    area: "admin",
+    title: t(
+      "Alumnos y padres: columna Al día y filtro",
+      "Students and parents: Current column and filter",
+      "Alunos e pais: coluna Em dia e filtro",
+    ),
+    summary: t(
+      "Al día quedó en su propia columna (aparte del monto mensual). En Filtros se puede listar quién está al día, quién no, o quién no tiene cuota.",
+      "Current-on-fees is its own column, separate from the monthly amount. Filters can list who is current, behind, or has no monthly fee.",
+      "Em dia ficou numa coluna própria, aparte do valor mensal. Nos filtros dá para listar quem está em dia, em atraso ou sem mensalidade.",
+    ),
+  },
+  {
     id: "join-payment-disposition",
     date: "2026-08-29",
     area: "registrations",

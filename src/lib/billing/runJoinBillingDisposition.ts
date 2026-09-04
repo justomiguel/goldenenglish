@@ -12,6 +12,7 @@ export async function runJoinBillingDisposition(input: {
   disposition: JoinBillingDisposition;
   actorId: string;
   now?: Date;
+  joinMonths?: Record<string, { year: number; month: number }>;
 }): Promise<{ ok: true } | { ok: false; code: "seed_failed" }> {
   return applyJoinBillingDisposition(createJoinBillingDispositionPort(input.admin), {
     studentId: input.studentId,
@@ -19,5 +20,6 @@ export async function runJoinBillingDisposition(input: {
     disposition: input.disposition,
     actorId: input.actorId,
     now: input.now,
+    joinMonths: input.joinMonths,
   });
 }

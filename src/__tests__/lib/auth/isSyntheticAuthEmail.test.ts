@@ -25,9 +25,23 @@ describe("isSyntheticAuthEmail", () => {
     expect(isSyntheticAuthEmail("anagarcia-123456789@alumnos.test")).toBe(true);
   });
 
+  it("flags auto-provisioned name-document mailboxes on any tenant domain", () => {
+    vi.stubEnv("MAIL_TENANT", "capoeiranago.cl");
+    expect(isSyntheticAuthEmail("sofiahaighr-279666747@espaciozenit.cl")).toBe(true);
+    expect(isSyntheticAuthEmail("juanperez-12345k@liorastudio.cl")).toBe(true);
+    expect(isSyntheticAuthEmail("alumno-sinid@mozarthitos.cl")).toBe(true);
+  });
+
+  it("flags auto-provisioned mailboxes when MAIL_TENANT is unset", () => {
+    vi.stubEnv("MAIL_TENANT", "");
+    expect(isSyntheticAuthEmail("sofiahaighr-279666747@espaciozenit.cl")).toBe(true);
+  });
+
   it("does not flag a real mailbox when MAIL_TENANT is set", () => {
     vi.stubEnv("MAIL_TENANT", "alumnos.test");
     expect(isSyntheticAuthEmail("tutor@gmail.com")).toBe(false);
+    expect(isSyntheticAuthEmail("hola@alumnos.test")).toBe(false);
+    expect(isSyntheticAuthEmail("hello-world@gmail.com")).toBe(false);
   });
 });
 

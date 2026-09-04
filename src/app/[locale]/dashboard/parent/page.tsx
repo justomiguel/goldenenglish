@@ -12,6 +12,7 @@ import { loadParentHomeNewsFeed } from "@/lib/parent/loadParentHomeNewsFeed";
 import { loadParentFocusCatalog } from "@/lib/parent/loadParentFocusCatalog";
 import { resolveParentFocus } from "@/lib/parent/resolveParentFocus";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
+import { getDashboardActor } from "@/lib/dashboard/getDashboardActor";
 import { buildParentTodayFeed } from "@/lib/parent/buildParentTodayFeed";
 import { withParentFocusHref } from "@/lib/parent/withParentFocusHref";
 import { ParentTodayScreen } from "@/components/parent/ParentTodayScreen";
@@ -44,7 +45,9 @@ export default async function ParentTodayPage({ params, searchParams }: PageProp
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
-  const focusCatalog = await loadParentFocusCatalog(supabase, user.id);
+  const actor = await getDashboardActor();
+  const viewerId = actor?.viewerId ?? user.id;
+  const focusCatalog = await loadParentFocusCatalog(supabase, viewerId);
   const focus = resolveParentFocus(focusCatalog, {
     studentId:
       typeof sp.studentId === "string" ? sp.studentId
@@ -64,15 +67,15 @@ export default async function ParentTodayPage({ params, searchParams }: PageProp
     tasksResult,
     calendarResult,
   ] = await Promise.allSettled([
-    supabase.from("profiles").select("first_name").eq("id", user.id).maybeSingle(),
-    loadParentFamilyHubModel(supabase, user.id, locale, dict.dashboard.parent.hub.icsEventTitle),
-    loadParentHomeMessageSignals(supabase, user.id),
-    loadParentHomePaymentOverdueSignals(supabase, user.id),
-    loadParentRecentAttendance(supabase, user.id),
+    supabase.from("profiles").select("first_name").eq("id", viewerId).maybeSingle(),
+    loadParentFamilyHubModel(supabase, viewerId, locale, dict.dashboard.parent.hub.icsEventTitle),
+    loadParentHomeMessageSignals(supabase, viewerId),
+    loadParentHomePaymentOverdueSignals(supabase, viewerId),
+    loadParentRecentAttendance(supabase, viewerId),
     focus.studentId
       ? loadStudentLearningTasks(supabase, focus.studentId, 40)
       : Promise.resolve([] as StudentLearningTaskRow[]),
-    loadPortalCalendarPageData(supabase, { role: "parent", userId: user.id }),
+    loadPortalCalendarPageData(supabase, { role: "parent", userId: viewerId }),
   ]);
 
   const failedSources: string[] = [];
@@ -132,9 +135,10 @@ export default async function ParentTodayPage({ params, searchParams }: PageProp
 
   const { greeting, fullDateLine } = buildDashboardGreeting(locale, dict);
   const firstName =
-    profileResult.status === "fulfilled"
+    actor?.viewAs?.displayName.split(" ")[0]
+    ?? (profileResult.status === "fulfilled"
       ? (profileResult.value.data?.first_name ?? "").trim()
-      : "";
+      : "");
   const attendancePercent =
     hub?.attendanceLines.find((line) => line.studentId === focus.studentId)?.pct ?? null;
   const logistics = hub?.logisticsRows.find(

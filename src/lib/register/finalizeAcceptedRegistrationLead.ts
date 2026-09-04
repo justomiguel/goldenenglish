@@ -13,6 +13,7 @@ import { requestedRegistrationSectionIds } from "@/lib/register/requestedRegistr
 import { resolveAcceptLeadWrite } from "@/lib/register/resolveAcceptLeadWrite";
 import { runJoinBillingDisposition } from "@/lib/billing/runJoinBillingDisposition";
 import type { JoinBillingDisposition } from "@/lib/billing/joinBillingDispositionSchema";
+import { parseJoinPackageSnapshot } from "@/lib/register/parseJoinPackageSnapshot";
 import type { Dictionary } from "@/types/i18n";
 
 export async function finalizeAcceptedRegistrationLead(input: {
@@ -90,6 +91,9 @@ export async function finalizeAcceptedRegistrationLead(input: {
       sectionIds: committed,
       disposition: input.joinDisposition,
       actorId: input.actorId,
+      joinMonths: input.paidCapture
+        ? parseJoinPackageSnapshot(reg.fee_snapshot).joinMonths
+        : undefined,
     });
     if (!seeded.ok) {
       return { ok: false, message: localizeRegistrationAcceptError(dict, "save_failed") };

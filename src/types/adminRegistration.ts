@@ -43,6 +43,7 @@ export interface AdminRegistrationRow {
   intakeState?: RegistrationIntakeState;
   snapshotTotal?: number;
   snapshotCurrency?: string;
+  feeSnapshot?: unknown;
   feeCaptured?: boolean;
   enrollmentFeeReceiptPath?: string | null;
   proposedSectionId?: string | null;

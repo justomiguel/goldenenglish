@@ -9,8 +9,9 @@ import { RegistrationExistingStudentBadge } from "@/components/dashboard/Registr
 import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
-import { canStartRegistrationEnrollmentFeeFlow } from "@/lib/register/canStartRegistrationEnrollmentFeeFlow";
+import { AdminRegistrationChargeActions } from "@/components/dashboard/AdminRegistrationChargeActions";
 import { registrationInboxPrimaryKind } from "@/lib/register/registrationInboxPrimaryKind";
+import { registrationIntentLabel } from "@/lib/register/registrationIntentLabel";
 import { AdminRegistrationIntakeActions } from "@/components/dashboard/AdminRegistrationIntakeActions";
 import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 import { AdminRegistrationNagoExtras } from "@/components/dashboard/AdminRegistrationNagoExtras";
@@ -32,6 +33,7 @@ export interface AdminRegistrationPwaCardProps {
   onMarkContacted: (row: AdminRegistrationRow) => void;
   onRevertToNew: (row: AdminRegistrationRow) => void;
   onStartEnrollmentFee: (row: AdminRegistrationRow) => void;
+  onStartJoinCharge: (row: AdminRegistrationRow) => void;
   currentCohortSections?: CurrentCohortSection[];
   onBusy?: (id: string | null) => void;
   onIntakeDone?: () => void;
@@ -51,12 +53,12 @@ export function AdminRegistrationPwaCard({
   onMarkContacted,
   onRevertToNew,
   onStartEnrollmentFee,
+  onStartJoinCharge,
   currentCohortSections,
   onBusy,
   onIntakeDone,
 }: AdminRegistrationPwaCardProps) {
   const canAccept = registrationInboxPrimaryKind(r) === "accept";
-  const canStartFee = canStartRegistrationEnrollmentFeeFlow(r);
   const isPending = r.status === "new";
   const birthDisplay =
     formatCivilIsoDateForDisplay(locale, r.birth_date, {
@@ -124,9 +126,12 @@ export function AdminRegistrationPwaCard({
               {r.dni}
             </span>
             <span>
+              <span className="text-[var(--color-foreground)]">{labels.intentColumn}: </span>
+              {registrationIntentLabel(labels, r.intent)}
+            </span>
+            <span>
               <span className="text-[var(--color-foreground)]">{labels.level}: </span>
               {formatRegistrationLevelInterestDisplay(labels, r.level_interest)}
-              {r.intent === "trial" ? ` ${labels.trialClassBadge}` : ""}
             </span>
           </div>
           <div className="flex flex-wrap gap-x-3">
@@ -178,19 +183,14 @@ export function AdminRegistrationPwaCard({
         >
           {isPending ? labels.markContacted : labels.revertToNew}
         </button>
-        {canStartFee ? (
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            className="min-h-[44px] w-full"
-            title={labels.startEnrollmentFeeFlowTip}
-            disabled={busy}
-            onClick={() => onStartEnrollmentFee(r)}
-          >
-            {labels.startEnrollmentFeeFlow}
-          </Button>
-        ) : null}
+        <AdminRegistrationChargeActions
+          row={r}
+          labels={labels}
+          busy={busy}
+          buttonClassName="min-h-[44px] w-full"
+          onStartEnrollmentFee={onStartEnrollmentFee}
+          onStartJoinCharge={onStartJoinCharge}
+        />
         <div
           className={
             canAccept

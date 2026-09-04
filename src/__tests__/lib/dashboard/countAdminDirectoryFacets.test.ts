@@ -15,6 +15,7 @@ function candidate(partial: Partial<AdminDirectoryCandidate> & { id: string }): 
     hasParentLink: false,
     hasScholarship: false,
     hasDue: false,
+    monthlyStatus: "na",
     emailDeliverable: false,
     hasChildren: false,
     ...partial,

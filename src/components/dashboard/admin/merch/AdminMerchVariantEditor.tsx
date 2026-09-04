@@ -61,7 +61,7 @@ export function AdminMerchVariantEditor({
       <ul className="mt-3 space-y-2">
         {variants.map((v) => (
           <AdminMerchVariantRowEditor
-            key={v.id}
+            key={`${v.id}:${v.stock}:${v.price}:${v.active}`}
             labels={labels}
             variant={v}
             busy={busy}

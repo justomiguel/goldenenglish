@@ -14,6 +14,7 @@ const VALID_SORT_KEYS: SortKey[] = [
   "children",
   "lastEnrollment",
   "enrollmentFee",
+  "monthlyStatus",
 ];
 
 export function parseAdminUsersSearchParams(

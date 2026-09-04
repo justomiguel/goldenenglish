@@ -11,6 +11,7 @@ import { buildParentHomePillarSnapshot } from "@/lib/parent/buildParentHomePilla
 import { loadPortalCalendarPageData } from "@/lib/calendar/loadPortalCalendarPageData";
 import { loadParentHomeNewsFeed } from "@/lib/parent/loadParentHomeNewsFeed";
 import { buildDashboardGreeting } from "@/lib/dashboard/buildDashboardGreeting";
+import { getDashboardActor } from "@/lib/dashboard/getDashboardActor";
 import { ParentDashboardEntry } from "@/components/parent/ParentDashboardEntry";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
@@ -31,14 +32,16 @@ export default async function StudentDashboardPage({ params }: PageProps) {
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
+  const actor = await getDashboardActor();
+  const viewerId = actor?.viewerId ?? user.id;
   const [{ data: profile }, perms] = await Promise.all([
-    supabase.from("profiles").select("first_name, is_minor").eq("id", user.id).maybeSingle(),
-    getProfilePermissions(supabase, user.id),
+    supabase.from("profiles").select("first_name, is_minor").eq("id", viewerId).maybeSingle(),
+    getProfilePermissions(supabase, viewerId),
   ]);
 
   const isMinor = perms?.isMinor ?? Boolean(profile?.is_minor);
   const includePayments = perms?.canAccessPaymentsModule ?? !isMinor;
-  const studentId = user.id;
+  const studentId = viewerId;
   const dashboardBase = `/${locale}/dashboard/student`;
 
   const [summaries, hub, messageSignals, paymentOverdue, calendarPage] = await Promise.all([
@@ -49,9 +52,9 @@ export default async function StudentDashboardPage({ params }: PageProps) {
       locale,
       dict.dashboard.parent.hub.icsEventTitle,
     ),
-    loadParentHomeMessageSignals(supabase, user.id),
+    loadParentHomeMessageSignals(supabase, viewerId),
     loadStudentHomePaymentOverdueSignals(supabase, studentId, isMinor),
-    loadPortalCalendarPageData(supabase, { role: "student", userId: user.id }),
+    loadPortalCalendarPageData(supabase, { role: "student", userId: viewerId }),
   ]);
 
   const newsItems = await loadParentHomeNewsFeed(supabase, {
@@ -68,7 +71,8 @@ export default async function StudentDashboardPage({ params }: PageProps) {
   const selectedStudentId = studentId;
   const payHref = `${dashboardBase}/payments`;
   const { greeting, fullDateLine } = buildDashboardGreeting(locale, dict);
-  const firstName = (profile?.first_name as string | null) ?? null;
+  const firstName =
+    actor?.viewAs?.displayName.split(" ")[0] ?? (profile?.first_name as string | null) ?? null;
 
   const attendanceByStudent: Record<string, number> = {};
   for (const line of hub?.attendanceLines ?? []) {

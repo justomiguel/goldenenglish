@@ -22,6 +22,7 @@ const STUDENT_SORT_KEYS: SortKey[] = [
   "name",
   "sections",
   "monthlyDue",
+  "monthlyStatus",
   "enrollmentFee",
   "lastEnrollment",
   "parent",
@@ -32,7 +33,7 @@ const PARENT_SORT_KEYS: SortKey[] = [
   "email",
   "children",
   "sections",
-  "monthlyDue",
+  "monthlyStatus",
   "enrollmentFee",
   "lastEnrollment",
   "lastAccess",
@@ -54,6 +55,8 @@ function colLabel(labels: UserLabels, key: SortKey): string {
       return labels.colSections;
     case "monthlyDue":
       return labels.colMonthlyDue;
+    case "monthlyStatus":
+      return labels.colMonthlyStatus;
     case "enrollmentFee":
       return labels.colEnrollmentFee;
     case "lastEnrollment":

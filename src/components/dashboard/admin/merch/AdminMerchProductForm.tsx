@@ -98,14 +98,14 @@ export function AdminMerchProductForm({
               imageUrl={product.imageUrl}
               labels={labels}
               disabled={busy}
-              onUploaded={(imagePath) =>
-                onUpdate({
+              onUploaded={async (imagePath) => {
+                await onUpdate({
                   title: title.trim(),
                   description: description.trim(),
                   sortOrder: Number(sortOrder) || 0,
                   imagePath,
-                })
-              }
+                });
+              }}
             />
           </div>
         ) : null}

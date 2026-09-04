@@ -8,6 +8,8 @@ import { buildParentShellConfig } from "@/lib/portal/buildParentShellConfig";
 import { loadParentFocusCatalog } from "@/lib/parent/loadParentFocusCatalog";
 import { resolveParentFocus } from "@/lib/parent/resolveParentFocus";
 import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
+import { getDashboardActor, syncViewAsCookie } from "@/lib/dashboard/getDashboardActor";
+import { filterAccountItemsForViewAs, viewAsPortalRedirect } from "@/lib/dashboard/viewAsLayout";
 
 interface LayoutProps {
   children: ReactNode;
@@ -31,11 +33,21 @@ export default async function ParentDashboardLayout({
     .from("profiles")
     .select("role")
     .eq("id", user.id)
-    .single();
-  if (profile?.role !== "parent") redirect(`/${locale}/dashboard`);
+    .maybeSingle();
+  const actor = await getDashboardActor();
+  if (actor) await syncViewAsCookie(actor);
+  const redirectTo = actor
+    ? viewAsPortalRedirect(locale, actor, "parent", {
+        sessionProfileRole: profile?.role ?? null,
+        teacherPortalAllowed: false,
+        assistantPortalAllowed: false,
+      })
+    : `/${locale}/dashboard`;
+  if (redirectTo) redirect(redirectTo);
 
+  const viewerId = actor?.viewerId ?? user.id;
   const [focusCatalog, includeShopNav] = await Promise.all([
-    loadParentFocusCatalog(supabase, user.id),
+    loadParentFocusCatalog(supabase, viewerId),
     loadMerchEnabled(),
   ]);
   // Layouts cannot read `searchParams`; the shell only needs a default, and the
@@ -57,7 +69,16 @@ export default async function ParentDashboardLayout({
   });
 
   return (
-    <PortalShell locale={locale} dict={dict} brand={brand} config={config}>
+    <PortalShell
+      locale={locale}
+      dict={dict}
+      brand={brand}
+      config={{
+        ...config,
+        accountItems: filterAccountItemsForViewAs(config.accountItems, actor?.viewAs ?? null),
+      }}
+      viewAs={actor?.viewAs ?? null}
+    >
       {children}
     </PortalShell>
   );

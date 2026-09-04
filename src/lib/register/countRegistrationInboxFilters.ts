@@ -65,6 +65,7 @@ export function mapInboxLeadFields(row: {
   intakeState: RegistrationIntakeState;
   snapshotTotal: number;
   snapshotCurrency: string;
+  feeSnapshot: unknown;
   feeCaptured: boolean;
   enrollmentFeeReceiptPath: string | null;
 } {
@@ -72,6 +73,7 @@ export function mapInboxLeadFields(row: {
     intakeState: parseRegistrationIntakeState(row.intake_state),
     snapshotTotal: snapshotTotalFromUnknown(row.fee_snapshot),
     snapshotCurrency: snapshotCurrencyFromUnknown(row.fee_snapshot),
+    feeSnapshot: row.fee_snapshot ?? {},
     feeCaptured: row.fee_captured === true,
     enrollmentFeeReceiptPath:
       typeof row.enrollment_fee_receipt_path === "string" && row.enrollment_fee_receipt_path.trim()

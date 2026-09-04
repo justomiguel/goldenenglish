@@ -162,6 +162,8 @@ describe("switchRegistrationPaySectionCore", () => {
       intake_state: "awaiting_fee",
     });
     expect(admin.updated.selectColumns).toMatch(/proposed_section_id/);
+    expect(admin.updated.selectColumns).toMatch(/\bemail\b/);
+    expect(admin.updated.selectColumns).toMatch(/birth_date/);
   });
 
   it("persists section_full and clears the proposal when the offered section filled", async () => {

@@ -32,6 +32,7 @@ export default async function MatriculaPayPage({
         full: r.enrollmentPayFull,
         alreadyIn: r.enrollmentPayAlreadyIn,
         amount: r.enrollmentPayAmount,
+        enrollmentKind: dict.admin.registrations.intake.enrollmentKind,
         noFee: r.enrollmentPayNoFee,
         needsSection: r.enrollmentPayNeedsSection,
         receiptPending: r.enrollmentPayReceiptPending,

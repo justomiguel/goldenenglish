@@ -28,12 +28,16 @@ vi.mock("@/lib/i18n/dictionaries", () => ({
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logServerAuthzDenied: vi.fn(),
   logSupabaseClientError: vi.fn(),
+  logServerException: vi.fn(),
 }));
 vi.mock("@/lib/analytics/server/recordSystemAudit", () => ({
   recordSystemAudit: vi.fn(),
 }));
 vi.mock("@/app/[locale]/dashboard/admin/academic/revalidatePaths", () => ({
   revalidateAcademicSurfaces: vi.fn(),
+}));
+vi.mock("@/lib/register/completePublicRegistrationSubmit", () => ({
+  notifyPublicRegistrationReceived: vi.fn(async () => undefined),
 }));
 vi.mock("@/lib/register/buildRegistrationEnrollmentFeeInsertFields", () => ({
   buildRegistrationEnrollmentFeeInsertFields: vi.fn(async () => ({
@@ -92,8 +96,14 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.assertAdmin.mockResolvedValue({ supabase: { kind: "admin-session" }, user: { id: "admin-1" } });
   mocks.getDictionary.mockResolvedValue({
-    register: { enrollmentPayUndecidedSection: "horario", enrollmentPayCta: "Pagar" },
-    admin: { registrations: {} },
+    register: {
+      enrollmentPayUndecidedSection: "horario",
+      enrollmentPayCta: "Pagar",
+      enrollmentPayCtaMonth: "Pagar mes",
+      enrollmentPayCtaEnrollment: "Pagar matrícula",
+      enrollmentPayNoFee: "Sin costo",
+    },
+    admin: { registrations: { intake: { enrollmentKind: "Matrícula" } } },
   });
   mocks.accept.mockResolvedValue({ ok: true, studentId: "stu-1", pendingSectionIds: [] });
   mocks.sendFamily.mockResolvedValue({ ok: true });

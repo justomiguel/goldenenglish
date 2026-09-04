@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
@@ -15,6 +14,7 @@ import {
 import { startStudentFlowMonthlyPayment } from "@/app/[locale]/dashboard/student/payments/flowMonthlyPaymentActions";
 import { startStudentMercadoPagoMonthlyPayment } from "@/app/[locale]/dashboard/student/payments/mercadoPagoMonthlyPaymentActions";
 import type { Locale } from "@/types/i18n";
+import { requirePortalPageActor } from "@/lib/dashboard/requirePortalPageActor";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -28,29 +28,24 @@ interface PageProps {
 export default async function StudentPaymentsPage({ params }: PageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect(`/${locale}/login`);
+  const { supabase, viewerId } = await requirePortalPageActor(locale, "student");
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, first_name, last_name")
-    .eq("id", user.id)
+    .select("first_name, last_name")
+    .eq("id", viewerId)
     .maybeSingle();
-  if (profile?.role !== "student") redirect(`/${locale}/dashboard`);
 
-  const perms = await getProfilePermissions(supabase, user.id);
+  const perms = await getProfilePermissions(supabase, viewerId);
   if (perms && !perms.canAccessPaymentsModule) {
     redirect(`/${locale}/dashboard/student`);
   }
 
-  const displayName = formatProfileNameSurnameFirst(profile.first_name, profile.last_name);
+  const displayName = formatProfileNameSurnameFirst(profile?.first_name, profile?.last_name);
   const payload = await loadStudentSelfPaymentsPagePayload(
     supabase,
-    user.id,
-    displayName || user.id,
+    viewerId,
+    displayName || viewerId,
   );
 
   const feesPanel = (

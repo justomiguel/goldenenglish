@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { requirePortalPageActor } from "@/lib/dashboard/requirePortalPageActor";
 import { PaymentsFlowReturnSurfaceEntry } from "@/components/organisms/PaymentsFlowReturnSurfaceEntry";
 import { resolveFlowMonthlyPaymentReturnPage } from "@/lib/billing/resolveFlowMonthlyPaymentReturnPage";
 import { buildFlowReturnReceiptSection } from "@/lib/billing/buildFlowReturnReceiptSection";
@@ -23,18 +22,7 @@ export default async function StudentPaymentsFlowReturnPage({ params, searchPara
   const tokenRaw = sp.token ?? sp.flowToken;
   const token = Array.isArray(tokenRaw) ? tokenRaw[0] : tokenRaw;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect(`/${locale}/login`);
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-  if (profile?.role !== "student") redirect(`/${locale}/dashboard`);
+  const { supabase } = await requirePortalPageActor(locale, "student");
 
   const localeTyped = locale as Locale;
   const dict = await getDictionary(localeTyped);

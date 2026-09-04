@@ -1,9 +1,8 @@
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
-import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { redirect } from "next/navigation";
 import { BillingPortalEntry } from "@/components/billing/BillingPortalEntry";
 import type { BillingInvoiceRow } from "@/types/billing";
+import { requirePortalPageActor } from "@/lib/dashboard/requirePortalPageActor";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -17,19 +16,17 @@ interface PageProps {
 export default async function StudentBillingPage({ params }: PageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect(`/${locale}/login?next=/${locale}/dashboard/student/billing`);
+  const { supabase, viewerId } = await requirePortalPageActor(
+    locale,
+    "student",
+    `/${locale}/dashboard/student/billing`,
+  );
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, is_minor")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "student") redirect(`/${locale}/dashboard`);
+    .select("is_minor")
+    .eq("id", viewerId)
+    .maybeSingle();
 
   const isMinor = Boolean(profile?.is_minor);
 
@@ -39,7 +36,7 @@ export default async function StudentBillingPage({ params }: PageProps) {
         .select(
           "id, student_id, amount, due_date, status, description, external_reference_id, created_at, updated_at",
         )
-        .eq("student_id", user.id)
+        .eq("student_id", viewerId)
         .neq("status", "voided")
         .order("due_date", { ascending: true })
     : { data: [] as BillingInvoiceRow[] };

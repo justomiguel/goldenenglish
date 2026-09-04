@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { resolveDashboardActorState, type ViewAsProfileRow } from "@/lib/dashboard/resolveDashboardActor";
 import {
@@ -12,8 +13,8 @@ import {
 import type { DashboardActor } from "@/lib/dashboard/viewAsTypes";
 
 async function loadSubject(userId: string): Promise<ViewAsProfileRow | null> {
-  const supabase = await createClient();
-  const { data } = await supabase
+  const admin = createAdminClient();
+  const { data } = await admin
     .from("profiles")
     .select("id, role, first_name, last_name")
     .eq("id", userId)
