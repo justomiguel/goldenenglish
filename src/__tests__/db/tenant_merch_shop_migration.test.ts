@@ -30,4 +30,19 @@ describe("207_tenant_merch_shop.sql", () => {
     expect(sql).toMatch(/bundle_id IS NOT NULL/);
     expect(sql).toMatch(/shop_order_id IS NOT NULL/);
   });
+
+  it("revokes SECURITY DEFINER execute from anon and authenticated", () => {
+    expect(sql).toMatch(
+      /REVOKE ALL ON FUNCTION public\.shop_mark_paid_and_decrement_stock\(UUID\) FROM anon, authenticated;/,
+    );
+    expect(sql).toMatch(
+      /REVOKE ALL ON FUNCTION public\.payment_flow_reserve_commerce_ref_merch\(UUID\) FROM anon, authenticated;/,
+    );
+    expect(sql).toMatch(
+      /GRANT EXECUTE ON FUNCTION public\.shop_mark_paid_and_decrement_stock\(UUID\) TO service_role;/,
+    );
+    expect(sql).toMatch(
+      /GRANT EXECUTE ON FUNCTION public\.payment_flow_reserve_commerce_ref_merch\(UUID\) TO service_role;/,
+    );
+  });
 });

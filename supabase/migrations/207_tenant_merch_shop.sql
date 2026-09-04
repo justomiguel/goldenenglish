@@ -259,6 +259,7 @@ END;
 $$;
 
 REVOKE ALL ON FUNCTION public.payment_flow_reserve_commerce_ref_merch(UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.payment_flow_reserve_commerce_ref_merch(UUID) FROM anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.payment_flow_reserve_commerce_ref_merch(UUID) TO service_role;
 
 CREATE OR REPLACE FUNCTION public.shop_mark_paid_and_decrement_stock(p_order_id UUID)
@@ -329,6 +330,7 @@ END;
 $$;
 
 REVOKE ALL ON FUNCTION public.shop_mark_paid_and_decrement_stock(UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.shop_mark_paid_and_decrement_stock(UUID) FROM anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.shop_mark_paid_and_decrement_stock(UUID) TO service_role;
 
 INSERT INTO storage.buckets (id, name, public)
