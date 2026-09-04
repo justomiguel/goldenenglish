@@ -3896,7 +3896,27 @@
       "tipVariantSave": "Update price, stock, and whether this size and color is for sale.",
       "tipVariantRestore": "Put this archived variant back on sale if no other size and color pair matches.",
       "tipVariantActive": "Inactive variants stay in the catalog but cannot be bought.",
-      "tipVariantRemove": "Delete unused variants, or archive ones that already sold."
+      "tipVariantRemove": "Delete unused variants, or archive ones that already sold.",
+      "ordersLink": "Orders",
+      "catalogLink": "Catalog",
+      "ordersTitle": "Shop orders",
+      "ordersLead": "Filter by status, assign a student, and mark pickup. Cancel does not restock.",
+      "filterAll": "All",
+      "colBuyer": "Buyer",
+      "colAssignee": "Student",
+      "colStatus": "Status",
+      "colTotal": "Total",
+      "colItems": "Items",
+      "markReady": "Mark ready",
+      "markPickedUp": "Picked up",
+      "markCancel": "Cancel order",
+      "assignNone": "No student",
+      "assignSubmit": "Assign",
+      "emptyOrders": "No orders in this filter.",
+      "cancelConfirm": "Cancel this order? Stock is not returned.",
+      "errorIllegalStatus": "This order cannot move to that status.",
+      "errorNotFound": "Order not found.",
+      "errorAssign": "Could not assign that student."
     },
     "coupons": {
       "title": "Discount coupons",
@@ -5697,6 +5717,7 @@
       "badges": "Achievements",
       "assessments": "Mini-tests",
       "payments": "Payments",
+      "shop": "Shop",
       "billing": "Fees",
       "messages": "Messages",
       "settings": "Settings",
@@ -5761,6 +5782,7 @@
       "badges": "Achievements",
       "assessments": "Mini-tests",
       "payments": "Payments",
+      "shop": "Shop",
       "billing": "Fees",
       "messages": "Messages",
       "settings": "Settings",
@@ -11560,6 +11582,18 @@
         "expired": "Expired",
         "cancelled": "Cancelled"
       }
+    },
+    "family": {
+      "ordersTitle": "Shop orders",
+      "ordersLead": "Assign a paid order to a linked student for pickup.",
+      "empty": "No shop orders yet.",
+      "assignLabel": "Pickup student",
+      "assignNone": "No student",
+      "assignSubmit": "Assign",
+      "assignError": "Could not assign that student.",
+      "catalogLink": "Shop",
+      "ordersLink": "Orders",
+      "studentLead": "Orders assigned to you for pickup at the institute."
     }
   }
 }

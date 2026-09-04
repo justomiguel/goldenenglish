@@ -3896,7 +3896,27 @@
       "tipVariantSave": "Actualiza precio, stock y si esta talla y color está a la venta.",
       "tipVariantRestore": "Vuelve a poner a la venta esta variante archivada si no hay otra con la misma talla y color.",
       "tipVariantActive": "Las variantes inactivas siguen en el catálogo pero no se pueden comprar.",
-      "tipVariantRemove": "Borra variantes sin pedidos, o archiva las que ya se vendieron."
+      "tipVariantRemove": "Borra variantes sin pedidos, o archiva las que ya se vendieron.",
+      "ordersLink": "Pedidos",
+      "catalogLink": "Catálogo",
+      "ordersTitle": "Pedidos de la tienda",
+      "ordersLead": "Filtra por estado, asigna un alumno y marca el retiro. Cancelar no devuelve stock.",
+      "filterAll": "Todos",
+      "colBuyer": "Comprador",
+      "colAssignee": "Alumno",
+      "colStatus": "Estado",
+      "colTotal": "Total",
+      "colItems": "Artículos",
+      "markReady": "Marcar listo",
+      "markPickedUp": "Retirado",
+      "markCancel": "Cancelar pedido",
+      "assignNone": "Sin alumno",
+      "assignSubmit": "Asignar",
+      "emptyOrders": "No hay pedidos en este filtro.",
+      "cancelConfirm": "¿Cancelar este pedido? El stock no se devuelve.",
+      "errorIllegalStatus": "Este pedido no puede pasar a ese estado.",
+      "errorNotFound": "No encontramos el pedido.",
+      "errorAssign": "No se pudo asignar ese alumno."
     },
     "coupons": {
       "title": "Cupones de descuento",
@@ -5697,6 +5717,7 @@
       "badges": "Logros",
       "assessments": "Mini-tests",
       "payments": "Pagos",
+      "shop": "Tienda",
       "billing": "Cuotas",
       "messages": "Mensajes",
       "settings": "Configuración",
@@ -5761,6 +5782,7 @@
       "badges": "Logros",
       "assessments": "Mini-tests",
       "payments": "Pagos",
+      "shop": "Tienda",
       "billing": "Cuotas",
       "messages": "Mensajes",
       "settings": "Configuración",
@@ -11560,6 +11582,18 @@
         "expired": "Vencido",
         "cancelled": "Cancelado"
       }
+    },
+    "family": {
+      "ordersTitle": "Pedidos de la tienda",
+      "ordersLead": "Asigna un pedido pagado a un alumno vinculado para el retiro.",
+      "empty": "Aún no hay pedidos.",
+      "assignLabel": "Alumno que retira",
+      "assignNone": "Sin alumno",
+      "assignSubmit": "Asignar",
+      "assignError": "No se pudo asignar ese alumno.",
+      "catalogLink": "Tienda",
+      "ordersLink": "Pedidos",
+      "studentLead": "Pedidos asignados a ti para retirar en el instituto."
     }
   }
 }

@@ -216,6 +216,11 @@ describe("getDictionary", () => {
     expect(en.shop.checkout.payFlow).toBeTruthy();
     expect(es.shop.checkout.studentForbidden).toBeTruthy();
     expect(pt.shop.checkout.noGateway).toBeTruthy();
+    expect(en.shop.family.ordersTitle).toBeTruthy();
+    expect(es.shop.family.assignSubmit).toBeTruthy();
+    expect(pt.shop.family.studentLead).toBeTruthy();
+    expect(en.dashboard.parentNav.shop).toBeTruthy();
+    expect(es.dashboard.studentNav.shop).toBeTruthy();
   });
 
   it("falls back to default for unknown locale", async () => {

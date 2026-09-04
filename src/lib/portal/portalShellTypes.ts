@@ -1,4 +1,4 @@
-export type PortalIconName = "home" | "calendar" | "progress" | "payments" | "messages";
+export type PortalIconName = "home" | "calendar" | "progress" | "payments" | "messages" | "shop";
 
 export interface PortalDestination {
   id: string;

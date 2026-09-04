@@ -7,6 +7,7 @@ import { PortalShell } from "@/components/portal/PortalShell";
 import { buildParentShellConfig } from "@/lib/portal/buildParentShellConfig";
 import { loadParentFocusCatalog } from "@/lib/parent/loadParentFocusCatalog";
 import { resolveParentFocus } from "@/lib/parent/resolveParentFocus";
+import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
 
 interface LayoutProps {
   children: ReactNode;
@@ -33,7 +34,10 @@ export default async function ParentDashboardLayout({
     .single();
   if (profile?.role !== "parent") redirect(`/${locale}/dashboard`);
 
-  const focusCatalog = await loadParentFocusCatalog(supabase, user.id);
+  const [focusCatalog, includeShopNav] = await Promise.all([
+    loadParentFocusCatalog(supabase, user.id),
+    loadMerchEnabled(),
+  ]);
   // Layouts cannot read `searchParams`; the shell only needs a default, and the
   // chips reconcile against the URL on the client.
   const defaultFocus = resolveParentFocus(focusCatalog, {
@@ -46,6 +50,7 @@ export default async function ParentDashboardLayout({
     baseHref: `/${locale}/dashboard/parent`,
     dict,
     includePayments: true,
+    includeShopNav,
     focusCatalog,
     activeStudentId: defaultFocus.studentId,
     activeSectionId: defaultFocus.sectionId,

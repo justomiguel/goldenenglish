@@ -33,6 +33,7 @@ function build(overrides?: Partial<Parameters<typeof buildParentShellConfig>[0]>
     baseHref: BASE,
     dict: dictEn,
     includePayments: true,
+    includeShopNav: false,
     focusCatalog: catalog([{ id: "s1", label: "Mateo", sections: [{ id: "sec1", label: "B1" }] }]),
     activeStudentId: "s1",
     activeSectionId: "sec1",
@@ -54,6 +55,30 @@ describe("buildParentShellConfig", () => {
   it("omits payments when the viewer has no financial access", () => {
     const config = build({ includePayments: false });
     expect(config.destinations.map((d) => d.id)).toEqual(["home", "child", "messages"]);
+  });
+
+  it("omits shop when merch is disabled", () => {
+    const config = build({ includeShopNav: false });
+    expect(config.destinations.map((d) => d.id)).not.toContain("shop");
+  });
+
+  it("adds shop catalog and lights orders from the shop tab when merch is on", () => {
+    const config = build({ includeShopNav: true });
+    expect(config.destinations.map((d) => d.id)).toEqual([
+      "home",
+      "child",
+      "payments",
+      "shop",
+      "messages",
+    ]);
+    const shop = config.destinations.find((d) => d.id === "shop");
+    expect(shop).toEqual({
+      id: "shop",
+      href: `${BASE}/shop`,
+      label: dictEn.dashboard.parentNav.shop,
+      icon: "shop",
+      matchPrefixes: [`${BASE}/shop/orders`],
+    });
   });
 
   it("points destinations at today's routes under the given base", () => {

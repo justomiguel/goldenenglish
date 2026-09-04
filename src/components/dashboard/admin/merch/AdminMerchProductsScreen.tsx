@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   archiveShopVariant,
@@ -56,6 +57,14 @@ export function AdminMerchProductsScreen({
   return (
     <div className="space-y-8">
       <AdminPageHeader title={labels.title} lead={labels.lead} iconId="merch" />
+      <p>
+        <Link
+          href={`/${locale}/dashboard/admin/merch/orders`}
+          className="text-sm font-semibold text-[var(--color-primary)]"
+        >
+          {labels.ordersLink}
+        </Link>
+      </p>
       {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}
       <AdminMerchProductForm
         labels={labels}

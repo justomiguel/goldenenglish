@@ -9,6 +9,7 @@ export const merchLocaleSchema = z.string().min(2);
 
 export function revalidateMerchPaths(locale: string): void {
   revalidatePath(`/${locale}/dashboard/admin/merch`);
+  revalidatePath(`/${locale}/dashboard/admin/merch/orders`);
   revalidatePath(`/${locale}/tienda`);
 }
 

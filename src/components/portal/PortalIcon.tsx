@@ -1,4 +1,4 @@
-import { CalendarCheck, Home, MessageCircle, TrendingUp, Wallet } from "lucide-react";
+import { CalendarCheck, Home, MessageCircle, ShoppingBag, TrendingUp, Wallet } from "lucide-react";
 import type { PortalIconName } from "@/lib/portal/portalShellTypes";
 
 const ICONS: Record<PortalIconName, typeof Home> = {
@@ -7,6 +7,7 @@ const ICONS: Record<PortalIconName, typeof Home> = {
   progress: TrendingUp,
   payments: Wallet,
   messages: MessageCircle,
+  shop: ShoppingBag,
 };
 
 export function PortalIcon({ name, className }: { name: PortalIconName; className?: string }) {

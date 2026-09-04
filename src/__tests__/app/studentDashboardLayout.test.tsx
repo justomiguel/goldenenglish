@@ -5,9 +5,13 @@ import { dictEn } from "@/test/dictEn";
 import { mockBrandPublic } from "@/test/fixtures/mockBrandPublic";
 
 const redirectMock = vi.fn();
+const loadMerchEnabled = vi.fn();
 
 vi.mock("next/navigation", () => ({
   redirect: (...args: unknown[]) => redirectMock(...args),
+}));
+vi.mock("@/lib/shop/loadMerchEnabled", () => ({
+  loadMerchEnabled: () => loadMerchEnabled(),
 }));
 
 vi.mock("@/lib/i18n/dictionaries", () => ({
@@ -40,7 +44,8 @@ vi.mock("@/lib/supabase/server", () => ({
 import StudentDashboardLayout from "@/app/[locale]/dashboard/student/layout";
 
 describe("StudentDashboardLayout", () => {
-  it("drives the portal shell with the student's own config", async () => {
+  it("omits shop when merch is disabled", async () => {
+    loadMerchEnabled.mockResolvedValue(false);
     const element = (await StudentDashboardLayout({
       children: <p>Student content</p>,
       params: Promise.resolve({ locale: "en" }),
@@ -57,5 +62,20 @@ describe("StudentDashboardLayout", () => {
       "messages",
     ]);
     expect(config.subjectGroups).toEqual([]);
+  });
+
+  it("includes shop orders when merch is enabled", async () => {
+    loadMerchEnabled.mockResolvedValue(true);
+    const element = (await StudentDashboardLayout({
+      children: <p>Student content</p>,
+      params: Promise.resolve({ locale: "en" }),
+    })) as ReactElement<{ config: PortalShellConfig }>;
+    expect(element.props.config.destinations.map((d) => d.id)).toEqual([
+      "home",
+      "course",
+      "payments",
+      "shop",
+      "messages",
+    ]);
   });
 });

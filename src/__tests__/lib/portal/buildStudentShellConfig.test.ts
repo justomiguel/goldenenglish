@@ -4,12 +4,13 @@ import { dictEn } from "@/test/dictEn";
 
 const BASE = "/en/dashboard/student";
 
-function build(includePayments = true) {
+function build(includePayments = true, includeShopNav = false) {
   return buildStudentShellConfig({
     locale: "en",
     baseHref: BASE,
     dict: dictEn,
     includePayments,
+    includeShopNav,
   });
 }
 
@@ -30,6 +31,28 @@ describe("buildStudentShellConfig", () => {
       "course",
       "messages",
     ]);
+  });
+
+  it("omits shop when merch is disabled", () => {
+    expect(build(true, false).destinations.map((d) => d.id)).not.toContain("shop");
+  });
+
+  it("adds read-only shop orders when merch is on", () => {
+    const config = build(true, true);
+    expect(config.destinations.map((d) => d.id)).toEqual([
+      "home",
+      "course",
+      "payments",
+      "shop",
+      "messages",
+    ]);
+    const shop = config.destinations.find((d) => d.id === "shop");
+    expect(shop).toEqual({
+      id: "shop",
+      href: `${BASE}/shop/orders`,
+      label: dictEn.dashboard.studentNav.shop,
+      icon: "shop",
+    });
   });
 
   it("folds attendance, tasks, mini-tests and badges into the course tab", () => {

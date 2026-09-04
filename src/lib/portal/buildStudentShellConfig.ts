@@ -10,6 +10,7 @@ export interface BuildStudentShellConfigInput {
   baseHref: string;
   dict: Dictionary;
   includePayments: boolean;
+  includeShopNav?: boolean;
 }
 
 /**
@@ -20,7 +21,7 @@ export interface BuildStudentShellConfigInput {
 export function buildStudentShellConfig(
   input: BuildStudentShellConfigInput,
 ): PortalShellConfig {
-  const { locale, baseHref, dict, includePayments } = input;
+  const { locale, baseHref, dict, includePayments, includeShopNav } = input;
   const nav = dict.dashboard.studentNav;
   const chrome = dict.dashboard.studentChrome;
   const portal = dict.dashboard.portal;
@@ -48,6 +49,15 @@ export function buildStudentShellConfig(
       label: nav.payments,
       icon: "payments",
       matchPrefixes: [`${baseHref}/billing`],
+    });
+  }
+
+  if (includeShopNav) {
+    destinations.push({
+      id: "shop",
+      href: `${baseHref}/shop/orders`,
+      label: nav.shop,
+      icon: "shop",
     });
   }
 

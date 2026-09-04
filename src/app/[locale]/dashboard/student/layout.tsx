@@ -6,6 +6,7 @@ import { getBrandForRequest } from "@/lib/brand/server";
 import { getProfilePermissions } from "@/lib/profile/getProfilePermissions";
 import { PortalShell } from "@/components/portal/PortalShell";
 import { buildStudentShellConfig } from "@/lib/portal/buildStudentShellConfig";
+import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
 
 interface LayoutProps {
   children: ReactNode;
@@ -32,12 +33,16 @@ export default async function StudentDashboardLayout({
     .single();
   if (profile?.role !== "student") redirect(`/${locale}/dashboard`);
 
-  const perms = await getProfilePermissions(supabase, user.id);
+  const [perms, includeShopNav] = await Promise.all([
+    getProfilePermissions(supabase, user.id),
+    loadMerchEnabled(),
+  ]);
   const config = buildStudentShellConfig({
     locale,
     baseHref: `/${locale}/dashboard/student`,
     dict,
     includePayments: perms?.canAccessPaymentsModule ?? false,
+    includeShopNav,
   });
 
   return (

@@ -3889,7 +3889,27 @@
       "tipVariantSave": "Atualiza preço, stock e se este tamanho e cor está à venda.",
       "tipVariantRestore": "Volta a pôr à venda esta variante arquivada se não houver outra com o mesmo tamanho e cor.",
       "tipVariantActive": "As variantes inativas ficam no catálogo mas não se podem comprar.",
-      "tipVariantRemove": "Apaga variantes sem encomendas, ou arquiva as que já venderam."
+      "tipVariantRemove": "Apaga variantes sem encomendas, ou arquiva as que já venderam.",
+      "ordersLink": "Encomendas",
+      "catalogLink": "Catálogo",
+      "ordersTitle": "Encomendas da loja",
+      "ordersLead": "Filtre por estado, atribua um aluno e marque o levantamento. Cancelar não devolve stock.",
+      "filterAll": "Todas",
+      "colBuyer": "Comprador",
+      "colAssignee": "Aluno",
+      "colStatus": "Estado",
+      "colTotal": "Total",
+      "colItems": "Itens",
+      "markReady": "Marcar pronto",
+      "markPickedUp": "Levantado",
+      "markCancel": "Cancelar encomenda",
+      "assignNone": "Sem aluno",
+      "assignSubmit": "Atribuir",
+      "emptyOrders": "Não há encomendas neste filtro.",
+      "cancelConfirm": "Cancelar esta encomenda? O stock não é devolvido.",
+      "errorIllegalStatus": "Esta encomenda não pode passar a esse estado.",
+      "errorNotFound": "Encomenda não encontrada.",
+      "errorAssign": "Não foi possível atribuir esse aluno."
     },
     "coupons": {
       "title": "Cupons de desconto",
@@ -5499,6 +5519,7 @@
       "badges": "Conquistas",
       "assessments": "Mini-testes",
       "payments": "Pagamentos",
+      "shop": "Loja",
       "billing": "Tarifas",
       "messages": "Mensagens",
       "settings": "Configurações",
@@ -5563,6 +5584,7 @@
       "badges": "Conquistas",
       "assessments": "Mini-testes",
       "payments": "Pagamentos",
+      "shop": "Loja",
       "billing": "Tarifas",
       "messages": "Mensagens",
       "settings": "Configurações",
@@ -11361,6 +11383,18 @@
         "expired": "Expirado",
         "cancelled": "Cancelado"
       }
+    },
+    "family": {
+      "ordersTitle": "Encomendas da loja",
+      "ordersLead": "Atribua uma encomenda paga a um aluno vinculado para o levantamento.",
+      "empty": "Ainda não há encomendas.",
+      "assignLabel": "Aluno que levanta",
+      "assignNone": "Sem aluno",
+      "assignSubmit": "Atribuir",
+      "assignError": "Não foi possível atribuir esse aluno.",
+      "catalogLink": "Loja",
+      "ordersLink": "Encomendas",
+      "studentLead": "Encomendas atribuídas a ti para levantamento no instituto."
     }
   }
 }

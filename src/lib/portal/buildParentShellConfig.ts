@@ -13,6 +13,7 @@ export interface BuildParentShellConfigInput {
   baseHref: string;
   dict: Dictionary;
   includePayments: boolean;
+  includeShopNav?: boolean;
   focusCatalog: ParentFocusCatalog;
   activeStudentId: string | null;
   activeSectionId: string | null;
@@ -21,7 +22,7 @@ export interface BuildParentShellConfigInput {
 export function buildParentShellConfig(
   input: BuildParentShellConfigInput,
 ): PortalShellConfig {
-  const { locale, baseHref, dict, includePayments, focusCatalog } = input;
+  const { locale, baseHref, dict, includePayments, includeShopNav, focusCatalog } = input;
   const nav = dict.dashboard.parentNav;
   const chrome = dict.dashboard.parentChrome;
   const portal = dict.dashboard.portal;
@@ -56,6 +57,16 @@ export function buildParentShellConfig(
       label: nav.payments,
       icon: "payments",
       matchPrefixes: [`${baseHref}/billing`],
+    });
+  }
+
+  if (includeShopNav) {
+    destinations.push({
+      id: "shop",
+      href: `${baseHref}/shop`,
+      label: nav.shop,
+      icon: "shop",
+      matchPrefixes: [`${baseHref}/shop/orders`],
     });
   }
 

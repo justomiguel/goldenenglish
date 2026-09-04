@@ -98,6 +98,22 @@ describe("startShopCheckoutAction", () => {
     expect(mocks.start).not.toHaveBeenCalled();
   });
 
+  it("rejects a logged-in student without starting checkout", async () => {
+    mocks.getUser.mockResolvedValue({
+      data: { user: { id: "student-1", email: "kid@school.cl" } },
+    });
+    mocks.profileMaybeSingle.mockResolvedValue({ data: { role: "student" }, error: null });
+    const result = await startShopCheckoutAction({
+      locale: "es",
+      gateway: "flow",
+      lines: guestInput.lines,
+    });
+    expect(result).toEqual({ ok: false, code: "student_forbidden" });
+    expect(mocks.ensureGuest).not.toHaveBeenCalled();
+    expect(mocks.validate).not.toHaveBeenCalled();
+    expect(mocks.start).not.toHaveBeenCalled();
+  });
+
   it.each(["teacher", "admin"])(
     "rejects a logged-in %s without starting checkout",
     async (role) => {
