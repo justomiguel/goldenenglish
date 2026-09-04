@@ -51,6 +51,10 @@ describe("buildAdminInstituteHubGroups", () => {
     );
   });
 
+  it("includes merch in growth when includeMerchNav", () => {
+    expect(rowsFor("growth", { includeMerchNav: true })).toContain(`${BASE}/merch`);
+  });
+
   it("puts Todas las cuentas on the site group", () => {
     expect(rowsFor("site")).toEqual([
       `${BASE}/cms`,

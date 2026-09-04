@@ -14,6 +14,7 @@ import { AdminInitialSiteSetupGate } from "@/components/dashboard/admin/site-set
 import { isEmailTemplatesMegaAdmin } from "@/lib/auth/emailTemplatesMegaAdmin";
 import { loadAdminRecentInboundMessageCount } from "@/lib/dashboard/loadAdminRecentInboundMessageCount";
 import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
+import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
 import { loadEmailSendStaffNotice } from "@/lib/email/emailSendStaffNotice";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { formatProfileSnakeGivenFirst } from "@/lib/profile/formatProfileDisplayName";
@@ -75,9 +76,10 @@ export default async function AdminSectionLayout({
     logSupabaseClientError("adminLayout.registrationsNewCount", registrationsResult.error, {});
   }
 
-  const [needsInitialSiteSetup, blogEnabled, emailSendFailure] = await Promise.all([
+  const [needsInitialSiteSetup, blogEnabled, merchEnabled, emailSendFailure] = await Promise.all([
     loadNeedsInitialSiteSetup(supabase),
     loadBlogEnabled(),
+    loadMerchEnabled(),
     loadEmailSendStaffNotice(supabase),
   ]);
 
@@ -96,6 +98,7 @@ export default async function AdminSectionLayout({
       teacherPortalAllowed={teacherPortalAllowed}
       includeEmailTemplatesNav={isEmailTemplatesMegaAdmin(user.email)}
       includeBlogNav={blogEnabled && !needsInitialSiteSetup}
+      includeMerchNav={merchEnabled && !needsInitialSiteSetup}
       siteSetupRequired={needsInitialSiteSetup}
       profileDisplayName={profileDisplayName}
       profileRoleLabel={profileRoleLabel}

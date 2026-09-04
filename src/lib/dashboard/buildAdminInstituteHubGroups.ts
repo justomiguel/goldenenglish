@@ -18,6 +18,7 @@ export type AdminInstituteHubGroup = {
 
 export type BuildAdminInstituteHubGroupsOptions = {
   includeBlogNav?: boolean;
+  includeMerchNav?: boolean;
   includeEmailTemplatesNav?: boolean;
 };
 
@@ -36,6 +37,14 @@ export function buildAdminInstituteHubGroups(
       label: dict.blog,
       tip: dict.tipBlog,
       iconId: "blog",
+    });
+  }
+  if (options.includeMerchNav) {
+    growth.push({
+      href: `${base}/merch`,
+      label: dict.merch,
+      tip: dict.tipMerch,
+      iconId: "merch",
     });
   }
 

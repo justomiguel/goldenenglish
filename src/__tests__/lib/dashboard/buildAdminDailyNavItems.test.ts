@@ -50,6 +50,31 @@ describe("buildAdminDailyNavItems", () => {
     ]);
   });
 
+  it("lists merch after events when includeMerchNav", () => {
+    expect(hrefs({ includeMerchNav: true })).toEqual([
+      BASE,
+      `${BASE}/students`,
+      `${BASE}/parents`,
+      `${BASE}/teachers`,
+      `${BASE}/users`,
+      `${BASE}/registrations`,
+      `${BASE}/academic`,
+      `${BASE}/finance`,
+      `${BASE}/messages`,
+      `${BASE}/events`,
+      `${BASE}/merch`,
+      `${BASE}/institute`,
+    ]);
+  });
+
+  it("lists blog then merch when both flags", () => {
+    expect(hrefs({ includeBlogNav: true, includeMerchNav: true }).slice(-3)).toEqual([
+      `${BASE}/cms/blog`,
+      `${BASE}/merch`,
+      `${BASE}/institute`,
+    ]);
+  });
+
   it("keeps registration and message badges", () => {
     const items = buildAdminDailyNavItems(BASE, dictEn.dashboard.adminNav, {
       newRegistrations: 4,

@@ -16,6 +16,7 @@ interface BuildAdminSidebarNavGroupsOptions {
   financeHref?: string;
   includeEmailTemplatesNav?: boolean;
   includeBlogNav?: boolean;
+  includeMerchNav?: boolean;
 }
 
 export function buildAdminSidebarNavGroups(
@@ -31,6 +32,7 @@ export function buildAdminSidebarNavGroups(
       items: buildAdminDailyNavItems(base, dict, badges, {
         financeHref: options.financeHref,
         includeBlogNav: options.includeBlogNav,
+        includeMerchNav: options.includeMerchNav,
       }),
     },
   ];

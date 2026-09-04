@@ -28,6 +28,8 @@ export interface AdminSidebarNavContentProps {
   includeEmailTemplatesNav?: boolean;
   /** When true, includes Blog under CMS tools (tenant `blog_enabled`). */
   includeBlogNav?: boolean;
+  /** When true, includes Merch on the daily rail (tenant `merch_enabled`). */
+  includeMerchNav?: boolean;
   onNavigate?: () => void;
   variant?: "desktop" | "mobile";
   tone?: "light" | "dark";
@@ -140,6 +142,7 @@ export function AdminSidebarNavContent({
   recentInboundMessagesCount,
   includeEmailTemplatesNav = false,
   includeBlogNav = false,
+  includeMerchNav = false,
   onNavigate,
   variant = "desktop",
   tone = "light",
@@ -155,6 +158,7 @@ export function AdminSidebarNavContent({
     financeHref: financeHrefForPathname(base, pathname),
     includeEmailTemplatesNav,
     includeBlogNav,
+    includeMerchNav,
   });
   const allHrefs = groups.flatMap((g) => g.items.map((i) => i.href));
   const mobile = variant === "mobile";

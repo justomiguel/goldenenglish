@@ -5,6 +5,8 @@ import { PublicCtaModeSettingsForm } from "@/components/dashboard/PublicCtaModeS
 import { loadClassRemindersAdminPageModel } from "@/lib/settings/loadClassRemindersAdminPageModel";
 import { loadEmailSendsAdminPageModel } from "@/lib/settings/loadEmailSendsAdminPageModel";
 import { InscriptionsSettingsForm } from "@/components/dashboard/InscriptionsSettingsForm";
+import { MerchSettingsForm } from "@/components/dashboard/MerchSettingsForm";
+import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
 import { EmailSendsAdminSettingsForm } from "@/components/dashboard/EmailSendsAdminSettingsForm";
 import { ClassRemindersAdminSettingsForm } from "@/components/dashboard/ClassRemindersAdminSettingsForm";
 import { GoogleTranslateSettingsForm } from "@/components/dashboard/admin/settings/GoogleTranslateSettingsForm";
@@ -31,6 +33,7 @@ export default async function AdminSettingsPage({ params }: PageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
   const enabled = await getInscriptionsEnabled();
+  const merchEnabled = await loadMerchEnabled();
   const publicCtaMode = await getPublicCtaMode();
   const emailSends = await loadEmailSendsAdminPageModel(locale as Locale, {
     inactivity: dict.admin.settings.emailSendsLabelInactivity,
@@ -62,6 +65,13 @@ export default async function AdminSettingsPage({ params }: PageProps) {
           initialMode={publicCtaMode}
           labels={dict.admin.settings}
         />
+        <div className="mt-8">
+          <MerchSettingsForm
+            locale={locale}
+            initialEnabled={merchEnabled}
+            labels={dict.admin.settings}
+          />
+        </div>
       </div>
       {emailSends ? (
         <div className="mt-8" data-tour={ADMIN_TOUR_ANCHORS.settingsEmailSends}>

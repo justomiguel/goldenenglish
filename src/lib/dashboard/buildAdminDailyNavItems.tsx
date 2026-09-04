@@ -19,6 +19,7 @@ export type AdminSidebarNavBadges = {
 export type BuildAdminDailyNavItemsOptions = {
   financeHref?: string;
   includeBlogNav?: boolean;
+  includeMerchNav?: boolean;
 };
 
 export function buildAdminDailyNavItems(
@@ -34,6 +35,14 @@ export function buildAdminDailyNavItems(
         label: dict.blog,
         iconId: "blog",
         tip: dict.tipBlog,
+      }
+    : null;
+  const merchItem: AdminSidebarNavItem | null = options.includeMerchNav
+    ? {
+        href: `${base}/merch`,
+        label: dict.merch,
+        iconId: "merch",
+        tip: dict.tipMerch,
       }
     : null;
   return [
@@ -97,6 +106,7 @@ export function buildAdminDailyNavItems(
       tip: dict.tipEvents,
     },
     ...(blogItem ? [blogItem] : []),
+    ...(merchItem ? [merchItem] : []),
     {
       href: `${base}/institute`,
       label: dict.institute,

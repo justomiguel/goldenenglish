@@ -20,6 +20,8 @@ interface AdminDashboardShellProps {
   includeEmailTemplatesNav?: boolean;
   /** When true, show Blog in admin sidebar (`blog_enabled`). */
   includeBlogNav?: boolean;
+  /** When true, show Merch in admin sidebar (`merch_enabled`). */
+  includeMerchNav?: boolean;
   /** When true, sidebar/breadcrumb hidden (initial site setup wizard). */
   siteSetupRequired?: boolean;
   profileDisplayName?: string;
@@ -40,6 +42,7 @@ export function AdminDashboardShell({
   teacherPortalAllowed,
   includeEmailTemplatesNav = false,
   includeBlogNav = false,
+  includeMerchNav = false,
   siteSetupRequired = false,
   profileDisplayName = "",
   profileRoleLabel = "",
@@ -61,6 +64,7 @@ export function AdminDashboardShell({
           recentInboundMessagesCount={recentInboundMessagesCount}
           includeEmailTemplatesNav={includeEmailTemplatesNav}
           includeBlogNav={includeBlogNav}
+          includeMerchNav={includeMerchNav}
           profileDisplayName={profileDisplayName}
           profileRoleLabel={profileRoleLabel}
           profileAvatarUrl={profileAvatarUrl}
@@ -86,6 +90,7 @@ export function AdminDashboardShell({
                 recentInboundMessagesCount={recentInboundMessagesCount}
                 includeEmailTemplatesNav={includeEmailTemplatesNav}
                 includeBlogNav={includeBlogNav}
+                includeMerchNav={includeMerchNav}
                 profileDisplayName={profileDisplayName}
                 profileRoleLabel={profileRoleLabel}
                 profileAvatarUrl={profileAvatarUrl}

@@ -17,6 +17,7 @@ export interface AdminMobileDrawerProps {
   recentInboundMessagesCount: number;
   includeEmailTemplatesNav?: boolean;
   includeBlogNav?: boolean;
+  includeMerchNav?: boolean;
   brand?: BrandPublic;
   profileDisplayName?: string;
   profileRoleLabel?: string;
@@ -30,6 +31,7 @@ export function AdminMobileDrawer({
   recentInboundMessagesCount,
   includeEmailTemplatesNav,
   includeBlogNav,
+  includeMerchNav,
   brand,
   profileDisplayName = "",
   profileRoleLabel = "",
@@ -92,6 +94,7 @@ export function AdminMobileDrawer({
               recentInboundMessagesCount={recentInboundMessagesCount}
               includeEmailTemplatesNav={includeEmailTemplatesNav}
               includeBlogNav={includeBlogNav}
+              includeMerchNav={includeMerchNav}
               onNavigate={close}
               variant="mobile"
               tone="light"

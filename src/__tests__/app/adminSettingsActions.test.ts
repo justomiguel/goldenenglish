@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { setInscriptionsEnabled } from "@/app/[locale]/dashboard/admin/settings/actions";
+import { setMerchEnabled } from "@/app/[locale]/dashboard/admin/settings/setMerchEnabled";
 
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
@@ -43,5 +44,36 @@ describe("setInscriptionsEnabled", () => {
       }),
     });
     expect(await setInscriptionsEnabled("en", false)).toEqual({ ok: true });
+  });
+});
+
+describe("setMerchEnabled", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns ok false when admin check fails", async () => {
+    mockAssertAdmin.mockRejectedValue(new Error("no"));
+    expect(await setMerchEnabled("es", true)).toEqual({ ok: false });
+  });
+
+  it("returns ok false when upsert fails", async () => {
+    mockAssertAdmin.mockResolvedValue({});
+    mockCreateClient.mockResolvedValue({
+      from: () => ({
+        upsert: vi.fn().mockResolvedValue({ error: { message: "e" } }),
+      }),
+    });
+    expect(await setMerchEnabled("es", true)).toEqual({ ok: false });
+  });
+
+  it("returns ok true after revalidation paths", async () => {
+    mockAssertAdmin.mockResolvedValue({});
+    mockCreateClient.mockResolvedValue({
+      from: () => ({
+        upsert: vi.fn().mockResolvedValue({ error: null }),
+      }),
+    });
+    expect(await setMerchEnabled("en", false)).toEqual({ ok: true });
   });
 });

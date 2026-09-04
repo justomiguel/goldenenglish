@@ -33,6 +33,7 @@ const FAMILY_BY_ICON: Record<AdminSurfaceIconId, AdminPageHeaderArtFamily> = {
   coupons: "finance",
   promotions: "finance",
   blog: "institute",
+  merch: "institute",
   cms: "institute",
   siteSetup: "institute",
   settings: "institute",

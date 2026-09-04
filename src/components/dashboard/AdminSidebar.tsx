@@ -14,6 +14,7 @@ export interface AdminSidebarProps {
   recentInboundMessagesCount: number;
   includeEmailTemplatesNav?: boolean;
   includeBlogNav?: boolean;
+  includeMerchNav?: boolean;
   profileDisplayName: string;
   profileRoleLabel: string;
   profileAvatarUrl: string | null;
@@ -27,6 +28,7 @@ export function AdminSidebar({
   recentInboundMessagesCount,
   includeEmailTemplatesNav,
   includeBlogNav,
+  includeMerchNav,
   fullDict,
   profileDisplayName,
   profileRoleLabel,
@@ -53,6 +55,7 @@ export function AdminSidebar({
           recentInboundMessagesCount={recentInboundMessagesCount}
           includeEmailTemplatesNav={includeEmailTemplatesNav}
           includeBlogNav={includeBlogNav}
+          includeMerchNav={includeMerchNav}
           tone="light"
         />
       </div>
