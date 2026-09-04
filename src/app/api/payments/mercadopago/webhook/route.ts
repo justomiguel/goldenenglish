@@ -8,6 +8,7 @@ import type { PaymentGatewayCountryCode } from "@/types/paymentGateway";
 import { finalizeEventPaymentFromMercadoPago } from "@/lib/events/server/finalizeEventPaymentFromMercadoPago";
 import { finalizeEnrollmentPaymentFromMercadoPago } from "@/lib/register/finalizeEnrollmentPaymentFromMercadoPago";
 import { finalizeTrialPaymentFromMercadoPago } from "@/lib/register/finalizeTrialPaymentFromMercadoPago";
+import { finalizeShopOrderFromMercadoPago } from "@/lib/shop/finalizeShopOrderFromMercadoPago";
 
 function parseCountry(raw: string | null): PaymentGatewayCountryCode | null {
   const c = raw?.trim().toUpperCase();
@@ -83,30 +84,21 @@ export async function POST(req: Request): Promise<Response> {
       return new Response("unauthorized", { status: 401 });
     }
 
+    const mpInput = {
+      admin,
+      accessToken: creds.accessToken,
+      mpPaymentId: resolvedDataId,
+    };
     const result =
-      purpose === "event"
-        ? await finalizeEventPaymentFromMercadoPago({
-            admin,
-            accessToken: creds.accessToken,
-            mpPaymentId: resolvedDataId,
-          })
-        : purpose === "enrollment"
-          ? await finalizeEnrollmentPaymentFromMercadoPago({
-              admin,
-              accessToken: creds.accessToken,
-              mpPaymentId: resolvedDataId,
-            })
-          : purpose === "trial" || purpose === "join"
-            ? await finalizeTrialPaymentFromMercadoPago({
-                admin,
-                accessToken: creds.accessToken,
-                mpPaymentId: resolvedDataId,
-              })
-          : await finalizeMercadoPagoPayment({
-              admin,
-              accessToken: creds.accessToken,
-              mpPaymentId: resolvedDataId,
-            });
+      purpose === "merch"
+        ? await finalizeShopOrderFromMercadoPago(mpInput)
+        : purpose === "event"
+          ? await finalizeEventPaymentFromMercadoPago(mpInput)
+          : purpose === "enrollment"
+            ? await finalizeEnrollmentPaymentFromMercadoPago(mpInput)
+            : purpose === "trial" || purpose === "join"
+              ? await finalizeTrialPaymentFromMercadoPago(mpInput)
+              : await finalizeMercadoPagoPayment(mpInput);
 
     if (!result.ok) {
       logServerException("mpWebhook:finalize_failed", new Error("finalize_failed"));

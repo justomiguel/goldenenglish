@@ -5,6 +5,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 const mockFinalize = vi.fn();
 const mockFinalizeEvent = vi.fn();
 const mockFinalizeEnrollment = vi.fn();
+const mockFinalizeMerch = vi.fn();
 const mockLoadCreds = vi.fn();
 const mockLoadKey = vi.fn();
 const mockAdmin = vi.fn();
@@ -20,6 +21,10 @@ vi.mock("@/lib/events/server/finalizeEventPaymentFromMercadoPago", () => ({
 vi.mock("@/lib/register/finalizeEnrollmentPaymentFromMercadoPago", () => ({
   finalizeEnrollmentPaymentFromMercadoPago: (...args: unknown[]) =>
     mockFinalizeEnrollment(...args),
+}));
+
+vi.mock("@/lib/shop/finalizeShopOrderFromMercadoPago", () => ({
+  finalizeShopOrderFromMercadoPago: (...args: unknown[]) => mockFinalizeMerch(...args),
 }));
 
 vi.mock("@/lib/payment-gateways/mercadopago/loadMercadoPagoCredentialsPlain", () => ({
@@ -82,6 +87,7 @@ describe("POST /api/payments/mercadopago/webhook", () => {
     mockFinalize.mockResolvedValue({ ok: true, approved: true });
     mockFinalizeEvent.mockResolvedValue({ ok: true, approved: true });
     mockFinalizeEnrollment.mockResolvedValue({ ok: true });
+    mockFinalizeMerch.mockResolvedValue({ ok: true });
   });
 
   it("returns 200 without finalize when country is missing", async () => {
@@ -174,6 +180,28 @@ describe("POST /api/payments/mercadopago/webhook", () => {
     );
     expect(res.status).toBe(200);
     expect(mockFinalizeEnrollment).toHaveBeenCalled();
+    expect(mockFinalize).not.toHaveBeenCalled();
+    expect(mockFinalizeEvent).not.toHaveBeenCalled();
+  });
+
+  it("routes finalization to merch handler when purpose=merch", async () => {
+    const hash = sign();
+    const res = await POST(
+      new Request(
+        `https://example.com/api/payments/mercadopago/webhook?country=CL&purpose=merch&data.id=${dataId}`,
+        {
+          method: "POST",
+          headers: {
+            "x-signature": `ts=${ts},v1=${hash}`,
+            "x-request-id": requestId,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({ type: "payment", data: { id: dataId } }),
+        },
+      ),
+    );
+    expect(res.status).toBe(200);
+    expect(mockFinalizeMerch).toHaveBeenCalled();
     expect(mockFinalize).not.toHaveBeenCalled();
     expect(mockFinalizeEvent).not.toHaveBeenCalled();
   });

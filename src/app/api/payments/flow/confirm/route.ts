@@ -6,6 +6,7 @@ import { logServerException } from "@/lib/logging/serverActionLog";
 import { finalizeEventPaymentFromFlowGateway } from "@/lib/events/server/finalizeEventPaymentFromFlowGateway";
 import { finalizeEnrollmentPaymentFromFlowGateway } from "@/lib/register/finalizeEnrollmentPaymentFromFlowGateway";
 import { finalizeTrialPaymentFromFlowGateway } from "@/lib/register/finalizeTrialPaymentFromFlowGateway";
+import { finalizeShopOrderFromFlowGateway } from "@/lib/shop/finalizeShopOrderFromFlowGateway";
 
 export async function POST(req: Request): Promise<Response> {
   try {
@@ -33,39 +34,23 @@ export async function POST(req: Request): Promise<Response> {
     }
 
     const base = flowChileApiBase(creds);
+    const flowInput = {
+      admin,
+      apiBaseUrl: base,
+      apiKey: creds.apiKey,
+      secretKey: creds.secretKey,
+      token,
+    };
     const result =
-      purpose === "event"
-        ? await finalizeEventPaymentFromFlowGateway({
-            admin,
-            apiBaseUrl: base,
-            apiKey: creds.apiKey,
-            secretKey: creds.secretKey,
-            token,
-          })
-        : purpose === "enrollment"
-          ? await finalizeEnrollmentPaymentFromFlowGateway({
-              admin,
-              apiBaseUrl: base,
-              apiKey: creds.apiKey,
-              secretKey: creds.secretKey,
-              token,
-            })
-          : purpose === "trial" || purpose === "join"
-            ? await finalizeTrialPaymentFromFlowGateway({
-                admin,
-                apiBaseUrl: base,
-                apiKey: creds.apiKey,
-                secretKey: creds.secretKey,
-                token,
-                purpose,
-              })
-          : await finalizeMonthlyPaymentFromFlowGateway({
-              admin,
-              apiBaseUrl: base,
-              apiKey: creds.apiKey,
-              secretKey: creds.secretKey,
-              token,
-            });
+      purpose === "merch"
+        ? await finalizeShopOrderFromFlowGateway(flowInput)
+        : purpose === "event"
+          ? await finalizeEventPaymentFromFlowGateway(flowInput)
+          : purpose === "enrollment"
+            ? await finalizeEnrollmentPaymentFromFlowGateway(flowInput)
+            : purpose === "trial" || purpose === "join"
+              ? await finalizeTrialPaymentFromFlowGateway({ ...flowInput, purpose })
+              : await finalizeMonthlyPaymentFromFlowGateway(flowInput);
 
     if (!result.ok) {
       logServerException("flowConfirm:finalize_failed", new Error("finalize_failed"));
