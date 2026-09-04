@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "admin-merch-catalog",
+    date: "2026-09-04",
+    area: "admin",
+    title: t(
+      "Catálogo de merchandising: productos, variantes y fotos",
+      "Merch catalog: products, variants, and photos",
+      "Catálogo de merchandising: produtos, variantes e fotos",
+    ),
+    summary: t(
+      "En Merchandising el equipo carga SKUs con talla, color, precio y stock. El producto nace como borrador y pide al menos una variante para activarse.",
+      "In Merchandising, staff can publish SKUs with size, color, price, and stock. Products start as drafts and need at least one variant before they go live.",
+      "Em Merchandising a equipa carrega SKUs com tamanho, cor, preço e stock. O produto nasce como rascunho e precisa de pelo menos uma variante para ativar.",
+    ),
+  },
+  {
     id: "nago-nunoa-dark-landing",
     date: "2026-08-29",
     area: "site",
