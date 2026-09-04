@@ -12,6 +12,29 @@ export type AdminMerchVariantRow = {
   active: boolean;
 };
 
+export type AdminMerchVariantUpsertInput = {
+  id?: string;
+  size: string;
+  color: string;
+  sku: string;
+  stock: number;
+  price: number;
+  active?: boolean;
+};
+
+export function canRestoreMerchVariant(
+  row: Pick<AdminMerchVariantRow, "id" | "size" | "color" | "active">,
+  variants: Pick<AdminMerchVariantRow, "id" | "size" | "color">[],
+): boolean {
+  if (row.active) return false;
+  return !variants.some(
+    (other) =>
+      other.id !== row.id &&
+      other.size.trim() === row.size.trim() &&
+      other.color.trim() === row.color.trim(),
+  );
+}
+
 export type AdminMerchProductRow = {
   id: string;
   title: string;

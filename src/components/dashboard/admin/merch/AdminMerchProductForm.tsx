@@ -32,6 +32,7 @@ export function AdminMerchProductForm({
   onUpdate,
 }: AdminMerchProductFormProps) {
   const isEdit = Boolean(product && onUpdate);
+  const idPrefix = isEdit ? "edit" : "create";
   const [title, setTitle] = useState(product?.title ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
   const [sortOrder, setSortOrder] = useState(String(product?.sortOrder ?? 0));
@@ -59,9 +60,9 @@ export function AdminMerchProductForm({
       </h2>
       <form onSubmit={(e) => void onSubmit(e)} className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <Label htmlFor="merch-title">{labels.createTitleLabel}</Label>
+          <Label htmlFor={`${idPrefix}-merch-title`}>{labels.createTitleLabel}</Label>
           <Input
-            id="merch-title"
+            id={`${idPrefix}-merch-title`}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
@@ -70,9 +71,9 @@ export function AdminMerchProductForm({
           />
         </div>
         <div className="sm:col-span-2">
-          <Label htmlFor="merch-desc">{labels.createDescription}</Label>
+          <Label htmlFor={`${idPrefix}-merch-desc`}>{labels.createDescription}</Label>
           <Input
-            id="merch-desc"
+            id={`${idPrefix}-merch-desc`}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="mt-1"
@@ -80,9 +81,9 @@ export function AdminMerchProductForm({
           />
         </div>
         <div>
-          <Label htmlFor="merch-sort">{labels.createSortOrder}</Label>
+          <Label htmlFor={`${idPrefix}-merch-sort`}>{labels.createSortOrder}</Label>
           <Input
-            id="merch-sort"
+            id={`${idPrefix}-merch-sort`}
             type="number"
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value)}

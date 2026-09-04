@@ -3857,6 +3857,9 @@
       "variantStock": "Stock",
       "variantPrice": "Price",
       "variantAdd": "Add variant",
+      "variantSave": "Save variant",
+      "variantRestore": "Restore",
+      "variantActive": "On sale",
       "variantRemove": "Remove",
       "variantArchived": "Archived",
       "sizePlaceholder": "Único",
@@ -3890,6 +3893,9 @@
       "tipVariantStock": "Units available. Zero disables buy for this variant.",
       "tipVariantPrice": "Price for this size and color.",
       "tipVariantAdd": "Save a new size and color with its price and stock.",
+      "tipVariantSave": "Update price, stock, and whether this size and color is for sale.",
+      "tipVariantRestore": "Put this archived variant back on sale if no other size and color pair matches.",
+      "tipVariantActive": "Inactive variants stay in the catalog but cannot be bought.",
       "tipVariantRemove": "Delete unused variants, or archive ones that already sold."
     },
     "coupons": {

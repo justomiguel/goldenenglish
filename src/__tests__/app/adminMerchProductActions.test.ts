@@ -105,6 +105,31 @@ describe("upsertShopVariant", () => {
     const r = await upsertShopVariant(validVariant);
     expect(r).toEqual({ ok: false, code: "duplicate_variant" });
   });
+
+  it("updates the existing row when id is provided", async () => {
+    const single = vi.fn().mockResolvedValue({ data: { id: VARIANT_ID }, error: null });
+    const select = vi.fn().mockReturnValue({ single });
+    const eq = vi.fn().mockReturnValue({ select });
+    const update = vi.fn().mockReturnValue({ eq });
+    const insert = vi.fn();
+    mockAssertAdmin.mockResolvedValue({
+      user: adminUser,
+      supabase: { from: vi.fn().mockReturnValue({ update, insert }) },
+    });
+    const r = await upsertShopVariant({
+      ...validVariant,
+      id: VARIANT_ID,
+      stock: 8,
+      price: 24.9,
+      active: true,
+    });
+    expect(r).toEqual({ ok: true, id: VARIANT_ID });
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({ stock: 8, price: 24.9, active: true }),
+    );
+    expect(eq).toHaveBeenCalledWith("id", VARIANT_ID);
+    expect(insert).not.toHaveBeenCalled();
+  });
 });
 
 describe("deleteShopVariant", () => {

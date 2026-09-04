@@ -3857,6 +3857,9 @@
       "variantStock": "Stock",
       "variantPrice": "Precio",
       "variantAdd": "Agregar variante",
+      "variantSave": "Guardar variante",
+      "variantRestore": "Restaurar",
+      "variantActive": "En venta",
       "variantRemove": "Quitar",
       "variantArchived": "Archivada",
       "sizePlaceholder": "Único",
@@ -3890,6 +3893,9 @@
       "tipVariantStock": "Unidades disponibles. Cero desactiva la compra de esta variante.",
       "tipVariantPrice": "Precio de esta talla y color.",
       "tipVariantAdd": "Guarda una talla y color nuevos con su precio y stock.",
+      "tipVariantSave": "Actualiza precio, stock y si esta talla y color está a la venta.",
+      "tipVariantRestore": "Vuelve a poner a la venta esta variante archivada si no hay otra con la misma talla y color.",
+      "tipVariantActive": "Las variantes inactivas siguen en el catálogo pero no se pueden comprar.",
       "tipVariantRemove": "Borra variantes sin pedidos, o archiva las que ya se vendieron."
     },
     "coupons": {
