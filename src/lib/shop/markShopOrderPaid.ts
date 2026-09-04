@@ -1,5 +1,7 @@
 import { logServerWarn, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { notifyShopEmail } from "@/lib/shop/notifyShopEmail";
+import { absoluteUrl } from "@/lib/site/publicUrl";
+import type { Locale } from "@/types/i18n";
 
 export type MarkShopOrderPaidResult =
   | { ok: true; alreadyPaid?: boolean }
@@ -42,15 +44,33 @@ export async function markShopOrderPaid(input: {
   return { ok: true };
 }
 
+function shopOrderPaidPickupNote(locale: Locale): string {
+  if (locale === "en") return "Pick up at the institute during opening hours.";
+  return "Retiro en el instituto en horario de atención.";
+}
+
 async function notifyPaid(admin: ShopMarkPaidAdmin, orderId: string): Promise<void> {
   if (!admin.from) return;
   const { data, error } = await admin
     .from("shop_orders")
-    .select("buyer_email")
+    .select("buyer_email, pay_token")
     .eq("id", orderId)
     .maybeSingle();
   if (error || !data) return;
-  const to = String((data as { buyer_email?: unknown }).buyer_email ?? "").trim();
-  if (!to) return;
-  await notifyShopEmail({ to, key: "shop.order_paid" });
+  const row = data as { buyer_email?: unknown; pay_token?: unknown };
+  const to = String(row.buyer_email ?? "").trim();
+  const token = String(row.pay_token ?? "").trim();
+  if (!to || !token) return;
+  const locale: Locale = "es";
+  const orderPath = `/${locale}/tienda/pedido/${token}`;
+  const orderUrl = absoluteUrl(orderPath)?.toString() ?? orderPath;
+  await notifyShopEmail({
+    to,
+    key: "shop.order_paid",
+    locale,
+    vars: {
+      orderUrl,
+      pickupNote: shopOrderPaidPickupNote(locale),
+    },
+  });
 }

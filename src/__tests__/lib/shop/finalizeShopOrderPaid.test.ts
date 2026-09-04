@@ -68,8 +68,19 @@ describe("markShopOrderPaid", () => {
     expect(r).toEqual({ ok: true });
     expect(rpc).toHaveBeenCalledWith("shop_mark_paid_and_decrement_stock", { p_order_id: "o" });
     expect(mocks.notify).toHaveBeenCalledWith(
-      expect.objectContaining({ to: "ada@school.cl", key: "shop.order_paid" }),
+      expect.objectContaining({
+        to: "ada@school.cl",
+        key: "shop.order_paid",
+        locale: "es",
+        vars: expect.objectContaining({
+          orderUrl: expect.stringContaining("/es/tienda/pedido/tok-1"),
+          pickupNote: "Retiro en el instituto en horario de atención.",
+        }),
+      }),
     );
+    const sent = mocks.notify.mock.calls[0]?.[0] as { vars?: Record<string, string> };
+    expect(sent.vars?.orderUrl).not.toContain("{{orderUrl}}");
+    expect(sent.vars?.pickupNote).not.toContain("{{pickupNote}}");
   });
 });
 
