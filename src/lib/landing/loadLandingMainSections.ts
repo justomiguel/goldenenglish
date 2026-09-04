@@ -19,6 +19,7 @@ export interface LandingMainSectionHostProps {
     Record<LandingSectionSlug, ReadonlyArray<LandingBlock>>
   >;
   blogEnabled?: boolean;
+  merchEnabled?: boolean;
   publicCtaMode?: PublicCtaMode;
   inscriptionsEnabled?: boolean;
 }

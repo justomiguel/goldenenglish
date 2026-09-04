@@ -13,6 +13,7 @@ interface LandingMainSectionsMimundoProps {
   sessionEmail: string | null;
   mediaMap?: LandingMediaMap;
   blogEnabled?: boolean;
+  merchEnabled?: boolean;
 }
 
 export function LandingMainSectionsMimundo({
@@ -22,6 +23,7 @@ export function LandingMainSectionsMimundo({
   sessionEmail,
   mediaMap,
   blogEnabled = false,
+  merchEnabled = false,
 }: LandingMainSectionsMimundoProps) {
   const t = (path: string) => marketingLandingCopy(dict, "mm", path);
 
@@ -55,6 +57,7 @@ export function LandingMainSectionsMimundo({
           locale={locale}
           mediaMap={mediaMap}
           blogEnabled={blogEnabled}
+          merchEnabled={merchEnabled}
         />
       </main>
     </MiMundoFontRoot>

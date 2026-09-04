@@ -25,6 +25,7 @@ const dailyHrefs = [
   `${base}/messages`,
   `${base}/events`,
   `${base}/cms/blog`,
+  `${base}/merch`,
   institute,
 ] as const;
 
@@ -64,6 +65,13 @@ describe("adminSidebarNavActive", () => {
     expect(isAdminSidebarNavItemActive(blog, blog, base, profile, dailyHrefs)).toBe(true);
     expect(isAdminSidebarNavItemActive(`${blog}/new`, blog, base, profile, dailyHrefs)).toBe(true);
     expect(isAdminSidebarNavItemActive(blog, institute, base, profile, dailyHrefs)).toBe(false);
+  });
+
+  it("highlights merch on /merch, not Instituto", () => {
+    const merch = `${base}/merch`;
+    expect(isAdminSidebarNavItemActive(merch, merch, base, profile, dailyHrefs)).toBe(true);
+    expect(isAdminSidebarNavItemActive(`${merch}/orders`, merch, base, profile, dailyHrefs)).toBe(true);
+    expect(isAdminSidebarNavItemActive(merch, institute, base, profile, dailyHrefs)).toBe(false);
   });
 
   it("highlights Alumnos on a student person record", () => {

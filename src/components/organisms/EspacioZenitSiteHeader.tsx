@@ -21,6 +21,8 @@ export interface EspacioZenitSiteHeaderProps {
   sessionEmail: string | null;
   showBlogLink?: boolean;
   blogLabel?: string;
+  showShopLink?: boolean;
+  shopLabel?: string;
   showEventsLink?: boolean;
   eventsLabel?: string;
 }
@@ -36,6 +38,8 @@ export function EspacioZenitSiteHeader({
   sessionEmail,
   showBlogLink = false,
   blogLabel,
+  showShopLink = false,
+  shopLabel,
   showEventsLink = false,
   eventsLabel,
 }: EspacioZenitSiteHeaderProps) {
@@ -52,6 +56,9 @@ export function EspacioZenitSiteHeader({
       : []),
     ...(showBlogLink && blogLabel
       ? [{ href: `${prefix}/blog`, label: blogLabel }]
+      : []),
+    ...(showShopLink && shopLabel
+      ? [{ href: `${prefix}/tienda`, label: shopLabel }]
       : []),
     { href: `${prefix}#contacto`, label: labels.nav.contacto },
     { href: `${prefix}/register`, label: labels.nav.enroll },

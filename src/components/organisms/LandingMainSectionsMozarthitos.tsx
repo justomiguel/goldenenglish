@@ -15,6 +15,7 @@ interface LandingMainSectionsMozarthitosProps {
   sessionEmail: string | null;
   mediaMap?: LandingMediaMap;
   blogEnabled?: boolean;
+  merchEnabled?: boolean;
   publicCtaMode?: PublicCtaMode;
   inscriptionsEnabled?: boolean;
 }
@@ -26,6 +27,7 @@ export function LandingMainSectionsMozarthitos({
   sessionEmail,
   mediaMap,
   blogEnabled = false,
+  merchEnabled = false,
   publicCtaMode,
   inscriptionsEnabled,
 }: LandingMainSectionsMozarthitosProps) {
@@ -49,6 +51,8 @@ export function LandingMainSectionsMozarthitos({
           sessionEmail={sessionEmail}
           showBlogLink={blogEnabled}
           blogLabel={blogEnabled ? dict.blog.list.title : undefined}
+          showShopLink={merchEnabled}
+          shopLabel={merchEnabled ? dict.shop.catalog.title : undefined}
           showEventsLink
           eventsLabel={dict.events.public.title}
           labels={{

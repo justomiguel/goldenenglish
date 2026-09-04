@@ -28,6 +28,7 @@ interface LandingMimundoSectionsProps {
   locale: string;
   mediaMap?: LandingMediaMap;
   blogEnabled?: boolean;
+  merchEnabled?: boolean;
 }
 
 export function LandingMimundoSections({
@@ -36,6 +37,7 @@ export function LandingMimundoSections({
   locale,
   mediaMap,
   blogEnabled = false,
+  merchEnabled = false,
 }: LandingMimundoSectionsProps) {
   const t = (path: string) => marketingLandingCopy(dict, "mm", path);
 
@@ -198,6 +200,13 @@ export function LandingMimundoSections({
                     className="mm-link-bounce text-white/80 underline decoration-white/30 underline-offset-2 hover:text-white"
                   >
                     {dict.blog.list.title}
+                  </Link>
+                </li>
+              ) : null}
+              {merchEnabled ? (
+                <li>
+                  <Link href={`/${locale}/tienda`} className="mm-link-bounce text-white/80 underline decoration-white/30 underline-offset-2 hover:text-white">
+                    {dict.shop.catalog.title}
                   </Link>
                 </li>
               ) : null}

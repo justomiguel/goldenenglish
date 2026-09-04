@@ -17,6 +17,7 @@ import { createLandingMediaPublicUrlBuilder } from "@/lib/cms/landingMediaPublic
 import { groupBlocksBySection } from "@/lib/cms/landingBlocksCatalog";
 import { loadFirstRunWizardMode } from "@/lib/site/loadFirstRunWizardMode";
 import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
+import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
 import { loadLandingMainSections } from "@/lib/landing/loadLandingMainSections";
 import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
@@ -76,10 +77,11 @@ export default async function HomePage({ params }: HomePageProps) {
     );
   }
 
-  const [activeTheme, blogEnabled, publicCtaMode, inscriptionsEnabled, landingQuestionnaires] =
+  const [activeTheme, blogEnabled, merchEnabled, publicCtaMode, inscriptionsEnabled, landingQuestionnaires] =
     await Promise.all([
       loadActiveTheme(),
       loadBlogEnabled(),
+      loadMerchEnabled(),
       getPublicCtaMode(),
       getInscriptionsEnabled(),
       loadLandingQuestionnaires(supabase, locale),
@@ -109,6 +111,7 @@ export default async function HomePage({ params }: HomePageProps) {
         mediaMap={mediaMap}
         blocksBySection={blocksBySection}
         blogEnabled={blogEnabled}
+        merchEnabled={merchEnabled}
         sessionEmail={sessionEmail}
         publicCtaMode={publicCtaMode}
         inscriptionsEnabled={inscriptionsEnabled}
@@ -129,6 +132,7 @@ export default async function HomePage({ params }: HomePageProps) {
       locale={locale}
       sessionEmail={sessionEmail}
       blogEnabled={blogEnabled}
+      merchEnabled={merchEnabled}
       suppressHeader={marketingShell}
       suppressPwaHeader={marketingShell}
       suppressMarketingShellFooter={marketingLandingSuppressesShellFooter(

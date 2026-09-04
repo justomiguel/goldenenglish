@@ -17,6 +17,7 @@ interface LandingMainSectionsNagoProps {
   sessionEmail: string | null;
   mediaMap?: LandingMediaMap;
   blogEnabled?: boolean;
+  merchEnabled?: boolean;
   publicCtaMode?: PublicCtaMode;
   inscriptionsEnabled?: boolean;
 }
@@ -28,6 +29,7 @@ export function LandingMainSectionsNago({
   sessionEmail,
   mediaMap,
   blogEnabled = false,
+  merchEnabled = false,
   publicCtaMode,
   inscriptionsEnabled,
 }: LandingMainSectionsNagoProps) {
@@ -50,6 +52,8 @@ export function LandingMainSectionsNago({
         overlayHero
         showBlogLink={blogEnabled}
         blogLabel={blogEnabled ? dict.blog.list.title : undefined}
+        showShopLink={merchEnabled}
+        shopLabel={merchEnabled ? dict.shop.catalog.title : undefined}
         showEventsLink
         eventsLabel={marketingLandingCopy(dict, "nago", "nav.eventos")}
         labels={nagoSiteHeaderLabels(dict)}

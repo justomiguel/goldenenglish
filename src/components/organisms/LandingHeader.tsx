@@ -14,6 +14,7 @@ interface LandingHeaderProps {
   locale: string;
   sessionEmail: string | null;
   blogEnabled?: boolean;
+  merchEnabled?: boolean;
   /** Public events list at /{locale}/events (no feature flag yet). */
   showEventsLink?: boolean;
 }
@@ -29,6 +30,7 @@ export function LandingHeader({
   locale,
   sessionEmail,
   blogEnabled = false,
+  merchEnabled = false,
   showEventsLink = true,
 }: LandingHeaderProps) {
   const [open, setOpen] = useState(false);
@@ -44,6 +46,9 @@ export function LandingHeader({
       : []),
     ...(blogEnabled
       ? [{ href: `${prefix}/blog`, label: dict.blog.list.title }]
+      : []),
+    ...(merchEnabled
+      ? [{ href: `${prefix}/tienda`, label: dict.shop.catalog.title }]
       : []),
     { href: `${prefix}#contacto`, label: dict.nav.contact },
   ];

@@ -59,4 +59,30 @@ describe("AdminSidebar contents navigation", () => {
       "/en/dashboard/admin/cms/blog",
     );
   });
+
+  it("lists merch when includeMerchNav", () => {
+    const { rerender } = render(
+      <AdminSidebarNavContent
+        locale="en"
+        dict={dictEn.dashboard.adminNav}
+        newRegistrationsCount={0}
+        recentInboundMessagesCount={0}
+      />,
+    );
+    expect(screen.queryByRole("link", { name: dictEn.dashboard.adminNav.merch })).toBeNull();
+
+    rerender(
+      <AdminSidebarNavContent
+        locale="en"
+        dict={dictEn.dashboard.adminNav}
+        newRegistrationsCount={0}
+        recentInboundMessagesCount={0}
+        includeMerchNav
+      />,
+    );
+    expect(screen.getByRole("link", { name: dictEn.dashboard.adminNav.merch })).toHaveAttribute(
+      "href",
+      "/en/dashboard/admin/merch",
+    );
+  });
 });

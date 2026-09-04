@@ -29,4 +29,19 @@ describe("buildAdminSidebarNavGroups — email templates and blog stay off the d
     expect(hrefs).not.toContain(`${base}/cms/blog`);
     expect(hrefs).toContain(`${base}/events`);
   });
+
+  it("lists merch when includeMerchNav", () => {
+    const groups = buildAdminSidebarNavGroups(base, profile, dictEn.dashboard.adminNav, badgesZero, {
+      includeMerchNav: true,
+    });
+    const hrefs = groups.flatMap((g) => g.items.map((i) => i.href));
+    expect(hrefs).toContain(`${base}/merch`);
+  });
+
+  it("omits merch when includeMerchNav is off", () => {
+    const groups = buildAdminSidebarNavGroups(base, profile, dictEn.dashboard.adminNav, badgesZero);
+    const hrefs = groups.flatMap((g) => g.items.map((i) => i.href));
+    expect(hrefs).not.toContain(`${base}/merch`);
+    expect(hrefs).toContain(`${base}/events`);
+  });
 });

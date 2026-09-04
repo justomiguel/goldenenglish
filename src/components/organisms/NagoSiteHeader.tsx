@@ -21,6 +21,8 @@ export interface NagoSiteHeaderProps {
   sessionEmail: string | null;
   showBlogLink?: boolean;
   blogLabel?: string;
+  showShopLink?: boolean;
+  shopLabel?: string;
   showEventsLink?: boolean;
   eventsLabel?: string;
   overlayHero?: boolean;
@@ -38,6 +40,8 @@ export function NagoSiteHeader({
   sessionEmail,
   showBlogLink = false,
   blogLabel,
+  showShopLink = false,
+  shopLabel,
   showEventsLink = true,
   eventsLabel,
   overlayHero = false,
@@ -64,6 +68,9 @@ export function NagoSiteHeader({
     { href: `${prefix}#galeria`, label: labels.galeria },
     ...(showBlogLink && blogLabel
       ? [{ href: `${prefix}/blog`, label: blogLabel }]
+      : []),
+    ...(showShopLink && shopLabel
+      ? [{ href: `${prefix}/tienda`, label: shopLabel }]
       : []),
     { href: `${prefix}#contacto`, label: labels.contacto },
   ];

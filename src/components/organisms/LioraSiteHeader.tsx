@@ -14,9 +14,10 @@ export interface LioraSiteHeaderProps {
   logoAlt: string;
   dict: Dictionary;
   sessionEmail: string | null;
-  /** When set, adds a link to the public blog in desktop and mobile nav. */
   showBlogLink?: boolean;
   blogLabel?: string;
+  showShopLink?: boolean;
+  shopLabel?: string;
   showEventsLink?: boolean;
   eventsLabel?: string;
   /** Site setup URLs (`social.*`); fall back to the dictionary when empty. */
@@ -46,6 +47,8 @@ export function LioraSiteHeader({
   sessionEmail,
   showBlogLink = false,
   blogLabel,
+  showShopLink = false,
+  shopLabel,
   showEventsLink = true,
   eventsLabel,
   instagramUrl,
@@ -72,9 +75,8 @@ export function LioraSiteHeader({
     ...(showEventsLink
       ? [{ href: `${prefix}/events`, label: eventsLabel ?? labels.eventos }]
       : []),
-    ...(showBlogLink && blogLabel
-      ? [{ href: `${prefix}/blog`, label: blogLabel }]
-      : []),
+    ...(showBlogLink && blogLabel ? [{ href: `${prefix}/blog`, label: blogLabel }] : []),
+    ...(showShopLink && shopLabel ? [{ href: `${prefix}/tienda`, label: shopLabel }] : []),
     { href: `${prefix}#contacto`, label: labels.contacto },
   ];
 

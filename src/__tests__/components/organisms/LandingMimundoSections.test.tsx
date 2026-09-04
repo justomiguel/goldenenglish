@@ -115,4 +115,16 @@ describe("LandingMimundoSections — smoke", () => {
       screen.getByRole("link", { name: dictEn.blog.list.title }),
     ).toHaveAttribute("href", "/en/blog");
   });
+
+  it("shows Shop in the footer only when merch is enabled", () => {
+    const { rerender } = render(<LandingMimundoSections {...defaultProps} />);
+    expect(
+      screen.queryByRole("link", { name: dictEn.shop.catalog.title }),
+    ).toBeNull();
+
+    rerender(<LandingMimundoSections {...defaultProps} merchEnabled />);
+    expect(
+      screen.getByRole("link", { name: dictEn.shop.catalog.title }),
+    ).toHaveAttribute("href", "/en/tienda");
+  });
 });

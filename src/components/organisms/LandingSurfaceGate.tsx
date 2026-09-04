@@ -21,6 +21,7 @@ interface LandingSurfaceGateProps {
   /** Same meaning as `LandingScreenDesktop.suppressHeader`. */
   suppressHeader?: boolean;
   blogEnabled?: boolean;
+  merchEnabled?: boolean;
   /** Pie PWA alineado a plantillas marketing full-bleed. */
   marketingFullBleedShell?: boolean;
   marketingLandingFooterBrand?: MarketingLandingBrand;
@@ -36,6 +37,7 @@ export function LandingSurfaceGate({
   suppressPwaHeader = false,
   suppressHeader = false,
   blogEnabled = false,
+  merchEnabled = false,
   marketingFullBleedShell = false,
   marketingLandingFooterBrand,
   suppressMarketingShellFooter = false,
@@ -47,6 +49,7 @@ export function LandingSurfaceGate({
       locale={locale}
       sessionEmail={sessionEmail}
       blogEnabled={blogEnabled}
+      merchEnabled={merchEnabled}
       suppressHeader={suppressHeader}
       suppressMarketingShellFooter={suppressMarketingShellFooter}
       marketingFullBleedShell={marketingFullBleedShell}

@@ -182,6 +182,25 @@ describe("tenant landing headers — PWA visibility", () => {
       );
     });
 
+    it("shows shop link when showShopLink", () => {
+      render(
+        <NagoSiteHeader
+          locale="es"
+          logoSrc="/images/logo.png"
+          logoAlt="Logo"
+          dict={dictEn}
+          sessionEmail={null}
+          showShopLink
+          shopLabel={dictEn.shop.catalog.title}
+          labels={nagoLabels}
+        />,
+      );
+      expect(screen.getByRole("link", { name: dictEn.shop.catalog.title })).toHaveAttribute(
+        "href",
+        "/es/tienda",
+      );
+    });
+
     it("includes Account section with Dashboard + SignOut when logged in", async () => {
       const user = userEvent.setup();
       void mockBrandPublic;

@@ -27,6 +27,8 @@ export interface MozarthitosSiteHeaderProps {
   sessionEmail: string | null;
   showBlogLink?: boolean;
   blogLabel?: string;
+  showShopLink?: boolean;
+  shopLabel?: string;
   showEventsLink?: boolean;
   eventsLabel?: string;
   /** Fragment ids for in-page nav (default: quienes, cursos, sedes, contacto). */
@@ -51,6 +53,8 @@ export function MozarthitosSiteHeader({
   sessionEmail,
   showBlogLink = false,
   blogLabel,
+  showShopLink = false,
+  shopLabel,
   showEventsLink = false,
   eventsLabel,
   navSectionIds,
@@ -71,6 +75,9 @@ export function MozarthitosSiteHeader({
       : []),
     ...(showBlogLink && blogLabel
       ? [{ href: `${prefix}/blog`, label: blogLabel }]
+      : []),
+    ...(showShopLink && shopLabel
+      ? [{ href: `${prefix}/tienda`, label: shopLabel }]
       : []),
     { href: `${prefix}#${k}`, label: labels.contacto },
   ];
