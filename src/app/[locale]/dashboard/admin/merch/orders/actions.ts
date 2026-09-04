@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { requireMerchAdmin, merchLocaleSchema } from "@/app/[locale]/dashboard/admin/merch/merchActionShared";
+import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { notifyShopEmail } from "@/lib/shop/notifyShopEmail";
 import { canTransitionShopOrder } from "@/lib/shop/shopOrderStatus";
 import {
@@ -48,7 +49,10 @@ export async function transitionAdminShopOrder(
     .from("shop_orders")
     .update(shopOrderTransitionPatch(parsed.data.to, new Date().toISOString()))
     .eq("id", parsed.data.orderId);
-  if (error) return { ok: false, code: "save_failed" };
+  if (error) {
+    logSupabaseClientError("transitionAdminShopOrder", error, { orderId: parsed.data.orderId });
+    return { ok: false, code: "save_failed" };
+  }
 
   if (parsed.data.to === "ready_for_pickup") {
     const to = String(row.buyer_email ?? "").trim();
@@ -110,7 +114,10 @@ export async function assignAdminShopOrder(
     .from("shop_orders")
     .update({ assignee_student_id: studentId })
     .eq("id", parsed.data.orderId);
-  if (error) return { ok: false, code: "save_failed" };
+  if (error) {
+    logSupabaseClientError("assignAdminShopOrder", error, { orderId: parsed.data.orderId });
+    return { ok: false, code: "save_failed" };
+  }
   revalidateShopOrderViews(parsed.data.locale);
   return { ok: true };
 }

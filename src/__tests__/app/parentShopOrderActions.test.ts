@@ -17,8 +17,13 @@ vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => ({ from: mocks.adminFrom }),
 }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("@/lib/logging/serverActionLog", () => ({
+  logSupabaseClientError: vi.fn(),
+  logServerAuthzDenied: vi.fn(),
+}));
 
 import { assignParentShopOrder } from "@/app/[locale]/dashboard/parent/shop/orders/actions";
+import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 const ORDER_ID = "00000000-0000-4000-8000-000000000011";
 const CHILD_ID = "00000000-0000-4000-8000-000000000033";
@@ -92,5 +97,23 @@ describe("assignParentShopOrder", () => {
     });
     expect(r).toEqual({ ok: true });
     expect(mocks.adminFrom).toHaveBeenCalledWith("shop_orders");
+  });
+
+  it("logs save_failed when the assign update errors", async () => {
+    const eq = vi.fn().mockResolvedValue({ error: { message: "fail" } });
+    mocks.adminFrom.mockReturnValue({
+      update: vi.fn().mockReturnValue({ eq }),
+    });
+    const r = await assignParentShopOrder({
+      locale: "en",
+      orderId: ORDER_ID,
+      studentId: CHILD_ID,
+    });
+    expect(r).toEqual({ ok: false, code: "save_failed" });
+    expect(logSupabaseClientError).toHaveBeenCalledWith(
+      "assignParentShopOrder",
+      { message: "fail" },
+      { orderId: ORDER_ID },
+    );
   });
 });

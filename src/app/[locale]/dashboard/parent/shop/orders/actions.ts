@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { logServerAuthzDenied } from "@/lib/logging/serverActionLog";
+import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import {
   isAssignableShopOrderStatus,
   mayAssignShopOrder,
@@ -76,7 +76,10 @@ export async function assignParentShopOrder(
     .from("shop_orders")
     .update({ assignee_student_id: studentId })
     .eq("id", parsed.data.orderId);
-  if (error) return { ok: false, code: "save_failed" };
+  if (error) {
+    logSupabaseClientError("assignParentShopOrder", error, { orderId: parsed.data.orderId });
+    return { ok: false, code: "save_failed" };
+  }
 
   revalidatePath(`/${parsed.data.locale}/dashboard/parent/shop/orders`);
   revalidatePath(`/${parsed.data.locale}/dashboard/student/shop/orders`);

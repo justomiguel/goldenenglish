@@ -14,11 +14,16 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/shop/notifyShopEmail", () => ({
   notifyShopEmail: (...args: unknown[]) => mocks.notify(...args),
 }));
+vi.mock("@/lib/logging/serverActionLog", () => ({
+  logSupabaseClientError: vi.fn(),
+  logServerAuthzDenied: vi.fn(),
+}));
 
 import {
   assignAdminShopOrder,
   transitionAdminShopOrder,
 } from "@/app/[locale]/dashboard/admin/merch/orders/actions";
+import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 const ORDER_ID = "00000000-0000-4000-8000-000000000011";
 const STUDENT_ID = "00000000-0000-4000-8000-000000000022";
@@ -131,6 +136,31 @@ describe("transitionAdminShopOrder", () => {
     expect(update.update).toHaveBeenCalledWith({ status: "cancelled" });
     expect(mocks.notify).not.toHaveBeenCalled();
   });
+
+  it("logs save_failed when the status update errors", async () => {
+    const select = selectOrder({
+      status: "paid",
+      buyer_email: "ada@school.cl",
+      pay_token: "tok",
+    });
+    const update = updateOrder(false);
+    mocks.from.mockImplementation((table: string) => {
+      if (table === "shop_orders") return { ...select, ...update };
+      throw new Error(`unexpected ${table}`);
+    });
+    const r = await transitionAdminShopOrder({
+      locale: "en",
+      orderId: ORDER_ID,
+      to: "cancelled",
+    });
+    expect(r).toEqual({ ok: false, code: "save_failed" });
+    expect(logSupabaseClientError).toHaveBeenCalledWith(
+      "transitionAdminShopOrder",
+      { message: "fail" },
+      { orderId: ORDER_ID },
+    );
+    expect(mocks.notify).not.toHaveBeenCalled();
+  });
 });
 
 describe("assignAdminShopOrder", () => {
@@ -163,5 +193,40 @@ describe("assignAdminShopOrder", () => {
     });
     expect(r).toEqual({ ok: true });
     expect(update.update).toHaveBeenCalledWith({ assignee_student_id: STUDENT_ID });
+  });
+
+  it("logs save_failed when the assign update errors", async () => {
+    const select = selectOrder({
+      status: "paid",
+      buyer_id: "buyer-1",
+    });
+    const update = updateOrder(false);
+    mocks.from.mockImplementation((table: string) => {
+      if (table === "shop_orders") return { ...select, ...update };
+      if (table === "profiles") {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({
+                data: { role: "student" },
+                error: null,
+              }),
+            }),
+          }),
+        };
+      }
+      throw new Error(`unexpected ${table}`);
+    });
+    const r = await assignAdminShopOrder({
+      locale: "en",
+      orderId: ORDER_ID,
+      studentId: STUDENT_ID,
+    });
+    expect(r).toEqual({ ok: false, code: "save_failed" });
+    expect(logSupabaseClientError).toHaveBeenCalledWith(
+      "assignAdminShopOrder",
+      { message: "fail" },
+      { orderId: ORDER_ID },
+    );
   });
 });

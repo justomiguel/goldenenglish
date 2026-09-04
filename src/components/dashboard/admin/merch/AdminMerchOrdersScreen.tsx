@@ -8,6 +8,7 @@ import {
   assignAdminShopOrder,
   transitionAdminShopOrder,
 } from "@/app/[locale]/dashboard/admin/merch/orders/actions";
+import { ConfirmActionModal } from "@/components/molecules/ConfirmActionModal";
 import type { AdminShopOrderRow } from "@/lib/shop/loadAdminShopOrders";
 import type { AdminShopTransition } from "@/lib/shop/shopOrderActionShared";
 import type { ShopOrderStatus } from "@/lib/shop/types";
@@ -52,6 +53,7 @@ export function AdminMerchOrdersScreen({
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
   const base = `/${locale}/dashboard/admin/merch`;
 
   async function run(task: () => Promise<{ ok: true } | { ok: false; code: string }>) {
@@ -100,7 +102,10 @@ export function AdminMerchOrdersScreen({
               statusLabels={statusLabels}
               busy={busy}
               onTransition={(to) => {
-                if (to === "cancelled" && !window.confirm(labels.cancelConfirm)) return;
+                if (to === "cancelled") {
+                  setCancelOrderId(row.id);
+                  return;
+                }
                 void run(() => transitionAdminShopOrder({ locale, orderId: row.id, to }));
               }}
               onAssign={(studentId) => {
@@ -110,6 +115,24 @@ export function AdminMerchOrdersScreen({
           ))}
         </ul>
       )}
+      <ConfirmActionModal
+        open={cancelOrderId !== null}
+        onOpenChange={(open) => {
+          if (!open) setCancelOrderId(null);
+        }}
+        title={labels.markCancel}
+        description={labels.cancelConfirm}
+        cancelLabel={labels.modalCancel}
+        confirmLabel={labels.markCancel}
+        confirmVariant="destructive"
+        busy={busy}
+        onConfirm={() => {
+          if (!cancelOrderId) return;
+          void run(() =>
+            transitionAdminShopOrder({ locale, orderId: cancelOrderId, to: "cancelled" }),
+          ).then(() => setCancelOrderId(null));
+        }}
+      />
     </div>
   );
 }
