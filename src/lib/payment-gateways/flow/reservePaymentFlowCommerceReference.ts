@@ -97,3 +97,20 @@ export async function reservePaymentFlowCommerceReferenceForEnrollment(
 
   return { ok: true, commerceRef: data.trim() };
 }
+
+/** Reserves a MERCH-yyyy-serial Flow commerceOrder mapped to a shop order. */
+export async function reservePaymentFlowCommerceReferenceForMerch(
+  admin: SupabaseClient,
+  shopOrderId: string,
+): Promise<{ ok: true; commerceRef: string } | { ok: false }> {
+  const { data, error } = await admin.rpc("payment_flow_reserve_commerce_ref_merch", {
+    p_shop_order_id: shopOrderId,
+  });
+  if (error || typeof data !== "string" || data.trim().length < 12) {
+    logSupabaseClientError("reservePaymentFlowCommerceReferenceForMerch:rpc", error ?? {}, {
+      shop_order_id: shopOrderId,
+    });
+    return { ok: false };
+  }
+  return { ok: true, commerceRef: data.trim() };
+}

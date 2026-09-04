@@ -27,3 +27,27 @@ export type CanAssignShopOrderInput = {
   childIds: readonly string[];
   studentId: string;
 };
+
+export type ShopCheckoutGateway = "flow" | "mercadopago";
+
+export type ShopCheckoutLine = {
+  variantId: string;
+  quantity: number;
+};
+
+export type ShopCheckoutFailCode =
+  | "flag_off"
+  | "empty_cart"
+  | "insufficient_stock"
+  | "inactive_variant"
+  | "no_gateway"
+  | "student_forbidden";
+
+export type StartShopCheckoutResult =
+  | { ok: true; redirectUrl: string; payToken: string }
+  | { ok: false; code: ShopCheckoutFailCode };
+
+export type EnsureGuestShopperParentResult =
+  | { kind: "created"; profileId: string; tempPassword: string }
+  | { kind: "existing_parent"; profileId: string }
+  | { kind: "wrong_role" };

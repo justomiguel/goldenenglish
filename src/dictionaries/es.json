@@ -11535,6 +11535,17 @@
       "buy": "Comprar",
       "unavailable": "Esta opción no tiene stock."
     },
+    "checkout": {
+      "title": "Pagar",
+      "pickup": "Retiro en el instituto. Te avisamos por correo cuando esté listo.",
+      "email": "Correo",
+      "emailHint": "Si no tienes cuenta, creamos un perfil de apoderado.",
+      "payFlow": "Pagar con Flow",
+      "payMercadoPago": "Pagar con Mercado Pago",
+      "noGateway": "El pago en línea no está configurado. Contacta al instituto.",
+      "studentForbidden": "Los estudiantes no pueden pagar. Pide a un apoderado que complete la compra.",
+      "error": "No pudimos iniciar el pago. Revisa el stock e inténtalo de nuevo."
+    },
     "order": {
       "title": "Tu pedido",
       "pickup": "Retiro en el instituto. Te avisamos por correo cuando esté listo.",

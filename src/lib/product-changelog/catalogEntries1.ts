@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "merch-checkout-guest-parent",
+    date: "2026-09-04",
+    area: "site",
+    title: t(
+      "Checkout de merchandising y cuenta de apoderado invitada",
+      "Merch checkout and guest parent account",
+      "Checkout de merchandising e conta de encarregado convidado",
+    ),
+    summary: t(
+      "Las familias pagan uniformes y kits con Flow o Mercado Pago. Un correo nuevo crea un apoderado; un estudiante no puede pagar.",
+      "Families pay for uniforms and kits with Flow or Mercado Pago. A new email becomes a parent; a student cannot pay.",
+      "As famílias pagam uniformes e kits com Flow ou Mercado Pago. Um e-mail novo cria um encarregado; um estudante não pode pagar.",
+    ),
+  },
+  {
     id: "public-merch-shop",
     date: "2026-09-04",
     area: "site",

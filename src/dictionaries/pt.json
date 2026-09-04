@@ -11336,6 +11336,17 @@
       "buy": "Comprar",
       "unavailable": "Esta opção está esgotada."
     },
+    "checkout": {
+      "title": "Pagamento",
+      "pickup": "Levantamento no instituto. Enviamos um e-mail quando estiver pronto.",
+      "email": "E-mail",
+      "emailHint": "Se não tiver conta, criamos um perfil de encarregado.",
+      "payFlow": "Pagar com Flow",
+      "payMercadoPago": "Pagar com Mercado Pago",
+      "noGateway": "O pagamento online não está configurado. Contacte o instituto.",
+      "studentForbidden": "Os estudantes não podem pagar. Peça a um encarregado para concluir a compra.",
+      "error": "Não foi possível iniciar o pagamento. Verifique o stock e tente novamente."
+    },
     "order": {
       "title": "O seu pedido",
       "pickup": "Levantamento no instituto. Enviamos um e-mail quando estiver pronto.",

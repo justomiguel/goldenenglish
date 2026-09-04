@@ -11535,6 +11535,17 @@
       "buy": "Buy",
       "unavailable": "This option is out of stock."
     },
+    "checkout": {
+      "title": "Checkout",
+      "pickup": "Pickup at the institute. We email you when the order is ready.",
+      "email": "Email",
+      "emailHint": "We will create a parent account if you do not have one.",
+      "payFlow": "Pay with Flow",
+      "payMercadoPago": "Pay with Mercado Pago",
+      "noGateway": "Online payment is not configured. Contact the institute.",
+      "studentForbidden": "Students cannot pay. Ask a parent to complete the purchase.",
+      "error": "We could not start payment. Check stock and try again."
+    },
     "order": {
       "title": "Your order",
       "pickup": "Pickup at the institute. We will email you when it is ready.",
