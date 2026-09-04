@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { expireStaleShopOrders } from "@/lib/shop/expireStaleShopOrders";
 import { mapPublicShopOrder, type PublicShopOrder } from "@/lib/shop/mapPublicShopOrder";
 
 const ORDER_SELECT =
@@ -9,6 +10,7 @@ const ORDER_SELECT =
 export async function loadShopOrderByPayToken(token: string): Promise<PublicShopOrder | null> {
   const payToken = token.trim();
   if (!payToken) return null;
+  await expireStaleShopOrders();
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("shop_orders")

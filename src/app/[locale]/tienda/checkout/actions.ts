@@ -112,6 +112,7 @@ async function sendGuestShopMail(input: {
     await notifyShopEmail({
       to: input.email,
       key: "shop.guest_account_created",
+      locale: input.locale,
       vars: {
         password: input.guest.tempPassword,
         signInUrl: `${origin}/${input.locale}/login`,
@@ -123,6 +124,7 @@ async function sendGuestShopMail(input: {
   await notifyShopEmail({
     to: input.email,
     key: "shop.order_started",
+    locale: input.locale,
     vars: { orderUrl },
   });
 }

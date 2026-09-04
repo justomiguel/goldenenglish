@@ -28,6 +28,7 @@ import {
 } from "@/lib/email/templates/registryNotifications";
 import { REGISTRATION_EMAIL_TEMPLATES } from "@/lib/email/templates/registryRegistration";
 import { EVENTS_EMAIL_TEMPLATES } from "@/lib/email/templates/registryEvents";
+import { SHOP_EMAIL_TEMPLATES } from "@/lib/email/templates/registryShop";
 import {
   adminPasswordResetNoticeTemplate,
   passwordResetTemplate,
@@ -62,6 +63,7 @@ const REGISTRY: ReadonlyArray<EmailTemplateDefinition> = [
   adminPasswordResetNoticeTemplate,
   ...REGISTRATION_EMAIL_TEMPLATES,
   ...EVENTS_EMAIL_TEMPLATES,
+  ...SHOP_EMAIL_TEMPLATES,
 ];
 
 const REGISTRY_BY_KEY = new Map<EmailTemplateKey, EmailTemplateDefinition>(

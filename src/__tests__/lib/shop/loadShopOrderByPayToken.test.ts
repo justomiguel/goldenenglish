@@ -1,10 +1,14 @@
 /** @vitest-environment node */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { expireStaleShopOrders } from "@/lib/shop/expireStaleShopOrders";
 import { loadShopOrderByPayToken } from "@/lib/shop/loadShopOrderByPayToken";
 
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: vi.fn(),
+}));
+vi.mock("@/lib/shop/expireStaleShopOrders", () => ({
+  expireStaleShopOrders: vi.fn(),
 }));
 
 function adminClient(data: unknown, error: unknown = null) {
@@ -20,11 +24,22 @@ function adminClient(data: unknown, error: unknown = null) {
 describe("loadShopOrderByPayToken", () => {
   beforeEach(() => {
     vi.mocked(createAdminClient).mockReset();
+    vi.mocked(expireStaleShopOrders).mockReset();
+    vi.mocked(expireStaleShopOrders).mockResolvedValue(undefined);
   });
 
   it("returns null for a blank token", async () => {
     await expect(loadShopOrderByPayToken("  ")).resolves.toBeNull();
     expect(createAdminClient).not.toHaveBeenCalled();
+    expect(expireStaleShopOrders).not.toHaveBeenCalled();
+  });
+
+  it("expires stale pending orders before loading by token", async () => {
+    vi.mocked(createAdminClient).mockReturnValue(
+      adminClient(null, { message: "down" }) as never,
+    );
+    await expect(loadShopOrderByPayToken("tok-1")).resolves.toBeNull();
+    expect(expireStaleShopOrders).toHaveBeenCalledTimes(1);
   });
 
   it("returns null when the token query fails", async () => {
@@ -59,6 +74,7 @@ describe("loadShopOrderByPayToken", () => {
       }) as never,
     );
     const order = await loadShopOrderByPayToken("tok-1");
+    expect(expireStaleShopOrders).toHaveBeenCalledTimes(1);
     expect(order?.status).toBe("paid");
     expect(order?.items[0]?.title).toBe("Hoodie");
     expect(order && "buyerEmail" in order).toBe(false);
