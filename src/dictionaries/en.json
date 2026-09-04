@@ -11517,5 +11517,38 @@
       "report": "Report",
       "rateLimited": "Too many comments. Try again later."
     }
+  },
+  "shop": {
+    "catalog": {
+      "title": "Shop",
+      "lead": "Uniforms, books, and kits. Pickup at the institute.",
+      "empty": "No products available right now.",
+      "soldOut": "Sold out",
+      "viewProduct": "View product"
+    },
+    "product": {
+      "back": "Back to shop",
+      "size": "Size",
+      "color": "Color",
+      "price": "Price",
+      "soldOut": "Sold out",
+      "buy": "Buy",
+      "unavailable": "This option is out of stock."
+    },
+    "order": {
+      "title": "Your order",
+      "pickup": "Pickup at the institute. We will email you when it is ready.",
+      "items": "Items",
+      "total": "Total",
+      "quantity": "Quantity",
+      "status": {
+        "pending_payment": "Payment pending",
+        "paid": "Paid",
+        "ready_for_pickup": "Ready for pickup",
+        "picked_up": "Picked up",
+        "expired": "Expired",
+        "cancelled": "Cancelled"
+      }
+    }
   }
 }

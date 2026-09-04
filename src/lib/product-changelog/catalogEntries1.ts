@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "public-merch-shop",
+    date: "2026-09-04",
+    area: "site",
+    title: t(
+      "Tienda pública de merchandising y estado del pedido",
+      "Public merch shop and order status",
+      "Loja pública de merchandising e estado do pedido",
+    ),
+    summary: t(
+      "Cuando merch está activo, las familias ven el catálogo en /tienda y el estado de retiro con el token del pedido.",
+      "When merch is on, families can browse /tienda and check pickup status with the order token.",
+      "Quando merch está ativo, as famílias veem o catálogo em /tienda e o estado de levantamento com o token do pedido.",
+    ),
+  },
+  {
     id: "admin-merch-catalog",
     date: "2026-09-04",
     area: "admin",

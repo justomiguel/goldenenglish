@@ -11517,5 +11517,38 @@
       "report": "Reportar",
       "rateLimited": "Demasiados comentarios. Probá más tarde."
     }
+  },
+  "shop": {
+    "catalog": {
+      "title": "Tienda",
+      "lead": "Uniformes, libros y kits. Retiro en el instituto.",
+      "empty": "No hay productos disponibles por ahora.",
+      "soldOut": "Sin stock",
+      "viewProduct": "Ver producto"
+    },
+    "product": {
+      "back": "Volver a la tienda",
+      "size": "Talle",
+      "color": "Color",
+      "price": "Precio",
+      "soldOut": "Sin stock",
+      "buy": "Comprar",
+      "unavailable": "Esta opción no tiene stock."
+    },
+    "order": {
+      "title": "Tu pedido",
+      "pickup": "Retiro en el instituto. Te avisamos por correo cuando esté listo.",
+      "items": "Artículos",
+      "total": "Total",
+      "quantity": "Cantidad",
+      "status": {
+        "pending_payment": "Pago pendiente",
+        "paid": "Pagado",
+        "ready_for_pickup": "Listo para retirar",
+        "picked_up": "Retirado",
+        "expired": "Vencido",
+        "cancelled": "Cancelado"
+      }
+    }
   }
 }

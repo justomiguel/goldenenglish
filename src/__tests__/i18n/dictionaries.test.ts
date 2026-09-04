@@ -203,6 +203,18 @@ describe("getDictionary", () => {
     expect(pt.admin.registrations.nagoExtrasTitle).toBeTruthy();
   });
 
+  it("includes public shop catalog and order copy in en, es, and pt", async () => {
+    const en = await getDictionary("en");
+    const es = await getDictionary("es");
+    const pt = await getDictionary("pt");
+    expect(en.shop.catalog.title).toBeTruthy();
+    expect(es.shop.catalog.soldOut).toBeTruthy();
+    expect(pt.shop.product.buy).toBeTruthy();
+    expect(en.shop.order.status.ready_for_pickup).toBeTruthy();
+    expect(es.shop.order.status.pending_payment).toBeTruthy();
+    expect(pt.shop.order.pickup).toBeTruthy();
+  });
+
   it("falls back to default for unknown locale", async () => {
     const d = await getDictionary("xx");
     const fallback = await getDictionary(defaultLocale);
