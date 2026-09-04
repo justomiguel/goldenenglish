@@ -8,10 +8,12 @@ export function StaffDrawerSignOut({
   locale,
   label,
   title,
+  tourAnchor,
 }: {
   locale: string;
   label: string;
   title: string;
+  tourAnchor?: string;
 }) {
   return (
     <div className="mt-auto shrink-0 border-t border-[var(--color-border)] px-3 py-3">
@@ -19,6 +21,7 @@ export function StaffDrawerSignOut({
         locale={locale}
         label={label}
         title={title}
+        tourAnchor={tourAnchor}
         className={railClass}
         iconClassName={railIconClass}
       />

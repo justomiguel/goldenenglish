@@ -5078,7 +5078,9 @@
       "bellAria": "Avisos",
       "bellEmpty": "Nada pendiente.",
       "bellMessages": "Mensajes recientes",
-      "bellRegistrations": "Inscripciones nuevas"
+      "bellRegistrations": "Inscripciones nuevas",
+      "headerMessages": "Mensajes",
+      "headerMessagesAria": "Abrir bandeja de mensajes"
     },
     "viewAs": {
       "ariaSelector": "Rol del espacio de trabajo",

@@ -63,6 +63,7 @@ export function AdminSidebar({
         locale={locale}
         label={fullDict.nav.logout}
         title={fullDict.dashboard.adminChrome.signOutHint}
+        tourAnchor="admin-chrome-sign-out"
       />
     </aside>
   );

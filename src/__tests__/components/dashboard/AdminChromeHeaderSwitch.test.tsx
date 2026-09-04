@@ -56,5 +56,28 @@ describe("AdminChromeHeader workspace switch", () => {
     );
     expect(screen.queryByRole("navigation", { name: dictEn.common.locale.label })).toBeNull();
     expect(screen.queryByRole("link", { name: dictEn.dashboard.adminChrome.backToSite })).not.toBeNull();
+    expect(
+      screen.getByRole("link", { name: dictEn.dashboard.adminChrome.headerMessagesAria }),
+    ).toHaveAttribute("href", "/en/dashboard/admin/messages");
+    expect(screen.queryByRole("button", { name: dictEn.nav.logout })).toBeNull();
+  });
+
+  it("shows an inbound-message badge next to the bell", () => {
+    render(
+      <AdminChromeHeader
+        locale="en"
+        brand={mockBrandPublic}
+        dict={dictEn}
+        adminProfileRole="admin"
+        teacherPortalAllowed
+        compactBrand
+        newRegistrationsCount={0}
+        recentInboundMessagesCount={4}
+      />,
+    );
+    const messages = screen.getByRole("link", {
+      name: dictEn.dashboard.adminChrome.headerMessagesAria,
+    });
+    expect(messages).toHaveTextContent("4");
   });
 });

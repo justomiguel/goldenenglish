@@ -24,6 +24,7 @@ describe("AdminSidebar contents navigation", () => {
     );
 
     expect(screen.queryByRole("link", { name: dictEn.dashboard.adminNav.contents })).toBeNull();
+    expect(screen.queryByRole("link", { name: dictEn.dashboard.adminNav.messages })).toBeNull();
     expect(screen.getByRole("link", { name: dictEn.dashboard.adminNav.institute })).toHaveAttribute(
       "href",
       "/en/dashboard/admin/institute",

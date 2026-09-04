@@ -22,7 +22,6 @@ const dailyHrefs = [
   `${base}/registrations`,
   academicHub,
   `${base}/finance`,
-  `${base}/messages`,
   `${base}/events`,
   `${base}/cms/blog`,
   `${base}/merch`,

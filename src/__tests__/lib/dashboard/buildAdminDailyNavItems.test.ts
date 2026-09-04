@@ -27,7 +27,6 @@ describe("buildAdminDailyNavItems", () => {
       `${BASE}/registrations`,
       `${BASE}/academic`,
       `${BASE}/finance`,
-      `${BASE}/messages`,
       `${BASE}/events`,
       `${BASE}/institute`,
     ]);
@@ -43,7 +42,6 @@ describe("buildAdminDailyNavItems", () => {
       `${BASE}/registrations`,
       `${BASE}/academic`,
       `${BASE}/finance`,
-      `${BASE}/messages`,
       `${BASE}/events`,
       `${BASE}/cms/blog`,
       `${BASE}/institute`,
@@ -60,7 +58,6 @@ describe("buildAdminDailyNavItems", () => {
       `${BASE}/registrations`,
       `${BASE}/academic`,
       `${BASE}/finance`,
-      `${BASE}/messages`,
       `${BASE}/events`,
       `${BASE}/merch`,
       `${BASE}/institute`,
@@ -75,13 +72,13 @@ describe("buildAdminDailyNavItems", () => {
     ]);
   });
 
-  it("keeps registration and message badges", () => {
+  it("keeps the registration badge and omits messages from the daily rail", () => {
     const items = buildAdminDailyNavItems(BASE, dictEn.dashboard.adminNav, {
       newRegistrations: 4,
       recentInboundMessages: 2,
     });
     expect(items.find((i) => i.href.endsWith("/registrations"))?.badge).toBe(4);
-    expect(items.find((i) => i.href.endsWith("/messages"))?.badge).toBe(2);
+    expect(items.find((i) => i.href.endsWith("/messages"))).toBeUndefined();
   });
 
   it("puts admin-nav-users on Alumnos and admin-nav-academic on Cohortes", () => {
@@ -113,7 +110,6 @@ describe("buildAdminDailyNavItems", () => {
       "registrations",
       "academic",
       "finance",
-      "messages",
       "events",
       "institute",
     ]);

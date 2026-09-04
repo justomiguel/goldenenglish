@@ -93,13 +93,6 @@ export function buildAdminDailyNavItems(
       tip: dict.tipFinance,
     },
     {
-      href: `${base}/messages`,
-      label: dict.messages,
-      iconId: "messages",
-      badge: badges.recentInboundMessages,
-      tip: dict.tipMessages,
-    },
-    {
       href: `${base}/events`,
       label: dict.events,
       iconId: "events",

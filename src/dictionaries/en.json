@@ -5078,7 +5078,9 @@
       "bellAria": "Alerts",
       "bellEmpty": "Nothing waiting.",
       "bellMessages": "Recent messages",
-      "bellRegistrations": "New registrations"
+      "bellRegistrations": "New registrations",
+      "headerMessages": "Messages",
+      "headerMessagesAria": "Open messages inbox"
     },
     "viewAs": {
       "ariaSelector": "Workspace role",

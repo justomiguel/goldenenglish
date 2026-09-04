@@ -122,8 +122,9 @@ describe("component smoke — dashboard & forms", () => {
       />,
     );
     expect(
-      screen.getByRole("button", { name: dictEn.nav.logout }),
+      screen.getByRole("link", { name: dictEn.dashboard.adminChrome.headerMessagesAria }),
     ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: dictEn.nav.logout })).toBeNull();
   });
 
   it("AdminChromeHeader uses English tagline when locale en", () => {

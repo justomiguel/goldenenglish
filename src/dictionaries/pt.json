@@ -4880,7 +4880,9 @@
       "bellAria": "Avisos",
       "bellEmpty": "Nada pendente.",
       "bellMessages": "Mensagens recentes",
-      "bellRegistrations": "Inscrições novas"
+      "bellRegistrations": "Inscrições novas",
+      "headerMessages": "Mensagens",
+      "headerMessagesAria": "Abrir caixa de mensagens"
     },
     "viewAs": {
       "ariaSelector": "Papel do espaço de trabalho",

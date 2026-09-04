@@ -1,10 +1,9 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, MessageCircle } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
-import { SignOutButton } from "@/components/molecules/SignOutButton";
 import { AdminAttentionBell } from "@/components/dashboard/AdminAttentionBell";
 import { StaffWorkspaceSwitch } from "@/components/dashboard/StaffWorkspaceSwitch";
 
@@ -123,13 +122,19 @@ export function AdminChromeHeader({
             />
             <span className="hidden sm:inline">{labels.backToSite}</span>
           </Link>
-          <SignOutButton
-            locale={locale}
-            label={dict.nav.logout}
-            title={labels.signOutHint}
-            tourAnchor="admin-chrome-sign-out"
-            className="min-h-10 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 py-2 text-xs font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] sm:px-3 sm:text-sm"
-          />
+          <Link
+            href={`/${locale}/dashboard/admin/messages`}
+            aria-label={labels.headerMessagesAria}
+            title={labels.headerMessages}
+            className="relative inline-flex min-h-10 min-w-10 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
+          >
+            <MessageCircle className="h-4 w-4" aria-hidden strokeWidth={2} />
+            {recentInboundMessagesCount > 0 ? (
+              <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-secondary)] px-1 text-[0.6rem] font-bold leading-none text-[var(--color-secondary-foreground)]">
+                {recentInboundMessagesCount > 99 ? "99+" : recentInboundMessagesCount}
+              </span>
+            ) : null}
+          </Link>
           <AdminAttentionBell
             locale={locale}
             messagesCount={recentInboundMessagesCount}
