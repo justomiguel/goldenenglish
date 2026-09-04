@@ -192,6 +192,21 @@ describe("startShopCheckout", () => {
     expect(admin.insertOrder).not.toHaveBeenCalled();
   });
 
+  it.each(["teacher", "admin", "assistant", "site_contact", ""])(
+    "rejects a %s buyer as wrong_role without inserting an order",
+    async (buyerRole) => {
+      const admin = mockAdmin();
+      const result = await startShopCheckout({
+        ...baseInput,
+        admin: admin as never,
+        buyerRole,
+        gateway: "flow",
+      });
+      expect(result).toEqual({ ok: false, code: "wrong_role" });
+      expect(admin.insertOrder).not.toHaveBeenCalled();
+    },
+  );
+
   it("rejects when live variant stock is below the requested quantity", async () => {
     const admin = mockAdmin({
       variants: [{ ...variantRow, stock: 1 }],

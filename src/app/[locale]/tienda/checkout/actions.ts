@@ -6,7 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { loadPaymentGatewayEncryptionKeyRaw32 } from "@/lib/payment-gateways/loadPaymentGatewayEncryptionKey";
 import { ensureGuestShopperParent } from "@/lib/shop/ensureGuestShopperParent";
+import { shopCheckoutBuyerFailCode } from "@/lib/shop/shopCheckoutBuyerRole";
 import { startShopCheckout } from "@/lib/shop/startShopCheckout";
+import { validateShopCheckout } from "@/lib/shop/validateShopCheckout";
 import { notifyShopEmail } from "@/lib/shop/notifyShopEmail";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import type { ShopCheckoutFailCode, ShopCheckoutGateway, ShopCheckoutLine } from "@/lib/shop/types";
@@ -29,7 +31,6 @@ export async function startShopCheckoutAction(input: {
 
   let buyerId: string;
   let buyerEmail: string;
-  let buyerRole: string;
   let guest:
     | { kind: "created"; tempPassword: string }
     | { kind: "existing_parent" }
@@ -41,22 +42,15 @@ export async function startShopCheckoutAction(input: {
       .select("role")
       .eq("id", user.id)
       .maybeSingle();
-    buyerRole = String(profile?.role ?? "");
-    if (buyerRole === "student") return { ok: false, code: "student_forbidden" };
+    const roleFail = shopCheckoutBuyerFailCode(String(profile?.role ?? ""));
+    if (roleFail) return { ok: false, code: roleFail };
     buyerId = user.id;
     buyerEmail = (user.email ?? "").trim().toLowerCase();
   } else {
     const email = input.email?.trim() ?? "";
     if (!email) return { ok: false, code: "email_required" };
-    const ensured = await ensureGuestShopperParent({ email, admin });
-    if (ensured.kind === "wrong_role") return { ok: false, code: "student_forbidden" };
-    buyerId = ensured.profileId;
+    buyerId = "";
     buyerEmail = email.trim().toLowerCase();
-    buyerRole = "parent";
-    guest =
-      ensured.kind === "created"
-        ? { kind: "created", tempPassword: ensured.tempPassword }
-        : { kind: "existing_parent" };
   }
 
   let rawKey: Buffer;
@@ -66,12 +60,30 @@ export async function startShopCheckoutAction(input: {
     return { ok: false, code: "no_gateway" };
   }
 
+  const preview = await validateShopCheckout({
+    admin,
+    encryptionKey32: rawKey,
+    gateway: input.gateway,
+    lines: input.lines,
+  });
+  if (!preview.ok) return preview;
+
+  if (!user) {
+    const ensured = await ensureGuestShopperParent({ email: buyerEmail, admin });
+    if (ensured.kind === "wrong_role") return { ok: false, code: "wrong_role" };
+    buyerId = ensured.profileId;
+    guest =
+      ensured.kind === "created"
+        ? { kind: "created", tempPassword: ensured.tempPassword }
+        : { kind: "existing_parent" };
+  }
+
   const result = await startShopCheckout({
     admin,
     encryptionKey32: rawKey,
     buyerId,
     buyerEmail,
-    buyerRole,
+    buyerRole: "parent",
     locale: input.locale,
     gateway: input.gateway,
     lines: input.lines,

@@ -41,7 +41,8 @@ export type ShopCheckoutFailCode =
   | "insufficient_stock"
   | "inactive_variant"
   | "no_gateway"
-  | "student_forbidden";
+  | "student_forbidden"
+  | "wrong_role";
 
 export type StartShopCheckoutResult =
   | { ok: true; redirectUrl: string; payToken: string }
