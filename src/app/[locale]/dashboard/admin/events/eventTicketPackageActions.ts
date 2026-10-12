@@ -42,6 +42,8 @@ export async function addEventTicketPackageAction(raw: unknown): Promise<EventMu
 
   const { locale, eventId, name, price, capacity, benefits } = parsed.data;
   const admin = createAdminClient();
+  const eventRow = await admin.from("events").select("price_by_flow").eq("id", eventId).maybeSingle();
+  if (eventRow.data?.price_by_flow) return { ok: false, message: "price_mode_conflict" };
   const position = await nextPosition(admin, eventId);
 
   const { error } = await admin.from("event_ticket_packages").insert({

@@ -1,5 +1,6 @@
 export interface EventRegisterFormLabels {
   participantSection: string;
+  flowQuestion: string;
   firstName: string;
   lastName: string;
   dni: string;

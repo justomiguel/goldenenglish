@@ -21,6 +21,7 @@ interface EventRegisterFormFooterProps {
   fileUploadProgressSending: string;
   message: string;
   surfaceVariant?: PublicEventSurfaceVariant;
+  preview?: boolean;
 }
 
 export function EventRegisterFormFooter({
@@ -34,6 +35,7 @@ export function EventRegisterFormFooter({
   fileUploadProgressSending,
   message,
   surfaceVariant = "default",
+  preview = false,
 }: EventRegisterFormFooterProps) {
   const typography = publicEventRegisterTypography(surfaceVariant);
 
@@ -54,8 +56,8 @@ export function EventRegisterFormFooter({
       ) : null}
 
       <button
-        type="submit"
-        disabled={isPending || !consent}
+        type={preview ? "button" : "submit"}
+        disabled={preview || isPending || !consent}
         className={publicEventRegisterSubmitClass(surfaceVariant)}
       >
         <Send className="h-4 w-4" aria-hidden />

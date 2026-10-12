@@ -44,6 +44,7 @@ interface ClientOpts {
   insertError?: { message: string; code?: string } | null;
   updateError?: { message: string } | null;
   activeCount?: number;
+  priceByFlow?: boolean;
 }
 
 function buildAdminClient(opts: ClientOpts = {}) {
@@ -56,6 +57,19 @@ function buildAdminClient(opts: ClientOpts = {}) {
   const updates: { id: string; patch: Record<string, unknown> }[] = [];
 
   const from = vi.fn((table: string) => {
+    if (table === "events") {
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: () =>
+              Promise.resolve({
+                data: { price_by_flow: opts.priceByFlow === true },
+                error: null,
+              }),
+          }),
+        }),
+      };
+    }
     if (table !== "event_ticket_packages") throw new Error(`unexpected table ${table}`);
     return {
       insert: (row: Record<string, unknown>) => {
@@ -163,6 +177,17 @@ describe("event ticket package actions", () => {
           addEventTicketPackageAction({ ...validPackage, ...bad }),
         ).resolves.toMatchObject({ ok: false, message: "validation_failed" });
       }
+    });
+
+    it("refuses a package when the event already prices by flow", async () => {
+      const { client, inserted } = buildAdminClient({ priceByFlow: true });
+      createAdminClient.mockReturnValue(client);
+
+      await expect(addEventTicketPackageAction(validPackage)).resolves.toEqual({
+        ok: false,
+        message: "price_mode_conflict",
+      });
+      expect(inserted).toHaveLength(0);
     });
 
     it("accepts a package with no capacity of its own", async () => {

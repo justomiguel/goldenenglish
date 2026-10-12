@@ -12,6 +12,7 @@ import {
 } from "@/lib/events/resolveEventPriceTier";
 import type { EventFormFieldType } from "@/lib/events/types";
 
+import { loadActiveRegistrationFlows } from "@/lib/events/server/loadActiveRegistrationFlows";
 import { EVENT_ATTENDEES_LIST_PAGE_SIZE } from "@/lib/dashboard/events/eventAttendeesListConstants";
 
 export async function loadAdminEventDetailPageModel(input: {
@@ -32,7 +33,7 @@ export async function loadAdminEventDetailPageModel(input: {
   const { data: event } = await admin
     .from("events")
     .select(
-      "id, title, description, event_date, status, capacity, location, price, price_local, price_non_local, currency, default_locale, view_count, bank_transfer_instructions, collect_birth_date",
+      "id, title, description, event_date, status, capacity, location, price, price_local, price_non_local, currency, default_locale, view_count, bank_transfer_instructions, collect_birth_date, show_on_home, require_phone, require_birth_date, registration_field_order, price_by_flow",
     )
     .eq("id", input.eventId)
     .maybeSingle();
@@ -86,7 +87,7 @@ export async function loadAdminEventDetailPageModel(input: {
   });
   const { data: fields } = await admin
     .from("event_form_fields")
-    .select("id, field_key, field_type, label_i18n, options_i18n, required, position, allowed_mime_types")
+    .select("id, field_key, field_type, label_i18n, options_i18n, required, position, allowed_mime_types, flow_id")
     .eq("event_id", input.eventId)
     .is("archived_at", null)
     .order("position", { ascending: true });
@@ -113,9 +114,12 @@ export async function loadAdminEventDetailPageModel(input: {
     allowedMimeTypes: Array.isArray(field.allowed_mime_types)
       ? (field.allowed_mime_types as string[])
       : [],
+    flowId: field.flow_id == null ? null : String(field.flow_id),
   }));
   const nextFieldPosition =
     mappedFields.reduce((max, field) => Math.max(max, field.position), -1) + 1;
+
+  const registrationFlows = await loadActiveRegistrationFlows(admin, input.eventId);
 
   return {
     event,
@@ -133,5 +137,12 @@ export async function loadAdminEventDetailPageModel(input: {
     showResidencyField,
     showPaymentField,
     nextFieldPosition,
+    registrationFieldOrder: Array.isArray(event.registration_field_order)
+      ? event.registration_field_order.map((token) => String(token))
+      : [],
+    requirePhone: Boolean(event.require_phone),
+    requireBirthDate: Boolean(event.require_birth_date),
+    priceByFlow: Boolean(event.price_by_flow),
+    registrationFlows,
   };
 }

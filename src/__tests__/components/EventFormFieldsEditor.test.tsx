@@ -20,14 +20,30 @@ vi.mock("@/app/[locale]/dashboard/admin/events/eventRegistrationSettingsActions"
   updateEventCollectBirthDateAction: vi.fn(),
 }));
 
+vi.mock("@/app/[locale]/dashboard/admin/events/eventRegistrationFieldActions", () => ({
+  updateEventRegistrationFieldOrderAction: vi.fn(),
+  updateEventBaseFieldRequirementsAction: vi.fn(),
+}));
+
 const formLabels = en.admin.events.form;
 
 function buildLabels() {
   return {
     pageLead: formLabels.lead,
+    previewButton: formLabels.previewButton,
+    previewBanner: formLabels.previewBanner,
+    previewBack: formLabels.previewBack,
+    deleteField: formLabels.deleteField,
     collectBirthDate: formLabels.collectBirthDate,
     customFieldsTitle: formLabels.customFieldsTitle,
     customFieldsEmpty: formLabels.customFieldsEmpty,
+    questionOrderTitle: formLabels.questionOrderTitle,
+    questionOrderLead: formLabels.questionOrderLead,
+    dragHandle: formLabels.dragHandle,
+    moveUp: formLabels.moveUp,
+    moveDown: formLabels.moveDown,
+    errorOrderSave: formLabels.errorOrderSave,
+    errorRequirementsSave: formLabels.errorRequirementsSave,
     archive: en.admin.events.detail.archive,
     edit: formLabels.editButton,
     baseFields: {
@@ -93,6 +109,9 @@ describe("EventFormFieldsEditor", () => {
         showResidencyField={false}
         showPaymentField={false}
         collectBirthDate={false}
+        registrationFieldOrder={[]}
+        requirePhone={false}
+        requireBirthDate={false}
         nextFieldPosition={0}
         labels={buildLabels()}
       />,
@@ -102,7 +121,12 @@ describe("EventFormFieldsEditor", () => {
     expect(screen.getByText(formLabels.baseFields.firstName)).toBeInTheDocument();
     expect(screen.getByText(formLabels.collectBirthDate.checkboxLabel)).toBeInTheDocument();
     expect(screen.getByText(formLabels.customFieldsEmpty)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: formLabels.addButton })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: formLabels.addFieldTitle })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: formLabels.previewButton })).toHaveAttribute(
+      "href",
+      "/es/events/preview/evt-1",
+    );
+    expect(screen.queryByLabelText(formLabels.fieldKeyLabel)).not.toBeInTheDocument();
   });
 
   it("opens edit panel for an existing select field", async () => {
@@ -126,17 +150,22 @@ describe("EventFormFieldsEditor", () => {
         showResidencyField={false}
         showPaymentField={false}
         collectBirthDate={false}
+        registrationFieldOrder={[]}
+        requirePhone={false}
+        requireBirthDate={false}
         nextFieldPosition={1}
         labels={buildLabels()}
       />,
     );
 
     expect(screen.getByText("Colegio")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: formLabels.deleteField })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: formLabels.editButton }));
     expect(screen.getByText(formLabels.editFieldTitle)).toBeInTheDocument();
     expect(screen.getByDisplayValue("school_name")).toBeDisabled();
     expect(screen.getByDisplayValue("A")).toBeInTheDocument();
     expect(screen.getByDisplayValue("B")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: formLabels.addFieldTitle })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: formLabels.addButton })).not.toBeInTheDocument();
   });
 });

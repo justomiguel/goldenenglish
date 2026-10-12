@@ -32,6 +32,8 @@ interface EventFormFieldAddPanelProps {
   locale: string;
   eventId: string;
   nextPosition: number;
+  flowId?: string | null;
+  onAdded?: () => void;
   labels: {
     title: string;
     fieldKeyLabel: string;
@@ -63,6 +65,8 @@ export function EventFormFieldAddPanel({
   locale,
   eventId,
   nextPosition,
+  flowId,
+  onAdded,
   labels,
 }: EventFormFieldAddPanelProps) {
   const router = useRouter();
@@ -133,12 +137,14 @@ export function EventFormFieldAddPanel({
         position: nextPosition,
         optionsI18n,
         allowedMimeTypes: mimeTypes,
+        flowId,
       });
       if (!result.ok) {
         setError(result.message === "duplicate_key" ? labels.errorDuplicateKey : labels.errorSave);
         return;
       }
       resetForm();
+      onAdded?.();
       router.refresh();
     });
   }

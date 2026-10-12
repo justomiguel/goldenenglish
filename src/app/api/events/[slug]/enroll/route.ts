@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { ZodError } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { loadEventForPublicLanding } from "@/lib/dashboard/events/loadEventForPublicLanding";
 import { validateEventAttendeePayload } from "@/lib/events/validateEventAttendeePayload";
@@ -76,6 +77,7 @@ export async function POST(
           paymentMethod?: string;
           ticketPackageId?: string;
           companions?: unknown;
+          flowId?: string;
         }
       | null;
 
@@ -105,6 +107,10 @@ export async function POST(
       fields: event.fields,
       legalAgeMajority: 18,
       collectBirthDate: event.collectBirthDate,
+      requirePhone: event.requirePhone,
+      requireBirthDate: event.requireBirthDate,
+      flowIds: event.flows.map((flow) => flow.id),
+      flowId: body.flowId,
     });
 
     // Rejected here as well as in the RPC: the buyer gets a code the form can
@@ -139,12 +145,27 @@ export async function POST(
       fieldValues: validated.fieldValues,
       ticketPackageId: purchase.ticketPackageId,
       companions: purchase.companions,
+      registrationFlow: validated.flowId
+        ? {
+            id: validated.flowId,
+            price: event.priceByFlow
+              ? (event.flows.find((flow) => flow.id === validated.flowId)?.price ?? 0)
+              : null,
+          }
+        : null,
     });
 
     return NextResponse.json({ ok: true, result }, {
       headers: { "Cache-Control": "private, no-store" },
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      const code = error.issues[0]?.message ?? "invalid_body";
+      return NextResponse.json(
+        { ok: false, code },
+        { status: 400, headers: { "Cache-Control": "private, no-store" } },
+      );
+    }
     logServerException("api/events/enroll", error);
     return NextResponse.json(
       { ok: false, code: "server_error" },

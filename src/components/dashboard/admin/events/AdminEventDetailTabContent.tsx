@@ -7,6 +7,7 @@ import type { EventLocale } from "@/lib/events/domain";
 import type { Dictionary } from "@/types/i18n";
 import type { loadAdminEventDetailPageModel } from "@/lib/dashboard/events/loadAdminEventDetailPageModel";
 import { pickEventFieldLabel } from "@/lib/events/pickEventFieldLabel";
+import { registrationFlowName } from "@/lib/events/server/loadActiveRegistrationFlows";
 
 type EventDetailModel = Awaited<ReturnType<typeof loadAdminEventDetailPageModel>>;
 
@@ -43,12 +44,35 @@ export function AdminEventDetailTabContent({
         showResidencyField={model.showResidencyField}
         showPaymentField={model.showPaymentField}
         collectBirthDate={model.collectBirthDate}
+        registrationFieldOrder={model.registrationFieldOrder}
+        requirePhone={model.requirePhone}
+        requireBirthDate={model.requireBirthDate}
+        priceByFlow={model.priceByFlow}
+        registrationFlows={model.registrationFlows.map((flow) => ({
+          id: flow.id,
+          name: registrationFlowName(flow.nameI18n, locale, model.defaultLocale),
+          price: flow.price,
+          fieldOrder: flow.fieldOrder,
+        }))}
         nextFieldPosition={model.nextFieldPosition}
+        eventPublished={String(model.event.status) === "published"}
         labels={{
           pageLead: formLabels.lead,
+          previewButton: formLabels.previewButton,
+          previewBanner: formLabels.previewBanner,
+          previewBack: formLabels.previewBack,
+          deleteField: formLabels.deleteField,
           collectBirthDate: formLabels.collectBirthDate,
           customFieldsTitle: formLabels.customFieldsTitle,
           customFieldsEmpty: formLabels.customFieldsEmpty,
+          questionOrderTitle: formLabels.questionOrderTitle,
+          questionOrderLead: formLabels.questionOrderLead,
+          dragHandle: formLabels.dragHandle,
+          moveUp: formLabels.moveUp,
+          moveDown: formLabels.moveDown,
+          errorOrderSave: formLabels.errorOrderSave,
+          errorRequirementsSave: formLabels.errorRequirementsSave,
+          flows: formLabels.flows,
           archive: detail.archive,
           edit: formLabels.editButton,
           baseFields: {

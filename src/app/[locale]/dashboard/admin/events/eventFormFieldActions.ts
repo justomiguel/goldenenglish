@@ -20,6 +20,7 @@ export async function addEventFormFieldAction(input: {
   position: number;
   optionsI18n?: Record<string, string[]>;
   allowedMimeTypes?: string[];
+  flowId?: string | null;
 }): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
@@ -66,6 +67,7 @@ export async function addEventFormFieldAction(input: {
     required: input.required,
     position: input.position,
     allowed_mime_types: input.allowedMimeTypes ?? [],
+    flow_id: input.flowId ?? null,
   });
   if (error) {
     if (error.code === "23505") return { ok: false, message: "duplicate_key" };

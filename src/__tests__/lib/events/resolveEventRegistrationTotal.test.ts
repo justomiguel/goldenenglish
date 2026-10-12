@@ -29,6 +29,11 @@ describe("resolveEventSeatPrice", () => {
     expect(resolveEventSeatPrice(tiered, { price: 0 }, true)).toBe(0);
   });
 
+  it("charges the flow price and leaves residency unused", () => {
+    expect(resolveEventSeatPrice(tiered, null, true, { price: 4000 })).toBe(4000);
+    expect(resolveEventSeatPrice(tiered, null, false, { price: 0 })).toBe(0);
+  });
+
   it("falls back to exactly today's residency behaviour with no package", () => {
     expect(resolveEventSeatPrice(tiered, null, true)).toBe(1000);
     expect(resolveEventSeatPrice(tiered, null, false)).toBe(2500);

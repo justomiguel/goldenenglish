@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { resolveAttendeeIsMinor } from "@/lib/events/resolveAttendeeIsMinor";
+import { resolveRegistrationFlowView } from "@/lib/events/registrationFlows";
 import {
   eventRequiresPayment,
   resolveEventPriceForResidency,
@@ -40,6 +41,7 @@ export function useEventRegisterForm({
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [fieldFiles, setFieldFiles] = useState<Record<string, File | null>>({});
   const [fieldFileErrors, setFieldFileErrors] = useState<Record<string, string>>({});
+  const [selectedFlowId, setSelectedFlowId] = useState<string | null>(null);
   const [tutor, setTutor] = useState({
     tutorFirstName: "",
     tutorLastName: "",
@@ -76,12 +78,33 @@ export function useEventRegisterForm({
     [event.price, event.priceLocal, event.priceNonLocal],
   );
 
-  const selectedPrice = useMemo(
-    () => resolveEventPriceForResidency(priceSource, isLocalResident),
-    [priceSource, isLocalResident],
-  );
+  const flowView = useMemo(() => {
+    if (!event.flows?.length) return null;
+    return resolveRegistrationFlowView({
+      flows: event.flows.map((flow, index) => ({
+        id: flow.id,
+        position: index,
+        price: flow.price,
+        fieldOrder: flow.fieldOrder,
+      })),
+      extras: event.fields.map((field, index) => ({
+        id: field.id,
+        position: field.position ?? index,
+        flowId: field.flowId ?? null,
+      })),
+      sharedOrder: event.questionOrder,
+      selectedFlowId,
+      collectBirthDate: event.collectBirthDate,
+    });
+  }, [event, selectedFlowId]);
 
-  const requiresPayment = eventRequiresPayment(priceSource, isLocalResident);
+  const chosenFlow = event.flows?.find((flow) => flow.id === flowView?.flowId) ?? null;
+  const selectedPrice = event.priceByFlow
+    ? (chosenFlow?.price ?? null)
+    : resolveEventPriceForResidency(priceSource, isLocalResident);
+  const requiresPayment = event.priceByFlow
+    ? (chosenFlow?.price ?? 0) > 0
+    : eventRequiresPayment(priceSource, isLocalResident);
   const showPaymentPicker = requiresPayment && paymentMethods.length > 0;
   const requiresTransferReceipt =
     showPaymentPicker && paymentMethod === "transfer" && paymentMethods.includes("transfer");
@@ -112,7 +135,37 @@ export function useEventRegisterForm({
       showPaymentPicker,
       requiresTransferReceipt,
       receiptFile,
+      flowId: flowView?.flowId ?? null,
     });
+  }
+
+  function selectFlow(flowId: string) {
+    const next = resolveRegistrationFlowView({
+      flows: (event.flows ?? []).map((flow, index) => ({
+        id: flow.id,
+        position: index,
+        price: flow.price,
+        fieldOrder: flow.fieldOrder,
+      })),
+      extras: event.fields.map((field, index) => ({
+        id: field.id,
+        position: field.position ?? index,
+        flowId: field.flowId ?? null,
+      })),
+      sharedOrder: event.questionOrder,
+      selectedFlowId: flowId,
+      collectBirthDate: event.collectBirthDate,
+    });
+    const visible = new Set(
+      next.questionOrder.filter((token) => token.startsWith("field:")).map((token) => token.slice(6)),
+    );
+    setSelectedFlowId(flowId);
+    setFieldValues((current) =>
+      Object.fromEntries(Object.entries(current).filter(([id]) => visible.has(id))),
+    );
+    setFieldFiles((current) =>
+      Object.fromEntries(Object.entries(current).filter(([id]) => visible.has(id))),
+    );
   }
 
   function handleFieldFileChange(fieldId: string, file: File | null) {
@@ -168,6 +221,13 @@ export function useEventRegisterForm({
       isMinor,
     },
     footer: { consent, setConsent, message, isPending },
+    flow: {
+      ask: Boolean(flowView?.askFlow),
+      options: (event.flows ?? []).map((flow) => ({ id: flow.id, name: flow.name })),
+      flowId: flowView?.flowId ?? null,
+      questionOrder: flowView?.questionOrder ?? event.questionOrder,
+      onChange: selectFlow,
+    },
     selectedPrice,
     successOpen,
     handleSubmit,

@@ -4400,6 +4400,12 @@
         "unpublishError": "No pudimos despublicar el evento. Intenta de nuevo.",
         "viewPublic": "Ver página pública de eventos",
         "publishedHint": "Este evento está publicado y es visible en el sitio público.",
+        "showOnHome": {
+          "title": "Aviso en el inicio",
+          "lead": "Quien entra al inicio ve este evento en un cuadro. Solo aparece si está publicado, es público y todavía no ocurrió.",
+          "checkboxLabel": "Mostrar como aviso en el inicio",
+          "errorSave": "No pudimos guardar este ajuste. Intentá de nuevo."
+        },
         "waitlistLead": "Revisá y promové manualmente a asistentes en espera cuando haya cupos disponibles.",
         "notificationsLead": "Recordatorios del evento y decisiones de pago se envían con plantillas por defecto."
       },
@@ -4460,9 +4466,34 @@
         "googleKeyMissing": "Configurá Google Translate en integraciones para usar traducción automática."
       },
       "form": {
-        "lead": "El formulario público siempre incluye los campos base de inscripción. Acá podés agregar campos extra específicos del evento.",
-        "baseFieldsTitle": "Campos base (siempre incluidos)",
-        "baseFieldsLead": "Estos campos se muestran en la inscripción pública. La fecha de nacimiento se activa abajo.",
+        "lead": "Arrastrá las preguntas al orden en que las ve quien se inscribe. Nombre, apellido, documento y correo siguen siendo obligatorios.",
+        "previewButton": "Ver el formulario",
+        "previewBanner": "Vista previa del formulario guardado. Enviarlo no inscribe a nadie.",
+        "previewBack": "Volver al formulario",
+        "deleteField": "Eliminar",
+        "baseFieldsTitle": "Campos que quedan en su lugar",
+        "baseFieldsLead": "Consentimiento, tutor, residencia y pago siguen en sus secciones. No entran en el orden de las preguntas.",
+        "questionOrderTitle": "Orden de las preguntas",
+        "questionOrderLead": "Arrastrá una pregunta, o usá las flechas, para cambiar dónde aparece en la inscripción.",
+        "dragHandle": "Reordenar {{label}}",
+        "moveUp": "Subir {{label}}",
+        "moveDown": "Bajar {{label}}",
+        "errorOrderSave": "No pudimos guardar el orden. Intentá de nuevo.",
+        "errorRequirementsSave": "No pudimos guardar si el campo es obligatorio.",
+        "flows": {
+          "title": "Flujos de inscripción",
+          "lead": "El recuadro de arriba es compartido por todos los flujos. Arrastrá un campo extra a un flujo para que sea solo de ese flujo.",
+          "addButton": "Agregar flujo",
+          "nameLabel": "Nombre del flujo",
+          "priceLabel": "Precio",
+          "priceSwitch": "El precio depende del flujo",
+          "priceConflict": "Hay entradas activas. El precio por flujo no se combina con ellas.",
+          "save": "Guardar flujo",
+          "archive": "Archivar flujo",
+          "dropHint": "Arrastrá un campo extra hasta acá.",
+          "empty": "Sin flujos, el formulario es el mismo para todos.",
+          "errorSave": "No pudimos guardar el flujo. Intentá de nuevo."
+        },
         "collectBirthDate": {
           "title": "Fecha de nacimiento",
           "lead": "Activá esta opción si necesitás la edad del asistente (por ejemplo, para detectar menores y pedir datos del tutor).",
@@ -4524,8 +4555,8 @@
           "payment": "Método de pago"
         },
         "baseFieldNotes": {
-          "phone": "Opcional en la inscripción.",
-          "birthDate": "Opcional; se usa para detectar menores de edad y pedir datos del tutor.",
+          "phone": "Podés marcarlo como obligatorio en este evento.",
+          "birthDate": "Podés marcarlo como obligatorio mientras se pide la fecha de nacimiento.",
           "tutor": "Obligatorio solo si el asistente es menor.",
           "residency": "Solo si hay precios distintos para residentes y no residentes.",
           "payment": "Solo si el evento tiene costo."
@@ -4607,6 +4638,14 @@
       "adminEditAriaLabel": "Abrir este evento en el editor de administración",
       "eventEyebrow": "Evento",
       "viewsCount": "{{count}} vistas",
+      "homePopup": {
+        "dialogTitle": "Próximos eventos",
+        "close": "Cerrar",
+        "previous": "Evento anterior",
+        "next": "Evento siguiente",
+        "position": "{{current}} de {{total}}",
+        "imageLoading": "Cargando imagen"
+      },
       "downloadFile": "Descargar archivo",
       "attachmentsSectionTitle": "Archivos adjuntos",
       "audioLabel": "Audio adjunto",
@@ -4660,6 +4699,7 @@
       "lead": "Completá el formulario para reservar tu cupo.",
       "backToEvent": "Volver al evento",
       "participantSection": "Datos del participante",
+      "flowQuestion": "¿En qué modalidad te inscribís?",
       "firstName": "Nombre",
       "lastName": "Apellido",
       "dni": "DNI / RUT / pasaporte",

@@ -71,6 +71,7 @@ export default async function EventRegisterPage({ params }: PageProps) {
         surfaceVariant={surfaceVariant}
         labels={{
           participantSection: dict.events.register.participantSection,
+          flowQuestion: dict.events.register.flowQuestion,
           firstName: dict.events.register.firstName,
           lastName: dict.events.register.lastName,
           dni: dict.events.register.dni,

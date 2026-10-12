@@ -1,13 +1,13 @@
 "use client";
 
-import { EventRegisterParticipantFields } from "@/components/organisms/EventRegisterParticipantFields";
+import { EventRegisterOrderedQuestions } from "@/components/organisms/EventRegisterOrderedQuestions";
+import { EventRegisterFlowChoice } from "@/components/organisms/EventRegisterFlowChoice";
 import { EventRegisterFormFooter } from "@/components/organisms/EventRegisterFormFooter";
 import type { EventRegistrationPaymentMethod } from "@/lib/events/resolveEventRegistrationPaymentMethods";
 import type { PublicEventDetail } from "@/lib/dashboard/events/loadEventForPublicLanding";
 import type { EventRegisterFormLabels } from "@/lib/events/eventRegisterFormLabels";
 import type { PublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
 import { publicEventRegisterTypography } from "@/lib/events/publicEventSurfaceClasses";
-import { EventRegisterFormFields } from "@/components/organisms/EventRegisterFormFields";
 import { EventRegisterTutorBlock } from "@/components/organisms/EventRegisterTutorBlock";
 import { EventRegisterPaymentPicker } from "@/components/organisms/EventRegisterPaymentPicker";
 import { EventRegisterResidencyPicker } from "@/components/organisms/EventRegisterResidencyPicker";
@@ -22,6 +22,7 @@ interface EventRegisterFormProps {
   paymentMethods: EventRegistrationPaymentMethod[];
   surfaceVariant?: PublicEventSurfaceVariant;
   labels: EventRegisterFormLabels;
+  preview?: boolean;
 }
 
 export function EventRegisterForm({
@@ -30,6 +31,7 @@ export function EventRegisterForm({
   paymentMethods,
   surfaceVariant = "default",
   labels,
+  preview = false,
 }: EventRegisterFormProps) {
   const form = useEventRegisterForm({ locale, event, paymentMethods, labels });
   const typography = publicEventRegisterTypography(surfaceVariant);
@@ -41,11 +43,35 @@ export function EventRegisterForm({
         open={form.successOpen}
         labels={labels.successModal}
       />
-      <form className="space-y-6" onSubmit={form.handleSubmit}>
-        <EventRegisterParticipantFields
+      <form
+        className="space-y-6"
+        onSubmit={(eventForm) => {
+          if (preview) {
+            eventForm.preventDefault();
+            return;
+          }
+          form.handleSubmit(eventForm);
+        }}
+      >
+        {form.flow.ask ? (
+          <EventRegisterFlowChoice
+            label={labels.flowQuestion}
+            flows={form.flow.options}
+            value={form.flow.flowId}
+            onChange={form.flow.onChange}
+            disabled={form.footer.isPending}
+          />
+        ) : null}
+        <EventRegisterOrderedQuestions
           sectionTitle={labels.participantSection}
           surfaceVariant={surfaceVariant}
-          showBirthDate={event.collectBirthDate}
+          questionOrder={form.flow.questionOrder}
+          collectBirthDate={event.collectBirthDate}
+          requirePhone={Boolean(event.requirePhone)}
+          requireBirthDate={Boolean(event.requireBirthDate)}
+          fields={event.fields}
+          locale={locale}
+          defaultLocale={event.defaultLocale}
           labels={{
             firstName: labels.firstName,
             lastName: labels.lastName,
@@ -56,15 +82,9 @@ export function EventRegisterForm({
           }}
           values={form.participant.values}
           onChange={form.participant.onChange}
-        />
-
-        <EventRegisterFormFields
-          fields={event.fields}
-          locale={locale}
-          defaultLocale={event.defaultLocale}
-          values={form.customFields.values}
+          customValues={form.customFields.values}
           fieldFiles={form.customFields.files}
-          onChange={form.customFields.onChange}
+          onCustomChange={form.customFields.onChange}
           onFileChange={form.customFields.onFileChange}
           onFileValidationError={form.customFields.onFileValidationError}
           fileFieldErrors={form.customFields.fileErrors}
@@ -72,10 +92,9 @@ export function EventRegisterForm({
           selectPlaceholder={labels.selectPlaceholder}
           customFileFieldLabels={labels.customFieldFile}
           disabled={form.footer.isPending}
-          surfaceVariant={surfaceVariant}
         />
 
-        {event.hasTieredPricing ? (
+        {event.hasTieredPricing && !event.priceByFlow ? (
           <EventRegisterResidencyPicker
             value={form.residency.isLocalResident}
             onChange={form.residency.setIsLocalResident}
@@ -142,6 +161,7 @@ export function EventRegisterForm({
           fileUploadProgressSending={labels.fileUploadProgressSending}
           message={form.footer.message}
           surfaceVariant={surfaceVariant}
+          preview={preview}
         />
       </form>
     </>

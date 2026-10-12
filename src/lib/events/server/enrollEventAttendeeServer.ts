@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { serializeEventFieldValuesForEnrollRpc } from "@/lib/events/serializeEventFieldValuesForEnrollRpc";
+import { registrationFlowCharge } from "@/lib/events/registrationFlows";
 import type {
   EventCompanionPayload,
   EventFieldPayloadEntry,
@@ -24,6 +25,8 @@ export interface EnrollEventAttendeeServerInput {
   fieldValues: EventFieldPayloadEntry[];
   ticketPackageId?: string | null;
   companions?: EventCompanionPayload[];
+  /** When set, the seat price is this flow's amount and residency is not charged. */
+  registrationFlow?: { id: string; price: number | null } | null;
 }
 
 export interface EnrollEventAttendeeServerResult {
@@ -111,5 +114,38 @@ export async function enrollEventAttendeeServer(
   input: EnrollEventAttendeeServerInput,
 ): Promise<EnrollEventAttendeeServerResult> {
   const admin = createAdminClient();
-  return callEnrollRpc(admin, input);
+  const result = await callEnrollRpc(admin, input);
+  const flow = input.registrationFlow;
+  if (!flow || !result.attendeeId) return result;
+  if (!["confirmed", "payment_pending", "waitlist"].includes(result.resultCode)) return result;
+
+  const charge =
+    flow.price == null
+      ? null
+      : registrationFlowCharge({
+          price: flow.price,
+          seats: result.seats,
+          status: result.attendeeStatus,
+        });
+  const { error } = await admin
+    .from("event_attendees")
+    .update({
+      registration_flow_id: flow.id,
+      ...(charge ? { status: charge.status } : {}),
+    })
+    .eq("id", result.attendeeId);
+  if (error) {
+    logSupabaseClientError("enrollEventAttendeeServer:flow", error, {
+      eventId: input.eventId,
+      attendeeId: result.attendeeId,
+    });
+    return result;
+  }
+  if (!charge) return result;
+  return {
+    ...result,
+    attendeeStatus: charge.status,
+    paymentRequired: charge.paymentRequired,
+    totalAmount: charge.totalAmount,
+  };
 }

@@ -20,6 +20,8 @@ interface EventFormBuiltinFieldsSectionProps {
   };
 }
 
+const LOCKED_FIELD_IDS = new Set(["consent", "tutor", "residency", "payment"]);
+
 function kindBadge(
   kind: EventRegistrationBaseFieldKind,
   labels: EventFormBuiltinFieldsSectionProps["labels"],
@@ -39,7 +41,7 @@ export function EventFormBuiltinFieldsSection({
     showBirthDateField,
     showResidencyField,
     showPaymentField,
-  });
+  }).filter((field) => LOCKED_FIELD_IDS.has(field.id));
 
   return (
     <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">

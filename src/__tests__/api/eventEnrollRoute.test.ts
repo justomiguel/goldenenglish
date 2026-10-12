@@ -28,6 +28,8 @@ const baseEvent = {
   id: "evt-1",
   collectBirthDate: false,
   fields: [],
+  flows: [] as { id: string; price: number | null }[],
+  priceByFlow: false,
   packages: [] as { id: string }[],
   allowMultipleTickets: false,
   maxTicketsPerRegistration: null as number | null,

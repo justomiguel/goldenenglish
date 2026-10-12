@@ -3,6 +3,66 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "event-registration-form-preview",
+    date: "2026-10-12",
+    area: "events",
+    title: t(
+      "Vista previa del formulario de un evento",
+      "Preview an event registration form",
+      "Pré-visualizar o formulário de um evento",
+    ),
+    summary: t(
+      "Desde el formulario del evento se puede ver cómo queda la inscripción, aunque el evento siga en borrador. Esa vista no inscribe a nadie.",
+      "The event form can show the registration page while the event is still a draft. That view does not register anyone.",
+      "No formulário do evento dá para ver a inscrição, mesmo com o evento ainda em rascunho. Essa vista não inscreve ninguém.",
+    ),
+  },
+  {
+    id: "event-registration-flows",
+    date: "2026-10-12",
+    area: "events",
+    title: t(
+      "Flujos de inscripción en eventos",
+      "Event registration flows",
+      "Fluxos de inscrição em eventos",
+    ),
+    summary: t(
+      "Un evento puede tener uno o más caminos de inscripción, con preguntas propias. El precio puede seguir siendo por residencia o depender del flujo, nunca los dos.",
+      "An event can have one or more registration paths, each with its own questions. Price stays by residency or follows the path, never both.",
+      "Um evento pode ter um ou mais caminhos de inscrição, com perguntas próprias. O preço continua por residência ou depende do fluxo, nunca os dois.",
+    ),
+  },
+  {
+    id: "event-registration-field-order",
+    date: "2026-10-12",
+    area: "events",
+    title: t(
+      "Orden y obligatoriedad en la inscripción a eventos",
+      "Event registration field order and required flags",
+      "Ordem e obrigatoriedade na inscrição de eventos",
+    ),
+    summary: t(
+      "En el formulario de un evento se puede arrastrar el orden de las preguntas y marcar teléfono o fecha de nacimiento como obligatorios.",
+      "An event form can drag question order and mark phone or birth date as required.",
+      "No formulário de um evento dá para arrastar a ordem das perguntas e marcar telefone ou data de nascimento como obrigatórios.",
+    ),
+  },
+  {
+    id: "home-event-popup",
+    date: "2026-10-10",
+    area: "events",
+    title: t(
+      "Aviso de eventos en el inicio",
+      "Event notice on the home page",
+      "Aviso de eventos na página inicial",
+    ),
+    summary: t(
+      "Un evento publicado puede mostrarse al entrar al sitio. Si hay varios, el aviso los recorre y se puede cerrar.",
+      "A published event can appear when someone opens the site. Several events share one notice you can close.",
+      "Um evento publicado pode aparecer ao abrir o site. Se houver vários, o aviso percorre-os e pode ser fechado.",
+    ),
+  },
+  {
     id: "merch-checkout-guest-parent",
     date: "2026-09-04",
     area: "site",
@@ -180,66 +240,6 @@ export const ENTRIES: readonly ProductChangelogEntry[] = [
       "Los mails de inscripción nueva, recibo y clase de prueba se envían al correo de login de cada admin. Ya no se busca un email en el perfil, que no existe.",
       "New-registration, receipt, and trial emails go to each admin’s login mailbox. The send no longer looks for a profile email column that does not exist.",
       "Os emails de inscrição nova, comprovativo e aula experimental vão para o correio de login de cada admin. Já não se procura um email no perfil, que não existe.",
-    ),
-  },
-  {
-    id: "product-changelog-page",
-    date: "2026-08-29",
-    area: "admin",
-    title: t(
-      "Página de novedades del sistema",
-      "What's-new page in admin",
-      "Página de novidades do sistema",
-    ),
-    summary: t(
-      "En Instituto → Datos y ayuda aparece este historial: lo que se fue agregando al producto, extraído de los commits recientes.",
-      "Instituto → Data & help now has this history: features added to the product, distilled from recent commits.",
-      "Em Instituto → Dados e ajuda aparece este histórico: o que foi sendo adicionado ao produto, extraído dos commits recentes.",
-    ),
-  },
-  {
-    id: "trial-classes",
-    date: "2026-08-29",
-    area: "registrations",
-    title: t(
-      "Clases de prueba y directorio filtrable",
-      "Trial classes and filterable directories",
-      "Aulas experimentais e diretório filtrável",
-    ),
-    summary: t(
-      "Las familias pueden pedir una clase de prueba. En admin, los listados de padres y alumnos se filtran más rápido.",
-      "Families can request a trial class. Admin parent and student lists now filter faster.",
-      "As famílias podem pedir uma aula experimental. Em admin, as listas de encarregados e alunos filtram mais depressa.",
-    ),
-  },
-  {
-    id: "enrollment-fee-checkout",
-    date: "2026-08-28",
-    area: "finance",
-    title: t(
-      "Checkout de matrícula para secciones llenas",
-      "Enrollment-fee checkout for full sections",
-      "Checkout de matrícula para turmas cheias",
-    ),
-    summary: t(
-      "Admin puede iniciar el cobro de matrícula aunque la sección ya no tenga cupo, para no perder inscripciones pagas.",
-      "Admins can start the enrollment-fee flow even when a section is full, so paid sign-ups are not lost.",
-      "A admin pode iniciar a cobrança de matrícula mesmo com a turma cheia, para não perder inscrições pagas.",
-    ),
-  },
-  {
-    id: "scholarship-fee-card",
-    date: "2026-08-27",
-    area: "finance",
-    title: t(
-      "Cuota mensual con beca ya aplicada",
-      "Monthly fee card shows the scholarship average",
-      "Mensalidade com bolsa já aplicada",
-    ),
-    summary: t(
-      "La tarjeta de cuota del alumno muestra el promedio ajustado por beca, no solo el arancel de lista.",
-      "The student monthly-fee card shows the scholarship-adjusted average, not only the list price.",
-      "O cartão de mensalidade do aluno mostra a média ajustada pela bolsa, não só o valor de tabela.",
     ),
   },
 ];

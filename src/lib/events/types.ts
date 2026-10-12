@@ -19,6 +19,9 @@ export interface EventFormFieldDefinition {
   required: boolean;
   maxFileSizeBytes?: number;
   allowedMimeTypes?: string[];
+  /** Null or omitted means the extra is shared by every flow. */
+  flowId?: string | null;
+  position?: number;
 }
 
 export interface EventFieldPayloadEntry {

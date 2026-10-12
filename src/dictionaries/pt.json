@@ -4277,6 +4277,12 @@
         "unpublishError": "Não foi possível despublicar o evento. Tente novamente.",
         "viewPublic": "Ver página pública de eventos",
         "publishedHint": "Este evento está publicado e visível no site público.",
+        "showOnHome": {
+          "title": "Aviso na página inicial",
+          "lead": "Quem abre a página inicial vê este evento numa caixa. Só aparece se estiver publicado, for público e ainda não tiver ocorrido.",
+          "checkboxLabel": "Mostrar como aviso na página inicial",
+          "errorSave": "Não foi possível guardar esta definição. Tente novamente."
+        },
         "waitlistLead": "Revise e promova manualmente participantes da lista de espera quando houver vagas disponíveis.",
         "notificationsLead": "Lembretes do evento e decisões de pagamento são enviados com modelos padrão."
       },
@@ -4336,9 +4342,34 @@
         "googleKeyMissing": "Configure o Google Translate em integrações para tradução automática."
       },
       "form": {
-        "lead": "O formulário público sempre inclui os campos base de inscrição. Aqui você pode adicionar campos extras específicos do evento.",
-        "baseFieldsTitle": "Campos base (sempre incluídos)",
-        "baseFieldsLead": "Esses campos aparecem na inscrição pública. A data de nascimento é ativada abaixo.",
+        "lead": "Arraste as perguntas para a ordem em que quem se inscreve as vê. Nome, apelido, documento e e-mail continuam obrigatórios.",
+        "previewButton": "Ver o formulário",
+        "previewBanner": "Pré-visualização do formulário salvo. Enviá-lo não inscreve ninguém.",
+        "previewBack": "Voltar ao formulário",
+        "deleteField": "Excluir",
+        "baseFieldsTitle": "Campos que ficam no lugar",
+        "baseFieldsLead": "Consentimento, tutor, residência e pagamento ficam nas suas seções. Não entram na ordem das perguntas.",
+        "questionOrderTitle": "Ordem das perguntas",
+        "questionOrderLead": "Arraste uma pergunta, ou use as setas, para mudar onde ela aparece na inscrição.",
+        "dragHandle": "Reordenar {{label}}",
+        "moveUp": "Mover {{label}} para cima",
+        "moveDown": "Mover {{label}} para baixo",
+        "errorOrderSave": "Não foi possível salvar a ordem. Tente novamente.",
+        "errorRequirementsSave": "Não foi possível salvar se o campo é obrigatório.",
+        "flows": {
+          "title": "Fluxos de inscrição",
+          "lead": "A caixa acima é partilhada por todos os fluxos. Arraste um campo extra para um fluxo para que ele pertença só a esse fluxo.",
+          "addButton": "Adicionar fluxo",
+          "nameLabel": "Nome do fluxo",
+          "priceLabel": "Preço",
+          "priceSwitch": "O preço depende do fluxo",
+          "priceConflict": "Há bilhetes ativos. O preço por fluxo não se combina com eles.",
+          "save": "Guardar fluxo",
+          "archive": "Arquivar fluxo",
+          "dropHint": "Arraste um campo extra para aqui.",
+          "empty": "Sem fluxos, o formulário é o mesmo para todos.",
+          "errorSave": "Não foi possível guardar o fluxo. Tente novamente."
+        },
         "collectBirthDate": {
           "title": "Data de nascimento",
           "lead": "Ative esta opção se precisar da idade do participante (por exemplo, para detectar menores e pedir dados do tutor).",
@@ -4400,8 +4431,8 @@
           "payment": "Forma de pagamento"
         },
         "baseFieldNotes": {
-          "phone": "Opcional na inscrição.",
-          "birthDate": "Opcional; usada para detectar menores e pedir dados do tutor.",
+          "phone": "Você pode marcá-lo como obrigatório neste evento.",
+          "birthDate": "Você pode marcá-lo como obrigatório enquanto a data de nascimento é pedida.",
           "tutor": "Obrigatório apenas se o participante for menor.",
           "residency": "Somente quando há preços distintos para locais e não locais.",
           "payment": "Somente quando o evento tem custo."
@@ -4441,6 +4472,14 @@
       "adminEditAriaLabel": "Abrir este evento no editor de administração",
       "eventEyebrow": "Evento",
       "viewsCount": "{{count}} visualizações",
+      "homePopup": {
+        "dialogTitle": "Próximos eventos",
+        "close": "Fechar",
+        "previous": "Evento anterior",
+        "next": "Próximo evento",
+        "position": "{{current}} de {{total}}",
+        "imageLoading": "A carregar imagem"
+      },
       "downloadFile": "Baixar arquivo",
       "attachmentsSectionTitle": "Arquivos anexos",
       "audioLabel": "Áudio anexo",
@@ -4484,6 +4523,7 @@
       "lead": "Preencha o formulário para garantir sua vaga.",
       "backToEvent": "Voltar ao evento",
       "participantSection": "Dados do participante",
+      "flowQuestion": "Em que modalidade você se inscreve?",
       "firstName": "Nome",
       "lastName": "Sobrenome",
       "dni": "Documento / RUT / passaporte",

@@ -48,6 +48,7 @@ export interface EventRegisterSubmitPayload {
   showPaymentPicker: boolean;
   requiresTransferReceipt: boolean;
   receiptFile: File | null;
+  flowId?: string | null;
 }
 
 export interface EventRegisterSubmitLabels {
@@ -173,6 +174,7 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
           paymentMethod: payload.showPaymentPicker ? payload.paymentMethod : undefined,
           isLocalResident: payload.isLocalResident,
           fieldValues,
+          ...(payload.flowId ? { flowId: payload.flowId } : {}),
         }),
       });
 

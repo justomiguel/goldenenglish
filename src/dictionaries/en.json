@@ -4400,6 +4400,12 @@
         "unpublishError": "We could not unpublish the event. Try again.",
         "viewPublic": "View public events page",
         "publishedHint": "This event is published and visible on the public site.",
+        "showOnHome": {
+          "title": "Home popup",
+          "lead": "Visitors see this event in a dialog when they open the home. It only appears while the event is published, public, and still upcoming.",
+          "checkboxLabel": "Show as a popup on the home",
+          "errorSave": "We could not save this setting. Please try again."
+        },
         "waitlistLead": "Review and manually promote attendees from waitlist when spots become available.",
         "notificationsLead": "Event reminders and payment decision emails are sent using default templates."
       },
@@ -4460,9 +4466,34 @@
         "googleKeyMissing": "Configure Google Translate in integrations to use auto-translate."
       },
       "form": {
-        "lead": "The public registration form always includes the base enrollment fields. Here you can add event-specific extra fields.",
-        "baseFieldsTitle": "Base fields (always included)",
-        "baseFieldsLead": "These fields appear on public registration. Birth date is enabled below.",
+        "lead": "Drag the questions into the order attendees see. Name, last name, ID, and email stay required.",
+        "previewButton": "Preview the form",
+        "previewBanner": "Preview of the saved form. Sending it does not register anyone.",
+        "previewBack": "Back to the form",
+        "deleteField": "Delete",
+        "baseFieldsTitle": "Fields that stay in place",
+        "baseFieldsLead": "Consent, guardian, residency, and payment stay in their own sections. They are not part of the question order.",
+        "questionOrderTitle": "Question order",
+        "questionOrderLead": "Drag a question, or use the arrows, to change where it appears on the registration form.",
+        "dragHandle": "Reorder {{label}}",
+        "moveUp": "Move {{label}} up",
+        "moveDown": "Move {{label}} down",
+        "errorOrderSave": "We could not save the question order. Try again.",
+        "errorRequirementsSave": "We could not save whether this field is required.",
+        "flows": {
+          "title": "Registration flows",
+          "lead": "The box above is shared by every flow. Drag an extra field into a flow to make it belong only to that flow.",
+          "addButton": "Add flow",
+          "nameLabel": "Flow name",
+          "priceLabel": "Price",
+          "priceSwitch": "Price depends on the flow",
+          "priceConflict": "This event has active tickets. Flow pricing cannot be combined with them.",
+          "save": "Save flow",
+          "archive": "Archive flow",
+          "dropHint": "Drag an extra field here.",
+          "empty": "With no flows, everyone sees the same form.",
+          "errorSave": "We could not save the flow. Try again."
+        },
         "collectBirthDate": {
           "title": "Date of birth",
           "lead": "Enable this when you need the attendee's age (for example, to detect minors and collect tutor details).",
@@ -4524,8 +4555,8 @@
           "payment": "Payment method"
         },
         "baseFieldNotes": {
-          "phone": "Optional on registration.",
-          "birthDate": "Optional; used to detect minors and collect tutor details.",
+          "phone": "You can mark it as required for this event.",
+          "birthDate": "You can mark it as required while date of birth is collected.",
           "tutor": "Required only when the attendee is a minor.",
           "residency": "Only when local and non-local prices differ.",
           "payment": "Only when the event has a cost."
@@ -4607,6 +4638,14 @@
       "adminEditAriaLabel": "Open this event in the admin editor",
       "eventEyebrow": "Event",
       "viewsCount": "{{count}} views",
+      "homePopup": {
+        "dialogTitle": "Upcoming events",
+        "close": "Close",
+        "previous": "Previous event",
+        "next": "Next event",
+        "position": "{{current}} of {{total}}",
+        "imageLoading": "Loading image"
+      },
       "downloadFile": "Download file",
       "attachmentsSectionTitle": "Attached files",
       "audioLabel": "Attached audio",
@@ -4660,6 +4699,7 @@
       "lead": "Complete the form to secure your spot.",
       "backToEvent": "Back to event",
       "participantSection": "Participant details",
+      "flowQuestion": "Which option are you registering for?",
       "firstName": "First name",
       "lastName": "Last name",
       "dni": "ID / RUT / passport",

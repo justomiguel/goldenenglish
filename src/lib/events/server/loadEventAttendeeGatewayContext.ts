@@ -29,6 +29,7 @@ interface AttendeeRow {
   primary_attendee_id: string | null;
   ticket_package_id: string | null;
   event_ticket_packages: { price: number } | { price: number }[] | null;
+  event_registration_flows: { price: number | null } | { price: number | null }[] | null;
   events: {
     slug: string;
     title: string;
@@ -36,6 +37,7 @@ interface AttendeeRow {
     price: number | null;
     price_local: number | null;
     price_non_local: number | null;
+    price_by_flow: boolean | null;
   };
 }
 
@@ -66,7 +68,7 @@ export async function loadEventAttendeeGatewayContext(
   const { data, error } = await admin
     .from("event_attendees")
     .select(
-      "id, status, is_local_resident, email, dni_or_passport, event_id, primary_attendee_id, ticket_package_id, event_ticket_packages(price), events!inner(slug, title, currency, price, price_local, price_non_local)",
+      "id, status, is_local_resident, email, dni_or_passport, event_id, primary_attendee_id, ticket_package_id, event_ticket_packages(price), event_registration_flows(price), events!inner(slug, title, currency, price, price_local, price_non_local, price_by_flow)",
     )
     .eq("id", attendeeId)
     .maybeSingle();
@@ -85,6 +87,10 @@ export async function loadEventAttendeeGatewayContext(
 
   const isLocalResident = row.is_local_resident ?? true;
   const ticketPackage = pickOne(row.event_ticket_packages);
+  const flow = pickOne(row.event_registration_flows);
+  const flowPrice = event.price_by_flow
+    ? { price: flow?.price == null ? 0 : Number(flow.price) }
+    : null;
   const unitPrice =
     resolveEventSeatPrice(
       {
@@ -92,8 +98,9 @@ export async function loadEventAttendeeGatewayContext(
         priceLocal: event.price_local,
         priceNonLocal: event.price_non_local,
       },
-      ticketPackage,
+      flowPrice ? null : ticketPackage,
       isLocalResident,
+      flowPrice,
     ) ?? 0;
 
   const seats = 1 + (await countCompanionSeats(admin, attendeeId));

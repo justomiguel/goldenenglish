@@ -1,12 +1,12 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import {
-  adminEventsPath,
   requireAdminEventActor,
+  revalidateEventFormSurfaces,
   type EventMutationResult,
 } from "@/app/[locale]/dashboard/admin/events/eventActionsShared";
 
@@ -29,7 +29,11 @@ export async function updateEventCollectBirthDateAction(
   const admin = createAdminClient();
   const { error } = await admin
     .from("events")
-    .update({ collect_birth_date: collectBirthDate })
+    .update(
+      collectBirthDate
+        ? { collect_birth_date: true }
+        : { collect_birth_date: false, require_birth_date: false },
+    )
     .eq("id", eventId);
 
   if (error) {
@@ -37,13 +41,15 @@ export async function updateEventCollectBirthDateAction(
     return { ok: false, message: "save_failed" };
   }
 
-  const { data: slugRow } = await admin.from("events").select("slug").eq("id", eventId).maybeSingle();
-  revalidatePath(adminEventsPath(locale), "page");
-  revalidatePath(`${adminEventsPath(locale)}/${eventId}`, "page");
-  if (slugRow?.slug) {
-    const slug = String(slugRow.slug);
-    revalidatePath(`/${locale}/events/${slug}`, "page");
-    revalidatePath(`/${locale}/events/${slug}/register`, "page");
+  if (!collectBirthDate) {
+    await recordSystemAudit({
+      action: "event_base_field_requirements_updated",
+      resourceType: "event",
+      resourceId: eventId,
+      payload: { require_birth_date: false },
+    });
   }
+
+  await revalidateEventFormSurfaces(locale, eventId);
   return { ok: true };
 }

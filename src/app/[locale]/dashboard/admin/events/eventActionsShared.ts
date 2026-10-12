@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
+import { locales } from "@/lib/i18n/dictionaries";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sanitizeEventDescriptionHtml } from "@/lib/events/sanitizeEventDescriptionHtml";
 import { logServerAuthzDenied } from "@/lib/logging/serverActionLog";
@@ -27,10 +28,11 @@ export async function revalidateEventFormSurfaces(locale: string, eventId: strin
   revalidatePath(`${adminEventsPath(locale)}/${eventId}`, "page");
   const admin = createAdminClient();
   const { data: slugRow } = await admin.from("events").select("slug").eq("id", eventId).maybeSingle();
-  if (slugRow?.slug) {
-    const slug = String(slugRow.slug);
-    revalidatePath(`/${locale}/events/${slug}`, "page");
-    revalidatePath(`/${locale}/events/${slug}/register`, "page");
+  if (!slugRow?.slug) return;
+  const slug = String(slugRow.slug);
+  for (const loc of locales) {
+    revalidatePath(`/${loc}/events/${slug}`, "page");
+    revalidatePath(`/${loc}/events/${slug}/register`, "page");
   }
 }
 

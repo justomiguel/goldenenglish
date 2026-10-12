@@ -21,7 +21,9 @@ export function resolveEventSeatPrice(
   source: EventPriceSource,
   ticketPackage: { price: number } | null,
   isLocalResident: boolean,
+  flowPrice?: { price: number } | null,
 ): number | null {
+  if (flowPrice) return Number(flowPrice.price);
   if (ticketPackage) return Number(ticketPackage.price);
   return resolveEventPriceForResidency(source, isLocalResident);
 }

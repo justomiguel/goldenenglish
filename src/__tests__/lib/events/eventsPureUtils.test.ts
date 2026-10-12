@@ -205,4 +205,126 @@ describe("validateEventAttendeePayload", () => {
     expect(parsed.isMinor).toBe(false);
     expect(parsed.base.birthDate).toBeUndefined();
   });
+
+  it("rejects an empty phone only when the event requires it", () => {
+    const base = {
+      firstName: "Ana",
+      lastName: "Perez",
+      dniOrPassport: "123",
+      email: "ana@example.com",
+      phone: "  ",
+    };
+    expect(
+      validateEventAttendeePayload({
+        base,
+        tutor: {},
+        fieldValues: [{ fieldId: fields[0]!.id, valueText: "ABC" }],
+        fields,
+        legalAgeMajority: 18,
+      }).base.phone,
+    ).toBe("");
+    expect(() =>
+      validateEventAttendeePayload({
+        base,
+        tutor: {},
+        fieldValues: [{ fieldId: fields[0]!.id, valueText: "ABC" }],
+        fields,
+        legalAgeMajority: 18,
+        requirePhone: true,
+      }),
+    ).toThrow();
+  });
+
+  it("requires a birth date only when it is collected and marked required", () => {
+    const base = {
+      firstName: "Ana",
+      lastName: "Perez",
+      dniOrPassport: "123",
+      email: "ana@example.com",
+      birthDate: "",
+    };
+    expect(
+      validateEventAttendeePayload({
+        base,
+        tutor: {},
+        fieldValues: [{ fieldId: fields[0]!.id, valueText: "ABC" }],
+        fields,
+        legalAgeMajority: 18,
+        collectBirthDate: true,
+      }).base.birthDate,
+    ).toBeUndefined();
+    expect(() =>
+      validateEventAttendeePayload({
+        base,
+        tutor: {},
+        fieldValues: [{ fieldId: fields[0]!.id, valueText: "ABC" }],
+        fields,
+        legalAgeMajority: 18,
+        collectBirthDate: true,
+        requireBirthDate: true,
+      }),
+    ).toThrow();
+  });
+
+  it("requires the chosen flow and ignores the other flow's required field", () => {
+    const academy = "44444444-4444-4444-8444-444444444444";
+    const cup = "55555555-5555-4555-8555-555555555555";
+    const flowFields: EventFormFieldDefinition[] = [
+      { ...fields[0]!, flowId: null },
+      {
+        id: academy,
+        fieldKey: "instrument",
+        fieldType: "text",
+        required: true,
+        labelI18n: { es: "Instrumento" },
+        flowId: "flow-a",
+      },
+      {
+        id: cup,
+        fieldKey: "category",
+        fieldType: "text",
+        required: true,
+        labelI18n: { es: "Categoría" },
+        flowId: "flow-b",
+      },
+    ];
+    const payload = {
+      base: {
+        firstName: "Ana",
+        lastName: "Perez",
+        dniOrPassport: "123",
+        email: "ana@example.com",
+      },
+      tutor: {},
+      fields: flowFields,
+      legalAgeMajority: 18,
+      flowIds: ["flow-a", "flow-b"],
+    };
+    expect(() =>
+      validateEventAttendeePayload({
+        ...payload,
+        fieldValues: [{ fieldId: fields[0]!.id, valueText: "ABC" }],
+      }),
+    ).toThrowError(/event_flow_required/);
+    const chosen = validateEventAttendeePayload({
+      ...payload,
+      flowId: "flow-a",
+      fieldValues: [
+        { fieldId: fields[0]!.id, valueText: "ABC" },
+        { fieldId: academy, valueText: "Violín" },
+      ],
+    });
+    expect(chosen.flowId).toBe("flow-a");
+    expect(() =>
+      validateEventAttendeePayload({
+        ...payload,
+        flowId: "flow-a",
+        fieldValues: [
+          { fieldId: fields[0]!.id, valueText: "ABC" },
+          { fieldId: academy, valueText: "Violín" },
+          { fieldId: cup, valueText: "Junior" },
+        ],
+      }),
+    ).toThrowError(/unknown_field/);
+  });
 });

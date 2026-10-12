@@ -3,6 +3,66 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "product-changelog-page",
+    date: "2026-08-29",
+    area: "admin",
+    title: t(
+      "Página de novedades del sistema",
+      "What's-new page in admin",
+      "Página de novidades do sistema",
+    ),
+    summary: t(
+      "En Instituto → Datos y ayuda aparece este historial: lo que se fue agregando al producto, extraído de los commits recientes.",
+      "Instituto → Data & help now has this history: features added to the product, distilled from recent commits.",
+      "Em Instituto → Dados e ajuda aparece este histórico: o que foi sendo adicionado ao produto, extraído dos commits recentes.",
+    ),
+  },
+  {
+    id: "trial-classes",
+    date: "2026-08-29",
+    area: "registrations",
+    title: t(
+      "Clases de prueba y directorio filtrable",
+      "Trial classes and filterable directories",
+      "Aulas experimentais e diretório filtrável",
+    ),
+    summary: t(
+      "Las familias pueden pedir una clase de prueba. En admin, los listados de padres y alumnos se filtran más rápido.",
+      "Families can request a trial class. Admin parent and student lists now filter faster.",
+      "As famílias podem pedir uma aula experimental. Em admin, as listas de encarregados e alunos filtram mais depressa.",
+    ),
+  },
+  {
+    id: "enrollment-fee-checkout",
+    date: "2026-08-28",
+    area: "finance",
+    title: t(
+      "Checkout de matrícula para secciones llenas",
+      "Enrollment-fee checkout for full sections",
+      "Checkout de matrícula para turmas cheias",
+    ),
+    summary: t(
+      "Admin puede iniciar el cobro de matrícula aunque la sección ya no tenga cupo, para no perder inscripciones pagas.",
+      "Admins can start the enrollment-fee flow even when a section is full, so paid sign-ups are not lost.",
+      "A admin pode iniciar a cobrança de matrícula mesmo com a turma cheia, para não perder inscrições pagas.",
+    ),
+  },
+  {
+    id: "scholarship-fee-card",
+    date: "2026-08-27",
+    area: "finance",
+    title: t(
+      "Cuota mensual con beca ya aplicada",
+      "Monthly fee card shows the scholarship average",
+      "Mensalidade com bolsa já aplicada",
+    ),
+    summary: t(
+      "La tarjeta de cuota del alumno muestra el promedio ajustado por beca, no solo el arancel de lista.",
+      "The student monthly-fee card shows the scholarship-adjusted average, not only the list price.",
+      "O cartão de mensalidade do aluno mostra a média ajustada pela bolsa, não só o valor de tabela.",
+    ),
+  },
+  {
     id: "parent-multi-section-pay",
     date: "2026-08-27",
     area: "parent",

@@ -23,6 +23,8 @@ import { getInscriptionsEnabled } from "@/lib/settings/inscriptionsServer";
 import { getPublicCtaMode } from "@/lib/settings/getPublicCtaMode";
 import { loadLandingQuestionnaires } from "@/lib/questionnaires/loadLandingQuestionnaires";
 import { LandingQuestionnairesSection } from "@/components/organisms/LandingQuestionnairesSection";
+import { HomeEventPopup } from "@/components/organisms/HomeEventPopup";
+import { loadHomeEventPopup } from "@/lib/dashboard/events/loadHomeEventPopup";
 import { buildHomePageMetadata } from "@/lib/metadata/buildHomePageMetadata";
 import type { SiteThemeKind } from "@/types/theming";
 
@@ -77,7 +79,7 @@ export default async function HomePage({ params }: HomePageProps) {
     );
   }
 
-  const [activeTheme, blogEnabled, merchEnabled, publicCtaMode, inscriptionsEnabled, landingQuestionnaires] =
+  const [activeTheme, blogEnabled, merchEnabled, publicCtaMode, inscriptionsEnabled, landingQuestionnaires, homePopupEvents] =
     await Promise.all([
       loadActiveTheme(),
       loadBlogEnabled(),
@@ -85,6 +87,7 @@ export default async function HomePage({ params }: HomePageProps) {
       getPublicCtaMode(),
       getInscriptionsEnabled(),
       loadLandingQuestionnaires(supabase, locale),
+      loadHomeEventPopup(supabase, locale),
     ]);
 
   const dict = applyLandingContentOverrides(
@@ -124,22 +127,43 @@ export default async function HomePage({ params }: HomePageProps) {
     </>
   );
 
+  const popup = dict.events.public.homePopup;
   return (
-    <LandingSurfaceGate
-      main={main}
-      brand={brand}
-      dict={dict}
-      locale={locale}
-      sessionEmail={sessionEmail}
-      blogEnabled={blogEnabled}
-      merchEnabled={merchEnabled}
-      suppressHeader={marketingShell}
-      suppressPwaHeader={marketingShell}
-      suppressMarketingShellFooter={marketingLandingSuppressesShellFooter(
-        templateKind,
-      )}
-      marketingFullBleedShell={marketingShell}
-      marketingLandingFooterBrand={MARKETING_FOOTER_BRAND[templateKind]}
-    />
+    <>
+      <HomeEventPopup
+        locale={locale}
+        events={homePopupEvents}
+        labels={{
+          dialogTitle: popup.dialogTitle,
+          close: popup.close,
+          previous: popup.previous,
+          next: popup.next,
+          position: popup.position,
+          dateLabel: dict.events.public.dateLabel,
+          locationLabel: dict.events.public.locationLabel,
+          viewEvent: dict.events.public.viewDetail,
+          imageLoading: popup.imageLoading,
+          free: dict.events.public.free,
+          priceLocal: dict.events.public.priceLocal,
+          priceNonLocal: dict.events.public.priceNonLocal,
+        }}
+      />
+      <LandingSurfaceGate
+        main={main}
+        brand={brand}
+        dict={dict}
+        locale={locale}
+        sessionEmail={sessionEmail}
+        blogEnabled={blogEnabled}
+        merchEnabled={merchEnabled}
+        suppressHeader={marketingShell}
+        suppressPwaHeader={marketingShell}
+        suppressMarketingShellFooter={marketingLandingSuppressesShellFooter(
+          templateKind,
+        )}
+        marketingFullBleedShell={marketingShell}
+        marketingLandingFooterBrand={MARKETING_FOOTER_BRAND[templateKind]}
+      />
+    </>
   );
 }

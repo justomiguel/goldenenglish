@@ -1,4 +1,5 @@
 import { AdminEventPublishBar } from "@/components/dashboard/admin/events/AdminEventPublishBar";
+import { AdminEventShowOnHomeToggle } from "@/components/dashboard/admin/events/AdminEventShowOnHomeToggle";
 import { AdminEventSummaryScheduleForm } from "@/components/dashboard/admin/events/AdminEventSummaryScheduleForm";
 import { AdminEventSummaryPricingForm } from "@/components/dashboard/admin/events/AdminEventSummaryPricingForm";
 import { AdminEventTranslationsEditor } from "@/components/dashboard/admin/events/AdminEventTranslationsEditor";
@@ -45,6 +46,12 @@ export function AdminEventDetailSummaryTab({
           viewPublic: detail.viewPublic,
           publishedHint: detail.publishedHint,
         }}
+      />
+      <AdminEventShowOnHomeToggle
+        locale={locale}
+        eventId={eventId}
+        showOnHome={Boolean(event.show_on_home)}
+        labels={detail.showOnHome}
       />
       <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 shadow-[var(--shadow-soft)]">
         <h3 className="mb-3 text-sm font-semibold text-[var(--color-foreground)]">{schedule.sectionTitle}</h3>

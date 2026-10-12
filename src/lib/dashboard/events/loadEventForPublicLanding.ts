@@ -1,5 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { eventPublicLandingFilters } from "@/lib/dashboard/events/eventPublicLandingFilters";
 import type { EventFormFieldDefinition } from "@/lib/events/types";
+import { resolveRegistrationFieldOrder } from "@/lib/events/registrationFieldOrder";
+import {
+  loadActiveRegistrationFlows,
+  registrationFlowName,
+} from "@/lib/events/server/loadActiveRegistrationFlows";
 import { isEventLocale, type EventLocale } from "@/lib/events/domain";
 import { resolveEventTranslation } from "@/lib/events/resolveEventTranslation";
 import {
@@ -31,6 +37,11 @@ export interface PublicEventDetail {
   localeUsed: EventLocale;
   bankTransferInstructions: string | null;
   collectBirthDate: boolean;
+  requirePhone: boolean;
+  requireBirthDate: boolean;
+  questionOrder: string[];
+  priceByFlow: boolean;
+  flows: PublicEventRegistrationFlow[];
   fields: EventFormFieldDefinition[];
   allowMultipleTickets: boolean;
   maxTicketsPerRegistration: number | null;
@@ -39,6 +50,13 @@ export interface PublicEventDetail {
   companionCollectEmail: boolean;
   /** Non-archived packages. A non-empty list means the event is in package mode. */
   packages: PublicEventPackage[];
+}
+
+export interface PublicEventRegistrationFlow {
+  id: string;
+  name: string;
+  price: number | null;
+  fieldOrder: string[];
 }
 
 export interface PublicEventPackage {
@@ -54,16 +72,22 @@ export async function loadEventForPublicLanding(
   supabase: SupabaseClient,
   slug: string,
   locale: string,
+  options?: { eventId?: string; includeUnpublished?: boolean },
 ): Promise<PublicEventDetail | null> {
-  const { data: eventRow } = await supabase
+  const lookup = eventPublicLandingFilters({
+    slug,
+    eventId: options?.eventId,
+    includeUnpublished: options?.includeUnpublished,
+  });
+  let request = supabase
     .from("events")
     .select(
-      "id, slug, title, description, view_count, event_date, location, price, price_local, price_non_local, currency, capacity, default_locale, bank_transfer_instructions, collect_birth_date, allow_multiple_tickets, max_tickets_per_registration, companion_collect_dni, companion_collect_birth_date, companion_collect_email",
+      "id, slug, title, description, view_count, event_date, location, price, price_local, price_non_local, currency, capacity, default_locale, bank_transfer_instructions, collect_birth_date, require_phone, require_birth_date, registration_field_order, price_by_flow, allow_multiple_tickets, max_tickets_per_registration, companion_collect_dni, companion_collect_birth_date, companion_collect_email",
     )
-    .eq("slug", slug)
-    .eq("status", "published")
-    .is("archived_at", null)
-    .maybeSingle();
+    .is("archived_at", null);
+  request = lookup.column === "id" ? request.eq("id", lookup.value) : request.eq("slug", lookup.value);
+  if (lookup.publishedOnly) request = request.eq("status", "published");
+  const { data: eventRow } = await request.maybeSingle();
 
   if (!eventRow?.id) return null;
 
@@ -92,7 +116,7 @@ export async function loadEventForPublicLanding(
   const { data: fieldsRows } = await supabase
     .from("event_form_fields")
     .select(
-      "id, field_key, field_type, label_i18n, help_text_i18n, options_i18n, required, max_file_size_bytes, allowed_mime_types",
+      "id, field_key, field_type, label_i18n, help_text_i18n, options_i18n, required, position, flow_id, max_file_size_bytes, allowed_mime_types",
     )
     .eq("event_id", eventRow.id)
     .is("archived_at", null)
@@ -110,14 +134,17 @@ export async function loadEventForPublicLanding(
     allowedMimeTypes: ((row.allowed_mime_types as string[] | null) ?? []).map((item) =>
       item.toLowerCase(),
     ),
+    flowId: row.flow_id == null ? null : String(row.flow_id),
+    position: Number(row.position ?? 0),
   }));
 
   const priceLocal = resolveEventLocalPrice(priceSource);
   const priceNonLocal = resolveEventNonLocalPrice(priceSource);
 
-  const [packageRows, seatsSold] = await Promise.all([
+  const [packageRows, seatsSold, registrationFlows] = await Promise.all([
     loadEventTicketPackages(supabase, String(eventRow.id)),
     loadEventTicketPackageSeatsSold(supabase, String(eventRow.id)),
+    loadActiveRegistrationFlows(supabase, String(eventRow.id)),
   ]);
 
   const packages: PublicEventPackage[] = packageRows.map((row) => ({
@@ -150,6 +177,24 @@ export async function loadEventForPublicLanding(
         ? null
         : String(eventRow.bank_transfer_instructions),
     collectBirthDate: Boolean(eventRow.collect_birth_date),
+    requirePhone: Boolean(eventRow.require_phone),
+    requireBirthDate: Boolean(eventRow.require_birth_date),
+    questionOrder: resolveRegistrationFieldOrder({
+      stored: Array.isArray(eventRow.registration_field_order)
+        ? eventRow.registration_field_order.map((token) => String(token))
+        : [],
+      extras: fields
+        .filter((field) => registrationFlows.length === 0 || field.flowId == null)
+        .map((field) => ({ id: field.id, position: field.position ?? 0 })),
+      collectBirthDate: Boolean(eventRow.collect_birth_date),
+    }),
+    priceByFlow: Boolean(eventRow.price_by_flow),
+    flows: registrationFlows.map((flow) => ({
+      id: flow.id,
+      name: registrationFlowName(flow.nameI18n, locale, defaultLocale),
+      price: flow.price,
+      fieldOrder: flow.fieldOrder,
+    })),
     fields,
     allowMultipleTickets: Boolean(eventRow.allow_multiple_tickets),
     maxTicketsPerRegistration:
