@@ -135,7 +135,7 @@ export const overdueBalanceReminderTemplate: EmailTemplateDefinition = {
       subject: "Recordatorio: cuota pendiente · {{sectionName}}",
       bodyHtml: `<p style="margin:0 0 12px;">Hola,</p>
 <p style="margin:0 0 8px;">Tu cuenta muestra <strong>{{amountLabel}}</strong> vencido en <strong>{{sectionName}}</strong> ({{periodContext}}).</p>
-<p style="margin:0;color:#6B7280;font-size:0.875rem;">Subí el comprobante o escribinos si ya pagaste.</p>`,
+<p style="margin:0;color:#6B7280;font-size:0.875rem;">Sube el comprobante o escríbenos si ya pagaste.</p>`,
     },
     en: {
       subject: "Reminder: balance due · {{sectionName}}",

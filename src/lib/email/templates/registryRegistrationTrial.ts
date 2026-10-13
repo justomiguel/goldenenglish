@@ -35,7 +35,7 @@ export const adminTrialAttendanceDueTemplate: EmailTemplateDefinition = {
     es: {
       subject: "Clase de prueba en 1 h · {{studentName}}",
       bodyHtml: `<p style="margin:0 0 12px;">{{studentName}} tiene clase de prueba en <strong>{{sectionName}}</strong> ({{scheduleLabel}}).</p>
-<p style="margin:0 0 12px;">Revisá si llegó y marcá presente o ausente en la preinscripción o en la asistencia del horario.</p>
+<p style="margin:0 0 12px;">Revisa si llegó y marca presente o ausente en la preinscripción o en la asistencia del horario.</p>
 <p style="margin:0;"><a href="{{adminUrl}}">Abrir preinscripciones</a></p>`,
     },
     en: {

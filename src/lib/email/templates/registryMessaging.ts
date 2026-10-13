@@ -22,7 +22,7 @@ export const teacherNewTemplate: EmailTemplateDefinition = {
   defaults: withPtFallback({
     es: {
       subject: "Nuevo mensaje del portal",
-      bodyHtml: `<p>Tenés un nuevo mensaje de <strong>{{senderName}}</strong>.</p>
+      bodyHtml: `<p>Tienes un nuevo mensaje de <strong>{{senderName}}</strong>.</p>
 <blockquote style="${previewBlockStyle}">{{messagePreview}}</blockquote>
 <p><a href="{{href}}" style="${linkStyle}">Abrir el inbox del docente</a></p>`,
     },
@@ -52,7 +52,7 @@ export const staffPortalNewTemplate: EmailTemplateDefinition = {
   defaults: withPtFallback({
     es: {
       subject: "Nuevo mensaje en tu portal",
-      bodyHtml: `<p>Tenés un nuevo mensaje de <strong>{{senderName}}</strong>.</p>
+      bodyHtml: `<p>Tienes un nuevo mensaje de <strong>{{senderName}}</strong>.</p>
 <blockquote style="${previewBlockStyle}">{{messagePreview}}</blockquote>
 <p><a href="{{href}}" style="${linkStyle}">{{openLinkLabel}}</a></p>`,
     },
@@ -81,7 +81,7 @@ export const replyTemplate: EmailTemplateDefinition = {
   ],
   defaults: withPtFallback({
     es: {
-      subject: "Tenés una respuesta a tu mensaje",
+      subject: "Tienes una respuesta a tu mensaje",
       bodyHtml: `<p><strong>{{teacherName}}</strong> respondió a tu mensaje.</p>
 <blockquote style="${previewBlockStyle}">{{replyPreview}}</blockquote>
 <p><a href="{{href}}" style="${linkStyle}">{{openLinkLabel}}</a></p>`,

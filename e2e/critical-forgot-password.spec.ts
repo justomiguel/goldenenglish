@@ -45,7 +45,7 @@ test.describe("@critical-forgot-password", () => {
     await forgotPage.getByLabel(/Correo electrónico|Email/i).fill(THROW_AWAY_EMAIL);
     await forgotPage.getByRole("button", { name: /Enviar enlace|Send (reset )?link|Send/i }).click();
     await expect(
-      forgotPage.getByRole("heading", { name: /Revisá tu casilla|Check your (email|inbox)|inbox/i }),
+      forgotPage.getByRole("heading", { name: /Revisa tu casilla|Check your (email|inbox)|inbox/i }),
     ).toBeVisible({ timeout: 30_000 });
 
     let resetUrl: string | null = null;
@@ -73,7 +73,7 @@ test.describe("@critical-forgot-password", () => {
       exact: true,
     });
     const confirmField = resetPage.getByRole("textbox", {
-      name: /Repetí la nueva contraseña|Confirm (the )?new password|Repeat/i,
+      name: /Repite la nueva contraseña|Confirm (the )?new password|Repeat/i,
     });
     await expect(passwordField).toBeVisible({ timeout: 60_000 });
     await passwordField.fill(newPassword);

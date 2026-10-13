@@ -100,7 +100,7 @@ describe("Copy – four kept strings are unchanged", () => {
   it("selfProtected is unchanged in ES", () => {
     const d = loadDict("es");
     const value = get(d, "admin", "users", "selfProtected");
-    expect(value).toBe("No podés eliminar tu propia sesión desde aquí.");
+    expect(value).toBe("No puedes eliminar tu propia sesión desde aquí.");
   });
 
   it("tipList is unchanged in ES", () => {
@@ -118,7 +118,7 @@ describe("Copy – four kept strings are unchanged", () => {
   it("tipSelectAllVisible starts with the expected prefix in ES", () => {
     const d = loadDict("es");
     const value = get(d, "admin", "users", "tipSelectAllVisible");
-    expect(value).toContain("Seleccioná o quitá la selección de todas las cuentas de esta página");
+    expect(value).toContain("Selecciona o quita la selección de todas las cuentas de esta página");
   });
 });
 

@@ -24,6 +24,7 @@ Follow **`.agents/skills/i18n-localization/SKILL.md`** for mindset (keys not lit
 
 ## Formatting & grammar in translated strings
 
+- **Spanish register** — user-facing `es` copy is neutral Latin American tuteo. Follow **`40-neutral-spanish-copy.mdc`** (*tienes*, *haz clic*). Do not write Argentine voseo (*tenés*, *hacé*) or Peninsular Spanish (*vosotros*, *ordenador*).
 - **Dates, times, numbers, currency, lists** — use **`Intl.*`** (`Intl.DateTimeFormat`, `Intl.NumberFormat`, `Intl.ListFormat`, etc.) with the active locale, not hand-built locale-specific strings in code.
 - **Pluralization & gender** — avoid naive string concatenation of translated fragments; use ICU-style patterns or per-locale full sentences as agreed in the project (if the codebase adds ICU later, follow it; until then, separate keys per plural branch are acceptable).
 - **RTL** — layout uses logical properties / `dir`-aware patterns where relevant; do not assume left-to-right only for mirrored concepts.
@@ -44,7 +45,7 @@ When building a **visible full name** from profile fields (`first_name` / `last_
 
 ## Agent checklist
 
-- [ ] New or changed UI strings: added to **`en.json` + `es.json`**, consumed through the project’s dictionary access pattern (no raw JSX English/Spanish for user-visible text).
+- [ ] New or changed UI strings: added to **`en.json` + `es.json`**, consumed through the project’s dictionary access pattern (no raw JSX English/Spanish for user-visible text). Spanish follows **`40-neutral-spanish-copy.mdc`**.
 - [ ] User-facing errors from server actions: return a **stable code** or use dictionary-backed messaging on the client/server boundary — avoid ad-hoc English sentences only in TS.
 - [ ] Metadata / SEO: follow **`06-seo-performance.mdc`**; translatable descriptions use the same dictionary / `generateMetadata` pattern as the rest of the locale tree.
 - [ ] A11y strings users hear or screen readers announce as content: from dictionaries, not hardcoded.

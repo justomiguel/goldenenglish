@@ -37,6 +37,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 |----|-----|
 | **`08-analytics-observability.mdc`** | Métricas: `user_events`, ingestión cliente/API, `recordSystemAudit`, sin features “silenciosas”; fiabilidad tipo SRE (SLI/SLO, alertas accionables) donde aplique. |
 | **`09-i18n-copy.mdc`** | Copy visible: `src/dictionaries/en.json` + `es.json`, sin literales en UI; `Intl` para fechas/números; skill **`i18n-localization`**. |
+| **`40-neutral-spanish-copy.mdc`** | Español visible en tuteo neutro latinoamericano (*tienes*, *haz clic*). Prohibido el voseo (*tenés*, *hacé*) y el español de España (*vosotros*). |
 | **`10-engineering-governance.mdc`** | ADR / mini diseño para auth, datos, integraciones y contratos públicos; enlaces con TDD, DDD y terceros. |
 | **`11-long-running-jobs-ui.mdc`** | Jobs largos: `LongJobActivityModal` (log desde backend) + `LongJobLoader` + `useLongJobPoll` / SSE + `pollLongJob`. |
 | **`12-supabase-app-boundaries.mdc`** | Supabase solo vía la app: fábricas de cliente en `src/lib/supabase/`; sin PostgREST/Postgres ad hoc para negocio; alineado con DDD y `03-architecture`. |
@@ -80,7 +81,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 2. Read the relevant **`.cursor/rules/*.mdc`** file.
 3. Prefer **project conventions** over copy-pasting generic skill code.
 4. Nuevas features con impacto en producto o admin: **`.cursor/rules/08-analytics-observability.mdc`** (eventos y auditoría).
-5. Cualquier texto que vea el usuario: **`.cursor/rules/09-i18n-copy.mdc`** (diccionarios y convenciones del repo).
+5. Cualquier texto que vea el usuario: **`.cursor/rules/09-i18n-copy.mdc`** (diccionarios y convenciones del repo). Español: tuteo neutro en **`.cursor/rules/40-neutral-spanish-copy.mdc`**.
 6. Auth, datos, integraciones o contratos públicos: **`.cursor/rules/10-engineering-governance.mdc`** (ADR / mini diseño).
 7. Importaciones o batches largos con feedback en UI: **`.cursor/rules/11-long-running-jobs-ui.mdc`** (`LongJobStatus`, `pollLongJob`).
 8. Acceso a Supabase (clientes, REST, service role): **`.cursor/rules/12-supabase-app-boundaries.mdc`**.

@@ -1,0 +1,40 @@
+---
+description: "User-facing Spanish must be neutral Latin American tuteo (es-419), never Argentine voseo or Peninsular Spanish."
+alwaysApply: true
+---
+
+# Neutral Spanish copy (es-419 tuteo)
+
+The `es` locale is the default for every tenant. Spanish that a parent, student, teacher, or admin can read must be **neutral Latin American Spanish with tuteo**. Rioplatense voseo and Peninsular Spanish are both wrong for this product.
+
+Applies to `src/dictionaries/es.json`, email HTML users read, the Spanish argument of product-changelog `t()`, tutorial steps, toasts, `aria-label`s, and SEO descriptions.
+
+## Register
+
+| Do not write | Write |
+|---|---|
+| vos / tenés / podés / querés | tú (omit when natural) / tienes / puedes / quieres |
+| Hacé clic / Usá / Ingresá / Intentá / Probá | Haz clic / Usa / Ingresa / Intenta / Prueba |
+| escribinos | escríbenos |
+| te vamos a pedir | te pediremos |
+| un pedido (meaning a request) | una solicitud |
+
+```text
+❌ No tenés permiso. Hacé clic para continuar.
+✅ No tienes permiso. Haz clic para continuar.
+```
+
+## Keep
+
+- Latin American words already neutral: *computadora*, *celular*, *correo*.
+- Document labels: DNI, RUT, pasaporte.
+- Product voice is tuteo. Do not switch a screen to *usted* or to *vosotros*, *ordenador*, or *móvil*.
+
+## When you edit legacy copy
+
+If a string you touch still uses voseo, convert **that string** in the same change. Do not start a repo-wide rewrite unless the task asks for it.
+
+## Checklist
+
+- [ ] New or edited Spanish uses tuteo (*tienes*, *haz*, *ingresa*)?
+- [ ] No *vos*, *tenés*, *podés*, *hacé*, *ingresá*, or *escribinos* left in the lines you changed?

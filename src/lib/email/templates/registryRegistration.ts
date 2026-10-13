@@ -78,7 +78,7 @@ export const welcomeTemplate: EmailTemplateDefinition = {
       bodyHtml: `<p style="margin:0 0 12px;">Hola {{greetingName}},</p>
 <p style="margin:0 0 12px;">{{studentName}} ya está en <strong>{{sectionName}}</strong>.</p>
 <p style="margin:0 0 12px;">Horario: {{scheduleLabel}}</p>
-<p style="margin:0 0 12px;">Ya podés entrar al portal. Por seguridad, cambiá la contraseña en el primer ingreso.</p>
+<p style="margin:0 0 12px;">Ya puedes entrar al portal. Por seguridad, cambia la contraseña en el primer ingreso.</p>
 <p style="margin:0 0 12px;"><a href="{{inviteUrl}}" style="color:#103A5C;text-decoration:underline;font-weight:600;">Entrar al portal</a></p>
 {{payBlock}}`,
     },
@@ -108,7 +108,7 @@ export const receiptRejectedTemplate: EmailTemplateDefinition = {
       subject: "No pudimos validar el comprobante de matrícula",
       bodyHtml: `<p style="margin:0 0 12px;">Hola {{greetingName}},</p>
 <p style="margin:0 0 12px;">No pudimos validar el comprobante de matrícula de <strong>{{studentName}}</strong>.</p>
-<p style="margin:0 0 12px;">Podés volver a pagar o subir otro comprobante:</p>
+<p style="margin:0 0 12px;">Puedes volver a pagar o subir otro comprobante:</p>
 {{payBlock}}`,
     },
     en: {
@@ -135,7 +135,7 @@ export const sectionFullTemplate: EmailTemplateDefinition = {
       subject: "Se llenó el horario de {{sectionName}}",
       bodyHtml: `<p style="margin:0 0 12px;">Hola {{greetingName}},</p>
 <p style="margin:0 0 12px;">El horario de <strong>{{sectionName}}</strong> se llenó antes de confirmar el lugar de {{studentName}}.</p>
-<p style="margin:0 0 12px;">En este link podés elegir otro horario con cupo o escribirnos:</p>
+<p style="margin:0 0 12px;">En este link puedes elegir otro horario con cupo o escribirnos:</p>
 {{payBlock}}`,
     },
     en: {

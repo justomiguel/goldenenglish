@@ -25,7 +25,7 @@ const PAY_GATEWAYS = /Pagar con Flow|Pagar con Mercado Pago|Pay with Flow|Pay wi
 const PAY_HEADING = /Pago de ingreso|Pay enrollment|Pagamento de ingresso/i;
 const PAY_AMOUNT = /Matrícula:\s*15\.000|15\.000\s*US\$|15000/;
 const OFFER_GONE =
-  /Esa propuesta también se llenó|That offer filled|Ese horario se llenó|Elegí otro/i;
+  /Esa propuesta también se llenó|That offer filled|Ese horario se llenó|Elige otro/i;
 
 test.describe("@critical-registration", () => {
   test.beforeEach(() => {

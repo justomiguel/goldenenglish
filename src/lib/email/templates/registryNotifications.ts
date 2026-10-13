@@ -18,7 +18,7 @@ export const churnInactivityTemplate: EmailTemplateDefinition = {
     es: {
       subject: "Te extrañamos en el portal",
       bodyHtml: `<p>{{greeting}}</p>
-<p>Notamos que <strong>{{studentDisplayName}}</strong> hace tiempo que no abre el portal. Si necesitás ayuda, escribinos.</p>
+<p>Notamos que <strong>{{studentDisplayName}}</strong> hace tiempo que no abre el portal. Si necesitas ayuda, escríbenos.</p>
 <p style="font-size:0.875rem;color:#6B7280;">{{contactEmail}}</p>`,
     },
     en: {
@@ -58,7 +58,7 @@ export const wardEmailChangedTemplate: EmailTemplateDefinition = {
   <li>Nuevo: <strong>{{newEmail}}</strong></li>
   <li>Realizado por su tutor: {{parentName}}</li>
 </ul>
-<p>Si vos no autorizaste este cambio, escribinos <strong>de inmediato</strong> a <a href="mailto:{{supportEmail}}">{{supportEmail}}</a> para revertirlo.</p>`,
+<p>Si tú no autorizaste este cambio, escríbenos <strong>de inmediato</strong> a <a href="mailto:{{supportEmail}}">{{supportEmail}}</a> para revertirlo.</p>`,
     },
     en: {
       subject: "We updated {{wardName}}'s login email",
@@ -96,8 +96,8 @@ export const adminStudentWelcomeTemplate: EmailTemplateDefinition = {
     es: {
       subject: "Bienvenido al portal",
       bodyHtml: `<p style="margin:0 0 12px;">Hola {{greetingName}},</p>
-<p style="margin:0 0 12px;">Ya estás inscripto. Podés entrar al portal con tu usuario.</p>
-<p style="margin:0 0 12px;">Por seguridad, debés cambiar la contraseña en el primer ingreso.</p>
+<p style="margin:0 0 12px;">Ya estás inscripto. Puedes entrar al portal con tu usuario.</p>
+<p style="margin:0 0 12px;">Por seguridad, debes cambiar la contraseña en el primer ingreso.</p>
 <p style="margin:0;"><a href="{{portalUrl}}" style="${portalLinkStyle}">Entrar al portal</a></p>`,
     },
     en: {
@@ -131,8 +131,8 @@ export const adminTutorWelcomeTemplate: EmailTemplateDefinition = {
       subject: "Bienvenida: {{studentName}} ya está inscripto",
       bodyHtml: `<p style="margin:0 0 12px;">Hola,</p>
 <p style="margin:0 0 12px;"><strong>{{studentName}}</strong> ya está inscripto en el instituto.</p>
-<p style="margin:0 0 12px;">Como tutor podés entrar al portal familiar para ver su información.</p>
-<p style="margin:0 0 12px;">Por seguridad, debés cambiar tu contraseña en el primer ingreso.</p>
+<p style="margin:0 0 12px;">Como tutor puedes entrar al portal familiar para ver su información.</p>
+<p style="margin:0 0 12px;">Por seguridad, debes cambiar tu contraseña en el primer ingreso.</p>
 <p style="margin:0;"><a href="{{portalUrl}}" style="${portalLinkStyle}">Entrar al portal</a></p>`,
     },
     en: {
@@ -168,8 +168,8 @@ export const parentPlatformInviteTemplate: EmailTemplateDefinition = {
     es: {
       subject: "Bienvenida al portal, {{nombre}}",
       bodyHtml: `<p style="margin:0 0 12px;">Hola {{nombre}} {{apellido}},</p>
-<p style="margin:0 0 12px;">Ya tenés una cuenta en el portal familiar del instituto.</p>
-<p style="margin:0 0 12px;">Usá este link para crear o resetear tu contraseña y entrar:</p>
+<p style="margin:0 0 12px;">Ya tienes una cuenta en el portal familiar del instituto.</p>
+<p style="margin:0 0 12px;">Usa este link para crear o resetear tu contraseña y entrar:</p>
 <p style="margin:0 0 12px;"><a href="{{resetUrl}}" style="${portalLinkStyle}">Crear o resetear contraseña</a></p>
 <p style="margin:0;"><a href="{{portalUrl}}" style="${portalLinkStyle}">Entrar al portal</a></p>`,
     },
@@ -193,12 +193,12 @@ export const classReminderPrepTemplate: EmailTemplateDefinition = {
     en: "Reminder email sent hours before each class so the student can prepare.",
   },
   placeholders: [
-    { name: "lead", description: "Frase introductoria", sample: "Tenés clase pronto:" },
+    { name: "lead", description: "Frase introductoria", sample: "Tienes clase pronto:" },
     { name: "sectionLabel", description: "Sección + curso", sample: "Section A — Cohort 2026" },
     { name: "scheduleLineLabel", description: "Etiqueta del horario", sample: "Inicio (hora del instituto)" },
     { name: "whenLine", description: "Fecha y hora formateadas", sample: "lunes 21 abril 2026, 18:00" },
     { name: "locationLine", description: "Aula o link de la clase online", sample: "Aula 3" },
-    { name: "portalLine", description: "Línea con el enlace al portal", sample: "Abrí el portal: https://example.com" },
+    { name: "portalLine", description: "Línea con el enlace al portal", sample: "Abre el portal: https://example.com" },
   ],
   defaults: withPtFallback({
     es: {

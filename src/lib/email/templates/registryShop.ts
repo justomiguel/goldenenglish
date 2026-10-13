@@ -50,7 +50,7 @@ export const shopGuestAccountCreatedTemplate: EmailTemplateDefinition = {
 <p>Creamos tu cuenta de tutor para seguir el pedido. Tu contraseña temporal es:</p>
 <p><strong>{{password}}</strong></p>
 <p style="margin:24px 0;"><a href="{{signInUrl}}" style="${linkStyle}">Ingresar</a></p>
-<p>Podés ver el estado del pedido acá:</p>
+<p>Puedes ver el estado del pedido aquí:</p>
 <p><a href="{{orderUrl}}">{{orderUrl}}</a></p>
 <p style="font-size:0.875rem;color:#6B7280;">Te vamos a pedir que cambies la contraseña la primera vez que ingreses.</p>`,
     },

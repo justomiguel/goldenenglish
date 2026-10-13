@@ -19,12 +19,12 @@ export const passwordResetTemplate: EmailTemplateDefinition = {
   ],
   defaults: withPtFallback({
     es: {
-      subject: "{{brandName}} — Restablecé tu contraseña",
+      subject: "{{brandName}} — Restablece tu contraseña",
       bodyHtml: `<p>Hola,</p>
-<p>Recibimos un pedido para restablecer la contraseña de tu cuenta ({{email}}). Hacé clic en el botón para definir una nueva contraseña. El enlace dura 1 hora.</p>
+<p>Recibimos una solicitud para restablecer la contraseña de tu cuenta ({{email}}). Haz clic en el botón para definir una nueva contraseña. El enlace dura 1 hora.</p>
 <p style="margin:24px 0;"><a href="{{href}}" style="${linkStyle}">Restablecer contraseña</a></p>
-<p style="font-size:0.875rem;color:#6B7280;">Si el botón no funciona, pegá este enlace en tu navegador:<br/><a href="{{href}}">{{href}}</a></p>
-<p style="font-size:0.875rem;color:#6B7280;">Si no pediste este correo, podés ignorarlo. Tu contraseña no cambiará.</p>`,
+<p style="font-size:0.875rem;color:#6B7280;">Si el botón no funciona, pega este enlace en tu navegador:<br/><a href="{{href}}">{{href}}</a></p>
+<p style="font-size:0.875rem;color:#6B7280;">Si no pediste este correo, puedes ignorarlo. Tu contraseña no cambiará.</p>`,
     },
     en: {
       subject: "{{brandName}} — Reset your password",
@@ -57,9 +57,9 @@ export const adminPasswordResetNoticeTemplate: EmailTemplateDefinition = {
     es: {
       subject: "{{brandName}} — Un administrador restableció tu contraseña",
       bodyHtml: `<p>Hola,</p>
-<p>Un administrador acaba de restablecer la contraseña de tu cuenta ({{email}}). La próxima vez que ingreses te vamos a pedir que elijas una contraseña nueva.</p>
-<p>Si no pediste este cambio ni lo coordinaste con nuestro equipo, escribinos enseguida a <a href="mailto:{{contactEmail}}">{{contactEmail}}</a> para asegurar tu cuenta.</p>
-<p style="font-size:0.875rem;color:#6B7280;">Este es un aviso de seguridad automático. Podés ignorarlo si vos coordinaste el reset con nosotros.</p>`,
+<p>Un administrador acaba de restablecer la contraseña de tu cuenta ({{email}}). La próxima vez que ingreses te pediremos que elijas una contraseña nueva.</p>
+<p>Si no pediste este cambio ni lo coordinaste con nuestro equipo, escríbenos enseguida a <a href="mailto:{{contactEmail}}">{{contactEmail}}</a> para asegurar tu cuenta.</p>
+<p style="font-size:0.875rem;color:#6B7280;">Este es un aviso de seguridad automático. Puedes ignorarlo si tú coordinaste el reset con nosotros.</p>`,
     },
     en: {
       subject: "{{brandName}} — An administrator reset your password",
