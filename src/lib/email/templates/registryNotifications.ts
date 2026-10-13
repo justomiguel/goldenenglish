@@ -96,7 +96,7 @@ export const adminStudentWelcomeTemplate: EmailTemplateDefinition = {
     es: {
       subject: "Bienvenido al portal",
       bodyHtml: `<p style="margin:0 0 12px;">Hola {{greetingName}},</p>
-<p style="margin:0 0 12px;">Ya estás inscripto. Puedes entrar al portal con tu usuario.</p>
+<p style="margin:0 0 12px;">Ya estás inscrito. Puedes entrar al portal con tu usuario.</p>
 <p style="margin:0 0 12px;">Por seguridad, debes cambiar la contraseña en el primer ingreso.</p>
 <p style="margin:0;"><a href="{{portalUrl}}" style="${portalLinkStyle}">Entrar al portal</a></p>`,
     },
@@ -128,9 +128,9 @@ export const adminTutorWelcomeTemplate: EmailTemplateDefinition = {
   ],
   defaults: withPtFallback({
     es: {
-      subject: "Bienvenida: {{studentName}} ya está inscripto",
+      subject: "Bienvenida: {{studentName}} ya está inscrito",
       bodyHtml: `<p style="margin:0 0 12px;">Hola,</p>
-<p style="margin:0 0 12px;"><strong>{{studentName}}</strong> ya está inscripto en el instituto.</p>
+<p style="margin:0 0 12px;"><strong>{{studentName}}</strong> ya está inscrito en el instituto.</p>
 <p style="margin:0 0 12px;">Como tutor puedes entrar al portal familiar para ver su información.</p>
 <p style="margin:0 0 12px;">Por seguridad, debes cambiar tu contraseña en el primer ingreso.</p>
 <p style="margin:0;"><a href="{{portalUrl}}" style="${portalLinkStyle}">Entrar al portal</a></p>`,

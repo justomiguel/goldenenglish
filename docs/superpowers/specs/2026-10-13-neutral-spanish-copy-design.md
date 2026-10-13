@@ -21,8 +21,17 @@ The default `es` locale is shared by every tenant. Families outside Argentina re
 | escribinos | escríbenos |
 | te vamos a pedir | te pediremos |
 | un pedido (de restablecer) | una solicitud |
+| inscripto / inscripta | inscrito / inscrita |
+| imaginás | imaginas |
 
 Keep Latin American vocabulary that is already neutral: *computadora*, *celular*, *correo*. Do not switch to peninsular Spanish (*vosotros*, *ordenador*) or to *usted*.
+
+## Follow-up (same register)
+
+- Dictionary, emails, and tests say *inscrito* / *inscrita*.
+- The seeded web NPS prompt *imaginás* becomes *imaginas*, including databases that already stored the old sentence.
+- Developer comments, runbooks, and older specs/plans that still use voseo use tuteo.
+- Rule examples that quote a forbidden form stay, so the rule can show what not to write.
 
 ## Out of scope
 

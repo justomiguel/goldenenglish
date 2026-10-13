@@ -605,7 +605,7 @@ Spanish is the source of truth for tone; translate to English and Portuguese fro
 | `detailCareSaved` | Información de cuidado guardada |
 | `detailErrCareSave` | No se pudo guardar la información de cuidado |
 | `detailCareBadge` | Requiere atención especial |
-| `detailCareForbidden` | No tenés permiso para ver esta información. |
+| `detailCareForbidden` | No tienes permiso para ver esta información. |
 
 - [ ] **Step 1:** Confirm the Spanish with the user, then add all three locales.
 - [ ] **Step 2: Verify parity** — the key sets of `admin.users` and `dashboard.parent` must be identical across `en`/`es`/`pt`, and `npx tsc --noEmit` must pass.

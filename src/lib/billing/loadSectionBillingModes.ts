@@ -6,7 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  * Va en una consulta aparte, y no sumada a los `select` con join que ya hacen las vistas de cobranzas,
  * por una razón operativa: la migración que agrega la columna puede no estar aplicada todavía en una base
  * dada. Sumarla a esos `select` haría fallar toda la consulta con `42703` y dejaría la pantalla de pagos
- * vacía. Aislada acá, el peor caso es un mapa vacío, que los llamadores interpretan como cobro mensual —
+ * vacía. Aislada aquí, el peor caso es un mapa vacío, que los llamadores interpretan como cobro mensual —
  * exactamente el comportamiento actual.
  *
  * Devuelve el valor **crudo**: decidir qué significa es de `parseSectionBillingMode`.

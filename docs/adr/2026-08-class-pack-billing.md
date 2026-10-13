@@ -104,7 +104,7 @@ Requisitos adicionales dados por producto:
 9. **`excused` genera `class_recovery_credits`.** En este alcance solo se acumulan
    y se muestran. Agendar y gastar esas recuperaciones es un proyecto aparte:
    `section_attendance.enrollment_id` exige inscripción en la sección, y recuperar
-   es justamente asistir a una sección donde el alumno no está inscripto; el
+   es justamente asistir a una sección donde el alumno no está inscrito; el
    commit de inscripción además valida solapamiento de horarios, así que no hay
    atajo con inscripciones fantasma.
 

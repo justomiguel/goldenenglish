@@ -388,7 +388,7 @@ Insert immediately after the `roomLabel` object:
   "success": "Nombre de la sección actualizado.",
   "error": "No se pudo guardar. Intentá de nuevo.",
   "duplicate": "Otra sección de este cohort ya usa ese nombre.",
-  "tooShort": "Usá al menos 2 caracteres."
+  "tooShort": "Usa al menos 2 caracteres."
 }
 ```
 

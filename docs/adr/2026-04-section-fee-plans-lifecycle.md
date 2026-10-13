@@ -29,7 +29,7 @@ El usuario eligió, sobre cada caso de borde:
 - **Editar plan en uso**: permitir editar pero mostrar advertencia visible
   ("en uso") y ofrecer "Duplicar como nueva versión".
 - **Eliminar plan con pagos**: bloquear el hard delete con un error claro
-  ("No se puede eliminar: hay pagos. Usá Archivar.") y permitir archivar
+  ("No se puede eliminar: hay pagos. Usa Archivar.") y permitir archivar
   desde el mismo botón.
 
 ## Decisión

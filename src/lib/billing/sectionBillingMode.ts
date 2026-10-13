@@ -4,7 +4,7 @@
  * A diferencia de {@link import("./monthlyFeeChargeMode").parseMonthlyFeeChargeMode}, este parser es
  * **estricto** a propósito. Aquel devuelve `'prorate_by_classes'` ante cualquier valor desconocido, y
  * un modo nuevo con esa semántica haría que todo código que aún no lo conozca cobre una cuota
- * prorrateada en silencio. Acá un valor desconocido devuelve `null` y el llamador expone un error
+ * prorrateada en silencio. Aquí un valor desconocido devuelve `null` y el llamador expone un error
  * tipado: preferimos fallar visible antes que mover plata mal.
  */
 

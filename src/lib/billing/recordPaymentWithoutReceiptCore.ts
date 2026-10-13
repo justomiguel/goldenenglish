@@ -74,7 +74,7 @@ export async function recordOnePaymentWithoutReceipt(
     m,
     { billingScope: "plan-year" },
   );
-  // Exhaustivo: un código nuevo en `SectionPlanAmountResult` rompe la compilación acá hasta que se lo
+  // Exhaustivo: un código nuevo en `SectionPlanAmountResult` rompe la compilación aquí hasta que se lo
   // trate, en vez de convertirse en un pago aprobado con un monto que nadie resolvió.
   if (plan.code !== "ok") return { success: false, code: plan.code, month: m };
   if (plan.amount <= 0) return { success: false, code: "exempt_or_zero", month: m };

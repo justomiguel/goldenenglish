@@ -10,7 +10,7 @@ marcaba como “Activo” cuando ninguna fila de `site_themes` tenía
 `content` ni `blocks` que respaldaran un override, así que un admin no podía
 ajustar ni textos, ni tokens, ni hero, ni subsecciones del “tema por
 defecto”. Eso rompía la promesa del CMS (“todo template se administra desde
-acá”) y dejaba al equipo dependiendo de un cambio de código + redeploy
+aquí”) y dejaba al equipo dependiendo de un cambio de código + redeploy
 cualquier vez que quería retocar el contenido del estado base.
 
 ## Decisión

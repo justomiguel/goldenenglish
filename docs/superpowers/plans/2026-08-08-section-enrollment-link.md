@@ -981,7 +981,7 @@ In `src/dictionaries/es.json`, the same shape:
   },
   "seatsRemainingOne": "Queda 1 cupo",
   "seatsRemainingMany": "Quedan {count} cupos",
-  "waitingListNotice": "Este grupo está completo. Podés enviar tus datos igual y te contactamos si se libera un cupo.",
+  "waitingListNotice": "Este grupo está completo. Puedes enviar tus datos igual y te contactamos si se libera un cupo.",
   "unavailableTitle": "Este enlace ya no está disponible",
   "unavailableInvalid": "El enlace no es válido. Pedile uno nuevo al instituto.",
   "unavailableClosed": "Las inscripciones por este enlace están cerradas. Contactá al instituto.",

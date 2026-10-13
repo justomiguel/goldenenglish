@@ -11,8 +11,8 @@ El gate de precommit falla cerrado si el stack aislado de Supabase no está corr
 ```
 
 Eso obliga a acordarse de `colima start` + `npm run e2e:stack:up` antes de commitear, y de
-bajarlo después (la VM tiene ~8 GB asignados). Si te olvidás de bajarlo queda consumiendo
-recursos indefinidamente; si te olvidás de subirlo, no podés commitear.
+bajarlo después (la VM tiene ~8 GB asignados). Si te olvidas de bajarlo queda consumiendo
+recursos indefinidamente; si te olvidas de subirlo, no puedes commitear.
 
 ## Medición que habilita el diseño
 

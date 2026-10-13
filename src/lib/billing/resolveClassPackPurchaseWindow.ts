@@ -22,7 +22,7 @@ const MAX_YEAR = 2100;
  * comprar hacia atrás es conciliación: si la familia pudiera, cargaría créditos sobre clases ya
  * asistidas y ya en deuda.
  *
- * Vive acá y en ningún otro lado para que la acción del portal y la del admin no se separen. No hay
+ * Vive aquí y en ningún otro lado para que la acción del portal y la del admin no se separen. No hay
  * columna de configuración: nadie pidió configurar esto, y `allow_advance_monthly_payment` es por
  * sección y no puede gobernar una bolsa del alumno.
  */

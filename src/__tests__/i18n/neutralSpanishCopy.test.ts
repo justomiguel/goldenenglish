@@ -30,6 +30,8 @@ const VOSEO_WORDS = new Set([
   "usalo", "usala", "ingresalo", "archivalo", "asignalo", "marcala", "vinculalo", "mantenla",
 ]);
 
+const ARGENTINE_PARTICIPLES = new Set(["inscripto", "inscripta", "inscriptos", "inscriptas"]);
+
 function isFuture(word: string): boolean {
   if (/rás$/.test(word)) return true;
   if (/(?:drá|brá)$/.test(word)) return true;
@@ -41,6 +43,7 @@ function isFuture(word: string): boolean {
 
 function voseoToken(word: string): boolean {
   const w = word.toLowerCase();
+  if (ARGENTINE_PARTICIPLES.has(w)) return true;
   if (SAFE.has(w) || isFuture(w)) return false;
   if (/(?:ás|és|[áéí])$/.test(w)) return true;
   return VOSEO_WORDS.has(w);

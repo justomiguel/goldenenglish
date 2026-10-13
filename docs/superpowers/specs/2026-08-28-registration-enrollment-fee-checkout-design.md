@@ -258,7 +258,7 @@ New `sendBrandedEmail` keys (locale defaults in the registry; admin-editable):
 
 Reuse `billing.receipt_submitted_pending` for the family after upload (period label = “Matrícula”, amount from snapshot).
 
-**Family received (default es tone):** “Hola {greetingName}, recibimos la preinscripción de **{studentName}** para **{sectionName}** ({scheduleLabel}). Vamos a intentar dejarlo en ese horario, pero los cupos se pueden acabar.” Button “Pagar matrícula” when due. Undecided: “Todavía no hay horario; podés pagar la matrícula y te asignamos sección.” No fee: “El instituto te va a confirmar el lugar.”
+**Family received (default es tone):** “Hola {greetingName}, recibimos la preinscripción de **{studentName}** para **{sectionName}** ({scheduleLabel}). Vamos a intentar dejarlo en ese horario, pero los cupos se pueden acabar.” Button “Pagar matrícula” when due. Undecided: “Todavía no hay horario; puedes pagar la matrícula y te asignamos sección.” No fee: “El instituto te va a confirmar el lugar.”
 
 **Admin mails** always include: student name + DNI + birth date; tutor name + DNI + email + phone + relationship when present; requested sections + schedule; snapshot total + currency + mode; source (`/register` vs section-link id); existing-student yes/no; deep link to `/[locale]/dashboard/admin/registrations` (query `?id=` the lead). Subjects: “Nueva preinscripción”, “Comprobante por revisar”, “Nuevo alumno en {section}”, “Pagó matrícula — falta horario”.
 

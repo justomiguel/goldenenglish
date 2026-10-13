@@ -82,7 +82,7 @@ test.describe("@critical-registration", () => {
     await expect(page.getByRole("button", { name: ACCEPT_OFFER })).toHaveCount(0);
     await expect(
       page.getByRole("heading", {
-        name: /Ya estás inscripto|already (enrolled|in)|Já está|Pago de ingreso|Pay enrollment|Pagamento de ingresso/i,
+        name: /Ya estás inscrito|already (enrolled|in)|Já está|Pago de ingreso|Pay enrollment|Pagamento de ingresso/i,
       }),
     ).toBeVisible({ timeout: 30_000 });
     await family.close();

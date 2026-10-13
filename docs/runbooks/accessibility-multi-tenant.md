@@ -60,7 +60,7 @@ node scripts/a11y-lighthouse-tenants.mjs scripts/a11y-lighthouse-manifest.local.
 
 1. **Deploy preview** por proyecto (`npm run deploy:vercel -- <slug>` o ya publicado).
 2. Añadir en el manifiesto una fila **`slug`** estable + **`url`** absoluta (`https://*.vercel.app/es` según rutas públicas auditables).
-3. Para marca forzada con `SITE_BRAND_THEME_SLUG` en local **una sola** app en `:3000`, podés ejecutar Lighthouse **tras** `npm run dev:<slug>` y volcar `http://localhost:3000/<locale>` como una fila más (un tenant por arranque, no paralelo en el mismo puerto sin proxy).
+3. Para marca forzada con `SITE_BRAND_THEME_SLUG` en local **una sola** app en `:3000`, puedes ejecutar Lighthouse **tras** `npm run dev:<slug>` y volcar `http://localhost:3000/<locale>` como una fila más (un tenant por arranque, no paralelo en el mismo puerto sin proxy).
 
 Los informes intermedios JSON se borran después de leer scores; errores aparecen por stdout.
 
@@ -72,10 +72,10 @@ No demuestra regresión WCAG: suele ser **entorno** (URL o servidor):
 |---------|----------------|
 | `WARN: Nothing accepted TCP on 127.0.0.1:3000` | Next no está corriendo. Antes ejecutá `npm run dev:golden` (u otro `dev:<slug>`) y repetí. |
 | `Chrome prevented page load with an interstitial` en HTTP local | Misma causa: Chromium no llega a una respuesta útil (`ERR_CONNECTION_*` / página vacía). |
-| Lighthouse `NO_FCP` / “did not paint any content” usando `http://127.0.0.1:…` | En macOS/Next dev el headless de Chromium a veces **no pinta FCP** sobre `127.0.0.1`. Usá **`http://localhost:3000/...`** en el manifiesto, o dejá que el script **`a11y-lighthouse-tenants.mjs`** convierta automáticamente `127.0.0.1` → `localhost`. |
+| Lighthouse `NO_FCP` / “did not paint any content” usando `http://127.0.0.1:…` | En macOS/Next dev el headless de Chromium a veces **no pinta FCP** sobre `127.0.0.1`. Usa **`http://localhost:3000/...`** en el manifiesto, o deja que el script **`a11y-lighthouse-tenants.mjs`** convierta automáticamente `127.0.0.1` → `localhost`. |
 | Lighthouse “unable to reliably load”, `404` en HTTPS | Host de placeholder, preview viejo borrado, o locale mal (`/es` vs ruta real). Corregí el manifiesto. |
 
-Cuando Lighthouse devuelve **número** (% accesibilidad/rendimiento) y es bajo sí conviene revisar audits concretos en el CLI o generar `--output=html` aparte si lo necesitás para depuración.
+Cuando Lighthouse devuelve **número** (% accesibilidad/rendimiento) y es bajo sí conviene revisar audits concretos en el CLI o generar `--output=html` aparte si lo necesitas para depuración.
 
 ---
 

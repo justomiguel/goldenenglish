@@ -35,7 +35,7 @@ export interface BuildCohortCollectionsMatrixOptions {
   todayYear: number;
   todayMonth: number;
   /**
-   * `academic_sections.billing_mode` crudo por sección. Llega por acá y no en el payload del RPC
+   * `academic_sections.billing_mode` crudo por sección. Llega por aquí y no en el payload del RPC
    * `admin_cohort_collections_bulk` para no tener que versionar el RPC: el loader lo resuelve aparte y una
    * entrada ausente significa cobro mensual, que es el comportamiento actual.
    */

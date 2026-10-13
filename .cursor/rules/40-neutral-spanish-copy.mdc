@@ -15,9 +15,11 @@ Applies to `src/dictionaries/es.json`, email HTML users read, the Spanish argume
 |---|---|
 | vos / tenés / podés / querés | tú (omit when natural) / tienes / puedes / quieres |
 | Hacé clic / Usá / Ingresá / Intentá / Probá | Haz clic / Usa / Ingresa / Intenta / Prueba |
+| acá | aquí |
 | escribinos | escríbenos |
 | te vamos a pedir | te pediremos |
 | un pedido (meaning a request) | una solicitud |
+| inscripto / inscripta | inscrito / inscrita |
 
 ```text
 ❌ No tenés permiso. Hacé clic para continuar.
@@ -37,4 +39,4 @@ If a string you touch still uses voseo, convert **that string** in the same chan
 ## Checklist
 
 - [ ] New or edited Spanish uses tuteo (*tienes*, *haz*, *ingresa*)?
-- [ ] No *vos*, *tenés*, *podés*, *hacé*, *ingresá*, or *escribinos* left in the lines you changed?
+- [ ] No *vos*, *tenés*, *podés*, *hacé*, *ingresá*, *escribinos*, or *inscripto* left in the lines you changed?

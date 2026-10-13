@@ -153,7 +153,7 @@ export const adminTrialEnrolledTemplate: EmailTemplateDefinition = {
   key: "registration.admin_trial_enrolled",
   category: "notifications",
   label: {
-    es: "Clase de prueba: inscripto (admin)",
+    es: "Clase de prueba: inscrito (admin)",
     en: "Trial class: enrolled (admin)",
   },
   description: {

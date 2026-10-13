@@ -7,14 +7,14 @@ import { splitPrivacyConsentLabel } from "@/lib/privacy/splitPrivacyConsentLabel
 describe("privacy copy helpers", () => {
   it("interpolates the institute legal name and contact fields", () => {
     expect(
-      interpolatePrivacyCopy("En {{brand}} escribinos a {{email}} o {{phone}}.", {
+      interpolatePrivacyCopy("En {{brand}} escríbenos a {{email}} o {{phone}}.", {
         brand: "Nagô",
         email: "hola@nago.cl",
         phone: "+56 9 1111",
         address: "",
         registry: "",
       }),
-    ).toBe("En Nagô escribinos a hola@nago.cl o +56 9 1111.");
+    ).toBe("En Nagô escríbenos a hola@nago.cl o +56 9 1111.");
   });
 
   it("uses the tenant legal name and skips blank contact lines", () => {

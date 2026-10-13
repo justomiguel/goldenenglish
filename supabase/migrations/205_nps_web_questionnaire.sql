@@ -96,7 +96,7 @@ BEGIN
     (
       q_id,
       'textarea',
-      '{"es":"¿Cómo te imaginás una experiencia online de este instituto?"}'::jsonb,
+      '{"es":"¿Cómo te imaginas una experiencia online de este instituto?"}'::jsonb,
       '{}'::jsonb,
       true,
       4

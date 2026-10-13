@@ -1,7 +1,7 @@
 -- Class packs: catálogo de precios no lineal + bolsa mensual del alumno.
 --
 -- El catálogo es a NIVEL INSTITUTO, no por sección, porque la bolsa es del alumno y cruza secciones:
--- un alumno inscripto en dos secciones con tarifas distintas no tendría un precio único para
+-- un alumno inscrito en dos secciones con tarifas distintas no tendría un precio único para
 -- "8 clases". Cada fila es un tramo `(class_count, amount)` y `amount` es el precio TOTAL del
 -- paquete, no unitario. Ahí vive la no linealidad, sin fórmula ni interpolación: un class_count sin
 -- fila es un error explícito en la app (`resolveClassPackPrice` → { code: "no_tier" }), nunca un

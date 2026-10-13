@@ -49,7 +49,7 @@ export async function validateStudentSectionMonthlySlot(
   );
   // Exhaustivo a propósito: `plan.code` cuando no es "ok" es asignable a
   // `MonthlySlotValidationReason`, así que un código nuevo en `SectionPlanAmountResult` rompe la
-  // compilación acá hasta que se lo trate, en vez de pasar como cobrable.
+  // compilación aquí hasta que se lo trate, en vez de pasar como cobrable.
   if (plan.code !== "ok") return { ok: false, reason: plan.code };
   if (plan.amount <= 0) return { ok: false, reason: "month_exempt" };
 

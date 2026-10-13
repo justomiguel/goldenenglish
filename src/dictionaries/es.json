@@ -223,7 +223,7 @@
       "forbidden": "No tienes permiso para esta acción.",
       "invalidData": "Datos no válidos.",
       "notAStudent": "Esa cuenta no es un perfil de alumno.",
-      "notEnrolledInSection": "El alumno no está inscripto activamente en esa sección.",
+      "notEnrolledInSection": "El alumno no está inscrito activamente en esa sección.",
       "noPlan": "No hay plan de arancel para ese mes en la sección.",
       "outOfPeriod": "Ese mes queda fuera del período de facturación de la sección.",
       "classPackSection": "Esta sección cobra por clase, no una cuota mensual. Gestiona sus paquetes de clases desde el área de paquetes.",
@@ -485,7 +485,7 @@
       "cardInstitutional": "Certificación de la institución",
       "cardNational": "Certificación Nacional",
       "cardInternational": "Certificación Internacional",
-      "edu": "Inscripto con el N°69 en el registro de enseñanza parasistemática del departamento de Educación Privada. Resolución ministerial N° 1297/05 Formosa.",
+      "edu": "Inscrito con el N°69 en el registro de enseñanza parasistemática del departamento de Educación Privada. Resolución ministerial N° 1297/05 Formosa.",
       "utn": "También puedes optar por una certificación nacional gracias al convenio que tenemos con la UTN Argentina.",
       "cambridge": "Preparamos alumnos para rendir B2 First Certificate con certificación de Cambridge.",
       "altGoldenMark": "Golden English",
@@ -2697,7 +2697,7 @@
       "detailAvatarErrNotStudent": "Solo se puede cambiar aquí la foto de perfiles de alumno.",
       "detailAvatarErrSave": "No se pudo guardar la foto del alumno. Intenta de nuevo.",
       "detailSectionAssignTitle": "Secciones de la cohorte vigente",
-      "detailSectionAssignLead": "Administra en qué secciones de la cohorte vigente está inscripto este alumno.",
+      "detailSectionAssignLead": "Administra en qué secciones de la cohorte vigente está inscrito este alumno.",
       "detailSectionAssignNoCurrent": "No hay cohorte vigente configurada. Marca una cohorte como vigente en Cohortes y secciones.",
       "detailSectionAssignNoSections": "La cohorte vigente todavía no tiene secciones activas.",
       "detailSectionAssignNoAvailableSections": "No quedan más secciones activas disponibles para este alumno.",
@@ -2722,7 +2722,7 @@
       "detailSectionAssignErrScheduleOverlap": "El horario se superpone con otra sección activa del alumno.",
       "detailSectionAssignErrCapacity": "La sección no tiene cupo. Usa el override de admin solo si está autorizado.",
       "detailSectionAssignErrRpc": "No se pudo guardar la asignación de sección. Intenta de nuevo.",
-      "detailSectionAssignErrNotEnrolled": "El alumno no está inscripto en esa sección.",
+      "detailSectionAssignErrNotEnrolled": "El alumno no está inscrito en esa sección.",
       "detailSectionAssignRemove": "Quitar",
       "detailSectionAssignRemoveTitle": "¿Quitar de la sección?",
       "detailSectionAssignRemoveConfirm": "¿Seguro que quieres quitar al alumno de esta sección?",
@@ -3500,7 +3500,7 @@
           "messageNoneSelected": "Selecciona al menos un alumno primero.",
           "messageEmpty": "Escribe un mensaje antes de enviar.",
           "messageSent": "Mensaje enviado a {count} alumno(s).",
-          "messageSkipped": "{count} fueron omitidos porque ya no están inscriptos en esta sección.",
+          "messageSkipped": "{count} fueron omitidos porque ya no están inscritos en esta sección.",
           "messageFailed": "{count} mensaje(s) no pudieron entregarse. Prueba de nuevo.",
           "messageError": "No pudimos enviar el mensaje masivo. Prueba de nuevo."
         },
@@ -4092,7 +4092,7 @@
       "errTutorDniSameAsStudent": "El documento del tutor no puede ser el mismo que el del alumno.",
       "errTutorDniInUseByStudent": "Ese documento ya pertenece a una cuenta de alumno. Usa otro tutor o contacta soporte.",
       "birthDateHint": "Opcional (AAAA-MM-DD)",
-      "enrolled": "Inscripto",
+      "enrolled": "Inscrito",
       "contacted": "Contactado",
       "statusUnknown": "Estado desconocido",
       "deleteError": "No se pudo eliminar",
@@ -4153,7 +4153,7 @@
       "sectionPickerLead": "Elige una sección del ciclo vigente",
       "skipSectionEnrollment": "Omitir por ahora",
       "sectionEnrollError": "No se pudo inscribir al alumno en la sección",
-      "enrollSuccess": "Alumno inscripto en la sección",
+      "enrollSuccess": "Alumno inscrito en la sección",
       "phoneStudent": "Teléfono del alumno",
       "phoneTutor": "Teléfono del tutor",
       "contactCopy": "Copiar número",
@@ -4188,7 +4188,7 @@
         "totalHint": "Recibidas por el formulario web",
         "pending": "Pendientes",
         "contacted": "Contactadas",
-        "enrolled": "Inscriptas",
+        "enrolled": "Inscritas",
         "shareOfTotal": "{{pct}}% del total"
       },
       "intake": {
@@ -4314,16 +4314,16 @@
           "birthDate": "Fecha de nacimiento",
           "status": "Estado",
           "payment": "Pago",
-          "registered": "Inscripto",
+          "registered": "Inscrito",
           "source": "Origen",
           "residency": "Residencia",
           "actions": "Acciones"
         },
         "attendeesMoreDetails": "Más detalles",
-        "attendeesExpandRow": "Ver detalle del inscripto",
-        "attendeesCollapseRow": "Ocultar detalle del inscripto",
+        "attendeesExpandRow": "Ver detalle del inscrito",
+        "attendeesCollapseRow": "Ocultar detalle del inscrito",
         "attendeesPaginationPageOf": "Página {{page}} de {{totalPages}}",
-        "attendeesPaginationNav": "Paginación de inscriptos",
+        "attendeesPaginationNav": "Paginación de inscritos",
         "attendeesStatusLabels": {
           "pending_payment": "Pago pendiente",
           "confirmed": "Confirmado",
@@ -4339,9 +4339,9 @@
           "logged_in": "Usuario con sesión",
           "admin_manual": "Carga manual del staff"
         },
-        "paymentsLead": "Revisa comprobantes de transferencia, método de pago y datos del inscripto. Aprueba o rechaza pagos pendientes desde aquí.",
+        "paymentsLead": "Revisa comprobantes de transferencia, método de pago y datos del inscrito. Aprueba o rechaza pagos pendientes desde aquí.",
         "paymentsEmpty": "No hay pagos que coincidan con los filtros actuales.",
-        "paymentsSearchPlaceholder": "Buscar por nombre, documento o email del inscripto…",
+        "paymentsSearchPlaceholder": "Buscar por nombre, documento o email del inscrito…",
         "paymentsSearchButton": "Buscar",
         "paymentsFilterAll": "Todos",
         "paymentsSummaryPending": "{{count}} pendientes de revisión",
@@ -4384,7 +4384,7 @@
         "tabLeads": {
           "summary": "Publicación, precios y título y descripción por idioma.",
           "form": "Campos integrados y personalizados del formulario público de inscripción.",
-          "attendees": "Personas inscriptas y su estado de inscripción.",
+          "attendees": "Personas inscritas y su estado de inscripción.",
           "payments": "Comprobantes de transferencia y estados de pago vinculados a inscripciones.",
           "waitlist": "Revisa y promueve manualmente cuando se liberen cupos.",
           "notifications": "Recordatorios y correos de decisión de pago con plantillas por defecto.",
@@ -4855,7 +4855,7 @@
     "enrollmentPayOfferLead": "El horario de {{original}} se llenó. Te proponemos **{{proposed}}** ({{schedule}}). ¿Lo tomas?",
     "enrollmentPayOfferAccept": "Aceptar este horario",
     "enrollmentPayOfferGone": "Esa propuesta también se llenó, elige otro.",
-    "enrollmentPayAlreadyIn": "Ya estás inscripto en esta sección.",
+    "enrollmentPayAlreadyIn": "Ya estás inscrito en esta sección.",
     "enrollmentPayAmount": "Pago de ingreso",
     "enrollmentPayNeedsSection": "Todavía no hay horario. El instituto te va a asignar uno y después te dice qué pagar.",
     "enrollmentPayReceiptPending": "Recibimos tu comprobante. Lo estamos revisando.",
@@ -4876,7 +4876,7 @@
     "trial": {
       "shellTitle": "Agenda tu clase de prueba",
       "submit": "Agendar clase de prueba",
-      "alreadyEnrolled": "Esa persona ya está inscripta en una de esas clases.",
+      "alreadyEnrolled": "Esa persona ya está inscrita en una de esas clases.",
       "openTrialExists": "Ya hay una clase de prueba abierta con este documento. Terminen o reprogramen esa primero.",
       "needsSection": "Elige al menos un horario de clase de prueba.",
       "sectionUnavailable": "Ese horario ya no está disponible para clase de prueba. Actualiza y elige de nuevo.",
@@ -4888,7 +4888,7 @@
       "payTitle": "Pagar la clase de prueba",
       "payLead": "Esto sostiene la visita que agendaron. El cupo se puede llenar antes de que llegue el pago.",
       "payFull": "Ese horario está lleno. Escríbenos para elegir otra fecha de prueba.",
-      "payAlreadyIn": "Esa persona ya está inscripta.",
+      "payAlreadyIn": "Esa persona ya está inscrita.",
       "payAmount": "Monto de la clase de prueba",
       "payReceiptPending": "Recibimos el comprobante y lo estamos revisando.",
       "payCaptured": "La clase de prueba está paga. Te escribimos antes de la visita.",
@@ -6492,7 +6492,7 @@
           },
           "tabAttendees": {
             "title": "👥 Pestaña Asistentes",
-            "description": "Personas inscriptas y su estado de inscripción para este evento.\n\nÚsala para cupos, check-in y correcciones manuales de estado."
+            "description": "Personas inscritas y su estado de inscripción para este evento.\n\nÚsala para cupos, check-in y correcciones manuales de estado."
           },
           "tabPayments": {
             "title": "💳 Pestaña Pagos",
@@ -7726,14 +7726,14 @@
         },
         "handoffToCreateSection": {
           "title": "📂 Cohorte del año lista",
-          "description": "Ya estás en la página de la cohorte vigente. Desde aquí puedes agregar secciones (grupos con horario, profesor e inscriptos) y, dentro de cada una, los cursos del plan.\n\nEl siguiente paso natural es crear tu primera sección dentro de esta cohorte.",
+          "description": "Ya estás en la página de la cohorte vigente. Desde aquí puedes agregar secciones (grupos con horario, profesor e inscritos) y, dentro de cada una, los cursos del plan.\n\nEl siguiente paso natural es crear tu primera sección dentro de esta cohorte.",
           "startSectionTour": "Continuar con crear secciones",
           "dismiss": "Ahora no"
         },
         "steps": {
           "intro": {
             "title": "🎯 Antes de crear secciones o cursos",
-            "description": "La cohorte es el contenedor principal de tu estructura académica: representa el año lectivo (por ejemplo «Cohorte 2026»). Hay una sola cohorte por año — no se crean cohortes de turno mañana o tarde; esos horarios se definen después, en las secciones dentro de la cohorte.\n\nDentro de cada cohorte viven las secciones —grupos con horario, profesor e inscriptos— y, en cada sección, los cursos o unidades del plan de estudios.\n\nNo puedes crear secciones ni cursos sueltos sin una cohorte. Este recorrido te guía en ese primer paso: definir el contenedor anual antes de llenarlo."
+            "description": "La cohorte es el contenedor principal de tu estructura académica: representa el año lectivo (por ejemplo «Cohorte 2026»). Hay una sola cohorte por año — no se crean cohortes de turno mañana o tarde; esos horarios se definen después, en las secciones dentro de la cohorte.\n\nDentro de cada cohorte viven las secciones —grupos con horario, profesor e inscritos— y, en cada sección, los cursos o unidades del plan de estudios.\n\nNo puedes crear secciones ni cursos sueltos sin una cohorte. Este recorrido te guía en ese primer paso: definir el contenedor anual antes de llenarlo."
           },
           "navAcademic": {
             "title": "📚 Cohortes y secciones",
@@ -7787,7 +7787,7 @@
           },
           "periodField": {
             "title": "📅 Período de la sección",
-            "description": "Indica cuándo corre este grupo dentro del año lectivo. Los valores por defecto suelen coincidir con el calendario del instituto; cambia solo si este grupo empieza o termina en otras fechas.\n\nAlumnos fuera de ese período no deberían seguir inscriptos sin un cambio deliberado."
+            "description": "Indica cuándo corre este grupo dentro del año lectivo. Los valores por defecto suelen coincidir con el calendario del instituto; cambia solo si este grupo empieza o termina en otras fechas.\n\nAlumnos fuera de ese período no deberían seguir inscritos sin un cambio deliberado."
           },
           "scheduleField": {
             "title": "🕐 Horario semanal",
@@ -8492,7 +8492,7 @@
       "hierarchyStepsAria": "Pasos de la jerarquía académica",
       "hierarchySteps": [
         "Cohorte — un contenedor por año lectivo",
-        "Sección — grupo con horario, docente e inscriptos dentro de la cohorte",
+        "Sección — grupo con horario, docente e inscritos dentro de la cohorte",
         "Curso — unidad o recorrido de aprendizaje dentro de una sección"
       ],
       "groups": {
@@ -8515,7 +8515,7 @@
         "section": {
           "title": "Sección",
           "aliases": "También: grupo, clase",
-          "body": "Una clase concreta dentro de una cohorte: nombre, horario semanal, docente asignado, cupo e inscriptos. Los turnos (mañana, tarde, sábado, etc.) se definen aquí — no creando otra cohorte.\n\nAsistencia, notas, mensajes de curso y mensualidades suelen correr a nivel sección. Un alumno puede estar en una o más secciones según las reglas del instituto."
+          "body": "Una clase concreta dentro de una cohorte: nombre, horario semanal, docente asignado, cupo e inscritos. Los turnos (mañana, tarde, sábado, etc.) se definen aquí — no creando otra cohorte.\n\nAsistencia, notas, mensajes de curso y mensualidades suelen correr a nivel sección. Un alumno puede estar en una o más secciones según las reglas del instituto."
         },
         "course": {
           "title": "Curso",
@@ -8632,7 +8632,7 @@
         "searchMin": "Solo se muestra si el campo aún necesita más caracteres.",
         "enrollSearchResultsHeading": "Alumnos disponibles para agregar",
         "removePickedStudentAria": "Sacar de la lista",
-        "enrollQueueLegend": "Alumnos en tu lista (aún no inscriptos)",
+        "enrollQueueLegend": "Alumnos en tu lista (aún no inscritos)",
         "enrollQueueReminder": "No olvides pulsar Verificar horario y cupo o Confirmar inscripción — puedes seguir agregando desde la búsqueda.",
         "previewAll": "Verificar horario (todos)",
         "enrollAll": "Inscribir a todos",
@@ -8673,7 +8673,7 @@
         "emailSubject": "Actualización de horario de clase",
         "emailLead": "La asignación de clase de su hijo o hija se actualizó tras la aprobación del equipo.",
         "inAppTitle": "Cambio de clase",
-        "inAppBody": "Quedó inscripto en"
+        "inAppBody": "Quedó inscrito en"
       },
       "errors": {
         "SCHEDULE_OVERLAP": "Solapamiento de horario con otra sección activa.",
@@ -9075,11 +9075,11 @@
         "modalUnarchiveBody": "La sección vuelve a mostrarse para su cohorte, horarios y asignaciones si la cohorte no está archivada.",
         "modalDeleteTitle": "¿Eliminar esta sección para siempre?",
         "modalDeleteBody": "No se puede deshacer. Los datos relacionados que borre la base en cascada se perderán.",
-        "modalDeleteBodyWithEnrollments": "Estas personas están inscriptas en esta sección. Si la eliminas, también se borran sus inscripciones y los datos académicos asociados. No se puede deshacer.",
-        "enrollmentsListHeading": "Inscriptos en esta sección",
-        "loadingEnrollments": "Cargando inscriptos…",
+        "modalDeleteBodyWithEnrollments": "Estas personas están inscritas en esta sección. Si la eliminas, también se borran sus inscripciones y los datos académicos asociados. No se puede deshacer.",
+        "enrollmentsListHeading": "Inscritos en esta sección",
+        "loadingEnrollments": "Cargando inscritos…",
         "deleteConfirmCheckbox": "Entiendo que la sección se eliminará de forma permanente.",
-        "deleteConfirmCheckboxWithEnrollments": "Entiendo que estas personas están inscriptas y quiero eliminar la sección igual.",
+        "deleteConfirmCheckboxWithEnrollments": "Entiendo que estas personas están inscritas y quiero eliminar la sección igual.",
         "deleteButtonAria": "Eliminar sección {name}",
         "confirm": "Confirmar",
         "cancel": "Cancelar",
@@ -9346,7 +9346,7 @@
       "searchMin": "Solo se muestra si el campo aún necesita más caracteres.",
       "enrollSearchResultsHeading": "Alumnos disponibles para agregar",
       "removePickedStudentAria": "Sacar de la lista",
-      "enrollQueueLegend": "Alumnos en tu lista (aún no inscriptos)",
+      "enrollQueueLegend": "Alumnos en tu lista (aún no inscritos)",
       "enrollQueueReminder": "No olvides pulsar Verificar horario o Inscribir — puedes seguir agregando desde la búsqueda.",
       "previewAll": "Verificar horario (todos)",
       "enrollAll": "Inscribir a todos",
@@ -9368,7 +9368,7 @@
       "colStatus": "Estado",
       "colActions": "Acciones",
       "emptyTab": "No hay filas en esta vista.",
-      "successEnroll": "Alumno inscripto.",
+      "successEnroll": "Alumno inscrito.",
       "successMove": "Alumno movido.",
       "genericError": "Algo salió mal. Intente de nuevo.",
       "debtBadge": "El tutor tiene pagos pendientes",
@@ -9586,7 +9586,7 @@
         "cellAria": "Asistencia de {student} el {date}",
         "careBadge": "Requiere atención especial",
         "excusedLetter": "J",
-        "cellDisabledNotEnrolledOnDate": "Este alumno no estaba inscripto en esta sección en esa fecha (alta posterior, transferencia o baja). No corresponde marcar asistencia ese día.",
+        "cellDisabledNotEnrolledOnDate": "Este alumno no estaba inscrito en esta sección en esa fecha (alta posterior, transferencia o baja). No corresponde marcar asistencia ese día.",
         "cellDisabledInactive": "Este alumno ya no está activo en la sección.",
         "cellDisabledExcused": "Justificada por administración — solo lectura aquí.",
         "cellDisabledFuture": "Esa clase es futura.",
@@ -9635,7 +9635,7 @@
       },
       "trialVisitors": {
         "title": "Visitantes de prueba",
-        "lead": "Estas personas agendaron una clase de prueba. Marcarlos aquí no escribe asistencia de alumnos inscriptos.",
+        "lead": "Estas personas agendaron una clase de prueba. Marcarlos aquí no escribe asistencia de alumnos inscritos.",
         "badge": "(prueba)",
         "present": "Presente",
         "absent": "Ausente",
@@ -10056,7 +10056,7 @@
       "promoBadge": "Promoción aplicada",
       "monthly": {
         "stripAria": "Pagos mensuales",
-        "emptySections": "No estás inscripto en ninguna sección activa en este momento.",
+        "emptySections": "No estás inscrito en ninguna sección activa en este momento.",
         "enrollmentFeeBadge": "Matrícula {amount}",
         "enrollmentFeeTooltip": "Esta sección cobra una matrícula de {amount}, que se factura por separado de las cuotas mensuales.",
         "enrollmentFeeExemptBadge": "Exento de matrícula",

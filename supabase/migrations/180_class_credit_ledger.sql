@@ -2,7 +2,7 @@
 --
 -- Regla de producto: consumen clase los estados present, late y absent. `excused` (justificado) NO
 -- consume, y genera un derecho a recuperar esa clase en otro momento, en otra sección o con otros
--- profes. Agendar y gastar esas recuperaciones es un proyecto aparte; acá solo se acumulan y se
+-- profes. Agendar y gastar esas recuperaciones es un proyecto aparte; aquí solo se acumulan y se
 -- muestran.
 --
 -- Por qué un LIBRO MAYOR y no un contador en la bolsa: la asistencia es editable y borrable. Un
