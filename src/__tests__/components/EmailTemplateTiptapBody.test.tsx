@@ -71,6 +71,7 @@ describe("EmailTemplateTiptapBody media", () => {
     expect(inserted[0]).toContain("https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg");
     expect(inserted[0]).not.toContain("iframe");
     expect(screen.getByRole("button", { name: tiptap.image })).toBeInTheDocument();
+    expect(screen.getByText(tiptap.imageLimit)).toHaveTextContent("10 MB");
 
     fireEvent.click(screen.getByRole("button", { name: tiptap.video }));
     fireEvent.change(screen.getByLabelText(tiptap.videoUrlFieldLabel), {

@@ -1562,6 +1562,7 @@
             "undo": "Undo",
             "redo": "Redo",
             "image": "Insert image",
+            "imageLimit": "Images: PNG, JPEG, or WebP. Maximum size 10 MB.",
             "video": "Insert video link",
             "videoModalTitle": "Video",
             "videoPrompt": "Paste a YouTube or Vimeo URL. The email includes a link, not a player.",
@@ -1572,7 +1573,7 @@
             "videoError": "Paste a YouTube or Vimeo link.",
             "uploadProgressPreparing": "Preparing image…",
             "uploadProgressSending": "Uploading image…",
-            "imageError": "Use a PNG, JPEG, or WebP image up to 4 MB."
+            "imageError": "That image is over the 10 MB maximum, or it is not PNG, JPEG, or WebP."
           }
         },
         "placeholdersTitle": "Available placeholders",

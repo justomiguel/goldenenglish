@@ -4,7 +4,7 @@ import { uploadFileToSignedUrlWithProgress } from "@/lib/client/uploadFileToSign
 import { EVENT_MEDIA_BUCKET, eventMediaPublicUrl } from "@/lib/events/eventMedia";
 import { readSupabasePublicEnv } from "@/lib/supabase/publicEnv";
 
-export const EMAIL_IMAGE_MAX_BYTES = 4 * 1024 * 1024;
+export const EMAIL_IMAGE_MAX_BYTES = 10 * 1024 * 1024;
 
 const EMAIL_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
 

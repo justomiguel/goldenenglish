@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "email-image-ten-megabytes",
+    date: "2026-10-14",
+    area: "communications",
+    title: t(
+      "Las imágenes del correo admiten 10 MB",
+      "Email images allow 10 MB",
+      "As imagens do e-mail aceitam 10 MB",
+    ),
+    summary: t(
+      "El editor muestra el máximo de 10 MB antes de elegir la imagen.",
+      "The editor shows the 10 MB maximum before you choose an image.",
+      "O editor mostra o máximo de 10 MB antes de escolher a imagem.",
+    ),
+  },
+  {
     id: "email-template-media",
     date: "2026-10-14",
     area: "communications",

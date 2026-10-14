@@ -1562,6 +1562,7 @@
             "undo": "Desfazer",
             "redo": "Refazer",
             "image": "Inserir imagem",
+            "imageLimit": "Imagens: PNG, JPEG ou WebP. Tamanho máximo 10 MB.",
             "video": "Inserir link de vídeo",
             "videoModalTitle": "Vídeo",
             "videoPrompt": "Cole um URL do YouTube ou do Vimeo. O e-mail leva um link, não um reprodutor.",
@@ -1572,7 +1573,7 @@
             "videoError": "Cole um link do YouTube ou do Vimeo.",
             "uploadProgressPreparing": "Preparando a imagem…",
             "uploadProgressSending": "Enviando a imagem…",
-            "imageError": "Use uma imagem PNG, JPEG ou WebP de até 4 MB."
+            "imageError": "Essa imagem passa do máximo de 10 MB, ou não é PNG, JPEG nem WebP."
           }
         },
         "placeholdersTitle": "Espaços reservados disponíveis",

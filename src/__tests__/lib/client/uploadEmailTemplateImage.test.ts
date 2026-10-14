@@ -54,7 +54,7 @@ describe("uploadEmailTemplateImage", () => {
     );
   });
 
-  it("refuses a video file and a file over 4 MB before uploading", async () => {
+  it("refuses a video file and a file over 10 MB before uploading", async () => {
     await expect(
       uploadEmailTemplateImage({ file: imageFile("video/mp4") }),
     ).resolves.toBeNull();

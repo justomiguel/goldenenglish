@@ -1562,6 +1562,7 @@
             "undo": "Deshacer",
             "redo": "Rehacer",
             "image": "Insertar imagen",
+            "imageLimit": "Imágenes: PNG, JPEG o WebP. Tamaño máximo 10 MB.",
             "video": "Insertar enlace de video",
             "videoModalTitle": "Video",
             "videoPrompt": "Pega una URL de YouTube o Vimeo. El correo lleva un enlace, no un reproductor.",
@@ -1572,7 +1573,7 @@
             "videoError": "Pega un enlace de YouTube o Vimeo.",
             "uploadProgressPreparing": "Preparando la imagen…",
             "uploadProgressSending": "Subiendo la imagen…",
-            "imageError": "Usa una imagen PNG, JPEG o WebP de hasta 4 MB."
+            "imageError": "Esa imagen supera el máximo de 10 MB, o no es PNG, JPEG ni WebP."
           }
         },
         "placeholdersTitle": "Variables disponibles",
