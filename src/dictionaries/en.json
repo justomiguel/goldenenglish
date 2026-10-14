@@ -4407,7 +4407,44 @@
           "errorSave": "We could not save this setting. Please try again."
         },
         "waitlistLead": "Review and manually promote attendees from waitlist when spots become available.",
-        "notificationsLead": "Event reminders and payment decision emails are sent using default templates."
+        "notificationsLead": "Edit the emails this event sends. If you do not save a copy, the institute template is used.",
+        "emailTemplates": {
+          "mailLabel": "Email",
+          "mails": {
+            "registered": "Registration received",
+            "paymentApproved": "Payment approved",
+            "paymentRejected": "Payment rejected",
+            "reminder": "Reminder"
+          },
+          "localeLabel": "Language",
+          "scopeLabel": "Who receives this version",
+          "scopeEvent": "Everyone at the event",
+          "subjectLabel": "Subject",
+          "bodyLabel": "Message",
+          "bodyHelp": "Use the variables so each person sees their own data.",
+          "save": "Save email",
+          "saved": "Email saved.",
+          "errorSave": "We could not save this email. Try again.",
+          "errorValidation": "Write a subject and a message.",
+          "previewTitle": "Preview",
+          "variablesLabel": "Insert a variable",
+          "variables": {
+            "firstName": "First name",
+            "lastName": "Last name",
+            "eventName": "Event name",
+            "flowName": "Flow name",
+            "eventDate": "Event date",
+            "eventLocation": "Location"
+          },
+          "previewSamples": {
+            "firstName": "Ana",
+            "lastName": "Perez",
+            "eventName": "Open house",
+            "flowName": "Academy",
+            "eventDate": "March 12, 2026, 6:00 PM",
+            "eventLocation": "Main hall"
+          }
+        }
       },
       "new": {
         "title": "New event",

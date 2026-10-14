@@ -3,7 +3,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { serializeEventFieldValuesForEnrollRpc } from "@/lib/events/serializeEventFieldValuesForEnrollRpc";
+import { parseEventEmailLocale } from "@/lib/events/eventEmailCopy";
 import { registrationFlowCharge } from "@/lib/events/registrationFlows";
+import { sendEventAttendeeNotification } from "@/lib/events/server/sendEventAttendeeNotification";
 import type {
   EventCompanionPayload,
   EventFieldPayloadEntry,
@@ -27,6 +29,8 @@ export interface EnrollEventAttendeeServerInput {
   companions?: EventCompanionPayload[];
   /** When set, the seat price is this flow's amount and residency is not charged. */
   registrationFlow?: { id: string; price: number | null } | null;
+  /** Language of the registration page. Stored on the attendee for later mails. */
+  locale?: string | null;
 }
 
 export interface EnrollEventAttendeeServerResult {
@@ -110,17 +114,18 @@ function serializeCompanionsForEnrollRpc(companions: EventCompanionPayload[]) {
   }));
 }
 
+const ENROLL_MAIL_CODES = new Set(["confirmed", "payment_pending", "waitlist"]);
+
 export async function enrollEventAttendeeServer(
   input: EnrollEventAttendeeServerInput,
 ): Promise<EnrollEventAttendeeServerResult> {
   const admin = createAdminClient();
   const result = await callEnrollRpc(admin, input);
-  const flow = input.registrationFlow;
-  if (!flow || !result.attendeeId) return result;
-  if (!["confirmed", "payment_pending", "waitlist"].includes(result.resultCode)) return result;
+  if (!result.attendeeId || !ENROLL_MAIL_CODES.has(result.resultCode)) return result;
 
+  const flow = input.registrationFlow;
   const charge =
-    flow.price == null
+    flow?.price == null
       ? null
       : registrationFlowCharge({
           price: flow.price,
@@ -130,7 +135,8 @@ export async function enrollEventAttendeeServer(
   const { error } = await admin
     .from("event_attendees")
     .update({
-      registration_flow_id: flow.id,
+      registration_locale: parseEventEmailLocale(input.locale),
+      ...(flow ? { registration_flow_id: flow.id } : {}),
       ...(charge ? { status: charge.status } : {}),
     })
     .eq("id", result.attendeeId);
@@ -139,8 +145,13 @@ export async function enrollEventAttendeeServer(
       eventId: input.eventId,
       attendeeId: result.attendeeId,
     });
-    return result;
   }
+
+  await sendEventAttendeeNotification({
+    attendeeId: result.attendeeId,
+    templateKey: "events.registered",
+  });
+
   if (!charge) return result;
   return {
     ...result,

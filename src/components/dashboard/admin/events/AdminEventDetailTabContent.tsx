@@ -1,4 +1,5 @@
 import { AdminEventAttendeesPanel } from "@/components/dashboard/admin/events/AdminEventAttendeesPanel";
+import { AdminEventNotificationsPanel } from "@/components/dashboard/admin/events/AdminEventNotificationsPanel";
 import { EventFormFieldsEditor } from "@/components/dashboard/admin/events/EventFormFieldsEditor";
 import { AdminEventDetailSummaryTab } from "@/components/dashboard/admin/events/AdminEventDetailSummaryTab";
 import { AdminEventDetailPaymentsTab } from "@/components/dashboard/admin/events/AdminEventDetailPaymentsTab";
@@ -202,11 +203,27 @@ export function AdminEventDetailTabContent({
     return <AdminEventDetailPaymentsTab locale={locale} eventId={eventId} model={model} dict={dict} />;
   }
 
-  if (tab === "waitlist" || tab === "notifications") {
+  if (tab === "waitlist") {
     return (
       <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4 text-sm text-[var(--color-muted-foreground)] shadow-[var(--shadow-soft)]">
-        {tab === "waitlist" ? detail.waitlistLead : detail.notificationsLead}
+        {detail.waitlistLead}
       </section>
+    );
+  }
+
+  if (tab === "notifications") {
+    return (
+      <AdminEventNotificationsPanel
+        eventId={eventId}
+        pageLocale={locale}
+        flows={model.registrationFlows.map((flow) => ({
+          id: flow.id,
+          name: registrationFlowName(flow.nameI18n, locale, model.defaultLocale),
+        }))}
+        lead={detail.notificationsLead}
+        labels={detail.emailTemplates}
+        bodyField={dict.admin.communications.templates.bodyField}
+      />
     );
   }
 

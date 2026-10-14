@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { sendEventAttendeeNotification } from "@/lib/events/server/sendEventAttendeeNotification";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export type EventPaymentGatewayProvider = "flow" | "mercadopago";
@@ -90,6 +91,13 @@ export async function markEventPaymentApprovedCore(
   }
 
   const attendeeConfirmed = await confirmPendingPaymentAttendee(input.admin, attendeeId);
+
+  if (paymentUpdated && attendeeId) {
+    await sendEventAttendeeNotification({
+      attendeeId,
+      templateKey: "events.payment_approved",
+    });
+  }
 
   return {
     ok: true,

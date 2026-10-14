@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { auditFinanceAction } from "@/lib/audit";
 import { logServerWarn, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { markEventPaymentApprovedCore } from "@/lib/events/server/markEventPaymentApprovedCore";
+import { sendEventAttendeeNotification } from "@/lib/events/server/sendEventAttendeeNotification";
 import { revertEventPaymentApprovalCore } from "@/lib/events/server/revertEventPaymentApprovalCore";
 
 export async function approveEventPayment(input: {
@@ -64,7 +65,7 @@ export async function rejectEventPayment(input: {
 }): Promise<{ ok: boolean; code?: "gateway_managed" }> {
   const { data: beforeRow } = await input.adminClient
     .from("event_payments")
-    .select("status, review_notes, gateway_provider")
+    .select("status, review_notes, gateway_provider, event_attendee_id")
     .eq("id", input.paymentId)
     .maybeSingle();
 
@@ -104,6 +105,14 @@ export async function rejectEventPayment(input: {
 
   if (!audit.ok) {
     logServerWarn("rejectEventPayment:audit_failed", { payment_id: input.paymentId });
+  }
+
+  const attendeeId = beforeRow?.event_attendee_id ? String(beforeRow.event_attendee_id) : "";
+  if (attendeeId) {
+    await sendEventAttendeeNotification({
+      attendeeId,
+      templateKey: "events.payment_rejected",
+    });
   }
 
   return { ok: true };

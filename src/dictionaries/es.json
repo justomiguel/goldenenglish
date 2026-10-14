@@ -4407,7 +4407,44 @@
           "errorSave": "No pudimos guardar este ajuste. Intenta de nuevo."
         },
         "waitlistLead": "Revisa y promueve manualmente a asistentes en espera cuando haya cupos disponibles.",
-        "notificationsLead": "Recordatorios del evento y decisiones de pago se envían con plantillas por defecto."
+        "notificationsLead": "Edita los correos que envía este evento. Si no guardas una copia, se usa la plantilla del instituto.",
+        "emailTemplates": {
+          "mailLabel": "Correo",
+          "mails": {
+            "registered": "Inscripción recibida",
+            "paymentApproved": "Pago aprobado",
+            "paymentRejected": "Pago rechazado",
+            "reminder": "Recordatorio"
+          },
+          "localeLabel": "Idioma",
+          "scopeLabel": "Quién recibe esta versión",
+          "scopeEvent": "Todos en el evento",
+          "subjectLabel": "Asunto",
+          "bodyLabel": "Mensaje",
+          "bodyHelp": "Usa las variables para que cada persona vea sus propios datos.",
+          "save": "Guardar correo",
+          "saved": "Correo guardado.",
+          "errorSave": "No pudimos guardar este correo. Intenta de nuevo.",
+          "errorValidation": "Escribe un asunto y un mensaje.",
+          "previewTitle": "Vista previa",
+          "variablesLabel": "Insertar una variable",
+          "variables": {
+            "firstName": "Nombre",
+            "lastName": "Apellido",
+            "eventName": "Nombre del evento",
+            "flowName": "Nombre del flujo",
+            "eventDate": "Fecha del evento",
+            "eventLocation": "Lugar"
+          },
+          "previewSamples": {
+            "firstName": "Ana",
+            "lastName": "Pérez",
+            "eventName": "Casa abierta",
+            "flowName": "Academia",
+            "eventDate": "12 de marzo de 2026, 18:00",
+            "eventLocation": "Salón principal"
+          }
+        }
       },
       "new": {
         "title": "Nuevo evento",

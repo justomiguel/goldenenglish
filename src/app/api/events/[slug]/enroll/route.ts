@@ -153,6 +153,7 @@ export async function POST(
               : null,
           }
         : null,
+      locale: body.locale,
     });
 
     return NextResponse.json({ ok: true, result }, {

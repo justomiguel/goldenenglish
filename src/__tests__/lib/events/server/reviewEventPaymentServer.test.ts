@@ -15,9 +15,18 @@ vi.mock("@/lib/audit", () => ({
   auditFinanceAction: vi.fn(async () => ({ ok: true })),
 }));
 
+const { sendEventAttendeeNotification } = vi.hoisted(() => ({
+  sendEventAttendeeNotification: vi.fn(async () => true),
+}));
+
+vi.mock("@/lib/events/server/sendEventAttendeeNotification", () => ({
+  sendEventAttendeeNotification: (...args: unknown[]) => sendEventAttendeeNotification(...args),
+}));
+
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logServerWarn: vi.fn(),
   logSupabaseClientError: vi.fn(),
+  logServerException: vi.fn(),
 }));
 
 import {
@@ -148,6 +157,39 @@ describe("reviewEventPaymentServer", () => {
 
     expect(result).toEqual({ ok: true });
     expect(update).toHaveBeenCalled();
+    expect(sendEventAttendeeNotification).not.toHaveBeenCalled();
+  });
+
+  it("sends the rejection mail when the payment has an attendee", async () => {
+    sendEventAttendeeNotification.mockClear();
+    const adminClient = {
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn(async () => ({
+              data: { status: "pending", review_notes: null, event_attendee_id: "att-1" },
+              error: null,
+            })),
+          })),
+        })),
+        update: vi.fn(() => ({
+          eq: vi.fn(async () => ({ error: null })),
+        })),
+      })),
+    };
+
+    const result = await rejectEventPayment({
+      adminClient: adminClient as never,
+      actorId: "admin-1",
+      paymentId: "pay-1",
+      notes: "Mismatch",
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(sendEventAttendeeNotification).toHaveBeenCalledWith({
+      attendeeId: "att-1",
+      templateKey: "events.payment_rejected",
+    });
   });
 
   it("rejectEventPayment returns ok false when update errors", async () => {

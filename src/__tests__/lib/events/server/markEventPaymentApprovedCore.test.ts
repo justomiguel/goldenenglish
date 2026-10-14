@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/logging/serverActionLog", () => ({
   logSupabaseClientError: vi.fn(),
+  logServerException: vi.fn(),
 }));
 
 import { markEventPaymentApprovedCore } from "@/lib/events/server/markEventPaymentApprovedCore";

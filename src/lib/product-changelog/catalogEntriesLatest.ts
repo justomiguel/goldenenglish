@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "event-email-templates",
+    date: "2026-10-13",
+    area: "events",
+    title: t(
+      "Correos del evento editables",
+      "Editable event emails",
+      "E-mails do evento editáveis",
+    ),
+    summary: t(
+      "En Notificaciones se editan los correos de inscripción, pago y recordatorio. La inscripción recibida y el pago aprobado pueden tener un texto distinto por flujo.",
+      "Notifications now edits registration, payment, and reminder emails. Registration received and payment approved can use different copy per flow.",
+      "Em Notificações dá para editar os e-mails de inscrição, pagamento e lembrete. A inscrição recebida e o pagamento aprovado podem ter um texto diferente por fluxo.",
+    ),
+  },
+  {
     id: "inscrito-neutral-spanish",
     date: "2026-10-13",
     area: "portal",

@@ -99,6 +99,22 @@ describe("sendBrandedEmail", () => {
     expect(call.html).toContain("<strong>Ann</strong>");
   });
 
+  it("sends already built event copy without loading the catalog", async () => {
+    const { sendBrandedEmail } = await import("@/lib/email/templates/sendBrandedEmail");
+    const r = await sendBrandedEmail({
+      to: "user@example.com",
+      templateKey: "events.registered",
+      locale: "es",
+      emailProvider: { sendEmail },
+      emailSendGate: OPEN_GATE,
+      content: { subject: "Copia", bodyHtml: "<p>Copia</p>", fromOverride: true },
+    });
+    expect(r).toEqual({ ok: true, fromOverride: true });
+    const call = sendEmail.mock.calls[0][0] as { subject: string; html: string };
+    expect(call.subject).toBe("Copia");
+    expect(call.html).toContain("<p>Copia</p>");
+  });
+
   it("uses the DB override subject/body when present", async () => {
     nextRow = {
       template_key: "messaging.teacher_new",

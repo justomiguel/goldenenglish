@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyCronRequest } from "@/lib/auth/verifyCronRequest";
-import { notifyAttendeeViaResend } from "@/lib/events/server/notifyAttendeeViaResend";
+import { sendEventAttendeeNotification } from "@/lib/events/server/sendEventAttendeeNotification";
 import { logServerException } from "@/lib/logging/serverActionLog";
 
 export async function GET(request: Request) {
@@ -24,10 +24,9 @@ export async function GET(request: Request) {
 
     let sent = 0;
     for (const attendee of attendees ?? []) {
-      const ok = await notifyAttendeeViaResend({
-        to: String(attendee.email),
+      const ok = await sendEventAttendeeNotification({
+        attendeeId: String(attendee.id),
         templateKey: "events.reminder",
-        locale: "es",
       });
       if (ok) sent += 1;
     }

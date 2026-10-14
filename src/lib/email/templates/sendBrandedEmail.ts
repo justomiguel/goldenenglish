@@ -21,6 +21,8 @@ export interface SendBrandedEmailInput {
   templateKey: EmailTemplateKey;
   locale: Locale;
   vars?: Record<string, string>;
+  /** Already substituted copy. Skips the institute catalog lookup. */
+  content?: { subject: string; bodyHtml: string; fromOverride: boolean };
   /** Opcional: usar otro provider (tests). */
   emailProvider?: EmailProvider;
   /** Opcional: omitir la lectura de `site_settings` (tests). */
@@ -77,11 +79,19 @@ export async function sendBrandedEmail(
     return { ok: true, skipped: true };
   }
 
-  const resolved = await loadEmailTemplate({
-    key: input.templateKey,
-    locale: input.locale,
-    vars: input.vars,
-  });
+  const resolved = input.content
+    ? {
+        templateKey: input.templateKey,
+        locale: input.locale,
+        subject: input.content.subject,
+        bodyHtml: input.content.bodyHtml,
+        fromOverride: input.content.fromOverride,
+      }
+    : await loadEmailTemplate({
+        key: input.templateKey,
+        locale: input.locale,
+        vars: input.vars,
+      });
   if (!resolved) {
     logEmailSendOutcome({
       outcome: "failed",
