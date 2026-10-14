@@ -1560,7 +1560,19 @@
             "link": "Link",
             "insertTable": "Inserir tabela",
             "undo": "Desfazer",
-            "redo": "Refazer"
+            "redo": "Refazer",
+            "image": "Inserir imagem",
+            "video": "Inserir link de vídeo",
+            "videoModalTitle": "Vídeo",
+            "videoPrompt": "Cole um URL do YouTube ou do Vimeo. O e-mail leva um link, não um reprodutor.",
+            "videoUrlFieldLabel": "URL do vídeo",
+            "videoModalApply": "Inserir",
+            "videoModalCancel": "Cancelar",
+            "videoLinkLabel": "Ver o vídeo",
+            "videoError": "Cole um link do YouTube ou do Vimeo.",
+            "uploadProgressPreparing": "Preparando a imagem…",
+            "uploadProgressSending": "Enviando a imagem…",
+            "imageError": "Use uma imagem PNG, JPEG ou WebP de até 4 MB."
           }
         },
         "placeholdersTitle": "Espaços reservados disponíveis",

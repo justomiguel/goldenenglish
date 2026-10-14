@@ -1560,7 +1560,19 @@
             "link": "Link",
             "insertTable": "Insert table",
             "undo": "Undo",
-            "redo": "Redo"
+            "redo": "Redo",
+            "image": "Insert image",
+            "video": "Insert video link",
+            "videoModalTitle": "Video",
+            "videoPrompt": "Paste a YouTube or Vimeo URL. The email includes a link, not a player.",
+            "videoUrlFieldLabel": "Video URL",
+            "videoModalApply": "Insert",
+            "videoModalCancel": "Cancel",
+            "videoLinkLabel": "Watch the video",
+            "videoError": "Paste a YouTube or Vimeo link.",
+            "uploadProgressPreparing": "Preparing image…",
+            "uploadProgressSending": "Uploading image…",
+            "imageError": "Use a PNG, JPEG, or WebP image up to 4 MB."
           }
         },
         "placeholdersTitle": "Available placeholders",

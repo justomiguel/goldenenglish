@@ -7,6 +7,7 @@
  * in depth even when the caller is supposed to be staff).
  */
 import { describe, it, expect } from "vitest";
+import { emailVideoLinkHtml } from "@/lib/email/emailMediaHtml";
 import { sanitizeEmailTemplateHtml } from "@/lib/email/sanitizeEmailTemplateHtml";
 
 describe("sanitizeEmailTemplateHtml", () => {
@@ -77,5 +78,26 @@ describe("sanitizeEmailTemplateHtml", () => {
 
   it("returns empty string for empty input", () => {
     expect(sanitizeEmailTemplateHtml("")).toBe("");
+  });
+
+  it("keeps an email video link and drops an embedded player", () => {
+    const html = emailVideoLinkHtml("https://www.youtube.com/watch?v=dQw4w9WgXcQ", {
+      label: "Ver el video",
+    });
+    const kept = sanitizeEmailTemplateHtml(html ?? "");
+    expect(kept).toContain("https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg");
+    expect(kept).toContain("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+    expect(kept).not.toContain("iframe");
+
+    const embedded = sanitizeEmailTemplateHtml(
+      `<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"></iframe>`,
+    );
+    expect(embedded).not.toContain("iframe");
+    expect(embedded).not.toContain("youtube");
+  });
+
+  it("drops a data-url image", () => {
+    const out = sanitizeEmailTemplateHtml(`<img src="data:image/png;base64,aaa" alt="x" />`);
+    expect(out).not.toContain("data:");
   });
 });

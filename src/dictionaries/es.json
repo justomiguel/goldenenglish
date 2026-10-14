@@ -1560,7 +1560,19 @@
             "link": "Enlace",
             "insertTable": "Insertar tabla",
             "undo": "Deshacer",
-            "redo": "Rehacer"
+            "redo": "Rehacer",
+            "image": "Insertar imagen",
+            "video": "Insertar enlace de video",
+            "videoModalTitle": "Video",
+            "videoPrompt": "Pega una URL de YouTube o Vimeo. El correo lleva un enlace, no un reproductor.",
+            "videoUrlFieldLabel": "URL del video",
+            "videoModalApply": "Insertar",
+            "videoModalCancel": "Cancelar",
+            "videoLinkLabel": "Ver el video",
+            "videoError": "Pega un enlace de YouTube o Vimeo.",
+            "uploadProgressPreparing": "Preparando la imagen…",
+            "uploadProgressSending": "Subiendo la imagen…",
+            "imageError": "Usa una imagen PNG, JPEG o WebP de hasta 4 MB."
           }
         },
         "placeholdersTitle": "Variables disponibles",

@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "email-template-media",
+    date: "2026-10-14",
+    area: "communications",
+    title: t(
+      "Imagen y enlace de video en los correos",
+      "Image and video link in emails",
+      "Imagem e link de vídeo nos e-mails",
+    ),
+    summary: t(
+      "El editor de correos inserta una imagen o un enlace de YouTube o Vimeo. El video no se reproduce dentro del mensaje.",
+      "The email editor inserts an image or a YouTube or Vimeo link. The video does not play inside the message.",
+      "O editor de e-mails insere uma imagem ou um link do YouTube ou do Vimeo. O vídeo não toca dentro da mensagem.",
+    ),
+  },
+  {
     id: "event-email-templates",
     date: "2026-10-13",
     area: "events",

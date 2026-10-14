@@ -3,32 +3,19 @@
 import { useCallback, useEffect, useId, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Image from "@tiptap/extension-image";
 import { TableKit } from "@tiptap/extension-table";
-import {
-  Bold,
-  Italic,
-  List,
-  ListOrdered,
-  Minus,
-  Quote,
-  Redo2,
-  Strikethrough,
-  Table2,
-  Underline as UnderlineIcon,
-  Undo2,
-  Link as LinkIcon,
-  Heading2,
-  Pilcrow,
-} from "lucide-react";
+import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
 import { PromptStringModal } from "@/components/molecules/PromptStringModal";
-import { EmailTemplateTiptapBarBtn } from "@/components/molecules/EmailTemplateTiptapBarBtn";
+import { uploadEmailTemplateImage } from "@/lib/client/uploadEmailTemplateImage";
+import { emailVideoLinkHtml } from "@/lib/email/emailMediaHtml";
 import type { EmailTemplateTiptapLabels } from "./EmailTemplateBodyField";
+import { EmailTemplateTiptapToolbar } from "./EmailTemplateTiptapToolbar";
 
 export interface EmailTemplateTiptapBodyProps {
   value: string;
   onChange: (html: string) => void;
   disabled?: boolean;
-  /** Labels for toolbar `aria-label`s (dictionary-backed). */
   tiptap: EmailTemplateTiptapLabels;
 }
 
@@ -39,12 +26,17 @@ export function EmailTemplateTiptapBody({ value, onChange, disabled, tiptap }: E
   const toolbarId = useId();
   const [linkModalOpen, setLinkModalOpen] = useState(false);
   const [linkInitial, setLinkInitial] = useState("https://");
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [uploadPhase, setUploadPhase] = useState<"preparing" | "sending" | null>(null);
+  const [uploadValue, setUploadValue] = useState<number | undefined>(undefined);
+  const [mediaError, setMediaError] = useState<"image" | "video" | null>(null);
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3, 4] },
         link: { openOnClick: false, autolink: true, linkOnPaste: true },
       }),
+      Image.configure({ allowBase64: false }),
       TableKit,
     ],
     content: visualPlaceholder(value),
@@ -67,6 +59,34 @@ export function EmailTemplateTiptapBody({ value, onChange, disabled, tiptap }: E
     setLinkModalOpen(true);
   }, [editor]);
 
+  const onImage = useCallback(() => {
+    if (!editor || isDisabled) return;
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/png,image/jpeg,image/webp";
+    input.onchange = () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      setMediaError(null);
+      void uploadEmailTemplateImage({
+        file,
+        onProgress: (phase, next) => {
+          setUploadPhase(phase);
+          setUploadValue(next);
+        },
+      }).then((html) => {
+        setUploadPhase(null);
+        setUploadValue(undefined);
+        if (!html) {
+          setMediaError("image");
+          return;
+        }
+        editor.chain().focus().insertContent(html).run();
+      });
+    };
+    input.click();
+  }, [editor, isDisabled]);
+
   useEffect(() => {
     if (!editor) return;
     editor.setEditable(!isDisabled);
@@ -86,116 +106,28 @@ export function EmailTemplateTiptapBody({ value, onChange, disabled, tiptap }: E
 
   return (
     <div className="space-y-0" id="email-template-body-wysiwyg">
-      <div
-        id={toolbarId}
-        className="flex flex-wrap items-center gap-0.5 rounded-t-[var(--layout-border-radius)] border border-b-0 border-[var(--color-border)] bg-[var(--color-muted)] p-1"
-        role="toolbar"
-        aria-label={tiptap.toolbarGroupLabel}
-      >
-        <EmailTemplateTiptapBarBtn
-          pressed={Boolean(editor.isActive("bold"))}
-          disabled={isDisabled || !editor.can().chain().focus().toggleBold().run()}
-          label={tiptap.bold}
-          onClick={() => editor.chain().focus().toggleBold().run()}
-        >
-          <Bold className="h-4 w-4" aria-hidden />
-        </EmailTemplateTiptapBarBtn>
-        <EmailTemplateTiptapBarBtn
-          pressed={Boolean(editor.isActive("italic"))}
-          disabled={isDisabled || !editor.can().chain().focus().toggleItalic().run()}
-          label={tiptap.italic}
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-        >
-          <Italic className="h-4 w-4" aria-hidden />
-        </EmailTemplateTiptapBarBtn>
-        <EmailTemplateTiptapBarBtn
-          pressed={Boolean(editor.isActive("underline"))}
-          disabled={isDisabled}
-          label={tiptap.underline}
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-        >
-          <UnderlineIcon className="h-4 w-4" aria-hidden />
-        </EmailTemplateTiptapBarBtn>
-        <EmailTemplateTiptapBarBtn
-          pressed={Boolean(editor.isActive("strike"))}
-          disabled={isDisabled}
-          label={tiptap.strike}
-          onClick={() => editor.chain().focus().toggleStrike().run()}
-        >
-          <Strikethrough className="h-4 w-4" aria-hidden />
-        </EmailTemplateTiptapBarBtn>
-        <span className="mx-0.5 h-5 w-px self-center bg-[var(--color-border)]" aria-hidden />
-        <EmailTemplateTiptapBarBtn
-          pressed={Boolean(editor.isActive("heading", { level: 2 }))}
-          disabled={isDisabled}
-          label={tiptap.heading2}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        >
-          <Heading2 className="h-4 w-4" aria-hidden />
-        </EmailTemplateTiptapBarBtn>
-        <EmailTemplateTiptapBarBtn
-          pressed={Boolean(editor.isActive("paragraph") && !editor.isActive("heading"))}
-          disabled={isDisabled}
-          label={tiptap.paragraph}
-          onClick={() => editor.chain().focus().setParagraph().run()}
-        >
-          <Pilcrow className="h-4 w-4" aria-hidden />
-        </EmailTemplateTiptapBarBtn>
-        <span className="mx-0.5 h-5 w-px self-center bg-[var(--color-border)]" aria-hidden />
-        <EmailTemplateTiptapBarBtn
-          pressed={Boolean(editor.isActive("bulletList"))}
-          disabled={isDisabled}
-          label={tiptap.bulletList}
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-        >
-          <List className="h-4 w-4" aria-hidden />
-        </EmailTemplateTiptapBarBtn>
-        <EmailTemplateTiptapBarBtn
-          pressed={Boolean(editor.isActive("orderedList"))}
-          disabled={isDisabled}
-          label={tiptap.orderedList}
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        >
-          <ListOrdered className="h-4 w-4" aria-hidden />
-        </EmailTemplateTiptapBarBtn>
-        <EmailTemplateTiptapBarBtn
-          pressed={Boolean(editor.isActive("blockquote"))}
-          disabled={isDisabled}
-          label={tiptap.blockquote}
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        >
-          <Quote className="h-4 w-4" aria-hidden />
-        </EmailTemplateTiptapBarBtn>
-        <EmailTemplateTiptapBarBtn pressed={false} disabled={isDisabled} label={tiptap.horizontalRule} onClick={() => editor.chain().focus().setHorizontalRule().run()}>
-          <Minus className="h-4 w-4" aria-hidden />
-        </EmailTemplateTiptapBarBtn>
-        <span className="mx-0.5 h-5 w-px self-center bg-[var(--color-border)]" aria-hidden />
-        <EmailTemplateTiptapBarBtn
-          pressed={Boolean(editor.isActive("link"))}
-          disabled={isDisabled}
-          label={tiptap.link}
-          onClick={onLink}
-        >
-          <LinkIcon className="h-4 w-4" aria-hidden />
-        </EmailTemplateTiptapBarBtn>
-        <EmailTemplateTiptapBarBtn
-          pressed={false}
-          disabled={isDisabled}
-          label={tiptap.insertTable}
-          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
-        >
-          <Table2 className="h-4 w-4" aria-hidden />
-        </EmailTemplateTiptapBarBtn>
-        <span className="mx-0.5 h-5 w-px self-center bg-[var(--color-border)]" aria-hidden />
-        <EmailTemplateTiptapBarBtn pressed={false} disabled={isDisabled || !editor.can().undo()} label={tiptap.undo} onClick={() => editor.chain().focus().undo().run()}>
-          <Undo2 className="h-4 w-4" aria-hidden />
-        </EmailTemplateTiptapBarBtn>
-        <EmailTemplateTiptapBarBtn pressed={false} disabled={isDisabled || !editor.can().redo()} label={tiptap.redo} onClick={() => editor.chain().focus().redo().run()}>
-          <Redo2 className="h-4 w-4" aria-hidden />
-        </EmailTemplateTiptapBarBtn>
-      </div>
+      <EmailTemplateTiptapToolbar
+        editor={editor}
+        disabled={isDisabled || uploadPhase !== null}
+        tiptap={tiptap}
+        toolbarId={toolbarId}
+        onLink={onLink}
+        onImage={onImage}
+        onVideo={() => setVideoModalOpen(true)}
+      />
+      {uploadPhase ? (
+        <InlineUploadProgressBar
+          label={uploadPhase === "preparing" ? tiptap.uploadProgressPreparing : tiptap.uploadProgressSending}
+          indeterminate={uploadPhase === "preparing"}
+          value={uploadValue}
+        />
+      ) : null}
+      {mediaError ? (
+        <p role="alert" className="px-1 py-1 text-sm text-[var(--color-error)]">
+          {mediaError === "image" ? tiptap.imageError : tiptap.videoError}
+        </p>
+      ) : null}
       <EditorContent editor={editor} />
-
       <PromptStringModal
         open={linkModalOpen}
         onOpenChange={setLinkModalOpen}
@@ -206,13 +138,31 @@ export function EmailTemplateTiptapBody({ value, onChange, disabled, tiptap }: E
         cancelLabel={tiptap.linkModalCancel}
         confirmLabel={tiptap.linkModalApply}
         onConfirm={(next) => {
-          if (!editor) return;
-          const t = next.trim();
-          if (t === "") {
+          const typed = next.trim();
+          if (typed === "") {
             editor.chain().focus().extendMarkRange("link").unsetLink().run();
             return;
           }
-          editor.chain().focus().extendMarkRange("link").setLink({ href: t }).run();
+          editor.chain().focus().extendMarkRange("link").setLink({ href: typed }).run();
+        }}
+      />
+      <PromptStringModal
+        open={videoModalOpen}
+        onOpenChange={setVideoModalOpen}
+        title={tiptap.videoModalTitle}
+        description={tiptap.videoPrompt}
+        fieldLabel={tiptap.videoUrlFieldLabel}
+        initialValue="https://"
+        cancelLabel={tiptap.videoModalCancel}
+        confirmLabel={tiptap.videoModalApply}
+        onConfirm={(next) => {
+          const html = emailVideoLinkHtml(next, { label: tiptap.videoLinkLabel });
+          if (!html) {
+            setMediaError("video");
+            return;
+          }
+          setMediaError(null);
+          editor.chain().focus().insertContent(html).run();
         }}
       />
     </div>
