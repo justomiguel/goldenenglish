@@ -79,6 +79,7 @@ export default async function EventRegistrationFormPreviewPage({ params }: PageP
         labels={{
           participantSection: register.participantSection,
           flowQuestion: register.flowQuestion,
+          free: dict.events.public.free,
           firstName: register.firstName,
           lastName: register.lastName,
           dni: register.dni,

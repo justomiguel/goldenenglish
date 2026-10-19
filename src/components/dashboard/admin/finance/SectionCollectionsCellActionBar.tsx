@@ -47,7 +47,7 @@ export function SectionCollectionsCellActionBar({
         onClick={onClear}
         aria-label={dict.matrix.clearSelection}
         title={dict.matrix.clearSelection}
-        className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] p-1 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+        className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] p-1 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
       >
         <X className="h-3.5 w-3.5" aria-hidden />
       </button>

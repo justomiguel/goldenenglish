@@ -3,7 +3,9 @@ import Link from "next/link";
 import { Calendar, MapPin, Ticket, UserPlus } from "lucide-react";
 import type { EventPriceSource } from "@/lib/events/resolveEventPriceTier";
 import { formatEventDate } from "@/lib/events/formatEventDate";
+import { EventFlowPriceList } from "@/components/molecules/EventFlowPriceList";
 import { PublicEventPriceDisplay } from "@/components/molecules/PublicEventPriceDisplay";
+import type { EventFlowPrice } from "@/lib/events/formatEventFlowPrice";
 import type { PublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
 import { publicEventDetailPanelChrome } from "@/lib/events/publicEventSurfaceClasses";
 
@@ -12,6 +14,7 @@ interface PublicEventDetailPanelProps {
   eventDate: string;
   location: string | null;
   priceSource: EventPriceSource;
+  flowPrices?: readonly EventFlowPrice[] | null;
   currency: string;
   registerHref: string;
   surfaceVariant?: PublicEventSurfaceVariant;
@@ -58,6 +61,7 @@ export function PublicEventDetailPanel({
   eventDate,
   location,
   priceSource,
+  flowPrices = null,
   currency,
   registerHref,
   surfaceVariant = "default",
@@ -83,18 +87,27 @@ export function PublicEventDetailPanel({
       ) : null}
 
       <MetaRow icon={Ticket} label={labels.priceLabel} surfaceVariant={surfaceVariant}>
-        <PublicEventPriceDisplay
-          source={priceSource}
-          currency={currency}
-          locale={locale}
-          surfaceVariant={surfaceVariant}
-          labels={{
-            free: labels.free,
-            priceLocal: labels.priceLocal,
-            priceNonLocal: labels.priceNonLocal,
-          }}
-          variant="featured"
-        />
+        {flowPrices ? (
+          <EventFlowPriceList
+            flows={flowPrices}
+            currency={currency}
+            locale={locale}
+            freeLabel={labels.free}
+          />
+        ) : (
+          <PublicEventPriceDisplay
+            source={priceSource}
+            currency={currency}
+            locale={locale}
+            surfaceVariant={surfaceVariant}
+            labels={{
+              free: labels.free,
+              priceLocal: labels.priceLocal,
+              priceNonLocal: labels.priceNonLocal,
+            }}
+            variant="featured"
+          />
+        )}
       </MetaRow>
 
       <div className={chrome.footer}>

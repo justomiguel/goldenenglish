@@ -7,6 +7,7 @@ import type { AdminEventRow } from "@/lib/dashboard/events/loadPaginatedAdminEve
 import { TablePagination } from "@/components/molecules/TablePagination";
 import type { EventSortKey } from "@/lib/dashboard/events/loadPaginatedAdminEvents";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
+import { AdminEventPriceCell } from "@/components/molecules/AdminEventPriceCell";
 import { SortableTh } from "@/components/molecules/SortableTh";
 import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 
@@ -91,7 +92,7 @@ export function AdminEventsScreen({
         </Link>
       </div>
       <div className="overflow-x-auto" data-tour={ADMIN_TOUR_ANCHORS.eventsTable}>
-        <table className="min-w-full text-sm">
+        <table className="ge-stack-cards min-w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--color-border)] text-left">
               <SortableTh
@@ -174,7 +175,14 @@ export function AdminEventsScreen({
                   </span>
                 </td>
                 <td className="px-3 py-2">
-                  {row.price == null ? labels.free : `${row.currency} ${row.price.toFixed(2)}`}
+                  <AdminEventPriceCell
+                    priceByFlow={row.priceByFlow}
+                    flowPrices={row.flowPrices}
+                    price={row.price}
+                    currency={row.currency}
+                    locale={locale}
+                    freeLabel={labels.free}
+                  />
                 </td>
                 <td className="px-3 py-2 text-right">
                   <Link

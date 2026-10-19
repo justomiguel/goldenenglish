@@ -131,7 +131,7 @@ export function AdminAnalyticsGeoChoropleth({ locale, labels, rows }: AdminAnaly
 
   return (
     <div className="space-y-3">
-      <div ref={wrapRef} className="relative w-full min-w-0 overflow-x-auto">
+      <div ref={wrapRef} className="relative w-full min-w-0">
         {tip ? (
           <div
             className="pointer-events-none absolute z-20 max-w-[min(280px,calc(100%-1rem))] rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-left text-xs shadow-md"
@@ -148,7 +148,7 @@ export function AdminAnalyticsGeoChoropleth({ locale, labels, rows }: AdminAnaly
           projectionConfig={{ scale: 168, center: [0, 12] }}
           width={880}
           height={440}
-          className="mx-auto max-w-full [&_svg]:h-auto [&_svg]:max-w-full"
+          className="mx-auto h-auto w-full max-w-full [&_svg]:h-auto [&_svg]:w-full [&_svg]:max-w-full"
         >
           <Geographies geography={geo}>
             {({ geographies }: { geographies: RsmGeography[] }) =>

@@ -54,7 +54,7 @@ export function EventFormQuestionOrderRow({
       <span className="inline-flex min-w-0 flex-wrap items-center gap-2">
         <button
           type="button"
-          className="inline-flex min-h-[36px] min-w-[36px] cursor-grab items-center justify-center rounded-md border border-[var(--color-border)] text-[var(--color-foreground)] hover:bg-[var(--color-muted)] active:cursor-grabbing"
+          className="inline-flex min-h-11 min-w-11 cursor-grab items-center justify-center rounded-md border border-[var(--color-border)] text-[var(--color-foreground)] hover:bg-[var(--color-muted)] active:cursor-grabbing"
           aria-label={fillLabel(labels.dragHandle, item.label)}
           {...attributes}
           {...listeners}
@@ -83,7 +83,7 @@ export function EventFormQuestionOrderRow({
       </span>
       <span className="inline-flex shrink-0 flex-wrap items-center gap-2">
         {item.requirement ? (
-          <label className="inline-flex min-h-[36px] items-center gap-2 text-[var(--color-foreground)]">
+          <label className="inline-flex min-h-11 items-center gap-2 text-[var(--color-foreground)]">
             <input
               type="checkbox"
               checked={item.requirement.checked}
@@ -99,7 +99,7 @@ export function EventFormQuestionOrderRow({
           aria-label={fillLabel(labels.moveUp, item.label)}
           disabled={pending || index === 0}
           onClick={() => onMove(index, -1)}
-          className="inline-flex min-h-[36px] min-w-[36px] items-center justify-center rounded-md border border-[var(--color-border)] hover:bg-[var(--color-muted)] disabled:opacity-50"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--color-border)] hover:bg-[var(--color-muted)] disabled:opacity-50"
         >
           <ChevronUp className="h-4 w-4" aria-hidden />
         </button>
@@ -108,7 +108,7 @@ export function EventFormQuestionOrderRow({
           aria-label={fillLabel(labels.moveDown, item.label)}
           disabled={pending || index === total - 1}
           onClick={() => onMove(index, 1)}
-          className="inline-flex min-h-[36px] min-w-[36px] items-center justify-center rounded-md border border-[var(--color-border)] hover:bg-[var(--color-muted)] disabled:opacity-50"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[var(--color-border)] hover:bg-[var(--color-muted)] disabled:opacity-50"
         >
           <ChevronDown className="h-4 w-4" aria-hidden />
         </button>
@@ -118,7 +118,7 @@ export function EventFormQuestionOrderRow({
               type="button"
               disabled={pending}
               onClick={() => onEdit(item.extra?.id ?? "")}
-              className="inline-flex min-h-[36px] items-center gap-2 rounded-md border border-[var(--color-border)] px-2 py-1 disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[var(--color-border)] px-2 py-1 disabled:opacity-50"
             >
               <Pencil className="h-4 w-4" aria-hidden />
               {labels.edit}
@@ -127,7 +127,7 @@ export function EventFormQuestionOrderRow({
               type="button"
               disabled={pending}
               onClick={() => onArchive(item.extra?.id ?? "")}
-              className="inline-flex min-h-[36px] items-center gap-2 rounded-md border border-[var(--color-border)] px-2 py-1 disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[var(--color-border)] px-2 py-1 disabled:opacity-50"
             >
               {labels.removeAsDelete ? (
                 <Trash2 className="h-4 w-4" aria-hidden />

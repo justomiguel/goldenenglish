@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
@@ -7,6 +9,8 @@ import { formatCohortCollectionsMoney } from "@/lib/dashboard/cohortCollectionsM
 import { SectionCollectionsEnrollmentFeeCell } from "./SectionCollectionsEnrollmentFeeCell";
 import { SectionCollectionsMonthCell } from "./SectionCollectionsMonthCell";
 import { SectionCollectionsStudentBenefits } from "./SectionCollectionsStudentBenefits";
+import { SectionCollectionsMatrixMobile } from "./SectionCollectionsMatrixMobile";
+import { useAppSurface } from "@/hooks/useAppSurface";
 
 type FinanceDict = Dictionary["admin"]["finance"];
 
@@ -32,6 +36,22 @@ export function CohortCollectionsMatrixSectionTable({
   showEnrollmentFeeColumn,
   currency,
 }: CohortCollectionsMatrixSectionTableProps) {
+  const narrow = useAppSurface() !== "web-desktop";
+  if (narrow) {
+    return (
+      <SectionCollectionsMatrixMobile
+        students={visibleRows}
+        view={view}
+        dict={collectionsDict}
+        locale={locale}
+        currency={currency}
+        monthShort={monthShort}
+        showEnrollmentFeeColumn={showEnrollmentFeeColumn}
+        paidLabel={overviewDict.table.paidLabel}
+        overdueLabel={overviewDict.table.overdueLabel}
+      />
+    );
+  }
   return (
     <table className="w-full border-collapse text-xs">
       <thead>
@@ -89,7 +109,7 @@ export function CohortCollectionsMatrixSectionTable({
                 >
                   <span className="block truncate">{s.studentName}</span>
                   <ChevronRight
-                    className="h-3.5 w-3.5 shrink-0 opacity-70 transition group-hover:opacity-100"
+                    className="h-3.5 w-3.5 shrink-0 opacity-100"
                     aria-hidden
                   />
                 </Link>

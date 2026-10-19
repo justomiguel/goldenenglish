@@ -6,34 +6,15 @@ describe("canDeleteEventAttendee", () => {
     expect(canDeleteEventAttendee(null)).toBe(true);
   });
 
-  it("allows delete for pending or rejected bank transfer payments", () => {
-    expect(
-      canDeleteEventAttendee({
-        status: "pending",
-        amount: 1000,
-        currency: "CLP",
-        gatewayProvider: null,
-      }),
-    ).toBe(true);
-    expect(
-      canDeleteEventAttendee({
-        status: "rejected",
-        amount: 1000,
-        currency: "CLP",
-        gatewayProvider: null,
-      }),
-    ).toBe(true);
-  });
-
-  it("blocks delete for approved or gateway payments", () => {
+  it("allows delete for an approved Mercado Pago or Flow payment", () => {
     expect(
       canDeleteEventAttendee({
         status: "approved",
         amount: 1000,
         currency: "CLP",
-        gatewayProvider: null,
+        gatewayProvider: "mercadopago",
       }),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       canDeleteEventAttendee({
         status: "pending",
@@ -41,6 +22,6 @@ describe("canDeleteEventAttendee", () => {
         currency: "CLP",
         gatewayProvider: "flow",
       }),
-    ).toBe(false);
+    ).toBe(true);
   });
 });

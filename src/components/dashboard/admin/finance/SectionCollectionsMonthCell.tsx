@@ -27,6 +27,8 @@ export interface SectionCollectionsMonthCellProps {
   selectable?: boolean;
   selected?: boolean;
   onToggle?: (month: number) => void;
+  /** Full-width 44px control for the phone month list. */
+  stacked?: boolean;
   /** System-wide billing currency from Finance > Settings. */
   currency?: string;
 }
@@ -79,6 +81,7 @@ export function SectionCollectionsMonthCell({
   selectable = false,
   selected = false,
   onToggle,
+  stacked = false,
   currency,
 }: SectionCollectionsMonthCellProps) {
   const Icon = SECTION_COLLECTIONS_MONTH_STATUS_ICONS[cell.status];
@@ -111,7 +114,11 @@ export function SectionCollectionsMonthCell({
         title={aria}
         disabled={!selectable}
         onClick={handleClick}
-        className={`inline-flex h-8 min-w-[34px] flex-col items-center justify-center rounded border text-[10px] font-semibold leading-none transition-shadow disabled:cursor-default ${sectionCollectionsMonthCellClasses(cell.status, isOverdue, hasScholarshipDiscount)} ${selectedRing} ${cursorClass}`}
+        className={`inline-flex flex-col items-center justify-center rounded border font-semibold leading-none transition-shadow disabled:cursor-default ${
+          stacked
+            ? "min-h-11 w-full flex-row justify-between gap-2 px-3 text-sm"
+            : "h-8 min-w-[34px] text-[10px]"
+        } ${sectionCollectionsMonthCellClasses(cell.status, isOverdue, hasScholarshipDiscount)} ${selectedRing} ${cursorClass}`}
       >
         {hasScholarshipDiscount ? (
           <>

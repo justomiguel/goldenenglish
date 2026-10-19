@@ -57,6 +57,7 @@ export function useAdminRecordPaymentPanelLabels(args: {
       monthZeroColumnShort: labels.recordPaymentMonthZeroColumnShort,
       monthZeroTooltip: labels.recordPaymentMonthZeroTooltip,
       viewReceipt: labels.recordPaymentViewReceipt,
+      mobileMonths: labels.recordPaymentMobileMonths,
     }),
     [labels],
   );

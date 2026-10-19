@@ -56,4 +56,8 @@ describe("src/app/layout.tsx (root) title metadata structure", () => {
     const titleBlock = titleBlockMatch![1];
     expect(titleBlock).toMatch(/\btemplate:/);
   });
+
+  it("marks smooth scrolling so route transitions stay instant", () => {
+    expect(src).toMatch(/data-scroll-behavior="smooth"/);
+  });
 });

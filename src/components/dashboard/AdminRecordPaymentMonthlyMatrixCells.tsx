@@ -91,6 +91,7 @@ export interface AdminRecordPaymentMonthlyMatrixCellsProps {
   onToggle: (month: number, next: boolean) => void;
   labels: AdminRecordPaymentMonthlyMatrixCellsLabels;
   disabled: boolean;
+  stacked?: boolean;
 }
 
 export function AdminRecordPaymentMonthlyMatrixCells({
@@ -104,6 +105,7 @@ export function AdminRecordPaymentMonthlyMatrixCells({
   onToggle,
   labels,
   disabled,
+  stacked = false,
 }: AdminRecordPaymentMonthlyMatrixCellsProps) {
   const stateByMonth = new Map(monthStates.map((s) => [s.month, s]));
   const scholarshipMarks = recordPaymentMatrixScholarshipMarks(
@@ -149,9 +151,13 @@ export function AdminRecordPaymentMonthlyMatrixCells({
         return (
           <div
             key={m}
-            className="flex min-w-[2.5rem] flex-1 flex-col items-center gap-0.5"
+            className={
+              stacked
+                ? "flex w-full items-center gap-3"
+                : "flex min-w-[2.5rem] flex-1 flex-col items-center gap-0.5"
+            }
           >
-            <span className="w-full truncate text-center text-[10px] font-medium text-[var(--color-muted-foreground)]">
+            <span className={`font-medium text-[var(--color-muted-foreground)] ${stacked ? "w-16 shrink-0 text-left text-sm" : "w-full truncate text-center text-[10px]"}`}>
               {monthShort[m - 1]}
             </span>
             <button
@@ -159,7 +165,8 @@ export function AdminRecordPaymentMonthlyMatrixCells({
               disabled={disabledMonth}
               onClick={() => onToggle(m, !on)}
               className={[
-                "box-border inline-flex h-8 w-full min-w-[34px] max-w-[52px] flex-col items-center justify-center rounded border text-[10px] font-semibold leading-none transition",
+                "box-border inline-flex flex-col items-center justify-center rounded border font-semibold leading-none transition",
+                stacked ? "min-h-11 w-full max-w-none flex-row justify-between px-3 text-sm" : "h-8 w-full min-w-[34px] max-w-[52px] text-[10px]",
                 cellClass,
                 on
                   ? "ring-2 ring-[var(--color-primary)] ring-offset-2 ring-offset-[var(--color-surface)]"
@@ -215,31 +222,14 @@ function monthGridStatusLine(
   vis: { status: StudentMonthlyPaymentCell["status"]; isOverdue: boolean },
   labels: AdminRecordPaymentMonthlyMatrixCellsLabels,
 ): string {
-  if (state.legacyFallback) {
-    return labels.legacy;
-  }
-  if (vis.status === "no-plan") {
-    return labels.statusNoPlan;
-  }
-  if (vis.status === "out-of-period") {
-    return labels.statusOutOfPeriod;
-  }
-  if (vis.status === "due" && vis.isOverdue) {
-    return labels.statusOverdue;
-  }
-  if (vis.status === "due") {
-    return labels.statusUnpaid;
-  }
-  switch (vis.status) {
-    case "approved":
-      return labels.statusPaid;
-    case "pending":
-      return labels.statusPending;
-    case "rejected":
-      return labels.statusRejected;
-    case "exempt":
-      return labels.statusExempt;
-    default:
-      return labels.statusUnpaid;
-  }
+  if (state.legacyFallback) return labels.legacy;
+  if (vis.status === "no-plan") return labels.statusNoPlan;
+  if (vis.status === "out-of-period") return labels.statusOutOfPeriod;
+  if (vis.status === "due" && vis.isOverdue) return labels.statusOverdue;
+  if (vis.status === "due") return labels.statusUnpaid;
+  if (vis.status === "approved") return labels.statusPaid;
+  if (vis.status === "pending") return labels.statusPending;
+  if (vis.status === "rejected") return labels.statusRejected;
+  if (vis.status === "exempt") return labels.statusExempt;
+  return labels.statusUnpaid;
 }

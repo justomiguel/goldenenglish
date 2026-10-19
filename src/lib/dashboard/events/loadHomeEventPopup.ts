@@ -6,6 +6,8 @@ import {
   HOME_EVENT_POPUP_LIMIT,
   selectHomePopupEvents,
 } from "@/lib/events/selectHomePopupEvents";
+import type { EventFlowPrice } from "@/lib/events/formatEventFlowPrice";
+import { loadRegistrationFlowPricesByEvent } from "@/lib/events/server/loadActiveRegistrationFlows";
 import { loadEventTranslationsByIds } from "@/lib/events/server/loadEventTranslations";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { resolveEventCoverImageUrl } from "@/lib/rich-content/resolvePublicContentCoverUrl";
@@ -22,6 +24,8 @@ export interface HomeEventPopupEvent {
   price: number | null;
   priceLocal: number | null;
   priceNonLocal: number | null;
+  priceByFlow: boolean;
+  flowPrices: EventFlowPrice[];
 }
 
 const EXCERPT_MAX = 160;
@@ -40,7 +44,7 @@ export async function loadHomeEventPopup(
   const { data, error } = await supabase
     .from("events")
     .select(
-      "id, slug, title, description, event_date, location, price, price_local, price_non_local, currency, default_locale, status, archived_at, private_to_section, show_on_home",
+      "id, slug, title, description, event_date, location, price, price_local, price_non_local, currency, default_locale, status, archived_at, private_to_section, show_on_home, price_by_flow",
     )
     .eq("show_on_home", true)
     .eq("status", "published")
@@ -69,6 +73,15 @@ export async function loadHomeEventPopup(
     supabase,
     selected.map((item) => item.id),
   );
+  const pricedEvents = selected
+    .filter((item) => Boolean(item.row.price_by_flow))
+    .map((item) => {
+      const defaultLocale = isEventLocale(String(item.row.default_locale ?? "es"))
+        ? String(item.row.default_locale)
+        : "es";
+      return { id: item.id, defaultLocale };
+    });
+  const flowPricesByEvent = await loadRegistrationFlowPricesByEvent(supabase, pricedEvents, locale);
 
   return selected.map((item) => {
     const source = item.row;
@@ -97,6 +110,8 @@ export async function loadHomeEventPopup(
       price: source.price == null ? null : Number(source.price),
       priceLocal: source.price_local == null ? null : Number(source.price_local),
       priceNonLocal: source.price_non_local == null ? null : Number(source.price_non_local),
+      priceByFlow: Boolean(source.price_by_flow),
+      flowPrices: flowPricesByEvent.get(item.id) ?? [],
     };
   });
 }

@@ -87,7 +87,7 @@ export async function reconcileEventMercadoPagoReturn(input: {
 
   const creds = await loadMercadoPagoCredentialsPlain(admin, rawKey, country);
   if (!creds?.enabled) {
-    return "processing";
+    return "failure";
   }
 
   const result = await finalizeEventPaymentFromMercadoPago({
@@ -126,7 +126,7 @@ export async function reconcileEventFlowReturn(input: {
   const admin = createAdminClient();
   const creds = await loadFlowChileCredentialsPlain(admin, rawKey);
   if (!creds?.enabled) {
-    return "processing";
+    return "failure";
   }
 
   const result = await finalizeEventPaymentFromFlowGateway({

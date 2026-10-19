@@ -34,7 +34,7 @@ export function SiteThemeRawEditorTable({
   const empty = rows.length === 0;
   return (
     <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
-      <table className="w-full min-w-[52rem] border-collapse text-left text-sm">
+      <table className="ge-stack-cards w-full border-collapse text-left text-sm md:min-w-[52rem]">
         <thead className="bg-[var(--color-muted)] text-[11px] font-semibold uppercase tracking-wide text-[var(--color-muted-foreground)]">
           <tr>
             <th scope="col" className="px-3 py-2">

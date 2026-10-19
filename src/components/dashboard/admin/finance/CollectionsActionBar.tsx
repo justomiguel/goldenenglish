@@ -29,7 +29,7 @@ export function CollectionsActionBar({
   if (selectionCount === 0) return null;
 
   return (
-    <div className="sticky bottom-0 z-10 flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-2.5 shadow-[var(--shadow-soft)]">
+    <div className="sticky bottom-0 z-10 flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-2.5 pb-safe shadow-[var(--shadow-soft)]">
       <span className="text-sm text-[var(--color-muted-foreground)]">
         {matrixDict.selectionCount.replace("{count}", String(selectionCount))}
       </span>
@@ -61,7 +61,7 @@ export function CollectionsActionBar({
         onClick={onClearSelection}
         aria-label={actionBarDict.clearAll}
         title={actionBarDict.clearAll}
-        className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] p-1.5 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+        className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] p-1.5 text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
       >
         <X className="h-3.5 w-3.5" aria-hidden />
       </button>

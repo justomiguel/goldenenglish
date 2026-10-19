@@ -33,6 +33,7 @@ const labels: EventEmailTemplateLabels = {
     paymentApproved: "Payment approved",
     paymentRejected: "Payment rejected",
     reminder: "Reminder",
+    registrationRemoved: "Registration removed",
   },
   localeLabel: "Language",
   scopeLabel: "Who receives this version",
@@ -53,6 +54,7 @@ const labels: EventEmailTemplateLabels = {
     flowName: "Flow name",
     eventDate: "Event date",
     eventLocation: "Location",
+    reason: "Reason",
   },
   previewSamples: {
     firstName: "Ana",
@@ -61,6 +63,7 @@ const labels: EventEmailTemplateLabels = {
     flowName: "Academy",
     eventDate: "March 12",
     eventLocation: "Hall",
+    reason: "Duplicate registration",
   },
 };
 

@@ -5,6 +5,8 @@ import type { Dictionary } from "@/types/i18n";
 import { SortableColumnHeader } from "@/components/molecules/SortableColumnHeader";
 import { useSectionCollectionsMatrixSort } from "@/hooks/useSectionCollectionsMatrixSort";
 import { SectionCollectionsMatrixStudentRow } from "./SectionCollectionsMatrixStudentRow";
+import { SectionCollectionsMatrixMobile } from "./SectionCollectionsMatrixMobile";
+import { useAppSurface } from "@/hooks/useAppSurface";
 
 type CollectionsDict = Dictionary["admin"]["finance"]["collections"];
 
@@ -50,6 +52,7 @@ export function SectionCollectionsMatrixTable({
   const money = moneyFormatter(locale, currency);
   const sortLabels = dict.matrix.columnSort;
   const { sortKey, sortDir, sortedStudents, onToggleSort } = useSectionCollectionsMatrixSort(view.students);
+  const narrow = useAppSurface() !== "web-desktop";
 
   if (view.students.length === 0) {
     return (
@@ -64,6 +67,27 @@ export function SectionCollectionsMatrixTable({
   const showEnrollmentFeeColumn =
     showEnrollmentFeeColumnProp ??
     view.students.some((s) => (s.enrollmentFee?.amount ?? 0) > 0);
+  if (narrow) {
+    return (
+      <SectionCollectionsMatrixMobile
+        students={sortedStudents}
+        view={view}
+        dict={dict}
+        locale={locale}
+        currency={currency}
+        monthShort={dict.monthShort}
+        showEnrollmentFeeColumn={showEnrollmentFeeColumn}
+        selectedIds={selectedIds}
+        onToggleStudent={onToggleStudent}
+        cellSelectable={cellSelectable}
+        isCellSelected={isCellSelected}
+        isCellSelectable={isCellSelectable}
+        onToggleCell={onToggleCell}
+        paidLabel={dict.kpis.paid}
+        overdueLabel={dict.kpis.overdue}
+      />
+    );
+  }
   return (
     <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
       <table className="w-full min-w-[860px] table-fixed border-collapse text-sm">

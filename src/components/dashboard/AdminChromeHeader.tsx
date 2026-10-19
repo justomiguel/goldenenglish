@@ -5,6 +5,7 @@ import { ExternalLink, MessageCircle } from "lucide-react";
 import type { BrandPublic } from "@/lib/brand/server";
 import type { Dictionary } from "@/types/i18n";
 import { AdminAttentionBell } from "@/components/dashboard/AdminAttentionBell";
+import { AdminCommandPaletteTrigger } from "@/components/dashboard/AdminCommandPaletteTrigger";
 import { StaffWorkspaceSwitch } from "@/components/dashboard/StaffWorkspaceSwitch";
 
 interface AdminChromeHeaderProps {
@@ -45,7 +46,7 @@ export function AdminChromeHeader({
       className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-surface)]/95 shadow-[var(--shadow-soft)] backdrop-blur-md"
       aria-label={labels.ariaHeader}
     >
-      <div className="flex items-center justify-between gap-4 px-4 py-4 md:px-8">
+      <div className="flex items-center justify-between gap-2 px-safe pb-3 pt-safe md:gap-4 md:px-8 md:py-4">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           {mobileNav}
           {compactBrand ? (
@@ -113,7 +114,7 @@ export function AdminChromeHeader({
             data-tour="admin-chrome-back-to-site"
             aria-label={labels.backToSite}
             title={labels.backToSite}
-            className="inline-flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 py-2 text-xs font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] sm:min-w-0 sm:justify-start sm:px-3 sm:text-sm"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 py-2 text-xs font-medium text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)] sm:min-w-0 sm:justify-start sm:px-3 sm:text-sm"
           >
             <ExternalLink
               className="h-4 w-4 shrink-0 text-[var(--color-muted-foreground)]"
@@ -126,7 +127,7 @@ export function AdminChromeHeader({
             href={`/${locale}/dashboard/admin/messages`}
             aria-label={labels.headerMessagesAria}
             title={labels.headerMessages}
-            className="relative inline-flex min-h-10 min-w-10 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
+            className="relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
           >
             <MessageCircle className="h-4 w-4" aria-hidden strokeWidth={2} />
             {recentInboundMessagesCount > 0 ? (
@@ -135,6 +136,7 @@ export function AdminChromeHeader({
               </span>
             ) : null}
           </Link>
+          <AdminCommandPaletteTrigger label={dict.dashboard.adminCommandPalette.triggerAria} />
           <AdminAttentionBell
             locale={locale}
             messagesCount={recentInboundMessagesCount}

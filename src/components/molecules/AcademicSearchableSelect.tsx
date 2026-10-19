@@ -43,7 +43,7 @@ export function AcademicSearchableSelect({
       <input
         id={`${id}-q`}
         type="search"
-        className="w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
+        className="min-h-11 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm md:min-h-9"
         placeholder={filterPlaceholder}
         value={q}
         onChange={(e) => setQ(e.target.value)}
@@ -52,7 +52,7 @@ export function AcademicSearchableSelect({
       />
       <select
         id={id}
-        className="w-full max-h-40 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
+        className="max-h-40 min-h-11 w-full rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm md:min-h-9"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}

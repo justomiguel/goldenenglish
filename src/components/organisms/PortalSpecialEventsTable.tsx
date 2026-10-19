@@ -60,7 +60,7 @@ export function PortalSpecialEventsTable({ locale, dict, rows }: PortalSpecialEv
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
-      <table className="min-w-full text-left text-sm">
+      <table className="ge-stack-cards min-w-full text-left text-sm">
         <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
           <tr>
             <SortableTh columnId="title" label={dict.colTitle} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2 font-semibold text-[var(--color-primary)]" />

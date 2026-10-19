@@ -74,7 +74,7 @@ export function TrafficBreakdownAgentsTable({
         {isBots ? labels.trafficBreakdownBotsHint : labels.trafficBreakdownAgentsHint}
       </p>
       <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[18rem] border-collapse text-left text-sm">
+        <table className="ge-stack-cards w-full border-collapse text-left text-sm md:min-w-[18rem]">
           <thead>
             <tr className="border-b border-[var(--color-border)] text-[var(--color-muted-foreground)]">
               <SortableTh columnId="agent" label={labels.trafficBreakdownColAgent} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-1.5 pr-3 font-medium" />

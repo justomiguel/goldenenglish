@@ -69,7 +69,7 @@ export interface UnderlineTabBarProps {
 }
 
 const TABLIST_ROW =
-  "flex w-full gap-0 border-b border-[var(--color-border)] bg-[var(--color-muted)]/15";
+  "flex w-full min-w-0 gap-0 overflow-x-auto overscroll-x-contain border-b border-[var(--color-border)] bg-[var(--color-muted)]/15";
 
 const TABLIST_GRID =
   "w-full border-b border-[var(--color-border)] bg-[var(--color-muted)]/15 " +
@@ -161,7 +161,7 @@ export function UnderlineTabBar({
         const mobileR = isGrid && i < items.length - 1 ? "max-sm:border-r max-sm:border-[var(--color-border)]/60" : "";
         const rowFlex = isGrid
           ? "max-sm:shrink-0 max-sm:min-w-[6.25rem] max-sm:max-w-[11rem] sm:min-w-0 sm:max-w-none"
-          : "min-w-0 flex-1";
+          : "min-w-max shrink-0 md:min-w-0 md:flex-1";
         return (
           <button
             key={item.id}

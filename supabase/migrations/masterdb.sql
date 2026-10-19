@@ -15453,7 +15453,8 @@ CREATE TABLE IF NOT EXISTS public.event_email_templates (
       'events.registered',
       'events.payment_approved',
       'events.payment_rejected',
-      'events.reminder'
+      'events.reminder',
+      'events.registration_removed'
     )
   ),
   CONSTRAINT event_email_templates_locale_chk CHECK (locale IN ('es', 'en', 'pt')),

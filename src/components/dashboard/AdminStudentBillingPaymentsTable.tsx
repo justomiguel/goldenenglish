@@ -62,7 +62,7 @@ export function AdminStudentBillingPaymentsTable({
     <section>
       <h2 className="font-semibold text-[var(--color-muted-foreground)]">{labels.paymentsTitle}</h2>
       <div className="mt-4 overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
-        <table className="w-full min-w-[640px] text-left text-sm">
+        <table className="ge-stack-cards w-full text-left text-sm md:min-w-[640px]">
           <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
             <tr>
               <SortableTh columnId="period" label={labels.colPeriod} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />

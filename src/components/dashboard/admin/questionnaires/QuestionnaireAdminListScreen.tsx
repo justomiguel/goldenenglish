@@ -68,7 +68,7 @@ export function QuestionnaireAdminListScreen({
         <p className="text-sm text-[var(--color-muted-foreground)]">{labels.empty}</p>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
-          <table className="w-full min-w-[640px] text-left text-sm">
+          <table className="ge-stack-cards w-full text-left text-sm md:min-w-[640px]">
             <thead>
               <tr className="border-b border-[var(--color-border)] text-[var(--color-muted-foreground)]">
                 <th className="px-4 py-3 font-medium">{labels.colTitle}</th>

@@ -3361,6 +3361,7 @@
           "yearTotalsColumn": "Ano",
           "selectAllAria": "Selecione todos os alunos visíveis",
           "selectStudentAria": "Selecione o aluno {name}",
+          "mobilePickStudent": "Aluno",
           "openStudentBillingAria": "Abra faturamento de estudante para {name}",
           "back": "Voltar à visão geral",
           "empty": "Ainda não há inscrições ativas nesta seção.",
@@ -3705,6 +3706,7 @@
       "recordPaymentConfirmBody": "O valor previsto para esta seção e mês será guardado conforme aprovado, sem novo recebimento. Isso notifica a família por e-mail quando possível.",
       "recordPaymentConfirm": "Confirmar",
       "recordPaymentGridHint": "Escolha os meses do ano acima. Para desfazer um mês pago por engano, clique apenas em meses pagos (verde) e use “Marcar como não pago”. Para novos pagamentos, selecione meses não pagos ou pendentes e use Registrar como pago, bolsa ou isento.",
+      "recordPaymentMobileMonths": "Meses",
       "recordPaymentMatrixLegend": "O mesmo que Finanças/cobranças: verde = pago; âmbar = pendente; vermelho = rejeitado; azul = isento; cinza claro = ainda não vencido ou não vencido; contorno vermelho = parcela vencida; minus-in-circle = nenhum plano de mensalidade naquele mês (ex.: curso não cobra); calendar-off = fora da janela de cobrança desta seção; verde % = bolsa.",
       "recordPaymentStatusNoPlan": "Sem plano de taxas (bloqueado)",
       "recordPaymentStatusOutOfPeriod": "Janela de faturamento externa (bloqueada)",
@@ -4279,6 +4281,13 @@
         "status": "Status",
         "viewCount": "Visualizações",
         "attendeesTitle": "Participantes",
+        "attendeesDeleteReasonLabel": "Motivo",
+        "attendeesDeleteReasonPlaceholder": "Por que esta inscrição é eliminada",
+        "attendeesDeleteNotify": "Avisar por e-mail",
+        "attendeesDeleteNotifyHelp": "A pessoa recebe o motivo. Desmarque esta opção só se não quiser avisar nesta exclusão.",
+        "attendeesErrorNotify": "Não foi possível enviar o aviso. A inscrição continua ativa.",
+        "attendeesErrorNoEmail": "Esta inscrição não tem e-mail. Desmarque o aviso para eliminá-la mesmo assim.",
+        "attendeesErrorReason": "Escreva o motivo do aviso.",
         "formTitle": "Formulário",
         "archive": "Arquivar",
         "draftHint": "Este evento está em rascunho e não aparece na página pública de eventos. Publique quando estiver pronto.",
@@ -4304,7 +4313,8 @@
             "registered": "Inscrição recebida",
             "paymentApproved": "Pagamento aprovado",
             "paymentRejected": "Pagamento recusado",
-            "reminder": "Lembrete"
+            "reminder": "Lembrete",
+            "registrationRemoved": "Inscrição eliminada"
           },
           "localeLabel": "Idioma",
           "scopeLabel": "Quem recebe esta versão",
@@ -4324,7 +4334,8 @@
             "eventName": "Nome do evento",
             "flowName": "Nome do fluxo",
             "eventDate": "Data do evento",
-            "eventLocation": "Local"
+            "eventLocation": "Local",
+            "reason": "Motivo"
           },
           "previewSamples": {
             "firstName": "Ana",
@@ -4332,7 +4343,8 @@
             "eventName": "Casa aberta",
             "flowName": "Academia",
             "eventDate": "12 de março de 2026, 18:00",
-            "eventLocation": "Salão principal"
+            "eventLocation": "Salão principal",
+            "reason": "A inscrição ficou duplicada"
           }
         }
       },
@@ -4528,7 +4540,8 @@
         "previous": "Evento anterior",
         "next": "Próximo evento",
         "position": "{{current}} de {{total}}",
-        "imageLoading": "A carregar imagem"
+        "imageLoading": "A carregar imagem",
+        "goToRegister": "Ir para a inscrição"
       },
       "downloadFile": "Baixar arquivo",
       "attachmentsSectionTitle": "Arquivos anexos",
@@ -9459,6 +9472,7 @@
         "columnFillAria": "Marque todos os alunos vazios presentes por {date}",
         "viewTabsAria": "Visualização de presença",
         "viewSheet": "Folha",
+        "mobileDateLabel": "Dia de aula",
         "viewCalendar": "Calendário",
         "calendarTitle": "Calendário de aulas",
         "calendarHint": "Toque em um dia de aula para ir para essa coluna na planilha.",

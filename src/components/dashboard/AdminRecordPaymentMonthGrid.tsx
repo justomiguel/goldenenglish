@@ -14,6 +14,7 @@ import {
 import type { AdminBillingMonthState } from "@/lib/billing/buildAdminBillingMonthGrid";
 import type { StudentMonthlyPaymentCell } from "@/types/studentMonthlyPayments";
 import { formatCalendarMonthShort } from "@/lib/i18n/formatCalendarMonthShort";
+import { useAppSurface } from "@/hooks/useAppSurface";
 import type { Locale } from "@/types/i18n";
 
 export interface AdminRecordPaymentMonthGridProps {
@@ -49,6 +50,7 @@ export interface AdminRecordPaymentMonthGridProps {
     monthZeroColumnShort: string;
     monthZeroTooltip: string;
     viewReceipt: string;
+    mobileMonths: string;
   };
   disabled: boolean;
   /** Enrollment fee column; omit when section has no matrícula. */
@@ -82,6 +84,7 @@ export function AdminRecordPaymentMonthGrid({
   enrollmentMonthZero,
 }: AdminRecordPaymentMonthGridProps) {
   const gridHintId = useId();
+  const narrow = useAppSurface() !== "web-desktop";
   const [today] = useState(() => {
     const d = new Date();
     return { year: d.getFullYear(), month: d.getMonth() + 1 };
@@ -135,7 +138,7 @@ export function AdminRecordPaymentMonthGrid({
             type="button"
             disabled={disabled}
             onClick={onSelectAll}
-            className="inline-flex min-h-[36px] items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]/30 disabled:opacity-50"
+            className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]/30 disabled:opacity-50"
           >
             <CheckSquare className="h-3.5 w-3.5 shrink-0" aria-hidden />
             {labels.selectAll}
@@ -144,7 +147,7 @@ export function AdminRecordPaymentMonthGrid({
             type="button"
             disabled={disabled}
             onClick={onClear}
-            className="inline-flex min-h-[36px] items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]/30 disabled:opacity-50"
+            className="inline-flex min-h-11 items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-1.5 text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]/30 disabled:opacity-50"
           >
             <X className="h-3.5 w-3.5 shrink-0" aria-hidden />
             {labels.clear}
@@ -169,9 +172,10 @@ export function AdminRecordPaymentMonthGrid({
       <div
         className="overflow-x-auto pb-1"
         role="group"
+        aria-label={labels.mobileMonths}
         aria-describedby={gridHintId}
       >
-        <div className="flex min-w-[min(100%,520px)] gap-1" dir="ltr">
+        <div className={narrow ? "flex flex-col gap-2" : "flex min-w-[min(100%,520px)] gap-1"} dir="ltr">
           {enrollmentMonthZero ? (
             <EnrollmentMonthZeroColumn
               visual={enrollmentMonthZero.visual}
@@ -193,6 +197,7 @@ export function AdminRecordPaymentMonthGrid({
             onToggle={onToggle}
             labels={monthlyLabels}
             disabled={disabled}
+            stacked={narrow}
           />
         </div>
       </div>

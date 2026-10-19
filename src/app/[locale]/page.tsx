@@ -141,7 +141,7 @@ export default async function HomePage({ params }: HomePageProps) {
           position: popup.position,
           dateLabel: dict.events.public.dateLabel,
           locationLabel: dict.events.public.locationLabel,
-          viewEvent: dict.events.public.viewDetail,
+          goToRegister: popup.goToRegister,
           imageLoading: popup.imageLoading,
           free: dict.events.public.free,
           priceLocal: dict.events.public.priceLocal,

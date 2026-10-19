@@ -50,7 +50,7 @@ export function AdminAnalyticsGeoPathBreakdown({ locale, labels, rows }: AdminAn
       </h2>
       <p className="text-sm text-[var(--color-muted-foreground)]">{labels.trafficGeoPathHint}</p>
       <div className="mt-4 overflow-x-auto">
-        <table className="w-full min-w-[28rem] border-collapse text-left text-sm">
+        <table className="ge-stack-cards w-full border-collapse text-left text-sm md:min-w-[28rem]">
           <thead>
             <tr className="border-b border-[var(--color-border)] text-[var(--color-muted-foreground)]">
               <SortableTh columnId="country" label={labels.trafficGeoPathColCountry} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-2 pr-3 font-medium" />
@@ -68,10 +68,10 @@ export function AdminAnalyticsGeoPathBreakdown({ locale, labels, rows }: AdminAn
             ) : (
               sortedRows.map((r, i) => (
                 <tr key={`${r.country}:${r.pathname}:${i}`} className="border-b border-[var(--color-border)]/60">
-                  <td className="max-w-[6rem] truncate py-2 pr-3 font-mono text-xs" title={r.country}>
+                  <td className="max-w-full break-words py-2 pr-3 font-mono text-xs md:max-w-[6rem] md:truncate" title={r.country}>
                     {r.country}
                   </td>
-                  <td className="max-w-[min(32rem,85vw)] truncate py-2 pr-3 font-mono text-xs" title={r.pathname}>
+                  <td className="max-w-full break-words py-2 pr-3 font-mono text-xs md:max-w-[min(32rem,85vw)] md:truncate" title={r.pathname}>
                     {r.pathname}
                   </td>
                   <td className="py-2 text-end tabular-nums">{nf.format(r.cnt)}</td>

@@ -109,6 +109,7 @@ export async function deleteEventAttendeeAction(
   locale: string,
   attendeeId: string,
   eventId: string,
+  options: { notify: boolean; reason: string },
 ): Promise<EventMutationResult> {
   const actorId = await requireAdminEventActor();
   if (!actorId) return { ok: false, message: "forbidden" };
@@ -118,6 +119,8 @@ export async function deleteEventAttendeeAction(
     actorId,
     attendeeId,
     eventId,
+    notify: options.notify,
+    reason: options.reason,
   });
   revalidatePath(adminEventsPath(locale), "page");
   revalidatePath(`/${locale}/dashboard/admin/finance`, "page");
@@ -126,11 +129,12 @@ export async function deleteEventAttendeeAction(
     return {
       ok: false,
       message:
-        result.code === "not_deletable"
-          ? "not_deletable"
-          : result.code === "not_found"
-            ? "not_found"
-            : "delete_failed",
+        result.code === "notify_failed" ||
+        result.code === "no_email" ||
+        result.code === "reason_required" ||
+        result.code === "not_found"
+          ? result.code
+          : "delete_failed",
     };
   }
   return { ok: true };

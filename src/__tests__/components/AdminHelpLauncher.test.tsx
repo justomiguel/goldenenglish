@@ -215,10 +215,12 @@ describe("AdminHelpLauncher", () => {
     useAppSurface.mockReturnValue("web-desktop");
   });
 
-  it("does not render on PWA / narrow surfaces", () => {
+  it("renders the FAB on PWA / narrow surfaces and opens a modal sheet", async () => {
+    const user = userEvent.setup();
     useAppSurface.mockReturnValue("pwa-mobile");
     renderLauncher();
-    expect(screen.queryByRole("button", { name: launcherDict.fabAria })).toBeNull();
+    await user.click(screen.getByRole("button", { name: launcherDict.fabAria }));
+    expect(screen.getByRole("dialog")).toHaveAttribute("aria-modal", "true");
   });
 
   it("FAB opens panel with explain CTA and a Play per tutorial row", async () => {

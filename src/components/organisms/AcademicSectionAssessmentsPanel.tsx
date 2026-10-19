@@ -125,7 +125,7 @@ export function AcademicSectionAssessmentsPanel({
       >
         {data.learning.length ? (
           <div className="overflow-x-auto rounded-2xl border border-[var(--color-border)]">
-            <table className="w-full min-w-[52rem] text-left text-sm">
+            <table className="ge-stack-cards w-full text-left text-sm md:min-w-[52rem]">
               <caption className="px-3 py-2 text-left text-xs font-medium text-[var(--color-muted-foreground)]">
                 {d.tableLearning}
               </caption>
@@ -191,7 +191,7 @@ export function AcademicSectionAssessmentsPanel({
 
         {data.cohort.length ? (
           <div className="overflow-x-auto rounded-2xl border border-[var(--color-border)]">
-            <table className="w-full min-w-[40rem] text-left text-sm">
+            <table className="ge-stack-cards w-full text-left text-sm md:min-w-[40rem]">
               <caption className="px-3 py-2 text-left text-xs font-medium text-[var(--color-muted-foreground)]">
                 {d.tableCohort}
               </caption>

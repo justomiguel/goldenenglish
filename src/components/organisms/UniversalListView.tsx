@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { SortableColumnHeader } from "@/components/molecules/SortableColumnHeader";
 import { TablePagination } from "@/components/molecules/TablePagination";
+import { useAppSurface } from "@/hooks/useAppSurface";
 import type {
   UniversalListSortColumn,
   UniversalListSortLabels,
@@ -41,6 +42,8 @@ export interface UniversalListViewProps {
   colgroup?: ReactNode;
   /** `hidden` avoids horizontal scroll when the table fits the container (use with wrapping cells). */
   tableOverflow?: "auto" | "hidden";
+  /** Phone card list. When set, replaces the table below the desktop surface. */
+  mobileCards?: ReactNode;
   children: ReactNode;
 }
 
@@ -60,8 +63,10 @@ export function UniversalListView({
   tableClassName = "",
   colgroup,
   tableOverflow = "auto",
+  mobileCards,
   children,
 }: UniversalListViewProps) {
+  const narrow = useAppSurface() !== "web-desktop";
   const emptyBlock = (
     <p className="text-sm text-[var(--color-muted-foreground)]">{emptyMessage}</p>
   );
@@ -81,7 +86,11 @@ export function UniversalListView({
   return (
     <div className="space-y-4">
       {toolbar}
+      {narrow && mobileCards ? (
+        <div className="space-y-3">{mobileCards}</div>
+      ) : (
       <div
+        data-allow-x-scroll
         className={`rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)] ${
           tableOverflow === "hidden" ? "overflow-x-hidden" : "overflow-x-auto"
         }`}
@@ -125,7 +134,7 @@ export function UniversalListView({
           </thead>
           <tbody>{children}</tbody>
         </table>
-        {pagination ? (
+        {pagination && !(narrow && mobileCards) ? (
           <TablePagination
             page={pagination.page}
             pageSize={pagination.pageSize}
@@ -135,6 +144,16 @@ export function UniversalListView({
           />
         ) : null}
       </div>
+      )}
+      {narrow && mobileCards && pagination ? (
+        <TablePagination
+          page={pagination.page}
+          pageSize={pagination.pageSize}
+          totalCount={pagination.totalCount}
+          onPageChange={pagination.onPageChange}
+          labels={pagination.labels}
+        />
+      ) : null}
     </div>
   );
 }

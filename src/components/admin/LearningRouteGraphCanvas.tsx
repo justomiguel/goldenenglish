@@ -55,7 +55,7 @@ export function LearningRouteGraphCanvas({
 
   return (
     <div
-      className="min-h-[34rem] overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)]"
+      className="min-h-[70dvh] overflow-hidden rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] md:min-h-[34rem]"
       onDragOver={(event) => {
         event.preventDefault();
         event.dataTransfer.dropEffect = "copy";

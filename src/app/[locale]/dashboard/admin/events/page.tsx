@@ -34,7 +34,7 @@ export default async function AdminEventsPage({ params, searchParams }: PageProp
   const admin = createAdminClient();
 
   const [result, counts] = await Promise.all([
-    loadPaginatedAdminEvents(admin, { page, q, sort, dir }),
+    loadPaginatedAdminEvents(admin, { page, q, sort, dir, locale }),
     loadAdminEventsListAggregates(admin, q),
   ]);
 

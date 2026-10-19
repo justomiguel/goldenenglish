@@ -159,6 +159,11 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
               priceLocal: event.priceLocal,
               priceNonLocal: event.priceNonLocal,
             }}
+            flowPrices={
+              event.priceByFlow
+                ? event.flows.map((flow) => ({ id: flow.id, name: flow.name, price: flow.price }))
+                : null
+            }
             currency={event.currency}
             registerHref={`/${locale}/events/${event.slug}/register`}
             labels={panelLabels}

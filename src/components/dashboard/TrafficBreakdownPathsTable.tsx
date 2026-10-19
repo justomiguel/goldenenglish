@@ -61,7 +61,7 @@ export function TrafficBreakdownPathsTable({
         </p>
       ) : null}
       <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[18rem] border-collapse text-left text-sm">
+        <table className="ge-stack-cards w-full border-collapse text-left text-sm md:min-w-[18rem]">
           <thead>
             <tr className="border-b border-[var(--color-border)] text-[var(--color-muted-foreground)]">
               <SortableTh columnId="path" label={labels.trafficBreakdownColPath} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-1.5 pr-3 font-medium" />
@@ -91,7 +91,7 @@ export function TrafficBreakdownPathsTable({
                             aria-label={labels.trafficBreakdownGuestProtectedRowAria}
                           />
                         ) : null}
-                        <span className="truncate font-mono text-xs">{r.pathname || "—"}</span>
+                        <span className="break-words font-mono text-xs md:truncate">{r.pathname || "—"}</span>
                       </span>
                     </td>
                     <td className="py-1.5 text-end tabular-nums">{nf.format(r.cnt)}</td>

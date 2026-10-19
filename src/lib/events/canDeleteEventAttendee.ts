@@ -1,8 +1,6 @@
 import type { EventAttendeePaymentSummary } from "@/lib/dashboard/events/loadEventAttendeesPaginated";
 
-/** Bank-transfer attendees with pending/rejected payments (or no payment) may be removed by admins. */
-export function canDeleteEventAttendee(payment: EventAttendeePaymentSummary | null): boolean {
-  if (!payment) return true;
-  if (payment.gatewayProvider) return false;
-  return payment.status === "pending" || payment.status === "rejected";
+/** Any attendee may be removed. Gateway and approved payments are included; the dialog warns that money is not refunded. */
+export function canDeleteEventAttendee(_payment: EventAttendeePaymentSummary | null): boolean {
+  return true;
 }

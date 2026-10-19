@@ -52,7 +52,7 @@ export function TablePagination({
           type="button"
           variant="ghost"
           size="sm"
-          className="min-h-10 rounded-xl"
+          className="min-h-11 rounded-xl md:min-h-10"
           disabled={page <= 1}
           title={labels.tipPrev}
           onClick={() => onPageChange(page - 1)}
@@ -71,7 +71,7 @@ export function TablePagination({
               type="button"
               onClick={() => onPageChange(item)}
               aria-current={item === page ? "page" : undefined}
-              className={`inline-flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-sm font-semibold ${
+              className={`inline-flex h-11 min-w-11 items-center justify-center rounded-full px-2 text-sm font-semibold md:h-9 md:min-w-9 ${
                 item === page
                   ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
                   : "text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
@@ -85,7 +85,7 @@ export function TablePagination({
           type="button"
           variant="ghost"
           size="sm"
-          className="min-h-10 rounded-xl"
+          className="min-h-11 rounded-xl md:min-h-10"
           disabled={page >= totalPages}
           title={labels.tipNext}
           onClick={() => onPageChange(page + 1)}

@@ -176,7 +176,7 @@ export function FinanceHubTabs({
                   className={`h-4 w-4 shrink-0 transition ${
                     isActive
                       ? "opacity-100"
-                      : "opacity-70 group-hover:opacity-100"
+                      : "opacity-100"
                   }`}
                   aria-hidden
                 />

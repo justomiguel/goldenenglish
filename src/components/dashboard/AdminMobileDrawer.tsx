@@ -47,13 +47,13 @@ export function AdminMobileDrawer({
         type="button"
         onClick={openDrawer}
         aria-label={navDict.mobileOpen}
-        className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
+        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
       >
         <Menu className="h-5 w-5" aria-hidden />
       </button>
 
       <DashboardMobileDrawerPortal open={open} onClose={close} dialogLabel={navDict.aria}>
-        <div className="mx-auto flex h-dvh max-h-dvh max-w-[var(--layout-max-width)] flex-col overflow-hidden bg-[var(--color-background)] px-4 py-4 text-[var(--color-foreground)]">
+        <div className="mx-auto flex h-dvh max-h-dvh max-w-[var(--layout-max-width)] flex-col overflow-hidden bg-[var(--color-background)] px-safe pb-safe pt-safe text-[var(--color-foreground)]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-muted-foreground)]">
@@ -67,7 +67,7 @@ export function AdminMobileDrawer({
               type="button"
               onClick={close}
               aria-label={navDict.mobileClose}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-muted-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-muted-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
             >
               <X className="h-4 w-4" aria-hidden />
             </button>

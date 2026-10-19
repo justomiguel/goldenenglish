@@ -48,7 +48,7 @@ export function AdminAnalyticsGuestPathBreakdown({ locale, labels, rows }: Admin
       </h2>
       <p className="text-sm text-[var(--color-muted-foreground)]">{labels.trafficGuestPathHint}</p>
       <div className="mt-4 overflow-x-auto">
-        <table className="w-full min-w-[20rem] border-collapse text-left text-sm">
+        <table className="ge-stack-cards w-full border-collapse text-left text-sm md:min-w-[20rem]">
           <thead>
             <tr className="border-b border-[var(--color-border)] text-[var(--color-muted-foreground)]">
               <SortableTh columnId="path" label={labels.trafficGeoPathColPath} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="py-2 pr-3 font-medium" />
@@ -65,7 +65,7 @@ export function AdminAnalyticsGuestPathBreakdown({ locale, labels, rows }: Admin
             ) : (
               sortedRows.map((r, i) => (
                 <tr key={`${r.pathname}:${i}`} className="border-b border-[var(--color-border)]/60">
-                  <td className="max-w-[min(36rem,90vw)] truncate py-2 pr-3 font-mono text-xs" title={r.pathname}>
+                  <td className="max-w-full break-words py-2 pr-3 font-mono text-xs md:max-w-[min(36rem,90vw)] md:truncate" title={r.pathname}>
                     {r.pathname}
                   </td>
                   <td className="py-2 text-end tabular-nums">{nf.format(r.cnt)}</td>

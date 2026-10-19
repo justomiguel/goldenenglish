@@ -18,6 +18,8 @@ import {
   type TeacherAttendanceMatrixView,
 } from "@/components/molecules/TeacherAttendanceMatrixViewTabs";
 import { TeacherAttendanceMatrixTable } from "@/components/organisms/TeacherAttendanceMatrixTable";
+import { TeacherAttendanceMatrixMobile } from "@/components/organisms/TeacherAttendanceMatrixMobile";
+import { useAppSurface } from "@/hooks/useAppSurface";
 import { Button } from "@/components/atoms/Button";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
@@ -45,6 +47,7 @@ export function SectionAttendanceMatrix({
   offlineHint,
 }: SectionAttendanceMatrixProps) {
   const router = useRouter();
+  const surface = useAppSurface();
   const payload = useMemo(() => JSON.parse(initialPayloadJson) as TeacherAttendanceMatrixPayload, [initialPayloadJson]);
   const editableByDate = useMemo(
     () => JSON.parse(editableByDateJson) as Record<string, boolean>,
@@ -201,6 +204,7 @@ export function SectionAttendanceMatrix({
             </div>
           ) : null}
           <p className="text-xs text-[var(--color-muted-foreground)]">{keyboardHintText}</p>
+          {surface === "web-desktop" ? (
           <TeacherAttendanceMatrixTable
             locale={locale}
             rows={payload.rows}
@@ -217,6 +221,18 @@ export function SectionAttendanceMatrix({
             dict={matrixDict}
             matrixMode={variant}
           />
+          ) : (
+          <TeacherAttendanceMatrixMobile
+            rows={payload.rows}
+            classDays={payload.classDays}
+            cells={cells}
+            todayIso={todayIso}
+            editableByDate={editableByDate}
+            onCellStatus={onCellStatus}
+            matrixMode={variant}
+            dict={matrixDict}
+          />
+          )}
         </>
       )}
       <p className="text-xs text-[var(--color-muted-foreground)]">{offlineHint}</p>

@@ -5,7 +5,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import { TableKit } from "@tiptap/extension-table";
-import { InlineUploadProgressBar } from "@/components/molecules/InlineUploadProgressBar";
+import { BlockingFileUploadModal } from "@/components/molecules/BlockingFileUploadModal";
 import { PromptStringModal } from "@/components/molecules/PromptStringModal";
 import { uploadEmailTemplateImage } from "@/lib/client/uploadEmailTemplateImage";
 import { emailVideoLinkHtml } from "@/lib/email/emailMediaHtml";
@@ -29,6 +29,7 @@ export function EmailTemplateTiptapBody({ value, onChange, disabled, tiptap }: E
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [uploadPhase, setUploadPhase] = useState<"preparing" | "sending" | null>(null);
   const [uploadValue, setUploadValue] = useState<number | undefined>(undefined);
+  const [uploadFilename, setUploadFilename] = useState<string | null>(null);
   const [mediaError, setMediaError] = useState<"image" | "video" | null>(null);
   const editor = useEditor({
     extensions: [
@@ -68,6 +69,7 @@ export function EmailTemplateTiptapBody({ value, onChange, disabled, tiptap }: E
       const file = input.files?.[0];
       if (!file) return;
       setMediaError(null);
+      setUploadFilename(file.name);
       void uploadEmailTemplateImage({
         file,
         onProgress: (phase, next) => {
@@ -77,6 +79,7 @@ export function EmailTemplateTiptapBody({ value, onChange, disabled, tiptap }: E
       }).then((html) => {
         setUploadPhase(null);
         setUploadValue(undefined);
+        setUploadFilename(null);
         if (!html) {
           setMediaError("image");
           return;
@@ -116,11 +119,16 @@ export function EmailTemplateTiptapBody({ value, onChange, disabled, tiptap }: E
         onVideo={() => setVideoModalOpen(true)}
       />
       <p className="px-1 py-1 text-sm text-[var(--color-foreground)]">{tiptap.imageLimit}</p>
-      {uploadPhase ? (
-        <InlineUploadProgressBar
-          label={uploadPhase === "preparing" ? tiptap.uploadProgressPreparing : tiptap.uploadProgressSending}
-          indeterminate={uploadPhase === "preparing"}
-          value={uploadValue}
+      {uploadPhase && uploadFilename ? (
+        <BlockingFileUploadModal
+          open
+          title={tiptap.uploadProgressSending}
+          filename={uploadFilename}
+          fileIndex={null}
+          phaseLabel={uploadPhase === "preparing" ? tiptap.uploadProgressPreparing : tiptap.uploadProgressSending}
+          percent={uploadPhase === "sending" && typeof uploadValue === "number" ? uploadValue : null}
+          indeterminate={uploadPhase !== "sending" || typeof uploadValue !== "number"}
+          runningAriaLabel={uploadPhase === "preparing" ? tiptap.uploadProgressPreparing : tiptap.uploadProgressSending}
         />
       ) : null}
       {mediaError ? (

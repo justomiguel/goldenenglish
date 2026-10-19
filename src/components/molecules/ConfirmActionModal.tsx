@@ -64,11 +64,12 @@ export function ConfirmActionModal({
           {formSlot ? <div className="space-y-3 pt-1">{formSlot}</div> : null}
         </div>
       ) : null}
-      <div className="flex flex-wrap justify-end gap-2 pt-2">
+      <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:flex-wrap sm:justify-end">
         <Button
           type="button"
           variant="secondary"
           disabled={busy}
+          className="min-h-11 w-full sm:w-auto"
           onClick={() => onOpenChange(false)}
         >
           <X className="h-4 w-4 shrink-0" aria-hidden />
@@ -80,6 +81,7 @@ export function ConfirmActionModal({
             variant={confirmVariant === "destructive" ? "destructiveStrong" : "primary"}
             disabled={busy || confirmDisabled}
             isLoading={busy}
+            className="min-h-11 w-full sm:w-auto"
             onClick={onConfirm}
           >
             <Check className="h-4 w-4 shrink-0" aria-hidden />

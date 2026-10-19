@@ -35,7 +35,7 @@ export function AdminCouponsTable({
       {rows.length === 0 ? (
         <p className="p-6 text-sm text-[var(--color-muted-foreground)]">{labels.none}</p>
       ) : (
-        <table className="w-full min-w-[720px] text-left text-sm">
+        <table className="ge-stack-cards w-full text-left text-sm md:min-w-[720px]">
           <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
             <tr>
               <SortableTh columnId="code" label={labels.colCode} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />

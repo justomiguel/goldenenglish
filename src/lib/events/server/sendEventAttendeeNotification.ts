@@ -11,6 +11,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export async function sendEventAttendeeNotification(input: {
   attendeeId: string;
   templateKey: EventEmailTemplateKey;
+  /** Included only for mails that show why the registration changed. */
+  reason?: string;
 }): Promise<boolean> {
   try {
     const admin = createAdminClient();
@@ -68,6 +70,7 @@ export async function sendEventAttendeeNotification(input: {
         flowName,
         eventDate,
         eventLocation: String(event?.location ?? ""),
+        reason: input.reason ?? "",
       },
     });
   } catch (error) {

@@ -1,11 +1,18 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
-import { canDeleteEventAttendee } from "@/lib/events/canDeleteEventAttendee";
+import { sendEventAttendeeNotification } from "@/lib/events/server/sendEventAttendeeNotification";
 import { EVENT_UPLOADS_BUCKET } from "@/lib/events/server/uploadEventAttendeeFileServer";
-import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { logServerWarn, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
-export type DeleteEventAttendeeCode = "not_found" | "not_deletable" | "delete_failed";
+export type DeleteEventAttendeeCode =
+  | "not_found"
+  | "delete_failed"
+  | "reason_required"
+  | "no_email"
+  | "notify_failed";
+
+const DELETE_REASON_MAX = 500;
 
 interface AttendeePaymentRow {
   status: string;
@@ -44,6 +51,9 @@ export async function deleteEventAttendee(input: {
   actorId: string;
   attendeeId: string;
   eventId?: string;
+  /** When true, email the reason and delete only after that send succeeds. */
+  notify?: boolean;
+  reason?: string;
 }): Promise<{ ok: boolean; code?: DeleteEventAttendeeCode }> {
   const { data, error: loadError } = await input.adminClient
     .from("event_attendees")
@@ -63,17 +73,26 @@ export async function deleteEventAttendee(input: {
   if (input.eventId && row.event_id !== input.eventId) return { ok: false, code: "not_found" };
 
   const paymentRow = parsePayment(row.event_payments);
-  const paymentSummary = paymentRow
-    ? {
-        status: String(paymentRow.status),
-        amount: 0,
-        currency: "CLP",
-        gatewayProvider: paymentRow.gateway_provider ? String(paymentRow.gateway_provider) : null,
-      }
-    : null;
-
-  if (!canDeleteEventAttendee(paymentSummary)) {
-    return { ok: false, code: "not_deletable" };
+  const notify = input.notify === true;
+  const reason = input.reason?.trim() ?? "";
+  if (notify && (reason.length === 0 || reason.length > DELETE_REASON_MAX)) {
+    logServerWarn("deleteEventAttendee:reason_required", { attendeeId: input.attendeeId });
+    return { ok: false, code: "reason_required" };
+  }
+  if (notify && !row.email?.trim()) {
+    logServerWarn("deleteEventAttendee:no_email", { attendeeId: input.attendeeId });
+    return { ok: false, code: "no_email" };
+  }
+  if (notify) {
+    const sent = await sendEventAttendeeNotification({
+      attendeeId: row.id,
+      templateKey: "events.registration_removed",
+      reason,
+    });
+    if (!sent) {
+      logServerWarn("deleteEventAttendee:notify_failed", { attendeeId: input.attendeeId });
+      return { ok: false, code: "notify_failed" };
+    }
   }
 
   const storagePaths: string[] = [];
@@ -120,6 +139,8 @@ export async function deleteEventAttendee(input: {
       dni_or_passport: row.dni_or_passport,
       payment_status: paymentRow?.status ?? null,
       actor_id: input.actorId,
+      notified: notify,
+      ...(notify ? { reason } : {}),
     },
   });
 

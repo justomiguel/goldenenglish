@@ -7,6 +7,7 @@ import { AdminMobileDrawer } from "@/components/dashboard/AdminMobileDrawer";
 import { AdminInstituteTrail } from "@/components/dashboard/AdminInstituteTrail";
 import { ViewAsEndedNotice } from "@/components/dashboard/ViewAsEndedNotice";
 import { AdminEmailSendFailureBanner } from "@/components/dashboard/AdminEmailSendFailureBanner";
+import { AdminStackableTableLabels } from "@/components/dashboard/AdminStackableTableLabels";
 
 interface AdminDashboardShellProps {
   locale: string;
@@ -98,7 +99,10 @@ export function AdminDashboardShell({
             )
           }
         />
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto px-4 py-5 md:px-8 md:py-5">
+        <div
+          data-admin-main
+          className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto px-safe pb-safe pt-5 md:px-8 md:py-5"
+        >
           {siteSetupRequired ? null : (
             <AdminInstituteTrail locale={locale} dict={navDict} />
           )}
@@ -109,6 +113,7 @@ export function AdminDashboardShell({
             <AdminEmailSendFailureBanner locale={locale} labels={dict.admin.settings} />
           ) : null}
           {children}
+          <AdminStackableTableLabels />
         </div>
       </div>
     </div>

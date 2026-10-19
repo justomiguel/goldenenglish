@@ -84,7 +84,7 @@ export function SectionCollectionsScholarshipsTab({
         </p>
       ) : (
         <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
-          <table className="w-full min-w-[560px] text-left text-sm">
+          <table className="ge-stack-cards w-full text-left text-sm md:min-w-[560px]">
             <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
               <tr>
                 <SortableTh columnId="studentDisplayName" label={t.scholarshipsColStudent} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />

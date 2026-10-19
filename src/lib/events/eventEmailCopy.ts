@@ -5,6 +5,7 @@ export const EVENT_EMAIL_TEMPLATE_KEYS = [
   "events.payment_approved",
   "events.payment_rejected",
   "events.reminder",
+  "events.registration_removed",
 ] as const;
 
 export type EventEmailTemplateKey = (typeof EVENT_EMAIL_TEMPLATE_KEYS)[number];
@@ -21,6 +22,7 @@ export const EVENT_EMAIL_VARIABLES = [
   "flowName",
   "eventDate",
   "eventLocation",
+  "reason",
 ] as const;
 
 export type EventEmailVariable = (typeof EVENT_EMAIL_VARIABLES)[number];

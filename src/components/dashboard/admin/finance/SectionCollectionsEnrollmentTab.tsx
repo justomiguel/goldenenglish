@@ -126,7 +126,7 @@ export function SectionCollectionsEnrollmentTab({
         </Button>
       </div>
       <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
-        <table className="w-full min-w-[640px] text-left text-sm">
+        <table className="ge-stack-cards w-full text-left text-sm md:min-w-[640px]">
           <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
             <tr>
               <th className="w-10 px-2 py-2" aria-label={t.enrollmentSelectAll} />

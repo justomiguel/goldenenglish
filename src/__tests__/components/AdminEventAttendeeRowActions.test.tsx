@@ -52,8 +52,14 @@ const labels: AdminEventAttendeesPanelLabels = {
     deleteConfirmBody: detail.attendeesDeleteConfirmBody,
     deleteConfirm: detail.attendeesDeleteConfirm,
     cancel: detail.attendeesDeleteCancel,
+    reasonLabel: detail.attendeesDeleteReasonLabel,
+    reasonPlaceholder: detail.attendeesDeleteReasonPlaceholder,
+    notify: detail.attendeesDeleteNotify,
+    notifyHelp: detail.attendeesDeleteNotifyHelp,
     errorDelete: detail.attendeesErrorDelete,
-    errorNotDeletable: detail.attendeesErrorNotDeletable,
+    errorNotify: detail.attendeesErrorNotify,
+    errorNoEmail: detail.attendeesErrorNoEmail,
+    errorReason: detail.attendeesErrorReason,
   },
 };
 

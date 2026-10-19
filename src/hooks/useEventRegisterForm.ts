@@ -34,8 +34,11 @@ export function useEventRegisterForm({
   const [consent, setConsent] = useState(false);
   const [isLocalResident, setIsLocalResident] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState<EventRegistrationPaymentMethod>(
-    () => paymentMethods[0] ?? "flow",
+    () => paymentMethods[0] ?? "transfer",
   );
+  const selectedPaymentMethod = paymentMethods.includes(paymentMethod)
+    ? paymentMethod
+    : (paymentMethods[0] ?? "transfer");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptFieldError, setReceiptFieldError] = useState("");
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
@@ -107,10 +110,12 @@ export function useEventRegisterForm({
     : eventRequiresPayment(priceSource, isLocalResident);
   const showPaymentPicker = requiresPayment && paymentMethods.length > 0;
   const requiresTransferReceipt =
-    showPaymentPicker && paymentMethod === "transfer" && paymentMethods.includes("transfer");
+    showPaymentPicker &&
+    selectedPaymentMethod === "transfer" &&
+    paymentMethods.includes("transfer");
   const showTransferInstructions =
     showPaymentPicker &&
-    paymentMethod === "transfer" &&
+    selectedPaymentMethod === "transfer" &&
     Boolean(event.bankTransferInstructions?.trim());
 
   function handleSubmit(eventForm: React.FormEvent<HTMLFormElement>) {
@@ -131,7 +136,8 @@ export function useEventRegisterForm({
       fieldValues,
       fieldFiles,
       isLocalResident: event.hasTieredPricing ? isLocalResident : true,
-      paymentMethod,
+      paymentMethod: selectedPaymentMethod,
+      allowedPaymentMethods: paymentMethods,
       showPaymentPicker,
       requiresTransferReceipt,
       receiptFile,
@@ -204,7 +210,7 @@ export function useEventRegisterForm({
     },
     residency: { isLocalResident, setIsLocalResident },
     payment: {
-      paymentMethod,
+      paymentMethod: selectedPaymentMethod,
       setPaymentMethod,
       showPaymentPicker,
       requiresTransferReceipt,
@@ -223,7 +229,11 @@ export function useEventRegisterForm({
     footer: { consent, setConsent, message, isPending },
     flow: {
       ask: Boolean(flowView?.askFlow),
-      options: (event.flows ?? []).map((flow) => ({ id: flow.id, name: flow.name })),
+      options: (event.flows ?? []).map((flow) => ({
+        id: flow.id,
+        name: flow.name,
+        price: flow.price,
+      })),
       flowId: flowView?.flowId ?? null,
       questionOrder: flowView?.questionOrder ?? event.questionOrder,
       onChange: selectFlow,

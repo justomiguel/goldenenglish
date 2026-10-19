@@ -64,7 +64,7 @@ function SectionCard({
           size="sm"
         />
       </header>
-      <dl className="grid grid-cols-3 gap-2 text-[11px] text-[var(--color-muted-foreground)]">
+      <dl className="grid grid-cols-1 gap-2 text-[11px] text-[var(--color-muted-foreground)] sm:grid-cols-3">
         <div>
           <dt className="font-medium uppercase tracking-wide">
             {dict.kpis.collectionRatio}

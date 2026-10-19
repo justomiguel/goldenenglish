@@ -45,6 +45,7 @@ export interface EventRegisterSubmitPayload {
   fieldFiles: Record<string, File | null>;
   isLocalResident: boolean;
   paymentMethod: EventRegistrationPaymentMethod;
+  allowedPaymentMethods: EventRegistrationPaymentMethod[];
   showPaymentPicker: boolean;
   requiresTransferReceipt: boolean;
   receiptFile: File | null;
@@ -209,7 +210,9 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
       }
 
       const wantsOnlinePayment =
-        payload.showPaymentPicker && isOnlineGatewayMethod(payload.paymentMethod);
+        payload.showPaymentPicker &&
+        payload.allowedPaymentMethods.includes(payload.paymentMethod) &&
+        isOnlineGatewayMethod(payload.paymentMethod);
       if (wantsOnlinePayment && attendeeId && paymentRequired) {
         const started = await startEventGatewayPayment({
           slug: payload.slug,

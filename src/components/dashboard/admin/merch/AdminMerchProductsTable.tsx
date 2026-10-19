@@ -54,7 +54,7 @@ export function AdminMerchProductsTable({
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
-      <table className="w-full min-w-[720px] text-left text-sm">
+      <table className="ge-stack-cards w-full text-left text-sm md:min-w-[720px]">
         <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
           <tr>
             <th className="px-3 py-2" scope="col">

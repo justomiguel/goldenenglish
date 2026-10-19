@@ -82,7 +82,7 @@ export function AdminRegistrationTableRow({
           aria-expanded={expanded}
           aria-label={expanded ? labels.collapseRow : labels.expandRow}
           title={expanded ? labels.collapseRow : labels.expandRow}
-          className="h-8 w-8 shrink-0 p-0"
+          className="h-11 w-11 shrink-0 p-0 md:h-8 md:w-8"
           onClick={() => onToggleExpanded(r.id)}
         >
           {expanded ? (
@@ -167,7 +167,7 @@ export function AdminRegistrationTableRow({
                 size="sm"
                 aria-label={labels.accept}
                 title={labels.tipAccept}
-                className="h-9 w-9 shrink-0 p-0"
+                className="h-11 w-11 shrink-0 p-0 md:h-9 md:w-9"
                 disabled={busy}
                 onClick={() => onAccept(r)}
               >
@@ -183,7 +183,7 @@ export function AdminRegistrationTableRow({
                 size="sm"
                 aria-label={labels.editTitle}
                 title={labels.tipEditRow}
-                className="h-9 w-9 shrink-0 border border-[var(--color-border)] bg-[var(--color-surface)] p-0 text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+                className="h-11 w-11 shrink-0 border border-[var(--color-border)] bg-[var(--color-surface)] p-0 text-[var(--color-foreground)] hover:bg-[var(--color-muted)] md:h-9 md:w-9"
                 disabled={busy}
                 onClick={() => onEdit(r)}
               >
@@ -197,7 +197,7 @@ export function AdminRegistrationTableRow({
             size="sm"
             aria-label={labels.delete}
             title={labels.tipDeleteRow}
-            className="h-9 w-9 shrink-0 border border-[var(--color-error)] bg-[var(--color-surface)] p-0 text-[var(--color-error)] hover:bg-[color-mix(in_srgb,var(--color-error)_10%,var(--color-surface))] hover:text-[var(--color-error)] focus-visible:ring-2 focus-visible:ring-[var(--color-error)]"
+            className="h-11 w-11 shrink-0 border border-[var(--color-error)] bg-[var(--color-surface)] p-0 text-[var(--color-error)] hover:bg-[color-mix(in_srgb,var(--color-error)_10%,var(--color-surface))] hover:text-[var(--color-error)] focus-visible:ring-2 focus-visible:ring-[var(--color-error)] md:h-9 md:w-9"
             disabled={busy}
             onClick={() => onDelete(r)}
           >

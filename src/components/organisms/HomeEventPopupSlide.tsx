@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Calendar, MapPin } from "lucide-react";
+import { EventFlowPriceList } from "@/components/molecules/EventFlowPriceList";
 import { PublicEventPriceDisplay } from "@/components/molecules/PublicEventPriceDisplay";
 import type { HomeEventPopupEvent } from "@/lib/dashboard/events/loadHomeEventPopup";
 import { formatEventDate } from "@/lib/events/formatEventDate";
@@ -14,7 +15,7 @@ interface HomeEventPopupSlideProps {
   labels: {
     dateLabel: string;
     locationLabel: string;
-    viewEvent: string;
+    goToRegister: string;
     imageLoading: string;
     free: string;
     priceLocal: string;
@@ -90,28 +91,37 @@ export function HomeEventPopupSlide({
         ) : null}
       </dl>
 
-      <PublicEventPriceDisplay
-        source={{
-          price: event.price,
-          priceLocal: event.priceLocal,
-          priceNonLocal: event.priceNonLocal,
-        }}
-        currency={event.currency}
-        locale={locale}
-        labels={{
-          free: labels.free,
-          priceLocal: labels.priceLocal,
-          priceNonLocal: labels.priceNonLocal,
-        }}
-      />
+      {event.priceByFlow ? (
+        <EventFlowPriceList
+          flows={event.flowPrices}
+          currency={event.currency}
+          locale={locale}
+          freeLabel={labels.free}
+        />
+      ) : (
+        <PublicEventPriceDisplay
+          source={{
+            price: event.price,
+            priceLocal: event.priceLocal,
+            priceNonLocal: event.priceNonLocal,
+          }}
+          currency={event.currency}
+          locale={locale}
+          labels={{
+            free: labels.free,
+            priceLocal: labels.priceLocal,
+            priceNonLocal: labels.priceNonLocal,
+          }}
+        />
+      )}
 
       <Link
-        href={`/${locale}/events/${event.slug}`}
+        href={`/${locale}/events/${event.slug}/register`}
         onClick={() => onOpenEvent(event.id)}
         className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[var(--layout-border-radius)] bg-[var(--color-primary)] px-4 text-sm font-semibold text-[var(--color-primary-foreground)] hover:bg-[var(--color-primary-dark)]"
       >
         <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
-        {labels.viewEvent}
+        {labels.goToRegister}
       </Link>
     </article>
   );

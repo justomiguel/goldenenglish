@@ -124,7 +124,7 @@ export function StaffWorkspaceSwitch({
                 type="button"
                 role="option"
                 aria-selected={searchRole === role || (!searchRole && !viewAs && activeRole === role)}
-                className="rounded-xl px-3 py-2 text-left text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
+                className="min-h-11 rounded-xl px-3 py-2 text-left text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
                 onClick={() => {
                   if (role === "admin") {
                     void clearViewAsAction(locale).then((result) => go(result.href));
@@ -209,7 +209,7 @@ export function StaffWorkspaceSwitch({
           if (measured) setBox(measured);
           setOpen(true);
         }}
-        className="inline-flex min-h-10 max-w-full items-center gap-1.5 rounded-full bg-[var(--color-primary)] px-4 py-2 text-xs font-bold uppercase tracking-wide text-[var(--color-primary-foreground)] shadow-sm sm:text-sm"
+        className="inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-full bg-[var(--color-primary)] px-4 py-2 text-xs font-bold uppercase tracking-wide text-[var(--color-primary-foreground)] shadow-sm transition hover:bg-[var(--color-primary-dark)] sm:text-sm"
       >
         <span className="truncate">{triggerLabel}</span>
         <ChevronDown className="h-4 w-4 shrink-0" aria-hidden />

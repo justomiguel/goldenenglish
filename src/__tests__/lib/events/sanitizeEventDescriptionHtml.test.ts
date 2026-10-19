@@ -7,4 +7,11 @@ describe("sanitizeEventDescriptionHtml", () => {
     expect(out).toContain("Hello");
     expect(out).not.toContain("script");
   });
+
+  it("keeps an https image in the description", () => {
+    const out = sanitizeEventDescriptionHtml(
+      '<p><img src="https://example.supabase.co/storage/v1/object/public/event-media/foto.png" alt="foto" /></p>',
+    );
+    expect(out).toContain("foto.png");
+  });
 });

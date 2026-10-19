@@ -6,6 +6,7 @@ export const EVENTS_EMAIL_KEYS = [
   "events.payment_approved",
   "events.payment_rejected",
   "events.reminder",
+  "events.registration_removed",
 ] as const;
 
 export type EventsEmailKey = (typeof EVENTS_EMAIL_KEYS)[number];
@@ -75,6 +76,27 @@ export const eventsPaymentRejectedTemplate: EmailTemplateDefinition = {
   }),
 };
 
+export const eventsRegistrationRemovedTemplate: EmailTemplateDefinition = {
+  key: "events.registration_removed",
+  category: "notifications",
+  label: { es: "Eventos: inscripción eliminada", en: "Events: registration removed" },
+  description: {
+    es: "Avisa que la inscripción al evento fue eliminada e incluye el motivo.",
+    en: "Tells the attendee their event registration was removed and includes the reason.",
+  },
+  placeholders: [],
+  defaults: withPtFallback({
+    es: {
+      subject: "Inscripción eliminada",
+      bodyHtml: "<p>Tu inscripción al evento fue eliminada.</p><p>Motivo: {{reason}}</p>",
+    },
+    en: {
+      subject: "Registration removed",
+      bodyHtml: "<p>Your event registration was removed.</p><p>Reason: {{reason}}</p>",
+    },
+  }),
+};
+
 export const eventsReminderTemplate: EmailTemplateDefinition = {
   key: "events.reminder",
   category: "notifications",
@@ -101,4 +123,5 @@ export const EVENTS_EMAIL_TEMPLATES: ReadonlyArray<EmailTemplateDefinition> = [
   eventsPaymentApprovedTemplate,
   eventsPaymentRejectedTemplate,
   eventsReminderTemplate,
+  eventsRegistrationRemovedTemplate,
 ];

@@ -96,7 +96,7 @@ export function SectionCollectionsMatrixStudentRow({
         >
           <span className="truncate">{student.studentName}</span>
           <ChevronRight
-            className="h-3.5 w-3.5 shrink-0 opacity-70 transition group-hover:opacity-100"
+            className="h-3.5 w-3.5 shrink-0 opacity-100"
             aria-hidden
           />
         </Link>

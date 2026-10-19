@@ -14,6 +14,7 @@ import { EventRegisterResidencyPicker } from "@/components/organisms/EventRegist
 import { EventRegisterTransferReceiptField } from "@/components/organisms/EventRegisterTransferReceiptField";
 import { EventRegisterBankTransferInstructions } from "@/components/organisms/EventRegisterBankTransferInstructions";
 import { EventRegisterSuccessDialog } from "@/components/molecules/EventRegisterSuccessDialog";
+import { formatEventFlowPriceLabel } from "@/lib/events/formatEventFlowPrice";
 import { useEventRegisterForm } from "@/hooks/useEventRegisterForm";
 
 interface EventRegisterFormProps {
@@ -60,7 +61,20 @@ export function EventRegisterForm({
             value={form.flow.flowId}
             onChange={form.flow.onChange}
             disabled={form.footer.isPending}
+            showPrices={event.priceByFlow}
+            currency={event.currency}
+            locale={locale}
+            freeLabel={labels.free}
           />
+        ) : event.priceByFlow && event.flows.length === 1 ? (
+          <p className="text-base font-semibold tabular-nums text-[var(--color-primary)]">
+            {formatEventFlowPriceLabel({
+              price: event.flows[0]?.price ?? null,
+              currency: event.currency,
+              locale,
+              freeLabel: labels.free,
+            })}
+          </p>
         ) : null}
         <EventRegisterOrderedQuestions
           sectionTitle={labels.participantSection}

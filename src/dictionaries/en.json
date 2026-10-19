@@ -3368,6 +3368,7 @@
           "yearTotalsColumn": "Year",
           "selectAllAria": "Select all visible students",
           "selectStudentAria": "Select student {name}",
+          "mobilePickStudent": "Student",
           "openStudentBillingAria": "Open student billing for {name}",
           "back": "Back to overview",
           "empty": "There are no active enrollments in this section yet.",
@@ -3712,6 +3713,7 @@
       "recordPaymentConfirmBody": "The expected amount for this section and month will be saved as approved, with no new receipt. This notifies the family by email when possible.",
       "recordPaymentConfirm": "Confirm",
       "recordPaymentGridHint": "Choose months in the year above. To undo a mistaken paid month, click only paid (green) months, then use “Mark as not paid”. For new payments, select unpaid or pending months and use Record as paid, scholarship, or exempt.",
+      "recordPaymentMobileMonths": "Months",
       "recordPaymentMatrixLegend": "Same as Finance / collections: green = paid; amber = pending; red = rejected; blue = exempt; light gray = not due yet or not overdue; red outline = overdue installment; minus-in-circle = no fee plan that month (e.g. course does not charge); calendar-off = outside this section’s billing window; green % = scholarship.",
       "recordPaymentStatusNoPlan": "No fee plan (locked)",
       "recordPaymentStatusOutOfPeriod": "Outside billing window (locked)",
@@ -4314,10 +4316,17 @@
         "attendeesDelete": "Remove attendee",
         "attendeesDeleteTooltip": "Permanently remove this registration and related transfer data",
         "attendeesDeleteConfirmTitle": "Remove this attendee?",
-        "attendeesDeleteConfirmBody": "This permanently deletes the registration, custom form answers, and any pending or rejected bank-transfer payment. This cannot be undone.",
+        "attendeesDeleteConfirmBody": "This deletes the registration and its data. If Mercado Pago or Flow already charged the payment, the money is not refunded. This cannot be undone.",
         "attendeesDeleteConfirm": "Remove attendee",
         "attendeesDeleteCancel": "Cancel",
+        "attendeesDeleteReasonLabel": "Reason",
+        "attendeesDeleteReasonPlaceholder": "Why this registration is removed",
+        "attendeesDeleteNotify": "Email the person",
+        "attendeesDeleteNotifyHelp": "They receive the reason. Uncheck this only if you do not want to email them for this removal.",
         "attendeesErrorDelete": "We could not remove this attendee. Try again.",
+        "attendeesErrorNotify": "We could not send the notice. The registration is still active.",
+        "attendeesErrorNoEmail": "This registration has no email. Uncheck the notice to remove it anyway.",
+        "attendeesErrorReason": "Write the reason for the notice.",
         "attendeesErrorNotDeletable": "This attendee cannot be removed because they have an approved payment or an online checkout (Flow / Mercado Pago).",
         "attendeesColumns": {
           "name": "Name",
@@ -4427,7 +4436,8 @@
             "registered": "Registration received",
             "paymentApproved": "Payment approved",
             "paymentRejected": "Payment rejected",
-            "reminder": "Reminder"
+            "reminder": "Reminder",
+            "registrationRemoved": "Registration removed"
           },
           "localeLabel": "Language",
           "scopeLabel": "Who receives this version",
@@ -4447,7 +4457,8 @@
             "eventName": "Event name",
             "flowName": "Flow name",
             "eventDate": "Event date",
-            "eventLocation": "Location"
+            "eventLocation": "Location",
+            "reason": "Reason"
           },
           "previewSamples": {
             "firstName": "Ana",
@@ -4455,7 +4466,8 @@
             "eventName": "Open house",
             "flowName": "Academy",
             "eventDate": "March 12, 2026, 6:00 PM",
-            "eventLocation": "Main hall"
+            "eventLocation": "Main hall",
+            "reason": "The registration was a duplicate"
           }
         }
       },
@@ -4694,7 +4706,8 @@
         "previous": "Previous event",
         "next": "Next event",
         "position": "{{current}} of {{total}}",
-        "imageLoading": "Loading image"
+        "imageLoading": "Loading image",
+        "goToRegister": "Go to registration"
       },
       "downloadFile": "Download file",
       "attachmentsSectionTitle": "Attached files",
@@ -9633,6 +9646,7 @@
         "gridAria": "Attendance grid",
         "empty": "No class days or students yet to display.",
         "colStudent": "Student",
+        "mobileDateLabel": "Class day",
         "cellAria": "Attendance for {student} on {date}",
         "careBadge": "Needs special care",
         "excusedLetter": "J",

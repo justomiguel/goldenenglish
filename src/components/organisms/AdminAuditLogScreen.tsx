@@ -118,7 +118,7 @@ export function AdminAuditLogScreen(props: AdminAuditLogScreenProps) {
         }
         emptyMessage={u.emptyMessage}
         isEmpty={u.listEmpty}
-        minTableWidth="min-w-[72rem]"
+        minTableWidth="ge-stack-cards md:min-w-[72rem]"
       >
         {u.rows.map((row) => (
           <AdminAuditTableRow

@@ -24,7 +24,7 @@ interface HomeEventPopupProps {
     position: string;
     dateLabel: string;
     locationLabel: string;
-    viewEvent: string;
+    goToRegister: string;
     imageLoading: string;
     free: string;
     priceLocal: string;
@@ -148,7 +148,7 @@ export function HomeEventPopup({ locale, events, labels }: HomeEventPopupProps) 
             trackEvent("click", AnalyticsEntity.events, {
               surface: "home_popup",
               event_id: eventId,
-              intent: "open_event",
+              intent: "open_register",
             });
           }}
         />

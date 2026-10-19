@@ -51,7 +51,7 @@ export function AdminAttentionBell({
         aria-expanded={open}
         aria-controls={menuId}
         onClick={() => setOpen((v) => !v)}
-        className="relative inline-flex min-h-10 min-w-10 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
+        className="relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] shadow-sm transition hover:bg-[var(--color-muted)]"
       >
         <Bell className="h-4 w-4" aria-hidden />
         {badge > 0 ? (
@@ -64,7 +64,7 @@ export function AdminAttentionBell({
         <div
           id={menuId}
           role="menu"
-          className="absolute right-0 z-50 mt-2 w-64 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-2 text-sm shadow-lg"
+          className="absolute right-0 z-50 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] p-2 text-sm shadow-lg"
         >
           {badge === 0 ? (
             <p className="px-2 py-3 text-[var(--color-muted-foreground)]">{emptyLabel}</p>

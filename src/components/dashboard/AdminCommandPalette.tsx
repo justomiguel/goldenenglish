@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Dictionary } from "@/types/i18n";
 import { Modal } from "@/components/atoms/Modal";
+import { ADMIN_COMMAND_PALETTE_OPEN_EVENT } from "@/components/dashboard/AdminCommandPaletteTrigger";
 import { AdminHelpSearchPanel } from "@/components/dashboard/AdminHelpSearchPanel";
 
 export interface AdminCommandPaletteProps {
@@ -10,7 +11,7 @@ export interface AdminCommandPaletteProps {
   dict: Dictionary["dashboard"]["adminCommandPalette"];
 }
 
-/** Student search via ⌘/Ctrl+K only (no visible FAB). */
+/** Student search via the chrome button or ⌘/Ctrl+K. */
 export function AdminCommandPalette({ locale, dict }: AdminCommandPaletteProps) {
   const [open, setOpen] = useState(false);
   const [resetKey, setResetKey] = useState(0);
@@ -22,8 +23,13 @@ export function AdminCommandPalette({ locale, dict }: AdminCommandPaletteProps) 
         setOpen(true);
       }
     };
+    const onOpen = () => setOpen(true);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener(ADMIN_COMMAND_PALETTE_OPEN_EVENT, onOpen);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener(ADMIN_COMMAND_PALETTE_OPEN_EVENT, onOpen);
+    };
   }, []);
 
   const handleOpenChange = (next: boolean) => {

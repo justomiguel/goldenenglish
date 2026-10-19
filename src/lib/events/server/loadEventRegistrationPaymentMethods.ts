@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { loadEnabledGatewaysForBillingCurrency } from "@/lib/payment-gateways/loadEnabledGatewaysForBillingCurrency";
+import { loadPayableEventGateways } from "@/lib/events/server/loadPayableEventGateways";
 import {
   resolveEventRegistrationPaymentMethods,
   type EventRegistrationPaymentMethod,
@@ -11,15 +11,13 @@ import {
   EVENTS_BANK_TRANSFER_ENABLED_KEY,
   parseEventsBankTransferEnabled,
 } from "@/lib/events/eventsBankTransferSetting";
-import type { PaymentGatewayProvider } from "@/types/paymentGateway";
 
-/** Enabled online gateways + optional bank transfer for public event registration. */
+/** Payable online gateways + optional bank transfer for public event registration. */
 export async function loadEventRegistrationPaymentMethods(
   currency: string,
 ): Promise<EventRegistrationPaymentMethod[]> {
   const admin = createAdminClient();
-  const enabledRows = await loadEnabledGatewaysForBillingCurrency(admin, currency);
-  const enabledGateways = enabledRows.map((row) => row.provider) as PaymentGatewayProvider[];
+  const enabledGateways = await loadPayableEventGateways(admin, currency);
 
   const { data } = await admin
     .from("site_settings")

@@ -4,13 +4,18 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
-import { isEventLocale } from "@/lib/events/domain";
+import { EVENT_LOCALES } from "@/lib/events/domain";
+import {
+  eventTranslationsToSave,
+  SaveEventTranslationsInputSchema,
+} from "@/lib/events/eventTranslationsToSave";
 import { googleTranslateEventFields } from "@/lib/events/integrations/googleTranslateEventFields";
 import { loadGoogleTranslateCredentials } from "@/lib/blog/integrations/google/loadGoogleTranslateCredentials";
 import { sanitizeEventDescriptionHtml } from "@/lib/events/sanitizeEventDescriptionHtml";
 import {
   logServerActionException,
   logServerAuthzDenied,
+  logServerWarn,
   logSupabaseClientError,
 } from "@/lib/logging/serverActionLog";
 
@@ -28,31 +33,33 @@ async function requireAdminActor(): Promise<string | null> {
   }
 }
 
-const TranslationSchema = z.object({
-  locale: z.enum(["es", "en", "pt"]),
-  title: z.string().trim().min(1).max(200),
-  description: z.string().max(500_000).optional(),
-  location: z.string().max(300).optional(),
-});
-
-const SaveTranslationsSchema = z.object({
-  adminLocale: z.string().min(2),
-  eventId: z.string().uuid(),
-  defaultLocale: z.enum(["es", "en", "pt"]),
-  translations: z.array(TranslationSchema).min(1),
-});
-
 export async function saveEventTranslationsAction(raw: unknown): Promise<{ ok: boolean; message?: string }> {
-  const parsed = SaveTranslationsSchema.safeParse(raw);
-  if (!parsed.success) return { ok: false, message: "invalid_input" };
+  const parsed = SaveEventTranslationsInputSchema.safeParse(raw);
+  if (!parsed.success) {
+    logServerWarn("saveEventTranslationsAction", {
+      reason: "validation",
+      fields: parsed.error.issues.map((issue) => issue.path.join(".")),
+    });
+    return { ok: false, message: "invalid_input" };
+  }
 
   const actorId = await requireAdminActor();
   if (!actorId) return { ok: false, message: "forbidden" };
 
   const admin = createAdminClient();
   const { eventId, defaultLocale, translations, adminLocale } = parsed.data;
+  const prepared = eventTranslationsToSave(
+    translations.map((row) => ({
+      locale: row.locale,
+      title: row.title,
+      description: row.description ?? "",
+      location: row.location ?? null,
+    })),
+    defaultLocale,
+  );
+  if (!prepared.ok) return { ok: false, message: "invalid_input" };
 
-  const defaultRow = translations.find((row) => row.locale === defaultLocale) ?? translations[0];
+  const defaultRow = prepared.defaultRow;
   const defaultDescription = sanitizeEventDescriptionHtml(defaultRow.description ?? "");
   const { error: eventError } = await admin
     .from("events")
@@ -70,7 +77,7 @@ export async function saveEventTranslationsAction(raw: unknown): Promise<{ ok: b
     return { ok: false, message: "save_failed" };
   }
 
-  for (const row of translations) {
+  for (const row of prepared.rows) {
     const description = sanitizeEventDescriptionHtml(row.description ?? "");
     const { error } = await admin.from("event_translations").upsert(
       {
@@ -89,9 +96,14 @@ export async function saveEventTranslationsAction(raw: unknown): Promise<{ ok: b
     }
   }
 
+  const { data: slugRow } = await admin.from("events").select("slug").eq("id", eventId).maybeSingle();
+  const slug = slugRow?.slug ? String(slugRow.slug) : null;
   revalidatePath(adminEventsPath(adminLocale), "page");
   revalidatePath(`${adminEventsPath(adminLocale)}/${eventId}`, "page");
-  revalidatePath(`/${adminLocale}/events`, "page");
+  for (const locale of EVENT_LOCALES) {
+    revalidatePath(`/${locale}/events`, "page");
+    if (slug) revalidatePath(`/${locale}/events/${slug}`, "page");
+  }
   return { ok: true };
 }
 

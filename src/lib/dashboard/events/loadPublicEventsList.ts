@@ -7,7 +7,9 @@ import {
   resolveEventLocalPrice,
   resolveEventNonLocalPrice,
 } from "@/lib/events/resolveEventPriceTier";
+import { loadRegistrationFlowPricesByEvent } from "@/lib/events/server/loadActiveRegistrationFlows";
 import { loadEventTranslationsByIds } from "@/lib/events/server/loadEventTranslations";
+import type { EventFlowPrice } from "@/lib/events/formatEventFlowPrice";
 import { resolveEventCoverImageUrl } from "@/lib/rich-content/resolvePublicContentCoverUrl";
 
 export interface PublicEventListRow {
@@ -24,6 +26,8 @@ export interface PublicEventListRow {
   priceNonLocal: number | null;
   hasTieredPricing: boolean;
   currency: string;
+  priceByFlow: boolean;
+  flowPrices: EventFlowPrice[];
 }
 
 export interface PublicEventsListResult {
@@ -47,7 +51,7 @@ export async function loadPublicEventsList(
     supabase
       .from("events")
       .select(
-        "id, slug, title, description, event_date, location, capacity, price, price_local, price_non_local, currency, default_locale",
+        "id, slug, title, description, event_date, location, capacity, price, price_local, price_non_local, currency, default_locale, price_by_flow",
       )
       .eq("status", "published")
       .is("archived_at", null)
@@ -65,6 +69,16 @@ export async function loadPublicEventsList(
     supabase,
     rawRows.map((row) => String(row.id)),
   );
+
+  const pricedEvents = rawRows
+    .filter((row) => Boolean(row.price_by_flow))
+    .map((row) => {
+      const defaultLocale = isEventLocale(String(row.default_locale ?? "es"))
+        ? String(row.default_locale)
+        : "es";
+      return { id: String(row.id), defaultLocale };
+    });
+  const flowPricesByEvent = await loadRegistrationFlowPricesByEvent(supabase, pricedEvents, locale);
 
   const rows: PublicEventListRow[] = rawRows.map((row) => {
     const defaultLocale = isEventLocale(String(row.default_locale ?? "es"))
@@ -102,6 +116,8 @@ export async function loadPublicEventsList(
       priceNonLocal,
       hasTieredPricing: eventHasTieredPricing(priceSource),
       currency: String(row.currency ?? "CLP"),
+      priceByFlow: Boolean(row.price_by_flow),
+      flowPrices: flowPricesByEvent.get(String(row.id)) ?? [],
     };
   });
 

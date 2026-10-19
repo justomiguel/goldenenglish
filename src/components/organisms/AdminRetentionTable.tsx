@@ -134,7 +134,7 @@ export function AdminRetentionTable({
         </p>
       ) : null}
       <div className="overflow-x-auto rounded-2xl border border-[var(--color-border)]">
-        <table className="min-w-full text-left text-sm">
+        <table className="ge-stack-cards min-w-full text-left text-sm">
         <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40 text-xs uppercase text-[var(--color-muted-foreground)]">
           <tr>
             <SortableTh columnId="student" label={dict.colStudent} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />

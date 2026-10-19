@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { SectionCollectionsHealth } from "@/types/sectionCollections";
 import type { Dictionary } from "@/types/i18n";
 
@@ -45,16 +48,22 @@ export function SectionCollectionsHealthBadge({
     size === "sm" ? "px-2 py-0.5 text-[11px]" : "px-2.5 py-1 text-xs";
   const labelText = label(health, dict);
   const tooltipText = tooltip(health, dict);
+  const [open, setOpen] = useState(false);
   return (
-    <span
-      role="status"
-      tabIndex={0}
+    <button
+      type="button"
+      aria-expanded={open}
       aria-label={`${dict.health.ariaLabel}: ${labelText}. ${tooltipText}`}
       title={`${labelText}: ${tooltipText}`}
-      className={`group relative inline-flex cursor-help items-center gap-1 rounded-full border font-semibold uppercase tracking-wide outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-primary)] ${sizeClasses} ${tokenClasses(health)}`}
+      onClick={() => setOpen((current) => !current)}
+      className={`group relative inline-flex min-h-11 cursor-help items-center gap-1 rounded-full border font-semibold uppercase tracking-wide outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-primary)] ${sizeClasses} ${tokenClasses(health)}`}
     >
       {labelText}
-      <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-72 -translate-x-1/2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-left text-xs normal-case leading-relaxed tracking-normal text-[var(--color-foreground)] shadow-lg group-hover:block group-focus-visible:block">
+      <span
+        className={`absolute left-1/2 top-full z-20 mt-2 w-[min(18rem,calc(100vw-2rem))] -translate-x-1/2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-left text-xs normal-case leading-relaxed tracking-normal text-[var(--color-foreground)] shadow-lg ${
+          open ? "block" : "hidden group-hover:block group-focus-visible:block"
+        }`}
+      >
         <span className="block font-semibold text-[var(--color-primary)]">
           {labelText}
         </span>
@@ -62,6 +71,6 @@ export function SectionCollectionsHealthBadge({
           {tooltipText}
         </span>
       </span>
-    </span>
+    </button>
   );
 }

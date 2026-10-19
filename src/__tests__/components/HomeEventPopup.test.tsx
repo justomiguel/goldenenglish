@@ -24,7 +24,7 @@ const labels = {
   position: "{{current}} of {{total}}",
   dateLabel: "Date",
   locationLabel: "Location",
-  viewEvent: "View event",
+  goToRegister: "Go to registration",
   imageLoading: "Loading image",
   free: "Free",
   priceLocal: "Local",
@@ -44,6 +44,8 @@ function event(id: string, title: string): HomeEventPopupEvent {
     price: 0,
     priceLocal: 0,
     priceNonLocal: 0,
+    priceByFlow: false,
+    flowPrices: [],
   };
 }
 
@@ -68,6 +70,35 @@ describe("HomeEventPopup", () => {
     expect(screen.getByRole("heading", { name: "Recital" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Previous event" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Next event" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Go to registration" })).toHaveAttribute(
+      "href",
+      "/en/events/a/register",
+    );
+  });
+
+  it("lists each flow price instead of the single event price", async () => {
+    render(
+      <HomeEventPopup
+        locale="es"
+        events={[
+          {
+            ...event("a", "Capoeira Me Chama"),
+            price: 80000,
+            priceByFlow: true,
+            flowPrices: [
+              { id: "academy", name: "Academia", price: 40000 },
+              { id: "guest", name: "Visitante", price: 80000 },
+            ],
+          },
+        ]}
+        labels={labels}
+      />,
+    );
+
+    expect(await screen.findByText("Academia")).toBeInTheDocument();
+    expect(screen.getByText("Visitante")).toBeInTheDocument();
+    expect(document.body.textContent).toMatch(/40\.000/);
+    expect(document.body.textContent).toMatch(/80\.000/);
   });
 
   it("steps through events and shows the position", async () => {

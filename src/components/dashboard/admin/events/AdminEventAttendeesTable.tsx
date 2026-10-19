@@ -77,7 +77,7 @@ export function AdminEventAttendeesTable({
 
   return (
     <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
-      <table className="w-max min-w-full border-collapse text-sm">
+      <table className="ge-stack-cards w-full border-collapse text-sm md:w-max md:min-w-full">
         <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40 text-[11px] uppercase tracking-wide text-[var(--color-muted-foreground)]">
           <tr>
             <th scope="col" className={`${ADMIN_EVENT_ATTENDEES_TABLE_HEAD_CELL} w-12`}>

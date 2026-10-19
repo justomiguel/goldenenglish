@@ -1,5 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
+import type { EventFlowPrice } from "@/lib/events/formatEventFlowPrice";
+import { isEventLocale } from "@/lib/events/domain";
+import { loadRegistrationFlowPricesByEvent } from "@/lib/events/server/loadActiveRegistrationFlows";
 
 export type EventSortKey = "title" | "event_date" | "attendees_count" | "status" | "views" | "price";
 
@@ -23,6 +26,8 @@ export interface AdminEventRow {
   viewCount: number;
   price: number | null;
   currency: string;
+  priceByFlow: boolean;
+  flowPrices: EventFlowPrice[];
 }
 
 export interface PaginatedAdminEventsParams {
@@ -31,6 +36,7 @@ export interface PaginatedAdminEventsParams {
   q?: string;
   sort?: EventSortKey;
   dir?: "asc" | "desc";
+  locale?: string;
 }
 
 export interface PaginatedAdminEventsResult {
@@ -54,7 +60,9 @@ export async function loadPaginatedAdminEvents(
 
   let dataQuery = adminClient
     .from("events")
-    .select("id, slug, title, status, event_date, capacity, price, currency, view_count")
+    .select(
+      "id, slug, title, status, event_date, capacity, price, currency, view_count, price_by_flow, default_locale",
+    )
     .is("archived_at", null);
 
   let countQuery = adminClient
@@ -87,6 +95,17 @@ export async function loadPaginatedAdminEvents(
     }
   }
 
+  const locale = params.locale ?? "es";
+  const pricedEvents = (dataResult.data ?? [])
+    .filter((row) => Boolean(row.price_by_flow))
+    .map((row) => ({
+      id: String(row.id),
+      defaultLocale: isEventLocale(String(row.default_locale ?? "es"))
+        ? String(row.default_locale)
+        : "es",
+    }));
+  const flowPricesByEvent = await loadRegistrationFlowPricesByEvent(adminClient, pricedEvents, locale);
+
   const rows: AdminEventRow[] = (dataResult.data ?? []).map((row) => ({
     id: String(row.id),
     slug: String(row.slug),
@@ -98,6 +117,8 @@ export async function loadPaginatedAdminEvents(
     viewCount: Number(row.view_count ?? 0),
     price: row.price == null ? null : Number(row.price),
     currency: String(row.currency ?? "CLP"),
+    priceByFlow: Boolean(row.price_by_flow),
+    flowPrices: flowPricesByEvent.get(String(row.id)) ?? [],
   }));
 
   if ((params.sort ?? "event_date") === "attendees_count") {

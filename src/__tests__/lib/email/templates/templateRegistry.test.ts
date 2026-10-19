@@ -36,6 +36,7 @@ describe("emailTemplateRegistry", () => {
       "events.payment_approved",
       "events.payment_rejected",
       "events.reminder",
+      "events.registration_removed",
       "registration.trial_invite",
       "registration.trial_missed",
       "registration.admin_trial_attendance_due",

@@ -115,7 +115,7 @@ export function SectionCollectionsHistoryTab({
           .replace("{total}", String(total))}
       </p>
       <div className="overflow-x-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)]">
-        <table className="w-full min-w-[720px] text-left text-sm">
+        <table className="ge-stack-cards w-full text-left text-sm md:min-w-[720px]">
           <thead className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/40">
             <tr>
               <SortableTh columnId="student" label={t.historyColStudent} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="px-3 py-2" />

@@ -13,6 +13,17 @@ export function resolveEventRegistrationPaymentMethods(input: {
   return methods;
 }
 
+/** Drops online gateways the checkout would refuse because credentials are off. */
+export function payableEventOnlineGateways(input: {
+  flowEnabled: boolean;
+  mercadoPagoEnabled: boolean;
+}): PaymentGatewayProvider[] {
+  const gateways: PaymentGatewayProvider[] = [];
+  if (input.flowEnabled) gateways.push("flow");
+  if (input.mercadoPagoEnabled) gateways.push("mercadopago");
+  return gateways;
+}
+
 export function isEventRegistrationPaymentMethod(
   value: string,
   allowed: readonly EventRegistrationPaymentMethod[],

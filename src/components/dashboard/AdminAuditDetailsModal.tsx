@@ -58,7 +58,7 @@ function JsonPanel({ title, value }: { title: string; value: unknown }) {
   return (
     <section className="space-y-2">
       <h3 className="text-sm font-semibold text-[var(--color-primary)]">{title}</h3>
-      <pre className="max-h-72 overflow-auto rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/35 p-3 text-xs">
+      <pre className="max-h-72 overflow-x-auto whitespace-pre-wrap break-words rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/35 p-3 text-xs">
         {pretty(value)}
       </pre>
     </section>

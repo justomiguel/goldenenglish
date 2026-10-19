@@ -112,7 +112,7 @@ export function LandingBlockEditorRow({
             onClick={() => onMove(-1)}
             aria-label={labels.moveUpCta}
             title={labels.moveUpCta}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] disabled:cursor-not-allowed disabled:opacity-40 md:h-8 md:w-8"
           >
             <ArrowUp aria-hidden className="h-4 w-4" />
           </button>
@@ -122,7 +122,7 @@ export function LandingBlockEditorRow({
             onClick={() => onMove(1)}
             aria-label={labels.moveDownCta}
             title={labels.moveDownCta}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] disabled:cursor-not-allowed disabled:opacity-40 md:h-8 md:w-8"
           >
             <ArrowDown aria-hidden className="h-4 w-4" />
           </button>

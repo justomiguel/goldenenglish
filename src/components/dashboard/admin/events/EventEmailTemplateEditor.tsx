@@ -26,7 +26,7 @@ import { useSaveEventEmailTemplate } from "@/hooks/useSaveEventEmailTemplate";
 
 export interface EventEmailTemplateLabels {
   mailLabel: string;
-  mails: Record<"registered" | "paymentApproved" | "paymentRejected" | "reminder", string>;
+  mails: Record<"registered" | "paymentApproved" | "paymentRejected" | "reminder" | "registrationRemoved", string>;
   localeLabel: string;
   scopeLabel: string;
   scopeEvent: string;
@@ -48,6 +48,7 @@ const MAIL_LABEL_KEY = {
   "events.payment_approved": "paymentApproved",
   "events.payment_rejected": "paymentRejected",
   "events.reminder": "reminder",
+  "events.registration_removed": "registrationRemoved",
 } as const;
 
 const fieldClass =

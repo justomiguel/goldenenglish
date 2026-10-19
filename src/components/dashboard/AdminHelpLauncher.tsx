@@ -23,7 +23,7 @@ export interface AdminHelpLauncherProps {
   screenToursDict: Dictionary["dashboard"]["adminHelpScreenTours"];
 }
 
-/** Help FAB: admin + web-desktop only (never PWA / narrow). */
+/** Help FAB on every admin surface. Phones open a bottom sheet. */
 export function AdminHelpLauncher({
   locale,
   launcherDict,
@@ -112,17 +112,19 @@ export function AdminHelpLauncher({
     });
   }, [locale, pathname, screenToursDict, handleOpenChange]);
 
-  if (surface !== "web-desktop") {
-    return null;
-  }
+  const sheet = surface !== "web-desktop";
 
   return (
     <div
       ref={rootRef}
-      className="pointer-events-none fixed bottom-5 right-5 z-40 flex flex-col items-end md:bottom-8 md:right-8"
+      className={
+        sheet
+          ? "pointer-events-none fixed inset-x-0 bottom-0 z-40 flex flex-col items-end px-safe pb-safe"
+          : "pointer-events-none fixed bottom-5 right-5 z-40 flex flex-col items-end md:bottom-8 md:right-8"
+      }
     >
       {open ? (
-        <div className="pointer-events-auto">
+        <div className={sheet ? "pointer-events-auto w-full" : "pointer-events-auto"}>
           <AdminHelpChatPanel
             id={panelId}
             titleId={titleId}
@@ -130,6 +132,7 @@ export function AdminHelpLauncher({
             descriptionId={descId}
             description={launcherDict.panelDesc}
             closeLabel={launcherDict.closePanel}
+            sheet={sheet}
             onClose={() => handleOpenChange(false)}
           >
             <AdminHelpExplainScreenBlock

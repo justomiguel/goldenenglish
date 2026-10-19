@@ -61,8 +61,14 @@ export interface AdminEventAttendeesPanelLabels {
     deleteConfirmBody: string;
     deleteConfirm: string;
     cancel: string;
+    reasonLabel: string;
+    reasonPlaceholder: string;
+    notify: string;
+    notifyHelp: string;
     errorDelete: string;
-    errorNotDeletable: string;
+    errorNotify: string;
+    errorNoEmail: string;
+    errorReason: string;
   };
 }
 

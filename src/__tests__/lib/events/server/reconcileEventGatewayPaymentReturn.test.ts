@@ -168,7 +168,7 @@ describe("reconcileEventMercadoPagoReturn", () => {
     expect(mockGatewayCountry).toHaveBeenCalledWith("ARS");
   });
 
-  it("returns processing when Mercado Pago credentials are disabled", async () => {
+  it("returns failure when Mercado Pago credentials are disabled", async () => {
     mockLoadMpCreds.mockResolvedValue({ enabled: false });
 
     const result = await reconcileEventMercadoPagoReturn({
@@ -177,7 +177,7 @@ describe("reconcileEventMercadoPagoReturn", () => {
       returnStatus: "approved",
     });
 
-    expect(result).toBe("processing");
+    expect(result).toBe("failure");
   });
 
   it("returns processing when finalization fails", async () => {
@@ -228,10 +228,10 @@ describe("reconcileEventFlowReturn", () => {
     );
   });
 
-  it("returns processing when Flow credentials are disabled", async () => {
+  it("returns failure when Flow credentials are disabled", async () => {
     mockLoadFlowCreds.mockResolvedValue({ enabled: false });
 
-    expect(await reconcileEventFlowReturn({ token: "flow-token" })).toBe("processing");
+    expect(await reconcileEventFlowReturn({ token: "flow-token" })).toBe("failure");
   });
 
   it("returns processing when Flow finalization fails", async () => {

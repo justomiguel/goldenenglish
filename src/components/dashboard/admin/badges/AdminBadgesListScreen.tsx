@@ -161,7 +161,7 @@ export function AdminBadgesListScreen({
               </p>
             ) : (
               <div className="overflow-x-auto border-t border-[var(--color-border)]">
-                <table className="w-full text-sm">
+                <table className="ge-stack-cards w-full text-sm">
                   <thead className="bg-[var(--color-muted)] text-left">
                     <tr>
                       <SortableTh columnId="image" label={labels.colImage} sortKey={sortKey} sortDir={sortDir} onToggleSort={onToggleSort} sortLabels={sortLabels} className="p-3 font-medium" />

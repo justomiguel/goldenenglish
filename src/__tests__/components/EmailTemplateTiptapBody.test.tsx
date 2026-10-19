@@ -104,4 +104,40 @@ describe("EmailTemplateTiptapBody media", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(tiptap.imageError);
     vi.restoreAllMocks();
   });
+
+  it("shows the upload loader until the image is inserted", async () => {
+    inserted.length = 0;
+    let resolveUpload: (html: string | null) => void = () => undefined;
+    uploadEmailTemplateImage.mockImplementationOnce(async (input: unknown) => {
+      const progress = input as {
+        onProgress?: (phase: "preparing" | "sending", value?: number) => void;
+      };
+      progress.onProgress?.("sending", 40);
+      return new Promise<string | null>((resolve) => {
+        resolveUpload = resolve;
+      });
+    });
+    const realCreate = document.createElement.bind(document);
+    const input = realCreate("input");
+    vi.spyOn(document, "createElement").mockImplementation(((tag: string) =>
+      tag === "input" ? input : realCreate(tag)) as typeof document.createElement);
+    render(<EmailTemplateTiptapBody value="<p></p>" onChange={() => {}} tiptap={tiptap} />);
+
+    fireEvent.click(screen.getByRole("button", { name: tiptap.image }));
+    Object.defineProperty(input, "files", {
+      configurable: true,
+      value: [new File(["x"], "foto.png", { type: "image/png" })],
+    });
+    input.onchange?.(new Event("change"));
+
+    expect((await screen.findAllByText(tiptap.uploadProgressSending)).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("40%").length).toBeGreaterThan(0);
+    expect(screen.getByText("foto.png")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: tiptap.image })).toBeDisabled();
+
+    resolveUpload('<img src="https://cdn.example/a.png" alt="Foto" />');
+    await waitFor(() => expect(inserted.at(-1)).toContain("https://cdn.example/a.png"));
+    await waitFor(() => expect(screen.queryByText("40%")).not.toBeInTheDocument());
+    vi.restoreAllMocks();
+  });
 });

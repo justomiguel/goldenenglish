@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   DndContext,
   PointerSensor,
+  TouchSensor,
   closestCenter,
   pointerWithin,
   useSensor,
@@ -81,7 +82,10 @@ export function EventFormFieldBoard({
   useEffect(() => {
     containersRef.current = containers;
   }, [containers]);
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+  );
 
   function persist(before: Record<string, string[]>, after: Record<string, string[]>, activeId: string) {
     const from = containerOf(before, activeId);

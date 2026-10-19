@@ -90,6 +90,7 @@ describe("eventEmailAllowsFlow", () => {
     expect(eventEmailAllowsFlow("events.registered")).toBe(true);
     expect(eventEmailAllowsFlow("events.payment_approved")).toBe(true);
     expect(eventEmailAllowsFlow("events.payment_rejected")).toBe(false);
+    expect(eventEmailAllowsFlow("events.registration_removed")).toBe(false);
   });
 });
 
@@ -101,5 +102,10 @@ describe("applyEventEmailVars", () => {
     );
     expect(filled.subject).toBe("Hola A&lt;na&gt; &amp; &quot;x&quot;");
     expect(filled.bodyHtml).toBe("<p>A&lt;na&gt; &amp; &quot;x&quot; & {{missing}}</p>");
+    const withReason = applyEventEmailVars(
+      { subject: "Fuera", bodyHtml: "<p>{{reason}}</p>" },
+      { reason: `<script>alert(1)</script>` },
+    );
+    expect(withReason.bodyHtml).toBe("<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>");
   });
 });

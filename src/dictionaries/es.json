@@ -3368,6 +3368,7 @@
           "yearTotalsColumn": "Año",
           "selectAllAria": "Seleccionar todos los alumnos visibles",
           "selectStudentAria": "Seleccionar alumno {name}",
+          "mobilePickStudent": "Alumno",
           "openStudentBillingAria": "Abrir facturación del alumno {name}",
           "back": "Volver al resumen",
           "empty": "Esta sección no tiene inscripciones activas.",
@@ -3712,6 +3713,7 @@
       "recordPaymentConfirmBody": "Se guardará el monto del plan de esta sección como aprobado, sin nuevo comprobante, y se enviará un aviso a la familia por correo si es posible.",
       "recordPaymentConfirm": "Confirmar",
       "recordPaymentGridHint": "Elige meses del año de arriba. Para deshacer un mes marcado pagado por error, selecciona solo meses pagados (verde) y usa “Marcar como no pagado”. Para nuevos pagos, usa meses no pagados o pendientes y registro, beca o exención.",
+      "recordPaymentMobileMonths": "Meses",
       "recordPaymentMatrixLegend": "Igual que Finanzas / cobranzas: verde = pagado; ámbar = en revisión; rojo = rechazado; azul = exento; gris claro = aún no corresponde o no está vencido; borde rojo = cuota vencida; menos en círculo = sin plan de cuota ese mes (p. ej. curso que no cobra); calendario tachado = fuera del período de cobro de la sección; % verde = beca.",
       "recordPaymentStatusNoPlan": "Sin plan de cuota (bloqueado)",
       "recordPaymentStatusOutOfPeriod": "Fuera del período de cobro (bloqueado)",
@@ -4314,10 +4316,17 @@
         "attendeesDelete": "Eliminar asistente",
         "attendeesDeleteTooltip": "Eliminar permanentemente esta inscripción y los datos de transferencia asociados",
         "attendeesDeleteConfirmTitle": "¿Eliminar este asistente?",
-        "attendeesDeleteConfirmBody": "Se eliminarán permanentemente la inscripción, las respuestas del formulario y cualquier pago por transferencia pendiente o rechazado. No se puede deshacer.",
+        "attendeesDeleteConfirmBody": "Se elimina la inscripción y sus datos. Si el pago ya se cobró por Mercado Pago o Flow, el dinero no se devuelve. No se puede deshacer.",
         "attendeesDeleteConfirm": "Eliminar asistente",
         "attendeesDeleteCancel": "Cancelar",
+        "attendeesDeleteReasonLabel": "Motivo",
+        "attendeesDeleteReasonPlaceholder": "Por qué se elimina esta inscripción",
+        "attendeesDeleteNotify": "Avisar por correo",
+        "attendeesDeleteNotifyHelp": "La persona recibe el motivo. Destilda esta opción solo si no quieres avisar en esta eliminación.",
         "attendeesErrorDelete": "No pudimos eliminar este asistente. Intenta de nuevo.",
+        "attendeesErrorNotify": "No pudimos enviar el aviso. La inscripción sigue activa.",
+        "attendeesErrorNoEmail": "Esta inscripción no tiene correo. Destilda el aviso para eliminarla igual.",
+        "attendeesErrorReason": "Escribe el motivo del aviso.",
         "attendeesErrorNotDeletable": "No se puede eliminar este asistente porque tiene un pago aprobado o un checkout en línea (Flow / Mercado Pago).",
         "attendeesColumns": {
           "name": "Nombre",
@@ -4427,7 +4436,8 @@
             "registered": "Inscripción recibida",
             "paymentApproved": "Pago aprobado",
             "paymentRejected": "Pago rechazado",
-            "reminder": "Recordatorio"
+            "reminder": "Recordatorio",
+            "registrationRemoved": "Inscripción eliminada"
           },
           "localeLabel": "Idioma",
           "scopeLabel": "Quién recibe esta versión",
@@ -4447,7 +4457,8 @@
             "eventName": "Nombre del evento",
             "flowName": "Nombre del flujo",
             "eventDate": "Fecha del evento",
-            "eventLocation": "Lugar"
+            "eventLocation": "Lugar",
+            "reason": "Motivo"
           },
           "previewSamples": {
             "firstName": "Ana",
@@ -4455,7 +4466,8 @@
             "eventName": "Casa abierta",
             "flowName": "Academia",
             "eventDate": "12 de marzo de 2026, 18:00",
-            "eventLocation": "Salón principal"
+            "eventLocation": "Salón principal",
+            "reason": "La inscripción quedó duplicada"
           }
         }
       },
@@ -4694,7 +4706,8 @@
         "previous": "Evento anterior",
         "next": "Evento siguiente",
         "position": "{{current}} de {{total}}",
-        "imageLoading": "Cargando imagen"
+        "imageLoading": "Cargando imagen",
+        "goToRegister": "Ir al registro"
       },
       "downloadFile": "Descargar archivo",
       "attachmentsSectionTitle": "Archivos adjuntos",
@@ -9657,6 +9670,7 @@
         "columnFillAria": "Marcar a todos los alumnos vacíos como presentes para {date}",
         "viewTabsAria": "Vista de asistencia",
         "viewSheet": "Planilla",
+        "mobileDateLabel": "Día de clase",
         "viewCalendar": "Calendario",
         "calendarTitle": "Calendario de clases",
         "calendarHint": "Toque un día de clase para saltar a esa columna en la planilla.",
