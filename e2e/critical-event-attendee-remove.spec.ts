@@ -102,6 +102,10 @@ test.describe("@critical-event-attendee-remove", () => {
 
     const confirmDialog = adminPage.getByRole("dialog");
     await expect(confirmDialog).toBeVisible({ timeout: 10_000 });
+    await expect(
+      confirmDialog.getByRole("checkbox", { name: /Avisar por correo|Email the person/i }),
+    ).toBeChecked();
+    await confirmDialog.getByRole("textbox", { name: /Motivo|Reason/i }).fill("E2E removal notice");
     await confirmDialog
       .getByRole("button", { name: /Eliminar asistente|Remove attendee|Delete attendee/i })
       .click();
