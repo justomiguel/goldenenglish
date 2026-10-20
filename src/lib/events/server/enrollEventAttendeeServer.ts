@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { serializeEventFieldValuesForEnrollRpc } from "@/lib/events/serializeEventFieldValuesForEnrollRpc";
 import { parseEventEmailLocale } from "@/lib/events/eventEmailCopy";
+import { applyEventFamilyDiscount } from "@/lib/events/applyEventFamilyDiscount";
 import { registrationFlowCharge } from "@/lib/events/registrationFlows";
 import { sendEventAttendeeNotification } from "@/lib/events/server/sendEventAttendeeNotification";
 import type {
@@ -31,6 +32,9 @@ export interface EnrollEventAttendeeServerInput {
   registrationFlow?: { id: string; price: number | null } | null;
   /** Language of the registration page. Stored on the attendee for later mails. */
   locale?: string | null;
+  /** Claim only. The charged amount is recomputed on the server. */
+  familyDiscountClaimed?: boolean;
+  currency?: string | null;
 }
 
 export interface EnrollEventAttendeeServerResult {
@@ -124,6 +128,8 @@ export async function enrollEventAttendeeServer(
   if (!result.attendeeId || !ENROLL_MAIL_CODES.has(result.resultCode)) return result;
 
   const flow = input.registrationFlow;
+  const claimed = input.familyDiscountClaimed === true;
+  const currency = input.currency?.trim() || "CLP";
   const charge =
     flow?.price == null
       ? null
@@ -136,6 +142,7 @@ export async function enrollEventAttendeeServer(
     .from("event_attendees")
     .update({
       registration_locale: parseEventEmailLocale(input.locale),
+      family_discount_claimed: claimed,
       ...(flow ? { registration_flow_id: flow.id } : {}),
       ...(charge ? { status: charge.status } : {}),
     })
@@ -152,11 +159,17 @@ export async function enrollEventAttendeeServer(
     templateKey: "events.registered",
   });
 
-  if (!charge) return result;
+  const baseTotal = charge?.totalAmount ?? result.totalAmount;
+  const totalAmount =
+    baseTotal == null
+      ? null
+      : applyEventFamilyDiscount({ amount: baseTotal, claimed, currency });
+
+  if (!charge) return { ...result, totalAmount };
   return {
     ...result,
     attendeeStatus: charge.status,
     paymentRequired: charge.paymentRequired,
-    totalAmount: charge.totalAmount,
+    totalAmount,
   };
 }

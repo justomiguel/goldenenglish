@@ -10,6 +10,8 @@ export interface EventRegisterFormLabels {
   birthDate: string;
   submit: string;
   consent: string;
+  familyDiscount: string;
+  familyDiscountPay: string;
   error: string;
   successModal: {
     title: string;

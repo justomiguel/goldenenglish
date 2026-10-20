@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { EventRegisterOrderedQuestions } from "@/components/organisms/EventRegisterOrderedQuestions";
+import { EventRegisterFamilyDiscount } from "@/components/organisms/EventRegisterFamilyDiscount";
 import { EventRegisterFlowChoice } from "@/components/organisms/EventRegisterFlowChoice";
 import { EventRegisterFormFooter } from "@/components/organisms/EventRegisterFormFooter";
 import type { EventRegistrationPaymentMethod } from "@/lib/events/resolveEventRegistrationPaymentMethods";
@@ -34,7 +36,14 @@ export function EventRegisterForm({
   labels,
   preview = false,
 }: EventRegisterFormProps) {
-  const form = useEventRegisterForm({ locale, event, paymentMethods, labels });
+  const [familyDiscount, setFamilyDiscount] = useState(false);
+  const form = useEventRegisterForm({
+    locale,
+    event,
+    paymentMethods,
+    labels,
+    familyDiscountClaimed: familyDiscount,
+  });
   const typography = publicEventRegisterTypography(surfaceVariant);
 
   return (
@@ -119,6 +128,17 @@ export function EventRegisterForm({
             surfaceVariant={surfaceVariant}
           />
         ) : null}
+
+        <EventRegisterFamilyDiscount
+          baseAmount={form.selectedPrice}
+          currency={event.currency}
+          locale={locale}
+          freeLabel={labels.free}
+          checked={familyDiscount}
+          onChange={setFamilyDiscount}
+          label={labels.familyDiscount}
+          payLabel={labels.familyDiscountPay}
+        />
 
         {form.payment.showPaymentPicker ? (
           <EventRegisterPaymentPicker

@@ -4281,6 +4281,7 @@
         "status": "Status",
         "viewCount": "Visualizações",
         "attendeesTitle": "Participantes",
+        "attendeesFamilyDiscount": "Desconto família",
         "attendeesDeleteReasonLabel": "Motivo",
         "attendeesDeleteReasonPlaceholder": "Por que esta inscrição é eliminada",
         "attendeesDeleteNotify": "Avisar por e-mail",
@@ -4595,6 +4596,8 @@
       "birthDate": "Data de nascimento",
       "submit": "Enviar inscrição",
       "consent": "Aceito o uso dos meus dados para inscrição e notificações operacionais do evento.",
+      "familyDiscount": "Faço parte de uma família do instituto (10% de desconto)",
+      "familyDiscountPay": "Com o desconto você paga",
       "successModal": {
         "title": "Obrigado!",
         "body": "Sua inscrição foi enviada com sucesso.",

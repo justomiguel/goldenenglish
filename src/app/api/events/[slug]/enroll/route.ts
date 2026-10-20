@@ -74,6 +74,7 @@ export async function POST(
             fileMimeType?: string;
           }>;
           isLocalResident?: boolean;
+          familyDiscount?: boolean;
           paymentMethod?: string;
           ticketPackageId?: string;
           companions?: unknown;
@@ -154,6 +155,8 @@ export async function POST(
           }
         : null,
       locale: body.locale,
+      familyDiscountClaimed: body.familyDiscount === true,
+      currency: event.currency,
     });
 
     return NextResponse.json({ ok: true, result }, {

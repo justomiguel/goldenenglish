@@ -50,6 +50,7 @@ export interface EventRegisterSubmitPayload {
   requiresTransferReceipt: boolean;
   receiptFile: File | null;
   flowId?: string | null;
+  familyDiscountClaimed: boolean;
 }
 
 export interface EventRegisterSubmitLabels {
@@ -176,6 +177,7 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
           isLocalResident: payload.isLocalResident,
           fieldValues,
           ...(payload.flowId ? { flowId: payload.flowId } : {}),
+          familyDiscount: payload.familyDiscountClaimed,
         }),
       });
 

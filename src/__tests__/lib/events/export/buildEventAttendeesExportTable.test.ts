@@ -52,6 +52,7 @@ const attendee: EventAttendeeRow = {
   },
   payment: { status: "approved", amount: 10000, currency: "CLP", gatewayProvider: null },
   createdAt: "2026-05-01T12:00:00.000Z",
+  familyDiscountClaimed: false,
 };
 
 describe("buildEventAttendeesExportTable", () => {

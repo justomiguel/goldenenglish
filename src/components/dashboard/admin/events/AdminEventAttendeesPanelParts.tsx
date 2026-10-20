@@ -40,6 +40,7 @@ export interface AdminEventAttendeesPanelLabels {
   noPhone: string;
   noBirthDate: string;
   noPayment: string;
+  familyDiscount: string;
   pagination: {
     prev: string;
     next: string;

@@ -31,6 +31,7 @@ const labels: AdminEventAttendeesPanelLabels = {
   noPhone: detail.attendeesNoPhone,
   noBirthDate: detail.attendeesNoBirthDate,
   noPayment: detail.attendeesNoPayment,
+  familyDiscount: detail.attendeesFamilyDiscount,
   pagination: {
     prev: "Prev",
     next: "Next",

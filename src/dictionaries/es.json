@@ -4299,6 +4299,7 @@
         "attendeesNoPhone": "No informado",
         "attendeesNoBirthDate": "No informada",
         "attendeesNoPayment": "Sin pago requerido",
+        "attendeesFamilyDiscount": "Descuento familia",
         "attendeesExport": {
           "downloadXlsx": "Exportar Excel",
           "downloadPdf": "Exportar PDF",
@@ -4771,6 +4772,8 @@
       "birthDate": "Fecha de nacimiento",
       "submit": "Enviar inscripción",
       "consent": "Acepto el uso de mis datos para la inscripción y notificaciones operativas del evento.",
+      "familyDiscount": "Soy parte de una familia del instituto (10% de descuento)",
+      "familyDiscountPay": "Con el descuento pagas",
       "successModal": {
         "title": "¡Gracias!",
         "body": "Tu inscripción fue enviada con éxito.",

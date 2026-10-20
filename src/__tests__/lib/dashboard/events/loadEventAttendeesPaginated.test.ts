@@ -36,6 +36,7 @@ describe("loadEventAttendeesPaginated", () => {
           tutor_phone: "+56922222222",
           tutor_relationship: "mother",
           created_at: "2026-05-01T10:00:00.000Z",
+          family_discount_claimed: true,
           event_payments: { status: "pending", amount: 15000, currency: "CLP", gateway_provider: null },
         },
       ],
@@ -63,6 +64,7 @@ describe("loadEventAttendeesPaginated", () => {
       birthDate: "2010-05-01",
       status: "pending_payment",
       isLocalResident: true,
+      familyDiscountClaimed: true,
       payment: { status: "pending", amount: 15000, currency: "CLP", gatewayProvider: null },
       tutor: {
         firstName: "María",

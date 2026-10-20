@@ -15488,3 +15488,6 @@ ALTER TABLE public.event_attendees
 ALTER TABLE public.event_attendees
   ADD CONSTRAINT event_attendees_registration_locale_chk
   CHECK (registration_locale IN ('es', 'en', 'pt'));
+
+ALTER TABLE public.event_attendees
+  ADD COLUMN IF NOT EXISTS family_discount_claimed boolean NOT NULL DEFAULT false;

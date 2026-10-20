@@ -35,6 +35,7 @@ export interface EventAttendeeRow {
   tutor: EventAttendeeTutorSummary | null;
   payment: EventAttendeePaymentSummary | null;
   createdAt: string;
+  familyDiscountClaimed: boolean;
 }
 
 export interface PaginatedEventAttendeesParams {
@@ -106,7 +107,7 @@ export async function loadEventAttendeesPaginated(
   let dataQuery = adminClient
     .from("event_attendees")
     .select(
-      "id, event_id, first_name, last_name, dni_or_passport, email, phone, birth_date, status, source, is_local_resident, user_id, tutor_id, tutor_first_name, tutor_last_name, tutor_dni_or_passport, tutor_email, tutor_phone, tutor_relationship, created_at, event_payments(status, amount, currency, gateway_provider)",
+      "id, event_id, first_name, last_name, dni_or_passport, email, phone, birth_date, status, source, is_local_resident, user_id, tutor_id, tutor_first_name, tutor_last_name, tutor_dni_or_passport, tutor_email, tutor_phone, tutor_relationship, created_at, family_discount_claimed, event_payments(status, amount, currency, gateway_provider)",
     )
     .eq("event_id", params.eventId);
 
@@ -177,6 +178,7 @@ export async function loadEventAttendeesPaginated(
           }
         : null,
       createdAt: String(row.created_at ?? ""),
+      familyDiscountClaimed: row.family_discount_claimed === true,
     };
   });
 

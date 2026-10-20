@@ -81,8 +81,15 @@ export function AdminEventAttendeeTableRow({
           />
         </td>
         <td className={ADMIN_EVENT_ATTENDEES_TABLE_BODY_CELL}>
-          <span className={ADMIN_EVENT_ATTENDEES_TABLE_TEXT_PROMINENT} title={displayName}>
-            {displayName}
+          <span className="flex flex-col items-start gap-1">
+            <span className={ADMIN_EVENT_ATTENDEES_TABLE_TEXT_PROMINENT} title={displayName}>
+              {displayName}
+            </span>
+            {row.familyDiscountClaimed ? (
+              <span className="inline-flex rounded-full border border-[var(--color-border)] bg-[var(--color-muted)] px-2 py-0.5 text-xs text-[var(--color-foreground)]">
+                {labels.familyDiscount}
+              </span>
+            ) : null}
           </span>
         </td>
         <td className={ADMIN_EVENT_ATTENDEES_TABLE_BODY_CELL}>

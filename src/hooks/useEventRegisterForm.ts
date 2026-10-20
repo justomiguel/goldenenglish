@@ -17,6 +17,7 @@ interface UseEventRegisterFormInput {
   event: PublicEventDetail;
   paymentMethods: EventRegistrationPaymentMethod[];
   labels: EventRegisterFormLabels;
+  familyDiscountClaimed: boolean;
 }
 
 export function useEventRegisterForm({
@@ -24,6 +25,7 @@ export function useEventRegisterForm({
   event,
   paymentMethods,
   labels,
+  familyDiscountClaimed,
 }: UseEventRegisterFormInput) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -142,6 +144,7 @@ export function useEventRegisterForm({
       requiresTransferReceipt,
       receiptFile,
       flowId: flowView?.flowId ?? null,
+      familyDiscountClaimed,
     });
   }
 

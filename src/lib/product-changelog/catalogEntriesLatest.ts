@@ -3,6 +3,21 @@ import { changelogT as t } from "@/lib/product-changelog/catalogTypes";
 
 export const ENTRIES: readonly ProductChangelogEntry[] = [
   {
+    id: "event-family-discount",
+    date: "2026-10-19",
+    area: "events",
+    title: t(
+      "La inscripción puede pedir un 10% de descuento familiar",
+      "Registration can claim a 10% family discount",
+      "A inscrição pode pedir 10% de desconto familiar",
+    ),
+    summary: t(
+      "Quien se inscribe puede marcar que es familia del instituto y el cobro queda con 10% de descuento. En la lista de asistentes se ve quién lo pidió.",
+      "Someone registering can mark that they are an institute family, and the charge is 10% lower. The attendee list shows who asked.",
+      "Quem se inscreve pode marcar que é família do instituto e a cobrança fica com 10% de desconto. A lista de participantes mostra quem pediu.",
+    ),
+  },
+  {
     id: "event-attendee-delete-notify",
     date: "2026-10-19",
     area: "events",

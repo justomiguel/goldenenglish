@@ -170,6 +170,7 @@ export function AdminEventDetailTabContent({
           noPhone: detail.attendeesNoPhone,
           noBirthDate: detail.attendeesNoBirthDate,
           noPayment: detail.attendeesNoPayment,
+          familyDiscount: detail.attendeesFamilyDiscount,
           pagination: {
             prev: dict.admin.table.paginationPrev,
             next: dict.admin.table.paginationNext,

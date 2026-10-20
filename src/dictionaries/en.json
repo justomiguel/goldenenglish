@@ -4299,6 +4299,7 @@
         "attendeesNoPhone": "Not provided",
         "attendeesNoBirthDate": "Not provided",
         "attendeesNoPayment": "No payment required",
+        "attendeesFamilyDiscount": "Family discount",
         "attendeesExport": {
           "downloadXlsx": "Export Excel",
           "downloadPdf": "Export PDF",
@@ -4771,6 +4772,8 @@
       "birthDate": "Birth date",
       "submit": "Submit registration",
       "consent": "I accept the use of my data for event registration and operational notifications.",
+      "familyDiscount": "I am part of an institute family (10% off)",
+      "familyDiscountPay": "With the discount you pay",
       "successModal": {
         "title": "Thank you!",
         "body": "Your registration was submitted successfully.",

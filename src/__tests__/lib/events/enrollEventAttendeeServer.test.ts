@@ -121,6 +121,24 @@ describe("enrollEventAttendeeServer mail", () => {
 
   it("stores the locale when the event has no flow", async () => {
     await enrollEventAttendeeServer({ ...input, registrationFlow: null });
-    expect(update).toHaveBeenCalledWith({ registration_locale: "en" });
+    expect(update).toHaveBeenCalledWith({
+      registration_locale: "en",
+      family_discount_claimed: false,
+    });
+  });
+
+  it("stores the family claim and returns 90% of the flow total", async () => {
+    scene.row.total_amount = 10000;
+    const result = await enrollEventAttendeeServer({
+      ...input,
+      registrationFlow: { id: "flow-1", price: 10000 },
+      familyDiscountClaimed: true,
+      currency: "CLP",
+    });
+
+    expect(result.totalAmount).toBe(9000);
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({ family_discount_claimed: true }),
+    );
   });
 });

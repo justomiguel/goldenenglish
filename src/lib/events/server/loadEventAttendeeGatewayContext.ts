@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { applyEventFamilyDiscount } from "@/lib/events/applyEventFamilyDiscount";
 import { resolveEventSeatPrice } from "@/lib/events/resolveEventRegistrationTotal";
 
 export interface EventAttendeeGatewayContext {
@@ -28,6 +29,7 @@ interface AttendeeRow {
   event_id: string;
   primary_attendee_id: string | null;
   ticket_package_id: string | null;
+  family_discount_claimed: boolean | null;
   event_ticket_packages: { price: number } | { price: number }[] | null;
   event_registration_flows: { price: number | null } | { price: number | null }[] | null;
   events: {
@@ -68,7 +70,7 @@ export async function loadEventAttendeeGatewayContext(
   const { data, error } = await admin
     .from("event_attendees")
     .select(
-      "id, status, is_local_resident, email, dni_or_passport, event_id, primary_attendee_id, ticket_package_id, event_ticket_packages(price), event_registration_flows(price), events!inner(slug, title, currency, price, price_local, price_non_local, price_by_flow)",
+      "id, status, is_local_resident, email, dni_or_passport, event_id, primary_attendee_id, ticket_package_id, family_discount_claimed, event_ticket_packages(price), event_registration_flows(price), events!inner(slug, title, currency, price, price_local, price_non_local, price_by_flow)",
     )
     .eq("id", attendeeId)
     .maybeSingle();
@@ -116,7 +118,11 @@ export async function loadEventAttendeeGatewayContext(
     title: event.title,
     currency: event.currency,
     seats,
-    amount: Number(unitPrice) * seats,
+    amount: applyEventFamilyDiscount({
+      amount: Number(unitPrice) * seats,
+      claimed: row.family_discount_claimed === true,
+      currency: event.currency,
+    }),
   };
 }
 

@@ -32,6 +32,7 @@ const labels: AdminEventAttendeesPanelLabels = {
   noPhone: detail.attendeesNoPhone,
   noBirthDate: detail.attendeesNoBirthDate,
   noPayment: detail.attendeesNoPayment,
+  familyDiscount: detail.attendeesFamilyDiscount,
   pagination: {
     prev: "Prev",
     next: "Next",
@@ -88,6 +89,7 @@ const row: EventAttendeeRow = {
   tutorEmail: null,
   tutorPhone: null,
   userId: null,
+  familyDiscountClaimed: true,
 };
 
 describe("AdminEventAttendeesTable", () => {
@@ -109,6 +111,7 @@ describe("AdminEventAttendeesTable", () => {
       />,
     );
 
+    expect(screen.getByText(detail.attendeesFamilyDiscount)).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: /School/ })).toBeInTheDocument();
     expect(screen.getByText("Colegio Norte")).toBeInTheDocument();
 

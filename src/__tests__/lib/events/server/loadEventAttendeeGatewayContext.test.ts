@@ -100,6 +100,17 @@ describe("loadEventAttendeeGatewayContext", () => {
     expect(context?.amount).toBe(10000);
   });
 
+  it("charges 90% when the attendee claimed the family discount", async () => {
+    const { admin } = makeAdmin({
+      data: { ...baseRow, family_discount_claimed: true },
+      error: null,
+    });
+
+    const context = await loadEventAttendeeGatewayContext(admin, "att-1");
+
+    expect(context?.amount).toBe(9000);
+  });
+
   it("unwraps an event returned as an array (PostgREST embed)", async () => {
     const { admin } = makeAdmin({
       data: { ...baseRow, events: [baseRow.events] },
