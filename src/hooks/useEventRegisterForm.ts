@@ -3,10 +3,7 @@
 import { useMemo, useState } from "react";
 import { resolveAttendeeIsMinor } from "@/lib/events/resolveAttendeeIsMinor";
 import { resolveRegistrationFlowView } from "@/lib/events/registrationFlows";
-import {
-  eventRequiresPayment,
-  resolveEventPriceForResidency,
-} from "@/lib/events/resolveEventPriceTier";
+import { eventRegisterPaymentView } from "@/lib/events/eventRegisterPaymentView";
 import type { EventRegistrationPaymentMethod } from "@/lib/events/resolveEventRegistrationPaymentMethods";
 import type { PublicEventDetail } from "@/lib/dashboard/events/loadEventForPublicLanding";
 import type { EventRegisterFormLabels } from "@/lib/events/eventRegisterFormLabels";
@@ -18,6 +15,9 @@ interface UseEventRegisterFormInput {
   paymentMethods: EventRegistrationPaymentMethod[];
   labels: EventRegisterFormLabels;
   familyDiscountClaimed: boolean;
+  discountCode?: string | null;
+  payableAmount?: number | null;
+  discountErrors?: { invalid_code: string; no_uses: string; discount_conflict: string };
 }
 
 export function useEventRegisterForm({
@@ -26,6 +26,9 @@ export function useEventRegisterForm({
   paymentMethods,
   labels,
   familyDiscountClaimed,
+  discountCode = null,
+  payableAmount = null,
+  discountErrors,
 }: UseEventRegisterFormInput) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -104,21 +107,17 @@ export function useEventRegisterForm({
   }, [event, selectedFlowId]);
 
   const chosenFlow = event.flows?.find((flow) => flow.id === flowView?.flowId) ?? null;
-  const selectedPrice = event.priceByFlow
-    ? (chosenFlow?.price ?? null)
-    : resolveEventPriceForResidency(priceSource, isLocalResident);
-  const requiresPayment = event.priceByFlow
-    ? (chosenFlow?.price ?? 0) > 0
-    : eventRequiresPayment(priceSource, isLocalResident);
-  const showPaymentPicker = requiresPayment && paymentMethods.length > 0;
-  const requiresTransferReceipt =
-    showPaymentPicker &&
-    selectedPaymentMethod === "transfer" &&
-    paymentMethods.includes("transfer");
-  const showTransferInstructions =
-    showPaymentPicker &&
-    selectedPaymentMethod === "transfer" &&
-    Boolean(event.bankTransferInstructions?.trim());
+  const { selectedPrice, showPaymentPicker, requiresTransferReceipt, showTransferInstructions } =
+    eventRegisterPaymentView({
+      priceByFlow: event.priceByFlow,
+      flowPrice: chosenFlow?.price ?? null,
+      priceSource,
+      isLocalResident,
+      payableAmount,
+      paymentMethods,
+      selectedPaymentMethod,
+      bankTransferInstructions: event.bankTransferInstructions,
+    });
 
   function handleSubmit(eventForm: React.FormEvent<HTMLFormElement>) {
     eventForm.preventDefault();
@@ -145,6 +144,8 @@ export function useEventRegisterForm({
       receiptFile,
       flowId: flowView?.flowId ?? null,
       familyDiscountClaimed,
+      discountCode,
+      discountErrors,
     });
   }
 

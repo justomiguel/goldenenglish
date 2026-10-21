@@ -14,11 +14,6 @@ import { resolveRegistrationContact } from "@/lib/register/resolveRegistrationCo
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { AdminRegistrationsTableDesktopProps } from "./AdminRegistrationsTableDesktop.types";
 
-export type {
-  AdminRegistrationsTableDesktopProps,
-  RegistrationStatusCounts,
-} from "./AdminRegistrationsTableDesktop.types";
-
 export function AdminRegistrationsTableDesktop({
   locale,
   rows,
@@ -40,6 +35,7 @@ export function AdminRegistrationsTableDesktop({
   userLabels,
   currentCohortSections,
   currentCohortName,
+  usesCefrLevel = false,
 }: AdminRegistrationsTableDesktopProps) {
   const u = useAdminRegistrationsList({
     locale,
@@ -60,7 +56,7 @@ export function AdminRegistrationsTableDesktop({
   const COLUMN_COUNT = 10;
 
   return (
-    <div className="mt-8 space-y-4">
+    <div className="space-y-4">
       {u.toast ? (
         <p
           className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/40 px-4 py-3 text-sm"
@@ -243,6 +239,7 @@ export function AdminRegistrationsTableDesktop({
           u.refreshList();
         }}
         labels={labels}
+        usesCefrLevel={usesCefrLevel}
       />
     </div>
   );

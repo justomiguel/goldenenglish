@@ -42,11 +42,11 @@ export function AdminMessagesInbox({
     );
   }
 
-  const listMt = listTopMargin ? "mt-8" : "mt-4";
+  const listMt = listTopMargin ? "mt-8" : "mt-2 md:mt-4";
   const selectionEnabled = Boolean(selectedIds && onToggleSelected);
 
   return (
-    <ul className={`${listMt} list-none space-y-2.5`}>
+    <ul className={`${listMt} list-none space-y-1.5 md:space-y-2.5`}>
       {rows.map((row) => (
         <li key={row.id} className="list-none">
           <AdminMessageCard

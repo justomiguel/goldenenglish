@@ -97,7 +97,7 @@ export function CohortCollectionsMatrixClient({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={overviewDict.filters.searchPlaceholder}
-            className="w-64 rounded border border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-1 text-sm text-[var(--color-foreground)]"
+            className="min-h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-foreground)] sm:w-64"
           />
         </label>
         <label className="flex flex-col gap-1 text-xs">
@@ -107,7 +107,7 @@ export function CohortCollectionsMatrixClient({
           <select
             value={sectionFilter}
             onChange={(e) => setSectionFilter(e.target.value)}
-            className="rounded border border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-1 text-sm text-[var(--color-foreground)]"
+            className="min-h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-foreground)] sm:w-auto"
           >
             <option value="all">{filtersDict.allSections}</option>
             {matrix.sections.map((s) => (
@@ -121,7 +121,7 @@ export function CohortCollectionsMatrixClient({
           <legend className="font-medium text-[var(--color-foreground)]">
             {filtersDict.filterByHealth}
           </legend>
-          <div className="flex gap-1">
+          <div className="flex gap-1.5 overflow-x-auto pb-1 sm:flex-wrap">
             <HealthChip
               value="all"
               label={filtersDict.allHealth}
@@ -207,7 +207,7 @@ function HealthChip({
       aria-pressed={active}
       onClick={onClick}
       data-health={value}
-      className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium transition ${
+      className={`inline-flex min-h-11 items-center rounded-full border px-3.5 py-2 text-xs font-medium transition sm:min-h-8 sm:px-2.5 sm:py-1 ${
         active
           ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
           : "border-[var(--color-border)] text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)]/40"

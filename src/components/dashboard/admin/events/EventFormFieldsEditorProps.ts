@@ -24,6 +24,7 @@ export interface EventFormFieldsEditorProps {
   priceByFlow?: boolean;
   registrationFlows?: EventFormRegistrationFlowSummary[];
   eventPublished?: boolean;
+  eventSlug?: string;
   nextFieldPosition: number;
   labels: {
     pageLead: string;

@@ -1,11 +1,9 @@
 "use client";
 
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
-import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import { AdminBackLink } from "@/components/dashboard/AdminBackLink";
 import { AdminStudentBillingClient } from "@/components/dashboard/AdminStudentBillingClient";
 import type { Locale } from "@/types/i18n";
-import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
 import type {
   AdminBillingPaymentRow,
@@ -74,12 +72,8 @@ export function AdminStudentBillingEntry({
         </div>
       }
       desktop={<div className="mx-auto max-w-4xl space-y-6">{inner}</div>}
-      narrow={(surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">) => (
-        <PwaPageShell surface={surface}>
-          <div className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
-            <div className="mx-auto max-w-[var(--layout-max-width)] space-y-4 py-2">{inner}</div>
-          </div>
-        </PwaPageShell>
+      narrow={() => (
+        <div className="mx-auto max-w-[var(--layout-max-width)] space-y-3">{inner}</div>
       )}
     />
   );

@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { applyEventCodeDiscount } from "@/lib/events/applyEventCodeDiscount";
 import { applyEventFamilyDiscount } from "@/lib/events/applyEventFamilyDiscount";
 import { resolveEventSeatPrice } from "@/lib/events/resolveEventRegistrationTotal";
 
@@ -106,6 +107,8 @@ export async function loadEventAttendeeGatewayContext(
     ) ?? 0;
 
   const seats = 1 + (await countCompanionSeats(admin, attendeeId));
+  const baseAmount = Number(unitPrice) * seats;
+  const redemptionPercent = await loadDiscountPercent(admin, attendeeId);
 
   return {
     attendeeId: String(row.id),
@@ -118,12 +121,34 @@ export async function loadEventAttendeeGatewayContext(
     title: event.title,
     currency: event.currency,
     seats,
-    amount: applyEventFamilyDiscount({
-      amount: Number(unitPrice) * seats,
-      claimed: row.family_discount_claimed === true,
-      currency: event.currency,
-    }),
+    amount:
+      redemptionPercent == null
+        ? applyEventFamilyDiscount({
+            amount: baseAmount,
+            claimed: row.family_discount_claimed === true,
+            currency: event.currency,
+          })
+        : applyEventCodeDiscount({
+            amount: baseAmount,
+            percent: redemptionPercent,
+            currency: event.currency,
+          }),
   };
+}
+
+async function loadDiscountPercent(admin: SupabaseClient, attendeeId: string): Promise<number | null> {
+  const { data, error } = await admin
+    .from("event_discount_code_redemptions")
+    .select("discount_percent")
+    .eq("attendee_id", attendeeId)
+    .in("status", ["reserved", "consumed"])
+    .maybeSingle();
+  if (error) {
+    logSupabaseClientError("loadEventAttendeeGatewayContext:discount", error, { attendeeId });
+    return null;
+  }
+  if (data?.discount_percent == null) return null;
+  return Number(data.discount_percent);
 }
 
 async function countCompanionSeats(admin: SupabaseClient, titularId: string): Promise<number> {

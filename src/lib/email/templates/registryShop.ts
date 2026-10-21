@@ -17,7 +17,7 @@ const signInUrlPlaceholder: EmailTemplatePlaceholder = {
 const orderUrlPlaceholder: EmailTemplatePlaceholder = {
   name: "orderUrl",
   description: "URL del pedido con token",
-  sample: "https://example.com/es/tienda/pedido/tok",
+  sample: "https://example.com/es/tienda/pedido/pedido/tok",
 };
 const pickupNotePlaceholder: EmailTemplatePlaceholder = {
   name: "pickupNote",

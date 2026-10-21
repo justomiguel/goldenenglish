@@ -1,6 +1,6 @@
 "use client";
 
-import { Send } from "lucide-react";
+import { Reply, Send } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { replyToStudentMessage } from "@/app/[locale]/dashboard/teacher/messages/actions";
@@ -25,9 +25,19 @@ interface TeacherMessagesFeedProps {
   locale: string;
   rows?: TeacherFeedRow[];
   labels: Dictionary["dashboard"]["teacher"];
+  /** Phone thread keeps one composer outside the list. */
+  layout?: "cards" | "thread";
+  onRequestReply?: (row: TeacherFeedRow) => void;
 }
 
-export function TeacherMessagesFeed({ locale, rows = [], labels }: TeacherMessagesFeedProps) {
+export function TeacherMessagesFeed({
+  locale,
+  rows = [],
+  labels,
+  layout = "cards",
+  onRequestReply,
+}: TeacherMessagesFeedProps) {
+  const thread = layout === "thread";
   const router = useRouter();
   const [bodyById, setBodyById] = useState<Record<string, string>>({});
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -56,19 +66,29 @@ export function TeacherMessagesFeed({ locale, rows = [], labels }: TeacherMessag
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="font-display text-lg font-semibold text-[var(--color-secondary)]">
-        {labels.messagesFeedTitle}
-      </h2>
+    <div className={thread ? "space-y-3" : "space-y-6"}>
+      {thread ? null : (
+        <h2 className="font-display text-lg font-semibold text-[var(--color-secondary)]">
+          {labels.messagesFeedTitle}
+        </h2>
+      )}
       {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}
-      <ul className="space-y-6">
+      <ul className={thread ? "flex flex-col gap-2" : "space-y-6"}>
         {rows.length === 0 ? (
           <li className="text-sm text-[var(--color-muted-foreground)]">{labels.messagesNoMessages}</li>
         ) : (
           rows.map((m) => (
             <li
               key={m.id}
-              className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+              className={
+                thread
+                  ? `max-w-[85%] rounded-2xl px-3 py-2 ${
+                      m.isOutgoing
+                        ? "ml-auto bg-[color-mix(in_srgb,var(--color-primary)_12%,var(--color-surface))]"
+                        : "mr-auto bg-[var(--color-muted)]"
+                    }`
+                  : "rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+              }
             >
               <p className="text-xs uppercase text-[var(--color-muted-foreground)]">
                 {new Date(m.created_at).toLocaleString()}
@@ -88,7 +108,18 @@ export function TeacherMessagesFeed({ locale, rows = [], labels }: TeacherMessag
                 </span>
               </p>
               <div className={htmlBlockClass} dangerouslySetInnerHTML={{ __html: m.body_html }} />
-              {m.canReply ? (
+              {m.canReply && thread && onRequestReply ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="mt-2 min-h-[44px]"
+                  onClick={() => onRequestReply(m)}
+                >
+                  <Reply className="h-4 w-4 shrink-0" aria-hidden />
+                  {labels.messagesReply}
+                </Button>
+              ) : null}
+              {m.canReply && !thread ? (
                 <div className="mt-4 space-y-2">
                   <RichTextEditor
                     value={getReply(m.id)}

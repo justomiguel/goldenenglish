@@ -37,7 +37,7 @@ describe("mapPublicCatalog", () => {
       },
     ]);
     expect(rows).toEqual([
-      { id: "hoodie", title: "Hoodie", imageUrl: "products/hoodie.jpg", soldOut: false },
+      { id: "hoodie", slug: "", title: "Hoodie", imageUrl: "products/hoodie.jpg", soldOut: false },
     ]);
   });
 });

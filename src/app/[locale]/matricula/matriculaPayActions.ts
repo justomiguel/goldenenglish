@@ -10,6 +10,7 @@ import { uploadRegistrationEnrollmentReceiptCore } from "@/lib/register/uploadRe
 import { acceptRegistrationLead } from "@/lib/register/acceptRegistrationLead";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { buildMatriculaPayPath } from "@/lib/site/publicSharePaths";
 
 export type MatriculaPayActionResult = { ok: true } | { ok: false; code: string };
 
@@ -66,7 +67,10 @@ export async function uploadRegistrationEnrollmentReceiptAction(
     locale,
     sectionLabel,
   });
-  if (result.ok) revalidatePath(`/${locale}/matricula/${token}`);
+  if (result.ok) {
+    revalidatePath(buildMatriculaPayPath(locale, sectionLabel, token));
+    revalidatePath(`/${locale}/matricula/${token}`);
+  }
   return result;
 }
 
@@ -95,6 +99,7 @@ export async function switchRegistrationPaySectionAction(
     });
     if (!accepted.ok) return { ok: false, code: "accept_failed" };
   }
+  revalidatePath(buildMatriculaPayPath(locale, "", token));
   revalidatePath(`/${locale}/matricula/${token}`);
   return { ok: true };
 }

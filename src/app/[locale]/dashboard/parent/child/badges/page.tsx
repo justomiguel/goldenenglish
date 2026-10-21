@@ -1,6 +1,7 @@
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { absoluteUrl } from "@/lib/site/publicUrl";
+import { buildBadgeSharePath } from "@/lib/site/publicSharePaths";
 import { loadStudentBadgeDisplayRows } from "@/lib/badges/loadStudentBadgeDisplayRows";
 import { loadParentChildContext } from "@/lib/parent/loadParentChildContext";
 import { createProgressFailureTracker } from "@/lib/parent/progressFailureTracker";
@@ -29,7 +30,8 @@ export default async function ParentChildBadgesPage({ params, searchParams }: Pa
   const rows = focus.studentId
     ? await loadStudentBadgeDisplayRows(
         focus.studentId,
-        (token) => absoluteUrl(`/${locale}/b/${token}`)?.toString() ?? "",
+        (token, title) =>
+          absoluteUrl(buildBadgeSharePath(locale, title ?? "", token))?.toString() ?? "",
         failures.reporterFor("badges"),
       )
     : [];

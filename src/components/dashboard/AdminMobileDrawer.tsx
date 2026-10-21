@@ -8,6 +8,7 @@ import { AdminSidebarProfileFooter } from "@/components/dashboard/AdminSidebarPr
 import { DashboardMobileDrawerPortal } from "@/components/dashboard/DashboardMobileDrawerPortal";
 import { SignOutButton } from "@/components/molecules/SignOutButton";
 import { StaffSidebarBrand } from "@/components/dashboard/StaffSidebarBrand";
+import { useAdminMobileShell } from "@/components/dashboard/AdminMobileShellContext";
 import { useDashboardMobileDrawer } from "@/hooks/useDashboardMobileDrawer";
 
 export interface AdminMobileDrawerProps {
@@ -39,7 +40,9 @@ export function AdminMobileDrawer({
 }: AdminMobileDrawerProps) {
   const navDict = dict.dashboard.adminNav;
   const chromeDict = dict.dashboard.adminChrome;
-  const { open, openDrawer, close } = useDashboardMobileDrawer();
+  const shared = useAdminMobileShell();
+  const local = useDashboardMobileDrawer();
+  const { open, openDrawer, close } = shared ?? local;
 
   return (
     <div className="md:hidden">

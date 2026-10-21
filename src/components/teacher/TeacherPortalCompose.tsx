@@ -16,9 +16,17 @@ interface TeacherPortalComposeProps {
   locale: string;
   recipients: MessagingRecipient[];
   labels: Dictionary["dashboard"]["teacher"];
+  className?: string;
+  showHeading?: boolean;
 }
 
-export function TeacherPortalCompose({ locale, recipients = [], labels }: TeacherPortalComposeProps) {
+export function TeacherPortalCompose({
+  locale,
+  recipients = [],
+  labels,
+  className = "space-y-3 overflow-visible rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4",
+  showHeading = true,
+}: TeacherPortalComposeProps) {
   const router = useRouter();
   const [recipientId, setRecipientId] = useState("");
   const [body, setBody] = useState("<p></p>");
@@ -50,13 +58,12 @@ export function TeacherPortalCompose({ locale, recipients = [], labels }: Teache
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="space-y-3 overflow-visible rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
-    >
-      <h2 className="font-display text-lg font-semibold text-[var(--color-secondary)]">
-        {labels.messagesComposeTitle}
-      </h2>
+    <form onSubmit={onSubmit} className={className}>
+      {showHeading ? (
+        <h2 className="font-display text-lg font-semibold text-[var(--color-secondary)]">
+          {labels.messagesComposeTitle}
+        </h2>
+      ) : null}
       <label className="block text-sm font-medium text-[var(--color-foreground)]" htmlFor="teacher-msg-to">
         {labels.messagesComposeTo}
       </label>

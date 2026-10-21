@@ -74,7 +74,7 @@ export function FinanceInboxClient({
             type="button"
             onClick={() => setActive(t)}
             aria-pressed={active === t}
-            className={`inline-flex items-center gap-1.5 rounded-[var(--layout-border-radius)] px-3 py-1.5 text-sm font-medium transition ${
+            className={`inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-[var(--layout-border-radius)] px-3 py-2 text-xs font-medium transition sm:flex-initial sm:text-sm ${
               active === t
                 ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)] shadow-sm"
                 : "text-[var(--color-foreground)]/70 hover:text-[var(--color-foreground)]"

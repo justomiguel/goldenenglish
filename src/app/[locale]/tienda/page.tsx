@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { loadPublicCatalog } from "@/lib/shop/loadPublicCatalog";
 import { PublicShopCatalog } from "@/components/shop/PublicShopCatalog";
+import { getBrandForRequest } from "@/lib/brand/server";
+import { buildResolvedPublicShareMetadata } from "@/lib/site/buildResolvedPublicShareMetadata";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -9,8 +11,13 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  const dict = await getDictionary(locale);
-  return { title: dict.shop.catalog.title };
+  const [dict, brand] = await Promise.all([getDictionary(locale), getBrandForRequest()]);
+  return buildResolvedPublicShareMetadata({
+    what: dict.shop.catalog.title,
+    academyName: brand.name,
+    description: dict.shop.catalog.lead,
+    path: `/${locale}/tienda`,
+  });
 }
 
 export default async function PublicShopCatalogPage({ params }: PageProps) {

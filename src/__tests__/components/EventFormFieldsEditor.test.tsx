@@ -112,6 +112,7 @@ describe("EventFormFieldsEditor", () => {
         registrationFieldOrder={[]}
         requirePhone={false}
         requireBirthDate={false}
+        eventSlug="taller"
         nextFieldPosition={0}
         labels={buildLabels()}
       />,
@@ -124,7 +125,7 @@ describe("EventFormFieldsEditor", () => {
     expect(screen.getByRole("button", { name: formLabels.addFieldTitle })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: formLabels.previewButton })).toHaveAttribute(
       "href",
-      "/es/events/preview/evt-1",
+      "/es/events/vista-previa/taller",
     );
     expect(screen.queryByLabelText(formLabels.fieldKeyLabel)).not.toBeInTheDocument();
   });

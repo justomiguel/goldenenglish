@@ -53,7 +53,7 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
   const replyWithDefaultHref = `${replyHref}&useDefault=1`;
 
   return (
-    <div className="mx-auto max-w-4xl pb-10">
+    <div className="mx-auto max-w-4xl pb-28 md:pb-10">
       <Link
         href={listHref}
         className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-[var(--color-primary)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
@@ -62,7 +62,7 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
         <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
         {dict.admin.messages.composeBackToList}
       </Link>
-      <div className="mt-5">
+      <div className="mt-5 hidden md:block">
         <AdminPageHeader
           title={dict.admin.messages.detailHeading}
           iconId="messages"
@@ -73,7 +73,7 @@ export default async function AdminPortalMessageDetailPage({ params }: PageProps
         <AdminPortalMessageDetailView locale={locale} labels={dict.admin.messages} detail={detail} />
       </div>
       <div
-        className="mt-8 flex flex-wrap items-center justify-end gap-3 border-t border-[var(--color-border)]/80 pt-7"
+        className="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] z-30 flex flex-wrap items-center justify-end gap-2 border-t border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 md:static md:z-auto md:mt-8 md:gap-3 md:border-[var(--color-border)]/80 md:bg-transparent md:px-0 md:py-0 md:pt-7"
         data-tour={ADMIN_TOUR_ANCHORS.messagesDetailActions}
       >
         <Link

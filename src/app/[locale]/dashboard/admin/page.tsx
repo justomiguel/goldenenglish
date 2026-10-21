@@ -8,6 +8,9 @@ import { loadAdminFirstClassChecklist } from "@/lib/dashboard/loadAdminFirstClas
 import { loadDashboardBirthdaysCard } from "@/lib/birthdays/loadDashboardBirthdaysCard";
 import { AdminHubHome } from "@/components/dashboard/AdminHubHome";
 import { loadBlogEnabled } from "@/lib/blog/loadBlogEnabled";
+import { loadAdminHomeLayout } from "@/lib/dashboard/loadAdminHomeLayout";
+import { loadAdminHomeExtraWidgets } from "@/lib/dashboard/loadAdminHomeExtraWidgets";
+import { loadMerchEnabled } from "@/lib/shop/loadMerchEnabled";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 
 interface AdminHomeProps {
@@ -33,13 +36,22 @@ export default async function AdminHomePage({ params }: AdminHomeProps) {
   if (!isAdmin) redirect(`/${locale}`);
 
   const adminClient = createAdminClient();
-  const [summary, birthdayRows, profile, includeBlog, checklist] = await Promise.all([
+  const [summary, birthdayRows, profile, includeBlog, checklist, shopEnabled] = await Promise.all([
     loadAdminHubSummary(supabase, adminClient, user.id),
     loadDashboardBirthdaysCard(supabase, user.id),
     supabase.from("profiles").select("first_name").eq("id", user.id).maybeSingle(),
     loadBlogEnabled(),
     loadAdminFirstClassChecklist(supabase, locale),
+    loadMerchEnabled(),
   ]);
+  const layout = await loadAdminHomeLayout(supabase, user.id, { shopEnabled });
+  const extras = await loadAdminHomeExtraWidgets({
+    supabase,
+    admin: adminClient,
+    layout,
+    shopEnabled,
+    locale,
+  });
   const greetingName = String(profile.data?.first_name ?? "").trim();
 
   return (
@@ -52,6 +64,9 @@ export default async function AdminHomePage({ params }: AdminHomeProps) {
       greetingName={greetingName || undefined}
       includeBlog={includeBlog}
       checklist={checklist}
+      layout={layout}
+      shopEnabled={shopEnabled}
+      extras={extras}
     />
   );
 }

@@ -32,6 +32,7 @@ export default async function AdminEventNewPage({ params }: PageProps) {
         locale={locale}
         editorLabels={dict.admin.cms.blog.editor}
         academicLabels={dict.dashboard.adminContents}
+        fileUploadProgress={dict.common.fileUpload}
         labels={{
           titleLabel: formLabels.titleLabel,
           descriptionLabel: formLabels.descriptionLabel,

@@ -8,6 +8,7 @@ import {
 } from "@/lib/parent/buildParentPortalMessageLines";
 import { countProfilesWithRole } from "@/lib/dashboard/countProfilesWithRole";
 import { loadAdminProfileIds } from "@/lib/messaging/loadAdminProfileIds";
+import { loadPortalMessagePeerMeta } from "@/lib/messaging/loadPortalMessagePeerMeta";
 import {
   loadLinkedStudentIdsForParent,
   loadParentMessageTeacherRecipients,
@@ -61,6 +62,12 @@ export default async function ParentMessagesPage({ params, searchParams }: PageP
       { name: formatProfileSnakeSurnameFirst(p), role: p.role as string },
     ]),
   );
+  const hiddenPeers = await loadPortalMessagePeerMeta(idList);
+  for (const peer of hiddenPeers) {
+    if (!peerById.has(peer.id)) {
+      peerById.set(peer.id, { name: peer.name || dict.common.emptyValue, role: peer.role });
+    }
+  }
 
   const sortedAsc: RawPortalMessageRow[] = [...(raw ?? [])].map((m) => ({
     id: m.id as string,

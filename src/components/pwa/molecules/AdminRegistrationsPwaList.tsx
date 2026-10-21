@@ -1,9 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ArrowDown, ArrowUp } from "lucide-react";
 import { AdminRegistrationPwaCard } from "@/components/pwa/molecules/AdminRegistrationPwaCard";
+import { AdminRegistrationsSortSheet } from "@/components/pwa/molecules/AdminRegistrationsSortSheet";
 import { TablePagination } from "@/components/molecules/TablePagination";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminRegistrationRow } from "@/types/adminRegistration";
 import type {
@@ -15,43 +16,6 @@ import type { CurrentCohortSection } from "@/lib/academics/currentCohort";
 
 type RegLabels = Dictionary["admin"]["registrations"];
 type TableLabels = Dictionary["admin"]["table"];
-
-const SORT_KEYS: RegistrationSortKey[] = [
-  "name",
-  "dni",
-  "email",
-  "phoneStudent",
-  "phoneTutor",
-  "level",
-  "birth",
-  "status",
-  "received",
-];
-
-function colLabel(labels: RegLabels, key: RegistrationSortKey): string {
-  switch (key) {
-    case "name":
-      return labels.name;
-    case "dni":
-      return labels.dni;
-    case "email":
-      return labels.email;
-    case "phoneStudent":
-      return labels.phoneStudent;
-    case "phoneTutor":
-      return labels.phoneTutor;
-    case "level":
-      return labels.level;
-    case "birth":
-      return labels.birthDate;
-    case "status":
-      return labels.status;
-    case "received":
-      return labels.received;
-    default:
-      return key;
-  }
-}
 
 export interface AdminRegistrationsPwaListProps {
   toolbar: ReactNode;
@@ -113,11 +77,6 @@ export function AdminRegistrationsPwaList({
   emptyMessage,
   pagination,
 }: AdminRegistrationsPwaListProps) {
-  const sortHint = (key: RegistrationSortKey) => {
-    if (sortKey !== key) return tableLabels.sortNeutral;
-    return sortDir === "asc" ? tableLabels.sortAsc : tableLabels.sortDesc;
-  };
-
   if (listEmpty) {
     return (
       <div className="space-y-4">
@@ -130,39 +89,14 @@ export function AdminRegistrationsPwaList({
   return (
     <div className="space-y-3">
       {toolbar}
-      <div className="flex flex-wrap gap-2" role="group">
-        {SORT_KEYS.map((key) => {
-          const active = sortKey === key;
-          return (
-            <button
-              key={key}
-              type="button"
-              className={`flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-xl border px-3 text-left text-sm font-medium active:bg-[var(--color-muted)] ${
-                active
-                  ? "border-[var(--color-primary)]/25 bg-[color-mix(in_srgb,var(--color-primary)_8%,white)] text-[var(--color-primary)]"
-                  : "border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)]"
-              }`}
-              onClick={() => onToggleSort(key)}
-              aria-pressed={active}
-              title={sortHint(key)}
-            >
-              <span>{colLabel(labels, key)}</span>
-              {active ? (
-                sortDir === "asc" ? (
-                  <ArrowUp className="h-4 w-4 shrink-0" aria-hidden />
-                ) : (
-                  <ArrowDown className="h-4 w-4 shrink-0" aria-hidden />
-                )
-              ) : (
-                <span className="inline-block w-4 shrink-0" aria-hidden />
-              )}
-              <span className="sr-only">{sortHint(key)}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      <ul className="space-y-2">
+      <AdminRegistrationsSortSheet
+        labels={labels}
+        tableLabels={tableLabels}
+        sortKey={sortKey}
+        sortDir={sortDir}
+        onToggleSort={onToggleSort}
+      />
+      <ul className="space-y-2" data-tour={ADMIN_TOUR_ANCHORS.registrationsTable}>
         {rows.map((r) => (
           <AdminRegistrationPwaCard
             key={r.id}

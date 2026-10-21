@@ -11,6 +11,7 @@ import { requestedSectionsHaveOpenSeats } from "@/lib/register/requestedSections
 import { resolveRegistrationFamilyEmail } from "@/lib/register/resolveRegistrationFamilyEmail";
 import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMailTenant";
 import { absoluteUrl } from "@/lib/site/publicUrl";
+import { buildMatriculaPayPath } from "@/lib/site/publicSharePaths";
 import type { Locale } from "@/types/i18n";
 import type { Dictionary } from "@/types/i18n";
 
@@ -67,7 +68,7 @@ export async function notifyPublicRegistrationReceived(input: {
     studentEmail,
     studentEmailIsSynthetic: synthetic,
   });
-  const origin = absoluteUrl(`/${locale}/matricula/${input.payToken}`);
+  const origin = absoluteUrl(buildMatriculaPayPath(locale, input.sectionLabel ?? "", input.payToken));
   const payUrl = input.snapshotTotal > 0 && origin ? origin.toString() : "";
   const studentName = `${input.studentFirstName} ${input.studentLastName}`.trim();
   const sectionName =

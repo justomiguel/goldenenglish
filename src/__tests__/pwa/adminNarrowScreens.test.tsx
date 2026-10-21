@@ -66,6 +66,15 @@ const userRow: AdminUserRow = {
 describe("admin narrow screens", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    HTMLDialogElement.prototype.showModal = function showModal() {
+      this.setAttribute("open", "");
+    };
+    HTMLDialogElement.prototype.show = function show() {
+      this.setAttribute("open", "");
+    };
+    HTMLDialogElement.prototype.close = function close() {
+      this.removeAttribute("open");
+    };
   });
 
   it("AdminRegistrationsScreenNarrow renders list and sort controls", async () => {
@@ -91,10 +100,12 @@ describe("admin narrow screens", () => {
       />,
     );
     expect(screen.getByText("B A")).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: new RegExp(dictEn.admin.registrations.mobileSortButton.replace("{{field}}", ".*")) }),
+    );
     const nameSort = screen.getByRole("button", {
-      name: new RegExp(`^${dictEn.admin.registrations.name}`),
+      name: new RegExp(dictEn.admin.registrations.name),
     });
-    await user.click(nameSort);
     await user.click(nameSort);
   });
 
@@ -118,9 +129,14 @@ describe("admin narrow screens", () => {
         surface="pwa-mobile"
       />,
     );
-    expect(screen.getByText("u@x.co")).toBeInTheDocument();
+    expect(screen.getByText(/u@x.co/)).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", {
+        name: new RegExp(dictEn.admin.users.mobileSortButton.replace("{{field}}", ".*")),
+      }),
+    );
     const emailSort = screen.getByRole("button", {
-      name: new RegExp(`^${dictEn.admin.users.colEmail}`),
+      name: dictEn.admin.users.colEmail,
     });
     await user.click(emailSort);
   });

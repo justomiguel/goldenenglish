@@ -6,9 +6,9 @@ import type { AdminUsersListRoleCounts } from "@/lib/dashboard/loadAdminUsersLis
 import type { AppSurface } from "@/hooks/useAppSurface";
 import type { AdminUserRow, SortKey, SortDir } from "@/lib/dashboard/adminUsersTableHelpers";
 import { useAdminUsersTable } from "@/hooks/useAdminUsersTable";
-import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
-import { AdminUsersToolbar } from "@/components/dashboard/AdminUsersToolbar";
+import { useRouter } from "next/navigation";
 import { AdminUsersPwaList } from "@/components/pwa/molecules/AdminUsersPwaList";
+import { AdminUsersMobileToolbar } from "@/components/pwa/molecules/AdminUsersMobileToolbar";
 import { DeleteUsersConfirmModal } from "@/components/dashboard/DeleteUsersConfirmModal";
 import { InfoNoticeModal } from "@/components/molecules/InfoNoticeModal";
 import { AdminUsersExportModal } from "@/components/molecules/AdminUsersExportModal";
@@ -21,7 +21,6 @@ import {
   bindDirectoryFilterClear,
   parentComposeFilterQuery,
 } from "@/lib/dashboard/adminDirectoryToolbarBind";
-import { useRouter } from "next/navigation";
 
 type UserLabels = Dictionary["admin"]["users"];
 type TableLabels = Dictionary["admin"]["table"];
@@ -53,7 +52,7 @@ export function AdminUsersScreenNarrow({
   pageSize,
   searchQuery,
   roleFilter,
-  roleCounts,
+  roleCounts: _roleCounts,
   sortKey,
   sortDir,
   locale,
@@ -65,6 +64,7 @@ export function AdminUsersScreenNarrow({
   parentsDirectory,
   directoryFilters,
 }: AdminUsersScreenNarrowProps) {
+  void surface;
   const [exportOpen, setExportOpen] = useState(false);
   const router = useRouter();
   const u = useAdminUsersTable({
@@ -82,52 +82,33 @@ export function AdminUsersScreenNarrow({
   });
 
   return (
-    <PwaPageShell surface={surface}>
-      <div className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
-        <div className="mx-auto max-w-[var(--layout-max-width)] space-y-4 py-2">
+    <div className="mx-auto max-w-[var(--layout-max-width)] space-y-3">
           <AdminUsersPwaList
             locale={locale}
             toolbar={
-              <AdminUsersToolbar
+              <AdminUsersMobileToolbar
                 labels={labels}
                 query={u.query}
                 onQueryChange={u.setQuery}
-                roleCounts={roleCounts}
-                roleFilter={u.roleFilter}
-                onRoleFilterChange={u.setRoleFilter}
                 totalCount={totalCount}
-                filteredCount={totalCount}
-                selectedCount={u.selectedDeletable.length}
-                onDeleteSelected={u.onDeleteSelected}
-                allVisibleSelected={u.allVisibleSelected}
-                onToggleSelectAllFiltered={u.toggleSelectAllVisible}
-                deleteDisabled={u.deleteDisabled}
-                selectAllFilteredDisabled={u.selectAllFilteredDisabled}
-                onExportUsers={() => setExportOpen(true)}
+                sortKey={u.sortKey}
+                sortDir={u.sortDir}
+                onToggleSort={u.toggleSort}
                 lockRole={lockRole}
+                allVisibleSelected={u.allVisibleSelected}
+                onToggleSelectAllVisible={u.toggleSelectAllVisible}
+                selectAllDisabled={u.selectAllFilteredDisabled}
+                onExportUsers={() => setExportOpen(true)}
                 directoryFilters={
                   directoryFilters
                     ? {
-                        ...directoryFilters,
+                        role: directoryFilters.role,
+                        labels: directoryFilters.labels,
+                        values: directoryFilters.values,
+                        facets: directoryFilters.facets,
+                        sectionOptions: directoryFilters.sectionOptions,
                         onChange: bindDirectoryFilterChange(u.replaceParams),
                         onClear: bindDirectoryFilterClear(u.replaceParams),
-                      }
-                    : undefined
-                }
-                parentsChrome={
-                  parentsDirectory
-                    ? {
-                        labels: parentsDirectory.labels,
-                        onInvite: () => {
-                          void parentsDirectory.onInvite(u.selectedIdsList);
-                        },
-                        onCompose: () => {
-                          const ids = u.selectedIdsList;
-                          const qs = ids.length
-                            ? `ids=${ids.join(",")}`
-                            : parentComposeFilterQuery(u.query, directoryFilters?.values ?? {});
-                          router.push(`/${locale}/dashboard/admin/parents/compose?${qs}`);
-                        },
                       }
                     : undefined
                 }
@@ -156,6 +137,20 @@ export function AdminUsersScreenNarrow({
               onPageChange: u.setPage,
             }}
             lockRole={lockRole}
+            onDeleteSelected={u.onDeleteSelected}
+            deleteDisabled={u.deleteDisabled}
+            onBulkMail={
+              parentsDirectory
+                ? () => {
+                    const ids = u.selectedIdsList;
+                    const qs = ids.length
+                      ? `ids=${ids.join(",")}`
+                      : parentComposeFilterQuery(u.query, directoryFilters?.values ?? {});
+                    router.push(`/${locale}/dashboard/admin/parents/compose?${qs}`);
+                  }
+                : undefined
+            }
+            bulkMailLabel={parentsDirectory?.labels.compose}
           />
 
           <DeleteUsersConfirmModal
@@ -203,8 +198,6 @@ export function AdminUsersScreenNarrow({
               roleFilter={u.roleFilter}
             />
           ) : null}
-        </div>
-      </div>
-    </PwaPageShell>
+    </div>
   );
 }

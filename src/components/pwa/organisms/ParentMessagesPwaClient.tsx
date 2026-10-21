@@ -1,17 +1,15 @@
 "use client";
 
-import { PenLine } from "lucide-react";
-import { useId, useState } from "react";
-import { Modal } from "@/components/atoms/Modal";
-import { PortalComposeExpandableFab } from "@/components/pwa/molecules/PortalComposeExpandableFab";
+import { useState } from "react";
+import { ParentMessageReplyForm } from "@/components/parent/ParentMessageReplyForm";
 import { ParentMessagesComposeForm } from "@/components/parent/ParentMessagesComposeForm";
 import {
   ParentMessagesFeed,
   type ParentMessageLineDto,
+  type ParentReplyTarget,
 } from "@/components/parent/ParentMessagesFeed";
 import type { Dictionary } from "@/types/i18n";
 import type { MessagingRecipient } from "@/types/messaging";
-import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 export interface ParentMessagesPwaClientProps {
   locale: string;
@@ -25,10 +23,12 @@ export interface ParentMessagesPwaClientProps {
   defaultRecipientId?: string;
 }
 
+const composerClass = "space-y-3";
+
 export function ParentMessagesPwaClient({
   locale,
-  title,
-  lead,
+  title: _title,
+  lead: _lead,
   initialLines = [],
   recipients,
   teacherComposeAvailable,
@@ -36,35 +36,34 @@ export function ParentMessagesPwaClient({
   labels,
   defaultRecipientId,
 }: ParentMessagesPwaClientProps) {
-  const titleId = useId();
+  void _title;
+  void _lead;
   const canComposeAny = teacherComposeAvailable || administrationComposeAvailable;
-  const [composeOpen, setComposeOpen] = useState(
-    () => Boolean(defaultRecipientId && teacherComposeAvailable),
-  );
+  const [replyTarget, setReplyTarget] = useState<ParentReplyTarget | null>(null);
 
   return (
-    <div className="space-y-4 pb-6">
-      <AdminPageHeader title={title} lead={lead} iconId="messages" artFamily="parent" />
-
-      <ParentMessagesFeed rows={initialLines} labels={labels} />
-
-      {canComposeAny ? (
-        <PortalComposeExpandableFab
-          label={labels.messagesWriteCta}
-          Icon={PenLine}
-          onClick={() => setComposeOpen(true)}
+    <div className="flex min-h-[70dvh] flex-col">
+      <div className="min-h-0 flex-1 pb-3">
+        <ParentMessagesFeed
+          rows={initialLines}
+          labels={labels}
+          layout="thread"
+          onReply={setReplyTarget}
         />
-      ) : null}
+      </div>
 
-      <Modal
-        open={composeOpen}
-        onOpenChange={setComposeOpen}
-        titleId={titleId}
-        title={labels.messagesComposeTitle}
-        dialogClassName="sm:max-w-lg"
-        stackClassName="z-[120]"
-      >
-        <div className="max-h-[min(70dvh,32rem)] overflow-y-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-1">
+      <div className="sticky bottom-[calc(4.5rem+max(0.5rem,env(safe-area-inset-bottom,0px)))] z-20 border-t border-[var(--color-border)] bg-[var(--color-background)] px-1 pt-3">
+        {replyTarget ? (
+          <ParentMessageReplyForm
+            locale={locale}
+            target={replyTarget}
+            labels={labels}
+            onCancel={() => setReplyTarget(null)}
+            onSentSuccess={() => setReplyTarget(null)}
+            showHeading={false}
+            className={composerClass}
+          />
+        ) : canComposeAny ? (
           <ParentMessagesComposeForm
             locale={locale}
             recipients={recipients}
@@ -72,12 +71,11 @@ export function ParentMessagesPwaClient({
             administrationComposeAvailable={administrationComposeAvailable}
             labels={labels}
             defaultRecipientId={defaultRecipientId}
-            onSentSuccess={() => setComposeOpen(false)}
             showHeading={false}
-            className="space-y-4"
+            className={composerClass}
           />
-        </div>
-      </Modal>
+        ) : null}
+      </div>
     </div>
   );
 }

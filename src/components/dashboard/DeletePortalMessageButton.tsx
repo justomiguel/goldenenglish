@@ -15,6 +15,8 @@ interface DeletePortalMessageButtonProps {
   confirmSnippet?: string;
   navigateAfterDelete: "messages-list" | "refresh";
   messagesListHref?: string;
+  /** List rows keep the word from `sm` up. The name stays on the button. */
+  iconOnlyBelowSm?: boolean;
 }
 
 export function DeletePortalMessageButton({
@@ -24,6 +26,7 @@ export function DeletePortalMessageButton({
   confirmSnippet,
   navigateAfterDelete,
   messagesListHref,
+  iconOnlyBelowSm = false,
 }: DeletePortalMessageButtonProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -55,15 +58,20 @@ export function DeletePortalMessageButton({
       <Button
         type="button"
         variant="destructive"
-        className="min-h-[44px]"
+        className={iconOnlyBelowSm ? "min-h-[44px] min-w-[44px] px-2.5 sm:px-4" : "min-h-[44px]"}
         title={labels.deletePortalMessageTitle}
+        aria-label={labels.deletePortalMessageAction}
         onClick={() => {
           setModalError(null);
           setOpen(true);
         }}
       >
         <Trash2 className="h-4 w-4 shrink-0" aria-hidden />
-        {labels.deletePortalMessageAction}
+        {iconOnlyBelowSm ? (
+          <span className="hidden sm:inline">{labels.deletePortalMessageAction}</span>
+        ) : (
+          labels.deletePortalMessageAction
+        )}
       </Button>
       <ConfirmActionModal
         open={open}

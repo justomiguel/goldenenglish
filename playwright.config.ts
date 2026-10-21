@@ -266,6 +266,15 @@ export default defineConfig({
       },
     },
     {
+      name: "chromium-critical-event-duplicate-and-code",
+      dependencies: ["setup"],
+      testMatch: /critical-event-duplicate-and-code\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: paths.storageState,
+      },
+    },
+    {
       name: "chromium-critical-event-attendee-remove",
       dependencies: ["setup"],
       testMatch: /critical-event-attendee-remove\.spec\.ts/,

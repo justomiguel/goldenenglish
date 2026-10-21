@@ -70,8 +70,11 @@ export function AdminPortalMessageDetailView({
     <article className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
       <div className="h-1 bg-[var(--color-primary)]/55" aria-hidden />
 
-      <div className="space-y-8 p-6 md:p-8">
-        <header className="border-b border-[var(--color-border)]/70 pb-6">
+      <div className="space-y-8 p-4 md:p-8">
+        <p className="text-sm font-medium text-[var(--color-foreground)] md:hidden">
+          {detail.fromName} → {detail.toName} · {formatSentAt(detail.createdAt, locale)}
+        </p>
+        <header className="hidden border-b border-[var(--color-border)]/70 pb-6 md:block">
           <div className="flex min-w-0 flex-wrap items-center gap-2 text-sm text-[var(--color-muted-foreground)]">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[calc(var(--layout-border-radius)-2px)] bg-[var(--color-muted)]/40 text-[var(--color-primary)]">
               <CalendarClock className="h-4 w-4" aria-hidden />
@@ -87,7 +90,7 @@ export function AdminPortalMessageDetailView({
         </header>
 
         <div
-          className="flex flex-col gap-4 sm:flex-row sm:items-stretch sm:gap-5"
+          className="hidden flex-col gap-4 md:flex md:flex-row md:items-stretch md:gap-5"
           data-tour={ADMIN_TOUR_ANCHORS.messagesDetailParticipants}
         >
           <div className="min-w-0 flex-1">

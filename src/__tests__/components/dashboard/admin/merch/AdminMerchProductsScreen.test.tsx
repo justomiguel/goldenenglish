@@ -46,7 +46,8 @@ const hoodieRow = {
 describe("AdminMerchProductsScreen", () => {
   it("renders the catalog header and empty state", () => {
     render(
-      <AdminMerchProductsScreen locale="en" initialRows={[]} labels={dictEn.admin.merch} />,
+      <AdminMerchProductsScreen locale="en" initialRows={[]} labels={dictEn.admin.merch}
+        fileUploadProgress={dictEn.common.fileUpload} />,
     );
     expect(screen.getByRole("heading", { name: dictEn.admin.merch.title })).toBeInTheDocument();
     expect(screen.getByText(dictEn.admin.merch.none)).toBeInTheDocument();
@@ -58,7 +59,8 @@ describe("AdminMerchProductsScreen", () => {
     vi.mocked(upsertShopVariant).mockResolvedValue({ ok: true, id: VARIANT_ID });
     const user = userEvent.setup();
     render(
-      <AdminMerchProductsScreen locale="en" initialRows={[hoodieRow]} labels={dictEn.admin.merch} />,
+      <AdminMerchProductsScreen locale="en" initialRows={[hoodieRow]} labels={dictEn.admin.merch}
+        fileUploadProgress={dictEn.common.fileUpload} />,
     );
     await user.click(screen.getByRole("button", { name: dictEn.admin.merch.editCta }));
     const row = screen.getByText(/HOODIE-M-NAVY/).closest("li");
@@ -96,6 +98,7 @@ describe("AdminMerchProductsScreen", () => {
           },
         ]}
         labels={dictEn.admin.merch}
+        fileUploadProgress={dictEn.common.fileUpload}
       />,
     );
     await user.click(screen.getByRole("button", { name: dictEn.admin.merch.editCta }));
@@ -116,7 +119,8 @@ describe("AdminMerchProductsScreen", () => {
   it("uses distinct field ids for create and edit product forms", async () => {
     const user = userEvent.setup();
     render(
-      <AdminMerchProductsScreen locale="en" initialRows={[hoodieRow]} labels={dictEn.admin.merch} />,
+      <AdminMerchProductsScreen locale="en" initialRows={[hoodieRow]} labels={dictEn.admin.merch}
+        fileUploadProgress={dictEn.common.fileUpload} />,
     );
     await user.click(screen.getByRole("button", { name: dictEn.admin.merch.editCta }));
     expect(document.getElementById("create-merch-title")).toBeTruthy();

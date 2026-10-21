@@ -39,4 +39,5 @@ export interface AdminRegistrationsTableDesktopProps {
   userLabels: RegistrationAcceptUserLabels;
   currentCohortSections?: CurrentCohortSection[];
   currentCohortName?: string;
+  usesCefrLevel?: boolean;
 }

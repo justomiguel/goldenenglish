@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import { Label } from "@/components/atoms/Label";
 import { AcademicContentEditor } from "@/components/admin/AcademicContentEditor";
 import { performEventMediaFileUpload } from "@/components/dashboard/admin/events/performEventMediaFileUpload";
-import { eventMediaPublicUrl } from "@/lib/events/eventMedia";
+import { TrackedFileUploadModal } from "@/components/molecules/TrackedFileUploadModal";
+import { useTrackedFileUpload } from "@/hooks/useTrackedFileUpload";
 import type { BlogEditorMediaAttachConfig } from "@/lib/blog/blogEditorMediaAttach";
 import type { MediaSyncToAllLocalesPayload } from "@/lib/learning-content/insertAcademicEditorMedia";
 import { validateLearningTaskFile } from "@/lib/learning-tasks/assets";
+import { eventMediaPublicUrl } from "@/lib/events/eventMedia";
 import { readSupabasePublicEnv } from "@/lib/supabase/publicEnv";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { Dictionary } from "@/types/i18n";
 
 type EditorLabels = Dictionary["admin"]["cms"]["blog"]["editor"];
@@ -18,6 +20,7 @@ interface EventDescriptionEditorProps {
   descriptionLabel: string;
   editorLabels: EditorLabels;
   academicLabels: AcademicLabels;
+  fileUploadProgress: FileUploadProgressLabels;
   eventId?: string;
   descriptionHtml: string;
   onDescriptionHtmlChange: (html: string) => void;
@@ -30,6 +33,7 @@ export function EventDescriptionEditor({
   descriptionLabel,
   editorLabels,
   academicLabels,
+  fileUploadProgress,
   eventId,
   descriptionHtml,
   onDescriptionHtmlChange,
@@ -37,39 +41,38 @@ export function EventDescriptionEditor({
   onError,
   disabled,
 }: EventDescriptionEditorProps) {
-  const [isUploading, setIsUploading] = useState(false);
+  const { snapshot, isUploading, uploadFiles } = useTrackedFileUpload();
 
   const mediaUrl = (storagePath: string) =>
     eventMediaPublicUrl(readSupabasePublicEnv().url, storagePath);
 
-  const uploadMediaFile = async (file: File) => {
-    const validation = validateLearningTaskFile(file);
-    if (!validation.ok) {
-      onError?.(editorLabels.fileError);
-      return null;
-    }
-    setIsUploading(true);
-    onError?.(null);
-    try {
-      const uploaded = await performEventMediaFileUpload(file, eventId);
+  const uploadMediaFiles = async (files: File[]) => {
+    return uploadFiles(files, async (file, onProgress) => {
+      if (!validateLearningTaskFile(file).ok) {
+        onError?.(editorLabels.fileError);
+        return null;
+      }
+      onError?.(null);
+      const uploaded = await performEventMediaFileUpload(file, eventId, onProgress);
       if (!uploaded) {
         onError?.(editorLabels.fileError);
         return null;
       }
-      const label = file.name.replace(/\.[^.]+$/, "");
       return {
         src: mediaUrl(uploaded.storagePath),
-        label,
+        label: file.name.replace(/\.[^.]+$/, ""),
         contentType: file.type,
       };
-    } finally {
-      setIsUploading(false);
-    }
+    });
   };
 
   const mediaAttach: BlogEditorMediaAttachConfig = {
     labels: editorLabels.attach,
-    onMediaFileUpload: uploadMediaFile,
+    onMediaFileUpload: async (file) => {
+      const [uploaded] = await uploadMediaFiles([file]);
+      return uploaded ?? null;
+    },
+    onMediaFilesUpload: uploadMediaFiles,
   };
 
   return (
@@ -79,15 +82,22 @@ export function EventDescriptionEditor({
         value={descriptionHtml}
         onChange={onDescriptionHtmlChange}
         onImageUpload={async (file) => {
-          const uploaded = await uploadMediaFile(file);
+          const [uploaded] = await uploadMediaFiles([file]);
           if (!uploaded) return null;
           return { src: uploaded.src, alt: uploaded.label };
+        }}
+        onImagesUpload={async (files) => {
+          const uploadedList = await uploadMediaFiles(files);
+          return uploadedList.map((uploaded) =>
+            uploaded ? { src: uploaded.src, alt: uploaded.label } : null,
+          );
         }}
         labels={academicLabels}
         disabled={disabled || isUploading}
         mediaAttach={mediaAttach}
         syncMediaToAllLocales={syncMediaToAllLocales}
       />
+      <TrackedFileUploadModal snapshot={snapshot} labels={fileUploadProgress} />
     </div>
   );
 }

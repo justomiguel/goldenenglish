@@ -6,7 +6,6 @@ import { AdminRegistrationDeleteModal } from "@/components/dashboard/AdminRegist
 import { AdminRegistrationEditModal } from "@/components/dashboard/AdminRegistrationEditModal";
 import { RegistrationListToolbar } from "@/components/molecules/RegistrationListToolbar";
 import { AdminRegistrationsPwaList } from "@/components/pwa/molecules/AdminRegistrationsPwaList";
-import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import {
   useAdminRegistrationsList,
   type RegistrationStatusFilter,
@@ -46,6 +45,7 @@ interface AdminRegistrationsScreenNarrowProps {
   surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">;
   currentCohortSections?: CurrentCohortSection[];
   currentCohortName?: string;
+  usesCefrLevel?: boolean;
 }
 
 export function AdminRegistrationsScreenNarrow({
@@ -70,7 +70,9 @@ export function AdminRegistrationsScreenNarrow({
   surface,
   currentCohortSections,
   currentCohortName,
+  usesCefrLevel = false,
 }: AdminRegistrationsScreenNarrowProps) {
+  void surface;
   const u = useAdminRegistrationsList({
     locale,
     rows,
@@ -86,9 +88,7 @@ export function AdminRegistrationsScreenNarrow({
   });
 
   return (
-    <PwaPageShell surface={surface}>
-      <div className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
-        <div className="mx-auto max-w-[var(--layout-max-width)] space-y-4 py-2">
+    <div className="mx-auto max-w-[var(--layout-max-width)] space-y-3">
           {u.toast ? (
             <p
               className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/40 px-4 py-3 text-sm"
@@ -187,9 +187,8 @@ export function AdminRegistrationsScreenNarrow({
               u.refreshList();
             }}
             labels={labels}
+            usesCefrLevel={usesCefrLevel}
           />
-        </div>
-      </div>
-    </PwaPageShell>
+    </div>
   );
 }

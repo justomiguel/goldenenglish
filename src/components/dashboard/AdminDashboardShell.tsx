@@ -8,6 +8,9 @@ import { AdminInstituteTrail } from "@/components/dashboard/AdminInstituteTrail"
 import { ViewAsEndedNotice } from "@/components/dashboard/ViewAsEndedNotice";
 import { AdminEmailSendFailureBanner } from "@/components/dashboard/AdminEmailSendFailureBanner";
 import { AdminStackableTableLabels } from "@/components/dashboard/AdminStackableTableLabels";
+import { AdminMainScrollArea } from "@/components/dashboard/AdminMainScrollArea";
+import { AdminMobileShellProvider } from "@/components/dashboard/AdminMobileShellContext";
+import { AdminPwaTabBar } from "@/components/dashboard/AdminPwaTabBar";
 
 interface AdminDashboardShellProps {
   locale: string;
@@ -54,6 +57,7 @@ export function AdminDashboardShell({
   const navDict = dict.dashboard.adminNav;
 
   return (
+    <AdminMobileShellProvider>
     <div className="flex h-dvh max-h-dvh overflow-hidden bg-[var(--color-muted)]">
       {siteSetupRequired ? null : (
         <AdminSidebar
@@ -101,21 +105,32 @@ export function AdminDashboardShell({
         />
         <div
           data-admin-main
-          className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto px-safe pb-safe pt-5 md:px-8 md:py-5"
+          className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto px-3 pt-2.5 pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:px-8 md:py-5"
         >
-          {siteSetupRequired ? null : (
-            <AdminInstituteTrail locale={locale} dict={navDict} />
-          )}
-          <Suspense fallback={null}>
-            <ViewAsEndedNotice dict={dict} />
-          </Suspense>
-          {emailSendFailure && !siteSetupRequired ? (
-            <AdminEmailSendFailureBanner locale={locale} labels={dict.admin.settings} />
-          ) : null}
-          {children}
-          <AdminStackableTableLabels />
+          <AdminMainScrollArea copy={dict.pwa.pullToRefresh}>
+            {siteSetupRequired ? null : (
+              <AdminInstituteTrail locale={locale} dict={navDict} />
+            )}
+            <Suspense fallback={null}>
+              <ViewAsEndedNotice dict={dict} />
+            </Suspense>
+            {emailSendFailure && !siteSetupRequired ? (
+              <AdminEmailSendFailureBanner locale={locale} labels={dict.admin.settings} />
+            ) : null}
+            {children}
+            <AdminStackableTableLabels />
+          </AdminMainScrollArea>
         </div>
       </div>
+      {siteSetupRequired ? null : (
+        <AdminPwaTabBar
+          locale={locale}
+          dict={navDict}
+          newRegistrationsCount={newRegistrationsCount}
+          recentInboundMessagesCount={recentInboundMessagesCount}
+        />
+      )}
     </div>
+    </AdminMobileShellProvider>
   );
 }

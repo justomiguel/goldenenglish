@@ -46,7 +46,7 @@ export function AdminChromeHeader({
       className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-surface)]/95 shadow-[var(--shadow-soft)] backdrop-blur-md"
       aria-label={labels.ariaHeader}
     >
-      <div className="flex items-center justify-between gap-2 px-safe pb-3 pt-safe md:gap-4 md:px-8 md:py-4">
+      <div className="flex items-center justify-between gap-1.5 px-safe pb-2 pt-safe md:gap-4 md:px-8 md:py-4">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           {mobileNav}
           {compactBrand ? (

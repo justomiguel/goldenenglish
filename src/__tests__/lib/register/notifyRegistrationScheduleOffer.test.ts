@@ -56,7 +56,7 @@ describe("notifyRegistrationScheduleOffer", () => {
       }),
     );
     const vars = sendBrandedEmail.mock.calls[0][0].vars as Record<string, string>;
-    expect(vars.payBlock).toContain("https://portal.example.com/en/matricula/tok-1");
+    expect(vars.payBlock).toContain("https://portal.example.com/en/matricula/pago/tok-1");
     expect(vars.payBlock).toContain("View the offer");
   });
 

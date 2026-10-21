@@ -29,7 +29,7 @@ describe("buildSectionEnrollmentLinkShareMetadata", () => {
     });
     expect(meta.title).toBe("Kids A1 · Instituto");
     expect(meta.description).toBe("Ciclo 2026 · Lun 18:00–19:30, Mié 09:00–10:00");
-    expect(meta.path).toBe("/es/i/kids-a1/3f2504e0-4f89-41d3-9a0c-0305e82c3301");
+    expect(meta.path).toBe("/es/inscripcion/kids-a1/3f2504e0-4f89-41d3-9a0c-0305e82c3301");
     expect(meta.description).not.toMatch(/cupo|seat/i);
     expect(meta.coverImageUrl).toBe("https://cdn.example/sec.jpg");
   });
@@ -47,6 +47,6 @@ describe("buildSectionEnrollmentLinkShareMetadata", () => {
     });
     expect(meta.description).toBe("");
     expect(meta.coverImageUrl).toBe(SECTION_SHARE_FALLBACK_PATH);
-    expect(meta.path).toBe("/es/i/kids-a1/3f2504e0-4f89-41d3-9a0c-0305e82c3301");
+    expect(meta.path).toBe("/es/inscripcion/kids-a1/3f2504e0-4f89-41d3-9a0c-0305e82c3301");
   });
 });

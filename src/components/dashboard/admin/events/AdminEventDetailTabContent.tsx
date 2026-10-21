@@ -3,6 +3,7 @@ import { AdminEventNotificationsPanel } from "@/components/dashboard/admin/event
 import { EventFormFieldsEditor } from "@/components/dashboard/admin/events/EventFormFieldsEditor";
 import { AdminEventDetailSummaryTab } from "@/components/dashboard/admin/events/AdminEventDetailSummaryTab";
 import { AdminEventDetailPaymentsTab } from "@/components/dashboard/admin/events/AdminEventDetailPaymentsTab";
+import { AdminEventDiscountCodesPanel } from "@/components/dashboard/admin/events/AdminEventDiscountCodesPanel";
 import type { EventAdminTab } from "@/components/dashboard/admin/events/AdminEventDetailTabs";
 import type { EventLocale } from "@/lib/events/domain";
 import type { Dictionary } from "@/types/i18n";
@@ -57,6 +58,7 @@ export function AdminEventDetailTabContent({
         }))}
         nextFieldPosition={model.nextFieldPosition}
         eventPublished={String(model.event.status) === "published"}
+        eventSlug={String(model.event.slug ?? "")}
         labels={{
           pageLead: formLabels.lead,
           previewButton: formLabels.previewButton,
@@ -208,6 +210,12 @@ export function AdminEventDetailTabContent({
 
   if (tab === "payments") {
     return <AdminEventDetailPaymentsTab locale={locale} eventId={eventId} model={model} dict={dict} />;
+  }
+
+  if (tab === "codes") {
+    return (
+      <AdminEventDiscountCodesPanel locale={locale} eventId={eventId} rows={model.discountCodes} usesTruncated={model.discountCodeUsesTruncated} labels={detail.codes} />
+    );
   }
 
   if (tab === "waitlist") {

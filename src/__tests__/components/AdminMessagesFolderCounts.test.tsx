@@ -15,7 +15,9 @@ describe("AdminMessagesFolderCounts", () => {
       />,
     );
 
-    expect(screen.getByLabelText(en.admin.messages.countsSummaryAria)).toBeInTheDocument();
+    const summary = screen.getByLabelText(en.admin.messages.countsSummaryAria);
+    expect(summary.className).toContain("overflow-x-auto");
+    expect(summary.className).toContain("sm:grid");
     expect(screen.getAllByText(en.admin.messages.countsReceivedLabel)).toHaveLength(1);
     expect(screen.getByText(en.admin.messages.countsUnreadLabel)).toBeInTheDocument();
     expect(screen.getByText(en.admin.messages.countsNeedsReplyLabel)).toBeInTheDocument();

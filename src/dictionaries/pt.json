@@ -94,7 +94,11 @@
       "liora": {
         "shareContext": "Balé para todas as idades em Santiago: Pré Balé, infantil, juvenil e adulto em três unidades próximas ao metrô."
       }
-    }
+    },
+    "homeFallback": "Aulas, horários e como participar.",
+    "matriculaDescription": "Pagamento de matrícula desta turma.",
+    "shopOrderDescription": "Estado do pedido deste produto.",
+    "unavailableDescription": "Este link não está disponível."
   },
   "publicStudentBadge": {
     "title": "Conquista",
@@ -1678,6 +1682,76 @@
           "linkAria": "{{count}} alunos precisam de uma seção atribuída. Abra a lista de usuários."
         }
       },
+      "layout": {
+        "arrange": "Editar",
+        "done": "Pronto",
+        "cancel": "Cancelar",
+        "cardMenuAria": "Opções de {{name}}",
+        "sizeSmall": "Pequena",
+        "sizeMedium": "Média",
+        "sizeLarge": "Grande",
+        "sizeRow": "Linha",
+        "sizeSection": "Tamanho",
+        "orderSection": "Mover",
+        "sizeLocked": "Este cartão não pode ser menor.",
+        "sizeLockedTraffic": "O gráfico precisa de um cartão largo. Pequeno e Médio ficam desligados.",
+        "sizeLockedCollections": "Estes números precisam de pelo menos um cartão médio. Pequeno fica desligado.",
+        "moveUp": "Subir",
+        "moveDown": "Descer",
+        "hide": "Ocultar",
+        "show": "Mostrar",
+        "hiddenTitle": "Ocultos",
+        "addTitle": "Cartões",
+        "sizeOnLargeScreen": "O tamanho vale em uma tela grande. No telefone, cada cartão usa a largura toda.",
+        "presetOperations": "Operação",
+        "presetPeople": "Pessoas",
+        "presetCompact": "Compacto",
+        "presetReset": "Voltar ao início",
+        "presetsTitle": "Modelos",
+        "presetOperationsHint": "Pagamentos fica grande e vem primeiro.",
+        "presetPeopleHint": "Aniversários fica grande e vem primeiro.",
+        "presetCompactHint": "Os cartões ficam pequenos. Os atalhos ficam ocultos.",
+        "presetResetHint": "Volta à ordem de fábrica.",
+        "dragHandleAria": "Mover {{name}}",
+        "resizeHandleAria": "Mudar o tamanho de {{name}}",
+        "saveError": "Não foi possível salvar o início.",
+        "widgets": {
+          "checklist": "Pronta para a primeira aula",
+          "studentsWithoutSection": "Alunos sem seção",
+          "peoplePulseTitle": "Pulso dos alunos",
+          "peoplePulseNew": "Novos em 30 dias",
+          "peoplePulseNever": "Nunca entraram",
+          "collectionsTitle": "Cobranças",
+          "collectionsEmpty": "Não há uma turma atual.",
+          "collectionsPaid": "Recebido",
+          "collectionsPending": "Pendente de revisão",
+          "collectionsOverdue": "Vencido",
+          "eventsTitle": "Próximos eventos",
+          "eventsEmpty": "Não há eventos próximos.",
+          "eventsSeats": "{{count}} lugares",
+          "shopTitle": "Pedidos da loja",
+          "shopOpen": "Pedidos abertos",
+          "shopEmpty": "Não há pedidos abertos.",
+          "changelogTitle": "Novidades",
+          "changelogEmpty": "Não há mudanças recentes.",
+          "about": {
+            "checklist": "Passos que ainda faltam antes da primeira aula.",
+            "studentsWithoutSection": "Alunos que ainda precisam de uma turma.",
+            "payments": "Comprovantes que esperam a sua aprovação.",
+            "registrations": "Pedidos do formulário para aceitar ou recusar.",
+            "messages": "Conversas recentes com a equipe.",
+            "people": "Contas, papéis e perfis.",
+            "birthdays": "Pessoas com um aniversário próximo.",
+            "peoplePulse": "Alunos novos e pessoas que nunca entraram.",
+            "collections": "Recebido, pendente e vencido da turma atual.",
+            "upcomingEvents": "Os próximos eventos publicados e as vagas.",
+            "traffic": "Visitas ao site nos últimos 30 dias.",
+            "shopOrders": "Pedidos abertos da loja.",
+            "changelog": "Mudanças recentes do sistema.",
+            "shortcuts": "Atalhos para criar um evento, uma promoção ou uma nota."
+          }
+        }
+      },
       "firstClassChecklist": {
         "title": "Pronta para a primeira aula",
         "lead": "Conclua estes passos para dar aula e cobrar.",
@@ -2440,6 +2514,14 @@
     "users": {
       "listTitle": "Usuários",
       "listLead": "Contas do portal em seu projeto.",
+      "mobileSortButton": "Ordenar: {{field}}",
+      "mobileFilterSortTitle": "Filtrar e ordenar",
+      "mobileSortSectionTitle": "Ordenar lista por",
+      "mobileSortAsc": "Ascendente (A–Z / menor para maior)",
+      "mobileSortDesc": "Descendente (Z–A / maior para menor)",
+      "mobileApplyFilters": "Ver resultados",
+      "mobileClearSelection": "Limpar seleção",
+      "mobileSelectedCount": "{{count}} selecionados",
       "emptyList": "Nenhum usuário para mostrar.",
       "noFilterResults": "Nenhuma linha corresponde ao filtro atual.",
       "filterLabel": "Procurar",
@@ -4041,6 +4123,10 @@
     },
     "registrations": {
       "title": "Inscrições online",
+      "moreActionsAria": "Mais ações para {{name}}",
+      "mobileSortButton": "Ordenar: {{field}}",
+      "mobileSortSheetTitle": "Ordenar inscrições",
+      "whatsappCta": "WhatsApp",
       "lead": "Futuros alunos do formulário público.",
       "none": "Ainda não há inscrições",
       "filterLabel": "Procurar",
@@ -4055,6 +4141,9 @@
       "phone": "Telefone",
       "birthDate": "Data de nascimento",
       "level": "Nível de interesse",
+      "sectionColumn": "Seção",
+      "filterPlaceholderSection": "Nome, e-mail, RG/RUT/passaporte, telefone, seção, status…",
+      "filterTooltipSection": "Filtra a lista no servidor. Combine palavras-chave (status ou seção) com a caixa de pesquisa.",
       "levelInterestUndecided": "Indeciso (atribuições de equipe)",
       "status": "Status",
       "received": "Recebido",
@@ -4127,6 +4216,11 @@
       "errRollbackFailed": "A inscrição falhou e a conta de aluno recém-criada não pôde ser removida. Entre em contato com o suporte com o ID da solicitação.",
       "errSaveFailed": "Não foi possível finalizar a inscrição. Tente novamente ou entre em contato com o suporte.",
       "errTutorLinkFailed": "A conta do aluno foi criada, mas não foi possível vincular o responsável. O suporte pode precisar corrigir o link.",
+      "createCta": "Nova inscrição",
+      "createTitle": "Nova inscrição",
+      "createLead": "A solicitação fica pendente. Depois você pode aceitá-la na lista.",
+      "createSave": "Adicionar inscrição",
+      "createSuccess": "Inscrição adicionada",
       "editTitle": "Editar solicitação",
       "editLead": "Você pode editar enquanto a solicitação estiver pendente, nova ou já contatada.",
       "editFirstName": "Primeiro nome",
@@ -4267,6 +4361,7 @@
         "empty": "Nenhum evento encontrado.",
         "columns": {
           "title": "Título",
+          "creator": "Criador",
           "date": "Data",
           "status": "Status",
           "capacity": "Vagas",
@@ -4290,7 +4385,87 @@
         "attendeesErrorNoEmail": "Esta inscrição não tem e-mail. Desmarque o aviso para eliminá-la mesmo assim.",
         "attendeesErrorReason": "Escreva o motivo do aviso.",
         "formTitle": "Formulário",
+        "tabs": {
+          "summary": "Resumo",
+          "form": "Formulário",
+          "attendees": "Participantes",
+          "payments": "Pagamentos",
+          "codes": "Códigos",
+          "waitlist": "Lista de espera",
+          "notifications": "Notificações"
+        },
+        "tabLeads": {
+          "summary": "Data, status, preço e publicação deste evento.",
+          "form": "Campos do formulário público e pré-visualização.",
+          "attendees": "Inscrições e estado de cada participante.",
+          "payments": "Comprovantes e estados de pagamento.",
+          "codes": "Códigos de desconto deste evento. Carregue um a um, com Excel ou com o gerador.",
+          "waitlist": "Revise e promova participantes quando houver vagas.",
+          "notifications": "E-mails e lembretes deste evento."
+        },
+        "codes": {
+          "lead": "Adicione um código, importe um Excel ou gere um lote para este evento.",
+          "code": "Código",
+          "uses": "Usos",
+          "usesHint": "Escreva um número a partir de 1, ou N se não houver limite.",
+          "percent": "Percentual",
+          "add": "Adicionar código",
+          "importFile": "Importar Excel",
+          "generate": "Gerar códigos",
+          "quantity": "Quantidade",
+          "download": "Baixar Excel",
+          "delete": "Excluir",
+          "confirmTitle": "Excluir este código?",
+          "confirmBody": "Você pode excluir um código só quando não houver usos reservados nem confirmados.",
+          "cancel": "Cancelar",
+          "unlimited": "Sem limite",
+          "empty": "Este evento ainda não tem códigos de desconto.",
+          "saved": "Códigos salvos.",
+          "error": "Não foi possível salvar os códigos. Tente de novo.",
+          "showUses": "Ver quem usou",
+          "hideUses": "Ocultar usos",
+          "noUsesYet": "Ninguém usou este código.",
+          "usesCap": "Só os últimos 500 usos aparecem.",
+          "useStatus": {
+            "reserved": "Reservado",
+            "consumed": "Confirmado",
+            "released": "Liberado"
+          },
+          "paymentStatus": {
+            "pending": "Pagamento pendente",
+            "approved": "Pagamento aprovado",
+            "rejected": "Pagamento rejeitado",
+            "none": "Sem pagamento"
+          },
+          "columns": {
+            "code": "Código",
+            "uses": "Usos",
+            "percent": "Percentual",
+            "reserved": "Reservados",
+            "consumed": "Confirmados",
+            "person": "Pessoa",
+            "email": "E-mail",
+            "use": "Uso",
+            "payment": "Pagamento"
+          },
+          "errors": {
+            "duplicate": "Esse código está repetido no arquivo. A primeira linha foi mantida.",
+            "empty_code": "Uma linha tem o código vazio.",
+            "bad_percent": "O percentual deve ser um número inteiro de 1 a 100.",
+            "bad_uses": "Os usos devem ser N ou um número inteiro a partir de 1.",
+            "cap_below_occupied": "O novo limite é menor que os usos já tomados.",
+            "empty_file": "O arquivo não tem códigos.",
+            "quantity": "A quantidade deve ser de 1 a 200.",
+            "occupied": "Este código está em uso. Você não pode excluí-lo.",
+            "forbidden": "Você não pode alterar estes códigos.",
+            "file": "Não foi possível ler esse arquivo."
+          }
+        },
         "archive": "Arquivar",
+        "duplicate": {
+          "button": "Duplicar evento",
+          "error": "Não foi possível duplicar o evento. Tente de novo."
+        },
         "draftHint": "Este evento está em rascunho e não aparece na página pública de eventos. Publique quando estiver pronto.",
         "publish": "Publicar evento",
         "publishSuccess": "Evento publicado. Agora está visível no site público.",
@@ -4598,6 +4773,16 @@
       "consent": "Aceito o uso dos meus dados para inscrição e notificações operacionais do evento.",
       "familyDiscount": "Faço parte de uma família do instituto (10% de desconto)",
       "familyDiscountPay": "Com o desconto você paga",
+      "discountCode": {
+        "label": "Código de desconto",
+        "placeholder": "Escreva o código",
+        "apply": "Aplicar",
+        "clear": "Remover código",
+        "pay": "Com este código você paga",
+        "invalid": "Este código não é válido para este evento.",
+        "noUses": "Este código não tem usos disponíveis.",
+        "conflict": "Use o desconto familiar ou um código. Você não pode usar os dois."
+      },
       "successModal": {
         "title": "Obrigado!",
         "body": "Sua inscrição foi enviada com sucesso.",
@@ -5067,6 +5252,12 @@
       "mobileSelect": "Seção",
       "mobileOpen": "Abrir menu",
       "mobileClose": "Fechar menu",
+      "pwaTabBarAria": "Navegação rápida da administração",
+      "pwaTabHome": "Início",
+      "pwaTabRegistrations": "Admissões",
+      "pwaTabFinance": "Finanças",
+      "pwaTabPeople": "Pessoas",
+      "pwaTabMore": "Mais",
       "home": "Visão geral",
       "analytics": "Análise",
       "audit": "Trilha de auditoria",
@@ -6365,6 +6556,10 @@
           "tabPayments": {
             "title": "💳 Aba Pagamentos",
             "description": "Comprovantes de transferência e estados de pagamento ligados a inscrições.\n\nAprove ou rejeite provas antes de marcar participantes como pagos."
+          },
+          "tabCodes": {
+            "title": "🎟 Códigos de desconto",
+            "description": "Carregue códigos deste evento um a um, com Excel ou com o gerador.\n\nCada código tem um limite de usos e uma percentagem. A inscrição reserva um uso."
           },
           "tabWaitlist": {
             "title": "⏳ Aba Lista de espera",
@@ -10364,6 +10559,12 @@
       "messagesNoTeachers": "Nenhum professor foi atribuído aos alunos vinculados ainda. Você ainda pode escrever para a administração.",
       "messagesNoAdministration": "O envio para a administração não está disponível no momento. Entre em contato com o instituto se precisar de ajuda.",
       "messagesWriteCta": "Escrever mensagem",
+      "messagesReply": "Responder",
+      "messagesReplyTitle": "Responder a esta mensagem",
+      "messagesReplyHeading": "Resposta para {name}",
+      "messagesReplyHint": "Esta resposta vai só para {name}.",
+      "messagesReplySend": "Enviar resposta",
+      "messagesReplyCancel": "Escrever uma mensagem nova",
       "messagesEmpty": "Nenhuma mensagem ainda.",
       "messagesSenderFallback": "Guardião",
       "messagesRoleTeacher": "Professores",
@@ -10767,6 +10968,8 @@
       "messagesYouSentTo": "Para",
       "messagesFrom": "De",
       "messagesReplyPlaceholder": "Escreva sua resposta…",
+      "messagesReply": "Responder",
+      "messagesReplyCancel": "Mensagem nova",
       "messagesSendReply": "Enviar resposta",
       "messagesNoMessages": "Nenhuma mensagem ainda.",
       "messagesReplyOk": "Resposta enviada",
@@ -10812,7 +11015,7 @@
       },
       "parent-read-reply-messages": {
         "title": "Como leio e respondo a mensagens?",
-        "description": "Abra a caixa familiar, leia mensagens do instituto e escreva uma resposta quando precisar de apoio."
+        "description": "Abra a caixa familiar. Use Responder numa mensagem de um professor ou da administração."
       },
       "parent-manage-child-or-tutor-profile": {
         "title": "Como gerencio os perfis?",
@@ -10891,7 +11094,7 @@
           },
           "feed": {
             "title": "📨 Lista de mensagens",
-            "description": "Abra um fio para ler a conversa completa.\n\nO não lido costuma aparecer no topo."
+            "description": "Cada mensagem de um professor ou da administração tem Responder.\n\nResponder envia o texto só para quem escreveu essa mensagem."
           },
           "compose": {
             "title": "✍️ Redigir",
@@ -11291,7 +11494,7 @@
           },
           "feed": {
             "title": "Lista de mensagens",
-            "description": "Abra um fio para ler a conversa completa."
+            "description": "Use Responder numa mensagem de um professor ou da administração. A resposta vai só para essa pessoa."
           },
           "compose": {
             "title": "Redigir",
@@ -11420,6 +11623,7 @@
   "blog": {
     "list": {
       "title": "Blog",
+      "metaDescription": "Histórias e notícias da academia.",
       "empty": "Em breve publicaremos artigos.",
       "readMore": "Ler mais",
       "publishedDateAria": "Data de publicação",

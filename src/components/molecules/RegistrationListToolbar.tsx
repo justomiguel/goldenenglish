@@ -107,7 +107,7 @@ export function RegistrationListToolbar({
         />
       </form>
       {inboxCounts && onInboxFilterChange ? (
-        <div className="flex flex-wrap gap-2" role="group" aria-label={labels.status}>
+        <div className="flex gap-2 overflow-x-auto pb-1 md:flex-wrap" role="group" aria-label={labels.status}>
           {(
             [
               { value: "urgent" as const, label: labels.intake.filterUrgent, count: inboxCounts.urgent },
@@ -127,7 +127,7 @@ export function RegistrationListToolbar({
                 type="button"
                 aria-pressed={active}
                 onClick={() => onInboxFilterChange(chip.value)}
-                className={`rounded-full border px-3 py-1 text-sm ${
+                className={`inline-flex min-h-10 shrink-0 items-center rounded-full border px-3.5 text-xs font-medium md:text-sm ${
                   active
                     ? "border-[var(--color-primary)]/25 bg-[color-mix(in_srgb,var(--color-primary)_8%,white)] font-semibold text-[var(--color-primary)]"
                     : "border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"
@@ -139,7 +139,7 @@ export function RegistrationListToolbar({
           })}
         </div>
       ) : statusCounts && onStatusFilterChange ? (
-        <div className="flex flex-wrap gap-2" role="group" aria-label={labels.status}>
+        <div className="flex gap-2 overflow-x-auto pb-1 md:flex-wrap" role="group" aria-label={labels.status}>
           {(
             [
               { value: undefined, label: labels.statusFilterAll, count: statusCounts.total },
@@ -162,7 +162,7 @@ export function RegistrationListToolbar({
                 type="button"
                 aria-pressed={active}
                 onClick={() => onStatusFilterChange(chip.value)}
-                className={`rounded-full border px-3 py-1 text-sm ${
+                className={`inline-flex min-h-10 shrink-0 items-center rounded-full border px-3.5 text-xs font-medium md:text-sm ${
                   active
                     ? "border-[var(--color-primary)]/25 bg-[color-mix(in_srgb,var(--color-primary)_8%,white)] font-semibold text-[var(--color-primary)]"
                     : "border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"

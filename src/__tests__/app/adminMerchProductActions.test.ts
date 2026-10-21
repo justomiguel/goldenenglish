@@ -60,12 +60,22 @@ describe("createShopProduct", () => {
     const { insert } = insertReturningId(PRODUCT_ID);
     mockAssertAdmin.mockResolvedValue({
       user: adminUser,
-      supabase: { from: vi.fn().mockReturnValue({ insert }) },
+      supabase: {
+        from: (table: string) => {
+          if (table === "shop_product_slug_aliases") {
+            return { select: () => ({ limit: async () => ({ data: [], error: null }) }) };
+          }
+          return {
+            insert,
+            select: () => ({ limit: async () => ({ data: [], error: null }) }),
+          };
+        },
+      },
     });
     const r = await createShopProduct(validProduct);
     expect(r).toEqual({ ok: true, id: PRODUCT_ID });
     expect(insert).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Hoodie", active: false }),
+      expect.objectContaining({ title: "Hoodie", slug: "hoodie", active: false }),
     );
   });
 });

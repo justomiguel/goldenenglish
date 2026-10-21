@@ -51,6 +51,14 @@ describe("markEventPaymentApprovedCore", () => {
         if (table === "event_attendees") {
           return { update: attendeeUpdate };
         }
+        if (table === "event_discount_code_redemptions") {
+          return {
+            update: (patch: { status?: string }) => {
+              expect(patch.status).toBe("consumed");
+              return { eq: () => ({ in: async () => ({ error: null }) }) };
+            },
+          };
+        }
         throw new Error(`unexpected table ${table}`);
       }),
     };
@@ -175,6 +183,9 @@ describe("markEventPaymentApprovedCore", () => {
         }
         if (table === "event_attendees") {
           return { update: attendeeUpdate };
+        }
+        if (table === "event_discount_code_redemptions") {
+          return { update: () => ({ eq: () => ({ in: async () => ({ error: null }) }) }) };
         }
         throw new Error(`unexpected table ${table}`);
       }),

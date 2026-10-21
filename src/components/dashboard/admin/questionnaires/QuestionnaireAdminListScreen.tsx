@@ -12,6 +12,7 @@ import {
   createQuestionnaireAction,
 } from "@/app/[locale]/dashboard/admin/settings/questionnaires/actions";
 import { clientAbsoluteUrl } from "@/lib/client/publicUrl";
+import { buildQuestionnaireSharePath } from "@/lib/site/publicSharePaths";
 import type { AdminQuestionnaireListRow } from "@/lib/questionnaires/loadAdminQuestionnaires";
 import type { Dictionary } from "@/types/i18n";
 
@@ -120,7 +121,7 @@ export function QuestionnaireAdminListScreen({
                         size="sm"
                         variant="ghost"
                         onClick={async () => {
-                          const url = clientAbsoluteUrl(`/${locale}/q/${row.slug}`);
+                          const url = clientAbsoluteUrl(buildQuestionnaireSharePath(locale, row.slug));
                           await navigator.clipboard.writeText(url);
                           setCopiedId(row.id);
                         }}

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { absoluteUrl } from "@/lib/site/publicUrl";
+import { buildBadgeSharePath } from "@/lib/site/publicSharePaths";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { loadStudentLearningTasks } from "@/lib/learning-tasks/loadStudentLearningTasks";
 import { loadStudentMiniTests } from "@/lib/learning-content/loadStudentMiniTests";
@@ -66,8 +67,8 @@ export default async function StudentProgressPage({ params, searchParams }: Page
     }),
     loadStudentBadgeDisplayRows(
       studentId,
-      (token) => {
-        const u = absoluteUrl(`/${locale}/b/${token}`);
+      (token, title) => {
+        const u = absoluteUrl(buildBadgeSharePath(locale, title ?? "", token));
         return u ? u.toString() : "";
       },
       failures.reporterFor("badges"),

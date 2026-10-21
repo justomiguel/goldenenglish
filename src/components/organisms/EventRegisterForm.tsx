@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { EventRegisterOrderedQuestions } from "@/components/organisms/EventRegisterOrderedQuestions";
 import { EventRegisterFamilyDiscount } from "@/components/organisms/EventRegisterFamilyDiscount";
+import { EventRegisterDiscountCode } from "@/components/organisms/EventRegisterDiscountCode";
 import { EventRegisterFlowChoice } from "@/components/organisms/EventRegisterFlowChoice";
 import { EventRegisterFormFooter } from "@/components/organisms/EventRegisterFormFooter";
 import type { EventRegistrationPaymentMethod } from "@/lib/events/resolveEventRegistrationPaymentMethods";
@@ -18,6 +19,12 @@ import { EventRegisterBankTransferInstructions } from "@/components/organisms/Ev
 import { EventRegisterSuccessDialog } from "@/components/molecules/EventRegisterSuccessDialog";
 import { formatEventFlowPriceLabel } from "@/lib/events/formatEventFlowPrice";
 import { useEventRegisterForm } from "@/hooks/useEventRegisterForm";
+import {
+  clearEventDiscountCode,
+  selectEventDiscountCode,
+  selectEventFamilyDiscount,
+  type EventDiscountApplied,
+} from "@/lib/events/resolveEventDiscountSelection";
 
 interface EventRegisterFormProps {
   locale: string;
@@ -37,12 +44,20 @@ export function EventRegisterForm({
   preview = false,
 }: EventRegisterFormProps) {
   const [familyDiscount, setFamilyDiscount] = useState(false);
+  const [appliedCode, setAppliedCode] = useState<EventDiscountApplied | null>(null);
   const form = useEventRegisterForm({
     locale,
     event,
     paymentMethods,
     labels,
     familyDiscountClaimed: familyDiscount,
+    discountCode: appliedCode?.code ?? null,
+    payableAmount: appliedCode?.amount ?? null,
+    discountErrors: {
+      invalid_code: labels.discountCode.invalid,
+      no_uses: labels.discountCode.noUses,
+      discount_conflict: labels.discountCode.conflict,
+    },
   });
   const typography = publicEventRegisterTypography(surfaceVariant);
 
@@ -135,9 +150,31 @@ export function EventRegisterForm({
           locale={locale}
           freeLabel={labels.free}
           checked={familyDiscount}
-          onChange={setFamilyDiscount}
+          onChange={(checked) => {
+            const next = selectEventFamilyDiscount(checked, appliedCode);
+            setFamilyDiscount(next.family);
+            setAppliedCode(next.applied);
+          }}
           label={labels.familyDiscount}
           payLabel={labels.familyDiscountPay}
+        />
+
+        <EventRegisterDiscountCode
+          slug={event.slug}
+          locale={locale}
+          currency={event.currency}
+          freeLabel={labels.free}
+          flowId={form.flow.flowId}
+          isLocalResident={form.residency.isLocalResident}
+          disabled={form.footer.isPending}
+          applied={appliedCode}
+          onApplied={(next) => {
+            const selection = selectEventDiscountCode(next);
+            setFamilyDiscount(selection.family);
+            setAppliedCode(selection.applied);
+          }}
+          onClear={() => setAppliedCode(clearEventDiscountCode(familyDiscount).applied)}
+          labels={labels.discountCode}
         />
 
         {form.payment.showPaymentPicker ? (

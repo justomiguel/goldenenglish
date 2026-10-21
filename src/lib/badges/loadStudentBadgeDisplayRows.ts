@@ -13,7 +13,7 @@ import type { StudentBadgeRowModel } from "@/types/studentBadges";
  */
 export async function loadStudentBadgeDisplayRows(
   studentId: string,
-  shareUrlForToken: (token: string) => string,
+  shareUrlForToken: (token: string, title?: string) => string,
   onLoadError?: LoadErrorReporter,
 ): Promise<StudentBadgeRowModel[]> {
   const admin = createAdminClient();

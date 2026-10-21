@@ -37,7 +37,7 @@ export function PublicShopCatalog({ locale, rows, labels }: PublicShopCatalogPro
           {rows.map((row) => (
             <li key={row.id}>
               <Link
-                href={`/${locale}/tienda/${row.id}`}
+                href={`/${locale}/tienda/${row.slug || row.id}`}
                 className="flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)] outline-none ring-[var(--color-primary)] transition hover:border-[var(--color-primary)]/40 focus-visible:ring-2"
               >
                 <div className="relative aspect-[4/3] bg-[var(--color-muted)]">

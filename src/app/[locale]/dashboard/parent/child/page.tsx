@@ -1,6 +1,7 @@
 import { buildPageMetadata } from "@/lib/metadata/buildPageMetadata";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { absoluteUrl } from "@/lib/site/publicUrl";
+import { buildBadgeSharePath } from "@/lib/site/publicSharePaths";
 import { loadParentChildContext } from "@/lib/parent/loadParentChildContext";
 import { loadParentRecentAttendance } from "@/lib/parent/loadParentRecentAttendance";
 import { loadStudentExamResults } from "@/lib/parent/loadStudentExamResults";
@@ -75,7 +76,8 @@ export default async function ParentChildPage({ params, searchParams }: PageProp
       }),
       loadStudentBadgeDisplayRows(
         studentId,
-        (token) => absoluteUrl(`/${locale}/b/${token}`)?.toString() ?? "",
+        (token, title) =>
+          absoluteUrl(buildBadgeSharePath(locale, title ?? "", token))?.toString() ?? "",
       ),
     ]);
 

@@ -11215,11 +11215,12 @@ VALUES (
     'app.logo.path', '/images/nago/logo/logo.png',
     'app.logo.alt', 'Capoeira Nago',
     'app.favicon.path', '/images/nago/favicon.ico',
-    'contact.phone', '+56 9 0000 0000',
+    'contact.phone', '+56 9 9063 9071',
     'contact.email', 'info@capoeiranago.cl',
-    'contact.address', 'Chile',
+    'contact.address', 'Tegualda 1571, Ñuñoa',
     'social.instagram', 'https://www.instagram.com/capoeiranago/',
     'social.facebook', 'https://www.facebook.com/capoeiranago/',
+    'social.whatsapp', 'https://wa.me/56990639071',
     'color.primary', '#1B5E20',
     'color.secondary', '#002776',
     'color.secondary.foreground', '#FFFFFF',
@@ -15329,7 +15330,4067 @@ SET
   is_system_default = FALSE,
   properties = EXCLUDED.properties;
 
+-- ========== 174_site_theme_mimundo_contrast.sql ==========
+
+-- WCAG AA: fix page-wash contrast on the Mi Mundo family portal.
+--
+-- `--color-muted` is the PWA page wash: ParentPwaShell.tsx paints the whole
+-- mobile portal with bg-[var(--color-muted)].  The seeded brown (#8D6E63) is
+-- a mid-tone, so every text token in the warm-brown / olive family measured
+-- below AA (as low as 1.08:1 where WCAG needs 4.5:1).  Replacing it with a
+-- light warm cream (#F2E9E1) in the same family clears all five audited pairs.
+--
+-- `color.primary` also moves one step darker (#557945 → #4E7040) because the
+-- "Ver blog" / "Ver eventos" links sit directly on the wash and need 4.5:1 on
+-- it; #4E7040 is the minimum darkening that achieves that.  All other pairs
+-- involving primary are verified in the test suite.
+--
+-- Precedent: migration 124 (124_site_themes_accessible_contrast.sql) applied
+-- the same class of fix for minimal, nago, mozarthitos and golden-english.
+-- Mi Mundo was not included there because its seed (134_site_theme_mimundo_seed.sql)
+-- landed ten migrations later.  This migration follows the same shape exactly.
+
+UPDATE public.site_themes
+SET
+  properties =
+    coalesce(properties, '{}'::jsonb)
+    || jsonb_build_object(
+      'color.muted',    '#F2E9E1',
+      'color.primary',  '#4E7040'
+    ),
+  updated_at = now()
+WHERE slug = 'mimundo';
+
+-- ========== 175_site_theme_mimundo_error_contrast.sql ==========
+
+-- WCAG AA follow-up to 174_site_theme_mimundo_contrast.sql (#26-accessibility-contrast).
+-- Spec 8 gave destructive buttons a solid error fill with a white label. Measuring that
+-- pair found mimundo's seeded error #E22E30 lands at 4.4995:1 against white — short of the
+-- 4.5:1 AA threshold by a hair, on the highest-stakes label in the product.
+-- #DE2B2D reaches 4.68:1 and is visually indistinguishable from the seeded red.
+-- Border use of the token also improves: 4.33:1 on surface, 3.90:1 on the page wash,
+-- both well past the 3:1 non-text threshold.
+
+UPDATE public.site_themes
+SET
+  properties =
+    coalesce(properties, '{}'::jsonb)
+    || jsonb_build_object('color.error', '#DE2B2D'),
+  updated_at = now()
+WHERE slug = 'mimundo';
+
+-- ========== 176_registrations_contact_tracking.sql ==========
+
+-- Lead follow-up on public registrations: who contacted the lead and when,
+-- plus per-status counts for the admin list filter.
+-- Spec: docs/superpowers/specs/2026-08-07-event-packages-registrations-contact-student-care-design.md
+
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS contacted_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS contacted_by UUID NULL
+    REFERENCES public.profiles (id) ON DELETE SET NULL;
+
+COMMENT ON COLUMN public.registrations.contacted_at IS
+  'When the lead was last marked contacted; null while status is new.';
+COMMENT ON COLUMN public.registrations.contacted_by IS
+  'Admin who marked the lead contacted; null while status is new.';
+
+-- Status counts under the active search, so the admin filter chips show real
+-- totals instead of counting only the rows on the current page.
+CREATE OR REPLACE FUNCTION public.registrations_admin_list_aggregates(
+  p_query TEXT DEFAULT NULL
+)
+RETURNS TABLE (
+  total BIGINT,
+  new_count BIGINT,
+  contacted_count BIGINT
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  WITH needle AS (
+    -- Same wildcard escaping as loadPaginatedRegistrations, so the chip counts
+    -- can never disagree with the list they label.
+    SELECT '%' || replace(replace(btrim(p_query), '%', '\%'), '_', '\_') || '%' AS pattern
+  ),
+  scoped AS (
+    SELECT r.status
+    FROM public.registrations r
+    CROSS JOIN needle n
+    WHERE r.status <> 'enrolled'
+      AND (
+        p_query IS NULL
+        OR btrim(p_query) = ''
+        OR r.first_name ILIKE n.pattern
+        OR r.last_name  ILIKE n.pattern
+        OR r.dni        ILIKE n.pattern
+        OR r.email      ILIKE n.pattern
+        OR r.phone      ILIKE n.pattern
+      )
+  )
+  SELECT
+    count(*)::BIGINT AS total,
+    count(*) FILTER (WHERE status = 'new')::BIGINT AS new_count,
+    count(*) FILTER (WHERE status = 'contacted')::BIGINT AS contacted_count
+  FROM scoped;
+$$;
+
+REVOKE ALL ON FUNCTION public.registrations_admin_list_aggregates(TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.registrations_admin_list_aggregates(TEXT) TO authenticated;
+
+-- ========== 177_cohort_assessments_family_read_no_rls_cycle.sql ==========
+
+-- Family reads of cohort assessments time out under RLS.
+--
+-- `cohort_assessments_select_scope` resolved both of its non-admin branches by re-entering
+-- RLS-protected tables. The teacher branch calls a SECURITY INVOKER helper that selects from
+-- `cohort_assessments` — the very relation being filtered — and the family branch joins
+-- `section_enrollments` with `academic_sections`, whose policies reference each other.
+--
+-- Measured with the session of a real tutor: selecting `cohort_assessments` by `cohort_id` is
+-- cancelled by `statement_timeout` on a table holding a single row, while the same query under the
+-- service role returns instantly. The parent Progress screen renders that timeout as "no data", so
+-- the Exams and Feedback sections disappear instead of failing visibly.
+--
+-- Both branches keep exactly the predicate they had. Only the evaluation escapes the cycle:
+-- SECURITY DEFINER stops the nested reads from re-applying the policies that caused it, and
+-- `auth.uid()` becomes an initplan instead of a per-row call.
+
+-- Same teacher predicate as before; DEFINER so the policy no longer re-enters its own relation.
+CREATE OR REPLACE FUNCTION public.cohort_assessment_teacher_can_see(p_assessment_id UUID)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.cohort_assessments ca
+    JOIN public.academic_sections s ON s.cohort_id = ca.cohort_id
+    WHERE ca.id = p_assessment_id
+      AND s.teacher_id = auth.uid()
+  );
+$$;
+
+COMMENT ON FUNCTION public.cohort_assessment_teacher_can_see(uuid) IS
+  'SECURITY DEFINER: unchanged teacher predicate, without re-entering cohort_assessments RLS from its own policy.';
+
+GRANT EXECUTE ON FUNCTION public.cohort_assessment_teacher_can_see(uuid) TO authenticated;
+
+-- The student themself, or a tutor linked to a student, enrolled in any section of the cohort.
+CREATE OR REPLACE FUNCTION public.user_is_family_of_cohort(p_user UUID, p_cohort_id UUID)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.section_enrollments e
+    JOIN public.academic_sections s ON s.id = e.section_id
+    WHERE s.cohort_id = p_cohort_id
+      AND (
+        e.student_id = p_user
+        OR EXISTS (
+          SELECT 1
+          FROM public.tutor_student_rel ts
+          WHERE ts.tutor_id = p_user
+            AND ts.student_id = e.student_id
+        )
+      )
+  );
+$$;
+
+COMMENT ON FUNCTION public.user_is_family_of_cohort(uuid, uuid) IS
+  'SECURITY DEFINER: student-or-tutor membership of a cohort, without the academic_sections <-> section_enrollments RLS cycle.';
+
+GRANT EXECUTE ON FUNCTION public.user_is_family_of_cohort(uuid, uuid) TO authenticated;
+
+-- The tutor lookup inside the helper filters on tutor_id; only the student side was indexed.
+CREATE INDEX IF NOT EXISTS tutor_student_rel_tutor_student_idx
+  ON public.tutor_student_rel (tutor_id, student_id);
+
+DROP POLICY IF EXISTS cohort_assessments_select_scope ON public.cohort_assessments;
+CREATE POLICY cohort_assessments_select_scope ON public.cohort_assessments
+  FOR SELECT TO authenticated
+  USING (
+    public.is_admin((SELECT auth.uid()))
+    OR public.cohort_assessment_teacher_can_see(id)
+    OR public.user_is_family_of_cohort((SELECT auth.uid()), cohort_id)
+  );
+
+-- ========== 178_section_billing_mode.sql ==========
+
+-- Billing mode: fixed monthly section fee vs prepaid class packs.
+--
+-- Hay institutos que no cobran cuota fija mensual: cobran según cuántas clases toma el alumno, con
+-- precio no lineal (el paquete de 1 clase vale X, el de 2 no vale 2X). Ese producto se factura por
+-- una bolsa mensual de clases del alumno que cruza secciones (179) y se consume por asistencia (180).
+--
+-- Dos capas, a propósito:
+--   * `site_settings.billing_model` es lo que el instituto elige. Define qué UI ve el admin y qué
+--     default reciben las secciones nuevas. NO lo lee el cálculo del monto.
+--   * `academic_sections.billing_mode` es el punto de enforcement que sí lee el cálculo.
+-- Es la misma forma que usó la 154 (default de columna + backfill como decisión de producto, columna
+-- como fuente de verdad en runtime). Permite migrar sección por sección, deja el histórico facturando
+-- como siempre, y no obliga a mockear un setting global en cada test.
+--
+-- Los dos modos pueden convivir en un mismo instituto.
+--
+-- Deliberadamente NO se agrega un tercer valor a `monthly_fee_charge_mode`: su parser
+-- (`parseMonthlyFeeChargeMode`) devuelve 'prorate_by_classes' ante cualquier valor desconocido, así
+-- que un modo nuevo ahí haría que todo código que aún no lo conozca cobre una cuota prorrateada en
+-- silencio. ADR: docs/adr/2026-08-class-pack-billing.md
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS billing_mode TEXT NOT NULL DEFAULT 'section_monthly_fee';
+
+DO $$
+BEGIN
+  ALTER TABLE public.academic_sections
+    ADD CONSTRAINT academic_sections_billing_mode_check
+    CHECK (billing_mode IN ('section_monthly_fee', 'class_pack'));
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+COMMENT ON COLUMN public.academic_sections.billing_mode IS
+  'Cómo se cobra esta sección: section_monthly_fee (cuota fija por mes, section_fee_plans) o class_pack (bolsa mensual de clases del alumno, student_class_packs). Esta columna —no site_settings.billing_model— es lo que lee el cálculo del monto.';
+
+CREATE INDEX IF NOT EXISTS academic_sections_billing_mode_idx
+  ON public.academic_sections (billing_mode)
+  WHERE billing_mode = 'class_pack';
+
+-- Institute-level choice. Default preserva el comportamiento actual.
+INSERT INTO public.site_settings (key, value)
+VALUES ('billing_model', '"section_monthly_fee"'::jsonb)
+ON CONFLICT (key) DO NOTHING;
+
+-- El portal necesita leer el modelo para decidir qué pantalla de facturación renderizar.
+-- La lista de claves replica la de 152_bank_transfer_instructions_setting.sql más billing_model:
+-- recrear la política sin alguna de las anteriores rompería inscripciones, wizard, moneda o
+-- instrucciones de transferencia.
+DROP POLICY IF EXISTS site_settings_select_public ON public.site_settings;
+
+CREATE POLICY site_settings_select_public
+  ON public.site_settings FOR SELECT
+  TO anon, authenticated
+  USING (
+    key IN (
+      'inscriptions_enabled',
+      'initial_site_setup',
+      'billing_currency',
+      'bank_transfer_instructions',
+      'billing_model'
+    )
+  );
+
+COMMENT ON POLICY site_settings_select_public ON public.site_settings IS
+  'Public/authenticated reads for registration gating, wizard state, portal billing currency, bank transfer instructions, and the institute billing model (all non-secret).';
+
+-- ========== 179_class_pack_prices_and_student_packs.sql ==========
+
+-- Class packs: catálogo de precios no lineal + bolsa mensual del alumno.
+--
+-- El catálogo es a NIVEL INSTITUTO, no por sección, porque la bolsa es del alumno y cruza secciones:
+-- un alumno inscrito en dos secciones con tarifas distintas no tendría un precio único para
+-- "8 clases". Cada fila es un tramo `(class_count, amount)` y `amount` es el precio TOTAL del
+-- paquete, no unitario. Ahí vive la no linealidad, sin fórmula ni interpolación: un class_count sin
+-- fila es un error explícito en la app (`resolveClassPackPrice` → { code: "no_tier" }), nunca un
+-- cálculo inventado.
+--
+-- La vigencia usa el mismo criterio que section_fee_plans: el tramo vigente para (year, month) es el
+-- del mayor (effective_from_year, effective_from_month) <= (year, month). Se archiva, no se borra, para
+-- que las compras históricas sigan apuntando a la fila que las coteó.
+--
+-- `student_class_packs` es a la vez la bolsa y el cargo. Deliberadamente NO reusa `payments`:
+-- `payments` tiene índices únicos parciales por (student_id, section_id, month, year) y por
+-- (student_id, month, year) para filas legacy sin sección, `payment_kind` no participa de ninguno de
+-- los dos, y toda la grilla de 12 meses / matriz de cobranzas / ambos flujos de pasarela de cuotas
+-- cuelgan de esa forma. El precedente para un producto de cobro paralelo es `event_payments` (137).
+--
+-- ADR: docs/adr/2026-08-class-pack-billing.md
+
+-- Catálogo de precios ------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.class_pack_prices (
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  effective_from_year   SMALLINT NOT NULL,
+  effective_from_month  SMALLINT NOT NULL,
+  class_count           SMALLINT NOT NULL,
+  amount                NUMERIC(12, 2) NOT NULL,
+  currency              TEXT NOT NULL,
+  archived_at           TIMESTAMPTZ,
+  archived_by           UUID NULL REFERENCES auth.users (id) ON DELETE SET NULL,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_by            UUID NULL REFERENCES auth.users (id) ON DELETE SET NULL,
+  CONSTRAINT class_pack_prices_year_range
+    CHECK (effective_from_year BETWEEN 2000 AND 2100),
+  CONSTRAINT class_pack_prices_month_range
+    CHECK (effective_from_month BETWEEN 1 AND 12),
+  CONSTRAINT class_pack_prices_class_count_range
+    CHECK (class_count > 0 AND class_count <= 60),
+  CONSTRAINT class_pack_prices_amount_positive
+    CHECK (amount >= 0),
+  CONSTRAINT class_pack_prices_currency_iso
+    CHECK (currency ~ '^[A-Z]{3}$')
+);
+
+COMMENT ON TABLE public.class_pack_prices IS
+  'Catálogo de precios por cantidad de clases, a nivel instituto, con vigencias. El tramo vigente para (year, month) es el más reciente con (effective_from_year, effective_from_month) <= (year, month).';
+
+COMMENT ON COLUMN public.class_pack_prices.class_count IS
+  'Cantidad de clases del paquete. Cada tramo es una fila; no hay interpolación entre tramos.';
+
+COMMENT ON COLUMN public.class_pack_prices.amount IS
+  'Precio TOTAL del paquete de class_count clases (no unitario). La no linealidad se expresa como tabla: 1 clase -> 40, 2 -> 70, 4 -> 120.';
+
+COMMENT ON COLUMN public.class_pack_prices.archived_at IS
+  'Soft-delete: deja de ofrecerse sin romper la trazabilidad de las compras que ya usaron este tramo.';
+
+CREATE UNIQUE INDEX IF NOT EXISTS class_pack_prices_period_count_uidx
+  ON public.class_pack_prices (effective_from_year, effective_from_month, class_count)
+  WHERE archived_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS class_pack_prices_period_idx
+  ON public.class_pack_prices (effective_from_year, effective_from_month);
+
+-- Bolsa mensual del alumno (y cargo) ---------------------------------------
+CREATE TABLE IF NOT EXISTS public.student_class_packs (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id        UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  year              SMALLINT NOT NULL,
+  month             SMALLINT NOT NULL,
+  class_count       SMALLINT NOT NULL,
+  amount            NUMERIC(12, 2) NOT NULL,
+  currency          TEXT NOT NULL,
+  price_id          UUID NULL REFERENCES public.class_pack_prices (id) ON DELETE SET NULL,
+  status                public.payment_status NOT NULL DEFAULT 'pending',
+  purchased_by          UUID NULL REFERENCES public.profiles (id) ON DELETE SET NULL,
+  -- Nombres tomados de event_payments (137), no de payments: allí `receipt_url` guarda en realidad un
+  -- storage path, y repetir ese nombre engañoso en una tabla nueva no tiene sentido.
+  receipt_storage_path  TEXT,
+  reviewed_by           UUID NULL REFERENCES public.profiles (id) ON DELETE SET NULL,
+  review_notes          TEXT,
+  paid_at               TIMESTAMPTZ,
+  gateway_provider      TEXT NULL,
+  mp_preference_id      TEXT,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT student_class_packs_year_range
+    CHECK (year BETWEEN 2000 AND 2100),
+  CONSTRAINT student_class_packs_month_range
+    CHECK (month BETWEEN 1 AND 12),
+  CONSTRAINT student_class_packs_class_count_positive
+    CHECK (class_count > 0),
+  CONSTRAINT student_class_packs_amount_positive
+    CHECK (amount >= 0),
+  CONSTRAINT student_class_packs_currency_iso
+    CHECK (currency ~ '^[A-Z]{3}$'),
+  CONSTRAINT student_class_packs_gateway_provider_check
+    CHECK (gateway_provider IS NULL OR gateway_provider IN ('flow', 'mercadopago'))
+);
+
+COMMENT ON TABLE public.student_class_packs IS
+  'Bolsa mensual de clases prepagas del alumno, y a la vez el cargo. Estrictamente mensual: no hay arrastre al mes siguiente. Solo los paquetes en estado approved o exempt otorgan créditos.';
+
+COMMENT ON COLUMN public.student_class_packs.class_count IS
+  'Clases contratadas. Snapshot: una edición posterior del catálogo no debe reformular una compra saldada.';
+
+COMMENT ON COLUMN public.student_class_packs.amount IS
+  'Precio pagado, congelado al momento de comprar (snapshot, igual criterio que student_promotions).';
+
+COMMENT ON COLUMN public.student_class_packs.price_id IS
+  'Tramo del catálogo que coteó esta compra. Solo trazabilidad: ON DELETE SET NULL, y el monto real vive en amount.';
+
+COMMENT ON COLUMN public.student_class_packs.status IS
+  'pending no otorga créditos (una transferencia en revisión no puede volverse clases gratis). Otorgan approved y exempt; exempt es el paquete bonificado por admin.';
+
+-- Sin índice único por (student_id, year, month): se permiten recargas en el mismo mes y el saldo es
+-- la suma de los paquetes que otorgan. Cada compra se cotiza por su propio tamaño.
+CREATE INDEX IF NOT EXISTS student_class_packs_student_period_idx
+  ON public.student_class_packs (student_id, year, month);
+
+CREATE INDEX IF NOT EXISTS student_class_packs_status_period_idx
+  ON public.student_class_packs (status, year, month);
+
+-- updated_at triggers ------------------------------------------------------
+-- Se reusa el helper compartido `public.set_updated_at()` (001), igual que section_attendance,
+-- section_enrollments, event_payments y el resto. Duplicar la función por tabla es lo que este repo
+-- justamente no hace.
+DROP TRIGGER IF EXISTS class_pack_prices_set_updated_at ON public.class_pack_prices;
+CREATE TRIGGER class_pack_prices_set_updated_at
+  BEFORE UPDATE ON public.class_pack_prices
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS student_class_packs_set_updated_at ON public.student_class_packs;
+CREATE TRIGGER student_class_packs_set_updated_at
+  BEFORE UPDATE ON public.student_class_packs
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+-- Family predicate ---------------------------------------------------------
+-- SECURITY DEFINER por el mismo motivo que los helpers de la 177: la lectura de tutor_student_rel
+-- desde la política de otra tabla vuelve a aplicar RLS y encadena predicados. Reusado por la 180.
+CREATE OR REPLACE FUNCTION public.user_is_family_of_student(p_user UUID, p_student UUID)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT p_user = p_student
+    OR EXISTS (
+      SELECT 1
+      FROM public.tutor_student_rel ts
+      WHERE ts.tutor_id = p_user
+        AND ts.student_id = p_student
+    );
+$$;
+
+COMMENT ON FUNCTION public.user_is_family_of_student(uuid, uuid) IS
+  'SECURITY DEFINER: el alumno mismo o un tutor vinculado, sin re-entrar RLS de tutor_student_rel desde la política de otra tabla.';
+
+GRANT EXECUTE ON FUNCTION public.user_is_family_of_student(uuid, uuid) TO authenticated;
+
+-- RLS ----------------------------------------------------------------------
+ALTER TABLE public.class_pack_prices ENABLE ROW LEVEL SECURITY;
+
+-- Las familias necesitan ver los tramos para poder comprar; el catálogo no es información sensible.
+DROP POLICY IF EXISTS class_pack_prices_select_authenticated ON public.class_pack_prices;
+CREATE POLICY class_pack_prices_select_authenticated
+  ON public.class_pack_prices FOR SELECT
+  TO authenticated
+  USING (true);
+
+DROP POLICY IF EXISTS class_pack_prices_admin_write ON public.class_pack_prices;
+CREATE POLICY class_pack_prices_admin_write
+  ON public.class_pack_prices FOR ALL
+  TO authenticated
+  USING (public.is_admin((SELECT auth.uid())))
+  WITH CHECK (public.is_admin((SELECT auth.uid())));
+
+ALTER TABLE public.student_class_packs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS student_class_packs_select_scope ON public.student_class_packs;
+CREATE POLICY student_class_packs_select_scope
+  ON public.student_class_packs FOR SELECT
+  TO authenticated
+  USING (
+    public.is_admin((SELECT auth.uid()))
+    OR public.user_is_family_of_student((SELECT auth.uid()), student_id)
+  );
+
+DROP POLICY IF EXISTS student_class_packs_admin_write ON public.student_class_packs;
+CREATE POLICY student_class_packs_admin_write
+  ON public.student_class_packs FOR ALL
+  TO authenticated
+  USING (public.is_admin((SELECT auth.uid())))
+  WITH CHECK (public.is_admin((SELECT auth.uid())));
+
+-- Autogestión de la familia, espejando payments_insert_student_self / _update_student_self (055):
+-- puede crear su propio paquete pendiente (con comprobante) y editarlo mientras siga pendiente.
+-- Nunca puede aprobarlo: aprobar es lo que otorga créditos.
+DROP POLICY IF EXISTS student_class_packs_insert_family ON public.student_class_packs;
+CREATE POLICY student_class_packs_insert_family
+  ON public.student_class_packs FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    status = 'pending'
+    AND public.user_is_family_of_student((SELECT auth.uid()), student_id)
+  );
+
+DROP POLICY IF EXISTS student_class_packs_update_family ON public.student_class_packs;
+CREATE POLICY student_class_packs_update_family
+  ON public.student_class_packs FOR UPDATE
+  TO authenticated
+  USING (
+    status = 'pending'
+    AND public.user_is_family_of_student((SELECT auth.uid()), student_id)
+  )
+  WITH CHECK (
+    status = 'pending'
+    AND public.user_is_family_of_student((SELECT auth.uid()), student_id)
+  );
+
+-- ========== 180_class_credit_ledger.sql ==========
+
+-- Libro mayor de créditos de clase: consumo por asistencia + clases a recuperar.
+--
+-- Regla de producto: consumen clase los estados present, late y absent. `excused` (justificado) NO
+-- consume, y genera un derecho a recuperar esa clase en otro momento, en otra sección o con otros
+-- profes. Agendar y gastar esas recuperaciones es un proyecto aparte; aquí solo se acumulan y se
+-- muestran.
+--
+-- Por qué un LIBRO MAYOR y no un contador en la bolsa: la asistencia es editable y borrable. Un
+-- contador se descuadra en la primera corrección de un registro y no se puede auditar. Con una fila
+-- por asistencia y UNIQUE (attendance_id), corregir es idempotente; con FK ON DELETE CASCADE, borrar
+-- la asistencia devuelve el crédito solo.
+--
+-- Por qué un TRIGGER y no código de aplicación: la asistencia se escribe desde varios caminos
+-- (matriz del profe, acciones puntuales, RPC). El primero que no se instrumente rompería la
+-- facturación en silencio. Con el trigger dueño del libro mayor y sin políticas de escritura para
+-- `authenticated`, ese bypass es imposible por construcción.
+--
+-- El trigger NUNCA falla por estado de facturación. Un profe tomando asistencia no puede recibir un
+-- error de billing, y el registro es el hecho académico de lo que pasó. Como consecuencia el saldo
+-- puede quedar negativo: eso se expone como deuda de clases para que el staff la resuelva vendiendo
+-- una recarga.
+--
+-- ADR: docs/adr/2026-08-class-pack-billing.md
+
+-- Consumo ------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.class_credit_consumptions (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  attendance_id  UUID NOT NULL UNIQUE
+                   REFERENCES public.section_attendance (id) ON DELETE CASCADE,
+  student_id     UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  enrollment_id  UUID NOT NULL REFERENCES public.section_enrollments (id) ON DELETE CASCADE,
+  section_id     UUID NOT NULL REFERENCES public.academic_sections (id) ON DELETE CASCADE,
+  attended_on    DATE NOT NULL,
+  year           SMALLINT NOT NULL,
+  month          SMALLINT NOT NULL,
+  credits        SMALLINT NOT NULL DEFAULT 1,
+  source_status  public.section_attendance_status NOT NULL,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT class_credit_consumptions_credits_positive CHECK (credits > 0),
+  CONSTRAINT class_credit_consumptions_month_range CHECK (month BETWEEN 1 AND 12)
+);
+
+COMMENT ON TABLE public.class_credit_consumptions IS
+  'Una fila por asistencia que consume una clase prepaga. Derivada de section_attendance por trigger; UNIQUE (attendance_id) hace la corrección idempotente y el cascade la hace reversible.';
+
+COMMENT ON COLUMN public.class_credit_consumptions.source_status IS
+  'Estado de asistencia que generó el consumo (present, absent o late). Se guarda para poder explicar el cargo al alumno.';
+
+COMMENT ON COLUMN public.class_credit_consumptions.year IS
+  'Desnormalizado de attended_on por el trigger: el saldo del mes es una lectura indexada sin aritmética de fechas.';
+
+CREATE INDEX IF NOT EXISTS class_credit_consumptions_student_period_idx
+  ON public.class_credit_consumptions (student_id, year, month);
+
+CREATE INDEX IF NOT EXISTS class_credit_consumptions_section_period_idx
+  ON public.class_credit_consumptions (section_id, year, month);
+
+-- Clases a recuperar -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.class_recovery_credits (
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  origin_attendance_id  UUID NOT NULL UNIQUE
+                          REFERENCES public.section_attendance (id) ON DELETE CASCADE,
+  student_id            UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  origin_enrollment_id  UUID NOT NULL REFERENCES public.section_enrollments (id) ON DELETE CASCADE,
+  origin_section_id     UUID NOT NULL REFERENCES public.academic_sections (id) ON DELETE CASCADE,
+  origin_attended_on    DATE NOT NULL,
+  year                  SMALLINT NOT NULL,
+  month                 SMALLINT NOT NULL,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT class_recovery_credits_month_range CHECK (month BETWEEN 1 AND 12)
+);
+
+COMMENT ON TABLE public.class_recovery_credits IS
+  'Clases justificadas que el instituto le debe al alumno. Una por asistencia excused. Sin columnas de consumo todavía: agendar y gastar la recuperación es el proyecto 2, que las agrega.';
+
+CREATE INDEX IF NOT EXISTS class_recovery_credits_student_period_idx
+  ON public.class_recovery_credits (student_id, year, month);
+
+-- Trigger ------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sync_class_credit_ledger()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+  v_student_id   UUID;
+  v_section_id   UUID;
+  v_billing_mode TEXT;
+  v_year         SMALLINT;
+  v_month        SMALLINT;
+BEGIN
+  SELECT e.student_id, e.section_id, s.billing_mode
+    INTO v_student_id, v_section_id, v_billing_mode
+  FROM public.section_enrollments e
+  JOIN public.academic_sections s ON s.id = e.section_id
+  WHERE e.id = NEW.enrollment_id;
+
+  -- Solo secciones que se cobran por paquete. Cambiar una sección a class_pack no hace backfill:
+  -- inventaría cargos sobre meses ya saldados con cuota fija.
+  IF v_billing_mode IS DISTINCT FROM 'class_pack' THEN
+    RETURN NULL;
+  END IF;
+
+  v_year  := EXTRACT(YEAR FROM NEW.attended_on)::SMALLINT;
+  v_month := EXTRACT(MONTH FROM NEW.attended_on)::SMALLINT;
+
+  IF NEW.status IN ('present', 'absent', 'late') THEN
+    DELETE FROM public.class_recovery_credits WHERE origin_attendance_id = NEW.id;
+
+    INSERT INTO public.class_credit_consumptions (
+      attendance_id, student_id, enrollment_id, section_id,
+      attended_on, year, month, credits, source_status
+    )
+    VALUES (
+      NEW.id, v_student_id, NEW.enrollment_id, v_section_id,
+      NEW.attended_on, v_year, v_month, 1, NEW.status
+    )
+    ON CONFLICT (attendance_id) DO UPDATE
+      SET student_id    = EXCLUDED.student_id,
+          enrollment_id = EXCLUDED.enrollment_id,
+          section_id    = EXCLUDED.section_id,
+          attended_on   = EXCLUDED.attended_on,
+          year          = EXCLUDED.year,
+          month         = EXCLUDED.month,
+          source_status = EXCLUDED.source_status;
+
+  ELSIF NEW.status = 'excused' THEN
+    DELETE FROM public.class_credit_consumptions WHERE attendance_id = NEW.id;
+
+    INSERT INTO public.class_recovery_credits (
+      origin_attendance_id, student_id, origin_enrollment_id, origin_section_id,
+      origin_attended_on, year, month
+    )
+    VALUES (
+      NEW.id, v_student_id, NEW.enrollment_id, v_section_id,
+      NEW.attended_on, v_year, v_month
+    )
+    ON CONFLICT (origin_attendance_id) DO UPDATE
+      SET student_id           = EXCLUDED.student_id,
+          origin_enrollment_id = EXCLUDED.origin_enrollment_id,
+          origin_section_id    = EXCLUDED.origin_section_id,
+          origin_attended_on   = EXCLUDED.origin_attended_on,
+          year                 = EXCLUDED.year,
+          month                = EXCLUDED.month;
+  END IF;
+
+  -- Sin ELSE: un valor futuro de section_attendance_status no produce efecto en el libro mayor. Ante
+  -- un estado desconocido preferimos no cobrar (revisable) antes que cobrar mal (plata mal movida).
+  RETURN NULL;
+END;
+$$;
+
+COMMENT ON FUNCTION public.sync_class_credit_ledger() IS
+  'Mantiene class_credit_consumptions y class_recovery_credits desde section_attendance. Único escritor del libro mayor. No falla nunca por estado de facturación: tomar asistencia no puede romperse por billing.';
+
+-- No hay rama DELETE: ambas FK son ON DELETE CASCADE, así que borrar la asistencia revierte su efecto
+-- en el libro mayor automáticamente.
+DROP TRIGGER IF EXISTS section_attendance_sync_class_credit_ledger ON public.section_attendance;
+CREATE TRIGGER section_attendance_sync_class_credit_ledger
+  AFTER INSERT OR UPDATE ON public.section_attendance
+  FOR EACH ROW
+  EXECUTE FUNCTION public.sync_class_credit_ledger();
+
+-- RLS ----------------------------------------------------------------------
+-- Solo lectura, y solo para admin y la familia del alumno. Los profes ven asistencia, no créditos:
+-- el saldo es información de facturación, no académica.
+ALTER TABLE public.class_credit_consumptions ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS class_credit_consumptions_select_scope ON public.class_credit_consumptions;
+CREATE POLICY class_credit_consumptions_select_scope
+  ON public.class_credit_consumptions FOR SELECT
+  TO authenticated
+  USING (
+    public.is_admin((SELECT auth.uid()))
+    OR public.user_is_family_of_student((SELECT auth.uid()), student_id)
+  );
+
+ALTER TABLE public.class_recovery_credits ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS class_recovery_credits_select_scope ON public.class_recovery_credits;
+CREATE POLICY class_recovery_credits_select_scope
+  ON public.class_recovery_credits FOR SELECT
+  TO authenticated
+  USING (
+    public.is_admin((SELECT auth.uid()))
+    OR public.user_is_family_of_student((SELECT auth.uid()), student_id)
+  );
+
+-- Defensa en profundidad. La protección durable es RLS: no existe ninguna política de INSERT/UPDATE/
+-- DELETE en estas tablas, así que `authenticated` no puede escribirlas ni con grants de tabla. El
+-- REVOKE hace la intención explícita, pero OJO: la 166 corrió `GRANT ALL ON ALL TABLES IN SCHEMA
+-- public` y dejó ALTER DEFAULT PRIVILEGES con ALL, así que una futura migración que repita ese GRANT
+-- deshace este REVOKE sin deshacer RLS. El test de base contra el stack local es lo que lo verifica.
+-- `service_role` queda intacto a propósito: el trigger es SECURITY DEFINER y los loaders admin leen
+-- con createAdminClient(). Ningún código de aplicación debe escribir estas tablas.
+REVOKE INSERT, UPDATE, DELETE ON public.class_credit_consumptions FROM authenticated, anon;
+REVOKE INSERT, UPDATE, DELETE ON public.class_recovery_credits FROM authenticated, anon;
+
+-- ========== 181_student_care_notes.sql ==========
+
+-- Student care notes: health, dietary and special-support text that only an
+-- admin, the student's tutor, or a teacher/assistant of one of the student's
+-- sections may read. The three note texts are removed from the API roles with
+-- a column-privilege allowlist; `has_care_notes` stays readable so staff lists
+-- can show a marker without exposing anything.
+-- Spec: docs/superpowers/specs/2026-08-07-event-packages-registrations-contact-student-care-design.md (3.7, D12, D13)
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS care_health_note  TEXT,
+  ADD COLUMN IF NOT EXISTS care_diet_note    TEXT,
+  ADD COLUMN IF NOT EXISTS care_support_note TEXT,
+  ADD COLUMN IF NOT EXISTS care_updated_at   TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS care_updated_by   UUID NULL
+    REFERENCES public.profiles (id) ON DELETE SET NULL,
+  ADD COLUMN IF NOT EXISTS has_care_notes    BOOLEAN NOT NULL DEFAULT false;
+
+COMMENT ON COLUMN public.profiles.care_health_note IS
+  'Restricted: health condition staff must know about. Read only through loadStudentCareNotes.';
+COMMENT ON COLUMN public.profiles.care_diet_note IS
+  'Restricted: dietary needs or allergies. Read only through loadStudentCareNotes.';
+COMMENT ON COLUMN public.profiles.care_support_note IS
+  'Restricted: special treatment or accommodation. Read only through loadStudentCareNotes.';
+COMMENT ON COLUMN public.profiles.has_care_notes IS
+  'Derived by trigger: true when any care note is non-blank. Deliberately unrestricted (D13).';
+
+-- Derived flag, same pattern as profiles_set_age_years (migration 011).
+CREATE OR REPLACE FUNCTION public.profiles_set_has_care_notes()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.has_care_notes :=
+    COALESCE(btrim(NEW.care_health_note), '')     <> ''
+    OR COALESCE(btrim(NEW.care_diet_note), '')    <> ''
+    OR COALESCE(btrim(NEW.care_support_note), '') <> '';
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS profiles_set_has_care_notes ON public.profiles;
+CREATE TRIGGER profiles_set_has_care_notes
+  BEFORE INSERT OR UPDATE OF care_health_note, care_diet_note, care_support_note
+  ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.profiles_set_has_care_notes();
+
+-- Backfill. Every row is false today, but re-firing the trigger keeps the
+-- migration correct if it is ever replayed against data that already has notes.
+UPDATE public.profiles
+  SET care_health_note = care_health_note
+  WHERE care_health_note IS NOT NULL
+     OR care_diet_note IS NOT NULL
+     OR care_support_note IS NOT NULL;
+
+-- A linked minor already cannot edit their own identity fields; care notes join
+-- that list. Replaces the version from migration 111. The trigger
+-- profiles_z_block_minor_self_sensitive_update is BEFORE UPDATE on every column,
+-- so it already fires for these and is not recreated here.
+CREATE OR REPLACE FUNCTION public.profiles_block_minor_self_sensitive_update()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF TG_OP <> 'UPDATE' THEN
+    RETURN NEW;
+  END IF;
+
+  IF auth.uid() IS DISTINCT FROM NEW.id THEN
+    RETURN NEW;
+  END IF;
+
+  IF NEW.role IS DISTINCT FROM 'student'::public.user_role THEN
+    RETURN NEW;
+  END IF;
+
+  IF NOT COALESCE(NEW.is_minor, false) THEN
+    RETURN NEW;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.tutor_student_rel ts
+    WHERE ts.student_id = NEW.id
+  ) THEN
+    RETURN NEW;
+  END IF;
+
+  IF (NEW.first_name IS DISTINCT FROM OLD.first_name)
+    OR (NEW.last_name IS DISTINCT FROM OLD.last_name)
+    OR (NEW.phone IS DISTINCT FROM OLD.phone)
+    OR (NEW.birth_date IS DISTINCT FROM OLD.birth_date)
+    OR (NEW.dni_or_passport IS DISTINCT FROM OLD.dni_or_passport)
+    OR (NEW.home_address_text IS DISTINCT FROM OLD.home_address_text)
+    OR (NEW.home_place_id IS DISTINCT FROM OLD.home_place_id)
+    OR (NEW.care_health_note IS DISTINCT FROM OLD.care_health_note)
+    OR (NEW.care_diet_note IS DISTINCT FROM OLD.care_diet_note)
+    OR (NEW.care_support_note IS DISTINCT FROM OLD.care_support_note)
+  THEN
+    RAISE EXCEPTION 'minor_profile_self_edit_forbidden'
+      USING ERRCODE = 'check_violation';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+COMMENT ON FUNCTION public.profiles_block_minor_self_sensitive_update() IS
+  'Blocks a linked minor from self-editing identity, address and care-note columns.';
+
+-- Column privileges. RLS is per row, so it cannot hide three columns; column
+-- privileges are the only mechanism and they are not subtractive. Migration 166
+-- granted table-level SELECT to both API roles, so narrowing means revoking that
+-- and re-granting an explicit allowlist of every OTHER column.
+--
+-- DANGER: migration 166 also left ALTER DEFAULT PRIVILEGES ... GRANT ALL ON
+-- TABLES, and any future migration repeating GRANT ALL ON ALL TABLES IN SCHEMA
+-- public would silently re-open these three columns. The guard test
+-- src/__tests__/db/profilesCarePrivilegeAllowlist.test.ts is what enforces both
+-- that and the reverse hazard (a new column left out of the list below).
+--
+-- Only SELECT is narrowed. INSERT / UPDATE / DELETE keep their table-level
+-- grants so every existing RLS write policy behaves exactly as before, and
+-- service_role is untouched because the authorized loader reads with it.
+REVOKE SELECT ON public.profiles FROM authenticated, anon;
+
+GRANT SELECT (
+  id,
+  role,
+  first_name,
+  last_name,
+  dni_or_passport,
+  phone,
+  birth_date,
+  created_at,
+  updated_at,
+  age_years,
+  assigned_teacher_id,
+  avatar_url,
+  enrollment_fee_exempt,
+  enrollment_exempt_authorized_by,
+  enrollment_exempt_at,
+  enrollment_exempt_reason,
+  last_enrollment_paid_at,
+  last_session_start_at,
+  churn_notified_at,
+  engagement_points,
+  is_minor,
+  next_exam_at,
+  student_portal_next_event_at,
+  student_portal_next_event_label,
+  billing_adult_transition_pending,
+  calendar_feed_token,
+  home_address_text,
+  home_place_id,
+  has_care_notes,
+  care_updated_at,
+  care_updated_by
+) ON public.profiles TO authenticated, anon;
+
+-- ========== 182_section_enrollment_links.sql ==========
+
+-- Shareable per-section enrollment link: a teacher sends it to families, the family
+-- fills in its own data, and the lead lands in the admin inbox bound to that section.
+-- Spec: docs/superpowers/specs/2026-08-08-section-enrollment-link-design.md
+--
+-- The token lives in its own table rather than on academic_sections. Migration 166 runs
+-- GRANT ALL ON ALL TABLES TO anon, and RLS filters rows, not columns — so a token stored
+-- on a section row would be readable by any anonymous visitor who may read that section,
+-- which is every current-cohort section. Measured on a local database before this was
+-- rewritten: one anonymous query returned the token.
+
+CREATE TABLE IF NOT EXISTS public.section_enrollment_links (
+  section_id UUID PRIMARY KEY
+    REFERENCES public.academic_sections (id) ON DELETE CASCADE,
+  token UUID NOT NULL DEFAULT gen_random_uuid(),
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_by UUID NULL REFERENCES public.profiles (id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+COMMENT ON TABLE public.section_enrollment_links IS
+  'Public enrollment link per section. Unreachable over PostgREST by design: read through SECURITY DEFINER functions, written by the service role behind a server-side authorization gate.';
+COMMENT ON COLUMN public.section_enrollment_links.is_active IS
+  'False disables the link without discarding the row, so it can be turned back on.';
+
+CREATE UNIQUE INDEX IF NOT EXISTS section_enrollment_links_token_key
+  ON public.section_enrollment_links (token);
+
+-- Default deny: RLS on, and deliberately no policies at all.
+ALTER TABLE public.section_enrollment_links ENABLE ROW LEVEL SECURITY;
+
+-- Not redundant with the absent policies. Migration 166's ALTER DEFAULT PRIVILEGES
+-- grants ALL on newly created tables to anon and authenticated, so without this the
+-- table would carry table-level privileges from the moment it is created.
+REVOKE ALL ON public.section_enrollment_links FROM anon, authenticated;
+
+-- Pre-existing exposure, fixed here by the repo owner's decision. Grants are table-wide
+-- while RLS filters only rows, so anon could read every column of every current-cohort
+-- section, not just the identity migrations 030 and 034 meant to expose. Verified on a
+-- local database that nothing public needs this read: list_registration_section_options()
+-- and resolve_section_enrollment_link() are SECURITY DEFINER and still work, and the
+-- anonymous insert into registrations still passes its foreign key check, because
+-- referential integrity checks bypass row security exactly as PostgreSQL documents
+-- (migration 030's comment claiming otherwise is wrong). Every direct read of this table
+-- in src/ is on an authenticated path.
+REVOKE SELECT ON public.academic_sections FROM anon;
+
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS source_section_link_id UUID NULL
+    REFERENCES public.academic_sections (id) ON DELETE SET NULL;
+
+COMMENT ON COLUMN public.registrations.source_section_link_id IS
+  'Section whose enrollment link produced this lead; null for the public /register form.';
+
+CREATE INDEX IF NOT EXISTS registrations_source_section_link_idx
+  ON public.registrations (source_section_link_id)
+  WHERE source_section_link_id IS NOT NULL;
+
+-- Public resolution of a token. SECURITY DEFINER so anonymous visitors never need a
+-- grant or a policy on the link table, the sections table or the cohorts table.
+-- Returns no rows when the link is unusable, which the app renders as one
+-- "no longer available" state.
+CREATE OR REPLACE FUNCTION public.resolve_section_enrollment_link(p_token uuid)
+RETURNS TABLE (
+  section_id UUID,
+  section_name TEXT,
+  cohort_name TEXT,
+  schedule_slots JSONB,
+  seats_remaining INT
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    s.id,
+    s.name,
+    c.name,
+    s.schedule_slots,
+    CASE
+      WHEN s.max_students IS NULL THEN NULL
+      ELSE GREATEST(
+        s.max_students - (
+          SELECT count(*)
+          FROM public.section_enrollments se
+          WHERE se.section_id = s.id
+            AND se.status = 'active'
+        ),
+        0
+      )::INT
+    END
+  FROM public.section_enrollment_links l
+  INNER JOIN public.academic_sections s ON s.id = l.section_id
+  INNER JOIN public.academic_cohorts c ON c.id = s.cohort_id
+  WHERE l.token = p_token
+    AND l.is_active = true
+    AND s.archived_at IS NULL
+    AND c.archived_at IS NULL
+  LIMIT 1;
+$$;
+
+COMMENT ON FUNCTION public.resolve_section_enrollment_link(uuid) IS
+  'Section behind a public enrollment link token, or no rows when the link is inactive, archived or unknown.';
+
+GRANT EXECUTE ON FUNCTION public.resolve_section_enrollment_link(uuid) TO anon;
+GRANT EXECUTE ON FUNCTION public.resolve_section_enrollment_link(uuid) TO authenticated;
+
+-- Server-side re-check used by the submit action: does this token still open this section?
+CREATE OR REPLACE FUNCTION public.section_enrollment_link_is_open(
+  p_section_id uuid,
+  p_token uuid
+)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.section_enrollment_links l
+    INNER JOIN public.academic_sections s ON s.id = l.section_id
+    INNER JOIN public.academic_cohorts c ON c.id = s.cohort_id
+    WHERE l.section_id = p_section_id
+      AND l.token = p_token
+      AND l.is_active = true
+      AND s.archived_at IS NULL
+      AND c.archived_at IS NULL
+  );
+$$;
+
+COMMENT ON FUNCTION public.section_enrollment_link_is_open(uuid, uuid) IS
+  'True when the token still opens that exact section for public submissions.';
+
+GRANT EXECUTE ON FUNCTION public.section_enrollment_link_is_open(uuid, uuid) TO anon;
+GRANT EXECUTE ON FUNCTION public.section_enrollment_link_is_open(uuid, uuid) TO authenticated;
+
+-- Pending-lead count for the teacher panel. RLS on registrations is admin-only, so
+-- without this the teacher has no way to see the number. Returns a count and nothing
+-- else: no names, no documents, no contact details.
+CREATE OR REPLACE FUNCTION public.section_enrollment_link_lead_count(p_section_id uuid)
+RETURNS BIGINT
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT CASE
+    WHEN public.is_admin(auth.uid())
+      OR public.user_leads_or_assists_section(auth.uid(), p_section_id)
+    THEN (
+      SELECT count(*)
+      FROM public.registrations r
+      WHERE r.source_section_link_id = p_section_id
+        AND r.status <> 'enrolled'
+    )
+    ELSE 0::BIGINT
+  END;
+$$;
+
+COMMENT ON FUNCTION public.section_enrollment_link_lead_count(uuid) IS
+  'Pending leads produced by a section enrollment link; zero unless the caller is an admin or section staff.';
+
+REVOKE ALL ON FUNCTION public.section_enrollment_link_lead_count(uuid) FROM PUBLIC;
+-- FROM PUBLIC is not enough: migration 166 grants EXECUTE to the anon role directly.
+REVOKE ALL ON FUNCTION public.section_enrollment_link_lead_count(uuid) FROM anon;
+GRANT EXECUTE ON FUNCTION public.section_enrollment_link_lead_count(uuid) TO authenticated;
+
+-- The teacher and admin panels manage a link they cannot read directly, because the
+-- table has no grants. This is their only window onto it, and it is gated on the same
+-- staff check as the count. Returns no rows for anyone else.
+CREATE OR REPLACE FUNCTION public.section_enrollment_link_state(p_section_id uuid)
+RETURNS TABLE (
+  token UUID,
+  is_active BOOLEAN,
+  lead_count BIGINT
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    l.token,
+    l.is_active,
+    (
+      SELECT count(*)
+      FROM public.registrations r
+      WHERE r.source_section_link_id = p_section_id
+        AND r.status <> 'enrolled'
+    )
+  FROM public.section_enrollment_links l
+  WHERE l.section_id = p_section_id
+    AND (
+      public.is_admin(auth.uid())
+      OR public.user_leads_or_assists_section(auth.uid(), p_section_id)
+    )
+  LIMIT 1;
+$$;
+
+COMMENT ON FUNCTION public.section_enrollment_link_state(uuid) IS
+  'Token, active flag and pending lead count for a section, for admins and that section''s staff only.';
+
+REVOKE ALL ON FUNCTION public.section_enrollment_link_state(uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.section_enrollment_link_state(uuid) FROM anon;
+GRANT EXECUTE ON FUNCTION public.section_enrollment_link_state(uuid) TO authenticated;
+
+-- ========== 183_event_ticket_packages.sql ==========
+
+-- Event ticket packages: an event may sell several named tiers, each with its own
+-- price, benefits and capacity. An event with at least one active package is "in
+-- package mode" and its price comes from the package (D1/D2) — there is no
+-- pricing_mode column to keep in sync.
+-- Spec: docs/superpowers/specs/2026-08-07-event-packages-registrations-contact-student-care-design.md (§3.1)
+
+CREATE TABLE IF NOT EXISTS public.event_ticket_packages (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id    UUID NOT NULL REFERENCES public.events (id) ON DELETE CASCADE,
+  name        TEXT NOT NULL CHECK (length(btrim(name)) > 0),
+  price       NUMERIC(12,2) NOT NULL CHECK (price >= 0),
+  capacity    INT NULL CHECK (capacity > 0),
+  benefits    TEXT[] NOT NULL DEFAULT '{}',
+  position    INT NOT NULL DEFAULT 0,
+  archived_at TIMESTAMPTZ,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+COMMENT ON COLUMN public.event_ticket_packages.capacity IS
+  'Seats for this package alone; null means only the event capacity applies.';
+COMMENT ON COLUMN public.event_ticket_packages.benefits IS
+  'Ordered bullets shown on the public card. Not translated (A3).';
+COMMENT ON COLUMN public.event_ticket_packages.archived_at IS
+  'Soft archive, same convention as event_form_fields. Archived packages are not sellable.';
+
+CREATE INDEX IF NOT EXISTS event_ticket_packages_event_position_idx
+  ON public.event_ticket_packages (event_id, position, created_at);
+
+DROP TRIGGER IF EXISTS event_ticket_packages_set_updated_at ON public.event_ticket_packages;
+CREATE TRIGGER event_ticket_packages_set_updated_at
+  BEFORE UPDATE ON public.event_ticket_packages
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+ALTER TABLE public.event_ticket_packages ENABLE ROW LEVEL SECURITY;
+
+-- Mirrors event_form_fields_select_public_or_admin (migration 138).
+DROP POLICY IF EXISTS event_ticket_packages_select_public_or_admin ON public.event_ticket_packages;
+CREATE POLICY event_ticket_packages_select_public_or_admin ON public.event_ticket_packages
+  FOR SELECT TO anon, authenticated
+  USING (
+    (
+      archived_at IS NULL
+      AND EXISTS (
+        SELECT 1
+        FROM public.events e
+        WHERE e.id = event_ticket_packages.event_id
+          AND e.status = 'published'
+          AND e.archived_at IS NULL
+      )
+    )
+    OR public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS event_ticket_packages_modify_admin ON public.event_ticket_packages;
+CREATE POLICY event_ticket_packages_modify_admin ON public.event_ticket_packages
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+-- Attendees: which package a seat belongs to, and which titular bought it.
+ALTER TABLE public.event_attendees
+  ADD COLUMN IF NOT EXISTS ticket_package_id   UUID NULL
+    REFERENCES public.event_ticket_packages (id) ON DELETE RESTRICT,
+  ADD COLUMN IF NOT EXISTS primary_attendee_id UUID NULL
+    REFERENCES public.event_attendees (id) ON DELETE CASCADE;
+
+COMMENT ON COLUMN public.event_attendees.primary_attendee_id IS
+  'Null for a titular. Set on a companion seat; cascade so a cancelled purchase takes its companions with it.';
+
+-- A companion may not have a document or a mailbox of their own — both are
+-- per-event toggles (D7) — so the two columns stop being mandatory at the table
+-- level. The RPC still demands both from the titular, which is the person
+-- responsible for the purchase and the one every notification is sent to.
+ALTER TABLE public.event_attendees ALTER COLUMN dni_or_passport DROP NOT NULL;
+ALTER TABLE public.event_attendees ALTER COLUMN email DROP NOT NULL;
+
+-- The per-event document uniqueness now applies only to titulars. Dropping the
+-- old constraint and creating the partial index happen in this one migration so
+-- there is never a window without duplicate protection (A2).
+ALTER TABLE public.event_attendees DROP CONSTRAINT IF EXISTS event_attendees_event_dni_unique;
+CREATE UNIQUE INDEX IF NOT EXISTS event_attendees_primary_dni_uniq
+  ON public.event_attendees (event_id, dni_or_passport)
+  WHERE primary_attendee_id IS NULL AND dni_or_passport IS NOT NULL;
+CREATE INDEX IF NOT EXISTS event_attendees_primary_attendee_idx
+  ON public.event_attendees (primary_attendee_id);
+
+-- Multi-ticket settings.
+ALTER TABLE public.events
+  ADD COLUMN IF NOT EXISTS allow_multiple_tickets       BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS max_tickets_per_registration INT NULL
+    CHECK (max_tickets_per_registration > 1),
+  ADD COLUMN IF NOT EXISTS companion_collect_dni        BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS companion_collect_birth_date BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS companion_collect_email      BOOLEAN NOT NULL DEFAULT false;
+
+-- "Unlimited" must never be implicit: allowing several tickets requires a maximum.
+ALTER TABLE public.events DROP CONSTRAINT IF EXISTS events_multi_ticket_max_required;
+ALTER TABLE public.events
+  ADD CONSTRAINT events_multi_ticket_max_required
+  CHECK (NOT allow_multiple_tickets OR max_tickets_per_registration IS NOT NULL);
+
+ALTER TABLE public.event_form_fields
+  ADD COLUMN IF NOT EXISTS collect_for_companions BOOLEAN NOT NULL DEFAULT false;
+
+COMMENT ON COLUMN public.event_form_fields.collect_for_companions IS
+  'When true the register form asks this question for every companion seat too.';
+
+-- ========== 184_enroll_event_attendee_packages.sql ==========
+
+-- 184_enroll_event_attendee_packages.sql
+--
+-- Packages and multi-ticket purchases in the enroll RPC.
+--
+-- Two things change. An event with at least one active ticket package is "in
+-- package mode": the seat price comes from the chosen package and the residency
+-- tiers stop deciding the amount (they are still recorded on the titular). And a
+-- registration may now buy several seats — one titular row plus one row per
+-- companion, all pointing at the titular through primary_attendee_id.
+--
+-- The payment still stays on the titular for the full amount, so event_payments,
+-- both gateways and the whole review panel keep working untouched. Everything
+-- that decides money or a seat count is computed here; the client's total is
+-- decoration.
+--
+-- Body is the one from 158 (deferred payment lifecycle) with the package, seat
+-- and companion logic layered on. The deferred-payment contract is unchanged:
+-- this function still creates no event_payments row.
+
+DROP FUNCTION IF EXISTS public.enroll_event_attendee(
+  UUID,
+  UUID,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  DATE,
+  UUID,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  BOOLEAN,
+  JSONB
+);
+
+CREATE OR REPLACE FUNCTION public.enroll_event_attendee(
+  p_event_id UUID,
+  p_user_id UUID DEFAULT NULL,
+  p_first_name TEXT DEFAULT NULL,
+  p_last_name TEXT DEFAULT NULL,
+  p_dni_or_passport TEXT DEFAULT NULL,
+  p_email TEXT DEFAULT NULL,
+  p_phone TEXT DEFAULT NULL,
+  p_birth_date DATE DEFAULT NULL,
+  p_tutor_id UUID DEFAULT NULL,
+  p_tutor_first_name TEXT DEFAULT NULL,
+  p_tutor_last_name TEXT DEFAULT NULL,
+  p_tutor_dni_or_passport TEXT DEFAULT NULL,
+  p_tutor_email TEXT DEFAULT NULL,
+  p_tutor_phone TEXT DEFAULT NULL,
+  p_tutor_relationship TEXT DEFAULT NULL,
+  p_source TEXT DEFAULT 'public',
+  p_is_local_resident BOOLEAN DEFAULT true,
+  p_field_values JSONB DEFAULT '[]'::jsonb,
+  p_ticket_package_id UUID DEFAULT NULL,
+  p_companions JSONB DEFAULT '[]'::jsonb
+)
+RETURNS TABLE (
+  attendee_id UUID,
+  attendee_status public.event_attendee_status,
+  payment_required BOOLEAN,
+  payment_id UUID,
+  result_code TEXT,
+  seats INT,
+  total_amount NUMERIC(12, 2)
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_event public.events%ROWTYPE;
+  v_attendee_id UUID;
+  v_occupied_count INT;
+  v_legal_age_majority INT := 18;
+  v_age INT;
+  v_is_minor BOOLEAN := false;
+  v_target_status public.event_attendee_status;
+  v_price NUMERIC(12, 2);
+  v_local_price NUMERIC(12, 2);
+  v_non_local_price NUMERIC(12, 2);
+  v_has_packages BOOLEAN := false;
+  v_package public.event_ticket_packages%ROWTYPE;
+  v_seats INT := 1;
+  v_total NUMERIC(12, 2);
+  v_remaining INT;
+  v_package_remaining INT;
+  v_package_occupied INT;
+  v_companion JSONB;
+  v_companion_id UUID;
+BEGIN
+  SELECT *
+  INTO v_event
+  FROM public.events
+  WHERE id = p_event_id
+  FOR UPDATE;
+
+  IF v_event.id IS NULL THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_not_found', 0, NULL::numeric(12,2);
+    RETURN;
+  END IF;
+
+  IF v_event.archived_at IS NOT NULL OR v_event.status <> 'published' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_not_open', 0, NULL::numeric(12,2);
+    RETURN;
+  END IF;
+
+  -- dni_required still applies to the titular only; a companion may have none.
+  IF p_dni_or_passport IS NULL OR btrim(p_dni_or_passport) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'dni_required', 0, NULL::numeric(12,2);
+    RETURN;
+  END IF;
+
+  IF p_first_name IS NULL OR btrim(p_first_name) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'first_name_required', 0, NULL::numeric(12,2);
+    RETURN;
+  END IF;
+
+  IF p_last_name IS NULL OR btrim(p_last_name) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'last_name_required', 0, NULL::numeric(12,2);
+    RETURN;
+  END IF;
+
+  IF p_email IS NULL OR btrim(p_email) = '' THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'email_required', 0, NULL::numeric(12,2);
+    RETURN;
+  END IF;
+
+  IF v_event.private_to_section THEN
+    IF p_user_id IS NULL OR v_event.section_id IS NULL THEN
+      RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_section_membership_required', 0, NULL::numeric(12,2);
+      RETURN;
+    END IF;
+
+    IF NOT EXISTS (
+      SELECT 1
+      FROM public.section_enrollments se
+      WHERE se.section_id = v_event.section_id
+        AND se.student_id = p_user_id
+        AND se.status = 'active'
+    ) THEN
+      RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_section_membership_required', 0, NULL::numeric(12,2);
+      RETURN;
+    END IF;
+  END IF;
+
+  -- Scoped to titulars: companions are excluded from the per-event document
+  -- uniqueness, matching the partial unique index added in migration 183.
+  IF EXISTS (
+    SELECT 1
+    FROM public.event_attendees ea
+    WHERE ea.event_id = p_event_id
+      AND ea.primary_attendee_id IS NULL
+      AND lower(ea.dni_or_passport) = lower(p_dni_or_passport)
+  ) THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'duplicate_dni', 0, NULL::numeric(12,2);
+    RETURN;
+  END IF;
+
+  SELECT COALESCE((value->>'value')::int, 18)
+  INTO v_legal_age_majority
+  FROM public.site_settings
+  WHERE key = 'legal_age_majority';
+
+  IF p_birth_date IS NOT NULL THEN
+    v_age := EXTRACT(YEAR FROM age(now()::date, p_birth_date))::int;
+    v_is_minor := v_age < v_legal_age_majority;
+  END IF;
+
+  -- The titular is who is responsible for the purchase, so the guardian block is
+  -- asked once, never once per companion.
+  IF v_is_minor THEN
+    IF (
+      (p_tutor_id IS NULL)
+      AND (p_tutor_first_name IS NULL OR btrim(p_tutor_first_name) = '')
+    ) THEN
+      RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'event_tutor_required', 0, NULL::numeric(12,2);
+      RETURN;
+    END IF;
+  END IF;
+
+  -- Package mode is inferred from having at least one active package (D2).
+  v_has_packages := EXISTS (
+    SELECT 1
+    FROM public.event_ticket_packages tp
+    WHERE tp.event_id = p_event_id
+      AND tp.archived_at IS NULL
+  );
+
+  IF p_ticket_package_id IS NOT NULL AND NOT v_has_packages THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'package_not_allowed', 0, NULL::numeric(12,2);
+    RETURN;
+  END IF;
+
+  IF v_has_packages AND p_ticket_package_id IS NULL THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'package_required', 0, NULL::numeric(12,2);
+    RETURN;
+  END IF;
+
+  IF p_ticket_package_id IS NOT NULL THEN
+    SELECT *
+    INTO v_package
+    FROM public.event_ticket_packages tp
+    WHERE tp.id = p_ticket_package_id
+      AND tp.event_id = p_event_id
+      AND tp.archived_at IS NULL;
+
+    IF v_package.id IS NULL THEN
+      RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'package_not_found', 0, NULL::numeric(12,2);
+      RETURN;
+    END IF;
+  END IF;
+
+  -- Seats: the titular plus one per companion.
+  IF jsonb_typeof(p_companions) = 'array' THEN
+    v_seats := 1 + jsonb_array_length(p_companions);
+  ELSE
+    v_seats := 1;
+  END IF;
+
+  IF v_seats > 1 AND NOT COALESCE(v_event.allow_multiple_tickets, false) THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'multiple_tickets_not_allowed', 0, NULL::numeric(12,2);
+    RETURN;
+  END IF;
+
+  -- The maximum is never null while multiple tickets are allowed (migration 183's
+  -- CHECK), so there is no unlimited branch to fall through to.
+  IF v_seats > 1 AND v_seats > COALESCE(v_event.max_tickets_per_registration, 1) THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'too_many_tickets', COALESCE(v_event.max_tickets_per_registration, 1), NULL::numeric(12,2);
+    RETURN;
+  END IF;
+
+  IF v_seats > 1 AND EXISTS (
+    SELECT 1
+    FROM jsonb_array_elements(p_companions) c
+    WHERE COALESCE(btrim(c->>'first_name'), '') = ''
+       OR COALESCE(btrim(c->>'last_name'), '') = ''
+  ) THEN
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'companion_name_required', 0, NULL::numeric(12,2);
+    RETURN;
+  END IF;
+
+  -- Price: the package wins in package mode; otherwise the residency resolution
+  -- is byte-for-byte the one that has always run here.
+  IF v_package.id IS NOT NULL THEN
+    v_price := v_package.price;
+  ELSE
+    v_local_price := COALESCE(v_event.price_local, v_event.price, 0);
+    v_non_local_price := COALESCE(v_event.price_non_local, v_local_price, 0);
+    v_price := CASE
+      WHEN COALESCE(p_is_local_resident, true) THEN v_local_price
+      ELSE v_non_local_price
+    END;
+  END IF;
+
+  v_total := COALESCE(v_price, 0) * v_seats;
+
+  -- Availability. Waitlist rows deliberately do not occupy a seat — that is what
+  -- makes a waitlist a waitlist — so the count is unchanged from before.
+  SELECT COUNT(*)::int
+  INTO v_occupied_count
+  FROM public.event_attendees ea
+  WHERE ea.event_id = p_event_id
+    AND ea.status IN ('confirmed', 'pending_payment');
+
+  v_remaining := v_event.capacity - v_occupied_count;
+
+  IF v_package.id IS NOT NULL AND v_package.capacity IS NOT NULL THEN
+    SELECT COUNT(*)::int
+    INTO v_package_occupied
+    FROM public.event_attendees ea
+    WHERE ea.event_id = p_event_id
+      AND ea.ticket_package_id = v_package.id
+      AND ea.status IN ('confirmed', 'pending_payment');
+
+    v_package_remaining := v_package.capacity - v_package_occupied;
+    IF v_package_remaining < v_remaining THEN
+      v_remaining := v_package_remaining;
+    END IF;
+  END IF;
+
+  IF v_remaining <= 0 THEN
+    -- Nothing left at all: the whole group waits together (D6).
+    v_target_status := 'waitlist';
+  ELSIF v_remaining < v_seats THEN
+    -- Some room but not enough: refuse and say how much is left, rather than
+    -- splitting a family across a confirmation and a waitlist.
+    RETURN QUERY SELECT NULL::uuid, NULL::public.event_attendee_status, false, NULL::uuid, 'insufficient_seats', v_remaining, v_total;
+    RETURN;
+  ELSE
+    IF v_total IS NULL OR v_total = 0 THEN
+      v_target_status := 'confirmed';
+    ELSE
+      v_target_status := 'pending_payment';
+    END IF;
+  END IF;
+
+  INSERT INTO public.event_attendees (
+    event_id,
+    user_id,
+    tutor_id,
+    first_name,
+    last_name,
+    dni_or_passport,
+    email,
+    phone,
+    birth_date,
+    status,
+    source,
+    is_local_resident,
+    tutor_first_name,
+    tutor_last_name,
+    tutor_dni_or_passport,
+    tutor_email,
+    tutor_phone,
+    tutor_relationship,
+    ticket_package_id
+  ) VALUES (
+    p_event_id,
+    p_user_id,
+    p_tutor_id,
+    btrim(p_first_name),
+    btrim(p_last_name),
+    btrim(p_dni_or_passport),
+    lower(btrim(p_email)),
+    NULLIF(btrim(COALESCE(p_phone, '')), ''),
+    p_birth_date,
+    v_target_status,
+    COALESCE(NULLIF(btrim(COALESCE(p_source, '')), ''), 'public'),
+    COALESCE(p_is_local_resident, true),
+    NULLIF(btrim(COALESCE(p_tutor_first_name, '')), ''),
+    NULLIF(btrim(COALESCE(p_tutor_last_name, '')), ''),
+    NULLIF(btrim(COALESCE(p_tutor_dni_or_passport, '')), ''),
+    NULLIF(lower(btrim(COALESCE(p_tutor_email, ''))), ''),
+    NULLIF(btrim(COALESCE(p_tutor_phone, '')), ''),
+    NULLIF(btrim(COALESCE(p_tutor_relationship, '')), ''),
+    p_ticket_package_id
+  )
+  RETURNING id INTO v_attendee_id;
+
+  IF jsonb_typeof(p_field_values) = 'array' THEN
+    INSERT INTO public.event_attendee_field_values (
+      attendee_id,
+      field_id,
+      value_text,
+      value_number,
+      value_date,
+      file_storage_path
+    )
+    SELECT
+      v_attendee_id,
+      (raw_item->>'field_id')::uuid,
+      NULLIF(raw_item->>'value_text', ''),
+      (raw_item->>'value_number')::numeric,
+      (raw_item->>'value_date')::date,
+      NULLIF(raw_item->>'file_storage_path', '')
+    FROM jsonb_array_elements(p_field_values) raw_item
+    WHERE (raw_item->>'field_id') IS NOT NULL
+      AND EXISTS (
+        SELECT 1
+        FROM public.event_form_fields f
+        WHERE f.id = (raw_item->>'field_id')::uuid
+          AND f.event_id = p_event_id
+          AND f.archived_at IS NULL
+      );
+  END IF;
+
+  -- Companion seats. Same status and same package as the titular, so the whole
+  -- purchase moves as one. Optional identity fields are written only where the
+  -- event asks for them.
+  IF v_seats > 1 THEN
+    FOR v_companion IN SELECT * FROM jsonb_array_elements(p_companions)
+    LOOP
+      INSERT INTO public.event_attendees (
+        event_id,
+        first_name,
+        last_name,
+        dni_or_passport,
+        email,
+        birth_date,
+        status,
+        source,
+        is_local_resident,
+        ticket_package_id,
+        primary_attendee_id
+      ) VALUES (
+        p_event_id,
+        btrim(v_companion->>'first_name'),
+        btrim(v_companion->>'last_name'),
+        CASE
+          WHEN COALESCE(v_event.companion_collect_dni, false)
+          THEN NULLIF(btrim(COALESCE(v_companion->>'dni_or_passport', '')), '')
+          ELSE NULL
+        END,
+        CASE
+          WHEN COALESCE(v_event.companion_collect_email, false)
+          THEN NULLIF(lower(btrim(COALESCE(v_companion->>'email', ''))), '')
+          ELSE NULL
+        END,
+        CASE
+          WHEN COALESCE(v_event.companion_collect_birth_date, false)
+          THEN NULLIF(btrim(COALESCE(v_companion->>'birth_date', '')), '')::date
+          ELSE NULL
+        END,
+        v_target_status,
+        COALESCE(NULLIF(btrim(COALESCE(p_source, '')), ''), 'public'),
+        COALESCE(p_is_local_resident, true),
+        p_ticket_package_id,
+        v_attendee_id
+      )
+      RETURNING id INTO v_companion_id;
+
+      -- Only questions the event marked as per-companion are stored here.
+      IF jsonb_typeof(v_companion->'field_values') = 'array' THEN
+        INSERT INTO public.event_attendee_field_values (
+          attendee_id,
+          field_id,
+          value_text,
+          value_number,
+          value_date,
+          file_storage_path
+        )
+        SELECT
+          v_companion_id,
+          (raw_item->>'field_id')::uuid,
+          NULLIF(raw_item->>'value_text', ''),
+          (raw_item->>'value_number')::numeric,
+          (raw_item->>'value_date')::date,
+          NULLIF(raw_item->>'file_storage_path', '')
+        FROM jsonb_array_elements(v_companion->'field_values') raw_item
+        WHERE (raw_item->>'field_id') IS NOT NULL
+          AND EXISTS (
+            SELECT 1
+            FROM public.event_form_fields f
+            WHERE f.id = (raw_item->>'field_id')::uuid
+              AND f.event_id = p_event_id
+              AND f.archived_at IS NULL
+              AND f.collect_for_companions = true
+          );
+      END IF;
+    END LOOP;
+  END IF;
+
+  -- Deferred payment lifecycle: no event_payments row is created here. Gateway-confirmed
+  -- payments are materialized as `approved` by the finalize flow; transfer payments are
+  -- materialized as `pending` only when a receipt is uploaded. The payment belongs to the
+  -- titular and carries the full v_total, so a purchase never yields two payment rows.
+
+  RETURN QUERY
+    SELECT
+      v_attendee_id,
+      v_target_status,
+      (v_target_status = 'pending_payment'),
+      NULL::uuid,
+      CASE
+        WHEN v_target_status = 'waitlist' THEN 'waitlist'
+        WHEN v_target_status = 'pending_payment' THEN 'payment_pending'
+        ELSE 'confirmed'
+      END,
+      v_seats,
+      v_total;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.enroll_event_attendee(
+  UUID,
+  UUID,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  DATE,
+  UUID,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  BOOLEAN,
+  JSONB,
+  UUID,
+  JSONB
+) FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.enroll_event_attendee(
+  UUID,
+  UUID,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  DATE,
+  UUID,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  TEXT,
+  BOOLEAN,
+  JSONB,
+  UUID,
+  JSONB
+) TO anon, authenticated;
+
+-- ========== 185_events_aggregates_seats.sql ==========
+
+-- 185_events_aggregates_seats.sql
+--
+-- Seats and registrations are different numbers now.
+--
+-- Until packages, one attendee row was one person who signed up, so counting
+-- rows answered both "how many people registered" and "how many seats are
+-- taken". A multi-ticket purchase is one titular row plus one row per
+-- companion, so those two questions now have different answers and an admin
+-- reading a single number cannot tell which one they got.
+--
+-- Both aggregate functions keep every column they already returned, counting
+-- exactly what they counted before (the loaders read by name), and gain
+-- total_registrations (titular rows only) and total_seats (every row that still
+-- holds a seat).
+--
+-- The return type widens, which CREATE OR REPLACE cannot do, so each function is
+-- dropped and recreated in this transaction.
+
+BEGIN;
+
+DROP FUNCTION IF EXISTS public.events_admin_list_aggregates(TEXT, public.event_status[]);
+
+CREATE OR REPLACE FUNCTION public.events_admin_list_aggregates(
+  p_search TEXT DEFAULT '',
+  p_status public.event_status[] DEFAULT NULL
+)
+RETURNS TABLE (
+  total_events BIGINT,
+  total_published BIGINT,
+  total_upcoming BIGINT,
+  total_attendees BIGINT,
+  total_waitlist BIGINT,
+  total_registrations BIGINT,
+  total_seats BIGINT
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  WITH filtered_events AS (
+    SELECT e.id, e.status, e.event_date
+    FROM public.events e
+    WHERE e.archived_at IS NULL
+      AND (
+        p_search IS NULL
+        OR btrim(p_search) = ''
+        OR e.title ILIKE ('%' || p_search || '%')
+        OR e.slug ILIKE ('%' || p_search || '%')
+      )
+      AND (
+        p_status IS NULL
+        OR cardinality(p_status) = 0
+        OR e.status = ANY(p_status)
+      )
+  )
+  SELECT
+    COUNT(*)::bigint AS total_events,
+    COUNT(*) FILTER (WHERE fe.status = 'published')::bigint AS total_published,
+    COUNT(*) FILTER (WHERE fe.event_date >= now())::bigint AS total_upcoming,
+    -- Unchanged meaning: every attendee row, whatever its status.
+    (
+      SELECT COUNT(*)::bigint
+      FROM public.event_attendees ea
+      WHERE ea.event_id IN (SELECT id FROM filtered_events)
+    ) AS total_attendees,
+    (
+      SELECT COUNT(*)::bigint
+      FROM public.event_attendees ea
+      WHERE ea.event_id IN (SELECT id FROM filtered_events)
+        AND ea.status = 'waitlist'
+    ) AS total_waitlist,
+    (
+      SELECT COUNT(*) FILTER (WHERE ea.primary_attendee_id IS NULL)::bigint
+      FROM public.event_attendees ea
+      WHERE ea.event_id IN (SELECT id FROM filtered_events)
+        AND ea.status <> 'cancelled'
+    ) AS total_registrations,
+    (
+      SELECT COUNT(*)::bigint
+      FROM public.event_attendees ea
+      WHERE ea.event_id IN (SELECT id FROM filtered_events)
+        AND ea.status <> 'cancelled'
+    ) AS total_seats
+  FROM filtered_events fe;
+$$;
+
+DROP FUNCTION IF EXISTS public.events_admin_attendees_aggregates(UUID);
+
+CREATE OR REPLACE FUNCTION public.events_admin_attendees_aggregates(
+  p_event_id UUID
+)
+RETURNS TABLE (
+  total_attendees BIGINT,
+  total_confirmed BIGINT,
+  total_pending_payment BIGINT,
+  total_waitlist BIGINT,
+  total_cancelled BIGINT,
+  total_registrations BIGINT,
+  total_seats BIGINT
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    -- The five originals keep counting rows by status, exactly as before.
+    COUNT(*)::bigint AS total_attendees,
+    COUNT(*) FILTER (WHERE ea.status = 'confirmed')::bigint AS total_confirmed,
+    COUNT(*) FILTER (WHERE ea.status = 'pending_payment')::bigint AS total_pending_payment,
+    COUNT(*) FILTER (WHERE ea.status = 'waitlist')::bigint AS total_waitlist,
+    COUNT(*) FILTER (WHERE ea.status = 'cancelled')::bigint AS total_cancelled,
+    COUNT(*) FILTER (
+      WHERE ea.primary_attendee_id IS NULL AND ea.status <> 'cancelled'
+    )::bigint AS total_registrations,
+    COUNT(*) FILTER (WHERE ea.status <> 'cancelled')::bigint AS total_seats
+  FROM public.event_attendees ea
+  WHERE ea.event_id = p_event_id;
+$$;
+
+REVOKE ALL ON FUNCTION public.events_admin_list_aggregates(TEXT, public.event_status[]) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.events_admin_attendees_aggregates(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.events_admin_list_aggregates(TEXT, public.event_status[]) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.events_admin_attendees_aggregates(UUID) TO authenticated;
+
+COMMIT;
+
+-- ========== 186_section_enrollment_links_bulk_state.sql ==========
+
+-- Bulk companion to section_enrollment_link_state, so the teacher's section list can
+-- offer a copy button without one round trip per section. Same staff gate, applied per
+-- row: a caller sees only the links of sections they administer or staff.
+CREATE OR REPLACE FUNCTION public.section_enrollment_links_for_staff()
+RETURNS TABLE (section_id UUID, token UUID, is_active BOOLEAN)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT l.section_id, l.token, l.is_active
+  FROM public.section_enrollment_links l
+  WHERE public.is_admin(auth.uid())
+     OR public.user_leads_or_assists_section(auth.uid(), l.section_id);
+$$;
+
+COMMENT ON FUNCTION public.section_enrollment_links_for_staff() IS
+  'Enrollment links for every section the caller administers or staffs; empty for anyone else.';
+
+REVOKE ALL ON FUNCTION public.section_enrollment_links_for_staff() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.section_enrollment_links_for_staff() FROM anon;
+GRANT EXECUTE ON FUNCTION public.section_enrollment_links_for_staff() TO authenticated;
+
+-- ========== 187_anon_privilege_hardening.sql ==========
+
+-- Take write privileges away from the anonymous role, and stop new tables from being
+-- born with them.
+--
+-- CANONICAL WARNING FOR EVERY FUTURE MIGRATION: never repeat migration 166 line 12 —
+-- `GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated` — and never restore
+-- ALL in the default privileges. That single statement silently undoes this whole file,
+-- plus the REVOKEs in 180, 181 and 182, without touching RLS, so nothing looks broken
+-- afterwards. If a new table needs anonymous access, grant it on that table by name, the
+-- way `registrations` is granted below.
+--
+-- What 166 left behind, measured on a local database before this migration: `anon` held
+-- DELETE, INSERT, UPDATE, TRUNCATE, TRIGGER and REFERENCES on 83-85 tables of `public`.
+-- RLS gates SELECT/INSERT/UPDATE/DELETE, so those were contained in practice, but
+-- TRUNCATE is not gated by row security at all — no policy can stop it, and no policy
+-- could have. PostgREST does not expose TRUNCATE, so there is no known route from the
+-- public API; the privilege is removed because it has no legitimate purpose, not because
+-- an exploit is known.
+--
+-- SELECT is deliberately untouched. site_settings, site_themes, site_theme_media,
+-- blog_articles, blog_article_translations, events, event_translations,
+-- event_form_fields, badge_catalog, badge_translations and academic_cohorts are
+-- genuinely public reads that RLS already scopes correctly.
+
+-- 1. Every write privilege off `anon`, schema-wide -------------------------------------
+--
+-- Verified on a local database that this removes nothing the application uses: the only
+-- non-SELECT policy in `public` that a true anonymous caller can satisfy is
+-- `registrations_insert_public`. Every other write policy naming `anon` (directly or via
+-- TO public) requires auth.uid() or is_admin(auth.uid()) in its USING/CHECK —
+-- profiles_insert_admin_only, enrollments_insert_admin, tutor_student_rel_update_admin,
+-- push_subscriptions_users_own — which an anonymous caller can never satisfy. The two
+-- anon-key API routes that do write (api/analytics/events, api/push/subscribe) both
+-- return 401 before touching the database when there is no session, and once there is a
+-- session the effective role is `authenticated`, whose INSERT/UPDATE/DELETE stay intact.
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE, TRIGGER, REFERENCES
+  ON ALL TABLES IN SCHEMA public FROM anon;
+
+-- 2. The one legitimate anonymous write, restored immediately --------------------------
+--
+-- ORDER MATTERS: the blanket revoke above takes this away, so it has to come after.
+-- The public registration form (src/app/[locale]/register/actions.ts) inserts the lead
+-- with the SSR client on the anon key; with no session the effective role is `anon` and
+-- `registrations_insert_public` is what permits the row. Drop this line and public
+-- registration breaks for every tenant. INSERT only: anon still cannot read, amend or
+-- delete a lead — that is admin-only through RLS.
+GRANT INSERT ON public.registrations TO anon;
+
+-- 3. TRUNCATE, TRIGGER and REFERENCES off `authenticated` too --------------------------
+--
+-- Same argument as above and it is not academic. RLS cannot gate any of these three for
+-- `authenticated` either:
+--   * TRUNCATE — no policy applies; a logged-in user could empty a table outright.
+--   * TRIGGER — 166 also ran GRANT ALL ON ALL ROUTINES, so `authenticated` holds EXECUTE
+--     on SECURITY DEFINER trigger functions such as sync_class_credit_ledger(). TRIGGER
+--     on a table plus EXECUTE on such a function is enough to attach the ledger writer
+--     to an unrelated table and corrupt billing from a browser session.
+--   * REFERENCES — lets a caller add a foreign key pointing at a table and use the
+--     constraint check as an oracle for rows RLS is hiding.
+-- INSERT, UPDATE, DELETE and SELECT are kept: the application depends on all four for
+-- `authenticated` and RLS scopes them per row. No application path issues CREATE TRIGGER
+-- or ALTER TABLE ... ADD FOREIGN KEY; DDL runs as `postgres` through this directory.
+REVOKE TRUNCATE, TRIGGER, REFERENCES
+  ON ALL TABLES IN SCHEMA public FROM authenticated;
+
+-- 3b. MAINTAIN, on PostgreSQL 17 and newer only ----------------------------------------
+--
+-- Not in the original brief; found while verifying step 1 against the live database.
+-- `GRANT ALL` on PG17 includes MAINTAIN, which information_schema.role_table_grants does
+-- not report, so it is invisible to the usual audit query — `anon` held it on every table
+-- (has_table_privilege('anon', 'public.profiles', 'MAINTAIN') was true after steps 1-3).
+-- It allows VACUUM, ANALYZE, CLUSTER, REINDEX and REFRESH MATERIALIZED VIEW on the table.
+-- Same defect class as TRUNCATE: row security cannot gate it, and PostgREST cannot issue
+-- it, so it is unreachable from the public API but has no legitimate purpose either.
+--
+-- Wrapped in a version guard because MAINTAIN does not exist before PG17 and naming it
+-- there is a syntax error that would abort this migration on an older tenant. The guard
+-- makes it a no-op on PG16 and below rather than a failure. Local is 17.6.
+DO $$
+BEGIN
+  IF current_setting('server_version_num')::int >= 170000 THEN
+    EXECUTE 'REVOKE MAINTAIN ON ALL TABLES IN SCHEMA public FROM anon, authenticated';
+    -- Explicit `||` rather than two adjacent literals: implicit string continuation only
+    -- holds while the newline between them survives, and reflowing this onto one line
+    -- would turn it into a syntax error.
+    EXECUTE 'ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public'
+            || ' REVOKE MAINTAIN ON TABLES FROM anon, authenticated';
+  END IF;
+END
+$$;
+
+-- 4. The actual bug: stop the recurrence ----------------------------------------------
+--
+-- Everything above is a one-off cleanup. This is the part that stops the hole reopening.
+-- 166 set ALTER DEFAULT PRIVILEGES ... GRANT ALL ON TABLES TO anon, authenticated, so
+-- every table created since is born with ALL granted to `anon` before any policy exists.
+-- That is exactly how section_enrollment_links — a table whose whole security model is
+-- "no grants, no policies" — came to need an explicit REVOKE in migration 182, and why
+-- 180 needed one too.
+--
+-- BLAST RADIUS, deliberately accepted: from here on a new table in `public` is born
+-- SELECT-only for `anon` and without TRUNCATE/TRIGGER/REFERENCES for `authenticated`.
+-- A future migration that wants anonymous writes must say so explicitly, per table, as
+-- in step 2. That is the point: anonymous write access becomes a decision someone wrote
+-- down rather than a default nobody chose. SELECT is left in the defaults so new public
+-- read surfaces keep working the way migrations 167-184 assume, and `service_role` is
+-- untouched everywhere, so admin clients and SECURITY DEFINER paths are unaffected.
+--
+-- FOR ROLE postgres is the whole fix in practice, not a partial one: migrations run as
+-- `postgres` and every table in `public` is owned by `postgres`. There is a second,
+-- Supabase-platform default ACL owned by `supabase_admin` that still carries ALL for
+-- `anon`; it cannot be altered from here (`postgres` is not a member of
+-- `supabase_admin`) and it does not apply, because it only governs tables that
+-- `supabase_admin` itself creates. If a future table is ever created by that role, it
+-- will need an explicit REVOKE.
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+  REVOKE INSERT, UPDATE, DELETE, TRUNCATE, TRIGGER, REFERENCES ON TABLES FROM anon;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+  REVOKE TRUNCATE, TRIGGER, REFERENCES ON TABLES FROM authenticated;
+
+-- 5. Sequences, same root cause ---------------------------------------------------------
+--
+-- 166 also ran GRANT ALL ON ALL SEQUENCES, so `anon` holds SELECT, UPDATE and USAGE on
+-- `public.payment_flow_commerce_serial_seq` — the only sequence in the schema. UPDATE and
+-- USAGE together allow nextval and setval, which would let the anonymous role burn or
+-- rewind the Flow.cl commerceOrder counter.
+--
+-- Safe to take away: the sequence has no owning table and its only two consumers,
+-- `payment_flow_reserve_commerce_ref` and `payment_flow_reserve_commerce_ref_slot`, are
+-- SECURITY DEFINER functions owned by `postgres`, so they draw values with the definer's
+-- privileges and never the caller's. `authenticated` keeps its grants: logged-in checkout
+-- paths are out of scope here and a wrong guess would break payments.
+REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM anon;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+  REVOKE ALL ON SEQUENCES FROM anon;
+
+-- Idempotent by construction: REVOKE of an absent privilege and GRANT of a held one are
+-- both no-ops, and ALTER DEFAULT PRIVILEGES ... REVOKE re-runs cleanly. Confirmed by
+-- applying this file twice in a row against the local database. Nothing here touches a
+-- row or a column, so rule 21 has nothing to object to: the words TRUNCATE and MAINTAIN
+-- appear only as privilege names inside REVOKE.
+
+-- ========== 188_registration_additional_sections.sql ==========
+
+-- Extra sections on a public registration lead, plus a name-only student lookup
+-- for the inscription wizard. Additive only.
+-- Spec: docs/superpowers/specs/2026-08-24-registration-existing-student-and-multi-section-design.md
+
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS additional_section_ids UUID[] NOT NULL DEFAULT '{}';
+
+COMMENT ON COLUMN public.registrations.additional_section_ids IS
+  'Academic sections requested besides preferred_section_id. Empty when undecided or a single pick.';
+
+CREATE OR REPLACE FUNCTION public.lookup_registration_student(p_dni text)
+RETURNS TABLE (found boolean, first_name text, last_name text)
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_norm text;
+  v_first text;
+  v_last text;
+  v_role public.user_role;
+BEGIN
+  v_norm := lower(trim(both FROM replace(replace(COALESCE(p_dni, ''), '.', ''), ' ', '')));
+  IF v_norm = '' THEN
+    RETURN QUERY SELECT false, NULL::text, NULL::text;
+    RETURN;
+  END IF;
+
+  SELECT p.first_name, p.last_name, p.role
+    INTO v_first, v_last, v_role
+  FROM public.profiles p
+  WHERE lower(trim(both FROM replace(replace(COALESCE(p.dni_or_passport, ''), '.', ''), ' ', ''))) = v_norm
+  LIMIT 1;
+
+  IF v_role = 'student' THEN
+    RETURN QUERY SELECT true, v_first, v_last;
+  ELSE
+    RETURN QUERY SELECT false, NULL::text, NULL::text;
+  END IF;
+END;
+$$;
+
+COMMENT ON FUNCTION public.lookup_registration_student(text) IS
+  'Anonymous registration lookup: student first/last name by document, or found=false. No other columns.';
+
+REVOKE ALL ON FUNCTION public.lookup_registration_student(text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.lookup_registration_student(text) TO anon, authenticated;
+
+-- ========== 189_section_reference_image.sql ==========
+
+-- Optional section photo for enrollment-link share previews and identity surfaces.
+-- Spec: docs/superpowers/specs/2026-08-25-section-enrollment-link-slug-and-share-design.md
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS reference_image_path TEXT;
+
+COMMENT ON COLUMN public.academic_sections.reference_image_path IS
+  'Object path in the section-images bucket. Null when the section has no photo.';
+
+DROP FUNCTION IF EXISTS public.resolve_section_enrollment_link(uuid);
+
+CREATE FUNCTION public.resolve_section_enrollment_link(p_token uuid)
+RETURNS TABLE (
+  section_id UUID,
+  section_name TEXT,
+  cohort_name TEXT,
+  schedule_slots JSONB,
+  seats_remaining INT,
+  reference_image_path TEXT
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    s.id,
+    s.name,
+    c.name,
+    s.schedule_slots,
+    CASE
+      WHEN s.max_students IS NULL THEN NULL
+      ELSE GREATEST(
+        s.max_students - (
+          SELECT count(*)
+          FROM public.section_enrollments se
+          WHERE se.section_id = s.id
+            AND se.status = 'active'
+        ),
+        0
+      )::INT
+    END,
+    s.reference_image_path
+  FROM public.section_enrollment_links l
+  INNER JOIN public.academic_sections s ON s.id = l.section_id
+  INNER JOIN public.academic_cohorts c ON c.id = s.cohort_id
+  WHERE l.token = p_token
+    AND l.is_active = true
+    AND s.archived_at IS NULL
+    AND c.archived_at IS NULL
+  LIMIT 1;
+$$;
+
+COMMENT ON FUNCTION public.resolve_section_enrollment_link(uuid) IS
+  'Section behind a public enrollment link token, or no rows when the link is inactive, archived or unknown.';
+
+REVOKE ALL ON FUNCTION public.resolve_section_enrollment_link(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.resolve_section_enrollment_link(uuid) TO anon;
+GRANT EXECUTE ON FUNCTION public.resolve_section_enrollment_link(uuid) TO authenticated;
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('section-images', 'section-images', TRUE)
+ON CONFLICT (id) DO NOTHING;
+
+DROP POLICY IF EXISTS section_images_select_public ON storage.objects;
+CREATE POLICY section_images_select_public
+  ON storage.objects FOR SELECT
+  TO anon, authenticated
+  USING (bucket_id = 'section-images');
+
+DROP POLICY IF EXISTS section_images_insert_admin ON storage.objects;
+CREATE POLICY section_images_insert_admin
+  ON storage.objects FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    bucket_id = 'section-images'
+    AND public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS section_images_update_admin ON storage.objects;
+CREATE POLICY section_images_update_admin
+  ON storage.objects FOR UPDATE
+  TO authenticated
+  USING (
+    bucket_id = 'section-images'
+    AND public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS section_images_delete_admin ON storage.objects;
+CREATE POLICY section_images_delete_admin
+  ON storage.objects FOR DELETE
+  TO authenticated
+  USING (
+    bucket_id = 'section-images'
+    AND public.is_admin(auth.uid())
+  );
+
+-- ========== 190_registration_tenant_extras.sql ==========
+
+-- Tenant registration pack payload (Nagô ficha extras). Empty object when the
+-- tenant has no pack. Additive only.
+-- Spec: docs/superpowers/specs/2026-08-25-nago-registration-extras-pack-design.md
+
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS tenant_extras JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+COMMENT ON COLUMN public.registrations.tenant_extras IS
+  'Extras for a tenant registration pack; {} when the tenant has no pack.';
+
+-- ========== 191_section_enrollment_link_count_includes_enrolled.sql ==========
+
+-- Count every registration produced by the section link, including accepted ones.
+-- The panel copy talks about families who used the link; excluding status = enrolled
+-- made the count drop to zero after accept, which looked like nobody had used it.
+
+CREATE OR REPLACE FUNCTION public.section_enrollment_link_lead_count(p_section_id uuid)
+RETURNS BIGINT
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT CASE
+    WHEN public.is_admin(auth.uid())
+      OR public.user_leads_or_assists_section(auth.uid(), p_section_id)
+    THEN (
+      SELECT count(*)
+      FROM public.registrations r
+      WHERE r.source_section_link_id = p_section_id
+    )
+    ELSE 0::BIGINT
+  END;
+$$;
+
+COMMENT ON FUNCTION public.section_enrollment_link_lead_count(uuid) IS
+  'Registrations produced by a section enrollment link, including enrolled; zero unless the caller is an admin or section staff.';
+
+REVOKE ALL ON FUNCTION public.section_enrollment_link_lead_count(uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.section_enrollment_link_lead_count(uuid) FROM anon;
+GRANT EXECUTE ON FUNCTION public.section_enrollment_link_lead_count(uuid) TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.section_enrollment_link_state(p_section_id uuid)
+RETURNS TABLE (
+  token UUID,
+  is_active BOOLEAN,
+  lead_count BIGINT
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    l.token,
+    l.is_active,
+    (
+      SELECT count(*)
+      FROM public.registrations r
+      WHERE r.source_section_link_id = p_section_id
+    )
+  FROM public.section_enrollment_links l
+  WHERE l.section_id = p_section_id
+    AND (
+      public.is_admin(auth.uid())
+      OR public.user_leads_or_assists_section(auth.uid(), p_section_id)
+    )
+  LIMIT 1;
+$$;
+
+COMMENT ON FUNCTION public.section_enrollment_link_state(uuid) IS
+  'Token, active flag and attributed registration count for a section, for admins and that section''s staff only.';
+
+REVOKE ALL ON FUNCTION public.section_enrollment_link_state(uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.section_enrollment_link_state(uuid) FROM anon;
+GRANT EXECUTE ON FUNCTION public.section_enrollment_link_state(uuid) TO authenticated;
+
+-- ========== 192_payment_monthly_checkout_bundles.sql ==========
+
+-- Multi-section monthly checkout (parent review: pay every payable section in one charge).
+-- One Flow/MP checkout maps to N (student, section, month, year) slots.
+-- Abandoned checkouts still create no payments rows (deferred creation).
+
+BEGIN;
+
+CREATE TABLE public.payment_monthly_checkout_bundles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE CASCADE,
+  parent_id UUID REFERENCES public.profiles (id) ON DELETE SET NULL,
+  year INT NOT NULL,
+  month INT NOT NULL,
+  currency TEXT NOT NULL,
+  expected_total NUMERIC NOT NULL,
+  section_ids UUID[] NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT payment_monthly_checkout_bundles_year_chk CHECK (year BETWEEN 2000 AND 2100),
+  CONSTRAINT payment_monthly_checkout_bundles_month_chk CHECK (month BETWEEN 1 AND 12),
+  CONSTRAINT payment_monthly_checkout_bundles_total_chk CHECK (expected_total > 0),
+  CONSTRAINT payment_monthly_checkout_bundles_sections_chk CHECK (cardinality(section_ids) >= 2)
+);
+
+COMMENT ON TABLE public.payment_monthly_checkout_bundles IS
+  'Deferred multi-section monthly checkout; payments rows materialize on gateway confirm.';
+
+ALTER TABLE public.payment_monthly_checkout_bundles ENABLE ROW LEVEL SECURITY;
+
+REVOKE ALL ON TABLE public.payment_monthly_checkout_bundles FROM PUBLIC;
+GRANT ALL ON TABLE public.payment_monthly_checkout_bundles TO service_role;
+
+ALTER TABLE public.payment_flow_checkout_refs
+  ADD COLUMN IF NOT EXISTS bundle_id UUID
+    REFERENCES public.payment_monthly_checkout_bundles (id) ON DELETE CASCADE;
+
+ALTER TABLE public.payment_flow_checkout_refs
+  DROP CONSTRAINT IF EXISTS payment_flow_checkout_refs_target_chk;
+
+ALTER TABLE public.payment_flow_checkout_refs
+  ADD CONSTRAINT payment_flow_checkout_refs_target_chk CHECK (
+    payment_id IS NOT NULL
+    OR (
+      student_id IS NOT NULL
+      AND section_id IS NOT NULL
+      AND year IS NOT NULL
+      AND month IS NOT NULL
+    )
+    OR bundle_id IS NOT NULL
+  );
+
+CREATE OR REPLACE FUNCTION public.payment_flow_reserve_commerce_ref_bundle(p_bundle_id UUID)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+SET row_security = off AS $$
+DECLARE
+  seq BIGINT;
+  ref TEXT;
+BEGIN
+  IF p_bundle_id IS NULL THEN
+    RAISE EXCEPTION 'invalid_bundle';
+  END IF;
+
+  seq := nextval('public.payment_flow_commerce_serial_seq'::regclass);
+  ref := 'MES-' || to_char(now() AT TIME ZONE 'utc', 'YYYY') || '-BN-' ||
+    LPAD(seq::text, 8, '0');
+
+  INSERT INTO public.payment_flow_checkout_refs (commerce_ref, bundle_id)
+  VALUES (ref, p_bundle_id);
+
+  RETURN ref;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.payment_flow_reserve_commerce_ref_bundle(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.payment_flow_reserve_commerce_ref_bundle(UUID) TO service_role;
+
+COMMIT;
+
+-- ========== 193_registration_section_options_hide_full.sql ==========
+
+-- Public pre-registration only lists sections that still have a seat.
+-- Unlimited sections (max_students IS NULL) stay listed, matching
+-- resolve_section_enrollment_link's seats_remaining = NULL meaning.
+
+CREATE OR REPLACE FUNCTION public.list_registration_section_options()
+RETURNS TABLE (id uuid, label text)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT s.id,
+         c.name || ' — ' || s.name AS label
+  FROM public.academic_sections s
+  INNER JOIN public.academic_cohorts c ON c.id = s.cohort_id
+  WHERE c.is_current = true
+    AND c.archived_at IS NULL
+    AND s.archived_at IS NULL
+    AND (
+      s.max_students IS NULL
+      OR (
+        SELECT count(*)
+        FROM public.section_enrollments se
+        WHERE se.section_id = s.id
+          AND se.status = 'active'
+      ) < s.max_students
+    )
+  ORDER BY c.name, s.name;
+$$;
+
+COMMENT ON FUNCTION public.list_registration_section_options() IS
+  'Sections offered for public enrollment (current cohort, not archived, with open seats).';
+
+REVOKE ALL ON FUNCTION public.list_registration_section_options() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.list_registration_section_options() TO anon;
+GRANT EXECUTE ON FUNCTION public.list_registration_section_options() TO authenticated;
+
+-- ========== 194_registration_enrollment_fee_checkout.sql ==========
+
+-- Guest matrícula checkout for public pre-inscriptions.
+-- Additive: lead token/snapshot/intake, cohort fee mode, Flow ref → registration.
+
+BEGIN;
+
+ALTER TABLE public.academic_cohorts
+  ADD COLUMN IF NOT EXISTS enrollment_fee_mode TEXT NOT NULL DEFAULT 'per_section';
+
+ALTER TABLE public.academic_cohorts
+  DROP CONSTRAINT IF EXISTS academic_cohorts_enrollment_fee_mode_chk;
+
+ALTER TABLE public.academic_cohorts
+  ADD CONSTRAINT academic_cohorts_enrollment_fee_mode_chk
+  CHECK (enrollment_fee_mode IN ('once_for_all', 'per_section'));
+
+COMMENT ON COLUMN public.academic_cohorts.enrollment_fee_mode IS
+  'once_for_all = one matrícula covers every section; per_section = fees add up.';
+
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS pay_token TEXT,
+  ADD COLUMN IF NOT EXISTS intake_state TEXT NOT NULL DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS fee_snapshot JSONB NOT NULL DEFAULT '{}'::jsonb,
+  ADD COLUMN IF NOT EXISTS fee_captured BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS enrollment_fee_receipt_path TEXT,
+  ADD COLUMN IF NOT EXISTS accepted_student_id UUID REFERENCES public.profiles (id) ON DELETE SET NULL;
+
+UPDATE public.registrations
+SET pay_token = encode(gen_random_bytes(32), 'hex')
+WHERE pay_token IS NULL;
+
+ALTER TABLE public.registrations
+  ALTER COLUMN pay_token SET NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS registrations_pay_token_uidx
+  ON public.registrations (pay_token);
+
+ALTER TABLE public.registrations
+  DROP CONSTRAINT IF EXISTS registrations_intake_state_chk;
+
+ALTER TABLE public.registrations
+  ADD CONSTRAINT registrations_intake_state_chk
+  CHECK (intake_state IN (
+    'none',
+    'awaiting_fee',
+    'receipt_pending',
+    'needs_section',
+    'section_full'
+  ));
+
+ALTER TABLE public.payment_flow_checkout_refs
+  ADD COLUMN IF NOT EXISTS registration_id UUID
+    REFERENCES public.registrations (id) ON DELETE CASCADE;
+
+ALTER TABLE public.payment_flow_checkout_refs
+  DROP CONSTRAINT IF EXISTS payment_flow_checkout_refs_target_chk;
+
+ALTER TABLE public.payment_flow_checkout_refs
+  ADD CONSTRAINT payment_flow_checkout_refs_target_chk CHECK (
+    payment_id IS NOT NULL
+    OR (
+      student_id IS NOT NULL
+      AND section_id IS NOT NULL
+      AND year IS NOT NULL
+      AND month IS NOT NULL
+    )
+    OR bundle_id IS NOT NULL
+    OR registration_id IS NOT NULL
+  );
+
+CREATE OR REPLACE FUNCTION public.payment_flow_reserve_commerce_ref_enrollment(
+  p_registration_id UUID
+)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+SET row_security = off AS $$
+DECLARE
+  seq BIGINT;
+  ref TEXT;
+BEGIN
+  IF p_registration_id IS NULL THEN
+    RAISE EXCEPTION 'invalid_registration';
+  END IF;
+
+  seq := nextval('public.payment_flow_commerce_serial_seq'::regclass);
+  ref := 'MAT-' || to_char(now() AT TIME ZONE 'utc', 'YYYY') || '-' ||
+    LPAD(seq::text, 8, '0');
+
+  INSERT INTO public.payment_flow_checkout_refs (commerce_ref, registration_id)
+  VALUES (ref, p_registration_id);
+
+  RETURN ref;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.payment_flow_reserve_commerce_ref_enrollment(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.payment_flow_reserve_commerce_ref_enrollment(UUID) TO service_role;
+
+CREATE OR REPLACE FUNCTION public.registration_public_section_has_open_seat(p_section_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.academic_sections s
+    INNER JOIN public.academic_cohorts c ON c.id = s.cohort_id
+    WHERE s.id = p_section_id
+      AND c.is_current = true
+      AND c.archived_at IS NULL
+      AND s.archived_at IS NULL
+      AND (
+        s.max_students IS NULL
+        OR (
+          SELECT count(*)
+          FROM public.section_enrollments se
+          WHERE se.section_id = s.id
+            AND se.status = 'active'
+        ) < s.max_students
+      )
+  );
+$$;
+
+COMMENT ON FUNCTION public.registration_public_section_has_open_seat(uuid) IS
+  'True when the section is public, current, and still has a seat (or unlimited).';
+
+REVOKE ALL ON FUNCTION public.registration_public_section_has_open_seat(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.registration_public_section_has_open_seat(uuid) TO anon;
+GRANT EXECUTE ON FUNCTION public.registration_public_section_has_open_seat(uuid) TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.registration_public_pay_context(p_token text)
+RETURNS TABLE (
+  first_name text,
+  last_name text,
+  status text,
+  intake_state text,
+  fee_captured boolean,
+  fee_snapshot jsonb,
+  preferred_section_id uuid,
+  additional_section_ids uuid[]
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    r.first_name,
+    r.last_name,
+    r.status::text,
+    r.intake_state,
+    r.fee_captured,
+    r.fee_snapshot,
+    r.preferred_section_id,
+    r.additional_section_ids
+  FROM public.registrations r
+  WHERE r.pay_token = p_token
+  LIMIT 1;
+$$;
+
+COMMENT ON FUNCTION public.registration_public_pay_context(text) IS
+  'Safe guest projection for /matricula/[token]. No DNI, email, or tutor identity.';
+
+REVOKE ALL ON FUNCTION public.registration_public_pay_context(text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.registration_public_pay_context(text) TO anon;
+GRANT EXECUTE ON FUNCTION public.registration_public_pay_context(text) TO authenticated;
+
+COMMIT;
+
+-- ========== 195_cohort_default_fees.sql ==========
+
+-- Live matrícula / cuota defaults on the cohort. Section NULL enrollment
+-- inherits the cohort default; stored 0 stays "this section does not charge".
+-- Existing section rows are not rewritten.
+
+ALTER TABLE public.academic_cohorts
+  ADD COLUMN IF NOT EXISTS default_enrollment_fee_amount NUMERIC(12, 2) NULL;
+
+ALTER TABLE public.academic_cohorts
+  ADD COLUMN IF NOT EXISTS default_monthly_fee NUMERIC(12, 2) NULL;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'academic_cohorts_default_enrollment_fee_nonneg'
+  ) THEN
+    ALTER TABLE public.academic_cohorts
+      ADD CONSTRAINT academic_cohorts_default_enrollment_fee_nonneg
+      CHECK (
+        default_enrollment_fee_amount IS NULL
+        OR default_enrollment_fee_amount >= 0
+      );
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'academic_cohorts_default_monthly_fee_nonneg'
+  ) THEN
+    ALTER TABLE public.academic_cohorts
+      ADD CONSTRAINT academic_cohorts_default_monthly_fee_nonneg
+      CHECK (default_monthly_fee IS NULL OR default_monthly_fee >= 0);
+  END IF;
+END $$;
+
+ALTER TABLE public.academic_sections
+  ALTER COLUMN enrollment_fee_amount DROP NOT NULL;
+
+ALTER TABLE public.academic_sections
+  ALTER COLUMN enrollment_fee_amount SET DEFAULT NULL;
+
+ALTER TABLE public.academic_sections
+  DROP CONSTRAINT IF EXISTS academic_sections_enrollment_fee_nonneg;
+
+ALTER TABLE public.academic_sections
+  ADD CONSTRAINT academic_sections_enrollment_fee_nonneg
+  CHECK (enrollment_fee_amount IS NULL OR enrollment_fee_amount >= 0);
+
+COMMENT ON COLUMN public.academic_cohorts.default_enrollment_fee_amount IS
+  'Optional live default matrícula for sections with enrollment_fee_amount NULL.';
+
+COMMENT ON COLUMN public.academic_cohorts.default_monthly_fee IS
+  'Optional live default monthly fee when the section has no effective fee plan.';
+
+COMMENT ON COLUMN public.academic_sections.enrollment_fee_amount IS
+  'Section matrícula. NULL inherits the cohort default (or 0 if none). 0 = this section does not charge. Currency is the effective monthly plan currency.';
+
+-- ========== 196_trial_class_and_public_cta.sql ==========
+
+-- Trial class intent, per-seat holds, and public CTA mode.
+-- Additive only. public_cta_mode defaults to reserve except tenants whose
+-- theme kind is mozarthitos / espaciozenit / liora (seed both).
+
+BEGIN;
+
+INSERT INTO public.site_settings (key, value, updated_at)
+SELECT
+  'public_cta_mode',
+  CASE
+    WHEN EXISTS (
+      SELECT 1
+      FROM public.site_themes t
+      WHERE t.template_kind::text IN ('mozarthitos', 'espaciozenit', 'liora')
+    ) THEN '"both"'::jsonb
+    ELSE '"reserve"'::jsonb
+  END,
+  now()
+ON CONFLICT (key) DO NOTHING;
+
+DROP POLICY IF EXISTS site_settings_select_public ON public.site_settings;
+
+CREATE POLICY site_settings_select_public
+  ON public.site_settings FOR SELECT
+  TO anon, authenticated
+  USING (
+    key IN (
+      'inscriptions_enabled',
+      'initial_site_setup',
+      'billing_currency',
+      'bank_transfer_instructions',
+      'billing_model',
+      'public_cta_mode'
+    )
+  );
+
+COMMENT ON POLICY site_settings_select_public ON public.site_settings IS
+  'Public/authenticated reads for registration gating, wizard, billing, transfer instructions, billing model, and public CTA mode.';
+
+ALTER TABLE public.academic_cohorts
+  ADD COLUMN IF NOT EXISTS offers_trial BOOLEAN NOT NULL DEFAULT false;
+
+ALTER TABLE public.academic_cohorts
+  ADD COLUMN IF NOT EXISTS trial_fee_amount NUMERIC(12, 2) NOT NULL DEFAULT 0;
+
+ALTER TABLE public.academic_cohorts
+  DROP CONSTRAINT IF EXISTS academic_cohorts_trial_fee_nonneg;
+
+ALTER TABLE public.academic_cohorts
+  ADD CONSTRAINT academic_cohorts_trial_fee_nonneg
+  CHECK (trial_fee_amount >= 0);
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS offers_trial BOOLEAN NULL;
+
+ALTER TABLE public.academic_sections
+  ADD COLUMN IF NOT EXISTS trial_fee_amount NUMERIC(12, 2) NULL;
+
+ALTER TABLE public.academic_sections
+  DROP CONSTRAINT IF EXISTS academic_sections_trial_fee_nonneg;
+
+ALTER TABLE public.academic_sections
+  ADD CONSTRAINT academic_sections_trial_fee_nonneg
+  CHECK (trial_fee_amount IS NULL OR trial_fee_amount >= 0);
+
+COMMENT ON COLUMN public.academic_cohorts.offers_trial IS
+  'Cohort default: whether sections offer a trial class.';
+
+COMMENT ON COLUMN public.academic_cohorts.trial_fee_amount IS
+  'Cohort default trial fee. 0 = free when offered.';
+
+COMMENT ON COLUMN public.academic_sections.offers_trial IS
+  'NULL inherits the cohort. true/false overrides.';
+
+COMMENT ON COLUMN public.academic_sections.trial_fee_amount IS
+  'NULL inherits the cohort amount. 0 = free when the section offers trial.';
+
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS intent TEXT NOT NULL DEFAULT 'reserve';
+
+ALTER TABLE public.registrations
+  DROP CONSTRAINT IF EXISTS registrations_intent_chk;
+
+ALTER TABLE public.registrations
+  ADD CONSTRAINT registrations_intent_chk
+  CHECK (intent IN ('reserve', 'trial'));
+
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS trial_convert_token TEXT,
+  ADD COLUMN IF NOT EXISTS trial_convert_expires_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS trial_fee_snapshot JSONB NOT NULL DEFAULT '{}'::jsonb,
+  ADD COLUMN IF NOT EXISTS trial_fee_captured BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS trial_reschedule_token TEXT,
+  ADD COLUMN IF NOT EXISTS trial_invite_sent_at TIMESTAMPTZ;
+
+CREATE UNIQUE INDEX IF NOT EXISTS registrations_trial_convert_token_uidx
+  ON public.registrations (trial_convert_token)
+  WHERE trial_convert_token IS NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS registrations_trial_reschedule_token_uidx
+  ON public.registrations (trial_reschedule_token)
+  WHERE trial_reschedule_token IS NOT NULL;
+
+CREATE TABLE IF NOT EXISTS public.registration_trial_seats (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  registration_id UUID NOT NULL REFERENCES public.registrations (id) ON DELETE CASCADE,
+  section_id UUID NOT NULL REFERENCES public.academic_sections (id),
+  day_of_week SMALLINT NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  scheduled_on DATE NOT NULL,
+  trial_fee_amount NUMERIC(12, 2) NOT NULL,
+  status TEXT NOT NULL DEFAULT 'booked',
+  marked_at TIMESTAMPTZ,
+  marked_by UUID REFERENCES public.profiles (id) ON DELETE SET NULL,
+  admin_reminder_sent_at TIMESTAMPTZ,
+  missed_mail_sent_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT registration_trial_seats_dow_chk
+    CHECK (day_of_week >= 0 AND day_of_week <= 6),
+  CONSTRAINT registration_trial_seats_fee_nonneg
+    CHECK (trial_fee_amount >= 0),
+  CONSTRAINT registration_trial_seats_status_chk
+    CHECK (status IN ('booked', 'attended', 'absent', 'released')),
+  CONSTRAINT registration_trial_seats_visit_uidx
+    UNIQUE (registration_id, section_id, scheduled_on)
+);
+
+CREATE INDEX IF NOT EXISTS registration_trial_seats_section_date_idx
+  ON public.registration_trial_seats (section_id, scheduled_on);
+
+CREATE INDEX IF NOT EXISTS registration_trial_seats_status_idx
+  ON public.registration_trial_seats (status);
+
+ALTER TABLE public.registration_trial_seats ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS registration_trial_seats_admin_all ON public.registration_trial_seats;
+CREATE POLICY registration_trial_seats_admin_all
+  ON public.registration_trial_seats
+  FOR ALL
+  TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS registration_trial_seats_teacher_select ON public.registration_trial_seats;
+CREATE POLICY registration_trial_seats_teacher_select
+  ON public.registration_trial_seats
+  FOR SELECT
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.academic_sections s
+      WHERE s.id = registration_trial_seats.section_id
+        AND s.teacher_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS registration_trial_seats_teacher_update ON public.registration_trial_seats;
+CREATE POLICY registration_trial_seats_teacher_update
+  ON public.registration_trial_seats
+  FOR UPDATE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.academic_sections s
+      WHERE s.id = registration_trial_seats.section_id
+        AND s.teacher_id = auth.uid()
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1
+      FROM public.academic_sections s
+      WHERE s.id = registration_trial_seats.section_id
+        AND s.teacher_id = auth.uid()
+    )
+  );
+
+COMMENT ON TABLE public.registration_trial_seats IS
+  'One booked trial visit. booked/attended count toward section cupo.';
+
+COMMIT;
+
+-- ========== 197_registration_section_picker_options.sql ==========
+
+-- Public register picker: list every current non-archived section, including
+-- full ones, with schedule slots, open-seat flag, and resolved trial offer.
+-- Occupied seats = active enrollments + trial seats booked or attended.
+
+CREATE OR REPLACE FUNCTION public.list_registration_section_picker_options()
+RETURNS TABLE (
+  id uuid,
+  label text,
+  schedule_slots jsonb,
+  has_open_seat boolean,
+  offers_trial boolean
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT s.id,
+         c.name || ' — ' || s.name AS label,
+         COALESCE(s.schedule_slots, '[]'::jsonb) AS schedule_slots,
+         (
+           s.max_students IS NULL
+           OR (
+             (
+               SELECT count(*)
+               FROM public.section_enrollments se
+               WHERE se.section_id = s.id
+                 AND se.status = 'active'
+             ) + (
+               SELECT count(*)
+               FROM public.registration_trial_seats ts
+               WHERE ts.section_id = s.id
+                 AND ts.status IN ('booked', 'attended')
+             )
+           ) < s.max_students
+         ) AS has_open_seat,
+         COALESCE(s.offers_trial, c.offers_trial) AS offers_trial
+  FROM public.academic_sections s
+  INNER JOIN public.academic_cohorts c ON c.id = s.cohort_id
+  WHERE c.is_current = true
+    AND c.archived_at IS NULL
+    AND s.archived_at IS NULL
+  ORDER BY c.name, s.name;
+$$;
+
+COMMENT ON FUNCTION public.list_registration_section_picker_options() IS
+  'Current-cohort sections for the public register picker, including full groups.';
+
+REVOKE ALL ON FUNCTION public.list_registration_section_picker_options() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.list_registration_section_picker_options() TO anon;
+GRANT EXECUTE ON FUNCTION public.list_registration_section_picker_options() TO authenticated;
+
+-- Legacy combo (hides full) now also treats held trial seats as occupied.
+CREATE OR REPLACE FUNCTION public.list_registration_section_options()
+RETURNS TABLE (id uuid, label text)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT s.id,
+         c.name || ' — ' || s.name AS label
+  FROM public.academic_sections s
+  INNER JOIN public.academic_cohorts c ON c.id = s.cohort_id
+  WHERE c.is_current = true
+    AND c.archived_at IS NULL
+    AND s.archived_at IS NULL
+    AND (
+      s.max_students IS NULL
+      OR (
+        (
+          SELECT count(*)
+          FROM public.section_enrollments se
+          WHERE se.section_id = s.id
+            AND se.status = 'active'
+        ) + (
+          SELECT count(*)
+          FROM public.registration_trial_seats ts
+          WHERE ts.section_id = s.id
+            AND ts.status IN ('booked', 'attended')
+        )
+      ) < s.max_students
+    )
+  ORDER BY c.name, s.name;
+$$;
+
+COMMENT ON FUNCTION public.list_registration_section_options() IS
+  'Sections offered for public enrollment (current cohort, not archived, with open seats).';
+
+REVOKE ALL ON FUNCTION public.list_registration_section_options() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.list_registration_section_options() TO anon;
+GRANT EXECUTE ON FUNCTION public.list_registration_section_options() TO authenticated;
+
+-- ========== 198_trial_seats_assistant_rls.sql ==========
+
+-- Assistants mark trial visitors the same way they mark enrolled attendance.
+
+BEGIN;
+
+DROP POLICY IF EXISTS registration_trial_seats_teacher_select ON public.registration_trial_seats;
+CREATE POLICY registration_trial_seats_teacher_select
+  ON public.registration_trial_seats
+  FOR SELECT
+  TO authenticated
+  USING (public.user_leads_or_assists_section(auth.uid(), section_id));
+
+DROP POLICY IF EXISTS registration_trial_seats_teacher_update ON public.registration_trial_seats;
+CREATE POLICY registration_trial_seats_teacher_update
+  ON public.registration_trial_seats
+  FOR UPDATE
+  TO authenticated
+  USING (public.user_leads_or_assists_section(auth.uid(), section_id))
+  WITH CHECK (public.user_leads_or_assists_section(auth.uid(), section_id));
+
+COMMIT;
+
+-- ========== 199_trial_checkout_and_convert.sql ==========
+
+-- Trial-fee / convert Flow refs, guest RPCs, and occupancy that counts trial holds.
+
+BEGIN;
+
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS trial_refund_due_amount NUMERIC(12, 2) NOT NULL DEFAULT 0;
+
+ALTER TABLE public.registrations
+  DROP CONSTRAINT IF EXISTS registrations_trial_refund_nonneg;
+
+ALTER TABLE public.registrations
+  ADD CONSTRAINT registrations_trial_refund_nonneg
+  CHECK (trial_refund_due_amount >= 0);
+
+CREATE OR REPLACE FUNCTION public.payment_flow_reserve_commerce_ref_trial(
+  p_registration_id UUID
+)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+SET row_security = off AS $$
+DECLARE
+  seq BIGINT;
+  ref TEXT;
+BEGIN
+  IF p_registration_id IS NULL THEN
+    RAISE EXCEPTION 'invalid_registration';
+  END IF;
+  seq := nextval('public.payment_flow_commerce_serial_seq'::regclass);
+  ref := 'TRIAL-' || to_char(now() AT TIME ZONE 'utc', 'YYYY') || '-' ||
+    LPAD(seq::text, 8, '0');
+  INSERT INTO public.payment_flow_checkout_refs (commerce_ref, registration_id)
+  VALUES (ref, p_registration_id);
+  RETURN ref;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.payment_flow_reserve_commerce_ref_join(
+  p_registration_id UUID
+)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+SET row_security = off AS $$
+DECLARE
+  seq BIGINT;
+  ref TEXT;
+BEGIN
+  IF p_registration_id IS NULL THEN
+    RAISE EXCEPTION 'invalid_registration';
+  END IF;
+  seq := nextval('public.payment_flow_commerce_serial_seq'::regclass);
+  ref := 'JOIN-' || to_char(now() AT TIME ZONE 'utc', 'YYYY') || '-' ||
+    LPAD(seq::text, 8, '0');
+  INSERT INTO public.payment_flow_checkout_refs (commerce_ref, registration_id)
+  VALUES (ref, p_registration_id);
+  RETURN ref;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.payment_flow_reserve_commerce_ref_trial(UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.payment_flow_reserve_commerce_ref_join(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.payment_flow_reserve_commerce_ref_trial(UUID) TO service_role;
+GRANT EXECUTE ON FUNCTION public.payment_flow_reserve_commerce_ref_join(UUID) TO service_role;
+
+CREATE OR REPLACE FUNCTION public.registration_public_section_has_open_seat(p_section_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.academic_sections s
+    INNER JOIN public.academic_cohorts c ON c.id = s.cohort_id
+    WHERE s.id = p_section_id
+      AND c.is_current = true
+      AND c.archived_at IS NULL
+      AND s.archived_at IS NULL
+      AND (
+        s.max_students IS NULL
+        OR (
+          (
+            SELECT count(*) FROM public.section_enrollments se
+            WHERE se.section_id = s.id AND se.status = 'active'
+          ) + (
+            SELECT count(*) FROM public.registration_trial_seats ts
+            WHERE ts.section_id = s.id AND ts.status IN ('booked', 'attended')
+          )
+        ) < s.max_students
+      )
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.registration_public_trial_pay_context(p_token text)
+RETURNS TABLE (
+  first_name text,
+  last_name text,
+  status text,
+  trial_fee_captured boolean,
+  trial_fee_snapshot jsonb,
+  preferred_section_id uuid,
+  additional_section_ids uuid[]
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT r.first_name, r.last_name, r.status::text, r.trial_fee_captured,
+         r.trial_fee_snapshot, r.preferred_section_id, r.additional_section_ids
+  FROM public.registrations r
+  WHERE r.pay_token = p_token AND r.intent = 'trial'
+  LIMIT 1;
+$$;
+
+CREATE OR REPLACE FUNCTION public.registration_public_reschedule_ok(p_token text)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.registrations r
+    WHERE r.trial_reschedule_token = p_token
+      AND r.intent = 'trial'
+      AND r.status <> 'enrolled'
+      AND EXISTS (
+        SELECT 1 FROM public.registration_trial_seats s
+        WHERE s.registration_id = r.id AND s.status = 'absent'
+      )
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.registration_public_convert_context(p_token text)
+RETURNS TABLE (
+  first_name text,
+  last_name text,
+  status text,
+  expired boolean,
+  seats jsonb
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    CASE WHEN (r.trial_convert_expires_at IS NULL OR r.trial_convert_expires_at < now() OR r.status = 'enrolled')
+      THEN NULL ELSE r.first_name END,
+    CASE WHEN (r.trial_convert_expires_at IS NULL OR r.trial_convert_expires_at < now() OR r.status = 'enrolled')
+      THEN NULL ELSE r.last_name END,
+    r.status::text,
+    (r.trial_convert_expires_at IS NULL OR r.trial_convert_expires_at < now() OR r.status = 'enrolled') AS expired,
+    CASE WHEN (r.trial_convert_expires_at IS NULL OR r.trial_convert_expires_at < now() OR r.status = 'enrolled')
+      THEN '[]'::jsonb
+      ELSE COALESCE((
+        SELECT jsonb_agg(jsonb_build_object(
+          'sectionId', s.section_id,
+          'status', s.status,
+          'scheduledOn', s.scheduled_on,
+          'label', public.registration_public_section_label(s.section_id)
+        ))
+        FROM public.registration_trial_seats s
+        WHERE s.registration_id = r.id
+      ), '[]'::jsonb)
+    END AS seats
+  FROM public.registrations r
+  WHERE r.trial_convert_token = p_token
+  LIMIT 1;
+$$;
+
+REVOKE ALL ON FUNCTION public.registration_public_trial_pay_context(text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.registration_public_reschedule_ok(text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.registration_public_convert_context(text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.registration_public_trial_pay_context(text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.registration_public_reschedule_ok(text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.registration_public_convert_context(text) TO anon, authenticated;
+
+COMMIT;
+
+-- ========== 200_parent_last_session_start.sql ==========
+
+-- Parent (and any role) last access: session_start stamps last_session_start_at.
+-- Student-only: clear churn_notified_at; +5 engagement on material page_view.
+-- Mirrors src/lib/analytics/userEventsAfterInsertEffects.ts
+
+CREATE OR REPLACE FUNCTION public.user_events_after_insert()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  r text;
+BEGIN
+  IF NEW.user_id IS NULL THEN
+    RETURN NEW;
+  END IF;
+
+  SELECT role::text INTO r FROM public.profiles WHERE id = NEW.user_id;
+  IF r IS NULL THEN
+    RETURN NEW;
+  END IF;
+
+  IF NEW.event_type = 'session_start' THEN
+    UPDATE public.profiles
+    SET last_session_start_at = NEW.created_at,
+        churn_notified_at = CASE WHEN r = 'student' THEN NULL ELSE churn_notified_at END
+    WHERE id = NEW.user_id;
+  END IF;
+
+  IF r = 'student'
+     AND NEW.event_type = 'page_view'
+     AND NEW.entity LIKE 'material:%' THEN
+    UPDATE public.profiles
+    SET engagement_points = engagement_points + 5
+    WHERE id = NEW.user_id;
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+UPDATE public.profiles AS p
+SET last_session_start_at = src.picked
+FROM (
+  SELECT
+    ue.user_id,
+    COALESCE(
+      MAX(ue.created_at) FILTER (WHERE ue.event_type = 'session_start'),
+      MAX(ue.created_at)
+    ) AS picked
+  FROM public.user_events AS ue
+  WHERE ue.user_id IS NOT NULL
+  GROUP BY ue.user_id
+) AS src
+WHERE p.id = src.user_id
+  AND p.role = 'parent'
+  AND src.picked IS NOT NULL
+  AND (
+    p.last_session_start_at IS NULL
+    OR p.last_session_start_at < src.picked
+  );
+
+-- ========== 201_registration_privacy_acceptance.sql ==========
+
+-- Proof that a family accepted the public privacy page on pre-inscription.
+-- Admin-created leads stay NULL.
+
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS privacy_accepted_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS privacy_policy_version TEXT;
+
+COMMENT ON COLUMN public.registrations.privacy_accepted_at IS
+  'When the family accepted the public privacy page. Null for admin-created leads.';
+
+COMMENT ON COLUMN public.registrations.privacy_policy_version IS
+  'Version string of the privacy page the family accepted. Null for admin-created leads.';
+
+-- ========== 202_family_billing_policy.sql ==========
+
+-- Institute family-checkout policy:
+--   * credit a captured trial fee against the first enrollment + tuition invoice
+--   * optionally require the parent to pay every due section (no "this class only")
+-- Defaults keep today's behaviour: credit on, partial section payments on.
+-- Keys are readable by anon/authenticated so the public convert page and the
+-- parent portal can apply the same rules the admin configured.
+
+BEGIN;
+
+INSERT INTO public.site_settings (key, value)
+VALUES
+  ('credit_paid_trial_on_enroll', 'true'::jsonb),
+  ('allow_parent_partial_section_payments', 'true'::jsonb)
+ON CONFLICT (key) DO NOTHING;
+
+DROP POLICY IF EXISTS site_settings_select_public ON public.site_settings;
+
+CREATE POLICY site_settings_select_public
+  ON public.site_settings FOR SELECT
+  TO anon, authenticated
+  USING (
+    key IN (
+      'inscriptions_enabled',
+      'initial_site_setup',
+      'billing_currency',
+      'bank_transfer_instructions',
+      'billing_model',
+      'public_cta_mode',
+      'credit_paid_trial_on_enroll',
+      'allow_parent_partial_section_payments'
+    )
+  );
+
+COMMENT ON POLICY site_settings_select_public ON public.site_settings IS
+  'Public/authenticated reads for registration gating, wizard, billing, transfer instructions, billing model, public CTA, and family checkout policy.';
+
+COMMIT;
+
+-- ========== 203_nago_public_cta_both.sql ==========
+
+-- Nagô should offer both public CTAs: reserve a spot and book a trial class.
+BEGIN;
+
+UPDATE public.site_settings
+SET value = '"both"'::jsonb, updated_at = now()
+WHERE key = 'public_cta_mode'
+  AND EXISTS (
+    SELECT 1
+    FROM public.site_themes t
+    WHERE t.template_kind::text = 'nago'
+  );
+
+COMMIT;
+
+-- ========== 204_site_questionnaires.sql ==========
+
+-- Site questionnaires: dedicated module (not events, not the academic question bank).
+-- Additive only. Anon gets named SELECT/INSERT grants — never GRANT ALL.
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'questionnaire_status') THEN
+    CREATE TYPE public.questionnaire_status AS ENUM ('draft', 'published', 'closed');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'questionnaire_visibility') THEN
+    CREATE TYPE public.questionnaire_visibility AS ENUM ('public', 'private');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'questionnaire_question_type') THEN
+    CREATE TYPE public.questionnaire_question_type AS ENUM (
+      'text',
+      'textarea',
+      'email',
+      'phone',
+      'number',
+      'date',
+      'yes_no',
+      'single_choice',
+      'multi_choice',
+      'scale'
+    );
+  END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.questionnaires (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug TEXT NOT NULL,
+  title_i18n JSONB NOT NULL DEFAULT '{}'::jsonb,
+  description_i18n JSONB NOT NULL DEFAULT '{}'::jsonb,
+  status public.questionnaire_status NOT NULL DEFAULT 'draft',
+  visibility public.questionnaire_visibility NOT NULL DEFAULT 'public',
+  limit_one_response BOOLEAN NOT NULL DEFAULT false,
+  show_on_landing BOOLEAN NOT NULL DEFAULT false,
+  created_by UUID NOT NULL REFERENCES public.profiles (id) ON DELETE RESTRICT,
+  published_at TIMESTAMPTZ,
+  archived_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT questionnaires_slug_format CHECK (
+    char_length(slug) BETWEEN 2 AND 80
+    AND slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'
+  )
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS questionnaires_slug_active_uidx
+  ON public.questionnaires (slug)
+  WHERE archived_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS questionnaires_landing_idx
+  ON public.questionnaires (published_at DESC)
+  WHERE status = 'published' AND archived_at IS NULL AND show_on_landing = true;
+
+DROP TRIGGER IF EXISTS questionnaires_set_updated_at ON public.questionnaires;
+CREATE TRIGGER questionnaires_set_updated_at
+  BEFORE UPDATE ON public.questionnaires
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.questionnaire_questions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  questionnaire_id UUID NOT NULL REFERENCES public.questionnaires (id) ON DELETE CASCADE,
+  question_type public.questionnaire_question_type NOT NULL,
+  prompt_i18n JSONB NOT NULL DEFAULT '{}'::jsonb,
+  help_text_i18n JSONB NOT NULL DEFAULT '{}'::jsonb,
+  options_i18n JSONB NOT NULL DEFAULT '{}'::jsonb,
+  required BOOLEAN NOT NULL DEFAULT false,
+  position INT NOT NULL DEFAULT 0,
+  archived_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS questionnaire_questions_parent_position_idx
+  ON public.questionnaire_questions (questionnaire_id, position, created_at);
+
+DROP TRIGGER IF EXISTS questionnaire_questions_set_updated_at ON public.questionnaire_questions;
+CREATE TRIGGER questionnaire_questions_set_updated_at
+  BEFORE UPDATE ON public.questionnaire_questions
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.questionnaire_responses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  questionnaire_id UUID NOT NULL REFERENCES public.questionnaires (id) ON DELETE RESTRICT,
+  respondent_user_id UUID REFERENCES public.profiles (id) ON DELETE SET NULL,
+  respondent_email TEXT,
+  locale TEXT NOT NULL CHECK (locale IN ('es', 'en', 'pt')),
+  submitted_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS questionnaire_responses_parent_idx
+  ON public.questionnaire_responses (questionnaire_id, submitted_at DESC);
+
+CREATE TABLE IF NOT EXISTS public.questionnaire_answers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  response_id UUID NOT NULL REFERENCES public.questionnaire_responses (id) ON DELETE CASCADE,
+  question_id UUID NOT NULL REFERENCES public.questionnaire_questions (id) ON DELETE RESTRICT,
+  value_text TEXT,
+  value_number DOUBLE PRECISION,
+  value_options TEXT[],
+  CONSTRAINT questionnaire_answers_response_question_unique UNIQUE (response_id, question_id)
+);
+
+CREATE INDEX IF NOT EXISTS questionnaire_answers_question_idx
+  ON public.questionnaire_answers (question_id);
+
+ALTER TABLE public.questionnaires ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.questionnaire_questions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.questionnaire_responses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.questionnaire_answers ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS questionnaires_select_public_or_admin ON public.questionnaires;
+CREATE POLICY questionnaires_select_public_or_admin ON public.questionnaires
+  FOR SELECT TO anon, authenticated
+  USING (
+    (
+      archived_at IS NULL
+      AND status = 'published'
+      AND (
+        visibility = 'public'
+        OR auth.uid() IS NOT NULL
+        OR show_on_landing = true
+      )
+    )
+    OR public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS questionnaires_modify_admin ON public.questionnaires;
+CREATE POLICY questionnaires_modify_admin ON public.questionnaires
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS questionnaire_questions_select_public_or_admin ON public.questionnaire_questions;
+CREATE POLICY questionnaire_questions_select_public_or_admin ON public.questionnaire_questions
+  FOR SELECT TO anon, authenticated
+  USING (
+    (
+      archived_at IS NULL
+      AND EXISTS (
+        SELECT 1
+        FROM public.questionnaires q
+        WHERE q.id = questionnaire_questions.questionnaire_id
+          AND q.archived_at IS NULL
+          AND q.status = 'published'
+          AND (q.visibility = 'public' OR auth.uid() IS NOT NULL)
+      )
+    )
+    OR public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS questionnaire_questions_modify_admin ON public.questionnaire_questions;
+CREATE POLICY questionnaire_questions_modify_admin ON public.questionnaire_questions
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS questionnaire_responses_select_own_or_admin ON public.questionnaire_responses;
+CREATE POLICY questionnaire_responses_select_own_or_admin ON public.questionnaire_responses
+  FOR SELECT TO anon, authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR respondent_user_id = auth.uid()
+  );
+
+DROP POLICY IF EXISTS questionnaire_responses_insert_when_open ON public.questionnaire_responses;
+CREATE POLICY questionnaire_responses_insert_when_open ON public.questionnaire_responses
+  FOR INSERT TO anon, authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1
+      FROM public.questionnaires q
+      WHERE q.id = questionnaire_responses.questionnaire_id
+        AND q.archived_at IS NULL
+        AND q.status = 'published'
+        AND (q.visibility = 'public' OR auth.uid() IS NOT NULL)
+    )
+  );
+
+DROP POLICY IF EXISTS questionnaire_answers_select_own_or_admin ON public.questionnaire_answers;
+CREATE POLICY questionnaire_answers_select_own_or_admin ON public.questionnaire_answers
+  FOR SELECT TO anon, authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.questionnaire_responses r
+      WHERE r.id = questionnaire_answers.response_id
+        AND (
+          public.is_admin(auth.uid())
+          OR r.respondent_user_id = auth.uid()
+        )
+    )
+  );
+
+DROP POLICY IF EXISTS questionnaire_answers_insert_when_open ON public.questionnaire_answers;
+CREATE POLICY questionnaire_answers_insert_when_open ON public.questionnaire_answers
+  FOR INSERT TO anon, authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1
+      FROM public.questionnaire_responses r
+      JOIN public.questionnaires q ON q.id = r.questionnaire_id
+      WHERE r.id = questionnaire_answers.response_id
+        AND q.archived_at IS NULL
+        AND q.status = 'published'
+        AND (q.visibility = 'public' OR auth.uid() IS NOT NULL)
+    )
+  );
+
+CREATE OR REPLACE FUNCTION public.lock_questionnaire_for_submit(p_id uuid)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  PERFORM 1 FROM public.questionnaires WHERE id = p_id FOR UPDATE;
+  RETURN FOUND;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.lock_questionnaire_for_submit(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.lock_questionnaire_for_submit(uuid) TO service_role;
+
+GRANT SELECT ON public.questionnaires TO anon, authenticated;
+GRANT SELECT ON public.questionnaire_questions TO anon, authenticated;
+GRANT SELECT, INSERT ON public.questionnaire_responses TO anon, authenticated;
+GRANT SELECT, INSERT ON public.questionnaire_answers TO anon, authenticated;
+
+COMMENT ON TABLE public.questionnaires IS
+  'Site questionnaires (settings). Public or login-only; not event forms or class assessments.';
+
+-- ========== 205_nps_web_questionnaire.sql ==========
+
+-- Public NPS + website-improvement questionnaire. Idempotent: skips if the slug exists
+-- or if there is no admin profile to own created_by.
+
+BEGIN;
+
+DO $$
+DECLARE
+  admin_id uuid;
+  q_id uuid := 'a11c0000-0000-4000-8000-000000000205';
+BEGIN
+  IF to_regclass('public.questionnaires') IS NULL THEN
+    RAISE NOTICE 'questionnaires table missing; skip NPS seed';
+    RETURN;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM public.questionnaires
+    WHERE slug = 'nps-experiencia-web'
+      AND archived_at IS NULL
+  ) THEN
+    RETURN;
+  END IF;
+
+  SELECT p.id
+  INTO admin_id
+  FROM public.profiles p
+  WHERE p.role = 'admin'
+  ORDER BY p.created_at
+  LIMIT 1;
+
+  IF admin_id IS NULL THEN
+    RAISE NOTICE 'no admin profile; skip NPS seed';
+    RETURN;
+  END IF;
+
+  INSERT INTO public.questionnaires (
+    id,
+    slug,
+    title_i18n,
+    description_i18n,
+    status,
+    visibility,
+    limit_one_response,
+    show_on_landing,
+    created_by,
+    published_at
+  ) VALUES (
+    q_id,
+    'nps-experiencia-web',
+    '{"es":"Tu opinión sobre la web"}'::jsonb,
+    '{"es":"Nos ayuda a mejorar el sitio y la experiencia online del instituto. Toma menos de dos minutos."}'::jsonb,
+    'published',
+    'public',
+    true,
+    true,
+    admin_id,
+    now()
+  );
+
+  INSERT INTO public.questionnaire_questions (
+    questionnaire_id, question_type, prompt_i18n, options_i18n, required, position
+  ) VALUES
+    (
+      q_id,
+      'single_choice',
+      '{"es":"¿Qué tan probable es que recomiendes este sitio a un amigo o colega?"}'::jsonb,
+      '{"es":["0","1","2","3","4","5","6","7","8","9","10"]}'::jsonb,
+      true,
+      0
+    ),
+    (
+      q_id,
+      'yes_no',
+      '{"es":"¿Te gusta esta web?"}'::jsonb,
+      '{}'::jsonb,
+      true,
+      1
+    ),
+    (
+      q_id,
+      'textarea',
+      '{"es":"¿Qué es lo que más te gusta?"}'::jsonb,
+      '{}'::jsonb,
+      false,
+      2
+    ),
+    (
+      q_id,
+      'textarea',
+      '{"es":"¿Qué le agregarías o cambiarías?"}'::jsonb,
+      '{}'::jsonb,
+      true,
+      3
+    ),
+    (
+      q_id,
+      'textarea',
+      '{"es":"¿Cómo te imaginas una experiencia online de este instituto?"}'::jsonb,
+      '{}'::jsonb,
+      true,
+      4
+    ),
+    (
+      q_id,
+      'yes_no',
+      '{"es":"¿Ya estás tomando clases o actividades online?"}'::jsonb,
+      '{}'::jsonb,
+      true,
+      5
+    ),
+    (
+      q_id,
+      'textarea',
+      '{"es":"Si ya estás online, ¿qué te faltaría para complementar esa experiencia?"}'::jsonb,
+      '{}'::jsonb,
+      false,
+      6
+    );
+END $$;
+
+COMMIT;
+
+-- ========== 206_registration_schedule_offer.sql ==========
+
+BEGIN;
+
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS proposed_section_id UUID
+    REFERENCES public.academic_sections(id) ON DELETE SET NULL;
+
+COMMENT ON COLUMN public.registrations.proposed_section_id IS
+  'Admin-proposed open section while intake_state is offer_pending. preferred_section_id stays the original request until the family confirms or admin assigns.';
+
+ALTER TABLE public.registrations
+  DROP CONSTRAINT IF EXISTS registrations_intake_state_chk;
+
+ALTER TABLE public.registrations
+  ADD CONSTRAINT registrations_intake_state_chk
+  CHECK (intake_state IN (
+    'none',
+    'awaiting_fee',
+    'receipt_pending',
+    'needs_section',
+    'section_full',
+    'offer_pending'
+  ));
+
+DROP FUNCTION IF EXISTS public.registration_public_pay_context(text);
+
+CREATE FUNCTION public.registration_public_pay_context(p_token text)
+RETURNS TABLE (
+  first_name text,
+  last_name text,
+  status text,
+  intake_state text,
+  fee_captured boolean,
+  fee_snapshot jsonb,
+  preferred_section_id uuid,
+  additional_section_ids uuid[],
+  proposed_section_id uuid
+)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    r.first_name,
+    r.last_name,
+    r.status::text,
+    r.intake_state,
+    r.fee_captured,
+    r.fee_snapshot,
+    r.preferred_section_id,
+    r.additional_section_ids,
+    r.proposed_section_id
+  FROM public.registrations r
+  WHERE r.pay_token = p_token
+  LIMIT 1;
+$$;
+
+COMMENT ON FUNCTION public.registration_public_pay_context(text) IS
+  'Safe guest projection for /matricula/[token]. No DNI, email, or tutor identity.';
+
+REVOKE ALL ON FUNCTION public.registration_public_pay_context(text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.registration_public_pay_context(text) TO anon;
+GRANT EXECUTE ON FUNCTION public.registration_public_pay_context(text) TO authenticated;
+
+COMMIT;
+
+-- ========== 207_tenant_merch_shop.sql ==========
+
+-- Tenant merch shop: catalog, pickup orders, Flow merch refs, shop-media.
+-- Additive. Flag defaults off. Stock decrement lives in one paid RPC.
+
+BEGIN;
+
+INSERT INTO public.site_settings (key, value)
+VALUES ('merch_enabled', 'false'::jsonb)
+ON CONFLICT (key) DO NOTHING;
+
+DROP POLICY IF EXISTS site_settings_select_merch_public ON public.site_settings;
+CREATE POLICY site_settings_select_merch_public ON public.site_settings
+  FOR SELECT TO anon, authenticated
+  USING (key = 'merch_enabled');
+
+CREATE TABLE IF NOT EXISTS public.shop_products (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  image_path TEXT,
+  slug TEXT NOT NULL,
+  active BOOLEAN NOT NULL DEFAULT false,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS shop_products_slug_key
+  ON public.shop_products (slug);
+
+CREATE TABLE IF NOT EXISTS public.shop_product_slug_aliases (
+  slug TEXT PRIMARY KEY,
+  product_id UUID NOT NULL REFERENCES public.shop_products (id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS shop_product_slug_aliases_product_idx
+  ON public.shop_product_slug_aliases (product_id);
+
+CREATE INDEX IF NOT EXISTS shop_products_active_sort_idx
+  ON public.shop_products (active, sort_order, created_at);
+
+DROP TRIGGER IF EXISTS shop_products_set_updated_at ON public.shop_products;
+CREATE TRIGGER shop_products_set_updated_at
+  BEFORE UPDATE ON public.shop_products
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.shop_product_variants (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id UUID NOT NULL REFERENCES public.shop_products (id) ON DELETE CASCADE,
+  size TEXT NOT NULL,
+  color TEXT NOT NULL,
+  sku TEXT NOT NULL,
+  stock INT NOT NULL DEFAULT 0,
+  price NUMERIC(12, 2) NOT NULL,
+  active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT shop_product_variants_sku_key UNIQUE (sku),
+  CONSTRAINT shop_product_variants_product_size_color_key UNIQUE (product_id, size, color),
+  CONSTRAINT shop_product_variants_stock_chk CHECK (stock >= 0),
+  CONSTRAINT shop_product_variants_price_chk CHECK (price > 0)
+);
+
+CREATE INDEX IF NOT EXISTS shop_product_variants_product_idx
+  ON public.shop_product_variants (product_id);
+
+DROP TRIGGER IF EXISTS shop_product_variants_set_updated_at ON public.shop_product_variants;
+CREATE TRIGGER shop_product_variants_set_updated_at
+  BEFORE UPDATE ON public.shop_product_variants
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.shop_orders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  buyer_id UUID NOT NULL REFERENCES public.profiles (id) ON DELETE RESTRICT,
+  assignee_student_id UUID REFERENCES public.profiles (id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'pending_payment',
+  currency TEXT NOT NULL,
+  total NUMERIC(12, 2) NOT NULL,
+  buyer_email TEXT NOT NULL,
+  pay_token TEXT NOT NULL DEFAULT encode(gen_random_bytes(32), 'hex'),
+  gateway_provider TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  paid_at TIMESTAMPTZ,
+  ready_at TIMESTAMPTZ,
+  picked_up_at TIMESTAMPTZ,
+  expired_at TIMESTAMPTZ,
+  CONSTRAINT shop_orders_pay_token_key UNIQUE (pay_token),
+  CONSTRAINT shop_orders_total_chk CHECK (total >= 0),
+  CONSTRAINT shop_orders_status_chk CHECK (
+    status IN (
+      'pending_payment',
+      'paid',
+      'ready_for_pickup',
+      'picked_up',
+      'expired',
+      'cancelled'
+    )
+  ),
+  CONSTRAINT shop_orders_gateway_chk CHECK (
+    gateway_provider IS NULL OR gateway_provider IN ('flow', 'mercadopago')
+  )
+);
+
+CREATE INDEX IF NOT EXISTS shop_orders_buyer_idx
+  ON public.shop_orders (buyer_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS shop_orders_assignee_idx
+  ON public.shop_orders (assignee_student_id)
+  WHERE assignee_student_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS shop_orders_status_idx
+  ON public.shop_orders (status, created_at DESC);
+
+DROP TRIGGER IF EXISTS shop_orders_set_updated_at ON public.shop_orders;
+CREATE TRIGGER shop_orders_set_updated_at
+  BEFORE UPDATE ON public.shop_orders
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.shop_order_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id UUID NOT NULL REFERENCES public.shop_orders (id) ON DELETE CASCADE,
+  variant_id UUID NOT NULL REFERENCES public.shop_product_variants (id) ON DELETE RESTRICT,
+  quantity INT NOT NULL,
+  unit_price NUMERIC(12, 2) NOT NULL,
+  title TEXT NOT NULL,
+  size TEXT NOT NULL,
+  color TEXT NOT NULL,
+  sku TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT shop_order_items_quantity_chk CHECK (quantity >= 1),
+  CONSTRAINT shop_order_items_unit_price_chk CHECK (unit_price > 0),
+  CONSTRAINT shop_order_items_order_variant_key UNIQUE (order_id, variant_id)
+);
+
+CREATE INDEX IF NOT EXISTS shop_order_items_order_idx
+  ON public.shop_order_items (order_id);
+CREATE INDEX IF NOT EXISTS shop_order_items_variant_idx
+  ON public.shop_order_items (variant_id);
+
+ALTER TABLE public.shop_products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.shop_product_slug_aliases ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.shop_product_variants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.shop_orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.shop_order_items ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS shop_products_select_public ON public.shop_products;
+CREATE POLICY shop_products_select_public ON public.shop_products
+  FOR SELECT TO anon, authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR (
+      active = true
+      AND EXISTS (
+        SELECT 1
+        FROM public.site_settings ss
+        WHERE ss.key = 'merch_enabled'
+          AND ss.value = 'true'::jsonb
+      )
+    )
+  );
+
+DROP POLICY IF EXISTS shop_product_slug_aliases_select_public
+  ON public.shop_product_slug_aliases;
+CREATE POLICY shop_product_slug_aliases_select_public
+  ON public.shop_product_slug_aliases
+  FOR SELECT TO anon, authenticated
+  USING (true);
+
+DROP POLICY IF EXISTS shop_product_slug_aliases_modify_admin
+  ON public.shop_product_slug_aliases;
+CREATE POLICY shop_product_slug_aliases_modify_admin
+  ON public.shop_product_slug_aliases
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS shop_products_modify_admin ON public.shop_products;
+CREATE POLICY shop_products_modify_admin ON public.shop_products
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS shop_product_variants_select_public ON public.shop_product_variants;
+CREATE POLICY shop_product_variants_select_public ON public.shop_product_variants
+  FOR SELECT TO anon, authenticated
+  USING (
+    public.is_admin(auth.uid())
+    OR (
+      active = true
+      AND EXISTS (
+        SELECT 1
+        FROM public.shop_products p
+        WHERE p.id = shop_product_variants.product_id
+          AND p.active = true
+      )
+      AND EXISTS (
+        SELECT 1
+        FROM public.site_settings ss
+        WHERE ss.key = 'merch_enabled'
+          AND ss.value = 'true'::jsonb
+      )
+    )
+  );
+
+DROP POLICY IF EXISTS shop_product_variants_modify_admin ON public.shop_product_variants;
+CREATE POLICY shop_product_variants_modify_admin ON public.shop_product_variants
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS shop_orders_select_visible ON public.shop_orders;
+CREATE POLICY shop_orders_select_visible ON public.shop_orders
+  FOR SELECT TO authenticated
+  USING (
+    buyer_id = auth.uid()
+    OR assignee_student_id = auth.uid()
+    OR public.is_admin(auth.uid())
+  );
+
+DROP POLICY IF EXISTS shop_orders_update_admin ON public.shop_orders;
+CREATE POLICY shop_orders_update_admin ON public.shop_orders
+  FOR UPDATE TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS shop_order_items_select_visible ON public.shop_order_items;
+CREATE POLICY shop_order_items_select_visible ON public.shop_order_items
+  FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.shop_orders o
+      WHERE o.id = shop_order_items.order_id
+        AND (
+          o.buyer_id = auth.uid()
+          OR o.assignee_student_id = auth.uid()
+          OR public.is_admin(auth.uid())
+        )
+    )
+  );
+
+ALTER TABLE public.payment_flow_checkout_refs
+  ADD COLUMN IF NOT EXISTS shop_order_id UUID
+    REFERENCES public.shop_orders (id) ON DELETE CASCADE;
+
+CREATE INDEX IF NOT EXISTS payment_flow_checkout_refs_shop_order_idx
+  ON public.payment_flow_checkout_refs (shop_order_id)
+  WHERE shop_order_id IS NOT NULL;
+
+ALTER TABLE public.payment_flow_checkout_refs
+  DROP CONSTRAINT IF EXISTS payment_flow_checkout_refs_target_chk;
+
+ALTER TABLE public.payment_flow_checkout_refs
+  ADD CONSTRAINT payment_flow_checkout_refs_target_chk CHECK (
+    payment_id IS NOT NULL
+    OR (
+      student_id IS NOT NULL
+      AND section_id IS NOT NULL
+      AND year IS NOT NULL
+      AND month IS NOT NULL
+    )
+    OR bundle_id IS NOT NULL
+    OR registration_id IS NOT NULL
+    OR shop_order_id IS NOT NULL
+  );
+
+CREATE OR REPLACE FUNCTION public.payment_flow_reserve_commerce_ref_merch(p_shop_order_id UUID)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+SET row_security = off AS $$
+DECLARE
+  seq BIGINT;
+  ref TEXT;
+BEGIN
+  IF p_shop_order_id IS NULL THEN
+    RAISE EXCEPTION 'invalid_shop_order';
+  END IF;
+  seq := nextval('public.payment_flow_commerce_serial_seq'::regclass);
+  ref := 'MERCH-' || to_char(now() AT TIME ZONE 'utc', 'YYYY') || '-' ||
+    LPAD(seq::text, 8, '0');
+  INSERT INTO public.payment_flow_checkout_refs (commerce_ref, shop_order_id)
+  VALUES (ref, p_shop_order_id);
+  RETURN ref;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.payment_flow_reserve_commerce_ref_merch(UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.payment_flow_reserve_commerce_ref_merch(UUID) FROM anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.payment_flow_reserve_commerce_ref_merch(UUID) TO service_role;
+
+CREATE OR REPLACE FUNCTION public.shop_mark_paid_and_decrement_stock(p_order_id UUID)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+SET row_security = off AS $$
+DECLARE
+  v_status TEXT;
+BEGIN
+  IF p_order_id IS NULL THEN
+    RAISE EXCEPTION 'invalid_shop_order';
+  END IF;
+
+  SELECT o.status
+  INTO v_status
+  FROM public.shop_orders o
+  WHERE o.id = p_order_id
+  FOR UPDATE;
+
+  IF v_status IS NULL THEN
+    RAISE EXCEPTION 'invalid_shop_order';
+  END IF;
+
+  IF v_status = 'paid' THEN
+    RETURN 'already_paid';
+  END IF;
+
+  IF v_status <> 'pending_payment' THEN
+    RAISE EXCEPTION 'invalid_shop_order_status';
+  END IF;
+
+  PERFORM 1
+  FROM public.shop_product_variants v
+  WHERE v.id IN (
+    SELECT i.variant_id
+    FROM public.shop_order_items i
+    WHERE i.order_id = p_order_id
+  )
+  ORDER BY v.id
+  FOR UPDATE;
+
+  IF EXISTS (
+    SELECT 1
+    FROM (
+      SELECT i.variant_id, SUM(i.quantity) AS qty
+      FROM public.shop_order_items i
+      WHERE i.order_id = p_order_id
+      GROUP BY i.variant_id
+    ) needed
+    INNER JOIN public.shop_product_variants v ON v.id = needed.variant_id
+    WHERE v.stock < needed.qty
+  ) THEN
+    RETURN 'insufficient_stock';
+  END IF;
+
+  UPDATE public.shop_product_variants v
+  SET stock = v.stock - needed.qty
+  FROM (
+    SELECT i.variant_id, SUM(i.quantity) AS qty
+    FROM public.shop_order_items i
+    WHERE i.order_id = p_order_id
+    GROUP BY i.variant_id
+  ) needed
+  WHERE v.id = needed.variant_id;
+
+  UPDATE public.shop_orders
+  SET
+    status = 'paid',
+    paid_at = now()
+  WHERE id = p_order_id;
+
+  RETURN 'paid';
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.shop_mark_paid_and_decrement_stock(UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.shop_mark_paid_and_decrement_stock(UUID) FROM anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.shop_mark_paid_and_decrement_stock(UUID) TO service_role;
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('shop-media', 'shop-media', true)
+ON CONFLICT (id) DO NOTHING;
+
+DROP POLICY IF EXISTS shop_media_select_public ON storage.objects;
+CREATE POLICY shop_media_select_public ON storage.objects
+  FOR SELECT TO anon, authenticated
+  USING (bucket_id = 'shop-media');
+
+DROP POLICY IF EXISTS shop_media_insert_staff ON storage.objects;
+CREATE POLICY shop_media_insert_staff ON storage.objects
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    bucket_id = 'shop-media'
+    AND public.blog_user_is_staff(auth.uid())
+  );
+
+DROP POLICY IF EXISTS shop_media_update_staff ON storage.objects;
+CREATE POLICY shop_media_update_staff ON storage.objects
+  FOR UPDATE TO authenticated
+  USING (
+    bucket_id = 'shop-media'
+    AND public.blog_user_is_staff(auth.uid())
+  );
+
+DROP POLICY IF EXISTS shop_media_delete_staff ON storage.objects;
+CREATE POLICY shop_media_delete_staff ON storage.objects
+  FOR DELETE TO authenticated
+  USING (
+    bucket_id = 'shop-media'
+    AND public.blog_user_is_staff(auth.uid())
+  );
+
+GRANT SELECT ON public.shop_products TO anon, authenticated;
+GRANT SELECT ON public.shop_product_slug_aliases TO anon, authenticated;
+GRANT SELECT ON public.shop_product_variants TO anon, authenticated;
+GRANT SELECT ON public.shop_orders TO authenticated;
+GRANT SELECT ON public.shop_order_items TO authenticated;
+
+COMMENT ON TABLE public.shop_products IS
+  'Tenant merch catalog. Public when merch_enabled and active.';
+COMMENT ON TABLE public.shop_product_variants IS
+  'Price and stock live on the variant. Unique sku and (product, size, color).';
+COMMENT ON TABLE public.shop_orders IS
+  'Institute-pickup merch orders. Guest return uses opaque pay_token.';
+COMMENT ON TABLE public.shop_order_items IS
+  'Line snapshots. variant_id is RESTRICT so sold variants are archived, not deleted.';
+COMMENT ON FUNCTION public.payment_flow_reserve_commerce_ref_merch(UUID) IS
+  'SECURITY DEFINER: reserve MERCH-{year}-{seq} mapped to shop_order_id.';
+COMMENT ON FUNCTION public.shop_mark_paid_and_decrement_stock(UUID) IS
+  'SECURITY DEFINER: idempotent paid + stock decrement in one transaction.';
+
+COMMIT;
+
 -- ========== 208_events_show_on_home.sql ==========
+
+-- Opt-in home dialog. Public eligibility stays in the app query:
+-- published, not archived, not section-private, and still upcoming.
 ALTER TABLE public.events
   ADD COLUMN IF NOT EXISTS show_on_home BOOLEAN NOT NULL DEFAULT false;
 
@@ -15344,6 +19405,9 @@ CREATE INDEX IF NOT EXISTS events_show_on_home_upcoming_idx
     AND private_to_section = false;
 
 -- ========== 209_events_registration_field_order.sql ==========
+
+-- Per-event registration question order and optional required flags.
+-- Empty registration_field_order keeps the legacy layout (base fields, then extras).
 ALTER TABLE public.events
   ADD COLUMN IF NOT EXISTS require_phone BOOLEAN NOT NULL DEFAULT false,
   ADD COLUMN IF NOT EXISTS require_birth_date BOOLEAN NOT NULL DEFAULT false,
@@ -15359,6 +19423,7 @@ COMMENT ON COLUMN public.events.registration_field_order IS
   'Tokens base:<id> and field:<uuid>. Empty means the legacy question order.';
 
 -- ========== 210_events_registration_flows.sql ==========
+
 ALTER TABLE public.events
   ADD COLUMN IF NOT EXISTS price_by_flow BOOLEAN NOT NULL DEFAULT false;
 
@@ -15436,6 +19501,20 @@ CREATE POLICY event_registration_flows_modify_admin
   USING (public.is_admin(auth.uid()))
   WITH CHECK (public.is_admin(auth.uid()));
 
+-- ========== 211_nps_neutral_spanish_prompt.sql ==========
+
+-- Databases that already ran 205 stored the Argentine prompt "imaginás".
+-- Fresh installs seed the neutral sentence and this update matches zero rows.
+UPDATE public.questionnaire_questions
+SET prompt_i18n = jsonb_set(
+  prompt_i18n,
+  '{es}',
+  to_jsonb('¿Cómo te imaginas una experiencia online de este instituto?'::text)
+)
+WHERE prompt_i18n->>'es' = '¿Cómo te imaginás una experiencia online de este instituto?';
+
+-- ========== 212_event_email_templates.sql ==========
+
 -- Per-event email copies. Confirmation mails may also vary by registration flow.
 
 CREATE TABLE IF NOT EXISTS public.event_email_templates (
@@ -15453,8 +19532,7 @@ CREATE TABLE IF NOT EXISTS public.event_email_templates (
       'events.registered',
       'events.payment_approved',
       'events.payment_rejected',
-      'events.reminder',
-      'events.registration_removed'
+      'events.reminder'
     )
   ),
   CONSTRAINT event_email_templates_locale_chk CHECK (locale IN ('es', 'en', 'pt')),
@@ -15489,5 +19567,371 @@ ALTER TABLE public.event_attendees
   ADD CONSTRAINT event_attendees_registration_locale_chk
   CHECK (registration_locale IN ('es', 'en', 'pt'));
 
+-- ========== 213_event_registration_removed_email.sql ==========
+
+-- Allow the per-event copy of the registration-removed notice.
+
+ALTER TABLE public.event_email_templates
+  DROP CONSTRAINT IF EXISTS event_email_templates_key_chk;
+
+ALTER TABLE public.event_email_templates
+  ADD CONSTRAINT event_email_templates_key_chk CHECK (
+    template_key IN (
+      'events.registered',
+      'events.payment_approved',
+      'events.payment_rejected',
+      'events.reminder',
+      'events.registration_removed'
+    )
+  );
+
+-- ========== 214_event_family_discount.sql ==========
+
 ALTER TABLE public.event_attendees
   ADD COLUMN IF NOT EXISTS family_discount_claimed boolean NOT NULL DEFAULT false;
+
+-- ========== 215_event_discount_codes.sql ==========
+
+-- Per-event discount codes. A redemption is reserved in the same transaction as enroll.
+
+CREATE TABLE IF NOT EXISTS public.event_discount_codes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id UUID NOT NULL REFERENCES public.events (id) ON DELETE CASCADE,
+  code TEXT NOT NULL,
+  code_normalized TEXT GENERATED ALWAYS AS (lower(btrim(code))) STORED,
+  discount_percent SMALLINT NOT NULL,
+  max_uses INT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT event_discount_codes_code_len CHECK (char_length(btrim(code)) BETWEEN 1 AND 32),
+  CONSTRAINT event_discount_codes_percent CHECK (discount_percent BETWEEN 1 AND 100),
+  CONSTRAINT event_discount_codes_max_uses CHECK (max_uses IS NULL OR max_uses >= 1)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS event_discount_codes_event_code_idx
+  ON public.event_discount_codes (event_id, code_normalized);
+
+CREATE TABLE IF NOT EXISTS public.event_discount_code_redemptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code_id UUID NOT NULL REFERENCES public.event_discount_codes (id) ON DELETE RESTRICT,
+  attendee_id UUID NOT NULL REFERENCES public.event_attendees (id) ON DELETE CASCADE,
+  status TEXT NOT NULL,
+  discount_percent SMALLINT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  consumed_at TIMESTAMPTZ,
+  released_at TIMESTAMPTZ,
+  CONSTRAINT event_discount_code_redemptions_status CHECK (status IN ('reserved', 'consumed', 'released')),
+  CONSTRAINT event_discount_code_redemptions_percent CHECK (discount_percent BETWEEN 1 AND 100),
+  CONSTRAINT event_discount_code_redemptions_attendee_unique UNIQUE (attendee_id)
+);
+
+CREATE INDEX IF NOT EXISTS event_discount_code_redemptions_code_status_idx
+  ON public.event_discount_code_redemptions (code_id, status);
+
+ALTER TABLE public.event_discount_codes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_discount_code_redemptions ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS event_discount_codes_admin ON public.event_discount_codes;
+CREATE POLICY event_discount_codes_admin
+  ON public.event_discount_codes
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+DROP POLICY IF EXISTS event_discount_code_redemptions_admin ON public.event_discount_code_redemptions;
+CREATE POLICY event_discount_code_redemptions_admin
+  ON public.event_discount_code_redemptions
+  FOR ALL TO authenticated
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
+
+CREATE OR REPLACE FUNCTION public.delete_event_discount_code(p_code_id UUID)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_occupied INT;
+BEGIN
+  SELECT count(*)::int INTO v_occupied
+  FROM public.event_discount_code_redemptions
+  WHERE code_id = p_code_id AND status IN ('reserved', 'consumed');
+
+  IF v_occupied > 0 THEN
+    RETURN 'occupied';
+  END IF;
+
+  DELETE FROM public.event_discount_code_redemptions WHERE code_id = p_code_id;
+
+  DELETE FROM public.event_discount_codes WHERE id = p_code_id;
+  IF NOT FOUND THEN
+    RETURN 'not_found';
+  END IF;
+  RETURN 'ok';
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.delete_event_discount_code(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.delete_event_discount_code(UUID) TO service_role;
+
+CREATE OR REPLACE FUNCTION public.enroll_event_attendee_with_discount(
+  p_event_id UUID,
+  p_user_id UUID DEFAULT NULL,
+  p_first_name TEXT DEFAULT NULL,
+  p_last_name TEXT DEFAULT NULL,
+  p_dni_or_passport TEXT DEFAULT NULL,
+  p_email TEXT DEFAULT NULL,
+  p_phone TEXT DEFAULT NULL,
+  p_birth_date DATE DEFAULT NULL,
+  p_tutor_id UUID DEFAULT NULL,
+  p_tutor_first_name TEXT DEFAULT NULL,
+  p_tutor_last_name TEXT DEFAULT NULL,
+  p_tutor_dni_or_passport TEXT DEFAULT NULL,
+  p_tutor_email TEXT DEFAULT NULL,
+  p_tutor_phone TEXT DEFAULT NULL,
+  p_tutor_relationship TEXT DEFAULT NULL,
+  p_source TEXT DEFAULT 'public',
+  p_is_local_resident BOOLEAN DEFAULT true,
+  p_field_values JSONB DEFAULT '[]'::jsonb,
+  p_ticket_package_id UUID DEFAULT NULL,
+  p_companions JSONB DEFAULT '[]'::jsonb,
+  p_discount_code TEXT DEFAULT NULL,
+  p_flow_unit_price NUMERIC DEFAULT NULL
+)
+RETURNS TABLE (
+  attendee_id UUID,
+  attendee_status public.event_attendee_status,
+  payment_required BOOLEAN,
+  payment_id UUID,
+  result_code TEXT,
+  seats INT,
+  total_amount NUMERIC(12, 2)
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_row RECORD;
+  v_code public.event_discount_codes%ROWTYPE;
+  v_normalized TEXT;
+  v_occupied INT;
+  v_currency TEXT;
+  v_base NUMERIC(12, 2);
+  v_discounted NUMERIC(12, 2);
+  v_status public.event_attendee_status;
+  v_result TEXT;
+BEGIN
+  v_normalized := lower(btrim(coalesce(p_discount_code, '')));
+
+  SELECT * INTO v_code
+  FROM public.event_discount_codes
+  WHERE event_id = p_event_id AND code_normalized = v_normalized
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RETURN QUERY SELECT
+      NULL::uuid,
+      NULL::public.event_attendee_status,
+      false,
+      NULL::uuid,
+      'invalid_code'::text,
+      0,
+      NULL::numeric(12, 2);
+    RETURN;
+  END IF;
+
+  SELECT count(*)::int INTO v_occupied
+  FROM public.event_discount_code_redemptions
+  WHERE code_id = v_code.id AND status IN ('reserved', 'consumed');
+
+  IF v_code.max_uses IS NOT NULL AND v_occupied >= v_code.max_uses THEN
+    RETURN QUERY SELECT
+      NULL::uuid,
+      NULL::public.event_attendee_status,
+      false,
+      NULL::uuid,
+      'no_uses'::text,
+      0,
+      NULL::numeric(12, 2);
+    RETURN;
+  END IF;
+
+  SELECT * INTO v_row
+  FROM public.enroll_event_attendee(
+    p_event_id,
+    p_user_id,
+    p_first_name,
+    p_last_name,
+    p_dni_or_passport,
+    p_email,
+    p_phone,
+    p_birth_date,
+    p_tutor_id,
+    p_tutor_first_name,
+    p_tutor_last_name,
+    p_tutor_dni_or_passport,
+    p_tutor_email,
+    p_tutor_phone,
+    p_tutor_relationship,
+    p_source,
+    p_is_local_resident,
+    p_field_values,
+    p_ticket_package_id,
+    p_companions
+  );
+
+  IF v_row.attendee_id IS NULL OR v_row.result_code NOT IN ('confirmed', 'payment_pending', 'waitlist') THEN
+    RETURN QUERY SELECT
+      v_row.attendee_id,
+      v_row.attendee_status,
+      v_row.payment_required,
+      v_row.payment_id,
+      v_row.result_code,
+      v_row.seats,
+      v_row.total_amount;
+    RETURN;
+  END IF;
+
+  SELECT e.currency INTO v_currency FROM public.events e WHERE e.id = p_event_id;
+  v_base := CASE
+    WHEN p_flow_unit_price IS NOT NULL THEN round(p_flow_unit_price * GREATEST(coalesce(v_row.seats, 1), 1), 2)
+    ELSE coalesce(v_row.total_amount, 0)
+  END;
+
+  IF upper(coalesce(v_currency, '')) IN ('CLP', 'ARS') THEN
+    v_discounted := round(v_base * (1 - (v_code.discount_percent::numeric / 100)), 0);
+  ELSE
+    v_discounted := round(v_base * (1 - (v_code.discount_percent::numeric / 100)), 2);
+  END IF;
+
+  v_status := v_row.attendee_status;
+  v_result := v_row.result_code;
+
+  IF v_discounted = 0 AND v_row.result_code <> 'waitlist' THEN
+    v_status := 'confirmed';
+    v_result := 'confirmed';
+    UPDATE public.event_attendees SET status = 'confirmed' WHERE id = v_row.attendee_id;
+    INSERT INTO public.event_discount_code_redemptions (
+      code_id, attendee_id, status, discount_percent, consumed_at
+    ) VALUES (
+      v_code.id, v_row.attendee_id, 'consumed', v_code.discount_percent, now()
+    );
+  ELSE
+    INSERT INTO public.event_discount_code_redemptions (
+      code_id, attendee_id, status, discount_percent
+    ) VALUES (
+      v_code.id, v_row.attendee_id, 'reserved', v_code.discount_percent
+    );
+  END IF;
+
+  RETURN QUERY SELECT
+    v_row.attendee_id,
+    v_status,
+    v_discounted > 0,
+    v_row.payment_id,
+    v_result,
+    v_row.seats,
+    v_discounted;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.enroll_event_attendee_with_discount(
+  UUID, UUID, TEXT, TEXT, TEXT, TEXT, TEXT, DATE, UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, BOOLEAN, JSONB, UUID, JSONB, TEXT, NUMERIC
+) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.enroll_event_attendee_with_discount(
+  UUID, UUID, TEXT, TEXT, TEXT, TEXT, TEXT, DATE, UUID, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, BOOLEAN, JSONB, UUID, JSONB, TEXT, NUMERIC
+) TO service_role;
+
+-- ========== 216_parent_reply_to_sender.sql ==========
+
+-- A parent may reply to an admin or teacher who already sent them a portal message.
+-- A linked student is not required for this reply.
+-- A new broadcast to every admin still requires tutor_student_rel (policy branch unchanged).
+
+CREATE OR REPLACE FUNCTION public.parent_may_reply_to_sender(recipient_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    public.user_has_role(auth.uid(), 'parent')
+    AND public.profile_role(recipient_id) IN ('admin', 'teacher')
+    AND EXISTS (
+      SELECT 1
+      FROM public.portal_messages m
+      WHERE m.sender_id = recipient_id
+        AND m.recipient_id = auth.uid()
+    );
+$$;
+
+COMMENT ON FUNCTION public.parent_may_reply_to_sender(uuid) IS
+  'True when auth parent may portal-message recipient_id because that admin or teacher already wrote to the parent.';
+
+REVOKE ALL ON FUNCTION public.parent_may_reply_to_sender(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.parent_may_reply_to_sender(uuid) TO authenticated;
+
+DROP POLICY IF EXISTS portal_messages_insert_parent ON public.portal_messages;
+CREATE POLICY portal_messages_insert_parent ON public.portal_messages
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    sender_id = auth.uid()
+    AND recipient_id <> auth.uid()
+    AND public.user_has_role(auth.uid(), 'parent')
+    AND (
+      public.parent_may_message_teacher(recipient_id)
+      OR (
+        public.profile_role(recipient_id) = 'admin'
+        AND EXISTS (
+          SELECT 1 FROM public.tutor_student_rel ts
+          WHERE ts.tutor_id = auth.uid()
+        )
+      )
+      OR public.parent_may_reply_to_sender(recipient_id)
+    )
+  );
+-- ========== 217_admin_home_layouts.sql ==========
+
+-- One home layout per admin. Other admins cannot read or write this row.
+
+CREATE TABLE IF NOT EXISTS public.admin_home_layouts (
+  profile_id uuid PRIMARY KEY REFERENCES public.profiles (id) ON DELETE CASCADE,
+  layout jsonb NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.admin_home_layouts ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS admin_home_layouts_select_own ON public.admin_home_layouts;
+CREATE POLICY admin_home_layouts_select_own
+  ON public.admin_home_layouts
+  FOR SELECT
+  TO authenticated
+  USING (profile_id = auth.uid() AND public.is_current_user_admin());
+
+DROP POLICY IF EXISTS admin_home_layouts_insert_own ON public.admin_home_layouts;
+CREATE POLICY admin_home_layouts_insert_own
+  ON public.admin_home_layouts
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (profile_id = auth.uid() AND public.is_current_user_admin());
+
+DROP POLICY IF EXISTS admin_home_layouts_update_own ON public.admin_home_layouts;
+CREATE POLICY admin_home_layouts_update_own
+  ON public.admin_home_layouts
+  FOR UPDATE
+  TO authenticated
+  USING (profile_id = auth.uid() AND public.is_current_user_admin())
+  WITH CHECK (profile_id = auth.uid() AND public.is_current_user_admin());
+
+DROP POLICY IF EXISTS admin_home_layouts_delete_own ON public.admin_home_layouts;
+CREATE POLICY admin_home_layouts_delete_own
+  ON public.admin_home_layouts
+  FOR DELETE
+  TO authenticated
+  USING (profile_id = auth.uid() AND public.is_current_user_admin());
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.admin_home_layouts TO authenticated;

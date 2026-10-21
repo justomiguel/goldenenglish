@@ -27,7 +27,7 @@ export function AdminRegistrationsStatsRow({
     );
 
   return (
-    <div className="relative z-0 mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="relative z-0 mt-3 grid grid-cols-2 gap-2 sm:mt-6 sm:gap-3 xl:grid-cols-4">
       <AdminStatCard
         icon={<ClipboardList className={ic} strokeWidth={1.5} aria-hidden />}
         iconClass="bg-sky-100 text-sky-700"

@@ -16,9 +16,9 @@ import {
   cleanupGlobalContentPendingUploadAction,
   saveGlobalContentBuilderMetadataAction,
 } from "@/app/[locale]/dashboard/admin/academic/contents/globalContentFormDataActions";
-import { performGlobalMaterialFileUpload } from "@/components/admin/performGlobalMaterialFileUpload";
+import { TrackedFileUploadModal } from "@/components/molecules/TrackedFileUploadModal";
+import { useGlobalContentDraftUploads } from "@/hooks/useGlobalContentDraftUploads";
 import { pickContentMaterialsPanelLabels } from "@/lib/learning-content/pickContentMaterialsPanelLabels";
-import { validateLearningTaskFile } from "@/lib/learning-tasks/assets";
 import type { ContentTemplateLibraryRow } from "@/lib/learning-tasks/loadContentTemplateLibrary";
 import type { Dictionary } from "@/types/i18n";
 import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
@@ -49,9 +49,13 @@ export function AdminGlobalContentBuilder({
   const [materialLabel, setMaterialLabel] = useState("");
   const [embedUrl, setEmbedUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const { snapshot, isUploading, addFiles, uploadInlineImage } = useGlobalContentDraftUploads(
+    setMaterials,
+    labels.globalFileError,
+    setError,
+  );
 
   const reset = () => {
     setTitle("");
@@ -70,84 +74,6 @@ export function AdminGlobalContentBuilder({
     ]);
     setMaterialLabel("");
     setEmbedUrl("");
-  };
-
-  const addFiles = async (files: File[]) => {
-    if (files.length === 0) return;
-    const labelBase = materialLabel.trim();
-    setIsUploading(true);
-    setError(null);
-    try {
-      for (const file of files) {
-        const validation = validateLearningTaskFile(file);
-        if (!validation.ok) {
-          setError(labels.globalFileError);
-          continue;
-        }
-        const label =
-          files.length > 1 && labelBase
-            ? `${labelBase} (${file.name})`
-            : labelBase || file.name.replace(/\.[^.]+$/, "");
-        const uploaded = await performGlobalMaterialFileUpload(file);
-        if (!uploaded) {
-          setError(labels.globalFileError);
-          break;
-        }
-        setMaterials((current) => [
-          ...current,
-          {
-            id: crypto.randomUUID(),
-            kind: "file",
-            uploadedAssetId: uploaded.assetId,
-            storagePath: uploaded.storagePath,
-            label,
-            filename: file.name,
-            contentType: file.type,
-            byteSize: file.size,
-          },
-        ]);
-      }
-    } finally {
-      setIsUploading(false);
-      setMaterialLabel("");
-    }
-  };
-
-  const uploadInlineImage = async (file: File) => {
-    const validation = validateLearningTaskFile(file);
-    if (!validation.ok || !file.type.startsWith("image/")) {
-      setError(labels.globalFileError);
-      return null;
-    }
-    setIsUploading(true);
-    setError(null);
-    try {
-      const uploaded = await performGlobalMaterialFileUpload(file);
-      if (!uploaded) {
-        setError(labels.globalFileError);
-        return null;
-      }
-      const label = file.name.replace(/\.[^.]+$/, "");
-      setMaterials((current) => [
-        ...current,
-        {
-          id: crypto.randomUUID(),
-          kind: "file",
-          uploadedAssetId: uploaded.assetId,
-          storagePath: uploaded.storagePath,
-          label,
-          filename: file.name,
-          contentType: file.type,
-          byteSize: file.size,
-        },
-      ]);
-      return {
-        src: `/api/admin/academic/content-assets?path=${encodeURIComponent(uploaded.storagePath)}`,
-        alt: label,
-      };
-    } finally {
-      setIsUploading(false);
-    }
   };
 
   const removeMaterial = (material: AdminGlobalDraftMaterial) => {
@@ -228,15 +154,19 @@ export function AdminGlobalContentBuilder({
         embedUrl={embedUrl}
         isUploading={isUploading}
         fileUploadProgress={fileUploadProgress}
+        showInlineUploadProgress={false}
         onMaterialLabelChange={setMaterialLabel}
         onEmbedUrlChange={setEmbedUrl}
         onAddEmbed={addEmbed}
-        onAddFiles={(files) => void addFiles(files)}
+        onAddFiles={(files) => {
+          void addFiles(files, materialLabel.trim()).finally(() => setMaterialLabel(""));
+        }}
         onReorderMaterials={setMaterials}
         onMoveMaterial={moveMaterial}
         onRemoveMaterial={removeMaterial}
       />
       {error ? <p className="text-sm text-[var(--color-error)]">{error}</p> : null}
+      <TrackedFileUploadModal snapshot={snapshot} labels={fileUploadProgress} />
       <Button type="button" isLoading={isPending} disabled={!title.trim() || isUploading} onClick={save}>
         {isPending ? null : <Save className="h-4 w-4 shrink-0" aria-hidden />}
         {editingContent ? labels.globalUpdate : labels.globalSave}

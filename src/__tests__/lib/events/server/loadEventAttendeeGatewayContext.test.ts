@@ -14,20 +14,34 @@ import { loadEventAttendeeGatewayContext } from "@/lib/events/server/loadEventAt
 function makeAdmin(
   result: { data: unknown; error: unknown },
   companions: { data: unknown; error: unknown } = { data: [], error: null },
+  redemption: { data: unknown; error: unknown } = { data: null, error: null },
 ) {
   const statusFilter = vi.fn();
   const admin = {
-    from: vi.fn(() => ({
-      select: () => ({
-        eq: () => ({
-          maybeSingle: async () => result,
-          in: async (...args: unknown[]) => {
-            statusFilter(...args);
-            return companions;
-          },
+    from: vi.fn((table: string) => {
+      if (table === "event_discount_code_redemptions") {
+        return {
+          select: () => ({
+            eq: () => ({
+              in: () => ({
+                maybeSingle: async () => redemption,
+              }),
+            }),
+          }),
+        };
+      }
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: async () => result,
+            in: async (...args: unknown[]) => {
+              statusFilter(...args);
+              return companions;
+            },
+          }),
         }),
-      }),
-    })),
+      };
+    }),
   } as never;
   return { admin, statusFilter };
 }
@@ -98,6 +112,18 @@ describe("loadEventAttendeeGatewayContext", () => {
 
     expect(context?.isLocalResident).toBe(true);
     expect(context?.amount).toBe(10000);
+  });
+
+  it("charges the stored code percent instead of the family discount", async () => {
+    const { admin } = makeAdmin(
+      { data: { ...baseRow, family_discount_claimed: true }, error: null },
+      { data: [], error: null },
+      { data: { discount_percent: 50 }, error: null },
+    );
+
+    const context = await loadEventAttendeeGatewayContext(admin, "att-1");
+
+    expect(context?.amount).toBe(5000);
   });
 
   it("charges 90% when the attendee claimed the family discount", async () => {

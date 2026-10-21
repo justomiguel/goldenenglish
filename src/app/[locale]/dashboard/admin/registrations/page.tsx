@@ -11,7 +11,17 @@ import {
   type PaginatedRegistrationsParams,
 } from "@/lib/dashboard/loadPaginatedRegistrations";
 import type { RegistrationSortKey } from "@/lib/dashboard/adminRegistrationsSort";
-import { loadRegistrationStatusCounts } from "@/lib/dashboard/loadRegistrationStatusCounts";
+import {
+  loadRegistrationEnrolledCount,
+  loadRegistrationStatusCounts,
+} from "@/lib/dashboard/loadRegistrationStatusCounts";
+import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
+import { AdminRegistrationCreateButton } from "@/components/dashboard/AdminRegistrationCreateButton";
+import { AdminRegistrationsStatsRow } from "@/components/dashboard/AdminRegistrationsStatsRow";
+import { loadRegistrationSectionPickerOptions } from "@/lib/register/loadRegistrationSectionPickerOptions";
+import { extrasPackForTemplateKind } from "@/lib/register/packs/extrasPackForTemplateKind";
+import { registrationUsesCefrLevel } from "@/lib/register/packs/registrationUsesCefrLevel";
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { loadRegistrationInboxCounts } from "@/lib/dashboard/loadRegistrationInboxCounts";
 import { parseRegistrationInboxFilter } from "@/lib/register/registrationInboxFilter";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -62,15 +72,39 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
   const paginationParams = parseSearchParams(rawSp);
 
   const supabase = await createClient();
+  const listQuery = paginationParams.q ?? "";
+  const listCountsPromise = loadRegistrationStatusCounts(supabase, listQuery);
+  const headerCountsPromise =
+    listQuery.trim() === "" ? listCountsPromise : loadRegistrationStatusCounts(supabase, "");
 
-  const [result, legalAgeMajority, cohort, statusCounts, inboxCounts, brand] = await Promise.all([
-    loadPaginatedRegistrations(supabase, paginationParams),
-    Promise.resolve(getLegalAgeMajorityFromSystem()),
-    loadCurrentCohort(supabase),
-    loadRegistrationStatusCounts(supabase, paginationParams.q ?? ""),
-    loadRegistrationInboxCounts(supabase),
-    getBrandForRequest(),
-  ]);
+  const [result, legalAgeMajority, cohort, statusCounts, headerCounts, enrolledCount, inboxCounts, brand, sectionOptions, profile] =
+    await Promise.all([
+      loadPaginatedRegistrations(supabase, paginationParams),
+      Promise.resolve(getLegalAgeMajorityFromSystem()),
+      loadCurrentCohort(supabase),
+      listCountsPromise,
+      headerCountsPromise,
+      loadRegistrationEnrolledCount(supabase),
+      loadRegistrationInboxCounts(supabase),
+      getBrandForRequest(),
+      loadRegistrationSectionPickerOptions(),
+      loadActiveTheme().then((snapshot) => {
+        const kind = snapshot?.theme.templateKind ?? "classic";
+        return {
+          extrasPack: extrasPackForTemplateKind(kind),
+          usesCefrLevel: registrationUsesCefrLevel(kind),
+        };
+      }),
+    ]);
+  const extrasPack = profile.extrasPack;
+  const registrationLabels = profile.usesCefrLevel
+    ? dict.admin.registrations
+    : {
+        ...dict.admin.registrations,
+        level: dict.admin.registrations.sectionColumn,
+        filterPlaceholder: dict.admin.registrations.filterPlaceholderSection,
+        filterTooltip: dict.admin.registrations.filterTooltipSection,
+      };
   const existingByLead = await resolveExistingStudentIdsForLeads(
     createAdminClient(),
     result.rows,
@@ -86,40 +120,58 @@ export default async function AdminRegistrationsPage({ params, searchParams }: P
 
   return (
     <div>
-      <h1
-        className="text-2xl font-bold text-[var(--color-secondary)]"
-        data-tour={ADMIN_TOUR_ANCHORS.registrationsTitle}
-      >
-        {dict.admin.registrations.title}
-      </h1>
-      <p className="mt-2 text-[var(--color-muted-foreground)]">
-        {dict.admin.registrations.lead}
-      </p>
-      <AdminRegistrationsScreen
-        locale={locale}
-        rows={rows}
-        totalCount={result.totalCount}
-        page={result.page}
-        pageSize={result.pageSize}
-        searchQuery={paginationParams.q ?? ""}
-        sortKey={paginationParams.sort ?? "received"}
-        sortDir={paginationParams.dir ?? "desc"}
-        statusFilter={paginationParams.status}
-        statusCounts={statusCounts}
-        inboxFilter={paginationParams.inbox}
-        inboxCounts={inboxCounts}
-        legalAgeMajority={legalAgeMajority}
-        instituteName={brand.name}
-        instituteCountry={resolveWhatsAppCountry(brand.contactPhone)}
-        labels={dict.admin.registrations}
-        tableLabels={dict.admin.table}
-        userLabels={{
-          password: dict.admin.users.password,
-          passwordHint: dict.admin.users.passwordHint,
-        }}
-        currentCohortSections={cohortSections}
-        currentCohortName={cohort?.name}
+      <AdminPageHeader
+        title={dict.admin.registrations.title}
+        lead={dict.admin.registrations.lead}
+        iconId="registrations"
+        tourAnchor={ADMIN_TOUR_ANCHORS.registrationsTitle}
+        actions={
+          <AdminRegistrationCreateButton
+            locale={locale}
+            labels={dict.admin.registrations}
+            registerDict={dict.register}
+            legalAgeMajority={legalAgeMajority}
+            sectionOptions={sectionOptions}
+            extrasPack={extrasPack}
+          />
+        }
       />
+      <AdminRegistrationsStatsRow
+        locale={locale}
+        labels={dict.admin.registrations.stats}
+        total={headerCounts.total + enrolledCount}
+        pending={headerCounts.new}
+        contacted={headerCounts.contacted}
+        enrolled={enrolledCount}
+      />
+      <div className="mt-3 md:mt-6">
+        <AdminRegistrationsScreen
+          locale={locale}
+          rows={rows}
+          totalCount={result.totalCount}
+          page={result.page}
+          pageSize={result.pageSize}
+          searchQuery={paginationParams.q ?? ""}
+          sortKey={paginationParams.sort ?? "received"}
+          sortDir={paginationParams.dir ?? "desc"}
+          statusFilter={paginationParams.status}
+          statusCounts={statusCounts}
+          inboxFilter={paginationParams.inbox}
+          inboxCounts={inboxCounts}
+          legalAgeMajority={legalAgeMajority}
+          instituteName={brand.name}
+          instituteCountry={resolveWhatsAppCountry(brand.contactPhone)}
+          labels={registrationLabels}
+          usesCefrLevel={profile.usesCefrLevel}
+          tableLabels={dict.admin.table}
+          userLabels={{
+            password: dict.admin.users.password,
+            passwordHint: dict.admin.users.passwordHint,
+          }}
+          currentCohortSections={cohortSections}
+          currentCohortName={cohort?.name}
+        />
+      </div>
     </div>
   );
 }

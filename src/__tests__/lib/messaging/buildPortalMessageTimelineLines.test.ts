@@ -36,5 +36,8 @@ describe("buildPortalMessageTimelineLines", () => {
     });
     expect(lines).toHaveLength(2);
     expect(lines[1]?.incoming_label).toBe("Administration");
+    expect(lines[1]?.peer_id).toBe("a1");
+    expect(lines[1]?.peer_role).toBe("admin");
+    expect(lines[1]?.from_me).toBe(false);
   });
 });

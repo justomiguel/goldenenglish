@@ -37,7 +37,7 @@ export function buildBlogArticleAdminShareLinkPaths(input: {
   for (const locale of localesWithContent) {
     paths.push({
       locale,
-      pathname: `/${locale}/blog/preview/${token}`,
+      pathname: `/${locale}/blog/vista-previa/${input.slugsByLocale[locale]}/${token}`,
       kind: "preview",
     });
   }

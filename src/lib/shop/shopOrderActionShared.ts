@@ -1,3 +1,4 @@
+import { buildShopOrderPath } from "@/lib/site/publicSharePaths";
 import { absoluteUrl } from "@/lib/site/publicUrl";
 import type { ShopAssignActorRole, ShopOrderStatus } from "@/lib/shop/types";
 import { canAssignShopOrder } from "@/lib/shop/canAssignShopOrder";
@@ -53,12 +54,16 @@ export function mayAssignShopOrder(input: {
   });
 }
 
-export function shopOrderReadyMailVars(locale: string, payToken: string): {
+export function shopOrderReadyMailVars(
+  locale: string,
+  payToken: string,
+  productTitle = "",
+): {
   orderUrl: string;
   pickupNote: string;
 } {
   const loc = locale === "en" || locale === "pt" ? locale : "es";
-  const path = `/${loc}/tienda/pedido/${payToken}`;
+  const path = buildShopOrderPath(loc, productTitle, payToken);
   return {
     orderUrl: absoluteUrl(path)?.toString() ?? path,
     pickupNote:

@@ -1,0 +1,49 @@
+---
+alwaysApply: true
+description: Principal English style — ASD-STE100-inspired Simplified Technical English for agent replies and English the agent writes.
+---
+
+# Principal rule — ASD-STE100-inspired English
+
+This rule has priority for English prose. When another chat-style instruction asks for long or decorative English, follow this rule.
+
+Use this style for:
+
+- Every reply to the user.
+- English in rules, specs, plans, ADRs, runbooks, and code comments that you write.
+- New English strings in `src/dictionaries/en.json` that you add or edit.
+
+## Write this way
+
+1. Use short sentences. Keep one idea in each sentence.
+2. Keep a procedural sentence to 20 words or fewer.
+3. Keep a descriptive sentence to 25 words or fewer.
+4. Use the active voice.
+5. Use the imperative for instructions ("Write the rule.").
+6. Use "do not" for a prohibition.
+7. Put a short condition before the action ("If the test fails, stop the commit.").
+8. Use the same word for the same thing.
+9. Keep articles (`a`, `an`, `the`).
+10. Use a vertical list when a procedure has more than two steps.
+
+## Keep technical detail
+
+Keep file paths, API names, SQL, error codes, types, and domain terms. Do not replace a precise term with a vague word.
+
+```text
+Bad: The system kind of blows up when the query is too big.
+Good: PostgREST returns an error when the query has no filter and no range.
+```
+
+## Do not use
+
+- Slang, idioms, or metaphors.
+- Noun clusters longer than three nouns.
+- Several topics in one sentence.
+- A claim that the text is certified ASD-STE100.
+
+## Other languages and old copy
+
+- Spanish product copy follows `40-neutral-spanish-copy.mdc`.
+- Dictionary keys and i18n placement follow `09-i18n-copy.mdc`.
+- Do not rewrite existing English only to match this style. Apply the style when you add or edit a sentence.

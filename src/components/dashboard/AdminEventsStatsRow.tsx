@@ -31,7 +31,7 @@ export function AdminEventsStatsRow({
       peopleSharePercent(part, total).toLocaleString(locale, { maximumFractionDigits: 1 }),
     );
   return (
-    <div className="relative z-0 mt-6 grid gap-3 sm:grid-cols-3">
+    <div className="relative z-0 mt-3 grid grid-cols-2 gap-2 sm:mt-6 sm:grid-cols-3 sm:gap-3">
       <AdminStatCard
         icon={<CalendarDays className={ic} strokeWidth={1.5} aria-hidden />}
         iconClass="bg-sky-100 text-sky-700"

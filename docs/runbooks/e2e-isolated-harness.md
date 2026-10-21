@@ -119,6 +119,7 @@ npm run test:e2e:precommit -- --project=setup --project=chromium-critical-paymen
 | chromium-critical-student-care | `critical-student-care.spec.ts` | Student care notes |
 | chromium-critical-event-payment-approve | `critical-event-payment-approve.spec.ts` | Paid register → admin OK |
 | chromium-critical-event-attendee-remove | `critical-event-attendee-remove.spec.ts` | Remove pending attendee |
+| chromium-critical-event-duplicate-and-code | `critical-event-duplicate-and-code.spec.ts` | Duplicate paid event; code until payment approval |
 | chromium-critical-record-payment | `critical-record-payment.spec.ts` | Admin record payment (fourth due month) |
 | chromium-critical-scholarship | `critical-scholarship.spec.ts` | Assign % scholarship on enrollment |
 | chromium-critical-messaging | `critical-messaging.spec.ts` | Admin compose → student inbox |

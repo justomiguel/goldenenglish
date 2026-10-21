@@ -12,6 +12,16 @@ export interface EventRegisterFormLabels {
   consent: string;
   familyDiscount: string;
   familyDiscountPay: string;
+  discountCode: {
+    label: string;
+    placeholder: string;
+    apply: string;
+    clear: string;
+    pay: string;
+    invalid: string;
+    noUses: string;
+    conflict: string;
+  };
   error: string;
   successModal: {
     title: string;

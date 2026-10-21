@@ -70,6 +70,7 @@ export function AdminPageHeader({
   artFamily,
   actions,
   tourAnchor,
+  compact = false,
 }: {
   title: string;
   lead?: string;
@@ -77,42 +78,50 @@ export function AdminPageHeader({
   artFamily?: AdminPageHeaderArtFamily;
   actions?: ReactNode;
   tourAnchor?: string;
+  /** Phone: one title row. The lead stays on `md` and wider. */
+  compact?: boolean;
 }) {
-  const icon = iconId ? adminSurfaceIcon(iconId, "h-8 w-8") : null;
+  const icon = iconId ? adminSurfaceIcon(iconId, "h-5 w-5 md:h-8 md:w-8") : null;
   const artSrc = adminPageHeaderArtSrc(iconId, artFamily);
 
   return (
     <header
       {...(tourAnchor ? { "data-tour": tourAnchor } : {})}
-      className="relative z-10 mt-5 overflow-visible rounded-3xl px-6 py-8 sm:px-8"
+      className={`relative z-10 mt-2 overflow-visible rounded-2xl px-3.5 md:mt-5 md:rounded-3xl md:px-6 md:py-8 sm:px-8 ${compact ? "py-2" : "py-3"}`}
     >
       <div
         aria-hidden
         className="absolute inset-0 rounded-3xl border border-[color-mix(in_srgb,var(--color-primary)_10%,var(--color-border))] bg-[linear-gradient(90deg,color-mix(in_srgb,var(--color-primary)_8%,#eef3fb)_0%,color-mix(in_srgb,var(--color-primary)_12%,#e8eef8)_48%,color-mix(in_srgb,var(--color-primary)_6%,#f5f7fb)_100%)] shadow-[var(--shadow-soft)]"
       />
       <AdminPageHeaderArt src={artSrc} />
-      <div className="relative z-[1] flex min-h-[8.75rem] max-w-xl flex-col justify-center gap-5 sm:max-w-[56%]">
-        <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+      <div
+        className={
+          compact
+            ? "relative z-[1] flex flex-row items-center justify-between gap-2 md:min-h-[8.75rem] md:max-w-[56%] md:flex-col md:items-stretch md:justify-center md:gap-5"
+            : "relative z-[1] flex max-w-xl flex-col justify-center gap-2.5 md:min-h-[8.75rem] md:gap-5 sm:max-w-[56%]"
+        }
+      >
+        <div className="flex min-w-0 items-center gap-3 sm:gap-5">
           {icon ? (
             <span
               aria-hidden
-              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white text-[var(--color-primary)] shadow-[0_8px_20px_rgba(15,23,42,0.06)]"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[var(--color-primary)] shadow-[0_8px_20px_rgba(15,23,42,0.06)] md:h-16 md:w-16 md:rounded-2xl"
             >
               {icon}
             </span>
           ) : null}
           <div className="min-w-0">
-            <h1 className="font-display text-3xl font-bold tracking-tight text-[var(--color-primary)] md:text-[2.5rem]">
+            <h1 className="font-display text-lg font-bold leading-snug tracking-tight text-[var(--color-primary)] md:text-[2.5rem]">
               {title}
             </h1>
             {lead ? (
-              <p className="mt-1.5 max-w-md text-sm leading-relaxed text-[color-mix(in_srgb,var(--color-primary)_55%,var(--color-muted-foreground))] sm:text-base">
+              <p className={`mt-0.5 max-w-md text-xs leading-relaxed text-[color-mix(in_srgb,var(--color-primary)_55%,var(--color-muted-foreground))] md:mt-2 md:line-clamp-none md:text-base ${compact ? "hidden md:block" : "line-clamp-2"}`}>
                 {lead}
               </p>
             ) : null}
           </div>
         </div>
-        {actions ? <div className="shrink-0">{actions}</div> : null}
+        {actions ? <div className="mt-0 shrink-0 md:mt-0">{actions}</div> : null}
       </div>
     </header>
   );

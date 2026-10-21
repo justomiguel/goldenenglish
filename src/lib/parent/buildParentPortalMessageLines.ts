@@ -10,6 +10,8 @@ export type ParentPortalMessageLineDto = {
   from_me: boolean;
   body_html: string;
   created_at: string;
+  peer_id: string;
+  peer_role: string;
   peer_name: string;
   incoming_label: string;
   outbound_administration: boolean;
@@ -33,6 +35,8 @@ export function buildParentPortalMessageLines(params: {
       from_me,
       body_html,
       created_at,
+      peer_id,
+      peer_role,
       peer_name,
       incoming_label,
       outbound_administration,
@@ -41,6 +45,8 @@ export function buildParentPortalMessageLines(params: {
       from_me,
       body_html,
       created_at,
+      peer_id,
+      peer_role,
       peer_name,
       incoming_label,
       outbound_administration,

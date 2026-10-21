@@ -56,7 +56,7 @@ export function AdminMessageCard({
   return (
     <article
       className={[
-        "flex flex-col gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-3 transition-colors sm:flex-row sm:items-center sm:gap-3",
+        "flex flex-row items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-2.5 py-2 transition-colors sm:gap-3 sm:px-3 sm:py-3",
         accent,
         "hover:border-[var(--color-border)] hover:bg-[var(--color-muted)]/20",
       ].join(" ")}
@@ -113,7 +113,7 @@ export function AdminMessageCard({
               {labels.badgeNeedsReply}
             </span>
           ) : null}
-          <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-0.5 text-[0.65rem] font-semibold capitalize text-sky-800">
+          <span className="hidden rounded-full bg-sky-100 px-2.5 py-0.5 text-[0.65rem] font-semibold capitalize text-sky-800 sm:inline-flex">
             {row.fromRole}
           </span>
           <time
@@ -168,6 +168,7 @@ export function AdminMessageCard({
           labels={labels}
           confirmSnippet={row.preview || undefined}
           navigateAfterDelete="refresh"
+          iconOnlyBelowSm
         />
       </div>
     </article>

@@ -1,0 +1,49 @@
+export interface AdminEventDiscountCodeLabels {
+  lead: string;
+  code: string;
+  uses: string;
+  usesHint: string;
+  percent: string;
+  add: string;
+  importFile: string;
+  generate: string;
+  quantity: string;
+  download: string;
+  delete: string;
+  confirmTitle: string;
+  confirmBody: string;
+  cancel: string;
+  unlimited: string;
+  empty: string;
+  saved: string;
+  error: string;
+  showUses: string;
+  hideUses: string;
+  noUsesYet: string;
+  usesCap: string;
+  useStatus: { reserved: string; consumed: string; released: string };
+  paymentStatus: { pending: string; approved: string; rejected: string; none: string };
+  columns: {
+    code: string;
+    uses: string;
+    percent: string;
+    reserved: string;
+    consumed: string;
+    person: string;
+    email: string;
+    use: string;
+    payment: string;
+  };
+  errors: {
+    duplicate: string;
+    empty_code: string;
+    bad_percent: string;
+    bad_uses: string;
+    cap_below_occupied: string;
+    empty_file: string;
+    quantity: string;
+    occupied: string;
+    forbidden: string;
+    file: string;
+  };
+}

@@ -152,6 +152,7 @@ describe("CohortCollectionsMatrixClient", () => {
     ).toBeInTheDocument();
 
     const link = screen.getByRole("link", { name: overviewDict.sectionHeader.openSection });
+    expect(link).toHaveClass("min-h-11");
     expect(link).toHaveAttribute(
       "href",
       "/en/dashboard/admin/finance/collections/sec-1",

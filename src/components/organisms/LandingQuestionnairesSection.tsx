@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Lock } from "lucide-react";
+import { ChevronRight, Lock } from "lucide-react";
+import { buildQuestionnaireSharePath } from "@/lib/site/publicSharePaths";
 import type { LandingQuestionnaireCard } from "@/lib/questionnaires/loadLandingQuestionnaires";
 import type { Dictionary } from "@/types/i18n";
 
@@ -31,9 +32,10 @@ export function LandingQuestionnairesSection({
               ) : null}
             </div>
             <Link
-              href={`/${locale}/q/${item.slug}`}
-              className="mt-4 inline-flex min-h-[44px] items-center text-sm font-semibold text-[var(--color-primary)] hover:underline"
+              href={buildQuestionnaireSharePath(locale, item.slug)}
+              className="mt-4 inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-[var(--color-primary)] hover:underline"
             >
+              <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
               {labels.cta}
             </Link>
           </li>

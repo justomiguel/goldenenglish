@@ -14,7 +14,7 @@ export default async function AdminParentsLayout({ children, params }: LayoutPro
   const users = `/${locale}/dashboard/admin/users`;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6">
       <AdminSectionSubnav
         ariaLabel={dict.admin.usersNav.aria}
         items={[

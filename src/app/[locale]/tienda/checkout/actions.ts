@@ -11,6 +11,7 @@ import { startShopCheckout } from "@/lib/shop/startShopCheckout";
 import { validateShopCheckout } from "@/lib/shop/validateShopCheckout";
 import { notifyShopEmail } from "@/lib/shop/notifyShopEmail";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { buildShopOrderPath } from "@/lib/site/publicSharePaths";
 import type { ShopCheckoutFailCode, ShopCheckoutGateway, ShopCheckoutLine } from "@/lib/shop/types";
 
 export type StartShopCheckoutActionResult =
@@ -107,7 +108,7 @@ async function sendGuestShopMail(input: {
 }): Promise<void> {
   if (!input.guest) return;
   const origin = getPublicSiteUrl()?.toString() ?? "";
-  const orderUrl = `${origin}/${input.locale}/tienda/pedido/${input.payToken}`;
+  const orderUrl = `${origin}${buildShopOrderPath(input.locale, "", input.payToken)}`;
   if (input.guest.kind === "created") {
     await notifyShopEmail({
       to: input.email,

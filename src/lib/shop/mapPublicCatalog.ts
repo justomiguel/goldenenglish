@@ -9,6 +9,7 @@ export type PublicCatalogVariantSource = {
 
 export type PublicCatalogProductSource = {
   id: string;
+  slug?: string;
   title: string;
   image_path: string | null;
   active: boolean;
@@ -17,6 +18,7 @@ export type PublicCatalogProductSource = {
 
 export type PublicCatalogCard = {
   id: string;
+  slug: string;
   title: string;
   imageUrl: string | null;
   soldOut: boolean;
@@ -36,6 +38,7 @@ export type PublicProductVariant = {
 
 export type PublicProductDetail = {
   id: string;
+  slug: string;
   title: string;
   description: string;
   imageUrl: string | null;
@@ -49,6 +52,7 @@ function isBuyableVariant(variant: PublicCatalogVariantSource): boolean {
 
 export function normalizeShopProductRow(row: {
   id: string;
+  slug?: string | null;
   title: string;
   image_path: string | null;
   active: boolean;
@@ -57,6 +61,7 @@ export function normalizeShopProductRow(row: {
 }): PublicProductSource {
   return {
     id: row.id,
+    slug: row.slug ?? "",
     title: row.title,
     image_path: row.image_path,
     active: row.active,
@@ -70,6 +75,7 @@ export function mapPublicCatalog(rows: PublicCatalogProductSource[]): PublicCata
     .filter((row) => row.active)
     .map((row) => ({
       id: row.id,
+      slug: row.slug ?? "",
       title: row.title,
       imageUrl: row.image_path,
       soldOut: !row.variants.some(isBuyableVariant),
@@ -89,6 +95,7 @@ export function mapPublicProduct(row: PublicProductSource): PublicProductDetail 
     }));
   return {
     id: row.id,
+    slug: row.slug ?? "",
     title: row.title,
     description: row.description ?? "",
     imageUrl: row.image_path,

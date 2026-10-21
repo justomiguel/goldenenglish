@@ -1,12 +1,19 @@
-import Link from "next/link";
-import { UserRound } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import type { AdminHubSummary } from "@/lib/dashboard/loadAdminHubSummary";
 import type { UpcomingBirthdayCardRow } from "@/lib/birthdays/mapBirthdayRowsToDashboardCard";
-import { AdminHubHomeBoost } from "@/components/dashboard/AdminHubHomeBoost";
-import { AdminHubHomeOpsGrid } from "@/components/dashboard/AdminHubHomeOpsGrid";
-import { AdminFirstClassChecklistCard } from "@/components/dashboard/AdminFirstClassChecklistCard";
 import type { AdminFirstClassChecklist } from "@/lib/dashboard/evaluateAdminFirstClassChecklist";
+import { AdminHubHomeBoard } from "@/components/dashboard/AdminHubHomeBoard";
+import { factoryAdminHomeLayout, type AdminHomeLayout } from "@/lib/dashboard/adminHomeLayout";
+import type { AdminHomeExtraWidgets } from "@/lib/dashboard/loadAdminHomeExtraWidgets";
+
+const EMPTY_EXTRAS: AdminHomeExtraWidgets = {
+  peoplePulse: null,
+  collections: null,
+  upcomingEvents: [],
+  shopOpenCount: null,
+  changelog: [],
+  hasCurrentCohort: false,
+};
 
 interface AdminHubHomeProps {
   locale: string;
@@ -17,6 +24,9 @@ interface AdminHubHomeProps {
   greetingName?: string;
   includeBlog?: boolean;
   checklist?: AdminFirstClassChecklist | null;
+  layout?: AdminHomeLayout;
+  shopEnabled?: boolean;
+  extras?: AdminHomeExtraWidgets;
 }
 
 export function AdminHubHome({
@@ -27,14 +37,13 @@ export function AdminHubHome({
   birthdaysDict,
   greetingName,
   includeBlog = false,
-  checklist,
+  checklist = null,
+  layout,
+  shopEnabled = false,
+  extras = EMPTY_EXTRAS,
 }: AdminHubHomeProps) {
   const base = `/${locale}/dashboard/admin`;
-  const t = dict.admin.home.summary;
-  const studentsNoSectionTitle = t.studentsWithoutSection.linkAria.replace(
-    "{{count}}",
-    String(summary.studentsWithoutSection),
-  );
+  const resolvedLayout = layout ?? factoryAdminHomeLayout({ shopEnabled });
 
   return (
     <div className="flex flex-col gap-5 lg:flex-1">
@@ -47,49 +56,21 @@ export function AdminHubHome({
         </h1>
         <p className="mt-2 text-base text-[var(--color-muted-foreground)]">{dict.admin.home.lead}</p>
       </div>
-
-      {checklist && !checklist.allDone ? (
-        <AdminFirstClassChecklistCard
-          labels={dict.admin.home.firstClassChecklist}
-          checklist={checklist}
-        />
-      ) : null}
-
-      {summary.studentsWithoutSection > 0 ? (
-        <Link
-          href={`${base}/students`}
-          data-tour="admin-hub-students-without-section"
-          className="flex shrink-0 items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-[var(--color-foreground)] transition hover:bg-amber-100/80"
-          aria-label={studentsNoSectionTitle}
-          title={studentsNoSectionTitle}
-        >
-          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
-            <UserRound className="h-5 w-5" aria-hidden />
-          </span>
-          <span>
-            <span className="font-semibold text-[var(--color-primary)]">
-              {t.studentsWithoutSection.lead.replace(
-                "{{count}}",
-                String(summary.studentsWithoutSection),
-              )}
-            </span>{" "}
-            <span className="font-medium text-[var(--color-primary)]">
-              {t.studentsWithoutSection.cta} →
-            </span>
-          </span>
-        </Link>
-      ) : null}
-
-      <AdminHubHomeOpsGrid
-        locale={locale}
-        base={base}
-        dict={dict}
-        summary={summary}
-        birthdayRows={birthdayRows}
-        birthdaysDict={birthdaysDict}
+      <AdminHubHomeBoard
+        layout={resolvedLayout}
+        shopEnabled={shopEnabled}
+        model={{
+          locale,
+          base,
+          dict,
+          summary,
+          birthdayRows,
+          birthdaysDict,
+          includeBlog,
+          checklist,
+          extras,
+        }}
       />
-
-      <AdminHubHomeBoost base={base} dict={dict} includeBlog={includeBlog} />
     </div>
   );
 }

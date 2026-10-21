@@ -20,17 +20,20 @@ import {
   type AdminMerchLabels,
   type AdminMerchProductRow,
 } from "@/components/dashboard/admin/merch/adminMerchTypes";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 
 interface AdminMerchProductsScreenProps {
   locale: string;
   initialRows: AdminMerchProductRow[];
   labels: AdminMerchLabels;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
 export function AdminMerchProductsScreen({
   locale,
   initialRows,
   labels,
+  fileUploadProgress,
 }: AdminMerchProductsScreenProps) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -68,6 +71,7 @@ export function AdminMerchProductsScreen({
       {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}
       <AdminMerchProductForm
         labels={labels}
+        fileUploadProgress={fileUploadProgress}
         busy={busy}
         onCreate={async (input) => {
           const res = await run(() => createShopProduct({ locale, ...input }));
@@ -91,6 +95,7 @@ export function AdminMerchProductsScreen({
           <AdminMerchProductForm
             key={selected.id}
             labels={labels}
+            fileUploadProgress={fileUploadProgress}
             product={selected}
             busy={busy}
             onUpdate={async (input) => {

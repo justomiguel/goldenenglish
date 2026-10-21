@@ -1,5 +1,6 @@
-import { SHOP_MEDIA_BUCKET } from "@/lib/shop/shopMedia";
 import { uploadFileToSignedUrlWithProgress } from "@/lib/client/uploadFileToSignedUrlWithProgress";
+import type { TrackedFileUploadProgress } from "@/lib/client/trackedFileUploadProgress";
+import { SHOP_MEDIA_BUCKET } from "@/lib/shop/shopMedia";
 import { readSupabasePublicEnv } from "@/lib/supabase/publicEnv";
 
 type SignedUploadOk = { ok: true; storagePath: string; token: string };
@@ -25,7 +26,9 @@ async function requestShopMediaSignedUpload(input: {
 export async function performShopMediaFileUpload(
   file: File,
   productId?: string,
+  onProgress?: (progress: TrackedFileUploadProgress) => void,
 ): Promise<{ storagePath: string } | null> {
+  onProgress?.({ phase: "preparing", percent: 0 });
   const prepared = await requestShopMediaSignedUpload({
     filename: file.name,
     contentType: file.type,
@@ -33,6 +36,7 @@ export async function performShopMediaFileUpload(
     productId,
   });
   if (!prepared.ok) return null;
+  onProgress?.({ phase: "uploading", percent: 0 });
   try {
     await uploadFileToSignedUrlWithProgress({
       supabaseUrl: readSupabasePublicEnv().url,
@@ -40,6 +44,7 @@ export async function performShopMediaFileUpload(
       storagePath: prepared.storagePath,
       token: prepared.token,
       file,
+      onProgress: (percent) => onProgress?.({ phase: "uploading", percent }),
     });
   } catch {
     return null;

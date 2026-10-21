@@ -6,8 +6,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { assertAdmin } from "@/lib/dashboard/assertAdmin";
 import { recordSystemAudit } from "@/lib/analytics/server/recordSystemAudit";
 import { cefrLevelEnum } from "@/lib/import/studentRowSchema";
+import { registrationUsesCefrLevel } from "@/lib/register/packs/registrationUsesCefrLevel";
+import { loadActiveTheme } from "@/lib/theme/loadActiveTheme";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { logServerAuthzDenied, logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import {
+  logServerActionInvariantViolation,
+  logServerAuthzDenied,
+  logSupabaseClientError,
+} from "@/lib/logging/serverActionLog";
 import {
   REGISTRATION_PENDING_STATUSES,
   registrationIsActionable,
@@ -15,8 +21,7 @@ import {
 
 const idZ = z.string().uuid();
 
-const draftSchema = z.object({
-  registration_id: idZ,
+const personSchema = z.object({
   first_name: z.string().trim().min(1).max(120),
   last_name: z.string().trim().min(1).max(120),
   dni: z.string().trim().min(1).max(80),
@@ -66,6 +71,8 @@ const draftSchema = z.object({
     .transform((s) => (s == null || s === "" ? null : s)),
 });
 
+const draftSchema = personSchema.extend({ registration_id: idZ });
+
 export type RegistrationDraftInput = z.infer<typeof draftSchema>;
 export type RegistrationDraftPayload = z.input<typeof draftSchema>;
 
@@ -88,7 +95,10 @@ export async function updateRegistrationDraft(
   if (!parsed.success) return { ok: false, message: reg.invalidData };
 
   const admin = createAdminClient();
-  const { registration_id, ...patch } = parsed.data;
+  const theme = await loadActiveTheme();
+  const templateKind = theme?.theme.templateKind ?? "classic";
+  const { registration_id, level_interest, ...rest } = parsed.data;
+  const patch = registrationUsesCefrLevel(templateKind) ? { ...rest, level_interest } : rest;
 
   const { data: row, error: fetchErr } = await admin
     .from("registrations")
@@ -121,6 +131,56 @@ export async function updateRegistrationDraft(
     resourceType: "registration",
     resourceId: registration_id,
     payload: { fields: Object.keys(patch) },
+  });
+
+  revalidatePath(`/${locale}/dashboard/admin/registrations`, "page");
+  return { ok: true };
+}
+
+export type CreateRegistrationPayload = z.input<typeof personSchema>;
+
+export async function createRegistration(
+  locale: string,
+  raw: CreateRegistrationPayload,
+): Promise<{ ok: boolean; message?: string }> {
+  const dict = await getDictionary(locale);
+  const reg = dict.actionErrors.registrationDraft;
+
+  try {
+    await assertAdmin();
+  } catch {
+    logServerAuthzDenied("createRegistration");
+    return { ok: false, message: reg.forbidden };
+  }
+
+  const parsed = personSchema.safeParse(raw);
+  if (!parsed.success) return { ok: false, message: reg.invalidData };
+
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("registrations")
+    .insert({
+      ...parsed.data,
+      email: parsed.data.email.toLowerCase(),
+      status: "new",
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    logSupabaseClientError("createRegistration:insert", error, {});
+    return { ok: false, message: reg.saveFailed };
+  }
+  if (!data?.id) {
+    logServerActionInvariantViolation("createRegistration:insert", "missing_id");
+    return { ok: false, message: reg.saveFailed };
+  }
+
+  void recordSystemAudit({
+    action: "registration_created",
+    resourceType: "registration",
+    resourceId: data.id,
+    payload: { status: "new" },
   });
 
   revalidatePath(`/${locale}/dashboard/admin/registrations`, "page");

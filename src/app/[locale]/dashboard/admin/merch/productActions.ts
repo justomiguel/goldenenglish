@@ -9,6 +9,10 @@ import {
   requireMerchAdmin,
   type MerchActionResult,
 } from "@/app/[locale]/dashboard/admin/merch/merchActionShared";
+import {
+  planShopProductSlug,
+  retireShopProductSlug,
+} from "@/lib/shop/server/planShopProductSlug";
 
 const createSchema = z.object({
   locale: merchLocaleSchema,
@@ -35,10 +39,13 @@ export async function createShopProduct(raw: unknown): Promise<MerchActionResult
   const admin = await requireMerchAdmin();
   if (!admin.ok) return admin;
 
+  const planned = await planShopProductSlug(admin.supabase, parsed.data.title, null, null);
+  if (!planned) return { ok: false, code: "save_failed" };
   const row = {
     title: parsed.data.title,
     description: parsed.data.description?.trim() ?? "",
     image_path: parsed.data.imagePath ?? null,
+    slug: planned.slug,
     active: false,
     sort_order: parsed.data.sortOrder ?? 0,
   };
@@ -69,9 +76,24 @@ export async function updateShopProduct(raw: unknown): Promise<MerchActionResult
   if (!admin.ok) return admin;
 
   const { id, locale, title, description, sortOrder, imagePath } = parsed.data;
+  const { data: current, error: currentError } = await admin.supabase
+    .from("shop_products")
+    .select("slug")
+    .eq("id", id)
+    .maybeSingle();
+  if (currentError || !current) {
+    logSupabaseClientError("updateShopProduct.slug", currentError, { id });
+    return { ok: false, code: "save_failed" };
+  }
+  const currentSlug = String(current.slug ?? "");
+  const planned = await planShopProductSlug(admin.supabase, title, id, currentSlug);
+  if (!planned) return { ok: false, code: "save_failed" };
+  const retired = await retireShopProductSlug(admin.supabase, id, planned.retire, planned.slug);
+  if (!retired) return { ok: false, code: "save_failed" };
   const patch: Record<string, unknown> = {
     title,
     description: description?.trim() ?? "",
+    slug: planned.slug,
   };
   if (sortOrder !== undefined) patch.sort_order = sortOrder;
   if (imagePath !== undefined) patch.image_path = imagePath;

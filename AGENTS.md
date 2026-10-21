@@ -35,6 +35,7 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 
 | Regla siempre activa (`alwaysApply: true`) | Tema |
 |----|-----|
+| **`41-asd-ste100-english.mdc`** | Inglés principal del agente (estilo ASD-STE100): frases cortas, una idea por frase, términos técnicos intactos. |
 | **`08-analytics-observability.mdc`** | Métricas: `user_events`, ingestión cliente/API, `recordSystemAudit`, sin features “silenciosas”; fiabilidad tipo SRE (SLI/SLO, alertas accionables) donde aplique. |
 | **`09-i18n-copy.mdc`** | Copy visible: `src/dictionaries/en.json` + `es.json`, sin literales en UI; `Intl` para fechas/números; skill **`i18n-localization`**. |
 | **`40-neutral-spanish-copy.mdc`** | Español visible en tuteo neutro latinoamericano (*tienes*, *haz clic*). Prohibido el voseo (*tenés*, *hacé*) y el español de España (*vosotros*). |
@@ -76,6 +77,8 @@ Logs use a stable prefix so you can filter runtime output (local terminal, **Ver
 - **i18n, PWA, SEO, deploy:** matching skills under `.agents/skills/`
 
 ## When in doubt
+
+English that you write follows **`.cursor/rules/41-asd-ste100-english.mdc`**. That rule is the principal English style.
 
 1. Spec-Driven Development: **`.cursor/rules/29-spec-driven-development.mdc`** + Gate 0 **`20-agent-preflight.mdc`** (spec escrito y aprobado antes de editar; **`PREFLIGHT`** / **`SPEC`** fuerzan el modo).
 2. Read the relevant **`.cursor/rules/*.mdc`** file.

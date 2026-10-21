@@ -48,3 +48,16 @@ export async function loadRegistrationStatusCounts(
     contacted: toCount(row.contacted_count),
   };
 }
+
+/** Enrolled leads are outside the open-list chips. The header total still counts them. */
+export async function loadRegistrationEnrolledCount(supabase: SupabaseClient): Promise<number> {
+  const { count, error } = await supabase
+    .from("registrations")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "enrolled");
+  if (error) {
+    logSupabaseClientError("loadRegistrationEnrolledCount", error);
+    return 0;
+  }
+  return count ?? 0;
+}

@@ -15,6 +15,8 @@ import { loadSectionEnrollmentLink } from "@/lib/register/loadSectionEnrollmentL
 import { loadRegistrationSectionOptions } from "@/lib/register/loadRegistrationSectionOptions";
 import { buildSectionEnrollmentLinkPath } from "@/lib/register/sectionEnrollmentLinkPath";
 import { buildSectionEnrollmentLinkPageMetadata } from "@/lib/register/buildSectionEnrollmentLinkPageMetadata";
+import { sectionReferenceImagePublicUrl } from "@/lib/register/sectionReferenceImage";
+import { loadShareImageChain } from "@/lib/site/buildResolvedPublicShareMetadata";
 import { RegisterSurfaceByTemplate } from "@/components/organisms/RegisterSurfaceByTemplate";
 import { SectionEnrollmentLinkUnavailable } from "@/components/register/SectionEnrollmentLinkUnavailable";
 
@@ -28,13 +30,21 @@ export async function sectionEnrollmentLinkGenerateMetadata(
     resolvePublicBrand(loc),
     loadSectionEnrollmentLink(token),
   ]);
-  return buildSectionEnrollmentLinkPageMetadata({
+  const meta = buildSectionEnrollmentLinkPageMetadata({
     locale,
     brandName: brand.name,
     weekdays: dict.register.sectionLink.weekdays,
     unavailableTitle: dict.register.sectionLink.unavailableTitle,
     link,
   });
+  if (!link) return meta;
+  const image = await loadShareImageChain(sectionReferenceImagePublicUrl(link.referenceImagePath));
+  if (!image) return meta;
+  return {
+    ...meta,
+    openGraph: { ...meta.openGraph, images: [{ url: image }] },
+    twitter: { ...meta.twitter, images: [image] },
+  };
 }
 
 export async function SectionEnrollmentLinkRoute({
@@ -64,8 +74,8 @@ export async function SectionEnrollmentLinkRoute({
     const canonical = buildSectionEnrollmentLinkPath(locale, link.sectionName, token);
     const current =
       incomingSlug == null || incomingSlug === ""
-        ? `/${locale}/i/${token}`
-        : `/${locale}/i/${incomingSlug}/${token}`;
+        ? `/${locale}/inscripcion/${token}`
+        : `/${locale}/inscripcion/${incomingSlug}/${token}`;
     if (current !== canonical) permanentRedirect(canonical);
   }
 

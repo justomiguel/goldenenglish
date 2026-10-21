@@ -70,7 +70,7 @@ export function CohortCollectionsMatrixSectionGroup({
             type="button"
             variant="ghost"
             size="sm"
-            className="min-h-9 min-w-9 shrink-0 px-0 text-[var(--color-foreground)]"
+            className="min-h-11 min-w-11 shrink-0 px-0 text-[var(--color-foreground)] md:min-h-9 md:min-w-9"
             aria-expanded={expanded}
             aria-controls={matrixPanelId}
             onClick={() => setExpanded((v) => !v)}
@@ -159,7 +159,7 @@ export function CohortCollectionsMatrixSectionGroup({
         <Link
           href={sectionHref}
           title={overviewDict.sectionHeader.openSectionTooltip}
-          className="inline-flex min-h-[36px] shrink-0 items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] px-2.5 py-1 text-xs font-medium text-[var(--color-primary)] transition hover:bg-[var(--color-muted)]/40"
+          className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] px-3 py-2 text-xs font-medium text-[var(--color-primary)] transition hover:bg-[var(--color-muted)]/40 md:min-h-9"
         >
           <ArrowRight className="h-3.5 w-3.5" aria-hidden />
           {overviewDict.sectionHeader.openSection}

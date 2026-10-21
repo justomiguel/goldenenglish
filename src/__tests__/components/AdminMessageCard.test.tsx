@@ -41,6 +41,8 @@ describe("AdminMessageCard", () => {
     );
 
     const article = screen.getByRole("article");
+    expect(article.className).toContain("flex-row");
+    expect(article.className).not.toContain("flex-col");
     expect(article).toHaveAttribute("data-unread", "true");
     expect(article).toHaveAttribute("data-needs-reply", "true");
     expect(article).toHaveAttribute("data-source", "internal");

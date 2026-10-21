@@ -101,4 +101,28 @@ describe("buildParentPortalMessageLines", () => {
     expect(lines[0]?.outbound_administration).toBe(true);
     expect(lines[0]?.peer_name).toBe("Administration");
   });
+
+  it("keeps the sender id and role on an inbound teacher message", () => {
+    const lines = buildParentPortalMessageLines({
+      userId: "p1",
+      sortedAsc: [
+        {
+          id: "m1",
+          sender_id: "t1",
+          recipient_id: "p1",
+          body_html: "<p>hello</p>",
+          created_at: "2026-01-01T10:00:00Z",
+          broadcast_batch_id: null,
+        },
+      ],
+      peerById: new Map([["t1", { name: "Rojas Ana", role: "teacher" }]]),
+      labels,
+    });
+    expect(lines[0]).toMatchObject({
+      from_me: false,
+      peer_id: "t1",
+      peer_role: "teacher",
+      peer_name: "Rojas Ana",
+    });
+  });
 });

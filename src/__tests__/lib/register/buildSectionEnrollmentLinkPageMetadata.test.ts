@@ -45,7 +45,7 @@ describe("buildSectionEnrollmentLinkPageMetadata", () => {
       });
       expect(meta.title).toBe("Kids A1 · Instituto");
       expect(meta.robots).toEqual({ index: false, follow: false });
-      expect(meta.openGraph?.url).toContain("/es/i/kids-a1/");
+      expect(meta.openGraph?.url).toContain("/es/inscripcion/kids-a1/");
     } finally {
       process.env.NEXT_PUBLIC_APP_URL = prev;
     }

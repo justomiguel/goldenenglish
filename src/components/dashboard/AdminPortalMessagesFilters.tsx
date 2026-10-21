@@ -78,7 +78,7 @@ export function AdminPortalMessagesFilters({
   }
 
   return (
-    <div className="mt-6">
+    <div className="mt-3 md:mt-6">
       <Button
         type="button"
         variant="ghost"

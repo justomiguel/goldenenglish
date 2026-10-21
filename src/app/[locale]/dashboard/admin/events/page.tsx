@@ -71,6 +71,7 @@ export default async function AdminEventsPage({ params, searchParams }: PageProp
           countSuffix: dict.admin.events.list.countSuffix,
           create: dict.admin.events.list.create,
           title: dict.admin.events.list.columns.title,
+          creator: dict.admin.events.list.columns.creator,
           date: dict.admin.events.list.columns.date,
           status: dict.admin.events.list.columns.status,
           capacity: dict.admin.events.list.columns.capacity,

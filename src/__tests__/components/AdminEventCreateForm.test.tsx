@@ -39,6 +39,7 @@ describe("AdminEventCreateForm", () => {
         labels={labels}
         editorLabels={en.admin.cms.blog.editor}
         academicLabels={en.dashboard.adminContents}
+        fileUploadProgress={en.common.fileUpload}
       />,
     );
 

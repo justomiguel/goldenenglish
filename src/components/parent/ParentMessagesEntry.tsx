@@ -5,9 +5,7 @@ import {
   ParentMessagesClient,
   type ParentMessageLineDto,
 } from "@/components/parent/ParentMessagesClient";
-import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import { ParentMessagesPwaClient } from "@/components/pwa/organisms/ParentMessagesPwaClient";
-import type { AppSurface } from "@/hooks/useAppSurface";
 import type { Dictionary } from "@/types/i18n";
 import type { MessagingRecipient } from "@/types/messaging";
 import { PARENT_TOUR_ANCHORS } from "@/lib/parent-tutorials/selectors";
@@ -77,24 +75,18 @@ export function ParentMessagesEntry(props: ParentMessagesEntryProps) {
     <SurfaceMountGate
       skeleton={<ParentMessagesSkeleton />}
       desktop={desktop}
-      narrow={(surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">) => (
-        <PwaPageShell surface={surface}>
-          <div className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
-            <div className="mx-auto max-w-[var(--layout-max-width)] py-2">
-              <ParentMessagesPwaClient
-                locale={locale}
-                title={title}
-                lead={lead}
-                initialLines={lines}
-                recipients={recipients}
-                teacherComposeAvailable={teacherComposeAvailable}
-                administrationComposeAvailable={administrationComposeAvailable}
-                labels={labels}
-                defaultRecipientId={defaultRecipientId}
-              />
-            </div>
-          </div>
-        </PwaPageShell>
+      narrow={() => (
+        <ParentMessagesPwaClient
+          locale={locale}
+          title={title}
+          lead={lead}
+          initialLines={lines}
+          recipients={recipients}
+          teacherComposeAvailable={teacherComposeAvailable}
+          administrationComposeAvailable={administrationComposeAvailable}
+          labels={labels}
+          defaultRecipientId={defaultRecipientId}
+        />
       )}
     />
   );

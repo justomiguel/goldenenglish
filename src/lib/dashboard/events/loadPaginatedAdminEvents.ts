@@ -3,6 +3,8 @@ import { DEFAULT_TABLE_PAGE_SIZE } from "@/lib/dashboard/tableConstants";
 import type { EventFlowPrice } from "@/lib/events/formatEventFlowPrice";
 import { isEventLocale } from "@/lib/events/domain";
 import { loadRegistrationFlowPricesByEvent } from "@/lib/events/server/loadActiveRegistrationFlows";
+import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
+import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 
 export type EventSortKey = "title" | "event_date" | "attendees_count" | "status" | "views" | "price";
 
@@ -28,6 +30,7 @@ export interface AdminEventRow {
   currency: string;
   priceByFlow: boolean;
   flowPrices: EventFlowPrice[];
+  createdByName: string;
 }
 
 export interface PaginatedAdminEventsParams {
@@ -61,7 +64,7 @@ export async function loadPaginatedAdminEvents(
   let dataQuery = adminClient
     .from("events")
     .select(
-      "id, slug, title, status, event_date, capacity, price, currency, view_count, price_by_flow, default_locale",
+      "id, slug, title, status, event_date, capacity, price, currency, view_count, price_by_flow, default_locale, created_by",
     )
     .is("archived_at", null);
 
@@ -95,6 +98,32 @@ export async function loadPaginatedAdminEvents(
     }
   }
 
+  const creatorIds = [
+    ...new Set(
+      (dataResult.data ?? [])
+        .map((row) => (row.created_by ? String(row.created_by) : ""))
+        .filter((id) => id.length > 0),
+    ),
+  ];
+  const creatorNames = new Map<string, string>();
+  if (creatorIds.length > 0) {
+    const { data: profileRows, error: profileError } = await adminClient
+      .from("profiles")
+      .select("id, first_name, last_name")
+      .in("id", creatorIds);
+    if (profileError) {
+      logSupabaseClientError("loadPaginatedAdminEvents:creators", profileError, {
+        creatorCount: creatorIds.length,
+      });
+    }
+    for (const profile of profileRows ?? []) {
+      creatorNames.set(
+        String(profile.id),
+        formatProfileNameSurnameFirst(profile.first_name, profile.last_name),
+      );
+    }
+  }
+
   const locale = params.locale ?? "es";
   const pricedEvents = (dataResult.data ?? [])
     .filter((row) => Boolean(row.price_by_flow))
@@ -119,6 +148,7 @@ export async function loadPaginatedAdminEvents(
     currency: String(row.currency ?? "CLP"),
     priceByFlow: Boolean(row.price_by_flow),
     flowPrices: flowPricesByEvent.get(String(row.id)) ?? [],
+    createdByName: creatorNames.get(String(row.created_by ?? "")) ?? "",
   }));
 
   if ((params.sort ?? "event_date") === "attendees_count") {

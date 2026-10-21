@@ -78,6 +78,7 @@ export default async function AdminMessagesPage({ params, searchParams }: PagePr
         lead={dict.dashboard.adminNav.tipMessages}
         iconId="messages"
         tourAnchor={ADMIN_TOUR_ANCHORS.messagesTitle}
+        compact
         actions={
           <AdminMessagesHeaderActions
             locale={locale}

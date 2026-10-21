@@ -291,7 +291,7 @@ describe("startShopCheckout", () => {
       expect.objectContaining({
         commerceOrder: "MERCH-2026-00000001",
         urlConfirmation: expect.stringContaining("purpose=merch"),
-        urlReturn: expect.stringContaining(`/es/tienda/pedido/${PAY_TOKEN}`),
+        urlReturn: expect.stringMatching(new RegExp(`/es/tienda/pedido/.+/${PAY_TOKEN}`)),
       }),
     );
 
@@ -333,7 +333,7 @@ describe("startShopCheckout", () => {
         externalReference: `shop_order:${ORDER_ID}`,
         notificationUrl: expect.stringContaining("purpose=merch"),
         backUrls: expect.objectContaining({
-          success: expect.stringContaining(`/es/tienda/pedido/${PAY_TOKEN}`),
+          success: expect.stringMatching(new RegExp(`/es/tienda/pedido/.+/${PAY_TOKEN}`)),
         }),
       }),
     );

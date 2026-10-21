@@ -15,6 +15,7 @@ import {
 } from "@/lib/payment-gateways/gatewayCountryForBillingCurrency";
 import type { PaymentGatewayCountryCode } from "@/types/paymentGateway";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { buildMatriculaPayPath } from "@/lib/site/publicSharePaths";
 import { isPubliclyReachableUrl } from "@/lib/site/isPubliclyReachableUrl";
 import { logServerActionInvariantViolation } from "@/lib/logging/serverActionLog";
 import { requestedSectionsHaveOpenSeats } from "@/lib/register/requestedSectionsHaveOpenSeats";
@@ -78,10 +79,7 @@ export async function startRegistrationEnrollmentGatewayCore(input: {
   const originStr = origin.toString();
   const amount = Math.round(lead.snapshotTotal);
   const title = `Matrícula ${lead.firstName} ${lead.lastName}`.trim();
-  const returnUrl = new URL(
-    `/${input.locale}/matricula/${input.payToken}`,
-    originStr,
-  );
+  const returnUrl = new URL(buildMatriculaPayPath(input.locale, "", input.payToken), originStr);
   returnUrl.searchParams.set("paid", "1");
 
   if (input.method === "mercadopago") {

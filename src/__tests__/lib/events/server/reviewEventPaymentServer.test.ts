@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockMarkApproved = vi.fn();
 const mockRevertCore = vi.fn();
+const mockReleaseDiscount = vi.fn(async () => undefined);
 
 vi.mock("@/lib/events/server/markEventPaymentApprovedCore", () => ({
   markEventPaymentApprovedCore: (...args: unknown[]) => mockMarkApproved(...args),
@@ -9,6 +10,10 @@ vi.mock("@/lib/events/server/markEventPaymentApprovedCore", () => ({
 
 vi.mock("@/lib/events/server/revertEventPaymentApprovalCore", () => ({
   revertEventPaymentApprovalCore: (...args: unknown[]) => mockRevertCore(...args),
+}));
+
+vi.mock("@/lib/events/server/syncEventDiscountRedemption", () => ({
+  releaseEventDiscountRedemption: (...args: unknown[]) => mockReleaseDiscount(...args),
 }));
 
 vi.mock("@/lib/audit", () => ({
@@ -40,6 +45,7 @@ describe("reviewEventPaymentServer", () => {
     vi.clearAllMocks();
     mockMarkApproved.mockResolvedValue({ ok: true, paymentId: "pay-1", paymentUpdated: true, attendeeConfirmed: true });
     mockRevertCore.mockResolvedValue({ ok: true, paymentReverted: true, attendeeReverted: true });
+    mockReleaseDiscount.mockClear();
   });
 
   function paymentSelectRow(data: object | null) {
@@ -190,6 +196,7 @@ describe("reviewEventPaymentServer", () => {
       attendeeId: "att-1",
       templateKey: "events.payment_rejected",
     });
+    expect(mockReleaseDiscount).toHaveBeenCalledWith(expect.anything(), "att-1");
   });
 
   it("rejectEventPayment returns ok false when update errors", async () => {

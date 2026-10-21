@@ -200,10 +200,10 @@ describe("admin PWA smoke", () => {
         }}
       />,
     );
-    expect(screen.getByText("u@x.co")).toBeInTheDocument();
+    expect(screen.getByText(/u@x.co/)).toBeInTheDocument();
   });
 
-  it("AdminUsersPwaList student directory exposes enrollment sort keys", () => {
+  it("AdminUsersPwaList student directory shows compact billing status", () => {
     render(
       <AdminUsersPwaList
         locale="es"
@@ -234,9 +234,7 @@ describe("admin PWA smoke", () => {
       />,
     );
     expect(screen.getByText(dictEn.admin.users.colEnrollmentFee)).toBeInTheDocument();
-    expect(screen.getByText(dictEn.admin.users.colLastEnrollment)).toBeInTheDocument();
-    expect(screen.getByText(dictEn.admin.users.colMonthlyStatus)).toBeInTheDocument();
     expect(screen.getByTitle(dictEn.admin.users.monthlyStatusYesAria)).toBeInTheDocument();
-    expect(screen.getByTitle(dictEn.admin.users.enrollmentFeeNoAria)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: dictEn.admin.users.colLastEnrollment })).not.toBeInTheDocument();
   });
 });

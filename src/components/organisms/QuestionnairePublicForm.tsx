@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { submitPublicQuestionnaireAction } from "@/app/[locale]/q/[slug]/actions";
+import { buildQuestionnaireSharePath } from "@/lib/site/publicSharePaths";
 import { pickI18n, pickI18nOptions } from "@/lib/questionnaires/pickI18n";
 import type { QuestionnaireAnswerInput, QuestionnaireQuestion } from "@/lib/questionnaires/types";
 import type { Dictionary } from "@/types/i18n";
@@ -50,7 +51,7 @@ export function QuestionnairePublicForm({
             setError(submitError(result.code, labels));
             return;
           }
-          router.replace(`/${locale}/q/${slug}?done=1`);
+          router.replace(`${buildQuestionnaireSharePath(locale, slug)}?done=1`);
         });
       }}
     >

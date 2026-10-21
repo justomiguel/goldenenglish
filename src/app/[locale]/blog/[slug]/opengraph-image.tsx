@@ -1,14 +1,12 @@
-import { ImageResponse } from "next/og";
 import { createClient } from "@/lib/supabase/server";
 import type { BlogLocale } from "@/lib/blog/domain";
 import { loadBlogArticleShareCover } from "@/lib/blog/server/loadBlogArticleShareCover";
 import { getBrandForRequest } from "@/lib/brand/server";
 import { resolveBrandLogoAbsoluteUrl } from "@/lib/brand/resolveBrandLogoUrl";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
-import { loadEffectiveProperties } from "@/lib/theme/loadEffectiveProperties";
-import { getProperty } from "@/lib/theme/themeParser";
 import { optimizeRemoteImageForShare } from "@/lib/rich-content/optimizeRemoteImageForShare";
 import { logServerWarn } from "@/lib/logging/serverActionLog";
+import { loadHomeSharePhotoUrl } from "@/lib/site/buildResolvedPublicShareMetadata";
 
 export const alt = "Blog article preview";
 export const size = { width: 1200, height: 630 };
@@ -30,10 +28,8 @@ export default async function BlogArticleOpenGraphImage({
     slug,
   );
   const brand = await getBrandForRequest();
-  const origin =
-    getPublicSiteUrl()?.origin.replace(/\/$/, "") ?? "http://localhost:3000";
+  const origin = getPublicSiteUrl()?.origin.replace(/\/$/, "") ?? "http://localhost:3000";
   const fallbackLogo = resolveBrandLogoAbsoluteUrl(brand, origin);
-  const title = share?.title ?? brand.name;
 
   if (share?.coverImageUrl) {
     try {
@@ -54,45 +50,24 @@ export default async function BlogArticleOpenGraphImage({
     }
   }
 
-  const { properties } = await loadEffectiveProperties();
-  const primaryColor = getProperty(properties, "color.primary", "#103A5C");
-  const primaryDark = getProperty(properties, "color.primary.dark", "#0A253D");
+  const homePhoto = await loadHomeSharePhotoUrl();
+  const photoUrl = homePhoto ?? fallbackLogo;
+  try {
+    const optimized = await optimizeRemoteImageForShare(photoUrl);
+    return new Response(new Uint8Array(optimized.buffer), {
+      headers: {
+        "Content-Type": optimized.contentType,
+        "Cache-Control": OG_CACHE_CONTROL,
+      },
+    });
+  } catch (error) {
+    logServerWarn("blog.opengraph-image.fallback", {
+      slug,
+      locale,
+      reason: "fallback_image_failed",
+      error,
+    });
+  }
 
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          background: `linear-gradient(135deg, ${primaryColor} 0%, ${primaryDark} 100%)`,
-          padding: "48px",
-        }}
-      >
-        <img
-          src={fallbackLogo}
-          alt=""
-          width={160}
-          height={160}
-          style={{ display: "flex", objectFit: "contain", marginBottom: 32 }}
-        />
-        <div
-          style={{
-            fontSize: 44,
-            fontWeight: 700,
-            color: "#FFFFFF",
-            textAlign: "center",
-            lineHeight: 1.2,
-            display: "flex",
-          }}
-        >
-          {title}
-        </div>
-      </div>
-    ),
-    { ...size },
-  );
+  return new Response(null, { status: 404 });
 }

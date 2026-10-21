@@ -125,10 +125,10 @@ export function AcademicHubCohortBoard({
               tabIndex={0}
               className="outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
             >
-              <div className="space-y-3 px-4 py-4 sm:px-5 sm:py-5">
+              <div className="space-y-3 px-3 py-3 sm:px-5 sm:py-5">
                 <div>
                   <h2 className="text-base font-semibold text-[var(--color-foreground)]">{title}</h2>
-                  <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">{lead}</p>
+                  <p className="mt-1 hidden text-sm text-[var(--color-muted-foreground)] sm:block">{lead}</p>
                 </div>
                 {rows.length === 0 ? (
                   <p className="rounded-2xl bg-[var(--color-muted)]/25 px-3 py-4 text-sm text-[var(--color-muted-foreground)]">

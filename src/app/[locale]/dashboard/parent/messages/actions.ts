@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getEmailProvider } from "@/lib/email/getEmailProvider";
 import { sendParentMessageUseCase } from "@/lib/messaging/useCases/sendParentMessage";
 import { sendParentMessageToAdministrationUseCase } from "@/lib/messaging/useCases/sendParentMessageToAdministration";
+import { sendParentReplyUseCase } from "@/lib/messaging/useCases/sendParentReply";
 import { sanitizeMessageHtml } from "@/lib/messaging/sanitizeMessageHtml";
 import { stripHtmlToText } from "@/lib/messaging/stripHtml";
 import { AnalyticsEntity } from "@/lib/analytics/eventConstants";
@@ -96,6 +97,70 @@ export async function sendParentMessage(
     eventType: "action",
     entity: AnalyticsEntity.parentMessageSent,
     metadata: { destination: "teacher", recipient_id: tid.data },
+  });
+  revalidatePath(`/${locale}/dashboard/parent/messages`);
+  return { ok: true };
+}
+
+const recipientSchema = z.string().uuid();
+
+export async function sendParentReply(
+  locale: string,
+  bodyHtml: string,
+  recipientIdRaw: unknown,
+): Promise<{ ok: boolean; message?: string }> {
+  const dict = await getDictionary(locale);
+  const msg = dict.actionErrors.messaging;
+  const senderFb = dict.dashboard.parent.messagesSenderFallback;
+
+  const recipientParse = recipientSchema.safeParse(recipientIdRaw);
+  if (!recipientParse.success) return { ok: false, message: msg.invalidRecipient };
+
+  const parsed = bodySchema.safeParse(bodyHtml);
+  if (!parsed.success) return { ok: false, message: msg.invalidMessage };
+  const safeHtml = sanitizeMessageHtml(parsed.data);
+  if (stripHtmlToText(safeHtml).length === 0) {
+    return { ok: false, message: msg.emptyMessage };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: msg.unauthorized };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, first_name, last_name")
+    .eq("id", user.id)
+    .single();
+  if (profile?.role !== "parent") return { ok: false, message: msg.forbidden };
+
+  const name = formatProfileNameSurnameFirst(profile.first_name, profile.last_name);
+  const displayName = name || senderFb;
+
+  const result = await sendParentReplyUseCase({
+    supabase,
+    parentId: user.id,
+    parentDisplayName: displayName,
+    recipientId: recipientParse.data,
+    bodyHtml: safeHtml,
+    locale,
+    emailProvider: getEmailProvider(),
+  });
+  if (!result.ok) {
+    return { ok: false, message: mapMessagingUseCaseCode(result.message, msg) };
+  }
+
+  void recordUserEventServer({
+    userId: user.id,
+    eventType: "action",
+    entity: AnalyticsEntity.parentMessageSent,
+    metadata: {
+      destination: "reply",
+      recipient_role: result.recipientRole,
+      recipient_id: recipientParse.data,
+    },
   });
   revalidatePath(`/${locale}/dashboard/parent/messages`);
   return { ok: true };

@@ -5,6 +5,7 @@ const { update, sendEventAttendeeNotification, scene } = vi.hoisted(() => ({
   update: vi.fn(),
   sendEventAttendeeNotification: vi.fn(async () => true),
   scene: {
+    rpcNames: [] as string[],
     row: {
       attendee_id: "att-1" as string | null,
       attendee_status: "confirmed" as string | null,
@@ -20,10 +21,13 @@ const { update, sendEventAttendeeNotification, scene } = vi.hoisted(() => ({
 
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => ({
-    rpc: async () => ({
-      data: scene.row.attendee_id === "missing-row" ? [] : [scene.row],
-      error: scene.row.result_code === "rpc_error" ? { message: "rpc" } : null,
-    }),
+    rpc: async (name: string) => {
+      scene.rpcNames.push(name);
+      return {
+        data: scene.row.attendee_id === "missing-row" ? [] : [scene.row],
+        error: scene.row.result_code === "rpc_error" ? { message: "rpc" } : null,
+      };
+    },
     from: () => ({
       update: (...args: unknown[]) => {
         update(...args);
@@ -67,6 +71,7 @@ describe("enrollEventAttendeeServer mail", () => {
       total_amount: 0,
     };
     scene.updateError = null;
+    scene.rpcNames = [];
     update.mockClear();
     sendEventAttendeeNotification.mockClear();
   });
@@ -140,5 +145,45 @@ describe("enrollEventAttendeeServer mail", () => {
     expect(update).toHaveBeenCalledWith(
       expect.objectContaining({ family_discount_claimed: true }),
     );
+  });
+
+  it("reserves a code in the same enroll call and keeps the database amount", async () => {
+    scene.row.total_amount = 5000;
+    scene.row.attendee_status = "payment_pending";
+    scene.row.payment_required = true;
+    scene.row.result_code = "payment_pending";
+    const result = await enrollEventAttendeeServer({
+      ...input,
+      discountCode: " SAVE10 ",
+      familyDiscountClaimed: false,
+      registrationFlow: { id: "flow-1", price: 10000 },
+      currency: "CLP",
+    });
+    expect(scene.rpcNames).toEqual(["enroll_event_attendee_with_discount"]);
+    expect(result.totalAmount).toBe(5000);
+    expect(result.attendeeStatus).toBe("payment_pending");
+    expect(update).toHaveBeenCalledWith(
+      expect.not.objectContaining({ status: "pending_payment" }),
+    );
+  });
+
+  it("rejects a family claim sent with a code before any enroll call", async () => {
+    const result = await enrollEventAttendeeServer({
+      ...input,
+      discountCode: "SAVE10",
+      familyDiscountClaimed: true,
+    });
+    expect(result.resultCode).toBe("discount_conflict");
+    expect(scene.rpcNames).toEqual([]);
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("returns no_uses from the database when the code is full", async () => {
+    scene.row.attendee_id = null;
+    scene.row.result_code = "no_uses";
+    const result = await enrollEventAttendeeServer({ ...input, discountCode: "SAVE10" });
+    expect(result.resultCode).toBe("no_uses");
+    expect(result.attendeeId).toBeNull();
+    expect(sendEventAttendeeNotification).not.toHaveBeenCalled();
   });
 });

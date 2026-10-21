@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
 import { Award, Briefcase, Globe, MessageCircle, Share2 } from "lucide-react";
+import { buildBadgeSharePath } from "@/lib/site/publicSharePaths";
 import type { Dictionary } from "@/types/i18n";
 
 type PublicLabels = Dictionary["publicStudentBadge"];
@@ -58,7 +59,7 @@ export function AdminBadgeSharePreview(props: AdminBadgeSharePreviewProps) {
     labels.previewMissingDescription;
   const pubLabels = publicLabels[previewLocale];
   const dateLong = new Intl.DateTimeFormat(previewLocale, { dateStyle: "long" }).format(new Date());
-  const shareUrl = `${siteOrigin}/${previewLocale}/b/${sampleToken}`;
+  const shareUrl = `${siteOrigin.replace(/\/$/, "")}${buildBadgeSharePath(previewLocale, title, sampleToken)}`;
   const hostname = safeHostname(siteOrigin);
   const heroImage = imageUrl ?? brand.logoUrl;
 

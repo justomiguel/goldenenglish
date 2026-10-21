@@ -6,6 +6,7 @@ import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMail
 import { resolveRegistrationFamilyEmail } from "@/lib/register/resolveRegistrationFamilyEmail";
 import type { IntakeLeadRow } from "@/lib/register/registrationIntakeActionSupport";
 import { absoluteUrl } from "@/lib/site/publicUrl";
+import { buildMatriculaPayPath } from "@/lib/site/publicSharePaths";
 import type { Dictionary, Locale } from "@/types/i18n";
 
 export async function notifyRegistrationScheduleOffer(input: {
@@ -33,7 +34,7 @@ export async function notifyRegistrationScheduleOffer(input: {
     studentEmailIsSynthetic: synthetic,
   });
   if (!familyEmail || !input.lead.pay_token) return;
-  const origin = absoluteUrl(`/${input.locale}/matricula/${input.lead.pay_token}`);
+  const origin = absoluteUrl(buildMatriculaPayPath(input.locale, "", input.lead.pay_token));
   const studentName = `${input.lead.first_name} ${input.lead.last_name}`.trim();
   try {
     await sendBrandedEmail({

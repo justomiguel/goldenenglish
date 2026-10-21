@@ -9,6 +9,8 @@ import type { EventSortKey } from "@/lib/dashboard/events/loadPaginatedAdminEven
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { AdminEventPriceCell } from "@/components/molecules/AdminEventPriceCell";
 import { SortableTh } from "@/components/molecules/SortableTh";
+import { AdminEventListCard } from "@/components/dashboard/admin/events/AdminEventListCard";
+import { AdminEventsMobileSort } from "@/components/dashboard/admin/events/AdminEventsMobileSort";
 import { tableSortLabels } from "@/lib/i18n/tableSortLabels";
 
 interface AdminEventsScreenProps {
@@ -23,6 +25,7 @@ interface AdminEventsScreenProps {
     countSuffix: string;
     create: string;
     title: string;
+    creator: string;
     date: string;
     status: string;
     capacity: string;
@@ -78,10 +81,11 @@ export function AdminEventsScreen({
 
   return (
     <section className="mt-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-5 shadow-[var(--shadow-soft)] md:p-6">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-[var(--color-muted-foreground)]">
           {totalCount} {labels.countSuffix}
         </p>
+        <AdminEventsMobileSort sort={sort} dir={dir} labels={labels} />
         <Link
           href={`/${locale}/dashboard/admin/events/new`}
           data-tour={ADMIN_TOUR_ANCHORS.eventsCreateCta}
@@ -91,7 +95,21 @@ export function AdminEventsScreen({
           {labels.create}
         </Link>
       </div>
-      <div className="overflow-x-auto" data-tour={ADMIN_TOUR_ANCHORS.eventsTable}>
+      <div className="space-y-3 md:hidden">
+        {rows.map((row) => (
+          <AdminEventListCard
+            key={row.id}
+            locale={locale}
+            row={row}
+            manageLabel={labels.manage}
+            freeLabel={labels.free}
+          />
+        ))}
+        {rows.length === 0 ? (
+          <p className="py-8 text-center text-sm text-[var(--color-muted-foreground)]">{labels.empty}</p>
+        ) : null}
+      </div>
+      <div className="hidden overflow-x-auto md:block" data-tour={ADMIN_TOUR_ANCHORS.eventsTable}>
         <table className="ge-stack-cards min-w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--color-border)] text-left">
@@ -104,6 +122,9 @@ export function AdminEventsScreen({
                 sortLabels={sortLabels}
                 className={headClass}
               />
+              <th className={`${headClass} font-semibold text-[var(--color-muted-foreground)]`} scope="col">
+                {labels.creator}
+              </th>
               <SortableTh
                 columnId="event_date"
                 label={labels.date}
@@ -156,6 +177,7 @@ export function AdminEventsScreen({
             {rows.map((row) => (
               <tr key={row.id} className="border-b border-[var(--color-border)]">
                 <td className="px-3 py-2">{row.title}</td>
+                <td className="px-3 py-2">{row.createdByName}</td>
                 <td className="px-3 py-2">{new Date(row.eventDate).toLocaleString()}</td>
                 <td className="px-3 py-2">
                   <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-semibold capitalize text-sky-800">
@@ -187,9 +209,9 @@ export function AdminEventsScreen({
                 <td className="px-3 py-2 text-right">
                   <Link
                     href={`/${locale}/dashboard/admin/events/${row.id}`}
-                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-3 py-1.5 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[color-mix(in_srgb,var(--color-primary)_10%,white)]"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-3 py-1.5 text-sm font-medium text-[var(--color-primary-foreground)]"
                   >
-                    <Settings2 className="h-4 w-4 shrink-0 text-[var(--color-primary-dark)]" aria-hidden />
+                    <Settings2 className="h-4 w-4 shrink-0" aria-hidden />
                     {labels.manage}
                   </Link>
                 </td>
@@ -197,7 +219,7 @@ export function AdminEventsScreen({
             ))}
             {rows.length === 0 ? (
               <tr>
-                <td className="px-3 py-8 text-center text-[var(--color-muted-foreground)]" colSpan={7}>
+                <td className="px-3 py-8 text-center text-[var(--color-muted-foreground)]" colSpan={8}>
                   {labels.empty}
                 </td>
               </tr>

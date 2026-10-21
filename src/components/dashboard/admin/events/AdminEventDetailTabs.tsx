@@ -6,6 +6,7 @@ import {
   CreditCard,
   Hourglass,
   LayoutDashboard,
+  TicketPercent,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -16,6 +17,7 @@ export type EventAdminTab =
   | "form"
   | "attendees"
   | "payments"
+  | "codes"
   | "waitlist"
   | "notifications";
 
@@ -24,6 +26,7 @@ export const EVENT_ADMIN_TAB_ORDER: readonly EventAdminTab[] = [
   "form",
   "attendees",
   "payments",
+  "codes",
   "waitlist",
   "notifications",
 ];
@@ -46,6 +49,7 @@ export interface AdminEventDetailTabLabels {
 export interface AdminEventDetailTabCounts {
   attendees?: number;
   payments?: number;
+  codes?: number;
 }
 
 export interface AdminEventDetailTabsProps {
@@ -61,6 +65,7 @@ const TAB_ICONS: Record<EventAdminTab, LucideIcon> = {
   form: ClipboardList,
   attendees: Users,
   payments: CreditCard,
+  codes: TicketPercent,
   waitlist: Hourglass,
   notifications: Bell,
 };
@@ -70,6 +75,7 @@ const TAB_TOUR_ANCHORS: Record<EventAdminTab, string> = {
   form: ADMIN_TOUR_ANCHORS.eventDetailTabForm,
   attendees: ADMIN_TOUR_ANCHORS.eventDetailTabAttendees,
   payments: ADMIN_TOUR_ANCHORS.eventPaymentsTab,
+  codes: ADMIN_TOUR_ANCHORS.eventDetailTabCodes,
   waitlist: ADMIN_TOUR_ANCHORS.eventDetailTabWaitlist,
   notifications: ADMIN_TOUR_ANCHORS.eventDetailTabNotifications,
 };
@@ -96,6 +102,7 @@ function countBadgeFor(
   if (!counts) return 0;
   if (tab === "attendees") return counts.attendees ?? 0;
   if (tab === "payments") return counts.payments ?? 0;
+  if (tab === "codes") return counts.codes ?? 0;
   return 0;
 }
 
@@ -119,7 +126,7 @@ export function AdminEventDetailTabs({
       <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
         <nav
           aria-label={labels.tabsAria}
-          className="flex w-full overflow-x-auto border-b border-[var(--color-border)] bg-[var(--color-muted)]/15"
+          className="flex w-full snap-x overflow-x-auto border-b border-[var(--color-border)] bg-[var(--color-muted)]/15"
           data-tour={ADMIN_TOUR_ANCHORS.eventDetailTabs}
         >
           {EVENT_ADMIN_TAB_ORDER.map((tab) => {
@@ -153,7 +160,7 @@ export function AdminEventDetailTabs({
             );
           })}
         </nav>
-        <p className="px-4 py-2.5 text-xs leading-snug text-[var(--color-muted-foreground)] sm:px-5">
+        <p className="line-clamp-1 px-3 py-1.5 text-xs leading-snug text-[var(--color-muted-foreground)] sm:line-clamp-none sm:px-5 sm:py-2.5">
           {labels.tabLeads[current]}
         </p>
       </div>

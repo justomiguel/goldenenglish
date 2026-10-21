@@ -36,6 +36,7 @@ export interface AdminRegistrationsScreenProps {
   userLabels: RegistrationAcceptUserLabels;
   currentCohortSections?: CurrentCohortSection[];
   currentCohortName?: string;
+  usesCefrLevel?: boolean;
 }
 
 export function AdminRegistrationsScreen(props: AdminRegistrationsScreenProps) {

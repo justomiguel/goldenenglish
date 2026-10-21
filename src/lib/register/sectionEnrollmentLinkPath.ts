@@ -9,7 +9,7 @@ export function buildSectionEnrollmentLinkPath(
   token: string,
 ): string {
   const slug = slugifyPublicPathSegment(sectionName) || EMPTY_SLUG;
-  return `/${locale}/i/${slug}/${token}`;
+  return `/${locale}/inscripcion/${slug}/${token}`;
 }
 
 export function parseSectionEnrollmentLinkSegments(

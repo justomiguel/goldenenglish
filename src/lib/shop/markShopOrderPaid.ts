@@ -1,6 +1,7 @@
 import { logServerWarn, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { notifyShopEmail } from "@/lib/shop/notifyShopEmail";
 import { absoluteUrl } from "@/lib/site/publicUrl";
+import { buildShopOrderPath } from "@/lib/site/publicSharePaths";
 import type { Locale } from "@/types/i18n";
 
 export type MarkShopOrderPaidResult =
@@ -62,7 +63,7 @@ async function notifyPaid(admin: ShopMarkPaidAdmin, orderId: string): Promise<vo
   const token = String(row.pay_token ?? "").trim();
   if (!to || !token) return;
   const locale: Locale = "es";
-  const orderPath = `/${locale}/tienda/pedido/${token}`;
+  const orderPath = buildShopOrderPath(locale, "", token);
   const orderUrl = absoluteUrl(orderPath)?.toString() ?? orderPath;
   await notifyShopEmail({
     to,

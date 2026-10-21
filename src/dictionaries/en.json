@@ -94,7 +94,11 @@
       "liora": {
         "shareContext": "Ballet for every age in Santiago: Pre Ballet, children's, youth, and adult classes across three metro-adjacent locations."
       }
-    }
+    },
+    "homeFallback": "Classes, schedules, and how to join.",
+    "matriculaDescription": "Enrollment payment for this section.",
+    "shopOrderDescription": "Order status for this product.",
+    "unavailableDescription": "This link is not available."
   },
   "publicStudentBadge": {
     "title": "Achievement",
@@ -1678,6 +1682,76 @@
           "linkAria": "{{count}} students need a section assigned. Open the users list."
         }
       },
+      "layout": {
+        "arrange": "Edit",
+        "done": "Done",
+        "cancel": "Cancel",
+        "cardMenuAria": "Options for {{name}}",
+        "sizeSmall": "Small",
+        "sizeMedium": "Medium",
+        "sizeLarge": "Large",
+        "sizeRow": "Row",
+        "sizeSection": "Size",
+        "orderSection": "Move",
+        "sizeLocked": "This card cannot be smaller.",
+        "sizeLockedTraffic": "The chart needs a wide card. Small and Medium stay off.",
+        "sizeLockedCollections": "These numbers need at least a medium card. Small stays off.",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "hide": "Hide",
+        "show": "Show",
+        "hiddenTitle": "Hidden",
+        "addTitle": "Cards",
+        "sizeOnLargeScreen": "The size applies on a large screen. On a phone, each card uses the full width.",
+        "presetOperations": "Operations",
+        "presetPeople": "People",
+        "presetCompact": "Compact",
+        "presetReset": "Back to the start",
+        "presetsTitle": "Layouts",
+        "presetOperationsHint": "Payments stays large and comes first.",
+        "presetPeopleHint": "Birthdays stays large and comes first.",
+        "presetCompactHint": "Cards stay small. Shortcuts stay hidden.",
+        "presetResetHint": "Back to the factory order.",
+        "dragHandleAria": "Move {{name}}",
+        "resizeHandleAria": "Resize {{name}}",
+        "saveError": "Could not save the home.",
+        "widgets": {
+          "checklist": "Ready for the first class",
+          "studentsWithoutSection": "Students without a section",
+          "peoplePulseTitle": "Student pulse",
+          "peoplePulseNew": "New in 30 days",
+          "peoplePulseNever": "Never signed in",
+          "collectionsTitle": "Collections",
+          "collectionsEmpty": "No current cohort.",
+          "collectionsPaid": "Paid",
+          "collectionsPending": "Pending review",
+          "collectionsOverdue": "Overdue",
+          "eventsTitle": "Upcoming events",
+          "eventsEmpty": "No upcoming events.",
+          "eventsSeats": "{{count}} seats",
+          "shopTitle": "Shop orders",
+          "shopOpen": "Open orders",
+          "shopEmpty": "No open orders.",
+          "changelogTitle": "What's new",
+          "changelogEmpty": "No recent changes.",
+          "about": {
+            "checklist": "Steps still open before the first class.",
+            "studentsWithoutSection": "Students who still need a section.",
+            "payments": "Receipts that wait for your approval.",
+            "registrations": "Web form requests to accept or reject.",
+            "messages": "Recent conversations with the team.",
+            "people": "Accounts, roles, and profiles.",
+            "birthdays": "People with a birthday coming up.",
+            "peoplePulse": "New students and people who never signed in.",
+            "collections": "Paid, pending, and overdue fees for the current cohort.",
+            "upcomingEvents": "The next published events and open seats.",
+            "traffic": "Site visits from the last 30 days.",
+            "shopOrders": "Open orders from the shop.",
+            "changelog": "Recent changes in the system.",
+            "shortcuts": "Links to create an event, a promotion, or a blog post."
+          }
+        }
+      },
       "firstClassChecklist": {
         "title": "Ready for the first class",
         "lead": "Finish these steps so you can teach a class and collect fees.",
@@ -2440,6 +2514,14 @@
     "users": {
       "listTitle": "Users",
       "listLead": "Portal accounts in your project.",
+      "mobileSortButton": "Sort: {{field}}",
+      "mobileFilterSortTitle": "Filter and sort",
+      "mobileSortSectionTitle": "Sort list by",
+      "mobileSortAsc": "Ascending (A–Z / low to high)",
+      "mobileSortDesc": "Descending (Z–A / high to low)",
+      "mobileApplyFilters": "Show results",
+      "mobileClearSelection": "Clear selection",
+      "mobileSelectedCount": "{{count}} selected",
       "emptyList": "No users to show.",
       "noFilterResults": "No rows match the current filter.",
       "filterLabel": "Search",
@@ -4048,6 +4130,10 @@
     },
     "registrations": {
       "title": "Online registrations",
+      "moreActionsAria": "More actions for {{name}}",
+      "mobileSortButton": "Sort: {{field}}",
+      "mobileSortSheetTitle": "Sort registrations",
+      "whatsappCta": "WhatsApp",
       "lead": "Prospective students from the public form.",
       "none": "No registrations yet",
       "filterLabel": "Search",
@@ -4062,6 +4148,9 @@
       "phone": "Phone",
       "birthDate": "Date of birth",
       "level": "Level interest",
+      "sectionColumn": "Section",
+      "filterPlaceholderSection": "Name, email, ID / RUT / passport, phone, section, status…",
+      "filterTooltipSection": "Filters the list on the server. Combine keywords (status or section) with the search box.",
       "levelInterestUndecided": "Undecided (staff assigns)",
       "status": "Status",
       "received": "Received",
@@ -4134,6 +4223,11 @@
       "errRollbackFailed": "Enrollment failed and the newly created student account could not be removed. Contact support with the request ID.",
       "errSaveFailed": "The enrollment could not be finalized. Try again or contact support.",
       "errTutorLinkFailed": "The student account was created but the guardian could not be linked. Support may need to fix the link.",
+      "createCta": "New registration",
+      "createTitle": "New registration",
+      "createLead": "The request stays pending. You can accept it from the list.",
+      "createSave": "Add registration",
+      "createSuccess": "Registration added",
       "editTitle": "Edit request",
       "editLead": "You can edit while the request is still pending, whether it is new or already contacted.",
       "editFirstName": "First name",
@@ -4274,6 +4368,7 @@
         "empty": "No events found.",
         "columns": {
           "title": "Title",
+          "creator": "Creator",
           "date": "Date",
           "status": "Status",
           "capacity": "Capacity",
@@ -4400,6 +4495,7 @@
           "form": "Registration form",
           "attendees": "Attendees",
           "payments": "Payments",
+          "codes": "Codes",
           "waitlist": "Waitlist",
           "notifications": "Notifications",
           "packages": "Packages"
@@ -4409,11 +4505,74 @@
           "form": "Configure built-in and custom fields for the public registration form.",
           "attendees": "Registered participants and their enrollment status.",
           "payments": "Transfer receipts and payment statuses linked to registrations.",
+          "codes": "Discount codes for this event. Load them one by one, from Excel, or with the generator.",
           "waitlist": "Review and manually promote attendees when spots open up.",
           "notifications": "Reminder and payment decision emails sent from default templates.",
           "packages": "Price, capacity and benefits for each ticket type."
         },
+        "codes": {
+          "lead": "Add a code, import an Excel file, or generate a batch for this event.",
+          "code": "Code",
+          "uses": "Uses",
+          "usesHint": "Enter a number from 1 up, or N for no cap.",
+          "percent": "Percent",
+          "add": "Add code",
+          "importFile": "Import Excel",
+          "generate": "Generate codes",
+          "quantity": "Quantity",
+          "download": "Download Excel",
+          "delete": "Delete",
+          "confirmTitle": "Delete this code?",
+          "confirmBody": "You can delete a code only when no use is reserved or confirmed.",
+          "cancel": "Cancel",
+          "unlimited": "No cap",
+          "empty": "This event has no discount codes yet.",
+          "saved": "Codes saved.",
+          "error": "We could not save the codes. Try again.",
+          "showUses": "Show who used it",
+          "hideUses": "Hide uses",
+          "noUsesYet": "Nobody has used this code.",
+          "usesCap": "Only the latest 500 uses are shown.",
+          "useStatus": {
+            "reserved": "Reserved",
+            "consumed": "Confirmed",
+            "released": "Released"
+          },
+          "paymentStatus": {
+            "pending": "Payment pending",
+            "approved": "Payment approved",
+            "rejected": "Payment rejected",
+            "none": "No payment"
+          },
+          "columns": {
+            "code": "Code",
+            "uses": "Uses",
+            "percent": "Percent",
+            "reserved": "Reserved",
+            "consumed": "Confirmed",
+            "person": "Person",
+            "email": "Email",
+            "use": "Use",
+            "payment": "Payment"
+          },
+          "errors": {
+            "duplicate": "That code is repeated in the file. The first row was kept.",
+            "empty_code": "One row has an empty code.",
+            "bad_percent": "The percent must be a whole number from 1 to 100.",
+            "bad_uses": "Uses must be N or a whole number from 1 up.",
+            "cap_below_occupied": "The new cap is lower than the uses already taken.",
+            "empty_file": "The file has no codes.",
+            "quantity": "Quantity must be from 1 to 200.",
+            "occupied": "This code is in use. You cannot delete it.",
+            "forbidden": "You cannot change these codes.",
+            "file": "We could not read that file."
+          }
+        },
         "archive": "Archive",
+        "duplicate": {
+          "button": "Duplicate event",
+          "error": "We could not duplicate the event. Try again."
+        },
         "draftHint": "This event is a draft and is not visible on the public events page. Publish it when you are ready.",
         "publish": "Publish event",
         "publishSuccess": "Event published. It is now visible on the public site.",
@@ -4774,6 +4933,16 @@
       "consent": "I accept the use of my data for event registration and operational notifications.",
       "familyDiscount": "I am part of an institute family (10% off)",
       "familyDiscountPay": "With the discount you pay",
+      "discountCode": {
+        "label": "Discount code",
+        "placeholder": "Enter the code",
+        "apply": "Apply",
+        "clear": "Remove code",
+        "pay": "With this code you pay",
+        "invalid": "This code is not valid for this event.",
+        "noUses": "This code has no uses left.",
+        "conflict": "Use the family discount or a code. You cannot use both."
+      },
       "successModal": {
         "title": "Thank you!",
         "body": "Your registration was submitted successfully.",
@@ -5265,6 +5434,12 @@
       "mobileSelect": "Section",
       "mobileOpen": "Open menu",
       "mobileClose": "Close menu",
+      "pwaTabBarAria": "Quick admin navigation",
+      "pwaTabHome": "Home",
+      "pwaTabRegistrations": "Admissions",
+      "pwaTabFinance": "Finance",
+      "pwaTabPeople": "People",
+      "pwaTabMore": "More",
       "home": "Overview",
       "analytics": "Analytics",
       "audit": "Audit trail",
@@ -6563,6 +6738,10 @@
           "tabPayments": {
             "title": "💳 Payments tab",
             "description": "Transfer receipts and payment statuses tied to registrations.\n\nApprove or reject proofs before marking attendees as fully paid."
+          },
+          "tabCodes": {
+            "title": "🎟 Discount codes",
+            "description": "Load codes for this event one by one, from Excel, or with the generator.\n\nEach code has a use limit and a percent. Registration reserves a use."
           },
           "tabWaitlist": {
             "title": "⏳ Waitlist tab",
@@ -10563,6 +10742,12 @@
       "messagesNoTeachers": "No teachers are assigned to your linked students yet. You can still write to administration.",
       "messagesNoAdministration": "Administration messaging is not available right now. Contact the institute if you need help.",
       "messagesWriteCta": "Write message",
+      "messagesReply": "Reply",
+      "messagesReplyTitle": "Reply to this message",
+      "messagesReplyHeading": "Reply to {name}",
+      "messagesReplyHint": "This reply goes only to {name}.",
+      "messagesReplySend": "Send reply",
+      "messagesReplyCancel": "Write a new message",
       "messagesEmpty": "No messages yet.",
       "messagesSenderFallback": "Guardian",
       "messagesRoleTeacher": "Teachers",
@@ -10966,6 +11151,8 @@
       "messagesYouSentTo": "To",
       "messagesFrom": "From",
       "messagesReplyPlaceholder": "Write your reply…",
+      "messagesReply": "Reply",
+      "messagesReplyCancel": "New message",
       "messagesSendReply": "Send reply",
       "messagesNoMessages": "No messages yet.",
       "messagesReplyOk": "Reply sent",
@@ -11011,7 +11198,7 @@
       },
       "parent-read-reply-messages": {
         "title": "How do I read and reply to messages?",
-        "description": "Open the family inbox, read institute messages, and compose a reply when you need support."
+        "description": "Open the family inbox. Use Reply on a message from a teacher or from administration."
       },
       "parent-manage-child-or-tutor-profile": {
         "title": "How do I manage profiles?",
@@ -11090,7 +11277,7 @@
           },
           "feed": {
             "title": "📨 Message list",
-            "description": "Open a thread to read the full conversation.\n\nUnread items usually appear near the top."
+            "description": "Each message from a teacher or from administration has Reply.\n\nReply sends your text only to the person who wrote that message."
           },
           "compose": {
             "title": "✍️ Compose",
@@ -11490,7 +11677,7 @@
           },
           "feed": {
             "title": "Message list",
-            "description": "Open a thread to read the full conversation."
+            "description": "Use Reply on a message from a teacher or from administration. The reply goes only to that person."
           },
           "compose": {
             "title": "Compose",
@@ -11619,6 +11806,7 @@
   "blog": {
     "list": {
       "title": "Blog",
+      "metaDescription": "Stories and news from the academy.",
       "empty": "Articles will be published soon.",
       "readMore": "Read more",
       "publishedDateAria": "Publication date",

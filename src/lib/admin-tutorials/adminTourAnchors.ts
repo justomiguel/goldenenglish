@@ -74,6 +74,7 @@ export const ADMIN_TOUR_ANCHORS = {
   eventDetailTabAttendees: "admin-event-detail-tab-attendees",
   eventDetailTabWaitlist: "admin-event-detail-tab-waitlist",
   eventDetailTabNotifications: "admin-event-detail-tab-notifications",
+  eventDetailTabCodes: "admin-event-detail-tab-codes",
   eventDetailPublish: "admin-event-detail-publish",
   eventDetailWorkspace: "admin-event-detail-workspace",
   financeHeader: "admin-finance-header",

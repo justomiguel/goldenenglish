@@ -100,6 +100,7 @@ export const SCREEN_TOUR_DEFS_PEOPLE_FINANCE = {
     { key: "tabForm", anchor: ADMIN_TOUR_ANCHORS.eventDetailTabForm },
     { key: "tabAttendees", anchor: ADMIN_TOUR_ANCHORS.eventDetailTabAttendees },
     { key: "tabPayments", anchor: ADMIN_TOUR_ANCHORS.eventPaymentsTab },
+    { key: "tabCodes", anchor: ADMIN_TOUR_ANCHORS.eventDetailTabCodes },
     { key: "tabWaitlist", anchor: ADMIN_TOUR_ANCHORS.eventDetailTabWaitlist },
     { key: "tabNotifications", anchor: ADMIN_TOUR_ANCHORS.eventDetailTabNotifications },
     { key: "publish", anchor: ADMIN_TOUR_ANCHORS.eventDetailPublish, optional: true },

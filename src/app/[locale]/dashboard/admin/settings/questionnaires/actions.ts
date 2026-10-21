@@ -10,6 +10,7 @@ import { pickI18nOptions } from "@/lib/questionnaires/pickI18n";
 import { normalizeQuestionnaireSlug, slugFromTitle } from "@/lib/questionnaires/normalizeSlug";
 import { loadAdminQuestionnaireDetail } from "@/lib/questionnaires/loadAdminQuestionnaires";
 import type { QuestionnaireStatus, QuestionnaireVisibility } from "@/lib/questionnaires/types";
+import { buildQuestionnaireSharePath } from "@/lib/site/publicSharePaths";
 
 function revalidate(locale: string, id?: string) {
   revalidatePath(`/${locale}/dashboard/admin/settings/questionnaires`);
@@ -121,7 +122,7 @@ export async function updateQuestionnaireMetaAction(input: {
     payload: { status: input.status },
   });
   revalidate(input.locale, input.id);
-  revalidatePath(`/${input.locale}/q/${slugParsed.slug}`);
+  revalidatePath(buildQuestionnaireSharePath(input.locale, slugParsed.slug));
   return { ok: true };
 }
 

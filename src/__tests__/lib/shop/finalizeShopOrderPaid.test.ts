@@ -82,7 +82,7 @@ describe("markShopOrderPaid", () => {
         key: "shop.order_paid",
         locale: "es",
         vars: expect.objectContaining({
-          orderUrl: expect.stringContaining("/es/tienda/pedido/tok-1"),
+          orderUrl: expect.stringContaining("/es/tienda/pedido/pedido/tok-1"),
           pickupNote: "Retiro en el instituto en horario de atención.",
         }),
       }),

@@ -21,11 +21,14 @@ describe("PublicShopCatalog", () => {
     render(
       <PublicShopCatalog
         locale="es"
-        rows={[{ id: "p", title: "Polera", imageUrl: null, soldOut: true }]}
+        rows={[{ id: "p", slug: "polera", title: "Polera", imageUrl: null, soldOut: true }]}
         labels={labels}
       />,
     );
-    expect(screen.getByRole("link", { name: /Polera/ })).toHaveAttribute("href", "/es/tienda/p");
+    expect(screen.getByRole("link", { name: /Polera/ })).toHaveAttribute(
+      "href",
+      "/es/tienda/polera",
+    );
     expect(screen.getByText(labels.soldOut)).toBeInTheDocument();
   });
 });

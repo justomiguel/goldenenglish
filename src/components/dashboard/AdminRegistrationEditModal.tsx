@@ -13,6 +13,7 @@ export interface AdminRegistrationEditModalProps {
   onClose: () => void;
   onSuccess: () => void;
   labels: Dictionary["admin"]["registrations"];
+  usesCefrLevel?: boolean;
 }
 
 export function AdminRegistrationEditModal({
@@ -23,6 +24,7 @@ export function AdminRegistrationEditModal({
   onClose,
   onSuccess,
   labels,
+  usesCefrLevel = false,
 }: AdminRegistrationEditModalProps) {
   return (
     <Modal
@@ -47,6 +49,7 @@ export function AdminRegistrationEditModal({
           onClose={onClose}
           onSuccess={onSuccess}
           labels={labels}
+          usesCefrLevel={usesCefrLevel}
         />
       ) : null}
     </Modal>

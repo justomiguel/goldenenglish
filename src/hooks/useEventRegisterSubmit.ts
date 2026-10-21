@@ -12,9 +12,7 @@ import { uploadEventPaymentReceipt } from "@/lib/client/uploadEventPaymentReceip
 import { uploadEventAttendeeFieldFile } from "@/lib/client/uploadEventAttendeeFieldFile";
 import { startEventGatewayPayment } from "@/lib/client/startEventGatewayPayment";
 
-function isOnlineGatewayMethod(
-  method: EventRegistrationPaymentMethod,
-): method is "mercadopago" | "flow" {
+function isOnlineGatewayMethod(method: EventRegistrationPaymentMethod): method is "mercadopago" | "flow" {
   return method === "mercadopago" || method === "flow";
 }
 
@@ -51,6 +49,8 @@ export interface EventRegisterSubmitPayload {
   receiptFile: File | null;
   flowId?: string | null;
   familyDiscountClaimed: boolean;
+  discountCode?: string | null;
+  discountErrors?: { invalid_code: string; no_uses: string; discount_conflict: string };
 }
 
 export interface EventRegisterSubmitLabels {
@@ -178,18 +178,21 @@ export function useEventRegisterSubmit({ labels }: UseEventRegisterSubmitArgs) {
           fieldValues,
           ...(payload.flowId ? { flowId: payload.flowId } : {}),
           familyDiscount: payload.familyDiscountClaimed,
+          discountCode: payload.discountCode ?? undefined,
         }),
       });
 
-      const body = (await response.json().catch(() => null)) as
-        | {
-            ok?: boolean;
-            result?: { attendeeId?: string | null; paymentRequired?: boolean };
-          }
-        | null;
-
+      const body = (await response.json().catch(() => null)) as {
+        ok?: boolean;
+        result?: { attendeeId?: string | null; paymentRequired?: boolean; resultCode?: string };
+      } | null;
       if (!response.ok || !body?.ok) {
         setMessage(labels.error);
+        return;
+      }
+      const discountCode = body.result?.resultCode as "invalid_code" | "no_uses" | "discount_conflict";
+      if (payload.discountErrors?.[discountCode]) {
+        setMessage(payload.discountErrors[discountCode]);
         return;
       }
 

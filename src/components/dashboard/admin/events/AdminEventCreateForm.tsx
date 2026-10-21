@@ -12,6 +12,7 @@ import { AdminEventPricingFields } from "@/components/dashboard/admin/events/Adm
 import { EventDescriptionEditor } from "@/components/dashboard/admin/events/EventDescriptionEditor";
 import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 import { isEventLocale } from "@/lib/events/domain";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { Dictionary } from "@/types/i18n";
 
 type EditorLabels = Dictionary["admin"]["cms"]["blog"]["editor"];
@@ -41,6 +42,7 @@ interface AdminEventCreateFormProps {
   labels: AdminEventCreateFormLabels;
   editorLabels: EditorLabels;
   academicLabels: AcademicLabels;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
 function parseOptionalPrice(raw: string): number | null {
@@ -55,6 +57,7 @@ export function AdminEventCreateForm({
   labels,
   editorLabels,
   academicLabels,
+  fileUploadProgress,
 }: AdminEventCreateFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -140,6 +143,7 @@ export function AdminEventCreateForm({
             descriptionLabel={labels.descriptionLabel}
             editorLabels={editorLabels}
             academicLabels={academicLabels}
+            fileUploadProgress={fileUploadProgress}
             descriptionHtml={description}
             onDescriptionHtmlChange={setDescription}
             onError={setUploadError}

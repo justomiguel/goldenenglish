@@ -10,9 +10,11 @@ import type {
   AdminMerchLabels,
   AdminMerchProductRow,
 } from "@/components/dashboard/admin/merch/adminMerchTypes";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 
 interface AdminMerchProductFormProps {
   labels: AdminMerchLabels;
+  fileUploadProgress: FileUploadProgressLabels;
   product?: AdminMerchProductRow;
   busy: boolean;
   onCreate?: (input: { title: string; description: string; sortOrder: number }) => Promise<boolean>;
@@ -26,6 +28,7 @@ interface AdminMerchProductFormProps {
 
 export function AdminMerchProductForm({
   labels,
+  fileUploadProgress,
   product,
   busy,
   onCreate,
@@ -97,6 +100,7 @@ export function AdminMerchProductForm({
               productId={product.id}
               imageUrl={product.imageUrl}
               labels={labels}
+              fileUploadProgress={fileUploadProgress}
               disabled={busy}
               onUploaded={async (imagePath) => {
                 await onUpdate({

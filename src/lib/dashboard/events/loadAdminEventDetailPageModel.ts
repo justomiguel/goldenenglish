@@ -14,6 +14,11 @@ import type { EventFormFieldType } from "@/lib/events/types";
 
 import { loadActiveRegistrationFlows } from "@/lib/events/server/loadActiveRegistrationFlows";
 import { EVENT_ATTENDEES_LIST_PAGE_SIZE } from "@/lib/dashboard/events/eventAttendeesListConstants";
+import {
+  loadEventDiscountCodeCount,
+  loadEventDiscountCodes,
+} from "@/lib/dashboard/events/loadEventDiscountCodes";
+import { loadEventDiscountCodeUses } from "@/lib/dashboard/events/loadEventDiscountCodeUses";
 
 export async function loadAdminEventDetailPageModel(input: {
   locale: string;
@@ -33,7 +38,7 @@ export async function loadAdminEventDetailPageModel(input: {
   const { data: event } = await admin
     .from("events")
     .select(
-      "id, title, description, event_date, status, capacity, location, price, price_local, price_non_local, currency, default_locale, view_count, bank_transfer_instructions, collect_birth_date, show_on_home, require_phone, require_birth_date, registration_field_order, price_by_flow",
+      "id, slug, title, description, event_date, status, capacity, location, price, price_local, price_non_local, currency, default_locale, view_count, bank_transfer_instructions, collect_birth_date, show_on_home, require_phone, require_birth_date, registration_field_order, price_by_flow",
     )
     .eq("id", input.eventId)
     .maybeSingle();
@@ -120,6 +125,19 @@ export async function loadAdminEventDetailPageModel(input: {
     mappedFields.reduce((max, field) => Math.max(max, field.position), -1) + 1;
 
   const registrationFlows = await loadActiveRegistrationFlows(admin, input.eventId);
+  const discountCodeCount = await loadEventDiscountCodeCount(admin, input.eventId);
+  const loadedCodes = input.tab === "codes" ? await loadEventDiscountCodes(admin, input.eventId) : [];
+  const loadedUses =
+    input.tab === "codes"
+      ? await loadEventDiscountCodeUses(admin, loadedCodes.map((row) => row.id))
+      : { uses: [], truncated: false };
+  const usesByCode = new Map<string, typeof loadedUses.uses>();
+  for (const use of loadedUses.uses) {
+    const list = usesByCode.get(use.codeId) ?? [];
+    list.push(use);
+    usesByCode.set(use.codeId, list);
+  }
+  const discountCodes = loadedCodes.map((row) => ({ ...row, uses: usesByCode.get(row.id) ?? [] }));
 
   return {
     event,
@@ -144,5 +162,8 @@ export async function loadAdminEventDetailPageModel(input: {
     requireBirthDate: Boolean(event.require_birth_date),
     priceByFlow: Boolean(event.price_by_flow),
     registrationFlows,
+    discountCodeCount,
+    discountCodes,
+    discountCodeUsesTruncated: loadedUses.truncated,
   };
 }

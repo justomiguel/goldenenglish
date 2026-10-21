@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { getBrandForRequest } from "@/lib/brand/server";
 import { loadBillingCurrencySetting } from "@/lib/billing/loadBillingCurrencySetting";
-import { loadPublicProduct } from "@/lib/shop/loadPublicCatalog";
+import { resolvePublicShopProduct } from "@/lib/shop/loadPublicCatalog";
 import { PublicShopProduct } from "@/components/shop/PublicShopProduct";
+import { buildResolvedPublicShareMetadata } from "@/lib/site/buildResolvedPublicShareMetadata";
+import { buildShopProductPath } from "@/lib/site/publicSharePaths";
 
 interface PageProps {
   params: Promise<{ locale: string; productId: string }>;
@@ -12,14 +15,28 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, productId } = await params;
-  const [dict, product] = await Promise.all([getDictionary(locale), loadPublicProduct(productId)]);
-  return { title: product?.title ?? dict.shop.catalog.title };
+  const [dict, brand, resolved] = await Promise.all([
+    getDictionary(locale),
+    getBrandForRequest(),
+    resolvePublicShopProduct(productId),
+  ]);
+  return buildResolvedPublicShareMetadata({
+    what: resolved?.product.title ?? dict.shop.catalog.title,
+    academyName: brand.name,
+    description: resolved?.product.description || dict.shop.catalog.lead,
+    path: buildShopProductPath(locale, resolved?.canonicalSlug || productId),
+    pageImageUrl: resolved?.product.imageUrl,
+  });
 }
 
 export default async function PublicShopProductPage({ params }: PageProps) {
   const { locale, productId } = await params;
-  const product = await loadPublicProduct(productId);
-  if (!product) notFound();
+  const resolved = await resolvePublicShopProduct(productId);
+  if (!resolved) notFound();
+  if (productId !== resolved.canonicalSlug) {
+    permanentRedirect(buildShopProductPath(locale, resolved.canonicalSlug));
+  }
+  const { product } = resolved;
 
   const dict = await getDictionary(locale);
   const supabase = await createClient();

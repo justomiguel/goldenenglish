@@ -24,8 +24,8 @@ describe("buildBlogArticleAdminShareLinkPaths", () => {
     });
 
     expect(paths).toEqual([
-      { locale: "en", pathname: "/en/blog/preview/signed-token", kind: "preview" },
-      { locale: "es", pathname: "/es/blog/preview/signed-token", kind: "preview" },
+      { locale: "en", pathname: "/en/blog/vista-previa/draft-post/signed-token", kind: "preview" },
+      { locale: "es", pathname: "/es/blog/vista-previa/borrador/signed-token", kind: "preview" },
     ]);
   });
 

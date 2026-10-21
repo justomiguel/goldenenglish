@@ -20,6 +20,8 @@ import { normalizeEventPaymentBannerStatus } from "@/lib/events/buildEventPaymen
 import { resolveEventCoverImageUrl } from "@/lib/rich-content/resolvePublicContentCoverUrl";
 import { stripFirstImageFromHtml } from "@/lib/rich-content/stripFirstImageFromHtml";
 import { buildPublicShareMetadata } from "@/lib/site/buildPublicShareMetadata";
+import { loadShareImageChain } from "@/lib/site/buildResolvedPublicShareMetadata";
+import { buildPublicShareTitle, clipShareDescription } from "@/lib/site/publicShareText";
 import { loadPublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
 
 interface PageProps {
@@ -35,15 +37,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!event) {
     return { title: dict.events.public.metaTitle };
   }
-  const description = htmlToPlain(event.description) || dict.events.public.metaDescription;
+  const description = clipShareDescription(
+    htmlToPlain(event.description) || dict.events.public.metaDescription,
+  );
   const brand = await getBrandForRequest();
   const coverImageUrl = resolveEventCoverImageUrl(event.description);
+  const shareTitle = buildPublicShareTitle(event.title, brand.name);
   const share = buildPublicShareMetadata({
-    title: event.title,
+    title: shareTitle,
     description,
     path: `/${locale}/events/${slug}`,
-    coverImageUrl,
-    fallbackImageUrl: brand.logoPath,
+    coverImageUrl: await loadShareImageChain(coverImageUrl),
     ogType: "website",
   });
   return {

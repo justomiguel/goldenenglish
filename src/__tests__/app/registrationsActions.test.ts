@@ -11,6 +11,7 @@ import { REGISTRATION_LEVEL_INTEREST_UNDECIDED } from "@/lib/register/registrati
 
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
+  unstable_cache: (fn: unknown) => fn,
 }));
 
 vi.mock("@/lib/analytics/server/recordSystemAudit", () => ({

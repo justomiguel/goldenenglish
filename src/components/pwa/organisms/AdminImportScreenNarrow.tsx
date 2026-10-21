@@ -3,7 +3,6 @@
 import type { Dictionary } from "@/types/i18n";
 import type { AppSurface } from "@/hooks/useAppSurface";
 import { ImportUsers } from "@/components/organisms/ImportUsers";
-import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
 import { AdminPageHeader } from "@/components/dashboard/AdminPageHeader";
 
 interface AdminImportScreenNarrowProps {
@@ -19,6 +18,7 @@ export function AdminImportScreenNarrow({
   surface,
   embedded = false,
 }: AdminImportScreenNarrowProps) {
+  void surface;
   const form = (
     <div className="-mx-1 max-w-xl">
       <ImportUsers locale={locale} labels={dict.admin.users.spreadsheet} />
@@ -28,16 +28,9 @@ export function AdminImportScreenNarrow({
     return form;
   }
   return (
-    <PwaPageShell surface={surface}>
-      <main className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
-        <div className="mx-auto max-w-[var(--layout-max-width)] py-4">
-          <AdminPageHeader
-            title={dict.admin.users.spreadsheet.importTitle}
-            iconId="students"
-          />
-          <div className="mt-4">{form}</div>
-        </div>
-      </main>
-    </PwaPageShell>
+    <main className="mx-auto max-w-[var(--layout-max-width)] space-y-3">
+      <AdminPageHeader title={dict.admin.users.spreadsheet.importTitle} iconId="students" />
+      {form}
+    </main>
   );
 }

@@ -83,6 +83,7 @@ export default async function EventRegisterPage({ params }: PageProps) {
           consent: dict.events.register.consent,
           familyDiscount: dict.events.register.familyDiscount,
           familyDiscountPay: dict.events.register.familyDiscountPay,
+          discountCode: dict.events.register.discountCode,
           error: dict.events.register.error,
           successModal: dict.events.register.successModal,
           captchaRequired: dict.events.register.captchaRequired,

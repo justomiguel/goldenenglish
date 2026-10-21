@@ -56,7 +56,9 @@ test.describe("@critical-section-enrollment-link", () => {
     }
 
     const inviteUrl = await urlField.inputValue();
-    expect(inviteUrl).toMatch(new RegExp(`/${locale}/i/[a-z0-9-]+/[0-9a-f-]{36}`, "i"));
+    expect(inviteUrl).toMatch(
+      new RegExp(`/${locale}/inscripcion/[a-z0-9-]+/[0-9a-f-]{36}`, "i"),
+    );
     const token = inviteUrl.split("/").filter(Boolean).pop();
     expect(token).toBeTruthy();
 

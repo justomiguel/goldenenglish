@@ -75,6 +75,7 @@ export async function POST(
           }>;
           isLocalResident?: boolean;
           familyDiscount?: boolean;
+          discountCode?: string;
           paymentMethod?: string;
           ticketPackageId?: string;
           companions?: unknown;
@@ -156,6 +157,7 @@ export async function POST(
         : null,
       locale: body.locale,
       familyDiscountClaimed: body.familyDiscount === true,
+      discountCode: typeof body.discountCode === "string" ? body.discountCode : null,
       currency: event.currency,
     });
 

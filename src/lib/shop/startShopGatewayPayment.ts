@@ -13,6 +13,7 @@ import {
   gatewaySupportsBillingCurrency,
 } from "@/lib/payment-gateways/gatewayCountryForBillingCurrency";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
+import { buildShopOrderPath } from "@/lib/site/publicSharePaths";
 import { isPubliclyReachableUrl } from "@/lib/site/isPubliclyReachableUrl";
 import { logServerActionInvariantViolation } from "@/lib/logging/serverActionLog";
 import { buildShopOrderGatewayReference } from "@/lib/shop/buildShopOrderGatewayReference";
@@ -54,7 +55,10 @@ export async function startShopGatewayPayment(input: {
   const origin = getPublicSiteUrl();
   if (!origin) return { ok: false };
   const originStr = origin.toString();
-  const returnUrl = new URL(`/${input.locale}/tienda/pedido/${input.payToken}`, originStr).toString();
+  const returnUrl = new URL(
+    buildShopOrderPath(input.locale, input.title, input.payToken),
+    originStr,
+  ).toString();
   const amount = Math.round(input.amount);
   if (!(amount > 0)) return { ok: false };
 

@@ -32,6 +32,8 @@ interface StudentMessagesClientProps {
   teacherComposeAvailable: boolean;
   administrationComposeAvailable: boolean;
   labels: Dictionary["dashboard"]["student"];
+  /** Phone thread pins the composer. Wide screens keep the card form. */
+  layout?: "cards" | "thread";
 }
 
 export function StudentMessagesClient({
@@ -40,7 +42,9 @@ export function StudentMessagesClient({
   teacherComposeAvailable,
   administrationComposeAvailable,
   labels,
+  layout = "cards",
 }: StudentMessagesClientProps) {
+  const thread = layout === "thread";
   const router = useRouter();
   const tabPrefix = useId().replace(/:/g, "");
   const [destination, setDestination] = useState<ComposeDestination>(
@@ -111,14 +115,25 @@ export function StudentMessagesClient({
     destination === STUDENT_MESSAGE_DEST_TEACHER ? labels.tipComposeSend : labels.tipComposeSendAdministration;
 
   return (
-    <div className="space-y-8">
+    <div className={thread ? "flex min-h-[70dvh] flex-col" : "space-y-8"}>
       {!canComposeAny ? (
-        <p className="text-sm text-[var(--color-muted-foreground)]">{labels.messagesNoCompose}</p>
+        <p className={`text-sm text-[var(--color-muted-foreground)] ${thread ? "order-2" : ""}`}>
+          {labels.messagesNoCompose}
+        </p>
       ) : (
-        <form onSubmit={onSend} className="space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm md:p-5">
-          <h2 className="font-display text-lg font-semibold text-[var(--color-secondary)]">
-            {labels.messagesCompose}
-          </h2>
+        <form
+          onSubmit={onSend}
+          className={
+            thread
+              ? "sticky bottom-[calc(4.5rem+max(0.5rem,env(safe-area-inset-bottom,0px)))] z-20 order-2 space-y-3 border-t border-[var(--color-border)] bg-[var(--color-background)] pt-3"
+              : "space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm md:p-5"
+          }
+        >
+          {thread ? null : (
+            <h2 className="font-display text-lg font-semibold text-[var(--color-secondary)]">
+              {labels.messagesCompose}
+            </h2>
+          )}
           {showComposeTabs ? (
             <>
               <UnderlineTabBar
@@ -147,20 +162,30 @@ export function StudentMessagesClient({
           </Button>
         </form>
       )}
-      {msg ? <p className="text-sm text-[var(--color-muted-foreground)]">{msg}</p> : null}
+      {msg ? (
+        <p className={`text-sm text-[var(--color-muted-foreground)] ${thread ? "order-2" : ""}`}>{msg}</p>
+      ) : null}
 
-      <ul className="space-y-4">
+      <ul className={thread ? "order-1 mb-3 flex flex-1 flex-col gap-2" : "space-y-4"}>
         {initialLines.length === 0 ? (
           <li className="text-sm text-[var(--color-muted-foreground)]">{labels.messagesEmpty}</li>
         ) : (
           initialLines.map((m) => (
             <li
               key={m.id}
-              className={`rounded-[var(--layout-border-radius)] border border-[var(--color-border)] p-4 shadow-sm ${
-                m.from_me
-                  ? "ml-2 border-[var(--color-primary)]/35 bg-[var(--color-surface)] md:ml-8"
-                  : "mr-2 bg-[var(--color-muted)]/35 md:mr-8"
-              }`}
+              className={
+                thread
+                  ? `max-w-[85%] rounded-2xl px-3 py-2 ${
+                      m.from_me
+                        ? "ml-auto bg-[color-mix(in_srgb,var(--color-primary)_12%,var(--color-surface))]"
+                        : "mr-auto bg-[var(--color-muted)]"
+                    }`
+                  : `rounded-[var(--layout-border-radius)] border border-[var(--color-border)] p-4 shadow-sm ${
+                      m.from_me
+                        ? "ml-2 border-[var(--color-primary)]/35 bg-[var(--color-surface)] md:ml-8"
+                        : "mr-2 bg-[var(--color-muted)]/35 md:mr-8"
+                    }`
+              }
             >
               <p className="text-xs uppercase tracking-wide text-[var(--color-muted-foreground)]">
                 {new Date(m.created_at).toLocaleString(locale)}

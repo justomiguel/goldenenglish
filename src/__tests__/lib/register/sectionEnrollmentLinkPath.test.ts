@@ -15,10 +15,10 @@ describe("sectionEnrollmentLinkPath", () => {
 
   it("builds locale/slug/uuid and parses one or two segments", () => {
     expect(buildSectionEnrollmentLinkPath("es", "Kids A1", TOKEN)).toBe(
-      `/es/i/kids-a1/${TOKEN}`,
+      `/es/inscripcion/kids-a1/${TOKEN}`,
     );
     expect(buildSectionEnrollmentLinkPath("es", "!!!", TOKEN)).toBe(
-      `/es/i/seccion/${TOKEN}`,
+      `/es/inscripcion/seccion/${TOKEN}`,
     );
     expect(parseSectionEnrollmentLinkSegments([TOKEN])).toEqual({
       slug: null,

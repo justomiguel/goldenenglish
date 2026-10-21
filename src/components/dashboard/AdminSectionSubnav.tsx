@@ -36,7 +36,7 @@ export function AdminSectionSubnav({ ariaLabel, items }: AdminSectionSubnavProps
     <nav
       aria-label={ariaLabel}
       data-tour={ADMIN_TOUR_ANCHORS.usersSubnav}
-      className="flex flex-wrap gap-2"
+      className="flex flex-nowrap gap-2 overflow-x-auto md:flex-wrap"
     >
       {items.map(({ href, label, hint, icon, tourId }) => {
         const active = pathname === href;
@@ -47,7 +47,7 @@ export function AdminSectionSubnav({ ariaLabel, items }: AdminSectionSubnavProps
             href={href}
             title={hint}
             {...(tourId ? { "data-tour": tourId } : {})}
-            className={`flex min-h-10 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+            className={`flex min-h-10 shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition sm:px-4 sm:py-2.5 sm:text-sm ${
               active
                 ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
                 : "border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"

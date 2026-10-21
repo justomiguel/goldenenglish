@@ -19,6 +19,7 @@ import {
   buildEventFormQuestionItems,
   buildFlowQuestionItems,
 } from "@/lib/events/buildEventFormQuestionItems";
+import { buildEventPreviewPath } from "@/lib/site/publicSharePaths";
 
 export function EventFormFieldsEditor({
   eventId,
@@ -35,6 +36,7 @@ export function EventFormFieldsEditor({
   priceByFlow = false,
   registrationFlows = [],
   eventPublished = false,
+  eventSlug = "",
   nextFieldPosition,
   labels,
 }: EventFormFieldsEditorProps) {
@@ -166,7 +168,7 @@ export function EventFormFieldsEditor({
     <div className="space-y-4">
       <p className="text-sm text-[var(--color-muted-foreground)]">{labels.pageLead}</p>
       <Link
-        href={`/${locale}/events/preview/${eventId}`}
+        href={buildEventPreviewPath(locale, eventSlug)}
         target="_blank"
         rel="noopener noreferrer"
         className="inline-flex min-h-[36px] items-center gap-2 rounded-md border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-muted)]"

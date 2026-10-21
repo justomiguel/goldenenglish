@@ -5,6 +5,7 @@ import { auditFinanceAction } from "@/lib/audit";
 import { logServerWarn, logSupabaseClientError } from "@/lib/logging/serverActionLog";
 import { markEventPaymentApprovedCore } from "@/lib/events/server/markEventPaymentApprovedCore";
 import { sendEventAttendeeNotification } from "@/lib/events/server/sendEventAttendeeNotification";
+import { releaseEventDiscountRedemption } from "@/lib/events/server/syncEventDiscountRedemption";
 import { revertEventPaymentApprovalCore } from "@/lib/events/server/revertEventPaymentApprovalCore";
 
 export async function approveEventPayment(input: {
@@ -109,6 +110,7 @@ export async function rejectEventPayment(input: {
 
   const attendeeId = beforeRow?.event_attendee_id ? String(beforeRow.event_attendee_id) : "";
   if (attendeeId) {
+    await releaseEventDiscountRedemption(input.adminClient, attendeeId);
     await sendEventAttendeeNotification({
       attendeeId,
       templateKey: "events.payment_rejected",

@@ -91,7 +91,7 @@ export function AdminMessagesTabs({
   );
 
   return (
-    <section className="mt-6 min-w-0 overflow-x-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] shadow-[var(--shadow-soft)]">
+    <section className="mt-3 min-w-0 overflow-x-hidden md:mt-6 md:rounded-2xl md:border md:border-[var(--color-border)] md:bg-[var(--color-background)] md:shadow-[var(--shadow-soft)]">
       <div
         data-tour={ADMIN_TOUR_ANCHORS.messagesTabs}
         className="bg-[var(--color-muted)]/30 px-2 pt-2 md:px-4 md:pt-3"
@@ -107,9 +107,9 @@ export function AdminMessagesTabs({
 
       <div
         data-tour={ADMIN_TOUR_ANCHORS.messagesList}
-        className="bg-[var(--color-background)] px-3 py-4 md:px-5 md:py-5"
+        className="bg-[var(--color-background)] px-0 py-2 md:px-5 md:py-5"
       >
-        <p className="text-sm leading-snug text-[var(--color-muted-foreground)]" aria-live="polite">
+        <p className="hidden text-sm leading-snug text-[var(--color-muted-foreground)] md:block" aria-live="polite">
           {hint}
         </p>
         <AdminMessagesBulkBar
@@ -126,7 +126,7 @@ export function AdminMessagesTabs({
           onMarkUnread={bulk.markUnread}
           onDelete={bulk.deleteSelected}
         />
-        <div className="mt-5">
+        <div className="mt-2 md:mt-5">
           {panel("inbox")}
           {panel("sent")}
         </div>

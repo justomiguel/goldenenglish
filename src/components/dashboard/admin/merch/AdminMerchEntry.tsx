@@ -2,22 +2,32 @@
 
 import { SurfaceMountGate } from "@/components/molecules/SurfaceMountGate";
 import { AdminMerchProductsScreen } from "@/components/dashboard/admin/merch/AdminMerchProductsScreen";
-import { PwaPageShell } from "@/components/pwa/molecules/PwaPageShell";
-import type { AppSurface } from "@/hooks/useAppSurface";
 import type {
   AdminMerchLabels,
   AdminMerchProductRow,
 } from "@/components/dashboard/admin/merch/adminMerchTypes";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 
 interface AdminMerchEntryProps {
   locale: string;
   initialRows: AdminMerchProductRow[];
   labels: AdminMerchLabels;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
-export function AdminMerchEntry({ locale, initialRows, labels }: AdminMerchEntryProps) {
+export function AdminMerchEntry({
+  locale,
+  initialRows,
+  labels,
+  fileUploadProgress,
+}: AdminMerchEntryProps) {
   const body = (
-    <AdminMerchProductsScreen locale={locale} initialRows={initialRows} labels={labels} />
+    <AdminMerchProductsScreen
+      locale={locale}
+      initialRows={initialRows}
+      labels={labels}
+      fileUploadProgress={fileUploadProgress}
+    />
   );
 
   return (
@@ -28,12 +38,8 @@ export function AdminMerchEntry({ locale, initialRows, labels }: AdminMerchEntry
         </div>
       }
       desktop={<div className="mx-auto max-w-5xl space-y-6">{body}</div>}
-      narrow={(surface: Extract<AppSurface, "web-mobile" | "pwa-mobile">) => (
-        <PwaPageShell surface={surface}>
-          <div className="min-h-dvh bg-[var(--color-muted)] px-3 pb-[max(2.5rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]">
-            <div className="mx-auto max-w-[var(--layout-max-width)] space-y-4 py-2">{body}</div>
-          </div>
-        </PwaPageShell>
+      narrow={() => (
+        <div className="mx-auto max-w-[var(--layout-max-width)] space-y-3">{body}</div>
       )}
     />
   );

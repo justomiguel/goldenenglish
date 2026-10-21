@@ -1,9 +1,11 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { loadSectionEnrollmentLink } from "@/lib/register/loadSectionEnrollmentLink";
 import {
-  SectionEnrollmentLinkRoute,
-  sectionEnrollmentLinkGenerateMetadata,
-} from "@/app/[locale]/i/sectionEnrollmentLinkRoute";
+  buildSectionEnrollmentLinkPath,
+  parseSectionEnrollmentLinkSegments,
+} from "@/lib/register/sectionEnrollmentLinkPath";
+import { SectionEnrollmentLinkUnavailable } from "@/components/register/SectionEnrollmentLinkUnavailable";
 
 export const dynamic = "force-dynamic";
 
@@ -11,32 +13,16 @@ interface PageProps {
   params: Promise<{ locale: string; segments: string[] }>;
 }
 
-function resolveEnrollmentLinkParams(segments: string[]) {
-  if (segments.length === 1 && segments[0]) {
-    return { incomingSlug: null as string | null, token: segments[0] };
-  }
-  if (segments.length === 2 && segments[0] && segments[1]) {
-    return { incomingSlug: segments[0], token: segments[1] };
-  }
-  return null;
-}
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export default async function LegacySectionEnrollmentLinkPage({ params }: PageProps) {
   const { locale, segments } = await params;
-  const resolved = resolveEnrollmentLinkParams(segments);
-  if (!resolved) return {};
-  return sectionEnrollmentLinkGenerateMetadata(locale, resolved.token);
-}
-
-export default async function SectionEnrollmentLinkPage({ params }: PageProps) {
-  const { locale, segments } = await params;
-  const resolved = resolveEnrollmentLinkParams(segments);
+  const resolved = parseSectionEnrollmentLinkSegments(segments);
   if (!resolved) notFound();
-  return (
-    <SectionEnrollmentLinkRoute
-      locale={locale}
-      token={resolved.token}
-      incomingSlug={resolved.incomingSlug}
-    />
-  );
+  const link = await loadSectionEnrollmentLink(resolved.token);
+  if (!link) {
+    const dict = await getDictionary(locale);
+    return (
+      <SectionEnrollmentLinkUnavailable locale={locale} labels={dict.register.sectionLink} />
+    );
+  }
+  permanentRedirect(buildSectionEnrollmentLinkPath(locale, link.sectionName, resolved.token));
 }

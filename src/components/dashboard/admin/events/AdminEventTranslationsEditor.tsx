@@ -19,6 +19,7 @@ import {
   saveEventTranslationsAction,
   translateEventFieldsAdminAction,
 } from "@/app/[locale]/dashboard/admin/events/translationActions";
+import type { FileUploadProgressLabels } from "@/types/fileUploadProgressLabels";
 import type { Dictionary } from "@/types/i18n";
 
 type EditorLabels = Dictionary["admin"]["cms"]["blog"]["editor"];
@@ -48,6 +49,7 @@ interface AdminEventTranslationsEditorProps {
   labels: AdminEventTranslationsEditorLabels;
   editorLabels: EditorLabels;
   academicLabels: AcademicLabels;
+  fileUploadProgress: FileUploadProgressLabels;
 }
 
 export function AdminEventTranslationsEditor({
@@ -58,6 +60,7 @@ export function AdminEventTranslationsEditor({
   labels,
   editorLabels,
   academicLabels,
+  fileUploadProgress,
 }: AdminEventTranslationsEditorProps) {
   const router = useRouter();
   const [activeLocale, setActiveLocale] = useState<EventLocale>(defaultLocale);
@@ -162,6 +165,7 @@ export function AdminEventTranslationsEditor({
             descriptionLabel={labels.descriptionLabel}
             editorLabels={editorLabels}
             academicLabels={academicLabels}
+            fileUploadProgress={fileUploadProgress}
             eventId={eventId}
             descriptionHtml={current.description}
             onDescriptionHtmlChange={(html) => patchCurrent({ description: html })}

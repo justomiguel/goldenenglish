@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ArrowDown, ArrowUp } from "lucide-react";
 import type { Dictionary } from "@/types/i18n";
 import {
   isAdminParentsDirectory,
@@ -12,63 +11,12 @@ import {
   type SortKey,
 } from "@/lib/dashboard/adminUsersTableHelpers";
 import { AdminUsersPwaListItem } from "@/components/pwa/molecules/AdminUsersPwaListItem";
+import { AdminUsersBulkBarMobile } from "@/components/pwa/molecules/AdminUsersBulkBarMobile";
 import { TablePagination } from "@/components/molecules/TablePagination";
+import { ADMIN_TOUR_ANCHORS } from "@/lib/admin-tutorials/selectors";
 
 type UserLabels = Dictionary["admin"]["users"];
 type TableLabels = Dictionary["admin"]["table"];
-
-const DIRECTORY_SORT_KEYS: SortKey[] = ["email", "name", "role", "phone"];
-const STUDENT_SORT_KEYS: SortKey[] = [
-  "name",
-  "sections",
-  "monthlyDue",
-  "monthlyStatus",
-  "enrollmentFee",
-  "lastEnrollment",
-  "parent",
-];
-const TEACHER_SORT_KEYS: SortKey[] = ["email", "name", "sections", "phone"];
-const PARENT_SORT_KEYS: SortKey[] = [
-  "name",
-  "email",
-  "children",
-  "sections",
-  "monthlyStatus",
-  "enrollmentFee",
-  "lastEnrollment",
-  "lastAccess",
-];
-
-function colLabel(labels: UserLabels, key: SortKey): string {
-  switch (key) {
-    case "email":
-      return labels.colEmail;
-    case "name":
-      return labels.colName;
-    case "role":
-      return labels.colRole;
-    case "phone":
-      return labels.colPhone;
-    case "lastAccess":
-      return labels.colLastAccess;
-    case "sections":
-      return labels.colSections;
-    case "monthlyDue":
-      return labels.colMonthlyDue;
-    case "monthlyStatus":
-      return labels.colMonthlyStatus;
-    case "enrollmentFee":
-      return labels.colEnrollmentFee;
-    case "lastEnrollment":
-      return labels.colLastEnrollment;
-    case "parent":
-      return labels.colParent;
-    case "children":
-      return labels.colChildren;
-    default:
-      return key;
-  }
-}
 
 export interface AdminUsersPwaListProps {
   locale: string;
@@ -96,6 +44,10 @@ export interface AdminUsersPwaListProps {
     onPageChange: (page: number) => void;
   };
   lockRole?: string;
+  onDeleteSelected?: () => void;
+  deleteDisabled?: boolean;
+  onBulkMail?: () => void;
+  bulkMailLabel?: string;
 }
 
 export function AdminUsersPwaList({
@@ -106,35 +58,22 @@ export function AdminUsersPwaList({
   listEmpty,
   rows,
   currentUserId,
-  sortKey,
-  sortDir,
-  onToggleSort,
   selectedIds,
   onToggleRow,
-  allVisibleSelected,
-  onToggleSelectAllVisible,
-  deletableVisibleCount,
   busy,
   onRequestDeleteOne,
   emptyMessage,
   pagination,
   lockRole,
+  onDeleteSelected,
+  deleteDisabled = false,
+  onBulkMail,
+  bulkMailLabel,
 }: AdminUsersPwaListProps) {
   const studentsDirectory = isAdminStudentsDirectory(lockRole);
   const teachersDirectory = isAdminTeachersDirectory(lockRole);
   const parentsDirectory = isAdminParentsDirectory(lockRole);
-  const sortKeys = studentsDirectory
-    ? STUDENT_SORT_KEYS
-    : parentsDirectory
-      ? PARENT_SORT_KEYS
-      : teachersDirectory
-        ? TEACHER_SORT_KEYS
-        : DIRECTORY_SORT_KEYS;
   const emptyValue = "—";
-  const sortHint = (key: SortKey) => {
-    if (sortKey !== key) return labels.sortNeutral;
-    return sortDir === "asc" ? labels.sortAsc : labels.sortDesc;
-  };
 
   if (listEmpty) {
     return (
@@ -148,50 +87,7 @@ export function AdminUsersPwaList({
   return (
     <div className="space-y-3">
       {toolbar}
-      <div className="flex min-h-[44px] items-center gap-2 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)] px-3 py-2">
-        <input
-          type="checkbox"
-          className="h-4 w-4 shrink-0 rounded border-[var(--color-border)]"
-          checked={allVisibleSelected}
-          onChange={onToggleSelectAllVisible}
-          disabled={deletableVisibleCount === 0}
-          aria-label={labels.selectAllVisible}
-          title={labels.tipSelectAllVisible}
-        />
-        <span className="text-sm text-[var(--color-muted-foreground)]">
-          {labels.selectAllVisible}
-        </span>
-      </div>
-
-      <div className="flex flex-wrap gap-2" role="group">
-        {sortKeys.map((key) => {
-          const active = sortKey === key;
-          return (
-            <button
-              key={key}
-              type="button"
-              className="flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 text-left text-sm font-medium text-[var(--color-primary)] active:bg-[var(--color-muted)]"
-              onClick={() => onToggleSort(key)}
-              aria-pressed={active}
-              title={sortHint(key)}
-            >
-              <span>{colLabel(labels, key)}</span>
-              {active ? (
-                sortDir === "asc" ? (
-                  <ArrowUp className="h-4 w-4 shrink-0" aria-hidden />
-                ) : (
-                  <ArrowDown className="h-4 w-4 shrink-0" aria-hidden />
-                )
-              ) : (
-                <span className="inline-block w-4 shrink-0" aria-hidden />
-              )}
-              <span className="sr-only">{sortHint(key)}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      <ul className="space-y-2">
+      <ul className="space-y-2" data-tour={ADMIN_TOUR_ANCHORS.usersTable}>
         {rows.map((r) => (
           <AdminUsersPwaListItem
             key={r.id}
@@ -226,6 +122,16 @@ export function AdminUsersPwaList({
           }}
         />
       </div>
+      {onDeleteSelected ? (
+        <AdminUsersBulkBarMobile
+          labels={labels}
+          selectedCount={selectedIds.size}
+          onDeleteSelected={onDeleteSelected}
+          deleteDisabled={deleteDisabled}
+          onBulkMail={onBulkMail}
+          bulkMailLabel={bulkMailLabel}
+        />
+      ) : null}
     </div>
   );
 }

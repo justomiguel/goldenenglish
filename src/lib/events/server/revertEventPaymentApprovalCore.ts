@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { reserveEventDiscountRedemption } from "@/lib/events/server/syncEventDiscountRedemption";
 import { logSupabaseClientError } from "@/lib/logging/serverActionLog";
 
 export interface RevertEventPaymentApprovalInput {
@@ -92,6 +93,7 @@ export async function revertEventPaymentApprovalCore(
   }
 
   const attendeeReverted = await revertConfirmedAttendeeToPendingPayment(input.admin, attendeeId);
+  await reserveEventDiscountRedemption(input.admin, attendeeId);
 
   return {
     ok: true,

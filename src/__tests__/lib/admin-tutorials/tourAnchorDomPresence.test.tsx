@@ -427,6 +427,7 @@ describe("tourAnchorDomPresence (L2 isolated)", () => {
           locale="en"
           editorLabels={dictEn.admin.cms.blog.editor}
           academicLabels={dictEn.dashboard.adminContents}
+          fileUploadProgress={dictEn.common.fileUpload}
           labels={{
             titleLabel: formLabels.titleLabel,
             descriptionLabel: formLabels.descriptionLabel,

@@ -3,14 +3,23 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { loadPublishedArticles } from "@/lib/blog/server";
 import { BlogIndexSurfaceEntry } from "@/components/organisms/BlogIndexSurfaceEntry";
-
-export const metadata: Metadata = {
-  title: "Blog",
-};
+import { getBrandForRequest } from "@/lib/brand/server";
+import { buildResolvedPublicShareMetadata } from "@/lib/site/buildResolvedPublicShareMetadata";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ page?: string; q?: string; tag?: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const [dict, brand] = await Promise.all([getDictionary(locale), getBrandForRequest()]);
+  return buildResolvedPublicShareMetadata({
+    what: dict.blog.list.title,
+    academyName: brand.name,
+    description: dict.blog.list.metaDescription,
+    path: `/${locale}/blog`,
+  });
 }
 
 export default async function BlogIndexPage({ params, searchParams }: PageProps) {

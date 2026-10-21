@@ -24,6 +24,7 @@ import { BlogArticleRelatedInline } from "@/components/molecules/BlogArticleRela
 import { getBrandForRequest } from "@/lib/brand/server";
 import { getPublicSiteUrl } from "@/lib/site/publicUrl";
 import { buildPublicShareMetadata } from "@/lib/site/buildPublicShareMetadata";
+import { buildPublicShareTitle, clipShareDescription } from "@/lib/site/publicShareText";
 import { resolveBlogCoverImageUrl } from "@/lib/rich-content/resolvePublicContentCoverUrl";
 import { stripFirstImageFromHtml } from "@/lib/rich-content/stripFirstImageFromHtml";
 import { BlogCommentsSection } from "@/components/organisms/BlogCommentsSection";
@@ -47,10 +48,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     slug,
   );
   if (!article || !translation) return {};
+  const brand = await getBrandForRequest();
   const title = translation.seoTitle ?? translation.title;
-  const description = translation.seoDescription ?? translation.excerpt;
+  const description = clipShareDescription(translation.seoDescription ?? translation.excerpt);
+  const shareTitle = buildPublicShareTitle(translation.title, brand.name);
   const share = buildPublicShareMetadata({
-    title,
+    title: shareTitle,
     description,
     path: `/${locale}/blog/${translation.slug}`,
     deferShareImageToFileMetadata: true,

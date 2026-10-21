@@ -27,16 +27,19 @@ export function AdminMessagesHeaderActions({
   return (
     <>
       <div className="flex flex-wrap items-center justify-end gap-2">
-        <Button
-          type="button"
-          variant="ghost"
-          className="min-h-[44px] rounded-xl border border-[var(--color-border)] px-4"
-          title={labels.editDefaultMessageCtaTitle}
-          onClick={() => setEditOpen(true)}
-        >
-          <FilePenLine className="h-4 w-4 shrink-0" aria-hidden />
-          {labels.editDefaultMessageCta}
-        </Button>
+        <div className="hidden md:contents">
+          <Button
+            type="button"
+            variant="ghost"
+            className="min-h-[44px] rounded-xl border border-[var(--color-border)] px-4"
+            title={labels.editDefaultMessageCtaTitle}
+            aria-label={labels.editDefaultMessageCta}
+            onClick={() => setEditOpen(true)}
+          >
+            <FilePenLine className="h-4 w-4 shrink-0" aria-hidden />
+            {labels.editDefaultMessageCta}
+          </Button>
+        </div>
         <Link
           href={composeHref}
           data-tour={ADMIN_TOUR_ANCHORS.messagesComposeCta}

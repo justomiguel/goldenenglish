@@ -15,6 +15,7 @@ const saveGlobalContentBuilderMetadataAction = vi.fn(async () => ({ ok: true, id
 const getGlobalContentDeleteImpactAction = vi.fn(async () => ({ ok: true, routeStepCount: 2 }));
 const deleteGlobalContentAction = vi.fn(async () => ({ ok: true, id: "content-1" }));
 const uploadToSignedUrl = vi.fn(async () => ({ data: {}, error: null }));
+const uploadFileToSignedUrlWithProgress = vi.fn(async () => undefined);
 
 const mockPush = vi.fn();
 const mockRefresh = vi.fn();
@@ -55,6 +56,14 @@ vi.mock("@/lib/supabase/client", () => ({
   }),
 }));
 
+vi.mock("@/lib/client/uploadFileToSignedUrlWithProgress", () => ({
+  uploadFileToSignedUrlWithProgress: (...args: unknown[]) => uploadFileToSignedUrlWithProgress(...args),
+}));
+
+vi.mock("@/lib/supabase/publicEnv", () => ({
+  readSupabasePublicEnv: () => ({ url: "https://proj.supabase.co", anonKey: "anon" }),
+}));
+
 const defaultPagination = { page: 1, pageSize: 20, totalCount: 0, searchQuery: "" };
 
 describe("AdminGlobalContentRepository", () => {
@@ -67,6 +76,7 @@ describe("AdminGlobalContentRepository", () => {
     getGlobalContentDeleteImpactAction.mockClear();
     deleteGlobalContentAction.mockClear();
     uploadToSignedUrl.mockClear();
+    uploadFileToSignedUrlWithProgress.mockClear();
   });
 
   it("links creation to a full-page editor", () => {
@@ -154,6 +164,7 @@ describe("AdminGlobalContentBuilder", () => {
     prepareGlobalContentFileUploadAction.mockClear();
     saveGlobalContentBuilderMetadataAction.mockClear();
     uploadToSignedUrl.mockClear();
+    uploadFileToSignedUrlWithProgress.mockClear();
   });
 
   it("lets admins add and remove materials before saving content", async () => {
@@ -277,10 +288,12 @@ describe("AdminGlobalContentBuilder", () => {
       contentType: "video/mp4",
       byteSize: 5,
     });
-    expect(uploadToSignedUrl).toHaveBeenCalledWith(
-      "templates/admin/asset/intro.mp4",
-      "signed-token",
-      expect.any(File),
+    expect(uploadFileToSignedUrlWithProgress).toHaveBeenCalledWith(
+      expect.objectContaining({
+        storagePath: "templates/admin/asset/intro.mp4",
+        token: "signed-token",
+        file: expect.any(File),
+      }),
     );
     const payload = saveGlobalContentBuilderMetadataAction.mock.calls[0][0];
     expect(payload.materials[0]).toEqual(expect.objectContaining({

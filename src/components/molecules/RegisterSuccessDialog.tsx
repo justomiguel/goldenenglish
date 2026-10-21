@@ -11,6 +11,8 @@ interface RegisterSuccessDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   dict: Dictionary["register"];
+  /** Staff entry stays on the list. The public form goes to the site home. */
+  onHome?: () => void;
 }
 
 const titleId = "register-success-title";
@@ -21,6 +23,7 @@ export function RegisterSuccessDialog({
   open,
   onOpenChange,
   dict,
+  onHome,
 }: RegisterSuccessDialogProps) {
   const router = useRouter();
 
@@ -56,7 +59,8 @@ export function RegisterSuccessDialog({
           className="w-full sm:w-auto"
           onClick={() => {
             onOpenChange(false);
-            router.push(`/${locale}`);
+            if (onHome) onHome();
+            else router.push(`/${locale}`);
           }}
         >
           <Home className="h-4 w-4 shrink-0" aria-hidden />

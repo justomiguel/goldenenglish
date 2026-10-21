@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: "/blog/preview/",
+      disallow: ["/blog/preview/", "/blog/vista-previa/"],
     },
     sitemap,
     host: base?.host,

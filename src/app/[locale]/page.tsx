@@ -26,6 +26,8 @@ import { LandingQuestionnairesSection } from "@/components/organisms/LandingQues
 import { HomeEventPopup } from "@/components/organisms/HomeEventPopup";
 import { loadHomeEventPopup } from "@/lib/dashboard/events/loadHomeEventPopup";
 import { buildHomePageMetadata } from "@/lib/metadata/buildHomePageMetadata";
+import { sharePreviewBundleKeyFromTemplateKind } from "@/lib/landing/sharePreviewBundleKey";
+import { buildResolvedPublicShareMetadata } from "@/lib/site/buildResolvedPublicShareMetadata";
 import type { SiteThemeKind } from "@/types/theming";
 
 /** Session must reflect cookies each request (avoid stale static HTML). */
@@ -49,8 +51,23 @@ export async function generateMetadata({
   params,
 }: HomePageProps): Promise<Metadata> {
   const { locale } = await params;
-  const { brand } = await resolvePublicBrandWithSetup(locale as AppLocale);
-  return buildHomePageMetadata(brand.name);
+  const { brand, dict } = await resolvePublicBrandWithSetup(locale as AppLocale);
+  const theme = await loadActiveTheme();
+  const bundle = sharePreviewBundleKeyFromTemplateKind(theme?.theme.templateKind);
+  const description =
+    dict.socialShare.byKind[bundle]?.shareContext ?? dict.socialShare.homeFallback;
+  const share = await buildResolvedPublicShareMetadata({
+    what: brand.name,
+    academyName: brand.name,
+    description,
+    path: `/${locale}`,
+    absoluteTitle: true,
+  });
+  return {
+    ...buildHomePageMetadata(brand.name),
+    ...share,
+    title: { absolute: brand.name },
+  };
 }
 
 export default async function HomePage({ params }: HomePageProps) {

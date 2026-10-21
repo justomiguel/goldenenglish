@@ -6,6 +6,8 @@ import { resolveIsAdminSession } from "@/lib/auth/resolveIsAdminSession";
 import { PublicEventListCard } from "@/components/molecules/PublicEventListCard";
 import { loadPublicEventSurfaceVariant } from "@/lib/events/publicEventSurfaceVariant";
 import { publicEventListPageHeaderClasses } from "@/lib/events/publicEventSurfaceClasses";
+import { getBrandForRequest } from "@/lib/brand/server";
+import { buildResolvedPublicShareMetadata } from "@/lib/site/buildResolvedPublicShareMetadata";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -14,11 +16,13 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
-  const dict = await getDictionary(locale);
-  return {
-    title: dict.events.public.metaTitle,
+  const [dict, brand] = await Promise.all([getDictionary(locale), getBrandForRequest()]);
+  return buildResolvedPublicShareMetadata({
+    what: dict.events.public.metaTitle,
+    academyName: brand.name,
     description: dict.events.public.metaDescription,
-  };
+    path: `/${locale}/events`,
+  });
 }
 
 export default async function PublicEventsPage({ params, searchParams }: PageProps) {

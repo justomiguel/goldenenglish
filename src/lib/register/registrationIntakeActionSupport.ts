@@ -10,6 +10,7 @@ import { getRegistrationMailTenantDomain } from "@/lib/register/registrationMail
 import { buildRegistrationPayBlock } from "@/lib/register/buildRegistrationPayBlock";
 import { sendBrandedEmail } from "@/lib/email/templates/sendBrandedEmail";
 import { absoluteUrl } from "@/lib/site/publicUrl";
+import { buildMatriculaPayPath } from "@/lib/site/publicSharePaths";
 import { formatMoneyLabel } from "@/lib/billing/formatMoneyLabel";
 import {
   snapshotCurrencyFromUnknown,
@@ -92,7 +93,7 @@ export async function emailRegistrationReceiptRejected(
     studentEmailIsSynthetic: synthetic,
   });
   if (!familyEmail || !lead.pay_token) return;
-  const origin = absoluteUrl(`/${locale}/matricula/${lead.pay_token}`);
+  const origin = absoluteUrl(buildMatriculaPayPath(locale, "", lead.pay_token));
   const total = snapshotTotalFromUnknown(lead.fee_snapshot);
   const currency = snapshotCurrencyFromUnknown(lead.fee_snapshot);
   const amountLabel = total > 0 ? formatMoneyLabel(total, currency, locale) : "";

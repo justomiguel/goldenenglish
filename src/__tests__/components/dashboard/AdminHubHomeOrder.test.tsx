@@ -2,7 +2,7 @@
 // Spec 7, Test 5: In AdminHubHome's output, the payments metric appears
 // BEFORE the birthdays card in document order. The birthdays tour anchor
 // (data-tour="admin-hub-birthdays") must still be present.
-import { describe, it, expect } from "vitest";
+import { beforeEach, describe, it, expect } from "vitest";
 import { render } from "@testing-library/react";
 import { AdminHubHome } from "@/components/dashboard/AdminHubHome";
 import { dictEn } from "@/test/dictEn";
@@ -20,6 +20,22 @@ const SUMMARY: AdminHubSummary = {
 };
 
 describe("AdminHubHome — admin order (Test 5)", () => {
+  beforeEach(() => {
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      configurable: true,
+      value: (query: string) => ({
+        matches: false,
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        addListener: () => undefined,
+        removeListener: () => undefined,
+        dispatchEvent: () => false,
+      }),
+    });
+  });
+
   it("the payments metric card appears before the birthdays card in document order", () => {
     const { container } = render(
       <AdminHubHome
@@ -43,6 +59,14 @@ describe("AdminHubHome — admin order (Test 5)", () => {
     const relation = paymentsAnchor.compareDocumentPosition(birthdaysAnchor);
     const birthdaysIsAfterPayments = !!(relation & Node.DOCUMENT_POSITION_FOLLOWING);
     expect(birthdaysIsAfterPayments, "birthdays must come AFTER payments in DOM").toBe(true);
+
+    const trafficAnchor = container.querySelector('[data-tour="admin-hub-traffic"]');
+    expect(trafficAnchor, "traffic anchor must exist").toBeTruthy();
+    if (!trafficAnchor) return;
+    const trafficAfterPayments = !!(
+      paymentsAnchor.compareDocumentPosition(trafficAnchor) & Node.DOCUMENT_POSITION_FOLLOWING
+    );
+    expect(trafficAfterPayments, "traffic must come AFTER payments in DOM").toBe(true);
   });
 
   it("metric cards use a raised 3d relief", () => {
@@ -100,26 +124,18 @@ describe("AdminHubHome — admin order (Test 5)", () => {
       />,
     );
 
+    const grid = container.querySelector("[data-admin-home-grid]");
     const traffic = container.querySelector('[data-tour="admin-hub-traffic"]');
-    const leftCol = traffic?.parentElement;
-    const opsGrid = leftCol?.parentElement;
-    const metricsRow = leftCol?.querySelector(":scope > .grid");
-    const peopleCol = container.querySelector('[data-tour="admin-hub-users"]')?.parentElement;
-    const tokens = (el: Element | null | undefined) => (el?.className ?? "").split(/\s+/);
+    const birthdays = container.querySelector('[data-tour="admin-hub-birthdays"]');
+    const users = container.querySelector('[data-tour="admin-hub-users"]');
+    const tokens = (el: Element | null) => (el?.className ?? "").split(/\s+/);
 
-    expect(opsGrid, "ops grid must wrap traffic + people").toBeTruthy();
-    expect(tokens(opsGrid)).not.toContain("flex-1");
-    expect(tokens(opsGrid)).not.toContain("min-h-0");
-    expect(tokens(opsGrid)).not.toContain("lg:min-h-0");
-    expect(opsGrid?.className).toContain("lg:flex-1");
-    expect(tokens(leftCol)).not.toContain("min-h-0");
-    expect(tokens(leftCol)).not.toContain("lg:min-h-0");
-    expect(tokens(peopleCol)).not.toContain("min-h-0");
-    expect(tokens(peopleCol)).not.toContain("lg:min-h-0");
-    expect(tokens(metricsRow)).not.toContain("sm:grid-cols-3");
-    expect(tokens(metricsRow)).not.toContain("lg:grid-cols-3");
-    expect(metricsRow?.className).toContain("auto-fit");
-    expect(metricsRow?.className).toContain("minmax");
+    expect(grid, "home grid must exist").toBeTruthy();
+    expect(grid?.className).toContain("lg:grid-cols-12");
+    expect(grid?.className).toContain("lg:flex-1");
+    expect(tokens(grid)).not.toContain("min-h-0");
     expect(tokens(traffic)).toContain("shrink-0");
+    expect(tokens(birthdays)).not.toContain("min-h-0");
+    expect(tokens(users?.parentElement ?? null)).not.toContain("min-h-0");
   });
 });

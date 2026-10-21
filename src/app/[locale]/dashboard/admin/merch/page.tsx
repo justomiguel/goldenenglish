@@ -72,5 +72,12 @@ export default async function AdminMerchPage({ params }: PageProps) {
     };
   });
 
-  return <AdminMerchEntry locale={locale} initialRows={list} labels={dict.admin.merch} />;
+  return (
+    <AdminMerchEntry
+      locale={locale}
+      initialRows={list}
+      labels={dict.admin.merch}
+      fileUploadProgress={dict.common.fileUpload}
+    />
+  );
 }

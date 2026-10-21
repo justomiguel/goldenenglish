@@ -28,7 +28,7 @@ export function buildStudentBadgeDisplayRows(params: {
   catalog: ReadonlyArray<BadgeCatalogEntry>;
   grants: BadgeGrantRow[];
   ctx: StudentBadgeEvaluationContext;
-  shareUrlForToken: (token: string) => string;
+  shareUrlForToken: (token: string, title?: string) => string;
 }): StudentBadgeRowModel[] {
   const { catalog, grants, ctx, shareUrlForToken } = params;
   const grantByCode = new Map<string, BadgeGrantRow>();
@@ -48,7 +48,10 @@ export function buildStudentBadgeDisplayRows(params: {
         id: grant.id,
         badgeCode: entry.code,
         earnedAt: grant.earned_at,
-        shareUrl: shareUrlForToken(grant.public_share_token),
+        shareUrl: shareUrlForToken(
+          grant.public_share_token,
+          entry.translations.es?.title ?? entry.translations.en?.title ?? entry.code,
+        ),
         locked: false,
         progress: null,
         catalog: catalogToRowCatalog(entry),
@@ -78,7 +81,7 @@ export function buildStudentBadgeDisplayRows(params: {
       id: grant.id,
       badgeCode: grant.badge_code,
       earnedAt: grant.earned_at,
-      shareUrl: shareUrlForToken(grant.public_share_token),
+      shareUrl: shareUrlForToken(grant.public_share_token, grant.badge_code),
       locked: false,
       progress: null,
       catalog: undefined,

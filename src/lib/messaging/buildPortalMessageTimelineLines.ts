@@ -66,6 +66,8 @@ export type PortalMessageTimelineLine = {
   from_me: boolean;
   body_html: string;
   created_at: string;
+  peer_id: string;
+  peer_role: string;
   peer_name: string;
   incoming_label: string;
   can_delete: boolean;
@@ -167,6 +169,8 @@ export function buildPortalMessageTimelineLines(params: {
       body_html: m.body_html,
       created_at: m.created_at,
       can_delete: canDelete,
+      peer_id: peerId,
+      peer_role: peerRole,
       peer_name: peerName,
       incoming_label: incomingLabel,
       broadcast_batch_id: m.broadcast_batch_id,

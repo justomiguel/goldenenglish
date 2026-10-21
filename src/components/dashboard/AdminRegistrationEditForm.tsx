@@ -21,6 +21,14 @@ export interface AdminRegistrationEditFormProps {
   onClose: () => void;
   onSuccess: () => void;
   labels: Dictionary["admin"]["registrations"];
+  /** Replaces the draft update. Used when the form creates a new request. */
+  submitAction?: (
+    locale: string,
+    payload: RegistrationDraftPayload,
+  ) => Promise<{ ok: boolean; message?: string }>;
+  saveLabel?: string;
+  /** CEFR institutes store a CEFR code. Other institutes keep the section label. */
+  usesCefrLevel?: boolean;
 }
 
 export function AdminRegistrationEditForm({
@@ -31,6 +39,9 @@ export function AdminRegistrationEditForm({
   onClose,
   onSuccess,
   labels,
+  submitAction,
+  saveLabel,
+  usesCefrLevel = false,
 }: AdminRegistrationEditFormProps) {
   const [firstName, setFirstName] = useState(row.first_name);
   const [lastName, setLastName] = useState(row.last_name);
@@ -62,14 +73,14 @@ export function AdminRegistrationEditForm({
       email: email.trim(),
       phone: phone.trim(),
       birth_date: birth.trim(),
-      level_interest: level.trim().toUpperCase() as RegistrationDraftPayload["level_interest"],
+      level_interest: (usesCefrLevel ? level.trim().toUpperCase() : "") as RegistrationDraftPayload["level_interest"],
       tutor_name: tutorName.trim(),
       tutor_dni: tutorDni.trim(),
       tutor_email: tutorEmail.trim(),
       tutor_phone: tutorPhone.trim(),
       tutor_relationship: tutorRel.trim(),
     };
-    const res = await updateRegistrationDraft(locale, payload);
+    const res = await (submitAction ?? updateRegistrationDraft)(locale, payload);
     onBusy(null);
     if (res.ok) {
       onClose();
@@ -143,18 +154,20 @@ export function AdminRegistrationEditForm({
         <Label htmlFor="ed-bd">{labels.birthDate}</Label>
         <Input id="ed-bd" type="date" value={birth} onChange={(e) => setBirth(e.target.value)} className="mt-1 w-full" />
       </div>
-      <div>
-        <Label htmlFor="ed-lv">{labels.level}</Label>
-        <Input
-          id="ed-lv"
-          value={level}
-          onChange={(e) => setLevel(e.target.value.toUpperCase())}
-          className="mt-1 w-full"
-          placeholder={labels.editLevelPlaceholder}
-          maxLength={2}
-        />
-        <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.editLevelHint}</p>
-      </div>
+      {usesCefrLevel ? (
+        <div>
+          <Label htmlFor="ed-lv">{labels.level}</Label>
+          <Input
+            id="ed-lv"
+            value={level}
+            onChange={(e) => setLevel(e.target.value.toUpperCase())}
+            className="mt-1 w-full"
+            placeholder={labels.editLevelPlaceholder}
+            maxLength={2}
+          />
+          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">{labels.editLevelHint}</p>
+        </div>
+      ) : null}
       <div className="rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-muted)]/20 p-3">
         <p className="text-sm font-semibold text-[var(--color-primary)]">{labels.tutorOnRequestTitle}</p>
         <div className="mt-2 grid gap-3 sm:grid-cols-2">
@@ -198,7 +211,7 @@ export function AdminRegistrationEditForm({
         </Button>
         <Button type="submit" className="min-h-[44px] px-4" disabled={busy} isLoading={busy}>
           {busy ? null : <Save className="h-4 w-4 shrink-0" aria-hidden />}
-          {labels.editSave}
+          {saveLabel ?? labels.editSave}
         </Button>
       </div>
     </form>

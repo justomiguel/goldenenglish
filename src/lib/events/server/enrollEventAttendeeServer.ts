@@ -35,6 +35,8 @@ export interface EnrollEventAttendeeServerInput {
   /** Claim only. The charged amount is recomputed on the server. */
   familyDiscountClaimed?: boolean;
   currency?: string | null;
+  /** Code text. The server computes the amount. Empty means no code. */
+  discountCode?: string | null;
 }
 
 export interface EnrollEventAttendeeServerResult {
@@ -52,8 +54,12 @@ export interface EnrollEventAttendeeServerResult {
 async function callEnrollRpc(
   client: SupabaseClient,
   input: EnrollEventAttendeeServerInput,
+  discountCode: string,
 ): Promise<EnrollEventAttendeeServerResult> {
-  const { data, error } = await client.rpc("enroll_event_attendee", {
+  const flowUnitPrice = input.registrationFlow?.price;
+  const { data, error } = await client.rpc(
+    discountCode ? "enroll_event_attendee_with_discount" : "enroll_event_attendee",
+    {
     p_event_id: input.eventId,
     p_user_id: input.userId ?? null,
     p_first_name: input.firstName,
@@ -74,6 +80,12 @@ async function callEnrollRpc(
     p_field_values: serializeEventFieldValuesForEnrollRpc(input.fieldValues),
     p_ticket_package_id: input.ticketPackageId ?? null,
     p_companions: serializeCompanionsForEnrollRpc(input.companions ?? []),
+    ...(discountCode
+      ? {
+          p_discount_code: discountCode,
+          p_flow_unit_price: flowUnitPrice == null ? null : flowUnitPrice,
+        }
+      : {}),
   });
 
   if (error) {
@@ -124,11 +136,14 @@ export async function enrollEventAttendeeServer(
   input: EnrollEventAttendeeServerInput,
 ): Promise<EnrollEventAttendeeServerResult> {
   const admin = createAdminClient();
-  const result = await callEnrollRpc(admin, input);
+  const discountCode = input.discountCode?.trim() ?? "";
+  if (discountCode && input.familyDiscountClaimed === true) return failure("discount_conflict");
+
+  const result = await callEnrollRpc(admin, input, discountCode);
   if (!result.attendeeId || !ENROLL_MAIL_CODES.has(result.resultCode)) return result;
 
   const flow = input.registrationFlow;
-  const claimed = input.familyDiscountClaimed === true;
+  const claimed = !discountCode && input.familyDiscountClaimed === true;
   const currency = input.currency?.trim() || "CLP";
   const charge =
     flow?.price == null
@@ -144,7 +159,7 @@ export async function enrollEventAttendeeServer(
       registration_locale: parseEventEmailLocale(input.locale),
       family_discount_claimed: claimed,
       ...(flow ? { registration_flow_id: flow.id } : {}),
-      ...(charge ? { status: charge.status } : {}),
+      ...(!discountCode && charge ? { status: charge.status } : {}),
     })
     .eq("id", result.attendeeId);
   if (error) {
@@ -160,12 +175,13 @@ export async function enrollEventAttendeeServer(
   });
 
   const baseTotal = charge?.totalAmount ?? result.totalAmount;
-  const totalAmount =
-    baseTotal == null
+  const totalAmount = discountCode
+    ? result.totalAmount
+    : baseTotal == null
       ? null
       : applyEventFamilyDiscount({ amount: baseTotal, claimed, currency });
 
-  if (!charge) return { ...result, totalAmount };
+  if (!charge || discountCode) return { ...result, totalAmount };
   return {
     ...result,
     attendeeStatus: charge.status,

@@ -1,3 +1,4 @@
+import { AdminEventDuplicateButton } from "@/components/dashboard/admin/events/AdminEventDuplicateButton";
 import { AdminEventPublishBar } from "@/components/dashboard/admin/events/AdminEventPublishBar";
 import { AdminEventShowOnHomeToggle } from "@/components/dashboard/admin/events/AdminEventShowOnHomeToggle";
 import { AdminEventSummaryScheduleForm } from "@/components/dashboard/admin/events/AdminEventSummaryScheduleForm";
@@ -47,6 +48,7 @@ export function AdminEventDetailSummaryTab({
           publishedHint: detail.publishedHint,
         }}
       />
+      <AdminEventDuplicateButton locale={locale} eventId={eventId} labels={detail.duplicate} />
       <AdminEventShowOnHomeToggle
         locale={locale}
         eventId={eventId}
@@ -123,6 +125,7 @@ export function AdminEventDetailSummaryTab({
         initialTranslations={translations}
         editorLabels={dict.admin.cms.blog.editor}
         academicLabels={dict.dashboard.adminContents}
+        fileUploadProgress={dict.common.fileUpload}
         labels={{
           sectionTitle: i18n.sectionTitle,
           localeTabsAria: i18n.localeTabsAria,

@@ -1,6 +1,7 @@
 "use client";
 
-import { Pencil, Trash2, UserPlus } from "lucide-react";
+import { useState } from "react";
+import { Check, MessageCircle, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 import { RegistrationContactCell } from "@/components/dashboard/RegistrationContactCell";
 import type { Dictionary } from "@/types/i18n";
@@ -9,7 +10,7 @@ import { RegistrationExistingStudentBadge } from "@/components/dashboard/Registr
 import { formatRegistrationLevelInterestDisplay } from "@/lib/register/formatRegistrationLevelInterestDisplay";
 import { formatProfileNameSurnameFirst } from "@/lib/profile/formatProfileDisplayName";
 import { formatCivilIsoDateForDisplay } from "@/lib/calendar/civilGregorianDate";
-import { AdminRegistrationChargeActions } from "@/components/dashboard/AdminRegistrationChargeActions";
+import { AdminRegistrationActionsSheet } from "@/components/pwa/molecules/AdminRegistrationActionsSheet";
 import { registrationInboxPrimaryKind } from "@/lib/register/registrationInboxPrimaryKind";
 import { registrationIntentLabel } from "@/lib/register/registrationIntentLabel";
 import { AdminRegistrationIntakeActions } from "@/components/dashboard/AdminRegistrationIntakeActions";
@@ -59,18 +60,19 @@ export function AdminRegistrationPwaCard({
   onIntakeDone,
 }: AdminRegistrationPwaCardProps) {
   const canAccept = registrationInboxPrimaryKind(r) === "accept";
-  const isPending = r.status === "new";
+  const [actionsOpen, setActionsOpen] = useState(false);
   const birthDisplay =
     formatCivilIsoDateForDisplay(locale, r.birth_date, {
       year: "numeric",
       month: "short",
       day: "numeric",
     }) ?? labels.emptyValue;
+  const whatsAppDigits = contact.tutor?.whatsAppDigits ?? contact.student?.whatsAppDigits ?? null;
+  const phoneLine = contact.tutor?.phoneDisplay || contact.student?.phoneDisplay || "";
+  const displayName = formatProfileNameSurnameFirst(r.first_name, r.last_name);
   const receivedDisplay = r.created_at
     ? new Date(r.created_at).toLocaleString(locale)
     : labels.emptyValue;
-  const deleteBtnClass =
-    "min-h-[44px] border-2 border-[var(--color-error)] bg-[var(--color-surface)] p-0 text-[var(--color-error)] shadow-sm hover:bg-[color-mix(in_srgb,var(--color-error)_10%,var(--color-surface))] hover:text-[var(--color-error)] focus-visible:ring-2 focus-visible:ring-[var(--color-error)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-background)]";
 
   return (
     <li
@@ -83,7 +85,7 @@ export function AdminRegistrationPwaCard({
     >
       <div className="space-y-2">
         <p className="break-words font-medium text-[var(--color-foreground)]">
-          {formatProfileNameSurnameFirst(r.first_name, r.last_name)}
+          {displayName}
           {r.existingStudentId ? <RegistrationExistingStudentBadge labels={labels} /> : null}
           {contact.isMinor ? (
             <span className="ml-2 whitespace-nowrap rounded-full border border-[var(--color-border)] px-2 py-0.5 text-xs font-normal text-[var(--color-muted-foreground)]">
@@ -174,75 +176,53 @@ export function AdminRegistrationPwaCard({
             onDone={onIntakeDone}
           />
         ) : null}
-        <button
-          type="button"
-          className="min-h-[44px] text-sm underline decoration-dotted underline-offset-2 disabled:opacity-50"
-          title={isPending ? labels.markContactedTip : labels.revertToNewTip}
-          disabled={busy}
-          onClick={() => (isPending ? onMarkContacted(r) : onRevertToNew(r))}
-        >
-          {isPending ? labels.markContacted : labels.revertToNew}
-        </button>
-        <AdminRegistrationChargeActions
-          row={r}
-          labels={labels}
-          busy={busy}
-          buttonClassName="min-h-[44px] w-full"
-          onStartEnrollmentFee={onStartEnrollmentFee}
-          onStartJoinCharge={onStartJoinCharge}
-        />
-        <div
-          className={
-            canAccept
-              ? "grid w-full min-w-0 grid-cols-3 gap-2 pt-2"
-              : "flex justify-end pt-2"
-          }
-        >
+        <div className="flex items-center gap-2">
+          {whatsAppDigits ? (
+            <a
+              href={`https://wa.me/${whatsAppDigits}`}
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-sm font-semibold text-[var(--color-foreground)]"
+            >
+              <MessageCircle className="h-4 w-4" aria-hidden />
+              {labels.whatsappCta}
+            </a>
+          ) : null}
           {canAccept ? (
-            <>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                aria-label={labels.accept}
-                title={labels.tipAccept}
-                className="min-h-[44px] w-full border border-[color-mix(in_srgb,var(--color-secondary-foreground)_22%,transparent)] px-0"
-                disabled={busy}
-                onClick={() => onAccept(r)}
-              >
-                <UserPlus
-                  className="h-4 w-4 shrink-0 text-[var(--color-secondary-foreground)]"
-                  strokeWidth={2.25}
-                  aria-hidden
-                />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                aria-label={labels.editTitle}
-                title={labels.tipEditRow}
-                className="min-h-[44px] w-full border border-[var(--color-border)] bg-[var(--color-surface)] px-0 hover:bg-[var(--color-muted)]"
-                disabled={busy}
-                onClick={() => onEdit(r)}
-              >
-                <Pencil className="h-4 w-4 shrink-0 text-[var(--color-foreground)]" strokeWidth={2.25} aria-hidden />
-              </Button>
-            </>
+            <Button type="button" className="min-h-11 flex-1" disabled={busy} onClick={() => onAccept(r)}>
+              <Check className="h-4 w-4" aria-hidden />
+              {labels.accept}
+            </Button>
           ) : null}
           <Button
             type="button"
-            variant="ghost"
-            size="sm"
-            aria-label={labels.delete}
-            title={labels.tipDeleteRow}
-            className={`${deleteBtnClass} ${canAccept ? "w-full" : "min-w-[44px] shrink-0"}`}
-            disabled={busy}
-            onClick={() => onDelete(r)}
+            variant="secondary"
+            className="min-h-11 min-w-11 px-2"
+            aria-label={labels.moreActionsAria.replace("{{name}}", displayName)}
+            onClick={() => setActionsOpen(true)}
           >
-            <Trash2 className="h-4 w-4 shrink-0 text-[var(--color-error)]" strokeWidth={2.25} aria-hidden />
+            <MoreHorizontal className="h-4 w-4" aria-hidden />
           </Button>
         </div>
+        <p className="truncate text-xs text-[var(--color-muted-foreground)]">
+          {[formatRegistrationLevelInterestDisplay(labels, r.level_interest), birthDisplay, r.dni]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+        <p className="truncate text-xs text-[var(--color-muted-foreground)]">
+          {[phoneLine, r.email].filter(Boolean).join(" · ")}
+        </p>
+        <AdminRegistrationActionsSheet
+          open={actionsOpen}
+          onOpenChange={setActionsOpen}
+          row={r}
+          busy={busy}
+          labels={labels}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onMarkContacted={onMarkContacted}
+          onRevertToNew={onRevertToNew}
+          onStartEnrollmentFee={onStartEnrollmentFee}
+          onStartJoinCharge={onStartJoinCharge}
+        />
       </div>
     </li>
   );

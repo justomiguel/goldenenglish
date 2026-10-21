@@ -54,6 +54,7 @@ describe("loadPublicCatalog", () => {
     await expect(loadPublicCatalog()).resolves.toEqual([
       {
         id: "hoodie",
+        slug: "",
         title: "Hoodie",
         imageUrl: "https://cdn.test/products/hoodie.jpg",
         soldOut: false,

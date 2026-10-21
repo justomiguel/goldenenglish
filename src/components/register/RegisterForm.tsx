@@ -19,6 +19,8 @@ import { RegisterNagoExtras } from "@/components/register/RegisterNagoExtras";
 import { collectRegisterExtrasPrefill } from "@/lib/register/packs/nago/collectRegisterExtrasPrefill";
 import { publicRegistrationInputFromFormData } from "@/lib/register/publicRegistrationInputFromFormData";
 
+const PUBLIC_FORM_CLASS = "w-full min-w-0 space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-card)] ring-1 ring-[var(--color-primary)]/[0.06]";
+const EMBEDDED_FORM_CLASS = "w-full min-w-0 space-y-4";
 type RegisterStep = "student" | "confirm" | "details" | "extras";
 
 interface RegisterFormProps {
@@ -29,6 +31,9 @@ interface RegisterFormProps {
   enrollmentLink?: SectionEnrollmentLinkContext;
   extrasPack?: RegistrationExtrasPackId | null;
   intent?: RegisterIntent;
+  embedded?: boolean;
+  onRegistered?: () => void;
+  onLeave?: () => void;
 }
 
 export function RegisterForm({
@@ -39,6 +44,9 @@ export function RegisterForm({
   enrollmentLink,
   extrasPack = null,
   intent = "reserve",
+  embedded = false,
+  onRegistered,
+  onLeave,
 }: RegisterFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [step, setStep] = useState<RegisterStep>("student");
@@ -129,15 +137,12 @@ export function RegisterForm({
         formRef.current?.reset();
         resetOutcome();
         setSuccessOpen(true);
+        onRegistered?.();
         return;
       }
-      if (res.message === dict.closed) {
-        setMsgTone("muted");
-        setMsg(dict.closed);
-      } else {
-        setMsgTone("error");
-        setMsg(res.message?.trim() || dict.error);
-      }
+      const closed = res.message === dict.closed;
+      setMsgTone(closed ? "muted" : "error");
+      setMsg(closed ? dict.closed : res.message?.trim() || dict.error);
     } finally {
       setBusy(false);
     }
@@ -150,11 +155,13 @@ export function RegisterForm({
         open={successOpen}
         onOpenChange={setSuccessOpen}
         dict={dict}
+        onHome={onLeave}
       />
       <form
         ref={formRef}
         onSubmit={onSubmit}
-        className="w-full min-w-0 space-y-4 rounded-[var(--layout-border-radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-card)] ring-1 ring-[var(--color-primary)]/[0.06]"
+        data-extras-pack={extrasPack ?? "none"}
+        className={embedded ? EMBEDDED_FORM_CLASS : PUBLIC_FORM_CLASS}
       >
         <input type="hidden" name="intent" value={intent} />
         <RegisterStudentFieldset

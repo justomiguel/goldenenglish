@@ -66,6 +66,7 @@ export default async function AdminEventDetailPage({ params, searchParams }: Pag
         counts={{
           attendees: model.attendees.totalCount,
           payments: pendingPayments > 0 ? pendingPayments : undefined,
+          codes: model.discountCodeCount > 0 ? model.discountCodeCount : undefined,
         }}
         labels={{
           tabsAria: detail.tabsAria,
